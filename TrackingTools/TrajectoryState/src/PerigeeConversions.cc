@@ -15,7 +15,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();
   double field  = originalFTS.parameters().magneticField().inInverseGeV(originalFTS.position()).z();
-  if (field==0.) throw cms::Exception("PerigeeConversions", "Field is 0") << " at " << originalFTS.position() << "\n" ;
+//   if (field==0.) throw cms::Exception("PerigeeConversions", "Field is 0") << " at " << originalFTS.position() << "\n" ;
 
   double positiveMomentumPhi = ( (phi>0) ? phi : (2*M_PI+phi) );
   double positionPhi = impactDistance.phi();
@@ -33,7 +33,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   AlgebraicVector5 theTrackParameters;
 
   double signTC = - originalFTS.charge();
-  bool isCharged = (signTC!=0);
+  bool isCharged = (signTC!=0) && (fabs(field)>1.e-10);
   if (isCharged) {
     theTrackParameters[0] = field / pt*signTC;
   } else {
@@ -136,9 +136,10 @@ GlobalVector PerigeeConversions::momentumFromPerigee
   double pt;
   if (momentum[0]==0.) throw cms::Exception("PerigeeConversions", "Track with rho=0");
 
-  if (charge!=0) {
-    pt = std::abs(field->inInverseGeV(referencePoint).z() / momentum[0]);
-    if (pt==0.) throw cms::Exception("PerigeeConversions", "Field is 0");
+  double bz = fabs(field->inInverseGeV(referencePoint).z());
+  if ( charge!=0 && bz>1.e-10 ) {
+    pt = std::abs(bz/momentum[0]);
+    if (pt<1.e-10) throw cms::Exception("PerigeeConversions", "pt is 0");
   } else {
     pt = 1 / momentum[0];
   }
@@ -195,9 +196,9 @@ PerigeeConversions::jacobianParameters2Cartesian(
 {
   if (momentum[0]==0.) throw cms::Exception("PerigeeConversions", "Track with rho=0");
   double factor = 1.;
-  if (charge!=0) {
-    double bField = field->inInverseGeV(position).z();
-    if (bField==0.) throw cms::Exception("PerigeeConversions", "Field is 0");
+  double bField = field->inInverseGeV(position).z();
+  if (charge!=0 && fabs(bField)>1.e-10) {
+//     if (bField==0.) throw cms::Exception("PerigeeConversions", "Field is 0");
     factor = -bField*charge;
   }
   AlgebraicMatrix66 frameTransJ;

@@ -766,9 +766,9 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   // use all hits except the first n (from seed), but require minimum
   // specified in configuration.
   //  Swapped over next two lines.
-  unsigned int nHitMin = max(oldMeasurements.size()-nSeed,theMinNrOfHitsForRebuild);
+  unsigned int nHitMin = max(candidate.foundHits()-nSeed,theMinNrOfHitsForRebuild);
   //  unsigned int nHitMin = oldMeasurements.size()-nSeed;
-  // we want to rebuild only if the number of measurements excluding the seed measurements is higher than the cut
+  // we want to rebuild only if the number of VALID measurements excluding the seed measurements is higher than the cut
   if (nHitMin<theMinNrOfHitsForRebuild){
 	fittedTracks.clear();
     	return;

@@ -23,8 +23,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4ProtonBuilder_WP.cc,v 1.1 2006/10/31 11:35:03 gunter Exp $
-// GEANT4 tag $Name: geant4-09-01-patch-02 $
+// $Id: G4ProtonBuilder_WP.cc,v 1.1 2009/02/04 17:01:54 syjun Exp $
+// GEANT4 tag $Name: V03-01-08 $
 //
 //---------------------------------------------------------------------------
 //
@@ -38,12 +38,14 @@
 //
 //----------------------------------------------------------------------------
 //
- #include "G4ParticleDefinition.hh"
- #include "G4ParticleTable.hh"
- #include "G4ProcessManager.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
+#include "G4ProcessManager.hh"
 
- #include "SimG4Core/GFlash/interface/GflashHadronWrapperProcess.h"
- #include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
+#include "SimG4Core/GFlash/interface/GflashHadronWrapperProcess.h"
+#include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
  
  void G4ProtonBuilder_WP::Build()
  {
@@ -55,7 +57,7 @@
    }
    G4ProcessManager * theProcMan = G4Proton::Proton()->GetProcessManager();
    //   theProcMan->AddDiscreteProcess(theProtonInelastic);
-   std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4ProtonInelasticProcess" << std::endl;
+   edm::LogInfo("SimG4CoreGFlash") << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4ProtonInelasticProcess";
    theWrappedProtonInelastic->RegisterProcess(theProtonInelastic);
    theProcMan->AddDiscreteProcess(theWrappedProtonInelastic);
  

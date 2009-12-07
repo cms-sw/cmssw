@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.5 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWTableView.h,v 1.6 2009/06/12 13:40:01 amraktad Exp $
 //
 
 // system include files
@@ -75,7 +75,7 @@ public:
      void selectCollection (Int_t);
      void dataChanged ();
      const FWEventItem *item () const;
-     void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod);
+     void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
      void columnSelected (Int_t iCol, Int_t iButton, Int_t iKeyMod);
      void toggleShowHide ();
      void addColumn ();

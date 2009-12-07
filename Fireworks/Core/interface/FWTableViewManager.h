@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.2.2.6 2009/04/27 02:01:41 jmuelmen Exp $
+// $Id: FWTableViewManager.h,v 1.4 2009/09/23 20:32:33 chrjones Exp $
 //
 
 // system include files
@@ -83,7 +83,6 @@ protected:
      std::vector<const FWEventItem *> m_items;
 
      std::map<std::string, std::vector<TableEntry> > m_tableFormats;
-
 private:
      std::map<std::string, std::vector<TableEntry> >::iterator tableFormatsImpl (const Reflex::Type &key);
      FWTableViewManager(const FWTableViewManager&);    // stop default

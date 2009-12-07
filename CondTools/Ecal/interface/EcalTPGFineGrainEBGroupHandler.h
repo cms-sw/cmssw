@@ -57,11 +57,24 @@ namespace popcon
 			~EcalTPGFineGrainEBGroupHandler(); 
 			
 			std::map<string, int> makeTTEBDetId();
+			
 			void getNewObjects();
+			
 			std::string id() const { return m_name;}
+			
+			void readFromFile(const char* inputFile) ;
+			void writeFile(const char* inputFile);
+
+			
 			EcalCondDBInterface* econn;
 
 		private:
+
+			std::string to_string( char value[]) {
+	    		  std::ostringstream streamOut;
+	    		  streamOut << value;
+	    		  return streamOut.str();
+	  		}
 
 			unsigned long m_firstRun ;
 			unsigned long m_lastRun ;
@@ -75,7 +88,11 @@ namespace popcon
                         std::string m_locationsource;
                         std::string m_name;
 			unsigned int m_runnr;
-
+			std::string m_runtype;
+			string m_i_tag;
+			int m_i_version;
+			int m_i_run_number;
+			int m_i_fgrGroup;
 
 
 	};

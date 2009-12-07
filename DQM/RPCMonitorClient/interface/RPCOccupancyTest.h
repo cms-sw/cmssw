@@ -10,6 +10,8 @@
 #include <vector>
 
 
+
+
 class RPCOccupancyTest:public RPCClient {
 public:
 
@@ -17,12 +19,14 @@ public:
   virtual ~RPCOccupancyTest();
 
   void beginJob(DQMStore *);
-  void beginRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>); 
+  void endRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>); 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
- void endRun(const edm::Run& , const edm::EventSetup& ); 		
+  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
   void endJob();
+  virtual void clientOperation(edm::EventSetup const& c);
+
  protected:
   // void OccupancyDist();
   void fillGlobalME(RPCDetId & , MonitorElement *);
@@ -30,13 +34,12 @@ public:
   
   std::string globalFolder_;
 
- 
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
   int prescaleFactor_;
  
   DQMStore* dbe_;
-  int numberOfDisks_, numberOfRings_;
+  int numberOfDisks_;
  
   float rpcevents_;
 

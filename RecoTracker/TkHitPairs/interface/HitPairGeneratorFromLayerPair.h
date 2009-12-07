@@ -31,6 +31,12 @@ public:
   const Layer & outerLayer() const { return theOuterLayer; }
 
 private:
+
+  void hitPairsWithErrors( const TrackingRegion& ar,
+			   OrderedHitPairs & ap,
+    const edm::Event & iEvent,
+    const edm::EventSetup& iSetup);
+
   LayerCacheType & theLayerCache;
   Layer theOuterLayer;  
   Layer theInnerLayer; 

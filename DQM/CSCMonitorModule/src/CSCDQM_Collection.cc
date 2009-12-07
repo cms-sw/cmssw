@@ -64,7 +64,7 @@ namespace cscdqm {
         DOMNodeList *itemList = docNode->getChildNodes();
 
         CoHisto definitions;
-        for(uint32_t i = 0; i < itemList->getLength(); i++) {
+        for (uint32_t i = 0; i < itemList->getLength(); i++) {
   
           DOMNode* node = itemList->item(i);
           if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
@@ -303,7 +303,8 @@ namespace cscdqm {
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
           if (HistoDef::getHistoIdByName(j->first, hid)) {
-            book(EMUHistoDef(hid), j->second, config->getFOLDER_EMU());
+            EMUHistoDef hdef(hid);
+            book(hdef, j->second, config->getFOLDER_EMU());
           }
         }
       }
@@ -324,7 +325,8 @@ namespace cscdqm {
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
           if (HistoDef::getHistoIdByName(j->first, hid)) {
-            book(DDUHistoDef(hid, dduId), j->second, config->getFOLDER_DDU());
+            DDUHistoDef hdef(hid, dduId);
+            book(hdef, j->second, config->getFOLDER_DDU());
           }
         }
       }
@@ -346,12 +348,14 @@ namespace cscdqm {
         HistoId hid = 0;
         if (HistoDef::getHistoIdByName(j->first, hid)) {
           if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
-              book(CSCHistoDef(hid, crateId, dmbId), j->second, config->getFOLDER_CSC());
+            CSCHistoDef hdef(hid, crateId, dmbId);
+            book(hdef, j->second, config->getFOLDER_CSC());
           } else {
             int from = 0, to = 0;
             if (checkHistoValue(j->second, XML_BOOK_NAME_FROM, from) && checkHistoValue(j->second, XML_BOOK_NAME_TO, to)) {
               for (int k = from; k <= to; k++) {
-                book(CSCHistoDef(hid, crateId, dmbId, k), j->second, config->getFOLDER_CSC());
+                CSCHistoDef hdef(hid, crateId, dmbId, k);
+                book(hdef, j->second, config->getFOLDER_CSC());
               }
             }
           }
@@ -373,7 +377,8 @@ namespace cscdqm {
     if (i != collection.end()) {
       CoHisto::const_iterator j = i->second.find(h::names[hid]);
       if (j != i->second.end()) {
-        book(CSCHistoDef(hid, crateId, dmbId, addId), j->second, config->getFOLDER_CSC());
+        CSCHistoDef hdef(hid, crateId, dmbId, addId);
+        book(hdef, j->second, config->getFOLDER_CSC());
       }
     }
   }

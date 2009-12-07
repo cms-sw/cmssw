@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2008/10/17 23:26:24 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/03/12 04:00:21 $
+ *  $Revision: 1.14 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -162,7 +162,7 @@ float MuonDTSeedFromRecHits::bestEta() const {
       Nseg++;
       sdeta += fabs (eta1-eta2); 
 
-      if ( Nseg > Maxseg ||  Nseg == Maxseg && sdeta < Msdeta ) {
+      if ( Nseg > Maxseg ||  (Nseg == Maxseg && sdeta < Msdeta) ) {
 	Maxseg = Nseg;
 	Msdeta = sdeta;
 	result = eta1;

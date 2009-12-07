@@ -11,7 +11,7 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.14 2008/06/09 17:28:09 ebutz Exp $
+// $Id: MonitorTrackResiduals.h,v 1.15 2008/07/09 18:40:10 ebutz Exp $
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -50,7 +50,7 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
   std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerNormedResiduals;
   HistoClass HitResidual;
   HistoClass NormedHitResiduals;
-  SiStripFolderOrganizer *folder_organizer;
+  SiStripFolderOrganizer folder_organizer;
   unsigned long long m_cacheID_;
   bool reset_me_after_each_run;
   bool ModOn;

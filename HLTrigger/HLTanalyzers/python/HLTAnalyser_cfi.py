@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### GEN objects
     mctruth                         = cms.InputTag("genParticles"),
-    # genEventScale                   = cms.InputTag("genEventScale"),
-    genEventInfo                   = cms.InputTag("generator"),
+    genEventScale                   = cms.InputTag("genEventScale"),
 
     ### SIM objects
     simhits                         = cms.InputTag("g4SimHits"),
@@ -36,6 +35,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     MuCandTag3                      = cms.InputTag("hltL3MuonCandidates"),
     MuIsolTag3                      = cms.InputTag("hltL3MuonIsolations"),
     MuIsolTag2                      = cms.InputTag("hltL2MuonIsolations"),
+    MuLinkTag                       = cms.InputTag("hltL3Muons"),
     ### egamma OpenHLT objects                             
     CandIso                         = cms.InputTag("hltL1IsoRecoEcalCandidate"),
     CandNonIso                      = cms.InputTag("hltL1NonIsoRecoEcalCandidate"),
@@ -61,13 +61,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PixelSeedL1NonIsoLargeWindows   = cms.InputTag("hltL1NonIsoLargeWindowElectronPixelSeeds"),
     IsoEleTrackIsolLargeWindows     = cms.InputTag("hltL1IsoLWEleTrackIsol"),
     NonIsoEleTrackIsolLargeWindows  = cms.InputTag("hltL1NonIsoLWEleTrackIsol"),
-    ### egamma - SiStrip
-    IsoElectronsSiStrip             = cms.InputTag("hltPixelMatchElectronsL1IsoSS"),
-    NonIsoElectronsSiStrip          = cms.InputTag("hltPixelMatchElectronsL1NonIsoSS"),
-    PixelSeedL1IsoSiStrip           = cms.InputTag("hltL1IsoSiStripElectronPixelSeeds"),
-    PixelSeedL1NonIsoSiStrip        = cms.InputTag("hltL1NonIsoSiStripElectronPixelSeeds"),
-    IsoEleTrackIsolSiStrip          = cms.InputTag("hltL1IsoSSEleTrackIsol"),
-    NonIsoEleTrackIsolSiStrip       = cms.InputTag("hltL1NonIsoSSEleTrackIsol"),
 
     ### tau OpenHLT related objects
     HLTTau                          = cms.InputTag("TauOpenHLT"),
@@ -85,19 +78,14 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
 
     ### AlCa OpenHLT related objects
-    EERecHits                   = cms.InputTag("hltEcalRecHitAll","EcalRecHitsEE"),
-    EBRecHits                   = cms.InputTag("hltEcalRecHitAll","EcalRecHitsEB"),
+    EERecHits                   = cms.InputTag("hltEcalRecHit","EcalRecHitsEE"),
+    EBRecHits                   = cms.InputTag("hltEcalRecHit","EcalRecHitsEB"),
     pi0EBRecHits                = cms.InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEB"),
     pi0EERecHits                = cms.InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEE"),
     HBHERecHits                 = cms.InputTag("hltHbhereco"),
     HORecHits                   = cms.InputTag("hltHoreco"),
     HFRecHits                   = cms.InputTag("hltHfreco"),
     IsoPixelTracksL3            = cms.InputTag("hltHITIPTCorrector1E31"),                         
-    IsoPixelTracksL2            = cms.InputTag("hltIsolPixelTrackProd1E31"),
-    IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
-
-    ### Track settings
-    PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
 
     ### AlCa pi0 settings
     clusSeedThr                 = cms.double( 0.5 ),

@@ -1,9 +1,8 @@
-// $Id: Operations.cc,v 1.7 2009/07/13 07:11:17 mommsen Exp $
+// $Id: Operations.cc,v 1.9 2009/09/29 07:58:30 mommsen Exp $
 /// @file: Operations.cc
 
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 
@@ -42,9 +41,9 @@ std::string Operations::stateName() const
   return do_stateName();
 }
 
-void Operations::moveToFailedState( const std::string& reason ) const
+void Operations::moveToFailedState( xcept::Exception& exception ) const
 {
-  do_moveToFailedState( reason );
+  do_moveToFailedState( exception );
 }
 
 
@@ -75,123 +74,65 @@ Operations::do_processI2OFragment( I2OChain& frag ) const
 }
 
 
-void Operations::safeEntryAction( Notifier* n )
+void Operations::safeEntryAction()
 {
   const string unknown = "unknown exception";
   string msg = "Error going into " + stateName() + " state: ";
   try
-    {
-      do_entryActionWork();
-    }
+  {
+    do_entryActionWork();
+  }
   catch( xcept::Exception& e )
-    {
-      try
-        {
-          LOG4CPLUS_FATAL( n->getLogger(),
-                           msg << xcept::stdformat_exception_history(e) );
-          XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
-                                sentinelException, msg, e );
-          n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg + xcept::stdformat_exception_history(e) );
-        }
-      catch(...)
-        {
-          n->localDebug( msg + unknown );
-        }
-    }
+  {
+    XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
+      sentinelException, msg, e );
+    moveToFailedState( sentinelException );
+  }
   catch( std::exception& e )
-    {
-      try
-        {
-          msg += e.what();
-          LOG4CPLUS_FATAL( n->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-
-          n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg );
-        }
-      catch(...)
-        {
-          n->localDebug( msg + unknown );
-        }
-    }
+  {
+    msg += e.what();
+    XCEPT_DECLARE( stor::exception::StateTransition,
+      sentinelException, msg );
+    moveToFailedState( sentinelException );
+  }
   catch(...)
-    {
-      try
-        {
-          msg += "unknown exception";
-          LOG4CPLUS_FATAL( n->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-          n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg );
-        }
-      catch(...)
-        {
-          n->localDebug( msg );
-        }
-    }
+  {
+    msg += "unknown exception";
+    XCEPT_DECLARE( stor::exception::StateTransition,
+      sentinelException, msg );
+    moveToFailedState( sentinelException );
+  }
 }
 
 
-void Operations::safeExitAction( Notifier* n )
+void Operations::safeExitAction()
 {
   const string unknown = "unknown exception";
   string msg = "Error leaving " + stateName() + " state: ";
   try
-    {
-      do_exitActionWork();
-    }
+  {
+    do_exitActionWork();
+  }
   catch( xcept::Exception& e )
-    {
-      try
-        {
-          LOG4CPLUS_FATAL( n->getLogger(),
-                           msg << xcept::stdformat_exception_history(e) );
-          XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
-                                sentinelException, msg, e );
-          n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg + xcept::stdformat_exception_history(e) );
-        }
-      catch(...)
-        {
-          n->localDebug( msg + unknown );
-        }
-    }
+  {
+    XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
+      sentinelException, msg, e );
+    moveToFailedState( sentinelException );
+  }
   catch( std::exception& e )
-    {
-      try
-        {
-          msg += e.what();
-          LOG4CPLUS_FATAL( n->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-
-          n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg );
-        }
-      catch(...)
-        {
-          n->localDebug( msg + unknown );
-        }
-    }
+  {
+    msg += e.what();
+    XCEPT_DECLARE( stor::exception::StateTransition,
+      sentinelException, msg );
+    moveToFailedState( sentinelException );
+  }
   catch(...)
-    {
-      try
-        {
-          msg += "unknown exception";
-          LOG4CPLUS_FATAL( n->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-          n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg );
-        }
-      catch(...)
-        {
-          n->localDebug( msg );
-        }
-    }
+  {
+    msg += "unknown exception";
+    XCEPT_DECLARE( stor::exception::StateTransition,
+      sentinelException, msg );
+    moveToFailedState( sentinelException );
+  }
 }
 
 

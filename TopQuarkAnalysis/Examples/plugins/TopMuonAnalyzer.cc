@@ -14,7 +14,7 @@ TopMuonAnalyzer::TopMuonAnalyzer(const edm::ParameterSet& cfg):
   pt_Muons    = fs->make<TH1F>("pt_of_Muons",      "pt_{Muons}",    100,  0., 300.);
   energy_Muons= fs->make<TH1F>("energy_of_Muons",  "energy_{Muons}",100,  0., 300.);
   eta_Muons   = fs->make<TH1F>("eta_of_Muons",  "eta_{Muons}",      100, -3.,   3.);
-  phi_Muons   = fs->make<TH1F>("phi_of_Muons",  "phi_{Muons}",      100, -5.,   5.);
+  phi_Muons   = fs->make<TH1F>("phi_of_Muons",  "phi_{Muons}",      100, -4.,   4.);
   
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.20 2009/07/27 15:49:29 srappocc Exp $
+// $Id: PATJetProducer.h,v 1.21 2009/09/21 09:10:45 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.20 2009/07/27 15:49:29 srappocc Exp $
+  \version  $Id: PATJetProducer.h,v 1.21 2009/09/21 09:10:45 fronga Exp $
 */
 
 
@@ -83,6 +83,7 @@ namespace pat {
       bool                       addJetCharge_;
       edm::InputTag              jetCharge_;
       bool                       addJetID_;
+      edm::InputTag              jetIDMapLabel_;
       // tools
       GreaterByPt<Jet>                   pTComparator_;
 
@@ -96,7 +97,6 @@ namespace pat {
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
 
       
-      reco::helper::JetIDHelper jetIDHelper_;
 
   };
 

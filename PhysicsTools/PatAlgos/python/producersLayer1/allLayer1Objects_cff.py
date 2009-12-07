@@ -7,6 +7,7 @@ from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.mhtProducer_cff import *
 
 # One module to count objects
 allLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
@@ -17,7 +18,8 @@ allLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("allLayer1Taus"),
         cms.InputTag("allLayer1Photons"),
         cms.InputTag("allLayer1Jets"),
-        cms.InputTag("layer1METs")
+        cms.InputTag("layer1METs"),
+        cms.InputTag("layer1MHTs")        
     )
 )
 
@@ -28,5 +30,6 @@ allLayer1Objects = cms.Sequence(
     makeAllLayer1Photons +
     makeAllLayer1Jets +
     makeLayer1METs +
+    makeLayer1MHTs +    
     allLayer1Summary
 )

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/23 08:45:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/02 14:39:59 $
+ *  $Revision: 1.4 $
  *  \author Jeremy Andrea
  */
 
@@ -687,13 +687,15 @@ int TrackEfficiencyMonitor::compatibleLayers( TrajectoryStateOnSurface theTSOS)
 	}
 	else{
 	  trackCompatibleLayers =  firstLay->nextLayers(*(startTSOS.freeState()),alongMomentum);
-	  std::pair<TrajectoryStateOnSurface, const  DetLayer* > nextLayer = findNextLayer(startTSOS, trackCompatibleLayers, isUpMuon );
-	  if(trackCompatibleLayers.size()!=0  && firstLay != nextLayer.second ){
-	    firstLay  = nextLayer.second;
-	    startTSOS = nextLayer.first;
-	    layers++;         
-	  }
-	  else firstLay=0;
+          if (trackCompatibleLayers.size()!=0 ){ 
+	    std::pair<TrajectoryStateOnSurface, const  DetLayer* > nextLayer = findNextLayer(startTSOS, trackCompatibleLayers, isUpMuon );
+	    if (firstLay != nextLayer.second ){
+	      firstLay  = nextLayer.second;
+	      startTSOS = nextLayer.first;
+	      layers++;         
+	    }
+	    else firstLay=0;
+          }
 	}
 	nwhile++;
 	if(nwhile > 100) break;

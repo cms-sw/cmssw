@@ -64,7 +64,7 @@ void LMFRunList::fetchRuns()
 
   if(m_runTag != empty_rt  ){
     tagID=m_runTag.fetchID();
-    cout <<"tag id="<< tagID << endl;
+    //GHM cout <<"tag id="<< tagID << endl;
     if (!tagID) { 
       return ;
     }
@@ -72,7 +72,7 @@ void LMFRunList::fetchRuns()
 
   m_lmfrunTag.setConnection(m_env, m_conn);
   int lmftagID = m_lmfrunTag.fetchID();
-  cout <<"lmf tag id="<< lmftagID << endl;
+  //GHM  cout <<"lmf tag id="<< lmftagID << endl;
   if (!lmftagID) { 
     return ;
   }
@@ -96,7 +96,7 @@ void LMFRunList::fetchRuns()
     }
     m_conn->terminateStatement(stmt0);
 
-    cout <<"number of LMF runs is ="<< nruns << endl;
+    //GHM    cout <<"number of LMF runs is ="<< nruns << endl;
     
     m_vec_lmfruniov.reserve(nruns);
     
@@ -188,7 +188,7 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
   RunTag empty_rt;
   if(m_runTag != empty_rt  ){
     tagID=m_runTag.fetchID();
-    cout <<"tag id="<< tagID << endl;
+    //GHM    cout <<"tag id="<< tagID << endl;
     if (!tagID) { 
       return ;
     }
@@ -196,7 +196,7 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
 
   m_lmfrunTag.setConnection(m_env, m_conn);
   int lmftagID = m_lmfrunTag.fetchID();
-  cout <<"lmf tag id="<< lmftagID << endl;
+  //GHM  cout <<"lmf tag id="<< lmftagID << endl;
   if (!lmftagID) { 
     return ;
   }
@@ -206,7 +206,7 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
   try {
     Statement* stmt0 = m_conn->createStatement();
 
-    cout <<"query with parameters:"<< lmftagID <<" " <<my_min_run <<" "<<my_max_run << " " << tagID<< endl;
+    //GHM cout <<"query with parameters:"<< lmftagID <<" " <<my_min_run <<" "<<my_max_run << " " << tagID<< endl;
 
     string sqlstr;
     sqlstr = "SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and run_iov.run_num> :min_run and run_iov.run_num< :max_run " ;
@@ -224,7 +224,7 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
     }
     m_conn->terminateStatement(stmt0);
 
-    cout <<"number of LMF runs="<< nruns << endl;
+    //GHM    cout <<"number of LMF runs="<< nruns << endl;
     
     m_vec_lmfruniov.reserve(nruns);
     
@@ -317,13 +317,13 @@ void LMFRunList::fetchLastNRuns( int max_run, int n_runs  )
 
   m_runTag.setConnection(m_env, m_conn);
   int tagID = m_runTag.fetchID();
-  cout <<"tag id="<< tagID << endl;
+  //GHM  cout <<"tag id="<< tagID << endl;
   if (!tagID) { 
     return ;
   }
   m_lmfrunTag.setConnection(m_env, m_conn);
   int lmftagID = m_lmfrunTag.fetchID();
-  cout <<"lmf tag id="<< lmftagID << endl;
+  //GHM  cout <<"lmf tag id="<< lmftagID << endl;
   if (!lmftagID) { 
     return ;
   }
@@ -422,7 +422,7 @@ void LMFRunList::fetchRuns(uint64_t start_micro, int min_run, int end_run)
   RunTag empty_rt;
   if(m_runTag != empty_rt  ){
     tagID=m_runTag.fetchID();
-    cout <<"tag id="<< tagID << endl;
+    //GHM    cout <<"tag id="<< tagID << endl;
     if (!tagID) { 
       return ;
     }
@@ -430,7 +430,7 @@ void LMFRunList::fetchRuns(uint64_t start_micro, int min_run, int end_run)
 
   m_lmfrunTag.setConnection(m_env, m_conn);
   int lmftagID = m_lmfrunTag.fetchID();
-  cout <<"lmf tag id="<< lmftagID << endl;
+  //GHM  cout <<"lmf tag id="<< lmftagID << endl;
   if (!lmftagID) { 
     return ;
   }
@@ -471,7 +471,7 @@ void LMFRunList::fetchRuns(uint64_t start_micro, int min_run, int end_run)
     }
     m_conn->terminateStatement(stmt0);
 
-    cout <<"number of LMF runs="<< nruns << endl;
+    //GHM    cout <<"number of LMF runs="<< nruns << endl;
     
     m_vec_lmfruniov.reserve(nruns);
     

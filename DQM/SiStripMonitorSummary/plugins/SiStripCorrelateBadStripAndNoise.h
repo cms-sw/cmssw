@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id$
+// $Id: SiStripCorrelateBadStripAndNoise.h,v 1.1 2009/08/19 13:28:07 giordano Exp $
 //
 //
 
@@ -60,7 +60,7 @@ private:
   
   void DoAnalysis(const edm::EventSetup&);
   void getHistos(const uint32_t & detid,std::vector<TH2F*>& histos);
-  TH2F* getHisto(const size_t& index);
+  TH2F* getHisto(const long unsigned int& index);
 
   unsigned long long getNoiseCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
   unsigned long long getQualityCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripQualityRcd>().cacheIdentifier();}

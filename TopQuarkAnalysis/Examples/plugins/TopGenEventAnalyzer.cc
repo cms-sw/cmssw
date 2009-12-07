@@ -1,7 +1,5 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopGenEventAnalyzer.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
  
 TopGenEventAnalyzer::TopGenEventAnalyzer(const edm::ParameterSet& cfg):
   inputGenEvent_(cfg.getParameter<edm::InputTag>("genEvent"))

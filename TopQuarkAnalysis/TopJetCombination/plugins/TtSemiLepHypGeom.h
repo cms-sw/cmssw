@@ -27,6 +27,10 @@ class TtSemiLepHypGeom : public TtSemiLepHypothesis  {
 
   int maxNJets_;
   bool useDeltaR_;
+  bool useBTagging_;
+  std::string bTagAlgorithm_;
+  double minBDiscBJets_;
+  double maxBDiscLightJets_;
 };
 
 #endif

@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: EventStreamSelector.h,v 1.4 2009/09/23 13:03:31 mommsen Exp $
 /// @file: EventStreamSelector.h 
 
 #ifndef StorageManager_EventStreamSelector_h
@@ -17,9 +17,9 @@ namespace stor {
      Accepts or rejects an event based on the 
      EventStreamConfigurationInfo
 
-     $Author: dshpakov $
+     $Author: mommsen $
      $Revision: 1.4 $
-     $Date: 2009/07/14 10:34:44 $
+     $Date: 2009/09/23 13:03:31 $
   */
 
   class EventStreamSelector
@@ -52,7 +52,7 @@ namespace stor {
 
     bool _initialized;
     unsigned int _outputModuleId;
-    EventStreamConfigurationInfo _configInfo;
+    const EventStreamConfigurationInfo _configInfo;
 
     boost::shared_ptr<edm::EventSelector> _eventSelector;
 

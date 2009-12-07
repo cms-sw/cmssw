@@ -7,44 +7,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "G4LogicalVolumeStore.hh"
 #include <iostream>
 
 #define debug
 
-CastorNumberingScheme::CastorNumberingScheme(): lvCAST(0),lvCAES(0),lvCEDS(0),
-						lvCAHS(0),lvCHDS(0),lvCAER(0),
-						lvCEDR(0),lvCAHR(0),lvCHDR(0),
-						lvC3EF(0),lvC3HF(0),lvC4EF(0),
-						lvC4HF(0) {
+CastorNumberingScheme::CastorNumberingScheme() {
   edm::LogInfo("ForwardSim") << "Creating CastorNumberingScheme";
-  const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
-  std::vector<lvp>::const_iterator lvcite;
-  for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CAST") == 0) lvCAST = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CAES") == 0) lvCAES = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CEDS") == 0) lvCEDS = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CAHS") == 0) lvCAHS = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CHDS") == 0) lvCHDS = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CAER") == 0) lvCAER = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CEDR") == 0) lvCEDR = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CAHR") == 0) lvCAHR = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CHDR") == 0) lvCHDR = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"C3EF") == 0) lvC3EF = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"C3HF") == 0) lvC3HF = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"C4EF") == 0) lvC4EF = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"C4HF") == 0) lvC4HF = (*lvcite);
-  }
-#ifdef debug
-  LogDebug("ForwardSim") << "CastorNumberingScheme:: LogicalVolume pointers\n"
-			 << lvCAST << " for CAST; " << lvCAES << " for CAES; "
-			 << lvCEDS << " for CEDS; " << lvCAHS << " for CAHS; "
-			 << lvCHDS << " for CHDS; " << lvCAER << " for CAER; "
-			 << lvCEDR << " for CEDR; " << lvCAHR << " for CAHR; "
-			 << lvCHDR << " for CHDR; " << lvC3EF << " for C3EF; "
-			 << lvC3HF << " for C3HF; " << lvC4EF << " for C4EF; "
-			 << lvC4HF << " for C4HF.";
-#endif
 }
 
 CastorNumberingScheme::~CastorNumberingScheme() {
@@ -56,15 +24,17 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
   uint32_t intindex = 0;
 
   uint32_t index=0;
-  int      level, copyno[20];
-  lvp      lvs[20];
-  detectorLevel(aStep, level, copyno, lvs);
+  int      level = detectorLevel(aStep);
 
 #ifdef debug
   LogDebug("ForwardSim") << "CastorNumberingScheme number of levels= " <<level;
 #endif
 
   if (level > 0) {
+    int*      copyno = new int[level];
+    G4String* name   = new G4String[level];
+
+    detectorLevel(aStep, level, copyno, name);
 
     int zside   = 0;
     int sector  = 0;
@@ -73,27 +43,27 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
     //    HcalCastorDetId::Section section;
 
     for (int ich=0; ich  <  level; ich++) {
-      if(lvs[ich] == lvCAST) {
+      if(name[ich] == "CAST") {
 	// Z index +Z = 1 ; -Z = 2
 	zside   = copyno[ich];
-      } else if(lvs[ich] == lvCAES || lvs[ich] == lvCEDS) {
+      } else if(name[ich] == "CAES" || name[ich] == "CEDS") {
 	// sector number for dead material 1 - 8
 	//section = HcalCastorDetId::EM;
 	sector = copyno[ich];
-      } else if(lvs[ich] == lvCAHS || lvs[ich] == lvCHDS) {
+      } else if(name[ich] == "CAHS" || name[ich] == "CHDS") {
 	// sector number for dead material 1 - 8
 	//section = HcalCastorDetId::HAD;
 	sector = copyno[ich];
-      } else if(lvs[ich] == lvCAER || lvs[ich] == lvCEDR) {
+      } else if(name[ich] == "CAER" || name[ich] == "CEDR") {
 	// zmodule number 1-2 for EM section (2 copies)
 	module = copyno[ich];
-      } else if(lvs[ich] == lvCAHR || lvs[ich] == lvCHDR) {
+      } else if(name[ich] == "CAHR" || name[ich] == "CHDR") {
 	//zmodule number 3-14 for HAD section (12 copies)
 	module = copyno[ich] + 2;  
-      } else if(lvs[ich] == lvC3EF || lvs[ich] == lvC3HF) {
+      } else if(name[ich] == "C3EF" || name[ich] == "C3HF") {
 	// sector number for sensitive material 1 - 16
 	sector = sector*2 - 1 ;
-      } else if(lvs[ich] == lvC4EF || lvs[ich] == lvC4HF) {
+      } else if(name[ich] == "C4EF" || name[ich] == "C4HF") {
 	// sector number for sensitive material 1 - 16
 	sector = sector*2 ;
       }
@@ -102,7 +72,7 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
 #ifdef debug
       LogDebug("ForwardSim") << "CastorNumberingScheme  " << "ich = " << ich  
 			     << "copyno" << copyno[ich] << "name = " 
-			     << lvs[ich]->GetName();
+			     << name[ich];
 #endif
     }
     // use for Castor number 9 
@@ -132,6 +102,9 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
 			   << module << " UnitID 0x" << std::hex << intindex 
 			   << std::dec;
 #endif
+
+    delete[] copyno;
+    delete[] name;
   }
   return index;
   
@@ -170,18 +143,25 @@ void CastorNumberingScheme::unpackIndex(const uint32_t& idx, int& z, int& sector
   sector = (idx>>4)&15;
   module= (idx&15);
 }
+
+int CastorNumberingScheme::detectorLevel(const G4Step* aStep) const {
+  
+  //Find number of levels
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  int level = 0;
+  if (touch) level = ((touch->GetHistoryDepth())+1);
+  return level;
+}
   
 void CastorNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
-					  int* copyno, lvp* lvs) const {
+					  int* copyno, G4String* name) const {
  
   //Get name and copy numbers
-  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  level = 0;
-  if (touch) level = ((touch->GetHistoryDepth())+1);
   if (level > 0) {
+    const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
     for (int ii = 0; ii < level; ii++) {
       int i      = level - ii - 1;
-      lvs[ii]    = touch->GetVolume(i)->GetLogicalVolume();
+      name[ii]   = touch->GetVolume(i)->GetName();
       copyno[ii] = touch->GetReplicaNumber(i);
     }
   }

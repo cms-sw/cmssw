@@ -104,12 +104,11 @@ TrackMon_rs.FolderName          = 'Tracking/TrackParameters'
 TrackMon_rs.doSeedParameterHistos = True
 
 # Clone for General Track (for Collision data)
+
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 TrackMon_gentk = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-TrackMon_gentk.TrackProducer    = 'generalTracks'
-TrackMon_gentk.AlgoName         = 'CKFTk'
-TrackMon_gentk.FolderName       = 'Tracking/TrackParameters'
-TrackMon_gentk.doSeedParameterHistos = True
+TrackMon_gentk.FolderName          = 'Tracking/TrackParameters'
+TrackMon_gentk.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
 
 # Tracking Efficiency
 # Clone for Cosmic Tracks

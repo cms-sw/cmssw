@@ -3,59 +3,49 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import *
 
 
+def patchJetCorrFactors_(jetCorrFactors, newAlgo):
+    """
+    ------------------------------------------------------------------
+    Patch to be called from:
+       * switchJECSet_
+       * switchJECParameters
+    This function can safely be removed as soon as the L7Parton
+    corrections for AK5 and AK7 are available.
+
+    jetCorrFactors : jetCorrFactors module
+    ------------------------------------------------------------------
+    """
+    if (newAlgo == "AK5"):
+        ## voice a note to the user
+        print "NOTE TO USER: L7Parton is currently taken from SC5 instead of AK5 "
+        print "              This is an intermediate solution for the time being."
+        ## redirect the L7Parton correction in case of AK5 or AK7
+        corrLevels = getattr(jetCorrFactors, 'corrLevels').value()
+        corrLevels.L7Parton = corrLevels.L7Parton.value().replace(newAlgo, 'SC5')
+    if (newAlgo == "AK7"):
+        ## voice a note to the user
+        print "NOTE TO USER: L7Parton is currently taken from SC7 instead of AK7 "
+        print "              This is an intermediate solution for the time being."
+        ## redirect the L7Parton correction in case of AK5 or AK7        
+        corrLevels = getattr(jetCorrFactors, 'corrLevels').value()
+        corrLevels.L7Parton = corrLevels.L7Parton.value().replace(newAlgo, 'SC7')
+
+
 def switchJECSet(process,
-                 newName,
-                 oldName
+                 newName
                  ):
     """
     ------------------------------------------------------------------
     replace tags in the JetCorrFactorsProducer for end-users:
 
     process : process
-    newName : new name of JEC module
-    oldName : old name of JEC module
+    newName : new correction sample
     ------------------------------------------------------------------    
     """
-    switchJECSet_(process.jetCorrFactors, newName, oldName)
+    jetCorrFactors = getattr(process, 'jetCorrFactors')
+    jetCorrFactors.corrSample = newName
 
-    
-#def switchJECSet_(jetCorrFactors,
-#                  newName,
-#                  oldName,
-#                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE', 'L7Parton']
-#                  ):
-def switchJECSet_(jetCorrFactors,
-                  newName,
-                  oldName,
-                  steps=['L1Offset', 'L2Relative', 'L3Absolute']
-                  ):
-    """
-    ------------------------------------------------------------------    
-    replace tags in the JetCorrFactorsProducer (inner implementation)
 
-    jetCorrFactors : jetCorrFactors module
-    newName        : new name of JEC module
-    oldName        : old name of JEC module
-    steps          : correction steps in the module
-    ------------------------------------------------------------------    
-    """
-
-    print """NOTE TO USER: All but L1+L2+L3 corrections are currently disabled."""
-    found = False
-    for k in steps:
-        ## loop jet correction steps
-        vv = getattr(jetCorrFactors, k).value();
-        if (vv.find(oldName) != -1):
-            found = True
-        if (vv != "none"):
-            ## replace if the correction steps is not 'none'
-            setattr(jetCorrFactors, k, vv.replace(oldName,newName))
-    if not found:
-        raise RuntimeError,"""
-        Can't replace jet energy correction step %s with %s.
-        The full configuration is %s""" % (oldName, newName, jetCorrFactors.dumpPython())
-
-    
 def switchJECParameters(jetCorrFactors,
                         newAlgo,
                         newType="Calo",
@@ -72,18 +62,29 @@ def switchJECParameters(jetCorrFactors,
     oldAlgo        : label of old jet alog [AK5,  SC5,   KT6, ...]
     oldType        : label of old jet type [Calo, Pflow, Jpt, ...]
     ------------------------------------------------------------------    
-    """    
-    print """NOTE TO USER: All but L1+L2+L3 corrections are currently disabled."""
-#    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE', 'L7Parton']:
-    for k in ['L1Offset', 'L2Relative', 'L3Absolute']:
-        ## loop jet correction steps; the L5Flavor step
-        ## is not in the list as as it is said not to
-        ## dependend on the specific jet algorithm
-        vv = getattr(jetCorrFactors, k).value();
-        if (vv != "none"):
-            ## the first replace is for '*_AK5Calo'
-            ## types, the second for '*_AK5' types            
-            setattr(jetCorrFactors, k, vv.replace(oldAlgo+oldType,newAlgo+newType).replace(oldAlgo,newAlgo) )
+    """
+    ## check jet correction steps; the L5Flavor step
+    ## is not in the list as it is said NOT to be
+    ## dependendent on the specific jet algorithm
+
+    ## do the replacement, the first replacement is newAlgo and newType (as for 
+    ## L2 and L3) the second repleacement is for newAlgo only (as for L5 and L7)
+    def setCorrLevel(corrLevel):
+        if (corrLevel != "none"):
+            return corrLevel.value().replace(oldAlgo+oldType,newAlgo+newType).replace(oldAlgo,newAlgo)
+
+    ## get the parameters and change it's attributes for L1 to L7
+    corrLevels = getattr(jetCorrFactors, 'corrLevels').value()
+    corrLevels.L1Offset   = setCorrLevel(corrLevels.L1Offset  )
+    corrLevels.L2Relative = setCorrLevel(corrLevels.L2Relative)
+    corrLevels.L3Absolute = setCorrLevel(corrLevels.L3Absolute)
+    corrLevels.L4EMF      = setCorrLevel(corrLevels.L4EMF     )
+    corrLevels.L6UE       = setCorrLevel(corrLevels.L6UE      )
+    corrLevels.L7Parton   = setCorrLevel(corrLevels.L7Parton  )
+    ##
+    ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
+    ##
+    patchJetCorrFactors_(jetCorrFactors, newAlgo)    
 
 
 def runBTagging(process,
@@ -134,14 +135,14 @@ def runBTagging(process,
     ## define tag info labels (compare with jetProducer_cfi.py)        
     ipTILabel = 'impactParameterTagInfos'     + label
     svTILabel = 'secondaryVertexTagInfos'     + label
-#    nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
+   #nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
     seTILabel = 'softElectronTagInfos'        + label
     smTILabel = 'softMuonTagInfos'            + label
     
     ## produce tag infos
     setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
     setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-#    setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
+   #setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
     setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
     setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
 
@@ -154,7 +155,7 @@ def runBTagging(process,
     setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
-#    setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
+   #setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
     setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
@@ -171,7 +172,7 @@ def runBTagging(process,
                                                     'trackCountingHighPurBJetTags',
                                                     'trackCountingHighEffBJetTags',
                                                     'simpleSecondaryVertexBJetTags',
-#                                                    'simpleSecondaryVertexNegativeBJetTags',
+                                                   #'simpleSecondaryVertexNegativeBJetTags',
                                                     'combinedSecondaryVertexBJetTags',
                                                     'combinedSecondaryVertexMVABJetTags',
                                                     'softElectronByPtBJetTags',
@@ -206,7 +207,9 @@ def switchJetCollection(process,
                         doBTagging       = True,
                         jetCorrLabel     = None,
                         doType1MET       = True,
-                        genJetCollection = cms.InputTag("ak5GenJets")
+                        genJetCollection = cms.InputTag("ak5GenJets"),
+                        doJetID          = True,
+                        jetIdLabel       = "ak5"
                         ):
     """
     ------------------------------------------------------------------        
@@ -228,7 +231,17 @@ def switchJetCollection(process,
                        the new jet colllection; at the moment it must
                        be 'False' for non CaloJets otherwise the
                        JetMET POG module crashes.
+    doJetID          : run jet id for new jet collection and add it
+                       to the new pat jet collection
     genJetCollection : GenJet collection to match to
+
+    doJetId          : add jetId variables to the added jet collection?
+
+    jetIsLabel       : specify the label prefix of the xxxJetID object;
+                       in general it is the jet collection tag like ak5,
+                       kt4 sc5, aso. For more informatrino have a look
+                       to SWGuidePATTools#switch_JetCollection
+                       
     ------------------------------------------------------------------        
     """
     ## save label of old jet collection
@@ -278,9 +291,19 @@ def switchJetCollection(process,
         process.allLayer1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
         process.allLayer1Jets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
     else:
+        ## remove b tagging from the std sequence
+        process.makeAllLayer1Jets.remove(process.secondaryVertexNegativeTagInfos)
+        process.makeAllLayer1Jets.remove(process.simpleSecondaryVertexNegativeBJetTags)
         ## switch embedding of b tagging for pat
         ## jet production to 'False'
         process.allLayer1Jets.addBTagInfo = False
+
+    if (doJetID):
+        jetIdLabelNew = jetIdLabel + 'JetID'
+        process.allLayer1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
+    else:
+        process.allLayer1Jets.addJetID = cms.bool(False)
+
 
     if (jetCorrLabel!=None):
         ## replace jet energy corrections; catch
@@ -332,7 +355,9 @@ def addJetCollection(process,
                      doType1MET   = True,
                      doL1Cleaning = True,                     
                      doL1Counters = False,
-                     genJetCollection=cms.InputTag("ak5GenJets")
+                     genJetCollection=cms.InputTag("ak5GenJets"),
+                     doJetID      = True,
+                     jetIdLabel   = "ak5"
                      ):
     """
     ------------------------------------------------------------------        
@@ -359,16 +384,23 @@ def addJetCollection(process,
                        the event looking at the number of jets                       
     genJetCollection : GenJet collection to match to
 
+    doJetId          : add jetId variables to the added jet collection?
+
+    jetIsLabel       : specify the label prefix of the xxxJetID object;
+                       in general it is the jet collection tag like ak5,
+                       kt4 sc5, aso. For more informatrino have a look
+                       to SWGuidePATTools#add_JetCollection
+
     this takes the configuration from the already-configured jets as
     starting point; replaces before calling addJetCollection will
     affect also the new jets
     ------------------------------------------------------------------                     
     """    
-    ## add module as process to the default sequence
+    ## add module as process to the makeAllLayer1Jets sequence
     def addAlso(label, value):
         existing = getattr(process, label)
         setattr( process, label+postfixLabel, value)
-        process.patDefaultSequence.replace( existing, existing*value )
+        process.patDefaultSequence.replace( existing, existing*value )        
 
     ## clone and add a module as process to the
     ## default sequence
@@ -407,16 +439,6 @@ def addJetCollection(process,
     fixInputTag(l1Jets.genPartonMatch)
     fixInputTag(l1Jets.JetPartonMapSource)
 
-    ## find potential triggers for trigMatch 
-    ##triggers = MassSearchParamVisitor('src', process.allLayer1Jets.jetSource)
-    ##process.patTrigMatch.visit(triggers)
-    ##for mod in triggers.modules():
-    ##    if (doTrigMatch):
-    ##        newmod = mod.clone(src = jetCollection)
-    ##        setattr( process, mod.label()+postfixLabel, newmod )
-    ##        process.patTrigMatch.replace( mod, mod * newmod )
-    ##for it in l1Jets.trigPrimMatch.value(): fixInputTag(it)
-
     ## make VInputTag from strings 
     def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
@@ -442,7 +464,6 @@ def addJetCollection(process,
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
         ## add b tagging sequence before running the allLayer1Jets modules
         process.makeAllLayer1Jets.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
-
         ## replace corresponding tags for pat jet production
         l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
         l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
@@ -451,6 +472,13 @@ def addJetCollection(process,
         ## switch general b tagging info switch off
         l1Jets.addBTagInfo = False
         
+    if (doJetID):
+        l1Jets.addJetID = cms.bool(True)
+        jetIdLabelNew = jetIdLabel + 'JetID'
+        l1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
+    else :
+        l1Jets.addJetID = cms.bool(False)
+
     if (jetCorrLabel != None):
         ## add clone of jet energy corrections;
         ## catch a couple of exceptions first
@@ -489,18 +517,63 @@ def addJetCollection(process,
             addClone('layer1METs', metSource = cms.InputTag("metJESCorAK5CaloJetMuons"+postfixLabel))
             l1MET = getattr(process, 'layer1METs'+postfixLabel)
 
-            ## find potential triggers for trigMatch             
-            ##mettriggers = MassSearchParamVisitor('src', process.layer1METs.metSource)
-            ##process.patTrigMatch.visit(mettriggers)
-            ##for mod in mettriggers.modules():
-            ##    if doTrigMatch:
-            ##        newmod = mod.clone(src = l1MET.metSource)
-            ##        setattr( process, mod.label()+postfixLabel, newmod )
-            ##        process.patTrigMatch.replace( mod, mod * newmod )
-            ##for it in l1MET.trigPrimMatch.value(): fixInputTag(it)
-
             ## add new met collections output to the pat summary
             process.allLayer1Summary.candidates += [ cms.InputTag('layer1METs'+postfixLabel) ]
     else:
         ## switch jetCorrFactors off
         l1Jets.addJetCorrFactors = False
+
+
+
+
+def addJetID(process,
+             jetSrc,
+             jetIdTag
+             ):
+    """
+    ------------------------------------------------------------------
+    compute jet id for process
+
+    process : process
+    jetIdTag: Tag to append to jet id map
+    ------------------------------------------------------------------    
+    """
+    jetIdLabel = jetIdTag + 'JetID'
+    print "Making new jet ID label with label " + jetIdTag
+
+    ## replace jet id sequence
+    process.load("RecoJets.JetProducers.ak5JetID_cfi")
+    setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
+    process.makeAllLayer1Jets.replace( process.jetPartonMatch, getattr(process,jetIdLabel) + process.jetPartonMatch )
+
+
+
+
+def setTagInfos(process,
+                coll = "allLayer1Jets",
+                tagInfos = cms.vstring( )
+                ):
+    """
+    ------------------------------------------------------------------    
+    replace tag infos for collection jetSrc
+
+    process       : process
+    jetCollection : jet collection to set tag infos for
+    tagInfos      : tag infos to set
+    ------------------------------------------------------------------    
+    """
+    found = False
+    newTags = cms.VInputTag()
+    iNewTags = 0
+    for k in tagInfos :
+        for j in getattr( process, coll ).tagInfoSources :
+            vv = j.value();
+            if ( vv.find(k) != -1 ):
+                found = True
+                newTags.append( j )
+                
+    if not found:
+        raise RuntimeError,"""
+        Cannot replace tag infos in jet collection""" % (coll)
+    else :
+        getattr(process,coll).tagInfoSources = newTags

@@ -23,6 +23,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig)
   : prescaleFactor_(1)
   , eventCount_(0)
   , acceptCount_(0)
+  , offsetCount_(0)
   , prescaleService_(0)
 {
   if(edm::Service<edm::service::PrescaleService>().isAvailable())
@@ -60,10 +61,18 @@ bool HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock & lb,
 
 
 //_____________________________________________________________________________
-bool HLTPrescaler::filter(edm::Event&, const edm::EventSetup&)
+bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
 {
+
+  if (eventCount_==0) {
+    if (prescaleFactor_!=0) {
+      offsetCount_ = iEvent.id().event()%prescaleFactor_;
+    }
+  }
+
   const bool result ( (prescaleFactor_==0) ? 
-		      false : (eventCount_%prescaleFactor_==0) );
+		      false : ((eventCount_+offsetCount_)%prescaleFactor_==0) );
+
   ++eventCount_;
   if (result) ++acceptCount_;
   return result;

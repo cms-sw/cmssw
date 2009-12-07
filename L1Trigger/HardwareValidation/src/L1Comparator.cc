@@ -216,6 +216,22 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctJetCandCollection> gct_forjets_emul;
   edm::Handle<L1GctJetCandCollection> gct_taujets_data;
   edm::Handle<L1GctJetCandCollection> gct_taujets_emul;
+
+  edm::Handle<L1GctEtHadCollection>	  gct_ht_data;
+  edm::Handle<L1GctEtHadCollection>	  gct_ht_emul;
+  edm::Handle<L1GctEtMissCollection>	  gct_etmiss_data;
+  edm::Handle<L1GctEtMissCollection>	  gct_etmiss_emul;
+  edm::Handle<L1GctEtTotalCollection>	  gct_ettota_data;
+  edm::Handle<L1GctEtTotalCollection>	  gct_ettota_emul;
+  edm::Handle<L1GctHtMissCollection>	  gct_htmiss_data;
+  edm::Handle<L1GctHtMissCollection>	  gct_htmiss_emul;
+  edm::Handle<L1GctHFRingEtSumsCollection>gct_hfring_data;
+  edm::Handle<L1GctHFRingEtSumsCollection>gct_hfring_emul;
+  edm::Handle<L1GctHFBitCountsCollection> gct_hfbcnt_data;
+  edm::Handle<L1GctHFBitCountsCollection> gct_hfbcnt_emul;
+  edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_data;  
+  edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_emul;
+
   if(m_doSys[GCT]) {
    iEvent.getByLabel(m_DEsource[GCT][0].label(),"isoEm",   gct_isolaem_data);
    iEvent.getByLabel(m_DEsource[GCT][1].label(),"isoEm",   gct_isolaem_emul);
@@ -227,6 +243,21 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    iEvent.getByLabel(m_DEsource[GCT][1].label(),"forJets", gct_forjets_emul);
    iEvent.getByLabel(m_DEsource[GCT][0].label(),"tauJets", gct_taujets_data);
    iEvent.getByLabel(m_DEsource[GCT][1].label(),"tauJets", gct_taujets_emul);
+
+   iEvent.getByLabel(m_DEsource[GCT][0],gct_ht_data);	  
+   iEvent.getByLabel(m_DEsource[GCT][1],gct_ht_emul);	 
+   iEvent.getByLabel(m_DEsource[GCT][0],gct_etmiss_data);  
+   iEvent.getByLabel(m_DEsource[GCT][1],gct_etmiss_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0],gct_ettota_data);	  
+   iEvent.getByLabel(m_DEsource[GCT][1],gct_ettota_emul); 
+   iEvent.getByLabel(m_DEsource[GCT][0],gct_htmiss_data);  
+   iEvent.getByLabel(m_DEsource[GCT][1],gct_htmiss_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0],gct_hfring_data);
+   iEvent.getByLabel(m_DEsource[GCT][1],gct_hfring_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0],gct_hfbcnt_data);
+   iEvent.getByLabel(m_DEsource[GCT][1],gct_hfbcnt_emul);
+   iEvent.getByLabel(m_DEsource[GCT][0],gct_jetcnt_data);  
+   iEvent.getByLabel(m_DEsource[GCT][1],gct_jetcnt_emul);
   }
 
   // -- DTP [drift tube trigger primitive]
@@ -260,7 +291,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[DTF]) {
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DT",dtf_data);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DT",dtf_emul);
-    iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
+  //iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
+    iEvent.getByLabel(m_DEsource[DTF][0].label(),"DATA",dtf_trk_data_);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
   } 
   //extract the regional cands
@@ -482,6 +514,9 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     typedef L1CSCTrackCollection::const_iterator ctcIt;
     //loop over csc-tracks (ie pairs<l1track,digi_vec>)
     for(ctcIt tcit=ctf_trk_data_->begin(); tcit!=ctf_trk_data_->end(); tcit++) {
+      /// restrict comparison to middle of readout window
+      if((tcit->first.bx() < -1) || (tcit->first.bx() > 1))
+	continue;
       //store the muon candidate
       //csc::L1Track ttr = tcit->first;
       //L1MuRegionalCand cand(ttr);    
@@ -503,6 +538,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     ctf_trc_data = &ctf_trc_data_v;
     //same for emulator collection
     for(ctcIt tcit=ctf_trk_emul_->begin();tcit!=ctf_trk_emul_->end(); tcit++) {
+      if((tcit->first.bx() < -1) || (tcit->first.bx() > 1))
+	continue;
       ctf_trc_emul_v.push_back(L1MuRegionalCand(tcit->first.getDataWord(), tcit->first.bx()));
       CSCCorrelatedLCTDigiCollection ldc = tcit->second;
       for (mapIt mit = ldc.begin(); mit != ldc.end(); mit++)
@@ -649,14 +686,20 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1]&=gct_cenjets_emul .isValid();
   isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1]&=gct_forjets_emul .isValid();
   isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1]&=gct_taujets_emul .isValid();
+  isValidDE[GCT][0]&=  gct_etmiss_data .isValid(); isValidDE[GCT][1]&= gct_etmiss_emul .isValid();
+  isValidDE[GCT][0]&=  gct_ettota_data .isValid(); isValidDE[GCT][1]&= gct_ettota_emul .isValid();
+  isValidDE[GCT][0]&=  gct_htmiss_data .isValid(); isValidDE[GCT][1]&= gct_htmiss_emul .isValid();
+  isValidDE[GCT][0]&=  gct_hfring_data .isValid(); isValidDE[GCT][1]&= gct_hfring_emul .isValid();
+  isValidDE[GCT][0]&=  gct_hfbcnt_data .isValid(); isValidDE[GCT][1]&= gct_hfbcnt_emul .isValid();
+//isValidDE[GCT][0]&=  gct_jetcnt_data .isValid(); isValidDE[GCT][1]&= gct_jetcnt_emul .isValid(); #temporary
   isValidDE[DTP][0] =      dtp_ph_data_.isValid(); isValidDE[DTP][1] =     dtp_ph_emul_.isValid();
   isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
-  isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
-//isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1]&=    dtf_trk_emul_.isValid();
+  isValidDE[DTF][0] =     dtf_trk_data_.isValid(); isValidDE[DTF][1] =    dtf_trk_emul_.isValid();
+//isValidDE[DTF][0]&=         dtf_data .isValid(); isValidDE[DTF][1]&=        dtf_emul .isValid();
   isValidDE[CTP][0] =     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
   if (m_DEsource[CTP][0].label().find("tf") == std::string::npos) {
-    isValidDE[CTP][0]&=   ctp_ano_data_.isValid(); isValidDE[CTP][1]&=    ctp_ano_emul_.isValid();
-    isValidDE[CTP][0]&=   ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
+  isValidDE[CTP][0]&=     ctp_ano_data_.isValid(); isValidDE[CTP][1]&=    ctp_ano_emul_.isValid();
+  isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
   }
   isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
 //isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1]&=   ctf_trk_emul_ .isValid();
@@ -708,6 +751,13 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT,GCTcenjets);
   if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
   if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtHadCollection>	         (     gct_ht_data,      gct_ht_emul, GCT,GCTethad);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtMissCollection>	         ( gct_etmiss_data,  gct_etmiss_emul, GCT,GCTetmiss);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtTotalCollection>	 ( gct_ettota_data , gct_ettota_emul, GCT,GCTettot);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHtMissCollection>	         ( gct_htmiss_data,  gct_htmiss_emul, GCT,GCThtmiss);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFRingEtSumsCollection>	 ( gct_hfring_data,  gct_hfring_emul, GCT,GCThfring);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFBitCountsCollection>	 ( gct_hfbcnt_data,  gct_hfbcnt_emul, GCT,GCThfbit);
+//if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
   if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>    (     dtp_ph_data,      dtp_ph_emul, DTP,DTtpPh);
   if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
   if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (        dtf_data,         dtf_emul, DTF,DTtf);
@@ -769,6 +819,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       DEmatchEvt[GLT]  = compareCollections(glt_rdt_data, glt_rdt_emul);  
     }
 
+    /// (may skip further collection checks temporarily...)
     if(glt_evm_data.isValid() && glt_evm_emul.isValid())
       DEmatchEvt[GLT] &= compareCollections(glt_evm_data, glt_evm_emul);  
     if(glt_obj_data.isValid() && glt_obj_emul.isValid())
@@ -970,6 +1021,12 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerReadoutRecord> emul) {
 
+  if(verbose())
+    std::cout << "L1Comparator -- result of GT embedded comparison.\n"
+	      << "L1GlobalTriggerReadoutRecord:: data and emulator agree? "
+	      << ((*data==*emul)?"yes":"no")
+	      << std::endl;
+  
   m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
 
   bool thematch = true;
@@ -980,8 +1037,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
 
   if(m_dumpMode==0 && match)
     return match;    
-
-  /*
+  
   //expand to check mismatching  stage
 
   //need to create new objects due to lack of suitable accessors
@@ -1174,7 +1230,6 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
     m_dumpFile << "---debug: print full gt record Done.---\n\n";
   }
 
-  */
   char ok[10];
   if(match) sprintf(ok,"successful");
   else      sprintf(ok,"failed");
@@ -1189,6 +1244,12 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerEvmReadoutRecord> emul) {
 
+  if(verbose())
+    std::cout << "L1Comparator -- result of GT embedded comparison.\n"
+	      << "L1GlobalTriggerEvmReadoutRecord data and emulator agree? "
+	      << ((*data==*emul)?"yes":"no")
+	      << std::endl;
+  
   m_dumpFile << "\n  L1GlobalTriggerEvmReadoutRecord candidates...\n";
   
   bool match = true;

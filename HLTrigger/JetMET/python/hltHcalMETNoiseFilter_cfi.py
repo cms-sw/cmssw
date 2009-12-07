@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 hltHcalMETNoiseFilter = cms.EDFilter("HLTHcalMETNoiseFilter",
-    HcalNoiseRBXCollection = cms.InputTag("hcalnoise"),
     HcalNoiseSummary       = cms.InputTag("hcalnoise"),
     severity = cms.int32(1),
 

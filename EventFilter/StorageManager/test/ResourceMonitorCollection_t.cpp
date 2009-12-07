@@ -104,10 +104,10 @@ testResourceMonitorCollection::notMountedDisk()
   dwParams._otherDiskPaths.push_back(dummyDisk);
   _rmc->configureDisks(dwParams);
 
-  _ah->printActiveAlarms(dummyDisk);
+  _ah->printActiveAlarms("SentinelException");
 
   std::vector<MockAlarmHandler::Alarms> alarms;
-  bool alarmsAreSet = _ah->getActiveAlarms(dummyDisk, alarms);
+  bool alarmsAreSet = _ah->getActiveAlarms("SentinelException", alarms);
   CPPUNIT_ASSERT( alarmsAreSet );
 }
 

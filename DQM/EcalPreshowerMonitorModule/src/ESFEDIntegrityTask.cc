@@ -51,7 +51,7 @@ ESFEDIntegrityTask::~ESFEDIntegrityTask() {
 
 }
 
-void ESFEDIntegrityTask::beginJob(const EventSetup& c) {
+void ESFEDIntegrityTask::beginJob(void) {
 
   ievt_ = 0;
 

@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommissioningAnalysis_ApvTimingAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_ApvTimingAlgorithm_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -17,7 +16,7 @@ class ApvTimingAlgorithm : public CommissioningAlgorithm {
   
  public:
 
-  ApvTimingAlgorithm( const edm::ParameterSet & pset, ApvTimingAnalysis* const );
+  ApvTimingAlgorithm( ApvTimingAnalysis* const );
   
   virtual ~ApvTimingAlgorithm() {;}
 

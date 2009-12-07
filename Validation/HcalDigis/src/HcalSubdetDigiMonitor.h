@@ -315,7 +315,9 @@ private:
 
   double getMeElementBinContent(MonitorElement* me, int i, int j)
   {
-    if(me) return me->getBinContent(i,j);
+    double tmp = 0.;
+    if(me) tmp = me->getBinContent(i,j);
+    return tmp;
   }
 
   void setMeElementBinContent(MonitorElement* me, int i, int j, double v)

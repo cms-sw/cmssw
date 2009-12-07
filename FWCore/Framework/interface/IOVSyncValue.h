@@ -45,10 +45,10 @@ class IOVSyncValue
       const Timestamp& time() const {return time_; }
       
       bool operator==(const IOVSyncValue& iRHS) const {
-         return doOp<std::equal_to>(iRHS);
+	 return comparable(iRHS) && doOp<std::equal_to>(iRHS);
       }
       bool operator!=(const IOVSyncValue& iRHS) const {
-         return doOp<std::not_equal_to>(iRHS);
+	 return (!comparable(iRHS)) || doOp<std::not_equal_to>(iRHS);
       }
       
       bool operator<(const IOVSyncValue& iRHS) const {
@@ -64,6 +64,13 @@ class IOVSyncValue
          return doOp<std::greater_equal>(iRHS);
       }
       
+      /** returns true if comparison operations are possible. Comparisons only fail if
+	  a time only value is compared to a run/lumi/event only value.
+       */
+      bool comparable(const IOVSyncValue& iOther) const {
+	return (haveID_==iOther.haveID_) || (haveTime_==iOther.haveTime_);
+      }
+
       // ---------- static member functions --------------------
       static const IOVSyncValue& invalidIOVSyncValue();
       static const IOVSyncValue& endOfTime();
@@ -75,6 +82,7 @@ class IOVSyncValue
       //IOVSyncValue(const IOVSyncValue&); // stop default
 
       //const IOVSyncValue& operator=(const IOVSyncValue&); // stop default
+      void throwInvalidComparison() const;
       template< template <typename> class Op >
          bool doOp(const IOVSyncValue& iRHS) const {
             bool returnValue = false;
@@ -97,6 +105,7 @@ class IOVSyncValue
                returnValue = op(time_, iRHS.time_);
             } else {
                //error
+  	       throwInvalidComparison();
             }
             return returnValue;
          }

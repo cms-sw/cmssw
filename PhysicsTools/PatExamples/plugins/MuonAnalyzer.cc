@@ -1,13 +1,13 @@
-/** \class MuonAnalyzer
+/** \class ExampleMuonAnalyzer
  *  Analyzer of the muon objects
  *
- *  $Date: 2009/06/18 15:55:17 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/29 19:46:13 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
 
-#include "MuonAnalyzer.h"
+#include "PhysicsTools/PatExamples/plugins/MuonAnalyzer.h"
 
 // Collaborating Class Header
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,16 +28,16 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-MuonAnalyzer::MuonAnalyzer(const ParameterSet& pset){
+ExampleMuonAnalyzer::ExampleMuonAnalyzer(const ParameterSet& pset){
 
   theMuonLabel = pset.getUntrackedParameter<string>("MuonCollection");
 }
 
 /// Destructor
-MuonAnalyzer::~MuonAnalyzer(){
+ExampleMuonAnalyzer::~ExampleMuonAnalyzer(){
 }
 
-void MuonAnalyzer::beginJob(const EventSetup& eventSetup){
+void ExampleMuonAnalyzer::beginJob(const EventSetup& eventSetup){
 
   // Book histograms
   edm::Service<TFileService> fileService;
@@ -64,11 +64,11 @@ void MuonAnalyzer::beginJob(const EventSetup& eventSetup){
 
 }
 
-void MuonAnalyzer::endJob(){
+void ExampleMuonAnalyzer::endJob(){
 }
  
 
-void MuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
+void ExampleMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
   // Get the Muon collection
   Handle<pat::MuonCollection> muons;
@@ -194,7 +194,7 @@ void MuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
     h4MuInvMass->Fill(p4CM.mass());
   }
 }
-DEFINE_FWK_MODULE(MuonAnalyzer);
+DEFINE_FWK_MODULE(ExampleMuonAnalyzer);
 
 
 

@@ -10,6 +10,8 @@
 <use name=EventFilter/Message2log4cplus>
 <use name=boost>
 <use name=xdaq>
+<Flags CPPFLAGS='-g'>
+<Flags LDFLAGS='-g'>
 
 <export>
  <lib name=EventFilterProcessor>

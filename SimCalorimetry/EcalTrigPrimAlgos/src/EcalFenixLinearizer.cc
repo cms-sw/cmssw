@@ -7,11 +7,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 EcalFenixLinearizer::EcalFenixLinearizer(bool famos)
-  : famos_(famos)
+  : famos_(famos), init_(false)
 {
 }
 
 EcalFenixLinearizer::~EcalFenixLinearizer(){
+  if (init_) {
+    for (int i=0;i<vectorbadXStatus_.size();i++){
+      delete vectorbadXStatus_[i];
+    }
+  }    
 }
 
 void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * ecaltpPed, const EcalTPGLinearizationConst * ecaltpLin, const EcalTPGCrystalStatus * ecaltpBadX)
@@ -30,10 +35,17 @@ void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * e
 
   const EcalTPGCrystalStatusMap & badXMap = ecaltpBadX->getMap();
   EcalTPGCrystalStatusMapIterator itbadX=badXMap.find(raw); 
+  
   if (itbadX!=badXMap.end()) {
     badXStatus_=&(*itbadX);
+  }  
+  else 
+  {   
+    edm::LogWarning("EcalTPG")<<" could not find EcalTPGCrystalStatusMap entry for "<<raw; 
+    badXStatus_ = new EcalTPGCrystalStatusCode();
+    vectorbadXStatus_.push_back(&(*badXStatus_));
+    init_ = true;  	
   }
-  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGCrystalStatusMap entry for "<<raw;	
 }
 
 int EcalFenixLinearizer::process()
@@ -46,7 +58,7 @@ int EcalFenixLinearizer::process()
 }
 
 int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
-{
+{ 
   if(RawSam.raw()>0X3FFF)
     {
       LogDebug("EcalTPG")<<"ERROR IN INPUT SAMPLE OF FENIX LINEARIZER";

@@ -14,3 +14,5 @@
 <use name=RecoTracker/MeasurementDet> 
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/DetId>
+<use name=TrackingTools/TrackAssociator>
+

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.9 2009/08/12 22:04:31 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.10 2009/08/26 19:06:03 chrjones Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@ public:
    void requestForFilter(FWEventItem*);
    void requestForError(FWEventItem*);
    void requestForController(FWEventItem*);
+   void requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY);
 
    void colorsChanged();
 private:

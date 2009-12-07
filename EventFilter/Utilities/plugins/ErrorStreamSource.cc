@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <cstring>
 #include "interface/shared/fed_header.h"
 #include "interface/shared/fed_trailer.h"
 

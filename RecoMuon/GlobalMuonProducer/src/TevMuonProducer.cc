@@ -3,8 +3,8 @@
  *   TeV muon reconstructor:
  *
  *
- *   $Date: 2008/05/13 02:25:45 $
- *   $Revision: 1.3 $
+ *   $Date: 2008/11/10 09:26:23 $
+ *   $Revision: 1.4 $
  *
  *   \author  Piotr Traczyk (SINS Warsaw)
  */
@@ -85,7 +85,7 @@ TevMuonProducer::~TevMuonProducer() {
   LogTrace("Muon|RecoMuon|TevMuonProducer") << "destructor called" << endl;
   if (theService) delete theService;
   if (theRefitter) delete theRefitter;
-
+  if (theTrackLoader) delete theTrackLoader;
 }
 
 

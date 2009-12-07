@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.26 2009/06/18 20:52:36 lowette Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.23 2008/07/09 16:25:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -12,17 +12,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMOldReceiver* mui,
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMOldReceiver* mui,
 						SiStripConfigDb* const db ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
-                             mui,
-                             sistrip::APV_TIMING ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::APV_TIMING ),
-    ApvTimingHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
-                         mui ),
+  : CommissioningHistograms( mui, sistrip::APV_TIMING ),
+    CommissioningHistosUsingDb( db, mui, sistrip::APV_TIMING ),
+    ApvTimingHistograms( mui ),
     uploadFecSettings_(true),
     uploadFedSettings_(true)
 {
@@ -33,13 +27,10 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMStore* bei,
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMStore* bei,
 						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
-                                sistrip::APV_TIMING ),
-    ApvTimingHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
-                         bei ),
+  : CommissioningHistosUsingDb( db, sistrip::APV_TIMING ),
+    ApvTimingHistograms( bei ),
     uploadFecSettings_(true),
     uploadFedSettings_(true)
 {
@@ -143,9 +134,8 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
   uint16_t updated = 0;
   std::vector<SiStripFecKey> invalid;
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
-
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
-
+    
     // Check device type
     if ( (*idevice)->getDeviceType() != PLL ) { continue; }
     
@@ -191,14 +181,9 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 	}
 	
 	// Calculate coarse and fine delays
-        int32_t delay = static_cast<int32_t>( rint( anal->delay() )*24./25 );
-
+	uint32_t delay = static_cast<uint32_t>( rint( anal->delay() * 24. / 25. ) ); 
 	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
-             + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
-        if ( ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24 < 0 ) {
-          coarse -= 1;
-	  delay += 24;
-	}
+	  + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
 	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
 	
 	// Record PPLs maximum coarse setting
@@ -228,8 +213,8 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
     if ( coarse != sistrip::invalid_ && 
 	 fine != sistrip::invalid_ ) { 
       
-      std::stringstream ss;
       if ( edm::isDebugEnabled() ) {
+	std::stringstream ss;
 	ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	   << " Updating coarse/fine PLL settings"
 	   << " for crate/FEC/ring/CCU/module "
@@ -241,17 +226,15 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 	   << " from "
 	   << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
 	   << static_cast<uint16_t>( desc->getDelayFine() );
-      }
-      desc->setDelayCoarse(coarse);
-      desc->setDelayFine(fine);
-      updated++;
-      if ( edm::isDebugEnabled() ) {
+	desc->setDelayCoarse(coarse);
+	desc->setDelayFine(fine);
+	updated++;
 	ss << " to "
 	   << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
 	   << static_cast<uint16_t>( desc->getDelayFine() );
 	LogTrace(mlDqmClient_) << ss.str();
       }
-      
+
     } else {
       edm::LogWarning(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"

@@ -35,7 +35,7 @@ FUShmReader::FUShmReader()
   , evtNumber_(0xffffffff)
   , lastCellIndex_(0xffffffff)
 {
-  shmBuffer_=FUShmBuffer::getShmBuffer();
+  //  shmBuffer_=FUShmBuffer::getShmBuffer();
 }
 
 

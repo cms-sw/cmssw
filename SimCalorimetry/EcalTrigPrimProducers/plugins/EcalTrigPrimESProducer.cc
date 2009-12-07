@@ -268,7 +268,7 @@ std::auto_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(c
 std::auto_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const EcalTPGCrystalStatusRcd & iRecord)
 {
   std::auto_ptr<EcalTPGCrystalStatus> prod(new EcalTPGCrystalStatus());
-  
+  parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
     
@@ -283,7 +283,7 @@ std::auto_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const Ec
 std::auto_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const EcalTPGTowerStatusRcd & iRecord)
 {
   std::auto_ptr<EcalTPGTowerStatus> prod(new EcalTPGTowerStatus());
-  
+  parseTextFile() ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   //Barrel
   for (it = mapTower_[0].begin() ; it != mapTower_[0].end() ; it++) {

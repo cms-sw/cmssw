@@ -1,9 +1,0 @@
-<library file=testTrackIPComputer.cc>
-  <flags EDM_PLUGIN=1>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=DataFormats/MuonReco>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/Candidate> 
-  <use name=TrackingTools/IPTools>
-</library>

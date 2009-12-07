@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.7 2006/07/23 01:24:33 valya Exp $
+// $Id: DependentRecordIntervalFinder.h,v 1.8 2007/06/13 11:10:29 chrjones Exp $
 //
 
 // system include files
@@ -66,6 +66,7 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       Providers providers_;
       
       boost::shared_ptr<EventSetupRecordIntervalFinder> alternate_;
+      IOVSyncValue m_previousSyncTo;
 };
 
    }

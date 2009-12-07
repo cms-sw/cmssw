@@ -48,7 +48,6 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
    me = dqmStore_->bookFloat(histo);
    me->Fill(-1.0);      
 
-
    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
    for (int i=0 ; i<2; ++i){
@@ -63,7 +62,6 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
          me->Fill(-1.0);      
       }
    }
-
 
    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
@@ -130,47 +128,43 @@ void ESSummaryClient::analyze(void) {
 
    MonitorElement* me;
 
-   for ( int i = 0; i < 80; i++) {
-      for( int j = 0; j < 80; j++) {
-	 nDI_FedErr[i][j] = 0;
+   for (int i=0; i<80; ++i) 
+     for (int j=0; j<80; ++j) {
+	 nDI_FedErr[i][j] = -1;
 	 DCC[i][j]=0;
       }
-   }
 
-   for (int i=0 ; i<2; ++i){
-      for (int j=0 ; j<2; ++j){
+   for (int i=0; i<2; ++i) {
+      for (int j=0; j<2; ++j) {
+
 	 int iz = (i==0)? 1:-1;
-	 sprintf(histo, "ES Integrity Errors 1 Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
-	 if(me){
-	    for(int x=0; x<40; x++){
-	       for(int y=0; y<40; y++){
-		  nDI_FedErr[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
-	       }
-	    }
-	 }
 
+	 sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j+1);
+	 me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/" + histo);
+	 if (me) 
+	   for (int x=0; x<40; ++x) 
+	     for (int y=0; y<40; ++y) {
+	       nDI_FedErr[i*40+x][(1-j)*40+y] = me->getBinContent(x+1, y+1);
+	     }
+	 
 	 sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
-	 if(me){
-	    for(int x=0; x<40; x++){
-	       for(int y=0; y<40; y++){
-		  DCC[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
-	       }
-	    }
-	 }
-
-	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
+	 if (me)
+	   for (int x=0; x<40; ++x)
+	     for(int y=0; y<40; ++y) {
+	       DCC[i*40+x][(1-j)*40+y] = me->getBinContent(x+1, y+1);
+	     }
+	 
+	 sprintf(histo, "ES RecHit 2D Occupancy Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESOccupancyTask/" + histo);
-	 if(me){
-	    eCount = me->getBinContent(40,40);
-	 }
-	 else {
-	    eCount = 1.;
-	 } 
+	 if (me)
+	   eCount = me->getBinContent(40,40);
+	 else 
+	   eCount = 1.;
+	 
       }
    }
-
+   
    //The global-summary
    //ReportSummary Map 
    //  ES+F  ES-F
@@ -181,50 +175,54 @@ void ESSummaryClient::analyze(void) {
    float nGlobalErrorsES[2][2]={};
 
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
-   if(me){
-      for(int x=0; x<80; x++){
-	 if(eCount < 100) break; //Fill reportSummaryMap after have 100 events
-	 for(int y=0; y<80; y++){
-	    int z = (x<40)? 0:1;
-	    int p = (y>=40)? 0:1;
+   if (me) {
+      for (int x=0; x<80; ++x) {
+	if (eCount < 1) break; //Fill reportSummaryMap after have 1 event
+	for (int y=0; y<80; ++y) {
 
-	    if( nDI_FedErr[x][y] >= 0. ){
-	       me->setBinContent(x+1, y+1, 1-(nDI_FedErr[x][y]/eCount) );
-
-	       nValidChannels+=1.;
-	       nGlobalErrors+=nDI_FedErr[x][y]/eCount;
-
-	       nValidChannelsES[z][p]+=1;
-	       nGlobalErrorsES[z][p]+=nDI_FedErr[x][y]/eCount;
+	  int z = (x<40) ? 0:1;
+	  int p = (y>=40) ? 0:1;
+	  
+	  if (DCC[x][y]==0.) {
+	    me->setBinContent(x+1, y+1, -1.);	  
+	  } else {
+	    if (nDI_FedErr[x][y] >= 0) {
+	      me->setBinContent(x+1, y+1, 1-(nDI_FedErr[x][y]/eCount));
+	      
+	      nValidChannels++;
+	      nGlobalErrors += nDI_FedErr[x][y]/eCount;
+	      
+	      nValidChannelsES[z][p]++;
+	      nGlobalErrorsES[z][p] += nDI_FedErr[x][y]/eCount;
 	    }
 	    else {
-	       me->setBinContent(x+1, y+1, -1.);
+	      me->setBinContent(x+1, y+1, -1.);
 	    }
-	    if(DCC[x][y]==0.) me->setBinContent(x+1, y+1, -1.);
-	 }
+	  }
+	  
+	}
       }
    }
-
-   for (int i=0 ; i<2; ++i){
-      for (int j=0 ; j<2; ++j){
-	 int iz = (i==0)? 1:-1;
-         float reportSummaryES = -1.;
-         if( nValidChannelsES[i][j] !=0) 
-	    reportSummaryES = 1.0 - nGlobalErrorsES[i][j]/nValidChannelsES[i][j];
-	 sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-	 if ( me ) me->Fill(reportSummaryES);
-      }
+   
+   for (int i=0; i<2; ++i) {
+     for (int j=0; j<2; ++j) {
+       int iz = (i==0)? 1:-1;
+       float reportSummaryES = -1.;
+       if (nValidChannelsES[i][j] != 0) 
+	 reportSummaryES = 1.0 - nGlobalErrorsES[i][j]/nValidChannelsES[i][j];
+       sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
+       me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+       if ( me ) me->Fill(reportSummaryES);
+     }
    }
-
+   
    //Return ratio of good channels
    float reportSummary = -1.0;
-   if ( nValidChannels != 0 ){
+   if ( nValidChannels != 0 ) {
       reportSummary = 1.0 - nGlobalErrors/nValidChannels;
    }
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
    if ( me ) me->Fill(reportSummary);
-
 
 }
 

@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.7 2009/04/23 04:15:42 jmuelmen Exp $
+// $Id: FWTableWidget.h,v 1.8 2009/06/03 14:24:19 jmuelmen Exp $
 //
 
 // system include files
@@ -71,8 +71,10 @@ class FWTableWidget : public TGCompositeFrame
       iRow: the unsorted row number (natural ordering) of the row clicked
       iButton: the ROOT button value for the click event (e.g. says which button used)
       iKeyMod: the ROOT key modifier value for the click event (e.g. says if a keyboard key was being held)
+      iGlobalX: the X coordinate of the click in global coordinates
+      iGlobalY: the Y coordinate of the click in global coordinates
       */
-      void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod); //*SIGNAL*
+      void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY); //*SIGNAL*
       void columnClicked(Int_t iColumn, Int_t iButton, Int_t iKeyMod); //*SIGNAL*
 
       ClassDef(FWTableWidget,0);

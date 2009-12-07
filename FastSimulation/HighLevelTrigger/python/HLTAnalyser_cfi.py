@@ -14,7 +14,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
 #    l1GtReadoutRecord = cms.InputTag("l1GmtEmulDigis"),
     l1GtReadoutRecord = cms.InputTag("gtDigis"),
     l1extramc = cms.string('l1extraParticles'),
-    l1extramu = cms.string('l1ParamMuons'),
+    l1extramu = cms.string('l1extraParticles'),
     hltresults = cms.InputTag("TriggerResults"),
 
 ### Reconstructed objects

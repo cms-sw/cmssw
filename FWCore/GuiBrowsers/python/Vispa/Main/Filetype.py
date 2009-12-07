@@ -2,22 +2,22 @@ class Filetype(object):
     "Basic information about a filetype"
     
     def __init__(self, ext, description):
-        self.extension = ext
-        self.description = description
+        self._extension = ext
+        self._description = description
         
-    def getExtension(self):
+    def extension(self):
         """ Returns extension.
         """
-        return self.extension
+        return self._extension
     
-    def getDescription(self):
+    def description(self):
         """ Returns description.
         """
-        return self.description
+        return self._description
     
-    def getFileDialogFilter(self):
+    def fileDialogFilter(self):
         """ Returns filter string for QFile dialogs.
         
         The filters have the following form: 'description (*.extension)'
         """
-        return self.description +' (*.'+ self.extension +')'
+        return self._description +' (*.'+ self._extension +')'

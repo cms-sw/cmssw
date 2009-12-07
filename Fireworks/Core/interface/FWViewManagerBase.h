@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.15 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWViewManagerBase.h,v 1.16 2009/04/07 14:02:33 chrjones Exp $
 //
 
 // system include files
@@ -66,6 +66,10 @@ public:
    void modelChangesComingSlot();
    void modelChangesDoneSlot();
    void colorsChangedSlot();
+   virtual void eventBegin(){
+   };
+   virtual void eventEnd(){
+   };
 
 protected:
    FWViewManagerBase();

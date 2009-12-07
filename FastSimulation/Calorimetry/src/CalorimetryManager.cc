@@ -238,10 +238,10 @@ void CalorimetryManager::reconstruct()
       // but muons... and SUSY particles that deserve a special 
       // treatment.
       else if ( pid < 1000000 ) {
-	if ( myTrack.onHcal() || myTrack.onVFcal() ) 	  
+	if ( myTrack.onHcal() || myTrack.onVFcal() ) { 	  
 	  if(optionHDSim_ == 0 )  reconstructHCAL(myTrack);
 	  else HDShowerSimulation(myTrack);
-	    
+	}
       } // pid < 1000000 
     } // myTrack.noEndVertex()
   } // particle loop

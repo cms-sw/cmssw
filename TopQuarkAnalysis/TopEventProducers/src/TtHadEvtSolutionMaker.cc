@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.17 2009/03/07 00:58:24 rwolf Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.18.4.1 2009/10/27 22:57:51 rwolf Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,7 +31,7 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) 
   maxDeltaS_       = iConfig.getParameter<double>           ("maxDeltaS");
   maxF_            = iConfig.getParameter<double>           ("maxF");
   jetParam_        = iConfig.getParameter<int>              ("jetParametrisation");
-  constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
+  constraints_     = iConfig.getParameter<std::vector<unsigned int> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
   matchingAlgo_    = iConfig.getParameter<bool>             ("matchingAlgorithm");
   useMaxDist_      = iConfig.getParameter<bool>             ("useMaximalDistance");
@@ -191,11 +191,11 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	edm::Handle<TtGenEvent> genEvt;
 	iEvent.getByLabel ("genEvt",genEvt); 
 	vector<const reco::Candidate*> quarks;
-	const reco::Candidate & genp  = *(genEvt->lightQFromTop());
-	const reco::Candidate & genq  = *(genEvt->lightQBarFromTop());
+	const reco::Candidate & genp  = *(genEvt->daughterQuarkOfWPlus());
+	const reco::Candidate & genq  = *(genEvt->daughterQuarkBarOfWPlus());
 	const reco::Candidate & genb  = *(genEvt->b());
-	const reco::Candidate & genj  = *(genEvt->lightQFromTopBar());
-	const reco::Candidate & genk  = *(genEvt->lightQBarFromTopBar());
+	const reco::Candidate & genj  = *(genEvt->daughterQuarkOfWMinus());
+	const reco::Candidate & genk  = *(genEvt->daughterQuarkBarOfWMinus());
 	const reco::Candidate & genbbar = *(genEvt->bBar());
 	quarks.push_back( &genp );       
 	quarks.push_back( &genq );   

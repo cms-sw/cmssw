@@ -22,7 +22,7 @@ class TtFullHadEvtPartons : public TtEventPartons {
 
   /// fully-hadronic parton enum used to define the order 
   /// in the vector for lepton and jet combinatorics
-  enum { LightQTop, LightQBarTop, B, LightQTopBar, LightQBarTopBar, BBar};
+  enum { LightQ, LightQBar, B, LightP, LightPBar, BBar};
 
  public:
 

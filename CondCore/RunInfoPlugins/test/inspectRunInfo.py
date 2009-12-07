@@ -6,39 +6,37 @@ a = FWIncantation()
 #os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 
-dbName =  "oracle://cms_orcoff_prod/CMS_COND_31X_RUN_INFO"
-logName = "oracle://cms_orcoff_prod/CMS_COND_31X_POPCONLOG"
+dbName =  "oracle://cms_orcoff_prod/CMS_COND_21X_RUN_INFO"
+logName = "oracle://cms_orcoff_prod/CMS_COND_21X_POPCONLOG"
 
-#rdbms.setLogger(logName)
+rdbms.setLogger(logName)
 from CondCore.Utilities import iovInspector as inspect
 
 db = rdbms.getDB(dbName)
 tags = db.allTags()
-print  "########overview of all tags########"
-print tags
+
 # for inspecting last run after run has started  
-tag = 'runinfo_31X_hlt'
+tag = 'runinfostart_test'
 
 # for inspecting last run after run has stopped  
 #tag = 'runinfo_test'
 
 try :
-    #log = db.lastLogEntry(tag)
+    log = db.lastLogEntry(tag)
 
     #for printing all log info present into log db 
     #print log.getState()
 
-    iov = inspect.Iov(db,tag)
-    print "########overview of tag "+tag+"########"
+    # for inspecting all payloads/runs
+    #iov = inspect.Iov(db,tag)
+
+    #for inspecting only last payload/run
+    iov = inspect.Iov(db,tag,0,0,0,1)
     print iov.list()
-    #for x in  iov.summaries():
-    #    print x[1], x[2] ,x[3]
-    what={}
-    print "###(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber###"
-    print iov.trend(what)
-    print "########(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber in a given range########"
-    print iov.trendinrange(what,109441L,109503L)
-except Exception, er :
-    print er
+    for x in  iov.summaries():
+        print x[1], x[2] ,x[3]
+    #        print iov.trend("",[0,2,12])
+except RuntimeError :
+    print " no iov? in", tag
 
 

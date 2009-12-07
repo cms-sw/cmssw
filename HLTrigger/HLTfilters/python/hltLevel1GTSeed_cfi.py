@@ -1,6 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 hltLevel1GTSeed = cms.EDFilter("HLTLevel1GTSeed",
+    # default: true
+    #    seeding done via L1 trigger object maps, with objects that fired 
+    #    only objects from the central BxInEvent (L1A) are used
+    # if false:
+    #    seeding is done ignoring if a L1 object fired or not, 
+    #    adding all L1EXtra objects corresponding to the object types 
+    #    used in all conditions from the algorithms in logical expression 
+    #    for a given number of BxInEvent
+    L1UseL1TriggerObjectMaps = cms.bool(True),
+    #
+    # option used forL1UseL1TriggerObjectMaps = False only
+    # number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 2
+    L1NrBxInEvent = cms.int32(3),
+    #
     # seeding done via technical trigger bits, if value is "true";
     # default: false (seeding via physics algorithms)
     #

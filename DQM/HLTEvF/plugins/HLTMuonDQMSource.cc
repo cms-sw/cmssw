@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.28 2009/08/07 11:56:40 wteo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.26 2009/07/27 20:12:44 wteo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -109,11 +109,10 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
   }
   
   if (dbe_ != NULL) {
-    dbe_->setCurrentFolder(monitorName_);
- }
+    dbe_->setCurrentFolder("HLT/HLTMonMuon");
+  }
   
   std::vector<edm::ParameterSet> filters = parameters_.getParameter<std::vector<edm::ParameterSet> >("filters");
-
   for(std::vector<edm::ParameterSet>::iterator filterconf = filters.begin() ; filterconf != filters.end() ; filterconf++){
     theDirectoryName.push_back(filterconf->getParameter<std::string>("directoryName"));
     //theHLTCollectionLevel.push_back(filterconf->getParameter<std::string>("level"));
@@ -128,8 +127,7 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
   
   // L1PassThrough, L2PassThrough, L3PassThrough
   nTrigs = theDirectoryName.size();
-
-  for( int trig = 0; trig < nTrigs; trig++ ) striggers_[trig] = "";
+  
 }
 
 
@@ -146,6 +144,11 @@ HLTMuonDQMSource::~HLTMuonDQMSource()
 void HLTMuonDQMSource::beginJob(const EventSetup& context)
 {
   if (dbe_) {
+    dbe_->setCurrentFolder(monitorName_);
+    dbe_->rmdir(monitorName_);
+  }
+  
+  if (dbe_) {
     //dbe_->setCurrentFolder("monitorName_");
     if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
     LogInfo("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
@@ -157,21 +160,9 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
     // create and cd into new folder
     char name[512], title[512];
     double pt_max;
-    string dirname;
-
     for( int trig = 0; trig < nTrigs; trig++ ) {
+      string dirname;
       dirname = theDirectoryName[trig]+"/";
-
-      for(unsigned int i = 0; i < theHLTCollectionLevel.size(); ++i){
-	if(theHLTCollectionLevel[i] == theDirectoryName[trig]) {
-	  if(!strcmp(striggers_[trig].c_str(), "")) striggers_[trig] = theTriggerBits[i];
-	  else striggers_[trig] += ", " + theTriggerBits[i];
-	}
-      }
-      dbe_->setCurrentFolder(monitorName_ + dirname);
-      sprintf(name,"%s triggers",theDirectoryName[trig].c_str());
-      dbe_->bookString(name,striggers_[trig]);
-
       for ( int level = 1; level < 7; ++level ) {
 	if( level < 4 ) sprintf(name,"Level%i",level);
 	else if (level == 4 ) sprintf(name,"Level%iSeed", level-2);
@@ -739,6 +730,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
       }
       dbe_->showDirStructure();
     }
+    
     // Muon det id is 2 pushed in bits 28:31
     const unsigned int detector_id = 2<<28;
     dbe_->tagContents(monitorName_, detector_id);
@@ -865,7 +857,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hphi[ntrig][0]->Fill(l1ref->phi());
 
 	if(hphi[ntrig][0]->getEntries()){
-	  for(int ibin = 1; ibin <= hphi[ntrig][0]->getNbinsX(); ++ibin)
+	  for(int ibin = 1; ibin < hphi[ntrig][0]->getNbinsX(); ++ibin)
 	    hphi_norm[ntrig][0]->setBinContent(ibin, 
 					       hphi[ntrig][0]->getBinContent(ibin)/hphi[ntrig][0]->getEntries());
 	}
@@ -1046,7 +1038,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  hphi[ntrig][1]->Fill(tk->phi()); 
 
 	  if(hphi[ntrig][1]->getEntries()){
-	    for(int ibin = 1; ibin <= hphi[ntrig][1]->getNbinsX(); ++ibin)
+	    for(int ibin = 1; ibin < hphi[ntrig][1]->getNbinsX(); ++ibin)
 	      hphi_norm[ntrig][1]->setBinContent(ibin, 
 						 hphi[ntrig][1]->getBinContent(ibin)/hphi[ntrig][1]->getEntries());
 	  }
@@ -1100,7 +1092,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hphi[ntrig][2]->Fill(tk->phi()); 
 
 	if(hphi[ntrig][2]->getEntries()){
-	  for(int ibin = 1; ibin <= hphi[ntrig][2]->getNbinsX(); ++ibin)
+	  for(int ibin = 1; ibin < hphi[ntrig][2]->getNbinsX(); ++ibin)
 	    hphi_norm[ntrig][2]->setBinContent(ibin, 
 					       hphi[ntrig][2]->getBinContent(ibin)/hphi[ntrig][2]->getEntries());
 	}

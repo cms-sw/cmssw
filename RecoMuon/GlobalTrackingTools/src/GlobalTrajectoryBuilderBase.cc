@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/09/11 06:51:54 $
- *  $Revision: 1.41 $
- *  $Date: 2009/09/11 06:51:54 $
- *  $Revision: 1.41 $
+ *  $Date: 2009/12/03 11:00:48 $
+ *  $Revision: 1.41.2.1 $
+ *  $Date: 2009/12/03 11:00:48 $
+ *  $Revision: 1.41.2.1 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -93,16 +93,21 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
 
+  string MatcherOutPropagator = par.getParameter<string>("MatcherOutPropagator");
+  string TransformerOutPropagator = par.getParameter<string>("TransformerOutPropagator");
   
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
+  trackMatcherPSet.addParameter<string>("Propagator",MatcherOutPropagator);
   theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
   
   theTrackerPropagatorName = par.getParameter<string>("TrackerPropagator");
 
   ParameterSet trackTransformerPSet = par.getParameter<ParameterSet>("TrackTransformer");
+  trackTransformerPSet.addParameter<string>("Propagator",TransformerOutPropagator);
   theTrackTransformer = new TrackTransformer(trackTransformerPSet);
 
   ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("MuonTrackingRegionBuilder");
+  regionBuilderPSet.addParameter<bool>("RegionalSeedFlag",false);
 
   theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService);
 
@@ -534,7 +539,12 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 	TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
 	TrajectoryStateOnSurface predTsos =  theService->propagator(theTrackerPropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
 	LogTrace(theCategory)<<"predtsos "<<predTsos.isValid();
-	if ( predTsos.isValid() ) currTsos = predTsos;
+	if (!predTsos.isValid() ){
+	  edm::LogError("MissingTransientHit")
+	    <<"Could not get a tsos on the hit surface. We will miss a tracking hit.";
+	  continue; 
+	}
+	currTsos = predTsos;
 	TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
 	result.push_back(preciseHit);
       } else if ( recoid.det() == DetId::Muon ) {

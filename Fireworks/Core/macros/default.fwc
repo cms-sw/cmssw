@@ -547,7 +547,66 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topa(1);
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(0);
+  topaa.addValue("1");
+  topa.addKeyValue("EventFilter0_enabled", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("$Muons.pt()>10");
+  topa.addKeyValue("EventFilter0_selection", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("");
+  topa.addKeyValue("EventFilter0_comment", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("1");
+  topa.addKeyValue("EventFilter1_enabled", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("$Jets.pt()>100");
+  topa.addKeyValue("EventFilter1_selection", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("");
+  topa.addKeyValue("EventFilter1_comment", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("1");
+  topa.addKeyValue("EventFilter2_enabled", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("HLT_Mu9");
+  topa.addKeyValue("EventFilter2_selection", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("");
+  topa.addKeyValue("EventFilter2_comment", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("3");
+  topa.addKeyValue("EventFilter_total", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("1");
+  topa.addKeyValue("EventFilter_enabled", topaa);
+}
+  top.addKeyValue("EventNavigator", topa);
+}
+{
+  FWConfiguration topa(1);
+{
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("14");
@@ -567,6 +626,16 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaa(0);
   topaaa.addValue("768");
   topaa.addKeyValue("height", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1");
+  topaa.addKeyValue("leftWeight", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1");
+  topaa.addKeyValue("rightWeight", topaaa);
 }
   topa.addKeyValue("main window", topaa);
 }
@@ -597,12 +666,22 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("2");
-  topaaa.addKeyValue("Calo scale", topaaaa);
+  topaaa.addKeyValue("Calo scale (GeV/meter)", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Calo auto scale", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Line width", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
-  topaaa.addKeyValue("Calo auto scale", topaaaa);
+  topaaa.addKeyValue("Smooth line", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -616,7 +695,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.953987");
+  topaaaa.addValue("2.01065");
   topaaa.addKeyValue("cameraZoomRho Phi", topaaaa);
 }
 {
@@ -707,6 +786,16 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
   topaaa.addKeyValue("Auto rebin on zoom", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("10");
+  topaaa.addKeyValue("Pixels per bin", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Show scales", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -870,7 +959,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.78");
+  topaaaa.addValue("0.933425");
   topaaa.addKeyValue("orthoCameraZoom3D Lego", topaaaa);
 }
 {
@@ -985,16 +1074,26 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("2");
-  topaaa.addKeyValue("Calo scale", topaaaa);
+  topaaa.addKeyValue("Calo scale (GeV/meter)", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
+  topaaaa.addValue("1");
   topaaa.addKeyValue("Calo auto scale", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.953984");
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Line width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Smooth line", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1.58254");
   topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
 }
 {
@@ -1604,65 +1703,146 @@ FWConfiguration* fwConfig() {
   topa.addKeyValue("views", topaa);
 }
 {
-  FWConfiguration topaa(1);
-  topaa.addValue("407");
-  topaa.addValue("291");
-  topaa.addValue("287");
-  topaa.addValue("269");
-  topaa.addValue("411");
-  topa.addKeyValue("view area", topaa);
-}
+  FWConfiguration topaa(2);
 {
-  FWConfiguration topaa(1);
-{
-  FWConfiguration topaaa(1);
+  FWConfiguration topaaa(2);
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1041");
-  topaaa.addKeyValue("x", topaaaa);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("weight", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("57");
-  topaaa.addKeyValue("y", topaaaa);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("undocked", topaaaa);
+}
+  topaa.addKeyValue("Rho Phi", topaaa);
+}
+{
+  FWConfiguration topaaa(2);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("weight", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("353");
-  topaaa.addKeyValue("width", topaaaa);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("undocked", topaaaa);
+}
+  topaa.addKeyValue("3D Lego", topaaa);
+}
+{
+  FWConfiguration topaaa(2);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("weight", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("291");
-  topaaa.addKeyValue("height", topaaaa);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("undocked", topaaaa);
+}
+  topaa.addKeyValue("Rho Z", topaaa);
+}
+{
+  FWConfiguration topaaa(2);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("weight", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("undocked", topaaaa);
+}
+{
+  FWConfiguration topaaaa(2);
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("1");
+  topaaaa.addKeyValue("weight", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("1");
+  topaaaa.addKeyValue("undocked", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("1039");
+  topaaaa.addKeyValue("x", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("56");
+  topaaaa.addKeyValue("y", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("353");
+  topaaaa.addKeyValue("width", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("291");
+  topaaaa.addKeyValue("height", topaaaaa);
+}
+  topaaa.addKeyValue("UndockedWindowPos", topaaaa);
 }
   topaa.addKeyValue("3D", topaaa);
 }
 {
-  FWConfiguration topaaa(1);
+  FWConfiguration topaaa(2);
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1040");
-  topaaa.addKeyValue("x", topaaaa);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("weight", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("378");
-  topaaa.addKeyValue("y", topaaaa);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("undocked", topaaaa);
 }
 {
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("351");
-  topaaa.addKeyValue("width", topaaaa);
+  FWConfiguration topaaaa(2);
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("1");
+  topaaaa.addKeyValue("weight", topaaaaa);
 }
 {
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("433");
-  topaaa.addKeyValue("height", topaaaa);
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("1");
+  topaaaa.addKeyValue("undocked", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("1041");
+  topaaaa.addKeyValue("x", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("377");
+  topaaaa.addKeyValue("y", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("351");
+  topaaaa.addKeyValue("width", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("433");
+  topaaaa.addKeyValue("height", topaaaaa);
+}
+  topaaa.addKeyValue("UndockedWindowPos", topaaaa);
 }
   topaa.addKeyValue("Table", topaaa);
 }
-  topa.addKeyValue("undocked views", topaa);
+  topa.addKeyValue("view area", topaa);
 }
 {
   FWConfiguration topaa(1);
@@ -1687,6 +1867,10 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topa(1);
   top.addKeyValue("Tables", topa);
+}
+{
+  FWConfiguration topa(1);
+  top.addKeyValue("TriggerTables", topa);
 }
 
   return top_p;

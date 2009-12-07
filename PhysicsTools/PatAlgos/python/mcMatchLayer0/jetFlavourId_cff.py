@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 jetPartons = cms.EDFilter("PartonSelector",
-    withLeptons = cms.bool(False)
+    withLeptons = cms.bool(False),
+    src = cms.InputTag("genParticles")                            
 )
 
 jetPartonAssociation = cms.EDFilter("JetPartonMatcher",

@@ -12,6 +12,26 @@ ttSemiLepHypGeom = cms.EDProducer("TtSemiLepHypGeom",
     leps  = cms.InputTag("selectedLayer1Muons"),
     ## maximal number of jets to be considered
     maxNJets  = cms.int32(4),
-    ## use a delta criterion or not
-    useDeltaR = cms.bool(True)                               
+    ## use deltaR or deltaTheta
+    useDeltaR = cms.bool(True),
+    ## use b-tagging two distinguish between light and b jets
+    useBTagging = cms.bool(False),
+    ## choose algorithm for b-tagging
+    bTagAlgorithm = cms.string("trackCountingHighEffBJetTags"),
+    ## minimum b discriminator value required for b jets and
+    ## maximum b discriminator value allowed for non-b jets
+    minBDiscBJets     = cms.double(1.0),
+    maxBDiscLightJets = cms.double(3.0),
+    ## specify jet correction level as
+    ## No Correction : raw                                     
+    ## L1Offset      : off
+    ## L2Relative    : rel
+    ## L3Absolute    : abs
+    ## L4Emf         : emf
+    ## L5Hadron      : had
+    ## L6UE          : ue
+    ## L7Parton      : part
+    ## a flavor specification will be
+    ## added automatically, when chosen
+    jetCorrectionLevel = cms.string("abs")                                  
 )

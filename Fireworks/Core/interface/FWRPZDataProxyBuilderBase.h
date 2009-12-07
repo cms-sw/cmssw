@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:27 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.h,v 1.3 2008/11/26 01:55:31 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.h,v 1.5 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -28,10 +28,12 @@
 // user include files
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWModelIdFromEveSelector.h"
 
 // forward declarations
 class FWEventItem;
 class FWRhoPhiZView;
+class TEveCaloDataHist;
 
 class FWRPZDataProxyBuilderBase
 {
@@ -64,14 +66,18 @@ public:
    static
    void setUserData(const FWEventItem* iItem,
                     TEveElementList* iElements,
-                    std::vector<FWModelId>& iIds);
+                    std::vector<FWModelIdFromEveSelector>& iIds);
 
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
    static
    std::string typeOfBuilder();
+   
+   ///If TEveCaloDataHist is set in this routine then the TEveCalo3D must be added to the scene
+   virtual void useCalo(TEveCaloDataHist*);
+
 
 protected:
-   std::vector<FWModelId>& ids() {
+   std::vector<FWModelIdFromEveSelector>& ids() {
       return m_ids;
    }
    const FWEventItem* item() const {
@@ -103,7 +109,7 @@ private:
 
    TEveElementList m_rhoPhiProjs;
    TEveElementList m_rhoZProjs;
-   std::vector<FWModelId> m_ids;
+   std::vector<FWModelIdFromEveSelector> m_ids;
 
    float m_layer;
 

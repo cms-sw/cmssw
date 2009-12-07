@@ -75,7 +75,8 @@ std::vector<int> CSCRPCData::BXN() const {
     /// make the two pad words into one and see if it's empty
     //int pad = theData[pos] & 0xff + ((theData[pos+1] & 0x3f) << 8);
    
-    int bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
+    int bxnnew = ((theData[pos+1] >> 8)  & 0x7 ) ;
+    //int bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
    
     int rpc  = (theData[pos]   >> 12) & 0x7;
     //int tbin = (theData[pos]   >> 8)  & 0xf;
@@ -92,16 +93,22 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
   std::vector<CSCRPCDigi> result;
   int bxnold =0 ;
   int bxnnew =0 ;
+  //int bxnewGreg;
   for(int linePair = 0; linePair < ((size_-2)/2); ++linePair) {
     // skip header word
     int pos = linePair*2 + 1;
+    //  LogTrace("RPC") << "+++ CSCRPCData " << std::hex << theData[pos] 
+	//			 << " " << theData[pos+1];
     if (debug) 
       LogTrace("CSCRPCData|CSCRawToDigi") << "+++ CSCRPCData " << std::hex << theData[pos] 
 				 << " " << theData[pos+1];
     // make the two pad words into one and see if it's empty
-    int pad = theData[pos] & 0xff + ((theData[pos+1] & 0xff) << 8);
+    int pad = (theData[pos] & 0xff) + ((theData[pos+1] & 0xff) << 8);
 
-    bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
+    //bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
+    bxnnew = ((theData[pos+1] >> 8)  & 0x7 ) ;
+    //LogTrace("RPC") << "               " << "bxnnew" << " " << bxnnew;
+    //LogTrace("RPC") << "               " << "bxnnewGreg" << " " << bxnewGreg;
     if ( linePair == 0 ) bxnold = bxnnew;
     if ( bxnnew - bxnold > 1 ) 
       LogTrace("CSCRPCData|CSCRawToDigi") << "+++ CSCRPCData warning: RPC BXN is incrementing by more than 1 clock cycle";
@@ -114,10 +121,12 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
       int rpc  = (theData[pos]   >> 12) & 0x7;
       int tbin = (theData[pos]   >> 8)  & 0xf;
       int bxn  = bxnnew;
+      //LogTrace("RPC") << " rpc: " << rpc << " bxn: " << bxn << " tbin: " << tbin;
       for(int i = 0; i < 16; ++i) {
         // if the bit is set, make a digi
         if((pad>>i)&1) {
 	  result.push_back(CSCRPCDigi(rpc, i, bxn, tbin));
+	  //LogTrace("RPC") << "digi-->" << " rpc: " << rpc << " i: " << i << " bxn: " << bxn << " tbin: " << tbin;
         }
       }
     } 

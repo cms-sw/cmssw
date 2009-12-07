@@ -2,6 +2,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -10,8 +11,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
@@ -24,11 +27,6 @@ SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
-
-  // start the counters
-  eventCounter = 0;
-  allDigiCounter = 0;
-  allWordCounter = 0;
 
 }
 
@@ -44,31 +42,39 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
                               const edm::EventSetup& es)
 {
   using namespace sipixelobjects;
+  static unsigned long eventCounter = 0;
+
   eventCounter++;
   edm::LogInfo("SiPixelDigiToRaw") << "[SiPixelDigiToRaw::produce] "
-                                   << "event number: " << eventCounter;
+                        << "event number: "
+                        << eventCounter;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
-  label = config_.getParameter<edm::InputTag>("InputLabel");
+  //static string label = config_.getUntrackedParameter<string>("InputLabel","source");
+  static edm::InputTag label = config_.getParameter<edm::InputTag>("InputLabel");
   ev.getByLabel( label, digiCollection);
 
   PixelDataFormatter::Digis digis;
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
 
-  int digiCounter = 0; 
+  static int allDigiCounter = 0;  
+  static int allWordCounter = 0;
+         int digiCounter = 0; 
   for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
     digiCounter += (di->data).size(); 
     digis[ di->id] = di->data;
+//    digis.push_back(*di);
   }
   allDigiCounter += digiCounter;
 
+  static edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   if (recordWatcher.check( es )) {
     edm::ESHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
     if (cablingTree_) delete cablingTree_; cablingTree_= cablingMap->cablingTree();
   }
 
-  debug = edm::MessageDrop::instance()->debugEnabled;
+  static bool debug = edm::MessageDrop::instance()->debugEnabled;
   if (debug) LogDebug("SiPixelDigiToRaw") << cablingTree_->version();
   
   PixelDataFormatter formatter(cablingTree_);

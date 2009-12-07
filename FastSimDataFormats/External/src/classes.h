@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace { 
-  namespace { // dummy is a dummy
+  struct dictionary { // dummy is a dummy
     
     FastL1BitInfoCollection dummy01;
     edm::Wrapper<FastL1BitInfoCollection> dummy02;
@@ -25,8 +25,5 @@ namespace {
       edm::refhelper::FindUsingAdvance<edm::RangeMap<unsigned int,edm::OwnVector<FastTrackerCluster,
       edm::ClonePolicy<FastTrackerCluster> >,edm::ClonePolicy<FastTrackerCluster> >,FastTrackerCluster> > d8;
 
-
-
-      
-      } 
+  }; 
 }

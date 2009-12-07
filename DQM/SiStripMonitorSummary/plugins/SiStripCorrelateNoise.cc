@@ -206,7 +206,7 @@ SiStripCorrelateNoise::getHistos(const uint32_t& detid,std::vector<TH1F*>& histo
 }
 
 TH1F*
-SiStripCorrelateNoise::getHisto(const size_t& index){
+SiStripCorrelateNoise::getHisto(const long unsigned int& index){
   if(vTH1.size()<index+1)
     vTH1.resize(index+1,0);
   
@@ -221,7 +221,7 @@ SiStripCorrelateNoise::getHisto(const size_t& index){
       SubD="TOB";
     else 
       SubD="TEC";
-    sprintf(name,"%d_%d__%s",theRun,index,SubD.c_str());
+    sprintf(name,"%d_%lu__%s",theRun,index,SubD.c_str());
     edm::LogInfo("")<<"[getHisto] creating index " << index << std::endl;
     vTH1[index]=new TH1F(name,name,200,-0.5,10.5);
   }

@@ -331,7 +331,7 @@ from RecoMuon.Configuration.RecoMuon_cff import *
 ## Barrel only ##
 
 # Seed generator 
-lhcMuonSeedBarrelOnly = MuonSeed.clone()
+lhcMuonSeedBarrelOnly = ancientMuonSeed.clone()
 lhcMuonSeedBarrelOnly.EnableCSCMeasurement = False
 
 # Stand alone muon track producer
@@ -360,7 +360,7 @@ muonrecocosmicLHCBarrelOnly = cms.Sequence(lhcMuonBarrelOnly*lhcSTAMuonsBarrelOn
 ## Endcaps only ##
 
 # Seed generator
-lhcMuonSeedEndCapsOnly = MuonSeed.clone()
+lhcMuonSeedEndCapsOnly = ancientMuonSeed.clone()
 lhcMuonSeedEndCapsOnly.EnableDTMeasurement = False
 
 # Stand alone muon track producer

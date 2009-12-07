@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// GEANT4 tag $Name: geant4-09-02 $
+// GEANT4 tag $Name: V03-01-08 $
 //
 //---------------------------------------------------------------------------
 //
@@ -43,6 +43,8 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTable.hh"
 #include "G4ProcessManager.hh"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 G4MiscLHEPBuilder_WP::G4MiscLHEPBuilder_WP(): wasActivated(false)
 {
@@ -66,7 +68,7 @@ void G4MiscLHEPBuilder_WP::Build()
   theAntiProtonInelastic.RegisterMe(theLEAntiProtonModel);
   theAntiProtonInelastic.RegisterMe(theHEAntiProtonModel);
   //  aProcMan->AddDiscreteProcess(&theAntiProtonInelastic);
-  std::cout << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4AntiProtonInelasticProcess" << std::endl;
+  edm::LogInfo("SimG4CoreGFlash") << " Adding GflashHadronWrapperProcess (G4wrapperProcess) for G4AntiProtonInelasticProcess" ;
   theWrappedAntiProtonInelastic->RegisterProcess(&theAntiProtonInelastic);
   aProcMan->AddDiscreteProcess(theWrappedAntiProtonInelastic);
 

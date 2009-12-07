@@ -4,35 +4,54 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 
 patFixedConePFTauDiscrimination = cms.Sequence(
-    fixedConePFTauDiscriminationByIsolation +
     fixedConePFTauDiscriminationByLeadingTrackFinding +
     fixedConePFTauDiscriminationByLeadingTrackPtCut +
+    fixedConePFTauDiscriminationByLeadingPionPtCut +
+    fixedConePFTauDiscriminationByIsolation +
     fixedConePFTauDiscriminationByTrackIsolation +
     fixedConePFTauDiscriminationByECALIsolation +
+    fixedConePFTauDiscriminationByIsolationUsingLeadingPion +
+    fixedConePFTauDiscriminationByTrackIsolationUsingLeadingPion +
+    fixedConePFTauDiscriminationByECALIsolationUsingLeadingPion +
     fixedConePFTauDiscriminationAgainstElectron +
     fixedConePFTauDiscriminationAgainstMuon
 )
 patFixedConeHighEffPFTauDiscrimination = cms.Sequence(
-    fixedConeHighEffPFTauDiscriminationByIsolation +
     fixedConeHighEffPFTauDiscriminationByLeadingTrackFinding +
     fixedConeHighEffPFTauDiscriminationByLeadingTrackPtCut +
+    fixedConeHighEffPFTauDiscriminationByLeadingPionPtCut +
+    fixedConeHighEffPFTauDiscriminationByIsolation +
     fixedConeHighEffPFTauDiscriminationByTrackIsolation +
     fixedConeHighEffPFTauDiscriminationByECALIsolation +
+    fixedConeHighEffPFTauDiscriminationByIsolationUsingLeadingPion +
+    fixedConeHighEffPFTauDiscriminationByTrackIsolationUsingLeadingPion +
+    fixedConeHighEffPFTauDiscriminationByECALIsolationUsingLeadingPion +
     fixedConeHighEffPFTauDiscriminationAgainstElectron +
     fixedConeHighEffPFTauDiscriminationAgainstMuon
 )
 patShrinkingConePFTauDiscrimination = cms.Sequence(
-    shrinkingConePFTauDiscriminationByIsolation +
     shrinkingConePFTauDiscriminationByLeadingTrackFinding +
     shrinkingConePFTauDiscriminationByLeadingTrackPtCut +
+    shrinkingConePFTauDiscriminationByLeadingPionPtCut +
+    shrinkingConePFTauDiscriminationByIsolation +
     shrinkingConePFTauDiscriminationByTrackIsolation +
     shrinkingConePFTauDiscriminationByECALIsolation +
+    shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion +
+    shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion +
+    shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion +
     shrinkingConePFTauDiscriminationAgainstElectron +
-    shrinkingConePFTauDiscriminationAgainstMuon
+    shrinkingConePFTauDiscriminationAgainstMuon +
+    shrinkingConePFTauDecayModeProducer +
+    shrinkingConePFTauDecayModeIndexProducer +
+    shrinkingConePFTauDiscriminationByTaNC +
+    shrinkingConePFTauDiscriminationByTaNCfrOnePercent +
+    shrinkingConePFTauDiscriminationByTaNCfrHalfPercent +
+    shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent +
+    shrinkingConePFTauDiscriminationByTaNCfrTenthPercent
 )
 
 patCaloTauDiscrimination = cms.Sequence(
-    #caloRecoTauDiscriminationAgainstElectron  +  # Not on AOD
+    caloRecoTauDiscriminationAgainstElectron  +  
     caloRecoTauDiscriminationByIsolation +
     caloRecoTauDiscriminationByLeadingTrackFinding +
     caloRecoTauDiscriminationByLeadingTrackPtCut 

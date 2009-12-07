@@ -2,11 +2,9 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
-<use name=Utilities/Timing>
 <use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/SiStripDigi>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 <use name=DQM/SiStripCommon>  
@@ -21,15 +19,5 @@
 
 <export>
    <lib name=DQMSiStripMonitorPedestals>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/MessageLogger>
-   <use name=Utilities/Timing>
-   <use name=DataFormats/Common>
-   <use name=DataFormats/FEDRawData>
-   <use name=DataFormats/SiStripDetId>
-   <use name=DataFormats/SiStripDigi>
-   <use name=CondFormats/DataRecord>
-   <use name=CondFormats/SiStripObjects>
 </export>
 

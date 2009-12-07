@@ -31,7 +31,7 @@ class EgammaHLTRecoEcalCandidateProducers : public edm::EDProducer {
   ~EgammaHLTRecoEcalCandidateProducers();
 
 
-  virtual void beginJob (edm::EventSetup const & es);
+  virtual void beginJob(void);
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:

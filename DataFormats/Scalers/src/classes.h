@@ -7,6 +7,8 @@
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/TimeSpec.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -22,6 +24,8 @@ namespace
     Level1TriggerScalers level1TriggerScalers;
     Level1TriggerRates level1TriggerRates;
     LumiScalers lumiScalers;
+    DcsStatus dcsStatus;
+    BeamSpotOnline beamSpotOnline;
 
     edm::Wrapper<L1AcceptBunchCrossing> w_l1AcceptBunchCrossing;
     edm::Wrapper<L1TriggerScalers> w_l1TriggerScalers;
@@ -29,6 +33,8 @@ namespace
     edm::Wrapper<Level1TriggerScalers> w_level1TriggerScalers;
     edm::Wrapper<Level1TriggerRates> w_level1TriggerRates;
     edm::Wrapper<LumiScalers> w_lumiScalers;
+    edm::Wrapper<DcsStatus> w_dcsStatus;
+    edm::Wrapper<BeamSpotOnline> w_beamSpotOnline;
 
     edm::RefProd<L1AcceptBunchCrossing> l1AcceptBunchCrossingRef ;
     edm::RefProd<L1TriggerScalers> l1TriggerScalersRef ;
@@ -36,6 +42,8 @@ namespace
     edm::RefProd<Level1TriggerScalers> level1TriggerScalersRef ;
     edm::RefProd<Level1TriggerRates> level1TriggerRatesRef ;
     edm::RefProd<LumiScalers> lumiScalersRef ;
+    edm::RefProd<DcsStatus> dcsStatusRef ;
+    edm::RefProd<BeamSpotOnline> beamSpotOnlineRef ;
 
     L1AcceptBunchCrossingCollection l1AcceptBunchCrossingCollection;
     edm::Wrapper<L1AcceptBunchCrossingCollection> 
@@ -55,5 +63,11 @@ namespace
 
     LumiScalersCollection lumiScalersCollection;
     edm::Wrapper<LumiScalersCollection> w_lumiScalersCollection;
+
+    DcsStatusCollection dcsStatusCollection;
+    edm::Wrapper<DcsStatusCollection> w_dcsStatusCollection;
+
+    BeamSpotOnlineCollection beamSpotOnlineCollection;
+    edm::Wrapper<BeamSpotOnlineCollection> w_beamSpotOnlineCollection;
   };
 }

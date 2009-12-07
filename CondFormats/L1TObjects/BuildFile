@@ -7,16 +7,10 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>
 <use name=DataFormats/L1GlobalTrigger>
-
+<use name=DataFormats/StdDictionaries>
 <export>
-  <use name=CondFormats/Common>
   <lib name=CondFormatsL1TObjects>
   <use name=boost>
-  <use name=FWCore/Framework>
-  <use name=DataFormats/MuonDetId>
   <use name=rootrflx>
-  <use name=DataFormats/L1GlobalMuonTrigger>
-  <use name=DataFormats/L1GlobalCaloTrigger>
-  <use name=DataFormats/L1GlobalTrigger>
 </export>
 

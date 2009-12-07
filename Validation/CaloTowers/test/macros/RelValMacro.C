@@ -23,7 +23,7 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   const int TTbar_RH_nHistTot = 95; 
   const int TTbar_RH_nHist1   = 20;
   const int TTbar_RH_nHist2   = 4;
-  const int TTbar_RH_nProfInd = 20;
+  const int TTbar_RH_nProfInd = 12;
 
   TString RH_HistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
 
@@ -50,7 +50,11 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
 
 void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir){
 
-  TCanvas* myc;
+  TCanvas* myc = 0;
+  TLegend* leg = 0;
+  TPaveText* ptchi2 = 0;
+  TPaveStats *ptstats_r = 0;
+  TPaveStats *ptstats_v = 0;
 
   TH1F*     ref_hist1[nHist1];
   TH2F*     ref_hist2[nHist2];
@@ -61,10 +65,6 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
   TH2F*     val_hist2[nHist2];
   TProfile* val_prof[nProfInd];
   TH1D*     val_fp[nProfInd];
-
-  //Workaround for ROOT bug: gPad must first be invoked outside
-  //of "for" loop or one risks random failures
-  gPad->SetLogy(0);
   
   int i;
   int DrawSwitch;
@@ -72,7 +72,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
   int RefCol, ValCol;
   TString HistName, HistName2;
   char xAxisTitle[200];
-  float xAxisRange, yAxisRange, xMin, yMin;
+  int nRebin;
+  float xAxisMin, xAxisMax, yAxisMin, yAxisMax;
   TString OutLabel;
   string xTitleCheck;
 
@@ -88,7 +89,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
     recstr>>HistName>>DrawSwitch;
     if (DrawSwitch == 0) continue;
     
-    recstr>>OutLabel>>xAxisRange>>yAxisRange;
+    recstr>>OutLabel>>nRebin;
+    recstr>>xAxisMin>>xAxisMax>>yAxisMin>>yAxisMax;
     recstr>>DimSwitch>>StatSwitch>>Chi2Switch>>LogSwitch;
     recstr>>RefCol>>ValCol;
     recstr.getline(xAxisTitle,200);
@@ -106,8 +108,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
     xTitleCheck = xTitleCheck.substr(1,7);
 
     //Format pad
-    if (LogSwitch == "Log") gPad->SetLogy(1);
-    else                    gPad->SetLogy(0);
+    if (LogSwitch == "Log") myc->SetLogy(1);
+    else                    myc->SetLogy(0);
 
     if (DimSwitch == "1D"){
       //Get histograms from files
@@ -118,24 +120,26 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
 
       //Rebin histograms -- has to be done first
-      if (Chi2Switch == "Chi2" && OutLabel[2] != 'X'){
-	ref_hist1[nh1]->Rebin(10);
-	val_hist1[nh1]->Rebin(10);
+      if (nRebin != 1){
+ 	ref_hist1[nh1]->Rebin(nRebin);
+ 	val_hist1[nh1]->Rebin(nRebin);
       }
       
       //Set the colors, styles, titles, stat boxes and format axes for the histograms 
       if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetStats(kFALSE);   
-      
-      if (xAxisRange > 0){
-	xMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
-	ref_hist1[nh1]->GetXaxis()->SetRangeUser(xMin,xAxisRange);
-      }
-      if (yAxisRange > 0){
-	yMin = ref_hist1[nh1]->GetYaxis()->GetXmin();
-	if (yMin <= 0 && LogSwitch == "Log") yMin = 1E-5;
-	ref_hist1[nh1]->GetYaxis()->SetRangeUser(yMin,yAxisRange);
-      }
 
+      //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+      //xAxis
+      if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
+      if (xAxisMax <  0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
+
+      if (xAxisMax > 0 || xAxisMin != 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+
+      //yAxis
+      if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
+      if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
+
+      //Title
       if (xTitleCheck != "NoTitle") ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
 
       //Different histo colors and styles
@@ -178,7 +182,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
 	mystream<<tempbuff;
 	
-	TPaveText* ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
+	ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
 	
 	if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
 	else                 ptchi2->SetFillColor(kRed);
@@ -196,16 +200,17 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 
       //Stat Box where required
       if (StatSwitch == "Stat" || StatSwitch == "Statrv"){
-	TPaveStats *ptstats = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
-	ptstats->SetTextColor(RefCol);
-	ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-	ptstats->SetParent(ref_hist1[nh1]->GetListOfFunctions());
-	TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
-	ptstats->SetTextColor(ValCol);
-	val_hist1[nh1]->GetListOfFunctions()->Add(ptstats);
-	ptstats->SetParent(val_hist1[nh1]->GetListOfFunctions());
+	ptstats_r = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
+	ptstats_r->SetTextColor(RefCol);
+	ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats_r);
+	ptstats_r->SetParent(ref_hist1[nh1]->GetListOfFunctions());
+	ptstats_v = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
+	ptstats_v->SetTextColor(ValCol);
+	val_hist1[nh1]->GetListOfFunctions()->Add(ptstats_v);
+	ptstats_v->SetParent(val_hist1[nh1]->GetListOfFunctions());
 	
-	ptstats->Draw();
+        ptstats_r->Draw();
+        ptstats_v->Draw();
       }
 
       leg->Draw();   
@@ -224,7 +229,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       val_prof[npi] = (TProfile*) gDirectory->Get(HistName);
       
       //Legend
-      TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+      leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
       leg->SetBorderSize(2);
       leg->SetFillStyle(1001); 
 
@@ -265,8 +270,9 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       }
       //Wide profiles
       else if (DimSwitch == "PRwide"){
+        TString temp = HistName + "_px_v";
 	ref_fp[npi] = ref_prof[npi]->ProjectionX();    
-	val_fp[npi] = val_prof[npi]->ProjectionX();
+	val_fp[npi] = val_prof[npi]->ProjectionX(temp.Data());
 	
 	ref_fp[npi]->SetTitle("");
 	val_fp[npi]->SetTitle("");
@@ -328,7 +334,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
 
       //Legend
-      TLegend *leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");
+      leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");
       leg->SetBorderSize(2);
       leg->SetFillStyle(1001); 
       
@@ -356,6 +362,11 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       nh2++;
       i++;
     }
+    if(myc) delete myc;
+    if(leg) delete leg;
+    if(ptchi2) delete ptchi2;
+    if(ptstats_r) delete ptstats_r;
+    if(ptstats_v) delete ptstats_v;
   }
   return;    
 }

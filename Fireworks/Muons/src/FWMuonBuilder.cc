@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.11 2009/08/26 22:24:01 dmytro Exp $
+// $Id: FWMuonBuilder.cc,v 1.12 2009/08/27 14:45:39 chrjones Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 
-#include "Fireworks/Tracks/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/CmsMagField.h"
 
 //

@@ -21,7 +21,7 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       void analyze(const edm::Event& e, const edm::EventSetup& c);
 
       /// BeginJob
-      void beginJob(const edm::EventSetup& c);
+      void beginJob(void);
 
       /// EndJob
       void endJob(void);
@@ -62,16 +62,21 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       MonitorElement* meDCCCRCErr_;
       MonitorElement* meOptoRX_;
       MonitorElement* meOptoBC_;
-      MonitorElement* meFiberStatus_;
+      MonitorElement* meFiberBadStatus_;
+      MonitorElement* meFiberOff_;
+      MonitorElement* meEVDR_;
       MonitorElement* meKF1_;
       MonitorElement* meKF2_;
       MonitorElement* meKBC_;
       MonitorElement* meKEC_;
+      MonitorElement* meDIErrors_[2][2];
+
+      edm::FileInPath lookup_;
 
       bool init_;
       int runNum_, eCount_, runtype_, seqtype_, dac_, gain_, precision_;
       int firstDAC_, nDAC_, isPed_, vDAC_[5]; 
-
+      int fed_[2][2][40][40], kchip_[2][2][40][4], fiber_[2][2][40][40];
 };
 
 #endif

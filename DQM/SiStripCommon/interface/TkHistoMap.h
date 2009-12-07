@@ -27,13 +27,14 @@ class TkHistoMap{
   std::vector<MonitorElement*>& getAllMaps(){return tkHistoMap_;};
 
   float getValue(uint32_t& detid);
+  float getEntries(uint32_t& detid);
   uint32_t getDetId(std::string title, int ix, int iy){return getDetId(getLayerNum(getLayerName(title)),ix,iy);}
   uint32_t getDetId(int layer, int ix, int iy){return tkdetmap_->getDetFromBin(layer,ix,iy);}
   uint32_t getDetId(MonitorElement*ME, int ix, int iy){return getDetId(ME->getTitle(),ix,iy);}
   std::string getLayerName(std::string title){return title.erase(0,MapName_.size()+1);}
   uint16_t getLayerNum(std::string layerName){return tkdetmap_->getLayerNum(layerName);}
 
-  void fillFromAscii(std::string filename);
+  void fillFromAscii(char* filename);
   void fill(uint32_t& detid,float value);
   void setBinContent(uint32_t& detid,float value);
   void add(uint32_t& detid,float value);

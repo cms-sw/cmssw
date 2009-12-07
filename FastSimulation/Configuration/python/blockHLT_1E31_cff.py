@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre4/1E31/V4 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
+# /dev/CMSSW_3_3_3/1E31/V34 (CMSSW_3_3_3_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/1E31/V4')
+  tableName = cms.string('/dev/CMSSW_3_3_3/1E31/V34')
 )
 
 
@@ -36,8 +36,9 @@ block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   ePhiMax1 = cms.double( 0.03 ),
   DeltaPhi2 = cms.double( 0.0040 ),
   SizeWindowENeg = cms.double( 0.675 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
   rMaxI = cms.double( 0.2 ),
-  PhiMax2 = cms.double( 0.01 ),
+  rMinI = cms.double( -0.2 ),
   preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.3 ),
   pPhiMin1 = cms.double( -0.03 ),
@@ -50,11 +51,11 @@ block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.2 ),
   hbheInstance = cms.string( "" ),
-  rMinI = cms.double( -0.2 ),
+  PhiMax2 = cms.double( 0.01 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  applyHOverECut = cms.bool( False ),
+  hOverEHFMinE = cms.double( 999999.0 )
 )
 block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -84,8 +85,9 @@ block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   ePhiMax1 = cms.double( 0.03 ),
   DeltaPhi2 = cms.double( 0.0040 ),
   SizeWindowENeg = cms.double( 0.675 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
   rMaxI = cms.double( 0.2 ),
-  PhiMax2 = cms.double( 0.01 ),
+  rMinI = cms.double( -0.2 ),
   preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.3 ),
   pPhiMin1 = cms.double( -0.03 ),
@@ -98,11 +100,11 @@ block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.2 ),
   hbheInstance = cms.string( "" ),
-  rMinI = cms.double( -0.2 ),
+  PhiMax2 = cms.double( 0.01 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  applyHOverECut = cms.bool( False ),
+  hOverEHFMinE = cms.double( 999999.0 )
 )
 block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -132,8 +134,9 @@ block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   ePhiMax1 = cms.double( 0.025 ),
   DeltaPhi2 = cms.double( 0.0040 ),
   SizeWindowENeg = cms.double( 0.675 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
   rMaxI = cms.double( 0.11 ),
-  PhiMax2 = cms.double( 0.0050 ),
+  rMinI = cms.double( -0.11 ),
   preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.08 ),
   pPhiMin1 = cms.double( -0.025 ),
@@ -146,11 +149,11 @@ block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.05 ),
   hbheInstance = cms.string( "" ),
-  rMinI = cms.double( -0.11 ),
+  PhiMax2 = cms.double( 0.0050 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  applyHOverECut = cms.bool( False ),
+  hOverEHFMinE = cms.double( 999999.0 )
 )
 block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -180,8 +183,9 @@ block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   ePhiMax1 = cms.double( 0.025 ),
   DeltaPhi2 = cms.double( 0.0040 ),
   SizeWindowENeg = cms.double( 0.675 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 ),
   rMaxI = cms.double( 0.11 ),
-  PhiMax2 = cms.double( 0.0050 ),
+  rMinI = cms.double( -0.11 ),
   preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.08 ),
   pPhiMin1 = cms.double( -0.025 ),
@@ -194,9 +198,9 @@ block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.05 ),
   hbheInstance = cms.string( "" ),
-  rMinI = cms.double( -0.11 ),
+  PhiMax2 = cms.double( 0.0050 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
+  applyHOverECut = cms.bool( False ),
+  hOverEHFMinE = cms.double( 999999.0 )
 )

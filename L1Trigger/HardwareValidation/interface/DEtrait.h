@@ -56,7 +56,8 @@ namespace dedefs {
     ECALtp, HCALtp, 
     RCTem, RCTrgn, 
     GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
-    DTtpPh, DTtpTh, DTtf, DTtftrk,  
+    GCTethad, GCTetmiss, GCTettot, GCThtmiss, GCThfring, GCThfbit, GCTjetcnt, 
+    DTtpPh, DTtpTh, DTtf, DTtftrk, 
     CSCtpa, CSCtpc, CSCtpl, CSCsta, CSCtf, CSCtftrk, CSCtftrc, CSCtfsta, 
     MUrtf,     RPCcen, RPCfor, 
     LTCi, 
@@ -120,6 +121,49 @@ struct DEtrait<L1GctJetCandCollection> {
   typedef L1GctJetCandCollection coll_type;
   typedef L1GctJetCand           cand_type;
   static inline int de_type() {return dedefs::GCTjet;}
+};
+
+template<> 
+struct DEtrait<L1GctEtHadCollection> {
+  typedef L1GctEtHadCollection coll_type;
+  typedef L1GctEtHad           cand_type;
+  static inline int de_type() {return dedefs::GCTethad;}
+};
+template<> 
+struct DEtrait<L1GctEtMissCollection> {
+  typedef L1GctEtMissCollection coll_type;
+  typedef L1GctEtMiss cand_type;
+  static inline int de_type() {return dedefs::GCTetmiss;}
+};
+template<> 
+struct DEtrait<L1GctEtTotalCollection> {
+  typedef L1GctEtTotalCollection coll_type;
+  typedef L1GctEtTotal           cand_type;
+  static inline int de_type() {return dedefs::GCTettot;}
+};
+template<> 
+struct DEtrait<L1GctHtMissCollection> {
+  typedef L1GctHtMissCollection coll_type;
+  typedef L1GctHtMiss           cand_type;
+  static inline int de_type() {return dedefs::GCThtmiss;}
+};
+template<> 
+struct DEtrait<L1GctHFRingEtSumsCollection> {
+  typedef L1GctHFRingEtSumsCollection coll_type;
+  typedef L1GctHFRingEtSums           cand_type;
+  static inline int de_type() {return dedefs::GCThfring;}
+};
+template<> 
+struct DEtrait<L1GctHFBitCountsCollection> {
+  typedef L1GctHFBitCountsCollection coll_type;
+  typedef L1GctHFBitCounts           cand_type;
+  static inline int de_type() {return dedefs::GCThfbit;}
+};
+template<> 
+struct DEtrait<L1GctJetCountsCollection> {
+  typedef L1GctJetCountsCollection coll_type;
+  typedef L1GctJetCounts           cand_type;
+  static inline int de_type() {return dedefs::GCTjetcnt;}
 };
 
 template<> 

@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 # (equivalent) genParticles of the top decay 
 #
 decaySubset = cms.EDProducer("TopDecaySubset",
-    src = cms.InputTag("genParticles"),
-    addRadiatedGluons = cms.bool(True)
+  src = cms.InputTag("genParticles"),
+  fillMode = cms.string("kStable"),
+  addRadiatedGluons = cms.bool(True)
 )
 
