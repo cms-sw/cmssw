@@ -38,7 +38,7 @@ process.GlobalTag.DumpStat =  True
 
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(3),
+    lastValue = cms.uint64(options.runNumber+1),
     timetype = cms.string('runnumber'),
     firstValue = cms.uint64(options.runNumber-1),
     interval = cms.uint64(1)
@@ -46,6 +46,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 
 process.get = cms.EDFilter("EventSetupRecordDataGetter",
+                           toGet =  cms.VPSet(),
                            verbose = cms.untracked.bool(True)
                            )
 

@@ -1,3 +1,18 @@
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('runNumber',
+                 4294967294, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run number; default gives latest IOV")
+options.register('globalTag',
+                 'IDEAL', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "GlobalTag")
+options.parseArguments()
+
+
 import DLFCN, sys, os, time
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
@@ -6,7 +21,7 @@ a = FWIncantation()
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 logName = "oracle://cms_orcoff_prod/CMS_COND_31X_POPCONLOG"
 gdbName = "oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG"
-gName = 'CRAFT09_R_V9::All'
+gName = options.globalTag+'::All'
 globalTag = rdbms.globalTag(gdbName,gName,"","")
 
 
@@ -43,15 +58,12 @@ process.GlobalTag.DumpStat =  True
 #           )
 #)
 
-
-
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(3),
+    lastValue = cms.uint64(options.runNumber+1),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
+    firstValue = cms.uint64(options.runNumber-1),
     interval = cms.uint64(1)
 )
-
 
 process.get = cms.EDFilter("EventSetupRecordDataGetter",
                            toGet = records,
