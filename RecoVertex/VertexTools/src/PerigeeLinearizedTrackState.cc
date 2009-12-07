@@ -126,6 +126,10 @@ AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters()
 AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int & error) const
 {
   if (!jacobiansAvailable) computeJacobians();
+  if (!thePredState.isValid()) {
+    error = 1;
+    return AlgebraicSymMatrix55();
+  }
   return thePredState.perigeeError().weightMatrix(error);
 }
   
