@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.75 2009/12/06 18:33:47 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.76 2009/12/07 13:59:31 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -197,6 +197,7 @@ CmsShowNavigator::firstEvent()
             goTo(x, (*x)->firstSelectedEvent());
             return;
          }
+         ++x;
       }
    }
    else
@@ -208,13 +209,22 @@ CmsShowNavigator::firstEvent()
 void
 CmsShowNavigator::lastEvent()
 {
-   FileQueue_i x = m_files.end(); --x;
+   FileQueue_i x = m_files.end();
    if (m_filterState == kOn)
    {
-      goTo(x, (*x)->lastSelectedEvent());
+      while (x != m_files.begin())
+      {
+         --x;
+         if ((*x)->hasSelectedEvents())
+         {
+            goTo(x, (*x)->lastSelectedEvent());
+            return;
+         }
+      }
    }
    else
    {
+      --x;
       goTo(x, (*x)->lastEvent());
    }
 }
