@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.5 2009/12/05 20:40:13 amraktad Exp $
+// $Id: TrackUtils.cc,v 1.6 2009/12/07 01:09:13 dmytro Exp $
 //
 
 // system include files
@@ -498,7 +498,7 @@ namespace fireworks {
 	}
 	
 	void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color) {
-      char* title = "TrackHits";
+      const char* title = "TrackHits";
       for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
 
 // -- get ring number (position of module in rho)			
