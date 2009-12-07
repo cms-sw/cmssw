@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.8 2009/11/04 10:14:16 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.9 2009/11/05 12:23:58 amagnan Exp $
 //
 
 #include <sstream>
@@ -75,7 +75,6 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
  private:
 
   struct Statistics {
-    double Previous;
     double Mean;
     double Rms;
     double Counter;
