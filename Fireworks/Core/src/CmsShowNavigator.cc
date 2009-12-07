@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.76 2009/12/07 13:59:31 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.77 2009/12/07 14:17:04 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -122,7 +122,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
          if (m_files.size() >= m_maxNumberOfFilesToChain)
             printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
       }
-      
+
       m_files.push_back(newFile);
 
       // Needed for proper handling of first registered file when -port option is in effect.
@@ -465,7 +465,7 @@ CmsShowNavigator::addFilter(FWEventSelector* ref)
 }
 
 void
-CmsShowNavigator::changeFilter(FWEventSelector* selector)
+CmsShowNavigator::changeFilter(FWEventSelector* selector, bool filterNeedUpdate)
 {
   // printf("change filter %s\n", selector->m_expression.c_str());
 
@@ -476,11 +476,10 @@ CmsShowNavigator::changeFilter(FWEventSelector* selector)
       {
          if ((*it)->m_selector == selector)
          {
-            (*it)->m_needsUpdate = true;
+            if (filterNeedUpdate)  (*it)->m_needsUpdate = true;
             (*it)->m_selector->m_expression  = selector->m_expression;
             break;
          }
-
       }
    }
    m_filtersNeedUpdate = true;
@@ -529,9 +528,10 @@ CmsShowNavigator::applyFiltersFromGUI()
             FWEventSelector* o = *si;
             if (o->m_enabled != g->m_enabled)
                m_filtersNeedUpdate = true;
-            if (o->m_expression != g->m_expression || o->m_enabled != g->m_enabled) {
+            bool filterNeedUpdate = o->m_expression != g->m_expression;
+            if (filterNeedUpdate || o->m_enabled != g->m_enabled) {
                *o = *g;
-               changeFilter(*si);
+               changeFilter(*si, filterNeedUpdate);
             }
             else
             {
@@ -623,6 +623,7 @@ CmsShowNavigator::updateSelectorsInfo()
    while ( sel != m_selectors.end())
    {
       (*sel)->m_selected = 0;
+      (*sel)->m_updated  = true;
       ++sel;
    }
 
@@ -637,6 +638,9 @@ CmsShowNavigator::updateSelectorsInfo()
          {
             (*i)->m_selector->m_selected += (*i)->m_eventList->GetN();
          }
+
+         if ((*i)->m_needsUpdate) 
+            (*i)->m_selector->m_updated = false;
       }
    }
    if (m_guiFilter) 

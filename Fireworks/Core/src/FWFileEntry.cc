@@ -281,8 +281,8 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
          ++itAddress;
       }
    }
-   
-   m_filtersNeedUpdate = false;
+
+   filter->m_needsUpdate = false;
 }
 
 //______________________________________________________________________________
@@ -379,5 +379,6 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
    }
    m_event->to(currentEvent);
 
+   filterEntry->m_needsUpdate = false;
    return true;
 }

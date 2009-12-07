@@ -44,10 +44,10 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
 
    TGHorizontalFrame* labFrame = new TGHorizontalFrame(this, 40, 22, kFixedSize);
    AddFrame(labFrame, new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
-   const char* txtInfo  =  Form("%3d",  m_origSelector ? m_origSelector->m_selected : -1);
-   m_nEvents = new TGLabel(labFrame, txtInfo);
+   m_nEvents = new TGLabel(labFrame, "");
    labFrame->AddFrame(m_nEvents,  new TGLayoutHints(kLHintsBottom));
-
+   updateNEvents();
+  
    // ---------------- enable
 
    m_enableBtn = new TGCheckButton(this,"");
@@ -99,12 +99,23 @@ void FWGUIEventSelector::expressionCallback(char* txt)
 //______________________________________________________________________________
 void FWGUIEventSelector::selectorChanged()
 {
-  Emit("selectorChanged()");
+   Emit("selectorChanged()");
+   m_origSelector->m_updated = false;
 }
 
 //______________________________________________________________________________
 void FWGUIEventSelector::updateNEvents()
 {
-   const char* txtInfo  =  Form("%3d",  m_origSelector ? m_origSelector->m_selected : -1);
-   m_nEvents->SetText(txtInfo);
+  
+   if (m_origSelector && m_origSelector->m_updated)
+   {
+      m_nEvents->Enable();
+      const char* txtInfo  =  Form("%3d",  m_origSelector ? m_origSelector->m_selected : -1);
+      m_nEvents->SetText(txtInfo);
+   }
+   else
+   {
+      m_nEvents->Disable();
+      m_nEvents->SetText("   ~ ");
+   }
 }
