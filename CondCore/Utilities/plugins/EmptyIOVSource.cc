@@ -39,7 +39,7 @@ namespace cond{
   EmptyIOVSource::~EmptyIOVSource() {
   }
   bool EmptyIOVSource::produce( edm::Event & e ) {
-    book ok = !(m_lastValid<m_current);
+    bool ok = !(m_lastValid<m_current);
     m_current += m_interval;
     return ok;
   }  
