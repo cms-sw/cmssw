@@ -319,6 +319,108 @@ void testdependentrecord::timeAndRunTest()
 
    CPPUNIT_ASSERT(overlapInterval3 == finder.findIntervalFor(depRecordKey, 
                                                             edm::IOVSyncValue(edm::EventID(1, 1, 7),edm::Timestamp(7))));
+   
+   //check with invalid intervals
+   const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),edm::IOVSyncValue::invalidIOVSyncValue());
+   dummyProvider1->setValidityInterval(invalid);
+   CPPUNIT_ASSERT(overlapInterval3 == finder.findIntervalFor(depRecordKey, 
+                                                            edm::IOVSyncValue(edm::EventID(1, 1, 11),edm::Timestamp(8))));
+   
+   const edm::ValidityInterval definedInterval5( edm::IOVSyncValue(edm::EventID(1,1,12)), 
+                                                edm::IOVSyncValue(edm::EventID(1, 1, 20)));
+   dummyProvider1->setValidityInterval(definedInterval5);
+   dummyProvider2->setValidityInterval(invalid);
+   const edm::ValidityInterval overlapInterval4(definedInterval5.first(),
+					       edm::IOVSyncValue::invalidIOVSyncValue());
+
+   CPPUNIT_ASSERT(overlapInterval4 == finder.findIntervalFor(depRecordKey, 
+                                                            edm::IOVSyncValue(edm::EventID(1, 1, 13),edm::Timestamp(11))));
+   
+   {
+      //check for bug which only happens the first time we synchronize
+      // have the second one invalid
+      boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
+                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+
+      const edm::EventID eID_1(1, 1, 1);
+      const edm::IOVSyncValue sync_1(eID_1);
+      const edm::ValidityInterval definedInterval1(sync_1, 
+                                                    edm::IOVSyncValue(edm::EventID(1, 1, 6)));
+      dummyProvider1->setValidityInterval(definedInterval1);
+
+      boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
+                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+
+      dummyProvider2->setValidityInterval(invalid);
+
+      const edm::ValidityInterval overlapInterval(definedInterval1.first(),
+   					       edm::IOVSyncValue::invalidIOVSyncValue());
+
+      const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
+
+      DependentRecordIntervalFinder finder(depRecordKey);
+      finder.addProviderWeAreDependentOn(dummyProvider1);
+      finder.addProviderWeAreDependentOn(dummyProvider2);
+
+      CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, 
+                                                               edm::IOVSyncValue(edm::EventID(1, 1, 4),edm::Timestamp(1))));
+
+      const edm::Timestamp time_1(2);
+      const edm::IOVSyncValue sync_2(time_1);
+      const edm::ValidityInterval definedInterval2(sync_2, 
+   						edm::IOVSyncValue(edm::Timestamp(6)));
+      dummyProvider2->setValidityInterval(definedInterval2);
+
+      const edm::ValidityInterval overlapInterval2(definedInterval2.first(),
+   					       edm::IOVSyncValue::invalidIOVSyncValue());
+
+      CPPUNIT_ASSERT(overlapInterval2 == finder.findIntervalFor(depRecordKey, 
+                                                                edm::IOVSyncValue(edm::EventID(1, 1, 5),edm::Timestamp(3))));
+                     
+   }
+   {
+      //check for bug which only happens the first time we synchronize
+      // have the  first one invalid
+      
+      boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
+                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+
+      dummyProvider1->setValidityInterval(invalid);
+
+      boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
+                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+
+      const edm::Timestamp time_1(1);
+      const edm::IOVSyncValue sync_2(time_1);
+      const edm::ValidityInterval definedInterval2(sync_2, 
+   						edm::IOVSyncValue(edm::Timestamp(6)));
+      dummyProvider2->setValidityInterval(definedInterval2);
+
+      const edm::ValidityInterval overlapInterval(definedInterval2.first(),
+   					       edm::IOVSyncValue::invalidIOVSyncValue());
+
+      const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
+
+      DependentRecordIntervalFinder finder(depRecordKey);
+      finder.addProviderWeAreDependentOn(dummyProvider1);
+      finder.addProviderWeAreDependentOn(dummyProvider2);
+
+      CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, 
+                                                               edm::IOVSyncValue(edm::EventID(1, 1, 4),edm::Timestamp(3))));
+                                                               
+      const edm::EventID eID_1(1, 1, 5);
+      const edm::IOVSyncValue sync_1(eID_1);
+      const edm::ValidityInterval definedInterval1(sync_1, 
+                                                    edm::IOVSyncValue(edm::EventID(1, 1, 10)));
+      dummyProvider1->setValidityInterval(definedInterval1);
+      
+      const edm::ValidityInterval overlapInterval2(definedInterval1.first(),
+   					       edm::IOVSyncValue::invalidIOVSyncValue());
+
+      CPPUNIT_ASSERT(overlapInterval2 == finder.findIntervalFor(depRecordKey, 
+                                                               edm::IOVSyncValue(edm::EventID(1, 1, 5),edm::Timestamp(4))));
+      
+   }
 
    {
      //check that going all the way through EventSetup works properly
