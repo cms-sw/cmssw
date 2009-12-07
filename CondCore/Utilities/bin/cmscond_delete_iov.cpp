@@ -47,7 +47,7 @@ int cond::DeleteIOVUtilities::execute(){
     
     cond::DbScopedTransaction transaction( rdbms );
     cond::MetaData metadata_svc(rdbms);
-    transaction.start(true);
+    transaction.start(false);
     std::string token=metadata_svc.getToken(tag);
     if( token.empty() ) {
       std::cout<<"non-existing tag "<<tag<<std::endl;
