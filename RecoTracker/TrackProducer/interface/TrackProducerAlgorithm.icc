@@ -104,6 +104,55 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	// WARNING: here we assume that the hits are correcly sorted according to seedDir
 	TransientTrackingRecHit::RecHitContainer hits;       
 	for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
+	     if (reMatchSplitHits_){
+	   	//re-match hits that belong together
+      		trackingRecHit_iterator next = iH; next++;
+                if (next != theT->recHitsEnd() && (*iH)->isValid()){
+			TransientTrackingRecHit::RecHitPointer hit=builder->build(&**iH );
+			TransientTrackingRecHit::RecHitPointer nexthit = builder->build(&**next );
+			//check whether hit and nexthit are on glued module
+			DetId hitId = hit->geographicalId();
+
+			if(hitId.det() == DetId::Tracker) {
+			  if (hitId.subdetId() == StripSubdetector::TIB || 
+			      hitId.subdetId() == StripSubdetector::TOB ||
+			      hitId.subdetId() == StripSubdetector::TEC ||
+			      hitId.subdetId() == StripSubdetector::TID ){
+
+			    SiStripDetId stripId(hit->geographicalId());
+			    if (stripId.partnerDetId() == nexthit->geographicalId().rawId()){
+			      //yes they are parterns in a glued geometry.
+			      DetId gluedId = stripId.glued();
+			      const SiStripRecHit2D *mono=0;
+			      const SiStripRecHit2D *stereo=0;
+			      if (stripId.stereo()==0){
+				mono=dynamic_cast<const SiStripRecHit2D *>(&**iH);
+				stereo=dynamic_cast<const SiStripRecHit2D *>(&**next);
+			      }
+			      else{
+				mono=dynamic_cast<const SiStripRecHit2D *>(&**next);
+				stereo=dynamic_cast<const SiStripRecHit2D *>(&**iH);
+			      }
+			      if (!mono	|| !stereo){
+					edm::LogError("TrackProducerAlgorithm")
+						<<"cannot get a SiStripRecHit2D from the rechit."<<hitId.rawId()
+						<<" "<<gluedId.rawId()
+						<<" "<<stripId.partnerDetId()
+						<<" "<<nexthit->geographicalId().rawId();
+				}
+			      LocalPoint pos;//null
+			      LocalError err;//null
+			      SiStripMatchedRecHit2D rematchedH(pos,err,gluedId,mono,stereo);
+			      hits.push_back(builder->build(&rematchedH));
+			      //the local position and error is dummy but the fitter does not need that anyways
+			      iH++;
+			      continue;//go to next.
+			    }//consecutive hits are on parterns module.
+		  }}//is a strip module
+	      }//next is not the end of hits
+	   }//if rematching option is on.
+
+
 	  hits.push_back(builder->build(&**i ));
 	}
 	
