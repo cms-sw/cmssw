@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/recordGetImplementation.icc"
 
 using namespace edm;
@@ -64,6 +65,7 @@ CPPUNIT_TEST(getTest);
 CPPUNIT_TEST(doGetTest);
 CPPUNIT_TEST(proxyResetTest);
 CPPUNIT_TEST(introspectionTest);
+CPPUNIT_TEST(transientTest);
 
 CPPUNIT_TEST_EXCEPTION(getNodataExpTest,NoDataExceptionType);
 CPPUNIT_TEST_EXCEPTION(getExepTest,ExceptionType);
@@ -80,6 +82,7 @@ public:
   void doGetTest();
   void proxyResetTest();
   void introspectionTest();
+  void transientTest();
   
   void getNodataExpTest();
   void getExepTest();
@@ -122,21 +125,28 @@ protected:
 
 class WorkingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
 public:
-   WorkingDummyProxy(const Dummy* iDummy) : data_(iDummy) {}
+   WorkingDummyProxy(const Dummy* iDummy) : data_(iDummy), invalidateCalled_(false) {}
 
+   bool invalidateCalled() const {
+      return invalidateCalled_;
+  }
+   
   void set(Dummy* iDummy) {
     data_ = iDummy;
   }
 protected:
    
    const value_type* make(const record_type&, const DataKey&) {
+      invalidateCalled_=false;
       return data_ ;
    }
    void invalidateCache() {
+      invalidateCalled_=true;
    }
   
 private:
    const Dummy* data_;
+   bool invalidateCalled_;
 };
 
 class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {
@@ -400,4 +410,68 @@ void testEventsetupRecord::proxyResetTest()
   dummyRecord.get(hDummy);
   CPPUNIT_ASSERT(&myDummy2 == &(*hDummy));
   CPPUNIT_ASSERT(cacheID != dummyRecord.cacheIdentifier());
+}
+
+void testEventsetupRecord::transientTest()
+{
+   std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+   EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
+                                                                         EventSetupRecordKey::makeKey<DummyRecord>());
+   
+   EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
+   CPPUNIT_ASSERT(0 !=prov);
+   
+   const DummyRecord& dummyRecord = prov->record();
+   DummyRecord& nonConstDummyRecord = const_cast<DummyRecord&>(dummyRecord);
+   
+   unsigned long long cacheID = dummyRecord.cacheIdentifier();
+   Dummy myDummy;
+   boost::shared_ptr<WorkingDummyProxy> workingProxy( new WorkingDummyProxy(&myDummy) );
+   
+   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                                "");
+   
+   boost::shared_ptr<WorkingDummyProvider> wdProv( new WorkingDummyProvider(workingDataKey, workingProxy) );
+   prov->add( wdProv );
+   
+   //this causes the proxies to actually be placed in the Record
+   edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
+   prov->usePreferred(pref);
+   
+   //do a transient access to see if it clears properly
+   edm::ESTransientHandle<Dummy> hTDummy;
+   CPPUNIT_ASSERT(hTDummy.transientAccessOnly);
+   dummyRecord.get(hTDummy);
+   
+   CPPUNIT_ASSERT(&myDummy == &(*hTDummy));
+   CPPUNIT_ASSERT(cacheID == dummyRecord.cacheIdentifier());
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+
+   CPPUNIT_ASSERT(nonConstDummyRecord.transientReset());
+   wdProv->resetProxiesIfTransient(dummyRecord.key());//   workingProxy->resetIfTransient();
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled());
+
+
+   Dummy myDummy2;
+   workingProxy->set(&myDummy2);
+   
+   //do non-transient access to make sure nothing resets now
+   edm::ESHandle<Dummy> hDummy;
+   dummyRecord.get(hDummy);
+   
+
+   dummyRecord.get(hDummy);
+   CPPUNIT_ASSERT(&myDummy2 == &(*hDummy));
+   CPPUNIT_ASSERT(not nonConstDummyRecord.transientReset());
+   wdProv->resetProxiesIfTransient(dummyRecord.key());//workingProxy->resetIfTransient();
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+
+   //do another transient access which should not do a reset since we have a non-transient access outstanding
+   dummyRecord.get(hDummy);
+   dummyRecord.get(hTDummy);
+
+   CPPUNIT_ASSERT(nonConstDummyRecord.transientReset());
+   wdProv->resetProxiesIfTransient(dummyRecord.key());//workingProxy->resetIfTransient();
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+
 }
