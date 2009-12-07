@@ -1,9 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 muonSkim = cms.EDFilter( "MuonFilter",
-    muonTag        = cms.InputTag("muons"),
-    caloMuonTag    = cms.InputTag("calomuons"),
-    acceptMuon     = cms.untracked.bool(True),
-    acceptCalo     = cms.untracked.bool(False)
+                         muonsLabel      = cms.InputTag("muons"),
+                         caloMuonsLabel  = cms.InputTag("calomuons"),
+
+                         selectL1Trigger      = cms.bool(False),
+                         selectOnDTHits       = cms.bool(True),
+                         selectOnRPCHits      = cms.bool(True),
+                         selectMuons          = cms.bool(True),
+                         selectCaloMuons      = cms.bool(False)
 )
 
