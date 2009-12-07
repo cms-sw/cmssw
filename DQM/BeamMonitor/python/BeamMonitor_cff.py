@@ -32,9 +32,9 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               dxMin = cms.double(-2.0),
                               dxMax = cms.double(2.0),
                               
-                              vxBin = cms.int32(500),
-                              vxMin = cms.double(-1.0),
-                              vxMax = cms.double(1.0),
+                              vxBin = cms.int32(200),
+                              vxMin = cms.double(-0.5),
+                              vxMax = cms.double(0.5),
                               
                               dzBin = cms.int32(80),
                               dzMin = cms.double(-20),
