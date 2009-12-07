@@ -302,7 +302,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
 	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
 	    }
-	    else if( METType_ == "corMetGlobalMuons" ) {
+	    else if( inputMETLabel_.label() == "corMetGlobalMuons" ) {
 	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
 	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
 	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
@@ -345,7 +345,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 100, 0, 20);
 	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 200, -1, 1);
 	    }
-	    else if( METType_ == "corMetGlobalMuons" ) {
+	    else if( inputMETLabel_.label() == "corMetGlobalMuons" ) {
 	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 250, 0, 500);
 	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 250, -2.5, 2.5);
 	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
@@ -773,9 +773,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::Handle<CaloMETCollection> hcorMetGlobalMuonscol;
       iEvent.getByLabel(inputMETLabel_, hcorMetGlobalMuonscol );
       if(! hcorMetGlobalMuonscol.isValid()){
-	edm::LogInfo("OutputInfo") << "falied to retrieve data require by MET Task";
-	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-	return;
+	edm::LogInfo("OutputInfo") << "hcorMetGlobalMuonscol is NOT Valid";
+	edm::LogInfo("OutputInfo") << "MET Taks continues anyway...!";
       }
       else
 	{	 
@@ -808,9 +807,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       iEvent.getByLabel(inputBeamSpotLabel_, beamSpot_h);
 
       if(!beamSpot_h.isValid()){
-	edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
-	edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-	return;
+	edm::LogInfo("OutputInfo") << "beamSpot is NOT Valid";
+	edm::LogInfo("OutputInfo") << "MET Taks continues anyway...!";
       }
 
       math::XYZPoint bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
