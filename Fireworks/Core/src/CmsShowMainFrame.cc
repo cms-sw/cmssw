@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.84 2009/12/04 18:59:43 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.85 2009/12/04 22:49:17 amraktad Exp $
 //
 // hacks
 // #define private public
@@ -387,7 +387,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterShowGUIBtn = new TGTextButton(filterFrame,"Event filtering is OFF");
    m_filterShowGUIBtn->SetBackgroundColor(backgroundColor);
    m_filterShowGUIBtn->SetTextColor(0xFFFFFF);
-   m_filterShowGUIBtn->SetToolTipText("Edit event selection");
+   m_filterShowGUIBtn->SetToolTipText("Edit filters");
    filterFrame->AddFrame(m_filterShowGUIBtn,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
 
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
