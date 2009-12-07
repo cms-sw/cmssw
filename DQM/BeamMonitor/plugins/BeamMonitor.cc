@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/12/06 04:30:02 $
- * $Revision: 1.13 $
+ * $Date: 2009/12/06 04:42:48 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -47,7 +47,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   
   theBeamFitter = new BeamFitter(parameters_);
   theBeamFitter->resetTrkVector();
-  
+  if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits = 0;
 }
 
@@ -80,7 +80,7 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Fit");
   
-  h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of selected tracks vs lumi",20,0.5,10.5);
+  h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of selected tracks vs lumi",20,0.5,20.5);
   h_nTrk_lumi->setAxisTitle("Lumisection",1);
   h_nTrk_lumi->setAxisTitle("Num of Tracks",2);
   
@@ -94,22 +94,22 @@ void BeamMonitor::beginJob(const EventSetup& context) {
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)",1);
   h_vx_vy->setAxisTitle("y coordinate of input track at PCA (cm)",2);
   
-  h_x0_lumi = dbe_->book1D("x0_lumi","x coordinate of beam spot vs lumi (Fit)",40,0,40);
+  h_x0_lumi = dbe_->book1D("x0_lumi","x coordinate of beam spot vs lumi (Fit)",40,0.5,40.5);
   h_x0_lumi->setAxisTitle("Lumisection",1);
   h_x0_lumi->setAxisTitle("x_{0} (cm)",2);
   h_x0_lumi->getTH1()->SetOption("E1");
   
-  h_y0_lumi = dbe_->book1D("y0_lumi","y coordinate of beam spot vs lumi (Fit)",40,0,40);
+  h_y0_lumi = dbe_->book1D("y0_lumi","y coordinate of beam spot vs lumi (Fit)",40,0.5,40.5);
   h_y0_lumi->setAxisTitle("Lumisection",1);
   h_y0_lumi->setAxisTitle("y_{0} (cm)",2);
   h_y0_lumi->getTH1()->SetOption("E1");
   
-  h_z0_lumi = dbe_->book1D("z0_lumi","z coordinate of beam spot vs lumi (Fit)",40,0,40);
+  h_z0_lumi = dbe_->book1D("z0_lumi","z coordinate of beam spot vs lumi (Fit)",40,0.5,40.5);
   h_z0_lumi->setAxisTitle("Lumisection",1);
   h_z0_lumi->setAxisTitle("z_{0} (cm)",2);
   h_z0_lumi->getTH1()->SetOption("E1");
   
-  h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z_{0} of beam spot vs lumi (Fit)",40,0,40);
+  h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z_{0} of beam spot vs lumi (Fit)",40,0.5,40.5);
   h_sigmaZ0_lumi->setAxisTitle("Lumisection",1);
   h_sigmaZ0_lumi->setAxisTitle("sigma z_{0} (cm)",2);
   h_sigmaZ0_lumi->getTH1()->SetOption("E1");
