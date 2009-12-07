@@ -29,18 +29,4 @@ namespace cond {
    const char* pluginCategory();
 }
 
-// compatibility mode
-#include<map>
-namespace edm {
-  namespace eventsetup {
-    class DataProxy;
-  }
-}
-namespace oldcond {
-
-typedef edmplugin::PluginFactory< edm::eventsetup::DataProxy* ( cond::DbSession&, std::map<std::string,std::string>::iterator& ) > ProxyFactory;
-
-  // const char* pluginCategory();
-}
-
 #endif /* CONDCORE_PLUGINSYSTEM_PROXYFACTORY_H */
