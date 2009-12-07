@@ -10,9 +10,10 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -33,14 +34,7 @@ process.ALCARECOStreamHcalCalMinBias = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalMinBias:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep HBHERecHitsSorted_hbherecoMB_*_*', 
-        'keep HORecHitsSorted_horecoMB_*_*', 
-        'keep HFRecHitsSorted_hfrecoMB_*_*', 
-        'keep HBHERecHitsSorted_hbherecoNoise_*_*', 
-        'keep HORecHitsSorted_horecoNoise_*_*', 
-        'keep HFRecHitsSorted_hfrecoNoise_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOHcalCalMinBias_noDrop.outputCommands,
     fileName = cms.untracked.string('ALCARECOHcalCalMinBias.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOHcalCalMinBias'),

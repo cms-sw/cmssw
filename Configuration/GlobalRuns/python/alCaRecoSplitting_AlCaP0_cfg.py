@@ -10,9 +10,10 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -33,12 +34,7 @@ process.ALCARECOStreamEcalCalPi0Calib = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalPi0Calib:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*', 
-        'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*', 
-        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-        'keep *_hltAlCaPi0RegRecHits_pi0EcalRecHitsES_*',
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOEcalCalPi0Calib_noDrop.outputCommands,
     fileName = cms.untracked.string('ALCARECOEcalCalPi0Calib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalPi0Calib'),
@@ -49,12 +45,7 @@ process.ALCARECOStreamEcalCalEtaCalib = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalEtaCalib:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*', 
-        'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*', 
-        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-        'keep *_hltAlCaEtaRegRecHits_etaEcalRecHitsES_*',
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOEcalCalEtaCalib_noDrop.outputCommands,
     fileName = cms.untracked.string('ALCARECOEcalCalEtaCalib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalEtaCalib'),

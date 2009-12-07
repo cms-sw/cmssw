@@ -10,9 +10,10 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('alCaRecoSplitting nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -32,11 +33,7 @@ process.ALCARECOStreamTkAlMinBias = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlMinBias:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOTkAlMinBias_*_*', 
-        'keep L1AcceptBunchCrossings_*_*_*',
-        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOTkAlMinBias_noDrop.outputCommands,
     fileName = cms.untracked.string('TkAlMinBias.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamTkAlMinBias'),
@@ -47,9 +44,7 @@ process.ALCARECOStreamTkAlMuonIsolated = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlMuonIsolated:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOTkAlMuonIsolated_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOTkAlMuonIsolated_noDrop.outputCommands,
     fileName = cms.untracked.string('TkAlMuonIsolated.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamTkAlMuonIsolated'),
@@ -60,9 +55,7 @@ process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlOverlaps:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOMuAlOverlaps_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOMuAlOverlaps_noDrop.outputCommands,
     fileName = cms.untracked.string('MuAlOverlaps.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamMuAlOverlaps'),
@@ -73,18 +66,7 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlCalIsolatedMu:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOMuAlCalIsolatedMu_*_*', 
-        'keep *_muonCSCDigis_*_*', 
-        'keep *_muonDTDigis_*_*', 
-        'keep *_muonRPCDigis_*_*', 
-        'keep *_dt1DRecHits_*_*', 
-        'keep *_dt2DSegments_*_*', 
-        'keep *_dt4DSegments_*_*', 
-        'keep *_csc2DRecHits_*_*', 
-        'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands,
     fileName = cms.untracked.string('MuAlCalIsolatedMu.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamMuAlCalIsolatedMu'),
@@ -95,10 +77,7 @@ process.ALCARECOStreamHcalCalIsoTrk = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrk:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_IsoProd_*_*', 
-        'keep triggerTriggerEvent_*_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOHcalCalIsoTrk_noDrop.outputCommands,
     fileName = cms.untracked.string('HcalCalIsoTrk.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamHcalCalIsoTrk'),
@@ -109,9 +88,7 @@ process.ALCARECOStreamHcalCalDijets = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalDijets:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_DiJProd_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOHcalCalDijets_noDrop.outputCommands,
     fileName = cms.untracked.string('HcalCalDijets.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamHcalCalDijets'),
@@ -122,11 +99,7 @@ process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOSiStripCalZeroBias:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOSiStripCalZeroBias_*_*', 
-        'keep *_calZeroBiasClusters_*_*', 
-        'keep *_MEtoEDMConverter_*_*', 
-        'keep L1AcceptBunchCrossings_*_*_*'),
+    outputCommands = process.OutALCARECOSiStripCalZeroBias_noDrop.outputCommands,
     fileName = cms.untracked.string('SiStripCalZeroBias.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamSiStripCalZeroBias'),

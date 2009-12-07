@@ -10,9 +10,10 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -33,11 +34,7 @@ process.ALCARECOStreamEcalCalPhiSym = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalPhiSym:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEB_*', 
-        'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEE_*', 
-        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOEcalCalPhiSym_noDrop.outputCommands,
     fileName = cms.untracked.string('ALCARECOEcalCalPhiSym.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalPhiSym'),
