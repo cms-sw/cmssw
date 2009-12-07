@@ -71,6 +71,8 @@ class HitEff : public edm::EDAnalyzer {
   float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
   float ResX, ResXSig;
   uint ModIsBad; uint Id; uint SiStripQualBad; bool withinAcceptance;
+  int nHits, nLostHits; 
+  float p, pT, chi2;
   uint trajHitValid, run, event;
   float timeDT, timeDTErr;
   int timeDTDOF;

@@ -75,18 +75,18 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm,
       // passed id is on matched surface (ie neither rphi, nor stereo surface)
       // so the rechits on both sensors should be invalid
       hasValidHit = theHit->isValid();
-      cout << "should always be invalid = " << theHit->isValid() << endl;
+      //cout << "should always be invalid = " << theHit->isValid() << endl;
     } else {
       if (iidd==mono_id) {
 	//mono sensor for this TrajAtInvalidHit is same as originally passed in from trajectory
 	//normally should only happen for valid hits, but sometimes is invalid
 	hasValidHit = theHit->isValid();
-	cout << "check always true = " << theHit->isValid() << endl;
+	//cout << "check always true = " << theHit->isValid() << endl;
       } else {
 	// mono sensor for this TrajAtInvalidHit is not as originally passed in from trajectory
 	// so this is a partner missing from the trajectory and is thus invalid
 	hasValidHit = false;
-	cout << "setting invalid by fiat" << endl;
+	//cout << "setting invalid by fiat" << endl;
       }
     }
     
