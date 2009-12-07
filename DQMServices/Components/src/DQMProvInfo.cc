@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/09/06 11:10:15 $
- * $Revision: 1.24 $
+ * $Date: 2009/11/29 17:27:32 $
+ * $Revision: 1.1 $
  * $Author: ameyer $
  *
  */
@@ -27,24 +27,34 @@ DQMProvInfo::DQMProvInfo(const ParameterSet& ps){
 
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  string provinfofolder = parameters_.getUntrackedParameter<string>("provInfoFolder", "ProvInfo") ;
-  string subsystemname = parameters_.getUntrackedParameter<string>("subSystemFolder", "YourSubsystem") ;
-  currentfolder_ = subsystemname + "/" +  provinfofolder ;
+  provinfofolder_ = parameters_.getUntrackedParameter<string>("provInfoFolder", "ProvInfo") ;
+  subsystemname_ = parameters_.getUntrackedParameter<string>("subSystemFolder", "YourSubsystem") ;
 
 }
 
 DQMProvInfo::~DQMProvInfo(){
 }
 
-void DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
+void 
+DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   makeProvInfo();
-      
+  dbe_->setCurrentFolder(subsystemname_ +"/EventInfo/");
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap","reportSummaryMap",1,0,1,1,0,1);
+  reportSummaryMap_->Fill(0.5,0.5); // to be refined based on some algorithm
+  reportSummary_=dbe_->bookFloat("reportSummary");
+  reportSummary_->Fill(1.); // to be refined based on some algorithm
 } 
 
 void DQMProvInfo::analyze(const Event& e, const EventSetup& c){
  
 //  makeProvInfo();
+  return;
+}
+
+void
+DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
+{
   return;
 }
 
@@ -99,7 +109,7 @@ void
 DQMProvInfo::makeProvInfo()
 {
     dbe_->cd() ;
-    dbe_->setCurrentFolder(currentfolder_);
+    dbe_->setCurrentFolder( subsystemname_ + "/" +  provinfofolder_) ;
 
     // if (dbe_->get("ProvInfo/CMSSW")) return ;
     

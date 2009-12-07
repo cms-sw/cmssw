@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2008/07/06 17:32:30 $
- * $Revision: 1.11 $
+ * $Date: 2009/11/29 17:27:32 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -45,6 +45,7 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void beginRun(const edm::Run& r, const edm::EventSetup& c) ;
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
 
 private:
 
@@ -55,7 +56,8 @@ private:
 
   edm::ParameterSet parameters_;
   
-  std::string currentfolder_;
+  std::string provinfofolder_;
+  std::string subsystemname_;
 
    // histograms
   MonitorElement * versCMSSW_ ;
@@ -69,6 +71,8 @@ private:
   MonitorElement * isComplete_;
   MonitorElement * fileVersion_;
   
+  MonitorElement * reportSummary_;
+  MonitorElement * reportSummaryMap_;
   
 };
 
