@@ -32,7 +32,8 @@ process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('rootsource'),
       lumiFileName = cms.string('#rootfilename#'),
-      allowForceFirstSince = cms.bool(False)
+      allowForceFirstSince = cms.bool(False),
+      authPath = cms.string('#authpath#')
     ),                                          
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),

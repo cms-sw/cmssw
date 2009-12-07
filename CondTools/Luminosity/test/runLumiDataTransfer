@@ -30,7 +30,7 @@ def writeLumiSectionDataPopConCfg(filename,cfgTemplate,rootFilename,
       f.write('process.PoolDBOutputService.logconnect="'+logdbConnect+'"\n')
    if allowForceFirstSince:
       f.write('process.lumidatatransfer.Source.allowForceFirstSince=True\n')
-   f.write('process.lumidatatransfer.authPath="'+authenticationPath+'"\n')
+   f.write('process.lumidatatransfer.Source.authPath="'+authenticationPath+'"\n')
    f.write('process.PoolDBOutputService.DBParameters.authenticationPath="'+authenticationPath+'"\n')
    f.write('process.PoolDBOutputService.connect="'+databaseConnect+'"\n')
    f.write('process.PoolDBOutputService.toPut[0].tag="'+tagName+'"\n')
@@ -71,6 +71,8 @@ def main():
                      help="log database connect string (OPTIONAL)")
    parser.add_option("-o","--outputdir",action="store",dest="outputdir",
                      help="job output dir(OPTIONAL)")
+   parser.add_option("-O","--outputfile",action="store",dest="outputfile",
+                     help="job config file name default to inputtemplate strip of .template(OPTIONAL)")
    parser.add_option("-d","--dryrun",action="store_true",dest="dryrun",
                      help="dryrun mode-only write the config file (OPTIONAL)")
    parser.add_option("-a","--allowForceFirstSince",action="store_true",dest="allowforcefirstsince",help="set allowForceFirstSince parameter to True (OPTIONAL)")
@@ -89,7 +91,7 @@ def main():
    logdatabase=''
    outputdir=os.getcwd()
    inputdir=os.getcwd()
-   outputFilename='LumiMixedTransfer.py'
+   outputFilename=''
    dryrun=False
    allowForceFirstSince=False
    cmsswsrc=''
@@ -125,6 +127,13 @@ def main():
         if Config.has_option(sectionName,'outputdir') :
            if len(Config.get(sectionName,'outputdir'))!=0:
               outputdir=Config.get(sectionName,'outputdir')
+        if Config.has_option(sectionName,'outputfile') :
+           if len(Config.get(sectionName,'outputfile'))!=0:
+              outputFilename=Config.get(sectionName,'outputfile')
+           else:
+              outputFilename=inputtemplate.split('.template')[0]
+        else:
+           outputFilename=inputtemplate.split('.template')[0]
         if Config.has_option(sectionName,'dryrun'):
            dryrun=Config.getboolean(sectionName,'dryrun')
         if Config.has_option(sectionName,'jobreport'):
@@ -174,6 +183,12 @@ def main():
          outputdir=options.outputdir
       if options.jobreport:
          jobreport=options.jobreport
+      if options.inputtemplate:
+         inputtemplate=options.inputtemplate
+      if options.outputfile:
+         outputFilename=options.outputfile
+      else:
+         outputFilename=inputtemplate.split('.template')[0]
       verbose=options.verbose
       dryrun=options.dryrun
       allowForceFirstSince=options.allowforcefirstsince
