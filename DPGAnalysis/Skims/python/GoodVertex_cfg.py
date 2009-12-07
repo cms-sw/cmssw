@@ -17,7 +17,7 @@ process.source = cms.Source("PoolSource",
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/RecoTrack_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/GoodVertex_cfg.py,v $'),
     annotation = cms.untracked.string('At least two general track or one pixel track or one pixelLess track')
 )
 
@@ -27,7 +27,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                                       vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-                                                      minNumberOfTracks = cms.uint32(3) ,
+                                                      minimumNumberOfTracks = cms.uint32(3) ,
  						      maxAbsZ = cms.double(15),	
  						      maxd0 = cms.double(2)	
                                                       )

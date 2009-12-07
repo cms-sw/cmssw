@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Dec  7 18:02:10 CET 2009
-// $Id$
+// $Id: GoodVertexFilter.cc,v 1.1 2009/12/07 17:29:29 arizzi Exp $
 //
 //
 
@@ -79,7 +79,7 @@ GoodVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        ) result = true;
   }
 
-   return true;
+   return result;
 }
 
 
