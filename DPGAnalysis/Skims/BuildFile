@@ -21,6 +21,7 @@
 <use name=Geometry/EcalMapping>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/MuonReco>
+<use name=DataFormats/VertexReco>
 
 <use name=DataFormats/L1Trigger>
 
