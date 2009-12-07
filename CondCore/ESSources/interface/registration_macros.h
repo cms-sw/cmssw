@@ -21,8 +21,8 @@
 // system include files
 
 // user include files
-#include "CondCore/ESSource/interface/ProxyFactory.h"
-#include "CondCore/ESSource/interface/DataProxy.h"
+#include "CondCore/ESSources/interface/ProxyFactory.h"
+#include "CondCore/ESSources/interface/DataProxy.h"
 
 // forward declarations
 

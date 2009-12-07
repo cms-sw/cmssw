@@ -19,8 +19,8 @@
 
 #include "CondCore/DBCommon/interface/ConvertIOVSyncValue.h"
 
-#include "CondCore/ESSource/interface/ProxyFactory.h"
-#include "CondCore/ESSource/interface/DataProxy.h"
+#include "CondCore/ESSources/interface/ProxyFactory.h"
+#include "CondCore/ESSources/interface/DataProxy.h"
 
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"

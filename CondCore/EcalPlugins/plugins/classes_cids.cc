@@ -1,4 +1,4 @@
-#include "CondCore/ESSource/interface/ClassIDCapability.h"
+#include "CondCore/DBCommon/interface/ClassIDCapability.h"
 #include "CondFormats/EcalObjects/src/classes.h"
 
 CLASS_ID(EcalPedestals);

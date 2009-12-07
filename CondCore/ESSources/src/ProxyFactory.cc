@@ -13,8 +13,8 @@
 // system include files
 
 // user include files
-#include "CondCore/ESSource/interface/ProxyFactory.h"
-#include "CondCore/ESSource/interface/DataProxy.h"
+#include "CondCore/ESSources/interface/ProxyFactory.h"
+#include "CondCore/ESSources/interface/DataProxy.h"
 
 cond::DataProxyWrapperBase::DataProxyWrapperBase(std::string const & il) : m_label(il){}
 cond::DataProxyWrapperBase::~DataProxyWrapperBase(){}
