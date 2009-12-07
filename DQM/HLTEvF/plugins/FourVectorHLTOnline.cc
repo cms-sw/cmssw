@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.26 2009/12/06 16:02:48 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.27 2009/12/06 18:22:21 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -231,7 +231,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if(triggerResults->accept(pathByIndex)){
   
       int pathBinNumber = ME_HLT_bx_->getTH2F()->GetYaxis()->FindBin(v->getPath().c_str());      
-      ME_HLT_bx_->Fill(bx,pathBinNumber);
+      ME_HLT_bx_->Fill(bx,pathBinNumber-1);
 
       int xBinNumber = ME_HLTPassPass_->getTH2F()->GetXaxis()->FindBin(v->getPath().c_str());      
       ME_HLTPassPass_->Fill(xBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
