@@ -3,6 +3,7 @@
 //
 
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
@@ -23,7 +24,9 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, TEveElementList** product)
+void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, 
+					   TEveElementList** product,
+					   bool showOnlyModules)
 {
    TEveElementList* tList = *product;
    if ( !tList && *product ) {
@@ -51,6 +54,16 @@ void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, TEveElement
       TEveElementList* trkList = new TEveElementList(Form("track%d",index));
       gEve->AddElement(trkList,tList);
       addHits(*it, iItem, trkList);
+      if ( ! showOnlyModules ){
+	std::vector<TVector3> pixelPoints;
+	fireworks::pushPixelHits(pixelPoints, *iItem, *it);
+	TEveElementList* pixels = new TEveElementList("Pixels");
+	trkList->AddElement(pixels);
+	fireworks::addTrackerHits3D(pixelPoints, pixels, kRed, 1);
+	TEveElementList* strips = new TEveElementList("Strips");
+	trkList->AddElement(strips);
+	fireworks::addSiStripClusters(iItem, *it, strips, kRed);
+      }
    }
 
 }

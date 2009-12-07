@@ -15,7 +15,9 @@ class TEveElement;
 class TracksRecHitsUtil
 {
 public:
-   static void buildTracksRecHits(const FWEventItem* iItem, TEveElementList** product);
+  static void buildTracksRecHits(const FWEventItem* iItem, 
+				 TEveElementList** product,
+				 bool showOnlyModules = true);
    static void addHits(const reco::Track& track,
                        const FWEventItem* iItem,
                        TEveElement* trkList);

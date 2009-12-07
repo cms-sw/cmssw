@@ -139,7 +139,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 // -- add PixelHits
 //LatB
    std::vector<TVector3> pixelPoints;
-   fireworks::pushPixelHits(pixelPoints, id, *track);
+   fireworks::pushPixelHits(pixelPoints, *id.item(), *track);
    TEveElementList* list = new TEveElementList("PixelHits");
    fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
    scene->AddElement(list);

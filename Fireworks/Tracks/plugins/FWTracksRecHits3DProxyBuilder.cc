@@ -28,7 +28,7 @@ private:
 
 void FWTracksRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-   TracksRecHitsUtil::buildTracksRecHits(iItem, product);
+   TracksRecHitsUtil::buildTracksRecHits(iItem, product, false);
 }
 
 REGISTER_FW3DDATAPROXYBUILDER(FWTracksRecHits3DProxyBuilder,reco::TrackCollection,"TrackHits");

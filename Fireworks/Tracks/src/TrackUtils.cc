@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.4 2009/12/04 22:56:40 latb Exp $
+// $Id: TrackUtils.cc,v 1.5 2009/12/05 20:40:13 amraktad Exp $
 //
 
 // system include files
@@ -18,7 +18,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 #include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
@@ -563,7 +562,7 @@ namespace fireworks {
 	
 	void
    pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, 
-						 const FWModelId &id, const reco::Track &t) {
+						 const FWEventItem &iItem, const reco::Track &t) {
 
       /*
        * -- to do:
@@ -585,7 +584,7 @@ namespace fireworks {
        * --    check
        * --    add other ECAL hits, like Dave did
        */
-      const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+      const DetIdToMatrix *detIdToGeo = iItem.getGeom();
 
       double tanTheta = tan(t.theta());
       double dz = t.dz();
@@ -824,12 +823,12 @@ namespace fireworks {
    }
 
 	void
-	pushPixelHits(std::vector<TVector3> &pixelPoints, const FWModelId &id, const reco::Track &t) {
+	pushPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t) {
 		
 		/*
 		 * -- return for each Pixel Hit a 3D point
 		 */
-		const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+		const DetIdToMatrix *detIdToGeo = iItem.getGeom();
 		
 		double dz = t.dz();
 		double vz = t.vz();
@@ -901,7 +900,7 @@ namespace fireworks {
 	
 	void
 	pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, 
-						 const FWModelId &id, const reco::Track &t) {
+						 const FWEventItem &iItem, const reco::Track &t) {
 		
 		/*
 		 * -- to do:
@@ -924,7 +923,7 @@ namespace fireworks {
 		 * --    add other ECAL hits, like Dave did
 		 */
 
-		const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+		const DetIdToMatrix *detIdToGeo = iItem.getGeom();
 		
 		double tanTheta = tan(t.theta());
 		double dz = t.dz();
