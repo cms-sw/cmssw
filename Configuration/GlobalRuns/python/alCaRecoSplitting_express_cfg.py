@@ -12,7 +12,7 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -94,6 +94,8 @@ process.ALCARECOStreamTkAlMinBias = cms.OutputModule("PoolOutputModule",
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ALCARECOTkAlMinBias_*_*', 
+        'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('TkAlMinBias.root'),
     dataset = cms.untracked.PSet(
