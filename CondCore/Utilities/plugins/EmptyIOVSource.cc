@@ -39,8 +39,9 @@ namespace cond{
   EmptyIOVSource::~EmptyIOVSource() {
   }
   bool EmptyIOVSource::produce( edm::Event & e ) {
+    book ok = !(m_lastValid<m_current);
     m_current += m_interval;
-    return !(m_lastValid<m_current);
+    return ok;
   }  
   void EmptyIOVSource::setRunAndEventInfo(){
     if(m_current<=m_lastValid){
