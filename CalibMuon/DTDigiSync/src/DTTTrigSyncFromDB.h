@@ -35,13 +35,12 @@
  *   
  *  NOTE: this should approximate what is seen online by the BTI
  *
- *  $Date: 2008/12/09 18:51:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/21 17:05:47 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
-
 
 
 class DTLayer;
@@ -112,6 +111,9 @@ public:
   int theWirePropCorrType;
   // spacing of BX in ns
   double theBXspace;
+
+  std::string thetTrigLabel;
+
 };
 #endif
 

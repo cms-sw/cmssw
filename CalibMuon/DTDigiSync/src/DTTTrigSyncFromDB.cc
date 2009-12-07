@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/21 17:05:47 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/21 17:20:27 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -41,6 +41,7 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   // spacing of BX in ns
   theBXspace  = config.getUntrackedParameter<double>("bxSpace", 25.);
 
+  thetTrigLabel = config.getParameter<string>("tTrigLabel");
 }
 
 
@@ -63,7 +64,7 @@ void DTTTrigSyncFromDB::setES(const EventSetup& setup) {
 
   // Get the map of ttrig from the Setup
   ESHandle<DTTtrig> ttrigHandle;
-  setup.get<DTTtrigRcd>().get(ttrigHandle);
+  setup.get<DTTtrigRcd>().get(thetTrigLabel,ttrigHandle);
   tTrigMap = &*ttrigHandle;
     if(debug) {
       cout << "[DTTTrigSyncFromDB] ttrig version: " << tTrigMap->version() << endl;
