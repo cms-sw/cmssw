@@ -11,8 +11,7 @@ options.register('globalTag',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")
-
-
+options.parseArguments()
 
 
 process = cms.Process("TEST")
