@@ -44,7 +44,7 @@ class EventSetupRecordImplementation : public EventSetupRecord
          void get(HolderT& iHolder) const {
             const typename HolderT::value_type* value = 0;
             const ComponentDescription* desc = 0;
-            this->getImplementation(value, "",desc);
+            this->getImplementation(value, "",desc,iHolder.transientAccessOnly);
                                                       
             iHolder = HolderT(value,desc);
          }
@@ -53,14 +53,14 @@ class EventSetupRecordImplementation : public EventSetupRecord
       void get(const char* iName, HolderT& iHolder) const {
          const typename HolderT::value_type* value = 0;
          const ComponentDescription* desc = 0;
-         this->getImplementation(value, iName,desc);
+         this->getImplementation(value, iName,desc,iHolder.transientAccessOnly);
          iHolder = HolderT(value,desc);
       }
       template< typename HolderT>
       void get(const std::string& iName, HolderT& iHolder) const {
          const typename HolderT::value_type* value = 0;
          const ComponentDescription* desc = 0;
-         this->getImplementation(value, iName.c_str(),desc);
+         this->getImplementation(value, iName.c_str(),desc,iHolder.transientAccessOnly);
          iHolder = HolderT(value,desc);
       }
       
@@ -68,7 +68,7 @@ class EventSetupRecordImplementation : public EventSetupRecord
       void get(const edm::ESInputTag& iTag, HolderT& iHolder) const {
          const typename HolderT::value_type* value = 0;
          const ComponentDescription* desc = 0;
-         this->getImplementation(value, iTag.data().c_str(),desc);
+         this->getImplementation(value, iTag.data().c_str(),desc,iHolder.transientAccessOnly);
          validate(desc,iTag);
          iHolder = HolderT(value,desc);
       }
@@ -95,7 +95,8 @@ class EventSetupRecordImplementation : public EventSetupRecord
       template < typename DataT > 
          void getImplementation(DataT const *& iData ,
                                 const char* iName,
-                                const ComponentDescription*& iDesc) const;       // ---------- member data --------------------------------
+                                const ComponentDescription*& iDesc,
+                                bool iTransientAccessOnly) const;       // ---------- member data --------------------------------
 
 };
    }

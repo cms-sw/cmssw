@@ -39,7 +39,8 @@ EventSetupRecord::EventSetupRecord() :
 validity_(),
 proxies_(),
 eventSetup_(0),
-cacheIdentifier_(1) //start with 1 since 0 means we haven't checked yet
+cacheIdentifier_(1), //start with 1 since 0 means we haven't checked yet
+transientAccessRequested_(false)
 {
 }
 
@@ -122,9 +123,18 @@ EventSetupRecord::add(const DataKey& iKey ,
 void 
 EventSetupRecord::cacheReset() 
 {
+   transientAccessRequested_ = false;
   ++cacheIdentifier_;
 }
 
+bool
+EventSetupRecord::transientReset()
+{
+   bool returnValue = transientAccessRequested_;
+   transientAccessRequested_=false;
+   return returnValue;
+}
+      
 //
 // const member functions
 //

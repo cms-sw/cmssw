@@ -47,10 +47,11 @@ class DataProxyTemplate : public DataProxy
 
       // ---------- member functions ---------------------------
       virtual const DataT* get(const RecordT& iRecord,
-                                const DataKey& iKey) const {
+                               const DataKey& iKey,
+                               bool iTransientAccessOnly = false) const {
          if(!cacheIsValid()) {
             cache_ = const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->make(iRecord, iKey);
-            const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->setCacheIsValid();
+            const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->setCacheIsValidAndAccessType(iTransientAccessOnly);
          }
          if(0 == cache_) {
             throwMakeException(iRecord, iKey);
@@ -60,7 +61,7 @@ class DataProxyTemplate : public DataProxy
       
       void doGet(const EventSetupRecord& iRecord, const DataKey& iKey) const {
          assert(iRecord.key() == RecordT::keyForClass());
-         get(static_cast<const RecordT&>(iRecord), iKey);
+         get(static_cast<const RecordT&>(iRecord), iKey,true);
       }
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;

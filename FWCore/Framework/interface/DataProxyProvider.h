@@ -75,6 +75,7 @@ class DataProxyProvider
       void setAppendToDataLabel(const edm::ParameterSet&);
       
       void resetProxies(const EventSetupRecordKey& iRecordType);
+      void resetProxiesIfTransient(const EventSetupRecordKey& iRecordType);
 
    protected:
       template< class T>

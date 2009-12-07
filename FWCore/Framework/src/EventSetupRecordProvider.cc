@@ -118,7 +118,15 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
 //
 // const member functions
 //
+void 
+EventSetupRecordProvider::resetTransients()
+{
+   if(checkResetTransients()) {
+      for_all(providers_, boost::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
+   }
+}
 
+      
 void 
 EventSetupRecordProvider::addRecordToIfValid(EventSetupProvider& iEventSetupProvider,
                                           const IOVSyncValue& iTime)
@@ -131,6 +139,7 @@ EventSetupRecordProvider::addRecordToIfValid(EventSetupProvider& iEventSetupProv
 bool 
 EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
 {
+   resetTransients();
    if(validityInterval_.validFor(iTime)) {
       return true;
    }

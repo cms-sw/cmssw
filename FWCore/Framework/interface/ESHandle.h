@@ -63,6 +63,7 @@ class ESHandle : public ESHandleBase {
       T const* operator->() const { return product(); }
       T const& operator*() const { return *product(); }
       // ---------- static member functions --------------------
+      static const bool transientAccessOnly = false;
 
       // ---------- member functions ---------------------------
       
@@ -70,7 +71,6 @@ class ESHandle : public ESHandleBase {
 };
 
   // Free swap function
-  template <class T>
   inline
   void
   swap(ESHandleBase& a, ESHandleBase& b) 

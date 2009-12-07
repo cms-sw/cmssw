@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.4 2005/12/16 02:58:27 chrjones Exp $
+// $Id: DataProxy.cc,v 1.5 2007/12/21 04:36:26 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ dummyDescription()
 //
 DataProxy::DataProxy() :
    cacheIsValid_(false),
+   nonTransientAccessRequested_(false),
    description_(dummyDescription())
 {
 }
@@ -66,7 +67,26 @@ DataProxy::~DataProxy()
 //
 // member functions
 //
-
+void 
+DataProxy::setCacheIsValidAndAccessType(bool iTransientAccessOnly) { 
+   cacheIsValid_ = true;
+   if(!iTransientAccessOnly) {
+      nonTransientAccessRequested_ = true;
+   }
+}
+      
+void DataProxy::clearCacheIsValid() { 
+   cacheIsValid_ = false;
+   nonTransientAccessRequested_ = false;
+}
+      
+void 
+DataProxy::resetIfTransient() {
+   if (!nonTransientAccessRequested_) {
+      invalidate();
+   }
+}
+      
 //
 // const member functions
 //

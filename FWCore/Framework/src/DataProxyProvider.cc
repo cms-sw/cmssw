@@ -83,7 +83,20 @@ DataProxyProvider::resetProxies(const EventSetupRecordKey& iRecordKey)
 {
   invalidateProxies(iRecordKey);
 }
-
+      
+void 
+DataProxyProvider::resetProxiesIfTransient(const EventSetupRecordKey& iRecordKey) 
+{
+   KeyedProxies& proxyList((*(recordProxies_.find(iRecordKey))).second) ;
+   KeyedProxies::iterator finished(proxyList.end()) ;
+   for (KeyedProxies::iterator keyedProxy(proxyList.begin()) ;
+        keyedProxy != finished ;
+        ++keyedProxy) {
+      (*((*keyedProxy).second)).resetIfTransient() ;
+   }
+   
+}
+      
 void
 DataProxyProvider::setAppendToDataLabel(const edm::ParameterSet& iToAppend)
 {

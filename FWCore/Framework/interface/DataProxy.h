@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:43:01 EST 2005
-// $Id: DataProxy.h,v 1.6 2005/09/01 23:30:48 wmtan Exp $
+// $Id: DataProxy.h,v 1.7 2005/12/16 02:58:31 chrjones Exp $
 //
 
 // system include files
@@ -53,6 +53,8 @@ class DataProxy
          clearCacheIsValid();
          invalidateCache();
       }
+      
+      void resetIfTransient();
 
       void setProviderDescription(const ComponentDescription* iDesc) {
          description_ = iDesc;
@@ -63,9 +65,8 @@ class DataProxy
          */
       virtual void invalidateCache() = 0;
 
-      void setCacheIsValid() { cacheIsValid_ = true; }
-      void clearCacheIsValid() { cacheIsValid_ = false; }
-      
+      void setCacheIsValidAndAccessType(bool iTransientAccessOnly);
+      void clearCacheIsValid();      
    private:
       DataProxy(const DataProxy&); // stop default
 
@@ -73,6 +74,7 @@ class DataProxy
 
       // ---------- member data --------------------------------
       bool cacheIsValid_;
+      bool nonTransientAccessRequested_;
       const ComponentDescription* description_;
 };
    }

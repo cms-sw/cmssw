@@ -104,6 +104,8 @@ class EventSetupRecordProvider
 
       const EventSetupRecordProvider& operator=(const EventSetupRecordProvider&); // stop default
 
+      void resetTransients();
+      virtual bool checkResetTransients() =0;
       // ---------- member data --------------------------------
       const EventSetupRecordKey key_;
       ValidityInterval validityInterval_;

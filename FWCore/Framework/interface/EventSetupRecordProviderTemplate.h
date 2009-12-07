@@ -86,6 +86,9 @@ protected:
       virtual void cacheReset() {
         record_.cacheReset();
       }
+      virtual bool checkResetTransients() {
+         return record_.transientReset();
+      }
       EventSetupRecordProviderTemplate(const EventSetupRecordProviderTemplate&); // stop default
 
       const EventSetupRecordProviderTemplate& operator=(const EventSetupRecordProviderTemplate&); // stop default

@@ -121,6 +121,8 @@ class EventSetupRecord
       bool add(const DataKey& iKey ,
                 const DataProxy* iProxy) ;      
       void cacheReset() ;
+      /// returns 'true' if a transient request has occurred since the last call to transientReset.
+      bool transientReset() ;
       void set(const ValidityInterval&);
       void setEventSetup(const EventSetup* iEventSetup) {eventSetup_ = iEventSetup; }
    protected:
@@ -136,6 +138,7 @@ class EventSetupRecord
       void addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription*, const DataKey&) const;
       void changeStdExceptionToCmsException(const char* iExceptionWhatMessage, const char* iName, const ComponentDescription*, const DataKey&) const;
       
+      void transientAccessRequested() const { transientAccessRequested_ = true;}
    private:
       EventSetupRecord(const EventSetupRecord&); // stop default
 
@@ -146,6 +149,7 @@ class EventSetupRecord
       std::map< DataKey , const DataProxy* > proxies_ ;
       const EventSetup* eventSetup_;
       unsigned long long cacheIdentifier_;
+      mutable bool transientAccessRequested_;
 };
 
    }

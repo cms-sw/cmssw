@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.10 2007/12/20 00:26:03 chrjones Exp $
+// $Id: recordGetImplementation.icc,v 1.11 2009/02/23 19:42:59 chrjones Exp $
 //
 
 // system include files
@@ -32,8 +32,10 @@ namespace edm {
       void 
       EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
 							   const char* iName,
-							   const ComponentDescription*& iDesc) const 
+							   const ComponentDescription*& iDesc,
+                                                           bool iTransientAccessOnly) const 
       {
+         if(iTransientAccessOnly) { this->transientAccessRequested(); }
 	 DataKey dataKey(DataKey::makeTypeTag<DataT>(),
 			 iName,
 			 DataKey::kDoNotCopyMemory);
@@ -45,7 +47,7 @@ namespace edm {
 	 
 	 if(0!=proxy) {
 	    try{
-	       hold = proxy->get(static_cast<const T&>(*this), dataKey);
+	       hold = proxy->get(static_cast<const T&>(*this), dataKey,iTransientAccessOnly);
 	       iDesc = proxy->providerDescription();
 	       
 	    } catch(cms::Exception& e) {
