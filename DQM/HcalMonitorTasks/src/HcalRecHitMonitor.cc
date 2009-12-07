@@ -593,7 +593,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
      
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
-  if (passedHLT & BPTX==true)
+  if (passedHLT && BPTX==true)
     {
       if (hepocc >0 && hemocc>0)
 	{
@@ -615,7 +615,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	}
     } // if passedHLT
 
-  else if (passedHLT & BPTX==false)
+  else if (passedHLT && BPTX==false)
     {
       if (hepocc >0 && hemocc>0)
 	{
