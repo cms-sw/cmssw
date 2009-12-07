@@ -127,42 +127,42 @@ BEGIN
 	return result_1; 
     END IF;
 
-    --SM delete script specifies deletes start after:   2hr15min= 7500 [Nov 09]
-    --With 1hr cron freq, allow files to be +1hrs5min:  3hr20min old,...SO:
-    --if         last-trasnf < 1hr10 ( 4200s) --> allow 3hr20 (12000s) worth of files
-    --if 1hr10 < last-trasnf < 2hr10 ( 7800s) --> allow 2hr20 ( 8400s) worth of files
-    --if 2hr10 < last-trasnf < 3hr25 (12300s) --> allow 1hr20 ( 4800s) worth of files
-    --if 3hr25 < last-trasnf                  --> allow 0hr0  (    0s) NO files
+    --SM delete script specifies deletes start after:   2hr15min= 7500 [Dec 09]
+    --With 1hr cron freq, allow files to be +1hrs15min: 3hr30min old,...SO:
+    --if         last-trasnf < 1hr20 ( 4800s) --> allow 3hr35 (12900s) worth of files
+    --if 1hr20 < last-trasnf < 2hr20 ( 8400s) --> allow 2hr35 ( 9300s) worth of files
+    --if 2hr20 < last-trasnf < 3hr35 (12900s) --> allow 1hr35 ( 5700s) worth of files
+    --if 3hr35 < last-trasnf                  --> allow 0hr0  (    0s) NO files
     -- otherwise magenta....if 25% more files then red; and red if non-zero after 4hr05 (14700s)
 
-    --if it's less than 1hr10min since last transfer, determine if the number of undeleted files is larger than a predicted upper limit of files for 3hr20
-    IF ( (time_diff(sysdate, LastTrans)) < 4200) THEN
-        IF ( (s_checked  - s_deleted )  > (12000 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
+    --if it's less than 1hr20min since last transfer, determine if the number of undeleted files is larger than a predicted upper limit of files for 3hr35
+    IF ( (time_diff(sysdate, LastTrans)) < 4800) THEN
+        IF ( (s_checked  - s_deleted )  > (12900 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
           result_1 := 1;
         END IF;
-        IF ( (s_checked  - s_deleted )  > (15000 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
+        IF ( (s_checked  - s_deleted )  > (16100 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
           result_1 := 2;
         END IF;
     ELSE
-        --if it's between 1hr10min and 2hr10 (7800s) since last transfer, is undeleted files is larger than predicted for 2hr20=8400
-        IF ( (time_diff(sysdate, LastTrans)) < 7800) THEN
-	    IF ( (s_checked  - s_deleted )  > ( 8400 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
+        --if it's between 1hr20min and 2hr20 (8400s) since last transfer, is undeleted files is larger than predicted for 2hr35=9300
+        IF ( (time_diff(sysdate, LastTrans)) < 8400) THEN
+	    IF ( (s_checked  - s_deleted )  > ( 9300 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
 	      result_1 := 1;
 	    END IF;
-	    IF ( (s_checked  - s_deleted )  > (10500 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
+	    IF ( (s_checked  - s_deleted )  > (11600 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
 	      result_1 := 2;
 	    END IF;
         ELSE	     
-             --if it's between 2hr10min and 3hr25 (12300s) since last transfer, is undeleted files is larger than predicted for 1hr20=4800
-	    IF ( (time_diff(sysdate, LastTrans)) < 12300) THEN
-	       IF ( (s_checked  - s_deleted )  > (4800 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
+             --if it's between 2hr20min and 3hr35 (12900s) since last transfer, is undeleted files is larger than predicted for 1hr35=5700
+	    IF ( (time_diff(sysdate, LastTrans)) < 12900) THEN
+	       IF ( (s_checked  - s_deleted )  > (5700 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
 		  result_1 := 1;
 	       END IF;
-	       IF ( (s_checked  - s_deleted )  > (6000 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
+	       IF ( (s_checked  - s_deleted )  > (7100 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
 		  result_1 := 2;
 	       END IF;
 	    ELSE	     
-               --if it's been more than 3hr25  since last transfer, all files should be deleted
+               --if it's been more than 3hr35  since last transfer, all files should be deleted
                IF ( ABS(S_checked - s_deleted) > 0 ) THEN
 	         result_1 := 1;
 	         --it's been even a longer last transfer, so go red 
