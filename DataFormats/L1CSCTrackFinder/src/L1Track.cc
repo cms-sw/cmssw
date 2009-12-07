@@ -18,6 +18,11 @@ namespace csc {
     me3_id = 0;
     me4_id = 0;
     mb1_id = 0;
+		m_me1Tbin = 0;
+		m_me2Tbin = 0;
+		m_me3Tbin = 0;
+		m_me4Tbin = 0;
+		m_mbTbin  = 0;
     m_output_link = 0;
     m_winner = false;
   }
@@ -39,6 +44,11 @@ namespace csc {
     me3_id = rhs.me3_id;
     me4_id = rhs.me4_id;
     mb1_id = rhs.mb1_id;
+		m_me1Tbin = rhs.m_me1Tbin;
+		m_me2Tbin = rhs.m_me2Tbin;
+		m_me3Tbin = rhs.m_me3Tbin;
+		m_me4Tbin = rhs.m_me4Tbin;
+		m_mbTbin  = rhs.m_mbTbin;
     m_output_link = rhs.m_output_link;
     m_winner = rhs.m_winner;
   }
