@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.25 2009/10/08 21:19:56 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.26 2009/10/09 15:06:05 chrjones Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
       case 0:
          return iData.purpose_;
          break;
-      case 3:
+      case 4:
          return iData.type_;
          break;
       case 1:
@@ -57,7 +57,7 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
       case 2:
          return iData.productInstanceLabel_;
          break;
-      case 4:
+      case 3:
          return iData.processName_;
          break;
       default:
@@ -93,8 +93,8 @@ public:
       returnValue.push_back("Purpose");
       returnValue.push_back("Module Label");
       returnValue.push_back("Product Instance Label");
-      returnValue.push_back("C++ Class");
       returnValue.push_back("Process Name");
+      returnValue.push_back("C++ Class");
       return returnValue;
    }
    
