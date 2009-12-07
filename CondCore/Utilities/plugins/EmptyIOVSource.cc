@@ -1,9 +1,9 @@
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
-#include <vector>
+#include <string>
 namespace cond {
   class EmptyIOVSource : public edm::ConfigurableInputSource {
   public:
-    typedef Time_t unsigned long long;
+    typedef unsigned long long Time_t;
     EmptyIOVSource(edm::ParameterSet const&, edm::InputSourceDescription const&);
     ~EmptyIOVSource();
   private:
