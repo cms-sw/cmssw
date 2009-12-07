@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.7 2009/11/26 21:33:12 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.8 2009/11/30 12:30:51 amraktad Exp $
 //
 
 // system include files
@@ -73,7 +73,7 @@ public:
    int  nextSelectedEvent(int event);
    int  previousSelectedEvent(int event);
 
-   void filtersNeedUpdate() { m_filtersNeedUpdate = true; }
+   void needUpdate() { m_needUpdate = true; }
    void updateFilters(FWEventItemsManager* eiMng, bool isOR);
 
    int  getTreeEntryFromEventId(int entry);
@@ -90,9 +90,9 @@ private:
    TTree*                 m_eventTree;
    fwlite::Event*         m_event;
    
-   bool                   m_filtersNeedUpdate; // To be set in navigator::filterChanged/Added, newFile
+   bool                   m_needUpdate; // To be set in navigator::filterChanged/Added, newFile
    
    std::list<Filter*>     m_filterEntries;
-   FWTEventList*            m_globalEventList;
+   FWTEventList*          m_globalEventList;
 };
 #endif

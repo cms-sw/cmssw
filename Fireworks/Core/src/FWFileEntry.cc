@@ -19,7 +19,7 @@
 
 FWFileEntry::FWFileEntry(const std::string& name) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
-   m_filtersNeedUpdate(true), m_globalEventList(0)
+   m_needUpdate(true), m_globalEventList(0)
 {
    openFile();
 }
@@ -145,7 +145,7 @@ bool FWFileEntry::hasActiveFilters()
 //______________________________________________________________________________
 void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
 {
-   if (!m_filtersNeedUpdate)
+   if (!m_needUpdate)
       return;
    
    if (m_globalEventList)
@@ -182,7 +182,7 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
       }
    }
    
-   m_filtersNeedUpdate = false;
+   m_needUpdate = false;
 }
 
 //_____________________________________________________________________________
