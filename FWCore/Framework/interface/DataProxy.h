@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:43:01 EST 2005
-// $Id: DataProxy.h,v 1.7 2005/12/16 02:58:31 chrjones Exp $
+// $Id: DataProxy.h,v 1.8 2009/12/07 21:19:20 chrjones Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@ class DataProxy
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_; }
       
-      virtual void doGet(const EventSetupRecord& iRecord, const DataKey& iKey) const = 0;
+      virtual void doGet(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const = 0;
 
       ///returns the description of the DataProxyProvider which owns this Proxy
       const ComponentDescription* providerDescription() const {

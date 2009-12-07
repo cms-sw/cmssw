@@ -147,13 +147,13 @@ EventSetupRecord::find(const DataKey& iKey) const
    }
    return 0;
 }
-
+      
 bool 
-EventSetupRecord::doGet(const DataKey& aKey) const {
+EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
    const DataProxy* proxy = find(aKey);
    if(0 != proxy) {
       try {
-         proxy->doGet(*this, aKey);
+         proxy->doGet(*this, aKey, aGetTransiently);
       } catch( cms::Exception& e) {
          addTraceInfoToCmsException(e,aKey.name().value(),proxy->providerDescription(), aKey);
          //NOTE: the above function can't do the 'throw' since it causes the C++ class type

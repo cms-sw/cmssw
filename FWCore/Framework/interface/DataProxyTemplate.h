@@ -59,9 +59,9 @@ class DataProxyTemplate : public DataProxy
          return cache_;
       }
       
-      void doGet(const EventSetupRecord& iRecord, const DataKey& iKey) const {
+      void doGet(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const {
          assert(iRecord.key() == RecordT::keyForClass());
-         get(static_cast<const RecordT&>(iRecord), iKey,true);
+         get(static_cast<const RecordT&>(iRecord), iKey, iTransiently);
       }
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;

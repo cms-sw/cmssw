@@ -82,7 +82,7 @@ class EventSetupRecord
       }
       
       ///returns false if no data available for key
-      bool doGet(const DataKey& aKey) const;
+      bool doGet(const DataKey& aKey, bool aGetTransiently=false) const;
 
       /**returns true only if someone has already requested data for this key
        and the data was retrieved
