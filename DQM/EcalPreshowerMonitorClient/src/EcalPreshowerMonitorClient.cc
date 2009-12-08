@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -173,6 +174,15 @@ void EcalPreshowerMonitorClient::analyze(const Event & e, const EventSetup & c) 
    if ( prescaleFactor_ > 0 ) {
       if ( jevt_ % prescaleFactor_ == 0 ) this->analyze();
    }
+
+}
+
+void EcalPreshowerMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup & c) {
+}
+
+void EcalPreshowerMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup & c) {
+
+  this->analyze();
 
 }
 
