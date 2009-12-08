@@ -18,10 +18,27 @@ class ConfigToolBase(object) :
         self._description=self.__doc__
         self._comment = ''
         self.parAccepted=True
-    def __call__(self):
+    def __call__(self,process):
         """ Call the instance 
         """
         raise NotImplementedError
+    
+    def apply(self,process):
+        
+        if hasattr(process, "addAction"):
+            process.disableRecording()
+            
+        self.toolCode(process)
+        
+        if hasattr(process, "addAction"):
+            process.enableRecording()
+            action=self.__copy__()
+            process.addAction(action)
+            
+    def toolCode(self, process):
+        pass
+
+            
     ### __copy__(self) returns a copy of the tool
     def __copy__(self):
         c=type(self)()
