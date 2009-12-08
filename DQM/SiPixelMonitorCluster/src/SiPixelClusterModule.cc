@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.22 2009/10/20 14:58:08 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.23 2009/12/03 17:07:23 wehrlilu Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -486,7 +486,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet) {
+void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -549,7 +549,7 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	//      (meEdgeHitY_)->Fill((int)edgeHitY);
       }
       //**
-      if(barrel){
+      if(barrel && smileyon){
         (meSizeYvsEtaBarrel_)->Fill(clustgp.eta(),sizeY);
 	//std::cout << "Cluster Global x y z theta eta " << clustgp.x() << " " << clustgp.y() << " " << clustgp.z() << " " << clustgp.theta() << " " 
 	//<< clustgp.eta() << std::endl;

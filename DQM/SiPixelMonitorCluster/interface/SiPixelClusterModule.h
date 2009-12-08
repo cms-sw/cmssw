@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.10 2008/09/02 13:52:17 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.11 2009/12/03 17:07:23 wehrlilu Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -65,7 +65,8 @@ class SiPixelClusterModule {
 	    bool diskon=false, 
 	    bool ringon=false, 
 	    bool twoD=true,
-	    bool reducedSet=false);
+	    bool reducedSet=false,
+	    bool smileyon=false);
   
  private:
 

@@ -58,5 +58,6 @@ process.SiPixelClusterSource.phiOn = True
 process.SiPixelClusterSource.ringOn = True
 process.SiPixelClusterSource.bladeOn = True
 process.SiPixelClusterSource.diskOn = True
+process.SiPixelClusterSource.smileyOn = False
 process.DQM.collectorHost = ''
 

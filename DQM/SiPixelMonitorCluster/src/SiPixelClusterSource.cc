@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.19 2009/10/21 12:29:05 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.20 2009/12/03 17:07:23 wehrlilu Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -56,7 +56,8 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
   ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
-  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) )
+  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
+  smileyOn(conf_.getUntrackedParameter<bool>("smileyOn",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelClusterSource::SiPixelClusterSource: Got DQM BackEnd interface"<<endl;
@@ -85,6 +86,7 @@ void SiPixelClusterSource::beginJob(const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
 	    << ringOn << std::endl;
   LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << "\n";
+  LogInfo ("PixelDQM") << "Smiley (Cluster sizeY vs. Cluster eta) is " << smileyOn << "\n";
 
   eventNo = 0;
   // Build map
@@ -124,7 +126,7 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input, tracker,  modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet);
+    (*struct_iter).second->fill(*input, tracker,  modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet, smileyOn);
     
   }
 
@@ -257,14 +259,13 @@ void SiPixelClusterSource::bookMEs(){
       }
     }
     //**
-    if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7)){
-      (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet);
-      } else {
-      LogDebug ("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
+    if(smileyOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7)){
+        (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet);
+        } else {
+        LogDebug ("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
+      }
     }
-
-
-
 
   }
 

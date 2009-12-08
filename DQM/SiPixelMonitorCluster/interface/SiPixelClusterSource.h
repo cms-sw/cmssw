@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.12 2008/09/02 13:52:17 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.13 2009/12/03 17:07:23 wehrlilu Exp $
 
 #include <memory>
 
@@ -90,6 +90,7 @@
        bool ladOn, layOn, phiOn;
        //forward:
        bool ringOn, bladeOn, diskOn; 
- };
+       bool smileyOn; //cluster sizeY vs Cluster eta plot 
+};
 
 #endif

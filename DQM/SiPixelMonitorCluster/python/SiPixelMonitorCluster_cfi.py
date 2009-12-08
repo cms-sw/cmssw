@@ -14,6 +14,7 @@ SiPixelClusterSource = cms.EDFilter("SiPixelClusterSource",
     phiOn = cms.untracked.bool(False),
     ringOn = cms.untracked.bool(False),
     bladeOn = cms.untracked.bool(False),
-    diskOn = cms.untracked.bool(False)
+    diskOn = cms.untracked.bool(False),
+    smileyOn = cms.untracked.bool(True)
 )
 
