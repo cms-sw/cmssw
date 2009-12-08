@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.25 2009/09/17 16:01:13 amraktad Exp $
+// $Id: CSGAction.cc,v 1.26 2009/11/29 15:56:33 amraktad Exp $
 //
 
 // system include files
@@ -41,8 +41,8 @@
 CSGAction::CSGAction(CSGActionSupervisor *supervisor, const char *name) :
    m_connector(0)
  {
-   m_enabled = kTRUE;
-   m_globalEnabled = kTRUE;
+   m_enabled = true;
+   m_globalEnabled = true;
    m_supervisor = supervisor;
    m_name = name;
    m_toolTip = "";
@@ -122,6 +122,9 @@ void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id
    p->AddFrame(textButton, l);
    TQObject::Connect(textButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(textButton);
+   if(!isEnabled()) {
+      textButton->SetEnabled(kFALSE);
+   }
 }
 
 void CSGAction::createCheckButton(TGCompositeFrame* p, TGLayoutHints* l, Bool_t state, Int_t id, GContext_t norm, FontStruct_t font) {
@@ -132,6 +135,9 @@ void CSGAction::createCheckButton(TGCompositeFrame* p, TGLayoutHints* l, Bool_t 
    if (state)   checkButton->SetState(kButtonDown, false);
    TQObject::Connect(checkButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(checkButton);
+   if(!isEnabled()) {
+      checkButton->SetEnabled(kFALSE);
+   }
 }
 
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {
@@ -140,6 +146,9 @@ void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, T
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);
+   if(!isEnabled()) {
+      picButton->SetEnabled(kFALSE);
+   }
 }
 
 FWCustomIconsButton*
@@ -157,6 +166,9 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
    m_buttons.push_back(picButton);
+   if(!isEnabled()) {
+      picButton->SetEnabled(kFALSE);
+   }
    return picButton;
 }
 
@@ -196,6 +208,9 @@ void CSGAction::createMenuEntry(TGPopupMenu *menu) {
    if (!(menu->HasConnection("Activated(Int_t)"))) TQObject::Connect(menu, "Activated(Int_t)", "CSGConnector", m_connector, "handleMenu(Int_t)");
    menu->AddEntry(m_name.c_str(), m_entry);
    if (m_keycode != 0) addSCToMenu();
+   if(!isEnabled()) {
+      m_menu->DisableEntry(m_entry);
+   }
 }
 
 void CSGAction::addSCToMenu() {
@@ -260,12 +275,12 @@ TGToolBar* CSGAction::getToolBar() const {
 }
 
 void CSGAction::enable() {
-   m_enabled = kTRUE;
+   m_enabled = true;
    enableImp();
 }
 
 void CSGAction::disable() {
-   m_enabled = kFALSE;
+   m_enabled = false;
    disableImp();
 }
 
