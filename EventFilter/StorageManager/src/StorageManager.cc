@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.120 2009/11/09 15:11:59 mommsen Exp $
+// $Id: StorageManager.cc,v 1.121 2009/12/08 14:12:58 dshpakov Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -40,7 +40,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.120 2009/11/09 15:11:59 mommsen Exp $ $Name: HEAD $")
+    "$Id: StorageManager.cc,v 1.121 2009/12/08 14:12:58 dshpakov Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -321,8 +321,14 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
 void StorageManager::receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref)
 {
   I2OChain i2oChain( ref );
+
+  FragmentMonitorCollection& fragMonCollection =
+    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+  fragMonCollection.addFragmentSample( i2oChain.totalDataSize() );
+  
   _sharedResources->_streamQueue->enq_wait( i2oChain );
 }
+
 
 ///////////////////////////////////////
 // Web interface call back functions //
