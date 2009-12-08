@@ -11,8 +11,6 @@
 ################################################################################
 use File::Copy;
 
-my $mode = shift || die "usage: $0 mode => file/live/playback, stopped";
-
 # welcome
 print "\n============================================================";
 print "\ninitialize ...";
@@ -43,7 +41,7 @@ my $dqm_int = $ENV{"CMSSW_BASE"}."/src/DQM/Integration/test";
 my $dqm_common = $ENV{"CMSSW_BASE"}."/src/DQM/TrackerCommon/test";
 my $dqm_wdir = "/tmp";
 
-my $cfg_file = "sistrip_dqm_sourceclient-".$mode."_cfg.py";
+my $cfg_file = "sistrip_dqm_sourceclient-live_cfg.py";
 
 print "cfg file name : $cfg_file\n";
 #
@@ -79,8 +77,8 @@ copy("$dqm_dir/../data/crate.js",           "$dqm_int/TkMap/crate.js");
 copy("$dqm_dir/../data/jqviewer.js",        "$dqm_int/TkMap/jqviewer.js");
 copy("$dqm_dir/../data/viewerHeader.xhtml", "$dqm_int/TkMap/viewerHeader.xhtml");
 copy("$dqm_dir/../data/viewerTrailer.xhtml","$dqm_int/TkMap/viewerTrailer.xhtml");
-copy("$dqm_int/../python/test/$js_files/$cfg_file", "$dqm_int/.");
-system qq[perl], qq[-pi -e], qq[s!TkMapCreationFrequency  = -1!TkMapCreationFrequency  = 1!], qq[$dqm_int/$cfg_file]; 
+copy("$dqm_int/../python/test/$cfg_file", "$dqm_int/.");
+system qq[perl], qq[-pi -e], qq[s!TkMapCreationFrequency  = -1!TkMapCreationFrequency  = 3!], qq[$dqm_int/$cfg_file]; 
 system qq[perl], qq[-pi -e], qq[s!/dqmdata/dqm/reference!/home/dqmdevlocal/reference!], qq[$dqm_int/$cfg_file]; 
 
 #
@@ -270,13 +268,15 @@ system qq[cp], qq[-r], qq[$dqm_common/jquery],    qq[$dqm_wdir/jquery];
 #system qq[perl], qq[-pi -e], qq[s#lid=27#lid=$localid#], qq[$dqm_wdir/js_files/IMGC.js]; 
 
 my $dqm_python = $ENV{"CMSSW_BASE"}."/src/DQM/Integration/python/test";
-my $input_url = qq[sourceURL = cms.string('http://%s:40867/urn:xdaq-application:lid=50' %socket.gethostname()),];
-system qq[perl], qq[-pi -e], qq[s! sourceURL.*!$input_url!], qq[$dqm_python/inputsource_cfi.py]; 
+my $input_url = qq[sourceURL = cms.string('http://vmepcs2b18-25:40867/urn:xdaq-application:lid=50')];
 
-system qq[perl], qq[-pi -e], qq[s!srv-c2d05-18!vmepcs2b18-25!], qq[$dqm_python/environment_playback_cfi.py]; 
-system qq[perl], qq[-pi -e], qq[s!9090!9190!], qq[$dqm_python/environment_playback_cfi.py]; 
-system qq[perl], qq[-pi -e], qq[s!srv-c2d05-18!vmepcs2b18-25!], qq[$dqm_python/environment_cfi.py];
+system qq[perl], qq[-pi -e], qq[s!sourceURL.*!$input_url!], qq[$dqm_int/$cfg_file]; 
+system qq[perl], qq[-pi -e], qq[s!process.DQM.filter!# process.DQM.filter!], qq[$dqm_int/$cfg_file]; 
+
+system qq[perl], qq[-pi -e], qq[s!srv-c2d05-18!vmepcs2b18-25!], qq[$dqm_python/environment_cfi.py]; 
 system qq[perl], qq[-pi -e], qq[s!9090!9190!], qq[$dqm_python/environment_cfi.py]; 
+system qq[perl], qq[-pi -e], qq[s!dqmSaver.saveByTime = 16!dqmSaver.saveByTime = 20!], qq[$dqm_int/$cfg_file];
+system qq[perl], qq[-pi -e], qq[s!dqmSaver.saveByMinute = 16!dqmSaver.saveByMinute = 20!], qq[$dqm_int/$cfg_file];
 
 #
 # start processes

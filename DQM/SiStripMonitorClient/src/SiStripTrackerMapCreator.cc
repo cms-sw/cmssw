@@ -1,4 +1,4 @@
-5~#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
@@ -66,7 +66,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   }
   trackerMap_->printonline();
   delete trackerMap_;
-  traclerMap_ = 0;
+  trackerMap_ = 0;
 }
 //
 // -- Create Tracker Map for Offline process
@@ -85,6 +85,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".svg");  
   trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".png",4500,2400);
   delete trackerMap_;
+  trackerMap_ = 0;
 }
 //
 // -- Paint Tracker Map with QTest Alarms 
