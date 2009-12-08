@@ -33,7 +33,9 @@ process.source = cms.Source("PoolSource",
 #        '/store/relval/CMSSW_3_1_1/RelValWM/GEN-SIM-RECO/STARTUP31X_V1-v2/0002/9270F55B-E26B-DE11-994E-001D09F2AF1E.root',
 #        '/store/relval/CMSSW_3_1_1/RelValWM/GEN-SIM-RECO/STARTUP31X_V1-v2/0002/8E5D0675-E36B-DE11-8F71-001D09F242EF.root'
 #         'file:/ciet3a/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root'
-         'file:/ciet3a/data4/MinBias900GeV_MuFiltered/MinBias900GeV_MuFiltered_1.root'
+#         'file:/ciet3a/data4/MinBias900GeV_MuFiltered/MinBias900GeV_MuFiltered_1.root'
+          'file:/ciet3a/data4/123151_853052.root'
+
 
     )
 )
