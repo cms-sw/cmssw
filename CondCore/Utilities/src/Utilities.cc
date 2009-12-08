@@ -70,9 +70,10 @@ int cond::Utilities::run( int argc, char** argv ){
       return 0;
     }
     if(m_options.find_nothrow("dictionary",false)){
-      std::vector<std::string> dictionaries = getValueIfExists("dictionary");
+      std::vector<std::string> dictionaries =
+	m_values["dictionary"].as<std::vector<std::string> >();
       if(!dictionaries.empty()){
-        initializePluginManager();
+	initializePluginManager();
 	cond::SharedLibraryName libName;
 	BOOST_FOREACH(std::string const & dict, dictionaries)
 	  edmplugin::SharedLibrary( libName(dict) );
