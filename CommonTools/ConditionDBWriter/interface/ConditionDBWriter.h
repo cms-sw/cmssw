@@ -128,7 +128,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  May 23 10:04:31 CET 2007
-// $Id: ConditionDBWriter.h,v 1.6 2008/03/05 18:30:24 pierro Exp $
+// $Id: ConditionDBWriter.h,v 1.7 2008/08/06 18:15:18 giordano Exp $
 //
 //
 
@@ -176,7 +176,8 @@ public:
     Record_=iConfig.getParameter<std::string>("Record");
     doStore_=iConfig.getParameter<bool>("doStoreOnDB");
 
-
+    if(! SinceAppendMode_ ) 
+      edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
   }
 
 
@@ -344,40 +345,14 @@ private:
     if( doStore_ && mydbservice.isAvailable() ){
 
       try{
-	
-	bool tillDone=false;
+	cond::Time_t since = 
+	  ( mydbservice->isNewTagRequest(Record_) ) ? mydbservice->beginOfTime() : Time_;
 
-	//if first time tag is populated
-	if( mydbservice->isNewTagRequest(Record_) ){
-	
-	  edm::LogInfo("ConditionDBWriter") << "first request for storing objects with Record "<< Record_ << std::endl;
-	  
-	  if(SinceAppendMode_) {
-	    //	  edm::LogInfo("ConditionDBWriter") << "appending a new DUMMY object to new tag "<<Record_<<" in since mode " << std::endl;
-	    //	  mydbservice->createNewIOV<T>(new T(), mydbservice->endOfTime(), Record_);
-	    edm::LogInfo("ConditionDBWriter") << "appending a new object to existing tag " <<Record_ <<" in since mode " << std::endl;
-	    mydbservice->createNewIOV<T>(objPointer, mydbservice->beginOfTime(), mydbservice->endOfTime(), Record_);
+	    edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
+					      <<Record_ <<" in since mode " << std::endl;
+	    mydbservice->writeOne<T>(objPointer, since, Record_);
+	  }
 
-	    // mydbservice->appendSinceTime<T>(objPointer, Time_, Record_); 
-	  }
-	  else{
-	    edm::LogInfo("ConditionDBWriter") << "appending a new object to new tag "<<Record_<< " in till mode " << std::endl;
-	    mydbservice->createNewIOV<T>(objPointer, mydbservice->beginOfTime(),Time_, Record_);      
-	    tillDone=true;
-	  }
-	  
-	} 
-	else {
-	  
-	  if(SinceAppendMode_){
-	    edm::LogInfo("ConditionDBWriter") << "appending a new object to existing tag " <<Record_ <<" in since mode " << std::endl;
-	    mydbservice->appendSinceTime<T>(objPointer, Time_, Record_); 
-	  }
-	  else if(!tillDone){
-	    edm::LogInfo("ConditionDBWriter") << "appending a new object to existing tag "<<Record_ <<" in till mode." << std::endl;
-	    //	  mydbservice->appendTillTime<T>(objPointer,Time_,"TRcd");      
-	    mydbservice->appendTillTime<T>(objPointer, Time_, Record_);      
-	  }
 
 	}
 
