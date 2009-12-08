@@ -86,7 +86,14 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         applyMissingETFilter = cms.bool(False)
     ),
     trackQualities = cms.vstring(), # take all if empty
+<<<<<<< AlignmentTrackSelector_cfi.py
     iterativeTrackingSteps = cms.vstring(), # take all if empty
+    #settings for filtering on the hits taken by the Skim&Prescale workflow
+    hitPrescaleMapTag = cms.InputTag(''), # ignore prescale map if empty
+    minPrescaledHits = cms.int32(-1)                                  
+=======
+    iterativeTrackingSteps = cms.vstring(), # take all if empty
+>>>>>>> 1.9
 )
 
 

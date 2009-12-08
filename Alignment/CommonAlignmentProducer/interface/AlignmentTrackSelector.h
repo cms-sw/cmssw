@@ -68,10 +68,18 @@ class AlignmentTrackSelector
   const unsigned int nHitMin2D_;
   const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
 
+<<<<<<< AlignmentTrackSelector.h
+ std::vector<reco::TrackBase::TrackQuality> trkQualities_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trkSteps_;
+  bool applyTrkQualityCheck_;
+  bool applyIterStepCheck_;
+
+=======
   std::vector<reco::TrackBase::TrackQuality> trkQualities_;
   std::vector<reco::TrackBase::TrackAlgorithm> trkSteps_;
   bool applyTrkQualityCheck_;
   bool applyIterStepCheck_;
+>>>>>>> 1.19
 };
 
 #endif

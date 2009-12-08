@@ -442,12 +442,44 @@ bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
   }
   else iterStepOk=true;
 
+<<<<<<< AlignmentTrackSelector.cc
+    }//end loop on hits
+    if(ntakenhits >= minPrescaledHits_)result.push_back(trackp);
+  }//end loop on tracks
+
+  return result;
+}//end checkPrescaledHits
+
+//---------
+bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
+{
+  bool qualityOk=false;
+  bool iterStepOk=false;
+
+  //check iterative step
+  if(applyIterStepCheck_){
+    for (unsigned int i = 0; i < trkSteps_.size(); ++i) {
+      if (track->algo()==(trkSteps_[i])) {
+	iterStepOk=true;
+      }
+    }
+  }
+  else iterStepOk=true;
+
   //check track quality
   if(applyTrkQualityCheck_){
     for (unsigned int i = 0; i < trkQualities_.size(); ++i) {
       if (track->quality(trkQualities_[i])) {
 	qualityOk=true;
       }
+=======
+  //check track quality
+  if(applyTrkQualityCheck_){
+    for (unsigned int i = 0; i < trkQualities_.size(); ++i) {
+      if (track->quality(trkQualities_[i])) {
+	qualityOk=true;
+      }
+>>>>>>> 1.25
     }
   }
   else 	qualityOk=true;
