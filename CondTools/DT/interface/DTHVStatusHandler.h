@@ -5,8 +5,8 @@
  *  Description: Class to copy HV status via PopCon
  *
  *
- *  $Date: 2009/09/03 14:09:01 $
- *  $Revision: 1.1.4.1 $
+ *  $Date: 2009/09/25 12:03:21 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -111,6 +111,9 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
   int hUntil;
   int pUntil;
   int sUntil;
+  long long int bwdTime;
+  long long int fwdTime;
+  long long int minTime;
 
   float* minHV;
   float* maxHV;

@@ -70,6 +70,9 @@ DTHVStatusHandler::DTHVStatusHandler( const edm::ParameterSet& ps ) :
  hUntil(                ps.getParameter<int> ( "untilHour"   ) ),
  pUntil(                ps.getParameter<int> ( "untilMinute" ) ),
  sUntil(                ps.getParameter<int> ( "untilSecond" ) ),
+ bwdTime(               ps.getParameter<long long int> ( "bwdTime" ) ),
+ fwdTime(               ps.getParameter<long long int> ( "fwdTime" ) ),
+ minTime(               ps.getParameter<long long int> ( "minTime" ) ),
  mapVersion(            ps.getParameter<std::string> ( "mapVersion"   ) ),
  splitVersion(          ps.getParameter<std::string> ( "splitVersion" ) ) {
   std::cout << " PopCon application for DT HV data export "
@@ -676,7 +679,8 @@ void DTHVStatusHandler::updateHVStatus() {
               << " ( "          << procSince << " )" << std::endl;
     return;
   }
-  long long int dTime = 3600;//43200;
+  long long int dTime = bwdTime;
+//  long long int dTime = 3600;//43200;
   dTime <<= 32;
   cond::Time_t condUntil = procSince;
   cond::Time_t condSince = condUntil - dTime;
@@ -930,7 +934,8 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
     }
   }
 
-  long long int dTime = 1;
+  long long int dTime = minTime;
+//  long long int dTime = 1;
   dTime <<= 32;
   std::cout << "data found in period: " << periodBuffer.size() << std::endl;
   std::map<long long int,channelValue>::const_iterator bufIter =
@@ -980,7 +985,8 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
 
 void DTHVStatusHandler::copyHVData( std::map<int,timedMeasurement>&
                                          snapshotValues ) {
-  long long int dTime = 3600;//43200;
+  long long int dTime = fwdTime;
+//  long long int dTime = 3600;//43200;
   dTime <<= 32;
 
   cond::Time_t condSince = procSince;
