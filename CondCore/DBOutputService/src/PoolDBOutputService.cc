@@ -120,13 +120,13 @@ cond::service::PoolDBOutputService::session() const{
 }
 
 std::string 
-cond::service::PoolDBOutputService::tag( const std::string& EventSetupRecordName ){
-  return this->lookUpRecord(EventSetupRecordName).m_tag;
+cond::service::PoolDBOutputService::tag( const std::string& recordName ){
+  return this->lookUpRecord(recordName).m_tag;
 }
 
 bool 
-cond::service::PoolDBOutputService::isNewTagRequest( const std::string& EventSetupRecordName ){
-  Record& myrecord=this->lookUpRecord(EventSetupRecordName);
+cond::service::PoolDBOutputService::isNewTagRequest( const std::string& recordName ){
+  Record& myrecord=this->lookUpRecord(recordName);
   if(!m_dbstarted) this->initDB();
   return myrecord.m_isNewTag;
 }
@@ -219,8 +219,8 @@ cond::service::PoolDBOutputService::currentTime() const{
 }
 
 void 
-cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
-  Record& myrecord=this->lookUpRecord(EventSetupRecordName);
+cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& recordName, bool withlogging){
+  Record& myrecord=this->lookUpRecord(recordName);
   if (!m_dbstarted) this->initDB();
   if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIOV not a new tag");
   std::string iovToken;
@@ -260,13 +260,13 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     myrecord.m_isNewTag=false;
     if(withlogging){
       std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
       m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx);
     }
   }catch(const std::exception& er){ 
     if(withlogging){
       std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
       m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
@@ -281,9 +281,9 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
 void 
 cond::service::PoolDBOutputService::add( GetToken const & payloadToken,  
 					 cond::Time_t time,
-					 const std::string& EventSetupRecordName,
+					 const std::string& recordName,
 					 bool withlogging) {
-  Record& myrecord=this->lookUpRecord(EventSetupRecordName);
+  Record& myrecord=this->lookUpRecord(recordName);
   if (!m_dbstarted) this->initDB();
   if(withlogging){
     if(!m_logdb) throw cond::Exception("cannot log to non-existing log db");
@@ -301,13 +301,13 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
     transaction.commit();
     if(withlogging){
       std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
       m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx);
     }
   }catch(const std::exception& er){
     if(withlogging){
       std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
       m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
@@ -319,16 +319,16 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
 }
 
 cond::service::PoolDBOutputService::Record& 
-cond::service::PoolDBOutputService::lookUpRecord(const std::string& EventSetupRecordName){
-  std::map<std::string,Record>::iterator it=m_callbacks.find(EventSetupRecordName);
-  if(it==m_callbacks.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
+cond::service::PoolDBOutputService::lookUpRecord(const std::string& recordName){
+  std::map<std::string,Record>::iterator it=m_callbacks.find(recordName);
+  if(it==m_callbacks.end()) throw cond::UnregisteredRecordException(recordName);
   return it->second;
 }
 
 cond::UserLogInfo& 
-cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& EventSetupRecordName){
-  std::map<std::string,cond::UserLogInfo>::iterator it=m_logheaders.find(EventSetupRecordName);
-  if(it==m_logheaders.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
+cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& recordName){
+  std::map<std::string,cond::UserLogInfo>::iterator it=m_logheaders.find(recordName);
+  if(it==m_logheaders.end()) throw cond::UnregisteredRecordException(recordName);
   return it->second;
 }
 
@@ -353,9 +353,9 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
 
 
 void
-cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& EventSetupRecordName,const std::string& dataprovenance,const std::string& usertext)
+cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& recordName,const std::string& dataprovenance,const std::string& usertext)
 {
-  cond::UserLogInfo& myloginfo=this->lookUpUserLogInfo(EventSetupRecordName);
+  cond::UserLogInfo& myloginfo=this->lookUpUserLogInfo(recordName);
   myloginfo.provenance=dataprovenance;
   myloginfo.usertext=usertext;
 }
@@ -369,8 +369,8 @@ cond::service::PoolDBOutputService::queryLog()const{
 
 
 void 
-cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordName,cond::TagInfo& result ){
-  Record& record = lookUpRecord(EventSetupRecordName);
+cond::service::PoolDBOutputService::tagInfo(const std::string& recordName,cond::TagInfo& result ){
+  Record& record = lookUpRecord(recordName);
   result.name=record.m_tag;
   result.token=record.m_iovtoken;
   //use iovproxy to find out.
