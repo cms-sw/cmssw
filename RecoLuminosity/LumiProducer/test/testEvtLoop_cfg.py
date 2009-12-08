@@ -12,22 +12,22 @@ process.maxLuminosityBlocks=cms.untracked.PSet(
     input=cms.untracked.int32(44)
 )
 
-process.source = cms.Source("EmptySource",
-     numberEventsInRun = cms.untracked.uint32(45),
-     firstRun = cms.untracked.uint32(122314),
-     numberEventsInLuminosityBlock = cms.untracked.uint32(1),
-     firstLuminosityBlock = cms.untracked.uint32(1)
-)
+#process.source = cms.Source("EmptySource",
+#     numberEventsInRun = cms.untracked.uint32(45),
+#     firstRun = cms.untracked.uint32(122314),
+#     numberEventsInLuminosityBlock = cms.untracked.uint32(1),
+#     firstLuminosityBlock = cms.untracked.uint32(1)
+#)
 
-#process.source= cms.Source("PoolSource",
-#              processingMode=cms.untracked.string('RunsAndLumis'),
+process.source= cms.Source("PoolSource",
+              processingMode=cms.untracked.string('RunsAndLumis'),
 #              fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/AlCaPhiSymEcal/ALCARECO/v2/000/122/314/D662B7EB-88D8-DE11-99D4-001D09F251BD.root'),
-#              firstRun=cms.untracked.uint32(122314),
-#              firstLuminosityBlock = cms.untracked.uint32(1),        
-#              firstEvent=cms.untracked.uint32(1),
-#              numberEventsInLuminosityBlock=cms.untracked.uint32(1)
-#              #numberEventsInRun=cms.untracked.uint32(50),
-#             )
+              fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/122/314/10D7BE65-3FD9-DE11-BED4-0026189438F4.root'),             
+              firstRun=cms.untracked.uint32(122314),
+              firstLuminosityBlock = cms.untracked.uint32(1),        
+              firstEvent=cms.untracked.uint32(1),
+              numberEventsInLuminosityBlock=cms.untracked.uint32(1)
+             )
 process.test = cms.EDAnalyzer("testEvtLoop")
 
 process.p1 = cms.Path( process.test)
