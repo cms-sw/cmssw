@@ -1,6 +1,6 @@
 destDB 
 inputtag 
-tag XMLFILE_Geometry_TagXX_ExtendedGFlash
+tag XMLFILE_Geometry_ExtendedGFlash_TagXX
 since 
 till 
 usertext 
