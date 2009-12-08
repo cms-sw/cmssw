@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag ZDCRECO_Geometry_TagXX
+since 
+till 
+usertext

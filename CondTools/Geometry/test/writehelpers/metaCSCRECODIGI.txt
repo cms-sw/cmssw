@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag CSCRECODIGI_Geometry_TagXX
+since 
+till 
+usertext

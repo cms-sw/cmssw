@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag XMLFILE_Geometry_TagXX_Extended
+since 
+till 
+usertext 

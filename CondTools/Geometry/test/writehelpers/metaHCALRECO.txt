@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag 
+since 
+till 
+usertext

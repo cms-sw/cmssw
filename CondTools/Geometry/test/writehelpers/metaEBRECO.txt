@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag EBRECO_Geometry_TagXX
+since 
+till 
+usertext

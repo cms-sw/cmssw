@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag DTRECO_Geometry_TagXX
+since 
+till 
+usertext

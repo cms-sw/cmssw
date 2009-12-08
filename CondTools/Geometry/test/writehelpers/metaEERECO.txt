@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag EERECO_Geometry_TagXX
+since 
+till 
+usertext

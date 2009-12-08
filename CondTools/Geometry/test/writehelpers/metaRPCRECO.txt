@@ -1,0 +1,6 @@
+destDB 
+inputtag 
+tag RPCRECO_Geometry_TagXX
+since 
+till 
+usertext
