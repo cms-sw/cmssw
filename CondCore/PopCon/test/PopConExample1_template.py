@@ -13,7 +13,7 @@ options.register('numberObj',
 options.register('outOfOrder',
                  False, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
+                 VarParsing.VarParsing.varType.int,
                  "append out of order")
 options.register('tag',
                  'Example_tag', #default value
@@ -51,8 +51,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 
-process.PoolDBOutputService =
-cms.Service("PoolDBOutputService",
+process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             process.CondDBCommon,
             withWrapper = cms.untracked.bool(False),
             outOfOrder = cms.untracked.bool(options.outOfOrder),
@@ -61,7 +60,7 @@ cms.Service("PoolDBOutputService",
     record = cms.string('ThisJob'),
     tag = cms.string(options.tag)
     )),
-            logconnect= cms.untracked.string('sqlite_file:log.db')                                     
+            logconnect= cms.untracked.string('sqlite_file:log.db')                                  
             )
 
 process.mytest = cms.EDAnalyzer("ExPopConAnalyzer",

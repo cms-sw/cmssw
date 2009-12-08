@@ -19,15 +19,15 @@ echo "error in populate pop_test1.db with 25"
 cmsRun PopCon.py sinceTime=25 numberObj=1
 
 echo "success in populate pop_test1.db with 25"  
-cmsRun PopCon.py outOfOrder=True sinceTime=25 numberObj=1
+cmsRun PopCon.py outOfOrder=1 sinceTime=25 numberObj=1
 
 
 
 echo "populate pop_test2.db with 42"
-cmsRun PopCon.py sinceTime=42 numberObj=1 connect='pop_test2.db'
+cmsRun PopCon.py sinceTime=42 numberObj=1 connect='sqlite_file:pop_test2.db'
 
 echo "populate pop_test3.db with 7 + other 10"
-cmsRun PopCon.py sinceTime=7 numberObj=10 connect='pop_test3.db'  tag='/Example_tag2'
+cmsRun PopCon.py sinceTime=7 numberObj=10 connect='sqlite_file:pop_test3.db'  tag='Example_tag2'
 
 
 echo "inspect db"
