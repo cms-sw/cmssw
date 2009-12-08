@@ -18,7 +18,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('alcareco_AlCaP0 nevts:1000'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -30,7 +30,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Commissioning09/AlCaP0/RAW/v3/000/106/019/54F9735F-6972-DE11-8995-001D09F24EC0.root')
+    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/AlCaP0/RAW/v1/000/123/596/30ADA9C3-74E2-DE11-9A33-000423D951D4.root ')
 )
 
 # Combined AlCaReco output
@@ -47,7 +47,7 @@ process.ALCARECOStreamCombined.outputCommands.extend(OutALCARECOEcalCalPi0Calib_
 process.ALCARECOStreamCombined.outputCommands.extend(OutALCARECOEcalCalEtaCalib_noDrop.outputCommands)
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_31X_V4P::All'
+process.GlobalTag.globaltag = 'GR09_P_V7::All'
 
 # Path and EndPath definitions
 process.pathALCARECOHcalCalHOCosmics = cms.Path(process.seqALCARECOHcalCalHOCosmics)
@@ -94,11 +94,6 @@ process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCo
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
-
-process.ecalPi0Corrected.EBRecHitCollection = cms.InputTag("hltAlCaPi0RegRecHitsCosmics","pi0EcalRecHitsEB")
-process.ecalPi0Corrected.EERecHitCollection = cms.InputTag("hltAlCaPi0RegRecHitsCosmics","pi0EcalRecHitsEE")
-process.ecalEtaCorrected.EBRecHitCollection = cms.InputTag("hltAlCaEtaRegRecHitsCosmics","etaEcalRecHitsEB")
-process.ecalEtaCorrected.EERecHitCollection = cms.InputTag("hltAlCaEtaRegRecHitsCosmics","etaEcalRecHitsEE")
 
 # Schedule definition
 process.schedule = cms.Schedule(process.pathALCARECOEcalCalPi0Calib,process.pathALCARECOEcalCalEtaCalib,process.pathALCARECODQM,process.endjob_step,process.ALCARECOStreamCombinedOutPath)
