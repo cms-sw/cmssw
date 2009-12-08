@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/12/06 04:42:48 $
- * $Revision: 1.14 $
+ * $Date: 2009/12/07 00:22:55 $
+ * $Revision: 1.15 $
  *
  */
 
@@ -287,6 +287,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   if (fitted && theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
+    preBS = bs;
     if (debug_) {
       cout << "\n RESULTS OF DEFAULT FIT:" << endl;
       cout << bs << endl;
@@ -322,18 +323,16 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       summaryContent_[2] += 1.;
 //     }
   }
-  else { // Fill in empty beam spot if beamfit fails
-    reco::BeamSpot bs;
-    bs.setType(reco::BeamSpot::Fake);
+  else { // FIXME: temporarily fill in previous fitted results
     if (debug_) {
       cout << "[BeamFitter] No fitting \n" << endl;
-      cout << "Empty Beam:" << endl;
-      cout << bs << endl;
+      cout << "Fill previous good fitted results:" << endl;
+      cout << preBS << endl;
     }
-    h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
-    h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
-    h_z0_lumi->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
-    h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+    h_x0_lumi->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
+    h_y0_lumi->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
+    h_z0_lumi->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
+    h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
   }
   
   // Fill summary report
