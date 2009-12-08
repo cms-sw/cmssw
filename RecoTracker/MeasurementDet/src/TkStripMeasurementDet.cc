@@ -325,8 +325,8 @@ TkStripMeasurementDet::set128StripStatus(bool good, int idx) {
 
 bool
 TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
-    int16_t start = (int16_t) (utraj - 3*uerr); if (start < 0) start = 0;
-    int16_t end   = (int16_t) (utraj + 3*uerr); if (end > totalStrips_) end = totalStrips_;
+    int16_t start = (int16_t) std::max<float>(utraj - 3*uerr, 0);
+    int16_t end   = (int16_t) std::min<float>(utraj + 3*uerr, totalStrips_);
 
     if (start >= end) { // which means either end <=0 or start >= totalStrips_
         /* LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
