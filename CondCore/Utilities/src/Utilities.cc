@@ -12,6 +12,7 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "CondCore/DBCommon/interface/SharedLibraryName.h"
+#include <boost/foreach.hpp>                   
 #include <fstream>
 
 cond::UtilitiesError::UtilitiesError(const std::string& message ):Exception(message){
