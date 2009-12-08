@@ -44,7 +44,7 @@
 */
 
 namespace{
-	static const int maxpix = 100;
+	static const int maxpix = 1000;
 	struct Pixinfo
 	{
 		int npix;
