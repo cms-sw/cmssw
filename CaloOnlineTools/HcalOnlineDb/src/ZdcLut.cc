@@ -1,18 +1,13 @@
-// -*- C++ -*-
-//
-// Package:     HcalOnlineDb
-// Class  :     ZdcLut
-// 
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Elijah Dunn
-// Modified by:      Gena Kukartsev
-//         Created:  Thu Aug 20 13:09:56 CEST 2009
-// $Id$
-//
-
 #include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
+
+/**
+
+   \class ZdcLut
+   \brief Generation of ZDC Lookup tables and associate helper methods
+   \brief Adopted to CMSSW HCAL LUT manager specs
+   \brief by Gena Kukartsev, Brown University, Dec 08, 2009
+   \author Elijah Dunn
+*/
 
 ZdcLut::ZdcLut()
 {
@@ -21,8 +16,6 @@ ZdcLut::ZdcLut()
     int LSB_EM = 1, LSB_HAD = 5;
     vector <int> fC_TDR;
 //fills in fC_TDR with values from table
-    fC_TDR.push_back(0);
-    // FIXME: one extra zero added to keep LUT size to 128
     fC_TDR.push_back(0);
     fC_TDR.push_back(1);
     fC_TDR.push_back(2);
@@ -115,6 +108,7 @@ ZdcLut::ZdcLut()
     fC_TDR.push_back(1372);
     fC_TDR.push_back(1472);
     fC_TDR.push_back(1572);
+    fC_TDR.push_back(1672);
     fC_TDR.push_back(1797);
     fC_TDR.push_back(1922);
     fC_TDR.push_back(2047);
@@ -155,12 +149,10 @@ ZdcLut::ZdcLut()
     vector <int> HADlut(128);
     vector <int> EMlut(128);
 //uses the constants to fill each LUT
-    for(int zdci = 0; zdci < 128; zdci++){
-      EMlut[zdci] = (int)((fC_TDR[zdci]/ADC_GEV_EM)/LSB_EM + 0.5);
-    }
-    for(int zdci = 0; zdci < 128; zdci++){
-      HADlut[zdci] = (int)((fC_TDR[zdci]/ADC_GEV_HAD)/LSB_HAD + 0.5);
-    }
+    for(int zdci = 0; zdci < 128; zdci++)
+      { EMlut[zdci] = (int)((fC_TDR[zdci]/ADC_GEV_EM)/LSB_EM + 0.5);}
+    for(int zdci = 0; zdci < 128; zdci++)
+      { HADlut[zdci] = (int)((fC_TDR[zdci]/ADC_GEV_HAD)/LSB_HAD + 0.5);}
 
     side.resize(2);
     side[0].fiber.resize(3);
@@ -192,70 +184,80 @@ ZdcLut::ZdcLut()
 }
 
 
-ZdcLut::~ZdcLut(){
+ZdcLut::~ZdcLut( void )
+{    
 }
 
-
-
-
-
-int ZdcLut::test()
+int ZdcLut::simple_loop()
 {
-	ZdcLut luts;
-
-    for(unsigned int zdcs = 0; zdcs < luts.side.size(); zdcs++)
+  for(unsigned int zdcs = 0; zdcs < side.size(); zdcs++)
     {
-        for (unsigned int zdcf = 0; zdcf < luts.side[zdcs].fiber.size(); zdcf++)
+      for (unsigned int zdcf = 0; zdcf < side[zdcs].fiber.size(); zdcf++)
         {
-            for (unsigned int zdcc = 0; zdcc < luts.side[zdcs].fiber[zdcf].channel.size(); zdcc++)
+	  for (unsigned int zdcc = 0; zdcc < side[zdcs].fiber[zdcf].channel.size(); zdcc++)
             {
-                for (unsigned int zdcl = 0; zdcl < luts.side[zdcs].fiber[zdcf].channel[zdcc].LUT.size(); zdcl++)
-                    { cout << luts.side[zdcs].fiber[zdcf].channel[zdcc].LUT[zdcl] << " "; }
-                    cout << endl;
+	      for (unsigned int zdcl = 0; zdcl < side[zdcs].fiber[zdcf].channel[zdcc].LUT.size(); zdcl++)
+		{ cout << side[zdcs].fiber[zdcf].channel[zdcc].LUT[zdcl] << " "; }
+	      cout << endl;
             }
             cout << endl;
         }
-        cout << endl;
+      cout << endl;
     }
-	return 0;
-}//ZdcLut::test
+  return 0;
+}
 
 
+vector <int> ZdcLut::get_lut(int emap_side,
+			     int emap_htr_fiber,
+			     int emap_fi_ch){
+  int side_num = (1-emap_side)/2;
+  int fiber_num = (int)(emap_htr_fiber/4)+(emap_htr_fiber%4);
+  int channel_num = emap_fi_ch;
+  return side[side_num].fiber[fiber_num].channel[channel_num].LUT;
+}
 
-vector<int> ZdcLut::getLut(std::string zdc_section,
-			   int zdc_zside,
-			   int zdc_channel)
-{
-  int _fiber, _channel; // note that channel here is diff from zdc_channel
-  if (zdc_section.find("ZDC EM")!=std::string::npos && zdc_channel >= 1 && zdc_channel <= 5){
-    _fiber = (int)((zdc_channel+1)/3);
-    _channel = (zdc_channel+1) % 3;
+
+// get LUT by proper ZDC channel
+vector <int> ZdcLut::get_lut(std::string zdc_section,
+			     int zdc_side,
+			     int zdc_channel){
+  int side_num = (1-zdc_side)/2;
+  int fiber_num = -1;
+  int channel_num = -1;
+  if (zdc_section.find("ZDC EM")!=std::string::npos){
+    fiber_num = (int)(zdc_channel/4);
+    channel_num = (int)((zdc_channel-1)/3) % 3;
   }
   else if (zdc_section.find("ZDC HAD")!=std::string::npos){
     if (zdc_channel==1){
-      _fiber = 1;
-      _channel = 2;
+      fiber_num = 1;
+      channel_num = 2;
     }
     else if (zdc_channel==2){
-      _fiber = 2;
-      _channel = 0;
+      fiber_num = 2;
+      channel_num = 0;
     }
     else if (zdc_channel==3){
-      _fiber = 2;
-      _channel = 1;
+      fiber_num = 2;
+      channel_num = 1;
     }
     else if (zdc_channel==4){
-      _fiber = 2;
-      _channel = 2;
+      fiber_num = 2;
+      channel_num = 2;
     }
-    else {
-      vector<int> res;
-      return res;
+    else{
+      cout << zdc_channel << ": unknown ZDC channel, exiting..." << endl;
+      exit(-1);
     }
   }
   else{
-      vector<int> res;
-      return res;
+    cout << zdc_section << ": unknown ZDC section, exiting..." << endl;
+    exit(-1);
   }
-  return get_lut(zdc_zside, _fiber, _channel);
+  // FIXME: add validity check here
+  if (1==1){
+    return side[side_num].fiber[fiber_num].channel[channel_num].LUT;
+  }
+  else return side[side_num].fiber[fiber_num].channel[channel_num].LUT;
 }

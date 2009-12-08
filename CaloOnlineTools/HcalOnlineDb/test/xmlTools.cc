@@ -31,6 +31,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelDataXml.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelQualityXml.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelIterator.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
@@ -134,8 +135,22 @@ int main( int argc, char **argv )
 
 
     if (vm.count("quicktest")) {
-      HcalO2OManager m;
-      m.getListOfNewIovs_test();
+      //HcalO2OManager m;
+      //m.getListOfNewIovs_test();
+      //
+      ZdcLut zl;
+      zl.simple_loop();
+      std::vector<int> l = zl.get_lut("ZDC_HAD", -1, 3);
+      for (std::vector<int>::const_iterator ll = l.begin(); ll<l.end(); ++ll){
+	cout << *ll << " ";
+      }
+      cout << endl;
+      l = zl.get_lut("ZDC_EM", 1, 5);
+      for (std::vector<int>::const_iterator ll = l.begin(); ll<l.end(); ++ll){
+	cout << *ll << " ";
+      }
+      cout << endl;
+      
       return 0;
     }
     

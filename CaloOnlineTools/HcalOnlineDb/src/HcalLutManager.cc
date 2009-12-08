@@ -13,7 +13,7 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
-//#include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
@@ -1584,7 +1584,6 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
 
   EMap _emap(emap);
 
-  /* FIXME: implement ZDC luts
   ZdcLut zdc;
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
@@ -1624,9 +1623,9 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
       
       //HcalZDCDetId _detid(row->zdc_section, (row->zdc_zside>0), row->zdc_channel);
       
-      std::vector<int> coder_lut = zdc.getLut(row->zdc_section,
-					      row->zdc_zside,
-					      row->zdc_channel);
+      std::vector<int> coder_lut = zdc.get_lut(row->zdc_section,
+					       row->zdc_zside,
+					       row->zdc_channel);
       cout << "***DEBUG: ZDC lut size: " << coder_lut.size() << endl;
       if (coder_lut.size()!=0){
 	for (std::vector<int>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
@@ -1650,7 +1649,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
   }
   cout << "LUTs generated: " << _counter.getCount() << endl;
   cout << "Generating ZDC LUTs...DONE" << endl;
-  */
+
   return _xml;
 }
 

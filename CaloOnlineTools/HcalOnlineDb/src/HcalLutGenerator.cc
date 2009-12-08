@@ -116,10 +116,10 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   cout << " HO master file: " << _lin_file << endl;
 
   // default
-  manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );
+  //manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );
 
   // with ZDC (experimental)
-  //manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );
+  manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );
   delete manager;
 
   transcoder->releaseSetup();
