@@ -27,8 +27,8 @@ herwigDefaultsBlock = cms.PSet(
 		'cd /Herwig/Particles',
 		'set p+:PDF /cmsPDFSet',
 		'set pbar-:PDF /cmsPDFSet',
-		'set K0:DefaultWidth 1e300*GeV',
-		'set Kbar0:DefaultWidth 1e300*GeV',
+		'set K0:Width 1e300*GeV',
+		'set Kbar0:Width 1e300*GeV',
 		'cd /',
 	),
 
