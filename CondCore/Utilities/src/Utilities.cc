@@ -69,11 +69,12 @@ int cond::Utilities::run( int argc, char** argv ){
       return 0;
     }
     if(m_options.find_nothrow("dictionary",false)){
-      std::string dict = getValueIfExists("dictionary");
-      if(!dict.empty()){
+      std::vector<std::string> dictionaries = getValueIfExists("dictionary");
+      if(!dictionaries.empty()){
         initializePluginManager();
-        cond::SharedLibraryName libName;
-        edmplugin::SharedLibrary( libName(dict) );
+	cond::SharedLibraryName libName;
+	BOOST_FOREACH(std::string const & dict, dictionaries)
+	  edmplugin::SharedLibrary( libName(dict) );
       }
     }
     ret = execute();
@@ -126,7 +127,7 @@ cond::Utilities::addLogDBOption(){
 
 void 
 cond::Utilities::addDictionaryOption(){
-  addOption<std::string>("dictionary","D","data dictionary(required if no plugin available)");
+  addOption<std::vector<std::string> >("dictionary","D","data dictionaries (required if no plugin available)");
 }
 
 void 
