@@ -5,12 +5,11 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
-
-/// default contructor from decaySubset and initSubset
-TopGenEvent::TopGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset)
+/// default contructor
+TopGenEvent::TopGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits)
 {
-  parts_ = decaySubset; 
-  initPartons_= initSubset;
+  parts_ = parts; 
+  initPartons_= inits;
 }
 
 const reco::GenParticle*
@@ -20,7 +19,7 @@ TopGenEvent::candidate(int id, unsigned int parentId) const
   const reco::GenParticleCollection & partsColl = *parts_;
   for( unsigned int i = 0; i < partsColl.size(); ++i ) {
     if( partsColl[i].pdgId()==id ){
-      if(parentId==0?true:partsColl[i].mother()&&abs(partsColl[i].mother()->pdgId())==(int)parentId){
+      if(parentId==0?true:partsColl[i].mother()&&abs(partsColl[i].mother()->pdgId())==parentId){
 	cand = &partsColl[i];
       }
     }
@@ -173,8 +172,8 @@ TopGenEvent::daughterQuarkOfWPlus(bool invertQuarkCharge, bool invertBosonCharge
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==(invertBosonCharge?TopDecayID::WID:-TopDecayID::WID) &&
-       abs(partsColl[i].pdgId())<=TopDecayID::bID && (invertQuarkCharge?reco::flavour(partsColl[i])>0:reco::flavour(partsColl[i])<0)){
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==(invertBosonCharge?-TopDecayID::WID:TopDecayID::WID) &&
+       abs(partsColl[i].pdgId())<=TopDecayID::bID && (invertQuarkCharge?reco::flavour(partsColl[i])<0:reco::flavour(partsColl[i])>0)){
       cand = &partsColl[i];
     }
   }
