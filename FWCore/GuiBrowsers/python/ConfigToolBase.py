@@ -36,7 +36,7 @@ class ConfigToolBase(object) :
             process.addAction(action)
             
     def toolCode(self, process):
-        pass
+        raise NotImplementedError
 
             
     ### __copy__(self) returns a copy of the tool
