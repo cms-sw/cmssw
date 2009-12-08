@@ -117,8 +117,8 @@ namespace cond{
       //
       cond::DbSession session() const;
       //
-      std::string tag( const std::string& EventSetupRecordName );
-      bool isNewTagRequest( const std::string& EventSetupRecordName );
+      std::string tag( const std::string& recordName );
+      bool isNewTagRequest( const std::string& recordName );
       const cond::Logger& queryLog() const;
       
       // BW-compatible signature
@@ -162,24 +162,24 @@ namespace cond{
       template<typename T> void createNewIOV( T* firstPayloadObj,  Summary * summary,
                                               cond::Time_t firstSinceTime,
                                               cond::Time_t firstTillTime,
-                                              const std::string& EventSetupRecordName,
+                                              const std::string& recordName,
                                               bool withlogging=false){
         createNewIOV( GetTokenFromPointer<T>(firstPayloadObj, summary),
                       firstSinceTime,
                       firstTillTime,
-                      EventSetupRecordName,
+                      recordName,
                       withlogging);	
       }
       
       void createNewIOV( const std::string& firstPayloadToken,
                          cond::Time_t firstSinceTime,
                          cond::Time_t firstTillTime,
-                         const std::string& EventSetupRecordName,
+                         const std::string& recordName,
                          bool withlogging=false) {
         createNewIOV( GetTrivialToken(firstPayloadToken),
                       firstSinceTime,
                       firstTillTime,
-                      EventSetupRecordName,
+                      recordName,
                       withlogging);
       }
 
@@ -195,11 +195,11 @@ namespace cond{
       template<typename T>
       void appendSinceTime( T* payloadObj, Summary * summary,
 			    cond::Time_t sinceTime,
-                              const std::string& EventSetupRecordName,
+                              const std::string& recordName,
 			    bool withlogging=false){
         add( GetTokenFromPointer<T>(payloadObj,summary),
 	     sinceTime,
-	     EventSetupRecordName,
+	     recordName,
 	     withlogging);
       }
       
@@ -210,11 +210,11 @@ namespace cond{
       // 
       void appendSinceTime( const std::string& payloadToken,
                             cond::Time_t sinceTime,
-                            const std::string& EventSetupRecordName,
+                            const std::string& recordName,
                             bool withlogging=false) {
         add(GetTrivialToken(payloadToken),
             sinceTime,
-            EventSetupRecordName,
+            recordName,
             withlogging);
       }
      
@@ -236,13 +236,13 @@ namespace cond{
       //
       cond::Time_t currentTime() const;
       // optional. User can inject additional information into the log associated with a given record
-      void setLogHeaderForRecord(const std::string& EventSetupRecordName,
+      void setLogHeaderForRecord(const std::string& recordName,
 				 const std::string& provenance,
 				 const std::string& usertext);
       // 
       // Retrieve tag information of the data
       // 
-      void tagInfo(const std::string& EventSetupRecordName,
+      void tagInfo(const std::string& recordName,
 		   cond::TagInfo& result );
       
       virtual ~PoolDBOutputService();  
@@ -274,19 +274,18 @@ namespace cond{
       void createNewIOV( GetToken const & token, 
 			 cond::Time_t firstSinceTime, 
 			 cond::Time_t firstTillTime,
-			 const std::string& EventSetupRecordName,
+			 const std::string& recordName,
 			 bool withlogging=false);
       
       void add( GetToken const & token,  
 		cond::Time_t time,
-		const std::string& EventSetupRecordName,
+		const std::string& recordName,
 		bool withlogging=false);
       
       
       void connect();    
       void disconnect();
       void initDB();
-      size_t callbackToken(const std::string& EventSetupRecordName ) const ;
       unsigned int appendIOV(cond::DbSession&,
                              Record& record,
                              const std::string& payloadToken,
@@ -295,13 +294,13 @@ namespace cond{
       /// Returns payload location index 
       unsigned int 
       insertIOV(cond::DbSession& pooldb,
-		cond::service::Record& record,
+		Record& record,
 		const std::string& payloadToken,
 		cond::Time_t tillTime);
-      //			    const std::string& EventSetupRecordName);
+      //			    const std::string& recordName);
       
-      Record & lookUpRecord(const std::string& EventSetupRecordName);
-      cond::UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);
+      Record & lookUpRecord(const std::string& recordName);
+      cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
       
     private:
       cond::TimeType m_timetype; 
@@ -310,7 +309,7 @@ namespace cond{
       cond::DbConnection m_connection;
       cond::DbSession m_session;
       cond::DbSession m_logSession;
-      std::map<std::string, cond::service::Record> m_callbacks;
+      std::map<std::string, Record> m_callbacks;
       std::vector< std::pair<std::string,std::string> > m_newtags;
       bool m_dbstarted;
       cond::Logger* m_logdb;
