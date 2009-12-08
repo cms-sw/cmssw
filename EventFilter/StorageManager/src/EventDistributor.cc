@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.7 2009/09/23 13:08:06 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.8 2009/09/29 07:59:43 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -54,16 +54,34 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
   {
     tagCompleteEventForQueues( ioc );
   }
-  
+
+  // Check if event belongs here at all:
+  bool unexpected = true;
+
   if( ioc.isTaggedForAnyStream() )
   {
+    unexpected = false;
     _sharedResources->_streamQueue->enq_wait( ioc );
   }
   
   if( ioc.isTaggedForAnyEventConsumer() )
   {
+    unexpected = false;
     _sharedResources->_eventConsumerQueueCollection->addEvent( ioc );
   }
+
+  // Commented out for now because it crashes the unit test -- Dennis
+  if( unexpected )
+    {
+      /*
+      std::ostringstream msg;
+      msg << "Event is not tagged for any stream or consumer";
+      XCEPT_DECLARE( stor::exception::UnwantedEvent, xcept, msg.str() );
+      _sharedResources->_statisticsReporter->alarmHandler()->notifySentinel( AlarmHandler::ERROR,
+                                                                             xcept );
+      */
+    }
+
 }
 
 void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )

@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.10 2009/09/23 13:54:18 mommsen Exp $
+// $Id: Exception.h,v 1.11 2009/10/13 15:08:33 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -32,8 +32,8 @@ namespace stor {
      List of exceptions thrown by the StorageManager
 
      $Author: mommsen $
-     $Revision: 1.10 $
-     $Date: 2009/09/23 13:54:18 $
+     $Revision: 1.11 $
+     $Date: 2009/10/13 15:08:33 $
   */
 }
 
@@ -75,7 +75,12 @@ XCEPT_DEFINE_EXCEPTION(stor, I2OChain)
 /**
  * Exception raised in case of asking for information from the wrong I2O message type
  */
-XCEPT_DEFINE_EXCEPTION(stor, WrongI2OMessageType)
+  XCEPT_DEFINE_EXCEPTION(stor, WrongI2OMessageType)
+
+/**
+   Event is not tagged for any stream or consumer
+ */
+  XCEPT_DEFINE_EXCEPTION( stor, UnwantedEvent )
 
 /**
  * Exception raised in case of requesting information from a faulty or incomplete init message
