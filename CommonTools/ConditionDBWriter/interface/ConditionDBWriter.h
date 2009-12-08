@@ -100,22 +100,12 @@
 
 // 2) bool SinceAppendMode
 
-// If this card is set to true, new objects are appended to the chosen tag (
-// to be specified in the configuration of the  PoolDBOutputService service,
-// which must always be included in the cfg file of your application).
-//     If instead this card is set to false, new objects are appended in till
-//     mode. For example if the user runs on 2 Runs (1 to 2), chooses 
-//     the "Run" IOVMode and the SinceAppendMode, then he will have two objects
-//     stored on the DB, 
-//     Object 1 valid for Run 1
-//     Object 2 valid from Run 2 on (unless new objects are appended later)
-//       If instead he had run in Till mode, then he would get two objects 
-//     stored:
-//     Object 1 valid for Run 1
-//     Object 2 valid for Run 2 only.
-    
-//     WARNING: due to a current misfunctioning of the framework, if
-//     the *Since* mode is chosen, then it is highly recommended to store objects 
+// obsolete option
+// now ONLY Since append mode is supported
+
+
+/
+//     WARNING: due to the policy of the framework, objects SHALL be stored
 //     in IOV chronological order. If you have 10 runs, then execute your application starting from run 1 and not for example in two steps: first from Run 6 to Run 10 and then from Run 1 to Run 6.
   
 
@@ -128,7 +118,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  May 23 10:04:31 CET 2007
-// $Id: ConditionDBWriter.h,v 1.7 2008/08/06 18:15:18 giordano Exp $
+// $Id: ConditionDBWriter.h,v 1.8 2009/12/08 11:52:15 innocent Exp $
 //
 //
 
@@ -160,11 +150,11 @@
 
 template< class T >
 class ConditionDBWriter : public edm::EDAnalyzer {
-
+  
 public:
 
   explicit ConditionDBWriter(const edm::ParameterSet& iConfig) : LumiBlockMode_(false), RunMode_(false), JobMode_(false), AlgoDrivenMode_(false), Time_(0), setSinceTime_(false) {
-
+    
     edm::LogInfo("ConditionDBWriter::ConditionDBWriter()") << std::endl;
     SinceAppendMode_=iConfig.getParameter<bool>("SinceAppendMode");
     std::string IOVMode=iConfig.getParameter<std::string>("IOVMode");
@@ -175,29 +165,29 @@ public:
     else  edm::LogError("ConditionDBWriter::ConditionDBWriter(): ERROR - unknown IOV interval write mode...will not store anything on the DB") << std::endl;
     Record_=iConfig.getParameter<std::string>("Record");
     doStore_=iConfig.getParameter<bool>("doStoreOnDB");
-
+    
     if(! SinceAppendMode_ ) 
       edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
   }
-
-
-  virtual ~ConditionDBWriter(){
   
+  
+  virtual ~ConditionDBWriter(){
+    
     edm::LogInfo("ConditionDBWriter::~ConditionDBWriter()") << std::endl;
-
+    
   }
-
-
+  
+  
 private:
-
-
+  
+  
   // method to be implemented by derived class. Must return a pointer to the DB object to be stored, which must have been created with "new". The derived class looses control on it (must not "delete" it at any time in its code!) 
-
+  
   virtual T * getNewObject()=0;
-
-
+  
+  
   // Optional methods that may be implemented (technically "overridden") in the derived classes if needed
-
+  
   //Will be called at the beginning of the job
   virtual void algoBeginJob(const edm::EventSetup&){};
   //Will be called at the beginning of each run in the job
@@ -210,57 +200,57 @@ private:
   virtual void algoEndRun(const edm::Run &, const edm::EventSetup &){};
   //Will be called at the end of the job
   virtual void algoEndJob(){};
-
-
-
+  
+  
+  
   void beginJob(const edm::EventSetup& iSetup){
-
+    
     edm::LogInfo("ConditionDBWriter::beginJob") << std::endl;
     if( (JobMode_ || AlgoDrivenMode_) && SinceAppendMode_) setSinceTime_=true;
     algoBeginJob(iSetup);
-
+    
   }
-
-
+  
+  
   void beginRun(const edm::Run & run, const edm::EventSetup &  es){
-
+    
     edm::LogInfo("ConditionDBWriter::beginRun") << std::endl;
     if(RunMode_ && SinceAppendMode_) setSinceTime_=true;
     algoBeginRun(run,es);
-
+    
   }
-
-
-
+  
+  
+  
   void beginLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & iSetup){
-
+    
     edm::LogInfo("ConditionDBWriter::beginLuminosityBlock") << std::endl;
     if(LumiBlockMode_ && SinceAppendMode_) setSinceTime_=true;
     algoBeginLuminosityBlock(lumiBlock, iSetup);
-
+    
   }
-
+  
 
   void analyze(const edm::Event& event, const edm::EventSetup& iSetup){
     
-    if(SinceAppendMode_ && setSinceTime_ ){
+    if(setSinceTime_ ){
       setTime(); //set new since time for possible next upload to DB  
       setSinceTime_=false;
     }
-
+    
     algoAnalyze(event, iSetup);     
-
+    
   }
-
-
-
+  
+  
+  
   void endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es){
-
+    
     edm::LogInfo("ConditionDBWriter::endLuminosityBlock") << std::endl;
     algoEndLuminosityBlock(lumiBlock, es);
-
+    
     if(LumiBlockMode_){
-
+      
       T * objPointer = getNewObject();
       
       if(objPointer ){
@@ -269,107 +259,91 @@ private:
       else {
 	edm::LogError("ConditionDBWriter::endLuminosityblock(): ERROR - requested to store on DB on a Lumi Block based interval, but received null pointer...will not store anything on the DB") << std::endl;
       }
-
+      
     }
-
+    
   }
-
-
+  
+  
   virtual void algoEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
-
-
+  
+  
   void endRun(const edm::Run & run, const edm::EventSetup & es){
-
+    
     edm::LogInfo("ConditionDBWriter::endRun") << std::endl;
-
+    
     algoEndRun(run, es);
-
+    
     if(RunMode_){
-
+      
       T * objPointer = getNewObject();
-
+      
       if(objPointer ){
 	storeOnDb(objPointer);
       }
       else {
 	edm::LogError("ConditionDBWriter::endRun(): ERROR - requested to store on DB on a Run based interval, but received null pointer...will not store anything on the DB") << std::endl;
       }
-
+      
     }
-
+    
   }
-
-
-
+  
+  
+  
   void endJob(){
-
+    
     edm::LogInfo("ConditionDBWriter::endJob") << std::endl;
-
+    
     algoEndJob();
-
+    
     if(JobMode_){
-
+      
       T * objPointer = getNewObject();
-
+      
       if( objPointer ){
 	storeOnDb(objPointer);
       }
-
+      
       else {
-
+	
 	edm::LogError("ConditionDBWriter::endJob(): ERROR - requested to store on DB on a Job based interval, but received null pointer...will not store anything on the DB") << std::endl;
 	
       }
-
+      
     }
-
+    
   }
-
-
+  
+  
   void storeOnDb(T * objPointer){
-
+    
     edm::LogInfo("ConditionDBWriter::storeOnDb ")  << std::endl;
-
-    if(! SinceAppendMode_ ) setTime();
-    else setSinceTime_=true;
-
+    
+    setSinceTime_=true;
+    
     if(! objPointer) {
       edm::LogError("ConditionDBWriter: Pointer to object has not been set...storing no data on DB") ;
       return;
     }
-  
-
+    
+    
     //And now write  data in DB
+    if( !doStore_ ) return;
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  
-    if( doStore_ && mydbservice.isAvailable() ){
-
-      try{
-	cond::Time_t since = 
-	  ( mydbservice->isNewTagRequest(Record_) ) ? mydbservice->beginOfTime() : Time_;
-
-	    edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
-					      <<Record_ <<" in since mode " << std::endl;
-	    mydbservice->writeOne<T>(objPointer, since, Record_);
-	  }
-
-
-	}
-
-      }catch(const cond::Exception& er){
-	edm::LogError("ConditionDBWriter")<<er.what()<<std::endl;
-      }catch(const std::exception& er){
-	edm::LogError("ConditionDBWriter")<<"caught std::exception "<<er.what()<<std::endl;
-      }catch(...){
-	edm::LogError("ConditionDBWriter")<<"Funny error"<<std::endl;
-      }
-    }
-    else if (!  mydbservice.isAvailable() ) {
+    if (!  mydbservice.isAvailable() ) {
       edm::LogError("ConditionDBWriter")<<"PoolDBOutputService is unavailable"<<std::endl;
+      return;
     }
     
+    cond::Time_t since = 
+      ( mydbservice->isNewTagRequest(Record_) ) ? mydbservice->beginOfTime() : Time_;
     
+    edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
+				      <<Record_ <<" in since mode " << std::endl;
+    mydbservice->writeOne<T>(objPointer, since, Record_);
   }
+
 
 
 
@@ -393,15 +367,15 @@ protected:
   // This method should be called by the derived class only if it support the algodriven mode; this method will trigger a call of  the getNewObject method, but only if algoDrivenMode is chosen
 
   void storeOnDbNow(){
-
+    
     T * objPointer = 0;
-
+    
     if(AlgoDrivenMode_){
-
+      
       setSinceTime_=true;
-
+      
       objPointer = getNewObject();
-  
+      
       if (!objPointer ) {
 	edm::LogError("ConditionDBWriter::storeOnDbNow: ERROR - requested to store on DB a new object (module configuration is algo driven based IOV), but received NULL pointer...will not store anything on the DB") << std::endl;
 	return;
