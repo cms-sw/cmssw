@@ -54,7 +54,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             process.CondDBCommon,
             withWrapper = cms.untracked.bool(False),
-            outOfOrder = cms.untracked.bool(options.outOfOrder),
+            outOfOrder = cms.untracked.bool(bool(options.outOfOrder)),
             timetype = cms.untracked.string('runnumber'),
             toPut = cms.VPSet(cms.PSet(
     record = cms.string('ThisJob'),

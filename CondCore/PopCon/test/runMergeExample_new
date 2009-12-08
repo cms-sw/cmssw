@@ -71,7 +71,7 @@ cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 98  -l 
 cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 11  -l sqlite_file:log.db
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
 echo "shallow copy of one"
-cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag  -d  copyOfExample_tag -f 2 -s 2  -l sqlite_file:log.db
+cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag  -d  copyOfExample_tag -f 4 -s 2  -l sqlite_file:log.db
 cmscond_list_iov -c sqlite_file:pop_test.db -t copyOfExample_tag -s -v
 
 
