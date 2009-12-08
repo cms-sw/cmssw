@@ -21,12 +21,12 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(100)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
@@ -35,7 +35,8 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/615/38379AF1-B4E2-DE11-BB10-001617C3B706.root'
+'file:/data/withvertex732.root'
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/615/38379AF1-B4E2-DE11-BB10-001617C3B706.root'
 #'rfio:/castor.cern.ch/cms/store/data/BeamCommissioning09/castor/MinimumBias/RAW/v1/000/122/314/CC89C4BC-DE11-B365-0030487D0D3A.root'
     )
 )
@@ -52,7 +53,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_P_V7::All'
+process.GlobalTag.globaltag = 'GR09_R_V1::All'
 
 
 
@@ -66,19 +67,20 @@ process.GlobalTag.globaltag = 'GR09_P_V7::All'
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 
-## PV Overrides (Tommaso's "Level 1")
-process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 4
-process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 500
-process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 5
+## PV Overrides 
+process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
-process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelHits = 0
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVerticesWithBS.TkClusParameters.zSeparation = 10
-process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 4
-process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 500
-process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 5
+process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
+process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
+process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 0
+process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
+
 
 ## ECAL temporary fixes
 process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
@@ -94,6 +96,11 @@ process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaB
 process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+
+process.ecalPreshowerRecHit.ESGain = 2
+process.ecalPreshowerRecHit.ESBaseline = 0
+process.ecalPreshowerRecHit.ESMIPADC = 55
+
 
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3

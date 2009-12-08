@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,7 +40,7 @@ process.source = cms.Source("PoolSource",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_P_V6::All'
+process.GlobalTag.globaltag = 'GR09_P_V7::All'
 
 
 #####################################################################################################
@@ -53,18 +53,18 @@ process.GlobalTag.globaltag = 'GR09_P_V6::All'
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 
-## PV Overrides (Tommaso's "Level 1")
-process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 4
-process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 500
-process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 5
+## PV Overrides 
+process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
-process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelHits = 0
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVerticesWithBS.TkClusParameters.zSeparation = 10
-process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 4
-process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 500
-process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 5
+process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
+process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
+process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 0
+process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
 
