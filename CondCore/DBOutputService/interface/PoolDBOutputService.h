@@ -126,8 +126,8 @@ namespace cond{
       template<typename T>
       void writeOne(T * payload,
 		    Time_t time, const std::string& recordName, 
-                    bool withlogging=false, bool since=true) {
-        this->writeOne<T>(payload, 0, time, recordName, withlogging,since);
+                    bool withlogging=false) {
+        this->writeOne<T>(payload, 0, time, recordName, withlogging;
       }
       /* write one (either create or append)
        * The ONE and ONLY interface supportd in future!
@@ -135,17 +135,13 @@ namespace cond{
       template<typename T>
       void writeOne(T * payload, Summary * summary, 
 		    Time_t time, const std::string& recordName, 
-                    bool withlogging=false, bool since=true) {
+                    bool withlogging=false) {
 	if (isNewTagRequest(recordName) ){
 	  createNewIOV<T>(payload, summary,
                           since ? time : beginOfTime(),
                           since ?  endOfTime() : time, recordName, withlogging);
         }else{
-          if (since){
             appendSinceTime<T>(payload, summary, time, recordName, withlogging);
-          } else {
-            appendTillTime<T>(payload, summary, time, recordName, withlogging);
-          }
         }	
       }
 
@@ -192,37 +188,7 @@ namespace cond{
 
 
 
-      // BW-compatible signature
-      template<typename T> void appendTillTime( T* payloadObj,
-                                                cond::Time_t tillTime,
-                                                const std::string& recordName,
-                                                bool withlogging=false){
-        this->appendTillTime<T>(payloadObj, 0, tillTime, recordName, withlogging);
-      }
 
-      template<typename T> void appendTillTime( T* payloadObj,  Summary * summary,
-                                                cond::Time_t tillTime,
-                                                const std::string& EventSetupRecordName,
-                                                bool withlogging=false){
-        add(false,
-            GetTokenFromPointer<T>(payloadObj,summary),
-            tillTime,
-            EventSetupRecordName,
-            withlogging);
-      }
-
-      void appendTillTime( const std::string& payloadToken,
-                           cond::Time_t tillTime,
-                           const std::string& EventSetupRecordName,
-                           bool withlogging=false ) {
-        add(false,
-            GetTrivialToken(payloadToken),
-            tillTime,
-            EventSetupRecordName,
-            withlogging);
-      }
-
-      
       // BW-compatible signature
       template<typename T> void appendSinceTime( T* payloadObj,
                                                  cond::Time_t sinceTime,
@@ -236,8 +202,7 @@ namespace cond{
                               cond::Time_t sinceTime,
                               const std::string& EventSetupRecordName,
                               bool withlogging=false){
-        add(true,
-            GetTokenFromPointer<T>(payloadObj,summary),
+        add( GetTokenFromPointer<T>(payloadObj,summary),
             sinceTime,
             EventSetupRecordName,
             withlogging);
@@ -252,8 +217,7 @@ namespace cond{
                             cond::Time_t sinceTime,
                             const std::string& EventSetupRecordName,
                             bool withlogging=false) {
-        add(true,
-            GetTrivialToken(payloadToken),
+        add(GetTrivialToken(payloadToken),
             sinceTime,
             EventSetupRecordName,
             withlogging);
@@ -300,8 +264,7 @@ namespace cond{
 			 const std::string& EventSetupRecordName,
 			 bool withlogging=false);
 
-      void add( bool sinceNotTill, 
-		  GetToken const & token,  
+      void add( GetToken const & token,  
 		   cond::Time_t time,
 		   const std::string& EventSetupRecordName,
 		   bool withlogging=false);
