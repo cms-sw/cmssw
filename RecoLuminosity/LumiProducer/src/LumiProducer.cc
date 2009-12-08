@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.15 2009/11/13 15:23:46 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.16 2009/11/16 16:14:42 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -62,6 +62,8 @@ private:
   
   virtual void beginLuminosityBlock(edm::LuminosityBlock & iLBlock,
 				    edm::EventSetup const& iSetup);
+  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
+				  edm::EventSetup const& c);
   void fillDefaultLumi(edm::LuminosityBlock & iLBlock);
 
   edm::ParameterSet pset_;
@@ -96,12 +98,14 @@ void LumiProducer::fillDefaultLumi(edm::LuminosityBlock &iLBlock){
   iLBlock.put(pOut2);
 }
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
+  //std::cout<<"LumiProducer::beginLuminosityBlock"<<std::endl;
+  //std::cout<<"I'm in run "<<iLBlock.run()<<" lumi block "<<iLBlock.id().luminosityBlock()<<std::endl;
   //edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LumiSectionDataRcd"));
   //if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
   //record not found
   //std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
   //}
-  std::cout<<"processing "<<iLBlock.run()<<"\t"<<iLBlock.luminosityBlock()<<std::endl;
+  //std::cout<<"processing "<<iLBlock.run()<<"\t"<<iLBlock.luminosityBlock()<<std::endl;
   std::auto_ptr<LumiSummary> pOut1;
   std::auto_ptr<LumiDetails> pOut2;
   try{
@@ -109,9 +113,9 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
     edm::ESHandle<lumi::LumiSectionData> pLumi;
     iSetup.get<LumiSectionDataRcd>().get(pLumi);
     myLumi=pLumi.product();
-    std::cout<<"myLumi address "<<myLumi<<std::endl;
-    std::cout<<"LS NUM "<<myLumi->lumisectionID()<<std::endl;
-    std::cout<<"start orbit "<<myLumi->startorbit()<<std::endl;
+    //std::cout<<"myLumi address "<<myLumi<<std::endl;
+    //std::cout<<"LS NUM "<<myLumi->lumisectionID()<<std::endl;
+    //std::cout<<"start orbit "<<myLumi->startorbit()<<std::endl;
     if(!myLumi){
       //std::cout<<"filling default because no lumi data found"<<std::endl;
       //std::string errmsg("NULL lumi object ");
@@ -162,9 +166,7 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
     }
     
     LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1data,hltdata,startOrbit);
-    std::cout<<"bizzare "<<pIn1->lsNumber()<<std::endl;
     pOut1.reset(pIn1);
-    std::cout<<"writing out pOut1 "<<pOut1->lsNumber()<<std::endl;
     iLBlock.put(pOut1);
     
     /**detailed information for all bunchcrossings
@@ -205,6 +207,11 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
     this->fillDefaultLumi(iLBlock);
     return;
   }
+}
+void LumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
+				     edm::EventSetup const& c){
+  //std::cout<<"LumiProducer::endLuminosityBlock"<<std::endl;
+  //std::cout<<"I'm in run "<<lumiBlock.run()<<" lumi block "<<lumiBlock.id().luminosityBlock()<<std::endl;
 }
 
 DEFINE_FWK_MODULE(LumiProducer);
