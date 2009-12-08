@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.11 $
+ * $Date: 2009/11/29 23:27:09 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -72,6 +72,7 @@ MonitorElement* meTime_[18];
 MonitorElement* meTimeMap_[18];
 MonitorElement* meTimeAmpli_[18];
 
+MonitorElement* meTimeAmpliSummary_[2];
 MonitorElement* meTimeSummary1D_[2];
 MonitorElement* meTimeSummaryMap_[2], *meTimeSummaryMapProjR_[2], *meTimeSummaryMapProjPhi_[2];
 MonitorElement* meTimeDelta_;

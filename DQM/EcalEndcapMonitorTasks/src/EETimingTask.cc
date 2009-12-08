@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/03 17:30:22 $
- * $Revision: 1.51 $
+ * $Date: 2009/12/03 19:05:09 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -53,6 +53,7 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
   }
 
   for (int i = 0; i < 2; i++) {
+    meTimeAmpliSummary_[i] = 0;
     meTimeSummary1D_[i] = 0;
     meTimeSummaryMap_[i] = 0;
     meTimeSummaryMapProjR_[i] = 0;
@@ -99,6 +100,7 @@ void EETimingTask::reset(void) {
   }
 
   for (int i = 0; i < 2; i++) {
+    if ( meTimeAmpliSummary_[i] ) meTimeAmpliSummary_[i]->Reset();
     if ( meTimeSummary1D_[i] ) meTimeSummary1D_[i]->Reset();
     if ( meTimeSummaryMap_[i] ) meTimeSummaryMap_[i]->Reset();
     if ( meTimeSummaryMapProjR_[i] )  meTimeSummaryMapProjR_[i]->Reset();
@@ -132,11 +134,21 @@ void EETimingTask::setup(void){
       dqmStore_->tag(meTimeMap_[i], i+1);
 
       sprintf(histo, "EETMT timing vs amplitude %s", Numbers::sEE(i+1).c_str());
-      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
+      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
       meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
       meTimeAmpli_[i]->setAxisTitle("jitter (clocks)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
+    
+    sprintf(histo, "EETMT timing vs amplitude summary EE -");
+    meTimeAmpliSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
+    meTimeAmpliSummary_[0]->setAxisTitle("amplitude", 1);
+    meTimeAmpliSummary_[0]->setAxisTitle("jitter (clocks)", 2);
+
+    sprintf(histo, "EETMT timing vs amplitude summary EE +");
+    meTimeAmpliSummary_[1] = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
+    meTimeAmpliSummary_[1]->setAxisTitle("amplitude", 1);
+    meTimeAmpliSummary_[1]->setAxisTitle("jitter (clocks)", 2);
 
     sprintf(histo, "EETMT timing 1D summary EE -");
     meTimeSummary1D_[0] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
@@ -205,6 +217,9 @@ void EETimingTask::cleanup(void){
     }
 
     for (int i = 0; i < 2; i++) {
+      if ( meTimeAmpliSummary_[i] ) dqmStore_->removeElement( meTimeAmpliSummary_[i]->getName() );
+      meTimeAmpliSummary_[i] = 0;
+
       if ( meTimeSummary1D_[i] ) dqmStore_->removeElement( meTimeSummary1D_[i]->getName() );
       meTimeSummary1D_[i] = 0;
 
@@ -338,13 +353,16 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EETimingTask") << " hit jitter " << yval;
       LogDebug("EETimingTask") << " hit pedestal " << zval;
 
-      if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
+      if ( hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
+        if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
+        if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
+      }
 
       if ( xval > 16. && hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
         if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 
         // exclude the noisiest region around the hole from 1D
-        if ( (ix <= 35 || ix >= 65) && (iy <= 35 || iy >= 65) ) {
+        if ( fabs(ix-50) >= 5 && fabs(ix-50) <= 10 && fabs(iy-50) >= 5 && fabs(iy-50) <= 10 ) {
           if ( meTime ) meTime->Fill(yval);
           if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
           ievtTimes[iz] += yval;
