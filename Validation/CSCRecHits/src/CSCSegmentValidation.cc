@@ -178,7 +178,7 @@ void CSCSegmentValidation::plotResolution(const PSimHit & simHit, const CSCSegme
   double dtheta = segmentPos.theta() - simHitPos.theta();
 
   double sigmax = sqrt(segment.localPositionError().xx());
-  double sigmay = sqrt(segment.localPositionError().yy());
+  //double sigmay = sqrt(segment.localPositionError().yy());
 
   double ddxdz = segmentDir.x()/segmentDir.z() - simHitDir.x()/simHitDir.z();
   double ddydz = segmentDir.y()/segmentDir.z() - simHitDir.y()/simHitDir.z();
