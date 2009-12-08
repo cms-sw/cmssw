@@ -347,6 +347,7 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
     
     //Cluster Position
     short total_nr_strips = SiStripDetCabling_->nApvPairs(id) * 2 * 128; 
+    if (rest.find("TEC") != string::npos && !flag_ring)  total_nr_strips = 6 * 2 * 128;
     theLayerMEs.ClusterPos= dbe->book1D(hidmanager.createHistoLayer("Summary_ClusterPosition",name.Data(),rest,flag).c_str(),hidmanager.createHistoLayer("Summary_ClusterPosition",name.Data(),rest,flag).c_str(),total_nr_strips, 0.5,total_nr_strips+0.5);
     dbe->tag(theLayerMEs.ClusterPos,layer); 
     
