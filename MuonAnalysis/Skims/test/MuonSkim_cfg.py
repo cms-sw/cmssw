@@ -23,11 +23,11 @@ process.source = cms.Source("PoolSource",
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/bsc_activity_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/MuonAnalysis/Skims/test/MuonSkim_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
     )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(63700))
 
 
 ###################### DT Activity Filter ######################
@@ -83,12 +83,15 @@ process.dtSkim=cms.Path(process.hltHighLevel+process.muonDTDigis+process.hltDTAc
 ###########################################################################
 
 
-########################## RPC Activity Filter ############################
+########################## RPC Filters ############################
 #process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 process.load("HLTrigger.HLTfilters.hltLevel1GTSeed_cfi")
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('31')
-process.rpcSkim = cms.Path(process.hltLevel1GTSeed)
+process.rpcTecSkim = cms.Path(process.hltLevel1GTSeed)
+
+process.load("DPGAnalysis.Skims.RPCRecHitFilter_cfi")
+process.rpcRHSkim = cms.Path(process.RPCRecHitsFilter)
 ###########################################################################
 
 
@@ -112,7 +115,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     	      dataTier = cms.untracked.string('RAW-RECO'),
     	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring("dtSkim","cscSkimP","rpcSkim","muonTracksSkim")
+        SelectEvents = cms.vstring("dtSkim","cscSkimP","rpcRHSkim","rpcTecSkim","muonTracksSkim")
     )
 )
 
