@@ -334,7 +334,11 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
 	double sum = N*y1 + y2;
         y1 = sum/(N+1.) ;
 	// FIXME check if correct
-        y1err = sqrt((N+1.)*(N*y1*y1 + y2*y2) - sum*sum)/(N+1.);  
+	double s=(N+1.)*(N*y1*y1 + y2*y2) - sum*sum;
+        if (s>=0.) 
+	  y1err = sqrt(s)/(N+1.);  
+	else
+	  y1err = 0.;
       }
       else 
       {
