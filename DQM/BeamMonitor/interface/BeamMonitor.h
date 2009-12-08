@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/12/03 04:52:24 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/12/06 04:31:49 $
+ *  $Revision: 1.9 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -82,6 +82,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   //   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot refBS;
+  reco::BeamSpot preBS;
   
   // MonitorElements:
   MonitorElement * h_nTrk_lumi;
