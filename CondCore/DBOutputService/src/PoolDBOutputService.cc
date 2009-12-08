@@ -7,15 +7,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
-//#include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
-//#include "FWCore/Framework/interface/IOVSyncValue.h"
 
-//POOL include
-//#include "FileCatalog/IFileCatalog.h"
-#include "serviceCallbackToken.h"
+
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/IOVInfo.h"
 
@@ -33,7 +29,7 @@ unsigned int cond::service::GetToken::sizeDSW() {
 
 void 
 cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
-  cond::service::serviceCallbackRecord thisrecord;
+  Record thisrecord;
 
   thisrecord.m_idName = pset.getParameter<std::string>("record");
   thisrecord.m_tag = pset.getParameter<std::string>("tag");
@@ -46,11 +42,11 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
   
   thisrecord.m_timetype=cond::findSpecs(pset.getUntrackedParameter< std::string >("timetype",m_timetypestr)).type;
 
-  m_callbacks.insert(std::make_pair(cond::service::serviceCallbackToken::build(thisrecord.m_idName),thisrecord));
+  m_callbacks.insert(std::make_pair(thisrecord.m_idName,thisrecord));
  
   if(m_logdbOn){
       cond::UserLogInfo userloginfo;
-      m_logheaders.insert(std::make_pair(cond::service::serviceCallbackToken::build(thisrecord.m_idName),userloginfo));
+      m_logheaders.insert(std::make_pair(thisrecord.m_idName,userloginfo));
   }
  
 
@@ -130,7 +126,7 @@ cond::service::PoolDBOutputService::tag( const std::string& EventSetupRecordName
 
 bool 
 cond::service::PoolDBOutputService::isNewTagRequest( const std::string& EventSetupRecordName ){
-  cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
+  Record& myrecord=this->lookUpRecord(EventSetupRecordName);
   if(!m_dbstarted) this->initDB();
   return myrecord.m_isNewTag;
 }
@@ -146,7 +142,7 @@ cond::service::PoolDBOutputService::initDB()
     IOVSchemaUtility ut(m_session);
     ut.create();
     cond::MetaData metadata(m_session);
-    for(std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){
+    for(std::map<std::string,Record>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){
       //std::string iovtoken;
       if( !metadata.hasTag(it->second.m_tag) ){
         it->second.m_iovtoken="";
@@ -206,10 +202,6 @@ cond::service::PoolDBOutputService::postModule(const edm::ModuleDescription& des
 cond::service::PoolDBOutputService::~PoolDBOutputService(){
 }
 
-size_t 
-cond::service::PoolDBOutputService::callbackToken(const std::string& EventSetupRecordName ) const {
-  return cond::service::serviceCallbackToken::build(EventSetupRecordName);
-}
 
 cond::Time_t 
 cond::service::PoolDBOutputService::endOfTime() const{
@@ -228,7 +220,7 @@ cond::service::PoolDBOutputService::currentTime() const{
 
 void 
 cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
-  cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
+  Record& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIOV not a new tag");
   std::string iovToken;
@@ -291,7 +283,7 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
 					 cond::Time_t time,
 					 const std::string& EventSetupRecordName,
 					 bool withlogging) {
-  cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
+  Record& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   if(withlogging){
     if(!m_logdb) throw cond::Exception("cannot log to non-existing log db");
@@ -326,18 +318,16 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
   }
 }
 
-cond::service::serviceCallbackRecord& 
+cond::service::PoolDBOutputService::Record& 
 cond::service::PoolDBOutputService::lookUpRecord(const std::string& EventSetupRecordName){
-  size_t callbackToken=this->callbackToken( EventSetupRecordName );
-  std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.find(callbackToken);
+  std::map<std::string,Record>::iterator it=m_callbacks.find(EventSetupRecordName);
   if(it==m_callbacks.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
   return it->second;
 }
 
 cond::UserLogInfo& 
 cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& EventSetupRecordName){
-  size_t callbackToken=this->callbackToken( EventSetupRecordName );
-  std::map<size_t,cond::UserLogInfo>::iterator it=m_logheaders.find(callbackToken);
+  std::map<std::string,cond::UserLogInfo>::iterator it=m_logheaders.find(EventSetupRecordName);
   if(it==m_logheaders.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
   return it->second;
 }
@@ -345,7 +335,7 @@ cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& EventSe
 
 unsigned int 
 cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
-						   cond::service::serviceCallbackRecord& record, 
+						   Record& record, 
 						   const std::string& payloadToken, 
 						   cond::Time_t sinceTime){
   if( record.m_isNewTag ) {
@@ -380,7 +370,7 @@ cond::service::PoolDBOutputService::queryLog()const{
 
 void 
 cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordName,cond::TagInfo& result ){
-  cond::service::serviceCallbackRecord& record=this->lookUpRecord(EventSetupRecordName);
+  Record& record = lookUpRecord(EventSetupRecordName);
   result.name=record.m_tag;
   result.token=record.m_iovtoken;
   //use iovproxy to find out.

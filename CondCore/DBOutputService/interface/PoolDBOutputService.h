@@ -5,7 +5,6 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "serviceCallbackRecord.h"
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
@@ -38,17 +37,17 @@ namespace edm{
 }
 namespace cond{
   namespace service {
-    class serviceCallbackToken;
+
     /** transaction and data consistency
 	for create new tag, 
 	start write metadata transaction only if the first pool commit 
 	successful;
 	for append,start readonly metadata transaction. start pool transaction only if metadata transaction successful.
-
+	
 	
     */
-
-
+    
+    
     struct GetToken {
       virtual std::string operator()(cond::DbSession&, bool) const =0;
       static unsigned int sizeDSW();
@@ -56,36 +55,36 @@ namespace cond{
     
     struct GetTrivialToken : public GetToken {
       
-        GetTrivialToken(std::string token) :
-          m_token(token){}
-        virtual ~GetTrivialToken(){}
-        virtual std::string operator()(cond::DbSession&, bool) const {
-          return m_token;
-        }
-        std::string m_token;
+      GetTrivialToken(std::string token) :
+	m_token(token){}
+      virtual ~GetTrivialToken(){}
+      virtual std::string operator()(cond::DbSession&, bool) const {
+	return m_token;
+      }
+      std::string m_token;
     };
     
     template<typename T>
     struct GetTokenFromPointer : public GetToken {
       typedef cond::DataWrapper<T> Wrapper;
       
-        GetTokenFromPointer(T * p, Summary * s) :
-          m_p(p), m_s(s){}
+      GetTokenFromPointer(T * p, Summary * s) :
+	m_p(p), m_s(s){}
       //m_w(new Wrapper(p,s)){}
       
-        virtual std::string operator()(cond::DbSession& pooldb, bool withWrapper) const {
-          std::string ret("");
-          if (withWrapper) {
-            Wrapper* wrapper = new Wrapper(m_p,m_s);
-            std::string className = cond::classNameForPointer( wrapper );
-            pool::Ref<Wrapper> myPayload = pooldb.storeObject(wrapper,className.replace(0,sizeDSW(),"DSW"));
-            ret = myPayload.toString();
-          } else {
-            std::string className = cond::classNameForPointer( m_p );
-            pool::Ref<T> myPayload = pooldb.storeObject(m_p,className);
-            ret = myPayload.toString();
-          }
-          return ret;
+      virtual std::string operator()(cond::DbSession& pooldb, bool withWrapper) const {
+	std::string ret("");
+	if (withWrapper) {
+	  Wrapper* wrapper = new Wrapper(m_p,m_s);
+	  std::string className = cond::classNameForPointer( wrapper );
+	  pool::Ref<Wrapper> myPayload = pooldb.storeObject(wrapper,className.replace(0,sizeDSW(),"DSW"));
+	  ret = myPayload.toString();
+	} else {
+	  std::string className = cond::classNameForPointer( m_p );
+	  pool::Ref<T> myPayload = pooldb.storeObject(m_p,className);
+	  ret = myPayload.toString();
+	}
+	return ret;
       }
       
       T * m_p;
@@ -94,9 +93,9 @@ namespace cond{
       //const std::string& m_recordName;
     };
     
-
-
-      
+    
+    
+    
     class PoolDBOutputService{
     public:
       PoolDBOutputService( const edm::ParameterSet & iConfig, 
@@ -121,7 +120,7 @@ namespace cond{
       std::string tag( const std::string& EventSetupRecordName );
       bool isNewTagRequest( const std::string& EventSetupRecordName );
       const cond::Logger& queryLog() const;
-
+      
       // BW-compatible signature
       template<typename T>
       void writeOne(T * payload,
@@ -140,22 +139,22 @@ namespace cond{
 	  createNewIOV<T>(payload, summary,
                           time, endOfTime(), recordName, withlogging);
         }else{
-            appendSinceTime<T>(payload, summary, time, recordName, withlogging);
+	  appendSinceTime<T>(payload, summary, time, recordName, withlogging);
         }	
       }
-
-
+      
+      
       // BW-compatible signature
       template<typename T>
       void createNewIOV( T* firstPayloadObj,
-			   cond::Time_t firstSinceTime,
-			   cond::Time_t firstTillTime,
-			   const std::string& recordName,
+			 cond::Time_t firstSinceTime,
+			 cond::Time_t firstTillTime,
+			 const std::string& recordName,
                          bool withlogging=false){
         this->createNewIOV(firstPayloadObj, 0, firstSinceTime, firstTillTime, recordName,withlogging);
       }
-
-     //
+      
+      //
       // insert the payload and its valid since/till time into the database
       // Note: user looses the ownership of the pointer to the payloadObj
       // The payload object will be stored as well
@@ -169,10 +168,9 @@ namespace cond{
                       firstSinceTime,
                       firstTillTime,
                       EventSetupRecordName,
-                      withlogging);
-	
+                      withlogging);	
       }
-
+      
       void createNewIOV( const std::string& firstPayloadToken,
                          cond::Time_t firstSinceTime,
                          cond::Time_t firstTillTime,
@@ -185,9 +183,7 @@ namespace cond{
                       withlogging);
       }
 
-
-
-
+      
       // BW-compatible signature
       template<typename T> void appendSinceTime( T* payloadObj,
                                                  cond::Time_t sinceTime,
@@ -195,18 +191,18 @@ namespace cond{
                                                  bool withlogging=false){
         this->appendSinceTime<T>(payloadObj, 0, sinceTime, recordName, withlogging);
       }
-
+      
       template<typename T>
-        void appendSinceTime( T* payloadObj, Summary * summary,
-                              cond::Time_t sinceTime,
+      void appendSinceTime( T* payloadObj, Summary * summary,
+			    cond::Time_t sinceTime,
                               const std::string& EventSetupRecordName,
-                              bool withlogging=false){
+			    bool withlogging=false){
         add( GetTokenFromPointer<T>(payloadObj,summary),
-            sinceTime,
-            EventSetupRecordName,
-            withlogging);
+	     sinceTime,
+	     EventSetupRecordName,
+	     withlogging);
       }
-
+      
       // Append the payload and its valid sinceTime into the database
       // Note: user looses the ownership of the pointer to the payloadObj
       // Note: the iov index appended to MUST pre-existing and the existing 
@@ -221,9 +217,7 @@ namespace cond{
             EventSetupRecordName,
             withlogging);
       }
-
-
- 
+     
 
       //
       // Service time utility callback method 
@@ -243,50 +237,70 @@ namespace cond{
       cond::Time_t currentTime() const;
       // optional. User can inject additional information into the log associated with a given record
       void setLogHeaderForRecord(const std::string& EventSetupRecordName,
-			   const std::string& provenance,
-			   const std::string& usertext);
+				 const std::string& provenance,
+				 const std::string& usertext);
       // 
       // Retrieve tag information of the data
       // 
       void tagInfo(const std::string& EventSetupRecordName,
 		   cond::TagInfo& result );
-
+      
       virtual ~PoolDBOutputService();  
-
+      
     private:
 
-      void fillRecord( edm::ParameterSet & pset);
+      struct Record{
+	Record(): m_tag(),m_isNewTag(false),
+		  m_idName(),
+		  m_iovtoken(),
+		  m_freeInsert(false),
+		  m_withWrapper(false)
+	{}
 
+	std::string timetypestr() const { return cond::timeTypeSpecs[m_timetype].name;}
+	std::string m_tag;
+	bool m_isNewTag;
+	std::string m_idName;
+	std::string m_iovtoken;
+	cond::TimeType m_timetype;
+	bool m_freeInsert;
+	bool m_withWrapper;
+    };      
+
+
+
+      void fillRecord( edm::ParameterSet & pset);
+      
       void createNewIOV( GetToken const & token, 
 			 cond::Time_t firstSinceTime, 
 			 cond::Time_t firstTillTime,
 			 const std::string& EventSetupRecordName,
 			 bool withlogging=false);
-
+      
       void add( GetToken const & token,  
-		   cond::Time_t time,
-		   const std::string& EventSetupRecordName,
-		   bool withlogging=false);
-
-
+		cond::Time_t time,
+		const std::string& EventSetupRecordName,
+		bool withlogging=false);
+      
+      
       void connect();    
       void disconnect();
       void initDB();
       size_t callbackToken(const std::string& EventSetupRecordName ) const ;
       unsigned int appendIOV(cond::DbSession&,
-                             cond::service::serviceCallbackRecord& record,
+                             Record& record,
                              const std::string& payloadToken,
                              cond::Time_t sinceTime);
-
+      
       /// Returns payload location index 
       unsigned int 
-        insertIOV(cond::DbSession& pooldb,
-                  cond::service::serviceCallbackRecord& record,
-                  const std::string& payloadToken,
-                  cond::Time_t tillTime);
+      insertIOV(cond::DbSession& pooldb,
+		cond::service::Record& record,
+		const std::string& payloadToken,
+		cond::Time_t tillTime);
       //			    const std::string& EventSetupRecordName);
       
-      serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
+      Record & lookUpRecord(const std::string& EventSetupRecordName);
       cond::UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);
       
     private:
@@ -296,17 +310,17 @@ namespace cond{
       cond::DbConnection m_connection;
       cond::DbSession m_session;
       cond::DbSession m_logSession;
-      std::map<size_t, cond::service::serviceCallbackRecord> m_callbacks;
+      std::map<std::string, cond::service::Record> m_callbacks;
       std::vector< std::pair<std::string,std::string> > m_newtags;
       bool m_dbstarted;
       cond::Logger* m_logdb;
       bool m_logdbOn;
-
+      
       bool m_freeInsert;
-
+      
       bool m_withWrapper;
-
-      std::map<size_t, cond::UserLogInfo> m_logheaders;
+      
+      std::map<std::string, cond::UserLogInfo> m_logheaders;
       //cond::IOVService* m_iovservice;
       //edm::ParameterSet m_connectionPset;
     };//PoolDBOutputService
