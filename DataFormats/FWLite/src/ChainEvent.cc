@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.16 2009/10/21 16:48:02 cplager Exp $
 //
 
 // system include files
@@ -107,7 +106,7 @@ ChainEvent::operator++()
 
 ///Go to the event at index iIndex
 bool
-ChainEvent::to (Long64_t iIndex) 
+ChainEvent::to(Long64_t iIndex) 
 {
    if (iIndex >= accumulatedSize_.back()) 
    {
@@ -138,18 +137,19 @@ ChainEvent::to (Long64_t iIndex)
 
 ///Go to event with event id "id"
 bool
-ChainEvent::to (const edm::EventID &id) 
+ChainEvent::to(const edm::EventID &id) 
 {
-  return to (id.run(), id.event());
+  return to(id.run(), id.luminosityBlock(), id.event());
 }
 
-///Go to event with given run and event number
+///If lumi is non-zero, go to event with given run, lumi, and event number
+///If lumi is zero, go to event with given run and event number
 bool
-ChainEvent::to (edm::RunNumber_t run, edm::EventNumber_t event) 
+ChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) 
 {
 
    // First try this file
-   if ( event_->to( run, event ) )  
+   if ( event_->to( run, lumi, event ) )  
    {
       // found it, return
       return true;
@@ -169,7 +169,7 @@ ChainEvent::to (edm::RunNumber_t run, edm::EventNumber_t event)
             // switch to the next file
             switchToFile( ifile - filesBegin );
             // check that tree for the desired event
-            if ( event_->to( run, event ) ) 
+            if ( event_->to( run, lumi, event ) ) 
             {
                // found it, return
                return true;
@@ -180,6 +180,12 @@ ChainEvent::to (edm::RunNumber_t run, edm::EventNumber_t event)
       // did not find the event with id "id".
       return false;
    }// end if we did not find event id in "first" file
+}
+
+bool
+ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) 
+{
+  return to(run, 0U, event);
 }
 
 /** Go to the very first Event*/
@@ -257,7 +263,7 @@ ChainEvent::isValid() const
 {
   return event_->isValid();
 }
-ChainEvent::operator bool () const
+ChainEvent::operator bool() const
 {
   return *event_;
 }

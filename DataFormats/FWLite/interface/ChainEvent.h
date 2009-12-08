@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.15 2009/10/21 16:48:02 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -52,11 +51,13 @@ namespace fwlite {
       const ChainEvent& operator++();
 
       ///Go to the event at index iIndex
-      bool to (Long64_t iIndex);
+      bool to(Long64_t iIndex);
 
-      //Go to event by Run & Event number
-      bool to (const edm::EventID &id);
-      bool to (edm::RunNumber_t run, edm::EventNumber_t event);
+      // If lumi is non-zero, go to event by Run, Lumi and Event number
+      // If lumi is 0, go to event by Run and Event number only.
+      bool to(const edm::EventID &id);
+      bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+      bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
       // Go to the very first Event.  
       const ChainEvent& toBegin();
@@ -73,7 +74,7 @@ namespace fwlite {
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
-      operator bool () const;
+      operator bool() const;
       virtual bool atEnd() const;
 
       Long64_t size() const;

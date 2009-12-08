@@ -16,7 +16,6 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.12 2009/10/21 17:26:53 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -62,11 +61,13 @@ class MultiChainEvent: public EventBase
       const MultiChainEvent& operator++();
 
       ///Go to the event at index iIndex
-      bool to (Long64_t iIndex);
+      bool to(Long64_t iIndex);
 
-      //Go to event by Run & Event number
-      bool to (edm::EventID id);
-      bool to (edm::RunNumber_t run, edm::EventNumber_t event);
+      //If lumi is non-zero, Go to event by Run, Lumi, and Event number
+      //If lumi is zero, Go to event by Run and Event number
+      bool to(edm::EventID id);
+      bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+      bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
       // Go to the very first Event. 
       const MultiChainEvent& toBegin();
@@ -83,7 +84,7 @@ class MultiChainEvent: public EventBase
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
-      operator bool () const;
+      operator bool() const;
       bool atEnd() const;
       
       Long64_t size() const;
@@ -129,8 +130,9 @@ class MultiChainEvent: public EventBase
       ///Go to the event from secondary files at index iIndex
       bool toSec(Long64_t iIndex);
 
-      //Go to event from secondary files by Run & Event number
+      //Go to event from secondary files by Run, Lumi (if non-zero), and  Event number
       bool toSec(const edm::EventID &id);
+      bool toSec(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
       bool toSec(edm::RunNumber_t run, edm::EventNumber_t event);
 
 

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.24 2009/10/23 20:07:20 wdd Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -133,11 +132,12 @@ namespace fwlite {
          const Event& operator++();
 
          ///Go to the event at index iIndex
-         bool to (Long64_t iIndex);
+         bool to(Long64_t iIndex);
       
          //Go to event by Run & Event number
-         bool to (const edm::EventID &id);
-         bool to (edm::RunNumber_t run, edm::EventNumber_t event);
+         bool to(const edm::EventID &id);
+         bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+         bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
          // Go to the very first Event.
          const Event& toBegin();
@@ -153,7 +153,7 @@ namespace fwlite {
          //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
          bool isValid() const;
-         operator bool () const;
+         operator bool() const;
          virtual bool atEnd() const;
       
          Long64_t size() const;

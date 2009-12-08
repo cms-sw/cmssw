@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.30 2009/10/21 16:48:02 cplager Exp $
 //
 
 // system include files
@@ -166,7 +165,7 @@ Event::operator++()
 }
 
 bool
-Event::to (Long64_t iEntry)
+Event::to(Long64_t iEntry)
 {
    if (iEntry < size())
    {
@@ -178,11 +177,17 @@ Event::to (Long64_t iEntry)
 }
 
 bool
-Event::to (edm::RunNumber_t run, edm::EventNumber_t event)
+Event::to(edm::RunNumber_t run, edm::EventNumber_t event)
+{
+   return to(run, 0U, event);
+}
+
+bool
+Event::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
    fillFileIndex();
    edm::FileIndex::const_iterator i = 
-      fileIndex_.findEventPosition(run, 0, event, true);
+      fileIndex_.findEventPosition(run, lumi, event, true);
    if (fileIndex_.end() != i) 
    {
       return branchMap_.updateEvent(i->entry_);
@@ -191,9 +196,9 @@ Event::to (edm::RunNumber_t run, edm::EventNumber_t event)
 }
 
 bool
-Event::to (const edm::EventID &id)
+Event::to(const edm::EventID &id)
 {
-   return to (id.run(), id.event());
+   return to(id.run(), id.luminosityBlock(), id.event());
 }
 
 void

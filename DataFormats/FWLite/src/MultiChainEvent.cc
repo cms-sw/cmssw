@@ -8,7 +8,6 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.10 2009/10/21 17:26:53 cplager Exp $
 //
 
 // system include files
@@ -193,14 +192,21 @@ MultiChainEvent::to(Long64_t iIndex)
 bool
 MultiChainEvent::to(edm::EventID id) 
 {
-  return to (id.run(), id.event());
+  return to(id.run(), id.luminosityBlock(), id.event());
+}
+
+///Go to event with given run , lumi (if non-zero), and event number
+bool
+MultiChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) 
+{
+   return event1_->to( run, lumi, event );
 }
 
 ///Go to event with given run and event number
 bool
-MultiChainEvent::to (edm::RunNumber_t run, edm::EventNumber_t event) 
+MultiChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) 
 {
-   return event1_->to( run, event );
+   return to( run, 0U, event );
 }
 
 
@@ -272,11 +278,19 @@ MultiChainEvent::toSec (const edm::EventID &id)
    return false;
 }
   
+///Go to event with given run, lumi, and event number
+bool 
+MultiChainEvent::toSec(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) 
+{
+  return toSec( edm::EventID( run, lumi, event) );
+}
+
+// Go to the very first Event
 ///Go to event with given run and event number
 bool 
 MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) 
 {
-  return toSec( edm::EventID( run, event) );
+  return toSec( edm::EventID( run, 0U, event) );
 }
 
 // Go to the very first Event
@@ -354,7 +368,7 @@ MultiChainEvent::isValid() const
 {
   return event1_->isValid();
 }
-MultiChainEvent::operator bool () const
+MultiChainEvent::operator bool() const
 {
   return *event1_;
 }
