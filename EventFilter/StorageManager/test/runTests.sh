@@ -10,6 +10,7 @@ tests="\
  DQMEventConsumerRegistrationInfo_t\
  EnquingPolicyTag_t\
  EventConsumerRegistrationInfo_t\
+ MockNotifier_t\
  EventDistributor_t\
  EventQueueCollection_t\
  EventStreamConfigurationInfo_t\
