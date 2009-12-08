@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2009/08/10 15:49:10 $
- * $Revision: 1.22 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -76,7 +76,9 @@ enum runClassification { notdata, physics, testpulse, laser, pedestal };
 MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];
 MonitorElement* meOccupancyMem_[36];
-MonitorElement* meRecHitEnergy_[36];
+MonitorElement* meEBRecHitEnergy_[36];
+
+MonitorElement* meEBRecHitSpectrum_;
 
 MonitorElement* meEBDigiOccupancy_;
 MonitorElement* meEBDigiOccupancyProjEta_;

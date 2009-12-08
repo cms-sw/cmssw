@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/11/09 10:19:49 $
- * $Revision: 1.64 $
+ * $Date: 2009/11/30 16:16:46 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -56,8 +56,11 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   for (int i = 0; i < 18; i++) {
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
-    meRecHitEnergy_[i] = 0;
+    meEERecHitEnergy_[i] = 0;
   }
+
+  meEERecHitSpectrum_[0] = 0;
+  meEERecHitSpectrum_[1] = 0;
 
   meEEDigiOccupancy_[0] = 0;
   meEEDigiOccupancyProR_[0] = 0;
@@ -143,8 +146,11 @@ void EEOccupancyTask::reset(void) {
   for (int i = 0; i < 18; i++) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
-    if ( meRecHitEnergy_[i] ) meRecHitEnergy_[i]->Reset(); 
+    if ( meEERecHitEnergy_[i] ) meEERecHitEnergy_[i]->Reset(); 
   }
+
+  if ( meEERecHitSpectrum_[0] ) meEERecHitSpectrum_[0]->Reset();
+  if ( meEERecHitSpectrum_[1] ) meEERecHitSpectrum_[1]->Reset();
 
   if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Reset();
   if ( meEEDigiOccupancyProR_[0] ) meEEDigiOccupancyProR_[0]->Reset();
@@ -218,12 +224,20 @@ void EEOccupancyTask::setup(void){
       dqmStore_->tag(meOccupancyMem_[i], i+1);
 
       sprintf(histo, "EEOT rec hit energy %s", Numbers::sEE(i+1).c_str());
-      meRecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-      meRecHitEnergy_[i]->setAxisTitle("jx", 1);
-      meRecHitEnergy_[i]->setAxisTitle("jy", 2);
-      meRecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
-      dqmStore_->tag(meRecHitEnergy_[i], i+1);
+      meEERecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meEERecHitEnergy_[i]->setAxisTitle("jx", 1);
+      meEERecHitEnergy_[i]->setAxisTitle("jy", 2);
+      meEERecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
+      dqmStore_->tag(meEERecHitEnergy_[i], i+1);
     }
+
+    sprintf(histo, "EEOT rec hit spectrum EE -");
+    meEERecHitSpectrum_[0] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    meEERecHitSpectrum_[0]->setAxisTitle("energy (GeV)", 1);
+
+    sprintf(histo, "EEOT rec hit spectrum EE +");
+    meEERecHitSpectrum_[1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    meEERecHitSpectrum_[1]->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EEOT digi occupancy EE -");
     meEEDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -411,9 +425,14 @@ void EEOccupancyTask::cleanup(void){
       meOccupancy_[i] = 0;
       if ( meOccupancyMem_[i] ) dqmStore_->removeElement( meOccupancyMem_[i]->getName() );
       meOccupancyMem_[i] = 0;
-      if ( meRecHitEnergy_[i] ) dqmStore_->removeElement( meRecHitEnergy_[i]->getName() );
-      meRecHitEnergy_[i] = 0;
+      if ( meEERecHitEnergy_[i] ) dqmStore_->removeElement( meEERecHitEnergy_[i]->getName() );
+      meEERecHitEnergy_[i] = 0;
     }
+
+    if ( meEERecHitSpectrum_[0] ) dqmStore_->removeElement( meEERecHitSpectrum_[0]->getName() );
+    meEERecHitSpectrum_[0] = 0;
+    if ( meEERecHitSpectrum_[1] ) dqmStore_->removeElement( meEERecHitSpectrum_[1]->getName() );
+    meEERecHitSpectrum_[1] = 0;
 
     if ( meEEDigiOccupancy_[0] ) dqmStore_->removeElement( meEEDigiOccupancy_[0]->getName() );
     meEEDigiOccupancy_[0] = 0;
@@ -741,9 +760,15 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
             if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
           }
           
-          if ( meRecHitEnergy_[ism-1] ) meRecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
+          if ( meEERecHitEnergy_[ism-1] ) meEERecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
 
         }
+
+        if ( rechitItr->recoFlag() == EcalRecHit::kGood ) {
+          if (  ism >= 1 && ism <= 9  ) meEERecHitSpectrum_[0]->Fill( rechitItr->energy() );
+          else meEERecHitSpectrum_[1]->Fill( rechitItr->energy() );
+        }
+
       }
     }
 
