@@ -25,15 +25,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect = cms.untracked.string('sqlite_file:log.db'),
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('ExEfficiencyRcd'),
+        record = cms.string('ThisJob'),
         tag = cms.string('Example_tag1')
     )
         )
 )
 
 process.Test1 = cms.EDFilter("ExPopConEfficiency",
-    SinceAppendMode = cms.bool(True),
-    record = cms.string('ExEfficiencyRcd'),
+    record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.1, 0.95, 1.0, 5.5),
         since = cms.untracked.int64(200),
@@ -44,8 +43,7 @@ process.Test1 = cms.EDFilter("ExPopConEfficiency",
 )
 
 process.Test2 = cms.EDFilter("ExPopConEfficiency",
-    SinceAppendMode = cms.bool(True),
-    record = cms.string('ExEfficiencyRcd'),
+    record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.85, 0.0, 0.9, 2.3),
         since = cms.untracked.int64(351),
@@ -56,8 +54,7 @@ process.Test2 = cms.EDFilter("ExPopConEfficiency",
 )
 
 process.Test3 = cms.EDFilter("ExPopConEfficiency",
-    SinceAppendMode = cms.bool(True),
-    record = cms.string('ExEfficiencyRcd'),
+    record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.92, 0.0, 0.8, 2.5),
         since = cms.untracked.int64(531),
@@ -68,8 +65,7 @@ process.Test3 = cms.EDFilter("ExPopConEfficiency",
 )
 
 process.Test4 = cms.EDFilter("ExPopConEfficiency",
-    SinceAppendMode = cms.bool(True),
-    record = cms.string('ExEfficiencyRcd'),
+    record = cms.string('ThisJob'),
     Source = cms.PSet(
         params = cms.untracked.vdouble(0.1, 0.95, 1.0, 9.5),
         since = cms.untracked.int64(701),

@@ -66,7 +66,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.mytest = cms.EDAnalyzer("ExPopConAnalyzer",
                                 record = cms.string('ThisJob'),
                                 loggingOn= cms.untracked.bool(True),
-                                SinceAppendMode=cms.bool(True),
                                 Source=cms.PSet(
     firstSince=cms.untracked.int64(options.sinceTime),
     number=cms.untracked.int64(options.numberObj)
