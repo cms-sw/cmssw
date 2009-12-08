@@ -1,4 +1,4 @@
-// $Id: FragmentMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: FragmentMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
 /// @file: FragmentMonitorCollection.h 
 
 #ifndef StorageManager_FragmentMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/24 14:31:11 $
    */
   
   class FragmentMonitorCollection : public MonitorCollection
@@ -50,9 +50,20 @@ namespace stor {
 
     explicit FragmentMonitorCollection(const utils::duration_t& updateInterval);
 
+    /**
+      Add a generic fragment size of bytes
+    */
+    void addFragmentSample(const double bytecount);
+
+    /**
+      Add an event fragment size of bytes
+    */
     void addEventFragmentSample(const double bytecount);
 
-    void addDQMEventFragmentSample(const double bytecount);
+    /**
+      Add a DQM event fragment size of bytes
+    */
+     void addDQMEventFragmentSample(const double bytecount);
 
     const MonitoredQuantity& getAllFragmentSizeMQ() const {
       return _allFragmentSizes;

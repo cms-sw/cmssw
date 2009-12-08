@@ -1,4 +1,4 @@
-// $Id: FragmentMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: FragmentMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
 /// @file: FragmentMonitorCollection.cc
 
 #include <string>
@@ -19,6 +19,13 @@ _eventFragmentBandwidth(updateInterval, 5),
 _dqmEventFragmentSizes(updateInterval, 300),
 _dqmEventFragmentBandwidth(updateInterval, 300)
 {}
+
+
+void FragmentMonitorCollection::addFragmentSample(const double bytecount)
+{
+  double mbytes = bytecount / 0x100000;
+  _allFragmentSizes.addSample(mbytes);
+}
 
 
 void FragmentMonitorCollection::addEventFragmentSample(const double bytecount)
