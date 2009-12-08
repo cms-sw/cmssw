@@ -6,8 +6,6 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
@@ -15,8 +13,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -61,20 +58,31 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinTID_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTID" ) ),
   minHitsinTEC_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTEC" ) ),
   minHitsinBPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inBPIX" ) ),
-  minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) ),
-  minHitsinPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inPIXEL" ) ),
-  clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
-  minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
-  applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
+  minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) )
 {
+
   //convert track quality from string to enum
-  std::vector<std::string> trkQualityStrings
-    (cfg.getParameter<std::vector<std::string> >("trackQualities"));
+  std::vector<std::string> trkQualityStrings(cfg.getParameter<std::vector<std::string> >("trackQualities"));
   std::string qualities;
-  for (unsigned int i = 0; i < trkQualityStrings.size(); ++i) {
-    (qualities += trkQualityStrings[i]) += ", ";
-    trkQualities_.push_back(reco::TrackBase::qualityByName(trkQualityStrings[i]));
+  if(trkQualityStrings.size()>0){
+    applyTrkQualityCheck_=true;
+    for (unsigned int i = 0; i < trkQualityStrings.size(); ++i) {
+      (qualities += trkQualityStrings[i]) += ", ";
+      trkQualities_.push_back(reco::TrackBase::qualityByName(trkQualityStrings[i]));
+    }
   }
+  else applyTrkQualityCheck_=false;
+
+  std::vector<std::string> trkIterStrings(cfg.getParameter<std::vector<std::string> >("iterativeTrackingSteps"));
+  if(trkIterStrings.size()>0){
+    applyIterStepCheck_=true;
+    std::string tracksteps;
+    for (unsigned int i = 0; i < trkIterStrings.size(); ++i) {
+      (tracksteps += trkIterStrings[i]) += ", ";
+      trkSteps_.push_back(reco::TrackBase::algoByName(trkIterStrings[i]));
+    }
+  }
+  else   applyIterStepCheck_=false;
 
   if (applyBasicCuts_){
       edm::LogInfo("AlignmentTrackSelector") 
@@ -99,14 +107,9 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	  " ADC counts of total cluster charge"; 
       
       edm::LogInfo("AlignmentTrackSelector") 
-	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX/PIXEL = " 
+	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX = " 
 	<< minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
-	<< "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_<<"/"<<minHitsinPIX_;
-
-      if (trkQualityStrings.size()) {
-	edm::LogInfo("AlignmentTrackSelector")
-	  << "Select tracks with these qualities: " << qualities;
-      }
+	<< "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_;
     }
   
   if (applyNHighestPt_)
@@ -117,13 +120,6 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "apply multiplicity filter N>= " << minMultiplicity_ << "and N<= " << maxMultiplicity_
           << " on " << (multiplicityOnInput_ ? "input" : "output");
-
-  if (applyPrescaledHitsFilter_) {
-    edm::LogInfo("AlignmentTrackSelector") 
-      << "apply cut on number of prescaled hits N>= " << minPrescaledHits_
-      << " (prescale info from " << clusterValueMapTag_ << ")";
-
-  }
 
 }
 
@@ -161,17 +157,13 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
     }
   }
   
-  if(applyPrescaledHitsFilter_){
-    result = this->checkPrescaledHits(result, evt);
-  }
-
   return result;
 }
 
  ///returns if any of the Filters is used.
 bool AlignmentTrackSelector::useThisFilter()
 {
-  return applyMultiplicityFilter_ || applyBasicCuts_ || applyNHighestPt_ || applyPrescaledHitsFilter_;
+  return applyMultiplicityFilter_  || applyBasicCuts_ || applyNHighestPt_ ;
 }
 
 
@@ -200,10 +192,13 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
        && phi>phiMin_ && phi<phiMax_ 
        && nhit>=nHitMin_ && nhit<=nHitMax_
        && chi2n<chi2nMax_) {
-      bool trkQualityOk = this->isOkTrkQuality(trackp);
+      bool trkQualityOk=false ;
+      if (!applyTrkQualityCheck_ &&!applyIterStepCheck_)trkQualityOk=true ; // nothing required
+      else trkQualityOk = this->isOkTrkQuality(trackp);
+
       bool hitsCheckOk=this->detailedHitsCheck(trackp, evt);
  
-      if (trkQualityOk && hitsCheckOk ) result.push_back(trackp); // make more efficient!
+      if (trkQualityOk && hitsCheckOk )  result.push_back(trackp);
     }
   }
 
@@ -217,12 +212,12 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
-      || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ || nHitMin2D_ || chargeCheck_
+      || minHitsinFPIX_ || minHitsinBPIX_ || nHitMin2D_ || chargeCheck_
       || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)) {
     // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
-    int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0, nhitinPIXEL=0;
+    int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0;
     unsigned int nHit2D = 0;
     unsigned int thishit = 0;
 
@@ -257,16 +252,15 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
       else if (SiStripDetId::TID == subdetId) ++nhitinTID;
       else if (SiStripDetId::TEC == subdetId) ++nhitinTEC;
-      else if (            kBPIX == subdetId) {++nhitinBPIX;++nhitinPIXEL;}
-      else if (            kFPIX == subdetId) {++nhitinFPIX;++nhitinPIXEL;}
+      else if (            kBPIX == subdetId) ++nhitinBPIX;
+      else if (            kFPIX == subdetId) ++nhitinFPIX;
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
       if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
     } // end loop on hits
 
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
-            && nhitinBPIX >= minHitsinBPIX_ 
-	    && nhitinFPIX >= minHitsinFPIX_ && nhitinPIXEL>=minHitsinPIX_ 
+            && nhitinBPIX >= minHitsinBPIX_ && nhitinFPIX >= minHitsinFPIX_ 
             && nHit2D >= nHitMin2D_);
   } else { // no cuts set, so we are just fine and can avoid loop on hits
     return true;
@@ -279,9 +273,8 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 {
   // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
   // (since they provide theta information)
-  if (!hit.isValid() ||
-      (hit.dimension() < 2 && !countStereoHitAs2D_ && !dynamic_cast<const SiStripRecHit1D*>(&hit))){
-    return false; // real RecHit1D - but SiStripRecHit1D depends on countStereoHitAs2D_
+  if (!hit.isValid() || hit.dimension() < 2) {
+    return false; // some (muon...) stuff really has RecHit1D
   } else {
     const DetId detId(hit.geographicalId());
     if (detId.det() == DetId::Tracker) {
@@ -289,17 +282,15 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
         return true; // pixel is always 2D
       } else { // should be SiStrip now
 	const SiStripDetId stripId(detId);
-	if (stripId.stereo()) return countStereoHitAs2D_; // stereo modules
-        else if (dynamic_cast<const SiStripRecHit1D*>(&hit)
-		 || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
-	//the following two are not used any more since ages... 
+	if (stripId.stereo()) return countStereoHitAs2D_; // 1D stereo modules
+        else if (dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // normal hit
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
 	  const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
 	  return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit())); // depends on original...
 	} else {
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
-                                      << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
+                                      << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
@@ -330,43 +321,21 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
   }
 
   // We are in SiStrip now, so test normal hit:
-  const std::type_info &type = typeid(*hit);
-  
-
-  if (type == typeid(SiStripRecHit2D)) {
-    const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
-    if (stripHit2D) {
-      return this->isOkChargeStripHit(stripHit2D);
-    }
+  const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
+  if (stripHit2D) {
+    return this->isOkChargeStripHit(stripHit2D);
   }
-  else if(type == typeid(SiStripRecHit1D)){
-    const SiStripRecHit1D *stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
-    if (stripHit1D) {
-      return this->isOkChargeStripHit(stripHit1D);
-    } 
+  // or matched (should not occur anymore due to hit splitting since 20X):
+  const SiStripMatchedRecHit2D *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+  if (matchedHit) {  
+    return (this->isOkChargeStripHit(matchedHit->monoHit())
+            && this->isOkChargeStripHit(matchedHit->stereoHit()));
   }
-
-  else if(type == typeid(SiStripMatchedRecHit2D)){  // or matched (should not occur anymore due to hit splitting since 20X)
-    const SiStripMatchedRecHit2D *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
-    if (matchedHit) {  
-      return (this->isOkChargeStripHit(matchedHit->monoHit())
-	      && this->isOkChargeStripHit(matchedHit->stereoHit()));
-    }
+  // or projected (should not occur anymore due to hit splitting since 20X):
+  const ProjectedSiStripRecHit2D *projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
+  if (projHit) {
+    return this->isOkChargeStripHit(&projHit->originalHit());
   }
-  else if(type == typeid(ProjectedSiStripRecHit2D)){ 
-    // or projected (should not occur anymore due to hit splitting since 20X):
-    const ProjectedSiStripRecHit2D *projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
-    if (projHit) {
-      return this->isOkChargeStripHit(&projHit->originalHit());
-    }
-  }
-  else{
-    edm::LogError("AlignmentTrackSelector")<< "@SUB=isOkCharge" <<"Unknown type of a valid tracker hit in Strips "
-                                           << " SubDet = "<<id.subdetId();
-    return false;
-  }
-  
-
 
   // and now? SiTrackerMultiRecHit? Not here I guess!
   // Should we throw instead?
@@ -396,27 +365,9 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D *siStripRe
 
 //-----------------------------------------------------------------------------
 
-bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D *siStripRecHit1D) const
-{
-  double charge = 0.;
-
-  SiStripRecHit1D::ClusterRef cluster(siStripRecHit1D->cluster());
-  const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
-
-  for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
-    charge += amplitudes[ia];
-  }
-
-  return (charge >= minHitChargeStrip_);
-}
-
-//-----------------------------------------------------------------------------
-
 bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const
 {
-  // FIXME:
-  // adapt to changes after introduction of SiStripRecHit1D...
-  //
+	   
   // edm::ESHandle<TrackerGeometry> tracker;
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
@@ -475,87 +426,31 @@ AlignmentTrackSelector::theNHighestPtTracks(const Tracks& tracks) const
   return result;
 }
 
-//-----------------------------------------------------------------------------
-AlignmentTrackSelector::Tracks 
-AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Event& evt) const 
-{
-  Tracks result;
-
-  //take Cluster-Flag Assomap
-  edm::Handle<AliClusterValueMap> fMap;
-  evt.getByLabel( clusterValueMapTag_, fMap);
-  const AliClusterValueMap &flagMap=*fMap;
-
-  //for each track loop on hits and count the number of taken hits
-  for (Tracks::const_iterator ittrk=tracks.begin(); ittrk != tracks.end(); ++ittrk) {
-    const reco::Track* trackp=*ittrk;
-    int ntakenhits=0;
-    //    float pt=trackp->pt();
-
-    for (trackingRecHit_iterator ith = trackp->recHitsBegin(), edh = trackp->recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit *hit = ith->get(); // ith is an iterator on edm::Ref to rechit
-      if(! hit->isValid())continue;
-      DetId detid = hit->geographicalId();
-      int subDet = detid.subdetId();
-      AlignmentClusterFlag flag;
-
-      bool isPixelHit=(subDet == kFPIX || subDet == kBPIX);
-
-      if (!isPixelHit){
-	const std::type_info &type = typeid(*hit);
-
-	if (type == typeid(SiStripRecHit2D)) {	
-	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit); 
-	  if(striphit!=0){
-	    SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
-	    flag = flagMap[stripclust];
-	  }
-	}
-	else if(type == typeid(SiStripRecHit1D)){
-	  const SiStripRecHit1D* striphit = dynamic_cast<const SiStripRecHit1D*>(hit);
-	  if(striphit!=0){
-	    SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
-	    flag = flagMap[stripclust];
-	  }
-	} 
-	else{
-	   edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkPrescaledHits>: Dynamic cast of Strip RecHit failed!"
-						  <<" Skipping this hit.";
-	   continue;
-	}
-
-	  
-
-      }//end if hit in Strips
-      else{ // test explicitely BPIX/FPIX
-	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-	if(pixelhit!=0){
-	  SiPixelRecHit::ClusterRef pixclust(pixelhit->cluster());
-	  flag = flagMap[pixclust];
-	}
-	else{
-	    edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkPrescaledHits>: Dynamic cast of Pixel RecHit failed!  ";
-	}
-      }//end else hit is in Pixel
-      
-      if(flag.isTaken())ntakenhits++;
-
-    }//end loop on hits
-    if(ntakenhits >= minPrescaledHits_)result.push_back(trackp);
-  }//end loop on tracks
-
-  return result;
-}//end checkPrescaledHits
-
 //---------
 bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
 {
-  if (trkQualities_.size() == 0) return true; // nothing required
-  
-  for (unsigned int i = 0; i < trkQualities_.size(); ++i) {
-    if (track->quality(trkQualities_[i])) {
-      return true;
+  bool qualityOk=false;
+  bool iterStepOk=false;
+
+  //check iterative step
+  if(applyIterStepCheck_){
+    for (unsigned int i = 0; i < trkSteps_.size(); ++i) {
+      if (track->algo()==(trkSteps_[i])) {
+	iterStepOk=true;
+      }
     }
   }
-  return false;
+  else iterStepOk=true;
+
+  //check track quality
+  if(applyTrkQualityCheck_){
+    for (unsigned int i = 0; i < trkQualities_.size(); ++i) {
+      if (track->quality(trkQualities_[i])) {
+	qualityOk=true;
+      }
+    }
+  }
+  else 	qualityOk=true;
+
+  return qualityOk&&iterStepOk;
 }//end check on track quality

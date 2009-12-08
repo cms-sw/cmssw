@@ -28,8 +28,7 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         inFPIX = cms.int32(0),
         inTID = cms.int32(0),
         inBPIX = cms.int32(0),
-        inTIB = cms.int32(0),
-        inPIXEL=cms.int32(0)
+        inTIB = cms.int32(0)
     ),
     seedOnlyFrom = cms.int32(0),
 
@@ -87,9 +86,7 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         applyMissingETFilter = cms.bool(False)
     ),
     trackQualities = cms.vstring(), # take all if empty
-    #settings for filtering on the hits taken by the Skim&Prescale workflow
-    hitPrescaleMapTag = cms.InputTag(''), # ignore prescale map if empty
-    minPrescaledHits = cms.int32(-1)                                  
+    iterativeTrackingSteps = cms.vstring(), # take all if empty
 )
 
 
