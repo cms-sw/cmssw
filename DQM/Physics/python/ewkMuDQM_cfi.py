@@ -7,7 +7,7 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("met"),
       METIncludesMuons = cms.untracked.bool(False),
-      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
 
       # Main cuts ->
       MuonTrig = cms.untracked.string("HLT_Mu9"),
