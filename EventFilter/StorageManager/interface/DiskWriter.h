@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.5 2009/09/16 13:30:47 mommsen Exp $
+// $Id: DiskWriter.h,v 1.6 2009/10/13 15:08:33 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -31,8 +31,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.6 $
+   * $Date: 2009/10/13 15:08:33 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -124,6 +124,12 @@ namespace stor {
      * Gracefully close all streams
      */    
     void destroyStreams();
+
+    /**
+       Close files at the end of a luminosity section and release
+       message memory:
+    */
+    void processEndOfLumiSection( I2OChain& );
 
     xdaq::Application* _app;
     SharedResourcesPtr _sharedResources;
