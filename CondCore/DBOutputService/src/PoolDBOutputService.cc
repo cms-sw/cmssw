@@ -287,8 +287,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
 
 
 void 
-cond::service::PoolDBOutputService::add( bool sinceNotTill, 
-					 GetToken const & payloadToken,  
+cond::service::PoolDBOutputService::add( GetToken const & payloadToken,  
 					 cond::Time_t time,
 					 const std::string& EventSetupRecordName,
 					 bool withlogging) {
@@ -306,9 +305,7 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
     cond::DbScopedTransaction transaction(m_session);
     transaction.start(false);
     objToken = payloadToken(m_session,myrecord.m_withWrapper);
-    payloadIdx= sinceNotTill ?
-      this->appendIOV(m_session,myrecord,objToken,time) :
-      this->insertIOV(m_session,myrecord,objToken,time);
+    payloadIdx= appendIOV(m_session,myrecord,objToken,time);
     transaction.commit();
     if(withlogging){
       std::string destconnect=m_session.connectionString();
@@ -364,23 +361,6 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
   return payloadIdx;
 }
 
-unsigned int
-cond::service::PoolDBOutputService::insertIOV( cond::DbSession& pooldb,
-					       cond::service::serviceCallbackRecord& record, 
-					       const std::string& payloadToken,
-					       cond::Time_t tillTime){
-  
-  if( record.m_isNewTag ) {
-    throw cond::Exception(std::string("PoolDBOutputService::insertIOV: cannot append to non-existing tag ")+record.m_tag );  
-  }
-  
-  cond::IOVEditor editor(pooldb,record.m_iovtoken);
-  unsigned int payloadIdx=editor.insert(tillTime,payloadToken);
-  editor.stamp(cond::userInfo(),false);
-  return payloadIdx;
-}
-
-
 
 void
 cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& EventSetupRecordName,const std::string& dataprovenance,const std::string& usertext)
@@ -389,6 +369,8 @@ cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& Eve
   myloginfo.provenance=dataprovenance;
   myloginfo.usertext=usertext;
 }
+
+
 const cond::Logger& 
 cond::service::PoolDBOutputService::queryLog()const{
   if(!m_logdb) throw cond::Exception("PoolDBOutputService::queryLog ERROR: logging is off");

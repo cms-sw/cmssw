@@ -71,8 +71,6 @@ namespace popcon {
     
     std::string m_payload_name;
     
-    bool m_since;
-    
     bool m_LoggingOn;
     
     bool m_IsDestDbCheckedInQueryLog;
@@ -88,29 +86,29 @@ namespace popcon {
 
   template<typename T>
   void PopCon::writeOne(T * payload, Summary * summary, Time_t time) {
-    m_dbService->writeOne(payload, summary, time, m_record, m_LoggingOn, m_since);
+    m_dbService->writeOne(payload, summary, time, m_record, m_LoggingOn);
   }
 
   
   template<typename Container>
-  void displayHelper(Container const & payloads, bool sinceAppend) {
+  void displayHelper(Container const & payloads) {
     typename Container::const_iterator it;
     for (it = payloads.begin(); it != payloads.end(); it++)
-      edm::LogInfo ("PopCon")<< (sinceAppend ? "Since " :" Till ") << (*it).time << std::endl;
+      edm::LogInfo ("PopCon")<< "Since " << (*it).time << std::endl;
   }     
   
   
   template<typename Container>
-  const std::string displayIovHelper(Container const & payloads, bool sinceAppend) {
+  const std::string displayIovHelper(Container const & payloads) {
     if (payloads.empty()) return "Nothing to transfer;";
     std::ostringstream s;    
     // when only 1 payload is transferred; 
     if ( payloads.size()==1)  
-      s <<(sinceAppend ? "Since " :" Till ") << (*payloads.begin()).time <<  "; " ;
+      s <<"Since " << (*payloads.begin()).time <<  "; " ;
     else{
       // when more than one payload are transferred;  
-      s <<   "first payload " << (sinceAppend ? "Since " :" Till ") <<  (*payloads.begin()).time <<  ","
-	<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*payloads.rbegin()).time <<  ";" ;  
+      s <<   "first payload Since " <<  (*payloads.begin()).time <<  ","
+	<< "last payload Since "  << (*payloads.rbegin()).time <<  ";" ;  
     }  
     return s.str();
   }
@@ -132,10 +130,11 @@ namespace popcon {
     
     
     
-    m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + cond::userInfo() + displayIovHelper(payloads,m_since ) +  ret.second);
+    m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v3.0; " + 
+				       cond::userInfo() + displayIovHelper(payloads) +  ret.second);
     
     
-    displayHelper(payloads,m_since);
+    displayHelper(payloads);
     
     std::for_each(payloads.begin(),payloads.end(),
 		  boost::bind(&popcon::PopCon::writeOne<value_type>,this,
@@ -148,9 +147,7 @@ namespace popcon {
     
     finalize();
   }
-  
-  
-  
+ 
 }
 
 #endif //  POPCON_POPCON_H

@@ -127,7 +127,7 @@ namespace cond{
       void writeOne(T * payload,
 		    Time_t time, const std::string& recordName, 
                     bool withlogging=false) {
-        this->writeOne<T>(payload, 0, time, recordName, withlogging;
+        this->writeOne<T>(payload, 0, time, recordName, withlogging);
       }
       /* write one (either create or append)
        * The ONE and ONLY interface supportd in future!
@@ -138,8 +138,7 @@ namespace cond{
                     bool withlogging=false) {
 	if (isNewTagRequest(recordName) ){
 	  createNewIOV<T>(payload, summary,
-                          since ? time : beginOfTime(),
-                          since ?  endOfTime() : time, recordName, withlogging);
+                          time, endOfTime(), recordName, withlogging);
         }else{
             appendSinceTime<T>(payload, summary, time, recordName, withlogging);
         }	

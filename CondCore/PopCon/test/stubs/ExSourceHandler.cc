@@ -91,7 +91,5 @@ void popcon::ExPedestalSource::getNewObjects() {
   m_userTextLog = ss.str()+ ";" + fsince.str();
  
   
- 
-
   edm::LogInfo   ("ExPedestalsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;
 }

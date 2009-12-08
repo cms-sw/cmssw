@@ -3,63 +3,31 @@
 mkdir testPopCon
 pushd testPopCon
 
-cp $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.py PopConExample1_template.py
-
-
-cat PopConExample1_template.py | sed 's/xxx/3/g' > tmp_PopConExample.py
-sed -i 's/yyy/3/g' tmp_PopConExample.py
+cp $LOCALRT/src/CondCore/PopCon/test/PopConExample1_template.py PopCon.py
 
 echo "populate pop_test.db with xxx, xxx+10, xxx+20" | sed 's/xxx/3/g' 
-cmsRun tmp_PopConExample.py
-rm tmp_PopConExample.py
-
-cat PopConExample1_template.py | sed 's/xxx/24/g' > tmp_PopConExample.py
-sed -i 's/pop_test.db/pop_test1.db/g' tmp_PopConExample.py
-sed -i 's/yyy/1/g' tmp_PopConExample.py      
-
-echo "populate pop_test1.db with 24"  
-cmsRun tmp_PopConExample.py
-rm tmp_PopConExample.py
-
-cat PopConExample1_template.py | sed 's/xxx/26/g' > tmp_PopConExample.py
-sed -i 's/pop_test.db/pop_test1.db/g' tmp_PopConExample.py
-sed -i 's/yyy/1/g' tmp_PopConExample.py      
-
-echo "populate pop_test1.db with 26"  
-cmsRun tmp_PopConExample.py
-rm tmp_PopConExample.py
+cmsRun PopCon.py sinceTime=3 numberObj=3
 
 
-cat PopConExample1_template.py | sed 's/xxx/2/g' > tmp_PopConExample.py
-sed -i 's/pop_test.db/pop_test1.db/g' tmp_PopConExample.py
-sed -i 's/yyy/1/g' tmp_PopConExample.py      
+echo "populate pop_test1.db with 24: shall work"  
+cmsRun PopCon.py sinceTime=24 numberObj=1
+
+echo "populate pop_test1.db with 26: shall work"  
+cmsRun PopCon.py sinceTime=26 numberObj=1
 
 echo "error in populate pop_test1.db with 25"  
-cmsRun tmp_PopConExample.py
-
-sed -i 's/ outOfOrder = cms.untracked.bool(False)/ outOfOrder = cms.untracked.bool(True)/g' tmp_PopConExample.py
+cmsRun PopCon.py sinceTime=25 numberObj=1
 
 echo "success in populate pop_test1.db with 25"  
-cmsRun tmp_PopConExample.py
+cmsRun PopCon.py outOfOrder=True sinceTime=25 numberObj=1
 
 
 
-rm tmp_PopConExample.py
-
-cat PopConExample1_template.py | sed 's/xxx/41/g' > tmp_PopConExample.py
-sed -i 's/pop_test.db/pop_test2.db/g' tmp_PopConExample.py
-sed -i 's/yyy/1/g' tmp_PopConExample.py
 echo "populate pop_test2.db with 42"
-cmsRun tmp_PopConExample.py
-rm tmp_PopConExample.py
+cmsRun PopCon.py sinceTime=42 numberObj=1 connect='pop_test2.db'
 
-cat PopConExample1_template.py | sed 's/xxx/7/g' > tmp_PopConExample.py
-sed -i 's/Example_tag/Example_tag2/g' tmp_PopConExample.py
-sed -i 's/pop_test.db/pop_test3.db/g' tmp_PopConExample.py
-sed -i 's/yyy/10/g' tmp_PopConExample.py
 echo "populate pop_test3.db with 7 + other 10"
-cmsRun tmp_PopConExample.py
-rm tmp_PopConExample.py
+cmsRun PopCon.py sinceTime=7 numberObj=10 connect='pop_test3.db'  tag='/Example_tag2'
 
 
 echo "inspect db"

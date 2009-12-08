@@ -10,17 +10,16 @@ namespace popcon {
   PopCon::PopCon(const edm::ParameterSet& pset):
     m_record(pset.getParameter<std::string> ("record")),
     m_payload_name(pset.getUntrackedParameter<std::string> ("name","")),
-    m_since(pset.getParameter<bool> ("SinceAppendMode")),
     m_LoggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true)),
     m_IsDestDbCheckedInQueryLog(pset.getUntrackedParameter< bool > ("IsDestDbCheckedInQueryLog","True"))
     {
-    //TODO set the policy (cfg or global configuration?)
-    //Policy if corrupted data found
-
-      edm::LogInfo ("PopCon") << "This is PopCon (Populator of Condition) V2.00\n"
+      //TODO set the policy (cfg or global configuration?)
+      //Policy if corrupted data found
+      
+      edm::LogInfo ("PopCon") << "This is PopCon (Populator of Condition) V3.00\n"
         << "It is still in active developement\n"
-			  << "We apologise for the verbosity of the output, for the criptic messages, for the limited functionalities and the poor documentation\n"<<
-    "Please report any problem and feature request through the savannah portal under the category conditions\n" ; 
+			      << "We apologise for the verbosity of the output, for the criptic messages, for the limited functionalities and the poor documentation\n"<<
+	"Please report any problem and feature request through the savannah portal under the category conditions\n" ; 
 
     }
   
