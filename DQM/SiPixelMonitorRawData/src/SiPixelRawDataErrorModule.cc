@@ -1015,23 +1015,32 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
         //std::cout<<"Found the FED I'm working on right now!  "<<i<<std::endl;
 	for(int j=0; j!=37; j++){
 	//std::cout<<"CHANNEL ID: "<<j<<" , "<<FedChNErrArray[i][j]<<" , "<<FedChLErrArray[i][j]<<" , "<<FedETypeNErrArray[i][j]<<std::endl;
-	  std::stringstream tmp; tmp << i; std::stringstream temp; temp << j;
+
           if(FedChNErrArray[i][j]>0){
-            hid = "Pixel/AdditionalPixelErrors/FED_" + tmp.str() + "/FedChNErrArray_" + temp.str();
-	    meFedChNErrArray_[j] = theDMBE->get(hid); 
+            static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
+            char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+            sprintf(buf, fmt, i, j);
+            hid = buf;
+            meFedChNErrArray_[j] = theDMBE->get(hid); 
 	    if(meFedChNErrArray_[j]) meFedChNErrArray_[j]->Fill(FedChNErrArray[i][j]); 
-	  }
+          }
           if(FedChLErrArray[i][j]>0){
-            hid = "Pixel/AdditionalPixelErrors/FED_" + tmp.str() + "/FedChLErrArray_" + temp.str();
-	    meFedChLErrArray_[j] = theDMBE->get(hid); 
+            static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
+            char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+            sprintf(buf, fmt, i, j);
+            hid = buf;
+            meFedChLErrArray_[j] = theDMBE->get(hid); 
 	    if(meFedChLErrArray_[j]) meFedChLErrArray_[j]->Fill(FedChLErrArray[i][j]); 
-	  }
+          }
           if(j<=14 && FedETypeNErrArray[i][j]>0){
-            hid = "Pixel/AdditionalPixelErrors/FED_" + tmp.str() + "/FedETypeNErrArray_" + temp.str();
+            static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedETypeNErrArray_%d";
+            char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+            sprintf(buf, fmt, i, j);
+            hid = buf;
 	    meFedETypeNErrArray_[j] = theDMBE->get(hid); 
-	    if(meFedETypeNErrArray_[j]) meFedETypeNErrArray_[j]->Fill(FedETypeNErrArray[i][j]); 
-	  }
-	}
+          if(meFedETypeNErrArray_[j]) meFedETypeNErrArray_[j]->Fill(FedETypeNErrArray[i][j]); 
+          }
+        }
       }
     }
     

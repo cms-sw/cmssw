@@ -2,13 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelMonitorRawDataProcess")
 
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+# DQM services
+process.load("DQMServices.Core.DQM_cfg")
 
+# Database configuration
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-  # Pixel RawToDigi conversion
+# conditions
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
+process.GlobalTag.globaltag = "GR09_P_V8::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
+# Pixel RawToDigi conversion
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.InputLabel = "source"
 #  process.siPixelDigis.InputLabel = "siPixelRawData"
@@ -29,20 +40,8 @@ process.SiPixelRawDataErrorSource.ringOn = False
 process.SiPixelRawDataErrorSource.bladeOn = False
 process.SiPixelRawDataErrorSource.diskOn = False
 
-process.load("DQMServices.Core.DQM_cfg")
-process.DQM.collectorHost = ''
-
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V2P::All"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
-
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10000)
 )
 
 process.source = cms.Source("PoolSource",
@@ -53,14 +52,6 @@ process.source = cms.Source("PoolSource",
     ),
     debugVerbosity = cms.untracked.uint32(10),
     debugFlag = cms.untracked.bool(True),
-)
-
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
-
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('debugmessages.txt')
 )
 
 process.p1 = cms.Path(process.siPixelDigis*process.SiPixelRawDataErrorSource)
