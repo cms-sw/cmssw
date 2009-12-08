@@ -104,7 +104,7 @@
 // now ONLY Since append mode is supported
 
 
-/
+//
 //     WARNING: due to the policy of the framework, objects SHALL be stored
 //     in IOV chronological order. If you have 10 runs, then execute your application starting from run 1 and not for example in two steps: first from Run 6 to Run 10 and then from Run 1 to Run 6.
   
@@ -118,7 +118,6 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  May 23 10:04:31 CET 2007
-// $Id: ConditionDBWriter.h,v 1.8 2009/12/08 11:52:15 innocent Exp $
 //
 //
 
