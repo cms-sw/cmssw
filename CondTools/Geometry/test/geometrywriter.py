@@ -12,9 +12,9 @@ process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(1),
                             interval = cms.uint64(1)
                             )
-
+#this and the outputservice below are set up to do the first insert of GeometryFile
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./fred.xml"),
+                                           XMLFileName = cms.untracked.string("./geTagXX.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
@@ -32,7 +32,7 @@ process.CondDBCommon.timetype = cms.untracked.string('runnumber')
 process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_TagXX')),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
