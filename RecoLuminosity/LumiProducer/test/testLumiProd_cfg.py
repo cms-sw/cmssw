@@ -12,19 +12,16 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-#process.maxEvents = cms.untracked.PSet(
-#  input = cms.untracked.int32(10)
-#)
+process.maxLuminosityBlocks=cms.untracked.PSet(
+    input=cms.untracked.int32(-1)
+)
+
 
 #process.source = cms.Source("EmptySource",
 #     numberEventsInRun = cms.untracked.uint32(21),
 #     firstRun = cms.untracked.uint32(83037),
 #     numberEventsInLuminosityBlock = cms.untracked.uint32(1),
 #     firstLuminosityBlock = cms.untracked.uint32(1)
-#)
-
-#process.maxLuminosityBlocks=cms.untracked.PSet(
-#    input=cms.untracked.int32(3)
 #)
 
 #process.source = cms.Source("EmptyIOVSource",
@@ -35,10 +32,11 @@ process.options = cms.untracked.PSet(
 #)
 
 process.source= cms.Source("PoolSource",
-             fileNames=cms.untracked.vstring('/store/relval/CMSSW_3_4_0_pre2/RelValSingleElectronPt10/GEN-SIM-RECO/MC_3XY_V10-v1/0003/BE702AE8-C0BD-DE11-87CA-002618943861.root')
-#              firstRun=cms.untracked.uint32(120020),
-#              firstLuminosityBlock = cms.untracked.uint32(1),                           
-#              firstEvent=cms.untracked.uint32(1),
+             fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/122/314/10D7BE65-3FD9-DE11-BED4-0026189438F4.root'),   
+             firstRun=cms.untracked.uint32(122314),
+             firstLuminosityBlock = cms.untracked.uint32(1),                           
+             firstEvent=cms.untracked.uint32(1),
+             numberEventsInLuminosityBlock=cms.untracked.uint32(1)
              )
 
 process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
@@ -47,7 +45,7 @@ process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
       record = cms.string('LumiSectionDataRcd'),
-      tag = cms.string('testlumiroot')
+      tag = cms.string('testlumimixed')
     )
 )
 
@@ -55,7 +53,7 @@ process.lumiProducer=cms.EDProducer("LumiProducer")
 process.test = cms.EDAnalyzer("TestLumiProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
-  fileName = cms.untracked.string('MC3XYProcessed.root')
+  fileName = cms.untracked.string('MinBiasPromptSkimProcessed.root')
 )
 
 process.p1 = cms.Path(process.lumiProducer * process.test)
