@@ -19,39 +19,33 @@ process.options = cms.untracked.PSet(
 )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
+process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
 process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+process.electronHcalTowerIsolationLcone.intRadius = 0.0
 #process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
-#process.extend(include("RecoEcal/EgammaClusterProducers/data/geometryForClustering.cff"))
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+process.load("PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
-from ElectroWeakAnalysis.ErsatzMEt.Reduced_ZeeFull_cff import newFileNames
+#from ElectroWeakAnalysis.ErsatzMEt.Reduced_ZeeFull_cff import newFileNames
 
 process.source = cms.Source("PoolSource",
-	fileNames = newFileNames
+#	fileNames = newFileNames
 	#fileNames = cms.untracked.vstring('/store/user/wardrope/Zee/Zee/652884fbfc42ebe755d455783d693c41//Zee_8.root')
-   # fileNames = cms.untracked.vstring(
-#		'/store/user/wardrope/FirstSkim/Zee_9.root'
- #   )
+    fileNames = cms.untracked.vstring("file:/tmp/rnandi/Zee_AODSIM.root")
+    #fileNames = cms.untracked.vstring()
 )
 
-from ElectroWeakAnalysis.ErsatzMEt.ersatzmet_cfi import ErsatzMEtParams 
+from ElectroWeakAnalysis.ZEE.ersatzmet_cfi import ErsatzMEtParams 
 #from ElectroWeakAnalysis.ErsatzMEt.EtaWeights_cff import EtaWeightsPS 
 process.ErsatzMEt = cms.EDAnalyzer('ErsatzMEt',
 ErsatzMEtParams,
-MCTruthCollection = cms.InputTag("genParticles"),
-CaloTowerCollection = cms.InputTag("towerMaker"),
-Zevent = cms.bool(False),
-mTPmin = cms.double(61.),
-mTPmax = cms.double(121.),
-etaWidth = cms.int32(7),
-phiWidth = cms.int32(25)
+Zevent = cms.bool(False)
 )
 # Other statements
 
-process.p = cms.Path(process.egammaIsolationSequence*process.ErsatzMEt)
-process.TFileService = cms.Service("TFileService",
-	fileName = cms.string("Results_ersatz.root"),
-)
-
+#process.p = cms.Path(process.egammaIsolationSequence*process.ErsatzMEt)
+process.p = cms.Path(process.ErsatzMEt)
+process.TFileService = cms.Service("TFileService", fileName = cms.string("Zee.root"))

@@ -15,7 +15,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Tue Nov 11 16:47:29 GMT 2008
-// $Id: ErsatzMEt.h,v 1.4 2009/10/12 23:57:09 rnandi Exp $
+// $Id: ErsatzMEt.h,v 1.1 2009/10/13 16:25:08 rnandi Exp $
 //
 //
 
@@ -63,6 +63,12 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 //Physics Tools
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -98,27 +104,29 @@ class ErsatzMEt : public edm::EDAnalyzer {
 //							const edm::Handle<reco::SuperClusterCollection>&);
 	std::map<reco::GsfElectronRef, reco::GsfElectronRef> probeFinder(const std::vector<reco::GsfElectronRef>&,
 							const edm::Handle<reco::GsfElectronCollection>);
-	reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::SuperClusterRef&, 
-					const edm::Handle<EcalRecHitCollection>&,
-					const edm::Handle<reco::CaloMETCollection>&, const double&, const int);
+	reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::SuperCluster&, 
+					const reco::MET&, const int); 
+	reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::GsfElectronRef&,
+					const reco::MET&);
+	bool isInBarrel(double);
+	bool isInEndCap(double);
+	bool isInFiducial(double);
+					
       	virtual void endJob();
 
       	// ----------member data ---------------------------
 	edm::InputTag MCTruthCollection_;
-	edm::InputTag ElectronCollection_, HybridScCollection_, M5x5ScCollection_, EBRecHitCollection_, EERecHitCollection_;
+	edm::InputTag ElectronCollection_, HybridScCollection_, M5x5ScCollection_;
 	edm::InputTag eIdRobust_, eIdRobustTight_;
-	edm::InputTag eIsoTrack_, eIsoEcal_, eIsoHcal_;
-	edm::InputTag TrackCollection_, CaloMEtCollection_;
+	edm::InputTag GenMEtCollection_, CaloMEtCollection_, T1MEtCollection_, PfMEtCollection_, TcMEtCollection_;
 	edm::InputTag CaloTowerCollection_;
 	edm::InputTag TriggerEvent_, TriggerResults_, TriggerPath_;
 	std::string TriggerName_, ProcessName_;
 	edm::TriggerNames TriggerNames_;
 	edm::ParameterSet hyb_fCorrPSet_, m5x5_fCorrPSet_;
-	double sigmaElectronicNoise_EB_;
 	double mW_, mZ_, mTPmin_, mTPmax_;
-	//should use enumerate to create indices for CutVector
-	//at moment, 0 = Elec Pt, 1 = EB Track Isolation, 2 = EB Ecal Isolation, 3 = Hcal Isolation, 4 = EE Track Isolation
-	//5 = EE Ecal Isolation, 6 = EE Hcal Isolation
+	double BarrelEtaMax_, EndCapEtaMin_, EndCapEtaMax_;
+	
 	enum cut_index_t { EtCut_, EB_sIhIh_, EB_dEtaIn_, EB_dPhiIn_, EB_TrckIso_, EB_EcalIso_, EB_HcalIso_,
 				EE_sIhIh_, EE_dEtaIn_, EE_dPhiIn_, EE_TrckIso_, EE_EcalIso_, EE_HcalIso_};
 
@@ -133,51 +141,59 @@ class ErsatzMEt : public edm::EDAnalyzer {
 	edm::ESHandle<CaloTopology> pTopology_;
 	//Output variables
 	TTree* t_;
-	double TotEClus_;
-	int TotNProbes_;
 	int nTags_, nProbes_;
-	double recoCaloMEt_;
+	double CaloMEt_, T1MEt_, PfMEt_, TcMEt_;
+	double CaloMEtphi_, T1MEtphi_, PfMEtphi_, TcMEtphi_;
 	int McElec_nZmum_, McElec_nFinal_;
-	double McZ_m_, McZ_rescM_, McZ_Pt_, McZ_Phi_, McZ_Eta_;
-	double McZ_rescPt_, McZ_rescEta_, McZ_rescPhi_;
+	double McZ_m_, McZ_pt_, McZ_phi_, McZ_eta_, McZ_y_;
+	double McZ_rescM_, McZ_rescPt_, McZ_rescEta_, McZ_rescPhi_, McZ_rescY_;
 
-	int nRecHitsInStrip_[nEntries_arr_], nRecHitsInCone_[nEntries_arr_];
-	int probe_nClus_[nEntries_arr_], probe_elecMatch_[nEntries_arr_];
+	int probe_nClus_[nEntries_arr_];
 	int tag_q_[nEntries_arr_];
 	double tag_pt_[nEntries_arr_], tag_eta_[nEntries_arr_], tag_phi_[nEntries_arr_];
+	//double tag_caloV1_rescPt_[nEntries_arr_], tag_caloV1_rescEta_[nEntries_arr_], tag_caloV1_rescPhi_[nEntries_arr_];
+	//double tag_caloV2_rescPt_[nEntries_arr_], tag_caloV2_rescEta_[nEntries_arr_], tag_caloV2_rescPhi_[nEntries_arr_];
+	//double tag_caloV3_rescPt_[nEntries_arr_], tag_caloV3_rescEta_[nEntries_arr_], tag_caloV3_rescPhi_[nEntries_arr_];
+	//double tag_caloV4_rescPt_[nEntries_arr_], tag_caloV4_rescEta_[nEntries_arr_], tag_caloV4_rescPhi_[nEntries_arr_];
 	double tag_rescPt_[nEntries_arr_], tag_rescEta_[nEntries_arr_], tag_rescPhi_[nEntries_arr_];
 	double tag_sIhIh_[nEntries_arr_], tag_dPhiIn_[nEntries_arr_], tag_dEtaIn_[nEntries_arr_];
-	double tag_isoTrack_[nEntries_arr_], tag_isoEcal_[nEntries_arr_], tag_isoHcal_[nEntries_arr_];
+	double tag_trckIso_[nEntries_arr_], tag_ecalIso_[nEntries_arr_], tag_hcalIso_[nEntries_arr_];
+	double tag_e2x5Max_[nEntries_arr_], tag_e1x5Max_[nEntries_arr_], tag_e5x5_[nEntries_arr_];
+	double tag_hoe_[nEntries_arr_], tag_eop_[nEntries_arr_], tag_pin_[nEntries_arr_], tag_pout_[nEntries_arr_];
 	int probe_q_[nEntries_arr_];	
 	double probe_pt_[nEntries_arr_], probe_eta_[nEntries_arr_], probe_phi_[nEntries_arr_];
 	double probe_rescPt_[nEntries_arr_], probe_rescEta_[nEntries_arr_], probe_rescPhi_[nEntries_arr_];
-	double probe_sIhIh_[nEntries_arr_], probe_isoTrack_[nEntries_arr_];
+	double probe_sIhIh_[nEntries_arr_], probe_dPhiIn_[nEntries_arr_], probe_dEtaIn_[nEntries_arr_];
+	double probe_trckIso_[nEntries_arr_], probe_ecalIso_[nEntries_arr_], probe_hcalIso_[nEntries_arr_];
 	double probe_e2x5Max_[nEntries_arr_], probe_e1x5Max_[nEntries_arr_], probe_e5x5_[nEntries_arr_];
-	double rechit_E_[nEntries_arr_];
-	double Z_pt_[nEntries_arr_];
+	double probe_hoe_[nEntries_arr_], probe_eop_[nEntries_arr_], probe_pin_[nEntries_arr_], probe_pout_[nEntries_arr_];
+	double Z_pt_[nEntries_arr_], Z_eta_[nEntries_arr_], Z_phi_[nEntries_arr_], Z_m_[nEntries_arr_], Z_y_[nEntries_arr_];
+	double Z_rescPt_[nEntries_arr_], Z_rescEta_[nEntries_arr_], Z_rescPhi_[nEntries_arr_], Z_rescM_[nEntries_arr_], Z_rescY_[nEntries_arr_];
 	double Z_probe_dPhi_[nEntries_arr_];
-	double ErsatzV1CaloMEt_[nEntries_arr_], ErsatzV1CaloMt_[nEntries_arr_];
-	double ErsatzV1CaloMEtPhi_[nEntries_arr_];
-	double ErsatzV1aCaloMEt_[nEntries_arr_], ErsatzV1aCaloMEtPhi_[nEntries_arr_], ErsatzV1aCaloMt_[nEntries_arr_];
-	double ErsatzV1bCaloMEt_[nEntries_arr_], ErsatzV1bCaloMEtPhi_[nEntries_arr_], ErsatzV1bCaloMt_[nEntries_arr_];
-	double ErsatzV1cCaloMEt_[nEntries_arr_], ErsatzV1cCaloMEtPhi_[nEntries_arr_], ErsatzV1cCaloMt_[nEntries_arr_];
-	double ErsatzV2CaloMEt_[nEntries_arr_], ErsatzV2CaloMt_[nEntries_arr_];
-	double ErsatzV2CaloMEtPhi_[nEntries_arr_];
-	double Ersatz_Mesc_[nEntries_arr_], ErsatzV1_Mesc_[nEntries_arr_];
-	double Ersatz_rescMesc_[nEntries_arr_], ErsatzV1_rescMesc_[nEntries_arr_];
+	double ErsatzV1CaloMEt_[nEntries_arr_], ErsatzV1CaloMt_[nEntries_arr_], ErsatzV1CaloMEtPhi_[nEntries_arr_];
+	double ErsatzV2CaloMEt_[nEntries_arr_], ErsatzV2CaloMEtPhi_[nEntries_arr_], ErsatzV2CaloMt_[nEntries_arr_];
+	double ErsatzV3CaloMEt_[nEntries_arr_], ErsatzV3CaloMEtPhi_[nEntries_arr_], ErsatzV3CaloMt_[nEntries_arr_];
+	double ErsatzV4CaloMEt_[nEntries_arr_], ErsatzV4CaloMEtPhi_[nEntries_arr_], ErsatzV4CaloMt_[nEntries_arr_];
+	double ErsatzV1T1MEt_[nEntries_arr_], ErsatzV1T1Mt_[nEntries_arr_], ErsatzV1T1MEtPhi_[nEntries_arr_];
+	double ErsatzV1PfMEt_[nEntries_arr_], ErsatzV1PfMt_[nEntries_arr_], ErsatzV1PfMEtPhi_[nEntries_arr_];
+	double ErsatzV1TcMEt_[nEntries_arr_], ErsatzV1TcMt_[nEntries_arr_], ErsatzV1TcMEtPhi_[nEntries_arr_];
+	double ErsatzV1_Mesc_[nEntries_arr_], ErsatzV1_rescMesc_[nEntries_arr_];
+	double ErsatzV2_Mesc_[nEntries_arr_], ErsatzV2_rescMesc_[nEntries_arr_];
+	double ErsatzV3_Mesc_[nEntries_arr_], ErsatzV3_rescMesc_[nEntries_arr_];
+	double ErsatzV4_Mesc_[nEntries_arr_], ErsatzV4_rescMesc_[nEntries_arr_];
 
-	double McElec_pt_[nEntries_arr_], McElec_eta_[nEntries_arr_], McElec_phi_[nEntries_arr_],
-		McElec_rescPt_[nEntries_arr_], McElec_rescEta_[nEntries_arr_], McElec_rescPhi_[nEntries_arr_]; 
-	double McProbe_pt_[nEntries_arr_], McProbe_eta_[nEntries_arr_], McProbe_rescPt_[nEntries_arr_], McProbe_rescEta_[nEntries_arr_]; 
-	double McProbe_phi_[nEntries_arr_], McProbe_rescPhi_[nEntries_arr_];
-	double McElecProbe_dPhi_[nEntries_arr_], McElecProbe_dR_[nEntries_arr_];
+	double McElec_pt_[nEntries_arr_], McElec_eta_[nEntries_arr_], McElec_phi_[nEntries_arr_];
+	double McElec_rescPt_[nEntries_arr_], McElec_rescEta_[nEntries_arr_], McElec_rescPhi_[nEntries_arr_]; 
+	double McProbe_pt_[nEntries_arr_], McProbe_eta_[nEntries_arr_], McProbe_phi_[nEntries_arr_]; 
+	double McProbe_rescPt_[nEntries_arr_], McProbe_rescEta_[nEntries_arr_], McProbe_rescPhi_[nEntries_arr_]; 
+	double McElecProbe_dPhi_[nEntries_arr_], McElecProbe_dEta_[nEntries_arr_], McElecProbe_dR_[nEntries_arr_];
 
 	double probe_d_MCE_SCE_[nEntries_arr_];
-	double probe_UnclusEcalE_[nEntries_arr_], probe_HcalEt01_[nEntries_arr_], probe_HcalEt015_[nEntries_arr_];
-	double probe_HcalEt02_[nEntries_arr_],probe_HcalEt025_[nEntries_arr_];
-	double probe_HcalE015_[nEntries_arr_];
-	double probe_E_[nEntries_arr_], probe_rawE_[nEntries_arr_], probe_fEtaCorrE_[nEntries_arr_], probe_fBremCorrE_[nEntries_arr_];
-	double probe_EAdd_[nEntries_arr_];
+	double probe_sc_pt_[nEntries_arr_], probe_sc_eta_[nEntries_arr_], probe_sc_phi_[nEntries_arr_]; 
+	double probe_sc_E_[nEntries_arr_], probe_sc_rawE_[nEntries_arr_], probe_sc_nClus_[nEntries_arr_];
+	double probe_scV2_E_[nEntries_arr_];
+	double probe_scV3_E_[nEntries_arr_];
+	double probe_scV4_E_[nEntries_arr_];
 
 	int iComb_;
 };

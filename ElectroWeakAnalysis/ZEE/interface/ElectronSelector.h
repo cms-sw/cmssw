@@ -1,15 +1,13 @@
 std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfElectronRef>& electrons,
-							EcalClusterLazyTools lazyTools,
-							const std::vector<edm::Handle<edm::ValueMap<double> > >& eIsoMap,
 							const edm::Handle<trigger::TriggerEvent>& pHLT, const int filterId,
 							 const std::vector<double>& Cuts )
 {
 	std::vector<reco::GsfElectronRef> ChosenOnes;
 	const trigger::Keys& ring = pHLT->filterKeys(filterId);
 	const trigger::TriggerObjectCollection& HltObjColl = pHLT->getObjects();
-	const edm::ValueMap<double>& eIsoMapTrk = *eIsoMap[0];
-	const edm::ValueMap<double>& eIsoMapEcal = *eIsoMap[1];
-	const edm::ValueMap<double>& eIsoMapHcal = *eIsoMap[2];
+	//const edm::ValueMap<double>& eIsoMapTrk = *eIsoMap[0];
+	//const edm::ValueMap<double>& eIsoMapEcal = *eIsoMap[1];
+	//const edm::ValueMap<double>& eIsoMapHcal = *eIsoMap[2];
 	edm::LogDebug_("electronSelector", "", 16)<< "Number of electrons to select from = "<< electrons.size();
 	for(std::vector<reco::GsfElectronRef>::const_iterator Relec = electrons.begin(); Relec != electrons.end(); ++Relec)
 	{
@@ -29,12 +27,12 @@ std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfEl
 //			if(HLTMatch) ChosenOnes.push_back(elec);
 			if(HLTMatch)
 			{
-				std::vector<float> vCov = lazyTools.localCovariances(*(elec->superCluster()->seed())) ;
 				if(fabs(scEta) < 1.479)
 				{
-					edm::LogDebug_("electronSelector","",32)<<"SigIetaIeta = "<< sqrt(vCov[0])
+					float sIhIh = elec->scSigmaIEtaIEta();
+					edm::LogDebug_("electronSelector","",32)<<"SigIetaIeta = "<< sIhIh 
 										<<"\tCut Value = "<< Cuts[1];
-					if(sqrt(vCov[0]) < Cuts[1])
+					if(sIhIh < Cuts[1])
 					{
 					    edm::LogDebug_("elecSel","",39)<<"dEta = "<< elec->deltaEtaSuperClusterTrackAtVtx()
 										<<"\tCut Value = "<< Cuts[2];
@@ -44,26 +42,31 @@ std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfEl
 											<<"\tCut Value = "<< Cuts[3];
 					        if(fabs(elec->deltaPhiSuperClusterTrackAtVtx()) < Cuts[3])
 					        {
-						    edm::LogDebug_("","",29) << "Track isolation = " << eIsoMapTrk[elec] 
+						    float trckiso = elec->isolationVariables03().tkSumPt;
+						    edm::LogDebug_("","",29) << "Track isolation = " << trckiso 
 										<<"\tCut Value = "<< Cuts[4];
-						    if(eIsoMapTrk[elec] < Cuts[4])
+						    if(trckiso < Cuts[4])
 						    {				
-							edm::LogDebug_("","",29) << "ECAL isolation = " << eIsoMapEcal[elec] 
+							float ecaliso = elec->isolationVariables04().ecalRecHitSumEt;
+							edm::LogDebug_("","",29) << "ECAL isolation = " << ecaliso 
 										<<"\tCut Value = "<< Cuts[5];
-							if(eIsoMapEcal[elec] < Cuts[5])
+							if(ecaliso < Cuts[5])
 							{
-							    edm::LogDebug_("","",29) << "HCAL isolation = " << eIsoMapHcal[elec] 
+							    float hcaliso = elec->isolationVariables04().hcalDepth1TowerSumEt
+									+ elec->isolationVariables04().hcalDepth2TowerSumEt;
+							    edm::LogDebug_("","",29) << "HCAL isolation = " << hcaliso 
 											<<"\tCut Value = "<< Cuts[6];
-								if(eIsoMapHcal[elec] < Cuts[6]) ChosenOnes.push_back(elec);
+								if(hcaliso < Cuts[6]) ChosenOnes.push_back(elec);
 							}
 						    }
 						}
 					    }
 					}
 				}else{
-					edm::LogDebug_("electronSelector","",32)<<"SigIetaIeta = "<< sqrt(vCov[0])
+					float sIhIh = elec->scSigmaIEtaIEta();
+					edm::LogDebug_("electronSelector","",32)<<"SigIetaIeta = "<< sIhIh
 										<<"\tCut Value = "<< Cuts[7];
-					if(sqrt(vCov[0]) < Cuts[7])
+					if(sIhIh < Cuts[7])
 					{
 					    edm::LogDebug_("elecSel","",39)<<"dEta = "<< elec->deltaEtaSuperClusterTrackAtVtx()
 										<<"\tCut Value = "<< Cuts[8];
@@ -73,17 +76,21 @@ std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfEl
 											<<"\tCut Value = "<< Cuts[9];
 					        if(fabs(elec->deltaPhiSuperClusterTrackAtVtx()) < Cuts[9])
 					        {
-						    edm::LogDebug_("","",29) << "Track isolation = " << eIsoMapTrk[elec] 
+						    float trckiso = elec->isolationVariables03().tkSumPt;
+						    edm::LogDebug_("","",29) << "Track isolation = " << trckiso 
 										<<"\tCut Value = "<< Cuts[10];
-						    if(eIsoMapTrk[elec] < Cuts[10])
+						    if(trckiso < Cuts[10])
 						    {				
-							edm::LogDebug_("","",29) << "ECAL isolation = " << eIsoMapEcal[elec] 
+							float ecaliso = elec->isolationVariables04().ecalRecHitSumEt;
+							edm::LogDebug_("","",29) << "ECAL isolation = " << ecaliso 
 										<<"\tCut Value = "<< Cuts[11];
-							if(eIsoMapEcal[elec] < Cuts[11])
+							if(ecaliso < Cuts[11])
 							{
-							    edm::LogDebug_("","",29) << "HCAL isolation = " << eIsoMapHcal[elec] 
+							    float hcaliso = elec->isolationVariables04().hcalDepth1TowerSumEt
+									+ elec->isolationVariables04().hcalDepth2TowerSumEt;
+							    edm::LogDebug_("","",29) << "HCAL isolation = " << hcaliso 
 											<<"\tCut Value = "<< Cuts[12];
-								if(eIsoMapHcal[elec] < Cuts[12]) ChosenOnes.push_back(elec);
+								if(hcaliso < Cuts[12]) ChosenOnes.push_back(elec);
 							}
 						    }
 						}

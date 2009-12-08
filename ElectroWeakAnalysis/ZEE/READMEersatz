@@ -44,8 +44,7 @@ Mass Correction: due to the difference in mass between the W and Z bosons. This 
 boosting into the Z rest frame, multiplying by mW/mZ and boosting back into the Lab frame.
 
 Supercluster Energy Corrections: due to energy loss and radiation in the tracker. This includes 
-standard supercluster corrections such as f(eta), f(brem) and f(Et,eta) as well as extra ones: 
-zero suppression correction, hybrid supercluster strip correction.
+standard supercluster corrections such as f(eta), f(brem) and f(Et,eta). 
 
 Acceptance Correction: In Zee events both electrons are required to be within |eta| < 2.5, while 
 the neutrino in a Wenu event is unconstrained. This correction is applied using a Wenu Monte 
@@ -84,15 +83,16 @@ AnalysisErsatz.cc ErsatzMEt.cc
 
 Interface Files:
 interface/
-AnalysisErsatz.h CaloVectors.h ElectronSelector.h ErsatzMEt.h SCEnergyCorrections.h UniqueElectrons.h
+AnalysisErsatz.h CaloVectors.h ElectronSelector.h ErsatzMEt.h SCEnergyCorrections.h 
+UniqueElectrons.h
 
 Python Configuration Files:
 test/
-ersatzmet_cfg.py ersatzmet_cfi.py Zersatzmet_cfg.py
+analysisersatz_cfg.py ersatzmet_cfg.py ersatzmet_cfi.py Zersatzmet_cfg.py
 
 ROOT macros:
 macros/
-ApplySelectionCuts.cpp CutValues.txt EtaWeights.txt PerformAnalysis.cpp PlotHistograms.cpp
+EtaWeights.txt PerformAnalysis.cpp StabilityPlots.cpp
 
 
 -------------------------------------------------------------------------------------------------
@@ -110,23 +110,13 @@ Set CMS environment:
 > cd CMSSW_3_1_4/src
 > cmsenv
 
-Checkout packages from CVS:
-
-You need to checkout the following packages from CVS:
-DataFormats/RecoCandidate
-EgammaAnalysis/EgammaIsolationProducers
-HLTrigger/HLTcore
-PhysicsTools/IsolationAlgos
-RecoEcal/EgammaCoreTools
-RecoEgamma/EgammaIsolationAlgos
-
-To do this use:
-
-> cvs co -r CMSSW_3_1_4 [FirstName]/[SecondName]
-
 Checkout the Ersatz MET code from CVS:
 
 > cvs co ElectroWeakAnalysis/ZEE
+
+Enter the analysis module:
+
+> cd ElectroWeakAnalysis/ZEE
 
 Create a python directory and put the parameter file ersatzmet_cfi.py in it so that it is seen in 
 the python path.
@@ -158,7 +148,8 @@ You can write a script to do the 3 setup tasks above so you don't have to type t
 
 > cd ElectroWeakAnalysis/ZEE
 
-Create a CRAB config file (crab.cfg). Zersatzmet_cfg.py in test/ folder is the config file to run.
+Create a CRAB config file (crab.cfg). Zersatzmet_cfg.py in test/ folder is the config file to run 
+if you are using Monte Carlo Zee events, otherwise run ersatzmet_cfg.py.
 
 Create and submit CRAB jobs to the GRID:
 
@@ -185,8 +176,20 @@ Start ROOT, compile and run macro:
 [0] .L PerformAnalysis.cpp+
 [1] PerformAnalysis([process], [weight], [datapath])
 
-This creates a root file [process].root with interesting plots. It also outputs f, fprime, 
-efficiency, efficiencyprime, A, B, C, D and errors to screen.
+[process]Plots.root is the name of the output file.
+[weight] is the event weight.
+[datapath] is the data path e.g. if data is in /tmp/rnandi/ [datapath] = "/tmp/rnandi/"
+
+This creates a root file [process].root with plots and outputs interesting ones to png files. 
+It also outputs f, fprime, efficiency, efficiencyprime, A, B, C, D and errors to screen.
+
+You can also run StabilityPlots.cpp:
+> root -l
+[0] .L StabilityPlots.cpp+
+[1] StabilityPlots()   
+
+This takes [process]Plots.root and outputs plots of f and fprime as a function of MET cut in png 
+files.
 
 
 -------------------------------------------------------------------------------------------------
@@ -197,4 +200,4 @@ Robin Nandi
 
 Robin.James.Nandi@Cern.ch
 
-17 October 2009
+8 December 2009

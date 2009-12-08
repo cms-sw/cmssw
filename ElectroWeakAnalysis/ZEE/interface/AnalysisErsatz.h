@@ -13,7 +13,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Fri Nov 14 15:00:43 GMT 2008
-// $Id: AnalysisErsatz.h,v 1.1 2009/04/23 14:19:41 wardrope Exp $
+// $Id: AnalysisErsatz.h,v 1.1 2009/10/14 13:20:39 rnandi Exp $
 //
 //
 
@@ -34,18 +34,19 @@
 //Egamma 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-//ECAL 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 //OtherObjects
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 //PhysicsTools
 //#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -81,9 +82,8 @@ class AnalysisErsatz : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 	edm::InputTag MCTruthCollection_;
-	edm::InputTag ElectronCollection_, EBRecHitCollection_, EERecHitCollection_; 
-	edm::InputTag eIsoTrack_, eIsoEcal_, eIsoHcal_;
-	edm::InputTag TrackCollection_, CaloMEtCollection_, GenMEtCollection_;
+	edm::InputTag ElectronCollection_; 
+	edm::InputTag CaloMEtCollection_, T1MEtCollection_, PfMEtCollection_, TcMEtCollection_, GenMEtCollection_;
 	bool ErsatzEvent_, C_Fiducial_;
         enum cut_index_t { EtCut_, EB_sIhIh_, EB_dEtaIn_, EB_dPhiIn_, EB_TrckIso_, EB_EcalIso_, EB_HcalIso_,
                                 EE_sIhIh_, EE_dEtaIn_, EE_dPhiIn_, EE_TrckIso_, EE_EcalIso_, EE_HcalIso_};
@@ -109,14 +109,19 @@ class AnalysisErsatz : public edm::EDAnalyzer {
 	double McNu_vx_, McNu_vy_, McNu_vz_;
 	double McLeptons_dPhi_, McLeptons_dEta_, McLeptons_dR_;
 
+	double elec_q_[nEntries_arr_];
 	double elec_pt_[nEntries_arr_], elec_eta_[nEntries_arr_], elec_phi_[nEntries_arr_];
 	double elec_pt25_, elec_eta25_, elec_phi25_;
         double elec_sIhIh_[nEntries_arr_], elec_dPhiIn_[nEntries_arr_], elec_dEtaIn_[nEntries_arr_];
-        double elec_isoTrack_[nEntries_arr_], elec_isoEcal_[nEntries_arr_], elec_isoHcal_[nEntries_arr_];
+        double elec_trckIso_[nEntries_arr_], elec_ecalIso_[nEntries_arr_], elec_hcalIso_[nEntries_arr_];
+	double elec_e5x5_[nEntries_arr_], elec_e2x5Max_[nEntries_arr_], elec_e1x5Max_[nEntries_arr_];
+	double elec_hoe_[nEntries_arr_], elec_eop_[nEntries_arr_], elec_pin_[nEntries_arr_], elec_pout_[nEntries_arr_];
 
-	double Selected_nuPt_[nEntries_arr_],Selected_nuEta_[nEntries_arr_];
-	double trackMEt_x_, trackMEt_y_;
+	double Selected_nuPt_[nEntries_arr_], Selected_nuEta_[nEntries_arr_], Selected_nuPhi_[nEntries_arr_];
 	double caloMEt_, caloSumEt_, caloUESumEt_;
+	double t1MEt_, t1MEtPhi_, t1SumEt_;
+	double pfMEt_, pfMEtPhi_, pfSumEt_;
+	double tcMEt_, tcMEtPhi_, tcSumEt_;
 	double caloMEt25_, caloMEt30_;
 	double caloMEtECAL25_, caloMEtECAL30_;//using ECAL eta to restrict neutrino
 	double caloMEtPhi_, caloMEtPhi25_, caloMEtPhi30_;

@@ -1,32 +1,32 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
-reco::CaloClusterPtrVector CaloClusterVectorCopier(const reco::SuperClusterRef& sc);
+reco::CaloClusterPtrVector CaloClusterVectorCopier(const reco::SuperCluster& sc);
 
-reco::SuperCluster fEtaScCorr(const reco::SuperClusterRef& sc)
+reco::SuperCluster fEtaScCorr(const reco::SuperCluster& sc)
 {
 	reco::CaloClusterPtrVector bcs = CaloClusterVectorCopier(sc);		
-	double ieta = fabs(sc->eta())*(5/0.087);
+	double ieta = fabs(sc.eta())*(5/0.087);
 	double p0 = 40.2198;
 	double p1 = -3.03103e-6;
 	double newE;
 //                      std::cout << "Corrected E = Raw E * (1+ p1*(ieta - p0)*(ieta - p0))"<< std::endl;
-	if ( ieta < p0 ) newE = sc->rawEnergy();
-	else newE = sc->rawEnergy()/(1 + p1*(ieta - p0)*(ieta - p0));
+	if ( ieta < p0 ) newE = sc.rawEnergy();
+	else newE = sc.rawEnergy()/(1 + p1*(ieta - p0)*(ieta - p0));
 
-	reco::SuperCluster corrSc(newE, sc->position(), sc->seed(), bcs, sc->preshowerEnergy(), 0., 0.);
+	reco::SuperCluster corrSc(newE, sc.position(), sc.seed(), bcs, sc.preshowerEnergy(), 0., 0.);
 	return corrSc;
 }
 
-reco::SuperCluster fBremScCorr(const reco::SuperClusterRef& sc, const edm::ParameterSet& ps)
+reco::SuperCluster fBremScCorr(const reco::SuperCluster& sc, const edm::ParameterSet& ps)
 {
 	std::vector<double> fBrem = ps.getParameter<std::vector<double> >("fBremVec");
 	double bremFrLowThr = ps.getParameter<double>("brLinearLowThr");
 	double bremFrHighThr = ps.getParameter<double>("brLinearHighThr");
 	
 	reco::CaloClusterPtrVector bcs = CaloClusterVectorCopier(sc);		
-	double bremFrac = sc->phiWidth()/sc->etaWidth();	
-	double newE = sc->energy();
-	if(fabs(sc->eta()) < 1.479)
+	double bremFrac = sc.phiWidth()/sc.etaWidth();	
+	double newE = sc.energy();
+	if(fabs(sc.eta()) < 1.479)
 	{
 		reco::SuperCluster fEtaSC = fEtaScCorr(sc);
 		reco::CaloClusterPtrVector bcs = CaloClusterVectorCopier(sc);		
@@ -57,11 +57,11 @@ reco::SuperCluster fBremScCorr(const reco::SuperClusterRef& sc, const edm::Param
 	    fCorr = a*bremFrac*bremFrac + b*bremFrac + c;
 
 	newE /= fCorr;
-	reco::SuperCluster corrSc(newE, sc->position(), sc->seed(), bcs, sc->preshowerEnergy(), 0., 0.);
+	reco::SuperCluster corrSc(newE, sc.position(), sc.seed(), bcs, sc.preshowerEnergy(), 0., 0.);
 	return corrSc;
 }
 
-reco::SuperCluster fEtEtaCorr(const reco::SuperClusterRef& sc, const edm::ParameterSet& ps)
+reco::SuperCluster fEtEtaCorr(const reco::SuperCluster& sc, const edm::ParameterSet& ps)
 {
   // et -- Et of the SuperCluster (with respect to (0,0,0))
   // eta -- eta of the SuperCluster
@@ -70,7 +70,7 @@ reco::SuperCluster fEtEtaCorr(const reco::SuperClusterRef& sc, const edm::Parame
 	reco::SuperCluster fBremSC = fBremScCorr(sc, ps);
 	reco::CaloClusterPtrVector bcs = CaloClusterVectorCopier(sc);		
 
-	double eta = sc->eta();
+	double eta = sc.eta();
 	double et = fBremSC.energy()/cosh(eta);
 	double fCorr = 0.;
 
@@ -87,25 +87,25 @@ reco::SuperCluster fEtEtaCorr(const reco::SuperClusterRef& sc, const edm::Parame
 	if ( fCorr < 0.5 ) fCorr = 0.5;
 
 	double newE = et/(fCorr*cosh(eta));
-	reco::SuperCluster corrSc(newE, sc->position(), sc->seed(), bcs, sc->preshowerEnergy(), 0., 0.);
+	reco::SuperCluster corrSc(newE, sc.position(), sc.seed(), bcs, sc.preshowerEnergy(), 0., 0.);
 	return corrSc;
 }
 
-reco::SuperCluster fEAddScCorr(const reco::SuperClusterRef& sc, double Ecorr)
+reco::SuperCluster fEAddScCorr(const reco::SuperCluster& sc, double Ecorr)
 {
 	reco::CaloClusterPtrVector bcs = CaloClusterVectorCopier(sc);		
 	
-	double newE = sc->rawEnergy()+Ecorr; 
-	reco::SuperCluster corrSc(newE, sc->position(), sc->seed(), bcs, sc->preshowerEnergy(), 0., 0.);
+	double newE = sc.rawEnergy()+Ecorr; 
+	reco::SuperCluster corrSc(newE, sc.position(), sc.seed(), bcs, sc.preshowerEnergy(), 0., 0.);
 	return corrSc;
 }
 	
 
-reco::CaloClusterPtrVector CaloClusterVectorCopier(const reco::SuperClusterRef& sc)
+reco::CaloClusterPtrVector CaloClusterVectorCopier(const reco::SuperCluster& sc)
 {
   	reco::CaloClusterPtrVector clusters_v;
 
-  	for(reco::CaloCluster_iterator cluster = sc->clustersBegin(); cluster != sc->clustersEnd(); cluster ++)
+  	for(reco::CaloCluster_iterator cluster = sc.clustersBegin(); cluster != sc.clustersEnd(); cluster ++)
  	{
 		clusters_v.push_back(*cluster);
 	}
