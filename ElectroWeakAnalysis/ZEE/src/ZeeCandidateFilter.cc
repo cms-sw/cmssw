@@ -21,7 +21,7 @@
  Changes Log:
  12Feb09  First Release of the code for CMSSW_2_2_X
  17Sep09  First Release for CMSSW_3_1_X
-
+ 09Dec09  Option to ignore trigger
 
  Contact:
  Nikolaos.Rompotis@Cern.ch
@@ -31,7 +31,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Feb 12 11:22:04 CET 2009
-// $Id: ZeeCandidateFilter.cc,v 1.1 2009/05/22 11:43:15 rompotis Exp $
+// $Id: ZeeCandidateFilter.cc,v 1.1 2009/09/23 09:23:07 rompotis Exp $
 //
 //
 
@@ -98,7 +98,7 @@ class ZeeCandidateFilter : public edm::EDFilter {
 
   bool electronMatched2HLT_;
   double electronMatched2HLT_DR_;
-
+  bool useTriggerInfo_;
 };
 #endif
 //
@@ -157,6 +157,7 @@ IsolFilter","","HLT");
     ("metCollectionTag", metCollectionTag_D);
   //
   //
+  useTriggerInfo_ = iConfig.getUntrackedParameter<bool>("useTriggerInfo",true);
   electronMatched2HLT_ = iConfig.getUntrackedParameter<bool>("electronMatched2HLT");
   electronMatched2HLT_DR_=iConfig.getUntrackedParameter<double>("electronMatched2HLT_DR");
   //
@@ -164,11 +165,17 @@ IsolFilter","","HLT");
   //
   // now print a summary with what exactly the filter does:
   std::cout << "ZeeCandidateFilter: Running Zee Filter..." << std::endl;
-  std::cout << "ZeeCandidateFilter: HLT Path   " << hltpath_ << std::endl;
-  std::cout << "ZeeCandidateFilter: HLT Filter " <<hltpathFilter_<<std::endl;
+  if (useTriggerInfo_) {
+    std::cout << "ZeeCandidateFilter: HLT Path   " << hltpath_ << std::endl;
+    std::cout << "ZeeCandidateFilter: HLT Filter " <<hltpathFilter_<<std::endl;
+  }
+  else {
+    std::cout << "ZeeCandidateFilter: Trigger info will not be used here" 
+	      << std::endl;
+  }
   std::cout << "ZeeCandidateFilter: ET  > " << ETCut_ << std::endl;
   std::cout << "ZeeCandidateFilter: MET > " << METCut_ << std::endl;
-  if (electronMatched2HLT_) {
+  if (electronMatched2HLT_&& useTriggerInfo_) {
     std::cout << "ZeeCandidateFilter: at least one electron is required to "
 	      << "match an HLT object with DR < " << electronMatched2HLT_DR_
 	      << std::endl;
@@ -226,9 +233,10 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    else {
      //std::cout << "TriggerResults missing from this event.." << std::endl;
-     return false;  // RETURN: trigger absent in this event
+     if (useTriggerInfo_)
+       return false;  // RETURN: trigger absent in this event
    }
-   if (passTrigger == 0) {
+   if (passTrigger == 0 && useTriggerInfo_) {
      //std::cout<<"HLT path "<<hltpath_<<" does not fire in this event"
      //      <<std::endl;
      return false; // RETURN: trigger does not fire
@@ -249,9 +257,10 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    else {
      //std::cout << "HLT Filter " << hltpathFilter_.label() 
      //	       << " was not found in this event..." << std::endl;
-     return false; // RETURN: no objects that trigger
+     if (useTriggerInfo_)
+       return false; // RETURN: no objects that trigger
    }
-   if (numberOfHLTFilterObjects == 0) 
+   if (numberOfHLTFilterObjects == 0 && useTriggerInfo_) 
      return false; // RETURN: at least 1 HLT object
    // for trigger matching
    const trigger::TriggerObjectCollection& TOC(pHLT->getObjects());
@@ -317,7 +326,7 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    pat::Electron maxETelec2 = myElectrons[max_et_index2];
    //
    // one of them is matched to an HLT object .......................
-   if (electronMatched2HLT_) {
+   if (electronMatched2HLT_ && useTriggerInfo_) {
      int trigger_int_probe = 0;
      if (nF != filterInd) {
        const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
