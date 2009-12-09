@@ -26,14 +26,14 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 process.source= cms.Source("PoolSource",
               processingMode=cms.untracked.string('RunsAndLumis'),          
-              fileNames=cms.untracked.vstring('file:MinBiasPromptSkimProcessed.root'),
+              fileNames=cms.untracked.vstring('rfio:/castor/cern.ch/user/x/xiezhen/MinBiasPromptSkimProcessed-122314.root'),
               firstRun=cms.untracked.uint32(122314),
               firstLuminosityBlock = cms.untracked.uint32(1),
               firstEvent=cms.untracked.uint32(1),
               numberEventsInLuminosityBlock=cms.untracked.uint32(1)           
              )
 process.test = cms.EDAnalyzer("LumiCalculator",
-              showTriggerInfo= cms.untracked.bool(True)
+              showTriggerInfo= cms.untracked.bool(False)
              )
 
 process.p1 = cms.Path( process.test )

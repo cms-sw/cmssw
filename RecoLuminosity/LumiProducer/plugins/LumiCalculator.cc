@@ -310,23 +310,23 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c){
     recorded += lumiIt->intglumi*lumiIt->livefraction;  
   }
   *log_<<"  CMS Recorded Lumi (e+28cm^-2) : "<<recorded<<"\n";
-  *log_<<"  Effective Lumi (e+28cm^-2) per trigger path: "<<"\n";
+  *log_<<"  Effective Lumi (e+28cm^-2) per trigger path: "<<"\n\n";
   std::multimap<std::string,std::string>::iterator it;
   std::multimap<std::string,std::string>::iterator itBeg=trgpathMmap_.begin();
   std::multimap<std::string,std::string>::iterator itEnd=trgpathMmap_.end();
   unsigned int cc=0;
   for(it=itBeg;it!=itEnd;++it){
-    *log_<<cc<<"  "<<it->first<<" - "<<it->second<<" : ";
+    *log_<<"  "<<cc<<"  "<<it->first<<" - "<<it->second<<" : ";
     ++cc;
     std::map<std::string,hltPerPathInfo>::const_iterator hltIt=hltmap_.find(it->first);
     if( hltIt==hltmap_.end() ){
-      std::cout<<"HLT path "<<it->first<<" not found exception"<<std::endl;
+      std::cout<<"HLT path "<<it->first<<" not found"<<std::endl;
       *log_<<"\n";
       continue;
     }
     std::map<std::string,l1PerBitInfo>::const_iterator l1It=l1map_.find(it->second);
     if( l1It==l1map_.end() ){
-      std::cout<<"L1 bit "<<it->second<<" not found exception"<<std::endl;
+      std::cout<<"L1 bit "<<it->second<<" not found"<<std::endl;
       *log_<<"\n";
       continue;
     }
