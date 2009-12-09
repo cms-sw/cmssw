@@ -53,8 +53,6 @@ process.iterativeCone5GenJetsNoNuBSM = iterativeCone5GenJets.clone()
 # ZSP and JPT corrections
 process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
-#process.JetPlusTrackZSPCorrectorIcone5.VectorialCorrection  = cms.bool(True)
-#process.JetPlusTrackZSPCorrectorIcone5.UseResponseInVecCorr = cms.bool(False)
 
 # Analyzer module
 process.myanalysis = cms.EDAnalyzer(
