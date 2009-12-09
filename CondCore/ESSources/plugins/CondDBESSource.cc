@@ -150,17 +150,19 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   TagCollection::iterator it;
   TagCollection::iterator itBeg=m_tagCollection.begin();
   TagCollection::iterator itEnd=m_tagCollection.end();
-  //for(it=itBeg; it!=itEnd; ++it){
-  //  cond::ConnectionHandler::Instance().registerConnection(it->pfn,m_session,0);
-  //}
-
-  //  cond::ConnectionHandler::Instance().connect(&m_session);
+ 
+  typedef std::map<std::string, cond::DbSession> Sessions;
+  Session sessions;
   for(it=itBeg;it!=itEnd;++it){
-
-    //open db get tag info (i.e. the IOV token...)
-    cond::DbSession nsess = m_connection.createSession();
-    if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
-    nsess.open( it->pfn);
+    Sessions::iterator p = sessions.find( it->pfn);
+    cond::DbSession nsess;
+    if (p==sessions.end()) {
+      //open db get tag info (i.e. the IOV token...)
+      nsess = m_connection.createSession();
+      if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
+      nsess.open( it->pfn);
+      sessions.insert(std::make_pair(it->pfn,ness));
+    } else nsess = (*p).second;
     cond::MetaData metadata(nsess);
     cond::DbScopedTransaction transaction(nsess);
     transaction.start(true);
