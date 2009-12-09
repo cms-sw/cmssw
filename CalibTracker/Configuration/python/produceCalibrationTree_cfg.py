@@ -6,7 +6,7 @@ process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
+process.GlobalTag.globaltag = 'GR09_R_V1::All'
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
@@ -18,7 +18,7 @@ process.add_( cms.Service( "TFileService",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source (
     "PoolSource",
-#    fileNames = cms.untracked.vstring('/store/data/CRAFT09/Cosmics/ALCARECO/v1/000/109/046/E6C9E810-BD7C-DE11-8F94-000423D9997E.root'),
-fileNames = cms.untracked.vstring('file:../../CMSSW_3_2_7/src/E6C9E810-BD7C-DE11-8F94-000423D9997E.root'),
+    #from run = 123596, dataset = /MinimumBias/BeamCommissioning09-SD_AllMinBias-skim_GR09_P_V7_v1/RAW-RECO 
+    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-skim_GR09_P_V7_v1/0099/FE729FAE-40E3-DE11-9EE1-00261894386A.root'),
     secondaryFileNames = cms.untracked.vstring())
 
