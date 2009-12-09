@@ -13,12 +13,12 @@ DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB = cms.PSet(
         # Parameters for the updator
         # this is the RecHit1D algo!!
         DTLinearDriftFromDBAlgo,
-        segmCleanerMode = cms.int32(1),
+        segmCleanerMode = cms.int32(2),
         AlphaMaxPhi = cms.double(1.0),
         MaxAllowedHits = cms.uint32(50),
         # Parameters for the cleaner
         nSharedHitsMax = cms.int32(2),
-        AlphaMaxTheta = cms.double(0.1),
+        AlphaMaxTheta = cms.double(0.9),
         debug = cms.untracked.bool(False),
         nUnSharedHitsMin = cms.int32(2),
         # Parameters for  T0 fit segment in the Updator 
