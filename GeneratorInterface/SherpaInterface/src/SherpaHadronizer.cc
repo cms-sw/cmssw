@@ -73,14 +73,7 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   runInfo().setFilterEfficiency(
 				params.getUntrackedParameter<double>("filterEfficiency", -1.0));
 */  
-}
 
-SherpaHadronizer::~SherpaHadronizer()
-{
-}
-
-bool SherpaHadronizer::initializeForInternalPartons()
-{
   // The ids (names) of parameter sets to be read (Analysis,Run) to create Analysis.dat, Run.dat
   //They are given as a vstring.  
   std::vector<std::string> setNames = SherpaParameter.getParameter<std::vector<std::string> >("parameterSets");
@@ -96,7 +89,7 @@ bool SherpaHadronizer::initializeForInternalPartons()
       os<<(*itPar)<<std::endl;
     } 
   }
-  
+
   //To be conform to the default Sherpa usage create a command line:
   //name of executable  (only for demonstration, could also be empty)
   std::string shRun  = "./Sherpa";
@@ -116,6 +109,16 @@ bool SherpaHadronizer::initializeForInternalPartons()
   
   //initialize Sherpa with the command line
   Generator.InitializeTheRun(4,argv);
+}
+
+SherpaHadronizer::~SherpaHadronizer()
+{
+}
+
+bool SherpaHadronizer::initializeForInternalPartons()
+{
+  
+  //initialize Sherpa
   Generator.InitializeTheEventHandler();
   
   return true;
