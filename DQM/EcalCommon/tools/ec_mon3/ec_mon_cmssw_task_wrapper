@@ -514,11 +514,6 @@ if (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
 
   process.ecalEndcapMainSequence.remove(process.ecalEndcapPedestalOnlineTask)
 
-if (localDAQ == 1) | (globalDAQ == 1) :
-  process.ecalBarrelMainSequence.remove(process.ecalBarrelTrendTask)
-
-  process.ecalEndcapMainSequence.remove(process.ecalEndcapTrendTask)
-
 process.ecalClusterSequence = cms.Sequence(process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 
 process.ecalMonitorPath = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence)
