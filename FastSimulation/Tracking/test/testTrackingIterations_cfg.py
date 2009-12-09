@@ -5,7 +5,7 @@ process = cms.Process("TKAN")
 
 # The number of events to be processed.
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(5000)
 )
 
 ###process.Tracer = cms.Service("Tracer")
@@ -34,21 +34,21 @@ process.source = cms.Source(
 ##        #'file:SinglePion_FastFull_6.root',
 ##        #'file:SinglePion_FastFull_7.root'
 ##        'file:SinglePion_FastFull_All.root'
-       'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E0_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E1_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E2_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E3_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E3_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E4_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E4_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_4.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_4.root',
+##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E0_1.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E1_1.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E2_1.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E3_1.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E3_2.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E4_1.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E4_2.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_1.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_2.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_3.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_4.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_1.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_2.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_3.root',
+##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_4.root',
         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E7_1.root',
         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E7_2.root',
         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E7_3.root',
@@ -93,7 +93,7 @@ process.testTK = cms.EDFilter(
 
 # Famos SimHits 
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.GlobalTag.globaltag = "MC_31X_V9T::All"
+process.GlobalTag.globaltag = "MC_3XY_V14::All"
 ##process.GlobalTag.globaltag = "STARTUP_31X::All"
 
 process.load("FastSimulation.Configuration.FamosSequences_cff")

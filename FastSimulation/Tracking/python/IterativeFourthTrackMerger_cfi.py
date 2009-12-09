@@ -7,9 +7,9 @@ RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("zeroStepFilter"), 
                                                 cms.InputTag("firstfilter"),    #prova
                                                 cms.InputTag("secfilter"),      #prova          
                                                 cms.InputTag("thfilter")),      #prova          
-trackAlgo = cms.untracked.uint32(8) ##,
-##MinNumberOfTrajHits = cms.untracked.uint32(5),
-##MaxLostTrajHits = cms.untracked.uint32(0)
+trackAlgo = cms.untracked.uint32(8),
+MinNumberOfTrajHits = cms.untracked.uint32(5),
+MaxLostTrajHits = cms.untracked.uint32(0)
 )
 
 
