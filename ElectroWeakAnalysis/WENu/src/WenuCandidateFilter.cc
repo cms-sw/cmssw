@@ -25,7 +25,7 @@
  Changes Log:
  12Feb09  First Release of the code for CMSSW_2_2_X
  16Sep09  First Release for CMSSW_3_1_X
-
+ 09Dec09  Option to ignore trigger
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -94,6 +94,7 @@ class WenuCandidateFilter : public edm::EDFilter {
   double BarrelMaxEta_;
   double EndCapMaxEta_;
   double EndCapMinEta_;
+  bool useTriggerInfo_;
   bool electronMatched2HLT_;
   double electronMatched2HLT_DR_;
   bool vetoSecondElectronEvents_;
@@ -150,6 +151,7 @@ IsolFilter","","HLT");
   hltpathFilter_=iConfig.getUntrackedParameter<edm::InputTag>
     ("hltpathFilter",hltpathFilter_D);
   // trigger matching related:
+  useTriggerInfo_ = iConfig.getUntrackedParameter<bool>("useTriggerInfo",true);
   electronMatched2HLT_ = iConfig.getUntrackedParameter<bool>("electronMatched2HLT");
   electronMatched2HLT_DR_=iConfig.getUntrackedParameter<double>("electronMatched2HLT_DR");
   // electrons and other
@@ -166,8 +168,14 @@ IsolFilter","","HLT");
   //
   // now print a summary with what exactly the filter does:
   std::cout << "WenuCandidateFilter: Running Wenu Filter..." << std::endl;
-  std::cout << "WenuCandidateFilter: HLT Path   " << hltpath_ << std::endl;
-  std::cout << "WenuCandidateFilter: HLT Filter " <<hltpathFilter_<<std::endl;
+  if (useTriggerInfo_) {
+    std::cout << "WenuCandidateFilter: HLT Path   " << hltpath_ << std::endl;
+    std::cout << "WenuCandidateFilter: HLT Filter "<<hltpathFilter_<<std::endl;
+  }
+  else {
+    std::cout << "WenuCandidateFilter: Trigger info will not be used here" 
+	      << std::endl;
+  }
   std::cout << "WenuCandidateFilter: ET  > " << ETCut_ << std::endl;
   std::cout << "WenuCandidateFilter: MET > " << METCut_ << std::endl;
   if (vetoSecondElectronEvents_) {
@@ -178,7 +186,7 @@ IsolFilter","","HLT");
     std::cout << "WenuCandidateFilter: No veto for 2nd electron applied " 
 	      << std::endl;
   }
-  if (electronMatched2HLT_) {
+  if (electronMatched2HLT_ && useTriggerInfo_) {
     std::cout << "WenuCandidateFilter: Electron Candidate is required to "
 	      << "match an HLT object with DR < " << electronMatched2HLT_DR_
 	      << std::endl;
@@ -228,7 +236,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // the event should pass the trigger, otherwise no wenu candidate -*-*
    edm::Handle<edm::TriggerResults> HLTResults;
    iEvent.getByLabel(triggerCollectionTag_, HLTResults);
-     int passTrigger = 0;  
+   int passTrigger = 0;  
    if (HLTResults.isValid()) {
      edm::TriggerNames triggerNames;
      triggerNames.init(*HLTResults);
@@ -239,9 +247,10 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    else {
      //std::cout << "TriggerResults missing from this event.." << std::endl;
-     return false; // RETURN if trigger is missing
+     if (useTriggerInfo_)
+       return false; // RETURN if trigger is missing
    }
-   if (passTrigger == 0) {
+   if (passTrigger == 0 && useTriggerInfo_) {
      //std::cout<<"HLT path "<<hltpath_<<" does not fire in this event"
      //     <<std::endl;
      return false; // RETURN if event fails the trigger
@@ -262,7 +271,8 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    else {
      //std::cout << "HLT Filter " << hltpathFilter_.label() 
      //	       << " was not found in this event..." << std::endl;
-     return false; // RETURN if event fails the trigger
+     if (useTriggerInfo_)
+       return false; // RETURN if event fails the trigger
    }
    //std::cout << "==> HLT Filter " << hltpathFilter_.label() 
    //	     << " was found in this event..." << std::endl;
@@ -271,7 +281,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //const int iF = pHLT->filterIndex(hltpathFilter_);
    const trigger::TriggerObjectCollection& TOC(pHLT->getObjects());
    // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-   // ET CUT: at least one electron in the event with ET>20GeV -*-*-*-*-*
+   // ET CUT: at least one electron in the event with ET>ETCut_-*-*-*-*-*
    // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    // electron collection
    edm::Handle<pat::ElectronCollection> patElectron;
@@ -364,7 +374,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //const int iF = pHLT->filterIndex(hltpathFilter_);
    //const trigger::TriggerObjectCollection& TOC(pHLT->getObjects());
    //
-   if (electronMatched2HLT_) {
+   if (electronMatched2HLT_ && useTriggerInfo_) {
      int trigger_int_probe = 0;
      if (nF != filterInd) {
        const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
