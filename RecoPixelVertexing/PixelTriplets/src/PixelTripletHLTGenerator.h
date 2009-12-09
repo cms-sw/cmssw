@@ -53,6 +53,7 @@ private:
   bool useMScat;
   bool useBend;
   float dphi;
+  unsigned int theMaxTriplets;
 };
 #endif
 

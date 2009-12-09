@@ -9,6 +9,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
@@ -24,7 +25,8 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
       extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
       extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
       useMScat(cfg.getParameter<bool>("useMultScattering")),
-      useBend(cfg.getParameter<bool>("useBending"))
+      useBend(cfg.getParameter<bool>("useBending")),
+      theMaxTriplets(cfg.getParameter<unsigned int>("maxTriplets"))
 {
   dphi =  (useFixedPreFiltering) ?  cfg.getParameter<double>("phiPreFiltering") : 0;
 }
@@ -45,9 +47,9 @@ void PixelTripletHLTGenerator::hitTriplets(
     const edm::Event & ev,
     const edm::EventSetup& es)
 {
-
   OrderedHitPairs pairs; pairs.reserve(30000);
   OrderedHitPairs::const_iterator ip;
+  
   thePairGenerator->hitPairs(region,pairs,ev,es);
 
   if (pairs.size() ==0) return;
@@ -66,7 +68,7 @@ void PixelTripletHLTGenerator::hitTriplets(
   }
 
 
-  double imppar = region.originRBound();;
+  double imppar = region.originRBound();
   double curv = PixelRecoUtilities::curvature(1/region.ptMin(), es);
 
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
@@ -137,6 +139,7 @@ void PixelTripletHLTGenerator::hitTriplets(
       typedef vector<Hit>::const_iterator IH;
       for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) {
 
+        if (result.size() >= theMaxTriplets) break; 
         const Hit& hit = (*th);
         GlobalPoint point(hit->globalPosition().x()-region.origin().x(),
                           hit->globalPosition().y()-region.origin().y(),
@@ -174,6 +177,8 @@ void PixelTripletHLTGenerator::hitTriplets(
       } 
     }
   }
+  if (result.size() >= theMaxTriplets) edm::LogWarning("PixelTripletHLTGenerator - number of triples exceed maximum, truncated");
+
   delete [] thirdHitMap;
 }
 
