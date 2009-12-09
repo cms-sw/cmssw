@@ -161,7 +161,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       nsess = m_connection.createSession();
       if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
       nsess.open( it->pfn);
-      sessions.insert(std::make_pair(it->pfn,ness));
+      sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
     cond::MetaData metadata(nsess);
     cond::DbScopedTransaction transaction(nsess);
