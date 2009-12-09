@@ -45,7 +45,9 @@ bool HcalNoiseSummary::passHighLevelNoiseFilter(void) const
 
 int HcalNoiseSummary::noiseType(void) const
 {
-  return noisetype_;
+  if(maxRBXHits()>18) return 3;
+  else if(maxRBXHits()>8) return 2;
+  return 1;
 }
 
 int HcalNoiseSummary::noiseFilterStatus(void) const
