@@ -31,8 +31,7 @@ void FWTEventList::Add(const TEventList *alist)
          newpos++;
          alpos++;
       }
-      if (alpos >= an) break;
-      if (fList[i] == alst[alpos]) alpos++;
+      if (alpos < an && fList[i] == alst[alpos]) alpos++;
       newlist[newpos] = fList[i];
       newpos++;
    }
