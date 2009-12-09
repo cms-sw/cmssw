@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/11/30 07:13:41 $
- * $Revision: 1.14 $
+ * $Date: 2009/11/30 14:46:10 $
+ * $Revision: 1.15 $
  * $Author: dellaric $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -306,7 +306,10 @@ void DQMFEDIntegrityClient::fillHistograms(void){
     if (norm > 0) SummaryContent[k] = 1.0 - entry/norm;
     //      cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
-    if (SummaryContent[k] < 1. && SummaryContent[k] >=0.95) 
+    float threshold = 1.;
+    if (k==2 || k==3)          // for EE and EB only show yellow when more than 1% errors.
+         threshold = 0.99;
+    if (SummaryContent[k] < threshold && SummaryContent[k] >=0.95) 
          SummaryContent[k] = 0.949;
     reportSummaryMap->setBinContent(1, nSubsystems-k, SummaryContent[k]);
     sum = sum + SummaryContent[k];
