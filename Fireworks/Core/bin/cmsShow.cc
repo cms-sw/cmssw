@@ -1,4 +1,3 @@
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "Rtypes.h"
 #include "TROOT.h"
 #include "TEnv.h"
@@ -70,7 +69,6 @@ void run_app(TApplication &app, int argc, char **argv)
    edm::MessageLoggerQ::setMLscribe_ptr(boost::shared_ptr<edm::service::AbstractMLscribe>(new SilentMLscribe));
    edm::MessageDrop::instance()->messageLoggerScribeIsRunning = edm::MLSCRIBE_RUNNING_INDICATOR;
    //---------------------
-   AutoLibraryLoader::enable();
    std::auto_ptr<CmsShowMain> pMain( new CmsShowMain(argc,argv) );
    app.Run();
    pMain.reset();

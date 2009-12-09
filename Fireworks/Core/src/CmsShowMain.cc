@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.132 2009/12/04 22:52:04 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.133 2009/12/07 21:12:53 amraktad Exp $
 //
 
 // system include files
@@ -64,6 +64,8 @@
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
+
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
 
@@ -268,8 +270,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
       bool eveMode = vm.count(kEveOpt);
 
-      //Delay creating guiManager until here so that if we have a 'help' request we don't
-      // open any graphics
+      
+      //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
+      // open any graphics or build dictionaries
+      AutoLibraryLoader::enable();
+
       m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
                                                                   m_eiManager.get(),
                                                                   m_changeManager.get(),
