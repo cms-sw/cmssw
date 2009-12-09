@@ -60,8 +60,8 @@ process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
 #process.multiTrackValidator.outputFile = 'mtv.SAMPLE.root'
 
 
-process.cutsRecoTracks.algorithm = cms.string('ALGORITHM')
-process.cutsRecoTracks.quality = cms.string('QUALITY')
+process.cutsRecoTracks.algorithm = ['ALGORITHM']
+process.cutsRecoTracks.quality = ['QUALITY']
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 
