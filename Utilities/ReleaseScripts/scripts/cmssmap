@@ -1,6 +1,6 @@
 #!/usr/bin/env perl 
 #
-# $Id:$
+# $Id: cmssmap,v 1.1 2008/07/13 14:39:26 elmer Exp $
 #
 # Script to present, in a simpler format, the smap numbers for a given
 # from /proc/<pid>/smaps. The script is run as:
@@ -66,19 +66,23 @@
       $thelib =~ s/$cmspath\/sw\/$scramarch\///g;
       $thelib =~ s/$cmspath\/$scramarch\///g;
     }
-    # Now the next 6 entries should be of the form:
+    # Now the next 8 entries should be of the form:
     #   Size:                 8 kB
     #   Rss:                  8 kB
     #   Shared_Clean:         0 kB
     #   Shared_Dirty:         0 kB
     #   Private_Clean:        0 kB
     #   Private_Dirty:        8 kB
+    #   Swap:                 0 kB    (this field only in SLC5 kernels)
+    #   Pss:                  0 kB    (this field only in SLC5 kernels)
     $procsize = <PROCSMAPS>; chomp($procsize);
     $procrss  = <PROCSMAPS>; chomp($procrss);
     $procshrclean = <PROCSMAPS>; chomp($procshrclean);
     $procshrdirty = <PROCSMAPS>; chomp($procshrdirty);
     $procprivclean = <PROCSMAPS>; chomp($privclean);
     $procprivdirty = <PROCSMAPS>; chomp($procprivdirty);
+    $procswap = <PROCSMAPS>; chomp($procswap);
+    $procpss = <PROCSMAPS>; chomp($procpss);
     ($a1,$vsize,$a3) = split(' ',$procsize);
     ($a1,$rss,$a3) = split(' ',$procrss);
     #print $vsize."   ".$rss."    ".$thelib."\n";
