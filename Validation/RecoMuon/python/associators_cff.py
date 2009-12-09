@@ -397,14 +397,14 @@ tpToL3TrackAssociationFS = cms.EDProducer("TrackAssociatorEDProducer",
 
 tpToL3TkTrackTrackAssociationFS = cms.EDProducer("TrackAssociatorEDProducer",
     ignoremissingtrackcollection=cms.untracked.bool(True),
-    associator = cms.string('TrackAssociatorByHits'),
+    associator = cms.string('OnlineTrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3TkTracksFromL2','')
 )
 
 tpToL3L2TrackTrackAssociationFS = cms.EDProducer("TrackAssociatorEDProducer",
     ignoremissingtrackcollection=cms.untracked.bool(True),
-    associator = cms.string('TrackAssociatorByHits'),
+    associator = cms.string('OnlineTrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
     label_tr = cms.InputTag('hltL3Muons:L2Seeded')
 )
@@ -461,6 +461,9 @@ tpToL3TkMuonAssociationFS.tracksTag = 'hltL3TkTracksFromL2'
 tpToL3TkMuonAssociationFS.UseTracker = True
 tpToL3TkMuonAssociationFS.UseMuon = False
 tpToL3TkMuonAssociationFS.ignoreMissingTrackCollection = True
+tpToL3TkMuonAssociationFS.UseSplitting = False
+tpToL3TkMuonAssociationFS.UseGrouped = False
+tpToL3TkMuonAssociationFS.ThreeHitTracksAreSpecial = False 
 
 tpToL2MuonAssociationFS.tracksTag = 'hltL2Muons'
 tpToL2MuonAssociationFS.UseTracker = False
@@ -476,6 +479,9 @@ tpToL3MuonAssociationFS.tracksTag = 'hltL3Muons'
 tpToL3MuonAssociationFS.UseTracker = True
 tpToL3MuonAssociationFS.UseMuon = True
 tpToL3MuonAssociationFS.ignoreMissingTrackCollection = True
+tpToL3MuonAssociationFS.UseSplitting = False
+tpToL3MuonAssociationFS.UseGrouped = False
+tpToL3MuonAssociationFS.ThreeHitTracksAreSpecial = False 
 
 
 
