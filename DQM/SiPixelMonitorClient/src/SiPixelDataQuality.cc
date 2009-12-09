@@ -82,6 +82,9 @@ SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile) : offlineXMLfile_(of
 SiPixelDataQuality::~SiPixelDataQuality() {
   edm::LogInfo("SiPixelDataQuality") << 
     " Deleting SiPixelDataQuality " << "\n" ;
+  delete allmodsMap;
+  delete errmodsMap;
+  delete goodmodsMap;
 }
 
 
@@ -151,6 +154,9 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     SummaryReportMap->setBinLabel(14,"Pass rechit errorX cut",2);
     SummaryReportMap->setBinLabel(15,"Pass rechit errorY cut",2);
     SummaryReportMap->setBinLabel(16,"Pass hiteff cut",2);
+    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,1.,37.);
+    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,1.,37.);
+    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,1.,37.);
   }  
     SummaryPixel = bei->bookFloat("reportSummary");
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
@@ -2037,9 +2043,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 {
   //calculate eta and phi of the modules and fill a 2D plot:
   if(init){
-    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,1.,37.);
-    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,1.,37.);
-    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,1.,37.);
     count=0; errcount=0;
     //cout<<"Number of FEDs in the readout: "<<nFEDs<<endl;
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");

@@ -1299,6 +1299,10 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes, bool i
 		
       if((*it).find("Module_")!=string::npos) continue;
       if((*it).find("Panel_")!=string::npos) continue;
+      if((*it).find("Ladder_")!=string::npos) continue;
+      if((*it).find("Blade_")!=string::npos) continue;
+      if((*it).find("Layer_")!=string::npos) continue;
+      if((*it).find("Disk_")!=string::npos) continue;
       bei->cd(*it);
       bookOccupancyPlots(bei, hiRes, isbarrel);
       if(!hiRes){
@@ -1355,7 +1359,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   //occupancyprinting cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 	
-  if(dname.find("Module_")!=string::npos && currDir.find("Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01/Panel_2/Module_2")==string::npos){ // Skipping noisy module/ROC
+  if(dname.find("Layer_")!=string::npos || dname.find("Disk_")!=string::npos){ 
     vector<string> meVec = bei->getMEs();
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
@@ -1371,42 +1375,15 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 	    OccupancyMap = bei->get(path + "/" + (isbarrel?"barrel":"endcap") + "OccupancyMap");
 					
 	    if(OccupancyMap){ 
-	      //occupancyprinting cout<<"I found the occupancy map!"<<std::endl;
-						
-						
-	      if(!isbarrel)
-		{
-							
-		  //		cout << full_path << endl;
-		  //		
-		  //		cout << "OccupancyMap" <<endl;
-		  //		cout << "X:\t" << OccupancyMap->getTH2F()->GetNbinsX() << "\tY:\t" << OccupancyMap->getTH2F()->GetNbinsY() << endl;
-		  //		cout << OccupancyMap->getTH2F()->ProjectionX()->GetBinLowEdge(1) << "\t" << OccupancyMap->getTH2F()->ProjectionX()->GetBinLowEdge(OccupancyMap->getTH2F()->GetNbinsX()+1) << endl;
-		  //		cout << OccupancyMap->getTH2F()->ProjectionY()->GetBinLowEdge(1) << "\t" << OccupancyMap->getTH2F()->ProjectionY()->GetBinLowEdge(OccupancyMap->getTH2F()->GetNbinsY()+1) << endl;
-		  //
-		  //		cout << "ME" << endl;
-		  //		cout << "X:\t" << me->getTH2F()->GetNbinsX() << "\tY:\t" << me->getTH2F()->GetNbinsY() << endl;
-		  //		cout << me->getTH2F()->ProjectionX()->GetBinLowEdge(1) << "\t" << me->getTH2F()->ProjectionX()->GetBinLowEdge(me->getTH2F()->GetNbinsX()+1) << endl;
-		  //		cout << me->getTH2F()->ProjectionY()->GetBinLowEdge(1) << "\t" << me->getTH2F()->ProjectionY()->GetBinLowEdge(me->getTH2F()->GetNbinsY()+1) << endl;
-		  //		cout << "--------------------" << endl;						
-							
-		}
-						
 	      if(isbarrel && full_path.find("F/")!=string::npos) OccupancyMap->getTH2F()->Add(me->getTH2F());
-	      if(!isbarrel || (isbarrel && full_path.find("H/")!=string::npos)) 
-		{  
-		  TH2F *tmpHist = (TH2F*) OccupancyMap->getTH2F()->Clone("tmpHist");
-		  tmpHist->Reset();
-							
-		  for(int i=1; i!=me->getNbinsX()+1; i++) for(int j=1; j!=me->getNbinsY()+1; j++) tmpHist->SetBinContent(i,j,me->getBinContent(i,j));
-		  //							me->getTH2F()->Print();
-		  OccupancyMap->getTH2F()->Add(tmpHist);
-							
-		  tmpHist->Delete();
+	      else if(!isbarrel && full_path.find("Panel_2/Module_3")!=string::npos) OccupancyMap->getTH2F()->Add(me->getTH2F());
+	      else if((!isbarrel && full_path.find("Panel_2/Module_3")==string::npos) || (isbarrel && full_path.find("H/")!=string::npos)){  
+		for(int i=1; i!=me->getNbinsX()+1; i++) for(int j=1; j!=me->getNbinsY()+1; j++){
+		  float previous = OccupancyMap->getBinContent(i,j);
+		  OccupancyMap->setBinContent(i,j,previous + me->getBinContent(i,j));
 		}
-						
+	      }					
 	      OccupancyMap->getTH2F()->SetEntries(OccupancyMap->getTH2F()->Integral());
-						
 	    }       
 					
 	  }
