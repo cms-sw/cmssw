@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.11 2008/09/02 12:13:13 merkelp Exp $
+// $Id: SiPixelDigiModule.h,v 1.12 2009/06/18 10:24:06 zablocki Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -83,6 +83,7 @@ class SiPixelDigiModule {
 
   MonitorElement* meNDigisDisk_;
   MonitorElement* meADCDisk_;
+  MonitorElement* mePixDigisDisk_;
 
   MonitorElement* meNDigisRing_;
   MonitorElement* meADCRing_;

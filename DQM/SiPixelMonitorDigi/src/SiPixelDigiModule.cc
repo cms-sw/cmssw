@@ -87,10 +87,11 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
 	{
     if(twoD){
       // 2D hit map
-      hid = theHistogramId->setHistoId("hitmap",id_);
-      mePixDigis_ = theDMBE->book2D(hid,twodtitle,nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-      mePixDigis_->setAxisTitle("Columns",1);
-      mePixDigis_->setAxisTitle("Rows",2);
+      //FIX
+      //hid = theHistogramId->setHistoId("hitmap",id_);
+      //mePixDigis_ = theDMBE->book2D(hid,twodtitle,nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      //mePixDigis_->setAxisTitle("Columns",1);
+      //mePixDigis_->setAxisTitle("Rows",2);
     }
     else{
       // projections of 2D hit map
@@ -138,12 +139,15 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     uint32_t DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).layerName();
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
+    /*
+    //FIX
     // Number of digis
     meNDigisLay_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisLay_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
     meADCLay_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCLay_->setAxisTitle("ADC counts",1);
+    */
 	if(!reducedSet)
 	{
     if(twoD){
@@ -225,12 +229,23 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
+    //FIX
+    /*
     // Number of digis
     meNDigisDisk_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisDisk_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
     meADCDisk_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCDisk_->setAxisTitle("ADC counts",1);
+    */
+    //FIX
+    if(twoD){
+      // 2D hit map
+      mePixDigisDisk_ = theDMBE->book2D("hitmap_"+hid,twodtitle,260,0.,260.,160,0.,160.);
+      mePixDigisDisk_->setAxisTitle("Columns",1);
+      mePixDigisDisk_->setAxisTitle("Rows",2);
+    }
+
   }
   if(type==6 && endcap){
     uint32_t panel= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).pannelName();
@@ -316,7 +331,7 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
 	}
       }
       if(layon && barrel){
-	(meADCLay_)->Fill((float)adc);
+	//(meADCLay_)->Fill((float)adc);
 	if(!reducedSet)
 	{
 	if(twoD){
@@ -357,7 +372,10 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
 	(meADCBlade_)->Fill((float)adc);
       }
       if(diskon && endcap){
-	(meADCDisk_)->Fill((float)adc);
+	//(meADCDisk_)->Fill((float)adc);
+        if(twoD){
+          (mePixDigisDisk_)->Fill((float)col,(float)row);
+        }
       }
       if(ringon && endcap){
 	(meADCRing_)->Fill((float)adc);
@@ -373,10 +391,10 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
     }
     if(modon) (meNDigis_)->Fill((float)numberOfDigis);
     if(ladon && barrel) (meNDigisLad_)->Fill((float)numberOfDigis);
-    if(layon && barrel) (meNDigisLay_)->Fill((float)numberOfDigis);
+    //if(layon && barrel) (meNDigisLay_)->Fill((float)numberOfDigis);
     if(phion && barrel) (meNDigisPhi_)->Fill((float)numberOfDigis);
     if(bladeon && endcap) (meNDigisBlade_)->Fill((float)numberOfDigis);
-    if(diskon && endcap) (meNDigisDisk_)->Fill((float)numberOfDigis);
+    //if(diskon && endcap) (meNDigisDisk_)->Fill((float)numberOfDigis);
     if(ringon && endcap) (meNDigisRing_)->Fill((float)numberOfDigis);
     //std::cout<<"number of digis="<<numberOfDigis<<std::endl;
    
