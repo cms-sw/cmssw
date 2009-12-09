@@ -13,6 +13,8 @@ options.register('globalTag',
                  "GlobalTag")
 options.parseArguments()
 
+import FWCore.ParameterSet.Config as cms
+
 
 process = cms.Process("TEST")
 
