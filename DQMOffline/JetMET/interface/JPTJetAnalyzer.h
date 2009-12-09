@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2009/12/04 07:23:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/12/04 11:00:25 $
+ *  $Revision: 1.4 $
  *  \author N. Cripps - Imperial
  */
 
@@ -46,7 +46,7 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   void beginJob(const edm::EventSetup& eventSetup, DQMStore* dqmStore);
   
   /// Do the analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet, double& pt1, double& pt2, double& pt3);
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets);
   
   /// Finish up a job
@@ -76,12 +76,16 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
     MonitorElement* phiHisto;
     MonitorElement* etaHisto;
     MonitorElement* nHitsHisto;
+    MonitorElement* nLayersHisto;
     MonitorElement* ptVsEtaHisto;
+    MonitorElement* dzHisto;
+    MonitorElement* dxyHisto;
     MonitorElement* trackDirectionJetDRHisto;
     MonitorElement* trackImpactPointJetDRHisto;
     TrackHistograms();
     TrackHistograms(MonitorElement* theNTracksHisto, MonitorElement* thePtHisto, MonitorElement* thePhiHisto, MonitorElement* theEtaHisto,
-                    MonitorElement* theNHitsHisto, MonitorElement* thePtVsEtaHisto,
+                    MonitorElement* theNHitsHisto, MonitorElement* theNLayersHisto, MonitorElement* thePtVsEtaHisto,
+                    MonitorElement* dzHisto, MonitorElement* dxyHisto,
                     MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPointJetDRHisto);
   };
   
@@ -92,6 +96,7 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   void getConfigForTrackHistograms(const std::string& tag, const edm::ParameterSet& psetContainingConfigPSet,std::ostringstream* pDebugStream = NULL);
   /// Book histograms and profiles
   MonitorElement* bookHistogram(const std::string& name, const std::string& title, const std::string& xAxisTitle, DQMStore* dqm);
+  MonitorElement* book2DHistogram(const std::string& name, const std::string& title, const std::string& xAxisTitle, const std::string& yAxisTitle, DQMStore* dqm);
   MonitorElement* bookProfile(const std::string& name, const std::string& title, const std::string& xAxisTitle, const std::string& yAxisTitle, DQMStore* dqm);
   /// Book all histograms
   void bookHistograms(DQMStore* dqm);
@@ -144,11 +149,18 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   jptJetAnalysis::StripSignalOverNoiseCalculator* sOverNCalculator_;
   
   // Histograms
+  MonitorElement *JetE_, *JetEt_, *JetP_, *JetMass_, *JetPt_;
+  MonitorElement *JetPt1_, *JetPt2_, *JetPt3_;
+  MonitorElement *JetPx_, *JetPy_, *JetPz_;
+  MonitorElement *JetEta_, *JetPhi_, *JetDeltaEta_, *JetDeltaPhi_, *JetPhiVsEta_;
   MonitorElement *TrackSiStripHitStoNHisto_;
   MonitorElement *InCaloTrackDirectionJetDRHisto_, *OutCaloTrackDirectionJetDRHisto_;
   MonitorElement *InVertexTrackImpactPointJetDRHisto_, *OutVertexTrackImpactPointJetDRHisto_;
-  MonitorElement *PtFractionInConeVsJetRawEtHisto_, *PtFractionInConeVsJetEtaHisto_;
-  MonitorElement *CorrFactorVsJetEtHisto_, *CorrFactorVsJetEtaHisto_;
+  MonitorElement *NTracksPerJetHisto_, *NTracksPerJetVsJetEtHisto_, *NTracksPerJetVsJetEtaHisto_;
+  MonitorElement *PtFractionInConeHisto_, *PtFractionInConeVsJetRawEtHisto_, *PtFractionInConeVsJetEtaHisto_;
+  MonitorElement *CorrFactorHisto_, *CorrFactorVsJetEtHisto_, *CorrFactorVsJetEtaHisto_;
+  MonitorElement *ZSPCorrFactorHisto_, *ZSPCorrFactorVsJetEtHisto_, *ZSPCorrFactorVsJetEtaHisto_;
+  MonitorElement *JPTCorrFactorHisto_, *JPTCorrFactorVsJetEtHisto_, *JPTCorrFactorVsJetEtaHisto_;
   TrackHistograms allPionHistograms_, inCaloInVertexPionHistograms_, inCaloOutVertexPionHistograms_, outCaloInVertexPionHistograms_;
   TrackHistograms allMuonHistograms_, inCaloInVertexMuonHistograms_, inCaloOutVertexMuonHistograms_, outCaloInVertexMuonHistograms_;
   TrackHistograms allElectronHistograms_, inCaloInVertexElectronHistograms_, inCaloOutVertexElectronHistograms_, outCaloInVertexElectronHistograms_;

@@ -3,37 +3,74 @@ import FWCore.ParameterSet.Config as cms
 #constants for histograms
 nTracksBins = 100
 nHitsBins = 40
+nLayersBins = 20
 phiMax = 3.2
 phiBinSize = 0.1
 etaMax = 2.5
 etaBinSize = 0.1
-ptMax = 50
-ptBinSize = 0.1
+trackPtMax = 50
+trackPtBinSize = 0.1
+dzMax = 100
+dzBinSize = 0.01
+dxyMax = 20
+dxyBinSize = 0.01
+factorMax = 3.0
+factorBinSize = 0.1
 etMax = 200
 etBinSize = 1
+eMax = 200
+eBinSize = 1
+pMax = 200
+pBinSize = 1
+ptMax = 200
+ptBinSize = 1
+pcMax = 200
+pcBinSize = 1
+massMax = 25
+massBinSize = 1
+deltaEtaMax = 0.5
+deltaEtaBinSize = 0.01
+deltaPhiMax = 0.5
+deltaPhiBinSize = 0.01
 sOverNMax = 50
 sOverNBinSize = 0.1
 drMax = 1.0
 jetConeSize = 0.5 #no point having histograms with DR larger than the jet cone size when out of cone tracks are not used
 drBinSize = 0.01
+ptFractionBins = 50
 #derrived constants
 nTracksMax = nTracksBins
 nHitsMax = nHitsBins
+nLayersMax = nLayersBins
+factorBins = int((factorMax-1.0)/factorBinSize)
 phiMin = -phiMax
 phiBins = int(2*phiMax/phiBinSize)
 etaMin = -etaMax
 etaBins = int(2*etaMax/etaBinSize)
-ptBins = int(ptMax/ptBinSize)
+trackPtBins = int(trackPtMax/trackPtBinSize)
+dxyMin = -dxyMax
+dxyBins = int(2*dxyMax/dxyBinSize)
+dzMin = -dzMax
+dzBins = int(2*dzMax/dzBinSize)
 etBins = int(etMax/etBinSize)
+eBins = int(eMax/eBinSize)
+pBins = int(pMax/pBinSize)
+ptBins = int(ptMax/ptBinSize)
+pcBins = int(pcMax/pcBinSize)
+massBins = int(massMax/massBinSize)
+deltaEtaMin = -deltaEtaMax
+deltaEtaBins = int(2*deltaEtaMax/deltaEtaBinSize)
+deltaPhiMin = -deltaPhiMax
+deltaPhiBins = int(2*deltaPhiMax/deltaPhiBinSize)
 sOverNBins = int(sOverNMax/sOverNBinSize)
 drBins = int(drMax/drBinSize)
 
 import JetMETCorrections.Configuration.JetPlusTrackCorrections_cff
-JetPlusTrackZSPCorrectorIcone5ForDQM = JetMETCorrections.Configuration.JetPlusTrackCorrections_cff.JetPlusTrackZSPCorrectorIcone5.clone()
-JetPlusTrackZSPCorrectorIcone5ForDQM.ElectronIds = 'eidTight'
-JetPlusTrackZSPCorrectorIcone5ForDQM.label = 'JetPlusTrackZSPCorrectorIcone5ForDQM'
-JetPlusTrackZSPCorrectorIcone5ForDQM.JetTracksAssociationAtVertex = cms.InputTag('iterativeCone5JetTracksAssociatorAtVertex')
-JetPlusTrackZSPCorrectorIcone5ForDQM.JetTracksAssociationAtCaloFace = cms.InputTag('iterativeCone5JetTracksAssociatorAtCaloFace')
+JetPlusTrackZSPCorrectorAntiKt5ForDQM = JetMETCorrections.Configuration.JetPlusTrackCorrections_cff.JetPlusTrackZSPCorrectorAntiKt5.clone()
+JetPlusTrackZSPCorrectorAntiKt5ForDQM.ElectronIds = 'eidTight'
+JetPlusTrackZSPCorrectorAntiKt5ForDQM.label = 'JetPlusTrackZSPCorrectorAntiKt5ForDQM'
+JetPlusTrackZSPCorrectorAntiKt5ForDQM.JetTracksAssociationAtVertex = cms.InputTag('ak5JetTracksAssociatorAtVertex')
+JetPlusTrackZSPCorrectorAntiKt5ForDQM.JetTracksAssociationAtCaloFace = cms.InputTag('ak5JetTracksAssociatorAtCaloFace')
 from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
 
@@ -44,28 +81,115 @@ jptDQMParameters = cms.PSet(
   #Whether to dump buffer info and raw data if any error is found
   PrintDebugMessages = cms.untracked.bool(False),
   #JPT corrector
-  JPTCorrectorName = cms.string('JetPlusTrackZSPCorrectorIcone5ForDQM'),
+  JPTCorrectorName = cms.string('JetPlusTrackZSPCorrectorAntiKt5ForDQM'),
   #ZSP corrector
-  ZSPCorrectorName = cms.string('ZSPJetCorrectorIcone5'),
+  ZSPCorrectorName = cms.string('ZSPJetCorrectorAntiKt5'),
   #Whether to write the DQM store to a file at the end of the run and the file name
   WriteDQMStore = cms.untracked.bool(True),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
 
   #Historgram configuration
+  EHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(eBins),
+    Min = cms.double(0),
+    Max = cms.double(eMax)
+  ),
+  EtHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etBins),
+    Min = cms.double(0),
+    Max = cms.double(etMax)
+  ),
+  PHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(pBins),
+    Min = cms.double(0),
+    Max = cms.double(pMax)
+  ),
+  MassHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(massBins),
+    Min = cms.double(0),
+    Max = cms.double(massMax)
+  ),
+  PtHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(ptBins),
+    Min = cms.double(0),
+    Max = cms.double(ptMax)
+  ),
+  Pt1HistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(ptBins),
+    Min = cms.double(0),
+    Max = cms.double(ptMax)
+  ),
+  Pt2HistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(ptBins),
+    Min = cms.double(0),
+    Max = cms.double(ptMax)
+  ),
+  Pt3HistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(ptBins),
+    Min = cms.double(0),
+    Max = cms.double(ptMax)
+  ),
+  PxHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(pcBins),
+    Min = cms.double(0),
+    Max = cms.double(pcMax)
+  ),
+  PyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(pcBins),
+    Min = cms.double(0),
+    Max = cms.double(pcMax)
+  ),
+  PzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(pcBins),
+    Min = cms.double(0),
+    Max = cms.double(pcMax)
+  ),
+  EtaHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etaBins),
+    Min = cms.double(etaMin),
+    Max = cms.double(etaMax)
+  ),
+  PhiHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(phiBins),
+    Min = cms.double(phiMin),
+    Max = cms.double(phiMax)
+  ),
+  deltaEtaHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(deltaEtaBins),
+    Min = cms.double(deltaEtaMin),
+    Max = cms.double(deltaEtaMax)
+  ),
+  deltaPhiHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(deltaPhiBins),
+    Min = cms.double(deltaPhiMin),
+    Max = cms.double(deltaPhiMax)
+  ),
+  PhiVsEtaHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(phiBins),
+    Min = cms.double(phiMin),
+    Max = cms.double(phiMax),
+    NBinsY = cms.uint32(etaBins),
+    MinY = cms.double(etaMin),
+    MaxY = cms.double(etaMax)
+  ),
   
   #Pions
-  #InVertexPionTrackImpactPointJetDRHistogramConfig = cms.PSet(
-  #  Enabled = cms.bool(True),
-  #  NBins = cms.uint32(drBins),
-  #  Min = cms.double(0),
-  #  Max = cms.double(drMax)
-  #),
-  #OutVertexPionTrackImpactPointJetDRHistogramConfig = cms.PSet(
-  #  Enabled = cms.bool(True),
-  #  NBins = cms.uint32(drBins),
-  #  Min = cms.double(0),
-  #  Max = cms.double(drMax)
-  #),
   nAllPionsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nTracksBins),
@@ -74,9 +198,9 @@ jptDQMParameters = cms.PSet(
   ),
   AllPionsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   AllPionsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -90,11 +214,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  AllPionsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  AllPionsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   AllPionsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  AllPionsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   AllPionsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -111,9 +253,9 @@ jptDQMParameters = cms.PSet(
   ),
   InCaloInVertexPionsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   InCaloInVertexPionsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -127,11 +269,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  InCaloInVertexPionsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  InCaloInVertexPionsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   InCaloInVertexPionsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  InCaloInVertexPionsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   InCaloInVertexPionsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -148,9 +308,9 @@ jptDQMParameters = cms.PSet(
   ),
   InCaloOutVertexPionsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   InCaloOutVertexPionsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -164,11 +324,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  InCaloOutVertexPionsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  InCaloOutVertexPionsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   InCaloOutVertexPionsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  InCaloOutVertexPionsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   InCaloOutVertexPionsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -185,9 +363,9 @@ jptDQMParameters = cms.PSet(
   ),
   OutCaloInVertexPionsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   OutCaloInVertexPionsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -201,11 +379,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  OutCaloInVertexPionsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  OutCaloInVertexPionsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   OutCaloInVertexPionsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  OutCaloInVertexPionsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   OutCaloInVertexPionsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -223,9 +419,9 @@ jptDQMParameters = cms.PSet(
   ),
   AllMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   AllMuonsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -239,11 +435,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  AllMuonsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  AllMuonsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   AllMuonsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  AllMuonsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   AllMuonsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -260,9 +474,9 @@ jptDQMParameters = cms.PSet(
   ),
   InCaloInVertexMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   InCaloInVertexMuonsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -270,17 +484,36 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(phiMin),
     Max = cms.double(phiMax)
   ),
+  
   InCaloInVertexMuonsTrackEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(etaBins),
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  InCaloInVertexMuonsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  InCaloInVertexMuonsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   InCaloInVertexMuonsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  InCaloInVertexMuonsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   InCaloInVertexMuonsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -297,9 +530,9 @@ jptDQMParameters = cms.PSet(
   ),
   InCaloOutVertexMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   InCaloOutVertexMuonsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -313,11 +546,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  InCaloOutVertexMuonsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  InCaloOutVertexMuonsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   InCaloOutVertexMuonsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  InCaloOutVertexMuonsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   InCaloOutVertexMuonsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -334,9 +585,9 @@ jptDQMParameters = cms.PSet(
   ),
   OutCaloInVertexMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   OutCaloInVertexMuonsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -350,11 +601,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  OutCaloInVertexMuonsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  OutCaloInVertexMuonsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   OutCaloInVertexMuonsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  OutCaloInVertexMuonsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   OutCaloInVertexMuonsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -372,9 +641,9 @@ jptDQMParameters = cms.PSet(
   ),
   AllElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   AllElectronsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -388,11 +657,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  AllElectronsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  AllElectronsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   AllElectronsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  AllElectronsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   AllElectronsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -409,9 +696,9 @@ jptDQMParameters = cms.PSet(
   ),
   InCaloInVertexElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   InCaloInVertexElectronsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -425,11 +712,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  InCaloInVertexElectronsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  InCaloInVertexElectronsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   InCaloInVertexElectronsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  InCaloInVertexElectronsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   InCaloInVertexElectronsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -446,9 +751,9 @@ jptDQMParameters = cms.PSet(
   ),
   InCaloOutVertexElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   InCaloOutVertexElectronsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -462,11 +767,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  InCaloOutVertexElectronsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  InCaloOutVertexElectronsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   InCaloOutVertexElectronsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  InCaloOutVertexElectronsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   InCaloOutVertexElectronsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -483,9 +806,9 @@ jptDQMParameters = cms.PSet(
   ),
   OutCaloInVertexElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(ptBins),
+    NBins = cms.uint32(trackPtBins),
     Min = cms.double(0),
-    Max = cms.double(ptMax)
+    Max = cms.double(trackPtMax)
   ),
   OutCaloInVertexElectronsTrackPhiHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -499,11 +822,29 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  OutCaloInVertexElectronsTrackDzHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dzBins),
+    Min = cms.double(dzMin),
+    Max = cms.double(dzMax)
+  ),
+  OutCaloInVertexElectronsTrackDxyHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(dxyBins),
+    Min = cms.double(dxyMin),
+    Max = cms.double(dxyMax)
+  ),
   OutCaloInVertexElectronsTrackNHitsHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(nHitsBins),
     Min = cms.double(0), 
     Max = cms.double(nHitsMax)
+  ),
+  OutCaloInVertexElectronsTrackNLayersHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nLayersBins),
+    Min = cms.double(0), 
+    Max = cms.double(nLayersMax)
   ),
   OutCaloInVertexElectronsTrackPtVsEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -513,6 +854,30 @@ jptDQMParameters = cms.PSet(
   ),
   
   #Jet level histograms
+  nTracksHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(nTracksBins),
+    Min = cms.double(0),
+    Max = cms.double(nTracksMax)
+  ),
+  nTracksVsJetEtHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etBins),
+    Min = cms.double(0),
+    Max = cms.double(etMax)
+  ),
+  nTracksVsJetEtaHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etaBins),
+    Min = cms.double(etaMin),
+    Max = cms.double(etaMax)
+  ),
+  PtFractionInConeHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(ptFractionBins),
+    Min = cms.double(0),
+    Max = cms.double(1.0)
+  ),
   PtFractionInConeVsJetRawEtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(etBins),
@@ -525,6 +890,12 @@ jptDQMParameters = cms.PSet(
     Min = cms.double(etaMin),
     Max = cms.double(etaMax)
   ),
+  CorrFactorHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(factorBins),
+    Min = cms.double(1.0),
+    Max = cms.double(factorMax)
+  ),
   CorrFactorVsJetEtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(etBins),
@@ -532,6 +903,42 @@ jptDQMParameters = cms.PSet(
     Max = cms.double(etMax)
   ),
   CorrFactorVsJetEtaHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etaBins),
+    Min = cms.double(etaMin),
+    Max = cms.double(etaMax)
+  ),
+  ZSPCorrFactorHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(factorBins),
+    Min = cms.double(1.0),
+    Max = cms.double(factorMax)
+  ),
+  ZSPCorrFactorVsJetEtHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etBins),
+    Min = cms.double(0),
+    Max = cms.double(etMax)
+  ),
+  ZSPCorrFactorVsJetEtaHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etaBins),
+    Min = cms.double(etaMin),
+    Max = cms.double(etaMax)
+  ),
+  JPTCorrFactorHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(factorBins),
+    Min = cms.double(1.0),
+    Max = cms.double(factorMax)
+  ),
+  JPTCorrFactorVsJetEtHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(etBins),
+    Min = cms.double(0),
+    Max = cms.double(etMax)
+  ),
+  JPTCorrFactorVsJetEtaHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
     NBins = cms.uint32(etaBins),
     Min = cms.double(etaMin),
