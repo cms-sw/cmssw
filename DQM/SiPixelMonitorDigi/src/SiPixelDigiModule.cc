@@ -311,11 +311,11 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
       if(modon){
 	if(!reducedSet)
 	{
-	if(twoD) (mePixDigis_)->Fill((float)col,(float)row);
-	else {
-	  (mePixDigis_px_)->Fill((float)col);
-	  (mePixDigis_py_)->Fill((float)row);
-	}
+	//if(twoD) (mePixDigis_)->Fill((float)col,(float)row);
+	//else {
+	//  (mePixDigis_px_)->Fill((float)col);
+	//  (mePixDigis_py_)->Fill((float)row);
+	//}
 	}
 	(meADC_)->Fill((float)adc);
       }
