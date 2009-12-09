@@ -95,6 +95,6 @@ process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDi
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
 process.p = cms.Path(process.phystrigger*process.tracking*process.monitor*process.dqmSaver)
-#process.p = cms.Path(process.phystrigger*process.tracking*process.monitor*process.dqmSaver)
 #process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.monitor_pixelless*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
 
