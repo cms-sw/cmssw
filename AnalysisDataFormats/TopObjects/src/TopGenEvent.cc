@@ -6,10 +6,10 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
 /// default contructor
-TopGenEvent::TopGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits)
+TopGenEvent::TopGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset)
 {
-  parts_ = parts; 
-  initPartons_= inits;
+  parts_ = decaySubset; 
+  initPartons_= initSubset;
 }
 
 const reco::GenParticle*
@@ -19,7 +19,7 @@ TopGenEvent::candidate(int id, unsigned int parentId) const
   const reco::GenParticleCollection & partsColl = *parts_;
   for( unsigned int i = 0; i < partsColl.size(); ++i ) {
     if( partsColl[i].pdgId()==id ){
-      if(parentId==0?true:partsColl[i].mother()&&abs(partsColl[i].mother()->pdgId())==parentId){
+      if(parentId==0?true:partsColl[i].mother()&&abs(partsColl[i].mother()->pdgId())==(int)parentId){
 	cand = &partsColl[i];
       }
     }

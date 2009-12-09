@@ -45,7 +45,7 @@ class TopGenEvent {
   /// empty constructor
   TopGenEvent(){};
   /// default constructor
-  TopGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
+  TopGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& iniSubset);
   /// default destructor
   virtual ~TopGenEvent(){};
 
@@ -108,7 +108,6 @@ class TopGenEvent {
   /// print content of the top decay chain as formated 
   /// LogInfo to the MessageLogger output for debugging
   void print() const;
-
 
  protected:
 
