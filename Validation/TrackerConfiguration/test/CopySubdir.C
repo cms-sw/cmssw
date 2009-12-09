@@ -36,29 +36,55 @@ void CopyDir(TDirectory *source) {
 
 void CopySubdir(const char * oldfile, const char * newfile){
 
+  TDirectory *dirtracking; bool ok_tracking=false;
+  TDirectory *dirsimhit; bool ok_simhit=false;
+  TDirectory *dirrechits; bool ok_rechits=false;
+  TDirectory *dirdigis; bool ok_digis=false;
+  TDirectory *dirTP; bool ok_TP=false;
+  TDirectory *dirtrackingrechits; bool ok_trackingrechits=false;
+
   TFile *oldf = TFile::Open(oldfile);
-  //  oldf->cd("DQMData/Run 1/Tracking");
-  //  TDirectory *dirtracking=gDirectory;
-  oldf->cd("DQMData/Run 1/TrackerHitsV");
-  TDirectory *dirsimhit=gDirectory;
-  oldf->cd("DQMData/Run 1/TrackerRecHitsV");
-  TDirectory *dirrechits=gDirectory;
-  oldf->cd("DQMData/Run 1/TrackerDigisV");
-  TDirectory *dirdigis=gDirectory;
-  oldf->cd("DQMData/Run 1/TrackingMCTruthV");
-  TDirectory *dirTP=gDirectory;
-  oldf->cd("DQMData/Run 1/RecoTrackV");
-  TDirectory *dirtrackingrechits=gDirectory;
+  if (oldf->cd("DQMData/Run 1/Tracking")) {
+    oldf->cd("DQMData/Run 1/Tracking");
+    dirtracking=gDirectory;
+    ok_tracking=true;
+  }
+  if (oldf->cd("DQMData/Run 1/TrackerHitsV")) {
+    oldf->cd("DQMData/Run 1/TrackerHitsV");
+    dirsimhit=gDirectory;
+    ok_simhit=true;
+  }
+  if (oldf->cd("DQMData/Run 1/TrackerRecHitsV")) {
+    oldf->cd("DQMData/Run 1/TrackerRecHitsV");
+    dirrechits=gDirectory;
+    ok_rechits=true;
+  }
+  if (oldf->cd("DQMData/Run 1/TrackerDigisV")) {
+    oldf->cd("DQMData/Run 1/TrackerDigisV");
+    dirdigis=gDirectory;
+    ok_digis=true;
+  }
+  if (oldf->cd("DQMData/Run 1/TrackingMCTruthV")) {
+    oldf->cd("DQMData/Run 1/TrackingMCTruthV");
+    dirTP=gDirectory;
+    ok_TP=true;
+  }
+  if (oldf->cd("DQMData/Run 1/RecoTrackV")) {
+    oldf->cd("DQMData/Run 1/RecoTrackV");
+    dirtrackingrechits=gDirectory;
+    ok_trackingrechits=true;
+  }
+
   TFile *newf =new TFile(newfile,"RECREATE");
   TDirectory *dirnew=newf->mkdir("DQMData");
   dirnew=dirnew->mkdir("Run 1");
   dirnew->cd();
-  //  CopyDir(dirtracking);
-  CopyDir(dirsimhit);
-  CopyDir(dirrechits);
-  CopyDir(dirdigis);
-  CopyDir(dirTP);
-  CopyDir(dirtrackingrechits);
+  if (ok_tracking) CopyDir(dirtracking);
+  if (ok_simhit) CopyDir(dirsimhit);
+  if (ok_rechits) CopyDir(dirrechits);
+  if (ok_digis) CopyDir(dirdigis);
+  if (ok_TP) CopyDir(dirTP);
+  if (ok_trackingrechits) CopyDir(dirtrackingrechits);
   TList* new_list = oldf->GetListOfKeys() ;
   newf->cd();
   TIter     newkey_iter( new_list) ;
