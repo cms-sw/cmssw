@@ -14,7 +14,7 @@
  *
  * \author Steven Lowette
  *
- * $Id$
+ * $Id: TrackJet.h,v 1.1 2009/11/25 19:07:49 srappocc Exp $
  *
  ************************************************************/
 
@@ -43,7 +43,7 @@ namespace reco {
       /// Number of track daughters
       virtual size_t numberOfTracks() const { return numberOfDaughters(); }
       /// Return Ptr to the track costituent
-      virtual edm::Ptr<reco::Track> track(unsigned int i) const;
+      virtual edm::Ptr<reco::Track> track(size_t i) const;
       /// Return pointers to all track costituents
       virtual std::vector<edm::Ptr<reco::Track> > tracks() const;
 
