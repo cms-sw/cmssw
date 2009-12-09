@@ -16,10 +16,10 @@ OfflineChannelGainOutputCommands =  [
                                     ]
 
 gainCalibrationTree = cms.EDAnalyzer("ShallowTree", outputCommands = cms.untracked.vstring('drop *'))
-gaincalibrationTree.outputCommands += OfflineChannelGainOutputCommands
+gainCalibrationTree.outputCommands += OfflineChannelGainOutputCommands
 
 OfflineGainNtuple = cms.Sequence( (shallowEventRun+
                         shallowTracks +
                         shallowGainCalibration) *
-                        calibrationTree
+                        gainCalibrationTree
                        )
