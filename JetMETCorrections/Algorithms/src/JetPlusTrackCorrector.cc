@@ -149,7 +149,7 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
 //  	    << " NewResponse " << corrected.energy() 
 //  	    << " Jet energy " << fJet.energy()
 //  	    << " event " << event.id().event() << std::endl;
-  
+
   // Return energy correction
   return scale;
   
@@ -687,9 +687,13 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     }
   }
   
-  //@@ Scale to corrected jet energy
+  // Adjust direction if tracks are present
+  
   if ( !tracks_present ) { corr = corrected; }
-  else { corr *= ( corr.energy() > 0. ? corrected.energy() / corr.energy() : 1. ); }
+  else { 
+    corr *= ( corr.P() > 0. ? corrected.P() / corr.P() : 1. ); 
+    corr = P4( corr.px(), corr.py(), corr.pz(), corrected.energy() );
+  }
   
   return corr;
   
