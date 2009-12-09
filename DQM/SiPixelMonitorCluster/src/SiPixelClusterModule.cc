@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.23 2009/12/03 17:07:23 wehrlilu Exp $
+// $Id: SiPixelClusterModule.cc,v 1.24 2009/12/08 10:41:13 wehrlilu Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -539,11 +539,11 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	  (meSizeY_)->Fill((int)sizeY);
  	  (meX_)->Fill((float)x);
 	  (meY_)->Fill((float)y);
-	  if(twoD)(mePixClusters_)->Fill((float)y,(float)x);
-	  else{
-		  (mePixClusters_px_)->Fill((float)y);
-		  (mePixClusters_py_)->Fill((float)x);
-	  }
+	  //if(twoD)(mePixClusters_)->Fill((float)y,(float)x);
+	  //else{
+	  //	  (mePixClusters_px_)->Fill((float)y);
+	  //      (mePixClusters_py_)->Fill((float)x);
+	  //}
 	}
 	//      (meEdgeHitX_)->Fill((int)edgeHitX);
 	//      (meEdgeHitY_)->Fill((int)edgeHitY);
