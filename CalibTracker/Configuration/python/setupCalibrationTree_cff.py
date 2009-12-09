@@ -10,7 +10,7 @@ shallowClusters.Clusters = 'CalibrationTracks'
 from CalibTracker.SiStripHitEfficiency.SiStripHitEff_cff import *
 
 #Schedule
-filter_refit_ntuplize_step = cms.Path( trackFilterRefit + ntuple + hiteff + OfflineGainNtuple)
+filter_refit_ntuplize_step = cms.Path( trackFilterRefit + LorentzAngleNtuple + hiteff + OfflineGainNtuple)
 schedule = cms.Schedule( filter_refit_ntuplize_step )
 
 
