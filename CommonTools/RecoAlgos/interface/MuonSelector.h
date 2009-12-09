@@ -3,14 +3,14 @@
 /** \class MuonSelector
  *
  * selects a subset of a muon collection and clones
- * Track, TrackExtra parts and RecHits collection
+ * Track, TrackExtra, RecHits and 'used tracker cluster' collections
  * for SA, GB and Tracker Only options
  * 
  * \author Javier Fernandez, Uniovi
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MuonSelector.h,v 1.11 2008/09/16 22:54:18 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -18,16 +18,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "CommonTools/RecoAlgos/interface/ClusterStorer.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
-
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-// Apparently this is not anywhere defined
-typedef edm::RefProd<SiStripClusterCollection> SiStripClusterRefProd;
 
 namespace helper {
   struct MuonCollectionStoreManager {
@@ -61,40 +56,11 @@ namespace helper {
     //! typename I = this is an interator over a Muon collection, **I needs
     //! to dereference into a Muon.
     //------------------------------------------------------------------
-
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & evt ) ;
     
   private:
-    //--- A struct for clusters associated to hits
-    template<typename RecHitType, typename ClusterRefType = typename RecHitType::ClusterRef>
-    class ClusterHitRecord {
-        public:
-            /// Create a record for a hit with a given index in the TrackingRecHitCollection
-            ClusterHitRecord(const RecHitType &hit, edm::OwnVector<TrackingRecHit> * hitVector, size_t idx) : 
-                detid_(hit.geographicalId().rawId()), hitVector_(hitVector), index_(idx), ref_(hit.cluster()) {}
-            /// returns the detid
-            uint32_t detid() const { return detid_; }
-            /// this method is to be able to compare and see if two refs are the same
-            const ClusterRefType & clusterRef() const { return ref_; }
-            /// this one is to sort by detid and then by index of the rechit
-            bool operator<(const ClusterHitRecord<RecHitType,ClusterRefType> &other) const { 
-                return (detid_ != other.detid_) ? detid_ < other.detid_ : ref_  < other.ref_;
-            }
-            /// correct the corresponding hit in the TrackingRecHitCollection with the new cluster ref
-            /// will not modify the ref stored in this object
-            void rekey(const ClusterRefType &newRef) const ;
-        private:
-            uint32_t detid_;
-            edm::OwnVector<TrackingRecHit> * hitVector_;
-            size_t   index_;
-            ClusterRefType ref_;
-    };
-
-    typedef ClusterHitRecord<SiPixelRecHit>   PixelClusterHitRecord;
-    typedef ClusterHitRecord<SiStripRecHit2D> StripClusterHitRecord;
-
-     //--- Collections:
+     //--- Collections to store:
     std::auto_ptr<reco::MuonCollection> selMuons_;
     std::auto_ptr<reco::TrackCollection> selTracks_;
     std::auto_ptr<reco::TrackExtraCollection> selTracksExtras_;
@@ -105,30 +71,25 @@ namespace helper {
     std::auto_ptr<reco::TrackCollection> selStandAloneTracks_;
     std::auto_ptr<reco::TrackExtraCollection> selStandAloneTracksExtras_;
     std::auto_ptr<TrackingRecHitCollection> selStandAloneTracksHits_;
-
     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >  selStripClusters_;
     std::auto_ptr< edmNew::DetSetVector<SiPixelCluster> >  selPixelClusters_;
-    //--- Information about the cloned clusters
-    std::vector<StripClusterHitRecord>                     stripClusterRecords_;
-    std::vector<PixelClusterHitRecord>                     pixelClusterRecords_;
 
-      reco::MuonRefProd rMuons_;      
- 
-      reco::TrackRefProd rTracks_;      
-      reco::TrackExtraRefProd rTrackExtras_;
-      TrackingRecHitRefProd rHits_;
+    reco::MuonRefProd rMuons_;      
+    reco::TrackRefProd rTracks_;      
+    reco::TrackExtraRefProd rTrackExtras_;
+    TrackingRecHitRefProd rHits_;
 
-	// New: clusters
-    edm::RefProd< edmNew::DetSetVector<SiStripCluster> > rStripClusters_ ;
-    edm::RefProd< edmNew::DetSetVector<SiPixelCluster> > rPixelClusters_ ;
+    reco::TrackRefProd rGBTracks_;      
+    reco::TrackExtraRefProd rGBTrackExtras_;
+    TrackingRecHitRefProd rGBHits_;
+    
+    reco::TrackRefProd rSATracks_;      
+    reco::TrackExtraRefProd rSATrackExtras_;
+    TrackingRecHitRefProd rSAHits_;
 
-      reco::TrackRefProd rGBTracks_;      
-      reco::TrackExtraRefProd rGBTrackExtras_;
-      TrackingRecHitRefProd rGBHits_;
-
-      reco::TrackRefProd rSATracks_;      
-      reco::TrackExtraRefProd rSATrackExtras_;
-      TrackingRecHitRefProd rSAHits_;
+    /// Helper to treat copies of selected clusters
+    ///  and make the hits refer to the output cluster collections:
+    ClusterStorer clusterStorer_;
 
     //--- Indices into collections handled with RefProd
     size_t id_, igbd_, isad_, idx_, igbdx_, isadx_, hidx_, higbdx_, hisadx_;
@@ -141,27 +102,6 @@ namespace helper {
     //!  Process a single muon.  
     //------------------------------------------------------------------
     void processMuon( const reco::Muon & mu );
-
-    //------------------------------------------------------------------
-    //!  Process a single hit.  
-    //------------------------------------------------------------------
-    void processHit( const TrackingRecHit * hit, edm::OwnVector<TrackingRecHit> &hits );
-
-
-    //------------------------------------------------------------------
-    //!  Processes all the clusters of the tracks 
-    //!  (after the tracks have been dealt with)
-    //------------------------------------------------------------------
-    void processAllClusters() ;
- 
-    //------------------------------------------------------------------
-    //!  Processes all the clusters of a specific type
-    //!  (after the tracks have been dealt with)
-    //------------------------------------------------------------------
-    template<typename HitType, typename ClusterType>
-    void processClusters( std::vector<ClusterHitRecord<HitType> > & clusterRecords,
-              edmNew::DetSetVector<ClusterType>                   & dsv,
-              edm::RefProd< edmNew::DetSetVector<ClusterType> >   & refprod ) ;
 
     bool clusterRefsOK(const reco::Track &track) const;
   };
@@ -181,23 +121,18 @@ namespace helper {
       rTracks_ = evt.template getRefBeforePut<TrackCollection>("TrackerOnly");      
       rGBTracks_ = evt.template getRefBeforePut<TrackCollection>("GlobalMuon");      
       rSATracks_ = evt.template getRefBeforePut<TrackCollection>("StandAlone");      
-
       rMuons_ = evt.template getRefBeforePut<MuonCollection>("SelectedMuons");      
-
       //--- New: save clusters too
-      rStripClusters_ 
-          = evt.template getRefBeforePut< edmNew::DetSetVector<SiStripCluster> >();
+      edm::RefProd<edmNew::DetSetVector<SiStripCluster> > rStripClusters
+	= evt.template getRefBeforePut<edmNew::DetSetVector<SiStripCluster> >();
 
-      rPixelClusters_ 
-          = evt.template getRefBeforePut< edmNew::DetSetVector<SiPixelCluster> >();
+      edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >  rPixelClusters 
+	= evt.template getRefBeforePut<edmNew::DetSetVector<SiPixelCluster> >();
 
       id_=0; igbd_=0; isad_=0; 
       idx_ = 0; igbdx_=0; isadx_=0; 
       hidx_=0; higbdx_=0; hisadx_=0;
-
-      //--- Records about the clusters we want to clone
-      stripClusterRecords_.clear();      
-      pixelClusterRecords_.clear();      
+      clusterStorer_.clear();
 
       for( I i = begin; i != end; ++ i ) {
 	const Muon & mu = * * i;
@@ -205,7 +140,8 @@ namespace helper {
           processMuon( mu );
       }
       //--- Clone the clusters and fixup refs
-      processAllClusters();
+      clusterStorer_.processAllClusters(*selPixelClusters_, rPixelClusters,
+					*selStripClusters_, rStripClusters);
    }
     
   //----------------------------------------------------------------------
@@ -220,8 +156,6 @@ namespace helper {
       produces<reco::TrackExtraCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyExtras" );
       produces<TrackingRecHitCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyHits" );
       //--- New: save clusters too
-      // FIXME: For the following two, need to check what names
-      // FIXME: of the output collections are needed downstream.
       produces< edmNew::DetSetVector<SiPixelCluster> >().setBranchAlias( alias + "PixelClusters" );
       produces< edmNew::DetSetVector<SiStripCluster> >().setBranchAlias( alias + "StripClusters" );
       produces<reco::TrackCollection>("GlobalMuon").setBranchAlias( alias + "GlobalMuonTracks" );
