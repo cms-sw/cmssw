@@ -4,7 +4,6 @@ process = cms.Process('CALIB')
 process.load('CalibTracker.Configuration.setupCalibrationTree_cff')
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR09_R_V1::All'
 
