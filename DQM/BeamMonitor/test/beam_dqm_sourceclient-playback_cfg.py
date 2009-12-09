@@ -88,19 +88,13 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 #--------------------------
 # Scheduling
 #--------------------------
-process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*
-process.ckftracks)
-process.tracking_L1 = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco*process.hltLevel1GTSeed*process.
-offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
-process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
+process.phystrigger = cms.Sequence(process.hltTriggerTypeFilter*process.gtDigis*process.hltLevel1GTSeed)
+process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctfTracks
 PixelLess)
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
-process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking_L1*process.monitor*process.dqmSaver)
-#process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor*process.dqmSaver)
-#process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking_pixelless*process.monitor_pixelless*process.dqmSaver)
-#process.p = cms.Path(process.hltTriggerTypeFilter*process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless*process.dqmSa
-ver)
-
+process.p = cms.Path(process.phystrigger*process.tracking*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.monitor_pixelless*process.dqmSaver)
 
