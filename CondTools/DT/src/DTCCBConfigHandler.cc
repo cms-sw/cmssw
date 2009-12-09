@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/25 12:03:21 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/10/30 10:39:06 $
+ *  $Revision: 1.12 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -255,7 +255,7 @@ void DTCCBConfigHandler::getNewObjects() {
     int bt = row["BRKT2CSETT.CSETTYPE"].data<short>();
 //    std::cout << "brick " << id << " type " << bt << std::endl;
 // @@FIX - TEMPORARY PATCH
-    if ( bt > 3 ) bt = 3;
+//    if ( bt > 3 ) bt = 3;
     bktMap.insert( std::pair<int,int>( id, bt ) );
   }
 
