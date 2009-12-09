@@ -1,34 +1,56 @@
 import FWCore.ParameterSet.Config as cms
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByCharge_cfi          import *
+
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import *
+from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
+from  RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi  import pfRecoTauDiscriminationByTrackIsolation
+lowptpfTauDiscrByTrackIsolation = pfRecoTauDiscriminationByTrackIsolation.clone()
+lowptpfTauDiscrByTrackIsolation.PFTauProducer  = cms.InputTag('pfLayer0Taus')
+lowptpfTauDiscrByTrackIsolation.Prediscriminants = noPrediscriminants
+lowptpfTauDiscrByTrackIsolation.ApplySumPtCut = cms.bool(True)
+lowptpfTauDiscrByTrackIsolation.ApplyRelativeSumPtCut = cms.bool(False)
+lowptpfTauDiscrByTrackIsolation.maximumSumPtCut                       = cms.double(1.0)
+lowptpfTauDiscrByTrackIsolation.applyOccupancyCut                     = cms.bool(False)
+lowptpfTauDiscrByTrackIsolation.qualityCuts.isolationQualityCuts.minTrackPt=cms.double(0.0)
+
+lowptpfTauDiscrByRelTrackIsolation = pfRecoTauDiscriminationByTrackIsolation.clone() 
+lowptpfTauDiscrByRelTrackIsolation.PFTauProducer  = cms.InputTag('pfLayer0Taus')
+lowptpfTauDiscrByRelTrackIsolation.Prediscriminants = noPrediscriminants
+lowptpfTauDiscrByRelTrackIsolation.ApplySumPtCut = cms.bool(False)
+lowptpfTauDiscrByRelTrackIsolation.ApplyRelativeSumPtCut = cms.bool(True)
+lowptpfTauDiscrByRelTrackIsolation.maximumSumPtCut                       = cms.double(0.05)
+lowptpfTauDiscrByRelTrackIsolation.applyOccupancyCut                     = cms.bool(True)
+lowptpfTauDiscrByRelTrackIsolation.qualityCuts.isolationQualityCuts.minTrackPt=cms.double(0.0)
+
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByCharge_cfi import pfRecoTauDiscriminationByCharge
+pfRecoTauByCharge = pfRecoTauDiscriminationByCharge.clone()
+pfRecoTauByCharge.PFTauProducer  = cms.InputTag('pfLayer0Taus')
+pfRecoTauByCharge.ApplyOneOrThreeProngCut                    = cms.bool(True)
 
 
 
-import RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi 
-lowptpfTauDiscrByTrackIsolation = RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi.pfRecoTauDiscriminationByTrackIsolation.clone()
-lowptpfTauDiscrByTrackIsolation.PFTauProducer  = cms.InputTag('pfRecoTauProducerHighEfficiency')
-lowptpfTauDiscrByTrackIsolation.ManipulateTracks_insteadofChargedHadrCands = cms.bool(True)
-lowptpfTauDiscrByTrackIsolation.maxChargedPt                               = cms.double(1.)
-lowptpfTauDiscrByTrackIsolation.SumOverCandidates                          = cms.bool(True)
-lowptpfTauDiscrByTrackIsolation.ApplyDiscriminationByTrackerIsolation      = cms.bool(True)
-
-
-lowptpfTauDiscrByRelTrackIsolation = RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi.pfRecoTauDiscriminationByTrackIsolation.clone()
-lowptpfTauDiscrByRelTrackIsolation.PFTauProducer  = cms.InputTag('pfRecoTauProducerHighEfficiency')
-lowptpfTauDiscrByRelTrackIsolation.ManipulateTracks_insteadofChargedHadrCands = cms.bool(True)
-lowptpfTauDiscrByRelTrackIsolation.maxChargedPt                               = cms.double(0.05)
-lowptpfTauDiscrByRelTrackIsolation.SumOverCandidates                          = cms.bool(True)
-lowptpfTauDiscrByRelTrackIsolation.ApplyDiscriminationByTrackerIsolation      = cms.bool(True)
-lowptpfTauDiscrByRelTrackIsolation.TrackIsolationOverTauPt                    = cms.bool(False)
-
-import  RecoTauTag.TauTagTools.PFRecoTauLogicalDiscriminator_cfi  
-lowptcombDiscr = RecoTauTag.TauTagTools.PFRecoTauLogicalDiscriminator_cfi.pfRecoTauLogicalDiscriminator.clone()
-lowptcombDiscr.TauDiscriminators=(
-    'pfRecoTauDiscriminationByCharge',
-    'lowptpfTauDiscrByTrackIsolation',
-    'lowptpfTauDiscrByRelTrackIsolation'
+DiscrLowPtTau = cms.EDFilter(
+    "PFTauDiscriminatorLogicalAndProducer",
+    PFTauProducer = cms.InputTag('pfLayer0Taus'),
+    Prediscriminants = cms.PSet(
+    BooleanOperator = cms.string("and"),
+    isCharge = cms.PSet( Producer = cms.InputTag('pfRecoTauByCharge'),
+                         cut      = cms.double(0.5)
+                         ),
+    lowptrel = cms.PSet( Producer = cms.InputTag('lowptpfTauDiscrByRelTrackIsolation'),
+                         cut      = cms.double(0.5)
+                         ),
+    lowpt = cms.PSet( Producer = cms.InputTag('lowptpfTauDiscrByRelTrackIsolation'),
+                      cut      = cms.double(0.5)
+                      ),
+    ),
+    PassValue = cms.double(1.),
+    FailValue = cms.double(0.)   
     )
-PFRecoTauLowPt = cms.Sequence(pfRecoTauDiscriminationByCharge*
-                              lowptpfTauDiscrByTrackIsolation*
-                              lowptpfTauDiscrByRelTrackIsolation*
-                              lowptcombDiscr
-                              )
+
+
+TauDiscrForLowPt = cms.Sequence(
+    pfRecoTauByCharge+
+    lowptpfTauDiscrByRelTrackIsolation+
+    lowptpfTauDiscrByTrackIsolation+
+    DiscrLowPtTau
+    )
