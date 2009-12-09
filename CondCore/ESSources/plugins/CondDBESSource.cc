@@ -152,7 +152,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   TagCollection::iterator itEnd=m_tagCollection.end();
  
   typedef std::map<std::string, cond::DbSession> Sessions;
-  Session sessions;
+  Sessions sessions;
   for(it=itBeg;it!=itEnd;++it){
     Sessions::iterator p = sessions.find( it->pfn);
     cond::DbSession nsess;
