@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2009/09/01 23:36:29 $
- *  $Revision: 1.34 $
+ *  $Date: 2009/09/23 23:35:02 $
+ *  $Revision: 1.35 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -238,7 +238,6 @@ namespace edm {
       bunchCrossing =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
       orbitNumber =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
     }
-    eventId = EventID(runNumber_, eventId.event());
     
     // If there is no luminosity block principal, make one.
     if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
@@ -251,7 +250,7 @@ namespace edm {
     }
 
     // make a brand new event
-    eventId.setLuminosityBlockNumber(luminosityBlockNumber_);
+    eventId = EventID(runNumber_, luminosityBlockNumber_, eventId.event());
     std::auto_ptr<EventAuxiliary> eventAux(
       new EventAuxiliary(eventId, processGUID(),
 			 timestamp(),

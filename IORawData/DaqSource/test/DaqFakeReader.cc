@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/28 21:31:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/05/25 13:11:04 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -64,7 +64,7 @@ bool DaqFakeReader::fillRawData(EventID& eID,
       float width = 1024;
       
       // Fill the EventID
-      eID = EventID(runNum,eventNum);
+      eID = EventID(runNum,1U,eventNum);
       eventNum++;
       // FIXME:
       

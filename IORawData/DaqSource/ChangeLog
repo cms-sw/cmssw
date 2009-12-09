@@ -1,3 +1,8 @@
+2009-12-09 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-07-03
+	* Use EventID constructor taking three arguments, run, lumi, event numbers
+	The EventID constructor taking only run and event numbers is being removed.
+
 2009-10-20  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-06-18-00
