@@ -10,7 +10,7 @@
     and creates some plots
     For more details see also WenuPlots class description
  Implementation:
-
+  09Dec09: option to have a different selection for the 2nd leg of the Z added
 */
 //
 // Original Author:  Nikolaos Rompotis
@@ -81,7 +81,48 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   dphi_EE_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EE_inv", false);
   deta_EE_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EE_inv",false);
   hoe_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EE_inv",false);
-
+  useDifferentSecondLegSelection_ = iConfig.getUntrackedParameter<Bool_t>
+    ("useDifferentSecondLegSelection",false);
+  if (useDifferentSecondLegSelection_) {
+    std::cout << "ZeePlots: WARNING: you have chosen to use a different "
+	      << " selection for the 2nd leg of the Z" << std::endl;
+    trackIso2_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso2_EB");
+    ecalIso2_EB_ = iConfig.getUntrackedParameter<Double_t>("ecalIso2_EB");
+    hcalIso2_EB_ = iConfig.getUntrackedParameter<Double_t>("hcalIso2_EB");
+    //
+    trackIso2_EE_ = iConfig.getUntrackedParameter<Double_t>("trackIso2_EE");
+    ecalIso2_EE_ = iConfig.getUntrackedParameter<Double_t>("ecalIso2_EE");
+    hcalIso2_EE_ = iConfig.getUntrackedParameter<Double_t>("hcalIso2_EE");
+    //
+    sihih2_EB_ = iConfig.getUntrackedParameter<Double_t>("sihih2_EB");
+    dphi2_EB_ = iConfig.getUntrackedParameter<Double_t>("dphi2_EB");
+    deta2_EB_ = iConfig.getUntrackedParameter<Double_t>("deta2_EB");
+    hoe2_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EB");
+    //
+    sihih2_EE_ = iConfig.getUntrackedParameter<Double_t>("sihih2_EE");
+    dphi2_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi2_EE");
+    deta2_EE_ = iConfig.getUntrackedParameter<Double_t>("deta2_EE");
+    hoe2_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EE");
+  }
+  else {
+    trackIso2_EB_ = trackIso_EB_;
+    ecalIso2_EB_ = ecalIso_EB_;
+    hcalIso2_EB_ = hcalIso_EB_;
+    //
+    trackIso2_EE_ = trackIso_EE_;
+    ecalIso2_EE_ = ecalIso_EE_;
+    hcalIso2_EE_ = hcalIso_EE_;
+    //
+    sihih2_EB_ = sihih_EB_;
+    dphi2_EB_ = dphi_EB_;
+    deta2_EB_ = deta_EB_;
+    hoe2_EB_ = hoe_EB_;
+    //
+    sihih2_EE_ = sihih_EE_;
+    dphi2_EE_ = dphi_EE_;
+    deta2_EE_ = deta_EE_;
+    hoe2_EE_ = hoe_EE_;
+  }
 
 }
 
@@ -151,7 +192,7 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   TLorentzVector Z = e1+e2;
   double mee = Z.M();
   // the selection plots:
-  bool pass = CheckCuts(myElec1) && CheckCuts(myElec2);
+  bool pass = CheckCuts(myElec1) && CheckCuts2(myElec2);
   //cout << "This event passes? " << pass << ", mee is: " << mee
   //   << " and the histo is filled." << endl;
   if (not pass) return;
@@ -294,8 +335,56 @@ double ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
 
 }
 /////////////////////////////////////////////////////////////////////////
+// option for a second selection with the option to be used for the second
+// Z leg is added - NR 09Dec09
+bool ZeePlots::CheckCuts2( const pat::Electron *ele)
+{
+  for (int i=0; i<nBarrelVars_; ++i) {
+    if (not CheckCut2(ele, i)) return false;
+  }
+  return true;
+}
+/////////////////////////////////////////////////////////////////////////
 
+bool ZeePlots::CheckCuts2Inverse(const pat::Electron *ele)
+{
+  for (int i=0; i<nBarrelVars_; ++i){
+    if ( CheckCut2Inv(ele, i) == false) return false;
+  }
+  return true;
 
+}
+/////////////////////////////////////////////////////////////////////////
+bool ZeePlots::CheckCuts2NminusOne(const pat::Electron *ele, int jj)
+{
+  for (int i=0; i<nBarrelVars_; ++i){
+    if (i==jj) continue;
+    if ( CheckCut2(ele, i) == false) return false;
+  }
+  return true;
+}
+/////////////////////////////////////////////////////////////////////////
+bool ZeePlots::CheckCut2(const pat::Electron *ele, int i) {
+  double fabseta = fabs(ele->superCluster()->eta());
+  if ( fabseta<1.479) {
+    return fabs(ReturnCandVar(ele, i)) < CutVars2_[i];
+  }
+  return fabs(ReturnCandVar(ele, i)) < CutVars2_[i+nBarrelVars_];
+}
+/////////////////////////////////////////////////////////////////////////
+bool ZeePlots::CheckCut2Inv(const pat::Electron *ele, int i) {
+  double fabseta = fabs(ele->superCluster()->eta());
+  if ( fabseta<1.479) {
+    if (InvVars_[i]) return fabs(ReturnCandVar(ele, i))>CutVars2_[i];
+    return fabs(ReturnCandVar(ele, i)) < CutVars2_[i];
+  }
+  if (InvVars_[i+nBarrelVars_]) {
+    if (InvVars_[i])
+      return fabs(ReturnCandVar(ele, i))>CutVars2_[i+nBarrelVars_];
+  }
+  return fabs(ReturnCandVar(ele, i)) < CutVars2_[i+nBarrelVars_];
+}
+////////////////////////////////////////////////////////////////////////
 
 // ------------ method called once each job just before starting event loop  --
 void 
@@ -360,6 +449,23 @@ ZeePlots::beginJob(const edm::EventSetup&)
   CutVars_.push_back( deta_EE_);    //5
   CutVars_.push_back( hoe_EE_ );    //6 
   //
+  // 2nd leg variables
+  CutVars2_.push_back( trackIso2_EB_ );//0
+  CutVars2_.push_back( ecalIso2_EB_ ); //1
+  CutVars2_.push_back( hcalIso2_EB_ ); //2
+  CutVars2_.push_back( sihih2_EB_ );   //3
+  CutVars2_.push_back( dphi2_EB_ );    //4
+  CutVars2_.push_back( deta2_EB_ );    //5
+  CutVars2_.push_back( hoe2_EB_ );     //6
+
+  CutVars2_.push_back( trackIso2_EE_);//0
+  CutVars2_.push_back( ecalIso2_EE_); //1
+  CutVars2_.push_back( hcalIso2_EE_); //2
+  CutVars2_.push_back( sihih2_EE_);   //3
+  CutVars2_.push_back( dphi2_EE_);    //4
+  CutVars2_.push_back( deta2_EE_);    //5
+  CutVars2_.push_back( hoe2_EE_ );    //6 
+  //...........................................
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
   InvVars_.push_back( hcalIso_EB_inv); //2
