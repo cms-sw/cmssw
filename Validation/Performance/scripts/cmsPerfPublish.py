@@ -583,12 +583,7 @@ def getStageRepDirs(options,args):
     if remote:
         #Cannot use this since the /tmp is limited to 2GB on lxbuild machines!
         #TMP_DIR=tmp.mkdtemp(prefix="/tmp/%s" % PROG_NAME)
-        #Issues with /build permissions on lxbuild107... decided to dump this in /tmp/$USER
-        #This way, no issue with permissions, to avoid space issues user can set symlinks...
-        #TMP_DIR=tmp.mkdtemp(prefix="/build/%s" % PROG_NAME)
-        #if not os.path.exists('/tmp/%s'%USER):
-            
-        TMP_DIR=tmp.mkdtemp(prefix="/tmp/%s/%s"%(USER,PROG_NAME))
+        TMP_DIR=tmp.mkdtemp(prefix="/build/%s" % PROG_NAME)
         StagingArea = TMP_DIR
     #Local but dir already exists
     elif defaultlocal and localExists:
