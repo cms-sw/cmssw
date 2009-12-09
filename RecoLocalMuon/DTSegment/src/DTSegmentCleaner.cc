@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/12/03 12:52:23 $
- * $Revision: 1.9 $
+ * $Date: 2009/05/15 13:21:50 $
+ * $Revision: 1.10 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -38,7 +38,7 @@ DTSegmentCleaner::~DTSegmentCleaner() {
 /* Operations */ 
 vector<DTSegmentCand*> DTSegmentCleaner::clean(vector<DTSegmentCand*> inputCands) const {
   if (inputCands.size()<2) return inputCands;
- 
+  //   cout << "[DTSegmentCleaner] # of candidates: " << inputCands.size() << endl;
   vector<DTSegmentCand*> result = solveConflict(inputCands);
 
   result = ghostBuster(result);
@@ -51,6 +51,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
 
   vector<DTSegmentCand*> ghosts;
 
+
   for (vector<DTSegmentCand*>::iterator cand=inputCands.begin();
        cand!=inputCands.end(); ++cand) {
     for (vector<DTSegmentCand*>::iterator cand2 = cand+1 ; cand2!=inputCands.end() ; ++cand2) {
@@ -58,33 +59,63 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
 
       if (confHits.size()) {
+	///treatment of LR ambiguity cases: 1 chooses the best chi2
+	///                                 2 chooses the smaller angle
+	///                                 3 keeps both candidates
+	if((confHits.size())==((*cand)->nHits()) && (confHits.size())==((*cand2)->nHits())
+	   && (fabs((*cand)->chi2()-(*cand2)->chi2())<0.1) ) { // cannot choose on the basis of # of hits or chi2
 
-	if ( segmCleanerMode == 2
-	     && (confHits.size())==((*cand)->nHits()) && (confHits.size())==((*cand2)->nHits())
-	     && (fabs((*cand)->chi2()-(*cand2)->chi2())<0.1))
-	  {
-	    LocalVector dir1 = (*cand)->direction();
-	    LocalVector dir2 = (*cand2)->direction();
-	    float phi1=(atan((dir1.x())/(dir1.z())));
-	    float phi2=(atan((dir2.x())/(dir2.z())));
+	  if(segmCleanerMode == 2) { // mode 2: choose on the basis of the angle
 
-	    DTSegmentCand* badCand = (fabs(phi1) > fabs(phi2)) ? (*cand) : (*cand2);
+	    DTSegmentCand* badCand = 0;
+	    if((*cand)->superLayer()->id().superlayer() != 2) { // we are in the phi view
+
+	      LocalVector dir1 = (*cand)->direction();
+	      LocalVector dir2 = (*cand2)->direction();
+	      float phi1=(atan((dir1.x())/(dir1.z())));
+	      float phi2=(atan((dir2.x())/(dir2.z())));
+
+	      badCand = (fabs(phi1) > fabs(phi2)) ? (*cand) : (*cand2);
+
+	    } else {  // we are in the theta view: choose the most pointing one
+
+	      GlobalPoint IP;
+
+	      GlobalVector cand1GlobDir = (*cand)->superLayer()->toGlobal((*cand)->direction());
+	      GlobalPoint cand1GlobPos =  (*cand)->superLayer()->toGlobal((*cand)->position());
+	      GlobalVector cand1GlobVecIP = cand1GlobPos-IP;
+	      float DAlpha1 = fabs(cand1GlobDir.theta()-cand1GlobVecIP.theta());
+
+
+	      GlobalVector cand2GlobDir = (*cand2)->superLayer()->toGlobal((*cand2)->direction());
+	      GlobalPoint cand2GlobPos = (*cand2)->superLayer()->toGlobal((*cand2)->position());
+	      GlobalVector cand2GlobVecIP = cand2GlobPos-IP;
+	      float DAlpha2 = fabs(cand2GlobDir.theta()-cand2GlobVecIP.theta());
+
+	      badCand = (DAlpha1 > DAlpha2) ? (*cand) : (*cand2);
+		
+	    }
+
 	    for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
 		 cHit!=confHits.end(); ++cHit) {
 	      badCand->removeHit(*cHit);
 	    }
-	  }
-	else {
+	      
+	  } else { // mode 3: keep both candidates
+	    continue;
+	  } 	
 
+	} else { // mode 1: take > # hits or best chi2
 	  DTSegmentCand* badCand = (**cand) < (**cand2) ? (*cand) : (*cand2);
 	  for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
 	       cHit!=confHits.end(); ++cHit) badCand->removeHit(*cHit);
-       
 	}
+
       }
     }
   }
 
+ 
   vector<DTSegmentCand*>::iterator cand=inputCands.begin();
   while ( cand < inputCands.end() ) {
     if ((*cand)->good()) result.push_back(*cand);
