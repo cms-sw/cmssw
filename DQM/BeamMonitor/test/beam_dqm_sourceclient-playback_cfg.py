@@ -89,9 +89,9 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 # Scheduling
 #--------------------------
 process.phystrigger = cms.Sequence(process.hltTriggerTypeFilter*process.gtDigis*process.hltLevel1GTSeed)
-process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
-process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctfTracks
-PixelLess)
+process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
+process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
+process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctfTracksPixelLess)
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
 process.p = cms.Path(process.phystrigger*process.tracking*process.monitor*process.dqmSaver)
