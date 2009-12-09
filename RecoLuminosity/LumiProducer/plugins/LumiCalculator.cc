@@ -13,25 +13,27 @@
 #include <boost/regex.hpp>
 #include <iostream>
 #include <map>
-struct MyPerTriggerInfo{
-  std::string hltname;
-  std::string l1name;
-  unsigned int l1prescale;
-  unsigned int l1out;
-  unsigned int hltin;
-  unsigned int hltout;
-  unsigned int hltprescale;
+struct hltPerPathInfo{
+  hltPerPathInfo():inputcount(0),outputcount(0),prescale(0){}
+  unsigned int inputcount;
+  unsigned int outputcount;
+  unsigned int prescale;
+};
+struct l1PerBitInfo{
+  l1PerBitInfo():count(0),prescale(0){}
+  unsigned int count;
+  unsigned int prescale;
 };
 struct MyPerLumiInfo{
   unsigned int lsnum;
   float livefraction;
   float intglumi;
-  std::vector<MyPerTriggerInfo> triggers;
 };
+
 class LumiCalculator : public edm::EDAnalyzer{
 public:
   
-  explicit LumiCalculator(edm::ParameterSet const&);
+  explicit LumiCalculator(edm::ParameterSet const& pset);
   virtual ~LumiCalculator();
 
 private:  
@@ -44,15 +46,20 @@ private:
   virtual void endJob();
   std::vector<std::string> splitpathstr(const std::string& strValue,const std::string separator);
   HLTConfigProvider hltConfig_;
-  std::multimap<std::string,std::string> trgpathMmap_;
+  std::multimap<std::string,std::string> trgpathMmap_;//key:hltpath,value:l1bit
+  std::map<std::string,hltPerPathInfo> hltmap_;
+  std::map<std::string,l1PerBitInfo> l1map_;//
   std::vector<MyPerLumiInfo> perrunlumiinfo_;
-  //edm::LogInfo("LumiReport")log_;
+private:
   edm::LogInfo* log_;
+  bool showTrgInfo_;
+  unsigned int currentlumi_;
 };//end class
 
 // -----------------------------------------------------------------
 
-LumiCalculator::LumiCalculator(edm::ParameterSet const& iConfig):log_( new edm::LogInfo("LumiReport")){
+LumiCalculator::LumiCalculator(edm::ParameterSet const& pset):log_( new edm::LogInfo("LumiReport")),currentlumi_(0){
+  showTrgInfo_=pset.getUntrackedParameter<bool>("showTriggerInfo",false);
 }
 
 // -----------------------------------------------------------------
@@ -82,140 +89,258 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
   }
   perrunlumiinfo_.clear();
   trgpathMmap_.clear();
-  
+  hltmap_.clear();
+  l1map_.clear();
   //hltConfig_.dump("processName");
   //hltConfig_.dump("TableName");
   //hltConfig_.dump("Triggers");
   //hltConfig_.dump("Modules");  
-  *log_<<"======Trigger Configuration Overview======\n";
-  *log_<<"Run "<<run.run()<<" Trigger Table : "<<hltConfig_.tableName()<<"\n";
-  
+  if(showTrgInfo_){
+    *log_<<"======Trigger Configuration Overview======\n";
+    *log_<<"Run "<<run.run()<<" Trigger Table : "<<hltConfig_.tableName()<<"\n";
+  }
   unsigned int totaltrg=hltConfig_.size();
   for (unsigned int t=0;t<totaltrg;++t){
     std::string hltname(hltConfig_.triggerName(t));
     std::vector<std::string> numpathmodules=hltConfig_.moduleLabels(hltname);
-    *log_<<t<<" HLT path\t"<<hltname<<"\n";
+    if(showTrgInfo_){
+      *log_<<t<<" HLT path\t"<<hltname<<"\n";
+    }
+    hltPerPathInfo hlt;
+    hlt.prescale=1;
+    hltmap_.insert(std::make_pair(hltname,hlt));
     std::vector<std::string>::iterator hltpathBeg=numpathmodules.begin();
     std::vector<std::string>::iterator hltpathEnd=numpathmodules.end();
+    unsigned int mycounter=0;
     for(std::vector<std::string>::iterator numpathmodule = hltpathBeg;
 	numpathmodule!=hltpathEnd; ++numpathmodule ) {
-      if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed"){
-	edm::ParameterSet l1GTPSet=hltConfig_.modulePSet(*numpathmodule);
-	std::string l1pathname=l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
-	if(l1pathname.find("OR")!=std::string::npos){
-	  *log_<<"    L1SeedsLogicalExpression(ORed) "<< l1pathname<< "\n";
-	  std::vector<std::string> seeds=splitpathstr(l1pathname," OR ");
+      if (hltConfig_.moduleType(*numpathmodule) != "HLTLevel1GTSeed"){
+	continue;
+      }
+      ++mycounter;
+     
+      edm::ParameterSet l1GTPSet=hltConfig_.modulePSet(*numpathmodule);
+      std::string l1pathname=l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+      //*log_<<"numpathmodule "<< *numpathmodule <<" : l1pathname "<<l1pathname<<"\n";
+      if(mycounter>1){
+	if(showTrgInfo_){
+	  *log_<<"\tskip and erase previous seeds : multiple L1SeedsLogicalExpressions per hlt path\n";
+	}
+	//erase all previously calculated seeds for this path
+	trgpathMmap_.erase(hltname);
+	continue;
+      }
+      if(l1pathname.find("(")!=std::string::npos){
+	if(showTrgInfo_){
+	  *log_<<"  L1SeedsLogicalExpression(Complex)\t"<<l1pathname<<"\n";
+	  *log_<<"\tskip:contain complex logic\n";
+	}
+	continue;
+      }else if(l1pathname.find("OR")!=std::string::npos){
+	if(showTrgInfo_){
+	  *log_<<"  L1SeedsLogicalExpression(ORed)\t"<<l1pathname<<"\n";
+	}
+	std::vector<std::string> seeds=splitpathstr(l1pathname," OR ");
+	if(seeds.size()>2){
+	  if(showTrgInfo_){
+	    *log_<<"\tskip:contain >1 OR\n";
+	  }
+	  continue;
+	}else{
 	  for(std::vector<std::string>::iterator i=seeds.begin();i!=seeds.end();++i){
-	    if(i->size()!=0)  *log_<<"\t\tseed: "<<*i<<"\n";
-	    if(i==seeds.begin()){//for now we take the first one
-	      trgpathMmap_.insert(std::make_pair(hltname,*i));
+	    if(i->size()!=0 && showTrgInfo_)  *log_<<"\t\tseed: "<<*i<<"\n";
+	    if(i==seeds.begin()){//for now we take the first one from OR
+		trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }
 	  }
-	}else if (l1pathname.find("AND")!=std::string::npos){
-	  *log_<<"    L1SeedsLogicalExpression(ANDed)\t"<< l1pathname<< "\n";
-	  std::vector<std::string> seeds=splitpathstr(l1pathname," AND ");
+	}
+      }else if (l1pathname.find("AND")!=std::string::npos){
+	if(showTrgInfo_){
+	  *log_<<"  L1SeedsLogicalExpression(ANDed)\t"<< l1pathname<< "\n";
+	}
+	std::vector<std::string> seeds=splitpathstr(l1pathname," AND ");
+	if(seeds.size()>2){
+	  if(showTrgInfo_){
+	    *log_<<"\tskip:contain >1 AND\n";
+	  }
+	  continue;
+	}else{
 	  for(std::vector<std::string>::iterator i=seeds.begin();
 	      i!=seeds.end();++i){
-	    if(i->size()!=0) *log_<<"\t\tseed: "<<*i<<"\n";
+	    if(i->size()!=0 && showTrgInfo_) *log_<<"\t\tseed: "<<*i<<"\n";
 	    if(i==seeds.begin()){//for now we take the first one 
 	      trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }
 	  }
-	}else{
-	  *log_<<"    L1Seeds(ONE)\t"<< l1pathname<<"\n";
-	  trgpathMmap_.insert(std::make_pair(hltname,l1pathname));
-	}	
-      }
+	}
+      }else{
+	if(showTrgInfo_){
+	  *log_<<"  L1SeedsLogicalExpression(ONE)\t"<< l1pathname<<"\n";
+	}
+	if(splitpathstr(l1pathname," NOT ").size()>1){
+	  if(showTrgInfo_){
+	    *log_<<"\tskip:contain NOT\n";
+	  }
+	  continue;
+	}
+	trgpathMmap_.insert(std::make_pair(hltname,l1pathname));
+      }	
     }
   }
-  *log_<<"================"<<std::endl;
+  if(showTrgInfo_){
+    *log_<<"================\n";
+  }
 }
 
 // -----------------------------------------------------------------
 void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
 					edm::EventSetup const& c){
-      /**Integrated Luminosity per Lumi Section
+  /**Integrated Luminosity per Lumi Section
      instantaneousLumi*93.244(sec)
-   **/
+  **/
   //std::cout<<"I'm in lumi block "<<lumiBlock.id()<<std::endl;
-  MyPerLumiInfo l;
-  l.lsnum=lumiBlock.id().luminosityBlock();
+  
   edm::Handle<LumiSummary> lumiSummary;
   lumiBlock.getByLabel("lumiProducer", lumiSummary);
+  
+  MyPerLumiInfo l;
+  l.lsnum=lumiBlock.id().luminosityBlock();
+
+  //
+  //collect lumi. 
+  //
   l.intglumi=lumiSummary->avgInsDelLumi()*93.244;
   l.livefraction=lumiSummary->liveFrac();
-  *log_<<"================Lumi Section Summary ================\n";
-  *log_<<"Section"<<lumiBlock.id().luminosityBlock()<<" : Integrated Luminosity "<<l.intglumi<<"\n";
-  std::multimap<std::string,std::string>::iterator trgIt;
-  std::multimap<std::string,std::string>::iterator trgBeg=trgpathMmap_.begin();
-  std::multimap<std::string,std::string>::iterator trgEnd=trgpathMmap_.end();
-  for(trgIt=trgBeg; trgIt!=trgEnd;++trgIt){
-    MyPerTriggerInfo trg;
-    trg.hltname=trgIt->first;
-    trg.l1name=trgIt->second;
-    trg.hltin=lumiSummary->hltinfo(trg.hltname).inputcount;
-    trg.hltout=lumiSummary->hltinfo(trg.hltname).ratecount;
-    trg.hltprescale=lumiSummary->hltinfo(trg.hltname).scalingfactor;
-    //std::cout<<"trigger name "<<trg.l1name<<std::endl;
-    trg.l1out=lumiSummary->l1info(trg.l1name).ratecount;
-    trg.l1prescale=lumiSummary->l1info(trg.l1name).scalingfactor;
-    l.triggers.push_back(trg);
+  
+  *log_<<"====== Lumi Section "<<lumiBlock.id().luminosityBlock()<<" ======\n";
+  *log_<<"\t Luminosity "<<l.intglumi<<"\n";
+  *log_<<"\t Deadtime corrected Luminosity "<<l.intglumi*l.livefraction<<"\n";
+
+  //
+  //print correlated hlt-l1 info, only if you ask
+  //
+  if(showTrgInfo_){
+    std::map<std::string,hltPerPathInfo>::iterator hltit;
+    std::map<std::string,hltPerPathInfo>::iterator hltitBeg=hltmap_.begin();
+    std::map<std::string,hltPerPathInfo>::iterator hltitEnd=hltmap_.end();
+    
+    typedef std::pair< std::multimap<std::string,std::string>::iterator,std::multimap<std::string,std::string>::iterator > TRGMAPIT;
+    unsigned int c=0;
+    for(hltit=hltitBeg;hltit!=hltitEnd;++hltit){
+      std::string hltname=hltit->first;
+      *log_<<c<<" HLT path  "<<hltname<<" , prescale : "<<hltit->second.prescale<<" , in : "<<hltit->second.inputcount<<" , out : "<<hltit->second.outputcount<<"\n";
+      TRGMAPIT ppp;
+      ppp=trgpathMmap_.equal_range(hltname);
+      if(ppp.first==ppp.second){
+	*log_<<"    no L1\n";
+      }
+      for(std::multimap<std::string,std::string>::iterator mit=ppp.first; mit!=ppp.second; ++mit){
+	std::string l1name=mit->second;
+	*log_<<"    L1 name : "<<l1name;
+	LumiSummary::L1 l1result=lumiSummary->l1info(l1name);
+	if( l1result.ratecount!=-99 ){
+	  *log_<<" , count : "<<l1result.ratecount<<" , deadtime : "<<l1result.deadtimecount<<" , prescale : "<<l1result.scalingfactor<<"\n";
+	}else{
+	  *log_<<" , no match count \n";
+	}
+	*log_<<"\n";
+      }
+      ++c;
+    }
   }
+  //
+  //accumulate hlt counts. Absent for now
+  //
+  /**
+     for(hltit=hltitBeg;hltit!=hltitEnd;++hltit){
+     }
+  **/
+  
+  //
+  //accumulate l1 counts
+  //
+  size_t n=lumiSummary->nTriggerLine();
+  for(size_t i=0;i<n;++i){
+    std::string l1bitname=lumiSummary->l1info(i).triggersource;
+    l1PerBitInfo t;
+    if(currentlumi_==0){
+      t.count=lumiSummary->l1info(i).ratecount;
+      t.prescale=lumiSummary->l1info(i).scalingfactor;
+      l1map_.insert(std::make_pair(l1bitname,t));
+    }else{
+      std::map<std::string,l1PerBitInfo>::iterator it=l1map_.find(l1bitname);
+      if(it!=l1map_.end()){
+	it->second.count += lumiSummary->l1info(i).ratecount;
+      }
+    }
+  }
+  
   perrunlumiinfo_.push_back(l);
+
+  ++currentlumi_;
 }
  
 // -----------------------------------------------------------------
 void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c){
-  /**Integrated Luminosity per run (delivered,recorded)
-     Delivered: sum over all LS lumiSummary->avgInsDelLumi()*93.244 
-     Recorded: sum over HLX&&HF certified LS
-     avgInsDelLumi()*93.244*livefraction()
+  /**Notes on calculation:
      
+  1. CMS recorded Luminosity per run :
+     sum over HLX&&HF certified LS 
+     lumiSummary->avgInsDelLumi()*93.244*livefraction()
+
+     2. Effective Luminosity per run per trigger line:
      For the moment, we take only the first L1 seed in case of 'OR' or 'AND'
      relationship between HLT and L1 seeds
-     Effective Luminosity per run per trigger line
-      avgInsDelLumi()*93.244*livefraction()/(HLTprescale*L1prescale)
+     
+     avgInsDelLumi()*93.244*livefraction()/(HLTprescale*L1prescale)
+     for now HLTprescale=1
+     
+     3. LHC delivered:
+     there is no point in calculating delivered when data do not contain all LS
   **/
   //std::cout<<"valid trigger lines "<<trgpathMmap_.size()<<std::endl;
   //std::cout<<"total lumi lines "<<perrunlumiinfo_.size()<<std::endl;
   std::vector<MyPerLumiInfo>::const_iterator lumiIt;
   std::vector<MyPerLumiInfo>::const_iterator lumiItBeg=perrunlumiinfo_.begin();
   std::vector<MyPerLumiInfo>::const_iterator lumiItEnd=perrunlumiinfo_.end(); 
-  float delivered=0.0;
   float recorded=0.0;
-  std::map< std::string,float > effectivelumiMap;
+  
+  *log_<<"================ Run Summary "<<run.run()<<"================\n";
   for(lumiIt=lumiItBeg;lumiIt!=lumiItEnd;++lumiIt){//loop over LS
-    //*log_<<"\tLumiSection "<<lumiIt->lsnum<<"\n";
-    std::vector<MyPerTriggerInfo>::const_iterator trIt;
-    std::vector<MyPerTriggerInfo>::const_iterator trItBeg=lumiIt->triggers.begin();
-    std::vector<MyPerTriggerInfo>::const_iterator trItEnd=lumiIt->triggers.end();
-    for(trIt=trItBeg;trIt!=trItEnd;++trIt){    //loop over Trigger
-      std::string efftrgName;
-      if(lumiIt==lumiItBeg){
-	efftrgName=trIt->hltname+":"+trIt->l1name;
-	effectivelumiMap.insert(std::make_pair(efftrgName,0.0));
-      }
-      *log_<<"     HLT:\n";
-      *log_<<"\t name "<<trIt->hltname<<" : in "<<trIt->hltin<<" : out "<<trIt->hltout<<" : prescale "<<trIt->hltprescale<<"\n";
-      *log_<<"     L1:\n";
-      *log_<<"\t name "<<trIt->l1name<<" : out "<<trIt->l1out<<" : prescale "<<trIt->l1prescale<<"\n-------------------\n";
-      float efflumi=effectivelumiMap.find(efftrgName)->second;
-      efflumi += (lumiIt->intglumi*lumiIt->livefraction)/(trIt->l1prescale*trIt->hltprescale);
-      effectivelumiMap.find(efftrgName)->second=efflumi;
+    recorded += lumiIt->intglumi*lumiIt->livefraction;  
+  }
+  *log_<<"  CMS Recorded Lumi (e+28cm^-2) : "<<recorded<<"\n";
+  *log_<<"  Effective Lumi (e+28cm^-2) per trigger path: "<<"\n";
+  std::multimap<std::string,std::string>::iterator it;
+  std::multimap<std::string,std::string>::iterator itBeg=trgpathMmap_.begin();
+  std::multimap<std::string,std::string>::iterator itEnd=trgpathMmap_.end();
+  unsigned int cc=0;
+  for(it=itBeg;it!=itEnd;++it){
+    *log_<<cc<<"  "<<it->first<<" - "<<it->second<<" : ";
+    ++cc;
+    std::map<std::string,hltPerPathInfo>::const_iterator hltIt=hltmap_.find(it->first);
+    if( hltIt==hltmap_.end() ){
+      std::cout<<"HLT path "<<it->first<<" not found exception"<<std::endl;
+      *log_<<"\n";
+      continue;
     }
-    delivered += lumiIt->intglumi;
-    recorded += lumiIt->intglumi*lumiIt->livefraction;
+    std::map<std::string,l1PerBitInfo>::const_iterator l1It=l1map_.find(it->second);
+    if( l1It==l1map_.end() ){
+      std::cout<<"L1 bit "<<it->second<<" not found exception"<<std::endl;
+      *log_<<"\n";
+      continue;
+    }
+    unsigned int hltprescale=hltIt->second.prescale;
+    unsigned int l1prescale=l1It->second.prescale;
+    if( hltprescale!=0 && l1prescale!=0 ){
+      float effectiveLumi=recorded/(hltprescale*l1prescale);
+      *log_<<effectiveLumi<<"\n";
+    }else{
+      *log_<<"0 prescale exception\n";
+      continue;
+    }
+    *log_<<"\n"; 
   }
-  *log_<<"================ Run Summary ================\n";
-  *log_<<"\t LHC Delivered Lumi "<<delivered<<"\n";
-  *log_<<"\t CMS Recorded Lumi "<<recorded<<"\n";
-  std::map< std::string,float >::const_iterator effLumiMapIt;
-  std::map< std::string,float >::const_iterator effLumiMapItBeg=effectivelumiMap.begin();
-  std::map< std::string,float >::const_iterator effLumiMapItEnd=effectivelumiMap.end();
-  for(effLumiMapIt=effLumiMapItBeg;effLumiMapIt!=effLumiMapItEnd;++effLumiMapIt){
-    *log_<<"\t Effective Lumi in "<<effLumiMapIt->first<<"\t"<<effLumiMapIt->second<<"\n";
-  }
-  *log_<<std::endl;
 }
 
 
