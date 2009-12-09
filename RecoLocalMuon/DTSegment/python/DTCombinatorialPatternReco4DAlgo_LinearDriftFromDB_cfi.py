@@ -18,8 +18,6 @@ DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB = cms.PSet(
         # Parameters for the updator
         # this is the RecHit1D algo!!
         DTLinearDriftFromDBAlgo,
-        segmCleanerMode = cms.int32(1),
-        nSharedHitsMax = cms.int32(2),
         debug = cms.untracked.bool(False),
         # Parameters for the cleaner
         nUnSharedHitsMin = cms.int32(2),

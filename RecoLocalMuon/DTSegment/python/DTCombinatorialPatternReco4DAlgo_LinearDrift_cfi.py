@@ -18,9 +18,6 @@ DTCombinatorialPatternReco4DAlgo_LinearDrift = cms.PSet(
         DTLinearDriftAlgo,
         # this are the RecSegment2D algo parameters!
         DTCombinatorialPatternReco2DAlgo_LinearDrift,
-        segmCleanerMode = cms.int32(1),
-        # Parameters for the cleaner
-        nSharedHitsMax = cms.int32(2),
         debug = cms.untracked.bool(False),
         nUnSharedHitsMin = cms.int32(2),
         # the input type. 
