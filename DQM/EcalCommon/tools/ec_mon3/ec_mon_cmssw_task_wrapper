@@ -650,23 +650,23 @@ process.ecalEndcapMonitorClient.location = 'P5_Co'
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Led', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
 
 #process.ecalBarrelLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
-#process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
-process.ecalBarrelLaserTask.laserWavelengths = [ 1 ]
+process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
+#process.ecalBarrelLaserTask.laserWavelengths = [ 1 ]
 
 #process.ecalEndcapLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
-#process.ecalEndcapLaserTask.laserWavelengths = [ 1, 4 ]
-process.ecalEndcapLaserTask.laserWavelengths = [ 1 ]
+process.ecalEndcapLaserTask.laserWavelengths = [ 1, 4 ]
+#process.ecalEndcapLaserTask.laserWavelengths = [ 1 ]
 
 process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
 #process.ecalEndcapLedTask.ledWavelengths = [ 1 ]
 
 #process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
-#process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 4 ]
-process.ecalBarrelMonitorClient.laserWavelengths = [ 1 ]
+process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 4 ]
+#process.ecalBarrelMonitorClient.laserWavelengths = [ 1 ]
 
 #process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
-#process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
-process.ecalEndcapMonitorClient.laserWavelengths = [ 1 ]
+process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
+#process.ecalEndcapMonitorClient.laserWavelengths = [ 1 ]
 
 #process.ecalEndcapMonitorClient.ledWavelengths = [ 1 ]
 process.ecalEndcapMonitorClient.ledWavelengths = [ 1, 2 ]
