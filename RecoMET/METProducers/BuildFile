@@ -6,6 +6,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TrackReco>
 <use name=CalibFormats/HcalObjects>
+<use name=RecoLocalCalo/HcalRecAlgos>
 <export>
  <lib name=RecoMETMETProducers>
  <use name=DataFormats/METReco>
@@ -15,4 +16,5 @@
  <use name=DataFormats/JetReco>
  <use name=DataFormats/TrackReco>
  <use name=CalibFormats/HcalObjects>
+<use name=RecoLocalCalo/HcalRecAlgos>
 </export>

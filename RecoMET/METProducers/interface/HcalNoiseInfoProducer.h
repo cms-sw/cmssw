@@ -20,10 +20,8 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
@@ -46,7 +44,6 @@ namespace reco {
     // methods inherited from EDProducer
     // produce(...) fills an HcalNoiseRBXArray with information from various places, and then
     // picks which rbxs are interesting, storing them to the EDM.
-    // Pedestals are uploaded and stored each run
     //
     
     virtual void beginJob() ;
@@ -63,7 +60,6 @@ namespace reco {
     void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
     void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
     void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
-    void filljets(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
 
     // other helper functions
@@ -80,21 +76,16 @@ namespace reco {
     bool fillCaloTowers_;   // fill calotower information into HcalNoiseRBXs and HcalNoiseSummary
     bool fillJets_;         // fill jet information into HcalNoiseSummary
     bool fillTracks_;       // fill track information into HcalNoiseSummary
-    bool dropRefVectors_;   // clear the HcalNoiseHPD RefVectors before storing
 
     bool refillRefVectors_; // find HcalNoiseRBXs already present in the event, and fill the RefVectors
 
     // These provide the requirements for writing an RBX to the event
     double RBXEnergyThreshold_; // minimum energy to even be considered for writing to edm
-    double minRecHitEnergy_; // Minimum rechit energy to consider
-
-    double minHPDEnergy_;    // min HPD Energy
-    double minRBXEnergy_;    // min RBX Energy
-    int maxProblemRBXs_;     // maximum number of problematic RBXs to be written to the event record
+    double minRecHitEnergy_;    // Minimum rechit energy to consider
+    int maxProblemRBXs_;        // maximum number of problematic RBXs to be written to the event record
+    bool writeAllRBXs_;         // write all the RBXs (above the energy threshold) to the event, whether "noisy" or not
 
     // parameters for calculating summary variables
-    double maxJetEmFraction_;   // maximum em fraction of jets in the summary object
-    double maxJetEta_;          // maximum eta of jets in the summary object (since HF is not added, 3.5 should be reasonable)
     int maxCaloTowerIEta_;      // maximum caloTower ieta
     double maxTrackEta_;        // maximum eta of the track
     double minTrackPt_;         // minimum track Pt
@@ -102,20 +93,8 @@ namespace reco {
     std::string digiCollName_;         // name of the digi collection
     std::string recHitCollName_;       // name of the rechit collection
     std::string caloTowerCollName_;    // name of the caloTower collection
-    std::string caloJetCollName_;      // name of the jet collection
     std::string trackCollName_;        // name of the track collection
     std::string hcalNoiseRBXCollName_; // name of the HcalNoiseRBX collection that we're adding RefVector information to
-    
-    bool requirePedestals_;  // require that pedestals are found, or throw an exception
-    double nominalPedestal_; // nominal pedestal used if pedestals aren't found
-    
-    
-    //
-    // pedestals stored for each run
-    //
-    
-    typedef std::map<HcalDetId, double> pedestalmap_t;
-    pedestalmap_t pedestalmap_;
     
   };
   
