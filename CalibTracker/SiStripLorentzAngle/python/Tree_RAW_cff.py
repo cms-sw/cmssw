@@ -8,5 +8,5 @@ shallowTrackClusters.Clusters = 'CalibrationTracksRAW'
 shallowClusters.Clusters = 'CalibrationTracksRAW'
 
 #Schedule
-filter_refit_ntuplize_step = cms.Path( trackFilterRefitRAW + ntuple )
+filter_refit_ntuplize_step = cms.Path( trackFilterRefitRAW + LorentzAngleNtuple )
 schedule = cms.Schedule( reconstruction_step, filter_refit_ntuplize_step )
