@@ -46,8 +46,8 @@ private:
 
   string JetCorrectionJPT;
 
-  double  EtaGen1, PhiGen1, EtaRaw1, PhiRaw1, EtGen1, EtRaw1, EtMCJ1, EtZSP1, EtJPT1, DRMAXgjet1, EtaZSP1, PhiZSP1, EtaJPT1, PhiJPT1, MassGen1, MassRaw1, MassZSP1, MassJPT1, EnergyGen1, EnergyRaw1, EnergyZSP1, EnergyJPT1;
-  double  EtaGen2, PhiGen2, EtaRaw2, PhiRaw2, EtGen2, EtRaw2, EtMCJ2, EtZSP2, EtJPT2, DRMAXgjet2, EtaZSP2, PhiZSP2, EtaJPT2, PhiJPT2, MassGen2, MassRaw2, MassZSP2, MassJPT2, EnergyGen2, EnergyRaw2, EnergyZSP2, EnergyJPT2;
+  double  EtaGen1, PhiGen1, EtaRaw1, PhiRaw1, EtGen1, EtRaw1, EtMCJ1, EtZSP1, EtJPT1, DRMAXgjet1, EtaZSP1, PhiZSP1, EtaJPT1, PhiJPT1; 
+  double  EtaGen2, PhiGen2, EtaRaw2, PhiRaw2, EtGen2, EtRaw2, EtMCJ2, EtZSP2, EtJPT2, DRMAXgjet2, EtaZSP2, PhiZSP2, EtaJPT2, PhiJPT2; 
 
   TFile* hOutputFile ;
   TTree* t1;
@@ -83,16 +83,6 @@ void JPTAnalyzer::beginJob( const edm::EventSetup& ) {
   t1->Branch("EtaJPT1",&EtaJPT1,"EtaJPT1/D");
   t1->Branch("PhiJPT1",&PhiJPT1,"PhiJPT1/D");
 
-  t1->Branch("MassGen1",&MassGen1,"MassGen1/D");
-  t1->Branch("MassRaw1",&MassRaw1,"MassRaw1/D");
-  t1->Branch("MassZSP1",&MassZSP1,"MassZSP1/D");
-  t1->Branch("MassJPT1",&MassJPT1,"MassJPT1/D");
-
-  t1->Branch("EnergyGen1",&EnergyGen1,"EnergyGen1/D");
-  t1->Branch("EnergyRaw1",&EnergyRaw1,"EnergyRaw1/D");
-  t1->Branch("EnergyZSP1",&EnergyZSP1,"EnergyZSP1/D");
-  t1->Branch("EnergyJPT1",&EnergyJPT1,"EnergyJPT1/D");
-
   t1->Branch("EtaGen2",&EtaGen2,"EtaGen2/D");
   t1->Branch("PhiGen2",&PhiGen2,"PhiGen2/D");
   t1->Branch("EtaRaw2",&EtaRaw2,"EtaRaw2/D");
@@ -108,16 +98,6 @@ void JPTAnalyzer::beginJob( const edm::EventSetup& ) {
   t1->Branch("PhiZSP2",&PhiZSP2,"PhiZSP2/D");
   t1->Branch("EtaJPT2",&EtaJPT2,"EtaJPT2/D");
   t1->Branch("PhiJPT2",&PhiJPT2,"PhiJPT2/D");
-
-  t1->Branch("MassGen2",&MassGen2,"MassGen2/D");
-  t1->Branch("MassRaw2",&MassRaw2,"MassRaw2/D");
-  t1->Branch("MassZSP2",&MassZSP2,"MassZSP2/D");
-  t1->Branch("MassJPT2",&MassJPT2,"MassJPT2/D");
-
-  t1->Branch("EnergyGen2",&EnergyGen2,"EnergyGen2/D");
-  t1->Branch("EnergyRaw2",&EnergyRaw2,"EnergyRaw2/D");
-  t1->Branch("EnergyZSP2",&EnergyZSP2,"EnergyZSP2/D");
-  t1->Branch("EnergyJPT2",&EnergyJPT2,"EnergyJPT2/D");
 
   return ;
 }
@@ -191,16 +171,6 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
    PhiJPT1 = 0.;
    EtaJPT1 = 0.;
 
-   MassGen1 = 0.;
-   MassRaw1 = 0.;
-   MassZSP1 = 0.;
-   MassJPT1 = 0.;
-
-   EnergyGen1 = 0.;
-   EnergyRaw1 = 0.;
-   EnergyZSP1 = 0.;
-   EnergyJPT1 = 0.;
-
    EtaGen2 = 0.;
    PhiGen2 = 0.;
    EtaRaw2 = 0.;
@@ -216,16 +186,6 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
    EtaZSP2 = 0.;
    PhiJPT2 = 0.;
    EtaJPT2 = 0.;
-
-   MassGen2 = 0.;
-   MassRaw2 = 0.;
-   MassZSP2 = 0.;
-   MassJPT2 = 0.;
-
-   EnergyGen2 = 0.;
-   EnergyRaw2 = 0.;
-   EnergyZSP2 = 0.;
-   EnergyJPT2 = 0.;
 
    //   edm::ESHandle<CaloGeometry> geometry;
    //   iSetup.get<IdealGeometryRecord>().get(geometry);
@@ -419,16 +379,6 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
 	   EtaJPT1 = cjetJPT.eta(); 
 	   PhiJPT1 = cjetJPT.phi(); 
 
-	   MassGen1 = gjets[0].m();
-	   MassRaw1 = cjet->mass(); 
-	   MassZSP1 = zspjet->mass(); 
-	   MassJPT1 = cjetJPT.mass(); 
-
-	   EnergyGen1 = gjets[0].e();
-	   EnergyRaw1 = cjet->energy(); 
-	   EnergyZSP1 = zspjet->energy(); 
-	   EnergyJPT1 = cjetJPT.energy(); 
-	   
 	 }
 	 if(gjets.size() == 2) {
 	   double DRgjet2 = gjets[1].deltaR(cjetc);
@@ -449,16 +399,6 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
 	     PhiZSP2 = zspjet->phi(); 
 	     EtaJPT2 = cjetJPT.eta(); 
 	     PhiJPT2 = cjetJPT.phi(); 
-
-	     MassGen2 = gjets[1].m();
-	     MassRaw2 = cjet->mass(); 
-	     MassZSP2 = zspjet->mass(); 
-	     MassJPT2 = cjetJPT.mass(); 
-
-	     EnergyGen2 = gjets[1].e();
-	     EnergyRaw2 = cjet->energy(); 
-	     EnergyZSP2 = zspjet->energy(); 
-	     EnergyJPT2 = cjetJPT.energy(); 
 	     
 	   }
 	 }
