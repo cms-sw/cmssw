@@ -244,7 +244,7 @@ HDShower::HDShower(const RandomEngine* engine,
   }
   
   if( onECAL && e < emid ) {
-    if((depthECAL - depthStart)/depthECAL > 0.2 && depthECAL > depthStep ) {
+    if(depthECAL > depthStep && (depthECAL - depthStart)/depthECAL > 0.2) {
       
       depthStart = 0.5 * depthECAL * random->flatShoot();
       if(debug) 
@@ -281,7 +281,7 @@ HDShower::HDShower(const RandomEngine* engine,
     if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : onECAL" << std::endl;
     if(depthStart < depthECAL) {
       if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : depthStart < depthECAL" << std::endl;
-      if((depthECAL - depthStart)/depthECAL > 0.1 && depthECAL > depthStep) {
+      if(depthECAL > depthStep && (depthECAL - depthStart)/depthECAL > 0.1) {
 	if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : enough space to make ECAL step"
 		       << std::endl;
 	//  ECAL - one step
