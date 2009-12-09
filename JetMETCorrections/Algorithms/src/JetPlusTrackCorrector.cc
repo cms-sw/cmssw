@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
 using namespace jpt;
@@ -139,9 +140,33 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
   if ( verbose_ ) {
     std::stringstream ss;
     ss << "Total correction:" << std::endl
-       << " Uncorrected energy : " << fJet.energy() << std::endl
-       << " Corrected energy   : " << corrected.energy() << std::endl
-       << " Scalar correction  : " << scale;
+       << std::fixed << std::setprecision(6)
+       << " Uncorrected (Px,Py,Pz,E)   : " 
+       << "(" << fJet.px() 
+       << "," << fJet.py() 
+       << "," << fJet.pz() 
+       << "," << fJet.energy() 
+       << ")" << std::endl
+       << " Corrected (Px,Py,Pz,E)     : " 
+       << "(" << corrected.px()
+       << "," << corrected.py()
+       << "," << corrected.pz()
+       << "," << corrected.energy() 
+       << ")" << std::endl
+       << " Uncorrected (Pt,Eta,Phi,M) : " 
+       << "(" << fJet.pt() 
+       << "," << fJet.eta() 
+       << "," << fJet.phi() 
+       << "," << fJet.mass() 
+       << ")" << std::endl
+       << " Corrected (Pt,Eta,Phi,M)   : " 
+       << "(" << corrected.pt() 
+       << "," << corrected.eta() 
+       << "," << corrected.phi() 
+       << "," << corrected.mass() 
+       << ")" << std::endl
+       << " Scalar correction to E     : " << scale << std::endl
+       << " Scalar correction to Et    : " << ( fJet.et() > 0. ? corrected.Et() / fJet.et() : 1. );// << std::endl
     edm::LogVerbatim("JetPlusTrackCorrector") << ss.str();
   }
   
