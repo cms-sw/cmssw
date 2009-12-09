@@ -29,12 +29,12 @@ CondDBSetup = cms.PSet(
         enablePoolAutomaticCleanUp = cms.untracked.bool(False),
         enableConnectionSharing = cms.untracked.bool(True),
         connectionRetrialTimeOut = cms.untracked.int32(60),
-        connectionTimeOut = cms.untracked.int32(60),
+        connectionTimeOut = cms.untracked.int32(0),
         enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     )
 )
 
-GlobalTag = cms.ESSource("PoolDBESSource",
+process.GlobalTag = cms.ESSource("PoolDBESSource",
     CondDBSetup,
     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'),
 #    connect = cms.string('sqlite_fip:CondCore/TagCollection/data/GlobalTag.db'), #For use during release integration
@@ -46,7 +46,7 @@ GlobalTag = cms.ESSource("PoolDBESSource",
 )
 
 
-process.GlobalTag.globaltag = options.globalTag+'::all'
+process.GlobalTag.globaltag = options.globalTag+'::All'
 process.GlobalTag.DumpStat =  True
 # 'GR09_P_V6::All'
 #'CRAFT09_R_V9::All'
