@@ -52,11 +52,13 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   dphi_EB_ = iConfig.getUntrackedParameter<Double_t>("dphi_EB");
   deta_EB_ = iConfig.getUntrackedParameter<Double_t>("deta_EB");
   hoe_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe_EB");
+  userIso_EB_ = iConfig.getUntrackedParameter<Double_t>("userIso_EB",1000.);
   //
   sihih_EE_ = iConfig.getUntrackedParameter<Double_t>("sihih_EE");
   dphi_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi_EE");
   deta_EE_ = iConfig.getUntrackedParameter<Double_t>("deta_EE");
   hoe_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe_EE");
+  userIso_EE_ = iConfig.getUntrackedParameter<Double_t>("userIso_EE",1000.);
   //
   trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", 
 							    false);
@@ -76,11 +78,13 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   dphi_EB_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EB_inv",false);
   deta_EB_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EB_inv",false);
   hoe_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EB_inv",false);
+  userIso_EB_inv=iConfig.getUntrackedParameter<Bool_t>("userIso_EB_inv",false);
   //
   sihih_EE_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EE_inv", false);
   dphi_EE_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EE_inv", false);
   deta_EE_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EE_inv",false);
   hoe_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EE_inv",false);
+  userIso_EE_inv=iConfig.getUntrackedParameter<Bool_t>("userIso_EE_inv",false);
   useDifferentSecondLegSelection_ = iConfig.getUntrackedParameter<Bool_t>
     ("useDifferentSecondLegSelection",false);
   if (useDifferentSecondLegSelection_) {
@@ -98,11 +102,13 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     dphi2_EB_ = iConfig.getUntrackedParameter<Double_t>("dphi2_EB");
     deta2_EB_ = iConfig.getUntrackedParameter<Double_t>("deta2_EB");
     hoe2_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EB");
+    userIso2_EB_=iConfig.getUntrackedParameter<Double_t>("userIso2_EB", 1000.);
     //
     sihih2_EE_ = iConfig.getUntrackedParameter<Double_t>("sihih2_EE");
     dphi2_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi2_EE");
     deta2_EE_ = iConfig.getUntrackedParameter<Double_t>("deta2_EE");
     hoe2_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EE");
+    userIso2_EE_=iConfig.getUntrackedParameter<Double_t>("userIso2_EE", 1000.);
   }
   else {
     trackIso2_EB_ = trackIso_EB_;
@@ -117,11 +123,13 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     dphi2_EB_ = dphi_EB_;
     deta2_EB_ = deta_EB_;
     hoe2_EB_ = hoe_EB_;
+    userIso2_EB_ = userIso_EB_;
     //
     sihih2_EE_ = sihih_EE_;
     dphi2_EE_ = dphi_EE_;
     deta2_EE_ = deta_EE_;
     hoe2_EE_ = hoe_EE_;
+    userIso2_EE_ = userIso_EE_;
   }
 
 }
@@ -330,6 +338,7 @@ double ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
   else if (i==4) return ele->deltaPhiSuperClusterTrackAtVtx();
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
   else if (i==6) return ele->hadronicOverEm();
+  else if (i==7) return ele->userIsolation(pat::User1Iso);
   std::cout << "Error in ZeePlots::ReturnCandVar" << std::endl;
   return -1.;
 
@@ -428,7 +437,7 @@ ZeePlots::beginJob(const edm::EventSetup&)
 
   //
   // if you add some new variable change the nBarrelVars_ accordingly
-  nBarrelVars_ = 7;
+  nBarrelVars_ = 8;
   //
   // Put EB variables together and EE variables together
   // number of barrel variables = number of endcap variable
@@ -440,6 +449,7 @@ ZeePlots::beginJob(const edm::EventSetup&)
   CutVars_.push_back( dphi_EB_ );    //4
   CutVars_.push_back( deta_EB_ );    //5
   CutVars_.push_back( hoe_EB_ );     //6
+  CutVars_.push_back( userIso_EB_ ); //7
 
   CutVars_.push_back( trackIso_EE_);//0
   CutVars_.push_back( ecalIso_EE_); //1
@@ -448,6 +458,7 @@ ZeePlots::beginJob(const edm::EventSetup&)
   CutVars_.push_back( dphi_EE_);    //4
   CutVars_.push_back( deta_EE_);    //5
   CutVars_.push_back( hoe_EE_ );    //6 
+  CutVars_.push_back( userIso_EE_ );//7 
   //
   // 2nd leg variables
   CutVars2_.push_back( trackIso2_EB_ );//0
@@ -457,6 +468,7 @@ ZeePlots::beginJob(const edm::EventSetup&)
   CutVars2_.push_back( dphi2_EB_ );    //4
   CutVars2_.push_back( deta2_EB_ );    //5
   CutVars2_.push_back( hoe2_EB_ );     //6
+  CutVars2_.push_back( userIso2_EB_ ); //7
 
   CutVars2_.push_back( trackIso2_EE_);//0
   CutVars2_.push_back( ecalIso2_EE_); //1
@@ -465,6 +477,7 @@ ZeePlots::beginJob(const edm::EventSetup&)
   CutVars2_.push_back( dphi2_EE_);    //4
   CutVars2_.push_back( deta2_EE_);    //5
   CutVars2_.push_back( hoe2_EE_ );    //6 
+  CutVars2_.push_back( userIso2_EE_ );//7 
   //...........................................
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
@@ -473,6 +486,7 @@ ZeePlots::beginJob(const edm::EventSetup&)
   InvVars_.push_back( dphi_EB_inv);    //4
   InvVars_.push_back( deta_EB_inv);    //5
   InvVars_.push_back( hoe_EB_inv);     //6
+  InvVars_.push_back( userIso_EB_inv); //7
   //
   InvVars_.push_back( trackIso_EE_inv);//0
   InvVars_.push_back( ecalIso_EE_inv); //1
@@ -481,7 +495,7 @@ ZeePlots::beginJob(const edm::EventSetup&)
   InvVars_.push_back( dphi_EE_inv);    //4
   InvVars_.push_back( deta_EE_inv);    //5
   InvVars_.push_back( hoe_EE_inv);     //6
-
+  InvVars_.push_back( userIso_EE_inv); //7
   //
 
 
