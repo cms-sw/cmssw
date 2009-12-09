@@ -78,11 +78,13 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
   cout << "path = " << path << endl;
 
   if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
+  else if(rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits"))rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Pixel");
   else if (rfile->cd("DQMData/RecoTrackV")) rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
   else if (rfile->cd(path)) rfile->cd(path);
   rdir=gDirectory;
 
   if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
+  else if(sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits"))sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Pixel");
   else if (sfile->cd("DQMData/RecoTrackV")) sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
   else if (sfile->cd(path)) sfile->cd(path);
   sdir=gDirectory; 

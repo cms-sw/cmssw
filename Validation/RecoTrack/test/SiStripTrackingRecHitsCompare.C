@@ -31,7 +31,7 @@ void SetUpHistograms(TH1F* h1, TH1F* h2)
   */
 }
 
-void SiStripTrackingRecHitsCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__RelVal__Validation.root")
+void SiStripTrackingRecHitsCompare(char* originalNameR="DQM_V0001_R000000001__CMSSW_3_1_5__RelVal__Validation.root", char* originalNameS="DQM_V0001_R000000001__CMSSW_3_1_5__RelVal__Validation.root")
 {
   //color 2 = red  = rfile = new file
   //color 4 = blue = sfile = reference file
@@ -52,14 +52,18 @@ void SiStripTrackingRecHitsCompare(char* originalName="DQM_V0001_R000000001__CMS
  TFile * sfile = new TFile(sfilename);
  TDirectory * sdir=gDirectory; 
    
- char path[500];
- sprintf(path,"DQMData/Run 1/%s/DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip",originalName);
- cout << "path = " << path << endl;
+ char pathR[500];
+ sprintf(pathR,"DQMData/Run 1/%s/DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip",originalNameR);
+ cout << "pathR = " << pathR << endl;
+ char pathS[500];
+ sprintf(pathS,"DQMData/Run 1/%s/DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip",originalNameS);
+ cout << "pathS = " << pathS << endl;
 
  bool rgood=true;
  if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
+ else if(rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits"))rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Strip");
  else if (rfile->cd("DQMData/RecoTrackV")) rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
- else if (rfile->cd(path)) rfile->cd(path);
+ else if (rfile->cd(pathR)) rfile->cd(pathR);
  else {cout << "NEW HISTOS: no RecoTrackV directory found! STOP" << endl; rgood=false;}
 
  if (rgood) rdir=gDirectory;
@@ -67,8 +71,9 @@ void SiStripTrackingRecHitsCompare(char* originalName="DQM_V0001_R000000001__CMS
 
  bool sgood=true;
  if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
+ else if(sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits"))sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Strip");
  else if (sfile->cd("DQMData/RecoTrackV")) sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
- else if (sfile->cd(path)) sfile->cd(path);
+ else if (sfile->cd(pathS)) sfile->cd(pathS);
  else {cout << "REFERENCE HISTOS: no RecoTrackV directory found! STOP" << endl; sgood=false;}
 
  if (sgood) sdir=gDirectory; 
