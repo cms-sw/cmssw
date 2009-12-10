@@ -14,15 +14,17 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixel3DProxyBuilder.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
+// $Id: FWSiPixel3DProxyBuilder.cc,v 1.3 2009/12/03 04:34:04 latb Exp $
 //
 
 // system include files
 #include "TEveManager.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
+#include "TEveStraightLineSet.h"
 
 // user include files
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
@@ -93,6 +95,27 @@ void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
       }
 
       gEve->AddElement(list,tList);
+/////////////////////////////////////////////////////	   
+//LatB
+	   static int C2D=1;
+	   static int PRINT=1;
+	   if (C2D) {
+			if (PRINT) std::cout<<"SiPixelCluster  "<<index<<", "<<title<<std::endl;
+			TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+			for(edmNew::DetSet<SiPixelCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
+				double lx = (*ic).x();
+				double ly = (*ic).y();
+				TVector3 point; fireworks::localSiPixel(point, lx, ly, id, iItem);
+				static const double dd = .5;
+				scposition->AddLine(point.X()-dd, point.Y(), point.Z(), point.X()+dd, point.Y(), point.Z());
+				scposition->AddLine(point.X(), point.Y()-dd, point.Z(), point.X(), point.Y()+dd, point.Z());
+				scposition->AddLine(point.X(), point.Y(), point.Z()-dd, point.X(), point.Y(), point.Z()+dd);
+
+				scposition->SetLineColor(kRed);
+			}
+			gEve->AddElement(scposition,tList);
+	   }
+/////////////////////////////////////////////////////	   
    }
 }
 

@@ -144,7 +144,9 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
    scene->AddElement(list);
 	
+   list = new TEveElementList("SiStripClusterHits");
 	fireworks::addSiStripClusters(id.item(), *track, list, kRed);
+   scene->AddElement(list);
 //LatB
 
    scene->Repaint(true);

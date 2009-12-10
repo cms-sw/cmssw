@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.4 2009/12/04 22:56:39 latb Exp $
+// $Id: TrackUtils.h,v 1.5 2009/12/07 01:09:13 dmytro Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ public:
 
    double pixelLocalX(const double mpx, const int m_nrows);
    double pixelLocalY(const double mpy, const int m_ncols);
+	void localSiPixel(TVector3& point, double lx, double ly, DetId id, const FWEventItem* iItem); 
    void localSiStrip(TVector3& point, TVector3& pointA, TVector3& pointB, double bc, DetId id, const FWEventItem* iItem);
    // monoPoints include pixels (why?)
    void pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t);

@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.6 2009/12/07 01:09:13 dmytro Exp $
+// $Id: TrackUtils.cc,v 1.7 2009/12/07 01:38:32 chrjones Exp $
 //
 
 // system include files
@@ -372,8 +372,25 @@ namespace fireworks {
 	static const double dpBStrips[10] = { 80.*MICRON, 80.*MICRON, 120.*MICRON, 120.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 122.*MICRON, 122.*MICRON };
 	static const int nBStrips[10] = { 768, 768, 512, 512, 768, 768, 512, 512, 512, 512 };
 	static const double hBStrips[10] = { 11.69, 11.69, 11.69, 11.69, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16 };
-	static int PRINT=0;
+	static int PRINT=1;
 
+	void localSiPixel(TVector3& point, double row, double col, 
+							DetId id, const FWEventItem* iItem) {
+		
+		const DetIdToMatrix *detIdToGeo = iItem->getGeom();
+		const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+		double lx = 0.;
+		double ly = 0.;
+		pixelLocalXY(row, col, id, lx, ly);
+		if (PRINT) std::cout<<"SiPixelCluster, row=" << row << ", col=" << col ;
+		if (PRINT) std::cout << ", lx=" << lx << ", ly=" << ly ;
+		if (PRINT) std::cout << std::endl;
+		double local[3] = { lx,ly,0. };
+		double global[3] = { 0.,0.,0. };
+		m->LocalToMaster(local, global);
+		point.SetXYZ(global[0], global[1], global[2]);
+		
+	}
 	void localSiStrip(TVector3& point, TVector3& pointA, TVector3& pointB, 
 							double bc, DetId id, const FWEventItem* iItem) {
 
