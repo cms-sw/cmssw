@@ -1,6 +1,5 @@
 // Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.17 2009/08/17 12:06:35 alinn Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
+// Latest tag:  $Name: HEAD $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -11,6 +10,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -32,12 +32,18 @@ using namespace sistrip;
 /** */
 SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet& pset,
 							 const edm::ActivityRegistry&):
-  m_gaincalibrationfactor(static_cast<float>(pset.getUntrackedParameter<double>("GainNormalizationFactor",640.))), 
-  m_defaultthresholdhighvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdHigh",0.))), 
-  m_defaultthresholdlowvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdLow",0.))), 
+  m_gaincalibrationfactor(static_cast<float>(pset.getUntrackedParameter<double>("GainNormalizationFactor",690.))), 
   m_defaultpedestalvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultPedestal",0.))), 
   m_defaultnoisevalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultNoise",0.))), 
-  m_defaulttickheightvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultTickHeight",690.))) 
+  m_defaultthresholdhighvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdHigh",0.))), 
+  m_defaultthresholdlowvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdLow",0.))), 
+  m_defaultapvmodevalue(static_cast<uint16_t>(pset.getUntrackedParameter<uint32_t>("DefaultAPVMode",37))),
+  m_defaultapvlatencyvalue(static_cast<uint16_t>(pset.getUntrackedParameter<uint32_t>("DefaultAPVLatency",142))),
+  m_defaulttickheightvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultTickHeight",690.))),
+  m_useanalysis(static_cast<bool>(pset.getUntrackedParameter<bool>("UseAnalysis",false))),
+  m_usefed(static_cast<bool>(pset.getUntrackedParameter<bool>("UseFED",false))),
+  m_usefec(static_cast<bool>(pset.getUntrackedParameter<bool>("UseFEC",false))),
+  m_debug(static_cast<bool>(pset.getUntrackedParameter<bool>("DebugMode",false)))
 {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
@@ -85,14 +91,16 @@ bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input
   for ( ; ipart != ipartEnd; ++ipart ) { 
     SiStripPartition partition=ipart->second;
     output  << "@ "
-	<< " Partition " << partition.partitionName() 
-	<< " CabVer "    << partition.cabVersion().first << "." << partition.cabVersion().second
-        << " MaskVer "   << partition.maskVersion().first << "." << partition.maskVersion().second
-      ;
-    if (label!="Cabling")
-      output << " FedVer "    << partition.fedVersion().first << "." << partition.fedVersion().second;
+	    << " Partition " << partition.partitionName() ;
+    if (label!="Cabling" && label !="ApvLatency")
+	output << " FedVer "    << partition.fedVersion().first << "." << partition.fedVersion().second;       
+    if(label=="Cabling")
+      output << " CabVer "    << partition.cabVersion().first << "." << partition.cabVersion().second
+	     << " MaskVer "   << partition.maskVersion().first << "." << partition.maskVersion().second;
     if(label=="ApvTiming")
       output<< " ApvTimingVer " << partition.apvTimingVersion().first << "." << partition.apvTimingVersion().second;
+    if(label=="ApvLatency")
+      output<< " FecVersion " << partition.fecVersion().first << "." << partition.fecVersion().second;
   }
   
   if (!strcmp(output.str().c_str(),input.str().c_str()))
@@ -116,19 +124,22 @@ void SiStripCondObjBuilderFromDb::buildCondObj() {
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;
+      
       SiStripFedCablingBuilderFromDb::buildFecCabling( &*db_, 
 						       fec_cabling, 
 						       sistrip::CABLING_FROM_CONNS );
-      
-      // Retrieve DET cabling (should be improved)
       fed_cabling_=new SiStripFedCabling;
+
       SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *fed_cabling_ );
       SiStripDetCabling det_cabling( *fed_cabling_ );
-      
       buildStripRelatedObjects( &*db_, det_cabling );
-      
-      // Call virtual method that writes FED cabling object to conditions DB
-      //writePedestalsToCondDb( *pedestals );
+     
+     
+      if(m_useanalysis)buildAnalysisRelatedObjects(&*db_, v_trackercon);
+      if(m_usefed) buildFEDRelatedObjects(&*db_, v_trackercon);
+      if(m_usefec) buildFECRelatedObjects(&*db_, v_trackercon);
+         
+   
       
     } else {
       edm::LogWarning(mlESSources_)
@@ -146,40 +157,39 @@ void SiStripCondObjBuilderFromDb::buildCondObj() {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* const db,
-							    const SiStripDetCabling& det_cabling){
-
-  edm::LogInfo(mlESSources_)
-    << "\nSiStripCondObjBuilderFromDb::" << __func__ << "] first call to this method";
-
-
-  
-  // Retrieve FedDescriptions from configuration database
+//Retrieve FedDescriptions from configuration database
+bool SiStripCondObjBuilderFromDb::retrieveFedDescriptions(SiStripConfigDb* const db){
   SiStripConfigDb::FedDescriptionsRange descriptions = db->getFedDescriptions();
   if ( descriptions.empty() ) {
     edm::LogWarning(mlESSources_)
       << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
-      << " Unable to build Pedestals object!"
       << " No FED descriptions found!";
-
-    return;
+    
+    return false;
   }
+  return true;
+}
 
-  
-
+// -----------------------------------------------------------------------------
+/** */
   // Retrieve gain from configuration database
-  bool IsTiming = false; 
+bool SiStripCondObjBuilderFromDb::retrieveTimingAnalysisDescriptions( SiStripConfigDb* const db){
   SiStripConfigDb::AnalysisDescriptionsRange anal_descriptions = 
     db->getAnalysisDescriptions( CommissioningAnalysisDescription::T_ANALYSIS_TIMING );
   if ( anal_descriptions.empty() ) {
-        edm::LogWarning(mlESSources_)
+    edm::LogWarning(mlESSources_)
       << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
       << " Unable to build SiStripApvGain object!"
       << " No timing-scan analysis descriptions found!";
-  }else {IsTiming=true;}
+    return false;
+  }
+  return true;
+}
 
-    
+// -----------------------------------------------------------------------------
+/** */
   // Retrieve list of active DetIds
+vector<uint32_t> SiStripCondObjBuilderFromDb::retrieveActiveDetIds(const SiStripDetCabling& det_cabling){
   vector<uint32_t> det_ids;
   det_cabling.addActiveDetectorsRawIds(det_ids);
   if ( det_ids.empty() ) {
@@ -187,233 +197,466 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
       << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
       << " Unable to build Pedestals object!"
       << " No DetIds found!";
-    return;
+    return det_ids;
   }  
   LogTrace(mlESSources_)
     << "\n\nSiStripCondObjBuilderFromDb::" << __func__ << "]"
     << " Found " << det_ids.size() << " active DetIds";
+  return det_ids;
+}
 
-  pedestals_=new SiStripPedestals();
-  noises_=new SiStripNoises();
-  threshold_= new SiStripThreshold();
-  quality_=new SiStripQuality();
-  gain_ = new SiStripApvGain();
-
-
-  SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
-  
-  uint16_t nApvPairs;
-
-  // Iterate through active DetIds
-  vector<uint32_t>::const_iterator det_id = det_ids.begin();
-  for ( ; det_id != det_ids.end(); det_id++ ) {
-
-  std::stringstream ssMessage;
-
-    
-    // Ignore NULL DetIds
-    if ( !(*det_id) ) { continue; }
-    if ( *det_id == sistrip::invalid32_ ) { continue; }
-    
-    const vector<FedChannelConnection>& conns = det_cabling.getConnections(*det_id);
-
+// -----------------------------------------------------------------------------
+/** */
+ //build connections per DetId
+vector<FedChannelConnection> SiStripCondObjBuilderFromDb::buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id ){
+    vector<FedChannelConnection> conns = det_cabling.getConnections(det_id);
     if (conns.size()==0){
       edm::LogWarning(mlESSources_)
 	<< "SiStripCondObjBuilderFromDb::" << __func__ << "]"
 	<< " Unable to build condition object!"
-	<< " No FED channel connections found for detid "<< *det_id;
-      continue;
+	<< " No FED channel connections found for detid "<< det_id;
     }
+    return conns;
+}
 
-    nApvPairs=fr->getNumberOfApvsAndStripLength(*det_id).first/2;
-    
-    ssMessage
-      << "SiStripCondObjBuilderFromDb::" << __func__ << "]\n"
-      << " Looking for FED channel connections for detid " << *det_id << " number of apvPairs " << nApvPairs << std::endl;
+// -----------------------------------------------------------------------------
+/** */
+//retrieve number of APV pairs per detid
+uint16_t SiStripCondObjBuilderFromDb::retrieveNumberAPVPairs(uint32_t det_id){
+  uint16_t nApvPairs;
+  SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
+  nApvPairs=fr->getNumberOfApvsAndStripLength(det_id).first/2;
+  return nApvPairs;
+}
+
+// -----------------------------------------------------------------------------
+/** */
+//set default values for Cabling Objects Peds, Noise, thresh, Quality
+void SiStripCondObjBuilderFromDb::setDefaultValuesCabling(uint16_t apvPair){
+  uint16_t istrip = apvPair*sistrip::STRIPS_PER_FEDCH;  
+  inputQuality.push_back(quality_->encode(istrip,sistrip::STRIPS_PER_FEDCH));
+  threshold_->setData( istrip, m_defaultthresholdlowvalue, m_defaultthresholdlowvalue, inputThreshold );
+  for ( ;istrip < (apvPair+1)*sistrip::STRIPS_PER_FEDCH; ++istrip ){
+    pedestals_->setData(m_defaultpedestalvalue,inputPedestals );
+    noises_->setData(m_defaultnoisevalue ,inputNoises );
+  }
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::setDefaultValuesApvTiming(){
+  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV0
+  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV1
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::setDefaultValuesApvLatency(SiStripLatency & latency_, FedChannelConnection ipair, uint16_t apvnr){
+  latency_.put( ipair.detId(), apvnr, m_defaultapvmodevalue, m_defaultapvlatencyvalue);
+  latency_.put( ipair.detId(), ++apvnr, m_defaultapvmodevalue, m_defaultapvlatencyvalue);
+}
 
 
-    vector<FedChannelConnection>::const_iterator ipair = conns.begin();
-    vector< vector<FedChannelConnection>::const_iterator > listConns(nApvPairs,conns.end());
-    for ( ; ipair != conns.end(); ipair++ ){ 
-      // Check if the ApvPair is connected
-      if (ipair->fedId()!=sistrip::invalid_ && ipair->apvPairNumber()<3){
-	//ssMessage << "\nTEST filling listConns for detid " << *det_id << "  position " << ipair-conns.begin() << " ipair->ApvPairNumber " << ipair->apvPairNumber() << std::endl;
-	ipair->print(ssMessage);
-	ssMessage<< std::endl;
-	listConns[ipair-conns.begin()]=ipair;
-      } else {
-	ssMessage
-	  << "\n impossible to assign connection position in listConns " << std::endl;
-	ipair->print(ssMessage);
-	ssMessage << std::endl;
-      } 
-    }
 
+// -----------------------------------------------------------------------------
+/** */
+bool SiStripCondObjBuilderFromDb::setValuesApvTiming(SiStripConfigDb* const db, FedChannelConnection &ipair){
+  SiStripConfigDb::AnalysisDescriptionsRange anal_descriptions = db->getAnalysisDescriptions( CommissioningAnalysisDescription::T_ANALYSIS_TIMING );
+   SiStripConfigDb::AnalysisDescriptionsV::const_iterator iii = anal_descriptions.begin();
+  SiStripConfigDb::AnalysisDescriptionsV::const_iterator jjj = anal_descriptions.end();
+ 
+  while ( iii != jjj ) {
+    CommissioningAnalysisDescription* tmp = *iii;
+    uint16_t fed_id = tmp->getFedId();
+    uint16_t fed_ch = SiStripFedKey::fedCh( tmp->getFeUnit(), tmp->getFeChan() );
+    if ( fed_id == ipair.fedId() && fed_ch == ipair.fedCh() ) { break; }
+    iii++;
+  }
+  
+  TimingAnalysisDescription *anal=0;
+  if ( iii != jjj ) { anal = dynamic_cast<TimingAnalysisDescription*>(*iii); }
+  if ( anal ) {
+    float tick_height = (anal->getHeight() / m_gaincalibrationfactor);
+    inputApvGain.push_back( tick_height ); // APV0
+    inputApvGain.push_back( tick_height); // APV1
+  } else {
+    inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV0
+    inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV1
+    return false;
+  }
 
-    // Iterate through connections for given DetId and fill peds container
-    SiStripPedestals::InputVector inputPedestals;
-    SiStripNoises::InputVector inputNoises;
-    SiStripThreshold::InputVector inputThreshold;
-    SiStripQuality::InputVector inputQuality;
-    SiStripApvGain::InputVector inputApvGain;
+  return true;
+}
 
+// -----------------------------------------------------------------------------
+/** */
+bool SiStripCondObjBuilderFromDb::setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr){
+SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
+ uint16_t nApvPairs;
+ nApvPairs=fr->getNumberOfApvsAndStripLength(detid).first/2;
+ SiStripConfigDb::DeviceDescriptionsRange apvs = db->getDeviceDescriptions( APV25 );
+ 
+ SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv = apvs.begin();
+ SiStripConfigDb::DeviceDescriptionsV::const_iterator japv = apvs.end();
+ if(iapv==japv) return false;
+ for ( ; iapv != japv; ++iapv ) {
+   apvDescription* apv = dynamic_cast<apvDescription*>( *iapv );
+   if ( !apv ) { continue; }
+   if((apv->getFecSlot()) != (ipair.fecSlot())) continue;
+   if((apv->getRingSlot()) != (ipair.fecRing())) continue;
+   if((apv->getCcuAddress()) != (ipair.ccuAddr())) continue;
+   if((apv->getChannel()) != (ipair.ccuChan())) continue;
+   // Insert latency values into latency object
+   if((apv->getAddress()) == (ipair.i2cAddr(0))) {
+     if(!latency_.put( ipair.detId(), apvnr, static_cast<uint16_t>(apv->getLatency()), static_cast<uint16_t>(apv->getApvMode()))){
+       std::cout << "UNABLE APVLatency Put: Detid "<< ipair.detId() << " APVNr.: " << apvnr << " Latency Value: " << apv->getLatency() << " APV Mode: " << apv->getApvMode()<< std::endl;
+       return false;
+     }
+     apvnr++;
+   }
+   if((apv->getAddress()) == (ipair.i2cAddr(1))) {
+     if(!latency_.put( ipair.detId(), apvnr, static_cast<uint16_t>(apv->getLatency()), static_cast<uint16_t>(apv->getApvMode()))){
+       std::cout << "UNABLE APVLatency Put: Detid "<< ipair.detId() << " APVNr.: " << apvnr << " Latency Value: " << dec <<apv->getLatency() << " APV Mode: " << dec <<apv->getApvMode()<< std::endl;
+       return false;
+     }
+     apvnr++;
+   }
+ }
+ return true;
+}
 
-    vector< vector<FedChannelConnection>::const_iterator >::const_iterator ilistConns=listConns.begin();
-  for (uint16_t apvPair=0;apvPair<listConns.size();apvPair++){
-      ipair=listConns[apvPair];
+// -----------------------------------------------------------------------------
+/** */
+bool SiStripCondObjBuilderFromDb::setValuesCabling(SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid){  SiStripConfigDb::FedDescriptionsRange descriptions = db->getFedDescriptions();
+  SiStripConfigDb::FedDescriptionsV::const_iterator description = descriptions.begin();
+  while ( description != descriptions.end() ) {
+    if ( (*description)->getFedId() ==ipair.fedId() ) { break; }
+    description++;
+  }
+  if ( description == descriptions.end() ) {return false;}
+  // Retrieve Fed9UStrips object from FED description
+  const Fed9U::Fed9UStrips& strips = (*description)->getFedStrips();
       
-      ssMessage << "\n Looping on listConns: connection idx " << apvPair << std::endl;
-      if ( ipair == conns.end() ) {
-	// Fill object with default values
-	ssMessage
-	  << "\n "
-	  << " Unable to find FED connection for detid : " << *det_id << " APV pair number " << apvPair
-	  << " Writing default values" << std::endl;
-	uint16_t istrip = apvPair*sistrip::STRIPS_PER_FEDCH;  
-	inputQuality.push_back(quality_->encode(istrip,sistrip::STRIPS_PER_FEDCH));
-	threshold_->setData( istrip, m_defaultthresholdlowvalue, m_defaultthresholdlowvalue, inputThreshold );
-	for ( ;istrip < (apvPair+1)*sistrip::STRIPS_PER_FEDCH; ++istrip ){
-	  pedestals_->setData(m_defaultpedestalvalue,inputPedestals );
-	  noises_->setData(m_defaultnoisevalue ,inputNoises );
-	}
-	
-	if(IsTiming){
-	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV0
-	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV1
-	}
-	continue;
-      }
-
-
-
-    
-      SiStripConfigDb::AnalysisDescriptionsV::const_iterator iii = anal_descriptions.begin();
-      SiStripConfigDb::AnalysisDescriptionsV::const_iterator jjj = anal_descriptions.end();
-      while ( iii != jjj ) {
-	CommissioningAnalysisDescription* tmp = *iii;
-	uint16_t fed_id = tmp->getFedId();
-	uint16_t fed_ch = SiStripFedKey::fedCh( tmp->getFeUnit(), tmp->getFeChan() );
-	if ( fed_id == ipair->fedId() && fed_ch == ipair->fedCh() ) { break; }
-	iii++;
-      }
-
-      if(IsTiming){
-	TimingAnalysisDescription *anal=0;
-	if ( iii != jjj ) { anal = dynamic_cast<TimingAnalysisDescription*>(*iii); }
-	if ( anal ) {
-	  float tick_height = (anal->getHeight() / m_gaincalibrationfactor);
-	  //float tick_base = anal->getBase();
-	  //float tick_top = anal->getPeak();
-	  inputApvGain.push_back( tick_height ); // APV0
-	  inputApvGain.push_back( tick_height); // APV1
-	} else {
-	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV0
-	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV1
-	  ssMessage
-	    << "\n "
-	    << " Unable to find Timing Analysis Description"
-	    << " Writing default values for DetId: " << *det_id
-	    << " Value: " << m_defaulttickheightvalue/m_gaincalibrationfactor << std::endl;
-	}
-      }
-          
-      // Check if description exists for given FED id 
-      SiStripConfigDb::FedDescriptionsV::const_iterator description = descriptions.begin();
-      while ( description != descriptions.end() ) {
-	if ( (*description)->getFedId() ==ipair->fedId() ) { break; }
-	description++;
-      }
-      if ( description == descriptions.end() ) { 
-	ssMessage
-	  << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	  << " Unable to find FED description for FED id: " << ipair->fedId() << " detid : " << *det_id << " APV pair number " << apvPair
-	  << " Writing default values"<< std::endl;
-	ipair->print(ssMessage);
-	ssMessage<< std::endl;
-	uint16_t istrip = apvPair*sistrip::STRIPS_PER_FEDCH;  
-	inputQuality.push_back(quality_->encode(istrip,sistrip::STRIPS_PER_FEDCH));
-	threshold_->setData( istrip, m_defaultthresholdlowvalue, m_defaultthresholdlowvalue, inputThreshold );
-	for ( ;istrip < (apvPair+1)*sistrip::STRIPS_PER_FEDCH; ++istrip ){
-	  pedestals_->setData( m_defaultpedestalvalue,inputPedestals );
-	  noises_->setData( m_defaultnoisevalue, inputNoises );
-	}
-	continue; 
-      }
       
-      // Retrieve Fed9UStrips object from FED description
-      const Fed9U::Fed9UStrips& strips = (*description)->getFedStrips();
-
-
-      // Retrieve StripDescriptions for each APV
-      uint16_t jstrip = ipair->apvPairNumber()*sistrip::STRIPS_PER_FEDCH;
-      for ( uint16_t iapv = 2*ipair->fedCh(); iapv < 2*ipair->fedCh()+2; iapv++ ) {
+  // Retrieve StripDescriptions for each APV
+  uint16_t jstrip = ipair.apvPairNumber()*sistrip::STRIPS_PER_FEDCH;
+  for ( uint16_t iapv = 2*ipair.fedCh(); iapv < 2*ipair.fedCh()+2; iapv++ ) {
 	
-	// Get StripDescriptions for the given APV
-	Fed9U::Fed9UAddress addr;
-	addr.setFedApv(iapv);
-	vector<Fed9U::Fed9UStripDescription> strip = strips.getApvStrips(addr);
+    // Get StripDescriptions for the given APV
+    Fed9U::Fed9UAddress addr;
+    addr.setFedApv(iapv);
+    vector<Fed9U::Fed9UStripDescription> strip = strips.getApvStrips(addr);
 	
-	vector<Fed9U::Fed9UStripDescription>::const_iterator istrip = strip.begin();
-	for ( ; istrip != strip.end(); istrip++ ) {
-	  pedestals_->setData( istrip->getPedestal() , inputPedestals);
-	  noises_   ->setData( istrip->getNoise()    , inputNoises );
-	  threshold_->setData( jstrip, istrip->getLowThresholdFactor(),
-			       istrip->getHighThresholdFactor(), inputThreshold );
-	  if(istrip->getDisable())
-	    inputQuality.push_back(quality_->encode(jstrip,1));
-	  jstrip++;
-	} // strip loop
-      } // apv loop
-    } // connection loop
-    
-    // Insert pedestal values into Pedestals object
-    if ( !pedestals_->put( *det_id, inputPedestals ) ) {
-      ssMessage
-	<< "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	<< " Unable to insert values into SiStripPedestals object!"
-	<< " DetId already exists!" << std::endl;
+    vector<Fed9U::Fed9UStripDescription>::const_iterator istrip = strip.begin();
+    uint16_t stripcount=0;
+    for ( ; istrip != strip.end(); istrip++ ) {
+      pedestals_->setData( istrip->getPedestal() , inputPedestals);
+      noises_   ->setData( istrip->getNoise()    , inputNoises );
+      threshold_->setData( jstrip, istrip->getLowThresholdFactor(),
+			   istrip->getHighThresholdFactor(), inputThreshold );
+      if(istrip->getDisable())
+	inputQuality.push_back(quality_->encode(jstrip,1));
+      stripcount++;
+      jstrip++;
     }
+  }
+  return true;
+}
 
-    // Insert noise values into Noises object
-    if ( !noises_->put( *det_id, inputNoises ) ) {
-      ssMessage
+
+// -----------------------------------------------------------------------------
+/** */
+//store objects
+void SiStripCondObjBuilderFromDb::storePedestals(uint32_t det_id){
+  pedestals_=new SiStripPedestals();
+  if ( !pedestals_->put(det_id, inputPedestals ) ) {
+    std::cout
+      << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+      << " Unable to insert values into SiStripPedestals object!"
+      << " DetId already exists!" << std::endl;
+  }
+  inputPedestals.clear();
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::storeNoise(uint32_t det_id){
+  // Insert noise values into Noises object
+    if ( !noises_->put(det_id, inputNoises ) ) {
+      std::cout
 	<< "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
 	<< " Unable to insert values into SiStripNoises object!"
 	<< " DetId already exists!" << std::endl;
     }
+    inputNoises.clear();
+}
 
-    // Insert threshold values into Threshold object
-    if ( !threshold_->put( *det_id, inputThreshold ) ) {
-      ssMessage
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::storeThreshold(uint32_t det_id){
+  // Insert threshold values into Threshold object
+    if ( !threshold_->put(det_id, inputThreshold ) ) {
+      std::cout
 	<< "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
 	<< " Unable to insert values into SiStripThreshold object!"
 	<< " DetId already exists!" << std::endl;
     }
+    inputThreshold.clear();
+}
 
-    // Insert quality values into Quality object
-    uint32_t detid=*det_id;
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::storeQuality(uint32_t det_id){
+  // Insert quality values into Quality object
     if (inputQuality.size()){
-      quality_->compact(detid,inputQuality);
-      if ( !quality_->put( *det_id, inputQuality ) ) {
-	ssMessage
+      quality_->compact(det_id,inputQuality);
+      if ( !quality_->put(det_id, inputQuality ) ) {
+	std::cout
 	  << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
 	  << " Unable to insert values into SiStripThreshold object!"
 	  << " DetId already exists!" << std::endl;
       }
     }
+    inputQuality.clear();
+}
 
-    if(IsTiming){
-      // Insert tick height values into Gain object
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::storeTiming(uint32_t det_id){
+  // Insert tick height values into Gain object
       SiStripApvGain::Range range( inputApvGain.begin(), inputApvGain.end() );
-      if ( !gain_->put( *det_id, range ) ) {
+      if ( !gain_->put( det_id, range ) ) {
 	edm::LogWarning(mlESSources_)
 	  << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
 	  << " Unable to insert values into SiStripApvGain object!"
 	  << " DetId already exists!";
       }
+      inputApvGain.clear();
+}
+
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* const db,
+							    const SiStripDetCabling& det_cabling){
+  //variables needed in this function
+  uint16_t nApvPairs;
+  vector<uint32_t>::const_iterator det_id;
+  vector<uint32_t> det_ids;
+ 
+  edm::LogInfo(mlESSources_)
+    << "\n[SiStripCondObjBuilderFromDb::" << __func__ << "] first call to this method";
+
+  //Check if FedDescriptions exist, if not return
+  if (!retrieveFedDescriptions(db)) {std::cout<< "Found no FedDescription!" << std::endl;return;}
+  // Retrieve list of active DetIds
+  det_cabling.addActiveDetectorsRawIds(det_ids);
+  if ( det_ids.empty() ) {
+    std::cout
+      << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
+      << " Unable to build Pedestals object!"
+      << " No DetIds found!" << std::endl;
+    return;
+  }  
+  std::cout << "\n\nSiStripCondObjBuilderFromDb::" << __func__ << "]"
+	    << " Found " << det_ids.size() << " active DetIds";
+
+  // Loop Active DetIds
+  det_id = det_ids.begin();
+  for ( ; det_id != det_ids.end(); det_id++ ) {
+    std::stringstream ssMessage;
+              
+    // Ignore NULL DetIds
+    if ( !(*det_id) ) { continue; }
+    if ( *det_id == sistrip::invalid32_ ) { continue; }
+       
+       
+    //build connections per DetId
+    const vector<FedChannelConnection>& conns=buildConnections(det_cabling, *det_id);
+       
+    vector<FedChannelConnection>::const_iterator ipair = conns.begin();	
+    if(conns.size() ==0 ) continue;
+       
+    //retrieve number of APV pairs per detid
+    nApvPairs=retrieveNumberAPVPairs(*det_id);
+       
+    //loop connections and check if APVPair is connected
+    vector< vector<FedChannelConnection>::const_iterator > listConns(nApvPairs,conns.end());
+              
+    for ( ; ipair != conns.end(); ipair++ ){ 
+      // Check if the ApvPair is connected
+      if (ipair->fedId()!=sistrip::invalid_ && ipair->apvPairNumber()<3){
+	ipair->print(ssMessage);
+	ssMessage<< std::endl;
+	listConns[ipair-conns.begin()]=ipair;
+      } else {
+	std::cout
+	  << "\n impossible to assign connection position in listConns " << std::endl;
+	ipair->print(ssMessage);
+	ssMessage << std::endl;
+      } 
     }
     
-    edm::LogInfo(mlESSources_) << "\n\n--------------\n" << ssMessage.str();
+    // get data
+    vector< vector<FedChannelConnection>::const_iterator >::const_iterator ilistConns=listConns.begin();
+    for (uint16_t apvPair=0;apvPair<listConns.size();apvPair++){
+      ipair=listConns[apvPair];
+      if ( ipair == conns.end() ) {
+	// Fill object with default values
+	std::cout
+	  << "\n "
+	  << " Unable to find FED connection for detid : " << *det_id << " APV pair number " << apvPair
+	  << " Writing default values" << std::endl;
+	//If no connection was found, add 100 to apvpair
+	apvPair+=100;
+	continue;
+      }
+      p_apvpcon=std::make_pair(apvPair,*ipair);
+      v_apvpcon.push_back(p_apvpcon);
+    } //conns loop 
+    p_detcon=std::make_pair(*det_id,v_apvpcon);
+    v_trackercon.push_back(p_detcon);
+    v_apvpcon.clear();
+    edm::LogInfo(mlESSources_) << ssMessage.str();
   } // det id loop
-
 }
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* const db, trackercon tc){
+  std::cout << "Entering [SiStripCondObjBuilderFromDb::"<<__func__ <<"]"<<std::endl;
+  //data container
+  gain_= new SiStripApvGain();
+
+  //check if Timing analysis description is found, otherwise quit
+  if(!retrieveTimingAnalysisDescriptions(&*db_)){
+    edm::LogWarning(mlESSources_)
+      << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+      << " NULL pointer to AnalysisDescriptions returned by SiStripConfigDb!"
+      << " Cannot build Analysis object! QUIT";
+    // some values have to be set, otherwise PopCon will crash
+    setDefaultValuesApvTiming();
+    storeTiming(4711);
+    return;
+  }
+
+   i_trackercon detids_end=tc.end();
+ 
+  //loop detids
+  for(i_trackercon detids=tc.begin();detids!=detids_end;detids++){
+    uint32_t detid = (*detids).first;
+    i_apvpairconn connections_end=((*detids).second).end();
+    
+    //loop connections
+    for(i_apvpairconn connections=((*detids).second).begin();connections!=connections_end;connections++){
+      uint32_t apvPair =(*connections).first;
+      FedChannelConnection ipair =(*connections).second;
+      std::cout << "Detid: " << std::dec << detid << " ApvPair: " << apvPair << std::endl;
+      
+      //no connection for apvPair found
+      if(apvPair>=100){
+	setDefaultValuesApvTiming();  
+      }
+      
+      //fill data
+       if(!setValuesApvTiming(db, ipair)){
+ 	std::cout
+ 	  << "\n "
+ 	  << " Unable to find Timing Analysis Description"
+ 	  << " Writing default values for DetId: " << detid
+ 	  << " Value: " << m_defaulttickheightvalue/m_gaincalibrationfactor << std::endl;
+ 	setDefaultValuesApvTiming();
+       }
+    }//connections
+    storeTiming(detid);
+  }//detids
+}
+ 
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::buildFECRelatedObjects( SiStripConfigDb* const db, trackercon tc){
+  std::cout << "Entering [SiStripCondObjBuilderFromDb::"<<__func__ <<"]"<<std::endl;
+  //data container
+  latency_ = new SiStripLatency();
+
+  i_trackercon detids_end=tc.end();
+ 
+  //loop detids
+  for(i_trackercon detids=tc.begin();detids!=detids_end;detids++){
+    uint32_t detid = (*detids).first;
+    uint16_t apvnr=1;
+    i_apvpairconn connections_end=((*detids).second).end();
+    
+    //loop connections
+    for(i_apvpairconn connections=((*detids).second).begin();connections!=connections_end;connections++){
+      uint32_t apvPair =(*connections).first;
+      FedChannelConnection ipair =(*connections).second;
+      
+      //no connection for apvPair found
+      if(apvPair>=100){
+	setDefaultValuesApvLatency((*latency_),ipair, apvnr);  
+      }
+      
+      //fill data
+       if(!setValuesApvLatency((*latency_),db, ipair,detid, apvnr)){
+ 	std::cout
+ 	  << "\n "
+ 	  << " Unable to find FEC Description"
+ 	  << " Writing default values for DetId: " << detid
+	  << " Value: Latency " << m_defaultapvlatencyvalue << " ApvMode " << m_defaultapvmodevalue << std::endl;
+ 	setDefaultValuesApvLatency((*latency_),ipair, apvnr);
+       }
+       apvnr+=2;
+    }//connections
+     // compact Latency Object
+    latency_->compress();
+    std::stringstream ss;
+    // latency debug output
+    latency_->printSummary(ss);
+  }//detids
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripCondObjBuilderFromDb::buildFEDRelatedObjects( SiStripConfigDb* const db, trackercon tc){
+  std::cout << "Entering [SiStripCondObjBuilderFromDb::"<<__func__ <<"]"<<std::endl;
+
+  //data containers
+  pedestals_= new SiStripPedestals();  
+  noises_ = new SiStripNoises();  
+  threshold_= new SiStripThreshold();  
+  quality_ = new SiStripQuality();  
+ 
+  i_trackercon detids_end=tc.end();
+ 
+  //loop detids
+  for(i_trackercon detids=tc.begin();detids!=detids_end;detids++){
+    uint32_t detid = (*detids).first;
+    i_apvpairconn connections_end=((*detids).second).end();
+  
+    //loop connections
+    for(i_apvpairconn connections=((*detids).second).begin();connections!=connections_end;connections++){
+      uint32_t apvPair =(*connections).first;
+      FedChannelConnection ipair =(*connections).second;
+            
+      //no connection for apvPair found
+      if(apvPair>=100){
+	setDefaultValuesCabling((apvPair-100)); 
+      }
+      if(!setValuesCabling(db, ipair, detid)){
+	std::cout
+	  << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+	  << " Unable to find FED description for FED id: " << ipair.fedId()
+	  << " detid : " << detid << " APV pair number " << apvPair
+	  << " Writing default values"<< std::endl; 
+	setDefaultValuesCabling(apvPair); 
+      }
+    }//connections
+    storePedestals(detid);
+    storeNoise(detid);
+    storeThreshold(detid);
+    storeQuality(detid);
+  }//detids
+}
+
+
