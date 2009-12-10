@@ -76,7 +76,7 @@ namespace pos{
     int offs_dac[36];
   
     //clock phases, use bits 0-8, select the clock edge
-    int clkphs1_9,clkphs10_18,clkphs19_27,clkphs28_36;
+    unsigned int clkphs1_9,clkphs10_18,clkphs19_27,clkphs28_36;
 
     //Channel delays, one for each channel, 0=15
     int DelayCh[36];
@@ -94,26 +94,27 @@ namespace pos{
       ROC_L4[36][26];
 
     //These bits turn off(1) and on(0) channels
-    int Ncntrl,NCcntrl,SCcntrl,Scntrl;
+    unsigned int Ncntrl,NCcntrl,SCcntrl,Scntrl;
 
     //The values as read from file so that they can be restored after
     //calibration
-    int Ncntrl_original,NCcntrl_original,SCcntrl_original,Scntrl_original;
+    unsigned int Ncntrl_original,NCcntrl_original,SCcntrl_original,Scntrl_original;
 
      //Bits (1st 8) used to mask TBM trailer bits
-    int N_TBMmask,NC_TBMmask,SC_TBMmask,S_TBMmask;
+    unsigned int N_TBMmask,NC_TBMmask,SC_TBMmask,S_TBMmask;
     
     //Bits (1st 8) used to set the Private Word in the gap and filler words
-    int N_Pword,NC_Pword,SC_Pword,S_Pword;
+    unsigned int N_Pword,NC_Pword,SC_Pword,S_Pword;
 
     // 1 = Special Random trigger DAC mode on, 0=off
-    int SpecialDac;
+    unsigned int SpecialDac;
  
     // Control register and delays for the TTCrx
-    int CoarseDel,ClkDes2,FineDes2Del,FineDes1Del;
- 
+    int CoarseDel,FineDes2Del,FineDes1Del;
+    unsigned int ClkDes2; 
+
     //Main control reg for determining the DAQ mode
-    int Ccntrl; // "CtrlReg" in LAD_C
+    unsigned int Ccntrl; // "CtrlReg" in LAD_C
  
     //Mode register
     int modeRegister; // "ModeReg" in LAD_C
@@ -122,10 +123,10 @@ namespace pos{
     int NRocs[36];
 
     //Control Regs for setting ADC 1Vpp and 2Vpp
-    int Nadcg,NCadcg,SCadcg,Sadcg;
+    unsigned int Nadcg,NCadcg,SCadcg,Sadcg;
 
     //Control and data Regs for setting Baseline Adjustment
-    int Nbaseln,NCbaseln,SCbaseln,Sbaseln;
+    unsigned int Nbaseln,NCbaseln,SCbaseln,Sbaseln;
 
     //data Regs for TTs adjustable levels
     int Ooslvl,Errlvl;
