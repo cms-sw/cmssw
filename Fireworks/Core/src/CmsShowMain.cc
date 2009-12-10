@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.133 2009/12/07 21:12:53 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.134 2009/12/09 19:12:20 chrjones Exp $
 //
 
 // system include files
@@ -126,8 +126,8 @@ void CmsShowMain::resetFieldEstimate()
 //
 // constructors and destructor
 //
-static const char* const kInputFileOpt         = "input-file";
-static const char* const kInputFileCommandOpt  = "input-file,i";
+static const char* const kInputFilesOpt        = "input-files";
+static const char* const kInputFilesCommandOpt = "input-files,i";
 static const char* const kConfigFileOpt        = "config-file";
 static const char* const kConfigFileCommandOpt = "config-file,c";
 static const char* const kGeomFileOpt          = "geom-file";
@@ -192,7 +192,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       namespace po = boost::program_options;
       po::options_description desc(descString);
       desc.add_options()
-         (kInputFileCommandOpt,  po::value< std::vector<std::string> >(),   "Input root file")
+         (kInputFilesCommandOpt, po::value< std::vector<std::string> >(),   "Input root files")
          (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
          (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
          (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
@@ -209,7 +209,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display.")
          (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
-      p.add(kInputFileOpt, -1);
+      p.add(kInputFilesOpt, -1);
 
       int newArgc = argc;
       char **newArgv = argv;
@@ -234,8 +234,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       // input file
-      if (vm.count(kInputFileOpt)) {
-         m_inputFiles = vm[kInputFileOpt].as< std::vector<std::string> >();
+      if (vm.count(kInputFilesOpt)) {
+         m_inputFiles = vm[kInputFilesOpt].as< std::vector<std::string> >();
       }
 
       if (!m_inputFiles.size())
