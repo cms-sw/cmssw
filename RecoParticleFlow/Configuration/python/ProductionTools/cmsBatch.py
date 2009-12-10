@@ -78,6 +78,8 @@ cp -r $jobdir $PBS_O_WORKDIR
 
 
 def batchScriptCERN( remoteFile, remoteDir, index ):
+   
+   
    script = """#!/usr/local/bin/bash
 #BSUB -q 8nm
 echo 'environment:'
@@ -92,10 +94,10 @@ cp -rf $LS_SUBCWD .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-cmsRun run_cfg.py
+%s run_cfg.py
 echo
 echo 'sending the job directory back'
-"""
+""" % prog
    castorCopy = ''
    if dir != '':
       newFileName = re.sub("\.root", "_%d.root" % index, remoteFile)
@@ -165,11 +167,14 @@ batchManager = MyBatchManager()
 
 
 batchManager.parser_.usage = "%prog [options] <number of input files per job> <your_cfg.py>. Submits a number of jobs taking your_cfg.py as a template. your_cfg.py can either read events from input files, or produce them with a generator. In the later case, the seeds are of course updated for each job.\n\nExample:\tcmsBatch.py 10 fastSimWithParticleFlow_cfg.py -o Out2 -r /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions/display.root"
-
+batchManager.parser_.add_option("-p", "--program", dest="prog",
+                                help="program to run on your cfg file",
+                                default="cmsRun")
 
 (options,args) = batchManager.parser_.parse_args()
 batchManager.ParseOptions()
 
+prog = options.prog
 
 if len(args)!=2:
    batchManager.parser_.print_help()
