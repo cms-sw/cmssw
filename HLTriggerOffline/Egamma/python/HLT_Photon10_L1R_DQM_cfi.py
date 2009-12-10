@@ -41,7 +41,7 @@ HLT_Photon10_L1R_DQM = cms.EDFilter("EmDQM",
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(10.0),
     reqNum = cms.uint32(1),
-    PtMax = cms.untracked.double(200.0),
+    PtMax = cms.untracked.double(20.0),
     useHumanReadableHistTitles = cms.untracked.bool(False),
 
     # Filters from collections listed above
@@ -51,7 +51,7 @@ HLT_Photon10_L1R_DQM = cms.EDFilter("EmDQM",
         ##########################################################
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt5","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1sL1SingleEG5","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.int32(-82),
             HLTCollectionHumanName = cms.untracked.string("Level 1")

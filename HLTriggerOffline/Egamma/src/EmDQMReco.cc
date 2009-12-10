@@ -423,8 +423,8 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
 	float en = recopart2->energy();
 	float er = sqrt(pow(recopart2->x(),2) + pow(recopart2->y(),2) + pow(recopart2->z(),2) );
 	float px = recopart2->energy()*recopart2->x()/er;
-	float py = recopart2->energy()*recopart2->x()/er;
-	float pz = recopart2->energy()*recopart2->x()/er;
+	float py = recopart2->energy()*recopart2->y()/er;
+	float pz = recopart2->energy()*recopart2->z()/er;
 	reco::Candidate::LorentzVector thisLV(px,py,pz,en);
 	reco::Particle tmpcand(  0, thisLV, math::XYZPoint(0.,0.,0.), 22, 1 );
 	sortedReco.push_back(tmpcand);
