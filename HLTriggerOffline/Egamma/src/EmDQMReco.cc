@@ -317,18 +317,54 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
 {
   eventnum++;
   bool plotMonpath = false;
+  bool plotReco = true; 
 
-  edm::Handle<edm::View<reco::Candidate> > cutRecoCounter;
-  event.getByLabel("gsfElectrons", cutRecoCounter);
-  if (cutRecoCounter->size() < (unsigned int)recocut_) {
-     // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter->size() << " particles.";
-    return;
+  edm::Handle<edm::View<reco::Candidate> > recoObjects;
+  edm::Handle<std::vector<reco::SuperCluster> > recoObjectsEB;
+  edm::Handle<std::vector<reco::SuperCluster> > recoObjectsEE;
+
+  if (pdgGen == 11) {
+
+    event.getByLabel("gsfElectrons", recoObjects);
+    
+    if (recoObjects->size() < (unsigned int)recocut_) {
+      // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter->size() << " particles.";
+      return;
+    }
+  } else if (pdgGen == 22) {
+
+    event.getByLabel("correctedHybridSuperClusters", recoObjectsEB);
+    event.getByLabel("correctedMulti5x5SuperClustersWithPreshower", recoObjectsEE);
+    
+    if (recoObjectsEB->size() + recoObjectsEE->size() < (unsigned int)recocut_) {
+      // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter.size() << " particles.";
+      return;
+    }
   }
   
   edm::Handle<edm::TriggerResults> HLTR;
   event.getByLabel(edm::InputTag("TriggerResults","","HLT"), HLTR);
   HLTConfigProvider hltConfig;
   
+  hltConfig.init("HLT");
+  unsigned int triggerIndex; 
+  /* if (theHLTCollectionHumanNames[0] == "hltL1sRelaxedSingleEgammaEt8"){
+    triggerIndex = hltConfig.triggerIndex("HLT_L1SingleEG8");
+  } else if (theHLTCollectionHumanNames[0] == "hltL1sRelaxedSingleEgammaEt5") {
+    triggerIndex = hltConfig.triggerIndex("HLT_L1SingleEG5");
+  } else if (theHLTCollectionHumanNames[0] == "hltL1sRelaxedDoubleEgammaEt5") {
+    triggerIndex = hltConfig.triggerIndex("HLT_L1DoubleEG5"); 
+  } else { 
+    triggerIndex = hltConfig.triggerIndex("");
+    } */
+  triggerIndex = hltConfig.triggerIndex("HLT_MinBias");
+  
+  //triggerIndex must be less than the size of HLTR or you get a CMSException
+  bool isFired = false;
+  if (triggerIndex < HLTR->size()){
+    isFired = HLTR->accept(triggerIndex); 
+  }
+
   // fill L1 and HLT info
   // get objects possed by each filter
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
@@ -345,7 +381,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   totalreco->Fill(numOfHLTCollectionLabels+0.5);
   totalmatchreco->Fill(numOfHLTCollectionLabels+.5);
 
-  edm::Handle< edm::View<reco::GsfElectron> > recoParticles;
+  /* edm::Handle< edm::View<reco::GsfElectron> > recoParticles;
   event.getByLabel("gsfElectrons", recoParticles);
 
   std::vector<reco::GsfElectron> allSortedRecoParticles;
@@ -356,17 +392,9 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
     allSortedRecoParticles.push_back(tmpcand);
   }
 
-  std::sort(allSortedRecoParticles.begin(), allSortedRecoParticles.end(),pTRecoComparator_);
+  std::sort(allSortedRecoParticles.begin(), allSortedRecoParticles.end(),pTRecoComparator_);*/
 
   // Were enough high energy gen particles found?
-  bool plotReco = true; 
-  if (allSortedRecoParticles.size() < recocut_) {
-    // if no, throw event away
-     //edm::LogWarning("EmDQMReco") << "allSortedRecoParticles.size() = " << allSortedRecoParticles.size();
-    plotReco = false;
-    //return;
-  }
-
   // It was an event worth keeping. Continue.
 
   ////////////////////////////////////////////////////////////
@@ -381,48 +409,50 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   //               Fill reconstruction info                      //
   ////////////////////////////////////////////////////////////
   // the recocut_ highest Et generator objects of the preselected type are our matches
- 
+
   std::vector<reco::Particle> sortedReco;
   if (plotReco == true) {
-    for(edm::View<reco::Candidate>::const_iterator recopart = cutRecoCounter->begin(); recopart != cutRecoCounter->end();recopart++){
-      reco::Particle tmpcand(  recopart->charge(), recopart->p4(), recopart->vertex(),recopart->pdgId(),recopart->status() );
-      sortedReco.push_back(tmpcand);
+    if (pdgGen == 11) {
+      for(edm::View<reco::Candidate>::const_iterator recopart = recoObjects->begin(); recopart != recoObjects->end();recopart++){
+	reco::Particle tmpcand(  recopart->charge(), recopart->p4(), recopart->vertex(),recopart->pdgId(),recopart->status() );
+	sortedReco.push_back(tmpcand);
+      }
     }
-    std::sort(sortedReco.begin(),sortedReco.end(),pTComparator_ );
+    else if (pdgGen == 22) {
+      for(std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEB->begin(); recopart2 != recoObjectsEB->end();recopart2++){
+	float en = recopart2->energy();
+	float er = sqrt(pow(recopart2->x(),2) + pow(recopart2->y(),2) + pow(recopart2->z(),2) );
+	float px = recopart2->energy()*recopart2->x()/er;
+	float py = recopart2->energy()*recopart2->x()/er;
+	float pz = recopart2->energy()*recopart2->x()/er;
+	reco::Candidate::LorentzVector thisLV(px,py,pz,en);
+	reco::Particle tmpcand(  0, thisLV, math::XYZPoint(0.,0.,0.), 22, 1 );
+	sortedReco.push_back(tmpcand);
+      }
+      for(std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEE->begin(); recopart2 != recoObjectsEE->end();recopart2++){
+	float en = recopart2->energy();
+	float er = sqrt(pow(recopart2->x(),2) + pow(recopart2->y(),2) + pow(recopart2->z(),2) );
+	float px = recopart2->energy()*recopart2->x()/er;
+	float py = recopart2->energy()*recopart2->y()/er;
+	float pz = recopart2->energy()*recopart2->z()/er;
+        reco::Candidate::LorentzVector thisLV(px,py,pz,en);
+	reco::Particle tmpcand(  0, thisLV, math::XYZPoint(0.,0.,0.), 22, 1 );
+	sortedReco.push_back(tmpcand);
+      }
+    }
 
+    std::sort(sortedReco.begin(),sortedReco.end(),pTComparator_ );
+      
     // Now the collection of gen particles is sorted by pt.
     // So, remove all particles from the collection so that we 
     // only have the top "1 thru recocut_" particles in it
- 
+    
     sortedReco.erase(sortedReco.begin()+recocut_,sortedReco.end());
-    /* if (recocut_ != sortedReco.size() ){
-       return;
-       }*/
-
-
+    
     for (unsigned int i = 0 ; i < recocut_ ; i++ ) {
       etreco ->Fill( sortedReco[i].et()  ); //validity has been implicitily checked by the cut on recocut_ above
       etareco->Fill( sortedReco[i].eta() );
-    
       
-      hltConfig.init("HLT");
-      unsigned int triggerIndex; 
-      if (theHLTCollectionHumanNames[0] == "hltL1sRelaxedSingleEgammaEt8"){
-	triggerIndex = hltConfig.triggerIndex("HLT_L1SingleEG8");
-      } else if (theHLTCollectionHumanNames[0] == "hltL1sRelaxedSingleEgammaEt5") {
-	triggerIndex = hltConfig.triggerIndex("HLT_L1SingleEG5");
-      } else if (theHLTCollectionHumanNames[0] == "hltL1sRelaxedDoubleEgammaEt5") {
-	triggerIndex = hltConfig.triggerIndex("HLT_L1DoubleEG5"); 
-      } else { 
-	triggerIndex = hltConfig.triggerIndex("");
-      }
-     
-      
-      //triggerIndex must be less than the size of HLTR or you get a CMSException
-      bool isFired = false;
-      if (triggerIndex < HLTR->size()){
-	isFired = HLTR->accept(triggerIndex); 
-      }
       if (isFired) {
 	etrecomonpath->Fill( sortedReco[i].et() ); 
 	etarecomonpath->Fill( sortedReco[i].eta() );
@@ -430,10 +460,13 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
       }
       
     } // END of loop over Reconstructed particles
+    
+    if (recocut_ >= reqNum) totalreco->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
+    if (recocut_ >= reqNum) totalmatchreco->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
+
+  } 
+
   
-  if (recocut_ >= reqNum) totalreco->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
-  if (recocut_ >= reqNum) totalmatchreco->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
-  }
 
 
    ////////////////////////////////////////////////////////////
