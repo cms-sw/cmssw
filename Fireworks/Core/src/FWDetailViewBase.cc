@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.17 2009/12/04 12:23:33 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.18 2009/12/04 17:59:05 amraktad Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TEveViewer.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
+#include "RVersion.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
@@ -90,7 +91,11 @@ FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TCanvas *&canvas, TEveVi
    // viewer GL
    slot = wp->NewSlotWithWeight(3);
    eveViewer = new TEveViewer("Detail view");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   eveViewer->SpawnGLEmbeddedViewer(0);
+#else
    eveViewer->SpawnGLEmbeddedViewer();
+#endif
    gEve->GetViewers()->AddElement(eveViewer);
    slot->ReplaceWindow(eveViewer);
    slot->SetShowTitleBar(kFALSE);
@@ -121,6 +126,7 @@ FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TG
    TGCompositeFrame* cf = new TGCompositeFrame(eveFrame);
    eveFrame->AddFrame(cf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    cf->SetCleanup(kLocalCleanup);
+
    TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", cf, 100, 100, 0);
    cf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    canvas = ec->GetCanvas();
@@ -133,7 +139,11 @@ FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TG
    // viewer GL 
    slot = wp->NewSlotWithWeight(3);
    eveViewer = new TEveViewer("Detail view");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   eveViewer->SpawnGLEmbeddedViewer(0);
+#else
    eveViewer->SpawnGLEmbeddedViewer();
+#endif
    gEve->GetViewers()->AddElement(eveViewer);
    slot->ReplaceWindow(eveViewer);
    slot->SetShowTitleBar(kFALSE);

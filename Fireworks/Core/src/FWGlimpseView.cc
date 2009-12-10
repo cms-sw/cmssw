@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.33 2009/10/08 17:44:40 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.34 2009/11/03 16:56:39 amraktad Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@
 #include "TColor.h"
 #include "TEveScene.h"
 #include "TGLViewer.h"
+#include "RVersion.h"
 //EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
 #define private public
 #include "TGLEmbeddedViewer.h"
@@ -88,6 +89,11 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
    m_scaler(iScaler)
 {
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer(0);
+#else
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+#endif
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 

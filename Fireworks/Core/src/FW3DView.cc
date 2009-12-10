@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.23 2009/11/05 15:11:40 dmytro Exp $
+// $Id: FW3DView.cc,v 1.24 2009/11/11 18:37:43 amraktad Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
 #include "TEveScene.h"
-
+#include <RVersion.h>
 
 // user include files
 #include "Fireworks/Core/interface/FW3DView.h"
@@ -102,7 +102,13 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
 {
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer(0);
+#else
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+#endif
+
    iParent->ReplaceWindow(nv);
 
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
