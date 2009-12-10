@@ -9,7 +9,8 @@
 //string dir1 = "DQMData/PFTask/Benchmarks/pfMet/Gen";
 //string dir2 = "DQMData/PFTask/Benchmarks/met/Gen";
   const string dir1 = "DQMData/Run\ 1/PFTask/Run\ summary/pfMet";
-  const string dir2 = "DQMData/Run\ 1/PFTask/Run\ summary/met";
+  const string dir2 = "DQMData/Run\ 1/PFTask/Run\ summary/metMuonJESCorAK5";
+  //  const string dir2 = "DQMData/Run\ 1/PFTask/Run\ summary/met";
   const string dir3 = "DQMData/Run\ 1/PFTask/Run\ summary/genMetTrue";
 
 //const char* file1 = "benchmark.root";
