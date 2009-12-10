@@ -1066,7 +1066,7 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
     shutdown_ (0),
     delay_ (1000),
     waitStale_ (0, 0, 0, 0, 500000000 /* 500 ms */),
-    waitMax_ (0, 0, 0, 15 /* seconds */, 0),
+    waitMax_ (0, 0, 0, 5 /* seconds */, 0),
     flush_ (false)
 {
   // Create a pipe for the local DQM to tell the communicator
