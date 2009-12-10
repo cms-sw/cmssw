@@ -22,34 +22,19 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/MuonAnalysis/Skims/test/MuonSkim_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
     )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(63700))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
 
 
 ###################### DT Activity Filter ######################
-process.muonDTDigis = cms.EDFilter("DTUnpackingModule",
-    dataType = cms.string('DDU'),
-    useStandardFEDid = cms.untracked.bool(True),
-    fedbyType = cms.untracked.bool(True),
-    readOutParameters = cms.PSet(
-        debug = cms.untracked.bool(False),
-        rosParameters = cms.PSet(
-            writeSC = cms.untracked.bool(True),
-            readingDDU = cms.untracked.bool(True),
-            performDataIntegrityMonitor = cms.untracked.bool(False),
-            readDDUIDfromDDU = cms.untracked.bool(True),
-            debug = cms.untracked.bool(False),
-            localDAQ = cms.untracked.bool(False)
-        ),
-        localDAQ = cms.untracked.bool(False),
-        performDataIntegrityMonitor = cms.untracked.bool(False)
-    )
-)
 
+from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import dtunpacker
+
+process.muonDTDigis = dtunpacker.clone()
 
 process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
  inputDCC         = cms.InputTag( "dttfDigis" ),   
@@ -71,14 +56,18 @@ process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
 )
 
 # this is for filtering on HLT path
-process.hltHighLevel = cms.EDFilter("HLTHighLevel",
+process.HLTDT =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
      HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT'),           # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-     throw = cms.bool(True)    # throw exception on unknown path names
+     throw = cms.bool(False)    # throw exception on unknown path names
  )
-process.dtSkim=cms.Path(process.hltHighLevel+process.muonDTDigis+process.hltDTActivityFilter)
+
+process.dtHLTSkim = cms.Path(process.HLTDT)
+
+process.dtSkim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
+
 
 ###########################################################################
 
@@ -112,8 +101,28 @@ process.rpcRHSkim = cms.Path(process.RPCRecHitsFilter)
 
 
 ########################## CSC Filter ############################
-process.load("DPGAnalysis.Skims.CSCSkim_cfi")
-process.cscSkimP = cms.Path(process.cscSkim)
+from DPGAnalysis.Skims.CSCSkim_cfi import cscSkim
+
+process.cscSkimLower = cscSkim.clone()
+
+#set to minimum activity
+process.cscSkimLower.minimumSegments = 1
+process.cscSkimLower.minimumHitChambers = 1
+
+# this is for filtering on HLT path
+process.cscHLTBeamHaloSkim  = cms.EDFilter("HLTHighLevel",
+                                   TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                   # provide list of HLT paths (or patterns) you want
+                                   HLTPaths = cms.vstring('HLT_CSCBeamHalo','HLT_CSCBeamHaloOverlapRing1','HLT_CSCBeamHaloOverlapRing','HLT_CSCBeamHaloRing2or3'), 
+                                   eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+                                   andOr = cms.bool(True),    # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+                                   throw = cms.bool(False)    # throw exception on unknown path names
+                                   )
+
+#### the paths
+process.cscHLTSkim = cms.Path(process.cscHLTBeamHaloSkim)
+
+process.cscSkim = cms.Path(process.cscSkimLower)
 ###########################################################################
 
 ########################## Muon tracks Filter ############################
@@ -130,7 +139,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     	      dataTier = cms.untracked.string('RAW-RECO'),
     	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring("l1MuBitsSkim","dtSkim","cscSkimP","rpcRHSkim","rpcTecSkim","muonTracksSkim")
+        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkim","rpcRHSkim","rpcTecSkim","muonTracksSkim")
     )
 )
 
