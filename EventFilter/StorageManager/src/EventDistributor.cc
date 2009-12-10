@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.8 2009/09/29 07:59:43 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.9 2009/12/08 15:38:39 dshpakov Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -70,17 +70,35 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
     _sharedResources->_eventConsumerQueueCollection->addEvent( ioc );
   }
 
-  // Commented out for now because it crashes the unit test -- Dennis
-  if( unexpected )
+  if( unexpected && ioc.messageCode() == Header::EVENT )
+  {
+    std::ostringstream msg;
+    msg << "Event " << ioc.eventNumber()
+      << " is not tagged for any stream or consumer."
+      << " Output module id: " << ioc.outputModuleId();
+    
+    msg << " HLT trigger bits: ";
+    std::vector<unsigned char> bitList;
+    ioc.hltTriggerBits(bitList);
+    // This code snipped taken from evm:EventSelector::acceptEvent
+    int byteIndex = 0;
+    int subIndex  = 0;
+    for (unsigned int pathIndex = 0; pathIndex < ioc.hltTriggerCount(); ++pathIndex)
     {
-      /*
-      std::ostringstream msg;
-      msg << "Event is not tagged for any stream or consumer";
-      XCEPT_DECLARE( stor::exception::UnwantedEvent, xcept, msg.str() );
-      _sharedResources->_statisticsReporter->alarmHandler()->notifySentinel( AlarmHandler::ERROR,
-                                                                             xcept );
-      */
+      int state = bitList[byteIndex] >> (subIndex * 2);
+      state &= 0x3;
+      msg << state << " ";
+      ++subIndex;
+      if (subIndex == 4)
+      { ++byteIndex;
+        subIndex = 0;
+      }
     }
+    
+    XCEPT_DECLARE( stor::exception::UnwantedEvent, xcept, msg.str() );
+    _sharedResources->_statisticsReporter->alarmHandler()->notifySentinel( AlarmHandler::ERROR,
+      xcept );
+  }
 
 }
 
