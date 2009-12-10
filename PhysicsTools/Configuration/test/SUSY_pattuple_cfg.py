@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.20 $'),
+    version = cms.untracked.string('$Revision: 1.21 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -43,10 +43,9 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC
 run33xOnReRecoMC( process, "ak5GenJets" )
 
 ############################# START SUSYPAT specifics ####################################
-from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, removeMCDependence, getSUSY_pattuple_outputCommands
-# Uncomment next line when you run on data
-#removeMCDependence(process)
-addDefaultSUSYPAT(process,'HLT8E29') #second parameter is the name of the HLT menu
+from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
+#Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections
+addDefaultSUSYPAT(process,True,'HLT','Summer09_7TeV_ReReco332') 
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 

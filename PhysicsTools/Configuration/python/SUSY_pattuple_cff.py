@@ -8,15 +8,19 @@
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV_ReReco332'):
+def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV_ReReco332'):
+    if not mcInfo:
+	removeMCDependence(process)
     loadPAT(process,JetMetCorrections)
     addJetMET(process)
     loadPATTriggers(process,HLTMenu)
+    loadPF2PAT(process,mcInfo)
 
     # Full path
     process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
                                                    *process.patDefaultSequence
-                                                   * process.patTrigger*process.patTriggerEvent )
+                                                   * process.patTrigger*process.patTriggerEvent
+						   * process.PFPATafterPAT )
 
 def loadPAT(process,JetMetCorrections='Summer09_7TeV_ReReco332'):
     #-- PAT standard config -------------------------------------------------------
@@ -35,9 +39,24 @@ def loadPAT(process,JetMetCorrections='Summer09_7TeV_ReReco332'):
     process.electronMatch.checkCharge = False
     process.muonMatch.checkCharge     = False
     process.tauMatch.checkCharge      = False
+    process.tauMatch.maxDeltaR        = cms.double(0.3)
 
     #-- Jet corrections -----------------------------------------------------------
     process.jetCorrFactors.corrSample = JetMetCorrections ## 'Summer09' for 10TeV, 'Summer09_7TeV' for 7TeV no ReReco
+
+def loadPF2PAT(process,mcInfo):
+    #-- PF2PAT config -------------------------------------------------------------
+    from PhysicsTools.PatAlgos.tools.pfTools import usePATandPF2PAT, removeMCDependencedorPF
+    usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5')
+    if not mcInfo:
+	removeMCDependencedorPF(process)
+    
+    process.load("RecoTauTag.RecoTau.PFRecoTauDiscriminationLowPt_cff")
+    process.PFPATafterPAT.replace(process.pfTauSequence,process.pfTauSequence + process.TauDiscrForLowPt)
+    process.pfLayer1Taus.tauIDSources.LowPtTausDiscr=cms.InputTag("DiscrLowPtTau")
+    process.pfMuonsPtGt5.ptMin = cms.double(2.0)
+    process.pfElectronsPtGt5.ptMin = cms.double(2.0)
+	
     
 def loadPATTriggers(process,HLTMenu='HLT'):
     #-- Trigger matching ----------------------------------------------------------
@@ -159,10 +178,10 @@ def addJetMET(process):
         module.addTagInfos = False    # Remove tag infos
         module.embedGenJetMatch = False # Only keep reference, since we anyway keep the genJet collections
  
-    # Add tcMET and PFMET
-    from PhysicsTools.PatAlgos.tools.metTools import addTcMET, addPfMET
+    # Add tcMET 
+    from PhysicsTools.PatAlgos.tools.metTools import addTcMET #, addPfMET
     addTcMET(process,'TC')
-    addPfMET(process,'PF')
+    #addPfMET(process,'PF')
 
     # Rename default jet collection for uniformity
     process.cleanLayer1JetsAK5 = process.cleanLayer1Jets
@@ -181,7 +200,7 @@ def addJetMET(process):
     process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsAK5'))
     # Add new jet collections to counters (MET done automatically)
-    for jets in ( 'IC5', 'SC5', 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'):
+    for jets in ( 'IC5', 'SC5', 'AK5PF', 'SC5PF', 'AK5JPT', 'AK5Track'): 
         process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1Jets'+jets))
         process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
         process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
@@ -210,7 +229,7 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep recoGenParticles_genParticles_*_*',
         'keep recoGenJets_iterativeCone5GenJets_*_*',
         'keep recoGenJets_sisCone5GenJets_*_*',
-        'keep recoGenJets_ak5GenJets_*_*',
+        'keep recoGenJets_ak5GenJets*_*_*',
         'keep recoGenMETs_*_*_*',
         # Trigger information
         'keep edmTriggerResults_TriggerResults_*_HLT',
@@ -223,20 +242,24 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_offlineBeamSpot_*_*',
         'keep *_towerMaker_*_*',                 # Keep CaloTowers for cross-cleaning
         'keep recoTracks_generalTracks_*_*',
-	'keep recoGsfTracks_electronGsfTracks_*_*',
-	'keep recoTracks_standAloneMuons_*_*',
-	'keep recoTracks_globalMuons_*_*',
-	'keep *_muons_*_*',
-	'keep *_gsfElectrons_*_*',
-	'keep *_softPFElectrons_*_*',
-	'keep *_eid*_*_*',
+	#'keep recoTrackExtras_*_*_*',
+	'keep *_pfLayer*_*_*', # Keep PF2PAT output
+	'keep *_electronMergedSeeds_*_*',
+	'keep *_Conversions_*_*',
+	#'keep recoGsfTracks_electronGsfTracks_*_*',
+	#'keep recoTracks_standAloneMuons_*_*',
+	#'keep recoTracks_globalMuons_*_*',
+	#'keep *_muons_*_*',
+	#'keep *_gsfElectrons_*_*',
+	#'keep *_softPFElectrons_*_*',
+	#'keep *_eid*_*_*',
+        #'keep recoPFCandidates_particleFlow_*_*',
         'keep recoSuperClusters_corrected*_*_*',
 	'keep recoSuperClusters_pfElectronTranslator_*_*',
         'keep *_gsfElectronCores_*_*',    #Keep electron core
         'keep *_photonCore_*_*',        #Keep electron core
         'keep recoConversions_conversions_*_*',
         'keep recoTracks_*onversions_*_*',
-        'keep HcalNoiseSummary_*_*_*', #Keep the one in RECO
-        'keep recoPFCandidates_particleFlow_*_*'
+        'keep HcalNoiseSummary_*_*_*' #Keep the one in RECO
         ] 
 
