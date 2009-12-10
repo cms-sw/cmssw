@@ -145,6 +145,13 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	   }
 	 }
        }
+       else if (collname1.Contains("SET")) {
+	 for (int i=0; i<3; ++i) {
+	   if (myKey1 = (TKey*)iter_r()) {
+	     collname1 = myKey1->GetName();
+	   }
+	 }
+       }
        else if (collname2.Contains("MuonAssociation") || collname2.Contains("tevMuons")) {
 	 if (myKey2 = (TKey*)iter_s()) {
 	   collname2 = myKey2->GetName();
@@ -154,6 +161,13 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	     if (myKey2 = (TKey*)iter_s()) {
 	       collname2 = myKey2->GetName();
 	     }
+	   }
+	 }
+       }
+       else if (collname2.Contains("SET")) {
+	 for (int i=0; i<3; ++i) {
+	   if (myKey2 = (TKey*)iter_s()) {
+	     collname2 = myKey2->GetName();
 	   }
 	 }
        }
