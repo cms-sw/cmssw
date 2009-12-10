@@ -36,6 +36,7 @@ ShallowTracksProducer::ShallowTracksProducer(const edm::ParameterSet& iConfig)
   produces <std::vector<double> >       ( Prefix + "vx"        + Suffix );
   produces <std::vector<double> >       ( Prefix + "vy"        + Suffix );
   produces <std::vector<double> >       ( Prefix + "vz"        + Suffix );
+  produces <std::vector<int> >          ( Prefix + "algo"        + Suffix );
 }
 
 void ShallowTracksProducer::
@@ -65,6 +66,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<std::vector<double> >       vx          ( new std::vector<double>()       );
   std::auto_ptr<std::vector<double> >       vy          ( new std::vector<double>()       );
   std::auto_ptr<std::vector<double> >       vz          ( new std::vector<double>()       );
+  std::auto_ptr<std::vector<int> >          algo        ( new std::vector<int>() );
 
   edm::Handle<edm::View<reco::Track> > tracks;  iEvent.getByLabel(theTracksLabel, tracks);
   
@@ -94,6 +96,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     vx->push_back(        track.vx()                );
     vy->push_back(        track.vy()                );
     vz->push_back(        track.vz()                );
+    algo->push_back(      (int) track.algo()              );
   }			  
   			  
   iEvent.put(number,       Prefix + "number"     + Suffix );
@@ -121,6 +124,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(vx,           Prefix + "vx"         + Suffix );
   iEvent.put(vy,           Prefix + "vy"         + Suffix );
   iEvent.put(vz,           Prefix + "vz"         + Suffix );
+  iEvent.put(algo,         Prefix + "algo"         + Suffix );
 
 }
 
