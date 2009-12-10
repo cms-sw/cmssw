@@ -175,6 +175,11 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["Extra_HcalToF_HaloId"]  = dqm->book2D("Extra_HcalToF_HaloId","", 83,-41.5,41.5 , 1000, -125., 125.); 
     ME["Extra_EcalToF"]  = dqm->book2D("Extra_EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
     ME["Extra_EcalToF_HaloId"]  = dqm->book2D("Extra_EcalToF_HaloId","",  171,-85.5,85.5 , 2000, -225., 225.); 
+    ME["Extra_CSCTrackInnerOuterDPhi"] = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
+    ME["Extra_CSCTrackInnerOuterDEta"] = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, TMath::Pi() );
+    ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
+    ME["Extra_CSCTrackNHits"]     = dqm->book1D("Ectra_CSCTrackNHits","", 75,0, 75);
+    
 
   }
 }
@@ -229,7 +234,49 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             {
               if( cosmic->eta() > 0 || cosmic->outerPosition().z() > 0  || cosmic->innerPosition().z() > 0 ) CSCTrackPlus = true ;
 	      else if( cosmic->eta() < 0 || cosmic->outerPosition().z() < 0 || cosmic->innerPosition().z() < 0) CSCTrackMinus = true;
+	    }
+	      
+	  float innermost_phi = 0.;
+	  float outermost_phi = 0.;
+	  float innermost_z = 99999.;
+	  float outermost_z = 0.;
+	  float innermost_eta = 0.;
+	  float outermost_eta = 0.;
+
+	  for(unsigned int j = 0 ; j < cosmic->extra()->recHits().size(); j++ )
+	    {
+	      edm::Ref<TrackingRecHitCollection> hit( cosmic->extra()->recHits(), j );
+	      DetId TheDetUnitId(hit->geographicalId());
+	      if( TheDetUnitId.det() != DetId::Muon ) continue;
+	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;
+
+	      const GeomDetUnit *TheUnit = TheCSCGeometry->idToDetUnit(TheDetUnitId);
+	      LocalPoint TheLocalPosition = hit->localPosition();  
+	      const BoundPlane& TheSurface = TheUnit->surface();
+	      const GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
+	      
+	      float z = TheGlobalPosition.z();
+	      if( TMath::Abs(z) < innermost_z )
+		{
+		  innermost_phi = TheGlobalPosition.phi();
+		  innermost_eta = TheGlobalPosition.eta();
+		  innermost_z   = TheGlobalPosition.z();
+		}
+	      if( TMath::Abs(z) > outermost_z)
+		{
+		  outermost_phi = TheGlobalPosition.phi() ;
+		  outermost_eta = TheGlobalPosition.eta() ;
+		  outermost_z   = TheGlobalPosition.z();
+		}
             }
+	  float dphi = TMath::Abs( outermost_phi - innermost_phi );
+	  float deta = TMath::Abs( outermost_eta - innermost_eta );
+	  ME["Extra_CSCTrackInnerOuterDPhi"] -> Fill( dphi );
+	  ME["Extra_CSCTrackInnerOuterDEta"] -> Fill( deta ); 
+	  ME["Extra_CSCTrackChi2Ndof"]  -> Fill(cosmic->normalizedChi2() );
+	  ME["Extra_CSCTrackNHits"]     -> Fill(cosmic->numberOfValidHits() );
+
+
 	}
     }
 
