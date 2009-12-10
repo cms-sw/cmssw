@@ -223,7 +223,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
-  if(actionOnLumiSec_ && nLumiSecs_ % 4 == 0 ){
+  if(actionOnLumiSec_ && nLumiSecs_ % 1 == 0 ){
     //cout << " Updating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();

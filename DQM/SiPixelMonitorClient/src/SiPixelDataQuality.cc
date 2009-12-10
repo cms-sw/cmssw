@@ -129,6 +129,9 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,1.,37.);
     SummaryReportMap->setAxisTitle("Pixel FED #",1);
     SummaryReportMap->setAxisTitle("Pixel FED Channel #",2);
+    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,1.,37.);
+    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,1.,37.);
+    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,1.,37.);
   }else{
     SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",7,0.,7.,16,0.,16.);
     SummaryReportMap->setBinLabel(1,"Barrel_Layer_1",1);
@@ -154,9 +157,6 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     SummaryReportMap->setBinLabel(14,"Pass rechit errorX cut",2);
     SummaryReportMap->setBinLabel(15,"Pass rechit errorY cut",2);
     SummaryReportMap->setBinLabel(16,"Pass hiteff cut",2);
-    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,1.,37.);
-    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,1.,37.);
-    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,1.,37.);
   }  
     SummaryPixel = bei->bookFloat("reportSummary");
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");

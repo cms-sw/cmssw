@@ -1375,14 +1375,10 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 	    OccupancyMap = bei->get(path + "/" + (isbarrel?"barrel":"endcap") + "OccupancyMap");
 					
 	    if(OccupancyMap){ 
-	      if(isbarrel && full_path.find("F/")!=string::npos) OccupancyMap->getTH2F()->Add(me->getTH2F());
-	      else if(!isbarrel && full_path.find("Panel_2/Module_3")!=string::npos) OccupancyMap->getTH2F()->Add(me->getTH2F());
-	      else if((!isbarrel && full_path.find("Panel_2/Module_3")==string::npos) || (isbarrel && full_path.find("H/")!=string::npos)){  
 		for(int i=1; i!=me->getNbinsX()+1; i++) for(int j=1; j!=me->getNbinsY()+1; j++){
 		  float previous = OccupancyMap->getBinContent(i,j);
 		  OccupancyMap->setBinContent(i,j,previous + me->getBinContent(i,j));
 		}
-	      }					
 	      OccupancyMap->getTH2F()->SetEntries(OccupancyMap->getTH2F()->Integral());
 	    }       
 					
