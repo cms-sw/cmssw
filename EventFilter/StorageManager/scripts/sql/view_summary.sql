@@ -13,7 +13,7 @@ return result_1;
 END;
 /
 
-CREATE OR REPLACE FUNCTION INJECTED_CHECK ( s_safe0 in NUMBER, s_closed in NUMBER, lastWrite in DATE)
+CREATE OR REPLACE FUNCTION INJECTED_CHECK ( s_safe0 in NUMBER, s_closed in NUMBER,  s_deleted in number, lastWrite in DATE)
    RETURN NUMBER AS 
    status NUMBER;
 BEGIN
@@ -33,8 +33,13 @@ BEGIN
 		--red if any files waiting to be injected
 		IF (s_closed - s_safe0 > 0) THEN
 			status := 2;
+                        --special treatment cuz of DontNotifyT0 files: IF CLOSED=DELETED red->magenta
+	   	        IF ( s_closed - s_deleted = 0 ) THEN
+			    status := 1;
+                        END IF;
                 END IF;
 	END IF;
+   
 
 	RETURN status;			
 END INJECTED_CHECK;
@@ -117,7 +122,7 @@ BEGIN
 END TRANS_RATE_CHECK;
 /
 
-CREATE or REPLACE FUNCTION DELETED_CHECK ( Start_time in DATE, s_deleted in number, s_checked in number, LastTrans in DATE) 
+CREATE or REPLACE FUNCTION DELETED_CHECK ( Start_time in DATE, s_deleted in number, s_checked in number, s_closed in number, LastTrans in DATE) 
    RETURN NUMBER AS
    result_1    number;
 BEGIN
@@ -163,11 +168,26 @@ BEGIN
 	       END IF;
 	    ELSE	     
                --if it's been more than 3hr35  since last transfer, all files should be deleted
-               IF ( ABS(S_checked - s_deleted) > 0 ) THEN
+               IF ( s_checked - s_deleted > 0 ) THEN
 	         result_1 := 1;
 	         --it's been even a longer last transfer, so go red 
 		 IF ( (time_diff(sysdate, LastTrans)) > 14700) THEN
 	          result_1 := 2;
+                 END IF;
+               ELSE
+               ---Here, it has been a long time and  s_checked <= s_deleted 
+               --There is the funny case of having DontNotifyT0 files, ie CLOSED > INJECTED = TRANSFERRED 
+                 IF ( s_closed - s_deleted > 0 ) THEN
+                   --Here  s_closed <= s_deleted, but s_closed > s_deleted ==> files remain to be deleted ==> RED
+                   --ie there ARE files STILL that need to get DELETED! BUT, since CHECKED is smaller systm not allowed -> magenta
+	           result_1 := 2;
+                 ELSE
+                   --Here, should be:  s_closed = s_deleted 
+                   IF ( ABS(s_checked - s_closed) > 0 ) THEN
+                     --Here s_closed <= s_deleted, but s_closed <= s_deleted ==> all files HAVE been deleted, but
+                     --still would like to flag the fact that s_closed != s_deleted!
+	             result_1 := 1;
+                   END IF;
                  END IF;
                END IF;
             END IF;
@@ -267,10 +287,10 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 					 MIN(START_WRITE_TIME),
 					 ROUND (SUM(NVL(s_filesize,0))/1073741824, 2),
                                          MAX(M_INSTANCE) + 1)) AS TRANS_STATUS,
-	      TO_CHAR ( INJECTED_CHECK(SUM(NVL(s_NEW,0)), SUM(NVL(s_injected,0)), MAX(STOP_WRITE_TIME) ) ) AS INJECTED_STATUS,
+	      TO_CHAR ( INJECTED_CHECK(SUM(NVL(s_NEW,0)), SUM(NVL(s_injected,0)),  SUM(NVL(s_Deleted, 0)), MAX(STOP_WRITE_TIME) ) ) AS INJECTED_STATUS,
 	      TO_CHAR ( TRANSFERRED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_NEW,0)), SUM(NVL(s_Copied,0)) ) ) AS TRANSFERRED_STATUS,
 	      TO_CHAR ( CHECKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_CHECKED,0)), SUM(NVL(s_COPIED,0)) ) ) AS CHECKED_STATUS,
-	      TO_CHAR ( DELETED_CHECK(MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS,
+	      TO_CHAR ( DELETED_CHECK(MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), SUM(NVL(s_injected,0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS,
               TO_CHAR ( MAX(runRank) ) AS RANK
 FROM (SELECT RUNNUMBER, STREAM, SETUPLABEL, APP_VERSION, S_LUMISECTION, S_FILESIZE, S_FILESIZE2D, S_FILESIZE2T0, S_NEVENTS, S_CREATED, S_INJECTED, S_NEW, S_COPIED, S_CHECKED, S_INSERTED, S_REPACKED, S_DELETED, N_INSTANCE, M_INSTANCE, START_WRITE_TIME, STOP_WRITE_TIME, START_TRANS_TIME, STOP_TRANS_TIME, START_REPACK_TIME, STOP_REPACK_TIME, HLTKEY, LAST_UPDATE_TIME, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) runRank 
 FROM SM_SUMMARY)
