@@ -100,10 +100,10 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 	                                 END),
 					 START_WRITE_TIME,
 					 ROUND (s_filesize/1073741824, 2), 2)) AS TRANS_STATUS,
-	      TO_CHAR ( INJECTED_CHECK(s_NEW, s_injected, STOP_WRITE_TIME) ) AS INJECTED_STATUS,
+	      TO_CHAR ( INJECTED_CHECK(s_NEW, s_injected, s_Deleted, STOP_WRITE_TIME) ) AS INJECTED_STATUS,
 	      TO_CHAR ( TRANSFERRED_CHECK(STOP_WRITE_TIME, STOP_TRANS_TIME, NVL(s_NEW,0), NVL(s_copied, 0) ) ) AS TRANSFERRED_STATUS,
               TO_CHAR ( CHECKED_CHECK(STOP_WRITE_TIME, STOP_TRANS_TIME, NVL(s_checked,0), NVL(s_copied, 0) ) ) AS CHECKED_STATUS, 
-	      TO_CHAR ( DELETED_CHECK(START_WRITE_TIME, NVL(s_Deleted, 0), NVL(s_Checked, 0), STOP_TRANS_TIME) ) AS DELETED_STATUS,
+	      TO_CHAR ( DELETED_CHECK(START_WRITE_TIME, NVL(s_Deleted, 0), NVL(s_Checked, 0),  NVL(s_injected, 0), STOP_TRANS_TIME) ) AS DELETED_STATUS,
 	      TO_CHAR ( dr ) AS RANK
 FROM ( SELECT runnumber, stream, start_write_time, last_update_time, setuplabel, app_version, n_instance, m_instance, s_filesize, s_created, s_filesize2d, s_filesize2T0, s_NEvents, s_injected, s_new, 
 	      s_copied, s_checked, s_deleted, s_repacked, HLTKEY, STOP_WRITE_TIME, start_trans_time, STOP_TRANS_TIME, DENSE_RANK() OVER ( ORDER BY RUNNUMBER DESC NULLS LAST) dr
