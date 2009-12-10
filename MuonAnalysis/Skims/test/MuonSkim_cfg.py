@@ -22,7 +22,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/MuonAnalysis/Skims/test/MuonSkim_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
     )
@@ -32,7 +32,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
 
 ###################### DT Activity Filter ######################
 
-from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import dtunpacker
+from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import dtunpacker
 
 process.muonDTDigis = dtunpacker.clone()
 
