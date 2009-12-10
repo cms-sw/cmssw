@@ -58,6 +58,9 @@ ALCARECOMuAlBeamHaloDQM = _TrackMon.TrackMon.clone(
     TrackProducer = 'ALCARECOMuAlBeamHalo',
     AlgoName = 'ALCARECOMuAlBeamHalo',
     FolderName = 'AlCaReco/MuAlBeamHalo',
+    MeasurementState = "default",
+    BSFolderName = "AlCaReco/MuAlBeamHalo/BeamSpot",
+    doSeedParameterHistos = False,    
     #sizes
     TkSizeBin = 5,
     TkSizeMin = 0,
@@ -75,6 +78,9 @@ ALCARECOMuAlBeamHaloOverlapsDQM = _TrackMon.TrackMon.clone(
     TrackProducer = 'ALCARECOMuAlBeamHaloOverlaps',
     AlgoName = 'ALCARECOMuAlBeamHaloOverlaps',
     FolderName = 'AlCaReco/MuAlBeamHaloOverlaps',
+    MeasurementState = "default",
+    BSFolderName = "AlCaReco/MuAlBeamHaloOverlaps/BeamSpot",
+    doSeedParameterHistos = False,    
     #sizes
     TkSizeBin = 70,
     TkSizeMin = 0,
