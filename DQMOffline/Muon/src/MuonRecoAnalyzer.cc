@@ -2,9 +2,10 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/25 11:16:09 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/05/07 09:28:23 $
+ *  $Revision: 1.20 $
  *  \author G. Mila - INFN Torino
+ *  updated: G. Hesketh, CERN
  */
 
 #include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
@@ -64,6 +65,7 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta", "(#eta_{TKfromGLB} - #eta_{GLB}) vs #eta_{GLB}", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/3000, etaMax/3000));
   etaResolution.push_back(dbe->book2D("ResVsEta_GlbSta_eta", "(#eta_{GLB} - #eta_{STAfromGLB}) vs #eta_{GLB}", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
   etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta", "(#eta_{TKfromGLB} - #eta_{STAfromGLB}) vs #eta_{TKfromGLB}", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
+  etaPull = dbe->book1D("Pull_TkSta_eta", "#eta_{TKfromGLB} - #eta_{GLB} / error", 100,-10,10);
   etaTrack = dbe->book1D("TkMuon_eta", "#eta_{TK}", etaBin, etaMin, etaMax);
   etaStaTrack = dbe->book1D("StaMuon_eta", "#eta_{STA}", etaBin, etaMin, etaMax);
   etaEfficiency.push_back(dbe->book1D("StaEta", "#eta_{STAfromGLB}", etaBin, etaMin, etaMax));
@@ -94,6 +96,7 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   thetaResolution.push_back(dbe->book2D("ResVsTheta_TkSta_theta", "(#theta_{TKfromGLB} - #theta_{STAfromGLB}) vs #theta_{TKfromGLB}", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
   thetaResolution[5]->setAxisTitle("rad",1);
   thetaResolution[5]->setAxisTitle("rad",2);
+  thetaPull = dbe->book1D("Pull_TkSta_theta", "#theta_{TKfromGLB} - #theta_{STAfromGLB} / error", 100,-10,10);
   thetaTrack = dbe->book1D("TkMuon_theta", "#theta_{TK}", thetaBin, thetaMin, thetaMax);
   thetaTrack->setAxisTitle("rad");
   thetaStaTrack = dbe->book1D("StaMuon_theta", "#theta_{STA}", thetaBin, thetaMin, thetaMax);
@@ -124,6 +127,7 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   phiResolution.push_back(dbe->book2D("ResVsPhi_TkSta_phi", "(#phi_{TKfromGLB} - #phi_{STAfromGLB}) vs #phi_{TKfromGLB}", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
   phiResolution[5]->setAxisTitle("rad",1);
   phiResolution[5]->setAxisTitle("rad",2);
+  phiPull = dbe->book1D("Pull_TkSta_phi", "#phi_{TKfromGLB} - #phi_{STAfromGLB} / error", 100,-10,10);
   phiTrack = dbe->book1D("TkMuon_phi", "#phi_{TK}", phiBin, phiMin, phiMax);
   phiTrack->setAxisTitle("rad"); 
   phiStaTrack = dbe->book1D("StaMuon_phi", "#phi_{STA}", phiBin, phiMin, phiMax);
@@ -199,18 +203,25 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   qOverpResolution[1]->setAxisTitle("GeV^{-1}"); 
   qOverpResolution.push_back(dbe->book1D("Res_TkSta_qOverp", "(q/p)_{TKfromGLB} - (q/p)_{STAfromGLB}", pResBin*binFactor, pResMin, pResMax));
   qOverpResolution[2]->setAxisTitle("GeV^{-1}"); 
+  qOverpPull = dbe->book1D("Pull_TkSta_qOverp", "(q/p)_{TKfromGLB} - (q/p)_{STAfromGLB} / error", 100,-10,10);
+ 
   oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "(1/p)_{TKfromGLB} - (1/p)_{GLB}", pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverpResolution[0]->setAxisTitle("GeV^{-1}"); 
   oneOverpResolution.push_back(dbe->book1D("Res_GlbSta_oneOverp", "(1/p)_{GLB} - (1/p)_{STAfromGLB}", pResBin*binFactor, pResMin, pResMax));
   oneOverpResolution[1]->setAxisTitle("GeV^{-1}");
   oneOverpResolution.push_back(dbe->book1D("Res_TkSta_oneOverp", "(q/p)_{TKfromGLB} - (q/p)_{STAfromGLB}", pResBin*binFactor, pResMin, pResMax));
   oneOverpResolution[2]->setAxisTitle("GeV^{-1}");
+  oneOverpPull = dbe->book1D("Pull_TkSta_oneOverp", "(1/p)_{TKfromGLB} - (1/p)_{STAfromGLB} / error", 100,-10,10);
+
+
   qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "(q/p_{t})_{TKfromGLB} - (q/p_{t})_{GLB}", pResBin*binFactor*2, pResMin/10, pResMax/10));
   qOverptResolution[0]->setAxisTitle("GeV^{-1}");  
   qOverptResolution.push_back(dbe->book1D("Res_GlbSta_qOverpt", "(q/p_{t})_{GLB} - (q/p_{t})_{STAfromGLB}", pResBin*binFactor, pResMin, pResMax));
   qOverptResolution[1]->setAxisTitle("GeV^{-1}"); 
   qOverptResolution.push_back(dbe->book1D("Res_TkSta_qOverpt", "(q/p_{t})_{TKfromGLB} - (q/p_{t})_{STAfromGLB}", pResBin*binFactor, pResMin, pResMax));
-  qOverptResolution[1]->setAxisTitle("GeV^{-1}"); 
+  qOverptResolution[2]->setAxisTitle("GeV^{-1}"); 
+  qOverptPull = dbe->book1D("Pull_TkSta_qOverpt", "(q/pt)_{TKfromGLB} - (q/pt)_{STAfromGLB} / error", 100,-10,10);
+
   oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "(1/p_{t})_{TKfromGLB} - (1/p_{t})_{GLB}", pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverptResolution[0]->setAxisTitle("GeV^{-1}");  
   oneOverptResolution.push_back(dbe->book1D("Res_GlbSta_oneOverpt", "(1/p_{t})_{GLB} - (1/p_{t})_{STAfromGLB}", pResBin*binFactor, pResMin, pResMax));
@@ -241,6 +252,8 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "((1/p_{t})_{TKfromGLB} - (1/p_{t})_{STAfromGLB}) vs (1/p_{t})_{TKfromGLB}", ptBin/5, ptMin, ptMax/100, pResBin*binFactor, pResMin, pResMax));
   oneOverptResolution[11]->setAxisTitle("GeV^{-1}",1);
   oneOverptResolution[11]->setAxisTitle("GeV^{-1}",2);
+  oneOverptPull = dbe->book1D("Pull_TkSta_oneOverpt", "(1/pt)_{TKfromGLB} - (1/pt)_{STAfromGLB} / error", 100,-10,10);
+
 
   // monitoring of the recHits provenance
   rhBin=parameters.getParameter<int>("rhBin");
@@ -260,9 +273,53 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 }
 
 
+void MuonRecoAnalyzer::GetRes( reco::TrackRef t1, reco::TrackRef t2, string par, float &res, float &pull){
+  
+  float p1=0, p2=0, p1e=1, p2e=1;
+
+  if(par == "eta") {
+    p1 = t1->eta(); p1e = t1->etaError();
+    p2 = t2->eta(); p2e = t2->etaError();
+  }
+  else if(par == "theta") {
+    p1 = t1->theta(); p1e = t1->thetaError();
+    p2 = t2->theta(); p2e = t2->thetaError();
+  }
+  else if(par == "phi") {
+    p1 = t1->phi(); p1e = t1->phiError();
+    p2 = t2->phi(); p2e = t2->phiError();
+  }
+  else if(par == "qOverp") {
+    p1 = t1->charge()/t1->p(); p1e = t1->qoverpError();
+    p2 = t2->charge()/t2->p(); p2e = t2->qoverpError();
+  }
+  else if(par == "oneOverp") {
+    p1 = 1./t1->p(); p1e = t1->qoverpError();
+    p2 = 1./t2->p(); p2e = t2->qoverpError();
+  }
+  else if(par == "qOverpt") {
+    p1 = t1->charge()/t1->pt(); p1e = t1->ptError()*p1*p1;
+    p2 = t2->charge()/t2->pt(); p2e = t2->ptError()*p2*p2;
+  }
+  else if(par == "oneOverpt") {
+    p1 = 1./t1->pt(); p1e = t1->ptError()*p1*p1;
+    p2 = 1./t2->pt(); p2e = t2->ptError()*p2*p2;
+  }
+
+  res = p1 - p2;
+  pull = res / sqrt(p1e*p1e + p2e*p2e);
+  return;
+}
+
+
+
+
+
 void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
 
   LogTrace(metname)<<"[MuonRecoAnalyzer] Analyze the mu";
+
+  float res=0, pull=0;
 
   if(recoMu.isGlobalMuon()) {
 
@@ -280,33 +337,55 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     reco::TrackRef recoTkGlbTrack = recoMu.track();
     // get the track using only the mu spectrometer data
     reco::TrackRef recoStaGlbTrack = recoMu.standAloneMuon();
+
   
     etaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta());
     etaGlbTrack[1]->Fill(recoTkGlbTrack->eta());
     etaGlbTrack[2]->Fill(recoStaGlbTrack->eta());
-    etaResolution[0]->Fill(recoTkGlbTrack->eta()-recoCombinedGlbTrack->eta());
-    etaResolution[1]->Fill(-recoStaGlbTrack->eta()+recoCombinedGlbTrack->eta());
-    etaResolution[2]->Fill(recoTkGlbTrack->eta()-recoStaGlbTrack->eta());
+
+    GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "eta", res, pull);
+    etaResolution[0]->Fill(res);
+    GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "eta", res, pull);
+    etaResolution[1]->Fill(res);
+    GetRes(recoTkGlbTrack, recoStaGlbTrack, "eta", res, pull);
+    etaResolution[2]->Fill(res);
+    etaPull->Fill(pull);
+
     etaResolution[3]->Fill(recoCombinedGlbTrack->eta(), recoTkGlbTrack->eta()-recoCombinedGlbTrack->eta());
     etaResolution[4]->Fill(recoCombinedGlbTrack->eta(), -recoStaGlbTrack->eta()+recoCombinedGlbTrack->eta());
     etaResolution[5]->Fill(recoCombinedGlbTrack->eta(), recoTkGlbTrack->eta()-recoStaGlbTrack->eta());
+ 
+
 
     thetaGlbTrack[0]->Fill(recoCombinedGlbTrack->theta());
     thetaGlbTrack[1]->Fill(recoTkGlbTrack->theta());
     thetaGlbTrack[2]->Fill(recoStaGlbTrack->theta());
-    thetaResolution[0]->Fill(recoTkGlbTrack->theta()-recoCombinedGlbTrack->theta());
-    thetaResolution[1]->Fill(-recoStaGlbTrack->theta()+recoCombinedGlbTrack->theta());
-    thetaResolution[2]->Fill(recoTkGlbTrack->theta()-recoStaGlbTrack->theta());
+    GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "theta", res, pull);
+    thetaResolution[0]->Fill(res);
+
+    GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "theta", res, pull);
+    thetaResolution[1]->Fill(res);
+
+    GetRes(recoTkGlbTrack, recoStaGlbTrack, "theta", res, pull);
+    thetaResolution[2]->Fill(res);
+    thetaPull->Fill(pull);
+
     thetaResolution[3]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoCombinedGlbTrack->theta());
     thetaResolution[4]->Fill(recoCombinedGlbTrack->theta(), -recoStaGlbTrack->theta()+recoCombinedGlbTrack->theta());
     thetaResolution[5]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoStaGlbTrack->theta());
+
+
      
     phiGlbTrack[0]->Fill(recoCombinedGlbTrack->phi());
     phiGlbTrack[1]->Fill(recoTkGlbTrack->phi());
     phiGlbTrack[2]->Fill(recoStaGlbTrack->phi());
-    phiResolution[0]->Fill(recoTkGlbTrack->phi()-recoCombinedGlbTrack->phi());
-    phiResolution[1]->Fill(-recoStaGlbTrack->phi()+recoCombinedGlbTrack->phi());
-    phiResolution[2]->Fill(recoTkGlbTrack->phi()-recoStaGlbTrack->phi());
+    GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "phi", res, pull);
+    phiResolution[0]->Fill(res);
+    GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "phi", res, pull);
+    phiResolution[1]->Fill(res);
+    GetRes(recoTkGlbTrack, recoStaGlbTrack, "phi", res, pull);
+    phiResolution[2]->Fill(res);
+    phiPull->Fill(pull);
     phiResolution[3]->Fill(recoCombinedGlbTrack->phi(), recoTkGlbTrack->phi()-recoCombinedGlbTrack->phi());
     phiResolution[4]->Fill(recoCombinedGlbTrack->phi(), -recoStaGlbTrack->phi()+recoCombinedGlbTrack->phi());
     phiResolution[5]->Fill(recoCombinedGlbTrack->phi(), recoTkGlbTrack->phi()-recoStaGlbTrack->phi());
@@ -335,18 +414,40 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(recoCombinedGlbTrack->charge()!=recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()!=recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(7);
     if(recoCombinedGlbTrack->charge()==recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()==recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(8);
     
-    qOverpResolution[0]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
-    qOverpResolution[1]->Fill(-(recoStaGlbTrack->charge()/recoStaGlbTrack->p())+(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
-    qOverpResolution[2]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->p())-(recoStaGlbTrack->charge()/recoStaGlbTrack->p()));
-    oneOverpResolution[0]->Fill((1/recoTkGlbTrack->p())-(1/recoCombinedGlbTrack->p()));
-    oneOverpResolution[1]->Fill(-(1/recoStaGlbTrack->p())+(1/recoCombinedGlbTrack->p()));
-    oneOverpResolution[2]->Fill((1/recoTkGlbTrack->p())-(1/recoStaGlbTrack->p()));
-    qOverptResolution[0]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->pt())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt()));
-    qOverptResolution[1]->Fill(-(recoStaGlbTrack->charge()/recoStaGlbTrack->pt())+(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt()));
-    qOverptResolution[2]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->pt())-(recoStaGlbTrack->charge()/recoStaGlbTrack->pt()));
-    oneOverptResolution[0]->Fill((1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
-    oneOverptResolution[1]->Fill(-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
-    oneOverptResolution[2]->Fill((1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
+    GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "qOverp", res, pull);
+    qOverpResolution[0]->Fill(res);
+    GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "qOverp", res, pull);
+    qOverpResolution[1]->Fill(res);
+    GetRes(recoTkGlbTrack, recoStaGlbTrack, "qOverp", res, pull);
+    qOverpResolution[2]->Fill(res);
+    qOverpPull->Fill(pull);
+
+
+    GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "oneOverp", res, pull);
+    oneOverpResolution[0]->Fill(res);
+    GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "oneOverp", res, pull);
+    oneOverpResolution[1]->Fill(res);
+    GetRes(recoTkGlbTrack, recoStaGlbTrack, "oneOverp", res, pull);
+    oneOverpResolution[2]->Fill(res);
+    oneOverpPull->Fill(pull);
+    
+
+    GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "qOverpt", res, pull);
+    qOverptResolution[0]->Fill(res);
+    GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "qOverpt", res, pull);
+    qOverptResolution[1]->Fill(res);
+    GetRes(recoTkGlbTrack, recoStaGlbTrack, "qOverpt", res, pull);
+    qOverptResolution[2]->Fill(res);
+    qOverptPull->Fill(pull);
+
+    GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "oneOverpt", res, pull);
+    oneOverptResolution[0]->Fill(res);
+    GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "oneOverpt", res, pull);
+    oneOverptResolution[1]->Fill(res);
+    GetRes(recoTkGlbTrack, recoStaGlbTrack, "oneOverpt", res, pull);
+    oneOverptResolution[2]->Fill(res);
+    oneOverptPull->Fill(pull);
+
     oneOverptResolution[3]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[4]->Fill(recoCombinedGlbTrack->eta(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[5]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));

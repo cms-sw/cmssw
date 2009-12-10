@@ -9,6 +9,7 @@
  *  $Date: 2009/11/12 17:27:45 $
  *  $Revision: 1.12 $
  *  \author  G. Mila - INFN Torino
+ *  updates:  G. Hesketh - CERN
  *   
  */
 
@@ -60,10 +61,12 @@ protected:
   void doKinematicsTests(std::string muonType, int bin);
   void doResidualsTests(std::string type, std::string parameter, int bin);
   void doMuonIDTests();
-  void ResidualCheck(std::string muType, std::vector<std::string> resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
   void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
   void doMultiplicityTests();
-		       
+  void ResidualCheck(std::string muType, std::vector<std::string> resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
+  void GaussFit(std::string type, std::string parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err);
+
+
 private:
 
   DQMStore* dbe;
@@ -81,6 +84,9 @@ private:
   double resPhiSpread_glbSta;
   double resOneOvPSpread_tkGlb;
   double resOneOvPSpread_glbSta;
+  double pullEtaSpread;
+  double pullPhiSpread;
+  double pullOneOvPSpread;
   double resChargeLimit_tkGlb;
   double resChargeLimit_glbSta;
   double resChargeLimit_tkSta;

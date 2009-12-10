@@ -1,3 +1,4 @@
+
 /*
  *  See header file for a description of this class.
  *
@@ -41,6 +42,9 @@ MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
   resPhiSpread_glbSta = ps.getParameter<double>("resPhiSpread_glbSta");
   resOneOvPSpread_tkGlb = ps.getParameter<double>("resOneOvPSpread_tkGlb");
   resOneOvPSpread_glbSta = ps.getParameter<double>("resOneOvPSpread_glbSta");
+  pullEtaSpread = ps.getParameter<double>("pullEtaSpread");
+  pullPhiSpread = ps.getParameter<double>("pullPhiSpread");
+  pullOneOvPSpread = ps.getParameter<double>("pullOneOvPSpread");
   resChargeLimit_tkGlb = ps.getParameter<double>("resChargeLimit_tkGlb");
   resChargeLimit_glbSta = ps.getParameter<double>("resChargeLimit_glbSta");
   resChargeLimit_tkSta = ps.getParameter<double>("resChargeLimit_tkSta");
@@ -91,11 +95,12 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   kinematicsSummaryMap->setBinLabel(3,"#phi",2);
    
   // residuals test report
-  residualsSummaryMap = dbe->book2D("residualsSummaryMap","Residuals test summary",3,1,4,4,1,5);
+  residualsSummaryMap = dbe->book2D("residualsSummaryMap","Residuals test summary",4,1,5,4,1,5);
   residualsSummaryMap->setAxisTitle("residuals",1);
   residualsSummaryMap->setBinLabel(1,"TK-GLB",1);
   residualsSummaryMap->setBinLabel(2,"GLB-STA",1);
   residualsSummaryMap->setBinLabel(3,"TK-STA",1);
+  residualsSummaryMap->setBinLabel(4,"TK-STA Pull",1);
   residualsSummaryMap->setAxisTitle("parameter tested",2);
   residualsSummaryMap->setBinLabel(1,"#eta",2);
   residualsSummaryMap->setBinLabel(2,"#phi",2);
@@ -103,18 +108,13 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   residualsSummaryMap->setBinLabel(4,"q",2);
 
   // muonId test report
-  //  float binsx[]={1., 2., 3., 4, 5.};
-  //  float binsy[]={1., 2., 3., 3.5, 4.};
-
   muonIdSummaryMap = dbe->book2D("muonIdSummaryMap","muonId test summary",4,1,5, 5,1,6);
-  //  muonIdSummaryMap = dbe->book2D("muonIdSummaryMap","muonId test summary", 4,binsx, 4,binsy);
   muonIdSummaryMap->setAxisTitle("muons",1);
   muonIdSummaryMap->setBinLabel(1,"GLB DT",1);
   muonIdSummaryMap->setBinLabel(2,"GLB CSC",1);
   muonIdSummaryMap->setBinLabel(3,"TK DT",1);
   muonIdSummaryMap->setBinLabel(4,"TK CSC",1);
   muonIdSummaryMap->setAxisTitle("tests",2);
-  //  muonIdSummaryMap->setBinLabel(1,"#matchCh",2);
   muonIdSummaryMap->setBinLabel(1,"#assSeg",2);
   muonIdSummaryMap->setBinLabel(2,"x mean",2);
   muonIdSummaryMap->setBinLabel(3,"x resid",2);
@@ -223,11 +223,13 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
       kinematicsSummaryMap->Fill(xBin,yBin,0);
     }
   }
-  for(int xBin=1; xBin<=3; xBin++){
-    for(int yBin=1; yBin<=2; yBin++){
+  for(int xBin=1; xBin<=residualsSummaryMap->getNbinsX(); xBin++){
+    for(int yBin=1; yBin<=residualsSummaryMap->getNbinsY(); yBin++){
       residualsSummaryMap->Fill(xBin,yBin,0);
     }
   }
+  residualsSummaryMap->setBinContent(4, 4, 1); //not used for now
+
   for(int xBin=1; xBin<=muonIdSummaryMap->getNbinsX(); xBin++){
     for(int yBin=1; yBin<=muonIdSummaryMap->getNbinsY(); yBin++){
       muonIdSummaryMap->Fill(xBin,yBin,0);
@@ -313,10 +315,18 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   summaryReportMap->setBinContent(1,3,double(kinematicsSummaryMap->getBinContent(1,3)+kinematicsSummaryMap->getBinContent(2,3)+kinematicsSummaryMap->getBinContent(3,3))/3.0);
   summaryReportMap->setBinContent(2,3,kinematicsSummaryMap->getBinContent(4,3));
   summaryReportMap->setBinContent(3,3,kinematicsSummaryMap->getBinContent(5,3));
-  summaryReportMap->setBinContent(1,4,double(residualsSummaryMap->getBinContent(1,1)+residualsSummaryMap->getBinContent(1,2)+residualsSummaryMap->getBinContent(1,3)+residualsSummaryMap->getBinContent(1,4)+residualsSummaryMap->getBinContent(2,1)+residualsSummaryMap->getBinContent(2,2)+residualsSummaryMap->getBinContent(2,3)+residualsSummaryMap->getBinContent(2,4)+residualsSummaryMap->getBinContent(3,1)+residualsSummaryMap->getBinContent(3,2)+residualsSummaryMap->getBinContent(3,3)+residualsSummaryMap->getBinContent(3,4))/12);
+  
+  double residualsSummary = 0;
+  for(int i=1; i<=residualsSummaryMap->getNbinsX(); i++)
+    for (int j=1; j<=residualsSummaryMap->getNbinsY(); j++) 
+      residualsSummary += residualsSummaryMap->getBinContent(i,i);
+  
+  residualsSummary /=residualsSummaryMap->getNbinsX()*residualsSummaryMap->getNbinsY();
+  summaryReportMap->setBinContent(1,4, residualsSummary);
+  
   summaryReportMap->setBinContent(2,4,-1.0/6.0);
   summaryReportMap->setBinContent(3,4,-1.0/6.0);
-  summaryReportMap->setBinContent(1,5,-1.0/6.0);
+
   float idtest=0;
   for(int i=1; i<=2; i++)
     for(int j=1; j<=5; j++)
@@ -330,6 +340,7 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   idtest/=10.;
   summaryReportMap->setBinContent(2,5,idtest);
   summaryReportMap->setBinContent(3,5,-1.0/6.0);
+
   //summaryReportMap->setBinContent(1,6,double(energySummaryMap->getBinContent(1,1)+energySummaryMap->getBinContent(1,2)+energySummaryMap->getBinContent(1,3))/3.0);
   //summaryReportMap->setBinContent(2,6,double(energySummaryMap->getBinContent(2,1)+energySummaryMap->getBinContent(2,2)+energySummaryMap->getBinContent(2,3))/3.0);
   //summaryReportMap->setBinContent(3,6,double(energySummaryMap->getBinContent(3,1)+energySummaryMap->getBinContent(3,2)+energySummaryMap->getBinContent(3,3))/3.0);
@@ -448,6 +459,42 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
 
 
 
+
+
+
+    //--GH new
+void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err) {
+  
+  // Gaussian Fit
+  float statMean = Histo->getMean(1);
+  float statSigma = Histo->getRMS(1);
+  TH1F * histo_root = Histo->getTH1F();
+  if(histo_root->GetEntries()>20){
+    TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
+    try {
+      histo_root->Fit(gfit, "Q0");
+    } catch (...) {
+      edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting Res_"<<type<<"_"<<parameter;
+    }
+    if(gfit){
+      mean = gfit->GetParameter(1); 
+      mean_err = gfit->GetParErrors()[2];
+      sigma = gfit->GetParameter(2);
+      sigma_err = gfit->GetParErrors()[2];
+      LogTrace(metname)<<"mean: "<<mean<<" +- "<<mean_err<<" for "<<type<<"_"<<parameter<<endl;
+      LogTrace(metname)<<"sigma: "<<sigma<<" +- "<<sigma_err<<" for "<<type<<"_"<<parameter<<endl;
+    }
+  }
+  else{
+    LogTrace(metname) << "[MuonTestSummary]: Test of  Res_"<<type<<"_"<<parameter<< " not performed because # entries < 20 ";
+  }
+}  
+
+
+
+
+
+
 void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
 
   // residuals test
@@ -455,61 +502,71 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
     string path = "Muons/MuonRecoAnalyzer/Res_" + type + "_" + parameter;
     MonitorElement * residualsHisto = dbe->get(path);
     
+    float mean = -1;
+    float mean_err = -1;
+    float sigma = -1;
+    float sigma_err = -1;
+    
     if(residualsHisto){
       
-      // Gaussian Fit
-      float statMean = residualsHisto->getMean(1);
-      float statSigma = residualsHisto->getRMS(1);
-      Double_t mean = -1;
-      Double_t sigma = -1;
-      Double_t errSigma = -1;
-      TH1F * histo_root = residualsHisto->getTH1F();
-      if(histo_root->GetEntries()>20){
-	TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
-	try {
-	  histo_root->Fit(gfit, "Q0");
-	} catch (...) {
-	  edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting Res_"<<type<<"_"<<parameter;
-	}
-	if(gfit){
-	  mean = gfit->GetParameter(1); 
-	  sigma = gfit->GetParameter(2);
-	  errSigma = gfit->GetParErrors()[2];
-	  LogTrace(metname)<<"mean: "<<mean<<"for Res_"<<type<<"_"<<parameter<<endl;
-	  LogTrace(metname)<<"sigma: "<<sigma<<"for Res_"<<type<<"_"<<parameter<<endl;
-	  LogTrace(metname)<<"errSigma: "<<errSigma<<"for Res_"<<type<<"_"<<parameter<<endl;
-	}
-      }
-      else{
-	LogTrace(metname) << "[MuonTestSummary]: Test of  Res_"<<type<<"_"<<parameter<< " not performed because # entries < 20 ";
-      }
+      GaussFit( type, parameter, residualsHisto, mean, mean_err, sigma, sigma_err); 
       
       if(sigma!=-1 && parameter=="eta" && type=="TkGlb"){
-	if(sigma-errSigma<resEtaSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 1, 1);
+	if(sigma-sigma_err<resEtaSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 1, 1);
 	else residualsSummaryMap->setBinContent(bin, 1, 0);
       }
       if(sigma!=-1 && parameter=="eta" && (type=="GlbSta" || type=="TkSta")) {
-	if(sigma-errSigma<resEtaSpread_glbSta) residualsSummaryMap->setBinContent(bin, 1, 1);
+	if(sigma-sigma_err<resEtaSpread_glbSta) residualsSummaryMap->setBinContent(bin, 1, 1);
 	else residualsSummaryMap->setBinContent(bin, 1, 0);
       }
       if(sigma!=-1 && parameter=="phi" && type=="TkGlb"){
-	if(sigma-errSigma<resPhiSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 2, 1);     
+	if(sigma-sigma_err<resPhiSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 2, 1);     
 	else residualsSummaryMap->setBinContent(bin, 2, 0);
       }
       if(sigma!=-1 && parameter=="phi" && (type=="GlbSta" || type=="TkSta")){ 
-	if(sigma-errSigma<resPhiSpread_glbSta) residualsSummaryMap->setBinContent(bin, 2, 1); 
+	if(sigma-sigma_err<resPhiSpread_glbSta) residualsSummaryMap->setBinContent(bin, 2, 1); 
 	else residualsSummaryMap->setBinContent(bin, 2, 0); 
       }
       if(sigma!=-1 && parameter=="oneOverp" && type=="TkGlb"){
-	if(sigma-errSigma<resOneOvPSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 3, 1);
+	if(sigma-sigma_err<resOneOvPSpread_tkGlb) residualsSummaryMap->setBinContent(bin, 3, 1);
 	else residualsSummaryMap->setBinContent(bin, 3, 0);
       }
       if(sigma!=-1 && parameter=="oneOverp" && (type=="GlbSta" || type=="TkSta")) {
-	if(sigma-errSigma<resOneOvPSpread_glbSta) residualsSummaryMap->setBinContent(bin, 3, 1);
+	if(sigma-sigma_err<resOneOvPSpread_glbSta) residualsSummaryMap->setBinContent(bin, 3, 1);
 	else residualsSummaryMap->setBinContent(bin, 3, 0);
       }
     }
+
+
+
+    //--GH modified
+    if(type=="TkSta"){
+      //look at the pull:
+      string path = "Muons/MuonRecoAnalyzer/Pull_" + type + "_" + parameter;
+      MonitorElement * pullHisto = dbe->get(path);
+      
+      if(pullHisto){
+	
+	GaussFit( type, parameter, pullHisto, mean, mean_err, sigma, sigma_err); 
+
+	if(sigma!=-1 && parameter=="eta" ){
+	  if(sigma-sigma_err<pullEtaSpread) residualsSummaryMap->setBinContent(4, 1, 1);
+	  else residualsSummaryMap->setBinContent(4, 1, 0);
+	}
+	if(sigma!=-1 && parameter=="phi"){
+	  if(sigma-sigma_err<pullPhiSpread) residualsSummaryMap->setBinContent(4, 2, 1);     
+	  else residualsSummaryMap->setBinContent(4, 2, 0);
+	}
+	if(sigma!=-1 && parameter=="oneOverp"){
+	  if(sigma-sigma_err<pullOneOvPSpread) residualsSummaryMap->setBinContent(4, 3, 1);
+	  else residualsSummaryMap->setBinContent(4, 3, 0);
+	}
+	
+      }//have pull histo
+    } //TkSta muons
   }
+
+  //this part for Global Muons:
   else{
     string path = "Muons/MuonRecoAnalyzer/" + type + "_" + parameter;
     MonitorElement * residualsHisto = dbe->get(path);
@@ -549,46 +606,19 @@ void MuonTestSummary::doMuonIDTests(){
 
   for(int i=0; i<=1; i++){
 
-    //--- GH TO FIX 
-
     // num matches test
-
-    /*  -- OLD --
     string path = "Muons/MuonIdDQM/" + muType[i] + "/hNumMatches";
     MonitorElement * matchesHisto = dbe->get(path);
-	
-    if(matchesHisto){
-      TH1F * matchesHisto_root = matchesHisto->getTH1F();
-      if(matchesHisto_root->GetMaximumBin() >= numMatchedExpected_min && matchesHisto_root->GetMaximumBin() <= numMatchedExpected_max)
-	 muonIdSummaryMap->setBinContent(i+1,1,1);
-      else
-	  muonIdSummaryMap->setBinContent(i+1,1,0);
-    }
-    */
     
-
-    /*
-    //New: fraction of matches test:
-    for(int j=0; j<2; j++) {
-      string stub = "DT";
-      if(j==1) stub = "CSC";
-      
-      string path = "Muons/MuonIdDQM/" + muType[i] + "/hFrac"+stub+"Matches";
-      MonitorElement * fracHisto = dbe->get(path);
-      if(fracHisto){
-	TH1F * fracHisto_root = fracHisto->getTH1F();
-	//cout <<stub<<" matches mean: "<<fracHisto_root->GetMean()<<" +- "<<fracHisto_root->GetMeanError()<<endl;
-	if(fracHisto_root->GetMean() + 2*fracHisto_root->GetMeanError()  >= 0.9)
-	  muonIdSummaryMap->setBinContent(2*i+j+1,1,1);
-	else
-	  muonIdSummaryMap->setBinContent(2*i+j+1,1,0);
-      }
+    if(matchesHisto){
+        TH1F * matchesHisto_root = matchesHisto->getTH1F();
+      if(matchesHisto_root->GetMaximumBin() >= numMatchedExpected_min && matchesHisto_root->GetMaximumBin() <= numMatchedExpected_max)
+	muonIdSummaryMap->setBinContent(i+1,1,1);
+      else
+	muonIdSummaryMap->setBinContent(i+1,1,0);
     }
- 
-    */
-
-
-
+    
+    
     // num of 0 associated segments 
     double numOneSegm_dt = 0;
     int numHistos_dt=0;
@@ -637,10 +667,11 @@ void MuonTestSummary::doMuonIDTests(){
       fraction_csc = numOneSegm_csc/double(numHistos_csc);
       LogTrace(metname)<<"fraction_csc: "<<fraction_csc<<" for "<<muType[i]<<endl;
     }
+    
 
 
+    //--GH modified
 
-    //--GH
     if(fraction_dt>matchesFractionDt_min && fraction_dt<matchesFractionDt_max)
       muonIdSummaryMap->setBinContent(2*i+1,1,1);
     else
@@ -650,12 +681,8 @@ void MuonTestSummary::doMuonIDTests(){
       muonIdSummaryMap->setBinContent(2*i+2,1,1);
     else
       muonIdSummaryMap->setBinContent(2*i+2,1,0);
-    //--
 
-
-
-
-
+    
 
     //--GH modified
     
@@ -764,12 +791,8 @@ void MuonTestSummary::doMuonIDTests(){
 
 
   }
- 
+  
 }
-
-
-
-
 
 void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string> resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err){
 
@@ -830,11 +853,6 @@ void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string>
   return;
 
 }
-
-
-
-
-
 
 
 
