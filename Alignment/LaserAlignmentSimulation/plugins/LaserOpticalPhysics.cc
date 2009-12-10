@@ -1,8 +1,8 @@
 /** \file LaserOpticalPhysics.cc
  *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: 2007/10/27 21:43:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/22 16:35:33 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 
@@ -22,13 +22,14 @@
 #include "G4DataQuestionaire.hh"
 
 LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
-  const edm::ParameterSet & p) : PhysicsList(map, p)
+					 const HepPDT::ParticleDataTable * table_,
+					 const edm::ParameterSet & p) : PhysicsList(map, table_, p)
 {
     G4DataQuestionaire it(photon);
     std::cout << "You are using the simulation engine: QGSP together with optical physics" << std::endl;
   
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",0));
+    RegisterPhysics( new CMSEmStandardPhysics("standard EM",table_,0,0.0));
     // Synchroton Radiation & GN Physics
     RegisterPhysics(new G4EmExtraPhysics("extra EM"));
     // Decays

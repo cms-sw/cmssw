@@ -13,10 +13,12 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 ## all db records
-process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 #process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
@@ -67,7 +69,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'FwkJob', 
         'GeometryInfo', 
         'HCalGeom', 
-        'HCalSim', 
+        'HcalSim', 
         'TrackerMapDDDtoID', 
         'TrackerSimInfoNumbering'),
     fwkJobReports = cms.untracked.vstring('FrameworkJobReport.xml')
@@ -83,7 +85,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.o1 = cms.OutputModule("PoolOutputModule",
     compressionLevel = cms.untracked.int32( 9 ),
-    fileName = cms.untracked.string('/afs/cern.ch/user/o/olzem/scratch0/LaserEvents.SIM-DIGI.1136_raw.root'),
+    fileName = cms.untracked.string('LaserEvents.SIM-DIGI.1136_raw.root'),
     outputCommands = cms.untracked.vstring(
       'drop *', 
       'keep *_simSiStripDigis_*_*'

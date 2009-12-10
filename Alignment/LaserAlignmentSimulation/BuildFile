@@ -5,6 +5,7 @@
 <use name=SimG4Core/Notification>
 <use name=clhep>
 <use name=geant4>
+<use name=heppdt>
 <export>
   <lib name=AlignmentLaserAlignmentSimulation>
 </export>
