@@ -167,8 +167,14 @@ root [2] PlotCombiner()
 
 and you finally get the plots.
 
+Notes on Data Handling:
+^^^^^^^^^^^^^^^^^^^^^^^
 
-
+The code can also run with data. What you have to change is the Global Tag
+(refer to  the twiki page: 
+https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions )
+and remove references in the cfg with respect to generator level
+quantities that pat default may need.
 
 Contact
 
