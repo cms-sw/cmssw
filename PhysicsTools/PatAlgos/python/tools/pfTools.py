@@ -495,3 +495,13 @@ def usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5'):
 
 
 
+def removeMCDependencedorPF( process ):
+    #-- Remove MC dependence ------------------------------------------------------
+    from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
+    process.PF2PAT.remove(process.genParticlesForMETAllVisible)
+    process.PF2PAT.remove(process.genMetTrue)
+    process.PF2PAT.remove(process.genParticlesForJets)
+    process.PF2PAT.remove(process.ak5GenJetsNoNu)
+    process.PF2PAT.remove(process.iterativeCone5GenJetsNoNu)
+    removeMCMatching(process, 'PFAll')
+    
