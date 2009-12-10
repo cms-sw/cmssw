@@ -68,6 +68,7 @@ namespace cscdqm {
     /**  DDU Header bunch crossing number (BXN) */
     BXN = dduHeader.bxnum();
     /**  LOG4CPLUS_WARN(logger_,dduTag << " DDU Header BXN Number = " << std::dec << BXN); */
+    if (getEMUHisto(h::EMU_DDU_BXN, mo)) mo->Fill(BXN);
     if (getDDUHisto(h::DDU_BXN, dduID, mo)) mo->Fill(BXN);
 
     /**  L1A number from DDU Header */

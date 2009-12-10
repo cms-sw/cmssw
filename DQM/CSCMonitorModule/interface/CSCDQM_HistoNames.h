@@ -69,15 +69,21 @@ namespace h {
   (( CSC_ALCTXX_BXN, "ALCT%d_BXN" )) \
   (( CSC_ALCTXX_DTIME, "ALCT%d_dTime" )) \
   (( CSC_ALCTXX_DTIME_PROFILE, "ALCT%d_dTime_Profile" )) \
+  (( CSC_CLCTXX_DTIME_PROFILE, "CLCT%d_dTime_Profile" )) \
   (( CSC_ALCTXX_DTIME_VS_KEYWG, "ALCT%d_dTime_vs_KeyWG" )) \
   (( CSC_ALCTXX_KEYWG, "ALCT%d_KeyWG" )) \
   (( CSC_ALCTXX_PATTERN, "ALCT%d_Pattern" )) \
+  (( CSC_ALCTXX_PATTERN_DISTR, "ALCT%d_Pattern_Distr" )) \
   (( CSC_ALCTXX_QUALITY, "ALCT%d_Quality" )) \
+  (( CSC_ALCTXX_QUALITY_DISTR, "ALCT%d_Quality_Distr" )) \
   (( CSC_ALCTXX_QUALITY_PROFILE, "ALCT%d_Quality_Profile" )) \
+  (( CSC_CLCT_HALF_STRIP_PATTERN_DISTR, "CLCT%d_Half_Strip_Pattern_Distr" )) \
+  (( CSC_CLCTXX_HALF_STRIP_QUALITY_DISTR, "CLCT%d_Half_Strip_Quality_Distr" )) \
   (( CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, "BinCheck_DataFlow_Problems_Frequency" )) \
   (( CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, "BinCheck_DataFlow_Problems_Table" )) \
   (( CSC_BINCHECK_ERRORS_FREQUENCY, "BinCheck_Errors_Frequency" )) \
   (( CSC_BINCHECK_ERRORSTAT_TABLE, "BinCheck_ErrorStat_Table" )) \
+  (( CSC_CFEB_AFEB_RAWHITS_TIMEBINS, "AFEB_RawHits_TimeBins" )) \
   (( CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, "CFEB_Active_Samples_vs_Strip_Ly%d" )) \
   (( CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, "CFEB_Active_Samples_vs_Strip_Ly%d_Profile" )) \
   (( CSC_CFEB_ACTIVESTRIPS_LYXX, "CFEB_ActiveStrips_Ly%d" )) \
@@ -186,6 +192,24 @@ namespace h {
   (( DDU_TRAILER_ERRORSTAT_RATE, "Trailer_ErrorStat_Rate" )) \
   (( DDU_TRAILER_ERRORSTAT_TABLE, "Trailer_ErrorStat_Table" )) \
   (( DDU_WORD_COUNT, "Word_Count" )) \
+  (( EMU_CSC_CLCT0_QUALITY, "CSC_CLCT0_Quality" )) \
+  (( EMU_CSC_CLCT0_BXN_MEAN, "CSC_CLCT0_BXN_mean" )) \
+  (( EMU_CSC_ENDCAP_PLUS_CLCT0_DTIME, "Plus_endcap_CLCT0_dTime" )) \
+  (( EMU_CSC_ENDCAP_MINUS_CLCT0_DTIME, "Minus_endcap_CLCT0_dTime" )) \
+  (( EMU_CSC_AFEB_ENDCAP_MINUS_RAWHITS_TIME, "Minus_endcap_AFEB_RawHits_Time" )) \
+  (( EMU_CSC_AFEB_ENDCAP_PLUS_RAWHITS_TIME, "Plus_endcap_AFEB_RawHits_Time" )) \
+  (( EMU_CSC_AFEB_RAWHITS_TIME_MEAN, "CSC_AFEB_RawHits_Time_mean" )) \
+  (( EMU_CSC_AFEB_RAWHITS_TIME_RMS, "CSC_AFEB_RawHits_Time_rms" )) \
+  (( EMU_CSC_ALCT0_BXN_MEAN, "CSC_ALCT0_BXN_mean" )) \
+  (( EMU_CSC_ALCT0_BXN_RMS, "CSC_ALCT0_BXN_rms" )) \
+  (( EMU_CSC_ALCT0_ENDCAP_MINUS_DTIME, "Minus_endcap_ALCT0_dTime" )) \
+  (( EMU_CSC_ALCT0_ENDCAP_PLUS_DTIME, "Plus_endcap_ALCT0_dTime" )) \
+  (( EMU_CSC_ALCT0_QUALITY, "CSC_ALCT0_Quality" )) \
+  (( EMU_CSC_ALCT_CLCT_MATCH_MEAN, "CSC_ALCT_CLCT_Match_mean" )) \
+  (( EMU_CSC_ALCT_CLCT_MATCH_RMS, "CSC_ALCT_CLCT_Match_rms" )) \
+  (( EMU_CSC_ALCT_PLANES_WITH_HITS, "CSC_ALCT_Planes_with_Hits" )) \
+  (( EMU_CSC_ENDCAP_PLUS_ALCT_CLCT_MATCH_TIME, "Plus_endcap_ALCT_CLCT_Match_Time" )) \
+  (( EMU_CSC_ENDCAP_MINUS_ALCT_CLCT_MATCH_TIME, "Minus_endcap_ALCT_CLCT_Match_Time" )) \
   (( EMU_ALL_DDUS_AVERAGE_EVENT_SIZE, "All_DDUs_Average_Event_Size" )) \
   (( EMU_ALL_DDUS_AVERAGE_INPUTS_WITH_DATA, "All_DDUs_Average_Inputs_with_Data" )) \
   (( EMU_ALL_DDUS_AVERAGE_LIVE_INPUTS, "All_DDUs_Average_Live_Inputs" )) \
@@ -229,6 +253,7 @@ namespace h {
   (( EMU_CSC_WO_CFEB_FRACT, "CSC_wo_CFEB_Fract" )) \
   (( EMU_CSC_WO_CLCT, "CSC_wo_CLCT" )) \
   (( EMU_CSC_WO_CLCT_FRACT, "CSC_wo_CLCT_Fract" )) \
+  (( EMU_DDU_BXN, "All_DDUs_BXNs" )) \
   (( EMU_DMB_FORMAT_ERRORS, "DMB_Format_Errors" )) \
   (( EMU_DMB_FORMAT_ERRORS_FRACT, "DMB_Format_Errors_Fract" )) \
   (( EMU_DMB_FORMAT_WARNINGS, "DMB_Format_Warnings" )) \

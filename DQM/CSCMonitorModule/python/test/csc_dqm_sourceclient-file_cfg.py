@@ -24,7 +24,7 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 # Event Source
 #-----------------------------
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
   fileNames  = cms.untracked.vstring(
     '/store/data/CRAFT09/Cosmics/RAW/v1/000/112/389/F6BEA315-5994-DE11-87DE-003048D37514.root',
@@ -172,19 +172,19 @@ MessageLogger = cms.Service("MessageLogger",
 
   cout = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),
-#    WARNING = cms.untracked.PSet(
-#      limit = cms.untracked.int32(0)
-#    ),
-#    noLineBreaks = cms.untracked.bool(False)
+    WARNING = cms.untracked.PSet(
+      limit = cms.untracked.int32(0)
+    ),
+    noLineBreaks = cms.untracked.bool(False)
   ),
 
   detailedInfo = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG')
   ),
 
-#  critical = cms.untracked.PSet(
-#    threshold = cms.untracked.string('ERROR')
-#  ),
+  critical = cms.untracked.PSet(
+    threshold = cms.untracked.string('ERROR')
+  ),
 
   debugModules = cms.untracked.vstring('*'),
 

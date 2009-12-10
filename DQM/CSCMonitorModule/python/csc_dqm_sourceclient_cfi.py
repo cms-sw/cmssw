@@ -50,7 +50,12 @@ dqmCSCClient = cms.EDFilter("CSCMonitorModule",
       '-/FEDEntries/',
       '-/FEDFatal/',
       '-/FEDFormatFatal/',
-      '-/FEDNonFatal/'
+      '-/FEDNonFatal/',
+      '+/CSC_[0-9]+_[0-9]+\/ALCT[01]_dTime/',
+      '+/CSC_[0-9]+_[0-9]+\/ALCT[01]_Quality/',
+      '+/CSC_[0-9]+_[0-9]+\/ALCT[01]_Pattern_Distr/',
+      '+/CSC_[0-9]+_[0-9]+\/AFEB_RawHits_TimeBins/',
+      '+/CSC_[0-9]+_[0-9]+\/ALCT_Number_Of_Layers_With_Hits'
     )
   )
 

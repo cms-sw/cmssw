@@ -74,7 +74,7 @@ namespace cscdqm {
 
       void fatalError(const XERCES_CPP_NAMESPACE::SAXParseException& exc) {
         char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
-        LOG_ERROR << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
+        LOG_COUT << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
         throw Exception(message);
       }
 
