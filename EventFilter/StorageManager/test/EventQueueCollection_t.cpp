@@ -9,7 +9,6 @@
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
-#include "EventFilter/StorageManager/test/MockApplication.h"
 
 #include "EventFilter/StorageManager/test/TestHelper.h"
 

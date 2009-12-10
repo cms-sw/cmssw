@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockApplication.h,v 1.3 2009/07/03 18:39:40 mommsen Exp $
+// $Id: MockApplication.h,v 1.4 2009/07/03 18:44:35 mommsen Exp $
 
 #ifndef MOCKAPPLICATION_H
 #define MOCKAPPLICATION_H
@@ -9,12 +9,15 @@
 #include "log4cplus/logger.h"
 #include "log4cplus/configurator.h"
 
+#include "toolbox/exception/Handler.h"
+#include "toolbox/exception/Processor.h"
 #include "xdaq/Application.h"
 #include "xdaq/ApplicationContext.h"
 #include "xdaq/ApplicationContextImpl.h"
 #include "xdaq/ApplicationDescriptor.h"
 #include "xdaq/ApplicationDescriptorImpl.h"
 #include "xdaq/ApplicationStub.h"
+#include "xdaq/ApplicationStubImpl.h"
 #include "xdaq/ContextDescriptor.h"
 #include "xdaq/exception/Exception.h"
 #include "xdata/InfoSpace.h"
@@ -28,18 +31,21 @@ namespace stor
   public:
 
     MockApplicationStub() :
-    _logger( Logger::getRoot() ), //place holder, overwritten below
-    _appContext( new xdaq::ApplicationContextImpl(_logger) ),
-    _appDescriptor( new xdaq::ApplicationDescriptorImpl(
-        new xdaq::ContextDescriptor( "none" ),
-        "MockApplication", 0, "UnitTests"
-      )
-    )
+    _logger( Logger::getRoot() ) //place holder, overwritten below
     {
       log4cplus::BasicConfigurator config;
       config.configure();
       _logger = Logger::getInstance("main");
 
+      _appContext = new xdaq::ApplicationContextImpl(_logger);
+      //_appContext->init(0, 0);
+      
+      _appDescriptor = new xdaq::ApplicationDescriptorImpl
+        (
+          new xdaq::ContextDescriptor( "none" ),
+          "MockApplication", 0, "UnitTests"
+        );
+      
       _ispace = new xdata::InfoSpace("MockApplication");
     }
 
@@ -56,34 +62,69 @@ namespace stor
   private:
 
     Logger _logger;
-    xdaq::ApplicationContext* _appContext;
+    xdaq::ApplicationContextImpl* _appContext;
     xdaq::ApplicationDescriptor* _appDescriptor;
     xdata::InfoSpace* _ispace;
 
   };
   
 
+  class MockApplicationStubImpl : public xdaq::ApplicationStubImpl
+  {
+
+  public:
+  
+    MockApplicationStubImpl(
+      xdaq::ApplicationContext* c, 
+      xdaq::ApplicationDescriptor* d, 
+      Logger& logger
+    )
+    : ApplicationStubImpl(c,d,logger)
+    {}
+  };
+
+
   class MockApplication : public xdaq::Application
   {
     
   public:
-    
-    MockApplication(MockApplicationStub* s) :
-    Application(s),
-    _stub(s)
-    {}
+
+    MockApplication(MockApplicationStubImpl* s) :
+    Application(s)
+    {
+      toolbox::exception::HandlerSignature* defaultExceptionHandler =
+        toolbox::exception::bind (this, &MockApplication::handleException, 
+          "MockApplicationStubImpl::handleException");
+      toolbox::exception::getProcessor()->setDefaultHandler(defaultExceptionHandler);
+    }
 
     ~MockApplication() {};
 
-    void notifyQualified(std::string severity, xcept::Exception&) {}
-    Logger& getApplicationLogger() { return _stub->getLogger(); }
-
-  private:
-
-    MockApplicationStub* _stub;
+    bool handleException(xcept::Exception& ex, void* context)
+    {
+      return true;
+    }
   };
 
-}
+
+  namespace mockapps
+  {
+    MockApplication* getMockXdaqApplication()
+    {
+        MockApplicationStub* stub( new MockApplicationStub() );
+        MockApplicationStubImpl* stubImpl( new MockApplicationStubImpl
+          (
+            stub->getContext(),
+            stub->getDescriptor(),
+            stub->getLogger()
+          )
+        );
+        MockApplication* app( new MockApplication( stubImpl ) );
+
+        return app;
+    }
+  } // namespace mockapps
+} // namespace stor
 
 #endif // MOCKAPPLICATION_H
 

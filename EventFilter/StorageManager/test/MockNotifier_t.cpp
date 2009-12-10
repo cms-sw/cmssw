@@ -10,8 +10,7 @@ using namespace stor;
 int main()
 {
 
-  MockApplicationStub* stub( new MockApplicationStub() );
-  MockApplication* app( new MockApplication( stub ) );
+  xdaq::Application* app = mockapps::getMockXdaqApplication();
 
   boost::shared_ptr<StatisticsReporter> sr;
   sr.reset( new StatisticsReporter( app, 0 ) );
@@ -23,3 +22,11 @@ int main()
   return 0;
 
 }
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

@@ -83,7 +83,7 @@ private:
   void checkSignals( const EventList& elist, const string& expected);
   bool checkHistory( const TransitionList& steps );
 
-  static MockApplication* _app;
+  static xdaq::Application* _app;
   EventDistributor* _ed;
   FragmentStore* _fs;
   MockNotifier* _mn;
@@ -92,7 +92,7 @@ private:
   static SharedResourcesPtr _sr;
 };
 
-MockApplication* testStateMachine::_app;
+xdaq::Application* testStateMachine::_app;
 SharedResourcesPtr testStateMachine::_sr;
 
 void testStateMachine::setUp()
@@ -102,8 +102,7 @@ void testStateMachine::setUp()
   // one mock application and one shared resources instance for all tests.
   if ( _sr.get() == 0 )
   {
-    MockApplicationStub* stub(new MockApplicationStub());
-    _app = new MockApplication(stub); // stub is owned now by xdaq::Application
+    _app = mockapps::getMockXdaqApplication();
 
     _sr.reset(new SharedResources());
     _sr->_initMsgCollection.reset(new InitMsgCollection());
@@ -114,7 +113,7 @@ void testStateMachine::setUp()
     _sr->_registrationQueue.reset(new RegistrationQueue(32));
     _sr->_streamQueue.reset(new StreamQueue(32));
     _sr->_dqmEventQueue.reset(new DQMEventQueue(32));
-    _sr->_statisticsReporter.reset( new StatisticsReporter( _app, 0 ) );
+    _sr->_statisticsReporter.reset( new StatisticsReporter( _app, 1 ) );
     EventConsumerMonitorCollection& ecmc = 
       _sr->_statisticsReporter->getEventConsumerMonitorCollection();
     _sr->_eventConsumerQueueCollection.reset( new EventQueueCollection( ecmc ) );
@@ -122,10 +121,11 @@ void testStateMachine::setUp()
       _sr->_statisticsReporter->getDQMConsumerMonitorCollection();
     _sr->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
     
-    _sr->_discardManager.reset(new DiscardManager(stub->getContext(), stub->getDescriptor(),
+    _sr->_discardManager.reset(new DiscardManager(_app->getApplicationContext(),
+                                                  _app->getApplicationDescriptor(),
                                                   _sr->_statisticsReporter->getDataSenderMonitorCollection()));
 
-    _sr->_configuration.reset(new Configuration(stub->getInfoSpace(), 0));
+    _sr->_configuration.reset(new Configuration(_app->getApplicationInfoSpace(), 0));
     _sr->_registrationCollection.reset(new RegistrationCollection());
   }
 

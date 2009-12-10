@@ -75,8 +75,7 @@ void testEventDistributor::initEventDistributor()
 {
   if (_eventDistributor.get() == 0)
     {
-      MockApplicationStub* stub(new MockApplicationStub());
-      MockApplication* app(new MockApplication(stub)); // stub is owned now by xdaq::Application
+      xdaq::Application* app = mockapps::getMockXdaqApplication();
       _sharedResources.reset(new SharedResources());
       _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
       _sharedResources->_streamQueue.reset(new StreamQueue(1024));
