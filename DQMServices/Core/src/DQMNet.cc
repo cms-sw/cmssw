@@ -678,7 +678,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	o->rawdata.clear();
         o->rawdata.insert(o->rawdata.end(), objdata, qdata);
       }
-      else
+      else if (! o->rawdata.empty())
 	o->flags |= DQM_PROP_STALE;
       o->qdata.insert(o->qdata.end(), qdata, enddata);
 
@@ -1066,7 +1066,7 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
     shutdown_ (0),
     delay_ (1000),
     waitStale_ (0, 0, 0, 0, 500000000 /* 500 ms */),
-    waitMax_ (0, 0, 0, 5 /* seconds */, 0),
+    waitMax_ (0, 0, 0, 15 /* seconds */, 0),
     flush_ (false)
 {
   // Create a pipe for the local DQM to tell the communicator
@@ -1389,9 +1389,22 @@ DQMNet::run(void)
 
       // If we have (stale) object data, wait only up to stale limit.
       // Otherwise if we have no data at all, wait up to the max limit.
-      if (i->time < waitold
-	  || (i->time < waitstale && o && (o->flags & DQM_PROP_STALE)))
+      if (i->time < waitold)
+      {
+        logme ()
+	  << "WARNING: source not responding in " << (waitMax_.ns() * 1e-9)
+	  << "s to retrieval, releasing '" << i->name << "' from wait, have "
+	  << o->rawdata.size() << " data available\n";
 	releaseFromWait(i++, o);
+      }
+      else if (i->time < waitstale && o && (o->flags & DQM_PROP_STALE))
+      {
+        logme ()
+	  << "WARNING: source not responding in " << (waitStale_.ns() * 1e-9)
+	  << "s to update, releasing '" << i->name << "' from wait, have "
+	  << o->rawdata.size() << " data available\n";
+	releaseFromWait(i++, o);
+      }
 
       // Keep it for now.
       else
