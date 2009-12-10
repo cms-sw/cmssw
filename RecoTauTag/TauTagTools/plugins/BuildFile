@@ -10,11 +10,7 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
   <use name=DataFormats/TauReco>
-  <use name=DataFormats/WrappedStdDictionaries>
-  <use name=CommonTools/UtilAlgos>
-  <use name=CommonTools/CandAlgos>
-  <use name=PhysicsTools/HepMCCandAlgos>
-  <use name=RecoTauTag/RecoTau>
+  <use name=CommonTools/CandUtils>
   <use name=RecoTauTag/TauTagTools>
 </library>
 
