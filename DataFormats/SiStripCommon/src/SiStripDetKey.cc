@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDetKey.cc,v 1.9 2009/07/31 09:53:47 lowette Exp $
+// Last commit: $Id: SiStripDetKey.cc,v 1.10 2009/07/31 09:56:31 lowette Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -295,8 +295,8 @@ void SiStripDetKey::initFromPath() {
       path( std::string(sistrip::root_) + sistrip::dir_ + temp );
     }
 
-    uint32_t curr = 0; // current string position
-    uint32_t next = 0; // next string position
+    size_t curr = 0; // current string position
+    size_t next = 0; // next string position
     next = path().find( sistrip::detectorView_, curr );
 
     // Extract view
