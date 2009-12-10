@@ -31,6 +31,9 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripPopConBadStrip);
 typedef popcon::PopConAnalyzer<popcon::SiStripPopConConfigDbObjHandler<SiStripApvGain> > SiStripPopConApvGain;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPopConApvGain);
 
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+typedef popcon::PopConAnalyzer<popcon::SiStripPopConConfigDbObjHandler<SiStripLatency> > SiStripPopConApvLatency;
+DEFINE_ANOTHER_FWK_MODULE(SiStripPopConApvLatency);
 
 #include "OnlineDB/SiStripO2O/plugins/SiStripPopConHandlerUnitTestNoise.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"

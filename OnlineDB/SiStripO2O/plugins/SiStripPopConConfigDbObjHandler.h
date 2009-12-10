@@ -104,6 +104,9 @@ namespace popcon{
 
       if(typeid(T)==typeid(SiStripApvGain))
 	label="ApvTiming";
+      
+      if(typeid(T)==typeid(SiStripLatency))
+        label="ApvLatency";
 
       if(!condObjBuilder->checkForCompatibility(ss_logdb,ss,label)){
 	//string are equal, no need to do transfer
