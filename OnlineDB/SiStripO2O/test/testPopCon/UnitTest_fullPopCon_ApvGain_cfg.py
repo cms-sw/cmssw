@@ -3,10 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("o2o")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
     destinations = cms.untracked.vstring('cout')
 )
 
@@ -23,11 +19,19 @@ process.load("OnlineDB.SiStripConfigDb.SiStripConfigDb_cfi")
 process.SiStripConfigDb.UsingDb = True
 process.SiStripConfigDb.ConfDb = ''
 process.SiStripConfigDb.Partitions = cms.untracked.PSet(
-    PartTECM = cms.untracked.PSet(
-    PartitionName = cms.untracked.string('TM_08-AUG-2008_1'),
-    DcuDetIdsVersion = cms.untracked.vuint32(9, 0),
-    RunNumber = cms.untracked.uint32(69140)
-    )
+   PartTIBD = cms.untracked.PSet(
+                ForceCurrentState = cms.untracked.bool(False),
+                ForceVersions = cms.untracked.bool(True),
+                PartitionName = cms.untracked.string('TI_13-JUN-2009_1'),
+                RunNumber = cms.untracked.uint32(120650),
+                CablingVersion = cms.untracked.vuint32(72, 0),
+                FecVersion = cms.untracked.vuint32(568, 0),
+                FedVersion = cms.untracked.vuint32(751, 0),
+                DcuDetIdsVersion = cms.untracked.vuint32(9, 0),
+                DcuPsuMapVersion = cms.untracked.vuint32(265, 1),
+                MaskVersion      = cms.untracked.vuint32(85, 0),
+                ApvTimingVersion   = cms.untracked.vuint32(10, 0)
+                )
     )
 process.SiStripConfigDb.TNS_ADMIN = ''
 
@@ -37,7 +41,7 @@ process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb",
     process.SiStripO2OCalibrationFactors
 )
-
+process.SiStripCondObjBuilderFromDb.UseAnalysis = True
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:dbfile.db'
@@ -64,7 +68,6 @@ process.CommonSiStripPopConParams = cms.PSet(
     loggingOn = cms.untracked.bool(True)
 )
 
-process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.siStripPopConApvGain = cms.EDAnalyzer("SiStripPopConApvGain",
     process.CommonSiStripPopConParams,
     record = cms.string('SiStripApvGainRcd')

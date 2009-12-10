@@ -10,7 +10,7 @@ process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger", 
     debugModules = cms.untracked.vstring(''), 
-    destinations = cms.untracked.vstring('UnitTestReader') 
+    destinations = cms.untracked.vstring('SiStripApvGainReader.log') 
 )
 
 process.maxEvents = cms.untracked.PSet(
