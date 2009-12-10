@@ -22,7 +22,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/MuonAnalysis/Skims/test/MuonSkim_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
     )
@@ -82,13 +82,29 @@ process.dtSkim=cms.Path(process.hltHighLevel+process.muonDTDigis+process.hltDTAc
 
 ###########################################################################
 
+from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
+
+############################ L1 Muon bits #################################
+
+process.l1RequestPhAlgos = hltLevel1GTSeed.clone()
+
+# Request the or of the following bits: from 54 to 62 and 106-107
+
+process.l1RequestPhAlgos.L1SeedsLogicalExpression = cms.string(
+    'L1_SingleMuBeamHalo OR L1_SingleMuOpen OR L1_SingleMu0 OR L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu14 OR L1_SingleMu20 OR L1_DoubleMuOpen OR L1_DoubleMu3')
+
+process.l1MuBitsSkim = cms.Path(process.l1RequestPhAlgos)
+
+###########################################################################
+
 
 ########################## RPC Filters ############################
-#process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-process.load("HLTrigger.HLTfilters.hltLevel1GTSeed_cfi")
-process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('31')
-process.rpcTecSkim = cms.Path(process.hltLevel1GTSeed)
+
+process.l1RequestTecAlgos = hltLevel1GTSeed.clone()
+
+process.l1RequestTecAlgos.L1TechTriggerSeeding = cms.bool(True)
+process.l1RequestTecAlgos.L1SeedsLogicalExpression = cms.string('31')
+process.rpcTecSkim = cms.Path(process.l1RequestTecAlgos)
 
 process.load("DPGAnalysis.Skims.RPCRecHitFilter_cfi")
 process.rpcRHSkim = cms.Path(process.RPCRecHitsFilter)
@@ -107,7 +123,6 @@ process.muonTracksSkim = cms.Path(process.muonSkim)
 
 
 
-
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('MuonSkim.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
@@ -115,7 +130,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     	      dataTier = cms.untracked.string('RAW-RECO'),
     	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring("dtSkim","cscSkimP","rpcRHSkim","rpcTecSkim","muonTracksSkim")
+        SelectEvents = cms.vstring("l1MuBitsSkim","dtSkim","cscSkimP","rpcRHSkim","rpcTecSkim","muonTracksSkim")
     )
 )
 

@@ -41,9 +41,6 @@ private:
 
   InputTag theMuonTag;
   InputTag theCaloMuonTag;
-  InputTag l1MuonLabel;
-
-  bool selectL1Trigger;
 
   bool selectOnDTHits;
   bool selectOnRPCHits;
@@ -60,10 +57,7 @@ MuonFilter::MuonFilter(const ParameterSet& pset){
   theMuonTag         =  pset.getParameter<edm::InputTag>("muonsLabel");
   theCaloMuonTag     =  pset.getParameter<edm::InputTag>("caloMuonsLabel");
 
-  selectL1Trigger = pset.getParameter<bool>("selectL1Trigger");
-
   selectOnDTHits = pset.getParameter<bool>("selectOnDTHits");
-  selectOnRPCHits = pset.getParameter<bool>("selectOnRPCHits");
 
   selectMuons      =  pset.getParameter<bool>("selectMuons");
   selectCaloMuons  =  pset.getParameter<bool>("selectCaloMuons");
@@ -74,23 +68,12 @@ MuonFilter::~MuonFilter(){
 
 bool MuonFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup){
 
- const std::string metname = "Muon|RecoMuon|L2MuonSeedGenerator";
+ const std::string metname = "Muon|MuonAnalysis|MuonFilter";
 
  bool accept=false;
- 
- // Check L1 Trigger
- if(selectL1Trigger){
-   Handle<l1extra::L1MuonParticleCollection> muL1;
-   event.getByLabel(l1MuonLabel, muL1);
-   LogTrace(metname) << "Number of L1 muons " << muL1->size() << endl;
-   accept |= (muL1->size()>0);
- }
     
   // Check DT hits
   if(selectOnDTHits){}
-
-  // Check RPC hits
-  if(selectOnRPCHits){}
 
   // Check muons
   if(selectMuons){
