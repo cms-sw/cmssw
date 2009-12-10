@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.28 2009/03/26 12:41:35 nancy Exp $
+ * \version $Id: Photon.h,v 1.29 2009/04/23 12:54:15 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -51,15 +51,15 @@ namespace reco {
     /// Retrieve photonCore attributes
     //
     /// Ref to SuperCluster
-    reco::SuperClusterRef superCluster() const {return photonCore_->superCluster();}
+    reco::SuperClusterRef superCluster() const {return this->photonCore()->superCluster();}
     /// vector of references to  Conversion's
-    reco::ConversionRefVector conversions() const {return photonCore_->conversions() ;}  
+    reco::ConversionRefVector conversions() const {return this->photonCore()->conversions() ;}  
     /// Bool flagging photons with a vector of refereces to conversions with size >0
-    bool hasConversionTracks() const { if (photonCore_->conversions().size() > 0)  return true; else return false;}
+    bool hasConversionTracks() const { if (this->photonCore()->conversions().size() > 0)  return true; else return false;}
     /// reference to electron Pixel seed 
-    reco::ElectronSeedRefVector electronPixelSeeds() const {return photonCore_->electronPixelSeeds();}
+    reco::ElectronSeedRefVector electronPixelSeeds() const {return this->photonCore()->electronPixelSeeds();}
     /// Bool flagging photons having a non-zero size vector of Ref to electornPixel seeds
-    bool hasPixelSeed() const { if ((photonCore_->electronPixelSeeds()).size() > 0 ) return true; else return false; }
+    bool hasPixelSeed() const { if ((this->photonCore()->electronPixelSeeds()).size() > 0 ) return true; else return false; }
 
  
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
