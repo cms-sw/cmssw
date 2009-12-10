@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.27 2009/06/18 10:24:06 zablocki Exp $
+// $Id: SiPixelDigiSource.cc,v 1.28 2009/07/03 09:36:24 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -48,6 +48,8 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   twoDimOn( conf_.getUntrackedParameter<bool>("twoDimOn",true) ),
+  twoDimModOn( conf_.getUntrackedParameter<bool>("twoDimModOn",true) ),
+  twoDimOnlyLayDisk( conf_.getUntrackedParameter<bool>("twoDimOnlyLayDisk",false) ),
   hiRes( conf_.getUntrackedParameter<bool>("hiRes",false) ),
   reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
@@ -115,7 +117,7 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet);
+    (*struct_iter).second->fill(*input, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk);
     
   }
 
@@ -201,7 +203,7 @@ void SiPixelDigiSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_,0,twoDimOn,hiRes, reducedSet);
+	(*struct_iter).second->book( conf_,0,twoDimOn,hiRes, reducedSet, twoDimModOn);
       } else {
 
 	if(!isPIB) throw cms::Exception("LogicError")
@@ -216,9 +218,9 @@ void SiPixelDigiSource::bookMEs(){
       }
    
     }
-    if(layOn){
+    if(layOn || twoDimOnlyLayDisk){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2,twoDimOn,hiRes, reducedSet);
+	(*struct_iter).second->book( conf_,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
@@ -238,9 +240,9 @@ void SiPixelDigiSource::bookMEs(){
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
-    if(diskOn){
+    if(diskOn || twoDimOnlyLayDisk){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5,twoDimOn,hiRes, reducedSet);
+	(*struct_iter).second->book( conf_,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
