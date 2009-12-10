@@ -579,6 +579,11 @@ int main( int argc, char **argv )
 	  std::cout << "HcalO2OManager: O2O is not needed, the tag is up to date" << std::endl;
 	}
 	else{
+	  for (std::vector<uint32_t>::const_iterator iov = _iovs.begin();
+	       iov != _iovs.end();
+	       ++iov){
+	    cout << "O2O_IOV_LIST: " << *iov << std::endl;
+	  }
 	  std::copy (_iovs.begin(),
 		     _iovs.end(),
 		     std::ostream_iterator<uint32_t>(std::cout,"\n")
