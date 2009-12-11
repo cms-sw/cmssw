@@ -442,13 +442,13 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
   std::vector< ODBadTTDat > badTT_dat;
   econn->fetchConfigDataSet(&badTT_dat, &mybadTT);
   
-  for(int iTT=0; iTT<badTT_dat.size(); iTT++){
+  for(int iTT=0; iTT<(int)badTT_dat.size(); iTT++){
     int fed_id = badTT_dat[iTT].getFedId();
     int tt_id  = badTT_dat[iTT].getTTId();
     if (tt_id<69) *daqFile << fed_id << " " << tt_id << endl;
     
     // taking the channel list for towers out of daq
-    if(fed_id<=609 || fed_id>=646 && tt_id<69) { // endcap    
+    if((fed_id<=609 || fed_id>=646) && tt_id<69) { // endcap    
       
       // moving from cms fed to db fed convention
       int db_fedId = -999;
@@ -461,7 +461,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
       std::vector<EcalLogicID> badCrystals;
       badCrystals=econn->getEcalLogicIDSet("EE_readout_tower",fed_id, fed_id, tt_id, tt_id, EcalLogicID::NULLID,EcalLogicID::NULLID, "EE_crystal_number");    
  
-      for(int mycrys=0; mycrys<badCrystals.size(); mycrys++){
+      for(int mycrys=0; mycrys<(int)badCrystals.size(); mycrys++){
 	EcalLogicID ecid_xt = badCrystals[mycrys];
 	int zSide = 999;
 	int log_id = ecid_xt.getLogicID();
@@ -484,7 +484,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
       std::vector<EcalLogicID> badCrystals;   
       badCrystals=econn->getEcalLogicIDSet("EB_trigger_tower",db_fedId, db_fedId, tt_id, tt_id, EcalLogicID::NULLID, EcalLogicID::NULLID, "EB_crystal_number");
       
-      for(int mycrys=0; mycrys<badCrystals.size(); mycrys++){
+      for(int mycrys=0; mycrys<(int)badCrystals.size(); mycrys++){
 	EcalLogicID ecid_xt = badCrystals[mycrys];
 	int sm_num  = ecid_xt.getID1();
 	int log_id  = ecid_xt.getLogicID();
@@ -1089,7 +1089,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
 		      << theOccHigh  << endl;
 	
-	float thisEtaFill;
+	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
 	if (ebdetid.ieta()<0) thisEtaFill = ebdetid.ieta();
 	newBadEB_ -> Fill( (ebdetid.iphi()-0.5), thisEtaFill, 2);
@@ -1106,7 +1106,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << theGain     << "\t\t" << theLaser         << "\t\t" 
 		      << theOccHigh  << endl;
 
-	float thisEtaFill;
+	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
 	if (ebdetid.ieta()<0) thisEtaFill = ebdetid.ieta();
 	newBadEB_ -> Fill( (ebdetid.iphi()-0.5), thisEtaFill, 2);
@@ -1163,7 +1163,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
 		      << theOccHigh  << endl;
 
-	float thisEtaFill;
+	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
 	if (ebdetid.ieta()<0) thisEtaFill = ebdetid.ieta();
 	newBadEB_ -> Fill( (ebdetid.iphi()-0.5), thisEtaFill, 2);
@@ -1180,7 +1180,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << theGain     << "\t\t" << theLaser         << "\t\t" 
 		      << theOccHigh  << endl;
 
-	float thisEtaFill;
+	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
 	if (ebdetid.ieta()<0) thisEtaFill = ebdetid.ieta();
 	newBadEB_ -> Fill( (ebdetid.iphi()-0.5), thisEtaFill, 2);
@@ -1232,7 +1232,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
 		      << theOccHigh  << endl;
 
-	float thisEtaFill;
+	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
 	if (ebdetid.ieta()<0) thisEtaFill = ebdetid.ieta();
 	newBadEB_ -> Fill( (ebdetid.iphi()-0.5), thisEtaFill, 2);
@@ -1249,7 +1249,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << theGain     << "\t\t" << theLaser         << "\t\t" 
 		      << theOccHigh  << endl;
 
-	float thisEtaFill;
+	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
 	if (ebdetid.ieta()<0) thisEtaFill = ebdetid.ieta();
 	newBadEB_ -> Fill( (ebdetid.iphi()-0.5), thisEtaFill, 2);
@@ -1296,7 +1296,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		    << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
 		    << theOccHigh  << endl;
 
-      float thisEtaFill;
+      float thisEtaFill=float(0);
       if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
       if (ebdetid.ieta()<0) thisEtaFill = ebdetid.ieta();
       newBadEB_ -> Fill( (ebdetid.iphi()-0.5), thisEtaFill, 2);
@@ -1621,7 +1621,7 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 
   // range of validity
   int min_run=0;
-  if(m_firstRun<max_since) {
+  if(m_firstRun<(unsigned long)max_since) {
     min_run=  (int)max_since+1;    // we have to add 1 to the last transferred one
   } else { min_run=(int)m_firstRun; }
   int max_run=(int)m_lastRun;

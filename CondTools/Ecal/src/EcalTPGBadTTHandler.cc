@@ -197,7 +197,7 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 		    }
 		  }
 		  //EE
-		  for (int itower=0; itower<my_TTEcalLogicId_EE.size(); itower++) {
+		  for (int itower=0; itower<(int)my_TTEcalLogicId_EE.size(); itower++) {
 		    int towid =my_TTEcalLogicId_EE[itower].getLogicID();
 		    int tower_status=0;
 		    towerStatus->setValue(towid,tower_status);
@@ -239,7 +239,7 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 
 		      bool set_the_tower=false;
 		      int towid;
-		      for (int itower=0; itower<my_TTEcalLogicId_EE.size(); itower++) {
+		      for (int itower=0; itower<(int)my_TTEcalLogicId_EE.size(); itower++) {
 
 			if(!set_the_tower){
 			  

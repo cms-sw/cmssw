@@ -229,7 +229,7 @@ void popcon::EcalLaserHandler::getNewObjects()
     std::vector<LMFRunIOV> onlineSeq_vec=  onlineSequences.getRuns();
     int nOnlineSeq= onlineSeq_vec.size();
     
-    unsigned long long the_zero_since;
+    unsigned long long the_zero_since=0;
     
     int oseq_first=onlineSeq_vec[0].getSequenceNumber();
     unsigned long long orun_first=(unsigned long long)onlineSeq_vec[0].getRunIOV().getRunNumber();
@@ -240,7 +240,7 @@ void popcon::EcalLaserHandler::getNewObjects()
     if(nOnlineSeq>0){
       for (int n=0; n< nOnlineSeq ; n++){ 
 	if( onlineSeq_vec[n].getSequenceNumber()==oseq_first && 
-	    onlineSeq_vec[n].getRunIOV().getRunNumber()== orun_first &&  onlineSeq_vec[n].getSequenceNumber()!=0  ){
+	    onlineSeq_vec[n].getRunIOV().getRunNumber()== (int)orun_first &&  onlineSeq_vec[n].getSequenceNumber()!=0  ){
 	  
 	  the_zero_since=onlineSeq_vec[n].getSubRunStart().microsTime();
 	  the_zero_since=the_zero_since/1000000;
@@ -425,7 +425,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpns_temp->setValue(ebdetid, apdpnpair_temp);
 	    updated_channels[hiee]=1;
 	    ich++;
-	    if (alot_of_printout & ich<2) std::cout<< "updating channel "<< x<<endl;
+	    if (alot_of_printout & (ich<2)) std::cout<< "updating channel "<< x<<endl;
 	  } else {
 	    // FC here we must decide what to do.
 	    ich_bad++;
@@ -434,7 +434,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpnpair_temp.p3 = apdpnpair.p3;
             apdpns_temp->setValue(ebdetid, apdpnpair_temp);
 	    updated_channels[hiee]=2; // 2 means channel was bad and we propagate the old value 
-	    if (alot_of_printout & ich_bad<10) std::cout<< "NOT updating channel with APD/PN="<< x <<" "<< old_x <<endl;
+	    if (alot_of_printout & (ich_bad<10)) std::cout<< "NOT updating channel with APD/PN="<< x <<" "<< old_x <<endl;
 	  }
 
 	} else { 
@@ -502,7 +502,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    if (EBDetId::validDetId(iEta,iPhi))
 	      {
 		EBDetId ebdetid(iEta,iPhi);
-		unsigned int hiee = ebdetid.hashedIndex();
+		//unsigned int hiee = ebdetid.hashedIndex();
 		
 		
 		// here I copy the last valid value in the laser object

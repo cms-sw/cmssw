@@ -253,7 +253,11 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 			    EcalTPGPhysicsConst::Item item;
 	                    item.EtSat=rd_physLut.getETSat();
 	                    item.ttf_threshold_Low=rd_physLut.getTTThreshlow();
-	                    item.ttf_threshold_High=rd_physLut.getTTThreshhigh(); 
+	                    item.ttf_threshold_High=rd_physLut.getTTThreshhigh();
+			    item.FG_lowThreshold=0; 
+    			    item.FG_highThreshold=0; 
+    			    item.FG_lowRatio=0; 
+    			    item.FG_highRatio=0; 
 		            temporaryMapEB.insert(make_pair(eb.rawId(),item));
 			  }
 			  else throw cms::Exception("The values of the ETSatLin and ETSatLut are different.");
@@ -278,7 +282,11 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 			    EcalTPGPhysicsConst::Item item;
 	      	      	    item.EtSat=rd_physLut.getETSat();
 	      	      	    item.ttf_threshold_Low=rd_physLut.getTTThreshlow();
-	      	      	    item.ttf_threshold_High=rd_physLut.getTTThreshhigh(); 
+	      	      	    item.ttf_threshold_High=rd_physLut.getTTThreshhigh();
+			    item.FG_lowThreshold=0; 
+    			    item.FG_highThreshold=0; 
+    			    item.FG_lowRatio=0; 
+    			    item.FG_highRatio=0;
 	                    temporaryMapEE.insert( make_pair(ee.rawId(),item) );
 			  }
 			  else throw cms::Exception("The values of the ETSatLin and ETSatLut are different.");

@@ -382,6 +382,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 
     APDPNpair.p1= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10))))/double(2);
     APDPNpair.p2= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10)+double(10))))/double(2);
+    APDPNpair.p3= double(0);
     cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
 
     for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
@@ -454,6 +455,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 
     APDPNpair.p1= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10))))/double(2);
     APDPNpair.p2= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10)+double(10))))/double(2);
+    APDPNpair.p3= double(0);
     cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
 
     for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {

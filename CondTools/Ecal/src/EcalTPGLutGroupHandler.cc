@@ -290,7 +290,7 @@ void popcon::EcalTPGLutGroupHandler::getNewObjects()
 
 		      bool set_the_tower=false;
 		      int towid;
-		      for (int itower=0; itower<my_TTEcalLogicId_EE.size(); itower++) {
+		      for (int itower=0; itower<(int)my_TTEcalLogicId_EE.size(); itower++) {
 
 			if(!set_the_tower){
 			  

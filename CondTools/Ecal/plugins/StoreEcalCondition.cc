@@ -9,6 +9,8 @@
 
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <cstring>
 #include <time.h>
 #include <unistd.h> 
 
@@ -35,6 +37,7 @@ StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
 }
 
 void StoreEcalCondition::endJob() {
+  
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
     edm::LogError("StoreEcalCondition")<<"PoolDBOutputService is unavailable"<<std::endl;
@@ -42,6 +45,12 @@ void StoreEcalCondition::endJob() {
   }
 
   bool toAppend=false;
+  // copy a string to the char *
+  std::string message = "finished OK\n";
+  size_t messageSize = message.size() + 1;
+  char * messChar = new char [messageSize];
+  strncpy(messChar, message.c_str(), messageSize);
+      
   for (unsigned int i=0;i<objectName_.size();i++) {
       cond::Time_t newTime;
       
@@ -118,9 +127,13 @@ void StoreEcalCondition::endJob() {
       
 
       //      writeToLogFile(objectName_[i], inpFileName_[i], since_[i]);
-      writeToLogFileResults("finished OK\n");
+      //writeToLogFileResults("finished OK\n");
+      writeToLogFileResults(messChar);
+   
       edm::LogInfo("StoreEcalCondition") << "Finished endJob" << endl;
   }
+  
+  delete [] messChar;
 }
 
 

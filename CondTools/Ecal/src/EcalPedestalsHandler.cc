@@ -183,7 +183,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	mon_list.setRunTag(my_runtag);
 	//    mon_list=econn->fetchMonRunList(my_runtag, mon_tag);
 	int min_run=0;
-	if(m_firstRun<max_since) {
+	if(m_firstRun<(unsigned long)max_since) {
 	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
 	} else {
 	  min_run=(int)m_firstRun;
@@ -553,15 +553,15 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 	      EcalLogicID ecid_xt;
 	      MonPedestalsDat  rd_ped;
 	      
-	      int iEta=0;
-	      int iPhi=0;
+	      //int iEta=0;
+	      //int iPhi=0;
 	      int ix=0;
 	      int iy=0;
 	      
 	      for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
 		ecid_xt = p->first;
 		rd_ped  = p->second;
-		int sm_num=ecid_xt.getID1();
+		//int sm_num=ecid_xt.getID1();
 		int xt_num=ecid_xt.getID2(); // careful here !!! we number the channels from 1 to 1700
 		
 		//iEta=(xt_num/20)+1;
