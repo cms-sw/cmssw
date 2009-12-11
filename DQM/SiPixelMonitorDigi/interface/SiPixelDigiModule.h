@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.13 2009/12/09 19:44:01 wehrlilu Exp $
+// $Id: SiPixelDigiModule.h,v 1.14 2009/12/10 20:18:42 wehrlilu Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -45,7 +45,10 @@ class SiPixelDigiModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false);
   /// Fill histograms
-  void fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false, bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false);
+  int fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, 
+						 bool ladon=false, bool layon=false, bool phion=false, 
+						 bool bladeon=false, bool diskon=false, bool ringon=false, 
+						 bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false);
   
  private:
 
@@ -90,6 +93,8 @@ class SiPixelDigiModule {
   MonitorElement* mePixDigisRing_;
   MonitorElement* mePixDigisRing_px_;
   MonitorElement* mePixDigisRing_py_;
+  
+  //int nEventDigis_;
 
 };
 #endif

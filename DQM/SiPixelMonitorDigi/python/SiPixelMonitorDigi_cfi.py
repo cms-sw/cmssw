@@ -21,7 +21,8 @@ SiPixelDigiSource = cms.EDFilter("SiPixelDigiSource",
     phiOn = cms.untracked.bool(False),
     ringOn = cms.untracked.bool(False),
     bladeOn = cms.untracked.bool(False),
-    diskOn = cms.untracked.bool(False)
+    diskOn = cms.untracked.bool(False),
+    bigEventSize = cms.untracked.int32(100)
 )
 
 

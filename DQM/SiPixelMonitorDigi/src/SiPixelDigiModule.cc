@@ -277,7 +277,10 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
 //
 // Fill histograms
 //
-void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool twoDimModOn, bool twoDimOnlyLayDisk) {
+int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modon, 
+								 bool ladon, bool layon, bool phion, 
+								 bool bladeon, bool diskon, bool ringon, 
+								 bool twoD, bool reducedSet, bool twoDimModOn, bool twoDimOnlyLayDisk) {
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -293,9 +296,8 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
   //std::cout<<"********************"<<std::endl;
   edm::DetSetVector<PixelDigi>::const_iterator isearch = input.find(id_); // search  digis of detid
   
+  unsigned int numberOfDigis = 0;
   if( isearch != input.end() ) {  // Not an empty iterator
-    
-    unsigned int numberOfDigis = 0;
     
     // Look at digis now
     edm::DetSet<PixelDigi>::const_iterator  di;
@@ -391,11 +393,9 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
     if(bladeon && endcap) (meNDigisBlade_)->Fill((float)numberOfDigis);
     if(diskon && endcap && !twoDimOnlyLayDisk) (meNDigisDisk_)->Fill((float)numberOfDigis);
     if(ringon && endcap) (meNDigisRing_)->Fill((float)numberOfDigis);
-    //std::cout<<"number of digis="<<numberOfDigis<<std::endl;
-   
+    
   }
   
-  
-  //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
-  
+  //std::cout<<"numberOfDigis for this module: "<<numberOfDigis<<std::endl;
+  return numberOfDigis;
 }

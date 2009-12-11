@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.12 2009/06/18 10:24:06 zablocki Exp $
+// $Id: SiPixelDigiSource.h,v 1.13 2009/12/10 20:18:42 wehrlilu Exp $
 //
 
 #include <memory>
@@ -77,9 +77,14 @@
        //forward:
        bool ringOn, bladeOn, diskOn; 
        int eventNo;
+       int lumSec;
+       int nLumiSecs;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
 
+       int nBigEvents;
+       MonitorElement* bigEventRate;
+       int bigEventSize;
     
  };
 

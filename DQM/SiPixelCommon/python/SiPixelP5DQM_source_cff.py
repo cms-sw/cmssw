@@ -54,6 +54,7 @@ SiPixelDigiSource.phiOn = False
 SiPixelDigiSource.bladeOn = False
 SiPixelDigiSource.diskOn = False
 SiPixelDigiSource.ringOn = False
+SiPixelDigiSource.bigEventSize = 1000
 #Cluster
 SiPixelClusterSource.modOn = True
 SiPixelClusterSource.twoDimOn = True
