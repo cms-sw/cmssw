@@ -23,14 +23,15 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm,
 					    const Propagator& propagator,
 					    const uint mono)
 {
-  theCombinedPredictedState = TrajectoryStateCombiner().combine( tm.forwardPredictedState(),
-  								 tm.backwardPredictedState());
-
+  if ( tm.backwardPredictedState().isValid() ) 
+    theCombinedPredictedState = TrajectoryStateCombiner().combine( tm.forwardPredictedState(),
+								   tm.backwardPredictedState());
+  else 
+    theCombinedPredictedState = tm.forwardPredictedState();
+  
   if (!theCombinedPredictedState.isValid()) {
-    cout << "found invalid combinedpredictedstate"<< endl;
     return;
   }
-
   theHit = tm.recHit();  
   iidd = theHit->geographicalId().rawId();
   StripSubdetector strip=StripSubdetector(iidd);

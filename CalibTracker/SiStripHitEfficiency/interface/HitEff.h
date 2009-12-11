@@ -47,6 +47,7 @@ class HitEff : public edm::EDAnalyzer {
   bool isDoubleSided(uint iidd) const;
   bool check2DPartner(uint iidd, std::vector<TrajectoryMeasurement> traj);
   virtual ~HitEff();
+  uint checkLayer(uint iidd);
 
  private:
   virtual void beginJob(const edm::EventSetup& c);

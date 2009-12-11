@@ -43,7 +43,11 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -175,6 +179,20 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
   const MagneticField* magField_ = magFieldHandle.product();
 
+  // get the list of module IDs with FED-detected errors
+  edm::Handle< DetIdCollection > fedErrorIds;
+  e.getByLabel("siStripDigis", fedErrorIds );
+
+  ESHandle<MeasurementTracker> measurementTrackerHandle;
+  es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+
+  edm::ESHandle<Chi2MeasurementEstimatorBase> est;
+  es.get<TrackingComponentsRecord>().get("Chi2",est);
+
+  edm::ESHandle<Propagator> prop;
+  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
+  const Propagator* thePropagator = prop.product();
+
   events++;
   
   // *************** SiStripCluster Collection
@@ -199,24 +217,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       surface = &(tracker->idToDet(ClusterDetId)->surface());
       LocalPoint lp = parameters.first;
       GlobalPoint gp = surface->toGlobal(lp);
-      
-      uint layer=0;
-      unsigned int subid=ClusterDetId.subdetId();
-	
-      if    (subid==  StripSubdetector::TIB) {
-	layer = TIBDetId(ClusterDetId).layer();
-      }
-      if    (subid==  StripSubdetector::TOB) {
-	layer = TOBDetId(ClusterDetId).layer() + 4;
-      }
-      if    (subid==  StripSubdetector::TID) {
-	layer = TIDDetId(ClusterDetId).wheel() + 10;
-      }
-      if    (subid==  StripSubdetector::TEC) {
-	layer = TECDetId(ClusterDetId).wheel() + 13;
-      }
-
-      if(DEBUG) cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
+      //uint layer = checkLayer(ClusterId);
+      //      if(DEBUG) cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
     }
   }
   
@@ -224,8 +226,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   const   reco::TrackCollection *tracksCKF=trackCollectionCKF.product();
   if (DEBUG)  cout << "number ckf tracks found = " << tracksCKF->size() << endl;
   //if (tracksCKF->size() == 1 ){
-  if (tracksCKF->size() > 0 ) {
-    if (DEBUG)    cout << "starting checking good single track event" << endl;
+  if (tracksCKF->size() > 0 && tracksCKF->size()<100) {
+    if (DEBUG)    cout << "starting checking good event with < 100 tracks" << endl;
 
     EventTrackCKF++;  
 
@@ -263,7 +265,6 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
     }
 
     // actually should do a loop over all the tracks in the event here
-    cout << "size of trajectories list = " << TrajectoryCollectionCKF.product()->size() << endl;
 
     for (vector<Trajectory>::const_iterator itraj = TrajectoryCollectionCKF.product()->begin();
 	 itraj != TrajectoryCollectionCKF.product()->end();
@@ -299,26 +300,15 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	uint iidd = theInHit->geographicalId().rawId();
 	
 	StripSubdetector strip=StripSubdetector(iidd);
-	unsigned int subid=strip.subdetId();
-	uint TKlayers = 0;
-	if (subid ==  StripSubdetector::TIB) { 
-	  TIBDetId tibid(iidd);
-	  TKlayers = tibid.layer();
-	}
-	if (subid ==  StripSubdetector::TOB) { 
-	  TOBDetId tobid(iidd);
-	  TKlayers = tobid.layer() + 4 ; 
-	}
-	if (subid ==  StripSubdetector::TID) { 
-	  TIDDetId tidid(iidd);
-	  TKlayers = tidid.wheel() + 10;
-	}
-	if (subid ==  StripSubdetector::TEC) { 
-	  TECDetId tecid(iidd);
-	  TKlayers = tecid.wheel() + 13 ; 
-	}
+	uint TKlayers = checkLayer(iidd);
 	if (DEBUG)	cout << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd <<  "   matched/stereo/rphi = " << ((iidd & 0x3)==0) << "/" << ((iidd & 0x3)==1) << "/" << ((iidd & 0x3)==2) << endl;
-	
+
+	// If Trajectory measurement from TOB 6 or TEC 9, skip it because it's always valid they are filled later
+	if ( TKlayers == 10 || TKlayers == 22 ) {
+	  if (DEBUG) cout << "skipping original TM for TOB 6 or TEC 9" << endl;
+	  continue;
+	}
+
 	// Make vector of TrajectoryAtInvalidHits to hold the trajectories
 	std::vector<TrajectoryAtInvalidHit> TMs;
 	
@@ -343,9 +333,109 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  //only add one TM for the single surface and the other will be added in the next iteration
 	  TMs.push_back(TrajectoryAtInvalidHit(*itm,tkgeom, propagator));
 	}
+
+	//////////////////////////////////////////////
+	//Now check for tracks at TOB6 and TEC9
+
+	// to make sure we only propagate on the last TOB5 hit check the next entry isn't also in TOB5
+	// to avoid bias, make sure the TOB5 hit is valid (an invalid hit on TOB5 could only exist with a valid hit on TOB6)
+
+	bool isValid = theInHit->isValid();
+	bool isLast = (itm==(TMeas.end()-1));
+	bool isLastTOB5 = true;
+	if (!isLast) {
+	  if ( checkLayer((++itm)->recHit()->geographicalId().rawId()) == 9 ) isLastTOB5 = false;
+	  else isLastTOB5 = true;
+	  --itm;
+	}
+	
+	if ( TKlayers==9 && isValid && isLastTOB5 ) {
+	  //	  if ( TKlayers==9 && itm==TMeas.rbegin()) {
+	//	  if ( TKlayers==9 && (itm==TMeas.back()) ) {	  // to check for only the last entry in the trajectory for propagation
+	  std::vector< BarrelDetLayer*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers() ;
+	  const DetLayer* tob6 = barrelTOBLayers[barrelTOBLayers.size()-1];
+	  const MeasurementEstimator* estimator = est.product();
+	  const LayerMeasurements* theLayerMeasurements = new LayerMeasurements(&*measurementTrackerHandle);
+	  const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
+	  vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements(*tob6, tsosTOB5, *thePropagator, *estimator);
+	  
+	  if ( !tmp.empty()) {
+	    if (DEBUG) cout << "size of TM from propagation = " << tmp.size() << endl;
+
+	    // take the last of the TMs, which is always an invalid hit
+	    // if no detId is available, ie detId==0, then no compatible layer was crossed
+	    // otherwise, use that TM for the efficiency measurement
+	    TrajectoryMeasurement tob6TM(tmp.back());
+	    ConstReferenceCountingPointer<TransientTrackingRecHit> tob6Hit;
+	    tob6Hit = tob6TM.recHit();
+	    
+	    if (tob6Hit->geographicalId().rawId()!=0) {
+	      if (DEBUG) cout << "tob6 hit actually being added to TM vector" << endl;
+	      TMs.push_back(TrajectoryAtInvalidHit(tob6TM,tkgeom, propagator));
+	    }
+	  }
+	}
+
+	bool isLastTEC8 = true;
+	if (!isLast) {
+	  if ( checkLayer((++itm)->recHit()->geographicalId().rawId()) == 21 ) isLastTEC8 = false;
+	  else isLastTEC8 = true;
+	  --itm;
+	}
+	
+	if ( TKlayers==21 && isValid && isLastTEC8 ) {
+	  
+	  std::vector< ForwardDetLayer*> posTecLayers = measurementTrackerHandle->geometricSearchTracker()->posTecLayers() ;
+	  const DetLayer* tec9pos = posTecLayers[posTecLayers.size()-1];
+	  std::vector< ForwardDetLayer*> negTecLayers = measurementTrackerHandle->geometricSearchTracker()->negTecLayers() ;
+	  const DetLayer* tec9neg = negTecLayers[negTecLayers.size()-1];
+	  
+	  const MeasurementEstimator* estimator = est.product();
+	  const LayerMeasurements* theLayerMeasurements = new LayerMeasurements(&*measurementTrackerHandle);
+	  const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
+	  
+	  // check if track on positive or negative z
+	  if (!iidd ==  StripSubdetector::TEC) cout << "there is a problem with TEC 9 extrapolation" << endl;
+	  TECDetId tecdetid(iidd);
+	  //cout << " tec9 id = " << iidd << " and side = " << tecdetid.side() << endl;
+	  vector<TrajectoryMeasurement> tmp;
+	  if ( tecdetid.side() == 1 ) {
+	    tmp = theLayerMeasurements->measurements(*tec9neg, tsosTEC9, *thePropagator, *estimator);
+	    //cout << "on negative side" << endl;
+	  }
+	  if ( tecdetid.side() == 2 ) {
+	    tmp = theLayerMeasurements->measurements(*tec9pos, tsosTEC9, *thePropagator, *estimator);
+	    //cout << "on positive side" << endl;
+	  }
+
+	  if ( !tmp.empty()) {
+	    // take the last of the TMs, which is always an invalid hit
+	    // if no detId is available, ie detId==0, then no compatible layer was crossed
+	    // otherwise, use that TM for the efficiency measurement
+	    TrajectoryMeasurement tec9TM(tmp.back());
+	    ConstReferenceCountingPointer<TransientTrackingRecHit> tec9Hit;
+	    tec9Hit = tec9TM.recHit();
+	    
+	    uint tec9id = tec9Hit->geographicalId().rawId();
+	    if (DEBUG) cout << "tec9id = " << tec9id << " is Double sided = " <<  isDoubleSided(tec9id) << "  and 0x3 = " << (tec9id & 0x3) << endl;
+	    
+	    if (tec9Hit->geographicalId().rawId()!=0) {
+	      if (DEBUG) cout << "tec9 hit actually being added to TM vector" << endl;
+	      // in tec the hit can be single or doubled sided. whenever the invalid hit at the end of vector of TMs is
+	      // double sided it is always on the matched surface, so we need to split it into the true sensor surfaces
+	      if (isDoubleSided(tec9id)) {
+		TMs.push_back(TrajectoryAtInvalidHit(tec9TM,tkgeom, propagator, 1));
+		TMs.push_back(TrajectoryAtInvalidHit(tec9TM,tkgeom, propagator, 2));
+	      } else 
+		TMs.push_back(TrajectoryAtInvalidHit(tec9TM,tkgeom, propagator));
+	    }
+	  } //else cout << "tec9 tmp empty" << endl;
+	}
+	
+	////////////////////////////////////////////////////////	
 	
 	// Modules Constraints
-	
+
 	for(std::vector<TrajectoryAtInvalidHit>::const_iterator TM=TMs.begin();TM!=TMs.end();++TM) {
 	  
 	  // --> Get trajectory from combinatedState 
@@ -367,11 +457,14 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  withinAcceptance = TM->withinAcceptance();
 	  
 	  trajHitValid = TM->validHit();
-	  
+
+	  // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
+	  TKlayers = checkLayer(iidd);
+
 	  if ( (layers == TKlayers) || (layers == 0) ) {   // Look at the layer not used to reconstruct the track
 	    whatlayer = TKlayers;
 	    if (DEBUG)	  cout << "Looking at layer under study" << endl;
-	    TrajGlbX = 0.0; TrajGlbY = 0.0; TrajGlbZ = 0.0; ModIsBad = 0; Id = 0; SiStripQualBad = 0; 
+	    TrajGlbX = 0.0; TrajGlbY = 0.0; TrajGlbZ = 0.0; ModIsBad = 2; Id = 0; SiStripQualBad = 0; 
 	    run = 0; event = 0; TrajLocX = 0.0; TrajLocY = 0.0; TrajLocErrX = 0.0; TrajLocErrY = 0.0; 
 	    TrajLocAngleX = -999.0; TrajLocAngleY = -999.0;	ResX = 0.0; ResXSig = 0.0;
 	    ClusterLocX = 0.0; ClusterLocY = 0.0; ClusterLocErrX = 0.0; ClusterLocErrY = 0.0; ClusterStoN = 0.0;
@@ -384,7 +477,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      std::vector< std::vector<float> > VCluster_info; //fill with X residual, X residual pull, local X, sig(X), local Y, sig(Y), StoN
 	      for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end(); DSViter++) {
 		// DSViter is a vector of SiStripClusters located on a single module
-		if (DEBUG)      cout << "the ID from the DSViter = " << DSViter->id() << endl; 
+		//if (DEBUG)      cout << "the ID from the DSViter = " << DSViter->id() << endl; 
 		unsigned int ClusterId = DSViter->id();
 		if (ClusterId == iidd) {
 		  if (DEBUG) cout << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << endl;
@@ -515,6 +608,12 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		SiStripQualBad = 0; 
 		if(DEBUG) cout << "strip is good from SiStripQuality" << endl;
 	      }
+
+	      //check for FED-detected errors and include those in SiStripQualBad
+	      for (unsigned int ii=0;ii< fedErrorIds->size();ii++) {
+		if (iidd == (*fedErrorIds)[ii].rawId() )
+		  SiStripQualBad = 1;
+	      }
 	      
 	      TrajLocX = xloc;
 	      TrajLocY = yloc;
@@ -535,7 +634,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      
 	      if ( FinalResSig < 999.0) {  //could make requirement on track/hit consistency, but for
 		//now take anything with a hit on the module
-		if (DEBUG) cout << "hit being counted as good" << endl;
+		if (DEBUG) cout << "hit being counted as good " << FinalCluster[0] << " FinalRecHit " << 
+		  iidd << "   TKlayers  "  <<  TKlayers  << " xloc " <<  xloc << " yloc  " << yloc << " module " << iidd << 
+		  "   matched/stereo/rphi = " << ((iidd & 0x3)==0) << "/" << ((iidd & 0x3)==1) << "/" << ((iidd & 0x3)==2) << endl;
 		ModIsBad = 0;
 		traj->Fill();
 	      }
@@ -625,6 +726,28 @@ bool HitEff::check2DPartner(uint iidd, std::vector<TrajectoryMeasurement> traj) 
     }
   }
   return found2DPartner;
+}
+
+uint HitEff::checkLayer( uint iidd) {
+  StripSubdetector strip=StripSubdetector(iidd);
+  unsigned int subid=strip.subdetId();
+  if (subid ==  StripSubdetector::TIB) { 
+    TIBDetId tibid(iidd);
+    return tibid.layer();
+  }
+  if (subid ==  StripSubdetector::TOB) { 
+    TOBDetId tobid(iidd);
+    return tobid.layer() + 4 ; 
+  }
+  if (subid ==  StripSubdetector::TID) { 
+    TIDDetId tidid(iidd);
+    return tidid.wheel() + 10;
+  }
+  if (subid ==  StripSubdetector::TEC) { 
+    TECDetId tecid(iidd);
+    return tecid.wheel() + 13 ; 
+  }
+  return 0;
 }
 
 //define this as a plug-in
