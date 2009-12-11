@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/12/11 01:08:34 $
- * $Revision: 1.3 $
+ * $Date: 2009/12/11 13:11:16 $
+ * $Revision: 1.4 $
  * $Author: ameyer $
  *
  */
@@ -36,7 +36,7 @@ DQMProvInfo::DQMProvInfo(const ParameterSet& ps){
   makedcsinfo_ = parameters_.getUntrackedParameter<bool>("makeDcsInfo",true);
   dcsword_=0xffff; // set true and switch off in case a single event in a given LS has all subsys off.
   physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
-  
+  for (int i=0;i<24;i++) dcs24[i]=true;
 }
 
 DQMProvInfo::~DQMProvInfo(){
@@ -66,6 +66,36 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
     for (int i=1;i<16;i++)
       for (int j=1;j<11;j++)
 	reportSummaryMap_->setBinContent(i,j,-1.);
+
+    dbe_->cd();
+    dbe_->setCurrentFolder( subsystemname_ + "/Conditions") ;
+    dcsVsLumi_ = dbe_->book2D("dcsVsLumi",
+                       "DCS vs Lumi", 200, 0., 200., 24, 0., 24.);
+    dcsVsLumi_->setBinLabel(1,"CSCp",2);   
+    dcsVsLumi_->setBinLabel(2,"CSCm",2);   
+    dcsVsLumi_->setBinLabel(3,"DT0",2);    
+    dcsVsLumi_->setBinLabel(4,"DTp",2);    
+    dcsVsLumi_->setBinLabel(5,"DTm",2);    
+    dcsVsLumi_->setBinLabel(6,"EBp",2);    
+    dcsVsLumi_->setBinLabel(7,"EBm",2);    
+    dcsVsLumi_->setBinLabel(8,"EEp",2);    
+    dcsVsLumi_->setBinLabel(9,"EEm",2);    
+    dcsVsLumi_->setBinLabel(10,"ESp",2);    
+    dcsVsLumi_->setBinLabel(11,"ESm",2);   
+    dcsVsLumi_->setBinLabel(12,"HBHEa",2); 
+    dcsVsLumi_->setBinLabel(13,"HBHEb",2); 
+    dcsVsLumi_->setBinLabel(14,"HBHEc",2); 
+    dcsVsLumi_->setBinLabel(15,"HF",2);    
+    dcsVsLumi_->setBinLabel(16,"HO",2);    
+    dcsVsLumi_->setBinLabel(17,"BPIX",2);  
+    dcsVsLumi_->setBinLabel(18,"FPIX",2);  
+    dcsVsLumi_->setBinLabel(19,"RPC",2);   
+    dcsVsLumi_->setBinLabel(20,"TIBTID",2);
+    dcsVsLumi_->setBinLabel(21,"TOB",2);   
+    dcsVsLumi_->setBinLabel(22,"TECp",2);  
+    dcsVsLumi_->setBinLabel(23,"TECm",2);  
+    dcsVsLumi_->setBinLabel(24,"CASTOR",2);
+    
   }
   else
   { 
@@ -79,6 +109,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   dcsword_=0xffff;
   physDecl_=true;
+  for (int i=0;i<24;i++) dcs24[i]=true;
 } 
 
 void DQMProvInfo::analyze(const Event& e, const EventSetup& c){
@@ -99,6 +130,8 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
 
  
   if (!makedcsinfo_) return;
+
+  int nlumi = l.id().luminosityBlock();
 
   // put dcsword into reportSummary 
   // FIXME consider making renderplugin "dynamic"
@@ -123,6 +156,16 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   // reset
   dcsword_=0xffff;
 
+  // fill dcs vs lumi
+  for (int i=0;i<24;i++)
+  {
+    if (dcs24[i])
+      dcsVsLumi_->setBinContent(nlumi,i+1,1.);
+    else
+      dcsVsLumi_->setBinContent(nlumi,i+1,0.);
+   
+    dcs24[i]=true;
+  }
 
   // fill physics decl. bit in y bin 10.
   if (physDecl_) 
@@ -134,14 +177,13 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
 
 
   // set labels 
-  int nlumi = l.id().luminosityBlock();
   char label[10];
   sprintf(label, "lumi %d", nlumi);
   reportSummaryMap_->setBinLabel( 15, label ,     1);
   if (nlumi>15) 
   {
-    sprintf(label, "lumi %d", nlumi-15);
-    reportSummaryMap_->setBinLabel( 1,  label ,      1);
+    sprintf(label, "lumi %d", nlumi-14);
+    reportSummaryMap_->setBinLabel(1, label , 1);
   }
 
   return;
@@ -270,6 +312,31 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
 	  !dcsStatusItr->ready(DcsStatus::TECm))  
 	                              dcsword_ = dcsword_ & 0xfeff;
 
+      if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs24[0]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs24[1]=false;   
+      if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs24[2]=false;
+      if (!dcsStatusItr->ready(DcsStatus::DTp))    dcs24[3]=false;
+      if (!dcsStatusItr->ready(DcsStatus::DTm))    dcs24[4]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EBp))    dcs24[5]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EBm))    dcs24[6]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EEp))    dcs24[7]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EEm))    dcs24[8]=false;
+      if (!dcsStatusItr->ready(DcsStatus::ESp))    dcs24[9]=false;
+      if (!dcsStatusItr->ready(DcsStatus::ESm))    dcs24[10]=false; 
+      if (!dcsStatusItr->ready(DcsStatus::HBHEa))  dcs24[11]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs24[12]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs24[13]=false; 
+      if (!dcsStatusItr->ready(DcsStatus::HF))     dcs24[14]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs24[15]=false;
+      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs24[16]=false;
+      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs24[17]=false;
+      if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs24[18]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcs24[19]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs24[20]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs24[21]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs24[22]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs24[23]=false;
+
       // cout << hex << dcsword_ << endl;
   }
       
@@ -280,12 +347,22 @@ void
 DQMProvInfo::makeGtInfo(const edm::Event& e)
 {
 
-  edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-  e.getByLabel("l1GtUnpack", gtRecord);
-  L1GlobalTriggerReadoutRecord const* gtrr = gtRecord.product();
+  edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
+  e.getByLabel("gtDigis", gtrr_handle);
+  L1GlobalTriggerReadoutRecord const* gtrr = gtrr_handle.product();
+  L1GtFdlWord fdlWord ; 
+  if (gtrr)
+    fdlWord = gtrr->gtFdlWord();
+  else
+  {
+    cout << "phys decl. bit not accessible !!!"  << endl;
+    return;
+  }
+    
+  // gtrr->print(std::cout);
 
-  L1GtFdlWord fdlWord = gtrr->gtFdlWord();
-     cout << "phys decl. bit=" << fdlWord.physicsDeclared() << endl;
+  // cout << "phys decl. bit =" << static_cast<int>(fdlWord.physicsDeclared()) << endl;
   if (fdlWord.physicsDeclared() !=1) physDecl_=false;
+
   return;
 }

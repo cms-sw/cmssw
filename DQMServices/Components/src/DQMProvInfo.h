@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2009/12/11 01:08:36 $
- * $Revision: 1.3 $
+ * $Date: 2009/12/11 13:11:16 $
+ * $Revision: 1.4 $
  * \author A.Meyer - DESY
  *
 */
@@ -64,6 +64,7 @@ private:
   
   unsigned int dcsword_;
   bool physDecl_;
+  bool dcs24[24];
 
    // histograms
   MonitorElement * versCMSSW_ ;
@@ -79,6 +80,8 @@ private:
   
   MonitorElement * reportSummary_;
   MonitorElement * reportSummaryMap_;
+  
+  MonitorElement * dcsVsLumi_;
   
 };
 
