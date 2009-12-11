@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/11/20 20:51:26 $
- * $Revision: 1.188 $
+ * $Date: 2009/11/21 16:11:07 $
+ * $Revision: 1.189 $
  * \author G. Della Ricca
  *
 */
@@ -25,7 +25,6 @@
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
-#include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
@@ -163,8 +162,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meGlobalSummary_[0]  = 0;
   meGlobalSummary_[1]  = 0;
 
-  meCosmic_[0]         = 0;
-  meCosmic_[1]         = 0;
+  meRecHitEnergy_[0]   = 0;
+  meRecHitEnergy_[1]   = 0;
   meTiming_[0]         = 0;
   meTiming_[1]         = 0;
   meTimingMean1D_[0]   = 0;
@@ -955,17 +954,17 @@ void EESummaryClient::setup(void) {
 
   }
 
-  if( meCosmic_[0] ) dqmStore_->removeElement( meCosmic_[0]->getName() );
-  sprintf(histo, "EECT EE - cosmic summary");
-  meCosmic_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meCosmic_[0]->setAxisTitle("jx", 1);
-  meCosmic_[0]->setAxisTitle("jy", 2);
+  if( meRecHitEnergy_[0] ) dqmStore_->removeElement( meRecHitEnergy_[0]->getName() );
+  sprintf(histo, "EEOT EE - energy summary");
+  meRecHitEnergy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meRecHitEnergy_[0]->setAxisTitle("jx", 1);
+  meRecHitEnergy_[0]->setAxisTitle("jy", 2);
 
-  if( meCosmic_[1] ) dqmStore_->removeElement( meCosmic_[1]->getName() );
-  sprintf(histo, "EECT EE + cosmic summary");
-  meCosmic_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meCosmic_[1]->setAxisTitle("jx", 1);
-  meCosmic_[1]->setAxisTitle("jy", 2);
+  if( meRecHitEnergy_[1] ) dqmStore_->removeElement( meRecHitEnergy_[1]->getName() );
+  sprintf(histo, "EEOT EE + energy summary");
+  meRecHitEnergy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meRecHitEnergy_[1]->setAxisTitle("jx", 1);
+  meRecHitEnergy_[1]->setAxisTitle("jy", 2);
 
   if( meTiming_[0] ) dqmStore_->removeElement( meTiming_[0]->getName() );
   sprintf(histo, "EETMT EE - timing quality summary");
@@ -981,39 +980,39 @@ void EESummaryClient::setup(void) {
 
   if( meTimingMean1D_[0] ) dqmStore_->removeElement( meTimingMean1D_[0]->getName() );
   sprintf(histo, "EETMT EE - timing mean 1D summary");
-  meTimingMean1D_[0] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
-  meTimingMean1D_[0]->setAxisTitle("mean (clock units)", 1);
+  meTimingMean1D_[0] = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+  meTimingMean1D_[0]->setAxisTitle("mean (ns)", 1);
 
   if( meTimingMean1D_[1] ) dqmStore_->removeElement( meTimingMean1D_[1]->getName() );
   sprintf(histo, "EETMT EE + timing mean 1D summary");
-  meTimingMean1D_[1] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
-  meTimingMean1D_[1]->setAxisTitle("mean (clock units)", 1);
+  meTimingMean1D_[1] = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+  meTimingMean1D_[1]->setAxisTitle("mean (ns)", 1);
 
   if( meTimingRMS1D_[0] ) dqmStore_->removeElement( meTimingRMS1D_[0]->getName() );
   sprintf(histo, "EETMT EE - timing rms 1D summary");
-  meTimingRMS1D_[0] = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
-  meTimingRMS1D_[0]->setAxisTitle("rms (clock units)", 1);
+  meTimingRMS1D_[0] = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+  meTimingRMS1D_[0]->setAxisTitle("rms (ns)", 1);
 
   if( meTimingRMS1D_[1] ) dqmStore_->removeElement( meTimingRMS1D_[1]->getName() );
   sprintf(histo, "EETMT EE + timing rms 1D summary");
-  meTimingRMS1D_[1] = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
-  meTimingRMS1D_[1]->setAxisTitle("rms (clock units)", 1);
+  meTimingRMS1D_[1] = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+  meTimingRMS1D_[1]->setAxisTitle("rms (ns)", 1);
 
   if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
   sprintf(histo, "EETMT timing mean");
-  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10.);
+  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, -50., 50.);
   for (int i = 0; i < 18; i++) {
     meTimingMean_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
-  meTimingMean_->setAxisTitle("mean (clock units)", 2);
+  meTimingMean_->setAxisTitle("mean (ns)", 2);
 
   if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
   sprintf(histo, "EETMT timing rms");
-  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 6.);
+  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 35.);
   for (int i = 0; i < 18; i++) {
     meTimingRMS_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
-  meTimingRMS_->setAxisTitle("rms (clock units)", 2);
+  meTimingRMS_->setAxisTitle("rms (ns)", 2);
 
   if( meTriggerTowerEt_[0] ) dqmStore_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower summary");
@@ -1356,11 +1355,11 @@ void EESummaryClient::cleanup(void) {
   if ( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
   meTestPulseAmplG12_ = 0;
 
-  if ( meCosmic_[0] ) dqmStore_->removeElement( meCosmic_[0]->getName() );
-  meCosmic_[0] = 0;
+  if ( meRecHitEnergy_[0] ) dqmStore_->removeElement( meRecHitEnergy_[0]->getName() );
+  meRecHitEnergy_[0] = 0;
 
-  if ( meCosmic_[1] ) dqmStore_->removeElement( meCosmic_[1]->getName() );
-  meCosmic_[1] = 0;
+  if ( meRecHitEnergy_[1] ) dqmStore_->removeElement( meRecHitEnergy_[1]->getName() );
+  meRecHitEnergy_[1] = 0;
 
   if ( meTiming_[0] ) dqmStore_->removeElement( meTiming_[0]->getName() );
   meTiming_[0] = 0;
@@ -1466,8 +1465,8 @@ void EESummaryClient::analyze(void) {
       if ( meTestPulseG06_[1] ) meTestPulseG06_[1]->setBinContent( ix, iy, 6. );
       if ( meTestPulseG12_[0] ) meTestPulseG12_[0]->setBinContent( ix, iy, 6. );
       if ( meTestPulseG12_[1] ) meTestPulseG12_[1]->setBinContent( ix, iy, 6. );
-      if ( meCosmic_[0] ) meCosmic_[0]->setBinContent( ix, iy, 0. );
-      if ( meCosmic_[1] ) meCosmic_[1]->setBinContent( ix, iy, 0. );
+      if ( meRecHitEnergy_[0] ) meRecHitEnergy_[0]->setBinContent( ix, iy, 0. );
+      if ( meRecHitEnergy_[1] ) meRecHitEnergy_[1]->setBinContent( ix, iy, 0. );
       if ( meTiming_[0] ) meTiming_[0]->setBinContent( ix, iy, 6. );
       if ( meTiming_[1] ) meTiming_[1]->setBinContent( ix, iy, 6. );
 
@@ -1594,8 +1593,8 @@ void EESummaryClient::analyze(void) {
   if ( meTestPulseAmplG06_ ) meTestPulseAmplG06_->Reset();
   if ( meTestPulseAmplG12_ ) meTestPulseAmplG12_->Reset();
 
-  if ( meCosmic_[0] ) meCosmic_[0]->setEntries( 0 );
-  if ( meCosmic_[1] ) meCosmic_[1]->setEntries( 0 );
+  if ( meRecHitEnergy_[0] ) meRecHitEnergy_[0]->setEntries( 0 );
+  if ( meRecHitEnergy_[1] ) meRecHitEnergy_[1]->setEntries( 0 );
   if ( meTiming_[0] ) meTiming_[0]->setEntries( 0 );
   if ( meTiming_[1] ) meTiming_[1]->setEntries( 0 );
   if ( meTimingMean1D_[0] ) meTimingMean1D_[0]->Reset();
@@ -1627,7 +1626,6 @@ void EESummaryClient::analyze(void) {
     EEPedestalClient* eepc = dynamic_cast<EEPedestalClient*>(clients_[i]);
     EETestPulseClient* eetpc = dynamic_cast<EETestPulseClient*>(clients_[i]);
 
-    EECosmicClient* eecc = dynamic_cast<EECosmicClient*>(clients_[i]);
     EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
     EETriggerTowerClient* eetttc = dynamic_cast<EETriggerTowerClient*>(clients_[i]);
 
@@ -1637,13 +1635,16 @@ void EESummaryClient::analyze(void) {
     //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
     TH2F* h3;
-    TProfile2D* h2d;
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
 
       char histo[200];
+
+      sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit energy %s").c_str(), Numbers::sEE(ism).c_str());
+      me = dqmStore_->get(histo);
+      hot01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hot01_[ism-1] );
 
       sprintf(histo, (prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
@@ -1959,20 +1960,14 @@ void EESummaryClient::analyze(void) {
 
           }
 
-          if ( eecc ) {
+          if ( hot01_[ism-1] ) {
 
-            h2d = eecc->h01_[ism-1];
+            float xval = hot01_[ism-1]->GetBinContent( ix, iy );
 
-            if ( h2d ) {
-
-              float xval = h2d->GetBinContent( ix, iy );
-
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( xval != 0 ) meCosmic_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                if ( xval != 0 ) meCosmic_[1]->setBinContent( jx, jy, xval );
-              }
-
+            if ( ism >= 1 && ism <= 9 ) {
+              meRecHitEnergy_[0]->setBinContent( 101 - jx, jy, xval );
+            } else {
+              meRecHitEnergy_[1]->setBinContent( jx, jy, xval );
             }
 
           }
@@ -1995,6 +1990,8 @@ void EESummaryClient::analyze(void) {
 
             float num02, mean02, rms02;
             bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ix, iy, num02, mean02, rms02);
+            // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
+            mean02 -= 50.;
 
             if ( update02 ) {
 

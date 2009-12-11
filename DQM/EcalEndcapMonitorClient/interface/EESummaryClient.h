@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.44 $
+ * $Date: 2009/11/09 16:38:55 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -161,7 +161,7 @@ MonitorElement* meTestPulseAmplG01_;
 MonitorElement* meTestPulseAmplG06_;
 MonitorElement* meTestPulseAmplG12_;
 
-MonitorElement* meCosmic_[2];
+MonitorElement* meRecHitEnergy_[2];
 MonitorElement* meTiming_[2];
 MonitorElement* meTimingMean1D_[2];
 MonitorElement* meTimingRMS1D_[2];
@@ -175,6 +175,7 @@ MonitorElement* meTriggerTowerNonSingleTiming_[2];
 
 MonitorElement* meGlobalSummary_[2];
 
+TProfile2D* hot01_[18];
 TProfile2D* hpot01_[18];
 TProfile2D* httt01_[18];
 TProfile2D* htmt01_[18];

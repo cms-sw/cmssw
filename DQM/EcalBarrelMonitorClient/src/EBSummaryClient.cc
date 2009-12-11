@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/11/20 20:51:25 $
- * $Revision: 1.200 $
+ * $Date: 2009/11/21 16:11:07 $
+ * $Revision: 1.201 $
  * \author G. Della Ricca
  *
 */
@@ -22,7 +22,6 @@
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
@@ -125,7 +124,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   meTestPulseAmplG12_     = 0;
   meGlobalSummary_        = 0;
 
-  meCosmic_         = 0;
+  meRecHitEnergy_         = 0;
   meTiming_         = 0;
   meTimingMean1D_   = 0;
   meTimingRMS1D_    = 0;
@@ -675,11 +674,11 @@ void EBSummaryClient::setup(void) {
 
   }
 
-  if( meCosmic_ ) dqmStore_->removeElement( meCosmic_->getName() );
-  sprintf(histo, "EBCT cosmic summary");
-  meCosmic_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  meCosmic_->setAxisTitle("jphi", 1);
-  meCosmic_->setAxisTitle("jeta", 2);
+  if( meRecHitEnergy_ ) dqmStore_->removeElement( meRecHitEnergy_->getName() );
+  sprintf(histo, "EBOT energy summary");
+  meRecHitEnergy_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meRecHitEnergy_->setAxisTitle("jphi", 1);
+  meRecHitEnergy_->setAxisTitle("jeta", 2);
 
   if( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
   sprintf(histo, "EBTMT timing quality summary");
@@ -689,29 +688,29 @@ void EBSummaryClient::setup(void) {
 
   if( meTimingMean1D_ ) dqmStore_->removeElement( meTimingMean1D_->getName() );
   sprintf(histo, "EBTMT timing mean 1D summary");
-  meTimingMean1D_ = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
-  meTimingMean1D_->setAxisTitle("mean (clock units)", 1);
+  meTimingMean1D_ = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+  meTimingMean1D_->setAxisTitle("mean (ns)", 1);
 
   if( meTimingRMS1D_ ) dqmStore_->removeElement( meTimingRMS1D_->getName() );
   sprintf(histo, "EBTMT timing rms 1D summary");
-  meTimingRMS1D_ = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
-  meTimingRMS1D_->setAxisTitle("rms (clock units)", 1);
+  meTimingRMS1D_ = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+  meTimingRMS1D_->setAxisTitle("rms (ns)", 1);
 
   if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
   sprintf(histo, "EBTMT timing mean");
-  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10.);
+  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, -50., 50.);
   for (int i = 0; i < 36; i++) {
     meTimingMean_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
-  meTimingMean_->setAxisTitle("mean (clock units)", 2);
+  meTimingMean_->setAxisTitle("mean (ns)", 2);
 
   if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
   sprintf(histo, "EBTMT timing rms");
-  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 6.);
+  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 150.);
   for (int i = 0; i < 36; i++) {
     meTimingRMS_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
-  meTimingRMS_->setAxisTitle("rms (clock units)", 2);
+  meTimingRMS_->setAxisTitle("rms (ns)", 2);
 
   if( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower summary");
@@ -920,8 +919,8 @@ void EBSummaryClient::cleanup(void) {
   if ( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
   meTestPulseAmplG12_ = 0;
 
-  if ( meCosmic_ ) dqmStore_->removeElement( meCosmic_->getName() );
-  meCosmic_ = 0;
+  if ( meRecHitEnergy_ ) dqmStore_->removeElement( meRecHitEnergy_->getName() );
+  meRecHitEnergy_ = 0;
 
   if ( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
   meTiming_ = 0;
@@ -990,7 +989,7 @@ void EBSummaryClient::analyze(void) {
       if ( meTestPulseG06_ ) meTestPulseG06_->setBinContent( ipx, iex, 6. );
       if ( meTestPulseG12_ ) meTestPulseG12_->setBinContent( ipx, iex, 6. );
 
-      if ( meCosmic_ ) meCosmic_->setBinContent( ipx, iex, 0. );
+      if ( meRecHitEnergy_ ) meRecHitEnergy_->setBinContent( ipx, iex, 0. );
       if ( meTiming_ ) meTiming_->setBinContent( ipx, iex, 6. );
 
       if ( meGlobalSummary_ ) meGlobalSummary_->setBinContent( ipx, iex, 6. );
@@ -1084,7 +1083,7 @@ void EBSummaryClient::analyze(void) {
   if ( meTestPulseAmplG06_ ) meTestPulseAmplG06_->Reset();
   if ( meTestPulseAmplG12_ ) meTestPulseAmplG12_->Reset();
 
-  if ( meCosmic_ ) meCosmic_->setEntries( 0 );
+  if ( meRecHitEnergy_ ) meRecHitEnergy_->setEntries( 0 );
   if ( meTiming_ ) meTiming_->setEntries( 0 );
   if ( meTimingMean1D_ ) meTimingMean1D_->Reset();
   if ( meTimingRMS1D_ ) meTimingRMS1D_->Reset();
@@ -1107,7 +1106,6 @@ void EBSummaryClient::analyze(void) {
     EBPedestalClient* ebpc = dynamic_cast<EBPedestalClient*>(clients_[i]);
     EBTestPulseClient* ebtpc = dynamic_cast<EBTestPulseClient*>(clients_[i]);
 
-    EBCosmicClient* ebcc = dynamic_cast<EBCosmicClient*>(clients_[i]);
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
     EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
@@ -1117,13 +1115,16 @@ void EBSummaryClient::analyze(void) {
     //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
     TH2F* h3;
-    TProfile2D* h2d;
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
 
       char histo[200];
+
+      sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit energy %s").c_str(), Numbers::sEB(ism).c_str());
+      me = dqmStore_->get(histo);
+      hot01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hot01_[ism-1] );
 
       sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
       me = dqmStore_->get(histo);
@@ -1395,28 +1396,22 @@ void EBSummaryClient::analyze(void) {
 
           }
 
-          if ( ebcc ) {
+          if ( hot01_[ism-1] ) {
 
-            h2d = ebcc->h01_[ism-1];
-
-            if ( h2d ) {
-
-              float xval = h2d->GetBinContent( ie, ip );
-
-              int iex;
-              int ipx;
-
-              if ( ism <= 18 ) {
-                iex = 1+(85-ie);
-                ipx = ip+20*(ism-1);
-              } else {
-                iex = 85+ie;
-                ipx = 1+(20-ip)+20*(ism-19);
-              }
-
-              meCosmic_->setBinContent( ipx, iex, xval );
-
+            float xval = hot01_[ism-1]->GetBinContent( ie, ip );
+            
+            int iex;
+            int ipx;
+            
+            if ( ism <= 18 ) {
+              iex = 1+(85-ie);
+              ipx = ip+20*(ism-1);
+            } else {
+              iex = 85+ie;
+              ipx = 1+(20-ip)+20*(ism-19);
             }
+            
+            meRecHitEnergy_->setBinContent( ipx, iex, xval );
 
           }
 
@@ -1446,7 +1441,9 @@ void EBSummaryClient::analyze(void) {
             
             float num02, mean02, rms02;
             bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02);
-            
+            // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
+            mean02 -= 50.;
+
             if ( update02 ) {
               
               meTimingMean1D_->Fill(mean02);
