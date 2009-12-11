@@ -32,13 +32,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.34 2009/10/10 20:07:35 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.35 2009/11/14 14:28:40 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.35  2009/11/14 14:28:40  charlot
+// updated classification
+//
 // Revision 1.34  2009/10/10 20:07:35  chamont
 // remove is*Driven() lethods
 //
@@ -509,7 +512,7 @@ class GsfElectron : public RecoCandidate
 
   public :
 
-    enum Classification { UNKNOWN =-1, GOLDEN, BIGBREM, SHOWERING, GAP } ;
+    enum Classification { UNKNOWN =-1, GOLDEN, BIGBREM, NARROW, SHOWERING, GAP } ;
 
     // accessors
     float fbrem() const { return fbrem_ ; }
