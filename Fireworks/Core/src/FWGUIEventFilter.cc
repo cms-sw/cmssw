@@ -56,7 +56,7 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    m_selectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
 
    {
-      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 292, 22, kFixedSize);
+      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 275, 22, kFixedSize);
       selH->AddFrame(cfr);
       cfr->AddFrame(new TGLabel(cfr, "Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
    }

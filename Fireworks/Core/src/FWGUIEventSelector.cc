@@ -42,9 +42,10 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
   
    // ---------------- selection info
 
-   TGHorizontalFrame* labFrame = new TGHorizontalFrame(this, 40, 22, kFixedSize);
+   TGHorizontalFrame* labFrame = new TGHorizontalFrame(this, 60, 22, kFixedSize);
    AddFrame(labFrame, new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
    m_nEvents = new TGLabel(labFrame, "");
+   m_nEvents->SetTextJustify(kTextLeft);
    labFrame->AddFrame(m_nEvents,  new TGLayoutHints(kLHintsBottom));
    updateNEvents();
   
@@ -116,6 +117,6 @@ void FWGUIEventSelector::updateNEvents()
    else
    {
       m_nEvents->Disable();
-      m_nEvents->SetText("   ~ ");
+      m_nEvents->SetText("no check");
    }
 }
