@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CosmicsPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Cosmics skim')
 )
@@ -14,10 +14,15 @@ process.configurationMetadata = cms.untracked.PSet(
 #
 # run 122314 lumi 27
 #
+
 process.source = cms.Source("PoolSource",
-fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/122/314/6AECB986-87D8-DE11-A470-001D09F29169.root'),
-secondaryFileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/122/314/0C7140FD-7CD8-DE11-A515-001D09F2960F.root')
+                            fileNames = cms.untracked.vstring(
+'/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/123/596/FC5C3B0F-8AE2-DE11-A905-003048D37456.root'),
+                            secondaryFileNames = cms.untracked.vstring(
+'/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/596/8E21B4C8-74E2-DE11-ABAA-000423D999CA.root')
 )
+
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

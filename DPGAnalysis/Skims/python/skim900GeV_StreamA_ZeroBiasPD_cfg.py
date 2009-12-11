@@ -40,12 +40,12 @@ process.hltHighLevelDev2.HLTPathsPrescales  = cms.vuint32(
 process.hltHighLevelDev2.HLTOverallPrescale = cms.uint32 (10)
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.123 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('skim'),
     name = cms.untracked.string('skim')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
@@ -80,6 +80,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # All zerobias with PhysicsDeclared
 process.output1 = cms.OutputModule("PoolOutputModule",
