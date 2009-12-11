@@ -65,7 +65,6 @@ double HcalSimParameters::fCtoGeV(const DetId & detId) const
   }
   // only one gain will be recorded per channel, so just use capID 0 for now
   double result = gains->getValue(0);
-if(thePixels != 0) std::cout << "GAINSIPM " << result << std::endl;
 //  if(doNoise_)
 ///  {
 //    result += CLHEP::RandGaussQ::shoot(0.,  gwidths->getValue(0));
