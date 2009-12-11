@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.29 2009/10/13 14:41:43 hauk Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.30 2009/11/13 16:55:26 hauk Exp $
 //
 //
 
@@ -228,13 +228,13 @@ private:
   const TrackerGeometry *bareTkGeomPtr_; // ugly hack to book hists only once, but check 
 
   // parameters from cfg to steer
-  bool lCoorHistOn_;
-  bool moduleLevelHistsTransient_;
-  bool overlappOn_;
-  bool stripYResiduals_;
-  bool useFwhm_;
-  bool useFit_;
-  bool useOverflowForRMS_;
+  const bool lCoorHistOn_;
+  const bool moduleLevelHistsTransient_;
+  const bool overlappOn_;
+  const bool stripYResiduals_;
+  const bool useFwhm_;
+  const bool useFit_;
+  const bool useOverflowForRMS_;
   const bool dqmMode_;
   const std::string moduleDirectory_;
   
@@ -560,34 +560,38 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
     ModuleHistos &histStruct = this->getHistStructFromMap(id);
     int nbins = 0;
     double xmin = 0., xmax = 0.;
-
+    
+    // do not allow transient hists in DQM mode
+    bool moduleLevelHistsTransient(moduleLevelHistsTransient_);
+    if(dqmMode_)moduleLevelHistsTransient = false;
+    
     // decide via cfg if hists in local coordinates should be booked 
     if(lCoorHistOn_) {
       this->getBinning(id.subdetId(), XResidual, nbins, xmin, xmax);
-      histStruct.ResHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
+      histStruct.ResHisto = this->bookTH1F(moduleLevelHistsTransient, tfd, 
 					   histoname.str().c_str(),histotitle.str().c_str(),		     
 					   nbins, xmin, xmax);
       this->getBinning(id.subdetId(), NormXResidual, nbins, xmin, xmax);
-      histStruct.NormResHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd,
+      histStruct.NormResHisto = this->bookTH1F(moduleLevelHistsTransient, tfd,
 					       normhistoname.str().c_str(),normhistotitle.str().c_str(),
 					       nbins, xmin, xmax);
     } 
     this->getBinning(id.subdetId(), XprimeResidual, nbins, xmin, xmax);
-    histStruct.ResXprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
+    histStruct.ResXprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd, 
 					       xprimehistoname.str().c_str(),xprimehistotitle.str().c_str(),
 					       nbins, xmin, xmax);
     this->getBinning(id.subdetId(), NormXprimeResidual, nbins, xmin, xmax);
-    histStruct.NormResXprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
+    histStruct.NormResXprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd, 
 						   normxprimehistoname.str().c_str(),normxprimehistotitle.str().c_str(),
 						   nbins, xmin, xmax);
 
     if( this->isPixel(subdetandlayer.first) || stripYResiduals_ ) {
       this->getBinning(id.subdetId(), YprimeResidual, nbins, xmin, xmax);
-      histStruct.ResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd,
+      histStruct.ResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd,
 						 yprimehistoname.str().c_str(),yprimehistotitle.str().c_str(),
 						 nbins, xmin, xmax);
       this->getBinning(id.subdetId(), NormYprimeResidual, nbins, xmin, xmax);
-      histStruct.NormResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
+      histStruct.NormResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd, 
 						     normyprimehistoname.str().c_str(),normyprimehistotitle.str().c_str(),
 						     nbins, xmin, xmax);
     }
