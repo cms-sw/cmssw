@@ -10,7 +10,6 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # process.hltMuonValidator.hltPathsToCheck = ["HLT_IsoMu3"]
 # process.hltMuonValidator.processNameHlt  = "HLT"
 # process.hltMuonValidator.cutMotherId     = 24
-# process.hltMuonValidator.cutMinPt        = 10.0
 # process.hltMuonValidator.cutMaxEta       =  2.1
 ##############################################################
 
