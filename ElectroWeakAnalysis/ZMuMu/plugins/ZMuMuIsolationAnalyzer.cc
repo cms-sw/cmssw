@@ -114,7 +114,7 @@ void ZMuMuIsolationAnalyzer::Deposits(const pat::IsoDeposit* isodep,double dR_ma
   }
 }
 
-void ZMuMuIsolationAnalyzer::histo(const TH1F* hist,char* cx, char*cy) const{
+void ZMuMuIsolationAnalyzer::histo(const TH1F* hist, const char* cx, const char*cy) const{
   hist->GetXaxis()->SetTitle(cx);
   hist->GetYaxis()->SetTitle(cy);
   hist->GetXaxis()->SetTitleOffset(1);
