@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/12 01:01:57 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/10/31 14:28:13 $
+ *  $Revision: 1.13 $
  *  \author M. Zanetti
  */
 
@@ -93,7 +93,7 @@ bool DTROS8FileReader::fillRawData(EventID& eID,
     */
 
     // WARNING: the event number is reset at a new spill
-    eID = EventID( head[0], head[1]*head[2]);
+    eID = EventID( head[0], 1U, head[1]*head[2]);
 
     // The pointer to the ROS payload (the 1st word being the ROS words counter)
     int* rosData = eventData + head[4];

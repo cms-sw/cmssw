@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/04 08:03:22 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/10/31 14:28:13 $
+ *  $Revision: 1.11 $
  *  \author M. Zanetti
  */
 
@@ -90,7 +90,7 @@ bool DTROS25FileReader::fillRawData(EventID& eID,
     //if (eventData.size() > estimatedEventDimension) throw 2;
     
     // Setting the Event ID
-    eID = EventID( runNumber, eventNumber);
+    eID = EventID( runNumber, 1U, eventNumber);
 
     // eventDataSize = (Number Of Words)* (Word Size)
     int eventDataSize = eventData.size()*rosWordLenght;
@@ -141,7 +141,7 @@ bool DTROS25FileReader::isHeader(uint32_t word) {
   bool it_is = false;
   if ( (word >> 24 ) == 31 ) {
     it_is = true;
-    eventNumber++;
+    ++eventNumber;
   }
  
   return it_is;

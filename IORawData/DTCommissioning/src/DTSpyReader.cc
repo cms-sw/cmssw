@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/03 13:52:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/10/08 15:43:49 $
+ *  $Revision: 1.7 $
  *  \author M. Zanetti
  */
 
@@ -108,7 +108,7 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
 
   // Setting the Event ID
   runNumber = mySpy->getRunNo(); 
-  eID = EventID( runNumber, eventNumber);
+  eID = EventID( runNumber, 1U, eventNumber);
   
   // eventDataSize = (Number Of Words)* (Word Size)
   int eventDataSize = eventData.size()*dduWordLength; 
