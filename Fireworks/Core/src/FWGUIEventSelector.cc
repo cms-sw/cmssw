@@ -99,8 +99,8 @@ void FWGUIEventSelector::expressionCallback(char* txt)
 //______________________________________________________________________________
 void FWGUIEventSelector::selectorChanged()
 {
+   if (m_origSelector) m_origSelector->m_updated = false;
    Emit("selectorChanged()");
-   m_origSelector->m_updated = false;
 }
 
 //______________________________________________________________________________
