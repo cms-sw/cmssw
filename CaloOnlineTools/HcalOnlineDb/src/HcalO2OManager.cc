@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.16 2009/12/11 12:53:52 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.15 2009/12/11 12:45:03 kukartse Exp $
 //
 
 
@@ -130,15 +130,15 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out, std::string t
     cond::PoolTransaction& pooldb = myconnection.poolTransaction();
     {
       // FIXME: pre-CMSSW_33X
-      //cond::IOVProxy iov( pooldb, token, !details);
-      //cond::IOVService iovservice(pooldb);
-      //unsigned int counter=0;
-      //std::string payloadContainer=iovservice.payloadContainerName(token);
+      cond::IOVProxy iov( pooldb, token, !details);
+      cond::IOVService iovservice(pooldb);
+      unsigned int counter=0;
+      std::string payloadContainer=iovservice.payloadContainerName(token);
       //
       // FIXME: CMSSW_33X and later
-      cond::IOVProxy iov( myconnection, token, !details, details);
-      unsigned int counter=0;
-      std::string payloadContainer=iov.payloadContainerName();
+      //cond::IOVProxy iov( myconnection, token, !details, details);
+      //unsigned int counter=0;
+      //std::string payloadContainer=iov.payloadContainerName();
 
       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
 	out.push_back(ioviterator->since());
@@ -334,7 +334,7 @@ int HcalO2OManager::getListOfUpdateIovs(std::vector<uint32_t> & _iovs,
     for (std::vector<uint32_t>::const_iterator iov = _iovs.begin();
 	 iov != _iovs.end();
 	 ++iov){
-    std:cout << "O2O_IOV_LIST: " << *iov << std::endl;
+      std::cout << "O2O_IOV_LIST: " << *iov << std::endl;
     }
   }
   return n_iovs;
