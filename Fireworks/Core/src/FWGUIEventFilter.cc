@@ -92,17 +92,21 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    m_applyAction = new CSGAction(this, "Apply Filters");
 
    TGTextButton* cancel = new TGTextButton(btnFrame," Close ");
-   btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsLeft | kLHintsCenterY , 24, 4, 2, 4));
+   btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsLeft | kLHintsCenterY , 20, 20, 2, 4));
    cancel->Connect("Clicked()","FWGUIEventFilter", this, "CloseWindow()");
 
+   {
+      TGHorizontalFrame* f = new TGHorizontalFrame(btnFrame);
+      btnFrame->AddFrame(f, new TGLayoutHints(kLHintsRight, 4, 18, 2, 4));
 
-   m_applyBtn = new TGTextButton(btnFrame," Apply ");
-   btnFrame->AddFrame(m_applyBtn, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 4, 27, 2, 4));
-   m_applyBtn->Connect("Clicked()","FWGUIEventFilter", this, "apply()");
+      m_filterDisableAction = new CSGAction(this, " Disable Filtering ");
+      m_filterDisableAction->createTextButton(f,new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 4, 10, 2, 4) );
 
-   m_filterDisableAction = new CSGAction(this, " Disable Filtering ");
-   m_filterDisableAction->createTextButton(btnFrame,new TGLayoutHints(kLHintsRight | kLHintsCenterY, 4, 18, 2, 4) );
-
+      m_applyBtn = new TGTextButton(f," Apply Filters");
+      f->AddFrame(m_applyBtn, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 4, 8, 2, 4));
+      m_applyBtn->Connect("Clicked()","FWGUIEventFilter", this, "apply()");
+      m_applyBtn->SetToolTipText("Enable filtering and apply changes.");
+   }
 }
 
 void
