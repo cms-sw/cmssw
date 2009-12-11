@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixel3DProxyBuilder.cc,v 1.3 2009/12/03 04:34:04 latb Exp $
+// $Id: FWSiPixel3DProxyBuilder.cc,v 1.4 2009/12/10 16:13:08 latb Exp $
 //
 
 // system include files
@@ -98,7 +98,7 @@ void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
 /////////////////////////////////////////////////////	   
 //LatB
 	   static int C2D=1;
-	   static int PRINT=1;
+	   static int PRINT=0;
 	   if (C2D) {
 			if (PRINT) std::cout<<"SiPixelCluster  "<<index<<", "<<title<<std::endl;
 			TEveStraightLineSet *scposition = new TEveStraightLineSet(title);

@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.7 2009/12/07 01:38:32 chrjones Exp $
+// $Id: TrackUtils.cc,v 1.8 2009/12/10 16:13:09 latb Exp $
 //
 
 // system include files
@@ -372,7 +372,7 @@ namespace fireworks {
 	static const double dpBStrips[10] = { 80.*MICRON, 80.*MICRON, 120.*MICRON, 120.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 122.*MICRON, 122.*MICRON };
 	static const int nBStrips[10] = { 768, 768, 512, 512, 768, 768, 512, 512, 512, 512 };
 	static const double hBStrips[10] = { 11.69, 11.69, 11.69, 11.69, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16 };
-	static int PRINT=1;
+	static int PRINT=0;
 
 	void localSiPixel(TVector3& point, double row, double col, 
 							DetId id, const FWEventItem* iItem) {
