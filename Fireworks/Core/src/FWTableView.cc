@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.17 2009/10/06 11:26:22 amraktad Exp $
+// $Id: FWTableView.cc,v 1.18 2009/10/29 09:56:04 chrjones Exp $
 //
 
 // system include files
@@ -527,11 +527,11 @@ void FWTableView::updateItems ()
         }
         if(m_iColl == index && 0 == *it) {
            //the collection we were showing is now gone
-           m_iColl = 0;
-           selected = 0;
+           m_iColl = -1;
+           selected = -1;
         }
      }
-     if (selected < m_collection->GetNumberOfEntries())
+     if (selected != -1 && selected < m_collection->GetNumberOfEntries())
 	  m_collection->Select(selected, false);
 }
 
@@ -549,10 +549,6 @@ const FWEventItem *FWTableView::item () const
 
 void FWTableView::dataChanged ()
 {
-     if (m_iColl == -1) {
-	  printf("what should I do with collection -1?\n");
-	  return;
-     }
 //      const FWEventItem *item = m_manager->items()[m_iColl];
      updateEvaluators();
      m_tableManager->dataChanged();
