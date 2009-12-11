@@ -25,6 +25,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
@@ -749,6 +750,16 @@ void PFRootEventManager::readOptions(const char* file,
 					  newCalib) );
   calibration_ = calibration;
 
+  bool usePFSCEleCalib;
+  std::vector<double>  calibPFSCEle_barrel;
+  std::vector<double>  calibPFSCEle_endcap;
+  options_->GetOpt("particle_flow","usePFSCEleCalib",usePFSCEleCalib);
+  options_->GetOpt("particle_flow","calibPFSCEle_barrel",calibPFSCEle_barrel);
+  options_->GetOpt("particle_flow","calibPFSCEle_endcap",calibPFSCEle_endcap);
+  shared_ptr<PFSCEnergyCalibration>  
+    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_barrel,calibPFSCEle_endcap ));
+  
+
   //--ab: get calibration factors for HF:
   bool calibHF_use = false;
   std::vector<double>  calibHF_eta_step;
@@ -886,7 +897,9 @@ void PFRootEventManager::readOptions(const char* file,
       pfAlgo_.setPFEleParameters(mvaEleCut,
 				 mvaWeightFileEleID,
 				 usePFElectrons,
-				 applyCrackCorrections);
+				 thePFSCEnergyCalibration,
+				 applyCrackCorrections,
+				 usePFSCEleCalib);
     }
     catch( std::exception& err ) {
       cerr<<"exception setting PFAlgo Electron parameters: "
