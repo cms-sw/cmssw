@@ -6,6 +6,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h" 
+#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
@@ -84,11 +85,16 @@ void
 PFAlgo::setPFEleParameters(double mvaEleCut,
 			   string mvaWeightFileEleID,
 			   bool usePFElectrons,
-			   bool applyCrackCorrections) {
+			   const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			   bool applyCrackCorrections,
+			   bool usePFSCEleCalib) {
+  
   mvaEleCut_ = mvaEleCut;
   usePFElectrons_ = usePFElectrons;
   applyCrackCorrectionsElectrons_ = applyCrackCorrections;  
-
+  usePFSCEleCalib_ = usePFSCEleCalib;
+  thePFSCEnergyCalibration_ = thePFSCEnergyCalibration;
+  
   if(!usePFElectrons_) return;
   mvaWeightFileEleID_ = mvaWeightFileEleID;
   FILE * fileEleID = fopen(mvaWeightFileEleID_.c_str(), "r");
@@ -101,7 +107,10 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
     err += "'";
     throw invalid_argument( err );
   }
-  pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,applyCrackCorrectionsElectrons_);
+  pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,
+			     thePFSCEnergyCalibration_,
+			     applyCrackCorrectionsElectrons_,
+			     usePFSCEleCalib_);
 }
 
 void 

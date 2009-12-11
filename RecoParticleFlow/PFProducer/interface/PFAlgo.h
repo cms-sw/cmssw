@@ -32,6 +32,7 @@
 
 
 class PFEnergyCalibration;
+class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
 class PFElectronAlgo;
 class PFConversionAlgo;
@@ -69,8 +70,10 @@ class PFAlgo {
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
-			  bool applyCrackCorrections=true);
-
+			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			  bool applyCrackCorrections=true,
+			  bool usePFSCEleCalib=true);
+  
   void setPFConversionParameters( bool usePFConversions );
   
   //MIKEB : Parameters for the vertices..
@@ -185,6 +188,8 @@ class PFAlgo {
   boost::shared_ptr<PFEnergyCalibration>  calibration_;
   boost::shared_ptr<pftools::PFClusterCalibration>  clusterCalibration_;
   boost::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
+  boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
+
   unsigned int newCalib_;
 
   // std::vector<unsigned> hcalBlockUsed_;
@@ -198,6 +203,7 @@ class PFAlgo {
   double mvaEleCut_;
   bool usePFElectrons_;
   bool applyCrackCorrectionsElectrons_;
+  bool usePFSCEleCalib_;
   PFElectronAlgo *pfele_;
   bool usePFConversions_;
   PFConversionAlgo* pfConversion_;

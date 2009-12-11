@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 
 #include <sstream>
 
@@ -105,6 +106,16 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   electronOutputCol_
     = iConfig.getParameter<std::string>("pf_electron_output_col");
 
+  bool usePFSCEleCalib;
+  std::vector<double>  calibPFSCEle_barrel;
+  std::vector<double>  calibPFSCEle_endcap;
+  usePFSCEleCalib =     iConfig.getParameter<bool>("usePFSCEleCalib");
+  calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
+  calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
+  boost::shared_ptr<PFSCEnergyCalibration>  
+    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_barrel,calibPFSCEle_endcap ));
+			       
+  
 
   // register products
   produces<reco::PFCandidateCollection>();
@@ -193,7 +204,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   pfAlgo_->setPFEleParameters(mvaEleCut,
 			      path_mvaWeightFileEleID,
 			      usePFElectrons_,
-			      applyCrackCorrectionsForElectrons);
+			      thePFSCEnergyCalibration,
+			      applyCrackCorrectionsForElectrons,
+			      usePFSCEleCalib);
   
   pfAlgo_->setPFConversionParameters(usePFConversions);
   

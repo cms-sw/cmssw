@@ -14,6 +14,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include <iomanip>
@@ -22,8 +23,13 @@ using namespace std;
 using namespace reco;
 PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
 			       string mvaWeightFileEleID,
-			       bool applyCrackCorrections):
-  mvaEleCut_(mvaEleCut),applyCrackCorrections_(applyCrackCorrections)
+			       const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			       bool applyCrackCorrections,
+			       bool usePFSCEleCalib):
+  mvaEleCut_(mvaEleCut),
+  thePFSCEnergyCalibration_(thePFSCEnergyCalibration),
+  applyCrackCorrections_(applyCrackCorrections),
+  usePFSCEleCalib_(usePFSCEleCalib)
 {
   // Set the tmva reader
   tmvaReader_ = new TMVA::Reader();
@@ -910,7 +916,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 					AssMap& associatedToGsf_,
 					AssMap& associatedToBrems_,
 					AssMap& associatedToEcal_){
-  PFEnergyCalibration pfcalib_;
+  PFEnergyCalibration pfcalib_;  
   const reco::PFBlock& block = *blockRef;
   PFBlock::LinkData linkData =  block.linkData();     
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
@@ -1309,6 +1315,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   PFEnergyResolution pfresol_;
   PFEnergyCalibration pfcalib_;
+
   bool DebugIDCandidates = false;
 //   vector<reco::PFCluster> pfClust_vec(0);
 //   pfClust_vec.clear();
@@ -1640,6 +1647,34 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
       }
     } // End Loop On element associated to the GSF tracks
     if (has_gsf) {
+      
+      // SuperCluster energy corrections
+      double unCorrEene = Eene;
+      double absEta = fabs(momentum_gsf.Eta());
+      double emTheta = momentum_gsf.Theta();
+      if( DebugIDCandidates ) 
+	cout << "PFEelectronAlgo:: absEta " << absEta  << " theta " << emTheta 
+	     << " EneRaw " << Eene << " Err " << dene;
+      
+      // The calibrations are provided till ET = 200 GeV
+      if(usePFSCEleCalib_ && (unCorrEene*sin(emTheta)) < 200 && unCorrEene > 0.) {
+	if( absEta < 1.5) {
+	  double Etene = Eene*sin(emTheta);
+	  double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaBarrel(Etene, absEta);
+	  Eene = emCorrFull_et/sin(emTheta);
+	}
+	else {
+	  double Etene = Eene*sin(emTheta);
+	  double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaEndcap(Etene, absEta);
+	  Eene = emCorrFull_et/sin(emTheta);
+	}
+	dene = sqrt(dene)*(Eene/unCorrEene);
+	dene = dene*dene;
+      }
+      if( DebugIDCandidates ) 
+	cout << " EneCorrected " << Eene << " Err " << dene  << endl;
+      
+      // Think about this... 
       if ((nhit_gsf<8) && (has_kf)){
 	
 	// Use Hene if some condition.... 

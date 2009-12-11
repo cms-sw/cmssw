@@ -4,8 +4,13 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "TMVA/Reader.h"
 #include <iostream>
+
+
+class PFSCEnergyCalibration;
 
 namespace reco { 
 class PFCandidate;
@@ -17,7 +22,9 @@ class PFElectronAlgo {
   //constructor
   PFElectronAlgo(const double mvaEleCut,
 		 std::string  mvaWeightFileEleID,
-		 bool applyCrackCorrections);
+		 const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+		 bool applyCrackCorrections,
+		 bool usePFSCEleCalib);
 		
   
   //destructor
@@ -71,8 +78,6 @@ class PFElectronAlgo {
 		 AssMap& associatedToEcal_,
 		 std::vector<bool>& active);
   
-  
-  
   std::vector<reco::PFCandidate> elCandidate_;
   std::vector<reco::PFCandidate> allElCandidate_;
   std::map<unsigned int,std::vector<reco::PFCandidate> > electronConstituents_;
@@ -82,9 +87,13 @@ class PFElectronAlgo {
   std::vector< std::pair <unsigned int, unsigned int> > fifthStepKfTrack_;
   std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
-  double mvaEleCut_;
-  bool applyCrackCorrections_;
+  
   TMVA::Reader    *tmvaReader_;
+  double mvaEleCut_;
+  boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_; 
+  bool applyCrackCorrections_;
+  bool usePFSCEleCalib_;
+ 
   const char  *mvaWeightFile_;
 
   // New BDT observables

@@ -23,7 +23,10 @@ particleFlow = cms.EDProducer("PFProducer",
                               
     pf_electron_mvaCut = cms.double(-0.1),
     # apply the crack corrections                             
-    pf_electronID_crackCorrection = cms.bool(True),
+    pf_electronID_crackCorrection = cms.bool(False),
+    usePFSCEleCalib = cms.bool(True),                        
+    calibPFSCEle_barrel = cms.vdouble(1.0326,-13.71,339.72,0.4862,0.00182,0.36445,1.411,1.0206,0.0059162,-5.14434e-05,1.42516e-07),
+    calibPFSCEle_endcap = cms.vdouble(0.9995,-12.313,2.8784,-1.057e-04,10.282,3.059,1.3502e-03,-2.2185,3.4206),
 
     # Use photon conversion identification in PFAlgo
     usePFConversions = cms.bool(False),
