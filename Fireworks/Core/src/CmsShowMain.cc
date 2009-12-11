@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.134 2009/12/09 19:12:20 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.135 2009/12/10 18:26:06 amraktad Exp $
 //
 
 // system include files
@@ -82,6 +82,8 @@
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
+#include "Fireworks/Core/interface/fwLog.h"
+
 #include "TVirtualX.h"
 
 //
@@ -134,14 +136,16 @@ static const char* const kGeomFileOpt          = "geom-file";
 static const char* const kGeomFileCommandOpt   = "geom-file,g";
 static const char* const kNoConfigFileOpt      = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
-static const char* const kPlayOpt         = "play";
-static const char* const kPlayCommandOpt  = "play,p";
-static const char* const kLoopOpt         = "loop";
-static const char* const kLoopCommandOpt  = "loop";
-static const char* const kDebugOpt        = "debug";
-static const char* const kDebugCommandOpt = "debug,d";
-static const char* const kEveOpt          = "eve";
-static const char* const kEveCommandOpt   = "eve";
+static const char* const kPlayOpt              = "play";
+static const char* const kPlayCommandOpt       = "play,p";
+static const char* const kLoopOpt              = "loop";
+static const char* const kLoopCommandOpt       = "loop";
+static const char* const kDebugOpt             = "debug";
+static const char* const kDebugCommandOpt      = "debug,d";
+static const char* const kLogLevelCommandOpt   = "log";
+static const char* const kLogLevelOpt          = "log";
+static const char* const kEveOpt               = "eve";
+static const char* const kEveCommandOpt        = "eve";
 static const char* const kAdvancedRenderOpt        = "shine";
 static const char* const kAdvancedRenderCommandOpt = "shine,s";
 static const char* const kHelpOpt        = "help";
@@ -203,10 +207,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          (kPlainRootCommandOpt,                              "Plain ROOT without event display")
          (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
          (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
+         (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
          (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
          (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
-         (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain.")
-         (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display.")
+         (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
+         (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
          (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFilesOpt, -1);
@@ -223,6 +228,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          std::cout << desc <<std::endl;
          exit(0);
       }
+      
+      if(vm.count(kLogLevelOpt)) {
+         fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelOpt].as<unsigned int>());
+         fwlog::setPresentLogLevel(level);
+      }
+
       if(vm.count(kPlainRootCommandOpt)) {
          std::cout << "Plain ROOT prompt requested" <<std::endl;
          return;
