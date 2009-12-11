@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.8 2009/11/30 12:30:51 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.9 2009/12/07 21:14:07 amraktad Exp $
 //
 
 // system include files
@@ -43,6 +43,11 @@ public:
       ~Filter()
       {
          delete m_eventList;
+      }
+
+      bool hasSelectedEvents()
+      {
+         return m_eventList && m_eventList->GetN();
       }
    };
    

@@ -163,7 +163,7 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
       // in runFilter().
       if ((*it)->m_selector->m_enabled)
       {
-         if ((*it)->m_eventList->GetN())
+         if ((*it)->hasSelectedEvents())
          {
             if (globalOR || m_globalEventList->GetN() == 0)
             {
