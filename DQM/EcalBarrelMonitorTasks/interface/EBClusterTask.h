@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2009/11/24 15:59:08 $
- * $Revision: 1.24 $
+ * $Date: 2009/11/29 23:10:27 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
  */
@@ -104,7 +104,7 @@ MonitorElement* meInvMassHighSel_;
 
 bool init_;
 
-float thrSigmaIeIe_, thrClusEt_, thrCandEt_;
+float thrS4S9_, thrClusEt_, thrCandEt_;
 
 };
 

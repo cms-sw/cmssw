@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/11/24 15:59:07 $
- * $Revision: 1.80 $
+ * $Date: 2009/11/29 23:10:28 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -109,9 +109,9 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   meInvMassZ0Sel_ = 0;
   meInvMassHighSel_ = 0;
 
-  thrSigmaIeIe_ = 999.;
-  thrClusEt_ = 1.0;
-  thrCandEt_ = 1.5;
+  thrS4S9_ = 0.85;
+  thrClusEt_ = 0.200;
+  thrCandEt_ = 0.650;
   
 }
 
@@ -349,7 +349,7 @@ void EBClusterTask::setup(void){
     mes9s25_->setAxisTitle("s9/s25", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass Pi0");
-    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
+    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0.0, 0.500);
     meInvMassPi0_->setAxisTitle("mass (GeV)", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass JPsi");
@@ -365,7 +365,7 @@ void EBClusterTask::setup(void){
     meInvMassHigh_->setAxisTitle("mass (GeV)", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass Pi0 sel");
-    meInvMassPi0Sel_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
+    meInvMassPi0Sel_ = dqmStore_->book1D(histo, histo, 50, 0.00, 0.500);
     meInvMassPi0Sel_->setAxisTitle("mass (GeV)", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass JPsi sel");
@@ -549,10 +549,28 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
+  // ECAL topology
+  edm::ESHandle<CaloTopology> pTopology;
+  c.get<CaloTopologyRecord>().get(pTopology);
+  if ( !pTopology.isValid() ) {
+    LogWarning("EBClusterTask") << "Topology not valid"; 
+    return;
+  }
+  const CaloTopology *topology = pTopology.product();
+
+  // recHits
+  edm::Handle< EcalRecHitCollection > pEBRecHits;
+  e.getByLabel( EcalRecHitCollection_, pEBRecHits );
+  if ( !pEBRecHits.isValid() ) {
+    LogWarning("EBClusterTask") << "RecHit collection " << EcalRecHitCollection_ << " not available.";
+    return;
+  }
+  const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
+
+  BasicClusterCollection bcSel;
+
   // --- Barrel Basic Clusters ---
-
   Handle<BasicClusterCollection> pBasicClusters;
-
   if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
 
     int nbcc = pBasicClusters->size();
@@ -582,19 +600,48 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCETMapProjEta_->Fill(bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
       meBCETMapProjPhi_->Fill(xphi, float(bCluster->energy()) * sin(bCluster->position().theta()));
 
+      float e2x2 = EcalClusterTools::e2x2( *bCluster, ebRecHits, topology );
+      float e3x3 = EcalClusterTools::e3x3( *bCluster, ebRecHits, topology );
+
+      // fill the selected cluster collection
+      float pt = fabs( bCluster->energy()*sin(bCluster->position().theta()) );
+      if ( pt > thrClusEt_ && e2x2/e3x3 > thrS4S9_ ) bcSel.push_back(*bCluster);
     }
 
   } else {
-
     LogWarning("EBClusterTask") << BasicClusterCollection_ << " not available";
-
   }
 
+  for ( BasicClusterCollection::const_iterator bc1 = bcSel.begin(); bc1 != bcSel.end(); ++bc1 ) {
+    TLorentzVector bc1P;
+    bc1P.SetPtEtaPhiE(fabs(bc1->energy()*sin(bc1->position().theta())),
+                      bc1->eta(), bc1->phi(), bc1->energy());
+    for ( BasicClusterCollection::const_iterator bc2 = bc1+1; bc2 != bcSel.end(); ++bc2 ) {
+      TLorentzVector bc2P;
+      bc2P.SetPtEtaPhiE(fabs(bc2->energy()*sin(bc2->position().theta())),
+                        bc2->eta(), bc2->phi(), bc2->energy());
+
+      TLorentzVector candP = bc1P + bc2P;
+
+      if ( candP.Pt() > thrCandEt_ ) {
+        float mass = candP.M();
+        if ( mass < 0.500 ) {
+          meInvMassPi0Sel_->Fill( mass );
+        } else if ( mass > 2.9 && mass < 3.3 ) {
+          meInvMassJPsiSel_->Fill( mass );
+        } else if ( mass > 40 && mass < 110 ) {
+          meInvMassZ0Sel_->Fill( mass );
+        } else if ( mass > 110 ) {
+          meInvMassHighSel_->Fill( mass );
+        }          
+
+      }
+
+    }
+  }
 
   // --- Barrel Super Clusters ---
-
   Handle<SuperClusterCollection> pSuperClusters;
-
   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
     int nscc = pSuperClusters->size();
@@ -603,95 +650,66 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
-    SuperClusterCollection scSel;
-
     for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); ++sCluster ) {
 
       // energy, size
       meSCEne_->Fill( sCluster->energy() );
       meSCSiz_->Fill( float(sCluster->clustersSize()) );
 
-      // seed and shapes
-      edm::Handle< EcalRecHitCollection > pEBRecHits;
-      e.getByLabel( EcalRecHitCollection_, pEBRecHits );
-      if ( pEBRecHits.isValid() ) {
-        const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
+      // <= CMSSW_3_0_X
+      //BasicClusterRef theSeed = sCluster->seed();
+      // >= CMSSW_3_1_X
+      CaloClusterPtr theSeed = sCluster->seed();
+      
+      // Find the seed rec hit
+      // <= CMSSW_3_0_X
+      // std::vector<DetId> sIds = sCluster->getHitsByDetId();
+      // >= CMSSW_3_1_X
+      std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
-	edm::ESHandle<CaloTopology> pTopology;
-        c.get<CaloTopologyRecord>().get(pTopology);
-        if ( pTopology.isValid() ) {
-          const CaloTopology *topology = pTopology.product();
-
-          // <= CMSSW_3_0_X
-          //BasicClusterRef theSeed = sCluster->seed();
-          // >= CMSSW_3_1_X
-          CaloClusterPtr theSeed = sCluster->seed();
-
-	  // Find the seed rec hit
-          // <= CMSSW_3_0_X
-          // std::vector<DetId> sIds = sCluster->getHitsByDetId();
-          // >= CMSSW_3_1_X
-          std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
-
-	  float eMax, e2nd;
-	  EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
-	  EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
-
-          // <= CMSSW_3_0_X
-          // for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-          // if(idItr->det() != DetId::Ecal) { continue; }
-          // EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
-          // <= CMSSW_3_1_X
-	  for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-            DetId id = idItr->first;
-            if(id.det() != DetId::Ecal) { continue; }
-            EcalRecHitCollection::const_iterator hitItr = ebRecHits->find(id);
-            if(hitItr == ebRecHits->end()) { continue; }
-            if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
-            if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
-	  }
-
-	  eMax = seedItr->energy();
-	  e2nd = secondItr->energy();
-	  EBDetId seedId = (EBDetId) seedItr->id();
-
-          float e3x3 = EcalClusterTools::e3x3( *theSeed, ebRecHits, topology );
-          float e5x5 = EcalClusterTools::e5x5( *theSeed, ebRecHits, topology );
-          std::vector<float> localCov = EcalClusterTools::localCovariances( *theSeed, ebRecHits, topology );
-          float sigmaIEtaIEta = sqrt(localCov[0]);
-
-	  meSCCrystalSiz_->Fill(sIds.size());
-	  meSCSeedEne_->Fill(eMax);
-	  meSCEne2_->Fill(eMax+e2nd);
-	  meSCEneVsEMax_->Fill(eMax,sCluster->energy());
-	  meSCEneLowScale_->Fill(sCluster->energy());
-
-	  // Prepare to fill maps
-	  int ebeta = seedId.ieta();
-	  int ebphi = seedId.iphi();
-	  float xebeta = ebeta - 0.5 * seedId.zside();
-	  float xebphi = ebphi - 0.5;
-
-	  meSCSeedMapOcc_->Fill(xebphi,xebeta);
-
-	  if(sIds.size() == 1) meSCMapSingleCrystal_->Fill(xebphi,xebeta);
-
-          mes1s9_->Fill( eMax/e3x3 );
-          mes9s25_->Fill( e3x3/e5x5 );
-
-          // fill the selected SC collection
-          float pt = fabs( sCluster->energy()*sin(sCluster->position().theta()) );
-          
-          if ( pt > thrClusEt_ && sigmaIEtaIEta < thrSigmaIeIe_ ) scSel.push_back(*sCluster);
-
-        }
-        else {
-          LogWarning("EBClusterTask") << "CaloTopology not valid";
-        }
+      float eMax, e2nd;
+      EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
+      EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
+      
+      // <= CMSSW_3_0_X
+      // for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+      // if(idItr->det() != DetId::Ecal) { continue; }
+      // EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
+      // <= CMSSW_3_1_X
+      for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
+        DetId id = idItr->first;
+        if(id.det() != DetId::Ecal) { continue; }
+        EcalRecHitCollection::const_iterator hitItr = ebRecHits->find(id);
+        if(hitItr == ebRecHits->end()) { continue; }
+        if(hitItr->energy() > secondItr->energy()) { secondItr = hitItr; }
+        if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
       }
-      else {
-        LogWarning("EBClusterTask") << EcalRecHitCollection_ << " not available";
-      }
+
+      eMax = seedItr->energy();
+      e2nd = secondItr->energy();
+      EBDetId seedId = (EBDetId) seedItr->id();
+
+      float e3x3 = EcalClusterTools::e3x3( *theSeed, ebRecHits, topology );
+      float e5x5 = EcalClusterTools::e5x5( *theSeed, ebRecHits, topology );
+
+      meSCCrystalSiz_->Fill(sIds.size());
+      meSCSeedEne_->Fill(eMax);
+      meSCEne2_->Fill(eMax+e2nd);
+      meSCEneVsEMax_->Fill(eMax,sCluster->energy());
+      meSCEneLowScale_->Fill(sCluster->energy());
+
+      // Prepare to fill maps
+      int ebeta = seedId.ieta();
+      int ebphi = seedId.iphi();
+      float xebeta = ebeta - 0.5 * seedId.zside();
+      float xebphi = ebphi - 0.5;
+
+      meSCSeedMapOcc_->Fill(xebphi,xebeta);
+
+      if(sIds.size() == 1) meSCMapSingleCrystal_->Fill(xebphi,xebeta);
+
+      mes1s9_->Fill( eMax/e3x3 );
+      mes9s25_->Fill( e3x3/e5x5 );
 
       if ( nscc >= 2 ) {
         // look for the two most energetic super clusters
@@ -710,7 +728,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     if ( nscc >= 2 ) {
       TLorentzVector sum = sc1_p+sc2_p;
       float mass = sum.M();
-      if ( mass < 0.3 ) {
+      if ( mass < 0.500 ) {
 	meInvMassPi0_->Fill( mass );
       } else if ( mass > 2.9 && mass < 3.3 ) {
 	meInvMassJPsi_->Fill( mass );
@@ -718,34 +736,6 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 	meInvMassZ0_->Fill( mass );
       } else if ( mass > 110 ) {
 	meInvMassHigh_->Fill( mass );
-      }
-    }
-
-    for ( SuperClusterCollection::const_iterator sc1 = scSel.begin(); sc1 != scSel.end(); ++sc1 ) {
-      TLorentzVector sc1P;
-      sc1P.SetPtEtaPhiE(fabs(sc1->energy()*sin(sc1->position().theta())),
-                         sc1->eta(), sc1->phi(), sc1->energy());
-      for ( SuperClusterCollection::const_iterator sc2 = sc1+1; sc2 != scSel.end(); ++sc2 ) {
-        TLorentzVector sc2P;
-        sc2P.SetPtEtaPhiE(fabs(sc2->energy()*sin(sc2->position().theta())),
-                          sc2->eta(), sc2->phi(), sc2->energy());
-
-        TLorentzVector candP = sc1P + sc2P;
-
-        if ( candP.Pt() > thrCandEt_ ) {
-          float mass = candP.M();
-          if ( mass < 0.3 ) {
-            meInvMassPi0Sel_->Fill( mass );
-          } else if ( mass > 2.9 && mass < 3.3 ) {
-            meInvMassJPsiSel_->Fill( mass );
-          } else if ( mass > 40 && mass < 110 ) {
-            meInvMassZ0Sel_->Fill( mass );
-          } else if ( mass > 110 ) {
-            meInvMassHighSel_->Fill( mass );
-          }          
-
-        }
-
       }
     }
 
