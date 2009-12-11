@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/11/30 16:16:46 $
- * $Revision: 1.80 $
+ * $Date: 2009/12/08 10:34:44 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,6 +14,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -26,6 +27,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -491,6 +496,11 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
+  // channel status
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+  const EcalChannelStatus *chStatus = pChannelStatus.product();
+
   Handle<EcalRecHitCollection> rechits;
 
   if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
@@ -525,7 +535,10 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
         if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
         
-        if ( rechitItr->energy() > recHitEnergyMin_ && rechitItr->recoFlag() == EcalRecHit::kGood ) {
+        uint32_t flag = rechitItr->recoFlag();      
+        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*rechitItr), *chStatus );
+
+        if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
           
           if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
           if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
