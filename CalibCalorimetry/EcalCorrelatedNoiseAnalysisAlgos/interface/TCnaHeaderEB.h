@@ -76,11 +76,11 @@ public:
   //------------------------------- methods
 
   TCnaHeaderEB(); 
-  TCnaHeaderEB(Text_t*,  Text_t*, TString,
-	     const Int_t&,    const Int_t&,  const Int_t&,  const Int_t&,
-	     const  Int_t&);
-  TCnaHeaderEB(Text_t*,  Text_t*, TString,
-	     const Int_t&,    const Int_t&,  const Int_t&,  const Int_t&);
+  TCnaHeaderEB(const Text_t*, const Text_t*, TString,
+	       const Int_t&,  const Int_t&,  const Int_t&, const Int_t&,
+	       const  Int_t&);
+  TCnaHeaderEB(const Text_t*, const Text_t*, TString,
+	       const Int_t&,  const Int_t&,  const Int_t&, const Int_t&);
   ~TCnaHeaderEB();
 
   void Print();

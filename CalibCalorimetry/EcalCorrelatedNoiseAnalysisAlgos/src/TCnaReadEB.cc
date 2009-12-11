@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro, FX Gentit DSM/DAPNIA/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//----------Modified: 07/06/2007
+//----------Modified: 11/12/2009
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaReadEB.h"
 
@@ -415,11 +415,11 @@ void TCnaReadEB::GetReadyToReadRootFile(TString      typ_ana,
 
   Init();
 
-  Text_t *h_name  = "CnaHeader";   //==> voir cette question avec FXG
-  Text_t *h_title = "CnaHeader";   //==> voir cette question avec FXG
+  const Text_t *h_name  = "CnaHeader";   //==> voir cette question avec FXG
+  const Text_t *h_title = "CnaHeader";   //==> voir cette question avec FXG
 
   fFileHeader = new TCnaHeaderEB(h_name,   h_title ,
-			       typ_ana,  run_number,  nfirst,  nevents, super_module);
+				 typ_ana,  run_number,  nfirst,  nevents, super_module);
   
   // After this call to TCnaHeaderEB, we have:
   //     fFileHeader->fTypAna        = typ_ana
@@ -608,7 +608,7 @@ Bool_t TCnaReadEB::ReadRootFileHeader(const Int_t& i_print)
 {
 //Read the header of the Root file
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   if( i_print == 1){cout << "*TCnaReadEB::ReadRootFileHeader> file_name = "
 			 << file_name << endl;}
@@ -690,7 +690,7 @@ Bool_t TCnaReadEB::ReadRootFileHeader(const Int_t& i_print)
 //                      OpenRootFile
 //
 //-------------------------------------------------------------
-Bool_t TCnaReadEB::OpenRootFile(Text_t *name, TString status) {
+Bool_t TCnaReadEB::OpenRootFile(const Text_t *name, TString status) {
 //Open the Root file
 
   TString s_path;
@@ -730,7 +730,7 @@ Bool_t TCnaReadEB::OpenRootFile(Text_t *name, TString status) {
 //                      CloseRootFile
 //
 //-------------------------------------------------------------
-Bool_t TCnaReadEB::CloseRootFile(Text_t *name) {
+Bool_t TCnaReadEB::CloseRootFile(const Text_t *name) {
 //Close the Root file
  
   Bool_t ok_close = kFALSE;
@@ -784,7 +784,7 @@ TVectorD TCnaReadEB::ReadTowerNumbers()
   if (fMemoTowerNumbers == 0)
     {
       CnaResultTyp typ = cTypTowerNumbers;
-      Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+      const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
       
       //.............. reading of the ROOT file data type TResultTyp = cTypTowersNumbers
       //               to get the conversion: Tower index -> Tower number (SMtow)
@@ -872,7 +872,7 @@ TMatrixD TCnaReadEB::ReadNumbersOfFoundEventsForSamples(const Int_t& SMTow)
       if(fLookAtRootFile == 1)
 	{
 	  CnaResultTyp typ = cTypLastEvtNumber;
-	  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+	  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 	  
 	  Bool_t ok_open = kFALSE;
 	  Bool_t ok_read = kFALSE;
@@ -943,7 +943,7 @@ TVectorD TCnaReadEB::ReadSampleAsFunctionOfTime(const Int_t& SMTow,
 
   CnaResultTyp typ = cTypSampTime;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1001,7 +1001,7 @@ TVectorD TCnaReadEB::ReadExpectationValuesOfSamples(const Int_t & SMTow,
 
   CnaResultTyp typ = cTypEv;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1058,7 +1058,7 @@ TVectorD TCnaReadEB::ReadVariancesOfSamples(const Int_t & SMTow,
 
   CnaResultTyp typ = cTypVar;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1114,7 +1114,7 @@ TVectorD TCnaReadEB::ReadSigmasOfSamples(const Int_t & SMTow,
 
   CnaResultTyp typ = cTypVar;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1183,7 +1183,7 @@ TVectorD TCnaReadEB::ReadEventDistribution(const Int_t& SMTow,
 
   CnaResultTyp typ = cTypEvts;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1242,7 +1242,7 @@ Double_t TCnaReadEB::ReadEventDistributionXmin(const Int_t& SMTow,
 
   CnaResultTyp typ = cTypEvtsXmin;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1296,7 +1296,7 @@ Double_t TCnaReadEB::ReadEventDistributionXmax(const Int_t& SMTow,
 
   CnaResultTyp typ = cTypEvtsXmax;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1350,7 +1350,7 @@ TMatrixD TCnaReadEB::ReadCovariancesBetweenSamples(const Int_t & SMTow,
   
   CnaResultTyp typ = cTypCovCss;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1407,7 +1407,7 @@ TMatrixD TCnaReadEB::ReadCorrelationsBetweenSamples(const Int_t & SMTow,
   Int_t user_cna_chan = GetSMEcha(SMTow, TowEcha);
   TMatrixD mat(fFileHeader->fMaxSampADC, fFileHeader->fMaxSampADC);  
   CnaResultTyp typ = cTypCorCss;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1457,7 +1457,7 @@ TVectorD TCnaReadEB::ReadRelevantCorrelationsBetweenSamples(const Int_t & SMTow,
   Int_t nb_of_relevant = fFileHeader->fMaxSampADC*(fFileHeader->fMaxSampADC-1)/2;
   TVectorD vec_rel(nb_of_relevant);  
   CnaResultTyp typ = cTypCorCss;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1513,7 +1513,7 @@ TMatrixD TCnaReadEB::ReadCovariancesBetweenCrystalsMeanOverSamples(const Int_t &
   
   CnaResultTyp typ = cTypCovSccMos;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1577,7 +1577,7 @@ TMatrixD TCnaReadEB::ReadCorrelationsBetweenCrystalsMeanOverSamples(const Int_t 
   
   CnaResultTyp typ = cTypCorSccMos;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1643,7 +1643,7 @@ TMatrixD TCnaReadEB::ReadCovariancesBetweenCrystalsMeanOverSamples()
   
   CnaResultTyp typ = cTypCovSccMos;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1724,7 +1724,7 @@ TMatrixD TCnaReadEB::ReadCorrelationsBetweenCrystalsMeanOverSamples()
   
   CnaResultTyp typ = cTypCorSccMos;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1803,7 +1803,7 @@ TMatrixD TCnaReadEB::ReadCovariancesBetweenTowersMeanOverSamplesAndChannels()
 
   CnaResultTyp typ = cTypCovMosccMot;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1873,7 +1873,7 @@ TMatrixD TCnaReadEB::ReadCorrelationsBetweenTowersMeanOverSamplesAndChannels()
 
   CnaResultTyp typ = cTypCorMosccMot;
 
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1938,7 +1938,7 @@ TVectorD TCnaReadEB::ReadExpectationValuesOfExpectationValuesOfSamples()
   TVectorD vec(fFileHeader->fMaxCrysInSM);
 
   CnaResultTyp typ = cTypEvEv;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -1990,7 +1990,7 @@ TVectorD TCnaReadEB::ReadExpectationValuesOfSigmasOfSamples()
 
   TVectorD vec(fFileHeader->fMaxCrysInSM);
   CnaResultTyp typ = cTypEvSig;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2043,7 +2043,7 @@ TVectorD TCnaReadEB::ReadExpectationValuesOfCorrelationsBetweenSamples()
 
   TVectorD vec(fFileHeader->fMaxCrysInSM);
   CnaResultTyp typ = cTypEvCorCss;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2096,7 +2096,7 @@ TVectorD TCnaReadEB::ReadSigmasOfExpectationValuesOfSamples()
 
   TVectorD vec(fFileHeader->fMaxCrysInSM);
   CnaResultTyp typ = cTypSigEv;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2149,7 +2149,7 @@ TVectorD TCnaReadEB::ReadSigmasOfSigmasOfSamples()
   
   TVectorD vec(fFileHeader->fMaxCrysInSM);
   CnaResultTyp typ = cTypSigSig;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2202,7 +2202,7 @@ TVectorD TCnaReadEB::ReadSigmasOfCorrelationsBetweenSamples()
 
   TVectorD vec(fFileHeader->fMaxCrysInSM);
   CnaResultTyp typ = cTypSigCorCss;
-  Text_t *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2257,7 +2257,7 @@ TMatrixD TCnaReadEB::ReadCorrectionsToSamplesFromCovss(const Int_t& SMTow)
 
   Int_t         index_tow = GetTowerIndex(SMTow);  
   CnaResultTyp  typ       = cTypSvCorrecCovCss;
-  Text_t       *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t       *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2318,7 +2318,7 @@ TVectorD TCnaReadEB::ReadCorrectionsToSamplesFromCovss(const Int_t& SMTow,
   Int_t  user_cna_chan = GetSMEcha(SMTow, TowEcha);
 
   CnaResultTyp  typ       = cTypSvCorrecCovCss;
-  Text_t       *file_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t       *file_name = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2374,7 +2374,7 @@ TMatrixD TCnaReadEB::ReadCorrectionFactorsToCovss(const Int_t& SMTow,
  
   Int_t         user_cna_chan = GetSMEcha(SMTow, TowEcha);
   CnaResultTyp  typ          = cTypCovCorrecCovCss;
-  Text_t       *file_name    = (Text_t *)fRootFileNameShort.Data();
+  const Text_t       *file_name    = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;
@@ -2431,7 +2431,7 @@ TMatrixD TCnaReadEB::ReadCorrectionFactorsToCorss(const Int_t& SMTow,
 
   Int_t         user_cna_chan = GetSMEcha(SMTow, TowEcha);  
   CnaResultTyp  typ          = cTypCorCorrecCovCss;
-  Text_t       *file_name    = (Text_t *)fRootFileNameShort.Data();
+  const Text_t       *file_name    = (const Text_t *)fRootFileNameShort.Data();
 
   Bool_t ok_open = kFALSE;
   Bool_t ok_read = kFALSE;

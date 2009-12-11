@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/DAPNIA/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 20/02/2008
+//---------Modified: 11/12/2009
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaViewEB.h"
 
@@ -39,7 +39,7 @@ ClassImp(TCnaViewEB)
 //      Int_t   NbOfTakenEvts  = 150;
 //      Int_t   SMNumber       = 6;
 //
-//      MyView->GetPathForResultsRootFiles("my_cna_config.cfg");
+//      MyView->GetPathForResultsRootFiles("my_cna_config.cna");
 //  or: MyView->GetPathForResultsRootFiles();       // (see explanations after this example)
 //
 //      //--> Specify the file which has to be read (previously written by TCnaRunEB)
@@ -91,7 +91,7 @@ ClassImp(TCnaViewEB)
 //    are located.
 //  
 //    If no argument is specified (DEFAULT), the name of the configuration file is considered
-//    to be: "cna_results_root.cfg" and the file must be created in the user's HOME directory.
+//    to be: "cna_results_root.cna" and the file must be created in the user's HOME directory.
 //
 //    EXAMPLE of configuration file content (1 line): $HOME/scratch0/cna/results_root
 //    (without slash at the end !)
@@ -100,7 +100,7 @@ ClassImp(TCnaViewEB)
 // //.......... method GetPathForResultsRootFiles(const TString)
 //
 //   Same as GetPathForResultsRootFiles(const TString). The name of the DEFAULT configuration
-//   file is considered to be: "cna_results_ascii.cfg" and the file must be created in the
+//   file is considered to be: "cna_results_ascii.cna" and the file must be created in the
 //   user's HOME directory.
 //
 //   EXAMPLE of configuration file content (1 line): $HOME/scratch0/cna/results_ascii
@@ -108,7 +108,7 @@ ClassImp(TCnaViewEB)
 //   The .ascii result files are located in the directory $HOME/scratch0/cna/results_ascii
 //
 // //.......... method GetPathForListOfRunFiles(const TString)
-//   The name of the DEFAULT configuration file is considered to be: "cna_stability.cfg"
+//   The name of the DEFAULT configuration file is considered to be: "cna_stability.cna"
 //   and the file must be created in the user's HOME directory.
 //
 //   EXAMPLE of configuration file content (1 line): $HOME/scratch0/cna/runlist_time_evol
@@ -1361,8 +1361,8 @@ void TCnaViewEB::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& SMtow
   Axis_t yinf_gbid = (Axis_t)0.;
   Axis_t ysup_gbid = (Axis_t)MyEcalParameters->MaxSampADC()*size_phi;
 
-  char* fg_name = "M0' crystals";
-  char* fg_tit  = "Crystal numbering (electronic channel + numbers in SM)"; 
+  const char* fg_name = "M0' crystals";
+  const char* fg_tit  = "Crystal numbering (electronic channel + numbers in SM)"; 
  
   TH2D *h_gbid;
   h_gbid = new TH2D(fg_name,  fg_tit,
@@ -3314,13 +3314,13 @@ Int_t TCnaViewEB::GetListOfRunParameters(const TString run_par_file_name, const 
 
   //........... Add the path to the file name           ( GetListOfRunParameters )
   TString xFileNameRunList = run_par_file_name.Data();
-  Text_t *t_file_name = (Text_t *)xFileNameRunList.Data();
+  const Text_t *t_file_name = (const Text_t *)xFileNameRunList.Data();
 
   //.............. replace the string "$HOME" by the true $HOME path
   if(fCfgListOfRunsFilePath.BeginsWith("$HOME"))
     {
       fCfgListOfRunsFilePath.Remove(0,5);
-      Text_t *t_file_nohome = (Text_t *)fCfgListOfRunsFilePath.Data(); //  /scratch0/cna/...
+      const Text_t *t_file_nohome = (const Text_t *)fCfgListOfRunsFilePath.Data(); //  /scratch0/cna/...
       
       TString home_path = gSystem->Getenv("HOME");
       fCfgListOfRunsFilePath = home_path;             //  /afs/cern.ch/u/USER
@@ -7241,7 +7241,7 @@ void TCnaViewEB::GetPathForResultsRootFiles(const TString argFileName)
 {
   // Init fCfgResultsRootFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "cna_results_root.cfg" and file located in $HOME user's directory (default)
+  // if string is empty, file name = "cna_results_root.cna" and file located in $HOME user's directory (default)
 
   Int_t MaxCar = fgMaxCar;
   fCfgResultsRootFilePath.Resize(MaxCar);
@@ -7252,9 +7252,9 @@ void TCnaViewEB::GetPathForResultsRootFiles(const TString argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "cna_results_root.cfg";     // config file name
+      string cFileNameForCnaPaths = "cna_results_root.cna";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
-      Text_t *t_file_name = (Text_t *)s_file_name.Data();
+      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
       TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
       
@@ -7319,7 +7319,7 @@ void TCnaViewEB::GetPathForListOfRunFiles(const TString argFileName)
 {
   // Init fCfgListOfRunsFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "cna_stability.cfg" and file located in $HOME user's directory (default)
+  // if string is empty, file name = "cna_stability.cna" and file located in $HOME user's directory (default)
 
   Int_t MaxCar = fgMaxCar;
   fCfgListOfRunsFilePath.Resize(MaxCar);
@@ -7330,9 +7330,9 @@ void TCnaViewEB::GetPathForListOfRunFiles(const TString argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "cna_stability.cfg";     // config file name
+      string cFileNameForCnaPaths = "cna_stability.cna";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
-      Text_t *t_file_name = (Text_t *)s_file_name.Data();
+      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
       TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
       

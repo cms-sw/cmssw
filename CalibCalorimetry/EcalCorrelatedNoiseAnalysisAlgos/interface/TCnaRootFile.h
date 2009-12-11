@@ -33,8 +33,8 @@ public:
   TCnaRootFile(const Text_t*, TString);
   ~TCnaRootFile();
   void   CloseFile();
-  Bool_t OpenR(Text_t* = "");
-  Bool_t OpenW(Text_t* = "");
+  Bool_t OpenR(const Text_t* = "");
+  Bool_t OpenW(const Text_t* = "");
   Bool_t ReadElement(Int_t);
   Bool_t ReadElement(CnaResultTyp,Int_t);
   ClassDef(TCnaRootFile,1)  //Root file of CNA

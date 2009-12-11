@@ -123,8 +123,8 @@ class TCnaReadEB: public TObject {
 
   void         Init();
 
-  Bool_t       OpenRootFile(Text_t *, TString);
-  Bool_t       CloseRootFile(Text_t *);
+  Bool_t       OpenRootFile(const Text_t *, TString);
+  Bool_t       CloseRootFile(const Text_t *);
   Bool_t       ReadRootFileHeader(const Int_t&);
   Bool_t       DataExist();    // if data is present: kTRUE , if not: kFALSE
 

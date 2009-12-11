@@ -1,6 +1,6 @@
 //----------Author's Name:FX Gentit and B.Fabbro  DAPNIA/SPP CEN Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:07/06/2007
+//----------Modified:11/12/2009
 
 #include "Riostream.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEBParameters.h"
@@ -16,7 +16,7 @@ ClassImp(TCnaHeaderEB)
   Init();
 }
 
-TCnaHeaderEB::TCnaHeaderEB(Text_t        *name,          Text_t        *title,
+TCnaHeaderEB::TCnaHeaderEB(const Text_t *name,           const Text_t *title,
 			   TString       typ_ana,        const Int_t&  run_number, 
 			   const Int_t&  first_evt,      const Int_t&  nb_of_taken_evts,
 			   const Int_t&  super_module,   const Int_t&  nentries
@@ -41,7 +41,7 @@ TCnaHeaderEB::TCnaHeaderEB(Text_t        *name,          Text_t        *title,
 }
 //------------------------------------------------------------------------------
 
-TCnaHeaderEB::TCnaHeaderEB(Text_t        *name,        Text_t        *title,
+TCnaHeaderEB::TCnaHeaderEB(const Text_t *name,         const Text_t *title,
 			   TString       typ_ana,      const Int_t&  run_number, 
 			   const Int_t&  first_evt,    const Int_t&  nb_of_taken_evts,
 			   const Int_t&  super_module):TNamed(name,title) {

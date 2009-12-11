@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro DSM/DAPNIA/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 11/07/2007
+//----------Modified: 11/12/2009
 
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEBParameters.h"
@@ -26,7 +26,7 @@ ClassImp(TCnaDialogEB)
 //          |                                |
 //          *--------------------------------*
 //
-//  A "cna-configuration" file named "cna_results_root.cfg"
+//  A "cna-configuration" file named "cna_results_root.cna"
 //  must be present in your HOME directory.
 //
 //  This file must have one line which must contain the path of the directory 
@@ -3387,10 +3387,10 @@ void TCnaDialogEB::DoButtonRoot()
   //...... fabrication du script
   
   TString submit_script_name = "b";
-  Text_t *t_run_number = (Text_t *)fKeyRunNumberTString.Data();
+  const Text_t *t_run_number = (const Text_t *)fKeyRunNumberTString.Data();
   submit_script_name.Append(t_run_number);
   submit_script_name.Append('_');
-  Text_t *t_SM_number = (Text_t *)fKeySuMoNumberTString.Data();
+  const Text_t *t_SM_number = (const Text_t *)fKeySuMoNumberTString.Data();
   submit_script_name.Append(t_SM_number);
 
   cout << "TCnaDialogEB> CONTROLE 1. Open file " << submit_script_name.Data() << endl;
@@ -3402,7 +3402,7 @@ void TCnaDialogEB::DoButtonRoot()
   fFcout_f << "cd " << s_path_name.Data() << s_cmssw_version.Data() << endl
 	   << "eval `scramv1 runtime -sh`" << endl
 	   << "cd " << fCfgResultsRootFilePath.Data() << endl
-	   << "cmsRun " << s_path_name.Data() << s_cmssw_version.Data() << "/src/CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/data/EcalPedestalRun"<< fKeyRunNumberTString << ".cfg" << endl;
+	   << "cmsRun " << s_path_name.Data() << s_cmssw_version.Data() << "/src/CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/data/EcalPedestalRun"<< fKeyRunNumberTString << ".cna" << endl;
 
   //...... envoi de la commande
   fCnaCommand++;
@@ -4371,7 +4371,7 @@ void TCnaDialogEB::GetPathForResultsRootFiles(const TString argFileName)
 {
   // Init fCfgResultsRootFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "cna_results_root.cfg" and file located in $HOME user's directory (default)
+  // if string is empty, file name = "cna_results_root.cna" and file located in $HOME user's directory (default)
 
 
   Int_t MaxCar = fgMaxCar;
@@ -4383,9 +4383,9 @@ void TCnaDialogEB::GetPathForResultsRootFiles(const TString argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "cna_results_root.cfg";     // config file name
+      string cFileNameForCnaPaths = "cna_results_root.cna";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
-      Text_t *t_file_name = (Text_t *)s_file_name.Data();
+      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
       TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
       
@@ -4450,7 +4450,7 @@ void TCnaDialogEB::GetPathForListOfRunFiles(const TString argFileName)
 {
   // Init fCfgListOfRunsFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "cna_results_root.cfg" and file located in $HOME user's directory (default)
+  // if string is empty, file name = "cna_results_root.cna" and file located in $HOME user's directory (default)
 
   Int_t MaxCar = fgMaxCar;
   fCfgListOfRunsFilePath.Resize(MaxCar);
@@ -4461,9 +4461,9 @@ void TCnaDialogEB::GetPathForListOfRunFiles(const TString argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "cna_stability.cfg";     // config file name
+      string cFileNameForCnaPaths = "cna_stability.cna";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
-      Text_t *t_file_name = (Text_t *)s_file_name.Data();
+      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
       TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
       

@@ -267,8 +267,8 @@ class TCnaRunEB: public TObject {
   void         GetPathForResultsAsciiFiles();
   void         GetPathForResultsAsciiFiles(const TString);
 
-  Bool_t       OpenRootFile(Text_t *, TString);
-  Bool_t       CloseRootFile(Text_t *);
+  Bool_t       OpenRootFile(const Text_t *, TString);
+  Bool_t       CloseRootFile(const Text_t *);
 
   //............................................................... Genuine public user's methods
   
@@ -358,7 +358,7 @@ class TCnaRunEB: public TObject {
   //...................................... ROOT file writing methods
 
   Bool_t  WriteRootFile();
-  Bool_t  WriteRootFile(Text_t *);
+  Bool_t  WriteRootFile(const Text_t *);
 
   void    TRootTowerNumbers();
   void    TRootLastEvtNumber();

@@ -1,6 +1,6 @@
 //----------Author's Names: FX Gentit, B.Fabbro  DAPNIA/SPP CEN Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified:07/06/2007
+//----------Modified:11/12/2009
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaRootFile.h"
 
@@ -52,10 +52,11 @@ void TCnaRootFile::CloseFile() {
   fCnaResultsBranch       = 0;
 }
 
-Bool_t TCnaRootFile::OpenR(Text_t *name) {
+Bool_t TCnaRootFile::OpenR(const Text_t *name) {
 //Open the CNA root file for reading
   Bool_t ok;
-  if (name != "") fRootFileName = name;
+  const TString emptys = "";
+  if (name != emptys) fRootFileName = name;
   fRootFile = new TFile(fRootFileName.Data(),"READ");
   ok = fRootFile->IsOpen();
   if (ok) {
@@ -74,10 +75,11 @@ Bool_t TCnaRootFile::OpenR(Text_t *name) {
   return ok;
 }
 
-Bool_t TCnaRootFile::OpenW(Text_t *name) {
+Bool_t TCnaRootFile::OpenW(const Text_t *name) {
 //Open root file for writing
   Bool_t ok = kTRUE;
-  if (name != "") fRootFileName = name;
+  const TString emptys = "";
+  if (name != emptys) fRootFileName = name;
 
   //cout << "*TCnaRootFile::OpenW(...)> fRootFileName.Data() = "
   //     << fRootFileName.Data() << endl;

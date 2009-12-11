@@ -1,6 +1,6 @@
 //----------Author's Names: B.Fabbro, FX Gentit DSM/DAPNIA/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//----------Modified: 08/06/2007
+//----------Modified: 11/12/2009
 // ROOT include files
 
 // user's include files
@@ -146,7 +146,7 @@ ClassImp(TCnaRunEB)
 //     //
 //     // Original Author:  Bernard Fabbro
 //     //         Created:  Fri Jun  2 10:27:01 CEST 2006
-//     // $Id: TCnaRunEB.cc,v 1.2 2007/07/12 12:29:26 fabbro Exp $
+//     // $Id: TCnaRunEB.cc,v 1.3 2007/12/31 09:19:05 elmer Exp $
 //     //
 //     //
 //     
@@ -233,7 +233,7 @@ ClassImp(TCnaRunEB)
 //
 //     // Original Author:  Bernard Fabbro
 //     //         Created:  Fri Jun  2 10:27:01 CEST 2006
-//     // $Id: TCnaRunEB.cc,v 1.2 2007/07/12 12:29:26 fabbro Exp $
+//     // $Id: TCnaRunEB.cc,v 1.3 2007/12/31 09:19:05 elmer Exp $
 //     //
 //     //          Update:  02/10/2006  
 //     
@@ -610,7 +610,7 @@ ClassImp(TCnaRunEB)
 //   DEFAULT: 
 //            void MyCnaRun->GetPathForResultsRootFiles();
 //            If there is no argument, the "cna-configuration" file must be named
-//            "cna_results_root.cfg" and must be located in the user's HOME
+//            "cna_results_root.cna" and must be located in the user's HOME
 //            directory
 //
 //
@@ -649,7 +649,7 @@ ClassImp(TCnaRunEB)
 //   DEFAULT: 
 //            void  MyCnaRun->GetPathForResultsAsciiFiles();
 //            If there is no argument, the "cna-config" file must be named
-//            "cna_results_ascii.cfg" and must be located in the user's HOME
+//            "cna_results_ascii.cna" and must be located in the user's HOME
 //            directory
 //
 //
@@ -1427,8 +1427,8 @@ void TCnaRunEB::GetReadyToReadData( TString typ_ana,      const Int_t& run_numbe
       
       //-----------------------------------------------------------------------------
  
-      Text_t *h_name  = "CnaHeader";   //==> voir cette question avec FXG
-      Text_t *h_title = "CnaHeader";   //==> voir cette question avec FXG
+      const Text_t *h_name  = "CnaHeader";   //==> voir cette question avec FXG
+      const Text_t *h_title = "CnaHeader";   //==> voir cette question avec FXG
 
       TEBParameters* MyEcal = new TEBParameters();  fCnew++;
       Int_t n_tow  = MyEcal->fMaxTowInSM;
@@ -3526,7 +3526,7 @@ void TCnaRunEB::GetPathForResultsRootFiles(const TString argFileName)
 {
   // Init fCfgResultsRootFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "cna_results_root.cfg" and file located in $HOME user's directory (default)
+  // if string is empty, file name = "cna_results_root.cna" and file located in $HOME user's directory (default)
 
   Int_t MaxCar = fgMaxCar;
   fCfgResultsRootFilePath.Resize(MaxCar);
@@ -3537,9 +3537,9 @@ void TCnaRunEB::GetPathForResultsRootFiles(const TString argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "cna_results_root.cfg";     // config file name
+      string cFileNameForCnaPaths = "cna_results_root.cna";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
-      Text_t *t_file_name = (Text_t *)s_file_name.Data();
+      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
       TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
       
@@ -3613,7 +3613,7 @@ void TCnaRunEB::GetPathForResultsAsciiFiles(const TString argFileName)
 {
   // Init fCfgResultsAsciiFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "cna_results_ascii.cfg"
+  // if string is empty, file name = "cna_results_ascii.cna"
   // and file located in $HOME user's directory (default)
 
   Int_t MaxCar = fgMaxCar;
@@ -3625,9 +3625,9 @@ void TCnaRunEB::GetPathForResultsAsciiFiles(const TString argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "cna_results_ascii.cfg";     // config file name
+      string cFileNameForCnaPaths = "cna_results_ascii.cna";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
-      Text_t *t_file_name = (Text_t *)s_file_name.Data();
+      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
       TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
       
@@ -3700,7 +3700,7 @@ void TCnaRunEB::GetPathForResultsAsciiFiles(const TString argFileName)
 //                      OpenRootFile
 //
 //-------------------------------------------------------------
-Bool_t TCnaRunEB::OpenRootFile(Text_t *name, TString status) {
+Bool_t TCnaRunEB::OpenRootFile(const Text_t *name, TString status) {
 //Open the Root file
 
   TString s_path;
@@ -3742,7 +3742,7 @@ Bool_t TCnaRunEB::OpenRootFile(Text_t *name, TString status) {
 //                      CloseRootFile
 //
 //-------------------------------------------------------------
-Bool_t TCnaRunEB::CloseRootFile(Text_t *name) {
+Bool_t TCnaRunEB::CloseRootFile(const Text_t *name) {
 //Close the Root file
  
   Bool_t ok_close = kFALSE;
@@ -3791,7 +3791,7 @@ Bool_t TCnaRunEB::WriteRootFile() {
                                     // fAsciiFileName, fAsciiFileNameShort,
                                     // fResultsFileName and fResultsFileNameShort
 
-  Text_t *s_name = (Text_t *)fRootFileNameShort.Data();
+  const Text_t *s_name = (const Text_t *)fRootFileNameShort.Data();
 
   if(fFlagPrint != fCodePrintNoComment){
     cout << "*TCnaRunEB::WriteRootFile()> Results are going to be written in the ROOT file: " << endl
@@ -3806,10 +3806,10 @@ Bool_t TCnaRunEB::WriteRootFile() {
 //               WriteRootFile with argument
 //
 //-------------------------------------------------------------
-Bool_t TCnaRunEB::WriteRootFile(Text_t *name) {
+Bool_t TCnaRunEB::WriteRootFile(const Text_t *name) {
 //Write the Root file
 
-  Text_t *file_name = name;
+  const Text_t *file_name = name;
 
   Bool_t ok_open  = kFALSE;
   Bool_t ok_write = kFALSE;
@@ -5536,7 +5536,7 @@ void  TCnaRunEB::fMakeResultsFileName(const Int_t&  i_code)
 	       << "    where FILE_NAME is the complete name (/afs/etc...) of a configuration file" << endl 
 	       << "    which must have only one line containing the path of the .root result files." << endl
 	       << "    If the TString FILE_NAME is empty, the configuration file must be " << endl
-	       << "    in your HOME directory and must be called: cna_results_root.cfg" << endl
+	       << "    in your HOME directory and must be called: cna_results_root.cna" << endl
 	       << endl;
 
 	  TString home_path = gSystem->Getenv("HOME");
@@ -5546,7 +5546,7 @@ void  TCnaRunEB::fMakeResultsFileName(const Int_t&  i_code)
       if(fCfgResultsRootFilePath.BeginsWith("$HOME"))
 	{
 	  fCfgResultsRootFilePath.Remove(0,5);
-	  Text_t *t_file_nohome = (Text_t *)fCfgResultsRootFilePath.Data(); //  /scratch0/cna/...
+	  const Text_t *t_file_nohome = (const Text_t *)fCfgResultsRootFilePath.Data(); //  /scratch0/cna/...
 	  
 	  TString home_path = gSystem->Getenv("HOME");
 	  fCfgResultsRootFilePath = home_path;             //  /afs/cern.ch/u/USER
@@ -5575,7 +5575,7 @@ void  TCnaRunEB::fMakeResultsFileName(const Int_t&  i_code)
 	       << "    where FILE_NAME is the complete name (/afs/etc...) of a configuration file" << endl 
 	       << "    which must have only one line containing the path of the .ascii result files." << endl
 	       << "    If the TString FILE_NAME is empty, the configuration file must be " << endl
-	       << "    in your HOME directory and must be called: cna_results_ascii.cfg" << endl
+	       << "    in your HOME directory and must be called: cna_results_ascii.cna" << endl
 	       << endl;
 
 	  TString home_path = gSystem->Getenv("HOME");
@@ -5585,7 +5585,7 @@ void  TCnaRunEB::fMakeResultsFileName(const Int_t&  i_code)
       if(fCfgResultsAsciiFilePath.BeginsWith("$HOME"))
 	{
 	  fCfgResultsAsciiFilePath.Remove(0,5);
-	  Text_t *t_file_nohome = (Text_t *)fCfgResultsAsciiFilePath.Data(); //  /scratch0/cna/...
+	  const Text_t *t_file_nohome = (const Text_t *)fCfgResultsAsciiFilePath.Data(); //  /scratch0/cna/...
 	  
 	  TString home_path = gSystem->Getenv("HOME");
 	  fCfgResultsAsciiFilePath = home_path;             //  /afs/cern.ch/u/USER
