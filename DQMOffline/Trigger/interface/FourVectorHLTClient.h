@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: FourVectorHLTClient.h,v 1.6 2009/06/12 12:56:47 rekovic Exp $
+//$Id: FourVectorHLTClient.h,v 1.7 2009/11/26 16:18:28 rekovic Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -87,6 +87,11 @@ private:
   std::vector<MonitorElement*> v_ME_HLTPassPass_;
   std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
   std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
+
+  std::string pathsSummaryFolder_ ;
+  std::string pathsSummaryHLTCorrelationsFolder_ ;
+  std::string pathsSummaryFilterCountsFolder_ ;
+  std::string pathsSummaryFilterEfficiencyFolder_ ;
 
   int counterLS_;      ///counter
   int counterEvt_;     ///counter
