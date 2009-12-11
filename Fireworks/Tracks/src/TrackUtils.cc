@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.8 2009/12/10 16:13:09 latb Exp $
+// $Id: TrackUtils.cc,v 1.9 2009/12/11 08:02:52 latb Exp $
 //
 
 // system include files
@@ -71,9 +71,8 @@ namespace fireworks {
       for ( std::vector<TEveVector>::const_iterator point = extraRefPoints.begin();
             point != extraRefPoints.end(); ++point )
          refStates.push_back(State(*point));
-      std::sort( refStates.begin(), refStates.end(), StateOrdering(trackMomentum) );
+      if (track.pt()>1) std::sort( refStates.begin(), refStates.end(), StateOrdering(trackMomentum) );
 
-      //
       // * if the first state has non-zero momentum use it as a starting point
       //   and all other points as PathMarks to follow
       // * if the first state has only position, try the last state. If it has
