@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/26 16:43:11 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/26 17:49:16 $
+ *  $Revision: 1.9 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -39,7 +39,6 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet & pset)
   hltProcessName_  = pset.getParameter< string         >("hltProcessName");
   hltPathsToCheck_ = pset.getParameter< vector<string> >("hltPathsToCheck");
 
-  cutMinPt_    = pset.getParameter< double         >("cutMinPt"   );
   cutMotherId_ = pset.getParameter< unsigned int   >("cutMotherId");
   cutsDr_      = pset.getParameter< vector<double> >("cutsDr"     );
 
@@ -70,6 +69,7 @@ HLTMuonValidator::beginJob()
   }
 
   set<string>::iterator iPath;
+  TPRegexp suffixPtCut("[0-9]+$");
 
   for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++) {
  
@@ -80,14 +80,22 @@ HLTMuonValidator::beginJob()
       if (moduleLabels[i].find("Filtered") != string::npos)
         filterLabels_[path].push_back(moduleLabels[i]);
 
+    double cutMaxEta = (TString(path).Contains(kLooseL1Requirement)) ? 2.4:2.1;
+    unsigned int index = TString(path).Index(suffixPtCut);
+    unsigned int threshold = 3;
+    if (index < path.length()) threshold = atoi(path.substr(index).c_str());
+    // We select a whole number min pT cut slightly above the path's final 
+    // pt threshold, then subtract a bit to let through particle gun muons with
+    // exact integer pT:
+    double cutMinPt = ceil(threshold * 1.1) - 0.01;
+    if (cutMinPt < 0.) cutMinPt = 0.;
+    cutsMinPt_[path] = cutMinPt;
+
     dbe_->setCurrentFolder("HLT/Muon/Distributions/" + path);
     elements_[path + "_" + "CutMinPt" ] = dbe_->bookFloat("CutMinPt" );
     elements_[path + "_" + "CutMaxEta"] = dbe_->bookFloat("CutMaxEta");
-    elements_[path + "_" + "CutMinPt" ]->Fill(cutMinPt_ );
-    if (TString(path).Contains(kLooseL1Requirement))
-      elements_[path + "_" + "CutMaxEta"]->Fill(2.4);
-    else
-      elements_[path + "_" + "CutMaxEta"]->Fill(2.1);
+    elements_[path + "_" + "CutMinPt" ]->Fill(cutMinPt);
+    elements_[path + "_" + "CutMaxEta"]->Fill(cutMaxEta);
 
     const int nFilters = filterLabels_[path].size();
     stepLabels_[path].push_back("All");
@@ -319,7 +327,7 @@ HLTMuonValidator::analyzePath(const string & path,
           elements_[pre + "MaxPt1" + post]->Fill(pt);
         if (matchesInRange.size() >= 2 && j == matchesInRange[1])
           elements_[pre + "MaxPt2" + post]->Fill(pt);
-        if(fabs(eta) < maxEta && pt > cutMinPt_) {
+        if(fabs(eta) < maxEta && pt > cutsMinPt_[path]) {
           elements_[pre + "Eta" + post]->Fill(eta);
           elements_[pre + "Phi" + post]->Fill(phi);
         }
