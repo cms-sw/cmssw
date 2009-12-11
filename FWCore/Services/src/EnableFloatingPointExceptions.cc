@@ -182,8 +182,16 @@ postModule(ModuleDescription const& description) {
 }
 
 namespace {
-  inline bool stateNeedsChanging(fenv_t const& current, fenv_t const& target) {
-    return current.__control_word != target.__control_word;
+  bool stateNeedsChanging(fenv_t const& current, fenv_t const& target) {
+    if (current.__control_word == target.__control_word) {
+      // It looks like we don't need to change the state, but we read the actual value
+      // to be sure it matches what we believe the current value is.
+      // This protects against the state being set or reset external to this service.
+      fenv_t actual;
+      fegetenv(&actual);
+      return actual.__control_word != target.__control_word;
+    }
+    return true;
   }
 }
 
