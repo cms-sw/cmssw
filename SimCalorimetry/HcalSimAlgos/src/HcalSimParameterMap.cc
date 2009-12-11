@@ -18,11 +18,11 @@ HcalSimParameterMap::HcalSimParameterMap() :
                    217., 5, 
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
-  theHOZecotekSiPMParameters( 4000., 4.8,
+  theHOZecotekSiPMParameters( 4000., 3.0, // 1 mip = 15 pe = 45 fC
                    217., 5,
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
-  theHOHamamatsuSiPMParameters( 4000., 4.8,
+  theHOHamamatsuSiPMParameters( 4000., 3.0,
                    217., 5,
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
@@ -53,14 +53,12 @@ HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
 : theHBParameters(  p.getParameter<edm::ParameterSet>("hb") ),
   theHEParameters(  p.getParameter<edm::ParameterSet>("he") ),
   theHOParameters(  p.getParameter<edm::ParameterSet>("ho") ),
-  theHOZecotekSiPMParameters(  p.getParameter<edm::ParameterSet>("ho") ),
-  theHOHamamatsuSiPMParameters(  p.getParameter<edm::ParameterSet>("ho") ),
+  theHOZecotekSiPMParameters(  p.getParameter<edm::ParameterSet>("hoZecotek") ),
+  theHOHamamatsuSiPMParameters(  p.getParameter<edm::ParameterSet>("hoHamamatsu") ),
   theHFParameters1( p.getParameter<edm::ParameterSet>("hf1") ),
   theHFParameters2( p.getParameter<edm::ParameterSet>("hf2") ),
   theZDCParameters( p.getParameter<edm::ParameterSet>("zdc") )
 {
-  theHOZecotekSiPMParameters.thePixels = 36000;
-  theHOHamamatsuSiPMParameters.thePixels = 960;
 }
 
 const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId) const {
