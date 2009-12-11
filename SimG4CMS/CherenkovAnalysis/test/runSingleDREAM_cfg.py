@@ -15,10 +15,15 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('files/Cherenkov-e10-a0.root')
+    fileName = cms.string('Cherenkov-e10-a0.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout', 'errors'),
+    categories = cms.untracked.vstring(
+        'G4cout', 'G4cerr', 'CaloSim', 'CherenkovAnalysis', 
+        'EcalSim', 'SimG4CoreApplication'),
+    debugModules = cms.untracked.vstring('*'),
     errors = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         default = cms.untracked.PSet(
@@ -28,43 +33,35 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(100)
         )
     ),
-    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
+        threshold = cms.untracked.string('DEBUG'),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
+        ),
+        G4cout = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        threshold = cms.untracked.string('DEBUG'),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
         CherenkovAnalysis = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        SimG4CoreApplication = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         EcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
+        ),
+        SimG4CoreApplication = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         )
-    ),
-    categories = cms.untracked.vstring('EcalSim', 
-        'G4cout', 
-        'G4cerr', 
-        'CherenkovAnalysis', 
-        'SimG4CoreApplication', 
-        'CaloSim'),
-    destinations = cms.untracked.vstring('cout', 
-        'errors')
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -77,9 +74,9 @@ process.analyzer = cms.EDFilter("CherenkovAnalysis",
     nBinsEnergy = cms.uint32(50)
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.analyzer)
-process.FlatRandomEGunSource.PGunParameters.MinE = 10.0
-process.FlatRandomEGunSource.PGunParameters.MaxE = 10.0
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.analyzer)
+process.generator.PGunParameters.MinE = 10.0
+process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.ECalSD = cms.PSet(
