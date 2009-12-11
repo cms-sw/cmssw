@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2009/12/03 14:22:25 $
- * $Revision: 1.51 $
+ * $Date: 2009/12/08 10:35:46 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -22,6 +23,10 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -44,7 +49,7 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
   for (int i = 0; i < 36; i++) {
     meTime_[i] = 0;
@@ -114,48 +119,48 @@ void EBTimingTask::setup(void){
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTMT timing 1D %s", Numbers::sEB(i+1).c_str());
-      meTime_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-      meTime_[i]->setAxisTitle("jitter (clocks)", 1);
+      meTime_[i] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+      meTime_[i]->setAxisTitle("time (ns)", 1);
       dqmStore_->tag(meTime_[i], i+1);
 
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, 0., 10., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, 25., 75., "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
-      meTimeMap_[i]->setAxisTitle("jitter (clocks)", 3);
+      meTimeMap_[i]->setAxisTitle("time (ns)", 3);
       dqmStore_->tag(meTimeMap_[i], i+1);
 
       sprintf(histo, "EBTMT timing vs amplitude %s", Numbers::sEB(i+1).c_str());
-      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
-      meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
-      meTimeAmpli_[i]->setAxisTitle("jitter (clocks)", 2);
+      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+      meTimeAmpli_[i]->setAxisTitle("energy (GeV)", 1);
+      meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
 
     sprintf(histo, "EBTMT timing vs amplitude summary");
-    meTimeAmpliSummary_ = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
-    meTimeAmpliSummary_->setAxisTitle("amplitude", 1);
-    meTimeAmpliSummary_->setAxisTitle("jitter (clocks)", 2);
+    meTimeAmpliSummary_ = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+    meTimeAmpliSummary_->setAxisTitle("energy (GeV)", 1);
+    meTimeAmpliSummary_->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EBTMT timing 1D summary");
-    meTimeSummary1D_ = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-    meTimeSummary1D_->setAxisTitle("jitter (clocks)", 1);
+    meTimeSummary1D_ = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+    meTimeSummary1D_->setAxisTitle("time (ns)", 1);
 
     sprintf(histo, "EBTMT timing map");
-    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 50, 0., 10., "s");
+    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 50, 25., 75., "s");
     meTimeSummaryMap_->setAxisTitle("jphi", 1);
     meTimeSummaryMap_->setAxisTitle("jeta", 2);
-    meTimeSummaryMap_->setAxisTitle("jitter (clocks)", 3);
-    
+    meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
+
     sprintf(histo, "EBTMT timing projection eta");
-    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 50, 0., 10., "s");
+    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 50, -50., 50., "s");
     meTimeSummaryMapProjEta_->setAxisTitle("jeta", 1);
-    meTimeSummaryMapProjEta_->setAxisTitle("jitter (clocks)", 2);
+    meTimeSummaryMapProjEta_->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EBTMT timing projection phi");
-    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 50, 0., 10., "s");
+    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 50, -50., 50., "s");
     meTimeSummaryMapProjPhi_->setAxisTitle("jphi", 1);
-    meTimeSummaryMapProjPhi_->setAxisTitle("jitter (clocks)", 2);
+    meTimeSummaryMapProjPhi_->setAxisTitle("time (ns)", 2);
 
   }
 
@@ -249,14 +254,19 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  // channel status
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+  const EcalChannelStatus *chStatus = pChannelStatus.product();
 
-  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
+  Handle<EcalRecHitCollection> hits;
+
+  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
 
-    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
       EBDetId id = hitItr->id();
 
@@ -291,39 +301,37 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       meTimeMap = meTimeMap_[ism-1];
       meTimeAmpli = meTimeAmpli_[ism-1];
 
-      float xval = hitItr->amplitude();
-      if ( xval <= 0. ) xval = 0.0;
-      float yval = hitItr->jitter() + 5.0;
-      if ( yval <= 0. ) yval = 0.0;
-      float zval = hitItr->pedestal();
-      if ( zval <= 0. ) zval = 0.0;
+      float xval = hitItr->energy();
+      float yval = hitItr->time();
 
       LogDebug("EBTimingTask") << " hit amplitude " << xval;
       LogDebug("EBTimingTask") << " hit jitter " << yval;
-      LogDebug("EBTimingTask") << " hit pedestal " << zval;
 
-      if ( hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
+      uint32_t flag = hitItr->recoFlag();      
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );
+
+      if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Fill(xval, yval);
+
+        if ( xval > 0.480 ) {
+          if ( meTime ) meTime->Fill(yval);
+          if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval+50.);
+          if ( meTimeSummary1D_ ) meTimeSummary1D_->Fill(yval);
+
+          float xebeta = id.ieta() - 0.5 * id.zside();
+          float xebphi = id.iphi() - 0.5;
+          if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval+50.);
+          if ( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Fill(xebeta, yval);
+          if ( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Fill(xebphi, yval);
+        }
+
       }
-
-      if ( xval > 12. && hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
-        if ( meTime ) meTime->Fill(yval);
-        if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
-        if ( meTimeSummary1D_ ) meTimeSummary1D_->Fill(yval);
-
-        float xebeta = id.ieta() - 0.5 * id.zside();
-        float xebphi = id.iphi() - 0.5;
-        if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval);
-        if ( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Fill(xebeta, yval);
-        if ( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Fill(xebphi, yval);
-      }
-
     }
 
   } else {
 
-    LogWarning("EBTimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    LogWarning("EBTimingTask") << EcalRecHitCollection_ << " not available";
 
   }
 

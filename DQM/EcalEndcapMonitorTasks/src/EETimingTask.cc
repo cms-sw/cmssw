@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/03 19:05:09 $
- * $Revision: 1.52 $
+ * $Date: 2009/12/08 10:35:46 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -22,6 +23,10 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -35,6 +40,8 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
 
   init_ = false;
 
+  initGeometry_ = false;
+
   dqmStore_ = Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -44,7 +51,7 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
   for (int i = 0; i < 18; i++) {
     meTime_[i] = 0;
@@ -61,6 +68,7 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
   }
 
   meTimeDelta_ = 0;
+  meDTimeVsDEnergy_ = 0;
 
 }
 
@@ -81,7 +89,13 @@ void EETimingTask::beginJob(void){
 
 void EETimingTask::beginRun(const Run& r, const EventSetup& c) {
 
-  Numbers::initGeometry(c, false);
+  if( !initGeometry_ ) { 
+    // ideal
+    Numbers::initGeometry(c, true);
+    // calo geometry
+    c.get<CaloGeometryRecord>().get(pGeometry_);
+    initGeometry_ = true;
+  }
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -108,6 +122,7 @@ void EETimingTask::reset(void) {
   }
 
   if ( meTimeDelta_ ) meTimeDelta_->Reset();
+  if ( meDTimeVsDEnergy_ ) meTimeDelta_->Reset();
 
 }
 
@@ -122,77 +137,82 @@ void EETimingTask::setup(void){
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EETMT timing 1D %s", Numbers::sEE(i+1).c_str());
-      meTime_[i] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-      meTime_[i]->setAxisTitle("jitter (clocks)", 1);
+      meTime_[i] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+      meTime_[i]->setAxisTitle("time (ns)", 1);
       dqmStore_->tag(meTime_[i], i+1);
 
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 25., 75., "s");
       meTimeMap_[i]->setAxisTitle("jx", 1);
       meTimeMap_[i]->setAxisTitle("jy", 2);
-      meTimeMap_[i]->setAxisTitle("jitter (clocks)", 3);
+      meTimeMap_[i]->setAxisTitle("time (ns)", 3);
       dqmStore_->tag(meTimeMap_[i], i+1);
 
       sprintf(histo, "EETMT timing vs amplitude %s", Numbers::sEE(i+1).c_str());
-      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
-      meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
-      meTimeAmpli_[i]->setAxisTitle("jitter (clocks)", 2);
+      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+      meTimeAmpli_[i]->setAxisTitle("energy (GeV)", 1);
+      meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
     
     sprintf(histo, "EETMT timing vs amplitude summary EE -");
-    meTimeAmpliSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
-    meTimeAmpliSummary_[0]->setAxisTitle("amplitude", 1);
-    meTimeAmpliSummary_[0]->setAxisTitle("jitter (clocks)", 2);
+    meTimeAmpliSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+    meTimeAmpliSummary_[0]->setAxisTitle("energy (GeV)", 1);
+    meTimeAmpliSummary_[0]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing vs amplitude summary EE +");
-    meTimeAmpliSummary_[1] = dqmStore_->book2D(histo, histo, 100, 0., 200., 50, 0., 10.);
-    meTimeAmpliSummary_[1]->setAxisTitle("amplitude", 1);
-    meTimeAmpliSummary_[1]->setAxisTitle("jitter (clocks)", 2);
+    meTimeAmpliSummary_[1] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+    meTimeAmpliSummary_[1]->setAxisTitle("energy (GeV)", 1);
+    meTimeAmpliSummary_[1]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing 1D summary EE -");
-    meTimeSummary1D_[0] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-    meTimeSummary1D_[0]->setAxisTitle("jitter (clocks)", 1);
+    meTimeSummary1D_[0] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+    meTimeSummary1D_[0]->setAxisTitle("time (ns)", 1);
 
     sprintf(histo, "EETMT timing 1D summary EE +");
-    meTimeSummary1D_[1] = dqmStore_->book1D(histo, histo, 50, 0., 10.);
-    meTimeSummary1D_[1]->setAxisTitle("jitter (clocks)", 1);
+    meTimeSummary1D_[1] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+    meTimeSummary1D_[1]->setAxisTitle("time (ns)", 1);
 
     sprintf(histo, "EETMT timing map EE -");
-    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 0., 10., "s");
+    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
     meTimeSummaryMap_[0]->setAxisTitle("jx", 1);
     meTimeSummaryMap_[0]->setAxisTitle("jy", 2);
-    meTimeSummaryMap_[0]->setAxisTitle("jitter (clocks)", 3);
+    meTimeSummaryMap_[0]->setAxisTitle("time (ns)", 3);
 
     sprintf(histo, "EETMT timing map EE +");
-    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 0., 10., "s");
+    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
     meTimeSummaryMap_[1]->setAxisTitle("jx", 1);
     meTimeSummaryMap_[1]->setAxisTitle("jy", 2);
-    meTimeSummaryMap_[1]->setAxisTitle("jitter (clocks)", 3);
-    
+    meTimeSummaryMap_[1]->setAxisTitle("time (ns)", 3);
+
     sprintf(histo, "EETMT timing projection R EE -");
-    meTimeSummaryMapProjR_[0] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, 0., 10., "s");
+    meTimeSummaryMapProjR_[0] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, -50., 50., "s");
     meTimeSummaryMapProjR_[0]->setAxisTitle("R", 1);
-    meTimeSummaryMapProjR_[0]->setAxisTitle("jitter (clocks)", 2);
+    meTimeSummaryMapProjR_[0]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection R EE +");
-    meTimeSummaryMapProjR_[1] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, 0., 10., "s");
+    meTimeSummaryMapProjR_[1] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, -50., 50., "s");
     meTimeSummaryMapProjR_[1]->setAxisTitle("R", 1);
-    meTimeSummaryMapProjR_[1]->setAxisTitle("jitter (clocks)", 2);
+    meTimeSummaryMapProjR_[1]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE -");
-    meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, 0., 10., "s");
+    meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -50., 50., "s");
     meTimeSummaryMapProjPhi_[0]->setAxisTitle("phi", 1);
-    meTimeSummaryMapProjPhi_[0]->setAxisTitle("jitter (clocks)", 2);
+    meTimeSummaryMapProjPhi_[0]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE +");
-    meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, 0., 10., "s");
+    meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -50., 50., "s");
     meTimeSummaryMapProjPhi_[1]->setAxisTitle("phi", 1);
-    meTimeSummaryMapProjPhi_[1]->setAxisTitle("jitter (clocks)", 2);
+    meTimeSummaryMapProjPhi_[1]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing EE+ - EE-");
     meTimeDelta_ = dqmStore_->book1D(histo, histo, 100, -3., 3.);
-    meTimeDelta_->setAxisTitle("jitter (clocks)", 1);
+    meTimeDelta_->setAxisTitle("time (ns)", 1);
+
+    sprintf(histo, "EETMT timing min vs Et min");
+    meDTimeVsDEnergy_ = dqmStore_->book2D(histo, histo, 30, 0., 3., 30, -50., 50.);
+    meDTimeVsDEnergy_->setAxisTitle("min(E_{T}^{EE+},E_{T}^{EE-}) (GeV)", 1);
+    meDTimeVsDEnergy_->setAxisTitle("min(time^{EE+},time^{EE-}) (ns)", 2);
 
   }
 
@@ -235,6 +255,9 @@ void EETimingTask::cleanup(void){
 
     if ( meTimeDelta_ ) dqmStore_->removeElement( meTimeDelta_->getName() );
     meTimeDelta_ = 0;
+
+    if ( meDTimeVsDEnergy_ ) dqmStore_->removeElement( meDTimeVsDEnergy_->getName() );
+    meDTimeVsDEnergy_ = 0;
 
   }
 
@@ -291,21 +314,25 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  float ievtTimes[2];
-  int nGoodRh[2];
-  for ( int i=0; i<2; i++ ) {
-    ievtTimes[i] = 0;
-    nGoodRh[i] = 0;
-  }
+  // channel status
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+  const EcalChannelStatus *chStatus = pChannelStatus.product();
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  float sumTime_hithr[2] = {0.,0.};
+  float wsumTime_lowthr[2] = {0.,0};
+  float wsum[2] = {0.,0.};
+  int n_hithr[2] = {0,0};
+  int n_lowthr[2] = {0,0};
 
-  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
+  Handle<EcalRecHitCollection> hits;
+
+  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EETimingTask") << "event " << ievt_ << " hits collection size " << neh;
 
-    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
       EEDetId id = hitItr->id();
 
@@ -342,51 +369,66 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       meTimeMap = meTimeMap_[ism-1];
       meTimeAmpli = meTimeAmpli_[ism-1];
 
-      float xval = hitItr->amplitude();
-      if ( xval <= 0. ) xval = 0.0;
-      float yval = hitItr->jitter() + 5.0;
-      if ( yval <= 0. ) yval = 0.0;
-      float zval = hitItr->pedestal();
-      if ( zval <= 0. ) zval = 0.0;
+      float xval = hitItr->energy();
+      float yval = hitItr->time();
 
       LogDebug("EETimingTask") << " hit amplitude " << xval;
       LogDebug("EETimingTask") << " hit jitter " << yval;
-      LogDebug("EETimingTask") << " hit pedestal " << zval;
 
-      if ( hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
+      uint32_t flag = hitItr->recoFlag();      
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );
+
+      float theta = pGeometry_->getGeometry(id)->getPosition().theta();
+      float et = hitItr->energy() * fabs(sin(theta));
+
+      if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
-      }
 
-      if ( xval > 16. && hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
-        if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
+        if ( et > 0.300 ) {
 
-        // exclude the noisiest region around the hole from 1D
-        if ( fabs(ix-50) >= 5 && fabs(ix-50) <= 10 && fabs(iy-50) >= 5 && fabs(iy-50) <= 10 ) {
-          if ( meTime ) meTime->Fill(yval);
-          if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
-          ievtTimes[iz] += yval;
-          nGoodRh[iz]++;
+          wsum[iz] += et;
+          wsumTime_lowthr[iz] += hitItr->time() * et;
+          n_lowthr[iz]++;
+
+          if ( et > 0.600 ) {
+            if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
+
+            // exclude the noisiest region around the hole from 1D
+            if ( fabs(ix-50) >= 5 && fabs(ix-50) <= 10 && fabs(iy-50) >= 5 && fabs(iy-50) <= 10 ) {
+              if ( meTime ) meTime->Fill(yval);
+              if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
+              sumTime_hithr[iz] += yval;
+              n_hithr[iz]++;
+            }
+
+          }
+
+          if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
+          if ( meTimeSummaryMapProjR_[iz] ) meTimeSummaryMapProjR_[iz]->Fill(sqrt(xix*xix+xiy*xiy), yval);
+          if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(atan2(xiy-50.,xix-50.), yval);
+        
         }
 
-        if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval);
-        if ( meTimeSummaryMapProjR_[iz] ) meTimeSummaryMapProjR_[iz]->Fill(sqrt(xix*xix+xiy*xiy), yval);
-        if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(atan2(xiy-50.,xix-50.), yval);
-        
       }
-
     }
 
-    float mean[2];
+    float mean_hithr[2], mean_lowthr[2];
     for ( int i=0; i<2; i++ ) {
-      if ( nGoodRh[i] > 0 ) mean[i] = ievtTimes[i] / nGoodRh[i];
+      if ( n_hithr[i] > 0 ) mean_hithr[i] = sumTime_hithr[i] / n_hithr[i];
+      if ( wsum[i] > 0 ) mean_lowthr[i] = wsumTime_lowthr[i] / wsum[i];
     }
 
-    if ( meTimeDelta_ && nGoodRh[0] > 1 && nGoodRh[1] > 1 ) meTimeDelta_->Fill( mean[1] - mean[0] );
+    if ( meTimeDelta_ && n_hithr[0] > 0 && n_lowthr[0] > 1 && n_hithr[1] > 0 && n_lowthr[1] > 1 ) meTimeDelta_->Fill( mean_hithr[1] - mean_hithr[0] );
+    if ( meDTimeVsDEnergy_ && n_lowthr[0] > 0 && n_lowthr[1] > 0 ) {
+      float mintime = TMath::Min(wsumTime_lowthr[0], wsumTime_lowthr[1]);
+      float minEt = TMath::Min(wsum[0], wsum[1]);
+      meDTimeVsDEnergy_->Fill(minEt,mintime);
+    }
 
   } else {
 
-    LogWarning("EETimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    LogWarning("EETimingTask") << EcalRecHitCollection_ << " not available";
 
   }
 

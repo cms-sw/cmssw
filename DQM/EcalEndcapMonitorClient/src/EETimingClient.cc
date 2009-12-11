@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.88 $
+ * $Date: 2009/11/05 14:05:18 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -84,9 +84,9 @@ EETimingClient::EETimingClient(const ParameterSet& ps) {
 
   }
 
-  expectedMean_ = 5.0;
-  discrepancyMean_ = 1.0;
-  RMSThreshold_ = 5.0;
+  expectedMean_ = 0.0;
+  discrepancyMean_ = 25.0;
+  RMSThreshold_ = 125.;
 
 }
 
@@ -151,17 +151,17 @@ void EETimingClient::setup(void) {
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
-    mea01_[ism-1]->setAxisTitle("jitter", 2);
+    mea01_[ism-1]->setAxisTitle("time (ns)", 2);
 
     if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
-    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
-    mep01_[ism-1]->setAxisTitle("mean", 1);
+    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+    mep01_[ism-1]->setAxisTitle("mean (ns)", 1);
 
     if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
-    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
-    mer01_[ism-1]->setAxisTitle("rms", 1);
+    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+    mer01_[ism-1]->setAxisTitle("rms (ns)", 1);
 
   }
 
@@ -275,6 +275,8 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
         bool update01;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
+        mean01 -= 50.;
 
         if ( update01 ) {
 
@@ -391,6 +393,8 @@ void EETimingClient::analyze(void) {
         float rms01;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
+        mean01 -= 50.;
 
         if ( update01 ) {
 
@@ -407,12 +411,8 @@ void EETimingClient::analyze(void) {
 
           if ( ic != -1 ) {
             if ( mea01_[ism-1] ) {
-              if ( mean01 > 0. ) {
-                mea01_[ism-1]->setBinContent(ic, mean01);
-                mea01_[ism-1]->setBinError(ic, rms01);
-              } else {
-                mea01_[ism-1]->setEntries(1.+mea01_[ism-1]->getEntries());
-              }
+              mea01_[ism-1]->setBinContent(ic, mean01);
+              mea01_[ism-1]->setBinError(ic, rms01);
             }
 
             if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);

@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2009/11/29 23:27:09 $
- * $Revision: 1.12 $
+ * $Date: 2009/12/08 10:35:46 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 class MonitorElement;
 class DQMStore;
@@ -66,7 +71,7 @@ bool enableCleanup_;
 bool mergeRuns_;
 
 edm::InputTag EcalRawDataCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
+edm::InputTag EcalRecHitCollection_;
 
 MonitorElement* meTime_[18];
 MonitorElement* meTimeMap_[18];
@@ -75,9 +80,12 @@ MonitorElement* meTimeAmpli_[18];
 MonitorElement* meTimeAmpliSummary_[2];
 MonitorElement* meTimeSummary1D_[2];
 MonitorElement* meTimeSummaryMap_[2], *meTimeSummaryMapProjR_[2], *meTimeSummaryMapProjPhi_[2];
-MonitorElement* meTimeDelta_;
+MonitorElement* meTimeDelta_, *meDTimeVsDEnergy_;
+
+edm::ESHandle<CaloGeometry> pGeometry_;
 
 bool init_;
+bool initGeometry_;
 
 };
 

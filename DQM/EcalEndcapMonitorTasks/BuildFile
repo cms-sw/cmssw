@@ -13,6 +13,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=RecoLocalCalo/EcalRecAlgos>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/RunInfo>
 <use name=CondFormats/EcalObjects>

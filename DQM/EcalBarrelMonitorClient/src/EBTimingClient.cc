@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.94 $
+ * $Date: 2009/11/05 14:04:42 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  *
 */
@@ -84,9 +84,9 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps) {
 
   }
 
-  expectedMean_ = 5.0;
-  discrepancyMean_ = 0.5;
-  RMSThreshold_ = 2.5;
+  expectedMean_ = 0.0;
+  discrepancyMean_ = 12.5;
+  RMSThreshold_ = 62.5;
 
 }
 
@@ -151,17 +151,17 @@ void EBTimingClient::setup(void) {
     sprintf(histo, "EBTMT timing %s", Numbers::sEB(ism).c_str());
     mea01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
-    mea01_[ism-1]->setAxisTitle("jitter", 2);
+    mea01_[ism-1]->setAxisTitle("time (ns)", 2);
 
     if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing mean %s", Numbers::sEB(ism).c_str());
-    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
-    mep01_[ism-1]->setAxisTitle("mean", 1);
+    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, -50.0, 50.0);
+    mep01_[ism-1]->setAxisTitle("mean (ns)", 1);
 
     if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
-    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
-    mer01_[ism-1]->setAxisTitle("rms", 1);
+    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+    mer01_[ism-1]->setAxisTitle("rms (ns)", 1);
 
   }
 
@@ -259,6 +259,8 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
         bool update01;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
+        mean01 -= 50.;
 
         if ( update01 ) {
 
@@ -364,6 +366,8 @@ void EBTimingClient::analyze(void) {
         float rms01;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
+        mean01 -= 50.;
 
         if ( update01 ) {
 
@@ -379,12 +383,8 @@ void EBTimingClient::analyze(void) {
           int ic = Numbers::icEB(ism, ie, ip);
 
           if ( mea01_[ism-1] ) {
-            if ( mean01 > 0. ) {
-              mea01_[ism-1]->setBinContent(ic, mean01);
-              mea01_[ism-1]->setBinError(ic, rms01);
-            } else {
-              mea01_[ism-1]->setEntries(1.+mea01_[ism-1]->getEntries());
-            }
+            mea01_[ism-1]->setBinContent(ic, mean01);
+            mea01_[ism-1]->setBinError(ic, rms01);
           }
           if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
           if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
