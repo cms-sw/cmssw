@@ -244,7 +244,7 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 
 		      bool set_the_strip=false;
 		      int stripid;
-		      for (int istrip=0; istrip<(int)my_StripEcalLogicId_EE.size(); istrip++) {
+		      for (size_t istrip=0; istrip<my_StripEcalLogicId_EE.size(); istrip++) {
 
 			if(!set_the_strip){
 			  
