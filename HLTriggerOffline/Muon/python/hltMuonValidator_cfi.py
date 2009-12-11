@@ -16,8 +16,6 @@ hltMuonValidator = cms.EDAnalyzer("HLTMuonValidator",
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
 
     # Set cuts placed on the generated muons and matching criteria
-    # Use pt cut just below 10 to allow through SingleMuPt10 muons  
-    cutMinPt           = cms.double(9.9),
     cutMotherId        = cms.uint32(0),
     cutsDr             = cms.vdouble(0.4, 0.4, 0.015),
     TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
