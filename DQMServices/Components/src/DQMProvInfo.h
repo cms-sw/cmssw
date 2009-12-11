@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2009/11/29 17:27:32 $
- * $Revision: 1.1 $
+ * $Date: 2009/12/07 21:47:52 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -51,6 +51,7 @@ private:
 
   std::string getShowTags(void);
   void makeProvInfo();  
+  void makeDcsInfo(const edm::Event& e);  
 
   DQMStore *dbe_;
 
@@ -58,6 +59,9 @@ private:
   
   std::string provinfofolder_;
   std::string subsystemname_;
+  bool makedcsinfo_;
+  
+  unsigned int dcsword_;
 
    // histograms
   MonitorElement * versCMSSW_ ;
