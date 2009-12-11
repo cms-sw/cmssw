@@ -33,6 +33,7 @@
 <use name=gsl>
 <use name=SimGeneral/HepPDTRecord>
 <flags EDM_PLUGIN=1>
+<flags CXXFLAGS="-O0 -g3 -fno-inline">
 <export>
    <lib name=ValidationVertexReco>
    <use name=FWCore/Framework>

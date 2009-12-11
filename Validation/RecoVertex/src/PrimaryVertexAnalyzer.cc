@@ -117,7 +117,7 @@ void PrimaryVertexAnalyzer::beginJob(){
     h["efftag"+ *isuffix]       = new TH1F(TString("efftag"+ *isuffix),"efficiency tagged vertex",2, -0.5, 1.5);
     h["effvseta"+ *isuffix]     = new TProfile(TString("effvseta"+ *isuffix),"efficiency vs eta",20, -2.5, 2.5, 0, 1.);
     h["effvsptsq"+ *isuffix]    = new TProfile(TString("effvsptsq"+ *isuffix),"efficiency vs ptsq",20, 0., 10000., 0, 1.);
-    h["effvsntrk"+ *isuffix]    = new TProfile(TString("effvsntrk"+ *isuffix),"efficiency vs # tracks",200, 0., 200., 0, 1.);
+    h["effvsntrk"+ *isuffix]    = new TProfile(TString("effvsntrk"+ *isuffix),"efficiency vs # simtracks",200, 0., 200., 0, 1.);
     h["effvsnrectrk"+ *isuffix] = new TProfile(TString("effvsnrectrk"+ *isuffix),"efficiency vs # rectracks",200, 0., 200., 0, 1.);
     h["effvsz"+ *isuffix]       = new TProfile(TString("effvsz"+ *isuffix),"efficiency vs z",40, -20., 20., 0, 1.);
     h["nbsimtksinvtx"+ *isuffix]= new TH1F(TString("nbsimtksinvtx"+ *isuffix),"simulated tracks in vertex",100,-0.5,99.5); 
@@ -545,10 +545,13 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
     
     h["nrecvtx"+isuffix]->Fill(recVtxs->size());
     h["nrectrk"+isuffix]->Fill(recTrks->size());
-    if(recVtxs->size()==0) {h["nrectrk0vtx"+isuffix]->Fill(recTrks->size());}
+    h["nbvtx"+isuffix]->Fill(recVtxs->size()*1.);
+    if((recVtxs->size()==0)||recVtxs->begin()->isFake()) {h["nrectrk0vtx"+isuffix]->Fill(recTrks->size());}
     
     for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
 	v!=recVtxs->end(); ++v){
+
+      if(v->isFake()) continue;
       
       try {
 	for(reco::Vertex::trackRef_iterator t = v->tracks_begin(); 
@@ -567,7 +570,6 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	h["tklinks"+isuffix]->Fill(0.);
       }
       
-      h["nbvtx"+isuffix]->Fill(recVtxs->size()*1.);
       h["nbtksinvtx"+isuffix]->Fill(v->tracksSize());
       h["vtxchi2"+isuffix]->Fill(v->chi2());
       h["vtxndf"+isuffix]->Fill(v->ndof());

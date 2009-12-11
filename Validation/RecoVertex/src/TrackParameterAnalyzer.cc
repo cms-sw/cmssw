@@ -2,12 +2,13 @@
 #include <string>
 #include <vector>
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 //
 //
 // constants, enums and typedefs
 //
-const double fBfield=4.06;
 
 //
 // static data member definitions
@@ -114,6 +115,11 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
    using namespace edm;
    using CLHEP::HepLorentzVector;
+
+   //edm::ESHandle<TransientTrackBuilder> theB;
+   //iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+   //double fBfield=((*theB).field()->inTesla(GlobalPoint(0.,0.,0.))).z();
+   const double fBfield=3.8;
   
    Handle<edm::SimVertexContainer> simVtcs;
    iEvent.getByLabel( simG4_, simVtcs);
@@ -190,19 +196,11 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	     s1=s0*(1.+ks02/6.+3./40.*ks02*ks02+5./112.*pow(ks02,3));
 	   }
 	   ParameterVector par;
-	   /*
-	     par[reco::TrackBase::i_transverseCurvature] = kappa;
-	     par[reco::TrackBase::i_theta] = p.theta();
-	     par[reco::TrackBase::i_phi0] = p.phi()-asin(kappa*s0);
-	     par[reco::TrackBase::i_d0] = 2.*D0/(1.+q);
-	     par[reco::TrackBase::i_dz] = z0-s1/tan(p.theta()); 
-	     */
-	   // new improved parametrization
 	   par[reco::TrackBase::i_qoverp] = Q/sqrt(p.perp2()+p.pz()*p.pz());
 	   par[reco::TrackBase::i_lambda] = M_PI/2.-p.theta();
 	   par[reco::TrackBase::i_phi] = p.phi()-asin(kappa*s0);
 	   par[reco::TrackBase::i_dxy] = 2.*D0/(1.+q);
-	   par[reco::TrackBase::i_dsz] = z0-s1/tan(p.theta()); 
+	   par[reco::TrackBase::i_dsz] = z0*sin(p.theta())-s1*cos(p.theta());
 	   tsim.push_back(par);
 	 }
        }

@@ -167,6 +167,13 @@ private:
 					    double simUnit=1.0);
   void getTc(const std::vector<reco::TransientTrack>&,double &, double &, double &, double &, double&);
   void add(std::map<std::string, TH1*>& h, TH1* hist){  h[hist->GetName()]=hist; hist->StatOverflows(kTRUE);}
+  void Fill(std::map<std::string, TH1*>& h, std::string s, double x){
+    if(h.count(s)==0){
+      std::cout << "Trying to fill non-exiting Histogram named " << s << std::endl;
+      return;
+    }
+    h[s]->Fill(x);
+  }
   void Fill(std::map<std::string, TH1*>& h, std::string s, double x, bool signal){
     if(h.count(s)==0){
       std::cout << "Trying to fill non-exiting Histogram named " << s << std::endl;
@@ -257,8 +264,17 @@ private:
   double zmatch_;
   edm::ESHandle < ParticleDataTable > pdt_;
   math::XYZPoint myBeamSpot;
+  // local counters
   int eventcounter_;
   int ndump_;
+
+  // from the event setup
+  int run_;
+  int luminosityBlock_;
+  int event_;
+  int bunchCrossing_;
+  int orbitNumber_;
+
   bool DEBUG_;
 
   std::map<std::string, TH1*> hBS;

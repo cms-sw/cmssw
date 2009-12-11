@@ -36,6 +36,7 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesWithBS_cfi import *
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import *
 
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")
+offlinePrimaryVertices.verbose=cms.untracked.bool(True)
 process.vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS*offlinePrimaryVerticesDA)
 
 # primary vertex analyzer(s)
@@ -45,8 +46,8 @@ process.load("Validation.RecoVertex.PrimaryVertexAnalyzer4PU_cfi")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/w/werdmann/data/311PU/ZMMPU-004.root'))
-
+    #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/w/werdmann/data/311PU/ZMMPU-004.root'))
+    fileNames = cms.untracked.vstring(       '/store/mc/Summer09/MinBias/GEN-SIM-RECO/STARTUP3X_V8D_900GeV-v1/0005/E4B3A7BE-3AD7-DE11-9230-002618943939.root'))
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
