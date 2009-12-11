@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 
+import os
+
+
 process = cms.Process("Demo")
 
 
@@ -56,29 +59,29 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 ##
 ## Load DBSetup (if needed)
 ##
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
-process.trackerAlignment = poolDBESSource.clone(
-    connect = 'frontier://FrontierProd/CMS_COND_31X_FROM21X', # or your sqlite file
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TrackerIdealGeometry210_mc') # your tags
-        )
-      )
-    )
-process.prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
-
-# APE always zero:
-process.myTrackerAlignmentErr = poolDBESSource.clone(
-    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('TrackerIdealGeometryErrors210_mc')
-        )
-      )
-    )
-process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
+#from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
+#process.trackerAlignment = poolDBESSource.clone(
+#    connect = 'frontier://FrontierProd/CMS_COND_31X_FROM21X', # or your sqlite file
+#    toGet = cms.VPSet(
+#      cms.PSet(
+#        record = cms.string('TrackerAlignmentRcd'),
+#        tag = cms.string('TrackerIdealGeometry210_mc') # your tags
+#        )
+#      )
+#    )
+#process.prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
+#
+## APE always zero:
+#process.myTrackerAlignmentErr = poolDBESSource.clone(
+#    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
+#    toGet = cms.VPSet(
+#      cms.PSet(
+#        record = cms.string('TrackerAlignmentErrorRcd'),
+#        tag = cms.string('TrackerIdealGeometryErrors210_mc')
+#        )
+#      )
+#    )
+#process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
 
 
 ##
@@ -158,43 +161,25 @@ process.AlignmentTrackSelector.applyBasicCuts = False #True
 ## Load and Configure TrackRefitter
 ##
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-#process.TrackRefitter.src = 'AlignmentTrackSelector'
-process.TrackRefitterP5.src = 'AlignmentTrackSelector'
-
-
-##
-## Load and Configure TrackerOfflineValidation
-##
-#process.load("Alignment.OfflineValidation.TrackerOfflineValidation_cfi")
-process.load("Alignment.OfflineValidation.TrackerOfflineValidation_Dqm_cff")
-process.TrackerOfflineValidationDqm.Tracks = 'TrackRefitterP5'
-process.TrackerOfflineValidationDqm.trajectoryInput = 'TrackRefitterP5'
-
-
-##
-## Load and Configure TrackerOfflineValidationSummary
-##
-process.load("Alignment.OfflineValidation.TrackerOfflineValidationSummary_cfi")
-process.TrackerOfflineValidationSummary.minEntriesPerModuleForDmr = 1  # to allow tests with few statistics
-
-
-##
-## DQM backend
-##
-process.load("DQMServices.Core.DQM_cfg")
-
-
-##
-## DQM file saver
-##
-process.dqmSaverMy = cms.EDFilter("DQMFileSaver",
-          convention=cms.untracked.string("Offline"),
-          workflow=cms.untracked.string("/Cosmics/TrackAlign_327_R000100000_R000100050_v1/ALCARECO"),   # /primaryDatasetName/WorkflowDescription/DataTier; Current Convention: Indicate run range (first and last run) in file name 
-	  dirName=cms.untracked.string("."),
-          saveByRun=cms.untracked.int32(-1),
-	  saveAtJobEnd=cms.untracked.bool(True),                        
-          forceRunNumber=cms.untracked.int32(100000)   # Current Convention: Take first processed run
+process.TrackRefitterForOfflineValidation = process.TrackRefitterP5.clone(
+    src = 'AlignmentTrackSelector',
+    NavigationSchool = ''
 )
+
+
+##
+## Load and Configure TrackerOfflineValidation and Output File
+##
+process.load("Alignment.OfflineValidation.TrackerOfflineValidation_Dqm_cff")
+#process.TrackerOfflineValidationDqm.Tracks          = 'TrackRefitterP5'
+#process.TrackerOfflineValidationDqm.trajectoryInput = 'TrackRefitterP5'
+# Harvesting
+#process.TrackerOfflineValidationSummaryDqm.removeModuleLevelHists = False
+process.TrackerOfflineValidationSummaryDqm.minEntriesPerModuleForDmr = 1  # to allow tests with few statistics
+# Output File
+process.DqmSaverTkAl.workflow = "/Cosmics/TkAl09-335patch1_CRAFT09_R_V4_TestFile_CRAFT09reprocessing_WithoutCuts_R000109011_R000109624_ValSkim-v1/ALCARECO"
+process.DqmSaverTkAl.dirName = os.environ['TMPDIR'] + "/."
+process.DqmSaverTkAl.forceRunNumber = 109011
 
 
 ##
@@ -202,10 +187,6 @@ process.dqmSaverMy = cms.EDFilter("DQMFileSaver",
 ##
 process.p = cms.Path(process.offlineBeamSpot
                      *process.AlignmentTrackSelector
-                     #*process.TrackRefitter
-                     *process.TrackRefitterP5
-		     #*process.TrackerOfflineValidation
-		     *process.TrackerOfflineValidationDqm
-		     *process.TrackerOfflineValidationSummary
-		     *process.dqmSaverMy
-                     )
+		     *process.TrackRefitterForOfflineValidation
+		     *process.seqTrackerOfflineValidationDqm
+)
