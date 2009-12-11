@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/08 10:35:46 $
- * $Revision: 1.53 $
+ * $Date: 2009/12/11 16:13:18 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,7 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
     meTimeAmpliSummary_[i] = 0;
     meTimeSummary1D_[i] = 0;
     meTimeSummaryMap_[i] = 0;
-    meTimeSummaryMapProjR_[i] = 0;
+    meTimeSummaryMapProjEta_[i] = 0;
     meTimeSummaryMapProjPhi_[i] = 0;
   }
 
@@ -117,7 +117,7 @@ void EETimingTask::reset(void) {
     if ( meTimeAmpliSummary_[i] ) meTimeAmpliSummary_[i]->Reset();
     if ( meTimeSummary1D_[i] ) meTimeSummary1D_[i]->Reset();
     if ( meTimeSummaryMap_[i] ) meTimeSummaryMap_[i]->Reset();
-    if ( meTimeSummaryMapProjR_[i] )  meTimeSummaryMapProjR_[i]->Reset();
+    if ( meTimeSummaryMapProjEta_[i] )  meTimeSummaryMapProjEta_[i]->Reset();
     if ( meTimeSummaryMapProjPhi_[i] )  meTimeSummaryMapProjPhi_[i]->Reset();    
   }
 
@@ -185,15 +185,15 @@ void EETimingTask::setup(void){
     meTimeSummaryMap_[1]->setAxisTitle("jy", 2);
     meTimeSummaryMap_[1]->setAxisTitle("time (ns)", 3);
 
-    sprintf(histo, "EETMT timing projection R EE -");
-    meTimeSummaryMapProjR_[0] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, -50., 50., "s");
-    meTimeSummaryMapProjR_[0]->setAxisTitle("R", 1);
-    meTimeSummaryMapProjR_[0]->setAxisTitle("time (ns)", 2);
+    sprintf(histo, "EETMT timing projection eta EE -");
+    meTimeSummaryMapProjEta_[0] = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 50, -50., 50., "s");
+    meTimeSummaryMapProjEta_[0]->setAxisTitle("eta", 1);
+    meTimeSummaryMapProjEta_[0]->setAxisTitle("time (ns)", 2);
 
-    sprintf(histo, "EETMT timing projection R EE +");
-    meTimeSummaryMapProjR_[1] = dqmStore_->bookProfile(histo, histo, 20, 0., 100., 50, -50., 50., "s");
-    meTimeSummaryMapProjR_[1]->setAxisTitle("R", 1);
-    meTimeSummaryMapProjR_[1]->setAxisTitle("time (ns)", 2);
+    sprintf(histo, "EETMT timing projection eta EE +");
+    meTimeSummaryMapProjEta_[1] = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 50, -50., 50., "s");
+    meTimeSummaryMapProjEta_[1]->setAxisTitle("phi", 1);
+    meTimeSummaryMapProjEta_[1]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE -");
     meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -50., 50., "s");
@@ -246,8 +246,8 @@ void EETimingTask::cleanup(void){
       if ( meTimeSummaryMap_[i] ) dqmStore_->removeElement( meTimeSummaryMap_[i]->getName() );
       meTimeSummaryMap_[i] = 0;
       
-      if ( meTimeSummaryMapProjR_[i] ) dqmStore_->removeElement( meTimeSummaryMapProjR_[i]->getName() );
-      meTimeSummaryMapProjR_[i] = 0;
+      if ( meTimeSummaryMapProjEta_[i] ) dqmStore_->removeElement( meTimeSummaryMapProjEta_[i]->getName() );
+      meTimeSummaryMapProjEta_[i] = 0;
 
       if ( meTimeSummaryMapProjPhi_[i] ) dqmStore_->removeElement( meTimeSummaryMapProjPhi_[i]->getName() );
       meTimeSummaryMapProjPhi_[i] = 0;
@@ -379,6 +379,8 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );
 
       float theta = pGeometry_->getGeometry(id)->getPosition().theta();
+      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
+      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
       float et = hitItr->energy() * fabs(sin(theta));
 
       if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
@@ -405,8 +407,8 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
           }
 
           if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
-          if ( meTimeSummaryMapProjR_[iz] ) meTimeSummaryMapProjR_[iz]->Fill(sqrt(xix*xix+xiy*xiy), yval);
-          if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(atan2(xiy-50.,xix-50.), yval);
+          if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
+          if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
         
         }
 

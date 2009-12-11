@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2009/12/08 10:35:46 $
- * $Revision: 1.13 $
+ * $Date: 2009/12/11 16:13:18 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -79,7 +79,7 @@ MonitorElement* meTimeAmpli_[18];
 
 MonitorElement* meTimeAmpliSummary_[2];
 MonitorElement* meTimeSummary1D_[2];
-MonitorElement* meTimeSummaryMap_[2], *meTimeSummaryMapProjR_[2], *meTimeSummaryMapProjPhi_[2];
+MonitorElement* meTimeSummaryMap_[2], *meTimeSummaryMapProjEta_[2], *meTimeSummaryMapProjPhi_[2];
 MonitorElement* meTimeDelta_, *meDTimeVsDEnergy_;
 
 edm::ESHandle<CaloGeometry> pGeometry_;
