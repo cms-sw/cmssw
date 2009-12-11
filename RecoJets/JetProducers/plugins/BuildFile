@@ -3,6 +3,7 @@
   <use name=RecoJets/JetProducers>
   <use name=FWCore/Framework>
   <use name=DataFormats/JetReco>
+  <use name=DataFormats/VertexReco>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/Records>
   <use name=CommonTools/UtilAlgos>

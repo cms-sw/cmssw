@@ -1,7 +1,6 @@
 #ifndef RecoJets_JetProducers_plugins_FastjetJetProducer_h
 #define RecoJets_JetProducers_plugins_FastjetJetProducer_h
 
-
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 
 
@@ -25,7 +24,16 @@ protected:
   // member functions
   //
 
+  virtual void produceTrackJets( edm::Event & iEvent, const edm::EventSetup & iSetup );
   virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+
+ private:
+
+  // trackjet clustering parameters
+  bool useOnlyVertexTracks_;
+  bool useOnlyOnePV_;
+  float dzTrVtxMax_;
+
 };
 
 
