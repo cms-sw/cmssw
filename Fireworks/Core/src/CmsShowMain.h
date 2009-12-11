@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.39 2009/12/02 17:06:36 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.40 2009/12/03 16:47:30 amraktad Exp $
 //
 
 // system include files
@@ -91,6 +91,7 @@ public:
       return m_numberOfFieldEstimates;
    }
    static void   guessFieldIsOn( bool guess );
+   static void   guessField( double estimate );
    static void   resetFieldEstimate();
    static double getCaloScale() {
       return m_caloScale;
@@ -178,6 +179,10 @@ private:
    static int    m_numberOfFieldEstimates;
    static int    m_numberOfFieldIsOnEstimates;
    static double m_caloScale;
+
+   static double m_magneticFieldEstimateSum;
+   static double m_magneticFieldEstimateSum2;
+   static int m_numberOfFieldValueEstimates;
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
    std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;

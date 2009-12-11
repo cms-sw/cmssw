@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.135 2009/12/10 18:26:06 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.136 2009/12/11 20:26:17 amraktad Exp $
 //
 
 // system include files
@@ -99,6 +99,10 @@ int CmsShowMain::m_numberOfFieldEstimates = 0;
 int CmsShowMain::m_numberOfFieldIsOnEstimates = 0;
 double CmsShowMain::m_caloScale = 2;
 
+double CmsShowMain::m_magneticFieldEstimateSum = 0;
+double CmsShowMain::m_magneticFieldEstimateSum2 = 0;
+int CmsShowMain::m_numberOfFieldValueEstimates = 0;
+
 void CmsShowMain::setMagneticField(double var)
 {
    m_magneticField = var;
@@ -106,11 +110,27 @@ void CmsShowMain::setMagneticField(double var)
 
 double CmsShowMain::getMagneticField()
 {
-   if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 ||
-        m_numberOfFieldEstimates == 0 )
-      return m_magneticField;
-   else
-      return 0;
+  if (! m_autoField) {
+    // printf("field values is fixed to %0.2f\n",m_magneticField);
+    return m_magneticField;
+  }
+  if ( m_numberOfFieldValueEstimates > 2 ){
+    double rms = sqrt(m_magneticFieldEstimateSum2*m_numberOfFieldValueEstimates -
+		      m_magneticFieldEstimateSum*m_magneticFieldEstimateSum)/m_numberOfFieldValueEstimates;
+    // printf("trying to get field with high quality tracks: N=%d, B=%0.2f, RMS=%0.2f\n",
+    //	   m_numberOfFieldValueEstimates, m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates,rms);
+    if ( rms < 0.5 ) {
+      //printf("field is guessed with high quality tracks: B=%0.2f, RMS=%0.2f\n",
+      //       m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates,rms);
+      return m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates;
+    }
+  }
+  // printf("field On/Off state is guessed, value is fixed\n");
+  if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 ||
+       m_numberOfFieldEstimates == 0 )
+    return m_magneticField;
+  else
+    return 0;
 }
 
 void CmsShowMain::guessFieldIsOn(bool isOn)
@@ -119,10 +139,20 @@ void CmsShowMain::guessFieldIsOn(bool isOn)
    ++m_numberOfFieldEstimates;
 }
 
+void CmsShowMain::guessField(double estimate)
+{
+  m_magneticFieldEstimateSum += estimate;
+  m_magneticFieldEstimateSum2 += estimate*estimate;
+  ++m_numberOfFieldValueEstimates;
+}
+
 void CmsShowMain::resetFieldEstimate()
 {
    m_numberOfFieldIsOnEstimates = 0;
    m_numberOfFieldEstimates = 0;
+   m_magneticFieldEstimateSum = 0;
+   m_magneticFieldEstimateSum2 = 0;
+   m_numberOfFieldValueEstimates = 0;
 }
 
 //
@@ -157,6 +187,7 @@ static const char* const kPlainRootCommandOpt = "root";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
 static const char* const kChainCommandOpt = "chain";
 static const char* const kLiveCommandOpt  = "live";
+static const char* const kFieldCommandOpt = "field";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
@@ -212,6 +243,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
          (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
          (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
+         (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
          (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFilesOpt, -1);
@@ -363,6 +395,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       {
          f=boost::bind(&CmsShowMain::setLiveMode, this);
          m_startupTasks->addTask(f);
+      }
+      if(vm.count(kFieldCommandOpt)) {
+	m_magneticField = vm[kFieldCommandOpt].as<double>();
+	m_autoField = false;
       }
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {

@@ -118,13 +118,16 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 
    CmsMagField* cmsMagField = new CmsMagField;
    cmsMagField->setReverseState( true );
-   cmsMagField->setMagnetState( CmsShowMain::getMagneticField() > 0 );
+   double field = CmsShowMain::getMagneticField();
+   cmsMagField->setMagnetState( field > 0 );
+   cmsMagField->setNominalFieldValue( field );
 
    TEveTrackPropagator* prop = new TEveTrackPropagator();
    prop->SetMagFieldObj( cmsMagField );
    prop->SetStepper(TEveTrackPropagator::kRungeKutta);
    prop->SetMaxR(123);
    prop->SetMaxZ(300);
+   prop->SetMaxStep(1);
    TEveTrack* trk = fireworks::prepareTrack( *track, prop,
                                              id.item()->defaultDisplayProperties().color() );
    trk->MakeTrack();

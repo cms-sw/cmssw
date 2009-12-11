@@ -52,8 +52,8 @@ fi
 if [ "$debugflag" != "off" ] ; then
    echo "set args $originalOptions" > gdb.cmd
    echo "run"        >> gdb.cmd
-   echo "bt"         >> gdb.cmd
-   echo "quit"       >> gdb.cmd
+#   echo "bt"         >> gdb.cmd
+#   echo "quit"       >> gdb.cmd
    gdb -x gdb.cmd $SHELLDIR/cmsShow.exe 2>&1 | tee crash.report
    echo "" >> crash.report
    echo "System Info" >> crash.report
