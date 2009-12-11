@@ -1,7 +1,7 @@
 #ifndef DataFormats_JetReco_interface_JetID_h
 #define DataFormats_JetReco_interface_JetID_h
 
- /** \class reco::JetID
+/** \class reco::JetID
  *
  * \short Jet ID object
  *
@@ -14,10 +14,31 @@
 
 namespace reco {
   struct JetID {
+
+    // initialize 
+    JetID() {
+      fHPD= 0.0; 
+      fRBX= 0.0;
+      n90Hits= 0;
+      fSubDetector1= 0.0;
+      fSubDetector2= 0.0;
+      fSubDetector3= 0.0;
+      fSubDetector4= 0.0;
+      restrictedEMF= 0.0;
+      nHCALTowers= 0;
+      nECALTowers= 0;
+      approximatefHPD= 0.0;
+      approximatefRBX= 0.0;
+      hitsInN90= 0;
+      numberOfHits2RPC= 0;
+      numberOfHits3RPC= 0;
+      numberOfHitsRPC= 0;
+    }
+
     // hcal+ecal id
     double fHPD; 
     double fRBX;
-    double n90Hits;
+    int    n90Hits;
     double fSubDetector1;
     double fSubDetector2;
     double fSubDetector3;
@@ -32,6 +53,7 @@ namespace reco {
     int numberOfHits2RPC;
     int numberOfHits3RPC;
     int numberOfHitsRPC;
+
   };
 
   typedef edm::ValueMap<JetID>   JetIDValueMap;
