@@ -179,7 +179,7 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
 
   if (evt != 0 || particles != 0) {
     iEvent++;
-    edm::EventID id(m_pRunNumber,iEvent);
+    edm::EventID id(m_pRunNumber,1U,iEvent);
 
 
     // Fill the event from the original generated event

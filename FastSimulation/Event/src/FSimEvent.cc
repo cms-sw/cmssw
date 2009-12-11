@@ -4,13 +4,13 @@
 //C++ Headers
 
 FSimEvent::FSimEvent(const edm::ParameterSet& kine) 
-    : FBaseSimEvent(kine), id_(edm::EventID(0,0)), weight_(0)
+    : FBaseSimEvent(kine), id_(edm::EventID(0,0,0)), weight_(0)
 {}
  
 FSimEvent::FSimEvent(const edm::ParameterSet& vtx,
 		     const edm::ParameterSet& kine,
 		     const RandomEngine* engine) 
-    : FBaseSimEvent(vtx,kine,engine), id_(edm::EventID(0,0)), weight_(0)
+    : FBaseSimEvent(vtx,kine,engine), id_(edm::EventID(0,0,0)), weight_(0)
 {}
  
 FSimEvent::~FSimEvent()

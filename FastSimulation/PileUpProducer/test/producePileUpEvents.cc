@@ -159,7 +159,7 @@ producePileUpEvents::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
   // Take the VtxSmeared if it exists, the source otherwise
   // (The vertex smearing is done in Famos only in the latter case)
   const HepMC::GenEvent* myGenEvent = evtSource->GetEvent();
-  edm::EventID id(1,totalPU);
+  edm::EventID id(1,1,totalPU);
 
   mySimEvent->fill(*myGenEvent,id);
   
