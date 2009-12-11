@@ -25,13 +25,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectronCore.h,v 1.5 2009/10/10 20:07:35 chamont Exp $
+ * \version $Id: GsfElectronCore.h,v 1.6 2009/10/20 20:57:54 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectronCore.h,v $
+// Revision 1.6  2009/10/20 20:57:54  chamont
+// restore previous attribute names, so to preserve backward data compatibility
+//
 // Revision 1.5  2009/10/10 20:07:35  chamont
 // remove is*Driven() lethods
 //
@@ -66,12 +69,16 @@ class GsfElectronCore {
     const GsfTrackRef & gsfTrack() const { return gsfTrack_ ; }
     const SuperClusterRef & superCluster() const
      { return (superCluster_.isNull()?pflowSuperCluster_:superCluster_) ; }
+    TrackRef ctfTrack() const { return closestCtfTrack_ ; } // get the CTF track best matching the GTF associated to this electron
+    float ctfGsfOverlap() const { return ctfGsfOverlap_ ; } // measure the fraction of common hits between the GSF and CTF tracks
     bool ecalDrivenSeed() const { return isEcalDriven_ ; }
     bool trackerDrivenSeed() const { return isTrackerDriven_ ; }
 
-    // setters, still useful to GsfElectronSelector.h ??
+    // setters
     void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
     void setSuperCluster( const SuperClusterRef & scl ) { superCluster_ = scl ; }
+    void setCtfTrack( const TrackRef & closestCtfTrack, float ctfGsfOverlap )
+     { closestCtfTrack_ = closestCtfTrack ; ctfGsfOverlap_ = ctfGsfOverlap ; }
 
     // pflow eventual additionnal info
     const SuperClusterRef & pflowSuperCluster() const { return pflowSuperCluster_ ; }
@@ -82,6 +89,8 @@ class GsfElectronCore {
     GsfTrackRef gsfTrack_ ;
     SuperClusterRef superCluster_ ;
     SuperClusterRef pflowSuperCluster_ ;
+    TrackRef closestCtfTrack_ ; // best matching ctf track
+    float ctfGsfOverlap_ ; // fraction of common hits between the ctf and gsf tracks
     bool isEcalDriven_ ;
     bool isTrackerDriven_ ;
 
