@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/11/29 23:27:09 $
- * $Revision: 1.70 $
+ * $Date: 2009/12/11 19:18:29 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -390,7 +390,7 @@ void EEClusterTask::setup(void){
     meBCETBwdMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC size projection eta EE -");
-    meBCSizBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, 1.479, 100, 0., 100., "s");
+    meBCSizBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 100, 0., 100., "s");
     meBCSizBwdMapProjEta_->setAxisTitle("eta", 1);
     meBCSizBwdMapProjEta_->setAxisTitle("cluster size", 2);
 
