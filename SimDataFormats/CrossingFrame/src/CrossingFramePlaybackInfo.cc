@@ -13,7 +13,7 @@ CrossingFramePlaybackInfo::CrossingFramePlaybackInfo(int minBunch, int maxBunch,
     nrEvents_[i].resize(nBcrossings_);
     for (int j=0;j<nBcrossings_;++j) {
       (pileupFileNr_[i])[j]=-1;
-      (idFirstPileup_[i])[j]=edm::EventID(0,0);
+      (idFirstPileup_[i])[j]=edm::EventID(0,0,0);
       (nrEvents_[i])[j]=0;
     }
   }
