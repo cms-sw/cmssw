@@ -7,7 +7,7 @@ import optparse
 import datetime
 from pprint import pprint
 
-import configTemplates
+import configTemplates #BETA as configTemplates
 
 ####################--- Helpers ---############################
 #replaces .oO[id]Oo. by map[id] in target
@@ -163,6 +163,8 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                     result.append( GeometryComparision( self, referenceAlignment, config, options.getImages ) )
             elif validationName == "offline":
                 result.append( OfflineValidation( self, config ) )
+            elif validationName == "offlineDQM":
+                result.append( OfflineValidationDQM( self, config ) )
             elif validationName == "mcValidate":
                 result.append( MonteCarloValidation( self, config ) )
             elif validationName == "split":
@@ -175,8 +177,10 @@ class GenericValidation:
     defaultReferenceName = "DEFAULT"
 
     def __init__(self, alignment, config):
+        import random
         self.alignmentToValidate = alignment
         self.__general = readGeneral( config )
+        self.randomWorkdirPart = "%0i"%random.randint(1,10e9)
         self.configFiles = []
         self.filesToCompare = {}
 #        self.configFileSchedule = None
@@ -191,7 +195,7 @@ class GenericValidation:
                 "superPointingDataset": str(self.__general["superPointingDataset"]),
                 "RelValSample": self.__general["relvalsample"],
                 "TrackCollection": str(self.__general["trackcollection"]),
-                "workdir": str(self.__general["workdir"]),
+                "workdir": str(os.path.join(self.__general["workdir"],self.randomWorkdirPart)),
                 "datadir": str(self.__general["datadir"]),
                 "logdir": str(self.__general["logdir"]),
                 "dbLoad": alignment.getLoadTemplate(),
@@ -368,17 +372,16 @@ class OfflineValidation(GenericValidation):
         self.__DMRMinimum = general["DMRMinimum"]
         self.__OfflineTreeBaseDir = general["OfflineTreeBaseDir"]
     
-    def createConfiguration(self, path ):
-        cfgName = "TkAlOfflineValidation.%s_cfg.py"%( self.alignmentToValidate.name )
+    def createConfiguration(self, path, configBaseName = "TkAlOfflineValidation" ):
+        cfgName = "%s.%s_cfg.py"%( configBaseName, self.alignmentToValidate.name )
         repMap = self.getRepMap()
           
         cfgs = {cfgName:replaceByMap( configTemplates.offlineTemplate, repMap)}
-        print repMap["errordbpath"]
         self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["resultFile"] 
         GenericValidation.createConfiguration(self, cfgs, path)
         
-    def createScript(self, path):
-        scriptName = "TkAlOfflineValidation.%s.sh"%( self.alignmentToValidate.name )
+    def createScript(self, path, scriptBaseName = "TkAlOfflineValidation"):
+        scriptName = "%s.%s.sh"%(scriptBaseName, self.alignmentToValidate.name )
         repMap = GenericValidation.getRepMap(self)
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -398,7 +401,9 @@ class OfflineValidation(GenericValidation):
                 "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
                 "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
                 "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
-                "LorentzAngleTemplate": configTemplates.LorentzAngleTemplate
+                "LorentzAngleTemplate": configTemplates.LorentzAngleTemplate,
+                "offlineValidationMode": "Standalone",
+                "offlineValidationFileOutput": configTemplates.offlineStandaloneFileOutputTemplate
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
@@ -410,7 +415,7 @@ class OfflineValidation(GenericValidation):
     
     def appendToExtendedValidation( self, validationsSoFar = "" ):
         """
-        if no argument ore "" is passed a string with an instantiation is returned, 
+        if no argument or "" is passed a string with an instantiation is returned, 
         else the validation is appended to the list
         """
         repMap = self.getRepMap()
@@ -422,6 +427,35 @@ class OfflineValidation(GenericValidation):
 #          PlotAlignmentValidation p(".oO[firstFile]Oo.",".oO[firstLegendEntry]Oo.");
 #  p.loadFileList("rfio:/castor/cern.ch/user/j/jdraeger/Validation/MCfromCRAFT/new/Validation_MC_Adun1_CosmicTF.root","Brot ist lecker2");
         return validationsSoFar
+
+class OfflineValidationDQM(OfflineValidation):
+    def __init__(self, alignment, config):
+        OfflineValidation.__init__(self, alignment, config)
+        if not config.has_section("DQM"):
+            raise StandardError, "You need to have a DQM section in your configfile!"
+        
+        self.__PrimaryDataset = config.get("DQM", "primaryDataset")
+        self.__firstRun = int(config.get("DQM", "firstRun"))
+        self.__lastRun = int(config.get("DQM", "lastRun"))
+
+    def createConfiguration(self, path):
+        OfflineValidation.createConfiguration(self, path, "TkAlOfflineValidationDQM")
+        
+    def createScript(self, path):
+        return OfflineValidation.createScript(self, path, "TkAlOfflineValidationDQM")
+
+    def getRepMap(self, alignment = None):
+        repMap = OfflineValidation.getRepMap(self, alignment)
+        repMap.update({
+                "offlineValidationMode": "Dqm",
+                "offlineValidationFileOutput": configTemplates.offlineDqmFileOutputTemplate,
+                "workflow": "/%s/TkAl%s-.oO[alignmentName]Oo._R%09i_R%09i_ValSkim-v1/ALCARECO"%(self.__PrimaryDataset, datetime.datetime.now().strftime("%y"), self.__firstRun, self.__lastRun),
+                "firstRunNumber": "%i"% self.__firstRun
+                }
+            )
+        if "__" in repMap["workflow"]:
+            raise StandardError, "the DQM workflow specefication must not contain '__'. it is: %s"%repMap["workflow"]
+        return repMap
 
 class MonteCarloValidation(GenericValidation):
     def __init__(self, alignment, config):
