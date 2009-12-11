@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2009/10/26 17:33:50 $
- * $Revision: 1.23 $
+ * $Date: 2009/12/08 10:34:45 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 class MonitorElement;
 class DQMStore;
@@ -81,19 +86,19 @@ MonitorElement* meEERecHitEnergy_[18];
 MonitorElement* meEERecHitSpectrum_[2];
 
 MonitorElement* meEEDigiOccupancy_[2];
-MonitorElement* meEEDigiOccupancyProR_[2];
+MonitorElement* meEEDigiOccupancyProEta_[2];
 MonitorElement* meEEDigiOccupancyProPhi_[2];
 MonitorElement* meEERecHitOccupancy_[2];
-MonitorElement* meEERecHitOccupancyProR_[2];
+MonitorElement* meEERecHitOccupancyProEta_[2];
 MonitorElement* meEERecHitOccupancyProPhi_[2];
 MonitorElement* meEERecHitOccupancyThr_[2];
-MonitorElement* meEERecHitOccupancyProRThr_[2];
+MonitorElement* meEERecHitOccupancyProEtaThr_[2];
 MonitorElement* meEERecHitOccupancyProPhiThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancy_[2];
-MonitorElement* meEETrigPrimDigiOccupancyProR_[2];
+MonitorElement* meEETrigPrimDigiOccupancyProEta_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProPhi_[2];
 MonitorElement* meEETrigPrimDigiOccupancyThr_[2];
-MonitorElement* meEETrigPrimDigiOccupancyProRThr_[2];
+MonitorElement* meEETrigPrimDigiOccupancyProEtaThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProPhiThr_[2];
 MonitorElement* meEETestPulseDigiOccupancy_[2];
 MonitorElement* meEELaserDigiOccupancy_[2];
@@ -103,7 +108,10 @@ MonitorElement* meEEPedestalDigiOccupancy_[2];
 float recHitEnergyMin_;
 float trigPrimEtMin_;
 
+edm::ESHandle<CaloGeometry> pGeometry_;
+
 bool init_;
+bool initGeometry_;
 
 };
 

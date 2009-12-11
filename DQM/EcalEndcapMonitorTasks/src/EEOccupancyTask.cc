@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/11/30 16:16:46 $
- * $Revision: 1.65 $
+ * $Date: 2009/12/08 10:34:45 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,6 +14,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -27,6 +28,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h>
@@ -38,6 +43,8 @@ using namespace std;
 EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
 
   init_ = false;
+
+  initGeometry_ = false;
 
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -63,38 +70,38 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   meEERecHitSpectrum_[1] = 0;
 
   meEEDigiOccupancy_[0] = 0;
-  meEEDigiOccupancyProR_[0] = 0;
+  meEEDigiOccupancyProEta_[0] = 0;
   meEEDigiOccupancyProPhi_[0] = 0;
   meEEDigiOccupancy_[1] = 0;
-  meEEDigiOccupancyProR_[1] = 0;
+  meEEDigiOccupancyProEta_[1] = 0;
   meEEDigiOccupancyProPhi_[1] = 0;
 
   meEERecHitOccupancy_[0] = 0;
-  meEERecHitOccupancyProR_[0] = 0;
+  meEERecHitOccupancyProEta_[0] = 0;
   meEERecHitOccupancyProPhi_[0] = 0;
   meEERecHitOccupancy_[1] = 0;
-  meEERecHitOccupancyProR_[1] = 0;
+  meEERecHitOccupancyProEta_[1] = 0;
   meEERecHitOccupancyProPhi_[1] = 0;
 
   meEERecHitOccupancyThr_[0] = 0;
-  meEERecHitOccupancyProRThr_[0] = 0;
+  meEERecHitOccupancyProEtaThr_[0] = 0;
   meEERecHitOccupancyProPhiThr_[0] = 0;
   meEERecHitOccupancyThr_[1] = 0;
-  meEERecHitOccupancyProRThr_[1] = 0;
+  meEERecHitOccupancyProEtaThr_[1] = 0;
   meEERecHitOccupancyProPhiThr_[1] = 0;
 
   meEETrigPrimDigiOccupancy_[0] = 0;
-  meEETrigPrimDigiOccupancyProR_[0] = 0;
+  meEETrigPrimDigiOccupancyProEta_[0] = 0;
   meEETrigPrimDigiOccupancyProPhi_[0] = 0;
   meEETrigPrimDigiOccupancy_[1] = 0;
-  meEETrigPrimDigiOccupancyProR_[1] = 0;
+  meEETrigPrimDigiOccupancyProEta_[1] = 0;
   meEETrigPrimDigiOccupancyProPhi_[1] = 0;
 
   meEETrigPrimDigiOccupancyThr_[0] = 0;
-  meEETrigPrimDigiOccupancyProRThr_[0] = 0;
+  meEETrigPrimDigiOccupancyProEtaThr_[0] = 0;
   meEETrigPrimDigiOccupancyProPhiThr_[0] = 0;
   meEETrigPrimDigiOccupancyThr_[1] = 0;
-  meEETrigPrimDigiOccupancyProRThr_[1] = 0;
+  meEETrigPrimDigiOccupancyProEtaThr_[1] = 0;
   meEETrigPrimDigiOccupancyProPhiThr_[1] = 0;
 
   meEETestPulseDigiOccupancy_[0] = 0;
@@ -131,7 +138,13 @@ void EEOccupancyTask::beginJob(void){
 
 void EEOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
 
-  Numbers::initGeometry(c, false);
+  if( !initGeometry_ ) {
+    // ideal
+    Numbers::initGeometry(c, false);
+    // calo geometry
+    c.get<CaloGeometryRecord>().get(pGeometry_);
+    initGeometry_ = true;
+  }
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -153,38 +166,38 @@ void EEOccupancyTask::reset(void) {
   if ( meEERecHitSpectrum_[1] ) meEERecHitSpectrum_[1]->Reset();
 
   if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Reset();
-  if ( meEEDigiOccupancyProR_[0] ) meEEDigiOccupancyProR_[0]->Reset();
+  if ( meEEDigiOccupancyProEta_[0] ) meEEDigiOccupancyProEta_[0]->Reset();
   if ( meEEDigiOccupancyProPhi_[0] ) meEEDigiOccupancyProPhi_[0]->Reset();
   if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Reset();
-  if ( meEEDigiOccupancyProR_[1] ) meEEDigiOccupancyProR_[1]->Reset();
+  if ( meEEDigiOccupancyProEta_[1] ) meEEDigiOccupancyProEta_[1]->Reset();
   if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Reset();
 
   if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Reset();
-  if ( meEERecHitOccupancyProR_[0] ) meEERecHitOccupancyProR_[0]->Reset();
+  if ( meEERecHitOccupancyProEta_[0] ) meEERecHitOccupancyProEta_[0]->Reset();
   if ( meEERecHitOccupancyProPhi_[0] ) meEERecHitOccupancyProPhi_[0]->Reset();
   if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Reset();
-  if ( meEERecHitOccupancyProR_[1] ) meEERecHitOccupancyProR_[1]->Reset();
+  if ( meEERecHitOccupancyProEta_[1] ) meEERecHitOccupancyProEta_[1]->Reset();
   if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Reset();
 
   if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Reset();
-  if ( meEERecHitOccupancyProRThr_[0] ) meEERecHitOccupancyProRThr_[0]->Reset();
+  if ( meEERecHitOccupancyProEtaThr_[0] ) meEERecHitOccupancyProEtaThr_[0]->Reset();
   if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Reset();
   if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Reset();
-  if ( meEERecHitOccupancyProRThr_[1] ) meEERecHitOccupancyProRThr_[1]->Reset();
+  if ( meEERecHitOccupancyProEtaThr_[1] ) meEERecHitOccupancyProEtaThr_[1]->Reset();
   if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Reset();
 
   if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Reset();
-  if ( meEETrigPrimDigiOccupancyProR_[0] ) meEETrigPrimDigiOccupancyProR_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancyProEta_[0] ) meEETrigPrimDigiOccupancyProEta_[0]->Reset();
   if ( meEETrigPrimDigiOccupancyProPhi_[0] ) meEETrigPrimDigiOccupancyProPhi_[0]->Reset();
   if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Reset();
-  if ( meEETrigPrimDigiOccupancyProR_[1] ) meEETrigPrimDigiOccupancyProR_[1]->Reset();
+  if ( meEETrigPrimDigiOccupancyProEta_[1] ) meEETrigPrimDigiOccupancyProEta_[1]->Reset();
   if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Reset();
 
   if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Reset();
-  if ( meEETrigPrimDigiOccupancyProRThr_[0] ) meEETrigPrimDigiOccupancyProRThr_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancyProEtaThr_[0] ) meEETrigPrimDigiOccupancyProEtaThr_[0]->Reset();
   if ( meEETrigPrimDigiOccupancyProPhiThr_[0] ) meEETrigPrimDigiOccupancyProPhiThr_[0]->Reset();
   if ( meEETrigPrimDigiOccupancyThr_[1] ) meEETrigPrimDigiOccupancyThr_[1]->Reset();
-  if ( meEETrigPrimDigiOccupancyProRThr_[1] ) meEETrigPrimDigiOccupancyProRThr_[1]->Reset();
+  if ( meEETrigPrimDigiOccupancyProEtaThr_[1] ) meEETrigPrimDigiOccupancyProEtaThr_[1]->Reset();
   if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) meEETrigPrimDigiOccupancyProPhiThr_[1]->Reset();
 
   if ( meEETestPulseDigiOccupancy_[0] ) meEETestPulseDigiOccupancy_[0]->Reset();
@@ -243,10 +256,10 @@ void EEOccupancyTask::setup(void){
     meEEDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEEDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT digi occupancy EE - projection R");
-    meEEDigiOccupancyProR_[0] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEEDigiOccupancyProR_[0]->setAxisTitle("r", 1);
-    meEEDigiOccupancyProR_[0]->setAxisTitle("number of digis", 2);
+    sprintf(histo, "EEOT digi occupancy EE - projection eta");
+    meEEDigiOccupancyProEta_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    meEEDigiOccupancyProEta_[0]->setAxisTitle("eta'", 1);
+    meEEDigiOccupancyProEta_[0]->setAxisTitle("number of digis", 2);
     sprintf(histo, "EEOT digi occupancy EE - projection phi");
     meEEDigiOccupancyProPhi_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEEDigiOccupancyProPhi_[0]->setAxisTitle("phi'", 1);
@@ -256,10 +269,10 @@ void EEOccupancyTask::setup(void){
     meEEDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEEDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT digi occupancy EE + projection R");
-    meEEDigiOccupancyProR_[1] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEEDigiOccupancyProR_[1]->setAxisTitle("r", 1);
-    meEEDigiOccupancyProR_[1]->setAxisTitle("number of digis", 2);
+    sprintf(histo, "EEOT digi occupancy EE + projection eta");
+    meEEDigiOccupancyProEta_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    meEEDigiOccupancyProEta_[1]->setAxisTitle("eta'", 1);
+    meEEDigiOccupancyProEta_[1]->setAxisTitle("number of digis", 2);
     sprintf(histo, "EEOT digi occupancy EE + projection phi");
     meEEDigiOccupancyProPhi_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEEDigiOccupancyProPhi_[1]->setAxisTitle("phi'", 1);
@@ -269,10 +282,10 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancy_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE - projection R");
-    meEERecHitOccupancyProR_[0] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEERecHitOccupancyProR_[0]->setAxisTitle("r", 1);
-    meEERecHitOccupancyProR_[0]->setAxisTitle("number of hits", 2);
+    sprintf(histo, "EEOT rec hit occupancy EE - projection eta");
+    meEERecHitOccupancyProEta_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    meEERecHitOccupancyProEta_[0]->setAxisTitle("eta'", 1);
+    meEERecHitOccupancyProEta_[0]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit occupancy EE - projection phi");
     meEERecHitOccupancyProPhi_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhi_[0]->setAxisTitle("phi'", 1);
@@ -282,10 +295,10 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancy_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE + projection R");
-    meEERecHitOccupancyProR_[1] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEERecHitOccupancyProR_[1]->setAxisTitle("r", 1);
-    meEERecHitOccupancyProR_[1]->setAxisTitle("number of hits", 2);
+    sprintf(histo, "EEOT rec hit occupancy EE + projection eta");
+    meEERecHitOccupancyProEta_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    meEERecHitOccupancyProEta_[1]->setAxisTitle("eta'", 1);
+    meEERecHitOccupancyProEta_[1]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit occupancy EE + projection phi");
     meEERecHitOccupancyProPhi_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhi_[1]->setAxisTitle("phi'", 1);
@@ -295,10 +308,10 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancyThr_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE - projection R");
-    meEERecHitOccupancyProRThr_[0] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEERecHitOccupancyProRThr_[0]->setAxisTitle("r", 1);
-    meEERecHitOccupancyProRThr_[0]->setAxisTitle("number of hits", 2);
+    sprintf(histo, "EEOT rec hit thr occupancy EE - projection eta");
+    meEERecHitOccupancyProEtaThr_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    meEERecHitOccupancyProEtaThr_[0]->setAxisTitle("eta'", 1);
+    meEERecHitOccupancyProEtaThr_[0]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit thr occupancy EE - projection phi");
     meEERecHitOccupancyProPhiThr_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhiThr_[0]->setAxisTitle("phi'", 1);
@@ -308,10 +321,10 @@ void EEOccupancyTask::setup(void){
     meEERecHitOccupancyThr_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE + projection R");
-    meEERecHitOccupancyProRThr_[1] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEERecHitOccupancyProRThr_[1]->setAxisTitle("r", 1);
-    meEERecHitOccupancyProRThr_[1]->setAxisTitle("number of hits", 2);
+    sprintf(histo, "EEOT rec hit thr occupancy EE + projection eta");
+    meEERecHitOccupancyProEtaThr_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    meEERecHitOccupancyProEtaThr_[1]->setAxisTitle("eta'", 1);
+    meEERecHitOccupancyProEtaThr_[1]->setAxisTitle("number of hits", 2);
     sprintf(histo, "EEOT rec hit thr occupancy EE + projection phi");
     meEERecHitOccupancyProPhiThr_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhiThr_[1]->setAxisTitle("phi'", 1);
@@ -321,10 +334,10 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE - projection R");
-    meEETrigPrimDigiOccupancyProR_[0] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEETrigPrimDigiOccupancyProR_[0]->setAxisTitle("r", 1);
-    meEETrigPrimDigiOccupancyProR_[0]->setAxisTitle("number of TP digis", 2);
+    sprintf(histo, "EEOT TP digi occupancy EE - projection eta");
+    meEETrigPrimDigiOccupancyProEta_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    meEETrigPrimDigiOccupancyProEta_[0]->setAxisTitle("eta'", 1);
+    meEETrigPrimDigiOccupancyProEta_[0]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi occupancy EE - projection phi");
     meEETrigPrimDigiOccupancyProPhi_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhi_[0]->setAxisTitle("phi'", 1);
@@ -334,10 +347,10 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE + projection R");
-    meEETrigPrimDigiOccupancyProR_[1] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEETrigPrimDigiOccupancyProR_[1]->setAxisTitle("r", 1);
-    meEETrigPrimDigiOccupancyProR_[1]->setAxisTitle("number of TP digis", 2);
+    sprintf(histo, "EEOT TP digi occupancy EE + projection eta");
+    meEETrigPrimDigiOccupancyProEta_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    meEETrigPrimDigiOccupancyProEta_[1]->setAxisTitle("eta'", 1);
+    meEETrigPrimDigiOccupancyProEta_[1]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi occupancy EE + projection phi");
     meEETrigPrimDigiOccupancyProPhi_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhi_[1]->setAxisTitle("phi'", 1);
@@ -347,10 +360,10 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyThr_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi thr occupancy EE - projection R");
-    meEETrigPrimDigiOccupancyProRThr_[0] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEETrigPrimDigiOccupancyProRThr_[0]->setAxisTitle("r", 1);
-    meEETrigPrimDigiOccupancyProRThr_[0]->setAxisTitle("number of TP digis", 2);
+    sprintf(histo, "EEOT TP digi thr occupancy EE - projection eta");
+    meEETrigPrimDigiOccupancyProEtaThr_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    meEETrigPrimDigiOccupancyProEtaThr_[0]->setAxisTitle("eta'", 1);
+    meEETrigPrimDigiOccupancyProEtaThr_[0]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi thr occupancy EE - projection phi");
     meEETrigPrimDigiOccupancyProPhiThr_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhiThr_[0]->setAxisTitle("phi'", 1);
@@ -360,10 +373,10 @@ void EEOccupancyTask::setup(void){
     meEETrigPrimDigiOccupancyThr_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi thr occupancy EE + projection R");
-    meEETrigPrimDigiOccupancyProRThr_[1] = dqmStore_->book1DD(histo, histo, 22, 0., 55.);
-    meEETrigPrimDigiOccupancyProRThr_[1]->setAxisTitle("r", 1);
-    meEETrigPrimDigiOccupancyProRThr_[1]->setAxisTitle("number of TP digis", 2);
+    sprintf(histo, "EEOT TP digi thr occupancy EE + projection eta");
+    meEETrigPrimDigiOccupancyProEtaThr_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    meEETrigPrimDigiOccupancyProEtaThr_[1]->setAxisTitle("eta'", 1);
+    meEETrigPrimDigiOccupancyProEtaThr_[1]->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EEOT TP digi thr occupancy EE + projection phi");
     meEETrigPrimDigiOccupancyProPhiThr_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("phi'", 1);
@@ -436,71 +449,71 @@ void EEOccupancyTask::cleanup(void){
 
     if ( meEEDigiOccupancy_[0] ) dqmStore_->removeElement( meEEDigiOccupancy_[0]->getName() );
     meEEDigiOccupancy_[0] = 0;
-    if ( meEEDigiOccupancyProR_[0] ) dqmStore_->removeElement( meEEDigiOccupancyProR_[0]->getName() );
-    meEEDigiOccupancyProR_[0] = 0;
+    if ( meEEDigiOccupancyProEta_[0] ) dqmStore_->removeElement( meEEDigiOccupancyProEta_[0]->getName() );
+    meEEDigiOccupancyProEta_[0] = 0;
     if ( meEEDigiOccupancyProPhi_[0] ) dqmStore_->removeElement( meEEDigiOccupancyProPhi_[0]->getName() );
     meEEDigiOccupancyProPhi_[0] = 0;
 
     if ( meEEDigiOccupancy_[1] ) dqmStore_->removeElement( meEEDigiOccupancy_[1]->getName() );
     meEEDigiOccupancy_[1] = 0;
-    if ( meEEDigiOccupancyProR_[1] ) dqmStore_->removeElement( meEEDigiOccupancyProR_[1]->getName() );
-    meEEDigiOccupancyProR_[1] = 0;
+    if ( meEEDigiOccupancyProEta_[1] ) dqmStore_->removeElement( meEEDigiOccupancyProEta_[1]->getName() );
+    meEEDigiOccupancyProEta_[1] = 0;
     if ( meEEDigiOccupancyProPhi_[1] ) dqmStore_->removeElement( meEEDigiOccupancyProPhi_[1]->getName() );
     meEEDigiOccupancyProPhi_[1] = 0;
 
     if ( meEERecHitOccupancy_[0] ) dqmStore_->removeElement( meEERecHitOccupancy_[0]->getName() );
     meEERecHitOccupancy_[0] = 0;
-    if ( meEERecHitOccupancyProR_[0] ) dqmStore_->removeElement( meEERecHitOccupancyProR_[0]->getName() );
-    meEERecHitOccupancyProR_[0] = 0;
+    if ( meEERecHitOccupancyProEta_[0] ) dqmStore_->removeElement( meEERecHitOccupancyProEta_[0]->getName() );
+    meEERecHitOccupancyProEta_[0] = 0;
     if ( meEERecHitOccupancyProPhi_[0] ) dqmStore_->removeElement( meEERecHitOccupancyProPhi_[0]->getName() );
     meEERecHitOccupancyProPhi_[0] = 0;
 
     if ( meEERecHitOccupancy_[1] ) dqmStore_->removeElement( meEERecHitOccupancy_[1]->getName() );
     meEERecHitOccupancy_[1] = 0;
-    if ( meEERecHitOccupancyProR_[1] ) dqmStore_->removeElement( meEERecHitOccupancyProR_[1]->getName() );
-    meEERecHitOccupancyProR_[1] = 0;
+    if ( meEERecHitOccupancyProEta_[1] ) dqmStore_->removeElement( meEERecHitOccupancyProEta_[1]->getName() );
+    meEERecHitOccupancyProEta_[1] = 0;
     if ( meEERecHitOccupancyProPhi_[1] ) dqmStore_->removeElement( meEERecHitOccupancyProPhi_[1]->getName() );
     meEERecHitOccupancyProPhi_[1] = 0;
 
     if ( meEERecHitOccupancyThr_[0] ) dqmStore_->removeElement( meEERecHitOccupancyThr_[0]->getName() );
     meEERecHitOccupancyThr_[0] = 0;
-    if ( meEERecHitOccupancyProRThr_[0] ) dqmStore_->removeElement( meEERecHitOccupancyProRThr_[0]->getName() );
-    meEERecHitOccupancyProRThr_[0] = 0;
+    if ( meEERecHitOccupancyProEtaThr_[0] ) dqmStore_->removeElement( meEERecHitOccupancyProEtaThr_[0]->getName() );
+    meEERecHitOccupancyProEtaThr_[0] = 0;
     if ( meEERecHitOccupancyProPhiThr_[0] ) dqmStore_->removeElement( meEERecHitOccupancyProPhiThr_[0]->getName() );
     meEERecHitOccupancyProPhiThr_[0] = 0;
 
     if ( meEERecHitOccupancyThr_[1] ) dqmStore_->removeElement( meEERecHitOccupancyThr_[1]->getName() );
     meEERecHitOccupancyThr_[1] = 0;
-    if ( meEERecHitOccupancyProRThr_[1] ) dqmStore_->removeElement( meEERecHitOccupancyProRThr_[1]->getName() );
-    meEERecHitOccupancyProRThr_[1] = 0;
+    if ( meEERecHitOccupancyProEtaThr_[1] ) dqmStore_->removeElement( meEERecHitOccupancyProEtaThr_[1]->getName() );
+    meEERecHitOccupancyProEtaThr_[1] = 0;
     if ( meEERecHitOccupancyProPhiThr_[1] ) dqmStore_->removeElement( meEERecHitOccupancyProPhiThr_[1]->getName() );
     meEERecHitOccupancyProPhiThr_[1] = 0;
 
     if ( meEETrigPrimDigiOccupancy_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancy_[0]->getName() );
     meEETrigPrimDigiOccupancy_[0] = 0;
-    if ( meEETrigPrimDigiOccupancyProR_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProR_[0]->getName() );
-    meEETrigPrimDigiOccupancyProR_[0] = 0;
+    if ( meEETrigPrimDigiOccupancyProEta_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProEta_[0]->getName() );
+    meEETrigPrimDigiOccupancyProEta_[0] = 0;
     if ( meEETrigPrimDigiOccupancyProPhi_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProPhi_[0]->getName() );
     meEETrigPrimDigiOccupancyProPhi_[0] = 0;
 
     if ( meEETrigPrimDigiOccupancy_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancy_[1]->getName() );
     meEETrigPrimDigiOccupancy_[1] = 0;
-    if ( meEETrigPrimDigiOccupancyProR_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProR_[1]->getName() );
-    meEETrigPrimDigiOccupancyProR_[1] = 0;
+    if ( meEETrigPrimDigiOccupancyProEta_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProEta_[1]->getName() );
+    meEETrigPrimDigiOccupancyProEta_[1] = 0;
     if ( meEETrigPrimDigiOccupancyProPhi_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProPhi_[1]->getName() );
     meEETrigPrimDigiOccupancyProPhi_[1] = 0;
 
     if ( meEETrigPrimDigiOccupancyThr_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyThr_[0]->getName() );
     meEETrigPrimDigiOccupancyThr_[0] = 0;
-    if ( meEETrigPrimDigiOccupancyProRThr_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProRThr_[0]->getName() );
-    meEETrigPrimDigiOccupancyProRThr_[0] = 0;
+    if ( meEETrigPrimDigiOccupancyProEtaThr_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProEtaThr_[0]->getName() );
+    meEETrigPrimDigiOccupancyProEtaThr_[0] = 0;
     if ( meEETrigPrimDigiOccupancyProPhiThr_[0] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProPhiThr_[0]->getName() );
     meEETrigPrimDigiOccupancyProPhiThr_[0] = 0;
 
     if ( meEETrigPrimDigiOccupancyThr_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyThr_[1]->getName() );
     meEETrigPrimDigiOccupancyThr_[1] = 0;
-    if ( meEETrigPrimDigiOccupancyProRThr_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProRThr_[1]->getName() );
-    meEETrigPrimDigiOccupancyProRThr_[1] = 0;
+    if ( meEETrigPrimDigiOccupancyProEtaThr_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProEtaThr_[1]->getName() );
+    meEETrigPrimDigiOccupancyProEtaThr_[1] = 0;
     if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) dqmStore_->removeElement( meEETrigPrimDigiOccupancyProPhiThr_[1]->getName() );
     meEETrigPrimDigiOccupancyProPhiThr_[1] = 0;
 
@@ -592,6 +605,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int ix = id.ix();
       int iy = id.iy();
+      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
+      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
 
       int ism = Numbers::iSM( id );
 
@@ -621,12 +636,12 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         
         if ( ism >=1 && ism <= 9 ) {
           if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Fill( xeex, xeey );
-          if ( meEEDigiOccupancyProR_[0] ) meEEDigiOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEEDigiOccupancyProPhi_[0] ) meEEDigiOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+          if ( meEEDigiOccupancyProEta_[0] ) meEEDigiOccupancyProEta_[0]->Fill( eta );
+          if ( meEEDigiOccupancyProPhi_[0] ) meEEDigiOccupancyProPhi_[0]->Fill( phi );
         } else {
           if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Fill( xeex, xeey );
-          if ( meEEDigiOccupancyProR_[1] ) meEEDigiOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+          if ( meEEDigiOccupancyProEta_[1] ) meEEDigiOccupancyProEta_[1]->Fill( eta );
+          if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Fill( phi );
         }
         
       }
@@ -712,6 +727,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
+  // channel status
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+  const EcalChannelStatus *chStatus = pChannelStatus.product();
+
   Handle<EcalRecHitCollection> rechits;
 
   if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
@@ -725,6 +745,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int eex = id.ix();
       int eey = id.iy();
+      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
+      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
 
       int ism = Numbers::iSM( id );
 
@@ -740,24 +762,27 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
             
         if ( ism >= 1 && ism <= 9 ) {
           if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Fill( xeex, xeey );
-          if ( meEERecHitOccupancyProR_[0] ) meEERecHitOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEERecHitOccupancyProPhi_[0] ) meEERecHitOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+          if ( meEERecHitOccupancyProEta_[0] ) meEERecHitOccupancyProEta_[0]->Fill( eta );
+          if ( meEERecHitOccupancyProPhi_[0] ) meEERecHitOccupancyProPhi_[0]->Fill( phi );
         } else {
           if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Fill( xeex, xeey );
-          if ( meEERecHitOccupancyProR_[1] ) meEERecHitOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-          if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+          if ( meEERecHitOccupancyProEta_[1] ) meEERecHitOccupancyProEta_[1]->Fill( eta );
+          if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( phi );
         }
 
-        if ( rechitItr->energy() > recHitEnergyMin_ && rechitItr->recoFlag() == EcalRecHit::kGood ) {
+        uint32_t flag = rechitItr->recoFlag();      
+        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*rechitItr), *chStatus );
+
+        if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
           
           if ( ism >= 1 && ism <= 9 ) {
             if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
-            if ( meEERecHitOccupancyProRThr_[0] ) meEERecHitOccupancyProRThr_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-            if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+            if ( meEERecHitOccupancyProEtaThr_[0] ) meEERecHitOccupancyProEtaThr_[0]->Fill( eta );
+            if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Fill( phi );
           } else {
             if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Fill( xeex, xeey );
-            if ( meEERecHitOccupancyProRThr_[1] ) meEERecHitOccupancyProRThr_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-            if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+            if ( meEERecHitOccupancyProEtaThr_[1] ) meEERecHitOccupancyProEtaThr_[1]->Fill( eta );
+            if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( phi );
           }
           
           if ( meEERecHitEnergy_[ism-1] ) meEERecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
@@ -799,6 +824,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
         int eex = id.ix();
         int eey = id.iy();
+        float eta = pGeometry_->getGeometry(id)->getPosition().eta();
+        float phi = pGeometry_->getGeometry(id)->getPosition().phi();
 
         float xeex = eex - 0.5;
         float xeey = eey - 0.5;
@@ -807,24 +834,24 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
           
           if ( ism >= 1 && ism <= 9 ) {
             if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( xeex, xeey );
-            if ( meEETrigPrimDigiOccupancyProR_[0] ) meEETrigPrimDigiOccupancyProR_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-            if ( meEETrigPrimDigiOccupancyProPhi_[0] ) meEETrigPrimDigiOccupancyProPhi_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+            if ( meEETrigPrimDigiOccupancyProEta_[0] ) meEETrigPrimDigiOccupancyProEta_[0]->Fill( eta );
+            if ( meEETrigPrimDigiOccupancyProPhi_[0] ) meEETrigPrimDigiOccupancyProPhi_[0]->Fill( phi );
           } else {
             if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Fill( xeex, xeey );
-            if ( meEETrigPrimDigiOccupancyProR_[1] ) meEETrigPrimDigiOccupancyProR_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-            if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+            if ( meEETrigPrimDigiOccupancyProEta_[1] ) meEETrigPrimDigiOccupancyProEta_[1]->Fill( eta );
+            if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Fill( phi );
           }
           
           if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
             
             if ( ism >= 1 && ism <= 9 ) {
               if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );
-              if ( meEETrigPrimDigiOccupancyProRThr_[0] ) meEETrigPrimDigiOccupancyProRThr_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-              if ( meEETrigPrimDigiOccupancyProPhiThr_[0] ) meEETrigPrimDigiOccupancyProPhiThr_[0]->Fill( atan2(xeey-50.,xeex-50.) );
+              if ( meEETrigPrimDigiOccupancyProEtaThr_[0] ) meEETrigPrimDigiOccupancyProEtaThr_[0]->Fill( eta );
+              if ( meEETrigPrimDigiOccupancyProPhiThr_[0] ) meEETrigPrimDigiOccupancyProPhiThr_[0]->Fill( phi );
             } else {
               if ( meEETrigPrimDigiOccupancyThr_[1] ) meEETrigPrimDigiOccupancyThr_[1]->Fill( xeex, xeey );
-              if ( meEETrigPrimDigiOccupancyProRThr_[1] ) meEETrigPrimDigiOccupancyProRThr_[1]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
-              if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) meEETrigPrimDigiOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
+              if ( meEETrigPrimDigiOccupancyProEtaThr_[1] ) meEETrigPrimDigiOccupancyProEtaThr_[1]->Fill( eta );
+              if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) meEETrigPrimDigiOccupancyProPhiThr_[1]->Fill( phi );
             }
             
           }
