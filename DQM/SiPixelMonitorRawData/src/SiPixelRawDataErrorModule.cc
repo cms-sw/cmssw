@@ -856,6 +856,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	numberOfErrors++;
 	errorType = di->getType();               // type of error
 	(meErrorType_)->Fill((int)errorType);
+	int TBMMessage;
 	if((errorType == 32)||(errorType == 33)||(errorType == 34)) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
@@ -921,7 +922,6 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
 	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
-	    int TBMMessage;
 	    if (T0==1) { TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T1==1) { TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T2==1) { TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage); }
@@ -995,7 +995,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	  default : break;
 	  };
 	}// end if errorType
-	FedChNErrArray[FedId][chanNmbr]++;
+	if(!(errorType==30&&(TBMMessage==5||TBMMessage==6))) FedChNErrArray[FedId][chanNmbr]++;
 	FedChLErrArray[FedId][chanNmbr] = errorType;
 	FedETypeNErrArray[FedId][errorType-25]++;
 	
