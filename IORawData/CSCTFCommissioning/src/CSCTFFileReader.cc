@@ -68,7 +68,7 @@ bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FED
   
   int runNumber   = 0; // Unknown at the level of EMu local DAQ
   int eventNumber =((dduBuf[2])&0x0FFF) | ((dduBuf[3]&0x0FFF)<<12); // L1A Number
-  eID = EventID(runNumber,eventNumber);
+  eID = EventID(runNumber,1U,eventNumber);
   
 
   unsigned short dccBuf[200000+4*4];//, *dccHeader=dccBuf, *dccTrailer=dccBuf+4*2+(length/2);

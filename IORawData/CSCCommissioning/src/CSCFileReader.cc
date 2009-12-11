@@ -356,7 +356,7 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 
 	if( eventNumber<0 ) return false;
 
-	eID = edm::EventID(runNumber,eventNumber);
+	eID = edm::EventID(runNumber,1U,eventNumber);
 
 	return true;
 }
