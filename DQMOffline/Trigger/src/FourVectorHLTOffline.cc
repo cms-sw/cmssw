@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.56 2009/12/03 01:38:45 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.57 2009/12/11 02:49:15 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -888,63 +888,88 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
       } // end for i
 
+        
       // now loop over denom/num path pairs specified in cfg, 
       // recording the off-diagonal ones
       for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair) {
+            
+        std::string numpathname = custompathnamepair->first;  
+        std::string denompathname = custompathnamepair->second;  
   
-        if (custompathnamepair->first != custompathnamepair->second) {
+        if (numpathname != denompathname) {
   
-          std::string denompathname = custompathnamepair->second;  
-          std::string pathname = custompathnamepair->first;  
-        
-          // check that these exist
-          bool foundfirst = false;
-          bool foundsecond = false;
-          for (unsigned int i=0; i!=n; ++i) {
+          // check that denominator exists
+          bool founddenominator = false;
+          for (unsigned int k=0; k!=n; ++k) {
+
+            string n_pathname = hltConfig_.triggerName(k);
+
+            if (n_pathname.find(denompathname) != std::string::npos) {
+              
+              LogDebug("FourVectorHLTOffline") << "denompathname is selected to be = " << n_pathname << endl;;
+              founddenominator = true;
+
+              break;
+
+            }
+          }
+
+          if (!founddenominator) {
   
-            if (hltConfig_.triggerName(i) == denompathname) foundsecond = true;
-            if (hltConfig_.triggerName(i) == pathname) foundfirst = true;
-  
-          } 
-  
-          if (!foundfirst) {
-  
-            edm::LogInfo("FourVectorHLTOffline") << "pathname not found, ignoring " << pathname;
+            edm::LogInfo("FourVectorHLTOffline") << "denompathname not found, go to the next pair numearator-denominator" << endl;
+            
+            // go to the next pair
             continue;
   
           }
+
+          // check that numerator exists
+          bool foundnumerator = false;
+          for (unsigned int j=0; j!=n; ++j) {
+
+            string pathname = hltConfig_.triggerName(j);
+
+            LogDebug("FourVectorHLTOffline") << "check if path " << pathname << " is numpathname = " << numpathname << endl;
+            if (hltConfig_.triggerName(j).find(numpathname)!= std::string::npos) {
+              
+              LogDebug("FourVectorHLTOffline") << "pathname is selected to be = " << denompathname << endl;;
+              foundnumerator = true;
+
+            }
   
-          if (!foundsecond) {
   
-            edm::LogInfo("FourVectorHLTOffline") << "denompathname not found, ignoring " << pathname;
-            continue;
-  
-          }
-  
-          //cout << pathname << "\t" << denompathname << endl;
-          std::string l1pathname = "dummy";
-          int objectType = 0;
-          //int denomobjectType = 0;
-          //parse pathname to guess object type
-          if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
-          if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;    
-          if (pathname.find("HT") != std::string::npos) objectType = trigger::TriggerTET;    
-          if (pathname.find("Jet") != std::string::npos) objectType = trigger::TriggerJet;    
-          if (pathname.find("Mu") != std::string::npos) objectType = trigger::TriggerMuon;    
-          if (pathname.find("Ele") != std::string::npos) objectType = trigger::TriggerElectron;    
-          if (pathname.find("Photon") != std::string::npos) objectType = trigger::TriggerPhoton;    
-          if (pathname.find("Tau") != std::string::npos) objectType = trigger::TriggerTau;    
-          if (pathname.find("IsoTrack") != std::string::npos) objectType = trigger::TriggerTrack;    
-          if (pathname.find("BTag") != std::string::npos) objectType = trigger::TriggerBJet;    
-          // find L1 condition for numpath with numpath objecttype 
-  
-          // find PSet for L1 global seed for numpath, 
-          // list module labels for numpath
+            if (!foundnumerator) {
     
-          std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+              edm::LogInfo("FourVectorHLTOffline") << "pathname not found, ignoring " << pathname;
+              continue;
+  
+            }
+  
+  
+            //cout << pathname << "\t" << denompathname << endl;
+            std::string l1pathname = "dummy";
+            int objectType = 0;
+            //int denomobjectType = 0;
+            //parse pathname to guess object type
+            if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
+            if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;    
+            if (pathname.find("HT") != std::string::npos) objectType = trigger::TriggerTET;    
+            if (pathname.find("Jet") != std::string::npos) objectType = trigger::TriggerJet;    
+            if (pathname.find("Mu") != std::string::npos) objectType = trigger::TriggerMuon;    
+            if (pathname.find("Ele") != std::string::npos) objectType = trigger::TriggerElectron;    
+            if (pathname.find("Photon") != std::string::npos) objectType = trigger::TriggerPhoton;    
+            if (pathname.find("Tau") != std::string::npos) objectType = trigger::TriggerTau;    
+            if (pathname.find("IsoTrack") != std::string::npos) objectType = trigger::TriggerTrack;    
+            if (pathname.find("BTag") != std::string::npos) objectType = trigger::TriggerBJet;    
+            // find L1 condition for numpath with numpath objecttype 
+  
+            // find PSet for L1 global seed for numpath, 
+            // list module labels for numpath
       
-          for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-          numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+            std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+      
+            for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+            numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
   
             //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
             if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed") {
@@ -978,7 +1003,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
           if (objectType != 0)
             hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
       
-        }
+        } // end for j, loop over paths
+
+       }  // end if not same num and denominator 
   
       } // end for pair
 

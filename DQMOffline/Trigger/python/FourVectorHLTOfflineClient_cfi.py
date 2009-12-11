@@ -1,4 +1,4 @@
-# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.6 2009/06/04 22:28:48 rekovic Exp $
+# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.7 2009/06/11 20:22:08 rekovic Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,7 +11,11 @@ hltFourVectorClient = cms.EDFilter("FourVectorHLTClient",
     effpaths = cms.VPSet(
              cms.PSet(
               pathname = cms.string("HLT_"),
-              denompathname = cms.string(""),  
+              denompathname = cms.string("")  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_"),
+              denompathname = cms.string("HLT_MinBiasBSC")  
              )
 #             cms.PSet(
 #              pathname = cms.string("HLT_Mu5"),
