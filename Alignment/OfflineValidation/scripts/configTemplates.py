@@ -23,16 +23,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(.oO[nEvents]Oo.)
  )
 
- ##
- ## Output File Configuration
- ##
-process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('.oO[outputFile]Oo.'),
-    closeFileFast = cms.untracked.bool(True)
- )
-#process.TFileService.closeFileFast = True
-
  ##   
  ## Messages & Convenience
  ##
@@ -43,6 +33,7 @@ reportEvery = cms.untracked.int32(1000) # every 1000th only
 #    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
 ))
 process.MessageLogger.statistics.append('cout')
+      
 
 
 #-- Track hit filter
@@ -58,9 +49,11 @@ process.AlignmentTrackSelector.filter = True
 .oO[TrackSelectionTemplate]Oo.
 
 #now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
-process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksP5.clone(
-    src = 'TrackerTrackHitFilter',
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff
+process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff.ctfWithMaterialTracks.clone(
+   src = 'TrackerTrackHitFilter',
+   NavigationSchool = "",
+
 ###    TrajectoryInEvent = True,
     TTRHBuilder = "WithAngleAndTemplate"    
 )
@@ -75,12 +68,12 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 # parameters for TrackRefitter
 #process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
-process.TrackRefitter1 = process.TrackRefitterP5.clone()
-#process.TrackRefitter1 = process.TrackRefitter.clone()
-process.TrackRefitter1.src = '.oO[TrackCollection]Oo.'
-process.TrackRefitter1.TrajectoryInEvent = True
-process.TrackRefitter1.TTRHBuilder = "WithAngleAndTemplate"
-
+process.TrackRefitter1 = process.TrackRefitter.clone(
+   src = '.oO[TrackCollection]Oo.',
+   TrajectoryInEvent = True,
+   TTRHBuilder = "WithAngleAndTemplate",
+   NavigationSchool = ""
+)
 process.TrackRefitter2 = process.TrackRefitter1.clone(
 #    src = 'HitFilteredTracks')
      src = 'AlignmentTrackSelector'
@@ -97,7 +90,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ##
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-#process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+
 
 .oO[LorentzAngleTemplate]Oo.
   
@@ -111,96 +104,59 @@ process.load("Configuration.StandardSequences.Geometry_cff")
  ##
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
-.oO[APE]Oo.
-
 .oO[dbLoad]Oo.
+
+.oO[APE]Oo.
 
 ## to apply misalignments
 #TrackerDigiGeometryESModule.applyAlignment = True
    
  ##
- ## Load and Configure OfflineValidation
+ ## Load and Configure OfflineValidation and Output File
  ##
-process.load("Alignment.OfflineValidation.TrackerOfflineValidation_cfi")
-process.TrackerOfflineValidation.Tracks = 'TrackRefitter2'
-process.TrackerOfflineValidation.trajectoryInput = 'TrackRefitter2'
-process.TrackerOfflineValidation.moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
-
-# Normalized X Residuals, normal local coordinates (Strip)
-process.TrackerOfflineValidation.TH1NormXResStripModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-
-# X Residuals, normal local coordinates (Strip)                      
-process.TrackerOfflineValidation.TH1XResStripModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-)
-
-# Normalized X Residuals, native coordinates (Strip)
-process.TrackerOfflineValidation.TH1NormXprimeResStripModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-
-# X Residuals, native coordinates (Strip)
-process.TrackerOfflineValidation.TH1XprimeResStripModules = cms.PSet(
-#    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.1), xmax = cms.double(0.1)
-)
-
-# Normalized Y Residuals, native coordinates (Strip -> hardly defined)
-process.TrackerOfflineValidation.TH1NormYResStripModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# -> very broad distributions expected                                         
-process.TrackerOfflineValidation.TH1YResStripModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-10.0), xmax = cms.double(10.0)
-)
-
-# Normalized X residuals normal local coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1NormXResPixelModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# X residuals normal local coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1XResPixelModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-)
-# Normalized X residuals native coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1NormXprimeResPixelModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# X residuals native coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1XprimeResPixelModules = cms.PSet(
-#    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.1), xmax = cms.double(0.1)
-)                                        
-# Normalized Y residuals native coordinates (Pixel)                                         
-process.TrackerOfflineValidation.TH1NormYResPixelModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# Y residuals native coordinates (Pixel)                                         
-process.TrackerOfflineValidation.TH1YResPixelModules = cms.PSet(
-#    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.1), xmax = cms.double(0.1)
-)
+process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
+.oO[offlineValidationFileOutput]Oo.
 
  ##
  ## PATH
  ##
-process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
-                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.TrackerOfflineValidation)
+process.p = cms.Path(process.lumiSkim*process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
+                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
 """
+
+offlineStandaloneFileOutputTemplate = """
+process.TFileService.fileName = '.oO[outputFile]Oo.'
+"""
+
+offlineDqmFileOutputTemplate = """
+process.TrackerOfflineValidationSummary.oO[offlineValidationMode]Oo..removeModuleLevelHists = .oO[offlineModuleLevelHistsTransient]Oo.
+process.DqmSaverTkAl.workflow = '.oO[workflow]Oo.'
+process.DqmSaverTkAl.dirName = '.oO[workdir]Oo./.'
+process.DqmSaverTkAl.forceRunNumber = .oO[firstRunNumber]Oo.
+"""
+#offlineDqmFileOutputTemplate = """
+#process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..workflow =  .oO[workflow]Oo.
+#process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..dirName = .oO[workdir]Oo./.
+#process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..forceRunNumber = .oO[firstRunNumber]Oo.
+#"""
+
 
 LorentzAngleTemplate = "#use lorentz angle from global tag"
 
 TrackSelectionTemplate = """
 ##### For Tracks:
+
+
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
 # the offlineTemplate0T
-process.AlignmentTrackSelector.pMin    = 4.
+process.AlignmentTrackSelector.pMin    = 1.5
 process.AlignmentTrackSelector.pMax    = 9999.
-process.AlignmentTrackSelector.ptMin   = 0.
+process.AlignmentTrackSelector.ptMin   = 0
 process.AlignmentTrackSelector.ptMax   = 9999.
 process.AlignmentTrackSelector.etaMin  = -999.
 process.AlignmentTrackSelector.etaMax  = 999.
@@ -216,6 +172,8 @@ process.AlignmentTrackSelector.applyIsolationCut = False
 process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False
 process.AlignmentTrackSelector.minHitChargeStrip = 50.
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
 
 ##### For Hits:
 process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
@@ -224,11 +182,11 @@ process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep
 process.TrackerTrackHitFilter.detsToIgnore = [
      # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
     # TIB / TID
-    369136710, 369136714, 402668822,
+    #369136710, 369136714, 402668822,
     # TOB
-    436310989, 436310990, 436299301, 436299302,
+    #436310989, 436310990, 436299301, 436299302,
     # TEC
-    470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
 ]
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
@@ -236,7 +194,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 #process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 14.0")
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 8.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
-process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
 """
 
@@ -263,21 +221,31 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 #removed: APE
 #removed: dbLoad
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+process.GeomToComp = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+connect = cms.string('.oO[dbpath]Oo.'),
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
-process.GeomToComp = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
         tag = cms.string('.oO[tag]Oo.')
-    )),
-    connect = cms.string('.oO[dbpath]Oo.')
+    ))
+   
 )
 process.es_prefer_geom=cms.ESPrefer("PoolDBESSource","GeomToComp")
 
+from CondCore.DBCommon.CondDBSetup_cfi import *
 
+process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
+								connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
+								timetype = cms.string("runnumber"),
+								toGet = cms.VPSet(
+											cms.PSet(
+												record = cms.string('TrackerAlignmentErrorRcd'),
+												tag = cms.string('TrackerIdealGeometryErrors210_mc')
+											))
+								)
+#process.es_prefer_ZeroGeom = cms.ESPrefer("PoolDBESSource", "ZeroGeom")
+process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
 #---- delete used in22X---
 #process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 #    process.CondDBSetup,
@@ -296,7 +264,7 @@ process.es_prefer_geom=cms.ESPrefer("PoolDBESSource","GeomToComp")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 process.dump = cms.EDFilter("TrackerGeometryIntoNtuples",
     outputFile = cms.untracked.string('.oO[workdir]Oo./.oO[alignmentName]Oo.ROOTGeometry.root'),
@@ -314,15 +282,20 @@ process = cms.Process("validation")
 # global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+
 #process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
+# the input .GlobalPosition_Frontier_cff is providing the frontier://FrontierProd/CMS_COND_31X_ALIGNMENT in the release which does not provide the ideal geometry
+#process.GlobalPosition.connect = 'frontier://FrontierProd/CMS_COND_31X_FROM21X'
+
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('LOGFILE_Common.oO[common]Oo._.oO[name]Oo.', 
+    destinations = cms.untracked.vstring('detailedInfo', 
         'cout')
 )
 
@@ -368,8 +341,12 @@ dbOutputTemplate= """
 """
 
 dbLoadTemplate="""
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+#from CondCore.DBCommon.CondDBSetup_cfi import *
+from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
+##include private db object
+##
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+process.trackerAlignment =  CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
                                         connect = cms.string('.oO[dbpath]Oo.'),
                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
@@ -381,7 +358,7 @@ process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlig
 
 APETemplate="""
 from CondCore.DBCommon.CondDBSetup_cfi import *
-process.APE = cms.ESSource("PoolDBESSource",CondDBSetup,
+process.APE = poolDBESSource.clone(
                                         connect = cms.string('.oO[errordbpath]Oo.'),
                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
@@ -398,7 +375,7 @@ scriptTemplate="""
 #!/bin/bash
 #init
 ulimit -v 3072000
-export STAGE_SVCCLASS=cmscaf
+export STAGE_SVCCLASS=cmscafuser
 source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
 eval `scramv1 ru -sh`
@@ -433,7 +410,7 @@ echo "done."
 mergeTemplate="""
 #!/bin/bash
 #init
-export STAGE_SVCCLASS=cmscaf
+export STAGE_SVCCLASS=cmscafuser
 source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
 eval `scramv1 ru -sh`
@@ -652,6 +629,8 @@ process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False
 process.AlignmentTrackSelector.minHitChargeStrip = 50.
 process.AlignmentTrackSelector.minHitsPerSubDet.inBPIX = 2
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
 process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=30.0
 process.KFFittingSmootherWithOutliersRejectionAndRK.MinNumberOfHits=4
 #process.FittingSmootherRKP5.EstimateCut = 20.0
@@ -676,6 +655,7 @@ process.TrackRefitter2 = RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefi
 process.TrackRefitter2.src = 'ctfWithMaterialTracksP5'
 process.TrackRefitter2.TrajectoryInEvent = True
 process.TrackRefitter2.TTRHBuilder = "WithTrackAngle"
+process.TrackRefitter2.NavigationSchool = ""
 
 ### Now adding the construction of global Muons
 # what Chang did...
@@ -758,16 +738,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(.oO[nEvents]Oo.)
  )
 
- ##
- ## Output File Configuration
- ##
-process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('.oO[outputFile]Oo.'),
-    closeFileFast = cms.untracked.bool(True)
- )
-#process.TFileService.closeFileFast = True
-
  ##   
  ## Messages & Convenience
  ##
@@ -806,6 +776,8 @@ process.AlignmentTrackSelector.applyIsolationCut = False
 process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False
 process.AlignmentTrackSelector.minHitChargeStrip = 50.
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
 
 ####  new FILTER
 #-- new track hit filter
@@ -847,7 +819,8 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter1 = RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefitterP5.clone(
   src = '.oO[TrackCollection]Oo.',
   TrajectoryInEvent = True,
-  TTRHBuilder = "WithTrackAngle"
+  TTRHBuilder = "WithTrackAngle",
+  NavigationSchool = ""
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
@@ -906,78 +879,25 @@ process.load("Configuration/StandardSequences/MagneticField_38T_cff")
  ##
  ## Load and Configure OfflineValidation
  ##
-process.load("Alignment.OfflineValidation.TrackerOfflineValidation_cfi")
-process.TrackerOfflineValidation.Tracks = 'TrackRefitter2'
-process.TrackerOfflineValidation.trajectoryInput = 'TrackRefitter2'
-process.TrackerOfflineValidation.moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
-process.TrackerOfflineValidation.stripYResiduals = True
-
-# Normalized X Residuals, normal local coordinates (Strip)
-process.TrackerOfflineValidation.TH1NormXResStripModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-
-# X Residuals, normal local coordinates (Strip)                      
-process.TrackerOfflineValidation.TH1XResStripModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-)
-
-# Normalized X Residuals, native coordinates (Strip)
-process.TrackerOfflineValidation.TH1NormXprimeResStripModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-
-# X Residuals, native coordinates (Strip)
-process.TrackerOfflineValidation.TH1XprimeResStripModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-)
-
-# Normalized Y Residuals, native coordinates (Strip -> hardly defined)
-process.TrackerOfflineValidation.TH1NormYResStripModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# -> very broad distributions expected                                         
-process.TrackerOfflineValidation.TH1YResStripModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-10.0), xmax = cms.double(10.0)
-)
-
-# Normalized X residuals normal local coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1NormXResPixelModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# X residuals normal local coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1XResPixelModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-)
-# Normalized X residuals native coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1NormXprimeResPixelModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# X residuals native coordinates (Pixel)                                        
-process.TrackerOfflineValidation.TH1XprimeResPixelModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-)                                        
-# Normalized Y residuals native coordinates (Pixel)                                         
-process.TrackerOfflineValidation.TH1NormYResPixelModules = cms.PSet(
-    Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-)
-# Y residuals native coordinates (Pixel)                                         
-process.TrackerOfflineValidation.TH1YResPixelModules = cms.PSet(
-    Nbinx = cms.int32(2000), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-)
+process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..stripYResiduals = True
+.oO[offlineValidationFileOutput]Oo.
 
  ##
  ## PATH
  ##
 process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
-                     *process.TrackRefitter2*process.AlignmentTrackSelector*process.TrackerOfflineValidation)
+                     *process.TrackRefitter2*process.AlignmentTrackSelector*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
 """
 
 zeroAPETemplate="""
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.APE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                        connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
+                                        connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(
                                                           cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
@@ -988,9 +908,365 @@ process.es_prefer_APE = cms.ESPrefer("PoolDBESSource", "APE")
 """
 
 
-TrackSelectionPeakMode = """
+TrackSelectionPeakModeFirstData = """
+############################################################
+######
+######WARNING temporary fix to run on first collision data
+######
+#############################################################
+
+#########################################################################
+## Physics Filter for first data analysis
+## flag set by hand by the online shifter
+###########################################################################
+process.skimming = cms.EDFilter("PhysDecl",
+           applyfilter = cms.untracked.bool(True)
+)
+
+
+process.lumiSkim = cms.EDFilter("MYSKIM",
+               applyfilter = cms.untracked.bool(True),
+               selectedRun = cms.untracked.int32(123596),
+               minLumiSection = cms.untracked.int32(69),
+               maxLumiSection = cms.untracked.int32(99999),
+               selectedLastRun = cms.untracked.int32(123818),        
+               excludeLumiSection = cms.untracked.int32(0),                 
+
+)             
+
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
+process.AlignmentTrackSelector.pMin    = 1.5
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 0.
+process.AlignmentTrackSelector.ptMax   = 9999.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.nHitMin = 6
+process.AlignmentTrackSelector.nHitMin2D = 2
+process.AlignmentTrackSelector.chi2nMax = 999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
+process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
+
+##### For Hits:
+process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
+process.TrackerTrackHitFilter.minimumHits = 6
+process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
+process.TrackerTrackHitFilter.detsToIgnore = [
+     # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
+    # TIB / TID
+    #369136710, 369136714, 402668822,
+    # TOB
+    #436310989, 436310990, 436299301, 436299302,
+    # TEC
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+]
+process.TrackerTrackHitFilter.replaceWithInactiveHits = True
+process.TrackerTrackHitFilter.stripAllInvalidHits = False
+process.TrackerTrackHitFilter.rejectBadStoNHits = True
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 14.0")
+#process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 8.0")
+process.TrackerTrackHitFilter.rejectLowAngleHits= True
+process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.usePixelQualityFlag= True
+"""
+
+
+CosmicsOfflineValidation="""
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("OfflineValidator") 
+   
+process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+
+#process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*') # hack to get rid of the memory consumption problem in 2_2_X and beond
+process.options = cms.untracked.PSet(
+   wantSummary = cms.untracked.bool(False),
+   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
+   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+)
+
+ ##
+ ## Maximum number of Events
+ ## 
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(.oO[nEvents]Oo.)
+ )
+
+ ##   
+ ## Messages & Convenience
+ ##
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
+reportEvery = cms.untracked.int32(1000) # every 1000th only
+#    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
+))
+process.MessageLogger.statistics.append('cout')
+
+
+#-- Track hit filter
+# TrackerTrackHitFilter takes as input the tracks/trajectories coming out from TrackRefitter1
+process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
+process.TrackerTrackHitFilter.src = 'TrackRefitter1'
+
+
+
+#-- Alignment Track Selection
+process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
+process.AlignmentTrackSelector.src = 'HitFilteredTracks'
+process.AlignmentTrackSelector.filter = True
+
+.oO[TrackSelectionTemplate]Oo.
+
+#now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
+process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
+    src = 'TrackerTrackHitFilter',
+###    TrajectoryInEvent = True,
+     NavigationSchool = '',
+    TTRHBuilder = "WithAngleAndTemplate"    
+)
+
+ ##
+ ## Load and Configure TrackRefitter1
+ ##
+
+
+#############
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+
+process.TrackRefitter1 = process.TrackRefitterP5.clone(
+    src = 'ALCARECOTkAlCosmicsCTF0T',
+    TrajectoryInEvent = True,
+     NavigationSchool = '',
+    TTRHBuilder = "WithAngleAndTemplate"
+)
+process.TrackRefitter2 = process.TrackRefitter1.clone(
+    src = 'AlignmentTrackSelector',
+   
+    )
+
+
+ ##
+ ## Get the BeamSpot
+ ##
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+ 
+ ##
+ ## GlobalTag Conditions (if needed)
+ ##
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
+
+
+.oO[LorentzAngleTemplate]Oo.
+  
+ ##
+ ## Geometry
+ ##
+process.load("Configuration.StandardSequences.Geometry_cff")
+ 
+ ##
+ ## Magnetic Field
+ ##
+process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+
+.oO[dbLoad]Oo.
+
+.oO[APE]Oo.
+
+## to apply misalignments
+#TrackerDigiGeometryESModule.applyAlignment = True
+   
+ ##
+ ## Load and Configure OfflineValidation
+ ##
+
+process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
+process.TFileService.fileName = '.oO[outputFile]Oo.'
+
+ ##
+ ## PATH
+ ##
+process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
+                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
+
+
+"""
+
+
+CosmicsAt0TOfflineValidation="""
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("OfflineValidator") 
+   
+process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+
+#process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*') # hack to get rid of the memory consumption problem in 2_2_X and beond
+process.options = cms.untracked.PSet(
+   wantSummary = cms.untracked.bool(False),
+   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
+   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+)
+
+ ##
+ ## Maximum number of Events
+ ## 
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(.oO[nEvents]Oo.)
+ )
+
+ ##   
+ ## Messages & Convenience
+ ##
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
+reportEvery = cms.untracked.int32(1000) # every 1000th only
+#    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
+))
+process.MessageLogger.statistics.append('cout')
+
+
+#-- Track hit filter
+# TrackerTrackHitFilter takes as input the tracks/trajectories coming out from TrackRefitter1
+process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
+process.TrackerTrackHitFilter.src = 'TrackRefitter1'
+
+#-- Alignment Track Selection
+process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
+process.AlignmentTrackSelector.src = 'HitFilteredTracks'
+process.AlignmentTrackSelector.filter = True
+
+.oO[TrackSelectionTemplate]Oo.
+# Override the pmin setting since not meaningful with B=0T
+process.AlignmentTrackSelector.pMin    = 4.
+
+#### momentum constraint for 0T
+# First momentum constraint
+process.load("RecoTracker.TrackProducer.MomentumConstraintProducer_cff")
+import RecoTracker.TrackProducer.MomentumConstraintProducer_cff
+process.AliMomConstraint1 = RecoTracker.TrackProducer.MomentumConstraintProducer_cff.MyMomConstraint.clone()
+process.AliMomConstraint1.src = '.oO[TrackCollection]Oo.'
+process.AliMomConstraint1.fixedMomentum = 5.0
+process.AliMomConstraint1.fixedMomentumError = 0.005
+
+# Second momentum constraint
+#process.load("RecoTracker.TrackProducer.MomentumConstraintProducer_cff")
+#import RecoTracker.TrackProducer.MomentumConstraintProducer_cff
+process.AliMomConstraint2 = RecoTracker.TrackProducer.MomentumConstraintProducer_cff.MyMomConstraint.clone()
+process.AliMomConstraint2.src = 'AlignmentTrackSelector'
+process.AliMomConstraint2.fixedMomentum = 5.0
+process.AliMomConstraint2.fixedMomentumError = 0.005
+   
+
+
+#now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
+process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksP5.clone(
+    src = 'TrackerTrackHitFilter'
+###    ,
+###    TrajectoryInEvent = True,
+###    TTRHBuilder = "WithAngleAndTemplate"    
+)
+
+ ##
+ ## Load and Configure TrackRefitter1
+ ##
+
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+
+#############
+# parameters for TrackRefitter
+#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+import RecoTracker.TrackProducer.TrackRefitters_cff
+process.TrackRefitter1 = process.TrackRefitterP5.clone(
+   src = 'AliMomConstraint1'
+   TrajectoryInEvent = True
+   TTRHBuilder = "WithAngleAndTemplate"
+   NavigationSchool = "",
+   constraint = 'momentum' ### SPECIFIC FOR CRUZET
+   srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
+)
+
+process.TrackRefitter2 = process.TrackRefitter1.clone(
+    src = 'AliMomConstraint2',
+    srcConstr='AliMomConstraint2',
+    constraint = 'momentum' ### SPECIFIC FOR CRUZET
+)
+
+
+ ##
+ ## Get the BeamSpot
+ ##
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+ 
+ ##
+ ## GlobalTag Conditions (if needed)
+ ##
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
+process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+
+.oO[LorentzAngleTemplate]Oo.
+  
+ ##
+ ## Geometry
+ ##
+process.load("Configuration.StandardSequences.Geometry_cff")
+ 
+ ##
+ ## Magnetic Field
+ ##
+#process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff") # 0T runs
+
+.oO[dbLoad]Oo.
+
+.oO[APE]Oo.
+
+## to apply misalignments
+#TrackerDigiGeometryESModule.applyAlignment = True
+   
+ ##
+ ## Load and Configure OfflineValidation
+ ##
+process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
+process.TFileService.fileName = '.oO[outputFile]Oo.'
+
+ ##
+ ## PATH
+ ##
+#process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
+#                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
+
+process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
+                     *process.AlignmentTrackSelector*process.AliMomConstraint2*process.TrackRefitter2*process.TrackerOfflineValidation)
+
+
+"""
+TrackSelectionCosmics = """
+##### For Tracks:
+process.AlignmentTrackSelector.applyBasicCuts = True
+# Note that pMin is overridden and set to zero in
+# the offlineTemplate0T
 process.AlignmentTrackSelector.pMin    = 4.
 process.AlignmentTrackSelector.pMax    = 9999.
 process.AlignmentTrackSelector.ptMin   = 0.
@@ -1009,6 +1285,8 @@ process.AlignmentTrackSelector.applyIsolationCut = False
 process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False
 process.AlignmentTrackSelector.minHitChargeStrip = 50.
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
 
 ##### For Hits:
 process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
@@ -1017,11 +1295,11 @@ process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep
 process.TrackerTrackHitFilter.detsToIgnore = [
      # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
     # TIB / TID
-    369136710, 369136714, 402668822,
+    #369136710, 369136714, 402668822,
     # TOB
-    436310989, 436310990, 436299301, 436299302,
+    #436310989, 436310990, 436299301, 436299302,
     # TEC
-    470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
 ]
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
@@ -1032,7 +1310,3 @@ process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
 """
-
-## at the moment all B=0T templates are in this file
-from configTemplates0T import *
-
