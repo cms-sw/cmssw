@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.15 2009/07/20 13:07:27 mommsen Exp $
+ *  $Id: DQMHttpSource.cc,v 1.16 2009/11/05 13:14:07 mommsen Exp $
 /// @file: DQMHttpSource.cc
  */
 
@@ -304,8 +304,6 @@ namespace edm
         }
       }
     }
-
-    EventID eventId(iRun,iEvent);
 
     // make a fake event containing no data but the evId and runId from DQMEvent
     // and the time stamp from the event at update
