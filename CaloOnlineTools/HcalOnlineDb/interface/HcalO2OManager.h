@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:45:38 CEST 2009
-// $Id: HcalO2OManager.h,v 1.2 2009/08/17 02:12:52 kukartse Exp $
+// $Id: HcalO2OManager.h,v 1.3 2009/10/26 02:55:16 kukartse Exp $
 //
 
 #include<vector>
@@ -50,6 +50,17 @@ class HcalO2OManager
 			   const std::vector<uint32_t> & omds_iovs,
 			   const std::vector<uint32_t> & orcon_iovs);
       void getListOfNewIovs_test(void);
+
+      // get list of IOVs to update for a given tag, or report impossible
+      // return:
+      // list of IOVs as first argument,
+      // number of IOVs to update as return value
+      // -1 if tag is inconsistent with the update
+      // 0 if everything's up to date already
+      int getListOfUpdateIovs(std::vector<uint32_t> & _iovs,
+			      std::string _tag,
+			      std::string pool_connect_string
+			      );
 
    private:
 

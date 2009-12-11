@@ -549,7 +549,7 @@ int main( int argc, char **argv )
       return 0;
     }
     
-
+    // FIXME: transfering this to HcalO2OManager...
     if (vm.count("list-iovs-for-o2o")) {
       if (!vm.count("tag-name")) {
 	cout << "Tag name is not specified! Exiting..." << "\n";
@@ -584,10 +584,6 @@ int main( int argc, char **argv )
 	       ++iov){
 	    cout << "O2O_IOV_LIST: " << *iov << std::endl;
 	  }
-	  std::copy (_iovs.begin(),
-		     _iovs.end(),
-		     std::ostream_iterator<uint32_t>(std::cout,"\n")
-		     );
 	}
 	return 0;
       }

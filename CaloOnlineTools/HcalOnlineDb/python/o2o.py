@@ -190,7 +190,9 @@ def get_iovs(tag, input_pool_connect_string, mode):
         if line.strip()[0:13] == "O2O_IOV_LIST:":
            iovs.append(line.lstrip("O2O_IOV_LIST:"))
     return iovs
-#________________________________________________________________________
+#
+#_____ end of helper functions __________________________________________
+
 
 tags = get_tags(base_dir+"/"+o2o_tag_list_file)
 for tag_name in tags:
@@ -235,6 +237,7 @@ for tag_name in tags:
     #
     #_____ loop over IOV to copy
     #
+    #FIXME: move the binary inside the popcon job, and try multiple IOV
     o2o_iovs = get_iovs(tag, input_pool_connect_string, mode)
     i = 0
     #for line in o2o_iovs.splitlines():

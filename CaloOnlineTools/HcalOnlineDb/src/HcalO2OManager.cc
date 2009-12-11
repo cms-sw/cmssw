@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.12 2009/11/18 23:02:26 lsexton Exp $
+// $Id: HcalO2OManager.cc,v 1.13 2009/12/01 20:20:40 innocent Exp $
 //
 
 
@@ -264,4 +264,40 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
   //if (_counter != 0) result = _counter;
   result = _counter;
   return result;
+}
+
+
+// get list of IOVs to update for a given tag, or report impossible
+// return:
+// list of IOVs as first argument,
+// number of IOVs to update as return value
+// -1 if tag is inconsistent with the update
+// 0 if everything's up to date already
+int HcalO2OManager::getListOfUpdateIovs(std::vector<uint32_t> & _iovs,
+					std::string _tag,
+					std::string pool_connect_string
+					){
+  //cout << "DEBUG: " << pool_connect_string << endl;
+  std::vector<uint32_t> omds_iovs;
+  std::vector<uint32_t> pool_iovs;
+  getListOfOmdsIovs(omds_iovs, _tag);
+  getListOfPoolIovs(pool_iovs, _tag, pool_connect_string);
+  int n_iovs = m.getListOfNewIovs(_iovs,
+				  omds_iovs,
+				  pool_iovs);
+  if (n_iovs == -1){
+    std::cout << "HcalO2OManager: O2O is not possible" << std::endl;
+  }
+  else if (n_iovs == 0){
+    std::cout << "HcalO2OManager: O2O is not needed, the tag is up to date" << std::endl;
+  }
+  else{
+    edm::LogInfo("HcalO2OManager") << "These IOVs are to be updated:" << std::endl;
+    for (std::vector<uint32_t>::const_iterator iov = _iovs.begin();
+	 iov != _iovs.end();
+	 ++iov){
+      cout << "O2O_IOV_LIST: " << *iov << std::endl;
+    }
+  }
+  return n_iovs;
 }
