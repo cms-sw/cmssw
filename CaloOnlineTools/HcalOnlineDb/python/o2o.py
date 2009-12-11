@@ -161,15 +161,16 @@ def get_tags(tag_list_file_name):
 
 #_____ get list of IOVs that need updating, from comparison of OMDS and ORCON
 def get_iovs(tag, input_pool_connect_string, mode):
+    result = "fail" # default
     # nominal mode of operations
     if mode == "online" or mode == "online_dropbox":
         try:
             iovs = subprocess.Popen(["./xmlToolsRun", "--list-iovs-for-o2o", "--tag-name", tag, "--pool-connect-string", input_pool_connect_string], stdout=subprocess.PIPE).communicate()[0]
         except:
-            print "Cannot get the IOV update list for tag", tag+", exiting..."
-            #FIXME: should not exit: report error for this tag and move on to the next
-            sys.exit()
+            print "ERROR: Cannot get the IOV update list for tag", tag+". This tag will not be updated. Now continue to the next tag..."
+            result = "fail"
         iov_list = iovs.splitlines()
+        result = "success"
 
     # script development mode, DB interfaces substituted with dummies
     if mode == "offline_development":
@@ -177,8 +178,9 @@ def get_iovs(tag, input_pool_connect_string, mode):
         try:
             iov_list_file = open(base_dir+"/o2o/"+tag+"_iov_to_update.devel")
         except:
-            print "Cannot open file with the IOV list for tag", tag+", exiting..."
-            sys.exit()
+            print "ERROR: Cannot open file with the IOV list for tag", tag+". This tag will not be updated. Now continue to the next tag..."
+            result = "fail"
+        result = "success"
         iov_list = []
         for line in iov_list_file:
             iov_list . append(line.strip())
@@ -189,7 +191,8 @@ def get_iovs(tag, input_pool_connect_string, mode):
     for line in iov_list:
         if line.strip()[0:13] == "O2O_IOV_LIST:":
            iovs.append(line.lstrip("O2O_IOV_LIST:"))
-    return iovs
+    return {'iovs':iovs,
+            'result':result}
 #
 #_____ end of helper functions __________________________________________
 
@@ -238,9 +241,14 @@ for tag_name in tags:
     #_____ loop over IOV to copy
     #
     #FIXME: move the binary inside the popcon job, and try multiple IOV
-    o2o_iovs = get_iovs(tag, input_pool_connect_string, mode)
+    gotten_iovs = get_iovs(tag, input_pool_connect_string, mode)
+
+    # stop processing current tag if IOVs were not obtained
+    if (gotten_iovs['result'] != "success"):
+        continue
+    
+    o2o_iovs = gotten_iovs['iovs']
     i = 0
-    #for line in o2o_iovs.splitlines():
     for line in o2o_iovs:
         i = i+1
         iov = int(line)
@@ -252,17 +260,18 @@ for tag_name in tags:
             else:
                 print "In online mode would run Popcon now:", "cmsRun", str(python_popcon_file)
         except OSError:
-            print "cannot execute cmsRun. Further execution is stopped"
-            sys.exit()
+            print "Cannot execute cmsRun. Further processing of this tag is stopped, going to the next tag..."
+            break
+        except:
+            print "Cannot execute cmsRun. Further processing of this tag is stopped, going to the next tag..."
+            break
             
     #
     #_____ copy to the Dropbox area (optional)
     #
     if use_dropbox == "true" or use_dropbox == "True" or use_dropbox == "TRUE":
         try:
-            #os.system('mv '+str(output_dir)+'/'+str(dropbox_file_name_prefix)+'.* '+str(dropbox_dir)+'/')
-            # retcall==0 indicates success
             retcall_meta = subprocess.call(['mv', str(output_dir)+'/'+str(dropbox_file_name_prefix)+'.txt', str(dropbox_dir)+'/'])
             retcall_sql    = subprocess.call(['mv', str(output_dir)+'/'+str(dropbox_file_name_prefix)+'.sql', str(dropbox_dir)+'/'])
         except:
-            print "Cannot copy files to the dropbox area"
+            print "ERROR: Cannot copy files to the dropbox area"
