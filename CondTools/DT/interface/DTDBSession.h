@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:51 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2007/12/07 15:12:17 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -29,7 +29,6 @@
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBOutputService/interface/serviceCallbackRecord.h"
 #include <string>
 #include <map>
 namespace edm {
