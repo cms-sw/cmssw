@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.6 2008/02/29 20:48:53 ksmith Exp $
+// $Id: GlobalTest.cc,v 1.7 2009/01/28 16:33:57 ebecheva Exp $
 //
 //
 
@@ -18,6 +18,8 @@
 // system include files
 #include <memory>
 #include <utility>
+
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -42,7 +44,9 @@
 
 using namespace edm;
 
-GlobalTest::GlobalTest(const edm::ParameterSet& iConfig): filename_(iConfig.getParameter<std::string>("fileName")), minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")),  dbe_(0)
+GlobalTest::GlobalTest(const edm::ParameterSet& iConfig):
+filename_(iConfig.getParameter<std::string>("fileName")),
+minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")), dbe_(0)
 {
   std::cout << "Constructed GlobalTest, filename: "<<filename_<<" minbunch: "<<minbunch_<<", maxbunch: "<<maxbunch_<<std::endl;
 
@@ -56,22 +60,39 @@ GlobalTest::~GlobalTest()
 }
 
 void GlobalTest::beginJob(edm::EventSetup const&iSetup) {
-
+  using namespace std;
+  
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->(); 
   dbe_->showDirStructure();
   dbe_->setCurrentFolder("MixingV/Mixing");
   //book histos
-  const int nrHistos=6;
-  char * labels[nrHistos];
-  labels[0]="NrPileupEvts";
-  labels[1]="NrVertices";
-  labels[2]="NrTracks";
-  labels[3]="TrackPartId";
-  labels[4]="CaloEnergyEB";
-  labels[5]="CaloEnergyEE";
-
-  /////    MonitorElement * vtxhistsig = dbe_->book1D(
+  std::string NrPileupEvts = "NrPileupEvts";
+  size_t NrPileupEvtsSize = NrPileupEvts.size() + 1;
+  std::string NrVertices = "NrVertices";
+  size_t NrVerticesSize = NrVertices.size() + 1;
+  std::string NrTracks = "NrTracks";
+  size_t NrTracksSize = NrTracks.size() + 1;
+  std::string TrackPartId = "TrackPartId";
+  size_t TrackPartIdSize = TrackPartId.size() + 1;
+  std::string CaloEnergyEB = "CaloEnergyEB";
+  size_t CaloEnergyEBSize = CaloEnergyEB.size() + 1;
+  std::string CaloEnergyEE = "CaloEnergyEE";
+  size_t CaloEnergyEESize = CaloEnergyEE.size() + 1;
+  
+  labels[0] = new char [NrPileupEvtsSize];
+  strncpy(labels[0], NrPileupEvts.c_str(), NrPileupEvtsSize);
+  labels[1] = new char [NrVerticesSize];
+  strncpy(labels[1], NrVertices.c_str(), NrVerticesSize); 
+  labels[2] = new char [NrTracksSize];
+  strncpy(labels[2], NrTracks.c_str(), NrTracksSize);
+  labels[3] = new char [TrackPartIdSize];
+  strncpy(labels[3], TrackPartId.c_str(), TrackPartIdSize);
+  labels[4] = new char [CaloEnergyEBSize];
+  strncpy(labels[4], CaloEnergyEB.c_str(), CaloEnergyEBSize);
+  labels[5] = new char [CaloEnergyEESize];
+  strncpy(labels[5], CaloEnergyEE.c_str(), CaloEnergyEESize);
+  
   //FIXME: test for max nr of histos
   for (int i=minbunch_;i<=maxbunch_;++i) {
     int ii=i-minbunch_;
@@ -94,6 +115,8 @@ void GlobalTest::beginJob(edm::EventSetup const&iSetup) {
 
 void GlobalTest::endJob() {
  if (filename_.size() != 0 && dbe_ ) dbe_->save(filename_);
+ 
+ for (int i; i<6; i++) delete [] labels[i];
 }
 
 //
@@ -105,7 +128,8 @@ void
 GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-
+   using namespace std;
+   
 // Get input
     edm::Handle<CrossingFrame<SimTrack> > cf_track;
     edm::Handle<CrossingFrame<SimTrack> > cf_vertex;

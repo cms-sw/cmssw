@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.h,v 1.2 2007/02/28 15:23:32 uberthon Exp $
+// $Id: GlobalTest.h,v 1.3 2008/02/29 20:48:53 ksmith Exp $
 //
 //
 
@@ -60,5 +60,9 @@ private:
   MonitorElement * caloEnergyEEH_[nMaxH];
 
   DQMStore* dbe_;
+  
+  const static int nrHistos=6;
+  char * labels[nrHistos];
+
 };
 
