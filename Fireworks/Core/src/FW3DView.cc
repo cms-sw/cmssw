@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.24 2009/11/11 18:37:43 amraktad Exp $
+// $Id: FW3DView.cc,v 1.25 2009/12/10 13:27:01 amraktad Exp $
 //
 
 // system include files
@@ -99,7 +99,8 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_showWireFrame(this, "Show Wire Frame", true),
-   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
+   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l),
+   m_lineWidth(this,"Line width",1.0,1.0,10.0)
 {
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
 
@@ -151,6 +152,7 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DView::showTrackerEndcap,this));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DView::showWireFrame,this));
    m_geomTransparency.changed_.connect(boost::bind(&FW3DView::setTransparency,this));
+   m_lineWidth.changed_.connect(boost::bind(&FW3DView::lineWidthChanged,this));
 }
 
 FW3DView::~FW3DView()
@@ -554,6 +556,12 @@ FW3DView::saveImageTo(const std::string& iName) const
    }
 }
 
+void
+FW3DView::lineWidthChanged()
+{
+   m_embeddedViewer->SetLineScale(m_lineWidth.value());
+   m_embeddedViewer->RequestDraw();
+}
 //
 // static member functions
 //
