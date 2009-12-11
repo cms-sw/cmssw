@@ -1,7 +1,7 @@
 #! /bin/csh
 
-set RefRelease="CMSSW_3_3_1"
-set WebDir="CMSSW_3_3_1_slc5_ia32_gcc434" # this is where you want the plots to end up; normally, you should put here the current release
+set RefRelease="CMSSW_3_4_0_pre6"
+set WebDir=$CMSSW_VERSION # this is where you want the plots to end up; normally, you should put here the current release
 
 # Possible values are:
 # Reconstruction  : preforms reconstruction+validation + histograms comparison
@@ -17,17 +17,18 @@ set Mode="Comparison"
 
 # do you want to copy histograms on the validation page?
 
-#set copyWWW="false"
-set copyWWW="true"
+set copyWWW="false"
+#set copyWWW="true"
 
 # set the histogram file name in Comparison mode
 #set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre5-MC_31X_V8-v1__GEN-SIM-RECO.root"
-set histogramfile="DQM_V0001_R000000001__CMSSW_3_3_1_slc5_ia32_gcc434__RelVal__Validation.root"
+set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_4_0_pre7-MC_3XY_V14-v1__GEN-SIM-RECO_1.root"
 
 #reference histogram file name
 #set refhistogramfile="DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root"
 #set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre4-MC_31X_V8-v1__GEN-SIM-RECO.root"
-set refhistogramfile="DQM_V0001_R000000001__CMSSW_3_3_1_slc4_ia32_gcc345__RelVal__Validation.root"
+set refhistogramfile="DQM_V0001_R000000001__CMSSW_3_4_0_pre6__RelVal__Validation.root"
+setenv SCRAM_ARCH slc5_ia32_gcc434
 eval `scramv1 runtime -csh`
 
 setenv DATADIR $CMSSW_BASE/src
@@ -55,7 +56,7 @@ if (! -e Validation/TrackerHits) cvs co -r $CMSSW_VERSION Validation/TrackerHits
 if (! -e Validation/TrackerDigis) cvs co -r $CMSSW_VERSION Validation/TrackerDigis
 if (! -e Validation/TrackerRecHits) cvs co -r $CMSSW_VERSION Validation/TrackerRecHits
 if (! -e Validation/TrackingMCTruth) cvs co -r $CMSSW_VERSION Validation/TrackingMCTruth
-if (! -e Validation/RecoTrack) cvs co -r $CMSSW_VERSION Validation/RecoTrack
+if (! -e Validation/RecoTrack) cvs co  Validation/RecoTrack ### TEMPORARY: I MODIFIED THE HEAD OF /test
 #Add also co of CalibTracker for test o Lite version of Geometry
 if (! -e CalibTracker/SiStripCommon) cvs co -r $CMSSW_VERSION CalibTracker/SiStripCommon
 #
