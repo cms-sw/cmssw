@@ -7,21 +7,21 @@ import FWCore.ParameterSet.Config as cms
 from Alignment.OfflineValidation.TrackerOfflineValidationSummary_cfi import *
 
 # do the parameter setting before cloning, so the clone gets these values
-TrackerOfflineValidationSummary.TH1DmrXprimeStripModules.Nbinx = 200
-TrackerOfflineValidationSummary.TH1DmrXprimeStripModules.xmin = -0.05
-TrackerOfflineValidationSummary.TH1DmrXprimeStripModules.xmax = 0.05
+TrackerOfflineValidationSummary.TH1DmrXprimeStripModules.Nbinx = 50
+TrackerOfflineValidationSummary.TH1DmrXprimeStripModules.xmin = -0.005
+TrackerOfflineValidationSummary.TH1DmrXprimeStripModules.xmax = 0.005
 
-TrackerOfflineValidationSummary.TH1DmrYprimeStripModules.Nbinx = 200
-TrackerOfflineValidationSummary.TH1DmrYprimeStripModules.xmin = -0.05
-TrackerOfflineValidationSummary.TH1DmrYprimeStripModules.xmax = 0.05
+TrackerOfflineValidationSummary.TH1DmrYprimeStripModules.Nbinx = 50
+TrackerOfflineValidationSummary.TH1DmrYprimeStripModules.xmin = -0.005
+TrackerOfflineValidationSummary.TH1DmrYprimeStripModules.xmax = 0.005
 
-TrackerOfflineValidationSummary.TH1DmrXprimePixelModules.Nbinx = 200
-TrackerOfflineValidationSummary.TH1DmrXprimePixelModules.xmin = -0.05
-TrackerOfflineValidationSummary.TH1DmrXprimePixelModules.xmax = 0.05
+TrackerOfflineValidationSummary.TH1DmrXprimePixelModules.Nbinx = 50
+TrackerOfflineValidationSummary.TH1DmrXprimePixelModules.xmin = -0.005
+TrackerOfflineValidationSummary.TH1DmrXprimePixelModules.xmax = 0.005
 
-TrackerOfflineValidationSummary.TH1DmrYprimePixelModules.Nbinx = 200
-TrackerOfflineValidationSummary.TH1DmrYprimePixelModules.xmin = -0.05
-TrackerOfflineValidationSummary.TH1DmrYprimePixelModules.xmax = 0.05
+TrackerOfflineValidationSummary.TH1DmrYprimePixelModules.Nbinx = 50
+TrackerOfflineValidationSummary.TH1DmrYprimePixelModules.xmin = -0.005
+TrackerOfflineValidationSummary.TH1DmrYprimePixelModules.xmax = 0.005
 
 # First clone
 TrackerOfflineValidationSummaryBinned = TrackerOfflineValidationSummary.clone()
