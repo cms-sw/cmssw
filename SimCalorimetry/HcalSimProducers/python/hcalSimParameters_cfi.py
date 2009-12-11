@@ -89,4 +89,10 @@ hcalSimParameters = cms.PSet(
     ),
 )
 
+hcalSimParameters.hoZecotek = hcalSimParameters.ho.clone()
+hcalSimParameters.hoZecotek.pixels = cms.int32(36000)
+hcalSimParameters.hoZecotek.photoelectronsToAnalog = 3.0
 
+hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
+hcalSimParameters.hoHamamatsu.pixels = cms.int32(960)
+hcalSimParameters.hoHamamatsu.photoelectronsToAnalog = 3.0
