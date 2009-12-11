@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id: TrackerOfflineValidationSummary.cc,v 1.3 2009/10/28 17:24:26 hauk Exp $
+// $Id: TrackerOfflineValidationSummary.cc,v 1.4 2009/11/13 16:57:05 hauk Exp $
 //
 //
 
@@ -110,7 +110,7 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       std::pair<float,float> fitResiduals(TH1* hist)const;
       float getMedian(const TH1* hist)const;
       
-      void associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists, std::map<std::string,std::string>& substructureName);
+      const std::string associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists, std::map<std::string,std::string>& substructureName);
       
       void collateHarvestingHists(TTree& tree);
       void applyHarvestingHierarchy(TTree& treeMem);
@@ -361,7 +361,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
     
     
     // Assign histos from first step (TrackerOfflineValidation) to the module's entry in the TTree for retrieving mean, rms, median ...
-    associateModuleHistsWithTree(treeMem, it->second, substructureName);
+    const std::string histDir = associateModuleHistsWithTree(treeMem, it->second, substructureName);
     
     
     //mean and RMS values (extracted from histograms Xprime on module level)
@@ -445,12 +445,25 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
       }
       treeMem.histNameNormY = h->GetName();
     }
+    
+    // Delete module level hists if set in cfg
+    const bool removeModuleLevelHists(parSet_.getParameter<bool>("removeModuleLevelHists"));
+    if(removeModuleLevelHists){
+      dbe_->setCurrentFolder("");
+      if(it->second.ResHisto)          dbe_->removeElement(histDir + "/" + it->second.ResHisto->GetName());
+      if(it->second.NormResHisto)      dbe_->removeElement(histDir + "/" + it->second.NormResHisto->GetName());
+      if(it->second.ResXprimeHisto)    dbe_->removeElement(histDir + "/" + it->second.ResXprimeHisto->GetName());
+      if(it->second.NormResXprimeHisto)dbe_->removeElement(histDir + "/" + it->second.NormResXprimeHisto->GetName());
+      if(it->second.ResYprimeHisto)    dbe_->removeElement(histDir + "/" + it->second.ResYprimeHisto->GetName());
+      if(it->second.NormResYprimeHisto)dbe_->removeElement(histDir + "/" + it->second.NormResYprimeHisto->GetName());
+    }
+    
     tree.Fill();
   }
 }
 
 
-void
+const std::string
 TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists, std::map<std::string,std::string>& substructureName){
    std::stringstream histDir, sSubdetName;
    std::string componentName;
@@ -561,7 +574,7 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
    else{edm::LogError("TrackerOfflineValidationSummary")<<"Problem with names in input file produced in TrackerOfflineValidation ...\n"
                                                         <<"This histogram should exist in every configuration, "
 							<<"but no histogram with name "<<fullPath<<" is found!";
-     return;
+     return "";
    }
    fullPath = histDir.str()+"/h_normxprime"+histName.str();
    if(dbe_->get(fullPath)) moduleHists.NormResXprimeHisto = dbe_->get(fullPath)->getTH1();
@@ -573,6 +586,8 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
    if(dbe_->get(fullPath)) moduleHists.ResHisto = dbe_->get(fullPath)->getTH1();
    fullPath = histDir.str()+"/h_norm"+histName.str();
    if(dbe_->get(fullPath)) moduleHists.NormResHisto = dbe_->get(fullPath)->getTH1();
+   
+   return histDir.str();
 }
 
 
