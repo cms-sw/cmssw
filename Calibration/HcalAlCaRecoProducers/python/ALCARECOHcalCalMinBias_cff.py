@@ -17,12 +17,12 @@ horecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.hore
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-#    HLTPaths = ['AlCa_HcalPhiSym'],
-    eventSetupPathsKey='HcalCalMinBias',
+    HLTPaths = ['HLT_HcalPhiSym'],
+    eventSetupPathsKey='',
     throw = False #dont throw except on unknown path name 
 )
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*hbherecoNoise*hfrecoNoise*horecoNoise)
+seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMB*horecoNoise)
 
 hcalDigiAlCaMB.firstSample = 0
 hcalDigiAlCaMB.lastSample = 9
