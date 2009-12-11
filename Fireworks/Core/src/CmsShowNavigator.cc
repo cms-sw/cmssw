@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.78 2009/12/07 20:29:52 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.79 2009/12/07 21:12:52 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -30,6 +30,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constructors and destructor
@@ -96,6 +97,8 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
 {
    try
    {
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::appendFile [" << fileName << "]" << std::endl;
+
       FWFileEntry* newFile = new FWFileEntry(fileName);
       if ( newFile->file() == 0 )
       {
@@ -120,7 +123,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
          }
 
          if (m_files.size() >= m_maxNumberOfFilesToChain)
-            printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
+            fwLog(fwlog::kWarning) << "  " <<  (int)m_files.size() << " chained files more than maxNumberOfFilesToChain \n" <<  m_maxNumberOfFilesToChain << std::endl;
       }
 
       m_files.push_back(newFile);
@@ -150,6 +153,18 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
 
 void CmsShowNavigator::setCurrentFile(FileQueue_i fi)
 {
+   if (fwlog::presentLogLevel() == fwlog::kDebug)
+   {
+      int cnt = 0;
+      for (FileQueue_i i = m_files.begin(); i!= m_files.end(); i++)
+      {
+         if ( i == fi) break;
+         cnt++;
+      }
+      
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::setCurrentFile [" << (*fi)->file()->GetName() << "] file idx in chain [" << cnt << "/" << m_files.size() -1 << "]" << std::endl;
+   }
+   
    m_currentFile = fi;
    fileChanged_.emit((*m_currentFile)->file());
 }
@@ -160,6 +175,12 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
    if (fi != m_currentFile)
       setCurrentFile(fi);
 
+   if (fwlog::presentLogLevel() == fwlog::kDebug)
+   {
+      int total = (*fi)->tree()->GetEntries();
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::goTo  current file event [" << event  << "/" << total -1<< "]"  << std::endl;
+   }
+   
    (*m_currentFile)->event()->to(event);
    m_currentEvent = event;
 
@@ -358,6 +379,8 @@ CmsShowNavigator::toggleFilterEnable()
 {
    // callback
 
+   fwLog(fwlog::kInfo) << "CmsShowNavigator::toggleFilterEnable filters enabled [" << ( m_filterState == kOff) << "]" << std::endl;
+
    if (m_filterState == kOff)
    {
       m_filterState = kOn;
@@ -379,6 +402,7 @@ CmsShowNavigator::toggleFilterEnable()
 void
 CmsShowNavigator::withdrawFilter()
 {
+   fwLog(fwlog::kInfo) << "CmsShowNavigator::witdrawFilter" << std::endl;
    m_filterState = kWithdrawn;
    filterStateChanged_.emit(m_filterState);
 }
@@ -386,6 +410,7 @@ CmsShowNavigator::withdrawFilter()
 void
 CmsShowNavigator::resumeFilter()
 {
+   fwLog(fwlog::kInfo) << "CmsShowNavigator::resumeFilter" << std::endl;
    m_filterState = kOn;
    filterStateChanged_.emit(m_filterState);
 }
@@ -421,13 +446,18 @@ CmsShowNavigator::updateFileFilters()
    {
       withdrawFilter();
    }
+
+   if (fwlog::presentLogLevel() == fwlog::kDebug)
+   {
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::updateFileFilters selected events over files [" << getNSelectedEvents() << "/" << getNTotalEvents() << "]" << std::endl;
+   }
 }
 
 //=======================================================================
 void
 CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
 {
-   // printf("remove filter %s \n", (*si)->m_expression.c_str());
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::removeFilter " << (*si)->m_expression << std::endl;
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -452,7 +482,7 @@ CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
 void
 CmsShowNavigator::addFilter(FWEventSelector* ref)
 {
-   //  printf("add filter %s\n", ref->m_expression.c_str());
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::addFilter " << ref->m_expression << std::endl;
 
    FWEventSelector* selector = new FWEventSelector(ref);
    m_selectors.push_back(selector);
@@ -467,7 +497,7 @@ CmsShowNavigator::addFilter(FWEventSelector* ref)
 void
 CmsShowNavigator::changeFilter(FWEventSelector* selector, bool updateFilter)
 {
-  // printf("change filter %s\n", selector->m_expression.c_str());
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::changeFilter " << selector->m_expression << std::endl;
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
