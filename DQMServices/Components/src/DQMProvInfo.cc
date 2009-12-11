@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/12/07 21:47:52 $
- * $Revision: 1.2 $
+ * $Date: 2009/12/11 01:08:34 $
+ * $Revision: 1.3 $
  * $Author: ameyer $
  *
  */
@@ -12,6 +12,8 @@
 #include <TSystem.h>
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 // Framework
 
@@ -31,9 +33,10 @@ DQMProvInfo::DQMProvInfo(const ParameterSet& ps){
 
   provinfofolder_ = parameters_.getUntrackedParameter<string>("provInfoFolder", "ProvInfo") ;
   subsystemname_ = parameters_.getUntrackedParameter<string>("subSystemFolder", "YourSubsystem") ;
-  makedcsinfo_ = parameters_.getUntrackedParameter<bool>("makeDcsInfo",false);
-  dcsword_=0;
-
+  makedcsinfo_ = parameters_.getUntrackedParameter<bool>("makeDcsInfo",true);
+  dcsword_=0xffff; // set true and switch off in case a single event in a given LS has all subsys off.
+  physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
+  
 }
 
 DQMProvInfo::~DQMProvInfo(){
@@ -74,20 +77,27 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummary_=dbe_->bookFloat("reportSummary");
   reportSummary_->Fill(1.); // to be refined based on some algorithm
 
-  dcsword_=0;
+  dcsword_=0xffff;
+  physDecl_=true;
 } 
 
 void DQMProvInfo::analyze(const Event& e, const EventSetup& c){
  
 //  makeProvInfo();
 
-  if (makedcsinfo_) makeDcsInfo(e);
+  if (makedcsinfo_) 
+  { 
+     makeDcsInfo(e);
+     makeGtInfo(e);
+  }
   return;
 }
 
 void
-DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
+DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c)
 {
+
+ 
   if (!makedcsinfo_) return;
 
   // put dcsword into reportSummary 
@@ -102,7 +112,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSe
     }
   }
 
-  // fill last bin
+  // fill last bin 15 for detector HV
   for (int j=0;j<9;j++) 
   {
      float cont = 0.;
@@ -111,14 +121,28 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSe
      reportSummaryMap_->setBinContent(15,9-j,cont);
   }
   // reset
-  dcsword_=0;
-
-  // FIXME fill physics decl. bit in y bin 10.
+  dcsword_=0xffff;
 
 
-  // set bin labels
-  // reportSummaryMap_->setBinLabel( 15, "LS 15" ,     1);
-  // reportSummaryMap_->setBinLabel( 1,  "LS 1" ,      1);
+  // fill physics decl. bit in y bin 10.
+  if (physDecl_) 
+    reportSummaryMap_->setBinContent(15,10,1.);
+  else
+    reportSummaryMap_->setBinContent(15,10,0.);
+  // reset   
+  physDecl_=true;  
+
+
+  // set labels 
+  int nlumi = l.id().luminosityBlock();
+  char label[10];
+  sprintf(label, "lumi %d", nlumi);
+  reportSummaryMap_->setBinLabel( 15, label ,     1);
+  if (nlumi>15) 
+  {
+    sprintf(label, "lumi %d", nlumi-15);
+    reportSummaryMap_->setBinLabel( 1,  label ,      1);
+  }
 
   return;
   
@@ -205,31 +229,63 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
                                          dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
   {
       // cout << "here " << dcsStatusItr->ready() << endl;
-      if (dcsStatusItr->ready(DcsStatus::CSCp))  dcsword_ = dcsword_ | (1 << 0);
-      if (dcsStatusItr->ready(DcsStatus::CSCm))  dcsword_ = dcsword_ | (1 << 0);
-      if (dcsStatusItr->ready(DcsStatus::DT0))   dcsword_ = dcsword_ | (1 << 1);
-      if (dcsStatusItr->ready(DcsStatus::DTp))   dcsword_ = dcsword_ | (1 << 1);
-      if (dcsStatusItr->ready(DcsStatus::DTm))   dcsword_ = dcsword_ | (1 << 1); 
-      if (dcsStatusItr->ready(DcsStatus::EBp))   dcsword_ = dcsword_ | (1 << 2); 
-      if (dcsStatusItr->ready(DcsStatus::EBm))   dcsword_ = dcsword_ | (1 << 2);
-      if (dcsStatusItr->ready(DcsStatus::EEp))   dcsword_ = dcsword_ | (1 << 3);
-      if (dcsStatusItr->ready(DcsStatus::EEm))   dcsword_ = dcsword_ | (1 << 3);
-      if (dcsStatusItr->ready(DcsStatus::ESp))   dcsword_ = dcsword_ | (1 << 4);
-      if (dcsStatusItr->ready(DcsStatus::ESm))   dcsword_ = dcsword_ | (1 << 4);
-      if (dcsStatusItr->ready(DcsStatus::HBHEa)) dcsword_ = dcsword_ | (1 << 5); 
-      if (dcsStatusItr->ready(DcsStatus::HBHEb)) dcsword_ = dcsword_ | (1 << 5);
-      if (dcsStatusItr->ready(DcsStatus::HBHEc)) dcsword_ = dcsword_ | (1 << 5);
-      if (dcsStatusItr->ready(DcsStatus::HF))    dcsword_ = dcsword_ | (1 << 5);
-      if (dcsStatusItr->ready(DcsStatus::HO))    dcsword_ = dcsword_ | (1 << 5); 
-      if (dcsStatusItr->ready(DcsStatus::BPIX))  dcsword_ = dcsword_ | (1 << 6);
-      if (dcsStatusItr->ready(DcsStatus::FPIX))  dcsword_ = dcsword_ | (1 << 6);
-      if (dcsStatusItr->ready(DcsStatus::RPC))   dcsword_ = dcsword_ | (1 << 7);
-      if (dcsStatusItr->ready(DcsStatus::TIBTID)) dcsword_ = dcsword_ | (1 << 8); 
-      if (dcsStatusItr->ready(DcsStatus::TOB))   dcsword_ = dcsword_ | (1 << 8);
-      if (dcsStatusItr->ready(DcsStatus::TECp))  dcsword_ = dcsword_ | (1 << 8);
-      if (dcsStatusItr->ready(DcsStatus::TECm))  dcsword_ = dcsword_ | (1 << 8);
+      if (!dcsStatusItr->ready(DcsStatus::CSCp) && 
+          !dcsStatusItr->ready(DcsStatus::CSCm))   
+     	                              dcsword_ = dcsword_ & 0xfffe;
+
+      if (!dcsStatusItr->ready(DcsStatus::DT0) &&
+          !dcsStatusItr->ready(DcsStatus::DTp) &&
+	  !dcsStatusItr->ready(DcsStatus::DTm))   
+	                              dcsword_ = dcsword_ & 0xfffd; 
+
+      if (!dcsStatusItr->ready(DcsStatus::EBp) &&
+          !dcsStatusItr->ready(DcsStatus::EBm))   
+	                              dcsword_ = dcsword_ & 0xfffb;
+
+      if (!dcsStatusItr->ready(DcsStatus::EEp) &&
+          !dcsStatusItr->ready(DcsStatus::EEm))
+	                              dcsword_ = dcsword_ & 0xfff7;
+
+      if (!dcsStatusItr->ready(DcsStatus::ESp) &&
+          !dcsStatusItr->ready(DcsStatus::ESm)) 
+	                              dcsword_ = dcsword_ & 0xffef;
+
+      if (!dcsStatusItr->ready(DcsStatus::HBHEa) &&
+          !dcsStatusItr->ready(DcsStatus::HBHEb) &&
+	  !dcsStatusItr->ready(DcsStatus::HBHEc) &&
+	  !dcsStatusItr->ready(DcsStatus::HF) &&
+	  !dcsStatusItr->ready(DcsStatus::HO)) 
+	                              dcsword_ = dcsword_ & 0xffdf; 
+
+      if (!dcsStatusItr->ready(DcsStatus::BPIX) &&
+          !dcsStatusItr->ready(DcsStatus::FPIX))  
+	                              dcsword_ = dcsword_ & 0xffbf;
+
+      if (!dcsStatusItr->ready(DcsStatus::RPC))   
+                                      dcsword_ = dcsword_ & 0xff7f;
+
+      if (!dcsStatusItr->ready(DcsStatus::TIBTID) &&
+          !dcsStatusItr->ready(DcsStatus::TOB) && 
+	  !dcsStatusItr->ready(DcsStatus::TECp) &&
+	  !dcsStatusItr->ready(DcsStatus::TECm))  
+	                              dcsword_ = dcsword_ & 0xfeff;
+
       // cout << hex << dcsword_ << endl;
   }
       
   return ;
+}
+
+void 
+DQMProvInfo::makeGtInfo(const edm::Event& e)
+{
+
+  edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
+  e.getByLabel("l1GtUnpack", gtRecord);
+  L1GlobalTriggerReadoutRecord const* gtrr = gtRecord.product();
+
+  L1GtFdlWord fdlWord = gtrr->gtFdlWord();
+     cout << "phys decl. bit=" << fdlWord.physicsDeclared() << endl;
+  if (fdlWord.physicsDeclared() !=1) physDecl_=false;
+  return;
 }
