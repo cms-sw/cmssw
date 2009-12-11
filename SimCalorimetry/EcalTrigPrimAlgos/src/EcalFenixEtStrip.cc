@@ -16,7 +16,6 @@ void EcalFenixEtStrip::process(const std::vector<std::vector<int> > &linout,int 
     }
   }
   for (unsigned int i=0;i<output.size();i++) {
-    output[i]>>2 ;  //FIXME
     if(output[i]>0X3FFFF)output[i]=0X3FFFF;
   }
   return;
