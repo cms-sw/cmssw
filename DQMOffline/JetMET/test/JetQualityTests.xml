@@ -11,6 +11,12 @@
 <LINK name="JetMET/Jet/*/Eta">              <!-- NAME OF HISTOGRAM  -->
    <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
+<LINK name="JetMET/Jet/*/Pt">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+<LINK name="JetMET/Jet/*/Phi">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
 
 #####
 
