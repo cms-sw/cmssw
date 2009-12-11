@@ -10,8 +10,6 @@
 #include <cmath>
 #include <string>
 
-class reco::CaloJet;
-
 class  JetVertexMain  {
 
 public:
