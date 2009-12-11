@@ -15,6 +15,24 @@
 //#include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "boost/cstdint.hpp"
+#include "CondFormats/Common/interface/TimeConversions.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "CoralBase/TimeStamp.h"
+#include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
+#include "CalibTracker/SiStripDCS/interface/SiStripPsuDetIdMap.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <fstream>
+#include "boost/date_time/posix_time/posix_time.hpp"
+#include "boost/date_time.hpp"
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include <iostream>
 
 /**	
    \class SiStripModuleHVBuilder
@@ -40,7 +58,7 @@ class SiStripModuleHVBuilder
   std::vector< std::vector<uint32_t> > getPayloadStats() {return payloadStats;}
   /** Store the last payload transferred to DB as starting point for creation of new object list.
       ONLY WORKS FOR STATUSCHANGE OPTION. */
-  void retrieveLastSiStripDetVOff( SiStripDetVOff * lastPayload, cond::Time_t lastTimeStamp );
+  void setLastSiStripDetVOff( SiStripDetVOff * lastPayload, cond::Time_t lastTimeStamp );
 
   /// Operates the reduction of the fast sequences of ramping up and down of the voltages
   void reduce( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
@@ -61,7 +79,7 @@ class SiStripModuleHVBuilder
   /** Extract the lastValue values from file rather than from the PVSS cond DB. */
   void readLastValueFromFile(std::vector<uint32_t> &dpIDs, std::vector<float> &vmonValues, std::vector<coral::TimeStamp> &dateChange);
   /** Utility code to convert a coral timestamp to the correct time format for O2O timestamp. */
-  cond::Time_t getIOVTime(coral::TimeStamp coralTime);
+  cond::Time_t getCondTime(coral::TimeStamp coralTime);
   /** Utility code to convert an O2O timestamp into a coral timestamp. */
   coral::TimeStamp getCoralTime(cond::Time_t iovTime);
   /** Utility code to remove all the duplicates from a vector of uint32_t. */
@@ -82,7 +100,7 @@ class SiStripModuleHVBuilder
   bool fromFile;
   bool debug_;
   coral::TimeStamp tmax, tmin, tsetmin;
-  std::vector<int> tmax_par, tmin_par, tset_par, tDefault;
+  std::vector<int> tDefault, tmax_par, tmin_par, tset_par;
 
   std::string detIdListFile_;
 };

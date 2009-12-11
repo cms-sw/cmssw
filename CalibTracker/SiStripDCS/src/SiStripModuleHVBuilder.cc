@@ -1,81 +1,62 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripModuleHVBuilder.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "CoralBase/TimeStamp.h"
-#include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
-#include "CalibTracker/SiStripDCS/interface/SiStripPsuDetIdMap.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <fstream>
-#include "boost/date_time/posix_time/posix_time.hpp"
-#include "boost/date_time.hpp"
-
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+using namespace std;
 
 // constructor
 SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset, const edm::ActivityRegistry&) : 
-  onlineDbConnectionString(pset.getUntrackedParameter<std::string>("onlineDB","")),
-  authenticationPath(pset.getUntrackedParameter<std::string>("authPath","../data")),
-  whichTable(pset.getUntrackedParameter<std::string>("queryType","STATUSCHANGE")),
-  lastValueFileName(pset.getUntrackedParameter<std::string>("lastValueFile","")),
-  fromFile(pset.getUntrackedParameter<bool>("lastValueFromFile",false)),
-  debug_(pset.getUntrackedParameter<bool>("debugModeOn",false)),
-  tDefault(7,0)
+  onlineDbConnectionString(pset.getParameter<std::string>("onlineDB")),
+  authenticationPath(pset.getParameter<std::string>("authPath")),
+  whichTable(pset.getParameter<std::string>("queryType")),
+  lastValueFileName(pset.getParameter<std::string>("lastValueFile")),
+  fromFile(pset.getParameter<bool>("lastValueFromFile")),
+  debug_(pset.getParameter<bool>("debugModeOn")),
+  tDefault(7,0),
+  tmax_par(pset.getParameter< std::vector<int> >("Tmax")),
+  tmin_par(pset.getParameter< std::vector<int> >("Tmin")),
+  tset_par(pset.getParameter< std::vector<int> >("TSetMin")),
+  detIdListFile_(pset.getParameter< std::string >("DetIdListFile"))
 { 
   lastStoredCondObj.first = NULL;
   lastStoredCondObj.second = 0;
+  
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder" << endl;
 
   // set up vectors based on pset parameters (tDefault purely for initialization)
-  tmin_par = pset.getUntrackedParameter< std::vector<int> >("Tmin",tDefault);
-  tmax_par = pset.getUntrackedParameter< std::vector<int> >("Tmax",tDefault);
-  tset_par = pset.getUntrackedParameter< std::vector<int> >("TSetMin",tDefault);
-  detIdListFile_ = pset.getUntrackedParameter< std::string >("DetIdListFile", "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+  
   
   // initialize the coral timestamps
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (initialize the coral timestamps)" << endl;
   // always need Tmax
-  if (tmax_par != tDefault) {
-    coral::TimeStamp maxcpy(tmax_par[0],tmax_par[1],tmax_par[2],tmax_par[3],tmax_par[4],tmax_par[5],tmax_par[6]);
-    tmax = maxcpy;
-  } else {
-    LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] upper time limit not set properly ... Returning ...";
-    return;
-  }
+  coral::TimeStamp maxcpy(tmax_par[0],tmax_par[1],tmax_par[2],tmax_par[3],tmax_par[4],tmax_par[5],tmax_par[6]);
+  tmax = maxcpy;
+  
 
   // Sometimes need Tmin
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (sometimes need Tmin)" << endl;
   if (whichTable == "STATUSCHANGE" || (whichTable == "LASTVALUE" && !fromFile)) {
-    if (tmin_par != tDefault) {
-      // Is there a better way to do this?  TODO - investigate
-      coral::TimeStamp mincpy(tmin_par[0],tmin_par[1],tmin_par[2],tmin_par[3],tmin_par[4],tmin_par[5],tmin_par[6]);
-      tmin = mincpy;
-    } else {
-      LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] lower time limit not set properly ... Returning ...";
-      return;
-    }
+    // Is there a better way to do this?  TODO - investigate
+    coral::TimeStamp mincpy(tmin_par[0],tmin_par[1],tmin_par[2],tmin_par[3],tmin_par[4],tmin_par[5],tmin_par[6]);
+    tmin = mincpy;
   }
   
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (whichTable)" << endl;
   if (whichTable == "LASTVALUE") {
-    if (tset_par != tDefault) {
-      coral::TimeStamp setcpy(tset_par[0],tset_par[1],tset_par[2],tset_par[3],tset_par[4],tset_par[5],tset_par[6]);
-      tsetmin = setcpy;
-    } else {
-      LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] lower time limit not properly set for settings query ... Returning ...";
-      return;
-    }
+    coral::TimeStamp setcpy(tset_par[0],tset_par[1],tset_par[2],tset_par[3],tset_par[4],tset_par[5],tset_par[6]);
+    tsetmin = setcpy;
   }
   
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (onlineDbConnectionString)" << endl;
   if (onlineDbConnectionString == "") {
     LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] DB name has not been set properly ... Returning ...";
     return;
   }
   
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (after)" << endl;
   if (fromFile && whichTable == "LASTVALUE" && lastValueFileName == "") {
     LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] File expected for lastValue table, but filename not specified ... Returning ...";
     return;
   }
   
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (writing out parameters)" << endl;
   // write out the parameters
   std::stringstream ss;
   ss << "[SiStripModuleHVBuilder::" << __func__ << "]" << std::endl
@@ -99,7 +80,10 @@ SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset, co
     for (unsigned int se = 0; se < tset_par.size(); se++) {ss << tset_par[se]<< " ";}
     ss <<std::endl;
   }
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (LogTrace)" << endl;
   LogTrace("SiStripModuleHVBuilder") << ss.str();
+
+  cout << "SiStripModuleHVBuilder::SiStripModuleHVBuilder (end)" << endl;
 }
 
 // destructor
@@ -110,22 +94,35 @@ SiStripModuleHVBuilder::~SiStripModuleHVBuilder() {
 void SiStripModuleHVBuilder::BuildModuleHVObj() {
   // vectors for storing output from DB or text file
   std::vector<coral::TimeStamp> changeDate;    // used by both
-  std::vector<std::string> dpname;             // only used by DB access, not file access
-  std::vector<float> actualValue;              // only used by DB access, not file access
-  std::vector<uint32_t> dpid;                  // only used by file access
-  std::vector<int> actualStatus;               // filled using actualValue info
-  cond::Time_t latestTime = 0;                 // used for timestamp when using lastValue from file
+  std::vector<std::string>      dpname;        // only used by DB access, not file access
+  std::vector<float>            actualValue;   // only used by DB access, not file access
+  std::vector<uint32_t>         dpid;          // only used by file access
+  std::vector<int>              actualStatus;  // filled using actualValue info
+  cond::Time_t                  latestTime = 0;// used for timestamp when using lastValue from file
   
+  cout << "SiStripModuleHVBuilder::BuildModuleHVObj (Open the PVSS DB connection)" << endl;
   // Open the PVSS DB connection
   SiStripCoralIface * cif = new SiStripCoralIface(onlineDbConnectionString,authenticationPath);
   LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Query type is " << whichTable << std::endl;
   if (whichTable == "LASTVALUE") {LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Use file? " << ((fromFile) ? "TRUE" : "FALSE");}
   if (lastStoredCondObj.second > 0) {LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << " retrieved last time stamp from DB: " 
 									<< lastStoredCondObj.second  << std::endl;}
+  cout << "SiStripModuleHVBuilder::BuildModuleHVObj (access the information)" << endl;
   // access the information!
   if (whichTable == "STATUSCHANGE" || (whichTable == "LASTVALUE" && !fromFile)) {
     if (whichTable == "STATUSCHANGE" && lastStoredCondObj.second > 0) {
+      std::cout << "lastStoredCondObj.second = " << lastStoredCondObj.second << std::endl;
       coral::TimeStamp handlerTMin(getCoralTime(lastStoredCondObj.second));
+
+      std::cout << "handlerTMin : year = " << handlerTMin.year()
+		<< ", month = " << handlerTMin.month()
+		<< ", day = " << handlerTMin.day()
+		<< ", hour = " << handlerTMin.hour()
+		<< ", minute = " << handlerTMin.minute()
+		<< ", second = " << handlerTMin.second()
+		<< ", nanosecond = " << handlerTMin.nanosecond() << std::endl;
+
+
       cif->doQuery(whichTable,handlerTMin,tmax,changeDate,actualValue,dpname);
     } else {
       cif->doQuery(whichTable,tmin,tmax,changeDate,actualValue,dpname);
@@ -299,7 +296,7 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
     // set the condition time for the transfer
     cond::Time_t iovtime = 0;
     if (whichTable == "LASTVALUE") {iovtime = latestTime;}
-    else {iovtime = getIOVTime((detidV[i]).second);}
+    else {iovtime = getCondTime((detidV[i]).second);}
     
     // decide how to initialize modV
     SiStripDetVOff *modV = 0;
@@ -413,6 +410,20 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
       }
     }
   }
+
+//   std::cout << std::endl;
+//   std::cout << "Size of modulesOff = " << modulesOff.size() << std::endl;
+//   for (unsigned int i = 0; i < modulesOff.size(); i++) {
+//     std::vector<uint32_t> finalids;
+//     (modulesOff[i].first)->getDetIds(finalids);
+//     std::cout << "Index = " << i << " Size of DetIds vector = " << finalids.size() << std::endl;
+//     std::cout << "Time = " << modulesOff[i].second << std::endl;
+//     for (unsigned int j = 0; j < finalids.size(); j++) {
+//       std::cout << "detid = " << finalids[j] << " LV off = " << (modulesOff[i].first)->IsModuleLVOff(finalids[j]) << " HV off = " 
+//       	  << (modulesOff[i].first)->IsModuleHVOff(finalids[j]) << std::endl;
+//     }
+//   }
+
 }
 
 int SiStripModuleHVBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate) {
@@ -529,29 +540,32 @@ void SiStripModuleHVBuilder::readLastValueFromFile(std::vector<uint32_t> &dpIDs,
   if (changeDates.size() != dateChange.size()) {edm::LogError("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: date conversion failed!!";}
 }
 
-cond::Time_t SiStripModuleHVBuilder::getIOVTime(coral::TimeStamp coralTime) {
-#ifdef USING_NEW_CORAL
-  unsigned long long coralTimeInNs = coralTime.total_nanoseconds();
-#else
-  unsigned long long coralTimeInNs = coralTime.time().ns();
-#endif
-  // total seconds since the Epoch
-  unsigned long long iovSec = coralTimeInNs/1000000000;
-  // the rest of the elapsed time since the Epoch in micro seconds
-  unsigned long long iovMicroSec = (coralTimeInNs%1000000000)/1000;
-  // convert!
-  cond::Time_t iovtime = (iovSec << 32) + iovMicroSec;
-  return iovtime;
+cond::Time_t SiStripModuleHVBuilder::getCondTime(coral::TimeStamp coralTime) {
+
+  // const boost::posix_time::ptime& t = coralTime.time();
+  cond::Time_t condTime = cond::time::from_boost(coralTime.time());
+
+  cout << "[SiStripModuleHVBuilder::getCondTime] Converting CoralTime into CondTime: "
+       << " coralTime = (coralTimeInNs) " <<  coralTime.total_nanoseconds() << " condTime " << (condTime>> 32) << " - " << (condTime & 0xFFFFFFFF) << endl;
+  
+  return condTime;
 }
 
-coral::TimeStamp SiStripModuleHVBuilder::getCoralTime(cond::Time_t iovTime) {
+coral::TimeStamp SiStripModuleHVBuilder::getCoralTime(cond::Time_t iovTime)
+{
+  // This method is defined in the TimeConversions header and it does the following:
+  // - takes the seconds part of the iovTime (bit-shifting of 32)
+  // - adds the nanoseconds part (first 32 bits mask)
+  // - adds the time0 that is the time from begin of times (boost::posix_time::from_time_t(0);)
+  coral::TimeStamp coralTime(cond::time::to_boost(iovTime));
+
   unsigned long long iovSec = iovTime >> 32;
-#ifdef USING_NEW_CORAL
-  coral::TimeStamp coralTime(boost::posix_time::from_time_t(iovSec));
-#else
-  const seal::Time t(iovSec,0);
-  coral::TimeStamp coralTime(t);
-#endif
+  uint32_t iovNanoSec = uint32_t(iovTime);
+  cond::Time_t testTime=getCondTime(coralTime);
+  cout << "[SiStripModuleHVBuilder::getCoralTime] Converting CondTime into CoralTime: "
+       << " condTime = " <<  iovSec << " - " << iovNanoSec 
+       << " getCondTime(coralTime) = " << (testTime>>32) << " - " << (testTime&0xFFFFFFFF)  << endl;
+  
   return coralTime;
 }
 
@@ -561,16 +575,23 @@ void SiStripModuleHVBuilder::removeDuplicates( std::vector<uint32_t> & vec ) {
   vec.resize( it - vec.begin() );
 }
 
-void SiStripModuleHVBuilder::retrieveLastSiStripDetVOff( SiStripDetVOff * lastPayload, cond::Time_t lastTimeStamp ) {
+void SiStripModuleHVBuilder::setLastSiStripDetVOff( SiStripDetVOff * lastPayload, cond::Time_t lastTimeStamp ) {
   lastStoredCondObj.first = lastPayload;
   lastStoredCondObj.second = lastTimeStamp;
 }
 
 cond::Time_t SiStripModuleHVBuilder::findMostRecentTimeStamp( std::vector<coral::TimeStamp> coralDate ) {
-  cond::Time_t latestDate = getIOVTime(coralDate[0]);
+  cond::Time_t latestDate = getCondTime(coralDate[0]);
   
+  std::cout << "latestDate: condTime = " 
+	    << (latestDate>>32) 
+	    << " - " 
+	    << (latestDate&0xFFFFFFFF) 
+    //<< " coralTime= " << coralDate[0] 
+	    << std::endl;
+
   for (unsigned int i = 1; i < coralDate.size(); i++) {
-    cond::Time_t testDate = getIOVTime(coralDate[i]);
+    cond::Time_t testDate = getCondTime(coralDate[i]);
     if (testDate > latestDate) {
       latestDate = testDate;
     }
