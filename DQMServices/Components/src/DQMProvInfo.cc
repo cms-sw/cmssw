@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2009/12/12 11:49:29 $
- * $Revision: 1.6 $
+ * $Date: 2009/12/12 13:31:22 $
+ * $Revision: 1.7 $
  * $Author: ameyer $
  *
  */
@@ -165,6 +165,10 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
       dcsVsLumi_->setBinContent(nlumi,i+1,1.);
     else
       dcsVsLumi_->setBinContent(nlumi,i+1,0.);
+      
+    // set DT0 and CASTOR to -1  
+    dcsVsLumi_->setBinContent(nlumi,2+1,-1.);
+    dcsVsLumi_->setBinContent(nlumi,23+1,-1.);
    
     dcs24[i]=true;
   }
