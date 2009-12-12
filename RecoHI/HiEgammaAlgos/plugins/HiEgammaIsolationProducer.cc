@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 
-#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
