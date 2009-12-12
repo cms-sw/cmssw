@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.17 2009/11/30 23:59:33 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.18 2009/12/04 19:59:43 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -129,7 +129,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
 	frun = iEvent.id().run();
 	flumi = iEvent.luminosityBlock();
-	
+
+
 	edm::Handle<reco::TrackCollection> TrackCollection;
 	iEvent.getByLabel(tracksLabel_, TrackCollection);
 
