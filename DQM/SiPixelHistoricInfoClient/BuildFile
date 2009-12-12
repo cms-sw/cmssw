@@ -1,7 +1,8 @@
-<use name="CondCore/DBOutputService">
-<use name="CondFormats/DataRecord">
-<use name="CondFormats/SiPixelObjects">
-<use name="DQM/SiPixelCommon">
+<use name=CondCore/DBOutputService>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiPixelObjects>
+<use name=DQM/SiPixelCommon>
+<use name=rootgraphics>
 <export>
-  <lib name="DQMSiPixelHistoricInfoClient">
+  <lib name=DQMSiPixelHistoricInfoClient>
 </export>
