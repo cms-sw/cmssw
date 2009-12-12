@@ -62,7 +62,7 @@ private:
   template<typename T>
   MuTag muTag(const T & mu) const;
   void Deposits(const pat::IsoDeposit* isodep, double dR_max,  TH1F* hist);
-  void histo(const TH1F* hist, char* cx, char* cy) const;
+  void histo(const TH1F* hist, const char* cx, const char* cy) const;
 };
 
 template<typename T>
