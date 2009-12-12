@@ -9,6 +9,7 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTAlCa.h"  
 #include "HLTrigger/HLTanalyzers/interface/HLTTrack.h"
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
+#include "HLTrigger/HLTanalyzers/interface/RECOVertex.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -64,7 +65,9 @@ private:
   HLTAlCa     alca_analysis_; 
   HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
+  RECOVertex  vrt_analysis_;
 
+  int firstLumi_, lastLumi_;
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventInfo_;
@@ -145,6 +148,9 @@ private:
 
   // Track OpenHLT input collections
   edm::InputTag PixelTracksTagL3_; 
+
+  // Reco vertex collection
+  edm::InputTag VertexTag_;
 
   int errCnt;
   const int errMax(){return 100;}

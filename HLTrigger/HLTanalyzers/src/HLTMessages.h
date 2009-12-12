@@ -72,5 +72,6 @@ extern const char * kIsoPixelTracksL3;
 extern const char * kIsoPixelTracksL2;
 extern const char * kIsoPixelTrackVertices;
 extern const char * kPixelTracksL3; 
+extern const char * kRecoVertices; 
 
 #endif // HLTrigger_HLTanalyzers_HLTMessages_h

@@ -13,6 +13,10 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     xSection                        = cms.untracked.double(1.),
     filterEff                       = cms.untracked.double(1.),
 
+    ## Cut on lumi section
+    firstLumi                        = cms.untracked.int32(0),
+    lastLumi                         = cms.untracked.int32(-1),
+
     ### Trigger objects
     l1GctHFBitCounts                = cms.InputTag("hltGctDigis"),
     l1GctHFRingSums                 = cms.InputTag("hltGctDigis"),
@@ -122,7 +126,10 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     EMregionEtaMargin           = cms.double( 0.25 ),
     EMregionPhiMargin           = cms.double( 0.4 ),
     Jets                        = cms.untracked.bool( False ),
-    
+
+    ## reco vertices
+    PrimaryVertices             = cms.InputTag("offlinePrimaryVertices"),
+                             
     ### Run parameters
     RunParameters = cms.PSet(
         HistogramFile = cms.untracked.string('openhlt.root'),

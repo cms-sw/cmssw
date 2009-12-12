@@ -43,6 +43,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   simhits_          = conf.getParameter<edm::InputTag> ("simhits");
   xSection_         = conf.getUntrackedParameter<double> ("xSection",1.);
   filterEff_        = conf.getUntrackedParameter<double> ("filterEff",1.);
+  firstLumi_        = conf.getUntrackedParameter<int> ("firstLumi",0);
+  lastLumi_         = conf.getUntrackedParameter<int> ("lastLumi",-1);
+
 
   // keep this separate from l1extramc_ as needed by FastSim:
   //    This is purposefully done this way to allow FastSim to run with OpenHLT: 
@@ -135,6 +138,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   // Track OpenHLT input collections
   PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
 
+  // Reco Vertex collection
+  VertexTag_                = conf.getParameter<edm::InputTag> ("PrimaryVertices");  
+
   m_file = 0;   // set to null
   errCnt = 0;
 
@@ -143,6 +149,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   _HistName = runParameters.getUntrackedParameter<std::string>("HistogramFile", "test.root");
   _EtaMin   = runParameters.getUntrackedParameter<double>("EtaMin", -5.2);
   _EtaMax   = runParameters.getUntrackedParameter<double>("EtaMax",  5.2);
+
+
 
   // open the tree file
   m_file = new TFile(_HistName.c_str(), "RECREATE");
@@ -164,6 +172,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   track_analysis_.setup(conf, HltTree);
   mct_analysis_.setup(conf, HltTree);
   hlt_analysis_.setup(conf, HltTree);
+  vrt_analysis_.setup(conf, HltTree);
   evt_header_.setup(HltTree);
 }
 
@@ -174,6 +183,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // which contains it and then extract the object you need
   //edm::ESHandle<CaloGeometry> geometry;
   //iSetup.get<IdealGeometryRecord>().get(geometry);
+
+  int iLumi = iEvent.luminosityBlock();
+  if (iLumi<firstLumi_) return;
+  if (lastLumi_ != -1 && iLumi>lastLumi_) return;
 
   // These declarations create handles to the types of records that you want
   // to retrieve from event "iEvent".
@@ -195,8 +208,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
   edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet,l1extmht;
   edm::Handle<L1GlobalTriggerReadoutRecord>         l1GtRR;
-  edm::Handle<L1GlobalTriggerObjectMapRecord>       l1GtOMRec;
-  edm::Handle<L1GlobalTriggerObjectMap>             l1GtOM;
   edm::Handle< L1GctHFBitCountsCollection >         gctBitCounts ;
   edm::Handle< L1GctHFRingEtSumsCollection >        gctRingSums ;
 
@@ -204,6 +215,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<RecoChargedCandidateCollection>       oniaPixelCands, oniaTrackCands;
   edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
   edm::Handle<reco::HLTTauCollection>               taus;
+
 
   // btag OpenHLT input collections
   edm::Handle<edm::View<reco::Jet> >                hRawBJets;
@@ -262,6 +274,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::VertexCollection>         isopixeltrackPixVertices;
   edm::Handle<reco::RecoChargedCandidateCollection> pixeltracksL3; 
 
+  // Reco vertex collection
+  edm::Handle<reco::VertexCollection> recoVertexs;
+
   // new stuff for the egamma EleId
    edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
    edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
@@ -285,7 +300,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
-    
+
+
   // extract the collections from the event, check their validity and log which are missing
   std::vector<MissingCollectionInfo> missing;
 
@@ -314,7 +330,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
   getCollection( iEvent, missing, l1extmht,        m_l1extramht,       kL1extmht );
   getCollection( iEvent, missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR );
-  getCollection( iEvent, missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec );
   getCollection( iEvent, missing, gctBitCounts,     gctBitCounts_,      kL1GctBitCounts );
   getCollection( iEvent, missing, gctRingSums,      gctRingSums_,       kL1GctRingSums );
   getCollection( iEvent, missing, mctruth,         mctruth_,           kMctruth );
@@ -391,6 +406,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        kIsoPixelTracksL2 );
   getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,   kIsoPixelTrackVertices );
   getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
+  getCollection( iEvent, missing, recoVertexs,              VertexTag_,                 kRecoVertices ); 
 
 
   double ptHat=-1.;
@@ -517,6 +533,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     gctBitCounts,
     gctRingSums,
     iSetup,
+    iEvent,
     HltTree);
   
   bjet_analysis_.analyze(
@@ -532,7 +549,12 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     hPerformanceBJetsL3,
     HltTree);
 
+  vrt_analysis_.analyze(
+     recoVertexs, 
+     HltTree);
+
   evt_header_.analyze(iEvent, HltTree);
+
 
   // std::cout << " Ending Event Analysis" << std::endl;
   // After analysis, fill the variables tree

@@ -31,6 +31,11 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+//ccla
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+
 /* #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h" */
 /* #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h" */
 /* #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h" */
@@ -80,6 +85,7 @@ public:
 	       const edm::Handle<L1GctHFBitCountsCollection>          & gctBitCounts,
 	       const edm::Handle<L1GctHFRingEtSumsCollection>         & gctRingSums,	       
 	       edm::EventSetup const& eventSetup,
+	       edm::Event const& iEvent,
 	       TTree* tree);
 
 private:
@@ -103,6 +109,9 @@ private:
 
   TString * algoBitToName;
   TString * techBitToName;
+
+  bool _OR_BXes;
+  int UnpackBxInEvent; // save number of BXs unpacked in event
 
   // input variables
   bool _Debug;
