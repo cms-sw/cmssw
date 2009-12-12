@@ -10,6 +10,8 @@
 #include "TH1.h"
 #include "TFile.h"
 
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "PhysicsTools/FWLite/interface/CommandLineParser.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "PhysicsTools/FWLite/interface/TH1Store.h"
@@ -60,8 +62,9 @@ namespace fwlite
          // Regular Member Functions //
          //////////////////////////////
 
-         // adds a histogram pointer to the map
-         void add (TH1 *histPtr);
+         // adds a histogram pointer to the map.  You can specify a
+         // directory as well if you wish.
+         void add (TH1 *histPtr, const std::string &directory = "");
 
          // given a string, returns corresponding histogram pointer
          TH1* hist (const std::string &name);
@@ -105,6 +108,10 @@ namespace fwlite
          edm::EventAuxiliary const& eventAuxiliary() const
          { return m_eventBasePtr->eventAuxiliary(); }
 
+         template <class T>
+         bool getByLabel (const edm::InputTag &tag, 
+                          edm::Handle<T> &handle) const
+         { return m_eventBasePtr->getByLabel (tag, handle); }
          /////////////////////////////
          // Static Member Functions //
          /////////////////////////////

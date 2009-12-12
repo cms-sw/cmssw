@@ -340,10 +340,10 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     const std::vector<const L1GctCand*>* candCaloVec = 0;
     const L1GctEtMiss* candETM = 0; // no other energy sum appears in correlation conditions
 
-    unsigned int phiIndex0;
-    unsigned int phiIndex1;
-    unsigned int etaIndex0;
-    unsigned int etaIndex1;
+    unsigned int phiIndex0 = 0;
+    unsigned int phiIndex1 = 0;
+    unsigned int etaIndex0 = 0;
+    unsigned int etaIndex1 = 0;
 
     // loop over all combinations which produced individually "true" as Type1s
     for (std::vector<SingleCombInCond>::const_iterator

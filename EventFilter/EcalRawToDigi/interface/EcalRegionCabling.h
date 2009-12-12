@@ -14,16 +14,12 @@
 
 class EcalRegionCabling {
  public:
-  EcalRegionCabling(edm::ParameterSet & conf, const EcalElectronicsMapping * m): mapping_(m)
-    {
-      if (conf.exists("esMapping")){
-	edm::ParameterSet esMap=conf.getParameter<edm::ParameterSet>("esMapping");
-	es_mapping_ = new ESElectronicsMapper(esMap);
-      }else{
-	edm::LogError("EcalRegionCabling")<<"preshower mapping pointer not initialized. Temporary.";
-	es_mapping_=0;
-      }
-    }
+  EcalRegionCabling(edm::ParameterSet & conf, const EcalElectronicsMapping * m)
+  : mapping_(m)
+  {
+    const edm::ParameterSet esMap = conf.getParameter<edm::ParameterSet>("esMapping");
+    es_mapping_ = new ESElectronicsMapper(esMap);
+  }
   
   ~EcalRegionCabling(){
     // this pointer is own by this object.
@@ -51,7 +47,7 @@ class EcalRegionCabling {
   static uint32_t elementIndex(const int FEDindex) {
     //do a test for the time being
     if (FEDindex > FEDNumbering::MAXECALFEDID || FEDindex < FEDNumbering::MINECALFEDID) {
-      edm::LogError("EcalRegionCabling")<<"FEDindex: "<< FEDindex
+      edm::LogError("IncorrectMapping")<<"FEDindex: "<< FEDindex
 					<<" is not between: "<<(int) FEDNumbering::MINECALFEDID
 					<<" and "<<(int)FEDNumbering::MAXECALFEDID;
       return 0;}
@@ -61,7 +57,7 @@ class EcalRegionCabling {
   static uint32_t esElementIndex(const int FEDindex) {
     //do a test for the time being
     if (FEDindex > FEDNumbering::MAXPreShowerFEDID || FEDindex < FEDNumbering::MINPreShowerFEDID) {
-      edm::LogError("EcalRegionCabling")<<"FEDindex: "<< FEDindex
+      edm::LogError("IncorrectMapping")<<"FEDindex: "<< FEDindex
 					<<" is not between: "<<(int) FEDNumbering::MINPreShowerFEDID
 					<<" and "<<(int)FEDNumbering::MAXPreShowerFEDID;
       return 0;}

@@ -1,7 +1,8 @@
 // -*- C++ -*-
 
 // CMS includes
-#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
@@ -68,13 +69,16 @@ int main (int argc, char* argv[])
    // //////////////// //
    //////////////////////
 
+   // create labels
+   edm::InputTag jetLabel ("selectedLayer1Jets");
+
    for (eventCont.toBegin(); ! eventCont.atEnd(); ++eventCont) 
    {
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
-      fwlite::Handle< vector< pat::Jet > > jetHandle;
-      jetHandle.getByLabel (eventCont, "selectedLayer1Jets");
+      edm::Handle< vector< pat::Jet > > jetHandle;
+      eventCont.getByLabel (jetLabel, jetHandle);
       assert ( jetHandle.isValid() );
 						
       // Loop over the jets

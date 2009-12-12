@@ -13,8 +13,7 @@ HcalElectronicsSim::HcalElectronicsSim(HcalAmplifier * amplifier, const HcalCode
   : theAmplifier(amplifier),
     theCoderFactory(coderFactory),
     theRandFlat(0),
-    theStartingCapId(0),
-    theStartingCapIdIsRandom(true)
+    theStartingCapId(0)
 {
 }
 
@@ -28,7 +27,6 @@ HcalElectronicsSim::~HcalElectronicsSim()
 void HcalElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine & engine)
 {
   theRandFlat = new CLHEP::RandFlat(engine);
-  theAmplifier->setRandomEngine(engine);
 }
 
 
@@ -61,19 +59,7 @@ void HcalElectronicsSim::analogToDigital(CaloSamples & lf, ZDCDataFrame & result
 
 void HcalElectronicsSim::newEvent() {
   // pick a new starting Capacitor ID
-  if(theStartingCapIdIsRandom)
-  {
-    theStartingCapId = theRandFlat->fireInt(4);
-    theAmplifier->setStartingCapId(theStartingCapId);
-  }
-}
-
-
-void HcalElectronicsSim::setStartingCapId(int startingCapId)
-{
-  theStartingCapId = startingCapId;
+  theStartingCapId = theRandFlat->fireInt(4);
   theAmplifier->setStartingCapId(theStartingCapId);
-  // turns off random capIDs forever for this instance
-  theStartingCapIdIsRandom = false;
 }
 

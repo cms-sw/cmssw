@@ -40,7 +40,7 @@ int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPed
 }
 
 int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLinDat> & linset, 
-					      const  map<EcalLogicID, FEConfigParamDat> & linparamset, int iovId, string tag) {
+					      const  map<EcalLogicID, FEConfigLinParamDat> & linparamset, int iovId, string tag) {
   
   int result=0;
 
@@ -131,7 +131,7 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
   for (CIfeped p = dataset_ped.begin(); p != dataset_ped.end(); p++) {
     ecid_xt = p->first;
     rd_ped  = p->second;
-    int sm_num=ecid_xt.getID1();
+    //int sm_num=ecid_xt.getID1();
     int xt_num=ecid_xt.getID2();
     ped_m12[xt_num]=rd_ped.getPedMeanG12();
     ped_m6[xt_num]=rd_ped.getPedMeanG6();
@@ -180,10 +180,10 @@ int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & d
   std::vector<MonRunIOV> mon_run_vec =  mon_list.getRuns();
   cout <<"number of ped runs is : "<< mon_run_vec.size()<< endl;
   int mon_runs = mon_run_vec.size();  
-  int sm_num = 0;  
+  //int sm_num = 0;  
 
   if(mon_runs>0) {
-    for (int ii=0 ; ii<mon_run_vec.size(); ii++) cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
+    for (int ii=0 ; ii<(int)mon_run_vec.size(); ii++) cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
     
     // for the first run of the list we retrieve the pedestals
     int run=0;
@@ -225,7 +225,8 @@ int EcalTPGDBApp::writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidi
 }
 
 int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupDat> & lutgroupset,
-					const  map<EcalLogicID, FEConfigLUTDat> & lutset, int iovId, string tag) 
+					const  map<EcalLogicID, FEConfigLUTDat> & lutset, 
+				       const  map<EcalLogicID, FEConfigLUTParamDat> & lutparamset,int iovId, string tag) 
 {
   cout << "*****************************************" << endl;
   cout << "************Inserting LUT************" << endl;
@@ -244,6 +245,8 @@ int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupD
   insertDataArraySet(&lutgroupset, &fe_lut_info);
   // Insert the dataset
   insertDataArraySet(&lutset, &fe_lut_info);
+  // insert the parameters
+  insertDataArraySet(&lutparamset, &fe_lut_info);
   
   result=fe_lut_info.getId();
 
@@ -288,7 +291,11 @@ int EcalTPGDBApp::writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeight
 
 
 int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupDat> & fgrgroupset,
-					const  map<EcalLogicID, FEConfigFgrDat> & fgrset, int iovId, string tag) 
+				       const  map<EcalLogicID, FEConfigFgrDat> & fgrset,  
+				       const  map<EcalLogicID, FEConfigFgrParamDat> & fgrparamset,
+				       const  map<EcalLogicID, FEConfigFgrEETowerDat> & dataset3, 
+				       const  map<EcalLogicID, FEConfigFgrEEStripDat> & dataset4,
+				       int iovId, string tag) 
 {
   cout << "*****************************************" << endl;
   cout << "************Inserting Fgr************" << endl;
@@ -307,6 +314,12 @@ int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupD
   insertDataArraySet(&fgrgroupset, &fe_fgr_info);
   // Insert the dataset
   insertDataArraySet(&fgrset, &fe_fgr_info);
+  // Insert the parameters
+  insertDataArraySet(&fgrparamset, &fe_fgr_info);
+  // Insert the parameters
+  insertDataArraySet(&dataset3, &fe_fgr_info);
+  // Insert the parameters
+  insertDataArraySet(&dataset4, &fe_fgr_info);
   
   result=fe_fgr_info.getId();
 

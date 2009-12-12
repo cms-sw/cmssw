@@ -36,10 +36,10 @@ L1GtBptxCondition::L1GtBptxCondition() :
 }
 
 //     from base template condition (from event setup usually)
-L1GtBptxCondition::L1GtBptxCondition(const L1GtCondition* castorTemplate,
+L1GtBptxCondition::L1GtBptxCondition(const L1GtCondition* bptxTemplate,
         const bool result) :
             L1GtConditionEvaluation(),
-            m_gtBptxTemplate(static_cast<const L1GtBptxTemplate*>(castorTemplate)),
+            m_gtBptxTemplate(static_cast<const L1GtBptxTemplate*>(bptxTemplate)),
             m_conditionResult(result) {
 
     // maximum number of objects received for the evaluation of the condition
@@ -85,9 +85,9 @@ L1GtBptxCondition& L1GtBptxCondition::operator= (const L1GtBptxCondition& cp)
 
 // methods
 void L1GtBptxCondition::setGtBptxTemplate(
-        const L1GtBptxTemplate* castorTemplate) {
+        const L1GtBptxTemplate* bptxTemplate) {
 
-    m_gtBptxTemplate = castorTemplate;
+    m_gtBptxTemplate = bptxTemplate;
 
 }
 

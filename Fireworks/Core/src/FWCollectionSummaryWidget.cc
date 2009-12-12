@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.16 2009/08/20 00:26:21 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.17 2009/08/20 16:12:34 chrjones Exp $
 //
 
 // system include files
@@ -502,7 +502,7 @@ FWCollectionSummaryWidget::toggleShowHide()
          m_tableWidget->SetHeaderBackgroundColor(fClient->GetResourcePool()->GetFrameGC()->GetBackground());
          colorTable();
          AddFrame(m_tableWidget, new TGLayoutHints(kLHintsBottom | kLHintsExpandX | kLHintsExpandY));
-         m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t)","FWCollectionSummaryWidget",this,"modelSelected(Int_t,Int_t,Int_t)");
+         m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)","FWCollectionSummaryWidget",this,"modelSelected(Int_t,Int_t,Int_t,Int_t,Int_t)");
 
          MapSubwindows();
          Layout();
@@ -579,7 +579,7 @@ FWCollectionSummaryWidget::itemColorClicked(int iIndex, Int_t iRootX, Int_t iRoo
 }
 
 void 
-FWCollectionSummaryWidget::modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod)
+FWCollectionSummaryWidget::modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t iGlobalX, Int_t iGlobalY)
 {
    if(iKeyMod & kKeyControlMask) {      
       m_collection->toggleSelect(iRow);
@@ -587,6 +587,9 @@ FWCollectionSummaryWidget::modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod)
       FWChangeSentry sentry(*(m_collection->changeManager()));
       m_collection->selectionManager()->clearSelection();
       m_collection->select(iRow);
+   }
+   if(iButton==kButton3) {
+      requestForModelContextMenu(iGlobalX,iGlobalY);
    }
 }
 
@@ -614,6 +617,15 @@ FWCollectionSummaryWidget::requestForController(FWEventItem* iItem)
 {
    Emit("requestForController(FWEventItem*)",reinterpret_cast<long>(iItem));
 }
+
+void 
+FWCollectionSummaryWidget::requestForModelContextMenu(Int_t iGlobalX,Int_t iGlobalY)
+{
+   Long_t args[2];
+   args[0]=static_cast<Long_t>(iGlobalX);
+   args[1]=static_cast<Long_t> (iGlobalY);
+   Emit("requestForModelContextMenu(Int_t,Int_t)",args); 
+}   
 
 void
 FWCollectionSummaryWidget::infoClicked()

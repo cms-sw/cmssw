@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/24 14:31:11 $
    */
   
   class RunMonitorCollection : public MonitorCollection

@@ -21,7 +21,7 @@
 <use name=RecoTauTag/TauTagTools>
 <use name=RecoMuon/MuonIdentification>
 <use name=RecoVertex/KalmanVertexFit>
-<use name=PhysicsTools/CandUtils>
+<use name=CommonTools/CandUtils>
 <export>
   <use name=SimDataFormats/Vertex>
   <use name=DataFormats/TauReco>
@@ -31,7 +31,7 @@
   <use name=FWCore/ParameterSet>
   <use name=RecoTauTag/TauTagTools>
   <use name=RecoVertex/KalmanVertexFit>
-  <use name=PhysicsTools/CandUtils>
+  <use name=CommonTools/CandUtils>
   <lib name=RecoTauTagRecoTau>
 </export>
 

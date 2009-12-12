@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
+//#include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/DQMObjects/interface/DQMSummary.h"
 #include <string>
 
@@ -15,7 +16,8 @@ namespace popcon {
     std::string id() const;
    private:
     std::string m_name;
-    boost::int64_t m_since;
+    //cond::Time_t m_since;
+    boost::uint64_t m_since;
     // for reading from omds 
     std::string m_connectionString;
     std::string m_user;

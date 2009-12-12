@@ -14,7 +14,7 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre10/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0008/CC80B73A-CA57-DE11-BC2F-000423D99896.root'
+    '/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0009/F651D737-75B7-DE11-BDD4-001D09F2512C.root'
     )
 )
 
@@ -33,12 +33,12 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 ## configure conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_31X_V1::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V9::All')
 
 ## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-## std sequence for pat
+## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## std sequence to produce the ttGenEvt
@@ -48,12 +48,19 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
 process.ttSemiLepEvent.verbosity = 1
 
+## choose which hypotheses to produce
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
+addTtSemiLepHypotheses(process,
+                       ["kGeom", "kWMassMaxSumPt", "kMaxSumPtWMass", "kMVADisc", "kKinFit"]
+                       )
+#removeTtSemiLepHypGenMatch(process)
+
 ## change maximum number of jets taken into account per event (default: 4)
-## process.ttSemiLepEvent.maxNJets = 5
+#setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
 
 ## change maximum number of jet combinations taken into account per event (default: 1)
-## process.findTtSemiLepJetCombMVA.maxNComb        = -1
-## process.kinFitTtSemiLepEventHypothesis.maxNComb = -1
+#process.findTtSemiLepJetCombMVA       .maxNComb = -1
+#process.kinFitTtSemiLepEventHypothesis.maxNComb = -1
 
 ## process path
 process.p = cms.Path(process.patDefaultSequence *
@@ -70,11 +77,11 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 process.outpath = cms.EndPath(process.out)
 
-## pat content
+## PAT content
 from PhysicsTools.PatAlgos.patEventContent_cff import *
 process.out.outputCommands += patTriggerEventContent
 process.out.outputCommands += patExtraAodEventContent
 process.out.outputCommands += patEventContentNoLayer1Cleaning
-## tqaf content
+## TQAF content
 from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import *
 process.out.outputCommands += tqafEventContent

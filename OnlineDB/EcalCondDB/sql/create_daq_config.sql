@@ -352,7 +352,29 @@ CREATE TABLE ECAL_LASER_CONFIGURATION (
 	, LASER_CONTROL_HOST VARCHAR2(32)
 	, LASER_CONTROL_PORT NUMBER
         , laser_tag2 varchar2(32)
+, wte_2_led_delay NUMBER(4)
+, led1_on NUMBER(1)
+, led2_on NUMBER(1)
+, led3_on NUMBER(1)
+, led4_on NUMBER(1)
+, VINJ NUMBER
+, orange_led_mon_ampl number
+, blue_led_mon_ampl number
+, trig_log_file varchar2(512)
+, led_control_on NUMBER(1)
+, led_control_host varchar2(100)
+, led_control_port NUMBER(5)
+, ir_laser_power number(3)
+, green_laser_power number(3)
+, red_laser_power number(3)
+, blue_laser_log_attenuator number(3) 
+, IR_LASER_LOG_ATTENUATOR NUMBER(3)
+, GREEN_LASER_LOG_ATTENUATOR  NUMBER(3)
+, RED_LASER_LOG_ATTENUATOR NUMBER(3)
+, LASER_CONFIG_FILE VARCHAR2(512)
+, laser_configuration CLOB
 );
+
 ALTER TABLE ECAL_LASER_CONFIGURATION ADD CONSTRAINT ecal_LASER_config_pk PRIMARY KEY (LASER_configuration_id);
 
 CREATE SEQUENCE ecal_LASER_CONFIG_sq INCREMENT BY 1 START WITH 1;

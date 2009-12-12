@@ -255,7 +255,7 @@ namespace edm {
 	sizeof(has_mergeProduct_helper<T>(0)) == sizeof(yes_tag);
     };
 
-    template <typename T, bool (T::*)(T const&)> struct isProductEqual_function;
+    template <typename T, bool (T::*)(T const&) const> struct isProductEqual_function;
     template <typename T> no_tag  has_isProductEqual_helper(...);
     template <typename T> yes_tag has_isProductEqual_helper(isProductEqual_function<T, &T::isProductEqual> * dummy);
 

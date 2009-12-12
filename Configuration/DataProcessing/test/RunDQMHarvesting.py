@@ -70,7 +70,7 @@ class RunDQMHarvesting:
         psetFile = open("RunDQMHarvestingCfg.py", "w")
         psetFile.write(process.dumpPython())
         psetFile.close()
-        cmsRun = "cmsRun -f FrameworkJobReport.xml RunDQMHarvestingCfg.py"
+        cmsRun = "cmsRun -j FrameworkJobReport.xml RunDQMHarvestingCfg.py"
         print "Now do:\n%s" % cmsRun
         
 

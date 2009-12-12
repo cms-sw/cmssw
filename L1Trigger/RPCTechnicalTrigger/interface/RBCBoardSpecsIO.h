@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCBoardSpecsIO.h,v 1.1 2009/06/04 11:52:58 aosorio Exp $
 #ifndef CONFIGCODE_RBCBOARDSPECSIO_H 
 #define CONFIGCODE_RBCBOARDSPECSIO_H 1
 
@@ -30,4 +30,7 @@ protected:
 private:
   
 };
+
+std::istream& operator>>(std::istream &, RBCBoardSpecsIO::RBCBoardConfig &);
+
 #endif // CONFIGCODE_RBCBOARDSPECSIO_H

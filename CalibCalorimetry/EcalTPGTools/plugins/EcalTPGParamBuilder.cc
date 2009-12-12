@@ -159,8 +159,8 @@ bool EcalTPGParamBuilder::checkIfOK(EcalPedestals::Item item)
   if( item.mean_x6 <150. || item.mean_x6 >250) result=false;
   if( item.mean_x12 <150. || item.mean_x12 >250) result=false;
   if( item.rms_x1 <0 || item.rms_x1 > 2) result=false;
-  if( item.rms_x6 <0 || item.rms_x1 > 3) result=false;
-  if( item.rms_x12 <0 || item.rms_x1 > 5) result=false;
+  if( item.rms_x6 <0 || item.rms_x6 > 3) result=false;
+  if( item.rms_x12 <0 || item.rms_x12 > 5) result=false;
   return result; 
 }
 
@@ -406,7 +406,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   map<EcalLogicID, FEConfigPedDat> pedset ;
   map<EcalLogicID, FEConfigLinDat> linset ;
-  map<EcalLogicID, FEConfigParamDat> linparamset ;
+  map<EcalLogicID, FEConfigLinParamDat> linparamset ;
+  map<EcalLogicID, FEConfigLUTParamDat> lutparamset ;
+  map<EcalLogicID, FEConfigFgrParamDat> fgrparamset ;
 
   map<int, linStruc> linEtaSlice ;
   map< vector<int>, linStruc > linMap ;
@@ -576,15 +578,24 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   if (writeToDB_) {
     // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
-    FEConfigParamDat linparam ;
+    FEConfigLinParamDat linparam ;
     linparam.setETSat(Et_sat_EB_); 
-    linparam.setTTThreshlow(TTF_lowThreshold_EB_); 
-    linparam.setTTThreshhigh(TTF_highThreshold_EB_); 
-    linparam.setFGlowthresh(FG_lowThreshold_EB_); 
-    linparam.setFGhighthresh(FG_highThreshold_EB_); 
-    linparam.setFGlowratio(FG_lowRatio_EB_); 
-    linparam.setFGhighratio(FG_highRatio_EB_);
     linparamset[my_EcalLogicId_EB] = linparam ;
+
+    FEConfigFgrParamDat fgrparam ;
+    fgrparam.setFGlowthresh(FG_lowThreshold_EB_); 
+    fgrparam.setFGhighthresh(FG_highThreshold_EB_); 
+    fgrparam.setFGlowratio(FG_lowRatio_EB_); 
+    fgrparam.setFGhighratio(FG_highRatio_EB_);
+    fgrparamset[my_EcalLogicId_EB] = fgrparam ;
+
+
+    FEConfigLUTParamDat lutparam ;
+    lutparam.setETSat(Et_sat_EB_); 
+    lutparam.setTTThreshlow(TTF_lowThreshold_EB_); 
+    lutparam.setTTThreshhigh(TTF_highThreshold_EB_); 
+    lutparamset[my_EcalLogicId_EB] = lutparam ;
+
   }
 
 
@@ -768,18 +779,33 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   if (writeToDB_ ) {
     // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
-    FEConfigParamDat linparam ;
-    linparam.setETSat(Et_sat_EE_); 
-    linparam.setTTThreshlow(TTF_lowThreshold_EE_); 
-    linparam.setTTThreshhigh(TTF_highThreshold_EE_); 
-    linparam.setFGlowthresh(FG_Threshold_EE_); 
-    linparam.setFGhighthresh(FG_Threshold_EE_); 
+    FEConfigLinParamDat linparam ;
+    linparam.setETSat(Et_sat_EE_);
     linparamset[my_EcalLogicId_EE] = linparam ;
+
+    FEConfigLUTParamDat lutparam ;
+    lutparam.setETSat(Et_sat_EE_);
+    lutparam.setTTThreshlow(TTF_lowThreshold_EE_); 
+    lutparam.setTTThreshhigh(TTF_highThreshold_EE_);
+    lutparamset[my_EcalLogicId_EE] = lutparam ;
+
+ 
+    FEConfigFgrParamDat fgrparam ;
+    fgrparam.setFGlowthresh(FG_Threshold_EE_); 
+    fgrparam.setFGhighthresh(FG_Threshold_EE_); 
+    fgrparamset[my_EcalLogicId_EE] = fgrparam ;
+
   }
 
   if (writeToDB_) {
+
+    ostringstream ltag;
+    ltag.str("EB_"); ltag<<Et_sat_EB_<<"_EE_"<<Et_sat_EE_;
+    std::string lin_tag=ltag.str();
+    std::cout<< " LIN tag "<<lin_tag<<endl;
+
     if(m_write_ped==1) ped_conf_id_=db_->writeToConfDB_TPGPedestals(pedset, 1, "from_OfflineDB") ;
-    if(m_write_lin==1) lin_conf_id_=db_->writeToConfDB_TPGLinearCoef(linset,linparamset, 1, "from_CondDB") ;
+    if(m_write_lin==1) lin_conf_id_=db_->writeToConfDB_TPGLinearCoef(linset,linparamset, 1, lin_tag) ;
   }
 
   /////////////////////
@@ -832,11 +858,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       for (int ich=0; ich<NWEIGROUPS; ich++){
 	FEConfigWeightGroupDat gut;
 	gut.setWeightGroupId(ich);
-	gut.setWeight0(weights[0] );
-	gut.setWeight1(weights[1] );
+	//PP WARNING: weights order is reverted when stored in the DB 
+	gut.setWeight0(weights[4] );
+	gut.setWeight1(weights[3]+ 0x80); //0x80 to identify the max of the pulse in the FENIX (doesn't exist in emulator)
 	gut.setWeight2(weights[2] );
-	gut.setWeight3(weights[3] );
-	gut.setWeight4(weights[4] );
+	gut.setWeight3(weights[1] );
+	gut.setWeight4(weights[0] );
 	EcalLogicID ecid = EcalLogicID( "DUMMY", ich,ich);
 	// Fill the dataset
 	dataset[ecid] = gut; // we use any logic id but different, because it is in any case ignored... 
@@ -949,14 +976,38 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	// you have to calculate the right index here 
 	dataset2[my_RTEcalLogicId_EE[ich]] = wut;
       }
-      
+
+      // endcap TT loop for the FEfgr EE Tower
+      map<EcalLogicID, FEConfigFgrEETowerDat> dataset3;
+      for (int ich=0; ich<my_TTEcalLogicId_EE.size() ; ich++){
+	FEConfigFgrEETowerDat fgreett;
+	fgreett.setLutValue(lut_tower);
+	dataset3[my_TTEcalLogicId_EE[ich]]=fgreett;
+      }
+
+      // endcap strip loop for the FEfgr EE strip
+      map<EcalLogicID, FEConfigFgrEEStripDat> dataset4;
+      for (int ich=0; ich<my_StripEcalLogicId1_EE.size() ; ich++){
+	FEConfigFgrEEStripDat zut;
+	zut.setThreshold(threshold);
+	zut.setLutFgr(lut_strip);
+	dataset4[my_StripEcalLogicId1_EE[ich]] = zut;
+      }
+      for (int ich=0; ich<my_StripEcalLogicId2_EE.size() ; ich++){
+	FEConfigFgrEEStripDat zut;
+	zut.setThreshold(threshold);
+	zut.setLutFgr(lut_strip);
+	// Fill the dataset
+	dataset4[my_StripEcalLogicId2_EE[ich]] = zut;
+      }
+	
 
       // Insert the dataset
       ostringstream wtag;
-      wtag.str(""); wtag<<"FGR_"<<lutFG<<"_NGroups_"<<NFGRGROUPS;
+      wtag.str(""); wtag<<"FGR_"<<lutFG<<"_N_"<<NFGRGROUPS<<"_eb_"<<FG_lowThreshold_EB_<<"_EB_"<<FG_highThreshold_EB_;
       std::string weight_tag=wtag.str();
       std::cout<< " weight tag "<<weight_tag<<endl; 
-      if(m_write_fgr==1) fgr_conf_id_=db_->writeToConfDB_TPGFgr(dataset, dataset2, NFGRGROUPS, weight_tag) ;
+      if(m_write_fgr==1) fgr_conf_id_=db_->writeToConfDB_TPGFgr(dataset, dataset2,  fgrparamset,dataset3, dataset4, NFGRGROUPS, weight_tag) ;
   }
 
   if (writeToDB_) {
@@ -1034,10 +1085,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 
   if (writeToDB_) {
+
+
+
     map<EcalLogicID, FEConfigLUTGroupDat> dataset;
     // we create 1 LUT group
-    int NLUTGROUPS =1; 
-    for (int ich=0; ich<NLUTGROUPS; ich++){
+    int NLUTGROUPS =0; 
+    int ich=0;
       FEConfigLUTGroupDat lut;
       lut.setLUTGroupId(ich);
       for (int i=0; i<1024; i++){
@@ -1046,7 +1100,21 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       EcalLogicID ecid = EcalLogicID( "DUMMY", ich,ich);
       // Fill the dataset
       dataset[ecid] = lut; // we use any logic id but different, because it is in any case ignored... 
-    }
+      
+      ich++;
+      
+      FEConfigLUTGroupDat lute;
+      lute.setLUTGroupId(ich);
+      for (int i=0; i<1024; i++){
+	lute.setLUTValue(i, lut_EE[i] );
+      }
+      EcalLogicID ecide = EcalLogicID( "DUMMY", ich,ich);
+      // Fill the dataset
+      dataset[ecide] = lute; // we use any logic id but different, because it is in any case ignored...
+
+      ich++;
+
+      NLUTGROUPS=ich;
 
     // now we store in the DB the correspondence btw channels and LUT groups 
     map<EcalLogicID, FEConfigLUTDat> dataset2;
@@ -1064,7 +1132,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int ich=0; ich<my_TTEcalLogicId_EE.size() ; ich++){
       std::cout << " endcap LUTDat" << std::endl;
       FEConfigLUTDat lut;
-      int igroup=0;
+      int igroup=1;
       lut.setLUTGroupId(igroup);
       // calculate the right TT  
       // Fill the dataset
@@ -1076,7 +1144,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     ltag.str(""); ltag<<LUT_option_<<"_NGroups_"<<NLUTGROUPS;
     std::string lut_tag=ltag.str();
     std::cout<< " LUT tag "<<lut_tag<<endl; 
-    if(m_write_lut==1) lut_conf_id_=db_->writeToConfDB_TPGLUT(dataset, dataset2, NLUTGROUPS, lut_tag) ;
+    if(m_write_lut==1) lut_conf_id_=db_->writeToConfDB_TPGLUT(dataset, dataset2,lutparamset, NLUTGROUPS, lut_tag) ;
 
   }
 
@@ -1150,6 +1218,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       (*out_file_)<<hex<<"0x"<<lut_tower<<std::endl ;
     }
   }
+
+
 
 
   //////////////////////////

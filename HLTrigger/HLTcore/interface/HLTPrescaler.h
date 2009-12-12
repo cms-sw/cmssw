@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2007/08/11 23:21:54 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/29 11:21:05 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
@@ -50,6 +50,9 @@ private:
 
   /// accept counter
   unsigned int acceptCount_;
+
+  /// initial offset
+  unsigned int offsetCount_;
 
   /// prescale service
   edm::service::PrescaleService* prescaleService_;

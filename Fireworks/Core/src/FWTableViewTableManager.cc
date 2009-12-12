@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.8 2009/06/04 12:55:34 jmuelmen Exp $
+// $Id: FWTableViewTableManager.cc,v 1.9 2009/08/26 22:21:45 dmytro Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -245,6 +245,7 @@ void FWTableViewTableManager::updateEvaluators ()
 	  return;
      }
      const FWEventItem *item = m_view->m_manager->items()[m_view->m_iColl];
+     if(0==item) { return;}
      std::vector<FWExpressionEvaluator> &ev = m_evaluators;
      ev.clear();
      for (std::vector<FWTableViewManager::TableEntry>::const_iterator 

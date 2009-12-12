@@ -24,6 +24,11 @@ fixedConePFTauProducer.LeadPFCand_minPt      = cms.double(5.0)  #cut on lead obj
 
 #Signal Cone parameters
 fixedConePFTauProducer.TrackerSignalConeSizeFormula = cms.string('0.07') ## **
+#Important: the four-vector energy for the PFTau is defined as the candidates
+# within the maximum tracker signal cone size (TrackerSignalConeSize_max_).
+# For fixed cone taus, this should be set to the fixed cone size.
+fixedConePFTauProducer.TrackerSignalConeSize_max    = cms.double(0.07) 
+
 fixedConePFTauProducer.ECALSignalConeSizeFormula    = cms.string('0.15') ## **
 fixedConePFTauProducer.HCALSignalConeSizeFormula    = cms.string('0.10') ## **
 #Isolation Cone parameters

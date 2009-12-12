@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.16 2009/04/07 17:49:50 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.18 2009/09/23 19:15:04 dmytro Exp $
 //
 //
 
@@ -76,6 +76,8 @@ class MuonIdProducer : public edm::EDProducer {
    
    // make a muon based on track (p4)
    reco::Muon    makeMuon( const reco::Track& track );
+   
+   reco::CaloMuon makeCaloMuon( const reco::Muon& );
 
    // check if a silicon track satisfies the trackerMuon requirements
    bool          isGoodTrack( const reco::Track& track );
@@ -101,6 +103,7 @@ class MuonIdProducer : public edm::EDProducer {
    // selections
    double minPt_;
    double minP_;
+   double minPCaloMuon_;
    int    minNumberOfMatches_;
    double maxAbsEta_;
    bool   addExtraSoftMuons_;
@@ -133,5 +136,6 @@ class MuonIdProducer : public edm::EDProducer {
 
    bool          fillGlobalTrackQuality_;
    edm::InputTag globalTrackQualityInputTag_;
+   double caloCut_;
 };
 #endif

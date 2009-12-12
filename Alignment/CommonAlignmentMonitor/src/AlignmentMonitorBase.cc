@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.9 2009/08/29 18:18:08 pivarski Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.7 2008/04/26 03:09:32 pivarski Exp $
 //
 
 // system include files
@@ -133,17 +133,13 @@ TH1F *AlignmentMonitorBase::book1D(std::string dir, std::string name, std::strin
    return directory(dir)->make<TH1F>(name.c_str(), title.c_str(), nchX, lowX, highX);
 }
 
-TProfile *AlignmentMonitorBase::bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, const char *option) {
+TProfile *AlignmentMonitorBase::bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char *option) {
    if (lowY == highY) {
       return directory(dir)->make<TProfile>(name.c_str(), title.c_str(), nchX, lowX, highX, option);
    }
    else {
       return directory(dir)->make<TProfile>(name.c_str(), title.c_str(), nchX, lowX, highX, lowY, highY, option);
    }
-}
-
-TH2F *AlignmentMonitorBase::book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY) {
-   return directory(dir)->make<TH2F>(name.c_str(), title.c_str(), nchX, lowX, highX, nchY, lowY, highY);
 }
 
 //

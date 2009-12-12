@@ -38,7 +38,8 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 				 UInt_t            dqmCellSize,
 				 BUProxy          *bu,
 				 SMProxy          *sm,
-				 log4cplus::Logger logger)
+				 log4cplus::Logger logger,
+				 unsigned int      timeout)
   throw (evf::Exception)
   : bu_(bu)
   , sm_(sm)
@@ -54,6 +55,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , acceptSMDataDiscard_(0)
   , acceptSMDqmDiscard_(0)
   , doCrcCheck_(1)
+  , shutdownTimeout_(timeout)
   , nbPending_(0)
   , nbClientsToShutDown_(0)
   , isReadyToShutDown_(true)
@@ -351,7 +353,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
     shmBuffer_->writeDqmEmptyEvent();
     
     UInt_t count=0;
-    while (count<10) {
+    while (count<100) {
       if (shmBuffer_->nClients()==0&&
 	  FUShmBuffer::shm_nattch(shmBuffer_->shmid())==1) {
 	isReadyToShutDown_ = true;
@@ -363,7 +365,13 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 			<<" nClients="<<shmBuffer_->nClients()
 			<<" nattch="<<FUShmBuffer::shm_nattch(shmBuffer_->shmid())
 			<<" ("<<count<<")");
-	::sleep(1);
+	::usleep(shutdownTimeout_);
+	if(count*shutdownTimeout_ > 10000000)
+	  LOG4CPLUS_WARN(log_,"FUResourceTable:LONG Wait (>10s) for all clients to detach,"
+			  <<" nClients="<<shmBuffer_->nClients()
+			  <<" nattch="<<FUShmBuffer::shm_nattch(shmBuffer_->shmid())
+			  <<" ("<<count<<")");
+
       }
     }
     
@@ -535,7 +543,8 @@ void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
   
   if (iRawCell<pids.size())
     shmBuffer_->writeErrorEventData(runNumber,pid,iRawCell);
-  
+  else
+    LOG4CPLUS_WARN(log_,"No raw data to send to error stream for process " << pid);
   shmBuffer_->removeClientPrcId(pid);
 }
 

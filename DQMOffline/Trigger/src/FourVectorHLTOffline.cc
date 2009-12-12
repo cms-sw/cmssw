@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.42 2009/08/31 12:29:51 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.44 2009/10/01 19:51:37 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -386,7 +386,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	v!= hltPaths_.end(); ++v ) 
 { 
 
-    //LogTrace("FourVectorHLTOffline") << " path " << v->getPath() << endl;
+    LogTrace("FourVectorHLTOffline") << " path " << v->getPath() << endl;
 
 	      if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
 				else btagMon = btagMuMon;
@@ -1218,10 +1218,18 @@ void FourVectorHLTOffline::endRun(const edm::Run& run, const edm::EventSetup& c)
 void FourVectorHLTOffline::cleanDRMatchSet(mmset& tempSet)
 {
 
- LogDebug("FourVectorHLTOffline") << "cleanDRMatchSet(mmset& tempSet) " << endl;
- LogDebug("FourVectorHLTOffline") << "size of the set (before CLEANED)= " << tempSet.size() << " maps." << endl;
+ LogDebug("FourVectorHLTOffline") << "cleanDRMatchSet(mmset& tempSet) " << "size of the set (before CLEANED) = " << tempSet.size() << " maps." << endl;
 
  if(tempSet.size() < 2) return;
+ if(tempSet.size() > 10) {
+
+   LogDebug("FourVectorHLTOffline") << "size of the set is too large.  It will be truncated to 10." << endl;
+	 mmset::iterator it = tempSet.begin();
+	 for (int i=0;i<10;i++) {	  it++; }
+	 tempSet.erase( it, tempSet.end());
+   LogDebug("FourVectorHLTOffline") << "size of the set is now = " << tempSet.size() << " maps." << endl;
+
+ }
  
  bool cleanedOneMap = false;
  

@@ -25,16 +25,22 @@ staUpdMuonTrackVMuonAssocFS.associatormap = 'tpToStaUpdMuonAssociationFS'
 glbMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.glbMuonTrackVMuonAssoc.clone()
 glbMuonTrackVMuonAssocFS.associatormap = 'tpToGlbMuonAssociationFS'
 
+tevMuonFirstTrackVTrackAssocFS = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+tevMuonFirstTrackVTrackAssocFS.associatormap = 'tpToTevFirstTrackAssociationFS'
+tevMuonFirstTrackVTrackAssocFS.associators = ('TrackAssociatorByDeltaR',)
+tevMuonFirstTrackVTrackAssocFS.label = ('tevMuons:firstHit',)
+
+tevMuonPickyTrackVTrackAssocFS = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+tevMuonPickyTrackVTrackAssocFS.associatormap = 'tpToTevPickyTrackAssociationFS'
+tevMuonPickyTrackVTrackAssocFS.associators = ('TrackAssociatorByDeltaR',)
+tevMuonPickyTrackVTrackAssocFS.label = ('tevMuons:picky',)
+
 # Configurations for RecoMuonValidators
 
 recoMuonVMuAssocFS = Validation.RecoMuon.muonValidation_cff.recoMuonVMuAssoc.clone()
 recoMuonVMuAssocFS.trkMuLabel = 'generalTracks'
 recoMuonVMuAssocFS.staMuLabel = 'standAloneMuons:UpdatedAtVtx'
 recoMuonVMuAssocFS.glbMuLabel = 'globalMuons'
-
-recoMuonVMuAssocFS.trkMuAssocLabel = 'tpToTkMuonAssociationFS'
-recoMuonVMuAssocFS.staMuAssocLabel = 'tpToStaUpdMuonAssociationFS'
-recoMuonVMuAssocFS.glbMuAssocLabel = 'tpToGlbMuonAssociationFS'
 
 recoMuonVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.recoMuonVTrackAssoc.clone()
 recoMuonVTrackAssocFS.trkMuAssocLabel = 'tpToTkmuTrackAssociationFS'
@@ -44,8 +50,8 @@ recoMuonVTrackAssocFS.glbMuAssocLabel = 'tpToGlbTrackAssociationFS'
 # Muon validation sequence
 muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
                                          +staMuonTrackVTrackAssocFS+staUpdMuonTrackVTrackAssocFS+glbMuonTrackVTrackAssocFS
-                                         +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
-                                         +recoMuonVMuAssocFS+recoMuonVTrackAssocFS)
+                                         +tevMuonFirstTrackVTrackAssocFS+tevMuonPickyTrackVTrackAssocFS
+                                         +recoMuonVTrackAssocFS)
 
 
 # The muon association and validation sequence

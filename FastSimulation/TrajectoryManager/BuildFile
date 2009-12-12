@@ -12,7 +12,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=MagneticField/Engine>
 <use name=RecoTracker/TkDetLayers>
-<use name=SimDataFormats/TrackingHit>
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/PatternTools>
@@ -20,7 +19,6 @@
 <export>
   <use name=FastSimulation/MaterialEffects>
   <use name=MagneticField/Engine>
-  <use name=SimDataFormats/TrackingHit>
   <use name=TrackingTools/PatternTools>
   <lib name=FastSimulationTrajectoryManager>
 </export>

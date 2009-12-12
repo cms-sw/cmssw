@@ -12,7 +12,6 @@
 #include <map>
 #include <assert.h>
 #include <math.h>
-#include <stdexcept>
 
 
 using namespace pos;
@@ -65,14 +64,6 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat):PixelC
         }
     }
   sscanf(tableMat[1][colM["GLOBALDELAY25"]].c_str(),"%x",&delay_);
-  std::cout << __LINE__ << "]\t" << mthn << "[DB] read global delay 0x" << std::hex << delay_ << std::dec << endl;  
-
-  if (delay_>=50) {
-    std::cout << __LINE__ << "]\t" << mthn << "global delay is out of range (>= 1 Tclk)."  << std::endl;
-    std::cout << __LINE__ << "]\t" << mthn << "will not apply any global delays."          << std::endl;
-    std::cout << __LINE__ << "]\t" << mthn << "increase the delays in the TPLL if needed." << std::endl;
-    delay_=0;
-  }
 }
 
 
@@ -84,7 +75,7 @@ PixelGlobalDelay25::PixelGlobalDelay25(std::string filename):
 
     if (!in.good()){
 	std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-	throw std::runtime_error("Failed to open file "+filename);
+	assert(0);
     }
     else {
 	std::cout << __LINE__ << "]\t" << mthn << "Opened: " << filename << std::endl;
@@ -224,15 +215,15 @@ void PixelGlobalDelay25::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel Global Delay25</RUN_TYPE>"                                               << std::endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                              << std::endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>Test of DetectorConfig xml</COMMENT_DESCRIPTION>"                   << std::endl ;
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                           << std::endl ;
+  *outstream << "   <INITIATED_BY_USER>Marco Rovere</INITIATED_BY_USER>"                                     << std::endl ;
   *outstream << "  </RUN>"                                                                                   << std::endl ;
   *outstream << " </HEADER>"                                                                                 << std::endl ;
   *outstream << ""                                                                                           << std::endl ;
   *outstream << "  <DATA_SET>"                                                                               << std::endl ;
   *outstream << " "                                                                                          << std::endl ;
-  *outstream << "   <VERSION>"             << version      << "</VERSION>"                                   << std::endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                       << std::endl ;
-  *outstream << "   <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"                         << std::endl ; 
+  *outstream << "   <VERSION>" << version << "</VERSION>"                                                    << std::endl ;
   *outstream << " "                                                                                          << std::endl ;
   *outstream << "   <PART>"                                                                                  << std::endl ;
   *outstream << "    <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                << std::endl ;

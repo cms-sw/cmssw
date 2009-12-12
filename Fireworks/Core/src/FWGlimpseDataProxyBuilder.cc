@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.8 2008/12/02 21:15:06 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.9 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -149,7 +149,7 @@ FWGlimpseDataProxyBuilder::build()
          if(m_ids.size()<m_item->size()) {
             m_ids.resize(m_item->size());
          }
-         std::vector<FWModelId>::iterator itId = m_ids.begin();
+         std::vector<FWModelIdFromEveSelector>::iterator itId = m_ids.begin();
          for(TEveElement::List_i it = newElements->BeginChildren(),
                                  itEnd = newElements->EndChildren();
              it != itEnd;

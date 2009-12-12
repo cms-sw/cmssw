@@ -14,8 +14,7 @@ namespace HcalUnpacker_impl {
     digi.setReadoutIds(eid);
     int fiber=startPoint->fiber();
     int fiberchan=startPoint->fiberChan();
-    uint32_t zsmask=hhd.zsBunchMask()>>startSample;
-    digi.setZSInfo(hhd.isUnsuppressed(),hhd.wasMarkAndPassZS(fiber,fiberchan),zsmask);
+    digi.setZSInfo(hhd.isUnsuppressed(),hhd.wasMarkAndPassZS(fiber,fiberchan));
 
     if (expectedTime>=0 && !hhd.isUnsuppressed()) {
       //      std::cout << hhd.getFibOrbMsgBCN(fiber) << " " << expectedTime << std::endl;
@@ -245,7 +244,6 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     currFiberChan=0x3F; // invalid fiber+channel...
     ncurr=0;
     valid=false;
-
     
     for (qie_work=qie_begin; qie_work!=qie_end; ) {
       if (qie_work->raw()==0xFFFF) {

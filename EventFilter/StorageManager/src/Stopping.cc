@@ -1,10 +1,9 @@
-// $Id: Stopping.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
+// $Id: Stopping.cc,v 1.6.4.1 2009/09/25 09:57:49 mommsen Exp $
 /// @file: Stopping.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
@@ -17,7 +16,7 @@ using namespace stor;
 
 Stopping::Stopping( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Stopping::do_entryActionWork()
@@ -40,7 +39,7 @@ void Stopping::do_entryActionWork()
 
 Stopping::~Stopping()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Stopping::do_exitActionWork()
@@ -54,9 +53,9 @@ string Stopping::do_stateName() const
   return string( "Stopping" );
 }
 
-void Stopping::do_moveToFailedState( const std::string& reason ) const
+void Stopping::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void Stopping::logHaltDoneRequest( const HaltDone& request )

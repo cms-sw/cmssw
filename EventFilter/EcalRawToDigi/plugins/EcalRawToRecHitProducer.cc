@@ -78,7 +78,7 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	if (EcalNum==1) EBrechits->push_back(*iRecHit);
 	else if (EcalNum==2) EErechits->push_back(*iRecHit);
 	else {
-	  edm::LogError("EcalRawToRecHit|Producer")<<" a subdetid is not recognized. recHit on :"<< iRecHit->id().rawId() 
+	  edm::LogError("IncorrectRecHit")<<" a subdetid is not recognized. recHit on :"<< iRecHit->id().rawId() 
 						   <<" is lost.";
 	}//subdetid
       }//loop over things in region

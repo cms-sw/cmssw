@@ -5,8 +5,8 @@
  *
  *  Misc. common simple typedefs
  *
- *  $Date: 2009/02/09 19:44:39 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/04/07 12:26:08 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -46,6 +46,7 @@ namespace trigger
     TriggerL1TechTrig     = -94,
     TriggerL1Castor       = -95,
     TriggerL1BPTX         = -96,
+    TriggerL1GtExternal   = -97,
 
     /// HLT
 

@@ -28,8 +28,8 @@ CSCDcsInfo::CSCDcsInfo(const edm::ParameterSet& ps) {
 void CSCDcsInfo::beginJob(const edm::EventSetup& iSetup){
 
   dbe = Service<DQMStore>().operator->();
-  dbe->setCurrentFolder("CSC/EventInfo/DCSContents");
 
+  dbe->setCurrentFolder("CSC/EventInfo/DCSContents");
   mos.insert(std::make_pair("CSC_SideMinus", dbe->bookFloat("CSC_SideMinus")));
   mos.insert(std::make_pair("CSC_SideMinus_Station01", dbe->bookFloat("CSC_SideMinus_Station01")));
   mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring01", dbe->bookFloat("CSC_SideMinus_Station01_Ring01")));
@@ -54,6 +54,9 @@ void CSCDcsInfo::beginJob(const edm::EventSetup& iSetup){
   mos.insert(std::make_pair("CSC_SidePlus_Station03_Ring01", dbe->bookFloat("CSC_SidePlus_Station03_Ring01")));
   mos.insert(std::make_pair("CSC_SidePlus_Station03_Ring02", dbe->bookFloat("CSC_SidePlus_Station03_Ring02")));
   mos.insert(std::make_pair("CSC_SidePlus_Station04", dbe->bookFloat("CSC_SidePlus_Station04")));
+
+  dbe->setCurrentFolder("CSC/EventInfo");
+  mos.insert(std::make_pair("DCSSummary", dbe->bookFloat("DCSSummary")));
 
   for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
     it->second->Fill(-1);

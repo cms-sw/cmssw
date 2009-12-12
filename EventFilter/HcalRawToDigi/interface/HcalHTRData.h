@@ -2,16 +2,14 @@
 #ifndef HcalHTRData_H
 #define HcalHTRData_H
 
-#include <stdint.h>
-
 /**  \class HcalHTRData
  *
  *  Interpretive class for HcalHTRData
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2009/09/11 19:56:30 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/02/12 17:29:24 $
+ *  $Revision: 1.13 $
  *  \author J. Mans - UMD
  */
 
@@ -119,8 +117,6 @@ class HcalHTRData {
   bool wasMarkAndPassZS(int fiber, int fiberchan) const;
   /** \brief Was this channel passed as part of Mark&Pass ZS?*/
   bool wasMarkAndPassZSTP(int slb, int slbchan) const;
-  /** \brief ZS Bunch Mask (if available) */
-  uint32_t zsBunchMask() const;
   
   /** \brief Is this event a pattern-ram event? */
   bool isPatternRAMEvent() const;

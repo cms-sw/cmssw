@@ -41,3 +41,8 @@ zdcreco.correctForTimeslew = True
 zdcreco.correctForPhaseContainment = True
 zdcreco.correctionPhaseNS = 10.
 
+#
+# R.Ofierzynski (29.Oct.2009): add NZS sequence
+#
+from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
+calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 

@@ -1,7 +1,8 @@
 // -*- C++ -*-
 
 // CMS includes
-#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -78,6 +79,12 @@ int main (int argc, char* argv[])
    // // Event Loop // //
    // //////////////// //
    //////////////////////
+   edm::InputTag jetLabel      ("selectedLayer1Jets");
+   edm::InputTag metLabel      ("selectedLayer1METs");
+   edm::InputTag photonLabel   ("selectedLayer1Photons");
+   edm::InputTag trackLabel    ("generalTracks");
+   edm::InputTag electronLabel ("selectedLayer1Electrons");
+   edm::InputTag tauLabel      ("selectedLayer1Taus");
 
    for (eventCont.toBegin(); ! eventCont.atEnd(); ++eventCont) 
    {
@@ -86,28 +93,28 @@ int main (int argc, char* argv[])
       //////////////////////////////////
 
       // Get jets, METs, photons, tracks, electrons, and taus
-      fwlite::Handle< vector<pat::Jet> > h_jet;
-      h_jet.getByLabel(eventCont,"selectedLayer1Jets");
+      edm::Handle< vector<pat::Jet> > h_jet;
+      eventCont.getByLabel (jetLabel, h_jet);
       assert( h_jet.isValid() );
 
-      fwlite::Handle< vector<pat::MET> > h_met;
-      h_met.getByLabel(eventCont,"selectedLayer1METs");
+      edm::Handle< vector<pat::MET> > h_met;
+      eventCont.getByLabel (metLabel, h_met);
       assert( h_met.isValid() );
 
-      fwlite::Handle< vector<pat::Photon> > h_photon;
-      h_photon.getByLabel(eventCont,"selectedLayer1Photons");
+      edm::Handle< vector<pat::Photon> > h_photon;
+      eventCont.getByLabel (photonLabel, h_photon);
       assert( h_photon.isValid() );
 
-      fwlite::Handle< vector<reco::Track> > h_track;
-      h_track.getByLabel(eventCont,"generalTracks");
+      edm::Handle< vector<reco::Track> > h_track;
+      eventCont.getByLabel (trackLabel, h_track);
       assert( h_track.isValid() );
 
-      fwlite::Handle< vector<pat::Electron> > h_electron;
-      h_electron.getByLabel(eventCont,"selectedLayer1Electrons");
+      edm::Handle< vector<pat::Electron> > h_electron;
+      eventCont.getByLabel (electronLabel, h_electron);
       assert( h_electron.isValid() );
 
-      fwlite::Handle< vector<pat::Tau> > h_tau;
-      h_tau.getByLabel(eventCont,"selectedLayer1Taus");
+      edm::Handle< vector<pat::Tau> > h_tau;
+      eventCont.getByLabel (tauLabel, h_tau);
       assert( h_tau.isValid() );
 
       // Fill, baby, fill!

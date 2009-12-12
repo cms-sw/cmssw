@@ -1,42 +1,49 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CALIB")
+process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+
 process.load("DQMServices.Core.DQM_cfg")
+
+from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
+poolDBESSource.connect = "frontier://FrontierDev/CMS_COND_ALIGNMENT"
+poolDBESSource.toGet = cms.VPSet(cms.PSet(
+        record = cms.string('GlobalPositionRcd'),
+        tag = cms.string('IdealGeometry')
+    )) 
+process.glbPositionSource = poolDBESSource
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(111873)
+    firstRun = cms.untracked.uint32(70680)
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-
 process.tzeroRef = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.string('runnumber'),
-    toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string('DTT0Rcd'),
-            tag = cms.string('t0_CRAFT_V01_offline'),
-            label = cms.untracked.string('tzeroRef')
-        ), 
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('DTT0Rcd'),
+        tag = cms.string('t0_CRAFT_V01_offline'),
+        label = cms.untracked.string('tzeroRef')
+    ), 
         cms.PSet(
             record = cms.string('DTT0Rcd'),
             tag = cms.string('t0'),
-            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/COMM09/t0/t0_111873.db'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/user/g/giorgia/scratch0/Calibration/CMSSW_3_0_0_pre6/src/DQMOffline/CalibMuon/test/t0_70195.db'),
             label = cms.untracked.string('tzeroToValidate')
-        ) 
-    ),
-    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
+        )),
+    connect = cms.string('frontier://FrontierProd/CMS_COND_30X_DT'),
     siteLocalConfig = cms.untracked.bool(False)
 )
 
@@ -51,6 +58,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noLineBreaks = cms.untracked.bool(True),
         threshold = cms.untracked.string('DEBUG'),
+        FwkJob = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
@@ -62,9 +72,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.dtT0Analyzer = cms.EDFilter("DTt0DBValidation",
     labelDBRef = cms.untracked.string('tzeroRef'),
     t0TestName = cms.untracked.string('t0DifferenceInRange'),
-    OutputFileName = cms.untracked.string('t0TestMonitoring_111873.root'),
+    OutputFileName = cms.untracked.string('t0TestMonitoring.root'),
     labelDB = cms.untracked.string('tzeroToValidate')
-)
+ )
 
 process.qTester = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
@@ -73,3 +83,5 @@ process.qTester = cms.EDFilter("QualityTester",
 
 process.p = cms.Path(process.dtT0Analyzer*process.qTester)
 process.DQM.collectorHost = ''
+
+

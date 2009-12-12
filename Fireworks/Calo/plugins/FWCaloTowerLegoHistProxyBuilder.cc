@@ -1,12 +1,11 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerLegoHistProxyBuilder.cc,v 1.1 2009/01/19 17:59:12 amraktad Exp $
+// $Id: FWCaloTowerLegoHistProxyBuilder.cc,v 1.3 2009/10/23 01:02:52 chrjones Exp $
 
 
 // system include files
 #include "TH2F.h"
 
 #include "Fireworks/Calo/plugins/FWCaloTowerLegoHistProxyBuilder.h"
-#include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -39,10 +38,11 @@ FWCaloTowerLegoHistBuilderBase::applyChangesToAllModels()
 {
    if(m_towers && item()) {
       m_hist->Reset();
+      
       if(item()->defaultDisplayProperties().isVisible()) {
          assert(item()->size() >= m_towers->size());
          fillHist();
-      }
+      }      
    }
 }
 
@@ -56,8 +56,12 @@ FWECalCaloTowerLegoHistBuilder::fillHist()
 {
    unsigned int index=0;
    for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
-      if(item()->modelInfo(index).displayProperties().isVisible()) {
+      const FWEventItem::ModelInfo& info = item()->modelInfo(index);
+      if(info.displayProperties().isVisible()) {
          (m_hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
+      }
+      if(info.isSelected()) {
+         addToSelect(tower->eta(),tower->phi());
       }
    }
 }
@@ -74,8 +78,12 @@ FWHCalCaloTowerLegoHistBuilder::fillHist()
 {
    unsigned int index=0;
    for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
-      if(item()->modelInfo(index).displayProperties().isVisible()) {
+      const FWEventItem::ModelInfo& info = item()->modelInfo(index);
+      if(info.displayProperties().isVisible()) {
          m_hist->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
+      }
+      if(info.isSelected()) {
+         addToSelect(tower->eta(),tower->phi());
       }
    }
 }

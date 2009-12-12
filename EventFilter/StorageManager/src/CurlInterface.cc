@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
+// $Id: CurlInterface.cc,v 1.1 2009/08/20 13:44:38 mommsen Exp $
 /// @file: CurlInterface.cc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"

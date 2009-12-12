@@ -16,6 +16,7 @@
 #include <vector>
 
 
+
 class RPCNoisyStripTest:public RPCClient{
 public:
 
@@ -23,12 +24,13 @@ public:
   RPCNoisyStripTest(const edm::ParameterSet& ps);
   virtual ~RPCNoisyStripTest();
   void beginJob(DQMStore *);
-  void beginRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>);
+  void endRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(const edm::Run& , const edm::EventSetup& ); 		
+  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
   void endJob();
+  virtual void clientOperation(edm::EventSetup const& c);
  protected:
 
   void fillGlobalME(RPCDetId & , MonitorElement * ,edm::EventSetup const& );
@@ -52,7 +54,7 @@ public:
   MonitorElement * NOISEDisk[10];
   MonitorElement * NOISEDDisk[10];
   MonitorElement * DEVDDisk[10]; 
-  int numberOfDisks_, numberOfRings_;
+  int numberOfDisks_;
   
 };
 

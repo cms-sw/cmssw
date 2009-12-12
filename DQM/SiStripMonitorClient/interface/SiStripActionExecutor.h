@@ -43,7 +43,7 @@ class SiStripActionExecutor {
 
  void createStatus(DQMStore* dqm_store);
  void fillDummyStatus();
- void fillStatus(DQMStore* dqm_store);
+ void fillStatus(DQMStore* dqm_store, const edm::ESHandle<SiStripDetCabling>& fedcabling);
 
 
  void createDummyShiftReport();

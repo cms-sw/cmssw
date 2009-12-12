@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/09/01 09:50:13 $
- * $Revision: 1.222 $
+ * $Date: 2009/08/27 18:08:36 $
+ * $Revision: 1.213 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -545,10 +545,6 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -566,10 +562,6 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -585,10 +577,6 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
     clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::LED_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
-    clientsRuns_.insert(pair<EEClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   }
 
@@ -1153,63 +1141,18 @@ void EcalEndcapMonitorClient::writeDb() {
 
   startSubRun.setToCurrentGMTime();
 
-  // fetch the MonIOV from the DB
+  // setup the MonIOV
 
-  bool foundMonIOV = false;
+  moniov_.setRunIOV(runiov_);
+  moniov_.setSubRunNumber(subrun_);
 
-  if ( econn ) {
-    try {
-      if ( verbose_ ) cout << "Fetching MonIOV ..." << endl;
-      RunTag runtag = runiov_.getRunTag();
-      moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-      if ( verbose_ ) cout << "done." << endl;
-      foundMonIOV = true;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-      foundMonIOV = false;
-    }
+  if ( enableMonitorDaemon_ || subrun_ > 1 ) {
+    moniov_.setSubRunStart(startSubRun);
+  } else {
+    moniov_.setSubRunStart(runiov_.getRunStart());
   }
 
-  // begin - setup the MonIOV
-
-  if ( !foundMonIOV ) {
-
-    moniov_.setRunIOV(runiov_);
-    moniov_.setSubRunNumber(subrun_);
-
-    if ( enableMonitorDaemon_ || subrun_ > 1 ) {
-      moniov_.setSubRunStart(startSubRun);
-    } else {
-      moniov_.setSubRunStart(runiov_.getRunStart());
-    }
-
-    moniov_.setMonRunTag(montag);
-
-    if ( econn ) {
-      try {
-        if ( verbose_ ) cout << "Inserting MonIOV ..." << endl;
-//        econn->insertMonRunIOV(&moniov_);
-        RunTag runtag = runiov_.getRunTag();
-        moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-        if ( verbose_ ) cout << "done." << endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
-        try {
-          if ( verbose_ ) cout << "Fetching MonIOV (again) ..." << endl;
-          RunTag runtag = runiov_.getRunTag();
-          moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-          if ( verbose_ ) cout << "done." << endl;
-          foundMonIOV = true;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
-          foundMonIOV = false;
-        }
-      }
-    }
-
-  }
-
-  // end - setup the MonIOV
+  moniov_.setMonRunTag(montag);
 
   if ( verbose_ ) {
     cout << endl;
@@ -1493,7 +1436,7 @@ void EcalEndcapMonitorClient::analyze(void) {
                 ( jevt_ <  100 && jevt_ %   10 == 0 ) ||
                 ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
                 (                 jevt_ % 1000 == 0 );
-
+ 
   if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
     if ( verbose_ ) {
@@ -1574,7 +1517,7 @@ void EcalEndcapMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
                runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
-          this->softReset(true);
+          //          this->softReset(true);
           last_time_db_ = current_time_;
         }
       }
@@ -1724,24 +1667,15 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 void EcalEndcapMonitorClient::softReset(bool flag) {
 
-  vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
+  vector<MonitorElement*> mes = dqmStore_->getAllContents("EcalEndcap");
   vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
     if ( !strncmp((*meitr)->getName().c_str(), "EE", 2) ) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);
       } else {
-        dqmStore_->disableSoftReset(*meitr);
+         dqmStore_->disableSoftReset(*meitr);
       }
-    }
-  }
-
-  MonitorElement* me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
-  if ( me ) {
-    if ( flag ) {
-      dqmStore_->softReset(me);
-    } else {
-      dqmStore_->disableSoftReset(me);
     }
   }
 

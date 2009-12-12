@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.6 2009/08/31 22:34:53 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.2 2007/01/22 23:36:07 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -60,9 +60,6 @@ class BSFitter {
 	
 	// Fit only d0-phi distribution with a chi2
 	reco::BeamSpot Fit_d0phi();
-	void SetMaximumZ(double z) { fMaxZ = z; }
-	void SetConvergence(double val) { fconvergence = val; }
-	void SetMinimumNTrks(int n) { fminNtrks = n; }
 	void Setd0Cut_d0phi(double d0cut);
 	void SetChi2Cut_d0phi(double chi2cut);
 	int GetAcceptedTrks() { return ftmprow; }
@@ -71,7 +68,6 @@ class BSFitter {
 		ftmp.ResizeTo(4,1);
 		ftmp.Zero();
 		fnthite=0;
-		goodfit=true;
 	}
 	std::vector < BSTrkParameters > GetData() { return fBSvector; }
 	
@@ -107,7 +103,7 @@ class BSFitter {
 	//BSzFcn* theGausszFcn;
 	BSpdfsFcn* thePDF;
 	
-	reco::BeamSpot::BeamType fbeamtype;
+	
 	std::string ffit_type;
 	std::string ffit_variable;
 
@@ -134,10 +130,7 @@ class BSFitter {
 	double fchi2cut;
 	int ftmprow;
 	int fnthite;
-	bool goodfit;
-	double fMaxZ;
-	double fconvergence;
-	int fminNtrks;
+	
 };
 
 #endif

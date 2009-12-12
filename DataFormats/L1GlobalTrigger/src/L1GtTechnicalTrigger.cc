@@ -1,14 +1,14 @@
 /**
  * \class L1GtTechnicalTrigger
- * 
- * 
- * Description: technical trigger input record for L1 Global Trigger.  
+ *
+ *
+ * Description: technical trigger input record for L1 Global Trigger.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -24,10 +24,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructors
-L1GtTechnicalTrigger::L1GtTechnicalTrigger()
+L1GtTechnicalTrigger::L1GtTechnicalTrigger() :
+    m_gtTechnicalTriggerName(""),
+    m_gtTechnicalTriggerBitNumber(0),
+    m_bxInEvent(0), m_gtTechnicalTriggerResult(false)
 {
 
-    // empty 
+    // empty
 
 }
 
@@ -40,7 +43,7 @@ L1GtTechnicalTrigger::L1GtTechnicalTrigger(const std::string& ttName,
 
 {
 
-    // empty 
+    // empty
 
 }
 
@@ -116,7 +119,7 @@ bool L1GtTechnicalTrigger::operator!=(
 }
 // methods
 
-// set technical trigger name, bit number and result 
+// set technical trigger name, bit number and result
 
 void L1GtTechnicalTrigger::setGtTechnicalTriggerName(const std::string& ttName)
 {

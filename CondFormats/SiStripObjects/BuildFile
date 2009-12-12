@@ -1,6 +1,4 @@
 <use name=DataFormats/SiStripCommon>
-<use name=DataFormats/SiStripDetId>
-<use name=DataFormats/FEDRawData>
 <use name=DataFormats/StdDictionaries>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
@@ -9,8 +7,6 @@
 <use name=rootrflx>
 <export>
   <use name=CondFormats/Common>
-  <use name=DataFormats/SiStripDetId>
-  <use name=DataFormats/FEDRawData>
   <lib name=CondFormatsSiStripObjects>
 </export>
 

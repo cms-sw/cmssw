@@ -10,8 +10,6 @@
 #include <map>
 #include <TROOT.h>
 
-#include "HLTDatasets.h"    //SAK
-
 class OHltMenu {
  public:
   OHltMenu();
@@ -22,7 +20,6 @@ class OHltMenu {
   inline bool 		                DoL1preLoop()  {return doL1preloop;}
   inline bool 		                IsL1Menu()  {return isL1Menu;}
   inline bool 		                IsHltMenu()  {return !isL1Menu;}
-  inline bool                           IsRealData() {return isRealData;}
 
   inline unsigned int 		        GetTriggerSize()  {return names.size();}
   inline std::vector<TString>& 		GetTriggerNames() {return names;}
@@ -43,7 +40,6 @@ class OHltMenu {
   void AddTrigger(TString trigname, TString seedcond, int prescale, float eventSize);
   void SetIsL1Menu(bool isL1) {isL1Menu=isL1;};
   void SetDoL1preloop(bool doL1prel) {doL1preloop=doL1prel;};
-  void SetIsRealData(bool isRealDataLS) {isRealData=isRealDataLS;}
   void print();
 
   // For L1 prescale preloop to be used in HLT mode only
@@ -58,7 +54,6 @@ class OHltMenu {
  private:
   bool isL1Menu;  // if false: is HLTMenu
   bool doL1preloop;  // if false: is HLTMenu
-  bool isRealData; // if true: count lumi sections for real data
   std::vector<TString> 		names;
   std::map<TString,TString> 	seedcondition;
   std::map<TString,float>       eventSizes;

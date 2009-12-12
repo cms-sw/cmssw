@@ -31,10 +31,7 @@ localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco)
 #--------------------------------------------------------------------------
 # Main Sequence
 
-reconstruct_PbPb = cms.Sequence(localReco*heavyIonTracking*muontracking_with_TeVRefinement*hiEcalClusters*runjets*hiEgammaSequence*hiCentrality*hiEvtPlane)
-reconstruct_PbPb_CaloOnly = cms.Sequence(caloReco*hiEcalClusters*runjets*hiCentrality*hiEvtPlane)
-reconstruct_PbPb_MuonOnly = cms.Sequence(offlineBeamSpot*muonReco*heavyIonTracking*muontracking_with_TeVRefinement)
-
+reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb)
 reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 
 #--------------------------------------------------------------------------

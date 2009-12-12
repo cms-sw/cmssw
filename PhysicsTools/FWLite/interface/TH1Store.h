@@ -5,10 +5,12 @@
 
 #include <map>
 #include <string>
+#include <set>
 
 #include "TH1.h"
 #include "TFile.h"
 #include "TString.h"
+#include "TDirectory.h"
 
 class TH1Store
 {
@@ -18,10 +20,12 @@ class TH1Store
       // Public Constants //
       //////////////////////
 
-      typedef std::vector< std::string >    SVec;
-      typedef std::map< std::string, TH1* > STH1PtrMap;
-      typedef STH1PtrMap::iterator          STH1PtrMapIter;
-      typedef STH1PtrMap::const_iterator    STH1PtrMapConstIter;
+      typedef std::vector< std::string >            SVec;
+      typedef std::map< std::string, std::string >  SSMap;
+      typedef std::map< std::string, TH1* >         STH1PtrMap;
+      typedef SSMap::const_iterator                 SSMapConstIter;
+      typedef STH1PtrMap::iterator                  STH1PtrMapIter;
+      typedef STH1PtrMap::const_iterator            STH1PtrMapConstIter;
 
       static const SVec kEmptyVec;
 
@@ -57,7 +61,7 @@ class TH1Store
       //////////////////////////////
 
       // adds a histogram pointer to the map
-      void add (TH1 *histPtr);
+      void add (TH1 *histPtr, const std::string &directory = "");
 
       // given a string, returns corresponding histogram pointer
       TH1* hist (const std::string &name);
@@ -85,18 +89,28 @@ class TH1Store
 
   private:
 
+      //////////////////////////////
+      // Private Member Functions //
+      //////////////////////////////
+
+      // creates directory and all parent directories as needed
+      // (equivalent to unix 'mkdir -p') and then changes (cd's) to
+      // that directory.  Returns TDirectory of pointing to dirname.
+      TDirectory* _createDir (const std::string &dirname, TFile *filePtr) const;
+
       /////////////////////////
       // Private Member Data //
       /////////////////////////
 
       bool       m_deleteOnDestruction;
       STH1PtrMap m_ptrMap;
+      SSMap      m_nameDirMap;
       
       ////////////////////////////////
       // Private Static Member Data //
       ////////////////////////////////
 
-      static bool sm_verbose;
+      static bool sm_verbose;      
 
 };
 

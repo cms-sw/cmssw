@@ -143,7 +143,6 @@ void FUResource::process(MemRef_t* bufRef)
   while(0!=itBufRef&&!fatalError()) {
     MemRef_t* next=itBufRef->getNextReference();
     itBufRef->setNextReference(0);
-    
     try {
       processDataBlock(itBufRef);
     }
@@ -151,7 +150,8 @@ void FUResource::process(MemRef_t* bufRef)
       LOG4CPLUS_ERROR(log_,"EVENT LOST:"
 		      <<xcept::stdformat_exception_history(e));
       fatalError_=true;
-      bufRef->setNextReference(next);
+      bufRef->setNextReference(next); //what is this ???!?!?! - why ? - 
+      // see if removing this fixes problem with crashing RB
     }
     
     itBufRef=next;

@@ -40,12 +40,3 @@ lumi::HLTScaler::setHLTData(edm::LuminosityBlockID lumiid,
   std::copy(hltdetail.begin(),hltdetail.end(),std::back_inserter(m_hltinfo));
 }
 
-void
-lumi::HLTScaler::print( std::ostream& s ) const{
-  s<<"run number :"<<m_run <<", ";
-  s<<"lumi section number : "<<m_lsnumber<<"\n";
-  for( std::vector<lumi::HLTInfo>::const_iterator it=m_hltinfo.begin(); it!=m_hltinfo.end(); ++it ){
-    s<<it->pathname<<": "<<it->inputcount<<": "<<it->acceptcount<<": "<<it->prescalefactor<<"\n";
-  }
-  s<<std::endl;
-}

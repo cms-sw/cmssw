@@ -4,7 +4,7 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalElectron')
     ),
-    outputCommands = cms.untracked.vstring('drop  *', 
+    outputCommands = cms.untracked.vstring(
 #	'keep recoGsfTracks_*_*_*',
 #	'keep recoGsfTrackExtras_*_*_*',
 	'keep recoGsfElectronCores_*_*_*',

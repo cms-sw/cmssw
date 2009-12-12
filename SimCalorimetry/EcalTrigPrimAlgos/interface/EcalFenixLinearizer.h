@@ -27,10 +27,13 @@
     int mult_;
     int shift_;
     int strip_;
-
+    bool init_;
+    
     const EcalTPGLinearizationConstant  *linConsts_;
     const EcalTPGPedestal *peds_;
     const EcalTPGCrystalStatusCode *badXStatus_;
+    
+    std::vector<const EcalTPGCrystalStatusCode *> vectorbadXStatus_;
      	
     int setInput(const EcalMGPASample &RawSam) ;
     int process() ;

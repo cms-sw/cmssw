@@ -1,4 +1,4 @@
-# last update: $Date: 2009/01/31 06:40:24 $ by $Author: emiglior $
+# last update: $Date: 2009/07/10 13:24:48 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,10 +10,9 @@ OutALCARECOTkAlCosmics0T_noDrop = cms.PSet(
             'pathALCARECOTkAlCosmicsRS0T')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_ALCARECOTkAlCosmics*0T_*_*', 
-        'keep *_eventAuxiliaryHistoryProducer_*_*',
-        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', # for cosmics keep also L1
-        'keep L1MuGMTReadoutCollection_gtDigis_*_*', 
+        'keep *_ALCARECOTkAlCosmics*0T_*_*',
+        'keep siStripDigis_DetIdCollection_*_*',
+        'keep L1AcceptBunchCrossings_*_*_*',
         'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
         'keep *_MEtoEDMConverter_*_*')
 )

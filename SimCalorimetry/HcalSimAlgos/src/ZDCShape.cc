@@ -5,6 +5,7 @@ ZDCShape::ZDCShape()
 : nbin_(256),
   nt_(nbin_, 0.)
 {   
+  setTpeak(2.0);
   computeShapeZDC();
 }
 
@@ -14,6 +15,7 @@ ZDCShape::ZDCShape(const ZDCShape&d)
   nbin_(d.nbin_),
   nt_(d.nt_)
 {
+  setTpeak(2.0);
 }
 
   
@@ -52,5 +54,10 @@ double ZDCShape::operator () (double time) const
     return nt_[jtime];
   else 
     return 0.0;
+}
+
+double ZDCShape::derivative (double time) const
+{
+  return 0.0;
 }
   

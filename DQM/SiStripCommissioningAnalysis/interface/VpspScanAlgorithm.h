@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommissioningAnalysis_VpspScanAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_VpspScanAlgorithm_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -17,7 +16,7 @@ class VpspScanAlgorithm : public CommissioningAlgorithm {
   
  public:
 
-  VpspScanAlgorithm( const edm::ParameterSet & pset, VpspScanAnalysis* const );
+  VpspScanAlgorithm( VpspScanAnalysis* const );
 
   virtual ~VpspScanAlgorithm() {;}
 

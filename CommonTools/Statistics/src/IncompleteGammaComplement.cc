@@ -12,7 +12,7 @@
 float IncompleteGammaComplement::value(float a, float x)
 {
   if( x < 0.0 || a <= 0.0 ) 
-    edm::LogWarning("IncompleteGammaComplement")<< "IncompleteGammaComplement::invalid arguments";
+    edm::LogInfo("IncompleteGammaComplement")<< "IncompleteGammaComplement::invalid arguments";
   if( x < (a+1.0) )
     // take the complement of the series representation
     return 1.-GammaSeries(a,x)*(exp(-x + a*log(x) - GammaLn(a)));
@@ -25,7 +25,7 @@ float IncompleteGammaComplement::value(float a, float x)
 float IncompleteGammaComplement::ln(float a, float x)
 {
   if( x < 0.0 || a <= 0.0 ) 
-edm::LogWarning("IncompleteGammaComplement")<< "IncompleteGammaComplement::invalid arguments";
+edm::LogInfo("IncompleteGammaComplement")<< "IncompleteGammaComplement::invalid arguments";
   if( x < (a+1.0) )
     // take the complement of the series representation    
     return log(1.-GammaSeries(a,x)*(exp(-x + a*log(x) - GammaLn(a))));

@@ -11,7 +11,7 @@ using namespace edm;
 using namespace std;
 
 TFileService::TFileService(const ParameterSet & cfg, ActivityRegistry & r) :
-  TFileDirectory("", "", TFile::Open(cfg.getParameter<string>("fileName").c_str() , "RECREATE"), ""),
+  TFileDirectory("", "", new TFile(cfg.getParameter<string>("fileName").c_str() , "RECREATE"), ""),
   file_(TFileDirectory::file_),
   fileName_(cfg.getParameter<string>("fileName")),
   fileNameRecorded_(false),

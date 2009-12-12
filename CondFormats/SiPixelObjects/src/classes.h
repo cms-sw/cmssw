@@ -39,9 +39,6 @@ namespace {
  
     std::vector<SiPixelQuality::disabledModuleType>::iterator p9;
     std::vector<SiPixelQuality::disabledModuleType>::const_iterator p10;
-
-    PixelDCSObject<bool>::Item tempItem0;
-    PixelDCSObject<float>::Item tempItem1;
-    PixelDCSObject<CaenChannel>::Item tempItem2;
   };
 }
+

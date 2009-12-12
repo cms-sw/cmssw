@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.7 2009/08/28 16:41:25 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.6.4.1 2009/09/25 09:57:47 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -72,40 +72,23 @@ bool DQMEventProcessor::processDQMEvents(toolbox::task::WorkLoop*)
   }
   catch(xcept::Exception &e)
   {
-    LOG4CPLUS_FATAL( _app->getApplicationLogger(),
-                     errorMsg << xcept::stdformat_exception_history(e) );
-
     XCEPT_DECLARE_NESTED( stor::exception::DQMEventProcessing,
                           sentinelException, errorMsg, e );
-    _app->notifyQualified( "fatal", sentinelException );
-    
-    _sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
+    _sharedResources->moveToFailedState(sentinelException);
   }
   catch(std::exception &e)
   {
     errorMsg += e.what();
-    
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg);
-    
-    XCEPT_DECLARE(stor::exception::DQMEventProcessing,
-      sentinelException, errorMsg);
-    _app->notifyQualified("fatal", sentinelException);
-    
-    _sharedResources->moveToFailedState( errorMsg );
+    XCEPT_DECLARE( stor::exception::DQMEventProcessing,
+                   sentinelException, errorMsg );
+    _sharedResources->moveToFailedState(sentinelException);
   }
   catch(...)
   {
     errorMsg += "Unknown exception";
-    
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg);
-    
-    XCEPT_DECLARE(stor::exception::DQMEventProcessing,
-      sentinelException, errorMsg);
-    _app->notifyQualified("fatal", sentinelException);
-
-    _sharedResources->moveToFailedState( errorMsg );
+    XCEPT_DECLARE( stor::exception::DQMEventProcessing,
+                   sentinelException, errorMsg );
+    _sharedResources->moveToFailedState(sentinelException);
   }
 
   return _actionIsActive;

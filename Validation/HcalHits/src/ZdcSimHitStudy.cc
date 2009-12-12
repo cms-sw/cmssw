@@ -30,9 +30,7 @@ ZdcSimHitStudy::ZdcSimHitStudy(const edm::ParameterSet& ps) {
   }
 }
 
-ZdcSimHitStudy::~ZdcSimHitStudy() {
-  if (dbe_ && outFile_.size() > 0) dbe_->save(outFile_);
-}
+ZdcSimHitStudy::~ZdcSimHitStudy() {}
 
 void ZdcSimHitStudy::beginJob() {
   if (dbe_) {
@@ -111,7 +109,9 @@ void ZdcSimHitStudy::beginJob() {
   }
 }
 
-void ZdcSimHitStudy::endJob() {}
+void ZdcSimHitStudy::endJob() {
+  if (dbe_ && outFile_.size() > 0) dbe_->save(outFile_);
+}
 
 void ZdcSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 

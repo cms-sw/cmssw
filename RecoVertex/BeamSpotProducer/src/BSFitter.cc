@@ -6,8 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
-
- version $Id: BSFitter.cc,v 1.9 2009/08/31 22:27:09 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.5 2009/03/18 14:39:41 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -31,7 +30,6 @@ ________________________________________________________________**/
 // ROOT
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
-#include "TDecompBK.h"
 #include "TH1.h"
 #include "TF1.h"
 
@@ -40,7 +38,6 @@ using namespace ROOT::Minuit2;
 
 //_____________________________________________________________________
 BSFitter::BSFitter() {
-	fbeamtype = reco::BeamSpot::Unknown;
 }
 
 //_____________________________________________________________________
@@ -81,9 +78,6 @@ BSFitter::BSFitter( std:: vector< BSTrkParameters > BSvector ) {
 	ftmp.ResizeTo(4,1);
 	ftmp.Zero();
 	fnthite=0;
-	fMaxZ = 50.; //cm
-	fconvergence = 0.5; // stop fit when 50% of the input collection has been removed.
-	fminNtrks = 100;
 }
 
 //______________________________________________________________________
@@ -104,9 +98,9 @@ reco::BeamSpot BSFitter::Fit() {
 
 //______________________________________________________________________
 reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
-	fbeamtype = reco::BeamSpot::Unknown;
-	if ( ffit_variable == "z" ) {
 
+	if ( ffit_variable == "z" ) {
+		
 		if ( ffit_type == "chi2" ) {
 
 			return Fit_z_chi2(inipar);
@@ -179,7 +173,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			  for(int k = j ; k < 6 ; ++k) {
 			    matrix(j,k) = tmp_d0phi.covariance()(j,k);
 			  }
-			}
+                        }
 
 		
 			// put everything into one object
@@ -188,8 +182,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 								tmp_d0phi.dxdz(),
 								tmp_d0phi.dydz(),
 								0.,
-								matrix,
-								fbeamtype );
+								matrix);
 
 
 			
@@ -205,8 +198,6 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 
 				if (ffit_type == "likelihood" ) {
 					std::cout << "BSFitter: Result is non physical. Log-Likelihood fit to extract beam width did not converge." << std::endl;
-					//return tmp_lh;
-					tmp_lh.setType(reco::BeamSpot::Unknown);
 					return tmp_lh;
 				}
 				
@@ -223,7 +214,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 		} else if ( ffit_type == "resolution" ) {
 
 			reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
-			this->d0phi_Init();			
+			
 			reco::BeamSpot tmp_d0phi = Fit_d0phi();
 			
 			double tmp_par[6] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0(),
@@ -240,8 +231,6 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
 			
 				std::cout << "BSFitter: Result is non physical. Log-Likelihood fit did not converge." << std::endl;
-				tmp_lh.setType(reco::BeamSpot::Unknown);
-				return tmp_lh;
 			}
 			return tmp_lh;
 			
@@ -320,33 +309,28 @@ reco::BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 	}
 		
 	return reco::BeamSpot( reco::BeamSpot::Point(0.,
-						     0.,
-						     fmin.Parameters().Vec()(2)),
-			       fmin.Parameters().Vec()(3),
-			       0.,
-			       0.,
-			       0.,
-			       matrix,
-			       fbeamtype );
+									 0.,
+									 fmin.Parameters().Vec()(2)),
+					 fmin.Parameters().Vec()(3),
+						   0.,
+						   0.,
+						   0.,
+						   matrix );
 }
 
 //______________________________________________________________________
 reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 
 	//std::cout << "Fit_z_chi2() called" << std::endl;
-        // FIXME: include whole tracker z length for the time being
-        // ==> add protection and z0 cut
-	TH1F *h1z = new TH1F("h1z","z distribution",200,-fMaxZ, fMaxZ);
+
+	TH1F *h1z = new TH1F("h1z","z distribution",100,-50.,50.);
 	
 	std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
-
-	// HERE check size of track vector
-	
+		
 	for( iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam) {
 		
 		 h1z->Fill(iparam->z0(), iparam->sigz0());
-		 //std::cout<<"z0="<<iparam->z0()<<"; sigZ0="<<iparam->sigz0()<<std::endl;
-	}
+    }
 
 	h1z->Fit("gaus","Q0");
 	//std::cout << "fitted "<< std::endl;
@@ -354,7 +338,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	TF1 *fgaus = h1z->GetFunction("gaus");
 	//std::cout << "got function" << std::endl;
 	double fpar[2] = {fgaus->GetParameter(1), fgaus->GetParameter(2) };
-	//std::cout<<"Debug fpar[2] = (" <<fpar[0]<<","<<fpar[1]<<")"<<std::endl;
+
 	reco::BeamSpot::CovarianceMatrix matrix;
 	// add matrix values.
 	matrix(2,2) = fgaus->GetParError(1);
@@ -363,14 +347,13 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	delete h1z;
 
 	return reco::BeamSpot( reco::BeamSpot::Point(0.,
-						     0.,
-						     fpar[0]),
-			       fpar[1],
-			       0.,
-			       0.,
-			       0.,
-			       matrix,
-			       fbeamtype );	
+												 0.,
+												 fpar[0]),
+						   fpar[1],
+						   0.,
+						   0.,
+						   0.,
+						   matrix );	
 
 	
 }
@@ -379,47 +362,24 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 reco::BeamSpot BSFitter::Fit_ited0phi() {
 
 	this->d0phi_Init();
-	std::cout << " number of total input tracks: " << fBSvector.size() << std::endl;
+	reco::BeamSpot theanswer = Fit_d0phi(); //get initial ftmp and ftmprow
+	fnthite++;
+	//std::cout << theanswer << std::endl;
+	reco::BeamSpot preanswer;
 	
-	reco::BeamSpot theanswer;
-
-	if ( fBSvector.size() <= fminNtrks ) {
-		std::cout << "[BSFitter] need at least " << fminNtrks << " tracks to run beamline fitter." << std::endl;
-		fbeamtype = reco::BeamSpot::Fake;
-		theanswer.setType(fbeamtype);
-		return theanswer;
-	}
-	
-	theanswer = Fit_d0phi(); //get initial ftmp and ftmprow
-	if ( goodfit ) fnthite++;
-	//std::cout << "Initial tempanswer (iteration 0): " << theanswer << std::endl;
-   	
-	reco::BeamSpot preanswer = theanswer;
-	
-	while ( goodfit &&
-			ftmprow > fconvergence * fBSvector.size() &&
-			ftmprow > fminNtrks  ) {
+	while ( ftmprow > 0.5 * fBSvector.size()  ) {
 		
 		theanswer = Fit_d0phi();
 		fd0cut /= 1.5;
 		fchi2cut /= 1.5;
-		if ( goodfit &&
-			ftmprow > fconvergence * fBSvector.size() &&
-			ftmprow > fminNtrks ) {
+		if (ftmprow > 0.5 * fBSvector.size() ) {
 			preanswer = theanswer;
-			//std::cout << "Iteration " << fnthite << ": " << preanswer << std::endl;
 			fnthite++;
 		}
+		//std::cout << preanswer << std::endl;
 	}
-	// FIXME: return fit results from previous iteration for both bad fit and for >50% tracks thrown away
-	//std::cout << "The last iteration, theanswer: " << theanswer << std::endl;
-	theanswer = preanswer;
-	//std::cout << "Use previous results from iteration #" << ( fnthite > 0 ? fnthite-1 : 0 ) << std::endl;
-	//if ( fnthite > 1 ) std::cout << theanswer << std::endl;
+	std::cout << " total number of iterations = " << fnthite << std::endl;
 	
-	std::cout << "Total number of successful iterations = " << ( goodfit ? (fnthite+1) : fnthite ) << std::endl;
-	fbeamtype = reco::BeamSpot::Tracker;
-	theanswer.setType(fbeamtype);
 	return theanswer;
 }
 
@@ -428,7 +388,7 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 reco::BeamSpot BSFitter::Fit_d0phi() {
 
 	//LogDebug ("BSFitter") << " we will use " << fBSvector.size() << " tracks.";
-        if (fnthite > 0) std::cout << " number of tracks used: " << ftmprow << std::endl;
+	std::cout << " number of tracks used: " << ftmprow << std::endl;
 	//std::cout << " ftmp = matrix("<<ftmp.GetNrows()<<","<<ftmp.GetNcols()<<")"<<std::endl;
 	//std::cout << " ftmp(0,0)="<<ftmp(0,0)<<std::endl;
 	//std::cout << " ftmp(1,0)="<<ftmp(1,0)<<std::endl;
@@ -442,7 +402,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	TMatrixDSym Vint(4);
 	TMatrixD b(4,1);
 	
-	//Double_t weightsum = 0;
+//Double_t weightsum = 0;
 	
 	Vint.Zero();
 	b.Zero();
@@ -466,7 +426,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		
 		//if (ftmprow==0) {
 		//std::cout << "d0=" << iparam->d0() << " sigd0=" << iparam->sigd0()
-		//<< " phi0="<< iparam->phi0() << " z0=" << iparam->z0() << std::endl;
+		//<< " phi0="<< iparam->sigd0() << " z0=" << iparam->z0() << std::endl;
 		//std::cout << "d0phi_d0=" << iparam->d0phi_d0() << " d0phi_chi2="<<iparam->d0phi_chi2() << std::endl; 
 		//}
 		g(0,0) = sin(iparam->phi0());
@@ -517,25 +477,9 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		
 	}
 	Double_t determinant;
-	TDecompBK bk(Vint);
-	bk.SetTol(1e-11); //FIXME: find a better way to solve x_result
-	if (!bk.Decompose()) {
-	  goodfit = false;
-	  std::cout << "Decomposition failed, matrix singular ?" << std::endl;
-	  std::cout << "condition number = " << bk.Condition() << std::endl;
-	}
-	else {
-	  V_result = Vint.InvertFast(&determinant);
-	  x_result = V_result  * b;
-	}
-	//     	for(int j = 0 ; j < 4 ; ++j) {
-	// 	  for(int k = 0 ; k < 4 ; ++k) {
-	// 	    std::cout<<"V_result("<<j<<","<<k<<")="<<V_result(j,k)<<std::endl;
-	// 	  }
-	//     	}
-	//         for (int j=0;j<4;++j){
-	// 	  std::cout<<"x_result("<<j<<",0)="<<x_result(j,0)<<std::endl;
-	// 	}
+	V_result = Vint.InvertFast(&determinant);
+	x_result = V_result  * b;
+
 	//LogDebug ("BSFitter") << " d0-phi fit done.";
 	//std::cout<< " d0-phi fit done." << std::endl;
 	
@@ -556,14 +500,13 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	ftmp = x_result;
 	
 	return reco::BeamSpot( reco::BeamSpot::Point(x_result(0,0),
-						     x_result(1,0),
-						     0.0),
-			       0.,
-			       x_result(2,0),
-			       x_result(3,0),
-			       0.,
-			       matrix,
-			       fbeamtype );
+												 x_result(1,0),
+												 0.0),
+						   0.,
+						   x_result(2,0),
+						   x_result(3,0),
+			                           0.,
+						   matrix );
 	
 }
 
@@ -615,14 +558,13 @@ reco::BeamSpot BSFitter::Fit_d_likelihood(double *inipar) {
 	}
 	
 	return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
-						     fmin.Parameters().Vec()(1),
-						     0.),
-			       0.,
-			       fmin.Parameters().Vec()(4),
-			       fmin.Parameters().Vec()(5),
-			       0.,
-			       matrix,
-			       fbeamtype );
+									 fmin.Parameters().Vec()(1),
+									 0.),
+					 0.,
+					 fmin.Parameters().Vec()(4),
+					 fmin.Parameters().Vec()(5),
+					 0.,
+					 matrix );
 }
 
 //______________________________________________________________________
@@ -663,14 +605,13 @@ reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
 			
 	
 	return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
-						     fmin.Parameters().Vec()(1),
-						     fmin.Parameters().Vec()(2)),
-			       fmin.Parameters().Vec()(3),
-			       fmin.Parameters().Vec()(4),
-			       fmin.Parameters().Vec()(5),
-			       fmin.Parameters().Vec()(6),
-			       matrix,
-			       fbeamtype );
+									 fmin.Parameters().Vec()(1),
+									 fmin.Parameters().Vec()(2)),
+					 fmin.Parameters().Vec()(3),
+					 fmin.Parameters().Vec()(4),
+					 fmin.Parameters().Vec()(5),
+					 fmin.Parameters().Vec()(6),
+					 matrix );
 }
 
 
@@ -700,7 +641,7 @@ reco::BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 		
 	FunctionMinimum fmin = migrad();
 	ff_minimum = fmin.Fval();
-
+	
 	reco::BeamSpot::CovarianceMatrix matrix;
 
 	for (int j = 0 ; j < 6 ; ++j) {
@@ -708,11 +649,11 @@ reco::BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 			matrix(j,k) = fmin.Error().Matrix()(j,k);
 		}
 	}
-
 	//std::cout << " fill resolution values" << std::endl;
 	//std::cout << " matrix size= " << fmin.Error().Matrix().size() << std::endl;
 	//std::cout << " vec(6)="<< fmin.Parameters().Vec()(6) << std::endl;
 	//std::cout << " vec(7)="<< fmin.Parameters().Vec()(7) << std::endl;
+	//std::cout << " vec(8)="<< fmin.Parameters().Vec()(8) << std::endl;
 	
 	fresolution_c0 = fmin.Parameters().Vec()(6);
 	fresolution_c1 = fmin.Parameters().Vec()(7);
@@ -721,10 +662,10 @@ reco::BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 	
 	for (int j = 6 ; j < 8 ; ++j) {
 		for(int k = 6 ; k < 8 ; ++k) {
-			fres_matrix(j-6,k-6) = fmin.Error().Matrix()(j,k);
+			fres_matrix(j-7,k-7) = fmin.Error().Matrix()(j,k);
 		}
 	}
-
+	
 	return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
 									 fmin.Parameters().Vec()(1),
 									 fmin.Parameters().Vec()(2)),
@@ -732,8 +673,7 @@ reco::BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 					 fmin.Parameters().Vec()(4),
 					 fmin.Parameters().Vec()(5),
 					 inipar[6],
-					 matrix,
-					 fbeamtype );
+					 matrix );
 }
 
 

@@ -1,11 +1,10 @@
-// $Id: Running.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
+// $Id: Running.cc,v 1.6.4.1 2009/09/25 09:57:49 mommsen Exp $
 /// @file: Running.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -19,7 +18,7 @@ using namespace stor;
 
 Running::Running( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Running::do_entryActionWork()
@@ -52,7 +51,7 @@ void Running::do_entryActionWork()
 
 Running::~Running()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Running::do_exitActionWork()
@@ -87,9 +86,9 @@ string Running::do_stateName() const
   return string( "Running" );
 }
 
-void Running::do_moveToFailedState( const std::string& reason ) const
+void Running::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void Running::logStopDoneRequest( const StopDone& request )

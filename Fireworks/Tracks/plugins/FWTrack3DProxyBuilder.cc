@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrack3DProxyBuilder.cc,v 1.9 2009/08/26 19:39:02 dmytro Exp $
+// $Id: FWTrack3DProxyBuilder.cc,v 1.10 2009/08/26 22:23:08 dmytro Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
-#include "Fireworks/Tracks/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/CmsMagField.h"
 
 class FWTrack3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::Track> {

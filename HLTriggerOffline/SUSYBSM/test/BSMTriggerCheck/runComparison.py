@@ -1,70 +1,16 @@
 #! /usr/bin/env python
 import os
 os.system("make clean; make; \\rm *.log log.list")
+dir1='TriggerValidation_168_HLT'
+dir2='TriggerValidation_175_HLT_GlobalMuons'
+out='SUSYVal_GlobalMuons'
+#out='RelVal'
 
-
-############################################
-
-#dir1='TriggerValidation_223_HLT'
-#dir2='TriggerValidation_224_HLT'
-#out='223_vs_224'
-
-#samples=['LM1']
-#prefix1 = "histo_"
-#prefix2 = "histo_"
-#sufix1 = "_IDEALV11"
-#sufix2 = "_IDEALV11_v1"
-#label1 = "LM1_223"
-#label2 = "LM1_224"
-
-############################################
-
-#dir1='TriggerValidation_224_HLT'
-#dir2='TriggerValidation_300pre2_HLT'
-#out='224_vs_300pre2'
-
-#samples=['LM1']
-#prefix1 = "histo_"
-#prefix2 = "histo_"
-#sufix1 = "_IDEALV11_v1"
-#sufix2 = "_IDEALV9"
-#label1 = "LM1_223"
-#label2 = "LM1_300pre2"
-
-############################################
-
-#dir1='TriggerValidation_224_HLT'
-#dir2='TriggerValidation_300pre6_HLT'
-#out='224_vs_300pre6'
-
-#samples=['LM1']
-#prefix1 = "histo_"
-#prefix2 = "histo_"
-#sufix1 = "_IDEALV11_v1"
-#sufix2 = "_IDEAL_30x_v1"
-#label1 = "LM1_223"
-#label2 = "LM1_300pre6"
-
-############################################
-
-dir1='/afs/cern.ch/user/c/chiorbo/scratch0/SUSY_2007/TriggerValidation/TriggerValidation_DQM_312_commit_V00-06-00/src/HLTriggerOffline/SUSYBSM/test'
-dir2='/afs/cern.ch/user/c/chiorbo/scratch0/SUSY_2007/TriggerValidation/TriggerValidation_DQM_312_commit_V00-06-00/src/HLTriggerOffline/SUSYBSM/test'
-out='mc1_vs_mc2'
-
-samples=['_HLT']
-prefix1 = "DQM_V0001"
-prefix2 = "DQM_V0001"
-sufix1 = "_R000000001"
-sufix2 = "_R000000001_2"
-label1 = "HLT"
-label2 = "HLT"
-
-############################################
+samples=['LM1','LM5','LM9p','GM1b','GM1fran','GMa','RSgrav','Zprime']
 
 os.system('mkdir html/'+out)
 #create html index page
 os.system('cp html/template/index.html html/'+out+'/index.html')
-
 
 #create the cover page
 inputhtml  = open('html/template/beginning.html')
@@ -99,8 +45,8 @@ os.system('more html/template/menu_end.html >> html/'+out+'/menu.html')
 
 #run the code for each sample
 for sample in samples:
-    file1   = dir1+'/'+prefix1+sample+sufix1+'.root'
-    file2   = dir2+'/'+prefix2+sample+sufix2+'.root'
+    file1   = dir1+'/'+sample+'.root'
+    file2   = dir2+'/'+sample+'.root'
     outputfile =  'outputfile.root'
 
     #create html page for this sample
@@ -123,9 +69,9 @@ for sample in samples:
     outputhtml.close()
     
     # run the comparison 
-    os.system('./triggerComparison.x  -File1='+file1+' -File2='+file2+' -OutputFile='+outputfile+' -label1='+label1+' -label2='+label2)
+    os.system('./triggerComparison.x  -File1='+file1+' -File2='+file2+' -OutputFile='+outputfile)
     # for old names
-    #    os.system('./triggerComparison.x  --oldL1names -File1='+file1+' -File2='+file2+' -OutputFile='+outputfile+' -label1='+label1+' -label2='+label2)
+    # os.system('./triggerComparison.x  --oldL1names -File1='+file1+' -File2='+file2+' -OutputFile='+outputfile)
     os.system('mv HLTcomparison.log html/'+out+'/'+sample)
     os.system('mv L1comparison.log html/'+out+'/'+sample)
     

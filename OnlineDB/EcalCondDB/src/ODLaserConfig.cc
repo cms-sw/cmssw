@@ -1,6 +1,10 @@
 #include <stdexcept>
-#include <cstdlib>
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <stdio.h>
+#include <cstdlib>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODLaserConfig.h"
@@ -14,10 +18,11 @@ ODLaserConfig::ODLaserConfig()
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
+  m_size=0;
   m_config_tag="";
-
    m_ID=0;
    clear();
+
 }
 
 void ODLaserConfig::clear(){
@@ -63,6 +68,28 @@ void ODLaserConfig::clear(){
    m_laser_tag="";
    m_matacq_vernier_min=0;
    m_matacq_vernier_max=0;
+
+   m_wte_2_led_delay =0;
+   m_led1_on =0;
+   m_led2_on =0;
+   m_led3_on =0;
+   m_led4_on =0;
+   m_vinj =0;
+   m_orange_led_mon_ampl=0;
+   m_blue_led_mon_ampl =0;
+   m_trig_log_file ="";
+   m_led_control_on =0;
+   m_led_control_host="";
+   m_led_control_port =0;
+   m_ir_laser_power =0;
+   m_green_laser_power=0;
+   m_red_laser_power =0;
+   m_blue_laser_log_attenuator =0;
+   m_ir_laser_log_attenuator =0;
+   m_green_laser_log_attenuator  =0;
+   m_red_laser_log_attenuator =0;
+   m_laser_config_file ="";
+
 }
 
 ODLaserConfig::~ODLaserConfig()
@@ -115,6 +142,51 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "LASER_CONTROL_PORT") setLaserControlPort(atoi(ci->second.c_str()) );
     if(ci->first==  "MATACQ_VERNIER_MAX") setMatacqVernierMax(atoi(ci->second.c_str()) );
     if(ci->first==  "MATACQ_VERNIER_MIN") setMatacqVernierMin(atoi(ci->second.c_str()) );
+
+    if(ci->first==  "WTE_2_LED_DELAY") setWTE2LedDelay(atoi(ci->second.c_str()) );
+    if(ci->first==  "LED1_ON") setLed1ON(atoi(ci->second.c_str()) );
+    if(ci->first==  "LED2_ON") setLed2ON(atoi(ci->second.c_str()) );
+    if(ci->first==  "LED3_ON") setLed3ON(atoi(ci->second.c_str()) );
+    if(ci->first==  "LED4_ON") setLed4ON(atoi(ci->second.c_str()) );
+    if(ci->first==  "VINJ") setVinj(atoi(ci->second.c_str()) );
+    if(ci->first==  "ORANGE_LED_MON_AMPL") setOrangeLedMonAmpl(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE_LED_MON_AMPL") setBlueLedMonAmpl(atoi(ci->second.c_str()) );
+    if(ci->first==  "TRIG_LOG_FILE") setTrigLogFile(ci->second.c_str() );
+    if(ci->first==  "LED_CONTROL_ON") setLedControlON(atoi(ci->second.c_str()) );
+    if(ci->first==  "LED_CONTROL_HOST") setLedControlHost( ci->second.c_str() );
+    if(ci->first==  "LED_CONTROL_PORT") setLedControlPort(atoi(ci->second.c_str()) );
+    if(ci->first==  "IR_LASER_POWER") setIRLaserPower(atoi(ci->second.c_str()) );
+    if(ci->first==  "GREEN_LASER_POWER") setGreenLaserPower(atoi(ci->second.c_str()) );
+    if(ci->first==  "RED_LASER_POWER") setRedLaserPower(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE_LASER_LOG_ATTENUATOR") setBlueLaserLogAttenuator(atoi(ci->second.c_str()) );
+    if(ci->first==  "IR_LASER_LOG_ATTENUATOR") setIRLaserLogAttenuator(atoi(ci->second.c_str()) );
+    if(ci->first==  "GREEN_LASER_LOG_ATTENUATOR") setGreenLaserLogAttenuator(atoi(ci->second.c_str()) );
+    if(ci->first==  "RED_LASER_LOG_ATTENUATOR") setRedLaserLogAttenuator(atoi(ci->second.c_str()) );
+  
+
+    if(ci->first==  "LASER_CONFIG_FILE") {
+      std::string fname=ci->second ;
+      setLaserConfigFile(fname );
+      // here we must open the file and read the DCC Clob
+      std::cout << "Going to read Laser file: " << fname << endl;
+
+      ifstream inpFile;
+      inpFile.open(fname.c_str());
+
+      // tell me size of file
+      int bufsize = 0;
+      inpFile.seekg( 0,ios::end );
+      bufsize = inpFile.tellg();
+      std::cout <<" bufsize ="<<bufsize<< std::endl;
+      // set file pointer to start again
+      inpFile.seekg( 0,ios::beg );
+
+      m_size=bufsize;
+
+      inpFile.close();
+
+    }
+
 
   }
   
@@ -186,11 +258,33 @@ void ODLaserConfig::prepareWrite()
 			", LASER_CONTROL_PORT "
 			", LASER_TAG2 "
 			", MATACQ_VERNIER_MIN "
-			", MATACQ_VERNIER_MAX ) "
-			"VALUES (  :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, "
+			", MATACQ_VERNIER_MAX "
+			" , wte_2_led_delay " 
+			" , led1_on "
+			" , led2_on "
+			" , led3_on "
+			" , led4_on "
+			" , VINJ "
+			" , orange_led_mon_ampl" 
+			" , blue_led_mon_ampl "
+			" , trig_log_file "
+			" , led_control_on "
+			" , led_control_host "
+			" , led_control_port "
+			" , ir_laser_power "
+			" , green_laser_power" 
+			" , red_laser_power "
+			" , blue_laser_log_attenuator "
+			" , IR_LASER_LOG_ATTENUATOR "
+			" , GREEN_LASER_LOG_ATTENUATOR"  
+			" , RED_LASER_LOG_ATTENUATOR "
+			" , LASER_CONFIG_FILE "
+			" , laser_configuration ) "
+			" VALUES (  :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, "
 			":11, :12, :13, :14, :15, :16, :17, :18, :19, :20,  "
 			":21, :22, :23, :24, :25, :26, :27, :28, :29, :30,  "
-			":31, :32, :33, :34, :35, :36, :37 )");
+			":31, :32, :33, :34, :35, :36, :37, "
+			" :38, :39, :40, :41, :42, :43, :44, :45, :46, :47, :48, :49, :50, :51, :52, :53, :54, :55, :56, :57, :58  )");
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
   } catch (SQLException &e) {
@@ -249,7 +343,54 @@ void ODLaserConfig::writeDB()
     m_writeStmt->setInt(   36, this->getMatacqVernierMin());
     m_writeStmt->setInt(   37, this->getMatacqVernierMax());
 
+
+    // here goes the led and the new parameters 
+    m_writeStmt->setInt(   38, this->getWTE2LedDelay());
+    m_writeStmt->setInt(   39, this->getLed1ON());
+    m_writeStmt->setInt(   40, this->getLed2ON());
+    m_writeStmt->setInt(   41, this->getLed3ON());
+    m_writeStmt->setInt(   42, this->getLed4ON());
+    m_writeStmt->setInt(   43, this->getVinj());
+    m_writeStmt->setInt(   44, this->getOrangeLedMonAmpl());
+    m_writeStmt->setInt(   45, this->getBlueLedMonAmpl());
+    m_writeStmt->setString(   46, this->getTrigLogFile());
+    m_writeStmt->setInt(   47, this->getLedControlON());
+    m_writeStmt->setString(   48, this->getLedControlHost());
+    m_writeStmt->setInt(   49, this->getLedControlPort());
+    m_writeStmt->setInt(   50, this->getIRLaserPower());
+    m_writeStmt->setInt(   51, this->getGreenLaserPower());
+    m_writeStmt->setInt(   52, this->getRedLaserPower());
+    m_writeStmt->setInt(   53, this->getBlueLaserLogAttenuator());
+    m_writeStmt->setInt(   54, this->getIRLaserLogAttenuator());
+    m_writeStmt->setInt(   55, this->getGreenLaserLogAttenuator());
+    m_writeStmt->setInt(   56, this->getRedLaserLogAttenuator());
+    m_writeStmt->setString(   57, this->getLaserConfigFile());
+
+    // and now the clob
+    oracle::occi::Clob clob(m_conn);
+    clob.setEmpty();
+    m_writeStmt->setClob(58,clob);
+    m_writeStmt->executeUpdate ();
+    m_conn->terminateStatement(m_writeStmt);
+
+    // now we read and update it
+    m_writeStmt = m_conn->createStatement();
+    m_writeStmt->setSQL ("SELECT laser_configuration FROM "+getTable()+" WHERE"
+                         " laser_configuration_id=:1 FOR UPDATE");
+    std::cout<<"updating the laser clob "<<std::endl;
     m_writeStmt->executeUpdate();
+
+    m_writeStmt->setInt(1, m_ID);
+    ResultSet* rset = m_writeStmt->executeQuery();
+    rset->next ();
+    oracle::occi::Clob clob_to_write = rset->getClob (1);
+    cout << "Opening the clob in read write mode" << endl;
+
+    populateClob (clob_to_write, getLaserConfigFile(), m_size);
+    int clobLength=clob_to_write.length ();
+    cout << "Length of the clob is: " << clobLength << endl;
+    m_writeStmt->executeUpdate();
+    m_writeStmt->closeResultSet (rset);
 
 
   } catch (SQLException &e) {
@@ -259,7 +400,6 @@ void ODLaserConfig::writeDB()
   if (!this->fetchID()) {
     throw(runtime_error("ODLaserConfig::writeDB:  Failed to write"));
   }
-
 
 }
 
@@ -277,7 +417,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
   try {
 
     m_readStmt->setSQL("SELECT * "
-		       "FROM ECAL_Laser_CONFIGURATION d "
+		       "FROM "+getTable()+
 		       " where ( laser_configuration_id = :1  or laser_tag=:2 )" );
     m_readStmt->setInt(1, result->getId());
     m_readStmt->setString(2, result->getConfigTag());
@@ -326,6 +466,46 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
     result->setLaserControlPort(rset->getInt( 34   ));
     result->setLaserTag(rset->getString( 35   ));
   
+    result->setMatacqVernierMin(rset->getInt( 36   ));
+    result->setMatacqVernierMax(rset->getInt( 37   ));
+
+    result->setWTE2LedDelay(rset->getInt( 38   ));
+    result->setLed1ON(rset->getInt( 39   ));
+    result->setLed2ON(rset->getInt( 40   ));
+    result->setLed3ON(rset->getInt( 41   ));
+    result->setLed4ON(rset->getInt( 42   ));
+    result->setVinj(rset->getInt( 43   ));
+    result->setOrangeLedMonAmpl(rset->getInt( 44   ));
+    result->setBlueLedMonAmpl(rset->getInt( 45   ));
+    result->setTrigLogFile(rset->getString( 46   ));
+    result->setLedControlON(rset->getInt( 47   ));
+    result->setLedControlHost(rset->getString( 48   ));
+    result->setLedControlPort(rset->getInt( 49   ));
+    result->setIRLaserPower(rset->getInt( 50   ));
+    result->setGreenLaserPower(rset->getInt( 51   ));
+    result->setRedLaserPower(rset->getInt( 52   ));
+    result->setBlueLaserLogAttenuator(rset->getInt( 53   ));
+    result->setIRLaserLogAttenuator(rset->getInt( 54   ));
+    result->setGreenLaserLogAttenuator(rset->getInt( 55   ));
+    result->setRedLaserLogAttenuator(rset->getInt( 56   ));
+    result->setLaserConfigFile(rset->getString( 57   ));
+
+    Clob clob = rset->getClob (58);
+    cout << "Opening the clob in Read only mode" << endl;
+    clob.open (OCCI_LOB_READONLY);
+    int clobLength=clob.length ();
+    cout << "Length of the clob is: " << clobLength << endl;
+    m_size=clobLength;
+    unsigned char* buffer = readClob (clob, m_size);
+    clob.close ();
+    cout<< "the clob buffer is:"<<endl;
+    for (int i = 0; i < clobLength; ++i)
+      cout << (char) buffer[i];
+    cout << endl;
+
+    result->setLaserClob(buffer);
+
+
   } catch (SQLException &e) {
     throw(runtime_error("ODLaserConfig::fetchData():  "+e.getMessage()));
   }

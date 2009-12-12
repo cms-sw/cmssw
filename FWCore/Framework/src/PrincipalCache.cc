@@ -149,15 +149,8 @@ namespace edm {
       return false;
     }
     bool runOK = iter->second->adjustToNewProductRegistry(*reg);
-    if (runOK) {
-      iter->second->mergeAuxiliary(*aux);
-    } else {
-      boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(aux, reg, iter->second->processConfiguration()));
-      rp->fillFrom(*iter->second);
-      iter->second = rp;
-      runOK = iter->second->adjustToNewProductRegistry(*reg);
-      assert(runOK);
-    }
+    assert(runOK);
+    iter->second->mergeAuxiliary(*aux);
     currentRunPrincipal_ = iter->second;
     return true;
   }
@@ -171,19 +164,8 @@ namespace edm {
       return false;
     }
     bool lumiOK = iter->second->adjustToNewProductRegistry(*reg);
-    if (lumiOK) {
-      iter->second->mergeAuxiliary(*aux);
-    } else {
-      boost::shared_ptr<LuminosityBlockPrincipal> lbp(
-        new LuminosityBlockPrincipal(aux,
-				     reg,
-				     iter->second->processConfiguration(),
-				     currentRunPrincipal_));
-        lbp->fillFrom(*iter->second);
-        iter->second = lbp;
-        lumiOK = iter->second->adjustToNewProductRegistry(*reg);
-	assert(lumiOK);
-    }
+    assert(lumiOK);
+    iter->second->mergeAuxiliary(*aux);
     currentLumiPrincipal_ = iter->second;
     return true;
   }
@@ -241,9 +223,19 @@ namespace edm {
   }
 
   void PrincipalCache::adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
-    bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
-    if (!eventOK) {
-      eventPrincipal_.reset(new EventPrincipal(reg, eventPrincipal_->processConfiguration()));
+    if (eventPrincipal_) {
+      eventPrincipal_->adjustIndexesAfterProductRegistryAddition();
+      bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
+      assert(eventOK);
+    }
+  }
+  
+  void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
+    for (ConstRunIterator it = runPrincipals_.begin(), itEnd = runPrincipals_.end(); it != itEnd; ++it) {
+      it->second->adjustIndexesAfterProductRegistryAddition();
+    }
+    for (ConstLumiIterator it = lumiPrincipals_.begin(), itEnd = lumiPrincipals_.end(); it != itEnd; ++it) {
+      it->second->adjustIndexesAfterProductRegistryAddition();
     }
   }
 }

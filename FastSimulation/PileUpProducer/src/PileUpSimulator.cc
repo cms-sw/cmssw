@@ -39,7 +39,7 @@ void PileUpSimulator::produce(const HepMC::GenEvent* myGenEvent)
     // std::cout << "Vertex position " << smearedVertex << std::endl;
 
     // Add it to the FBaseSimEvent
-    int mainVertex = mySimEvent->addSimVertex(smearedVertex);
+    int mainVertex = mySimEvent->addSimVertex(smearedVertex, -1, FSimVertexType::PILEUP_VERTEX);
 
     // Particles iterator
     HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = v->particles_out_const_begin();

@@ -20,7 +20,7 @@ public:
 	ESRecHitsMerger(const edm::ParameterSet& pset);
 	virtual ~ESRecHitsMerger();
 	void produce(edm::Event & e, const edm::EventSetup& c);
-	void beginJob(const edm::EventSetup& c);
+	void beginJob(void);
 	void endJob(void);
 
 private:

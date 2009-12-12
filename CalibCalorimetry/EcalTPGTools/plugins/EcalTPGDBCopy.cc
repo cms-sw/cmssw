@@ -20,6 +20,8 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
@@ -32,6 +34,8 @@
 #include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
 #include "EcalTPGDBCopy.h"
 
@@ -67,7 +71,6 @@ EcalTPGDBCopy::~EcalTPGDBCopy()
 
 void EcalTPGDBCopy::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
 {
-
   std::string container;
   std::string record;
   typedef std::map<std::string, std::string>::const_iterator recordIter;
@@ -112,7 +115,12 @@ bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string cont
     cacheID = evtSetup.get<EcalTPGFineGrainEBGroupRcd>().cacheIdentifier();
   } else if (container == "EcalTPGPhysicsConst") {
     cacheID = evtSetup.get<EcalTPGPhysicsConstRcd>().cacheIdentifier();
-  } 
+  } else if (container == "EcalTPGCrystalStatus") {
+    cacheID = evtSetup.get<EcalTPGCrystalStatusRcd>().cacheIdentifier();
+  } else if (container == "EcalTPGTowerStatus") {
+    cacheID = evtSetup.get<EcalTPGTowerStatusRcd>().cacheIdentifier();
+  }
+   
 
   else {
     throw cms::Exception("Unknown container");
@@ -215,7 +223,22 @@ else if (container == "EcalTPGFineGrainEBIdMap") {
     const EcalTPGPhysicsConst* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGPhysicsConst>( new EcalTPGPhysicsConst(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
-  } else {
+  } else if (container == "EcalTPGCrystalStatus") {
+    edm::ESHandle<EcalTPGCrystalStatus> handle;
+    evtSetup.get<EcalTPGCrystalStatusRcd>().get(handle);
+    const EcalTPGCrystalStatus* obj = handle.product();
+    dbOutput->createNewIOV<const EcalTPGCrystalStatus>( new EcalTPGCrystalStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  } else if (container == "EcalTPGTowerStatus") {
+    edm::ESHandle<EcalTPGTowerStatus> handle;
+    evtSetup.get<EcalTPGTowerStatusRcd>().get(handle);
+    const EcalTPGTowerStatus* obj = handle.product();
+    dbOutput->createNewIOV<const EcalTPGTowerStatus>( new EcalTPGTowerStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  }
+  
+  
+  else {
     throw cms::Exception("Unknown container");
   }
 

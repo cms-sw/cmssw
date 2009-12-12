@@ -117,6 +117,10 @@ void L1GtEnergySumTemplate::print(std::ostream& myCout) const
             << std::hex << m_objectParameter[i].phiRange1Word
             << std::hex << m_objectParameter[i].phiRange0Word
             << std::endl;
+        } else if (m_condType == TypeHTM) {
+            myCout << "    phi               = "
+            << std::hex << m_objectParameter[i].phiRange0Word
+            << std::endl;
         }
 
     }

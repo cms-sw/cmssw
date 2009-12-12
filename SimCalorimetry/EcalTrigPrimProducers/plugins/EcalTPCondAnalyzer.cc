@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.h,v 1.10 2008/10/15 13:03:14 uberthon Exp $
+// $Id: EcalTPCondAnalyzer.cc,v 1.1 2008/10/15 15:51:15 uberthon Exp $
 //
 //
 //
@@ -52,9 +52,8 @@ EcalTPCondAnalyzer::EcalTPCondAnalyzer(const edm::ParameterSet&  iConfig)
 
 {}
 
-void EcalTPCondAnalyzer::beginJob(edm::EventSetup const& evtSetup) {
-
-  // get geometry
+void EcalTPCondAnalyzer::beginRun(const edm::Run & run, edm::EventSetup const& evtSetup){
+ // get geometry
   
   edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
   evtSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
@@ -64,6 +63,9 @@ void EcalTPCondAnalyzer::beginJob(edm::EventSetup const& evtSetup) {
 
   cacheID_=this->getRecords(evtSetup);
 }
+
+void EcalTPCondAnalyzer::beginJob() 
+{}
 
 
 EcalTPCondAnalyzer::~EcalTPCondAnalyzer() {

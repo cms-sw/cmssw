@@ -157,27 +157,29 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   
   BOOK1D(NGen,"Number of generated objects",20,0,20);
 
-  BOOK1D(SumEt,"SumEt", 1000, 0., 3000.);
-  BOOK1D(TrueSumEt,"TrueSumEt", 1000, 0., 3000.);
-  BOOK2D(DeltaSetvsSet,"#DeltaSEt vs trueSEt",
-	 3000, 0., 3000.,
-	 1000,-1000., 1000.);
-  BOOK2D(DeltaMexvsSet,"#DeltaMEX vs trueSEt",
-	 3000, 0., 3000.,
-	 1000,-400., 400.);
-  BOOK2D(DeltaSetOverSetvsSet,"#DeltaSetOverSet vs trueSet",
-	 3000, 0., 3000.,
-	 1000,-1., 1.);
-  BOOK2D(RecSetvsTrueSet,"Set vs trueSet",
-	 3000, 0., 3000.,
-	 3000,0., 3000.);
-  BOOK2D(RecSetOverTrueSetvsTrueSet,"Set/trueSet vs trueSet",
-	 3000, 0., 3000.,
-	 500,0., 2.);
-  BOOK2D(TrueMexvsTrueSet,"trueMex vs trueSet",
-	 3000,0., 3000.,
-	 nbinsEt, -maxEt, maxEt);
-
+  if (doMetPlots)
+  {
+    BOOK1D(SumEt,"SumEt", 1000, 0., 3000.);
+    BOOK1D(TrueSumEt,"TrueSumEt", 1000, 0., 3000.);
+    BOOK2D(DeltaSetvsSet,"#DeltaSEt vs trueSEt",
+	   3000, 0., 3000.,
+	   1000,-1000., 1000.);
+    BOOK2D(DeltaMexvsSet,"#DeltaMEX vs trueSEt",
+	   3000, 0., 3000.,
+	   1000,-400., 400.);
+    BOOK2D(DeltaSetOverSetvsSet,"#DeltaSetOverSet vs trueSet",
+	   3000, 0., 3000.,
+	   1000,-1., 1.);
+    BOOK2D(RecSetvsTrueSet,"Set vs trueSet",
+	   3000, 0., 3000.,
+	   3000,0., 3000.);
+    BOOK2D(RecSetOverTrueSetvsTrueSet,"Set/trueSet vs trueSet",
+	   3000, 0., 3000.,
+	   500,0., 2.);
+    BOOK2D(TrueMexvsTrueSet,"trueMex vs trueSet",
+	   3000,0., 3000.,
+	   nbinsEt, -maxEt, maxEt);
+  }
   // number of truth particles found within given cone radius of reco
   //BOOK2D(NumInConeVsConeSize,NumInConeVsConeSize,100,0,1,25,0,25);
 
@@ -230,14 +232,17 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
 
   SETAXES(NGen,"Number of Gen Objects","");
   
-  SETAXES(SumEt,"SumEt [GeV]","");
-  SETAXES(TrueSumEt,"TrueSumEt [GeV]","");
-  SETAXES(DeltaSetvsSet,"TrueSumEt","#DeltaSumEt [GeV]");
-  SETAXES(DeltaMexvsSet,"TrueSumEt","#DeltaMEX [GeV]");
-  SETAXES(DeltaSetOverSetvsSet,"TrueSumEt","#DeltaSumEt/trueSumEt");
-  SETAXES(RecSetvsTrueSet,"TrueSumEt","SumEt");
-  SETAXES(RecSetOverTrueSetvsTrueSet,"TrueSumEt","SumEt/trueSumEt");
-  SETAXES(TrueMexvsTrueSet,"TrueSumEt","TrueMEX");
+  if (doMetPlots)
+  {
+    SETAXES(SumEt,"SumEt [GeV]","");
+    SETAXES(TrueSumEt,"TrueSumEt [GeV]","");
+    SETAXES(DeltaSetvsSet,"TrueSumEt","#DeltaSumEt [GeV]");
+    SETAXES(DeltaMexvsSet,"TrueSumEt","#DeltaMEX [GeV]");
+    SETAXES(DeltaSetOverSetvsSet,"TrueSumEt","#DeltaSumEt/trueSumEt");
+    SETAXES(RecSetvsTrueSet,"TrueSumEt","SumEt");
+    SETAXES(RecSetOverTrueSetvsTrueSet,"TrueSumEt","SumEt/trueSumEt");
+    SETAXES(TrueMexvsTrueSet,"TrueSumEt","TrueMEX");
+  }
 
   TDirectory* oldpwd = gDirectory;
 

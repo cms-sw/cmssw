@@ -256,6 +256,26 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 			info << "   JIMMY trying to generate multiple interactions.\n";
 	}
 
+
+	// set the IPROC already here... needed for VB pairs
+
+	bool iprocFound=false;
+	
+	for(gen::ParameterCollector::const_iterator line = parameters.begin();
+	    line != parameters.end(); ++line) {
+	  if(!strcmp((line->substr(0,5)).c_str(),"IPROC")) {
+	    if (!give(*line))
+	      throw edm::Exception(edm::errors::Configuration)
+		<< "Herwig 6 did not accept the following: \""
+		<< *line << "\"." << std::endl;
+	    else iprocFound=true;
+	  }
+	}
+	
+	if (!iprocFound)
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "You have to define the process with IPROC."  << std::endl;
+
 	// initialize other common blocks ...
 	call(hwigin);
 	hwevnt.MAXER = 100000000;	// O(inf)
@@ -660,23 +680,23 @@ int Herwig6Hadronizer::pythiaStatusCode(const HepMC::GenParticle *p) const
 
 			q = *iter;
 			if (q->status() == 3 ||
-			    (status == 120 || status == 123 ||
-			     status == 124) && orig > 124)
+			    ((status == 120 || status == 123 ||
+			      status == 124) && orig > 124))
 				return 4;
 		}
 	}
 
 	int nesting = 0;
 	for(;;) {
-		if (status >= 120 && status <= 122 || status == 3) {
+		if ((status >= 120 && status <= 122) || status == 3) {
 			// avoid flagging status 3 if there is a
 			// better status 3 candidate upstream
 			if (externalPartons)
-				return (orig >= 121 && orig <= 124 ||
+				return ((orig >= 121 && orig <= 124) ||
 				        orig == 3) ? 3 : 4;
 			else
 				return (nesting ||
-				        status != 3 && orig <= 124) ? 3 : 4;
+				        (status != 3 && orig <= 124)) ? 3 : 4;
 		}
 
 		// check whether we are leaving the hard process

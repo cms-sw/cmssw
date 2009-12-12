@@ -2,13 +2,14 @@
 /*!
   \file RPCClient.h
    \author A. Cimmino
-  \version $Revision: 1.1 $
-  \date $Date: 2008/03/17 14:26:16 $
+  \version $Revision: 1.3 $
+  \date $Date: 2009/03/27 16:24:58 $
 */
 
 
 #ifndef RPCClient_H
 #define RPCClient_H
+
 
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -35,7 +36,7 @@ class RPCClient {
   virtual ~RPCClient(void) {}
 
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)=0 ;
-  
+  virtual void clientOperation(edm::EventSetup const& c)=0;
   
   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c)=0;
   
@@ -45,12 +46,12 @@ class RPCClient {
   
   virtual void endJob(void)       = 0;
   
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c, std::vector<MonitorElement *> , std::vector<RPCDetId>)     = 0;
+  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c)     = 0;
   
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c)       = 0;  
+  virtual void endRun(const edm::Run& r, const edm::EventSetup& c, std::vector<MonitorElement *> , std::vector<RPCDetId>)       = 0;  
 
 
-  // private:
+  //  private:
   //parameters used to configure quality tests
 
 

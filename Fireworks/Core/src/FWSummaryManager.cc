@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.14 2009/08/26 19:06:04 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.17 2009/10/05 08:30:51 amraktad Exp $
 //
 
 // system include files
@@ -105,6 +105,7 @@ FWSummaryManager::newItem(FWEventItem* iItem)
    lst->Connect("requestForFilter(FWEventItem*)","FWSummaryManager",this,"requestForFilter(FWEventItem*)");
    lst->Connect("requestForErrorInfo(FWEventItem*)","FWSummaryManager",this,"requestForError(FWEventItem*)");
    lst->Connect("requestForController(FWEventItem*)","FWSummaryManager",this,"requestForController(FWEventItem*)");
+   lst->Connect("requestForModelContextMenu(Int_t,Int_t)","FWSummaryManager",this,"requestForSelectedModelContextMenu(Int_t,Int_t)");
 }
 
 void 
@@ -159,16 +160,15 @@ FWSummaryManager::colorsChanged()
 {
    bool backgroundIsWhite = m_colorManager->backgroundColorIndex()==FWColorManager::kWhiteIndex;
    
-   if(backgroundIsWhite) {
-      const unsigned int backgroundColor=0xdfdfdf;
-      m_pack->SetBackgroundColor(backgroundColor);
+   if(m_colorManager->isColorSetLight()) {
+      m_pack->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
    } else {
       const unsigned int backgroundColor=0x2f2f2f;
       m_pack->SetBackgroundColor(backgroundColor);
    }
    gClient->NeedRedraw(m_pack);
    for(std::vector<FWCollectionSummaryWidget*>::iterator it = m_collectionWidgets.begin(), 
-       itEnd = m_collectionWidgets.end();
+          itEnd = m_collectionWidgets.end();
        it != itEnd;
        ++it) {
       if(0!=*it) {
@@ -197,6 +197,12 @@ void
 FWSummaryManager::requestForController(FWEventItem* iItem)
 {
    m_guiManager->showEDIFrame();
+}
+
+void 
+FWSummaryManager::requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
+{
+   m_guiManager->showSelectedModelContextMenu(iGlobalX,iGlobalY,0);
 }
 
 //

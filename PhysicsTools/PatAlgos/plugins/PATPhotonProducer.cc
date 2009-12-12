@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.24 2009/06/08 17:32:26 hegner Exp $
+// $Id: PATPhotonProducer.cc,v 1.26 2009/10/13 14:23:56 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -16,7 +16,7 @@
 using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
@@ -87,9 +87,9 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 
   if (iConfig.exists("isoDeposits")) {
      edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
-     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
-     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
-     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
      if (depconf.exists("user")) {
         std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
         std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
@@ -259,7 +259,7 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
-  iDesc.add("isolation", isolationPSet);
+  iDesc.add("userIsolation", isolationPSet);
 
   descriptions.add("PATPhotonProducer", iDesc);
 
