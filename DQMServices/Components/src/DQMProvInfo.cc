@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/12/11 13:11:16 $
- * $Revision: 1.4 $
+ * $Date: 2009/12/11 22:24:21 $
+ * $Revision: 1.5 $
  * $Author: ameyer $
  *
  */
@@ -52,36 +52,37 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   if (makedcsinfo_)
   {
     reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
-                	"Info Report Summary Map", 15, 1., 16., 10, 1., 11.);
-    reportSummaryMap_->setBinLabel(10, "Physics", 2);
-    reportSummaryMap_->setBinLabel( 9, "CSC",     2);
-    reportSummaryMap_->setBinLabel( 8, "DT",      2);
-    reportSummaryMap_->setBinLabel( 7, "EB",      2);
-    reportSummaryMap_->setBinLabel( 6, "EE",      2);
-    reportSummaryMap_->setBinLabel( 5, "ES",      2);
-    reportSummaryMap_->setBinLabel( 4, "Hcal",    2);
-    reportSummaryMap_->setBinLabel( 3, "Pixel",   2);
-    reportSummaryMap_->setBinLabel( 2, "RPC",     2);
-    reportSummaryMap_->setBinLabel( 1, "Strip",   2);
+                	"Info Report Summary Map", 15, 1., 16., 11, 1., 12.);
+    reportSummaryMap_->setBinLabel(11, "PhysDecl.", 2);
+    reportSummaryMap_->setBinLabel(10, "CSC HV",     2);
+    reportSummaryMap_->setBinLabel( 9, "DT HV",      2);
+    reportSummaryMap_->setBinLabel( 8, "EB HV",      2);
+    reportSummaryMap_->setBinLabel( 7, "EE HV",      2);
+    reportSummaryMap_->setBinLabel( 6, "ES HV",      2);
+    reportSummaryMap_->setBinLabel( 5, "HF HV",    2);
+    reportSummaryMap_->setBinLabel( 4, "Hcal HV",    2);
+    reportSummaryMap_->setBinLabel( 3, "Pixel HV",   2);
+    reportSummaryMap_->setBinLabel( 2, "RPC HV",     2);
+    reportSummaryMap_->setBinLabel( 1, "Strip HV",   2);
     for (int i=1;i<16;i++)
-      for (int j=1;j<11;j++)
+      for (int j=1;j<12;j++)
 	reportSummaryMap_->setBinContent(i,j,-1.);
 
     dbe_->cd();
     dbe_->setCurrentFolder( subsystemname_ + "/Conditions") ;
     dcsVsLumi_ = dbe_->book2D("dcsVsLumi",
-                       "DCS vs Lumi", 200, 0., 200., 24, 0., 24.);
-    dcsVsLumi_->setBinLabel(1,"CSCp",2);   
-    dcsVsLumi_->setBinLabel(2,"CSCm",2);   
+                       "DCS vs Lumi", 200, 0., 200., 26, 0., 26.);
+    dcsVsLumi_->setBinLabel(1,"CSC+",2);   
+    dcsVsLumi_->setBinLabel(2,"CSC-",2);   
     dcsVsLumi_->setBinLabel(3,"DT0",2);    
-    dcsVsLumi_->setBinLabel(4,"DTp",2);    
-    dcsVsLumi_->setBinLabel(5,"DTm",2);    
-    dcsVsLumi_->setBinLabel(6,"EBp",2);    
-    dcsVsLumi_->setBinLabel(7,"EBm",2);    
-    dcsVsLumi_->setBinLabel(8,"EEp",2);    
-    dcsVsLumi_->setBinLabel(9,"EEm",2);    
-    dcsVsLumi_->setBinLabel(10,"ESp",2);    
-    dcsVsLumi_->setBinLabel(11,"ESm",2);   
+    dcsVsLumi_->setBinLabel(4,"DT+",2);    
+    dcsVsLumi_->setBinLabel(5,"DT-",2);    
+    dcsVsLumi_->setBinLabel(6,"EB+",2);    
+    dcsVsLumi_->setBinLabel(7,"EB-",2);    
+    dcsVsLumi_->setBinLabel(8,"EE+",2);    
+    dcsVsLumi_->setBinLabel(9,"EE-",2);    
+    dcsVsLumi_->setBinLabel(10,"ES+",2);    
+    dcsVsLumi_->setBinLabel(11,"ES-",2);   
     dcsVsLumi_->setBinLabel(12,"HBHEa",2); 
     dcsVsLumi_->setBinLabel(13,"HBHEb",2); 
     dcsVsLumi_->setBinLabel(14,"HBHEc",2); 
@@ -95,7 +96,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
     dcsVsLumi_->setBinLabel(22,"TECp",2);  
     dcsVsLumi_->setBinLabel(23,"TECm",2);  
     dcsVsLumi_->setBinLabel(24,"CASTOR",2);
-    
+    dcsVsLumi_->setBinLabel(25,"PhysDecl",2);
   }
   else
   { 
@@ -138,7 +139,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   // first move everything to the left by 1
   for (int i=2;i<16;i++) 
   {
-    for (int j=1;j<11;j++) 
+    for (int j=1;j<12;j++) 
     {
       float cont = reportSummaryMap_->getBinContent(i,j);
       reportSummaryMap_->setBinContent(i-1,j,cont);
@@ -146,17 +147,18 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   }
 
   // fill last bin 15 for detector HV
-  for (int j=0;j<9;j++) 
+  for (int j=0;j<10;j++) 
   {
      float cont = 0.;
      if (dcsword_&(0x1<<j)) cont = 1.;
      cout << j << " " << (0x1<<j) << " " << cont << endl;
-     reportSummaryMap_->setBinContent(15,9-j,cont);
+     reportSummaryMap_->setBinContent(15,10-j,cont);
   }
   // reset
   dcsword_=0xffff;
 
   // fill dcs vs lumi
+  dcsVsLumi_->setBinContent(nlumi,26,1.);
   for (int i=0;i<24;i++)
   {
     if (dcs24[i])
@@ -169,9 +171,15 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
 
   // fill physics decl. bit in y bin 10.
   if (physDecl_) 
-    reportSummaryMap_->setBinContent(15,10,1.);
+  {
+    dcsVsLumi_->setBinContent(nlumi,25,1.);
+    reportSummaryMap_->setBinContent(15,11,1.);
+  }
   else
-    reportSummaryMap_->setBinContent(15,10,0.);
+  {
+    dcsVsLumi_->setBinContent(nlumi,25,0.);
+    reportSummaryMap_->setBinContent(15,11,0.);
+  }
   // reset   
   physDecl_=true;  
 
@@ -268,7 +276,7 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
   edm::Handle<DcsStatusCollection> dcsStatus;
   e.getByLabel("scalersRawToDigi", dcsStatus);
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
-                                         dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
+                            dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
   {
       // cout << "here " << dcsStatusItr->ready() << endl;
       if (!dcsStatusItr->ready(DcsStatus::CSCp) && 
@@ -295,22 +303,24 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
       if (!dcsStatusItr->ready(DcsStatus::HBHEa) &&
           !dcsStatusItr->ready(DcsStatus::HBHEb) &&
 	  !dcsStatusItr->ready(DcsStatus::HBHEc) &&
-	  !dcsStatusItr->ready(DcsStatus::HF) &&
 	  !dcsStatusItr->ready(DcsStatus::HO)) 
 	                              dcsword_ = dcsword_ & 0xffdf; 
 
-      if (!dcsStatusItr->ready(DcsStatus::BPIX) &&
-          !dcsStatusItr->ready(DcsStatus::FPIX))  
+      if (!dcsStatusItr->ready(DcsStatus::HF))
 	                              dcsword_ = dcsword_ & 0xffbf;
 
+      if (!dcsStatusItr->ready(DcsStatus::BPIX) &&
+          !dcsStatusItr->ready(DcsStatus::FPIX))  
+	                              dcsword_ = dcsword_ & 0xff7f;
+
       if (!dcsStatusItr->ready(DcsStatus::RPC))   
-                                      dcsword_ = dcsword_ & 0xff7f;
+                                      dcsword_ = dcsword_ & 0xfeff;
 
       if (!dcsStatusItr->ready(DcsStatus::TIBTID) &&
           !dcsStatusItr->ready(DcsStatus::TOB) && 
 	  !dcsStatusItr->ready(DcsStatus::TECp) &&
 	  !dcsStatusItr->ready(DcsStatus::TECm))  
-	                              dcsword_ = dcsword_ & 0xfeff;
+	                              dcsword_ = dcsword_ & 0xfdff;
 
       if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs24[0]=false;
       if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs24[1]=false;   
