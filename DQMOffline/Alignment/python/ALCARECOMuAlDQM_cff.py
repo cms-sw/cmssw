@@ -15,6 +15,7 @@ ALCARECOMuAlStandAloneCosmicsTrackingDQM = _TrackMon.TrackMon.clone(
     TrackProducer = 'ALCARECOMuAlStandAloneCosmics',
     AlgoName = 'ALCARECOMuAlStandAloneCosmics',
     FolderName = 'AlCaReco/MuAlStandAloneCosmics',
+    BSFolderName = "AlCaReco/MuAlStandAloneCosmics/BeamSpot",
     MeasurementState = "default",
     doSeedParameterHistos = False,
     #sizes
@@ -42,6 +43,7 @@ ALCARECOMuAlGlobalCosmicsDQM = _TrackMon.TrackMon.clone(
     TrackProducer = 'ALCARECOMuAlGlobalCosmics:GlobalMuon',
     AlgoName = 'ALCARECOMuAlGlobalCosmics',
     FolderName = 'AlCaReco/MuAlGlobalCosmics',
+    BSFolderName = "AlCaReco/MuAlGlobalCosmics/BeamSpot",
     MeasurementState = "default",
     doSeedParameterHistos = False,
     #sizes  
