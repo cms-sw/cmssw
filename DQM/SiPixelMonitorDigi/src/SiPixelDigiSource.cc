@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.31 2009/12/12 10:24:03 wehrlilu Exp $
+// $Id: SiPixelDigiSource.cc,v 1.32 2009/12/12 13:48:23 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -143,7 +143,7 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if(nEventDigis>bigEventSize){
     MonitorElement* me = theDMBE->get("Pixel/bigEventRate");
     if(me){ 
-      me->Fill(lumiSection,1.);    
+      me->Fill(lumiSection,1./93.);    
 //      me->setBinContent(lumiSection+1,(float)nBigEvents/(5.*93.));
 //      me->setBinError(lumiSection+1,sqrt(nBigEvents)/(5.*93.));
 //      nBigEvents=0;
