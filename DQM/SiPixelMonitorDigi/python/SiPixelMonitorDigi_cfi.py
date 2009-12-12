@@ -11,7 +11,7 @@ SiPixelDigiSource = cms.EDFilter("SiPixelDigiSource",
     twoDimModOn = cms.untracked.bool(True),     
     #allows to have no twoD plots on Mod level (but possibly on other levels),
     #if !twoDimOn no plots on module level anyway, no projections if twoDimOn and !twoDimModOn
-    twoDimOnlyLayDisk = cms.untracked.bool(True), 
+    twoDimOnlyLayDisk = cms.untracked.bool(False), 
     #allows to have only twoD plots on lay/disk level (even if layOn/diskOn), no others (and no projections)
     #only possible if !reducedSet, twoD has no impact, for SiPixelMonitorClient hiRes must be true
     reducedSet = cms.untracked.bool(True),
