@@ -102,7 +102,6 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsLeft | kLHintsCenterY , 20, 20, 2, 4));
    cancel->Connect("Clicked()","FWGUIEventFilter", this, "CloseWindow()");
 
-
    {
       TGHorizontalFrame* f = new TGHorizontalFrame(btnFrame);
       btnFrame->AddFrame(f, new TGLayoutHints(kLHintsRight, 4, 18, 2, 4));
@@ -123,7 +122,7 @@ FWGUIEventFilter::addSelector(FWEventSelector* sel)
    FWGUIEventSelector* es = new FWGUIEventSelector(m_selectionFrame, m_validator, sel);
    m_selectionFrame->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
    TQObject::Connect(es, "removeSelector(FWGUIEventSelector*)", "FWGUIEventFilter",  this, "deleteEntry(FWGUIEventSelector*)");
-   TQObject::Connect(es, "selectorChanged()", "FWGUIEventFilter",  this, "chec~kApplyButton()");
+   TQObject::Connect(es, "selectorChanged()", "FWGUIEventFilter",  this, "checkApplyButton()");
 
    m_guiSelectors.push_back(es);
 }
