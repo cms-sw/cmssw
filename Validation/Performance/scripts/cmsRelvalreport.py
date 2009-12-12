@@ -391,11 +391,15 @@ class Profile:
         '''
         profiler_line=''
         #Adding cms suppression of useless messages (cmsvgsupp)
+        #Removing leak-checking (done with igprof)
+        #'--leak-check=no '+\ (no is the default)
+        #'--show-reachable=yes '+\
+        #'--track-fds=yes '
+        #Adding xml logging
         valgrind_options='time valgrind --tool=memcheck `cmsvgsupp` '+\
-                               '--leak-check=yes '+\
-                               '--show-reachable=yes '+\
                                '--num-callers=20 '+\
-                               '--track-fds=yes '
+                               '--xml=yes '+\
+                               '--xml-file=%s.xml '%self.profile_name.replace(",","-")[:-4]
         
         # If we are using cmsDriver we should use the prefix switch        
         if EXECUTABLE=='cmsRun' and self.command.find('cmsDriver.py')!=-1:
