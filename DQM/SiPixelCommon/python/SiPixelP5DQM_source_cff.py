@@ -12,6 +12,10 @@ from DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi import *
 SiPixelDigiSource.saveFile = False
 SiPixelDigiSource.isPIB = False
 SiPixelDigiSource.slowDown = False
+SiPixelDigiSource.hiRes = True
+SiPixelDigiSource.reducedSet = False
+SiPixelDigiSource.twoDimModOn = False
+SiPixelDigiSource.twoDimOnlyLayDisk = True
 
 # Pixel Cluster Monitoring
 from DQM.SiPixelMonitorCluster.SiPixelMonitorCluster_cfi import *
