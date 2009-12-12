@@ -1138,7 +1138,7 @@
         <PARAM name="warning">0.90</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE * projection R">
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE * projection eta">
         <TestName activate="true">EE_Occupancy_Digis_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1153,7 +1153,7 @@
         <PARAM name="warning">0.80</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE * projection R">
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE * projection eta">
         <TestName activate="true">EE_Occupancy_Rechits_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1168,7 +1168,7 @@
         <PARAM name="warning">0.80</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE * projection R">
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE * projection eta">
         <TestName activate="true">EE_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1183,7 +1183,7 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE * projection R">
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE * projection eta">
         <TestName activate="true">EE_Occupancy_TP_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1198,7 +1198,7 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE * projection R">
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE * projection eta">
         <TestName activate="true">EE_Occupancy_TPThr_Comp2RefKolmogorov</TestName>
 </LINK>
 

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.59 $
+ * $Date: 2009/10/28 08:18:23 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -54,17 +54,17 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps) {
   for(int iEE=0;iEE<2;iEE++) {
     for(int i=0;i<3;++i) {
       h04_[i][iEE] = 0;
-      h02ProjR_[i][iEE] = 0;
+      h02ProjEta_[i][iEE] = 0;
       h02ProjPhi_[i][iEE] = 0;
     }
   }
 
   h03_[0] = 0;
-  h03ProjR_[0] = 0;
+  h03ProjEta_[0] = 0;
   h03ProjPhi_[0] = 0;
 
   h03_[1] = 0;
-  h03ProjR_[1] = 0;
+  h03ProjEta_[1] = 0;
   h03ProjPhi_[1] = 0;
 
   i01_[0] = 0;
@@ -136,17 +136,17 @@ void EEClusterClient::cleanup(void) {
     for(int iEE=0;iEE<2;iEE++) {
       for(int i=0;i<3;++i) {
         if(h04_[i][iEE]) delete h04_[i][iEE];
-        if(h02ProjR_[i][iEE]) delete h02ProjR_[i][iEE];
+        if(h02ProjEta_[i][iEE]) delete h02ProjEta_[i][iEE];
         if(h02ProjPhi_[i][iEE]) delete h02ProjPhi_[i][iEE];
       }
     }
 
     if(h03_[0]) delete h03_[0];
-    if(h03ProjR_[0]) delete h03ProjR_[0];
+    if(h03ProjEta_[0]) delete h03ProjEta_[0];
     if(h03ProjPhi_[0]) delete h03ProjPhi_[0];
 
     if(h03_[1]) delete h03_[1];
-    if(h03ProjR_[1]) delete h03ProjR_[1];
+    if(h03ProjEta_[1]) delete h03ProjEta_[1];
     if(h03ProjPhi_[1]) delete h03ProjPhi_[1];
 
     if(i01_[0]) delete i01_[0];
@@ -166,17 +166,17 @@ void EEClusterClient::cleanup(void) {
   for(int iEE=0;iEE<2;iEE++) {
     for(int i=0;i<3;++i) {
       h04_[i][iEE] = 0;
-      h02ProjR_[i][iEE] = 0;
+      h02ProjEta_[i][iEE] = 0;
       h02ProjPhi_[i][iEE] = 0;
     }
   }
 
   h03_[0] = 0;
-  h03ProjR_[0] = 0;
+  h03ProjEta_[0] = 0;
   h03ProjPhi_[0] = 0;
 
   h03_[1] = 0;
-  h03ProjR_[1] = 0;
+  h03ProjEta_[1] = 0;
   h03ProjPhi_[1] = 0;
 
   i01_[0] = 0;
@@ -237,33 +237,33 @@ void EEClusterClient::analyze(void) {
   me = dqmStore_->get(histo);
   h04_[2][0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[2][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection eta EE -").c_str());
   me = dqmStore_->get(histo);
-  h02ProjR_[0][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[0][0] );
+  h02ProjEta_[0][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[0][0] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection eta EE -").c_str());
   me = dqmStore_->get(histo);
-  h03ProjR_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjR_[0] );
+  h03ProjEta_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjEta_[0] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h03ProjPhi_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_[0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection eta EE -").c_str());
   me = dqmStore_->get(histo);
-  h02ProjR_[1][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[1][0] );
+  h02ProjEta_[1][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[1][0] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection eta EE -").c_str());
   me = dqmStore_->get(histo);
-  h02ProjR_[2][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[2][0] );
+  h02ProjEta_[2][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[2][0] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE -").c_str());
   me = dqmStore_->get(histo);
@@ -285,33 +285,33 @@ void EEClusterClient::analyze(void) {
   me = dqmStore_->get(histo);
   h04_[2][1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[2][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection eta EE +").c_str());
   me = dqmStore_->get(histo);
-  h02ProjR_[0][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[0][1] );
+  h02ProjEta_[0][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[0][1] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection eta EE +").c_str());
   me = dqmStore_->get(histo);
-  h03ProjR_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjR_[1] );
+  h03ProjEta_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjEta_[1] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h03ProjPhi_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_[1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection eta EE +").c_str());
   me = dqmStore_->get(histo);
-  h02ProjR_[1][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[1][1] );
+  h02ProjEta_[1][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[1][1] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection eta EE +").c_str());
   me = dqmStore_->get(histo);
-  h02ProjR_[2][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[2][1] );
+  h02ProjEta_[2][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[2][1] );
 
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE +").c_str());
   me = dqmStore_->get(histo);

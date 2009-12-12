@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.28 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -89,10 +89,10 @@ DQMStore* dqmStore_;
 
 TH1F* h01_[3];
 TProfile2D* h04_[3][2];
-TProfile* h02ProjR_[3][2];
+TProfile* h02ProjEta_[3][2];
 TProfile* h02ProjPhi_[3][2];
 TH2F* h03_[2];
-TH1F* h03ProjR_[2];
+TH1F* h03ProjEta_[2];
 TH1F* h03ProjPhi_[2];
 TH1F* i01_[3]; 
 TH1F* s01_[3];

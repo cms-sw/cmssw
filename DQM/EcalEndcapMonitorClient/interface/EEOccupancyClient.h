@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2009/08/28 17:47:48 $
- * $Revision: 1.19 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -90,11 +90,11 @@ TH2F* i01_[18];
 TProfile2D* i02_[18];
 
 TH2F* h01_[2][3];
-TH1F* h01ProjR_[2][3];
+TH1F* h01ProjEta_[2][3];
 TH1F* h01ProjPhi_[2][3];
 
 TH2F* h02_[2][2];
-TH1F* h02ProjR_[2][2];
+TH1F* h02ProjEta_[2][2];
 TH1F* h02ProjPhi_[2][2];
 
 };
