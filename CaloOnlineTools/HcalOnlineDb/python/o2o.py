@@ -22,12 +22,9 @@ import subprocess
 #
 #
 mode = 'online'
-#oracle://cmsdevr_lb/cms_cond_hcal
 input_pool_connect_string = "oracle://cmsdevr_lb/cms_cond_hcal"    # read list of tags/iovs from
 output_pool_connect_string = "oracle://cmsdevr_lb/cms_cond_hcal"   # where to write changes
 pool_auth_path = "/afs/cern.ch/cms/DB/conddb"
-#input_pool_connect_string = "sqlite_file:test_o2o.db"    # read list of tags/iovs from
-#output_pool_connect_string = "sqlite_file:test_o2o.db"   # where to write changes
 pool_logconnect = "sqlite_file:log.db"                   # pool log DB file
 omds_accessor_string = "occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44"
 base_dir = "."
@@ -56,6 +53,7 @@ def make_popcon_config_file(filename):
     py_file = open(str(filename), "w")
     for line in py_templ_file:
         line=line.replace('CONNECT_STRING', output_pool_connect_string)
+        line=line.replace('POOL_AUTH_PATH', pool_auth_path)
         line=line.replace('CONDITION_TYPE', condition_type)
         line=line.replace('OMDS_CONDITION_TAG', tag)
         line=line.replace('OMDS_IOV', str(iov))
