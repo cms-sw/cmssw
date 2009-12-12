@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <string>
 
+static const size_t UnpackBxInEvent = 5;
+
 using namespace std;
 
 void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID
@@ -78,7 +80,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	if (cfg->runLumiblockList.size()>0) {
 	  if (!isInRunLumiblockList(Run,LumiBlock,cfg->runLumiblockList)) continue;
 	}
-	
+		  
 	currentLumiSection = LumiBlock;
 	if(currentLumiSection != previousLumiSection) {
 	  
@@ -96,6 +98,18 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     RemoveEGOverlaps();
    
+
+    // ccla example to extract timing info from L1Tech_XXX_5bx bits
+    // if (L1Tech_BSC_minBias_OR_v0_5bx >0){
+    //   cout << "L1Tech_BSC_minBias_OR_v0_5bx: " << L1Tech_BSC_minBias_OR_v0_5bx 
+    //        << " Unpacked: " ;
+    //   for (unsigned int i = 0; i<UnpackBxInEvent ; ++i){
+    //     bool bitOn=L1Tech_BSC_minBias_OR_v0_5bx & (1 << i);
+    //     std::cout << bitOn << " ";
+    //   }
+    //   cout << "\n";
+    // }
+
     // 1. Loop to check which Bit fired
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!
