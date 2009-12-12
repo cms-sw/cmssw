@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.136 2009/12/11 20:26:17 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.137 2009/12/11 21:18:44 dmytro Exp $
 //
 
 // system include files
@@ -397,8 +397,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_startupTasks->addTask(f);
       }
       if(vm.count(kFieldCommandOpt)) {
-	m_magneticField = vm[kFieldCommandOpt].as<double>();
-	m_autoField = false;
+         m_magneticField = vm[kFieldCommandOpt].as<double>();
+         m_autoField = false;
       }
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
@@ -842,6 +842,7 @@ void CmsShowMain::stopAutoLoadTimer()
    m_autoLoadTimerRunning = kFALSE;
 }
 
+//_______________________________________________________________________________
 void CmsShowMain::autoLoadNewEvent()
 {
    stopAutoLoadTimer();
@@ -886,7 +887,6 @@ void CmsShowMain::autoLoadNewEvent()
    {
       startAutoLoadTimer();
    }
-      
 }
 
 //______________________________________________________________________________
@@ -895,14 +895,21 @@ void CmsShowMain::checkPosition()
 {
    if ((m_monitor.get() || m_loop ) && m_isPlaying)
       return;
-
+   
    m_guiManager->getMainFrame()->enableNavigatorControls();
 
    if (m_navigator->isFirstEvent())
+   {
       m_guiManager->disablePrevious();
+   }
 
    if (m_navigator->isLastEvent())
+   {
       m_guiManager->disableNext();
+      // force enable play events action in --port mode
+      if (m_monitor.get() && !m_guiManager->playEventsAction()->isEnabled())
+         m_guiManager->playEventsAction()->enable();
+   }
 }
 
 void CmsShowMain::doFirstEvent()
