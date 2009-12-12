@@ -225,7 +225,7 @@ process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:
 
 process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
 
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+process.ecalEndcapTimingTask.EcalRecHitCollection = 'ecalRecHit:EcalRecHitsEE'
 
 process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.location = 'P5_Co'

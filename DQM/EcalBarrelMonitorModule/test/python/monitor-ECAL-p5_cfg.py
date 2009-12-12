@@ -247,7 +247,7 @@ process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 
 process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
-process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
+process.ecalBarrelTimingTask.EcalRecHitCollection = 'ecalRecHit:EcalRecHitsEB'
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'P5'
@@ -256,7 +256,7 @@ process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'Sta
 process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
 process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
 process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+process.ecalEndcapTimingTask.EcalRecHitCollection = 'ecalRecHit:EcalRecHitsEE'
 
 process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.location = 'P5'
