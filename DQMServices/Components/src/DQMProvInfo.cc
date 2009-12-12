@@ -1,9 +1,9 @@
 /*
- * \file DQMEventInfo.cc
- * \author M. Zanetti - CERN PH
+ * \file DQMProvInfo.cc
+ * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2009/12/11 22:24:21 $
- * $Revision: 1.5 $
+ * $Date: 2009/12/12 11:49:29 $
+ * $Revision: 1.6 $
  * $Author: ameyer $
  *
  */
@@ -37,6 +37,7 @@ DQMProvInfo::DQMProvInfo(const ParameterSet& ps){
   dcsword_=0xffff; // set true and switch off in case a single event in a given LS has all subsys off.
   physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
   for (int i=0;i<24;i++) dcs24[i]=true;
+  lastlumi_=0;
 }
 
 DQMProvInfo::~DQMProvInfo(){
@@ -71,7 +72,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
     dbe_->cd();
     dbe_->setCurrentFolder( subsystemname_ + "/Conditions") ;
     dcsVsLumi_ = dbe_->book2D("dcsVsLumi",
-                       "DCS vs Lumi", 200, 0., 200., 26, 0., 26.);
+                       "DCS vs Lumi", 200, 1., 201., 26, 0., 26.);
     dcsVsLumi_->setBinLabel(1,"CSC+",2);   
     dcsVsLumi_->setBinLabel(2,"CSC-",2);   
     dcsVsLumi_->setBinLabel(3,"DT0",2);    
@@ -111,6 +112,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   dcsword_=0xffff;
   physDecl_=true;
   for (int i=0;i<24;i++) dcs24[i]=true;
+  lastlumi_=0;
 } 
 
 void DQMProvInfo::analyze(const Event& e, const EventSetup& c){
@@ -128,14 +130,12 @@ void DQMProvInfo::analyze(const Event& e, const EventSetup& c){
 void
 DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c)
 {
-
- 
   if (!makedcsinfo_) return;
 
   int nlumi = l.id().luminosityBlock();
+  if (nlumi == lastlumi_ ) return;
+  lastlumi_=nlumi;
 
-  // put dcsword into reportSummary 
-  // FIXME consider making renderplugin "dynamic"
   // first move everything to the left by 1
   for (int i=2;i<16;i++) 
   {
@@ -151,7 +151,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   {
      float cont = 0.;
      if (dcsword_&(0x1<<j)) cont = 1.;
-     cout << j << " " << (0x1<<j) << " " << cont << endl;
+     // cout << j << " " << (0x1<<j) << " " << cont << endl;
      reportSummaryMap_->setBinContent(15,10-j,cont);
   }
   // reset
@@ -183,17 +183,16 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   // reset   
   physDecl_=true;  
 
-
   // set labels 
   char label[10];
   sprintf(label, "lumi %d", nlumi);
-  reportSummaryMap_->setBinLabel( 15, label ,     1);
+  reportSummaryMap_->setBinLabel(15,label,1);
   if (nlumi>15) 
   {
-    sprintf(label, "lumi %d", nlumi-14);
-    reportSummaryMap_->setBinLabel(1, label , 1);
+    sprintf(label, "lumi %d",nlumi-14);
+    reportSummaryMap_->setBinLabel(1,label,1);
   }
-
+  
   return;
   
 }
@@ -235,7 +234,7 @@ DQMProvInfo::getShowTags(void)
    size_t found=str.find_first_not_of(safestr);
    if (found!=std::string::npos)
    {
-     std::cout << "DQMFileSaver::ShowTags: Illegal character found: " 
+     std::cout << "DQMProvInfo::ShowTags: Illegal character found: " 
                << str[found] 
                << " at position " 
                << int(found) << std::endl;
@@ -365,7 +364,7 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
     fdlWord = gtrr->gtFdlWord();
   else
   {
-    cout << "phys decl. bit not accessible !!!"  << endl;
+    cout << "DQMProvInfo: phys decl. bit not accessible !!!"  << endl;
     return;
   }
     
