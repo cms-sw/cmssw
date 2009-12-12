@@ -2,8 +2,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
-<use name=root>
-<use name=PhysicsTools/UtilAlgos>
+<use name=rootgraphics>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/MuonReco>
