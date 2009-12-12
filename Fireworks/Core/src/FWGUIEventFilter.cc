@@ -23,6 +23,7 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    m_selectionFrameParent(0),
    m_selectionFrame(0),
    m_btnGroup(0),
+   m_stateLabel(0),
    m_addBtn(0)
 {
    SetWindowName("Event Filters");
@@ -32,19 +33,25 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
 
    //-------------------- logical operations
 
-   TGHorizontalFrame* headerFrame = new TGHorizontalFrame(v1, m_width, 2*m_entryHeight, 0);
-   v1->AddFrame(headerFrame, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 1, 1, 1, 1));
+   TGHorizontalFrame* headerFrame = new TGHorizontalFrame(v1, 360, 61, kHorizontalFrame | kFixedSize);
 
-   m_btnGroup = new TGButtonGroup(headerFrame, "Outputs of enabled selectors are combined as the logical:",
-                                  kHorizontalFrame | kFixedHeight);
-   m_btnGroup->Resize(1, 38);
-   new TGRadioButton(m_btnGroup, "OR");
-   new TGRadioButton(m_btnGroup, "AND");
-   m_btnGroup->SetLayoutHints(new TGLayoutHints(kLHintsLeft, 0, 16, 1, 0), 0);
-   
-   TQObject::Connect(m_btnGroup, "Clicked(Int_t)", "FWGUIEventFilter", this, "changeFilterMode(Int_t)");
+   {
+      m_btnGroup = new TGButtonGroup(headerFrame, "Combine Expressions With:", kHorizontalFrame| kFixedWidth);
+      new TGRadioButton(m_btnGroup, "OR");
+      new TGRadioButton(m_btnGroup, "AND");
+      m_btnGroup->SetLayoutHints(new TGLayoutHints(kLHintsNormal, 0, 16, 2, 0), 0);
+      m_btnGroup->Resize(160, 90);
 
-   headerFrame->AddFrame(m_btnGroup, new TGLayoutHints(kLHintsTop | kLHintsCenterY | kLHintsExpandX, 2, 3, 0, 0));
+      headerFrame->AddFrame(m_btnGroup, new TGLayoutHints(kLHintsNormal, 3, 2, 0, 0));
+      TQObject::Connect(m_btnGroup, "Clicked(Int_t)", "FWGUIEventFilter", this, "changeFilterMode(Int_t)");
+   }
+   {
+      TGHorizontalFrame *gf = new TGHorizontalFrame(headerFrame, 280, 60, kHorizontalFrame | kFixedWidth);
+      m_stateLabel = new TGLabel(gf, "filter state" );
+      gf->AddFrame(m_stateLabel, new TGLayoutHints(kLHintsExpandX| kLHintsCenterX | kLHintsCenterY));
+      headerFrame->AddFrame(gf, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY, 0, 0, 6, 0));
+   }
+   v1->AddFrame(headerFrame, new TGLayoutHints(kLHintsNormal, 1, 1, 1, 1));
 
    //-------------------- selection header
 
@@ -56,8 +63,8 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    m_selectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
 
    {
-      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 275, 22, kFixedSize);
-      selH->AddFrame(cfr);
+      TGCompositeFrame *cfr = new TGHorizontalFrame(selH);
+      selH->AddFrame(cfr, new TGLayoutHints(kLHintsExpandX));
       cfr->AddFrame(new TGLabel(cfr, "Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
    }
    {
@@ -66,7 +73,7 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
       cfr->AddFrame(new TGLabel(cfr, "Comment:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
    }
    {
-      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 39, 22, kFixedSize);
+      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 105, 22, kFixedSize);
       selH->AddFrame(cfr);
       cfr->AddFrame(new TGLabel(cfr, "Pass:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
    }
@@ -95,6 +102,7 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    btnFrame->AddFrame(cancel, new TGLayoutHints(kLHintsLeft | kLHintsCenterY , 20, 20, 2, 4));
    cancel->Connect("Clicked()","FWGUIEventFilter", this, "CloseWindow()");
 
+
    {
       TGHorizontalFrame* f = new TGHorizontalFrame(btnFrame);
       btnFrame->AddFrame(f, new TGLayoutHints(kLHintsRight, 4, 18, 2, 4));
@@ -115,13 +123,13 @@ FWGUIEventFilter::addSelector(FWEventSelector* sel)
    FWGUIEventSelector* es = new FWGUIEventSelector(m_selectionFrame, m_validator, sel);
    m_selectionFrame->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
    TQObject::Connect(es, "removeSelector(FWGUIEventSelector*)", "FWGUIEventFilter",  this, "deleteEntry(FWGUIEventSelector*)");
-   TQObject::Connect(es, "selectorChanged()", "FWGUIEventFilter",  this, "checkApplyButton()");
+   TQObject::Connect(es, "selectorChanged()", "FWGUIEventFilter",  this, "chec~kApplyButton()");
 
    m_guiSelectors.push_back(es);
 }
 
 void
-FWGUIEventFilter::show( std::list<FWEventSelector*>* sels,  fwlite::Event* event, int filterMode)
+FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int filterState, fwlite::Event* event)
 {
    m_applyBtn->SetForegroundColor(0x000000);
    m_filtersRemoved = false;
@@ -143,6 +151,8 @@ FWGUIEventFilter::show( std::list<FWEventSelector*>* sels,  fwlite::Event* event
 
    for(std::list<FWEventSelector*>::iterator i = sels->begin(); i != sels->end(); ++i)
       addSelector(*i);
+
+   updateFilterStateLabel(filterState);
 
    MapSubwindows();
    Layout();
@@ -255,3 +265,14 @@ FWGUIEventFilter::checkApplyButton()
    gClient->NeedRedraw( m_applyBtn);
 }
 
+void
+FWGUIEventFilter::updateFilterStateLabel(int state)
+{
+   if (state == CmsShowNavigator::kOn)
+      m_stateLabel->SetText("Filtering is ON");
+   else if (state == CmsShowNavigator::kOff)
+      m_stateLabel->SetText("Filtering is OFF");
+   else
+      m_stateLabel->SetText("Filtering is DISABLED");
+   m_stateLabel->Layout();
+}

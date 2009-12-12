@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.79 2009/12/07 21:12:52 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.80 2009/12/11 20:26:53 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -53,6 +53,7 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
 
 CmsShowNavigator::~CmsShowNavigator()
 {
+   if (m_guiFilter) delete m_guiFilter;
 }
 
 //
@@ -752,6 +753,7 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
       m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
       m_guiFilter->m_filterDisableAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::toggleFilterEnable));
       m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::editFiltersExternally));
+      filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
    }
 
    if (m_guiFilter->IsMapped())
@@ -760,7 +762,7 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
    }
    else
    {
-      m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterMode);
+      m_guiFilter->show(&m_selectors, m_filterMode, m_filterState, (*m_currentFile)->event());
       editFiltersExternally_.emit(canEditFiltersExternally());
    }
 }
