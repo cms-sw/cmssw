@@ -119,6 +119,7 @@ int main( int argc, char **argv )
     ("test-tags-iovs-from-pool", "Test the extraction of lists of tags and IOVs from a Pool database")
     ("list-iovs-for-o2o", "For a given tag, dump a list of IOVs that need to be copied via O2O or report error if O2O is impossible")
     ("pool-connect-string", po::value<string>(), "Connect string to the Pool database")
+    ("pool-auth-path", po::value<string>(), "Path to authenticate.xml for the Pool database")
     ("make-channel-quality-xml", "Create channel quiality loader XML with all channels")
     ;
 
@@ -534,14 +535,19 @@ int main( int argc, char **argv )
       // for the private network (hcaldqm04):
       //std::string connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_HCAL";
       std::string connect = "sqlite:testExample.db";
-      std::vector<std::string> alltags = m.getListOfPoolTags(connect);
+      std::string pool_auth_path = "/afs/cern.ch/cms/DB/conddb";
+      std::vector<std::string> alltags = m.getListOfPoolTags(connect,
+							     pool_auth_path);
       std::copy (alltags.begin(),
 		 alltags.end(),
 		 std::ostream_iterator<std::string>(std::cout,"\n")
 		 );
       std::string tag = "HcalPedestals_ADC_v7.03_hlt";
       std::vector<uint32_t> allIovs;
-      m.getListOfPoolIovs(allIovs, tag,connect);
+      m.getListOfPoolIovs(allIovs,
+			  tag,
+			  connect,
+			  pool_auth_path);
       std::copy (allIovs.begin(),
 		 allIovs.end(),
 		 std::ostream_iterator<uint32_t>(std::cout,"\n")
@@ -559,16 +565,21 @@ int main( int argc, char **argv )
 	cout << "Pool connect string is not specified! Exiting..." << "\n";
 	return -1;
       }
+      else if (!vm.count("pool-auth-path")) {
+	cout << "Pool path to authenticate.xml is not specified! Exiting..." << "\n";
+	return -1;
+      }
       else{
 	string _tag = vm["tag-name"].as<string>();
 	string pool_connect_string = vm["pool-connect-string"].as<string>();
+	string pool_auth_path = vm["pool-auth-path"].as<string>();
 	//cout << "DEBUG: " << pool_connect_string << endl;
 	HcalO2OManager m;
 	std::vector<uint32_t> _iovs;
 	std::vector<uint32_t> omds_iovs;
 	std::vector<uint32_t> pool_iovs;
 	m.getListOfOmdsIovs(omds_iovs, _tag);
-	m.getListOfPoolIovs(pool_iovs, _tag, pool_connect_string);
+	m.getListOfPoolIovs(pool_iovs, _tag, pool_connect_string, pool_auth_path);
 	int n_iovs = m.getListOfNewIovs(_iovs,
 					omds_iovs,
 					pool_iovs);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.20 2009/12/11 13:09:50 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.23 2009/12/11 16:55:24 kukartse Exp $
 //
 
 
@@ -55,19 +55,28 @@ HcalO2OManager::~HcalO2OManager()
 
 // inspired by cmscond_list_iov
 //
-std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect){
+std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect, std::string auth_path){
   //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
   //
   std::string user("");
   std::string pass("");
+  //std::string authPath("/afs/cern.ch/cms/DB/conddb");
+  std::string authPath = auth_path;
   std::string tag;
   cond::DBSession* session=new cond::DBSession;
   //
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
-   session->configuration().setAuthenticationMethod( cond::Env );    
+  ::putenv(const_cast<char*>(authenv.c_str()));
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );
+  }
+  //session->configuration().setAuthenticationMethod( cond::Env );    
    session->configuration().setMessageLevel( cond::Error );
   //
   session->open();
@@ -96,18 +105,29 @@ std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect){
 
 // inspired by cmscond_list_iov
 //
-int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out, std::string tag, std::string connect){
+int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
+				      std::string tag, 
+				      std::string connect,
+				      std::string auth_path){
   //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
   std::string user("");
   std::string pass("");
+  std::string authPath = auth_path;
   bool details=false;
   cond::DBSession* session=new cond::DBSession;
   //
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
-  session->configuration().setAuthenticationMethod( cond::Env );    
+  ::putenv(const_cast<char*>(authenv.c_str()));
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );
+  }
+  //session->configuration().setAuthenticationMethod( cond::Env );    
   session->configuration().setMessageLevel( cond::Error );
   //
   session->open();
@@ -313,13 +333,14 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
 // 0 if everything's up to date already
 int HcalO2OManager::getListOfUpdateIovs(std::vector<uint32_t> & _iovs,
 					std::string _tag,
-					std::string pool_connect_string
+					std::string pool_connect_string,
+					std::string pool_auth_path
 					){
   //cout << "DEBUG: " << pool_connect_string << endl;
   std::vector<uint32_t> omds_iovs;
   std::vector<uint32_t> pool_iovs;
   getListOfOmdsIovs(omds_iovs, _tag);
-  getListOfPoolIovs(pool_iovs, _tag, pool_connect_string);
+  getListOfPoolIovs(pool_iovs, _tag, pool_connect_string, pool_auth_path);
   int n_iovs = getListOfNewIovs(_iovs,
 				omds_iovs,
 				pool_iovs);

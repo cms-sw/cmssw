@@ -22,8 +22,12 @@ import subprocess
 #
 #
 mode = 'online'
-input_pool_connect_string = "sqlite_file:test_o2o.db"    # read list of tags/iovs from
-output_pool_connect_string = "sqlite_file:test_o2o.db"   # where to write changes
+#oracle://cmsdevr_lb/cms_cond_hcal
+input_pool_connect_string = "oracle://cmsdevr_lb/cms_cond_hcal"    # read list of tags/iovs from
+output_pool_connect_string = "oracle://cmsdevr_lb/cms_cond_hcal"   # where to write changes
+pool_auth_path = "/afs/cern.ch/cms/DB/conddb"
+#input_pool_connect_string = "sqlite_file:test_o2o.db"    # read list of tags/iovs from
+#output_pool_connect_string = "sqlite_file:test_o2o.db"   # where to write changes
 pool_logconnect = "sqlite_file:log.db"                   # pool log DB file
 omds_accessor_string = "occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44"
 base_dir = "."
@@ -165,12 +169,13 @@ def get_iovs(tag, input_pool_connect_string, mode):
     # nominal mode of operations
     if mode == "online" or mode == "online_dropbox":
         try:
-            iovs = subprocess.Popen(["./xmlToolsRun", "--list-iovs-for-o2o", "--tag-name", tag, "--pool-connect-string", input_pool_connect_string], stdout=subprocess.PIPE).communicate()[0]
+            iovs = subprocess.Popen(["./xmlToolsRun", "--list-iovs-for-o2o", "--tag-name", tag, "--pool-connect-string", input_pool_connect_string, "--pool-auth-path", pool_auth_path], stdout=subprocess.PIPE).communicate()[0]
+            iov_list = iovs.splitlines()
+            result = "success"
         except:
             print "ERROR: Cannot get the IOV update list for tag", tag+". This tag will not be updated. Now continue to the next tag..."
+            iov_list=[]
             result = "fail"
-        iov_list = iovs.splitlines()
-        result = "success"
 
     # script development mode, DB interfaces substituted with dummies
     if mode == "offline_development":

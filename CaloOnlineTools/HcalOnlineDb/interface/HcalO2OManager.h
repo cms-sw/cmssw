@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:45:38 CEST 2009
-// $Id: HcalO2OManager.h,v 1.3 2009/10/26 02:55:16 kukartse Exp $
+// $Id: HcalO2OManager.h,v 1.4 2009/12/11 12:11:59 kukartse Exp $
 //
 
 #include<vector>
@@ -29,12 +29,16 @@ class HcalO2OManager
       HcalO2OManager();
       virtual ~HcalO2OManager();
 
-      std::vector<std::string> getListOfPoolTags(std::string connect);
+      std::vector<std::string> getListOfPoolTags(std::string connect,
+						 std::string auth_path);
 
       // get a list of IOVs in the tag
       // returns number of IOVs
       // returns -1 if the tag does not exist
-      int getListOfPoolIovs(std::vector<uint32_t> & out, std::string tagname, std::string connect);
+      int getListOfPoolIovs(std::vector<uint32_t> & out,
+			    std::string tagname,
+			    std::string connect,
+			    std::string auth_path);
 
       std::vector<std::string> getListOfOmdsTags();
 
@@ -59,7 +63,8 @@ class HcalO2OManager
       // 0 if everything's up to date already
       int getListOfUpdateIovs(std::vector<uint32_t> & _iovs,
 			      std::string _tag,
-			      std::string pool_connect_string
+			      std::string pool_connect_string,
+			      std::string pool_auth_path
 			      );
 
    private:
