@@ -23,7 +23,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  8 23:10:04 CST 2009
-// $Id: fwLog.h,v 1.1 2009/12/09 05:34:58 chrjones Exp $
+// $Id: fwLog.h,v 1.2 2009/12/11 20:25:45 amraktad Exp $
 //
 
 // system include files
@@ -49,6 +49,6 @@ namespace fwlog {
 }
 
 #define fwLog(_level_) \
-   (fwlog::presentLogLevel() > _level_) ? fwlog::logger() : fwlog::logger()<< fwlog::levelName(_level_)<<":"
+   (fwlog::presentLogLevel() > _level_) ? fwlog::logger() : fwlog::logger()<< fwlog::levelName(_level_)<<": "
 
 #endif
