@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.29 2009/12/10 20:18:42 wehrlilu Exp $
+// $Id: SiPixelDigiSource.cc,v 1.30 2009/12/11 13:18:58 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -121,9 +121,9 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   
-  float iOrbitSec = iEvent.orbitNumber()/11223.;
-  int bx = iEvent.bunchCrossing();
-  long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
+  //float iOrbitSec = iEvent.orbitNumber()/11223.;
+  //int bx = iEvent.bunchCrossing();
+  //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
   if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
   int nEventDigis = 0;
