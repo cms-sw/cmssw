@@ -1,12 +1,7 @@
 <use name=DQMServices/Core>
-<use name=DataFormats/Scalers>
 <use name=rootgraphics>
 <use name=xdaq>
-<flags EDM_PLUGIN=1>
 <export>
-  <use name=DQMServices/Core>
-  <use name=rootgraphics>
-  <use name=xdaq>
   <lib name=DQMTrackerCommon>
 </export>
 

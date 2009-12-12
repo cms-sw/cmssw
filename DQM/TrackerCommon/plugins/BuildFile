@@ -1,0 +1,4 @@
+<use name=DataFormats/Scalers>
+<library name=DQMTrackerCommonPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
