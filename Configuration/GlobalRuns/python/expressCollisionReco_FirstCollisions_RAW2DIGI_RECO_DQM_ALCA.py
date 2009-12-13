@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,22 +22,29 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(300)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True)
 )
 # Input source
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/578/085EFED4-E5AB-DD11-9ACA-001617C3B6FE.root')
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring(
+#'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/578/085EFED4-E5AB-DD11-9ACA-001617C3B6FE.root')
+#)
+
+process.source = cms.Source("NewEventStreamFileReader",
+    fileNames = cms.untracked.vstring('/store/streamer/Data/Express/000/124/009/Data.00124009.0023.Express.storageManager.08.0000.dat'),
+    cacheSize = cms.untracked.uint32(100000000)
 )
+
+#process.source.skipEvents = cms.untracked.uint32(290)
 
 # Other statements
 process.GlobalTag.globaltag = 'GR09_P_V7::All'
@@ -91,6 +98,11 @@ process.ecalPreshowerRecHit.ESMIPADC = 55
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
+
+## add protection for number of clusters
+
+process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
 
 ###
