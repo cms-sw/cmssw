@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.80 2009/12/11 20:26:53 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.81 2009/12/12 18:28:00 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -185,7 +185,7 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
    (*m_currentFile)->event()->to(event);
    m_currentEvent = event;
 
-   newEvent_.emit(*((*m_currentFile)->event()));
+   newEvent_.emit();
 }
 
 void
@@ -762,7 +762,7 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
    }
    else
    {
-      m_guiFilter->show(&m_selectors, m_filterMode, m_filterState, (*m_currentFile)->event());
+      m_guiFilter->show(&m_selectors, m_filterMode, m_filterState);
       editFiltersExternally_.emit(canEditFiltersExternally());
    }
 }

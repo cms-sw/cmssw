@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.40 2009/12/03 16:47:30 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.41 2009/12/11 21:18:44 dmytro Exp $
 //
 
 // system include files
@@ -93,23 +93,14 @@ public:
    static void   guessFieldIsOn( bool guess );
    static void   guessField( double estimate );
    static void   resetFieldEstimate();
-   static double getCaloScale() {
-      return m_caloScale;
-   }
-   static void   setCaloScale(double var) {
-      m_caloScale = var;
-   }
-
+   
    // ---------- member functions ---------------------------
    //  int draw(const fwlite::Event& );
 
    void registerPhysicsObject(const FWPhysicsObjectDesc&);
 
    void notified(TSocket*);
-
-   CmsShowNavigator* navigator(){
-      return m_navigator;
-   };
+   const fwlite::Event* getCurrentEvent() const;
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default
@@ -178,7 +169,6 @@ private:
    static double m_magneticField;
    static int    m_numberOfFieldEstimates;
    static int    m_numberOfFieldIsOnEstimates;
-   static double m_caloScale;
 
    static double m_magneticFieldEstimateSum;
    static double m_magneticFieldEstimateSum2;

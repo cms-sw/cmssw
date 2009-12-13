@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.45 2009/12/07 20:29:51 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.46 2009/12/07 21:12:53 amraktad Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ public:
    
 private:
    typedef std::list<FWFileEntry*> FQBase_t;
-   typedef FQBase_t::iterator       FQBase_i;
+   typedef FQBase_t::iterator      FQBase_i;
 
 
    struct FileQueue_t : public FQBase_t
@@ -105,19 +105,19 @@ public:
    void toggleFilterEnable();
    void withdrawFilter();
    void resumeFilter();
-
-   const fwlite::Event* getCurrentEvent() { return (*m_currentFile)->event();}
+   
+   const fwlite::Event* getCurrentEvent() const { return (*m_currentFile)->event();}
    const char* filterStatusMessage();
    int  getNSelectedEvents();
    int  getNTotalEvents();
    bool canEditFiltersExternally();
    bool filesNeedUpdate() const { return m_filesNeedUpdate; }
    int  getFilterState() { return m_filterState; }
-
+   
    void activateNewFileOnNextEvent() { m_newFileOnNextEvent = true; }
    void resetNewFileOnNextEvent()    { m_newFileOnNextEvent = false; }
 
-   sigc::signal<void, const fwlite::Event&> newEvent_;
+   sigc::signal<void> newEvent_;
    sigc::signal<void, const TFile*> fileChanged_;
    sigc::signal<void> preFiltering_;
    sigc::signal<void> postFiltering_;
@@ -149,8 +149,8 @@ private:
 
    EFilterState m_filterState;
    int          m_filterMode;
-   bool m_filesNeedUpdate;
-   bool m_newFileOnNextEvent;
+   bool         m_filesNeedUpdate;
+   bool         m_newFileOnNextEvent;
    
    unsigned int m_maxNumberOfFilesToChain;
    // entry is an event index nubmer which runs from 0 to

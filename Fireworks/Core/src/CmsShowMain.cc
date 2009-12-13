@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.137 2009/12/11 21:18:44 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.138 2009/12/12 20:23:22 amraktad Exp $
 //
 
 // system include files
@@ -97,7 +97,6 @@ bool CmsShowMain::m_autoField = true;
 double CmsShowMain::m_magneticField = 3.8;
 int CmsShowMain::m_numberOfFieldEstimates = 0;
 int CmsShowMain::m_numberOfFieldIsOnEstimates = 0;
-double CmsShowMain::m_caloScale = 2;
 
 double CmsShowMain::m_magneticFieldEstimateSum = 0;
 double CmsShowMain::m_magneticFieldEstimateSum2 = 0;
@@ -153,6 +152,11 @@ void CmsShowMain::resetFieldEstimate()
    m_magneticFieldEstimateSum = 0;
    m_magneticFieldEstimateSum2 = 0;
    m_numberOfFieldValueEstimates = 0;
+}
+
+const fwlite::Event* CmsShowMain::getCurrentEvent() const
+{
+   return m_navigator->getCurrentEvent();
 }
 
 //
