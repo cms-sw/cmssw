@@ -37,7 +37,6 @@ class EventID {
    
    
       EventID() : run_(0), luminosityBlock_(0), event_(0) {}
-      EventID(RunNumber_t iRun, EventNumber_t iEvent) : run_(iRun), luminosityBlock_(1U), event_(iEvent) {} // Needed by on-line for now.
       EventID(RunNumber_t iRun, LuminosityBlockNumber_t iLumi, EventNumber_t iEvent) :
 	run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}
       
