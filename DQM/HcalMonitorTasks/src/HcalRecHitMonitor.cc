@@ -962,7 +962,7 @@ void HcalRecHitMonitor::fill_Nevents(void)
   // looking at the contents of HbFlagcounters
   if (fVerbosity>0)
     {
-      for (int k = 0; k <= 32; k++){
+      for (int k = 0; k < 32; k++){
 	std::cout << "<HcalRecHitMonitor::fill_Nevents>  HF Flag counter:  Bin #" << k+1 << " = "<< HFflagcounter_[k] << endl;
       }
     }
