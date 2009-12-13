@@ -18,9 +18,10 @@ class FWGUIEventFilter: public TGTransientFrame,
 {
 public:
    FWGUIEventFilter(const TGWindow* parent);
+   virtual ~FWGUIEventFilter();
    virtual void CloseWindow();
    
-   void show(std::list<FWEventSelector*>* sels, int filterMode, int state, fwlite::Event* event);
+   void show(std::list<FWEventSelector*>* sels, int filterMode, int state);
    
    CSGAction* m_applyAction;   
    CSGAction* m_filterDisableAction;     

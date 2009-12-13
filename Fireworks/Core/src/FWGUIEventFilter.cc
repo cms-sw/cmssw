@@ -114,6 +114,13 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
       m_applyBtn->Connect("Clicked()","FWGUIEventFilter", this, "apply()");
       m_applyBtn->SetToolTipText("Enable filtering and apply changes.");
    }
+   
+   m_validator = new FWHLTValidator();
+}
+
+FWGUIEventFilter::~FWGUIEventFilter()
+{
+   delete m_validator;
 }
 
 void
@@ -128,13 +135,12 @@ FWGUIEventFilter::addSelector(FWEventSelector* sel)
 }
 
 void
-FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int filterState, fwlite::Event* event)
+FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int filterState)
 {
    m_applyBtn->SetForegroundColor(0x000000);
    m_filtersRemoved = false;
 
    m_isOpen = true;
-   m_validator = new FWHLTValidator(*event);
 
    m_origFilterMode = filterMode;
 
@@ -219,10 +225,6 @@ FWGUIEventFilter::CloseWindow()
    }
 
    m_guiSelectors.clear();
-
-   delete m_validator;
-   m_validator = 0;
-
    UnmapWindow();
    m_finishEditAction->activated();
 }
