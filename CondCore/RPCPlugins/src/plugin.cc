@@ -23,11 +23,14 @@
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 
-
+#include "CondFormats/DataRecord/interface/RPCObGasMixRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObGasMix.h"
 #include "CondFormats/DataRecord/interface/RPCObGasRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObGas.h"
 #include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
+#include "CondFormats/DataRecord/interface/RPCObUXCRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObUXC.h"
 
 #include "CondFormats/DataRecord/interface/RPCObPVSSmapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
@@ -51,6 +54,8 @@ REGISTER_PLUGIN(RPCObTempRcd,RPCObTemp);
 REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);
 REGISTER_PLUGIN(RPCMaskedStripsRcd, RPCMaskedStrips);
 REGISTER_PLUGIN(RPCDeadStripsRcd, RPCDeadStrips);
+REGISTER_PLUGIN(RPCObUXCRcd, RPCObUXC);
 
 REGISTER_PLUGIN(RBCBoardSpecsRcd,RBCBoardSpecs);
 REGISTER_PLUGIN(TTUBoardSpecsRcd,TTUBoardSpecs);
+REGISTER_PLUGIN(RPCObGasMixRcd,RPCObGasMix);
