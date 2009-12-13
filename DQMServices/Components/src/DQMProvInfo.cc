@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2009/12/12 13:44:08 $
- * $Revision: 1.8 $
+ * $Date: 2009/12/12 18:07:43 $
+ * $Revision: 1.9 $
  * $Author: ameyer $
  *
  */
@@ -139,7 +139,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   if (!makedcsinfo_) return;
 
   int nlumi = l.id().luminosityBlock();
-  if (nlumi == lastlumi_ ) return;
+  if (nlumi <= lastlumi_ ) return;
   lastlumi_=nlumi;
 
   // first move everything to the left by 1
