@@ -17,6 +17,7 @@ namespace {
 
     PCaloHit                                             rv3;
     edm::PCaloHitContainer                               v3;
+    std::vector<const PCaloHit*>                         vcp3;
     edm::Wrapper<edm::PCaloHitContainer>                 wc3;
 
     HFShowerPhotonCollection                             rv4;

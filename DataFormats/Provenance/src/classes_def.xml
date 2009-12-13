@@ -25,6 +25,7 @@
  <class name="std::vector<edm::ProductID>"/>
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>
+ <class name="std::vector<std::vector<std::vector<edm::EventID> > > "/>
  <class name="edm::BranchChildren"/>
  <class name="edm::ProductProvenance"/>
  <class name="std::vector<edm::ProductProvenance>"/>

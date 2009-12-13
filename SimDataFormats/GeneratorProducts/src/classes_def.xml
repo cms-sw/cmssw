@@ -51,6 +51,7 @@
 
 	<class name="edm::Wrapper&lt;edm::HepMCProduct&gt;"/>
 	<class name="edm::HepMCProduct"/>
+        <class name="std::vector&lt;const edm::HepMCProduct*&gt;"/>
 	<class name="edm::Ref&lt;edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>
 	<class name="edm::Ref&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
 	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenVertex&gt;::Find&gt;"/>

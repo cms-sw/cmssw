@@ -35,6 +35,7 @@ namespace {
 		// HepMCProduct
 
 		edm::Wrapper<edm::HepMCProduct> m_wrapper;
+                std::vector<const edm::HepMCProduct*> m_vector_const_ptr;
 		edm::Ref<edm::HepMCProduct, HepMC::GenParticle> refGen;
 		edm::Ref<edm::HepMCProduct, HepMC::GenVertex> refVert;
 

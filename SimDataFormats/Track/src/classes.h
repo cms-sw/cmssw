@@ -9,6 +9,7 @@ namespace {
   struct dictionary {
     SimTrack dummy22;
     edm::SimTrackContainer dummy222;
+    std::vector<const SimTrack*> dummyvcp;
     edm::Wrapper<edm::SimTrackContainer> dummy22222;
     SimTrackRef r1;
     SimTrackRefVector rv1;

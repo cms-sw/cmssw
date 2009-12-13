@@ -73,6 +73,7 @@ namespace {
   std::pair<edm::BranchID, std::set<edm::BranchID> > dummyPairSetBranchID;
   std::vector<edm::EventID> dummyVectorEventID;
   std::vector<std::vector<edm::EventID> > dummyVectorVectorEventID;
+  std::vector<std::vector<std::vector<edm::EventID> > > dummyVectorVectorVectorEventID;
   std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
   std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
 
