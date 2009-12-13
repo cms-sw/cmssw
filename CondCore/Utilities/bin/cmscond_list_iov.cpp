@@ -60,7 +60,7 @@ int cond::ListIOVUtilities::execute(){
     token=metadata_svc.getToken(tag);
     {
       bool verbose = hasOptionValue("verbose");
-      bool details = hasDebug();
+      bool details = hasOptionValue("summary");
       cond::IOVProxy iov( session, token, !details, details);
       unsigned int counter=0;
       std::string payloadContainer=iov.payloadContainerName();
