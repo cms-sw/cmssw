@@ -132,6 +132,8 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    if (fabs(m_eta) > 1.5) {
       data->GetEtaBins()->SetTitle("X[cm]");
       data->GetPhiBins()->SetTitle("Y[cm]");
+      data->GetPhiBins()->SetTitleSize(0.03);
+      data->GetEtaBins()->SetTitleSize(0.03);
    } else {
       data->SetEtaBins(new TAxis(etaBinsWithinLimits.size()-1,eta_bins));
       data->SetPhiBins(new TAxis(phiBinsWithinLimits.size()-1,phi_bins));
@@ -139,11 +141,11 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       data->GetEtaBins()->SetTitle("h");
       data->GetPhiBins()->SetTitleFont(122);
       data->GetPhiBins()->SetTitle("f");
+      data->GetPhiBins()->SetTitleSize(0.05);
+      data->GetEtaBins()->SetTitleSize(0.05);
    }
    delete [] eta_bins;
    delete [] phi_bins;
-   data->GetPhiBins()->SetTitleSize(0.03);
-   data->GetEtaBins()->SetTitleSize(0.03);
 
    // lego
    TEveCaloLego *lego = new TEveCaloLego(data);
