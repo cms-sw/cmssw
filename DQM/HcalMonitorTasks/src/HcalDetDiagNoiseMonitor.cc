@@ -499,28 +499,28 @@ void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::
        Handle<CaloJetCollection> calojetHandle;
        if (!iEvent.getByLabel(JetSource_, calojetHandle))
 	 {
-	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloJet collection with handle "<<JetSource_<<" not found!";
+	  if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloJet collection with handle "<<JetSource_<<" not found!";
 	   return;
 	 }
        // track collection
        Handle<TrackCollection> trackHandle;
        if (!iEvent.getByLabel(TrackSource_, trackHandle))
 	 {
-	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  Track collection with handle "<<TrackSource_<<" not found!";
+	   if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  Track collection with handle "<<TrackSource_<<" not found!";
 	   return;
 	 }
        // HcalNoise RBX collection
        Handle<HcalNoiseRBXCollection> rbxnoisehandle;
        if (!iEvent.getByLabel(rbxCollName_, rbxnoisehandle))
 	 {
-	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  HcalNoiseRBX collection with handle "<<rbxCollName_<<" not found!";
+	   if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  HcalNoiseRBX collection with handle "<<rbxCollName_<<" not found!";
 	   return;
 	 }
        // CaloTower collection
        edm::Handle<CaloTowerCollection> towerhandle;
        if (!iEvent.getByLabel(caloTowerCollName_, towerhandle))
 	 {
-	   LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloTower collection with handle "<<caloTowerCollName_<<" not found!";
+	   if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloTower collection with handle "<<caloTowerCollName_<<" not found!";
 	   return;
 	 }
 
