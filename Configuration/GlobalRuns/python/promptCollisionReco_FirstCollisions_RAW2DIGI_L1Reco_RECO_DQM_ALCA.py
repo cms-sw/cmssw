@@ -22,13 +22,15 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(200)
 )
+
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True) 
@@ -36,15 +38,17 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 
-'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/123/615/1A913333-B7E2-DE11-AEEA-001D09F2960F.root'
-    )
+#'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/123/615/1A913333-B7E2-DE11-AEEA-001D09F2960F.root'
+' /store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/009/4E4C78E1-8AE6-DE11-B2EA-0030487D0D3A.root'   )
 )
+
+#process.source.skipEvents = cms.untracked.uint32(16800)
 
 # Output definition
 process.FEVT = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.RECOEventContent.outputCommands,
-    fileName = cms.untracked.string('promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCA.root'),
+    fileName = cms.untracked.string('/tmp/malgeri/promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCA.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('RECO'),
         filterName = cms.untracked.string('')
@@ -114,7 +118,11 @@ process.ecalPreshowerRecHit.ESMIPADC = 55
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
 
-###
+## add protection for number of clusters
+
+process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+
 ###  end of top level replacements
 ###
 ###############################################################################################
