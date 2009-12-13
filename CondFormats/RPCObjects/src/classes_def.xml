@@ -96,5 +96,9 @@
   <class name="RPCObUXC::Item"/>
   <class name="std::vector<RPCObUXC::Item>"/>
 
+  <class name="RPCObGasMix"/>
+  <class name="RPCObGasMix::Item"/>
+  <class name="std::vector<RPCObGasMix::Item>"/>
+
 
 </lcgdict>
