@@ -29,7 +29,6 @@ namespace {
  	PCrossingFrame<SimVertex> dummy10;
  	PCrossingFrame<edm::HepMCProduct> dummy11;
 
-        std::vector<int> dummy14;
         std::vector<const PSimHit *> dummy15;
         std::vector<const PCaloHit *> dummy16;
         std::vector<const SimTrack *> dummy17;
