@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/12/01 17:03:38 $
- * $Revision: 1.155 $
+ * $Date: 2009/12/03 14:45:16 $
+ * $Revision: 1.156 $
  * \author W Fisher
  * \author J Temple
  *
@@ -55,6 +55,10 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
   inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
 
+
+  triggerbitstocheck_ = ps.getParameter<std::vector<int > >("triggerbitstocheck");
+  BCNtocheck_         = ps.getParameter<std::vector<int > >("BCNtocheck");
+  gtLabel_            = ps.getParameter<edm::InputTag>("gtLabel");
 
   // Check Online running
   Online_                = ps.getUntrackedParameter<bool>("Online",false);
@@ -657,6 +661,21 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
   
+  if (BCNtocheck_.size()>0)
+    {
+      bool passedBCN=false;
+      for (unsigned int i=0;i<BCNtocheck_.size();++i)
+	{
+	  if (debug_>2)  std::cout <<"<HcalMonitorModule::analyze>  Checking if BCN = "<<BCNtocheck_[i]<<endl;
+	  if (e.bunchCrossing()==BCNtocheck_[i])
+	    {
+	      passedBCN=true;
+	      break;
+	    }
+	}
+      if (debug_>1) std::cout<<"<HcalMonitorModule::analyze>  Current BCN = "<<e.bunchCrossing()<<"  Passed BCN check = "<<passedBCN<<endl;
+      if (passedBCN==false) return;
+    }
 
 
   if (Online_ && e.luminosityBlock()<ilumisec)
@@ -786,6 +805,61 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HcalTrigPrimDigiCollection> emultp_digi;
   edm::Handle<HcalLaserDigi> laser_digi;
 
+
+  // Only try to get trigger info if tpmon enabled
+  if (tpdOK_)
+    {
+      if (!(e.getByLabel(inputLabelDigi_,tp_digi)))
+	{
+	  tpdOK_=false;
+	  LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" tp_digi not available"; 
+	}
+
+      if (tpdOK_ && !tp_digi.isValid()) {
+	tpdOK_=false;
+      }
+      //Emulator
+      
+      if (!(e.getByLabel(inputLabelEmulDigi_,emultp_digi)))
+	{
+	  tpdOK_=false;
+	  LogWarning("HcalMonitorModule")<< inputLabelEmulDigi_<<" emultp_digi not available";
+	}
+      
+      if (tpdOK_ && !emultp_digi.isValid()) {
+	tpdOK_=false;
+      }
+    }
+
+  if (triggerbitstocheck_.size()>0)
+    {
+      bool passedTrigger=false;
+      edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
+      if (e.getByLabel(gtLabel_,gtRecord))
+	{
+	  if (gtRecord.isValid())
+	    {
+	      const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();	    for (unsigned int i=0;i<triggerbitstocheck_.size();++i)
+		{
+		  if (tWord.at(i)) 
+		    {
+		      passedTrigger=true;
+		      break;
+		    }
+		}
+	    } // valid trigger
+	  else if (debug_>1)
+	    std::cout <<"<HcalMonitorModule> L1GlobalTrigger not valid!"<<std::endl;
+	}
+      else
+	if (debug_>1) std::cout <<"<HcalMonitorModule>  Could not get gtRecord with label "<<gtLabel_<<std::endl;
+      if (debug_>0)
+	cout <<"Passed trigger?  "<<passedTrigger<<endl;
+      if (!passedTrigger) return;
+    }
+
+
+
   if (!(e.getByLabel(inputLabelDigi_,hbhe_digi)))
     digiOK_=false;
 
@@ -858,31 +932,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       if (debug_>1) std::cout <<"<HcalMonitorModule::analyze>  No HCAL raw data found for event "<<ievt_<<endl;
       return;
-    }
-
-  // Only try to get trigger info if tpmon enabled
-  if (tpdOK_)
-    {
-      if (!(e.getByLabel(inputLabelDigi_,tp_digi)))
-	{
-	  tpdOK_=false;
-	  LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" tp_digi not available"; 
-	}
-
-      if (tpdOK_ && !tp_digi.isValid()) {
-	tpdOK_=false;
-      }
-      //Emulator
-      
-      if (!(e.getByLabel(inputLabelEmulDigi_,emultp_digi)))
-	{
-	  tpdOK_=false;
-	  LogWarning("HcalMonitorModule")<< inputLabelEmulDigi_<<" emultp_digi not available";
-	}
-      
-      if (tpdOK_ && !emultp_digi.isValid()) {
-	tpdOK_=false;
-      }
     }
 
   if (!(e.getByLabel(inputLabelLaser_,laser_digi)))

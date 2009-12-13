@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/11/11 20:54:34 $
- * $Revision: 1.56 $
+ * $Date: 2009/11/19 16:59:36 $
+ * $Revision: 1.57 $
  * \author W. Fisher
  *
 */
@@ -268,6 +268,10 @@ public:
   bool dump2database_;
   std::map<HcalDetId, unsigned int> myquality_;
   HcalChannelQuality* chanquality_;
+
+  std::vector<int> triggerbitstocheck_;
+  std::vector<int> BCNtocheck_;
+  edm::InputTag gtLabel_;
 };
 
 #endif

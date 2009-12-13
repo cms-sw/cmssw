@@ -34,6 +34,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            checkNevents = cms.untracked.int32(1000),
                            subSystemFolder = cms.untracked.string("Hcal"),
                            
+                           triggerbitstocheck = cms.untracked.vint32(), # allow only certain trigger bits
+                           BCNtocheck         = cms.untracked.vint32(),
+                           
                            FEDRawDataCollection = cms.untracked.InputTag("source"),
                            
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0, or close to it?
