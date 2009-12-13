@@ -29,6 +29,10 @@ namespace cond {
   // decode token
   std::string classID(std::string const & token);
 
+  // decode token (container==classname...)
+  std::string container(std::string const & token);
+
+
   // find and return
   boost::shared_ptr<ClassInfo> classInfo(std::string const & token);
 

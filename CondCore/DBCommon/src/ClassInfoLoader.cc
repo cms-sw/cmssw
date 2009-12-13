@@ -5,13 +5,22 @@
 #include "StorageSvc/DbReflex.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 namespace cond {
 
   // decode token
   std::string classID(std::string const & token) {
     static std::string const clid("CLID=");
+    std::string::size_type s = token.find(clid) + clid.size();
+    std::string::size_type e = token.find(']',s);
+    return token.substr(s,e-s);
+
+  }
+
+  // decode token
+  std::string containerName(std::string const & token) {
+    static std::string const clid("CNT=");
     std::string::size_type s = token.find(clid) + clid.size();
     std::string::size_type e = token.find(']',s);
     return token.substr(s,e-s);
@@ -46,6 +55,14 @@ namespace cond {
       TypeH type = pool::DbReflex::forGuid(guid);
       if (type) return type;
     }
+    // try with name of container...
+    try {
+      static std::string const prefix("LCGReflex/");
+      edmplugin::PluginCapabilities::get()->load(prefix + containerName(token));
+      TypeH type = pool::DbReflex::forGuid(guid);
+      if (type) return type;
+    } catch(...){}
+    // try our plugin
     try {
       // plugin mgr will throw fist: still
       if (!cond::loadClassByToken(token)) 

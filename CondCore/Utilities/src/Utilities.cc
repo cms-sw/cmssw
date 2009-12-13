@@ -69,7 +69,7 @@ int cond::Utilities::run( int argc, char** argv ){
       std::cout << m_options <<std::endl;;
       return 0;
     }
-    if(m_options.find_nothrow("dictionary",false)){
+    if(m_options.find_nothrow("dictionary",false)&& m_values.count("dictionary")){
       std::vector<std::string> dictionaries =
 	m_values["dictionary"].as<std::vector<std::string> >();
       if(!dictionaries.empty()){
