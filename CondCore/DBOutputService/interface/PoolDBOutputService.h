@@ -128,8 +128,9 @@ namespace cond{
                     bool withlogging=false) {
         this->writeOne<T>(payload, 0, time, recordName, withlogging);
       }
+
       /* write one (either create or append)
-       * The ONE and ONLY interface supportd in future!
+       * The ONE and ONLY interface supported in future!
        */
       template<typename T>
       void writeOne(T * payload, Summary * summary, 
@@ -155,7 +156,7 @@ namespace cond{
       }
       
       //
-      // insert the payload and its valid since/till time into the database
+      // insert the payload and its valid since time into the database
       // Note: user looses the ownership of the pointer to the payloadObj
       // The payload object will be stored as well
       // 
@@ -206,7 +207,7 @@ namespace cond{
       // Append the payload and its valid sinceTime into the database
       // Note: user looses the ownership of the pointer to the payloadObj
       // Note: the iov index appended to MUST pre-existing and the existing 
-      // conditions data are retrieved from EventSetup 
+      // conditions data are retrieved from the DB
       // 
       void appendSinceTime( const std::string& payloadToken,
                             cond::Time_t sinceTime,
@@ -218,23 +219,29 @@ namespace cond{
             withlogging);
       }
      
+      // set last till so that the iov sequence is "closed"
+      // void closeSequence(cond::Time_t tillTime,
+      //                 const std::string& recordName,
+      //                 bool withlogging=false);
+
 
       //
-      // Service time utility callback method 
+      // Service time utility method 
       // return the infinity value according to the given timetype
       //
       cond::Time_t endOfTime() const;
       //
-      // Service time utility callback method 
+      // Service time utility method 
       // return beginning of time value according to the given timetype
       //
       cond::Time_t beginOfTime() const;
       //
-      // Service time utility callback method 
-      // return the current conditions time value according to the 
+      // Service time utility method 
+      // return the time value of the current edm::Event according to the 
       // given timetype
       //
       cond::Time_t currentTime() const;
+
       // optional. User can inject additional information into the log associated with a given record
       void setLogHeaderForRecord(const std::string& recordName,
 				 const std::string& provenance,
