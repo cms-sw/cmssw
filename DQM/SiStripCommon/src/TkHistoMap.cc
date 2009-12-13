@@ -68,19 +68,19 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float
   for(int layer=1;layer<HistoNumber;++layer){
     folder=folderDefinition(path,MapName,layer,mechanicalView,fullName);
     tkdetmap_->getComponents(layer,nchX,lowX,highX,nchY,lowY,highY);
-    TProfile2D* h=new TProfile2D(fullName.c_str(),fullName.c_str(),
-				 nchX,lowX,highX,
-				 nchY,lowY,highY);
-    
+    MonitorElement* me  = dqmStore_->bookProfile2D(fullName.c_str(),fullName.c_str(),
+						   nchX,lowX,highX,
+						   nchY,lowY,highY,
+                                                   0.0, 0.0);
     //initialize bin content for the not assigned bins
     if(baseline!=0){
       for(size_t ix = 1; ix <= (unsigned int) nchX; ++ix)
 	for(size_t iy = 1;iy <= (unsigned int) nchY; ++iy)
 	  if(!tkdetmap_->getDetFromBin(layer,ix,iy))
-	    h->Fill(1.*(lowX+ix-.5),1.*(lowY+iy-.5),baseline);	  
+	    me->Fill(1.*(lowX+ix-.5),1.*(lowY+iy-.5),baseline);	  
     }
 
-    tkHistoMap_[layer]=dqmStore_->bookProfile2D(fullName,h);
+    tkHistoMap_[layer]=me;
     LogTrace("TkHistoMap")  << "[TkHistoMap::createTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer];
   }
 }
@@ -108,9 +108,9 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
 }
 
 #include "iostream"
-void TkHistoMap::fillFromAscii(std::string filename){
+void TkHistoMap::fillFromAscii(char* filename){
   ifstream file;
-  file.open(filename.c_str());
+  file.open(filename);
   float value;
   uint32_t detid;
   while (file.good()){
@@ -164,6 +164,11 @@ float TkHistoMap::getValue(uint32_t& detid){
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
   return tkHistoMap_[layer]->getTProfile2D()->GetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
 }
+float TkHistoMap::getEntries(uint32_t& detid){
+  int16_t layer=tkdetmap_->FindLayer(detid);
+  TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
+  return tkHistoMap_[layer]->getTProfile2D()->GetBinEntries(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
+}
 
 void TkHistoMap::dumpInTkMap(TrackerMap* tkmap){
   for(int layer=1;layer<HistoNumber;++layer){
@@ -171,7 +176,9 @@ void TkHistoMap::dumpInTkMap(TrackerMap* tkmap){
     tkdetmap_->getDetsForLayer(layer,dets);
     for(size_t i=0;i<dets.size();++i){
       if(dets[i]>0)
-	tkmap->fill(dets[i],getValue(dets[i]));
+	if(getEntries(dets[i])>0) {
+	  tkmap->fill(dets[i],getValue(dets[i]));
+	}
     }
   }
 }

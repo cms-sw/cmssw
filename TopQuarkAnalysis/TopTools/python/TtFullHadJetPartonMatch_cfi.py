@@ -4,8 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # module to make jet-parton matches for full-hadronic
 # ttbar decays; the product will be a std::vector of
 # matches, each match a std::vector<int> in the order
-# (LightQTop, LightQBarTop, B, LightQTopBar,
-# LightQBarTopBar, BBar)
+# (LightQ, LightQBar, B, LightP, LightPBar, BBar)
 #
 ttFullHadJetPartonMatch = cms.EDProducer("TtFullHadJetPartonMatch",
     ## sources
@@ -52,8 +51,8 @@ ttFullHadJetPartonMatch = cms.EDProducer("TtFullHadJetPartonMatch",
 
     #-------------------------------------------------
     # partons to be ignored in the matching;
-    # "LightQTop", "LightQBarTop", "B",
-    # "LightQTopBar", "LightQBarTopBar", "BBar"
+    # "LightQ", "LightQBar", "B",
+    # "LightP", "LightPBar", "BBar"
     #-------------------------------------------------
     partonsToIgnore = cms.vstring(),
 

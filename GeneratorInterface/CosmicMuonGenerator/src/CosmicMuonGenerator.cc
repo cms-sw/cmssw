@@ -21,8 +21,7 @@ CosmicMuonGenerator::CosmicMuonGenerator() : delRanGen(false)
   MinP_CMS =     MinP;
   MaxP =   3000.;
   MinTheta =  0.*Deg2Rad;
-  //MaxTheta = 84.26*Deg2Rad;
-  MaxTheta = 89.0*Deg2Rad;
+  MaxTheta = 84.26*Deg2Rad;
   MinPhi =    0.*Deg2Rad;
   MaxPhi =  360.*Deg2Rad;
   MinT0  = -12.5;
@@ -30,7 +29,6 @@ CosmicMuonGenerator::CosmicMuonGenerator() : delRanGen(false)
   ElossScaleFactor = 1.0;
   RadiusOfTarget = 8000.;
   ZDistOfTarget = 15000.;
-  ZCentrOfTarget = 0.;
   TrackerOnly = false;
   TIFOnly_constant = false;
   TIFOnly_linear = false;
@@ -91,7 +89,6 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
     // set up "surface geometry" dimensions
     double RadiusTargetEff = RadiusOfTarget; //get this from cfg-file
     double Z_DistTargetEff = ZDistOfTarget;  //get this from cfg-file
-    //double Z_CentrTargetEff = ZCentrOfTarget;  //get this from cfg-file
     if(TrackerOnly==true){
     RadiusTargetEff = RadiusTracker;
     Z_DistTargetEff = Z_DistTracker;
@@ -110,7 +107,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
     //set energy and angle limits for CMSCGEN, give same seed as above 
     if (MinTheta >= 90.*Deg2Rad) //upgoing muons from neutrinos
       Cosmics->initializeNuMu(MinP, MaxP, MinTheta, MaxTheta, MinEnu, MaxEnu, 
-			      MinPhi, MaxPhi, NuProdAlt, RanGen);
+			      MinPhi, MaxPhi, RanGen);
     else 
       Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanGen, TIFOnly_constant, TIFOnly_linear);
    
@@ -123,7 +120,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
 #endif
     if (EventDisplay) initEvDis();
     std::cout << std::endl;
-    //std::cout << "  generating " << NumberOfEvents << " events with random seed " << RanSeed << std::endl;
+    std::cout << "  generating " << NumberOfEvents << " events with random seed " << RanSeed << std::endl;
     NotInitialized = false;
   }
 }
@@ -135,23 +132,23 @@ void CosmicMuonGenerator::nextEvent(){
   // generate cosmic (E,theta,phi)
   bool   notSelected = true;
   while (notSelected){
-    bool   badMomentumGenerated = true;
-    while (badMomentumGenerated){
-      
-      if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
-	Cosmics->generateNuMu();
-      else
-	Cosmics->generate(); //dice one event now
-      
-      E = sqrt(Cosmics->momentum_times_charge()*Cosmics->momentum_times_charge() + MuonMass*MuonMass);
-      Theta = TMath::ACos( Cosmics->cos_theta() ) ; //angle has to be in RAD here
+	bool   badMomentumGenerated = true;
+	while (badMomentumGenerated){
+
+	  if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
+	    Cosmics->generateNuMu();
+	  else
+	    Cosmics->generate(); //dice one event now
+	  
+	  E = sqrt(Cosmics->momentum_times_charge()*Cosmics->momentum_times_charge() + MuonMass*MuonMass);
+	  Theta = TMath::ACos( Cosmics->cos_theta() ) ; //angle has to be in RAD here
 	  Ngen+=1.;   //count number of initial cosmic events (in surface area), vertices will be added later
 	  badMomentumGenerated = false;
 	  Phi = RanGen->flat()*(MaxPhi-MinPhi) + MinPhi;
-    }
-    Norm->events_n100cos(E, Theta); //test if this muon is in normalization range
-    Ndiced += 1; //one more cosmic is diced
-    //std::cout << "diced: E=" << E << " Theta=" << Theta << " Phi=" << Phi << std::endl;
+	}
+	Norm->events_n100cos(E, Theta); //test if this muon is in normalization range
+	Ndiced += 1; //one more cosmic is diced
+	//std::cout << "diced: E=" << E << " Theta=" << Theta << " Phi=" << Phi << std::endl;
     // generate vertex
     double Nver = 0.;
     bool   badVertexGenerated = true;
@@ -162,8 +159,7 @@ void CosmicMuonGenerator::nextEvent(){
       double dPhi = Pi; if (RxzV > Target3dRadius) dPhi = asin(Target3dRadius/RxzV);
       double rotPhi = PhiV + Pi; if (rotPhi > TwoPi) rotPhi -= TwoPi;
       double disPhi = fabs(rotPhi - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
-      //if (disPhi < dPhi) badVertexGenerated = false;
-      if (disPhi < dPhi || AcptAllMu) badVertexGenerated = false;
+      if (disPhi < dPhi) badVertexGenerated = false;
       Nver+=1.;
     }
     Ngen += (Nver-1.); //add number of generated vertices to initial cosmic events
@@ -192,9 +188,9 @@ void CosmicMuonGenerator::nextEvent(){
     // if angles are ok, propagate to target
     if (goodOrientation()) { 
       if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
-	OneMuoEvt.propagate(0., RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
+	OneMuoEvt.propagate(0., RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
       else
-	OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
+	OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
     }
       // if cosmic hits target test also if P>Pmin_CMS; the default is MinP_surface=MinP_CMS, thus no bias from access shaft
 
@@ -204,8 +200,7 @@ void CosmicMuonGenerator::nextEvent(){
     //std::cout << " P(Mu)=" << sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass)
     //      << " MinP_CMS=" << MinP_CMS << std::endl;
 
-    if (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS
-	|| AcptAllMu==true){
+    if (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS){
       Nsel+=1.; //count number of generated and accepted events  
       notSelected = false;
     }
@@ -260,11 +255,7 @@ void CosmicMuonGenerator::terminate(){
       std::cout << "       area of initial cosmics on Surface + PlugWidth:   " << area << " m^2" << std::endl;
     std::cout << "       depth of CMS detector (from Surface):   " << SurfaceOfEarth/1000 << " m" << std::endl;
        
-    //at least 100 evts., and
-    //downgoing inside theta parametersisation range
-    //or upgoing neutrino muons 
-    if(n100cos>0 && MaxTheta<84.26*Deg2Rad 
-       || MinTheta>90.*Deg2Rad) {
+    if(n100cos>0){
       // rate: corrected for area and selection-Eff. and normalized to known flux, integration over solid angle (dOmega) is implicit
       // flux is normalised with respect to known flux of vertical 100GeV muons in area at suface level 
       // rate seen by detector is lower than rate at surface area, so has to be corrected for selection-Eff.
@@ -274,9 +265,8 @@ void CosmicMuonGenerator::terminate(){
 
       if (MinTheta > 90.*Deg2Rad) {//upgoing muons from neutrinos) 
 	double Omega = (cos(MinTheta)-cos(MaxTheta)) * (MaxPhi-MinPhi);
- 	//EventRate = (Ndiced * 3.e-13) * Omega * area*1.e4 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
- 	EventRate = (Ndiced * 3.e-13) * Omega * 4.*RadiusOfTarget*ZDistOfTarget*1.e-2 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
-	rateErr_stat = EventRate/sqrt( (double) Ndiced);  // stat. rate error 
+	EventRate = (Ndiced * 3.e-13) * Omega * area*1.e4 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
+	rateErr_stat = EventRate/sqrt( (double) n100cos);  // stat. rate error 
 	rateErr_syst = EventRate/3.e-13 * 1.0e-13;  // syst. rate error, from error of known flux 
       }
       else {
@@ -298,13 +288,7 @@ void CosmicMuonGenerator::terminate(){
       rateErr_stat =Nsel;
       rateErr_syst =Nsel;
       std::cout << std::endl;
-      if (MinP > 100.)
-	std::cout << " !!! MinP > 100 GeV. Cannot apply normalisation!" << std::endl;
-      else if (MaxTheta > 84.26*Deg2Rad)
-	std::cout << " !!! Note: generated cosmics exceed parameterisation. No flux calculated!" << std::endl;
-
-      else
-	std::cout << " !!! Not enough statistics to apply normalisation (rate=1 +- 1) !!!" << std::endl;
+      std::cout << " !!! Not enough statistics to apply normalisation (rate=1 +- 1) !!!" << std::endl;
     } 
     
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -497,8 +481,6 @@ void CosmicMuonGenerator::setRadiusOfTarget(double R){ if (NotInitialized) Radiu
 
 void CosmicMuonGenerator::setZDistOfTarget(double Z){ if (NotInitialized) ZDistOfTarget = Z; }
 
-void CosmicMuonGenerator::setZCentrOfTarget(double Z){ if (NotInitialized) ZCentrOfTarget = Z; }
-
 void CosmicMuonGenerator::setTrackerOnly(bool Tracker){ if (NotInitialized) TrackerOnly = Tracker; }
 
 void CosmicMuonGenerator::setTIFOnly_constant(bool TIF){ if (NotInitialized) TIFOnly_constant = TIF; }
@@ -512,8 +494,5 @@ void CosmicMuonGenerator::setPlugVz(double PlugVtz){ if (NotInitialized) PlugVz 
 
 void CosmicMuonGenerator::setMinEnu(double MinEn){ if (NotInitialized) MinEnu = MinEn; }
 void CosmicMuonGenerator::setMaxEnu(double MaxEn){ if (NotInitialized) MaxEnu = MaxEn; }
-void CosmicMuonGenerator::setNuProdAlt(double NuPrdAlt){ if (NotInitialized) NuProdAlt = NuPrdAlt; }
 
 double CosmicMuonGenerator::getRate(){ return EventRate; }
-
-void CosmicMuonGenerator::setAcptAllMu(bool AllMu){ if (NotInitialized) AcptAllMu = AllMu; }

@@ -8,6 +8,7 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
+
 DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
 						  const ConstRecHitContainer &forwardRecHits,
 						  const ConstRecHitContainer &backwardRecHits,
@@ -16,7 +17,7 @@ DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface
 						  PropagationDirection propDir,
 						  double mass )
   : ReferenceTrajectoryBase( referenceTsos.localParameters().mixedFormatVector().kSize,
-			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1, (materialEffects >= breakPoints) ? 2*(numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits))-4 : 0)
+			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1 )
 {
   theValidityFlag = this->construct( referenceTsos, forwardRecHits, backwardRecHits,
 				     mass, materialEffects, propDir, magField );
@@ -24,8 +25,8 @@ DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface
 
 
 
-DualReferenceTrajectory::DualReferenceTrajectory( unsigned int nPar, unsigned int nHits, unsigned int nBreakPoints )
-  : ReferenceTrajectoryBase( nPar, nHits, nBreakPoints )
+DualReferenceTrajectory::DualReferenceTrajectory( unsigned int nPar, unsigned int nHits )
+  : ReferenceTrajectoryBase( nPar, nHits )
 {}
 
 
@@ -36,9 +37,6 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
 					 const PropagationDirection propDir,
 					 const MagneticField *magField)
 {
-  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
-    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
-    
   ReferenceTrajectoryBase* fwdTraj = construct(refTsos, forwardRecHits,
 					       mass, materialEffects,
 					       propDir, magField);
@@ -69,47 +67,26 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
   theRecHits.insert( theRecHits.end(), ++bwdRecHits.begin(), bwdRecHits.end() );
 
   theParameters = extractParameters( refTsos );
-  theGlobalPars = fwdTraj->globalPars();
-  
-  unsigned int nParam   = theNumberOfPars;
-  unsigned int nFwdMeas = fwdTraj->numberOfHitMeas();
-  unsigned int nBwdMeas = bwdTraj->numberOfHitMeas();
-  unsigned int nFwdBP   = fwdTraj->numberOfMsMeas();
-  unsigned int nBwdBP   = bwdTraj->numberOfMsMeas();
-  unsigned int nMeas    = nFwdMeas+nBwdMeas-nMeasPerHit; 
-       
-  theMeasurements.sub( 1, fwdTraj->measurements().sub( 1, nFwdMeas ) );
+
+  unsigned int nParam = theParameters.num_row();
+  unsigned int nFwdMeas = nMeasPerHit*fwdTraj->numberOfHits();
+  unsigned int nBwdMeas = nMeasPerHit*bwdTraj->numberOfHits();
+
+  theMeasurements.sub( 1, fwdTraj->measurements() );
   theMeasurements.sub( nFwdMeas+1, bwdTraj->measurements().sub( nMeasPerHit+1, nBwdMeas ) );
-    
-  theMeasurementsCov.sub( 1, fwdTraj->measurementErrors().sub( 1, nFwdMeas ) );
+
+  theMeasurementsCov.sub( 1, fwdTraj->measurementErrors() );
   theMeasurementsCov.sub( nFwdMeas+1, bwdTraj->measurementErrors().sub( nMeasPerHit+1, nBwdMeas ) );
-  
+
   theTrajectoryPositions.sub( 1, fwdTraj->trajectoryPositions() );
   theTrajectoryPositions.sub( nFwdMeas+1, bwdTraj->trajectoryPositions().sub( nMeasPerHit+1, nBwdMeas ) );
 
   theTrajectoryPositionCov.sub( 1, fwdTraj->trajectoryPositionErrors() );
   theTrajectoryPositionCov.sub( nFwdMeas+1, bwdTraj->trajectoryPositionErrors().sub( nMeasPerHit+1, nBwdMeas ) );
 
-  theDerivatives.sub( 1, 1, fwdTraj->derivatives().sub( 1, nFwdMeas, 1, nParam ) );
+  theDerivatives.sub( 1, 1, fwdTraj->derivatives() );
   theDerivatives.sub( nFwdMeas+1, 1, bwdTraj->derivatives().sub( nMeasPerHit+1, nBwdMeas, 1, nParam ) );
-  
-// for the break points 
-// DUAL with break points makes no sense: (MS) correlations between the two parts are lost ! 
-  if (nFwdBP>0 )
-  {
-    theMeasurements.sub( nMeas+1, fwdTraj->measurements().sub( nFwdMeas+1, nFwdMeas+nFwdBP ) );
-    theMeasurementsCov.sub( nMeas+1, fwdTraj->measurementErrors().sub( nFwdMeas+1, nFwdMeas+nFwdBP ) );  
-    theDerivatives.sub( 1, nParam+1, fwdTraj->derivatives().sub( 1, nFwdMeas, nParam+1, nParam+nFwdBP ) );
-    theDerivatives.sub( nMeas+1, nParam+1, fwdTraj->derivatives().sub( nFwdMeas+1, nFwdMeas+nFwdBP, nParam+1, nParam+nFwdBP ) );
-  }  
-  if (nBwdBP>0 )
-  {
-    theMeasurements.sub( nMeas+nFwdBP+1, bwdTraj->measurements().sub( nBwdMeas+1, nBwdMeas+nBwdBP ) );  
-    theMeasurementsCov.sub( nMeas+nFwdBP+1, bwdTraj->measurementErrors().sub( nBwdMeas+1, nBwdMeas+nBwdBP ) );  
-    theDerivatives.sub( nFwdMeas+1, nParam+nFwdBP+1, bwdTraj->derivatives().sub( nMeasPerHit+1, nBwdMeas, nParam+1, nParam+nBwdBP ) );
-    theDerivatives.sub( nMeas+nFwdBP+1, nParam+nFwdBP+1, bwdTraj->derivatives().sub( nBwdMeas+1, nBwdMeas+nBwdBP, nParam+1, nParam+nBwdBP ) );
-  }
-    
+
   delete fwdTraj;
   delete bwdTraj;
 
@@ -124,9 +101,7 @@ DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos
 				   const PropagationDirection propDir,
 				   const MagneticField *magField) const
 {
-  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
-    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
-  
+
   return new ReferenceTrajectory(referenceTsos, recHits, false,
 				 magField, materialEffects, propDir, mass);
 }

@@ -56,7 +56,7 @@ class TopGenEvent {
   /// return radiated gluons from particle with pdgId
   std::vector<const reco::GenParticle*> radiatedGluons(int pdgId) const;
   /// return all light quarks or all quarks including b's 
-  std::vector<const reco::GenParticle*> lightQuarks(bool plusB=false) const;
+  std::vector<const reco::GenParticle*> lightQuarks(bool includingBQuarks=false) const;
   /// return number of leptons in the decay chain
   int numberOfLeptons(bool fromWBoson=true) const;
   /// return number of leptons in the decay chain
@@ -65,33 +65,45 @@ class TopGenEvent {
   int numberOfBQuarks(bool fromTopQuark=true) const;
   /// return number of top anti-top sisters
   std::vector<const reco::GenParticle*> topSisters() const;
+  /// return daughter quark of top quark (which can have flavor b, s or d)
+  const reco::GenParticle* daughterQuarkOfTop(bool invertCharge=false) const;
+  /// return daughter quark of anti-top quark (which can have flavor b, s or d)
+  const reco::GenParticle* daughterQuarkOfTopBar() const { return daughterQuarkOfTop(true); };
+  /// return quark daughter quark of W boson
+  const reco::GenParticle* daughterQuarkOfWPlus(bool invertQuarkCharge=false, bool invertBosonCharge=false) const;
+  /// return quark daughter of anti-W boson
+  const reco::GenParticle* daughterQuarkOfWMinus() const { return daughterQuarkOfWPlus(false, true); };
+  /// return anti-quark daughter of W boson
+  const reco::GenParticle* daughterQuarkBarOfWPlus() const { return daughterQuarkOfWPlus(true, false); };
+  /// return anti-quark daughter of anti-W boson
+  const reco::GenParticle* daughterQuarkBarOfWMinus() const { return daughterQuarkOfWPlus(true, true); };
 
   /// get candidate with given pdg id if available; 0 else 
-  const reco::GenParticle* candidate(int id) const;
+  const reco::GenParticle* candidate(int id, unsigned int parentId=0) const;
   /// return electron if available; 0 else
-  const reco::GenParticle* eMinus() const   { return candidate( TopDecayID::elecID );}
+  const reco::GenParticle* eMinus() const   { return candidate( TopDecayID::elecID, TopDecayID::WID );}
   /// return positron if available; 0 else
-  const reco::GenParticle* ePlus() const    { return candidate(-TopDecayID::elecID );}
+  const reco::GenParticle* ePlus() const    { return candidate(-TopDecayID::elecID, TopDecayID::WID );}
   /// return muon if available; 0 else
-  const reco::GenParticle* muMinus() const  { return candidate( TopDecayID::muonID );}
+  const reco::GenParticle* muMinus() const  { return candidate( TopDecayID::muonID, TopDecayID::WID );}
   /// return anti-muon if available; 0 else
-  const reco::GenParticle* muPlus() const   { return candidate(-TopDecayID::muonID );}
+  const reco::GenParticle* muPlus() const   { return candidate(-TopDecayID::muonID, TopDecayID::WID );}
   /// return tau if available; 0 else
-  const reco::GenParticle* tauMinus() const { return candidate( TopDecayID::tauID  );}
+  const reco::GenParticle* tauMinus() const { return candidate( TopDecayID::tauID, TopDecayID::WID  );}
   /// return anti-tau if available; 0 else
-  const reco::GenParticle* tauPlus() const  { return candidate(-TopDecayID::tauID  );}
+  const reco::GenParticle* tauPlus() const  { return candidate(-TopDecayID::tauID, TopDecayID::WID  );}
   /// return W minus if available; 0 else
-  const reco::GenParticle* wMinus() const   { return candidate( TopDecayID::WID    );}
+  const reco::GenParticle* wMinus() const   { return candidate( TopDecayID::WID, TopDecayID::tID    );}
   /// return W plus if available; 0 else
-  const reco::GenParticle* wPlus() const    { return candidate(-TopDecayID::WID    );}
+  const reco::GenParticle* wPlus() const    { return candidate(-TopDecayID::WID, TopDecayID::tID    );}
+  /// return b quark if available; 0 else
+  const reco::GenParticle* b() const        { return candidate( TopDecayID::bID, TopDecayID::tID    );}
+  /// return anti-b quark if available; 0 else
+  const reco::GenParticle* bBar() const     { return candidate(-TopDecayID::bID, TopDecayID::tID    );}
   /// return top if available; 0 else
   const reco::GenParticle* top() const      { return candidate( TopDecayID::tID    );}
   /// return anti-top if available; 0 else
   const reco::GenParticle* topBar() const   { return candidate(-TopDecayID::tID    );}
-  /// return b quark if available; 0 else
-  const reco::GenParticle* b() const        { return candidate( TopDecayID::bID    );}
-  /// return anti-b quark if available; 0 else
-  const reco::GenParticle* bBar() const     { return candidate(-TopDecayID::bID    );}
 
   /// print content of the top decay chain as formated 
   /// LogInfo to the MessageLogger output for debugging

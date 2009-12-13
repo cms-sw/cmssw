@@ -291,10 +291,11 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          
 	//Level1TriggerRatesCollection::const_iterator it2 = triggerRates->begin();
 
-	Level1TriggerRates triggerRates(*it);
-	if(&triggerRates){
-	  algorithmRates_ = triggerRates.gtAlgoCountsRate();
-	  technicalRates_ = triggerRates.gtTechCountsRate();
+	Level1TriggerRates trigRates(*it);
+	Level1TriggerRates *triggerRates = &trigRates;
+	if(triggerRates){
+	  algorithmRates_ = triggerRates->gtAlgoCountsRate();
+	  technicalRates_ = triggerRates->gtTechCountsRate();
 	   
 	  if(bufferAlgoRates_ != algorithmRates_){ 
 	    bufferAlgoRates_ = algorithmRates_;
@@ -310,15 +311,15 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 
 	  physRate->setBinContent(lumisection+1, 
-				  triggerRates.l1AsPhysicsRate()); 
+				  triggerRates->l1AsPhysicsRate()); 
 	  randRate->setBinContent(lumisection+1, 
-				  triggerRates.triggersPhysicsLostRate());
+				  triggerRates->triggersPhysicsLostRate());
 	  lostPhysRate->setBinContent(lumisection+1, 
-				  triggerRates.l1AsPhysicsRate()); 
+				  triggerRates->l1AsPhysicsRate()); 
 	  lostPhysRateBeamActive->setBinContent(lumisection+1, 
-				  triggerRates.triggersPhysicsLostBeamActiveRate()); 
+				  triggerRates->triggersPhysicsLostBeamActiveRate()); 
 	  deadTimePercent->setBinContent(lumisection+1, 
-				  triggerRates.deadtimePercent()); 
+				  triggerRates->deadtimePercent()); 
 	   
 	}//triggerRates	 
       }//lumisection

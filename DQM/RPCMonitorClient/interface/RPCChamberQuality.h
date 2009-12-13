@@ -7,8 +7,8 @@
 **  Class RPCClusterSizeTest           **
 **  DQM Event Summary module for RPCs  **
 **                                     **
-**  $Date: 2009/03/28 02:20:07 $       **
-**  $Revision: 1.2 $                   **
+**  $Date: 2009/10/29 22:50:23 $       **
+**  $Revision: 1.4 $                   **
 **  David Lomidze                      **
 **  INFN di Napoli                     **
 **                                     **
@@ -47,7 +47,8 @@ public:
 
   //Begin Run
    void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  
+   //End Run
+   void endRun(const edm::Run& r, const edm::EventSetup& c);
   
   /// Begin Lumi block 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;

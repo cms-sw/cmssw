@@ -39,12 +39,9 @@ bool HODataFrame::validate(int firstSample, int nSamples) const {
   return ok;
 }
 
-void HODataFrame::setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask) {
-  hcalPresamples_&=0x7FC00F0F; // preserve actual presamples and fiber idle offset
+void HODataFrame::setZSInfo(bool unsuppressed, bool markAndPass) {
   if (markAndPass) hcalPresamples_|=0x10;
   if (unsuppressed) hcalPresamples_|=0x20;
-  hcalPresamples_|=(crossingMask&0x3FF)<<12; 
-
 }
 
 int HODataFrame::fiberIdleOffset() const {

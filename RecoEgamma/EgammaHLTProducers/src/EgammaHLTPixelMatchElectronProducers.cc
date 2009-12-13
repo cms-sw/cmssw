@@ -10,7 +10,7 @@
 */
 //
 // Original Author: Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronProducers.cc,v 1.2 2007/10/16 09:13:48 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronProducers.cc,v 1.3 2009/01/28 17:07:00 ghezzi Exp $
 //
 //
 
@@ -46,7 +46,7 @@ EgammaHLTPixelMatchElectronProducers::EgammaHLTPixelMatchElectronProducers(const
   produces<ElectronCollection>();
 
   //create algo
-  algo_ = new EgammaHLTPixelMatchElectronAlgo();
+  algo_ = new EgammaHLTPixelMatchElectronAlgo(conf_);
 
 }
 
@@ -56,14 +56,15 @@ EgammaHLTPixelMatchElectronProducers::~EgammaHLTPixelMatchElectronProducers()
   delete algo_;
 }
 
-void EgammaHLTPixelMatchElectronProducers::beginJob(edm::EventSetup const&iSetup) 
+void EgammaHLTPixelMatchElectronProducers::beginJob() 
 {     
-  algo_->setupES(iSetup,conf_);  
 }
 
 // ------------ method called to produce the data  ------------
 void EgammaHLTPixelMatchElectronProducers::produce(edm::Event& e, const edm::EventSetup& iSetup) 
 {
+  // Update the algorithm conditions
+  algo_->setupES(iSetup);  
 
   // Create the output collections   
   std::auto_ptr<ElectronCollection> pOutEle(new ElectronCollection);

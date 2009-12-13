@@ -42,6 +42,8 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
   theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
 
+  theFlatDistribution = new CLHEP::RandFlat(rndEngine, 0., 1.);    
+
   pedOffset = 128;
 }
 
@@ -51,6 +53,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
   delete theSiNoiseAdder;
   delete theSiDigitalConverter;
   delete theSiZeroSuppress;
+  delete theFlatDistribution;
 }
 
 //  Run the algorithm for a given module
@@ -95,7 +98,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   // First: loop on the SimHits
   std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIter = input.begin();
   std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIterEnd = input.end();
-  if(CLHEP::RandFlat::shoot()>inefficiency) {
+  if(theFlatDistribution->fire()>inefficiency) {
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       // check TOF
       if ( std::fabs( ((*simHitIter).first)->tof() - cosmicShift - det->surface().toGlobal(((*simHitIter).first)->localPosition()).mag()/30.) < tofCut && ((*simHitIter).first)->energyLoss()>0) {

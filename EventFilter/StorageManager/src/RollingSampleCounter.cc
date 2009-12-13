@@ -1,5 +1,5 @@
 /**
- * $Id: RollingSampleCounter.cc,v 1.2 2008/04/16 01:30:32 biery Exp $
+ * $Id: RollingSampleCounter.cc,v 1.3 2009/05/09 01:28:22 elmer Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RollingSampleCounter.h"
@@ -254,7 +254,7 @@ double RollingSampleCounter::getDuration(double currentTime)
 void RollingSampleCounter::dumpData(std::ostream& outStream)
 {
   outStream << "RollingSampleCounter 0x" << std::hex
-            << ((int) this) << std::dec << std::endl;
+            << this << std::dec << std::endl;
   char nowString[32];
   sprintf(nowString, "%16.4f", getCurrentTime());
   outStream << "  Now = " << nowString << std::endl;

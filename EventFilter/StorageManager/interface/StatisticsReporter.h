@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.8 2009/08/24 14:31:11 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.4.2.1 2009/09/25 09:57:44 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -8,6 +8,7 @@
 #include "toolbox/task/WaitingWorkLoop.h"
 #include "xdaq/Application.h"
 #include "xdata/InfoSpace.h"
+#include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
 
 #include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
@@ -43,8 +44,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.4.2.1 $
+   * $Date: 2009/09/25 09:57:44 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
@@ -147,6 +148,12 @@ namespace stor {
     void reset();
 
     /**
+     * Access alarm handler
+     */
+    typedef boost::shared_ptr<AlarmHandler> AlarmHandlerPtr;
+    AlarmHandlerPtr alarmHandler() { return _alarmHandler; }
+
+    /**
      * Update the variables put into the application info space
      */
     virtual void actionPerformed(xdata::Event&);
@@ -169,7 +176,7 @@ namespace stor {
     void updateInfoSpace();
 
     xdaq::Application* _app;
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
+    AlarmHandlerPtr _alarmHandler;
     utils::duration_t _monitoringSleepSec;
     utils::time_point_t _lastMonitorAction;
 
@@ -195,6 +202,7 @@ namespace stor {
     // the HLTSFM queries them from the application infospace at 
     // the end of the run to put them into the RunInfo DB. The HTLSFM
     // uses the application infospace, and not the monitoring infospace.
+    xdata::String _stateName;
     xdata::UnsignedInteger32 _storedEvents;
     xdata::UnsignedInteger32 _closedFiles;
 

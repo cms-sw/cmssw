@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.145 $"
+__version__ = "$Revision: 1.154 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -16,10 +16,19 @@ defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
 defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Extended'
+defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
+defaultOptions.gflash = False
+defaultOptions.himix = False
+defaultOptions.number = 0
+defaultOptions.arguments = ""
+defaultOptions.name = "NO NAME GIVEN"
+defaultOptions.evt_type = ""
+defaultOptions.filein = []
+defaultOptions.customisation_file = ""
 
 # the pile up map
 pileupMap = {'156BxLumiPileUp': 6.9,
@@ -55,13 +64,14 @@ class ConfigBuilder(object):
         """options taken from old cmsDriver and optparse """
  
         self._options = options
-	self.define_Configs()
 	self.with_output = with_output
 	self.with_input = with_input
 	if process == None:
             self.process = cms.Process(self._options.name)
         else:
             self.process = process 		
+        self.imports = []
+        self.define_Configs()
         self.schedule = list()
 	
         # we are doing three things here:
@@ -74,25 +84,30 @@ class ConfigBuilder(object):
         self.additionalObjects = []
         self.additionalOutputs = {}
         self.productionFilterSequence = None
-        self.imports = []
 
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
+        includeFile = includeFile.replace('/','.')
         self.imports.append(includeFile)
         self.process.load(includeFile)
-        return __import__(includeFile)
+        return sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
-        pass        
+        self.additionalCommands.append(command)
+	if not command.strip().startswith("#"): 
+            # substitute: process.foo = process.bar -> self.process.foo = self.process.bar
+            exec(command.replace("process.","self.process."))
         
     def addCommon(self):
         if 'HARVESTING' in self._options.step:
             self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
-        else:    
-            self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'))
+        else:
+            # use very strict settings
+            from FWCore.Framework.test.cmsExceptionsFatalOption_cff import Rethrow
+            self.process.options = cms.untracked.PSet( Rethrow = Rethrow )
             
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
@@ -114,14 +129,18 @@ class ConfigBuilder(object):
         if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
-
+            # if option himix is active, drop possibly duplicate DIGI-RAW info:	 
+            if self._options.himix==True:	 
+                self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
+                self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
+		
             evt_type = self._options.evt_type.rstrip(".py").replace(".","_")
             if "/" in evt_type:
                 evt_type = evt_type.replace("python/","")
             else:
-                evt_type = 'Configuration/Generator/'+evt_type 
-
-            generatorModule = __import__(evt_type)
+                evt_type = ('Configuration.Generator.'+evt_type).replace('/','.') 
+            __import__(evt_type)
+	    generatorModule = sys.modules[evt_type]
             self.process.extend(generatorModule)
             # now add all modules and sequences to the process
             import FWCore.ParameterSet.Modules as cmstypes  
@@ -183,12 +202,13 @@ class ConfigBuilder(object):
 		self.schedule.append(self.process.out_stepAOD)
 		# ATTENTION: major tweaking to avoid inlining of event content
 		# should we do that?
-		# Note: we need to return the _second_ arg from the list of eventcontents ... 
-		def dummy2(instance,label = "process."+self.eventcontent.split(',')[1]+"EventContent.outputCommands"):
-			return label
+		# Note: we need to return the _second_ arg from the list of eventcontents ...
+		if len(self.eventcontent.split(',')) > 1 :
+		    def dummy2(instance,label = "process."+self.eventcontent.split(',')[1]+"EventContent.outputCommands"):
+		        return label
 
-		self.process.aodOutput.outputCommands.__dict__["dumpPython"] = dummy2
-		result += "\n"+self.process.aodOutput.dumpPython()
+		    self.process.aodOutput.outputCommands.__dict__["dumpPython"] = dummy2
+		    result += "\n"+self.process.aodOutput.dumpPython()
 
             return result
         
@@ -201,7 +221,7 @@ class ConfigBuilder(object):
 
         # here we check if we have fastsim or fullsim
         if "FAST" in self._options.step:
-            self.imports=['FastSimulation/Configuration/RandomServiceInitialization_cff']
+            self.loadAndRemember('FastSimulation/Configuration/RandomServiceInitialization_cff')
 
             # pile up handling for fastsim
             # TODO - do we want a map config - number or actual values?             
@@ -211,8 +231,9 @@ class ConfigBuilder(object):
                     sys.exit(-1)
             else:
                     self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi")
-		    self.additionalCommands.append('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
-                    self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
+                    self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
+		    self.executeAndRemember('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
+                    self.executeAndRemember("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
 
         # no fast sim   
         else:
@@ -268,32 +289,32 @@ class ConfigBuilder(object):
             self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
 
             if "STARTUP" in conditions:
-                self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
-	        self.additionalCommands.append("process.ecalRecHit.doMiscalib = True")
-	        self.additionalCommands.append("process.hbhereco.doMiscalib = True")
-	        self.additionalCommands.append("process.horeco.doMiscalib = True")
-	        self.additionalCommands.append("process.hfreco.doMiscalib = True")
+                self.executeAndRemember("# Apply ECAL/HCAL miscalibration")
+	        self.executeAndRemember("process.ecalRecHit.doMiscalib = True")
+	        self.executeAndRemember("process.hbhereco.doMiscalib = True")
+	        self.executeAndRemember("process.horeco.doMiscalib = True")
+	        self.executeAndRemember("process.hfreco.doMiscalib = True")
 
             # Apply Tracker and Muon misalignment
-            self.additionalCommands.append("# Apply Tracker and Muon misalignment")
-            self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-	    self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
-	    self.additionalCommands.append("process.misalignedDTGeometry.applyAlignment = True")
-	    self.additionalCommands.append("process.misalignedCSCGeometry.applyAlignment = True\n")
+            self.executeAndRemember("# Apply Tracker and Muon misalignment")
+            self.executeAndRemember("process.famosSimHits.ApplyAlignment = True")
+	    self.executeAndRemember("process.misalignedTrackerGeometry.applyAlignment = True\n")
+	    self.executeAndRemember("process.misalignedDTGeometry.applyAlignment = True")
+	    self.executeAndRemember("process.misalignedCSCGeometry.applyAlignment = True\n")
 	    
         else:
             self.loadAndRemember(self.ConditionsDefaultCFF)
 
         # set the global tag
-        self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditions)+"'")
-        self.process.GlobalTag.globaltag = cms.string(str(conditions))
+        self.executeAndRemember("process.GlobalTag.globaltag = '"+str(conditions)+"'")
                         
     def addCustomise(self):
         """Include the customise code """
 
         # let python search for that package and do syntax checking at the same time
-        packageName = self._options.customisation_file.replace(".py","").replace(".","/")
-        package = __import__(packageName)
+        packageName = self._options.customisation_file.replace(".py","").replace("/",".")
+        __import__(packageName)
+        package = sys.modules[packageName]
 
         # now ask the package for its definition and pick .py instead of .pyc
         customiseFile = package.__file__.rstrip("c")
@@ -318,8 +339,8 @@ class ConfigBuilder(object):
 		print defaultOptions.scenarioOptions
 		sys.exit(-1)
 		
-        self.executeAndRemember('Configuration/StandardSequences/Services_cff')
-	self.executeAndRemember('FWCore/MessageService/MessageLogger_cfi')
+        self.loadAndRemember('Configuration/StandardSequences/Services_cff')
+	self.loadAndRemember('FWCore/MessageService/MessageLogger_cfi')
 
 	self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"    
 	self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
@@ -340,6 +361,10 @@ class ConfigBuilder(object):
 	self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
 	self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
 	
+        # synchronize the geometry configuration and the FullSimulation sequence to be used	 
+	if self._options.geometry not in defaultOptions.geometryExtendedOptions:	 
+            self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"	 
+
 	if "DATAMIX" in self._options.step:
 	    self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
 	    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
@@ -399,6 +424,7 @@ class ConfigBuilder(object):
 	    self.eventcontent='FEVT'
 
         if self._options.scenario=='HeavyIons':
+            self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
    	    self.RECODefaultSeq='reconstructionHeavyIons'
 
@@ -413,8 +439,10 @@ class ConfigBuilder(object):
         else:
                 self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
                 
-	if self._options.isMC==True:
+	if self._options.isMC==True and self._options.himix==False:
  	    self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
+        elif self._options.isMC==True and self._options.himix==True:	 
+            self.PileupCFF='Configuration/StandardSequences/HiEventMixing_cff'
         else:
 	    self.PileupCFF=''
 	    
@@ -485,6 +513,8 @@ class ConfigBuilder(object):
         #check if we are dealing with fastsim -> no vtx smearing
         if "FASTSIM" in self._options.step:
 	  self.process.pgen.remove(self.process.VertexSmearing)
+          self.process.pgen.remove(self.process.GeneInfo)
+          self.process.pgen.remove(self.process.genJetMET)
 	  self.process.generation_step = cms.Path( self.process.pgen)
 	  self.process.generation_step._seq = self.process.pgen._seq
 
@@ -496,8 +526,11 @@ class ConfigBuilder(object):
             print "VertexSmearing type or beamspot",self.beamspot, "unknown."
             raise
 
-          if self._options.scenario == 'HeavyIons' :
+          if self._options.scenario == 'HeavyIons' and self._options.himix==False:
 	      self.process.generation_step = cms.Path( self.process.pgen_hi )
+          elif self._options.himix==True:	 
+              self.process.generation_step = cms.Path( self.process.pgen_himix )	 
+              self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
           else:
 	      self.process.generation_step = cms.Path( self.process.pgen )
 
@@ -506,7 +539,7 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.generation_step)
 
         # is there a production filter sequence given?
-	if "ProductionFilterSequence" in self.additionalObjects and "generator" in self.additionalObjects and sequence == None:
+	if "ProductionFilterSequence" in self.additionalObjects and ("generator" in self.additionalObjects or 'hiSignal' in self.additionalObjects) and sequence == None:
             sequence = "ProductionFilterSequence"
 	elif "generator" in self.additionalObjects and sequence == None:
             sequence = "generator"
@@ -525,7 +558,13 @@ class ConfigBuilder(object):
                              self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
 
 	if self._options.magField=='0T':
-	    self.additionalCommands.append("process.g4SimHits.UseMagneticField = cms.bool(False)")
+	    self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
+
+        if self._options.himix==True:	 
+            if self._options.geometry in defaultOptions.geometryExtendedOptions:	 
+                self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")	 
+            else:	 
+                self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 				
         self.process.simulation_step = cms.Path( self.process.psim )
         self.schedule.append(self.process.simulation_step)
@@ -536,7 +575,10 @@ class ConfigBuilder(object):
 	self.loadAndRemember(self.DIGIDefaultCFF)
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
-                
+
+        if self._options.himix==True:	 
+            self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")	 
+       
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
         self.schedule.append(self.process.digitisation_step)
         return
@@ -649,8 +691,7 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.validation_step)
         print self._options.step
         if not "DIGI"  in self._options.step.split(","):
-            self.additionalCommands.append("process.mix.playback = True")      
-            self.process.mix.playback = True 
+            self.executeAndRemember("process.mix.playback = True")      
         return
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
@@ -728,16 +769,16 @@ class ConfigBuilder(object):
             self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
 
 #            self.loadAndRemember("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
-            self.additionalCommands.append("process.famosSimHits.SimulateCalorimetry = True")
-            self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
+            self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
+            self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
 
             # the settings have to be the same as for the generator to stay consistent  
             print '  Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
             print '  The pile up is taken from 10 TeV files. To switch to other files remove the inclusion of "PileUpSimulator10TeV_cfi"'
-            self.additionalCommands.append('process.famosSimHits.ActivateDecays.comEnergy = 10000')
+            self.executeAndRemember('process.famosSimHits.ActivateDecays.comEnergy = 10000')
 	    
-            self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
-            self.additionalCommands.append("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
+            self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
+            self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
 
             # since we have HLT here, the process should be called HLT
             self._options.name = "HLT"
@@ -752,7 +793,7 @@ class ConfigBuilder(object):
             self.schedule.append(self.process.fastsim_step)
 
             # now the additional commands we need to make the config work
-            self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
+            self.executeAndRemember("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
         else:
              print "FastSim setting", sequence, "unknown."
              raise ValueError
@@ -767,15 +808,15 @@ class ConfigBuilder(object):
             beamspotType = 'BetaFunc'	      
         self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
 	beamspotName = 'process.%sVtxSmearingParameters' %(self.beamspot)
-        self.additionalCommands.append('\n# set correct vertex smearing') 
-        self.additionalCommands.append(beamspotName+'.type = cms.string("%s")'%(beamspotType)) 
-        self.additionalCommands.append('process.famosSimHits.VertexGenerator = '+beamspotName)
-	self.additionalCommands.append('process.famosPileUp.VertexGenerator = '+beamspotName)
+        self.executeAndRemember('\n# set correct vertex smearing') 
+        self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType)) 
+        self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
+	self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
         
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.145 $"),
+              (version=cms.untracked.string("$Revision: 1.154 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -864,7 +905,13 @@ class ConfigBuilder(object):
         result = "process.schedule = cms.Schedule("
 
         # handling of the schedule
-	self.process.schedule = cms.Schedule(*(self.schedule))  
+        self.process.schedule = cms.Schedule() 
+	for item in self.schedule:
+		if not isinstance(item, cms.Schedule):
+			self.process.schedule.append(item)
+                else:
+			self.process.schedule.extend(item) 
+
 	if hasattr(self.process,"HLTSchedule"):
    	    beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)] 
 	    afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
@@ -895,7 +942,8 @@ for path in process.paths: \n    getattr(process,path)._seq = process."""+self.p
 
 def installFilteredStream(process, schedule, streamName, definitionFile = "Configuration/StandardSequences/AlCaRecoStreams_cff" ):
 
-    definitionModule = __import__(definitionFile)
+    __import__(definitionFile)
+    definitionModule = sys.modules[definitionFile]
     process.extend(definitionModule)
     stream = getattr(definitionModule,streamName)
     output = cms.OutputModule("PoolOutputModule")
@@ -970,7 +1018,8 @@ def addALCAPaths(process, listOfALCANames, definitionFile = "Configuration/Stand
 
     Function to add alignment&calibration sequences to an existing process
     """
-    definitionModule = __import__(definitionFile)
+    __import__(definitionFile)
+    definitionModule = sys.modules[definitionFile]
     process.extend(definitionModule)
     
     for alca in listOfALCANames:

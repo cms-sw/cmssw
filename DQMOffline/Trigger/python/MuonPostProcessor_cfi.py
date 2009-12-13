@@ -59,18 +59,18 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 		"fakeEffPhi_L3IsoFiltered 'Efficiency for Fakes passing L3IsoFiltered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L3IsoFiltered allHltCandPhi_L3IsoFiltered",
 
 
-		#######################    L1Filtered   #########################
+		#######################    L1MuL1Filtered   #########################
 		
-        "recEffEta_L1Filtered '#eta Efficiency for L1Filtered; #eta of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassEta_L1Filtered recPassEta_All", 
-        "recEffPhi_L1Filtered '#phi Efficiency for L1Filtered; #phi of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassPhi_L1Filtered recPassPhi_All", 
-        "recEffPtMax_L1Filtered '#P_t Efficiency for L1Filtered; Reconstructed Muon pt (GeV);# Rec #mu Matched to L3Iso / # All rec muons' recPassMaxPt_L1Filtered recPassMaxPt_All",
-		"recEffPt_L1Filtered '#P_t Efficiency for L1Filtered; Reconstructed Muon pt (GeV);# Rec #mu Matched to L3Iso / # All rec muons' recPassPt_L1Filtered recPassPt_All",
-		"recEffZ0_L1Filtered 'Z0 (from origin) Efficiency for L1Filtered; Reconstructed Muon Z0;# Rec #mu Matched to L3 / # All rec muons' recPassZ0_L1Filtered recPassZ0_All",
-		"recEffD0Beam_L1Filtered 'd0 (from beamspot) Efficiency for L1Filtered; Reconstructed Muon d0 ;# Rec #mu Matched to L3 / # All rec muons' recPassD0Beam_L1Filtered recPassD0Beam_All",
-		"recEffCharge_L1Filtered 'Charge Efficiency for L1Filtered; Reconstructed Muon Charge ;# Rec #mu Matched to L3 / # All rec muons' recPassCharge_L1Filtered  recPassCharge_All",
-		"fakeEffPt_L1Filtered 'Efficiency for Fakes passing L1Filtered; AOD Muon Pt; #Fakes / #HLT Muons' fakeHltCandPt_L1Filtered allHltCandPt_L1Filtered",
-		"fakeEffEta_L1Filtered 'Efficiency for Fakes passing L1Filtered; AOD Muon Eta; #Fakes / #HLT Muons' fakeHltCandEta_L1Filtered allHltCandEta_L1Filtered", 
-		"fakeEffPhi_L1Filtered 'Efficiency for Fakes passing L1Filtered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L1Filtered allHltCandPhi_L1Filtered",
+        "recEffEta_L1MuL1Filtered '#eta Efficiency for L1MuL1Filtered; #eta of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassEta_L1MuL1Filtered recPassEta_All", 
+        "recEffPhi_L1MuL1Filtered '#phi Efficiency for L1MuL1Filtered; #phi of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassPhi_L1MuL1Filtered recPassPhi_All", 
+        "recEffPtMax_L1MuL1Filtered '#P_t Efficiency for L1MuL1Filtered; Reconstructed Muon pt (GeV);# Rec #mu Matched to L3Iso / # All rec muons' recPassMaxPt_L1MuL1Filtered recPassMaxPt_All",
+		"recEffPt_L1MuL1Filtered '#P_t Efficiency for L1MuL1Filtered; Reconstructed Muon pt (GeV);# Rec #mu Matched to L3Iso / # All rec muons' recPassPt_L1MuL1Filtered recPassPt_All",
+		"recEffZ0_L1MuL1Filtered 'Z0 (from origin) Efficiency for L1MuL1Filtered; Reconstructed Muon Z0;# Rec #mu Matched to L3 / # All rec muons' recPassZ0_L1MuL1Filtered recPassZ0_All",
+		"recEffD0Beam_L1MuL1Filtered 'd0 (from beamspot) Efficiency for L1MuL1Filtered; Reconstructed Muon d0 ;# Rec #mu Matched to L3 / # All rec muons' recPassD0Beam_L1MuL1Filtered recPassD0Beam_All",
+		"recEffCharge_L1MuL1Filtered 'Charge Efficiency for L1MuL1Filtered; Reconstructed Muon Charge ;# Rec #mu Matched to L3 / # All rec muons' recPassCharge_L1MuL1Filtered  recPassCharge_All",
+		"fakeEffPt_L1MuL1Filtered 'Efficiency for Fakes passing L1MuL1Filtered; AOD Muon Pt; #Fakes / #HLT Muons' fakeHltCandPt_L1MuL1Filtered allHltCandPt_L1MuL1Filtered",
+		"fakeEffEta_L1MuL1Filtered 'Efficiency for Fakes passing L1MuL1Filtered; AOD Muon Eta; #Fakes / #HLT Muons' fakeHltCandEta_L1MuL1Filtered allHltCandEta_L1MuL1Filtered", 
+		"fakeEffPhi_L1MuL1Filtered 'Efficiency for Fakes passing L1MuL1Filtered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L1MuL1Filtered allHltCandPhi_L1MuL1Filtered",
 
 		#######################    L1MuOpenL1Filtered   #########################
 		

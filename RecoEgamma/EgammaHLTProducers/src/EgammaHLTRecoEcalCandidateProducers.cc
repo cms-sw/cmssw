@@ -41,7 +41,7 @@ EgammaHLTRecoEcalCandidateProducers::EgammaHLTRecoEcalCandidateProducers(const e
 
 EgammaHLTRecoEcalCandidateProducers::~EgammaHLTRecoEcalCandidateProducers() {}
 
-void  EgammaHLTRecoEcalCandidateProducers::beginJob (edm::EventSetup const & theEventSetup) {}
+void EgammaHLTRecoEcalCandidateProducers::beginJob() {}
 
 void EgammaHLTRecoEcalCandidateProducers::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 

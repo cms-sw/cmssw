@@ -20,8 +20,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-
-
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
@@ -31,7 +30,7 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   ~IsolatedPixelTrackCandidateProducer();
 
 
-  virtual void beginJob (edm::EventSetup const & es){};
+  virtual void beginJob (edm::EventSetup const & es);
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
   double getDistInCM(double eta1, double phi1, double eta2, double phi2);
@@ -39,6 +38,8 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
  private:
 	
+  void getEcalConstants(const DDCompactView*);
+
   edm::InputTag hltGTseedlabel_;
   edm::InputTag l1eTauJetsSource_;
   std::vector<edm::InputTag> pixelTracksSources_;
@@ -51,12 +52,12 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   double vtxCutIsol_;
   double tauAssocCone_;
   double tauUnbiasCone_;
+  std::string bfield_;
   double minPTrackValue_;
   double maxPForIsolationValue_;
-  std::string bfield_;
-  double ecDistEB_;
-  double ecDistEE_;
-
+  double rEB_;
+  double zEE_;
+  double ebEtaBoundary_;
 };
 
 

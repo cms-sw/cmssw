@@ -1,7 +1,111 @@
+2009-10-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-03-03
+	* Merge changes from V05-02-04 into branch_3_3_X
+
+2009-10-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-03-02
+	* Merge changes from V05-02-03 into branch_3_3_X
+
+2009-10-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-03-01
+	* Merge changes from V05-02-01 and V05-02-02 into branch_3_3_X
+
+2009-09-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-03-00
+	* Merge changes from V05-02-00 into branch_3_3_X
+	* Fix a couple of issues for gcc4/amd64
+
+2009-10-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-04
+	* Add new state Constructed which is entered when the state
+	  machine is initiated. The Constructed state is identical to
+	  the Halted state, except that it does not send the state
+	  notification to run control. The Constructed state cannot be
+	  re-entered once the it was left. Instead the Halted state is used.
+	* Accept the end-of-lumi-section I2O message if compiled against
+	  a sufficiently new xdaq release (>= 10.0). Does not do anything
+	  with it yet.
+
+2009-10-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-03
+	* Fix sub-second sleep duration
+	* Fix bug in filling the disk-space usages vector in the info space
+	* Backport fixes for gcc4/amd64 from branch_3_3_X
+
+2009-10-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-02
+	* Remove default setting for sataUser. This disables the check for
+	  the SATA controller.
+
+2009-10-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-01
+	* Send sentinel notifications via AlarmHandler instead of Notifier.
+	* Send notifications rather than alarms for single occurrences, i.e.
+	  for issues for which we do not need extended periods of visibility.
+	* Do not send a SATA disk-controller alarm if the sataUser is not
+	  configured.
+	* Add stateName to application info space to allow run control to
+	  display the current state after initialization.
+	* Split large implementation file for I2OChain into separate files
+	  for the internal ChainData classes.
+
+2009-09-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-00
+	* Accept EmergencyStop FSM SOAP message
+	* Increased number of monitoring parameters exported to the info space.
+	* Improved monitoring and add sentinel alarms for disks: status of SATA
+	  beasts and configuration option to check other disks, e.g. the look-area
+	  and ECAL calibration area.
+	* Added sentinel alarms for number of copy/inject workers, as well as
+	  for skipped discards and stale I2O chains
+	* Expanded web pages for consumers and throughput statistics
+	* Variable update intervals for monitoring collections
+	* Expanded logging/alarming in case of rare problems
+	* DQM histograms are pushed as soon as all EPs which sent an INIT
+	  message also have sent their histograms
+	* Preparation for closing files when receiving an end-of-lumi-section signal
+	* File closing in DiskWriter made explicit to avoid throwing exceptions in
+	  the FileHandler destructor
+	* Various code improvements and fixes
+	* Streamlined scripts for demoSystem, initial integration of playback system
+
+2009-09-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-01-08
+	* Couple of fixes for 64-bit built (slc4_amd64_gcc432)
+
+2009-09-11 Peter Elmer <Peter.Elmer@cern.ch>
+
+	* tag V05-01-07
+	* Add explicit declaration of several operator<<'s within the
+	  stor::namespace in .h files to match the implementations in the .cc.
+	  (They were declared as friend within the class definition, but that
+	  isn't the same thing.) Without this change (or some analogous one)
+	  the code would not compile with gcc4.3.
+
+2009-09-03 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V05-01-06
+	* Changes needed to reuse EventPrincipals
+
+2009-08-25 W. David Dagenhart <wdd@fnal.gov>
+
+	* tag V05-01-05
+	* FWCore/ParameterSet was split into ParameterSet and PythonParameterSet
+
 2009-08-19 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-01-04
-	* Added protection in the EventConsumerSelector and EventStreamSelector 
+	* Added protection in the EventConsumerSelector and EventStreamSelector
 	  against throwing initialize() calls
 
 2009-07-25 William Tanenbaum <wmtan@fnal.gov>
@@ -22,7 +126,7 @@
 	* Increase displayed precision of data rate popped from the DQM queue
 	* Complete doxygen class documentation
 	* Remove obsolete code
-	
+
 2009-07-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-01-00
@@ -38,7 +142,7 @@
 	* Minor changes to align state machine transitions with state
 	  charts.
 	* Fix bug such that first consumerID is 1, not 2.
-	
+
 2009-07-06 Dennis Shpakov <Denis.Shpakov@cern.ch>
 
 	* tag V05-00-09
@@ -60,7 +164,7 @@
 2009-06-29 Dennis Shpakov <Denis.Shpakov@cern.ch>
 
 	* tag V05-00-07
-	* Introduce stale window time to measure time an 
+	* Introduce stale window time to measure time an
 	  event sits in the FragmentStore, not counting
 	  any previous queueing time.
 	* Monitor number of discards, stale events, and skipped discards.
@@ -85,7 +189,7 @@
 	  configuration cannot update the parameters
 	* Fixed an iterator overrun in StreamHandler when deleting
 	  FileHandlers from the list of open files.
-	
+
 2009-06-15 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-00-04
@@ -97,13 +201,13 @@
 
 	* tag V05-00-03
 	* Explicitly link with sentinelutils.
-	
+
 2009-06-10 Dennis Shpakov <Denis.Shpakov@cern.ch>
 
 	* tag V05-00-02
 	* Added include of cstdio for sprintf calls
 	  in case it is needed for gcc4.4.
-	
+
 2009-06-10 Dennis Shpakov <Denis.Shpakov@cern.ch>
 
 	* tag V05-00-01
@@ -114,7 +218,7 @@
 
 	* tag V05-00-00
 	* Final release candidate on the refdev01_scratch_branch.
-	
+
 2009-06-08  Kurt Biery <biery@fnal.gov>
 
 	* tag V04-02-07

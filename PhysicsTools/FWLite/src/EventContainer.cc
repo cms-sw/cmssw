@@ -91,9 +91,9 @@ EventContainer::~EventContainer()
 }
 
 void
-EventContainer::add (TH1 *histPtr)
+EventContainer::add (TH1 *histPtr, const string &directory)
 {
-   m_histStore.add (histPtr);
+   m_histStore.add (histPtr, directory);
 }
 
 optutl::CommandLineParser &

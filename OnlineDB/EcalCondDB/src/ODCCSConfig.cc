@@ -1,14 +1,16 @@
 #include <stdexcept>
-#include <cstdlib>
 #include <string>
 #include <string.h>
+#include <cstdlib>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
-#include <limits>
 
 #include "OnlineDB/EcalCondDB/interface/ODCCSConfig.h"
 
-#define MY_SQL_NULL numeric_limits<int>::quiet_NaN()
-#define SET_INT( statement, paramNum, paramVal ) if( paramVal != MY_SQL_NULL ) { statement->setInt(paramNum, paramVal);  } else { statement->setNull(paramNum,OCCINUMBER); }
+#include <limits>
+
+#define MY_NULL 16777215 // numeric_limits<int>::quiet_NaN()
+#define SET_INT( statement, paramNum, paramVal ) if( paramVal != MY_NULL ) { statement->setInt(paramNum, paramVal);  } else { statement->setNull(paramNum,OCCINUMBER); }
 #define SET_STRING( statement, paramNum, paramVal ) if( ! paramVal.empty() ) { statement->setString(paramNum, paramVal); } else { statement->setNull(paramNum,OCCICHAR); }
 
 using namespace std;
@@ -27,22 +29,22 @@ ODCCSConfig::ODCCSConfig()
 
 
 void ODCCSConfig::clear(){
-   m_daccal=MY_SQL_NULL;
-   m_delay=MY_SQL_NULL;
+   m_daccal=MY_NULL;
+   m_delay=MY_NULL;
    m_gain="";
    m_memgain="";
-   m_offset_high=MY_SQL_NULL;
-   m_offset_low=MY_SQL_NULL;
-   m_offset_mid=MY_SQL_NULL;
+   m_offset_high=MY_NULL;
+   m_offset_low=MY_NULL;
+   m_offset_mid=MY_NULL;
    m_trg_mode="";
    m_trg_filter="";
    m_bgo="";
-   m_tts_mask=MY_SQL_NULL;
-   m_daq=MY_SQL_NULL;
-   m_trg=MY_SQL_NULL;
-   m_bc0=MY_SQL_NULL;
-   m_bc0_delay=MY_SQL_NULL;
-   m_te_delay=MY_SQL_NULL;
+   m_tts_mask=MY_NULL;
+   m_daq=MY_NULL;
+   m_trg=MY_NULL;
+   m_bc0=MY_NULL;
+   m_bc0_delay=MY_NULL;
+   m_te_delay=MY_NULL;
 }
 
 
@@ -108,22 +110,23 @@ void ODCCSConfig::setParameters(std::map<string,string> my_keys_map){
 	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
     
     if(ci->first==  "CCS_CONFIGURATION_ID") setConfigTag(ci->second);
-    if(ci->first==  "DACCAL") setDaccal(atoi(ci->second.c_str()) );
-    if(ci->first==  "GAIN") setGain(ci->second);
-    if(ci->first==  "MEMGAIN") setMemGain(ci->second);
-    if(ci->first==  "OFFSET_HIGH") setOffsetHigh(atoi(ci->second.c_str() ));
-    if(ci->first==  "OFFSET_LOW") setOffsetLow(atoi(ci->second.c_str() ));
-    if(ci->first==  "OFFSET_MID") setOffsetMid(atoi(ci->second.c_str() ));
-    if(ci->first==  "TRG_MODE") setTrgMode(ci->second );
-    if(ci->first==  "TRG_FILTER") setTrgFilter(ci->second );
-    if(ci->first==  "CLOCK") setClock(atoi(ci->second.c_str()) );
-    if(ci->first==  "BGO_SOURCE") setBGOSource(ci->second) ;
-    if(ci->first==  "TTS_MASK") setTTSMask(atoi(ci->second.c_str()) );
-    if(ci->first==  "DAQ_BCID_PRESET") setDAQBCIDPreset(atoi(ci->second.c_str() ));
-    if(ci->first==  "TRIG_BCID_PRESET") setTrgBCIDPreset(atoi(ci->second.c_str()) );
-    if(ci->first==  "BC0_COUNTER") setBC0Counter(atoi(ci->second.c_str() ));
-    if(ci->first==  "BC0_DELAY") setBC0Delay(atoi(ci->second.c_str() ));
-    if(ci->first==  "TE_DELAY")  setTEDelay(atoi(ci->second.c_str() ));
+    else if(ci->first==  "DACCAL") setDaccal(atoi(ci->second.c_str()) );
+    else if(ci->first==  "GAIN") setGain(ci->second);
+    else if(ci->first==  "MEMGAIN") setMemGain(ci->second);
+    else if(ci->first==  "OFFSET_HIGH") setOffsetHigh(atoi(ci->second.c_str() ));
+    else if(ci->first==  "OFFSET_LOW") setOffsetLow(atoi(ci->second.c_str() ));
+    else if(ci->first==  "OFFSET_MID") setOffsetMid(atoi(ci->second.c_str() ));
+    else if(ci->first==  "TRG_MODE") setTrgMode(ci->second );
+    else if(ci->first==  "TRG_FILTER") setTrgFilter(ci->second );
+    else if(ci->first==  "CLOCK") setClock(atoi(ci->second.c_str()) );
+    else if(ci->first==  "BGO_SOURCE") setBGOSource(ci->second) ;
+    else if(ci->first==  "TTS_MASK") setTTSMask(atoi(ci->second.c_str()) );
+    else if(ci->first==  "DAQ_BCID_PRESET") setDAQBCIDPreset(atoi(ci->second.c_str() ));
+    else if(ci->first==  "TRIG_BCID_PRESET") setTrgBCIDPreset(atoi(ci->second.c_str()) );
+    else if(ci->first==  "BC0_COUNTER")  setBC0Counter(atoi(ci->second.c_str() )); 
+    else if(ci->first==  "BC0_DELAY") setBC0Delay(atoi(ci->second.c_str() ));
+    else if(ci->first==  "TE_DELAY")  setTEDelay(atoi(ci->second.c_str() ));
+    else if(ci->first==  "DELAY")  setDelay(atoi(ci->second.c_str() ));
     
   }
   

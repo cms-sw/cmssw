@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.7 2009/09/18 09:10:52 mommsen Exp $
+// $Id: Exception.h,v 1.4.2.1 2009/09/25 09:57:43 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -32,10 +32,8 @@ namespace stor {
      List of exceptions thrown by the StorageManager
 
      $Author: mommsen $
-     $Revision: 1.7 $
-     $Date: 2009/09/18 09:10:52 $
-    
-     @file: Exception.h
+     $Revision: 1.4.2.1 $
+     $Date: 2009/09/25 09:57:43 $
   */
 }
 
@@ -65,6 +63,11 @@ XCEPT_DEFINE_EXCEPTION(stor, Monitoring)
 XCEPT_DEFINE_EXCEPTION(stor, Infospace)
 
 /**
+ * Exception raised in case of configuration problems
+ */
+XCEPT_DEFINE_EXCEPTION(stor, Configuration)
+
+/**
  * Exception raised in case of missuse of I2OChain
  */
 XCEPT_DEFINE_EXCEPTION(stor, I2OChain)
@@ -83,6 +86,11 @@ XCEPT_DEFINE_EXCEPTION(stor, IncompleteInitMessage)
  * Exception raised in case of requesting information from a faulty or incomplete event message
  */
 XCEPT_DEFINE_EXCEPTION(stor, IncompleteEventMessage)
+
+/**
+ * Exception raised if event selector cannot be initialized
+ */
+XCEPT_DEFINE_EXCEPTION(stor, InvalidEventSelection)
 
 /**
  * Exception raised when the SM is unable to determine which resource

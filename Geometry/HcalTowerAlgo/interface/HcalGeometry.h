@@ -67,16 +67,20 @@ class HcalGeometry : public CaloSubdetectorGeometry
 
    private:
 
+      void fillDetIds() const ;
+
       /// helper methods for getClosestCell
       int etaRing(HcalSubdetector bc, double abseta) const;
       int phiBin(double phi, int etaring) const;
 
 
       const HcalTopology * theTopology;
-      mutable DetId::Detector lastReqDet_;
-      mutable int lastReqSubdet_;
 
-      mutable std::vector<DetId> m_validIds ;
+      mutable std::vector<DetId> m_hbIds ;
+      mutable std::vector<DetId> m_heIds ;
+      mutable std::vector<DetId> m_hoIds ;
+      mutable std::vector<DetId> m_hfIds ;
+      mutable std::vector<DetId> m_emptyIds ;
       bool m_ownsTopology ;
 };
 

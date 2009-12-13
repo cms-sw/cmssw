@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.8 2009/08/26 18:59:21 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.14 2009/10/28 10:35:18 amraktad Exp $
 //
 
 // system include files
@@ -46,58 +46,96 @@ FWDetailViewBase::build (const FWModelId &iID, TEveWindowSlot* slot)
 }
 
 TEveWindow*
-FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas)
+FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TCanvas *&infoCanvas, TCanvas *&viewCanvas)
+{  TEveWindowPack* wp = slot->MakePack();
+   wp->SetHorizontal();
+   wp->SetShowTitleBar(kFALSE);
+   
+   // left canvas
+   slot = wp->NewSlotWithWeight(1);
+   TRootEmbeddedCanvas*  ecInfo = new TRootEmbeddedCanvas();
+   TEveWindowFrame* wf = slot->MakeFrame(ecInfo);
+   wf->GetEveFrame()->SetShowTitleBar(kFALSE);
+   infoCanvas = ecInfo->GetCanvas();
+   
+   // view canvas
+   slot = wp->NewSlotWithWeight(3);
+   TRootEmbeddedCanvas*  ecV = new TRootEmbeddedCanvas();
+   wf = slot->MakeFrame(ecV);
+   wf->GetEveFrame()->SetShowTitleBar(kFALSE);
+   viewCanvas = ecV->GetCanvas();
+   
+
+    return wp;
+}
+
+TEveWindow*
+FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TCanvas *&canvas, TEveViewer *&eveViewer, TEveScene *&scene)
 {
    TEveWindowPack* wp = slot->MakePack();
+   wp->SetHorizontal();
    wp->SetShowTitleBar(kFALSE);
-   TGPack* pack = wp->GetPack();
-   pack->SetVertical(kFALSE);
-   pack->SetUseSplitters(kFALSE);
 
-   // gui frame 
-   guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);
+   // left canvas
+   slot = wp->NewSlotWithWeight(1);
+   TRootEmbeddedCanvas*  ec = new TRootEmbeddedCanvas();
+   TEveWindowFrame* wf = slot->MakeFrame(ec);
+   wf->GetEveFrame()->SetShowTitleBar(kFALSE);
+   canvas = ec->GetCanvas();
+   canvas->SetHighLightColor(-1);
 
-   guiFrame->SetCleanup(kLocalCleanup);
-   pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),2);
+   // viewer GL
+   slot = wp->NewSlotWithWeight(3);
+   eveViewer = new TEveViewer("Detail view");
+   eveViewer->SpawnGLEmbeddedViewer();
+   gEve->GetViewers()->AddElement(eveViewer);
+   slot->ReplaceWindow(eveViewer);
+   slot->SetShowTitleBar(kFALSE);
 
-   // 2D canvas
-   TRootEmbeddedCanvas*  ec   = new TRootEmbeddedCanvas("Embeddedcanvas", pack);
-   pack->AddFrameWithWeight(ec, 0, 5);
-   viewCanvas = ec->GetCanvas();
-   viewCanvas->SetHighLightColor(-1);
-   
-   pack->MapSubwindows();
-   pack->Layout();
-   pack->MapWindow();
+   // scene
+   scene = gEve->SpawnNewScene("Detailed view");
+   eveViewer->AddScene(scene);
 
    return wp;
 }
 
 TEveWindow*
-FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TEveViewer *&eveViewer, TEveScene *&scene)
+FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TGVerticalFrame*& guiFrame, TEveViewer *&eveViewer, TEveScene *&scene)
 {
    TEveWindowPack* wp = slot->MakePack();
+   wp->SetHorizontal();
    wp->SetShowTitleBar(kFALSE);
-   TGPack* pack = wp->GetPack();
-   pack->SetVertical(kFALSE);
-   pack->SetUseSplitters(kFALSE);
 
-   // gui frame 
-   guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);
-   guiFrame->SetCleanup(kLocalCleanup);
-   pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),2);
-
-   // viewer GL
-   TGLEmbeddedViewer *egl = new TGLEmbeddedViewer(pack, 0, 0);
-   eveViewer= new TEveViewer("DetailViewViewer");
-   eveViewer->SetGLViewer(egl, egl->GetFrame());
-   pack->AddFrameWithWeight(egl->GetFrame(),0, 5);
+   // canvas & widgets
+   slot = wp->NewSlotWithWeight(1);
+   TEveWindowFrame* wf = slot->MakeFrame();
+   wf->SetShowTitleBar(kFALSE);
+   TGCompositeFrame* eveFrame = wf->GetGUICompositeFrame();
+   
+   guiFrame = new TGVerticalFrame(eveFrame, 10, 10, kSunkenFrame|kDoubleBorder);
+   eveFrame->AddFrame(guiFrame, new TGLayoutHints(kLHintsNormal));
+   
+   TGCompositeFrame* cf = new TGCompositeFrame(eveFrame);
+   eveFrame->AddFrame(cf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   cf->SetCleanup(kLocalCleanup);
+   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", cf, 100, 100, 0);
+   cf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   canvas = ec->GetCanvas();
+   canvas->SetHighLightColor(-1);
+   cf->Layout();
+   
+   eveFrame->MapSubwindows();
+   eveFrame->Layout();
+   
+   // viewer GL 
+   slot = wp->NewSlotWithWeight(3);
+   eveViewer = new TEveViewer("Detail view");
+   eveViewer->SpawnGLEmbeddedViewer();
+   gEve->GetViewers()->AddElement(eveViewer);
+   slot->ReplaceWindow(eveViewer);
+   slot->SetShowTitleBar(kFALSE);
    scene = gEve->SpawnNewScene("Detailed view");
    eveViewer->AddScene(scene);
-
-   pack->MapSubwindows();
-   pack->Layout();
-   pack->MapWindow();
-
+      
    return wp;
 }

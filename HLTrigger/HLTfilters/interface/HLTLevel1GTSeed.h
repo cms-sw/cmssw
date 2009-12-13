@@ -39,6 +39,7 @@
 // forward declarations
 class L1GtTriggerMenu;
 class L1GtTriggerMask;
+class L1GlobalTriggerReadoutRecord;
 
 // class declaration
 class HLTLevel1GTSeed : public HLTFilter
@@ -77,6 +78,21 @@ private:
     /// can be called for a new menu (bool "true") or for a new event
     void debugPrint(bool);
 
+    /// seeding is done via L1 trigger object maps, considering the objects which fired in L1
+    bool seedsL1TriggerObjectMaps(edm::Event&, std::auto_ptr<
+            trigger::TriggerFilterObjectWithRefs>&,
+            const L1GlobalTriggerReadoutRecord*, const int physicsDaqPartition);
+
+    /// seeding is done ignoring if a L1 object fired or not
+    /// if the event is selected at L1, fill all the L1 objects of types corresponding to the
+    /// L1 conditions from the seeding logical expression for bunch crosses F, 0, 1
+    /// directly from L1Extra and use them as seeds at HLT
+    /// method and filter return true if at least an object is filled
+    bool seedsL1Extra(edm::Event&, std::auto_ptr<trigger::TriggerFilterObjectWithRefs>&);
+
+    /// detailed print of filter content
+    void dumpTriggerFilterObjectWithRefs(std::auto_ptr<trigger::TriggerFilterObjectWithRefs>&);
+
 
 private:
 
@@ -110,7 +126,22 @@ private:
     /// vector of object-type vectors for each condition in the required algorithms for seeding
     std::vector< std::vector< const std::vector<L1GtObject>* > > m_l1AlgoSeedsObjType;
 
+
 private:
+
+    /// if true:
+    ///    seeding done via L1 trigger object maps, with objects that fired
+    ///    only objects from the central BxInEvent (L1A) are used
+    /// if false:
+    ///    seeding is done ignoring if a L1 object fired or not,
+    ///    adding all L1EXtra objects corresponding to the object types
+    ///    used in all conditions from the algorithms in logical expression
+    ///    for a given number of BxInEvent
+    bool m_l1UseL1TriggerObjectMaps;
+
+    /// option used forL1UseL1TriggerObjectMaps = False only
+    /// number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 2
+    int m_l1NrBxInEvent;
 
     /// seeding done via technical trigger bits, if value is "true"
     bool m_l1TechTriggerSeeding;
@@ -150,6 +181,7 @@ private:
 
     /// cache edm::isDebugEnabled()
     bool m_isDebugEnabled;
+
 
 };
 

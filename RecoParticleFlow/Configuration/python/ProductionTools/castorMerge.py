@@ -67,7 +67,7 @@ def processFiles( regexp, files ):
 
     
 parser = OptionParser()
-parser.usage = "%prog <castor dir> <regexp pattern> <chunk size>: merge a set of CMSSW root files on castor."
+parser.usage = "%prog <castor dir> <regexp pattern> <chunk size>: merge a set of CMSSW root files on castor. Temporary merged files are created on /tmp of the local machine, and are then migrated to a Chunk/ subdirectory of your input castor directory. Therefore, you need write access to the input castor directory.\n\nThe regexp pattern should contain 2 statements in parenthesis: the first one should match the file prefix, and the second one the file number. The name of the merged file will start by the file prefix. The file number is used to decide which files to take in input. The chunk size is the number of input files to be merged in a given output file.\n\nExample (just try. the -n option negates the command!):\ncastorMerge.py  /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions '(.*)_(\d+)\.root' 2 -n"
 parser.add_option("-n", "--negate", action="store_true",
                   dest="negate",
                   help="do not produce the merged files",

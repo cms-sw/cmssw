@@ -21,8 +21,8 @@
 * concrete classes that can translate to/from specific RAW formats.
 *
 * \author Robert Frazier
-* $Revision: 1.3 $
-* $Date: 2009/04/21 15:44:41 $
+* $Revision: 1.2 $
+* $Date: 2009/04/21 15:33:17 $
 */ 
 
 
@@ -54,6 +54,7 @@ public:
 
   /// Get digis from the block - will return true if it succeeds, false otherwise.
   virtual bool convertBlock(const unsigned char * d, const GctBlockHeader& hdr) = 0;
+
 
 protected:
  

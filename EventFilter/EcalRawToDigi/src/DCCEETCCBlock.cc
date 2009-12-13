@@ -30,7 +30,7 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
   int dccFOV =  event_->fov();
   if (! (dccFOV==dcc_FOV_0 || dccFOV==dcc_FOV_1 || dccFOV==dcc_FOV_2) ){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTCC") 
+      edm::LogWarning("IncorrectEvent") 
 	<<"\n FOV value in data is: " << dccFOV <<
 	"At event: "  <<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
 	<<"\n TCC id "<<tccId_<<" FOV "<< dccFOV << " which is not a foreseen value. Setting it to: " << dcc_FOV_2;
@@ -184,11 +184,11 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
 	
   bool tccFound(false);
   bool errorOnNumbOfTTs(false);
-  int  activeDCC =  mapper_->getActiveSM();
+  const int  activeDCC =  mapper_->getActiveSM();
   std::vector<uint> * m = mapper_->getTccs(activeDCC);
   std::vector<uint>::iterator it;
   for(it= m->begin();it!=m->end();it++){
-    if((*it) == tccId_){ 
+    if((*it) == tccId_){
       tccFound=true;
      
 	  /*
@@ -206,7 +206,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
 
 	  if( nTTs_ != 28 && nTTs_ !=16 ){
 	    if( ! DCCDataUnpacker::silentMode_ ){
-          edm::LogWarning("EcalRawToDigiTCC") 
+          edm::LogWarning("IncorrectBlock") 
 		   <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
            <<"\n TCC id "<<tccId_<<" has "<<nTTs_<<" Trigger Towers (only 28 or 16 are the expected values in EE)"
            <<"\n => Skipping to next fed block...";
@@ -220,7 +220,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
   if(!tccFound){
 
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTCC") 
+      edm::LogWarning("IncorrectBlock") 
         <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
         <<"\n => Skipping to next fed block...";

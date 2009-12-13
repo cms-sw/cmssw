@@ -1,15 +1,13 @@
 #include "GeneratorInterface/CosmicMuonGenerator/interface/SingleParticleEvent.h"
 
 void SingleParticleEvent::create(int id, double px, double py, double pz, double e, double m, double vx, double vy, double vz, double t0){
-  ID = ID_in = id;
-  Px = Px_in = px; Py = Py_in = py; Pz = Pz_in = pz; 
-  E = E_in = e; M = M_in = m;
-  Vx = Vx_in = vx; Vy = Vy_in = vy; Vz = Vz_in = vz; 
-  T0 = T0_in = t0;
-  HitTarget = false;
+    ID = id;
+    Px = px; Py = py; Pz = pz; E = e; M = m;
+    Vx = vx; Vy = vy; Vz = vz; T0 = t0;
+    HitTarget = false;
 }
 
-void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, double Z_CentrTarget, bool TrackerOnly, bool MTCCHalf){
+void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, bool TrackerOnly, bool MTCCHalf){
   MTCC=MTCCHalf; //need to know this boolean in absVzTmp()
   // calculated propagation direction
   dX = Px/absmom();
@@ -21,7 +19,6 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
   tmpVz = Vz;
   double RadiusTargetEff = RadiusTarget;
   double Z_DistTargetEff = Z_DistTarget;
-  double Z_CentrTargetEff = Z_CentrTarget;
   if(TrackerOnly==true){
     RadiusTargetEff = RadiusTracker;
     Z_DistTargetEff = Z_DistTracker;
@@ -37,8 +34,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       //if (tmpVy < -acceptR) continuePropagation = false;
       if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
       if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
-      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
-      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
+      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -55,8 +51,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       //if (tmpVy < -acceptR) continuePropagation = false;
       if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
       if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
-      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
-      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
+      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -73,8 +68,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       //if (tmpVy < -acceptR) continuePropagation = false;
       if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
       if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
-      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
-      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
+      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -91,8 +85,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       //if (tmpVy < -acceptR) continuePropagation = false;
       if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
       if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
-      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
-      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
+      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -109,8 +102,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       //if (tmpVy < -acceptR) continuePropagation = false;
       if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
       if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
-      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
-      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
+      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -128,8 +120,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
       if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
       if (0 < absVzTmp()){ //only check for MTCC setup in last step of propagation, need fine stepSize
-	//if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
-	if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
+	if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
 	  HitTarget = true;
 	  continuePropagation = false;
 	}
@@ -154,8 +145,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       //if (Vy < -acceptR) continuePropagation = false;
       if (dY < 0. && tmpVy < -acceptR) continuePropagation = false;
       if (dY >= 0. && tmpVy > acceptR) continuePropagation = false;
-      //if (absVz() < acceptZ && rVxy() < acceptR){
-      if (fabs(Vz - Z_CentrTargetEff) < acceptZ && rVxy() < acceptR){
+      if (absVz() < acceptZ && rVxy() < acceptR){
         HitTarget = true;
         continuePropagation = false;
       }
@@ -222,28 +212,6 @@ double SingleParticleEvent::rVxyTmp(){
 }
 
 bool SingleParticleEvent::hitTarget(){ return HitTarget; }
-
-
-int    SingleParticleEvent::id_in(){ return ID_in; }
-
-double SingleParticleEvent::px_in(){ return Px_in; }
-
-double SingleParticleEvent::py_in(){ return Py_in; }
-
-double SingleParticleEvent::pz_in(){ return Pz_in; }
-
-double SingleParticleEvent::e_in(){ return E_in; }
-
-double SingleParticleEvent::m_in(){ return M_in; }
-
-double SingleParticleEvent::vx_in(){ return Vx_in; }
-
-double SingleParticleEvent::vy_in(){ return Vy_in; }
-
-double SingleParticleEvent::vz_in(){ return Vz_in; }
-
-double SingleParticleEvent::t0_in(){ return T0_in; }
-
 
 int    SingleParticleEvent::id(){ return ID; }
 

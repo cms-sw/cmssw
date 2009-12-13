@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -46,33 +46,31 @@ namespace reco {
       ExpressionPtr dummyExpr_;
       SelectorPtr * sel_; 
       ExpressionPtr * expr_;
-      bool            lazy_;
       mutable ExpressionStack exprStack;
       mutable ComparisonStack cmpStack;
       mutable SelectorStack selStack;
       mutable FunctionStack funStack;
       mutable MethodStack         methStack;
-      mutable LazyMethodStack     lazyMethStack;
       mutable MethodArgumentStack methArgStack;
       mutable TypeStack typeStack;
       mutable IntStack intStack;
       template<typename T>
-      Grammar(SelectorPtr & sel, const T *, bool lazy=false) : 
-	sel_(& sel), expr_(& dummyExpr_), lazy_(lazy) { 
+      Grammar(SelectorPtr & sel, const T *) : 
+	sel_(& sel), expr_(& dummyExpr_) { 
 	typeStack.push_back(Reflex::Type::ByTypeInfo(typeid(T)));
       }
       template<typename T>
-      Grammar(ExpressionPtr & expr, const T*, bool lazy=false) : 
-	sel_(& dummySel_), expr_(& expr), lazy_(lazy) { 
+      Grammar(ExpressionPtr & expr, const T*) : 
+	sel_(& dummySel_), expr_(& expr) { 
 	typeStack.push_back(Reflex::Type::ByTypeInfo(typeid(T)));
       }
-      Grammar(SelectorPtr & sel, const Reflex::Type& iType, bool lazy=false) : 
-   	sel_(& sel), expr_(& dummyExpr_), lazy_(lazy) { 
+      Grammar(SelectorPtr & sel, const Reflex::Type& iType) : 
+   	sel_(& sel), expr_(& dummyExpr_) { 
    	typeStack.push_back(iType);
       }
 
-      Grammar(ExpressionPtr & expr, const Reflex::Type& iType, bool lazy=false) : 
-   	sel_(& dummySel_), expr_(& expr), lazy_(lazy) { 
+      Grammar(ExpressionPtr & expr, const Reflex::Type& iType) : 
+   	sel_(& dummySel_), expr_(& expr) { 
    	typeStack.push_back(iType);
       }
       template <typename ScannerT>
@@ -91,9 +89,9 @@ namespace reco {
 
 	  ExpressionNumberSetter number_s(self.exprStack);
 	  IntSetter int_s(self.intStack);
-	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.lazyMethStack, self.typeStack);
+	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.typeStack);
 	  MethodArgumentSetter methodArg_s(self.methArgStack);
-	  MethodSetter method_s(self.methStack, self.lazyMethStack, self.typeStack, self.methArgStack, self.lazy_);
+	  MethodSetter method_s(self.methStack, self.typeStack, self.methArgStack);
 	  ComparisonSetter<less_equal<double> > less_equal_s(self.cmpStack);
 	  ComparisonSetter<less<double> > less_s(self.cmpStack);
 	  ComparisonSetter<equal_to<double> > equal_to_s(self.cmpStack);
@@ -156,8 +154,8 @@ namespace reco {
                     ( int_p [ methodArg_s ] ) |
                     ( ch_p('"' ) >> *(~ch_p('"' ))  >> ch_p('"' ) ) [ methodArg_s ] |
                     ( ch_p('\'') >> *(~ch_p('\''))  >> ch_p('\'') ) [ methodArg_s ];
-	  var = // alnum_p doesn't accept underscores, so we use chset<>; lexeme_d needed to avoid whitespace skipping within method names
-	    (lexeme_d[alpha_p >> * chset<>("a-zA-Z0-9_")] >>  
+	  var = 
+	    (lexeme_d[alpha_p >> * chset<>("a-zA-Z0-9_")] >> 
 	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> expectParenthesis(ch_p(')'))) [ method_s ] |
 	    ( (lexeme_d[alpha_p >> * chset<>("a-zA-Z0-9_")]) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
 	  method = 

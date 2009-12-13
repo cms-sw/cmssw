@@ -29,8 +29,8 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
 # Get frontier conditions    - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP31X_V7::All","MC_31X_V8::All"
-process.GlobalTag.globaltag = "STARTUP31X_V7::All"
+# Values for globaltag are "STARTUP31X_V8::All","MC_31X_V9::All"
+process.GlobalTag.globaltag = "STARTUP31X_V8::All"
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True

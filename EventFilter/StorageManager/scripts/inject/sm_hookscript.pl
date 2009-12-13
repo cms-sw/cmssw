@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.16 2009/07/21 15:10:40 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.17 2009/08/09 10:05:52 loizides Exp $
 ################################################################################
 
 use strict;

@@ -62,8 +62,6 @@ namespace pos{
       return id_==aROC.id_;
     }
 
-    unsigned int id() const {return id_;}
-
   private:
 
     void parsename(std::string name);

@@ -1,3 +1,9 @@
+<! Template File - Modify as required.>
+<! Use as an index to other html documents>
+<! References to local pages should be relative to this directory>
+<! This makes it easy for both users of the web project space and>
+<! any others who might simply look at html files directly in the source code.>
+<! e.g. href=page1.html or  href=mysubdir/page2.html >
 <html>
 <body>
 <font size=+2><tt>CSCCommissioning</tt></font> package operates with local DAQ data of the
@@ -16,8 +22,6 @@ downstream of global DAQ via 4 S-Links. Each FED is assigned with its own FED ID
 Unlike global data taking, in local mode RUIs log data independently each in a separate set of files.
 <br>
 <br>
-<font color=red>If you are working with plain local DAQ data format (one set of files per each RUI; see
-for EmuRUI?? in file name), than you may find this paragraph useful.</font><br>
 If you work in CMSSW_1_3_0 or later (package revision V00-04-04 and higher) you should
 instruct <tt>CSCFileReader</tt> module to build FED buffers from selected RUIs (see
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/IORawData/CSCCommissioning/test/readFile.cfg?rev=1.6&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
@@ -26,19 +30,12 @@ which defines RUI file sets (<i>RUI00</i>, <i>RUI01</i>, ... <i>RUI09</i>) and t
 RUI to the appropriate FED (<i>FED750</i>, <i>FED751</i>, <i>FED752</i>, <i>FED753</i>). The module builds FED buffers
 from RUI buffers with the same L1A. Therefore, you should always maintain order of files in
 RUI file sets (module expects only incrementing L1A from file to file).
+<br>
+<br>
 In CMSSW prior to CMSSW_1_3_0 (package revision prior to V00-04-04) you are
 able to handle 1 FED with 1 RUI in it. Just specify <i>fileNames</i> as it is done in
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/IORawData/CSCCommissioning/test/readFile.cfg?rev=1.4&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
 test/readFile.cfg</a>.
-<br>
-<br>
-Module also supports alternative data format, produced by local Event Builder emulator (see FU in
-file name). In this case you need to assign <i>FU1</i>, <i>FU2</i>, ... with corresponding
-file names and remove FED parameters (though, having them in configuration doesn't affect
-anything). Set <i>tfDDUnumber=0</i> if Track-Finder records present in readout or
-<i>tfDDUnumber=-1</i> if not. See 
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/IORawData/CSCCommissioning/test/readFile.cfg?view=markup">test/readFile.cfg</a> for example.
-
 <br>
 <br>
 Special trigger RUI should not be mixed with DAQ RUIs which were described above (such

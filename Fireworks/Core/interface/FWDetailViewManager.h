@@ -16,9 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.17 2009/07/28 17:25:55 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.20 2009/10/08 17:44:11 amraktad Exp $
 //
+#include <map>
+#include <string>
 
+class FWColorManager;
 class TEveCompositeFrameInMainFrame;
 class FWDetailViewBase;
 class FWModelId;
@@ -27,23 +30,25 @@ class TEveWindow;
 class FWDetailViewManager
 {
 public:
-   FWDetailViewManager(const TGWindow*);
+   FWDetailViewManager(FWColorManager*);
    virtual ~FWDetailViewManager();
-   bool haveDetailViewFor(const FWModelId&) const;
-   void openDetailViewFor(const FWModelId& );
+   std::vector<std::string> detailViewsFor(const FWModelId&) const;
+   void openDetailViewFor(const FWModelId&, const std::string&);
+   void colorsChanged();
 
 private:
    FWDetailViewManager(const FWDetailViewManager&);    // stop default
    const FWDetailViewManager& operator=(const FWDetailViewManager&);    // stop default
-   std::string findViewerFor(const std::string&) const;
+   std::vector<std::string> findViewersFor(const std::string&) const;
 
 protected:
-   // const TGWindow* m_cmsShowMainFrame;
+   FWColorManager                *m_colorManager;
+
    TGMainFrame                   *m_mainFrame;
    TEveCompositeFrameInMainFrame *m_eveFrame; // cached
    FWDetailViewBase              *m_detailView;
 
    std::map<std::string, FWDetailViewBase *>  m_detailViews;
-   mutable std::map<std::string, std::string> m_typeToViewers;
+   mutable std::map<std::string, std::vector<std::string> > m_typeToViewers;
 };
 #endif

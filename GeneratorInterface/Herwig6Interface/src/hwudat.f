@@ -2,7 +2,7 @@ CDECK  ID>, HWUDAT.
 *CMZ :-        -26/04/91  10.18.58  by  Bryan Webber
 *-- Author :    Ian Knowles & Bryan Webber
 C-----------------------------------------------------------------------
-      BLOCK DATA HWUDAT
+      SUBROUTINE HWUDAT
 C-----------------------------------------------------------------------
 C     Loads common blocks with particle properties data; for particle I:
 C        RNAME(I) = Name

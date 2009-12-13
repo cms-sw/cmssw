@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-
+#!/usr/bin/env perl
 ################################################################################
 #
 # initialize
@@ -12,6 +11,7 @@
 ################################################################################
 use File::Copy;
 
+
 # welcome
 print "\n============================================================";
 print "\ninitialize ...";
@@ -21,12 +21,14 @@ print "\n============================================================\n";
 #my $hostname = $ENV{"HOST"};
 chop(my $hostname = `hostname -f`);
 
+
 # set variables
-my $port = 40000;
+#my $port = 22101;
+my $port = 40866;
 
 my $appname="evf::FUEventProcessor";
 
-my $localid=27;
+my $localid=50;
 
 my $libpath = getLibraryPath("EventFilter/Processor");
 
@@ -34,11 +36,16 @@ my $libname = "libEventFilterProcessor.so";
 
 my $pwd = `pwd`; chomp $pwd;
 
-my $dqm_dir    = $ENV{"CMSSW_BASE"}."/src/DQM/SiStripMonitorClient/test";
-my $dqm_common = $ENV{"CMSSW_BASE"}."/src/DQM/TrackerCommon/test";
 
-my $cfg_file = $ARGV[0];
+my $dqm_dir = $ENV{"CMSSW_BASE"}."/src/DQM/SiStripMonitorClient/test";
+my $dqm_int = $ENV{"CMSSW_BASE"}."/src/DQM/Integration/test";
+my $dqm_common = $ENV{"CMSSW_BASE"}."/src/DQM/TrackerCommon/test";
+my $dqm_wdir = "/tmp";
+
+my $cfg_file = "SiStripDQM_RealData_Online_cfg.py";
+
 print "cfg file name : $cfg_file\n";
+print " host name : $host_name\n"; 
 #
 # interpret command line
 #
@@ -55,55 +62,96 @@ print "hostname = $hostname\n";
 # make directories
 #
 print "make directories ...\n";
-`mkdir -p log`;
-`mkdir -p soap`;
-`mkdir -p xml`;
-`mkdir -p TkMap`;
+
+`mkdir -p $dqm_wdir/soap`;
+`mkdir -p $dqm_wdir/xml`;
+`mkdir -p $dqm_int/TkMap`;
+
 
 #
-# copy cfg and config files
+# make cfg files
 #
 print "copy cfg files ...\n";
 
-copy("$dqm_dir/$cfg_file", "$ENV{PWD}/.");
-copy("$dqm_dir/Reference.root", "$ENV{PWD}/Reference.root");
 
-copy("$dqm_dir/../data/layer.js", "$ENV{PWD}/TkMap/layer.js");
-copy("$dqm_dir/../data/crate.js", "$ENV{PWD}/TkMap/crate.js");
-copy("$dqm_dir/../data/viewer.js", "$ENV{PWD}/TkMap/viewer.js");
-copy("$dqm_dir/../data/viewer.css", "$ENV{PWD}/TkMap/viewer.css");
-copy("$dqm_dir/../data/viewerHeader.xhtml", "$ENV{PWD}/TkMap/viewerHeader.xhtml");
-copy("$dqm_dir/../data/viewerTrailer.xhtml", "$ENV{PWD}/TkMap/viewerTrailer.xhtml");
-
-
+copy("$dqm_dir/../data/layer.js",           "$dqm_int/TkMap/layer.js");
+copy("$dqm_dir/../data/crate.js",           "$dqm_int/TkMap/crate.js");
+copy("$dqm_dir/../data/jqviewer.js",        "$dqm_int/TkMap/jqviewer.js");
+copy("$dqm_dir/../data/viewerHeader.xhtml", "$dqm_int/TkMap/viewerHeader.xhtml");
+copy("$dqm_dir/../data/viewerTrailer.xhtml","$dqm_int/TkMap/viewerTrailer.xhtml");
+copy("$dqm_dir/$cfg_file", "$dqm_int/$cfg_file");
+system qq[perl], qq[-pi -e], qq[s!TkMapCreationFrequency  = -1!TkMapCreationFrequency  = 1!], qq[$dqm_int/$cfg_file]; 
+system qq[perl], qq[-pi -e], qq[s!/dqmdata/dqm/reference!/home/dqmdevlocal/reference!], qq[$dqm_int/$cfg_file]; 
+system qq[perl], qq[-pi -e], qq[s!#process.SiteLocalConfigService!process.SiteLocalConfigService!], qq[$dqm_int/$cfg_file]; 
 #
 # make XDAQ 'profile.xml'
 #
 print "make xdaq profile ...\n";
 
 my @EXproperties = ("logUrl",  "string","console",
-		    "logLevel","string","INFO");
+		    "logLevel","string","ERROR");
 
 
-my @Pathproperties = ("documentRoot", "string",$ENV{"XDAQ_DOCUMENT_ROOT"},
-                     "aliasName",  "string","temporary",
-		    "aliasPath","string",$ENV{"PWD"});
+my @Pathproperties = ("documentRoot", "string",q|${XDAQ_DOCUMENT_ROOT}|,
+                      "aliasName",  "string","temporary",
+	              "aliasPath","string",$dqm_wdir);
 
-open (XML,">./xml/profile.xml") or die ("Can't open file: $!\n");
+my @XPproperties = ("settings", "string",q|${XDAQ_ROOT}/htdocs/xplore/xml/shortcuts.xml|,
+		    "republishInterval",  "string",3600);
+
+my @STproperties = ("useDiscovery", "boolean","true",
+                     "publish", "string", "exception",
+		     "watchdog", "string", "PT5S");
+my @XMasproperties = ("useDiscovery", "boolean","true",
+                       "autoConfigure", "boolean", "true",
+	               "autoConfSearchPath", "string", q|${XDAQ_SETUP_ROOT}/${XDAQ_ZONE}/sensor|);
+
+open (XML,">$dqm_wdir/xml/profile.xml") or die ("Can't open file: $!\n");
 print XML makeXmlHeader();
 print XML makeXmlProfileHeader();
-print XML makeXmlAppHeader(0,"executive::Application",0);
-print XML makeXmlAppProperties("Executive",@EXproperties);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
-print XML makeXmlAppHeader(0,"pt::http::PeerTransportHTTP",1);
+print XML makeXmlAppHeader(0,"executive::Application",0,"executive","profile");
+print XML makeXmlAppProperties("Executive",@EXproperties); 
+print XML "      </properties>\n";
+print XML "    </xp:Application>\n";
+print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libb2innub.so");
+print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libexecutive.so");
+print XML makeXmlAppHeader(0,"pt::http::PeerTransportHTTP",1,);
 print XML makeXmlAppProperties("pt::http::PeerTransportHTTP",@Pathproperties);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libpthttp.so");
+print XML "      </properties>\n";
+print XML "    </xp:Application>\n";
+print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libpthttp.so");
 print XML makeXmlAppHeader(0,"pt::fifo::PeerTransportFifo",8);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libptfifo.so");
-print XML makeXmlAppHeader(0,"xrelay::Application",4);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libxrelay.so");
-print XML makeXmlAppHeader(0,"hyperdaq::Application",3);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libhyperdaq.so");
+print XML "    </xp:Application>\n";
+print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libptfifo.so");
+print XML makeXmlAppHeader(0,"xrelay::Application",4,"xrelay");
+print XML "    </xp:Application>\n";
+print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libxrelay.so");
+print XML makeXmlAppHeader(0,"hyperdaq::Application",3,"hyperdaq");
+print XML "    </xp:Application>\n";
+print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libhyperdaq.so");
+#print XML makeXmlAppHeader(0,"xplore::Application",9);
+#print XML makeXmlAppProperties("xplore::Application",@XPproperties);
+#print XML "      </properties>\n";
+#print XML "    </xp:Application>\n";
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libslp.so");
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libxslp.so");
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libxploreutils.so");
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libxplore.so");
+#print XML makeXmlAppHeader(0,"sentinel::Application",21,"sentinel","exception");
+#print XML makeXmlAppProperties("Sentinel",@STproperties);
+#print XML "      </properties>\n";
+#print XML "    </xp:Application>\n";
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libwsaddressing.so");
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libwseventing.so");
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libsentinelutils.so");
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libsentinel.so");
+#print XML makeXmlAppHeader(0,"xmas::sensor::Application",10,"sensor","c2d05,service,init3");
+#print XML makeXmlAppProperties("xmas",@XMasproperties);
+#print XML makeXmlAppPublish();
+#print XML "      </properties>\n";
+#print XML "    </xp:Application>\n";
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libxmasutils.so");
+#print XML makeXmlAppTrailer(0,q|${XDAQ_ROOT}/lib|,"libxmassensor.so");
 print XML makeXmlProfileTrailer();
 
 
@@ -113,13 +161,12 @@ print XML makeXmlProfileTrailer();
 #
 print "make xdaq  configuration ...\n";
 
-my @properties = ("parameterSet", "string","file:$pwd/DQM.cfg",
-		    "collReconnSec","integer","-1",
+my @properties = ("parameterSet", "string","file:$dqm_int/$cfg_file",
                     "hasPrescaleService","boolean","false",
                     "isRunNumberSetter","boolean","false",
 		    "hasSharedMemory","boolean","false");
 
-open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
+open (XML,">$dqm_wdir/xml/evf.xml") or die ("Can't open file: $!\n");
 print XML makeXmlHeader();
 print XML makeXmlPartitionHeader();
 print XML makeXmlComm(@apps);
@@ -128,6 +175,8 @@ print XML makeXmlComm(@apps);
   print XML makeXmlContextHeader("DQM",$hostname,$port);
   print XML makeXmlAppHeader(1,$appname,$localid);
   print XML makeXmlAppProperties($appname,@properties);
+  print XML "      </properties>\n";
+  print XML "    </xc:Application>\n";
   print XML makeXmlAppTrailer(1,$libpath,$libname);
   print XML makeXmlContextTrailer();
 
@@ -144,7 +193,7 @@ print "make soap command files ...\n";
 my @commands = ('Configure','Enable','Stop','Halt' );
 
 foreach  (@commands) {
-    open(CMD,">./soap/$_".".xml") or die ("Can't open file: $!\n");
+    open(CMD,">$dqm_wdir/soap/$_".".xml") or die ("Can't open file: $!\n");
     print CMD makeSoapCommand($hostname,$port,$localid,$_);
     close(CMD);
 }
@@ -156,64 +205,74 @@ foreach  (@commands) {
 print "make control scripts ...\n";
 
 # configure
-open (CTL,">configure") or die ("Can't open file: $!\n");
+open (CTL,qq|>$dqm_wdir/configure|) or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
 print CTL makeCtlCommand("Configure",$appname,"DQM",$hostname,$port,0,"source");
 
 close (CTL);
-`chmod +x configure`;
+`chmod +x $dqm_wdir/configure`;
 
 # enable
-open (CTL,">enable") or die ("Can't open file: $!\n");
+open (CTL,qq|>$dqm_wdir/enable|) or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
 print CTL makeCtlCommand("Enable",$appname,"DQM",$hostname,$port,0,"source");
 
 close (CTL);
-`chmod +x enable`;
+`chmod +x $dqm_wdir/enable`;
 
 # stop
-open (CTL,">stop") or die ("Can't open file: $!\n");
+open (CTL,qq|>$dqm_wdir/stop|) or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
 print CTL makeCtlCommand("Stop",$appname,"DQM",$hostname,$port,5,"source");
 
 close (CTL);
-`chmod +x stop`;
+`chmod +x $dqm_wdir/stop`;
 
 # halt
-open (CTL,">halt") or die ("Can't open file: $!\n");
+open (CTL, qq|>$dqm_wdir/halt|) or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
 print CTL makeCtlCommand("Halt",$appname,"DQM",$hostname,$port,1,"source");
 
 close (CTL);
-`chmod +x halt`;
+`chmod +x $dqm_wdir/halt`;
 
 # destroy
-open (CTL,">destroy") or die ("Can't open file: $!\n");
+open (CTL,qq|>$dqm_wdir/destroy|) or die ("Can't open file: $!\n");
 print CTL makeCtlDestroy();
 close (CTL);
-`chmod +x destroy`;
+`chmod +x $dqm_wdir/destroy`;
 
 #
 # copy scripts and other auxiliary files
 #
-copy("$dqm_dir/.WebLib.js", "$ENV{PWD}/WebLib.js");
-copy("$dqm_dir/Online.html", "$ENV{PWD}/.");
-copy("$dqm_dir/loader.html", "$ENV{PWD}/.");
-copy("$dqm_dir/TrackerMapFrame.html", "$ENV{PWD}/.");
-copy("$dqm_dir/TrackerMapSelection.html", "$ENV{PWD}/.");
-copy("$dqm_dir/TrackerMapPlot.html", "$ENV{PWD}/.");
+copy("$dqm_dir/.WebLib.js",  "$dqm_wdir/WebLib.js");
+copy("$dqm_dir/Online.html", "$dqm_wdir/.");
+copy("$dqm_dir/loader.html", "$dqm_wdir/.");
+copy("$dqm_dir/TrackerMapFrame.html", "$dqm_wdir/.");
+copy("$dqm_dir/TrackerMapSelection.html", "$dqm_wdir/.");
+copy("$dqm_dir/TrackerMapPlot.html", "$dqm_wdir/.");
 
-$SERVED_DIR="http://$hostname:40000/temporary";
-system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
-system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/TkMap/viewerHeader.xhtml]; 
+$SERVED_DIR="http://$hostname:$port/temporary";
+system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$dqm_wdir/WebLib.js]; 
+system qq[perl], qq[-pi -e], qq[s#40000#$port#], qq[$dqm_wdir/WebLib.js]; 
+system qq[perl], qq[-pi -e], qq[s#lid=27#lid=$localid#], qq[$dqm_wdir/WebLib.js]; 
+system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$dqm_int/TkMap/viewerHeader.xhtml]; 
 
-system qq[cp], qq[-r], qq[$dqm_common/js_files],  qq[$ENV{PWD}/js_files];
-system qq[cp], qq[-r], qq[$dqm_common/css_files], qq[$ENV{PWD}/css_files];
-system qq[cp], qq[-r], qq[$dqm_common/images],    qq[$ENV{PWD}/images];
-copy("$dqm_dir/js_files/CommonActions.js", "$ENV{PWD}/js_files/CommonActions.js");
-copy("$dqm_dir/js_files/RequestHistos.js", "$ENV{PWD}/js_files/RequestHistos.js");
-copy("$dqm_dir/js_files/TkMapFrame.js", "$ENV{PWD}/js_files/TkMapFrame.js");
-copy("$dqm_dir/css_files/style.css", "$ENV{PWD}/css_files/style.css");
+system qq[cp], qq[-r], qq[$dqm_common/js_files],  qq[$dqm_wdir/js_files];
+system qq[cp], qq[-r], qq[$dqm_common/css_files], qq[$dqm_wdir/css_files];
+system qq[cp], qq[-r], qq[$dqm_common/images],    qq[$dqm_wdir/images];
+copy("$dqm_dir/js_files/CommonActions.js", "$dqm_wdir/js_files/CommonActions.js");
+copy("$dqm_dir/js_files/RequestHistos.js", "$dqm_wdir/js_files/RequestHistos.js");
+copy("$dqm_dir/js_files/TkMapFrame.js",    "$dqm_wdir/js_files/TkMapFrame.js");
+copy("$dqm_dir/css_files/style.css",       "$dqm_wdir/css_files/style.css");
+system qq[cp], qq[-r], qq[$dqm_common/jquery],    qq[$dqm_wdir/jquery];
+#system qq[perl], qq[-pi -e], qq[s#40000#$port#], qq[$dqm_wdir/js_files/IMGC.js]; 
+#system qq[perl], qq[-pi -e], qq[s#lid=27#lid=$localid#], qq[$dqm_wdir/js_files/IMGC.js]; 
+
+my $dqm_python = $ENV{"CMSSW_BASE"}."/src/DQM/Integration/python/test";
+
+system qq[perl], qq[-pi -e], qq[s!srv-c2d05-18!$hostname!], qq[$dqm_python/environment_playback_cfi.py]; 
+system qq[perl], qq[-pi -e], qq[s!9090!9190!], qq[$dqm_python/environment_playback_cfi.py]; 
 
 #
 # start processes
@@ -221,15 +280,15 @@ copy("$dqm_dir/css_files/style.css", "$ENV{PWD}/css_files/style.css");
 
 #print "\nstart xdaq.exe on $hostname:$port\n";
 #`nice -n 15 xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$port.log &`;
-open OUTPUT, ">start" or die($!);
+open OUTPUT, qq|>$dqm_wdir/start| or die($!);
 my $script=<<"EOS";
 #!/bin/sh
 
-xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml
+xdaq.exe -h $hostname -p $port -e $dqm_wdir/xml/profile.xml -c $dqm_wdir/xml/evf.xml
 EOS
 print OUTPUT $script;
 close OUTPUT;
-`chmod +x start`;
+`chmod +x $dqm_wdir/start`;
 
 
 
@@ -384,12 +443,15 @@ sub makeXmlEndpoint
 ################################################################################
 sub makeXmlAppHeader
 {
-    my ($inContext,$appname,$localid) = @_;
+    my ($inContext,$appname,$localid,$service,$group) = @_;
 
     my $ns = "xc"; if (!$inContext) { $ns = "xp"; }
     
-    my $result = "    <$ns:Application class=\"" . $appname . 
-	"\" id=\"" . $localid . "\" instance=\"0\" network=\"local\">\n";
+    my $result = qq|    <$ns:Application class="$appname" id="$localid"|;
+    $result .= qq| group="$group"| if defined $group;
+    $result .= qq| service="$service"| if defined $service;
+    $result .= qq| instance="0"|;
+    $result .= qq| network="local">\n|;
     return $result;
 }
 
@@ -409,7 +471,7 @@ sub makeXmlAppProperties
 	my $value = shift (@_);
 	$result = $result . "        <" . $name . " xsi:type=\"xsd:" . $type . "\">" . $value . "</" . $name . ">\n";
     }
-    $result = $result . "      </properties>\n";
+#    $result = $result . "      </properties>\n";
     
     return $result;
 }
@@ -432,7 +494,7 @@ sub makeXmlAppTrailer
     
     my $result = "";
     
-    $result = $result . "    </$ns:Application>\n";
+#    $result = $result . "    </$ns:Application>\n";
     $result = $result . "    <$ns:Module>" . $libpath .
 	                "/" . $libname . "</$ns:Module>\n\n";
     
@@ -462,6 +524,19 @@ sub makeXmlPartitionTrailer
 
 
 ################################################################################
+sub makeXmlAppPublish
+{
+
+    my $result = qq|             <publish xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[1]">\n|;
+    $result .= qq|                <item xsi:type="soapenc:Struct" soapenc:position="[0]">\n|;
+    $result .= qq|                   <tag xsi:type="xsd:string"></tag>\n|;
+    $result .= qq|                   <group xsi:type="xsd:string">c2d05</group>\n|;
+    $result .= qq|                </item>\n|;
+    $result .= qq|             </publish>\n|;
+    
+    return $result;
+}
+################################################################################
 sub makeCtlDestroy
 {
     my $result = "";
@@ -472,16 +547,23 @@ sub makeCtlDestroy
     $result = $result . "print \"$cmd ...\\n\";\n\n";
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
-    $result = $result . "`rm -rf  soap/ xml/ log/ tmp/sm TkMap/ "
+    $result = $result . "`rm -rf  $dqm_wdir/soap/ $dqm_wdir/xml/ "
+          . "$dqm_wdir/log/ /tmp/sm $dqm_int/TkMap/ "
           . "start configure enable halt stop gennums.txt"
-          . " summaryCatalog.txt test.root`;\n\n";
-    $result = $result . "`rm -rf  \*.cfg`;\n\n"; 
-    $result = $result . "`rm -rf Online.html loader.html \*.root \*.coor "
+          . " summaryCatalog.txt `;\n\n";
+    $result = $result . "`rm -rf $dqm_wdir/Online.html $dqm_wdir/loader.html "
+          . " $dqm_wdir\*.coor  $dqm_wdir/TrackerMapFrame.html "
           . " TrackerMapFrame.html TrackerMapPlot.html TrackerMapSelection.html "
-          . " fedtrackermap.html "
-          . " css_files js_files images WebLib.js `;\n\n";
-    $result = $result . "`rm -rf svgmap.xml svgmap_fed.xml Layer\*.xml \*.png`;\n\n";
-    $result = $result . "`rm -rf \*.html \*.xml \*.xhtml \*.js \*.css`;\n\n";
+          . " $dqm_wdir/fedtrackermap.html  $dqm_wdir/WebLib.js "
+          . " $dqm_wdir/css_files $dqm_wdir/js_files $dqm_wdir/images `;\n\n";
+    $result = $result . "`rm -rf $dqm_wdir/svgmap.xml $dqm_wdir/svgmap_fed.xml  "
+          . " $dqm_wdir/dqmtmapfed.png $dqm_wdir/dqmtmap.png`;\n\n";
+    $result = $result . "`rm -rf $dqm_wdir/dqmtmaplayer\*.html $dqm_wdir/loader.html "
+          . " $dqm_wdir/dqmtmapcrate\*.html $dqm_wdir/Online.html "
+          . " $dqm_wdir/TrackerMap\*.html  $dqm_wdir/dqmtmapcrate\*.xml"
+          . " $dqm_dir/dqmtmaplayer\*.xml  $dqm_wdir/dqmtmapviewer.xhtml "
+          . " $dqm_wdir/crate.js $dqm_wdir/layer.js $dqm_dir/viewer.js "
+          . " $dqm_wdir/WebLib.js $dqm_wdir/viewer.css $dqm_wdir/xml $dqm_wdir/jquery`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
@@ -519,6 +601,6 @@ sub makeCurlCommand
     return 
 	"curl --stderr /dev/null -H " .
 	"\"SOAPAction: urn:xdaq-application:lid=4\" " .
-	"-d @" . $pwd . "/soap/" . $cmd . ".xml " .
+	"-d @" . $dqm_wdir . "/soap/" . $cmd . ".xml " .
 	"http://" . $host . ":" . $port;
 }

@@ -171,39 +171,39 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
     jet_energy += corr_muons_out_of_vertex;
   }
   
-  // Check if scale is negative
-  double scale = jet_energy / fJet.energy();
-  if ( scale < 0. ) { scale = 1.; } 
+  // -------------------- Return corrected energy -------------------- 
 
   if ( verbose_ ) {
     std::stringstream ss;
     ss << "[JetPlusTrackCorrector::" << __func__ << "] Corrections summary:" << std::endl 
        << "Number of tracks:" << std::endl
        << " In-cone at Vertex   : " << associated_tracks.atVertex_.size() << std::endl
-       << " In-cone at CaloFace : " << associated_tracks.atCaloFace_.size() << std::endl;
-    ss << "Individual corrections (and number of tracks):" << std::endl;
-    ss << " Pion corrections:" << std::endl  
-       << "  In/In      : " << "(" << pions.inVertexInCalo_.size() << ") " << corr_pions_in_cone << std::endl  
-       << "  In/Out     : " << "(" << pions.inVertexOutOfCalo_.size() << ") " << corr_pions_out_of_cone << std::endl  
-       << "  Out/In     : " << "(" << pions.outOfVertexInCalo_.size() << ") " << corr_pions_out_of_vertex << std::endl;
-    ss << " Pion tracking efficiency corrections:" << std::endl  
-       << "  In/In      : " << "(" << pions.inVertexInCalo_.size() << ") " << corr_pion_eff_in_cone << std::endl  
-       << "  In/Out     : " << "(" << pions.inVertexOutOfCalo_.size() << ") " << corr_pion_eff_out_of_cone << std::endl;
-    ss << " Muon corrections:" << std::endl  
-       << "  In/In      : " << "(" << muons.inVertexInCalo_.size() << ") " << corr_muons_in_cone << std::endl  
-       << "  In/Out     : " << "(" << muons.inVertexOutOfCalo_.size() << ") " << corr_muons_out_of_cone << std::endl  
-       << "  Out/In     : " << "(" << muons.outOfVertexInCalo_.size() << ") " << corr_muons_out_of_vertex << std::endl;
-    ss << " Electron corrections:" << std::endl  
-       << "  In/In      : " << "(" << electrons.inVertexInCalo_.size() << ") " << double(0.) << std::endl  
-       << "  In/Out     : " << "(" << electrons.inVertexOutOfCalo_.size() << ") " << double(0.) << std::endl  
-       << "  Out/In     : " << "(" << electrons.outOfVertexInCalo_.size() << ") " << double(0.) << std::endl;
-    ss << "Total correction:" << std::endl
+       << " In-cone at CaloFace : " << associated_tracks.atCaloFace_.size() << std::endl
+       << "Individual corrections (and number of tracks):" << std::endl
+       << " In-cone at Vertex and in-cone at CaloFace (subtract response, add track momentum):" << std::endl  
+       << "  Pions      : " << "(" << pions.inVertexInCalo_.size() << ") " << corr_pions_in_cone << std::endl  
+       << "  Muons      : " << "(" << muons.inVertexInCalo_.size() << ") " << corr_muons_in_cone << std::endl  
+       << "  Electrons  : " << "(" << electrons.inVertexInCalo_.size() << ") " << double(0.) << std::endl  
+       << "  Efficiency : " << "(" << pions.inVertexInCalo_.size() << ") " << corr_pion_eff_in_cone << std::endl  
+       << " In-cone at Vertex and out-of-cone at CaloFace (add track momentum):" << std::endl  
+       << "  Pions      : " << "(" << pions.inVertexOutOfCalo_.size() << ") " << corr_pions_out_of_cone << std::endl  
+       << "  Muons      : " << "(" << muons.inVertexOutOfCalo_.size() << ") " << corr_muons_out_of_cone << std::endl  
+       << "  Electrons  : " << "(" << electrons.inVertexOutOfCalo_.size() << ") " << double(0.) << std::endl  
+       << "  Efficiency : " << "(" << pions.inVertexOutOfCalo_.size() << ") " << corr_pion_eff_out_of_cone << std::endl  
+       << " Out-of-cone at Vertex and in-cone at CaloFace (subtract response):" << std::endl  
+       << "  Pions      : " << "(" << pions.outOfVertexInCalo_.size() << ") " << corr_pions_out_of_vertex << std::endl  
+       << "  Muons      : " << "(" << muons.outOfVertexInCalo_.size() << ") " << corr_muons_out_of_vertex << std::endl 
+       << "  Electrons  : " << "(" << electrons.outOfVertexInCalo_.size() << ") " << double(0.) << std::endl  
+       << "Total correction:"
        << " Uncorrected energy : " << fJet.energy() << std::endl
-       << " Corrected energy   : " << jet_energy << std::endl
        << " Correction factor  : " << jet_energy / fJet.energy() << std::endl
-       << " Factor returned    : " << scale;
-    edm::LogVerbatim("JPTCorrector") << ss.str();
+       << " Corrected energy   : " << jet_energy;
+    edm::LogVerbatim("JetPlusTrackCorrector") << ss.str();
   }
+  
+  // Check if scale is negative
+  double scale = jet_energy / fJet.energy();
+  if ( scale < 0. ) { scale = 1.; } 
 
 //   LogTrace("test") << " mScale= " << scale
 //    		   << " NewResponse " << jet_energy 

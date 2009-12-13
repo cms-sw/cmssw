@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.13 2009/07/17 08:01:57 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.16 2009/11/02 15:42:58 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 #include "TGButton.h"
 #include "TG3DLine.h"
 #include "TEveWindow.h"
+#include "TEveViewer.h"
+#include "TGLViewer.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -40,9 +42,14 @@
 //
 CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, TEveWindow* ew) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
+   m_mapped(kFALSE),
+   m_viewLabel(0),
+   m_removeButton(0),
+   m_viewContentFrame(0),
+   m_saveImageButton(0),
+   m_changeBackground(0),
    m_colorManager(iCMgr),
-   m_eveWindow(0),
-   m_mapped(kFALSE)
+   m_eveWindow(0)
 {
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged,this));
 
@@ -66,7 +73,8 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    m_saveImageButton= new TGTextButton(this,"Save Image ...");
    AddFrame(m_saveImageButton);
    m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
-   // content frame
+ 
+  // content frame
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    m_viewContentFrame = new TGCompositeFrame(this);
    AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
@@ -103,8 +111,8 @@ CmsShowViewPopup::reset(TEveWindow* ew)
    // fill content
    if(viewBase) {
       m_saveImageButton->SetEnabled(kTRUE);
-
       m_viewLabel->SetText(viewBase->typeName().c_str());
+
       for(FWParameterizable::const_iterator itP = viewBase->begin(), itPEnd = viewBase->end();
           itP != itPEnd;
           ++itP) {
@@ -193,8 +201,7 @@ CmsShowViewPopup::backgroundColorWasChanged()
    }
 }
 
-//
-// const member functions
+// Const member functions
 //
 
 //

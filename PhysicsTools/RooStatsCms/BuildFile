@@ -2,14 +2,12 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=root>
-<lib name=EG>
-<lib name=RooFitCore>
-<lib name=RooFit>
-<lib name=RooStats>
+<use name=rootmath>
+<lib name=Graf>
+<lib name=Gpad>
+
 
 <export>
     <lib name=PhysicsToolsRooStatsCms>
-    <use name=rootmath>
-    <use name=root>
 </export>
 

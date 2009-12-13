@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.9 2009/09/10 10:07:10 srappocc Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.10 2009/09/14 13:09:15 saout Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -156,7 +156,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
       evt.getByLabel(InputTag("mix","generator"),cf);
       cfhepmcprod = new MixCollection<HepMCProduct>(cf.product());
       npiles = cfhepmcprod->size();
-      for(int icf = 0; icf < npiles; ++icf){
+      for(unsigned int icf = 0; icf < npiles; ++icf){
 	 totalSize += cfhepmcprod->getObject(icf).GetEvent()->particles_size();
       }
    }else if (doSubEvent_){

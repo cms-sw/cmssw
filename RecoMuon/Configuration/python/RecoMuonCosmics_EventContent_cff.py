@@ -17,6 +17,7 @@ RecoMuonAOD = cms.PSet(
     'keep recoTrackExtras_tevMuons_*_*',
     'keep recoTracksToOnerecoTracksAssociation_tevMuons_*_*',
     'keep recoMuons_muons_*_*',
+    'keep recoMuonTimeExtraedmValueMap_muons_*_*',
     'keep recoCaloMuons_calomuons_*_*',
 
     # Split tracks
@@ -24,6 +25,8 @@ RecoMuonAOD = cms.PSet(
     'keep recoTrackExtras_globalCosmicSplitMuons_*_*', 
     'keep TrackingRecHitsOwned_globalCosmicSplitMuons_*_*', 
     'keep recoMuons_splitMuons_*_*', 
+    'keep recoMuonTimeExtraedmValueMap_splitMuons_*_*',
+    
 
     # cosmic reco without RPC
     'keep recoTracks_cosmicMuonsNoRPC_*_*', 
@@ -45,6 +48,7 @@ RecoMuonAOD = cms.PSet(
     'keep recoMuons_muonsBarrelOnly_*_*', 
     'keep recoMuons_STAMuonsBarrelOnly_*_*', 
     'keep recoMuons_GLBMuonsBarrelOnly_*_*',
+    'keep recoMuonTimeExtraedmValueMap_muonsBarrelOnly_*_*',
     
 
     # cosimic reco "1 Leg type" in barrel only
@@ -55,6 +59,7 @@ RecoMuonAOD = cms.PSet(
     'keep recoTrackExtras_globalCosmicMuons1Leg_*_*', 
     'keep TrackingRecHitsOwned_globalCosmicMuons1Leg_*_*', 
     'keep recoMuons_muons1Leg_*_*', 
+    'keep recoMuonTimeExtraedmValueMap_muons1Leg_*_*',
     
     # cosimic reco with t0 correction in DTs
     'keep recoTracks_cosmicMuonsWitht0Correction_*_*', 
@@ -64,6 +69,7 @@ RecoMuonAOD = cms.PSet(
     'keep recoTrackExtras_globalCosmicMuonsWitht0Correction_*_*', 
     'keep TrackingRecHitsOwned_globalCosmicMuonsWitht0Correction_*_*', 
     'keep recoMuons_muonsWitht0Correction_*_*', 
+    'keep recoMuonTimeExtraedmValueMap_muonsWitht0Correction_*_*',
 
     # cosimic reco in endcaps only
     'keep recoTracks_cosmicMuonsEndCapsOnly_*_*', 
@@ -73,12 +79,14 @@ RecoMuonAOD = cms.PSet(
     'keep recoTrackExtras_globalCosmicMuonsEndCapsOnly_*_*', 
     'keep TrackingRecHitsOwned_globalCosmicMuonsEndCapsOnly_*_*', 
     'keep recoMuons_muonsEndCapsOnly_*_*',
+    'keep recoMuonTimeExtraedmValueMap_muonsEndCapsOnly_*_*',
     
     # Beam halo in Encaps only
     'keep recoTracks_globalBeamHaloMuonEndCapslOnly_*_*', 
     'keep recoTrackExtras_globalBeamHaloMuonEndCapslOnly_*_*', 
     'keep TrackingRecHitsOwned_globalBeamHaloMuonEndCapslOnly_*_*',
     'keep recoMuons_muonsBeamHaloEndCapsOnly_*_*',
+    'keep recoMuonTimeExtraedmValueMap_muonsBeamHaloEndCapsOnly_*_*',
     
     # lhc like reco
     'keep recoTracks_lhcStandAloneMuonsBarrelOnly_*_*', 
@@ -89,6 +97,7 @@ RecoMuonAOD = cms.PSet(
     'keep recoTrackExtras_lhcStandAloneMuonsEndCapsOnly_*_*', 
     'keep TrackingRecHitsOwned_lhcStandAloneMuonsEndCapsOnly_*_*',
     'keep recoMuons_lhcSTAMuonsEndCapsOnly_*_*',
+    'keep recoMuonTimeExtraedmValueMap_lhcSTAMuonsEndCapsOnly_*_*',
 
     # Tracker Collections
     'keep recoTracks_ctfWithMaterialTracksP5_*_*', 

@@ -8,12 +8,12 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.8 2009/05/12 19:27:28 xiezhen Exp $
+ * $Id: LuminosityInfo.h,v 1.7 2009/05/09 18:59:22 xiezhen Exp $
  *
  ************************************************************/
  
 #include <vector>
-#include <iostream>
+
 namespace lumi{
   static const int BXMIN=1;
   static const int BXMAX=3564;
@@ -73,7 +73,6 @@ namespace lumi{
     void setLumiError(float lumierr);
     void setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,
 			      const LumiAlgoType algotype);
-    void print( std::ostream& s )const;
   private:
     std::vector<BunchCrossingInfo> m_bx;
     int m_sectionid; 

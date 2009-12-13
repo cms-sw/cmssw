@@ -103,7 +103,7 @@ void ZMuMuTutorialAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       float trackerIsoMu0 = muonDau0.trackIso();
       // Another possibility: compute tracker isolation from IsoDeposit
       // Accessing tracker IsoDeposits collection around the muon
-      const pat::IsoDeposit * trackerIsodeposit = muonDau1.trackerIsoDeposit();
+      const pat::IsoDeposit * trackIsodeposit = muonDau1.trackIsoDeposit();
       Direction muDir = Direction(etaMu1, lep1->phi());
       // Defining vetos to compute isolation
       IsoDeposit::AbsVetos vetos_mu;
@@ -112,7 +112,7 @@ void ZMuMuTutorialAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       // pT threshold of deposits
       vetos_mu.push_back(new ThresholdVeto( ptThresholdVeto_ ));
       // Computing tracker isolation: sum of IsoDeposits (= pT sum) within a cone
-      float trackerIsoMu1 = trackerIsodeposit->sumWithin(dRIsolationCone_, vetos_mu);
+      float trackerIsoMu1 = trackIsodeposit->sumWithin(dRIsolationCone_, vetos_mu);
       
       // isolation cut
       if( trackerIsoMu0 > isocut_ || trackerIsoMu1 > isocut_ )

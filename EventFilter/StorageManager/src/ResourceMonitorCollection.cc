@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.20 2009/09/18 12:36:09 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.6.2.2 2009/10/13 14:13:55 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -169,7 +169,7 @@ void ResourceMonitorCollection::do_updateInfoSpaceItems()
 
   _diskPaths.reserve(stats.diskUsageStatsList.size());
   _totalDiskSpace.reserve(stats.diskUsageStatsList.size());
-  _usedDiskSpace.resize(stats.diskUsageStatsList.size());
+  _usedDiskSpace.reserve(stats.diskUsageStatsList.size());
 
   for (DiskUsageStatsPtrList::const_iterator
          it = stats.diskUsageStatsList.begin(),
@@ -258,7 +258,7 @@ void ResourceMonitorCollection::emitDiskAlarm(DiskUsagePtr diskUsage, error_t e)
   }
   
   XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg);
-  _alarmHandler->raiseAlarm(diskUsage->pathName, diskUsage->alarmState, ex);
+  _alarmHandler->notifySentinel(diskUsage->alarmState, ex);
 }
 
 
@@ -404,6 +404,9 @@ bool ResourceMonitorCollection::checkSataDisks
 {
   stor::CurlInterface curlInterface;
   std::string content;
+
+  // Do not try to connect if we have no user name
+  if ( _dwParams._sataUser.empty() ) return true;
   
   const CURLcode returnCode =
     curlInterface.getContent(
@@ -419,9 +422,11 @@ bool ResourceMonitorCollection::checkSataDisks
   {
     std::ostringstream msg;
     msg << "Failed to connect to SATA controller "
-      << sataBeast << hostSuffix << ": " << content;
+      << sataBeast << hostSuffix 
+      << " with user name '" << _dwParams._sataUser
+      << "': " << content;
     XCEPT_DECLARE(stor::exception::SataBeast, ex, msg.str());
-    _alarmHandler->raiseAlarm(sataBeast, AlarmHandler::WARNING, ex);
+    _alarmHandler->notifySentinel(AlarmHandler::WARNING, ex);
 
     return false;
   }

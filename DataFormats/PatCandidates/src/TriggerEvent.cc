@@ -1,11 +1,9 @@
 //
-// $Id: TriggerEvent.cc,v 1.6 2009/06/24 15:49:29 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.7 2009/09/09 15:11:43 vadler Exp $
 //
 
 
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 using namespace pat;
@@ -24,6 +22,7 @@ TriggerEvent::TriggerEvent( const std::string & nameHltTable, bool run, bool acc
 
 /// paths related
 
+/// returns a NULL pointer, if the PAT trigger path is not in the event
 const TriggerPath * TriggerEvent::path( const std::string & namePath ) const
 {
   for ( TriggerPathCollection::const_iterator iPath = paths()->begin(); iPath != paths()->end(); ++iPath ) {
@@ -31,7 +30,6 @@ const TriggerPath * TriggerEvent::path( const std::string & namePath ) const
       return &*iPath;
     }
   }
-  edm::LogWarning( "nonExistingTriggerPath" ) << "pat::TriggerPath " << namePath << " not in the event.";
   return 0;
 }
 
@@ -59,6 +57,7 @@ TriggerPathRefVector TriggerEvent::acceptedPaths() const
       
 /// filters related
 
+/// returns a NULL pointer, if the PAT trigger filter is not in the event
 const TriggerFilter * TriggerEvent::filter( const std::string & labelFilter ) const
 {
   for ( TriggerFilterCollection::const_iterator iFilter = filters()->begin(); iFilter != filters()->end(); ++iFilter ) {
@@ -66,7 +65,6 @@ const TriggerFilter * TriggerEvent::filter( const std::string & labelFilter ) co
       return &*iFilter;
     }
   }
-  edm::LogWarning( "nonExistingTriggerFilter" ) << "pat::TriggerFilter " << labelFilter << " not in the event.";
   return 0;
 }
 
@@ -94,14 +92,13 @@ TriggerFilterRefVector TriggerEvent::acceptedFilters() const
 
 /// objects related
 
+/// returns 'false', if a PAT trigger match with the given name exists already
 bool TriggerEvent::addObjectMatchResult( const TriggerObjectMatchRefProd & trigMatches, const std::string & labelMatcher )
 {
   if ( triggerObjectMatchResults()->find( labelMatcher ) == triggerObjectMatchResults()->end() ) {
     objectMatchResults_[ labelMatcher ] = trigMatches;
     return true;
   }
-  edm::LogWarning( "existingObjectMatchResult" ) << "Tried adding trigger object match result from " << labelMatcher << ", although existing.\n"
-                                                 << "Skipped.";
   return false;
 }
 bool TriggerEvent::addObjectMatchResult( const edm::Handle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher )

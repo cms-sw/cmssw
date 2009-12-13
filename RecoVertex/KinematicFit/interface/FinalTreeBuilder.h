@@ -17,7 +17,7 @@ class FinalTreeBuilder{
 
 public:
   FinalTreeBuilder();
-
+ 
   ~FinalTreeBuilder();
 
   RefCountedKinematicTree buildTree(const CachingVertex<6>& vtx,
@@ -30,11 +30,12 @@ private:
  typedef ReferenceCountingPointer<RefittedTrackState<6> > RefCountedRefittedTrackState;
 
 //internal calculation and helper methods
- AlgebraicMatrix momentumPart(const CachingVertex<6>& vtx,
+ AlgebraicMatrix momentumPart(vector<KinematicRefittedTrackState *> rStates,
+                                     const CachingVertex<6>& vtx, 
 				     const AlgebraicVector7& par)const;
-
- KinematicVertexFactory * kvFactory;
- VirtualKinematicParticleFactory * pFactory;
+				     
+ KinematicVertexFactory * kvFactory;				     
+ VirtualKinematicParticleFactory * pFactory;				     
 };
 
 #endif

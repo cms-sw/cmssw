@@ -6,7 +6,7 @@ import sys,os, re, pprint
 import castortools
 
 parser = OptionParser()
-parser.usage = "%prog <dir1> <dir2> <regexp pattern>: copy all files matching regexp in a castor directory."
+parser.usage = "%prog <dir1> <dir2> <regexp pattern>: copy all files matching regexp in a castor directory.\n\nExample (just try, the -n option negates the command!):\nrfcpMany.py  /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions /tmp '.*\.root' -n "
 parser.add_option("-n", "--negate", action="store_true",
                   dest="negate",
                   help="do not proceed",

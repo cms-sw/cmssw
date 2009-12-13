@@ -65,7 +65,7 @@ namespace cscdqm {
 /**
  * @brief  Mask of the address which is used to switch on and off appropriate Address fields.
  */
-typedef struct AddressMask {
+struct AddressMask {
   bool side;
   bool station;
   bool ring;
@@ -79,7 +79,7 @@ typedef struct AddressMask {
  * @brief  Structure to store detector addresses of any granularity: from
  * whole detector to the single HV element.
  */
-typedef struct Address {
+struct Address {
 
   unsigned int side;
   unsigned int station;
@@ -125,7 +125,7 @@ typedef struct Address {
 /**
  * @brief  Area covered by Address in eta/phy space
  */
-typedef struct AddressBox {
+struct AddressBox {
   Address adr;
   float xmin;
   float xmax;

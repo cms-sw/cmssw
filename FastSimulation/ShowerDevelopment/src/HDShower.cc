@@ -21,7 +21,7 @@
 #include <cmath>
 
 // number attempts for transverse distribution if exit on a spec. condition
-#define infinity 5000
+#define infinity 10000
 // debugging flag ( 0, 1, 2, 3)
 #define debug 0
 
@@ -532,7 +532,9 @@ bool HDShower::compute() {
 	
 	if(!status) continue; 
 
-	theGrid->setSpotEnergy(espot);
+        espot *= 0.1;  // SPECIAL fine-grain energy spots in ECAL to avoid false ECAL clustering 
+        nspots[i] *= 10;  
+        theGrid->setSpotEnergy(espot);
       }  
 
       
@@ -540,8 +542,14 @@ bool HDShower::compute() {
       int nok   = 0;                          // counter of OK  
       int count = 0;
       int inf   = infinity;
-      if(lossesOpt) inf = nspots[i];          // losses are enabled, otherwise
+      if(lossesOpt) inf = nspots[i];          // if losses are enabled, otherwise
       // only OK points are counted ...
+      if(nspots[i] > inf ){
+	std::cout << " FamosHDShower::compute - at long.step " << i 
+		  << "  too many spots : "  <<  nspots[i] << " !!! " 
+                  << std::endl;
+      }
+
       for (int j = 0; j < inf; j++) {
 	if(nok == nspots[i]) break;
 	count ++;
@@ -608,7 +616,7 @@ int HDShower::indexFinder(double x, const std::vector<double> & Fhist) {
   for (iter = 0; iter < size ; iter++) {
 
     if( curr >= size || curr < 1 )
-      LogError("FastCalorimetry") << " FamosHDShower::indexFinder - wrong current index = " 
+      LogWarning("FastCalorimetry") << " FamosHDShower::indexFinder - wrong current index = " 
 	   << curr << " !!!" << std::endl;
 
     if ((x <= Fhist[curr]) && (x > Fhist[curr-1])) break;

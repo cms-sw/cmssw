@@ -61,7 +61,7 @@ void ParameterCollector::const_iterator::next()
       const std::string &line = *iter_.back().first;
 
       bool special = special_ && iter_.size() == 1;
-      if (!line.empty() && line[0] == '+' || special) {
+      if ( (!line.empty() && line[0] == '+') || special) {
          if (++iter_.back().first == iter_.back().second) {
             iter_.pop_back();
             if (iter_.empty())

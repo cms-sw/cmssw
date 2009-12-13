@@ -1,5 +1,5 @@
 /*  
- *  $Id: SealModule.cc,v 1.3 2009/06/15 19:47:00 heltsley Exp $
+ *  $Id: SealModule.cc,v 1.2 2007/04/08 03:18:55 wmtan Exp $
  */
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -12,5 +12,6 @@ DEFINE_SEAL_MODULE () ;
 
 using edm::EDProducer;
 DEFINE_ANOTHER_FWK_MODULE (EcalTBDigiProducer) ;
+DEFINE_ANOTHER_FWK_MODULE (EETBDigiProducer) ;
 
 

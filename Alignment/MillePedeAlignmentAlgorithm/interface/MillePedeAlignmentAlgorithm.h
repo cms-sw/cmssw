@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.25 $
-///  $Date: 2009/08/21 16:40:16 $
+///  $Revision: 1.21 $
+///  $Date: 2009/05/11 09:41:47 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -78,26 +78,17 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};
 
-  /// fill mille for a trajectory, returning number of x/y hits ([0,0]) if 'bad' trajectory
-  std::pair<unsigned int, unsigned int>
-    addReferenceTrajectory(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
-
   /// If hit is usable: callMille for x and (probably) y direction.
   /// If globalDerivatives fine: returns 2 if 2D-hit, 1 if 1D-hit, 0 if no Alignable for hit.
   /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
   int addMeasurementData(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			 unsigned int iHit, AlignmentParameters *&params);
+			   unsigned int iHit, const TrajectoryStateOnSurface &trackTsos,
+			   AlignmentParameters *&params);
 
  // adds data from reference trajectory from a specific Hit
   void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
-  
-  // adds data from reference trajectory from a specific multiple scattering measurement
-  void addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			   unsigned int iMsMeas);
-			   
- // adds data from reference trajectory from a specific Hit
-  void addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
-  
+
+
   /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
 				  Alignable *ali, const AlignableDetOrUnitPtr &alidet,
@@ -131,8 +122,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   void addLaserData(const TkFittedLasBeamCollection &tkLasBeams,
 		    const TsosVectorCollection &tkLasBeamTsoses);
-  void addLasBeam(const TkFittedLasBeam &lasBeam,
-		  const std::vector<TrajectoryStateOnSurface> &tsoses);
 
   //--------------------------------------------------------
   // Data members
@@ -145,7 +134,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			const std::vector<std::string> &inFiles) const;
   bool addHits(const std::vector<Alignable*> &alis,
 	       const std::vector<AlignmentUserVariables*> &mpVars) const;
-
+  bool orderedTsos(const Trajectory *traj, 
+		   std::vector<TrajectoryStateOnSurface> &trackTsos) const;
   edm::ParameterSet         theConfig;
   unsigned int              theMode;
   std::string               theDir; /// directory for all kind of files
@@ -157,9 +147,11 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   const PedeLabeler        *thePedeLabels;
   PedeSteerer              *thePedeSteer;
   TrajectoryFactoryBase    *theTrajectoryFactory;
-  unsigned int              theMinNumHits;
+  int                       theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hits. If larger
                                               /// the 2D measurement gets diagonalized!!!
+  bool                      theUseTrackTsos;
+
   std::vector<float>        theFloatBufferX;
   std::vector<float>        theFloatBufferY;
   std::vector<int>          theIntBuffer;

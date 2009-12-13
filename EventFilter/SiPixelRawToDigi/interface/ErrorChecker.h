@@ -48,6 +48,9 @@ private:
   uint32_t errorDetId(const SiPixelFrameConverter* converter, 
 		      int errorType, const Word32 & word) const;
 
+  static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
+  static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;
+  static const uint32_t dummyDetId;
 };
 
 #endif

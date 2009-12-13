@@ -16,7 +16,7 @@ from RecoTauTag.TauTagTools.TauNeuralClassifiers_cfi import *
 
         Signal/Iso cone parameters:
            SignalCone for tracks           - 5/ET in DR from lead object, min 0.07, max 0.15
-           SignalCone for ECAL/HCAL        - 5/ET in DR from lead object, min 0.07, max 0.15
+           SignalCone for ECAL/HCAL        - 0.15 in DR from lead object
            Isolation cone (all types0      - 0.50 in DR from lead object
 """
 
@@ -27,8 +27,8 @@ shrinkingConePFTauProducer.LeadPFCand_minPt      = cms.double(5.0)  #cut on lead
 #All cones use DR metric
 #SignalCone parameters
 shrinkingConePFTauProducer.TrackerSignalConeSizeFormula = cms.string('5/ET') ## **
-shrinkingConePFTauProducer.ECALSignalConeSizeFormula    = cms.string('5/ET') ## **
-shrinkingConePFTauProducer.HCALSignalConeSizeFormula    = cms.string('5/ET') ## **
+shrinkingConePFTauProducer.ECALSignalConeSizeFormula    = cms.string('0.15') ## **
+shrinkingConePFTauProducer.HCALSignalConeSizeFormula    = cms.string('0.15') ## **
 #Isolation Cone parameters
 shrinkingConePFTauProducer.TrackerIsolConeSizeFormula   = cms.string('0.50') ## **
 shrinkingConePFTauProducer.ECALIsolConeSizeFormula      = cms.string('0.50') ## **
@@ -36,10 +36,12 @@ shrinkingConePFTauProducer.HCALIsolConeSizeFormula      = cms.string('0.50') ## 
 
 shrinkingConePFTauProducer.TrackerSignalConeSize_min = cms.double(0.07)
 shrinkingConePFTauProducer.TrackerSignalConeSize_max = cms.double(0.15)
-shrinkingConePFTauProducer.ECALSignalConeSize_min    = cms.double(0.07)
-shrinkingConePFTauProducer.ECALSignalConeSize_max    = cms.double(0.15)
-shrinkingConePFTauProducer.HCALSignalConeSize_min    = cms.double(0.07)
-shrinkingConePFTauProducer.HCALSignalConeSize_max    = cms.double(0.15)
+
+# These are fixed at 0.15, so these values are meaningless (as long as min < 0.15 < max!)
+shrinkingConePFTauProducer.ECALSignalConeSize_min    = cms.double(0.00)
+shrinkingConePFTauProducer.ECALSignalConeSize_max    = cms.double(0.50)
+shrinkingConePFTauProducer.HCALSignalConeSize_min    = cms.double(0.00)
+shrinkingConePFTauProducer.HCALSignalConeSize_max    = cms.double(0.50)
 
 # Isolation cone sizes - note that since the iso cone size is fixed [0.5],
 #  the only requirement for these quantities is that min < 0.5 < max.

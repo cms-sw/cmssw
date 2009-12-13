@@ -1,4 +1,5 @@
 #include "SimG4Core/GFlash/interface/GflashPiKShowerProfile.h"
+#include "Randomize.hh"
 
 void GflashPiKShowerProfile::loadParameters(const G4FastTrack& fastTrack)
 {
@@ -22,7 +23,7 @@ void GflashPiKShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     const double correl_hadem[4] = { -7.8255e-01,  1.7976e-01, -8.8001e-01,  2.3474e+00 };
     G4double energyRho =  fTanh(einc,correl_hadem); 
 
-    r1 = theRandGauss->fire();
+    r1 = G4RandGauss::shoot();
     G4double tscale = 0.035+0.045*std::tanh(1.5*(std::log(einc)-2.5));
     energyScale[Gflash::kESPM] = einc*(fTanh(einc,Gflash::emscale[0]) + (0.4/einc)*depthScale(position.getRho(),151.,22.)
 				       +(fTanh(einc,Gflash::emscale[2]) + tscale*depthScale(position.getRho(),151.,22.) )*r1);
@@ -35,7 +36,7 @@ void GflashPiKShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     energyMeanHcal *= 1.+(-0.02+0.02*tanh(6.0*(energyScale[Gflash::kESPM]/einc-0.1)))*(0.5+0.5*tanh(0.025*(einc-150.0)));  
     energySigmaHcal *= (1.1-0.2*tanh(0.015*(einc-50.0)));
     
-    r2 = theRandGauss->fire();
+    r2 = G4RandGauss::shoot();
     energyScale[Gflash::kHB] = 
       exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc;
   }
@@ -49,12 +50,12 @@ void GflashPiKShowerProfile::loadParameters(const G4FastTrack& fastTrack)
          
     if(showerType == 2 || showerType == 6) {
       energyScale[Gflash::kHB] = 
-	exp(energyMeanHcal+1.15*energySigmaHcal*theRandGauss->fire())-2.0
+	exp(energyMeanHcal+1.15*energySigmaHcal*G4RandGauss::shoot())-2.0
 	- gap_corr*einc*depthScale(position.getRho(),179.,28.);
     }
     else {
       energyScale[Gflash::kHB] = 
-	exp(energyMeanHcal+energySigmaHcal*theRandGauss->fire())-2.0;
+	exp(energyMeanHcal+energySigmaHcal*G4RandGauss::shoot())-2.0;
     }
   }
 
@@ -83,7 +84,7 @@ void GflashPiKShowerProfile::loadParameters(const G4FastTrack& fastTrack)
   getFluctuationVector(rhoHcal,correlationVectorHcal);
 
   G4double normalZ[Gflash::NPar];
-  for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = theRandGauss->fire();
+  for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = G4RandGauss::shoot();
   
   for(int i = 0 ; i < Gflash::NPar ; i++) {
     double correlationSum = 0.0;
@@ -122,7 +123,7 @@ void GflashPiKShowerProfile::loadParameters(const G4FastTrack& fastTrack)
 
     getFluctuationVector(rhoEcal,correlationVectorEcal);
 
-    for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = theRandGauss->fire();
+    for (int i = 0; i < Gflash::NPar ; i++) normalZ[i] = G4RandGauss::shoot();
     for(int i = 0 ; i < Gflash::NPar ; i++) {
       double correlationSum = 0.0;
       for(int j = 0 ; j < i+1 ; j++) {

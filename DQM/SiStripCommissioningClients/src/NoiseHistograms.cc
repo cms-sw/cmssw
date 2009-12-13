@@ -15,11 +15,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-NoiseHistograms::NoiseHistograms( const edm::ParameterSet& pset,
-                                  DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                             mui,
-                             sistrip::NOISE )
+NoiseHistograms::NoiseHistograms( DQMOldReceiver* mui ) 
+  : CommissioningHistograms( mui, sistrip::NOISE )
 {
   factory_ = auto_ptr<NoiseSummaryFactory>( new NoiseSummaryFactory );
   LogTrace(mlDqmClient_) 
@@ -29,11 +26,8 @@ NoiseHistograms::NoiseHistograms( const edm::ParameterSet& pset,
 
 // -----------------------------------------------------------------------------
 /** */
-NoiseHistograms::NoiseHistograms( const edm::ParameterSet& pset,
-                                  DQMStore* bei ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                             bei,
-                             sistrip::NOISE )
+NoiseHistograms::NoiseHistograms( DQMStore* bei ) 
+  : CommissioningHistograms( bei, sistrip::NOISE )
 {
   LogTrace(mlDqmClient_) 
     << "[NoiseHistograms::" << __func__ << "]"
@@ -91,7 +85,7 @@ void NoiseHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     NoiseAnalysis* anal = new NoiseAnalysis( iter->first );
-    NoiseAlgorithm algo( this->pset(), anal );
+    NoiseAlgorithm algo( anal );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }

@@ -2,6 +2,7 @@
 # define DQMSERVICES_COMPONEntS_DQMFILESAVER_H
 
 # include "FWCore/Framework/interface/EDAnalyzer.h"
+# include "DQMServices/Core/interface/MonitorElement.h"
 # include <sys/time.h>
 # include <string>
 
@@ -23,6 +24,8 @@ protected:
 private:
   void saveForOffline(const std::string &workflow, int run, int lumi=0);
   void saveForOnline(const std::string &suffix, const std::string &rewrite);
+  std::string getShowTags(void);
+  void makeProvInfo();  
 
   enum Convention
   {
@@ -36,6 +39,7 @@ private:
   std::string	dirName_;
   int        	version_;
   bool		runIsComplete_;
+  bool	        makeProvInfo_;
 
   int		saveByLumiSection_;
   int		saveByEvent_;
@@ -58,6 +62,20 @@ private:
   int		nevent_;
   timeval	start_;
   timeval	saved_;
+  
+  MonitorElement * versCMSSW_ ;
+  MonitorElement * versDataset_ ;
+  MonitorElement * versTaglist_ ;
+  MonitorElement * versGlobaltag_ ;
+  MonitorElement * hostName_;          ///Hostname of the local machine
+  MonitorElement * processName_;       ///DQM "name" of the job (eg, Hcal or DT)
+  MonitorElement * workingDir_;        ///Current working directory of the job
+  MonitorElement * processId_;         ///The PID associated with this job
+  MonitorElement * isComplete_;
+  MonitorElement * fileVersion_;
+  
+
+  
 };
 
 #endif // DQMSERVICES_COMPONEntS_DQMFILESAVER_H

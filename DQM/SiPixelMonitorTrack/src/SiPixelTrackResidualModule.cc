@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualModule.cc,v 1.3 2009/03/24 13:43:09 wehrlilu Exp $
+// $Id: SiPixelTrackResidualModule.cc,v 1.4 2009/08/12 13:19:37 merkelp Exp $
 
 
 #include <string>
@@ -56,10 +56,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, int type
   }
 
   edm::InputTag src = iConfig.getParameter<edm::InputTag>("src");
-  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId(src.label());
   std::string hisID;
 
   if(type==0){
+    SiPixelHistogramId* theHistogramId = new SiPixelHistogramId(src.label());
     hisID = theHistogramId->setHistoId("residualX",id_);
     meResidualX_ = dbe->book1D(hisID,"Hit-to-Track Residual in X",100,-5.,5.);
     meResidualX_->setAxisTitle("hit-to-track residual in x (cm)",1);

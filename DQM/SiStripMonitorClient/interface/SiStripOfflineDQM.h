@@ -36,6 +36,7 @@
 
 class DQMStore;
 class SiStripActionExecutor;
+class SiStripDetCabling;
 
 class SiStripOfflineDQM: public edm::EDAnalyzer {
 
@@ -84,5 +85,6 @@ private:
   bool printFaultyModuleList_;
 
   edm::ParameterSet configPar_;
+
 };
 #endif

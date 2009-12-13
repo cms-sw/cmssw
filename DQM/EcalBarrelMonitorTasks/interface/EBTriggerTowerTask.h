@@ -4,15 +4,15 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2009/08/28 13:33:07 $
- * $Revision: 1.25 $
+ * $Date: 2009/08/13 18:12:39 $
+ * $Revision: 1.24 $
+ * \author C. Bernet
  *
 */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -81,9 +81,7 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
 		     array1& meEtMap,
 		     array1& meVeto,
 		     const edm::Handle<EcalTrigPrimDigiCollection>& compDigis
-		     = edm::Handle<EcalTrigPrimDigiCollection>(),
-                     const edm::Handle<edm::TriggerResults>& hltResults
-                     = edm::Handle<edm::TriggerResults>());
+		     = edm::Handle<EcalTrigPrimDigiCollection>());
 
 
   /// book monitor elements for real, or emulated digis
@@ -138,11 +136,6 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   /// to find the input collection of crystal digis
   edm::InputTag EBDigiCollection_;
 
-  /// to find the input collection of HLT bits
-  edm::InputTag HLTResultsCollection_;
-  std::string HLTCaloHLTBit_;
-  std::string HLTMuonHLTBit_;
-
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
 
@@ -154,10 +147,6 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   /// number and ET average of TP vs bx
   MonitorElement* meEtBxReal_;
   MonitorElement* meOccupancyBxReal_;
-
-  /// TCC timing
-  MonitorElement* meTCCTimingCalo_;
-  MonitorElement* meTCCTimingMuon_;
 
 };
 

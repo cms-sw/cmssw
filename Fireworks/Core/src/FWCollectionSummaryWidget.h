@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id: FWCollectionSummaryWidget.h,v 1.4 2009/08/12 22:03:23 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.h,v 1.5 2009/08/20 16:12:34 chrjones Exp $
 //
 
 // system include files
@@ -74,6 +74,7 @@ public:
    void requestForFilter(FWEventItem*); // *SIGNAL*
    void requestForErrorInfo(FWEventItem*); // *SIGNAL*
    void requestForController(FWEventItem*); // *SIGNAL*
+   void requestForModelContextMenu(Int_t,Int_t); // *SIGNAL*
    
    void infoClicked();
    void stateClicked();
@@ -82,7 +83,7 @@ public:
    ClassDef(FWCollectionSummaryWidget,0);
    
    void itemColorClicked(int iIndex, Int_t iRootX, Int_t iRootY);
-   void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod);
+   void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
 
 private:
    FWCollectionSummaryWidget(const FWCollectionSummaryWidget&); // stop default

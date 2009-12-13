@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.5 2009/07/20 08:46:45 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.6 2009/07/20 12:50:50 amraktad Exp $
 //
 
 // system include files
@@ -86,14 +86,14 @@ setUserDataElementAndChildren(TEveElement* iElement,
 
 static
 void
-setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelId>& iIds) {
+setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelIdFromEveSelector>& iIds) {
    if(iElements &&  static_cast<int>(iItem->size()) == iElements->NumChildren() ) {
       int index=0;
       int largestIndex = iIds.size();
       if(iIds.size()<iItem->size()) {
          iIds.resize(iItem->size());
       }
-      std::vector<FWModelId>::iterator itId = iIds.begin();
+      std::vector<FWModelIdFromEveSelector>::iterator itId = iIds.begin();
       for(TEveElement::List_i it = iElements->BeginChildren(), itEnd = iElements->EndChildren();
           it != itEnd;
           ++it,++itId,++index) {

@@ -6,7 +6,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BTagPerformance.h,v 1.1 2008/06/25 16:58:05 bonnett Exp $
+ * \version $Id: BTagPerformance.h,v 1.1 2008/08/08 15:00:38 yumiceva Exp $
  *
  */
 
@@ -109,7 +109,7 @@ class BTagPerformance {
           if (option=="cErr") return c_effErr;
           if (option=="udsgErr") return udsg_effErr;
           if (option=="discriminator") return disc_map;
-          //return NULL;
+          else { assert(false); return disc_map;}
         };
 
         TArrayD GetArray(TString option="b") {
