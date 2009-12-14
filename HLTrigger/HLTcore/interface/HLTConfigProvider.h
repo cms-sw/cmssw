@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2008/09/19 07:18:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/10 15:45:45 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -66,13 +66,28 @@ class HLTConfigProvider {
   /// ParameterSet of module
   const edm::ParameterSet modulePSet(const std::string& module) const;
 
+  /// PrescaleService accessors - list of available column labels
+  const std::vector<std::string>& prescaleLabels() const;
+
+  /// PrescaleService accessors - column label of given index
+  const std::string& prescaleLabel(unsigned int label) const;
+
+  /// PrescaleService accessors - index of given column label
+  unsigned int prescaleIndex(const std::string& label) const;
+
+  /// PrescaleService accessors - prescale value for given trigger and prescale index
+  unsigned int prescaleValue(unsigned int trigger, unsigned int label) const;
+
+  /// PrescaleService accessors - prescale value for given trigger and prescale name
+  unsigned int prescaleValue(const std::string& trigger, const std::string& label) const;
 
   /// c'tor
   HLTConfigProvider():
     processName_(""), registry_(), ProcessPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
-    pathNames_(), endpathNames_() { }
+    pathNames_(), endpathNames_(),
+    prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
 
  private:
 
@@ -91,6 +106,10 @@ class HLTConfigProvider {
 
   std::vector<std::string> pathNames_;
   std::vector<std::string> endpathNames_;
+
+  std::vector<std::string> prescaleLabels_;
+  std::map<std::string,unsigned int> prescaleIndex_;
+  std::vector<std::vector<unsigned int> > prescaleValues_;
 
 };
 #endif
