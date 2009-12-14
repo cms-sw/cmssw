@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.34 2009/11/03 16:56:39 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.35 2009/12/10 13:27:02 amraktad Exp $
 //
 
 // system include files
@@ -94,7 +94,6 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
 #else
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
 #endif
-   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
