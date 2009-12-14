@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.23 2009/12/11 16:55:24 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.24 2009/12/12 03:30:28 kukartse Exp $
 //
 
 
@@ -60,7 +60,6 @@ std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect, 
   //
   std::string user("");
   std::string pass("");
-  //std::string authPath("/afs/cern.ch/cms/DB/conddb");
   std::string authPath = auth_path;
   std::string tag;
   cond::DBSession* session=new cond::DBSession;
@@ -73,6 +72,7 @@ std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect, 
   ::putenv(const_cast<char*>(authenv.c_str()));
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
   }else{
     session->configuration().setAuthenticationMethod( cond::Env );
   }
@@ -124,6 +124,7 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
   ::putenv(const_cast<char*>(authenv.c_str()));
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
   }else{
     session->configuration().setAuthenticationMethod( cond::Env );
   }
@@ -167,9 +168,9 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
     }
     myconnection.disconnect();
   }catch(cond::Exception& er){
-    std::cout<<er.what()<<std::endl;
+    std::cout<<"FIRST EXCEPTION: "<<er.what()<<std::endl;
   }catch(std::exception& er){
-    std::cout<<er.what()<<std::endl;
+    std::cout<<"CONNECTION ERROR: "<<er.what()<<std::endl;
   }
   delete session;
   return out.size();
