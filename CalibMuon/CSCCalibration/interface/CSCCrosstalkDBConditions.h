@@ -45,7 +45,7 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
 // to workaround plugin library
 inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
 {
-  const int MAX_SIZE = 252288;
+  const int MAX_SIZE = 273024;
   const int SLOPE_FACTOR=10000000;
   const int INTERCEPT_FACTOR=100000;
   const int MAX_SHORT= 32767;
@@ -131,6 +131,13 @@ inline CSCDBCrosstalk *  CSCCrosstalkDBConditions::prefillDBCrosstalk()
 	//std::cout<<" counter "<<counter <<" dbindex "<<new_index_id[k]<<" dbslope " <<db_slope_r[k]<<" new slope "<<new_slope_r[k]<<std::endl;
       }  
     }
+
+     if (counter>217728){
+      itemvector[counter].xtalk_slope_right = int (db_slope_r[i]);
+      itemvector[counter].xtalk_slope_left = int (db_slope_l[i]);
+      itemvector[counter].xtalk_intercept_right = int (db_intercept_r[i]);
+      itemvector[counter].xtalk_intercept_left = int (db_intercept_l[i]);
+     }
   }
   
   return cndbcrosstalk;
