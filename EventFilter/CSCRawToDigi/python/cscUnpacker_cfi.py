@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # This is the generic cfi file for CSC unpacking
 
-muonCSCDigis = cms.EDFilter("CSCDCCUnpacker",
+muonCSCDigis = cms.EDProducer("CSCDCCUnpacker",
     # Define input to the unpacker
     InputObjects = cms.InputTag("source"),
     # Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes
