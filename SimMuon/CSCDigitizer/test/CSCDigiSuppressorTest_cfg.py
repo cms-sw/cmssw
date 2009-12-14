@@ -57,19 +57,13 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.DQMStore = cms.Service("DQMStore")
 
-process.dump = cms.EDFilter("CSCDigiDump",
-    wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-    empt = cms.InputTag(""),
-#    stripDigiTag = cms.InputTag("simMuonCSCSuppressedDigis","MuonCSCStripDigi"),
-    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
-    comparatorDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
-)
+process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 
 #process.o1 = cms.OutputModule("PoolOutputModule",
 #    fileName = cms.untracked.string('cscdigis.root')
 #)
 
-process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscTriggerPrimitiveDigis*process.simMuonCSCSuppressedDigis*process.dump)
+process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscTriggerPrimitiveDigis*process.simMuonCSCSuppressedDigis*process.cscDigiDump)
 #process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscTriggerPrimitiveDigis*process.dump)
 #process.ep = cms.EndPath(process.o1)
 #

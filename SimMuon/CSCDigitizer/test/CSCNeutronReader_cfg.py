@@ -34,12 +34,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.DQMStore = cms.Service("DQMStore")
 process.simMuonCSCDigis.InputCollection = 'cscNeutronWriter'
-process.dump = cms.EDFilter("CSCDigiDump",
-    wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-    empt = cms.InputTag(""),
-    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
-    comparatorDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
-)
+process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -64,7 +59,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #    fileName = cms.untracked.string('cscdigis.root')
 #)
 
-process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.dump)
+process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscDigiDump)
 #process.ep = cms.EndPath(process.o1)
 #
 
