@@ -225,39 +225,49 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   unsigned int lastModule = 0;
 
-  //convert trigger names to trigger index properly
+  //cout << " Was at least one path run? " << trh->wasrun() << endl;;
+  //cout << " Has at least one path accepted the event? " << trh->accept() << endl;
+  //cout << " Has any path encountered an error? " << trh->error() << endl;
+  //cout << " Number of paths stored =  " << trh->size() << endl;
+
   for (unsigned int trig=0; trig < nValidTriggers_; trig++) {
+    //convert trigger names to trigger index properly  
     HLTPathsByIndex_[trig]=triggerNames_.triggerIndex(HLTPathsByName_[trig]);
-    lastModule = trh->index(HLTPathsByIndex_[trig]);
+
     //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", HLTPathsByIndex_ = " << HLTPathsByIndex_[trig] << endl; 
     //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", trh->index = " << lastModule << " " << trh->accept(HLTPathsByIndex_[trig]) << endl; 
-  
-    //go through the list of filters
-    for(unsigned int filt = 0; filt < triggerFilters_[trig].size()-1; filt++){
-      // 	cout << "triggerFilters_["<<trig<<"]["<<filt+1<<"] = " << triggerFilters_[trig][filt+1] 
-      // 	     << " , triggerFilterIndices = " << triggerFilterIndices_[trig][filt+1]
-      // 	     << " , lastModule = " << lastModule << endl;
-      
-      int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());      
-      
-      //check if filter passed
-      if(trh->accept(HLTPathsByIndex_[trig])){
-	hSubFilterCount[trig]->Fill(binNumber-1);//binNumber1 = 0 = first filter
-      }
-      //otherwise the module that issued the decision is the first fail
-      //so that all the ones before it passed
-      else if(triggerFilterIndices_[trig][filt+1] < lastModule){
-	hSubFilterCount[trig]->Fill(binNumber-1);
-      }
-      
-      //hSubFilterCount[trig]->Fill(-1);
-      
-      float eff = (float)hSubFilterCount[trig]->getBinContent(binNumber) / (float)total_ ;
-      float efferr = sqrt(eff*(1-eff)/ (float)total_);
-      hSubFilterEff[trig]->setBinContent(binNumber,eff);
-      hSubFilterEff[trig]->setBinError(binNumber,efferr);
 
-    }//filt
+    //check if trigger exists in TriggerResults
+    if (HLTPathsByIndex_[trig] < trh->size()) {
+      lastModule = trh->index(HLTPathsByIndex_[trig]);
+      
+      //go through the list of filters
+      for(unsigned int filt = 0; filt < triggerFilters_[trig].size()-1; filt++){
+	// 	cout << "triggerFilters_["<<trig<<"]["<<filt+1<<"] = " << triggerFilters_[trig][filt+1] 
+	// 	     << " , triggerFilterIndices = " << triggerFilterIndices_[trig][filt+1]
+	// 	     << " , lastModule = " << lastModule << endl;
+	
+	int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());      
+	
+	//check if filter passed
+	if(trh->accept(HLTPathsByIndex_[trig])){
+	  hSubFilterCount[trig]->Fill(binNumber-1);//binNumber1 = 0 = first filter
+	}
+	//otherwise the module that issued the decision is the first fail
+	//so that all the ones before it passed
+	else if(triggerFilterIndices_[trig][filt+1] < lastModule){
+	hSubFilterCount[trig]->Fill(binNumber-1);
+	}
+	
+	//hSubFilterCount[trig]->Fill(-1);
+	
+	float eff = (float)hSubFilterCount[trig]->getBinContent(binNumber) / (float)total_ ;
+	float efferr = sqrt(eff*(1-eff)/ (float)total_);
+	hSubFilterEff[trig]->setBinContent(binNumber,eff);
+	hSubFilterEff[trig]->setBinError(binNumber,efferr);
+
+      }//filt
+    }
   }
 
   //and check validity name (should not be necessary)
