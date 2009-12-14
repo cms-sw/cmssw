@@ -47,6 +47,7 @@ class EcalClusterFunctionBaseClass ;
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <list>
 
@@ -228,7 +229,7 @@ class GsfElectronAlgo {
     //double maxHOverEDepth1EndcapsPflow_;
     //// maximum H/E for depth2
     //double maxHOverEDepth2Pflow_;
-    // maximum H/E 
+    // maximum H/E
     double maxHOverEBarrelPflow_;
     double maxHOverEEndcapsPflow_;
     // maximum H
@@ -288,11 +289,13 @@ class GsfElectronAlgo {
     edm::InputTag endcapSuperClusters_;
     //edm::InputTag tracks_;
     edm::InputTag gsfElectronCores_ ;
-    edm::InputTag ctfTracks_;
     edm::InputTag reducedBarrelRecHitCollection_ ;
     edm::InputTag reducedEndcapRecHitCollection_ ;
     edm::InputTag pfMVA_;
+    edm::InputTag seedsTag_;
 
+    bool ctfTracksCheck_ ;
+    edm::InputTag ctfTracks_;
 
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<CaloGeometry>                 theCaloGeom;
@@ -321,6 +324,11 @@ class GsfElectronAlgo {
     unsigned long long cacheIDMagField_;
 
     EcalClusterFunctionBaseClass * superClusterErrorFunction_ ;
+
+    bool pfTranslatorParametersChecked_ ;
+    void checkPfTranslatorParameters( edm::ParameterSetID const & ) ;
+    bool ecalSeedingParametersChecked_ ;
+    void checkEcalSeedingParameters( edm::ParameterSetID const & ) ;
 
  } ;
 

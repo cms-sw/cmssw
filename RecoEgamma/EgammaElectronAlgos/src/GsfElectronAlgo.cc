@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.82 2009/10/29 23:13:27 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.83 2009/11/14 15:16:20 charlot Exp $
 //
 //
 
@@ -22,8 +22,11 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -37,6 +40,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -50,10 +56,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
-
 #include "TrackingTools/TransientTrackingRecHit/interface/RecHitComparatorByPosition.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -61,11 +64,11 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
@@ -140,9 +143,10 @@ GsfElectronAlgo::GsfElectronAlgo
    intRadiusTk_(intRadiusTk), ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
    etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
-   vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals),
+   vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals), ctfTracksCheck_(false),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),
-   superClusterErrorFunction_(0)
+   superClusterErrorFunction_(0),
+   pfTranslatorParametersChecked_(false), ecalSeedingParametersChecked_(false)
  {
    // this is the new version allowing to configurate the algo
    // interfaces still need improvement!!
@@ -176,10 +180,14 @@ GsfElectronAlgo::GsfElectronAlgo
   // get input collections
   //tracks_ = conf.getParameter<edm::InputTag>("tracks");
   gsfElectronCores_ = conf.getParameter<edm::InputTag>("gsfElectronCores");
-  ctfTracks_ = conf.getParameter<edm::InputTag>("ctfTracks");
   reducedBarrelRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
   reducedEndcapRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedEndcapRecHitCollection") ;
   pfMVA_ = conf.getParameter<edm::InputTag>("pfMVA") ;
+  ctfTracks_ = conf.getParameter<edm::InputTag>("ctfTracks");
+  seedsTag_ = conf.getParameter<edm::InputTag>("seedsTag");
+
+  // for backward compatibility
+  ctfTracksCheck_ = conf.getParameter<bool>("ctfTracksCheck");
 
   // function for corrector
   std::string superClusterErrorFunctionName
@@ -259,6 +267,25 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   e.getByLabel(hcalTowers_, towersH);
   edm::Handle<edm::ValueMap<float> > pfMVAH;
   e.getByLabel(pfMVA_,pfMVAH);
+  edm::Handle<ElectronSeedCollection> seedsCollection;
+  e.getByLabel(seedsTag_,seedsCollection);
+
+  if (!pfTranslatorParametersChecked_)
+   {
+    pfTranslatorParametersChecked_ = true ;
+    checkPfTranslatorParameters(pfMVAH.provenance()->psetID()) ;
+   }
+  if (!seedsCollection.isValid())
+   {
+    edm::LogWarning("GsfElectronAlgo")
+      <<"Cannot check consistency of parameters with ecal seeding ones,"
+      <<" because the original collection of seeds is not any more available." ;
+   }
+  else if (!ecalSeedingParametersChecked_)
+   {
+    ecalSeedingParametersChecked_ = true ;
+    checkEcalSeedingParameters(seedsCollection.provenance()->psetID()) ;
+   }
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -299,10 +326,12 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
     str1 << "\n========== GsfElectronAlgo Info (before amb. solving) ==========";
     str1 << "\nEvent " << e.id();
     str1 << "\nNumber of preselected electrons: " << tempEle1.size();
-    for (GsfElectronPtrCollection::const_iterator it = tempEle1.begin(); it != tempEle1.end(); it++) {
+    GsfElectronPtrCollection::const_iterator it ;
+    for ( it = tempEle1.begin(); it != tempEle1.end(); it++)
+     {
       str1 << "\nNew electron with charge, pt, eta, phi : "  << (*it)->charge() << " , "
           << (*it)->pt() << " , " << (*it)->eta() << " , " << (*it)->phi();
-    }
+     }
    }
   else
    {
@@ -409,9 +438,12 @@ void GsfElectronAlgo::process(
     //float mva=std::numeric_limits<float>::infinity();
     //if (coreRef->trackerDrivenSeed()) mva = pfmvas[gsfTrackRef];
 
-    double mvaInfinite = 9999 ;
+    // MVA
+    // we check that the value is never inferior to the no-cut value
+    // we generally use in the configuration file for minMVA.
     float mva = (*pfMVAH.product())[gsfTrackRef] ;
-    if (mva<(-mvaInfinite)) { edm::LogError("GsfElectronAlgo")<<"unexpected MVA value: "<<mva ; }
+    double noCutMin = -999999999 ;
+    if (mva<noCutMin) { edm::LogError("GsfElectronAlgo")<<"unexpected MVA value: "<<mva ; }
 
     // electron basic cluster
     CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus) ;
@@ -435,10 +467,15 @@ void GsfElectronAlgo::process(
       HoE2 = hcalHelperPflow_->hcalESumDepth2(theClus)/theClus.energy() ;
      }
 
-    // charge ID
-    pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
-    const TrackRef ctfTrackRef = ctfpair.first ;
-    const float fracShHits = ctfpair.second ;
+    // ctf track and charge ID
+    TrackRef ctfTrackRef = coreRef->ctfTrack() ;
+    float fracShHits = coreRef->ctfGsfOverlap() ;
+    if (ctfTracksCheck_&&ctfTrackRef.isNull())
+     {
+      pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
+      ctfTrackRef = ctfpair.first ;
+      fracShHits = ctfpair.second ;
+     }
     int eleCharge ;
     GsfElectron::ChargeInfo eleChargeInfo ;
     computeCharge(gsfTrackRef,ctfTrackRef,scRef,bs,eleCharge,eleChargeInfo) ;
@@ -504,7 +541,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if ( eg && !HoEveto ) continue;
     bool HoEvetoPflow = false;
     if (detector==EcalBarrel && (had<maxHBarrelPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrelPflow_)) HoEvetoPflow=true;
-    else if (detector==EcalEndcap && (had<maxHEndcapsPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcapsPflow_)) HoEvetoPflow=true;    
+    else if (detector==EcalEndcap && (had<maxHEndcapsPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcapsPflow_)) HoEvetoPflow=true;
     if ( pf && !HoEvetoPflow ) continue;
     LogDebug("") << "H/E criteria is satisfied ";
 
@@ -709,7 +746,7 @@ void GsfElectronAlgo::createElectron
 	 { fiducialFlags.isEEDeeGap = true ; }
    }
   else
-   { edm::LogWarning("")<<"GsfElectronAlgo::createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
+   { edm::LogWarning("GsfElectronAlgo")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
 
 
   //====================================================
@@ -1033,4 +1070,64 @@ void GsfElectronAlgo::computeCharge
    { charge = info.scPixCharge ; }
   else
    { charge = ctf->charge() ; }
+ }
+
+void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & psetid )
+ {
+  edm::ParameterSet pset ;
+  edm::pset::Registry::instance()->getMapped(psetid,pset) ;
+  edm::ParameterSet mvaBlock = pset.getParameter<edm::ParameterSet>("MVACutBlock") ;
+  double pfTranslatorMinMva = mvaBlock.getParameter<double>("MVACut") ;
+  double pfTranslatorUndefined = -99. ;
+  if (minMVAPflow_<pfTranslatorMinMva)
+   {
+    // For pure tracker seeded electrons, if MVA is under translatorMinMva, there is no supercluster
+    // of any kind available, so GsfElectronCoreProducer has already discarded the electron.
+    edm::LogWarning("GsfElectronAlgo")
+      <<"Parameter minMVAPflow will have no effect on purely tracker seeded electrons."
+      <<" It is inferior to the cut already applied by PFlow translator." ;
+   }
+  if (minMVA_<pfTranslatorMinMva)
+   {
+    // For ecal seeded electrons, there is a cluster and GsfElectronCoreProducer has kept all electrons,
+    // but when MVA is under translatorMinMva, the translator has not stored the supercluster and
+    // forced the MVA value to translatorUndefined
+    if (minMVA_<pfTranslatorUndefined)
+     {
+      edm::LogWarning("GsfElectronAlgo")
+        <<"Parameter minMVA is inferior to the cut applied by PFlow translator."
+        <<" Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster." ;
+     }
+    else
+     {
+      // the MVA value has been forced to translatorUndefined, inferior minMVAPflow
+      // so the cut actually applied is the PFlow one
+      edm::LogWarning("GsfElectronAlgo")
+        <<"Parameter minMVA will have no effect on ecal (and eventually tracker) seeded electrons."
+        <<" It is inferior to the cut already defined by PFlow translator." ;
+     }
+   }
+ }
+
+void GsfElectronAlgo::checkEcalSeedingParameters( edm::ParameterSetID const & psetid )
+ {
+  edm::ParameterSet pset ;
+  edm::pset::Registry::instance()->getMapped(psetid,pset) ;
+  edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
+  edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
+
+  if (seedParameters.getParameter<bool>("applyHOverECut"))
+   {
+    if (hOverEConeSize_!=seedParameters.getParameter<double>("hOverEConeSize"))
+     { edm::LogWarning("GsfElectronAlgo") <<"The H/E cone size is different from ecal seeding." ; }
+    if (maxHOverEBarrel_<seedParameters.getParameter<double>("maxHOverEBarrel"))
+     { edm::LogWarning("GsfElectronAlgo") <<"The max barrel H/E is lower than during ecal seeding." ; }
+    if (maxHOverEEndcaps_<seedParameters.getParameter<double>("maxHOverEEndcaps"))
+     { edm::LogWarning("GsfElectronAlgo") <<"The max endcaps H/E is lower than during ecal seeding." ; }
+   }
+
+  if (minSCEtBarrel_<seedParameters.getParameter<double>("SCEtCut"))
+   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
+  if (minSCEtEndcaps_<seedParameters.getParameter<double>("SCEtCut"))
+   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
  }
