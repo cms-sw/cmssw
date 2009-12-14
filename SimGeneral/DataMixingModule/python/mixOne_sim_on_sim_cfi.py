@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 
-mixData = cms.EDFilter("DataMixingModule",
+mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,
     input = cms.SecSource("PoolRASource",
         nbPileupEvents = cms.PSet(

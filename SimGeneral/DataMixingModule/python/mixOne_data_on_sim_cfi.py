@@ -11,7 +11,7 @@ hcalSimBlock.hf2.binOfMaximum = 5
 ##################################
 
 
-mixData = cms.EDFilter("DataMixingModule",
+mixData = cms.EDProducer("DataMixingModule",
                    hcalSimBlock,
     input = cms.SecSource("PoolRASource",
         nbPileupEvents = cms.PSet(
