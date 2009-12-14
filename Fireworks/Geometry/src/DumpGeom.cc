@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.18 2009/09/01 22:33:30 case Exp $
+// $Id: DumpGeom.cc,v 1.19 2009/11/15 14:26:12 dmytro Exp $
 //
 //
 
@@ -110,7 +110,7 @@ class DumpGeom : public edm::EDAnalyzer {
   template <class T> friend class CaloGeometryLoader;//<EcalBarralGeometry>;
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -1163,7 +1163,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DumpGeom::beginJob(const edm::EventSetup&)
+DumpGeom::beginJob()
 {
 }
 

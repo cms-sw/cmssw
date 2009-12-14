@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:56 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -47,7 +47,7 @@ class DTConfigDBInit: public edm::EDAnalyzer {
   /** Operations
    */
   /// 
-  virtual void beginJob( edm::EventSetup const& c );
+  virtual void beginJob();
   virtual void analyze( const edm::Event& e, const edm::EventSetup& c );
 
  private:

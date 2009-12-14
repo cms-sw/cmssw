@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:53 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:55 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -49,7 +49,7 @@ DTConfigDBInit::~DTConfigDBInit() {
 //--------------
 // Operations --
 //--------------
-void DTConfigDBInit::beginJob( edm::EventSetup const& c ) {
+void DTConfigDBInit::beginJob() {
 
   DTDBSession* session = new DTDBSession( contact, catalog, authPath );
   session->connect( false );

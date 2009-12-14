@@ -5,8 +5,8 @@
  *  For now: Analyzer of StandAlone muon tracks
  *  Later: Add other detectors and more Reco
  * 
- *  $Date: 2006/10/31 08:01:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/01 00:40:13 $
+ *  $Revision: 1.4 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -41,7 +41,7 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob(const edm::EventSetup& eventSetup) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
 protected:
 

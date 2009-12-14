@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2008/01/21 11:21:00 $
- *  $Revision: 1.42 $
+ *  $Date: 2009/02/17 16:30:42 $
+ *  $Revision: 1.43 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -83,7 +83,7 @@ EcalDCCTBUnpackingModule::~EcalDCCTBUnpackingModule(){
 
 }
 
-void EcalDCCTBUnpackingModule::beginJob(const edm::EventSetup& c){
+void EcalDCCTBUnpackingModule::beginJob(){
 
 }
 

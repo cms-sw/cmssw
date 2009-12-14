@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:01:03 CEST 2007
-// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.3 2009/04/30 13:13:09 beaucero Exp $
+// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.4 2009/04/30 14:10:18 ferriff Exp $
 //
 //
 
@@ -140,7 +140,7 @@ EcalDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalDeadChannelRecoveryProducers::beginJob(const edm::EventSetup&)
+EcalDeadChannelRecoveryProducers::beginJob()
 {
     FILE* DeadCha;
     printf("Dead Channels FILE: %s\n",DeadChannelFileName_.c_str());

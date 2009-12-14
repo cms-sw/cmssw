@@ -119,7 +119,7 @@ EcalPreshowerSimHitsValidation::~EcalPreshowerSimHitsValidation(){
 
 }
 
-void EcalPreshowerSimHitsValidation::beginJob(const edm::EventSetup& c){
+void EcalPreshowerSimHitsValidation::beginJob(){
 
 }
 

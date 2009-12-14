@@ -22,7 +22,7 @@ EcalTBHodoscopeRawInfoDumper::~EcalTBHodoscopeRawInfoDumper() {
 
 //========================================================================
 void
-EcalTBHodoscopeRawInfoDumper::beginJob(edm::EventSetup const&) {
+EcalTBHodoscopeRawInfoDumper::beginJob() {
 //========================================================================
 
   char histoName[100];

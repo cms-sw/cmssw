@@ -41,7 +41,7 @@ RPCDigiValid::RPCDigiValid(const ParameterSet& ps):dbe_(0){
 
 RPCDigiValid::~RPCDigiValid(){}
 
-void RPCDigiValid::beginJob(const EventSetup& c){}
+void RPCDigiValid::beginJob(){}
 
 void RPCDigiValid::endJob() {
  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);

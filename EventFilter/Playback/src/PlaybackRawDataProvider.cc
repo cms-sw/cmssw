@@ -113,7 +113,7 @@ void PlaybackRawDataProvider::analyze(const Event& iEvent,
 
 
 //______________________________________________________________________________
-void PlaybackRawDataProvider::beginJob(const EventSetup&)
+void PlaybackRawDataProvider::beginJob()
 {
   
 }

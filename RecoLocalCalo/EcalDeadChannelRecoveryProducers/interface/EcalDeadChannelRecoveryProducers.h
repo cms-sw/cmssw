@@ -3,7 +3,7 @@
  
 /** \class EcalDeadChannelRecoveryProducers
   *
-  *  $Date: 2006/03/10 08:38:19 $
+  *  $Date: 2007/05/03 12:41:31 $
   *  $Revision: 1.1 $
   */
  
@@ -34,7 +34,7 @@ class EcalDeadChannelRecoveryProducers : public edm::EDProducer {
       ~EcalDeadChannelRecoveryProducers();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

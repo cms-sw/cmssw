@@ -18,7 +18,7 @@ class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer
 {
 public:
   PhysicsPerformanceDBWriterFromFile_WPandPayload(const edm::ParameterSet&);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
   virtual void endJob() {}
   ~PhysicsPerformanceDBWriterFromFile_WPandPayload() {}
@@ -36,7 +36,7 @@ PhysicsPerformanceDBWriterFromFile_WPandPayload::PhysicsPerformanceDBWriterFromF
   rec2 = p.getUntrackedParameter<std::string>("RecordWP");
 }
 
-void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventSetup&)
+void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob()
 {
   //
   // read object from file

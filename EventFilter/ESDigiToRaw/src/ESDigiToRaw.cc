@@ -62,7 +62,7 @@ ESDigiToRaw::~ESDigiToRaw() {
   if (ESDataFormatter_) delete ESDataFormatter_;
 }
 
-void ESDigiToRaw::beginJob(const edm::EventSetup& es) {
+void ESDigiToRaw::beginJob() {
 }
 
 void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {

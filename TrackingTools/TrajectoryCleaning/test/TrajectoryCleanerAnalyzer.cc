@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Oct 12 03:46:09 CEST 2007
-// $Id$
+// $Id: TrajectoryCleanerAnalyzer.cc,v 1.1 2007/10/16 04:16:03 vlimant Exp $
 //
 //
 
@@ -41,7 +41,7 @@ class TrajectoryCleanerAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -69,7 +69,7 @@ void TrajectoryCleanerAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TrajectoryCleanerAnalyzer::beginJob(const edm::EventSetup&)
+TrajectoryCleanerAnalyzer::beginJob()
 {
 }
 

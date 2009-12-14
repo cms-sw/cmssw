@@ -156,7 +156,7 @@ EcalEndcapSimHitsValidation::~EcalEndcapSimHitsValidation(){
 
 }
 
-void EcalEndcapSimHitsValidation::beginJob(const edm::EventSetup& c){
+void EcalEndcapSimHitsValidation::beginJob(){
 
 }
 

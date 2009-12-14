@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.5 2009/07/03 13:12:31 lobelle Exp $
+// $Id: TopValidation.cc,v 1.6 2009/11/25 16:11:36 lobelle Exp $
 //
 //
 
@@ -537,7 +537,7 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TopValidation::beginJob(const edm::EventSetup&)
+TopValidation::beginJob()
 {
   
        dbe = edm::Service<DQMStore>().operator->();

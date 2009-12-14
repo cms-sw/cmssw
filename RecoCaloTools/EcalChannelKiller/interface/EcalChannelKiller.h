@@ -3,7 +3,7 @@
  
 /** \class EcalChannelKiller
   *
-  *  $Date: 2006/03/10 08:38:19 $
+  *  $Date: 2007/05/03 12:33:39 $
   *  $Revision: 1.1 $
   */
  
@@ -34,7 +34,7 @@ class EcalChannelKiller : public edm::EDProducer {
       ~EcalChannelKiller();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

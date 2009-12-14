@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu Oct  4 21:42:40 CEST 2007
-// $Id$
+// $Id: TrajectoryFilterAnalyzer.cc,v 1.1 2007/10/18 01:50:28 vlimant Exp $
 //
 //
 
@@ -43,7 +43,7 @@ class TrajectoryFilterAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -75,7 +75,7 @@ void TrajectoryFilterAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TrajectoryFilterAnalyzer::beginJob(const edm::EventSetup&)
+TrajectoryFilterAnalyzer::beginJob()
 {
 }
 

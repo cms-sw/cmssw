@@ -13,7 +13,7 @@
 //
 // Original Author:  Radek Ofierzynski
 //         Created:  Wed Jan 21 13:46:27 CET 2009
-// $Id: HcalSevLvlAnalyzer.cc,v 1.2 2009/02/09 16:52:34 rofierzy Exp $
+// $Id: HcalSevLvlAnalyzer.cc,v 1.3 2009/02/20 17:26:37 rofierzy Exp $
 //
 //
 
@@ -45,7 +45,7 @@ class HcalSevLvlAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -243,7 +243,7 @@ HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalSevLvlAnalyzer::beginJob(const edm::EventSetup&)
+HcalSevLvlAnalyzer::beginJob()
 {
 }
 

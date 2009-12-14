@@ -6,7 +6,7 @@
 //
 // Original Author:  Phillip Killewald
 //         Created:  Thu Jan 29 17:33:51 CET 2009
-// $Id$
+// $Id: CSCSharesInputTest.h,v 1.1 2009/03/26 14:30:48 ptc Exp $
 //
 
 
@@ -31,7 +31,7 @@ class CSCSharesInputTest : public edm::EDAnalyzer {
 		~CSCSharesInputTest();
 		
 	private:
-		virtual void beginJob(const edm::EventSetup &mySetup);
+		virtual void beginJob();
 		
 		virtual void analyze(const edm::Event &myEvent, const edm::EventSetup &mySetup);
 		

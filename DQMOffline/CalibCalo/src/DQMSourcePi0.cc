@@ -157,7 +157,7 @@ DQMSourcePi0::~DQMSourcePi0()
 
 
 //--------------------------------------------------------
-void DQMSourcePi0::beginJob(const EventSetup& context){
+void DQMSourcePi0::beginJob(){
 
 
   // create and cd into new folder

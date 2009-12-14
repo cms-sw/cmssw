@@ -42,7 +42,7 @@ EvtGenTestAnalyzer::EvtGenTestAnalyzer( const ParameterSet& pset )
 {
 }
 
-void EvtGenTestAnalyzer::beginJob( const EventSetup& )
+void EvtGenTestAnalyzer::beginJob()
 {
  
    nevent = 0;

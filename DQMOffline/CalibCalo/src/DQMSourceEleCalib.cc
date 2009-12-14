@@ -4,8 +4,8 @@
  * \author Andrea Gozzelino - Universita  e INFN Torino
  * \author Stefano Argiro
  *        
- * $Date: 2008/10/29 16:52:36 $
- * $Revision: 1.1 $
+ * $Date: 2009/02/09 17:47:40 $
+ * $Revision: 1.2 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -62,7 +62,7 @@ DQMSourceEleCalib::~DQMSourceEleCalib()
 
 
 //--------------------------------------------------------
-void DQMSourceEleCalib::beginJob(const EventSetup& context){
+void DQMSourceEleCalib::beginJob(){
 
   // create and cd into new folder
   dbe_->setCurrentFolder(folderName_);

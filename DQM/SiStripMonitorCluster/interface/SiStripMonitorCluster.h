@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.29 2009/08/29 08:45:19 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.30 2009/09/14 14:13:58 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -31,7 +31,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   explicit SiStripMonitorCluster(const edm::ParameterSet&);
   ~SiStripMonitorCluster();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void beginJob(edm::EventSetup const&) ;
+  //virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
 

@@ -49,7 +49,7 @@ KineExample::~KineExample() {
 //   delete rootFile_;
 }
 
-void KineExample::beginJob(edm::EventSetup const& setup){
+void KineExample::beginJob(){
   edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
   setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
   associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();

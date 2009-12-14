@@ -13,7 +13,7 @@
 //
 // Original Author:  Carsten Noeding
 //         Created:  Mon Mar 19 13:51:22 CDT 2007
-// $Id: RoadSearchEventFilter.cc,v 1.2 2007/12/18 22:23:25 noeding Exp $
+// $Id: RoadSearchEventFilter.cc,v 1.3 2009/05/23 08:56:53 gpetrucc Exp $
 //
 //
 
@@ -70,7 +70,7 @@ RoadSearchEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-RoadSearchEventFilter::beginJob(const edm::EventSetup&)
+RoadSearchEventFilter::beginJob()
 {
 }
 

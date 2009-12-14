@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.11 2009/02/18 14:37:25 benigno Exp $
+// $Id: EgammaSuperClusters.h,v 1.12 2009/05/06 07:19:09 benigno Exp $
 //
 #include <string>
 
@@ -32,7 +32,7 @@ class EgammaSuperClusters : public edm::EDAnalyzer
       	~EgammaSuperClusters();
 
       	virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      	virtual void beginJob(edm::EventSetup const&);
+      	virtual void beginJob();
       	virtual void endJob();
 
 	private:

@@ -28,7 +28,7 @@ muonTag_(myConfig.getParameter<edm::InputTag>("MuonCollection"))
 
 
 
-void CSCSharesInputTest::beginJob(const edm::EventSetup &mySetup)
+void CSCSharesInputTest::beginJob()
 {
 
 }

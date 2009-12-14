@@ -51,7 +51,7 @@ class HcalGainsCheck: public edm::EDAnalyzer
 
   ~HcalGainsCheck() {}
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void endJob();
  
   void analyze(const edm::Event& ev, const edm::EventSetup& es);

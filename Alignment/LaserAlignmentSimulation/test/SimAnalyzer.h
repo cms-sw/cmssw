@@ -4,8 +4,8 @@
 /** \class SimAnalyzer
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2007/12/04 23:53:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/05 15:30:17 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -33,7 +33,7 @@ class SimAnalyzer : public edm::EDAnalyzer, public TObject
   /// this method will do the user analysis 
   virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
 	/// begin job
-  virtual void beginJob(const edm::EventSetup& theSetup);
+  virtual void beginJob();
     
  private:
 	/// return angle in radian betwee 0 and 2*pi

@@ -19,7 +19,7 @@ HarvestingDataCertification::HarvestingDataCertification(const edm::ParameterSet
 
 HarvestingDataCertification::~HarvestingDataCertification() {}
 
-void HarvestingDataCertification::beginJob(const edm::EventSetup& iSetup)
+void HarvestingDataCertification::beginJob()
 {
   return;
 }

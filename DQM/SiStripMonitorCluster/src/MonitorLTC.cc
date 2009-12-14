@@ -29,7 +29,7 @@ MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)
 }
 
 
-void MonitorLTC::beginJob(const edm::EventSetup& es){
+void MonitorLTC::beginJob(){
   using namespace edm;
   dqmStore_->setCurrentFolder(HLTDirectory);
   // 0 DT

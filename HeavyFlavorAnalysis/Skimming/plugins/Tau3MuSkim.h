@@ -25,7 +25,7 @@ class Tau3MuSkim : public edm::EDFilter
     ~Tau3MuSkim();
     
  private:
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob() ;
     virtual bool filter(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
     

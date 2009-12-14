@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2008/10/29 10:56:43 $
+ * $Date: 2009/07/28 09:32:01 $
  * \author C. Rovelli
  *
  */
@@ -131,7 +131,7 @@ EcalPreshowerRecHitsValidation::~EcalPreshowerRecHitsValidation(){
 
 }
 
-void EcalPreshowerRecHitsValidation::beginJob(const EventSetup& c){  
+void EcalPreshowerRecHitsValidation::beginJob(){  
 
 }
 

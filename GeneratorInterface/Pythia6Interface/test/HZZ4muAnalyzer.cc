@@ -26,7 +26,7 @@ class HZZ4muAnalyzer : public edm::EDAnalyzer
                                    // as it'll be deleted upon closing TFile
       
       virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob( const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endRun( const edm::Run&, const edm::EventSetup& ) ;
       virtual void endJob() ;
 
@@ -47,7 +47,7 @@ HZZ4muAnalyzer::HZZ4muAnalyzer( const ParameterSet& pset )
 // actually, pset is NOT in use - we keep it here just for illustratory putposes
 }
 
-void HZZ4muAnalyzer::beginJob( const EventSetup& )
+void HZZ4muAnalyzer::beginJob()
 {
   
   Service<TFileService> fs;

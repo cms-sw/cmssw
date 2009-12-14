@@ -74,7 +74,7 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
 
 }
 
-void testEcalTPGScale::beginJob(const edm::EventSetup& evtSetup)
+void testEcalTPGScale::beginJob()
 {
   using namespace edm;
   using namespace std;

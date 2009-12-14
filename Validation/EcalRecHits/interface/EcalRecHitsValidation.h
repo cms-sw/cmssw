@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2008/12/11 12:27:22 $
+ * $Date: 2009/07/14 09:13:37 $
  * \author C. Rovelli
  *
 */
@@ -59,7 +59,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob();
 
 // EndJob
 void endJob(void);

@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.6 2007/11/21 15:39:15 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.h,v 1.7 2008/12/10 09:51:12 fabiocos Exp $
  *
 */
 
@@ -46,7 +46,7 @@ class EcalTBMCInfoProducer: public edm::EDProducer{
   void produce(edm::Event & event, const edm::EventSetup& eventSetup);
   
   // BeginJob
-  //void beginJob(const edm::EventSetup& c);
+  //void beginJob();
   
   // EndJob
   //void endJob(void);

@@ -36,7 +36,7 @@ namespace gen
 
     Pythia6Gun( const edm::ParameterSet& );
     virtual ~Pythia6Gun();
-    void beginJob( const edm::EventSetup& ) ;
+    void beginJob() ;
     void endJob();
     void beginRun( edm::Run &, edm::EventSetup const& );
     void endRun( edm::Run &, edm::EventSetup const& );

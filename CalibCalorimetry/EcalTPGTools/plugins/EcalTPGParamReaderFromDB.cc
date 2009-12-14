@@ -17,7 +17,7 @@ class EcalTPGParamReaderFromDB : public edm::EDAnalyzer {
                 ~EcalTPGParamReaderFromDB();
 
         private:
-                virtual void beginJob(const edm::EventSetup&) ;
+                virtual void beginJob() ;
                 virtual void analyze(const edm::Event&, const edm::EventSetup&);
                 virtual void endJob() ;
 
@@ -74,7 +74,7 @@ void EcalTPGParamReaderFromDB::analyze(const edm::Event& ev, const edm::EventSet
 
 
 
-void EcalTPGParamReaderFromDB::beginJob(const edm::EventSetup&)
+void EcalTPGParamReaderFromDB::beginJob()
 {
 }
 

@@ -26,7 +26,7 @@ public:
   ~BxNumberFilter();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -86,7 +86,7 @@ bool BxNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void  BxNumberFilter::beginJob(const edm::EventSetup&) {
+void  BxNumberFilter::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

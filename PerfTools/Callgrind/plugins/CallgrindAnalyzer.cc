@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Jan 18 10:34:18 CET 2007
-// $Id: CallgrindAnalyzer.cc,v 1.2 2007/02/25 14:27:50 innocent Exp $
+// $Id: CallgrindAnalyzer.cc,v 1.3 2007/03/11 08:20:18 innocent Exp $
 //
 //
 
@@ -44,7 +44,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -121,7 +121,7 @@ if(m_evtCount >= m_firstEvent && (m_evtCount <= m_lastEvent || m_lastEvent == -1
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-Profiler::beginJob(const edm::EventSetup&)
+Profiler::beginJob()
 {
 }
 

@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2008/03/26 22:16:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/16 21:52:41 $
+ *  $Revision: 1.2 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -42,7 +42,7 @@ class ConverterTester : public edm::EDAnalyzer
 
   explicit ConverterTester(const edm::ParameterSet&);
   virtual ~ConverterTester();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);

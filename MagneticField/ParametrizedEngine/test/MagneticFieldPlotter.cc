@@ -14,7 +14,7 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Mon Jun 11 17:20:15 CEST 2007
-// $Id: MagneticFieldPlotter.cc,v 1.2 2008/02/11 14:22:00 chiorbo Exp $
+// $Id: MagneticFieldPlotter.cc,v 1.3 2008/03/28 16:49:25 namapane Exp $
 //
 //
 
@@ -104,7 +104,7 @@ MagneticFieldPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 void 
-MagneticFieldPlotter::beginJob(const edm::EventSetup&)
+MagneticFieldPlotter::beginJob()
 {
    theHistoFile = new TFile(HistoFileName.c_str(), "RECREATE");
   

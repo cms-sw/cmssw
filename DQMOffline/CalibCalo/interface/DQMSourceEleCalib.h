@@ -5,8 +5,8 @@
  * *
  *  DQM Source for phi symmetry stream
  *
- *  $Date: 2008/10/29 16:52:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/09 17:47:40 $
+ *  $Revision: 1.2 $
  *  \author Stefano Argiro'
  *          Andrea Gozzelino - Universita  e INFN Torino
  *   
@@ -30,7 +30,7 @@ public:
 
 protected:
    
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 

@@ -22,7 +22,7 @@ EcalTBTDCRawInfoDumper::~EcalTBTDCRawInfoDumper() {
 
 //========================================================================
 void
-EcalTBTDCRawInfoDumper::beginJob(edm::EventSetup const&) 
+EcalTBTDCRawInfoDumper::beginJob() 
 {
   //========================================================================
   h_TDCrawValue_ = new TH1F("h_TDCrawValue","TDC raw value",2048,-0.5,2047.5);

@@ -48,7 +48,7 @@ SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfil
 SiPixelErrorEstimation::~SiPixelErrorEstimation()
 {}
 
-void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
+void SiPixelErrorEstimation::beginJob()
 {
   int bufsize = 64000;
 

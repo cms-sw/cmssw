@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  * 
- * $Date: 2009/09/23 16:05:56 $
- * $Revision: 1.13 $
+ * $Date: 2009/11/15 14:46:06 $
+ * $Revision: 1.14 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -90,7 +90,7 @@ DQMHcalPhiSymAlCaReco::~DQMHcalPhiSymAlCaReco()
 {}
 
 //--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
+void DQMHcalPhiSymAlCaReco::beginJob(){
  
   // create and cd into new folder
   dbe_->setCurrentFolder(folderName_);

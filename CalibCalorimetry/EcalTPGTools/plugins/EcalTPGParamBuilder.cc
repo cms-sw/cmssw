@@ -1245,7 +1245,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 }
 
-void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
+void EcalTPGParamBuilder::beginJob()
 {
   using namespace edm;
   using namespace std;

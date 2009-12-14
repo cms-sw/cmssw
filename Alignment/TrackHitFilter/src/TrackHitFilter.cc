@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.12 2009/02/17 15:00:31 castello Exp $
+// $Id: TrackHitFilter.cc,v 1.13 2009/02/24 18:13:10 castello Exp $
 //
 //
 
@@ -177,7 +177,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-TrackHitFilter::beginJob(const edm::EventSetup&)
+TrackHitFilter::beginJob()
 {
 }
 

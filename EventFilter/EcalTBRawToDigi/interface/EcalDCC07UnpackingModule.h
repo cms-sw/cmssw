@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2007/07/25 12:29:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/20 10:58:00 $
+ *  $Revision: 1.4 $
  * \author Y. Maravin
  * \author G. Franzoni
  * \author G. Della Ricca
@@ -36,7 +36,7 @@ class MatacqTBDataFormatter;
     void produce(edm::Event & e, const edm::EventSetup& c);
 
     // BeginJob
-    void beginJob(const edm::EventSetup& c);
+    void beginJob();
 
     // EndJob
     void endJob(void);

@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/03/23 15:06:15 $
- * $Revision: 1.1 $
+ * $Date: 2009/04/17 15:07:59 $
+ * $Revision: 1.2 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -73,7 +73,7 @@ DQMHcalDiJetsAlCaReco::~DQMHcalDiJetsAlCaReco()
 {}
 
 //--------------------------------------------------------
-void DQMHcalDiJetsAlCaReco::beginJob(const EventSetup& context){
+void DQMHcalDiJetsAlCaReco::beginJob(){
    
 
   // create and cd into new folder

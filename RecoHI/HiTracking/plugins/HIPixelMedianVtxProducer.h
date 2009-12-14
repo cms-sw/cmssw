@@ -14,7 +14,7 @@ public:
 	virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 	
 private:
-	void beginJob(const edm::EventSetup& es);
+	void beginJob();
 	
 	edm::ParameterSet theConfig;
 	double thePtMin;

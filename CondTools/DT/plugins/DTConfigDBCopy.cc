@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:52 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:49 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -52,7 +52,7 @@ DTConfigDBCopy::~DTConfigDBCopy() {
 //--------------
 // Operations --
 //--------------
-void DTConfigDBCopy::beginJob( edm::EventSetup const& c ) {
+void DTConfigDBCopy::beginJob() {
 
   DTDBSession* sourceSession = new DTDBSession( sourceContact,
                                                 sourceCatalog,

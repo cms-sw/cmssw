@@ -38,7 +38,7 @@ class  RPCRecHitValid: public edm::EDAnalyzer {
 
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
-     void beginJob(const edm::EventSetup& c);
+     void beginJob();
      void endJob(void);
 
  private:

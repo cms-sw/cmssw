@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.h,v 1.7 2008/10/13 12:42:14 ntran Exp $
+// $Id: TrackHitFilter.h,v 1.8 2009/02/17 15:00:30 castello Exp $
 //
 //
 
@@ -39,7 +39,7 @@ class TrackHitFilter : public edm::EDProducer {
       ~TrackHitFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
   //     bool keepThisHit(DetId id, int type, int layer);

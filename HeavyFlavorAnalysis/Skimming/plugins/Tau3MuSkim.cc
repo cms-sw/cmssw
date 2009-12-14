@@ -13,7 +13,7 @@
 //
 // Original Author: Manuel Giffels <Manuel.Giffels@physik.rwth-aachen.de> 
 //         Created:  Mon Jul 23 10:19:11 CEST 2007
-// $Id: Tau3MuSkim.cc,v 1.1 2007/08/21 08:44:38 starodum Exp $
+// $Id: Tau3MuSkim.cc,v 1.2 2007/09/24 17:54:32 ratnik Exp $
 //
 //
 //
@@ -61,7 +61,7 @@ Tau3MuSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-Tau3MuSkim::beginJob(const edm::EventSetup&)
+Tau3MuSkim::beginJob()
 {    
 }
 

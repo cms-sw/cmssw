@@ -20,7 +20,7 @@ ContainmentCorrectionAnalyzer::ContainmentCorrectionAnalyzer( const ParameterSet
 
 ContainmentCorrectionAnalyzer::~ContainmentCorrectionAnalyzer() { }
 
-void ContainmentCorrectionAnalyzer::beginJob(EventSetup const&) {
+void ContainmentCorrectionAnalyzer::beginJob() {
 
   Service<TFileService> fs;  
 

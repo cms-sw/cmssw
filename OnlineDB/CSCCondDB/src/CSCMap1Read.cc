@@ -126,7 +126,7 @@ void CSCMap1Read::analyze (const edm::Event&, const edm::EventSetup&)
      std::cout<<"fiber_pos  "<<"  "<<item.fiber_pos<<std::endl;
      std::cout<<"fiber_socket  "<<"  "<<item.fiber_socket<<std::endl;
 }
-void CSCMap1Read::beginJob(const edm::EventSetup&){
+void CSCMap1Read::beginJob(){
   std::cout << "Here is the start" << std::endl;
   std::cout << "-----------------" << std::endl;
 }

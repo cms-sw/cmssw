@@ -23,7 +23,7 @@ class ESDigiToRaw : public edm::EDProducer {
   ESDigiToRaw(const edm::ParameterSet& ps);
   virtual ~ESDigiToRaw();
   
-  void beginJob(const edm::EventSetup& es) ;
+  void beginJob() ;
   void produce(edm::Event& e, const edm::EventSetup& es);
   void endJob() ;
 

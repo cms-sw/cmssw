@@ -142,7 +142,7 @@ MuonSimHitsValidAnalyzer::~MuonSimHitsValidAnalyzer()
 // theRPCFile->Close();
 }
 
-void MuonSimHitsValidAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void MuonSimHitsValidAnalyzer::beginJob()
 {
   return;
 }

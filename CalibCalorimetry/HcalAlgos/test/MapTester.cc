@@ -13,7 +13,7 @@
 //
 // Original Author:  Jared Todd Sturdy
 //         Created:  Thu Oct 23 18:16:33 CEST 2008
-// $Id: MapTester.cc,v 1.3 2009/09/01 00:24:17 rofierzy Exp $
+// $Id: MapTester.cc,v 1.4 2009/10/23 13:31:44 rofierzy Exp $
 //
 //
 
@@ -52,7 +52,7 @@ class MapTester : public edm::EDAnalyzer {
       bool generateTextfiles_;
       bool generateEmap_;
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -82,7 +82,7 @@ MapTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MapTester::beginJob(const edm::EventSetup&)
+MapTester::beginJob()
 {
   char tempbuff[128];
 

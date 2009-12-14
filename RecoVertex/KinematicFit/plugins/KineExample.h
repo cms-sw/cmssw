@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KineExample.h,v 1.1 2007/07/06 12:59:19 speer Exp $
+// $Id: KineExample.h,v 1.1 2007/07/06 14:07:27 speer Exp $
 //
 //
 
@@ -50,7 +50,7 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
 private:

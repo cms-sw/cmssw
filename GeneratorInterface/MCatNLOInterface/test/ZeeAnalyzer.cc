@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.7 2008/01/22 21:11:18 muzaffar Exp $
+// $Id: ZeeAnalyzer.cc,v 1.8 2009/03/26 20:17:15 fabstoec Exp $
 //
 //
 
@@ -48,7 +48,7 @@ class ZeeAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -158,7 +158,7 @@ void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ZeeAnalyzer::beginJob(const edm::EventSetup&)
+ZeeAnalyzer::beginJob()
 {
 }
 

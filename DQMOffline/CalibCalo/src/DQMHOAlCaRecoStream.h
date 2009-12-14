@@ -10,7 +10,7 @@ class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
 
       DQMStore* dbe_; 
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

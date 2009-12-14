@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: CalibrationSkeleton.cc,v 1.9 2008/02/20 14:59:13 saout Exp $
+// $Id: CalibrationSkeleton.cc,v 1.10 2009/09/14 18:18:41 saout Exp $
 //
 //
 
@@ -85,7 +85,7 @@ class CalibrationSkeleton : public edm::EDAnalyzer {
    public:
   explicit CalibrationSkeleton(const edm::ParameterSet&);
 
-  virtual void beginJob(const edm::EventSetup&)
+  virtual void beginJob()
   {
     bool resetData=true;
     bool newBinning=false;

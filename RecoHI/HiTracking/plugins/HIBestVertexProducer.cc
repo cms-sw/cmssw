@@ -29,8 +29,7 @@ HIBestVertexProducer::~HIBestVertexProducer()
 }
 
 /*****************************************************************************/
-void HIBestVertexProducer::beginJob
-(const edm::EventSetup& es)
+void HIBestVertexProducer::beginJob()
 {
 }
 

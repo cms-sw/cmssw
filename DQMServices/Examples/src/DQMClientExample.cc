@@ -3,9 +3,9 @@
  * \author M. Zanetti - CERN
  *
  * Last Update:
- * $Date: 2009/01/19 13:30:24 $
- * $Revision: 1.14 $
- * $Author: dvolyans $
+ * $Date: 2009/10/13 18:20:26 $
+ * $Revision: 1.15 $
+ * $Author: ameyer $
  *
  */
 
@@ -86,7 +86,7 @@ void DQMClientExample::initialize(){
 //==================================================================//
 //========================= beginJob ===============================//
 //==================================================================//
-void DQMClientExample::beginJob(const EventSetup& context){
+void DQMClientExample::beginJob(){
 
    ////---- get DQM store interface 
   dbe_ = Service<DQMStore>().operator->();

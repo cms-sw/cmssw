@@ -22,7 +22,7 @@ class EcalTBTDCRawInfoDumper : public edm::EDAnalyzer {
   explicit EcalTBTDCRawInfoDumper(const edm::ParameterSet& ps);
   virtual ~EcalTBTDCRawInfoDumper() ;
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
  private:

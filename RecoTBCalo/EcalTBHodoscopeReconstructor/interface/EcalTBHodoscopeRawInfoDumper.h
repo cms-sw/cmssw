@@ -22,7 +22,7 @@ class EcalTBHodoscopeRawInfoDumper : public edm::EDAnalyzer {
   explicit EcalTBHodoscopeRawInfoDumper(const edm::ParameterSet& ps);
   virtual ~EcalTBHodoscopeRawInfoDumper() ;
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
  private:

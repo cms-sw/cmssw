@@ -18,7 +18,7 @@ class PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV : public edm::EDAnalyz
 {
 public:
   PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV(const edm::ParameterSet&);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
   virtual void endJob() {}
   ~PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV() {}
@@ -39,7 +39,7 @@ PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::PhysicsPerformanceDBWriterF
   iovEnd = p.getParameter<unsigned long long>("IOVEnd"); 
 }
 
-void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob(const edm::EventSetup&)
+void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob()
 {
   //
   // read object from file

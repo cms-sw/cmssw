@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2008/01/22 18:42:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/01 00:40:13 $
+ *  $Revision: 1.8 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -59,7 +59,7 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset){
 PhysicsObjectsMonitor::~PhysicsObjectsMonitor(){
 }
 
-void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
+void PhysicsObjectsMonitor::beginJob(){
 
   dbe->setCurrentFolder("PhysicsObjects/MuonReconstruction");           
 

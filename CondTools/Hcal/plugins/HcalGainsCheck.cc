@@ -11,7 +11,7 @@ HcalGainsCheck::HcalGainsCheck(edm::ParameterSet const& ps)
   epsilon = ps.getUntrackedParameter<double>("deltaG",1000000);
 }
 
-void HcalGainsCheck::beginJob(const edm::EventSetup& es)
+void HcalGainsCheck::beginJob()
 {
   f = new TFile(rootfile.c_str(),"RECREATE");
 

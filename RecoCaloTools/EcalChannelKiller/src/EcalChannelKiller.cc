@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id: EcalChannelKiller.cc,v 1.3 2009/04/30 13:09:17 beaucero Exp $
+// $Id: EcalChannelKiller.cc,v 1.4 2009/09/10 09:29:39 elmer Exp $
 //
 //
 
@@ -133,7 +133,7 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalChannelKiller::beginJob(const edm::EventSetup&)
+EcalChannelKiller::beginJob()
 {
 
   //Open the DeadChannel file, read it.

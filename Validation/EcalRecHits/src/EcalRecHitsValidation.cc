@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2009/07/14 09:13:38 $
+ * $Date: 2009/07/23 13:38:26 $
  * \author C. Rovelli
  *
 */
@@ -246,7 +246,7 @@ EcalRecHitsValidation::~EcalRecHitsValidation(){
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);  
 }
 
-void EcalRecHitsValidation::beginJob(const EventSetup& c){  
+void EcalRecHitsValidation::beginJob(){  
 
 }
 

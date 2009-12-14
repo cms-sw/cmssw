@@ -73,7 +73,7 @@ L1GlobalTriggerRecordProducer::~L1GlobalTriggerRecordProducer()
 
 // member functions
 
-void L1GlobalTriggerRecordProducer::beginJob(const edm::EventSetup& evSetup)
+void L1GlobalTriggerRecordProducer::beginJob()
 {
     // empty
 }

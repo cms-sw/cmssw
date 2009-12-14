@@ -43,7 +43,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&)=0;
   virtual void endJob() ;
 
@@ -117,7 +117,7 @@ StopProfilerAnalyzer::analyze(const edm::Event&, const edm::EventSetup&)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ProfilerAnalyzer::beginJob(const edm::EventSetup&)
+ProfilerAnalyzer::beginJob()
 {
 }
 

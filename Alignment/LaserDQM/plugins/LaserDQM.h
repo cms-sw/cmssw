@@ -4,8 +4,8 @@
 /** \class LaserDQM
  *  DQM Monitor Elements for the Laser Alignment System
  *
- *  $Date: 2008/02/15 13:54:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/01 13:22:57 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -32,7 +32,7 @@ class LaserDQM : public edm::EDAnalyzer
   /// this method will do the user analysis 
   virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
   /// begin job
-  virtual void beginJob(const edm::EventSetup& theSetup);
+  virtual void beginJob();
 	/// end job
   virtual void endJob(void);
     

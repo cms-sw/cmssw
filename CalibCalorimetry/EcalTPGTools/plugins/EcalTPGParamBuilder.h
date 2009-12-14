@@ -65,7 +65,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   explicit EcalTPGParamBuilder(edm::ParameterSet const& pSet) ;
   ~EcalTPGParamBuilder() ;
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) ;
-  virtual void beginJob(const edm::EventSetup& evtSetup) ;
+  virtual void beginJob() ;
   bool checkIfOK (EcalPedestals::Item item) ;
 
  private:

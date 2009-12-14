@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.17 2009/11/27 17:48:59 neadam Exp $
+// $Id: HLXMonitor.h,v 1.18 2009/12/04 17:48:59 neadam Exp $
 //
 //
 
@@ -61,7 +61,7 @@ class HLXMonitor : public edm::EDAnalyzer
       ~HLXMonitor();
       
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       //virtual void endRun(const edm::Run&, const edm::EventSetup&);

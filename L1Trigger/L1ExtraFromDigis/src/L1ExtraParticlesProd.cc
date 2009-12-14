@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.30 2009/07/02 01:43:53 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.31 2009/08/03 19:52:52 wsun Exp $
 //
 //
 
@@ -1089,7 +1089,7 @@ L1ExtraParticlesProd::gctLorentzVector( const double& et,
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1ExtraParticlesProd::beginJob(const edm::EventSetup&)
+L1ExtraParticlesProd::beginJob()
 {
 }
 

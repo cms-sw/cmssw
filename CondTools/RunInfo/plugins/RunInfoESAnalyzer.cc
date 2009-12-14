@@ -33,7 +33,7 @@ namespace edmtest
     virtual ~RunInfoESAnalyzer() {  
       std::cout<<"~RunInfoESAnalyzer "<<std::endl;
     }
-    //     virtual void beginJob(const edm::EventSetup& context);
+    //     virtual void beginJob();
     //  virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   private:
@@ -50,7 +50,7 @@ namespace edmtest
   }
   
   void
-  RunInfoESAnalyzer::beginJob(const edm::EventSetup& context){
+  RunInfoESAnalyzer::beginJob(){
     std::cout<<"###RunInfoESAnalyzer::beginJob"<<std::endl;
    
   }

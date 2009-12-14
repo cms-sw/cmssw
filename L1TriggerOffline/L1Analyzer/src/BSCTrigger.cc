@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.5 2009/02/23 11:21:28 boudoul Exp $
+// $Id: BSCTrigger.cc,v 1.6 2009/11/19 10:36:36 yjlee Exp $
 //
 //
 
@@ -43,7 +43,7 @@ public:
   ~BSCTrigger();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   int   getBSCNum(int id, float z);
@@ -233,7 +233,7 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(output);
 }
 // ------------ method called once each job just before starting event loop  ------------
-void BSCTrigger::beginJob(const edm::EventSetup&)
+void BSCTrigger::beginJob()
 {
 }
 

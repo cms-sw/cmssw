@@ -29,7 +29,7 @@ SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 }
 
 
-void SiStripMonitorHLT::beginJob(const edm::EventSetup& es){
+void SiStripMonitorHLT::beginJob(){
   using namespace edm;
 
   dqmStore_->setCurrentFolder(HLTDirectory);

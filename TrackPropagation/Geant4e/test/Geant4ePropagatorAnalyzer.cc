@@ -63,7 +63,7 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  virtual void beginJob(edm::EventSetup const & iSetup);
+  virtual void beginJob();
   void iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits,
 		       testMuChamberType muonChamberType,
 		       unsigned int trkIndex,
@@ -251,7 +251,7 @@ Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& iC
   ///////////////////////////////////////////////////////////////////////////////////
 }
 
-void Geant4ePropagatorAnalyzer::beginJob(edm::EventSetup const & iSetup) {
+void Geant4ePropagatorAnalyzer::beginJob() {
   LogDebug("Geant4e") << "Nothing done in beginJob...";
 }
 

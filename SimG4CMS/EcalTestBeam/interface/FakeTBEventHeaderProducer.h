@@ -3,7 +3,7 @@
 /*
  * \file FakeTBEventHeaderProducer.h
  *
- * $Id: FakeTBEventHeaderProducer.h,v 1.2 2006/10/26 08:01:06 fabiocos Exp $
+ * $Id: FakeTBEventHeaderProducer.h,v 1.3 2007/03/07 10:48:54 fabiocos Exp $
  *
  * Mimic the event header information
  * for the test beam simulation 
@@ -40,7 +40,7 @@ class FakeTBEventHeaderProducer: public edm::EDProducer{
   void produce(edm::Event & event, const edm::EventSetup& eventSetup);
   
   // BeginJob
-  //void beginJob(const edm::EventSetup& c);
+  //void beginJob();
   
   // EndJob
   //void endJob(void);

@@ -21,7 +21,7 @@ class CSCMap1Read : public edm::EDAnalyzer {
   ~CSCMap1Read();
   
  private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 };

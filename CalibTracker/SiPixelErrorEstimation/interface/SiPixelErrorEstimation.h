@@ -65,7 +65,7 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
   explicit SiPixelErrorEstimation(const edm::ParameterSet&);
   virtual ~SiPixelErrorEstimation();
     
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

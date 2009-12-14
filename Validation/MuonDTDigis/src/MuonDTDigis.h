@@ -4,8 +4,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2008/02/29 20:48:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/09/17 11:52:40 $
+ *  $Revision: 1.5 $
  *  \authors: R. Bellan
  */
 #include <FWCore/Framework/interface/Event.h>
@@ -63,7 +63,7 @@ class MuonDTDigis : public edm::EDAnalyzer{
   hDigis* WheelHistos(int wheel);
   
   // BeginJob
-//void beginJob(const edm::EventSetup& eventSetup);
+//void beginJob();
 
   // EndJob
 //void endJob(void);

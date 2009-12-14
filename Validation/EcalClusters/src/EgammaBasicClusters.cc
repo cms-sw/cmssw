@@ -46,7 +46,7 @@ EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
 
 EgammaBasicClusters::~EgammaBasicClusters() {}
 
-void EgammaBasicClusters::beginJob(edm::EventSetup const&) 
+void EgammaBasicClusters::beginJob() 
 {
   	dbe_ = edm::Service<DQMStore>().operator->();                   
 

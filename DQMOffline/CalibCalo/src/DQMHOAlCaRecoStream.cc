@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id: DQMHOAlCaRecoStream.cc,v 1.3 2009/04/17 15:07:37 argiro Exp $
+// $Id: DQMHOAlCaRecoStream.cc,v 1.6 2009/07/21 12:43:03 dellaric Exp $
 //
 //
 
@@ -154,7 +154,7 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DQMHOAlCaRecoStream::beginJob(const edm::EventSetup&)
+DQMHOAlCaRecoStream::beginJob()
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);

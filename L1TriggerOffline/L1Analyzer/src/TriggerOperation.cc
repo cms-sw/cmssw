@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgia KARAPOSTOLI
 //         Created:  Wed Feb 11 18:34:11 CET 2009
-// $Id$
+// $Id: TriggerOperation.cc,v 1.1 2009/03/26 16:33:09 tapper Exp $
 //
 //
 
@@ -56,7 +56,7 @@ class TriggerOperation : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -165,7 +165,7 @@ TriggerOperation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TriggerOperation::beginJob(const edm::EventSetup&)
+TriggerOperation::beginJob()
 {
 }
 

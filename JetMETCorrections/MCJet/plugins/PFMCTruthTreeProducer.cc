@@ -33,7 +33,7 @@ PFMCTruthTreeProducer::PFMCTruthTreeProducer(edm::ParameterSet const& cfg)
   histogramFile_ = cfg.getParameter<std::string> ("histogramFile");
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void PFMCTruthTreeProducer::beginJob(EventSetup const& iSetup) 
+void PFMCTruthTreeProducer::beginJob() 
 {
   file_          = new TFile(histogramFile_.c_str(),"RECREATE");
   mcTruthTree_   = new TTree("mcTruthTree","mcTruthTree");

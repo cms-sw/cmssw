@@ -13,7 +13,7 @@
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.5 2009/08/24 14:54:53 edwenger Exp $
+// $Id: EvtPlaneProducer.cc,v 1.6 2009/09/08 10:52:01 edwenger Exp $
 //
 //
 
@@ -63,7 +63,7 @@ class EvtPlaneProducer : public edm::EDProducer {
       ~EvtPlaneProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -341,7 +341,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EvtPlaneProducer::beginJob(const edm::EventSetup&)
+EvtPlaneProducer::beginJob()
 {
 }
 

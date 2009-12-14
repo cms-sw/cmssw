@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/10/05 14:49:08 $
- * $Revision: 1.24 $
- * $Author: lat $
+ * $Date: 2009/10/13 18:20:26 $
+ * $Revision: 1.25 $
+ * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
  * monitoring elements
@@ -60,7 +60,7 @@ void DQMSourceExample::initialize() {
 //==================================================================//
 //========================= beginJob ===============================//
 //==================================================================//
-void DQMSourceExample::beginJob(const EventSetup& context) {
+void DQMSourceExample::beginJob() {
   ////---- get DQM store interface
   dbe_ = Service<DQMStore>().operator->();
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.10 2009/10/24 15:26:55 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.11 2009/10/26 14:42:08 edwenger Exp $
 //
 //
 
@@ -52,7 +52,7 @@ class CentralityProducer : public edm::EDProducer {
       ~CentralityProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -135,7 +135,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-CentralityProducer::beginJob(const edm::EventSetup&)
+CentralityProducer::beginJob()
 {
 }
 

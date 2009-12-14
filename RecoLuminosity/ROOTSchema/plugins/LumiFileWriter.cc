@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.9 2008/10/23 15:53:15 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.10 2009/04/08 14:37:33 ahunt Exp $
 //
 //
 
@@ -121,7 +121,7 @@ void LumiFileWriter::analyze(const edm::Event& iEvent,
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-LumiFileWriter::beginJob(const edm::EventSetup&)
+LumiFileWriter::beginJob()
 {}
 
 // ------------ method called once each job just after ending the event loop  ------------

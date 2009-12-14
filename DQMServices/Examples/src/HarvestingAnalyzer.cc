@@ -19,7 +19,7 @@ HarvestingAnalyzer::HarvestingAnalyzer(const edm::ParameterSet& iPSet)
 
 HarvestingAnalyzer::~HarvestingAnalyzer() {}
 
-void HarvestingAnalyzer::beginJob(const edm::EventSetup& iSetup) 
+void HarvestingAnalyzer::beginJob() 
 {
   return;
 }

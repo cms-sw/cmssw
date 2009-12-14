@@ -1,8 +1,8 @@
 /** \file SimAnalyzer.cc
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2007/12/04 23:53:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/22 18:51:34 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -76,7 +76,7 @@ void SimAnalyzer::analyze(edm::Event const& theEvent, edm::EventSetup const& the
 	LogDebug("SimAnalyzer") << "===========================================================";
 }
 
-void SimAnalyzer::beginJob(const edm::EventSetup& theSetup) 
+void SimAnalyzer::beginJob() 
 {
 	LogDebug("SimAnalyzer") << "==========================================================="
 		<< "===                Start beginJob()                     ==="

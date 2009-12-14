@@ -27,7 +27,7 @@ ConverterTester::ConverterTester(const edm::ParameterSet& iPSet)
 
 ConverterTester::~ConverterTester() {}
 
-void ConverterTester::beginJob(const edm::EventSetup& iSetup)
+void ConverterTester::beginJob()
 {
 
   if(dbe){

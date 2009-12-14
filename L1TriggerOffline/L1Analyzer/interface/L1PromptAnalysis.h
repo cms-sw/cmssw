@@ -6,8 +6,8 @@
  *   Description:  This code is designed for l1 prompt analysis
 //                 starting point is a GMTTreeMaker By Ivan Mikulec. 
 */                
-//   $Date: 2008/10/24 15:41:51 $
-//   $Revision: 1.2 $
+//   $Date: 2008/11/27 11:02:15 $
+//   $Revision: 1.3 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -73,7 +73,7 @@ class L1PromptAnalysis : public edm::EDAnalyzer {
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     void book();
 
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
     virtual void endJob();
 
   private:

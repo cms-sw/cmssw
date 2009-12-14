@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2009/07/02 11:17:47 $
+ * $Date: 2009/07/28 09:32:01 $
  * \author C. Rovelli
  *
  */
@@ -125,7 +125,7 @@ EcalBarrelRecHitsValidation::~EcalBarrelRecHitsValidation(){
 
 }
 
-void EcalBarrelRecHitsValidation::beginJob(const EventSetup& c){  
+void EcalBarrelRecHitsValidation::beginJob(){  
 
 }
 

@@ -44,8 +44,7 @@ HIPixelMedianVtxProducer::~HIPixelMedianVtxProducer()
 }
 
 /*****************************************************************************/
-void HIPixelMedianVtxProducer::beginJob
-(const edm::EventSetup& es)
+void HIPixelMedianVtxProducer::beginJob()
 {
 }
 

@@ -75,7 +75,7 @@ XmasToDQMSource::~XmasToDQMSource()
 
 
 //--------------------------------------------------------
-void XmasToDQMSource::beginJob(const EventSetup& context){
+void XmasToDQMSource::beginJob(){
 
 }
 

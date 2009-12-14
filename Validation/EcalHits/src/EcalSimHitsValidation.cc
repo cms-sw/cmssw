@@ -89,7 +89,7 @@ EcalSimHitsValidation::~EcalSimHitsValidation(){
 
 }
 
-void EcalSimHitsValidation::beginJob(const edm::EventSetup& c){
+void EcalSimHitsValidation::beginJob(){
 
 }
 

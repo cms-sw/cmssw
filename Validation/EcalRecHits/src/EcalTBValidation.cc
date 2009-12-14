@@ -125,7 +125,7 @@ EcalTBValidation::EcalTBValidation( const edm::ParameterSet& config ) {
 
 EcalTBValidation::~EcalTBValidation(){}
 
-void EcalTBValidation::beginJob(edm::EventSetup const&) {}
+void EcalTBValidation::beginJob() {}
 
 void EcalTBValidation::endJob() {}
 

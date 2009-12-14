@@ -11,7 +11,7 @@ class CaloMCTruthTreeProducer : public edm::EDAnalyzer
 {
   public:
     explicit CaloMCTruthTreeProducer(edm::ParameterSet const& cfg);
-    virtual void beginJob(edm::EventSetup const& iSetup);
+    virtual void beginJob();
     virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
     virtual void endJob();
     ~CaloMCTruthTreeProducer();

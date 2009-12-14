@@ -28,9 +28,9 @@
  *
  * \author Christian Veelken, UC Davis
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.1 $
  *
- * $Id: EventShapeVarsProducer.h,v 1.4 2009/10/17 17:18:04 veelken Exp $
+ * $Id: EventShapeVarsProducer.h,v 1.1 2009/11/02 18:19:55 veelken Exp $
  *
  */
 
@@ -52,7 +52,7 @@ class EventShapeVarsProducer : public edm::EDProducer
   edm::InputTag src_;
   double r_;
 
-  void beginJob(const edm::EventSetup&) {}
+  void beginJob() {}
   void produce(edm::Event&, const edm::EventSetup&);
   void endJob() {}
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestPerformanceFW_ES.cc,v 1.1 2009/03/06 10:13:20 tboccali Exp $
+// $Id: TestPerformanceFW_ES.cc,v 1.2 2009/08/13 12:33:24 tboccali Exp $
 //
 //
 
@@ -49,7 +49,7 @@ public:
   
 private:
   std::string name;
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -147,7 +147,7 @@ TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TestPerformanceFW_ES::beginJob(const edm::EventSetup&)
+TestPerformanceFW_ES::beginJob()
 {
 }
 

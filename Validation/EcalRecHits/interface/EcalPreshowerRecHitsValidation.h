@@ -4,7 +4,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.h
  *
- * $Date: 2008/02/18 14:20:32 $
+ * $Date: 2008/02/29 20:48:30 $
  * \author C. Rovelli
  *
  */
@@ -48,7 +48,7 @@ class EcalPreshowerRecHitsValidation: public edm::EDAnalyzer{
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
   
   // EndJob
   void endJob(void);

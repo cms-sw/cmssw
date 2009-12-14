@@ -26,7 +26,7 @@ class BasicGenTester : public edm::EDAnalyzer
                                    // as it'll be deleted upon closing TFile
       
       virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob( const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endRun( const edm::Run&, const edm::EventSetup& ) ;
       virtual void endJob() ;
 
@@ -53,7 +53,7 @@ BasicGenTester::BasicGenTester( const ParameterSet& pset )
 
 }
 
-void BasicGenTester::beginJob( const EventSetup& )
+void BasicGenTester::beginJob()
 {
   
   Service<TFileService> fs;

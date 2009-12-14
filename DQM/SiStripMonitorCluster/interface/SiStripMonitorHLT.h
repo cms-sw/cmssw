@@ -29,7 +29,7 @@ class SiStripMonitorHLT : public edm::EDAnalyzer {
       ~SiStripMonitorHLT(){};
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
 
    private:

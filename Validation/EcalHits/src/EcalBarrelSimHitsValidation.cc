@@ -143,7 +143,7 @@ EcalBarrelSimHitsValidation::~EcalBarrelSimHitsValidation(){
  
 }
 
-void EcalBarrelSimHitsValidation::beginJob(const edm::EventSetup& c){
+void EcalBarrelSimHitsValidation::beginJob(){
 
 }
 

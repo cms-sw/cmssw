@@ -18,7 +18,7 @@ class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::EDAnalyz
 {
 public:
   PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL(const edm::ParameterSet&);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
   virtual void endJob() {}
   ~PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL() {}
@@ -37,7 +37,7 @@ PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::PhysicsPerformanceDBWriterT
   rec2 = p.getUntrackedParameter<std::string>("RecordWP");
 }
 
-void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob(const edm::EventSetup&)
+void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
 {
   //
   // read object from file

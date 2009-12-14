@@ -12,7 +12,7 @@
 */
 // Original Author:  Keti Kaadze
 //         Created:  Thu Jun 21 08:59:42 CDT 2007
-// $Id: EnergyScaleAnalyzer.cc,v 1.5 2009/01/09 10:23:25 saout Exp $
+// $Id: EnergyScaleAnalyzer.cc,v 1.6 2009/02/09 08:02:07 benigno Exp $
 //
 
 //#include "RecoEcal/EnergyScaleAnalyzer/interface/EnergyScaleAnalyzer.h"
@@ -94,7 +94,7 @@ EnergyScaleAnalyzer::~EnergyScaleAnalyzer()
 
 //========================================================================
 void
-EnergyScaleAnalyzer::beginJob(edm::EventSetup const&) {
+EnergyScaleAnalyzer::beginJob() {
 //========================================================================
 
   mytree_ = new TTree("energyScale","");

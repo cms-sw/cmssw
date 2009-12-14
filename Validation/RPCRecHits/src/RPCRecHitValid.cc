@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/04 17:46:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/21 10:48:14 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -69,7 +69,7 @@ RPCRecHitValid::RPCRecHitValid(const ParameterSet& pset){
   }  
 }
 
-void RPCRecHitValid::beginJob(const edm::EventSetup& evs) {}
+void RPCRecHitValid::beginJob() {}
 
 // Destructor
 RPCRecHitValid::~RPCRecHitValid(){

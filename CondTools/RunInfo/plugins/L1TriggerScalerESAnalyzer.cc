@@ -33,7 +33,7 @@ namespace edmtest
     virtual ~L1TriggerScalerESAnalyzer() {  
       std::cout<<"~L1TriggerScalerESAnalyzer "<<std::endl;
     }
-     virtual void beginJob(const edm::EventSetup& context);
+     virtual void beginJob();
      virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   private:
@@ -50,7 +50,7 @@ namespace edmtest
   }
   
   void
-  L1TriggerScalerESAnalyzer::beginJob(const edm::EventSetup& context){
+  L1TriggerScalerESAnalyzer::beginJob(){
     std::cout<<"###L1TriggerScalerESAnalyzer::beginJob"<<std::endl;
    
   }

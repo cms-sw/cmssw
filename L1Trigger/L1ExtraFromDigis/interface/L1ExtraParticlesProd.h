@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.8 2009/03/26 03:58:27 wsun Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.9 2009/03/27 23:23:23 wsun Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       ~L1ExtraParticlesProd();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

@@ -33,7 +33,7 @@ CaloMCTruthTreeProducer::CaloMCTruthTreeProducer(edm::ParameterSet const& cfg)
   histogramFile_ = cfg.getParameter<std::string> ("histogramFile");
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void CaloMCTruthTreeProducer::beginJob(EventSetup const& iSetup) 
+void CaloMCTruthTreeProducer::beginJob() 
 {
   file_          = new TFile(histogramFile_.c_str(),"RECREATE");
   mcTruthTree_   = new TTree("mcTruthTree","mcTruthTree");

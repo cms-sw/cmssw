@@ -14,7 +14,7 @@
 // Original Author:  Jochen Cammin
 //         Created:  Mon Jan 14 21:54:50 CST 2008
 //         Adapted from CSA06Skimming package
-// $Id: MCProcessFilter07.cc,v 1.2 2008/01/23 21:22:16 cammin Exp $
+// $Id: MCProcessFilter07.cc,v 1.1 2008/02/05 09:29:40 weng Exp $
 //
 //
 
@@ -44,7 +44,7 @@ class MCProcessFilter07 : public edm::EDFilter {
       ~MCProcessFilter07();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -152,7 +152,7 @@ MCProcessFilter07::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MCProcessFilter07::beginJob(const edm::EventSetup&)
+MCProcessFilter07::beginJob()
 {
 }
 

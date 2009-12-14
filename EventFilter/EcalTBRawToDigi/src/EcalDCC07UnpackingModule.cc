@@ -1,7 +1,7 @@
 /* \file EcalDCCTB07UnpackingModule.h
  *
- *  $Date: 2008/01/21 11:21:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/02/17 16:30:42 $
+ *  $Revision: 1.11 $
  *  \author Y. Maravin
  *  \author G. Franzoni
  *  \author G. Della Ricca
@@ -165,7 +165,7 @@ EcalDCCTB07UnpackingModule::~EcalDCCTB07UnpackingModule(){
 
 }
 
-void EcalDCCTB07UnpackingModule::beginJob(const edm::EventSetup& c){
+void EcalDCCTB07UnpackingModule::beginJob(){
 
 }
 

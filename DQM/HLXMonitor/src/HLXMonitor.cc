@@ -819,7 +819,7 @@ void HLXMonitor::SaveDQMFile(){
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void HLXMonitor::beginJob(const edm::EventSetup&)
+void HLXMonitor::beginJob()
 { 
    HLXTCP.SetIP(DistribIP1);
    int errorCode = HLXTCP.SetPort(listenPort);

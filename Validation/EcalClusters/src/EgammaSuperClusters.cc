@@ -89,7 +89,7 @@ EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 
 EgammaSuperClusters::~EgammaSuperClusters() {}
 
-void EgammaSuperClusters::beginJob(edm::EventSetup const&) 
+void EgammaSuperClusters::beginJob() 
 {
   	dbe_ = edm::Service<DQMStore>().operator->();                   
 

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/09/01 17:57:24 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/10/29 14:45:28 $
+ *  $Revision: 1.13 $
  *  \author Julia Yarba
  */
 
@@ -64,7 +64,7 @@ Pythia6Gun::~Pythia6Gun()
 }
 
 
-void Pythia6Gun::beginJob( const EventSetup& es )
+void Pythia6Gun::beginJob()
 {
    // es.getData( fPDGTable ) ;
    return ;

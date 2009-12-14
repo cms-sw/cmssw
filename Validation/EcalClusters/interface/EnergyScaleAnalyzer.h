@@ -8,7 +8,7 @@
      \\\author: Keti Kaadze, June 2007
 */
 //
-// $Id: EnergyScaleAnalyzer.h,v 1.3 2009/01/09 10:23:25 saout Exp $
+// $Id: EnergyScaleAnalyzer.h,v 1.4 2009/03/27 23:20:15 ferriff Exp $
 //
 
 
@@ -53,7 +53,7 @@ class EnergyScaleAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
 
       
