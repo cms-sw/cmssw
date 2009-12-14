@@ -36,7 +36,7 @@
 
 namespace {
   /* utility ot build the name of the plugin corresponding to a given record
-     se PluginSystem
+     se ESSources
    */
   std::string
   buildName( const std::string& iRecordName) {

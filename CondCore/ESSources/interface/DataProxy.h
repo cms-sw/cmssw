@@ -1,5 +1,5 @@
-#ifndef CondCore_PluginSystem_DataProxy_H
-#define CondCore_PluginSystem_DataProxy_H
+#ifndef CondCore_ESSources_DataProxy_H
+#define CondCore_ESSources_DataProxy_H
 //#include <iostream>
 #include <string>
 #include "boost/shared_ptr.hpp"

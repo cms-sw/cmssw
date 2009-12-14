@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     PluginSystem
+// Package:     ESSources
 // Class  :     ProxyFactory
 // 
 // Implementation:

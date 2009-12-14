@@ -2,10 +2,10 @@
 #define CONDCORE_PLUGINSYSTEM_PROXYFACTORY_H
 // -*- C++ -*-
 //
-// Package:     PluginSystem
+// Package:     ESSources
 // Class  :     ProxyFactory
 // 
-/**\class ProxyFactory ProxyFactory.h CondCore/PluginSystem/interface/ProxyFactory.h
+/**\class ProxyFactory ProxyFactory.h CondCore/ESSources/interface/ProxyFactory.h
    
 Description: <one line class summary>
 

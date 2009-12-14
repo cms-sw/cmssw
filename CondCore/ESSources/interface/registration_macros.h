@@ -2,10 +2,10 @@
 #define PLUGINSYSTEM_REGISTRATION_MACROS_H
 // -*- C++ -*-
 //
-// Package:     PluginSystem
+// Package:     ESSources
 // Class  :     registration_macros
 // 
-/**\class registration_macros registration_macros.h TestCondDB/PluginSystem/interface/registration_macros.h
+/**\class registration_macros registration_macros.h TestCondDB/ESSources/interface/registration_macros.h
 
  Description: CPP macros used to simplify registration of plugins
 

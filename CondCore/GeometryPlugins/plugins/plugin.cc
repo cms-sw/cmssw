@@ -1,4 +1,4 @@
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "CondFormats/GeometryObjects/interface/GeometryFile.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
