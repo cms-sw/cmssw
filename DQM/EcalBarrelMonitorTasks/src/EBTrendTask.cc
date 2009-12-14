@@ -1,8 +1,8 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2009/11/11 09:37:16 $
- * $Revision: 1.2 $
+ * $Date: 2009/11/19 18:14:42 $
+ * $Revision: 1.3 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -27,7 +27,6 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include "DQM/EcalCommon/interface/Numbers.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
@@ -38,7 +37,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBTrendTask.h"
 
@@ -125,8 +123,6 @@ void EBTrendTask::beginJob(void){
 
 
 void EBTrendTask::beginRun(const Run& r, const EventSetup& c) {
-
-  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 
