@@ -43,6 +43,8 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
 )
 
+process.gsfElectrons.ctfTracksCheck = cms.bool(False)
+
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
 process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.particleFlowCluster)
 process.myelectronseeding = cms.Sequence(process.trackerDrivenElectronSeeds*process.ecalDrivenElectronSeeds*process.electronMergedSeeds)
