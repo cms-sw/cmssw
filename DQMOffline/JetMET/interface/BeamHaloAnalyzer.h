@@ -237,6 +237,8 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   std::string TextFileName;
   std::string FolderName;
 
+  double DumpMET;
+
   // DAQ Tools
   DQMStore* dqm;
   std::map<std::string , MonitorElement*> ME;
