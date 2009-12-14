@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Chamber Gas Mix (RPCObGasMix)
  *
- *  $Date: 2009/11/16 13:00:18 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/12/13 09:56:28 $
+ *  $Revision: 1.1 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -14,9 +14,9 @@ class RPCObGasMix {
     public:
       struct Item {
         int unixtime;
-        float gas1; 
-        float gas2; 
-        float gas3;
+        float gas1; // IC4H10
+        float gas2; // C2H2F4
+        float gas3; // SF6
       };
     RPCObGasMix(){}
     virtual ~RPCObGasMix(){}
