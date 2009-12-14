@@ -22,9 +22,10 @@ import subprocess
 #
 #
 mode = 'online'
-input_pool_connect_string = "oracle://cmsdevr_lb/cms_cond_hcal"    # read list of tags/iovs from
-output_pool_connect_string = "oracle://cmsdevr_lb/cms_cond_hcal"   # where to write changes
-pool_auth_path = "/afs/cern.ch/cms/DB/conddb"
+input_pool_connect_string = "oracle://CMSDEVR_LB/CMS_COND_HCAL"    # read list of tags/iovs from
+output_pool_connect_string = "oracle://CMSDEVR_LB/CMS_COND_HCAL"   # where to write changes
+#pool_auth_path = "/afs/cern.ch/cms/DB/conddb"
+pool_auth_path = "/nfshome0/popcondev/conddbxxx"
 pool_logconnect = "sqlite_file:log.db"                   # pool log DB file
 omds_accessor_string = "occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44"
 base_dir = "."
@@ -188,12 +189,18 @@ def get_iovs(tag, input_pool_connect_string, mode):
         for line in iov_list_file:
             iov_list . append(line.strip())
         iov_list_file.close()
-    # now parse iov_list, as it may contain random text lines
-    # let's choose only line that start with O2O_IOV_LIST:
+    # now parse iov_list.
+    # May contain various important output. Prefix defines the type of instruction.
+    # IOVs start with O2O_IOV_LIST:
+    # CONNECTION ERROR: indicates problems with connection to Pool and invalidates
+    #                   the IOV list
     iovs=[]
     for line in iov_list:
+        line_stripped = line.strip()
         if line.strip()[0:13] == "O2O_IOV_LIST:":
            iovs.append(line.lstrip("O2O_IOV_LIST:"))
+        if line_stripped[0:line_stripped.find(":")] == "CONNECTION ERROR":
+            result = "fail_connect"
     return {'iovs':iovs,
             'result':result}
 #
@@ -213,6 +220,7 @@ for tag_name in tags:
     query_file_name   = guessed_condition['query_file_name']
     pool_record       = guessed_condition['pool_record']
 
+    print ""
     print "Processing tag:", tag
     print "Condition type:",condition_type 
 
@@ -248,6 +256,9 @@ for tag_name in tags:
 
     # stop processing current tag if IOVs were not obtained
     if (gotten_iovs['result'] != "success"):
+        if (gotten_iovs['result'] == "fail_connect"):
+            print "Problems connecting to", input_pool_connect_string
+            print "Unable to process tag", tag_name, "continuing to the next tag..."
         continue
     
     o2o_iovs = gotten_iovs['iovs']
