@@ -5,8 +5,8 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2009/06/19 12:20:23 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/11/20 15:53:36 $
+ *  $Revision: 1.18 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -23,6 +23,7 @@
 #include "CondTools/RPC/interface/RPCIDMapSH.h"
 #include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
 #include "CondFormats/RPCObjects/interface/RPCObUXC.h"
+#include "CondFormats/RPCObjects/interface/RPCObGasMix.h"
 
 struct dbread{
     float alias;
@@ -54,6 +55,7 @@ public:
   std::vector<RPCObPVSSmap::Item> createIDMAP();
   std::vector<RPCObFebmap::Feb_Item> createFEB(long long since, long long till);	
   std::vector<RPCObUXC::Item> createUXC(long long since, long long till);
+  std::vector<RPCObGasMix::Item> createMix(long long since, long long till);
   bool isMajor(coral::TimeStamp fir, coral::TimeStamp sec);
   
 private:
