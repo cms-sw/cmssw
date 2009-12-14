@@ -381,6 +381,7 @@ class _TypedParameterizable(_Parameterizable):
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", self.moduleLabel_(myname))
         newpset.addString(True, "@module_type", self.type_())
+        newpset.addString(False, "@module_edm_type", type(self).__name__)
         self.insertContentsInto(newpset)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
