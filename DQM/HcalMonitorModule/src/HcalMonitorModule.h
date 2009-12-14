@@ -54,6 +54,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalCaloTowerMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalNZSMonitor.h"
 
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 
@@ -200,6 +201,8 @@ public:
   edm::InputTag inputLabelLaser_;
   edm::InputTag FEDRawDataCollection_;
 
+  edm::InputTag inputHLTresultsTag_;
+
   // Maps of readout hardware unit to calorimeter channel
   std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
   std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
@@ -232,6 +235,7 @@ public:
   HcalCaloTowerMonitor*   ctMon_;
   HcalTrigPrimMonitor*    tpMon_;
   HcalZDCMonitor*         zdcMon_;
+  HcalNZSMonitor*         nzsMon_;
 
   HcalTemplateAnalysis*   tempAnalysis_;
   HcalEEUSMonitor*        eeusMon_;
@@ -268,10 +272,6 @@ public:
   bool dump2database_;
   std::map<HcalDetId, unsigned int> myquality_;
   HcalChannelQuality* chanquality_;
-
-  std::vector<int> triggerbitstocheck_;
-  std::vector<int> BCNtocheck_;
-  edm::InputTag gtLabel_;
 };
 
 #endif

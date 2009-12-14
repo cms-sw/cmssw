@@ -287,6 +287,7 @@ process.hcalMonitor.HotCellMonitor                = True
 process.hcalMonitor.BeamMonitor                   = True
 process.hcalMonitor.ReferencePedestalMonitor      = True
 process.hcalMonitor.LaserMonitor                  = True
+process.hcalMonitor.NZSMonitor                    = True
 
 process.hcalMonitor.DetDiagNoiseMonitor           = False
 process.hcalMonitor.DetDiagTimingMonitor          = False

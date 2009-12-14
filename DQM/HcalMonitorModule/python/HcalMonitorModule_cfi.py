@@ -34,9 +34,6 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            checkNevents = cms.untracked.int32(1000),
                            subSystemFolder = cms.untracked.string("Hcal"),
                            
-                           triggerbitstocheck = cms.untracked.vint32(), # allow only certain trigger bits
-                           BCNtocheck         = cms.untracked.vint32(),
-                           
                            FEDRawDataCollection = cms.untracked.InputTag("source"),
                            
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0, or close to it?
@@ -255,6 +252,12 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            # Empty Event/Unsuppressed data monitor
                            EEUSMonitor = cms.untracked.bool(False),
 			   
+			   # NZS Monitor
+		           NZSMonitor = cms.untracked.bool(True),
+			   hltResultsTag=cms.untracked.InputTag("TriggerResults","","HLT"),
+			   NZSMonitor_nzsHLTnames = cms.untracked.vstring('HLT_HcalPhiSym','HLT_HcalNZS'),
+			   NZSMonitor_NZSeventPeriod = cms.untracked.int32(4096),
+
 			   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
                            # Detector diagnostic Monitors  
                            DetDiagPedestalMonitor = cms.untracked.bool(False),
@@ -301,7 +304,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HLTriggerResults                    = cms.untracked.InputTag("TriggerResults","","HLT"),
                            MetSource                           = cms.untracked.InputTag("met"),
                            JetSource                           = cms.untracked.InputTag("iterativeCone5CaloJets"),
-                           TrackSource                         = cms.untracked.InputTag("rsWithMaterialTracksP5"),  # was "generalTracks"
+                           TrackSource                         = cms.untracked.InputTag("generalTracks"),
                            rbxCollName                         = cms.untracked.string('hcalnoise'),
                            TriggerRequirement                  = cms.untracked.string("HLT_MET100"),
 		           UseMetCutInsteadOfTrigger	       = cms.untracked.bool(True),

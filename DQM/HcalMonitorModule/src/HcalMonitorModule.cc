@@ -55,10 +55,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
   inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
 
-
-  triggerbitstocheck_ = ps.getParameter<std::vector<int > >("triggerbitstocheck");
-  BCNtocheck_         = ps.getParameter<std::vector<int > >("BCNtocheck");
-  gtLabel_            = ps.getParameter<edm::InputTag>("gtLabel");
+  //for NZS monitor:
+  inputHLTresultsTag_       = ps.getUntrackedParameter<edm::InputTag>("hltResultsTag",edm::InputTag("HLTriggerResults","","HLT"));
 
   // Check Online running
   Online_                = ps.getUntrackedParameter<bool>("Online",false);
@@ -174,6 +172,12 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     expertMon_ = new HcalExpertMonitor();
     expertMon_->setup(ps, dbe_);
   }
+  
+  if (ps.getUntrackedParameter<bool>("NZSMonitor",false)){
+    if(debug_>0) std::cout << "HcalMonitorModule: NZS monitor flag is on...."<<endl;
+    nzsMon_ = new HcalNZSMonitor();
+    nzsMon_->setup(ps, dbe_);
+  }
 
 
   //////////////////////////////////////////////////////
@@ -255,6 +259,7 @@ HcalMonitorModule::~HcalMonitorModule()
       if(rhMon_!=0)     {  rhMon_->clearME();}
       if (zdcMon_!=0)   {  zdcMon_->clearME();}
       if (beamMon_!=0) { beamMon_->clearME();}
+      if (nzsMon_!=0) { nzsMon_->clearME();}
       
       //////////////////////////////////////////////
       if(detDiagPed_!=0){  detDiagPed_->clearME();}
@@ -308,6 +313,10 @@ HcalMonitorModule::~HcalMonitorModule()
   if (zdcMon_!=0)
     {
       delete zdcMon_; zdcMon_=0;
+    }
+  if (nzsMon_!=0)
+    {
+      delete nzsMon_; nzsMon_=0;
     }
   
   if(tempAnalysis_!=0) 
@@ -413,6 +422,7 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   if (tpMon_)     tpMon_->beginRun();
   if (zdcMon_)    zdcMon_->beginRun();
   if (eeusMon_)   eeusMon_->beginRun();
+  if (nzsMon_)     nzsMon_->beginRun();
 
   edm::ESHandle<HcalDbService> pSetup;
   c.get<HcalDbRecord>().get( pSetup );
@@ -500,6 +510,7 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   if (zdcMon_!=0)   {  zdcMon_->beginLuminosityBlock(ilumisec);}
   if (beamMon_!=0)  {  beamMon_->beginLuminosityBlock(ilumisec);}
   if (tpMon_!=0)    {  tpMon_->beginLuminosityBlock(ilumisec);}
+  if (nzsMon_!=0)    {  nzsMon_->beginLuminosityBlock(ilumisec);}
 
   //////////////////////////////////////////////
   if(detDiagPed_!=0){  detDiagPed_->beginLuminosityBlock(ilumisec);}
@@ -533,7 +544,7 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if (zdcMon_!=0)   {  zdcMon_->endLuminosityBlock();}
   if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
   if (tpMon_!=0)    {  tpMon_->endLuminosityBlock();}
-
+  if (nzsMon_!=0)    {  nzsMon_->endLuminosityBlock();}
 
   // Call these only if prescale set
   if (prescaleLS_>-1 && !prescale())
@@ -571,6 +582,7 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if (zdcMon_!=0)   {  zdcMon_->endLuminosityBlock();}
   if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
   if (tpMon_!=0)    {  tpMon_->endLuminosityBlock();}
+  if (nzsMon_!=0)    {  nzsMon_->endLuminosityBlock();} 
 
   if (dfMon_!=NULL) dfMon_->UpdateMEs(); // should no longer be necessary; called through endLuminoisityBlock()
   
@@ -610,6 +622,7 @@ void HcalMonitorModule::endJob(void) {
   if (zdcMon_!=NULL)       zdcMon_->done();
   if (expertMon_!=NULL)    expertMon_->done();
   if (eeusMon_!=NULL)      eeusMon_->done();
+  if (nzsMon_!=NULL)       nzsMon_->done();
   if(tempAnalysis_!=NULL)  tempAnalysis_->done();
   ////////////////////////////////////////////////////
   if(detDiagPed_!=NULL)    detDiagPed_->done();
@@ -642,6 +655,7 @@ void HcalMonitorModule::reset(){
   if(beamMon_!=NULL) beamMon_->reset();
   if(expertMon_!=NULL) expertMon_->reset();
   if(eeusMon_!=NULL) eeusMon_->reset();
+  if(nzsMon_!=NULL) nzsMon_->reset();
   ////////////////////////////////////////////////////
   if(detDiagPed_!=0) detDiagPed_->reset();
   if(detDiagLed_!=0) detDiagLed_->reset();
@@ -661,21 +675,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
   
-  if (BCNtocheck_.size()>0)
-    {
-      bool passedBCN=false;
-      for (unsigned int i=0;i<BCNtocheck_.size();++i)
-	{
-	  if (debug_>2)  std::cout <<"<HcalMonitorModule::analyze>  Checking if BCN = "<<BCNtocheck_[i]<<endl;
-	  if (e.bunchCrossing()==BCNtocheck_[i])
-	    {
-	      passedBCN=true;
-	      break;
-	    }
-	}
-      if (debug_>1) std::cout<<"<HcalMonitorModule::analyze>  Current BCN = "<<e.bunchCrossing()<<"  Passed BCN check = "<<passedBCN<<endl;
-      if (passedBCN==false) return;
-    }
 
 
   if (Online_ && e.luminosityBlock()<ilumisec)
@@ -705,6 +704,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   bool tpdOK_    = true;
   bool calotowerOK_ = true;
   bool laserOK_  = true;
+  bool hltResOK_ = true;
 
   // disable attempt to grab trigger/sim TP digis if trigger primitive monitor not enabled
   if (tpMon_==NULL) tpdOK_=false;
@@ -805,61 +805,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HcalTrigPrimDigiCollection> emultp_digi;
   edm::Handle<HcalLaserDigi> laser_digi;
 
-
-  // Only try to get trigger info if tpmon enabled
-  if (tpdOK_)
-    {
-      if (!(e.getByLabel(inputLabelDigi_,tp_digi)))
-	{
-	  tpdOK_=false;
-	  LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" tp_digi not available"; 
-	}
-
-      if (tpdOK_ && !tp_digi.isValid()) {
-	tpdOK_=false;
-      }
-      //Emulator
-      
-      if (!(e.getByLabel(inputLabelEmulDigi_,emultp_digi)))
-	{
-	  tpdOK_=false;
-	  LogWarning("HcalMonitorModule")<< inputLabelEmulDigi_<<" emultp_digi not available";
-	}
-      
-      if (tpdOK_ && !emultp_digi.isValid()) {
-	tpdOK_=false;
-      }
-    }
-
-  if (triggerbitstocheck_.size()>0)
-    {
-      bool passedTrigger=false;
-      edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-      if (e.getByLabel(gtLabel_,gtRecord))
-	{
-	  if (gtRecord.isValid())
-	    {
-	      const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();	    for (unsigned int i=0;i<triggerbitstocheck_.size();++i)
-		{
-		  if (tWord.at(i)) 
-		    {
-		      passedTrigger=true;
-		      break;
-		    }
-		}
-	    } // valid trigger
-	  else if (debug_>1)
-	    std::cout <<"<HcalMonitorModule> L1GlobalTrigger not valid!"<<std::endl;
-	}
-      else
-	if (debug_>1) std::cout <<"<HcalMonitorModule>  Could not get gtRecord with label "<<gtLabel_<<std::endl;
-      if (debug_>0)
-	cout <<"Passed trigger?  "<<passedTrigger<<endl;
-      if (!passedTrigger) return;
-    }
-
-
-
   if (!(e.getByLabel(inputLabelDigi_,hbhe_digi)))
     digiOK_=false;
 
@@ -934,6 +879,31 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       return;
     }
 
+  // Only try to get trigger info if tpmon enabled
+  if (tpdOK_)
+    {
+      if (!(e.getByLabel(inputLabelDigi_,tp_digi)))
+	{
+	  tpdOK_=false;
+	  LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" tp_digi not available"; 
+	}
+
+      if (tpdOK_ && !tp_digi.isValid()) {
+	tpdOK_=false;
+      }
+      //Emulator
+      
+      if (!(e.getByLabel(inputLabelEmulDigi_,emultp_digi)))
+	{
+	  tpdOK_=false;
+	  LogWarning("HcalMonitorModule")<< inputLabelEmulDigi_<<" emultp_digi not available";
+	}
+      
+      if (tpdOK_ && !emultp_digi.isValid()) {
+	tpdOK_=false;
+      }
+    }
+
   if (!(e.getByLabel(inputLabelLaser_,laser_digi)))
     {laserOK_=false;}
   if (laserOK_&&!laser_digi.isValid()) {
@@ -1004,6 +974,23 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
   else
     calotowerOK_=false;
+  
+  //try to get HLT output if nzs mon is enabled
+  edm::Handle<edm::TriggerResults> hltRes;
+  if (nzsMon_!=NULL)
+    {
+      if (!(e.getByLabel(inputHLTresultsTag_,hltRes)))
+	{
+	  hltResOK_=false;
+	  if (debug_>0) LogWarning("HcalMonitorModule")<< inputHLTresultsTag_<<" not available"; 
+	}
+      if(hltResOK_&&!hltRes.isValid()){
+	hltResOK_=false;
+      }
+    }
+  else
+    hltResOK_=false;
+  /////
 
   // Run the configured tasks, protect against missing products
 
@@ -1208,6 +1195,17 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if (eeusMon_!=NULL) std::cout <<"TIMER:: EE/US MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
+  
+  if (nzsMon_ != NULL && hltResOK_) 
+    {
+      nzsMon_->processEvent( *rawraw,*hltRes,e.bunchCrossing());
+    }
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (nzsMon_!=NULL) std::cout <<"TIMER:: NZS MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
 
   if(debug_>0 && ievt_%1000 == 0)
@@ -1223,6 +1221,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       std::cout << "    TPdigis    ==> " << tpdOK_<< std::endl;    
       std::cout << "    CaloTower  ==> " << calotowerOK_ <<endl;
       std::cout << "    LaserDigis ==> " << laserOK_ << std::endl;
+      std::cout << "    HLTresults ==> " << hltResOK_ << std::endl;
     }
   
 
@@ -1241,6 +1240,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if(rhMon_!=0)     {  rhMon_->periodicReset();}
       if (zdcMon_!=0)   {  zdcMon_->periodicReset();}
       if (beamMon_!=0) { beamMon_->periodicReset();}
+      if (nzsMon_!=0) { nzsMon_->periodicReset();}
       
       //////////////////////////////////////////////
       if(detDiagPed_!=0){  detDiagPed_->periodicReset();}
