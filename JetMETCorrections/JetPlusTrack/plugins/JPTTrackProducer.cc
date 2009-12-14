@@ -29,14 +29,16 @@ class JPTTrackProducer : public edm::EDProducer
   virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
   virtual void endJob();
   
-  static void copyTracks(const jpt::MatchedTracks& tracks,
+  void copyTracks(const jpt::MatchedTracks& tracks,
                          reco::TrackCollection* inVertexInCaloTracks,
 			 reco::TrackCollection* outVertexInCaloTracks,
-			 reco::TrackCollection* inVertexOutCaloTracks);
+			 reco::TrackCollection* inVertexOutCaloTracks) const;
   static void copyTracks(const reco::TrackRefVector& from, reco::TrackCollection* to);
   
   const edm::InputTag zspCorrectedJetsTag_;
   const std::string jptCorrectorName_;
+  const uint32_t jetIndex_;
+  const bool produceInCaloInVertex_, produceOutCaloInVertex_, produceInCaloOutVertex_;
   const JetPlusTrackCorrector* jptCorrector_;
 };
 
@@ -59,14 +61,15 @@ class JPTTrackProducer : public edm::EDProducer
 JPTTrackProducer::JPTTrackProducer(const edm::ParameterSet& config)
   : zspCorrectedJetsTag_(config.getParameter<edm::InputTag>("ZSPCorrectedJetsTag")),
     jptCorrectorName_(config.getParameter<std::string>("JPTCorrectorName")),
+    jetIndex_(config.getParameter<uint32_t>("JetIndex")),
+    produceInCaloInVertex_(config.getParameter<bool>("ProduceInCaloInVertex")),
+    produceOutCaloInVertex_(config.getParameter<bool>("ProduceOutCaloInVertex")),
+    produceInCaloOutVertex_(config.getParameter<bool>("ProduceInCaloOutVertex")),
     jptCorrector_(NULL)
 {
-  produces<reco::TrackCollection>("InVertexInCalo1");
-  produces<reco::TrackCollection>("OutVertexInCalo1");
-  produces<reco::TrackCollection>("InVertexOutCalo1");
-  produces<reco::TrackCollection>("InVertexInCalo2");
-  produces<reco::TrackCollection>("OutVertexInCalo2");
-  produces<reco::TrackCollection>("InVertexOutCalo2");
+  produces<reco::TrackCollection>("InVertexInCalo");
+  produces<reco::TrackCollection>("InVertexOutCalo");
+  produces<reco::TrackCollection>("OutVertexInCalo");
 }
 
 JPTTrackProducer::~JPTTrackProducer()
@@ -82,50 +85,34 @@ JPTTrackProducer::~JPTTrackProducer()
 void
 JPTTrackProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  std::auto_ptr<reco::TrackCollection> inVertexInCaloTracks1(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackCollection> outVertexInCaloTracks1(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackCollection> inVertexOutCaloTracks1(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackCollection> inVertexInCaloTracks2(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackCollection> outVertexInCaloTracks2(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackCollection> inVertexOutCaloTracks2(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackCollection> inVertexInCaloTracks(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackCollection> outVertexInCaloTracks(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackCollection> inVertexOutCaloTracks(new reco::TrackCollection);
   edm::Handle<reco::CaloJetCollection> unCorrectedJetsHandle;
   event.getByLabel(zspCorrectedJetsTag_,unCorrectedJetsHandle);
   const reco::CaloJetCollection& unCorrectedJets = *unCorrectedJetsHandle;
-  if (unCorrectedJets.size() > 0) {
-    if (jptCorrector_->canCorrect(unCorrectedJets[0])) {
+  if (unCorrectedJets.size() > jetIndex_) {
+    if (jptCorrector_->canCorrect(unCorrectedJets[jetIndex_])) {
       jpt::MatchedTracks pions, muons, electrons;
-      jptCorrector_->matchTracks(unCorrectedJets[0],event,eventSetup,pions,muons,electrons);
-      copyTracks(pions,inVertexInCaloTracks1.get(),outVertexInCaloTracks1.get(),inVertexOutCaloTracks1.get());
-      copyTracks(muons,inVertexInCaloTracks1.get(),outVertexInCaloTracks1.get(),inVertexOutCaloTracks1.get());
-      copyTracks(electrons,inVertexInCaloTracks1.get(),outVertexInCaloTracks1.get(),inVertexOutCaloTracks1.get());
+      jptCorrector_->matchTracks(unCorrectedJets[jetIndex_],event,eventSetup,pions,muons,electrons);
+      copyTracks(pions,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
+      copyTracks(muons,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
+      copyTracks(electrons,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
+      event.put(inVertexInCaloTracks,"InVertexInCalo");
+      event.put(inVertexOutCaloTracks,"InVertexOutCalo");
+      event.put(outVertexInCaloTracks,"OutVertexInCalo");
     }
   }
-  if (unCorrectedJets.size() > 1) {
-    if (jptCorrector_->canCorrect(unCorrectedJets[1])) {
-      jpt::MatchedTracks pions, muons, electrons;
-      jptCorrector_->matchTracks(unCorrectedJets[1],event,eventSetup,pions,muons,electrons);
-      copyTracks(pions,inVertexInCaloTracks2.get(),outVertexInCaloTracks2.get(),inVertexOutCaloTracks2.get());
-      copyTracks(muons,inVertexInCaloTracks2.get(),outVertexInCaloTracks2.get(),inVertexOutCaloTracks2.get());
-      copyTracks(electrons,inVertexInCaloTracks2.get(),outVertexInCaloTracks2.get(),inVertexOutCaloTracks2.get());
-    }
-  }
-  event.put(inVertexInCaloTracks1,"InVertexInCalo1");
-  event.put(outVertexInCaloTracks1,"OutVertexInCalo1");
-  event.put(inVertexOutCaloTracks1,"InVertexOutCalo1");
-  event.put(inVertexInCaloTracks2,"InVertexInCalo2");
-  event.put(outVertexInCaloTracks2,"OutVertexInCalo2");
-  event.put(inVertexOutCaloTracks2,"InVertexOutCalo2");
-
 }
 
 void JPTTrackProducer::copyTracks(const jpt::MatchedTracks& tracks,
                                   reco::TrackCollection* inVertexInCaloTracks,
                                   reco::TrackCollection* outVertexInCaloTracks,
-                                  reco::TrackCollection* inVertexOutCaloTracks)
+                                  reco::TrackCollection* inVertexOutCaloTracks) const
 {
-  copyTracks(tracks.inVertexInCalo_,inVertexInCaloTracks);
-  copyTracks(tracks.outOfVertexInCalo_,outVertexInCaloTracks);
-  copyTracks(tracks.inVertexOutOfCalo_,inVertexOutCaloTracks);
+  if (produceInCaloInVertex_) copyTracks(tracks.inVertexInCalo_,inVertexInCaloTracks);
+  if (produceInCaloOutVertex_) copyTracks(tracks.outOfVertexInCalo_,outVertexInCaloTracks);
+  if (produceOutCaloInVertex_) copyTracks(tracks.inVertexOutOfCalo_,inVertexOutCaloTracks);
 }
 
 void JPTTrackProducer::copyTracks(const reco::TrackRefVector& from, reco::TrackCollection* to)
