@@ -160,7 +160,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       //open db get tag info (i.e. the IOV token...)
       nsess = m_connection.createSession();
       if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
-      nsess.open( it->pfn);
+      nsess.open( it->pfn, true );
       sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
     cond::MetaData metadata(nsess);
@@ -348,7 +348,7 @@ CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
    if (coraldb.empty()) 
      throw cond::Exception(std::string("ESSource: requested global tag ")+roottag+" but not connection string given");
    cond::DbSession session = m_connection.createSession();
-   session.open( coraldb );
+   session.open( coraldb, true );
    cond::DbScopedTransaction transaction(session);
    transaction.start(true);
    cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
