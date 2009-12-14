@@ -178,6 +178,7 @@
 
 //Standard C++ classes
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <map>
 #include <vector>
@@ -237,6 +238,7 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   std::string TextFileName;
   std::string FolderName;
 
+  ofstream out;
   double DumpMET;
 
   // DAQ Tools
