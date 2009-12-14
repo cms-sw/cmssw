@@ -78,7 +78,7 @@ process.goodMuons = cms.EDFilter("MuonViewRefSelector",
   filter = cms.bool(True)                                
 )
 
-# require at least two tracks with pt>.5, to hopefully remove cosmic contaminations  
+# require at least two tracks with pt>.5, to hopefully remove further cosmic contaminations  
 process.tracks = cms.EDFilter("TrackSelector",
   src=cms.InputTag("generalTracks"),
   cut = cms.string('pt > 0.5'),
@@ -120,7 +120,7 @@ EWK_MuSkimEventSelection = cms.PSet(
 dimuonsEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
 #        'keep *_selectedLayer1Muons_*_*', 
-    'keep *_dimuonsHLT_*_*'
+    'keep *_dimuonsAOD_*_*'
     )
  )
 
