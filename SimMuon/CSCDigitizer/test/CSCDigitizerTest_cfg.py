@@ -57,7 +57,7 @@ process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 #    fileName = cms.untracked.string('cscdigis.root')
 #)
 
-process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscDigiDump)
+process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscSimDigiDump)
 #process.ep = cms.EndPath(process.o1)
 #
 
