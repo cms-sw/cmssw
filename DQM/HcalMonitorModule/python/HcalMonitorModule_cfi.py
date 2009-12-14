@@ -253,7 +253,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            EEUSMonitor = cms.untracked.bool(False),
 			   
 			   # NZS Monitor
-		           NZSMonitor = cms.untracked.bool(True),
+		           NZSMonitor = cms.untracked.bool(False),
 			   hltResultsTag=cms.untracked.InputTag("TriggerResults","","HLT"),
 			   NZSMonitor_nzsHLTnames = cms.untracked.vstring('HLT_HcalPhiSym','HLT_HcalNZS'),
 			   NZSMonitor_NZSeventPeriod = cms.untracked.int32(4096),
