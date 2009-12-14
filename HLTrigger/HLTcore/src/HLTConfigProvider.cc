@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/06/10 15:45:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/12/14 21:09:21 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -167,11 +167,11 @@ void HLTConfigProvider::dump (const std::string& what) const {
      }
      cout << " and Triggers." << endl;
      for (unsigned int i=0; i!=n; ++i) {
-       cout << "  " << i << " ";
+       cout << "  " << i << " P:";
        for (unsigned int j=0; j!=m; ++j) {
 	 cout << " " << prescaleValue(triggerNames_[i],prescaleLabels_[j]);
        }
-       cout << triggerNames_[i] << endl;
+       cout << " T: " << triggerNames_[i] << endl;
      }
    } else if (what=="Modules") {
      const unsigned int n(size());
