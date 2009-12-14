@@ -54,9 +54,9 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob();
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void endJob();
     int getMotherId( const Candidate * p );
     void match( MonitorElement * me, vector<LeafCandidate> & from, vector<LeafCandidate> & to, double deltaRMatchingCut, vector<int> & map );
     void myBook2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel, TString title);
@@ -125,7 +125,7 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
   muonMass(0.106)
 {}
   
-void HeavyFlavorValidation::beginJob(const EventSetup&){
+void HeavyFlavorValidation::beginJob(){
 //discover HLT configuration
   HLTConfigProvider hltConfig;
   if(hltConfig.init(triggerProcessName)){
