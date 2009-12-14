@@ -39,7 +39,7 @@ int cond::ListIOVUtilities::execute(){
   initializePluginManager();
   
   bool listAll = hasOptionValue("all");
-  cond::DbSession session = openDbSession( "connect" );
+  cond::DbSession session = openDbSession( "connect", true );
   if( listAll ){
     cond::MetaData metadata_svc(session);
     std::vector<std::string> alltags;

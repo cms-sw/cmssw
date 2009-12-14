@@ -261,7 +261,7 @@ void cond::Utilities::initializeForDbConnection(){
   
 }
 
-cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName ){
+cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, bool readOnly ){
   initializeForDbConnection();
   std::string connectionString = getOptionValue<std::string>( connectionParameterName );
   cond::DbSession session = m_dbConnection->createSession();
@@ -272,7 +272,7 @@ cond::DbSession cond::Utilities::openDbSession( const std::string& connectionPar
     }
   }
   session.setBlobStreamingService( blobStreamingService );
-  session.open( connectionString );
+  session.open( connectionString, readOnly );
   return session;
 }
 
