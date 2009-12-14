@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=CondCore/PluginSystem>
+<use name=CondCore/ESSources>
 <use name=CondFormats/Calibration>
 <use name=CondFormats/DataRecord>
 
@@ -7,7 +7,7 @@
 <export>
    <lib name=CondCoreCalibPlugins>
    <use name=FWCore/Framework>
-   <use name=CondCore/PluginSystem>
+   <use name=CondCore/ESSources>
    <use name=CondFormats/Calibration>
    <use name=CondFormats/DataRecord>
 </export>

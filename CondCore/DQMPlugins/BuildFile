@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=CondCore/PluginSystem>
+<use name=CondCore/ESSources>
 <use name=CondFormats/DQMObjects>
 <use name=CondFormats/Common>
 <use name=CondFormats/DataRecord>
@@ -8,7 +8,7 @@
 <export>
    <lib name=CondCoreDQMPlugins>
    <use name=FWCore/Framework>
-   <use name=CondCore/PluginSystem>
+   <use name=CondCore/ESSources>
    <use name=CondFormats/DQMObjects>
    <use name=CondFormats/Common>
    <use name=CondFormats/DataRecord>   

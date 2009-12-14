@@ -1,6 +1,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
-<use name=CondCore/PluginSystem>
+<use name=CondCore/ESSources>
 <use name=CondFormats/ESObjects>
 <use name=CondFormats/DataRecord>
 
@@ -9,7 +9,7 @@
    <lib name=CondCoreESPlugins>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
-   <use name=CondCore/PluginSystem>
+   <use name=CondCore/ESSources>
    <use name=CondFormats/ESObjects>
    <use name=CondFormats/DataRecord>
 </export>
