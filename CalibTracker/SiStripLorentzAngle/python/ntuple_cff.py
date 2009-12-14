@@ -3,18 +3,18 @@ import FWCore.ParameterSet.Config as cms
 from CalibTracker.SiStripCommon.ShallowClustersProducer_cfi import *
 from CalibTracker.SiStripCommon.ShallowTrackClustersProducer_cfi import *
 
-LorentzAngleOutputCommands =  [ 'keep *_*_clusterdetid_*',
-                                'keep *_*_clusterwidth_*',
-                                'keep *_*_clustervariance_*',
-                                'keep *_*_tsostrackmulti_*',
-                                'keep *_*_tsosdriftx_*',
-                                'keep *_*_tsosdriftz_*',
-                                'keep *_*_tsoslocalpitch_*',
-                                'keep *_*_tsoslocaltheta_*',
-                                'keep *_*_tsoslocalphi_*',
-                                'keep *_*_tsosBdotY_*',
-                                #'keep *_*_tsoslocaly_*',
-                                'keep *_*_tsosglobalZofunitlocalY_*']
+LorentzAngleOutputCommands =  [ 'keep *_shallowClusters_clusterdetid_*',
+                                'keep *_shallowClusters_clusterwidth_*',
+                                'keep *_shallowClusters_clustervariance_*',
+                                'keep *_shallowTrackClusters_tsostrackmulti_*',
+                                'keep *_shallowTrackClusters_tsosdriftx_*',
+                                'keep *_shallowTrackClusters_tsosdriftz_*',
+                                'keep *_shallowTrackClusters_tsoslocalpitch_*',
+                                'keep *_shallowTrackClusters_tsoslocaltheta_*',
+                                'keep *_shallowTrackClusters_tsoslocalphi_*',
+                                'keep *_shallowTrackClusters_tsosBdotY_*',
+                                #'keep *_shallowTrackClusters_tsoslocaly_*',
+                                'keep *_shallowTrackClusters_tsosglobalZofunitlocalY_*']
 
 laCalibrationTree = cms.EDAnalyzer("ShallowTree", outputCommands = cms.untracked.vstring('drop *'))
 laCalibrationTree.outputCommands += LorentzAngleOutputCommands
