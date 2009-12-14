@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -53,7 +53,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_R_V1::All'
+process.GlobalTag.globaltag = 'GR09_R_V2::All'
 
 
 
@@ -64,8 +64,13 @@ process.GlobalTag.globaltag = 'GR09_R_V1::All'
 
 ## TRACKING:
 ## Skip events with HV off
-process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
+
+
+## TRACKING:
+## Skip events with HV off
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
+process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
 ## PV Overrides 
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
@@ -80,7 +85,6 @@ process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
 process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
-
 
 ## ECAL temporary fixes
 process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
@@ -101,10 +105,39 @@ process.ecalPreshowerRecHit.ESGain = 2
 process.ecalPreshowerRecHit.ESBaseline = 0
 process.ecalPreshowerRecHit.ESMIPADC = 55
 
-
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
+
+## EGAMMA
+process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
+process.ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)
+process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.9)
+process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.9)
+process.ecalDrivenElectronSeeds.SeedConfiguration.r2MinF = cms.double(-1.5)
+process.ecalDrivenElectronSeeds.SeedConfiguration.r2MaxF = cms.double(1.5)
+process.ecalDrivenElectronSeeds.SeedConfiguration.rMinI = cms.double(-2.)
+process.ecalDrivenElectronSeeds.SeedConfiguration.rMaxI = cms.double(2.)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
+process.gsfElectrons.applyPreselection = cms.bool(False)
+
+#Lower Photon reconstruction threshold
+process.photons.minSCEtBarrel = 1.
+process.photons.minSCEtEndcap =1.
+process.photonCore.minSCEt = 1.
+process.conversionTrackCandidates.minSCEt =1.
+process.conversions.minSCEt =1.
+
+process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
+process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
+process.trackerOnlyConversions.MinApproach = cms.double(-.25)
+process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
+process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
+
+
+
 
 ###
 ###  end of top level replacements
