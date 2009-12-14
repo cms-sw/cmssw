@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-horeco = cms.EDFilter(
+horeco = cms.EDProducer(
     "HcalHitReconstructor",
     correctionPhaseNS = cms.double(13.0),
     digiLabel = cms.InputTag("hcalDigis"),
