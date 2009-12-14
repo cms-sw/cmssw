@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.9 2009/10/18 21:42:13 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.11 2009/11/14 15:16:21 charlot Exp $
 //
 //
 
@@ -61,8 +61,9 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   prefilteredSeeds_ = pset.getParameter<bool>("preFilteredSeeds") ;
 
   // for H/E
-  if (pset.exists("applyHOverECut"))
-   { applyHOverECut_ = pset.getParameter<bool>("applyHOverECut") ; }
+//  if (pset.exists("applyHOverECut"))
+//   { applyHOverECut_ = pset.getParameter<bool>("applyHOverECut") ; }
+  applyHOverECut_ = pset.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
     hcalHelper_ = new ElectronHcalHelper(pset) ;
@@ -187,7 +188,7 @@ void ElectronSeedProducer::filterClusters
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scl.energy()<maxHOverEBarrel_)) HoEveto=true;
          else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scl.energy()<maxHOverEEndcaps_)) HoEveto=true;
-       }	 
+       }
        if (!applyHOverECut_ || HoEveto) sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
      }
    }
