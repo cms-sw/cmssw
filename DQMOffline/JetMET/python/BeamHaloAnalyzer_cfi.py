@@ -29,6 +29,7 @@ AnalyzeBeamHalo = cms.EDAnalyzer("BeamHaloAnalyzer",
                                  BeamHaloSummaryLabel = cms.InputTag("BeamHaloSummary"),
                                  OutputFile = cms.string(""),
                                  TextFile = cms.string(""),
+                                 DumpMET = cms.double(20.),
                                  folderName = cms.string("JetMET/BeamHalo/")
 
 
