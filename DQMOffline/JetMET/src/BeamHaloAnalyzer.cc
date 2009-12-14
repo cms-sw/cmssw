@@ -21,7 +21,11 @@ int Phi_To_iPhi(float phi)
 BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
 {
   OutputFileName = iConfig.getParameter<std::string>("OutputFile"); 
- 
+  TextFileName   = iConfig.getParameter<std::string>("TextFile");
+
+  if(TextFileName.size())
+    ofstream out(TextFileName.c_str() );
+
   //Get Input Tags
 
   //Digi Level 
@@ -53,7 +57,9 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
   IT_HcalHaloData = iConfig.getParameter<edm::InputTag>("HcalHaloDataLabel");
   IT_GlobalHaloData = iConfig.getParameter<edm::InputTag>("GlobalHaloDataLabel");
   IT_BeamHaloSummary = iConfig.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+
   FolderName = iConfig.getParameter<std::string>("folderName");
+  DumpMET = iConfig.getParameter<double>("DumpMET");
 }
 
 
@@ -64,7 +70,6 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
   dqm = edm::Service<DQMStore>().operator->();
   if( dqm ) {
   
-
     // EcalHaloData
     dqm->setCurrentFolder(FolderName+"/EcalHaloData");
     ME["EcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
@@ -180,7 +185,6 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
     ME["Extra_CSCTrackNHits"]     = dqm->book1D("Ectra_CSCTrackNHits","", 75,0, 75);
     
-
   }
 }
 
@@ -188,8 +192,11 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   EventID TheEvent = iEvent.id();
   int BXN = iEvent.bunchCrossing() ;
-  //  int TheEventNumber = TheEvent.event();
-  
+  bool Dump = TextFileName.size();
+  int TheEventNumber = TheEvent.event();
+  int Lumi = iEvent.luminosityBlock();
+  int Run  = iEvent.run();
+
   //Get CSC Geometry
   edm::ESHandle<CSCGeometry> TheCSCGeometry;
   iSetup.get<MuonGeometryRecord>().get(TheCSCGeometry);
@@ -631,6 +638,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(1);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 1, BXN );
+	  if(Dump) out << setw(15) << "CSCLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.CSCTightHaloId() ) 
 	{
@@ -641,6 +649,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(3);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 3, BXN );
+	  if(Dump) out << setw(15) << "EcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.EcalTightHaloId() ) 
 	{
@@ -651,6 +660,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(5);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 5, BXN );
+	  if(Dump) out << setw(15) << "HcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.HcalTightHaloId() ) 
 	{
@@ -661,6 +671,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(7);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 7, BXN );
+	  if(Dump) out << setw(15) << "GlobalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.GlobalTightHaloId() )
 	{
@@ -689,6 +700,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const CaloMETCollection *calometcol = TheCaloMET.product();
       const CaloMET *calomet = &(calometcol->front());
       
+      if( calomet->pt() > DumpMET )
+	if(Dump) out << setw(15) << "HighMET" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+
       //Fill CSC Activity Plot 
       if( calomet->pt() > 15.0 ) 
 	{
