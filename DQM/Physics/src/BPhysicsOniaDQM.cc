@@ -1,9 +1,9 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/26 10:18:36 $
- *  $Revision: 1.2 $
- *  \author S. Bolognesi, Eric - CERN
+ *  $Date: 2009/09/17 10:24:38 $
+ *  $Revision: 1.3 $
+ *  \author S. Bolognesi, Erik - CERN
  */
 
 #include "DQM/Physics/src/BPhysicsOniaDQM.h"
@@ -63,12 +63,12 @@ void BPhysicsOniaDQM::beginJob(EventSetup const& iSetup) {
   theDbe = Service<DQMStore>().operator->();
   if(theDbe!=NULL){
     theDbe->setCurrentFolder("Physics/BPhysics");  // Use folder with name of PAG
-    global_background = theDbe->book1D("global_background", "global background", 750, 0, 15);
-    diMuonMass_global = theDbe->book1D("diMuonMass_global", "dimuon mass", 750, 0, 15);
-    tracker_background = theDbe->book1D("tracker_background", "tracker background", 750, 0, 15);
-    diMuonMass_tracker = theDbe->book1D("diMuonMass_tracker", "dimuon mass", 750, 0, 15);
-    standalone_background = theDbe->book1D("standalone_background", "standalone background", 500, 0, 15);
-    diMuonMass_standalone = theDbe->book1D("diMuonMass_standalone", "dimuon mass", 500, 0, 15);
+    global_background = theDbe->book1D("global_background", "Same-sign global-global dimuon mass", 750, 0, 15);
+    diMuonMass_global = theDbe->book1D("diMuonMass_global", "Opposite-sign global-global dimuon mass", 750, 0, 15);
+    tracker_background = theDbe->book1D("tracker_background", "Same-sign tracker-tracker (incl. gl-tr) dimuon mass", 750, 0, 15);
+    diMuonMass_tracker = theDbe->book1D("diMuonMass_tracker", "Opposite-sign tracker-tracker (incl. gl-tr) dimuon mass", 750, 0, 15);
+    standalone_background = theDbe->book1D("standalone_background", "Same-sign standalone-standalone dimuon mass", 500, 0, 15);
+    diMuonMass_standalone = theDbe->book1D("diMuonMass_standalone", "Opposite-sign standalone-standalone dimuon mass", 500, 0, 15);
   }
 
 }
