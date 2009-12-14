@@ -1,15 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("EWKHLTMuSkim")
+process = cms.Process("EWKMuSkimFirstCollisions")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
 # source
-
-
 
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
@@ -23,7 +19,7 @@ process.source = cms.Source("PoolSource",
 
     )
 )
-
+# to handle some format problem  with some of the first CMS collsion runs
 process.source.inputCommands = cms.untracked.vstring(
     "keep *",
     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT"
@@ -94,8 +90,6 @@ process.tracksFilter = cms.EDFilter("TrackCountFilter",
 process.dimuonsHLT = cms.EDFilter("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(False),
     cut = cms.string('mass > 0'),
-    #  string decay = "goodMuons@+ goodMuons@-"
-#    decay = cms.string('selectedLayer1Muons@+ selectedLayer1Muons@-')
     decay = cms.string('goodMuons@+ goodMuons@-')
 )
 
@@ -119,7 +113,6 @@ EWK_MuSkimEventSelection = cms.PSet(
 
 dimuonsEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-#        'keep *_selectedLayer1Muons_*_*', 
     'keep *_dimuonsAOD_*_*'
     )
  )
@@ -136,7 +129,7 @@ process.EWK_MuSkimOutputModule = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('EWKMuSkim'),
         dataTier = cms.untracked.string('USER')
    ),
-   fileName = cms.untracked.string('testEWKMuSkim_L1TG4041AllMuAtLeastThreeTracksWithSta124120.root')
+   fileName = cms.untracked.string('testEWKMuSkim_L1TG4041AllMuAtLeastThreeTracks124120.root')
 )
 
 
