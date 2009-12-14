@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2009/05/24 13:00:07 $
- * $Revision: 1.25 $
+ * $Date: 2009/10/26 17:33:48 $
+ * $Revision: 1.26 $
  * \author E. Di Marco
  *
 */
@@ -386,11 +386,15 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
       FEDHeader header(gtFedData.data());
 
-      GT_L1A = header.lvl1ID();
+#define  H_L1_MASK           0xFFFFFF
+#define  H_ORBITCOUNTER_MASK 0xFFFFFFFF
+#define  H_BX_MASK           0xFFF
+#define  H_TTYPE_MASK        0xF
 
-      GT_OrbitNumber = e.orbitNumber();
-      GT_BunchCrossing = e.bunchCrossing();
-      GT_TriggerType = e.experimentType();
+      GT_L1A           = header.lvl1ID()    & H_L1_MASK;
+      GT_OrbitNumber   = e.orbitNumber()    & H_ORBITCOUNTER_MASK;
+      GT_BunchCrossing = e.bunchCrossing()  & H_BX_MASK;
+      GT_TriggerType   = e.experimentType() & H_TTYPE_MASK;
 
     } else {
 
@@ -487,11 +491,12 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
       float xism = ism+0.5;
 
-      int ECALDCC_runNumber = dcchItr->getRunNumber();
-      int ECALDCC_L1A = dcchItr->getLV1();
-      int ECALDCC_OrbitNumber = dcchItr->getOrbit();
+      int ECALDCC_runNumber     = dcchItr->getRunNumber();
+
+      int ECALDCC_L1A           = dcchItr->getLV1();
+      int ECALDCC_OrbitNumber   = dcchItr->getOrbit();
       int ECALDCC_BunchCrossing = dcchItr->getBX();
-      int ECALDCC_TriggerType = dcchItr->getBasicTriggerType();
+      int ECALDCC_TriggerType   = dcchItr->getBasicTriggerType();
 
       if ( evt_runNumber != ECALDCC_runNumber ) meEBRunNumberErrors_->Fill( xism );
 
