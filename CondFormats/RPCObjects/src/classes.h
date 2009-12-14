@@ -29,6 +29,7 @@
 #include "CondFormats/RPCObjects/interface/RPCObFebAssmap.h"
 #include "CondFormats/RPCObjects/interface/RPCObUXC.h"
 #include "CondFormats/RPCObjects/interface/RPCObGasMix.h"
+#include "CondFormats/RPCObjects/interface/RPCObGasHum.h"
 
 namespace{
   struct dictionary {

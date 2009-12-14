@@ -100,5 +100,8 @@
   <class name="RPCObGasMix::Item"/>
   <class name="std::vector<RPCObGasMix::Item>"/>
 
+  <class name="RPCObGasHum"/>
+  <class name="RPCObGasHum::Item"/>
+  <class name="std::vector<RPCObGasHum::Item>"/>
 
 </lcgdict>
