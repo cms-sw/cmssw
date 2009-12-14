@@ -163,6 +163,11 @@ C          PARAMETERS
 C
 C          INITIALIZE
 C
+
+c  init uninit variables
+      iymx = 0
+      iphimx = 0
+c
       DO 100 IPHI=1,NCPHI
       DO 100 IY=1,NCY
 100   JETNO(IY,IPHI)=0

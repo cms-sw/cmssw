@@ -467,7 +467,9 @@ c     CALL PYLIST(7)
          GOTO 999
       ENDIF
 
-
+c init uninit variables
+      jrmin = 0
+c
 
 C   Set up vetoed mothers
 c      DO I=1,MAXNUP
@@ -1487,6 +1489,11 @@ C          PARAMETERS
 C
 C          INITIALIZE
 C
+
+c init uninit variables
+      iymx = 0
+      iphimx = 0
+c
       DO 100 IPHI=1,NCPHI
       DO 100 IY=1,NCY
 100   JETNO(IY,IPHI)=0

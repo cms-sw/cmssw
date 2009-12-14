@@ -125,6 +125,10 @@ C CHECK FOR EVENT ERROR OR ZERO WGT
 C     HERWIG/PYTHIA SPECIFIC
 C     CALL ALSHER(I)
       IF(I.EQ.1) RETURN
+
+c init uninit variables
+      jrmin = 0
+      etmin = 0.
 C
 C     INITIALIZE DEBUG IF NEEDED
       IF(IDBG.EQ.1) THEN
@@ -814,6 +818,11 @@ C          PARAMETERS
 C
 C          INITIALIZE
 C
+
+c fix complains on uninit variables
+      iymx = 0
+      iphimx = 0
+c
       DO 100 IPHI=1,NCPHI
       DO 100 IY=1,NCY
 100   JETNO(IY,IPHI)=0
