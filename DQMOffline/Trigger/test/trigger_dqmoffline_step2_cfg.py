@@ -69,6 +69,8 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 #        'cout')
 ##    destinations = cms.untracked.vstring( 'critical', 'cout')
 #)
+process.triggerOfflineDQMSource.remove(process.l1tgmt)
+process.triggerOfflineDQMSource.remove(process.l1tcsctf)
 
 process.AllPath = cms.Path(process.triggerOfflineDQMSource *  process.MEtoEDMConverter)
 #process.AllPath = cms.Path(process.hltResults *  process.MEtoEDMConverter)
