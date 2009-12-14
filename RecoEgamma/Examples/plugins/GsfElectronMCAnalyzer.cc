@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.45 2009/11/10 16:36:44 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.46 2009/11/11 12:41:03 chamont Exp $
 //
 //
 
@@ -1790,13 +1790,13 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));
 	  if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
 	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::NARROW) ||
+	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
 	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) ||
 	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::NARROW) ||
-	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::GOLDEN) ||
-	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::NARROW))
+	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
+	     (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+	     (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+	     (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::OLDNARROW))
 	   { h_ele_mee_os_gg -> Fill(sqrt(mee2));}
 	  else if (
 	     (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) ||
@@ -2251,11 +2251,11 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.isEE())  histSclEoEtrueShowering_endcaps->Fill(sclRef->energy()/mcIter->p());
 
 	//eleClass = eleClass%100; // get rid of barrel/endcap distinction
-        h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
+  h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
+  //if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
 
 	//fbrem
 	double fbrem_mean=0.;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.3 2009/10/10 09:09:19 chamont Exp $
+// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.4 2009/11/11 12:41:03 chamont Exp $
 //
 //
 
@@ -1569,11 +1569,11 @@ GsfElectronMCFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	if (bestGsfElectron.isEE()) eleClass+=10;
 	h_ele_classes ->Fill(eleClass);
 
-        h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
+  h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
 
 	//fbrem
 	double fbrem_mean=0.;

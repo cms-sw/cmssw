@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.31 2009/09/28 15:08:13 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.32 2009/10/10 09:09:18 chamont Exp $
 //
 //
 
@@ -68,11 +68,11 @@ GsfElectronDataAnalyzer::GsfElectronDataAnalyzer(const edm::ParameterSet& conf)
   maxPtMatchingObject_ = conf.getParameter<double>("MaxPtMatchingObject");
   maxAbsEtaMatchingObject_ = conf.getParameter<double>("MaxAbsEtaMatchingObject");
   deltaR_ = conf.getParameter<double>("DeltaR");
-  
-  triggerResults_ = conf.getParameter<edm::InputTag>("triggerResults");  
+
+  triggerResults_ = conf.getParameter<edm::InputTag>("triggerResults");
   HLTPathsByName_= conf.getParameter<std::vector<std::string > >("hltPaths");
   HLTPathsByIndex_.resize(HLTPathsByName_.size());
-  
+
   minEt_ = conf.getParameter<double>("MinEt");
   minPt_ = conf.getParameter<double>("MinPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
@@ -414,7 +414,7 @@ void GsfElectronDataAnalyzer::beginJob(){
   histSclEoEmatchingObjectShowering_barrel = new TH1F("h_scl_EoEmatchingObject Showering, barrel","ele supercluster energy over matchingObject energy, showering, barrel",100,0.2,1.2);
   histSclEoEmatchingObjectShowering_endcaps = new TH1F("h_scl_EoEmatchingObject Showering, endcaps","ele supercluster energy over matchingObject energy, showering, endcaps",100,0.2,1.2);
 
-  // isolation  
+  // isolation
   h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.);
   h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.);
@@ -423,16 +423,16 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ele_ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.);
-  
+
   // fbrem
   h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode",100,0.,1.);
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean ele brem fraction vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean ele brem fraction vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
 
-  // e/g et pflow electrons 
+  // e/g et pflow electrons
   h_ele_mva = new TH1F( "h_ele_mva","ele identification mva",100,-1.,1.);
   h_ele_provenance = new TH1F( "h_ele_provenance","ele provenance",5,-2.,3.);
-  
+
   // histos titles
   h_matchingObjectNum              -> GetXaxis()-> SetTitle("N_{SC}");
   h_matchingObjectNum              -> GetYaxis()-> SetTitle("Events");
@@ -1015,10 +1015,10 @@ GsfElectronDataAnalyzer::endJob(){
   h_ele_eta_showerFrac->Write();
   h_ele_xOverX0VsEta->Write();
 
-  // e/g et pflow electrons 
+  // e/g et pflow electrons
   h_ele_mva->Write();
   h_ele_provenance->Write();
-  
+
   // isolation
   h_ele_tkSumPt_dr03->GetXaxis()->SetTitle("TkIsoSum, cone 0.3 (GeV/c)");
   h_ele_tkSumPt_dr03->GetYaxis()->SetTitle("Events");
@@ -1057,7 +1057,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // check event pass requested triggers if any
   if (!trigger(iEvent)) return;
-  
+
   std::cout << "new event passing trigger " << std::endl;
   nAfterTrigger_++;
 
@@ -1086,47 +1086,47 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (fabs(gsfIter->eta())>maxAbsEta_) continue;
 	if (gsfIter->pt()<minPt_) continue;
 
-	if (gsfIter->isEB() && isEE_) continue; 
-	if (gsfIter->isEE() && isEB_) continue; 
-	if (gsfIter->isEBEEGap() && isNotEBEEGap_) continue; 
+	if (gsfIter->isEB() && isEE_) continue;
+	if (gsfIter->isEE() && isEB_) continue;
+	if (gsfIter->isEBEEGap() && isNotEBEEGap_) continue;
 
-	if (gsfIter->ecalDrivenSeed() && isTrackerDriven_) continue; 
-	if (gsfIter->trackerDrivenSeed() && isEcalDriven_) continue; 
+	if (gsfIter->ecalDrivenSeed() && isTrackerDriven_) continue;
+	if (gsfIter->trackerDrivenSeed() && isEcalDriven_) continue;
 
-	if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() < eOverPMinBarrel_) continue; 
-	if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() > eOverPMaxBarrel_) continue; 
-	if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() < eOverPMinEndcaps_) continue; 
-	if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() > eOverPMaxEndcaps_) continue; 
-	if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinBarrel_) continue; 
-	if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxBarrel_) continue; 
-	if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinEndcaps_) continue; 
-	if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxEndcaps_) continue; 
-	if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinBarrel_) continue; 
-	if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxBarrel_) continue; 
-	if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinEndcaps_) continue; 
-	if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxEndcaps_) continue; 
-	if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinBarrel_) continue; 
-	if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() > sigIetaIetaMaxBarrel_) continue; 
-	if (gsfIter->isEE() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinEndcaps_) continue; 
-	if (gsfIter->isEE() && gsfIter->scSigmaIEtaIEta() > sigIetaIetaMaxEndcaps_) continue; 
-	if (gsfIter->isEB() && gsfIter->hadronicOverEm() > hadronicOverEmMaxBarrel_) continue; 
-	if (gsfIter->isEE() && gsfIter->hadronicOverEm() > hadronicOverEmMaxEndcaps_) continue; 
-	if (gsfIter->mva() < mvaMin_) continue; 
+	if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() < eOverPMinBarrel_) continue;
+	if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() > eOverPMaxBarrel_) continue;
+	if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() < eOverPMinEndcaps_) continue;
+	if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() > eOverPMaxEndcaps_) continue;
+	if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinBarrel_) continue;
+	if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxBarrel_) continue;
+	if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinEndcaps_) continue;
+	if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxEndcaps_) continue;
+	if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinBarrel_) continue;
+	if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxBarrel_) continue;
+	if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinEndcaps_) continue;
+	if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxEndcaps_) continue;
+	if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinBarrel_) continue;
+	if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() > sigIetaIetaMaxBarrel_) continue;
+	if (gsfIter->isEE() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinEndcaps_) continue;
+	if (gsfIter->isEE() && gsfIter->scSigmaIEtaIEta() > sigIetaIetaMaxEndcaps_) continue;
+	if (gsfIter->isEB() && gsfIter->hadronicOverEm() > hadronicOverEmMaxBarrel_) continue;
+	if (gsfIter->isEE() && gsfIter->hadronicOverEm() > hadronicOverEmMaxEndcaps_) continue;
+	if (gsfIter->mva() < mvaMin_) continue;
 
 	double d = (gsfIter->vertex().x()-bs.position().x())
 		  *(gsfIter->vertex().x()-bs.position().x())+
 		   (gsfIter->vertex().y()-bs.position().y())
 		  *(gsfIter->vertex().y()-bs.position().y());
 	d = sqrt(d);
-	if (gsfIter->isEB() && d > tipMaxBarrel_) continue; 
-	if (gsfIter->isEE() && d > tipMaxEndcaps_) continue; 
+	if (gsfIter->isEB() && d > tipMaxBarrel_) continue;
+	if (gsfIter->isEE() && d > tipMaxEndcaps_) continue;
 
-	if (gsfIter->dr03TkSumPt() > tkIso03Max_) continue; 
-	if (gsfIter->isEB() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxBarrel_) continue; 
-	if (gsfIter->isEE() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxEndcaps_) continue; 
-	if (gsfIter->isEE() && gsfIter->dr03HcalDepth2TowerSumEt() > hcalIso03Depth2MaxEndcaps_) continue; 
-	if (gsfIter->isEB() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxBarrel_) continue; 
-	if (gsfIter->isEE() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxEndcaps_) continue; 
+	if (gsfIter->dr03TkSumPt() > tkIso03Max_) continue;
+	if (gsfIter->isEB() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxBarrel_) continue;
+	if (gsfIter->isEE() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxEndcaps_) continue;
+	if (gsfIter->isEE() && gsfIter->dr03HcalDepth2TowerSumEt() > hcalIso03Depth2MaxEndcaps_) continue;
+	if (gsfIter->isEB() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxBarrel_) continue;
+	if (gsfIter->isEE() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxEndcaps_) continue;
 
 	// electron related distributions
 	h_ele_charge        -> Fill( gsfIter->charge() );
@@ -1279,11 +1279,11 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (gsfIter->isEE()) eleClass+=10;
 	h_ele_classes ->Fill(eleClass);
 
-        h_ele_eta->Fill(fabs(gsfIter->eta()));
-        if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(gsfIter->eta()));
-        if (gsfIter->classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(gsfIter->eta()));
-        if (gsfIter->classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(gsfIter->eta()));
-        if (gsfIter->classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(gsfIter->eta()));
+  h_ele_eta->Fill(fabs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(fabs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(gsfIter->eta()));
 
 	//fbrem
 	double fbrem_mean=0.;
@@ -1311,7 +1311,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (!readAOD_) // track extra does not exist in AOD
          if (gsfIter->classification() == GsfElectron::SHOWERING)
 	  h_ele_PtinVsPtoutShowering_mean ->  Fill(gsfIter->gsfTrack()->outerMomentum().Rho(), gsfIter->gsfTrack()->innerMomentum().Rho());
- 
+
         h_ele_mva->Fill(gsfIter->mva());
 	if (gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(1.);
 	if (gsfIter->trackerDrivenSeed()) h_ele_provenance->Fill(-1.);
@@ -1332,7 +1332,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	// mee
 	for (reco::GsfElectronCollection::const_iterator gsfIter2=gsfIter+1;
 	 gsfIter2!=gsfElectrons->end(); gsfIter2++){
-	 
+
             math::XYZTLorentzVector p12 = (*gsfIter).p4()+(*gsfIter2).p4();
             float mee2 = p12.Dot(p12);
             float enrj2=gsfIter2->superCluster()->energy();
@@ -1341,28 +1341,28 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             if (gsfIter->ecalDrivenSeed() && gsfIter2->ecalDrivenSeed()) h_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2),enrj2-enrj1);
 	    if (gsfIter->charge()*gsfIter2->charge()<0.) {
 	      h_ele_mee_os -> Fill(sqrt(mee2));
-	      if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));	
-	      if (gsfIter->isEB() && gsfIter2->isEE()) h_ele_mee_os_ebee -> Fill(sqrt(mee2));	
-	      if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));	
-	      if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) || 
-		 (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) || 
-		 (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::NARROW) || 
-		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) || 
-		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) || 
-		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::NARROW) || 
-		 (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::GOLDEN) || 
-		 (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::BIGBREM) || 
-		 (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::NARROW)) 
-	       { h_ele_mee_os_gg -> Fill(sqrt(mee2));} 
+	      if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));
+	      if (gsfIter->isEB() && gsfIter2->isEE()) h_ele_mee_os_ebee -> Fill(sqrt(mee2));
+	      if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));
+	      if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+		 (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+		 (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
+		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
+		 (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+		 (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+		 (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::OLDNARROW))
+	       { h_ele_mee_os_gg -> Fill(sqrt(mee2));}
 	      else if (
-		 (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) || 
-		 (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->isGap()) || 
-		 (gsfIter->isGap() && gsfIter2->classification()==GsfElectron::SHOWERING) || 
-		 (gsfIter->isGap() && gsfIter2->isGap())) 
+		 (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) ||
+		 (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->isGap()) ||
+		 (gsfIter->isGap() && gsfIter2->classification()==GsfElectron::SHOWERING) ||
+		 (gsfIter->isGap() && gsfIter2->isGap()))
 	       { h_ele_mee_os_bb -> Fill(sqrt(mee2));}
 	      else
-	       { h_ele_mee_os_gb -> Fill(sqrt(mee2));}  
-            }  
+	       { h_ele_mee_os_gb -> Fill(sqrt(mee2));}
+            }
 
 	}
 
@@ -1457,7 +1457,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (bestGsfElectron.isEE())  histSclEoEmatchingObject_endcaps_new_matched->Fill(sclRef->energy()/moIter->energy());
 
         // add here distributions for matched electrons as for all electrons
-	//.. 
+	//..
 
       } // gsf electron found
 
@@ -1469,17 +1469,17 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 bool GsfElectronDataAnalyzer::trigger(const edm::Event & e)
 {
-  
+
   // retreive TriggerResults from the event
   edm::Handle<edm::TriggerResults> triggerResults;
   e.getByLabel(triggerResults_,triggerResults);
 
   bool accept = false;
-  
+
   if (triggerResults.isValid()) {
     //std::cout << "TriggerResults found, number of HLT paths: " << triggerResults->size() << std::endl;
 
-    // get trigger names 
+    // get trigger names
     triggerNames_.init(*triggerResults);
     if (nEvents_==1) {
       for (unsigned int i=0; i<triggerNames_.size(); i++) {
@@ -1492,7 +1492,7 @@ bool GsfElectronDataAnalyzer::trigger(const edm::Event & e)
       HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
     }
 
-    // empty input vectors (n==0) means any trigger paths 
+    // empty input vectors (n==0) means any trigger paths
     if (n==0) {
       n=triggerResults->size();
       HLTPathsByName_.resize(n);
@@ -1503,7 +1503,7 @@ bool GsfElectronDataAnalyzer::trigger(const edm::Event & e)
       }
     }
 
-    if (nEvents_==1){ 
+    if (nEvents_==1){
       if (n>0) {
 	std::cout << "HLT trigger paths requested: index, name and valididty:" << std::endl;
 	for (unsigned int i=0; i!=n; i++) {
@@ -1528,9 +1528,9 @@ bool GsfElectronDataAnalyzer::trigger(const edm::Event & e)
     }
 
   }
-  
+
   return accept;
-    
+
 }
 
 

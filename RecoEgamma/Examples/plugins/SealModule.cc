@@ -26,8 +26,8 @@ DEFINE_SEAL_MODULE();
 //#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 
 typedef Merger<reco::SuperClusterCollection> EgammaSuperClusterMerger;
-DEFINE_FWK_MODULE( EgammaSuperClusterMerger );
-DEFINE_FWK_MODULE(ElectronIDAnalyzer);
+DEFINE_FWK_MODULE(EgammaSuperClusterMerger);
+DEFINE_ANOTHER_FWK_MODULE(ElectronIDAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ElectronSeedAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(MCElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(MCPhotonAnalyzer);

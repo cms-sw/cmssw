@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.27 2009/09/20 10:06:48 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.28 2009/10/10 09:09:18 chamont Exp $
 //
 //
 
@@ -60,7 +60,7 @@ GsfElectronFakeAnalyzer::GsfElectronFakeAnalyzer(const edm::ParameterSet& conf)
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
-  
+
   edm::ParameterSet pset =
    conf.getParameter<edm::ParameterSet>("HistosConfigurationFake") ;
 
@@ -108,7 +108,7 @@ GsfElectronFakeAnalyzer::GsfElectronFakeAnalyzer(const edm::ParameterSet& conf)
   nbinhoe= pset.getParameter<int>("Nbinhoe");
   hoemin=pset.getParameter<double>("Hoemin");
   hoemax=pset.getParameter<double>("Hoemax");
-  
+
 }
 
 GsfElectronFakeAnalyzer::~GsfElectronFakeAnalyzer()
@@ -478,7 +478,7 @@ void GsfElectronFakeAnalyzer::beginJob(){
   histSclEoEmatchingObjectShowering_barrel = new TH1F("h_scl_EoEmatchingObject showering, barrel","ele SC energy over matching jet energy, showering, barrel",100,0.2,1.2);
   histSclEoEmatchingObjectShowering_endcaps = new TH1F("h_scl_EoEmatchingObject showering, endcaps","ele SC energy over matching jet energy, showering, endcaps",100,0.2,1.2);
 
-  // isolation  
+  // isolation
   h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.);
   h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.);
@@ -487,16 +487,16 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ele_ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.);
-  
+
   // fbrem
   h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode",100,0.,1.);
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean ele brem fraction vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean ele brem fraction vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
 
-  // e/g et pflow electrons 
+  // e/g et pflow electrons
   h_ele_mva = new TH1F( "h_ele_mva","ele mva",100,-1.,1.);
   h_ele_provenance = new TH1F( "h_ele_provenance","ele provenance",5,-2.,3.);
-  
+
   // histos titles
   h_matchingObjectNum              -> GetXaxis()-> SetTitle("N_{SC}");
   h_matchingObjectNum              -> GetYaxis()-> SetTitle("Events");
@@ -667,8 +667,8 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_EoverP_all-> GetYaxis()-> SetTitle("Events");
   h_ele_EseedOP_all-> GetXaxis()-> SetTitle("E_{seed}/P_{vertex}");
   h_ele_EseedOP_all-> GetYaxis()-> SetTitle("Events");
-  h_ele_EoPout_all -> GetXaxis()-> SetTitle("E_{seed}/P_{out}"); 
-  h_ele_EoPout_all-> GetYaxis()-> SetTitle("Events");  
+  h_ele_EoPout_all -> GetXaxis()-> SetTitle("E_{seed}/P_{out}");
+  h_ele_EoPout_all-> GetYaxis()-> SetTitle("Events");
   h_ele_EeleOPout_all-> GetXaxis()-> SetTitle("E_{ele}/P_{out}");
   h_ele_EeleOPout_all-> GetYaxis()-> SetTitle("Events");
   h_ele_dEtaSc_propVtx_all-> GetXaxis()-> SetTitle("#eta_{sc} - #eta_{tr}");
@@ -913,13 +913,13 @@ GsfElectronFakeAnalyzer::endJob(){
 
   // all electrons
   h_ele_EoverP_all->Write();
-  h_ele_EseedOP_all->Write(); 
-  h_ele_EoPout_all->Write();    
+  h_ele_EseedOP_all->Write();
+  h_ele_EoPout_all->Write();
   h_ele_EeleOPout_all ->Write();
-  h_ele_dEtaSc_propVtx_all->Write(); 
-  h_ele_dPhiSc_propVtx_all->Write(); 
+  h_ele_dEtaSc_propVtx_all->Write();
+  h_ele_dPhiSc_propVtx_all->Write();
   h_ele_dEtaCl_propOut_all ->Write();
-  h_ele_dPhiCl_propOut_all->Write(); 
+  h_ele_dPhiCl_propOut_all->Write();
   h_ele_HoE_all->Write();
   h_ele_TIP_all->Write();
   h_ele_vertexPt_all->Write();
@@ -1196,7 +1196,7 @@ GsfElectronFakeAnalyzer::endJob(){
   h_ele_eta_showerFrac->Write();
   h_ele_xOverX0VsEta->Write();
 
-  // e/g et pflow electrons 
+  // e/g et pflow electrons
   h_ele_mva->Write();
   h_ele_provenance->Write();
 
@@ -1258,10 +1258,10 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     h_ele_EseedOP_all     -> Fill( gsfIter->eSeedClusterOverP() );
     h_ele_EoPout_all     -> Fill( gsfIter->eSeedClusterOverPout() );
     h_ele_EeleOPout_all     -> Fill( gsfIter->eEleClusterOverPout() );
-    h_ele_dEtaSc_propVtx_all -> Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());    
-    h_ele_dPhiSc_propVtx_all -> Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());    
-    h_ele_dEtaCl_propOut_all -> Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());    
-    h_ele_dPhiCl_propOut_all -> Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());    
+    h_ele_dEtaSc_propVtx_all -> Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
+    h_ele_dPhiSc_propVtx_all -> Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
+    h_ele_dEtaCl_propOut_all -> Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());
+    h_ele_dPhiCl_propOut_all -> Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());
     h_ele_HoE_all     -> Fill( gsfIter->hadronicOverEm() );
     double d = gsfIter->vertex().x()*gsfIter->vertex().x()
                +gsfIter->vertex().y()*gsfIter->vertex().y();
@@ -1457,7 +1457,7 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
           h_ele_seed_drz2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dRz2());
           h_ele_seed_drz2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dRz2());
           h_ele_seed_subdet2_-> Fill(elseed->subDet2());
-        } 
+        }
 	// match distributions
 	h_ele_EoP    -> Fill( bestGsfElectron.eSuperClusterOverP() );
 	if (bestGsfElectron.ecalDrivenSeed()) h_ele_EoP_eg    -> Fill( bestGsfElectron.eSuperClusterOverP() );
@@ -1566,11 +1566,11 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (bestGsfElectron.isEE()) eleClass+=10;
 	h_ele_classes ->Fill(eleClass);
 
-        h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
-        if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
+  h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
 
 	//fbrem
 	double fbrem_mean=0.;
