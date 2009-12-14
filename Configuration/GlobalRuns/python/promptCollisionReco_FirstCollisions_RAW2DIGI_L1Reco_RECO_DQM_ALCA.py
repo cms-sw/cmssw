@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -39,7 +39,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 
 #'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/123/615/1A913333-B7E2-DE11-AEEA-001D09F2960F.root'
-' /store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/009/4E4C78E1-8AE6-DE11-B2EA-0030487D0D3A.root'   )
+'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/009/4E4C78E1-8AE6-DE11-B2EA-0030487D0D3A.root'   )
 )
 
 #process.source.skipEvents = cms.untracked.uint32(16800)
@@ -48,7 +48,7 @@ process.source = cms.Source("PoolSource",
 process.FEVT = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.RECOEventContent.outputCommands,
-    fileName = cms.untracked.string('/tmp/malgeri/promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCA.root'),
+    fileName = cms.untracked.string('promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCA.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('RECO'),
         filterName = cms.untracked.string('')
@@ -78,8 +78,9 @@ process.GlobalTag.globaltag = 'GR09_P_V7::All'
 
 ## TRACKING:
 ## Skip events with HV off
-process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
+process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
 ## PV Overrides 
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
@@ -118,10 +119,33 @@ process.ecalPreshowerRecHit.ESMIPADC = 55
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
 
-## add protection for number of clusters
+## EGAMMA
+process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
+process.ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)
+process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.9)
+process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.9)
+process.ecalDrivenElectronSeeds.SeedConfiguration.r2MinF = cms.double(-1.5)
+process.ecalDrivenElectronSeeds.SeedConfiguration.r2MaxF = cms.double(1.5)
+process.ecalDrivenElectronSeeds.SeedConfiguration.rMinI = cms.double(-2.)
+process.ecalDrivenElectronSeeds.SeedConfiguration.rMaxI = cms.double(2.)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
+process.gsfElectrons.applyPreselection = cms.bool(False)
 
-process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
-process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+#Lower Photon reconstruction threshold
+process.photons.minSCEtBarrel = 1.
+process.photons.minSCEtEndcap =1.
+process.photonCore.minSCEt = 1.
+process.conversionTrackCandidates.minSCEt =1.
+process.conversions.minSCEt =1.
+
+process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
+process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
+process.trackerOnlyConversions.MinApproach = cms.double(-.25)
+process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
+process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
+
 
 ###  end of top level replacements
 ###
