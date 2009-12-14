@@ -4,13 +4,16 @@ RunInfo::RunInfo(){}
 RunInfo * RunInfo::Fake_RunInfo(){
   RunInfo * sum = new RunInfo();
   sum->m_run=-1;
+  sum->m_start_time_ll=-1;
   sum->m_start_time_str="null";
+  sum->m_stop_time_ll=-1;
   sum->m_stop_time_str="null";
-  sum->m_avg_current=-1;
-  sum->m_min_current=-1;
-  sum->m_max_current=-1;
-  sum->m_stop_current=-1;
   sum->m_start_current=-1; 
+  sum->m_stop_current=-1;
+  sum->m_avg_current=-1;
+  sum->m_max_current=-1;
+  sum->m_min_current=-1;
+  sum->m_run_intervall_micros=0;
   return sum; 
 }
 
