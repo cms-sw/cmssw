@@ -22,9 +22,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="350beta1">
-<var name="VAL_REF_RELEASE" value="350pre1">
-<var name="VAL_COMMENT" value="Source changes: compute and store closest ctf track in GsfElectronCore ; use 999999999 for no-cut ; replace NARROW with OLDNARROW ; detect cuts inconsistent with pflow.">
+<var name="VAL_NEW_RELEASE" value="350pre1">
+<var name="VAL_REF_RELEASE" value="340pre7">
+<var name="VAL_COMMENT" value="No source change.">
 
 Oval is able to check the output channel of an execution and compare it with a reference output.
 The tags below are defining which are lines to be compared. The currently specification is a
