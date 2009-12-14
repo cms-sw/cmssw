@@ -46,12 +46,7 @@ process.source = cms.Source("PoolSource",
 
 process.DQMStore = cms.Service("DQMStore")
 
-process.dump = cms.EDFilter("CSCDigiDump",
-    wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
-    empt = cms.InputTag(""),
-    stripDigiTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
-    comparatorDigiTag = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi")
-)
+process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 
 process.muonCSCDigis.InputObjects = "rawDataCollector"
 process.p1 = cms.Path(process.muonCSCDigis)

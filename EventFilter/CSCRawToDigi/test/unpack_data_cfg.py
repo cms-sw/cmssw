@@ -95,13 +95,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.DQMStore = cms.Service("DQMStore")
-
-process.dump = cms.EDFilter("CSCDigiDump",
-    wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
-    empt = cms.InputTag(""),
-    stripDigiTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
-    comparatorDigiTag = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi")
-)
+process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 
 process.muonCSCDigis = cms.EDFilter("CSCDCCUnpacker",
     PrintEventNumber = cms.untracked.bool(False),
@@ -139,4 +133,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p1 = cms.Path(process.muonCSCDigis)
 #process.k = cms.Path(process.d)
 #process.e = cms.EndPath(process.out)
-#process.c=cms.Path(process.dump)
+#process.c=cms.Path(process.cscDigiDump)

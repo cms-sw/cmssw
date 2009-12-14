@@ -38,12 +38,7 @@ secFiles.extend( [
 
 process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
 
-process.dump = cms.EDFilter("CSCDigiDump",
-    wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
-    empt = cms.InputTag(""),
-    stripDigiTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
-    comparatorDigiTag = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi")
-)
+process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 
 # Activate the following code to turn on LogDebug/LogTrace messages from CSCRawToDigi
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -63,4 +58,4 @@ process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(10) )
 
 process.muonCSCDigis.Debug = cms.untracked.bool(True)
 
-process.p1 = cms.Path(process.muonCSCDigis+process.dump)
+process.p1 = cms.Path(process.muonCSCDigis+process.cscDigiDump)
