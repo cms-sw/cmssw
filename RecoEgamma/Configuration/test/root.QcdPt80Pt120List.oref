@@ -1089,3 +1089,14 @@ Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/SimulationInfo/simTkPt h
 [oval run] result: OK
 [oval run] ==========================================
 
+[oval diff] ================================================
+[oval diff] MY_GLOBAL_TAG = MC_3XY_V12
+[oval diff] TEST_INPUT_FILE = DQM_V0001_R000000001__QcdPt80Pt120__Local__Reco.root
+[oval diff] diff line: /(?-xism:(Begin processing the \S* record))/
+[oval diff] diff line: /(?-xism:^(Histo .*)$)/
+[oval diff] ================================================
+
+[oval diff] =========================================
+[oval diff] result: OK
+[oval diff] =========================================
+

@@ -736,20 +736,20 @@ Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convPResA
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convPResBarrel has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convPResEndcap has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convPhi has 1 entries of mean value 0.26759
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZAll has 1 entries of mean value 76.9175
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZAll has 1 entries of mean value 76.9169
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZBarrel has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZBarrelZoom1 has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZBarrelZoom2 has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZEndcap has 1 entries of mean value 76.9175
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZEndcap has 1 entries of mean value 76.9169
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxYvsXTrkBarrel has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxYvsXTrkBarrelZoom1 has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxYvsXTrkBarrelZoom2 has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdEta has 1 entries of mean value 0.0228027
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdPhi has 1 entries of mean value 0.00067647
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdR has 1 entries of mean value 1.86629
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdX has 1 entries of mean value 1.79567
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdY has 1 entries of mean value 0.508819
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdZ has 1 entries of mean value -3.83787
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdPhi has 1 entries of mean value 0.000676522
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdR has 1 entries of mean value 1.86609
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdX has 1 entries of mean value 1.79547
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdY has 1 entries of mean value 0.508767
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdZ has 1 entries of mean value -3.83726
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/dzPVFromTracks has 1 entries of mean value 2.96157
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/eBcOverTkPoutAll has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/eBcOverTkPoutBarrel has 0 entries of mean value 0
@@ -765,23 +765,23 @@ Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h2TkPtPul
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h2_DPhiTracksAtEcalVsEtaAll has 1 entries of mean value -1.81894
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h2_DPhiTracksAtEcalVsRAll has 1 entries of mean value 23.8953
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h2dzPVVsR has 1 entries of mean value 23.8953
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksAll has 1 entries of mean value 0.00151879
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksAll has 1 entries of mean value -0.00151879
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksBarrel has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksEndcap has 1 entries of mean value 0.00151879
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksEndcap has 1 entries of mean value -0.00151879
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksVsEtaAll has 1 entries of mean value -1.81894
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksVsRAll has 1 entries of mean value 23.8953
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalAll has 1 entries of mean value 0.000484228
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalAll has 1 entries of mean value -0.000484228
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalBarrel has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalEndcap has 1 entries of mean value 0.000484228
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalEndcap has 1 entries of mean value -0.000484228
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtEcalAll has 1 entries of mean value 0.0741204
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtEcalBarrel has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtEcalEndcap has 1 entries of mean value 0.0741204
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxAll has 1 entries of mean value -0.00518772
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxAll has 1 entries of mean value 0.00518772
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxBarrel has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxEndcap has 1 entries of mean value -0.00518772
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxEndcap has 1 entries of mean value 0.00518772
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxVsEtaAll has 1 entries of mean value -1.81894
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxVsRAll has 1 entries of mean value 23.8953
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDistMinAppTracksAll has 1 entries of mean value 0.186209
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDistMinAppTracksAll has 1 entries of mean value 0.186179
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDistMinAppTracksBarrel has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDistMinAppTracksEndcap has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hInvMassAll_AllTracks has 1 entries of mean value 0.0842944
@@ -800,12 +800,12 @@ Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoCon
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoMTracksEta has 1 entries of mean value -1.82123
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoMTracksPhi has 1 entries of mean value 0.267671
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoMTracksR has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoMTracksZ has 1 entries of mean value -76.9175
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoMTracksZ has 1 entries of mean value -76.9169
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksEt has 1 entries of mean value 36.1483
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksEta has 1 entries of mean value -1.82123
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksPhi has 1 entries of mean value 0.267671
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksR has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksZ has 1 entries of mean value -76.9175
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksZ has 1 entries of mean value -76.9169
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_nHitsVsEtaAllTracks has 2 entries of mean value -1.81894
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_nHitsVsEtaAssTracks has 2 entries of mean value -1.81894
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_nHitsVsRAllTracks has 2 entries of mean value 23.8953
@@ -845,12 +845,12 @@ Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/tkChi2All
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/tkChi2AssTracks has 2 entries of mean value 8.49016
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/tkChi2LargeAllTracks has 0 entries of mean value 0
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/tkChi2LargeAssTracks has 2 entries of mean value 8.49016
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2All has 1 entries of mean value 10.6738
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2All has 1 entries of mean value 10.6733
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2Barrel has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2Endcap has 1 entries of mean value 10.6738
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbAll has 1 entries of mean value 0.00108664
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2Endcap has 1 entries of mean value 10.6733
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbAll has 1 entries of mean value 0.00108691
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbBarrel has 0 entries of mean value 0
-Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbEndcap has 1 entries of mean value 0.00108664
+Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbEndcap has 1 entries of mean value 0.00108691
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/zPVFromTracks has 1 entries of mean value 1.10311
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/Photons/R1VsEtAll has 6 entries of mean value 35.0054
 Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/Photons/R1VsEtUnconv has 4 entries of mean value 35.0058
@@ -1088,4 +1088,86 @@ Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/SimulationInfo/simTkPt h
 [oval run] ==========================================
 [oval run] result: OK
 [oval run] ==========================================
+
+[oval diff] ================================================
+[oval diff] MY_GLOBAL_TAG = MC_3XY_V12
+[oval diff] TEST_INPUT_FILE = DQM_V0001_R000000001__PhotonPt35__Local__Reco.root
+[oval diff] diff line: /(?-xism:(Begin processing the \S* record))/
+[oval diff] diff line: /(?-xism:^(Histo .*)$)/
+[oval diff] ================================================
+
+=== olog #739 != oref #739
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZAll has 1 entries of mean value 76.9169
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZAll has 1 entries of mean value 76.9175
+=== olog #743 != oref #743
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZEndcap has 1 entries of mean value 76.9169
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxRvsZEndcap has 1 entries of mean value 76.9175
+=== olog #748 != oref #748
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdPhi has 1 entries of mean value 0.000676522
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdR has 1 entries of mean value 1.86609
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdX has 1 entries of mean value 1.79547
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdY has 1 entries of mean value 0.508767
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdZ has 1 entries of mean value -3.83726
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdPhi has 1 entries of mean value 0.00067647
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdR has 1 entries of mean value 1.86629
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdX has 1 entries of mean value 1.79567
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdY has 1 entries of mean value 0.508819
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/convVtxdZ has 1 entries of mean value -3.83787
+=== olog #768 != oref #768
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksAll has 1 entries of mean value -0.00151879
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksAll has 1 entries of mean value 0.00151879
+=== olog #770 != oref #770
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksEndcap has 1 entries of mean value -0.00151879
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDCotTracksEndcap has 1 entries of mean value 0.00151879
+=== olog #773 != oref #773
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalAll has 1 entries of mean value -0.000484228
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalAll has 1 entries of mean value 0.000484228
+=== olog #775 != oref #775
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalEndcap has 1 entries of mean value -0.000484228
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDEtaTracksAtEcalEndcap has 1 entries of mean value 0.000484228
+=== olog #779 != oref #779
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxAll has 1 entries of mean value 0.00518772
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxAll has 1 entries of mean value -0.00518772
+=== olog #781 != oref #781
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxEndcap has 1 entries of mean value 0.00518772
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDPhiTracksAtVtxEndcap has 1 entries of mean value -0.00518772
+=== olog #784 != oref #784
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDistMinAppTracksAll has 1 entries of mean value 0.186179
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/hDistMinAppTracksAll has 1 entries of mean value 0.186209
+=== olog #803 != oref #803
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoMTracksZ has 1 entries of mean value -76.9169
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoMTracksZ has 1 entries of mean value -76.9175
+=== olog #808 != oref #808
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksZ has 1 entries of mean value -76.9169
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/h_RecoConvTwoTracksZ has 1 entries of mean value -76.9175
+=== olog #848 != oref #848
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2All has 1 entries of mean value 10.6733
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2All has 1 entries of mean value 10.6738
+=== olog #850 != oref #850
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2Endcap has 1 entries of mean value 10.6733
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbAll has 1 entries of mean value 0.00108691
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2Endcap has 1 entries of mean value 10.6738
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbAll has 1 entries of mean value 0.00108664
+=== olog #853 != oref #853
+olog: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbEndcap has 1 entries of mean value 0.00108691
+---
+oref: Histo DQMData/Run 1/EgammaV/Run summary/PhotonValidator/ConversionInfo/vtxChi2ProbEndcap has 1 entries of mean value 0.00108664
+
+[oval diff] =========================================
+[oval diff] result: DIFFS
+[oval diff] =========================================
 
