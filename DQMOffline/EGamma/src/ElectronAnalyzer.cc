@@ -654,7 +654,7 @@ void ElectronAnalyzer::fillMatchedHistos
   if (electron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(fabs(electron.eta()));
   if (electron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(fabs(electron.eta()));
   //if (electron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(electron.eta()));
-  //if (electron.classification() == GsfElectron::NARROW) h_matchedEle_eta_narrow->Fill(fabs(electron.eta()));
+  //if (electron.classification() == GsfElectron::OLDNARROW) h_matchedEle_eta_narrow->Fill(fabs(electron.eta()));
  }
 
 bool ElectronAnalyzer::trigger( const edm::Event & e )
