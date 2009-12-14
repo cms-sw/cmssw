@@ -162,7 +162,6 @@ int main(){
       cond::DbScopedTransaction transaction(pooldb);
       transaction.start(false);
       unsigned int pos=0;  
-      pooldb.transaction().start(false);
       pos=editor.truncate();
       std::cout<<"truncate. new last position "<<pos<<std::endl;
       pos=editor.truncate();
@@ -179,8 +178,11 @@ int main(){
       unsigned int pos=0;
       pos=editor.append(1345, "pay1345tok");
       std::cout<<"inserted 1345 payload at position "<<pos<<std::endl;
-       editor.updateClosure(2000);
-       transaction.commit();
+      editor.updateClosure(1345);
+      pos=editor.append(1346, "pay1346tok");
+      std::cout<<"inserted 1346 payload at position "<<pos<<std::endl;
+      editor.updateClosure(1346);
+      transaction.commit();
     }
     
 
