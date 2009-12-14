@@ -34,6 +34,9 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
   thisrecord.m_idName = pset.getParameter<std::string>("record");
   thisrecord.m_tag = pset.getParameter<std::string>("tag");
   
+  thisrecord.m_closeIOV =
+    pset.getUntrackedParameter<bool>("closeIOV", m_closeIOV);
+
   thisrecord.m_withWrapper =  
     pset.getUntrackedParameter<bool>("withWrapper", m_withWrapper);
  
@@ -61,9 +64,12 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_dbstarted( false ),
   m_logdb( 0 ),
   m_logdbOn( false ),
+  m_closeIOV(false),
   m_freeInsert(false),
   m_withWrapper(false)
 {
+
+  m_closeIOV=iConfig.getUntrackedParameter<bool>("closeIOV",m_closeIOV);
 
   if( iConfig.exists("withWrapper") ){
      m_withWrapper=iConfig.getUntrackedParameter<bool>("withWrapper");
@@ -347,6 +353,7 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
   unsigned int payloadIdx =  record.m_freeInsert ? 
     editor.freeInsert(sinceTime,payloadToken) :
     editor.append(sinceTime,payloadToken);
+  if (record.m_closeIOV) editor.updateClosure(sinceTime);
   editor.stamp(cond::userInfo(),false);
   return payloadIdx;
 }

@@ -260,6 +260,7 @@ namespace cond{
 	Record(): m_tag(),m_isNewTag(false),
 		  m_idName(),
 		  m_iovtoken(),
+                  m_closeIOV(false),
 		  m_freeInsert(false),
 		  m_withWrapper(false)
 	{}
@@ -270,6 +271,7 @@ namespace cond{
 	std::string m_idName;
 	std::string m_iovtoken;
 	cond::TimeType m_timetype;
+        bool m_closeIOV;
 	bool m_freeInsert;
 	bool m_withWrapper;
     };      
@@ -321,14 +323,15 @@ namespace cond{
       bool m_dbstarted;
       cond::Logger* m_logdb;
       bool m_logdbOn;
+
+      bool m_closeIOV;
       
       bool m_freeInsert;
       
       bool m_withWrapper;
       
       std::map<std::string, cond::UserLogInfo> m_logheaders;
-      //cond::IOVService* m_iovservice;
-      //edm::ParameterSet m_connectionPset;
+
     };//PoolDBOutputService
   }//ns service
 }//ns cond
