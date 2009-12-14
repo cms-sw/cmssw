@@ -2,9 +2,3 @@
 <use name=CondCore/ESSources>
 <use name=CondFormats/DataRecord>
 <flags EDM_PLUGIN=1>
-<export>
-   <lib name=CondCoreRunInfoPlugins>
-   <use name=CondFormats/RunInfo>
-   <use name=CondCore/ESSources>
-   <use name=CondFormats/DataRecord>
-</export>

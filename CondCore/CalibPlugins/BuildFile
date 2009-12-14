@@ -4,10 +4,3 @@
 <use name=CondFormats/DataRecord>
 
 <flags EDM_PLUGIN=1>
-<export>
-   <lib name=CondCoreCalibPlugins>
-   <use name=FWCore/Framework>
-   <use name=CondCore/ESSources>
-   <use name=CondFormats/Calibration>
-   <use name=CondFormats/DataRecord>
-</export>
