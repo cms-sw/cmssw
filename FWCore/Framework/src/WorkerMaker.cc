@@ -45,4 +45,16 @@ Maker::throwConfigurationException(ModuleDescription const &md,
   throw toThrow;
 }
 
+void 
+Maker::validateEDMType(const std::string & edmType, WorkerParams const & p) const
+{
+  std::string expected = p.pset_->getUntrackedParameter<std::string>("@module_edm_type");
+  if(edmType != expected) 
+  {
+    LogDebug("WorkerMaker") << "Module " << p.pset_->getParameter<std::string>("@module_label")
+      << " is of type " << edmType << ", but declared in the configuration as " << expected;
+  }
+}
+
+
 } // end of edm::

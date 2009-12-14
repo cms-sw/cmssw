@@ -30,6 +30,8 @@ namespace edm {
 
     void throwValidationException(WorkerParams const& p,
 				  cms::Exception const& iException) const;
+
+    void validateEDMType(const std::string & edmType, WorkerParams const& p) const;
   };
 
   template <class T>
@@ -58,7 +60,6 @@ namespace edm {
       ConfigurationDescriptions descriptions;
       UserType::fillDescriptions(descriptions);
       descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));
-
       p.pset_->registerIt();
     }
     catch (cms::Exception& iException) {
@@ -72,6 +73,8 @@ namespace edm {
        pre(md);
 
        std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
+       validateEDMType(module->baseType(), p);
+
        worker=std::auto_ptr<Worker>(new WorkerType(module, md, p));
        post(md);
     } catch( cms::Exception& iException){
@@ -79,6 +82,7 @@ namespace edm {
     }
     return worker;
   }
+
 }
 
 #endif
