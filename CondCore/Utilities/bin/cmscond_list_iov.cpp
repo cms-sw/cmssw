@@ -58,6 +58,7 @@ int cond::ListIOVUtilities::execute(){
     cond::DbScopedTransaction transaction(session);
     transaction.start(true);
     token=metadata_svc.getToken(tag);
+    transaction.commit();
     {
       bool verbose = hasOptionValue("verbose");
       bool details = hasOptionValue("summary");
@@ -83,7 +84,6 @@ int cond::ListIOVUtilities::execute(){
       }
       std::cout<<"Total # of payload objects: "<<counter<<std::endl;
     }
-    transaction.commit();
   }
   return 0;
 }
