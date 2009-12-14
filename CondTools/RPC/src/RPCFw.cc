@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/03 10:21:25 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/11/20 15:53:56 $
+ *  $Revision: 1.25 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -1282,12 +1282,32 @@ std::vector<RPCObUXC::Item> RPCFw::createUXC(long long since, long long till)
   std::cout << ">> creating UXC object..." << std::endl;
   
   // UXCT
+  coral::IQuery* queryUXCP = schema.newQuery();
+  queryUXCP->addToTableList( "RPCGASPARAMETERS");
+  queryUXCP->addToTableList( "DP_NAME2ID" );
+  queryUXCP->addToOutputList( "DP_NAME2ID.DPNAME", "DPNAME" );
+  queryUXCP->addToOutputList("DP_NAME2ID.ID","ID");
+  queryUXCP->addToOutputList( "RPCGASPARAMETERS.DPID", "DPID" );
+  queryUXCP->addToOutputList( "RPCGASPARAMETERS.CHANGE_DATE", "TSTAMP" );
+  queryUXCP->addToOutputList( "RPCGASPARAMETERS.VALUE", "VALUE" );
   coral::IQuery* queryUXCT = schema.newQuery();
-  queryUXCT->addToTableList( "RPCGASPARAMETERS");
-//  queryUXCT->addToOutputList( "RPCGASPARAMETERS.DP_NAME2ID", "DP_NAME2ID" );
-  queryUXCT->addToOutputList( "RPCGASPARAMETERS.DPID", "DPID" );
-  queryUXCT->addToOutputList( "RPCGASPARAMETERS.CHANGE_DATE", "TSTAMP" );
-  queryUXCT->addToOutputList( "RPCGASPARAMETERS.VALUE", "VALUE" );
+  queryUXCT->addToTableList( "RPCCOOLING");
+  queryUXCT->addToTableList( "DP_NAME2ID" );
+  queryUXCT->addToOutputList( "DP_NAME2ID.DPNAME", "DPNAME" );
+  queryUXCT->addToOutputList("DP_NAME2ID.ID","ID");
+  queryUXCT->addToOutputList( "RPCCOOLING.DPID", "DPID" );
+  queryUXCT->addToOutputList( "RPCCOOLING.CHANGE_DATE", "TSTAMP" );
+  queryUXCT->addToOutputList( "RPCCOOLING.VALUE", "VALUE" );
+  coral::IQuery* queryUXCH = schema.newQuery();
+  queryUXCH->addToTableList( "RPCCOOLING");
+  queryUXCH->addToTableList( "DP_NAME2ID" );
+  queryUXCH->addToOutputList( "DP_NAME2ID.DPNAME", "DPNAME" );
+  queryUXCH->addToOutputList("DP_NAME2ID.ID","ID");
+  queryUXCH->addToOutputList( "RPCCOOLING.DPID", "DPID" );
+  queryUXCH->addToOutputList( "RPCCOOLING.CHANGE_DATE", "TSTAMP" );
+  queryUXCH->addToOutputList( "RPCCOOLING.VALUE", "VALUE" );
+
+
   RPCObUXC::Item Itemp;
   std::vector<RPCObUXC::Item> uxcarray;
   coral::TimeStamp tlast = tMIN;
@@ -1300,27 +1320,44 @@ std::vector<RPCObUXC::Item> RPCFw::createUXC(long long since, long long till)
     conditionData.extend<coral::TimeStamp>( "tmax" );   
     conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
     conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
-    std::string conditionUXCT = "RPCGASPARAMETERS.VALUE IS NOT NULL AND RPCGASPARAMETERS.CHANGE_DATE >:tmin AND RPCGASPARAMETERS.CHANGE_DATE <:tmax";
-    queryUXCT->setCondition( conditionUXCT, conditionData );
-    coral::ICursor& cursorUXCT = queryUXCT->execute();
-    while ( cursorUXCT.next() ) {
-      Itemp.temperature=0;Itemp.pressure=0;Itemp.humidity=0;
-      const coral::AttributeList& row = cursorUXCT.currentRow();
-      float idoub = row["DPID"].data<float>();
-      int id = static_cast<int>(idoub);
+    std::string conditionUXCP = "RPCGASPARAMETERS.DPID = DP_NAME2ID.ID AND RPCGASPARAMETERS.CHANGE_DATE >:tmin AND RPCGASPARAMETERS.CHANGE_DATE <:tmax AND (DP_NAME2ID.DPNAME like '%UXCPressure%')";
+    queryUXCP->setCondition( conditionUXCP, conditionData );
+    coral::ICursor& cursorUXCP = queryUXCP->execute();
+    while ( cursorUXCP.next() ) {
+      Itemp.temperature=0;Itemp.pressure=0;Itemp.dewpoint=0;
+      const coral::AttributeList& row = cursorUXCP.currentRow();
       float value = row["VALUE"].data<float>(); 
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
       unsigned long long ut_time = TtoUT(ts);
-      if (id == 118016) {
-        Itemp.temperature = value;
-        Itemp.unixtime = ut_time;
-        uxcarray.push_back(Itemp);
+      Itemp.pressure = value;
+      Itemp.unixtime = ut_time;
+      uxcarray.push_back(Itemp);
+    }
+    std::string conditionUXCT = "RPCCOOLING.DPID = DP_NAME2ID.ID AND RPCCOOLING.CHANGE_DATE >:tmin AND RPCCOOLING.CHANGE_DATE <:tmax AND (DP_NAME2ID.DPNAME like '%TempUXC%')";
+    queryUXCT->setCondition( conditionUXCT, conditionData );
+    coral::ICursor& cursorUXCT = queryUXCT->execute();
+    while ( cursorUXCT.next() ) {
+      Itemp.temperature=0;Itemp.pressure=0;Itemp.dewpoint=0;
+      const coral::AttributeList& row = cursorUXCT.currentRow();
+      float value = row["VALUE"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      unsigned long long ut_time = TtoUT(ts);
+      Itemp.temperature = value;                                                                                                                                                 
+      Itemp.unixtime = ut_time;                                                                                                                                                  
+      uxcarray.push_back(Itemp);                                                                                                                                                 
       }
-      if (id == 118015) {
-        Itemp.pressure = value;
-        Itemp.unixtime = ut_time;
-        uxcarray.push_back(Itemp);
-      }
+    std::string conditionUXCH = "RPCCOOLING.DPID = DP_NAME2ID.ID AND RPCCOOLING.CHANGE_DATE >:tmin AND RPCCOOLING.CHANGE_DATE <:tmax AND (DP_NAME2ID.DPNAME like '%DewpointUXC%')";
+    queryUXCH->setCondition( conditionUXCH, conditionData );
+    coral::ICursor& cursorUXCH = queryUXCH->execute();
+    while ( cursorUXCH.next() ) {
+      Itemp.temperature=0;Itemp.pressure=0;Itemp.dewpoint=0;
+      const coral::AttributeList& row = cursorUXCH.currentRow();
+      float value = row["VALUE"].data<float>();
+      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      unsigned long long ut_time = TtoUT(ts);
+      Itemp.dewpoint = value;
+      Itemp.unixtime = ut_time;
+      uxcarray.push_back(Itemp);
     }
   }else {
     std::cout << ">> Processing UXCT..." << std::endl;
@@ -1331,7 +1368,7 @@ std::vector<RPCObUXC::Item> RPCFw::createUXC(long long since, long long till)
     queryUXCT->setCondition( conditionUXCT, conditionData );
     coral::ICursor& cursorUXCT = queryUXCT->execute();
     while ( cursorUXCT.next() ) {
-      Itemp.temperature=0;Itemp.pressure=0;Itemp.humidity=0;
+      Itemp.temperature=0;Itemp.pressure=0;Itemp.dewpoint=0;
       const coral::AttributeList& row = cursorUXCT.currentRow();
       float idoub = row["DPID"].data<float>();
       int id = static_cast<int>(idoub);
