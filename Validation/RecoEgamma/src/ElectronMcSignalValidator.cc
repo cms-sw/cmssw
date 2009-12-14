@@ -558,13 +558,13 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
         if
          ( (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
            (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-           (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::NARROW) ||
+           (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
            (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) ||
            (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-           (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::NARROW) ||
-           (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::GOLDEN) ||
-           (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-           (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::NARROW) )
+           (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
+           (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+           (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+           (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::OLDNARROW) )
          { h1_ele_mee_os_gg->Fill(sqrt(mee2)) ; }
         else if
          ( (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) ||
@@ -1046,7 +1046,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
           h1_ele_eta->Fill(fabs(bestGsfElectron.eta()));
           if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_eta_golden->Fill(fabs(bestGsfElectron.eta()));
           if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h1_ele_eta_bbrem->Fill(fabs(bestGsfElectron.eta()));
-          if (bestGsfElectron.classification() == GsfElectron::NARROW) h1_ele_eta_narrow->Fill(fabs(bestGsfElectron.eta()));
+          if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h1_ele_eta_narrow->Fill(fabs(bestGsfElectron.eta()));
           if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h1_ele_eta_shower->Fill(fabs(bestGsfElectron.eta()));
 
           //fbrem
