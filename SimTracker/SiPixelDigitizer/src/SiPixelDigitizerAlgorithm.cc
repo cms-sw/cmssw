@@ -527,12 +527,6 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 	induce_signal(*ssbegin); // *ihit needed only for SimHit<-->Digi link
       } //  end if 
     } // end for 
-
-    if(use_module_killing_ && use_deadmodule_DB_) // remove dead modules using DB
-      module_killing_DB();
-
-    if(use_module_killing_ && !use_deadmodule_DB_) // remove dead modules using the list in cfg file
-      module_killing_conf();
   
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
@@ -544,6 +538,12 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       pixel_inefficiency_db();
 
     delete pIndexConverter;
+
+    if(use_module_killing_ && use_deadmodule_DB_) // remove dead modules using DB
+      module_killing_DB();
+
+    if(use_module_killing_ && !use_deadmodule_DB_) // remove dead modules using the list in cfg file
+      module_killing_conf();
 
   }
 

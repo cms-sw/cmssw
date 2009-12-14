@@ -24,7 +24,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    debugVerbosity = cms.untracked.uint32(10),
 #    debugFlag = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/v/vesna/DigitizerWork/CMSSW_3_2_1/src/SimTracker/SiPixelDigitizer/test/Digis.root')
+    fileNames = cms.untracked.vstring('file:/tmp/vesna/Digis_nokilling.root')
 )
 
 process.LockService = cms.Service("LockService",

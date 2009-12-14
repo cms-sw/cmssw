@@ -42,7 +42,7 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",
@@ -68,9 +68,9 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource", fileNames = readFiles, secondaryFileNames = secFiles)
 
 
-readFiles.extend( ['/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-RECO/MC_31X_V9-v1/0003/D8B7F902-20D2-DE11-B672-001D09F252DA.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-RECO/MC_31X_V9-v1/0002/DC9869D2-88D1-DE11-8C91-001D09F295A1.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-RECO/MC_31X_V9-v1/0002/C4B0CD4E-8AD1-DE11-801A-000423D33970.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-RECO/MC_31X_V9-v1/0002/5C2D52CA-89D1-DE11-A333-001D09F24399.root'] );
+readFiles.extend( ['/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/E8103237-33E4-DE11-A447-001A92810AEE.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/A4865AED-2CE4-DE11-9081-002354EF3BE2.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/9411F4EC-2CE4-DE11-A782-003048678FE4.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/1219A3F4-2CE4-DE11-9FCB-001A9281173A.root'] );
 
-secFiles.extend( ['/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0003/D8B6313B-1FD2-DE11-A55D-001D09F23944.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/EA0EB0D0-88D1-DE11-A229-0030487A18F2.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/AEC6526F-8AD1-DE11-93E3-001D09F2924F.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/A0A448FA-89D1-DE11-B6C5-001D09F248F8.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/9E2DFAC6-89D1-DE11-9F85-001D09F27003.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/6E2BFC29-89D1-DE11-B83A-001D09F27003.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/5E12179D-88D1-DE11-86DC-001D09F2546F.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/58A87FC1-89D1-DE11-AE1B-001D09F2525D.root','/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0002/3E856BC2-89D1-DE11-8542-001D09F28F11.root'] )
+secFiles.extend( [ '/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0009/FEF402CE-9EE4-DE11-8EE5-00261894388A.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/F2F7DFEE-2CE4-DE11-99A7-001BFCDBD182.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/CADFF1EA-2CE4-DE11-B4E7-0026189438FD.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/C06C50F0-2CE4-DE11-BE00-0018F3D096F8.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/A60C53EA-2CE4-DE11-94BC-00261894394B.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/9C468D6B-2DE4-DE11-90B1-0018F3D096F8.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/920E11E4-2CE4-DE11-A58B-002354EF3BDE.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/369953EB-2CE4-DE11-8184-0026189438C2.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/32C3A59C-2BE4-DE11-81CD-0026189438E0.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/1460206A-2DE4-DE11-A417-001A928116AE.root'] )
 
 
 
@@ -90,11 +90,11 @@ secFiles.extend( ['/store/relval/CMSSW_3_3_3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW
 
 
 # Choose the global tag here:
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'MC_3XY_V9A::All'
 
 process.o1 = cms.OutputModule("PoolOutputModule",
                               outputCommands = cms.untracked.vstring('drop *','keep *_*_*_DigiTest'),
-            fileName = cms.untracked.string('file:/afs/cern.ch/user/v/vesna/DigitizerWork/CMSSW_3_3_3/src/SimTracker/SiPixelDigitizer/test/Digis.root')  
+            fileName = cms.untracked.string('file:/tmp/vesna/Digis_test.root')  
 )
 
 process.Timing = cms.Service("Timing")
@@ -121,7 +121,7 @@ process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHit
 #process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
 
 #This process to get events to be used to make DQM occupancy maps (cmsRun DQM_Pixel_digi.py after you ran testPixelDigitizer.py):
-#process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.siPixelRawData*process.siPixelDigis)
+process.p1 = cms.Path(process.mix*process.simSiPixelDigis*process.siPixelRawData*process.siPixelDigis)
 
 # Look at cluster charge:
 #process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
@@ -131,7 +131,7 @@ process.trackinghits = cms.Sequence(process.TrackRefitter*process.trackingRecHit
 
 #This process is to run the digitizer:
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('makeNtuple.root') )
-process.p1 = cms.Path(process.mix*process.simSiPixelDigis)
+#process.p1 = cms.Path(process.mix*process.simSiPixelDigis)
 
 #process.p1 = cms.Path(process.mix*process.digis*process.siPixelRawData*process.siPixelDigis)
 
