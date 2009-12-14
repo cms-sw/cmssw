@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2009/03/30 18:54:28 $
- * $Revision: 1.5 $
+ * $Date: 2009/09/15 16:04:39 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -118,7 +118,7 @@ EEClusterTaskExtras::~EEClusterTaskExtras(){
 
 }
 
-void EEClusterTaskExtras::beginJob(const EventSetup& c){
+void EEClusterTaskExtras::beginJob(){
 
    ievt_ = 0;
 
@@ -127,11 +127,11 @@ void EEClusterTaskExtras::beginJob(const EventSetup& c){
       dqmStore_->rmdir(prefixME_ + "/EEClusterTaskExtras");
    }
 
-   Numbers::initGeometry(c, false);
-
 }
 
 void EEClusterTaskExtras::beginRun(const Run& r, const EventSetup& c) {
+
+   Numbers::initGeometry(c, false);
 
    if ( ! mergeRuns_ ) this->reset();
 
