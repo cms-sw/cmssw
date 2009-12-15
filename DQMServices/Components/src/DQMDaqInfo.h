@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria SEGONI
 //         Created:  Thu Sep 25 11:17:43 CEST 2008
-// $Id: DQMDaqInfo.h,v 1.6 2008/11/11 17:34:20 segoni Exp $
+// $Id: DQMDaqInfo.h,v 1.7 2008/11/12 13:22:06 segoni Exp $
 //
 //
 
@@ -53,7 +53,7 @@ public:
   
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);

@@ -3,9 +3,9 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/11/30 14:46:10 $
- * $Revision: 1.15 $
- * $Author: dellaric $
+ * $Date: 2009/12/09 23:08:55 $
+ * $Revision: 1.16 $
+ * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
  *
@@ -51,7 +51,7 @@ void DQMFEDIntegrityClient::initialize() {
 }
 
 
-void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
+void DQMFEDIntegrityClient::beginJob() {
 
   NBINS = 850;
   XMIN  =   0.;

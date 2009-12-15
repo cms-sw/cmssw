@@ -13,7 +13,7 @@ public:
   DQMFileSaver(const edm::ParameterSet &ps);
 
 protected:
-  virtual void beginJob(const edm::EventSetup &);
+  virtual void beginJob(void);
   virtual void beginRun(const edm::Run &, const edm::EventSetup &);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
   virtual void analyze(const edm::Event &e, const edm::EventSetup &);

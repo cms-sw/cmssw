@@ -22,7 +22,7 @@ class DQMMessageLoggerClient : public edm::EDAnalyzer {
   
  protected:
   
-  void beginJob(const edm::EventSetup&);
+  void beginJob();
   //void beginRun(const edm::Run&, const edm::EventSetup&);
 
   void beginRun(const edm::Run&, const edm::EventSetup&);

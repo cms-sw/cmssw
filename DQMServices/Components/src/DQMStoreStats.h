@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/09/11 15:08:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/13 18:40:10 $
+ *  $Revision: 1.5 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
@@ -83,7 +83,7 @@ public:
 protected:
    
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   // BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);

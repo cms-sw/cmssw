@@ -54,7 +54,7 @@ DQMMessageLogger::~DQMMessageLogger() {
 }
 
 
-void DQMMessageLogger::beginJob(EventSetup const& iSetup) {
+void DQMMessageLogger::beginJob() {
    
   metname = "errorAnalyzer";
 

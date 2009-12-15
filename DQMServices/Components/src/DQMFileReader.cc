@@ -11,7 +11,7 @@ DQMFileReader::~DQMFileReader()
 {}
 
 void 
-DQMFileReader::beginJob(const edm::EventSetup& iSetup)
+DQMFileReader::beginJob()
 {
 
   dbe_ = 0;

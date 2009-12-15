@@ -301,7 +301,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
 //--------------------------------------------------------
 void
-DQMFileSaver::beginJob(const edm::EventSetup &)
+DQMFileSaver::beginJob()
 {
   irun_ = ilumi_ = ilumiprev_ = ievent_ = -1;
   nrun_ = nlumi_ = nevent_ = 0;

@@ -59,7 +59,7 @@ void DQMDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, cons
 
 
 void 
-DQMDaqInfo::beginJob(const edm::EventSetup& iSetup)
+DQMDaqInfo::beginJob()
 {
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();

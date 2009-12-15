@@ -25,7 +25,7 @@ class DQMMessageLogger : public edm::EDAnalyzer {
   virtual ~DQMMessageLogger();
   
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const&);
+  void beginJob();
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);

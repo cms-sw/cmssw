@@ -31,7 +31,7 @@ DQMMessageLoggerClient::~DQMMessageLoggerClient() {
 
 
 
-void DQMMessageLoggerClient::beginJob(const EventSetup& iSetup) {
+void DQMMessageLoggerClient::beginJob() {
 
   //LogTrace(metname)<<"[DQMMessageLoggerClient] Parameters initialization";
   theDbe = Service<DQMStore>().operator->();

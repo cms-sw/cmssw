@@ -4,8 +4,8 @@
  *
  * DQM FED Client
  *
- * $Date: 2009/06/03 09:42:07 $
- * $Revision: 1.4 $
+ * $Date: 2009/07/26 18:32:58 $
+ * $Revision: 1.5 $
  * \author  M. Marienfeld
  *
 */
@@ -32,7 +32,7 @@ public:
 
 protected:
 
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze

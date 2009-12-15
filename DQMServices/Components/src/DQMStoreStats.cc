@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/11/25 13:49:28 $
- * $Revision: 1.7 $
+ * $Date: 2009/11/25 14:18:45 $
+ * $Revision: 1.8 $
  * $Author: olzem $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -374,7 +374,7 @@ std::pair<unsigned int, unsigned int> DQMStoreStats::readMemoryEntry( void ) con
 //==================================================================//
 //========================= beginJob ===============================//
 //==================================================================//
-void DQMStoreStats::beginJob(const EventSetup& context) {
+void DQMStoreStats::beginJob() {
 
   ////---- get DQM store interface
   dbe_ = Service<DQMStore>().operator->();
