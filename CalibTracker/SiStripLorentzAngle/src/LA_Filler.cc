@@ -18,46 +18,34 @@ fill(TTree* tree, Book& book) const {
     std::vector<float>    PLEAF( tsoslocaltheta , tree );
     std::vector<float>    PLEAF( tsoslocalphi , tree );
     std::vector<float>    PLEAF( tsosglobalZofunitlocalY , tree );
-    std::vector<float> BdotY; if(ensembleBins_) { std::vector<float> PLEAF( tsosBdotY , tree ); swap(BdotY, tsosBdotY); }
-    std::vector<float> localy; if(localYbin_) { std::vector<float> PLEAF( tsoslocaly , tree ); swap(localy, tsoslocaly);}
-    std::vector<unsigned> seedstrip; if(stripsPerBin_) { std::vector<unsigned> PLEAF( clusterseedstrip , tree ); swap(seedstrip, clusterseedstrip);}
 
-    for(unsigned i=0; i< clusterdetid.size() ; i++) {
+    const unsigned N(clusterdetid.size());
+    std::vector<float> BdotY(N,0); if(ensembleBins_) { std::vector<float> PLEAF( tsosBdotY , tree ); swap(BdotY, tsosBdotY); }
+    std::vector<float> localy(N,0); if(localYbin_) { std::vector<float> PLEAF( tsoslocaly , tree ); swap(localy, tsoslocaly);}
+    std::vector<unsigned> seedstrip(N,0); if(stripsPerBin_) { std::vector<unsigned> PLEAF( clusterseedstrip , tree ); swap(seedstrip, clusterseedstrip);}
+
+    for(unsigned i=0; i<N ; i++) {
 
       const SiStripDetId detid(clusterdetid[i]);
       if( tsostrackmulti[i] != 1 || ( detid.subDetector()!=SiStripDetId::TIB && 
 				      detid.subDetector()!=SiStripDetId::TOB)    )  continue;
 
       const int sign = tsosglobalZofunitlocalY[i] < 0 ? -1 : 1;
-
+      const float tthetaL = sign * tsosdriftx[i] / tsosdriftz[i];
+      const float tthetaT = sign * tan(tsoslocaltheta[i]) * cos(tsoslocalphi[i]);
+  
       fill_one_cluster( book, 
-			detid, 
-			clusterwidth[i], 
-			clustervariance[i],
-			sign * tsosdriftx[i] / tsosdriftz[i],
-			sign * tan(tsoslocaltheta[i]) * cos(tsoslocalphi[i]),
-			TFE_index ,
-			ensembleBins_ ? fabs(BdotY[i]) : 0,
-			localYbin_ ? localy[i] : 0,
-			stripsPerBin_ ? seedstrip[i] % 128 : 0);
+			granularity(detid, tthetaL, TFE_index, localy[i], seedstrip[i]%128),
+			clusterwidth[i], clustervariance[i], tthetaL, tthetaT, fabs(BdotY[i]) );
     }
   }
 }
 
 void LA_Filler_Fitter::
 fill_one_cluster( Book& book, 
-		  const SiStripDetId detid, 
-		  const unsigned width, 
-		  const float variance, 
-		  const float tthetaL, 
-		  const float tthetaT, 
-		  const Long64_t TFE_index, 
-		  const float BdotY, 
-		  const float localy, 
-		  const unsigned apvstrip) const 
+		  const poly<std::string>& gran,
+		  const unsigned width, const float variance, const float tthetaL, const float tthetaT,  const float BdotY ) const 
 {
-  poly<std::string> gran = granularity(detid, tthetaL, TFE_index, localy, apvstrip);
-  
   book.fill( width, gran+"_width", 10,0,10);
   book.fill( tthetaL,                   gran+"_reconstruction", 360,-1.0,1.0 );
   book.fill( tthetaT-tthetaL,           gran+ allAndOne(width), 360,-1.0,1.0 );

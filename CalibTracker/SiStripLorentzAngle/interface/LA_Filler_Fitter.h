@@ -21,7 +21,7 @@ class LA_Filler_Fitter {
 		AVGV3 =1<<3, 
 		RMSV2 =1<<4,
 		RMSV3 =1<<5, LAST_METHOD=1<<5};
-		//MULTI =1<<6, LAST_METHOD=1<<6};
+
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
     case WIDTH: return      "_width_prof";
@@ -30,7 +30,6 @@ class LA_Filler_Fitter {
     case AVGV3: return fit? SymmetryFit::name(method(m,0)): "_avg_var_w3";  
     case RMSV2: return fit? SymmetryFit::name(method(m,0)): "_rms_var_w2";  
     case RMSV3: return fit? SymmetryFit::name(method(m,0)): "_rms_var_w3";  
-      //case MULTI: return fit? SymmetryFit::name(method(m,0)): "_multi";
     default: return "_UNKNOWN";
     }
   }
@@ -79,11 +78,9 @@ class LA_Filler_Fitter {
     {};
   
   void fill(TTree*, Book&) const;
-  void fill_one_cluster(Book&, const SiStripDetId, 
-			const unsigned, const float, 
-			const float, const float, 
-			const Long64_t, 
-			const float, const float, const unsigned) const;
+  void fill_one_cluster(Book&,
+			const poly<std::string>&,
+			const unsigned,	const float, const float, const float, const float) const;
   poly<std::string> granularity(const SiStripDetId, const float, const Long64_t, const float, const unsigned) const;
   poly<std::string> allAndOne(const unsigned width) const;
   poly<std::string> varWidth(const unsigned width) const;
