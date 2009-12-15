@@ -1,4 +1,5 @@
 #include "SimGeneral/HepPDTESSource/interface/HepPDTESSource.h"
+#include "HepPDT/HeavyIonUnknownID.hh"
 
 HepPDTESSource::HepPDTESSource( const edm::ParameterSet& cfg ) :
   pdtFileName( cfg.getParameter<edm::FileInPath>( "pdtFileName" ) ) {
@@ -12,7 +13,7 @@ HepPDTESSource::~HepPDTESSource() {
 HepPDTESSource::ReturnType
 HepPDTESSource::produce( const PDTRecord & iRecord ) {
   using namespace edm::es;
-  std::auto_ptr<PDT> pdt( new PDT( "PDG table" ) ); 
+  std::auto_ptr<PDT> pdt( new PDT( "PDG table" , new HepPDT::HeavyIonUnknownID) ); 
   std::ifstream pdtFile( pdtFileName.fullPath().c_str() );
   if( ! pdtFile ) 
     throw cms::Exception( "FileNotFound", "can't open pdt file" )
