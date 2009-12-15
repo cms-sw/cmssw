@@ -63,7 +63,7 @@ std::pair<unsigned,unsigned> SymmetryFit::findUsableMinMax() const
       const unsigned near = std::max( range_.second<cont[L].second ? 0 : range_.second - cont[L].second,  
 				     cont[R].first<range_.first ? 0 : cont[R].first - range_.first );
 
-      if ( far>near && (!FAR || far-near > FAR-NEAR) ) { FAR = far; NEAR = near;}
+      if ( (far>near) && (far-near)>(FAR-NEAR) ) { FAR = far; NEAR = near;}
     }
   }
   return std::make_pair(NEAR,FAR);
