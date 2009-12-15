@@ -163,7 +163,9 @@ def main(argv):
         launchcmd=mkdircdcmd+";"+PerfSuitecmd
         print launchcmd
         sys.stdout.flush()
-        launchcmdstdout=os.popen4(launchcmd)[1].read()
+        #Obsolete popen4-> subprocess.Popen
+        #launchcmdstdout=os.popen4(launchcmd)[1].read()
+        launchcmdstdout=Popen(launchcmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read()
         print launchcmdstdout
         
 if __name__ == "__main__":

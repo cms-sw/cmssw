@@ -606,7 +606,9 @@ class PerfSuite:
             cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s --fileout %s_GEN,SIM.root %s>& %s_GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents),candle,cmsdriverOptions,candle)
 
             self.printFlush(cmd)
-            cmdout=os.popen3(cmd)[2].read()
+            #Obsolete popen4-> subprocess.Popen
+            #cmdout=os.popen3(cmd)[2].read()
+            cmdout=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read()
             if cmdout:
                 self.printFlush(cmdout)
             return cmdout
@@ -974,7 +976,9 @@ class PerfSuite:
             #Also initialize the dictionary that will contain all the timing information:
             global TimerInfo
             TimerInfo={'TotalTime':{'TotalTime':TotalTime}} #Structure will be {'key':[PerfSuiteTimerInstance,...],...}
-            showtags=os.popen4("showtags -r")[1].read()
+            #Obsolete popen4-> subprocess.Popen
+            #showtags=os.popen4("showtags -r")[1].read()
+            showtags=subprocess.Popen("showtags -r",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read()
             self.logh.write(showtags) # + "\n") No need for extra \n!
             self.logh.flush()
             #For the log:
@@ -1011,7 +1015,9 @@ class PerfSuite:
                 which="which " + script
     
                 #Logging the actual version of cmsDriver.py, cmsRelvalreport.py, cmsSimPyRelVal.pl
-                whichstdout=os.popen4(which)[1].read()
+                #Obsolete popen4-> subprocess.Popen
+                #whichstdout=os.popen4(which)[1].read()
+                whichstdout=subprocess.Popen(which,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read()
                 self.logh.write(whichstdout) # + "\n") No need of the extra \n!
                 if script in self.Scripts:
                     for cpu in range(cmsCpuInfo.get_NumOfCores()):#FIXME use the actual number of cores of the machine here!
@@ -1030,8 +1036,10 @@ class PerfSuite:
                         self.logh.write(command + "\n")
     
                         #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
-                        #cpus so it makes no sense to try reading its stdout/err 
-                        os.popen4(command)
+                        #cpus so it makes no sense to try reading its stdout/err
+                        #Obsolete popen4-> subprocess.Popen
+                        #os.popen4(command)
+                        subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 
             self.logh.flush()
     
@@ -1137,7 +1145,9 @@ class PerfSuite:
                 stopcmd = "sh -c \"%s\"" % subcmd
                 self.printFlush(stopcmd)
                 #os.popen(stopcmd)
-                self.printFlush(os.popen4(stopcmd)[1].read())
+                #Obsolete popen4-> subprocess.Popen
+                #self.printFlush(os.popen4(stopcmd)[1].read())
+                self.printFlush(subprocess.Popen(stopcmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read())
 
             #From here on we can use all available cores to speed up the performance suite remaining tests:
             if cores==0: #When specifying the cpu to run the suite on, one has to set cores to 0 to avoid threading of PerfSuite itself...
@@ -1543,20 +1553,24 @@ class PerfSuite:
                #FIXME:
                #Anything that will be logged after the tar command below will not enter the cmsPerfSuite.log in the tarball (by definition)...
                #To remain backward compatible the harvesting script needs to be based on the command above to identify the tarball location.
-               self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
-               
+               #Obsolete popen4-> subprocess.Popen
+               #self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
+               self.printFlush(subprocess.Popen(tarcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read())
                #Archive it on CASTOR
                #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
                fullcastorpathfile=os.path.join(castordir,TarFile)
                checkcastor="nsls  %s" % fullcastorpathfile
-               checkcastorout=os.popen3(checkcastor)[1].read()
+               #Obsolete os.popen-> subprocess.Popen                
+               #checkcastorout=os.popen3(checkcastor)[1].read()
+               checkcastorout=subprocess.Popen(checkcastor,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.read()                
                if checkcastorout.rstrip()==fullcastorpathfile:
                   castorcmdstderr="File %s is already on CASTOR! Will NOT OVERWRITE!!!"%fullcastorpathfile
                else:
                   castorcmd="rfcp %s %s" % (AbsTarFile,fullcastorpathfile)
                   self.printFlush(castorcmd)
-                  castorcmdstderr=os.popen3(castorcmd)[2].read()
-                  
+                  #Obsolete os.popen-> subprocess.Popen
+                  #castorcmdstderr=os.popen3(castorcmd)[2].read()
+                  castorcmdstderr=subprocess.Popen(castorcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()
                #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
                if castorcmdstderr:
                    #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory
@@ -1567,7 +1581,9 @@ class PerfSuite:
                    self.printFlush("Successfully archived the tarball %s in CASTOR!\nDeleting the local copy of the tarball"%(TarFile))
                    rmtarballcmd="rm -Rf %s"%(AbsTarFile)
                    self.printFlush(rmtarballcmd)
-                   self.printFlush(os.popen4(rmtarballcmd)[1].read())
+                   #Obsolete os.popen-> subprocess.Popen
+                   #self.printFlush(os.popen4(rmtarballcmd)[1].read())
+                   self.printFlush(subprocess.Popen(rmtarballcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() )
                tarballTime.set_end(datetime.datetime.now())
             else:
                self.printFlush("Performance Suite directory will not be archived in a tarball since --no_tarball option was chosen")
@@ -1594,7 +1610,9 @@ class PerfSuite:
            self.printFlush("Sending email notification for this execution of the performance suite with command:")
            sendLogByMailcmd='cat cmsPerfSuite.log |mail -s "Performance Suite finished running on %s" '%self.host + MailLogRecipients
            self.printFlush(sendLogByMailcmd)
-           self.printFlush(os.popen4(sendLogByMailcmd)[1].read())
+           #Obsolete os.popen-> subprocess.Popen
+           #self.printFlush(os.popen4(sendLogByMailcmd)[1].read())
+           self.printFlush(subprocess.Popen(sendLogByMailcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() )
         else:
            self.printFlush('No email notification will be sent for this execution of the performance suite since option --mail "" was used')
         

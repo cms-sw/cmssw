@@ -7,6 +7,8 @@ from cmsPerfCommons import CandFname
 #from ROOT import gROOT, TCanvas, TF1
 import ROOT
 from array import array
+#Substitute popen with subprocess.Popen! popen obsolete...
+import subprocess
 
 _cmsver = os.environ['CMSSW_VERSION']
 values_set=('vsize','delta_vsize','rss','delta_rss')
@@ -1084,10 +1086,12 @@ def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
 
     perfcmd = "%s %s %s -c %s -t%s -i %s -r %s -o %s" % (os.path.join(prRoot,"bin","perfreport"),proftype,IgProfMemopt,xmlfile,tmpdir,file2,file1,outdir)            
     cmd     = "tcsh -c \"cd %s ; eval `scramv1 runtime -csh` ; cd - ;source %s/etc/profile.d/init.csh ; %s\"" % (loc,prRoot,perfcmd)
-    
-    process  = os.popen(cmd)
-    cmdout   = process.read()
-    exitstat = process.close()
+    #Obsolete popen4-> subprocess.Popen
+    #process  = os.popen(cmd)
+    process = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    exitstat = process.wait()
+    cmdout   = process.stdout.read()
+    exitstat = process.returncode
 
     try:
         rmtree(tmpdir)        #Brute force solution rm -RF tmpdir done in rmtree()
