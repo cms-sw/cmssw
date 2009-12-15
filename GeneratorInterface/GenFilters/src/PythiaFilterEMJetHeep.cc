@@ -52,7 +52,7 @@ theNumberOfSelected = 0;
 
 PythiaFilterEMJetHeep::~PythiaFilterEMJetHeep(){}
 
-void PythiaFilterEMJetHeep::beginJob(edm::EventSetup const&) {
+void PythiaFilterEMJetHeep::beginJob() {
 
   // parametarizations of presel. criteria:
 

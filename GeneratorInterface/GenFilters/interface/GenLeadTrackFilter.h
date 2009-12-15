@@ -35,7 +35,6 @@ class GenLeadTrackFilter : public edm::EDFilter
   ~GenLeadTrackFilter();
 
   private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   // ----------member data ---------------------------

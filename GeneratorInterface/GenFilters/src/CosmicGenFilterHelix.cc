@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.9 2008/12/05 18:49:32 flucke Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.10 2009/10/28 09:42:59 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -161,7 +161,7 @@ bool CosmicGenFilterHelix::propagateToCutCylinder(const GlobalPoint &vertStart,
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void CosmicGenFilterHelix::beginJob(const edm::EventSetup&)
+void CosmicGenFilterHelix::beginJob()
 {
   if (theDoMonitor) {
     this->createHistsStart("start", theHistsBefore);
