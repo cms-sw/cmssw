@@ -11,7 +11,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 ## Source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V8-v1/0001/3291E09D-67B7-DE11-9ED6-003048678C9A.root'
+        '/store/relval/CMSSW_3_4_0_pre7/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0003/0AC12757-A3E1-DE11-A20D-0026189437F8.root'
     )
 )
 ## Maximal Number of Events
@@ -20,32 +20,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('MC_3XY_V12::All')
-process.GlobalTag.globaltag = cms.string('STARTUP3X_V11::All')
-#process.GlobalTag.globaltag = cms.string('STARTUP3XY_V9::All')
+process.GlobalTag.globaltag = cms.string('STARTUP3X_V14::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-from PhysicsTools.PatAlgos.tools.jetTools import *
-print "*********************************************************************"
-print "Switching all processes to use the anti-kT algorithm by default."
-print "Switch the jet collection to your desired algorithm if this is not"
-print "what you want to use. Note that L7Parton correction are taken from"
-print "SC5 instead of AK5. This is an intermediate solution for the time "
-print "being."
-print "*********************************************************************"
-switchJetCollection(process, 
-                    cms.InputTag('ak5CaloJets'),   
-                    doJTA            = True,            
-                    doBTagging       = True,            
-                    jetCorrLabel     = ('AK5','Calo'),  
-                    doType1MET       = True,            
-                    genJetCollection = cms.InputTag("ak5GenJets")
-                    ) 
-
-# Output Module Configuration (expects a path 'p')
+## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('PATLayer1_Output.fromAOD_full.root'),
