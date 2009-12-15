@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/14 21:09:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/14 21:12:56 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -286,8 +286,16 @@ unsigned int HLTConfigProvider::prescaleIndex(const std::string& label) const {
   }
 }
 
+const std::vector<unsigned int>& HLTConfigProvider::prescaleValues(unsigned int trigger) const {
+  return prescaleValues_.at(trigger);
+}
+
+const std::vector<unsigned int>& HLTConfigProvider::prescaleValues(const std::string& trigger) const {
+  return prescaleValues(triggerIndex(trigger));
+}
+
 unsigned int HLTConfigProvider::prescaleValue(unsigned int trigger, unsigned int label) const {
-  return prescaleValues_.at(trigger).at(label);
+  return prescaleValues(trigger).at(label);
 }
 
 unsigned int HLTConfigProvider::prescaleValue(const std::string& trigger, const std::string& label) const {

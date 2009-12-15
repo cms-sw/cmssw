@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2009/06/10 15:45:45 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/12/14 21:09:20 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -66,20 +66,30 @@ class HLTConfigProvider {
   /// ParameterSet of module
   const edm::ParameterSet modulePSet(const std::string& module) const;
 
-  /// PrescaleService accessors - list of available column labels
+
+  /// PrescaleService accessors
+
+  /// Available prescale column labels
   const std::vector<std::string>& prescaleLabels() const;
 
-  /// PrescaleService accessors - column label of given index
+  /// Prescale column label of given index key
   const std::string& prescaleLabel(unsigned int label) const;
 
-  /// PrescaleService accessors - index of given column label
+  /// Index key of given column label
   unsigned int prescaleIndex(const std::string& label) const;
 
-  /// PrescaleService accessors - prescale value for given trigger and prescale index
+  /// Prescale values for given trigger
+  const std::vector<unsigned int>& prescaleValues(unsigned int trigger) const;
+
+  /// Prescale values for given trigger
+  const std::vector<unsigned int>& prescaleValues(const std::string& trigger) const;
+
+  /// Prescale value for given trigger and prescale index key
   unsigned int prescaleValue(unsigned int trigger, unsigned int label) const;
 
-  /// PrescaleService accessors - prescale value for given trigger and prescale name
+  /// Prescale value for given trigger and prescale label
   unsigned int prescaleValue(const std::string& trigger, const std::string& label) const;
+
 
   /// c'tor
   HLTConfigProvider():
