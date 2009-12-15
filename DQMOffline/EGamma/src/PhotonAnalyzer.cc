@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/09/16 19:29:15 $ 
+ **  $Date: 2009/10/08 12:01:39 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -159,6 +159,26 @@ void PhotonAnalyzer::beginJob()
   types.push_back("GoodCandidate");
   types.push_back("Background");
 
+  //setting variable bin sizes for E, Et plots
+  vector<float> etBinVector;
+  double etRange = etMax-etMin;
+  etBinVector.push_back(0);
+  for(int i=1;i!=etBin;++i){
+    if(i<etBin/3.) etBinVector.push_back(etBinVector.back()+float(etRange/(2*etBin)));
+    else if(i>=etBin/3. && i<etBin*(2./3.)) etBinVector.push_back(etBinVector.back()+float(2*etRange/(2*etBin)));
+    else if(i>=etBin*(2./3.)) etBinVector.push_back(etBinVector.back()+float(3*etRange/(2*etBin)));
+  }
+
+  vector<float> eBinVector;
+  double eRange = eMax-eMin;
+  eBinVector.push_back(0);
+  for(int i=1;i!=eBin;++i){
+    if(i<eBin/3.) eBinVector.push_back(eBinVector.back()+float(eRange/(2*eBin)));
+    else if(i>=eBin/3. && i<eBin*(2./3.)) eBinVector.push_back(eBinVector.back()+float(2*eRange/(2*eBin)));
+    else if(i>=eBin*(2./3.)) eBinVector.push_back(eBinVector.back()+float(3*eRange/(2*eBin)));
+  }
+
+
   //booking all histograms
 
   if (dbe_) {  
@@ -169,10 +189,12 @@ void PhotonAnalyzer::beginJob()
     currentFolder_ << "Egamma/PhotonAnalyzer/InvMass";
     dbe_->setCurrentFolder(currentFolder_.str());
     
-    h_invMassTwoWithTracks_= dbe_->book1D("invMassTwoWithTracks"," Two photon invariant mass: Both have tracks ",etBin,etMin,etMax);
-    h_invMassOneWithTracks_= dbe_->book1D("invMassOneWithTracks"," Two photon invariant mass: Only one has tracks ",etBin,etMin,etMax);
-    h_invMassZeroWithTracks_= dbe_->book1D("invMassZeroWithTracks"," Two photon invariant mass: Neither have tracks ",etBin,etMin,etMax);
-    h_invMassAllPhotons_= dbe_->book1D("invMassAllIsolatedPhotons"," Two photon invariant mass: All isolated photons",etBin,etMin,etMax);
+
+    h_invMassTwoWithTracks_= dbe_->book1D("invMassTwoWithTracks"," Two photon invariant mass: Both have tracks ",etBin-1,&(etBinVector[0]));
+    h_invMassOneWithTracks_= dbe_->book1D("invMassOneWithTracks"," Two photon invariant mass: Only one has tracks ",etBin-1,&(etBinVector[0]));
+    h_invMassZeroWithTracks_= dbe_->book1D("invMassZeroWithTracks"," Two photon invariant mass: Neither have tracks ",etBin-1,&(etBinVector[0]));
+    h_invMassAllPhotons_= dbe_->book1D("invMassAllIsolatedPhotons"," Two photon invariant mass: All isolated photons",etBin-1,&(etBinVector[0]));
+
 
 
 
@@ -186,14 +208,14 @@ void PhotonAnalyzer::beginJob()
     h_phoEta_Loose_ = dbe_->book1D("phoEtaLoose"," Loose Photon Eta ",etaBin,etaMin, etaMax) ;
     h_phoEta_Tight_ = dbe_->book1D("phoEtaTight"," Tight Photon Eta ",etaBin,etaMin, etaMax) ;
     h_phoEta_HLT_ = dbe_->book1D("phoEtaHLT"," Unfiltered Photon Eta ",etaBin,etaMin, etaMax) ;
-    h_phoEt_Loose_ = dbe_->book1D("phoEtLoose"," Loose Photon Transverse Energy ", etBin,etMin, etMax);
-    h_phoEt_Tight_ = dbe_->book1D("phoEtTight"," Tight Photon Transverse Energy ", etBin,etMin, etMax);
-    h_phoEt_HLT_ = dbe_->book1D("phoEtHLT"," Unfiltered Photon Transverse Energy ", etBin,etMin, etMax);
+    h_phoEt_Loose_ = dbe_->book1D("phoEtLoose"," Loose Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
+    h_phoEt_Tight_ = dbe_->book1D("phoEtTight"," Tight Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
+    h_phoEt_HLT_ = dbe_->book1D("phoEtHLT"," Unfiltered Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
 
     h_convEta_Loose_ = dbe_->book1D("convEtaLoose"," Converted Loose Photon Eta ",etaBin,etaMin, etaMax) ;
     h_convEta_Tight_ = dbe_->book1D("convEtaTight"," Converted Tight Photon Eta ",etaBin,etaMin, etaMax) ;
-    h_convEt_Loose_ = dbe_->book1D("convEtLoose"," Converted Loose Photon Transverse Energy ", etBin,etMin, etMax);
-    h_convEt_Tight_ = dbe_->book1D("convEtTight"," Converted Tight Photon Transverse Energy ", etBin,etMin, etMax);
+    h_convEt_Loose_ = dbe_->book1D("convEtLoose"," Converted Loose Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
+    h_convEt_Tight_ = dbe_->book1D("convEtTight"," Converted Tight Photon Transverse Energy ", etBin-1,&(etBinVector[0]));
 
     h_phoEta_Vertex_ = dbe_->book1D("phoEtaVertex"," Converted Photon with valid vertex Eta ",etaBin,etaMin, etaMax) ;
 
@@ -214,16 +236,16 @@ void PhotonAnalyzer::beginJob()
 
 	for(uint part=0;part!=parts.size();++part){ //looping over different parts of the ecal
 
-	  h_phoE_part_.push_back(dbe_->book1D("phoE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin,eMin, eMax));
-	  h_phoEt_part_.push_back(dbe_->book1D("phoEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin,etMin, etMax));
+	  h_phoE_part_.push_back(dbe_->book1D("phoE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin-1,&(eBinVector[0])));
+	  h_phoEt_part_.push_back(dbe_->book1D("phoEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin-1,&(etBinVector[0])));
 	  h_r9_part_.push_back(dbe_->book1D("r9"+parts[part],types[type]+" Photon r9: "+parts[part]+";R9",r9Bin,r9Min, r9Max));
 	  h_hOverE_part_.push_back(dbe_->book1D("hOverE"+parts[part],types[type]+" Photon H/E: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
 	  h_h1OverE_part_.push_back(dbe_->book1D("h1OverE"+parts[part],types[type]+" Photon H/E for Depth 1: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
 	  h_h2OverE_part_.push_back(dbe_->book1D("h2OverE"+parts[part],types[type]+" Photon H/E for Depth 2: "+parts[part]+";H/E",hOverEBin,hOverEMin,hOverEMax));
 	  h_nPho_part_.push_back(dbe_->book1D("nPho"+parts[part],"Number of "+types[type]+" Photons per Event: "+parts[part]+";# #gamma", numberBin,numberMin,numberMax));
 
-	  p_ecalSumVsEt_part_.push_back(dbe_->bookProfile("ecalSumVsEt"+parts[part],"Avg Ecal Sum in the Iso Cone vs.  E_{T}: "+parts[part]+";E_{T};E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax,""));
-	  p_hcalSumVsEt_part_.push_back(dbe_->bookProfile("hcalSumVsEt"+parts[part],"Avg Hcal Sum in the Iso Cone vs.  E_{T}: "+parts[part]+";E_{T};E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax,""));
+	  p_ecalSumVsEt_part_.push_back(dbe_->bookProfile("ecalSumVsEt"+parts[part],"Avg Ecal Sum in the Iso Cone vs.  E_{T}: "+parts[part]+";E_{T};E (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax,""));
+	  p_hcalSumVsEt_part_.push_back(dbe_->bookProfile("hcalSumVsEt"+parts[part],"Avg Hcal Sum in the Iso Cone vs.  E_{T}: "+parts[part]+";E_{T};E (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax,""));
 
 
 
@@ -256,7 +278,7 @@ void PhotonAnalyzer::beginJob()
 	h_phoPhi_isol_.push_back(dbe_->book1D("phoPhi",types[type]+" Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
 
 	h_phoEta_BadChannels_isol_.push_back(dbe_->book1D("phoEtaBadChannels",types[type]+"Photons with bad channels: Eta",etaBin,etaMin, etaMax)) ;
-	h_phoEt_BadChannels_isol_.push_back(dbe_->book1D("phoEtBadChannels",types[type]+"Photons with bad channels: Et ", etBin,etMin, etMax));
+	h_phoEt_BadChannels_isol_.push_back(dbe_->book1D("phoEtBadChannels",types[type]+"Photons with bad channels: Et ", etBin-1,&(etBinVector[0])));
 	h_phoPhi_BadChannels_isol_.push_back(dbe_->book1D("phoPhiBadChannels",types[type]+"Photons with bad channels: Phi ", phiBin,phiMin, phiMax));
 
 
@@ -343,10 +365,10 @@ void PhotonAnalyzer::beginJob()
 	p_hcalSumVsEta_isol_.push_back(dbe_->bookProfile("hcalSumVsEta","Avg Hcal Sum in the Iso Cone vs.  #eta;#eta;E (GeV)",etaBin,etaMin, etaMax,sumBin,sumMin,sumMax,""));
 	
 	
-	p_nTrackIsolSolidVsEt_isol_.push_back(dbe_->bookProfile("nIsoTracksSolidVsEt","Avg Number Of Tracks in the Solid Iso Cone vs.  E_{T};E_{T};# tracks",etBin,etMin, etMax,numberBin,numberMin,numberMax,""));
-	p_trackPtSumSolidVsEt_isol_.push_back(dbe_->bookProfile("isoPtSumSolidVsEt","Avg Tracks Pt Sum in the Solid Iso Cone vs.  E_{T};E_{T};Pt (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax,""));
-	p_nTrackIsolHollowVsEt_isol_.push_back(dbe_->bookProfile("nIsoTracksHollowVsEt","Avg Number Of Tracks in the Hollow Iso Cone vs.  E_{T};E_{T};# tracks",etBin,etMin, etMax,numberBin,numberMin,numberMax,""));
-	p_trackPtSumHollowVsEt_isol_.push_back(dbe_->bookProfile("isoPtSumHollowVsEt","Avg Tracks Pt Sum in the Hollow Iso Cone vs.  E_{T};E_{T};Pt (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax,""));
+	p_nTrackIsolSolidVsEt_isol_.push_back(dbe_->bookProfile("nIsoTracksSolidVsEt","Avg Number Of Tracks in the Solid Iso Cone vs.  E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax,""));
+	p_trackPtSumSolidVsEt_isol_.push_back(dbe_->bookProfile("isoPtSumSolidVsEt","Avg Tracks Pt Sum in the Solid Iso Cone vs.  E_{T};E_{T};Pt (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax,""));
+	p_nTrackIsolHollowVsEt_isol_.push_back(dbe_->bookProfile("nIsoTracksHollowVsEt","Avg Number Of Tracks in the Hollow Iso Cone vs.  E_{T};E_{T};# tracks",etBin,etMin,etMax,numberBin,numberMin,numberMax,""));
+	p_trackPtSumHollowVsEt_isol_.push_back(dbe_->bookProfile("isoPtSumHollowVsEt","Avg Tracks Pt Sum in the Hollow Iso Cone vs.  E_{T};E_{T};Pt (GeV)",etBin,etMin,etMax,sumBin,sumMin,sumMax,""));
 
 	
 
@@ -548,8 +570,8 @@ void PhotonAnalyzer::beginJob()
 
 	for(uint part=0;part!=parts.size();++part){ //loop over different parts of the ecal
 
-	  h_phoConvE_part_.push_back(dbe_->book1D("phoConvE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin,eMin, eMax));
-	  h_phoConvEt_part_.push_back(dbe_->book1D("phoConvEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin,etMin, etMax));
+	  h_phoConvE_part_.push_back(dbe_->book1D("phoConvE"+parts[part],types[type]+" Photon Energy: "+parts[part]+";E (GeV)", eBin-1,&(eBinVector[0])));
+	  h_phoConvEt_part_.push_back(dbe_->book1D("phoConvEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part]+";Et (GeV)", etBin-1,&(etBinVector[0])));
 	  h_phoConvR9_part_.push_back(dbe_->book1D("phoConvR9"+parts[part],types[type]+" Photon r9: "+parts[part]+";R9",r9Bin,r9Min, r9Max));
 	  h_nConv_part_.push_back(dbe_->book1D("nConv"+parts[part],"Number Of Conversions per Event:  "+parts[part]+";# conversions" ,numberBin,numberMin,numberMax));
 
