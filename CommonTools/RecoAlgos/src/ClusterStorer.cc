@@ -8,6 +8,10 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+// FastSim hits:
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
+
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
@@ -40,14 +44,19 @@ namespace helper {
       ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D&>(newHit);
       stripClusterRecords_.push_back(StripClusterHitRecord(phit.originalHit(), hits, index));
     } else {
-//       if (hit_type == typeid(SiTrackerGSMatchedRecHit2D)
-// 	  || hit_type != typeid(SiTrackerGSRecHit2D)) {	// do nothing: FastSim hits?
-//       } else {
-      // better through always: not sure about FastSim...
-      throw cms::Exception("UnknownHitType") << "helper::ClusterStorer::addCluster: "
-					     << "Unknown hit type " << hit_type.name()
-					     << ".\n";
-//       }
+      if (hit_type == typeid(SiTrackerGSMatchedRecHit2D)
+ 	  || hit_type == typeid(SiTrackerGSRecHit2D)) {
+	//std::cout << "|   It is a " << hit_type.name() << " hit !!" << std::endl;
+	// FastSim hits: Do nothing instead of caring about FastSim clusters, 
+	//               not even sure whether these really exist.
+	//               At least predecessor code in TrackSelector and MuonSelector
+	//               did not treat them.
+      } else {
+	// through for unknown types
+	throw cms::Exception("UnknownHitType") << "helper::ClusterStorer::addCluster: "
+					       << "Unknown hit type " << hit_type.name()
+					       << ".\n";
+      }
     } // end 'switch' on hit type
     
   }
