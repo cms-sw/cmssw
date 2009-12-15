@@ -47,7 +47,7 @@ process.dependsOnThingToBeDropped1 = cms.EDProducer("ThingWithMergeProducer",
     labelsToGet = cms.untracked.vstring('makeThingToBeDropped1')
 )
 
-process.test = cms.EDFilter("TestMergeResults",
+process.test = cms.EDAnalyzer("TestMergeResults",
 
     #   These values below are just arbitrary and meaningless
     #   We are checking to see that the value we get out matches what

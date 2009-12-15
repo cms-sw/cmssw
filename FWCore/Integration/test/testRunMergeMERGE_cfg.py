@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 
-process.test = cms.EDFilter("TestMergeResults",
+process.test = cms.EDAnalyzer("TestMergeResults",
                             
     #   These values below are just arbitrary and meaningless
     #   We are checking to see that the value we get out matches what
