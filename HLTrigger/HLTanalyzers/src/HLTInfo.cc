@@ -409,7 +409,9 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       //std::cout << "setid:" << setId << std::endl;
       edm::ParameterSet pSet=getParameterSet(setId);
       //std::cout << "pset:" << pSet << std::endl;
-      UnpackBxInEvent = pSet.getParameter<int>("UnpackBxInEvent");
+      if (pSet.exists("UnpackBxInEvent")){
+	UnpackBxInEvent = pSet.getParameter<int>("UnpackBxInEvent");
+      }
       if (_Debug) std::cout << "Number of beam crossings unpacked by GT: " << UnpackBxInEvent << std::endl;
       if (UnpackBxInEvent == 5) _OR_BXes = true;
 
