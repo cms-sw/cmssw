@@ -17,8 +17,8 @@ makeAllLayer1Jets = cms.Sequence(
     # reco pre-production
     patJetCharge *
     patJetCorrections *
-    secondaryVertexNegativeTagInfos *
-    simpleSecondaryVertexNegativeBJetTags *
+   #secondaryVertexNegativeTagInfos *
+   #simpleSecondaryVertexNegativeBJetTags *
     # pat specifics
     jetPartonMatch *
     jetGenJetMatch *
