@@ -20,7 +20,7 @@ fill(TTree* tree, Book& book) const {
     std::vector<float>    PLEAF( tsosglobalZofunitlocalY , tree );
 
     const unsigned N(clusterdetid.size());
-    std::vector<float> BdotY(N,0); if(ensembleBins_) { std::vector<float> PLEAF( tsosBdotY , tree ); swap(BdotY, tsosBdotY); }
+    std::vector<float> BdotY(N,0); if(!ensembleBins_) { std::vector<float> PLEAF( tsosBdotY , tree ); swap(BdotY, tsosBdotY); }
     std::vector<float> localy(N,0); if(localYbin_) { std::vector<float> PLEAF( tsoslocaly , tree ); swap(localy, tsoslocaly);}
     std::vector<unsigned> seedstrip(N,0); if(stripsPerBin_) { std::vector<unsigned> PLEAF( clusterseedstrip , tree ); swap(seedstrip, clusterseedstrip);}
 
@@ -50,7 +50,7 @@ fill_one_cluster( Book& book,
   book.fill( tthetaT-tthetaL,           gran+ allAndOne(width), 360,-1.0,1.0 );
   book.fill( tthetaT-tthetaL, variance, gran+  varWidth(width), 360,-1.0,1.0 );
   if(methods_ & WIDTH) book.fill( tthetaT, width, gran+method(WIDTH), 81,-0.6,0.6 );
-  if(ensembleBins_==0) {
+  if(!ensembleBins_) {
     book.fill( BdotY, gran+"_field", 101,1,5);
     book.fill( width, gran+"_width", 10,0,10);
   }
