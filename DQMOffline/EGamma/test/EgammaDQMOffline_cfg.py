@@ -23,7 +23,7 @@ photonAnalysis.standAlone = cms.bool(True)
 photonAnalysis.useTriggerFiltering = cms.bool(True)
 
 piZeroAnalysis.standAlone = cms.bool(True)
-piZeroAnalysis.OutputMEsInRootFile = cms.bool(True)
+piZeroAnalysis.OutputMEsInRootFile = cms.bool(False)
 piZeroAnalysis.OutputFileName = cms.string('DQMOfflineRelValGammaJets_Pt_80_120.root')
 piZeroAnalysis.useTriggerFiltering = cms.bool(False)
 
