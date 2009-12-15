@@ -26,8 +26,8 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
    eb_st(eb_str), phiSteps_(step), 
    eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
    Eseed(eseed),  Ewing(ewing), 
-   v_chstatus_(v_chstatus),
-   dynamicEThres_(dynamicEThres), debugLevel_(debugLevel)
+   dynamicEThres_(dynamicEThres), debugLevel_(debugLevel),
+   v_chstatus_(v_chstatus)
    
   
 {

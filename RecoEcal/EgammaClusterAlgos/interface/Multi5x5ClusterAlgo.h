@@ -63,9 +63,6 @@ class Multi5x5ClusterAlgo
 
  private: 
   
-  //
-  std::vector<int> v_chstatus_;
-
   //algo to compute position of clusters
   PositionCalc posCalculator_;
 
@@ -93,6 +90,9 @@ class Multi5x5ClusterAlgo
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;
+
+  // recHit flag to be excluded from seeding
+  std::vector<int> v_chstatus_;
 
   // The verbosity level
   VerbosityLevel verbosity;
