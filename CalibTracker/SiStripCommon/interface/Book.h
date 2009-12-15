@@ -21,8 +21,8 @@ class Book {
   typedef std::map<std::string, TH1*>  book_t;
 
   book_t book_;
-  string_t title_;
-  TDirectory*const  directory;
+  std::string title_;
+  TDirectory* directory;
   
   struct match_name {
     match_name(string_t re) : expression(re) {}
@@ -57,8 +57,10 @@ class Book {
   void erase(string_t name) { book_t::iterator it = book_.find(name); if(it!=book_.end()) {delete it->second; book_.erase(it); } }
   void erase(iterator it) { delete it->second; book_.erase(it.base()); }
 
-
-  void fill( double_t X, const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 ) 
+  void fill( double_t X, const char* name, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 ) { fill(X,std::string(name),NbinsX,Xlow,Xup,W);}
+  void fill( double_t X, const poly<std::string>& names, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 ) 
   { 
     BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
       book_t::const_iterator current = book_.find(name);
@@ -67,7 +69,10 @@ class Book {
       else current->second->Fill(X,W);
     }
   }
-  void fill( double_t X, double_t Y, const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 )
+  void fill( double_t X, double_t Y, const char* name, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 ) {fill(X,Y,std::string(name),NbinsX,Xlow,Xup,W);}
+  void fill( double_t X, double_t Y, const poly<std::string>& names, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup, double_t W=1 )
   { 
     BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
       book_t::const_iterator current = book_.find(name);
@@ -76,8 +81,12 @@ class Book {
       else static_cast<TProfile*>(current->second)->Fill(X,Y,W);
     }
   }
-  void fill( double_t X, double_t Y, const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup,
-	                                                             uint_t NbinsY, double_t Ylow, double_t Yup, double_t W=1 )
+  void fill( double_t X, double_t Y, const char* name, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup,
+	     uint_t NbinsY, double_t Ylow, double_t Yup, double_t W=1 ) { fill(X,Y,std::string(name),NbinsX,Xlow,Xup,NbinsY,Ylow,Yup,W);}
+  void fill( double_t X, double_t Y, const poly<std::string>& names, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup,
+	     uint_t NbinsY, double_t Ylow, double_t Yup, double_t W=1 )
   { 
     BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
       book_t::const_iterator current = book_.find(name);
@@ -86,9 +95,14 @@ class Book {
       else static_cast<TH2*>(current->second)->Fill(X,Y,W);
     }
   }
-  void fill( double_t X, double_t Y, double_t Z,  const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup,
-	                                                                          uint_t NbinsY, double_t Ylow, double_t Yup,
-	                                                                          uint_t NbinsZ, double_t Zlow, double_t Zup, double_t W=1 )
+  void fill( double_t X, double_t Y, double_t Z,  const char* name, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup,
+	     uint_t NbinsY, double_t Ylow, double_t Yup,
+	     uint_t NbinsZ, double_t Zlow, double_t Zup, double_t W=1 ) {fill(X,Y,Z,std::string(name),NbinsX,Xlow,Xup,NbinsY,Ylow,Yup,NbinsZ,Zlow,Zup);}
+  void fill( double_t X, double_t Y, double_t Z,  const poly<std::string>& names, 
+	     uint_t NbinsX, double_t Xlow, double_t Xup,
+	     uint_t NbinsY, double_t Ylow, double_t Yup,
+	     uint_t NbinsZ, double_t Zlow, double_t Zup, double_t W=1 )
   { 
     BOOST_FOREACH(string_t name, std::make_pair(names.begin(),names.end())) {
       book_t::const_iterator current = book_.find(name);

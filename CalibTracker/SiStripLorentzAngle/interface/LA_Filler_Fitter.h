@@ -6,10 +6,10 @@
 #include <map>
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "CalibTracker/SiStripCommon/interface/Book.h"
 #include <TTree.h>
 #include "SymmetryFit.h"
 class TProfile;
-class Book;
 
 class LA_Filler_Fitter {
 
@@ -78,8 +78,18 @@ class LA_Filler_Fitter {
     methods_(methods)
     {};
   
-  void fill(TTree*, Book&);
-  void summarize_ensembles(Book&);
+  void fill(TTree*, Book&) const;
+  void fill_one_cluster(Book&, const SiStripDetId, 
+			const unsigned, const float, 
+			const float, const float, 
+			const Long64_t, 
+			const float, const float, const unsigned) const;
+  poly<std::string> granularity(const SiStripDetId, const float, const Long64_t, const float, const unsigned) const;
+  poly<std::string> allAndOne(const unsigned width) const;
+  poly<std::string> varWidth(const unsigned width) const;
+
+
+  void summarize_ensembles(Book&) const;
   
   static void fit(Book& book) { make_and_fit_symmchi2(book); fit_width_profile(book); }
   static void make_and_fit_symmchi2(Book&);
