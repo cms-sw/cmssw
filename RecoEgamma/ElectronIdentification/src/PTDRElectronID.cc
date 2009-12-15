@@ -48,7 +48,7 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
      {
        if (elClass == reco::GsfElectron::GOLDEN)    icut=0;
        if (elClass == reco::GsfElectron::BIGBREM)   icut=1;
-       if (elClass == reco::GsfElectron::NARROW)    icut=2;
+       //if (elClass == reco::GsfElectron::NARROW)    icut=2;
        if (elClass == reco::GsfElectron::SHOWERING) icut=3;
        if (elClass == reco::GsfElectron::GAP)       icut=8;
      }
@@ -56,7 +56,7 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
      {
        if (elClass == reco::GsfElectron::GOLDEN)    icut=4;
        if (elClass == reco::GsfElectron::BIGBREM)   icut=5;
-       if (elClass == reco::GsfElectron::NARROW)    icut=6;
+       //if (elClass == reco::GsfElectron::NARROW)    icut=6;
        if (elClass == reco::GsfElectron::SHOWERING) icut=7;
        if (elClass == reco::GsfElectron::GAP)       icut=8;
      }
