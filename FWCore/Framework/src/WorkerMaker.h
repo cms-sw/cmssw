@@ -22,16 +22,16 @@ namespace edm {
                                              sigc::signal<void, ModuleDescription const&>& iPre,
                                              sigc::signal<void, ModuleDescription const&>& iPost) const = 0;
   protected:
-    ModuleDescription createModuleDescription(WorkerParams const &p) const;
+    ModuleDescription createModuleDescription(WorkerParams const& p) const;
 
-    void throwConfigurationException(ModuleDescription const &md,
+    void throwConfigurationException(ModuleDescription const& md,
                                      sigc::signal<void, ModuleDescription const&>& post,
                                      cms::Exception const& iException) const;
 
     void throwValidationException(WorkerParams const& p,
 				  cms::Exception const& iException) const;
 
-    void validateEDMType(const std::string & edmType, WorkerParams const& p) const;
+    void validateEDMType(std::string const& edmType, WorkerParams const& p) const;
   };
 
   template <class T>
