@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2009/12/11 22:24:21 $
- * $Revision: 1.5 $
+ * $Date: 2009/12/12 13:31:22 $
+ * $Revision: 1.6 $
  * \author A.Meyer - DESY
  *
 */
@@ -60,10 +60,8 @@ private:
   
   std::string provinfofolder_;
   std::string subsystemname_;
-  bool makedcsinfo_;
   int lastlumi_;
   
-  unsigned int dcsword_;
   bool physDecl_;
   bool dcs24[24];
 
@@ -81,8 +79,6 @@ private:
   
   MonitorElement * reportSummary_;
   MonitorElement * reportSummaryMap_;
-  
-  MonitorElement * dcsVsLumi_;
   
 };
 
