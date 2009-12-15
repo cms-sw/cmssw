@@ -157,6 +157,9 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     SummaryReportMap->setBinLabel(14,"Pass rechit errorX cut",2);
     SummaryReportMap->setBinLabel(15,"Pass rechit errorY cut",2);
     SummaryReportMap->setBinLabel(16,"Pass hiteff cut",2);
+    allmodsMap = new TH2F("allmodsMap","allmodsMap",7,0.,7.,16,0.,16.);
+    errmodsMap = new TH2F("errmodsMap","errmodsMap",7,0.,7.,16,0.,16.);
+    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",7,0.,7.,16,0.,16.);
   }  
     SummaryPixel = bei->bookFloat("reportSummary");
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
@@ -280,6 +283,27 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     if(RecHitErrorYEndcap) RecHitErrorYEndcap->Fill(1);
     NPixelTracks = bei->get("Pixel/Tracks/PixelTracksCut");
     if(NPixelTracks) NPixelTracks->Fill(1);
+   
+    SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
+    if(SummaryReportMap){
+      if(!Tier0Flag) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
+      if(Tier0Flag) for(int i=1; i!=8; i++) for(int j=1; j!=17; j++) SummaryReportMap->setBinContent(i,j,-1.);
+    }
+    if(!Tier0Flag){
+      for(int i=1; i!=41; i++) for(int j=1; j!=37; j++){
+        if(allmodsMap) allmodsMap->SetBinContent(i,j,0.);
+        if(errmodsMap) errmodsMap->SetBinContent(i,j,0.);
+        if(goodmodsMap) goodmodsMap->SetBinContent(i,j,0.);
+      }
+    }
+    if(Tier0Flag){
+      for(int i=1; i!=8; i++) for(int j=1; j!=17; j++){
+        if(allmodsMap) allmodsMap->SetBinContent(i,j,0.);
+        if(errmodsMap) errmodsMap->SetBinContent(i,j,0.);
+        if(goodmodsMap) goodmodsMap->SetBinContent(i,j,0.);
+      }
+    }
+    
   bei->cd();  
 }
 
@@ -2045,11 +2069,11 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
   if(init){
     count=0; errcount=0;
     //cout<<"Number of FEDs in the readout: "<<nFEDs<<endl;
-    SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
-    if(SummaryReportMap){
-      if(!Tier0Flag) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
-      if(Tier0Flag) for(int i=1; i!=8; i++) for(int j=1; j!=17; j++) SummaryReportMap->setBinContent(i,j,-1.);
-    }
+    //SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
+    //if(SummaryReportMap){
+    //  if(!Tier0Flag) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
+    //  if(Tier0Flag) for(int i=1; i!=8; i++) for(int j=1; j!=17; j++) SummaryReportMap->setBinContent(i,j,-1.);
+    //}
 
     init=false;
   }
@@ -2060,6 +2084,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
   if(nFEDs==0) return;
   eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
   string currDir = bei->pwd();
+  if(currDir.find("Reference")!=string::npos) return;
   //cout<<"currDir="<<currDir<<endl;
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   // find a detId for Blades and Barrels (first of the contained Modules!):
@@ -2076,21 +2101,23 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     infile.close();
     nModsInFile++;
   }
-  if(!Tier0Flag && dname.find("Module_")!=string::npos){
+  if(!Tier0Flag && dname.find("Module_")!=string::npos && currDir.find("Reference")==string::npos){
     vector<string> meVec = bei->getMEs();
     int detId=-1; int fedId=-1; int linkId=-1;
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       //checking for any digis or FED errors to decide if this module is in DAQ:  
       string full_path = currDir + "/" + (*it);
-     // cout<<"path: "<<full_path<<endl;
+      cout<<"path: "<<full_path<<" , detId= "<<detId<<endl;
       if(detId==-1 && full_path.find("SUMOFF")==string::npos &&
          ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
-	  (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos && (getDetId(bei->get(full_path)) > 100)))){
+	  (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos)) && 
+	  (getDetId(bei->get(full_path)) > 100)){
+	//cout<<"Got into the first ndigis or NErrors histogram!"<<endl;
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
 	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
 	   (full_path.find("NErrors")!=string::npos && me->getMean()>0.)){ 
-	 // cout<<"found a module with digis or errors: "<<full_path<<endl;
+	  //cout<<"found a module with digis or errors: "<<full_path<<endl;
           detId = getDetId(me);
 	  //cout<<"got a module with digis or errors and the detid is: "<<detId<<endl;
           for(int fedid=0; fedid!=40; ++fedid){
@@ -2115,7 +2142,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
           if(full_path.find("ndigis")!=string::npos) full_path = full_path.replace(full_path.find("ndigis"),6,"NErrors");
 	  me = bei->get(full_path);
 	  if(me && me->getMean()>0.) anyerr=true;
-         // cout<<"here is an error: "<<detId<<","<<me->getMean()<<endl;
+          //cout<<"here is an error: "<<detId<<","<<me->getMean()<<endl;
 	  if(full_path.find("NErrors")!=string::npos) full_path = full_path.replace(full_path.find("NErrors"),7,"errorType");
 	  me = bei->get(full_path);
 	  if(me){
@@ -2140,7 +2167,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	  }
           if(anyerr && othererr){
 	    errmodsMap->Fill(fedId,linkId);
-	   // cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
+	    //cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
 	  }
 	}
       }
@@ -2154,7 +2181,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     fillGlobalQualityPlot(bei,init,eSetup,nFEDs,Tier0Flag);
     bei->goUp();
   }
-  
+  //cout<<"Loop over all modules is done, now I am in "<<bei->pwd()<<" and currDir is "<<currDir<<endl;
   if(currDir=="Pixel/EventInfo/reportSummaryContents"){
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){ 
@@ -2164,7 +2191,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
           //cout<<"bin: "<<i<<","<<j<<endl;
           contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
           goodmodsMap->SetBinContent(i,j,contents);
-         // cout<<"\t the map: "<<allmodsMap->GetBinContent(i,j)<<","<<errmodsMap->GetBinContent(i,j)<<endl;
+          //cout<<"\t the map: "<<allmodsMap->GetBinContent(i,j)<<","<<errmodsMap->GetBinContent(i,j)<<endl;
           if(allmodsMap->GetBinContent(i,j)>0){
             contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
           }else{
