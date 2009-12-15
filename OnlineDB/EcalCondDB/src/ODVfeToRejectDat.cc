@@ -18,6 +18,7 @@ ODVfeToRejectDat::ODVfeToRejectDat()
   m_fed = 0;
   m_tt = 0;
   m_vfe = 0;
+  m_gain = 0;
   m_sta = 0;
 
 }
@@ -37,8 +38,8 @@ void ODVfeToRejectDat::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, tt_id, vfe_id, STATUS ) "
-			"VALUES (:1, :2, :3, :4, :5 )");
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, tt_id, vfe_id, GAIN, STATUS ) "
+			"VALUES (:1, :2, :3, :4, :5 , :6 )");
   } catch (SQLException &e) {
     throw(runtime_error("ODVfeToRejectDat::prepareWrite():  "+e.getMessage()));
   }
@@ -56,7 +57,8 @@ void ODVfeToRejectDat::writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* 
     m_writeStmt->setInt(2, item->getFedId() );
     m_writeStmt->setInt(3, item->getTTId() );
     m_writeStmt->setInt(4, item->getVfeId() );
-    m_writeStmt->setInt(5, item->getStatus() );
+    m_writeStmt->setInt(5, item->getGain() );
+    m_writeStmt->setInt(6, item->getStatus() );
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
@@ -87,10 +89,11 @@ void ODVfeToRejectDat::fetchData(std::vector< ODVfeToRejectDat >* p, ODVfeToReje
     ODVfeToRejectDat dat;
     while(rset->next()) {
       // dat.setId( rset->getInt(1) );
-      dat.setFedId( rset->getInt(2) );
-      dat.setTTId( rset->getInt(3) );
-      dat.setVfeId( rset->getInt(4) );
-      dat.setStatus( rset->getInt(5) );
+      dat.setFedId(  rset->getInt(2) );
+      dat.setTTId(   rset->getInt(3) );
+      dat.setVfeId(  rset->getInt(4) );
+      dat.setGain(   rset->getInt(5) );
+      dat.setStatus( rset->getInt(6) );
 
       p->push_back( dat);
 
@@ -118,6 +121,7 @@ void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat > data, 
   int* xx= new int[nrows];
   int* yy= new int[nrows];
   int* zz= new int[nrows];
+  int* ww= new int[nrows];
   int* st= new int[nrows];
 
 
@@ -126,17 +130,19 @@ void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat > data, 
   ub2* x_len= new ub2[nrows];
   ub2* y_len= new ub2[nrows];
   ub2* z_len= new ub2[nrows];
+  ub2* w_len= new ub2[nrows];
   ub2* st_len= new ub2[nrows];
 
   ODVfeToRejectDat dataitem;
   
 
-  for (int count = 0; count != data.size(); count++) {
+  for (int count = 0; count != (int)data.size(); count++) {
     dataitem=data[count];
     ids[count]=iovID;
     xx[count]=dataitem.getFedId();
     yy[count]=dataitem.getTTId();
     zz[count]=dataitem.getVfeId();
+    ww[count]=dataitem.getGain();
     st[count]=dataitem.getStatus();
 
 
@@ -144,6 +150,7 @@ void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat > data, 
 	x_len[count]=sizeof(xx[count]);
 	y_len[count]=sizeof(yy[count]);
 	z_len[count]=sizeof(zz[count]);
+	w_len[count]=sizeof(ww[count]);
 	st_len[count]=sizeof(st[count]);
 
 
@@ -155,7 +162,8 @@ void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat > data, 
     m_writeStmt->setDataBuffer(2, (dvoid*)xx, OCCIINT , sizeof(xx[0]), x_len );
     m_writeStmt->setDataBuffer(3, (dvoid*)yy, OCCIINT , sizeof(yy[0]), y_len );
     m_writeStmt->setDataBuffer(4, (dvoid*)zz, OCCIINT , sizeof(zz[0]), z_len );
-    m_writeStmt->setDataBuffer(5, (dvoid*)st, OCCIINT , sizeof(st[0]), st_len );
+    m_writeStmt->setDataBuffer(5, (dvoid*)ww, OCCIINT , sizeof(ww[0]), w_len );
+    m_writeStmt->setDataBuffer(6, (dvoid*)st, OCCIINT , sizeof(st[0]), st_len );
    
 
     m_writeStmt->executeArrayUpdate(nrows);
@@ -164,12 +172,14 @@ void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat > data, 
     delete [] xx;
     delete [] yy;
     delete [] zz;
+    delete [] ww;
     delete [] st;
 
     delete [] ids_len;
     delete [] x_len;
     delete [] y_len;
     delete [] z_len;
+    delete [] w_len;
     delete [] st_len;
 
 

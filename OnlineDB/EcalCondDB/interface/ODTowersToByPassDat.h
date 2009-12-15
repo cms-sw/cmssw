@@ -29,6 +29,9 @@ class ODTowersToByPassDat : public IODConfig {
   inline void setTTId(int dac) { m_tt = dac; }
   inline int getTTId() const { return m_tt; }
 
+  inline void setTimeCorr(int dac) { m_time = dac; }
+  inline int getTimeCorr() const { return m_time; }
+
   inline void setStatus(int dac) { m_sta = dac; }
   inline int getStatus() const { return m_sta; }
 
@@ -51,6 +54,7 @@ class ODTowersToByPassDat : public IODConfig {
   int m_tr;
   int m_fed;
   int m_tt;
+  int m_time; 
   int m_sta;
   int m_ID;
  

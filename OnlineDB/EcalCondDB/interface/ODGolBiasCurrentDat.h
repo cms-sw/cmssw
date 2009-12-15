@@ -32,6 +32,12 @@ class ODGolBiasCurrentDat : public IODConfig {
   inline void setCurrent(int dac) { m_cur = dac; }
   inline int getCurrent() const { return m_cur; }
 
+  inline void setPLLCurrent(int x) { m_pll_cur = x; }
+  inline int getPLLCurrent() const { return m_pll_cur; }
+
+  inline void setStatus(int dac) { m_sta = dac; }
+  inline int getStatus() const { return m_sta; }
+
 
  private:
   void prepareWrite() 
@@ -52,6 +58,8 @@ class ODGolBiasCurrentDat : public IODConfig {
   int m_fed;
   int m_tt;
   int m_cur;
+  int m_pll_cur;
+  int m_sta;
   int m_ID;
  
 };
