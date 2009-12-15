@@ -31,8 +31,7 @@
 
 #include "boost/shared_ptr.hpp"
 
-class testEDProducerProductRegistryCallback: public CppUnit::TestFixture
-{
+class testEDProducerProductRegistryCallback: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);
 
    CPPUNIT_TEST_EXCEPTION(testCircularRef,cms::Exception);
@@ -56,8 +55,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEDProducerProductRegistryCallback);
 using namespace edm;
 
 namespace {
-   class TestMod : public EDProducer
-   {
+   class TestMod : public EDProducer {
      public:
       explicit TestMod(ParameterSet const& p);
       
@@ -69,28 +67,23 @@ namespace {
    TestMod::TestMod(ParameterSet const&)
    { produces<int>();}
    
-   void TestMod::produce(Event&, EventSetup const&)
-   {
+   void TestMod::produce(Event&, EventSetup const&) {
    }
 
-   class ListenMod : public EDProducer
-   {
+   class ListenMod : public EDProducer {
      public:
       explicit ListenMod(ParameterSet const&);
       void produce(Event& e, EventSetup const&);
       void listen(BranchDescription const&);
    };
    
-   ListenMod::ListenMod(ParameterSet const&)
-   {
+   ListenMod::ListenMod(ParameterSet const&) {
       callWhenNewProductsRegistered(this,&ListenMod::listen);
    }
-   void ListenMod::produce(Event&, EventSetup const&)
-   {
+   void ListenMod::produce(Event&, EventSetup const&) {
    }
    
-   void ListenMod::listen(BranchDescription const& iDesc)
-   {
+   void ListenMod::listen(BranchDescription const& iDesc) {
       edm::TypeID intType(typeid(int));
       //std::cout << "see class " << iDesc.typeName() << std::endl;
       if(iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -99,24 +92,20 @@ namespace {
       }
    }
 
-   class ListenFloatMod : public EDProducer
-   {
+   class ListenFloatMod : public EDProducer {
 public:
       explicit ListenFloatMod(ParameterSet const&);
       void produce(Event& e, EventSetup const&);
       void listen(BranchDescription const&);
    };
    
-   ListenFloatMod::ListenFloatMod(ParameterSet const&)
-   {
+   ListenFloatMod::ListenFloatMod(ParameterSet const&) {
       callWhenNewProductsRegistered(this,&ListenFloatMod::listen);
    }
-   void ListenFloatMod::produce(Event&, EventSetup const&)
-   {
+   void ListenFloatMod::produce(Event&, EventSetup const&) {
    }
    
-   void ListenFloatMod::listen(BranchDescription const& iDesc)
-   {
+   void ListenFloatMod::listen(BranchDescription const& iDesc) {
       edm::TypeID intType(typeid(int));
       //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
       if(iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -124,10 +113,9 @@ public:
          //std::cout <<iDesc.moduleLabel()<<"-"<<iDesc.productInstanceName()<<std::endl;
       }
    }
-   
 }
 
-void  testEDProducerProductRegistryCallback::testCircularRef(){
+void  testEDProducerProductRegistryCallback::testCircularRef() {
    using namespace edm;
    
    SignallingProductRegistry preg;
@@ -142,11 +130,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
+   p1.addUntrackedParameter("@module_edm_type",std::string() );
    p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
+   p2.addUntrackedParameter("@module_edm_type",std::string() );
    p2.registerIt();
    
    edm::ActionTable table;
@@ -162,11 +152,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
+   l1.addUntrackedParameter("@module_edm_type",std::string() );
    l1.registerIt();
    
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
+   l2.addUntrackedParameter("@module_edm_type",std::string() );
    l2.registerIt();
 
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
@@ -194,7 +186,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    CPPUNIT_ASSERT(10 == preg.size());
 }
 
-void  testEDProducerProductRegistryCallback::testCircularRef2(){
+void  testEDProducerProductRegistryCallback::testCircularRef2() {
    using namespace edm;
    
    SignallingProductRegistry preg;
@@ -209,11 +201,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
+   p1.addUntrackedParameter("@module_edm_type",std::string() );
    p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
+   p2.addUntrackedParameter("@module_edm_type",std::string() );
    p2.registerIt();
    
    edm::ActionTable table;
@@ -229,11 +223,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
+   l1.addUntrackedParameter("@module_edm_type",std::string() );
    l1.registerIt();
    
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
+   l2.addUntrackedParameter("@module_edm_type",std::string() );
    l2.registerIt();
    
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
@@ -275,11 +271,13 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
+   p1.addUntrackedParameter("@module_edm_type",std::string() );
    p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
+   p2.addUntrackedParameter("@module_edm_type",std::string() );
    p2.registerIt();
    
    edm::ActionTable table;
@@ -295,12 +293,14 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
+   l1.addUntrackedParameter("@module_edm_type",std::string() );
    l1.registerIt();
    
    std::auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
+   l2.addUntrackedParameter("@module_edm_type",std::string() );
    l2.registerIt();
    
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
