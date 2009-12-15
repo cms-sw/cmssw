@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/15 08:32:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/12/15 11:25:55 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -13,18 +13,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-bool HLTConfigProvider::init(const std::string& processName)
+void HLTConfigProvider::clear()
 {
    using namespace std;
    using namespace edm;
 
    // clear data members
 
-   processName_ = processName;
+   processName_ = "";
    registry_    = pset::Registry::instance();
 
    ProcessPSetID_ = ParameterSetID();
    ProcessPSet_ = ParameterSet();
+   ProcessVPSet_.clear();
+
    tableName_   = "/dev/null";
 
    triggerNames_.clear();
@@ -40,8 +42,56 @@ bool HLTConfigProvider::init(const std::string& processName)
    prescaleIndex_.clear();
    prescaleValues_.clear();
 
-   // initialise
+}
 
+bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& processName)
+{
+   using namespace std;
+   using namespace edm;
+
+   clear();
+   processName_=processName;
+
+   ParameterSet pset;
+   if (iEvent.getProcessParameterSet(processName_,pset)) {
+     LogInfo("HLTConfigProvider") << "EventInfo true  " << (pset==ProcessPSet_);
+     ProcessPSet_=pset;
+     extract();
+     return true;
+   } else {
+     LogInfo("HLTConfigProvider") << "EventInfo false " << (pset==ProcessPSet_);
+     return false;
+   }
+
+}
+
+bool HLTConfigProvider::init(const edm::Run& iRun, const std::string& processName)
+{
+   using namespace std;
+   using namespace edm;
+
+   clear();
+   processName_=processName;
+
+   const bool success(init(processName));
+
+   if (iRun.getProcessParameterSet(processName_,ProcessVPSet_)) {
+     LogInfo("HLTConfigProvider") << "RunInfo true - size = " << ProcessVPSet_.size();
+   } else {
+     LogInfo("HLTConfigProvider") << "RunInfo false- size = " << ProcessVPSet_.size();
+   }
+
+   return success;
+}
+
+bool HLTConfigProvider::init(const std::string& processName)
+{
+   using namespace std;
+   using namespace edm;
+
+   // initialise
+   clear();
+   processName_=processName;
    LogInfo("HLTConfigProvider") << "Called with processName '"
 				<< processName_
 				<< "'." << endl;
@@ -55,11 +105,12 @@ bool HLTConfigProvider::init(const std::string& processName)
        const std::string pName(i->second.getParameter<string>("@process_name"));
        pNames += pName+" ";
        if ( pName == processName_ ) {
-	 ProcessPSetID_ = i->first;
+	 //	 ProcessPSetID_ = i->first;
 	 nPSets++;
        }
      }
    }
+
    LogInfo("HLTConfigProvider") << "Unordered list of process names found: "
 				<< pNames << "." << endl;
 
@@ -91,6 +142,17 @@ bool HLTConfigProvider::init(const std::string& processName)
 				   << "' not found in registry!" << endl;
      return false;
    }
+
+   extract();
+
+   return true;
+
+}
+
+void HLTConfigProvider::extract()
+{
+   using namespace std;
+   using namespace edm;
 
    // Obtain PSet containing table name (available only in 2_1_10++ files)
    if (ProcessPSet_.exists("HLTConfigVersion")) {
@@ -173,7 +235,7 @@ bool HLTConfigProvider::init(const std::string& processName)
 
    }
 
-   return true;
+   return;
 }
 
 void HLTConfigProvider::dump (const std::string& what) const {

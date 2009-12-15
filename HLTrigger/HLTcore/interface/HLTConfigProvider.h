@@ -6,13 +6,15 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2009/12/15 08:32:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/15 11:25:55 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -27,8 +29,14 @@ class HLTConfigProvider {
   
  public:
 
+  /// clear data members - called by init() methods, not by user!
+  void clear();
   /// init everytime the HLT config changes (eg, beginRun)
   bool init(const std::string& processName);
+  bool init(const edm::Run& iRun, const std::string& processName);
+  bool init(const edm::Event& iEvent, const std::string& processName);
+  /// extract information into data members - called by init() methods
+  void extract();
 
   /// dump config aspects to cout
   void dump(const std::string& what) const;
@@ -93,7 +101,8 @@ class HLTConfigProvider {
 
   /// c'tor
   HLTConfigProvider():
-    processName_(""), registry_(), ProcessPSetID_(), ProcessPSet_(),
+    processName_(""), registry_(),
+    ProcessPSetID_(), ProcessPSet_(), ProcessVPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
     pathNames_(), endpathNames_(),
@@ -107,6 +116,7 @@ class HLTConfigProvider {
 
   edm::ParameterSetID ProcessPSetID_;
   edm::ParameterSet ProcessPSet_;
+  edm::VParameterSet ProcessVPSet_;
 
   std::string tableName_;
   std::vector<std::string> triggerNames_;
