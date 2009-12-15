@@ -32,7 +32,7 @@ VtxTester::VtxTester( const ParameterSet& )
    fEtaHistSmr = 0 ;
 }
 
-void VtxTester::beginJob( const EventSetup& )
+void VtxTester::beginJob()
 {
 
    fOutputFile   = new TFile( "VtxTest.root", "RECREATE" ) ;

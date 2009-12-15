@@ -22,7 +22,7 @@ class BoostTester : public edm::EDAnalyzer
       virtual ~BoostTester() {}
       
       virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob( const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
 
    private:

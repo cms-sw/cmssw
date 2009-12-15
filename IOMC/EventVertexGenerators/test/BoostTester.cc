@@ -53,7 +53,7 @@ BoostTester::BoostTester( const ParameterSet& )
    
 }
 
-void BoostTester::beginJob( const EventSetup& )
+void BoostTester::beginJob()
 {
 
    fOutputFile   = new TFile( "VtxTest.root", "RECREATE" ) ;
