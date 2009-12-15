@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.26 $
-///  $Date: 2009/09/15 16:22:34 $
-///  (last update by $Author: ckleinw $)
+///  $Revision: 1.27 $
+///  $Date: 2009/10/23 07:53:35 $
+///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -110,7 +110,20 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 				  std::vector<int> &globalLabels,
 				  AlignmentParameters *&lowestParams) const;
 
-  /// calls Mille and diagonalises the covariance matrix of a Hit if neccesary
+  /// calls callMille1D or callMille2D
+  int callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+		unsigned int iTrajHit, const std::vector<int> &globalLabels,
+		const std::vector<float> &globalDerivativesX,
+		const std::vector<float> &globalDerivativesY);
+
+  /// calls Mille for 1D hits
+  int callMille1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+		  unsigned int iTrajHit, const std::vector<int> &globalLabels,
+		  const std::vector<float> &globalDerivativesX);
+
+  /// calls Mille for x and possibly y component of hit,
+  /// y is skipped for non-real 2D (e.g. SiStripRecHit2D),
+  /// for TID/TEC first diagonalises if correlation is larger than configurable
   int callMille2D ( const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 		    unsigned int iTrajHit, const std::vector<int> &globalLabels,
 		    const std::vector<float> &globalDerivativesx,
