@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#A script to "harverst" PerfSuite work directories, producing an xml file with all the data ready to be uploaded to the PerfSuiteDB DB.
 import sys, os, re
 import getopt
 from Validation.Performance.parserTimingReport import *
@@ -21,6 +21,7 @@ xmldoc = minidom.Document()
 release = None
 steps = {}
 candles = {}
+pileups = {}
 
 def usage(argv):
     script = argv[0]
@@ -134,7 +135,7 @@ def exportTimeSizeJob(path, timeSizeReport,  runinfo):
 			
 
 def process_timesize_dir(path, runinfo):
-	global release
+	global release,event_content,conditions
 	""" if the release is not provided explicitly we take it from the Simulation candles file """
 	if (not release):
 		release_fromlogfile = read_SimulationCandles(path)
@@ -184,6 +185,10 @@ def process_timesize_dir(path, runinfo):
 		# add to the list to generate the readable filename :)
 		steps[step] = 1
 		candles[candle] = 1
+                if pileup_type=="":
+                    pileups["NoPileUp"]=1
+                else:
+                    pileups[pileup_type] = 1
 	
 		# root file size (number)
 		root_file_size = getRootFileSize(path = path, candle = candle, step = step)
@@ -243,6 +248,9 @@ def exportSequences():
 
 if __name__ == "__main__":
 	#searchFiles()
+    #TO DO:
+    #Use option parser! This is messy.
+    
     (release, output_dir) = get_params(sys.argv)
 
     if not release:
@@ -297,7 +305,7 @@ if __name__ == "__main__":
     now = datetime.datetime.now()
     #Changing slightly the XML filename format
     #FIXME: review this convention and archive the xml in a separate CASTOR xml directory for quick recovery of DB...
-    file_name = "%s___%s___%s___%s.xml" % (release, "_".join(steps.keys()), "_".join(candles.keys()), now.isoformat())
+    file_name = "%s___%s___%s___%s___%s___%s___%s.xml" % (release, "_".join(steps.keys()), "_".join(candles.keys()), "_".join(pileups.keys()),event_content,conditions,now.isoformat())
     print "Writing the output to: %s " % file_name
 
     write_xml(xmldoc, output_dir, file_name) #change this function to be able to handle directories in remote machines (via tar pipes for now could always revert to rsync later).

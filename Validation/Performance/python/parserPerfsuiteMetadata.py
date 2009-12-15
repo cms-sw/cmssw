@@ -689,11 +689,11 @@ if __name__ == "__main__":
 	from xml.dom import minidom
 	import cmssw_exportdb_xml
 	#steps do not get parsed corectly
-	path = "/home/vidma/Desktop/CERN_code/cmssw/data/CMSSW_3_1_0_pre7_--usersteps=RAW2DIGI-RECO_lxbuild107.cern.ch_relval/relval/CMSSW_3_1_0_pre7/work2" 
-
+	#path = "/home/vidma/Desktop/CERN_code/cmssw/data/CMSSW_3_1_0_pre7_--usersteps=RAW2DIGI-RECO_lxbuild107.cern.ch_relval/relval/CMSSW_3_1_0_pre7/work2" 
 	#path = "/home/vidma/Desktop/CERN_code/cmssw/data/CMSSW_3_2_0_--usersteps=GEN-SIM,DIGI_lxbuild106.cern.ch_relval/relval/CMSSW_3_2_0/workGENSIMDIGI"
 	#includes finishing time, succesfully archived tarball etc
 	#path = "/home/vidma/Desktop/CERN_code/cmssw/CVS_PerfSuiteDB/COMP/PerfSuiteDB/export_data_to_xml/example_of_files/PileUp"
+	path = os.path.abspath(".") #Better to point to the local dir than to some old Vidmantas' laptop dirs ;)
 	#p = parserPerfsuiteMetadata("/home/vidma/Desktop/CERN_code/cmssw/CVS_PerfSuiteDB/COMP/PerfSuiteDB/export_data_to_xml/example_of_files/PerfsuiteRun")
 	p = parserPerfsuiteMetadata(path)
 	run_info = p.parseAll()
