@@ -32,25 +32,25 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
 
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(
-        tracker = cms.InputTag("gamIsoDepositTk"),
-        ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
-        hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
+       #tracker = cms.InputTag("gamIsoDepositTk"),
+       #ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
+       #hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
     ),
 
     # user defined isolation variables the variables defined here will be accessible
     # via pat::Photon::userIsolation(IsolationKeys key) with the key as defined in
     # DataFormats/PatCandidates/interface/Isolation.h
     userIsolation = cms.PSet(
-        tracker = cms.PSet(
-            src = cms.InputTag("gamIsoFromDepsTk"),
-        ),
-        ecal = cms.PSet(
-            src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
-        ),
-        hcal = cms.PSet(
-            src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
-        ),
-        user = cms.VPSet(),
+       #tracker = cms.PSet(
+       #    src = cms.InputTag("gamIsoFromDepsTk"),
+       #),
+       #ecal = cms.PSet(
+       #    src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
+       #),
+       #hcal = cms.PSet(
+       #    src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
+       #),
+       #user = cms.VPSet(),
     ),
 
     # photon ID
