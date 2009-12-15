@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource")
 
-process.sendSomeMessages = cms.EDFilter("UnitTestClient_A")
+process.sendSomeMessages = cms.EDAnalyzer("UnitTestClient_A")
 
 process.p = cms.Path(process.sendSomeMessages)
 
