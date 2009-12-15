@@ -24,7 +24,6 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) ; 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -100,10 +99,6 @@ AlpgenExtractor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-AlpgenExtractor::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
