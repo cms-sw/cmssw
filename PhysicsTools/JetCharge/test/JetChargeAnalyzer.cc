@@ -38,7 +38,6 @@ class JetChargeAnalyzer : public edm::EDAnalyzer {
         ~JetChargeAnalyzer() {}
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-        virtual void beginJob(const edm::EventSetup& iSetup);
         virtual void endJob(const edm::EventSetup& iSetup);
     private:
         // physics stuff
@@ -107,8 +106,6 @@ void JetChargeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     charge_[k]->Fill(hJC->value(i));
   }
   
-}
-void JetChargeAnalyzer::beginJob(const edm::EventSetup& iSetup) {
 }
 void JetChargeAnalyzer::endJob(const edm::EventSetup& iSetup) {
 }
