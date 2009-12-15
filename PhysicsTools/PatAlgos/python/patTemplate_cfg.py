@@ -11,7 +11,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 ## Source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_4_0_pre7/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0003/0AC12757-A3E1-DE11-A20D-0026189437F8.root'
+        '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/14920B0A-0DE8-DE11-B138-002618943926.root'
     )
 )
 ## Maximal Number of Events
