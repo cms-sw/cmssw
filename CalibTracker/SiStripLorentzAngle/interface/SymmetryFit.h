@@ -19,7 +19,8 @@ class SymmetryFit {
  private:
 
   SymmetryFit(const TH1*, const std::pair<unsigned,unsigned>);
-  std::pair<unsigned,unsigned> findUsableMinMax();
+  std::pair<unsigned,unsigned> findUsableMinMax() const;
+  std::vector<std::pair<unsigned,unsigned> > continuousRanges() const;
   float chi2_element(std::pair<unsigned,unsigned>);
   float chi2(std::pair<unsigned,unsigned>);
   void makeChi2Histogram();

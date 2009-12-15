@@ -1,5 +1,6 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/SymmetryFit.h"
 #include <cmath>
+#include <cassert>
 #include "boost/foreach.hpp"
 
 TH1* SymmetryFit::symmetryChi2(std::string basename, const std::vector<TH1*>& candidates, const std::pair<unsigned,unsigned> range)
@@ -30,7 +31,7 @@ TH1* SymmetryFit::symmetryChi2(const TH1* candidate, const std::pair<unsigned,un
 
 SymmetryFit::SymmetryFit(const TH1* h, const std::pair<unsigned,unsigned> r)
   : symm_candidate_(h), 
-    minDF_(2*(r.second-r.first)),
+    minDF_(8),
     range_(r),
     minmaxUsable_(findUsableMinMax()),
     ndf_( minmaxUsable_.first<minmaxUsable_.second ? minmaxUsable_.second-minmaxUsable_.first : 0),
@@ -43,33 +44,46 @@ SymmetryFit::SymmetryFit(const TH1* h, const std::pair<unsigned,unsigned> r)
 void SymmetryFit::makeChi2Histogram() 
 {
   std::string XXname = name(symm_candidate_->GetName());
-  unsigned Nbins = 2*( range_.second - range_.first ) + 3;
+  unsigned Nbins = 2*( range_.second - range_.first ) + 1;
   double binwidth = symm_candidate_->GetBinWidth(1);
   double low = symm_candidate_->GetBinCenter(range_.first) - 3*binwidth/4;
   double up = symm_candidate_->GetBinCenter(range_.second) + 3*binwidth/4;
   chi2_ = new TH1F(XXname.c_str(),"", Nbins, low, up);
 }
-
-std::pair<unsigned,unsigned> SymmetryFit::findUsableMinMax()
+  
+std::pair<unsigned,unsigned> SymmetryFit::findUsableMinMax() const
 {
-  std::pair<unsigned, unsigned> bestL(0,0), bestR(0,0),test(0,0), notfound(0,0);
-  unsigned bins = symm_candidate_->GetNbinsX();
-  for(unsigned i = 1; i <= bins+1; i++) {
-    float err = symm_candidate_->GetBinError(i);
-    if( !test.first && err && i!=bins+1) test.first = i;
-    else if( test.first && (!err||i==bins+1) ) {
-      test.second = i-1;
-      if( test.first  < range_.first-minDF_  && (test.second-test.first) > (bestL.second-bestL.first) ) bestL = test;
-      if( test.second > range_.second+minDF_ && (test.second-test.first) > (bestR.second-bestR.first) ) bestR = test;
-      test.first=test.second=0;
+  unsigned NEAR(0), FAR(0);
+  const std::vector<std::pair<unsigned,unsigned> > cont = continuousRanges();
+  for(unsigned L=0; L<cont.size(); L++) { if( cont[L].first > range_.first) continue;
+    for(unsigned R=L; R<cont.size(); R++) { if( cont[R].second < range_.second) continue;
+
+      const unsigned far = std::min( range_.first - cont[L].first,    
+				      cont[R].second - range_.second );
+      const unsigned near = std::max( range_.second<cont[L].second ? 0 : range_.second - cont[L].second,  
+				     cont[R].first<range_.first ? 0 : cont[R].first - range_.first );
+
+      if ( far>near && (!FAR || far-near > FAR-NEAR) ) { FAR = far; NEAR = near;}
     }
   }
-  if( bestL == notfound || bestR == notfound ) return std::make_pair(0,0);
-  
-  return std::make_pair( std::max( bestL.second > range_.second-1 ? 0 : range_.second-1-bestL.second,
-				   bestR.first < range_.first+1 ? 0 : bestR.first-(range_.first+1)),
-			 std::min( range_.first-1-bestL.first, bestR.second-range_.second) );
+  return std::make_pair(NEAR,FAR);
 }
+
+std::vector<std::pair<unsigned,unsigned> > SymmetryFit::continuousRanges() const
+{
+  std::vector<std::pair<unsigned,unsigned> > ranges;
+  const unsigned Nbins = symm_candidate_->GetNbinsX();
+  unsigned i=0;
+  while(++i<=Nbins) {
+    if(symm_candidate_->GetBinError(i)) {
+      std::pair<unsigned,unsigned> range(i,i+1);
+      while(++i<=Nbins && symm_candidate_->GetBinError(i)) range.second++;
+      ranges.push_back(range);
+    }
+  }
+  return ranges;
+}
+
 
 void SymmetryFit::fillchi2()
 {
@@ -101,8 +115,8 @@ float SymmetryFit::chi2_element(std::pair<unsigned,unsigned> range)
     y0(symm_candidate_->GetBinContent(range.first)),
     y1(symm_candidate_->GetBinContent(range.second)),
     e0(symm_candidate_->GetBinError(range.first)),
-    e1(symm_candidate_->GetBinError(range.second));
-  
+    e1(symm_candidate_->GetBinError(range.second));           assert(e0&&e1);
+
   return pow(y0-y1, 2)/(e0*e0+e1*e1);
 }
 
