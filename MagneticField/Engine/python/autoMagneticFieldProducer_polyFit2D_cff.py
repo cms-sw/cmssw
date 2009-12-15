@@ -26,7 +26,7 @@ SlaveField0 = cms.ESProducer("UniformMagneticFieldESProducer",
 SlaveField20 = cms.ESProducer("ParametrizedMagneticFieldProducer",
     version = cms.string('PolyFit2D'),
     parameters = cms.PSet(
-        BValue = cms.double(2.0216)
+        BValue = cms.double(2.02156567013928)
     ),
     label = cms.untracked.string('slave_20')
 )
@@ -36,15 +36,15 @@ SlaveField30.parameters.BValue = 3.0234
 SlaveField30.label = 'slave_30'
 
 SlaveField35 = SlaveField20.clone()
-SlaveField35.parameters.BValue = 3.5162
+SlaveField35.parameters.BValue = 3.51622117206486
 SlaveField35.label = 'slave_35'
 
 SlaveField38 = SlaveField20.clone()
-SlaveField38.parameters.BValue= 3.8114
+SlaveField38.parameters.BValue= 3.81143026675623
 SlaveField38.label = 'slave_38'
 
 SlaveField40 = SlaveField20.clone()
-SlaveField40.parameters.BValue= 4.0124
+SlaveField40.parameters.BValue= 4.01242188708911
 SlaveField40.label = 'slave_40'
 
 
