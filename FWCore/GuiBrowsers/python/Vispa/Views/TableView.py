@@ -9,6 +9,10 @@ from Vispa.Views.AbstractView import AbstractView
 from Vispa.Views.PropertyView import PropertyView,Property
 from Vispa.Share.ThreadChain import ThreadChain
 
+class TableWidgetItem(QTableWidgetItem):
+    def __lt__(self,other):
+        return str(self.text()).lower()<str(other.text()).lower()
+
 class TableView(AbstractView, QTableWidget):
     """ The TableView widget fills itself using a DataAccessor.
     """
@@ -29,6 +33,7 @@ class TableView(AbstractView, QTableWidget):
         self._filteredColumns=[]
         self._firstColumn=0
         self._updateCounter=0
+        self._autosizeColumns=True
 
         self.setSortingEnabled(False)
         self.verticalHeader().hide()
@@ -55,11 +60,6 @@ class TableView(AbstractView, QTableWidget):
             raise TypeError(__name__ + " requires data accessor of type BasicDataAccessor.")
         AbstractView.setDataAccessor(self, accessor)
 
-    def setDataObjects(self, objects):
-        if len(self._dataObjects)!=len(objects):
-            self._selection=None
-        AbstractView.setDataObjects(self, objects)
-    
     def cancel(self):
         """ Stop all running operations.
         """
@@ -129,8 +129,9 @@ class TableView(AbstractView, QTableWidget):
             if operationId != self._operationId:
                 break
             self._createItem(object,properties[object])
-        for i in range(len(self._columns)):
-            self.resizeColumnToContents(i)
+        if self._autosizeColumns:
+            for i in range(len(self._columns)):
+                self.resizeColumnToContents(i)
         self.setSortingEnabled(self._sortingFlag)
         self._updatingFlag-=1
         return self._operationId==operationId
@@ -152,7 +153,7 @@ class TableView(AbstractView, QTableWidget):
                     text=str(propertyWidget.value())
                 else:
                     text=str(property[2])
-                item=QTableWidgetItem(text)
+                item=TableWidgetItem(text)
                 item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
                 item.object=object
                 self.setItem(row,i,item)

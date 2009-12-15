@@ -477,8 +477,12 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         newObject = None
         if dropType == "Node":
             newObject = self.addDecayNode(pos)
+            self.select(newObject)
+            self.setFocus()
         elif dropType == "EventView":
             newObject = self.createChildContainer(self.object().createEventView(), pos)
+            newObject.select(True)
+            newObject.setFocus()
             # connect selected signal to parent
             parent=self
             while hasattr(parent,"parent"):
@@ -488,12 +492,13 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
                 parent=parent.parent()
         else:
             newObject = self.addParticleByType(dropType, pos)
+            self.select(newObject)
+            self.setFocus()
                 
         if newObject:
             self.update(newObject.boundingRect())
             if self._editable:
                 self.autosize()     # instead of full autolayout
-            self.select(newObject)
             if self.tabController():
                 self.tabController().setModified()
                 if hasattr(self.tabController(),"updateTreeView"):
