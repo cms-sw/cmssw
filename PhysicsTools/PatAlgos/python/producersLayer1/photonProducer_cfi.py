@@ -31,27 +31,12 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
 
     # embed IsoDeposits to recompute isolation
-    isoDeposits = cms.PSet(
-       #tracker = cms.InputTag("gamIsoDepositTk"),
-       #ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
-       #hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
-    ),
+    isoDeposits = cms.PSet(),
 
     # user defined isolation variables the variables defined here will be accessible
     # via pat::Photon::userIsolation(IsolationKeys key) with the key as defined in
     # DataFormats/PatCandidates/interface/Isolation.h
-    userIsolation = cms.PSet(
-       #tracker = cms.PSet(
-       #    src = cms.InputTag("gamIsoFromDepsTk"),
-       #),
-       #ecal = cms.PSet(
-       #    src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
-       #),
-       #hcal = cms.PSet(
-       #    src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
-       #),
-       #user = cms.VPSet(),
-    ),
+    userIsolation = cms.PSet(),
 
     # photon ID
     addPhotonID = cms.bool(True),
@@ -75,5 +60,3 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     resolutions     = cms.PSet()
 
 )
-
-
