@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.83 2009/11/14 15:16:20 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.84 2009/12/14 23:40:21 chamont Exp $
 //
 //
 
@@ -1114,20 +1114,20 @@ void GsfElectronAlgo::checkEcalSeedingParameters( edm::ParameterSetID const & ps
   edm::ParameterSet pset ;
   edm::pset::Registry::instance()->getMapped(psetid,pset) ;
   edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
-  edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
-
-  if (seedParameters.getParameter<bool>("applyHOverECut"))
-   {
-    if (hOverEConeSize_!=seedParameters.getParameter<double>("hOverEConeSize"))
-     { edm::LogWarning("GsfElectronAlgo") <<"The H/E cone size is different from ecal seeding." ; }
-    if (maxHOverEBarrel_<seedParameters.getParameter<double>("maxHOverEBarrel"))
-     { edm::LogWarning("GsfElectronAlgo") <<"The max barrel H/E is lower than during ecal seeding." ; }
-    if (maxHOverEEndcaps_<seedParameters.getParameter<double>("maxHOverEEndcaps"))
-     { edm::LogWarning("GsfElectronAlgo") <<"The max endcaps H/E is lower than during ecal seeding." ; }
-   }
-
-  if (minSCEtBarrel_<seedParameters.getParameter<double>("SCEtCut"))
-   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
-  if (minSCEtEndcaps_<seedParameters.getParameter<double>("SCEtCut"))
-   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
+//  edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
+//
+//  if (seedParameters.getParameter<bool>("applyHOverECut"))
+//   {
+//    if (hOverEConeSize_!=seedParameters.getParameter<double>("hOverEConeSize"))
+//     { edm::LogWarning("GsfElectronAlgo") <<"The H/E cone size is different from ecal seeding." ; }
+//    if (maxHOverEBarrel_<seedParameters.getParameter<double>("maxHOverEBarrel"))
+//     { edm::LogWarning("GsfElectronAlgo") <<"The max barrel H/E is lower than during ecal seeding." ; }
+//    if (maxHOverEEndcaps_<seedParameters.getParameter<double>("maxHOverEEndcaps"))
+//     { edm::LogWarning("GsfElectronAlgo") <<"The max endcaps H/E is lower than during ecal seeding." ; }
+//   }
+//
+//  if (minSCEtBarrel_<seedParameters.getParameter<double>("SCEtCut"))
+//   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
+//  if (minSCEtEndcaps_<seedParameters.getParameter<double>("SCEtCut"))
+//   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
  }
