@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/14 21:12:56 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/12/15 08:32:59 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -23,6 +23,7 @@ bool HLTConfigProvider::init(const std::string& processName)
    processName_ = processName;
    registry_    = pset::Registry::instance();
 
+   ProcessPSetID_ = ParameterSetID();
    ProcessPSet_ = ParameterSet();
    tableName_   = "/dev/null";
 
@@ -41,28 +42,52 @@ bool HLTConfigProvider::init(const std::string& processName)
 
    // initialise
 
-   LogInfo("HLTConfigProvider") << " called with processName '"
+   LogInfo("HLTConfigProvider") << "Called with processName '"
 				<< processName_
 				<< "'." << endl;
 
    // Obtain ParameterSetID for requested process (with name
    // processName) from pset registry
-   ParameterSetID ProcessPSetID;
+   std::string pNames("");
+   unsigned int nPSets(0);
    for (edm::pset::Registry::const_iterator i = registry_->begin(); i != registry_->end(); ++i) {
-     if (i->second.exists("@process_name") and i->second.getParameter<string>("@process_name") == processName_)
-       ProcessPSetID = i->first;
+     if (i->second.exists("@process_name")) {
+       const std::string pName(i->second.getParameter<string>("@process_name"));
+       pNames += pName+" ";
+       if ( pName == processName_ ) {
+	 ProcessPSetID_ = i->first;
+	 nPSets++;
+       }
+     }
    }
-   if (ProcessPSetID==ParameterSetID()) {
+   LogInfo("HLTConfigProvider") << "Unordered list of process names found: "
+				<< pNames << "." << endl;
+
+   if (nPSets==0) {
      LogError("HLTConfigProvider") << " Process name '"
 				   << processName_
 				   << "' not found in registry!" << endl;
      return false;
    }
+   if (ProcessPSetID_==ParameterSetID()) {
+     LogError("HLTConfigProvider") << " Process name '"
+				   << processName_
+				   << "' found but ParameterSetID invalid!"
+				   << endl;
+     return false;
+   }
+   if (nPSets>1) {
+     LogError("HLTConfigProvider") << " Process name '"
+				   << processName_
+				   << " found " << nPSets
+				   << " times in registry!" << endl;
+     return false;
+   }
 
    // Obtain ParameterSet from ParameterSetID
-   if (!(registry_->getMapped(ProcessPSetID,ProcessPSet_))) {
+   if (!(registry_->getMapped(ProcessPSetID_,ProcessPSet_))) {
      LogError("HLTConfigProvider") << " ProcessPSet for ProcessPSetID '"
-				   << ProcessPSetID
+				   << ProcessPSetID_
 				   << "' not found in registry!" << endl;
      return false;
    }
@@ -117,6 +142,10 @@ bool HLTConfigProvider::init(const std::string& processName)
    }
 
    // Extract and fill PrescaleService information
+   prescaleValues_.resize(n);
+   for (unsigned int i=0; i!=n; ++i) {
+     prescaleValues_[i].clear();
+   }
    if (ProcessPSet_.exists("PrescaleService")) {
      const edm::ParameterSet PSet (modulePSet("PrescaleService"));
      prescaleLabels_ = PSet.getParameter< std::vector<std::string> >("lvl1Labels");
@@ -143,7 +172,7 @@ bool HLTConfigProvider::init(const std::string& processName)
      }
 
    }
-   
+
    return true;
 }
 
