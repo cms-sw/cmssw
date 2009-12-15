@@ -2,7 +2,6 @@
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/DBCommon/interface/IOVInfo.h"
@@ -87,12 +86,11 @@ int cond::LoadIOVUtilities::execute(){
   session.initializeMapping( cond::IOVNames::iovMappingVersion(),
                              cond::IOVNames::iovMappingXML() );
    
-  cond::IOVService iovmanager( session );
-  std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(""));
-  editor->create(parser.timetype,parser.lastTill);
-  editor->bulkAppend(parser.values);
-  editor->stamp(cond::userInfo(),false);
-  iovtoken=editor->token();
+  cond::IOVEditor editor(session);
+  editor.create(parser.timetype,parser.lastTill);
+  editor.bulkAppend(parser.values);
+  editor.stamp(cond::userInfo(),false);
+  iovtoken=editor.token();
   cond::MetaData metadata( session );
   metadata.addMapping(parser.tag,iovtoken);
   transaction.commit();
