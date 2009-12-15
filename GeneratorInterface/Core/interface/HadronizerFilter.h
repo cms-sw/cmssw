@@ -49,7 +49,6 @@ namespace edm
     virtual ~HadronizerFilter();
 
     virtual bool filter(Event& e, EventSetup const& es);
-    virtual void beginJob(EventSetup const&);
     virtual void endJob();
     virtual bool beginRun(Run &, EventSetup const&);
     virtual bool endRun(Run &, EventSetup const&);
@@ -168,32 +167,12 @@ namespace edm
 
   template <class HAD>
   void
-  HadronizerFilter<HAD>::beginJob(EventSetup const& es)
-  { 
-    
-    // do things that's common through the job, such as
-    // attach external decay packages, etc.
-    //
-    if ( decayer_ ) decayer_->init(es) ;
-    return;
-    
-/*
-    if (! hadronizer_.declareStableParticles())
-      throw edm::Exception(errors::Configuration)
-	<< "Failed to declare stable particles in hadronizer "
-	<< hadronizer_.classname()
-	<< "\n";
-*/
-  }
-  
-  template <class HAD>
-  void
   HadronizerFilter<HAD>::endJob()
   { }
 
   template <class HAD>
   bool
-  HadronizerFilter<HAD>::beginRun(Run& run, EventSetup const&)
+  HadronizerFilter<HAD>::beginRun(Run& run, EventSetup const& es)
   {
     
     // this is run-specific
@@ -212,14 +191,15 @@ namespace edm
 	<< " for internal parton generation\n";
 
     if ( decayer_ )
-    {
-       if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
+      {
+        decayer_->init(es) ;
+        if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
           throw edm::Exception(errors::Configuration)
-	  << "Failed to declare stable particles in hadronizer "
-	  << hadronizer_.classname()
-	  << "\n";
-    }
-
+            << "Failed to declare stable particles in hadronizer "
+            << hadronizer_.classname()
+            << "\n";
+      }
+    
     return true;
   
   }

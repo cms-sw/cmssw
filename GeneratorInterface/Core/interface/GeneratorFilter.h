@@ -42,7 +42,6 @@ namespace edm
     virtual ~GeneratorFilter();
 
     virtual bool filter(Event& e, EventSetup const& es);
-    virtual void beginJob(EventSetup const&);
     virtual void endJob();
     virtual bool beginRun(Run &, EventSetup const&);
     virtual bool endRun(Run &, EventSetup const&);
@@ -158,22 +157,12 @@ namespace edm
 
   template <class HAD>
   void
-  GeneratorFilter<HAD>::beginJob(EventSetup const& es)
-  { 
-  
-    if ( decayer_ ) decayer_->init(es) ;
-    return;
-  
-  }
-  
-  template <class HAD>
-  void
   GeneratorFilter<HAD>::endJob()
   { }
 
   template <class HAD>
   bool
-  GeneratorFilter<HAD>::beginRun(Run &, EventSetup const&)
+  GeneratorFilter<HAD>::beginRun(Run &, EventSetup const& es)
   {
     // Create the LHEGeneratorInfo product describing the run
     // conditions here, and insert it into the Run object.
@@ -185,14 +174,15 @@ namespace edm
 	<< " for internal parton generation\n";
     
     if ( decayer_ )
-    {
-       if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
+      {
+        decayer_->init(es) ;
+        if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
           throw edm::Exception(errors::Configuration)
-	  << "Failed to declare stable particles in hadronizer "
-	  << hadronizer_.classname()
-	  << "\n";
-    }
-
+            << "Failed to declare stable particles in hadronizer "
+            << hadronizer_.classname()
+            << "\n";
+      }
+    
     return true;
   }
 
