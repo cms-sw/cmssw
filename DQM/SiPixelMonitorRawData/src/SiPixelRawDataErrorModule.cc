@@ -856,7 +856,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	numberOfErrors++;
 	errorType = di->getType();               // type of error
 	(meErrorType_)->Fill((int)errorType);
-	int TBMMessage;
+	int TBMMessage = -1;
 	if((errorType == 32)||(errorType == 33)||(errorType == 34)) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
