@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.18 2009/09/21 09:36:57 loizides Exp $
+// $Id: HydjetAnalyzer.cc,v 1.19 2009/10/06 15:40:24 yilmaz Exp $
 //
 //
 
@@ -97,7 +97,8 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -340,10 +341,15 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-HydjetAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void
+HydjetAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) 
 {
    iSetup.getData(pdt);
+}
+
+void 
+HydjetAnalyzer::beginJob()
+{
 
    if(printLists_){
       out_b.open(fBFileName.c_str());
