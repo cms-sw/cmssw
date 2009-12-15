@@ -130,13 +130,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
-   p1.addUntrackedParameter("@module_edm_type",std::string() );
+   p1.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
-   p2.addUntrackedParameter("@module_edm_type",std::string() );
+   p2.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
    edm::ActionTable table;
@@ -152,13 +152,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
-   l1.addUntrackedParameter("@module_edm_type",std::string() );
+   l1.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    l1.registerIt();
    
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
-   l2.addUntrackedParameter("@module_edm_type",std::string() );
+   l2.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
 
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
@@ -201,13 +201,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
-   p1.addUntrackedParameter("@module_edm_type",std::string() );
+   p1.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
-   p2.addUntrackedParameter("@module_edm_type",std::string() );
+   p2.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
    edm::ActionTable table;
@@ -223,13 +223,13 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
-   l1.addUntrackedParameter("@module_edm_type",std::string() );
+   l1.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    l1.registerIt();
    
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
-   l2.addUntrackedParameter("@module_edm_type",std::string() );
+   l2.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
@@ -271,13 +271,13 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    ParameterSet p1;
    p1.addParameter("@module_type",std::string("TestMod") );
    p1.addParameter("@module_label",std::string("t1") );
-   p1.addUntrackedParameter("@module_edm_type",std::string() );
+   p1.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    p1.registerIt();
    
    ParameterSet p2;
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
-   p2.addUntrackedParameter("@module_edm_type",std::string() );
+   p2.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    p2.registerIt();
    
    edm::ActionTable table;
@@ -293,14 +293,14 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    ParameterSet l1;
    l1.addParameter("@module_type",std::string("ListenMod") );
    l1.addParameter("@module_label",std::string("l1") );
-   l1.addUntrackedParameter("@module_edm_type",std::string() );
+   l1.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    l1.registerIt();
    
    std::auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
    ParameterSet l2;
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
-   l2.addUntrackedParameter("@module_edm_type",std::string() );
+   l2.addUntrackedParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
