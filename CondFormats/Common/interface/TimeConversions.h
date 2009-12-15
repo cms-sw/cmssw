@@ -33,8 +33,7 @@ namespace cond {
 
 
     // for real time 
-
-    unsigned int itsNanoseconds(boost::posix_time::time_duration const & td) {
+    inline unsigned int itsNanoseconds(boost::posix_time::time_duration const & td) {
       return boost::posix_time::time_duration::num_fractional_digits() == 6 ? 
 	1000*td.fractional_seconds() : td.fractional_seconds();
     }
