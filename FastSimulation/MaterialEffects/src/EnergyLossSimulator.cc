@@ -35,6 +35,11 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle)
   // Author : Patrick Janot - 8-Jan-2004
 
   double p2  = Particle.Vect().Mag2();
+  double verySmallP2 = 0.0001;
+  if (p2<=verySmallP2) {
+    deltaP.SetXYZT(0.,0.,0.,0.);
+    return;
+  }
   double m2  = Particle.mass() * Particle.mass();
   double e2  = p2+m2;
 
@@ -58,7 +63,9 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle)
   double dedx = mostProbableLoss + eSpread * theGenerator->landau();
 
   // Compute the new energy and momentum
-  double newE = std::max(Particle.mass(),Particle.e()-dedx);
+  double aBitAboveMass = Particle.mass()*1.0001;
+  double newE = std::max(aBitAboveMass,Particle.e()-dedx);
+  //  double newE = std::max(Particle.mass(),Particle.e()-dedx);
   double fac  = std::sqrt((newE*newE-m2)/p2);
 
   
