@@ -143,7 +143,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	   if (myKey2 = (TKey*)iter_s())  collname2 = myKey2->GetName();
 	 }
        }
-       if (collname1.Contains("MuonAssociation") || collname1.Contains("tevMuons")) {
+       if ( collname1.Contains("MuonAssociation") || 
+	    (collname1.Contains("tevMuons") && !collname2.Contains("tevMuons"))) {
 	 if (myKey1 = (TKey*)iter_r()) {
 	   collname1 = myKey1->GetName();
 	 }
@@ -155,7 +156,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	   }
 	 }
        }
-       else if (collname2.Contains("MuonAssociation") || collname2.Contains("tevMuons")) {
+       else if ( collname2.Contains("MuonAssociation") ||
+	         (collname2.Contains("tevMuons") && !collname1.Contains("tevMuons"))) {
 	 if (myKey2 = (TKey*)iter_s()) {
 	   collname2 = myKey2->GetName();
 	 }
@@ -178,10 +180,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	     if (myKey2 = (TKey*)iter_s())  collname2 = myKey2->GetName();
 	   }
 	 }
-	 if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
-	   cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
-	   continue;
-	 }
+       }
+       if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
+	 cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
+	 continue;
        }
        else {
 	 //	 cout << "    The NEW collections: " << collname1 << " : " << collname2 << endl;
