@@ -40,10 +40,16 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   jcalphi = new float[kMaxJetCal];
   jcaleta = new float[kMaxJetCal];
   jcale = new float[kMaxJetCal];
+  jcalemf = new float[kMaxJetCal]; 
+  jcaln90 = new float[kMaxJetCal]; 
+
   jcorcalpt = new float[kMaxJetCal]; 
   jcorcalphi = new float[kMaxJetCal]; 
   jcorcaleta = new float[kMaxJetCal]; 
   jcorcale = new float[kMaxJetCal]; 
+  jcorcalemf = new float[kMaxJetCal]; 
+  jcorcaln90 = new float[kMaxJetCal]; 
+
   const int kMaxJetgen = 10000;
   jgenpt = new float[kMaxJetgen];
   jgenphi = new float[kMaxJetgen];
@@ -76,6 +82,9 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("recoJetCalPhi",jcalphi,"recoJetCalPhi[NrecoJetCal]/F");
   HltTree->Branch("recoJetCalEta",jcaleta,"recoJetCalEta[NrecoJetCal]/F");
   HltTree->Branch("recoJetCalE",jcale,"recoJetCalE[NrecoJetCal]/F");
+  HltTree->Branch("recoJetCalEMF",jcalemf,"recoJetCalEMF[NrecoJetCal]/F");
+  HltTree->Branch("recoJetCalN90",jcaln90,"recoJetCalN90[NrecoJetCal]/F");
+
   HltTree->Branch("recoJetGenPt",jgenpt,"recoJetGenPt[NrecoJetGen]/F");
   HltTree->Branch("recoJetGenPhi",jgenphi,"recoJetGenPhi[NrecoJetGen]/F");
   HltTree->Branch("recoJetGenEta",jgeneta,"recoJetGenEta[NrecoJetGen]/F");
@@ -103,6 +112,8 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("recoJetCorCalPhi",jcorcalphi,"recoJetCorCalPhi[NrecoJetCorCal]/F"); 
   HltTree->Branch("recoJetCorCalEta",jcorcaleta,"recoJetCorCalEta[NrecoJetCorCal]/F"); 
   HltTree->Branch("recoJetCorCalE",jcorcale,"recoJetCorCalE[NrecoJetCorCal]/F"); 
+  HltTree->Branch("recoJetCorCalEMF",jcorcalemf,"recoJetCorCalEMF[NrecoJetCorCal]/F");
+  HltTree->Branch("recoJetCorCalN90",jcorcaln90,"recoJetCorCalN90[NrecoJetCorCal]/F");
 
   // Taus
   HltTree->Branch("NohTau",&nohtau,"NohTau/I");
@@ -149,6 +160,8 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
 	jcalphi[jcal] = i->phi();
 	jcaleta[jcal] = i->eta();
 	jcale[jcal] = i->energy();
+	jcalemf[jcal] = i->emEnergyFraction();
+	jcaln90[jcal] = i->n90();
 	jcal++;
       }
 
@@ -170,6 +183,8 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
 	jcorcalphi[jcorcal] = i->phi();
 	jcorcaleta[jcorcal] = i->eta();
 	jcorcale[jcorcal] = i->energy();
+	jcorcalemf[jcorcal] = i->emEnergyFraction();
+	jcorcaln90[jcorcal] = i->n90();
 	jcorcal++;
       }
 
