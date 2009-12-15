@@ -14,6 +14,7 @@ zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
       'keep *_dimuonsOneTrack_*_*',
       'keep *_dimuonsGlobal_*_*',
       'keep *_dimuonsOneStandAloneMuon_*_*',
+      'keep *_offlineBeamSpot_*_*'
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring(
