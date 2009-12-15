@@ -46,12 +46,14 @@ fill_one_cluster( Book& book,
 		  const poly<std::string>& gran,
 		  const unsigned width, const float variance, const float tthetaL, const float tthetaT,  const float BdotY ) const 
 {
-  book.fill( width, gran+"_width", 10,0,10);
   book.fill( tthetaL,                   gran+"_reconstruction", 360,-1.0,1.0 );
   book.fill( tthetaT-tthetaL,           gran+ allAndOne(width), 360,-1.0,1.0 );
   book.fill( tthetaT-tthetaL, variance, gran+  varWidth(width), 360,-1.0,1.0 );
   if(methods_ & WIDTH) book.fill( tthetaT, width, gran+method(WIDTH), 81,-0.6,0.6 );
-  if(ensembleBins_==0) book.fill( BdotY, gran+"_field", 101,1,5);
+  if(ensembleBins_==0) {
+    book.fill( BdotY, gran+"_field", 101,1,5);
+    book.fill( width, gran+"_width", 10,0,10);
+  }
 }
 
 poly<std::string> LA_Filler_Fitter::

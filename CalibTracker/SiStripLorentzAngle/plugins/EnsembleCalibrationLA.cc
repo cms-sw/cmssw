@@ -60,11 +60,9 @@ write_ensembles_text(const Book& book) {
       if(boost::regex_match(ensemble.first,format)) {
 	const bool TIB = "TIB" == boost::regex_replace(ensemble.first, format, "\\1");
 	const bool stereo = "s" == boost::regex_replace(ensemble.first, format, "\\3");
-	std::cout << "stereo: "<< stereo << std::endl;
 	const unsigned layer = boost::lexical_cast<unsigned>(boost::regex_replace(ensemble.first, format, "\\2"));
 	label = boost::regex_replace(ensemble.first, format, "\\4");
 	index = LA_Filler_Fitter::layer_index(TIB,stereo,layer);
-	std::cout << "index: "<< index << std::endl;
 
 	calibrations[label].slopes[index]=line.second.first;
 	calibrations[label].offsets[index]=line.first.first;

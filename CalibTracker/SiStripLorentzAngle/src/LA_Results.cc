@@ -19,30 +19,22 @@ result(Method m, const std::string name, const Book& book) {
   const TH1* const reco = book[base+"_reconstruction"];
   const TH1* const field = book[base+"_field"];
 
-  if(reco) {
-    p.reco    = reco->GetMean();
-    p.recoErr = reco->GetRMS();
-  }
+  if(reco) p.reco = std::make_pair<float,float>( reco->GetMean(), reco->GetMeanError());
   if(field) p.field = field->GetMean();
-
-  if(h) {
-    p.entries = (unsigned)(h->GetEntries());
-    switch(m) {
+  if(h) { switch(m) {
     case WIDTH: {
       const TF1*const f = h->GetFunction("LA_profile_fit"); if(!f) break;
-      p.measure = f->GetParameter(0);
-      p.measureErr = f->GetParError(0);
+      p.measured = std::make_pair<float,float>(f->GetParameter(0),f->GetParError(0));
       p.chi2 = f->GetChisquare();
       p.ndof = f->GetNDF();
+      p.entries = (unsigned)(h->GetEntries());
       break;
     }
     case PROB1: case AVGV2: case AVGV3: case RMSV2: case RMSV3: /*case MULTI:*/ {
       const TF1*const f = h->GetFunction("SymmetryFit"); if(!f) break;
-      p.measure = p.reco + f->GetParameter(0);
-      p.measureErr = f->GetParameter(1);
+      p.measured = std::make_pair<float,float>( p.reco.first + f->GetParameter(0), f->GetParameter(1) );
       p.chi2 = f->GetParameter(2);
       p.ndof = (unsigned) (f->GetParameter(3));
-
       p.entries = 
 	(m&PROB1)         ? (unsigned) book[base+"_w1"]->GetEntries() : 
 	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,0)]->GetEntries() : 
@@ -98,10 +90,10 @@ summarize_ensembles(Book& book) const {
     const std::string name = group.first;
     BOOST_FOREACH(const Result p, group.second) {
       const float pad = (ensembleUp_-ensembleLow_)/10;
-      book.fill( p.reco,       name+"_ensembleReco", 12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
-      book.fill( p.measure,    name+"_measure",      12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
-      book.fill( p.measureErr, name+"_merr",         500, 0, 0.01);
-      book.fill( (p.measure-p.reco)/p.measureErr, name+"_pull", 500, -10,10);
+      book.fill( p.reco.first,      name+"_ensembleReco", 12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
+      book.fill( p.measured.first,  name+"_measure",      12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
+      book.fill( p.measured.second, name+"_merr",         500, 0, 0.01);
+      book.fill( (p.measured.first-p.reco.first)/p.measured.second, name+"_pull", 500, -10,10);
     }
     book[name+"_measure"]->Fit("gaus","LLQ");
     book[name+"_merr"]->Fit("gaus","LLQ");
@@ -121,15 +113,12 @@ ensemble_summary(const Book& book) {
     const TH1*const pull = book[base+"_pull"];
 
     EnsembleSummary s;
+    s.samples = reco->GetEntries();
     s.truth = reco->GetMean();
-    s.meanMeasured = measure->GetFunction("gaus")->GetParameter(1);
-    s.SDmeanMeasured = measure->GetFunction("gaus")->GetParError(1);
-    s.sigmaMeasured = measure->GetFunction("gaus")->GetParameter(2);
-    s.SDsigmaMeasured = measure->GetFunction("gaus")->GetParError(2);
-    s.meanUncertainty = merr->GetFunction("gaus")->GetParameter(1);
-    s.SDmeanUncertainty = merr->GetFunction("gaus")->GetParError(1);
-    s.pull = pull->GetFunction("gaus")->GetParameter(2);
-    s.SDpull = pull->GetFunction("gaus")->GetParError(2);
+    s.meanMeasured = std::make_pair<float,float>( measure->GetFunction("gaus")->GetParameter(1), measure->GetFunction("gaus")->GetParError(1) );
+    s.sigmaMeasured = std::make_pair<float,float>( measure->GetFunction("gaus")->GetParameter(2), measure->GetFunction("gaus")->GetParError(2) );
+    s.meanUncertainty = std::make_pair<float,float>( merr->GetFunction("gaus")->GetParameter(1), merr->GetFunction("gaus")->GetParError(1) );
+    s.pull = std::make_pair<float,float>( pull->GetFunction("gaus")->GetParameter(2), pull->GetFunction("gaus")->GetParError(2) );
 
     const std::string name = boost::regex_replace(base,boost::regex("ensembleBin\\d*_"),"");
     summary[name].push_back(s);
@@ -144,8 +133,8 @@ offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
     BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
       x.push_back(ensemble.truth);
       xerr.push_back(0);
-      y.push_back(ensemble.meanMeasured);
-      yerr.push_back(ensemble.SDmeanMeasured);
+      y.push_back(ensemble.meanMeasured.first);
+      yerr.push_back(ensemble.meanMeasured.second);
     }
     TGraphErrors graph(x.size(),&(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
     graph.Fit("pol1");
@@ -163,8 +152,8 @@ float LA_Filler_Fitter::
 pull(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
   float p(0),w(0);
   BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
-    const float unc2 = pow(ensemble.SDpull,2);
-    p+=  ensemble.pull / unc2;
+    const float unc2 = pow(ensemble.pull.second,2);
+    p+=  ensemble.pull.first / unc2;
     w+= 1/unc2;
   }
   return p/w;
@@ -172,9 +161,9 @@ pull(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
 
 
 std::ostream& operator<<(std::ostream& strm, const LA_Filler_Fitter::Result& r) { 
-  return strm << r.reco    <<"\t"<< r.recoErr <<"\t"
-	      << r.measure <<"\t"<< r.measureErr <<"\t"
-	      << r.calibratedMeasurement <<"\t"<< r.calibratedError <<"\t"
+  return strm << r.reco.first <<"\t"<< r.reco.second <<"\t"
+	      << r.measured.first <<"\t"<< r.measured.second <<"\t"
+	      << r.calMeasured.first <<"\t"<< r.calMeasured.second <<"\t"
 	      << r.field <<"\t"
 	      << r.chi2 <<"\t"
 	      << r.ndof <<"\t"
@@ -183,10 +172,11 @@ std::ostream& operator<<(std::ostream& strm, const LA_Filler_Fitter::Result& r) 
 
 std::ostream& operator<<(std::ostream& strm, const LA_Filler_Fitter::EnsembleSummary& e) { 
   return strm << e.truth <<"\t"
-	      << e.meanMeasured    <<"\t"<< e.SDmeanMeasured <<"\t"
-	      << e.sigmaMeasured   <<"\t"<< e.SDsigmaMeasured <<"\t"
-	      << e.meanUncertainty <<"\t"<< e.SDmeanUncertainty << "\t"
-	      << e.pull            <<"\t"<< e.SDpull;
+	      << e.meanMeasured.first    <<"\t"<< e.meanMeasured.second <<"\t"
+	      << e.sigmaMeasured.first   <<"\t"<< e.sigmaMeasured.second <<"\t"
+	      << e.meanUncertainty.first <<"\t"<< e.meanUncertainty.second << "\t"
+	      << e.pull.first            <<"\t"<< e.pull.second << "\t"
+	      << e.samples;
 }
 
 

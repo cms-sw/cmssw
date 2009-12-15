@@ -16,7 +16,6 @@ store_methods_and_granularity( const edm::VParameterSet& vpset) {
   }
 }
 
-
 MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   inputFiles( conf.getParameter<std::vector<std::string> >("InputFiles") ),
   inFileLocation( conf.getParameter<std::string>("InFileLocation")),
@@ -72,8 +71,8 @@ summarize_module_muH_byLayer() {
       std::string label = LA_Filler_Fitter::layerLabel(result.first) + granularity(MODULESUMMARY) + LA_Filler_Fitter::method(method);
       label = boost::regex_replace(label,boost::regex("layer"),"");
       
-      const double mu_H = fabs( result.second.calibratedMeasurement / result.second.field );
-      const double sigma_mu_H = result.second.calibratedError / result.second.field;
+      const double mu_H = -result.second.calMeasured.first / result.second.field;
+      const double sigma_mu_H = result.second.calMeasured.second / result.second.field;
       const double weight = pow(1./sigma_mu_H, 2);
       
       book.fill(mu_H, label, 150,-0.05,0.1, weight);
@@ -98,6 +97,10 @@ process_reports() const {
     case MODULESUMMARY: write_report_text_ms( name, method); break;
     }
   }
+  
+  { TFile widthsFile("widths.root","RECREATE"); 
+    for(Book::const_iterator it = book.begin(".*_width"); it!=book.end(); it++) if(it->second) it->second->Write();
+    widthsFile.Close();}
 }
 
 void MeasureLA::
@@ -158,10 +161,10 @@ store_calibrations() {
 inline
 void MeasureLA::
 calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method> key, LA_Filler_Fitter::Result& result) const {
-  result.calibratedMeasurement = ( result.measure - offset.find(key)->second ) / slope.find(key)->second ;
-  result.calibratedError = result.measureErr * error_scaling.find(key)->second / slope.find(key)->second ;
+  result.calMeasured = std::make_pair<float,float>( ( result.measured.first - offset.find(key)->second ) / slope.find(key)->second ,
+						    result.measured.second * error_scaling.find(key)->second / slope.find(key)->second );
 }
-
+  
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
 calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) {
   boost::regex format(".*(T[IO]B)_layer(\\d)([as]).*");
