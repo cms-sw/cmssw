@@ -65,6 +65,9 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
   double barrelSeedThreshold = ps.getParameter<double>("IslandBarrelSeedThr");
   double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
 
+  std::vector<int> v_chstatus = ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded");
+
+
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
   providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
@@ -92,7 +95,7 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
   produces< reco::BasicClusterShapeAssociationCollection >(barrelClusterShapeAssociation_);
   produces< reco::BasicClusterShapeAssociationCollection >(endcapClusterShapeAssociation_);
 
-  island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
+  island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold,  v_chstatus, posCalculator_,verbosity);
 
   nEvt_ = 0;
 }
