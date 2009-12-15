@@ -96,6 +96,9 @@ class HybridClusterAlgo
   //algo to calulate position of clusters
   PositionCalc posCalculator_;
 
+  // channels not to be used for seeding 
+  std::vector<int> v_chstatus_; 
+
  public:
    enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
   
@@ -108,12 +111,14 @@ class HybridClusterAlgo
 		    double ethres,
 		    double eseed,
                     double ewing,
+		    std::vector<int> v_chstatus,
                     const PositionCalc& posCalculator,
 //                    bool dynamicPhiRoad = false,
                     DebugLevel debugLevel = pINFO,
 		    bool dynamicEThres = false,
                     double eThresA = 0,
-                    double eThresB = 0.1);
+                    double eThresB = 0.1
+		    );
 //                    const edm::ParameterSet &bremRecoveryPset,
 
   // destructor

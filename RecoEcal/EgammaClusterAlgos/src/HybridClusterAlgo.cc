@@ -14,17 +14,22 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     double ethres,
 				     double eseed,
                                      double ewing,
+				     std::vector<int> v_chstatus,
 				     const PositionCalc& posCalculator,
 //				     bool dynamicPhiRoad,
                                      DebugLevel debugLevel,
 				     bool dynamicEThres,
                                      double eThresA,
-                                     double eThresB) :
-     //                                const edm::ParameterSet &bremRecoveryPset,
+                                     double eThresB
+				     ) :
+//                                   const edm::ParameterSet &bremRecoveryPset,
    eb_st(eb_str), phiSteps_(step), 
    eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
    Eseed(eseed),  Ewing(ewing), 
+   v_chstatus_(v_chstatus),
    dynamicEThres_(dynamicEThres), debugLevel_(debugLevel)
+   
+  
 {
 
   dynamicPhiRoad_ = false;
@@ -32,10 +37,13 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
     //std::cout << "dynamicEThres: " << dynamicEThres_ 
     //          << " : A,B " << eThresA_ << ", " << eThresB_ << std::endl;
   }
+  
+  //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
+  posCalculator_ = posCalculator;
+  topo_ = new EcalBarrelHardcodedTopology();
 
-   //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
-   posCalculator_ = posCalculator;
-   topo_ = new EcalBarrelHardcodedTopology();
+  std::sort( v_chstatus_.begin(), v_chstatus_.end() );
+
 
 }
 
@@ -46,7 +54,6 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 				     bool regional,
 				     const std::vector<EcalEtaPhiRegion>& regions)
 {
-
   //clear vector of seeds
   seeds.clear();
   //clear map of supercluster/basiccluster association
@@ -73,12 +80,13 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
     EcalRecHitCollection::const_iterator it;
 
     for (it = recHits_->begin(); it != recHits_->end(); it++){
-    
+   
       //Make the vector of seeds that we're going to use.
       //One of the few places position is used, needed for ET calculation.    
       const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
       GlobalPoint position = this_cell->getPosition();
       
+
       // Require that RecHit is within clustering region in case
       // of regional reconstruction
       bool withinRegion = false;
@@ -102,7 +110,13 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
         double e_init = makeDomino(navigator, initialdomino);
 	//
         float ET = it->energy() * sin(position.theta());
-	if (ET > eb_st && e_init > Eseed){
+	if (ET > eb_st && e_init > Eseed) {
+
+          // avoid seeding for anomalous channels (recoFlag based)
+          uint32_t rhFlag = (*it).recoFlag();
+          std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
+          if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from seeding
+
 	  seeds.push_back(*it);
 	  if ( debugLevel_ == pDEBUG ){
 	    std::cout << "Seed ET: " << ET << std::endl;
