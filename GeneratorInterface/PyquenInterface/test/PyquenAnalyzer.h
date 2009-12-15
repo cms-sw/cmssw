@@ -1,4 +1,4 @@
-// $Id: PyquenAnalyzer.h,v 1.2 2007/10/05 15:08:48 loizides Exp $
+// $Id: PyquenAnalyzer.h,v 1.3 2007/12/04 03:51:31 mironov Exp $
 
 #ifndef PyquenAnalyzer_H
 #define PyquenAnalyzer_H
@@ -17,7 +17,7 @@ class PyquenAnalyzer : public edm::EDAnalyzer
   virtual ~PyquenAnalyzer() {} 
 
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob(const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
 
  private:

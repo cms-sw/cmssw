@@ -1,4 +1,4 @@
-// $Id: PyquenAnalyzer.cc,v 1.6 2008/02/26 13:18:53 yilmaz Exp $
+// $Id: PyquenAnalyzer.cc,v 1.8 2009/01/09 10:23:13 saout Exp $
 
 #include <iostream>
 
@@ -39,7 +39,7 @@ PyquenAnalyzer::PyquenAnalyzer(const ParameterSet& pset)
 
 
 //_______________________________________________________________________
-void PyquenAnalyzer::beginJob( const EventSetup& )
+void PyquenAnalyzer::beginJob()
 {
   //runs at the begining of the job
   edm::Service<TFileService> fs;
