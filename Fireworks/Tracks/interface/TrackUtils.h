@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.5 2009/12/07 01:09:13 dmytro Exp $
+// $Id: TrackUtils.h,v 1.6 2009/12/10 16:12:54 latb Exp $
 //
 
 // system include files
@@ -15,6 +15,7 @@
 #include "TEveVSDStructs.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
+
 // forward declarations
 namespace reco {
    class Track;
@@ -23,6 +24,9 @@ namespace reco {
 class TEveElement;
 class TEveTrackPropagator;
 class DetId;
+class TGeoHMatrix;
+
+class SiPixelCluster;
 
 namespace fireworks {
    struct State {
@@ -73,8 +77,10 @@ public:
    // monoPoints include pixels (why?)
    void pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t);
    void pushPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t);   
+   void pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t);   
+   void pushPixelCluster(std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c) ; 
    void pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t);
-   void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color);
+   void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color, bool addNearbyClusters);
    void addTrackerHitsEtaPhi(std::vector<TVector3> &points, class TEveElementList *tList,
                              Color_t color, int size);
    void addTrackerHits3D(std::vector<TVector3> &points, class TEveElementList *tList,

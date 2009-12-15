@@ -33,6 +33,7 @@ protected:
    TGLEmbeddedViewer*  m_viewer;
    TEveElementList*    m_modules;
    TEveElementList*    m_moduleLabels;
+   TEveElementList*    m_hits;
    TGSlider*           m_slider;
    FWIntValueListener* m_sliderListener;
   

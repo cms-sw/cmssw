@@ -17,10 +17,17 @@ class TracksRecHitsUtil
 public:
   static void buildTracksRecHits(const FWEventItem* iItem, 
 				 TEveElementList** product,
-				 bool showOnlyModules = true);
+				 bool showHits = true,
+                                 bool showModules = false);
+   static void addModules(const reco::Track& track,
+                       const FWEventItem* iItem,
+                       TEveElement* trkList,
+                       bool addLostHits);
    static void addHits(const reco::Track& track,
                        const FWEventItem* iItem,
-                       TEveElement* trkList);
+                       TEveElement* trkList,
+                       bool addNearbyHits);
+
 };
 
 #endif

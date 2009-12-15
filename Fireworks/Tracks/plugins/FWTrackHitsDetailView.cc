@@ -40,6 +40,7 @@
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
 m_viewer(0),
 m_modules(0),
+m_hits(0),
 m_slider(0),
 m_sliderListener()
 {
@@ -99,15 +100,24 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    scene->AddElement(m_modules);
    m_moduleLabels = new TEveElementList("Modules");
    scene->AddElement(m_moduleLabels);
-   TracksRecHitsUtil::addHits(*track, id.item(), m_modules);
+   TracksRecHitsUtil::addModules(*track, id.item(), m_modules, true);
+   m_hits = new TEveElementList("Hits");
+   scene->AddElement(m_hits);
+   TracksRecHitsUtil::addHits(*track, id.item(), m_hits, true);
    for (TEveElement::List_i i=m_modules->BeginChildren(); i!=m_modules->EndChildren(); ++i)
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
-      gs->SetMainColor(kBlue);
+      if (gs == 0 && (*i != 0)) {
+        std::cerr << "Got a " << typeid(**i).name() << ", expecting TEveGeoShape. ignoring (it must be the clusters)." << std::endl;
+        continue;
+      }
       gs->SetMainTransparency(75);
       gs->SetPickable(kFALSE);
 
       TString name = gs->GetElementTitle();
+      if (!name.Contains("BAD") && !name.Contains("INACTIVE") && !name.Contains("LOST")) {
+          gs->SetMainColor(kBlue);
+      }
       TEveText* text = new TEveText(name.Data());
       text->PtrMainTrans()->SetFrom(gs->RefMainTrans().Array());
       text->SetFontMode(TGLFont::kPixmap);
@@ -139,17 +149,18 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    prop->SetRnrFV(kTRUE);
    scene->AddElement(trk);
 
+
 // -- add PixelHits
 //LatB
-   std::vector<TVector3> pixelPoints;
-   fireworks::pushPixelHits(pixelPoints, *id.item(), *track);
-   TEveElementList* list = new TEveElementList("PixelHits");
-   fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
-   scene->AddElement(list);
+//    std::vector<TVector3> pixelPoints;
+//    fireworks::pushPixelHits(pixelPoints, *id.item(), *track);
+//    TEveElementList* list = new TEveElementList("PixelHits");
+//    fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
+//    scene->AddElement(list);
 	
-   list = new TEveElementList("SiStripClusterHits");
-	fireworks::addSiStripClusters(id.item(), *track, list, kRed);
-   scene->AddElement(list);
+//    list = new TEveElementList("SiStripClusterHits");
+// 	fireworks::addSiStripClusters(id.item(), *track, list, kRed);
+//    scene->AddElement(list);
 //LatB
 
    scene->Repaint(true);

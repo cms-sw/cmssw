@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixel3DProxyBuilder.cc,v 1.4 2009/12/10 16:13:08 latb Exp $
+// $Id: FWSiPixel3DProxyBuilder.cc,v 1.5 2009/12/11 08:02:51 latb Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 
 class FWSiPixel3DProxyBuilder : public FW3DDataProxyBuilder
 {
@@ -47,16 +48,20 @@ private:
    const FWSiPixel3DProxyBuilder& operator=(const FWSiPixel3DProxyBuilder&);    // stop default
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
    void applyChangesToAllModels(TEveElement* iElements);
+
+protected:
+   enum Mode { Clusters, Modules };
+   virtual Mode getMode() { return Clusters; }
 };
 
 void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
-
+   Color_t color = iItem->defaultDisplayProperties().color();
    if(0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"SiPixelCluster",true);
       *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
+      tList->SetMainColor(color);
       gEve->AddElement(tList);
    } else {
       tList->DestroyElements();
@@ -73,6 +78,7 @@ void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
       char title[bufSize];
       char name[bufSize];
       unsigned int id = set->detId();
+      DetId detid(id);
       snprintf(name,  bufSize,"module%d",index);
       snprintf(title, bufSize,"Module %d",id);
       TEveCompound* list = new TEveCompound(name, title);
@@ -83,21 +89,31 @@ void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
       list->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
       if (iItem->getGeom()) {
-         // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
-         TEveGeoShape* shape = iItem->getGeom()->getShape( id );
-         if(0!=shape) {
-            shape->SetMainTransparency(50);
-            shape->SetMainColor( iItem->defaultDisplayProperties().color() );
-            shape->SetPickable(true);
-            list->AddElement(shape);
-         }
+          Mode m = getMode();
+          if (m == Clusters) {
+             const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
+             std::vector<TVector3> pixelPoints;
+             const edmNew::DetSet<SiPixelCluster> & clusters = *set;
+             for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); itc != edc; ++itc) {
+                 fireworks::pushPixelCluster(pixelPoints, matrix, detid, *itc);
+             }
+             fireworks::addTrackerHits3D(pixelPoints, list, color, 1);
+          } else if (m == Modules) {
+             TEveGeoShape* shape = iItem->getGeom()->getShape( id );
+             if(0!=shape) {
+                shape->SetMainTransparency(50);
+                shape->SetMainColor( iItem->defaultDisplayProperties().color() );
+                shape->SetPickable(true);
+                list->AddElement(shape);
+             }
+          }
 
       }
 
       gEve->AddElement(list,tList);
 /////////////////////////////////////////////////////	   
 //LatB
-	   static int C2D=1;
+	   static int C2D=0;
 	   static int PRINT=0;
 	   if (C2D) {
 			if (PRINT) std::cout<<"SiPixelCluster  "<<index<<", "<<title<<std::endl;
@@ -138,4 +154,14 @@ FWSiPixel3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
+class FWSiPixelMod3DProxyBuilder : public FWSiPixel3DProxyBuilder {
+public:
+   FWSiPixelMod3DProxyBuilder() {}
+    ~FWSiPixelMod3DProxyBuilder() {}
+   REGISTER_PROXYBUILDER_METHODS();
+protected:
+    virtual Mode getMode() { return Modules; }
+};
+
 REGISTER_FW3DDATAPROXYBUILDER(FWSiPixel3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");
+REGISTER_FW3DDATAPROXYBUILDER(FWSiPixelMod3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets");

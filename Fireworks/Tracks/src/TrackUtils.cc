@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.9 2009/12/11 08:02:52 latb Exp $
+// $Id: TrackUtils.cc,v 1.10 2009/12/11 13:31:52 dmytro Exp $
 //
 
 // system include files
@@ -513,11 +513,21 @@ namespace fireworks {
 		return;
 	}
 	
-	void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color) {
+   void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color, bool addNearbyClusters) {
       const char* title = "TrackHits";
+      const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
+      if (addNearbyClusters) {
+      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+            if (typeid(**it) == typeid(SiStripRecHit2D)) {
+               const SiStripRecHit2D &hit = static_cast<const SiStripRecHit2D &>(**it);
+               if (hit.cluster().isNonnull() && hit.cluster().isAvailable()) { allClusters = hit.cluster().product(); break; }
+            }
+         }
+      }
+
       for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
 
-// -- get ring number (position of module in rho)			
+         // -- get ring number (position of module in rho)
 			DetId id = (*it)->geographicalId();
 			int rNumber = 0;
          unsigned int subdet = (unsigned int)id.subdetId();
@@ -559,6 +569,21 @@ namespace fireworks {
 					if (PRINT) std::cout << " no cluster found!";
             
             if (Cluster) {
+               if (allClusters != 0) {
+                  const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = (*allClusters)[rh->geographicalId().rawId()];
+                  //if (clustersOnThisDet.size() > 1) std::cout << "DRAWING EXTRA CLUSTERS: N = " << clustersOnThisDet.size() << std::endl;
+                  for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
+                     double bc = itc->barycenter();
+                     TVector3 point, pointA, pointB;
+                     localSiStrip(point, pointA, pointB, bc, id, iItem);
+                     if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+                     TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+                     scposition->SetDepthTest(false);
+                     scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+                     scposition->SetLineColor(&*itc == Cluster ? kGreen : kRed);
+                     tList->AddElement(scposition);
+                  }
+               } else {
                double bc = Cluster->barycenter();
 					TVector3 point, pointA, pointB; 
 					localSiStrip(point, pointA, pointB, bc, id, iItem);
@@ -568,9 +593,29 @@ namespace fireworks {
 					scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
 					scposition->SetLineColor(color);
 					tList->AddElement(scposition);
+               }
 
 				
 				}					
+         } else if (!rh->isValid() && (id.rawId() != 0)) {    // lost hit
+            if (allClusters != 0) {
+               edmNew::DetSetVector<SiStripCluster>::const_iterator itds = allClusters->find(id.rawId());
+               if (itds != allClusters->end()) {
+                  const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = *itds;
+                  //if (clustersOnThisDet.size() > 0) std::cout << "DRAWING LOST HITS CLUSTERS: N = " << clustersOnThisDet.size() << std::endl;
+                  for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
+                     double bc = itc->barycenter();
+                     TVector3 point, pointA, pointB;
+                     localSiStrip(point, pointA, pointB, bc, id, iItem);
+                     if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+                     TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+                     scposition->SetDepthTest(false);
+                     scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+                     scposition->SetLineColor(kRed);
+                     tList->AddElement(scposition);
+                  }
+               }
+            }
 			}				
 		}
 			
@@ -839,6 +884,48 @@ namespace fireworks {
    }
 
 	void
+   pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t) {
+      const edmNew::DetSetVector<SiPixelCluster> * allClusters = 0;
+      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+         if (typeid(**it) == typeid(SiPixelRecHit)) {
+            const SiPixelRecHit &hit = static_cast<const SiPixelRecHit &>(**it);
+            if (hit.cluster().isNonnull() && hit.cluster().isAvailable()) { allClusters = hit.cluster().product(); break; }
+         }
+      }
+      if (allClusters == 0) return;
+
+      const DetIdToMatrix *detIdToGeo = iItem.getGeom();
+
+      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+         const TrackingRecHit* rh = &**it;
+
+         DetId id = (*it)->geographicalId();
+         const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+         // -- assert(m != 0);
+         if (m == 0) {
+            if (PRINT) std::cout << "can't find Matrix" << std::endl;
+            continue;
+         }
+
+         // -- in which detector are we?
+         unsigned int subdet = (unsigned int)id.subdetId();
+         if ((subdet != PixelSubdetector::PixelBarrel) && (subdet != PixelSubdetector::PixelEndcap)) continue;
+
+         const SiPixelCluster *hitCluster = 0;
+         const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>(rh);
+         if (pixel != 0) hitCluster = pixel->cluster().get();
+         edmNew::DetSetVector<SiPixelCluster>::const_iterator itds = allClusters->find(id.rawId());
+         if (itds != allClusters->end()) {
+            const edmNew::DetSet<SiPixelCluster> & clustersOnThisDet = *itds;
+            //if (clustersOnThisDet.size() > (hitCluster != 0)) std::cout << "DRAWING EXTRA CLUSTERS: N = " << (clustersOnThisDet.size() - (hitCluster != 0))<< std::endl;
+            for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
+               if (&*itc != hitCluster) pushPixelCluster(pixelPoints, m, id, *itc);
+            }
+         }
+      }
+   }
+
+   void
 	pushPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t) {
 		
 		/*
@@ -889,6 +976,13 @@ namespace fireworks {
 					continue;
 				}
 				const SiPixelCluster& c = *(pixel->cluster());
+            pushPixelCluster(pixelPoints, m, id, c);
+         } else
+            return;         // return if any non-Pixel DetID shows up
+      }
+   }
+   void
+   pushPixelCluster(std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c) {
 				double row = c.minPixelRow();
 				double col = c.minPixelCol();
 				double lx = 0.;
@@ -909,9 +1003,6 @@ namespace fireworks {
 				
 				if (PRINT) std::cout << std::endl;
 				
-			} else
-				return; // return if any non-Pixel DetID shows up
-		}
 	}
 	
 	void
