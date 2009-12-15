@@ -13,7 +13,7 @@ from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import *
 makeAllLayer1Electrons = cms.Sequence(
     # reco pre-production
     # patElectronId *
-    patElectronIsolation *
+    # patElectronIsolation *
     # pat specifics
     electronMatch *
     # object production
