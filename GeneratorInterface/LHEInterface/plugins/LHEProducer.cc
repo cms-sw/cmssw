@@ -36,7 +36,7 @@ class LHEProducer : public edm::EDFilter {
 	virtual ~LHEProducer();
 
     protected:
-	virtual void beginJob(const edm::EventSetup &es);
+  virtual void beginJob();
 	virtual void endJob();
 	virtual bool beginRun(edm::Run &run, const edm::EventSetup &es);
 	virtual bool endRun(edm::Run &run, const edm::EventSetup &es);
@@ -125,7 +125,7 @@ LHEProducer::~LHEProducer()
 {
 }
 
-void LHEProducer::beginJob(const edm::EventSetup &es)
+void LHEProducer::beginJob()
 {
 	hadronisation->init();
 }
