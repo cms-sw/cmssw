@@ -200,7 +200,7 @@ namespace edm {
 
   EventPrincipal*
   PoolSource::readIt(EventID const& id) {
-    primaryFileSequence_->skipToItem(id.run(), 0U, id.event(), false, true);
+    primaryFileSequence_->skipToItem(id.run(), id.luminosityBlock(), id.event(), false, true);
     return readEvent_();
   }
 
