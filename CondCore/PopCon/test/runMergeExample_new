@@ -21,6 +21,14 @@ cmsRun PopCon.py sinceTime=25 numberObj=1
 echo "success in populate pop_test1.db with 25"  
 cmsRun PopCon.py outOfOrder=1 sinceTime=25 numberObj=1
 
+echo "populate pop_test.db with 0,20,21,22,25,26 in closeIOV mode"  
+cmsRun PopCon.py closeIOV=1 sinceTime=0 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=20 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=21 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=22 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=25 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+cmsRun PopCon.py closeIOV=1 sinceTime=26 numberObj=1 connect='sqlite_file:pop_test.db'  tag='CloseIOV'
+
 
 
 echo "populate pop_test2.db with 42"
@@ -37,6 +45,7 @@ cmscond_list_iov -c sqlite_file:pop_test2.db -a
 
 echo "get iov details"
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
+cmscond_list_iov -c sqlite_file:pop_test.db -t  CloseIOV -s -v
 cmscond_list_iov -c sqlite_file:pop_test1.db -t Example_tag -s -v
 cmscond_list_iov -c sqlite_file:pop_test2.db -t Example_tag -s -v
 cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag2 -s -v

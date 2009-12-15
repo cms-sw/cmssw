@@ -15,6 +15,11 @@ options.register('outOfOrder',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "append out of order")
+options.register('closeIOV',
+                 False, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "close the IOV sequence at the last inserted since time")
 options.register('tag',
                  'Example_tag', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -53,6 +58,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             process.CondDBCommon,
+            closeIOV =  cms.untracked.bool(bool(options.closeIOV)),
             withWrapper = cms.untracked.bool(True),
             outOfOrder = cms.untracked.bool(bool(options.outOfOrder)),
             timetype = cms.untracked.string('runnumber'),
