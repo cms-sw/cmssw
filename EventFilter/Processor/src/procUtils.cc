@@ -124,12 +124,12 @@ namespace evf{
     void readstr(char *x) {  fscanf(input, "%s ", x);}
     void readchar(char *x) {  fscanf(input, "%c ", x);}
     
-    void printone(char *name, num x) {  sprintf(obuf,"%20s: %lld\n", name, x);}
-    void printonex(char *name, num x) {  sprintf(obuf,"%20s: %016llx\n", name, x);}
-    void printunsigned(char *name, unsigned long long x) {  sprintf(obuf,"%20s: %llu\n", name, x);}
-    void printchar(char *name, char x) {  sprintf(obuf,"%20s: %c\n", name, x);}
-    void printstr(char *name, char *x) {  sprintf(obuf,"%20s: %s\n", name, x);}
-    void printtime(char *name, num x) {  sprintf(obuf,"%20s: %f\n", name, (((double)x) / tickspersec));}
+    void printone(const char *name, num x) {  sprintf(obuf,"%20s: %lld\n", name, x);}
+    void printonex(const char *name, num x) {  sprintf(obuf,"%20s: %016llx\n", name, x);}
+    void printunsigned(const char *name, unsigned long long x) {  sprintf(obuf,"%20s: %llu\n", name, x);}
+    void printchar(const char *name, char x) {  sprintf(obuf,"%20s: %c\n", name, x);}
+    void printstr(const char *name, char *x) {  sprintf(obuf,"%20s: %s\n", name, x);}
+    void printtime(const char *name, num x) {  sprintf(obuf,"%20s: %f\n", name, (((double)x) / tickspersec));}
     
     int gettimesinceboot() {
       FILE *procuptime;
@@ -141,7 +141,7 @@ namespace evf{
       return (sec*tickspersec)+ssec;
     }
 
-    void printtimediff(char *name, num x) {
+    void printtimediff(const char *name, num x) {
       int sinceboot = gettimesinceboot();
       int running = sinceboot - x;
       time_t rt = time(NULL) - (running / tickspersec);
