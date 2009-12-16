@@ -7,21 +7,20 @@
  Description: Validation for Isolated tracks Calibration
  
  Implementation:
-See my page on twiki:
-https://twiki.cern.ch/twiki/bin/view/Sandbox/ValidIsoTrkCalib
+See the twiki page for details:
+https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 
 */
 
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.3 2009/08/28 16:08:45 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.4 2009/10/23 15:35:10 andrey Exp $
 //
 
 // system include files
 
 #include <memory>
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,6 +46,8 @@ https://twiki.cern.ch/twiki/bin/view/Sandbox/ValidIsoTrkCalib
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -63,16 +64,17 @@ class ValidIsoTrkCalib : public edm::EDAnalyzer {
 public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
   ~ValidIsoTrkCalib();
- 
-double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
-  
+
+  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
+
 private:
+
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
- 
-  
+
+    
   // ----------member data ---------------------------
   
   //Variables from HcalIsotrackAnalyzer
@@ -101,16 +103,17 @@ private:
 
   bool allowMissingInputs_;
   string outputFileName_;
-  string calibFactorsFileName_;
+  //string calibFactorsFileName_;
   //  string corrfile;
   
-  bool takeAllRecHits_, takeGenTracks_;
+  bool takeGenTracks_;
+  //bool takeAllRecHits_, takeGenTracks_;
   int gen, iso, pix;
   float genPt[500], genPhi[500], genEta[500];
   float isoPt[500], isoPhi[500], isoEta[500];
   float pixPt[500], pixPhi[500], pixEta[500];
-  int  hbheiEta[5000],hbheiPhi[5000],hbheDepth[5000];	 
-  float hbheEnergy[5000];  
+  //int  hbheiEta[5000],hbheiPhi[5000],hbheDepth[5000];	 
+  //float hbheEnergy[5000];  
 
 
   int NisoTrk;
@@ -139,7 +142,6 @@ private:
   Float_t yTrkHcal;
   Float_t zTrkHcal;
 
-
   int Nhits;
   float eClustBefore;  //Calo energy before calibration
   float eClustAfter;   //After calibration
@@ -165,7 +167,6 @@ private:
   int dietatr;
   int diphitr;
 
-
   float iTime;
   float HTime[100];
   float e3x3Before;
@@ -177,8 +178,9 @@ private:
   float PtNearBy;
   float numVH, numVS, numValidTrkHits, numValidTrkStrips;
 
-  map<UInt_t, Float_t> CalibFactors; 
-  Bool_t ReadCalibFactors(string);
+  const HcalRespCorrs* respRecalib;
+ //  map<UInt_t, Float_t> CalibFactors; 
+  //  Bool_t ReadCalibFactors(string);
 
   
 };
@@ -231,7 +233,7 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   
 {
 
-  takeAllRecHits_=iConfig.getUntrackedParameter<bool>("takeAllRecHits");
+  //takeAllRecHits_=iConfig.getUntrackedParameter<bool>("takeAllRecHits");
   takeGenTracks_=iConfig.getUntrackedParameter<bool>("takeGenTracks");
 
   genTracksLabel_ = iConfig.getParameter<edm::InputTag>("genTracksLabel");
@@ -250,7 +252,7 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");
   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("allowMissingInputs", true);
   outputFileName_=iConfig.getParameter<std::string>("outputFileName");
-  calibFactorsFileName_=iConfig.getParameter<std::string>("calibFactorsFileName");
+  //  calibFactorsFileName_=iConfig.getParameter<std::string>("calibFactorsFileName");
 
 
   AxB_=iConfig.getParameter<std::string>("AxB");
@@ -310,10 +312,11 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(hbheLabel_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-
+  /*
   edm::Handle<HBHERecHitCollection> genhbhe;
   iEvent.getByLabel(genhbheLabel_,genhbhe);
   const HBHERecHitCollection genHithbhe = *(genhbhe.product());
+  */
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
@@ -375,6 +378,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
     }
 
+  /*
   if(takeAllRecHits_ && iEvent.id().event()%500==1)
     {
       Nhits=0;
@@ -388,7 +392,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  
 	}
     }    
-  
+  */  
   tTree -> Fill();
 
 if (pixelTracks->size()==0) return;
@@ -642,12 +646,14 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 		  
 		  
 		  float factor = 0.0;	  
-		  factor = CalibFactors[hhit->id()];
+		  // factor = CalibFactors[hhit->id()];
+		  factor = respRecalib -> getValues(hhit->id())->getValue();
+
 		  
 		  
 		  //if(i<5){cout<<" calib factors: "<<factor<<"  ij "<<100*i+j<<endl;}
 		  
-		  if (hhit->id().ieta() == MaxHit.ietahitm && hhit->id().iphi() == MaxHit.iphihitm) CentHitFactor=CalibFactors[hhit->id()];	  
+		  if (hhit->id().ieta() == MaxHit.ietahitm && hhit->id().iphi() == MaxHit.iphihitm) CentHitFactor=factor;	  
 		  
 		  if (hhit->id().ieta() == MaxHit.ietahitm && hhit->id().iphi() == MaxHit.iphihitm) iTime = hhit->time();	  
 		  
@@ -803,13 +809,24 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ValidIsoTrkCalib::beginJob(const edm::EventSetup&)
+ValidIsoTrkCalib::beginJob(const edm::EventSetup& iSetup)
 {
 
- if(!ReadCalibFactors(calibFactorsFileName_.c_str() )) {cout<<"Cant read file with cailib coefficients!! ---"<<endl;}
+  // if(!ReadCalibFactors(calibFactorsFileName_.c_str() )) {cout<<"Cant read file with cailib coefficients!! ---"<<endl;}
+
+ try{   
+   edm::ESHandle <HcalRespCorrs> recalibCorrs;
+   iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
+   respRecalib = recalibCorrs.product();
+
+   LogInfo("CalibConstants")<<"  Loaded:  OK ";
+   
+ }catch(const cms::Exception & e) {
+   LogWarning("CalibConstants")<<"   Not Found!! ";
+ }
+ 
 
   rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
   
@@ -831,6 +848,7 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup&)
     tTree->Branch("pixPhi", pixPhi, "pixPhi[pix]/F");
     tTree->Branch("pixEta", pixEta, "pixEta[pix]/F");
   }
+  /*
   if(takeAllRecHits_) {
     tTree->Branch("Nhits", &Nhits, "Nhits/I");
     tTree->Branch("hbheiEta", hbheiEta, "hbheiEta[Nhits]/I");
@@ -838,6 +856,7 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup&)
     tTree->Branch("hbheDepth", hbheDepth, "hbheDepth[Nhits]/I");
     tTree->Branch("hbheEnergy", hbheEnergy, "hbheEnergy[Nhits]/F");
   }
+  */
 
   fTree = new TTree("fTree", "Tree for IsoTrack Calibration"); 
   
@@ -890,6 +909,8 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup&)
 
 }
 
+
+
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ValidIsoTrkCalib::endJob() 
@@ -901,6 +922,7 @@ ValidIsoTrkCalib::endJob()
 
 
 //Bool_t ValidIsoTrkCalib::ReadCalibFactors(map<UInt_t, Float_t> CalibFactorsMap, string FileName) {
+/*
 
  Bool_t ValidIsoTrkCalib::ReadCalibFactors(string FileName) {
 
@@ -973,7 +995,7 @@ ValidIsoTrkCalib::endJob()
 
   return kTRUE;
 }
-
+*/
 
 
 
