@@ -2,6 +2,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include <TList.h>
+#include <TObjString.h>
+
 tnp::ProbeVariable::~ProbeVariable() {}
 
 tnp::ProbeFlag::~ProbeFlag() {}
@@ -104,3 +107,7 @@ void tnp::BaseTreeFiller::fill(const reco::CandidateBaseRef &probe) const {
     tree_->Fill();
 }
 
+void tnp::BaseTreeFiller::writeProvenance(const edm::ParameterSet &pset) const {
+    TList *list = tree_->GetUserInfo();
+    list->Add(new TObjString(pset.dump().c_str()));
+}

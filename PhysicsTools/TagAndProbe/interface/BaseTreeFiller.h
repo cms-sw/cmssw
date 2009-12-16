@@ -141,6 +141,9 @@ class BaseTreeFiller : boost::noncopyable {
         /// To be called once per probe, to fill the values for this probe
         void fill(const reco::CandidateBaseRef &probe) const ;
 
+        /// Write a string dump of this PSet into the TTree header.
+        /// see macro in test directory for how to retrieve it from the output root file
+        void writeProvenance(const edm::ParameterSet &pset) const ;
     protected:
         std::vector<ProbeVariable> vars_;
         std::vector<ProbeFlag>     flags_;

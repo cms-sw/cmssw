@@ -13,7 +13,7 @@
 //
 // Original Author:  Sep 15 09:45
 //         Created:  Mon Sep 15 09:49:08 CEST 2008
-// $Id: TagProbeFitTreeProducer.cc,v 1.6 2009/09/30 14:03:36 gpetrucc Exp $
+// $Id: TagProbeFitTreeProducer.cc,v 1.1 2009/12/15 22:45:12 gpetrucc Exp $
 //
 //
 
@@ -41,6 +41,8 @@
 #include "PhysicsTools/TagAndProbe/interface/TagProbePairMaker.h"
 
 #include <set>
+
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 //
 // class decleration
@@ -186,6 +188,8 @@ TagProbeFitTreeProducer::checkMother(const reco::GenParticleRef &ref) const {
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TagProbeFitTreeProducer::endJob() {
+    // ask to write the current PSet info into the TTree header
+    treeFiller_->writeProvenance(edm::getProcessParameterSet());
 }
 
 //define this as a plug-in
