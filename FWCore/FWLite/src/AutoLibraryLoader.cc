@@ -114,5 +114,3 @@ AutoLibraryLoader::loadAll()
   edm::RootAutoLibraryLoader::loadAll();
 }
 
-
-ClassImp(AutoLibraryLoader)

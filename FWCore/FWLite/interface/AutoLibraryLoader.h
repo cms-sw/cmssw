@@ -7,17 +7,14 @@
  *
  * \author Chris Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.1 2007/03/04 05:25:00 wmtan Exp $
+ * $Id: AutoLibraryLoader.h,v 1.2 2008/06/12 22:17:22 dsr Exp $
  *
  */
-#include "TObject.h"
 class DummyClassToStopCompilerWarning;
 
-class AutoLibraryLoader: public TObject {
+class AutoLibraryLoader {
   friend class DummyClassToStopCompilerWarning;
 public:
-  /// interface for TClass generators
-  ClassDef(AutoLibraryLoader,2);
   /// enable automatic library loading  
   static void enable();
   
