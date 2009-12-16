@@ -5,13 +5,9 @@
 <use name="FWCore/Framework">
 <use name="FWCore/MessageLogger">
 <use name="FWCore/Utilities">
-<use name="Geometry/CSCGeometry">
 <use name="Geometry/CommonDetUnit">
-<use name="Geometry/DTGeometry">
-<use name="Geometry/RPCGeometry">
 <use name="TrackingTools/DetLayers">
 <use name="TrackingTools/GeomPropagators">
-<use name="TrackingTools/PatternTools">
 <use name="Utilities/BinningTools">
 <use name="Utilities/General">
 <export>
@@ -22,13 +18,9 @@
   <use name="FWCore/Framework">
   <use name="FWCore/MessageLogger">
   <use name="FWCore/Utilities">
-  <use name="Geometry/CSCGeometry">
   <use name="Geometry/CommonDetUnit">
-  <use name="Geometry/DTGeometry">
-  <use name="Geometry/RPCGeometry">
   <use name="TrackingTools/DetLayers">
   <use name="TrackingTools/GeomPropagators">
-  <use name="TrackingTools/PatternTools">
   <use name="Utilities/BinningTools">
   <use name="Utilities/General">
   <lib name="RecoMuonDetLayers">
