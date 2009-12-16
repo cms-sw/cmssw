@@ -7,8 +7,6 @@ import FWCore.ParameterSet.Config as cms
 
 chunkNumber = 0
 
-
-
 def processFiles( regexp, files ):
     
     global chunkNumber
