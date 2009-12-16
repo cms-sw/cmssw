@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/15 16:25:23 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/12/16 10:17:44 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -47,8 +47,8 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
    using namespace std;
    using namespace edm;
 
-   LogInfo("HLTConfigProvider") << "Called with processName '"
-				<< processName << "'." << endl;
+   LogDebug("HLTConfigProvider") << "Called with processName '"
+				 << processName << "'." << endl;
 
    ParameterSet eventPSet;
    if (iEvent.getProcessParameterSet(processName,eventPSet)) {
@@ -56,12 +56,13 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
        clear();
        processName_  =processName;
        processPSet_  =eventPSet;
-       LogInfo("HLTConfigProvider") << "New ProcessPSet!";
-       LogInfo("HLTConfigProvider") << processPSet_;
+       LogDebug("HLTConfigProvider") << "New ProcessPSet!";
+       LogDebug("HLTConfigProvider") << processPSet_;
        extract();
      }
      return true;
    } else {
+     clear();
      LogError("HLTConfigProvider")
        << "Event ProcessPSet not found for processName '"
        << processName <<"'!";
@@ -79,8 +80,8 @@ bool HLTConfigProvider::init(const std::string& processName)
      << " Called with deprecated init(processName) method - "
      << " Must call init(iEvent,processName) each event!";
 
-   LogInfo("HLTConfigProvider") << "Called with processName '"
-				<< processName << "'." << endl;
+   LogDebug("HLTConfigProvider") << "Called with processName '"
+				 << processName << "'." << endl;
 
    // initialise
    clear();
@@ -102,8 +103,8 @@ bool HLTConfigProvider::init(const std::string& processName)
      }
    }
 
-   LogInfo("HLTConfigProvider") << "Unordered list of process names found: "
-				<< pNames << "." << endl;
+   LogDebug("HLTConfigProvider") << "Unordered list of process names found: "
+				 << pNames << "." << endl;
 
    if (nPSets==0) {
      LogError("HLTConfigProvider") << " Process name '"
@@ -137,8 +138,8 @@ bool HLTConfigProvider::init(const std::string& processName)
    processName_=processName;
    processPSet_=pset;
    extract();
-   LogInfo("HLTConfigProvider") << "ProcessPSet:";
-   LogInfo("HLTConfigProvider") << processPSet_;
+   LogDebug("HLTConfigProvider") << "ProcessPSet:";
+   LogDebug("HLTConfigProvider") << processPSet_;
 
    return true;
 
