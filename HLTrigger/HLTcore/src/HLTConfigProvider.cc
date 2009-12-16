@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/16 10:29:41 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/12/16 11:03:00 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -80,9 +80,10 @@ bool HLTConfigProvider::init(const std::string& processName)
    using namespace std;
    using namespace edm;
 
-   LogError("HLTConfigProvider")
-     << " Called with deprecated init(processName) method - "
-     << " Must call init(iEvent,processName) each event!";
+   LogWarning("HLTConfigProvider")
+     << " This 1-parameter init method fails (returns false) when processing"
+     << " file(s) containing events accepted by different HLT tables - "
+     << " for such cases use the 3-parameter init method called each event!";
 
    LogDebug("HLTConfigProvider") << "Called with processName '"
 				 << processName << "'." << endl;
