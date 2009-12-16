@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/16 10:17:44 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/12/16 10:29:41 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -42,7 +42,7 @@ void HLTConfigProvider::clear()
 
 }
 
-bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& processName)
+bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& processName, bool& changed)
 {
    using namespace std;
    using namespace edm;
@@ -52,13 +52,16 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
 
    ParameterSet eventPSet;
    if (iEvent.getProcessParameterSet(processName,eventPSet)) {
-     if ( processPSet_!=eventPSet ) {
+     if ( processPSet_==eventPSet ) {
+       changed=false;
+     } else { 
        clear();
        processName_  =processName;
        processPSet_  =eventPSet;
        LogDebug("HLTConfigProvider") << "New ProcessPSet!";
        LogDebug("HLTConfigProvider") << processPSet_;
        extract();
+       changed=true;
      }
      return true;
    } else {
@@ -66,6 +69,7 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
      LogError("HLTConfigProvider")
        << "Event ProcessPSet not found for processName '"
        << processName <<"'!";
+     changed=true;
      return false;
    }
 

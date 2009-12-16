@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2009/12/15 16:25:24 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/12/16 10:17:44 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,7 @@ class HLTConfigProvider {
 
   /// init for every Event!
   bool init(const std::string& processName); // <<== deprecated!
-  bool init(const edm::Event& iEvent, const std::string& processName);
+  bool init(const edm::Event& iEvent, const std::string& processName, bool& changed);
   /// clear data members - called by init() methods, not by user!
   void clear();
   /// extract information into data members - called by init() methods
