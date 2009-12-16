@@ -4,7 +4,7 @@
 //Author: Pascal Paganini - LLR
 //Date: 2006/07/10 15:58:06 $
 
-#define CMSSW_VERSION 325
+#define CMSSW_VERSION 340
 
 
 // system include files
