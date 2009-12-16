@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2009/12/15 11:25:55 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/12/15 16:25:24 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -29,12 +29,11 @@ class HLTConfigProvider {
   
  public:
 
+  /// init for every Event!
+  bool init(const std::string& processName); // <<== deprecated!
+  bool init(const edm::Event& iEvent, const std::string& processName);
   /// clear data members - called by init() methods, not by user!
   void clear();
-  /// init everytime the HLT config changes (eg, beginRun)
-  bool init(const std::string& processName);
-  bool init(const edm::Run& iRun, const std::string& processName);
-  bool init(const edm::Event& iEvent, const std::string& processName);
   /// extract information into data members - called by init() methods
   void extract();
 
@@ -71,10 +70,14 @@ class HLTConfigProvider {
   /// C++ class name of module
   const std::string moduleType(const std::string& module) const;
 
+  /// ParameterSet of process
+  const edm::ParameterSet& processPSet() const;
+
   /// ParameterSet of module
   const edm::ParameterSet modulePSet(const std::string& module) const;
 
 
+  /*  Not useable: PrescaleService configuration is not saved in Provenance
   /// PrescaleService accessors
 
   /// Available prescale column labels
@@ -97,12 +100,11 @@ class HLTConfigProvider {
 
   /// Prescale value for given trigger and prescale label
   unsigned int prescaleValue(const std::string& trigger, const std::string& label) const;
-
+  */
 
   /// c'tor
   HLTConfigProvider():
-    processName_(""), registry_(),
-    ProcessPSetID_(), ProcessPSet_(), ProcessVPSet_(),
+    processName_(""), registry_(), processPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
     pathNames_(), endpathNames_(),
@@ -114,9 +116,7 @@ class HLTConfigProvider {
 
   const edm::pset::Registry * registry_;
 
-  edm::ParameterSetID ProcessPSetID_;
-  edm::ParameterSet ProcessPSet_;
-  edm::VParameterSet ProcessVPSet_;
+  edm::ParameterSet processPSet_;
 
   std::string tableName_;
   std::vector<std::string> triggerNames_;
