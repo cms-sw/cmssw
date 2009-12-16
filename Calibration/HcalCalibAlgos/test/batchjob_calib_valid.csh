@@ -29,6 +29,7 @@ process = cms.Process("Validator")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "IDEAL_31X::All"
 process.GlobalTag.globaltag = "MC_31X_V5::All"
+process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 process.load("Configuration.StandardSequences.Generator_cff")
@@ -48,11 +49,17 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(5000)
 
 process.load("Calibration.HcalCalibAlgos.calib_validator_cfi")
 process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_XX.root")
-process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt")
 process.ValidationIsoTrk.AxB = cms.string("Cone")
 #process.ValidationIsoTrk.AxB = cms.string("3x3")
-process.ValidationIsoTrk.calibrationConeSize = cms.double(26)
-process.ValidationIsoTrk.takeAllRecHits = cms.untracked.bool(False)
+process.ValidationIsoTrk.calibrationConeSize = cms.double(26.2)
+process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
+ appendToDataLabel = cms.string('recalibrate'),
+  input = cms.VPSet(
+  cms.PSet(object = cms.string('RespCorrs'),
+    file = cms.FileInPath('Calibration/HcalCalibAlgos/data/response_corrections.txt')
+          ),
+   )
+)
 
 #process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_10_${1}.root")
 process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_50_${1}.root")
