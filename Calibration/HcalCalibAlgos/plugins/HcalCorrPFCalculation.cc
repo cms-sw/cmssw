@@ -49,13 +49,9 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void endJob() ;
  private:
-
-  // virtual void fillRecHitsTmp(int subdet_, edm::Event const& ev);
-  //double dR(double eta1, double phi1, double eta2, double phi2);
-  //double phi12(double phi1, double en1, double phi2, double en2);
-  //double dPhiWsign(double phi1,double phi2);
-
-double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
+  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
+  
+  double RecalibFactor(HcalDetId id);
 
  std::string outputFile_;
   std::string hcalselector_;
@@ -71,17 +67,14 @@ double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechi
   double energyECALmip;
 
   Bool_t doHF;
-  // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
-  // int subdet_;
+  Bool_t AddRecalib;
+  //int hasresp;
 
-  // single/multi-particle sample (1/2)
-  int etype_;
-  int iz;
-  //  int imc;
-
+  //int etype_;
+  //  int iz;
 
   int nevtot;
-  int hasresp;
+
  const HcalRespCorrs* respRecalib;
   const HcalPFCorrs* pfRecalib;
 
@@ -186,6 +179,17 @@ double HcalCorrPFCalculation::getDistInPlaneSimple(const GlobalPoint caloPoint,
   }
 }
 
+double  HcalCorrPFCalculation::RecalibFactor(HcalDetId id)
+{
+  Float_t resprecal = 1.;
+  Float_t pfrecal = 1.;
+  if(AddRecalib) {
+    if(Respcorr_) resprecal = respRecalib -> getValues(id)->getValue();
+    if(PFcorr_)   pfrecal = pfRecalib   -> getValues(id)->getValue();
+  }
+  Float_t factor = resprecal*pfrecal;
+  return factor;
+}
 
 HcalCorrPFCalculation::~HcalCorrPFCalculation() {
 
@@ -211,7 +215,7 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
   enEcalE = new TH1F("enEcalE", "enEcalE", 500, -5,50); 
   
   // Response corrections w/o re-rechitting
-  hasresp=0;
+  AddRecalib=kFALSE;
 
   try{
     
@@ -223,22 +227,14 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
     c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
     pfRecalib = pfCorrs.product();
     
-    hasresp=1;
+    AddRecalib = kTRUE;;
     // LogMessage("CalibConstants")<<"   OK ";
     
   }catch(const cms::Exception & e) {
     LogWarning("CalibConstants")<<"   Not Found!! ";
   }
   
-  
-    /*
-  edm::ESHandle<MagneticField> bField;
-  c.get<IdealMagneticFieldRecord>().get(bField);
-  stepPropF  = new SteppingHelixPropagator(&*bField,alongMomentum);
-  stepPropF->setMaterialMode(false);
-  stepPropF->applyRadX0Correction(true);
-  */
-  
+    
 }
 void HcalCorrPFCalculation::endJob() 
 {
@@ -314,6 +310,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       int charge = -1;
       
       if(abs((*p)->pdg_id())==211) charge = (*p)->pdg_id()/abs((*p)->pdg_id()); // pions only !!!
+      else continue;
       
       const FreeTrajectoryState *freetrajectorystate_ =
 	new FreeTrajectoryState(pos, mom ,charge , &(*theMagField));
@@ -341,7 +338,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       GlobalPoint gPointEcal(xTrkEcal,yTrkEcal,zTrkEcal);
       
       if (etahcal>2.6) doHF = kTRUE;
-  
+   
       
       
       edm::Handle<HBHERecHitCollection> hbhe;
@@ -406,14 +403,15 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{ 
-	  Float_t resprecal = 1.;
-	  Float_t pfrecal = 1.;
-	  if(hasresp==1) {
-	    if(Respcorr_) resprecal = respRecalib -> getValues(hhit->detid())->getValue();
-	    if(PFcorr_)   pfrecal = recal * pfRecalib   -> getValues(hhit->detid())->getValue();
-	    recal = resprecal*pfrecal;
-	    //cout<<"recal:"<<recal<<endl;
-	  }
+	  //Float_t resprecal = 1.;
+	  //Float_t pfrecal = 1.;
+	  //if(AddRecalib) {
+	  //  if(Respcorr_) resprecal = respRecalib -> getValues(hhit->detid())->getValue();
+	  // if(PFcorr_)   pfrecal = recal * pfRecalib   -> getValues(hhit->detid())->getValue();
+	  //  recal = resprecal*pfrecal;
+	  //}
+	  recal = RecalibFactor(hhit->detid());
+	  //cout<<"recal: "<<recal<<endl;
 
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
 	  float phihit = pos.phi();
@@ -447,26 +445,30 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  dr =  getDistInPlaneSimple(gPointHcal,pos);
 	  
-	  if(dr<radius_ && enehit>0.1) 
+	  if(dr<radius_ && enehit>0.01) 
 	    {
 	      HcalCone += enehit;	    
 	      UsedCells++;
 
+	      // cout<<"track: ieta "<<ietahit<<" iphi: "<<iphihit<<" depth: "<<depthhit<<" energydepos: "<<enehit<<endl;
+	      
 	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
 		{
-		  
+		  recal = RecalibFactor(hhit2->detid());
 		  int iphihit2 = (hhit2->id()).iphi();
 		  int ietahit2 = (hhit2->id()).ieta();
 		  int depthhit2 = (hhit2->id()).depth();
+		  float enehit2 = hhit2->energy()* recal;	
 		  
-		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2)
+		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2>0.01)
 		    {
+		      
 		      HcalConeNoise += hhit2->energy()*recal;
 		      UsedCellsNoise++;
+		      //cout<<"Noise: ieta "<<ietahit2<<" iphi: "<<iphihit2<<" depth: "<<depthhit2<<" energydepos: "<<enehit2<<endl;
 		    }
 		}
-	      
-	  }
+	    }
 	} //end of all HBHE hits cycle
       
 
@@ -474,6 +476,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       if(doHF){
 	for (HFRecHitCollection::const_iterator hhit=Hithf.begin(); hhit!=Hithf.end(); hhit++) 
 	{
+
+	  recal = RecalibFactor(hhit->detid());
+
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
 	  float phihit = pos.phi();
 	  float etahit = pos.eta();
@@ -506,7 +511,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  dr =  getDistInPlaneSimple(gPointHcal,pos);
 	  
-	  if(dr<radius_ && enehit>0.1) 
+	  if(dr<radius_ && enehit>0.01) 
 	    {
 	      
 	      HcalCone += enehit;	    
@@ -514,11 +519,14 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	      
 	      for (HFRecHitCollection::const_iterator hhit2=Hithf.begin(); hhit2!=Hithf.end(); hhit2++) 
 		{
+		  recal = RecalibFactor(hhit2->detid());
+
 		  int iphihit2 = (hhit2->id()).iphi();
 		  int ietahit2 = (hhit2->id()).ieta();
 		  int depthhit2 = (hhit2->id()).depth();
+		  float enehit2 = hhit2->energy()* recal;	
 		  
-		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2)
+		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2>0.01)
 		    {
 		      HcalConeNoise += hhit2->energy()*recal;
 		      UsedCellsNoise++;
@@ -541,30 +549,12 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  enHcalNoise -> Fill(ietatrue,  HcalConeNoise);
 	  nCellsNoise -> Fill(ietatrue,  UsedCellsNoise); 
 	}
-      
-      
-      
     }
-  
 }
 
-  /*
-double HcalCorrPFCalculation::dR(double eta1, double phi1, double eta2, double phi2) { 
-  double PI = 3.1415926535898;
-  double deltaphi= phi1 - phi2;
-  if( phi2 > phi1 ) { deltaphi= phi2 - phi1;}
-  if(deltaphi > PI) { deltaphi = 2.*PI - deltaphi;}
-  double deltaeta = eta2 - eta1;
-  double tmp = sqrt(deltaeta* deltaeta + deltaphi*deltaphi);
-  return tmp;
-}
-  */
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "DQMServices/Core/interface/DQMStore.h"
 
-//DEFINE_SEAL_MODULE();
-//DEFINE_ANOTHER_FWK_MODULE(HcalCorrPFCalculation);
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HcalCorrPFCalculation);
