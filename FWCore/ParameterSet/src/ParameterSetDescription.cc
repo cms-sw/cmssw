@@ -130,11 +130,6 @@ namespace edm {
       if (pset.exists(module_type)) {
         validatedLabels.insert(module_type);
       }
-      std::string module_edm_type("@module_edm_type");
-      if (pset.exists(module_edm_type)) {
-        validatedLabels.insert(module_edm_type);
-      }
-
 
       std::string module_edm_type("@module_edm_type");
       if (pset.exists(module_edm_type)) {
