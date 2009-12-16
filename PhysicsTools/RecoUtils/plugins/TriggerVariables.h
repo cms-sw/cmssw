@@ -11,6 +11,15 @@ class L1BitComputer : public VariableComputer {
       ss<<i;
       declare(ss.str());
     }
+
+    for(int i = 0;i!=64;i++){
+      std::stringstream ss;
+      ss<<"TechTrig_";
+      ss<<i;
+      declare(ss.str());
+    }
+
+
   }
     ~L1BitComputer(){};
     
@@ -18,14 +27,23 @@ class L1BitComputer : public VariableComputer {
       edm::Handle<L1GlobalTriggerReadoutRecord> l1Handle;
       iEvent.getByLabel(src_, l1Handle);
       if (l1Handle.failedToGet()) doesNotCompute();
-      const DecisionWord dWord = l1Handle->decisionWord();
+      const DecisionWord & dWord = l1Handle->decisionWord();
       for(int i = 0;i!=128;i++){
 	std::stringstream ss;
 	ss<<i;
 	double r=dWord.at(i);
 	assign(ss.str(),r);
       }
-      
+
+      const TechnicalTriggerWord & tTWord = l1Handle->technicalTriggerWord();
+      for(int i = 0;i!=64;i++){
+	std::stringstream ss;
+        ss<<"TechTrig_";
+        ss<<i;
+        double r=tTWord.at(i);
+        assign(ss.str(),r);
+      }
+
       
       
     }
