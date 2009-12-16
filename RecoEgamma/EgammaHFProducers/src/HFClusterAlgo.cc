@@ -113,10 +113,14 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       if (doCluster) { 
 	seeds.push_back(*i);
 	makeCluster( i->id(),hf, geom,clusShp,Sclus);
-	  
-	clusterShapes.push_back(clusShp);
-	SuperClusters.push_back(Sclus);
-	
+	bool usecluster=true;
+	if(clusShp.eSeL()<.025){
+	  usecluster=false;
+	}
+	if (usecluster){
+	  clusterShapes.push_back(clusShp);
+	  SuperClusters.push_back(Sclus);
+	}
       }
     }//end protoseed loop
   }//end if seeCount
