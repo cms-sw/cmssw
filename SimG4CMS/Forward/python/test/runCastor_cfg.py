@@ -13,7 +13,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed = 113456789
+process.RandomNumberGeneratorService.generator.initialSeed = 113456789
 
 process.load("Configuration.EventContent.EventContent_cff")
 
@@ -22,9 +22,9 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('ForwardSim'),
-    debugModules = cms.untracked.vstring('*'),
+#    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -76,6 +76,7 @@ process.g4SimHits.StackingAction = cms.PSet(
    process.common_heavy_suppression,
    process.common_maximum_timex,        # need to be localy redefined
    TrackNeutrino = cms.bool(False),
+   KillDeltaRay  = cms.bool(False),
    KillHeavy     = cms.bool(False),
    SaveFirstLevelSecondary = cms.untracked.bool(True),
    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
@@ -98,10 +99,11 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('CastorTestAnalysis'),
     CastorTestAnalysis = cms.PSet(
         EventNtupleFileName = cms.string('eventNtuple_pion.root'),
-        Verbosity = cms.int32(0),
-        StepNtupleFileName = cms.string('stepNtuple_pion.root'),
-        StepNtupleFlag = cms.int32(0),
-        EventNtupleFlag = cms.int32(1)
+        Verbosity           = cms.int32(0),
+        StepNtupleFileName  = cms.string('stepNtuple_pion.root'),
+        StepNtupleFlag      = cms.int32(0),
+        UseShowerLibrary    = cms.bool(False),
+        EventNtupleFlag     = cms.int32(1)
     )
 ))
 

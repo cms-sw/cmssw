@@ -134,6 +134,7 @@ process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
     TrackNeutrino = cms.bool(False),
+    KillDeltaRay  = cms.bool(False),
     KillHeavy     = cms.bool(False),
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),

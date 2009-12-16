@@ -17,10 +17,8 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('Physics', 
-        'SimG4CoreApplication', 
-        'G4cout', 
-        'G4cerr'),
+    categories = cms.untracked.vstring('Physics', 'SimG4CoreApplication', 
+                                       'G4cout', 'G4cerr'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
@@ -37,9 +35,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         SimG4CoreApplication = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
         ),
         Physics = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -73,8 +68,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxE   = cms.double(100.01)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False),
-    firstRun        = cms.untracked.uint32(1)
+    AddAntiParticle = cms.bool(False)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -99,6 +93,7 @@ process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
     TrackNeutrino = cms.bool(False),
+    KillDeltaRay  = cms.bool(False),
     KillHeavy     = cms.bool(False),
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),

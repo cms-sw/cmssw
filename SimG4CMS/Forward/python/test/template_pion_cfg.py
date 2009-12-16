@@ -43,11 +43,22 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 process.CaloSD = cms.PSet(
-    DetailedTiming = cms.bool(False),
-    EminTrack = cms.double(1.0),
-    Verbosity = cms.int32(0),
-    UseMap = cms.bool(True),
-    CheckHits = cms.int32(25)
+    NeutronThreshold = cms.double(30.0),
+    ProtonThreshold  = cms.double(30.0),
+    IonThreshold     = cms.double(30.0),
+    SuppressHeavy    = cms.bool(False),
+    EminTrack        = cms.double(1.0),
+    TmaxHit          = cms.double(1000.0),
+    HCNames          = cms.vstring('ZDCHITS'),
+    EminHits         = cms.vdouble(0.0),
+    TmaxHits         = cms.vdouble(2000.0),
+    UseResponseTables= cms.vint32(0),
+    BeamPosition     = cms.double(0.0),
+    CorrectTOFBeam   = cms.bool(False),
+    DetailedTiming   = cms.untracked.bool(False),
+    UseMap           = cms.untracked.bool(True),
+    Verbosity        = cms.untracked.int32(0),
+    CheckHits        = cms.untracked.int32(25)
 )
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('POOLOUTPUTFILE')
@@ -70,6 +81,7 @@ process.g4SimHits.StackingAction = cms.PSet(
    process.common_heavy_suppression,
    process.common_maximum_timex,        # need to be localy redefined
    TrackNeutrino = cms.bool(False),
+   KillDeltaRay  = cms.bool(False),
    KillHeavy     = cms.bool(False),
    SaveFirstLevelSecondary = cms.untracked.bool(True),
    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
