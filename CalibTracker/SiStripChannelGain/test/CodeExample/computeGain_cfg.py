@@ -50,6 +50,14 @@ process.SiStripCalib = cms.EDFilter("SiStripGainFromCalibTree",
 
     CalibrationLevel    = cms.untracked.int32(2), # 0==APV, 1==Laser, 2==module
 
+    InputFiles          = cms.vstring(
+        "rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123592.root",
+        "rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123596.root",
+        "rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123615.root",
+        "rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123732.root"
+    ),
+
+
     SinceAppendMode     = cms.bool(True),
     IOVMode             = cms.string('Job'),
     Record              = cms.string('SiStripApvGainRcd'),

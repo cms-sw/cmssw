@@ -141,6 +141,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       int          CalibrationLevel;
 
       std::string  OutputGains;
+      vector<string> VInputFiles;
 
       TH2F*        Charge_Vs_Index;
       TH2F*        Charge_Vs_Index_Absolute;
@@ -191,6 +192,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
    OldGainRemoving     = iConfig.getUntrackedParameter<bool>    ("OldGainRemoving"    ,  false);
 
    CalibrationLevel    = iConfig.getUntrackedParameter<int>     ("CalibrationLevel"   ,  0);
+   VInputFiles         = iConfig.getParameter<vector<string> >  ("InputFiles");
 }
 
 
@@ -275,8 +277,14 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 void
 SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
-      TChain* tree = new TChain("shallowTree/tree");
-      tree->Add("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERCALIB/SiStrip/GAIN_calibration/Test/CMSSW_3_3_2/src/CalibTracker/SiStripChannelGain/test/CRAFT09_Test/tree.root");
+      TChain* tree = new TChain("gainCalibrationTree/tree");
+      for(unsigned int i=0;i<VInputFiles.size();i++){
+         tree->Add(VInputFiles[i].c_str());
+      }
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123592.root");
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123596.root");
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123615.root");
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123732.root");
 
       TString EventPrefix("");
       TString EventSuffix("");
