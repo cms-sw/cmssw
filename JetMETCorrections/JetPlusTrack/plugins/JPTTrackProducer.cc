@@ -39,6 +39,7 @@ class JPTTrackProducer : public edm::EDProducer
   const std::string jptCorrectorName_;
   const uint32_t jetIndex_;
   const bool produceInCaloInVertex_, produceOutCaloInVertex_, produceInCaloOutVertex_;
+  const bool producePions_, produceMuons_, produceElectrons_;
   const JetPlusTrackCorrector* jptCorrector_;
 };
 
@@ -65,6 +66,9 @@ JPTTrackProducer::JPTTrackProducer(const edm::ParameterSet& config)
     produceInCaloInVertex_(config.getParameter<bool>("ProduceInCaloInVertex")),
     produceOutCaloInVertex_(config.getParameter<bool>("ProduceOutCaloInVertex")),
     produceInCaloOutVertex_(config.getParameter<bool>("ProduceInCaloOutVertex")),
+    producePions_(config.getParameter<bool>("ProducePions")),
+    produceMuons_(config.getParameter<bool>("ProduceMuons")),
+    produceElectrons_(config.getParameter<bool>("ProduceElectrons")),
     jptCorrector_(NULL)
 {
   produces<reco::TrackCollection>("InVertexInCalo");
@@ -95,9 +99,9 @@ JPTTrackProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
     if (jptCorrector_->canCorrect(unCorrectedJets[jetIndex_])) {
       jpt::MatchedTracks pions, muons, electrons;
       jptCorrector_->matchTracks(unCorrectedJets[jetIndex_],event,eventSetup,pions,muons,electrons);
-      copyTracks(pions,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
-      copyTracks(muons,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
-      copyTracks(electrons,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
+      if (producePions_) copyTracks(pions,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
+      if (produceMuons_) copyTracks(muons,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
+      if (produceElectrons_) copyTracks(electrons,inVertexInCaloTracks.get(),outVertexInCaloTracks.get(),inVertexOutCaloTracks.get());
       event.put(inVertexInCaloTracks,"InVertexInCalo");
       event.put(inVertexOutCaloTracks,"InVertexOutCalo");
       event.put(outVertexInCaloTracks,"OutVertexInCalo");
