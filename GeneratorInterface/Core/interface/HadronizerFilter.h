@@ -175,6 +175,12 @@ namespace edm
   HadronizerFilter<HAD>::beginRun(Run& run, EventSetup const& es)
   {
     
+    // init post-generation tools
+    // we do it here to mimic the order as it was with beginJob
+    //
+    if ( decayer_ ) decayer_->init(es);
+    
+    
     // this is run-specific
     
     // get LHE stuff and pass to hadronizer!
@@ -192,7 +198,6 @@ namespace edm
 
     if ( decayer_ )
       {
-        decayer_->init(es) ;
         if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
           throw edm::Exception(errors::Configuration)
             << "Failed to declare stable particles in hadronizer "
