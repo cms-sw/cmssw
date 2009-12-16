@@ -47,7 +47,7 @@ void SymmetryFit::makeChi2Histogram()
   unsigned Nbins = 2*( range_.second - range_.first ) + 1;
   double binwidth = symm_candidate_->GetBinWidth(1);
   double low = symm_candidate_->GetBinCenter(range_.first) - 3*binwidth/4;
-  double up = symm_candidate_->GetBinCenter(range_.second) + 3*binwidth/4;
+  double up = symm_candidate_->GetBinCenter(range_.second-1) + 3*binwidth/4;
   chi2_ = new TH1F(XXname.c_str(),"", Nbins, low, up);
 }
   

@@ -68,7 +68,7 @@ make_and_fit_symmchi2(Book& book) {
     if(!fit_hists.size()) continue;
     const unsigned bins = fit_hists[0]->GetNbinsX();
     const unsigned guess = fit_hists[0]->FindBin(0);
-    const std::pair<unsigned,unsigned> range(guess-bins/30,guess+bins/30-1);
+    const std::pair<unsigned,unsigned> range(guess-bins/30,guess+bins/30);
 
     BOOST_FOREACH(TH1*const hist, fit_hists) {
       TH1*const chi2 = SymmetryFit::symmetryChi2(hist,range);
