@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2007/03/09 12:50:42 $
- * $Revision: 1.12 $
+ * $Date: 2009/05/27 11:03:40 $
+ * $Revision: 1.13 $
  * \author M. Sani
  * 
  */
@@ -730,7 +730,7 @@ bool CSCSegAlgoTC::isSegmentGood(std::vector<ChamberHitContainer>::iterator seg,
   // 2) Ensure no hits on segment are already assigned to another segment
   //    (typically of higher quality)
   
-  unsigned int iadd = (rechitsInChamber.size() > 20 )? iadd = 1 : 0;  
+  unsigned int iadd = (rechitsInChamber.size() > 20 )?  1 : 0;  
   
   if (seg->size() < 3 + iadd)
     return false;

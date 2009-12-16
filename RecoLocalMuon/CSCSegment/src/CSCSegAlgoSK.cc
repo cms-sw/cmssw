@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2007/03/09 12:50:42 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/05/27 11:03:40 $
+ *  $Revision: 1.14 $
  *  \author M. Sani
  */
  
@@ -348,7 +348,7 @@ bool CSCSegAlgoSK::isSegmentGood(const ChamberHitContainer& rechitsInChamber) co
   //@@ THESE VALUES SHOULD BECOME PARAMETERS?
   bool ok = false;
   
-  unsigned int iadd = ( rechitsInChamber.size() > 20 )? iadd = 1 : 0;  
+  unsigned int iadd = ( rechitsInChamber.size() > 20 )?  1 : 0;  
   
   if (windowScale > 1.)
     iadd = 1;
