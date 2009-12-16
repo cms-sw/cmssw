@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -112,7 +112,7 @@ process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("MinBiascscskimEvents.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
-      filterName = cms.untracked.string('CSCSkim_BeamHalo')
+      filterName = cms.untracked.string('CSCSkim_BeamHalo_MinBias')
     ),
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cscHaloSkim'))
 )
