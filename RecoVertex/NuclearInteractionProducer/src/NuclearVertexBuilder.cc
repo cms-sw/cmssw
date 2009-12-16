@@ -273,7 +273,7 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
 void NuclearVertexBuilder::checkEnergy( const reco::TrackRef& primTrack,
                                         std::vector<reco::TrackRef>& tC) const {
    float totalEnergy=0;
-   for(int i=0; i< tC.size(); ++i) {
+   for(size_t i=0; i< tC.size(); ++i) {
      totalEnergy += tC[i]->p();
    }
    if( totalEnergy > primTrack->p()+0.1*primTrack->p() ) {
