@@ -181,6 +181,7 @@ if len(args)!=2:
    sys.exit(1)
 
 grouping = int(args[0])
+nJobs = grouping
 cfgFileName = args[1]
 queue = options.queue
 
@@ -193,22 +194,8 @@ handle.close()
 # keep track of the original source
 fullSource = process.source.clone()
 
-print len(process.source.fileNames)
-print grouping
-
-print len(process.source.fileNames) / grouping
-
-nFiles = len(process.source.fileNames)
-nJobs = nFiles / grouping
-print nFiles, grouping, nJobs
-if (nJobs!=0 and (nFiles % grouping) > 0) or nJobs==0:
-   print "adding one job"
-   nJobs = nJobs + 1
-
-print "n jobs:", nJobs
-
-
 generator = False
+
 try:
    process.source.fileNames
 except:
@@ -218,6 +205,14 @@ except:
 else:
    print "Number of files in the source:",len(process.source.fileNames), ":"
    pprint.pprint(process.source.fileNames)
+   
+   nFiles = len(process.source.fileNames)
+   nJobs = nFiles / grouping
+   if (nJobs!=0 and (nFiles % grouping) > 0) or nJobs==0:
+      nJobs = nJobs + 1
+      
+   print "number of jobs to be created: ", nJobs
+
    listOfValues = range( 0, nJobs)
 
 batchManager.PrepareJobs( listOfValues )

@@ -47,13 +47,14 @@ class BatchManager:
     def ParseOptions(self):
         (self.options_,args) = self.parser_.parse_args()
         self.remoteOutputDir_ = os.path.dirname( self.options_.remoteCopy )
-        nsls = 'nsls %s' % self.remoteOutputDir_
+        nsls = 'nsls %s > /dev/null' % self.remoteOutputDir_
         dirExist = os.system( nsls )
         if dirExist != 0: 
             print 'check that the castor output directory specified with the -r option exists.'
             sys.exit(1)
         self.remoteOutputFile_ = os.path.basename( self.options_.remoteCopy )
-
+    
+        
     def PrepareJobs(self, listOfValues ):
         print 'PREPARING JOBS ======== '
         
@@ -89,8 +90,8 @@ class BatchManager:
         if outputDir=='':
             today = datetime.today()
             outputDir = 'OutDir_%s' % today.strftime("%d%b%y_%H%M%S")
-            print 'output directory not specified, using %s' % outputDir
-        
+            print 'output directory not specified, using %s' % outputDir            
+            
         self.outputDir_ = os.path.abspath(outputDir)
 
         if( os.path.isdir(self.outputDir_) == True ):
