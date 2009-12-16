@@ -131,6 +131,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       MonitorElement *eff, *num, *denom, *genPlot, *effVsGen, *effL1VsGen;
       std::vector<std::string> varNames; 
       varNames.push_back("eta"); 
+      varNames.push_back("phi"); 
       varNames.push_back("et");
 
       std::string filterName;
@@ -144,7 +145,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       // Get the L1 over gen filter first
       filterName2= total->getTH1F()->GetXaxis()->GetBinLabel(1);
 	
-      //loop over variables (eta/et)
+      //loop over variables (eta/phi/et)
       for(std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end() ; var++){
 	numName   = dqm->pwd() + "/" + filterName2 + *var + *postfix;
 	genName   = dqm->pwd() + "/gen_" + *var ;
