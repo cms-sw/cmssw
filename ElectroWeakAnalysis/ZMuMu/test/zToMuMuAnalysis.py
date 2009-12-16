@@ -521,12 +521,14 @@ process.nonIsolatedZToMuMuPath = cms.Path (
     process.nonIsolatedZToMuMuPlots
 )
 process.oneNonIsolatedZToMuMuPath = cms.Path(
+    process.nonIsolatedZToMuMu +
     process.oneNonIsolatedZToMuMu +
     process.oneNonIsolatedZToMuMuAtLeast1HLT +
     process.oneNonIsolatedZToMuMuPlots
 )
 
 process.twoNonIsolatedZToMuMuPath = cms.Path(
+    process.nonIsolatedZToMuMu +
     process.twoNonIsolatedZToMuMu +
     process.twoNonIsolatedZToMuMuAtLeast1HLT +
     process.twoNonIsolatedZToMuMuPlots 
