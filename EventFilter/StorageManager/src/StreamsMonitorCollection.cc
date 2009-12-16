@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -87,7 +87,13 @@ void StreamsMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpace
 {
   infoSpaceItems.push_back(std::make_pair("storedEvents",  &_storedEvents));
   infoSpaceItems.push_back(std::make_pair("storedVolume",  &_storedVolume));
-  infoSpaceItems.push_back(std::make_pair("bandwithToDisk",  &_bandwithToDisk));
+  // Leave parameter with typo (bandwith) for backwards compatibility
+  infoSpaceItems.push_back(std::make_pair("bandwithToDisk",  &_bandwidthToDisk));
+  infoSpaceItems.push_back(std::make_pair("bandwidthToDisk",  &_bandwidthToDisk));
+  infoSpaceItems.push_back(std::make_pair("streamNames",  &_streamNames));
+  infoSpaceItems.push_back(std::make_pair("eventsPerStream",  &_eventsPerStream));
+  infoSpaceItems.push_back(std::make_pair("ratePerStream",  &_ratePerStream));
+  infoSpaceItems.push_back(std::make_pair("bandwidthPerStream",  &_bandwidthPerStream));
 }
 
 
@@ -109,7 +115,46 @@ void StreamsMonitorCollection::do_updateInfoSpaceItems()
   
   _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
   _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
-  _bandwithToDisk = static_cast<xdata::Double>(allStreamsVolumeStats.getValueRate(MonitoredQuantity::RECENT));
+  _bandwidthToDisk = static_cast<xdata::Double>(allStreamsVolumeStats.getValueRate(MonitoredQuantity::RECENT));
+
+  _streamNames.clear();
+  _eventsPerStream.clear();
+  _ratePerStream.clear();
+  _bandwidthPerStream.clear();
+
+  _streamNames.reserve(_streamRecords.size());
+  _eventsPerStream.reserve(_streamRecords.size());
+  _ratePerStream.reserve(_streamRecords.size());
+  _bandwidthPerStream.reserve(_streamRecords.size());
+
+   for (
+    StreamRecordList::const_iterator
+      it = _streamRecords.begin(), itEnd = _streamRecords.end();
+    it != itEnd;
+    ++it
+  )
+  {
+    MonitoredQuantity::Stats streamVolumeStats;
+    (*it)->volume.getStats(streamVolumeStats);
+    MonitoredQuantity::Stats streamBandwidthStats;
+    (*it)->bandwidth.getStats(streamBandwidthStats);
+    
+    _streamNames.push_back(
+      static_cast<xdata::String>( (*it)->streamName )
+    );
+    
+    _eventsPerStream.push_back(
+      static_cast<xdata::UnsignedInteger32>( streamVolumeStats.getSampleCount(MonitoredQuantity::FULL) )
+    );
+   
+    _ratePerStream.push_back(
+      static_cast<xdata::Double>( streamVolumeStats.getSampleRate(MonitoredQuantity::RECENT) )
+    );
+
+    _bandwidthPerStream.push_back(
+      static_cast<xdata::Double>( streamBandwidthStats.getValueRate(MonitoredQuantity::RECENT) )
+    );
+  }
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/24 14:31:11 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -116,8 +116,11 @@ namespace stor {
 
     xdata::UnsignedInteger32 _storedEvents;   // number of events stored in all streams
     xdata::Double _storedVolume;              // total volume in MB stored on disk
-    xdata::Double _bandwithToDisk;            // total bandwidh in MB/s written to disk
-
+    xdata::Double _bandwidthToDisk;           // recent bandwidth in MB/s written to disk
+    xdata::Vector<xdata::String> _streamNames; // names of all streams written
+    xdata::Vector<xdata::UnsignedInteger32> _eventsPerStream; // total number of events stored per stream
+    xdata::Vector<xdata::Double> _ratePerStream; // recent event rate (Hz) per stream
+    xdata::Vector<xdata::Double> _bandwidthPerStream; // recent bandwidth (MB/s) per stream
   };
   
 } // namespace stor
