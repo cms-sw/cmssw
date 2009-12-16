@@ -29,7 +29,7 @@ private:
   G4LogicalVolume          *tracker, *beam, *calo, *muon;
   bool                     savePDandCinTracker, savePDandCinCalo;
   bool                     savePDandCinMuon, saveFirstSecondary;
-  bool                     killHeavy, trackNeutrino;
+  bool                     killHeavy, trackNeutrino, killDeltaRay;
   double                   kmaxIon, kmaxNeutron, kmaxProton;
   double                   maxTrackTime;
   std::vector<double>      maxTrackTimes;

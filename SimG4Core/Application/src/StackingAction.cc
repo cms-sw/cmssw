@@ -7,9 +7,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VProcess.hh"
+#include "G4EmProcessSubType.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4RegionStore.hh"
- 
+
+//#define DebugLog
+
 StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
 							     beam(0), calo(0),
 							     muon(0) {
@@ -18,6 +21,7 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
   kmaxProton     = p.getParameter<double>("ProtonThreshold")*MeV;
   kmaxNeutron    = p.getParameter<double>("NeutronThreshold")*MeV;
+  killDeltaRay   = p.getParameter<bool>("KillDeltaRay");
   maxTrackTime   = p.getParameter<double>("MaxTrackTime")*ns;
   maxTrackTimes  = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames   = p.getParameter<std::vector<std::string> >("MaxTimeNames");
@@ -41,7 +45,8 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
 				       << " below " << kmaxIon << " MeV\n"
 				       << "               kill tracks with "
 				       << "time larger than " << maxTrackTime
-				       << " ns";
+				       << " ns and kill Delta Ray flag set to "
+				       << killDeltaRay;
   for (unsigned int i=0; i<maxTrackTimes.size(); i++) {
     maxTrackTimes[i] *= ns;
     edm::LogInfo("SimG4CoreApplication") << "StackingAction::MaxTrackTime for "
@@ -93,13 +98,22 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	classification = fKill;
     }
     if (isItLongLived(aTrack)) classification = fKill;
-//  LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
-//                                   << aTrack->GetTrackID() << " Parent " 
-//                                   << aTrack->GetParentID() << " Type "
-//                                   << aTrack->GetDefinition()->GetParticleName() 
-//                                   << " K.E. " << aTrack->GetKineticEnergy()/MeV
-//                                   << " MeV as " << classification 
-//                                   << " Flag " << flag;
+    if (killDeltaRay) {
+      if (aTrack->GetCreatorProcess()->GetProcessType() == fElectromagnetic &&
+	  aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation)
+	classification = fKill;
+    }
+#ifdef DebugLog
+    LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
+				     << aTrack->GetTrackID() << " Parent " 
+				     << aTrack->GetParentID() << " Type "
+				     << aTrack->GetDefinition()->GetParticleName() 
+				     << " K.E. " << aTrack->GetKineticEnergy()/MeV
+				     << " MeV from process/subprocess " 
+				     << aTrack->GetCreatorProcess()->GetProcessType() << "|"
+				     << aTrack->GetCreatorProcess()->GetProcessSubType()
+				     << " as " << classification << " Flag " << flag;
+#endif
   }
   return classification;
 }
@@ -191,10 +205,9 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
   const TrackInformation & motherInfo(extractor(mother));
   // Check whether mother is a primary
   if (motherInfo.isPrimary()) {
-    if (aTrack->GetCreatorProcess()->GetProcessType() == fDecay &&
-	aTrack->GetCreatorProcess()->GetProcessName() == "Decay") flag = 1;
+    if (aTrack->GetCreatorProcess()->GetProcessType() == fDecay) flag = 1;
     else if (aTrack->GetCreatorProcess()->GetProcessType() == fElectromagnetic &&
-	     aTrack->GetCreatorProcess()->GetProcessName() == "conv") flag = 2;
+	     aTrack->GetCreatorProcess()->GetProcessSubType() == fGammaConversion) flag = 2;
   }
   return flag;
 }

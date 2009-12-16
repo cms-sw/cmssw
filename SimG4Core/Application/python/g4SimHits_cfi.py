@@ -114,6 +114,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     StackingAction = cms.PSet(
         common_heavy_suppression,
         common_maximum_time,
+        KillDeltaRay  = cms.bool(False),
         TrackNeutrino = cms.bool(False),
         KillHeavy     = cms.bool(False),
         SaveFirstLevelSecondary = cms.untracked.bool(False),
