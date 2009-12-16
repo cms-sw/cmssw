@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/17 17:12:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/04/21 08:13:05 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -58,30 +58,6 @@ HLTEventAnalyzerRAW::~HLTEventAnalyzerRAW()
 void
 HLTEventAnalyzerRAW::beginRun(edm::Run const &, edm::EventSetup const&)
 {
-  using namespace std;
-  using namespace edm;
-  
-  // HLT config does not change within runs!
-  if (hltConfig_.init(processName_)) {
-    // check if trigger name in (new) config
-    if (triggerName_!="@") { // "@" means: analyze all triggers in config
-      const unsigned int n(hltConfig_.size());
-      const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
-      if (triggerIndex>=n) {
-	cout << "HLTEventAnalyzerRAW::beginRun:"
-	     << " TriggerName " << triggerName_ 
-	     << " not available in (new) config!" << endl;
-	cout << "Available TriggerNames are: " << endl;
-	hltConfig_.dump("Triggers");
-      }
-    }
-  } else {
-    cout << "HLTEventAnalyzerRAW::beginRun:"
-	 << " config extraction failure with process name "
-	 << processName_ << endl;
-  }
-  return;
-
 }
 
 // ------------ method called to produce the data  ------------
@@ -92,6 +68,28 @@ HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace edm;
   
   cout << endl;
+
+  bool changed(true);
+  if (hltConfig_.init(iEvent,processName_,changed)) {
+    if (changed) {
+      // check if trigger name in (new) config
+      if (triggerName_!="@") { // "@" means: analyze all triggers in config
+	const unsigned int n(hltConfig_.size());
+	const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
+	if (triggerIndex>=n) {
+	  cout << "HLTEventAnalyzerRAW::analyze:"
+	       << " TriggerName " << triggerName_ 
+	       << " not available in (new) config!" << endl;
+	  cout << "Available TriggerNames are: " << endl;
+	  hltConfig_.dump("Triggers");
+	}
+      }
+    }
+  } else {
+    cout << "HLTEventAnalyzerRAW::analyze:"
+	 << " config extraction failure with process name "
+	 << processName_ << endl;
+  }
 
   // get event products
   iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
