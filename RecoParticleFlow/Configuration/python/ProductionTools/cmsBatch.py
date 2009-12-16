@@ -200,7 +200,9 @@ print len(process.source.fileNames) / grouping
 
 nFiles = len(process.source.fileNames)
 nJobs = nFiles / grouping
-if nFiles % nJobs:
+print nFiles, grouping, nJobs
+if (nJobs!=0 and (nFiles % grouping) > 0) or nJobs==0:
+   print "adding one job"
    nJobs = nJobs + 1
 
 print "n jobs:", nJobs
