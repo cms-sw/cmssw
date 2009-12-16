@@ -24,7 +24,7 @@ process.tpparams12 = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv0.txt.gz'
+process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv0_MC.txt.gz'
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
@@ -33,59 +33,59 @@ process.CondDBCommon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_34X_
 process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/nfshome0/xiezhen/conddb')
 
 ## to write in sql file:
-#process.CondDBCommon.connect = 'sqlite_file:DB_beamv0beamv0.db'
+#process.CondDBCommon.connect = 'sqlite_file:DB_beamv0_mc_MC.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     messagelevel = cms.untracked.uint32(3),
-    catalog = cms.untracked.string('file:PoolFileCatalog_DB.xml'),
+#    catalog = cms.untracked.string('file:PoolFileCatalog_DB.xml'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
-        tag = cms.string('EcalTPGPedestals_beamv0')
+        tag = cms.string('EcalTPGPedestals_beamv0_mc')
     ), 
         cms.PSet(
             record = cms.string('EcalTPGLinearizationConstRcd'),
-            tag = cms.string('EcalTPGLinearizationConst_beamv0')
+            tag = cms.string('EcalTPGLinearizationConst_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGSlidingWindowRcd'),
-            tag = cms.string('EcalTPGSlidingWindow_beamv0')
+            tag = cms.string('EcalTPGSlidingWindow_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainEBIdMapRcd'),
-            tag = cms.string('EcalTPGFineGrainEBIdMap_beamv0')
+            tag = cms.string('EcalTPGFineGrainEBIdMap_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainStripEERcd'),
-            tag = cms.string('EcalTPGFineGrainStripEE_beamv0')
+            tag = cms.string('EcalTPGFineGrainStripEE_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainTowerEERcd'),
-            tag = cms.string('EcalTPGFineGrainTowerEE_beamv0')
+            tag = cms.string('EcalTPGFineGrainTowerEE_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGLutIdMapRcd'),
-            tag = cms.string('EcalTPGLutIdMap_beamv0')
+            tag = cms.string('EcalTPGLutIdMap_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGWeightIdMapRcd'),
-            tag = cms.string('EcalTPGWeightIdMap_beamv0')
+            tag = cms.string('EcalTPGWeightIdMap_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGWeightGroupRcd'),
-            tag = cms.string('EcalTPGWeightGroup_beamv0')
+            tag = cms.string('EcalTPGWeightGroup_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGLutGroupRcd'),
-            tag = cms.string('EcalTPGLutGroup_beamv0')
+            tag = cms.string('EcalTPGLutGroup_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainEBGroupRcd'),
-            tag = cms.string('EcalTPGFineGrainEBGroup_beamv0')
+            tag = cms.string('EcalTPGFineGrainEBGroup_beamv0_mc')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGPhysicsConstRcd'),
-            tag = cms.string('EcalTPGPhysicsConst_beamv0')
+            tag = cms.string('EcalTPGPhysicsConst_beamv0_mc')
         ))
 )
 

@@ -4,7 +4,7 @@
 //Author: Pascal Paganini - LLR
 //Date: 2006/07/10 15:58:06 $
 
-#define CMSSW_VERSION 340
+#define CMSSW_VERSION 325
 
 
 // system include files
@@ -33,6 +33,8 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #endif
 
+
+#include <TH1F.h>
 
 #include <vector>
 #include <string>
@@ -74,9 +76,9 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int uncodeWeight(double weight, int complement2 = 7) ;
   double uncodeWeight(int iweight, int complement2 = 7) ;
 #if (CMSSW_VERSION>=340)
-  std::vector<unsigned int> computeWeights(EcalShapeBase & shape) ;
+  std::vector<unsigned int> computeWeights(EcalShapeBase & shape, TH1F * histo) ;
 #else
-  std::vector<unsigned int> computeWeights(EcalShape & shape) ;
+  std::vector<unsigned int> computeWeights(EcalShape & shape, TH1F * histo) ;
 #endif
   void computeLUT(int * lut, std::string det="EB")  ;
   void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ;

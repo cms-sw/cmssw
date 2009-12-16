@@ -32,23 +32,23 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                           toGet = cms.VPSet(
          cms.PSet(
             record = cms.string('EcalPedestalsRcd'),
-                    tag = cms.string('EcalPedestals_v5_online')
+                    tag = cms.string('EcalPedestals_mc')
                  ),
               cms.PSet(
             record = cms.string('EcalADCToGeVConstantRcd'),
-                    tag = cms.string('EcalADCToGeVConstant_EBg50_EEnoB_new')
+                    tag = cms.string('EcalADCToGeVConstant_MC_withBS2008_ideal')
                  ),
               cms.PSet(
             record = cms.string('EcalChannelStatusRcd'),
-                    tag = cms.string('EcalChannelStatus_AllCruzet_online')
+                    tag = cms.string('EcalChannelStatus_may2009_mc')
                  ),
               cms.PSet(
             record = cms.string('EcalIntercalibConstantsRcd'),
-                    tag = cms.string('EcalIntercalibConstants_EBg50_EEnoB_new')
+                    tag = cms.string('EcalIntercalibConstants_MC_withBS2008_ideal')
                  ),
               cms.PSet(
             record = cms.string('EcalGainRatiosRcd'),
-                    tag = cms.string('EcalGainRatios_TestPulse_online')
+                    tag = cms.string('EcalGainRatios_mc')
                  ),
               cms.PSet(
             record = cms.string('EcalWeightXtalGroupsRcd'),
@@ -79,12 +79,12 @@ process.maxEvents = cms.untracked.PSet(
 process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
-    writeToDB  = cms.bool(True),
+    writeToDB  = cms.bool(False),
     allowDBEE  = cms.bool(True),
 
     DBsid   = cms.string('cms_omds_lb'),
-    DBuser  = cms.string('cms_ecal_conf'),
-    DBpass  = cms.string('0r4cms_3c4lc0nf'),
+    DBuser  = cms.string('cms_ecal_conf_test'),
+    DBpass  = cms.string('0r4cms_3c4l'),
     DBport  = cms.uint32(10121),
 
     TPGWritePed = cms.uint32(1),
@@ -97,9 +97,9 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     TPGWriteBtt = cms.uint32(0), #do not change
 
     writeToFiles = cms.bool(True),
-    outFile = cms.string('TPG_new_craft.txt'),
+    outFile = cms.string('TPG_beamv0_MC.txt'),
    #### TPG config tag and version (if not given it will be automatically given ) ####
-    TPGtag = cms.string('CRAFT'),
+    TPGtag = cms.string('BEAMV0_MC'),
     TPGversion = cms.uint32(1),
                                         
    #### TPG calculation parameters ####
@@ -124,10 +124,10 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     LUT_noise_EE = cms.double(0.2),         ## noise term (GeV) of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
     LUT_constant_EE = cms.double(0.005),    ## constant term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
 
-    TTF_lowThreshold_EB = cms.double(0.375),   ## EB Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EB = cms.double(0.375),  ## EB Trigger Tower Flag high threshold in GeV
-    TTF_lowThreshold_EE = cms.double(0.375),  ## EE Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EE = cms.double(0.375), ## EE Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EB = cms.double(1.0),  ## EB Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EB = cms.double(2.0), ## EB Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EE = cms.double(1.0),  ## EE Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EE = cms.double(2.0), ## EE Trigger Tower Flag high threshold in GeV
 
     FG_lowThreshold_EB = cms.double(0.3125),   ## EB Fine Grain Et low threshold in GeV
     FG_highThreshold_EB = cms.double(0.3125),  ## EB Fine Grain Et high threshold in GeV
