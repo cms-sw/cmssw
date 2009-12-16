@@ -31,7 +31,7 @@ TH1* SymmetryFit::symmetryChi2(const TH1* candidate, const std::pair<unsigned,un
 
 SymmetryFit::SymmetryFit(const TH1* h, const std::pair<unsigned,unsigned> r)
   : symm_candidate_(h), 
-    minDF_(8),
+    minDF_(r.second-r.first),
     range_(r),
     minmaxUsable_(findUsableMinMax()),
     ndf_( minmaxUsable_.first<minmaxUsable_.second ? minmaxUsable_.second-minmaxUsable_.first : 0),
