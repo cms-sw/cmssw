@@ -692,8 +692,8 @@ float TOBey[6]={err_mean_TOB1, err_mean_TOB2, err_mean_TOB3, err_mean_TOB4, err_
 TIB_graph = new TGraphErrors(nlayersTIB,TIBx,TIBy,TIBex,TIBey);
 TOB_graph = new TGraphErrors(nlayersTOB,TOBx,TOBy,TOBex,TOBey);
 
-TF1 *fit_TIB= new TF1("fit_TIB","[0]",0,4);
-TF1 *fit_TOB= new TF1("fit_TOB","[0]",0,6);
+//TF1 *fit_TIB= new TF1("fit_TIB","[0]",0,4);
+//TF1 *fit_TOB= new TF1("fit_TOB","[0]",0,6);
 
 gStyle->SetOptFit(111);
 gStyle->SetOptStat(111);
