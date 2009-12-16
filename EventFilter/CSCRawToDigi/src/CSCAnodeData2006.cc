@@ -10,7 +10,7 @@ CSCAnodeDataFrame2006::CSCAnodeDataFrame2006(unsigned chip, unsigned tbin, unsig
 : theFrame(0)
 {
    // lowest bit, plus the OR of the next two.
-   unsigned packedChip = ( chip&1 + 2*(chip>1) );
+   unsigned packedChip = ( (chip&1) + 2*(chip>1) );
    theFrame = data + ((tbin&0x1F) << 8) + (packedChip<<13);
 }
 
