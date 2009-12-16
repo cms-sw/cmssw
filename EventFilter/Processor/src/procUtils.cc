@@ -148,7 +148,7 @@ namespace evf{
       char buf[1024];
       
       strftime(buf, sizeof(buf), "%m.%d %H:%M", localtime(&rt));
-      sprintf(obuf,"%20s: %s (%u.%us)\n", name, buf, running / tickspersec, running % tickspersec);
+      sprintf(obuf,"%20s: %s (%lu.%lus)\n", name, buf, running / tickspersec, running % tickspersec);
     }
     
     void procStat(std::ostringstream *out) {
