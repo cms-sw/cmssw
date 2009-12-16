@@ -6,6 +6,9 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace edm {
 
@@ -218,5 +221,21 @@ size_t
     throw cms::Exception("TriggerNamesNotFound")
       << "TriggerNames not found in ParameterSet registry";
     return *names;
+  }
+
+  TriggerResultsByName
+  Event::triggerResultsByName(std::string const& process) const {
+
+    Handle<TriggerResults> hTriggerResults;
+    InputTag tag(std::string("TriggerResults"),
+                 std::string(""),
+                 process);
+
+    getByLabel(tag, hTriggerResults);
+    if ( !hTriggerResults.isValid() ) {
+      return TriggerResultsByName(0,0);
+    }
+    edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
+    return TriggerResultsByName(hTriggerResults.product(), names);
   }
 }

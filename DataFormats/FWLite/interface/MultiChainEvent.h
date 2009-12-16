@@ -36,6 +36,7 @@ namespace edm {
   class EventAux;
   class TriggerResults;
   class TriggerNames;
+  class TriggerResultsByName;
 }
 
 namespace fwlite {
@@ -108,6 +109,7 @@ class MultiChainEvent: public EventBase
       { return event2_->eventIndex(); }
 
       virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
+      virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);

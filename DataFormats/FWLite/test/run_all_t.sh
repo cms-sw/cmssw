@@ -15,6 +15,8 @@ ${LOCAL_TEST_DIR}/MergeTest.sh || die 'Failed to create file' $?
 root -b -n -q ${LOCAL_TEST_DIR}/productid_cint.C || die 'Failed in productid_cint.C' $?
 root -b -n -q ${LOCAL_TEST_DIR}/triggernames_cint.C || die 'Failed in triggernames_cint.C' $?
 root -b -n -q ${LOCAL_TEST_DIR}/triggernames_multi_cint.C || die 'Failed in triggernames_multi_cint.C' $?
+root -b -n -q ${LOCAL_TEST_DIR}/triggerResultsByName_cint.C || die 'Failed in triggerResultsByName_cint.C' $?
+root -b -n -q ${LOCAL_TEST_DIR}/triggerResultsByName_multi_cint.C || die 'Failed in triggerResultsByName_multi_cint.C' $?
 
 ${LOCAL_TEST_DIR}/VIPTest.sh || die 'Failed to create file' $?
 root -b -n -q ${LOCAL_TEST_DIR}/vector_int_cint.C || die 'Failed in vector_int_cint.C' $?

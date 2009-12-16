@@ -295,6 +295,11 @@ ChainEvent::fillParameterSetRegistry() const
   event_->fillParameterSetRegistry();
 }
 
+edm::TriggerResultsByName
+ChainEvent::triggerResultsByName(std::string const& process) const {
+  return event_->triggerResultsByName(process);
+}
+
 //
 // static member functions
 //

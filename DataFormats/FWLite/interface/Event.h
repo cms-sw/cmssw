@@ -25,6 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include <memory>
 #include <cstring>
+#include <string>
 
 #include "TBranch.h"
 #include "Rtypes.h"
@@ -51,6 +52,7 @@ namespace edm {
    class Timestamp;
    class TriggerResults;
    class TriggerNames;
+   class TriggerResultsByName;
 }
 
 namespace fwlite {
@@ -174,6 +176,7 @@ namespace fwlite {
 
          virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
          void fillParameterSetRegistry() const;
+         virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);

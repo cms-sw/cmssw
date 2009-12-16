@@ -21,6 +21,8 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
     debugLevel = cms.untracked.int32(1)
 )
 
+process.filterModule = cms.EDFilter("TestFilterModule")
+
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
         'keep edmtestThings_*_*_*', 
@@ -28,7 +30,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('prod1.root')
 )
 
-process.p = cms.Path(process.Thing*process.OtherThing)
+process.p = cms.Path(process.Thing*process.OtherThing*process.filterModule)
 
 # These are here for the TriggerNames test, they do not
 # do anything other than add a couple more path names

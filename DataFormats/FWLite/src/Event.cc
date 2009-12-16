@@ -37,6 +37,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
 
 //used for backwards compatability
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -710,6 +713,23 @@ Event::fillParameterSetRegistry() const
       << "The TTree does not contain a TBranch named "
       << edm::poolNames::parameterSetMapBranchName();
   }
+}
+
+edm::TriggerResultsByName
+Event::triggerResultsByName(std::string const& process) const {
+
+  fwlite::Handle<edm::TriggerResults> hTriggerResults;
+  hTriggerResults.getByLabel(*this,"TriggerResults","",process.c_str());
+  if ( !hTriggerResults.isValid()) {
+    return edm::TriggerResultsByName(0,0);
+  }
+
+  edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
+  if (names == 0 && !parameterSetRegistryFilled_) {
+    fillParameterSetRegistry();
+    names = triggerNames_(*hTriggerResults);
+  }
+  return edm::TriggerResultsByName(hTriggerResults.product(), names);
 }
 
 //

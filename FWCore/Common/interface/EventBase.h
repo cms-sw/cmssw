@@ -23,6 +23,7 @@
 
 // system include files
 #include <typeinfo>
+#include <string>
 
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -34,6 +35,7 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
 
 namespace edm {
 
@@ -62,6 +64,7 @@ namespace edm {
       virtual edm::EventAuxiliary const& eventAuxiliary() const =0;
 
       virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const = 0;
+      virtual TriggerResultsByName triggerResultsByName(std::string const& process) const = 0;
 
    protected:
 

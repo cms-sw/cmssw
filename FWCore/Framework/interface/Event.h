@@ -17,6 +17,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+#include <string>
 #include <set>
 #include <vector>
 #include "boost/shared_ptr.hpp"
@@ -43,6 +44,9 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 namespace edm {
 
   class ConstBranchDescription;
+  class TriggerResultsByName;
+  class TriggerResults;
+  class TriggerNames;
 
   class Event : public EventBase {
   public:
@@ -172,6 +176,7 @@ namespace edm {
     size_t size() const;
 
     virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
+    virtual TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
   private:
     EventPrincipal const&

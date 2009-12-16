@@ -1,4 +1,5 @@
 <lcgdict>
-  <class name="edm::TriggerNames"/>
   <class name="edm::EventBase"/>
+  <class name="edm::TriggerNames"/>
+  <class name="edm::TriggerResultsByName"/>
 </lcgdict>

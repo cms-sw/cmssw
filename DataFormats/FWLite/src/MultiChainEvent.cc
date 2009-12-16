@@ -18,6 +18,9 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
 
 namespace fwlite {
 
@@ -405,6 +408,31 @@ MultiChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
   throw cms::Exception("TriggerNamesNotFound")
     << "TriggerNames not found in ParameterSet registry";
   return *names;
+}
+
+edm::TriggerResultsByName
+MultiChainEvent::triggerResultsByName(std::string const& process) const {
+
+  fwlite::Handle<edm::TriggerResults> hTriggerResults;
+  hTriggerResults.getByLabel(*this,"TriggerResults","",process.c_str());
+  if ( !hTriggerResults.isValid()) {
+    return edm::TriggerResultsByName(0,0);
+  }
+
+  edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
+
+  if (names == 0) {
+    event1_->fillParameterSetRegistry();
+    names = triggerNames_(*hTriggerResults);
+  }
+
+  if (names == 0) {
+    event2_->to( event1_->id() );
+    event2_->fillParameterSetRegistry();
+    names = triggerNames_(*hTriggerResults);
+  }
+
+  return edm::TriggerResultsByName(hTriggerResults.product(), names);
 }
 
 //

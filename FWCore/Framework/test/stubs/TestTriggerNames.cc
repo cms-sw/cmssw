@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -51,6 +53,8 @@ namespace edmtest
     Strings expected_end_paths_;
     bool streamerSource_;
     bool dumpPSetRegistry_;
+    std::vector<unsigned int> expectedTriggerResultsHLT_;
+    std::vector<unsigned int> expectedTriggerResultsPROD_;
 
     edm::TriggerNames triggerNamesI_;
   };
@@ -63,7 +67,9 @@ namespace edmtest
     expected_trigger_previous_(ps.getUntrackedParameter<Strings>("trigPathsPrevious", Strings())),
     expected_end_paths_(ps.getUntrackedParameter<Strings>("endPaths", Strings())),
     streamerSource_(ps.getUntrackedParameter<bool>("streamerSource", false)),
-    dumpPSetRegistry_(ps.getUntrackedParameter<bool>("dumpPSetRegistry", false))
+    dumpPSetRegistry_(ps.getUntrackedParameter<bool>("dumpPSetRegistry", false)),
+    expectedTriggerResultsHLT_(ps.getUntrackedParameter<std::vector<unsigned int> >("expectedTriggerResultsHLT", std::vector<unsigned int>())),
+    expectedTriggerResultsPROD_(ps.getUntrackedParameter<std::vector<unsigned int> >("expectedTriggerResultsPROD", std::vector<unsigned int>()))
   {
   }
 
@@ -260,6 +266,93 @@ namespace edmtest
         e.triggerNames(*prod[1]);
       }
     }
+
+    static unsigned iEvent = 0U;
+
+    edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName("HLT");
+    if (resultsByNameHLT.isValid() && expectedTriggerResultsHLT_.size() > 0) {
+
+      edm::InputTag tag("TriggerResults", "", "HLT");
+      edm::Handle<edm::TriggerResults> hTriggerResults;
+      e.getByLabel(tag, hTriggerResults);
+
+      if ( hTriggerResults->parameterSetID() != resultsByNameHLT.parameterSetID() ||
+           hTriggerResults->wasrun() != resultsByNameHLT.wasrun() ||
+           hTriggerResults->accept() != resultsByNameHLT.accept() ||
+           hTriggerResults->error() != resultsByNameHLT.error() ||
+           hTriggerResults->at(0).state() != resultsByNameHLT.at("p01").state() ||
+           hTriggerResults->at(0).index() != resultsByNameHLT.at("p01").index() ||
+           (*hTriggerResults)[0].state() != resultsByNameHLT["p01"].state() ||
+           (*hTriggerResults)[0].index() != resultsByNameHLT["p01"].index() ||
+           hTriggerResults->wasrun(0) != resultsByNameHLT.wasrun("p01") ||
+           hTriggerResults->accept(0) != resultsByNameHLT.accept("p01") ||
+           hTriggerResults->error(0) != resultsByNameHLT.error("p01") ||
+           hTriggerResults->state(0) != resultsByNameHLT.state("p01") ||
+           hTriggerResults->index(0) != resultsByNameHLT.index("p01") ||
+           hTriggerResults->at(0).state() != resultsByNameHLT.at(0).state() ||
+           hTriggerResults->at(0).index() != resultsByNameHLT.at(0).index() ||
+           (*hTriggerResults)[0].state() != resultsByNameHLT[0].state() ||
+           (*hTriggerResults)[0].index() != resultsByNameHLT[0].index() ||
+           hTriggerResults->wasrun(0) != resultsByNameHLT.wasrun(0) ||
+           hTriggerResults->accept(0) != resultsByNameHLT.accept(0) ||
+           hTriggerResults->error(0) != resultsByNameHLT.error(0) ||
+           hTriggerResults->state(0) != resultsByNameHLT.state(0) ||
+           hTriggerResults->index(0) != resultsByNameHLT.index(0)
+         ) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "TriggerResults values do not match TriggerResultsByName values" << std::endl;
+        abort();
+      }
+      edm::TriggerNames const& names = e.triggerNames(*hTriggerResults);
+      if (names.triggerNames() != resultsByNameHLT.triggerNames() ||
+          names.size() != resultsByNameHLT.size() ||
+          names.triggerName(0) != resultsByNameHLT.triggerName(0) ||
+          names.triggerIndex("p01") != resultsByNameHLT.triggerIndex("p01")) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "TriggerNames values do not match TriggerResultsByName values" << std::endl;
+        abort();
+      }
+    }
+
+    if (expectedTriggerResultsHLT_.size() > iEvent) {
+      edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName("HLT");
+      if (!resultsByNameHLT.isValid()) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "Invalid object for HLT" << std::endl;
+        abort();
+      }
+      if (resultsByNameHLT.accept("p02") != (expectedTriggerResultsHLT_[iEvent] == 1)) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "Expected and actual HLT trigger results don't match" << std::endl;
+        abort();
+      }
+      std::cout << "Event " << iEvent << "  " << resultsByNameHLT.accept("p02")
+                << std::endl;
+    }
+
+    if (expectedTriggerResultsPROD_.size() > iEvent) {
+      edm::TriggerResultsByName resultsByNamePROD = e.triggerResultsByName("PROD");
+      if (!resultsByNamePROD.isValid()) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "Invalid object for PROD" << std::endl;
+        abort();
+      }
+      if (resultsByNamePROD.accept("p1") != (expectedTriggerResultsPROD_[iEvent] == 1)) {
+        std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                  << "Expected and actual PROD trigger results don't match" << std::endl;  
+        abort();
+      }
+      std::cout << "Event " << iEvent << "  " << resultsByNamePROD.accept("p1")
+                << std::endl;
+    }
+
+    edm::TriggerResultsByName resultsByNameNONE = e.triggerResultsByName("NONE");
+    if (resultsByNameNONE.isValid()) {
+      std::cerr << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                << "Object is valid with nonexistent process name" << std::endl;
+      abort();
+    }
+    ++iEvent;
   }
 
   void TestTriggerNames::endJob()

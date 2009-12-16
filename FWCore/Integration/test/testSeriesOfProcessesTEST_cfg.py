@@ -61,7 +61,27 @@ process.a = cms.EDAnalyzer("TestTriggerNames",
     'path6', 
     'path7', 
     'path8'),
-  dumpPSetRegistry = cms.untracked.bool(False)
+  dumpPSetRegistry = cms.untracked.bool(False),
+  expectedTriggerResultsHLT = cms.untracked.vuint32(
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0
+  ),
+  expectedTriggerResultsPROD = cms.untracked.vuint32(
+    1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0
+  )
 )
 
 process.out1 = cms.OutputModule("SewerModule",
