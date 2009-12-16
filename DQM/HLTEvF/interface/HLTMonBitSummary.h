@@ -48,6 +48,8 @@ private:
   std::vector<unsigned int> HLTPathsByIndex_;
   std::string denominator_;
   std::string denominatorWild_;
+  std::vector<std::string > dummyFilters_;
+  std::string esPathsKey_;
 
 
   std::vector<unsigned int> count_;
@@ -58,7 +60,7 @@ private:
 
   unsigned int total_;
   unsigned int nValidTriggers_;
-  static const int NTRIG = 20;
+  //static const int NTRIG = 20;
 
   //std::string out_;
   unsigned int ndenomAccept_;
@@ -69,9 +71,10 @@ private:
 
   //MonitorElement * hEffSummary;
   //MonitorElement * hCountSummary;
-  MonitorElement * hSubFilterCount[NTRIG];
-  MonitorElement * hSubFilterEff[NTRIG];
-
+  //MonitorElement * hSubFilterCount[NTRIG];
+  //MonitorElement * hSubFilterEff[NTRIG];
+  std::vector<MonitorElement* > hSubFilterCount;
+  std::vector<MonitorElement* > hSubFilterEff;
 
   MonitorElement * h1_;
   MonitorElement * h2_;
