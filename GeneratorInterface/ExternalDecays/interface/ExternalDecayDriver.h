@@ -32,6 +32,7 @@ class EvtGenInterface;
       
       private:
       	 
+	 bool             fIsInitialized;
 	 TauolaInterface* fTauolaInterface;
 	 EvtGenInterface* fEvtGenInterface;
 	 std::vector<int> fPDGs;

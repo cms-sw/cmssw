@@ -10,7 +10,8 @@ using namespace gen;
 using namespace edm;
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
-   : fTauolaInterface(0),
+   : fIsInitialized(false),
+     fTauolaInterface(0),
      fEvtGenInterface(0)
 {
     
@@ -40,6 +41,9 @@ ExternalDecayDriver::~ExternalDecayDriver()
 
 HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 {
+   
+   if ( !fIsInitialized ) return evt;
+   
    if ( fEvtGenInterface )
    {  
       evt = fEvtGenInterface->decay( evt ); 
@@ -58,6 +62,8 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 void ExternalDecayDriver::init( const edm::EventSetup& es )
 {
 
+   if ( fIsInitialized ) return;
+   
    if ( fTauolaInterface ) 
    {
       fTauolaInterface->init( es );
@@ -72,6 +78,8 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
             i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
                fPDGs.push_back( *i );
    }
+   
+   fIsInitialized = true;
    
    return;
 }

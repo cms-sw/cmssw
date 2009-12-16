@@ -120,6 +120,13 @@ void TauolaInterface::init( const edm::EventSetup& es )
 
 HepMC::GenEvent* TauolaInterface::decay( const HepMC::GenEvent* evt )
 {
+   
+   // event record convertor
+   //
+   HepMC::IO_HEPEVT conv;
+   
+   if ( !fIsInitialized ) return conv.read_next_event();
+   
    // We are using random numbers, we are fetched through Pythia6Service
    // (through ranmar_ below) -> so grab the instance during decay()
 
@@ -149,8 +156,6 @@ HepMC::GenEvent* TauolaInterface::decay( const HepMC::GenEvent* evt )
    int numPartAfterTauola = HepMC::HEPEVT_Wrapper::number_entries();
    // HepMC::HEPEVT_Wrapper::print_hepevt();
    
-   HepMC::IO_HEPEVT conv;
-
    // before we do the conversion, we need to deal with decay vertexes
    // since Tauola knows nothing about lifetimes, all decay vertexes are set to 0. 
    // nees to set them properly, knowing lifetime !
