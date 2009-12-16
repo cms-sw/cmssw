@@ -81,7 +81,7 @@ void testRecord::testGood()
       
       fwlite::RecordID testRecID = es.recordID("TestRecord");
       
-      for(int index=1; index<10; ++index) {
+      for(unsigned int index=1; index<10; ++index) {
          es.syncTo(edm::EventID(index,0,0),edm::Timestamp());
          unsigned int run = index;
          if(0!=(run-1)%2) {
@@ -97,7 +97,7 @@ void testRecord::testGood()
          
          fwlite::ESHandle<edmtest::Simple> simpleHandle;
          CPPUNIT_ASSERT(es.get(testRecID).get(simpleHandle));
-         CPPUNIT_ASSERT(simpleHandle->key == (index-1)/2);
+         CPPUNIT_ASSERT(simpleHandle->key == static_cast<int>((index-1)/2));
       }      
    }
 }
