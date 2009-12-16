@@ -90,9 +90,9 @@ namespace edm {
     // (possibly more than one) used to configure the identified
     // process(es). Equivalent ParameterSets are compressed out of the
     // result.
-    bool
-    getProcessParameterSet(std::string const& processName,
-			   std::vector<ParameterSet>& ps) const;
+    // This function is not yet implemented in full.
+    //bool
+    //getProcessParameterSet(std::string const& processName, std::vector<ParameterSet>& ps) const;
 
     ProcessHistory const&
     processHistory() const;
@@ -128,8 +128,7 @@ namespace edm {
 
   template <typename PROD>
   void
-  Run::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
-  {
+  Run::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, productInstanceName);

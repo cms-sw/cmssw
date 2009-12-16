@@ -2,10 +2,10 @@
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
+//#include "DataFormats/Provenance/interface/ParameterSetID.h"
+//#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
 
@@ -31,37 +31,35 @@ namespace edm {
   }
 
   Provenance
-  Run::getProvenance(BranchID const& bid) const
-  {
+  Run::getProvenance(BranchID const& bid) const {
     return runPrincipal().getProvenance(bid);
   }
 
   void
-  Run::getAllProvenance(std::vector<Provenance const*>& provenances) const
-  {
+  Run::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     runPrincipal().getAllProvenance(provenances);
   }
 
+/* Not yet fully implemented
   bool
-  Run::getProcessParameterSet(std::string const& processName,
-			      std::vector<ParameterSet>& psets) const
-  {
+  Run::getProcessParameterSet(std::string const& processName, std::vector<ParameterSet>& psets) const {
     // Get the relevant ProcessHistoryIDs
     ProcessHistoryRegistry* phreg = ProcessHistoryRegistry::instance();
+    // Need to fill these in.
     std::vector<ProcessHistoryID> historyIDs;
 
 
     // Get the relevant ParameterSetIDs.
+    // Need to fill these in.
     std::vector<ParameterSetID> psetIdsUsed;
     for (std::vector<ProcessHistoryID>::const_iterator
 	   i = historyIDs.begin(),
 	   e = historyIDs.end();
 	 i != e;
-	 ++i)
-      {
-	ProcessHistory temp;
-	phreg->getMapped(*i, temp);
-      }
+	 ++i) {
+      ProcessHistory temp;
+      phreg->getMapped(*i, temp);
+    }
 
     // Look up the ParameterSets for these IDs.
     pset::Registry* psreg = pset::Registry::instance();
@@ -69,15 +67,15 @@ namespace edm {
 	   i = psetIdsUsed.begin(),
 	   e = psetIdsUsed.end();
 	 i != e;
-	 ++i)
-      {
-	ParameterSet temp;
-	psreg->getMapped(*i, temp);
-	psets.push_back(temp);
-      }
+	 ++i) {
+      ParameterSet temp;
+      psreg->getMapped(*i, temp);
+      psets.push_back(temp);
+    }
 
     return false;
   }
+*/
 
   void
   Run::commit_() {
