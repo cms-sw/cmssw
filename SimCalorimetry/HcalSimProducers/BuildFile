@@ -2,12 +2,10 @@
 <use name=FWCore/ParameterSet>
 <use name=SimCalorimetry/HcalSimAlgos>
 <use name=SimDataFormats/CrossingFrame>
-<use name=Geometry/HcalTowerAlgo>
 <export>
    <lib name=SimCalorimetryHcalSimProducers>
    <use name=SimCalorimetry/HcalSimAlgos>
    <use name=SimDataFormats/CrossingFrame>
-   <use name=Geometry/HcalTowerAlgo>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
 </export>
