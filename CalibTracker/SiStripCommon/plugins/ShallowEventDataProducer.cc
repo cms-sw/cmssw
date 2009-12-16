@@ -24,7 +24,6 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
   iEvent.getByLabel( edm::InputTag("gtDigis"), gtRecord);
 
-  unsigned int value = 0x1;
   std::vector<bool> TrigTech_(64,0);
   std::vector<bool> TrigPh_(128,0);
 
