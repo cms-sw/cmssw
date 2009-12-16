@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Bit Plotting
 hltMonPhotonBits = cms.EDAnalyzer("HLTMonBitSummary",
-     directory = cms.untracked.string("HLT/HLTMonPhoton/"),
+     directory = cms.untracked.string("HLT/HLTMonPhoton/Summary"),
      #label = cms.string('myLabel'),
      #out = cms.untracked.string('dqm.root'),
      HLTPaths = cms.vstring('HLT_L1SingleEG5', 'HLT_Photon10_L1R', 'HLT_L1SingleEG8' ,
@@ -12,7 +12,7 @@ hltMonPhotonBits = cms.EDAnalyzer("HLTMonBitSummary",
                             'HLT_DoublePhoton10_L1R'
                             ),
                                   #FIXME - change to photon paths
-     filterTypes = cms.vstring( "HLTLevel1GTSeed",
+     filterTypes = cms.untracked.vstring( "HLTLevel1GTSeed",
                                 "HLTPrescaler",
                                 "HLTEgammaL1MatchFilterRegional",
                                 "HLTEgammaEtFilter",
