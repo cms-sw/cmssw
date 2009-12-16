@@ -49,9 +49,9 @@ inline CSCL1TPParameters *  CSCL1TPParametersConditions::prefillCSCL1TPParameter
   cnl1tp->setAlctFifoTbins(16);
   cnl1tp->setAlctFifoPretrig(10);
   cnl1tp->setAlctDriftDelay(2);
-  cnl1tp->setAlctNplanesHitPretrig(2);
+  cnl1tp->setAlctNplanesHitPretrig(3);//was 2, new is 3
   cnl1tp->setAlctNplanesHitPattern(4);
-  cnl1tp->setAlctNplanesHitAccelPretrig(2);
+  cnl1tp->setAlctNplanesHitAccelPretrig(3);//was 2, new is 3
   cnl1tp->setAlctNplanesHitAccelPattern(4);
   cnl1tp->setAlctTrigMode(2);
   cnl1tp->setAlctAccelMode(0);
@@ -59,9 +59,9 @@ inline CSCL1TPParameters *  CSCL1TPParametersConditions::prefillCSCL1TPParameter
 
   cnl1tp->setClctFifoTbins(12);
   cnl1tp->setClctFifoPretrig(7);
-  cnl1tp->setClctHitPersist(6);
+  cnl1tp->setClctHitPersist(4);//was 6, new is 4
   cnl1tp->setClctDriftDelay(2);
-  cnl1tp->setClctNplanesHitPretrig(2);
+  cnl1tp->setClctNplanesHitPretrig(3);//was 2, new is 3
   cnl1tp->setClctNplanesHitPattern(4);
   cnl1tp->setClctPidThreshPretrig(2);
   cnl1tp->setClctMinSeparation(10);
