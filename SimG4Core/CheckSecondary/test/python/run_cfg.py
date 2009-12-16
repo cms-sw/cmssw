@@ -86,6 +86,7 @@ process.g4SimHits.StackingAction = cms.PSet(
     process.common_maximum_timex,
     TrackNeutrino    = cms.bool(False),
     KillHeavy        = cms.bool(True),
+    KillDeltaRay     = cms.bool(False),
     NeutronThreshold = cms.double(100.0),
     ProtonThreshold  = cms.double(100.0),
     IonThreshold     = cms.double(100.0),
