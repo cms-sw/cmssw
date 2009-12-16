@@ -1,7 +1,11 @@
-<use name=DataFormats/TrackerRecHit2D>
 <use name=CondFormats/SiStripObjects>
+<use name=DataFormats/Common>
+<use name=DataFormats/SiStripDetId>
+<use name=FWCore/MessageLogger>
+<use name=rootrflx>
+<use name=clhep>
+
 <export>
    <lib name=CalibTrackerSiStripCommon>
-   <use name=DataFormats/TrackerRecHit2D>
-   <use name=CondFormats/SiStripObjects>
+   <use name=DataFormats/SiStripDetId>
 </export>

@@ -1,10 +1,7 @@
-<use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
 <use name=root>
 <export>
  <lib name=CalibTrackerSiStripLorentzAngle>
  <use name=root>
- <use name=boost>
- <use name=boost_regex>
  <use name=DataFormats/SiStripDetId>
 </export>
