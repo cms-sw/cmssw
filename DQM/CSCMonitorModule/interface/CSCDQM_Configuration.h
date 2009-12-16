@@ -184,7 +184,8 @@ namespace cscdqm {
     DMB_TRIGGERS,
     ALCT_TRIGGERS,
     CLCT_TRIGGERS,
-    CFEB_TRIGGERS
+    CFEB_TRIGGERS,
+    EVENT_DISPLAY_PLOT
   };
 
   /** Single Chamber counters type */

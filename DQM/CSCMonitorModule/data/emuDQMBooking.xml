@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
 <Booking xmlns="http://www.phys.ufl.edu/cms/emu/dqm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.phys.ufl.edu/cms/emu/dqm emuDQMBooking.xsd">
 
 	<!-- DEFINITIONS -->
@@ -844,7 +845,7 @@
                 <XMin>0</XMin>
                 <XTitle>SCA Cell</XTitle>
                 <YTitle>Number of CFEB SCA Cell Peaks</YTitle>
-                <Name>CSC_Plus_endcap_CFEB_SCA_CellPeak_Time</Name>
+                <Name>Plus_endcap_CFEB_SCA_CellPeak_Time</Name>
         </Histogram>
 
         <Histogram>
@@ -858,7 +859,7 @@
                 <XMin>0</XMin>
                 <XTitle>SCA Cell</XTitle>
                 <YTitle>Number of CFEB SCA Cell Peaks</YTitle>
-                <Name>CSC_Minus_endcap_CFEB_SCA_CellPeak_Time</Name>
+                <Name>Minus_endcap_CFEB_SCA_CellPeak_Time</Name>
         </Histogram>
 
 	<Histogram ref="chamberMap">
@@ -882,7 +883,7 @@
                 <XMin>0</XMin>
                 <XTitle>Time Bin</XTitle>
                 <YTitle>Number of CFEB Comparators Hits</YTitle>
-                <Name>CSC_Plus_endcap_CFEB_Comparators_Time</Name>
+                <Name>Plus_endcap_CFEB_Comparators_Time</Name>
         </Histogram>
 
         <Histogram>
@@ -896,7 +897,7 @@
                 <XMin>0</XMin>
                 <XTitle>Time Bin</XTitle>
                 <YTitle>Number of CFEB Comparators Hits</YTitle>
-                <Name>CSC_Minus_endcap_CFEB_Comparators_Time</Name>
+                <Name>Minus_endcap_CFEB_Comparators_Time</Name>
         </Histogram>
 
 	<Histogram ref="chamberMap">
@@ -3367,5 +3368,21 @@
                 <YMin>0</YMin>
                 <Name>BinCheck_DataFlow_Problems_Frequency</Name>
         </Histogram>
+
+	<Histogram>
+		<Prefix>CSC</Prefix>
+		<SetNdivisionsX>22</SetNdivisionsX>
+		<SetOption>colz</SetOption>
+		<SetOptStat>e</SetOptStat>
+		<SetStats>0</SetStats>
+		<Type>h2</Type>
+		<XBins>22</XBins>
+		<XMax>22</XMax>
+		<XMin>1</XMin>
+		<YBins>160</YBins>
+		<YMax>160</YMax>
+		<YMin>1</YMin>
+                <Name from="1" to="5">Chamber_Event_Display_No%d</Name>
+	</Histogram>
 
 </Booking>

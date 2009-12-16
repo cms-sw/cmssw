@@ -130,19 +130,6 @@ namespace cscdqm {
             ReSetValue(adr, HOT);
             ReSetValue(adr, COLD);
   
-            /*
-            std::cout << "adr = " << detector.AddressName(adr);
-            std::cout << ", x = " << x << ", y = " << y;
-            std::cout << ", value = " << GetValue(adr);
-            std::cout << ", refh2 = " << refh2->GetBinContent(x, y);
-            std::cout << ", factor = " << factor;
-            std::cout << ", N = " << N;
-            std::cout << ", n = " << n;
-            std::cout << ", num = " << num;
-            std::cout << ", denum = " << denum;
-            std::cout << "\n";
-            */
-  
             if (n == 0) {
               ReSetValue(adr, DATA);
             } else {
@@ -152,12 +139,47 @@ namespace cscdqm {
             switch (Utility::checkOccupancy(N, n, cold_coef, hot_coef, cold_Sfail, hot_Sfail)) {
               case -1:
                 SetValue(adr, COLD);
+  
+                /*
+            std::cout << "adr = " << detector.AddressName(adr);
+            std::cout << ", x = " << x << ", y = " << y;
+            std::cout << ", value = " << GetValue(adr);
+            std::cout << ", refh2 = " << refh2->GetBinContent(x, y);
+            std::cout << ", factor = " << factor;
+            std::cout << ", N = " << N;
+            std::cout << ", n = " << n;
+            std::cout << ", num = " << num;
+            std::cout << ", denum = " << denum;
+            std::cout << ", rate = " << (N > 0 ? n / N : 0);
+            std::cout << ", cold_coef = " << cold_coef;
+            std::cout << ", = COLD";
+            std::cout << "\n";
+              */
+
                 break;
               case 1:
                 SetValue(adr, HOT);
+
+              /*
+            std::cout << "adr = " << detector.AddressName(adr);
+            std::cout << ", x = " << x << ", y = " << y;
+            std::cout << ", value = " << GetValue(adr);
+            std::cout << ", refh2 = " << refh2->GetBinContent(x, y);
+            std::cout << ", factor = " << factor;
+            std::cout << ", N = " << N;
+            std::cout << ", n = " << n;
+            std::cout << ", num = " << num;
+            std::cout << ", denum = " << denum;
+            std::cout << ", rate = " << (N > 0 ? n / N : 0);
+            std::cout << ", hot_coef = " << hot_coef;
+            std::cout << ", = HOT";
+            std::cout << "\n";
+              */
+
                 break;
             };
   
+
           }
   
         }

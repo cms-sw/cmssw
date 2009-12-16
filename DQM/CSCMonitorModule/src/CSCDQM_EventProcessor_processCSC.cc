@@ -86,6 +86,29 @@ namespace cscdqm {
     double DMBEvents  = 0.0;
     DMBEvents = config->getChamberCounterValue(DMB_EVENTS, crateID, dmbID);
 
+    // Get Event display plot number and next plot object
+    uint32_t evDisplNo = config->getChamberCounterValue(EVENT_DISPLAY_PLOT, crateID, dmbID);
+    evDisplNo += 1;
+    if (evDisplNo >= 5) {
+      config->setChamberCounterValue(EVENT_DISPLAY_PLOT, crateID, dmbID, 0);
+    } else {
+      config->setChamberCounterValue(EVENT_DISPLAY_PLOT, crateID, dmbID, evDisplNo);
+    }
+    MonitorObject* mo_EventDisplay = 0;
+    if (getCSCHisto(h::CSC_EVENT_DISPLAY_NOXX, crateID, dmbID, evDisplNo, mo_EventDisplay)) {
+      mo_EventDisplay->getTH1Lock()->Reset("");
+    }
+
+    if (mo_EventDisplay) {
+      mo_EventDisplay->SetBinContent(1, 1, cid.endcap());
+      mo_EventDisplay->SetBinContent(1, 2, cid.station());
+      mo_EventDisplay->SetBinContent(1, 3, cid.ring());
+      mo_EventDisplay->SetBinContent(1, 4, cscPosition);
+      mo_EventDisplay->SetBinContent(1, 5, crateID);
+      mo_EventDisplay->SetBinContent(1, 6, dmbID);
+      mo_EventDisplay->SetBinContent(1, 7, dmbHeader->l1a());
+    }
+
     config->copyChamberCounterValue(DMB_EVENTS, DMB_TRIGGERS, crateID, dmbID);
 
     if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_UNPACKED, mo)){
@@ -114,7 +137,7 @@ namespace cscdqm {
       if(dmb_ddu_l1a_diff < -32) {
         mo->Fill(dmb_ddu_l1a_diff + 64);
       } else {
-        if(dmb_ddu_l1a_diff > 32) mo->Fill(dmb_ddu_l1a_diff - 64);
+        if(dmb_ddu_l1a_diff >= 32) mo->Fill(dmb_ddu_l1a_diff - 64);
         else mo->Fill(dmb_ddu_l1a_diff);
       }
       mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
@@ -141,7 +164,7 @@ namespace cscdqm {
     if (getCSCHisto(h::CSC_DMB_DDU_BXN_DIFF, crateID, dmbID, mo)) {
       if(dmb_ddu_bxn_diff < -32) mo->Fill(dmb_ddu_bxn_diff + 64);
       else {
-        if(dmb_ddu_bxn_diff > 32)  mo->Fill(dmb_ddu_bxn_diff - 64);
+        if(dmb_ddu_bxn_diff >= 32)  mo->Fill(dmb_ddu_bxn_diff - 64);
         else mo->Fill(dmb_ddu_bxn_diff);
       }
       mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
@@ -282,17 +305,19 @@ namespace cscdqm {
 
     /** ALCT Found */
     if (data.nalct()) {
+
       const CSCALCTHeader* alctHeader = data.alctHeader();
       int fwVersion = alctHeader->alctFirmwareVersion();
       const CSCALCTTrailer* alctTrailer = data.alctTrailer();
       const CSCAnodeData* alctData = data.alctData();
+
       if (alctHeader && alctTrailer) {
+
         std::vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
         std::vector<CSCALCTDigi> alctsDatas;
 
         for (uint32_t lct = 0; lct < alctsDatasTmp.size(); lct++) {
-          if (alctsDatasTmp[lct].isValid())
-            alctsDatas.push_back(alctsDatasTmp[lct]);
+          if (alctsDatasTmp[lct].isValid()) alctsDatas.push_back(alctsDatasTmp[lct]);
         }
 
         FEBunpacked = FEBunpacked + 1;
@@ -329,7 +354,7 @@ namespace cscdqm {
           if (alct_dmb_l1a_diff != 0) L1A_out_of_sync = true;
           if(alct_dmb_l1a_diff < -32) mo->Fill(alct_dmb_l1a_diff + 64);
           else {
-            if(alct_dmb_l1a_diff > 32) mo->Fill(alct_dmb_l1a_diff - 64);
+            if(alct_dmb_l1a_diff >= 32) mo->Fill(alct_dmb_l1a_diff - 64);
             else mo->Fill(alct_dmb_l1a_diff);
           }
           mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
@@ -341,12 +366,10 @@ namespace cscdqm {
         /**  === ALCT BXN: 12bits (4096) */
         /**  === Use 6-bit BXN */
         if (getCSCHisto(h::CSC_ALCT_DMB_BXN_DIFF, crateID, dmbID, mo)) {
-          int alct_dmb_bxn_diff = (int)(alctHeader->BXNCount() % 64 - dmbHeader->bxn12() % 64);
-          if(alct_dmb_bxn_diff < -32) mo->Fill(alct_dmb_bxn_diff + 64);
-          else {
-            if(alct_dmb_bxn_diff > 32)  mo->Fill(alct_dmb_bxn_diff - 64);
-            else mo->Fill(alct_dmb_bxn_diff);
-          }
+          int alct_dmb_bxn_diff = (int)(alctHeader->BXNCount()-dmbHeader->bxn12());
+          if (alct_dmb_bxn_diff > 0) alct_dmb_bxn_diff -= 3564;
+          alct_dmb_bxn_diff %= 64;
+          mo->Fill(alct_dmb_bxn_diff);
           mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
         }
 
@@ -407,7 +430,7 @@ namespace cscdqm {
             if(alct_dtime < -16) {
               mo->Fill(alct_dtime + 32);
             } else {
-              if(alct_dtime > 16) mo->Fill(alct_dtime - 32);
+              if(alct_dtime >= 16) mo->Fill(alct_dtime - 32);
               else mo->Fill(alct_dtime);
             }
 
@@ -438,7 +461,7 @@ namespace cscdqm {
             if(alct_dtime < -16) {
               mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
             } else {
-              if(alct_dtime > 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
+              if(alct_dtime >= 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
               else mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
             }
           }
@@ -447,7 +470,7 @@ namespace cscdqm {
             if(alct_dtime < -16) {
               mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
             } else {
-              if (alct_dtime > 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
+              if (alct_dtime >= 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
               else mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
             }
           }
@@ -460,6 +483,11 @@ namespace cscdqm {
           if (getCSCHisto(h::CSC_ALCTXX_BXN, crateID, dmbID, lct, mo)) mo->Fill(alct_bxn);
 
           if (getCSCHisto(h::CSC_ALCTXX_QUALITY, crateID, dmbID, lct, mo)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
+
+          if (mo_EventDisplay) {
+            mo_EventDisplay->SetBinContent(2, alctsDatas[lct].getKeyWG(), alct_bxn + 1 );
+            mo_EventDisplay->SetBinContent(3, alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
+          }
 
           if (getCSCHisto(h::CSC_ALCTXX_QUALITY_DISTR, crateID, dmbID, lct, mo)) {
             mo->Fill(alctsDatas[lct].getQuality());
@@ -507,26 +535,34 @@ namespace cscdqm {
           getEMUHisto(h::EMU_CSC_AFEB_RAWHITS_TIME_RMS, mo_CSC_AFEB_RawHits_Time_rms);
 
           for (int nLayer = 1; nLayer <= 6; nLayer++) {
+
             int wg_previous = -1;
             int tbin_previous = -1;
             bool CheckLayerALCT = true;
+
             std::vector<CSCWireDigi> wireDigis = alctData->wireDigis(nLayer);
-            for (std::vector<CSCWireDigi>:: iterator wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end(); ++wireDigisItr) {
+            for (std::vector<CSCWireDigi>::iterator wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end(); ++wireDigisItr) {
+
               int wg = wireDigisItr->getWireGroup();
               /**  int tbin = wireDigisItr->getBeamCrossingTag(); */
               std::vector<int> tbins = wireDigisItr->getTimeBinsOn();
               int tbin = wireDigisItr->getTimeBin();
-              if(CheckLayerALCT) {
+
+              if (mo_EventDisplay) mo_EventDisplay->SetBinContent(nLayer + 3, wg - 1, tbin + 1);
+
+              if (CheckLayerALCT) {
                 NumberOfLayersWithHitsInALCT = NumberOfLayersWithHitsInALCT + 1;
                 CheckLayerALCT = false;
               }
-              for (uint32_t n=0; n < tbins.size(); n++) {
+
+              for (uint32_t n = 0; n < tbins.size(); n++) {
+
                 tbin = tbins[n];
                 if(wg != wg_previous || (tbin != tbin_previous + 1 && tbin != tbin_previous - 1) ) {
 
-                  if (getCSCHisto(h::CSC_ALCTTIME_LYXX, crateID, dmbID, nLayer, mo)) mo->Fill(wg, tbin);
+                  if (getCSCHisto(h::CSC_ALCTTIME_LYXX, crateID, dmbID, nLayer, mo)) mo->Fill(wg - 1, tbin);
 
-                  if (getCSCHisto(h::CSC_ALCTTIME_LYXX_PROFILE, crateID, dmbID, nLayer, mo)) mo->Fill(wg, tbin);
+                  if (getCSCHisto(h::CSC_ALCTTIME_LYXX_PROFILE, crateID, dmbID, nLayer, mo)) mo->Fill(wg - 1, tbin);
 
                   if (mo_AFEB_RawHits_TimeBins) mo_AFEB_RawHits_TimeBins->Fill(tbin);
 
@@ -538,11 +574,11 @@ namespace cscdqm {
                   }
 
                   if (getCSCHisto(h::CSC_ALCT_LYXX_RATE, crateID, dmbID, nLayer, mo)) {
-                    mo->Fill(wg);
-                    int number_wg = (int)(mo->GetBinContent(wg+1));
+                    mo->Fill(wg - 1);
+                    int number_wg = (int)(mo->GetBinContent(wg));
                     Double_t Number_of_entries_ALCT = mo->GetEntries();
                     if (getCSCHisto(h::CSC_ALCT_LYXX_EFFICIENCY, crateID, dmbID, nLayer, mo)) {
-                      mo->SetBinContent(wg + 1, ((float) number_wg));
+                      mo->SetBinContent(wg, ((float) number_wg));
                       if((Double_t)(DMBEvents) > 0.0) {
                         mo->SetNormFactor(100.0*Number_of_entries_ALCT/(Double_t)(DMBEvents));
                       } else {
@@ -755,7 +791,7 @@ namespace cscdqm {
             if (clct_dmb_l1a_diff != 0) L1A_out_of_sync = true;
             if(clct_dmb_l1a_diff < -32) mo->Fill(clct_dmb_l1a_diff + 64);
             else {
-              if(clct_dmb_l1a_diff > 32)  mo->Fill(clct_dmb_l1a_diff - 64);
+              if(clct_dmb_l1a_diff >= 32)  mo->Fill(clct_dmb_l1a_diff - 64);
               else mo->Fill(clct_dmb_l1a_diff);
             }
             mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->GetMaximumBin())), "Y");
@@ -768,7 +804,7 @@ namespace cscdqm {
             int clct_dmb_bxn_diff = (int)(tmbHeader->BXNCount()%64-dmbHeader->bxn12()%64);
             if(clct_dmb_bxn_diff < -32) mo->Fill(clct_dmb_bxn_diff + 64);
             else {
-              if(clct_dmb_bxn_diff > 32)  mo->Fill(clct_dmb_bxn_diff - 64);
+              if(clct_dmb_bxn_diff >= 32)  mo->Fill(clct_dmb_bxn_diff - 64);
               else mo->Fill(clct_dmb_bxn_diff);
             }
             mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->GetMaximumBin())), "Y");
@@ -819,17 +855,22 @@ namespace cscdqm {
 
           for (uint32_t lct = 0; lct < clctsDatas.size(); lct++) {
 
-            if (getCSCHisto(h::CSC_CLCTXX_BXN, crateID, dmbID, lct, mo)) mo->Fill(clctsDatas[lct].getFullBX()%32);
+            if (getCSCHisto(h::CSC_CLCTXX_BXN, crateID, dmbID, lct, mo)) mo->Fill(clctsDatas[lct].getFullBX()%64);
 
-            int clct_dtime = (int)(clctsDatas[lct].getFullBX()%32 -(tmbHeader->BXNCount()%32));
+            int clct_dtime = clctsDatas[lct].getFullBX() - tmbHeader->BXNCount();
+            if (clct_dtime > 0) {
+              clct_dtime -= 3564;
+            }
 
             if (getCSCHisto(h::CSC_CLCTXX_DTIME, crateID, dmbID, lct, mo)) {
               int dTime = clct_dtime;
+              /*
               if (clct_dtime < -16) {
                 dTime = clct_dtime + 32;
               } else {
                 if (clct_dtime > 16) dTime = clct_dtime - 32;
               }
+              */
 
               mo->Fill(dTime);
               mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
@@ -865,21 +906,27 @@ namespace cscdqm {
                 mo->Fill(clctsDatas[lct].getKeyStrip());
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_VS_HALF_STRIP, crateID, dmbID, lct, mo)) {
+                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                /*
                 if (clct_dtime < -16) {
                   mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
                 } else {
                   if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
                   else                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
                 }
+                */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_PROFILE, crateID, dmbID, lct, mo)) {
+                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                /*
                 if (clct_dtime < -16) {
                   mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
                 } else {
                   if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
                   else                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
                 }
+                */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_PATTERN, crateID, dmbID, lct, mo)) {
@@ -914,6 +961,11 @@ namespace cscdqm {
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_QUALITY, crateID, dmbID, lct, mo))
                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()),(int)(clctsDatas[lct].getQuality()));
   
+              if (mo_EventDisplay) {
+                mo_EventDisplay->SetBinContent(10, clctsDatas[lct].getKeyStrip(), clct_dtime);
+                mo_EventDisplay->SetBinContent(11, clctsDatas[lct].getKeyStrip(), clctsDatas[lct].getQuality());
+              }
+
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_QUALITY_DISTR, crateID, dmbID, lct, mo)) {
                 mo->Fill((int)(clctsDatas[lct].getQuality()));
                 if (lct == 0) {
@@ -936,11 +988,14 @@ namespace cscdqm {
               if(lct == 0) clct_kewdistrip = clctsDatas[lct].getKeyStrip();
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_VS_DISTRIP, crateID, dmbID, lct, mo)) {
-                if(clct_dtime < -2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 4);
+                mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+                /*
+                if(clct_dtime < -16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
                 else {
-                  if(clct_dtime > 2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 4);
+                  if(clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
                   else mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
                 }
+                */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_DISTRIP_PATTERN, crateID, dmbID, lct, mo)) {
@@ -971,17 +1026,39 @@ namespace cscdqm {
         int NumberOfHalfStripsWithHitsInCLCT = 0;
 
         if (clctData && clctData->check()) {
+
+          MonitorObject* mo_CFEB_Comparators_TimeSamples  = 0;
+          getCSCHisto(h::CSC_CFEB_COMPARATORS_TIMESAMPLES, crateID, dmbID, mo_CFEB_Comparators_TimeSamples);
+
+          MonitorObject*  mo_CSC_Plus_endcap_CFEB_Comparators_Time = 0;
+          getEMUHisto(h::EMU_CSC_ENDCAP_PLUS_CFEB_COMPARATORS_TIME, mo_CSC_Plus_endcap_CFEB_Comparators_Time);
+
+          MonitorObject*  mo_CSC_Minus_endcap_CFEB_Comparators_Time = 0;
+          getEMUHisto(h::EMU_CSC_ENDCAP_MINUS_CFEB_COMPARATORS_TIME, mo_CSC_Minus_endcap_CFEB_Comparators_Time);
+
+          MonitorObject*  mo_CSC_CFEB_Comparators_Time_mean = 0;
+          getEMUHisto(h::EMU_CSC_CFEB_COMPARATORS_TIME_MEAN, mo_CSC_CFEB_Comparators_Time_mean);
+          
+          MonitorObject*  mo_CSC_CFEB_Comparators_Time_rms = 0;
+          getEMUHisto(h::EMU_CSC_CFEB_COMPARATORS_TIME_RMS, mo_CSC_CFEB_Comparators_Time_rms);
+
           for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {
             for (int nLayer = 1; nLayer <= 6; nLayer++) {
+
               int hstrip_previous    = -1;
               int tbin_clct_previous = -1;
               bool CheckLayerCLCT = true;
-              std::vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
+
+              vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
+
               for (std::vector<CSCComparatorDigi>::iterator compOutDataItr = compOutData.begin(); compOutDataItr != compOutData.end(); ++compOutDataItr) {
                 /**  =VB= Fix to get right hafstrip */
                 int hstrip = 2 * (compOutDataItr->getStrip() - 1) + compOutDataItr->getComparator();
                 std::vector<int> tbins_clct = compOutDataItr->getTimeBinsOn();
                 int tbin_clct = (int)compOutDataItr->getTimeBin();
+
+                if (mo_EventDisplay) mo_EventDisplay->SetBinContent(nLayer + 11, hstrip, tbin_clct + 1);
+
                 if(CheckLayerCLCT) {
                   NumberOfLayersWithHitsInCLCT = NumberOfLayersWithHitsInCLCT + 1;
                   CheckLayerCLCT = false;
@@ -990,9 +1067,23 @@ namespace cscdqm {
                 for (uint32_t n=0; n < tbins_clct.size(); n++) {
                   tbin_clct = tbins_clct[n];
                   if(hstrip != hstrip_previous || (tbin_clct != tbin_clct_previous + 1 && tbin_clct != tbin_clct_previous - 1) ) {
+
                     if (getCSCHisto(h::CSC_CLCTTIME_LYXX, crateID, dmbID, nLayer, mo)) mo->Fill(hstrip, tbin_clct);
+
+                    if (mo_CFEB_Comparators_TimeSamples) mo_CFEB_Comparators_TimeSamples->Fill(tbin_clct);
+
+                    if (cid.endcap() == 1) {
+                      if (mo_CSC_Plus_endcap_CFEB_Comparators_Time) mo_CSC_Plus_endcap_CFEB_Comparators_Time->Fill(tbin_clct);
+                    }
+
+                    if (cid.endcap() == 2) {
+                      if (mo_CSC_Minus_endcap_CFEB_Comparators_Time) mo_CSC_Minus_endcap_CFEB_Comparators_Time->Fill(tbin_clct);
+                    }
+
                     if (getCSCHisto(h::CSC_CLCTTIME_LYXX_PROFILE, crateID, dmbID, nLayer, mo)) mo->Fill(hstrip, tbin_clct);
+
                     if (getCSCHisto(h::CSC_CLCT_LYXX_RATE, crateID, dmbID, nLayer, mo)) {
+
                       mo->Fill(hstrip);
 
                       double number_hstrip = mo->GetBinContent(hstrip+1);
@@ -1021,12 +1112,33 @@ namespace cscdqm {
               }
             }
           }
+
+          if (mo_CFEB_Comparators_TimeSamples) {
+
+            double comps_time_mean = mo_CFEB_Comparators_TimeSamples->getTH1()->GetMean();
+            double comps_time_rms = mo_CFEB_Comparators_TimeSamples->getTH1()->GetRMS();
+
+            if ( cscType && cscPosition && mo_CSC_CFEB_Comparators_Time_mean) {
+              mo_CSC_CFEB_Comparators_Time_mean->SetBinContent(cscPosition, cscType + 1, comps_time_mean);
+            }
+            if ( cscType && cscPosition && mo_CSC_CFEB_Comparators_Time_rms) {
+              mo_CSC_CFEB_Comparators_Time_rms->SetBinContent(cscPosition, cscType + 1, comps_time_rms);
+            }
+
+          }
+
         } else {
           LOG_ERROR << cscTag << " Can not unpack CLCT Data";
         }
 
-        if (getCSCHisto(h::CSC_CLCT_NUMBER_OF_LAYERS_WITH_HITS, crateID, dmbID, mo))
+        if (getCSCHisto(h::CSC_CLCT_NUMBER_OF_LAYERS_WITH_HITS, crateID, dmbID, mo)) {
           mo->Fill(NumberOfLayersWithHitsInCLCT);
+          MonitorObject* mo1 = 0;
+          if (cscType && cscPosition && getEMUHisto(h::EMU_CSC_CLCT_PLANES_WITH_HITS, mo1)) {
+            mo1->SetBinContent(cscPosition, cscType + 1, mo->getTH1()->GetMean());
+          }
+        }
+
         if (getCSCHisto(h::CSC_CLCT_NUMBER_OF_HALFSTRIPS_WITH_HITS, crateID, dmbID, mo))
           mo->Fill(NumberOfHalfStripsWithHitsInCLCT);
         } else {
@@ -1091,6 +1203,21 @@ namespace cscdqm {
 
     char hbuf[255];
     memset(hbuf, 0, sizeof(hbuf));
+
+    MonitorObject* mo_CFEB_SCA_CellPeak_Time  = 0;
+    getCSCHisto(h::CSC_CFEB_SCA_CELLPEAK_TIME, crateID, dmbID, mo_CFEB_SCA_CellPeak_Time);
+             
+    MonitorObject*  mo_CSC_Plus_endcap_CFEB_SCA_CellPeak_Time = 0;
+    getEMUHisto(h::EMU_CSC_PLUS_ENDCAP_CFEB_SCA_CELLPEAK_TIME, mo_CSC_Plus_endcap_CFEB_SCA_CellPeak_Time);
+
+    MonitorObject*  mo_CSC_Minus_endcap_CFEB_SCA_CellPeak_Time = 0;
+    getEMUHisto(h::EMU_CSC_MINUS_ENDCAP_CFEB_SCA_CELLPEAK_TIME, mo_CSC_Minus_endcap_CFEB_SCA_CellPeak_Time);
+
+    MonitorObject*  mo_CSC_CFEB_SCA_CellPeak_Time_mean = 0;
+    getEMUHisto(h::EMU_CSC_CFEB_SCA_CELLPEAK_TIME_MEAN, mo_CSC_CFEB_SCA_CellPeak_Time_mean);
+
+    MonitorObject*  mo_CSC_CFEB_SCA_CellPeak_Time_rms = 0;
+    getEMUHisto(h::EMU_CSC_CFEB_SCA_CELLPEAK_TIME_RMS, mo_CSC_CFEB_SCA_CellPeak_Time_rms);
 
     for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {
 
@@ -1174,7 +1301,7 @@ namespace cscdqm {
               }
               if(cfeb_dmb_l1a_diff < -32) mo->Fill(cfeb_dmb_l1a_diff + 64);
               else {
-                if(cfeb_dmb_l1a_diff > 32) mo->Fill(cfeb_dmb_l1a_diff - 64);
+                if(cfeb_dmb_l1a_diff >= 32) mo->Fill(cfeb_dmb_l1a_diff - 64);
                 else mo_CFEB_DMB_L1A_diff->Fill(cfeb_dmb_l1a_diff);
               }
               mo_CFEB_DMB_L1A_diff->SetAxisRange(0.1, 1.1*(1.0+mo_CFEB_DMB_L1A_diff->GetBinContent(mo_CFEB_DMB_L1A_diff->GetMaximumBin())), "Y");
@@ -1259,7 +1386,7 @@ namespace cscdqm {
                 int cfeb_dmb_L1A_sync_time = (int)(dmbHeader->dmbCfebSync()) - (int)UnpackedTrigTime;
                 if(cfeb_dmb_L1A_sync_time < -8) mo->Fill(cfeb_dmb_L1A_sync_time+16);
                 else {
-                  if(cfeb_dmb_L1A_sync_time > 8) mo->Fill(cfeb_dmb_L1A_sync_time-16);
+                  if(cfeb_dmb_L1A_sync_time >= 8) mo->Fill(cfeb_dmb_L1A_sync_time-16);
                   else mo->Fill(cfeb_dmb_L1A_sync_time);
                 }
                 mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->GetMaximumBin())), "Y");
@@ -1283,17 +1410,17 @@ namespace cscdqm {
               if(OutOffRange == 1 && CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
                 /**  if (getCSCHisto(h::CSC_CFEB_OUT_OFF_RANGE_STRIPS_LYXX, crateID, dmbID, nLayer, mo))  */
                 if ( mo_CFEB_Out_Off_Range_Strips)
-                  mo_CFEB_Out_Off_Range_Strips->Fill((int)(nCFEB * 16 + nStrip));
+                  mo_CFEB_Out_Off_Range_Strips->Fill((int)(nCFEB * 16 + nStrip - 1));
                 CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] = false;
               }
               if(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1] > Threshold && OutOffRange != 1) {	
                 /**  if (getCSCHisto(h::CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, crateID, dmbID, nLayer, mo)) */
                 if (mo_CFEB_Active_Samples_vs_Strip)
-                  mo_CFEB_Active_Samples_vs_Strip->Fill((int)(nCFEB * 16 + nStrip), nSample);
+                  mo_CFEB_Active_Samples_vs_Strip->Fill((int)(nCFEB * 16 + nStrip - 1), nSample);
 
                 /**  if (getCSCHisto(h::CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, crateID, dmbID, nLayer, mo)) */
                 if (mo_CFEB_Active_Samples_vs_Strip_Profile)
-                  mo_CFEB_Active_Samples_vs_Strip_Profile->Fill((int)(nCFEB * 16 + nStrip), nSample);
+                  mo_CFEB_Active_Samples_vs_Strip_Profile->Fill((int)(nCFEB * 16 + nStrip - 1), nSample);
 
                 if(CheckThresholdStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
                 /**  if (getCSCHisto(h::CSC_CFEB_ACTIVESTRIPS_LYXX, crateID, dmbID, nLayer, mo)) */
@@ -1319,33 +1446,77 @@ namespace cscdqm {
                 if (abs(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1]) < channel_threshold) {
                   /**  if (getCSCHisto(h::CSC_CFEB_PEDESTAL__WITHEMV__SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo)) */
                   if (mo_CFEB_Pedestal_withEMV_Sample)
-                    mo_CFEB_Pedestal_withEMV_Sample->Fill((int)(nCFEB * 16 + nStrip), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
+                    mo_CFEB_Pedestal_withEMV_Sample->Fill((int)(nCFEB * 16 + nStrip - 1), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
 
                   /** if (getCSCHisto(h::CSC_CFEB_PEDESTAL__WITHRMS__SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo))  */
                   if (mo_CFEB_Pedestal_withRMS_Sample) {
-                    mo_CFEB_Pedestal_withRMS_Sample->Fill((int)(nCFEB * 16 + nStrip), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
+                    mo_CFEB_Pedestal_withRMS_Sample->Fill((int)(nCFEB * 16 + nStrip - 1), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
                     PedestalError[nCFEB][nLayer - 1][nStrip - 1] = mo_CFEB_Pedestal_withRMS_Sample->GetBinError(nCFEB * 16 + nStrip);
 
                     /**  if (getCSCHisto(h::CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo))  */
                     if (mo_CFEB_PedestalRMS_Sample) {
-                      mo_CFEB_PedestalRMS_Sample->SetBinContent(nCFEB * 16 + nStrip,PedestalError[nCFEB][nLayer - 1][nStrip - 1]);
-                      mo_CFEB_PedestalRMS_Sample->SetBinError(nCFEB * 16 + nStrip, 0.00000000001);
+                      mo_CFEB_PedestalRMS_Sample->SetBinContent(nCFEB * 16 + nStrip - 1, PedestalError[nCFEB][nLayer - 1][nStrip - 1]);
+                      mo_CFEB_PedestalRMS_Sample->SetBinError(nCFEB * 16 + nStrip - 1, 0.00000000001);
                     }
                   }
                 }
+                Pedestal[nCFEB][nLayer-1][nStrip-1] += ADC;
+                Pedestal[nCFEB][nLayer-1][nStrip-1] /= 2;
               }
               /** --------------E */
             }
           }
 
           for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
-            if (mo_CFEB_SCA_Cell_Peak && CellPeak[nCFEB][nLayer - 1][nStrip - 1].first)
-              mo_CFEB_SCA_Cell_Peak->Fill((int)(nCFEB * 16 + nStrip), CellPeak[nCFEB][nLayer - 1][nStrip - 1].first);
+            if (mo_CFEB_SCA_Cell_Peak && CellPeak[nCFEB][nLayer - 1][nStrip - 1].first) {
+              mo_CFEB_SCA_Cell_Peak->Fill((int)(nCFEB * 16 + nStrip - 1), CellPeak[nCFEB][nLayer - 1][nStrip - 1].first);
+              if (mo_CFEB_SCA_CellPeak_Time) {
+                mo_CFEB_SCA_CellPeak_Time->Fill(CellPeak[nCFEB][nLayer - 1][nStrip - 1].first);
+              }
+
+              if (mo_EventDisplay) {
+                int peak_sample = CellPeak[nCFEB][nLayer-1][nStrip-1].first;
+                int peak_adc = CellPeak[nCFEB][nLayer-1][nStrip-1].second;
+                int pedestal = Pedestal[nCFEB][nLayer-1][nStrip-1];
+                int peak_sca_charge = peak_adc - pedestal;
+                                                                                        
+                if (peak_adc - pedestal > Threshold) {
+                  if (peak_sample >=1) {
+                    peak_sca_charge += ((timeSample[nCFEB][peak_sample-1][nLayer-1][nStrip-1]->adcCounts)&0xFFF)-pedestal;
+                  }
+                  if (peak_sample < NmbTimeSamples-1) {
+                    peak_sca_charge += ((timeSample[nCFEB][peak_sample+1][nLayer-1][nStrip-1]->adcCounts)&0xFFF)-pedestal;
+                  }
+                  mo_EventDisplay->SetBinContent(nLayer+17, nCFEB*16+nStrip-1, peak_sca_charge);
+                }
+              }
+
+              if (cid.endcap() == 1) {
+                if (mo_CSC_Plus_endcap_CFEB_SCA_CellPeak_Time) 
+                  mo_CSC_Plus_endcap_CFEB_SCA_CellPeak_Time->Fill(CellPeak[nCFEB][nLayer - 1][nStrip - 1].first);
+              }
+              if (cid.endcap() == 2) {
+                if (mo_CSC_Minus_endcap_CFEB_SCA_CellPeak_Time) 
+                  mo_CSC_Minus_endcap_CFEB_SCA_CellPeak_Time->Fill(CellPeak[nCFEB][nLayer - 1][nStrip - 1].first);
+              }
+            }
           }
 
         }
       }
 
+    }
+
+    // Fill Summary CFEB Raw Hits Timing Plots
+    if (mo_CFEB_SCA_CellPeak_Time) {
+      double cellpeak_time_mean = mo_CFEB_SCA_CellPeak_Time->getTH1()->GetMean();
+      double cellpeak_time_rms = mo_CFEB_SCA_CellPeak_Time->getTH1()->GetRMS();
+      if (cscType && cscPosition && mo_CSC_CFEB_SCA_CellPeak_Time_mean) {
+        mo_CSC_CFEB_SCA_CellPeak_Time_mean->SetBinContent(cscPosition, cscType + 1, cellpeak_time_mean);
+      }
+      if (cscType && cscPosition && mo_CSC_CFEB_SCA_CellPeak_Time_rms) {
+        mo_CSC_CFEB_SCA_CellPeak_Time_rms->SetBinContent(cscPosition, cscType + 1 ,cellpeak_time_rms);
+      }
     }
 
     /** --------------B */

@@ -51,6 +51,18 @@ namespace h {
   (( CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, "Actual_DMB_FEB_DAV_Frequency" )) \
   (( CSC_ACTUAL_DMB_FEB_DAV_RATE, "Actual_DMB_FEB_DAV_Rate" )) \
   (( CSC_ALCT1_VS_ALCT0_KEYWG, "ALCT1_vs_ALCT0_KeyWG" )) \
+  (( CSC_ALCTTIME_LYXX, "ALCTTime_Ly%d" )) \
+  (( CSC_ALCTTIME_LYXX_PROFILE, "ALCTTime_Ly%d_Profile" )) \
+  (( CSC_ALCTXX_BXN, "ALCT%d_BXN" )) \
+  (( CSC_ALCTXX_DTIME, "ALCT%d_dTime" )) \
+  (( CSC_ALCTXX_DTIME_PROFILE, "ALCT%d_dTime_Profile" )) \
+  (( CSC_ALCTXX_DTIME_VS_KEYWG, "ALCT%d_dTime_vs_KeyWG" )) \
+  (( CSC_ALCTXX_KEYWG, "ALCT%d_KeyWG" )) \
+  (( CSC_ALCTXX_PATTERN, "ALCT%d_Pattern" )) \
+  (( CSC_ALCTXX_PATTERN_DISTR, "ALCT%d_Pattern_Distr" )) \
+  (( CSC_ALCTXX_QUALITY, "ALCT%d_Quality" )) \
+  (( CSC_ALCTXX_QUALITY_DISTR, "ALCT%d_Quality_Distr" )) \
+  (( CSC_ALCTXX_QUALITY_PROFILE, "ALCT%d_Quality_Profile" )) \
   (( CSC_ALCT_BXN, "ALCT_BXN" )) \
   (( CSC_ALCT_BXN_VS_DMB_BXN, "ALCT_BXN_vs_DMB_BXN" )) \
   (( CSC_ALCT_DMB_BXN_DIFF, "ALCT_DMB_BXN_diff" )) \
@@ -63,65 +75,40 @@ namespace h {
   (( CSC_ALCT_NUMBER_OF_LAYERS_WITH_HITS, "ALCT_Number_Of_Layers_With_Hits" )) \
   (( CSC_ALCT_NUMBER_OF_WIREGROUPS_WITH_HITS, "ALCT_Number_Of_WireGroups_With_Hits" )) \
   (( CSC_ALCT_NUMBER_RATE, "ALCT_Number_Rate" )) \
-  (( CSC_ALCTTIME_LYXX, "ALCTTime_Ly%d" )) \
-  (( CSC_ALCTTIME_LYXX_PROFILE, "ALCTTime_Ly%d_Profile" )) \
   (( CSC_ALCT_WORD_COUNT, "ALCT_Word_Count" )) \
-  (( CSC_ALCTXX_BXN, "ALCT%d_BXN" )) \
-  (( CSC_ALCTXX_DTIME, "ALCT%d_dTime" )) \
-  (( CSC_ALCTXX_DTIME_PROFILE, "ALCT%d_dTime_Profile" )) \
-  (( CSC_CLCTXX_DTIME_PROFILE, "CLCT%d_dTime_Profile" )) \
-  (( CSC_ALCTXX_DTIME_VS_KEYWG, "ALCT%d_dTime_vs_KeyWG" )) \
-  (( CSC_ALCTXX_KEYWG, "ALCT%d_KeyWG" )) \
-  (( CSC_ALCTXX_PATTERN, "ALCT%d_Pattern" )) \
-  (( CSC_ALCTXX_PATTERN_DISTR, "ALCT%d_Pattern_Distr" )) \
-  (( CSC_ALCTXX_QUALITY, "ALCT%d_Quality" )) \
-  (( CSC_ALCTXX_QUALITY_DISTR, "ALCT%d_Quality_Distr" )) \
-  (( CSC_ALCTXX_QUALITY_PROFILE, "ALCT%d_Quality_Profile" )) \
-  (( CSC_CLCT_HALF_STRIP_PATTERN_DISTR, "CLCT%d_Half_Strip_Pattern_Distr" )) \
-  (( CSC_CLCTXX_HALF_STRIP_QUALITY_DISTR, "CLCT%d_Half_Strip_Quality_Distr" )) \
   (( CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, "BinCheck_DataFlow_Problems_Frequency" )) \
   (( CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, "BinCheck_DataFlow_Problems_Table" )) \
-  (( CSC_BINCHECK_ERRORS_FREQUENCY, "BinCheck_Errors_Frequency" )) \
   (( CSC_BINCHECK_ERRORSTAT_TABLE, "BinCheck_ErrorStat_Table" )) \
-  (( CSC_CFEB_AFEB_RAWHITS_TIMEBINS, "AFEB_RawHits_TimeBins" )) \
-  (( CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, "CFEB_Active_Samples_vs_Strip_Ly%d" )) \
-  (( CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, "CFEB_Active_Samples_vs_Strip_Ly%d_Profile" )) \
-  (( CSC_CFEB_ACTIVESTRIPS_LYXX, "CFEB_ActiveStrips_Ly%d" )) \
-  (( CSC_CFEB_CLUSTER_DURATION_LY_XX, "CFEB_Cluster_Duration_Ly_%d" )) \
-  (( CSC_CFEB_CLUSTERS_CHARGE_LY_XX, "CFEB_Clusters_Charge_Ly_%d" )) \
-  (( CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, "CFEB_Number_of_Clusters_Ly_%d" )) \
-  (( CSC_CFEB_OUT_OFF_RANGE_STRIPS_LYXX, "CFEB_Out_Off_Range_Strips_Ly%d" )) \
-  (( CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, "CFEB_PedestalRMS_Sample_01_Ly%d" )) \
-  (( CSC_CFEB_PEDESTAL__WITHEMV__SAMPLE_01_LYXX, "CFEB_Pedestal(withEMV)_Sample_01_Ly%d" )) \
-  (( CSC_CFEB_PEDESTAL_WITHEMV_SAMPLE_01_LYXX, "CFEB_Pedestal_withEMV_Sample_01_Ly%d" )) \
-  (( CSC_CFEB_PEDESTAL__WITHRMS__SAMPLE_01_LYXX, "CFEB_Pedestal(withRMS)_Sample_01_Ly%d" )) \
-  (( CSC_CFEB_PEDESTAL_WITHRMS_SAMPLE_01_LYXX, "CFEB_Pedestal_withRMS_Sample_01_Ly%d" )) \
-  (( CSC_CFEB_SCA_CELL_PEAK_LY_XX, "CFEB_SCA_Cell_Peak_Ly_%d" )) \
-  (( CSC_CFEB_WIDTH_OF_CLUSTERS_LY_XX, "CFEB_Width_of_Clusters_Ly_%d" )) \
+  (( CSC_BINCHECK_ERRORS_FREQUENCY, "BinCheck_Errors_Frequency" )) \
+  (( CSC_EVENT_DISPLAY_NOXX, "Chamber_Event_Display_No%d" )) \
   (( CSC_CFEBXX_DMB_L1A_DIFF, "CFEB%d_DMB_L1A_diff" )) \
   (( CSC_CFEBXX_FREE_SCA_CELLS, "CFEB%d_Free_SCA_Cells" )) \
   (( CSC_CFEBXX_L1A_SYNC_TIME, "CFEB%d_L1A_Sync_Time" )) \
   (( CSC_CFEBXX_L1A_SYNC_TIME_DMB_DIFF, "CFEB%d_L1A_Sync_Time_DMB_diff" )) \
   (( CSC_CFEBXX_L1A_SYNC_TIME_VS_DMB, "CFEB%d_L1A_Sync_Time_vs_DMB" )) \
   (( CSC_CFEBXX_LCT_PHASE_VS_L1A_PHASE, "CFEB%d_LCT_PHASE_vs_L1A_PHASE" )) \
-  (( CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, "CFEB%d_SCA_Block_Occupancy" )) \
   (( CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, "CFEB%d_SCA_Blocks_Locked_by_LCTs" )) \
   (( CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, "CFEB%d_SCA_Blocks_Locked_by_LCTxL1" )) \
+  (( CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, "CFEB%d_SCA_Block_Occupancy" )) \
+  (( CSC_CFEB_ACTIVESTRIPS_LYXX, "CFEB_ActiveStrips_Ly%d" )) \
+  (( CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, "CFEB_Active_Samples_vs_Strip_Ly%d" )) \
+  (( CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, "CFEB_Active_Samples_vs_Strip_Ly%d_Profile" )) \
+  (( CSC_CFEB_AFEB_RAWHITS_TIMEBINS, "AFEB_RawHits_TimeBins" )) \
+  (( CSC_CFEB_CLUSTERS_CHARGE_LY_XX, "CFEB_Clusters_Charge_Ly_%d" )) \
+  (( CSC_CFEB_CLUSTER_DURATION_LY_XX, "CFEB_Cluster_Duration_Ly_%d" )) \
+  (( CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, "CFEB_Number_of_Clusters_Ly_%d" )) \
+  (( CSC_CFEB_OUT_OFF_RANGE_STRIPS_LYXX, "CFEB_Out_Off_Range_Strips_Ly%d" )) \
+  (( CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, "CFEB_PedestalRMS_Sample_01_Ly%d" )) \
+  (( CSC_CFEB_PEDESTAL_WITHEMV_SAMPLE_01_LYXX, "CFEB_Pedestal_withEMV_Sample_01_Ly%d" )) \
+  (( CSC_CFEB_PEDESTAL_WITHRMS_SAMPLE_01_LYXX, "CFEB_Pedestal_withRMS_Sample_01_Ly%d" )) \
+  (( CSC_CFEB_PEDESTAL__WITHEMV__SAMPLE_01_LYXX, "CFEB_Pedestal(withEMV)_Sample_01_Ly%d" )) \
+  (( CSC_CFEB_PEDESTAL__WITHRMS__SAMPLE_01_LYXX, "CFEB_Pedestal(withRMS)_Sample_01_Ly%d" )) \
+  (( CSC_CFEB_SCA_CELL_PEAK_LY_XX, "CFEB_SCA_Cell_Peak_Ly_%d" )) \
+  (( CSC_CFEB_WIDTH_OF_CLUSTERS_LY_XX, "CFEB_Width_of_Clusters_Ly_%d" )) \
   (( CSC_CLCT0_CLCT1_CLSSIFICATION, "CLCT0_CLCT1_Clssification" )) \
   (( CSC_CLCT0_CLSSIFICATION, "CLCT0_Clssification" )) \
   (( CSC_CLCT0_KEYDISTRIP_VS_ALCT0_KEYWIREGROUP, "CLCT0_KeyDiStrip_vs_ALCT0_KeyWiregroup" )) \
   (( CSC_CLCT1_VS_CLCT0_KEY_STRIP, "CLCT1_vs_CLCT0_Key_Strip" )) \
-  (( CSC_CLCT_BXN, "CLCT_BXN" )) \
-  (( CSC_CLCT_BXN_VS_DMB_BXN, "CLCT_BXN_vs_DMB_BXN" )) \
-  (( CSC_CLCT_DMB_BXN_DIFF, "CLCT_DMB_BXN_diff" )) \
-  (( CSC_CLCT_DMB_L1A_DIFF, "CLCT_DMB_L1A_diff" )) \
-  (( CSC_CLCT_L1A, "CLCT_L1A" )) \
-  (( CSC_CLCT_LYXX_EFFICIENCY, "CLCT_Ly%d_Efficiency" )) \
-  (( CSC_CLCT_LYXX_RATE, "CLCT_Ly%d_Rate" )) \
-  (( CSC_CLCT_NUMBER, "CLCT_Number" )) \
-  (( CSC_CLCT_NUMBER_OF_HALFSTRIPS_WITH_HITS, "CLCT_Number_Of_HalfStrips_With_Hits" )) \
-  (( CSC_CLCT_NUMBER_OF_LAYERS_WITH_HITS, "CLCT_Number_Of_Layers_With_Hits" )) \
-  (( CSC_CLCT_NUMBER_RATE, "CLCT_Number_Rate" )) \
   (( CSC_CLCTTIME_LYXX, "CLCTTime_Ly%d" )) \
   (( CSC_CLCTTIME_LYXX_PROFILE, "CLCTTime_Ly%d_Profile" )) \
   (( CSC_CLCTXX_BXN, "CLCT%d_BXN" )) \
@@ -129,13 +116,27 @@ namespace h {
   (( CSC_CLCTXX_DISTRIP_QUALITY, "CLCT%d_DiStrip_Quality" )) \
   (( CSC_CLCTXX_DISTRIP_QUALITY_PROFILE, "CLCT%d_DiStrip_Quality_Profile" )) \
   (( CSC_CLCTXX_DTIME, "CLCT%d_dTime" )) \
+  (( CSC_CLCTXX_DTIME_PROFILE, "CLCT%d_dTime_Profile" )) \
   (( CSC_CLCTXX_DTIME_VS_DISTRIP, "CLCT%d_dTime_vs_DiStrip" )) \
   (( CSC_CLCTXX_DTIME_VS_HALF_STRIP, "CLCT%d_dTime_vs_Half_Strip" )) \
   (( CSC_CLCTXX_HALF_STRIP_PATTERN, "CLCT%d_Half_Strip_Pattern" )) \
   (( CSC_CLCTXX_HALF_STRIP_QUALITY, "CLCT%d_Half_Strip_Quality" )) \
+  (( CSC_CLCTXX_HALF_STRIP_QUALITY_DISTR, "CLCT%d_Half_Strip_Quality_Distr" )) \
   (( CSC_CLCTXX_HALF_STRIP_QUALITY_PROFILE, "CLCT%d_Half_Strip_Quality_Profile" )) \
   (( CSC_CLCTXX_KEYDISTRIP, "CLCT%d_KeyDiStrip" )) \
   (( CSC_CLCTXX_KEYHALFSTRIP, "CLCT%d_KeyHalfStrip" )) \
+  (( CSC_CLCT_BXN, "CLCT_BXN" )) \
+  (( CSC_CLCT_BXN_VS_DMB_BXN, "CLCT_BXN_vs_DMB_BXN" )) \
+  (( CSC_CLCT_DMB_BXN_DIFF, "CLCT_DMB_BXN_diff" )) \
+  (( CSC_CLCT_DMB_L1A_DIFF, "CLCT_DMB_L1A_diff" )) \
+  (( CSC_CLCT_HALF_STRIP_PATTERN_DISTR, "CLCT%d_Half_Strip_Pattern_Distr" )) \
+  (( CSC_CLCT_L1A, "CLCT_L1A" )) \
+  (( CSC_CLCT_LYXX_EFFICIENCY, "CLCT_Ly%d_Efficiency" )) \
+  (( CSC_CLCT_LYXX_RATE, "CLCT_Ly%d_Rate" )) \
+  (( CSC_CLCT_NUMBER, "CLCT_Number" )) \
+  (( CSC_CLCT_NUMBER_OF_HALFSTRIPS_WITH_HITS, "CLCT_Number_Of_HalfStrips_With_Hits" )) \
+  (( CSC_CLCT_NUMBER_OF_LAYERS_WITH_HITS, "CLCT_Number_Of_Layers_With_Hits" )) \
+  (( CSC_CLCT_NUMBER_RATE, "CLCT_Number_Rate" )) \
   (( CSC_CSC_EFFICIENCY, "CSC_Efficiency" )) \
   (( CSC_CSC_RATE, "CSC_Rate" )) \
   (( CSC_DMB_BXN_DISTRIB, "DMB_BXN_Distrib" )) \
@@ -173,6 +174,7 @@ namespace h {
   (( CSC_TMB_BXN_VS_ALCT_BXN, "TMB_BXN_vs_ALCT_BXN" )) \
   (( CSC_TMB_L1A_VS_ALCT_L1A, "TMB_L1A_vs_ALCT_L1A" )) \
   (( CSC_TMB_WORD_COUNT, "TMB_Word_Count" )) \
+  (( CSC_CFEB_COMPARATORS_TIMESAMPLES, "CFEB_Comparators_TimeSamples" )) \
   (( DDU_BUFFER_SIZE, "Buffer_Size" )) \
   (( DDU_BXN, "BXN" )) \
   (( DDU_CSC_ERRORS, "CSC_Errors" )) \
@@ -192,24 +194,6 @@ namespace h {
   (( DDU_TRAILER_ERRORSTAT_RATE, "Trailer_ErrorStat_Rate" )) \
   (( DDU_TRAILER_ERRORSTAT_TABLE, "Trailer_ErrorStat_Table" )) \
   (( DDU_WORD_COUNT, "Word_Count" )) \
-  (( EMU_CSC_CLCT0_QUALITY, "CSC_CLCT0_Quality" )) \
-  (( EMU_CSC_CLCT0_BXN_MEAN, "CSC_CLCT0_BXN_mean" )) \
-  (( EMU_CSC_ENDCAP_PLUS_CLCT0_DTIME, "Plus_endcap_CLCT0_dTime" )) \
-  (( EMU_CSC_ENDCAP_MINUS_CLCT0_DTIME, "Minus_endcap_CLCT0_dTime" )) \
-  (( EMU_CSC_AFEB_ENDCAP_MINUS_RAWHITS_TIME, "Minus_endcap_AFEB_RawHits_Time" )) \
-  (( EMU_CSC_AFEB_ENDCAP_PLUS_RAWHITS_TIME, "Plus_endcap_AFEB_RawHits_Time" )) \
-  (( EMU_CSC_AFEB_RAWHITS_TIME_MEAN, "CSC_AFEB_RawHits_Time_mean" )) \
-  (( EMU_CSC_AFEB_RAWHITS_TIME_RMS, "CSC_AFEB_RawHits_Time_rms" )) \
-  (( EMU_CSC_ALCT0_BXN_MEAN, "CSC_ALCT0_BXN_mean" )) \
-  (( EMU_CSC_ALCT0_BXN_RMS, "CSC_ALCT0_BXN_rms" )) \
-  (( EMU_CSC_ALCT0_ENDCAP_MINUS_DTIME, "Minus_endcap_ALCT0_dTime" )) \
-  (( EMU_CSC_ALCT0_ENDCAP_PLUS_DTIME, "Plus_endcap_ALCT0_dTime" )) \
-  (( EMU_CSC_ALCT0_QUALITY, "CSC_ALCT0_Quality" )) \
-  (( EMU_CSC_ALCT_CLCT_MATCH_MEAN, "CSC_ALCT_CLCT_Match_mean" )) \
-  (( EMU_CSC_ALCT_CLCT_MATCH_RMS, "CSC_ALCT_CLCT_Match_rms" )) \
-  (( EMU_CSC_ALCT_PLANES_WITH_HITS, "CSC_ALCT_Planes_with_Hits" )) \
-  (( EMU_CSC_ENDCAP_PLUS_ALCT_CLCT_MATCH_TIME, "Plus_endcap_ALCT_CLCT_Match_Time" )) \
-  (( EMU_CSC_ENDCAP_MINUS_ALCT_CLCT_MATCH_TIME, "Minus_endcap_ALCT_CLCT_Match_Time" )) \
   (( EMU_ALL_DDUS_AVERAGE_EVENT_SIZE, "All_DDUs_Average_Event_Size" )) \
   (( EMU_ALL_DDUS_AVERAGE_INPUTS_WITH_DATA, "All_DDUs_Average_Inputs_with_Data" )) \
   (( EMU_ALL_DDUS_AVERAGE_LIVE_INPUTS, "All_DDUs_Average_Live_Inputs" )) \
@@ -223,10 +207,33 @@ namespace h {
   (( EMU_ALL_DDUS_LIVE_INPUTS, "All_DDUs_Live_Inputs" )) \
   (( EMU_ALL_DDUS_TRAILER_ERRORS, "All_DDUs_Trailer_Errors" )) \
   (( EMU_ALL_READOUT_ERRORS, "All_Readout_Errors" )) \
+  (( EMU_CSC_AFEB_ENDCAP_MINUS_RAWHITS_TIME, "Minus_endcap_AFEB_RawHits_Time" )) \
+  (( EMU_CSC_AFEB_ENDCAP_PLUS_RAWHITS_TIME, "Plus_endcap_AFEB_RawHits_Time" )) \
+  (( EMU_CSC_AFEB_RAWHITS_TIME_MEAN, "CSC_AFEB_RawHits_Time_mean" )) \
+  (( EMU_CSC_AFEB_RAWHITS_TIME_RMS, "CSC_AFEB_RawHits_Time_rms" )) \
+  (( EMU_CSC_ALCT0_BXN_MEAN, "CSC_ALCT0_BXN_mean" )) \
+  (( EMU_CSC_ALCT0_BXN_RMS, "CSC_ALCT0_BXN_rms" )) \
+  (( EMU_CSC_ALCT0_ENDCAP_MINUS_DTIME, "Minus_endcap_ALCT0_dTime" )) \
+  (( EMU_CSC_ALCT0_ENDCAP_PLUS_DTIME, "Plus_endcap_ALCT0_dTime" )) \
+  (( EMU_CSC_ALCT0_QUALITY, "CSC_ALCT0_Quality" )) \
+  (( EMU_CSC_ALCT_CLCT_MATCH_MEAN, "CSC_ALCT_CLCT_Match_mean" )) \
+  (( EMU_CSC_ALCT_CLCT_MATCH_RMS, "CSC_ALCT_CLCT_Match_rms" )) \
+  (( EMU_CSC_ALCT_PLANES_WITH_HITS, "CSC_ALCT_Planes_with_Hits" )) \
+  (( EMU_CSC_CLCT0_BXN_MEAN, "CSC_CLCT0_BXN_mean" )) \
+  (( EMU_CSC_CLCT0_QUALITY, "CSC_CLCT0_Quality" )) \
+  (( EMU_CSC_CLCT_PLANES_WITH_HITS, "CSC_CLCT_Planes_with_Hits" )) \
   (( EMU_CSC_DMB_INPUT_FIFO_FULL, "CSC_DMB_input_fifo_full" )) \
   (( EMU_CSC_DMB_INPUT_FIFO_FULL_FRACT, "CSC_DMB_input_fifo_full_Fract" )) \
   (( EMU_CSC_DMB_INPUT_TIMEOUT, "CSC_DMB_input_timeout" )) \
   (( EMU_CSC_DMB_INPUT_TIMEOUT_FRACT, "CSC_DMB_input_timeout_Fract" )) \
+  (( EMU_CSC_ENDCAP_MINUS_ALCT_CLCT_MATCH_TIME, "Minus_endcap_ALCT_CLCT_Match_Time" )) \
+  (( EMU_CSC_ENDCAP_MINUS_CLCT0_DTIME, "Minus_endcap_CLCT0_dTime" )) \
+  (( EMU_CSC_ENDCAP_PLUS_ALCT_CLCT_MATCH_TIME, "Plus_endcap_ALCT_CLCT_Match_Time" )) \
+  (( EMU_CSC_ENDCAP_PLUS_CLCT0_DTIME, "Plus_endcap_CLCT0_dTime" )) \
+  (( EMU_CSC_ENDCAP_PLUS_CFEB_COMPARATORS_TIME, "Plus_endcap_CFEB_Comparators_Time" )) \
+  (( EMU_CSC_ENDCAP_MINUS_CFEB_COMPARATORS_TIME, "Minus_endcap_CFEB_Comparators_Time" )) \
+  (( EMU_CSC_CFEB_COMPARATORS_TIME_MEAN, "CSC_CFEB_Comparators_Time_mean" )) \
+  (( EMU_CSC_CFEB_COMPARATORS_TIME_RMS, "CSC_CFEB_Comparators_Time_rms" )) \
   (( EMU_CSC_FORMAT_ERRORS, "CSC_Format_Errors" )) \
   (( EMU_CSC_FORMAT_ERRORS_FRACT, "CSC_Format_Errors_Fract" )) \
   (( EMU_CSC_FORMAT_WARNINGS, "CSC_Format_Warnings" )) \
@@ -245,6 +252,11 @@ namespace h {
   (( EMU_CSC_STATS_WO_CFEB, "CSC_STATS_wo_cfeb" )) \
   (( EMU_CSC_STATS_WO_CLCT, "CSC_STATS_wo_clct" )) \
   (( EMU_CSC_UNPACKED, "CSC_Unpacked" )) \
+  (( CSC_CFEB_SCA_CELLPEAK_TIME, "CFEB_SCA_CellPeak_Time" )) \
+  (( EMU_CSC_PLUS_ENDCAP_CFEB_SCA_CELLPEAK_TIME, "Plus_endcap_CFEB_SCA_CellPeak_Time" )) \
+  (( EMU_CSC_MINUS_ENDCAP_CFEB_SCA_CELLPEAK_TIME, "Minus_endcap_CFEB_SCA_CellPeak_Time" )) \
+  (( EMU_CSC_CFEB_SCA_CELLPEAK_TIME_MEAN, "CSC_CFEB_SCA_CellPeak_Time_mean" )) \
+  (( EMU_CSC_CFEB_SCA_CELLPEAK_TIME_RMS, "CSC_CFEB_SCA_CellPeak_Time_rms" )) \
   (( EMU_CSC_UNPACKED_FRACT, "CSC_Unpacked_Fract" )) \
   (( EMU_CSC_UNPACKED_WITH_ERRORS, "CSC_Unpacked_with_errors" )) \
   (( EMU_CSC_WO_ALCT, "CSC_wo_ALCT" )) \

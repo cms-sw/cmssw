@@ -36,7 +36,7 @@ dqmCSCClient = cms.EDFilter("CSCMonitorModule",
     FRAEFF_AUTO_UPDATE_FREQ = cms.untracked.uint32(200),
     EFF_COLD_THRESHOLD = cms.untracked.double(0.1),
     EFF_COLD_SIGFAIL = cms.untracked.double(2.0),
-    EFF_HOT_THRESHOLD = cms.untracked.double(2.0),
+    EFF_HOT_THRESHOLD = cms.untracked.double(10.0),
     EFF_HOT_SIGFAIL = cms.untracked.double(5.0),
     EFF_ERR_THRESHOLD = cms.untracked.double(0.1),
     EFF_ERR_SIGFAIL = cms.untracked.double(5.0),
@@ -55,7 +55,15 @@ dqmCSCClient = cms.EDFilter("CSCMonitorModule",
       '+/CSC_[0-9]+_[0-9]+\/ALCT[01]_Quality/',
       '+/CSC_[0-9]+_[0-9]+\/ALCT[01]_Pattern_Distr/',
       '+/CSC_[0-9]+_[0-9]+\/AFEB_RawHits_TimeBins/',
-      '+/CSC_[0-9]+_[0-9]+\/ALCT_Number_Of_Layers_With_Hits'
+      '+/CSC_[0-9]+_[0-9]+\/ALCT_Number_Of_Layers_With_Hits/',
+      '+/CSC_[0-9]+_[0-9]+\/CFEB_SCA_CellPeak_Time/',
+      '+/CSC_[0-9]+_[0-9]+\/CFEB_SCA_Cell_Peak_Ly_[0-9]/',
+      '+/CSC_[0-9]+_[0-9]+\/CFEB_Comparators_TimeSamples/',
+      '+/CSC_[0-9]+_[0-9]+\/ALCT_Match_Time/',
+      '+/CSC_[0-9]+_[0-9]+\/CLCT[0-9]_dTime/',
+      '+/CSC_[0-9]+_[0-9]+\/CLCT_Number_Of_Layers_With_Hits/',
+      '+/CSC_[0-9]+_[0-9]+\/CLCT[0-9]_Half_Strip_Quality_Distr/',
+      '+/CSC_[0-9]+_[0-9]+\/Chamber_Event_Display_No[12345]/'
     )
   )
 
