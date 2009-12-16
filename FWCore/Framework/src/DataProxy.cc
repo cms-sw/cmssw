@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.5 2007/12/21 04:36:26 chrjones Exp $
+// $Id: DataProxy.cc,v 1.6 2009/12/07 21:19:20 chrjones Exp $
 //
 
 // system include files
@@ -83,10 +83,15 @@ void DataProxy::clearCacheIsValid() {
 void 
 DataProxy::resetIfTransient() {
    if (!nonTransientAccessRequested_) {
-      invalidate();
+      clearCacheIsValid();
+      invalidateTransientCache();
    }
 }
-      
+
+void 
+DataProxy::invalidateTransientCache() {
+   invalidateCache();
+}
 //
 // const member functions
 //
