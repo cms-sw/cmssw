@@ -29,6 +29,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/Transient.h"
+#include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
 #include <map>
 #include <set>
 #include <vector>

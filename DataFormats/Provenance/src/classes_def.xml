@@ -80,4 +80,6 @@
    <field name="processConfigurationPtr_" transient="true"/>
  </class>
  <class name="std::pair<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
+
+ <class name="edm::ESRecordAuxiliary"/>
 </lcgdict>
