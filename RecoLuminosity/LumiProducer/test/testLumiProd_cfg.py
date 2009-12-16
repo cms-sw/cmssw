@@ -32,8 +32,10 @@ process.maxLuminosityBlocks=cms.untracked.PSet(
 #)
 
 process.source= cms.Source("PoolSource",
-             fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/122/314/10D7BE65-3FD9-DE11-BED4-0026189438F4.root'),   
-             firstRun=cms.untracked.uint32(122314),
+             processingMode=cms.untracked.string('RunsAndLumis'),        
+             #fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/122/314/10D7BE65-3FD9-DE11-BED4-0026189438F4.root'),
+             fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/124/025/3CBFB201-B5E7-DE11-8648-0026189438E8.root'),
+             firstRun=cms.untracked.uint32(124025),
              firstLuminosityBlock = cms.untracked.uint32(1),                           
              firstEvent=cms.untracked.uint32(1),
              numberEventsInLuminosityBlock=cms.untracked.uint32(1)
@@ -41,11 +43,11 @@ process.source= cms.Source("PoolSource",
 
 process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
 process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
+process.LumiESSource.connect=cms.string('sqlite_file:/afs/cern.ch/user/x/xiezhen/w1/offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
       record = cms.string('LumiSectionDataRcd'),
-      tag = cms.string('testlumimixed')
+      tag = cms.string('collision')
     )
 )
 
@@ -53,7 +55,7 @@ process.lumiProducer=cms.EDProducer("LumiProducer")
 process.test = cms.EDAnalyzer("TestLumiProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
-  fileName = cms.untracked.string('MinBiasPromptSkimProcessed.root')
+  fileName = cms.untracked.string('MinBiasPromptSkimProcessed-124025.root')
 )
 
 process.p1 = cms.Path(process.lumiProducer * process.test)
