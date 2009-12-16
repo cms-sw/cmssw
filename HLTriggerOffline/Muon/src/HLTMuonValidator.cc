@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/10/26 17:49:16 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/12/11 16:08:15 $
+ *  $Revision: 1.10 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -58,7 +58,10 @@ HLTMuonValidator::beginJob()
 {
 
   HLTConfigProvider hltConfig;
-  hltConfig.init(hltProcessName_);
+  if (!hltConfig.init(hltProcessName_)) {
+    LogError("Initialization of HLTConfigProvider failed!!"); 
+    return;
+  }
   vector<string> validTriggerNames = hltConfig.triggerNames();
 
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
