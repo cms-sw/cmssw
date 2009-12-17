@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-allLayer1Photons = cms.EDProducer("PATPhotonProducer",
+patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
     photonSource = cms.InputTag("photons"),
                                  

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-layer1MHTs = cms.EDProducer(
-    "PATMHTProducer",
+patMHTs = cms.EDProducer("PATMHTProducer",
     # input 
     verbose = cms.double(0.),
     

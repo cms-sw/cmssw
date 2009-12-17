@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-allLayer1Jets = cms.EDProducer("PATJetProducer",
+patAK5CaloJets = cms.EDProducer("PATJetProducer",
     # input
     jetSource = cms.InputTag("ak5CaloJets"),
                                

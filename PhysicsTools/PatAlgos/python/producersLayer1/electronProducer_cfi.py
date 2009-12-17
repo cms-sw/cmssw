@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-allLayer1Electrons = cms.EDProducer("PATElectronProducer",
+patElectrons = cms.EDProducer("PATElectronProducer",
     # input collection
     electronSource = cms.InputTag("gsfElectrons"),
 

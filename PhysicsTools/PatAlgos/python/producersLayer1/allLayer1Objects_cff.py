@@ -10,26 +10,26 @@ from PhysicsTools.PatAlgos.producersLayer1.metProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.mhtProducer_cff import *
 
 # One module to count objects
-allLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
-    logName = cms.untracked.string("allLayer1Objects|PATSummaryTables"),
+patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
+    logName = cms.untracked.string("patCandidates|PATSummaryTables"),
     candidates = cms.VInputTag(
-        cms.InputTag("allLayer1Electrons"),
-        cms.InputTag("allLayer1Muons"),
-        cms.InputTag("allLayer1Taus"),
-        cms.InputTag("allLayer1Photons"),
-        cms.InputTag("allLayer1Jets"),
-        cms.InputTag("layer1METs"),
-#       cms.InputTag("layer1MHTs")
+        cms.InputTag("patElectrons"),
+        cms.InputTag("patMuons"),
+        cms.InputTag("patTaus"),
+        cms.InputTag("patPhotons"),
+        cms.InputTag("patJets"),
+        cms.InputTag("patMETs"),
+#       cms.InputTag("patMHTs")
     )
 )
 
-allLayer1Objects = cms.Sequence(
-    makeAllLayer1Electrons +
-    makeAllLayer1Muons +
-    makeAllLayer1Taus +
-    makeAllLayer1Photons +
-    makeAllLayer1Jets +
-    makeLayer1METs +
-#   makeLayer1MHTs +    
-    allLayer1Summary
+patCandidates = cms.Sequence(
+    makePatElectrons +
+    makePatMuons     +
+    makePatTaus      +
+    makePatPhotons   +
+    makePatJets      +
+    makePatMETs      +
+#   makePatMHTs      +    
+    patCandidateSummary
 )

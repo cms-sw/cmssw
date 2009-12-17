@@ -38,7 +38,7 @@ import FWCore.ParameterSet.Config as cms
 ## Examples:
 ## - smear Electron 4-vector (fixed mass) with a fixed initial resolution of 500MeV to as final resolution of 1.25GeV:
 ##  scaledElectrons = cms.module(ElectronEnergyScale) {
-##    scaledObject                = cms.InputTag("selectedLayer1Electrons")
+##    scaledObject                = cms.InputTag("selectedPatElectrons")
 ##    fixMass                     = cms.bool(True)
 ##    shiftFactor                 = cms.double(1.)
 ##    useDefaultInitialResolution = cms.bool(False)
@@ -49,7 +49,7 @@ import FWCore.ParameterSet.Config as cms
 ##   }
 ## - smear Muon 4-vector (fixed mass) with a initial resolution of 10% to as final resoltion of 20%:
 ##  scaledMuons = cms.module(MuonEnergyScale) {
-##    scaledObject                = cms.InputTag("selectedLayer1Muons")
+##    scaledObject                = cms.InputTag("selectedPatMuons")
 ##    fixMass                     = cms.bool(True)
 ##    shiftFactor                 = cms.double(1.)
 ##    useDefaultInitialResolution = cms.bool(True)
@@ -60,7 +60,7 @@ import FWCore.ParameterSet.Config as cms
 ##   }
 ## - smear Jet 4-vector to a final resoltion of 150% of the default initial resolution:
 ##  scaledJets = cms.module(JetEnergyScale) {
-##    scaledObject                = cms.InputTag("selectedLayer1Jets")
+##    scaledObject                = cms.InputTag("selectedPatAK5CaloJets")
 ##    fixMass                     = cms.bool(False)  ## ===> no fixed mass for the jet
 ##    shiftFactor                 = cms.double(1.)
 ##    useDefaultInitialResolution = cms.bool(True)
@@ -117,7 +117,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
 ## Electrons
 scaledElectrons = cms.EDFilter("ElectronEnergyScale",
- scaledObject                = cms.InputTag("selectedLayer1Electrons"),
+ scaledObject                = cms.InputTag("selectedPatElectrons"),
  fixMass                     = cms.bool(False),
  shiftFactor                 = cms.double(1.),
  useDefaultInitialResolution = cms.bool(True),
@@ -129,7 +129,7 @@ scaledElectrons = cms.EDFilter("ElectronEnergyScale",
 
 ## Muons
 scaledMuons = cms.EDFilter("MuonEnergyScale",
- scaledObject                = cms.InputTag("selectedLayer1Muons"),
+ scaledObject                = cms.InputTag("selectedPatMuons"),
  fixMass                     = cms.bool(False),
  shiftFactor                 = cms.double(1.),
  useDefaultInitialResolution = cms.bool(True),
@@ -141,7 +141,7 @@ scaledMuons = cms.EDFilter("MuonEnergyScale",
 
 ## Taus
 scaledTaus = cms.EDFilter("TauEnergyScale",
- scaledObject                = cms.InputTag("selectedLayer1Taus"),
+ scaledObject                = cms.InputTag("selectedPatTaus"),
  fixMass                     = cms.bool(False),
  shiftFactor                 = cms.double(1.),
  useDefaultInitialResolution = cms.bool(True),
@@ -153,7 +153,7 @@ scaledTaus = cms.EDFilter("TauEnergyScale",
 
 ## Jets
 scaledJets = cms.EDFilter("JetEnergyScale",
- scaledObject                = cms.InputTag("selectedLayer1Jets"),
+ scaledObject                = cms.InputTag("selectedPatJets"),
  fixMass                     = cms.bool(False),
  shiftFactor                 = cms.double(1.),
  useDefaultInitialResolution = cms.bool(True),
@@ -165,7 +165,7 @@ scaledJets = cms.EDFilter("JetEnergyScale",
 
 ## METs
 scaledMETs = cms.EDFilter("METEnergyScale",
- scaledObject                = cms.InputTag("selectedLayer1METs"),
+ scaledObject                = cms.InputTag("selectedPatMETs"),
  fixMass                     = cms.bool(False),
  shiftFactor                 = cms.double(1.),
  useDefaultInitialResolution = cms.bool(True),

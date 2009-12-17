@@ -13,8 +13,8 @@ from PhysicsTools.PatAlgos.cleaningLayer1.cleanLayer1Objects_cff import *
 from PhysicsTools.PatAlgos.selectionLayer1.countLayer1Objects_cff import *
 
 patDefaultSequence = cms.Sequence(
-    allLayer1Objects * 
-    selectedLayer1Objects *
-    cleanLayer1Objects *
-    countLayer1Objects
+    patCandidates * 
+    selectedPatCandidates *
+    cleanPatCandidates *
+    countPatCandidates
 )

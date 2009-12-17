@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # See https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
 # on how to use the cut-string
 #
-selectedLayer1Photons = cms.EDFilter("PATPhotonSelector",
-    src = cms.InputTag("allLayer1Photons"),
+selectedPatPhotons = cms.EDFilter("PATPhotonSelector",
+    src = cms.InputTag("patPhotons"),
     cut = cms.string("")
 )
 

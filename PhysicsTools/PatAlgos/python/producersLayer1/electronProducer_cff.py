@@ -10,12 +10,12 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi import *
 # produce object
 from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import *
 
-makeAllLayer1Electrons = cms.Sequence(
+makePatElectrons = cms.Sequence(
     # reco pre-production
     # patElectronId *
     # patElectronIsolation *
     # pat specifics
     electronMatch *
     # object production
-    allLayer1Electrons
+    patElectrons
     )

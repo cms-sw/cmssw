@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # See https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
 # on how to use the cut-string
 #
-selectedLayer1Electrons = cms.EDFilter("PATElectronSelector",
-    src = cms.InputTag("allLayer1Electrons"),
+selectedPatElectrons = cms.EDFilter("PATElectronSelector",
+    src = cms.InputTag("patElectrons"),
     cut = cms.string("")
 )
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanLayer1Taus = cms.EDFilter("PATTauCleaner",
-    src = cms.InputTag("selectedLayer1Taus"), 
+cleanPatTaus = cms.EDFilter("PATTauCleaner",
+    src = cms.InputTag("selectedPatTaus"), 
 
     # preselection (any string-based cut on pat::Tau)
     preselection = cms.string(
@@ -16,7 +16,7 @@ cleanLayer1Taus = cms.EDFilter("PATTauCleaner",
     # overlap checking configurables
     checkOverlaps = cms.PSet(
         muons = cms.PSet(
-           src       = cms.InputTag("cleanLayer1Muons"),
+           src       = cms.InputTag("cleanPatMuons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.3),
@@ -25,7 +25,7 @@ cleanLayer1Taus = cms.EDFilter("PATTauCleaner",
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the electron to be discared
         ),
         electrons = cms.PSet(
-           src       = cms.InputTag("cleanLayer1Electrons"),
+           src       = cms.InputTag("cleanPatElectrons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.3),

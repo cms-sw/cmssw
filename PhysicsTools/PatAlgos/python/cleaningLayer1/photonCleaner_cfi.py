@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanLayer1Photons = cms.EDFilter("PATPhotonCleaner",
+cleanPatPhotons = cms.EDFilter("PATPhotonCleaner",
     ## Input collection of Photons
-    src = cms.InputTag("selectedLayer1Photons"),
+    src = cms.InputTag("selectedPatPhotons"),
 
     # preselection (any string-based cut for pat::Photon)
     preselection = cms.string(''),
@@ -10,7 +10,7 @@ cleanLayer1Photons = cms.EDFilter("PATPhotonCleaner",
     # overlap checking configurables
     checkOverlaps = cms.PSet(
         electrons = cms.PSet(
-           src       = cms.InputTag("cleanLayer1Electrons"),
+           src       = cms.InputTag("cleanPatElectrons"),
            algorithm = cms.string("bySuperClusterSeed"),
            requireNoOverlaps = cms.bool(False), # mark photons that overlap with electrons
                                                 # for further studies, but DO NOT discard

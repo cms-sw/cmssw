@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-allLayer1Muons = cms.EDProducer("PATMuonProducer",
+patMuons = cms.EDProducer("PATMuonProducer",
     # input
     muonSource      = cms.InputTag("muons"),
 

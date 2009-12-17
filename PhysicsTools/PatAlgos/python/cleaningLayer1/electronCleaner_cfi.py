@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanLayer1Electrons = cms.EDFilter("PATElectronCleaner",
+cleanPatElectrons = cms.EDFilter("PATElectronCleaner",
     ## pat electron input source
-    src = cms.InputTag("selectedLayer1Electrons"), 
+    src = cms.InputTag("selectedPatElectrons"), 
 
     # preselection (any string-based cut for pat::Electron)
     preselection = cms.string(''),
@@ -10,7 +10,7 @@ cleanLayer1Electrons = cms.EDFilter("PATElectronCleaner",
     # overlap checking configurables
     checkOverlaps = cms.PSet(
         muons = cms.PSet(
-           src       = cms.InputTag("cleanLayer1Muons"),
+           src       = cms.InputTag("cleanPatMuons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),  # don't preselect the muons
            deltaR              = cms.double(0.3),

@@ -13,7 +13,7 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import *
 # produce object
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import *
 
-makeAllLayer1Jets = cms.Sequence(
+makePatJets = cms.Sequence(
     # reco pre-production
     patJetCharge *
     patJetCorrections *
@@ -24,5 +24,5 @@ makeAllLayer1Jets = cms.Sequence(
     jetGenJetMatch *
     jetFlavourId *
     # object production
-    allLayer1Jets
+    patAK5CaloJets
     )

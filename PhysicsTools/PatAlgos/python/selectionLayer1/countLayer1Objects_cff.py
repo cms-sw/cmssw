@@ -8,11 +8,11 @@ from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
 from PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi import *
 
-countLayer1Objects = cms.Sequence(
-    countLayer1Electrons +
-    countLayer1Muons +
-    countLayer1Taus +
-    countLayer1Leptons +
-    countLayer1Photons +
-    countLayer1Jets 
+countPatCandidates = cms.Sequence(
+    countPatElectrons +
+    countPatMuons     +
+    countPatTaus      +
+    countPatLeptons   +
+    countPatPhotons   +
+    countPatAK5CaloJets 
 )
