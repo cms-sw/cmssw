@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.14 2009/12/02 14:21:02 dshpakov Exp $
+// $Id: I2OChain.cc,v 1.15 2009/12/03 14:31:46 dshpakov Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -15,10 +15,8 @@
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
 #include "interface/evb/i2oEVBMsgs.h"
+#include "interface/shared/i2oXFunctionCodes.h"
 
-// The following is from interface/shared/i2oXFunctionCodes.h. Will go
-// away when xdaq 10 becomes available.
-#define I2O_EVM_LUMISECTION 0x0011
 
 namespace stor
 {
@@ -63,11 +61,13 @@ namespace stor
               break;
             }
 
+          #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
           case I2O_EVM_LUMISECTION:
             {
               _data.reset( new detail::EndLumiSectMsgData( pRef ) );
               break;
             }
+          #endif
 
           case I2O_SM_ERROR:
             {

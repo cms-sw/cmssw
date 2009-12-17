@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.11 2009/11/24 16:40:34 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.12 2009/12/08 14:12:58 dshpakov Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -280,11 +280,8 @@ void DiskWriter::destroyStreams()
 void DiskWriter::processEndOfLumiSection( I2OChain& msg )
 {
   const uint32_t ls = msg.lumiSection();
-  for( StreamHandlers::const_iterator it = _streamHandlers.begin();
-       it != _streamHandlers.end(); ++it )
-    {
-      (*it)->closeFilesForLumiSection( ls );
-    }
+  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
+    boost::bind(&StreamHandler::closeFilesForLumiSection, _1, ls));
   msg.release();
 }
 
