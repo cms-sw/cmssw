@@ -39,7 +39,7 @@ def adaptPFMuons(process,module ):
     print 
     
 
-def adaptPFElectrons(process,module,l1Collection=cms.InputTag("allLayer1Electrons")):
+def adaptPFElectrons(process,module,l1Collection=cms.InputTag("patElectrons")):
     # module.useParticleFlow = True
     print "Adapting PF Electrons "
     print "********************* "
@@ -73,7 +73,7 @@ def adaptPFElectrons(process,module,l1Collection=cms.InputTag("allLayer1Electron
     
     print "removing traditional isolation"
 
-    if (l1Collection.moduleLabel=="allLayer1Electrons"):
+    if (l1Collection.moduleLabel=="patElectrons"):
         process.patDefaultSequence.remove(getattr(process, 'patElectronIsolation'))
 
 
@@ -103,7 +103,7 @@ def reconfigureLayer0Taus(process,moduleL0,
       layer0Selection=["DiscriminationByIsolation", "DiscriminationByLeadingPionPtCut"],
       selectionDependsOn=["DiscriminationByLeadingTrackFinding"],
       producerFromType=lambda producer: producer+"Producer"):
-   print "Layer1Taus will be produced from taus of type: %s that pass %s" \
+   print "patTaus will be produced from taus of type: %s that pass %s" \
 	 % (tauType, layer0Selection)
 
    # Get the prototype of tau producer to make, i.e. fixedConePFTauProducer
@@ -160,13 +160,13 @@ def adaptPFTaus(process,module,tauType = 'shrinkingConePFTau',
                             tauType,
                             l0tauCollection=l0tauColl)
     
-    #switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
+    #switchToAnyPFTau(process, oldTaus, process.patTaus.tauSource, tauType)
     switchToPFTauByType(process,module, pfTauType=tauType,
                         pfTauLabelNew=module.tauSource,
                         pfTauLabelOld=oldTaus)
 
     if (l0tauColl.moduleLabel=="allLayer0Taus"):
-        process.makeAllLayer1Taus.remove(process.patPFCandidateIsoDepositSelection)
+        process.makePatTaus.remove(process.patPFCandidateIsoDepositSelection)
     if (l0tauColl.moduleLabel=="pfLayer0Taus"):
         process.PF2PAT.remove(process.patPFCandidateIsoDepositSelection)
 
@@ -177,11 +177,11 @@ def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau'):
             
 
 def addPFCandidates(process,src,patLabel='PFParticles',cut="",
-                    layer='allLayer1',selected='selectedLayer1',
-                    counted='countLayer1'):
-    from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import allLayer1PFParticles
+                    layer='pat',selected='selectedPat',
+                    counted='countPat'):
+    from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import patPFParticles
     # make modules
-    producer = allLayer1PFParticles.clone(pfCandidateSource = src)
+    producer = patPFParticles.clone(pfCandidateSource = src)
     filter   = cms.EDFilter("PATPFParticleSelector", 
                     src = cms.InputTag(layer + patLabel), 
                     cut = cms.string(cut))
@@ -194,17 +194,17 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",
     setattr(process, selected + patLabel, filter)
     setattr(process, counted    + patLabel, counter)
     # insert into sequence
-    if (layer=='allLayer1'):
-        process.allLayer1Objects.replace(process.allLayer1Summary, producer +  process.allLayer1Summary)
-        process.selectedLayer1Objects.replace(process.selectedLayer1Summary, filter +  process.selectedLayer1Summary)
-        process.countLayer1Objects    += counter
+    if (layer=='pat'):
+        process.patCandidates.replace(process.patCandidateSummary, producer+process.patCandidateSummary)
+        process.selectedPatCandidates.replace(process.selectedPatCandidateSummary, filter + process.selectedPatCandidateSummary)
+        process.countPatCandidates += counter
         # summary tables
-        process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1' + patLabel))
-        process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1' + patLabel))
-    if (layer=='pfLayer1'): 
-        process.pfLayer1Objects.replace(process.pfLayer1Summary, producer +  process.pfLayer1Summary)
-        process.pfSelectedObjects.replace(process.pfselectedLayer1Summary, filter +  process.pfselectedLayer1Summary)
-        process.pfCountObjects    += counter
+        process.patCandidateSummary.candidates.append(cms.InputTag('pat' + patLabel))
+        process.selectedPatCandidateSummary.candidates.append(cms.InputTag('selectedPat' + patLabel))
+    if (layer=='pfPat'): 
+        process.pfPatCandidates.replace(process.pfPatCandidateSummary, producer +  process.pfPatCandidateSummary)
+        process.pfSelectedPatCandidates.replace(process.pfSelectedPatCandidateSummary, filter +  process.pfSelectedPatCandidateSummary)
+        process.pfCountPatCandidates += counter
 
         
 def switchToPFMET(process,input=cms.InputTag('pfMET'),metColl=cms.InputTag('layer1METs')):
@@ -219,7 +219,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'),metColl=cms.InputTag('laye
 
 def switchToPFJets(process,
                    input=cms.InputTag('pfNoTau'), algo='IC5',
-                   l1jetColl  = cms.InputTag("allLayer1Jets")
+                   l1jetColl  = cms.InputTag(jetCollectionString())
                    ):
 
     print "Switching to PFJets,  ", algo
@@ -262,22 +262,18 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
-
-#        process.dump = cms.EDAnalyzer("EventContentAnalyzer")
-        process.patDefaultSequence.replace(process.allLayer1Objects,
-                                           process.PF2PAT +
-                                           process.allLayer1Objects
-                                           )
+       #process.dump = cms.EDAnalyzer("EventContentAnalyzer")
+        process.patDefaultSequence.replace(process.patCandidates, process.PF2PAT+process.patCandidates)
 
     removeCleaning(process)
     
     # -------- OBJECTS ------------
     # Muons
-    adaptPFMuons(process,process.allLayer1Muons)
+    adaptPFMuons(process,process.patMuons)
 
     
     # Electrons
-    adaptPFElectrons(process,process.allLayer1Electrons)
+    adaptPFElectrons(process,process.patElectrons)
 
     # Photons
     print "Temporarily switching off photons completely"
@@ -289,7 +285,7 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
     
     # Taus
     #adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
-    adaptPFTaus( process,process.allLayer1Taus, tauType='fixedConePFTau' )
+    adaptPFTaus( process,process.patTaus, tauType='fixedConePFTau' )
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))
@@ -305,16 +301,16 @@ def usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5'):
      #LAYER1
      #  #ELECTRONS
      import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
-     process.pfLayer1Electrons=PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.allLayer1Electrons.clone()
-     adaptPFElectrons(process,process.pfLayer1Electrons, cms.InputTag("pfLayer1Electrons"))
+     process.pfPatElectrons=PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.clone()
+     adaptPFElectrons(process,process.pfPatElectrons, cms.InputTag("pfPatElectrons"))
 
      #  #MUONS
      import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
-     process.pfLayer1Muons=PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.allLayer1Muons.clone()
+     process.pfPatMuons=PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.clone()
      import PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi
      process.pfMuonMatch=PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi.muonMatch.clone()
-     process.pfLayer1Muons.genParticleMatch=cms.InputTag("pfMuonMatch")
-     adaptPFMuons(process,process.pfLayer1Muons)
+     process.pfPatMuons.genParticleMatch=cms.InputTag("pfMuonMatch")
+     adaptPFMuons(process,process.pfPatMuons)
 
      #  #TAUS
      from PhysicsTools.PFCandProducer.pfTaus_cff import allLayer0Taus
@@ -323,7 +319,7 @@ def usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5'):
                                    process.pfLayer0Taus)
      process.pfNoTau.topCollection=cms.InputTag("pfLayer0Taus")
      import PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi     
-     process.pfLayer1Taus=PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi.allLayer1Taus.clone()
+     process.pfPatTaus=PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi.patTaus.clone()
  
 
      import  PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi
@@ -338,64 +334,64 @@ def usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5'):
      process.pfTauIsoDepositPFNeutralHadrons = PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff.tauIsoDepositPFNeutralHadrons.clone()
      process.pfTauIsoDepositPFGammas = PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff.tauIsoDepositPFGammas.clone()
 
-     process.pfLayer1Taus.isoDeposits.pfAllParticles = cms.InputTag("pfTauIsoDepositPFCandidates")
-     process.pfLayer1Taus.isoDeposits.pfChargedHadron = cms.InputTag("pfTauIsoDepositPFChargedHadrons")
-     process.pfLayer1Taus.isoDeposits.pfNeutralHadron = cms.InputTag("pfTauIsoDepositPFNeutralHadrons")
-     process.pfLayer1Taus.isoDeposits.pfGamma = cms.InputTag("pfTauIsoDepositPFGammas")
-     process.pfLayer1Taus.userIsolation.pfAllParticles.src = cms.InputTag("pfTauIsoDepositPFCandidates")
-     process.pfLayer1Taus.userIsolation.pfChargedHadron.src = cms.InputTag("pfTauIsoDepositPFChargedHadrons")
-     process.pfLayer1Taus.userIsolation.pfNeutralHadron.src = cms.InputTag("pfTauIsoDepositPFNeutralHadrons")
-     process.pfLayer1Taus.userIsolation.pfGamma.src = cms.InputTag("pfTauIsoDepositPFGammas")
-     process.pfLayer1Taus.genParticleMatch = cms.InputTag("pfTauMatch")
-     process.pfLayer1Taus.genJetMatch      = cms.InputTag("pfTauGenJetMatch")
-     adaptPFTaus( process,process.pfLayer1Taus,tauType='fixedConePFTau', l0tauColl=cms.InputTag("pfLayer0Taus"))
+     process.pfPatTaus.isoDeposits.pfAllParticles = cms.InputTag("pfTauIsoDepositPFCandidates")
+     process.pfPatTaus.isoDeposits.pfChargedHadron = cms.InputTag("pfTauIsoDepositPFChargedHadrons")
+     process.pfPatTaus.isoDeposits.pfNeutralHadron = cms.InputTag("pfTauIsoDepositPFNeutralHadrons")
+     process.pfPatTaus.isoDeposits.pfGamma = cms.InputTag("pfTauIsoDepositPFGammas")
+     process.pfPatTaus.userIsolation.pfAllParticles.src = cms.InputTag("pfTauIsoDepositPFCandidates")
+     process.pfPatTaus.userIsolation.pfChargedHadron.src = cms.InputTag("pfTauIsoDepositPFChargedHadrons")
+     process.pfPatTaus.userIsolation.pfNeutralHadron.src = cms.InputTag("pfTauIsoDepositPFNeutralHadrons")
+     process.pfPatTaus.userIsolation.pfGamma.src = cms.InputTag("pfTauIsoDepositPFGammas")
+     process.pfPatTaus.genParticleMatch = cms.InputTag("pfTauMatch")
+     process.pfPatTaus.genJetMatch      = cms.InputTag("pfTauGenJetMatch")
+     adaptPFTaus( process,process.pfPatTaus,tauType='fixedConePFTau', l0tauColl=cms.InputTag("pfLayer0Taus"))
 
      #  #JETS
      import PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi
-     process.pfLayer1Jets=PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi.allLayer1Jets.clone()
+     process.pfPatJets=PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi.patAK5CaloJets.clone()
      import PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi
      process.pfJetPartonMatch =  PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi.jetPartonMatch.clone()
      process.pfJetGenJetMatch =  PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi.jetGenJetMatch.clone()
-     process.pfLayer1Jets.genPartonMatch = cms.InputTag("pfJetPartonMatch")
-     process.pfLayer1Jets.genJetMatch    = cms.InputTag("pfJetGenJetMatch")  
+     process.pfPatJets.genPartonMatch = cms.InputTag("pfJetPartonMatch")
+     process.pfPatJets.genJetMatch    = cms.InputTag("pfJetGenJetMatch")  
      import PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff
      process.pfJetPartonAssociation  = PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff.jetPartonAssociation.clone()
      process.pfJetFlavourAssociation = PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff.jetFlavourAssociation.clone()
      process.pfJetFlavourAssociation.srcByReference = cms.InputTag("pfJetPartonAssociation")
-     process.pfLayer1Jets.JetPartonMapSource = cms.InputTag("pfJetFlavourAssociation")
+     process.pfPatJets.JetPartonMapSource = cms.InputTag("pfJetFlavourAssociation")
      import PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi
      process.pfJetCorrFactors=PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi.jetCorrFactors.clone()
-     process.pfLayer1Jets.jetCorrFactorsSource = cms.VInputTag(cms.InputTag("pfJetCorrFactors") )
+     process.pfPatJets.jetCorrFactorsSource = cms.VInputTag(cms.InputTag("pfJetCorrFactors") )
      import RecoJets.JetAssociationProducers.ak5JTA_cff
      process.jetTracksAssociatorAtVertexPF = RecoJets.JetAssociationProducers.ak5JTA_cff.ak5JetTracksAssociatorAtVertex.clone()
      import PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff
      process.pfJetCharge = PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff.patJetCharge.clone()
      process.pfJetCharge.src = cms.InputTag("jetTracksAssociatorAtVertexPF")
      
-     process.pfLayer1Jets.trackAssociationSource = cms.InputTag("jetTracksAssociatorAtVertexPF")
-     process.pfLayer1Jets.jetChargeSource = cms.InputTag("pfJetCharge")
+     process.pfPatJets.trackAssociationSource = cms.InputTag("jetTracksAssociatorAtVertexPF")
+     process.pfPatJets.jetChargeSource = cms.InputTag("pfJetCharge")
      
      #  #MET
      import PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi
-     process.pfLayer1METs = PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi.layer1METs.clone()
-     switchToPFMET(process, cms.InputTag('pfMET'),metColl=cms.InputTag('pfLayer1METs'))
+     process.pfPatMETs = PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi.patMETs.clone()
+     switchToPFMET(process, cms.InputTag('pfMET'),metColl=cms.InputTag('pfPatMETs'))
 
      #  #SUMMARY
-     process.pfLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
-                                              logName = cms.untracked.string("pfLayer1Objects|PATSummaryTables"),
-                                              candidates = cms.VInputTag(cms.InputTag("pfLayer1Electrons"),
-                                                                         cms.InputTag("pfLayer1Muons"),
-                                                                         cms.InputTag("pfLayer1Taus"),
-                                                                         cms.InputTag("pfLayer1Photons"),
-                                                                         cms.InputTag("pfLayer1Jets"),
-                                                                         cms.InputTag("pfLayer1METs")
+     process.pfPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
+                                              logName = cms.untracked.string("pfPatCandidates|PATSummaryTables"),
+                                              candidates = cms.VInputTag(cms.InputTag("pfPatElectrons"),
+                                                                         cms.InputTag("pfPatMuons"),
+                                                                         cms.InputTag("pfPatTaus"),
+                                                                         cms.InputTag("pfPatPhotons"),
+                                                                         cms.InputTag("pfPatJets"),
+                                                                         cms.InputTag("pfPatMETs")
                                                                          )
                                               )
 
      #  #SEQUENCE
 
      process.makepflayer1Muons=cms.Sequence(process.pfMuonMatch+
-                                            process.pfLayer1Muons)
+                                            process.pfPatMuons)
 
      process.makepflayer1Taus=cms.Sequence(process.pfTauMatch+
                                            process.pfTauGenJetMatch+
@@ -403,7 +399,7 @@ def usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5'):
                                            process.pfTauIsoDepositPFChargedHadrons+
                                            process.pfTauIsoDepositPFNeutralHadrons+
                                            process.pfTauIsoDepositPFGammas+
-                                           process.pfLayer1Taus)
+                                           process.pfPatTaus)
 
      process.makepflayer1Jets=cms.Sequence(process.pfJetPartonMatch+
                                            process.pfJetGenJetMatch+
@@ -412,87 +408,87 @@ def usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5'):
                                            process.pfJetCorrFactors+
                                            process.jetTracksAssociatorAtVertexPF+
                                            process.pfJetCharge+
-                                           process.pfLayer1Jets)
-     switchToPFJets( process,cms.InputTag('pfNoTau'), jetAlgo, l1jetColl  = cms.InputTag("pfLayer1Jets") )
+                                           process.pfPatJets)
+     switchToPFJets( process,cms.InputTag('pfNoTau'), jetAlgo, l1jetColl  = cms.InputTag("pfPatJets") )
      
-     process.pfLayer1Objects=cms.Sequence(process.pfLayer1Electrons+
+     process.pfPatCandidates=cms.Sequence(process.pfPatElectrons+
                                           process.makepflayer1Muons+
                                           process.makepflayer1Taus+
                                           process.makepflayer1Jets+
-                                          process.pfLayer1METs+
-                                          process.pfLayer1Summary)
+                                          process.pfPatMETs+
+                                          process.pfPatCandidateSummary)
 
      
      #SELECTED
      #  #ELECTRONS
      import PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi
-     process.pfselectedLayer1Electrons = PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi.selectedLayer1Electrons.clone()
-     process.pfselectedLayer1Electrons.src=cms.InputTag("pfLayer1Electrons")
+     process.pfSelectedPatElectrons = PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi.selectedPatElectrons.clone()
+     process.pfSelectedPatElectrons.src=cms.InputTag("pfPatElectrons")
      #  #MUONS
      import PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi
-     process.pfselectedLayer1Muons = PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi.selectedLayer1Muons.clone()
-     process.pfselectedLayer1Muons.src=cms.InputTag("pfLayer1Muons")     
+     process.pfSelectedPatMuons = PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi.selectedPatMuons.clone()
+     process.pfSelectedPatMuons.src=cms.InputTag("pfPatMuons")     
      #  #TAUS
      import PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi
-     process.pfselectedLayer1Taus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.selectedLayer1Taus.clone()
-     process.pfselectedLayer1Taus.src=cms.InputTag("pfLayer1Taus")     
+     process.pfSelectedPatTaus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.selectedPatTaus.clone()
+     process.pfSelectedPatTaus.src=cms.InputTag("pfPatTaus")     
      #  #JETS
      import PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi
-     process.pfselectedLayer1Jets = PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi.selectedLayer1Jets.clone()
-     process.pfselectedLayer1Jets.src=cms.InputTag("pfLayer1Jets")
+     process.pfSelectedPatJets = PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi.selectedPatJets.clone()
+     process.pfSelectedPatJets.src=cms.InputTag("pfPatJets")
      #  #SUMMARY
-     process.pfselectedLayer1Summary = cms.EDAnalyzer(
-         "CandidateSummaryTable",
-         logName = cms.untracked.string("pfselectedLayer1Objects|PATSummaryTables"),
-         candidates = cms.VInputTag(cms.InputTag("pfselectedLayer1Electrons"),
-                                    cms.InputTag("pfselectedLayer1Muons"),
-                                    cms.InputTag("pfselectedLayer1Taus"),
-                                    cms.InputTag("pfselectedLayer1Photons"),
-                                    cms.InputTag("pfselectedLayer1Jets"),
-                                    cms.InputTag("pfLayer1METs")
+     process.pfSelectedPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
+         logName = cms.untracked.string("pfSelectedPatCandidates|PATSummaryTables"),
+         candidates = cms.VInputTag(cms.InputTag("pfSelectedPatElectrons"),
+                                    cms.InputTag("pfSelectedPatMuons"),
+                                    cms.InputTag("pfSelectedPatTaus"),
+                                    cms.InputTag("pfSelectedPatPhotons"),
+                                    cms.InputTag("pfSelectedPatJets"),
+                                    cms.InputTag("pfPatMETs")
                                     )
          )
      #  #SEQUENCE
-     process.pfSelectedObjects=cms.Sequence(process.pfselectedLayer1Electrons+
-                                            process.pfselectedLayer1Muons+
-                                            process.pfselectedLayer1Taus+
-                                            process.pfselectedLayer1Jets+
-                                            process.pfselectedLayer1Summary)
+     process.pfSelectedPatCandidates=cms.Sequence(process.pfSelectedPatElectrons+
+                                                  process.pfSelectedPatMuons+
+                                                  process.pfSelectedPatTaus+
+                                                  process.pfSelectedPatJets+
+                                                  process.pfSelectedPatCandidateSummary
+                                                  )
 
      
      #COUNT
      #  #ELECTRONS
      import PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi 
-     process.pfcountLayer1Electrons = PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi.countLayer1Electrons.clone()
-     process.pfcountLayer1Electrons.src=cms.InputTag("pfselectedLayer1Electrons")
+     process.pfCountPatElectrons = PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi.countPatElectrons.clone()
+     process.pfCountPatElectrons.src=cms.InputTag("pfSelectedPatElectrons")
      #  #MUONS
      import PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi 
-     process.pfcountLayer1Muons = PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi.countLayer1Muons.clone()
-     process.pfcountLayer1Muons.src=cms.InputTag("pfselectedLayer1Muons")     
+     process.pfCountPatMuons = PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi.countPatMuons.clone()
+     process.pfCountPatMuons.src=cms.InputTag("pfSelectedPatMuons")     
      #  #TAUS
      import PhysicsTools.PatAlgos.selectionLayer1.tauCountFilter_cfi 
-     process.pfcountLayer1Taus = PhysicsTools.PatAlgos.selectionLayer1.tauCountFilter_cfi.countLayer1Taus.clone()
-     process.pfcountLayer1Taus.src=cms.InputTag("pfselectedLayer1Taus")    
+     process.pfCountPatTaus = PhysicsTools.PatAlgos.selectionLayer1.tauCountFilter_cfi.countPatTaus.clone()
+     process.pfCountPatTaus.src=cms.InputTag("pfSelectedPatTaus")    
      #  #JETS
      import PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi 
-     process.pfcountLayer1Jets = PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi.countLayer1Jets.clone()
-     process.pfcountLayer1Jets.src=cms.InputTag("pfselectedLayer1Jets")         
+     process.pfCountPatJets = PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi.countPatJets.clone()
+     process.pfCountPatJets.src=cms.InputTag("pfSelectedPatJets")         
      #  #SEQUENCE
-     process.pfCountObjects=cms.Sequence(process.pfcountLayer1Electrons+
-                                         process.pfcountLayer1Muons+
-                                         process.pfcountLayer1Taus+
-                                         process.pfcountLayer1Jets)
+     process.pfCountPatCandidates=cms.Sequence(process.pfCountPatElectrons+
+                                               process.pfCountPatMuons+
+                                               process.pfCountPatTaus+
+                                               process.pfCountPatJets
+                                               )
      
      #FINAL SEQUENCE
      addPFCandidates(process,cms.InputTag('pfNoJet'),patLabel='PFParticles',cut="",
-                     layer='pfLayer1',selected='pfselectedLayer1',
-                     counted='pfcountLayer1')
+                     layer='pfPat',selected='pfselectedPat',
+                     counted='pfcountPat')
      process.PFPATafterPAT =cms.Sequence(process.PF2PAT+
-                                         process.pfLayer1Objects+
-                                         process.pfSelectedObjects+
-                                         process.pfCountObjects)
-
-
+                                         process.pfPatCandidates+
+                                         process.pfSelectedPatCandidates+
+                                         process.pfCountPatCandidates
+                                         )
 
 
 def removeMCDependencedorPF( process ):
