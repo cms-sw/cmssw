@@ -15,6 +15,6 @@ decaySubset = cms.EDProducer("TopDecaySubset",
   fillMode = cms.string("kStable"),
   ## choose whether to save additionally radiated gluons in the
   ## decay chain or not
-  addRadiatedGluons = cms.bool(True)
+  addRadiation = cms.bool(True)
 )
 

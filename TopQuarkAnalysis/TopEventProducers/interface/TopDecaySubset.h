@@ -31,7 +31,7 @@ class TopDecaySubset : public edm::EDProducer {
   /// of gen particles
   enum  FillMode {kStable, kME};
   /// classification of potential shower types
-  enum ShowerModel{kNone, kPythia, kHerwig};
+  enum ShowerModel{kStart=-1, kNone, kPythia, kHerwig};
 
   /// default constructor
   explicit TopDecaySubset(const edm::ParameterSet& cfg);
@@ -70,12 +70,12 @@ class TopDecaySubset : public edm::EDProducer {
  private:
   /// mode of decaySubset creation 
   FillMode fillMode_;
-  /// parton shower mode (filled in checkSanity)
-  ShowerModel showerModel_;
-  /// add radiated gluons or not?
-  bool addRadiatedGluons_;
+  /// add radiation or not?
+  bool addRadiation_;
   /// input tag for the genParticle source
   edm::InputTag src_;                    
+  /// parton shower mode (filled in checkShowerModel)
+  ShowerModel showerModel_;
 
   /// index in new evt listing of parts with daughters; 
   /// has to be set to -1 in produce to deliver consistent 

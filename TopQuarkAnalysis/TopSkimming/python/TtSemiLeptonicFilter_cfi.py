@@ -21,13 +21,6 @@ ttSemiLeptonicFilter = cms.EDFilter("TtDecayChannelFilter",
         muon     = cms.bool(False),
         tau      = cms.bool(False)
       )
-    ),
-
-    ## allow different types of tau decay channels
-    allowedTauDecays = cms.PSet(
-      leptonic   = cms.bool(False),
-      oneProng   = cms.bool(False),
-      threeProng = cms.bool(False)
     )
 )
 
