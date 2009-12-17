@@ -13,7 +13,7 @@ from RecoTracker.TrackProducer.TrackRefitters_cff import *
 bigNtupleTrackCollectionTag = cms.InputTag("bigNtupleTracksRefit")
 bigNtupleClusterCollectionTag = cms.InputTag("siStripClusters")
 
-bigNtupleTracksRefit =  RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone(src = bigNtupleTrackCollectionTag)
+bigNtupleTracksRefit =  RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone(src = "generalTracks")
 
 
 bigNtupleEventRun        = shallowEventRun.clone()
@@ -36,16 +36,20 @@ bigShallowTree = cms.EDAnalyzer("ShallowTree",
     )
                                 )
 
+from Configuration.StandardSequences.RawToDigi_Data_cff import *
+from Configuration.StandardSequences.Reconstruction_cff import *
 
-theBigNtuple = cms.Sequence( (siStripMatchedRecHits + offlineBeamSpot + bigNtupleTracksRefit)
+theBigNtuple = cms.Sequence( ( siPixelRecHits+siStripMatchedRecHits +
+                               offlineBeamSpot +
+                               bigNtupleTracksRefit)
                              * (bigNtupleEventRun +
-                                #bigNtupleDigis +
                                 bigNtupleClusters +
                                 bigNtupleRecHits +
                                 bigNtupleTracks +
                                 bigNtupleTrackClusters
                                 )
-                             *
-                             bigShallowTree
                              )
+
+theBigNtupleDigi = cms.Sequence( siStripDigis + bigNtupleDigis )
+
 
