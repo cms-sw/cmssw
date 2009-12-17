@@ -48,18 +48,18 @@ def removeMCMatching(process,
     ------------------------------------------------------------------    
     """
     if( name == 'Photons'   or name == 'All' ):
-        _removeMCMatchingForPATObject(process, 'photonMatch', 'allLayer1Photons') 
+        _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons') 
     if( name == 'Electrons' or name == 'All' ):
-        _removeMCMatchingForPATObject(process, 'electronMatch', 'allLayer1Electrons') 
+        _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons') 
     if( name == 'Muons'     or name == 'All' ):
-        _removeMCMatchingForPATObject(process, 'muonMatch', 'allLayer1Muons') 
+        _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons') 
     if( name == 'Taus'      or name == 'All' ):
-        _removeMCMatchingForPATObject(process, 'tauMatch', 'allLayer1Taus')
+        _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
         ## remove mc extra modules for taus
         process.patDefaultSequence.remove(process.tauGenJets)
         process.patDefaultSequence.remove(process.tauGenJetMatch)
         ## remove mc extra configs for taus
-        tauProducer = getattr(process, 'allLayer1Taus')
+        tauProducer = getattr(process, 'patTaus')
         tauProducer.addGenJetMatch      = False
         tauProducer.embedGenJetMatch    = False
         tauProducer.genJetMatch         = ''         
@@ -69,7 +69,7 @@ def removeMCMatching(process,
         process.patDefaultSequence.remove(process.jetGenJetMatch)
         process.patDefaultSequence.remove(process.jetFlavourId)
         ## remove mc extra configs for jets
-        jetProducer = getattr(process, 'allLayer1Jets')
+        jetProducer = getattr(process, jetCollectionString())
         jetProducer.addGenPartonMatch   = False
         jetProducer.embedGenPartonMatch = False
         jetProducer.genPartonMatch      = ''
@@ -79,7 +79,7 @@ def removeMCMatching(process,
         jetProducer.JetPartonMapSource  = ''       
     if( name == 'METs'      or name == 'All' ):
         ## remove mc extra configs for jets
-        metProducer = getattr(process, 'layer1METs')        
+        metProducer = getattr(process, 'patMETs')        
         metProducer.addGenMET           = False
         metProducer.genMETSource        = ''       
     if( name == 'PFElectrons' or name == 'PFAll' ):
@@ -122,8 +122,8 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName):
     objectMatcher = getattr(process, matcherName)
     if (producerName=='pfLayer1Muons'or producerName=='pfLayer1Taus'):
         process.PFPATafterPAT.remove(objectMatcher)
-    if (producerName=='allLayer1Muons'or producerName=='allLayer1Taus'or
-        producerName=='allLayer1Photons' or producerName=='allLayer1Electrons'):
+    if (producerName=='patMuons'or producerName=='patTaus'or
+        producerName=='patPhotons' or producerName=='patElectrons'):
         process.patDefaultSequence.remove(objectMatcher)
     ## straighten photonProducer
     objectProducer = getattr(process, producerName)
@@ -195,35 +195,51 @@ def removeSpecificPATObjects(process,
             process.patDefaultSequence.remove(getattr(process, 'jetGenJetMatch'))
             process.patDefaultSequence.remove(getattr(process, 'jetFlavourId'))                
         if( names[obj] == 'METs' ):
-            process.patDefaultSequence.remove(getattr(process, 'patMETCorrections'))                
-        ## remove cleaning for the moment; in principle only the removed object
-        ## could be taken out of the checkOverlaps PSet
-        removeCleaning(process, outputInProcess)
+            process.patDefaultSequence.remove(getattr(process, 'patMETCorrections'))
         
         ## remove object production steps from the default sequence    
         if( names[obj] == 'METs' ):
-            process.allLayer1Objects.remove( getattr(process, 'layer1'+names[obj]) )
+            process.patCandidates.remove( getattr(process, 'pat'+names[obj]) )
         else:
-            process.allLayer1Objects.remove( getattr(process, 'allLayer1'+names[obj]) )
-            process.selectedLayer1Objects.remove( getattr(process, 'selectedLayer1'+names[obj]) )
-            process.countLayer1Objects.remove( getattr(process, 'countLayer1'+names[obj]) )
+            if( names[obj] == 'Jets' ):
+                process.patCandidates.remove( getattr(process, jetCollectionString()) )
+                process.selectedPatCandidates.remove( getattr(process, jetCollectionString('selected')) )
+                process.countPatCandidates.remove( getattr(process, jetCollectionString('count')) )
+            else:
+                process.patCandidates.remove( getattr(process, 'pat'+names[obj]) )
+                process.selectedPatCandidates.remove( getattr(process, 'selectedPat'+names[obj]) )
+                process.countPatCandidates.remove( getattr(process, 'countPat'+names[obj]) )
         ## in the case of leptons, the lepton counter must be modified as well
         if( names[obj] == 'Electrons' ):
             print 'removed from lepton counter: electrons'
-            process.countLayer1Leptons.countElectrons = False
+            process.countPatLeptons.countElectrons = False
         elif( names[obj] == 'Muons' ):
             print 'removed from lepton counter: muons'
-            process.countLayer1Leptons.countMuons = False
+            process.countPatLeptons.countMuons = False
         elif( names[obj] == 'Taus' ):
             print 'removed from lepton counter: taus'
-            process.countLayer1Leptons.countTaus = False
+            process.countPatLeptons.countTaus = False
         ## remove from summary
         if( names[obj] == 'METs' ):
-            process.allLayer1Summary.candidates.remove( cms.InputTag('layer1'+names[obj]) )
+            process.patCandidateSummary.candidates.remove( cms.InputTag('pat'+names[obj]) )
         else:
-            process.allLayer1Summary.candidates.remove( cms.InputTag('allLayer1'+names[obj]) )
-            process.selectedLayer1Summary.candidates.remove( cms.InputTag('selectedLayer1'+names[obj]) )
-            process.cleanLayer1Summary.candidates.remove( cms.InputTag('cleanLayer1'+names[obj]) )
+            if( names[obj] == 'Jets' ):
+                process.patCandidateSummary.candidates.remove( cms.InputTag(jetCollectionString()) )
+                process.selectedPatCandidateSummary.candidates.remove( cms.InputTag(jetCollectionString('selected')) )
+                process.cleanPatCandidateSummary.candidates.remove( cms.InputTag(jetCollectionString('clean')) )
+            else:
+                process.patCandidateSummary.candidates.remove( cms.InputTag('pat'+names[obj]) )
+                process.selectedPatCandidateSummary.candidates.remove( cms.InputTag('selectedPat'+names[obj]) )
+                process.cleanPatCandidateSummary.candidates.remove( cms.InputTag('cleanPat'+names[obj]) )
+    ## remove cleaning for the moment; in principle only the removed object
+    ## could be taken out of the checkOverlaps PSet
+    if ( outputInProcess ):
+        print "---------------------------------------------------------------------"
+        print "INFO   : some objects have been removed from the sequence. Switching "
+        print "         off PAt cross collection cleaning, as it might be of limited"
+        print "         sense now. If you still want to keep object collection cross"
+        print "         cleaning within PAT you need to run and configure it by hand"
+        removeCleaning(process)
     
 
 def removeCleaning(process, outputInProcess=True):
@@ -237,21 +253,24 @@ def removeCleaning(process, outputInProcess=True):
     ------------------------------------------------------------------    
     """
     ## adapt single object counters
-    for m in listModules(process.countLayer1Objects):
-        if hasattr(m, 'src'): m.src = m.src.value().replace('cleanLayer1','selectedLayer1')
+    for m in listModules(process.countPatCandidates):
+        if hasattr(m, 'src'): m.src = m.src.value().replace('cleanPat','selectedPat')
     ## adapt lepton counter
-    countLept = process.countLayer1Leptons
-    countLept.electronSource = countLept.electronSource.value().replace('cleanLayer1','selectedLayer1')
-    countLept.muonSource = countLept.muonSource.value().replace('cleanLayer1','selectedLayer1')
-    countLept.tauSource = countLept.tauSource.value().replace('cleanLayer1','selectedLayer1')
-    process.patDefaultSequence.remove(process.cleanLayer1Objects)
+    countLept = process.countPatLeptons
+    countLept.electronSource = countLept.electronSource.value().replace('cleanPat','selectedPat')
+    countLept.muonSource = countLept.muonSource.value().replace('cleanPat','selectedPat')
+    countLept.tauSource = countLept.tauSource.value().replace('cleanPat','selectedPat')
+    process.patDefaultSequence.remove(process.cleanPatCandidates)
     if ( outputInProcess ):
+        print "---------------------------------------------------------------------"
+        print "INFO   : cleaning has been removed. Switch output from clean PAT     "
+        print "         candidates to selected PAT candidates."
         ## add selected layer1 objects to the pat output
-        from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoLayer1Cleaning
-        process.out.outputCommands = patEventContentNoLayer1Cleaning
+        from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
+        process.out.outputCommands = patEventContentNoCleaning
 
 
-def addCleaning(process):
+def addCleaning(process, outputInProcess=True):
     """
     ------------------------------------------------------------------
     add PAT cleaning from the default sequence:
@@ -260,14 +279,18 @@ def addCleaning(process):
     ------------------------------------------------------------------    
     """
     ## adapt single object counters
-    process.patDefaultSequence.replace(process.countLayer1Objects, process.cleanLayer1Objects * process.countLayer1Objects)
-    for m in listModules(process.countLayer1Objects):
-        if hasattr(m, 'src'): m.src = m.src.value().replace('selectedLayer1','cleanLayer1')
+    process.patDefaultSequence.replace(process.countPatCandidates, process.cleanPatCandidates * process.countPatCandidates)
+    for m in listModules(process.countPatCandidates):
+        if hasattr(m, 'src'): m.src = m.src.value().replace('selectedPat','cleanPat')
     ## adapt lepton counter
-    countLept = process.countLayer1Leptons
-    countLept.electronSource = countLept.electronSource.value().replace('selectedLayer1','cleanLayer1')
-    countLept.muonSource = countLept.muonSource.value().replace('selectedLayer1','cleanLayer1')
-    countLept.tauSource = countLept.tauSource.value().replace('selectedLayer1','cleanLayer1')
-    ## add clean layer1 objects to the pat output
-    from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-    process.out.outputCommands = patEventContent               
+    countLept = process.countPatLeptons
+    countLept.electronSource = countLept.electronSource.value().replace('selectedPat','cleanPat')
+    countLept.muonSource = countLept.muonSource.value().replace('selectedPat','cleanPat')
+    countLept.tauSource = countLept.tauSource.value().replace('selectedPat','cleanPat')
+    if ( outputInProcess ):
+        print "---------------------------------------------------------------------"
+        print "INFO   : cleaning has been added. Switch output from selected PAT    "
+        print "         candidates to clean PAT candidates."
+        ## add clean layer1 objects to the pat output
+        from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
+        process.out.outputCommands = patEventContent               
