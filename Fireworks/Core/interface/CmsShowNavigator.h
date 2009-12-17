@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.46 2009/12/07 21:12:53 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.47 2009/12/13 12:27:10 amraktad Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ private:
          {
             // Go back one element, set to end() when falling off the end.
             if (*this == cont.begin())
-              *this = cont.end();
+               *this = cont.end();
             else
                FQBase_i::operator--();
             return *this;
@@ -140,6 +140,9 @@ private:
    void editFiltersExternally();
    void newFile(FileQueue_i);
 
+   void setupMemoryInfo(int numEvents);
+   void writeMemoryInfo();
+
    // ---------- member data --------------------------------
    
    std::list<FWEventSelector*>  m_selectors;
@@ -158,6 +161,11 @@ private:
    // events or not
    const CmsShowMain &m_main;
    FWGUIEventFilter*  m_guiFilter;
+
+   // write per event memory usage
+   int                  m_memoryInfoSamples;
+   std::vector<Float_t> m_memoryResidentVec;
+   std::vector<Float_t> m_memoryVirtualVec;
 };
 
 #endif
