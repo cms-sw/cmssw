@@ -17,5 +17,6 @@ from DQM.HLTEvF.HLTLocalRecoSiPixel_cff import *
 # alca
 from DQM.HLTEvF.HLTMonAlCaPi0_cff import *
 from DQM.HLTEvF.HLTMonAlCaPhySim_cff import *
+from DQM.HLTEvF.HLTMonHcalIsoTrack_cff import *
 # btag
 #from DQM.HLTEvF.hltMonBTag_cff import *
