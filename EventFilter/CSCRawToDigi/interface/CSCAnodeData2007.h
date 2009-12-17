@@ -55,7 +55,8 @@ private:
   CSCAnodeDataFrame2007 findFrame(int tbin, int layer, int layerPart) const;
 
   /// we don't know the size at first.  Max should be 7 boards * 32 bins * 6 layers * 2
-  unsigned short theDataFrames[2700];
+  enum {MAXFRAMES=2700};
+  unsigned short theDataFrames[MAXFRAMES];
   unsigned short int sizeInWords2007_;
   unsigned short int nAFEBs_;
   unsigned short int  nTimeBins_;

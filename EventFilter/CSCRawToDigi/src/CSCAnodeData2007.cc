@@ -76,7 +76,9 @@ int CSCAnodeData2007::index(int tbin, int layer, int layerPart) const
   assert(tbin<nTimeBins_);
   assert(layer<=6);
   assert(layerPart<layerParts_);
-  return tbin*6*layerParts_+(layer-1)*layerParts_+layerPart;
+  int result = tbin*6*layerParts_+(layer-1)*layerParts_+layerPart;
+  assert(result < MAXFRAMES);
+  return result;
 }
 
 
