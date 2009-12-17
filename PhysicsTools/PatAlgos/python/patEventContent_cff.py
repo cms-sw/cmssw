@@ -6,7 +6,7 @@ patEventContentNoCleaning = [
     'keep *_selectedPatMuons_*_*', 
     'keep *_selectedPatTaus_*_*', 
     'keep *_selectedPatJets*_*_*', 
-    'keep *_layer1METs_*_*',
+    'keep *_patMETs*_*_*',
     'keep *_selectedPatPFParticles_*_*'
 ]
 
@@ -16,7 +16,7 @@ patEventContent = [
     'keep *_cleanPatMuons_*_*', 
     'keep *_cleanPatTaus_*_*', 
     'keep *_cleanPat*Jets_*_*', 
-    'keep *_layer1METs_*_*',
+    'keep *_patMETs*_*_*',
     'keep *_cleanPatHemispheres_*_*',
     'keep *_cleanPatPFParticles_*_*'
 ]
