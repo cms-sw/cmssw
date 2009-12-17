@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.5 2009/06/30 16:15:15 argiro Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.6 2009/07/01 08:16:25 argiro Exp $
    \date 05 Nov 2008
 */
 
@@ -48,7 +48,7 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.5 2009/06/30 16:15:15 argiro Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.6 2009/07/01 08:16:25 argiro Exp $";
 
 /**
  *
@@ -63,7 +63,7 @@ public:
     
 
 private:
-  virtual void beginJob(const edm::EventSetup&){}
+  virtual void beginJob(){}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(){}
 

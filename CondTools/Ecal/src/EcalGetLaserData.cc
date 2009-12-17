@@ -11,7 +11,7 @@
 //
 // Original Author:  Vladlen Timciuc
 //         Created:  Wed Jul  4 13:55:56 CEST 2007
-// $Id: EcalGetLaserData.cc,v 1.2 2007/10/03 12:31:32 ferriff Exp $
+// $Id: EcalGetLaserData.cc,v 1.3 2007/12/21 14:39:52 meridian Exp $
 //
 //
 
@@ -319,7 +319,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalGetLaserData::beginJob(const edm::EventSetup&)
+EcalGetLaserData::beginJob()
 {
 }
 

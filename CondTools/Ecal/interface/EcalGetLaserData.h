@@ -54,7 +54,7 @@ class  EcalGetLaserData : public edm::EDAnalyzer {
   //unsigned long m_firstRun ;
   //unsigned long m_lastRun ;
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
 
 
