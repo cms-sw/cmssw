@@ -4,7 +4,7 @@ def customise(process):
 
     # ECAL TPG with 2009 beam commissioning TTF thresholds
 
-    process.EcalTrigPrimESProducer.DatabaseFile = cms.untracked.string('TPG_1x1_1GeV_3x3_2GeV.txt.gz')
+    process.EcalTrigPrimESProducer.DatabaseFile = cms.untracked.string('TPG_beamv0_MC.txt.gz')
     
     # ECAL SRP settings for 2009 beam commissioning
 
