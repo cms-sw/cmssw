@@ -4,8 +4,8 @@
 /*
  * \file HcalPedestalAnalyzer.h
  *
- * $Date: 2006/01/14 00:42:11 $
- * $Revision: 1.1 $
+ * $Date: 2006/03/24 01:00:15 $
+ * $Revision: 1.2 $
  * \author S. Stoynev / W. Fisher
  *
 */
@@ -56,7 +56,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob();
 
 // EndJob
 void endJob(void);

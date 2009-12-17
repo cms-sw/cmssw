@@ -50,7 +50,7 @@ HFLightCalRand::~HFLightCalRand () {
   //delete mFile;
 }
 
-void HFLightCalRand::beginJob(const edm::EventSetup& fSetup) {
+void HFLightCalRand::beginJob() {
 
   char htit[64];
   mFile = new TFile (histfile.c_str(),"RECREATE");

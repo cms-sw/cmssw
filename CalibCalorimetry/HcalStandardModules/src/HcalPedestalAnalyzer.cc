@@ -13,8 +13,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2008/03/04 01:12:53 $
- * $Revision: 1.11 $
+ * $Date: 2009/11/27 15:07:19 $
+ * $Revision: 1.12 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -133,7 +133,7 @@ HcalPedestalAnalyzer::~HcalPedestalAnalyzer(){
 //  delete m_pedAnal;
 }
 
-void HcalPedestalAnalyzer::beginJob(const edm::EventSetup& c){
+void HcalPedestalAnalyzer::beginJob(){
   m_ievt = 0;
   ped_sample = 1;
 }

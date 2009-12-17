@@ -17,7 +17,7 @@ class HFLightCalRand : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup);
 
   // begin of the job
-  virtual void beginJob(const edm::EventSetup& fSetup);
+  virtual void beginJob();
 
   // very end of the job
   virtual void endJob(void);

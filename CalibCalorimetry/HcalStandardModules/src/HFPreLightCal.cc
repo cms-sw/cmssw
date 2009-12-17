@@ -45,7 +45,7 @@ HFPreLightCal::~HFPreLightCal () {
   //delete mFile;
 }
 
-void HFPreLightCal::beginJob(const edm::EventSetup& fSetup) {
+void HFPreLightCal::beginJob() {
 
   char htit[64];
   std::cout<<std::endl<<"HFPreLightCal beginJob: --> ";

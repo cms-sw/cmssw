@@ -69,7 +69,7 @@ HcalLedAnalyzer::~HcalLedAnalyzer(){
 //  delete m_ledAnal;
 }
 
-void HcalLedAnalyzer::beginJob(const edm::EventSetup& c){
+void HcalLedAnalyzer::beginJob(){
   m_ievt = 0;
   led_sample = 1;
   HcalPedestals* inputPeds=0;

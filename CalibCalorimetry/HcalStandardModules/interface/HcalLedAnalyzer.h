@@ -34,7 +34,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob();
 
 // EndJob
 void endJob(void);

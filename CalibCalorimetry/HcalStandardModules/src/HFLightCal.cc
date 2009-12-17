@@ -52,7 +52,7 @@ HFLightCal::~HFLightCal () {
   //delete mFile;
 }
 
-void HFLightCal::beginJob(const edm::EventSetup& fSetup) {
+void HFLightCal::beginJob() {
 
   char htit[64];
   Int_t neta,nphi,ndepth,nmax,nquad,npin;
