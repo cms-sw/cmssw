@@ -88,7 +88,6 @@ namespace edm {
     for (std::vector<MainParameterSet>::iterator i = mainParameterSets_.begin(), iEnd = mainParameterSets_.end(); i != iEnd; ++i) {
       ParameterSet& pset = i->parameterSet_;
       pset.registerIt();
-      pset.setFullyTracked();
       ParameterSetID newID(pset.id());
       if (i->oldID_ != newID && i->oldID_ != ParameterSetID()) {
 	parameterSetIdConverter_.insert(std::make_pair(i->oldID_, newID));
@@ -106,7 +105,6 @@ namespace edm {
       } else {
         ParameterSet pset(i->first);
         pset.setID(i->second);
-        pset.setFullyTracked();
 	pset::Registry::instance()->insertMapped(pset);
 	if (i->first.find("@trigger_paths") != std::string::npos) {
 	  triggerPaths_.push_back(pset);
@@ -140,7 +138,6 @@ namespace edm {
 	} else {
           ParameterSet pset(i->first);
           pset.registerIt();
-          pset.setFullyTracked();
 	  std::string& from = i->first;
 	  std::string to;
 	  ParameterSetID newID(pset.id());

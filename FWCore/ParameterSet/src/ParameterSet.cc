@@ -55,7 +55,6 @@ namespace edm {
     tbl_(),
     psetTable_(),
     vpsetTable_(),
-    isFullyTracked_(True),
     id_()
   {
   }
@@ -67,7 +66,6 @@ namespace edm {
     tbl_(),
     psetTable_(),
     vpsetTable_(),
-    isFullyTracked_(True),
     id_()
   {
     if(!fromString(code)) {
@@ -85,7 +83,6 @@ namespace edm {
     tbl_(),
     psetTable_(),
     vpsetTable_(),
-    isFullyTracked_(True),
     id_(id)
   {
     if(!fromString(code)) {
@@ -94,13 +91,6 @@ namespace edm {
 	<< "passed to a ParameterSet during construction is invalid:\n"
 	<< code;
     }
-    if (isFullyTracked_ == False) {
-      throw edm::Exception(errors::Configuration,"InvalidInput")
-	<< "The encoded configuration string from persistent store "
-        << "passed to a ParameterSet during construction contains untracked parameters.\n"
-	<< code;
-    }
-    isFullyTracked_ = True;
     pset::Registry::instance()->insertMapped(*this);
   }
 
@@ -572,34 +562,29 @@ namespace edm {
       std::string rep(q+1, b->end());
       // entries are generically of the form tracked-type-rep
       if (rep[0] == '-') {
-	isFullyTracked_ = False;
       }
       if(rep[1] == 'Q') {
         ParameterSetEntry psetEntry(rep);
         if(!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
           return false;
 	}
-	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'q') {
         VParameterSetEntry vpsetEntry(rep);
         if(!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
           return false;
 	}
-	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'P') {
         Entry value(name, rep);
         ParameterSetEntry psetEntry(value.getPSet(), value.isTracked());
         if(!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
           return false;
         }
-	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else if(rep[1] == 'p') {
         Entry value(name, rep);
         VParameterSetEntry vpsetEntry(value.getVPSet(), value.isTracked());
         if(!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
           return false;
         }
-	isFullyTracked_ = isFullyTracked_ && Unknown;
       } else {
         // form value and insert name/value pair
         Entry  value(name, rep);
@@ -648,22 +633,15 @@ namespace edm {
 
   ParameterSet
   ParameterSet::trackedPart() const {
-    if (isFullyTracked_ == True) {
-      return *this;
-    }
     ParameterSet result;
     for(table::const_iterator tblItr = tbl_.begin(); tblItr != tbl_.end(); ++tblItr) {
       if(tblItr->second.isTracked()) {
         result.tbl_.insert(*tblItr);
-      } else {
-        isFullyTracked_ = False;
       }
     }
     for(psettable::const_iterator psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
       if(psetItr->second.isTracked()) {
         result.addParameter<ParameterSet>(psetItr->first, psetItr->second.pset().trackedPart());
-      } else {
-        isFullyTracked_ = False;
       }
     }
     for(vpsettable::const_iterator vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
@@ -676,11 +654,8 @@ namespace edm {
 	  vresult.push_back(i->trackedPart());
 	}
         result.addParameter<VParameterSet>(vpsetItr->first, vresult);
-      } else {
-        isFullyTracked_ = False;
       }
     }
-    result.isFullyTracked_ = True;
     return result;
   }
 
@@ -756,34 +731,56 @@ namespace edm {
   }
 
   bool isTransientEqual(ParameterSet const& a, ParameterSet const& b) {
-    if (a.tbl().size() != b.tbl().size()) return false;
-    if (a.psetTable().size() != b.psetTable().size()) return false;
-    if (a.vpsetTable().size() != b.vpsetTable().size()) return false;
+    if (a.tbl().size() != b.tbl().size()) {
+	return false;
+    }
+    if (a.psetTable().size() != b.psetTable().size()) {
+	return false;
+    }
+    if (a.vpsetTable().size() != b.vpsetTable().size()) {
+	return false;
+    }
     typedef ParameterSet::table::const_iterator Ti;
     for (Ti i = a.tbl().begin(), e = a.tbl().end(),
 	    j = b.tbl().begin(), f = b.tbl().end();
 	    i != e; ++i, ++j) {
-      if (*i != *j) return false;
+      if (*i != *j) {
+	return false;
+      }
     }
     typedef ParameterSet::psettable::const_iterator Pi;
     for (Pi i = a.psetTable().begin(), e = a.psetTable().end(),
 	    j = b.psetTable().begin(), f = b.psetTable().end();
 	    i != e; ++i, ++j) {
-      if (i->first != j->first) return false;
-      if (i->second.isTracked() != j->second.isTracked()) return false;
-      if (!isTransientEqual(i->second.pset(), j->second.pset())) return false;
+      if (i->first != j->first) {
+	return false;
+      }
+      if (i->second.isTracked() != j->second.isTracked()) {
+	return false;
+      }
+      if (!isTransientEqual(i->second.pset(), j->second.pset())) {
+	return false;
+      }
     }
     typedef ParameterSet::vpsettable::const_iterator PVi;
     for (PVi i = a.vpsetTable().begin(), e = a.vpsetTable().end(),
 	     j = b.vpsetTable().begin(), f = b.vpsetTable().end();
 	     i != e; ++i, ++j) {
-      if (i->first != j->first) return false;
-      if (i->second.isTracked() != j->second.isTracked()) return false;
+      if (i->first != j->first) {
+	return false;
+      }
+      if (i->second.isTracked() != j->second.isTracked()) {
+	return false;
+      }
       std::vector<ParameterSet> const& iv = i->second.vpset();
       std::vector<ParameterSet> const& jv = j->second.vpset();
-      if (iv.size() != jv.size()) return false;
+      if (iv.size() != jv.size()) {
+	return false;
+      }
       for (size_t k = 0; k < iv.size(); ++k) {
-        if (!isTransientEqual(iv[k], jv[k])) return false;
+        if (!isTransientEqual(iv[k], jv[k])) {
+	  return false;
+	}
       }
     }
     return true;
@@ -830,7 +827,6 @@ namespace edm {
         << "Parameter Set ID '" << id << "' not found.";
     }
     result.setID(id);
-    result.setFullyTracked();
     return result;
   }
 
@@ -2163,7 +2159,6 @@ namespace edm {
   ParameterSet::addParameter<ParameterSet>(std::string const& name, ParameterSet value) {
     invalidateRegistration(name);
     insertParameterSet(true, name, ParameterSetEntry(value, true));
-    isFullyTracked_ = isFullyTracked_ && value.isFullyTracked_;
   }
 
   template <>
@@ -2171,7 +2166,6 @@ namespace edm {
   ParameterSet::addParameter<VParameterSet>(std::string const& name, VParameterSet value) {
     invalidateRegistration(name);
     insertVParameterSet(true, name, VParameterSetEntry(value, true));
-    isFullyTracked_ = isFullyTracked_ && Unknown;
   }
 
   template <>
@@ -2179,7 +2173,6 @@ namespace edm {
   ParameterSet::addParameter<ParameterSet>(char const* name, ParameterSet value) {
     invalidateRegistration(name);
     insertParameterSet(true, name, ParameterSetEntry(value, true));
-    isFullyTracked_ = isFullyTracked_ && value.isFullyTracked_;
   }
 
   template <>
@@ -2187,35 +2180,30 @@ namespace edm {
   ParameterSet::addParameter<VParameterSet>(char const* name, VParameterSet value) {
     invalidateRegistration(name);
     insertVParameterSet(true, name, VParameterSetEntry(value, true));
-    isFullyTracked_ = isFullyTracked_ && Unknown;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet value) {
     insertParameterSet(true, name, ParameterSetEntry(value, false));
-    isFullyTracked_ = False;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(std::string const& name, VParameterSet value) {
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
-    isFullyTracked_ = False;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<ParameterSet>(char const* name, ParameterSet value) {
     insertParameterSet(true, name, ParameterSetEntry(value, false));
-    isFullyTracked_ = False;
   }
 
   template <>
   void
   ParameterSet::addUntrackedParameter<VParameterSet>(char const* name, VParameterSet value) {
     insertVParameterSet(true, name, VParameterSetEntry(value, false));
-    isFullyTracked_ = False;
   }
 
 //----------------------------------------------------------------------------------

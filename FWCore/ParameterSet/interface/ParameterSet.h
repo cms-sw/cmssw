@@ -193,14 +193,12 @@ namespace edm {
     void
     addUntrackedParameter(std::string const& name, T value) {
       insert(true, name, Entry(name, value, false));
-      isFullyTracked_ = False;
     }
 
     template <typename T>
     void
     addUntrackedParameter(char const* name, T value) {
       insert(true, name, Entry(name, value, false));
-      isFullyTracked_ = False;
     }
 
     bool empty() const {
@@ -232,9 +230,6 @@ namespace edm {
 
     ParameterSet const& registerIt();
 
-    /// called if isFullyTracked_ is known for external reasons
-    void setFullyTracked(Bool isFullyTracked = True) const {isFullyTracked_ = isFullyTracked;}
-
     typedef std::map<std::string, Entry> table;
     table const& tbl() const {return tbl_;}
 
@@ -263,10 +258,6 @@ namespace edm {
     table tbl_;
     psettable psetTable_;
     vpsettable vpsetTable_;
-
-    // Is this parameter set fully tracked to all depths?
-    // False, True, or Unknown
-    mutable Bool isFullyTracked_;
 
     // If the id_ is invalid, that means a new value should be
     // calculated before the value is returned. Upon registration, the
