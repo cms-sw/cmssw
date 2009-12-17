@@ -47,12 +47,10 @@ PreshowerHitMaker::PreshowerHitMaker(
       diry=diry.Unit();
       
       double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
-      if(denom==0.) std::cout << "Bordel "<< psLayer1Entrance_ << std::endl;
       invcostheta1x = 1.e9;
       if(fabs(denom) > 0.) invcostheta1x = 1./denom;
       
       denom = fabs(diry.Dot(XYZVector(0,0,1.)));
-      if(denom==0.) std::cout << "Bordel "<< psLayer1Entrance_ << std::endl;
       invcostheta1y = 1.e9;
       if(fabs(denom) > 0.) invcostheta1y = 1./denom;
     }
@@ -75,12 +73,10 @@ PreshowerHitMaker::PreshowerHitMaker(
       
       
       double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
-      if(denom==0.) std::cout << "Bordel "<< psLayer2Entrance_ << std::endl;
       invcostheta2x = 1.e9;
       if(fabs(denom) > 0.) invcostheta2x = 1./denom;
       
       denom = fabs(diry.Dot(XYZVector(0,0,1.)));
-      if(denom==0.) std::cout << "Bordel "<< psLayer2Entrance_ << std::endl;
       invcostheta2y = 1.e9;
       if(fabs(denom) > 0.) invcostheta2y = 1./denom;      
     }
