@@ -63,6 +63,14 @@ print "Reading all IOVs"
 # SiStripDetVOff_Fake_31X
 
 database = sys.argv[1]
+
+startFrom = 0
+if len(sys.argv) > 3:
+    startFrom = packFromString(sys.argv[3])
+endAt = 0
+if len(sys.argv) > 4:
+    endAt = packFromString(sys.argv[4])
+
 iovs = os.popen("cmscond_list_iov -c sqlite_file:"+database+" -t "+sys.argv[2])
 iovsList = iovs.read()
 splittedList = re.split("payloadToken",iovsList)
@@ -78,15 +86,33 @@ for i in range(0, len(splittedList), 2):
         # print "iov = ", iov
         # print "start =", start,
         # print ", end =", end
+
+        if long(startFrom) > long(start):
+            print "Skipping IOV =", start, " before requested =", startFrom
+            continue
+        if (endAt != 0) and (long(endAt) < long(end)):
+            print "Skipping IOV =", end, " after requested =", endAt
+            continue
+
+        # print "startFrom = ", startFrom, "start = ", start
+        # if startFrom != 0 and int(startFrom) > int(start):
+        #     print "Setting start date to ", sys.argv[3]
+        #     start = startFrom
+        # if endAt != 0 and endAt < end:
+        #     print "Setting end date to ", sys.argv[4]
+        #     end = endAt
+
+
         startDate = timeStamptoDate(int(start))
         endDate = timeStamptoDate(int(end))
-        if end == "18446744073709551615":
-            end = str(int(start) + 1)
+
+        # if end == "18446744073709551615":
+        #     end = str(int(start) + 1)
         print "start date = ", startDate,
         print ", end date = ", endDate
         fullDates="_FROM_"+startDate.replace(" ", "_").replace(":", "_")+"_TO_"+endDate.replace(" ", "_").replace(":", "_")
         fileName="DetVOffPrint"+fullDates+"_cfg.py"
-        os.system("cat templateCheckAllIOVs_cfg.py | sed -e \"s/STARTTIME/"+start+"/g\" | sed -e \"s/ENDTIME/"+end+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" | sed -e \"s/DATABASE/sqlite_file:"+database+"/g\" > "+fileName)
+        os.system("cat templateCheckAllIOVs_cfg.py | sed -e \"s/STARTTIME/"+str(start)+"/g\" | sed -e \"s/ENDTIME/"+str(end)+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" | sed -e \"s/DATABASE/sqlite_file:"+database+"/g\" > "+fileName)
         # run = os.popen("cmsRun "+fileName+" > /dev/null")
         os.system("cmsRun "+fileName+" > /dev/null")
 
