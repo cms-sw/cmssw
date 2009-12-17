@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -67,15 +67,11 @@ process.GlobalTag.globaltag = 'GR09_R_V4::All'
 
 ## TRACKING:
 ## Skip events with HV off
-
-
-## TRACKING:
-## Skip events with HV off
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
-## PV Overrides 
+## Primary Vertex
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 6
@@ -89,7 +85,7 @@ process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
 process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
-## ECAL temporary fixes
+## ECAL 
 process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
 process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
 process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEB = 1.138
@@ -104,13 +100,18 @@ process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaB
 process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 
+##Preshower
 process.ecalPreshowerRecHit.ESGain = 2
 process.ecalPreshowerRecHit.ESBaseline = 0
 process.ecalPreshowerRecHit.ESMIPADC = 55
+process.ecalPreshowerRecHit.ESRecoAlgo = 1
 
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
+
+process.hbhereco.firstSample = 1
+process.hbhereco.samplesToAdd = 8
 
 ## EGAMMA
 process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
@@ -125,22 +126,16 @@ process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
 process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
 process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
 process.gsfElectrons.applyPreselection = cms.bool(False)
-
-#Lower Photon reconstruction threshold
 process.photons.minSCEtBarrel = 1.
 process.photons.minSCEtEndcap =1.
 process.photonCore.minSCEt = 1.
 process.conversionTrackCandidates.minSCEt =1.
 process.conversions.minSCEt =1.
-
 process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
 process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
 process.trackerOnlyConversions.MinApproach = cms.double(-.25)
 process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
 process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
-
-
-
 
 ###
 ###  end of top level replacements
