@@ -180,7 +180,7 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
         digi != digis.end(); ++digi)
     {
       int bx = digi->getBX();
-      if(bx <= (int)header2007.lctBins) 
+      if(bx < (int)header2007.lctBins) 
       {
         // 2 ALCTs per bx
         int i = bx*2;
