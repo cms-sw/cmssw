@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltMonHcalIsoTrack = cms.EDAnalyzer('HLTMonHcalIsoTrack',
-folderName=cms.string("HLT/HLT_IsoTrack"),
+folderName=cms.string("HLT/HCAL/HLT_IsoTrack"),
 SaveToRootFile=cms.bool(False),
 outputRootFileName=cms.string("hltHITdqm.root"),
 useProducerCollections=cms.bool(True),
