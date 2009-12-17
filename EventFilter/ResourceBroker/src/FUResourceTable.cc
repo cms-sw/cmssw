@@ -52,6 +52,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , asDiscard_(0)
   , shmBuffer_(0)
   , nbDqmCells_(nbDqmCells)
+  , nbRawCells_(nbRawCells)
   , acceptSMDataDiscard_(0)
   , acceptSMDqmDiscard_(0)
   , doCrcCheck_(1)
@@ -107,7 +108,7 @@ void FUResourceTable::initialize(bool   segmentationMode,
     XCEPT_RAISE(evf::Exception,msg);
   }
   
-  for (UInt_t i=0;i<nbRawCells;i++) {
+  for (UInt_t i=0;i<nbRawCells_;i++) {
     resources_.push_back(new FUResource(i,log_));
     freeResourceIds_.push(i);
   }
@@ -521,6 +522,19 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
   }
   
   return true;
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::postEndOfLumiSection(MemRef_t* bufRef)
+{
+  I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg = 
+    (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
+  //make sure to fill up the shmem so no process will miss it
+  // but processes will have to handle duplicates
+  // dummy out this function for now !!!
+  //  for(unsigned int i = 0; i < nbRawCells_; i++) 
+  //    shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
 }
 
 

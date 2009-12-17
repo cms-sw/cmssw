@@ -132,6 +132,8 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
 	    I2O_FU_DATA_DISCARD,XDAQ_ORGANIZATION_ID);
   i2o::bind(this,&FUResourceBroker::I2O_FU_DQM_DISCARD_Callback,
 	    I2O_FU_DQM_DISCARD,XDAQ_ORGANIZATION_ID);
+  i2o::bind(this,&FUResourceBroker::I2O_EVM_LUMISECTION_Callback,
+	    I2O_EVM_LUMISECTION,XDAQ_ORGANIZATION_ID);
   
   
   // bind HyperDAQ web pages
@@ -353,6 +355,17 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
   if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
   
 }
+
+//______________________________________________________________________________
+void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference* bufRef)
+{
+  //  resourceTable_->postEndOfLumiSection(bufRef); // this method dummy for now
+  I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
+    (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
+  
+  LOG4CPLUS_WARN(log_, "Received END-OF-LS from EVM for LS " << lsg->lumiSection);
+}
+
 
 
 //______________________________________________________________________________
