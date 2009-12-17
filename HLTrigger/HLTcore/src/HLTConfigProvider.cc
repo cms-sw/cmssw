@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/16 12:15:46 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/12/17 21:01:52 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -83,7 +83,8 @@ bool HLTConfigProvider::init(const std::string& processName)
    LogInfo("HLTConfigProvider")
      << " This 1-parameter init method fails (returns false) when processing"
      << " file(s) containing events accepted by different HLT tables - "
-     << " for such cases use the 3-parameter init method called each event!";
+     << " for such cases use the 3-parameter init method called each event!"
+     << endl;
 
    LogDebug("HLTConfigProvider") << "Called with processName '"
 				 << processName << "'." << endl;
