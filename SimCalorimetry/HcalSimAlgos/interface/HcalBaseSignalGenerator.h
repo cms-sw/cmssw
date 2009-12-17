@@ -16,7 +16,7 @@ public:
   void setParameterMap(HcalSimParameterMap * map) {theParameterMap = map;}
 
   // can be needed to set starting cap ID
-  void setElectronicsSim(HcalElectronicsSim * electronicsSim) {std::cout << "SELESIM " << std::endl;theElectronicsSim = electronicsSim;}
+  void setElectronicsSim(HcalElectronicsSim * electronicsSim) {theElectronicsSim = electronicsSim;}
   
 protected:
 
