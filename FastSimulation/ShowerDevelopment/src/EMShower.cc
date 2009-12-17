@@ -203,13 +203,16 @@ void EMShower::prepareSteps()
      dt=steps[iStep].second;
      t+=dt;
      for ( unsigned int i=0; i<nPart; ++i ) {
-
        depositedEnergy[iStep].push_back(deposit(t,a[i],b[i],dt));     
        ESliceTot +=depositedEnergy[iStep][i];
        MeanDepth += deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i];
        realTotalEnergy+=depositedEnergy[iStep][i]*E[i];
      }
-     if( ESliceTot > 0. )  {MeanDepth/=ESliceTot;}
+
+     if( ESliceTot > 0. )  // can happen for the shower tails; this depth will be skipped anyway
+       MeanDepth/=ESliceTot;
+     else
+       MeanDepth=t-dt;
 
      meanDepth[iStep]=MeanDepth;
      if(realTotalEnergy<0.001)
@@ -575,12 +578,11 @@ EMShower::deposit(double t, double a, double b, double dt) {
   myIncompleteGamma.a().setValue(a);
   double b1=b*(t-dt);
   double b2=b*t;
-  double result = 0.;
-  if(fabs(b1) < 1.e-9) b1 = 1.e-9;
-  if(fabs(b2) < 1.e-9) b2 = 1.e-9;
-  result = (myIncompleteGamma(b2)-myIncompleteGamma(b1));
+  double result = 0.;  
+  double rb1=(b1!=0.) ? myIncompleteGamma(b1) : 0.;
+  double rb2=(b2!=0.) ?  myIncompleteGamma(b2) : 0.;
+  result = (rb2-rb1);
   return result;
-
 }
 
 
