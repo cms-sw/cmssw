@@ -263,3 +263,22 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep HcalNoiseSummary_*_*_*' #Keep the one in RECO
         ] 
 
+def runSUSY33xOn31xMC(process):
+   process.ZSPJetCorJetAntiKt5.src = "antikt5CaloJets"
+   process.jetGenJetMatchAK5Track.matched = "antikt5GenJets"
+   process.jetGenJetMatchAK5JPT.matched = "antikt5GenJets"
+   process.jetGenJetMatchAK5Track.matched = "antikt5GenJets"
+   process.jetGenJetMatchAK5PF.matched = "antikt5GenJets"
+
+   process.jetTracksAssociatorAtVertexAK5PF.jets = "antikt5PFJets"
+   process.jetGenJetMatchAK5Track.src = "antikt5GenJets"
+
+   from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+   process.ak5PFJets = ak5PFJets
+
+   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import addJetID
+   #addJetID("antikt5CaloJets", "ak5JetID")
+   addJetID(process, "iterativeCone5CaloJets","ic5")
+   addJetID(process, "sisCone5CaloJets","sc5")
+
+   process.seqAdditionalRECO = cms.Sequence( process.ak5PFJets )
