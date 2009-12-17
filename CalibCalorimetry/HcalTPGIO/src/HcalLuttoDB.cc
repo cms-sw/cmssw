@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Weinberger
 //         Created:  Mon Mar 19 11:53:56 CDT 2007
-// $Id: HcalLuttoDB.cc,v 1.4 2007/09/21 12:50:08 mansj Exp $
+// $Id: HcalLuttoDB.cc,v 1.5 2008/01/22 19:07:41 muzaffar Exp $
 //
 //
 
@@ -59,7 +59,7 @@ public:
   explicit HcalLuttoDB(const edm::ParameterSet&);
   ~HcalLuttoDB();
   
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -326,7 +326,7 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalLuttoDB::beginJob(const edm::EventSetup&)
+HcalLuttoDB::beginJob()
 {
   char buffer[120];
   time_t now=time(0);
