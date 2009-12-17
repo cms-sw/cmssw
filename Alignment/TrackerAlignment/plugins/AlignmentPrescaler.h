@@ -25,7 +25,7 @@ class AlignmentPrescaler : public edm::EDProducer{
  public:
   AlignmentPrescaler(const edm::ParameterSet &iConfig);
   ~AlignmentPrescaler();
-  void beginJob(  );
+  void beginJob();
   void endJob();
   virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
 

@@ -43,7 +43,7 @@ class CSCOverlapsBeamSplashCut : public edm::EDFilter {
       ~CSCOverlapsBeamSplashCut();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -100,7 +100,7 @@ CSCOverlapsBeamSplashCut::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void CSCOverlapsBeamSplashCut::beginJob(const edm::EventSetup&) {}
+void CSCOverlapsBeamSplashCut::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CSCOverlapsBeamSplashCut::endJob() {}

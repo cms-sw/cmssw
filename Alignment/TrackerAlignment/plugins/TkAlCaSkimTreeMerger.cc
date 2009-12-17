@@ -27,7 +27,7 @@ class TkAlCaSkimTreeMerger : public edm::EDAnalyzer{
  public:
   TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig);
   ~TkAlCaSkimTreeMerger();
-  void beginJob( const edm::EventSetup &iSetup);
+  void beginJob();
   void endJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -91,7 +91,7 @@ TkAlCaSkimTreeMerger::~TkAlCaSkimTreeMerger(){
 }
 
 // ------------ method called before analyzing the first event  ------------
-void TkAlCaSkimTreeMerger::beginJob( const edm::EventSetup &iSetup){
+void TkAlCaSkimTreeMerger::beginJob(){
  
   myclock.Start();
 

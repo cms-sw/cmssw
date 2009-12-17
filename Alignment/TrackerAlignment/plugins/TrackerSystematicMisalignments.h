@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2008/12/01 14:58:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/01 17:05:44 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -29,9 +29,7 @@ public:
 								   );
 	
 	/// Read ideal tracker geometry from DB
-	virtual void beginJob(
-						  const edm::EventSetup&
-						  );
+	virtual void beginJob();
 	
 	virtual void analyze(const edm::Event&, const edm::EventSetup&);
 	

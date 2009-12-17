@@ -72,7 +72,7 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 	
 }
 
-void TrackerSystematicMisalignments::beginJob(const edm::EventSetup& setup)
+void TrackerSystematicMisalignments::beginJob()
 {
 		
 }

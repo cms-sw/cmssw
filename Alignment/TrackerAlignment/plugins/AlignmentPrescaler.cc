@@ -41,7 +41,7 @@ AlignmentPrescaler::~AlignmentPrescaler(){
   //  
 }
 
-void AlignmentPrescaler::beginJob( ){
+void AlignmentPrescaler::beginJob(){
   //
    fpresc_=new TFile(prescfilename_.c_str(),"READ");
    tpresc_=(TTree*)fpresc_->Get(presctreename_.c_str());
