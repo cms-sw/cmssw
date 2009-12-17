@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.17 2009/08/20 16:12:34 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.18 2009/09/23 20:33:33 chrjones Exp $
 //
 
 // system include files
@@ -281,6 +281,7 @@ m_connectionHolder( new FWCollectionSummaryWidgetConnectionHolder)
                                               arrow_right_disabled(!m_backgroundIsWhite),
                                               arrow_right_disabled(!m_backgroundIsWhite));
    m_showHideButton->Connect("Clicked()","FWCollectionSummaryWidget",this,"toggleShowHide()");
+   m_showHideButton->SetToolTipText("show/hide individual collection items");
    m_collectionShown = false;
    hFrame->AddFrame(m_showHideButton,new TGLayoutHints(kLHintsCenterY | kLHintsLeft,6,10));
    
