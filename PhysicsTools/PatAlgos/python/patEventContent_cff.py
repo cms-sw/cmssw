@@ -53,7 +53,7 @@ patEventContentTriggerMatch = [
     'keep *_cleanPatMuonsTriggerMatch_*_*', 
     'keep *_cleanPatTausTriggerMatch_*_*', 
     'keep *_cleanPatJetsTriggerMatch_*_*', 
-    'keep *_layer1METsTriggerMatch_*_*'
+    'keep *_patMETsTriggerMatch_*_*'
 ]
 
 patHiEventContent = [
