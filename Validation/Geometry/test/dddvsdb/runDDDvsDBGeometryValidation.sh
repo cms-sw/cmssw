@@ -1,27 +1,38 @@
 #! /bin/tcsh
+cmsenv
 
 echo " START Geometry Validation"
-
+set loctag = ''
 if ($#argv == 0) then
     set gtag="MC_31X_V8::All"
     set geometry="GeometryIdeal"
 else if($#argv == 1) then
     set gtag=`echo ${1}`
     set geometry="GeometryIdeal"
-else
+else if ($#argv == 2) then
     set gtag=`echo ${1}`
     set geometry=`echo ${2}`
+else if ($#argv == 3) then 
+    set gtag=`echo ${1}`
+    set geometry=`echo ${2}`
+    set loctag = `echo ${3}`
 endif
-
-cmsenv
+echo geometry = ${geometry}
 
 echo "Check out and compile the needed packages"
 addpkg Geometry/CaloEventSetup 
 addpkg DetectorDescription/Schema
 addpkg GeometryReaders/XMLIdealGeometryESSource  
+if ($loctag != '') then 
+    addpkg Configuration/StandardSequences
+    cd Configuration/StandardSequences/python
+    set escloctag = `(echo $loctag | sed '{s/\//\\\//g}')`
+    sed -i "{s/frontier:\/\/FrontierProd\/CMS_COND_31X_GLOBALTAG/${escloctag}/g}" FrontierConditions_GlobalTag_cfi.py 
+endif
+
 cd $CMSSW_BASE/src
 scramv1 build
-cd -
+
 echo "Finish the setup of release working area"
 
 mkdir workArea
@@ -30,6 +41,7 @@ set myDir=`pwd`
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/dbconfig.xml .
 source $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/blob_preparation.txt > GeometryValidation.log
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
+echo $geometry
 sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >>  GeometryValidation.log
 cmsRun geometryxmlwriter.py >>  GeometryValidation.log
 
