@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('CALIB')
 process.load('CalibTracker.Configuration.setupCalibrationTree_cff')
 process.load('Configuration.StandardSequences.Geometry_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR09_R_V1::All'
 
@@ -15,10 +15,10 @@ process.add_( cms.Service( "TFileService",
 
 process.load('CalibTracker.SiStripCommon.theBigNtuple_cfi')
 process.TkCalPath = cms.Path( process.theBigNtuple * process.TkCalFullSequence     )
+process.TkPathDigi = cms.Path (process.theBigNtupleDigi)
+process.endPath = cms.EndPath(process.bigShallowTree)
 
-process.schedule = cms.Schedule( process.TkCalPath )
-
-
+#process.schedule = cms.Schedule( process.TkCalPath )
 
 
 #following ignored by CRAB
