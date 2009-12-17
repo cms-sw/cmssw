@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.138 2009/12/12 20:23:22 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.139 2009/12/13 12:27:10 amraktad Exp $
 //
 
 // system include files
@@ -826,6 +826,7 @@ void
 CmsShowMain::setupAutoLoad(float x)
 {
    m_playDelay = x;
+   m_guiManager->setDelayBetweenEvents(m_playDelay);
    if (!m_guiManager->playEventsAction()->isEnabled())
       m_guiManager->playEventsAction()->enable();
 
