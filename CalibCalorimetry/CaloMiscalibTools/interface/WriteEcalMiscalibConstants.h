@@ -3,7 +3,7 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id$
+// $Id: WriteEcalMiscalibConstants.h,v 1.1 2007/05/16 16:13:40 malgeri Exp $
 //
 //
 
@@ -30,7 +30,7 @@ class WriteEcalMiscalibConstants : public edm::EDAnalyzer {
   
   
  private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

@@ -13,7 +13,7 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id: WriteEcalMiscalibConstants.cc,v 1.2 2008/01/22 18:52:16 muzaffar Exp $
+// $Id: WriteEcalMiscalibConstants.cc,v 1.3 2008/03/26 14:07:42 fra Exp $
 //
 //
 
@@ -95,7 +95,7 @@ WriteEcalMiscalibConstants::analyze(const edm::Event& iEvent, const edm::EventSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-WriteEcalMiscalibConstants::beginJob(const edm::EventSetup&)
+WriteEcalMiscalibConstants::beginJob()
 {
 }
 
