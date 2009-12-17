@@ -14,7 +14,7 @@ import FWCore.ParameterSet.Config as cms
 
 # matches to CandHLT1ElectronStartup
 electronTriggerMatchCandHLT1ElectronStartup = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -30,7 +30,7 @@ electronTriggerMatchCandHLT1ElectronStartup = cms.EDFilter( "PATTriggerMatcherDR
 
 # matches to HLT1Photon
 photonTriggerMatchHLT1Photon = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Photons" ),
+    src     = cms.InputTag( "cleanPatPhotons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -46,7 +46,7 @@ photonTriggerMatchHLT1Photon = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT1PhotonRelaxed
 photonTriggerMatchHLT1PhotonRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Photons" ),
+    src     = cms.InputTag( "cleanPatPhotons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -62,7 +62,7 @@ photonTriggerMatchHLT1PhotonRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessB
 
 # matches to HLT2Photon
 photonTriggerMatchHLT2Photon = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Photons" ),
+    src     = cms.InputTag( "cleanPatPhotons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -78,7 +78,7 @@ photonTriggerMatchHLT2Photon = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT2PhotonRelaxed
 photonTriggerMatchHLT2PhotonRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Photons" ),
+    src     = cms.InputTag( "cleanPatPhotons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -94,7 +94,7 @@ photonTriggerMatchHLT2PhotonRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessB
 
 # matches to HLT1Electron
 electronTriggerMatchHLT1Electron = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -111,7 +111,7 @@ electronTriggerMatchHLT1Electron = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR"
 # matches to HLT1ElectronRelaxed
 # including example of "wrong" match (jets which fired electron trigger),
 electronTriggerMatchHLT1ElectronRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -125,7 +125,7 @@ electronTriggerMatchHLT1ElectronRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtL
     resolveByMatchQuality = cms.bool( False )
 )
 jetTriggerMatchHLT1ElectronRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Jets" ),
+    src     = cms.InputTag( "cleanPatJets" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -141,7 +141,7 @@ jetTriggerMatchHLT1ElectronRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessBy
 
 # matches to HLT2Electron
 electronTriggerMatchHLT2Electron = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -157,7 +157,7 @@ electronTriggerMatchHLT2Electron = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR"
 
 # matches to HLT2ElectronRelaxed
 electronTriggerMatchHLT2ElectronRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -175,7 +175,7 @@ electronTriggerMatchHLT2ElectronRelaxed = cms.EDFilter( "PATTriggerMatcherDRDPtL
 
 # matches to HLT1MuonIso
 muonTriggerMatchHLT1MuonIso = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -191,7 +191,7 @@ muonTriggerMatchHLT1MuonIso = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT1MuonNonIso
 muonTriggerMatchHLT1MuonNonIso = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -207,7 +207,7 @@ muonTriggerMatchHLT1MuonNonIso = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT2MuonNonIso
 muonTriggerMatchHLT2MuonNonIso = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -225,7 +225,7 @@ muonTriggerMatchHLT2MuonNonIso = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT1Tau
 tauTriggerMatchHLT1Tau = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Taus" ),
+    src     = cms.InputTag( "cleanPatTaus" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -241,7 +241,7 @@ tauTriggerMatchHLT1Tau = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT2TauPixel
 tauTriggerMatchHLT2TauPixel = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Taus" ),
+    src     = cms.InputTag( "cleanPatTaus" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -259,7 +259,7 @@ tauTriggerMatchHLT2TauPixel = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT2jet
 jetTriggerMatchHLT2jet = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Jets" ),
+    src     = cms.InputTag( "cleanPatJets" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -275,7 +275,7 @@ jetTriggerMatchHLT2jet = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT3jet
 jetTriggerMatchHLT3jet = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Jets" ),
+    src     = cms.InputTag( "cleanPatJets" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -291,7 +291,7 @@ jetTriggerMatchHLT3jet = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT4jet
 jetTriggerMatchHLT4jet = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Jets" ),
+    src     = cms.InputTag( "cleanPatJets" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -306,9 +306,9 @@ jetTriggerMatchHLT4jet = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 )
 
 # matches to HLT1MET65
-# including example of "wrong" match (cleanLayer1Muons which fired MET trigger),
+# including example of "wrong" match (cleanPatMuons which fired MET trigger),
 metTriggerMatchHLT1MET65 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "layer1METs" ),
+    src     = cms.InputTag( "patMETs" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -322,7 +322,7 @@ metTriggerMatchHLT1MET65 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
     resolveByMatchQuality = cms.bool( False )
 )
 muonTriggerMatchHLT1MET65 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -340,7 +340,7 @@ muonTriggerMatchHLT1MET65 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 # matches to ALL
 
 electronTriggerMatchHltElectrons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
 #     filterIdsEnum  = cms.vstring( '*' ),
@@ -357,7 +357,7 @@ electronTriggerMatchHltElectrons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR"
 )
 
 electronTriggerMatchL1Electrons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
 #     filterIdsEnum  = cms.vstring( '*' ),
@@ -374,7 +374,7 @@ electronTriggerMatchL1Electrons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 )
 
 muonTriggerMatchL1Muons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
 #     filterIdsEnum  = cms.vstring( '*' ),
@@ -391,7 +391,7 @@ muonTriggerMatchL1Muons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 )
 
 muonTriggerMatchAll = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( True ),
 #     filterIdsEnum  = cms.vstring( '*' ),
@@ -408,7 +408,7 @@ muonTriggerMatchAll = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 )
 
 muonTriggerMatchNone = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
 #     filterIdsEnum  = cms.vstring( '*' ),
@@ -425,7 +425,7 @@ muonTriggerMatchNone = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 )
 
 tauTriggerMatchTriggerTaus = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Taus" ),
+    src     = cms.InputTag( "cleanPatTaus" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
 #     filterIdsEnum  = cms.vstring( '*' ),
@@ -446,7 +446,7 @@ tauTriggerMatchTriggerTaus = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT_IsoMu11
 muonTriggerMatchHLTIsoMu11 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -462,7 +462,7 @@ muonTriggerMatchHLTIsoMu11 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT_Mu11
 muonTriggerMatchHLTMu11 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -478,7 +478,7 @@ muonTriggerMatchHLTMu11 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT_DoubleIsoMu3
 muonTriggerMatchHLTDoubleIsoMu3 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -494,7 +494,7 @@ muonTriggerMatchHLTDoubleIsoMu3 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT_DoubleMu3
 muonTriggerMatchHLTDoubleMu3 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+    src     = cms.InputTag( "cleanPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -510,7 +510,7 @@ muonTriggerMatchHLTDoubleMu3 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 
 # matches to HLT_IsoEle15_LW_L1I
 electronTriggerMatchHLTIsoEle15LWL1I = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -526,7 +526,7 @@ electronTriggerMatchHLTIsoEle15LWL1I = cms.EDFilter( "PATTriggerMatcherDRDPtLess
 
 # matches to HLT_Ele15_LW_L1R
 electronTriggerMatchHLTEle15LWL1R = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -542,7 +542,7 @@ electronTriggerMatchHLTEle15LWL1R = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR
 
 # matches to HLT_DoubleIsoEle10_LW_L1I
 electronTriggerMatchHLTDoubleIsoEle10LWL1I = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -558,7 +558,7 @@ electronTriggerMatchHLTDoubleIsoEle10LWL1I = cms.EDFilter( "PATTriggerMatcherDRD
 
 # matches to HLT_DoubleEle5_SW_L1R
 electronTriggerMatchHLTDoubleEle5SWL1R = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -574,7 +574,7 @@ electronTriggerMatchHLTDoubleEle5SWL1R = cms.EDFilter( "PATTriggerMatcherDRDPtLe
 
 # matches to HLT_LooseIsoTau_MET30_L1MET
 tauTriggerMatchHLTLooseIsoTauMET30L1MET = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Taus" ),
+    src     = cms.InputTag( "cleanPatTaus" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),
@@ -590,7 +590,7 @@ tauTriggerMatchHLTLooseIsoTauMET30L1MET = cms.EDFilter( "PATTriggerMatcherDRDPtL
 
 # matches to HLT_DoubleIsoTau_Trk3
 tauTriggerMatchHLTDoubleIsoTauTrk3 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "cleanLayer1Taus" ),
+    src     = cms.InputTag( "cleanPatTaus" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),

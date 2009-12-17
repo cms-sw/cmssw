@@ -1,22 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
 # embedding in photons
-cleanLayer1PhotonsTriggerMatch = cms.EDProducer( "PATTriggerMatchPhotonEmbedder",
-    src     = cms.InputTag( "cleanLayer1Photons" ),
+cleanPatPhotonsTriggerMatch = cms.EDProducer( "PATTriggerMatchPhotonEmbedder",
+    src     = cms.InputTag( "cleanPatPhotons" ),
     matches = cms.VInputTag()
 )
 
 # embedding in electrons
-cleanLayer1ElectronsTriggerMatch = cms.EDProducer( "PATTriggerMatchElectronEmbedder",
-    src     = cms.InputTag( "cleanLayer1Electrons" ),
+cleanPatElectronsTriggerMatch = cms.EDProducer( "PATTriggerMatchElectronEmbedder",
+    src     = cms.InputTag( "cleanPatElectrons" ),
     matches = cms.VInputTag( "electronTriggerMatchHltElectrons"
                            , "electronTriggerMatchL1Electrons"
                            )
 )
 
 # embedding in muons
-cleanLayer1MuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
-    src     = cms.InputTag( "cleanLayer1Muons" ),
+cleanPatMuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
+    src     = cms.InputTag( "cleanPatMuons" ),
     matches = cms.VInputTag( "muonTriggerMatchL1Muons"
                            , "muonTriggerMatchAll"
                            , "muonTriggerMatchNone"
@@ -24,30 +24,30 @@ cleanLayer1MuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
 )
 
 # embedding in taus
-cleanLayer1TausTriggerMatch = cms.EDProducer( "PATTriggerMatchTauEmbedder",
-    src     = cms.InputTag( "cleanLayer1Taus" ),
+cleanPatTausTriggerMatch = cms.EDProducer( "PATTriggerMatchTauEmbedder",
+    src     = cms.InputTag( "cleanPatTaus" ),
     matches = cms.VInputTag( "tauTriggerMatchTriggerTaus" )
 )
 
 # embedding in jets
-cleanLayer1JetsTriggerMatch = cms.EDProducer( "PATTriggerMatchJetEmbedder",
-    src     = cms.InputTag( "cleanLayer1Jets" ),
+cleanPatJetsTriggerMatch = cms.EDProducer( "PATTriggerMatchJetEmbedder",
+    src     = cms.InputTag( "cleanPatJets" ),
     matches = cms.VInputTag()
 )
 
 # embedding in MET
-layer1METsTriggerMatch = cms.EDProducer( "PATTriggerMatchMETEmbedder",
-    src     = cms.InputTag( "layer1METs" ),
+patMETsTriggerMatch = cms.EDProducer( "PATTriggerMatchMETEmbedder",
+    src     = cms.InputTag( "patMETs" ),
     matches = cms.VInputTag()
 )
 
 
 # embeding sequence
 patTriggerMatchEmbedder = cms.Sequence(
-    cleanLayer1PhotonsTriggerMatch   +
-    cleanLayer1ElectronsTriggerMatch +
-    cleanLayer1MuonsTriggerMatch     +
-    cleanLayer1TausTriggerMatch      +
-    cleanLayer1JetsTriggerMatch      +
-    layer1METsTriggerMatch
+    cleanPatPhotonsTriggerMatch   +
+    cleanPatElectronsTriggerMatch +
+    cleanPatMuonsTriggerMatch     +
+    cleanPatTausTriggerMatch      +
+    cleanPatJetsTriggerMatch      +
+    patMETsTriggerMatch
 )
