@@ -74,6 +74,9 @@ namespace evf {
     // process buffer received via I2O_SM_DQM_DISCARD message
     bool   discardDqmEvent(MemRef_t* bufRef);
     
+    // post end-of-ls event to shmem
+    void   postEndOfLumiSection(MemRef_t* bufRef);
+
     // drop next available event
     void   dropEvent();
     
@@ -208,6 +211,7 @@ namespace evf {
     FUShmBuffer       *shmBuffer_;
     FUResourceVec_t    resources_;
     UInt_t             nbDqmCells_;
+    UInt_t             nbRawCells_;
     std::queue<UInt_t> freeResourceIds_;
     
     bool              *acceptSMDataDiscard_;

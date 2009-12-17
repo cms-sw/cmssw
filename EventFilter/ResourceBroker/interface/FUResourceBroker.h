@@ -71,6 +71,7 @@ namespace evf {
     void I2O_FU_TAKE_Callback(toolbox::mem::Reference *bufRef);
     void I2O_FU_DATA_DISCARD_Callback(toolbox::mem::Reference *bufRef);
     void I2O_FU_DQM_DISCARD_Callback(toolbox::mem::Reference *bufRef);
+    void I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference *bufRef);
 
     //  connection to BuilderUnit bu_ and StorageManager sm_
     void connectToBUandSM() throw (evf::Exception);
