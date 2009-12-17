@@ -28,7 +28,7 @@ class RPCReadOutMapBuilder : public edm::EDAnalyzer {
  public:
   explicit RPCReadOutMapBuilder( const edm::ParameterSet& );
   ~RPCReadOutMapBuilder();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
  private:
@@ -75,7 +75,7 @@ void RPCReadOutMapBuilder::endJob()
 }
 
 // ------------ method called to produce the data  ------------
-void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) 
+void RPCReadOutMapBuilder::beginJob() 
 {
   cout << "BeginJob method " << endl;
   cout<<"Building RPC Cabling"<<endl;   
