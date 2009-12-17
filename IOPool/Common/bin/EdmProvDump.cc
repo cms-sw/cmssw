@@ -406,7 +406,6 @@ ProvenanceDumper::work_() {
   for (ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
     edm::ParameterSet pset(i->second.pset_);
     pset.setID(i->first);
-    pset.setFullyTracked();
     psetRegistry.insertMapped(pset);
   }
 

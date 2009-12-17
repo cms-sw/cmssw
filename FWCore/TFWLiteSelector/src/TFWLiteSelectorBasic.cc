@@ -394,7 +394,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       i != iEnd; ++i) {
     edm::ParameterSet pset(i->second.pset_);
     pset.setID(i->first);
-    pset.setFullyTracked();
     psetRegistry.insertMapped(pset);
    } 
 
