@@ -7,7 +7,6 @@
 #include "G4VFastSimulationModel.hh"
 #include "G4TouchableHandle.hh"
 #include "G4Navigator.hh"
-#include "CLHEP/Random/RandGaussQ.h"
 #include <vector>
 
 class GflashHistogram;
@@ -32,7 +31,6 @@ private:
   G4Navigator *theGflashNavigator;
   G4TouchableHandle  theGflashTouchableHandle;
 
-  CLHEP::RandGaussQ* theRandGauss;
   Gflash::CalorimeterNumber jCalorimeter;
 
   edm::ParameterSet theParSet;

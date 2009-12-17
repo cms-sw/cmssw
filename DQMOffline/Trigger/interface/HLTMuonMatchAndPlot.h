@@ -6,10 +6,10 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/08/14 13:29:13 $
- *  $Revision: 1.6 $
- *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
- *  \author  J. Slaunwhite (modified from above
+ *  $Date: 2009/10/02 13:09:51 $
+ *  $Revision: 1.8 $
+ *  
+ *  \author  J. Slaunwhite, based on code from Jeff Klukas
  */
 
 // Base Class Headers
@@ -30,6 +30,7 @@
 //#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -110,6 +111,7 @@ public:
   virtual void            begin  ( );
   virtual void            analyze( const edm::Event & iEvent );
   virtual void            finish ( );
+  virtual void            endRun (const edm::Run& r, const edm::EventSetup& c);
   virtual MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
   virtual MonitorElement* bookIt ( TString name, TString title, int nbins, float* xBinLowEdges);
   
@@ -121,23 +123,35 @@ public:
   // Now we store Muons and TriggerObjects
   // instead of Tracks and 4-vectors
   struct MatchStruct {
-    
-    //const reco::GenParticle*   genCand;
+
+    // this is the reco muon
     const reco::Muon*         recCand;
-    // Can't understsand how to use these references
-    //l1extra::L1MuonParticleRef   l1Cand;
-    //l1extra::L1MuonParticleRef   l1RawCand;
-
+    
+    // this is the cand from the L1 filter
+    // in L1 passthru triggers
+    // that matches the reco muon
+    // (from trigger summary aod)
     trigger::TriggerObject l1Cand;
-    LorentzVector l1RawCand;
-    std::vector<trigger::TriggerObject> hltCands;
-    // Can't handle the raw objects
-    // just use 4-vector
-    std::vector<LorentzVector> hltRawCands;
-    //std::vector<const reco::RecoChargedCandidate*> hltTracks;
 
-    // Do we really want to store just the lorentz vectors
-    // for the trigger objects? No charge, d0 information
+    // this is the L1 seed candidate from
+    // HLT trigger paths
+
+    trigger::TriggerObject l1Seed;
+
+    // this is the raw candidate from
+    // the trigger summary with refs
+    // that matches the reco muon    
+    LorentzVector l1RawCand;
+
+    // these are the hlt candidates from
+    // trigger sum AOD that match
+    // the reco muon
+    std::vector<trigger::TriggerObject> hltCands;
+
+    // these are the hlt candidates from
+    // trigger sum w/ refs that match
+    // the reco muon
+    std::vector<LorentzVector> hltRawCands;
     
   };
 
@@ -197,6 +211,23 @@ protected:
 
   bool virtual applyTriggerSelection (MuonSelectionStruct mySelection, const edm::Event & event);
 
+  // boolean to turn on/off overflow inclusion
+  // function to do the overflow
+  bool includeOverflow;
+  void moveOverflow (MonitorElement * myElement);
+
+
+  // put the code for getting trigger objects into a single module
+  // fills up foundObjects with your matching trigger objects
+  void getAodTriggerObjectsForModule (edm::InputTag collectionTag,
+                                      edm::Handle<trigger::TriggerEvent> aodTriggerEvent,
+                                      trigger::TriggerObjectCollection trigObjs,
+                                      std::vector<trigger::TriggerObject> & foundObjects,
+                                      MuonSelectionStruct muonSelection);
+  
+  // keep track of the ME's you've booked,
+  // rebin them at job end.
+  std::vector<MonitorElement*> booked1DMonitorElements;
   
   // Data members
 
@@ -241,6 +272,8 @@ protected:
   std::string  theAodL1Label;
   std::string  theAodL2Label;
 
+  bool requireL1SeedForHLTPaths;
+
 
   std::string matchType;
 
@@ -250,7 +283,8 @@ protected:
   edm::InputTag TriggerResultLabel;
 
   std::vector<std::string> selectedValidTriggers;
-  
+
+  std::string theL1SeedModuleForHLTPath;
   
   //StringCutObjectSelector<Muon> myMuonSelector;
   //std::string myCustomName;
@@ -259,7 +293,7 @@ protected:
   // to simplify charge plots
 
   static const int POS_CHARGE = 1;
-  static const int NEG_CHARGE = 0;
+  static const int NEG_CHARGE = -1;
   int getCharge (int pdgId); 
 
   // 1-D histogram paramters
@@ -280,13 +314,15 @@ protected:
   int numBinsInPtHisto;
 
   // 2-D histogram parameters
-  std::vector<double> theMaxPtParameters2d;
-  std::vector<double> theEtaParameters2d;
-  std::vector<double> thePhiParameters2d;
   std::vector<double> thePhiEtaParameters2d;
-  std::vector<double> theDeltaPhiVsPhiParameters;
-  std::vector<double> theDeltaPhiVsZ0Parameters;
-  std::vector<double> theDeltaPhiVsD0Parameters;
+
+  //   std::vector<double> theMaxPtParameters2d;
+  //   std::vector<double> theEtaParameters2d;
+  //   std::vector<double> thePhiParameters2d;
+  
+  //   std::vector<double> theDeltaPhiVsPhiParameters;
+  //   std::vector<double> theDeltaPhiVsZ0Parameters;
+  //   std::vector<double> theDeltaPhiVsD0Parameters;
   
 
   // Resolution hisotgram parameters

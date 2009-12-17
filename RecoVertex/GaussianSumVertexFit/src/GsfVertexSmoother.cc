@@ -80,7 +80,7 @@ GsfVertexSmoother::smooth(const CachingVertex<5> & vertex) const
     smoothedChi2 += thePair.second.second;
     newTracks.push_back( theVTFactory.vertexTrack((**i).linearizedTrack(),
   	vertex.vertexState(), thePair.first, thePair.second.second,
-	AlgebraicSymMatrixOO(), (**i).weight()) );
+	AlgebraicMatrix3M(), (**i).weight()) );
   }
 
   if  (vertex.hasPrior()) {

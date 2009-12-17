@@ -24,10 +24,6 @@
 //#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h" 
-#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h" 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h" 
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" 
 
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 #include "HLTrigger/HLTanalyzers/interface/CaloTowerBoundries.h"
@@ -50,11 +46,11 @@ public:
 
   /** Analyze the Data */
   void analyze(const edm::Handle<MuonCollection>                 & muon,
-               const edm::Handle<l1extra::L1MuonParticleCollection>   & mucands1, 
 	       const edm::Handle<RecoChargedCandidateCollection> & mucands2,
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
 	       const edm::Handle<RecoChargedCandidateCollection> & mucands3,
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+	       //	       const edm::Handle<MuonTrackLinksCollection>       & mulinks,
 	       TTree* tree);
 
 
@@ -66,7 +62,7 @@ private:
   float *muonl3pt, *muonl3eta, *muonl3phi, *muonl3dr, *muonl3dz;
   float *muonl2pterr, *muonl3pterr;
   int nmuon, nmu2cand, nmu3cand;
-  int *muonl2chg, *muonl2iso, *muonl3chg, *muonl3iso, *muonl32idx, *muonl21idx;
+  int *muonl2chg, *muonl2iso, *muonl3chg, *muonl3iso, *muonl32idx;
 	
 
   // input variables

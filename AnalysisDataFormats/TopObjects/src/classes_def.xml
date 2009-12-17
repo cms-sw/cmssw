@@ -15,11 +15,13 @@
   <class name="TtEvent" />
   <class name="TtFullLeptonicEvent" />
   <class name="TtSemiLeptonicEvent" />
+  <class name="TtFullHadronicEvent" />
   <class name="edm::Wrapper<TtGenEvent>" />
   <class name="edm::Wrapper<StGenEvent>" />
   <class name="edm::Wrapper<TopGenEvent>" />
   <class name="edm::Wrapper<TtFullLeptonicEvent>" />
   <class name="edm::Wrapper<TtSemiLeptonicEvent>" />
+  <class name="edm::Wrapper<TtFullHadronicEvent>" />
   <class name="edm::Wrapper<reco::CompositeCandidate>" />
 
   <class name="edm::RefProd<TtGenEvent>" />
@@ -27,6 +29,7 @@
   <class name="edm::RefProd<TopGenEvent>" />
   <class name="edm::RefProd<TtFullLeptonicEvent>" />
   <class name="edm::RefProd<TtSemiLeptonicEvent>" />
+  <class name="edm::RefProd<TtFullHadronicEvent>" />
 
   <class name="std::pair<WDecay::LeptonType, WDecay::LeptonType>" />
   <class name="std::pair<reco::CompositeCandidate, std::vector<int> >" />

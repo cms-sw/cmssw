@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.34 2009/05/27 14:08:23 fabiocos Exp $
+// $Id: PixelHitMatcher.cc,v 1.35 2009/06/30 14:24:40 chamont Exp $
 //
 //
 
@@ -88,7 +88,6 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
 
   theMagField = magField;
   theTrackerGeometry = trackerGeometry;
-  delete prop2ndLayer;
   float mass=.000511; // electron propagation
   if (prop1stLayer) delete prop1stLayer;
   prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,theMagField);

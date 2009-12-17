@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/26 18:05:03 $
- * $Revision: 1.133 $
+ * $Date: 2009/09/11 12:27:11 $
+ * $Revision: 1.134 $
  * \author W Fisher
  * \author J Temple
  *
@@ -346,7 +346,7 @@ HcalMonitorModule::~HcalMonitorModule()
 } //void HcalMonitorModule::~HcalMonitorModule()
 
 //--------------------------------------------------------
-void HcalMonitorModule::beginJob(const edm::EventSetup& c){
+void HcalMonitorModule::beginJob(){
   ievt_ = 0;
   
   ievt_pre_=0;
@@ -392,6 +392,12 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     meHF_->Fill(HFpresent_);
     meZDC_->Fill(ZDCpresent_);
   }
+
+  return;
+} // HcalMonitorModule::beginJob(...)
+
+//--------------------------------------------------------
+void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
 
   edm::ESHandle<HcalDbService> pSetup;
   c.get<HcalDbRecord>().get( pSetup );
@@ -473,11 +479,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
-  return;
-} // HcalMonitorModule::beginJob(...)
 
-//--------------------------------------------------------
-void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
   fedsListed_ = false;
 
   // I think we want to reset these at 0 at the start of each run

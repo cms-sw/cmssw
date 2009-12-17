@@ -10,8 +10,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -28,66 +27,65 @@
 
 class EcalDigiProducer : public edm::EDProducer
 {
+public:
 
-   public:
+  // The following is not yet used, but will be the primary
+  // constructor when the parameter set system is available.
+  //
+  explicit EcalDigiProducer(const edm::ParameterSet& params);
+  virtual ~EcalDigiProducer();
 
-      // The following is not yet used, but will be the primary
-      // constructor when the parameter set system is available.
-      //
-      explicit EcalDigiProducer(const edm::ParameterSet& params);
-      virtual ~EcalDigiProducer();
+  /**Produces the EDM products,*/
+  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
-      /**Produces the EDM products,*/
-      virtual void produce( edm::Event&            event,
-			    const edm::EventSetup& eventSetup);
+private:
 
-   private:
+  void checkGeometry(const edm::EventSetup & eventSetup);
 
-      void checkGeometry(const edm::EventSetup & eventSetup);
+  void updateGeometry();
 
-      void updateGeometry();
+  void checkCalibrations(const edm::EventSetup & eventSetup);
 
-      void checkCalibrations(const edm::EventSetup & eventSetup);
+  /** Reconstruction algorithm*/
+  typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
+  typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer;
+  typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer;
 
-      /** Reconstruction algorithm*/
-      typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
-      typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer;
-      typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer;
+  EBDigitizer * theBarrelDigitizer;
+  EEDigitizer * theEndcapDigitizer;
+  ESDigitizer * theESDigitizer;
+  ESFastTDigitizer * theESDigitizerFast;
 
-      EBDigitizer*      m_BarrelDigitizer;
-      EEDigitizer*      m_EndcapDigitizer;
-      ESDigitizer*      m_ESDigitizer;
-      ESFastTDigitizer* m_ESDigitizerFast;
+  const EcalSimParameterMap * theParameterMap;
+  const CaloVShape * theEcalShape;
+  const ESShape * theESShape;
 
-      const EcalSimParameterMap* m_ParameterMap;
-      const EBShape              m_EBShape;
-      const EEShape              m_EEShape;
-      const ESShape*             m_ESShape;
+  CaloHitResponse * theEcalResponse;
+  CaloHitResponse * theESResponse;
 
-      CaloHitResponse* m_EBResponse ;
-      CaloHitResponse* m_EEResponse ;
-      CaloHitResponse* m_ESResponse ;
+  CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise;
+  EcalCorrelatedNoiseMatrix * theNoiseMatrix;
 
-      CorrelatedNoisifier<EcalCorrMatrix>* m_CorrNoise;
-      EcalCorrelatedNoiseMatrix* m_NoiseMatrix;
+  EcalElectronicsSim * theElectronicsSim;
+  ESElectronicsSim * theESElectronicsSim;
+  ESElectronicsSimFast * theESElectronicsSimFast;
+  EcalCoder * theCoder;
 
-      EcalElectronicsSim*   m_ElectronicsSim;
-      ESElectronicsSim*     m_ESElectronicsSim;
-      ESElectronicsSimFast* m_ESElectronicsSimFast;
-      EcalCoder*            m_Coder;
+  const CaloGeometry * theGeometry;
 
-      const CaloGeometry* m_Geometry;
+  std::string EBdigiCollection_;
+  std::string EEdigiCollection_;
+  std::string ESdigiCollection_;
 
-      std::string m_EBdigiCollection ;
-      std::string m_EEdigiCollection ;
-      std::string m_ESdigiCollection ;
+  std::string hitsProducer_;
 
-      std::string m_hitsProducerTag ;
+  double EBs25notCont;
+  double EEs25notCont;
 
-      double m_EBs25notCont ;
-      double m_EEs25notCont ;
+  bool cosmicsPhase;
+  double cosmicsShift;
 
-      bool   m_doFast ; 
+  bool doFast; 
 };
 
 #endif 

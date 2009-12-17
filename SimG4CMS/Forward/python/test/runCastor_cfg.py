@@ -104,6 +104,3 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         EventNtupleFlag = cms.int32(1)
     )
 ))
-
-
-

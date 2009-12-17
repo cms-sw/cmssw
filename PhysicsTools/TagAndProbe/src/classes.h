@@ -19,5 +19,9 @@ namespace
      std::pair<edm::RefToBase<reco::Candidate>,double> aa;
      edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > > aaa;
        
+     std::map<unsigned int,std::vector<std::pair<unsigned int,bool> > > aaaa;
+       
+     std::pair<edm::RefToBase<reco::Candidate>,bool> aaaaa;
+     std::vector<std::pair<unsigned int,bool> > aaaaaa;
    };
 }

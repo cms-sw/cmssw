@@ -95,15 +95,21 @@ public:
             const bool receiveCastor, const bool readFromPsb);
 
     /// receive BPTX objects
-    void receiveBptxData(
-            edm::Event& iEvent, const edm::InputTag& bptxInputTag, const int iBxInEvent,
-            const bool receiveBptx, const bool readFromPsb);
+    void receiveBptxData(edm::Event& iEvent, const edm::InputTag& bptxInputTag,
+            const int iBxInEvent, const bool receiveBptx,
+            const bool readFromPsb);
+
+    /// receive External objects
+    void receiveExternalData(edm::Event& iEvent,
+            const std::vector<edm::InputTag>&  externalInputTags,
+            const int iBxInEvent,
+            const bool receiveExternal, const bool readFromPsb);
 
     /// receive technical trigger
     void receiveTechnicalTriggers(edm::Event& iEvent,
-        const std::vector<edm::InputTag>& technicalTriggersInputTags,
-        const int iBxInEvent, const bool receiveTechTr,
-        const int nrL1TechTr);
+            const std::vector<edm::InputTag>& technicalTriggersInputTags,
+            const int iBxInEvent,
+            const bool receiveTechTr, const int nrL1TechTr);
 
     /// fill the content of active PSB boards
     void fillPsbBlock(

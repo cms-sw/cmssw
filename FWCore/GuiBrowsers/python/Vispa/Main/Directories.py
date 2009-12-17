@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 
-import Vispa
+import Vispa.__init__
 
 def setBaseDirectory(dir):
     global baseDirectory, mainDirectory, pluginDirectory
@@ -19,8 +19,6 @@ def setHomeDirectory(dir):
     logging.debug(__name__ +': homeDirectory - '+homeDirectory)
     preferencesDirectory = os.path.abspath(os.path.join(homeDirectory,".vispa"))
     logging.debug(__name__ +': preferencesDirectory - '+preferencesDirectory)
-    if not os.path.isdir(preferencesDirectory):
-        os.mkdir(preferencesDirectory)
     iniFileName = os.path.abspath(os.path.join(preferencesDirectory,"vispa.ini"))
     logging.debug(__name__ +': iniFileName - '+iniFileName)
     logDirectory = os.path.abspath(preferencesDirectory)

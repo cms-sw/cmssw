@@ -10,7 +10,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.h,v 1.4 2009/08/27 17:54:22 amraktad Exp $
+// $Id: FWPhotonDetailView.h,v 1.7 2009/10/27 19:25:03 amraktad Exp $
 //
 
 // user include files
@@ -21,6 +21,7 @@
 #include "TEveWindow.h"
 
 class TEveWindowSlot;
+class TGLViewer;
 
 class FWPhotonDetailView : public FWDetailView<reco::Photon> {
 
@@ -30,11 +31,17 @@ public:
 
    virtual void build (const FWModelId &id, const reco::Photon*, TEveWindowSlot*);
 
+   virtual void setBackgroundColor(Color_t col);
+
 private:
    FWPhotonDetailView(const FWPhotonDetailView&); // stop default
    const FWPhotonDetailView& operator=(const FWPhotonDetailView&); // stop default
-   void makeLegend(const reco::Photon*, const FWModelId&, TCanvas*);
+   double makeLegend(double x0, double y0,
+                     const reco::Photon*, const FWModelId&);
    void addInfo(const reco::Photon*, TEveElementList*);
+
+   TGLViewer*    m_viewer;
+   TEveCaloData* m_data;
 };
 
 #endif

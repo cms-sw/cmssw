@@ -5,7 +5,7 @@ process = cms.Process("TEST")
 process.MessageLogger=cms.Service("MessageLogger",
                               destinations=cms.untracked.vstring("cout"),
                               cout=cms.untracked.PSet(
-                              treshold=cms.untracked.string("INFO")
+                              threshold=cms.untracked.string("INFO")
                               )
 )
 
@@ -26,18 +26,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('runnumber'), #IOV: 'runnumber'-> number of the run, 'timestamp'-> microseconds starting from 1/1/1970
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('DQMSummaryRcd'),
+        record = cms.string('DQMSummary'),
         tag = cms.string('DQMSummaryTest') 
          )),
     logconnect= cms.untracked.string('sqlite_file:DQMSummaryLogTest.db')                                     
 )
 
 process.dqmSummaryTest = cms.EDAnalyzer("DQMSummaryPopConAnalyzer",
-    record = cms.string('DQMSummaryRcd'),
+    record = cms.string('DQMSummary'),
     loggingOn = cms.untracked.bool(True), #always True, needs to create the log db
     SinceAppendMode = cms.bool(True),
     Source = cms.PSet(
-    firstSince = cms.untracked.int64(43434) #1, 43434, 46335, 51493, 51500
+    firstSince = cms.untracked.uint64(43434) #1, 43434, 46335, 51493, 51500
     )                            
 )
 

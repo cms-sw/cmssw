@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.15 2009/07/02 18:35:43 amraktad Exp $
+// $Id: FW3DView.cc,v 1.23 2009/11/05 15:11:40 dmytro Exp $
 //
 
 // system include files
@@ -62,6 +62,9 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
+
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -102,6 +105,13 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   m_embeddedViewer->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(nv);
+   ctxHand->setPickCameraCenter(true);
+   m_viewContextMenu.reset(ctxHand);
+   
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
@@ -110,6 +120,10 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
            dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
       m_cameraFOV = &(camera->fFOV);
 
+   m_viewer=nv;
+   gEve->GetViewers()->AddElement(nv);
+
+   //scenes
    m_scene = gEve->SpawnNewScene(staticTypeName().c_str());
    nv->AddScene(m_scene);
 
@@ -117,8 +131,6 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    nv->AddScene(m_detectorScene);
    m_detectorScene->GetGLScene()->SetSelectable(kFALSE);
 
-   m_viewer=nv;
-   gEve->AddElement(nv, gEve->GetViewers());
    gEve->AddElement(list,m_scene);
    gEve->AddToListTree(list, kTRUE);
 
@@ -226,7 +238,7 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
       std::istringstream s(value->value());
       s>>*m_cameraFOV;
    }
-   m_viewer->GetGLViewer()->RequestDraw();
+   gEve->Redraw3D();
 }
 
 
@@ -264,7 +276,7 @@ FW3DView::showMuonBarrel( )
    if (m_muonBarrelElements)
    {
       m_muonBarrelElements->SetRnrState(m_showMuonBarrel.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -316,7 +328,7 @@ FW3DView::showMuonEndcap( )
    if (m_muonEndcapElements)
    {
       m_muonEndcapElements->SetRnrState(m_showMuonEndcap.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -342,7 +354,7 @@ FW3DView::showPixelBarrel( )
    if (m_pixelBarrelElements)
    {
       m_pixelBarrelElements->SetRnrState(m_showPixelBarrel.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -367,7 +379,7 @@ FW3DView::showPixelEndcap( )
    if (m_pixelEndcapElements)
    {
       m_pixelEndcapElements->SetRnrState(m_showPixelEndcap.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -401,7 +413,7 @@ FW3DView::showTrackerBarrel( )
    if (m_trackerBarrelElements )
    {
       m_trackerBarrelElements->SetRnrState(m_showTrackerBarrel.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 
@@ -434,7 +446,7 @@ FW3DView::showTrackerEndcap( )
    if (m_trackerEndcapElements )
    {
       m_trackerEndcapElements->SetRnrState(m_showTrackerEndcap.value());
-      m_viewer->GetGLViewer()->UpdateScene();
+      gEve->Redraw3D();
    }
 }
 //==============================================================================
@@ -501,14 +513,15 @@ FW3DView::setTransparency( )
 }
 
 //______________________________________________________________________________
+FWViewContextMenuHandlerBase* 
+FW3DView::contextMenuHandler() const {
+   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
+}
 
 void
 FW3DView::setBackgroundColor(Color_t iColor)
 {
-   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
-   if ( iColor == FWColorManager::kBlackIndex && !dark ||
-        iColor == FWColorManager::kWhiteIndex && dark)
-      m_viewer->GetGLViewer()->SwitchColorSet();
+   FWColorManager::setColorSetViewer(m_viewer->GetGLViewer(), iColor);
 }
 
 //

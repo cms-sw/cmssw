@@ -4,6 +4,8 @@ import ROOT
 import inspect
 import sys
 import optparse
+from FWCore.ParameterSet.VarParsing import VarParsing
+
 
 ROOT.gSystem.Load("libFWCoreFWLite.so")
 ROOT.AutoLibraryLoader.enable()
@@ -35,29 +37,6 @@ def warn (*args, **kwargs):
         print
     else:
         print "%s (%s):" % (filename, lineNum)
-
-
-def createParser (mode='', progName=''):
-    """Create a parser that has options useful for FWLite"""
-    parser = optparse.OptionParser ('Usage: %prog [options]')
-    parser.add_option ('--inputFiles', dest='inputFiles',
-                       action='append', type='string', default=[],
-                       help='Input files')
-    parser.add_option ('--inputFiles_load', dest='inputFiles_load',
-                       action='append', type='string', default=[],
-                       help='Name of text file to load input files')
-    parser.add_option ('--secondaryInputFiles', dest='secondaryInputFiles',
-                       action='append', type='string', default=[],
-                       help='Secondary input files'
-                       ' (a.k.a. "Two file solution")')
-    parser.add_option ('--secondaryInputFiles_load',
-                       dest='secondaryInputFiles_load',
-                       action='append', type='string', default=[],
-                       help='Name of text file to load secondary input files')
-    parser.add_options ('--maxEvents', type='integer', default=0,
-                        help='Maximum number of events to process '
-                        '(0 for all events; default)')
-    return parser
 
 
 class Handle:
@@ -124,10 +103,12 @@ class Handle:
         if not getByLabelSuccess:
             self._exception = RuntimeError ("getByLabel (%s, %s) failed" \
                                             % (self, labelString))
+            print "one", self._exception
             return
         if not self._wrapper.isPresent():
             self._exception = RuntimeError ("getByLabel (%s, %s) not present this event" \
                                             % (self, labelString))
+            print "two", self._exception
             return
         # if we're still here, then everything is happy.  Clear the exception
         self._exception = None
@@ -142,13 +123,29 @@ class Events:
         Optional arguments:
         forceEvent  => Use fwlite::Event IF there is only one file
         maxEvents   => Maximum number of events to process
-        """
-        self._veryFirstTime = True
-        self._event         = 0
-        self._eventCounts   = 0
-        self._maxEvents     = 0
-        self._forceEvent    = False
-        self._mode          = None
+        """        
+        self._veryFirstTime      = True
+        self._event              = 0
+        self._eventCounts        = 0
+        self._maxEvents          = 0
+        self._forceEvent         = False
+        self._mode               = None
+        self._secondaryFilenames = None
+        if isinstance (inputFiles, list):
+            # it's a list
+            self._filenames = inputFiles[:]
+        elif isinstance (inputFiles, VarParsing):
+            # it's a VarParsing object
+            options = inputFiles
+            self._maxEvents           = options.maxEvents
+            self._filenames           = options.inputFiles
+            self._secondaryFilenames  = options.secondaryInputFiles
+        else:
+            # it's probably a single string
+            self._filenames = [inputFiles]
+        ##############################
+        ## Parse optional arguments ##
+        ##############################
         if kwargs.has_key ('maxEvents'):
             self._maxEvents = kwargs['maxEvents']
             del kwargs['maxEvents']
@@ -156,26 +153,46 @@ class Events:
             self._forceEvent = kwargs['forceEvent']
             del kwargs['forceEvent']
         if kwargs.has_key ('options'):
-            self._parseOptions (kwargs['options'])
-            del wkargs['options']
-        
+            options = kwargs ['options']
+            self._maxEvents           = options.maxEvents
+            self._filenames           = options.inputFiles
+            self._secondaryFilenames  = options.secondaryInputFiles
+            del kwargs['options']
         # Since we deleted the options as we used them, that means
         # that kwargs should be empty.  If it's not, that means that
         # somebody passed in an argument that we're not using and we
         # should complain.
         if len (kwargs):
             raise RuntimeError, "Unknown arguments %s" % kwargs
-        if isinstance (inputFiles, list):
-            self._filenames = inputFiles[:]
-        else:
-            self._filenames = [inputFiles]
         if not self._filenames:
-            raise RuntimeError, "No input files given"        
+            raise RuntimeError, "No input files given"
+
+
+    def to (self, entryIndex):
+        """Jumps to event entryIndex"""
+        if self._veryFirstTime:
+            self._createFWLiteEvent()
+        self._event.to ( long(entryIndex) )
 
         
     def toBegin (self):
         """Called to reset event loop to first event."""
         self._toBegin = True
+
+
+    def size (self):
+        """Returns number of events"""
+        if self._veryFirstTime:
+            self._createFWLiteEvent()
+        return self._event.size()
+
+
+    def eventAuxiliary (self):
+        """Returns eventAuxiliary object"""
+        if self._veryFirstTime:
+            raise RuntimeError, "eventAuxiliary() called before "\
+                  "toBegin() or to()"
+        return self._event.eventAuxiliary()
 
 
     def object (self):
@@ -186,9 +203,13 @@ class Events:
     def getByLabel (self, *args):
         """Calls FWLite's getByLabel.  Called:
         getByLabel (moduleLabel, handle)
-        getByLabel (moduleLabel, productInstanceLabel, handle), or
-        getByLabel (moduleLabel, productInstanceLabel, processLabel, handle)
+        getByLabel (moduleLabel, productInstanceLabel, handle),
+        getByLabel (moduleLabel, productInstanceLabel, processLabel, handle),
+        or
+        getByLabel ( (mL, pIL,pL), handle)
         """
+        if self._veryFirstTime:
+            self._createFWLiteEvent()        
         length = len (args)
         if length < 2 or length > 4:
             # not called correctly
@@ -196,6 +217,13 @@ class Events:
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
+        if len(argsList)==1 and \
+               ( isinstance (argsList[0], tuple) or
+                 isinstance (argsList[0], list) ) :
+            if len (argsList) > 3:
+                raise RuntimeError, "getByLabel Error: label tuple has too " \
+                      "many arguments '%s'" % argsList[0]
+            argsList = list(argsList[0])
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
@@ -261,16 +289,26 @@ class Events:
         if isinstance (self._filenames[0], ROOT.TFile):
             self._event = ROOT.fwlite.Event (self._filenames[0])
             self._mode = 'single'
+            return self._mode
         if len (self._filenames) == 1 and self._forceEvent:
             self._tfile = ROOT.TFile.Open (self._filenames[0])
             self._event = ROOT.fwlite.Event (self._tfile)
             self._mode = 'single'
-            return
+            return self._mode
         filenamesSVec = ROOT.vector("string") ()
         for name in self._filenames:
             filenamesSVec.push_back (name)
-        self._event = ROOT.fwlite.ChainEvent (filenamesSVec)
-        self._mode = 'chain'
+        if self._secondaryFilenames:
+            secondarySVec =  ROOT.vector("string") ()
+            for name in self._secondaryFilenames:
+                secondarySVec.push_back (name)
+            self._event = ROOT.fwlite.MultiChainEvent (filenamesSVec,
+                                                       secondarySVec)
+            self._mode = 'multi'
+        else:
+            self._event = ROOT.fwlite.ChainEvent (filenamesSVec)
+            self._mode = 'chain'
+        return self._mode
 
 
     def _next (self):
@@ -282,7 +320,7 @@ class Events:
         while not self._event.atEnd() :
             yield self
             self._eventCounts += 1
-            if self._maxEvents and self._eventCounts >= self._maxEvents:
+            if self._maxEvents > 0 and self._eventCounts >= self._maxEvents:
                 break
             # Have we been asked to go to the first event?
             if self._toBegin:

@@ -63,7 +63,7 @@ namespace {
 
   void dumpInfo(std::ostream & out, std::string const & recName, cond::DataProxyWrapperBase const & proxy) {
     cond::SequenceState state(proxy.proxy()->iov().state());
-    out << recName << ": "
+    out << recName << " / " << proxy.label() << ": " 
 	<< proxy.connString() << ", " << proxy.tag()   << "\n  "
 	<< state.size() << ", " << state.revision()  << ", "
 	<< cond::time::to_boost(state.timestamp())     << "\n  "
@@ -152,13 +152,15 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       coraldb.commit();
       
       
-      cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), conn, 
-									   cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
+      cond::DataProxyWrapperBase * pb =  
+	cond::ProxyFactory::get()->create(buildName(it->recordname), conn, 
+					  cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
       
       ProxyP proxy(pb);
       proxy->addInfo(it->pfn, it->tag);
       //      proxy->addInfo(conn.connectStr(), it->tag);
-      m_proxies[it->recordname] = proxy;
+      m_proxies.insert(std::make_pair(it->recordname, proxy));
+
 
     }
     
@@ -211,66 +213,77 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::string recordname=iKey.name();
   oInterval = edm::ValidityInterval::invalidInterval();
   
-  ProxyMap::const_iterator p = m_proxies.find(recordname);
-  if ( p == m_proxies.end()) {
+  ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
+  ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
+  if ( b == e) {
     LogDebug ("PoolDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
     return;
   }
 
-  // refresh if required...
-  if (doRefresh)  { 
-    stats.nActualRefresh += (*p).second->proxy()->refresh(); 
-    stats.nRefresh++;
-  }
-
-  {
-    // not required anymore, keep here for the time being
-    if(iTime.eventID().run()!=lastRun) {
-      lastRun=iTime.eventID().run();
-      stats.nRun++;
+  cond::ValidityInterval recordValidity(0,cond::TIMELIMIT);
+  cond::TimeType timetype;
+  bool userTime=true;
+  for (ProxyMap::const_iterator p=b;p!=e;++p) {
+    // refresh if required...
+    if (doRefresh)  { 
+      stats.nActualRefresh += (*p).second->proxy()->refresh(); 
+      stats.nRefresh++;
     }
-  }
-
-
-  cond::TimeType timetype = (*p).second->proxy()->timetype();
-
-  cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
-  bool userTime= (0==abtime);
-
-  //std::cout<<"abtime "<<abtime<<std::endl;
-
-  if (!userTime) {
+    
+    {
+      // not required anymore, keep here for the time being
+      if(iTime.eventID().run()!=lastRun) {
+	lastRun=iTime.eventID().run();
+	stats.nRun++;
+      }
+    }
+    
+    
+    timetype = (*p).second->proxy()->timetype();
+    
+    cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
+    userTime = (0==abtime);
+    
+    //std::cout<<"abtime "<<abtime<<std::endl;
     
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
-
+    
+    recordValidity.first = std::max(recordValidity.first,validity.first);
+    recordValidity.second = std::min(recordValidity.second,validity.second);
+  }      
+   
     // to force refresh we set end-value to the minimum such an IOV can exend to: current run or lumiblock
     
-    edm::IOVSyncValue start = cond::toIOVSyncValue(validity.first, timetype, true);
+  if (!userTime) {
+    edm::IOVSyncValue start = cond::toIOVSyncValue(recordValidity.first, timetype, true);
     edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (iTime, timetype)
-      : cond::toIOVSyncValue(validity.second, timetype, false);
- 
-    //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
+      : cond::toIOVSyncValue(recordValidity.second, timetype, false);
+    
+    //std::cout<<"setting validity "<<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
     
     oInterval = edm::ValidityInterval( start, stop );
-    
-  }
-  
+   }
 }
+  
 
 void 
 PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
   std::string recordname=iRecordKey.name();
 
-  ProxyMap:: const_iterator p = m_proxies.find(recordname);
-  if ( p == m_proxies.end()) {
-    LogDebug ("PoolDBESSource")<<"no DataProxy (Plugin) found for record "<<recordname;
+  ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
+  ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
+  if ( b == e) {
+    LogDebug ("PoolDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
     return;
   }
 
-  if(0 != (*p).second.get()) {
-    edm::eventsetup::TypeTag type =  (*p).second->type(); 
-    edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label().c_str()) );
-    aProxyList.push_back(KeyedProxies::value_type(key,(*p).second->edmProxy()));
+  for (ProxyMap::const_iterator p=b;p!=e;++p) {  
+
+    if(0 != (*p).second.get()) {
+      edm::eventsetup::TypeTag type =  (*p).second->type(); 
+      edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label().c_str()) );
+      aProxyList.push_back(KeyedProxies::value_type(key,(*p).second->edmProxy()));
+    }
   }
 }
 

@@ -578,8 +578,8 @@ void
 testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
-  if( nevt < 100 && nevt%10 == 0 || 
-      nevt < 1000 && nevt%100 == 0 || 
+  if( ( nevt < 100 && nevt%10 == 0)   || 
+      ( nevt < 1000 && nevt%100 == 0) || 
       nevt%1000 == 0 ) 
     std::cout<<"process entry "<< nevt << std::endl;
   nevt++; 

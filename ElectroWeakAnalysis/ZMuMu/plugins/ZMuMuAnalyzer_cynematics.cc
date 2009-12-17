@@ -16,7 +16,7 @@
  * \modified by Davide Piccolo, INFN Naples to include gerarchyc selection of Z and histos as a finction of eta pt phi
  * 
  *
- * \id $Id: ZMuMuAnalyzer_cynematics.cc,v 1.1 2008/05/13 09:43:50 piccolo Exp $
+ * \id $Id: ZMuMuAnalyzer_cynematics.cc,v 1.3 2009/11/19 16:55:51 fabozzi Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -216,9 +216,9 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
   Handle<CandidateCollection> zMuStandAlone;
   event.getByLabel( zMuStandAlone_, zMuStandAlone );  
 
-  size_t nZMuMu = zMuMu->size();
-  size_t nZTrackMu = zMuTrack->size();
-  size_t nZStandAloneMu = zMuStandAlone->size();
+  unsigned int nZMuMu = zMuMu->size();
+  unsigned int nZTrackMu = zMuTrack->size();
+  unsigned int nZStandAloneMu = zMuStandAlone->size();
   //  static const double zMass = 91.1876; // PDG Z mass
 
   cout << "++++++++++++++++++++++++++" << endl;
@@ -277,7 +277,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 
   if (nZMuMu > 0) {
     // double mass = 1000000.;
-    for( size_t i = 0; i < nZMuMu; i++ ) {
+    for( unsigned int i = 0; i < nZMuMu; i++ ) {
       bool ptcutAccept = false;
       bool etacutAccept = false;
       bool masscutAccept = false;
@@ -381,11 +381,11 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
   //  cout << "ZMuMuanalyzer : n of zMuMu " << nZMuMu << " passed " << ZMuMu_passed << "     n. of zStaMu " << nZStandAloneMu << endl;
 
   if (ZMuMu_passed == 0 && nZStandAloneMu>0 ) {
-    //      size_t index = 1000;
-    for( size_t j = 0; j < nZStandAloneMu; j++ ) {
+    //      unsigned int index = 1000;
+    for( unsigned int j = 0; j < nZStandAloneMu; j++ ) {
       const Candidate & zsmCand = (*zMuStandAlone)[ j ];
       bool skipZ = false;
-      for( size_t i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuSTandalone is contained in a ZMuMu 
+      for( unsigned int i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuSTandalone is contained in a ZMuMu 
 	const Candidate & zmmCand = (*zMuMu)[ i ];        // if yes .. the event has to be skipped
 	if (isContained(zmmCand,zsmCand)) skipZ=true;
       }
@@ -457,10 +457,10 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
 
   //ZmuSingleTRack  (check MuTrack if MuMu has not been selected)
   if (ZMuMu_passed == 0 && ZMuStandalone_passed == 0 && nZTrackMu>0) {
-    for( size_t j = 0; j < nZTrackMu; j++ ) {
+    for( unsigned int j = 0; j < nZTrackMu; j++ ) {
       const Candidate & ztmCand = (*zMuTrack)[ j ];
       bool skipZ = false;
-      for( size_t i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuTrack is contained in a ZMuMu 
+      for( unsigned int i = 0; i < nZMuMu; i++ ) {              // chek if the ZMuTrack is contained in a ZMuMu 
 	const Candidate & zmmCand = (*zMuMu)[ i ];        // if yes .. the event has to be skipped
 	if (isContained(zmmCand,ztmCand)) skipZ=true;
       }
@@ -549,11 +549,11 @@ bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candida
   TrackRef stAloneTrack2[maxd];
   TrackRef globalTrack2[maxd];
   bool flag;
-  size_t nd1 = obj1.numberOfDaughters();
-  size_t nd2 = obj2.numberOfDaughters();
-  size_t matched=0;
+  unsigned int nd1 = obj1.numberOfDaughters();
+  unsigned int nd2 = obj2.numberOfDaughters();
+  unsigned int matched=0;
 
-  for( size_t i = 0; i < nd1; ++ i ) {
+  for( unsigned int i = 0; i < nd1; ++ i ) {
     daughters1[i] = obj1.daughter( i );
     trackerTrack1[i] = daughters1[i]->get<TrackRef>();
     stAloneTrack1[i] = daughters1[i]->get<TrackRef,reco::StandAloneMuonTag>();
@@ -581,7 +581,7 @@ bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candida
 	   << endl;
     */
   }
-  for( size_t i = 0; i < nd2; ++ i ) {
+  for( unsigned int i = 0; i < nd2; ++ i ) {
     daughters2[i] = obj2.daughter( i );
     trackerTrack2[i] = daughters2[i]->get<TrackRef>();
     stAloneTrack2[i] = daughters2[i]->get<TrackRef,reco::StandAloneMuonTag>();
@@ -616,11 +616,11 @@ bool ZMuMuAnalyzer_cynematics::isContained(const Candidate & obj1, const Candida
     }
   else
     {
-      for (size_t i = 0; i < nd1; i++) {
+      for (unsigned int i = 0; i < nd1; i++) {
 	flag = false;
-	for (size_t j = 0; j < nd2; j++) {           // if the obj2 is a standalone the trackref is alwais in the trackerTRack position
-	  if (trackerTrack2[i].id()==trackerTrack1[j].id() && trackerTrack2[i].key()==trackerTrack1[j].key() ||
-	      trackerTrack2[i].id()==stAloneTrack1[j].id() && trackerTrack2[i].key()==stAloneTrack1[j].key()) {
+	for (unsigned int j = 0; j < nd2; j++) {           // if the obj2 is a standalone the trackref is alwais in the trackerTRack position
+	  if ( ((trackerTrack2[i].id()==trackerTrack1[j].id()) && (trackerTrack2[i].key()==trackerTrack1[j].key())) ||
+	       ((trackerTrack2[i].id()==stAloneTrack1[j].id()) && (trackerTrack2[i].key()==stAloneTrack1[j].key())) ) {
 	    flag = true;
 	  }
 	}

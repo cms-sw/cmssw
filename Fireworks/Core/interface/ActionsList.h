@@ -17,7 +17,7 @@ namespace cmsshow {
    extern const std::string sCut;
    extern const std::string sCopy;
    extern const std::string sPaste;
-   extern const std::string sShowColorInsp;
+   extern const std::string sShowBrightnessInsp;
    extern const std::string sDefaultBrightness;
    extern const std::string sNextEvent;
    extern const std::string sPreviousEvent;
@@ -29,6 +29,7 @@ namespace cmsshow {
    extern const std::string sShowMainViewCtl;
    extern const std::string sShowAddCollection;
    extern const std::string sHelp;
+   extern const std::string sSearchFiles;
    extern const std::string sKeyboardShort;
    extern const std::string sBackgroundColor;
    extern const std::string sAutoRewind;

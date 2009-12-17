@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/05/22 09:07:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/08/14 13:34:17 $
+ *  $Revision: 1.1 $
  *  
  *  \author  J. Slaunwhite (modified from above
  */
@@ -45,6 +45,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
+
 #include <vector>
 #include "TFile.h"
 #include "TNtuple.h"
@@ -76,14 +77,21 @@ public:
   void            analyze( const edm::Event & iEvent );
   void            finish ( );
   //MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
+  
+
 
 private:
 
   std::vector <MonitorElement*> hDeltaRMaxJetLep;
+  std::vector <MonitorElement*> hJetMultip;
 
   void sortJets (reco::CaloJetCollection & theJets);
-
   
+  double EtaCut_, PtCut_;
+  int NJets_;
+  edm::InputTag CaloJetInputTag;
+
+  std::vector<double> theJetMParameters;
   
 
 };

@@ -1211,13 +1211,13 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
       entries+=tkMapScaler[i];
 
     float min=0 ;
-    for(i=0;i<tkMapScaler.size() & min<th;++i){
+    for(i=0;(i<tkMapScaler.size()) & (min<th);++i){
       min+=tkMapScaler[i]/entries;
       imin=i;
     }
 
     float max=0;
-    for(i=tkMapScaler.size()-1;i>=0 & max<th;--i){
+    for(i=tkMapScaler.size()-1;(i>=0) & (max<th);--i){
       max+=tkMapScaler[i]/entries;
       imax=i;
     }

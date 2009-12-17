@@ -49,7 +49,7 @@ public:
 private:
 
     /// beginning of job stuff
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     /// clean the text file, if needed
     virtual void cleanTextFile();

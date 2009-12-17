@@ -8,9 +8,9 @@
 using namespace std;
 
 struct cov {
-  cov(size_t _ix, size_t _iy, double _cxy, double _rho) :
+  cov(unsigned int _ix, unsigned int _iy, double _cxy, double _rho) :
     ix(_ix), iy(_iy), cxy(_cxy), rho(_rho) { }
-  size_t ix, iy;
+  unsigned int ix, iy;
   double cxy, rho;
 };
 
@@ -19,32 +19,32 @@ double operator<(const cov & c1, const cov & c2) {
 }
 
 int main() {
-  const size_t n = 24;
+  const unsigned int n = 24;
   fstream file("error.txt");
   string name[n];
   double err[n][n];
-  for(size_t i = 0; i < n; ++i)
+  for(unsigned int i = 0; i < n; ++i)
     file >> name[i];
-  for(size_t i = 0; i < n; ++i) {
-    for(size_t j = 0; j < n; ++j) {
+  for(unsigned int i = 0; i < n; ++i) {
+    for(unsigned int j = 0; j < n; ++j) {
       file >> err[i][j];
     }
   }
 
-  for(size_t i = 0; i < n; ++i) 
-    for(size_t j = i; j < n; ++j) 
+  for(unsigned int i = 0; i < n; ++i) 
+    for(unsigned int j = i; j < n; ++j) 
       if(fabs(err[i][j] - err[j][i])> 1.e-4) {
 	cerr << "error: asymmetric matrix";
 	exit(1);
       }
 
-  for(size_t i = 0; i < n; ++i) {
+  for(unsigned int i = 0; i < n; ++i) {
     cout << "err(" << name[i] << ") = " << sqrt(err[i][i]) << endl;
   }
   
   vector<cov> covs;
-  for(size_t i = 0; i < n; ++i) 
-    for(size_t j = i+1; j < n; ++j) {
+  for(unsigned int i = 0; i < n; ++i) 
+    for(unsigned int j = i+1; j < n; ++j) {
       double cxy = err[i][j];
       double ex = sqrt(err[i][i]), ey = sqrt(err[j][j]);
       if(ex > 0 && ey > 0) {

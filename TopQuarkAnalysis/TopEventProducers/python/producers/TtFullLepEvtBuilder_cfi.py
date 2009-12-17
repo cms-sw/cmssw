@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module to fill the semi-leptonic ttbar event structure
+# module to fill the full-leptonic ttbar event structure
 #
 ttFullLepEvent = cms.EDProducer("TtFullLepEvtBuilder",
     ## choose leptonic decay modes

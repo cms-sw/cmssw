@@ -11,9 +11,8 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Muriel Vander Donckt
-//         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.9 2009/08/14 13:29:08 slaunwhj Exp $
+// Jason Slaunwhite, based on code from Jeff Klukas
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.10 2009/08/25 10:03:15 slaunwhj Exp $
 //
 //
 
@@ -52,6 +51,7 @@ public:
 private:
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endRun (const edm::Run& r, const edm::EventSetup& c);
   virtual void endJob() ;
 
   int theNumberOfTriggers;
@@ -298,6 +298,23 @@ OfflineDQMMuonTrigAnalyzer::beginJob()
     << "OfflineDQMMuonTrigAnalyzer: Calling being for overlap analyzer" << endl;
   
   //theOverlapAnalyzer ->begin();
+}
+
+void 
+OfflineDQMMuonTrigAnalyzer::endRun ( const edm::Run& theRun, const edm::EventSetup& theEventSetup) {
+
+  LogTrace ("HLTMuonVal")
+    << "Inside OfflineDQMMuonTrigAnalyzer endRun()" << endl;
+  
+  
+  vector<HLTMuonMatchAndPlot *>::iterator thisAnalyzer;
+  for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
+        thisAnalyzer != theTriggerAnalyzers.end(); 
+	++thisAnalyzer )
+    {
+      (*thisAnalyzer)->endRun(theRun, theEventSetup);
+    }
+
 }
 
 

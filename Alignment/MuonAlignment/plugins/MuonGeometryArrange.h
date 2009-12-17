@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2008/11/25 22:15:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/06/17 15:35:14 $
+ *  $Revision: 1.7 $
  *  \author Nhan Tran
  */
 
@@ -79,8 +79,8 @@ private:
 	//void createDBGeometry(const edm::EventSetup& iSetup);
 	void createROOTGeometry(const edm::EventSetup& iSetup);
 	void makeGraph(int sizeI, float smi, float sma, float minV,
-	  float maxV, TH2F* dxh, TGraph* grx, const char* name, const char* title,
-	  const char* titleg, const char* axis, float* xp, float* yp, int numEntries);
+	  float maxV, TH2F* dxh, TGraph* grx, char* name, char* title,
+	  char* titleg, char* axis, float* xp, float* yp, int numEntries);
 	
 	bool passIdCut( uint32_t );
 	bool checkChosen( Alignable* ali );	// Is ali one of wanted CSC?

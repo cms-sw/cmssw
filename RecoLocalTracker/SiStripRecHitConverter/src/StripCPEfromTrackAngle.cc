@@ -1,42 +1,104 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"                                                           
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::
-localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const LocalTrajectoryParameters& ltp) const {
-  return localParameters(cluster,ltp);
-}
+StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParameters( const SiStripCluster & cl,const LocalTrajectoryParameters & ltp)const{
+  //
+  // get the det from the geometry
+  //
 
-StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::
-localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters& ltp) const {
-  StripCPE::Param const & p = param(DetId(cluster.geographicalId()));
+  StripCPE::Param const & p = param(DetId(cl.geographicalId()));
   
-  LocalVector track = ltp.momentum();
-  track *= 
-    (track.z()<0) ?  fabs(p.thickness/track.z()) : 
-    (track.z()>0) ? -fabs(p.thickness/track.z()) :  
-                         p.maxLength/track.mag() ;
 
-  const unsigned N = cluster.amplitudes().size();
-  const float uProj = p.coveredStrips( track+p.drift, ltp.position());
-  const float uerr2 = stripErrorSquared( N, fabs(uProj) );
-  const float strip = p.driftCorrected( cluster.barycenter(), ltp.position());
+ 
+  // ionisation length
+   
+  //float ionLen = std::min( trackDir.mag(), maxLength);
 
-  return std::make_pair( p.topology->localPosition(strip),
-			 p.topology->localError(strip, uerr2) );
-}
+  //  const float par1=38.07;
+  // const float par2=0.3184; 
+  // const float par3=0.09828; 
+  // const float P1 = par1 * p.thickness; 
+  // const float P2 = par2; 
+  // const float P3 = par3;
 
-inline
-float StripCPEfromTrackAngle::
-stripErrorSquared(const unsigned& N, const float& uProj) const
-{
-  if( (N-uProj) > 3.5 )  
-    return N*N/12.;
-  else {
+
+  //  drift*=(thickness/2);
+
+  //calculate error form track angle
+
+
+  LocalPoint  middlepoint = ltp.position();
+  LocalVector trackDir = ltp.momentum()/ltp.momentum().mag();
+  LocalPoint  position = p.topology->localPosition(cl.barycenter());
+
+
+
+  if(trackDir.z()*p.drift.z() > 0.) trackDir *= -1.;
+
+
+  if(trackDir.z() !=0.) {
+    trackDir *= fabs(p.thickness/trackDir.z());
+  } else {
+    trackDir *= p.maxLength/trackDir.mag();
+  }
+
+
+      
+  if(p.drift.z() == 0.) {
+    //  if(drift.z() == 0.||cl.amplitudes().size()==1) {
+    edm::LogError("StripCPE") <<"No drift towards anodes !!!";
+    LocalError eresult = p.topology->localError(cl.barycenter(),1/12.);
+    //  LocalPoint  result=LocalPoint(position.x()-drift.x()/2,position.y()-drift.y()/2,0);
+    return std::make_pair(position-p.drift*(p.thickness/2),eresult);
+  }	 
+
+
+
+
+  // covered length along U
+      
+  LocalVector middleOfProjection = 0.5*(trackDir + p.drift);
+
+  LocalPoint middlePointOnStrips = middlepoint + 0.5*p.drift;
+
+  LocalPoint p1 = LocalPoint(middlePointOnStrips.x() + middleOfProjection.x()
+			     ,middlePointOnStrips.y() + middleOfProjection.y());
+  LocalPoint p2 = LocalPoint(middlePointOnStrips.x() - middleOfProjection.x()
+			     ,middlePointOnStrips.y() - middleOfProjection.y());
+
+  MeasurementPoint m1 = p.topology->measurementPosition(p1);
+  MeasurementPoint m2 = p.topology->measurementPosition(p2);
+  float u1 = m1.x();
+  float u2 = m2.x();
+  float uerr2;
+  float uProj = std::min( float(fabs( u1 - u2)), float(p.nstrips));
+  if((cl.amplitudes().size() - (uProj+2.5)) > 1)uerr2=cl.amplitudes().size() * cl.amplitudes().size() * (1./12.);
+  else{
+    //   float par1=38.07;
+    //   float par2=0.3184; 
+    //   float par3=0.09828; 
+    //   float P1 = par1 * thickness; 
+    //   float P2 = par2; 
+    //   float P3 = par3;
+    //   float uerr;
+    
+    //   uerr =(uProj-P1)*(uProj-P1)*(P2-P3)/(P1*P1)+P3;
+    
     const float P1=-0.339;
     const float P2=0.90;
     const float P3=0.279;
-    const float uerr = P1*uProj*exp(-uProj*P2)+P3;
-    return uerr*uerr;
+    
+    float uerr=P1*uProj*exp(-uProj*P2)+P3;
+    uerr2=uerr*uerr;
   }
+
+  MeasurementError merror=MeasurementError( uerr2, 0., 1./12.);
+  LocalPoint result=LocalPoint(position.x()-0.5*p.drift.x(),position.y()-0.5*p.drift.y(),0);
+  MeasurementPoint mpoint=p.topology->measurementPosition(result);
+  LocalError eresult=p.topology->localError(mpoint,merror);
+  return std::make_pair(result,eresult);
 }
+
+

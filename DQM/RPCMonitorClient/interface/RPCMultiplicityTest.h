@@ -12,6 +12,7 @@ class  RPCMultiplicityTest:public RPCClient{
 
 public:
 
+
   /// Constructor
   RPCMultiplicityTest(const edm::ParameterSet& ps);
   
@@ -22,7 +23,7 @@ public:
   void beginJob(DQMStore * );
 
   //Begin Run
-   void beginRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>);
+   void endRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>);
   
   
   /// Begin Lumi block 
@@ -35,10 +36,13 @@ public:
   void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
  
   //End Run
-  void endRun(const edm::Run& , const edm::EventSetup& ); 		
+  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
   
   /// Endjob
   void endJob();
+
+  virtual void clientOperation(edm::EventSetup const& c);
+
 
  protected:
   void fillGlobalME(RPCDetId & detId, MonitorElement * myMe);
@@ -46,8 +50,8 @@ public:
  private:
   int prescaleFactor_;
   std::string globalFolder_;
-  int numberOfDisks_, numberOfRings_;
-
+  int numberOfDisks_;
+ 
   std::vector<MonitorElement *>  myNumDigiMe_;
   std::vector<RPCDetId>   myDetIds_;
 

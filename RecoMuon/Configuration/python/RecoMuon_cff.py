@@ -72,5 +72,5 @@ muonsFromCosmics = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
 muonsFromCosmics.inputCollectionLabels = ['generalTracks', 'globalCosmicMuons', 'cosmicMuons']
 muonsFromCosmics.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muonsFromCosmics.fillIsolation = False
-
+muonsFromCosmics.fillGlobalTrackQuality = False
 muoncosmicreco = cms.Sequence(CosmicMuonSeed*cosmicMuons*globalCosmicMuons*muonsFromCosmics)

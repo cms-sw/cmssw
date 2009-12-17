@@ -9,7 +9,7 @@ private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endJob();
   edm::InputTag   gen_, pdfweights_;
-  size_t pdfmember_ , nbinsMass_, nbinsPt_, nbinsAng_ ;
+  unsigned int pdfmember_ , nbinsMass_, nbinsPt_, nbinsAng_ ;
   double massMax_, ptMax_, angMax_;
   double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_;
   TH1F *h_nZ_;
@@ -47,10 +47,10 @@ using namespace edm;
 zPdfUnc::zPdfUnc(const ParameterSet& pset) :
   gen_(pset.getParameter<InputTag>("genParticles")),
   pdfweights_(pset.getParameter<InputTag>("pdfweights")),
-  pdfmember_(pset.getUntrackedParameter<size_t>("pdfmember")),
-  nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")),
-  nbinsAng_(pset.getUntrackedParameter<size_t>("nbinsAng")),
+  pdfmember_(pset.getUntrackedParameter<unsigned int>("pdfmember")),
+  nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
+  nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
   massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
   angMax_(pset.getUntrackedParameter<double>("angMax")), 
@@ -116,7 +116,7 @@ void zPdfUnc::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   std::vector<GenParticle> muons;
 
     
-    for(size_t i = 0; i < gen->size(); ++i){ 
+    for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       // filling only muons coming form Z
       if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   

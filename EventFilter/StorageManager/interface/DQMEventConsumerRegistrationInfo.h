@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.h,v 1.4 2009/09/16 09:53:23 dshpakov Exp $
 /// @file: DQMEventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_DQMEventConsumerRegistrationInfo_h
@@ -16,9 +16,9 @@ namespace stor
   /**
    * Holds the registration information for a DQM event consumer.
    *
-   * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Author: dshpakov $
+   * $Revision: 1.4 $
+   * $Date: 2009/09/16 09:53:23 $
    */
 
   class DQMEventConsumerRegistrationInfo : public RegistrationInfoBase

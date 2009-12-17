@@ -39,11 +39,9 @@ bool HBHEDataFrame::validate(int firstSample, int nSamples) const {
   return ok;
 }
 
-void HBHEDataFrame::setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask) {
-  hcalPresamples_&=0x7FC00F0F; // preserve actual presamples and fiber idle offset
+void HBHEDataFrame::setZSInfo(bool unsuppressed, bool markAndPass) {
   if (markAndPass) hcalPresamples_|=0x10;
   if (unsuppressed) hcalPresamples_|=0x20;
-  hcalPresamples_|=(crossingMask&0x3FF)<<12; 
 }
 
 int HBHEDataFrame::fiberIdleOffset() const {
@@ -52,7 +50,7 @@ int HBHEDataFrame::fiberIdleOffset() const {
 }
 
 void HBHEDataFrame::setFiberIdleOffset(int offset) {
-  hcalPresamples_&=0x7FFFF0FF;
+  hcalPresamples_&=0xFFFF0FF;
   if (offset>=7) hcalPresamples_|=0xF00;
   else if (offset>=0) hcalPresamples_|=(0x800)|(offset<<8);
   else if (offset>=-7) hcalPresamples_|=((-offset)<<8);

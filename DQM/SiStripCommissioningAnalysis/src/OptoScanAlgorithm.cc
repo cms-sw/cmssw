@@ -14,15 +14,10 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-OptoScanAlgorithm::OptoScanAlgorithm( const edm::ParameterSet & pset, OptoScanAnalysis* const anal ) 
+OptoScanAlgorithm::OptoScanAlgorithm( OptoScanAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    histos_( 4, std::vector<Histo>( 3, Histo(0,"") ) ),
-    targetGain_(pset.getParameter<double>("TargetGain"))
-{
-  edm::LogInfo(mlCommissioning_)
-    << "[PedestalsAlgorithm::" << __func__ << "]"
-    << " Set target gain to: " << targetGain_;
-}
+    histos_( 4, std::vector<Histo>( 3, Histo(0,"") ) )
+{;}
   
 // ----------------------------------------------------------------------------
 // 
@@ -30,7 +25,7 @@ void OptoScanAlgorithm::extract( const std::vector<TH1*>& histos ) {
 
   if ( !anal() ) {
     edm::LogWarning(mlCommissioning_)
-      << "[OptoScanAlgorithm::" << __func__ << "]"
+      << "[ApvTimingAlgorithm::" << __func__ << "]"
       << " NULL pointer to Analysis object!";
     return; 
   }
@@ -381,8 +376,7 @@ void OptoScanAlgorithm::analyse() {
   } // gain loop
 
   // Iterate through four gain settings and identify optimum gain setting
-  const float target_gain = targetGain_; //0.863; // changed from 0.8 to avoid choice of low tickheights (Xtof, SL, 15/6/2009)
-
+  const float target_gain = 0.8;
   float diff_in_gain = sistrip::invalid_;
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
     

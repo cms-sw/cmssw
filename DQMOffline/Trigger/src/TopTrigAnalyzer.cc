@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.6 2009/05/22 09:07:41 slaunwhj Exp $
+// $Id: TopTrigAnalyzer.cc,v 1.2 2009/10/02 13:09:43 slaunwhj Exp $
 //
 //
 
@@ -55,6 +55,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  virtual void endRun (const edm::Run& r, const edm::EventSetup& c);
   int theNumberOfTriggers;
 
   std::vector<HLTMuonMatchAndPlot*> theTriggerAnalyzers;
@@ -121,8 +122,13 @@ TopTrigAnalyzer::TopTrigAnalyzer(const ParameterSet& pset)
     string targetTrackCollection = iPSet->getUntrackedParameter<string> ("trackCollection");
     double  customD0Cut = iPSet->getUntrackedParameter<double> ("d0cut");
     double customZ0Cut = iPSet->getUntrackedParameter<double> ("z0cut");
-    double customChi2Cut = iPSet->getUntrackedParameter<double> ("chi2cut");
-    int customNHitsCut = iPSet->getUntrackedParameter<int> ("nHits");  
+
+    // the following two parameters are not currently used
+    // but maybe in the future
+    double customChi2Cut = iPSet->getUntrackedParameter<double> ("chi2cut", 30.0);
+    int customNHitsCut = iPSet->getUntrackedParameter<int> ("nHits", 10);
+
+    //
     vector<string> requiredTriggers = iPSet->getUntrackedParameter< vector<string> > ("requiredTriggers");
     
     LogTrace("HLTMuonVal") << "customTargetCollection = " << customName  << std::endl
@@ -325,6 +331,21 @@ TopTrigAnalyzer::beginJob()
   //theOverlapAnalyzer ->begin();
 }
 
+void 
+TopTrigAnalyzer::endRun( const edm::Run& theRun, const edm::EventSetup& theEventSetup ) {
+  vector<HLTTopPlotter *>::iterator thisAnalyzer;
+  //unsigned iAna = 0;
+
+  LogTrace ("HLTMuonVal") << "Inside end job, looping over analyzers"
+                          << endl;
+  for ( thisAnalyzer  = theTopPlotters.begin(); 
+        thisAnalyzer != theTopPlotters.end(); 
+	++thisAnalyzer )
+    {
+      (*thisAnalyzer)->endRun(theRun, theEventSetup);      
+    }
+  //theOverlapAnalyzer ->finish();
+}
 
 
 void 

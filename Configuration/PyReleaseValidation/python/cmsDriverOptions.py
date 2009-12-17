@@ -5,6 +5,7 @@
 import optparse
 import sys
 import os
+import re
 import Configuration.PyReleaseValidation
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder, defaultOptions
 import traceback
@@ -158,9 +159,14 @@ expertSettings.add_option("--datamix",
 expertSettings.add_option("--gflash",
                   help="Run the FULL SIM using the GFlash parameterization.",
                   action="store_true",
-                  default=False,
+                  default=defaultOptions.gflash,
                   dest="gflash")
 
+expertSettings.add_option("--himix",
+                 help="Run the Heavy Ions signal mixing.",
+                 action="store_true",
+                 default=defaultOptions.himix,
+                 dest="himix")
                                                     
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
@@ -203,10 +209,31 @@ parser.add_option("--no_exec",
                   
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
+
+#################################
+# Check parameters for validity #
+#################################
 # A simple check on the consistency of the arguments
 if len(sys.argv)==1:
     raise "Event Type: ", "No event type specified!"
 
+# check whether steps are compatible, but make sure we don't trigger on AlCaxyzHLT and L1Reco
+hltRe = re.compile('.*[,\s]HLT[,\s].*')
+recoRe = re.compile('.*[,\s]RECO[,\s].*')
+if ( hltRe.match(str(options.step)) and recoRe.match(str(options.step))):
+    print "ERROR: HLT and RECO cannot be run in the same process"
+    sys.exit(1)
+    
+# check whether conditions given
+if options.conditions == None:
+    print "ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=FrontierConditions_GlobalTag,IDEAL_30X::All"
+    sys.exit(1)
+            
+# sanity check options specifying data or mc
+if options.isData and options.isMC:
+    print "ERROR: You may specify only --data or --mc, not both"
+    sys.exit(1)
+            
 options.evt_type=sys.argv[1]
 
 # memorize the command line arguments 
@@ -280,11 +307,6 @@ if options.pileup != "NoPileUp":
 if options.fileout=="" and not first_step in ("HARVESTING"):
     options.fileout = standardFileName+".root"
 
-# check whether conditions given
-if options.conditions == None:
-    print "ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=FrontierConditions_GlobalTag,IDEAL_30X::All"
-    sys.exit(1)
-    
 # Prepare the name of the config file
 # (in addition list conditions in name)
 python_config_filename = standardFileName
@@ -363,12 +385,7 @@ if "HARVESTING" in options.step and len(s_list) > 1:
     print "The Harvesting step must be run alone"
     sys.exit(1)
 
-# sanity check options specifying data or mc
-if options.isData and options.isMC:
-    print "You may specify only --data or --mc, not both"
-    sys.exit(1)
-
-# if not specified by user try to guess
+# if not specified by user try to guess whether MC or DATA
 if not options.isData and not options.isMC:
     if 'SIM' in trimmedStep:
         options.isMC=True
@@ -385,5 +402,11 @@ if not options.isData and not options.isMC:
     else:
         print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
     
+# force the HeavyIons scenario is the himix option is chosen
+if options.himix and not options.scenario=='HeavyIons':
+   print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
+   options.scenario='HeavyIons'
+
+
 options.outfile_name = options.dirout+options.fileout
 

@@ -8,7 +8,7 @@ namespace cond{
       return std::string("cond::IOVSequence"); 
     }
     static std::string iovTableName() {
-      return std::string("IOVSequence"); 
+      return std::string("IOV"); 
     }
     static std::string iovDataTableName() {
       return std::string("IOV_DATA"); 

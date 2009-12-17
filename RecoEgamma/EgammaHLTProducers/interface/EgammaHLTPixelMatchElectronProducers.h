@@ -5,7 +5,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTPixelMatchElectronProducers
 // 
-// $Id: EgammaHLTPixelMatchElectronProducers.h,v 1.1 2006/11/03 16:56:56 monicava Exp $
+// $Id: EgammaHLTPixelMatchElectronProducers.h,v 1.2 2007/03/07 09:22:02 monicava Exp $
   
   
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -29,7 +29,7 @@ class EgammaHLTPixelMatchElectronProducers : public edm::EDProducer
 
   virtual ~EgammaHLTPixelMatchElectronProducers();
 
-  virtual void beginJob(edm::EventSetup const&iSetup);
+  virtual void beginJob(void);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:

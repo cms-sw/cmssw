@@ -232,6 +232,12 @@ namespace edm {
     /// Called by the framework to merge or insert lumi in principal cache.
     boost::shared_ptr<LuminosityBlockAuxiliary> luminosityBlockAuxiliary() const {return lumiAuxiliary_;}
 
+    /// Called by the framework when the run principal cache is cleared
+    void respondToClearingRunCache();
+
+    /// Called by the framework when the lumi principal cache is cleared
+    void respondToClearingLumiCache();
+
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 

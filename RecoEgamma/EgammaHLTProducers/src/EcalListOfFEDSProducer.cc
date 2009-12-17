@@ -101,7 +101,7 @@ EcalListOfFEDSProducer::~EcalListOfFEDSProducer() {
 }
 
 
-void EcalListOfFEDSProducer::beginJob(const edm::EventSetup& c){
+void EcalListOfFEDSProducer::beginJob(){
 }
 
 void EcalListOfFEDSProducer::endJob(){

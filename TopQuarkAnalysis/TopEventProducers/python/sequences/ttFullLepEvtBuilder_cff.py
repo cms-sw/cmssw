@@ -15,8 +15,13 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtFullLepEvtBuilder_cfi import
 ttFullLepJetPartonMatch            .maxNJets = ttFullLepEvent.maxNJets
 kinSolutionTtFullLepEventHypothesis.maxNJets = ttFullLepEvent.maxNJets
 
+## synchronize jet correction level in all hypotheses
+kinSolutionTtFullLepEventHypothesis.jetCorrectionLevel = "abs"
+ttFullLepHypKinSolution            .jetCorrectionLevel = "abs"
+ttFullLepHypGenMatch               .jetCorrectionLevel = "abs"
+
 ## make ttFullLepEvent
 makeTtFullLepEvent = cms.Sequence(makeTtFullLepHypotheses *
                                   ttFullLepEvent
-                                 )
+                                  )
 

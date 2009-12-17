@@ -30,9 +30,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "FWCore/Framework/interface/TriggerNames.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -63,16 +60,9 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {
 
   caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
-  HLTResultsLabel_     = iConfig.getParameter<edm::InputTag>("HLTResultsLabel");  
-  
-  if(iConfig.exists("HLTBitLabels"))
-    HLTBitLabel_         = iConfig.getParameter<std::vector<edm::InputTag> >("HLTBitLabels");
-  
   debug_               = iConfig.getParameter<bool>("Debug");
   finebinning_         = iConfig.getUntrackedParameter<bool>("FineBinning"); 
   FolderName_            = iConfig.getUntrackedParameter<string>("FolderName");
-
-  
 }
 
 
@@ -84,16 +74,8 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 
   if (dbe_) {
  
+    //TString dirName = "RecoMETV/MET_CaloTowers/";
     dbe_->setCurrentFolder(FolderName_); 
-
-    //Store number of events which pass each HLT bit 
-    for(unsigned int i = 0 ; i < HLTBitLabel_.size() ; i++ )
-      {
-	if( HLTBitLabel_[i].label().size() )
-	  {
-	    me["hCT_"+HLTBitLabel_[i].label()] = dbe_->book1D("METTask_CT_"+HLTBitLabel_[i].label(),HLTBitLabel_[i].label(),2,-0.5,1.5);
-	  }
-      }
     
     //--Store number of events used
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
@@ -162,66 +144,10 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 
 void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // Get HLT Results
-  edm::Handle<edm::TriggerResults> TheHLTResults;
-  iEvent.getByLabel( HLTResultsLabel_ , TheHLTResults);
-
-  bool EventPasses = true;
-
-  // Make sure handle is valid
-  if( TheHLTResults.isValid() )
-    {
-      //Get HLT Names
-      edm::TriggerNames TheTriggerNames;
-      TheTriggerNames.init(*TheHLTResults);
-
-      
-      for( unsigned int index = 0 ; index < HLTBitLabel_.size(); index++)
-	{
-	  if( HLTBitLabel_[index].label().size() )
-	    {
-	      //Change the default value since HLT requirement has been issued by the user
-	      if( index == 0 ) EventPasses = false; 
-	      //Get the HLT bit and check to make sure it is valid
-	      unsigned int bit = TheTriggerNames.triggerIndex( HLTBitLabel_[index].label().c_str());
-	      if( bit < TheHLTResults->size() )
-		{
-		  //If any of the HLT names given by the user accept, then the event passes
-		  if( TheHLTResults->accept( bit ) && !TheHLTResults->error( bit ) )
-		    {
-		      EventPasses = true;
-		      me["hCT_"+HLTBitLabel_[index].label()]->Fill(1);
-		    }  
-		  else 
-		    me["hCT_"+HLTBitLabel_[index].label()]->Fill(0);
-		}
-	      else
-		{
-		  /*
-		  for( unsigned int index = 0 ; index < TheTriggerNames.size() ; index++)
-		    {
-		      cout << "Bit: " << setw(10) <<  index << "      Name: " << setw(20) << TheTriggerNames.triggerName(index)<<endl;
-		    }
-		  */
-		  edm::LogInfo("OutputInfo") << "The HLT Trigger Name : " << HLTBitLabel_[index].label() << " is not valid for this trigger table " << endl;
-		  return;
-		}
-	    }
-	}
-    }
-  else
-    {
-      edm::LogInfo("OutputInfo") << "ERROR with TheHLTResults Handle" << endl;
-      return;
-    }
-
-  if( !EventPasses ) 
-    return;
-  
   //----------GREG & CHRIS' idea---///
-  float ETTowerMin = -1; //GeV
-  float METRingMin = -2; // GeV
-  
+   float ETTowerMin = -1; //GeV
+   float METRingMin = -2; // GeV
+
   Nevents++;
   me["hCT_Nevents"]->Fill(0);
 

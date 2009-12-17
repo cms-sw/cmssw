@@ -448,10 +448,7 @@
   <class name="edm::ValueMap<edm::Ptr<pat::UserData> >" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > >" />
   <!-- UserData: a few holders -->
-  <class name="pat::UserHolder<math::XYZVector>" />
-  <class name="pat::UserHolder<math::XYZPoint>" />
-  <class name="pat::UserHolder<math::XYZTLorentzVector>" />
-  <class name="pat::UserHolder<math::PtEtaPhiMLorentzVector>" />
+  <class pattern="pat::UserHolder<*>" />
 
   <class name="pat::LookupTableRecord" />
   <class name="std::vector<pat::LookupTableRecord>" />

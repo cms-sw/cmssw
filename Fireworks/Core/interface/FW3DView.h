@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.10 2009/04/07 14:09:01 chrjones Exp $
+// $Id: FW3DView.h,v 1.11 2009/07/02 18:35:42 amraktad Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ class TGLMatrix;
 class FW3DViewManager;
 class DetIdToMatrix;
 class TEveWindowSlot;
+class FWViewContextMenuHandlerGL;
 
 class FW3DView : public FWViewBase
 {
@@ -51,15 +52,16 @@ public:
    // ---------- const member functions ---------------------
    TGFrame* frame() const;
    const std::string& typeName() const;
-   virtual void addTo(FWConfiguration&) const;
 
+   virtual void addTo(FWConfiguration&) const;
    virtual void saveImageTo(const std::string& iName) const;
+   virtual void setFrom(const FWConfiguration&);
+   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
 
    // ---------- static member functions --------------------
    static const std::string& staticTypeName();
 
    // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&);
    void setGeometry( const DetIdToMatrix* geom );
    void setBackgroundColor(Color_t);
 
@@ -81,6 +83,7 @@ private:
    TGLEmbeddedViewer* m_embeddedViewer;
    TEveScene* m_scene;
    TEveScene* m_detectorScene;
+   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
 
    TGLMatrix* m_cameraMatrix;
    TGLMatrix* m_cameraMatrixBase;

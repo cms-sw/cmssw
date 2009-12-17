@@ -22,7 +22,6 @@
 class TFile;
 
 class DTtTrigDBValidation : public edm::EDAnalyzer {
-
 public:
   /// Constructor
   DTtTrigDBValidation(const edm::ParameterSet& pset);
@@ -31,25 +30,28 @@ public:
   virtual ~DTtTrigDBValidation();
 
   /// Operations
-  void beginRun(edm::Run const&, edm::EventSetup const&);
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  void analyze(edm::Event const&, edm::EventSetup const&) {}
+  //Read the DTGeometry and the t0 DB
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  //Do the real work
   void endJob();
+  void bookHistos(int,int);
+  void bookHistos(int wheel);
+
+protected:
 
 private:
 
+  DQMStore* dbe;
+  edm::ParameterSet parameters;
   // Switch for verbosity
   std::string metname;
   // The DB label
   std::string labelDBRef;
   std::string labelDB;
-
-  std::string testCriterionName;
-  // The file which will contain the difference plots
-  bool outputMEsInRootFile;
+  // The file which will contain the difference plot
   std::string outputFileName;
 
-  DQMStore* dbe;
   // The DTGeometry
   edm::ESHandle<DTGeometry> dtGeom;
 
@@ -59,16 +61,14 @@ private:
 
   // Map of the tTrig difference histos by (wheel,sector)
   std::map<std::pair<int,int>, MonitorElement* > tTrigDiffHistos;
-  std::map<int, MonitorElement* > tTrigDiffWheel;
 
   // summary histos
   std::map<int, MonitorElement* > wheelSummary;
 
-  void bookHistos(int,int);
-  void bookHistos(int wheel);
   // Compute the station from the bin number of mean and sigma histos
   int stationFromBin(int bin) const;
   // Compute the sl from the bin number of mean and sigma histos
   int slFromBin(int bin) const;
+
 };
 #endif

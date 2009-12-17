@@ -46,7 +46,7 @@ private:
   edm::InputTag genParticles_;
 
   double zMassMin_, zMassMax_, ptmin_, etamax_, isomax_;
-  size_t nbinsPt_, nbinsEta_;
+  unsigned int nbinsPt_, nbinsEta_;
   reco::CandidateBaseRef globalMuonCandRef_, trackMuonCandRef_, standAloneMuonCandRef_;
   OverlapChecker overlap_;
 
@@ -122,8 +122,8 @@ ZMuMuEfficiency::ZMuMuEfficiency(const ParameterSet& pset) :
   ptmin_(pset.getUntrackedParameter<double>("ptmin")), 
   etamax_(pset.getUntrackedParameter<double>("etamax")),  
   isomax_(pset.getUntrackedParameter<double>("isomax")), 
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")), 
-  nbinsEta_(pset.getUntrackedParameter<size_t>("nbinsEta")) {
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")), 
+  nbinsEta_(pset.getUntrackedParameter<unsigned int>("nbinsEta")) {
   Service<TFileService> fs;
   TFileDirectory trackEffDir = fs->mkdir("TrackEfficiency");
 
@@ -361,7 +361,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
     event.getByLabel(muonIso_, muonIso); 
     event.getByLabel(standAloneIso_, standAloneIso); 
     event.getByLabel(muonMatchMap_, muonMatchMap); 
-    for(size_t i = 0; i < zMuMu->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
       bool isMatched = false;
@@ -406,7 +406,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 
 	  h_DELTA_ZMuMuMassReco_dimuonMassGen_->Fill(zMuMuCand.mass()-dimuonMassGen);
 	  // check that the two muons are matched . .per ora è solo un mio controllo
-	  for(size_t j = 0; j < muons->size() ; ++j) {
+	  for(unsigned int j = 0; j < muons->size() ; ++j) {
 	    CandidateBaseRef muCandRef = muons->refAt(j); 
 	    GenParticleRef muonMatch = (*muonMatchMap)[muCandRef]; 
 	    //	    if (muonMatch.isNonnull()) cout << "mu match n. " << j << endl;
@@ -422,7 +422,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
     event.getByLabel(muonIso_, muonIso); 
     event.getByLabel(standAloneIso_, standAloneIso); 
     event.getByLabel(muonMatchMap_, muonMatchMap); 
-    for(size_t i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStaCand = (*zMuStandAlone)[i]; //the candidate
       CandidateBaseRef zMuStaCandRef = zMuStandAlone->refAt(i);
       bool isMatched = false;
@@ -472,7 +472,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
     event.getByLabel(muonIso_, muonIso); 
     event.getByLabel(trackIso_, trackIso); 
     event.getByLabel(muonMatchMap_, muonMatchMap); 
-    for(size_t i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrkCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrkCandRef = zMuTrack->refAt(i);
       bool isMatched = false;
@@ -542,7 +542,7 @@ float ZMuMuEfficiency::getParticlePt(const int ipart, const Candidate * dauGen0,
   int partId2 = dauGen2->pdgId();
   float ptpart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -550,7 +550,7 @@ float ZMuMuEfficiency::getParticlePt(const int ipart, const Candidate * dauGen0,
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -558,7 +558,7 @@ float ZMuMuEfficiency::getParticlePt(const int ipart, const Candidate * dauGen0,
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -575,7 +575,7 @@ float ZMuMuEfficiency::getParticleEta(const int ipart, const Candidate * dauGen0
   int partId2 = dauGen2->pdgId();
   float etapart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -583,7 +583,7 @@ float ZMuMuEfficiency::getParticleEta(const int ipart, const Candidate * dauGen0
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -591,7 +591,7 @@ float ZMuMuEfficiency::getParticleEta(const int ipart, const Candidate * dauGen0
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -608,7 +608,7 @@ float ZMuMuEfficiency::getParticlePhi(const int ipart, const Candidate * dauGen0
   int partId2 = dauGen2->pdgId();
   float phipart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -616,7 +616,7 @@ float ZMuMuEfficiency::getParticlePhi(const int ipart, const Candidate * dauGen0
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -624,7 +624,7 @@ float ZMuMuEfficiency::getParticlePhi(const int ipart, const Candidate * dauGen0
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -641,7 +641,7 @@ Particle::LorentzVector ZMuMuEfficiency::getParticleP4(const int ipart, const Ca
   int partId2 = dauGen2->pdgId();
   Particle::LorentzVector p4part(0.,0.,0.,0.);
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();
@@ -649,7 +649,7 @@ Particle::LorentzVector ZMuMuEfficiency::getParticleP4(const int ipart, const Ca
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();
@@ -657,7 +657,7 @@ Particle::LorentzVector ZMuMuEfficiency::getParticleP4(const int ipart, const Ca
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();

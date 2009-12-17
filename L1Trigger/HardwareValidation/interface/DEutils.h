@@ -214,6 +214,110 @@ DEutils<L1GctJetCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
 }
 
 template<> inline L1DataEmulDigi 
+DEutils<L1GctEtHadCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
+  int cid = de_type();
+  int errt = aflag;
+  double x1 = 0;  double x2 = 0; //no 'location' associated with candidates...
+  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  unsigned int dw = (aflag==4)?0:itd->raw();
+  unsigned int ew = (aflag==3)?0:itm->raw();
+  dw &= 0x1fff; ew &= 0x1fff; //13-bit
+  digi.setData(dw,ew); 
+  int de = (aflag==4)?0:itd->et();
+  int ee = (aflag==3)?0:itm->et();
+  digi.setRank((float)de,(float)ee);
+  return digi;
+}
+template<> inline L1DataEmulDigi 
+DEutils<L1GctEtMissCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
+  int cid = de_type();
+  int errt = aflag;
+  double x1 = (aflag!=4) ? itd->phi() : itm->phi();
+  double x2 = 0; //no 'eta' associated with candidates... 
+  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  unsigned int dw = (aflag==4)?0:itd->raw();
+  unsigned int ew = (aflag==3)?0:itm->raw();
+  dw &= 0x8f1fff; ew &= 0x8f1fff; //22-bit (bits 13,14,15 not set)
+  digi.setData(dw,ew); 
+  int de = (aflag==4)?0:itd->et();
+  int ee = (aflag==3)?0:itm->et();
+  digi.setRank((float)de,(float)ee);
+  return digi;
+}
+
+template<> inline L1DataEmulDigi 
+DEutils<L1GctEtTotalCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
+  int cid = de_type();
+  int errt = aflag;
+  double x1 = 0;  double x2 = 0; //no 'location' associated with candidates...
+  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  unsigned int dw = (aflag==4)?0:itd->raw();
+  unsigned int ew = (aflag==3)?0:itm->raw();
+  dw &= 0x1fff; ew &= 0x1fff; //13-bit
+  digi.setData(dw,ew); 
+  int de = (aflag==4)?0:itd->et();
+  int ee = (aflag==3)?0:itm->et();
+  digi.setRank((float)de,(float)ee);
+  return digi;
+}
+template<> inline L1DataEmulDigi 
+DEutils<L1GctHFBitCountsCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
+  int cid = de_type();
+  int errt = aflag;
+  double x1 = 0;  double x2 = 0; //no 'location' associated with candidates...
+  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  unsigned int dw = (aflag==4)?0:itd->raw();
+  unsigned int ew = (aflag==3)?0:itm->raw();
+  digi.setData(dw,ew); 
+  int de = 0;  int ee = 0; //no 'rank' associated with candidates...
+  digi.setRank((float)de,(float)ee);
+  return digi;
+}
+template<> inline L1DataEmulDigi 
+DEutils<L1GctHFRingEtSumsCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
+  int cid = de_type();
+  int errt = aflag;
+  double x1 = 0;  double x2 = 0; //no 'location' associated with candidates...
+  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  unsigned int dw = (aflag==4)?0:itd->raw();
+  unsigned int ew = (aflag==3)?0:itm->raw();
+  digi.setData(dw,ew); 
+  int de = 0;  int ee = 0; //no 'rank' associated with candidates...
+  digi.setRank((float)de,(float)ee);
+  return digi;
+}
+template<> inline L1DataEmulDigi 
+DEutils<L1GctHtMissCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
+  int cid = de_type();
+  int errt = aflag;
+  double x1 = (aflag!=4) ? itd->phi() : itm->phi();
+  double x2 = 0; //no 'eta' associated with candidates... 
+  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  unsigned int dw = (aflag==4)?0:itd->raw();
+  unsigned int ew = (aflag==3)?0:itm->raw();
+  dw &= 0x8f1fff; ew &= 0x8f1fff; //22-bit (bits 13,14,15 not set)
+  digi.setData(dw,ew); 
+  int de = (aflag==4)?0:itd->et();
+  int ee = (aflag==3)?0:itm->et();
+  digi.setRank((float)de,(float)ee);
+  return digi;
+}
+
+template<> inline L1DataEmulDigi 
+DEutils<L1GctJetCountsCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
+  int cid = de_type();
+  int errt = aflag;
+  double x1 = 0;  double x2 = 0; //no 'location' associated with candidates...
+  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  unsigned int dw = (aflag==4)?0:itd->raw0();//raw0, raw1...
+  unsigned int ew = (aflag==3)?0:itm->raw0();//raw0, raw1...
+  digi.setData(dw,ew); 
+  int de = 0;  int ee = 0; //no 'rank' associated with candidates...
+  digi.setRank((float)de,(float)ee);
+  return digi;
+}
+
+template<> inline L1DataEmulDigi 
 DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int sid;
   switch(itd->type_idx()) { // 0 DT, 1 bRPC, 2 CSC, 3 fRPC
@@ -576,14 +680,18 @@ DEutils<L1CaloRegionCollection>::de_equal(const cand_type& lhs, const cand_type&
 }
 
 template <> inline bool 
-DEutils<L1GctEmCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {
-  return lhs==rhs;
-}
+DEutils<L1GctEmCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 
-template <> inline bool 
-DEutils<L1GctJetCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {
-  return lhs==rhs;
-}
+template <> inline bool  DEutils<L1GctJetCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+
+template <> inline bool  DEutils<L1GctEtHadCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctEtMissCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctEtTotalCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctHtMissCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctHFRingEtSumsCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctHFBitCountsCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctJetCountsCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+
 
 template <> inline bool 
 DEutils<L1MuDTChambPhDigiCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {
@@ -758,6 +866,40 @@ DEutils<L1GctJetCandCollection>::de_equal_loc(const cand_type& lhs, const cand_t
 }
 
 template <> inline bool 
+DEutils<L1GctEtHadCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
+  return true; // no associated location defined
+}
+template <> inline bool 
+DEutils<L1GctEtMissCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
+  bool val = true;
+  val &= (lhs.phi() == rhs.phi());
+  return val;
+}
+template <> inline bool 
+DEutils<L1GctEtTotalCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
+  return true; // no associated location defined
+}
+template <> inline bool 
+DEutils<L1GctHtMissCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
+  bool val = true;
+  val &= (lhs.phi() == rhs.phi());
+  return val;
+}
+template <> inline bool 
+DEutils<L1GctHFRingEtSumsCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
+  return true; // no associated location defined
+}
+template <> inline bool 
+DEutils<L1GctHFBitCountsCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
+  return true; // no associated location defined
+}
+template <> inline bool 
+DEutils<L1GctJetCountsCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
+  return true; // no associated location defined
+}
+
+
+template <> inline bool 
 DEutils<L1MuRegionalCandCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
   bool val = true;
   val &= (lhs.phi_packed() ==rhs.phi_packed() );
@@ -878,6 +1020,15 @@ inline bool DEutils<L1GctJetCandCollection>::is_empty(col_cit it) const {
     return  (it->empty());
 }
 
+template <> inline bool DEutils<L1GctEtHadCollection>::is_empty(col_cit it) const {return(it->empty());}
+template <> inline bool DEutils<L1GctEtMissCollection>::is_empty(col_cit it) const {return(it->empty());}
+template <> inline bool DEutils<L1GctEtTotalCollection>::is_empty(col_cit it) const {return(it->empty());}
+template <> inline bool DEutils<L1GctHtMissCollection>::is_empty(col_cit it) const {return(it->empty());}
+template <> inline bool DEutils<L1GctHFRingEtSumsCollection>::is_empty(col_cit it) const {return(it->empty());}
+template <> inline bool DEutils<L1GctHFBitCountsCollection>::is_empty(col_cit it) const {return(it->empty());}
+template <> inline bool DEutils<L1GctJetCountsCollection>::is_empty(col_cit it) const {return(it->empty());}
+
+
 template<>
 inline bool DEutils<L1MuDTChambPhDigiCollection>::is_empty(col_cit it) const { 
   return (it->bxNum() != 0 || it->code() == 7); 
@@ -997,7 +1148,25 @@ inline std::string DEutils<L1CaloEmCollection>::print(col_cit it) const {
 template <> 
 inline std::string DEutils<L1CaloRegionCollection>::print(col_cit it) const {
   std::stringstream ss;
-  ss << *it;
+  ss << "L1CaloRegion:"
+     << " et=" << it->et()
+     << " o/f=" << it->overFlow()
+     << " f/g=" << it->fineGrain()
+     << " tau=" << it->tauVeto()
+     << " rct(crate=" << it->rctCrate()
+     << " card=" << it->rctCard()
+     << " rgn=" << it->rctRegionIndex()
+     << " eta=" << it->rctEta()
+     << " phi=" << it->rctPhi()
+     << ")\n\t\t"
+     << "gct(eta=" << it->gctEta()
+     << " phi=" << it->gctPhi()
+     << ")"
+     << std::hex << " cap_block=" << it->capBlock() 
+     << std::dec << " index=" << it->capIndex()
+     << " bx=" << it->bx()
+     << std::endl;
+  //ss << *it; ///replace due to too long unformatted verbose
   //note: raw() data accessor missing in dataformats
   return ss.str();
 }
@@ -1038,6 +1207,13 @@ inline std::string DEutils<L1GctJetCandCollection>::print(col_cit it) const {
      << " " << *it << std::dec << std::endl; 
   return ss.str();
 }
+template <> inline std::string DEutils<L1GctEtHadCollection	   >::print(col_cit it) const {std::stringstream ss; ss<<*it; return ss.str();}
+template <> inline std::string DEutils<L1GctEtMissCollection	   >::print(col_cit it) const {std::stringstream ss; ss<<*it; return ss.str();}
+template <> inline std::string DEutils<L1GctEtTotalCollection	   >::print(col_cit it) const {std::stringstream ss; ss<<*it; return ss.str();}
+template <> inline std::string DEutils<L1GctHtMissCollection	   >::print(col_cit it) const {std::stringstream ss; ss<<*it; return ss.str();}
+template <> inline std::string DEutils<L1GctHFRingEtSumsCollection>::print(col_cit it) const {std::stringstream ss; ss<<*it; return ss.str();}
+template <> inline std::string DEutils<L1GctHFBitCountsCollection >::print(col_cit it) const {std::stringstream ss; ss<<*it; return ss.str();}
+template <> inline std::string DEutils<L1GctJetCountsCollection   >::print(col_cit it) const {std::stringstream ss; ss<<*it; return ss.str();}
 
 template <> 
 inline std::string DEutils<L1MuDTChambPhDigiCollection>::print(col_cit it) const {
@@ -1236,6 +1412,37 @@ std::string DEutils<T>::GetName(int i=0) const {
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
    break;
+  case dedefs::GCTethad:
+    str[0] = "GCT ht";
+    str[1] = "L1GctEtHadCollection";
+    str[2] = "L1GctEtHad";
+   break;
+  case dedefs::GCTetmiss:
+    str[0] = "GCT et miss";
+    str[1] = "L1GctEtMissCollection";
+    str[2] = "L1GctEtMiss";
+   break;
+  case dedefs::GCTettot:
+    str[0] = "GCT et total";
+    str[1] = "L1GctEtTotalCollection";
+    str[2] = "L1GctEtTotal";
+   break;
+  case dedefs::GCThtmiss:
+    str[0] = "GCT ht miss";
+    str[1] = "L1GctHtMissCollection";
+    str[2] = "L1GctHtMiss";
+   break;
+  case dedefs::GCThfring:
+    str[0] = "GCT hf ring";
+    str[1] = "L1GctHFRingEtSumsCollection";
+    str[2] = "L1GctHFRingEtSums";
+   break;
+  case dedefs::GCThfbit:
+    str[0] = "GCT hf bit counts";
+    str[1] = "L1GctHFBitCountsCollection";
+    str[2] = "L1GctHFBitCounts";
+   break;
+
   case dedefs::DTtpPh:
     str[0] = "DT tp phi";
     str[1] = "L1MuDTChambPhDigiCollection";
@@ -1332,6 +1539,13 @@ template <> inline bool de_rank<L1CaloRegionCollection>::operator()(const cand_t
 
 template <> inline bool de_rank<L1GctEmCandCollection>::operator()(const cand_type& x, const cand_type& y)const { if(x.rank()!=y.rank()){return x.rank() < y.rank();} else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() < x.etaIndex();}else{ return x.phiIndex() < y.phiIndex();}}}
 template <> inline bool de_rank<L1GctJetCandCollection>::operator()(const cand_type& x, const cand_type& y)const { if(x.rank()!=y.rank()){return x.rank() < y.rank();} else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() < x.etaIndex();}else{ return x.phiIndex() < y.phiIndex();}}}
+//template <> inline bool de_rank<L1GctEtHadCollection>::operator()(const cand_type& x, const cand_type& y)const { }
+//template <> inline bool de_rank<L1GctEtMissCollection>::operator()(const cand_type& x, const cand_type& y)const { }
+//template <> inline bool de_rank<L1GctEtTotalCollection>::operator()(const cand_type& x, const cand_type& y)const { }
+//template <> inline bool de_rank<L1GctHtMissCollection>::operator()(const cand_type& x, const cand_type& y)const { }
+//template <> inline bool de_rank<L1GctHFRingEtSumsCollection>::operator()(const cand_type& x, const cand_type& y)const { }
+//template <> inline bool de_rank<L1GctHFBitCountsCollection>::operator()(const cand_type& x, const cand_type& y)const { }
+//template <> inline bool de_rank<L1GctJetCountsCollection>::operator()(const cand_type& x, const cand_type& y)const { }
 
 template <> inline bool de_rank<L1MuDTChambPhDigiCollection>::operator()(const cand_type& x, const cand_type& y)const { if(x.whNum()!=y.whNum()){return x.whNum() < y.whNum();} else{if(x.scNum()!=y.scNum()){return y.scNum() < x.scNum();}else{ return x.stNum() < y.stNum();}}}
 template <> inline bool de_rank<L1MuDTChambThDigiCollection>::operator()(const cand_type& x, const cand_type& y)const { if(x.whNum()!=y.whNum()){return x.whNum() < y.whNum();} else{if(x.scNum()!=y.scNum()){return y.scNum() < x.scNum();}else{ return x.stNum() < y.stNum();}}}

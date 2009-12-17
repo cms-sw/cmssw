@@ -317,6 +317,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     for (PFCandidateRefVector::const_iterator iGammaCand=mySignalPFGammaCands.begin();iGammaCand!=mySignalPFGammaCands.end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
     for (PFCandidateRefVector::const_iterator iChargedHadrCand=mySignalPFChargedHadrCands.begin();iChargedHadrCand!=mySignalPFChargedHadrCands.end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
     myPFTau.setalternatLorentzVect(alternatLorentzVect);
+    myPFTau.setP4(alternatLorentzVect);
 
     myPFTau.setVertex(math::XYZPoint(myPFTau_refInnerPosition_x,myPFTau_refInnerPosition_y,myPFTau_refInnerPosition_z));
   }  

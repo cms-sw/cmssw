@@ -34,6 +34,10 @@ AlignmentMonitorMuonSystemMap1D::AlignmentMonitorMuonSystemMap1D(const edm::Para
    , m_minDT13Hits(cfg.getParameter<int>("minDT13Hits"))
    , m_minDT2Hits(cfg.getParameter<int>("minDT2Hits"))
    , m_minCSCHits(cfg.getParameter<int>("minCSCHits"))
+   , m_writeTemporaryFile(cfg.getParameter<std::string>("writeTemporaryFile"))
+   , m_readTemporaryFiles(cfg.getParameter<std::vector<std::string> >("readTemporaryFiles"))
+   , m_doFits(cfg.getParameter<bool>("doFits"))
+   , m_minFitHits(cfg.getParameter<int>("minFitHits"))
 {}
 
 std::string AlignmentMonitorMuonSystemMap1D::num02d(int num) {
@@ -69,19 +73,19 @@ std::string AlignmentMonitorMuonSystemMap1D::num02d(int num) {
 void AlignmentMonitorMuonSystemMap1D::book() {
   for (int sector = 1;  sector <= 14;  sector++) {
     if (sector <= 12) {
-      m_DTvsz_station1[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st1sec") + num02d(sector), this, 60, -660., 660., true);  m_plots.push_back(m_DTvsz_station1[sector-1]);
-      m_DTvsz_station2[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st2sec") + num02d(sector), this, 60, -660., 660., true);  m_plots.push_back(m_DTvsz_station2[sector-1]);
-      m_DTvsz_station3[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st3sec") + num02d(sector), this, 60, -660., 660., true);  m_plots.push_back(m_DTvsz_station3[sector-1]);
+      m_DTvsz_station1[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st1sec") + num02d(sector), this, 60, -660., 660., m_minFitHits);  m_plots.push_back(m_DTvsz_station1[sector-1]);
+      m_DTvsz_station2[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st2sec") + num02d(sector), this, 60, -660., 660., m_minFitHits);  m_plots.push_back(m_DTvsz_station2[sector-1]);
+      m_DTvsz_station3[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st3sec") + num02d(sector), this, 60, -660., 660., m_minFitHits);  m_plots.push_back(m_DTvsz_station3[sector-1]);
     }
-    m_DTvsz_station4[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st4sec") + num02d(sector), this, 60, -660., 660., false);  m_plots.push_back(m_DTvsz_station4[sector-1]);
+    m_DTvsz_station4[sector-1] = new MuonSystemMapPlot1D(std::string("DTvsz_st4sec") + num02d(sector), this, 60, -660., 660., m_minFitHits);  m_plots.push_back(m_DTvsz_station4[sector-1]);
   }
 
   for (int endcap = 1;  endcap <= 2;  endcap++) {
     for (int chamber = 1;  chamber <= 36;  chamber++) {
-      m_CSCvsr_me1[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("1ch") + num02d(chamber), this, 60, 100., 700., false);  m_plots.push_back(m_CSCvsr_me1[endcap-1][chamber-1]);
-      m_CSCvsr_me2[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("2ch") + num02d(chamber), this, 60, 100., 700., false);  m_plots.push_back(m_CSCvsr_me2[endcap-1][chamber-1]);
-      m_CSCvsr_me3[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("3ch") + num02d(chamber), this, 60, 100., 700., false);  m_plots.push_back(m_CSCvsr_me3[endcap-1][chamber-1]);
-      m_CSCvsr_me4[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("4ch") + num02d(chamber), this, 60, 100., 700., false);  m_plots.push_back(m_CSCvsr_me4[endcap-1][chamber-1]);
+      m_CSCvsr_me1[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("1ch") + num02d(chamber), this, 60, 100., 700., m_minFitHits);  m_plots.push_back(m_CSCvsr_me1[endcap-1][chamber-1]);
+      m_CSCvsr_me2[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("2ch") + num02d(chamber), this, 60, 100., 700., m_minFitHits);  m_plots.push_back(m_CSCvsr_me2[endcap-1][chamber-1]);
+      m_CSCvsr_me3[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("3ch") + num02d(chamber), this, 60, 100., 700., m_minFitHits);  m_plots.push_back(m_CSCvsr_me3[endcap-1][chamber-1]);
+      m_CSCvsr_me4[endcap-1][chamber-1] = new MuonSystemMapPlot1D(std::string("CSCvsr_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("4ch") + num02d(chamber), this, 60, 100., 700., m_minFitHits);  m_plots.push_back(m_CSCvsr_me4[endcap-1][chamber-1]);
     }
   }
 
@@ -93,23 +97,23 @@ void AlignmentMonitorMuonSystemMap1D::book() {
     else if (wheel == +1) s_wheel = std::string("D");
     else if (wheel == +2) s_wheel = std::string("E");
 
-    m_DTvsphi_station1[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st1wh") + s_wheel, this, 180, -M_PI, M_PI, true);  m_plots.push_back(m_DTvsphi_station1[wheel+2]);
-    m_DTvsphi_station2[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st2wh") + s_wheel, this, 180, -M_PI, M_PI, true);  m_plots.push_back(m_DTvsphi_station2[wheel+2]);
-    m_DTvsphi_station3[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st3wh") + s_wheel, this, 180, -M_PI, M_PI, true);  m_plots.push_back(m_DTvsphi_station3[wheel+2]);
-    m_DTvsphi_station4[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st4wh") + s_wheel, this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_DTvsphi_station4[wheel+2]);
+    m_DTvsphi_station1[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st1wh") + s_wheel, this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_DTvsphi_station1[wheel+2]);
+    m_DTvsphi_station2[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st2wh") + s_wheel, this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_DTvsphi_station2[wheel+2]);
+    m_DTvsphi_station3[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st3wh") + s_wheel, this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_DTvsphi_station3[wheel+2]);
+    m_DTvsphi_station4[wheel+2] = new MuonSystemMapPlot1D(std::string("DTvsphi_st4wh") + s_wheel, this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_DTvsphi_station4[wheel+2]);
   }
 
   for (int endcap = 1;  endcap <= 2;  endcap++) {
-    m_CSCvsphi_me11[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("11"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me11[endcap-1]);
-    m_CSCvsphi_me12[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("12"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me12[endcap-1]);
-    m_CSCvsphi_me13[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("13"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me13[endcap-1]);
-    m_CSCvsphi_me14[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("14"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me14[endcap-1]);
-    m_CSCvsphi_me21[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("21"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me21[endcap-1]);
-    m_CSCvsphi_me22[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("22"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me22[endcap-1]);
-    m_CSCvsphi_me31[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("31"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me31[endcap-1]);
-    m_CSCvsphi_me32[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("32"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me32[endcap-1]);
-    m_CSCvsphi_me41[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("41"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me41[endcap-1]);
-    m_CSCvsphi_me42[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("42"), this, 180, -M_PI, M_PI, false);  m_plots.push_back(m_CSCvsphi_me42[endcap-1]);
+    m_CSCvsphi_me11[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("11"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me11[endcap-1]);
+    m_CSCvsphi_me12[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("12"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me12[endcap-1]);
+    m_CSCvsphi_me13[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("13"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me13[endcap-1]);
+    m_CSCvsphi_me14[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("14"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me14[endcap-1]);
+    m_CSCvsphi_me21[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("21"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me21[endcap-1]);
+    m_CSCvsphi_me22[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("22"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me22[endcap-1]);
+    m_CSCvsphi_me31[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("31"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me31[endcap-1]);
+    m_CSCvsphi_me32[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("32"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me32[endcap-1]);
+    m_CSCvsphi_me41[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("41"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me41[endcap-1]);
+    m_CSCvsphi_me42[endcap-1] = new MuonSystemMapPlot1D(std::string("CSCvsphi_me") + (endcap == 1 ? std::string("p") : std::string("m")) + std::string("42"), this, 180, -M_PI, M_PI, m_minFitHits);  m_plots.push_back(m_CSCvsphi_me42[endcap-1]);
   }
 }
 
@@ -140,8 +144,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 	    if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits) {
 	      double residual = dt13->global_residual();
 	      double resslope = dt13->global_resslope();
-	      double chi2 = dt13->chi2();
-	      int dof = dt13->ndof();
+	      double redchi2 = dt13->chi2() / double(dt13->ndof());
 
 	      GlobalPoint trackpos = dt13->global_trackpos();
 	      double phi = atan2(trackpos.y(), trackpos.x());
@@ -149,32 +152,31 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 
 	      assert(1 <= id.sector()  &&  id.sector() <= 14);
 
-	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_x(charge, z, residual, chi2, dof);
-	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_x(charge, z, residual, chi2, dof);
-	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_x(charge, z, residual, chi2, dof);
-	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_x(charge, z, residual, chi2, dof);
+	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_x(charge, z, residual, redchi2);
+	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_x(charge, z, residual, redchi2);
+	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_x(charge, z, residual, redchi2);
+	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_x(charge, z, residual, redchi2);
 
-	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_dxdz(charge, z, resslope, chi2, dof);
-	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_dxdz(charge, z, resslope, chi2, dof);
-	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_dxdz(charge, z, resslope, chi2, dof);
-	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_dxdz(charge, z, resslope, chi2, dof);
+	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_dxdz(charge, z, resslope, redchi2);
+	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_dxdz(charge, z, resslope, redchi2);
+	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_dxdz(charge, z, resslope, redchi2);
+	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_dxdz(charge, z, resslope, redchi2);
 
-	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_x(charge, phi, residual, chi2, dof);
+	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_x(charge, phi, residual, redchi2);
+	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_x(charge, phi, residual, redchi2);
+	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_x(charge, phi, residual, redchi2);
+	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_x(charge, phi, residual, redchi2);
 
-	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_dxdz(charge, phi, resslope, chi2, dof);
+	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_dxdz(charge, phi, resslope, redchi2);
 	    }
 
 	    if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits) {
 	      double residual = dt2->global_residual();
 	      double resslope = dt2->global_resslope();
-	      double chi2 = dt2->chi2();
-	      int dof = dt2->ndof();
+	      double redchi2 = dt2->chi2() / double(dt2->ndof());
 
 	      GlobalPoint trackpos = dt2->global_trackpos();
 	      double phi = atan2(trackpos.y(), trackpos.x());
@@ -182,25 +184,25 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 
 	      assert(1 <= id.sector()  &&  id.sector() <= 14);
 
-	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_y(charge, z, residual, chi2, dof);
-	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_y(charge, z, residual, chi2, dof);
-	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_y(charge, z, residual, chi2, dof);
-	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_y(charge, z, residual, chi2, dof);
+	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_y(charge, z, residual, redchi2);
+	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_y(charge, z, residual, redchi2);
+	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_y(charge, z, residual, redchi2);
+	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_y(charge, z, residual, redchi2);
 
-	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_dydz(charge, z, resslope, chi2, dof);
-	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_dydz(charge, z, resslope, chi2, dof);
-	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_dydz(charge, z, resslope, chi2, dof);
-	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_dydz(charge, z, resslope, chi2, dof);
+	      if (id.station() == 1) m_DTvsz_station1[id.sector()-1]->fill_dydz(charge, z, resslope, redchi2);
+	      if (id.station() == 2) m_DTvsz_station2[id.sector()-1]->fill_dydz(charge, z, resslope, redchi2);
+	      if (id.station() == 3) m_DTvsz_station3[id.sector()-1]->fill_dydz(charge, z, resslope, redchi2);
+	      if (id.station() == 4) m_DTvsz_station4[id.sector()-1]->fill_dydz(charge, z, resslope, redchi2);
 
-	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_y(charge, phi, residual, chi2, dof);
-	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_y(charge, phi, residual, chi2, dof);
-	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_y(charge, phi, residual, chi2, dof);
-	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_y(charge, phi, residual, chi2, dof);
+	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_y(charge, phi, residual, redchi2);
+	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_y(charge, phi, residual, redchi2);
+	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_y(charge, phi, residual, redchi2);
+	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_y(charge, phi, residual, redchi2);
 
-	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_dydz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_dydz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_dydz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_dydz(charge, phi, resslope, chi2, dof);
+	      if (id.station() == 1) m_DTvsphi_station1[id.wheel()+2]->fill_dydz(charge, phi, resslope, redchi2);
+	      if (id.station() == 2) m_DTvsphi_station2[id.wheel()+2]->fill_dydz(charge, phi, resslope, redchi2);
+	      if (id.station() == 3) m_DTvsphi_station3[id.wheel()+2]->fill_dydz(charge, phi, resslope, redchi2);
+	      if (id.station() == 4) m_DTvsphi_station4[id.wheel()+2]->fill_dydz(charge, phi, resslope, redchi2);
 	    }
 	  }
 
@@ -211,8 +213,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 	    if (csc != NULL  &&  csc->numHits() >= m_minCSCHits) {
 	      double residual = csc->global_residual();
 	      double resslope = csc->global_resslope();
-	      double chi2 = csc->chi2();
-	      int dof = csc->ndof();
+	      double redchi2 = csc->chi2() / double(csc->ndof());
 
 	      GlobalPoint trackpos = csc->global_trackpos();
 	      double phi = atan2(trackpos.y(), trackpos.x());
@@ -223,37 +224,37 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 
 	      assert(1 <= id.endcap()  &&  id.endcap() <= 2  &&  0 <= chamber  &&  chamber <= 35);
 
-	      if (id.station() == 1) m_CSCvsr_me1[id.endcap()-1][chamber]->fill_x(charge, R, residual, chi2, dof);
-	      if (id.station() == 2) m_CSCvsr_me2[id.endcap()-1][chamber]->fill_x(charge, R, residual, chi2, dof);
-	      if (id.station() == 3) m_CSCvsr_me3[id.endcap()-1][chamber]->fill_x(charge, R, residual, chi2, dof);
-	      if (id.station() == 4) m_CSCvsr_me4[id.endcap()-1][chamber]->fill_x(charge, R, residual, chi2, dof);
+	      if (id.station() == 1) m_CSCvsr_me1[id.endcap()-1][chamber]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 2) m_CSCvsr_me2[id.endcap()-1][chamber]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 3) m_CSCvsr_me3[id.endcap()-1][chamber]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 4) m_CSCvsr_me4[id.endcap()-1][chamber]->fill_x(charge, R, residual, redchi2);
 
-	      if (id.station() == 1) m_CSCvsr_me1[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, chi2, dof);
-	      if (id.station() == 2) m_CSCvsr_me2[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, chi2, dof);
-	      if (id.station() == 3) m_CSCvsr_me3[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, chi2, dof);
-	      if (id.station() == 4) m_CSCvsr_me4[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, chi2, dof);
+	      if (id.station() == 1) m_CSCvsr_me1[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, redchi2);
+	      if (id.station() == 2) m_CSCvsr_me2[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, redchi2);
+	      if (id.station() == 3) m_CSCvsr_me3[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, redchi2);
+	      if (id.station() == 4) m_CSCvsr_me4[id.endcap()-1][chamber]->fill_dxdz(charge, R, resslope, redchi2);
 
-	      if (id.station() == 1  &&  id.ring() == 1) m_CSCvsphi_me11[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 1  &&  id.ring() == 2) m_CSCvsphi_me12[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 1  &&  id.ring() == 3) m_CSCvsphi_me13[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 1  &&  id.ring() == 4) m_CSCvsphi_me14[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 2  &&  id.ring() == 1) m_CSCvsphi_me21[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 2  &&  id.ring() == 2) m_CSCvsphi_me22[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 3  &&  id.ring() == 1) m_CSCvsphi_me31[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 3  &&  id.ring() == 2) m_CSCvsphi_me32[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 4  &&  id.ring() == 1) m_CSCvsphi_me41[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
-	      if (id.station() == 4  &&  id.ring() == 2) m_CSCvsphi_me42[id.endcap()-1]->fill_x(charge, phi, residual, chi2, dof);
+	      if (id.station() == 1  &&  id.ring() == 1) m_CSCvsphi_me11[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 1  &&  id.ring() == 2) m_CSCvsphi_me12[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 1  &&  id.ring() == 3) m_CSCvsphi_me13[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 1  &&  id.ring() == 4) m_CSCvsphi_me14[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 2  &&  id.ring() == 1) m_CSCvsphi_me21[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 2  &&  id.ring() == 2) m_CSCvsphi_me22[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 3  &&  id.ring() == 1) m_CSCvsphi_me31[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 3  &&  id.ring() == 2) m_CSCvsphi_me32[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 4  &&  id.ring() == 1) m_CSCvsphi_me41[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
+	      if (id.station() == 4  &&  id.ring() == 2) m_CSCvsphi_me42[id.endcap()-1]->fill_x(charge, R, residual, redchi2);
 
-	      if (id.station() == 1  &&  id.ring() == 1) m_CSCvsphi_me11[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 1  &&  id.ring() == 2) m_CSCvsphi_me12[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 1  &&  id.ring() == 3) m_CSCvsphi_me13[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 1  &&  id.ring() == 4) m_CSCvsphi_me14[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 2  &&  id.ring() == 1) m_CSCvsphi_me21[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 2  &&  id.ring() == 2) m_CSCvsphi_me22[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 3  &&  id.ring() == 1) m_CSCvsphi_me31[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 3  &&  id.ring() == 2) m_CSCvsphi_me32[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 4  &&  id.ring() == 1) m_CSCvsphi_me41[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
-	      if (id.station() == 4  &&  id.ring() == 2) m_CSCvsphi_me42[id.endcap()-1]->fill_dxdz(charge, phi, resslope, chi2, dof);
+	      if (id.station() == 1  &&  id.ring() == 1) m_CSCvsphi_me11[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 1  &&  id.ring() == 2) m_CSCvsphi_me12[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 1  &&  id.ring() == 3) m_CSCvsphi_me13[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 1  &&  id.ring() == 4) m_CSCvsphi_me14[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 2  &&  id.ring() == 1) m_CSCvsphi_me21[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 2  &&  id.ring() == 2) m_CSCvsphi_me22[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 3  &&  id.ring() == 1) m_CSCvsphi_me31[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 3  &&  id.ring() == 2) m_CSCvsphi_me32[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 4  &&  id.ring() == 1) m_CSCvsphi_me41[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
+	      if (id.station() == 4  &&  id.ring() == 2) m_CSCvsphi_me42[id.endcap()-1]->fill_dxdz(charge, phi, resslope, redchi2);
 	    }
 	  }
 
@@ -265,7 +266,51 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
   } // end loop over tracks
 }
 
-void AlignmentMonitorMuonSystemMap1D::afterAlignment(const edm::EventSetup &iSetup) {}
+void AlignmentMonitorMuonSystemMap1D::afterAlignment(const edm::EventSetup &iSetup) {
+  // collect temporary files
+  if (m_readTemporaryFiles.size() != 0) {
+    for (std::vector<std::string>::const_iterator fileName = m_readTemporaryFiles.begin();  fileName != m_readTemporaryFiles.end();  ++fileName) {
+      FILE *file;
+      int size;
+      file = fopen(fileName->c_str(), "r");
+      fread(&size, sizeof(int), 1, file);
+      if (int(m_plots.size()) != size) throw cms::Exception("AlignmentMonitorMuonSystemMap1D") << "file \"" << *fileName << "\" has " << size << " plots, but this job has " << m_plots.size() << " plots (probably corresponds to the wrong job)" << std::endl;
+
+      int which = 0;
+      for (std::vector<MuonSystemMapPlot1D*>::const_iterator plot = m_plots.begin();  plot != m_plots.end();  ++plot) {
+	(*plot)->read(file, which);
+      }
+
+      fclose(file);
+    }
+  }
+
+  if (m_doFits) {
+    for (std::vector<MuonSystemMapPlot1D*>::const_iterator plot = m_plots.begin();  plot != m_plots.end();  ++plot) {
+      (*plot)->fit();
+    }
+  }
+
+  // always do this
+  for (std::vector<MuonSystemMapPlot1D*>::const_iterator plot = m_plots.begin();  plot != m_plots.end();  ++plot) {
+    (*plot)->fill_profs();
+  }
+
+  // write out the pseudontuples for a later job to collect
+  if (m_writeTemporaryFile != std::string("")) {
+    FILE *file;
+    file = fopen(m_writeTemporaryFile.c_str(), "w");
+    int size = m_plots.size();
+    fwrite(&size, sizeof(int), 1, file);
+
+    int which = 0;
+    for (std::vector<MuonSystemMapPlot1D*>::const_iterator plot = m_plots.begin();  plot != m_plots.end();  ++plot) {
+      (*plot)->write(file, which);
+    }
+
+    fclose(file);
+  }
+}
 
 //
 // constructors and destructor

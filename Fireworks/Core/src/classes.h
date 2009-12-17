@@ -1,6 +1,5 @@
 
 //Add includes for your classes here
-#include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
@@ -21,13 +20,18 @@
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/src/FWBoolParameterSetter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
+#include "Fireworks/Core/src/FWStringParameterSetter.h"
+#include "Fireworks/Core/interface/FWStringParameter.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/interface/FWTableView.h"
+#include "Fireworks/Core/interface/FWTriggerTableView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWGUIEventFilter.h"
+#include "Fireworks/Core/interface/FWGUIEventSelector.h"
 
 namespace {
    struct Fireworks_Core {

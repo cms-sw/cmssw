@@ -25,9 +25,9 @@ TtFullLepHypGenMatch::buildHypo(edm::Event& evt,
     if( isValid(match[idx], jets) ){
       switch(idx){
       case TtFullLepEvtPartons::B:
-	setCandidate(jets, match[idx], b_); break;
+	setCandidate(jets, match[idx], b_   , jetCorrectionLevel_); break;
       case TtFullLepEvtPartons::BBar:
-	setCandidate(jets, match[idx], bBar_); break;	
+	setCandidate(jets, match[idx], bBar_, jetCorrectionLevel_); break;	
       }
     }
   }

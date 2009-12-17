@@ -11,7 +11,8 @@ iterativeFirstTracksWithTriplets.Fitter = 'KFFittingSmootherWithOutlierRejection
 iterativeFirstTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
 iterativeFirstTracksWithPairs.src = 'iterativeFirstTrackCandidatesWithPairs'
 iterativeFirstTracksWithPairs.TTRHBuilder = 'WithoutRefit'
-iterativeFirstTracksWithPairs.Fitter = 'KFFittingSmootherWithOutlierRejection'
+##iterativeFirstTracksWithPairs.Fitter = 'KFFittingSmootherWithOutlierRejection'
+iterativeFirstTracksWithPairs.Fitter = 'KFFittingSmootherFirst'
 iterativeFirstTracksWithPairs.Propagator = 'PropagatorWithMaterial'
 
 

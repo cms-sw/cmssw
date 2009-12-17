@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.4 2009/09/16 09:53:24 dshpakov Exp $
 /// @file: DQMEventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"

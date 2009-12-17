@@ -22,8 +22,8 @@ namespace edm {
 
   class LumiKey {
   public:
-    int run() { return run_; }
-    int lumi() { return lumi_; }
+    int run() const { return run_; }
+    int lumi() const { return lumi_; }
 
     LumiKey(int run, int lumi) : run_(run), lumi_(lumi) { }
 
@@ -85,6 +85,8 @@ namespace edm {
     void deleteLumi(int run, int lumi);
 
     void adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
+
+    void adjustIndexesAfterProductRegistryAddition();
 
   private:
 

@@ -113,7 +113,7 @@ bool HDRShower::setHit(float espot, float theta) {
     theHcalHitMaker->setSpotEnergy(espot);
     result = theHcalHitMaker->addHit(rshower*sin(theta),phi,0);
     }
-    else LogError("FastCalorimetry") <<" setHit in HCAL failed d="<<d
+    else LogWarning("FastCalorimetry") <<" setHit in HCAL failed d="<<d
 	     <<" maxDepth="<<maxDepth<<" onEcal'"<<onEcal<<endl;
   }
   else {

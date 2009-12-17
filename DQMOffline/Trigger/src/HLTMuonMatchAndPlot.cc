@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/08/14 13:29:09 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/11 08:36:13 $
+ *  $Revision: 1.13 $
  */
 
 
@@ -25,7 +25,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // For storing calorimeter isolation info in the ntuple
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
@@ -71,10 +71,17 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
     
   
   theHltProcessName  = pset.getParameter<string>("HltProcessName");
+
+  LogTrace ("HLTMuonVal") << "HLTMuonMatchAndPlot: Constructor: Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
+  HLTConfigProvider hltConfig;
+  hltConfig.init(theHltProcessName);
+
   theNumberOfObjects = ( TString(triggerName).Contains("Double") ) ? 2 : 1;
   theTriggerName     = triggerName;
     
-  useAod         = true;  
+  useAod         = true;
+
+  requireL1SeedForHLTPaths = pset.getUntrackedParameter<bool>("RequireRecoToMatchL1Seed", false);
 
   matchType = pset.getUntrackedParameter<string>("matchType");
 
@@ -130,12 +137,26 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   TPRegexp l2Regexp("L2.*Filtered");
 
   string theLastHltFilter = "";
+
+  theL1SeedModuleForHLTPath = "" ;
   
   for ( size_t i = 0; i < moduleNames.size(); i++ ) {
     string module = moduleNames[i];
 
-    LogTrace ("HLTMuonVal") << "Considering Module named "
-                            << module;
+    LogTrace ("HLTMuonVal") << "Considering Module named    "
+                            << module
+                            << "      which has type =    "
+                            << hltConfig.moduleType(module);
+
+    if ( hltConfig.moduleType(module) == "HLTLevel1GTSeed" ) {
+      LogTrace ("HLTMuonVal") << "Module = " << module
+                              <<  " is a HLTLevel1GTSeed!!"
+                              << endl
+                              << "Storing it as L1Seed"
+                              << endl;
+      theL1SeedModuleForHLTPath = module;
+    }
+
     
     if ( TString(module).Contains(l1Regexp) ) {
       // this will be used to look up info
@@ -203,102 +224,149 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   //useMuonFromGenerator = false; // = ( theGenLabel  == "" ) ? false : true;
   useMuonFromReco      = true; // = ( theRecoLabel == "" ) ? false : true;
 
-  theMaxPtParameters = pset.getParameter< vector<double> >("MaxPtParameters");
-  theEtaParameters   = pset.getParameter< vector<double> >("EtaParameters");
-  thePhiParameters   = pset.getParameter< vector<double> >("PhiParameters");
+  //define default parameters so that you don't crash
 
-  theResParameters = pset.getParameter < vector<double> >("ResParameters");
+  vector <double> etaDefault;
+  etaDefault.push_back(15);
+  etaDefault.push_back(-2.1);
+  etaDefault.push_back(2.1);
+
+  theEtaParameters   = pset.getUntrackedParameter< vector<double> >("EtaParameters", etaDefault);
+  
+  vector <double> phiDefault;
+  phiDefault.push_back(15);
+  phiDefault.push_back(-3.2);
+  phiDefault.push_back(3.2);
+
+  thePhiParameters   = pset.getUntrackedParameter< vector<double> >("PhiParameters", phiDefault);
+
+  // leave this vector of size 0
+  vector <double> ptDefault;
 
   //  pt parameters are a different story
   //  it's a vector of doubles but it unpacked
   //  as bin low edges
-  thePtParameters    = pset.getParameter< vector<double> >("PtParameters");
+  thePtParameters    = pset.getUntrackedParameter< vector<double> >("PtParameters", ptDefault);
 
+  
+  vector <double> resDefault;
+  resDefault.push_back(10);
+  resDefault.push_back(-0.1);
+  resDefault.push_back(0.1);
+  theResParameters = pset.getUntrackedParameter < vector<double> >("ResParameters", resDefault);  
 
+  vector <double> d0Default;
+  d0Default.push_back(10);
+  d0Default.push_back(-2.0);
+  d0Default.push_back(2.0);
+
+  theD0Parameters = pset.getUntrackedParameter <vector<double> > ("D0Parameters", d0Default);
+
+  vector <double> z0Default;
+  z0Default.push_back(10);
+  z0Default.push_back(-25);
+  z0Default.push_back(25);
+
+  theZ0Parameters = pset.getUntrackedParameter < vector<double> > ("Z0Parameters", z0Default);
+
+  
+  
   int numPtBinEdge = 0;
   if ( thePtParameters.size() > 100) {
     LogInfo ("HLTMuonVal") << "Warning!!! You specified a list of pt bin edges that is > 100 bins"
                            << "This is too many bins!! Truncating the list!!! " << endl;
     numPtBinEdge = 100;
+  } else if (thePtParameters.size() < 1) {
+
+    numPtBinEdge = 5;
+    numBinsInPtHisto = numPtBinEdge - 1;
+    ptBins[0] = 0;
+    ptBins[1] = 20;
+    ptBins[2] = 50;
+    ptBins[3] = 100;
+    ptBins[4] = 150;
+    
   } else {
     numPtBinEdge = thePtParameters.size();
-  }
-
-  // the number of bins in the histo is one
-  // less than the number of edges
-  numBinsInPtHisto = numPtBinEdge - 1;
+    // the number of bins in the histo is one
+    // less than the number of edges
+    numBinsInPtHisto = numPtBinEdge - 1;
   
-  for (int iBin = 0; iBin < numPtBinEdge; iBin++){
-    ptBins[iBin] = (float) thePtParameters[iBin];
+    for (int iBin = 0; iBin < numPtBinEdge; iBin++){
+      ptBins[iBin] = (float) thePtParameters[iBin];
+      //LogTrace ("HLTMuonVal") << the 
+    }
+
   }
+
 
   
   // Duplicate the pt parameters for some 2D histos
-  for(int i =0; i < 2; i++){
-    for (std::vector<double>::const_iterator iNum = theMaxPtParameters.begin();
-         iNum != theMaxPtParameters.end();
-         iNum++){
+//   for(int i =0; i < 2; i++){
+//     for (std::vector<double>::const_iterator iNum = theMaxPtParameters.begin();
+//          iNum != theMaxPtParameters.end();
+//          iNum++){
       
-      // if this is the # of bins, then
-      // halve the number of bins.
-      if (iNum == theMaxPtParameters.begin()){
-        theMaxPtParameters2d.push_back(floor((*iNum)/2));
-      } else {
-        theMaxPtParameters2d.push_back((*iNum));
-      }
-    }
-  }
+//       // if this is the # of bins, then
+//       // halve the number of bins.
+//       if (iNum == theMaxPtParameters.begin()){
+//         theMaxPtParameters2d.push_back(floor((*iNum)/2));
+//       } else {
+//         theMaxPtParameters2d.push_back((*iNum));
+//       }
+//     }
+//   }
 
-  // Duplicate the pt parameters for some 2D histos
-  for(int i =0; i < 2; i++){
-    for (std::vector<double>::const_iterator iNum = theEtaParameters.begin();
-         iNum != theEtaParameters.end();
-         iNum++){
-      // if this is the nBins param, halve it
-      if (iNum ==  theEtaParameters.begin()){
-        theEtaParameters2d.push_back(floor((*iNum)/2));      
-      } else {
-        theEtaParameters2d.push_back(*iNum);                   
-      }
+//   // Duplicate the eta parameters for some 2D histos
+//   for(int i =0; i < 2; i++){
+//     for (std::vector<double>::const_iterator iNum = theEtaParameters.begin();
+//          iNum != theEtaParameters.end();
+//          iNum++){
+//       // if this is the nBins param, halve it
+//       if (iNum ==  theEtaParameters.begin()){
+//         theEtaParameters2d.push_back(floor((*iNum)/2));      
+//       } else {
+//         theEtaParameters2d.push_back(*iNum);                   
+//       }
       
-      // also fill the eta/phi plot parameters
-      // but don't worry about doubleing bins
-      // if (i < 1){
-      //         if (iNum ==  theEtaParameters.begin()){
-      //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-      //         } else {
-      //           thePhiEtaParameters2d.push_back(*iNum);      
+//       // also fill the eta/phi plot parameters
+//       // but don't worry about doubleing bins
+//       // if (i < 1){
+//       //         if (iNum ==  theEtaParameters.begin()){
+//       //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+//       //         } else {
+//       //           thePhiEtaParameters2d.push_back(*iNum);      
       
-      //         } 
+//       //         } 
       
-      //       }
-    }
-  }
+//       //       }
+//     }
+//   }
 
-  // Duplicate the pt parameters for some 2D histos
-  for(int i =0; i < 2; i++){
-    for (std::vector<double>::const_iterator iNum = thePhiParameters.begin();
-         iNum != thePhiParameters.end();
-         iNum++){
+//   // Duplicate the pt parameters for some 2D histos
+//   for(int i =0; i < 2; i++){
+//     for (std::vector<double>::const_iterator iNum = thePhiParameters.begin();
+//          iNum != thePhiParameters.end();
+//          iNum++){
 
-      if (iNum == thePhiParameters.begin()) {
-        thePhiParameters2d.push_back(floor((*iNum)/2));
-      } else {
-        thePhiParameters2d.push_back(*iNum);
-      }
+//       if (iNum == thePhiParameters.begin()) {
+//         thePhiParameters2d.push_back(floor((*iNum)/2));
+//       } else {
+//         thePhiParameters2d.push_back(*iNum);
+//       }
 
-      //       if (i < 1){
+//       //       if (i < 1){
       
-      //         // if (iNum ==  theEtaParameters.begin()){
-      //         //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-      //         //         } else {
-      //         //           thePhiEtaParameters2d.push_back(*iNum);      
+//       //         // if (iNum ==  theEtaParameters.begin()){
+//       //         //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+//       //         //         } else {
+//       //         //           thePhiEtaParameters2d.push_back(*iNum);      
       
-      //         //         } 
+//       //         //         } 
       
-      //       }
-    }
-  }
+//       //       }
+//     }
+//   }
 
 
 
@@ -306,9 +374,9 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
 
 
-  theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut");
-  theL2DrCut     = pset.getUntrackedParameter<double>("L2DrCut");
-  theL3DrCut     = pset.getUntrackedParameter<double>("L3DrCut");
+  theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut", 0.4);
+  theL2DrCut     = pset.getUntrackedParameter<double>("L2DrCut", 0.1);
+  theL3DrCut     = pset.getUntrackedParameter<double>("L3DrCut", 0.05);
 
   
   //==========================================
@@ -319,21 +387,21 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
   // put in the phi parameters
   thePhiEtaParameters2d.push_back(10);
-  thePhiEtaParameters2d.push_back(-3.15);
-  thePhiEtaParameters2d.push_back(3.15);
+  thePhiEtaParameters2d.push_back(-2.2);
+  thePhiEtaParameters2d.push_back(2.2);
 
   thePhiEtaParameters2d.push_back(10);
-  thePhiEtaParameters2d.push_back(-3.5);
-  thePhiEtaParameters2d.push_back(3.5);
+  thePhiEtaParameters2d.push_back(-3.15);
+  thePhiEtaParameters2d.push_back(3.15);
   
   
-  theD0Parameters.push_back(25);
-  theD0Parameters.push_back(-50.0);
-  theD0Parameters.push_back(50.0);
+  // theD0Parameters.push_back(25);
+  // theD0Parameters.push_back(-50.0);
+  // theD0Parameters.push_back(50.0);
   
-  theZ0Parameters.push_back(25);
-  theZ0Parameters.push_back(-100);
-  theZ0Parameters.push_back(100);
+  //   theZ0Parameters.push_back(25);
+  //   theZ0Parameters.push_back(-100);
+  //   theZ0Parameters.push_back(100);
 
   theChargeParameters.push_back(3);
   theChargeParameters.push_back(-1.5);
@@ -344,12 +412,11 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   theDRParameters.push_back(theL3DrCut);
 
   theChargeFlipParameters.push_back(2);
-  theChargeFlipParameters.push_back(-0.5);
-  theChargeFlipParameters.push_back(1.5);
+  theChargeFlipParameters.push_back(-1.0);
+  theChargeFlipParameters.push_back(1.0);
   theChargeFlipParameters.push_back(2);
-  theChargeFlipParameters.push_back(-0.5);
-  theChargeFlipParameters.push_back(1.5);
-
+  theChargeFlipParameters.push_back(-1.0);
+  theChargeFlipParameters.push_back(1.0);
 
   theIsolationParameters.push_back(25);
   theIsolationParameters.push_back(0.0);
@@ -359,26 +426,26 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   thePhiParameters0Pi.push_back(0);
   thePhiParameters0Pi.push_back(3.2);
 
-  theDeltaPhiVsPhiParameters.push_back(50);
-  theDeltaPhiVsPhiParameters.push_back(-3.15);
-  theDeltaPhiVsPhiParameters.push_back(3.15);
-  theDeltaPhiVsPhiParameters.push_back(50);
-  theDeltaPhiVsPhiParameters.push_back(0);
-  theDeltaPhiVsPhiParameters.push_back(3.2);
+  // theDeltaPhiVsPhiParameters.push_back(50);
+  //   theDeltaPhiVsPhiParameters.push_back(-3.15);
+  //   theDeltaPhiVsPhiParameters.push_back(3.15);
+  //   theDeltaPhiVsPhiParameters.push_back(50);
+  //   theDeltaPhiVsPhiParameters.push_back(0);
+  //   theDeltaPhiVsPhiParameters.push_back(3.2);
 
-  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[0]);
-  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[1]);
-  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[2]);
-  theDeltaPhiVsZ0Parameters.push_back(50);
-  theDeltaPhiVsZ0Parameters.push_back(0);
-  theDeltaPhiVsZ0Parameters.push_back(3.2);
+//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[0]);
+//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[1]);
+//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[2]);
+//   theDeltaPhiVsZ0Parameters.push_back(50);
+//   theDeltaPhiVsZ0Parameters.push_back(0);
+//   theDeltaPhiVsZ0Parameters.push_back(3.2);
 
-  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[0]);
-  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[1]);
-  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[2]);
-  theDeltaPhiVsD0Parameters.push_back(50);
-  theDeltaPhiVsD0Parameters.push_back(0);
-  theDeltaPhiVsD0Parameters.push_back(3.2);
+//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[0]);
+//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[1]);
+//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[2]);
+//   theDeltaPhiVsD0Parameters.push_back(50);
+//   theDeltaPhiVsD0Parameters.push_back(0);
+//   theDeltaPhiVsD0Parameters.push_back(3.2);
       
   
 
@@ -406,15 +473,40 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
 
 
+void HLTMuonMatchAndPlot::endRun (const edm::Run& r, const edm::EventSetup& c)
+{
+
+  LogTrace ("HLTMuonVal") << "\n\nInside HLTMuonMatchAndPlot endRun()";
+
+  // loop over all the histograms we booked, and handle the overflow bins
+
+  // do this at end run, since you want to be sure you did it before you
+  // saved your ME's.
+  
+  vector<MonitorElement*>::iterator iMonitorEl;
+  
+  for ( iMonitorEl = booked1DMonitorElements.begin();
+        iMonitorEl != booked1DMonitorElements.end();
+        iMonitorEl++ ) {
+
+    moveOverflow((*iMonitorEl));
+
+  }
+  
+
+}
+
+
 void HLTMuonMatchAndPlot::finish()
 {
 
-  LogTrace ("HLTMuonVal") << "\n\nInside HLTMuonMatchAndPlot finish()";
+  LogTrace ("HLTMuonVal") << "\n\nInside HLTMuonMatchAndPlot finish()" << endl;
+
   if (createStandAloneHistos && histoFileName != "") {
     dbe_->save(histoFileName);
   }
+  
 }
-
 
 
 void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
@@ -602,6 +694,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
   edm::Handle<trigger::TriggerEvent>         aodTriggerEvent;
   vector<TriggerObject>                      l1Particles;
   vector<TriggerObject>                      l1RawParticles;
+  vector<TriggerObject>                      l1Seeds;
   //--  HLTParticles [0] is a vector of L2 matches
   //--  HLTParticles [1] is a vector of L1 matches
 
@@ -615,66 +708,66 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
   vector<L1MuonParticleRef> l1Cands;
   
   InputTag collectionTag;
-  size_t   filterIndex;
+  //size_t   filterIndex;
 
 
   // Try to get the triggerSummaryRAW branch for
   // this event. If it's there, great, keep using it.
   // but if it isn't there, skip over it silently
 
-  LogTrace ("HLTMuonVal") << "Trying to get RAW information\n\n";
+//   LogTrace ("HLTMuonVal") << "Trying to get RAW information\n\n";
                           
-  iEvent.getByLabel( HltRawInputTag, rawTriggerEvent );
+//   iEvent.getByLabel( HltRawInputTag, rawTriggerEvent );
   
-  if ( rawTriggerEvent.isValid() ) { 
-    LogTrace("HLTMuonVal") << "\n\nRAW trigger summary found! "
-                           << "\n\nUsing RAW information";
+//   if ( rawTriggerEvent.isValid() ) { 
+//     LogTrace("HLTMuonVal") << "\n\nRAW trigger summary found! "
+//                            << "\n\nUsing RAW information";
     
-    collectionTag = InputTag( theL1CollectionLabel, "", theHltProcessName );
-    filterIndex   = rawTriggerEvent->filterIndex(collectionTag);
+//     collectionTag = InputTag( theL1CollectionLabel, "", theHltProcessName );
+//     filterIndex   = rawTriggerEvent->filterIndex(collectionTag);
 
 
-    if ( filterIndex < rawTriggerEvent->size() ) {
-      rawTriggerEvent->getObjects( filterIndex, TriggerL1Mu, l1Cands );
-      LogTrace ("HLTMuonVal") << "Found l1 raw cands for filter = " << filterIndex ;                              
+//     if ( filterIndex < rawTriggerEvent->size() ) {
+//       rawTriggerEvent->getObjects( filterIndex, TriggerL1Mu, l1Cands );
+//       LogTrace ("HLTMuonVal") << "Found l1 raw cands for filter = " << filterIndex ;                              
         
-    } else {
-      LogTrace("HLTMuonVal") << "No L1 Collection with label " 
-                                << collectionTag;
-    }
+//     } else {
+//       LogTrace("HLTMuonVal") << "No L1 Collection with label " 
+//                                 << collectionTag;
+//     }
     
-    //for ( size_t i = 0; i < l1Cands.size(); i++ ) 
-    //  l1Cands.push_back( l1Cands[i]->p4() );
-    LogTrace ("HLTMuonVal") << "Looking for information from  hltFilters";
+//     //for ( size_t i = 0; i < l1Cands.size(); i++ ) 
+//     //  l1Cands.push_back( l1Cands[i]->p4() );
+//     LogTrace ("HLTMuonVal") << "Looking for information from  hltFilters";
                             
-    for ( size_t i = 0; i < numHltLabels; i++ ) {
+//     for ( size_t i = 0; i < numHltLabels; i++ ) {
 
-      collectionTag = InputTag( theHltCollectionLabels[i], 
-                                "", theHltProcessName );
-      filterIndex   = rawTriggerEvent->filterIndex(collectionTag);
+//       collectionTag = InputTag( theHltCollectionLabels[i], 
+//                                 "", theHltProcessName );
+//       filterIndex   = rawTriggerEvent->filterIndex(collectionTag);
 
-      LogTrace ("HLTMuonVal") << "Looking for candidates for filter "
-                              << theHltCollectionLabels[i]
-                              << ", index = "
-                              << filterIndex;
+//       LogTrace ("HLTMuonVal") << "Looking for candidates for filter "
+//                               << theHltCollectionLabels[i]
+//                               << ", index = "
+//                               << filterIndex;
       
-      if ( filterIndex < rawTriggerEvent->size() )
-        rawTriggerEvent->getObjects( filterIndex, TriggerMuon, hltCands[i]);
-      else LogTrace("HLTMuonVal") << "No HLT Collection with label " 
-                                  << collectionTag;
+//       if ( filterIndex < rawTriggerEvent->size() )
+//         rawTriggerEvent->getObjects( filterIndex, TriggerMuon, hltCands[i]);
+//       else LogTrace("HLTMuonVal") << "No HLT Collection with label " 
+//                                   << collectionTag;
 
-      // JMS -- do we ever store this raw info in the MatchStruct?
+//       // JMS -- do we ever store this raw info in the MatchStruct?
       
 
-      // don't copy the hltCands into particles
-      // for ( size_t j = 0; j < hltCands[i].size(); j++ )
-      // hltParticles[i].push_back( hltCands[i][j]->p4() );
+//       // don't copy the hltCands into particles
+//       // for ( size_t j = 0; j < hltCands[i].size(); j++ )
+//       // hltParticles[i].push_back( hltCands[i][j]->p4() );
 
-    } // End loop over theHltCollectionLabels
-  }  else {
-    LogTrace ("HLTMuonVal") << "\n\nCouldn't find any RAW information for this event";
+//     } // End loop over theHltCollectionLabels
+//   }  else {
+//     LogTrace ("HLTMuonVal") << "\n\nCouldn't find any RAW information for this event";
                             
-  } // Done processing RAW summary information
+//   } // Done processing RAW summary information
     
 
 
@@ -720,228 +813,57 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
     LogTrace ("HLTMuonVal") << "Trigger Name is " << theTriggerName;
     
     LogTrace ("HLTMuonVal") << "\n\n L1Collection tag is "
-                            << collectionTag
+                            << collectionTag << endl
                             << " and size filters is "
                             << aodTriggerEvent->sizeFilters()
-                            << " Dumping full list of collection tags";
+                            << "Looking up L1 information in trigSummaryAod";
 
-    LogTrace ("HLTMuonVal") << "\nL1LabelAodLabel = GREP_REMOVE"  << endl
-                            << "\nL2LabelAodLabel = GREP_REMOVE"  << endl
-                            << "\n\nLooping over L3 lables\n" ;
-
-
-    //////////////////////////////////////////////////////
-    //   Print everything
-    //   This can make the logfile huge
-    //   Useful for development
-    //   Keep this commented out for now 
-    /////////////////////////////////////////////////////
-
-    // vector<string>::const_iterator iHltColl;
-    //     int numHltColl = 0;
-    //     for (  iHltColl = theHltCollectionLabels.begin();
-    //            iHltColl != theHltCollectionLabels.end();
-    //            iHltColl++ ) {
-    //       LogTrace ("HLTMuonVal") << "Hlt label # "  << numHltColl
-    //                               << " = "
-    //                               << (*iHltColl);
-    //       numHltColl++;
-    //     }
-
-    //     // Print out each collection that this event has
-    //     vector<string> allAodCollTags = aodTriggerEvent->collectionTags();
-    //     vector<string>::const_iterator iCollTag;
-    //     int numColls = 0;
-    //     for ( iCollTag = allAodCollTags.begin();
-    //           iCollTag != allAodCollTags.end();
-    //           iCollTag++ ) {
-      
-    //       LogTrace ("HLTMuonVal") << "Tag  " << numColls << " = "
-    //                               << (*iCollTag) 
-    //                               << endl;
-
-    //       numColls++;
-    //     }
-
+    // this function call fills l1 particles with your matching trigger objects
+    getAodTriggerObjectsForModule ( collectionTag, aodTriggerEvent, objects, l1Particles, muonSelection);
     
-    //     for ( size_t iFilter = 0; iFilter < aodTriggerEvent->sizeFilters(); iFilter++) {
-    //       InputTag thisTag = aodTriggerEvent->filterTag(iFilter);
-    //       LogTrace("HLTMuonVal") << "Filter number " << iFilter << "  tag = "
-    //                              << thisTag << endl;
-    //     }
-    /////////////////////////////////////////////////////////////
-
-    
-    filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
-
-    LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
-                            << filterIndex;
-    
-    if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
-      const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
-
-      LogTrace ("HLTMuonVal") << "\n\nGot keys";
-      LogTrace ("HLTMuonVal") << "Key size is " << keys.size();
-                              
-      // The keys are apparently pointers into the trigger
-      // objects collections
-      // Use the key's to look up the particles for the
-      // filter module that you're using 
-      
-      for ( size_t j = 0; j < keys.size(); j++ ){
-        TriggerObject foundObject = objects[keys[j]];
-
-        // This is the trigger object. Apply your filter to it!
-        LogTrace ("HLTMuonVal") << "Testing to see if object in key passes selection"
-                                << endl ;
-        
-        if (muonSelection.hltMuonSelector(foundObject)){
-        
-          LogTrace ("HLTMuonVal") << "OBJECT FOUND!!! - Storing a trigger object with id = "              
-                                  << foundObject.id() 
-                                  << ", eta = " << foundObject.eta()
-                                  << ", pt = " << foundObject.pt()
-                                  << ", custom name = " << muonSelection.customLabel
-                                  << "\n\n" << endl;
-          //l1Particles.push_back( objects[keys[j]].particle().p4() );
-          l1Particles.push_back( foundObject );
-        }
-      }
-    } 
-    ///////////////////////////////////////////////////////////////
-    //     LogTrace ("HLTMuonVal") << "moving on to l2 collection";
-    //     collectionTag = InputTag( theAodL2Label, "", theHltProcessName );
-    //     filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
-
-    //     LogTrace ("HLTMuonVal") << "\n\n L2Collection tag is "
-    //                             << collectionTag
-    //                             << " and size filters is "
-    //                             << aodTriggerEvent->sizeFilters();
-
-    //     LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
-    //                             << filterIndex;
-    
-    //     if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
-      
-    //       const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
-
-    //       LogTrace ("HLTMuonVal") << "\n\nGot keys";
-    //       LogTrace ("HLTMuonVal") << "Key size is " << keys.size();
-
-    //       if (hltParticles.size() > 0) {
-        
-      
-    //         for ( size_t j = 0; j < keys.size(); j++ ) {
-    //           TriggerObject foundObject = objects[keys[j]];
-    //           LogTrace ("HLTMuonVal") << "Storing a trigger object with id = "
-    //                                 << foundObject.id() << "\n\n";
-
-    //           hltParticles[0].push_back( objects[keys[j]].particle().p4() );
-
-    //         }
-    //       } else { // you don't have any hltLabels
-    //         LogTrace ("HLTMuonVal") << "Oops, you don't have any hlt labels"
-    //                                 << "but you do have l2 objects for this filter";
-                                
-    //       }
-    //    } 
-    ///////////////////////////////////////////////////////////////
-    LogTrace ("HLTMuonVal") << "Moving onto L2 & L3";
-
-    
-    //if (theHltCollectionLabels.size() > 0) {
     int indexHltColl = 0;
     vector<string>::const_iterator iHltColl;
     for (iHltColl = theHltCollectionLabels.begin();
          iHltColl != theHltCollectionLabels.end();
          iHltColl++ ){
       collectionTag = InputTag((*iHltColl) , "", 
-                                theHltProcessName );
-      filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
+                               theHltProcessName );
 
-      LogTrace ("HLTMuonVal") << "\n\n HLTCollection tag is "
-                              << collectionTag
-                              << " and size filters is "
-                              << aodTriggerEvent->sizeFilters();
-    
-      LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
-                              << filterIndex;
-
-    
-      if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
-        const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
-
-        LogTrace ("HLTMuonVal") << "==MULTI== Looked up keys for filter " << (*iHltColl)
-                                << ", index number " << filterIndex
-                                << ", and found " << keys.size() << " keys...   "
-                                << ((keys.size() > 2)? "MULTIMUON": "")
-                                << endl;
-          
-        for ( size_t j = 0; j < keys.size(); j++ ){
-          TriggerObject foundObject = objects[keys[j]];
-
-          LogTrace ("HLTMuonVal") << "Found and Hlt object, checking to "
-                                  << "see if passes custom selection ...";
-          
-          if (muonSelection.hltMuonSelector(foundObject)){
-        
-            LogTrace ("HLTMuonVal") << "HLT OBJECT FOUND!!! - Storing a trigger object with id = "              
-                                    << foundObject.id() 
-                                    << ", eta = " << foundObject.eta()
-                                    << ", pt = " << foundObject.pt()
-                                    << ", custom name = " << muonSelection.customLabel
-                                    << "\n\n" << endl;
-          
-          
-        
-         
-         
-
-            //hltParticles[indexHltColl].push_back( objects[keys[j]].particle().p4() );
-            hltParticles[indexHltColl].push_back( foundObject );
-          }
-        }
-      }
+      // this function call filles hltParticles with your hlt matches.
+      getAodTriggerObjectsForModule ( collectionTag, aodTriggerEvent, objects, hltParticles[indexHltColl] , muonSelection);
+      
 
       indexHltColl++;
     }
-    
-    // At this point, we should check whether the prescaled L1 and L2
-    // triggers actually fired, and exit if not.
-    
-  /////////////////////////////////////////////////////////////////////
 
-  int totalNumOfHltParticles = 0;
-  int tempIndexHltColl = 0;
-  for ( vector<string>::const_iterator iHltColl = theHltCollectionLabels.begin();
-        iHltColl != theHltCollectionLabels.end();
-        iHltColl++ ){
-    LogTrace ("HLTMuonVal") << "HLT label = " << (*iHltColl) 
-                            << ", Number of hlt particles (4-vectors from aod) = "
-                            << hltParticles[tempIndexHltColl].size()
-                            << "\n";
-    totalNumOfHltParticles += hltParticles[tempIndexHltColl].size();
 
-    LogTrace ("HLTMuonVal") << "    Number of hlt cands (hltdebug refs) = " 
-                            << hltCands[tempIndexHltColl].size()
-                            << "\n";
+    // more very verbose debug
+    // trying to restructure code 
+    LogTrace ("HLTMuonVal") << "At the end of parsing the L2/L3 filters, you have found "
+                            << "L2 = " <<  ((hltParticles.size() > 0) ? hltParticles[0].size() : 0)
+                            << "L3 = " <<  ((hltParticles.size() > 1) ? hltParticles[1].size() : 0)
+                            << endl;
+
+    ///////////////////////////////////////////
+    //
+    //  Look up the L1 seeds
+    //
+    ///////////////////////////////////////////
     
-    tempIndexHltColl++;
-  }
+    collectionTag = InputTag( theL1SeedModuleForHLTPath, "", theHltProcessName );
+
+    LogTrace ("HLTMuonVal") << "\n\n L1Seed colelction tag is "
+                            << collectionTag << endl
+                            << " and size filters is "
+                            << aodTriggerEvent->sizeFilters()
+                            << "Looking up L1 Seed information in trigSummaryAod";
+
+    // this function call fills l1 particles with your matching trigger objects
+    getAodTriggerObjectsForModule ( collectionTag, aodTriggerEvent, objects, l1Seeds, muonSelection);
+    
+    LogTrace ("HLTMuonVal") << "At the end of parsing the L1 filter, you have found "
+                            <<  l1Particles.size() << " objects: ";
   
-  LogTrace ("HLTMuonVal") << "\n\nEvent " << eventNumber
-                          << " has numL1Cands = " << l1Particles.size()
-                          << " and numHltCands = " << totalNumOfHltParticles
-                          << " now looking for matches\n\n" << endl;
-
-
-
-
-  
-  //hNumObjects->getTH1()->AddBinContent( 3, l1Particles.size() );
-
-  //for ( size_t i = 0; i < numHltLabels; i++ ) 
-    //hNumObjects->getTH1()->AddBinContent( i + 4, hltParticles[i].size() );
 
   //////////////////////////////////////////////////////////////////////////
   // Initialize MatchStructs
@@ -957,6 +879,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
 
   for ( size_t i = 0; i < myRecMatches.size(); i++ ) {
     myRecMatches[i].l1Cand = nullTriggerObject;
+    myRecMatches[i].l1Seed = nullTriggerObject;
     myRecMatches[i].hltCands. assign( numHltLabels, nullTriggerObject );
     //myRecMatches[i].hltTracks.assign( numHltLabels, false );
     // new! raw matches too
@@ -999,6 +922,39 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
     }
 
   } // End loop over l1Particles
+
+  
+  //========================================
+  // Loop over L1 seeds and store matches
+  //========================================
+  
+  for ( size_t i = 0; i < l1Seeds.size(); i++ ) {
+
+    TriggerObject l1Cand = l1Seeds[i];
+    double eta           = l1Cand.eta();
+    double phi           = l1Cand.phi();
+    // L1 pt is taken from a lookup table
+    // double ptLUT      = l1Cand->pt();  
+
+    double maxDeltaR = theL1DrCut;
+    //numL1Cands++;
+
+
+    if ( useMuonFromReco ){
+      int match = findRecMatch( eta, phi, maxDeltaR, myRecMatches );
+      if ( match != -1 && myRecMatches[match].l1Seed.pt() < 0 ) {
+        myRecMatches[match].l1Seed = l1Cand;
+        LogTrace ("HLTMuonVal") << "Found a rec match to L1 particle (aod)  "
+                                << " rec pt = " << myRecMatches[match].recCand->pt()
+                                << ",  l1 pt  = " << myRecMatches[match].l1Seed.pt(); 
+      } else {
+        //hNumOrphansRec->getTH1F()->AddBinContent( 1 );
+      }
+    }
+
+  } // End loop over l1Seeds
+
+  
 
   ////////////////////////////////////////////////////////
   //   Loop over the L1 Candidates (RAW information)
@@ -1213,47 +1169,52 @@ void HLTMuonMatchAndPlot::fillPlots (vector<MatchStruct> & myRecMatches,
                            << endl;
 
 
+    if ((isL3Path || isL2Path) && requireL1SeedForHLTPaths) {
+
+      LogTrace ("HLTMuonVal") << "Checking to see if your RECO muon matched to an L1 seed"
+                              << endl;
+
+      if (myRecMatches[i].l1Seed.pt() < 0) {
+        LogTrace ("HLTMuonVal") << "No match to L1 seed, skipping this RECO muon" << endl;
+        continue;
+      }
+    }
+
+    
+
     double pt  = myRecMatches[i].recCand->pt();
     double eta = myRecMatches[i].recCand->eta();
     double phi = myRecMatches[i].recCand->phi();
     int recPdgId = myRecMatches[i].recCand->pdgId();
 
-    //allRecPts.push_back(pt);
-
-    // I think that these are measured w.r.t
-    // (0,0,0)... you need to use other
-    // functions to make them measured w.r.t
-    // other locations
-
-    // Must get track out of the muon itself
-    // how to unpack it all?
-    
-
     LogTrace ("HLTMuonVal") << "trying to get a global track for this muon" << endl;
-    
-    TrackRef theMuoGlobalTrack = myRecMatches[i].recCand->globalTrack();
 
-    double d0 = -999;
-    double z0 = -999;
-    int charge = -999;
-    int plottedCharge = -999;
+    // old way - breaks if no global track
+    //TrackRef theMuoGlobalTrack = myRecMatches[i].recCand->globalTrack();
 
-    double d0beam = -999;
-    double z0beam = -999;
+    TrackRef theMuonTrack = getCandTrackRef (mySelection, (*myRecMatches[i].recCand));
     
-    if (theMuoGlobalTrack.isNonnull() ) {
-      d0 = theMuoGlobalTrack->d0();
-      z0 = theMuoGlobalTrack->dz();
+    double d0 = -9e20;
+    double z0 = -9e20;
+    int charge = -99999;
+    int plottedCharge = -99999;
+
+    double d0beam = -9e20;
+    double z0beam = -9e20;
+    
+    if (theMuonTrack.isNonnull() ) {
+      d0 = theMuonTrack->d0();
+      z0 = theMuonTrack->dz();
       // comment:
       // does the charge function return the
       // same value as the abs(pdgId) ?    
-      charge = theMuoGlobalTrack->charge(); 
+      charge = theMuonTrack->charge(); 
       plottedCharge = getCharge (recPdgId);
       
     
       if (foundBeamSpot) {
-        d0beam = theMuoGlobalTrack->dxy(beamSpot.position());
-        z0beam = theMuoGlobalTrack->dz(beamSpot.position());
+        d0beam = theMuonTrack->dxy(beamSpot.position());
+        z0beam = theMuonTrack->dz(beamSpot.position());
         
         hBeamSpotZ0Rec[0]->Fill(beamSpot.z0());
       }
@@ -1439,7 +1400,7 @@ void HLTMuonMatchAndPlot::fillPlots (vector<MatchStruct> & myRecMatches,
           hPassExaclyOneMuonMaxPtRec[j+HLT_PLOT_OFFSET]->Fill(pt);
           hPassPtRecExactlyOne[j+HLT_PLOT_OFFSET]->Fill(pt);
         }
-      }      
+      } // end if found hlt match      
     }
 
     /////////////////////////////////////////////////
@@ -1949,9 +1910,9 @@ void HLTMuonMatchAndPlot::begin()
       
       
       // 0 = MaxPt_All
-      hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_All", "pt of Leading Reco Muon" ,  theMaxPtParameters) );
+      hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_All", "pt of Leading Reco Muon" ,  numBinsInPtHisto, ptBins) );
       // 1 = MaxPt if matched to L1 Trigger
-      if (useFullDebugInformation || isL1Path) hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
 
       hPassEtaRec.push_back( bookIt( "recPassEta_All", "#eta of Reco Muons", theEtaParameters) );
       if (useFullDebugInformation || isL1Path) hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
@@ -1961,14 +1922,14 @@ void HLTMuonMatchAndPlot::begin()
       
 
       
-      hPassPtRec.push_back( bookIt( "recPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
-      if (useFullDebugInformation || isL1Path) hPassPtRec.push_back( bookIt( "recPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+      hPassPtRec.push_back( bookIt( "recPassPt_All", "Pt of  Reco Muon" , numBinsInPtHisto, ptBins) );
+      if (useFullDebugInformation || isL1Path) hPassPtRec.push_back( bookIt( "recPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
       
-      hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_All", "pt of Leading Reco Muon (==1 muon)" ,  theMaxPtParameters) );
-      if (useFullDebugInformation || isL1Path) hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel,  theMaxPtParameters) );
+      hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_All", "pt of Leading Reco Muon (==1 muon)" ,  numBinsInPtHisto, ptBins) );
+      if (useFullDebugInformation || isL1Path) hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
       
-      hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_All", "pt of Leading Reco Muon in events with exactly one muon" ,  theMaxPtParameters) );
-      if (useFullDebugInformation || isL1Path) hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  theMaxPtParameters) );
+      hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_All", "pt of Leading Reco Muon in events with exactly one muon" ,  numBinsInPtHisto, ptBins) );
+      if (useFullDebugInformation || isL1Path) hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  numBinsInPtHisto, ptBins) );
 
       hPassD0Rec.push_back( bookIt("recPassD0_All", "Track 2-D impact parameter wrt (0,0,0)(d0) ALL", theD0Parameters));
       if (useFullDebugInformation || isL1Path) hPassD0Rec.push_back( bookIt("recPassD0_" + myLabel, "Track 2-D impact parameter (0,0,0)(d0) " + myLabel, theD0Parameters));
@@ -2002,7 +1963,7 @@ void HLTMuonMatchAndPlot::begin()
       // hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_All" , "Charge Flip from hlt to RECO;HLT;Reco", theChargeFlipParameters)); 
       if (useFullDebugInformation || isL1Path) hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT Charge (-,+);Reco (-,+)", theChargeFlipParameters)); 
 
-      if (useFullDebugInformation || isL1Path) hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, numBinsInPtHisto, ptBins) );
       //hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
       //hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
       //hPhiMatchVsPhiRec.push_back( bookIt( "recPhiVsMatchPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters2d) );
@@ -2022,8 +1983,8 @@ void HLTMuonMatchAndPlot::begin()
       ////////////////////////////////////////////////
 
       if (useFullDebugInformation) {
-        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
-        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_All", "Pt of  Reco Muon" ,  numBinsInPtHisto, ptBins) );
+        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
       
         rawMatchHltCandEta.push_back( bookIt( "rawPassEta_All", "#eta of Reco Muons", theEtaParameters) );
         rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
@@ -2059,14 +2020,14 @@ void HLTMuonMatchAndPlot::begin()
       if ( useMuonFromReco ) {
 
         // These histos have All, L1, L2, L3
-        hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel, theMaxPtParameters) );     
+        hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel, numBinsInPtHisto, ptBins) );     
         hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
         hPassPhiRec.push_back( bookIt( "recPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );                
 
-        hPassPtRec.push_back ( bookIt( "recPassPt_" + myLabel, "Pt of  Reco Muon, if matched to " + myLabel, theMaxPtParameters) );
-        hPassPtRecExactlyOne.push_back (bookIt( "recPassPtExactlyOne__" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel, theMaxPtParameters) );
+        hPassPtRec.push_back ( bookIt( "recPassPt_" + myLabel, "Pt of  Reco Muon, if matched to " + myLabel, numBinsInPtHisto, ptBins) );
+        hPassPtRecExactlyOne.push_back (bookIt( "recPassPtExactlyOne__" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel, numBinsInPtHisto, ptBins) );
 
-        hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  theMaxPtParameters) );        
+        hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  numBinsInPtHisto, ptBins) );        
         hPhiVsEtaRec.push_back ( bookIt ("recPhiVsRecEta_" + myLabel, "Reco #phi vs Reco #eta  " +myLabel, thePhiEtaParameters2d));
 
          
@@ -2079,7 +2040,7 @@ void HLTMuonMatchAndPlot::begin()
         hIsolationRec.push_back ( bookIt("recPassIsolation_" + myLabel, "Muon Isolation cone 0.3  " + myLabel, theIsolationParameters)); 
         
         // Match histos only have numHltLabels indices
-        hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
+        hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, numBinsInPtHisto, ptBins) );
 
         //hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
         //hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
@@ -2101,11 +2062,11 @@ void HLTMuonMatchAndPlot::begin()
 
         // these candidates are indexed by the number
         // of hlt labels
-        allHltCandPt.push_back( bookIt("allHltCandPt_" + myLabel, "Pt of all HLT Muon Cands, for HLT " + myLabel, theMaxPtParameters));     
+        allHltCandPt.push_back( bookIt("allHltCandPt_" + myLabel, "Pt of all HLT Muon Cands, for HLT " + myLabel, numBinsInPtHisto, ptBins));     
         allHltCandEta.push_back( bookIt("allHltCandEta_" + myLabel, "Eta of all HLT Muon Cands, for HLT " + myLabel, theEtaParameters));         
         allHltCandPhi.push_back( bookIt("allHltCandPhi_" + myLabel, "Phi of all HLT Muon Cands, for HLT " + myLabel, thePhiParameters));    
 
-        fakeHltCandPt.push_back( bookIt("fakeHltCandPt_" + myLabel, "Pt of fake HLT Muon Cands, for HLT " + myLabel, theMaxPtParameters));     
+        fakeHltCandPt.push_back( bookIt("fakeHltCandPt_" + myLabel, "Pt of fake HLT Muon Cands, for HLT " + myLabel, numBinsInPtHisto, ptBins));     
         fakeHltCandEta.push_back( bookIt("fakeHltCandEta_" + myLabel, "Eta of fake HLT Muon Cands, for HLT " + myLabel, theEtaParameters));         
         fakeHltCandPhi.push_back( bookIt("fakeHltCandPhi_" + myLabel, "Phi of fake HLT Muon Cands, for HLT " + myLabel, thePhiParameters));    
                 
@@ -2114,7 +2075,7 @@ void HLTMuonMatchAndPlot::begin()
         // raw histograms
 
         if (useFullDebugInformation) {
-          rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+          rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
           rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
           rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
         }
@@ -2140,8 +2101,10 @@ MonitorElement* HLTMuonMatchAndPlot::bookIt
   if (parameters.size() == 3) {
     TH1F *h = new TH1F( name, title, nBins, min, max );
     h->Sumw2();
-    return dbe_->book1D( name.Data(), h );
+    MonitorElement * returnedME = dbe_->book1D( name.Data(), h );
     delete h;
+    booked1DMonitorElements.push_back(returnedME);
+    return returnedME;
 
     // this is the case for a 2D hist
   } else if (parameters.size() == 6) {
@@ -2152,8 +2115,9 @@ MonitorElement* HLTMuonMatchAndPlot::bookIt
 
     TH2F *h = new TH2F (name, title, nBins, min, max, nBins2, min2, max2);
     h->Sumw2();
-    return dbe_->book2D (name.Data(), h);
-    delete h;
+    MonitorElement * returnedME = dbe_->book2D (name.Data(), h);
+    delete h;    
+    return returnedME;
 
   } else {
     LogInfo ("HLTMuonVal") << "Directory" << dbe_->pwd() << " Name "
@@ -2171,7 +2135,11 @@ MonitorElement* HLTMuonMatchAndPlot::bookIt
 
   TH1F *tempHist = new TH1F(name, title, nbins, xBinLowEdges);
   tempHist->Sumw2();
-  return dbe_->book1D(name.Data(), tempHist);
+  MonitorElement * returnedME = dbe_->book1D(name.Data(), tempHist);
+  delete tempHist;
+
+  booked1DMonitorElements.push_back(returnedME);
+  return returnedME;
   
 }
 
@@ -2209,5 +2177,87 @@ TString HLTMuonMatchAndPlot::calcHistoSuffix (string moduleName) {
   }
 
   return myLabel;
+  
+}
+
+void HLTMuonMatchAndPlot::moveOverflow (MonitorElement * myElement) {
+
+  LogTrace ("HLTMuonVal") << "MOVEOVERFLOW" << endl;
+
+  
+  // This will handle an arbitrary dimension first/last bin
+  // but you should think about how you will interpret this for
+  // 2D/3D histos
+  // Actually, this can't handle abitrary dimensions.
+  int maxBin = myElement->getNbinsX();
+
+  double originalEntries = myElement->getEntries();
+  
+  LogTrace ("HLTMuonVal") << "==MOVEOVERFLOW==  "
+                                << "maxBin = " << maxBin
+                                << ", calling underflow"
+                                << endl;
+  
+  myElement->setBinContent(1, myElement->getBinContent(0) + myElement->getBinContent(1));
+
+  LogTrace ("HLTMuonVal") << "reseting underflow to zero" << endl;
+  myElement->setBinContent(0,0.0);
+  LogTrace ("HLTMuonVal") << "calling overflow" << endl;
+  myElement->setBinContent(maxBin,myElement->getBinContent(maxBin) + myElement->getBinContent(maxBin+1));
+  LogTrace ("HLTMuonVal") << "seting overflow to zero" << endl;
+  myElement->setBinContent(maxBin+1,0.0);
+
+  myElement->setEntries(originalEntries);
+
+}
+
+
+void HLTMuonMatchAndPlot::getAodTriggerObjectsForModule (edm::InputTag collectionTag,
+                                                         edm::Handle<trigger::TriggerEvent> aodTriggerEvent,
+                                                         trigger::TriggerObjectCollection trigObjs,
+                                                         std::vector<TriggerObject> & foundObjects,
+                                                         MuonSelectionStruct muonSelection) {
+
+
+  //LogTrace ("HLTMuonVal") << "Getting trigger muons for module label = " << collectionTag << endl;
+  
+  size_t filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
+    
+  LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
+                          << filterIndex;
+    
+  if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
+    const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
+
+    LogTrace ("HLTMuonVal") << "\n\nGot keys";
+    LogTrace ("HLTMuonVal") << "Key size is " << keys.size();
+                              
+    // The keys are apparently pointers into the trigger
+    // trigObjs collections
+    // Use the key's to look up the particles for the
+    // filter module that you're using 
+      
+    for ( size_t j = 0; j < keys.size(); j++ ){
+      TriggerObject foundObject = trigObjs[keys[j]];
+
+      // This is the trigger object. Apply your filter to it!
+      LogTrace ("HLTMuonVal") << "Testing to see if object in key passes selection"
+                              << endl ;
+        
+      if (muonSelection.hltMuonSelector(foundObject)){
+        
+        LogTrace ("HLTMuonVal") << "OBJECT FOUND!!! - Storing a trigger object with id = "              
+                                << foundObject.id() 
+                                << ", eta = " << foundObject.eta()
+                                << ", pt = " << foundObject.pt()
+                                << ", custom name = " << muonSelection.customLabel
+                                << "\n\n" << endl;
+        //l1Particles.push_back( trigObjs[keys[j]].particle().p4() );
+        foundObjects.push_back( foundObject );
+      }
+    }
+  }
+
+  
   
 }

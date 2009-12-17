@@ -2,7 +2,7 @@
 UTILITIES in ElectroWeakAnalysis/Utilities:
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-src/EwkPdfWeightProducer.cc
+src/PdfWeightProducer.cc
 ===========================
 - Writes into the data structure a std::vector<double> containing the LHAPDF weights 
   PDF_user(i)/PDF__in_generated_sample for each event, where 
@@ -10,10 +10,14 @@ src/EwkPdfWeightProducer.cc
   and i runs over the total number of members in the set. These weights can be 
   easily used later to assign systematics. Example of usage:
 
-      process.ewkPdfWeights = cms.EDProducer("EwkPdfWeightProducer",
+      # Produce PDF weights (maximum is 3)
+      process.pdfWeights = cms.EDProducer("PdfWeightProducer",
             PdfInfoTag = cms.untracked.InputTag("generator"),
-            #Look inside the $LHAPATH/ directory for all possible PDF set choices
-            PdfSetName = cms.untracked.string("cteq65.LHgrid")
+            PdfSetNames = cms.untracked.vstring(
+                    "cteq65.LHgrid"
+                  , "MRST2006nnlo.LHgrid"
+                  , "MRST2007lomod.LHgrid"
+            )
       )
 
 - WARNING AT CREATION TIME: From the 330 series on, full LHAPDF libraries are 
@@ -22,8 +26,26 @@ src/EwkPdfWeightProducer.cc
   please follow the recipes provided in ElectroWeakAnalysis/Utilities/BuildFile
   and comment/uncomment the relevant lines there.
 
-- A simple example showing how to use this PDF information is given in 
-  "test/EwkPdfWeightAnalyzer.cc". A test example is "test/EwkPdfWeightAnalyzer.py".
+- A typical application is the determination of the PDF systematics. This is 
+  implemented in "src/PdfSystematicsAnalyzer.cc". This analyzer counts the 
+  processed events using PDF re-weighting, and assigns systematic 
+  uncertainties on the rate according to the recipe described in
+  hep-ph/0605240. Usage:
+
+      # Count PDF-weighted events and collect uncertainties
+      process.pdfDenominatorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
+            PdfWeightTags = cms.untracked.VInputTag(
+                    "pdfWeights:cteq65"
+                  , "pdfWeights:MRST2006nnlo"
+                  , "pdfWeights:MRST2007lomod"
+            )
+      )
+
+- A test example of these utilities is "test/PdfSystematicsAnalyzer.py". There, 
+  one counts re-weighted events before and after selection, which gives immediate
+  access to the determination of PDF uncertainties on the acceptance for the 
+  given process under study.
+
 
 src/BosonPtWeightProducer.cc
 ============================
