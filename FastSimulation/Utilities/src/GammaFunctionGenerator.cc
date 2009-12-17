@@ -144,7 +144,7 @@ void GammaFunctionGenerator::setParameters(double a,double b, double xm)
     }
   else
     {
-      double tmp=myIncompleteGamma(xmin);
+      double tmp=(xmin!=0.) ?myIncompleteGamma(xmin) : 0.;
       coreProba=(integralToApproxLimit[gn]-tmp)/(1.-tmp);
       theGammas[gn].setSubInterval(xmin,approxLimit[gn]);
     }
