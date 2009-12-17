@@ -25,10 +25,7 @@ def redoPFTauDiscriminators(process,
 
     moduleL0 =  getattr(process,l0tauCollection.moduleLabel)
     if (l0tauCollection.moduleLabel=="allLayer0Taus"):
-        process.patDefaultSequence.replace(process.allLayer1Objects,                                     
-                                       tauDiscriminationSequence +
-                                       process.allLayer1Objects
-                                       )
+        process.patDefaultSequence.replace(process.patCandidates, tauDiscriminationSequence + process.patCandidates)
     if (l0tauCollection.moduleLabel=='pfLayer0Taus'):         
         process.PF2PAT.replace(moduleL0, moduleL0+tauDiscriminationSequence)
 
@@ -40,21 +37,21 @@ def switchToCaloTau(process,
                     caloTauLabel = cms.InputTag('caloRecoTauProducer')):
     process.tauMatch.src       = caloTauLabel
     process.tauGenJetMatch.src = caloTauLabel
-    process.allLayer1Taus.tauSource = caloTauLabel
-    process.allLayer1Taus.tauIDSources = cms.PSet(
+    process.patTaus.tauSource = caloTauLabel
+    process.patTaus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackFinding"),
         leadingTrackPtCut   = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackPtCut"),
         byIsolation         = cms.InputTag("caloRecoTauDiscriminationByIsolation"),
         againstElectron     = cms.InputTag("caloRecoTauDiscriminationAgainstElectron"),  
     )
-    process.allLayer1Taus.addDecayMode = False
+    process.patTaus.addDecayMode = False
     ## Isolation is somewhat an issue, so we start just by turning it off
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
-    process.allLayer1Taus.isolation   = cms.PSet()
-    process.allLayer1Taus.isoDeposits = cms.PSet()
-    process.allLayer1Taus.userIsolation = cms.PSet()
-    ## adapt cleanLayer1Taus
-    process.cleanLayer1Taus.preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5 & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5'
+    process.patTaus.isolation   = cms.PSet()
+    process.patTaus.isoDeposits = cms.PSet()
+    process.patTaus.userIsolation = cms.PSet()
+    ## adapt cleanPatTaus
+    process.cleanPatTaus.preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5 & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5'
 
 # internal auxiliary function to switch to **any** PFTau collection
 def _switchToPFTau(process,module, pfTauLabelOld, pfTauLabelNew, pfTauType):
@@ -170,7 +167,7 @@ def switchToPFTauByType(process,module, pfTauType=None, pfTauLabelNew=None,
 # switch to PFTau collection that was default in PAT production in CMSSW_3_1_x release series
 def switchTo31Xdefaults(process,module):
     switchToPFTauFixedCone(process,module)
-    process.cleanLayer1Taus.preselection = cms.string('tauID("byIsolation") > 0')
+    process.cleanPatTaus.preselection = cms.string('tauID("byIsolation") > 0')
     
 # function to switch to **any** PFTau collection
 # It is just to make internal function accessible externally
