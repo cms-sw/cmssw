@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id: HLTMonHcalIsoTrack.cc,v 1.2 2009/03/25 12:57:18 safronov Exp $
+// $Id: HLTMonHcalIsoTrack.cc,v 1.1 2009/12/08 10:18:57 safronov Exp $
 //
 //
 
@@ -112,7 +112,6 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel(toLab,triggerObj); 
   if(!triggerObj.isValid()) 
     { 
-      edm::LogWarning("DQMHcalIsoTrack") << "RAW-type HLT results not found, skipping event";
       return;
     }
   
