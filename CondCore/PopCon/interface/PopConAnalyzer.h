@@ -28,7 +28,7 @@ namespace popcon{
     
   private:
     
-    virtual void beginJob(const edm::EventSetup&){}
+    virtual void beginJob(){}
     virtual void endJob() {
       write();
     }
