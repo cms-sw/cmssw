@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2008/07/10 15:24:35 $
- * by         : $Author: ewidl $
+ * last update: $Date: 2009/11/30 10:12:34 $
+ * by         : $Author: ckleinw $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
  * stated.
@@ -132,7 +132,7 @@ public:
   /** Returns the transformation of local to tracjectory parameters
    */
   const AlgebraicMatrix& localToTrajectory() const { return theInnerLocalToTrajectory; }    
-  
+
   /** Returns the set of 'track'-parameters.
    */  
   const AlgebraicVector& parameters() const { return theParameters; }
@@ -168,7 +168,7 @@ public:
 
 protected:
 
-  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0, unsigned int nMsPar = 0, unsigned int nMsMeas = 0 );
+  explicit ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits, unsigned int nMsPar, unsigned int nMsMeas);
 
   unsigned int numberOfUsedRecHits(const TransientTrackingRecHit::ConstRecHitContainer &recHits) const;
   bool useRecHit(const TransientTrackingRecHit::ConstRecHitPointer& hitPtr) const;

@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2009/10/30 13:13:59 $
-//  by         : $Author: flucke $
+//  last update: $Date: 2009/11/30 10:12:34 $
+//  by         : $Author: ckleinw $
 
 #include <memory>
 
@@ -94,7 +94,6 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   AlgebraicMatrix                 fullJacobian(theParameters.num_row(), theParameters.num_row());
   std::vector<AlgebraicMatrix>    allJacobians; 
   allJacobians.reserve(theNumberOfHits);
-  AlgebraicMatrix firstCurvlinJacobian(5,5);
 
   TransientTrackingRecHit::ConstRecHitPointer  previousHitPtr;
   TrajectoryStateOnSurface                     previousTsos;
@@ -118,17 +117,12 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   allCurvlinJacobians.reserve(theNumberOfHits);
   
   // CHK: add PCA for broken lines
-  double firstStep = 0;
-  firstCurvlinJacobian = AlgebraicMatrix(5, 5, 1);
+  double firstStep = 0.;
+  AlgebraicMatrix firstCurvlinJacobian(5, 5, 1);
   if (materialEffects > brokenLinesFine) {
     GlobalPoint origin(0.,0.,0.);
-    //create a TrajectoryStateClosestToPoint: 
-    TrajectoryStateClosestToPointBuilder *tsctpBuilder = new TSCPBuilderNoMaterial();
-    TrajectoryStateClosestToPoint tsctp = tsctpBuilder->operator()(refTsos,origin);
+    TrajectoryStateClosestToPoint tsctp(TSCPBuilderNoMaterial()(refTsos, origin));
     FreeTrajectoryState pcaFts = tsctp.theState();
-    // delete new objects:
-    delete tsctpBuilder;
-    tsctpBuilder = NULL;     
     //propagation
     AnalyticalPropagator propagator(magField);
     std::pair< TrajectoryStateOnSurface, double > tsosWithPath = propagator.propagateWithPath(pcaFts,refTsos.surface()); 
@@ -542,7 +536,7 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
 						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
 						const std::vector<AlgebraicMatrix> &allLocalToCurv,
 						const std::vector<double> &allSteps,
-						const GlobalTrajectoryParameters gtp)
+						const GlobalTrajectoryParameters &gtp)
 {
 //CHK: add material effects using broken lines
 //fine: use exact Jacobians, all detectors
@@ -671,7 +665,7 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
 						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
 						const std::vector<AlgebraicMatrix> &allLocalToCurv,
 						const std::vector<double> &allSteps,
-						const GlobalTrajectoryParameters gtp,
+						const GlobalTrajectoryParameters &gtp,
 						const double minStep)
 {
 //CHK: add material effects using broken lines
