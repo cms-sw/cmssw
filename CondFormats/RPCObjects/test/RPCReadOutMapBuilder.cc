@@ -75,7 +75,7 @@ void RPCReadOutMapBuilder::endJob()
 }
 
 // ------------ method called to produce the data  ------------
-void RPCReadOutMapBuilder::beginJob() 
+void RPCReadOutMapBuilder::beginJob()
 {
   cout << "BeginJob method " << endl;
   cout<<"Building RPC Cabling"<<endl;   
