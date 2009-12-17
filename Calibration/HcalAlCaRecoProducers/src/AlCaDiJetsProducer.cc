@@ -31,7 +31,7 @@ AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig)
    produces<HFRecHitCollection>("DiJetsHFRecHitCollection");
 
 }
-void AlCaDiJetsProducer::beginJob( const edm::EventSetup& iSetup)
+void AlCaDiJetsProducer::beginJob()
 {
 }
 

@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.9 2007/06/14 09:28:28 govoni Exp $
+// $Id: AlCaElectronsProducer.h,v 1.10 2008/07/25 12:27:25 malberti Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class AlCaElectronsProducer : public edm::EDProducer {
       ~AlCaElectronsProducer();
 
  
-//PG       void beginJob (const edm::EventSetup&)
+//PG       void beginJob()
 //PG         {
 //PG           std::cerr << "saveTest beginJob" << std::endl ;
 //PG           m_failMap = new TH2F ("failMap","failMap",100,0,100,100,0,100) ;

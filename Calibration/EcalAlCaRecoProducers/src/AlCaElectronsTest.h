@@ -39,7 +39,7 @@ class AlCaElectronsTest : public edm::EDAnalyzer {
     ~AlCaElectronsTest () {}
      virtual void analyze (const edm::Event& iEvent, 
                            const edm::EventSetup& iSetup) ;
-     virtual void beginJob (const edm::EventSetup& iSetup) ;
+     virtual void beginJob() ;
      virtual void endJob () ;
 
   private:
@@ -93,7 +93,7 @@ AlCaElectronsTest::AlCaElectronsTest (const edm::ParameterSet& iConfig) :
 
 
 void 
-AlCaElectronsTest::beginJob ( const edm::EventSetup& iSetup)
+AlCaElectronsTest::beginJob()
 {
   m_barrelGlobalCrystalsMap = new TH2F ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",171,-85,86,360,0,360) ;
   m_barrelLocalCrystalsMap = new TH2F ("m_barrelLocalCrystalsMap","m_barrelLocalCrystalsMap",20,-10,10,20,-10,10) ;

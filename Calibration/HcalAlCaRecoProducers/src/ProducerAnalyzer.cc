@@ -57,7 +57,7 @@ ProducerAnalyzer::~ProducerAnalyzer()
 
 }
 
-void ProducerAnalyzer::beginJob( const edm::EventSetup& iSetup)
+void ProducerAnalyzer::beginJob()
 {
 }
 

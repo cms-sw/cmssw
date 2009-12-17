@@ -36,7 +36,7 @@ class AlCaGammaJetProducer : public edm::EDProducer {
    public:
       explicit AlCaGammaJetProducer(const edm::ParameterSet&);
       ~AlCaGammaJetProducer();
-      virtual void beginJob(const edm::EventSetup& ) ;
+      virtual void beginJob() ;
 
       virtual void produce(edm::Event &, const edm::EventSetup&);
    private:

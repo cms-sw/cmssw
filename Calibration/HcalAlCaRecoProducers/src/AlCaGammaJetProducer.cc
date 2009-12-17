@@ -45,7 +45,7 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
     
    
 }
-void AlCaGammaJetProducer::beginJob( const edm::EventSetup& iSetup)
+void AlCaGammaJetProducer::beginJob()
 {
 }
 
