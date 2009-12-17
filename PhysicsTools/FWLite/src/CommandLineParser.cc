@@ -56,6 +56,9 @@ CommandLineParser::CommandLineParser (const string &usage,
                  "List of input files");
       addOption ("secondaryInputFiles",    kStringVector,
                  "List of secondary input files (a.k.a. two-file-solution");
+      addOption ("orderedSecondaryFiles", kBool,
+		 "Are the secondary files ordered?",
+		 false );
       return;
    }
    // If we're still here, we have a type I don't understand.

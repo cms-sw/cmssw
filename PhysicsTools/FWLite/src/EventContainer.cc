@@ -48,7 +48,8 @@ EventContainer::EventContainer (optutl::CommandLineParser &parser,
    {
       m_eventBasePtr = 
          new fwlite::MultiChainEvent( parser.stringVector ("inputFiles"), 
-                                      secondaryInputFiles );
+                                      secondaryInputFiles,
+				      parser.boolValue("orderedSecondaryFiles") );
    } else {
       m_eventBasePtr = 
          new fwlite::ChainEvent( parser.stringVector ("inputFiles") );
