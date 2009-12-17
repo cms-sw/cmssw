@@ -26,7 +26,7 @@ class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
  public:
   explicit SiPixelFedCablingMapTestWriter( const edm::ParameterSet& );
   ~SiPixelFedCablingMapTestWriter();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
  private:
@@ -82,7 +82,7 @@ SiPixelFedCablingMapTestWriter::~SiPixelFedCablingMapTestWriter()
 }
 
 // ------------ method called to produce the data  ------------
-void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
+void SiPixelFedCablingMapTestWriter::beginJob() {
    cout << "BeginJob method " << endl;
    cout<<"Building FED Cabling"<<endl;   
    cablingTree =  new SiPixelFedCablingTree("My map V-TEST");
