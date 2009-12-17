@@ -122,9 +122,6 @@ void testmakeprocess::pathTest()
 //    std::cout << myparams.toString() << std::endl;
    std::string rep = myparams.toString();
    edm::ParameterSet copy(rep);
-   copy.registerIt();
-//    std::cout << "Copy looks like:\n";
-//    std::cout << copy.toString() << std::endl;
    CPPUNIT_ASSERT(copy == myparams);
 }
 
@@ -227,9 +224,6 @@ void testmakeprocess::emptyModuleTest()
 //    std::cout << myparams.toString() << std::endl;
    std::string rep = myparams.toString();
    edm::ParameterSet copy(rep);
-   copy.registerIt();
-//    std::cout << "Copy looks like:\n";
-//    std::cout << copy.toString() << std::endl;
    CPPUNIT_ASSERT(copy == myparams);
 }
 /*
