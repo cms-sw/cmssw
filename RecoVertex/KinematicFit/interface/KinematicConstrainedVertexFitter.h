@@ -45,15 +45,29 @@ public:
  * Without additional constraint, this will perform a simple
  * vertex fit using LMS with Lagrange multipliers method.
  */  
- RefCountedKinematicTree fit(vector<RefCountedKinematicParticle> part) const{
-   return fit(part, 0);
+ RefCountedKinematicTree fit(vector<RefCountedKinematicParticle> part) {
+   return fit(part, 0, 0);
  }
 
 /**
  * LMS with Lagrange multipliers fit of vertex constraint and user-specified constraint.
  */  
- RefCountedKinematicTree fit(vector<RefCountedKinematicParticle> part, 
-                           MultiTrackKinematicConstraint * cs) const;
+ RefCountedKinematicTree fit(vector<RefCountedKinematicParticle> part,
+                            MultiTrackKinematicConstraint * cs) {
+   return fit(part, cs, 0);
+ };
+    
+/**
+ * LMS with Lagrange multipliers fit of vertex constraint, user-specified constraint and user-specified starting point.
+ */  
+ RefCountedKinematicTree fit(vector<RefCountedKinematicParticle> part,
+                           MultiTrackKinematicConstraint * cs,
+                           GlobalPoint * pt);
+
+//return the number of iterations
+ int getNit() const;
+//return the value of the constraint equation
+ float getCSum() const;
 
 private:
 
@@ -66,6 +80,8 @@ private:
  KinematicConstrainedVertexUpdator * updator;
  VertexKinematicConstraint * vCons;
  ConstrainedTreeBuilder * tBuilder;
+ int iterations;
+ float csum;
 };
 
 #endif

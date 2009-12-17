@@ -13,16 +13,19 @@ KinematicConstrainedVertexFitter::KinematicConstrainedVertexFitter()
  updator = new KinematicConstrainedVertexUpdator();
  tBuilder = new ConstrainedTreeBuilder;
  defaultParameters();
+ iterations = -1;
+ csum = -1000.0;
 }
 
-KinematicConstrainedVertexFitter:: KinematicConstrainedVertexFitter(const LinearizationPointFinder& fnd)
+KinematicConstrainedVertexFitter::KinematicConstrainedVertexFitter(const LinearizationPointFinder& fnd)
 {
-
  finder = fnd.clone();
  vCons = new VertexKinematicConstraint();
  updator = new KinematicConstrainedVertexUpdator();
  tBuilder = new ConstrainedTreeBuilder;
  defaultParameters();
+ iterations = -1;
+ csum = -1000.0;
 }
 
 KinematicConstrainedVertexFitter::~KinematicConstrainedVertexFitter()
@@ -36,7 +39,7 @@ KinematicConstrainedVertexFitter::~KinematicConstrainedVertexFitter()
 void KinematicConstrainedVertexFitter::setParameters(const edm::ParameterSet& pSet)
 {
   theMaxDiff = pSet.getParameter<double>("maxDistance");
-  theMaxStep = pSet.getParameter<int>("maxNbrOfIterations");;
+  theMaxStep = pSet.getParameter<int>("maxNbrOfIterations");
   theMaxInitial = pSet.getParameter<double>("maxOfInitialValue");
 }
 
@@ -48,7 +51,8 @@ void KinematicConstrainedVertexFitter::defaultParameters()
 }
 
 RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedKinematicParticle> part,
-                                                             MultiTrackKinematicConstraint * cs)const
+                                                             MultiTrackKinematicConstraint * cs,
+                                                             GlobalPoint * pt)
 {
  if(part.size()<2) throw VertexException("KinematicConstrainedVertexFitter::input states are less than 2");
 
@@ -60,6 +64,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
 
 // linearization point:
  GlobalPoint linPoint  = finder->getLinearizationPoint(fStates);
+ if (pt!=0) linPoint  = *pt;
 
 //initial parameters:
  int vSize = particles.size();
@@ -104,6 +109,8 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
 //constraint equations value and number of iterations
  double eq;
  int nit = 0;
+ iterations = 0;
+ csum = 0.0;
 
  vector<KinematicState> lStates = inStates;
  GlobalPoint lPoint  = linPoint;
@@ -126,12 +133,12 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
   lPoint = rVtx->position();
 
   AlgebraicVector vValue = vCons->value(lStates, lPoint);
-  for(int i = 1; i<vValue.num_row();++i)
+  for(int i = 1; i<=vValue.num_row();++i)
   {eq += abs(vValue(i));}
   if(cs !=0)
   {
    AlgebraicVector cVal = cs->value(lStates, lPoint);
-   for(int i = 1; i<cVal.num_row();++i)
+   for(int i = 1; i<=cVal.num_row();++i)
    {eq += abs(cVal(i));}
   }
   if (nit == 0) {
@@ -143,7 +150,17 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
 
 // cout<<"number of relinearizations "<<nit<<endl;
 // cout<<"value obtained: "<<eq<<endl;
+  iterations = nit;
+  csum = eq;
 
   return  tBuilder->buildTree(particles, lStates, rVtx, refCCov);
 
+}
+
+int KinematicConstrainedVertexFitter::getNit() const {
+    return iterations;
+}
+
+float KinematicConstrainedVertexFitter::getCSum() const {
+    return csum;
 }
