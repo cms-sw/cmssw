@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -67,9 +67,11 @@ process.GlobalTag.globaltag = 'GR09_R_V4::All'
 
 ## TRACKING:
 ## Skip events with HV off
+process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
-process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
 ## Primary Vertex
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
@@ -104,7 +106,9 @@ process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaB
 process.ecalPreshowerRecHit.ESGain = 2
 process.ecalPreshowerRecHit.ESBaseline = 0
 process.ecalPreshowerRecHit.ESMIPADC = 55
-process.ecalPreshowerRecHit.ESRecoAlgo = 1
+
+##only for 34X
+#process.ecalPreshowerRecHit.ESRecoAlgo = 1
 
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
