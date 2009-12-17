@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from PhysicsTools.PatAlgos.tools.helpers import *
 
 def configureHeavyIons(process):
    """
@@ -29,7 +30,7 @@ def productionDefaults(process):
    jetMatch.src     = cms.InputTag("iterativeConePu5CaloJets")
    jetMatch.matched = cms.InputTag("hiCleanedGenJets")
    
-   patJets = getattr(process, 'allLayer1Jets')
+   patJets = getattr(process, jetCollectionString())
    patJets.addBTagInfo         = False
    patJets.addTagInfos         = False
    patJets.addDiscriminators   = False
@@ -44,13 +45,13 @@ def productionDefaults(process):
    ## adapt muon defaults
    muonMatch = getattr(process, 'muonMatch')
    muonMatch.matched = cms.InputTag("hiGenParticles")
-   patMuons  = getattr(process, 'allLayer1Muons')
+   patMuons  = getattr(process, 'patMuons')
    patMuons.embedGenMatch = cms.bool(True)
 
    ## adapt photon defaults
    photonMatch = getattr(process, 'photonMatch')
    photonMatch.matched = cms.InputTag("hiGenParticles")
-   patPhotons  = getattr(process, 'allLayer1Photons')
+   patPhotons  = getattr(process, 'patPhotons')
    patPhotons.addPhotonID   = cms.bool(True)
    patPhotons.addGenMatch   = cms.bool(True)
    patPhotons.embedGenMatch = cms.bool(True)
@@ -77,9 +78,9 @@ def selectionDefaults(process):
    process : process
    ------------------------------------------------------------------    
    """
-   selectedJets = getattr(process, 'selectedLayer1Jets')
+   selectedJets = getattr(process, jetCollectionString('selected'))
    selectedJets.cut = cms.string('pt > 20.')
-   selectedMuons = getattr(process, 'selectedLayer1Muons')
+   selectedMuons = getattr(process, 'selectedPatMuons')
    selectedMuons.cut = cms.string('pt > 0. & abs(eta) < 12.')
-   selectedPhotons = getattr(process, 'selectedLayer1Photons')
+   selectedPhotons = getattr(process, 'selectedPatPhotons')
    selectedPhotons.cut = cms.string('pt > 0. & abs(eta) < 12.')
