@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 07:06:56 CET 2008
-// $Id: L1CondDBPayloadWriter.h,v 1.4 2009/03/18 18:23:48 wsun Exp $
+// $Id: L1CondDBPayloadWriter.h,v 1.5 2009/08/14 17:44:59 wsun Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ class L1CondDBPayloadWriter : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

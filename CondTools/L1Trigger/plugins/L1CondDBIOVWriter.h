@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 20:10:36 CET 2008
-// $Id: L1CondDBIOVWriter.h,v 1.4 2009/05/06 02:02:10 wsun Exp $
+// $Id: L1CondDBIOVWriter.h,v 1.5 2009/08/14 17:44:59 wsun Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ class L1CondDBIOVWriter : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

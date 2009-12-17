@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Nov  6 23:00:43 CET 2008
-// $Id: L1O2OTestAnalyzer.cc,v 1.4 2009/04/06 02:14:19 wsun Exp $
+// $Id: L1O2OTestAnalyzer.cc,v 1.5 2009/05/06 02:02:11 wsun Exp $
 //
 //
 
@@ -52,7 +52,7 @@ class L1O2OTestAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -252,7 +252,7 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1O2OTestAnalyzer::beginJob(const edm::EventSetup&)
+L1O2OTestAnalyzer::beginJob()
 {
 }
 

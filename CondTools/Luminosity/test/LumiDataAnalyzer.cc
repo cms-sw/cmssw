@@ -27,7 +27,7 @@ namespace edmtest
     virtual ~LumiDataAnalyzer() {  
       //std::cout<<"~LumiDataAnalyzer "<<std::endl;
     }
-    virtual void beginJob(const edm::EventSetup& context);
+    virtual void beginJob();
     virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& iLBlock,
 				      edm::EventSetup const& context);
@@ -44,7 +44,7 @@ namespace edmtest
     */
   }
   void
-  LumiDataAnalyzer::beginJob(const edm::EventSetup& context){
+  LumiDataAnalyzer::beginJob(){
     // std::cout<<"###LumiDataAnalyzer::beginJob"<<std::endl;
   }
   void

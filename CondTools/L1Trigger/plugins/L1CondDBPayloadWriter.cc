@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.13 2009/08/14 17:44:59 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.14 2009/08/14 19:58:38 wsun Exp $
 //
 //
 
@@ -225,7 +225,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1CondDBPayloadWriter::beginJob(const edm::EventSetup&)
+L1CondDBPayloadWriter::beginJob()
 {
 }
 
