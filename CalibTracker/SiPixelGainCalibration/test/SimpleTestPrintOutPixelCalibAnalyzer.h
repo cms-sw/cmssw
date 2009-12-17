@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Nov  5 16:56:35 CET 2007
-// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.5 2008/01/23 10:39:25 fblekman Exp $
+// $Id: SimpleTestPrintOutPixelCalibAnalyzer.h,v 1.1 2008/08/08 08:46:27 fblekman Exp $
 //
 //
 
@@ -41,7 +41,7 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void printInfo(const edm::Event&, const edm::EventSetup&); // print method added by Freya, this way the analyzer stays clean
   virtual void endJob() ;
