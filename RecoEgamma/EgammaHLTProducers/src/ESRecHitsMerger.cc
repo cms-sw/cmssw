@@ -41,7 +41,7 @@ ESRecHitsMerger::~ESRecHitsMerger() {
 }
 
 
-void ESRecHitsMerger::beginJob(const edm::EventSetup& c){
+void ESRecHitsMerger::beginJob(){
 }
 
 void ESRecHitsMerger::endJob(){

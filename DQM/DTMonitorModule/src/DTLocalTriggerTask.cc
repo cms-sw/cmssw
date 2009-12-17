@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2009/07/29 10:30:30 $
- * $Revision: 1.34 $
+ * $Date: 2009/08/03 16:08:38 $
+ * $Revision: 1.35 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -964,10 +964,10 @@ void DTLocalTriggerTask::setQLabels(MonitorElement* me, short int iaxis){
   }
   if (!axis) return;
 
-  char *labels[7] = {"LI","LO","HI","HO","LL","HL","HH"};
+  string labels[7] = {"LI","LO","HI","HO","LL","HL","HH"};
   int istart = axis->GetXmin()<-1 ? 2 : 1;
   for (int i=0;i<7;i++) {
-    axis->SetBinLabel(i+istart,labels[i]);
+    axis->SetBinLabel(i+istart,labels[i].c_str());
   }
 
 }

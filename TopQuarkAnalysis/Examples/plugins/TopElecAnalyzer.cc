@@ -14,7 +14,7 @@ TopElecAnalyzer::TopElecAnalyzer(const edm::ParameterSet& cfg):
   ptElec_ = fs->make<TH1F>("ptElec",  "pt_{Elec}",  100,  0.,300.);
   enElec_ = fs->make<TH1F>("enElec",  "en_{Elec}",  100,  0.,300.);
   etaElec_= fs->make<TH1F>("etaElec", "eta_{Elec}", 100, -3.,  3.);
-  phiElec_= fs->make<TH1F>("phiElec", "phi_{Elec}", 100, -5.,  5.);
+  phiElec_= fs->make<TH1F>("phiElec", "phi_{Elec}", 100, -4.,  4.);
   dptElec_= fs->make<TH1F>("dptElec", "dpt_{Elec}", 100, -2.,  2.);
   denElec_= fs->make<TH1F>("denElec", "den_{Elec}", 100, -2.,  2.);
   genElec_= fs->make<TH1F>("genElec", "gen_{Elec}", 100, -2.,  2.);
@@ -155,7 +155,7 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     // --------------------------------------------------
 
     const reco::IsoDeposit *TID=0;
-    TID = elec->trackerIsoDeposit();
+    TID = elec->trackIsoDeposit();
    
     //Isolation Cone coordinates
     //double IsoCone_eta=TID->eta();

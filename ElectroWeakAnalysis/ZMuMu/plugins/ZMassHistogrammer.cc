@@ -41,11 +41,11 @@ void ZMassHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& 
   Handle<CandidateCollection> gen;
   event.getByLabel(z_, z);
   event.getByLabel(gen_, gen);
-  for(size_t i = 0; i < z->size(); ++i) {
+  for(unsigned int i = 0; i < z->size(); ++i) {
     const Candidate &zCand = (*z)[i];
     h_mZ_->Fill(zCand.mass());
   }
-  for(size_t i = 0; i < gen->size(); ++i) {
+  for(unsigned int i = 0; i < gen->size(); ++i) {
     const Candidate &genCand = (*gen)[i];
     if((genCand.pdgId() == 23) && (genCand.status() == 2)) //this is an intermediate Z0
       cout << ">>> intermediate Z0 found, with " << genCand.numberOfDaughters() 

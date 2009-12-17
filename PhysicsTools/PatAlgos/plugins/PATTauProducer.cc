@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.28 2009/06/25 23:49:35 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.31 2009/10/15 14:23:44 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -29,7 +29,7 @@
 using namespace pat;
 
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
@@ -94,13 +94,13 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
-    if ( depconf.exists("tracker")         ) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
-    if ( depconf.exists("ecal")            ) isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
-    if ( depconf.exists("hcal")            ) isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
-    if ( depconf.exists("pfAllParticles")  ) isoDepositLabels_.push_back(std::make_pair(ParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
-    if ( depconf.exists("pfChargedHadron") ) isoDepositLabels_.push_back(std::make_pair(ChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadron")));
-    if ( depconf.exists("pfNeutralHadron") ) isoDepositLabels_.push_back(std::make_pair(NeutralHadronIso,depconf.getParameter<edm::InputTag>("pfNeutralHadron")));
-    if ( depconf.exists("pfGamma")         ) isoDepositLabels_.push_back(std::make_pair(PhotonIso, depconf.getParameter<edm::InputTag>("pfGamma")));
+    if ( depconf.exists("tracker")         ) isoDepositLabels_.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+    if ( depconf.exists("ecal")            ) isoDepositLabels_.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+    if ( depconf.exists("hcal")            ) isoDepositLabels_.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+    if ( depconf.exists("pfAllParticles")  ) isoDepositLabels_.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+    if ( depconf.exists("pfChargedHadron") ) isoDepositLabels_.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadron")));
+    if ( depconf.exists("pfNeutralHadron") ) isoDepositLabels_.push_back(std::make_pair(pat::PfNeutralHadronIso,depconf.getParameter<edm::InputTag>("pfNeutralHadron")));
+    if ( depconf.exists("pfGamma")         ) isoDepositLabels_.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfGamma")));
     
     if ( depconf.exists("user") ) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
@@ -366,7 +366,7 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
-  iDesc.add("isolation", isolationPSet);
+  iDesc.add("userIsolation", isolationPSet);
 
 }
 

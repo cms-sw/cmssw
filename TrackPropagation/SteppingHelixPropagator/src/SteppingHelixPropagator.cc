@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2009/09/08 19:20:25 $
- *  $Revision: 1.63.2.3 $
+ *  $Date: 2009/09/08 20:44:32 $
+ *  $Revision: 1.66 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.63.2.3 2009/09/08 19:20:25 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.66 2009/09/08 20:44:32 slava77 Exp $
 //
 //
 
@@ -1079,10 +1079,10 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	double an1 = hn2*t23 - hn3*t22;
 	double an2 = hn3*t21 - hn1*t23;
 	double an3 = hn1*t22 - hn2*t21;
-	double au = 1./sqrt(t11*t11 + t12*t12);
+	double auInv = sqrt(t11*t11 + t12*t12); double au = auInv>0 ? 1./auInv : 1e24;
 	double u11 = -au*t12; double u12 = au*t11;
 	double v11 = -t13*u12; double v12 = t13*u11; double v13 = t11*u12 - t12*u11;
-	au = 1./sqrt(t21*t21 + t22*t22);
+	auInv = sqrt(t21*t21 + t22*t22); au = auInv>0 ? 1./auInv : 1e24;
 	double u21 = -au*t22; double u22 = au*t21;
 	double v21 = -t23*u22; double v22 = t23*u21; double v23 = t21*u22 - t22*u21;
 	// now prepare the transport matrix
@@ -1654,7 +1654,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	result = SteppingHelixStateInfo::INACC;
 	break;
       }
-      tanDist = dist/sv.p3.perp()*sv.p3.mag();      
+      tanDist = dist/(sv.p3.perp()+1e-8)*sv.p3.mag();      
       result = SteppingHelixStateInfo::OK;
     }
     break;
@@ -1688,7 +1688,13 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	break;
       }
       double b0 = sv.bf.mag();
-      if (fabs(tN)>1e-24) tanDist = -dRDotN/tN;
+      if (fabs(tN)>1e-24){
+	tanDist = -dRDotN/tN;
+      } else {
+	tN = 1e-24;
+	if (fabs(dRDotN)>1e-24) tanDist = 1e6;
+	else tanDist = 1;
+      }
       if (fabs(tanDist) > 1e4) tanDist = 1e4;
       if (b0>1.5e-6){
 	double kVal = 2.99792458e-3*sv.q/p0*b0;

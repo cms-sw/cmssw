@@ -16,7 +16,9 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterBit_(filterBit)
 {
   bool doChargeSep = true;
-  bool monHLTFailedEle = true;
+  bool monHLTFailedEle = false;
+  bool doFakeRate=false;
+  bool doTagAndProbe=false;
 
   eleMonElems_.push_back(new MonElemContainer<OffEle>());
   if(doChargeSep){
@@ -43,8 +45,8 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   int effTagCutCode = masks.stdEle;
   int fakeRateProbeCut = masks.fakeEle;
   eleEffHists_.push_back(new MonElemContainer<OffEle>());
-  eleEffHists_.push_back(new MonElemContainer<OffEle>("_tagProbe"," Tag and Probe ",new EgTagProbeCut<OffEle>(effProbeCutCode,&OffEle::cutCode,effTagCutCode,&OffEle::cutCode)));
-  eleEffHists_.push_back(new MonElemContainer<OffEle>("_fakeRate"," Fake Rate ",new EgJetTagProbeCut<OffEle>(fakeRateProbeCut,&OffEle::looseCutCode)));
+  if(doTagAndProbe) eleEffHists_.push_back(new MonElemContainer<OffEle>("_tagProbe"," Tag and Probe ",new EgTagProbeCut<OffEle>(effProbeCutCode,&OffEle::cutCode,effTagCutCode,&OffEle::cutCode)));
+  if(doFakeRate) eleEffHists_.push_back(new MonElemContainer<OffEle>("_fakeRate"," Fake Rate ",new EgJetTagProbeCut<OffEle>(fakeRateProbeCut,&OffEle::looseCutCode)));
   for(size_t i=0;i<eleEffHists_.size();i++){ 
     MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
 				  filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);

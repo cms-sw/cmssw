@@ -89,7 +89,8 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 		throw cms::Exception("ReentrancyProblem")
 			<< "Herwig6Instance::timeout() called recursively."
 			<< std::endl;
-	struct sigaction saOld = { 0, };
+	struct sigaction saOld;
+	std::memset(&saOld, 0, sizeof saOld);
 
 	struct itimerval itv;
 	timerclear(&itv.it_value);
@@ -121,7 +122,8 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 	itv.it_interval.tv_sec = secs;
 	setitimer(ITIMER_VIRTUAL, &itv, NULL);
 
-	struct sigaction sa = { 0, };
+	struct sigaction sa;
+	std::memset(&sa, 0, sizeof sa);
 	sa.sa_handler = &Herwig6Instance::_timeout_sighandler;
 	sa.sa_flags = SA_ONESHOT;
 	sigemptyset(&sa.sa_mask);

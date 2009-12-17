@@ -76,9 +76,7 @@ namespace pos{
 
     //Generate the DAC settings
     void generateConfiguration(PixelFECConfigInterface* pixelFEC,
-	                       PixelNameTranslation* trans, bool HVon=true) const;
-    void setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const;
-    void setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const;
+	                       PixelNameTranslation* trans) const;
 
     void writeBinary(std::string filename) const;
 

@@ -88,8 +88,11 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
 		    break;
 		  case PixelSubdetector::PixelEndcap:
 		    name = "Pixel Endcap ";
+                  default:
+                    break;
 		  }
 		break;
+
 	      case DetId::Muon:
 		switch (detid.subdetId())
 		  {
@@ -103,16 +106,21 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
 		  case MuonSubdetId::RPC:
 		    name = "RPC";
 		    break;
+                  default:
+                    break;
 		  }
 		break;
+
+              default:
+                break;
 	      }
 	    if ( ! ids.insert(detid.rawId()).second ) continue;
             if (iItem->getGeom()) {
                TEveGeoShape* shape = iItem->getGeom()->getShape( detid );
                if(0!=shape) {
                   shape->SetMainTransparency(65);
-                  shape->SetMainColor(iItem->defaultDisplayProperties().color());
                   shape->SetPickable(kTRUE);
+                  shape->SetMainColor(iItem->defaultDisplayProperties().color());
                   shape->SetTitle(name + ULong_t(detid.rawId()));
                   trkList->AddElement(shape);
                } else {

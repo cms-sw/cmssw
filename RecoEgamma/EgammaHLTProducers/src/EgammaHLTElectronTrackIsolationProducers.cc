@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  * 
- * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.4 2008/10/10 14:05:21 covarell Exp $
+ * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.6 2009/10/14 14:32:24 covarell Exp $
  *
  */
 

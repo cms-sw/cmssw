@@ -4,7 +4,7 @@ HiMixRAW = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_hiSignal_*_*',
         'keep *_hiSignalG4SimHits_*_*',
-	'keep *_hiGenParticles_*_*'
+        'keep *_hiGenParticles_*_*'
     )
 )
 

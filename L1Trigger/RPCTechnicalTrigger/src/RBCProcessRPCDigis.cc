@@ -1,4 +1,4 @@
-// $Id: RBCProcessRPCDigis.cc,v 1.2 2009/07/01 22:52:06 aosorio Exp $
+// $Id: RBCProcessRPCDigis.cc,v 1.1 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 
@@ -17,22 +17,15 @@
 // Standard constructor, initializes variables
 //=============================================================================
 RBCProcessRPCDigis::RBCProcessRPCDigis(  const edm::ESHandle<RPCGeometry> & rpcGeom, 
-                                         const edm::Handle<RPCDigiCollection> & digiColl ) 
+                                                 const edm::Handle<RPCDigiCollection> & digiColl ) 
 {
   
   m_ptr_rpcGeom  = & rpcGeom;
   m_ptr_digiColl = & digiColl;
-  
+
   m_lbin = dynamic_cast<RPCInputSignal*>( new RBCLinkBoardGLSignal( &m_data ) );
   
   m_debug = false;
-  
-  configure();
-  
-}
-
-void RBCProcessRPCDigis::configure() 
-{
   
   m_wheelid.push_back(-2); //-2
   m_wheelid.push_back(-1); //-1
@@ -75,9 +68,9 @@ void RBCProcessRPCDigis::configure()
   
   m_layermap[311]     = 11; //RB3Bk
   m_layermap[411]     = 12; //RB4Bk
-  
+    
   m_maxBxWindow = 3;
-  
+
 }
 
 //=============================================================================
@@ -102,7 +95,7 @@ int RBCProcessRPCDigis::next() {
   //...clean up previous data contents
   
   reset();
-  
+
   int ndigis(0);
   
   for (m_detUnitItr = (*m_ptr_digiColl)->begin(); 

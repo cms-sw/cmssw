@@ -22,8 +22,6 @@
 <use name=DataFormats/VertexReco>
 <use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/VertexPrimitives>
-<use name=RecoHIMuon/HiMuSeed>
-<use name=RecoHIMuon/HiMuPropagator>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=rootrflx>
 <use name=clhep>

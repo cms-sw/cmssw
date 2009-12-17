@@ -4,8 +4,12 @@
 
 TtSemiLepHypGeom::TtSemiLepHypGeom(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),  
-  maxNJets_ (cfg.getParameter<int> ("maxNJets" )),
-  useDeltaR_(cfg.getParameter<bool>("useDeltaR"))
+  maxNJets_         (cfg.getParameter<int>        ("maxNJets"         )),
+  useDeltaR_        (cfg.getParameter<bool>       ("useDeltaR"        )),
+  useBTagging_      (cfg.getParameter<bool>       ("useBTagging"      )),
+  bTagAlgorithm_    (cfg.getParameter<std::string>("bTagAlgorithm"    )),
+  minBDiscBJets_    (cfg.getParameter<double>     ("minBDiscBJets"    )),
+  maxBDiscLightJets_(cfg.getParameter<double>     ("maxBDiscLightJets"))
 {
   if(maxNJets_<4 && maxNJets_!=-1)
     throw cms::Exception("WrongConfig") 
@@ -30,6 +34,15 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   unsigned maxNJets = maxNJets_;
   if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
 
+  std::vector<bool> isBJet;
+  std::vector<bool> isLJet;
+  if(useBTagging_) {
+    for(unsigned int idx=0; idx<maxNJets; ++idx) {
+      isBJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    ) );
+      isLJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) < maxBDiscLightJets_) );
+    }
+  }
+
   match.clear();
   for(unsigned int i=0; i<5; ++i)
     match.push_back(-1);
@@ -42,7 +55,9 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   int lightQ   =-1;
   int lightQBar=-1;
   for(unsigned int idx=0; idx<maxNJets; ++idx){
+    if(useBTagging_ && !isLJet[idx]) continue;
     for(unsigned int jdx=(idx+1); jdx<maxNJets; ++jdx){
+      if(useBTagging_ && !isLJet[idx]) continue;
       double dist = distance((*jets)[idx].p4(), (*jets)[jdx].p4());
       if( minDist<0. || dist<minDist ){
 	minDist=dist;
@@ -52,7 +67,9 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
     }
   }
 
-  reco::Particle::LorentzVector wHad = (*jets)[lightQ].p4() + (*jets)[lightQBar].p4();
+  reco::Particle::LorentzVector wHad;
+  if( isValid(lightQ, jets) && isValid(lightQBar, jets) )
+    wHad = (*jets)[lightQ].p4() + (*jets)[lightQBar].p4();
 
   // -----------------------------------------------------
   // associate to the hadronic b quark the remaining jet
@@ -60,13 +77,16 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   minDist=-1.;
   int hadB=-1;
-  for(unsigned int idx=0; idx<maxNJets; ++idx){
-    // make sure it's not used up already from the hadronic W
-    if( (int)idx!=lightQ && (int)idx!=lightQBar ) {
-      double dist = distance((*jets)[idx].p4(), wHad);
-      if( minDist<0. || dist<minDist ){
-	minDist=dist;
-	hadB=idx;
+  if( isValid(lightQ, jets) && isValid(lightQBar, jets) ) {
+    for(unsigned int idx=0; idx<maxNJets; ++idx){
+      if(useBTagging_ && !isBJet[idx]) continue;
+      // make sure it's not used up already from the hadronic W
+      if( (int)idx!=lightQ && (int)idx!=lightQBar ) {
+	double dist = distance((*jets)[idx].p4(), wHad);
+	if( minDist<0. || dist<minDist ){
+	  minDist=dist;
+	  hadB=idx;
+	}
       }
     }
   }
@@ -78,6 +98,7 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   minDist=-1.;
   int lepB=-1;
   for(unsigned int idx=0; idx<maxNJets; ++idx){
+    if(useBTagging_ && !isBJet[idx]) continue;
     // make sure it's not used up already from the hadronic decay chain
     if( (int)idx!=lightQ && (int)idx!=lightQBar && (int)idx!=hadB ){
       double dist = distance((*jets)[idx].p4(), (*leps)[0].p4());
@@ -92,22 +113,22 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   if( isValid(lightQ, jets) ){
-    setCandidate(jets, lightQ, lightQ_);
+    setCandidate(jets, lightQ, lightQ_, jetCorrectionLevel("wQuarkMix"));
     match[TtSemiLepEvtPartons::LightQ] = lightQ;
   }
 
   if( isValid(lightQBar, jets) ){
-    setCandidate(jets, lightQBar, lightQBar_);
+    setCandidate(jets, lightQBar, lightQBar_, jetCorrectionLevel("wQuarkMix"));
     match[TtSemiLepEvtPartons::LightQBar] = lightQBar;
   }
 
   if( isValid(hadB, jets) ){
-    setCandidate(jets, hadB, hadronicB_);
+    setCandidate(jets, hadB, hadronicB_, jetCorrectionLevel("bQuark"));
     match[TtSemiLepEvtPartons::HadB] = hadB;
   }
   
   if( isValid(lepB, jets) ){
-    setCandidate(jets, lepB, leptonicB_);
+    setCandidate(jets, lepB, leptonicB_, jetCorrectionLevel("bQuark"));
     match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 

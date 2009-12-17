@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.8 2009/04/07 14:05:46 chrjones Exp $
+// $Id: FW3DViewManager.h,v 1.9 2009/05/13 20:26:05 amraktad Exp $
 
 // system include files
 #include <string>
@@ -22,7 +22,6 @@ class FWGUIManager;
 class FW3DView;
 class FWViewBase;
 class TEveElementList;
-class TEveSelection;
 class FWSelectionManager;
 class TEveCaloDataHist;
 class TEveCalo3D;
@@ -44,11 +43,6 @@ public:
    virtual void newItem(const FWEventItem*);
 
    FWViewBase* buildView(TEveWindowSlot* iParent);
-
-   //connect to ROOT signals
-   void selectionAdded(TEveElement*);
-   void selectionRemoved(TEveElement*);
-   void selectionCleared();
 
 protected:
    virtual void modelChangesComing();
@@ -73,7 +67,6 @@ private:
    TEveCaloDataHist* m_caloData;
    TEveCalo3D* m_calo3d;
 
-   TEveSelection* m_eveSelection;
    FWSelectionManager* m_selectionManager;
 };
 

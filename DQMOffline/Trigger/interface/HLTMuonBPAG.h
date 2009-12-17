@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/05/22 09:07:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/08/25 10:03:26 $
+ *  $Revision: 1.1 $
  *  
  *  \author  J. Slaunwhite (modified from above
  */
@@ -96,14 +96,17 @@ private:
   std::map <TString, MonitorElement*> diMuonMassVsEta;
   std::map <TString, MonitorElement*> diMuonMassVsPhi;
   std::map <TString, MonitorElement*> diMuonMass;
-  
+  std::map <TString, MonitorElement*> probeMuonPt;
+
+  std::vector<double> theMassParameters;
   
   //void sortJets (reco::CaloJetCollection & theJets);
 
   MuonSelectionStruct tagSelection;
   std::vector<MatchStruct> tagRecMatches;
   std::vector< std::vector<HltFakeStruct> >  tagHltFakeCands;
-  
 
+  MonitorElement* book2DVarBins (TString name, TString title, int nBinsX, double * xBinLowEdges, int nBinsY, double yMin, double yMax);
+  
 };
 #endif

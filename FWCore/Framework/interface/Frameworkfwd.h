@@ -36,7 +36,7 @@ namespace edm {
   class ParameterSet;
   class Principal;
   class PrincipalCache;
-  class PrincipalGetAdaptor;
+  class PrincipalGetAdapter;
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Run;

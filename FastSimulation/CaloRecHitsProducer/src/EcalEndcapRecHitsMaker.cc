@@ -40,8 +40,10 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
   noiseADC_ = RecHitsParameters.getParameter<double>("NoiseADC");
+  highNoiseParameters_ = RecHitsParameters.getParameter<std::vector<double> > ("HighNoiseParameters");
 
   theCalorimeterHits_.resize(EEDetId::kSizeForDenseIndexing,0.);
+  applyZSCells_.resize(EEDetId::kSizeForDenseIndexing,true);
   towerOf_.resize(EEDetId::kSizeForDenseIndexing);
   theTTDetIds_.resize(1440);
   SCofTT_.resize(1440);
@@ -51,7 +53,7 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   TTTEnergy_.resize(1440,0.);
   CrystalsinSC_.resize(633);
   sinTheta_.resize(EEDetId::kEEhalf,0.);
-
+  doCustomHighNoise_=false;
   
   noisified_ = (noise_==0.);
   edm::ParameterSet CalibParameters=RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
@@ -71,6 +73,7 @@ void EcalEndcapRecHitsMaker::clean()
   for(unsigned ic=0;ic<size;++ic)
     {
       theCalorimeterHits_[theFiredCells_[ic]] = 0.;
+      applyZSCells_[theFiredCells_[ic]] = false;
     }
   theFiredCells_.clear();
   // If the noise is set to 0. No need to simulate it. 
@@ -134,7 +137,7 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
       float energy=theCalorimeterHits_[icell];
       
       // the threshold is in amplitude, so the intercalibration constant should be injected 
-      if ( energy<threshold_*((*ICMC_)[icell]) && !isHighInterest(myDetId)) 
+      if ( energy<threshold_*((*ICMC_)[icell]) && !isHighInterest(myDetId) && applyZSCells_[icell]) 
 	{
 	  theCalorimeterHits_[icell]=0.;
 	  //	  int TThashedindex=towerOf_[icell];
@@ -279,13 +282,13 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
   // for debugging
   //  std::vector<int> listofNewTowers;
   
-  if(noise_==-1.)
+  if(noise_==-1. && !doCustomHighNoise_)
     ncells=EEDetId::kSizeForDenseIndexing;
 
   unsigned icell=0;
   while(icell < ncells)
     {
-      unsigned cellindex= (noise_!=-1.) ? 
+      unsigned cellindex= (noise_!=-1. || doCustomHighNoise_) ? 
 	(unsigned)(floor(random_->flatShoot()*EEDetId::kSizeForDenseIndexing)): icell ;
       
       if(theCalorimeterHits_[cellindex]==0.)
@@ -299,7 +302,12 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
 	      // in this case the generated noise might be below the threshold but it 
 	      // does not matter, the threshold will be applied anyway
 	      //	      energy/=sinTheta_[(cellindex<EEDetId::kEEhalf)?cellindex : cellindex-EEDetId::kEEhalf];	 
-	      energy=random_->gaussShoot(0.,noisesigma_[cellindex]); 
+	      float noisemean  = (doCustomHighNoise_)? highNoiseParameters_[0]*(*ICMC_)[cellindex]*adcToGeV_: 0.;
+	      float noisesigma = (doCustomHighNoise_)? highNoiseParameters_[1]*(*ICMC_)[cellindex]*adcToGeV_ : noisesigma_[cellindex]; 
+	      energy=random_->gaussShoot(noisemean,noisesigma); 
+
+	      // in the case of high noise fluctuation, the ZS should not be applied later 
+	      if(doCustomHighNoise_) applyZSCells_[cellindex]=false;
 	    }
 	  float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[cellindex]:calibfactor_;
 	  energy *= calib;
@@ -491,11 +499,20 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   // or the user chose to use the noise from DB. In this case, the noise is flat in pT and not in energy
   // but the threshold is in energy and not in pT. 
 
+  doCustomHighNoise_=highNoiseParameters_.size()==4;
   Genfun::Erf myErf; 
   if(  noise_>0. ) {
     EEHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
     myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+    edm::LogInfo("CaloRecHitsProducer") <<"Uniform noise simulation selected";
   }
+  else  if( noise_==-1 && doCustomHighNoise_)
+    {
+      // computes the hot fraction from the threshold applied on the online amplitude reconstruction
+      // 
+      EEHotFraction_ = 0.5-0.5*myErf(highNoiseParameters_[3]/highNoiseParameters_[2]/sqrt(2.));
+      edm::LogInfo("CaloRecHitsProducer")<< " The gaussian model for high noise fluctuation cells after ZS is selected (best model), hot fraction " << EEHotFraction_  << std::endl;
+    }
 }
 
 

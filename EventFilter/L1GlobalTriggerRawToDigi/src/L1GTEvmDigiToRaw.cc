@@ -91,7 +91,7 @@ L1GTEvmDigiToRaw::~L1GTEvmDigiToRaw()
 // member functions
 
 // beginning of job stuff
-void L1GTEvmDigiToRaw::beginJob(const edm::EventSetup& evSetup)
+void L1GTEvmDigiToRaw::beginJob()
 {
 
     // empty now

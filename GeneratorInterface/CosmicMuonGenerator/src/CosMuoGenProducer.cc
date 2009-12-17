@@ -24,7 +24,6 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   ELSF(pset.getParameter<double>("ElossScaleFactor")),
   RTarget(pset.getParameter<double>("RadiusOfTarget")),
   ZTarget(pset.getParameter<double>("ZDistOfTarget")),
-  ZCTarget(pset.getParameter<double>("ZCentrOfTarget")),
   TrackerOnly(pset.getParameter<bool>("TrackerOnly")),
   TIFOnly_constant(pset.getParameter<bool>("TIFOnly_constant")),
   TIFOnly_linear(pset.getParameter<bool>("TIFOnly_linear")),
@@ -33,8 +32,6 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   PlugVtz(pset.getParameter<double>("PlugVz")),
   MinEn(pset.getParameter<double>("MinEnu")),
   MaxEn(pset.getParameter<double>("MaxEnu")),
-  NuPrdAlt(pset.getParameter<double>("NuProdAlt")),
-  AllMu(pset.getParameter<bool>("AcptAllMu")),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
   cmVerbosity_(pset.getParameter<bool>("Verbosity"))
@@ -68,7 +65,6 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setElossScaleFactor(ELSF);
     CosMuoGen->setRadiusOfTarget(RTarget);
     CosMuoGen->setZDistOfTarget(ZTarget);
-    CosMuoGen->setZCentrOfTarget(ZCTarget);
     CosMuoGen->setTrackerOnly(TrackerOnly);
     CosMuoGen->setTIFOnly_constant(TIFOnly_constant);
     CosMuoGen->setTIFOnly_linear(TIFOnly_linear);
@@ -77,8 +73,6 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setPlugVz(PlugVtz);    
     CosMuoGen->setMinEnu(MinEn);
     CosMuoGen->setMaxEnu(MaxEn);    
-    CosMuoGen->setNuProdAlt(NuPrdAlt);
-    CosMuoGen->setAcptAllMu(AllMu);
     CosMuoGen->initialize(&rng->getEngine());
     produces<HepMCProduct>();
     produces<GenEventInfoProduct>();
@@ -120,16 +114,10 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 								  CosMuoGen->OneMuoEvt.vy(),
 								  CosMuoGen->OneMuoEvt.vz(),
 								  CosMuoGen->OneMuoEvt.t0()));
-  HepMC::FourVector p_in(CosMuoGen->OneMuoEvt.px_in(),CosMuoGen->OneMuoEvt.py_in(),CosMuoGen->OneMuoEvt.pz_in(),CosMuoGen->OneMuoEvt.e_in());
-  HepMC::GenParticle* Part_in = 
-    new HepMC::GenParticle(p_in,CosMuoGen->OneMuoEvt.id_in(),3);//Comment mother particle
-  Vtx->add_particle_in(Part_in); 
-
   HepMC::FourVector p(CosMuoGen->OneMuoEvt.px(),CosMuoGen->OneMuoEvt.py(),CosMuoGen->OneMuoEvt.pz(),CosMuoGen->OneMuoEvt.e());
   HepMC::GenParticle* Part = 
-    new HepMC::GenParticle(p,CosMuoGen->OneMuoEvt.id(),1); //Final state daughter particle
+    new HepMC::GenParticle(p,CosMuoGen->OneMuoEvt.id(),1);
   Vtx->add_particle_out(Part); 
-
   fEvt->add_vertex(Vtx);
   fEvt->set_event_number(e.id().event());
   fEvt->set_signal_process_id(13);

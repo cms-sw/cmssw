@@ -23,11 +23,10 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMVADisc_cff import *
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypKinFit_cff import *
 
 ## make all considered event hypotheses
-makeTtSemiLepHypotheses  = cms.Sequence(makeHypothesis_geom *
-                                        makeHypothesis_wMassMaxSumPt *
-                                        makeHypothesis_maxSumPtWMass *
-                                        makeHypothesis_genMatch      *
-                                        makeHypothesis_mvaDisc       *
-                                        makeHypothesis_kinFit
-                                        )
+makeTtSemiLepHypotheses  = cms.Sequence(makeHypothesis_genMatch)  # makeHypothesis_geom
+                                                                  # makeHypothesis_wMassMaxSumPt
+                                                                  # makeHypothesis_maxSumPtWMass
+                                                                  # makeHypothesis_mvaDisc
+                                                                  # makeHypothesis_kinFit
+                                        
 

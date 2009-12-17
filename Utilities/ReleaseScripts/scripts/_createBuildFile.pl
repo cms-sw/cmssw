@@ -50,6 +50,7 @@ if(defined $xml){$xml="--xml";}
 else{$xml="";}
 if(defined $detail){$detail=1;}
 else{$detail=0;}
+if (! defined $jobs){$jobs=10;}
 $SCRAMGenUtils::DEBUG=$detail;
 
 if((!defined $prodname) || ($prodname=~/^\s*$/)){$prodname="";}
@@ -348,7 +349,7 @@ foreach my $file (@files)
 if (scalar(@$srcfiles)>0)
 {
   unlink "${cachedir}/searchPreprocessedInfo";
-  my $pid=fork();
+  my $pid=&SCRAMGenUtils::forkProcess($jobs);
   if($pid==0)
   {
     &SCRAMGenUtils::searchPreprocessedFile($srcfiles,$data,$exflags);
@@ -360,8 +361,8 @@ foreach my $file (@files){&process_cxx_file ($file,$data);}
 if(!$detail){print STDERR "\n";}
 my $bindeps=&getBinaryDependency($prodname,$fullpath);
 my $tid=&SCRAMGenUtils::startTimer ();
-wait();
-print STDERR "WAIT TIME:",&SCRAMGenUtils::stopTimer($tid),"\n";
+&SCRAMGenUtils::waitForChild();
+if($detail){print STDERR "WAIT TIME:",&SCRAMGenUtils::stopTimer($tid),"\n";}
 if ((scalar(@$srcfiles)>0) && (-f "${cachedir}/searchPreprocessedInfo"))
 {
   $data->{PROD_TYPE_SEARCH_RULES}=&SCRAMGenUtils::readHashCache("${cachedir}/searchPreprocessedInfo");

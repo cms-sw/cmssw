@@ -6,6 +6,7 @@
 
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
+class PropagatorWithMaterial;
 
 namespace edm { 
   class ParameterSet;
@@ -42,6 +43,9 @@ class TrackCandidateProducer : public edm::EDProducer
  private:
 
   const TrackerGeometry*  theGeometry;
+  const MagneticField*  theMagField;
+  PropagatorWithMaterial* thePropagator;
+
 
   edm::InputTag seedProducer;
   edm::InputTag hitProducer;

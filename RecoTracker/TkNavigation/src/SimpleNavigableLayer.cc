@@ -6,6 +6,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include <set>
+#include <TrackingTools/TrackAssociator/interface/DetIdInfo.h>
 
 using namespace std;
 
@@ -246,43 +247,70 @@ void SimpleNavigableLayer::pushResult( DLC& result, const FDLC& tmp) const
 std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const FreeTrajectoryState &fts, 
 									PropagationDirection timeDirection,
 									int& counter) const {
-  counter ++;
-  std::vector<const DetLayer*> empty;
-  if(counter>150 || counter == -1) {
-    edm::LogWarning("SimpleNavigableLayer") << "WARNING: compatibleLayers() called recursively more than 150 times!!! Bailing out..";
+  typedef std::vector<const DetLayer*> Lvect;
+  typedef std::set<const DetLayer *> Lset;  
+
+  Lvect empty,result;
+  result.reserve(15); //that's a max
+  Lset collect; //a container of unique instances. to avoid duplicates
+  
+  Lset layerToTry,nextLayerToTry;//set used for iterations
+  //initiate the first iteration
+  Lvect someLayers(nextLayers(fts,timeDirection));
+  layerToTry.insert(someLayers.begin(),someLayers.end());
+  
+  while (!layerToTry.empty() && (counter++)<=150){
+    LogDebug("SimpleNavigableLayer")
+      <<counter<<"] going to check on : "<<layerToTry.size()<<" next layers.";
+    //clear this set first, it will be swaped with layerToTry
+    nextLayerToTry.clear();
+    for (Lset::iterator toTry=layerToTry.begin();toTry!=layerToTry.end();++toTry){
+      //add the layer you tried.
+      LogDebug("SimpleNavigableLayer")
+	<<counter<<"] adding layer with pointer: "<<(*toTry)
+	<<" first detid: "<<DetIdInfo::info((*toTry)->basicComponents().front()->geographicalId());
+      collect.insert( (*toTry) );
+      
+      //find the next layers from it
+      Lvect nextLayers( (*toTry)->nextLayers(fts,timeDirection) );
+      LogDebug("SimpleNavigableLayer")
+	<<counter<<"] this layer has : "<<nextLayers.size()<<" next layers.";
+      for (Lvect::iterator next=nextLayers.begin();next!=nextLayers.end();++next){
+	//if the next layer is not already in the collected layers, add it for next round.
+	bool alreadyTested=false;
+	for (Lset::iterator testMe=collect.begin();testMe!=collect.end();++testMe){ //find method does not work well!
+	  if ((*testMe) == (*next))
+	    {alreadyTested=true;break;}
+	}
+	//	if ( collect.find(*next)!=collect.end()){ //find method does not work it seems...
+	if (!alreadyTested){
+	  nextLayerToTry.insert( *next );
+	  LogDebug("SimpleNavigableLayer")
+	    <<counter<<"] to try next, layer with pointer: "<<(*next)
+	    <<" first detid: "<<DetIdInfo::info((*next)->basicComponents().front()->geographicalId());
+	}
+	else{
+	  LogDebug("SimpleNavigableLayer")
+	    <<counter<<"] skipping for next tryout, layer with pointer: "<<(*next)
+	    <<" first detid: "<<DetIdInfo::info((*next)->basicComponents().front()->geographicalId());
+	  //for (Lset::iterator testMe=collect.begin();testMe!=collect.end();++testMe){  LogTrace("SimpleNavigableLayer") <<"pointer collected:" <<(*testMe); }
+	}
+      }
+      LogDebug("SimpleNavigableLayer")
+	<<counter<<"] "<<nextLayerToTry.size()<<" layers to try next so far.";
+    }
+    //swap now that you where to go next.
+    layerToTry.swap(nextLayerToTry);
+  }
+  if(counter>=150) {
+    edm::LogWarning("SimpleNavigableLayer") << "WARNING: compatibleLayers() more than 150 iterations!!! Bailing out..";
     counter = -1;return empty;
   }
-  std::vector< const DetLayer * > result;
-  result.reserve(15); //that's a max
-  set<const DetLayer *> collect; //a container of unique instances. to avoid duplicates
-  
-  std::vector<const DetLayer *> someLayers = nextLayers(fts,timeDirection);
-  //recursive implementation
-  for (uint iL=0;iL!=someLayers.size();++iL){
-    //for each of the nextLayers. collect
-    collect.insert(someLayers[iL]);//yes you can add yourself
-    
-    //then collect their compatible layers too
-    if (someLayers[iL] == detLayer()){
-      TrajectoryStateOnSurface otherSide = crossingState(fts,timeDirection);
-      if (!otherSide.isValid()) continue;
-      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(*otherSide.freeTrajectoryState(),
-											  timeDirection,
-											  counter));
-      if(counter == -1){return empty;} 
-      collect.insert(someCompatibleLayers.begin(),someCompatibleLayers.end());      
-    }
-    else
-    {
-      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(fts,
-											  timeDirection,
-											  counter));
-      if(counter == -1){return empty;} 
-      collect.insert(someCompatibleLayers.begin(),someCompatibleLayers.end());
-    }  
-  }//looping the layers next to this one
-  
-  result.insert(result.begin(),collect.begin(),collect.end()); //cannot do a swap it seems
-  LogDebug("SimpleNavigableLayer")<<"Number of compatible layers: "<<result.size();
+
+  result.insert(result.end(),collect.begin(),collect.end()); //cannot do a swap it seems
+  LogDebug("SimpleNavigableLayer")
+      <<"Number of compatible layers: "<<result.size();
   return result;
+
+
 }

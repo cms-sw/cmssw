@@ -56,13 +56,8 @@ PFCandidateAnalyzer::analyze(const Event& iEvent,
   // get PFCandidates
 
   Handle<PFCandidateCollection> pfCandidates;
-  fetchCandidateCollection(pfCandidates, 
-			   inputTagPFCandidates_, 
-			   iEvent );
+  iEvent.getByLabel(inputTagPFCandidates_, pfCandidates);
 
-  // get PFCandidates for isolation
-  
-  
   
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
     
@@ -79,34 +74,32 @@ PFCandidateAnalyzer::analyze(const Event& iEvent,
 }
 
 
-  
-void 
-PFCandidateAnalyzer::fetchCandidateCollection(Handle<reco::PFCandidateCollection>& c, 
-				      const InputTag& tag, 
-				      const Event& iEvent) const {
-  
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found ) {
-    ostringstream  err;
-    err<<" cannot get PFCandidates: "
-       <<tag<<endl;
-    LogError("PFCandidates")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
-  }
-  
-}
 
 
 void PFCandidateAnalyzer::printElementsInBlocks(const PFCandidate& cand,
 						ostream& out) const {
   if(!out) return;
 
+  PFBlockRef firstRef;
+
+  assert(!cand.elementsInBlocks().empty() );
   for(unsigned i=0; i<cand.elementsInBlocks().size(); i++) {
     PFBlockRef blockRef = cand.elementsInBlocks()[i].first;
-    if(blockRef.isNull()) continue;
-    else 
+
+    if(blockRef.isNull()) {
+      cerr<<"ERROR! no block ref!";
+      continue;
+    }
+
+    if(!i) {
       out<<(*blockRef);
+      firstRef = blockRef;
+    }
+    else if( blockRef!=firstRef) {
+      cerr<<"WARNING! This PFCandidate is not made from a single block"<<endl;
+    }
+ 
+    out<<"\t"<<cand.elementsInBlocks()[i].second<<endl;
   }
 }
 

@@ -19,11 +19,9 @@ namespace egHLT{
       IsolTrks=8,
       HBHERecHits=9,
       HFRecHits=10,
-      PhoID=11,
-      EleEcalIsol=12,
-      EleHcalD1Isol=13,
-      EleHcalD2Isol=14,
-      EleTrkIsol=15
+      BeamSpot=11,
+      MagField=12,
+      CaloTowers=13
     };
     
   }

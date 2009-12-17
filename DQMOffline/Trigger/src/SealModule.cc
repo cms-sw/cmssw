@@ -1,4 +1,4 @@
-// $Id: SealModule.cc,v 1.19 2009/06/10 13:31:24 rekovic Exp $
+// $Id: SealModule.cc,v 1.20 2009/06/10 22:09:12 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -10,6 +10,7 @@
 #include "DQMOffline/Trigger/interface/HLTTauPostProcessor.h"
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineSource.h"
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineClient.h"
+#include "DQMOffline/Trigger/interface/DQMOfflineHLTEventInfoClient.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FourVectorHLTClient);
@@ -22,5 +23,6 @@ DEFINE_ANOTHER_FWK_MODULE(HLTTauDQMOfflineSource);
 DEFINE_ANOTHER_FWK_MODULE(HLTTauPostProcessor);
 DEFINE_ANOTHER_FWK_MODULE(JetMETHLTOfflineSource);
 DEFINE_ANOTHER_FWK_MODULE(JetMETHLTOfflineClient);
+DEFINE_ANOTHER_FWK_MODULE(DQMOfflineHLTEventInfoClient);
 
 

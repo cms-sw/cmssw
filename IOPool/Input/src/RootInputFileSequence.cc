@@ -48,7 +48,7 @@ namespace edm {
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
     startAtRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
-    startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
+    startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 0U)),
     startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
     currentRun_(0U),
     currentLumi_(0U),
@@ -65,7 +65,6 @@ namespace edm {
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
-    forcedRunOffset_(0),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
@@ -101,14 +100,6 @@ namespace edm {
         if(rootFile_) break;
       }
       if(rootFile_) {
-        forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
-        if(forcedRunOffset_ < 0) {
-          throw edm::Exception(errors::Configuration)
-            << "The value of the 'setRunNumber' parameter must not be\n"
-            << "less than the first run number in the first input file.\n"
-            << "'setRunNumber' was " << setRun_ <<", while the first run was "
-            << setRun_ - forcedRunOffset_ << ".\n";
-        }
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
 	if(primarySequence_) {
 	  if(skipEvents_ != 0) {
@@ -197,7 +188,7 @@ namespace edm {
 	  whichLumisToSkip_, whichEventsToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
-	  forcedRunOffset_,
+	  setRun_,
 	  whichLumisToProcess_, whichEventsToProcess_,
 	  noEventSort_,
 	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_,
@@ -205,15 +196,15 @@ namespace edm {
           fileIndexes_[currentFileIndex] = rootFile_->fileIndexSharedPtr();
       rootFile_->reportOpened(primary() ?
 	 (primarySequence_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
+      if (primarySequence_) {
+        BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+      }
     } else {
       if(!skipBadFiles) {
 	throw edm::Exception(edm::errors::FileOpenError) <<
 	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       LogWarning("") << "Input file: " << fileIter_->fileName() << " was not found or could not be opened, and will be skipped.\n";
-    }
-    if (primarySequence_) {
-      BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
   }
 
@@ -235,6 +226,7 @@ namespace edm {
     initFile(skipBadFiles_);
 
     if(primarySequence_ && rootFile_) {
+      size_t size = productRegistry()->size();
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -242,6 +234,9 @@ namespace edm {
 							    branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
+      }
+      if (productRegistry()->size() > size) {
+        cache.adjustIndexesAfterProductRegistryAddition();
       }
       cache.adjustEventToNewProductRegistry(productRegistry());
     }
@@ -261,6 +256,7 @@ namespace edm {
     initFile(false);
 
     if(primarySequence_ && rootFile_) {
+      size_t size = productRegistry()->size();
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -268,6 +264,9 @@ namespace edm {
 							    branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
+      }
+      if (productRegistry()->size() > size) {
+        cache.adjustIndexesAfterProductRegistryAddition();
       }
       cache.adjustEventToNewProductRegistry(productRegistry());
     }
@@ -392,14 +391,6 @@ namespace edm {
         if(rootFile_) break;
       }
       if(rootFile_) {
-        forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
-        if(forcedRunOffset_ < 0) {
-          throw edm::Exception(errors::Configuration)
-          << "The value of the 'setRunNumber' parameter must not be\n"
-          << "less than the first run number in the first input file.\n"
-          << "'setRunNumber' was " << setRun_ <<", while the first run was "
-          << setRun_ - forcedRunOffset_ << ".\n";
-        }
 	if(primarySequence_) {
 	  if(skipEvents_ != 0) {
 	    skipEvents(skipEvents_, cache);
@@ -415,8 +406,8 @@ namespace edm {
     assert (skipEvents_ == 0 || skipEvents_ == offset);
     skipEvents_ = offset;
     while(skipEvents_ != 0) {
-      skipEvents_ = rootFile_->skipEvents(skipEvents_);
-      if(skipEvents_ > 0 && !nextFile(cache)) {
+      bool atEnd = rootFile_->skipEvents(skipEvents_);
+      if((skipEvents_ > 0 || atEnd) && !nextFile(cache)) {
 	skipEvents_ = 0;
 	return false;
       }
@@ -425,7 +416,12 @@ namespace edm {
         return false;
       }
     }
-    rootFile_->skipEvents(0);
+    int dummy = 0;
+    bool atTheEnd = rootFile_->skipEvents(dummy);
+    if (atTheEnd && !nextFile(cache)) {
+      skipEvents_ = 0;
+      return false;
+    }
     setSkipInfo();
     return true;
   }
@@ -460,10 +456,10 @@ namespace edm {
   RootInputFileSequence::skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact, bool record) {
     // Note: 'exact' argumet is ignored unless the item is an event.
     // Attempt to find item in currently open input file.
-    bool found = rootFile_->setEntryAtItem(run, lumi, event, exact);
+    bool found = rootFile_ && rootFile_->setEntryAtItem(run, lumi, event, exact);
     if(!found) {
       // If only one input file, give up now, to save time.
-      if(fileIndexes_.size() == 1) {
+      if(rootFile_ && fileIndexes_.size() == 1) {
 	return false;
       }
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
@@ -659,4 +655,3 @@ namespace edm {
     }
   }
 }
-

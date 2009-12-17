@@ -7,8 +7,6 @@ const char * TrackCategories::Names[] =
 {
     "Fake",
     "Bad",
-    "BadInnerHits",
-    "SharedInnerHits",
     "SignalEvent",
     "Bottom",
     "Charm",
@@ -18,17 +16,15 @@ const char * TrackCategories::Names[] =
     "TauDecay",
     "KsDecay",
     "LambdaDecay",
-    "JpsiDecay",
-    "XiDecay",
-    "OmegaDecay",
-    "SigmaPlusDecay",
-    "SigmaMinusDecay",
+    "Jpsi",
     "LongLivedDecay",
     "Conversion",
     "Interaction",
     "PrimaryVertex",
     "SecondaryVertex",
     "TertiaryVertex",
+    "BadInnerHits",
+    "SharedInnerHits",
     "Unknown"
 };
 

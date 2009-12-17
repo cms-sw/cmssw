@@ -25,7 +25,7 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 # Event Source
 #-----------------------------
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.source = cms.Source("PoolSource",
   fileNames  = cms.untracked.vstring(
     '/store/data/CRAFT09/Cosmics/RAW/v1/000/112/389/F6BEA315-5994-DE11-87DE-003048D37514.root',

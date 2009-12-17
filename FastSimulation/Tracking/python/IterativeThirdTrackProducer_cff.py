@@ -5,7 +5,8 @@ iterativeThirdTracksWithPairs = RecoTracker.TrackProducer.CTFFinalFitWithMateria
 iterativeThirdTracks = cms.Sequence(iterativeThirdTracksWithPairs)
 iterativeThirdTracksWithPairs.src = 'iterativeThirdTrackCandidatesWithPairs'
 iterativeThirdTracksWithPairs.TTRHBuilder = 'WithoutRefit'
-iterativeThirdTracksWithPairs.Fitter = 'KFFittingSmootherWithOutlierRejection'
+##iterativeThirdTracksWithPairs.Fitter = 'KFFittingSmootherWithOutlierRejection'
+iterativeThirdTracksWithPairs.Fitter = 'KFFittingSmootherThird'
 iterativeThirdTracksWithPairs.Propagator = 'PropagatorWithMaterial'
 
 

@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2009/09/21 00:51:39 $
- *  $Revision: 1.32.2.1 $
+ *  $Date: 2008/11/06 01:47:00 $
+ *  $Revision: 1.31 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -200,14 +200,14 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
-  if ( theUpdateStateFlag && newCacheId_MT != theCacheId_MT ) {
+  if ( newCacheId_MT != theCacheId_MT ) {
     LogTrace(theCategory) << "Measurment Tracker Geometry changed!";
     theCacheId_MT = newCacheId_MT;
     theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTracker);
     measTrackerChanged = true;
   }
 
-  if ( theUpdateStateFlag ) theMeasTracker->update(iEvent);
+  theMeasTracker->update(iEvent);
 
   if ( measTrackerChanged && (&*theMeasTracker) ) {
      if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;

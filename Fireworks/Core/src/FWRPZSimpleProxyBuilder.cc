@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 12:39:36 EST 2008
-// $Id: FWRPZSimpleProxyBuilder.cc,v 1.4 2008/12/02 21:17:46 chrjones Exp $
+// $Id: FWRPZSimpleProxyBuilder.cc,v 1.5 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -120,7 +120,7 @@ FWRPZSimpleProxyBuilder::build()
       if(largestIndex < size) {
          ids().resize(size);
       }
-      std::vector<FWModelId>::iterator itId = ids().begin();
+      std::vector<FWModelIdFromEveSelector>::iterator itId = ids().begin();
       for(int index = 0; index < static_cast<int>(size); ++index,++itId) {
          if(index>=static_cast<int>(largestIndex)) {
             *itId=FWModelId(item(),index);

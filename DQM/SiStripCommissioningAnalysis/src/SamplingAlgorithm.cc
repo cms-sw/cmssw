@@ -15,7 +15,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-SamplingAlgorithm::SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAnalysis* const anal, uint32_t latencyCode ) 
+SamplingAlgorithm::SamplingAlgorithm( SamplingAnalysis* const anal, uint32_t latencyCode ) 
   : CommissioningAlgorithm(anal),
     histo_(0,""),
     deconv_fitter_(0),
@@ -30,7 +30,7 @@ SamplingAlgorithm::SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAn
    peak_fitterA_->SetParLimits(1,0,4800);
    peak_fitterA_->SetParLimits(2,0,20);
    peak_fitterA_->FixParameter(3,50);
-   peak_fitterA_->SetParLimits(4,0,75);
+   peak_fitterA_->SetParLimits(4,0,100);
    peak_fitterA_->SetParameters(0.,1250,10,50,10);
 
    peak_fitterB_ = new TF1("peak_fitterB",fpeak_convoluted,-100,100,5);
@@ -39,7 +39,7 @@ SamplingAlgorithm::SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAn
    peak_fitterB_->SetParLimits(1,-100,100);
    peak_fitterB_->SetParLimits(2,0,20);
    peak_fitterB_->FixParameter(3,50);
-   peak_fitterB_->SetParLimits(4,0,75);
+   peak_fitterB_->SetParLimits(4,0,100);
    peak_fitterB_->SetParameters(0.,-50,10,50,10);
 
    deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
@@ -49,7 +49,7 @@ SamplingAlgorithm::SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAn
    deconv_fitter_->SetParLimits(2,0,200);
    deconv_fitter_->SetParLimits(3,5,100);
    deconv_fitter_->FixParameter(3,50);
-   deconv_fitter_->SetParLimits(4,0,75);
+   deconv_fitter_->SetParLimits(4,0,100);
    deconv_fitter_->SetParameters(0.,-2.82,0.96,50,20);
 }
 
@@ -133,13 +133,6 @@ void SamplingAlgorithm::analyse() {
 
   // set the right error mode: rms
   prof->SetErrorOption(" ");
-
-  //that should not be needed, but it seems histos are stored with error option " " and errors "s" in all cases.
-  //it MUST be removed if the DQM (?) bug is solved
-  for(int i=0;i<prof->GetNbinsX();++i) {
-    if(prof->GetBinEntries(i)>0)
-      prof->SetBinError(i,prof->GetBinError(i)/sqrt(prof->GetBinEntries(i)));
-  }
 
   // prune the profile
   pruneProfile(prof);

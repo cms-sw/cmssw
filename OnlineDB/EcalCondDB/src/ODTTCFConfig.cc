@@ -1,5 +1,7 @@
 #include <stdexcept>
 #include <string>
+#include <cstdlib>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODTTCFConfig.h"
@@ -64,15 +66,19 @@ void ODTTCFConfig::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_TTCF_CONFIGURATION (ttcf_configuration_id, ttcf_tag, " 
-			" ttcf_configuration_file , configuration ) "
-                        "VALUES (:1, :2, :3 , :4 )");
+			" rxbc0_delay, reg_30 , ttcf_configuration_file , ttcf_configuration ) "
+                        "VALUES (:1, :2, :3 , :4, :5, :6)");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
-    m_writeStmt->setString(3, getTTCFConfigurationFile());
 
+    m_writeStmt->setInt( 3, getRxBC0Delay() );
+    m_writeStmt->setInt( 4, getReg30() );
+    
+    m_writeStmt->setString(5, getTTCFConfigurationFile());
+    
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
-    m_writeStmt->setClob(4,clob);
+    m_writeStmt->setClob(6,clob);
     m_writeStmt->executeUpdate ();
     m_ID=next_id; 
 
@@ -81,7 +87,7 @@ void ODTTCFConfig::prepareWrite()
 
     // now we read and update it 
     m_writeStmt = m_conn->createStatement(); 
-    m_writeStmt->setSQL ("SELECT configuration FROM ECAL_TTCF_CONFIGURATION WHERE"
+    m_writeStmt->setSQL ("SELECT ttcf_configuration FROM ECAL_TTCF_CONFIGURATION WHERE"
 			 " ttcf_configuration_id=:1 FOR UPDATE");
 
   std::cout<<"updating the clob 0"<<std::endl;
@@ -241,7 +247,11 @@ void ODTTCFConfig::setParameters(std::map<string,string> my_keys_map){
       inpFile.close();
       m_size=bufsize;
 
-    }
+    } else if ( ci->first == "RXBC0_DELAY" ) {
+      setRxBC0Delay( atoi( ci->second.c_str() ) );
+    } else if ( ci->first == "REG_30" ) {
+      setReg30( atoi( ci->second.c_str() ) );
+    } 
   }
 
 }

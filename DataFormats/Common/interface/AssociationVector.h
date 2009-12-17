@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.27 $
+ * \version $Revision: 1.28 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -59,7 +59,7 @@ namespace edm {
     typename SizeType = typename KeyRefProd::product_type::size_type,
     typename KeyReferenceHelper = typename helper::AssociationKeyReferenceTrait<KeyRef>::type>
   class AssociationVector {
-    BOOST_STATIC_ASSERT( ( boost::is_same<SizeType, typename CVal::size_type>::value ) );
+    BOOST_STATIC_ASSERT( ( boost::is_convertible<SizeType, typename CVal::size_type>::value ) );
     typedef AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> self;
 
   public:

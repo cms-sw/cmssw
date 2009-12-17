@@ -625,6 +625,10 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &pa
       if(logW) {
         double w0_ = parameterMap_.find("W0")->second;
 
+        if ( clEdep.deposited_energy == 0 ) {
+          LogDebug("ClusterShapeAlgo") << "Crystal has zero energy; skipping... ";
+          continue;
+        }
         double weight = std::max(0.0, w0_ + log(fabs(clEdep.deposited_energy)/passedCluster.energy()) );
         if(weight==0) {
           LogDebug("ClusterShapeAlgo") << "Crystal has insufficient energy: E = " 

@@ -23,7 +23,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   RecoMuonValidator(const edm::ParameterSet& pset);
   ~RecoMuonValidator();
   
-  virtual void beginRun(const edm::EventSetup& eventSetup);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup& eventSetup);
   virtual void endRun();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
   virtual int countMuonHits(const reco::Track& track) const;

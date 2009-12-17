@@ -75,7 +75,9 @@ void PerigeeLinearizedTrackState::computeJacobians() const
 //   std::cout << "thePredState " << thePredState.theState().position()<<std::endl;
 //   edm::LogInfo("RecoVertex/PerigeeLTS") 
 //     << "predstate built" << "\n";
-  if (std::abs(theCharge)<1e-5) {
+  double field =  theTrack.field()->inInverseGeV(thePredState.theState().position()).z();
+
+  if ((std::abs(theCharge)<1e-5)||(fabs(field)<1.e-10)){
     //neutral track
     computeNeutralJacobians();
   } else {
@@ -124,6 +126,10 @@ AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters()
 AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int & error) const
 {
   if (!jacobiansAvailable) computeJacobians();
+  if (!thePredState.isValid()) {
+    error = 1;
+    return AlgebraicSymMatrix55();
+  }
   return thePredState.perigeeError().weightMatrix(error);
 }
   

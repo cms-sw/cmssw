@@ -11,6 +11,8 @@
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 using namespace edm;
 
 class testIOVSyncValue: public CppUnit::TestFixture
@@ -21,6 +23,7 @@ class testIOVSyncValue: public CppUnit::TestFixture
    CPPUNIT_TEST(constructTimeTest);
    CPPUNIT_TEST(comparisonTest);
    CPPUNIT_TEST(comparisonTimeTest);
+   CPPUNIT_TEST(invalidComparisonTest);
    
    CPPUNIT_TEST_SUITE_END();
 public:
@@ -31,6 +34,7 @@ public:
    void comparisonTest();
    void constructTimeTest();
    void comparisonTimeTest();
+   void invalidComparisonTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -94,6 +98,7 @@ void testIOVSyncValue::comparisonTest()
       const IOVSyncValue small(EventID(1,1));
       const IOVSyncValue med(EventID(2,2));
       
+      CPPUNIT_ASSERT(small.comparable(med));
       CPPUNIT_ASSERT(small < med);
       CPPUNIT_ASSERT(small <= med);
       CPPUNIT_ASSERT(!(small == med));
@@ -153,6 +158,7 @@ void testIOVSyncValue::comparisonTimeTest()
    const IOVSyncValue small(Timestamp(1));
    const IOVSyncValue med(Timestamp(2));
    
+   CPPUNIT_ASSERT(small.comparable(med));
    CPPUNIT_ASSERT(small < med);
    CPPUNIT_ASSERT(small <= med);
    CPPUNIT_ASSERT(!(small == med));
@@ -160,4 +166,20 @@ void testIOVSyncValue::comparisonTimeTest()
    CPPUNIT_ASSERT(!(small > med));
    CPPUNIT_ASSERT(!(small >= med));
 
+}
+
+void 
+testIOVSyncValue::invalidComparisonTest()
+{
+  const IOVSyncValue timeBased(Timestamp(1));
+  const IOVSyncValue eventBased(EventID(3,1),2);
+
+  CPPUNIT_ASSERT(! timeBased.comparable(eventBased));
+  CPPUNIT_ASSERT(! eventBased.comparable(timeBased));
+  CPPUNIT_ASSERT_THROW( (timeBased < eventBased)  , cms::Exception);
+  CPPUNIT_ASSERT_THROW( (timeBased <= eventBased) , cms::Exception);
+  CPPUNIT_ASSERT( !(timeBased == eventBased));
+  CPPUNIT_ASSERT( (timeBased != eventBased));
+  CPPUNIT_ASSERT_THROW( (timeBased > eventBased)  , cms::Exception);
+  CPPUNIT_ASSERT_THROW( (timeBased >= eventBased) , cms::Exception);
 }

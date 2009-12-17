@@ -119,7 +119,7 @@ TrackClassifier const & TrackClassifier::evaluate (TrackingParticleRef const & t
     if ( recotrack.isNonnull() )
     {
         flags_[Reconstructed] = true;
-        // Classify all the tracks by their association and reconstruction information
+        // Classify all the tracks by their association and reconstruction information        
         reconstructionInformation(recotrack);
         // Analyse the track reconstruction quality
         qualityInformation(recotrack);
@@ -278,22 +278,30 @@ void TrackClassifier::processesAtGenerator()
                 // Check if the particle exist in the table
                 if (particleData)
                 {
+                    bool longlived = false;
                     // Check if their life time is bigger than longLivedDecayLength_
                     if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
                         // Check for B, C weak decays and long lived decays
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
-                        update(flags_[LongLivedDecay], true);
+                        longlived = true;
                     }
                     // Check Tau, Ks and Lambda decay
                     update(flags_[TauDecay], pdgid == 15);
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
-                    update(flags_[JpsiDecay], pdgid == 443);
-                    update(flags_[XiDecay], pdgid == 3312);
-                    update(flags_[SigmaPlusDecay], pdgid == 3222);
-                    update(flags_[SigmaMinusDecay], pdgid == 3112);
+                    update(flags_[Jpsi], pdgid == 443);
+                    update(
+                        flags_[LongLivedDecay],
+                        !flags_[BWeakDecay] &&
+                        !flags_[CWeakDecay] &&
+                        !flags_[TauDecay] &&
+                        !flags_[KsDecay] &&
+                        !flags_[LambdaDecay] &&
+                        !flags_[Jpsi] && 
+                        longlived
+                    );
                 }
             }
         }
@@ -364,24 +372,30 @@ void TrackClassifier::processesAtSimulation()
                     // Check if the particle exist in the table
                     if (particleData)
                     {
+                        bool longlived = false;
                         // Check if their life time is bigger than 1e-14
                         if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
                         {
                             // Check for B, C weak decays and long lived decays
                             update(flags_[BWeakDecay], particleID.hasBottom());
                             update(flags_[CWeakDecay], particleID.hasCharm());
-                            update(flags_[LongLivedDecay], true);
+                            longlived = true;
                         }
-  
                         // Check Tau, Ks and Lambda decay
                         update(flags_[TauDecay], pdgid == 15);
                         update(flags_[KsDecay], pdgid == 310);
                         update(flags_[LambdaDecay], pdgid == 3122);
-                        update(flags_[JpsiDecay], pdgid == 443);
-                        update(flags_[XiDecay], pdgid == 3312);
-                        update(flags_[OmegaDecay], pdgid == 3334);
-                        update(flags_[SigmaPlusDecay], pdgid == 3222);
-                        update(flags_[SigmaMinusDecay], pdgid == 3112);
+                        update(flags_[Jpsi], pdgid == 443);
+                        update(
+                            flags_[LongLivedDecay],
+                            !flags_[BWeakDecay] &&
+                            !flags_[CWeakDecay] &&
+                            !flags_[TauDecay] &&
+                            !flags_[KsDecay] &&
+                            !flags_[LambdaDecay] &&
+                            !flags_[Jpsi] &&
+                            longlived
+                        );
                     }
                 }
                 update(
@@ -392,11 +406,7 @@ void TrackClassifier::processesAtSimulation()
                     !flags_[TauDecay] &&
                     !flags_[KsDecay] &&
                     !flags_[LambdaDecay] &&
-                    !flags_[JpsiDecay] &&
-                    !flags_[XiDecay] &&
-                    !flags_[OmegaDecay] &&
-                    !flags_[SigmaPlusDecay] &&
-                    !flags_[SigmaMinusDecay]
+                    !flags_[Jpsi] 
                 );
             }
             else

@@ -2,7 +2,7 @@
 
 using namespace egHLT;
 
-float OffEle::scSigmaEtaEta()const
+float OffEle::sigmaEtaEta()const
 {
   if(fabs(etaSC())<1.479) return clusShapeData_.sigmaEtaEta; //barrel case, no correction
   else{ //endcap, need to apply eta correction

@@ -75,7 +75,7 @@ public:
     event.getByLabel(genParticles_, genParticles);
 
     //Getting muons from Z MC  
-    for( size_t k = 0; k < genParticles->size(); k++ ) 
+    for( unsigned int k = 0; k < genParticles->size(); k++ ) 
       {
 	const Candidate & ZCand = (*genParticles)[ k ];
 	int status = ZCand.status(); 

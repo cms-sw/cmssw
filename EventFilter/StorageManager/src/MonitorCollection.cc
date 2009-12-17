@@ -1,4 +1,4 @@
-// $Id: MonitorCollection.cc,v 1.7 2009/08/26 08:50:31 mommsen Exp $
+// $Id: MonitorCollection.cc,v 1.8 2009/08/28 12:29:23 mommsen Exp $
 /// @file: MonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"

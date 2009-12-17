@@ -23,7 +23,10 @@ void egHLT::BinData::setup(const edm::ParameterSet& conf)
   isolNrTrks.setup(conf.getParameter<edm::ParameterSet>("isolNrTrks")); 
   mass.setup(conf.getParameter<edm::ParameterSet>("mass"));
   massHigh.setup(conf.getParameter<edm::ParameterSet>("massHigh"));
+  eOverP.setup(conf.getParameter<edm::ParameterSet>("eOverP"));
+  invEInvP.setup(conf.getParameter<edm::ParameterSet>("invEInvP")); 
   etaVsPhi.setup(conf.getParameter<edm::ParameterSet>("etaVsPhi"));
+  
 }
 
 

@@ -30,6 +30,7 @@ class EcalFenixTcpFormat  {
  private:
   const unsigned int * lut_ ;
   const uint16_t * badTTStatus_;
+  uint16_t status_;
   bool tcpFormat_;
   bool debug_;
   bool famos_;

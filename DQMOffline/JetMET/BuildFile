@@ -3,12 +3,9 @@
 <use name=DQMServices/Components>
 <use name=FWCore/PluginManager>
 <use name=DataFormats/JetReco>
-<use name=DataFormats/METReco>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/HcalDetId>
-<use name=HLTrigger/HLTcore>
-<use name=RecoJets/JetAlgorithms>
 
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/DetId>

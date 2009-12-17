@@ -68,6 +68,8 @@ namespace edm {
 
     bool adjustToNewProductRegistry(ProductRegistry const& reg);
 
+    void adjustIndexesAfterProductRegistryAddition();
+
     void addGroupScheduled(boost::shared_ptr<ConstBranchDescription> bd);
 
     void addGroupSource(boost::shared_ptr<ConstBranchDescription> bd);

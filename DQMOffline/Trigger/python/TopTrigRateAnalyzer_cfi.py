@@ -16,6 +16,13 @@ topTrigOfflineDQM = cms.EDAnalyzer("TopTrigAnalyzer",
    # This is still used
    # to select based on trigger
    TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
+   
+   #### jet selection
+   CaloJetInputTag = cms.InputTag("iterativeCone5CaloJets","",""),
+   
+   EtaCut = cms.untracked.double(2.4),
+   PtCut  = cms.untracked.double(13.0),
+   NJets  = cms.untracked.int32(2),
 
 									
    # Define the cuts for your muon selections
@@ -37,9 +44,11 @@ topTrigOfflineDQM = cms.EDAnalyzer("TopTrigAnalyzer",
 	
 
 	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("topMuonPt15_QuadJet15U"),
+	#  collectionName = cms.untracked.string ("topMuonPt15_QuadJet15U"),
+	  collectionName = cms.untracked.string ("topMuonPt15_QuadJet30"),
 	  trackCollection = cms.untracked.string ("globalTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_QuadJet15U"),
+	#  requiredTriggers = cms.untracked.vstring("HLT_QuadJet15U"),
+	  requiredTriggers = cms.untracked.vstring("HLT_QuadJet30"),
 	  d0cut = cms.untracked.double(0.2),
 	  z0cut = cms.untracked.double(25.0),
 	  chi2cut = cms.untracked.double(30.0),
@@ -68,13 +77,32 @@ topTrigOfflineDQM = cms.EDAnalyzer("TopTrigAnalyzer",
 
     # Set the ranges and numbers of bins for histograms
 	# max pt is not very useful
-    MaxPtParameters    = cms.vdouble(40,0.,80.),
-    # PtParmeters is not currently used
-	PtParameters       = cms.vdouble(50,0.,80.),
-    EtaParameters      = cms.vdouble(50, -3.5,3.5),
-    PhiParameters      = cms.vdouble(50, -3.15,3.15),
-    ResParameters      = cms.vdouble(50, -0.15, 0.15),
-	DrParameters       = cms.vdouble(50, 0.0, 0.05),			
+
+
+    #EtaParameters      = cms.vdouble(50, -3.5,3.5),
+
+    EtaParameters      = cms.untracked.vdouble(40, -2.1,2.1),
+    PhiParameters      = cms.untracked.vdouble(40, -3.15,3.15),
+    ResParameters      = cms.untracked.vdouble(25, -0.15, 0.15),
+    DrParameters       = cms.untracked.vdouble(25, 0.0, 0.05),
+	
+    JetMParameters     = cms.untracked.vdouble(11, -0.5, 10.5),			
+
+    # Use Pt Parameters to set bin edges
+
+    PtParameters       = cms.untracked.vdouble(0.0,  2.0,  4.0, 
+									 6.0, 8.0, 10.0, 
+									 12.0,  14.0,  16.0, 
+									 18.0,  20.0,
+									 25.0, 30.0, 35.0, 40.0,
+									 50.0, 60.0, 70, 80, 90, 100.0,
+									 125.0, 150.0, 175.0, 200.0,
+									 400.0),
+
+    Z0Parameters       = cms.untracked.vdouble(25, -25, 25),
+    D0Parameters       = cms.untracked.vdouble(25, -1, 1),									
+
+
 
 
 	# valid match types are dr and cosmic
@@ -104,7 +132,8 @@ topTrigOfflineDQM = cms.EDAnalyzer("TopTrigAnalyzer",
     # will be ignored
 									
 	TriggerNames = cms.vstring(
-        "HLT_IsoMu3",        
+        "HLT_IsoMu3",
+        "HLT_Mu5",
         "HLT_Mu9",        
     ),
 

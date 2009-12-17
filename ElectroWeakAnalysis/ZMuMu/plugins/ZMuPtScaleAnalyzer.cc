@@ -11,13 +11,13 @@ private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endJob();
   edm::InputTag   gen_;
-  size_t nbinsMass_, nbinsPt_, nbinsAng_;
+  unsigned int nbinsMass_, nbinsPt_, nbinsAng_;
   double massMax_, ptMax_, angMax_;
   double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_, ptScale_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
   TH1F *h_mZMC_, *h_ptZMC_, *h_phiZMC_, *h_thetaZMC_, *h_etaZMC_, *h_rapidityZMC_;
   TH1F *hardpt, *softpt, * hardeta, *softeta;
-  size_t nAcc_,nAccPtScaleP_,nAccPtScaleN_, nAccPtScaleSmearedFlat_ , nAccPtScaleSmearedGaus_,  nBothMuHasZHasGrandMa_;
+  unsigned int nAcc_,nAccPtScaleP_,nAccPtScaleN_, nAccPtScaleSmearedFlat_ , nAccPtScaleSmearedGaus_,  nBothMuHasZHasGrandMa_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -43,9 +43,9 @@ using namespace edm;
 
 ZMuPtScaleAnalyzer::ZMuPtScaleAnalyzer(const ParameterSet& pset) :
   gen_(pset.getParameter<InputTag>("genParticles")),
-  nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")),
-  nbinsAng_(pset.getUntrackedParameter<size_t>("nbinsAng")),
+  nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
+  nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
   massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
   angMax_(pset.getUntrackedParameter<double>("angMax")), 
@@ -100,7 +100,7 @@ void ZMuPtScaleAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&
   std::vector<GenParticle> muons;
 
 
-    for(size_t i = 0; i < gen->size(); ++i){ 
+    for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       // filliScaledPng only muons coming form Z
       if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   

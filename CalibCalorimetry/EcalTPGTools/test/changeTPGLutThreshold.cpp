@@ -24,7 +24,8 @@ int main (int argc, char* argv[])
 
   std::string dataCard ;
   std::ifstream infile ; 
-  int id, data ;
+  //int id;
+  int data;
   std::stringstream oufilename ;
   oufilename << "TPG_threshold_" << threshold << ".txt" ;
   std::ofstream oufile(oufilename.str().c_str()) ; 

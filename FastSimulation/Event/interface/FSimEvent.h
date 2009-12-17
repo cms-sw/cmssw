@@ -68,6 +68,7 @@ public:
   /// Load containers of tracks (and muons) and vertices for the edm::Event
   void load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const;
   void load(edm::SimVertexContainer & c) const;
+  void load(FSimVertexTypeCollection & c) const;
 
 private:
 

@@ -10,12 +10,4 @@
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=AlignmentTrackHitFilter>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=RecoTracker/TrackProducer>
-   <use name=Alignment/TrackerAlignment>
-   <use name=AnalysisDataFormats/SiStripClusterInfo>
-   <use name=rootrflx>
 </export>
-<flags CXXFLAGS="-g">

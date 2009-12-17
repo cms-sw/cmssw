@@ -1,4 +1,4 @@
-// $Id: DrainingQueues.cc,v 1.7 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DrainingQueues.cc,v 1.7.4.1 2009/09/25 09:57:47 mommsen Exp $
 /// @file: DrainingQueues.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -21,7 +21,7 @@ using namespace stor;
 
 DrainingQueues::DrainingQueues( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void DrainingQueues::do_entryActionWork()
@@ -32,7 +32,7 @@ void DrainingQueues::do_entryActionWork()
 
 DrainingQueues::~DrainingQueues()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void DrainingQueues::do_exitActionWork()
@@ -46,9 +46,9 @@ string DrainingQueues::do_stateName() const
   return string( "DrainingQueues" );
 }
 
-void DrainingQueues::do_moveToFailedState( const std::string& reason ) const
+void DrainingQueues::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void DrainingQueues::logEndRunRequest( const EndRun& request )

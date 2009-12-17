@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2009/09/12 19:20:18 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/07/29 12:49:00 $
+ *  $Revision: 1.21 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -83,6 +83,7 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 // reconstruct trajectories
 //
 MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectories(const TrackCand& muCand) {
+
   MuonCandidate::CandidateContainer result;
 
   if (!theTrackerTracks.isValid()) {
@@ -149,18 +150,8 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   TrajectoryStateOnSurface firstState =
    ( firstState1.globalPosition().y() > firstState2.globalPosition().y() )? firstState1 : firstState2;
 
-    GlobalPoint front, back;
-    if(hits.size()>0){
-      front=hits.front()->globalPosition();
-      back=hits.back()->globalPosition();
-      if ( (front.perp()<130 && fabs(front.z())<300)|| (back.perp() <130 && fabs(back.z())<300)){
-	if (hits.front()->globalPosition().perp()>hits.back()->globalPosition().perp()) reverse(hits.begin(), hits.end());
-	tkState1 = tsTrans.innerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
-	tkState2 = tsTrans.outerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
-	firstState =( tkState1.globalPosition().perp() < tkState2.globalPosition().perp() )? tkState1 : tkState2;
-      }
-    }
-    if (!firstState.isValid())       return result;
+  if (!firstState.isValid()) return result;
+  
   LogTrace(category_) <<"firstTSOS pos: "<<firstState.globalPosition()<<"mom: "<<firstState.globalMomentum();
 
   // begin refitting
@@ -170,6 +161,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   if ( refitted.empty() ) {
     LogTrace(category_)<<"smoothing trajectories fail";
+
     refitted = theSmoother->fit(seed,hits,firstState); //FIXME
   }
 
@@ -261,8 +253,6 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
        ihit != muonHits.end() - 1; ihit++ ) {
     GlobalPoint ipos = (*ihit)->globalPosition();
     GlobalPoint nextpos = (*(ihit+1))->globalPosition();
-    if ( (ipos-nextpos).mag() < 100.0 ) continue;
-
     GlobalPoint middle((ipos.x()+nextpos.x())/2, (ipos.y()+nextpos.y())/2, (ipos.z()+nextpos.z())/2);
     LogTrace(category_)<<"ipos "<<ipos<<"nextpos"<<nextpos<<" middle "<<middle<<endl;
     if ( (middle.perp() < ipos.perp()) && (middle.perp() < nextpos.perp() ) ) {
@@ -329,9 +319,20 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
    
    std::vector<TrackCand> result;
 
+   if ( fabs(mu.second->dxy()) > 200 ) return result;
+
+   //no tracker tracks for muons that do not cross tracker
    TrajectoryStateTransform tsTrans;
    TrajectoryStateOnSurface innerTsos = tsTrans.innerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
+
    TrajectoryStateOnSurface outerTsos = tsTrans.outerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
+
+   StateOnTrackerBound toTrackerBound(propagator());
+
+   TrajectoryStateOnSurface tkState = toTrackerBound(innerTsos);
+   if ( !tkState.isValid() ) tkState = toTrackerBound(outerTsos);
+   if ( !tkState.isValid() ) return result;
+
    //build tracker TrackCands and pick the best match if size greater than 2
    vector<TrackCand> tkTrackCands;
    for(reco::TrackCollection::size_type i=0; i<theTrackerTracks->size(); ++i){

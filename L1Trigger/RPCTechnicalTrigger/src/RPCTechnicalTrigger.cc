@@ -16,7 +16,6 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCTechnicalTrigger.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessTestSignal.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCDigis.h"
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCSimDigis.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -29,15 +28,13 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   
   //...........................................................................
   
-  m_configFile         = iConfig.getUntrackedParameter<std::string>("ConfigFile");
-  m_verbosity          = iConfig.getUntrackedParameter<int>("Verbosity", 0);
-  m_rpcDigiLabel       = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
-  m_ttBits             = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
-  m_ttNames            = iConfig.getParameter< std::vector<std::string> >("BitNames");
-  m_useDatabase        = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
-  m_useRPCSimLink      = iConfig.getUntrackedParameter<int>("UseRPCSimLink", 0);
-  m_rpcSimLinkInstance = iConfig.getParameter<std::string>("RPCSimLinkInstance");
-
+  m_configFile   = iConfig.getUntrackedParameter<std::string>("ConfigFile", std::string("hardware-pseudoconfig.txt"));
+  m_verbosity    = iConfig.getUntrackedParameter<int>("Verbosity", 0);
+  m_rpcDigiLabel = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
+  m_ttBits       = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
+  m_ttNames      = iConfig.getParameter< std::vector<std::string> >("BitNames");
+  m_useDatabase  = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
+  
   if ( m_verbosity ) {
     LogTrace("RPCTechnicalTrigger")
       << m_rpcDigiLabel << '\n'
@@ -118,41 +115,29 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   edm::Handle<RPCDigiCollection> pIn;
   
-  edm::Handle<edm::DetSetVector<RPCDigiSimLink> > simIn;
-  
   std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   
-  if ( m_useRPCSimLink == 0 ) {
-
-    iEvent.getByLabel(m_rpcDigiLabel, pIn);
-    if ( ! pIn.isValid() ) {
-      edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
-                                           << m_rpcDigiLabel << '\n';
-      iEvent.put(output);
-      return;
-    }
-    m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessRPCDigis( m_rpcGeometry, pIn ));
-    
-  } else {
-    
-    iEvent.getByLabel("simMuonRPCDigis", "RPCDigiSimLink", simIn);
-    
-    if ( ! simIn.isValid() ) {
-      edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
-                                           << m_rpcDigiLabel << '\n';
-      iEvent.put(output);
-      return;
-    }
-    m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessRPCSimDigis( m_rpcGeometry, simIn ));
-  }
-  
-  LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
+  iEvent.getByLabel(m_rpcDigiLabel, pIn);
 
   if ( ! m_hasConfig ) {
     edm::LogError("RPCTechnicalTrigger") << "cannot read hardware configuration \n";
     iEvent.put(output);
     return;
   }
+  
+  if ( ! pIn.isValid() ) {
+    edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
+                                         << m_rpcDigiLabel << '\n';
+    iEvent.put(output);
+    return;
+  }
+  
+  
+  LogDebug("RPCTechnicalTrigger") << "Trigger mode 0: Ttu only" << '\n';
+
+  m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessRPCDigis( m_rpcGeometry, pIn ));
+  
+  LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
   
   status = m_signal->next();
   
@@ -161,7 +146,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.put(output);
     return;
   }
-  
+
   m_input = m_signal->retrievedata();
   
   std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );

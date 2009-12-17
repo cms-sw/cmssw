@@ -35,6 +35,7 @@ namespace egHLT {
       float had;
       float hltHad;
       float hltTrks;
+      float hltEm;
     };
     
   public:
@@ -84,6 +85,8 @@ namespace egHLT {
     void setTrigCutsCutCodes(const std::vector<std::pair<TrigCodes::TrigBitSet,int> > trigCutsCutCodes){trigCutsCutCodes_=trigCutsCutCodes;}
     void setTrigBits(TrigCodes::TrigBitSet bits){trigBits_=bits;}
     
+    const reco::Photon* recoPho()const{return pho_;}
+
     //kinematic and geometric methods
     float et()const{return pho_->et();}  
     float pt()const{return pho_->pt();}
@@ -97,19 +100,20 @@ namespace egHLT {
     float zVtx()const{return pho_->vz();}
     const math::XYZTLorentzVector& p4()const{return pho_->p4();}
     
+    bool isGap()const{return pho_->isEBGap() || pho_->isEEGap() || pho_->isEBEEGap();}
     
     //abreviations of overly long Photon methods, I'm sorry but if you cant figure out what hOverE() means, you shouldnt be using this class
     float hOverE()const{return pho_->hadronicOverEm();}
     
     
     
-    float scSigmaEtaEta()const;
-    float scSigmaEtaEtaUnCorr()const{return clusShapeData_.sigmaEtaEta;}
-    float scSigmaIEtaIEta()const{return clusShapeData_.sigmaIEtaIEta;}					
-    float scSigmaPhiPhi()const{return clusShapeData_.sigmaPhiPhi;}
-    float scSigmaIPhiIPhi()const{return clusShapeData_.sigmaIPhiIPhi;}
-    float scE2x5MaxOver5x5()const{return clusShapeData_.e2x5MaxOver5x5;}
-    float scE1x5Over5x5()const{return clusShapeData_.e1x5Over5x5;}
+    float sigmaEtaEta()const;
+    float sigmaEtaEtaUnCorr()const{return clusShapeData_.sigmaEtaEta;}
+    float sigmaIEtaIEta()const{return clusShapeData_.sigmaIEtaIEta;}					
+    float sigmaPhiPhi()const{return clusShapeData_.sigmaPhiPhi;}
+    float sigmaIPhiIPhi()const{return clusShapeData_.sigmaIPhiIPhi;}
+    float e2x5MaxOver5x5()const{return clusShapeData_.e2x5MaxOver5x5;}
+    float e1x5Over5x5()const{return clusShapeData_.e1x5Over5x5;}
     float r9()const{return clusShapeData_.r9;}
     
     //isolation
@@ -119,7 +123,8 @@ namespace egHLT {
     float isolPtTrks()const{return isolData_.ptTrks;}
     float hltIsolHad()const{return isolData_.hltHad;}
     float hltIsolTrks()const{return isolData_.hltTrks;}
-    
+    float hltIsolEm()const{return isolData_.hltEm;}
+
     //selection cuts
     int cutCode()const{return cutCode_;}
     int looseCutCode()const{return looseCutCode_;}

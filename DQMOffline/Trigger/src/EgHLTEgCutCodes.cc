@@ -18,7 +18,8 @@ ComCodes EgCutCodes::setCodes_()
   codes.setCode("invEInvP",int(INVEINVP));
   
   codes.setCode("hadem",int(HADEM));
-  codes.setCode("sigmaIEtaIEta",int(SIGMAIETAIETA));
+  codes.setCode("sigmaIEtaIEta",int(SIGMAIETAIETA)); 
+  codes.setCode("sigmaEtaEta",int(SIGMAETAETA));
   codes.setCode("e2x5Over5x5",int(E2X5OVER5X5));
   codes.setCode("r9",int(R9));
 
@@ -30,6 +31,12 @@ ComCodes EgCutCodes::setCodes_()
   codes.setCode("hltIsolTrksEle",int(HLTISOLTRKSELE));
   codes.setCode("hltIsolTrksPho",int(HLTISOLTRKSPHO));
   codes.setCode("hltIsolHad",int(HLTISOLHAD));
+  codes.setCode("hltIsolEm",int(HLTISOLEM));
+  
+  codes.setCode("ctfTrack",int(CTFTRACK));
+  codes.setCode("hltDEtaIn",int(HLTDETAIN));
+  codes.setCode("hltDPhiIn",int(HLTDPHIIN));
+  codes.setCode("hltInvEInvP",int(HLTINVEINVP));
 
   codes.setCode("invalid",int(INVALID));
   codes.sort();

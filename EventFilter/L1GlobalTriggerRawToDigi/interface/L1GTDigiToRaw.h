@@ -57,7 +57,7 @@ public:
 private:
 
     /// beginning of job stuff
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     /// loop over events
     virtual void produce(edm::Event&, const edm::EventSetup&);

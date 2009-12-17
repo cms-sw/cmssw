@@ -4,6 +4,8 @@
 ESShape::ESShape(int Gain):
   theGain_(Gain)
 {
+  setTpeak(20.0);
+
   if (theGain_==0) {
     A_ = 6.;
     Qcf_ = 4./350.;
@@ -37,7 +39,7 @@ double ESShape::operator () (double time_) const
     return 0.0;
   }
 }
-/*
+
 double ESShape::derivative (double time_) const
 {
   if (time_>0.00001) {
@@ -48,5 +50,5 @@ double ESShape::derivative (double time_) const
     return 0.0;
   }
 }
-*/
+
 

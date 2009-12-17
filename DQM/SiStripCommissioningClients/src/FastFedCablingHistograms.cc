@@ -15,11 +15,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistograms::FastFedCablingHistograms( const edm::ParameterSet& pset,
-                                                    DQMOldReceiver* mui )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
-                             mui,
-                             sistrip::FAST_CABLING )
+FastFedCablingHistograms::FastFedCablingHistograms( DQMOldReceiver* mui ) 
+  : CommissioningHistograms( mui, sistrip::FAST_CABLING )
 {
   factory_ = auto_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
   LogTrace(mlDqmClient_) 
@@ -29,11 +26,8 @@ FastFedCablingHistograms::FastFedCablingHistograms( const edm::ParameterSet& pse
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistograms::FastFedCablingHistograms( const edm::ParameterSet& pset,
-                                                    DQMStore* bei )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"),
-                             bei,
-                             sistrip::FAST_CABLING )
+FastFedCablingHistograms::FastFedCablingHistograms( DQMStore* bei ) 
+  : CommissioningHistograms( bei, sistrip::FAST_CABLING )
 {
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
@@ -88,7 +82,7 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     FastFedCablingAnalysis* anal = new FastFedCablingAnalysis( iter->first );
-    FastFedCablingAlgorithm algo( this->pset(), anal );
+    FastFedCablingAlgorithm algo( anal );
     FedToFecMap::const_iterator ifed = mapping().find( iter->first );
     if ( ifed != mapping().end() ) { anal->fecKey( ifed->second ); }
     algo.analysis( profs );

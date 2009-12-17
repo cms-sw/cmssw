@@ -5,8 +5,8 @@
  *
  *
  *
- *  $Date: 2009/05/08 09:56:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/05/08 15:24:25 $
+ *  $Revision: 1.4 $
  *
  *  \author Adam Everett        Purdue University
  */
@@ -46,7 +46,7 @@ class GlobalMuonMatchAnalyzer : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
-      virtual void beginRun(const edm::EventSetup&) ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

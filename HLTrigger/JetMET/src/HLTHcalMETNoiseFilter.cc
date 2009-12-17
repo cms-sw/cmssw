@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.3 2009/06/07 02:05:59 dlange Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.4 2009/09/16 20:10:21 johnpaul Exp $
 //
 //
 
@@ -31,8 +31,7 @@
 
 
 HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
-  : HcalNoiseRBXCollectionTag (iConfig.getParameter <edm::InputTag> ("HcalNoiseRBXCollection")),
-    HcalNoiseSummaryTag (iConfig.getParameter <edm::InputTag> ("HcalNoiseSummary")),
+  : HcalNoiseSummaryTag (iConfig.getParameter <edm::InputTag> ("HcalNoiseSummary")),
     severity (iConfig.getParameter <int> ("severity")),
     useLooseFilter (iConfig.getParameter<bool>("useLooseFilter")),
     useTightFilter (iConfig.getParameter<bool>("useTightFilter")),
@@ -63,13 +62,6 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   bool accept=true;  // assume good event
   if (severity == 0 ) return accept; // do not filter anything
-
-  edm::Handle<HcalNoiseRBXCollection> RBXCollection;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag,RBXCollection);
-  if (!RBXCollection.isValid()) {
-    LogDebug("") << "HLTHcalMETNoiseFilter: Could not find HcalNoiseRBX Collection" << std::endl;
-    return accept;
-  }
 
   edm::Handle<HcalNoiseSummary> NoiseSummary;
   iEvent.getByLabel(HcalNoiseSummaryTag,NoiseSummary);

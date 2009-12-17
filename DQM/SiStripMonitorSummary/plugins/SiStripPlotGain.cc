@@ -107,13 +107,13 @@ SiStripPlotGain::getHistos(const uint32_t& detid,std::vector<TH1F*>& histos){
 }
 
 TH1F*
-SiStripPlotGain::getHisto(const size_t& index){
+SiStripPlotGain::getHisto(const long unsigned int& index){
   if(vTH1.size()<index+1)
     vTH1.resize(index+1,0);
   
   if(vTH1[index]==0){
     char name[128];
-    sprintf(name,"%d",index);
+    sprintf(name,"%lu",index);
     edm::LogInfo("")<<"[getHisto] creating index " << index << std::endl;
     vTH1[index]=new TH1F(name,name,150,0.,5.);
   }

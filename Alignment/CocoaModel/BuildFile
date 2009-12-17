@@ -4,10 +4,7 @@
 <use name=Alignment/CocoaDaq>
 <use name=CondFormats/OptAlignObjects>
 <use name=FWCore/ParameterSet>
-<Flags CXXFLAGS="-g">
 <export>
  <lib name=AlignmentCocoaModel>
- <use name=Alignment/CocoaUtilities>
- <use name=Alignment/CocoaDDLObjects>
 </export>
 

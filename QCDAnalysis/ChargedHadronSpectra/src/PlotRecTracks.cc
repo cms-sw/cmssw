@@ -39,8 +39,6 @@
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
-
 using namespace std;
 
 /*****************************************************************************/
@@ -63,13 +61,6 @@ PlotRecTracks::PlotRecTracks
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",
                                           thePropagatorHandle);
   thePropagator = thePropagatorHandle.product();
-
-  // KFTrajectoryFitter
-/*
-  edm::ESHandle<TrajectoryFitter> theFitterHandle;
-  es.get<TrackingComponentsRecord>().get("KFTrajectoryFitter", theFitterHandle);
-  theFitter = theFitterHandle.product();
-*/
 }
 
 /*****************************************************************************/
@@ -98,9 +89,7 @@ string PlotRecTracks::getPixelInfo
 
   {
   ostringstream o;
-  o << "simTrack (trackId=" << simHits[0].trackId()
-                 << " pid=" << simHits[0].particleType()
-                << " proc=" << simHits[0].processType() << ")";
+  o << "simTrackId=" << simHits[0].trackId() ;
 
   info += " | " + o.str();
   }
@@ -229,12 +218,6 @@ void PlotRecTracks::printRecTracks(const edm::Event& ev)
                                          it!= trajectories->end();
                                          it++, i++, recTrack++)
   {
-/*
-cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() << endl;
-
-*/
-//theFitter->fit(*it);
-
     int algo;
     switch(recTrack->algo())
     {

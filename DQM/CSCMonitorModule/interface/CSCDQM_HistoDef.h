@@ -29,7 +29,7 @@
 namespace cscdqm {
 
   /** Type for histogram name constants */
-  typedef char* HistoName; 
+  typedef std::string HistoName; 
 
   /** Type for histogram id constants */
   typedef unsigned int HistoId; 
@@ -72,6 +72,11 @@ namespace cscdqm {
        */
       HistoDef(const HistoId p_id) : id(p_id) { }
       
+      /**
+       * @brief  Base virtual destructor
+       */ 
+      virtual ~HistoDef() { }
+
       /**
        * @brief  Get Histogram ID
        * @return Histogram ID
@@ -225,7 +230,7 @@ namespace cscdqm {
        */
       static const std::string processName(const HistoName& p_name, const HwId p_id) {
         if (Utility::regexMatch(REGEXP_ONDEMAND, p_name)) {
-          return Form(p_name, p_id);
+          return Form(p_name.c_str(), p_id);
         }
         return p_name;
       }
@@ -295,7 +300,7 @@ namespace cscdqm {
       }
 
       const std::string processTitle(const std::string& p_title) const {
-        return processName(const_cast<HistoName>(p_title.c_str()), getDDUId());
+        return processName(p_title.c_str(), getDDUId());
       }
 
   };
@@ -362,7 +367,7 @@ namespace cscdqm {
       }
 
       const std::string processTitle(const std::string& p_title) const {
-        return processName(const_cast<HistoName>(p_title.c_str()), getAddId());
+        return processName(p_title.c_str(), getAddId());
       }
 
 
@@ -374,19 +379,22 @@ namespace cscdqm {
    */
   class ParHistoDef : public HistoDef {
 
-    public:
+    private:
 
       /**
        * @brief  Parameter name
        */ 
       HistoName name;
 
+
+    public:
+
       /**
        * @brief  Constructor. It calls Base constructor inline
        * @param  p_name Histogram name, id will be constructed by using fastHash algorithm and then to be passed to Base class
        * @return 
        */
-      ParHistoDef(const HistoName p_name) : HistoDef(Utility::fastHash(p_name)), name(p_name) { }
+      ParHistoDef(const HistoName& p_name) : HistoDef(Utility::fastHash(p_name.c_str())), name(p_name) { }
 
       /**
        * @brief  Constructor. It calls Base constructor inline

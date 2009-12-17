@@ -55,8 +55,9 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
   int dccWords = 6;
-  int head, kid, kPACE[4], kFlag1, kFlag2, kBC, kEC, optoBC, optoEC, ttcEC;
-  
+  int head, kPACE[4], kFlag1, kFlag2, kBC, kEC, optoBC, optoEC, ttcEC;
+  int kid = -1;
+
   ESDCCHeaderBlock ESDCCHeader;
   ESDCCHeader.setFedId(fedId);
 
@@ -273,6 +274,14 @@ void ESUnpacker::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCol
   ix    = x_[kid-1][pace];
   iy    = y_[kid-1][pace];
   
+  // convert strip number from electronics id to detector id
+  if (vmajor_ == 4 && (vminor_==2 || vminor_==3)) {
+    if (zside == 1 && plane == 1 && iy <= 20) strip = 31 - strip;
+    if (zside == 1 && plane == 2 && ix > 20) strip = 31 - strip;
+    if (zside == -1 && plane == 1 && iy > 20) strip = 31 - strip;
+    if (zside == -1 && plane == 2 && ix <= 20) strip = 31 - strip;
+  }
+
   if (debug_) cout<<"DetId : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip+1<<endl;
   
   if (ESDetId::validDetId(strip+1, ix, iy, plane, zside)) {

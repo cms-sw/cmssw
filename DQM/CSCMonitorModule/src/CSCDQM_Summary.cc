@@ -604,7 +604,13 @@ namespace cscdqm {
   const double Summary::GetEfficiencyArea(Address adr) const {
     double all_area = 1;
   
-    if(adr.mask.side == adr.mask.ring == adr.mask.chamber == adr.mask.layer == adr.mask.cfeb == adr.mask.hv == false && adr.mask.station == true)
+    if (adr.mask.side == false &&
+        adr.mask.ring == false &&
+        adr.mask.chamber == false &&
+        adr.mask.layer == false &&
+        adr.mask.cfeb == false &&
+        adr.mask.hv == false && 
+        adr.mask.station == true)
       all_area = detector.Area(adr.station);
     else
       all_area = detector.Area(adr);

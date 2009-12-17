@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.15 2009/05/19 12:42:00 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.13 2009/05/15 22:55:48 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>

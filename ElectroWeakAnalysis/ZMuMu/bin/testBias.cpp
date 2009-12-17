@@ -29,7 +29,7 @@ int main() {
   TH1F hBkg1Pull("bkg1Pull", "bkg1 - pull", 100, -10, 10);
   TH1F hBkg2Pull("bkg2Pull", "bkg1 - pull", 100, -10, 10);
   bool firstTime = true;
-  for(size_t n=0; n < 1000; ++n) {
+  for(unsigned int n=0; n < 1000; ++n) {
     const char * kSig = "Sig";
     const char * kEff = "Eff";
     const char * kBkg1 = "Bkg1";

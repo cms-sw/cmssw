@@ -48,6 +48,8 @@ class ODEcalCycle : public IODConfig {
   inline int getDCUId() const { return m_dcu; }
   inline void setTCCId(int x) { m_tcc = x; }
   inline int getTCCId() const { return m_tcc; }
+  inline void setTCCEEId(int x) { m_tcc_ee = x; }
+  inline int getTCCEEId() const { return m_tcc_ee; }
   inline void setTTCCIId(int x) { m_ttcci = x; }
   inline int getTTCCIId() const { return m_ttcci; }
   inline void setMataqId(int x) { m_mataq = x; }
@@ -85,6 +87,7 @@ class ODEcalCycle : public IODConfig {
   int m_lts;
   int m_dcu;
   int m_tcc;
+  int m_tcc_ee;
   int m_ttcci;
   int m_mataq;
   int m_jbh4;

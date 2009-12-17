@@ -38,6 +38,14 @@ private:
 
     std::size_t totalTracks_;
 
+    int minimumNumberOfHits_, minimumNumberOfPixelHits_;
+
+    double minimumTransverseMomentum_, maximumChiSquared_;
+
+    bool useAllQualities_;
+
+    reco::TrackBase::TrackQuality trackQuality_;
+
     TrackClassifier classifier_;
 
     TH1F * trackCategories_;
@@ -50,6 +58,15 @@ TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet& config
 {
     // Get the track collection
     trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+
+    // Get the basic track selection.
+    minimumNumberOfHits_       = config.getUntrackedParameter<int> ( "minimumNumberOfHits" );
+    minimumNumberOfPixelHits_  = config.getUntrackedParameter<int> ( "minimumNumberOfPixelHits" );
+    minimumTransverseMomentum_ = config.getUntrackedParameter<double> ( "minimumTransverseMomentum" );
+    maximumChiSquared_         = config.getUntrackedParameter<double> ( "maximumChiSquared" );
+
+    std::string trackQualityType = config.getUntrackedParameter<std::string>("trackQualityClass"); //used
+    trackQuality_ =  reco::TrackBase::qualityByName(trackQualityType);
 
     // Get the file service
     edm::Service<TFileService> fs;
@@ -91,6 +108,21 @@ void TrackCategoriesAnalyzer::analyze(const edm::Event& event, const edm::EventS
     for (std::size_t index = 0; index < trackCollection->size(); index++)
     {
         edm::RefToBase<reco::Track> track(trackCollection, index);
+
+        // Get basic track number
+        double pt = track->pt();
+        double chi2 = track->normalizedChi2();
+        int hits = track->hitPattern().numberOfValidHits();
+        int pixelHits = track->hitPattern().numberOfValidPixelHits();
+
+        // Track selection
+        if (
+            hits < minimumNumberOfHits_ ||
+            pixelHits < minimumNumberOfPixelHits_ ||
+            pt < minimumTransverseMomentum_ ||
+            chi2 >  maximumChiSquared_ ||
+            (!track->quality(trackQuality_))
+        ) continue;
 
         // Classify the tracks
         classifier_.evaluate(track);
