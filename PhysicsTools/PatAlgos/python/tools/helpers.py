@@ -101,3 +101,26 @@ def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag) :
     """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
     sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag))
     
+def jetCollectionString(prefix='', algo='AK5', type='Calo'):
+    """
+    ------------------------------------------------------------------
+    return the string of the jet collection module depending on the
+    input vaules. The default return value will be 'patAK5CaloJets'.
+
+    algo   : indicating the algorithm type of the jet [expected are
+             'AK5', 'IC5', 'SC7', ...]
+    type   : indicating the type of constituents of the jet [expec-
+             ted are 'Calo', 'PFlow', 'JPT', ...]
+    prefix : prefix indicating the type of pat collection module (ex-
+             pected are '', 'selected', 'clean').
+    ------------------------------------------------------------------    
+    """
+    if(prefix==''):
+        jetCollectionString ='pat'
+    else:
+        jetCollectionString =prefix
+        jetCollectionString+='Pat'
+    jetCollectionString+=algo
+    jetCollectionString+=type
+    jetCollectionString+='Jets'
+    return jetCollectionString
