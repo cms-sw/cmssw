@@ -28,52 +28,62 @@ PreshowerHitMaker::PreshowerHitMaker(
   psLayer2Dir_(layer2dir),
   theGenerator(aGenerator)
 {
+  double dummyt;
    // Check if the entrance points are really on the wafers
   // Layer 1 
-  int z=(psLayer1Entrance_.z()>0)? 1:-1;
-  Plane3D plan1(0.,0.,1.,-z*myCalorimeter->preshowerZPosition(1));
-  double dummyt;
-  psLayer1Entrance_ = intersect(plan1,layer1entrance,layer1entrance+layer1dir,dummyt,false);
-  x1=psLayer1Entrance_.x();
-  y1=psLayer1Entrance_.y();
-  z1=psLayer1Entrance_.z();
-  XYZVector dirx(psLayer1Entrance_.x(),0,psLayer1Entrance_.z());
-  XYZVector diry(0,psLayer1Entrance_.y(),psLayer1Entrance_.z());
-  dirx=dirx.Unit();
-  diry=diry.Unit();
+  layer1valid_ = (layer1entrance.Mag2()>0.);
+  if(layer1valid_)
+    {
+      int z=(psLayer1Entrance_.z()>0)? 1:-1;
+      Plane3D plan1(0.,0.,1.,-z*myCalorimeter->preshowerZPosition(1));
 
-  double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
-  invcostheta1x = 1.e9;
-  if(fabs(denom) > 0.) invcostheta1x = 1./denom;
-
-  denom = fabs(diry.Dot(XYZVector(0,0,1.)));
-  invcostheta1y = 1.e9;
-  if(fabs(denom) > 0.) invcostheta1y = 1./denom;
-
+      psLayer1Entrance_ = intersect(plan1,layer1entrance,layer1entrance+layer1dir,dummyt,false);
+      x1=psLayer1Entrance_.x();
+      y1=psLayer1Entrance_.y();
+      z1=psLayer1Entrance_.z();
+      XYZVector dirx(psLayer1Entrance_.x(),0,psLayer1Entrance_.z());
+      XYZVector diry(0,psLayer1Entrance_.y(),psLayer1Entrance_.z());
+      dirx=dirx.Unit();
+      diry=diry.Unit();
+      
+      double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
+      if(denom==0.) std::cout << "Bordel "<< psLayer1Entrance_ << std::endl;
+      invcostheta1x = 1.e9;
+      if(fabs(denom) > 0.) invcostheta1x = 1./denom;
+      
+      denom = fabs(diry.Dot(XYZVector(0,0,1.)));
+      if(denom==0.) std::cout << "Bordel "<< psLayer1Entrance_ << std::endl;
+      invcostheta1y = 1.e9;
+      if(fabs(denom) > 0.) invcostheta1y = 1./denom;
+    }
 
   // Layer 2
-  z=(psLayer2Entrance_.z()>0) ? 1:-1;
-  Plane3D plan2(0.,0.,1.,-z*myCalorimeter->preshowerZPosition(2));
-  
-  psLayer2Entrance_ = intersect(plan2,layer2entrance,layer2entrance+layer2dir,dummyt,false);
-  x2=psLayer2Entrance_.x();
-  y2=psLayer2Entrance_.y();
-  z2=psLayer2Entrance_.z();
-  dirx = XYZVector(psLayer2Entrance_.x(),0,psLayer2Entrance_.z());
-  diry = XYZVector(0,psLayer2Entrance_.y(),psLayer2Entrance_.z());
-  dirx=dirx.Unit();
-  diry=diry.Unit();
-
-
-  denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
-  invcostheta2x = 1.e9;
-  if(fabs(denom) > 0.) invcostheta2x = 1./denom;
-
-  denom = fabs(diry.Dot(XYZVector(0,0,1.)));
-  invcostheta2y = 1.e9;
-  if(fabs(denom) > 0.) invcostheta2y = 1./denom;
-
-
+  layer2valid_ = (layer2entrance.Mag2()>0.);
+  if(layer2valid_)
+    {
+      int z=(psLayer2Entrance_.z()>0) ? 1:-1;
+      Plane3D plan2(0.,0.,1.,-z*myCalorimeter->preshowerZPosition(2));
+      
+      psLayer2Entrance_ = intersect(plan2,layer2entrance,layer2entrance+layer2dir,dummyt,false);
+      x2=psLayer2Entrance_.x();
+      y2=psLayer2Entrance_.y();
+      z2=psLayer2Entrance_.z();
+      XYZVector dirx = XYZVector(psLayer2Entrance_.x(),0,psLayer2Entrance_.z());
+      XYZVector diry = XYZVector(0,psLayer2Entrance_.y(),psLayer2Entrance_.z());
+      dirx=dirx.Unit();
+      diry=diry.Unit();
+      
+      
+      double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
+      if(denom==0.) std::cout << "Bordel "<< psLayer2Entrance_ << std::endl;
+      invcostheta2x = 1.e9;
+      if(fabs(denom) > 0.) invcostheta2x = 1./denom;
+      
+      denom = fabs(diry.Dot(XYZVector(0,0,1.)));
+      if(denom==0.) std::cout << "Bordel "<< psLayer2Entrance_ << std::endl;
+      invcostheta2y = 1.e9;
+      if(fabs(denom) > 0.) invcostheta2y = 1./denom;      
+    }
   //  theGenerator=LandauFluctuationGenerator();
 }
 
@@ -81,6 +91,8 @@ PreshowerHitMaker::PreshowerHitMaker(
 bool 
 PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 {
+  if((layer==1&&!layer1valid_)||((layer==2&&!layer2valid_))) return false;
+
   r*=moliereRadius;
   XYZPoint point = (layer==1) ? 
     XYZPoint(x1+r*invcostheta1x*std::cos(phi),y1+r*invcostheta1y*std::sin(phi),z1) : 

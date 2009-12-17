@@ -33,12 +33,15 @@ class PreshowerHitMaker : public CaloHitMaker
   XYZVector psLayer1Dir_;
   XYZPoint psLayer2Entrance_;
   XYZVector psLayer2Dir_;
+  bool layer1valid_;
+  bool layer2valid_;
   double invcostheta1x;
   double invcostheta1y;
   double invcostheta2x;
   double invcostheta2y;
   double x1,y1,z1;
   double x2,y2,z2;
+
 
   /// The Landau Fluctuation generator
   const LandauFluctuationGenerator*  theGenerator;
