@@ -132,6 +132,9 @@ process.hfreco.samplesToAdd = 4
 process.hbhereco.firstSample = 1
 process.hbhereco.samplesToAdd = 8
 
+process.zdcreco.firstSample = 4
+process.zdcreco.samplesToAdd = 3
+
 ## EGAMMA
 process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
 process.ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)

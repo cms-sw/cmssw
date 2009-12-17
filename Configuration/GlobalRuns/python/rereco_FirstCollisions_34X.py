@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -116,6 +116,9 @@ process.hfreco.samplesToAdd = 4
 
 process.hbhereco.firstSample = 1
 process.hbhereco.samplesToAdd = 8
+
+process.zdcreco.firstSample = 4
+process.zdcreco.samplesToAdd = 3
 
 ## EGAMMA
 process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
