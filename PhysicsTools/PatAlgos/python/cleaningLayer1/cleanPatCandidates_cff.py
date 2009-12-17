@@ -6,7 +6,6 @@ from PhysicsTools.PatAlgos.cleaningLayer1.tauCleaner_cfi import *
 from PhysicsTools.PatAlgos.cleaningLayer1.photonCleaner_cfi import *
 from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.hemisphereProducer_cfi import *
-
 #FIXME ADD MHT
 
 # One module to count objects

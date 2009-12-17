@@ -5,7 +5,6 @@ from PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.tauCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
-
 from PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi import *
 
 countPatCandidates = cms.Sequence(

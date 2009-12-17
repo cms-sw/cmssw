@@ -5,7 +5,6 @@ from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
-
 #from PhysicsTools.PatAlgos.producersLayer1.hemisphereProducer_cfi import *
 
 # One module to count objects
