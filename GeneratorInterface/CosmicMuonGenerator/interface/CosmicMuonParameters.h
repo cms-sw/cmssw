@@ -31,7 +31,7 @@ const double RhoAir  = 0.001214; // [g cm^-3]
 const double RhoWall = 2.5; // [g cm^-3]
 const double RhoRock = 2.5; // [g cm^-3]
 const double RhoClay = 2.3; // [g cm^-3]
-const double RhoPlug = 2.5; // [g cm^-3] 2-3 times concrete density
+const double RhoPlug = 2.5; // [g cm^-3]
 // width of clay layer between surface and rock
 const double ClayWidth = 50000.; // [mm]
 //plug constants
