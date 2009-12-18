@@ -21,7 +21,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -123,7 +123,7 @@ HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void HcalCalibFEDSelector::beginJob(const edm::EventSetup&)
+void HcalCalibFEDSelector::beginJob()
 {
 }
 

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HcalCalibTypeFilter.cc,v 1.3 2009/04/28 14:17:17 mansj Exp $
+// $Id: HcalCalibTypeFilter.cc,v 1.4 2009/07/08 15:30:53 mansj Exp $
 //
 //
 
@@ -49,7 +49,7 @@ public:
   virtual ~HcalCalibTypeFilter();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -128,7 +128,7 @@ HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalCalibTypeFilter::beginJob(const edm::EventSetup&)
+HcalCalibTypeFilter::beginJob()
 {
   eventsByType.clear() ; 
   eventsByType.resize(8,0) ; 
