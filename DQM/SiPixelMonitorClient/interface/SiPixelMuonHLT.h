@@ -17,7 +17,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:
-// $Id: SiPixelMuonHLT.cc,v 1.0 2009/09/26  duggan exp $
+// $Id: SiPixelMuonHLT.h,v 1.1 2009/11/05 08:10:34 duggan Exp $
 //
 //////////////////////////////////////////////////////////
 
@@ -96,7 +96,7 @@
        typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
 
        virtual void Histo_init();

@@ -25,7 +25,7 @@ SiPixelHistoricInfoDQMClient::SiPixelHistoricInfoDQMClient(const ParameterSet& p
 }
 
 
-void SiPixelHistoricInfoDQMClient::beginJob(const EventSetup& eventSetup) {
+void SiPixelHistoricInfoDQMClient::beginJob() {
   dbe_ = Service<DQMStore>().operator->(); 
 }
 

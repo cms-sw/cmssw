@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.20 2009/12/03 01:38:45 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.21 2009/12/11 02:49:15 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -111,7 +111,7 @@ void FourVectorHLTClient::initialize(){
 }
 
 //--------------------------------------------------------
-void FourVectorHLTClient::beginJob(const EventSetup& context){
+void FourVectorHLTClient::beginJob(){
 
   LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient]: beginJob" << endl;
   // get backendinterface  

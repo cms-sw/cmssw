@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.12 2009/03/10 22:58:51 drell Exp $
+// $Id: V0Analyzer.cc,v 1.13 2009/10/09 13:02:54 llista Exp $
 //
 //
 
@@ -86,7 +86,7 @@ class V0Analyzer : public edm::EDAnalyzer {
 
 
    private:
-  //virtual void beginJob(const edm::EventSetup&) ;
+  //virtual void beginJob() ;
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -203,7 +203,7 @@ V0Analyzer::~V0Analyzer()
 
 
 // ------------ method called once each job just before starting event loop  ------------
-//void V0Analyzer::beginJob(const edm::EventSetup&) {
+//void V0Analyzer::beginJob() {
 void V0Analyzer::beginJob() {
 
   using std::string;

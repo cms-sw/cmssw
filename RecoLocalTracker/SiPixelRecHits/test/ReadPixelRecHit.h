@@ -40,7 +40,7 @@ class ReadPixelRecHit : public edm::EDAnalyzer
   virtual ~ReadPixelRecHit();
   
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void endJob();
 
  

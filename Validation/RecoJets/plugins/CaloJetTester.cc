@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.18 2009/07/13 19:02:55 chjeong Exp $
+// $Id: CaloJetTester.cc,v 1.19 2009/09/28 17:06:46 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -363,7 +363,7 @@ CaloJetTester::~CaloJetTester()
 {
 }
 
-void CaloJetTester::beginJob(const edm::EventSetup& c){
+void CaloJetTester::beginJob(){
 }
 
 void CaloJetTester::endJob() {

@@ -25,7 +25,7 @@ CSCDaqInfo::CSCDaqInfo(const edm::ParameterSet& ps) {
    
 }
 
-void CSCDaqInfo::beginJob(const edm::EventSetup& iSetup){
+void CSCDaqInfo::beginJob(){
 
   dbe = Service<DQMStore>().operator->();
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.h,v 1.6 2008/04/24 17:59:08 drell Exp $
+// $Id: V0Producer.h,v 1.7 2009/03/10 22:58:47 drell Exp $
 //
 //
 
@@ -46,7 +46,7 @@ public:
   ~V0Producer();
 
 private:
-  //virtual void beginJob(const edm::EventSetup&) ;
+  //virtual void beginJob() ;
   virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;

@@ -128,7 +128,7 @@ JetMETHLTOfflineSource::~JetMETHLTOfflineSource()
 { 
 }
 
-void JetMETHLTOfflineSource::beginJob(const edm::EventSetup& iSetup)
+void JetMETHLTOfflineSource::beginJob()
 {
 
   if (dbe_ != 0 ) {

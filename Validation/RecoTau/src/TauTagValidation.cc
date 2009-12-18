@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.10 2009/03/28 18:26:06 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.11 2009/05/15 08:56:54 friis Exp $
 //
 //
 // user include files
@@ -87,7 +87,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
+void TauTagValidation::beginJob()
 { 
 
   dbeTau = &*edm::Service<DQMStore>();

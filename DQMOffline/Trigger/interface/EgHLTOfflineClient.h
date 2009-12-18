@@ -73,7 +73,7 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   virtual ~EgHLTOfflineClient();
   
   
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&); //dummy
   virtual void endJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);

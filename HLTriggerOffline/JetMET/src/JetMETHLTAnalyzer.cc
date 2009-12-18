@@ -13,7 +13,7 @@
 //
 // Original Author:  Jochen Cammin
 //         Created:  Sun Oct 14 20:47:10 CDT 2007
-// $Id: JetMETHLTAnalyzer.cc,v 1.1 2008/01/28 20:25:54 cammin Exp $
+// $Id: JetMETHLTAnalyzer.cc,v 1.2 2009/01/30 15:44:32 cammin Exp $
 //
 //
 
@@ -68,7 +68,7 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   virtual void ObjectGetter(const edm::Event&, const edm::EventSetup&);  
@@ -359,7 +359,7 @@ JetMETHLTAnalyzer::BookHistos()
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-JetMETHLTAnalyzer::beginJob(const edm::EventSetup&)
+JetMETHLTAnalyzer::beginJob()
 {
 
   printf("[Starting the JetMETHLTAnalyzer]\n");

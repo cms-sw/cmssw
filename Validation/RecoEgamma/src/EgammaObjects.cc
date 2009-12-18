@@ -88,7 +88,7 @@ EgammaObjects::~EgammaObjects()
   delete rootFile_;
 }
 
-void EgammaObjects::beginJob(edm::EventSetup const&)
+void EgammaObjects::beginJob()
 {          
   TH1::SetDefaultSumw2(true);
 

@@ -35,7 +35,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/24 18:39:10 $ 
+ **  $Date: 2009/07/29 21:21:15 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -61,7 +61,7 @@ class PhotonPostprocessing : public edm::EDAnalyzer
                                    
       
   virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;
-  virtual void beginJob( const edm::EventSetup& ) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
   virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
  private:

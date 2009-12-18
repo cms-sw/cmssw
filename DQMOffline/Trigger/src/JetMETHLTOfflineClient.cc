@@ -37,7 +37,7 @@ JetMETHLTOfflineClient::~JetMETHLTOfflineClient()
   
 }
 
-void JetMETHLTOfflineClient::beginJob(const edm::EventSetup& iSetup)
+void JetMETHLTOfflineClient::beginJob()
 {
  
 

@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.8 2009/04/07 16:36:46 chiorbo Exp $
+// $Id: TriggerValidator.h,v 1.9 2009/04/10 18:11:38 chiorbo Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class TriggerValidator : public edm::EDAnalyzer {
       TFile* theHistoFile;
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

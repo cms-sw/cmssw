@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/15 17:50:46 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/11/07 12:57:15 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -97,7 +97,7 @@ GlobalRecHitsProducer::~GlobalRecHitsProducer()
 {
 }
 
-void GlobalRecHitsProducer::beginJob(const edm::EventSetup& iSetup)
+void GlobalRecHitsProducer::beginJob()
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_beginJob";
 

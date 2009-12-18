@@ -71,7 +71,7 @@ void SiPixelDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, cons
 void SiPixelDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){}
 
 
-void SiPixelDaqInfo::beginJob(const edm::EventSetup& iSetup){
+void SiPixelDaqInfo::beginJob(){
 
   dbe_ = 0;
   dbe_ = Service<DQMStore>().operator->();

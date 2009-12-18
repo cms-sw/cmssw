@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/27 18:42:30 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/05/15 17:50:46 $
+ *  $Revision: 1.17 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -167,7 +167,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   explicit GlobalRecHitsProducer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsProducer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   

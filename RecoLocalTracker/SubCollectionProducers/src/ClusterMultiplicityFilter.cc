@@ -7,7 +7,7 @@
 //
 // Original Author:  Carsten Noeding
 //         Created:  Mon Mar 19 13:51:22 CDT 2007
-// $Id: ClusterMultiplicityFilter.cc,v 1.3 2007/12/18 16:50:15 gpetrucc Exp $
+// $Id: ClusterMultiplicityFilter.cc,v 1.4 2007/12/27 17:49:33 noeding Exp $
 //
 //
 
@@ -69,7 +69,7 @@ bool ClusterMultiplicityFilter::filter(edm::Event& iEvent, const edm::EventSetup
 }
 
 
-void ClusterMultiplicityFilter::beginJob(const edm::EventSetup&) {
+void ClusterMultiplicityFilter::beginJob() {
 }
 
 

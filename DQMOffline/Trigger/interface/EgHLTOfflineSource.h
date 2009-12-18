@@ -90,7 +90,7 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
   explicit EgHLTOfflineSource(const edm::ParameterSet& );
   virtual ~EgHLTOfflineSource();
   
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void endRun(const edm::Run& run, const edm::EventSetup& c);

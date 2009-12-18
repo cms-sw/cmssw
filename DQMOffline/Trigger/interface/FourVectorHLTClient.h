@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: FourVectorHLTClient.h,v 1.7 2009/11/26 16:18:28 rekovic Exp $
+//$Id: FourVectorHLTClient.h,v 1.8 2009/12/11 02:49:15 rekovic Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,7 +40,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);

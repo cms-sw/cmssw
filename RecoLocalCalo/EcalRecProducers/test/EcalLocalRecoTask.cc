@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.8 2007/09/28 18:14:16 dlange Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.9 2008/03/02 13:54:08 franzoni Exp $
  *
 */
 
@@ -117,7 +117,7 @@ EcalLocalRecoTask::~EcalLocalRecoTask(){
 
 }
 
-void EcalLocalRecoTask::beginJob(const EventSetup& c){
+void EcalLocalRecoTask::beginJob(){
 
 }
 

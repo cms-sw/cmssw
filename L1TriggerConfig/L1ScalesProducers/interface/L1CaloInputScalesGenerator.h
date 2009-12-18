@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/140
 //         Created:  Wed Jun 25 16:40:01 CEST 2008
-// $Id: L1CaloInputScalesGenerator.h,v 1.1 2008/07/14 17:22:35 jleonard Exp $
+// $Id: L1CaloInputScalesGenerator.h,v 1.1 2008/07/24 10:40:49 jleonard Exp $
 //
 //
 
@@ -32,7 +32,7 @@ class L1CaloInputScalesGenerator : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

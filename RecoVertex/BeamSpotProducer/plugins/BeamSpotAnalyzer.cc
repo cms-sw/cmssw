@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.11 2009/09/18 20:47:54 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.12 2009/10/27 20:59:29 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -60,7 +60,7 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 void 
-BeamSpotAnalyzer::beginJob(const edm::EventSetup&)
+BeamSpotAnalyzer::beginJob()
 {
 }
 

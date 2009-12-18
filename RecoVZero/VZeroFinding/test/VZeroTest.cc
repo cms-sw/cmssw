@@ -27,7 +27,7 @@ class VZeroTest : public edm::EDAnalyzer
  public:
    explicit VZeroTest(const edm::ParameterSet& pset);
    ~VZeroTest();
-   virtual void beginJob(const edm::EventSetup& es) { }
+   virtual void beginJob() { }
    virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
    virtual void endJob() { }
 

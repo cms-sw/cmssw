@@ -45,7 +45,7 @@ RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
 
 RPCMonitorDigi::~RPCMonitorDigi(){}
 
-void RPCMonitorDigi::beginJob(EventSetup const&){
+void RPCMonitorDigi::beginJob(){
   LogInfo (nameInLog) <<"[RPCMonitorDigi]: Begin job" ;
   
   /// get hold of back-end interface

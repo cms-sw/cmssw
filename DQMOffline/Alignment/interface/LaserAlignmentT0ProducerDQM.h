@@ -45,7 +45,7 @@ class LaserAlignmentT0ProducerDQM : public edm::EDAnalyzer {
 
   explicit LaserAlignmentT0ProducerDQM( const edm::ParameterSet& );
   ~LaserAlignmentT0ProducerDQM();
-  virtual void beginJob( edm::EventSetup const& );
+  virtual void beginJob();
   virtual void endJob( void );
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   

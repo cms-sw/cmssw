@@ -51,7 +51,7 @@ ReadPixelRecHit::ReadPixelRecHit(edm::ParameterSet const& conf) :
 ReadPixelRecHit::~ReadPixelRecHit() { }  
 //---------------------------------------------------------------------
 // ------------ method called at the begining   ------------
-void ReadPixelRecHit::beginJob(const edm::EventSetup& iSetup) {
+void ReadPixelRecHit::beginJob() {
   cout << "Initialize PixelRecHitTest " <<endl;
 
 #ifdef DO_HISTO  

@@ -15,7 +15,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id: L25TauAnalyzer.cc,v 1.6 2008/10/03 19:00:40 bachtis Exp $
+// $Id: L25TauAnalyzer.cc,v 1.7 2008/10/03 19:09:11 bachtis Exp $
 //
 //
 
@@ -224,7 +224,7 @@ L25TauAnalyzer::match(const reco::Jet& jet,const LVColl& McInfo)
 
 
 
-void L25TauAnalyzer::beginJob(const edm::EventSetup&) {
+void L25TauAnalyzer::beginJob() {
 }
 
 

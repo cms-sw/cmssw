@@ -320,7 +320,7 @@ SiStripRecHitsValid::~SiStripRecHitsValid(){
  //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
-void SiStripRecHitsValid::beginJob(const EventSetup& c){
+void SiStripRecHitsValid::beginJob(){
 
 }
 

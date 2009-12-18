@@ -36,7 +36,7 @@ private:
 public:
 	virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
 	virtual void endJob(void);
-	virtual void beginJob(edm::EventSetup const&){}
+	virtual void beginJob(){}
 
 	explicit CSCTFanalyzer(edm::ParameterSet const& pset);
 	virtual ~CSCTFanalyzer(void) {}

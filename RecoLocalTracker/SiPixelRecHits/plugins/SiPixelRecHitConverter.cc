@@ -70,7 +70,7 @@ namespace cms
   //---------------------------------------------------------------------------
   // Begin job: get magnetic field
   //---------------------------------------------------------------------------
-  //void SiPixelRecHitConverter::beginJob(const edm::EventSetup& c) 
+  //void SiPixelRecHitConverter::beginJob() 
   void SiPixelRecHitConverter::beginJob() 
   {
   }

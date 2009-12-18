@@ -92,7 +92,7 @@ L1GtDataEmulAnalyzer::~L1GtDataEmulAnalyzer() {
 // member functions
 
 // method called once each job just before starting event loop
-void L1GtDataEmulAnalyzer::beginJob(const edm::EventSetup&) {
+void L1GtDataEmulAnalyzer::beginJob() {
     // empty
 }
 

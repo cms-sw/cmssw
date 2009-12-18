@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.37 2009/12/03 01:38:45 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.38 2009/12/11 02:49:15 rekovic Exp $
 //
 //
 
@@ -108,7 +108,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void cleanDRMatchSet(mmset& tempSet);
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/11/07 12:57:15 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/11/20 09:41:34 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -305,7 +305,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
 GlobalRecHitsAnalyzer::~GlobalRecHitsAnalyzer() {}
 
-void GlobalRecHitsAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void GlobalRecHitsAnalyzer::beginJob()
 {
   return;
 }

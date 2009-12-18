@@ -85,7 +85,7 @@ EgHLTOfflineSummaryClient::~EgHLTOfflineSummaryClient()
  
 }
 
-void EgHLTOfflineSummaryClient::beginJob(const edm::EventSetup& iSetup)
+void EgHLTOfflineSummaryClient::beginJob()
 {
  
 

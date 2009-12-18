@@ -36,7 +36,7 @@ class PixelTrackVal : public edm::EDAnalyzer {
 public:
   explicit PixelTrackVal(const edm::ParameterSet& conf);
   ~PixelTrackVal();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
@@ -56,7 +56,7 @@ PixelTrackVal::~PixelTrackVal()
   edm::LogInfo("PixelTrackVal")<<" DTOR";
 }
 
-void PixelTrackVal::beginJob(const edm::EventSetup& es) {
+void PixelTrackVal::beginJob() {
   // How noisy?
   verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
 

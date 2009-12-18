@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2009/03/04 19:10:14 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/06/08 10:56:13 $
+ *  $Revision: 1.24 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -38,7 +38,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	
 	virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
-	virtual void beginJob(edm::EventSetup const&);
+	virtual void beginJob();
 	virtual void endJob(void);
         void beginRun(const edm::Run& r, const edm::EventSetup& c);
 

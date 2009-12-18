@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeff Temple
 //         Created:  Mon May 12 15:38:09 CEST 2008
-// $Id$
+// $Id: LumiblockFilter.cc,v 1.1 2008/05/15 15:54:23 temple Exp $
 //
 //
 
@@ -43,7 +43,7 @@ class LumiblockFilter : public edm::EDFilter {
       ~LumiblockFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -132,7 +132,7 @@ LumiblockFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-LumiblockFilter::beginJob(const edm::EventSetup&)
+LumiblockFilter::beginJob()
 {
 }
 

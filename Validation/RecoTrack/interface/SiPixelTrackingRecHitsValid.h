@@ -74,7 +74,7 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   virtual ~SiPixelTrackingRecHitsValid();
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void endJob();
 
   //xt std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,const BoundPlane& plane);

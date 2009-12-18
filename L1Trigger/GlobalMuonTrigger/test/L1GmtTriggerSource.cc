@@ -43,7 +43,7 @@ class L1GmtTriggerSource : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -183,7 +183,7 @@ L1GmtTriggerSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1GmtTriggerSource::beginJob(const edm::EventSetup&)
+L1GmtTriggerSource::beginJob()
 {
 }
 

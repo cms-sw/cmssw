@@ -8,7 +8,7 @@
      \\\author: Shahram Rahatlou, May 2006
 */
 //
-// $Id: EgammaSimpleAnalyzer.h,v 1.6 2006/11/28 18:06:33 rahatlou Exp $
+// $Id: EgammaSimpleAnalyzer.h,v 1.7 2007/03/25 22:58:19 futyand Exp $
 //
 
 
@@ -39,7 +39,7 @@ class EgammaSimpleAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
  private:
 

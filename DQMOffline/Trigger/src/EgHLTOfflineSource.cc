@@ -89,7 +89,7 @@ EgHLTOfflineSource::~EgHLTOfflineSource()
   }
 }
 
-void EgHLTOfflineSource::beginJob(const edm::EventSetup& iSetup)
+void EgHLTOfflineSource::beginJob()
 {
   if(!dbe_) return;
 

@@ -19,7 +19,7 @@ RCTMonitor::~RCTMonitor()
 }
 
 
-void RCTMonitor::beginJob(edm::EventSetup const&)
+void RCTMonitor::beginJob()
 {
    BookRCT() ;
    

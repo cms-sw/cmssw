@@ -74,7 +74,7 @@ EgHLTOfflineClient::~EgHLTOfflineClient()
   
 }
 
-void EgHLTOfflineClient::beginJob(const edm::EventSetup& iSetup)
+void EgHLTOfflineClient::beginJob()
 {
  
 

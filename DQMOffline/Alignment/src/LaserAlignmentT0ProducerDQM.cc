@@ -33,7 +33,7 @@ LaserAlignmentT0ProducerDQM::~LaserAlignmentT0ProducerDQM() {
 ///
 ///
 ///
-void LaserAlignmentT0ProducerDQM::beginJob( edm::EventSetup const& aSetup ) {
+void LaserAlignmentT0ProducerDQM::beginJob() {
 
   // upper and lower treshold for a profile considered showing a signal
   theLowerAdcThreshold = theConfiguration.getParameter<unsigned int>( "LowerAdcThreshold" );

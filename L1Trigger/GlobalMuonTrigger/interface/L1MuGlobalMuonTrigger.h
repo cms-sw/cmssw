@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/07/06 15:35:38 $
-//   $Revision: 1.4 $
+//   $Date: 2008/11/05 17:24:57 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   Ivan Mikulec                    HEPHY Vienna
@@ -55,7 +55,7 @@ class L1MuGlobalMuonTrigger : public edm::EDProducer {
 
     explicit L1MuGlobalMuonTrigger(const edm::ParameterSet&);
     ~L1MuGlobalMuonTrigger();
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
 

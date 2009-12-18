@@ -42,7 +42,7 @@ class L2TauAnalyzer : public edm::EDAnalyzer {
       ~L2TauAnalyzer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       //Parameters to read

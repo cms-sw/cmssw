@@ -30,7 +30,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;  
   // ----------member data ---------------------------
@@ -153,7 +153,7 @@ PFTauElecRejectionBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFTauElecRejectionBenchmarkAnalyzer::beginJob(const edm::EventSetup&)
+PFTauElecRejectionBenchmarkAnalyzer::beginJob()
 {
 }
 

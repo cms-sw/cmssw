@@ -146,7 +146,7 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-L2TauAnalyzer::beginJob(const edm::EventSetup&)
+L2TauAnalyzer::beginJob()
 {
 
 }

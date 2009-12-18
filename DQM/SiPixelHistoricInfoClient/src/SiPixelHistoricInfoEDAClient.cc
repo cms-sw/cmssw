@@ -30,7 +30,7 @@ SiPixelHistoricInfoEDAClient::SiPixelHistoricInfoEDAClient(const ParameterSet& p
 SiPixelHistoricInfoEDAClient::~SiPixelHistoricInfoEDAClient() {}
 
 
-void SiPixelHistoricInfoEDAClient::beginJob(const EventSetup& eventSetup) {}
+void SiPixelHistoricInfoEDAClient::beginJob() {}
 
 
 void SiPixelHistoricInfoEDAClient::beginRun(const Run& run, const EventSetup& eventSetup) {

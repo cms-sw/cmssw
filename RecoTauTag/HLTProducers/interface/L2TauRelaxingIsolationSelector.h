@@ -24,7 +24,7 @@ class L2TauRelaxingIsolationSelector : public edm::EDProducer {
       ~L2TauRelaxingIsolationSelector();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

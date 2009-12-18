@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2008/04/17 23:18:30 $
-//   $Revision: 1.11 $
+//   $Date: 2008/11/05 17:24:58 $
+//   $Revision: 1.12 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -159,7 +159,7 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 // Operations --
 //--------------
 
-void L1MuGlobalMuonTrigger::beginJob(const edm::EventSetup& es) {
+void L1MuGlobalMuonTrigger::beginJob() {
     
 }
 

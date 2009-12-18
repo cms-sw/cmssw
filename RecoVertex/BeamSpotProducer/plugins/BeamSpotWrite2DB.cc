@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotWrite2DB.cc,v 1.4 2009/03/26 20:04:14 yumiceva Exp $
+ version $Id: BeamSpotWrite2DB.cc,v 1.5 2009/10/27 14:38:20 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -48,7 +48,7 @@ BeamSpotWrite2DB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 void 
-BeamSpotWrite2DB::beginJob(const edm::EventSetup&)
+BeamSpotWrite2DB::beginJob()
 {
 }
 

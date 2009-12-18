@@ -230,7 +230,7 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1CaloInputScalesGenerator::beginJob(const edm::EventSetup&)
+L1CaloInputScalesGenerator::beginJob()
 {
 }
 

@@ -42,7 +42,7 @@ CSCTFTrackProducer::~CSCTFTrackProducer()
   my_builder = 0;
 }
 
-void CSCTFTrackProducer::beginJob(const edm::EventSetup& es){
+void CSCTFTrackProducer::beginJob(){
   //  my_builder->initialize(es);
 }
 

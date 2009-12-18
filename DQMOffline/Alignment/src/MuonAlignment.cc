@@ -2,8 +2,8 @@
 /*
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2009/04/08 09:26:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/25 06:55:08 $
+ *  $Revision: 1.4 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -62,7 +62,7 @@ MuonAlignment::~MuonAlignment() {
 }
 
 
-void MuonAlignment::beginJob(edm::EventSetup const& iSetup) {
+void MuonAlignment::beginJob() {
 
 
     LogTrace(metname)<<"[MuonAlignment] Parameters initialization";

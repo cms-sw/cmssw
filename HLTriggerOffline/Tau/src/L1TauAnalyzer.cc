@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.cc,v 1.3 2008/04/24 21:27:31 chinhan Exp $
+// $Id: L1TauAnalyzer.cc,v 1.4 2008/07/23 15:19:50 chinhan Exp $
 //
 //
 
@@ -116,7 +116,7 @@ L1TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TauAnalyzer::beginJob(const edm::EventSetup&)
+L1TauAnalyzer::beginJob()
 {
   edm::Service<TFileService> fs;
   TFileDirectory dir = fs->mkdir("histos");

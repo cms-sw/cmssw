@@ -13,7 +13,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id: L25TauAnalyzer.h,v 1.5 2008/10/03 19:00:39 bachtis Exp $
+// $Id: L25TauAnalyzer.h,v 1.6 2008/10/03 19:09:11 bachtis Exp $
 //
 //
 
@@ -67,7 +67,7 @@ class L25TauAnalyzer : public edm::EDAnalyzer {
 
    private:
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       MatchElementL25 match(const reco::Jet&,const LVColl&);

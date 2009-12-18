@@ -59,7 +59,7 @@ SiPixelHistoricInfoReader::SiPixelHistoricInfoReader(const edm::ParameterSet& pS
 SiPixelHistoricInfoReader::~SiPixelHistoricInfoReader() {}
 
 
-void SiPixelHistoricInfoReader::beginJob(const edm::EventSetup& iSetup) {
+void SiPixelHistoricInfoReader::beginJob() {
   string outputDirFile = outputDir_ + "/" + outputFile_; 
   outputDirFile_ = new TFile(outputDirFile.data(), "RECREATE");
 } 

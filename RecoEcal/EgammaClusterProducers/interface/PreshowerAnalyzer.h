@@ -8,7 +8,7 @@
      \\\author: Shahram Rahatlou, May 2006
 */
 //
-// $Id: PreshowerAnalyzer.h,v 1.2 2006/07/21 00:15:59 dbanduri Exp $
+// $Id: PreshowerAnalyzer.h,v 1.3 2006/12/06 16:48:09 dbanduri Exp $
 //
 
 
@@ -39,7 +39,7 @@ public:
       ~PreshowerAnalyzer();
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
 
  private:

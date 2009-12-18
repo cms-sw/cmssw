@@ -227,7 +227,7 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1CaloInputScaleTester::beginJob(const edm::EventSetup&)
+L1CaloInputScaleTester::beginJob()
 {
 }
 

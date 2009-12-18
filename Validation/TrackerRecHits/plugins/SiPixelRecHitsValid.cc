@@ -244,7 +244,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
 SiPixelRecHitsValid::~SiPixelRecHitsValid() {
 }
 
-void SiPixelRecHitsValid::beginJob(const EventSetup& c) {
+void SiPixelRecHitsValid::beginJob() {
   
 }
 

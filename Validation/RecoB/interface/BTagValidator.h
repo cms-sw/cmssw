@@ -9,7 +9,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.h,v 1.5 2007/10/09 11:37:36 speer Exp $
+ version $Id: BTagValidator.h,v 1.6 2008/02/29 20:49:01 ksmith Exp $
 
 ________________________________________________________________**/
 
@@ -39,7 +39,7 @@ class BTagValidator : public edm::EDAnalyzer
 
   private:
 
-    virtual void beginJob(const edm::EventSetup&) {}
+    virtual void beginJob() {}
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob();
 

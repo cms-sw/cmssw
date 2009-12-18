@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.2 2009/11/19 02:10:52 duggan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.3 2009/11/19 14:02:40 duggan Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DQM/SiPixelMonitorClient/interface/SiPixelMuonHLT.h"
@@ -85,7 +85,7 @@ SiPixelMuonHLT::~SiPixelMuonHLT()
 
 }
 
-void SiPixelMuonHLT::beginJob(const edm::EventSetup& iSetup){
+void SiPixelMuonHLT::beginJob(){
 
   LogInfo ("PixelHLTDQM") << " SiPixelMuonHLT::beginJob - Initialisation ... " << std::endl;
   eventNo = 0;

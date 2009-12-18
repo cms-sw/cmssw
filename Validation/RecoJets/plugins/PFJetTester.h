@@ -3,7 +3,7 @@
 
 // Producer for validation histograms for PFlowJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: PFJetTester.h,v 1.3 2008/10/31 11:43:14 jueugste Exp $
+// $Id: PFJetTester.h,v 1.4 2009/03/28 04:58:04 hatake Exp $
 
 #include <string>
 
@@ -23,7 +23,7 @@ public:
   ~PFJetTester();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
  private:
   

@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotWrite2DB.h,v 1.4 2007/08/15 21:51:13 yumiceva Exp $
+ version $Id: BeamSpotWrite2DB.h,v 1.1 2008/05/14 15:39:17 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -35,7 +35,7 @@ class BeamSpotWrite2DB : public edm::EDAnalyzer {
   ~BeamSpotWrite2DB();
 
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

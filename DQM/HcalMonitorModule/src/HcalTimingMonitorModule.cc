@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.5 2009/07/06 19:56:38 temple Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.6 2009/07/06 20:03:47 temple Exp $
 //
 //
 
@@ -83,7 +83,7 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
       void   initialize();
    
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -251,7 +251,7 @@ string str;
 HcalTimingMonitorModule::~HcalTimingMonitorModule(){}
 
 // ------------ method called once each job just before starting event loop  ------------
-void HcalTimingMonitorModule::beginJob(const edm::EventSetup&){}
+void HcalTimingMonitorModule::beginJob(){}
 // ------------ method called once each job just after ending the event loop  ------------
 void HcalTimingMonitorModule::endJob(){}
 

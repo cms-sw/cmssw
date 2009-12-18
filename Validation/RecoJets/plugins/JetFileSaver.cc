@@ -29,7 +29,7 @@ JetFileSaver::JetFileSaver(const edm::ParameterSet& iConfig)
   
 }
 
-void JetFileSaver::beginJob(const edm::EventSetup& iSetup)
+void JetFileSaver::beginJob()
 {
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();

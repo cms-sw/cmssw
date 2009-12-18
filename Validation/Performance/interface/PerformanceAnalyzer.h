@@ -15,7 +15,7 @@ class PerformanceAnalyzer : public edm::EDAnalyzer
    explicit PerformanceAnalyzer(const edm::ParameterSet&);
    ~PerformanceAnalyzer();
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   virtual void beginJob(const edm::EventSetup&){} 
+   virtual void beginJob(){} 
    virtual void endJob() ;
  
 

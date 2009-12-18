@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.13 2009/04/24 13:07:01 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.14 2009/04/27 23:27:44 chiorbo Exp $
 //
 //
 
@@ -369,7 +369,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TriggerValidator::beginJob(const edm::EventSetup&)
+TriggerValidator::beginJob()
 {
 
 

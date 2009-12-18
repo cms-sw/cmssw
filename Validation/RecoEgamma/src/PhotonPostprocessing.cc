@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/25 19:15:51 $ 
+ **  $Date: 2009/07/29 21:21:01 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -48,7 +48,7 @@ PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
 PhotonPostprocessing::~PhotonPostprocessing()
 {}
 
-void PhotonPostprocessing::beginJob( const edm::EventSetup& setup)
+void PhotonPostprocessing::beginJob()
 {
 
 }

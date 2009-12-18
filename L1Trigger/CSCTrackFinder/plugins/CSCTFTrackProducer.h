@@ -20,7 +20,7 @@ class CSCTFTrackProducer : public edm::EDProducer
 
   void produce(edm::Event & e, const edm::EventSetup& c);
 
-  void beginJob(const edm::EventSetup& es);
+  void beginJob();
 
  private:
 

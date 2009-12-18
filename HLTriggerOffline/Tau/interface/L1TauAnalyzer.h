@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.h,v 1.1 2008/02/25 22:01:05 chinhan Exp $
+// $Id: L1TauAnalyzer.h,v 1.2 2008/12/06 08:57:08 bachtis Exp $
 //
 //
 
@@ -73,7 +73,7 @@ class L1TauAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

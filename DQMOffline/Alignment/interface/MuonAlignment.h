@@ -6,7 +6,7 @@
  *
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2008/12/13 15:31:21 $
+ *  $Date: 2009/03/04 10:57:48 $
  *  $Revision: 1.1 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
@@ -78,7 +78,7 @@ public:
     virtual ~MuonAlignment();
   
     /// Inizialize parameters for histo binning
-    void beginJob(edm::EventSetup const& iSetup);
+    void beginJob();
 
     /// Get the analysis
     void analyze(const edm::Event&, const edm::EventSetup&);

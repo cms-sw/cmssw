@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/27 18:42:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/13 21:20:31 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -63,7 +63,7 @@ class GlobalRecHitsHistogrammer : public edm::EDAnalyzer
 
   explicit GlobalRecHitsHistogrammer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsHistogrammer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   

@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotFromDB.cc,v 1.1 2007/03/30 18:46:57 yumiceva Exp $
+ version $Id: BeamSpotFromDB.cc,v 1.1 2007/08/25 19:07:36 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -53,7 +53,7 @@ BeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void
-BeamSpotFromDB::beginJob(const edm::EventSetup&)
+BeamSpotFromDB::beginJob()
 {
 }
 

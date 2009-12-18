@@ -34,7 +34,7 @@ class CalibAnalyzer : public edm::EDAnalyzer {
   
  private:
 
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(){ alg_.summarize(); };
 
@@ -123,7 +123,7 @@ void CalibAnalyzer<Ref, Rec, Alg>::fill(const double& var, const double& val, co
 }
 
 template <typename Ref, typename Rec, typename Alg>
-void CalibAnalyzer<Ref, Rec, Alg>::beginJob(const edm::EventSetup&)
+void CalibAnalyzer<Ref, Rec, Alg>::beginJob()
 {
   if( hist_.empty() )
     return;

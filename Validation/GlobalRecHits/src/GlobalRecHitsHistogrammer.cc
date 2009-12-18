@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/27 18:42:33 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/13 21:20:31 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -290,7 +290,7 @@ GlobalRecHitsHistogrammer::~GlobalRecHitsHistogrammer()
     if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-void GlobalRecHitsHistogrammer::beginJob(const edm::EventSetup& iSetup)
+void GlobalRecHitsHistogrammer::beginJob()
 {
   return;
 }

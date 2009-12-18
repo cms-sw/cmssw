@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.57 2009/12/11 02:49:15 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.58 2009/12/11 19:06:50 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -646,7 +646,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // -- method called once each job just before starting event loop  --------
 void 
-FourVectorHLTOffline::beginJob(const edm::EventSetup&)
+FourVectorHLTOffline::beginJob()
 {
   nev_ = 0;
   DQMStore *dbe = 0;

@@ -131,7 +131,7 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 //
 // -- Begin Job
 //
-void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
+void SiPixelEDAClient::beginJob(){
 //  cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
 
   // Read the summary configuration file

@@ -13,8 +13,8 @@
 //
 // Original Author:  Muriel Cerutti
 //         Created:  Thu Oct 26 10:47:17 CEST 2006
-// $Id: TPGCheck.cc,v 1.1 2007/02/19 14:34:37 uberthon Exp $
-// $Id: TPGCheck.cc,v 1.2 2009/02/05 16:30:00 ebecheva Exp $
+// $Id: TPGCheck.cc,v 1.2 2009/03/27 16:38:31 ebecheva Exp $
+// $Id: TPGCheck.cc,v 1.2 2009/03/27 16:38:31 ebecheva Exp $
 //
 
 
@@ -51,7 +51,7 @@ class TPGCheck : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -145,7 +145,7 @@ TPGCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TPGCheck::beginJob(const edm::EventSetup&)
+TPGCheck::beginJob()
 {
 }
 

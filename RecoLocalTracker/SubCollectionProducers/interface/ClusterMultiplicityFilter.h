@@ -15,7 +15,7 @@ class ClusterMultiplicityFilter : public edm::EDFilter {
       ~ClusterMultiplicityFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

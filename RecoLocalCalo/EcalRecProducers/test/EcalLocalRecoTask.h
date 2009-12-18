@@ -4,7 +4,7 @@
 /*
  * \file EcalLocalRecoTask.h
  *
- * $Id: EcalLocalRecoTask.h,v 1.1 2006/04/07 12:38:49 meridian Exp $
+ * $Id: EcalLocalRecoTask.h,v 1.2 2008/03/02 13:54:43 franzoni Exp $
  *
 */
 
@@ -58,7 +58,7 @@ class EcalLocalRecoTask: public EDAnalyzer
   void analyze(const Event& e, const EventSetup& c);
   
   // BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob();
   
   // EndJob
   void endJob(void);

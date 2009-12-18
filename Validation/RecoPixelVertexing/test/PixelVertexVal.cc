@@ -38,7 +38,7 @@ class PixelVertexVal : public edm::EDAnalyzer {
 public:
   explicit PixelVertexVal(const edm::ParameterSet& conf);
   ~PixelVertexVal();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
@@ -58,7 +58,7 @@ PixelVertexVal::~PixelVertexVal()
   edm::LogInfo("PixelVertexVal")<<" DTOR";
 }
 
-void PixelVertexVal::beginJob(const edm::EventSetup& es) {
+void PixelVertexVal::beginJob() {
   // How noisy?
   verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
 

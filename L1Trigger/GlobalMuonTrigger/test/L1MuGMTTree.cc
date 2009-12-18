@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2008/09/17 18:44:47 $
-//   $Revision: 1.14 $
+//   $Date: 2009/01/09 10:23:18 $
+//   $Revision: 1.16 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -75,7 +75,7 @@ L1MuGMTTree::L1MuGMTTree(const edm::ParameterSet& ps) : m_file(0), m_tree(0) {
 //--------------
 L1MuGMTTree::~L1MuGMTTree() {}
 
-void L1MuGMTTree::beginJob(const edm::EventSetup& es) {
+void L1MuGMTTree::beginJob() {
   m_file = TFile::Open(m_outfilename.c_str(),"RECREATE");
   m_tree = new TTree("h1","GMT Tree");
   book();

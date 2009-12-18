@@ -77,7 +77,7 @@ HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource()
 
 //--------------------------------------------------------
 void 
-HLTTauDQMOfflineSource::beginJob(const EventSetup& context){
+HLTTauDQMOfflineSource::beginJob(){
 
 }
 

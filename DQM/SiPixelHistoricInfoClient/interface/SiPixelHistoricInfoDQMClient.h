@@ -22,7 +22,7 @@ public:
  ~SiPixelHistoricInfoDQMClient() {};
 
 private:
-  void beginJob(const edm::EventSetup&);
+  void beginJob();
   void beginRun(const edm::Run&, const edm::EventSetup&) {};
   void analyze(const edm::Event&, const edm::EventSetup&) {};
   void endRun(const edm::Run&, const edm::EventSetup&);

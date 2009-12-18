@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 200
-// $Id: PreshowerAnalyzer.cc,v 1.4 2007/03/08 19:11:10 futyand Exp $
+// $Id: PreshowerAnalyzer.cc,v 1.5 2007/09/06 23:43:10 ratnik Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
@@ -69,7 +69,7 @@ PreshowerAnalyzer::~PreshowerAnalyzer()
 }
 
 //========================================================================
-void PreshowerAnalyzer::beginJob(edm::EventSetup const&) {
+void PreshowerAnalyzer::beginJob() {
 //========================================================================
 
   rootFile_->cd();

@@ -30,7 +30,7 @@ SiPixelCertification::~SiPixelCertification(){
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::Deleting SiPixelCertification ";
 }
 
-void SiPixelCertification::beginJob(const edm::EventSetup& iSetup){
+void SiPixelCertification::beginJob(){
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::beginJob ";
 
   dbe_->setCurrentFolder("Pixel/EventInfo");

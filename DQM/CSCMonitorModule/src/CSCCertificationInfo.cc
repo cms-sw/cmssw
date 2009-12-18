@@ -25,7 +25,7 @@ CSCCertificationInfo::CSCCertificationInfo(const edm::ParameterSet& ps) {
    
 }
 
-void CSCCertificationInfo::beginJob(const edm::EventSetup& iSetup){
+void CSCCertificationInfo::beginJob(){
 
   dbe = Service<DQMStore>().operator->();
 

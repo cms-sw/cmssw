@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.15 2009/06/08 19:48:47 hatake Exp $
+// $Id: CaloJetTester.h,v 1.16 2009/07/13 19:03:02 chjeong Exp $
 
 #include <string>
 
@@ -25,7 +25,7 @@ public:
   ~CaloJetTester();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
  
 private:

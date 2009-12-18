@@ -61,7 +61,7 @@ void SiPixelTrackingRecHitsValid::endJob()
   }
 }
 
-void SiPixelTrackingRecHitsValid::beginJob(const edm::EventSetup& es)
+void SiPixelTrackingRecHitsValid::beginJob()
 {
 
   if(debugNtuple_.size()!=0){

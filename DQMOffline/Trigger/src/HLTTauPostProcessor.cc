@@ -18,7 +18,7 @@ HLTTauPostProcessor::~HLTTauPostProcessor()
 {
 }
 void 
-HLTTauPostProcessor::beginJob(const EventSetup& context){
+HLTTauPostProcessor::beginJob(){
 }
 
 void HLTTauPostProcessor::beginRun(const edm::Run& r, const edm::EventSetup& context) {

@@ -35,7 +35,7 @@ public:
 
 protected:
 
-  void beginJob(edm::EventSetup const& eSetup);
+  void beginJob();
   void beginRun(edm::Run const& run, 
                 edm::EventSetup const& eSetup);
   void analyze(edm::Event const& e, 

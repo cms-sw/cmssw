@@ -6,8 +6,8 @@
  *   Description:  Create GMT HW test patterns
 */
 //                
-//   $Date:  $
-//   $Revision: $
+//   $Date: 2008/02/05 10:31:02 $
+//   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -64,7 +64,7 @@ class L1MuGMTPattern : public edm::EDAnalyzer {
     void printMipIso();
     unsigned invertQPt(unsigned);
 
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
     virtual void endJob();
 
   private:
