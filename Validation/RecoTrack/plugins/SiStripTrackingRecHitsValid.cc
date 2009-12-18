@@ -1360,7 +1360,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
       const TransientTrackingRecHit::ConstRecHitPointer thit2=itTraj->recHit();
       const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit2).hit());
-      const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>((*thit2).hit());
+      const SiStripRecHit2D* hit2d=dynamic_cast<const SiStripRecHit2D*>((*thit2).hit());
+      const SiStripRecHit1D* hit1d=dynamic_cast<const SiStripRecHit1D*>((*thit2).hit());
       //if(matchedhit) cout<<"manganomatchedhit"<<endl;
       //if(hit) cout<<"manganosimplehit"<<endl;
       //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
@@ -1590,6 +1591,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    //cout<<"DebugLine23"<<endl;
 	    //		const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
 	    SiStripRecHit2D::ClusterRef cluster=monohit->cluster();
+	    //SiStripRecHit1D::ClusterRef cluster=monohit->cluster();
 	    clusiz=0;
 	    totcharge=0;
 	    clusiz = cluster->amplitudes().size();
@@ -1771,7 +1773,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       //isrechitsas = 0;
       
       
-      if(hit){
+      if(hit1d){
 	// simple hits are mono or stereo
 	//	cout<<"simple hit"<<endl;
 	if (StripSubdet.stereo() == 0){
@@ -1785,7 +1787,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
 	  float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
 
-	  SiStripRecHit2D::ClusterRef cluster=hit->cluster();
+	  //SiStripRecHit2D::ClusterRef cluster=hit->cluster();
+	  SiStripRecHit1D::ClusterRef cluster=hit1d->cluster();
 
 	  position = thit->localPosition();
 	  error = thit->localPositionError();
@@ -1838,11 +1841,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  //Association of the rechit to the simhit
 	  mindist = 999999;
 	  matched.clear();  
-	  matched = associate.associateHit(*hit);
+	  matched = associate.associateHit(*hit1d);
 	  if(!matched.empty()){
 	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	      dist = abs((hit)->localPosition().x() - (*m).localPosition().x());
+	      dist = abs((hit1d)->localPosition().x() - (*m).localPosition().x());
 	      if(dist<mindist){
 		mindist = dist;
 		closest = (*m);
@@ -1958,7 +1961,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
           float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
           float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
 
-          SiStripRecHit2D::ClusterRef cluster=hit->cluster();
+          //SiStripRecHit2D::ClusterRef cluster=hit->cluster();
+	  SiStripRecHit1D::ClusterRef cluster=hit1d->cluster();
 
 
           position = thit->localPosition();
@@ -2007,11 +2011,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  //Association of the rechit to the simhit
 	  mindist = 999999;
 	  matched.clear();  
-	  matched = associate.associateHit(*hit);
+	  matched = associate.associateHit(*hit1d);
 	  if(!matched.empty()){
 	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	      dist = abs((hit)->localPosition().x() - (*m).localPosition().x());
+	      dist = abs((hit1d)->localPosition().x() - (*m).localPosition().x());
 	      if(dist<mindist){
 		mindist = dist;
 		closest = (*m);
@@ -2044,7 +2048,282 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	}
 	//isrechitsas = 0;
       }
-      
+
+
+      if(hit2d){
+	// simple hits are mono or stereo
+	//	cout<<"simple hit"<<endl;
+	if (StripSubdet.stereo() == 0){
+	  isrechitrphi = 1;
+	  //	  cout<<"simple hit mono"<<endl;
+
+	  const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
+	  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+	  const StripTopology &topol=(StripTopology&)stripdet->topology();
+
+	  float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
+	  float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
+
+	  SiStripRecHit2D::ClusterRef cluster=hit2d->cluster();
+
+	  position = thit->localPosition();
+	  error = thit->localPositionError();
+	  Mposition = topol.measurementPosition(position);
+	  Merror = topol.measurementError(position,error);
+
+	  LocalVector drift = stripcpe->driftDirection(stripdet);
+	  float thickness=stripdet->surface().bounds().thickness();
+	  rechitrphithickness = thickness;
+	  //cout<<"Valid:thickness = "<<thickness<<endl;
+	  float pitch = topol.localPitch(position);
+	  //cout<<"Valid:pitch = "<<pitch<<endl;
+	  float tanalpha = tan(anglealpha/57.3);
+	  //cout<<"Valid:tanalpha = "<<tanalpha<<endl;
+	  float tanalphaL = drift.x()/drift.z();
+	  //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
+	  //	  float tanalphaLcpe = driftcpe.x()/driftcpe.z();
+	  //cout<<"Valid:tanalphaLcpe = "<<tanalphaLcpe<<endl;
+	  //cout<<"Validmono:drift.x() = "<<drift.x()<<endl;
+	  //cout<<"Valid:drift.z() = "<<drift.z()<<endl;
+	  //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
+	  Wtrack = fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
+	  //       fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
+	  //cout<<"Valid2:Wtrack = "<<Wtrack<<endl;
+	  float SLorentz = 0.5*(thickness/pitch)*tanalphaL;
+	  //int nstrips = topol.nstrips(); 
+	  int Sp = int(position.x()/pitch+SLorentz+0.5*Wtrack);
+	  int Sm = int(position.x()/pitch+SLorentz-0.5*Wtrack);
+	  Wexp = 1+Sp-Sm;
+
+	  clusiz=0;
+	  totcharge=0;
+	  clusiz = cluster->amplitudes().size();
+	  //cout<<"cluster->firstStrip() = "<<cluster->firstStrip()<<endl;
+	  const std::vector<uint8_t> amplitudes=cluster->amplitudes();
+	  for(size_t ia=0; ia<amplitudes.size();ia++){
+	    totcharge+=amplitudes[ia];
+	  }
+	  rechitrphix = position.x();
+	  rechitrphiy = position.y();
+	  rechitrphiz = position.z();
+	  rechitrphierrx = error.xx();
+	  rechitrphierrxLF = error.xx();
+	  rechitrphierrxMF = Merror.uu();
+	  //cout<<"rechitrphierrxMF simple hit= "<<sqrt(rechitrphierrxMF)<<endl;
+	  clusizrphi = clusiz;
+	  //cout<<"clusizrphi = "<<clusiz<<endl;
+	  cluchgrphi = totcharge;
+
+	  //Association of the rechit to the simhit
+	  mindist = 999999;
+	  matched.clear();  
+	  matched = associate.associateHit(*hit2d);
+	  if(!matched.empty()){
+	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
+	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	      dist = abs((hit2d)->localPosition().x() - (*m).localPosition().x());
+	      if(dist<mindist){
+		mindist = dist;
+		closest = (*m);
+	      }
+	      rechitrphiresLF = rechitrphix - closest.localPosition().x();
+	      rechitrphiresMF = Mposition.x() - (topol.measurementPosition(closest.localPosition())).x();
+	      rechitrphipullLF = (thit->localPosition().x() - (closest).localPosition().x())/sqrt(error.xx());
+	      rechitrphipullMF = rechitrphiresMF/sqrt(rechitrphierrxMF);
+	    }
+	  }
+	  rechitrphitrackangle = anglealpha;
+	  rechitrphitrackanglebeta = anglebeta;
+	  rechitrphitrackwidth = Wtrack;
+	  rechitrphiexpectedwidth = Wexp;
+
+	  clusterWidth = clusiz;
+	  unsigned int iopt;
+	  if (clusterWidth > Wexp + 2) {
+	    iopt = 1;
+	  } else if (Wexp == 1) {
+	    iopt = 2;
+	  } else if (clusterWidth <= Wexp) {
+	    iopt = 3;
+	  } else {
+	    iopt = 4;
+	  }
+	  rechitrphicategory = iopt;
+	  
+// 	  if (rechitrphiexpectedwidth == 1 && clusterWidth == 3) {
+// 	  //if ( clusterWidth == 3) {
+// 	    cout<<"TRUE"<<endl;
+// 	    cout<<"TestClus2:Position SH = "<<(closest).localPosition().x()<<" , "<<(topol.measurementPosition(closest.localPosition())).x()<<endl;
+// 	    cout<<"TestClus2:Position RH = "<<thit->localPosition().x()<<" ,"<<Mposition.x()<<endl;
+// 	    cout<<"TestClus2:residue = "<<rechitrphiresMF<<endl;
+// 	    short firstStrip = cluster->firstStrip();
+// 	    short lastStrip = firstStrip + clusterWidth - 1;
+// 	    cout<<"TestClus2:firstStrip = "<<firstStrip<<endl;
+// 	    cout<<"TestClus2:lastStrip = "<<lastStrip<<endl;
+// 	    cout<<"TestClus2:detid = "<<detid.subdetId()<<endl;
+// 	    for(size_t ia=0; ia<amplitudes.size();ia++){
+// 	      cout<<"ia, TestClus2:charge= "<<ia<<" , "<<amplitudes[ia]<<endl;
+// 	    }
+// 	    cout<<"TestClus2:Trackwidth = "<<Wtrack<<endl;
+// 	  }
+	  
+	
+	  //cout<<"rechitrphicategory = "<<rechitrphicategory<<endl;
+
+	  //	  if ((detid.subdetId() == int(StripSubdetector::TID)) || (detid.subdetId() == int(StripSubdetector::TEC))) {
+	    //if ((detid.subdetId() == int(StripSubdetector::TIB))) {
+	   
+// 	    if (clusterWidth ==2 && Wexp == 1 && Wtrack<0.1) {
+// 	      cout<<"TestClus:begin"<<endl;
+// 	      LocalVector  drift2 = drift * fabs(thickness/drift.z());       
+// 	      LocalPoint result2=LocalPoint(position.x()-drift2.x()/2,position.y()-drift2.y()/2,0);
+// 	      MeasurementPoint mpoint=topol.measurementPosition(result2);
+// 	      cout<<"TestClus:Position SH = "<<(closest).localPosition().x()<<" , "<<(topol.measurementPosition(closest.localPosition())).x()<<endl;
+// 	      cout<<"TestClus:Position RH = "<<thit->localPosition().x()<<" ,"<<Mposition.x()<<endl;
+// 	      cout<<"TestClus:Position RH no drift= "<<thit->localPosition().x() - drift2.x()/2<<" , "<<mpoint.x()<<endl;
+// 	      cout<<"TestClus:Drift= "<<drift.x()<<endl;
+// 	      cout<<"TestClus:residue = "<<rechitrphiresMF<<endl;
+// 	      for(size_t ia=0; ia<amplitudes.size();ia++){
+// 		cout<<"ia, TestClus:charge= "<<ia<<" , "<<amplitudes[ia]<<endl;
+// 	      }
+// 	      cout<<"TestClus:Trackwidth = "<<Wtrack<<endl;
+// 	      short firstStrip = cluster->firstStrip();
+// 	      short lastStrip = firstStrip + clusterWidth - 1;
+// 	      cout<<"TestClus:firstStrip = "<<firstStrip<<endl;
+// 	      cout<<"TestClus:lastStrip = "<<lastStrip<<endl;
+// 	      cout<<"TestClus:detid = "<<detid.subdetId()<<endl;
+// 	      int nstrips = topol.nstrips(); 
+// 	      cout<<"TestClus:nstrips = "<<nstrips<<endl;
+// 	      cout<<"TestClus:anglealpha = "<<anglealpha<<endl;
+// 	      cout<<"TestClus:end"<<endl;
+// 	      positionshx = (topol.measurementPosition(closest.localPosition())).x();
+
+// 	      if ((positionshx - int(positionshx)) > 0.5) {
+// 		if (lastStrip > int(positionshx)) secondstrip = 1;
+// 		if (lastStrip = int(positionshx)) secondstrip = -1;
+// 	      }
+// 	      if ((positionshx - int(positionshx)) < 0.5) {
+// 		if (lastStrip > int(positionshx)) secondstrip = -1;
+// 		if (lastStrip = int(positionshx)) secondstrip = 1;
+// 	      }
+
+// 	    }
+
+	    //}
+	  
+// 	  cout<<"int() = "<<int((topol.measurementPosition(closest.localPosition())).x())<<endl;
+// 	  diff = int((topol.measurementPosition(closest.localPosition())).x()) -topol.measurementPosition(closest.localPosition()).x();
+// 	  cout<<"diff = "<<diff<<endl;
+// 	  if (clusterWidth ==2 && Wexp == 1 && Wtrack<1) {
+// 	    if ((abs(1 + diff) <0.2) || (abs(diff) <0.2)) {
+// 	      //	      isrechitrphi = 0;
+// 	      cout<<"vire"<<endl;
+// 	    }
+// 	  }
+// 	  positionshx = (topol.measurementPosition(closest.localPosition())).x();
+
+
+	}
+
+	if (StripSubdet.stereo() == 1){
+
+	  //cout<<"simple hit stereo"<<endl;
+	  isrechitsas = 1;
+
+          const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
+          const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+          const StripTopology &topol=(StripTopology&)stripdet->topology();
+
+          float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
+          float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
+
+          SiStripRecHit2D::ClusterRef cluster=hit2d->cluster();
+
+
+          position = thit->localPosition();
+          error = thit->localPositionError();
+          Mposition = topol.measurementPosition(position);
+          Merror = topol.measurementError(position,error);
+
+	  //	  LocalVector drift= driftDirection(stripdet);
+	  LocalVector drift = stripcpe->driftDirection(stripdet);
+	  float thickness=stripdet->surface().bounds().thickness();
+	  rechitsasthickness = thickness;
+	  //cout<<"thickness = "<<thickness<<endl;
+	  float pitch = topol.localPitch(position);
+	  //cout<<"Valid:pitch = "<<pitch<<endl;
+	  float tanalpha = tan(anglealpha/57.3);
+	  //cout<<"Valid:tanalpha = "<<tanalpha<<endl;
+	  float tanalphaL = drift.x()/drift.z();
+	  //cout<<"Validstereo:drift.x() = "<<drift.x()<<endl;
+	  //cout<<"Valid:drift.z() = "<<drift.z()<<endl;
+	  //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
+	  Wtrack = fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
+	  //cout<<"Valid:Wtrack = "<<Wtrack<<endl;
+	  float SLorentz = 0.5*(thickness/pitch)*tanalphaL;
+	  //int nstrips = topol.nstrips(); 
+	  int Sp = int(position.x()/pitch+SLorentz+0.5*Wtrack);
+	  int Sm = int(position.x()/pitch+SLorentz-0.5*Wtrack);
+	  Wexp = 1+Sp-Sm;
+
+	  clusiz=0;
+	  totcharge=0;
+	  clusiz = cluster->amplitudes().size();
+	  const std::vector<uint8_t> amplitudes=cluster->amplitudes();
+	  for(size_t ia=0; ia<amplitudes.size();ia++){
+	    totcharge+=amplitudes[ia];
+	  }
+	  rechitsasx = position.x();
+	  rechitsasy = position.y();
+	  rechitsasz = position.z();
+	  rechitsaserrxLF = error.xx();
+	  //cout<<"rechitsaserrxLF = "<<rechitsaserrxLF<<endl;
+	  rechitsaserrxMF = Merror.uu();
+	  //cout<<"rechitsaserrxMF simple hit= "<<sqrt(rechitsaserrxMF)<<endl;
+	  clusizsas = clusiz;
+	  cluchgsas = totcharge;
+
+	  //Association of the rechit to the simhit
+	  mindist = 999999;
+	  matched.clear();  
+	  matched = associate.associateHit(*hit2d);
+	  if(!matched.empty()){
+	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
+	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	      dist = abs((hit2d)->localPosition().x() - (*m).localPosition().x());
+	      if(dist<mindist){
+		mindist = dist;
+		closest = (*m);
+	      }
+
+	      rechitsasresLF = rechitsasx - closest.localPosition().x();
+	      rechitsasresMF = Mposition.x() - (topol.measurementPosition(closest.localPosition())).x();
+	      rechitsaspullLF = (thit->localPosition().x() - (closest).localPosition().x())/sqrt(error.xx());
+	      rechitsaspullMF = rechitsasresMF/sqrt(rechitsaserrxMF);
+
+	    }
+	  }
+	  rechitsastrackangle = anglealpha;
+	  rechitsastrackanglebeta = anglebeta;
+	  rechitsastrackwidth = Wtrack;
+	  rechitsasexpectedwidth = Wexp;
+
+	  clusterWidth = clusiz;
+	  unsigned int iopt;
+	  if (clusterWidth > Wexp + 2) {
+	    iopt = 1;
+	  } else if (Wexp == 1) {
+	    iopt = 2;
+	  } else if (clusterWidth <= Wexp) {
+	    iopt = 3;
+	  } else {
+	    iopt = 4;
+	  }
+	  rechitsascategory = iopt;
+	}
+	//isrechitsas = 0;
+
+      }
 
       //Filling Histograms for simple hits
       //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
