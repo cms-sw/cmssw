@@ -59,7 +59,7 @@ def buildDBSQuery( decodedEventInfos):
     return (dbsQuery, eventRanges)
 
 parser = OptionParser()
-parser.usage = "%prog <eventsInfo> <cfg>"
+parser.usage = "%prog <eventsInfo> <cfg>\neventsInfo should be of the form: 'run1:lumi1:event1,run2:lumi2:event2,...'"
 parser.add_option("-n", "--negate", action="store_true",
                   dest="negate", default=False,
                   help="create cfg file, but do not cmsRun")
