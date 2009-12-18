@@ -52,7 +52,6 @@ PatTauAnalyzer::~PatTauAnalyzer()
 //--- clean-up memory;
 //    delete all histograms
 /*
-
   deletion of histograms taken care of by TFileService;
   do not delete them here (if the histograms are deleted here,
   they will not appear in the ROOT file written by TFileService)
@@ -193,11 +192,11 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //       
 // NOTE: 
 //  1.) please have a look at
-//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/Candidate/interface/Particle.h?revision=1.27&view=markup
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/Candidate/interface/Particle.h?revision=1.28&view=markup
 //      to find the methods for accessing eta and phi of the tau-jet
 //
 //  2.) please have a look at
-//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/interface/Tau.h?revision=1.20.2.2&view=markup
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/interface/Tau.h?revision=1.25&view=markup
 //      to find the method for accessing the leading track
 //
 //  3.) the method pat::Tau::leadTrack returns a reference (reco::TrackRef) to a reco::Track object
@@ -227,11 +226,11 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //
 // NOTE:
 //  1.) please have a look at
-//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/interface/Tau.h?revision=1.20.2.2&view=markup
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/interface/Tau.h?revision=1.25&view=markup
 //      to find the method for accessing the tau id. information
 //  
 //  2.) please have a look at
-//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PatAlgos/python/tools/tauTools.py?revision=1.2.2.6&view=markup
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PatAlgos/python/tools/tauTools.py?revision=1.18&view=markup
 //      and convince yourself that the string "againstElectron" needs to be passed as argument 
 //      of the pat::Tau::tauID method
 //
