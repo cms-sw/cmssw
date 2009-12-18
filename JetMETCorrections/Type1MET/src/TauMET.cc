@@ -94,7 +94,7 @@ namespace cms
   }
   
   // ------------ method called once each job just before starting event loop  ------------
-  void TauMET::beginJob(const edm::EventSetup&) { }
+  void TauMET::beginJob() { }
   
   // ------------ method called once each job just after ending the event loop  ------------
   void TauMET::endJob() { }
