@@ -23,7 +23,7 @@ process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
 process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -163,8 +163,28 @@ process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
 ###
 ###############################################################################################
 
+# produce L1 trigger object maps (temporary fix for HLT mistake 
+# in event content definition of RAW datatier for stream A)
+import L1Trigger.GlobalTrigger.gtDigis_cfi
+process.hltL1GtObjectMap = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
+process.hltL1GtObjectMap.GmtInputTag = cms.InputTag( "gtDigis" )
+process.hltL1GtObjectMap.GctInputTag = cms.InputTag( "gctDigis" )
+process.hltL1GtObjectMap.CastorInputTag = cms.InputTag( "castorL1Digis" )
+process.hltL1GtObjectMap.ProduceL1GtDaqRecord = cms.bool( False )
+process.hltL1GtObjectMap.ProduceL1GtEvmRecord = cms.bool( False )
+process.hltL1GtObjectMap.ProduceL1GtObjectMapRecord = cms.bool( True )
+process.hltL1GtObjectMap.WritePsbL1GtDaqRecord = cms.bool( False )
+process.hltL1GtObjectMap.ReadTechnicalTriggerRecords = cms.bool( True )
+process.hltL1GtObjectMap.EmulateBxInEvent = cms.int32( 1 )
+process.hltL1GtObjectMap.AlternativeNrBxBoardDaq = cms.uint32( 0 )
+process.hltL1GtObjectMap.AlternativeNrBxBoardEvm = cms.uint32( 0 )
+process.hltL1GtObjectMap.BstLengthBytes = cms.int32( -1 )
+process.hltL1GtObjectMap.TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' )
+process.hltL1GtObjectMap.RecordLength = cms.vint32( 3, 0 )
+
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1GtObjectMap_step = cms.Path(process.hltL1GtObjectMap)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction_withPixellessTk)
 process.dqmoffline_step = cms.Path(process.DQMOffline)
@@ -174,4 +194,4 @@ process.pathALCARECOSiStripCalZeroBias = cms.Path(process.seqALCARECOSiStripCalZ
 process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalZeroBias)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.ALCARECOStreamSiStripCalZeroBiasOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1GtObjectMap_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.ALCARECOStreamSiStripCalZeroBiasOutPath)
