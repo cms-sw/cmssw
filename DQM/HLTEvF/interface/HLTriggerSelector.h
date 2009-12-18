@@ -25,32 +25,33 @@ class HLTriggerSelector {
       
     //get the configuration
     HLTConfigProvider hltConfig;
-    hltConfig.init(theTriggerResulTag.process());
-    std::vector<std::string> validTriggerNames = hltConfig.triggerNames(); 
+    if(hltConfig.init(theTriggerResulTag.process())){
+      std::vector<std::string> validTriggerNames = hltConfig.triggerNames(); 
       
-    bool goodToGo = false;
-    //remove all path names that are not valid
-    while(!goodToGo && selectTriggers.size()!=0){
-      goodToGo=true;
-      for (std::vector<std::string>::iterator j=selectTriggers.begin();j!=selectTriggers.end();++j){
-	bool goodOne = false;
-	//check if trigger name is valid
-	//use of wildcard
-	TPRegexp wildCard(*j);
-	//std::cout << "wildCard.GetPattern() = " << wildCard.GetPattern() << std::endl;
-	for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
-	  if (TString(validTriggerNames[i]).Contains(wildCard)){ 
-	    goodOne = true;
-	    if (find(theSelectTriggers.begin(),
-		     theSelectTriggers.end(), 
-		     validTriggerNames[i])==theSelectTriggers.end()){
-	      //std::cout << "wildcard trigger = " << validTriggerNames[i] << std::endl;
-	      theSelectTriggers.push_back( validTriggerNames[i] ); //add it after duplicate check.
+      bool goodToGo = false;
+      //remove all path names that are not valid
+      while(!goodToGo && selectTriggers.size()!=0){
+	goodToGo=true;
+	for (std::vector<std::string>::iterator j=selectTriggers.begin();j!=selectTriggers.end();++j){
+	  bool goodOne = false;
+	  //check if trigger name is valid
+	  //use of wildcard
+	  TPRegexp wildCard(*j);
+	  //std::cout << "wildCard.GetPattern() = " << wildCard.GetPattern() << std::endl;
+	  for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
+	    if (TString(validTriggerNames[i]).Contains(wildCard)){ 
+	      goodOne = true;
+	      if (find(theSelectTriggers.begin(),
+		       theSelectTriggers.end(), 
+		       validTriggerNames[i])==theSelectTriggers.end()){
+		//std::cout << "wildcard trigger = " << validTriggerNames[i] << std::endl;
+		theSelectTriggers.push_back( validTriggerNames[i] ); //add it after duplicate check.
+	      }
 	    }
 	  }
 	}
-      }
-    }//while
+      }//while
+    }
   }
 
   bool selectEvent(const edm::Event & iEvent){
