@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
+
 const int EcalScDetId::QuadColLimits[EcalScDetId::nCols+1] = { 0, 8,17,27,36,45,54,62,70,76,79 };
 const int EcalScDetId::iYoffset[EcalScDetId::nCols+1]      = { 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -36,8 +37,11 @@ EcalScDetId& EcalScDetId::operator=(const DetId& gen) {
   return *this;
 }
   
+// int EcalScDetId::hashedIndex() const {
+//   return ((zside()>0)?(IX_MAX*IY_MAX):(0))+(iy()-1)*IX_MAX+(ix()-1);
+// }
 int EcalScDetId::hashedIndex() const {
-  return ((zside()>0)?(IX_MAX*IY_MAX):(0))+(iy()-1)*IX_MAX+(ix()-1);
+  return isc(); 
 }
 
 int EcalScDetId::ixQuadrantOne() const
@@ -89,8 +93,10 @@ int EcalScDetId::isc() const
    *  Copied from code originally written by B W Kennedy
    */
   
-  int iCol = ix();
-  int iRow = iy();
+    int iCol = ixQuadrantOne();
+  int iRow = iyQuadrantOne();
+  //int iCol = ix();
+  //int iRow = iy();
   int nSCinQuadrant = QuadColLimits[nCols];
   int iSC;
   
@@ -104,6 +110,10 @@ int EcalScDetId::isc() const
   
   if (iSC>0) 
       iSC += nSCinQuadrant*(iquadrant()-1);
+
+  if(zside()>0) 
+      iSC += nSCinQuadrant*4;
+
   
   return iSC;
 }  
