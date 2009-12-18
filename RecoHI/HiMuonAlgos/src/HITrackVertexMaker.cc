@@ -9,7 +9,7 @@
 //         Created:  Wed May  9 06:22:36 CEST 2007
 // $Id: HITrackVertexMaker.cc,v 1.4 2009/09/11 15:41:05 kodolova Exp $
 //
-//
+// added CAIR error cut
  
 #include "RecoHI/HiMuonAlgos/interface/HITrackVertexMaker.h" 
 
@@ -94,6 +94,10 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+// Vertex reco modification
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+
 
 //Constructor
 
@@ -132,7 +136,6 @@ HITrackVertexMaker::~HITrackVertexMaker()
 
 bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSetup& es1, HICConst* theHICConst, FmpConst* theFmpConst)
 {
-    
    bool dimuon = false;
    
    edm::Handle<RecoChargedCandidateCollection> L2mucands;
@@ -163,9 +166,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 #ifdef DEBUG_COUNT
    cout<<" Accepted for L3 propagation  "<<endl;  
 #endif
-
-
-// We need to be sure that it is Primary vertex. Exchange vertex cycle to  (1). 
+   
 
    int iv = 0;
    for (reco::VertexCollection::const_iterator ipvertex=vertexcands->begin();ipvertex!=vertexcands->end();ipvertex++)
@@ -174,9 +175,6 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      if (iv == 0) {theHICConst->setVertex((*ipvertex).position().z()); theFmpConst->setVertex((*ipvertex).position().z());} 
      iv++;
    } 
-
-
-// (1) theHICConst->setVertex((*ipvertex)[0].position().z(); theFmpConst->setVertex((*ipvertex)[0].position().z());
 
 //   cout << " Vertex is set to (found by pixel finder)"<<theHICConst->zvert<<endl;
    
@@ -332,9 +330,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
         }
         map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap = Seed.produce(e1 ,es1, 
                                                           (*ftsnew), tsos, (*ifts), 
-	                                                   recHitBuilderHandle.product(),
-                                                           measurementTrackerHandle.product(), 
-                                                           &seedlayers);
+	                                                        recHitBuilderHandle.product(),
+                                                            measurementTrackerHandle.product(), 
+                                                            &seedlayers);
 
  
 
@@ -517,8 +515,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     if(theFoundFts.size()<2)  return dimuon;
 
 // Look for vertex constraints
-// We create Beam spot with position of primary vertex
-//
+
     edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
     es1.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
 
@@ -538,7 +535,6 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
 
 // For trajectory refitting
-// !!! ===================================
         vector<reco::Track> firstTrack;
         vector<reco::TransientTrack> firstTransTracks;
         vector<reco::TrackRef> firstTrackRefs;
@@ -669,54 +665,64 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
    for(vector<reco::TransientTrack>::iterator iplus = firstTransTracks.begin(); 
                                               iplus != firstTransTracks.end(); iplus++)
    {
-     theTwoTransTracks.clear();
-     theTwoTransTracks.push_back(*iplus);
-     for(vector<reco::TransientTrack>::iterator iminus = secondTransTracks.begin(); 
-                                                iminus != secondTransTracks.end(); iminus++)
-     {
-       theTwoTransTracks.push_back(*iminus);
-       theRecoVertex = theFitter.vertex(theTwoTransTracks);
-      if( !theRecoVertex.isValid() ) {
-        continue;
-      } 
-      
+       for(vector<reco::TransientTrack>::iterator iminus = secondTransTracks.begin(); 
+               iminus != secondTransTracks.end(); iminus++)
+       {
+           // To chech CAIR error before the vertex fitting
+           TwoTrackMinimumDistance ttmd;
+           bool CAIR_ST = false;
+           GlobalTrajectoryParameters sta = (*iminus).impactPointState().globalParameters();
+           GlobalTrajectoryParameters stb = (*iplus).impactPointState().globalParameters();
+           ClosestApproachInRPhi theIniAlgo;
+           
+           CAIR_ST = theIniAlgo.calculate( sta, stb );
+           //cout<<"%%%%% CAIR_ST : "<<CAIR_ST<<" %%%%%"<<endl;
+           if(CAIR_ST == 0) continue;
+           
+           theTwoTransTracks.clear();
+           theTwoTransTracks.push_back(*iplus);
+           theTwoTransTracks.push_back(*iminus);
+           theRecoVertex = theFitter.vertex(theTwoTransTracks);
+           if( !theRecoVertex.isValid() ) {
+               continue;
+           } 
+
      //   cout<<" Vertex is found "<<endl;
      //   cout<<" Chi2 = "<<theRecoVertex.totalChiSquared()<<
      //	          " r= "<<theRecoVertex.position().perp()<<
      //		  " z= "<<theRecoVertex.position().z()<<endl;
 
 // Additional cuts       
-     if ( theRecoVertex.totalChiSquared() > 0.0002 ) {
-//        cout<<" Vertex is failed with Chi2 : "<<theRecoVertex.totalChiSquared()<<endl; 
-     continue;
-     }
-     if ( theRecoVertex.position().perp() > 0.08 ) {
-//        cout<<" Vertex is failed with r position : "<<theRecoVertex.position().perp()<<endl; 
-	continue;
-      }    
-     if ( fabs(theRecoVertex.position().z()-theHICConst->zvert) > 0.06 ) {
-//         cout<<" Vertex is failed with z position : "<<theRecoVertex.position().z()<<endl; 
-	 continue;
-     }
-     double quality = theRecoVertex.normalisedChiSquared();
-     std::vector<reco::TransientTrack> tracks = theRecoVertex.originalTracks();
-     
-     for (std::vector<reco::TransientTrack>::iterator ivb = tracks.begin(); ivb != tracks.end(); ivb++)
-     {
-      quality = quality * (*ivb).chi2() /(*ivb).ndof();
-     }
-      if( quality > 70. ) {
-            //    cout<<" Vertex failed quality cut "<<quality<<endl; 
-		continue;
-      }
-      theVertexContainer.push_back(theRecoVertex);
-      
-      dimuon = true;
-      break;
-     } // iminus
+           if ( theRecoVertex.totalChiSquared() > 0.0002 ) {
+           //    cout<<" Vertex is failed with Chi2 : "<<theRecoVertex.totalChiSquared()<<endl; 
+               continue;
+           }
+           if ( theRecoVertex.position().perp() > 0.08 ) {
+           //    cout<<" Vertex is failed with r position : "<<theRecoVertex.position().perp()<<endl; 
+               continue;
+           }    
+           if ( fabs(theRecoVertex.position().z()-theHICConst->zvert) > 0.06 ) {
+           //    cout<<" Vertex is failed with z position : "<<theRecoVertex.position().z()<<endl; 
+               continue;
+           }
+           double quality = theRecoVertex.normalisedChiSquared();
+           std::vector<reco::TransientTrack> tracks = theRecoVertex.originalTracks();
+
+           for (std::vector<reco::TransientTrack>::iterator ivb = tracks.begin(); ivb != tracks.end(); ivb++)
+           {
+               quality = quality * (*ivb).chi2() /(*ivb).ndof();
+           }
+           if( quality > 70. ) {
+           //    cout<<" Vertex failed quality cut "<<quality<<endl; 
+               continue;
+           }
+           theVertexContainer.push_back(theRecoVertex);
+
+           dimuon = true;
+           break;
+       } // iminus
       if(dimuon) break; 
   } // iplus
-
     return dimuon;
 
 } 
