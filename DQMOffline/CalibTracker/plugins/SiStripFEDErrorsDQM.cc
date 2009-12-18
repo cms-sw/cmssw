@@ -45,7 +45,7 @@ void SiStripFEDErrorsDQM::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripFEDErrorsDQM::beginJob(const edm::EventSetup&)
+SiStripFEDErrorsDQM::beginJob()
 {
 }
 
