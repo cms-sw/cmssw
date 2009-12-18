@@ -39,9 +39,10 @@ using namespace std;
 
 HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
-  HLTPathsByName_(iConfig.getParameter<std::vector<std::string > >("HLTPaths")),
+  HLTPathNamesConfig_(iConfig.getParameter<std::vector<std::string > >("HLTPaths")),
   total_(0),
   nValidTriggers_(0),
+  nValidConfigTriggers_(0),
   ndenomAccept_(0)
 {
   denominatorWild_ = iConfig.getUntrackedParameter<std::string>("denominatorWild","");
@@ -72,9 +73,6 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
   //initialize the hlt configuration from the process name if not blank
   std::string processName = inputTag_.process();
   if (processName != ""){
-    //get the configuration
-    HLTConfigProvider hltConfig;
-    hltConfig.init(processName);
 
     //Grab paths from EventSetup via AlCaRecoTriggerBitsRcd if configured - copied from HLTHighLevel
     if (esPathsKey_.size()) {
@@ -95,33 +93,55 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
       
       // We must avoid a map<string,vector<string> > in DB for performance reason,
       // so the paths are mapped into one string that we have to decompose:
-      HLTPathsByName_.clear();
-      HLTPathsByName_ = triggerBits->decompose(listIter->second);
+      HLTPathNamesKey_ = triggerBits->decompose(listIter->second);
     }
     //otherwise read HLTPaths from configuration
-    else{
+    if(HLTPathNamesConfig_.size()){
       //run trigger selection
-      HLTriggerSelector trigSelect(inputTag_,HLTPathsByName_);
-      HLTPathsByName_.swap(trigSelect.theSelectTriggers);
+      HLTriggerSelector trigSelect(inputTag_,HLTPathNamesConfig_);
+      HLTPathNamesConfig_.swap(trigSelect.theSelectTriggers);
     }
+
+    //check if the two vectors have any common elements    
+    vector<int> removePaths;
+    for(size_t i=0; i<HLTPathNamesKey_.size(); ++i){
+      for(size_t j=0; j<HLTPathNamesConfig_.size(); ++j){
+	if(HLTPathNamesConfig_[j] == HLTPathNamesKey_[i]) removePaths.push_back(i); 
+      }
+    }
+    reverse(removePaths.begin(),removePaths.end());    
+    if(removePaths.size()){
+      for(unsigned int k=0; k<removePaths.size(); ++k)
+	HLTPathNamesKey_.erase(HLTPathNamesKey_.begin()+removePaths[k]);
+    }
+
+
+    //combine two vectors
+    HLTPathsByName_.reserve(HLTPathNamesConfig_.size() + HLTPathNamesKey_.size());
+    HLTPathsByName_.insert(HLTPathsByName_.end(),HLTPathNamesConfig_.begin(),HLTPathNamesConfig_.end());
+    HLTPathsByName_.insert(HLTPathsByName_.end(),HLTPathNamesKey_.begin(),HLTPathNamesKey_.end());
 
     count_.resize(HLTPathsByName_.size());
     HLTPathsByIndex_.resize(HLTPathsByName_.size());
         
     nValidTriggers_ = HLTPathsByName_.size();
-        
+    nValidConfigTriggers_ = HLTPathNamesConfig_.size();
+
+    //get the configuration
+    HLTConfigProvider hltConfig;
+  
     //get all the filters -
-    //only if filterTypes_ is nonempty and no ES key specified
-    if(!filterTypes_.empty() && !esPathsKey_.size()){
-      for( size_t i = 0; i < nValidTriggers_; i++) {
+    //only if filterTypes_ is nonempty and only on HLTPathNamesConfig_ paths
+    if( hltConfig.init(processName) && !filterTypes_.empty()){
+      for( size_t i = 0; i < nValidConfigTriggers_; i++) {
 	// create a row [triggername,filter1name, filter2name, etc.] 
 	triggerFilters_.push_back(vector <string>());  
 	// create a row [0, filter1index, filter2index, etc.]
 	triggerFilterIndices_.push_back(vector <uint>()); 
       
-	vector<string> moduleNames = hltConfig.moduleLabels( HLTPathsByName_[i] ); 
+	vector<string> moduleNames = hltConfig.moduleLabels( HLTPathNamesConfig_[i] ); 
       
-	triggerFilters_[i].push_back(HLTPathsByName_[i]);//first entry is trigger name      
+	triggerFilters_[i].push_back(HLTPathNamesConfig_[i]);//first entry is trigger name      
 	triggerFilterIndices_[i].push_back(0);
       
 	int numModule = 0, numFilters = 0;
@@ -133,7 +153,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
 	  moduleName = *iDumpModName;
 	  moduleType = hltConfig.moduleType(moduleName);
-	  moduleIndex = hltConfig.moduleIndex(HLTPathsByName_[i], moduleName);
+	  moduleIndex = hltConfig.moduleIndex(HLTPathNamesConfig_[i], moduleName);
 	  LogDebug ("HLTMonBitSummary") << "Module"      << numModule
 					<< " is called " << moduleName
 					<< " , type = "  << moduleType
@@ -148,7 +168,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	    }
 	  }
 	}//end for modulesName
-      }//end for nValidTriggers_
+      }//end for nValidConfigTriggers_
     }
     
     
@@ -167,7 +187,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 
     if (directory_ != "" && directory_.substr(directory_.length()-1,1) != "/" ) directory_ = directory_+"/" ;
 
-    int nbin = nValidTriggers_;
+    int nbin = nValidConfigTriggers_;
     
     dbe_->setCurrentFolder(directory_);
 
@@ -175,7 +195,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
     int nbin_sub = 8;
     
     // Count histos for efficiency plots
-    if(!filterTypes_.empty() && !esPathsKey_.size()){
+    if(!filterTypes_.empty()){
       dbe_->setCurrentFolder(directory_ + "Trigger_Filters/");
       //hCountSummary = dbe_->book1D("hCountSummary", "Count Summary", nbin+1, -0.5, 0.5+(double)nbin);
     
@@ -268,48 +288,49 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //cout << " Was at least one path run? " << trh->wasrun() << endl;;
   //cout << " Has at least one path accepted the event? " << trh->accept() << endl;
   //cout << " Has any path encountered an error? " << trh->error() << endl;
-  //cout << " Number of paths stored =  " << trh->size() << endl;
-  
+  //cout << " Number of paths stored =  " << trh->size() << endl;  
+
   for (unsigned int trig=0; trig < nValidTriggers_; trig++) {
-    //convert trigger names to trigger index properly  
+    //convert *all* trigger names (from config and key) to trigger index properly  
     HLTPathsByIndex_[trig]=triggerNames_.triggerIndex(HLTPathsByName_[trig]);
-    
-    //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", HLTPathsByIndex_ = " << HLTPathsByIndex_[trig] << endl; 
-    //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", trh->index = " << lastModule << " " << trh->accept(HLTPathsByIndex_[trig]) << endl; 
+  }
+  
+  //get filter information for config triggers only
+  for (unsigned int trig=0; trig < nValidConfigTriggers_; trig++) {
+    //cout << "Trigger Name = " << HLTPathNamesConfig_[trig] << ", HLTPathsByIndex_ = " << HLTPathsByIndex_[trig] << endl; 
+    //cout << "Trigger Name = " << HLTPathNamesConfig_[trig] << ", trh->index = " << lastModule << " " << trh->accept(HLTPathsByIndex_[trig]) << endl; 
     
     //check if trigger exists in TriggerResults
-    if(!filterTypes_.empty() && !esPathsKey_.size()){    
-      if (HLTPathsByIndex_[trig] < trh->size()) {
-	lastModule = trh->index(HLTPathsByIndex_[trig]);
+    if(!filterTypes_.empty() && HLTPathsByIndex_[trig] < trh->size()) {
+      lastModule = trh->index(HLTPathsByIndex_[trig]);
 	
-	//go through the list of filters
-	for(unsigned int filt = 0; filt < triggerFilters_[trig].size()-1; filt++){
-	  // 	cout << "triggerFilters_["<<trig<<"]["<<filt+1<<"] = " << triggerFilters_[trig][filt+1] 
-	  // 	     << " , triggerFilterIndices = " << triggerFilterIndices_[trig][filt+1]
-	  // 	     << " , lastModule = " << lastModule << endl;
+      //go through the list of filters
+      for(unsigned int filt = 0; filt < triggerFilters_[trig].size()-1; filt++){
+	// 	cout << "triggerFilters_["<<trig<<"]["<<filt+1<<"] = " << triggerFilters_[trig][filt+1] 
+	// 	     << " , triggerFilterIndices = " << triggerFilterIndices_[trig][filt+1]
+	// 	     << " , lastModule = " << lastModule << endl;
 	
-	  int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());      
+	int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());      
 	
-	  //check if filter passed
-	  if(trh->accept(HLTPathsByIndex_[trig])){
-	    hSubFilterCount[trig]->Fill(binNumber-1);//binNumber1 = 0 = first filter
-	  }
-	  //otherwise the module that issued the decision is the first fail
-	  //so that all the ones before it passed
-	  else if(triggerFilterIndices_[trig][filt+1] < lastModule){
-	    hSubFilterCount[trig]->Fill(binNumber-1);
-	  }
+	//check if filter passed
+	if(trh->accept(HLTPathsByIndex_[trig])){
+	  hSubFilterCount[trig]->Fill(binNumber-1);//binNumber1 = 0 = first filter
+	}
+	//otherwise the module that issued the decision is the first fail
+	//so that all the ones before it passed
+	else if(triggerFilterIndices_[trig][filt+1] < lastModule){
+	  hSubFilterCount[trig]->Fill(binNumber-1);
+	}
 	
-	  //hSubFilterCount[trig]->Fill(-1);
+	//hSubFilterCount[trig]->Fill(-1);
 	
-	  float eff = (float)hSubFilterCount[trig]->getBinContent(binNumber) / (float)total_ ;
-	  float efferr = sqrt(eff*(1-eff)/ (float)total_);
-	  hSubFilterEff[trig]->setBinContent(binNumber,eff);
-	  hSubFilterEff[trig]->setBinError(binNumber,efferr);
+	float eff = (float)hSubFilterCount[trig]->getBinContent(binNumber) / (float)total_ ;
+	float efferr = sqrt(eff*(1-eff)/ (float)total_);
+	hSubFilterEff[trig]->setBinContent(binNumber,eff);
+	hSubFilterEff[trig]->setBinError(binNumber,efferr);
 
-	}//filt
-      }
-    }
+      }//filt
+    } 
   }
   
   //and check validity name (should not be necessary)

@@ -43,6 +43,9 @@ private:
   DQMStore * dbe_;
 
   std::vector<std::string > HLTPathsByName_;
+  std::vector<std::string > HLTPathNamesConfig_;
+  std::vector<std::string > HLTPathNamesKey_;
+
   std::vector<std::string > HLTPathDenomName_;
   std::vector<std::string > filterTypes_;
   std::vector<unsigned int> HLTPathsByIndex_;
@@ -60,6 +63,7 @@ private:
 
   unsigned int total_;
   unsigned int nValidTriggers_;
+  unsigned int nValidConfigTriggers_;
   //static const int NTRIG = 20;
 
   //std::string out_;
