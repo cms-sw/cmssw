@@ -26,14 +26,17 @@ const double MuonMass = 0.105658357; // [GeV/c^2]
 // geometry
 const double SurfaceOfEarth = 88874.; // Y-distance to surface of earth [mm]
 const double Z_PX56 = -14000.; // [mm] Z position of PX56 centre [mm]
+/*
 // densities of materials
 const double RhoAir  = 0.001214; // [g cm^-3]
 const double RhoWall = 2.5; // [g cm^-3]
 const double RhoRock = 2.5; // [g cm^-3]
 const double RhoClay = 2.3; // [g cm^-3]
 const double RhoPlug = 2.5; // [g cm^-3]
+*/
 // width of clay layer between surface and rock
-const double ClayWidth = 50000.; // [mm]
+const double DefaultClayWidth = 50000.; // [mm]
+
 //plug constants
 const double PlugWidth = 2250.; // [mm]
 const double PlugXlength = 20600.; // [mm]

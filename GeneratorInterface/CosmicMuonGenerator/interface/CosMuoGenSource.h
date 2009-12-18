@@ -54,6 +54,14 @@ namespace edm
     //Plug position (default = on shaft)
     double PlugVtx;
     double PlugVtz;
+    
+    //material densities in g/cm^3
+    double VarRhoAir;
+    double VarRhoWall;
+    double VarRhoRock;
+    double VarRhoClay;
+    double VarRhoPlug;
+    double ClayLayerWidth; //[mm]
 
     //For upgoing muon generation: Neutrino energy limits
     double MinEn;

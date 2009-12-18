@@ -188,7 +188,7 @@ inline int inWallAfterAir(double vx, double vy, double vz) {
 
 
 
-inline int inClayOrRockAfterWall(double vx, double vy, double vz) {
+inline int inClayOrRockAfterWall(double vx, double vy, double vz, double ClayWidth) {
   
   //So, it is not plug, air and wall, Check for clay
   if (vy >= SurfaceOfEarth - ClayWidth && vy < SurfaceOfEarth)
@@ -204,7 +204,7 @@ inline int inClayOrRockAfterWall(double vx, double vy, double vz) {
 
 
 
-inline int inClayAfterWall(double vx, double vy, double vz) {
+inline int inClayAfterWall(double vx, double vy, double vz, double ClayWidth) {
   
   //So, it is not plug, air and wall, Check for clay
   if (vy >= SurfaceOfEarth - ClayWidth && vy < SurfaceOfEarth)
@@ -216,7 +216,7 @@ inline int inClayAfterWall(double vx, double vy, double vz) {
 
 
 
-inline int inRockAfterClay(double vx, double vy, double vz) {
+inline int inRockAfterClay(double vx, double vy, double vz, double ClayWidth) {
   
   //So, it is not plug, air, wall and clay, Check for rock
   if (vy < SurfaceOfEarth - ClayWidth)
@@ -231,7 +231,8 @@ inline int inRockAfterClay(double vx, double vy, double vz) {
 
 
 inline int inMat(double vx, double vy, double vz,
-		 double PlugVx = PlugOnShaftVx, double PlugVz = PlugOnShaftVz) {
+		 double PlugVx = PlugOnShaftVx, double PlugVz = PlugOnShaftVz,
+		 double ClayWidth = DefaultClayWidth) {
   
   //check for Plug
   if (inPlug(vx, vy, vz, PlugVx, PlugVz)) return Plug;

@@ -161,7 +161,7 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
       }
       if (continuePropagation) update(stepSize);
 
-      int Mat = inMat(Vx,Vy,Vz, PlugVx, PlugVz);
+      int Mat = inMat(Vx,Vy,Vz, PlugVx, PlugVz, ClayWidth);
 
       nMat[Mat]++;
     }

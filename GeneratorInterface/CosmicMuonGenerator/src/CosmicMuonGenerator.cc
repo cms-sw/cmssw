@@ -47,6 +47,11 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
 
     OneMuoEvt.PlugVx = PlugVx;
     OneMuoEvt.PlugVz = PlugVz;
+    OneMuoEvt.RhoAir = RhoAir;
+    OneMuoEvt.RhoWall = RhoWall;
+    OneMuoEvt.RhoRock = RhoRock;
+    OneMuoEvt.RhoClay = RhoClay;
+    OneMuoEvt.RhoPlug = RhoPlug;
     //set energy and angle limits for CMSCGEN, give same seed as above 
     if (MinTheta >= 90.*Deg2Rad) //upgoing muons from neutrinos
       Cosmics->initializeNuMu(MinP, MaxP, MinTheta, MaxTheta, MinEnu, MaxEnu, 
@@ -1059,6 +1064,12 @@ void CosmicMuonGenerator::setMTCCHalf(bool MTCC){ if (NotInitialized) MTCCHalf =
 
 void CosmicMuonGenerator::setPlugVx(double PlugVtx){ if (NotInitialized) PlugVx = PlugVtx; }
 void CosmicMuonGenerator::setPlugVz(double PlugVtz){ if (NotInitialized) PlugVz = PlugVtz; }
+void CosmicMuonGenerator::setRhoAir(double VarRhoAir){ if (NotInitialized) RhoAir = VarRhoAir; }
+void CosmicMuonGenerator::setRhoWall(double VarRhoWall){ if (NotInitialized) RhoWall = VarRhoWall; }
+void CosmicMuonGenerator::setRhoRock(double VarRhoRock){ if (NotInitialized) RhoRock = VarRhoRock; }
+void CosmicMuonGenerator::setRhoClay(double VarRhoClay){ if (NotInitialized) RhoClay = VarRhoClay; }
+void CosmicMuonGenerator::setRhoPlug(double VarRhoPlug){ if (NotInitialized) RhoPlug = VarRhoPlug; }
+void CosmicMuonGenerator::setClayWidth(double ClayLayerWidth){ if (NotInitialized) ClayWidth = ClayLayerWidth; }
 
 void CosmicMuonGenerator::setMinEnu(double MinEn){ if (NotInitialized) MinEnu = MinEn; }
 void CosmicMuonGenerator::setMaxEnu(double MaxEn){ if (NotInitialized) MaxEnu = MaxEn; }

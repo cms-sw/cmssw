@@ -80,6 +80,15 @@ public:
       //set plug as default onto PX56 shaft
       PlugVx = PlugOnShaftVx;
       PlugVz = PlugOnShaftVz;
+      //material densities in g/cm^3
+      RhoAir = 0.001214;
+      RhoWall = 2.5;
+      RhoRock = 2.5;
+      RhoClay = 2.3;
+      RhoPlug = 2.5;
+      ClayWidth = 50000; //[mm]
+
+
       
       std::cout << std::endl;
       std::cout << "*********************************************************" << std::endl;
@@ -192,6 +201,15 @@ private:
   double PlugVx; //Plug x position
   double PlugVz; //Plug z position
 
+  //material densities in g/cm^3
+  double RhoAir;
+  double RhoWall;
+  double RhoRock;
+  double RhoClay;
+  double RhoPlug;
+  double ClayWidth; //[mm]
+
+
   //For upgoing muon generation: Neutrino energy limits
   double MinEnu;
   double MaxEnu;
@@ -239,6 +257,13 @@ public:
   void setMTCCHalf(bool MTCC);
   void setPlugVx(double PlugVtx);
   void setPlugVz(double PlugVtz);
+  void setRhoAir(double VarRhoAir);
+  void setRhoWall(double VarRhoSWall);
+  void setRhoRock(double VarRhoRock);
+  void setRhoClay(double VarRhoClay);
+  void setRhoPlug(double VarRhoPlug);
+  void setClayWidth(double ClayLaeyrWidth);
+
   void setMinEnu(double MinEn);
   void setMaxEnu(double MaxEn);
   void setNuProdAlt(double NuPrdAlt);

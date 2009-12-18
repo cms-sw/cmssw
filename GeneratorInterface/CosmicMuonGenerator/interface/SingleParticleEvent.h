@@ -23,6 +23,12 @@ public:
     HitTarget = false;
     PlugVx = PlugOnShaftVx;
     PlugVz = PlugOnShaftVz;
+    RhoAir = 0.;
+    RhoWall = 0.;
+    RhoRock = 0.;
+    RhoClay = 0.;
+    RhoPlug = 0.;
+    ClayWidth = DefaultClayWidth;
   }
   // destructor
   ~SingleParticleEvent(){}
@@ -97,6 +103,12 @@ public:
 
   double PlugVx;
   double PlugVz;
+  double RhoAir;
+  double RhoWall;
+  double RhoRock;
+  double RhoClay;
+  double RhoPlug;
+  double ClayWidth;
   double waterEquivalents;
   double E_ug;
 };

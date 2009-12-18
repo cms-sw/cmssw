@@ -35,6 +35,12 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   MTCCHalf(pset.getParameter<bool>("MTCCHalf")),
   PlugVtx(pset.getParameter<double>("PlugVx")),
   PlugVtz(pset.getParameter<double>("PlugVz")),
+  VarRhoAir(pset.getParameter<double>("RhoAir")),
+  VarRhoWall(pset.getParameter<double>("RhoWall")),
+  VarRhoRock(pset.getParameter<double>("RhoRock")),
+  VarRhoClay(pset.getParameter<double>("RhoClay")),
+  VarRhoPlug(pset.getParameter<double>("RhoPlug")),
+  ClayLayerWidth(pset.getParameter<double>("ClayWidth")),
   MinEn(pset.getParameter<double>("MinEnu")),
   MaxEn(pset.getParameter<double>("MaxEnu")),
   NuPrdAlt(pset.getParameter<double>("NuProdAlt")),
@@ -83,6 +89,12 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setMTCCHalf(MTCCHalf);
     CosMuoGen->setPlugVx(PlugVtx);
     CosMuoGen->setPlugVz(PlugVtz);    
+    CosMuoGen->setRhoAir(VarRhoAir);
+    CosMuoGen->setRhoWall(VarRhoWall);
+    CosMuoGen->setRhoRock(VarRhoRock);
+    CosMuoGen->setRhoClay(VarRhoClay);
+    CosMuoGen->setRhoPlug(VarRhoPlug);
+    CosMuoGen->setClayWidth(ClayLayerWidth);
     CosMuoGen->setMinEnu(MinEn);
     CosMuoGen->setMaxEnu(MaxEn);    
     CosMuoGen->setNuProdAlt(NuPrdAlt);

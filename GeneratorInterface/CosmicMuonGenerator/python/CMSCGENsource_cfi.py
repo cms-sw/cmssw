@@ -21,8 +21,16 @@ source = cms.Source("CosMuoGenSource",
     MaxP = cms.double(3000.0),
     MinPhi = cms.double(0.0),
     PlugVx = cms.double(0.0),
-    PlugVz = cms.double(-14000.0),                
+    PlugVz = cms.double(-14000.0), #[mm]               
 
+    #material densities in g/cm^3
+    RhoAir = cms.double(0.001214),
+    RhoWall = cms.double(2.5),
+    RhoRock = cms.double(2.5),
+    RhoClay = cms.double(2.3),
+    RhoPlug = cms.double(2.5),
+    ClayWidth = cms.double(50000.), #[mm]
+                 
     MultiMuon = cms.bool(False),
     # MultiMuon = cms.bool(True),
     MultiMuonFileName = cms.string("CORSIKAmultiMuon.root"),
