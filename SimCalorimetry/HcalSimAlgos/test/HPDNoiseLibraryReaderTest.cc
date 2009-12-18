@@ -23,7 +23,7 @@ class HPDNoiseLibraryReaderTest : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -71,7 +71,7 @@ void HPDNoiseLibraryReaderTest::analyze(const edm::Event& iEvent, const edm::Eve
 }
 
 
-void HPDNoiseLibraryReaderTest::beginJob(const edm::EventSetup&)
+void HPDNoiseLibraryReaderTest::beginJob()
 {
 }
 
