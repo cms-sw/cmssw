@@ -15,6 +15,8 @@
 #include "TSystem.h"
 #include "TGeoArb8.h"
 #include "TEveVSDStructs.h"
+#include "TGeoCompositeShape.h"
+#include "TGeoBoolNode.h"
 DetIdToMatrix::~DetIdToMatrix()
 {
    // ATTN: not sure I own the manager
@@ -210,6 +212,22 @@ TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const 
    TEveGeoShape* shape = new TEveGeoShape(name,path);
    shape->SetTransMatrix(*matrix);
    TGeoShape* gs = manager_->GetCurrentVolume()->GetShape();
+   //------------------------------------------------------------------------------//
+   // FIXME !!!!!!!!!!!!!!
+   // hack zone to make CSC complex shape visible
+   // loop over bool shapes till we get something non-composite on the left side.
+   if ( TGeoCompositeShape* composite = dynamic_cast<TGeoCompositeShape*>(gs) ){
+     int depth = 0;
+     TGeoShape* nextShape(gs);
+     do {
+       if ( depth > 10 ) break;
+       nextShape = composite->GetBoolNode()->GetLeftShape();
+       composite = dynamic_cast<TGeoCompositeShape*>(nextShape);
+       ++depth;
+     } while ( depth<10 && composite!=0 );
+     if ( composite == 0 ) gs = nextShape;
+   }
+   //------------------------------------------------------------------------------//
    UInt_t id = TMath::Max(gs->GetUniqueID(), UInt_t(1));
    gs->SetUniqueID(id);
    shape->SetShape(gs);
