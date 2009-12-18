@@ -1059,7 +1059,7 @@ bool GhostTrackVertexFinder::reassignTracks(
 }
 
 void GhostTrackVertexFinder::refitGhostTrack(
-				std::vector<CachingVertex<5> > &vertices_,
+				std::vector<CachingVertex<5> > &vertices,
 				FinderInfo &info) const
 {
 	VtxTrackIs isGhostTrack(info.ghostTrack);
@@ -1069,7 +1069,7 @@ void GhostTrackVertexFinder::refitGhostTrack(
 	oldStates.reserve(info.states.size());
 
 	for(std::vector<CachingVertex<5> >::const_iterator iter =
-			vertices_.begin(); iter != vertices_.end(); ++iter) {
+			vertices.begin(); iter != vertices.end(); ++iter) {
 		std::vector<RefCountedVertexTrack> vtxTracks = iter->tracks();
 
 		oldStates.clear();
@@ -1106,21 +1106,32 @@ void GhostTrackVertexFinder::refitGhostTrack(
 	SequentialGhostTrackFitter fitter;
 	double ndof, chi2;
 	info.pred = fitter.fit(updater, info.prior, states, ndof, chi2);
-	info.ghostTrack = transientGhostTrack(info.pred, info.field);
+	TransientTrack ghostTrack = transientGhostTrack(info.pred, info.field);
 
 	std::swap(info.states, states);
 	states.clear();
 
-	for(std::vector<CachingVertex<5> >::iterator iter =
-			vertices_.begin(); iter != vertices_.end(); ++iter) {
+	std::vector<CachingVertex<5> > newVertices;
+	for(std::vector<CachingVertex<5> >::const_iterator iter =
+			vertices.begin(); iter != vertices.end(); ++iter) {
 		std::vector<RefCountedVertexTrack> vtxTracks = iter->tracks();
 
 		int idx = -1;
-		for(std::vector<RefCountedVertexTrack>::const_iterator track =
+		bool redo = false;
+		for(std::vector<RefCountedVertexTrack>::iterator track =
 			vtxTracks.begin(); track != vtxTracks.end(); ++track) {
 
-			if (isGhostTrack(*track) || (*track)->weight() < 1e-3)
+			if (isGhostTrack(*track)) {
+				LinearizedTrackStateFactory linTrackFactory;
+				VertexTrackFactory<5> vertexTrackFactory;
+
+				*track = vertexTrackFactory.vertexTrack(
+					linTrackFactory.linearizedTrackState(
+						iter->position(), ghostTrack),
+						iter->vertexState());
+				redo = true;
 				continue;
+			}
 
 			const TransientTrack &tt =
 					(*track)->linearizedTrack()->track();
@@ -1142,12 +1153,29 @@ void GhostTrackVertexFinder::refitGhostTrack(
 				}
 			}
 		}
-		if (idx < 0)
-			continue;
 
-		*iter = vertexAtState(info.ghostTrack, info.pred,
-		                      info.states[idx]);
+		if (idx >= 0)
+			newVertices.push_back(
+				vertexAtState(ghostTrack, info.pred,
+			                      info.states[idx]));
+		else if (redo) {
+			bool primary = iter == vertices.begin();
+			CachingVertex<5> vtx;
+			if (primary && info.hasBeamSpot)
+				vtx = vertexFitter(true).vertex(
+						vtxTracks,
+						info.beamSpot.position(),
+						info.beamSpot.error());
+			else
+				vtx = vertexFitter(primary).vertex(vtxTracks);
+			if (vtx.isValid())
+				newVertices.push_back(vtx);
+		} else
+			newVertices.push_back(*iter);
 	}
+
+	std::swap(newVertices, vertices);
+	info.ghostTrack = ghostTrack;
 }
 
 // implementation
