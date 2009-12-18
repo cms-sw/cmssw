@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.42 2009/11/13 11:25:06 fra Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.44 2009/12/04 20:03:23 wmtan Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -14,6 +14,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 //#include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -260,6 +261,12 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
                   setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalChannelStatus );
           }
           findingRecord<EcalChannelStatusRcd>();
+  }
+  // DCS Tower status
+  producedEcalDCSTowerStatus_ = ps.getUntrackedParameter<bool>("producedEcalDCSTowerStatus",true);
+  if ( producedEcalDCSTowerStatus_ ) {
+    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDCSTowerStatus );
+    findingRecord<EcalDCSTowerStatusRcd>();
   }
 
   // trigger channel status
@@ -1625,6 +1632,47 @@ EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatus
                         }
                 }
         }
+        return ical;
+}
+// --------------------------------------------------------------------------------
+
+std::auto_ptr<EcalDCSTowerStatus>
+EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStatusRcd& )
+{
+
+        std::auto_ptr<EcalDCSTowerStatus>  ical = std::auto_ptr<EcalDCSTowerStatus>( new EcalDCSTowerStatus() );
+
+
+        // barrel
+	int iz=0;
+        for(int k=0 ; k<2; k++ ) {
+	  if(k==0) iz=-1;
+	  if(k==1) iz=+1;
+	  for(int i=1 ; i<73; i++) {
+	    for(int j=1 ; j<18; j++) {
+	      if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
+		EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
+		ical->setValue( ebid, 0 );
+	      }
+	    }
+	  }
+	}
+
+
+        // endcap
+        for(int k=0 ; k<2; k++ ) {
+	  if(k==0) iz=-1;
+	  if(k==1) iz=+1;
+	  for(int i=1 ; i<21; i++) {
+	    for(int j=1 ; j<21; j++) {
+	      if (EcalScDetId::validDetId(i,j,iz )){
+		EcalScDetId eeid(i,j,iz);
+		ical->setValue( eeid, 0 );
+	      }
+	    }
+	  }
+	}
+
         return ical;
 }
 // --------------------------------------------------------------------------------
