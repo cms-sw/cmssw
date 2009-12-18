@@ -8,13 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_selectionmanager.cc,v 1.4 2008/01/25 01:54:07 chrjones Exp $
+// $Id: unittest_selectionmanager.cc,v 1.1 2009/03/05 22:01:53 chrjones Exp $
 //
 
 // system include files
-#include <boost/test/auto_unit_test.hpp>
+//#include <boost/test/auto_unit_test.hpp>
 #include <boost/bind.hpp>
-#include <boost/test/test_tools.hpp>
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp>
 #include "TClass.h"
 #include "Cintex/Cintex.h"
 
@@ -28,6 +30,8 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+
+#include "Fireworks/Core/interface/FWItemAccessorBase.h"
 
 //
 // constants, enums and typedefs
@@ -47,6 +51,29 @@ namespace {
          ++nMessages_;
       }
    };
+
+   class TestAccessor : public FWItemAccessorBase {
+   public:
+      TestAccessor(const reco::TrackCollection* iCollection):
+      m_collection(iCollection) {}
+      virtual const void* modelData(int iIndex) const {return &((*m_collection)[iIndex]);}
+      virtual const void* data() const {return m_collection;}
+      virtual unsigned int size() const {return m_collection->size();}
+      virtual const TClass* modelType() const {return TClass::GetClass("reco::Track");}
+      virtual const TClass* type() const {return TClass::GetClass("reco::TrackCollection");}
+      
+      virtual bool isCollection() const {return true;}
+      
+      ///override if id of an object should be different than the index
+      //virtual std::string idForIndex(int iIndex) const;
+      // ---------- member functions ---------------------------
+      virtual void setWrapper(const Reflex::Object& ) {}
+      virtual void reset(){}
+      
+   private:
+      const reco::TrackCollection* m_collection;
+   };
+   
 }
 
 BOOST_AUTO_TEST_CASE( selectionmanager )
@@ -67,13 +94,19 @@ BOOST_AUTO_TEST_CASE( selectionmanager )
    fVector.push_back(reco::Track());
    fVector.push_back(reco::Track());
    
-   TClass* cls=TClass::GetClass("reco::TrackCollection");
+   TClass* cls=TClass::GetClass("std::vector<reco::Track>");
    assert(0!=cls);
    
-   FWEventItem item(&cm, &sm,0,"Tracks", cls);
-   //cheat
-   item.setData(&fVector);
-
+   fireworks::Context context(&cm,&sm,0,0);
+   
+   boost::shared_ptr<FWItemAccessorBase> accessor( new TestAccessor(&fVector));
+   FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");
+   
+   FWEventItem item(&context, 0,accessor,pObj);
+   //hack to force update of data
+   ROOT::Reflex::Object dummy;
+   item.setData(dummy);
+   
    cm.newItemSlot(&item);
    BOOST_CHECK(listener.nHeard_ ==0 );
    BOOST_CHECK(listener.nMessages_==0);
@@ -139,3 +172,4 @@ BOOST_AUTO_TEST_CASE( selectionmanager )
    item.setEvent(0);
    BOOST_CHECK(sm.selected().size()==0);
 }
+

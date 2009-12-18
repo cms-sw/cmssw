@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_eventitemsmanager.cc,v 1.1 2008/02/25 21:32:18 chrjones Exp $
+// $Id: unittest_eventitemsmanager.cc,v 1.1 2009/03/05 22:01:53 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -58,19 +59,24 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    
    FWSelectionManager sm(&cm);
    FWEventItemsManager eim(&cm,&sm);
+   FWColorManager colm(&cm);
 
+   fireworks::Context context(&cm,&sm,&eim,&colm);
+   eim.setContext(&context);
+   
    Listener listener;
    //NOTE: have to pass a pointer to the listener else the bind will
    // create a copy of the listener and the original one will never
    // 'hear' any signal
    eim.newItem_.connect(boost::bind(&Listener::newItem,&listener,_1));
 
-   TClass* cls=TClass::GetClass("reco::TrackCollection");
+   TClass* cls=TClass::GetClass("std::vector<reco::Track>");
    assert(0!=cls);
    
    FWPhysicsObjectDesc tracks("Tracks",
                               cls,
-                              FWDisplayProperties(1),
+                              "Tracks",
+                              FWDisplayProperties(colm.indexToColor(1)),
                               "label",
                               "instance",
                               "proc");
@@ -78,6 +84,7 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    BOOST_REQUIRE(listener.nMessages_==0);
    BOOST_REQUIRE(eim.begin()==eim.end());
 
+   Color_t color1 = colm.indexToColor(1);
    eim.add(tracks);
    BOOST_CHECK(listener.nMessages_==1);
    BOOST_CHECK(eim.end()-eim.begin() == 1);
@@ -86,7 +93,7 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    BOOST_CHECK(item == listener.item_);
    BOOST_CHECK(item->name() == "Tracks");
    BOOST_CHECK(item->type() == cls);
-   BOOST_CHECK(item->defaultDisplayProperties().color() == 1);
+   BOOST_CHECK(item->defaultDisplayProperties().color() == color1);
    BOOST_CHECK(item->defaultDisplayProperties().isVisible());
    BOOST_CHECK(item->moduleLabel() == "label");
    BOOST_CHECK(item->productInstanceLabel() == "instance");
@@ -111,7 +118,7 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    BOOST_CHECK(item == listener.item_);
    BOOST_CHECK(item->name() == "Tracks");
    BOOST_CHECK(item->type() == cls);
-   BOOST_CHECK(item->defaultDisplayProperties().color() == 1);
+   BOOST_CHECK(item->defaultDisplayProperties().color() == color1);
    BOOST_CHECK(item->defaultDisplayProperties().isVisible());
    BOOST_CHECK(item->moduleLabel() == "label");
    BOOST_CHECK(item->productInstanceLabel() == "instance");
