@@ -83,7 +83,7 @@ void AnalysisJV::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
 
-void AnalysisJV::beginJob(const edm::EventSetup&){
+void AnalysisJV::beginJob(){
 
    fOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
    fHistAlpha   = new TH1D(  "HistAlpha"  , "", 30,  0., 1.5 ) ;
