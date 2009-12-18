@@ -11,6 +11,7 @@ namespace edm {
 }
 
 class TrackingRecHit;
+class SiStripRecHit1D;
 class SiStripRecHit2D;
 
 class AlignmentTrackSelector
@@ -41,12 +42,16 @@ class AlignmentTrackSelector
   bool isHit2D(const TrackingRecHit &hit) const;
   /// if valid, check for minimum charge (currently only in strip), if invalid give true 
   bool isOkCharge(const TrackingRecHit* therechit) const;
+  bool isOkChargeStripHit(const SiStripRecHit1D *siStripRecHit1D) const;
   bool isOkChargeStripHit(const SiStripRecHit2D *siStripRecHit2D) const;
   bool isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const;
   bool isOkTrkQuality(const reco::Track* track) const;
 
   /// filter the n highest pt tracks
   Tracks theNHighestPtTracks(const Tracks& tracks) const;
+
+  //filter tracks that do not have a min # of hits taken by the Skim&Prescale workflow
+  Tracks checkPrescaledHits(const Tracks& tracks, const edm::Event& evt) const;
 
   /// compare two tracks in pt (used by theNHighestPtTracks)
   struct ComparePt {
@@ -66,20 +71,18 @@ class AlignmentTrackSelector
   const edm::InputTag matchedrecHitsTag_;
   const bool countStereoHitAs2D_; // count hits on stereo components of GluedDet for nHitMin2D_?
   const unsigned int nHitMin2D_;
-  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
+  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_, minHitsinPIX_;
 
-<<<<<<< AlignmentTrackSelector.h
- std::vector<reco::TrackBase::TrackQuality> trkQualities_;
-  std::vector<reco::TrackBase::TrackAlgorithm> trkSteps_;
-  bool applyTrkQualityCheck_;
-  bool applyIterStepCheck_;
+  const edm::InputTag clusterValueMapTag_;  // ValueMap containing association cluster - flag
+  const int minPrescaledHits_;
+  const bool applyPrescaledHitsFilter_;
 
-=======
   std::vector<reco::TrackBase::TrackQuality> trkQualities_;
+
   std::vector<reco::TrackBase::TrackAlgorithm> trkSteps_;
   bool applyTrkQualityCheck_;
   bool applyIterStepCheck_;
->>>>>>> 1.19
+
 };
 
 #endif
