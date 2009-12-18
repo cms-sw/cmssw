@@ -1,9 +1,9 @@
 #include "RecoVertex/KinematicFit/interface/MultiTrackPointingKinematicConstraint.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
-AlgebraicVector PointingMultiKinematicConstraint::value(const vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicVector MultiTrackPointingKinematicConstraint::value(const vector<KinematicState> states, const GlobalPoint& point) const{
 	int num = states.size();
-	if(num<2) throw VertexException("PointingMultiKinematicConstraint::value <2 states passed");
+	if(num<2) throw VertexException("MultiTrackPointingKinematicConstraint::value <2 states passed");
 
 	//2 equations (for all tracks)
 	AlgebraicVector  vl(2,0);
@@ -28,9 +28,9 @@ AlgebraicVector PointingMultiKinematicConstraint::value(const vector<KinematicSt
 	return vl;
 }
 
-AlgebraicMatrix PointingMultiKinematicConstraint::parametersDerivative(const vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicMatrix MultiTrackPointingKinematicConstraint::parametersDerivative(const vector<KinematicState> states, const GlobalPoint& point) const{
 	int num = states.size();
-	if(num<2) throw VertexException("PointingMultiKinematicConstraint::parametersDerivative <2 states passed");
+	if(num<2) throw VertexException("MultiTrackPointingKinematicConstraint::parametersDerivative <2 states passed");
 	
 	//2 equations (for all tracks)
 	AlgebraicMatrix  matrix(2,num*7,0);
@@ -59,9 +59,9 @@ AlgebraicMatrix PointingMultiKinematicConstraint::parametersDerivative(const vec
 	return matrix;
 }
 
-AlgebraicMatrix PointingMultiKinematicConstraint::positionDerivative(const vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicMatrix MultiTrackPointingKinematicConstraint::positionDerivative(const vector<KinematicState> states, const GlobalPoint& point) const{
 	int num = states.size();
-	if(num<2) throw VertexException("PointingMultiKinematicConstraint::positionDerivative <2 states passed");
+	if(num<2) throw VertexException("MultiTrackPointingKinematicConstraint::positionDerivative <2 states passed");
 	
 	//2 equations (for all tracks)
 	AlgebraicMatrix  matrix(2,3,0);
@@ -87,6 +87,6 @@ AlgebraicMatrix PointingMultiKinematicConstraint::positionDerivative(const vecto
 	return matrix;
 }
 
-int PointingMultiKinematicConstraint::numberOfEquations() const{
+int MultiTrackPointingKinematicConstraint::numberOfEquations() const{
 	return 2;
 }

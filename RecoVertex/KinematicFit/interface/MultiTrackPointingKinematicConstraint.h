@@ -1,5 +1,5 @@
-#ifndef PointingMultiKinematicConstraint_H
-#define PointingMultiKinematicConstraint_H
+#ifndef MultiTrackPointingKinematicConstraint_H
+#define MultiTrackPointingKinematicConstraint_H
 
 #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
@@ -18,10 +18,10 @@
  */
 //mother constructed from daughters. no propagation in field in this version!
 
-class PointingMultiKinematicConstraint : public MultiTrackKinematicConstraint
+class MultiTrackPointingKinematicConstraint : public MultiTrackKinematicConstraint
 {
 public:
-	PointingMultiKinematicConstraint(GlobalPoint& ref):refPoint(ref)
+	MultiTrackPointingKinematicConstraint(GlobalPoint& ref):refPoint(ref)
 	{}
 	
 	/**
@@ -50,9 +50,9 @@ public:
 	 */
 	virtual int numberOfEquations() const;
 	
-	virtual PointingMultiKinematicConstraint * clone()const
+	virtual MultiTrackPointingKinematicConstraint * clone()const
 	{
-		return new PointingMultiKinematicConstraint(*this);
+		return new MultiTrackPointingKinematicConstraint(*this);
 	}
 	
 private:
