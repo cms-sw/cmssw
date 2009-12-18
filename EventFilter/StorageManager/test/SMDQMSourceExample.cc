@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.13 2008/07/15 20:14:45 biery Exp $
+  $Id: SMDQMSourceExample.cc,v 1.14 2009/06/10 13:58:35 biery Exp $
 
 */
 
@@ -47,7 +47,7 @@ public:
    
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
 
   virtual void endJob(void);
 
@@ -155,7 +155,7 @@ SMDQMSourceExample::~SMDQMSourceExample()
   
 }
 
-void SMDQMSourceExample::beginJob(const edm::EventSetup& iSetup)
+void SMDQMSourceExample::beginJob()
 {
   std::cout << "SMDQMSourceExample: "
             << "Doing beginning of job processing." << std::endl;
