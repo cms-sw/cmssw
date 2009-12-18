@@ -38,6 +38,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
@@ -124,6 +127,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
   } else if (container == "EcalChannelStatus") {
     cacheID = evtSetup.get<EcalChannelStatusRcd>().cacheIdentifier();
+  } else if (container == "EcalDCSTowerStatus") {
+    cacheID = evtSetup.get<EcalDCSTowerStatusRcd>().cacheIdentifier();
   } else if (container == "EcalTimeCalibConstants") {
     cacheID = evtSetup.get<EcalTimeCalibConstantsRcd>().cacheIdentifier();
   } else if (container == "EcalClusterCrackCorrParameters") {
@@ -193,6 +198,14 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     cout << "channel status pointer is: "<< obj<< endl;
 
    dbOutput->createNewIOV<const EcalChannelStatus>( new EcalChannelStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  }  else if (container == "EcalDCSTowerStatus") {
+    edm::ESHandle<EcalDCSTowerStatus> handle;
+    evtSetup.get<EcalDCSTowerStatusRcd>().get(handle);
+    const EcalDCSTowerStatus* obj = handle.product();
+    cout << "channel status pointer is: "<< obj<< endl;
+
+   dbOutput->createNewIOV<const EcalDCSTowerStatus>( new EcalDCSTowerStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
   }  else if (container == "EcalTPGCrystalStatus") {
