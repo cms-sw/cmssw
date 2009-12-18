@@ -23,7 +23,7 @@ process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
 process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -71,7 +71,6 @@ process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/f/futyand/public/globaltag/GR09_R_34X_V1.db'
 process.GlobalTag.globaltag = 'GR09_R_34X_V1::All'
 
 
