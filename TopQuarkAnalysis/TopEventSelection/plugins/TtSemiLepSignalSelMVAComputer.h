@@ -31,7 +31,7 @@ class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
   
  private:
 
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 

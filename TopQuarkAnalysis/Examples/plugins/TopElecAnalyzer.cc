@@ -225,7 +225,7 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   }
 }
 
-void TopElecAnalyzer::beginJob(const edm::EventSetup&)
+void TopElecAnalyzer::beginJob()
 {
 }
 
