@@ -353,7 +353,15 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		std::auto_ptr<GhostTrack> ghostTrack;
 		if (useGhostTrack)
 			ghostTrack.reset(new GhostTrack(
-				GhostTrackPrediction(),	*gtPred, gtStates,
+				GhostTrackPrediction(
+					RecoVertex::convertPos(pv.position()),
+					RecoVertex::convertError(pv.error()),
+					GlobalVector(
+						iterJets->ghostTrack()->px(),
+						iterJets->ghostTrack()->py(),
+						iterJets->ghostTrack()->pz()),
+					0.05),
+				*gtPred, gtStates,
 				iterJets->ghostTrack()->chi2(),
 				iterJets->ghostTrack()->ndof()));
 
