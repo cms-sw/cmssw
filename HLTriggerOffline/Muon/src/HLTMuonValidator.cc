@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/12/11 16:08:15 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/12/16 17:22:25 $
+ *  $Revision: 1.11 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -117,6 +117,12 @@ HLTMuonValidator::beginJob()
       stepLabels_[path].push_back("L3Iso");
     }
 
+    string l1Name = path + "_L1Quality";
+    elements_[l1Name.c_str()] = dbe_->book1D("L1Quality", 
+                                             "Quality of L1 Muons",
+                                             8, 0, 8);
+    for (size_t i = 0; i < 8; i++)
+      elements_[l1Name.c_str()]->setBinLabel(i + 1, Form("%i", i));
     for (size_t i = 0; i < 2; i++) {
       string source = kSources[i];
       for (size_t j = 0; j < stepLabels_[path].size(); j++) {
@@ -302,8 +308,11 @@ HLTMuonValidator::analyzePath(const string & path,
       }
       else if (level == 1) {
         for (size_t k = 0; k < candsPassingL1.size(); k++) 
-          if (identical(matches[j].candL1, & * candsPassingL1[k]))
+          if (identical(matches[j].candL1, & * candsPassingL1[k])) {
             hasMatch[step][j] = true;
+            int l1Quality = matches[j].candL1->gmtMuonCand().quality();
+            elements_[path + "_L1Quality"]->Fill(l1Quality);
+          }
       }
       else if (level >= 2) {
         for (size_t k = 0; k < candsPassingHlt[hltStep].size(); k++)
