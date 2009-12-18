@@ -18,14 +18,22 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 using namespace std;
 namespace cms
 {
 
+//class MyJPT : public JetPlusTrackCorrector
+//{
+//  MyJPT( const edm::ParameterSet& );
+//  getJet
+//};
+
 JetPlusTrackCollisionAnalysis::JetPlusTrackCollisionAnalysis(const edm::ParameterSet& iConfig)
 {
-  
+
    mCone = iConfig.getParameter<double>("Cone");
 //   mInputCaloTower = iConfig.getParameter<edm::InputTag>("src0");   
    mInputJetsCaloTower = iConfig.getParameter<edm::InputTag>("src1");
@@ -42,7 +50,9 @@ JetPlusTrackCollisionAnalysis::JetPlusTrackCollisionAnalysis(const edm::Paramete
    fOutputFileName = iConfig.getUntrackedParameter<string>("HistOutFile");
    
    allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",true);
-   	  
+
+   jptCorrectorName_ = iConfig.getUntrackedParameter<string>("JPTname");
+	  
 }
 
 JetPlusTrackCollisionAnalysis::~JetPlusTrackCollisionAnalysis()
@@ -98,6 +108,18 @@ void JetPlusTrackCollisionAnalysis::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[5000]/F");
    myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[5000]/F");
 
+
+   const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,iSetup);
+
+  if (!corrector) edm::LogError("JetPlusTrackCollisionAnalysis") << "Failed to get corrector with name " <<   
+                                    jptCorrectorName_ << "from the EventSetup";
+  jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
+  if (!jptCorrector_) edm::LogError("JetPlusTrackCollisionAnalysis") << "Corrector with name " << 
+                         jptCorrectorName_ << " is not a JetPlusTrackCorrector";
+
+
+
+
 }
 void JetPlusTrackCollisionAnalysis::endJob()
 {
@@ -115,7 +137,35 @@ void JetPlusTrackCollisionAnalysis::analyze(
                                          const edm::Event& iEvent,
                                          const edm::EventSetup& theEventSetup)  
 {
-    cout<<" JetPlusTrack analyze "<<endl;
+    cout<<" JetPlusTrack analyze for Run "<<iEvent.id().run()<<" Event "
+    <<iEvent.id().event()<<" Lumi block "<<iEvent.getLuminosityBlock().id().luminosityBlock()<<endl;
+
+// Check for the proper bunch-crossing (51 or 2724). These numbers may change from run to run
+
+    int bx = iEvent.bunchCrossing();
+    if(bx != 51 && bx != 2724 ) {std::cout<<" Event with bad bunchcrossing? "<<bx<<std::endl;} 
+
+    std::cout<<" Event with tecnical bits 40,41 and bx "<<bx<<std::endl;
+
+// Check if Primary vertex exist
+
+   edm::Handle<reco::VertexCollection> pvHandle; 
+   iEvent.getByLabel("offlinePrimaryVertices",pvHandle);
+   const reco::VertexCollection & vertices = *pvHandle.product();
+   bool result = false;   
+
+   for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
+   {
+      if(it->tracksSize() > 0 && 
+         ( fabs(it->z()) <= 15. ) &&
+         ( fabs(it->position().rho()) <= 2. )
+       ) result = true;
+   }
+
+   if(!result) { std::cout<<" Vertex is outside 15 cms "<<std::endl; return;}
+
+   std::cout<<" PV exists in the acceptable range (+-15 cm) and bx = "<<bx<<std::endl;  
+
 
 // Calo Geometry
    edm::ESHandle<CaloGeometry> pG;
@@ -162,6 +212,13 @@ void JetPlusTrackCollisionAnalysis::analyze(
 	      
 	      if( NumRecoJetsCaloTower < 10 )
 		{
+//                jpt::MatchedTracks pions;
+//                jpt::MatchedTracks muons;
+//                jpt::MatchedTracks electrons;
+//  const bool ok = jptCorrector_->matchTracks(*jet,iEvent,theEventSetup,pions,muons,electrons);
+
+//  jpt::JetTracks trk;
+//  const bool ok1 = jptCorrector_->jetTrackAssociation((*jet),iEvent,theEventSetup,trk);
 			  
 		  JetRecoEtCaloTower[NumRecoJetsCaloTower] = (*jet).et();
 		  JetRecoEtaCaloTower[NumRecoJetsCaloTower] = (*jet).eta();
@@ -195,6 +252,15 @@ void JetPlusTrackCollisionAnalysis::analyze(
 	     {
 	       if( NumRecoJetsZSPCorrected < 10 )
 		 {
+                jpt::MatchedTracks pions;
+                jpt::MatchedTracks muons;
+                jpt::MatchedTracks electrons;
+  const bool ok = jptCorrector_->matchTracks(*jet,iEvent,theEventSetup,pions,muons,electrons);
+       if(ok) {
+
+           std::cout<<" The number of pions, muon, electrons "<<pions.inVertexInCalo_.size()<<std::endl;
+
+        }
 		   JetRecoEtZSPCorrected[NumRecoJetsZSPCorrected] = (*jet).et();
 		   JetRecoEtaZSPCorrected[NumRecoJetsZSPCorrected] = (*jet).eta();
 		   JetRecoPhiZSPCorrected[NumRecoJetsZSPCorrected] = (*jet).phi();
@@ -209,7 +275,7 @@ void JetPlusTrackCollisionAnalysis::analyze(
 
 // JPT correction
      NumRecoJetsJPTCorrected = 0;
- 
+
      edm::Handle<reco::CaloJetCollection> jets2;
      iEvent.getByLabel(mInputJetsJPTCorrected, jets2);
      if (!jets2.isValid()) {
@@ -226,11 +292,22 @@ void JetPlusTrackCollisionAnalysis::analyze(
 	   for (; jet != jets2->end (); jet++)
 	     {
 	       if( NumRecoJetsJPTCorrected < 10 )
-		 {
+		 { 
+//                   jpt::JetTracks trk;
 		   JetRecoEtJPTCorrected[NumRecoJetsJPTCorrected] = (*jet).et();
 		   JetRecoEtaJPTCorrected[NumRecoJetsJPTCorrected] = (*jet).eta();
 		   JetRecoPhiJPTCorrected[NumRecoJetsJPTCorrected] = (*jet).phi();
+
 		   cout<<" JPT et "<<(*jet).et()<<" Eta "<<(*jet).eta()<<" Phi "<<(*jet).phi()<<endl;
+
+//                   const bool ok = jptCorrector_->jetTrackAssociation((*jet),iEvent,theEventSetup,trk);
+/*
+                   if( ok ) {
+                     reco::TrackRefVector TrkatV = trk.vertex_;
+                     std::cout<<" Jet "<<NumRecoJetsJPTCorrected<<" Number of associated tracks "
+                                       <<TrkatV.size()<<std::endl;
+                   }
+*/
 		   NumRecoJetsJPTCorrected++;
 		 } //jets <10 
 	     } // JPTjets cycle

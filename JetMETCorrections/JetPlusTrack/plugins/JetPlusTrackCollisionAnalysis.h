@@ -1,6 +1,6 @@
 #ifndef JetPlusTrackCollisionAnalysis_h
 #define JetPlusTrackCollisionAnalysis_h
-
+#include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,6 +16,11 @@ namespace edm {
 }
 #include "TFile.h"
 #include "TTree.h"
+namespace jpt {
+  class MatchedTracks;
+  class JetTracks;
+}
+class JetPlusTrackCorrector;
 
 ///
 /// jet energy corrections from MCjet calibration
@@ -48,9 +53,11 @@ private:
      float JetRecoEtJPTCorrected[10],JetRecoEtaJPTCorrected[10],JetRecoPhiJPTCorrected[10];
      int NumRecoTrack,NumRecoCone;
      float TrackRecoEt[5000],TrackRecoEta[5000],TrackRecoPhi[5000]; 
-     int run, event;
+     int run, event;     
+     std::string jptCorrectorName_;
+     const JetPlusTrackCorrector* jptCorrector_;
 
-  double mCone;
+  double        mCone;
   edm::InputTag mInputCaloTower;
   edm::InputTag mInputJetsCaloTower;
   edm::InputTag mInputJetsZSPCorrected; 
