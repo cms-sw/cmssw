@@ -9,8 +9,8 @@
  *   multiple instances of the register in the hardware (by default 2)
 */ 
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.3 $
+//   $Date: 2007/07/06 15:35:37 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -187,7 +187,7 @@ class L1MuGMTRegMMConfigMIPISO : public L1MuGMTRegMMConfig {
   L1MuGMTRegMMConfigMIPISO(const std::string& param, MergeMethods def_brl, MergeMethods def_fwd, bool def_and_brl, bool def_and_fwd) :
     L1MuGMTRegMMConfig(param, def_brl, def_fwd) { 
 
-    bool doAND;
+    bool doAND = false;
     
     if(m_param=="MIP")      doAND = L1MuGMTConfig::getGMTParams()->getMergeMethodMIPSpecialUseANDBrl();
     else if(m_param=="ISO") doAND = L1MuGMTConfig::getGMTParams()->getMergeMethodISOSpecialUseANDBrl();
