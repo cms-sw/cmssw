@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.16 2009/11/05 12:47:40 mommsen Exp $
+// $Id: Configuration.cc,v 1.15 2009/10/13 10:30:25 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -154,7 +154,7 @@ namespace stor
     _diskWriteParamCopy._filePath = "/tmp";
     _diskWriteParamCopy._otherDiskPaths.clear();
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
-    _diskWriteParamCopy._setupLabel = "Data";
+    _diskWriteParamCopy._setupLabel = "mtcc";
     _diskWriteParamCopy._nLogicalDisk = 0;
     _diskWriteParamCopy._maxFileSizeMB = 0;
     _diskWriteParamCopy._highWaterMark = 0.9;
@@ -199,10 +199,18 @@ namespace stor
 
   void Configuration::setEventServingDefaults()
   {
+    _eventServeParamCopy._pushmode2proxy = false;
+    _eventServeParamCopy._maxESEventRate = 100.0;  // hertz
+    _eventServeParamCopy._maxESDataRate = 1024.0;  // MB/sec
     _eventServeParamCopy._activeConsumerTimeout = 60.0;  // seconds
+    _eventServeParamCopy._idleConsumerTimeout = 120.0;  // seconds
     _eventServeParamCopy._consumerQueueSize = 5;
+    _eventServeParamCopy._fairShareES = false;
+    _eventServeParamCopy._DQMmaxESEventRate = 1.0;  // hertz
     _eventServeParamCopy._DQMactiveConsumerTimeout = 60.0;  // seconds
+    _eventServeParamCopy._DQMidleConsumerTimeout = 120.0;  // seconds
     _eventServeParamCopy._DQMconsumerQueueSize = 15;
+    _eventServeParamCopy._esSelectedHLTOutputModule = "hltOutputDQM";
   }
 
   void Configuration::setQueueConfigurationDefaults()
@@ -316,22 +324,43 @@ namespace stor
   setupEventServingInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
     // copy the initial defaults to the xdata variables
+    _pushmode2proxy = _eventServeParamCopy._pushmode2proxy;
+    _maxESEventRate = _eventServeParamCopy._maxESEventRate;
+    _maxESDataRate = _eventServeParamCopy._maxESDataRate;
     _activeConsumerTimeout =
       static_cast<int>(_eventServeParamCopy._activeConsumerTimeout);
+    _idleConsumerTimeout =
+      static_cast<int>(_eventServeParamCopy._idleConsumerTimeout);
     _consumerQueueSize = _eventServeParamCopy._consumerQueueSize;
+    _fairShareES = _eventServeParamCopy._fairShareES;
+    _DQMmaxESEventRate = _eventServeParamCopy._DQMmaxESEventRate;
     _DQMactiveConsumerTimeout =
       static_cast<int>(_eventServeParamCopy._DQMactiveConsumerTimeout);
+    _DQMidleConsumerTimeout =
+      static_cast<int>(_eventServeParamCopy._DQMidleConsumerTimeout);
     _DQMconsumerQueueSize = _eventServeParamCopy._DQMconsumerQueueSize;
+    _esSelectedHLTOutputModule =
+      _eventServeParamCopy._esSelectedHLTOutputModule;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable( "runNumber", &_infospaceRunNumber );
+    infoSpace->fireItemAvailable("pushMode2Proxy", &_pushmode2proxy);
+    infoSpace->fireItemAvailable("maxESEventRate",&_maxESEventRate);
+    infoSpace->fireItemAvailable("maxESDataRate",&_maxESDataRate);
     infoSpace->fireItemAvailable("activeConsumerTimeout",
                                  &_activeConsumerTimeout);
+    infoSpace->fireItemAvailable("idleConsumerTimeout",&_idleConsumerTimeout);
     infoSpace->fireItemAvailable("consumerQueueSize",&_consumerQueueSize);
+    //infoSpace->fireItemAvailable("fairShareES",&_fairShareES);
+    infoSpace->fireItemAvailable("DQMmaxESEventRate",&_DQMmaxESEventRate);
     infoSpace->fireItemAvailable("DQMactiveConsumerTimeout",
                               &_DQMactiveConsumerTimeout);
+    infoSpace->fireItemAvailable("DQMidleConsumerTimeout",
+                              &_DQMidleConsumerTimeout);
     infoSpace->fireItemAvailable("DQMconsumerQueueSize",
                                  &_DQMconsumerQueueSize);
+    infoSpace->fireItemAvailable("esSelectedHLTOutputModule",
+                              &_esSelectedHLTOutputModule);
   }
 
   void Configuration::
@@ -412,10 +441,19 @@ namespace stor
 
   void Configuration::updateLocalEventServingData()
   {
+    _eventServeParamCopy._pushmode2proxy = _pushmode2proxy;
+    _eventServeParamCopy._maxESEventRate = _maxESEventRate;
+    _eventServeParamCopy._maxESDataRate = _maxESDataRate;
     _eventServeParamCopy._activeConsumerTimeout = _activeConsumerTimeout;
+    _eventServeParamCopy._idleConsumerTimeout = _idleConsumerTimeout;
     _eventServeParamCopy._consumerQueueSize = _consumerQueueSize;
+    _eventServeParamCopy._fairShareES = _fairShareES;
+    _eventServeParamCopy._DQMmaxESEventRate = _DQMmaxESEventRate;
     _eventServeParamCopy._DQMactiveConsumerTimeout = _DQMactiveConsumerTimeout;
+    _eventServeParamCopy._DQMidleConsumerTimeout = _DQMidleConsumerTimeout;
     _eventServeParamCopy._DQMconsumerQueueSize = _DQMconsumerQueueSize;
+    _eventServeParamCopy._esSelectedHLTOutputModule =
+      _esSelectedHLTOutputModule;
 
     // validation
     if (_eventServeParamCopy._consumerQueueSize < 1)
@@ -425,6 +463,18 @@ namespace stor
     if (_eventServeParamCopy._DQMconsumerQueueSize < 1)
       {
         _eventServeParamCopy._DQMconsumerQueueSize = 1;
+      }
+    if (_eventServeParamCopy._maxESEventRate < 0.0)
+      {
+        _eventServeParamCopy._maxESEventRate = 0.0;
+      }
+    if (_eventServeParamCopy._maxESDataRate < 0.0)
+      {
+        _eventServeParamCopy._maxESDataRate = 0.0;
+      }
+    if (_eventServeParamCopy._DQMmaxESEventRate < 0.0)
+      {
+        _eventServeParamCopy._DQMmaxESEventRate = 0.0;
       }
   }
 

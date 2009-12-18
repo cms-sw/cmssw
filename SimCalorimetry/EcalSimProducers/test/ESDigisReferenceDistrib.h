@@ -39,7 +39,7 @@ class ESDigisReferenceDistrib: public edm::EDAnalyzer{
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   // BeginJob
-  void beginJob();
+  void beginJob(const edm::EventSetup& c);
   
   // EndJob
   void endJob(void);

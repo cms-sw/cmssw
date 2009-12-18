@@ -22,17 +22,35 @@ if [ ! -n "$CMSSW_BASE" ] ; then
   export LD_LIBRARY_PATH
   DYLD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib
   export DYLD_LIBRARY_PATH
-  cat $CMSSW_BASE/src/Fireworks/Core/standalone_build/version.txt
   PATH=${ROOTSYS}/bin:$PATH
   export PATH
 fi
-if [ "`echo $@ | awk '/\-\-soft /'`" != "" ] ; then
+
+#parse arguments to find ones handled by this script
+softflag=off
+debugflag=off
+rootflag=off
+#NOTE: the while loop removes entries from $@ so need to cache its value
+originalOptions=$@
+while [ $# -gt 0 ]
+do
+    case "$1" in
+      --soft)  softflag=on;;
+      -d)  debugflag=on;;
+      --debug) debugflag=on;;
+      --root-interactive) rootflag=on;;
+      -r) rootflag=on;;
+    esac
+    shift
+done
+
+if [ "$softflag" != "off" ] ; then
   LIBGL_DRIVERS_PATH=/tmp/
   export LIBGL_DRIVERS_PATH
 fi
 
-if [ "`echo $@ | awk '/\-d /'`" != "" ] ; then
-   echo "set args $@" > gdb.cmd
+if [ "$debugflag" != "off" ] ; then
+   echo "set args $originalOptions" > gdb.cmd
    echo "run"        >> gdb.cmd
    echo "bt"         >> gdb.cmd
    echo "quit"       >> gdb.cmd
@@ -42,9 +60,9 @@ if [ "`echo $@ | awk '/\-d /'`" != "" ] ; then
    uname -a  >> crash.report
    glxinfo >> crash.report
 else
-   $SHELLDIR/cmsShow.exe $@
+   $SHELLDIR/cmsShow.exe $originalOptions
    if [ $? != "0" ] ; then
-      if [ "`echo $@ | awk '/\-r/'`" == "" ] ; then
+      if [ "$rootflag" == "off" ] ; then
          echo ""
          echo "  ########################################################################"
          echo "  #                                                                      #"

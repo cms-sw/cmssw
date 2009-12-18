@@ -95,9 +95,10 @@ class EcalHitMaker: public CaloHitMaker
 
   // The following methods are EM showers specific
   
-  /// computes the crystals-plan intersection at depth (in X0)
+  /// computes the crystals-plan intersection at depth (in X0 or L0 depending on the
+  ///shower type)
   /// if it is not possible to go at such a depth, the result is false
-  bool getPads(double depth) ;
+  bool getPads(double depth,bool inCm=false) ;
 
   inline double getX0back() const {return maxX0_;}
 

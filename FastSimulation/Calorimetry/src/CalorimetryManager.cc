@@ -1,5 +1,6 @@
 //Framework headers 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Fast Simulation headers
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
@@ -29,6 +30,11 @@
 // New headers for Muon Mip Simulation
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
+//Gflash Hadronic Model
+#include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
+#include "SimG4Core/GFlash/interface/GflashPiKShowerProfile.h"
+#include "SimG4Core/GFlash/interface/GflashProtonShowerProfile.h"
+#include "SimG4Core/GFlash/interface/GflashAntiProtonShowerProfile.h"
 
 // STL headers 
 #include <vector>
@@ -59,6 +65,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 				       const edm::ParameterSet& fastCalo,
 				       const edm::ParameterSet& fastMuECAL,
 				       const edm::ParameterSet& fastMuHCAL,
+                                       const edm::ParameterSet& parGflash,
 				       const RandomEngine* engine)
   : 
   mySimEvent(aSimEvent), 
@@ -69,6 +76,12 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 
   aLandauGenerator = new LandauFluctuationGenerator(random);
   aGammaGenerator = new GammaFunctionGenerator(random);
+
+  //Gflash
+  theProfile = new GflashHadronShowerProfile(parGflash);
+  thePiKProfile = new GflashPiKShowerProfile(parGflash);
+  theProtonProfile = new GflashProtonShowerProfile(parGflash);
+  theAntiProtonProfile = new GflashAntiProtonShowerProfile(parGflash);
 
   readParameters(fastCalo);
 
@@ -174,6 +187,7 @@ CalorimetryManager::~CalorimetryManager()
   if ( theMuonEcalEffects ) delete theMuonEcalEffects;
   if ( theMuonHcalEffects ) delete theMuonHcalEffects;
 
+  if ( theProfile ) delete theProfile;
 }
 
 void CalorimetryManager::reconstruct()
@@ -726,7 +740,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
     HcalHitMaker myHcalHitMaker(myGrid,(unsigned)1); 
     
     // Shower simulation
-    bool status;
+    bool status = false;
     int  mip = 2;
     // Use HFShower for HF
     if ( !myTrack.onEcal() && !myTrack.onHcal() ) {
@@ -761,7 +775,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	status = theShower.compute();
         mip    = theShower.getmip();
       }
-      else {
+      else if (hdSimMethod_ == 1) {
 	HDRShower theShower(random,
 			    &theHDShowerparam,
 			    &myGrid,
@@ -770,6 +784,20 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 			    eGen);
 	status = theShower.computeShower();
         mip = 2;
+      }
+      else if (hdSimMethod_ == 2 ) {
+	//        std::cout << "Using GflashHadronShowerProfile hdSimMethod_ == 2" << std::endl;
+
+        theProfile = thePiKProfile;
+        theProfile->getGflashShowino()->initialize(myTrack,3.8,random);
+        theProfile->loadParameters();
+        theProfile->initFastSimCaloHit(&myGrid,&myHcalHitMaker);
+        theProfile->hadronicParameterization();
+        status = true;
+
+      }
+      else {
+	edm::LogInfo("FastSimulationCalorimetry") << " SimMethod " << hdSimMethod_ <<" is NOT available ";
       }
     }
     

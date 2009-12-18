@@ -27,10 +27,10 @@
 // Constructor/Destructor
 // -------------------------------------------------------------------------
 
-DDXMLElement::DDXMLElement( DDLElementRegistry* myreg) : myRegistry_(myreg), attributes_(), text_(), autoClear_(false)
+DDXMLElement::DDXMLElement() : attributes_(), text_(), autoClear_(false)
 { }
 
-DDXMLElement::DDXMLElement( DDLElementRegistry* myreg, const bool& clearme ) : myRegistry_(myreg), attributes_(), text_(), autoClear_(clearme)
+DDXMLElement::DDXMLElement(const bool& clearme) : attributes_(), text_(), autoClear_(clearme)
 { }
 
 DDXMLElement::~DDXMLElement()
@@ -41,7 +41,7 @@ DDXMLElement::~DDXMLElement()
 // -------------------------------------------------------------------------
 
 // For pre-processing, after attributes are loaded.  Default, do nothing!
-void DDXMLElement::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDXMLElement::preProcessElement(const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDXMLElement::preProcessElementBase default, do nothing) started-completed.");
 }
@@ -50,7 +50,7 @@ void DDXMLElement::preProcessElement (const std::string& name, const std::string
 void DDXMLElement::loadAttributes (const std::string& elemName
 				     , const std::vector<std::string> & names
 				     , const std::vector<std::string> & values
-				     , const std::string& nmspace, DDCompactView& cpv)
+				     , const std::string& nmspace)
 {
 
   attributes_.resize(attributes_.size()+1);
@@ -63,7 +63,7 @@ void DDXMLElement::loadAttributes (const std::string& elemName
       tAttributes.insert(std::make_pair(names[i], values[i]));
     }
 
-  preProcessElement( elemName, nmspace, cpv );
+  preProcessElement( elemName, nmspace );
   DCOUT_V('P', "DDXMLElement::loadAttributes completed. " << *this);
 }
 
@@ -121,41 +121,40 @@ const DDName DDXMLElement::getDDName(const std::string& defaultNS, const std::st
   msg += " in position: " + itostr(int(aIndex)) + ".  There are ";
   msg += itostr(int(attributes_.size())) + " entries in the element.";
   throwError(msg);
-  return DDName("justToCompile", "justToCompile"); // used to make sure it compiles
+  return DDName("justToCompile", "justToCompile"); // used to make sure that 
+  // the method will compile with some compilers that are picky.
 } 
 
-// std::string DDXMLElement::getNameSpace(const std::string& defaultNS, const std::string& attname
-// 				  , size_t aIndex)
-// {
-//   std::cout << "DEPRECATED: PLEASE DO NOT USE getNameSpace ANYMORE!" << std::endl;
-//   std::string ns;
-//   const std::string & name = get(attname, aIndex);
-//   size_t foundColon= name.find(':');
-//   if (foundColon != std::string::npos)
-//     ns = name.substr(0,foundColon);
-//   else
-//     {
-//       ns = defaultNS;
-//     }
-//   return ns;
-// }
+std::string DDXMLElement::getNameSpace(const std::string& defaultNS, const std::string& attname
+				  , size_t aIndex)
+{
+  std::cout << "DEPRECATED: PLEASE DO NOT USE getNameSpace ANYMORE!" << std::endl;
+  std::string ns;
+  const std::string & name = get(attname, aIndex);
+  size_t foundColon= name.find(':');
+  if (foundColon != std::string::npos)
+    ns = name.substr(0,foundColon);
+  else
+    {
+      ns = defaultNS;
+    }
+  return ns;
+}
 
-// const std::string DDXMLElement::getName(const std::string& attname
-// 			     , size_t aIndex)
-// {
-//   std::cout << "DEPRECATED: PLEASE DO NOT USE getName ANYMORE!!" << std::endl;
-//   std::string rn;
-//   const std::string & name = get(attname, aIndex);
-//   size_t foundColon= name.find(':');
-//   if (foundColon != std::string::npos)
-//     rn = name.substr(foundColon+1);
-//   {
-//     rn = name;
-//   }
-//   return rn;
-// }
-
-
+const std::string DDXMLElement::getName(const std::string& attname
+			     , size_t aIndex)
+{
+  std::cout << "DEPRECATED: PLEASE DO NOT USE getName ANYMORE!!" << std::endl;
+  std::string rn;
+  const std::string & name = get(attname, aIndex);
+  size_t foundColon= name.find(':');
+  if (foundColon != std::string::npos)
+    rn = name.substr(foundColon+1);
+  {
+    rn = name;
+  }
+  return rn;
+}
 
 // Returns a specific value from the aIndex set of attributes.
 const std::string & DDXMLElement::get(const std::string& name, const size_t aIndex ) const
@@ -216,7 +215,7 @@ std::vector<std::string> DDXMLElement::getVectorAttribute(const std::string& nam
 }
 
 // Default do-nothing processElementBases.
-void DDXMLElement::processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+void DDXMLElement::processElement(const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDXMLElement::processElementBase (default, do nothing) started-completed");
   loadText(std::string());
@@ -317,15 +316,8 @@ std::vector<DDXMLAttribute>::const_iterator& DDXMLElement::operator++(int inc)
 
 
 const std::string& DDXMLElement::parent() const {
-  return parentElement_;
-}
-
-void DDXMLElement::setParent( const std::string& pename) {
-  parentElement_ = pename;
-}
-
-void DDXMLElement::setSelf( const std::string& sename) {
-  myElement_ = sename;
+  DDLSAX2FileHandler* s2han = DDLParser::instance()->getDDLSAX2FileHandler();
+  return s2han->parent();
 }
 
 // yet another :-)
@@ -344,9 +336,7 @@ bool DDXMLElement::isEmpty () const
 void DDXMLElement::throwError( const std::string& keyMessage ) const 
 {
     std::string msg = keyMessage + "\n";
-    //    if (myElement_) {
-      msg += " Element " + myElement_ +"\n";
-      //    }
-    //    msg += " File " + DDLParser::instance()->getCurrFileName() + ".\n";
+    msg += " Element " + DDLParser::instance()->getDDLSAX2FileHandler()->self() +"\n";
+    msg += " File " + DDLParser::instance()->getCurrFileName() + ".\n";
     throw DDException(msg);
 }

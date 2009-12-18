@@ -102,7 +102,7 @@ void GaussianTailNoiseGenerator::generateRaw(float noiseRMS,
   // in terms of meaning is huge.
   // We therefore use here the trivial approach (as in the early 2XX cycle)
   unsigned int numberOfchannels = theVector.size();
-  for (unsigned int i = 0; i < numberOfchannels; ++i) {
+  for (int i = 0; i < numberOfchannels; ++i) {
     if(theVector[i]==0) theVector[i] = gaussDistribution_.fire(0.,noiseRMS);
   }
 }

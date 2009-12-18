@@ -106,16 +106,16 @@ public:
     mon_list.setMonRunTag(montag);
     mon_list.setRunTag(my_runtag);
     int min_run=runa;
-    int max_run=runb;
-    cout<< "max run is:"<<max_run<<endl;
-    mon_list=econn->fetchMonRunListLastNRuns(my_runtag, montag, max_run , 10 );
+    int n_runs=runb;
+    cout<< "min run is:"<<min_run<<endl;
+    mon_list=econn->fetchMonRunListLastNRuns(my_runtag, montag, min_run ,n_runs  );
 
     std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
 
     cout <<"number of ped runs is : "<< mon_run_vec.size()<< endl;
-    int mon_runs=mon_run_vec.size();
+    int mon_runs=(int) mon_run_vec.size();
     if(mon_runs>0){
-      for(int ii=0; ii<mon_run_vec.size(); ii++){
+      for(int ii=0; ii<mon_runs; ii++){
 	cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
       }
     }
@@ -296,7 +296,7 @@ public:
       // now we store in the DB the correspondence btw channels and LUT groups 
       map<EcalLogicID, FEConfigLUTDat> dataset2;
       // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<ecid_vec.size() ; ich++){
+      for (int ich=0; ich<(int)ecid_vec.size() ; ich++){
 	FEConfigLUTDat lut;
 	int igroup=ich/(ecid_vec.size()/5);
 	lut.setLUTGroupId(igroup);
@@ -356,7 +356,7 @@ public:
       // now we store in the DB the correspondence btw channels and LUT groups 
       map<EcalLogicID, FEConfigWeightDat> dataset2;
       // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<ecid_vec.size() ; ich++){
+      for (int ich=0; ich<(int)ecid_vec.size() ; ich++){
 	FEConfigWeightDat weid;
 	int igroup=ich/(ecid_vec.size()/5);
 	weid.setWeightGroupId(igroup);
@@ -415,30 +415,26 @@ private:
 
 int main (int argc, char* argv[])
 {
-  string host;
+
   string sid;
   string user;
   string pass;
-  string sport;
   string smin_run;
   string sn_run;
 
-  if (argc != 8) {
+  if (argc != 6) {
     cout << "Usage:" << endl;
-    cout << "  " << argv[0] << " <host> <SID> <user> <pass> <port> <min_run> <n_run>" << endl;
+    cout << "  " << argv[0] << " <SID> <user> <pass> <min_run> <n_run>" << endl;
     exit(-1);
   }
 
 
-  host = argv[1];
-  sid = argv[2];
-  user = argv[3];
-  pass = argv[4];
-  sport = argv[5];
-  int port=atoi(sport.c_str());
-  smin_run = argv[6];
+  sid = argv[1];
+  user = argv[2];
+  pass = argv[3];
+  smin_run = argv[4];
   int min_run=atoi(smin_run.c_str());
-  sn_run = argv[7];
+  sn_run = argv[5];
   int n_run=atoi(sn_run.c_str());
 
 

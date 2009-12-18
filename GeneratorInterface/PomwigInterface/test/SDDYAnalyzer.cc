@@ -16,8 +16,7 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  //virtual void beginJob(const edm::EventSetup& eventSetup) ;
-  virtual void beginJob(); 
+  virtual void beginJob(const edm::EventSetup& eventSetup) ;
   virtual void endJob() ;
 
 private:
@@ -58,7 +57,7 @@ private:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 /// Constructor
 SDDYAnalyzer::SDDYAnalyzer(const edm::ParameterSet& pset)
@@ -78,7 +77,7 @@ SDDYAnalyzer::SDDYAnalyzer(const edm::ParameterSet& pset)
 SDDYAnalyzer::~SDDYAnalyzer(){
 }
 
-void SDDYAnalyzer::beginJob(){
+void SDDYAnalyzer::beginJob(const edm::EventSetup& eventSetup){
   edm::Service<TFileService> fs;
   //TH1::SetDefaultSumw2(true);
 

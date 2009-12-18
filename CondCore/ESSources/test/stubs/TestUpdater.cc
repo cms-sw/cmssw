@@ -51,7 +51,7 @@ namespace condtest {
 
     edm::ESHandle<std::vector<int> > h;
     c.get<OneIntRcd>().get(h);
-    int number = (*h.product()).front();
+    size_t number = (*h.product()).front();
     if (1==e.id().run()%2 && number!=e.id().run()) std::cout << "it was not updated!" << std::endl;
   }
 

@@ -3,12 +3,17 @@
 #include <string>
 #include <vector>
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "DataSvc/Ref.h"
+#include<iosfwd>
+
+
 //
 // Package:     CondCore/IOVService
 // Class  :     IOVEditor
 //
 /**\class IOVEditor IOVEditor.h CondCore/IOVService/interface/IOVEditor.h
-   Description: Abstract interface for iov sequence manipulation
+   Description: iov sequence manipulator
 */
 //
 // Author:      Zhen Xie
@@ -19,56 +24,86 @@ namespace cond{
 
   class IOVEditor{
   public:
+
+    // default constructor
+    explicit IOVEditor(cond::DbSession& poolDb);
+
+    // constructor from existing iov
+    IOVEditor( cond::DbSession& poolDb,
+		   const std::string& token);
+ 
     /// Destructor
-    virtual ~IOVEditor(){}
+    ~IOVEditor();
 
     // create empty default sequence
-    virtual void create(cond::TimeType timetype) = 0;
+    void create(cond::TimeType timetype);
 
     // create empty sequence with fixed time boundary
-    virtual void create(cond::TimeType timetype, cond::Time_t lastTill) = 0;
+    void create(cond::TimeType timetype, cond::Time_t lastTill);
 
     // return the current sequence
-    virtual IOVSequence & iov() =0;
+    IOVSequence & iov();
 
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
-    virtual unsigned int insert( cond::Time_t tillTime,
-				 const std::string& payloadToken
-				 ) = 0;
+    unsigned int insert( cond::Time_t tillTime,
+			 const std::string& payloadToken
+				 );
 
     /// Append a payload with known since time. The previous last payload's till time will be adjusted to the new payload since time. Returns the payload index in the iov sequence
-    virtual unsigned int append(  cond::Time_t sinceTime,
-				  const std::string& payloadToken
-				  ) = 0;
+    unsigned int append(  cond::Time_t sinceTime,
+			  const std::string& payloadToken
+				  );
 
     /// insert a payload with known since in any position
-    virtual unsigned int 
+    unsigned int 
     freeInsert( cond::Time_t sinceTime ,
 		const std::string& payloadToken
-		)=0;
+		);
 
     /// Bulk append of iov chunck
-    virtual void bulkAppend( std::vector< std::pair<cond::Time_t,std::string> >& values ) = 0;
+    void bulkAppend( std::vector< std::pair<cond::Time_t,std::string> >& values );
 
-    virtual void bulkAppend(std::vector< cond::IOVElement >& values)=0;
+    void bulkAppend(std::vector< cond::IOVElement >& values);
     
     //stamp iov
-    virtual void stamp(std::string const & icomment, bool append=false)=0;
+    void stamp(std::string const & icomment, bool append=false);
 
     /// Update the closure of the iov sequence
-    virtual void updateClosure( cond::Time_t newtillTime ) = 0;
+    void updateClosure( cond::Time_t newtillTime );
     // remove last entry
-    virtual unsigned int truncate(bool withPayload=false)=0;
+    unsigned int truncate(bool withPayload=false);
     // delete all entries
-    virtual void deleteEntries( bool withPayload=false) = 0;
+    void deleteEntries( bool withPayload=false);
     // 
-    virtual void import( const std::string& sourceIOVtoken ) = 0;
+    void import( const std::string& sourceIOVtoken );
     /// Returns the token of the iov sequence associated with this editor
-    virtual std::string token() const = 0;
-  protected:
-    /// Private constructor
-    IOVEditor(){}
-  };
+    std::string const & token() const { return m_token;}
+
+    Time_t firstSince() const;
+  
+    Time_t lastTill() const;
+  
+    TimeType timetype() const;
+ 
+
+  private:
+
+    void init();
+    bool validTime(cond::Time_t time, cond::TimeType timetype) const;
+    bool validTime(cond::Time_t time) const;
+
+    void debugInfo(std::ostream & co) const;
+    void reportError(std::string message) const;
+    void reportError(std::string message, cond::Time_t time) const;
+
+  private:
+
+    cond::DbSession m_poolDb;
+    std::string m_token;
+    bool m_isActive;
+    pool::Ref<cond::IOVSequence> m_iov;  
+
+};
 }//ns cond
 #endif

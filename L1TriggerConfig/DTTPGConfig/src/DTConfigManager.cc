@@ -21,11 +21,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-
-
+               
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
@@ -173,7 +169,7 @@ DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) cons
   
    TrigUnitMap::const_iterator tuiter = my_trigunitmap.find(chambid);
    if (tuiter == my_trigunitmap.end()){
-     std::cout << "DTConfigManager::getConfigTrigUnit : Chamber (" << chambid.wheel()
+     std::cout << "DTCOnfigManager::getConfigTrigUnit : Chamber (" << chambid.wheel()
  	      << "," << chambid.sector()
  	      << "," << chambid.station() 
  	      << ") not found, return 0" << std::endl;
@@ -188,7 +184,7 @@ DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const {
   
    LUTMap::const_iterator lutiter = my_lutmap.find(chambid);
    if (lutiter == my_lutmap.end()){
-     std::cout << "DTConfigManager::getConfigLUTs : Chamber (" << chambid.wheel()
+     std::cout << "DTCOnfigManager::getConfigLUTs : Chamber (" << chambid.wheel()
  	      << "," << chambid.sector()
  	      << "," << chambid.station() 
  	      << ") not found, return 0" << std::endl;
@@ -235,74 +231,3 @@ int DTConfigManager::getBXOffset() const {
 
 }
 
-
-void DTConfigManager::dumpLUTParam(DTChamberId &chambid) const {
-
-  // open txt file
-  string name = "Lut_from_param";
-  name += ".txt";
-
-  ofstream fout;
-  fout.open(name.c_str(),ofstream::app);
-
-  // get wheel, station, sector from chamber 
-  int wh = chambid.wheel();
-  int st = chambid.station();
-  int se = chambid.sector();
-
-  //cout << "Dumping lut command for wh " << wh << " st " << st << " se " << se << endl;
-
-  fout << wh;
-  fout << "\t" << st;
-  fout << "\t" << se;
-
-  // get parameters from configuration
-  // get DTConfigLUTs for this chamber
-  DTConfigLUTs* _confLUTs = getDTConfigLUTs(chambid);
-  short int btic = getDTConfigTraco(DTTracoId(wh,st,se,1))->BTIC(); 
-  float d = _confLUTs->D();
-  float xcn = _confLUTs->Xcn();
-  //fout << "\td\t" << d << "\txcn\t" << xcn << "\t"; 
-  //fout << "btic\t" << btic << "\t";
-
-  // *** dump TRACO LUT command
-  fout << "\tA8";
-  short int Low_byte = (btic & 0x00FF);   // output in hex bytes format with zero padding
-  short int High_byte =( btic>>8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;
-
-  // convert parameters from IEE32 float to DSP float format
-  short int DSPmantissa = 0;
-  short int DSPexp = 0;
-
-  // d parameter conversion and dump
-  _confLUTs->IEEE32toDSP(d, DSPmantissa, DSPexp);
-  Low_byte = (DSPmantissa & 0x00FF);   // output in hex bytes format with zero padding
-  High_byte =( DSPmantissa>>8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;
-  Low_byte = (DSPexp & 0x00FF);
-  High_byte =( DSPexp>>8 & 0x00FF);
-  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0') << Low_byte;
-
-  // xnc parameter conversion and dump
-  DSPmantissa = 0;
-  DSPexp = 0;
-  _confLUTs->IEEE32toDSP(xcn, DSPmantissa, DSPexp);
-  Low_byte = (DSPmantissa & 0x00FF);   // output in hex bytes format with zero padding
-  High_byte =( DSPmantissa>>8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte;
-  Low_byte = (DSPexp & 0x00FF);
-  High_byte =( DSPexp>>8 & 0x00FF);
-  fout << setw(2) << setfill('0') << High_byte << setw(2) << setfill('0') << Low_byte;
-
-  // sign bits
-  short int xcn_sign = _confLUTs->Wheel();
-  Low_byte = (xcn_sign & 0x00FF);   // output in hex bytes format with zero padding
-  High_byte =( xcn_sign>>8 & 0x00FF);
-  fout << setw(2) << setfill('0') << hex << High_byte << setw(2) << setfill('0') << Low_byte << dec << "\n";
-
-  fout.close();
-
-  return;
-
-}

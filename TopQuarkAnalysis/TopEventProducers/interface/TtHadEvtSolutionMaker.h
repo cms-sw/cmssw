@@ -1,7 +1,7 @@
 #ifndef TtHadEvtSolutionMaker_h
 #define TtHadEvtSolutionMaker_h
 //
-// $Id: TtHadEvtSolutionMaker.h,v 1.6.8.1 2009/11/06 13:21:31 eschliec Exp $
+// $Id: TtHadEvtSolutionMaker.h,v 1.5 2008/04/11 12:00:24 rwolf Exp $
 // adapted TtSemiEvtSolutionMaker.h, v1.13 2007/07/06 02:49:42 lowette Exp $
 // for fully hadronic channel.
 
@@ -46,8 +46,7 @@ class TtHadEvtSolutionMaker : public edm::EDProducer {
   int maxNrIter_;
   double maxDeltaS_, maxF_;
   int jetParam_;
-  std::vector<int> lrSignalSelObs_, lrJetCombObs_;
-  std::vector<unsigned int> constraints_;
+  std::vector<int> lrSignalSelObs_, lrJetCombObs_, constraints_;
   // tools
   TtFullHadKinFitter          * myKinFitter;
   TtHadSimpleBestJetComb      * mySimpleBestJetComb;

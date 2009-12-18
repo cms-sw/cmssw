@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-
-################################################################################
-# produce ttSemiLepEvent structure with all necessary ingredients
-################################################################################
+#
+# produce ttSemiLepEvent structure with all necessary ingredients,
+# needs ttGenEvent as input
+#
 
 ## std sequence to produce the ttSemiLepEventHypotheses
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtHypotheses_cff import *
@@ -11,16 +11,22 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtHypotheses_cff imp
 ## configure ttSemiLepEventBuilder
 from TopQuarkAnalysis.TopEventProducers.producers.TtSemiLepEvtBuilder_cfi import *
 
+## synchronize maxNJets in all hypotheses
+ttSemiLepHypGeom              .maxNJets = ttSemiLepEvent.maxNJets
+ttSemiLepHypMaxSumPtWMass     .maxNJets = ttSemiLepEvent.maxNJets
+ttSemiLepHypWMassMaxSumPt     .maxNJets = ttSemiLepEvent.maxNJets
+ttSemiLepJetPartonMatch       .maxNJets = ttSemiLepEvent.maxNJets
+findTtSemiLepJetCombMVA       .maxNJets = ttSemiLepEvent.maxNJets
+kinFitTtSemiLepEventHypothesis.maxNJets = ttSemiLepEvent.maxNJets
+
 ## make ttSemiLepEvent
 makeTtSemiLepEvent = cms.Sequence(makeTtSemiLepHypotheses *
                                   ttSemiLepEvent
                                   )
 
-
-################################################################################
+########################################
 ## helper functions
-## (examples of usage can be found in the ttSemiLepEvtBuilder_cfg.py)
-################################################################################
+########################################
 
 ## add hypotheses to the process
 def addTtSemiLepHypotheses(process,
@@ -49,26 +55,7 @@ def addTtSemiLepHypotheses(process,
         ## add it to the sequence
         sequence += getattr(process, label)
 
-
 ## remove genMatch hypothesis from the process
 def removeTtSemiLepHypGenMatch(process):
     process.makeTtSemiLepHypotheses.remove(process.makeHypothesis_genMatch)
     process.ttSemiLepEvent.hypotheses.remove("ttSemiLepHypGenMatch")
-
-
-## set a specific attribute for all hypotheses to a given value
-## -> this works for "jets", "leps", "mets", "maxNJets"
-def setForAllTtSemiLepHypotheses(process, attribute, value):
-    modules = ["ttSemiLepHypGeom",
-               "ttSemiLepHypMaxSumPtWMass",
-               "ttSemiLepHypWMassMaxSumPt",
-               "ttSemiLepJetPartonMatch",
-               "ttSemiLepHypGenMatch",
-               "findTtSemiLepJetCombMVA",
-               "ttSemiLepHypMVADisc",
-               "kinFitTtSemiLepEventHypothesis",
-               "ttSemiLepHypKinFit"]
-    for obj in range(len(modules)):
-        object = getattr(process, modules[obj])
-        if hasattr(object, attribute):
-            setattr(object, attribute, value)

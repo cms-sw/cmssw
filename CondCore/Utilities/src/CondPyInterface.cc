@@ -25,8 +25,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 

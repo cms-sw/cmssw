@@ -4,13 +4,11 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.h,v 1.1 2009/10/02 17:54:40 dmytro Exp $
+// $Id: FWHLTValidator.h,v 1.2 2009/11/14 17:45:32 chrjones Exp $
 //
 
 #include "Fireworks/Core/src/FWValidatorBase.h"
-namespace fwlite{
-  class Event;
-}
+
 namespace edm {
   class TriggerNames;
 }
@@ -18,8 +16,7 @@ namespace edm {
 class FWHLTValidator: public FWValidatorBase {
 
 public:
- FWHLTValidator(fwlite::Event& event):
-  m_event(event), m_triggerNames(0){}
+  FWHLTValidator():m_triggerNames(0){}
   virtual ~FWHLTValidator() {}
 
   virtual void fillOptions(const char* iBegin, const char* iEnd,
@@ -29,7 +26,6 @@ private:
   const FWHLTValidator& operator=(const FWHLTValidator&); // stop default
   
   // ---------- member data --------------------------------
-  mutable fwlite::Event& m_event;
   mutable std::vector<std::string> m_triggerNames;
 };
 

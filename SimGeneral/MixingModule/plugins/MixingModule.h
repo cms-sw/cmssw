@@ -36,7 +36,7 @@
 #include <vector>
 #include <string>
 
-class CrossingFramePlaybackInfoExtended;
+class CrossingFramePlaybackInfo;
 class MixingWorkerBase;
 namespace edm
 {
@@ -50,7 +50,7 @@ namespace edm
       /**Default destructor*/
       virtual ~MixingModule();
 
-      virtual void beginJob() {}
+      virtual void beginJob(edm::EventSetup const&iSetup);
  
     private:
       virtual void branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label);
@@ -66,7 +66,7 @@ namespace edm
       std::string labelPlayback_;
       bool mixProdStep2_;
       bool mixProdStep1_;
-      CrossingFramePlaybackInfoExtended *playbackInfo_;
+      CrossingFramePlaybackInfo *playbackInfo_;
 
       Selector * sel_;
 

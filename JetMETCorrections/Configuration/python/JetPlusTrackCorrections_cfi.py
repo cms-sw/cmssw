@@ -9,7 +9,7 @@ JPTZSPCorrectorICone5 = cms.PSet(
 
     # Vectorial corrections
     VectorialCorrection  = cms.bool(True),
-    UseResponseInVecCorr = cms.bool(False),
+    UseResponseInVecCorr = cms.bool(True),
     
     # Select tracks used in correction
     UseInConeTracks      = cms.bool(True),

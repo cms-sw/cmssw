@@ -111,16 +111,24 @@ bool HcalHitMaker::addHit(const XYZPoint& point, unsigned layer)
 }
 
 bool 
-HcalHitMaker::setDepth(double depth)
+HcalHitMaker::setDepth(double depth,bool inCm)
 {
   currentDepth_=depth;
   std::vector<CaloSegment>::const_iterator segiterator;
-  if(EMSHOWER)
-    segiterator = find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inX0Segment(currentDepth_));
+  if(inCm)
+    {
+      segiterator = find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inSegment(currentDepth_));
+    }
+  else
+    {
+      if(EMSHOWER)
+	segiterator = find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inX0Segment(currentDepth_));
+      
+      //Hadron shower 
+      if(HADSHOWER)
+	segiterator = find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inL0Segment(currentDepth_));
+    }
   
-  //Hadron shower 
-  if(HADSHOWER)
-    segiterator = find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inL0Segment(currentDepth_));
   if(segiterator==myGrid.getSegments().end()) 
     {
       // Special trick  - As advised by Salavat, no leakage should be simulated
@@ -146,11 +154,17 @@ HcalHitMaker::setDepth(double depth)
 
 
   XYZPoint origin;
-  if(EMSHOWER)
-    origin=segiterator->positionAtDepthinX0(currentDepth_);
-  if(HADSHOWER)
-    origin=segiterator->positionAtDepthinL0(currentDepth_);
-
+  if(inCm)
+    {
+      origin=segiterator->positionAtDepthincm(currentDepth_);
+    }
+  else
+    {
+      if(EMSHOWER)
+	origin=segiterator->positionAtDepthinX0(currentDepth_);
+      if(HADSHOWER)
+	origin=segiterator->positionAtDepthinL0(currentDepth_);
+    }
   XYZVector zaxis(0,0,1);
   XYZVector planeVec1=(zaxis.Cross(particleDirection)).Unit();
   locToGlobal_=Transform3D(Point(0,0,0),

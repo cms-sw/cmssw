@@ -33,7 +33,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   AlgebraicVector5 theTrackParameters;
 
   double signTC = - originalFTS.charge();
-  bool isCharged = (signTC!=0) || (fabs(field)<1.e-10);
+  bool isCharged = (signTC!=0) && (fabs(field)>1.e-10);
   if (isCharged) {
     theTrackParameters[0] = field / pt*signTC;
   } else {

@@ -439,12 +439,12 @@ ElectronMcFakeValidator::~ElectronMcFakeValidator()
 
 void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
  {
+  std::cout << "analyzing new event " << std::endl;
+
   // get reco electrons
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel(electronCollection_,gsfElectrons);
-  edm::LogInfo("ElectronMcFakeValidator::analyze")
-    <<"Treating event "<<iEvent.id()
-    <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
+  edm::LogInfo("")<<"\n\n =================> Treating event "<<iEvent.id()<<" Number of electrons "<<gsfElectrons.product()->size();
 
   // get gen jets
   edm::Handle<reco::GenJetCollection> genJets ;
@@ -867,7 +867,7 @@ void ElectronMcFakeValidator::endJob()
  {
   if (outputFile_!="")
    {
-    setStoreFolder("EgammaV/ElectronMcFakeValidator") ;
+    setStoreFolder("EgammaV/ElectronMcFakeValidator/ByJob") ;
 
     // matching object type
     std::string matchingObjectType = "Unknown" ;
@@ -911,32 +911,32 @@ void ElectronMcFakeValidator::endJob()
 
     // profiles from 2D histos
     htitle = "Electron / Matching "+matchingObjectType ;
-    profileX("h_ele_PoPmatchingObjectVsEta_pfx",h2_ele_PoPmatchingObjectVsEta,htitle+", mean momentum, vs eta","#eta","<P/P_{gen}>");
-    profileX("h_ele_PoPmatchingObjectVsPhi_pfx",h2_ele_PoPmatchingObjectVsPhi,htitle+", mean momentum, vs phi","#phi (rad)","<P/P_{gen}>");
+    profileX("p_ele_PoPmatchingObjectVsEta",h2_ele_PoPmatchingObjectVsEta,htitle+", mean momentum, vs eta","#eta","<P/P_{gen}>");
+    profileX("p_ele_PoPmatchingObjectVsPhi",h2_ele_PoPmatchingObjectVsPhi,htitle+", mean momentum, vs phi","#phi (rad)","<P/P_{gen}>");
     htitle = "Electron - Matching "+matchingObjectType ;
-    profileX("h_ele_EtaMnEtamatchingObjectVsEta_pfx",h2_ele_EtaMnEtamatchingObjectVsEta,htitle+", mean eta, vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
-    profileX("h_ele_EtaMnEtamatchingObjectVsPhi_pfx",h2_ele_EtaMnEtamatchingObjectVsPhi,htitle+", mean eta, vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
-    profileX("h_ele_PhiMnPhimatchingObjectVsEta_pfx",h2_ele_PhiMnPhimatchingObjectVsEta,htitle+", mean phi, vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");
-    profileX("h_ele_PhiMnPhimatchingObjectVsPhi_pfx",h2_ele_PhiMnPhimatchingObjectVsPhi,htitle+", mean phi, vs phi","#phi (rad)","");
-    profileX("h_ele_vertexPtVsEta_pfx",h2_ele_vertexPtVsEta,"mean ele transverse momentum vs eta","#eta","<p_{T}> (GeV/c)");
-    profileX("h_ele_vertexPtVsPhi_pfx",h2_ele_vertexPtVsPhi,"mean ele transverse momentum vs phi","#phi (rad)","<p_{T}> (GeV/c)");
-    profileX("h_ele_EoPVsEta_pfx",h2_ele_EoPVsEta,"mean ele E/p vs eta","#eta","<E/P_{vertex}>");
-    profileX("h_ele_EoPVsPhi_pfx",h2_ele_EoPVsPhi,"mean ele E/p vs phi","#phi (rad)","<E/P_{vertex}>");
-    profileX("h_ele_EoPoutVsEta_pfx",h2_ele_EoPoutVsEta,"mean ele E/pout vs eta","#eta","<E_{seed}/P_{out}>");
-    profileX("h_ele_EoPoutVsPhi_pfx",h2_ele_EoPoutVsPhi,"mean ele E/pout vs phi","#phi (rad)","<E_{seed}/P_{out}>");
-    profileX("h_ele_EeleOPoutVsEta_pfx",h2_ele_EeleOPoutVsEta,"mean ele Eele/pout vs eta","#eta","<E_{ele}/P_{out}>");
-    profileX("h_ele_EeleOPoutVsPhi_pfx",h2_ele_EeleOPoutVsPhi,"mean ele Eele/pout vs phi","#phi (rad)","<E_{ele}/P_{out}>");
-    profileX("h_ele_HoEVsEta_pfx",h2_ele_HoEVsEta,"mean ele H/E vs eta","#eta","<H/E>");
-    profileX("h_ele_HoEVsPhi_pfx",h2_ele_HoEVsPhi,"mean ele H/E vs phi","#phi (rad)","<H/E>");
-    profileX("h_ele_chi2VsEta_pfx",h2_ele_chi2VsEta,"mean ele track chi2 vs eta","#eta","<#Chi^{2}>");
-    profileX("h_ele_chi2VsPhi_pfx",h2_ele_chi2VsPhi,"mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
-    profileX("h_ele_foundHitsVsEta_pfx",h2_ele_foundHitsVsEta,"mean ele track # found hits vs eta","#eta","<N_{hits}>");
-    profileX("h_ele_foundHitsVsPhi_pfx",h2_ele_foundHitsVsPhi,"mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
-    profileX("h_ele_lostHitsVsEta_pfx",h2_ele_lostHitsVsEta,"mean ele track # lost hits vs eta","#eta","<N_{hits}>");
-    profileX("h_ele_lostHitsVsPhi_pfx",h2_ele_lostHitsVsPhi,"mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");
-    profileX("h_ele_vertexTIPVsEta_pfx",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
-    profileX("h_ele_vertexTIPVsPhi_pfx",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
-    profileX("h_ele_vertexTIPVsPt_pfx",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
+    profileX("p_ele_EtaMnEtamatchingObjectVsEta",h2_ele_EtaMnEtamatchingObjectVsEta,htitle+", mean eta, vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
+    profileX("p_ele_EtaMnEtamatchingObjectVsPhi",h2_ele_EtaMnEtamatchingObjectVsPhi,htitle+", mean eta, vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
+    profileX("p_ele_PhiMnPhimatchingObjectVsEta",h2_ele_PhiMnPhimatchingObjectVsEta,htitle+", mean phi, vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");
+    profileX("p_ele_PhiMnPhimatchingObjectVsPhi",h2_ele_PhiMnPhimatchingObjectVsPhi,htitle+", mean phi, vs phi","#phi (rad)","");
+    profileX("p_ele_vertexPtVsEta",h2_ele_vertexPtVsEta,"mean ele transverse momentum vs eta","#eta","<p_{T}> (GeV/c)");
+    profileX("p_ele_vertexPtVsPhi",h2_ele_vertexPtVsPhi,"mean ele transverse momentum vs phi","#phi (rad)","<p_{T}> (GeV/c)");
+    profileX("p_ele_EoPVsEta",h2_ele_EoPVsEta,"mean ele E/p vs eta","#eta","<E/P_{vertex}>");
+    profileX("p_ele_EoPVsPhi",h2_ele_EoPVsPhi,"mean ele E/p vs phi","#phi (rad)","<E/P_{vertex}>");
+    profileX("p_ele_EoPoutVsEta",h2_ele_EoPoutVsEta,"mean ele E/pout vs eta","#eta","<E_{seed}/P_{out}>");
+    profileX("p_ele_EoPoutVsPhi",h2_ele_EoPoutVsPhi,"mean ele E/pout vs phi","#phi (rad)","<E_{seed}/P_{out}>");
+    profileX("p_ele_EeleOPoutVsEta",h2_ele_EeleOPoutVsEta,"mean ele Eele/pout vs eta","#eta","<E_{ele}/P_{out}>");
+    profileX("p_ele_EeleOPoutVsPhi",h2_ele_EeleOPoutVsPhi,"mean ele Eele/pout vs phi","#phi (rad)","<E_{ele}/P_{out}>");
+    profileX("p_ele_HoEVsEta",h2_ele_HoEVsEta,"mean ele H/E vs eta","#eta","<H/E>");
+    profileX("p_ele_HoEVsPhi",h2_ele_HoEVsPhi,"mean ele H/E vs phi","#phi (rad)","<H/E>");
+    profileX("p_ele_chi2VsEta",h2_ele_chi2VsEta,"mean ele track chi2 vs eta","#eta","<#Chi^{2}>");
+    profileX("p_ele_chi2VsPhi",h2_ele_chi2VsPhi,"mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
+    profileX("p_ele_foundHitsVsEta",h2_ele_foundHitsVsEta,"mean ele track # found hits vs eta","#eta","<N_{hits}>");
+    profileX("p_ele_foundHitsVsPhi",h2_ele_foundHitsVsPhi,"mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
+    profileX("p_ele_lostHitsVsEta",h2_ele_lostHitsVsEta,"mean ele track # lost hits vs eta","#eta","<N_{hits}>");
+    profileX("p_ele_lostHitsVsPhi",h2_ele_lostHitsVsPhi,"mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");
+    profileX("p_ele_vertexTIPVsEta",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
+    profileX("p_ele_vertexTIPVsPhi",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
+    profileX("p_ele_vertexTIPVsPt",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
 
     saveStore(outputFile_) ;
    }

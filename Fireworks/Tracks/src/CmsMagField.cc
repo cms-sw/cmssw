@@ -27,9 +27,9 @@ TEveVector CmsMagField::GetField(Float_t x, Float_t y, Float_t z) const
 	return TEveVector(-x/R*field/3.8*2.0, -y/R*field/3.8*2.0, 0);
     }
     // proper model
-    if ( ( TMath::Abs(z)>724 ) && ( TMath::Abs(z)<786 ) ||
-	 ( TMath::Abs(z)>850 ) && ( TMath::Abs(z)<910 ) ||
-	 ( TMath::Abs(z)>975 ) && ( TMath::Abs(z)<1003 ) )
+    if ( ( ( TMath::Abs(z)>724 ) && ( TMath::Abs(z)<786 ) ) ||
+	 ( ( TMath::Abs(z)>850 ) && ( TMath::Abs(z)<910 ) ) ||
+	 ( ( TMath::Abs(z)>975 ) && ( TMath::Abs(z)<1003 ) ) )
       {
 	if ( z > 0 )
 	  return TEveVector(x/R*field/3.8*2.0, y/R*field/3.8*2.0, 0);

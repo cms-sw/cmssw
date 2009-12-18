@@ -196,15 +196,15 @@ void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&
 
   //HB and HE
  
-  char* S_slbin_odd_loc[] ={"A1","B0","B1","A0","A1","B0","B1","A0"};
+  const char* S_slbin_odd_loc[] ={"A1","B0","B1","A0","A1","B0","B1","A0"};
   for (int gg = 0; gg < 8; gg++) {
     S_slbin_odd[gg] = S_slbin_odd_loc[gg];
   }
-  char* S_slbin_even_loc[]={"C1","D0","D1","C0","C1","D0","D1","C0"};
+  const char* S_slbin_even_loc[]={"C1","D0","D1","C0","C1","D0","D1","C0"};
   for (int gg = 0; gg < 8; gg++) {
     S_slbin_even[gg] = S_slbin_even_loc[gg];
   }
-  char* rct_rackHBHE_loc[]={"S2E01-RH","S2E03-RH","S2E05-RH","S2E07-RH","S2E09-RH","S2E08-RL","S2E06-RL","S2E04-RL","S2E02-RL",
+  const char* rct_rackHBHE_loc[]={"S2E01-RH","S2E03-RH","S2E05-RH","S2E07-RH","S2E09-RH","S2E08-RL","S2E06-RL","S2E04-RL","S2E02-RL",
 			    "S2E02-RH","S2E04-RH","S2E06-RH","S2E08-RH","S2E09-RL","S2E07-RL","S2E05-RL","S2E03-RL","S2E01-RL"};
   for (int gg = 0; gg < 18; gg++) {
     rct_rackHBHE[gg] = rct_rackHBHE_loc[gg];
@@ -444,15 +444,15 @@ void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&
   memcpy( irm_rmfiHF, irm_rmfiHF_loc, sizeof(int)*NHTRS*NTOPBOT*NFBR*2 );
 
   //HF
-  char* S_slbin_7_loc[] ={"A0","A1","B0","B1"};
+  const char* S_slbin_7_loc[] ={"A0","A1","B0","B1"};
   for (int gg = 0; gg < 4; gg++) {
     S_slbin_7[gg] = S_slbin_7_loc[gg];
   }
-  char* S_slbin_3_loc[] ={"C0","C1","D0","D1"};
+  const char* S_slbin_3_loc[] ={"C0","C1","D0","D1"};
   for (int gg = 0; gg < 4; gg++) {
     S_slbin_3[gg] = S_slbin_3_loc[gg];
   }
-  char* rct_rackHF_loc[]={"S2E01-FH","S2E03-FH","S2E05-FH","S2E07-FH","S2E09-FH","S2E08-FL","S2E06-FL","S2E04-FL","S2E02-FL",
+  const char* rct_rackHF_loc[]={"S2E01-FH","S2E03-FH","S2E05-FH","S2E07-FH","S2E09-FH","S2E08-FL","S2E06-FL","S2E04-FL","S2E02-FL",
 			  "S2E02-FH","S2E04-FH","S2E06-FH","S2E08-FH","S2E09-FL","S2E07-FL","S2E05-FL","S2E03-FL","S2E01-FL"};
   for (int gg = 0; gg < 18; gg++) {
     rct_rackHF[gg] = rct_rackHF_loc[gg];

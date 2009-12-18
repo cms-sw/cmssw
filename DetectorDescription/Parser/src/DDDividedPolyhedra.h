@@ -19,7 +19,7 @@ class DDDividedPolyhedraRho : public DDDividedGeometryObject
 { 
  public:  
   
-  DDDividedPolyhedraRho( const DDDivision& div, DDCompactView& cpv );
+  DDDividedPolyhedraRho( const DDDivision & div );
   
   virtual ~DDDividedPolyhedraRho();
   
@@ -42,7 +42,7 @@ class DDDividedPolyhedraPhi : public DDDividedGeometryObject
 { 
  public:
   
-  DDDividedPolyhedraPhi( const DDDivision& div, DDCompactView& cpv );
+  DDDividedPolyhedraPhi( const DDDivision & div );
 
   virtual ~DDDividedPolyhedraPhi();
 
@@ -65,7 +65,7 @@ class DDDividedPolyhedraZ : public DDDividedGeometryObject
 { 
  public: 
 
-  DDDividedPolyhedraZ( const DDDivision& div, DDCompactView& cpv );
+  DDDividedPolyhedraZ( const DDDivision & div );
 
   virtual ~DDDividedPolyhedraZ();
 

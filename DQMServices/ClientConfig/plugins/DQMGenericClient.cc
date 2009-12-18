@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/10/20 09:05:27 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/09/23 08:32:30 $
+ *  $Revision: 1.11 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -28,19 +28,14 @@ using namespace edm;
 typedef MonitorElement ME;
 typedef vector<string> vstring;
 
-TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
-TPRegexp nonPerlWildcard("\\w\\*|^\\*");
-
 DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 {
-
   vstring dummy;
 
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
-  effCmds_  = pset.getParameter<vstring>("efficiency");
-  profileCmds_ = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
-  resCmds_  = pset.getParameter<vstring>("resolution");
+  effCmds_ = pset.getParameter<vstring>("efficiency");
+  resCmds_ = pset.getParameter<vstring>("resolution");
   normCmds_ = pset.getUntrackedParameter<vstring>("normalization", dummy);
   cdCmds_ = pset.getUntrackedParameter<vstring>("cumulativeDists", dummy);
 
@@ -81,16 +76,39 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
     if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
 
-    if ( TString(subDir).Contains(metacharacters) ) {
+    if ( subDir[subDir.size()-1] == '*' ) {
       isWildcardUsed_ = true;
+
 
       const string::size_type shiftPos = subDir.rfind('/');
       const string searchPath = subDir.substr(0, shiftPos);
-      const string pattern    = subDir.substr(shiftPos + 1, subDir.length());
+      string  startDir = subDir.substr(0, shiftPos);
       //std::cout << "\n\n\n\nLooking for all subdirs of " << subDir << std::endl;
       
-      findAllSubdirectories (searchPath, &subDirSet, pattern);
+      findAllSubdirectories ( startDir, &subDirSet);
+      std::set <std::string>::const_iterator iFoundDir;
+      //for (iFoundDir = subDirSet.begin();
+      //     iFoundDir != subDirSet.end();
+      //     iFoundDir ++) {
+        
+        //std::cout << "Found subdirectory = " << *iFoundDir
+        //          << std::endl;
 
+      //}
+        
+      //      theDQM->cd(searchPath);
+
+      //      vector<string> foundDirs = theDQM->getSubdirs();
+      //      const string matchStr = subDir.substr(0, subDir.size()-2);
+
+      //      for(vector<string>::const_iterator iDir = foundDirs.begin();
+      //          iDir != foundDirs.end(); ++iDir) {
+      //        const string dirPrefix = iDir->substr(0, matchStr.size());
+
+      //        if ( dirPrefix == matchStr ) {
+      //          subDirSet.insert(*iDir);
+      //        }
+      //      }
     }
     else {
       subDirSet.insert(subDir);
@@ -103,12 +121,9 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
     const string& dirName = *iSubDir;
 
-    vstring allEffCmds = effCmds_;
-    allEffCmds.insert(allEffCmds.end(), profileCmds_.begin(), profileCmds_.end());
-    for(vstring::const_iterator iCmd = allEffCmds.begin();
-        iCmd != allEffCmds.end(); ++iCmd) {
+    for(vstring::const_iterator iCmd = effCmds_.begin();
+        iCmd != effCmds_.end(); ++iCmd) {
       if ( iCmd->empty() ) continue;
-      bool isProfile = iCmd - allEffCmds.begin() >= (int)effCmds_.size();
       boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
 
       vector<string> args;
@@ -125,10 +140,7 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
       if ( args.size() == 4 ) args.push_back("eff");
 
-      if (isProfile)
-        computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4], true);
-      else 
-        computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4]);
+      computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4]);
     }
 
     for(vstring::const_iterator iCmd = resCmds_.begin();
@@ -210,7 +222,7 @@ void DQMGenericClient::endJob()
 }
 
 void DQMGenericClient::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
-                                         const string& recoMEName, const string& simMEName, const std::string & type, const bool makeProfile)
+                                         const string& recoMEName, const string& simMEName, const std::string & type)
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -263,82 +275,52 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   }
   theDQM->setCurrentFolder(efficDir);
 
-  if (makeProfile) {
-    TProfile * efficHist = (hReco->GetXaxis()->GetXbins()->GetSize()==0) ?
-      new TProfile(newEfficMEName.c_str(), efficMETitle.c_str(),
-                   hReco->GetXaxis()->GetNbins(),
-                   hReco->GetXaxis()->GetXmin(),
-                   hReco->GetXaxis()->GetXmax()) :
-      new TProfile(newEfficMEName.c_str(), efficMETitle.c_str(),
-                   hReco->GetXaxis()->GetNbins(),
-                   hReco->GetXaxis()->GetXbins()->GetArray());
-    for (int i=1; i <= hReco->GetNbinsX(); i++) {
-      TGraphAsymmErrorsWrapper asymm;
-      std::pair<double, double> efficiencyWithError;
-      efficiencyWithError = asymm.efficiency((int)hReco->GetBinContent(i), 
-                                             (int)hSim->GetBinContent(i));
-      double effVal = efficiencyWithError.first;
-      double errVal = efficiencyWithError.second;
-      if ((int)hSim->GetBinContent(i) > 0) {
-        efficHist->SetBinContent(i, effVal);
-        efficHist->SetBinEntries(i, 1);
-        efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
-      }
-    }
-    theDQM->bookProfile(newEfficMEName.c_str(),efficHist);
-    delete efficHist;  
+  TH1* efficHist = (TH1*)hSim->Clone(newEfficMEName.c_str());
+  efficHist->SetTitle(efficMETitle.c_str());
+
+  // Here is where you have trouble --- you need
+  // to understand what type of hist you have.
+
+  ME* efficME = 0;
+
+  // Parse the class name
+  // This works, but there might be a better way
+  TClass * myHistClass = efficHist->IsA();
+  TString histClassName = myHistClass->GetName();
+  
+  if (histClassName == "TH1F"){
+    efficME = theDQM->book1D(newEfficMEName, (TH1F*)efficHist);
+  } else if (histClassName == "TH2F"){
+    efficME = theDQM->book2D(newEfficMEName, (TH2F*)efficHist);    
+  } else if (histClassName == "TH3F"){
+    efficME = theDQM->book3D(newEfficMEName, (TH3F*)efficHist);    
+  } 
+  
+
+  if ( !efficME ) {
+    LogInfo("DQMGenericClient") << "computeEfficiency() : "
+                                << "Cannot book effic-ME from the DQM\n";
+    return;
   }
 
-  else {
+  // Update: 2009-9-16 slaunwhj
+  // call the most generic efficiency function
+  // works up to 3-d histograms
 
-    TH1* efficHist = (TH1*)hSim->Clone(newEfficMEName.c_str());
-    efficHist->SetTitle(efficMETitle.c_str());
-
-    // Here is where you have trouble --- you need
-    // to understand what type of hist you have.
-
-    ME* efficME = 0;
-
-    // Parse the class name
-    // This works, but there might be a better way
-    TClass * myHistClass = efficHist->IsA();
-    TString histClassName = myHistClass->GetName();
+  generic_eff (hSim, hReco, efficME, type);
   
-    if (histClassName == "TH1F"){
-      efficME = theDQM->book1D(newEfficMEName, (TH1F*)efficHist);
-    } else if (histClassName == "TH2F"){
-      efficME = theDQM->book2D(newEfficMEName, (TH2F*)efficHist);    
-    } else if (histClassName == "TH3F"){
-      efficME = theDQM->book3D(newEfficMEName, (TH3F*)efficHist);    
-    } 
-  
-
-    if ( !efficME ) {
-      LogInfo("DQMGenericClient") << "computeEfficiency() : "
-                                  << "Cannot book effic-ME from the DQM\n";
-      return;
-    }
-
-    // Update: 2009-9-16 slaunwhj
-    // call the most generic efficiency function
-    // works up to 3-d histograms
-
-    generic_eff (hSim, hReco, efficME, type);
-  
-    //   const int nBin = efficME->getNbinsX();
-    //   for(int bin = 0; bin <= nBin; ++bin) {
-    //     const float nSim  = simME ->getBinContent(bin);
-    //     const float nReco = recoME->getBinContent(bin);
-    //     float eff =0;
-    //     if (type=="fake")eff = nSim ? 1-nReco/nSim : 0.;
-    //     else eff= nSim ? nReco/nSim : 0.;
-    //     const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
-    //     efficME->setBinContent(bin, eff);
-    //     efficME->setBinError(bin, err);
-    //   }
-    efficME->setEntries(simME->getEntries());
-
-  }
+  //   const int nBin = efficME->getNbinsX();
+  //   for(int bin = 0; bin <= nBin; ++bin) {
+  //     const float nSim  = simME ->getBinContent(bin);
+  //     const float nReco = recoME->getBinContent(bin);
+  //     float eff =0;
+  //     if (type=="fake")eff = nSim ? 1-nReco/nSim : 0.;
+  //     else eff= nSim ? nReco/nSim : 0.;
+  //     const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
+  //     efficME->setBinContent(bin, eff);
+  //     efficME->setBinError(bin, err);
+  //   }
+  efficME->setEntries(simME->getEntries());
 
   // Global efficiency
   ME* globalEfficME = theDQM->get(efficDir+"/globalEfficiencies");
@@ -557,27 +539,21 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 
 //=================================
 
-void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern = "") {
+void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList){
 
-  if (pattern != "") {
-    if (pattern.Contains(nonPerlWildcard)) pattern.ReplaceAll("*",".*");
-    TPRegexp regexp(pattern);
+  //std::cout << "Looking for directory " << dir ;
+  if (theDQM->dirExists(dir)){
+    //std::cout << "... it exists! Inserting it into the list ";
+    myList->insert(dir);
+    //std::cout << "... now list has size " << myList->size() << std::endl;
+      
     theDQM->cd(dir);
     vector <string> foundDirs = theDQM->getSubdirs();
     for(vector<string>::const_iterator iDir = foundDirs.begin();
         iDir != foundDirs.end(); ++iDir) {
-      TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
-      if (dirName.Contains(regexp))
-        findAllSubdirectories ( *iDir, myList);
+      findAllSubdirectories ( *iDir, myList);
+      //myList.insert((*iDir));
     }
-  }
-  //std::cout << "Looking for directory " << dir ;
-  else if (theDQM->dirExists(dir)){
-    //std::cout << "... it exists! Inserting it into the list ";
-    myList->insert(dir);
-    //std::cout << "... now list has size " << myList->size() << std::endl;
-    theDQM->cd(dir);
-    findAllSubdirectories (dir, myList, "*");
   } else {
     //std::cout << "... DOES NOT EXIST!!! Skip bogus dir" << std::endl;
     
@@ -586,10 +562,15 @@ void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::str
                                  
   }
   return;
+  
 }
 
 
 void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* efficiencyHist, const std::string & type) {
+
+
+  
+  
   for (int iBinX = 1; iBinX < denom->GetNbinsX()+1; iBinX++){
     for (int iBinY = 1; iBinY < denom->GetNbinsY()+1; iBinY++){
       for (int iBinZ = 1; iBinZ < denom->GetNbinsZ()+1; iBinZ++){
@@ -629,6 +610,10 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
 
   //efficiencyHist->setMinimum(0.0);
   //efficiencyHist->setMaximum(1.0);
+
+
 }
+
+
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

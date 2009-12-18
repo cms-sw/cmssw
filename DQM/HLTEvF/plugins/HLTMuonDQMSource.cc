@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.33 2009/11/16 01:10:22 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.28 2009/08/07 11:56:40 wteo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -143,7 +143,7 @@ HLTMuonDQMSource::~HLTMuonDQMSource()
 
 
 //--------------------------------------------------------
-void HLTMuonDQMSource::beginJob()
+void HLTMuonDQMSource::beginJob(const EventSetup& context)
 {
   if (dbe_) {
     //dbe_->setCurrentFolder("monitorName_");
@@ -818,71 +818,19 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   iSetup.get<GlobalTrackingGeometryRecord>().get(glbTrackingGeometry);
   
   Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
-  Handle<L2MuonTrajectorySeedCollection> l2seeds; 
-  Handle<L3MuonTrajectorySeedCollection> l3seeds; 
+  iEvent.getByLabel (l2collectionTag_,l2mucands);
+  iEvent.getByLabel (l3collectionTag_,l3mucands);
   RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
   
-  bool accessToL2Seed = true;
-  try {
-    iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
-  }
-  catch( cms::Exception& exception ) {
-    LogDebug("HLTMuonDQMSource") << "no L2 seed, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-    accessToL2Seed = false;
-  }
-  
-  if( accessToL2Seed ) {
-    bool accessToL2Muon = true;
-    try{
-      iEvent.getByLabel (l2collectionTag_,l2mucands);
-    }
-    catch( cms::Exception& exception ) {
-      LogDebug("HLTMuonDQMSource") << "no L2 Muon, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-      accessToL2Muon = false;
-    }
-
-    if( accessToL2Muon ) {
-      bool accessToL3Seed = true;
-      try {
-	iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
-      }
-      catch( cms::Exception& exception ) {
-        LogDebug("HLTMuonDQMSource") << "no L3 Seed, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-        accessToL3Seed = false;
-      }
-
-      if( accessToL3Seed ) {
-	bool accessToL3Muon = true;
-	try {
-	  iEvent.getByLabel (l3collectionTag_,l3mucands);
-	}
-        catch( cms::Exception& exception ) {
-          LogDebug("HLTMuonDQMSource") << "no L3 Muon, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-          accessToL3Muon = false;
-        }
-      }
-    }
-  }
-
-  /*
+  Handle<L2MuonTrajectorySeedCollection> l2seeds; 
   iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
-  //iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
-  //iEvent.getByLabel (l2collectionTag_,l2mucands);
-  //iEvent.getByLabel (l3collectionTag_,l3mucands);
-
-  if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
-    iEvent.getByLabel (l2collectionTag_,l2mucands);
-    if( !l2mucands.failedToGet() && l2mucands->size() != 0 ) {
-      iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
-      if( !l3seeds.failedToGet() && l3seeds.isValid() ) iEvent.getByLabel (l3collectionTag_,l3mucands);
-    }
-  }
-  */
+  Handle<L3MuonTrajectorySeedCollection> l3seeds; 
+  iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
 
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     //cout << "trigger fired!" << endl;
-    if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
+    if( !l2seeds.failedToGet() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
       L2MuonTrajectorySeedCollection::const_iterator l2seed;
       map<L1MuonParticleRef, int> l1map;
@@ -930,7 +878,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	_hpt1[ntrig][0]->Fill(l1ref->pt());
 	_heta1[ntrig][0]->Fill(l1ref->eta());
 	_hphi1[ntrig][0]->Fill(l1ref->phi());
-	if ( !l2mucands.failedToGet() && l2mucands.isValid() ) {
+	if ( !l2mucands.failedToGet()) {
 	  for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
 	    TrackRef tk = cand->get<TrackRef>();
 	    RefToBase<TrajectorySeed> seed=tk->seedRef();
@@ -968,7 +916,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	      _heta1[ntrig][1]->Fill(tk->eta());
 	      _hphi1[ntrig][1]->Fill(tk->phi());
 	      //find the L3 build from this L2
-	      if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
+	      if (!l3mucands.failedToGet()) {
 		for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
 		  TrackRef l3tk= cand->get<TrackRef>();
 		  if( l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> > ().isAvailable() ) {
@@ -1021,7 +969,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     }
     //else cout << "failed to get l2seed!" << endl;
 
-    if (!l3seeds.failedToGet() && l3seeds.isValid() ) {
+    if (!l3seeds.failedToGet()) {
       hNMu[ntrig][4]->Fill(l3seeds->size());
       L3MuonTrajectorySeedCollection::const_iterator l3seed;
       map<TrackRef, int> l2map;
@@ -1067,14 +1015,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     iEvent.getByLabel("hltOfflineBeamSpot",recoBeamSpotHandle);
     if (!recoBeamSpotHandle.failedToGet())  beamSpot = *recoBeamSpotHandle;
     
-    if (!l2mucands.failedToGet() && l2mucands.isValid() ) {
+    if (!l2mucands.failedToGet()) {
       LogDebug("HLTMuonDQMSource") << " filling L2 stuff " << endl;
       Handle<reco::IsoDepositMap> l2depMap;
-      if( l2mucands->size() != 0 ) iEvent.getByLabel (l2isolationTag_,l2depMap);
+      iEvent.getByLabel (l2isolationTag_,l2depMap);
       hNMu[ntrig][1]->Fill(l2mucands->size());
       for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
 	TrackRef tk = cand->get<TrackRef>();
-	if (!l2depMap.failedToGet() && l2depMap.isValid() ) {
+	if (!l2depMap.failedToGet()) {
 	  LogDebug("HLTMuonDQMSource") << " filling L2 Iso stuff " << endl;
 	  if ( l2depMap->contains(tk.id()) ){
 	    reco::IsoDepositMap::value_type calDeposit = (*l2depMap)[tk];
@@ -1132,14 +1080,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	} else LogWarning("HLTMonMuon")<<"stop filling candidate with update@Vtx failure";
       }
     }
-    if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
+    if (!l3mucands.failedToGet()) {
       LogDebug("HLTMuonDQMSource") << " filling L3 stuff " << endl;
       hNMu[ntrig][2]->Fill(l3mucands->size());
       Handle<reco::IsoDepositMap> l3depMap;
-      if( l3mucands->size() != 0 ) iEvent.getByLabel (l3isolationTag_,l3depMap);
+      iEvent.getByLabel (l3isolationTag_,l3depMap);
       for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
 	TrackRef tk = cand->get<TrackRef>();
-	if (!l3depMap.failedToGet() && l3depMap.isValid() ) {
+	if (!l3depMap.failedToGet()) {
 	  if ( l3depMap->contains(tk.id()) ){
 	    reco::IsoDepositMap::value_type calDeposit= (*l3depMap)[tk];
 	    double dephlt = calDeposit.depositWithin(coneSize_);
@@ -1260,8 +1208,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 
   // Tower
   Handle<CaloTowerCollection> caloTower; 
-  if( !l2mucands.failedToGet() && l2mucands->size() != 0 )
-    iEvent.getByLabel(InputTag("hltTowerMakerForMuons"), caloTower);
+  iEvent.getByLabel(InputTag("hltTowerMakerForMuons"), caloTower);
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     if( caloTower.isValid() ) {
@@ -1270,7 +1217,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  if( (*itower).et() == 0 ) continue;
 
 	  // deltaR with l2muon
-	  if (!l2mucands.failedToGet() && l2mucands.isValid() ) {
+	  if (!l2mucands.failedToGet()) {
 	      for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
 		  TrackRef l2tk= cand->get<TrackRef>();
 	          double deltaR_l2 = reco::deltaR(*l2tk, (*itower));
@@ -1278,7 +1225,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	      }
 	  }
 	  // deltaR with l3muon
-	  if (!l3mucands.failedToGet() && l3mucands.isValid() ) {
+	  if (!l3mucands.failedToGet()) {
 	      for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
 		  TrackRef l3tk= cand->get<TrackRef>();
 	          double deltaR_l3 = reco::deltaR(*l3tk, (*itower));

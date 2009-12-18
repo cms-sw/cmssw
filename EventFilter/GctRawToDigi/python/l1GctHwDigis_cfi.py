@@ -2,10 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 l1GctHwDigis = cms.EDProducer("GctRawToDigi",
     inputLabel = cms.InputTag("source"),
-    gctFedId = cms.untracked.int32(745),
+    gctFedId = cms.int32(745),
     hltMode = cms.bool(False),
-    numberOfGctSamplesToUnpack = cms.uint32(1), 
-    numberOfRctSamplesToUnpack = cms.uint32(1),
     unpackSharedRegions = cms.bool(False),
     unpackerVersion = cms.uint32(0), #  ** SEE BELOW FOR DETAILS OF THIS OPTION **
     verbose = cms.untracked.bool(False)

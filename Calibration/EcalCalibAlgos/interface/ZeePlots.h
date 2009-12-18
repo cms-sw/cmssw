@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ZeePlots.h,v 1.4 2009/01/09 10:23:04 saout Exp $
+// $Id: ZeePlots.h,v 1.5 2009/03/31 13:45:39 argiro Exp $
 //
 //
 
@@ -52,7 +52,7 @@
 
 class ZeePlots {
    public:
-      ZeePlots( char* );
+      ZeePlots( const char* );
       ~ZeePlots();
 
       void openFile();
@@ -81,7 +81,7 @@ class ZeePlots {
  private:
 
       TFile* file_;
-      char* fileName_;
+      const char* fileName_;
  
       TH1F*  h1_gen_ZMass_;
       TH1F*  h1_gen_ZRapidity_;

@@ -24,7 +24,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
 #
     minPhoEtCut = cms.double(0.),
     convTrackMinPtCut = cms.double(1.),
-    likelihoodCut = cms.double(0.),
+    likelihoodCut = cms.double(0.5),
 #
     useTP =  cms.bool(True),
 #

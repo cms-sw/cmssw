@@ -13,7 +13,8 @@ RecoMETFEVT = cms.PSet(
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            'keep recoHcalNoiseRBXs_*_*_*',
                                            'keep HcalNoiseSummary_*_*_*',
-                                           'keep *HaloData_*_*_*'
+                                           'keep *HaloData_*_*_*',
+                                           'keep *BeamHaloSummary_*_*_*'
                                            )
     )
 RecoGenMETFEVT = cms.PSet(
@@ -32,7 +33,8 @@ RecoMETRECO = cms.PSet(
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            'keep recoHcalNoiseRBXs_*_*_*',
                                            'keep HcalNoiseSummary_*_*_*',
-                                           'keep *HaloData_*_*_*'
+                                           'keep *HaloData_*_*_*',
+                                           'keep *BeamHaloSummary_*_*_*'
                                            )
     )
 RecoGenMETRECO = cms.PSet(
@@ -50,7 +52,9 @@ RecoMETAOD = cms.PSet(
                                            'keep recoPFMETs_*_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            'drop recoHcalNoiseRBXs_*_*_*',
-                                           'keep HcalNoiseSummary_*_*_*'
+                                           'keep HcalNoiseSummary_*_*_*',
+                                           'keep *GlobalHaloData_*_*_*',
+                                           'keep *BeamHaloSummary_*_*_*'
                                            )
     )
 RecoGenMETAOD = cms.PSet(

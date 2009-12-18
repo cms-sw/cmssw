@@ -52,10 +52,10 @@ namespace reco
       double e_longitudinal() const {return elongit; }  
       //-----------------------------------------------------------------
       //Define different methods for the corrections to individual MET elements
-      std::vector<double> dmEx();
-      std::vector<double> dmEy();
-      std::vector<double> dsumEt();
-      std::vector<double> dSignificance();
+      std::vector<double> dmEx() const ;
+      std::vector<double> dmEy() const ;
+      std::vector<double> dsumEt() const ;
+      std::vector<double> dSignificance() const ;
       //Define method to extract the entire "block" of MET corrections
       std::vector<CorrMETData> mEtCorr() const { return corr; }
       //-----------------------------------------------------------------

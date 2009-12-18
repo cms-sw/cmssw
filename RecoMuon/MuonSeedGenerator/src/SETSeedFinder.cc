@@ -132,6 +132,13 @@ void SETSeedFinder::limitCombinatorics(std::vector< MuonRecHitContainer > & Muon
   if(1==nLayers){
     return ;
   }
+  // maximal number of (segment) layers would be upto ~12; see next function
+  // below is just a quick fix for a rare "overflow"
+  if(MuonRecHitContainer_perLayer.size()>15){
+    MuonRecHitContainer_perLayer.resize(1);
+    return;
+  }
+		
   std::vector <double> sizeOfLayer(nLayers);
   //std::cout<<" nLayers = "<<nLayers<<std::endl;
   double nAllCombinations = 1.;

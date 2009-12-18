@@ -12,7 +12,7 @@
 
 HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor() {
   ievt_=0;
-  time_min=time_max=0;
+  time_min=time_max=edm::Timestamp(0);
   dataset_seq_number=1;
   run_number=-1;
   IsReference=false;
@@ -578,7 +578,7 @@ TFile *f;
       }
       f->Close();
       IsReference=true;
-   }
+   }//if (UseDB==false)
 } 
 
 void HcalDetDiagPedestalMonitor::CheckStatus(){

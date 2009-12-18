@@ -26,33 +26,48 @@
  *                                                                         
  */
 
-/* class DDXMLElementRegistry */
-/* { */
+class DDXMLElementRegistry
+{
 
-/*   friend std::ostream & operator<<(std::ostream & os, const DDXMLElementRegistry & element); */
+  friend std::ostream & operator<<(std::ostream & os, const DDXMLElementRegistry & element);
 
-/*  public: */
+ public:
 
+  typedef std::map <std::string, DDXMLElement*> RegistryMap;
 
-/*   /// Destructor */
-/*   virtual ~DDXMLElementRegistry(); */
+  /// Destructor
+  virtual ~DDXMLElementRegistry();
   
-/*   void stream(std::ostream & os) const; */
+  /// This allows other Elements to register themselves with the static registry
+  void registerElement(const std::string& name, DDXMLElement*);
 
-/*  protected: */
+  /// THE most important part.  Getting the pointer to a given element type.
+  /**
+   *  If this is called with a DDXMLElementRegistry pointer, it will simply
+   *  return a pointer if already registered or NULL, no instantiating.
+   *
+   */
+  DDXMLElement* getElement(const std::string& name); 
+
+  /// Get the name given a pointer.  This may not be needed...
+  std::string getElementName(DDXMLElement* theElement);
+
+  void stream(std::ostream & os) const;
+
+ protected:
  
-/*   /// Private constructor for singleton. */
-/*   DDXMLElementRegistry(); */
+  /// Private constructor for singleton.
+  DDXMLElementRegistry();
 
-/* /\*    /// Way to check getElement returned a correct response. *\/ */
-/* /\*    RegistryMap::iterator DDXMLElementRegistry::find(const std::string& name) const; *\/ */
+/*    /// Way to check getElement returned a correct response. */
+/*    RegistryMap::iterator DDXMLElementRegistry::find(const std::string& name) const; */
 
-/* /\*    /// Way to check getElement returned a correct response. *\/ */
-/* /\*    RegistryMap::iterator DDXMLElementRegistry::end() const; *\/ */
+/*    /// Way to check getElement returned a correct response. */
+/*    RegistryMap::iterator DDXMLElementRegistry::end() const; */
 
-/*  private: */
-/*   RegistryMap registry_; */
+ private:
+  RegistryMap registry_;
 
-/* }; */
+};
 
 #endif

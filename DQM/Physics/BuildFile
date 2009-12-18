@@ -1,17 +1,11 @@
-# $Id:$
-
-<use name=DQMServices/Core>
 <use name=FWCore/Framework>
+<use name=DQMServices/Core>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/VertexReco>
-<use name=DataFormats/TrackerRecHit2D>
 <use name=HLTrigger/HLTcore>
-<use name=Geometry/Records>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/TrackerTopology>
 <export>
   <lib name=1>
 </export>

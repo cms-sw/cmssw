@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.9 2009/08/26 22:21:45 dmytro Exp $
+// $Id: FWTableViewTableManager.cc,v 1.10 2009/10/29 09:56:04 chrjones Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -219,29 +219,34 @@ void FWTableViewTableManager::implSort(int iCol, bool iSortOrder)
 void
 FWTableViewTableManager::dataChanged() 
 {
-     std::vector<int> visible;
-     visible.reserve(m_view->item()->size());
-     std::vector<int> invisible;
-     invisible.reserve(m_view->item()->size());
-     m_sortedToUnsortedIndices.clear();
-     m_sortedToUnsortedIndices.reserve(m_view->item()->size());
-     for(int i=0; i< static_cast<int>(m_view->item()->size()); ++i) {
-	  if (m_view->item()->modelInfo(i).displayProperties().isVisible()) 
-	       visible.push_back(i);
-	  else invisible.push_back(i);
-     }
-     m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
-				      visible.begin(), visible.end());
-     m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
-				      invisible.begin(), invisible.end());
-     assert(m_sortedToUnsortedIndices.size() == m_view->item()->size());
-     FWTableManagerBase::dataChanged();
+   if (0!=m_view->item()) {
+      std::vector<int> visible;
+      visible.reserve(m_view->item()->size());
+      std::vector<int> invisible;
+      invisible.reserve(m_view->item()->size());
+      m_sortedToUnsortedIndices.clear();
+      m_sortedToUnsortedIndices.reserve(m_view->item()->size());
+      for(int i=0; i< static_cast<int>(m_view->item()->size()); ++i) {
+         if (m_view->item()->modelInfo(i).displayProperties().isVisible()) 
+            visible.push_back(i);
+         else invisible.push_back(i);
+      }
+      m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
+                                       visible.begin(), visible.end());
+      m_sortedToUnsortedIndices.insert(m_sortedToUnsortedIndices.end(),
+                                       invisible.begin(), invisible.end());
+      assert(m_sortedToUnsortedIndices.size() == m_view->item()->size());
+   } else {
+      m_sortedToUnsortedIndices.clear();
+   }
+   FWTableManagerBase::dataChanged();
 }
 
 void FWTableViewTableManager::updateEvaluators ()
 {
      if (m_view->m_iColl == -1) {
-	  printf("what should I do with collection -1?\n");
+	  //printf("what should I do with collection -1?\n");
+          m_evaluators.clear();
 	  return;
      }
      const FWEventItem *item = m_view->m_manager->items()[m_view->m_iColl];

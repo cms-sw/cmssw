@@ -14,24 +14,22 @@
 #include <string>
 #include <fstream>
 
-namespace edmtestp
-{
-  class TestFileReader
-  {
+namespace edmtestp {
+  class TestFileReader {
   public:
-    TestFileReader(const std::string& filename,edm::EventBuffer& to,
+    TestFileReader(std::string const& filename, edm::EventBuffer& to,
 		   edm::ProductRegistry& prods);
     virtual ~TestFileReader();
 
     void start();
     void join();
 
-  private:  
+  private:
     void readEvents();
     static void run(TestFileReader*);
 
     std::string filename_;
-    boost::shared_ptr<StreamerInputFile> stream_reader_;
+    boost::shared_ptr<edm::StreamerInputFile> streamReader_;
     //std::ifstream ist_;
     //edm::EventReader reader_;
     edm::EventBuffer& to_;

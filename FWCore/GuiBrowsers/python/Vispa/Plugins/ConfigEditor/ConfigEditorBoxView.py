@@ -35,7 +35,12 @@ class ConfigEditorBoxView(BoxDecayView):
         """
         self._colorIndex = 0
         self._connections = connections
-        
+    
+    def createBox(self, widgetParent, container, title, text):
+        widget=BoxDecayView.createBox(self, widgetParent, container, title, text)
+        widget.setToolTip("Double click to display this module with its dependencies")
+        return widget
+    
     def createConnections(self, operationId, widgetParent):
         for connection,values in self._connections.items():
             # Process application event loop in order to accept user input during time consuming drawing operation
@@ -106,9 +111,9 @@ class ConfigEditorBoxView(BoxDecayView):
             widget.update()
             self._highlightedWidgets+=[widget]
 
-    def updateContent(self):
+    def updateContent(self,overrideCheck=False):
         self._highlightedWidgets=[]
-        ok=BoxDecayView.updateContent(self)
+        ok=BoxDecayView.updateContent(self,overrideCheck)
         self.highlight()
         return ok
 

@@ -48,6 +48,21 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::BasicJet> >"/>
 
+  <class name="reco::TrackJet">
+    <field name="dau" transient="true"/>
+    <field name="test_" transient="true"/>
+    <field name="dauByVal_" transient="true"/>
+  </class>
+  <class name="std::vector<reco::TrackJet>"/>
+  <class name="edm::RefVector<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
+  <class name="edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::TrackJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::TrackJet> >"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::TrackJet> >"/>
+ 
+
+
   <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
@@ -114,6 +129,8 @@
   <class name="edm::reftobase::RefHolder<reco::GenJetRef>" />
   <class name="edm::reftobase::Holder<reco::Jet, reco::PFJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::TrackJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::TrackJetRef>" />
 
   <class name="reco::JetID" />
   <class name="std::vector<reco::JetID>" />
@@ -138,6 +155,13 @@
 
   <class name="edm::Ptr<reco::GenJet>" />
   <class name="edm::PtrVector<reco::GenJet>" />
+
+  <class name="edm::Ptr<reco::TrackJet>" />
+  <class name="edm::PtrVector<reco::TrackJet>" />
+  <class name="edm::Ptr<reco::Track>" />
+  <class name="std::vector<edm::Ptr<reco::Track> >" />
+
+
 
   <class name="edm::Ptr<reco::JetID>" />
   <class name="edm::PtrVector<reco::JetID>" />

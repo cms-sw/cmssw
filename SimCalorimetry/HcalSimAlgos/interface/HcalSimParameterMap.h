@@ -29,30 +29,13 @@ public:
 
   void setDbService(const HcalDbService * service);
 
-  void setFrameSize(const DetId & detId, int frameSize);
-  
-  void setHOZecotekDetIds(const std::vector<HcalDetId> & ids)
-  {
-    theHOZecotekDetIds = ids;
-  }
-  void setHOHamamatsuDetIds(const std::vector<HcalDetId> & ids)
-  {
-    theHOHamamatsuDetIds = ids;
-  }
-
 private:
-  void setFrameSize(CaloSimParameters & parameters, int frameSize);
-
   HcalSimParameters theHBParameters;
   HcalSimParameters theHEParameters;
   HcalSimParameters theHOParameters;
-  HcalSimParameters theHOZecotekSiPMParameters;
-  HcalSimParameters theHOHamamatsuSiPMParameters;
   HFSimParameters theHFParameters1;
   HFSimParameters theHFParameters2;
   HFSimParameters theZDCParameters;
-  std::vector<HcalDetId> theHOZecotekDetIds;
-  std::vector<HcalDetId> theHOHamamatsuDetIds;
 };
 
 #endif

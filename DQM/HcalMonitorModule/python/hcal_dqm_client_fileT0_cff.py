@@ -12,7 +12,7 @@ hcalClient.DeadCellClient    = True
 hcalClient.HotCellClient     = True
 # Disable trigger primitive client until simulated TP digis included in sequence
 hcalClient.TrigPrimClient    = False
-hcalClient.ReferencePedestalClient    = False
+hcalClient.PedestalClient    = False
 hcalClient.LEDClient         = False
 hcalClient.CaloTowerClient   = False
 

@@ -30,7 +30,7 @@ namespace cscdqm {
   typedef long long TimeType;
 
   /** Enumeration of Board Types */
-  typedef enum DCSBoardType {
+  enum DCSBoardType {
     ANY  = 0,
     ALCT = 1,
     CFEB = 2,
@@ -38,7 +38,7 @@ namespace cscdqm {
   };
 
   /** DCSBoardType utility object type */
-  typedef struct DCSBoardUtility {
+  struct DCSBoardUtility {
     
     DCSBoardType boardType;
     DCSBoardUtility(const DCSBoardType boardType_) : boardType(boardType_) { }
@@ -74,7 +74,7 @@ namespace cscdqm {
   /**
    * DCS Address Type to store and manipulate DCS-related address
    */
-  typedef struct DCSAddressType {
+  struct DCSAddressType {
 
     /** Endcap: 1 - plus, 2 - minus */
     unsigned short iendcap;

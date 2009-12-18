@@ -106,6 +106,16 @@ void reco::writeSpecific(reco::PFJet  & jet,
 }
     
 
+// TrackJet
+void reco::writeSpecific(reco::TrackJet & jet,
+			 reco::Particle::LorentzVector const & p4,
+			 reco::Particle::Point const & point, 
+			 std::vector<reco::CandidatePtr> const & constituents,
+			 edm::EventSetup const & c  )
+{
+  jet = reco::TrackJet(p4, point, constituents);  
+}
+    
 
 
 

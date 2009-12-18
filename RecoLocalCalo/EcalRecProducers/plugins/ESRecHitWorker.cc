@@ -20,24 +20,27 @@ ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
         ESRecHitWorkerBaseClass( ps )
 {
   //These should be taken from a DB
-  int ESGain = ps.getParameter<int>("ESGain");
-  int ESBaseline = ps.getParameter<int>("ESBaseline");
-  double ESMIPADC = ps.getParameter<double>("ESMIPADC");
-  double ESMIPkeV = ps.getParameter<double>("ESMIPkeV");
+  recoAlgo_ = ps.getUntrackedParameter<int>("ESRecoAlgo", 0);
+
+  int    ESGain     = ps.getParameter<int>("ESGain");
+  int    ESBaseline = ps.getParameter<int>("ESBaseline");
+  double ESMIPADC   = ps.getParameter<double>("ESMIPADC");
+  double ESMIPkeV   = ps.getParameter<double>("ESMIPkeV");
   
-  algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV); 
+  if (recoAlgo_ == 0)
+    algoW_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV); 
+  else 
+    algoF_ = new ESRecHitFitAlgo(ESBaseline, ESMIPADC, ESMIPkeV);
 }
 
-
-ESRecHitWorker::~ESRecHitWorker()
-{
-        delete algo_;
+ESRecHitWorker::~ESRecHitWorker() {
+  if (recoAlgo_ == 0)
+    delete algoW_;
+  else
+    delete algoF_;
 }
 
-
-void
-ESRecHitWorker::set(const edm::EventSetup& es)
-{
+void ESRecHitWorker::set(const edm::EventSetup& es) {
 }
 
 bool
@@ -45,8 +48,11 @@ ESRecHitWorker::run( const edm::Event & evt,
                 const ESDigiCollection::const_iterator & itdg, 
                 ESRecHitCollection & result )
 {
-        result.push_back( algo_->reconstruct(*itdg) );
-        return true;
+  if (recoAlgo_ == 0)
+    result.push_back( algoW_->reconstruct(*itdg) );
+  else 
+    result.push_back( algoF_->reconstruct(*itdg) );
+  return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

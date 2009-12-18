@@ -14,7 +14,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.4 2008/08/01 09:16:46 fblekman Exp $
+// $Id: SignAlgoResolutions.cc,v 1.5 2009/11/02 11:29:27 fblekman Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,11 +30,12 @@ double metsig::SignAlgoResolutions::eval(const resolutionType & type, const reso
 
 double metsig::SignAlgoResolutions::eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta, const double &p) const {
 
-  functionPars x(3);
+  functionPars x(4);
   x[0]=et;
   x[1]=phi;
   x[2]=eta;
-  x[4]=p;
+  x[3]=p;
+  //  std::cout << "getting function of type " << type << " " << func << " " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << std::endl;
   return getfunc(type,func,x);
 
 }

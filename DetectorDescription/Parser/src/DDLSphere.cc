@@ -28,7 +28,7 @@
 //#include <strstream>
 
 // Default constructor.
-DDLSphere::DDLSphere(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
+DDLSphere::DDLSphere()
 {
 }
 
@@ -38,7 +38,7 @@ DDLSphere::~DDLSphere()
 }
 
 // Upon encountering the end of the Sphere element, call DDCore.
-void DDLSphere::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLSphere::processElement (const std::string& type, const std::string& nmspace)
 {  
   DCOUT_V('P', "DDLSphere::processElement started");
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
@@ -53,7 +53,7 @@ void DDLSphere::processElement (const std::string& name, const std::string& nmsp
 					   , ev.eval(nmspace, atts.find("deltaTheta")->second));
 
 
-  DDLSolid::setReference(nmspace, cpv);
+  DDLSolid::setReference(nmspace);
 
   DCOUT_V('P', "DDLSphere::processElement completed");
 

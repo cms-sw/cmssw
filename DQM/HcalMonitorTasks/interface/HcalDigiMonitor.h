@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/11/11 20:54:29 $
-  * $Revision: 1.53 $
+  * $Date: 2009/10/11 16:16:13 $
+  * $Revision: 1.50 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -62,22 +62,19 @@ public:
   ~HcalDigiMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun();
-  void clearME();
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    int calibType,
+		    //const ZDCDigiCollection& zdc,
 		    const HcalDbService& cond,
 		    const HcalUnpackerReport& report);		
   void reset();
   void setSubDetectors(bool hb, bool he, bool ho, bool hf);
-  void endLuminosityBlock();
+  void fill_Nevents();
   void periodicReset();
 
 private:  ///Methods, variables accessible only within class code
 
-  void fill_Nevents();
   void zeroCounters();
   void setupSubdetHists(DigiHists& hist,  std::string subdet); // enable this feature at some point
 
@@ -95,8 +92,6 @@ private:  ///Methods, variables accessible only within class code
   bool digi_checkdigisize_;
   bool digi_checkadcsum_;
   bool digi_checkdverr_;
-
-  bool shutOffOrbitTest_;
 
   int DigiMonitor_ExpectedOrbitMessageTime_;
   int hbcount_, hecount_, hocount_, hfcount_;  // Counter # of good digis each event

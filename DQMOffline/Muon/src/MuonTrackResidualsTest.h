@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the residuals of the track parameters comparing STA/tracker only/global muons
  *
- *  $Date: 2008/07/16 13:20:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/06 11:02:28 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -26,7 +26,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Run.h"
+
 
 #include <memory>
 #include <iostream>
@@ -57,12 +57,10 @@ protected:
   /// Endjob
   void endJob();
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
 
 private:

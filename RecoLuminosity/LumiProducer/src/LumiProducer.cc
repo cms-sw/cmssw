@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.15 2009/11/13 15:23:46 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.14 2009/11/13 14:05:22 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -101,17 +101,11 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
   //record not found
   //std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
   //}
-  std::cout<<"processing "<<iLBlock.run()<<"\t"<<iLBlock.luminosityBlock()<<std::endl;
-  std::auto_ptr<LumiSummary> pOut1;
-  std::auto_ptr<LumiDetails> pOut2;
   try{
     const lumi::LumiSectionData* myLumi=0;
     edm::ESHandle<lumi::LumiSectionData> pLumi;
     iSetup.get<LumiSectionDataRcd>().get(pLumi);
     myLumi=pLumi.product();
-    std::cout<<"myLumi address "<<myLumi<<std::endl;
-    std::cout<<"LS NUM "<<myLumi->lumisectionID()<<std::endl;
-    std::cout<<"start orbit "<<myLumi->startorbit()<<std::endl;
     if(!myLumi){
       //std::cout<<"filling default because no lumi data found"<<std::endl;
       //std::string errmsg("NULL lumi object ");
@@ -162,9 +156,7 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
     }
     
     LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1data,hltdata,startOrbit);
-    std::cout<<"bizzare "<<pIn1->lsNumber()<<std::endl;
-    pOut1.reset(pIn1);
-    std::cout<<"writing out pOut1 "<<pOut1->lsNumber()<<std::endl;
+    std::auto_ptr<LumiSummary> pOut1(pIn1);
     iLBlock.put(pOut1);
     
     /**detailed information for all bunchcrossings
@@ -198,7 +190,7 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
       lumioccqual.push_back(it->lumiquality);
     }
     LumiDetails* pIn2=new LumiDetails(lumietsum,lumietsumerr,lumietsumqual,lumiocc, lumioccerr,lumioccqual);
-    pOut2.reset(pIn2);
+    std::auto_ptr<LumiDetails> pOut2(pIn2);
     iLBlock.put(pOut2);
   }catch(const edm::eventsetup::NoRecordException<LumiSectionDataRcd>& er){
     //std::cout<<"filling default because NoRecordException"<<std::endl;

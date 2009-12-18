@@ -16,7 +16,7 @@ namespace {
 }
 
 namespace {
-   bool checkHydro(GenParticleRef& p){
+   bool checkHydro(const reco::GenParticle * p){
       const Candidate* m1 = p->mother();
       while(m1){
 	 int pdg = abs(m1->pdgId());
@@ -47,16 +47,17 @@ SubEventGenJetProducer::SubEventGenJetProducer(edm::ParameterSet const& conf):
 
 void SubEventGenJetProducer::inputTowers( ) 
 {
-   reco::CandidateView::const_iterator inBegin = inputs_.begin(),
+   std::vector<edm::Ptr<reco::Candidate> >::const_iterator inBegin = inputs_.begin(),
       inEnd = inputs_.end(), i = inBegin;
    for (; i != inEnd; ++i ) {
-      reco::CandidatePtr input = inputs_.ptrAt( i - inBegin );
+      reco::CandidatePtr input = inputs_[i - inBegin];
       if (isnan(input->pt()))           continue;
       if (input->et()    <inputEtMin_)  continue;
       if (input->energy()<inputEMin_)   continue;
       if (isAnomalousTower(input))      continue;
 
-      GenParticleRef pref = inputs_.refAt(i - inBegin).castTo<GenParticleRef>();
+      edm::Ptr<reco::Candidate> p = inputs_[i - inBegin];
+      const GenParticle * pref = dynamic_cast<const GenParticle *>(p.get());
       int subevent = pref->collisionId();
       LogDebug("SubEventContainers")<<"SubEvent is : "<<subevent<<endl;
       LogDebug("SubEventContainers")<<"SubSize is : "<<subInputs_.size()<<endl;
@@ -91,7 +92,9 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
    // get inputs and convert them to the fastjet format (fastjet::PeudoJet)
    edm::Handle<reco::CandidateView> inputsHandle;
    iEvent.getByLabel(src_,inputsHandle);
-   inputs_ = *inputsHandle;
+   for (size_t i = 0; i < inputsHandle->size(); ++i) {
+     inputs_.push_back(inputsHandle->ptrAt(i));
+   }
    LogDebug("VirtualJetProducer") << "Got inputs\n";
 
    inputTowers();

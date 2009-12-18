@@ -85,6 +85,7 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType)
       case(charType  ) : ret = true; break;
       case(uCharType ) : ret = true; break;
       case(boolType  ) : ret = true; break;
+      case(enumType  ) : ret = true; break;
       case(invalid):
       default:
         break;
@@ -119,6 +120,7 @@ ExpressionVar::objToDouble(const Reflex::Object &obj, method::TypeCode type) {
   case(charType  ) : ret = * static_cast<char           *>(addr); break;
   case(uCharType ) : ret = * static_cast<unsigned char  *>(addr); break;
   case(boolType  ) : ret = * static_cast<bool           *>(addr); break;
+  case(enumType  ) : ret = * static_cast<int            *>(addr); break;
   default:
   assert(false);
   };

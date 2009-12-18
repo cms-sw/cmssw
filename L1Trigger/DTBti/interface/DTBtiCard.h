@@ -4,8 +4,8 @@
  *     Contains active DTBtiChips
  *
  *
- *   $Date: 2008/09/05 15:55:03 $
- *   $Revision: 1.10 $
+ *   $Date: 2008/06/30 13:41:36 $
+ *   $Revision: 1.9 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -102,13 +102,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
 
     // run the trigger algorithm
     virtual void reconstruct(const DTDigiCollection dtDigis) { clearCache();loadBTI(dtDigis); runBTI(); }
- 
-    /// Return bti chip configuration
-    DTConfigBti* config_bti(DTBtiId& btiid) const;
-
-   /// Return acceptance flag
-   inline bool useAcceptParamFlag() { return _flag_acc; } 
- 
+  
  private:
 
     /// store digi's in DTBtiChip's
@@ -128,6 +122,10 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     /// clear the BTI maps
     void localClear();
 
+    /// Return bti chip configuration
+    DTConfigBti* config_bti(DTBtiId& btiid) const;
+
+
   private:
 
     BTIContainer _btimap[3];
@@ -139,8 +137,6 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     DTTTrigBaseSync *_digi_sync;
     int  _finedelay;
     int  _MCdelay;
-
-    bool _flag_acc;
 };
 
 #endif

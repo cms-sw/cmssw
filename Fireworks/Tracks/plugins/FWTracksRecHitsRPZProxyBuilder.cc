@@ -37,8 +37,37 @@ private:
 
 void FWTracksRecHitsRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-   TracksRecHitsUtil::buildTracksRecHits(iItem, product);
+   TracksRecHitsUtil::buildTracksRecHits(iItem, product, true, false);
+}
+
+class FWTracksModulesRPZProxyBuilder : public FWRPZDataProxyBuilder
+{
+public:
+   FWTracksModulesRPZProxyBuilder() {
+   }
+   virtual ~FWTracksModulesRPZProxyBuilder() {
+   }
+
+   // ---------- const member functions ---------------------
+
+   // ---------- member functions ---------------------------
+   REGISTER_PROXYBUILDER_METHODS();
+private:
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
+
+   FWTracksModulesRPZProxyBuilder(const FWTracksModulesRPZProxyBuilder&);    // stop default
+
+   const FWTracksModulesRPZProxyBuilder& operator=(const FWTracksModulesRPZProxyBuilder&);    // stop default
+
+   // ---------- member data --------------------------------
+
+};
+
+void FWTracksModulesRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+{
+   TracksRecHitsUtil::buildTracksRecHits(iItem, product, false, true);
 }
 
 REGISTER_FWRPZDATAPROXYBUILDERBASE(FWTracksRecHitsRPZProxyBuilder,reco::TrackCollection,"TrackHits");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWTracksModulesRPZProxyBuilder,reco::TrackCollection,"TrackDets");
 

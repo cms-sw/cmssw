@@ -191,18 +191,19 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 		      EcalLogicID ecid_xt;
 		      FEConfigLUTGroupDat  rd_lut;
 		      int igroups=0;
-		      unsigned int lutArray[1024] ;
 	
 		      for (CIfelut p = dataset_TpgLut.begin(); p != dataset_TpgLut.end(); p++) 
 		      {
 	  	  	ecid_xt = p->first;
 	  	  	rd_lut  = p->second;
 
-		  	std::string ecid_name=ecid_xt.getName();
+			//std::string ecid_name=ecid_xt.getName();
  	  
+			unsigned int lutArray[1024] ;
 	  		for (int ilut=0;ilut<1024;++ilut) {
 	    		  lutArray[ilut]=rd_lut.getLUTValue(ilut);
-	  		}
+			  cout << ilut << "  " << rd_lut.getLUTValue(ilut)<< endl;
+			}
 	  
 	  		EcalTPGLut mylut;
         		mylut.setLut(lutArray);	

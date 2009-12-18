@@ -67,6 +67,7 @@ namespace popcon
 			
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);
+			EcalTPGCrystalStatus*  produceEcalTrgChannelStatus();
 			
 			EcalCondDBInterface* econn;
 

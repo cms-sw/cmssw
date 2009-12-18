@@ -28,6 +28,15 @@ namespace cond {
    */
   class BasePayloadProxy {
   public:
+
+    struct Stats {
+      int nProxy;
+      int nMake;
+      int nLoad;
+    };
+
+    static Stats stats;
+
     // errorPolicy=true will throw on load, false will set interval and token to invalid
     BasePayloadProxy(cond::DbSession& session,
                      const std::string & token,
@@ -37,8 +46,14 @@ namespace cond {
 
     virtual void invalidateCache()=0;
 
+    // current cached object token
+    std::string const & token() const { return m_token;}
+    
     // load Element valid at time
-    void loadFor(cond::Time_t time);
+    cond::ValidityInterval loadFor(cond::Time_t time);
+    
+    // load nth Element (to be used in simple iterators...)
+    cond::ValidityInterval loadFor(size_t n);
 
     // find ad return interval (does not load)
     cond::ValidityInterval setIntervalFor(cond::Time_t time);
@@ -66,6 +81,11 @@ namespace cond {
     bool m_doThrow;
     IOVProxy m_iov;
     IOVElementProxy m_element;
+
+  private:
+    // current loaded payload
+    std::string  m_token;
+
   };
 
 
@@ -90,12 +110,14 @@ namespace cond {
     }
         
     virtual void invalidateCache() {
-      m_data.clear();
+      // don't, preserve data for future access
+      // m_data.clear();
     }
 
+
   protected:
-    virtual bool load(pool::IDataSvc * svc, std::string const & token) {
-      return m_data.load(svc,token);
+    virtual bool load(pool::IDataSvc * svc, std::string const & itoken) {
+      return m_data.load(svc,itoken);
     }
 
   private:

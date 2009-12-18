@@ -22,6 +22,7 @@ namespace {
   std::map<int,unsigned int> dummymiui;
   std::map<short,short> dummymss;
   std::map<short,unsigned int> dummymsui;
+  std::map<std::basic_string<char>,bool> dummymsb;
   std::map<std::basic_string<char>,int> dummyypwmv7;
   std::map<std::basic_string<char>,std::map<std::basic_string<char>,std::basic_string<char> > > dummymsmss;
   std::map<std::basic_string<char>,std::pair<unsigned int,unsigned int> > dummymspii;
@@ -56,6 +57,7 @@ namespace {
   std::pair<const int,unsigned int> newDummy04;
   std::pair<const short,short> newDummy05;
   std::pair<const short,unsigned int> newDummy06;
+  std::pair<const std::basic_string<char>,bool> newDummy06b;
   std::pair<const std::basic_string<char>,int> newDummy07;
   std::pair<const std::basic_string<char>,std::map<std::basic_string<char>,std::basic_string<char> > > newDummy08;
   std::pair<const std::basic_string<char>,std::pair<unsigned int,unsigned int> > newDummy09;

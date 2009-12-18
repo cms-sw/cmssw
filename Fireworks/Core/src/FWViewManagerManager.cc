@@ -8,12 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.14 2009/04/07 14:04:49 chrjones Exp $
+// $Id: FWViewManagerManager.cc,v 1.15 2009/11/05 22:06:02 dmytro Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/bind.hpp>
+
+#include "TEveManager.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
@@ -125,6 +127,7 @@ FWViewManagerManager::supportedTypesAndRepresentations() const
 void
 FWViewManagerManager::eventBegin()
 {
+   gEve->DisableRedraw();
    for ( std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator i = m_viewManagers.begin();
          i != m_viewManagers.end(); ++i )
       (*i)->eventBegin();
@@ -136,6 +139,7 @@ FWViewManagerManager::eventEnd()
    for ( std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator i = m_viewManagers.begin();
          i != m_viewManagers.end(); ++i )
       (*i)->eventEnd();
+   gEve->EnableRedraw();
 }
 
 //

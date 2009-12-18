@@ -21,7 +21,7 @@
 #include <cmath>
 
 // number attempts for transverse distribution if exit on a spec. condition
-#define infinity 5000
+#define infinity 10000
 // debugging flag ( 0, 1, 2, 3)
 #define debug 0
 
@@ -244,7 +244,7 @@ HDShower::HDShower(const RandomEngine* engine,
   }
   
   if( onECAL && e < emid ) {
-    if((depthECAL - depthStart)/depthECAL > 0.2 && depthECAL > depthStep ) {
+    if(depthECAL > depthStep && (depthECAL - depthStart)/depthECAL > 0.2) {
       
       depthStart = 0.5 * depthECAL * random->flatShoot();
       if(debug) 
@@ -281,7 +281,7 @@ HDShower::HDShower(const RandomEngine* engine,
     if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : onECAL" << std::endl;
     if(depthStart < depthECAL) {
       if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : depthStart < depthECAL" << std::endl;
-      if((depthECAL - depthStart)/depthECAL > 0.1 && depthECAL > depthStep) {
+      if(depthECAL > depthStep && (depthECAL - depthStart)/depthECAL > 0.1) {
 	if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : enough space to make ECAL step"
 		       << std::endl;
 	//  ECAL - one step
@@ -532,7 +532,9 @@ bool HDShower::compute() {
 	
 	if(!status) continue; 
 
-	theGrid->setSpotEnergy(espot);
+        espot *= 0.1;  // SPECIAL fine-grain energy spots in ECAL to avoid false ECAL clustering 
+        nspots[i] *= 10;  
+        theGrid->setSpotEnergy(espot);
       }  
 
       
@@ -540,8 +542,14 @@ bool HDShower::compute() {
       int nok   = 0;                          // counter of OK  
       int count = 0;
       int inf   = infinity;
-      if(lossesOpt) inf = nspots[i];          // losses are enabled, otherwise
+      if(lossesOpt) inf = nspots[i];          // if losses are enabled, otherwise
       // only OK points are counted ...
+      if(nspots[i] > inf ){
+	std::cout << " FamosHDShower::compute - at long.step " << i 
+		  << "  too many spots : "  <<  nspots[i] << " !!! " 
+                  << std::endl;
+      }
+
       for (int j = 0; j < inf; j++) {
 	if(nok == nspots[i]) break;
 	count ++;

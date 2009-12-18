@@ -7,22 +7,30 @@
 #include "TMath.h"
 
 #include "Fireworks/Core/interface/FWFileEntry.h"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #undef private
 
 FWFileEntry::FWFileEntry(const std::string& name) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
-   m_filtersNeedUpdate(true), m_globalEventList(0)
+   m_needUpdate(true), m_globalEventList(0)
 {
    openFile();
 }
 
 FWFileEntry::~FWFileEntry()
 {
-   for(std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)   
+   for(std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)
       delete (*i)->m_eventList;
+
+   delete m_globalEventList;
 }
 
 void FWFileEntry::openFile(){
@@ -50,6 +58,15 @@ void FWFileEntry::closeFile()
 }
 
 //______________________________________________________________________________
+int FWFileEntry::getTreeEntryFromEventId(int entry)
+{
+   if (!m_eventTree->GetTreeIndex())
+      m_eventTree->BuildIndex("EventAuxiliary.id_.event_");
+
+   return  m_eventTree->GetEntryNumberWithIndex(entry);
+}
+
+//______________________________________________________________________________
 
 bool FWFileEntry::isEventSelected(int tree_entry)
 {
@@ -65,15 +82,19 @@ bool FWFileEntry::hasSelectedEvents()
 int FWFileEntry::firstSelectedEvent()
 {
    if (m_globalEventList->GetN() > 0)
-      return m_globalEventList->GetIndex(0);
+   {
+      return m_globalEventList->GetEntry(0);
+   }
    else
+   {
       return -1;
+   }
 }
 
 int FWFileEntry::lastSelectedEvent()
 {
    if (m_globalEventList->GetN() > 0)
-      return m_globalEventList->GetIndex(m_globalEventList->GetN() - 1);
+      return m_globalEventList->GetEntry(m_globalEventList->GetN() - 1);
    else
       return -1;
 }
@@ -125,15 +146,14 @@ bool FWFileEntry::hasActiveFilters()
 //______________________________________________________________________________
 void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
 {
-   if (!m_filtersNeedUpdate)
+   if (!m_needUpdate)
       return;
    
    if (m_globalEventList)
       m_globalEventList->Reset();
    else
-      m_globalEventList = new TEventList;
+      m_globalEventList = new FWTEventList;
 
-   unsigned int nPassed(0);
    for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it)
    {
       if ((*it)->m_selector->m_enabled && (*it)->m_needsUpdate)
@@ -144,32 +164,40 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
       // in runFilter().
       if ((*it)->m_selector->m_enabled)
       {
-         if (globalOR || m_globalEventList->GetN() == 0)
+         if ((*it)->hasSelectedEvents())
          {
-            m_globalEventList->Add((*it)->m_eventList);
+            if (globalOR || m_globalEventList->GetN() == 0)
+            {
+               m_globalEventList->Add((*it)->m_eventList);
+            }
+            else
+            {
+               m_globalEventList->Intersect((*it)->m_eventList);
+            }
          }
-         else
+         else if (!globalOR)
          {
-            m_globalEventList->Intersect((*it)->m_eventList);
+            m_globalEventList->Reset();
+            break;
          }
-         nPassed = m_globalEventList->GetN();
       }
    }
    
-   m_filtersNeedUpdate = false;
+   fwLog(fwlog::kDebug) << "FWFileEntry::updateFilters in [" << m_file->GetName() << "]  global selection [" << m_globalEventList->GetN() << "/" <<  m_eventTree->GetEntries() << "]" << std::endl;
+
+   m_needUpdate = false;
 }
 
 //_____________________________________________________________________________
 void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
 {
-      
-    // !!!! if (filterEventsWithCustomParser(file, iSelector, selection)) return;
+   if (filterEventsWithCustomParser(filter)) return;
     
-    // parse selection for known Fireworks expressions
-    std::string interpretedSelection = filter->m_selector->m_expression;
+   // parse selection for known Fireworks expressions
+   std::string interpretedSelection = filter->m_selector->m_expression;
     
    for (FWEventItemsManager::const_iterator i = eiMng->begin(),
-        end = eiMng->end(); i != end; ++i)
+           end = eiMng->end(); i != end; ++i)
    {
       if (*i == 0) continue;
       //FIXME: hack to get full branch name filled
@@ -219,7 +247,11 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
          }
       }
    }
-   
+
+   FWTEventList *flist = (FWTEventList*) gDirectory->Get("fworks_filter");
+   if (flist == 0)
+      flist = new FWTEventList("fworks_filter");
+
    Int_t result = m_eventTree->Draw(">>fworks_filter", interpretedSelection.c_str());
    
    if (result >= 0)
@@ -227,16 +259,15 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
       if (filter->m_eventList)
          filter->m_eventList->Reset();
       else
-         filter->m_eventList = new TEventList;
-      TEventList *el = (TEventList*) gDirectory->Get("fworks_filter");
-      filter->m_eventList->Add(el);
+         filter->m_eventList = new FWTEventList;
+
+      filter->m_eventList->Add(flist);
       
-      //  std::cout << Form("File: %s, selection: %s, number of events passed the selection: %d",
-      //                 m_file->GetName(), filter->m_selector->m_expression.c_str(), el->GetN()) << std::endl;      
+      fwLog(fwlog::kDebug) << "FWFile::runFilter file [" << m_file->GetName() << "], filter [" << filter->m_selector->m_expression << "], selected [" << flist->GetN() << "]" << std::endl;
    }
    else
    {
-      std::cout << "Selection: \"" << filter->m_selector->m_expression << "\" is invalid. Disabled." <<std::endl;
+      fwLog(fwlog::kWarning) << "FWFile::runFilter [" << m_file->GetName() << "] filter [" << filter->m_selector->m_expression << "]  invalid. Disabled." << std::endl;
       filter->m_selector->m_enabled = false;
    }
       
@@ -252,28 +283,36 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
          ++itAddress;
       }
    }
-   
-   m_filtersNeedUpdate = false;
+
+   filter->m_needsUpdate = false;
 }
 
-/*
+//______________________________________________________________________________
+
 bool
-FWFileEntry::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std::string selection)
+FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
 {
-   // get rid of white spaces
+   std::string selection(filterEntry->m_selector->m_expression);
+
    boost::regex re_spaces("\\s+");
    selection = boost::regex_replace(selection,re_spaces,"");
-   edm::EventID currentEvent = file.event()->id();
+   if (selection.find("&&") != std::string::npos &&
+       selection.find("||") != std::string::npos )
+   {
+      // Combination of && and || operators not supported.
+      return false;
+   }
+
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
-   fwlite::TriggerNames const* triggerNames(0);
+   edm::TriggerNames const* triggerNames(0);
    try
    {
-      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
-      triggerNames = &file.event()->triggerNames(*hTriggerResults);
+      hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
+      triggerNames = &(m_event->triggerNames(*hTriggerResults));
    }
    catch(...)
    {
-      std::cout << "Warning: failed to get trigger results with process name HLT" << std::endl;
+      std::cout << "Warning: failed to get trigger results with process name HLT." << std::endl;
       return false;
    }
    
@@ -282,50 +321,54 @@ FWFileEntry::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std:
    //  std::cout << " " << triggerNames->triggerName(i);
    //std::cout << std::endl;
    
-   // cannot interpret selection with OR and AND
-   if (selection.find("&&")!=std::string::npos &&
-       selection.find("||")!=std::string::npos )
-   {
-      return false;
-   }
-   
    bool junction_mode = true; // AND
    if (selection.find("||")!=std::string::npos)
       junction_mode = false; // OR
-   
+
    boost::regex re("\\&\\&|\\|\\|");
+
    boost::sregex_token_iterator i(selection.begin(), selection.end(), re, -1);
    boost::sregex_token_iterator j;
-   
+
    // filters and how they enter in the logical expression
    std::vector<std::pair<unsigned int,bool> > filters;
-   
-   while(i != j)
+
+   while (i != j)
    {
       std::string filter = *i++;
       bool flag = true;
-      if (filter[0]=='!') {
+      if (filter[0] == '!')
+      {
          flag = false;
          filter.erase(filter.begin());
       }
       unsigned int index = triggerNames->triggerIndex(filter);
-      if (index == triggerNames->size()) return false; //parsing failed
-      filters.push_back(std::pair<unsigned int,bool>(index,flag));
+      if (index == triggerNames->size()) 
+      {
+         // Trigger name not found.
+         return false;
+      }
+      filters.push_back(std::make_pair(index, flag));
    }
-   if (filters.empty()) return false;
-   
-   TEventList* list = file.lists()[iSelector];
-   list->Clear();
-   
+   if (filters.empty())
+      return false;
+
+   if (filterEntry->m_eventList)
+      filterEntry->m_eventList->Reset();
+   else
+       filterEntry->m_eventList = new FWTEventList();
+   FWTEventList* list = filterEntry->m_eventList;
+
    // loop over events
+   edm::EventID currentEvent = m_event->id();
    unsigned int iEvent = 0;
-   for (file.event()->toBegin(); !file.event()->atEnd(); ++(*file.event()))
+
+   for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event))
    {
-      hTriggerResults.getByLabel(*file.event(),"TriggerResults","","HLT");
+      hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
       std::vector<std::pair<unsigned int,bool> >::const_iterator filter = filters.begin();
       bool passed = hTriggerResults->accept(filter->first) == filter->second;
-      ++filter;
-      for (; filter != filters.end(); ++filter)
+      while (++filter != filters.end())
       {
          if (junction_mode)
             passed &= hTriggerResults->accept(filter->first) == filter->second;
@@ -336,7 +379,11 @@ FWFileEntry::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std:
          list->Enter(iEvent);
       ++iEvent;
    }
-   file.event()->to(currentEvent);
+   m_event->to(currentEvent);
+
+   filterEntry->m_needsUpdate = false;
+   
+   fwLog(fwlog::kDebug) << "FWFile::filterEventsWithCustomParser file [" << m_file->GetName() << "], filter [" << filterEntry->m_selector->m_expression << "], selected [" << list->GetN() << "]"  << std::endl;
+   
    return true;
 }
-*/

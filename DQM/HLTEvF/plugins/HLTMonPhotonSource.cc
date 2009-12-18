@@ -237,7 +237,7 @@ template <class T> void HLTMonPhotonSource::fillHistos(edm::Handle<trigger::Trig
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HLTMonPhotonSource::beginJob()
+HLTMonPhotonSource::beginJob(const edm::EventSetup&)
 {
   nev_ = 0;
   DQMStore *dbe = 0;

@@ -7,7 +7,7 @@
 <use name=DQMServices/ClientConfig>
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=Geometry/CaloGeometry>
-<use name=CondTools/Hcal>
+
 <use name=xerces-c>
 
 <export>

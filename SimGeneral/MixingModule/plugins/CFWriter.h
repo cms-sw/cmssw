@@ -37,7 +37,7 @@ class CFWriter : public edm::EDProducer
   
   virtual ~CFWriter();
   
-  void beginJob() {}
+  void beginJob(edm::EventSetup const& setup);
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   virtual void put(edm::Event &e) {;}

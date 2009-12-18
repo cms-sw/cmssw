@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.51 2009/11/05 13:58:59 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.52 2009/11/05 22:06:02 dmytro Exp $
 //
 
 #define private public
@@ -27,6 +27,7 @@
 #include "TEveProjectionManager.h"
 #include "TEveScene.h"
 #include "TGLViewer.h"
+#include "RVersion.h"
 //EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
 #define private public
 #include "TGLEmbeddedViewer.h"
@@ -117,7 +118,11 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_cameraMatrix(0)
 {
    TEveViewer* nv = new TEveViewer(iName.c_str());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer(0);
+#else
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+#endif
    iParent->ReplaceWindow(nv);
    gEve->GetViewers()->AddElement(nv);
 

@@ -107,8 +107,8 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       l->setLumiError(lumisummary->InstantLumiErr);      
       std::cout<<"lumi qlt "<<lumisummary->InstantLumiQlty<<std::endl;
       l->setLumiQuality(lumisummary->InstantLumiQlty);
-      //std::cout<<"lumi deadtimenorm "<<lumisummary->DeadTimeNormalization<<std::endl;
-      
+      std::cout<<"lumi deadtimenorm "<<lumisummary->DeadTimeNormalization<<std::endl;
+      l->setDeadFraction(lumisummary->DeadTimeNormalization);
       
       std::vector<lumi::BunchCrossingInfo> bxinfoET;
       bxinfoET.reserve(3564);
@@ -169,9 +169,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       }
       l->setHLTData(hltinfo);
       l->setTriggerData(triginfo);
-      float deadfraction=(l1data->deadtimecount)*25E-06/93.244;
-      l->setDeadFraction(deadfraction);
-      std::cout<<"l1 deadfraction "<<deadfraction<<std::endl;
+
       result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
     }
   }

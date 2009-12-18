@@ -11,21 +11,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 
-/**
-   \class   TtEvtBuilder TtEvtBuilder.h "TopQuarkAnalysis/TopEventProducers/interface/TtEvtBuilder.h"
-
-   \brief    Template class to fill the TtEvent structure
-
-   Template class to fill the TtEvent structure for:
-   
-   * TtSemiLeptonicEvent
-   * TtFullLeptonicEvent
-   * TtFullHadronicEvent
-   
-   event hypothesis, genEvent and extra information (if 
-   available) are read from the event and contracted into 
-   the TtEvent
-*/
+// ----------------------------------------------------------------------
+// template to fill the TtEvent structure for:
+//
+//  * TtSemiLeptonicEvent
+//  * TtFullLeptonicEvent
+//  * TtFullHadronicEvent (still to be implemented)
+//
+//  event hypothesis, genEvent and extra information (if 
+//  available) are read from the event and contracted into 
+//  the TtEvent
+// ----------------------------------------------------------------------
 
 template <typename C>
 class TtEvtBuilder : public edm::EDProducer {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Mike Case
 //         Created:  Fri Jan 16 01:45:49 CET 2009
-// $Id: XMLIdealGeometryESProducer.cc,v 1.7 2009/11/05 17:15:51 case Exp $
+// $Id: XMLIdealGeometryESProducer.cc,v 1.6 2009/11/05 01:19:53 case Exp $
 //
 //
 
@@ -117,11 +117,10 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    edm::ESHandle<GeometryFile> gdd;
    iRecord.getRecord<GeometryFileRcd>().get( "", gdd );
 
-   DDCompactView cpv;
-   DDLParser parser(cpv); //* parser = DDLParser::instance();
-   parser.getDDLSAX2FileHandler()->setUserNS(true);
+   DDLParser * parser = DDLParser::instance();
+   parser->getDDLSAX2FileHandler()->setUserNS(true);
    // 2009-07-09 memory patch
-   parser.clearFiles();
+   parser->clearFiles();
 
    // unlock the memory stores
    DDMaterial::StoreT::instance().setReadOnly(false);
@@ -136,11 +135,11 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
       
    std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
    
-   parser.parse(*tb, tb->size()); 
+   parser->parse(*tb, tb->size()); 
    
    delete tb;
    
-   std::cout << "In XMLIdealGeometryESProducer::produce" << std::endl;
+   std::cout << std::endl;
   // at this point we should have a valid store of DDObjects and we will move these
   // to the local storage area using swaps with the existing Singleton<Store...>'s
   // NOTE TO SELF:  this is similar to the below explicit copy of the graph of the
@@ -162,8 +161,8 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
 
    //copy the graph from the global one
-   //   DDCompactView globalOne;
-   returnValue->swap(cpv);//globalOne);
+   DDCompactView globalOne;
+   returnValue->swap(globalOne);
    
    return returnValue ;
 }

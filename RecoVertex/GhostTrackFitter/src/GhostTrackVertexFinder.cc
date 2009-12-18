@@ -1,4 +1,3 @@
-
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -79,8 +78,6 @@ namespace {
 		result[2] = vec.z();
 		return result;
 	}
-
-	static inline double sqr(double arg) { return arg * arg; }
 }
 
 struct GhostTrackVertexFinder::FinderInfo {
@@ -210,7 +207,7 @@ static RefCountedVertexTrack relinearizeTrack(
 {
 	RefCountedLinearizedTrackState linTrack = track->linearizedTrack();
 	linTrack = linTrack->stateWithNewLinearizationPoint(state.position());
-	return factory.vertexTrack(linTrack, state);
+	return factory.vertexTrack(linTrack, state, track->weight());
 }
 
 static std::vector<RefCountedVertexTrack> relinearizeTracks(
@@ -230,20 +227,7 @@ static std::vector<RefCountedVertexTrack> relinearizeTracks(
 	return finalTracks;
 }
 
-static double vertexCompat(const CachingVertex<5> &vtx1,
-                           const CachingVertex<5> &vtx2,
-                           double scale1 = 1.0, double scale2 = 1.0)
-{
-	Vector3 diff = conv(vtx2.position() - vtx1.position());
-	Matrix3S cov = scale1 * vtx1.error().matrix_new() +
-	               scale2 * vtx2.error().matrix_new();
-
-	if (!cov.Invert())
-		return 1.0e6;
-
-	return ROOT::Math::Similarity(cov, diff);
-}
-
+#if 1
 static double trackVertexCompat(const CachingVertex<5> &vtx,
                                 const RefCountedVertexTrack &vertexTrack)
 {
@@ -260,32 +244,22 @@ static double trackVertexCompat(const CachingVertex<5> &vtx,
 
 	GlobalPoint point1 = vtx.position();
 	GlobalPoint point2 = tsos.globalPosition();
-	Vector3 dir = conv(point2 - point1);
-	Matrix3S error = vtx.error().matrix_new() +
-	                 tsos.cartesianError().position().matrix_new();
-	if (!error.Invert())
-		return 1.0e6;
+	Vector3 dir(point1.x() - point2.x(),
+	            point1.y() - point2.y(),
+	            point1.z() - point2.z());
+	GlobalError error = vtx.error() +
+	                    tsos.cartesianError().position();
 
-	return ROOT::Math::Similarity(error, dir);
+	double mag2 = Mag2(dir);
+	return mag2 * mag2 / Similarity(error.matrix_new(), dir);
 }
+#endif
 
 GhostTrackVertexFinder::GhostTrackVertexFinder() :
 	maxFitChi2_(10.0),
 	mergeThreshold_(2.0),
-	primcut_(2.0),
-	seccut_(5.0),
-	alwaysUseGhostTrack_(true)
-{
-}
-
-GhostTrackVertexFinder::GhostTrackVertexFinder(
-		double maxFitChi2, double mergeThreshold, double primcut,
-		double seccut, bool alwaysUseGhostTrack) :
-	maxFitChi2_(maxFitChi2),
-	mergeThreshold_(mergeThreshold),
-	primcut_(primcut),
-	seccut_(seccut),
-	alwaysUseGhostTrack_(alwaysUseGhostTrack)
+	primcut_(2.3),
+	seccut_(2.5)
 {
 }
 
@@ -335,7 +309,7 @@ static void debugTracks(const std::vector<TransientTrack> &tracks, const Transie
 			TrackBaseRef track = iter->trackBaseRef();
 			kin.add(*track);
 		} catch(...) {
-			// ignore, yeah this is debugging, so shut up ^^
+			// ignore
 		}
 	}
 
@@ -508,233 +482,6 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 	return result;
 }
 
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const GlobalPoint &primaryPosition,
-			const GlobalError &primaryError,
-			const GhostTrack &ghostTrack) const
-{
-	CachingVertex<5> primary(primaryPosition, primaryError,
-	                         std::vector<RefCountedVertexTrack>(), 0.);
-
-	std::vector<TransientVertex> result = vertices(ghostTrack, primary);
-
-#ifdef DEBUG
-	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
-	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack.prediction());
-#endif
-
-	return result;
-}
-
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const GlobalPoint &primaryPosition,
-			const GlobalError &primaryError,
-			const BeamSpot &beamSpot,
-			const GhostTrack &ghostTrack) const
-{
-	CachingVertex<5> primary(primaryPosition, primaryError,
-	                         std::vector<RefCountedVertexTrack>(), 0.);
-
-	std::vector<TransientVertex> result =
-				vertices(ghostTrack, primary, beamSpot, true);
-
-#ifdef DEBUG
-	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
-	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack.prediction());
-#endif
-
-	return result;
-}
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const GlobalPoint &primaryPosition,
-			const GlobalError &primaryError,
-			const BeamSpot &beamSpot,
-			const std::vector<TransientTrack> &primaries,
-			const GhostTrack &ghostTrack) const
-{
-	std::vector<RefCountedVertexTrack> primaryVertexTracks;
-	if (!primaries.empty()) {
-		LinearizedTrackStateFactory linTrackFactory;
-		VertexTrackFactory<5> vertexTrackFactory;
-
-		VertexState state(primaryPosition, primaryError);
-
-		for(std::vector<TransientTrack>::const_iterator iter =
-			primaries.begin(); iter != primaries.end(); ++iter) {
-
-			RefCountedLinearizedTrackState linState =
-				linTrackFactory.linearizedTrackState(
-						primaryPosition, *iter);
-
-			primaryVertexTracks.push_back(
-					vertexTrackFactory.vertexTrack(
-							linState, state));
-		}
-	}
-
-	CachingVertex<5> primary(primaryPosition, primaryError,
-	                         primaryVertexTracks, 0.);
-
-	std::vector<TransientVertex> result =
-			vertices(ghostTrack, primary, beamSpot, true, true);
-
-#ifdef DEBUG
-	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
-	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack.prediction());
-#endif
-
-	return result;
-}
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const Vertex &primaryVertex,
-			const GhostTrack &ghostTrack) const
-{
-	return vertices(RecoVertex::convertPos(primaryVertex.position()),
-	                RecoVertex::convertError(primaryVertex.error()),
-	                ghostTrack);
-}
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const Vertex &primaryVertex,
-			const BeamSpot &beamSpot,
-			const GhostTrack &ghostTrack) const
-{
-	return vertices(RecoVertex::convertPos(primaryVertex.position()),
-	                RecoVertex::convertError(primaryVertex.error()),
-	                beamSpot, ghostTrack);
-}
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const Vertex &primaryVertex,
-			const BeamSpot &beamSpot,
-			const std::vector<TransientTrack> &primaries,
-			const GhostTrack &ghostTrack) const
-{
-	return vertices(RecoVertex::convertPos(primaryVertex.position()),
-	                RecoVertex::convertError(primaryVertex.error()),
-	                beamSpot, primaries, ghostTrack);
-}
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const Vertex &primaryVertex,
-			const Track &ghostTrack,
-			const std::vector<TransientTrack> &tracks,
-                        const std::vector<float> &weights) const
-{
-	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
-	                       GhostTrackPrediction(),
-	                       RecoVertex::convertPos(
-	                       			primaryVertex.position()),
-	                       true);
-
-	CachingVertex<5> primary(
-			RecoVertex::convertPos(primaryVertex.position()),
-	                RecoVertex::convertError(primaryVertex.error()),
-			std::vector<RefCountedVertexTrack>(), 0.);
-
-	std::vector<TransientVertex> result = vertices(ghostTrack_, primary);
-
-#ifdef DEBUG
-	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
-	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack_.prediction());
-#endif
-
-	return result;
-}
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const Vertex &primaryVertex,
-			const Track &ghostTrack,
-			const BeamSpot &beamSpot,
-			const std::vector<TransientTrack> &tracks,
-                        const std::vector<float> &weights) const
-{
-	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
-	                       GhostTrackPrediction(),
-	                       RecoVertex::convertPos(primaryVertex.position()),
-	                       true);
-
-	CachingVertex<5> primary(
-			RecoVertex::convertPos(primaryVertex.position()),
-	                RecoVertex::convertError(primaryVertex.error()),
-			std::vector<RefCountedVertexTrack>(), 0.);
-
-	std::vector<TransientVertex> result =
-			vertices(ghostTrack_, primary, beamSpot, true);
-
-#ifdef DEBUG
-	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
-	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack_.prediction());
-#endif
-
-	return result;
-}
-
-std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
-			const Vertex &primaryVertex,
-			const Track &ghostTrack,
-			const BeamSpot &beamSpot,
-			const std::vector<TransientTrack> &primaries,
-			const std::vector<TransientTrack> &tracks,
-                        const std::vector<float> &weights) const
-{
-	GhostTrack ghostTrack_(ghostTrack, tracks, weights,
-	                       GhostTrackPrediction(),
-	                       RecoVertex::convertPos(primaryVertex.position()),
-	                       true);
-
-	std::vector<RefCountedVertexTrack> primaryVertexTracks;
-	if (!primaries.empty()) {
-		LinearizedTrackStateFactory linTrackFactory;
-		VertexTrackFactory<5> vertexTrackFactory;
-
-		VertexState state(
-		        RecoVertex::convertPos(primaryVertex.position()),
-	                RecoVertex::convertError(primaryVertex.error()));
-
-		for(std::vector<TransientTrack>::const_iterator iter =
-			primaries.begin(); iter != primaries.end(); ++iter) {
-
-			RefCountedLinearizedTrackState linState =
-				linTrackFactory.linearizedTrackState(
-						state.position(), *iter);
-
-			primaryVertexTracks.push_back(
-					vertexTrackFactory.vertexTrack(
-							linState, state));
-		}
-	}
-
-	CachingVertex<5> primary(
-			RecoVertex::convertPos(primaryVertex.position()),
-	                RecoVertex::convertError(primaryVertex.error()),
-			primaryVertexTracks, 0.);
-
-	std::vector<TransientVertex> result =
-			vertices(ghostTrack_, primary, beamSpot, true, true);
-
-#ifdef DEBUG
-	for(std::vector<TransientVertex>::const_iterator iter = result.begin();
-	    iter != result.end(); ++iter)
-		debugVertex(*iter, ghostTrack_.prediction());
-#endif
-
-	return result;
-}
-
-static double fitChi2(const CachingVertex<5> &vtx)
-{
-	return vtx.totalChiSquared() / (vtx.degreesOfFreedom() + 3.0);
-}
-
 std::vector<CachingVertex<5> > GhostTrackVertexFinder::initialVertices(
 						const FinderInfo &info) const
 {
@@ -754,7 +501,7 @@ std::vector<CachingVertex<5> > GhostTrackVertexFinder::initialVertices(
 		CachingVertex<5> vtx = vertexAtState(info.ghostTrack,
 		                                     info.pred, state);
 
-		if (vtx.isValid() && fitChi2(vtx) < maxFitChi2_)
+		if (vtx.isValid() && vtx.totalChiSquared() < maxFitChi2_)
 			vertices.push_back(vtx);
 	}
 
@@ -803,11 +550,8 @@ CachingVertex<5> GhostTrackVertexFinder::mergeVertices(
 	mergeTrackHelper(vertex2.tracks(), linTracks, state,
 	                 isGhostTrack, vtxGhostTrack, vertexTrackFactory);
 
-	if (vtxGhostTrack && (alwaysUseGhostTrack_ || linTracks.size() < 2))
-		linTracks.push_back(
-			vertexTrackFactory.vertexTrack(
-				vtxGhostTrack->linearizedTrack(),
-				vtxGhostTrack->vertexState()));
+	if (vtxGhostTrack)
+		linTracks.push_back(vtxGhostTrack);
 
 	try {
 		CachingVertex<5> vtx;
@@ -839,8 +583,10 @@ bool GhostTrackVertexFinder::recursiveMerge(
 		for(unsigned int j = i + 1; j < n; j++) {
 			const CachingVertex<5> &v2 = vertices[j];
 
-			float compat = vertexCompat(v1, v2,
-					i == 0 ? primcut_ : seccut_, seccut_);
+			float compat = VertexDistance3D().distance(
+			               			v1.vertexState(),
+			               			v2.vertexState()
+			               		).significance();
 
 			if (compat > mergeThreshold_)
 				continue;
@@ -899,9 +645,10 @@ bool GhostTrackVertexFinder::recursiveMerge(
 					continue;
 
 				const CachingVertex<5> &other = vertices[i];
-				float compat = vertexCompat(newVtx, other,
-					i == 0 || v1 == 0 ? primcut_ : seccut_,
-					i == 0 || v1 == 0 ? primcut_ : seccut_);
+				float compat = VertexDistance3D().distance(
+			               			newVtx.vertexState(),
+			               			other.vertexState()
+			               		).significance();
 
 				if (compat > mergeThreshold_)
 					continue;
@@ -930,6 +677,7 @@ bool GhostTrackVertexFinder::reassignTracks(
 	                      std::vector<RefCountedVertexTrack> > >
 					trackBundles(vertices_.size());
 
+//	KalmanVertexTrackCompatibilityEstimator<5> trackVertexCompat;
 	VtxTrackIs isGhostTrack(info.ghostTrack);
 
 	bool assignmentChanged = false;
@@ -965,13 +713,18 @@ bool GhostTrackVertexFinder::reassignTracks(
 				continue;
 			}
 
-			unsigned int idx = iter - vertices_.begin();;
+			unsigned int idx = 0;
 			double best = 1.0e9;
 			for(std::vector<CachingVertex<5> >::const_iterator
 						vtx = vertices_.begin();
 			    vtx != vertices_.end(); ++vtx) {
 				double compat =
-					sqr(trackVertexCompat(*vtx, *track));
+#if 1
+					trackVertexCompat(*vtx, *track);
+#else
+					trackVertexCompat.estimate(*vtx,
+					                           *track);
+#endif
 
 				compat /= (vtx == vertices_.begin()) ?
 							primcut_ : seccut_;
@@ -1028,10 +781,9 @@ bool GhostTrackVertexFinder::reassignTracks(
 			std::vector<RefCountedVertexTrack> linTracks =
 				relinearizeTracks(tracks, iter->vertexState());
 
-			if (alwaysUseGhostTrack_)
-				linTracks.push_back(relinearizeTrack(
-					trackBundles[iter - vertices_.begin()].first,
-					iter->vertexState(), vertexTrackFactory));
+			linTracks.push_back(relinearizeTrack(
+				trackBundles[iter - vertices_.begin()].first,
+				iter->vertexState(), vertexTrackFactory));
 
 			bool primary = iter == vertices_.begin();
 			if (primary && info.hasBeamSpot)
@@ -1085,7 +837,7 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 
 		debugVertex(*iter, ghostTrack.prediction());
 
-		std::cout << "----- recursive merging: ---------" << std::endl;
+	std::cout << "----- recursive merging: ---------" << std::endl;
 #endif
 
 		recursiveMerge(vertices, info);

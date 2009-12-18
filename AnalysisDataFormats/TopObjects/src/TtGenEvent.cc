@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.28 2009/10/09 12:59:25 llista Exp $
+// $Id: TtGenEvent.cc,v 1.27 2009/05/08 17:10:24 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -8,11 +8,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
-/// default contructor from decaySubset and initSubset
-TtGenEvent::TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset)
+TtGenEvent::TtGenEvent(reco::GenParticleRefProd & parts, reco::GenParticleRefProd & inits)
 {
-  parts_ = decaySubset;
-  initPartons_= initSubset;
+  parts_ = parts;
+  initPartons_= inits;
 }
 
 WDecay::LeptonType 
@@ -285,6 +284,62 @@ TtGenEvent::leptonicDecayTop(bool excludeTauLeptons) const
         cand = &partsColl[i];
       }
     }
+  }
+  return cand;
+}
+
+const reco::GenParticle* 
+TtGenEvent::lightQFromTopBar() const 
+{
+  const reco::GenParticle* cand=0;
+  const reco::GenParticleCollection & partsColl = *parts_;
+  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==-TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])>0){
+      cand = &partsColl[i];
+    }
+  }
+  return cand;
+}
+
+const reco::GenParticle* 
+TtGenEvent::lightQBarFromTopBar() const 
+{
+  const reco::GenParticle* cand=0;
+  const reco::GenParticleCollection & partsColl = *parts_;
+  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==-TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])<0){
+      cand = &partsColl[i];
+    }
+  }
+  return cand;
+}
+
+const reco::GenParticle* 
+TtGenEvent::lightQFromTop() const 
+{
+  const reco::GenParticle* cand=0;
+  const reco::GenParticleCollection & partsColl = *parts_;
+  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])>0){
+      cand = &partsColl[i];
+    }  
+  }
+  return cand;
+}
+
+const reco::GenParticle* 
+TtGenEvent::lightQBarFromTop() const 
+{
+  const reco::GenParticle* cand=0;
+  const reco::GenParticleCollection & partsColl = *parts_;
+  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==TopDecayID::WID &&
+       abs(partsColl[i].pdgId())<TopDecayID::bID && reco::flavour(partsColl[i])<0){
+      cand = &partsColl[i];
+    }  
   }
   return cand;
 }

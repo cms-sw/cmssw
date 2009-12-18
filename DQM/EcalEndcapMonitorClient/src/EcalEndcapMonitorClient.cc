@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/11/04 10:54:54 $
- * $Revision: 1.229 $
+ * $Date: 2009/10/28 08:18:23 $
+ * $Revision: 1.228 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -202,6 +202,14 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
     } else {
       cout << " enableCleanup switch is OFF" << endl;
     }
+  }
+
+  // DQM Client name
+
+  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalEndcapMonitorClient");
+
+  if ( verbose_ ) {
+    cout << " Client '" << clientName_ << "' " << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 18).

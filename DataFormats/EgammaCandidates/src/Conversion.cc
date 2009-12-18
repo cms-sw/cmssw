@@ -186,7 +186,7 @@ double  Conversion::EoverP() const  {
 std::vector<double>  Conversion::tracksSigned_d0() const  {
   std::vector<double> result;
 
-  for (int i=0; i< nTracks(); i++)   
+  for (unsigned int i=0; i< nTracks(); i++)   
     result.push_back(tracks()[i]->d0()* tracks()[i]->charge()) ;
 
   return result;

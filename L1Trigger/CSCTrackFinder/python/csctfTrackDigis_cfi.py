@@ -76,7 +76,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		curvedp = cms.uint32(200),
 		
 		mbaPhiOff = cms.uint32(0),
-		mbbPhiOff = cms.uint32(0),
+		mbbPhiOff = cms.uint32(1982),
 
         kill_fiber         = cms.uint32(0),
         QualityEnableME1a  = cms.uint32(65535),

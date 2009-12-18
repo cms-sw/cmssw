@@ -4,8 +4,8 @@
  * \author Andrea Gozzelino - Universita%Gï¿½%@ e INFN Torino
  * \author Stefano Argiro
  *        
- * $Date: 2009/09/22 13:49:52 $
- * $Revision: 1.1 $
+ * $Date: 2009/06/25 08:24:31 $
+ * $Revision: 1.2 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -114,7 +114,7 @@ HLTAlCaMonEcalPhiSym::~HLTAlCaMonEcalPhiSym()
 
 
 //--------------------------------------------------------
-void HLTAlCaMonEcalPhiSym::beginJob(){
+void HLTAlCaMonEcalPhiSym::beginJob(const EventSetup& context){
 
 
   // create and cd into new folder

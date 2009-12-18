@@ -7,7 +7,7 @@ CondDBSetup.DBParameters.authenticationPath = cms.untracked.string('/build/digui
 
 ReferenceRetrieval = cms.ESSource("PoolDBESSource",
                                   CondDBSetup,
-                                  connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_DQM_SUMMARY'),
+                                  connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_TEMP'),
                                   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                   messageLevel = cms.untracked.int32(1), #3 for high verbosity
                                   timetype = cms.string('runnumber'),

@@ -13,7 +13,6 @@ ecalPrescaler = cms.EDFilter("EcalMonitorPrescaler",
     pedestaloffsetPrescaleFactor = cms.untracked.int32(1),
     triggertowerPrescaleFactor = cms.untracked.int32(1),
     timingPrescaleFactor = cms.untracked.int32(1),
-    physicsPrescaleFactor = cms.untracked.int32(1),
     clusterPrescaleFactor = cms.untracked.int32(1)
 )
 

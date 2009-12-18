@@ -36,13 +36,13 @@ class DDLVector : public DDXMLElement
 
  public:
 
-  DDLVector( DDLElementRegistry* myreg );
+  DDLVector();
 
   ~DDLVector();
 
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  void preProcessElement (const std::string& name, const std::string& nmspace);
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  void processElement (const std::string& name, const std::string& nmspace);
 
   void clearall();
 

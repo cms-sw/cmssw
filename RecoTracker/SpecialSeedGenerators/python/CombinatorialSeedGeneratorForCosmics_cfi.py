@@ -106,7 +106,6 @@ combinatorialcosmicseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
             PropagationDirection = cms.string('oppositeToMomentum'),
             NavigationDirection = cms.string('insideOut')
         )),
-    MaxNumberOfCosmicClusters = cms.uint32(300),
     UseScintillatorsConstraint = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     LowerScintillatorParameters = cms.PSet(
@@ -124,6 +123,9 @@ combinatorialcosmicseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
     CheckHitsAreOnDifferentLayers = cms.bool(False),
     SetMomentum = cms.bool(True),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+    MaxNumberOfCosmicClusters = cms.uint32(300),
+    PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
+    MaxNumberOfPixelClusters = cms.uint32(300),
     requireBOFF = cms.bool(False),
     maxSeeds = cms.int32(10000),
 )

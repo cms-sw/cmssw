@@ -1,5 +1,5 @@
 //
-// $Id: PATMHTProducer.cc,v 1.4.2.2 2009/07/20 19:37:41 xshi Exp $
+// $Id: PATMHTProducer.cc,v 1.5 2009/11/10 22:15:25 xshi Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"
@@ -100,7 +100,9 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // calculate the MHT significance
 
-    double significance = ASignificance(physobjvector_, met_et, met_phi, met_set);
+    metsig::significanceAlgo signifAlgo;
+    signifAlgo.addObjects(physobjvector_);
+    double significance = signifAlgo.significance(met_et,met_phi,met_set);
     
     met_x=met_et*cos(met_phi);
     met_y=met_et*sin(met_phi);
@@ -502,8 +504,6 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
   muonCorrUncertainty.phiUncertainty->SetParameter(0,0.0*(3.14159/180.)); */
  
 }
-
-
 
 
 using namespace pat; 

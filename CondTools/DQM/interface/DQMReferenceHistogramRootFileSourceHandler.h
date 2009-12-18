@@ -4,11 +4,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 //#include "CondFormats/Common/interface/Time.h"
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include <string>
 
 namespace popcon {
-  class DQMReferenceHistogramRootFileSourceHandler : public popcon::PopConSourceHandler<GeometryFile> {
+  class DQMReferenceHistogramRootFileSourceHandler : public popcon::PopConSourceHandler<FileBlob> {
    public:
     DQMReferenceHistogramRootFileSourceHandler(const edm::ParameterSet & pset);
     ~DQMReferenceHistogramRootFileSourceHandler();

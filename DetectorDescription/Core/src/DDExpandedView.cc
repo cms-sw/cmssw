@@ -12,25 +12,23 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
    depth_(0), worldpos_(0)
 {
     DCOUT('C', "Building a DDExpandedView" );
-    DDRotation::StoreT::instance().setReadOnly(false);
+   DDRotation::StoreT::instance().setReadOnly(false);
     static DDPosData s_worldpos = DDPosData(DDTranslation(),DDRotation(),0);     
-    DDRotation::StoreT::instance().setReadOnly(true);
-    
-    worldpos_ =  &s_worldpos;
-    //new DDPosData(trans_,DDRotation(DDName("","")),0);    
+   DDRotation::StoreT::instance().setReadOnly(true);
+
+    worldpos_ =  &s_worldpos;//new DDPosData(trans_,DDRotation(DDName("","")),0);    
     //const DDLogicalPart & rt = cpv.root(); 
     
-    // w2_ = DDCompactView::walker_type(cpv.graph(), rt);
+   // w2_ = DDCompactView::walker_type(cpv.graph(), rt);
     walker_ = &w2_;
-    /*					     
-					    walker_ = new DDCompactView::walker_type(cpv.graph(), 
-					    rt);
-    */    
+/*					     
+    walker_ = new DDCompactView::walker_type(cpv.graph(), 
+                                             rt);
+*/    
     DCOUT('C', "Walker: current.first=" << (*walker_).current().first);
     DCOUT('C', "Walker: current.second=" << (*walker_).current().second);
 					     
     DDPosData * pd((*walker_).current().second);
-    //    assert(pd);
     if (!pd)
       pd = worldpos_;  
     DDExpandedNode expn((*walker_).current().first,

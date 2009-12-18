@@ -12,9 +12,11 @@
 <use name=Geometry/Records>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
-<use name=SimDataFormats/GeneratorProducts>
+<use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/TrackerDigiSimLink>
 <use name=SimGeneral/HepPDTRecord>
+<use name=SimGeneral/NoiseGenerators>
 <use name=SimMuon/Neutron>
 <use name=Utilities/General>
 <use name=Utilities/Timing>

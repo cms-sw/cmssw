@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.4 2009/05/09 00:50:13 elmer Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.5 2009/11/18 23:03:16 lsexton Exp $
 //
 #include <string>
 #include <iostream>
@@ -70,12 +70,12 @@ HcalDbPoolOCCI::~HcalDbPoolOCCI () {
 }
 
 bool HcalDbPoolOCCI::getObject (HcalPedestals* fObject, const std::string& fTag, unsigned long fRun) {
-  HcalPedestal* myped;
+  HcalPedestal* myped(0);
   return getObjectGeneric (fObject, myped, fTag, fRun);
 }
 
 bool HcalDbPoolOCCI::getObject (HcalGains* fObject, const std::string& fTag, unsigned long fRun) {
-  HcalGain* mygain;
+  HcalGain* mygain(0);
   return getObjectGeneric (fObject, mygain, fTag, fRun);
 }
 

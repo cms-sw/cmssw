@@ -26,7 +26,7 @@
 //#include <strstream>
 
 // Default constructor
-DDLSolid::DDLSolid(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
+DDLSolid::DDLSolid()
 {
 }
 
@@ -35,21 +35,21 @@ DDLSolid::~DDLSolid()
 {
 }
 
-void DDLSolid::setReference (const std::string& nmspace, DDCompactView& cpv)
+void DDLSolid::setReference (const std::string& nmspace)
 {
   // in case it was a BooleanSolid or a ReflectionSolid, clear rSolid.
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid");
+  DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid");
   myrSolid->clear();
 
   // Make sure Solid elements are in LogicalPart elements.
   if (parent() == "LogicalPart")
     {
-      DDXMLElement* refsol = myRegistry_->getElement("rSolid");
+      DDXMLElement* refsol = DDLElementRegistry::getElement("rSolid");
       std::vector<std::string> names;
       std::vector<std::string> values;
       names.push_back("name");
       values.push_back(getAttributeSet().find("name")->second);
-      refsol->loadAttributes("rSolid", names, values, nmspace, cpv);
+      refsol->loadAttributes("rSolid", names, values, nmspace);
     }
 
   // clear THIS solid's values.

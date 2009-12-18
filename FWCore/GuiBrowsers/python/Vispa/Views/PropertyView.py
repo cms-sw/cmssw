@@ -2,7 +2,7 @@ import logging
 import sys
 
 from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication,QSize
-from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon,QHeaderView
+from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon,QHeaderView,QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Main.AbstractTab import AbstractTab
@@ -237,14 +237,8 @@ class PropertyView(QTableWidget, AbstractView):
             return True
         self._ignoreValueChangeFlag = True  # prevent infinite loop
         operationId = self._operationId
-        thread = ThreadChain(self.dataAccessor().properties, self.dataObject())
-        while thread.isRunning():
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
-        if operationId != self._operationId:
-            self._updatingFlag-=1
-            return False
-        for property in thread.returnValue():
+        # do not use threads here since this may lead to crashes
+        for property in self.dataAccessor().properties(self.dataObject()):
             if property[0] == "Category":
                 self.addCategory(property[1])
             else:
@@ -299,12 +293,19 @@ class PropertyView(QTableWidget, AbstractView):
         The DataAcessor is called to handle the property change.
         """
         if self.dataAccessor() and not self._ignoreValueChangeFlag:
+            bad=False
             if property.value() != self.dataAccessor().propertyValue(self.dataObject(), property.name()):
-                if property.value()!=None and self.dataAccessor().setProperty(self.dataObject(), property.name(), property.value()):
-                    property.setHighlighted(False)
+                if isinstance(property.value(),ValueError):
+                    result=str(property.value())
+                else:
+                    result=self.dataAccessor().setProperty(self.dataObject(), property.name(), property.value())
+                if result==True:
                     self.emit(SIGNAL('valueChanged'),property.name())
                 else:
-                    property.setHighlighted(True)
+                    property.setToolTip(result)
+                    QMessageBox.critical(self.parent(), 'Error', result)
+                    bad=True
+            property.setHighlighted(bad)
 
     def removeProperty(self, bool=False):
         """ This function deletes a property.
@@ -326,7 +327,7 @@ class PropertyView(QTableWidget, AbstractView):
         The DataAcessor is called to add the property.
         """
         type=str(self.sender()._typelist.currentText())
-        name=str(self.sender()._lineedit.text())
+        name=str(self.sender()._lineedit.text().toAscii())
         if type in ["String","File"]:
             value=""
         elif type in ["Integer","Double"]:
@@ -562,16 +563,19 @@ class TextEditWithButtonProperty(Property, QWidget):
             self.disconnect(self._lineEdit, SIGNAL('editingFinished()'), self.valueChanged)
             self.disconnect(self._textEdit, SIGNAL('editingFinished()'), self.valueChanged)
         self._lineEdit.setText(strValue)
-        self._lineEdit.setToolTip(strValue)
         self._textEdit.setText(strValue)
-        self._textEdit.setToolTip(strValue)
+        self.setToolTip(strValue)
         if not self._readOnly:
             self.connect(self._lineEdit, SIGNAL('editingFinished()'), self.valueChanged)
             self.connect(self._textEdit, SIGNAL('editingFinished()'), self.valueChanged)
         # TODO: sometimes when changing value the text edit appears to be empty when new text is shorter than old text
         #if not self._multiline:
         #    self._textEdit.setCursorPosition(self._textEdit.displayText().length())
-                
+    
+    def setToolTip(self,text):
+        self._lineEdit.setToolTip(text)
+        self._textEdit.setToolTip(text)
+
     def setMultiline(self,multi):
         """ Switch between single and multi line mode.
         """
@@ -677,9 +681,9 @@ class TextEditWithButtonProperty(Property, QWidget):
         """ Returns value of text edit.
         """
         if not self._multiline:
-            return str(self._lineEdit.text())
+            return str(self._lineEdit.text().toAscii())
         else:
-            return str(self._textEdit.toPlainText())
+            return str(self._textEdit.toPlainText().toAscii())
         return ""
     
     def value(self):
@@ -716,9 +720,10 @@ class TextEditWithButtonProperty(Property, QWidget):
         """
         if self._multiline:
             self.emit(SIGNAL('updatePropertyHeight'),self)
-        self._lineEdit.setToolTip(self.strValue())
-        self._textEdit.setToolTip(self.strValue())
-        Property.valueChanged(self)
+        self.setToolTip(self.strValue())
+        # set property only if button is not being pressed
+        if not self.button() or not self.button().isVisible():
+            Property.valueChanged(self)
         
     def setHighlighted(self,highlight):
         """ Highlight the property by changing the background color of the textfield.
@@ -760,7 +765,7 @@ class EditDialog(QDialog):
         self.edit.setFocus()
         self.edit.moveCursor(QTextCursor.End)
     def getText(self):
-        return self.edit.toPlainText()
+        return self.edit.toPlainText().toAscii()
           
 
 class StringProperty(TextEditWithButtonProperty):
@@ -797,13 +802,13 @@ class StringProperty(TextEditWithButtonProperty):
             self._textEdit.setFocus()
             self._textEdit.setText(self.strValue()+"\n")
             self._textEdit.moveCursor(QTextCursor.End)
+            self.emit(SIGNAL('updatePropertyHeight'),self)
         else:
             dialog=EditDialog(self,self.strValue())
             if dialog.exec_():
                 textEdit=dialog.getText()
                 self.setValue(textEdit)
                 self.valueChanged()
-        self.emit(SIGNAL('updatePropertyHeight'),self)
 
         
 class IntegerProperty(Property,QWidget):
@@ -896,7 +901,7 @@ class DoubleProperty(TextEditWithButtonProperty):
             try:
                 return float.fromhex(TextEditWithButtonProperty.value(self))
             except:
-                return None
+                return ValueError("Entered value is not of type double.")
     
 class FileProperty(TextEditWithButtonProperty):
     """ TextEditWithButtonProperty which holds file names.

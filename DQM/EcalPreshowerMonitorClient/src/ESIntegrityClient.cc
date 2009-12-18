@@ -117,11 +117,6 @@ void ESIntegrityClient::setup(void) {
       meKCHIP_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       meKCHIP_[i][j]->setAxisTitle("Si X", 1);
       meKCHIP_[i][j]->setAxisTitle("Si Y", 2);
-
-      sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j+1);
-      meDIErrors_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
-      meDIErrors_[i][j]->setAxisTitle("Si X", 1);
-      meDIErrors_[i][j]->setAxisTitle("Si Y", 2);
     }
 }
 
@@ -321,7 +316,6 @@ void ESIntegrityClient::analyze(void) {
 	  } 
 	  
 	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
-	  meDIErrors_[iz][ip]->setBinContent(ix+1, iy+1, nDI_FedErr[fed_[iz][ip][ix][iy]-520]);
 	}
   
 }

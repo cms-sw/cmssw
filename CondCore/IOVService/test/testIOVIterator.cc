@@ -7,7 +7,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include <iostream>
 #include <algorithm>
@@ -32,12 +31,25 @@ namespace {
 	     << std::endl;
   }
   
-  void print(cond::PayloadProxy<cond::IOVElement> & data, cond::Time_t time) {
+  void printT(cond::PayloadProxy<cond::IOVElement> & data, cond::Time_t time) {
     cond::ValidityInterval iov = data.setIntervalFor(time);
     data.make();
     std::cout << "for " << time
 	     <<": since "<< iov.first
 	     <<", till "<< iov.second;
+    if (data.isValid()) 
+      std::cout    <<". Message "<< data().wrapperToken()
+		   <<", since "<< data().sinceTime();
+    else 
+      std::cout << ". No data";
+    std::cout << std::endl;
+  }
+
+  void printN(cond::PayloadProxy<cond::IOVElement> & data, size_t n) {
+    cond::ValidityInterval iov = data.loadFor(n);
+    std::cout << "for " << n
+	      <<": since "<< iov.first
+	      <<", till "<< iov.second;
     if (data.isValid()) 
       std::cout    <<". Message "<< data().wrapperToken()
 		   <<", since "<< data().sinceTime();
@@ -75,36 +87,16 @@ int main(){
     pooldb.open("sqlite_file:mytest.db");
     pooldb.transaction().start(false);
     cond::IOVService iovmanager( pooldb );
-    cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(cond::timestamp,60);
-    Add add(pooldb,*editor);
+    cond::IOVEditor editor( pooldb );
+    editor.create(cond::timestamp,60);
+    Add add(pooldb, editor);
     add(1,"pay1");
     add(21,"pay2");
     add(41,"pay3");
     pooldb.transaction().commit();
-    std::string iovtok=editor->token();
-    ///test iterator
-    // forward
-    cond::IOVIterator* it=iovmanager.newIOVIterator(iovtok);
-    std::cout<<"test forward iterator "<<std::endl;
+    std::string iovtok=editor.token();
+
     pooldb.transaction().start(true);
-    std::cout << "size " << it->size()
-	      <<", Time Type " << it->timetype() << std::endl;
-    while( it->next() ){
-      std::cout<<"payloadToken "<< oid(it->payloadToken());
-      std::cout<<", since "<<it->validity().first;
-      std::cout<<", till "<<it->validity().second<<std::endl;
-    }
-    delete it;
-    // backward
-    it=iovmanager.newIOVIterator(iovtok,cond::IOVService::backwardIter);
-    std::cout<<"test reverse iterator "<<std::endl;
-    while( it->next() ){
-      std::cout<<"payloadToken "<< oid(it->payloadToken());
-      std::cout<<", since "<<it->validity().first;
-      std::cout<<", till "<<it->validity().second<<std::endl;
-    }
-    delete it;
 
     std::cout<<"is 30 valid? "<<iovmanager.isValid(iovtok,30)<<std::endl;
     std::pair<cond::Time_t, cond::Time_t> v =  iovmanager.validity(iovtok,30);
@@ -112,7 +104,6 @@ int main(){
     std::cout<<"30 token "<< iovmanager.payloadToken(iovtok,30)<<std::endl;
 
     pooldb.transaction().commit();
-    delete editor;
     // use Proxy
     {
       std::cout<<"test proxy "<<std::endl;
@@ -139,26 +130,33 @@ int main(){
       pooldb.close();
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
+      std::cout << "head 2" << std::endl;
       iov.head(2);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
-      std::cout << "range 3,23,43,63" << std::endl;
+      std::cout << "find 3,23,43,63" << std::endl;
       print(*iov.find(3));
       print(*iov.find(23));
       print(*iov.find(43));
       print(*iov.find(63));
       iov.setRange(1,90);
       print(*iov.find(63));
+      iov.resetRange();
+      std::cout << "back" << std::endl;
+      print(*(iov.end()-1));
+      iov.tail(1);
+      print(*iov.begin());
+
     }
     {
       pooldb.open("sqlite_file:mytest.db");
       // test PayloadProxy
       cond::PayloadProxy<cond::IOVElement> data(pooldb,iovtok,false);
-      print(data,3);
-      print(data,21);
-      print(data,33);
-      print(data,43);
-      print(data,21);
-      print(data,63);
+      printT(data,3);
+      printT(data,21);
+      printT(data,33);
+      printT(data,43);
+      printT(data,21);
+      printT(data,63);
       std::cout << "test refresh" << std::endl;
       // test refresh
       if (data.refresh()) std::cout << "error!, what refresh..." << std::endl;
@@ -167,22 +165,22 @@ int main(){
         cond::DbSession pooldb2 = connection.createSession();
         pooldb2.open("sqlite_file:mytest.db");
         pooldb2.transaction().start(false);
-        cond::IOVService iovmanager2(pooldb2);
-        cond::IOVEditor* editor=iovmanager2.newIOVEditor(iovtok);
-        Add add(pooldb2,*editor);
+	cond::IOVEditor editor(pooldb2,iovtok);
+        Add add(pooldb2, editor);
         add(54,"pay54");
-        delete editor;
         pooldb2.transaction().commit();
       }
       if (!data.refresh()) std::cout << "error!, NO refresh..." << std::endl;
       std::cout << " size " << data.iov().size() << std::endl;
-      print(data,3);
-      print(data,21);
-      print(data,33);
-      print(data,43);
-      print(data,54);
-      print(data,57);
-      print(data,63);
+      printT(data,3);
+      printT(data,21);
+      printT(data,33);
+      printT(data,43);
+      printT(data,54);
+      printT(data,57);
+      printT(data,63);
+      for (size_t i=0; i<data.iov().size()+2; i+=2) 
+	printN(data,i);
     }
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;

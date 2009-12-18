@@ -897,9 +897,9 @@ EcalHitMaker::buildGeometry()
 
 
 
-// depth is in X0 
+// depth is in X0 , L0 (depending on EMSHOWER/HADSHOWER) or in CM if inCM
 bool 
-EcalHitMaker::getPads(double depth) 
+EcalHitMaker::getPads(double depth,bool inCm) 
 {
   //std::cout << " New depth " << depth << std::endl;
   // The first time, the relationship between crystals must be calculated
@@ -910,7 +910,10 @@ EcalHitMaker::getPads(double depth)
 
   radiusFactor_ = (EMSHOWER) ? moliereRadius*radiusCorrectionFactor_:interactionLength;
   detailedShowerTail_ = false;
-  currentdepth_ = depth+X0depthoffset_;
+  if(EMSHOWER)
+    currentdepth_ = depth+X0depthoffset_;
+  else
+    currentdepth_ = depth;
   
 //  if(currentdepth_>maxX0_+ps1TotalX0()+ps2TotalX0()) 
 //    {
@@ -929,14 +932,21 @@ EcalHitMaker::getPads(double depth)
   // Get the depth of the pivot
   std::vector<CaloSegment>::const_iterator segiterator;
   // First identify the correct segment
-  // EM shower 
-  if(EMSHOWER)
-    segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inX0Segment(currentdepth_));
-  
-  //Hadron shower 
-  if(HADSHOWER)
-    segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inL0Segment(currentdepth_));
-  
+
+  if(inCm) // centimeter
+    {
+      segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inSegment(currentdepth_));
+    }
+  else
+    {
+      // EM shower 
+      if(EMSHOWER)
+	segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inX0Segment(currentdepth_));
+      
+      //Hadron shower 
+      if(HADSHOWER)
+	segiterator = find_if(segments_.begin(),segments_.end(),CaloSegment::inL0Segment(currentdepth_));
+    }
   if(segiterator==segments_.end()) 
     {
       std::cout << " FamosGrid: Could not go at such depth " << depth << std::endl;
@@ -957,11 +967,17 @@ EcalHitMaker::getPads(double depth)
   // get the position of the origin
   
   XYZPoint origin;
-  if(EMSHOWER)
-    origin=segiterator->positionAtDepthinX0(currentdepth_);
-  if(HADSHOWER)
-    origin=segiterator->positionAtDepthinL0(currentdepth_);
-
+  if(inCm)
+    {
+      origin=segiterator->positionAtDepthincm(currentdepth_);
+    }
+  else
+    {
+      if(EMSHOWER)
+	origin=segiterator->positionAtDepthinX0(currentdepth_);
+      if(HADSHOWER)
+	origin=segiterator->positionAtDepthinL0(currentdepth_);
+    }
   //  std::cout << " currentdepth_ " << currentdepth_ << " " << origin << std::endl;
   XYZVector newaxis=pivot_.getFirstEdge().Cross(normal_);
 

@@ -245,6 +245,9 @@ namespace edm
   }       
 	       
 
+  void DataMixingModule::beginJob(edm::EventSetup const&iSetup) {
+  }
+
   void DataMixingModule::createnewEDProduct() {
   }
  

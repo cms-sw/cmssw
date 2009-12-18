@@ -7,16 +7,16 @@
 
  Description: Test pixel digis. 
  Barrel & Forward digis. Uses root histos.
- Works with CMSSW_0_9_0_pre3 
  Adopted for the new simLinks. 
+ Added the online detector index. d.k. 11/09
 
- Implementation:
-     <Notes on implementation>
+ Works with CMSSW_3_3_3
+
 */
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.18 2009/02/27 15:53:46 vesna Exp $
+// $Id: PixelDigisTest.cc,v 1.20 2009/11/24 13:13:53 dkotlins Exp $
 //
 //
 // system include files
@@ -47,6 +47,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 // data formats
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -106,9 +107,10 @@ private:
   //TFile* hFile;
   TH1F *hdetunit;
   TH1F *heloss1,*heloss2, *heloss3;
+  TH1F *hneloss1,*hneloss2, *hneloss3;
   TH1F *helossF1,*helossF2;
-  TH1F *hpixid,*hpixsubid,*hlayerid,*hladder1id,*hladder2id,*hladder3id,
-    *hz1id,*hz2id,*hz3id;
+  TH1F *hpixid,*hpixsubid,*hlayerid,*hshellid,*hsectorid,
+    *hladder1id,*hladder2id,*hladder3id,*hz1id,*hz2id,*hz3id;
   TH1F *hcols1,*hcols2,*hcols3,*hrows1,*hrows2,*hrows3;
   TH1F *hcolsF1,*hcolsF2,*hcolsF3,*hrowsF1,*hrowsF2,*hrowsF3;
   TH1F *hdigisPerDet1,*hdigisPerDet2,*hdigisPerDet3;
@@ -123,8 +125,9 @@ private:
   TH1F *hsimlinks, *hfract;
   TH1F *hblade1, *hblade2;
 
-  TH2F *htest, *htest2;
-  TH2F *hdetMap3,*hdetMap2,*hdetMap1, *hpixMap1, *hpixMap2, *hpixMap3; 
+  //TH2F *htest, *htest2;
+  TH2F *hdetMap3,*hdetMap2,*hdetMap1, *hpixMap1, *hpixMap2, *hpixMap3,
+    * hpixMapNoise; 
 
 #endif
 
@@ -188,12 +191,14 @@ void PixelDigisTest::beginJob() {
     hpixid = fs->make<TH1F>( "hpixid", "Pix det id", 10, 0., 10.);
     hpixsubid = fs->make<TH1F>( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
     hlayerid = fs->make<TH1F>( "hlayerid", "Pix layer id", 10, 0., 10.);
-    hladder1id = fs->make<TH1F>( "hladder1id", "Ladder L1 id", 50, 0., 50.);
-    hladder2id = fs->make<TH1F>( "hladder2id", "Ladder L2 id", 50, 0., 50.);
-    hladder3id = fs->make<TH1F>( "hladder3id", "Ladder L3 id", 50, 0., 50.);
-    hz1id = fs->make<TH1F>( "hz1id", "Z-index id L1", 10, 0., 10.);
-    hz2id = fs->make<TH1F>( "hz2id", "Z-index id L2", 10, 0., 10.);
-    hz3id = fs->make<TH1F>( "hz3id", "Z-index id L3", 10, 0., 10.);
+    hsectorid = fs->make<TH1F>( "hsectorid", "Pix sector ", 10, 0., 10.);
+    hshellid = fs->make<TH1F>( "hshellid", "Shell", 5, 0., 5.);
+    hladder1id = fs->make<TH1F>( "hladder1id", "Ladder L1 id", 23, -11.5, 11.5);
+    hladder2id = fs->make<TH1F>( "hladder2id", "Ladder L2 id", 35, -17.5, 17.5);
+    hladder3id = fs->make<TH1F>( "hladder3id", "Ladder L3 id", 47, -23.5, 23.5);
+    hz1id = fs->make<TH1F>( "hz1id", "Z-index id L1", 11, -5.5, 5.5);
+    hz2id = fs->make<TH1F>( "hz2id", "Z-index id L2", 11, -5.5, 5.5);
+    hz3id = fs->make<TH1F>( "hz3id", "Z-index id L3", 11, -5.5, 5.5);
  
     hdigisPerDet1 = fs->make<TH1F>( "hdigisPerDet1", "Digis per det l1", 
 			      200, -0.5, 199.5);
@@ -202,11 +207,11 @@ void PixelDigisTest::beginJob() {
     hdigisPerDet3 = fs->make<TH1F>( "hdigisPerDet3", "Digis per det l3", 
 			      200, -0.5, 199.5);
     hdigisPerLay1 = fs->make<TH1F>( "hdigisPerLay1", "Digis per layer l1", 
-			      2000, -0.5, 3999.5);
+			      200, -0.5, 199.5);
     hdigisPerLay2 = fs->make<TH1F>( "hdigisPerLay2", "Digis per layer l2", 
-			      2000, -0.5, 3999.5);
+			      200, -0.5, 199.5);
     hdigisPerLay3 = fs->make<TH1F>( "hdigisPerLay3", "Digis per layer l3", 
-			      2000, -0.5, 3999.5);
+			      200, -0.5, 199.5);
     hdetsPerLay1 = fs->make<TH1F>( "hdetsPerLay1", "Full dets per layer l1", 
 			      161, -0.5, 160.5);
     hdetsPerLay3 = fs->make<TH1F>( "hdetsPerLay3", "Full dets per layer l3", 
@@ -227,11 +232,14 @@ void PixelDigisTest::beginJob() {
     hdetsPerLayF2 = fs->make<TH1F>( "hdetsPerLayF2", "Full dets per layer d2", 
 			      257, -0.5, 256.5);
 
-    heloss1 = fs->make<TH1F>( "heloss1", "Pix charge l1", 100, 0., 300.);
-    heloss2 = fs->make<TH1F>( "heloss2", "Pix charge l2", 100, 0., 300.);
-    heloss3 = fs->make<TH1F>( "heloss3", "Pix charge l3", 100, 0., 300.);
-    heloss1bigx = fs->make<TH1F>( "heloss1bigx", "L1 big-x pix", 100, 0., 300.);
-    heloss1bigy = fs->make<TH1F>( "heloss1bigy", "L1 big-y pix", 100, 0., 300.);
+    heloss1 = fs->make<TH1F>( "heloss1", "Pix charge l1", 256, 0., 256.);
+    heloss2 = fs->make<TH1F>( "heloss2", "Pix charge l2", 256, 0., 256.);
+    heloss3 = fs->make<TH1F>( "heloss3", "Pix charge l3", 256, 0., 256.);
+    hneloss1 = fs->make<TH1F>( "hneloss1", "Pix noise charge l1", 256, 0., 256.);
+    hneloss2 = fs->make<TH1F>( "hneloss2", "Pix noise charge l2", 256, 0., 256.);
+    hneloss3 = fs->make<TH1F>( "hneloss3", "Pix noise charge l3", 256, 0., 256.);
+    heloss1bigx = fs->make<TH1F>( "heloss1bigx", "L1 big-x pix", 256, 0., 256.);
+    heloss1bigy = fs->make<TH1F>( "heloss1bigy", "L1 big-y pix", 256, 0., 256.);
 
     hcols1 = fs->make<TH1F>( "hcols1", "Layer 1 cols", 500,-1.5,498.5);
     hcols2 = fs->make<TH1F>( "hcols2", "Layer 2 cols", 500,-1.5,498.5);
@@ -253,8 +261,6 @@ void PixelDigisTest::beginJob() {
     hrowsF1 = fs->make<TH1F>( "hrowsF1", "Disk 1 rows", 200,-1.5,198.5);
     hrowsF2 = fs->make<TH1F>( "hrowsF2", "Disk 2 rows", 200,-1.5,198.5);
 
-
-
     hdetr = fs->make<TH1F>("hdetr","det r",150,0.,15.);
     hdetz = fs->make<TH1F>("hdetz","det z",520,-26.,26.);
     hdetrF = fs->make<TH1F>("hdetrF","det r",150,0.,15.);
@@ -267,12 +273,12 @@ void PixelDigisTest::beginJob() {
 
     hsimlinks = fs->make<TH1F>("hsimlinks"," track ids",200,0.,200.);
     hfract = fs->make<TH1F>("hfract"," track rractions",100,0.,1.);
-
-    hdetMap1 = fs->make<TH2F>("hdetMap1"," ",22,0.,22.,10,0.,10.);
+    //                                             mod      ladder
+    hdetMap1 = fs->make<TH2F>("hdetMap1"," ",9,-4.5,4.5,21,-10.5,10.5);
     hdetMap1->SetOption("colz");
-    hdetMap2 = fs->make<TH2F>("hdetMap2"," ",34,0.,34.,10,0.,10.);
+    hdetMap2 = fs->make<TH2F>("hdetMap2"," ",9,-4.5,4.5,33,-16.5,16.5);
     hdetMap2->SetOption("colz");
-    hdetMap3 = fs->make<TH2F>("hdetMap3"," ",46,0.,46.,10,0.,10.);
+    hdetMap3 = fs->make<TH2F>("hdetMap3"," ",9,-4.5,4.5,45,-22.5,22.5);
     hdetMap3->SetOption("colz");
     hpixMap1 = fs->make<TH2F>("hpixMap1"," ",416,0.,416.,160,0.,160.);
     hpixMap1->SetOption("colz");
@@ -280,11 +286,13 @@ void PixelDigisTest::beginJob() {
     hpixMap2->SetOption("colz");
     hpixMap3 = fs->make<TH2F>("hpixMap3"," ",416,0.,416.,160,0.,160.);
     hpixMap3->SetOption("colz");
+    hpixMapNoise = fs->make<TH2F>("hpixMapNoise"," ",416,0.,416.,160,0.,160.);
+    hpixMapNoise->SetOption("colz");
 
-    htest = fs->make<TH2F>("htest"," ",10,0.,10.,20,0.,20.);
-    htest2 = fs->make<TH2F>("htest2"," ",10,0.,10.,300,0.,300.);
-    htest->SetOption("colz");
-    htest2->SetOption("colz");
+    //htest = fs->make<TH2F>("htest"," ",10,0.,10.,20,0.,20.);
+    //htest2 = fs->make<TH2F>("htest2"," ",10,0.,10.,300,0.,300.);
+    //htest->SetOption("colz");
+    //htest2->SetOption("colz");
 
 #endif
 
@@ -334,7 +342,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   // Iterate on detector units
   edm::DetSetVector<PixelDigi>::const_iterator DSViter;
   for(DSViter = pixelDigis->begin(); DSViter != pixelDigis->end(); DSViter++) {
-
+    bool valid = false;
     unsigned int detid = DSViter->id; // = rawid
     DetId detId(detid);
     //const GeomDetUnit      * geoUnit = geom->idToDetUnit( detId );
@@ -366,11 +374,19 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     float pitchX = theGeomDet->specificTopology().pitch().first;
     float pitchY = theGeomDet->specificTopology().pitch().second;
     
-    unsigned int layer=0;
-    unsigned int ladder=0;
+    unsigned int layerC=0;
+    unsigned int ladderC=0;
     unsigned int zindex=0;
-    unsigned int disk=0; //1,2,3
 
+    // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
+    int shell  = 0; // shell id 
+    int sector = 0; // 1-8
+    int ladder = 0; // 1-22
+    int layer  = 0; // 1-3
+    int module = 0; // 1-4
+    bool half  = false; // 
+
+    unsigned int disk=0; //1,2,3
     unsigned int blade=0; //1-24
     unsigned int side=0; //size=1 for -z, 2 for +z
     unsigned int panel=0; //panel=1
@@ -402,70 +418,42 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
     } else if(subid == 1) { // Barrel 
       
-#ifdef HISTOS
-      hdetr->Fill(detR);
-      hdetz->Fill(detZ);
-      hcolsB->Fill(float(cols));
-      hrowsB->Fill(float(rows));
-#endif
-      
       PXBDetId pdetId = PXBDetId(detid);
       // Barell layer = 1,2,3
-      layer=pdetId.layer();
+      layerC=pdetId.layer();
       // Barrel ladder id 1-20,32,44.
-      ladder=pdetId.ladder();
+      ladderC=pdetId.ladder();
       // Barrel Z-index=1,8
       zindex=pdetId.module();
+      // Convert to online 
+      PixelBarrelName pbn(pdetId);
+      // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
+      PixelBarrelName::Shell sh = pbn.shell(); //enum
+      sector = pbn.sectorName();
+      ladder = pbn.ladderName();
+      layer  = pbn.layerName();
+      module = pbn.moduleName();
+      half  = pbn.isHalfModule();
+      shell = int(sh);
+      // change the module sign for z<0
+      if(shell==1 || shell==2) module = -module;
+      // change ladeer sign for Outer )x<0)
+      if(shell==1 || shell==3) ladder = -ladder;
+      
+
       if(PRINT) { 
 	cout<<" Barrel layer, ladder, module "
-	    <<layer<<" "<<ladder<<" "<<zindex<<endl;
+	    <<layerC<<" "<<ladderC<<" "<<zindex<<" "
+	    <<sh<<"("<<shell<<") "<<sector<<" "<<layer<<" "<<ladder<<" "
+	    <<module<<" "<<half<< endl;
 	//cout<<" Barrel det, thick "<<detThick<<" "
 	//  <<" layer, ladder, module "
 	//  <<layer<<" "<<ladder<<" "<<zindex<<endl;
 	//cout<<" col/row, pitch "<<cols<<" "<<rows<<" "
 	//  <<pitchX<<" "<<pitchY<<endl;
       }      
-#ifdef HISTOS
-      hlayerid->Fill(float(layer));
-#endif
 
     } // end fb-bar
-
-#ifdef HISTOS
-    // Some histos
-    if(layer==1) {
-      hladder1id->Fill(float(ladder));
-      hz1id->Fill(float(zindex));
-      hdetMap1->Fill(float(ladder),float(zindex));
-      ++numberOfDetUnits1;
-      numOfDigisPerDet1=0;
-      
-    } else if(layer==2) {
-      hladder2id->Fill(float(ladder));
-      hz2id->Fill(float(zindex));
-      hdetMap2->Fill(float(ladder),float(zindex));
-      ++numberOfDetUnits2;
-      numOfDigisPerDet2=0;
-
-    } else if(layer==3) {
-      hladder3id->Fill(float(ladder));
-      hz3id->Fill(float(zindex));
-      hdetMap3->Fill(float(ladder),float(zindex));
-      ++numberOfDetUnits3;
-      numOfDigisPerDet3=0;
-
-    } else if(disk==1) {
-      hblade1->Fill(float(blade));
-      ++numberOfDetUnitsF1;
-      numOfDigisPerDetF1=0;
- 
-   } else if(disk==2) {
-      hblade2->Fill(float(blade));
-      ++numberOfDetUnitsF2;
-      numOfDigisPerDetF2=0;
-   }
-#endif
-      
 
 #ifdef USE_SIM_LINKS
     // Look at simlink information (simulated data only)
@@ -525,90 +513,165 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
 #ifdef HISTOS
        if(layer==1) {
-	 heloss1->Fill(float(adc));
-	 hcols1->Fill(float(col));
-	 hrows1->Fill(float(row));
-	 hpixMap1->Fill(float(col),float(row));
-	 totalNumOfDigis1++;
-	 htest2->Fill(float(zindex),float(adc));
-	 numOfDigisPerDet1++;
-	 if(RectangularPixelTopology::isItBigPixelInX(row)) {
-	   //cout<<" big in X "<<row<<endl;
-	   heloss1bigx->Fill(float(adc));
-	   hrows1big->Fill(float(row));
-	 }
-	 if(RectangularPixelTopology::isItBigPixelInY(col)) {
-	   //cout<<" big in Y "<<col<<endl;
-	   heloss1bigy->Fill(float(adc));
-	   hcols1big->Fill(float(col));
-	 }
-
+	 bool noise = false; //(ladder==6) || (module==-2) || (col==364) || (row==1);
+	 if(!noise) {		     
+	   valid = valid || true;
+	   heloss1->Fill(float(adc));
+	   hcols1->Fill(float(col));
+	   hrows1->Fill(float(row));
+	   hpixMap1->Fill(float(col),float(row));
+	   totalNumOfDigis1++;
+	   //htest2->Fill(float(module),float(adc));
+	   numOfDigisPerDet1++;
+	   if(RectangularPixelTopology::isItBigPixelInX(row)) {
+	     //cout<<" big in X "<<row<<endl;
+	     heloss1bigx->Fill(float(adc));
+	     hrows1big->Fill(float(row));
+	   }
+	   if(RectangularPixelTopology::isItBigPixelInY(col)) {
+	     //cout<<" big in Y "<<col<<endl;
+	     heloss1bigy->Fill(float(adc));
+	     hcols1big->Fill(float(col));
+	   }
+	 } // noise
        } else if(layer==2) {
-	 heloss2->Fill(float(adc));
-	 hcols2->Fill(float(col));
-	 hrows2->Fill(float(row));
-	 hpixMap2->Fill(float(col),float(row));
-	 totalNumOfDigis2++;
-	 numOfDigisPerDet2++;
-
+	 // look for the noisy pixel
+	 bool noise = (ladder==6) && (module==-2) && (col==364) && (row==1);
+	 if(noise) {
+	   //cout<<" noise pixel "<<layer<<" "<<sector<<" "<<shell<<endl;
+	   hpixMapNoise->Fill(float(col),float(row));
+	   hneloss2->Fill(float(adc));
+	 } else {		     
+	   valid = valid || true;
+	   heloss2->Fill(float(adc));
+	   hcols2->Fill(float(col));
+	   hrows2->Fill(float(row));
+	   hpixMap2->Fill(float(col),float(row));
+	   totalNumOfDigis2++;
+	   numOfDigisPerDet2++;
+	 } // noise 
        } else if(layer==3) {
-	 heloss3->Fill(float(adc));
-	 hcols3->Fill(float(col));
-	 hrows3->Fill(float(row));
-	 hpixMap3->Fill(float(col),float(row));
-	 if(ladder==11 && zindex==5 )  // r367 
-	   //if(ladder==8 && zindex==5 ) //r371
-	   hpixMap3->Fill(float(col),float(row));  
-	 totalNumOfDigis3++;
-	 numOfDigisPerDet3++;
-
+	 bool noise = false; //(ladder==6) || (module==-2) || (col==364) || (row==1);
+	 if(!noise) {		     
+	   valid = valid || true;
+	   heloss3->Fill(float(adc));
+	   hcols3->Fill(float(col));
+	   hrows3->Fill(float(row));
+	   hpixMap3->Fill(float(col),float(row));
+	   totalNumOfDigis3++;
+	   numOfDigisPerDet3++;
+	 } // noise
        } else if(disk==1) {
-	 helossF1->Fill(float(adc));
-	 hcolsF1->Fill(float(col));
-	 hrowsF1->Fill(float(row));
-	 totalNumOfDigisF1++;
-	 numOfDigisPerDetF1++;
+	 bool noise = false; //(ladder==6) || (module==-2) || (col==364) || (row==1);
+	 if(!noise) {		     
+	   valid = valid || true;
+	   helossF1->Fill(float(adc));
+	   hcolsF1->Fill(float(col));
+	   hrowsF1->Fill(float(row));
+	   totalNumOfDigisF1++;
+	   numOfDigisPerDetF1++;
+	 } // noise 
 
        } else if(disk==2) {
-	 helossF2->Fill(float(adc));
-	 hcolsF2->Fill(float(col));
-	 hrowsF2->Fill(float(row));
-	 totalNumOfDigisF2++;
-	 numOfDigisPerDetF2++;
+	 bool noise = false; //(ladder==6) || (module==-2) || (col==364) || (row==1);
+	 if(!noise) {		     
+	   valid = valid || true;
+	   helossF2->Fill(float(adc));
+	   hcolsF2->Fill(float(col));
+	   hrowsF2->Fill(float(row));
+	   totalNumOfDigisF2++;
+	   numOfDigisPerDetF2++;
+	 } // noise 
        } // end if layer
 #endif
-        
-     } // end for digis
+       
+      } // end for digis in detunit
       //if(PRINT) 
       //cout<<" for det "<<detid<<" digis = "<<numberOfDigis<<endl;
 
 #ifdef HISTOS
-     if(layer==1) {
-       hdigisPerDet1->Fill(float(numOfDigisPerDet1));
-       htest->Fill(float(zindex),float(numOfDigisPerDet1));
-     } else if(layer==2) hdigisPerDet2->Fill(float(numOfDigisPerDet2));
-     else if(layer==3) hdigisPerDet3->Fill(float(numOfDigisPerDet3));
-     else if(disk==1) hdigisPerDetF1->Fill(float(numOfDigisPerDetF1));
-     else if(disk==2) hdigisPerDetF2->Fill(float(numOfDigisPerDetF2));
+      // Some histos
+      if(valid) {  // to igore noise pixels
+	if(subid==2) {   // forward
+	  
+	  hdetrF->Fill(detR);
+	  hdetzF->Fill(detZ);
+	  hcolsF->Fill(float(cols));
+	  hrowsF->Fill(float(rows));
+	  
+	  
+	  if(disk==1) {
+	    hblade1->Fill(float(blade));
+	    ++numberOfDetUnitsF1;
+	    hdigisPerDetF1->Fill(float(numOfDigisPerDetF1));
+	    numOfDigisPerDetF1=0;	
+	    
+	  } else if(disk==2) {
+	    hblade2->Fill(float(blade));
+	    ++numberOfDetUnitsF2;
+	    hdigisPerDetF2->Fill(float(numOfDigisPerDetF2));
+	    numOfDigisPerDetF2=0;
+	  } // if disk
+
+	} else if (subid==1) { // barrel
+	  
+	  hdetr->Fill(detR);
+	  hdetz->Fill(detZ);
+	  hcolsB->Fill(float(cols));
+	  hrowsB->Fill(float(rows));
+	  
+	  hlayerid->Fill(float(layer));
+	  hshellid->Fill(float(shell));
+	  hsectorid->Fill(float(sector));
+
+	  if(layer==1) {
+	    
+	    hladder1id->Fill(float(ladder));
+	    hz1id->Fill(float(module));
+	    hdetMap1->Fill(float(module),float(ladder));
+	    ++numberOfDetUnits1;
+	    hdigisPerDet1->Fill(float(numOfDigisPerDet1));
+	    numOfDigisPerDet1=0;
+	    
+	  } else if(layer==2) {
+	    hladder2id->Fill(float(ladder));
+	    hz2id->Fill(float(module));
+	    hdetMap2->Fill(float(module),float(ladder));
+	    ++numberOfDetUnits2;
+	    hdigisPerDet2->Fill(float(numOfDigisPerDet2));
+	    numOfDigisPerDet2=0;
+	    
+	  } else if(layer==3) {
+	    hladder3id->Fill(float(ladder));
+	    hz3id->Fill(float(module));
+	    hdetMap3->Fill(float(module),float(ladder));
+	    ++numberOfDetUnits3;
+	    hdigisPerDet3->Fill(float(numOfDigisPerDet3));
+	    numOfDigisPerDet3=0;
+	    
+	  } // layer
+	} // if bpix	
+      } // if valid
 #endif
 
-   } // end for det-units
+  } // end for det-units
 
-   if(PRINT) 
-     cout << " Number of full det-units = " <<numberOfDetUnits
-	  <<" total digis = "<<totalNumOfDigis<<endl;
-
+  if(PRINT) 
+    cout << " Number of full det-units = " <<numberOfDetUnits
+	 <<" total digis = "<<totalNumOfDigis<<endl;
+  
 #ifdef HISTOS
-   hdigisPerLay1 ->Fill(float(totalNumOfDigis1));
-   hdigisPerLay2 ->Fill(float(totalNumOfDigis2));
-   hdigisPerLay3 ->Fill(float(totalNumOfDigis3));
-   hdetsPerLay1 ->Fill(float(numberOfDetUnits1));
-   hdetsPerLay2 ->Fill(float(numberOfDetUnits2));
-   hdetsPerLay3 ->Fill(float(numberOfDetUnits3));
-   hdigisPerLayF1 ->Fill(float(totalNumOfDigisF1));
-   hdigisPerLayF2 ->Fill(float(totalNumOfDigisF2));
-   hdetsPerLayF1 ->Fill(float(numberOfDetUnitsF1));
-   hdetsPerLayF2 ->Fill(float(numberOfDetUnitsF2));
+  hdigisPerLay1 ->Fill(float(totalNumOfDigis1));
+  hdigisPerLay2 ->Fill(float(totalNumOfDigis2));
+  hdigisPerLay3 ->Fill(float(totalNumOfDigis3));
+  if(totalNumOfDigis1>0) hdetsPerLay1 ->Fill(float(numberOfDetUnits1));
+  if(totalNumOfDigis2>0) hdetsPerLay2 ->Fill(float(numberOfDetUnits2));
+  if(totalNumOfDigis3>0) hdetsPerLay3 ->Fill(float(numberOfDetUnits3));
+
+  hdigisPerLayF1 ->Fill(float(totalNumOfDigisF1));
+  hdigisPerLayF2 ->Fill(float(totalNumOfDigisF2));
+  hdetsPerLayF1 ->Fill(float(numberOfDetUnitsF1));
+  hdetsPerLayF2 ->Fill(float(numberOfDetUnitsF2));
 #endif
 
 }

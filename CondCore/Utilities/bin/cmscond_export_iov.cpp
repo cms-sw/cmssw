@@ -5,8 +5,7 @@
 
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
+#include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
@@ -138,12 +137,8 @@ int cond::ExportIOVUtilities::execute(){
   int oldSize=0;
   if (!newIOV) {
     // grab info
-    destdb.transaction().start(true);
-    cond::IOVService iovmanager2(destdb);
-    std::auto_ptr<cond::IOVIterator> iit(iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter));
-    iit->next(); // just to initialize
-    oldSize=iit->size();
-    destdb.transaction().commit();
+    IOVProxy iov(destdb, destiovtoken, true, false);
+    oldSize=iov.size();
   }
 
   // setup logDB
@@ -201,26 +196,26 @@ int cond::ExportIOVUtilities::execute(){
   ::sleep(1);
 
   // grab info
-  destdb.transaction().start(true);
-  cond::IOVService iovmanager2(destdb);
-  cond::IOVIterator* iit=iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter);
+  IOVProxy iov(destdb, destiovtoken, true, false);
   std::string const & timetypestr = cond::timeTypeSpecs[sourceiovtype].name;
-  iit->next(); // just to initialize
   cond::TagInfo result;
   result.name=destTag;
   result.token=destiovtoken;
-  result.lastInterval=iit->validity();
-  result.lastPayloadToken=iit->payloadToken();
-  result.size=iit->size();
-  delete iit;
-  destdb.transaction().commit();
-
+  result.size=iov.size();
+  if (result.size>0) {
+    // get last object
+    iov.tail(1);
+    cond::IOVElementProxy last = *iov.begin();
+    result.lastInterval = cond::ValidityInterval(last.since(), last.till());
+    result.lastPayloadToken=last.token();
+  }
+  
   {
     std::ostringstream ss;
     ss << "copied="<< result.size-oldSize <<";";
     a.usertext +=ss.str();
   }
-
+  
   if (doLog){
     logdb->getWriteLock();
     logdb->logOperationNow(a,destConnect,result.lastPayloadToken,destTag,timetypestr,result.size-1);

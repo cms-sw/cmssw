@@ -15,16 +15,14 @@
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=CalibCalorimetry/HcalTPGAlgos>
 <use name=CondTools/Hcal>
+<use name=OnlineDB/Oracle>
 
 <export>
   <lib name=CaloOnlineToolsHcalOnlineDb>
   <use name=boost>
-  <use name=oracle>
-  <use name=DataFormats/Common>
   <use name=rootrflx>
   <use name=xerces-c>
   <use name=xdaq>
-  <use name=DataFormats/HcalDetId>
 </export>
 
 

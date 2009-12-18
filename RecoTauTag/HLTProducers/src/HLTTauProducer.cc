@@ -1,7 +1,5 @@
 #include "RecoTauTag/HLTProducers/interface/HLTTauProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Math/GenVector/VectorUtil.h"
-
 //
 // class decleration
 //
@@ -12,7 +10,10 @@ HLTTauProducer::HLTTauProducer(const edm::ParameterSet& iConfig)
   emIsolatedJetsL2_ = iConfig.getParameter<edm::InputTag>("L2EcalIsoJets");
   trackIsolatedJetsL25_ = iConfig.getParameter<edm::InputTag>("L25TrackIsoJets");
   trackIsolatedJetsL3_ = iConfig.getParameter<edm::InputTag>("L3TrackIsoJets");
- 
+  matchingCone_ = iConfig.getParameter<double>("MatchingCone");
+  signalCone_ = iConfig.getParameter<double>("SignalCone");
+  isolationCone_ = iConfig.getParameter<double>("IsolationCone");
+  ptMin_ = iConfig.getParameter<double>("MinPtTracks");
   produces<reco::HLTTauCollection>();
 }
 
@@ -31,92 +32,94 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   edm::Handle<L2TauInfoAssociation> tauL2Jets;
   iEvent.getByLabel(emIsolatedJetsL2_ , tauL2Jets );
 
-  edm::Handle<PFTauCollection> tauL25Jets;
+  edm::Handle<IsolatedTauTagInfoCollection> tauL25Jets;
   iEvent.getByLabel(trackIsolatedJetsL25_, tauL25Jets );
   
-  edm::Handle<PFTauCollection> tauL3Jets;
+  edm::Handle<IsolatedTauTagInfoCollection> tauL3Jets;
   iEvent.getByLabel(trackIsolatedJetsL3_, tauL3Jets );
 
-  //  std::cout <<"L2 jets "<< tauL2Jets->size()<<std::endl;
-  //  std::cout <<"L25 jets "<< tauL25Jets->size()<<std::endl;
-
-
+  IsolatedTauTagInfoCollection tauL25 = *(tauL25Jets.product());
+  IsolatedTauTagInfoCollection tauL3 = *(tauL3Jets.product());
+  
+  int i=0;
+  float eta_, phi_, pt_;
+  int nTracksL25, nTracksL3;
+  float sumPtTracksL25,sumPtTracksL3;
+  double ptLeadTkL25, ptLeadTkL3;
  for(L2TauInfoAssociation::const_iterator p = tauL2Jets->begin();p!=tauL2Jets->end();++p)
 	   {
 	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
 	     const L2TauIsolationInfo l2info = p->val;
 	     //Retrieve the Jet
-	     const CaloJet& jet =*(p->key);
+	     //	     const CaloJet& jet =*(p->key);
 	     
-	     float eta_ = jet.eta();
-	     float phi_ = jet.phi();
-	     float pt_ = jet.pt();
-	     HLTTau pippo(eta_,phi_,pt_);
-	     //get L2 quantities
-	     pippo.setEMIsolationValue(l2info.ecalIsolEt());
-	     pippo.setSeedEcalHitEt(l2info.seedEcalHitEt());
-	     pippo.setEcalClusterShape(l2info.ecalClusterShape());
-	     pippo.setNEcalHits(l2info.nEcalHits());		       
-	     pippo.setHcalIsolEt(l2info.hcalIsolEt());
-	     pippo.setSeedHcalHitEt(l2info.seedHcalHitEt());
-	     pippo.setHcalClusterShape(l2info.hcalClusterShape());
-	     pippo.setNHcalHits(l2info.nHcalHits());
 
-	     bool foundAtL25 = false;
-	     bool foundAtL3 = false;
+	     double emIsol  = l2info.ecalIsolEt();
 
-	     double dR=0.3;
-	     float deltaR = 0.3;
-	     //setting up L2.5 quantities
-	     for(unsigned int i=0 ; i<tauL25Jets->size(); i++){
-	       //getting the pftau reference
-	       PFTauRef thePFTauRef(tauL25Jets,i);	      
+    JetTracksAssociationRef jetTracks = tauL25[i].jtaRef();
+    math::XYZVector jetDirL25(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());   
+    eta_ = jetDirL25.eta();
+    phi_ = jetDirL25.phi();
+    pt_ = jetTracks->first->pt();
 
-	       dR = ROOT::Math::VectorUtil::DeltaR(thePFTauRef->p4().Vect(),jet.p4().Vect()) ;
-	       if(dR < deltaR)
-		 {
-		   deltaR = dR;
-		   
-		   pippo.setL25TauPt(thePFTauRef->pt());
-		   if(thePFTauRef->leadPFChargedHadrCand().isNonnull()) {
-		     pippo.setL25LeadTrackPtValue(thePFTauRef->leadPFChargedHadrCand()->pt());
-		   }else{
-		     pippo.setL25LeadTrackPtValue(0.);
-		   }
-		   if(thePFTauRef->leadPFCand().isNonnull()) {
-		     pippo.setL25LeadPionPtValue(thePFTauRef->leadPFCand()->pt());
-		   }else{
-		     pippo.setL25LeadPionPtValue(0.);
-		   }
-		   foundAtL25 = true;
-		 }
-	     }
-	     deltaR = 0.3;
-	     //setting up L3 quantities
-	     for(unsigned int i=0 ; i<tauL3Jets->size(); i++){
-	       //getting the pftau reference  
-	       PFTauRef thePFTauL3Ref(tauL3Jets,i);
-	       dR = ROOT::Math::VectorUtil::DeltaR(thePFTauL3Ref->p4().Vect(),jet.p4().Vect());
-	       if( dR < deltaR)
-		 {
-		   deltaR = dR;
-		   pippo.setNL3TrackIsolation(thePFTauL3Ref->isolationTracks().size());
-		   float sumPtL3 = 0.;
-		   for(unsigned int j=0;j<thePFTauL3Ref->isolationTracks().size();j++){
-		     sumPtL3 = sumPtL3 + thePFTauL3Ref->isolationTracks()[j]->pt();
-		   }
-		   pippo.setSumPtTracksL3(sumPtL3);
-		   foundAtL3 = true;
-		 }
-	     }
-	     if(foundAtL25 && foundAtL3) jetCollection->push_back(pippo);
-			   
-	   }
+    int trackIsolationL25 = (int)tauL25[i].discriminator(jetDirL25,matchingCone_, signalCone_, isolationCone_,1.,ptMin_,0);
+    const TrackRef leadTkL25 = tauL25[i].leadingSignalTrack(jetDirL25,matchingCone_, 1.);
+    ptLeadTkL25 = 0.;
+    nTracksL25 = 1000;
+    if(!leadTkL25) 
+      {}else{
+	ptLeadTkL25 = (*leadTkL25).pt();
+	const TrackRefVector signalTracks = tauL25[i].tracksInCone((*leadTkL25).momentum(), signalCone_, ptMin_ );
+	const TrackRefVector isolationTracks = tauL25[i].tracksInCone((*leadTkL25).momentum(), isolationCone_,   ptMin_ );
+	nTracksL25 = isolationTracks.size() - signalTracks.size();
 
+	for(unsigned int j=0;j<isolationTracks.size();j++)
+	  sumPtTracksL25 = sumPtTracksL25 + isolationTracks[j]->pt();
+	for(unsigned int j=0;j<signalTracks.size();j++)
+	  sumPtTracksL25 = sumPtTracksL25 - signalTracks[j]->pt();
+
+      }
+    jetTracks = tauL3[i].jtaRef();
+    math::XYZVector jetDirL3(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());	
+    int  trackIsolationL3 = (int)tauL3[i].discriminator(jetDirL3,matchingCone_, signalCone_, isolationCone_,1.,ptMin_,0);
     
- auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
+    const TrackRef leadTkL3 = tauL3[i].leadingSignalTrack(jetDirL3,matchingCone_,1.);
+    ptLeadTkL3=0.;
+    nTracksL3 = 1000;
+    if(!leadTkL3) 
+      {}else{
+	ptLeadTkL3 = (*leadTkL3).pt();
+	const TrackRefVector signalTracks = tauL3[i].tracksInCone((*leadTkL25).momentum(), signalCone_, ptMin_ );
+	const TrackRefVector isolationTracks = tauL3[i].tracksInCone((*leadTkL25).momentum(), isolationCone_,   ptMin_ );
+	nTracksL3 = isolationTracks.size() - signalTracks.size();
+	float sumPtTracksL3 = 0.;
+	for(unsigned int j=0;j<isolationTracks.size();j++)
+	  sumPtTracksL3 = sumPtTracksL3 + isolationTracks[j]->pt();
+	for(unsigned int j=0;j<signalTracks.size();j++)
+	  sumPtTracksL3 = sumPtTracksL3 - signalTracks[j]->pt();
+      }
+
+    HLTTau pippo(eta_,phi_,pt_,emIsol,trackIsolationL25,ptLeadTkL25,trackIsolationL3,ptLeadTkL3);
+    pippo.setNL25TrackIsolation(nTracksL25);
+    pippo.setNL3TrackIsolation(nTracksL3);
+    pippo.setSumPtTracksL25(sumPtTracksL25);
+    pippo.setSumPtTracksL3(sumPtTracksL3);
+    pippo.setSeedEcalHitEt(l2info.seedEcalHitEt());
+    pippo.setEcalClusterShape(l2info.ecalClusterShape());
+    pippo.setNEcalHits(l2info.nEcalHits());		       
+    pippo.setHcalIsolEt(l2info.hcalIsolEt());
+    pippo.setSeedHcalHitEt(l2info.seedHcalHitEt());
+    pippo.setHcalClusterShape(l2info.hcalClusterShape());
+    pippo.setNHcalHits(l2info.nHcalHits());
+    jetCollection->push_back(pippo);
+      i++;
+  }
   
- iEvent.put(selectedTaus);
+  auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
   
+  iEvent.put(selectedTaus);
+  
+
+
 
 }

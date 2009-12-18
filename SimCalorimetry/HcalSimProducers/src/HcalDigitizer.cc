@@ -11,8 +11,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,6 +20,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -34,65 +33,17 @@
 #include <boost/foreach.hpp>
 using namespace std;
 
-namespace HcalDigitizerImpl {
-
-  template<typename SIPMDIGITIZER>
-  void fillSiPMCells(const vector<int> & siPMCells, SIPMDIGITIZER * siPMDigitizer)
-  {
-    std::vector<DetId> siPMDetIds;
-    siPMDetIds.reserve(siPMCells.size());
-    for(std::vector<int>::const_iterator idItr = siPMCells.begin();
-        idItr != siPMCells.end(); ++idItr)
-    {
-      siPMDetIds.push_back(DetId(*idItr));
-    }
-    siPMDigitizer->setDetIds(siPMDetIds);
-  }
-
-  // if both exist, assume the SiPM one has cells filled, and
-  // assign the rest to the HPD
-  template<typename HPDDIGITIZER, typename SIPMDIGITIZER>
-  void fillCells(const vector<DetId>& allCells,
-                 HPDDIGITIZER * hpdDigitizer,
-                 SIPMDIGITIZER * siPMDigitizer)
-  {
-    // if both digitizers exist, split up the cells
-    if(siPMDigitizer && hpdDigitizer)
-    {
-      std::vector<DetId> siPMDetIds = siPMDigitizer->detIds();
-      std::sort(siPMDetIds.begin(), siPMDetIds.end());
-      std::vector<DetId> sortedCells = allCells;
-      std::sort(sortedCells.begin(), sortedCells.end());
-      std::vector<DetId> hpdCells;
-      std::set_difference(sortedCells.begin(), sortedCells.end(),
-                          siPMDetIds.begin(), siPMDetIds.end(),
-                          std::back_inserter(hpdCells) );
-      hpdDigitizer->setDetIds(hpdCells);
-    }
-    else
-    {
-      if(siPMDigitizer) siPMDigitizer->setDetIds(allCells);
-      if(hpdDigitizer) hpdDigitizer->setDetIds(allCells);
-    }
-  }
-} // namespace HcaiDigitizerImpl
-
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) 
-: theGeometry(0),
-  theParameterMap(new HcalSimParameterMap(ps)),
-  theHcalShape(0),
-  theSiPMShape(0),
+: theParameterMap(new HcalSimParameterMap(ps)),
+  theHcalShape(new HcalShape()),
   theHFShape(new HFShape()),
   theZDCShape(new ZDCShape()),
-  theHcalIntegratedShape(0),
-  theSiPMIntegratedShape(0),
+  theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
   theHFIntegratedShape(new CaloShapeIntegrator(theHFShape)),
   theZDCIntegratedShape(new CaloShapeIntegrator(theZDCShape)),
-  theHBHEResponse(0),
-  theHBHESiPMResponse(0),
-  theHOResponse(0),   
-  theHOSiPMResponse(0),
+  theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
+  theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),   
   theHFResponse(new CaloHitResponse(theParameterMap, theHFIntegratedShape)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theZDCIntegratedShape)),
   theHBHEAmplifier(0),
@@ -107,28 +58,35 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHBHEHitFilter(),
   theHFHitFilter(ps.getParameter<bool>("doHFWindow")),
   theHOHitFilter(),
-  theHOSiPMHitFilter(HcalOuter),
   theZDCHitFilter(),
   theHitCorrection(0),
   theNoiseGenerator(0),
   theNoiseHitGenerator(0),
   theHBHEDigitizer(0),
-  theHBHESiPMDigitizer(0),
   theHODigitizer(0),
-  theHOSiPMDigitizer(0),
   theHFDigitizer(0),
   theZDCDigitizer(0),
-  theHBHEDetIds(),
-  theHOHPDDetIds(),
-  theHOSiPMDetIds(),
   isZDC(true),
   isHCAL(true),
   zdcgeo(true),
   hbhegeo(true),
   hogeo(true),
-  hfgeo(true),
-  theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode"))
+  hfgeo(true)
 {
+  theHBHEResponse->setHitFilter(&theHBHEHitFilter);
+  theHOResponse->setHitFilter(&theHOHitFilter);
+  theHFResponse->setHitFilter(&theHFHitFilter);
+  theZDCResponse->setHitFilter(&theZDCHitFilter);
+
+  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  if(doTimeSlew) {
+    // no time slewing for HF
+    theHitCorrection = new HcalHitCorrection(theParameterMap);
+    theHBHEResponse->setHitCorrection(theHitCorrection);
+    theHOResponse->setHitCorrection(theHitCorrection);
+    theZDCResponse->setHitCorrection(theHitCorrection);
+  }
+
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool doEmpty = ps.getParameter<bool>("doEmpty");
   // need to make copies, because they might get different noise generators
@@ -142,74 +100,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory);
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory);
 
-  // a code of 1 means make all cells SiPM
-  std::vector<int> hbSiPMCells(ps.getParameter<edm::ParameterSet>("hb").getParameter<std::vector<int> >("siPMCells"));
-  //std::vector<int> hoSiPMCells(ps.getParameter<edm::ParameterSet>("ho").getParameter<std::vector<int> >("siPMCells"));
-  // 0 means none, 1 means all, and 2 means use hardcoded
-
-  bool doHBHEHPD = hbSiPMCells.empty() || (hbSiPMCells[0] != 1);
-  bool doHOHPD = (theHOSiPMCode != 1);
-  bool doHBHESiPM = !hbSiPMCells.empty();
-  bool doHOSiPM = (theHOSiPMCode != 0);
-
-  if(doHBHEHPD || doHOHPD )
-  {
-    theHcalShape = new HcalShape();
-    theHcalIntegratedShape = new CaloShapeIntegrator(theHcalShape);
-  }
-  if(doHBHESiPM || doHOSiPM )
-  {
-    theSiPMShape = new HcalSiPMShape();
-    theSiPMIntegratedShape = new CaloShapeIntegrator(theSiPMShape);
-  }
-
-  if(doHBHEHPD)
-  {
-    theHBHEResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
-    theHBHEResponse->setHitFilter(&theHBHEHitFilter);
-    theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theHBHEElectronicsSim, doEmpty);
-  }
-  if(doHOHPD) 
-  {
-    theHOResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
-    theHOResponse->setHitFilter(&theHOHitFilter);
-    theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
-  }
-
-  if(doHBHESiPM)
-  {
-    theHBHESiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMIntegratedShape);
-    theHBHESiPMResponse->setHitFilter(&theHBHEHitFilter);
-    theHBHESiPMDigitizer = new HBHEDigitizer(theHBHESiPMResponse, theHBHEElectronicsSim, doEmpty);
-  }
-  if(doHOSiPM)
-  {
-    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMIntegratedShape);
-    theHOSiPMResponse->setHitFilter(&theHOSiPMHitFilter);
-    theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
-  }
-
-  // if both are present, fill the SiPM cells now
-  if(doHBHEHPD && doHBHESiPM)
-  {
-    HcalDigitizerImpl::fillSiPMCells(hbSiPMCells, theHBHESiPMDigitizer);
-  }
-
-
-  theHFResponse->setHitFilter(&theHFHitFilter);
-  theZDCResponse->setHitFilter(&theZDCHitFilter);
-
-  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
-  if(doTimeSlew) {
-    // no time slewing for HF
-    theHitCorrection = new HcalHitCorrection(theParameterMap);
-    if(theHBHEResponse) theHBHEResponse->setHitCorrection(theHitCorrection);
-    if(theHBHESiPMResponse) theHBHESiPMResponse->setHitCorrection(theHitCorrection);
-    if(theHOResponse) theHOResponse->setHitCorrection(theHitCorrection);
-    if(theHOSiPMResponse) theHOSiPMResponse->setHitCorrection(theHitCorrection);
-    theZDCResponse->setHitCorrection(theHitCorrection);
-  }
-
+  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theHBHEElectronicsSim, doEmpty);
+  theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
   theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
   theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theZDCElectronicsSim, doEmpty);
 
@@ -217,16 +109,13 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if(doHPDNoise) {
     //edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
     theNoiseGenerator = new HPDNoiseGenerator(ps); 
-    if(theHBHEDigitizer) theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
-    if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
+    theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
   }
 
   if(ps.getParameter<bool>("injectTestHits") ){
     theNoiseHitGenerator = new HcalTestHitGenerator(ps);
-    if(theHBHEDigitizer) theHBHEDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHODigitizer) theHODigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHOSiPMDigitizer) theHOSiPMDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    theHBHEDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    theHODigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     theHFDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
@@ -240,12 +129,15 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   }
 
   CLHEP::HepRandomEngine& engine = rng->getEngine();
-  if(theHBHEDigitizer) theHBHEDigitizer->setRandomEngine(engine);
-  if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setRandomEngine(engine);
-  if(theHODigitizer) theHODigitizer->setRandomEngine(engine);
-  if(theHOSiPMDigitizer) theHOSiPMDigitizer->setRandomEngine(engine);
-  theHFDigitizer->setRandomEngine(engine);
-  theZDCDigitizer->setRandomEngine(engine);
+  theHBHEAmplifier->setRandomEngine(engine);
+  theHFAmplifier->setRandomEngine(engine);
+  theHOAmplifier->setRandomEngine(engine);
+  theZDCAmplifier->setRandomEngine(engine);
+
+  theHBHEElectronicsSim->setRandomEngine(engine);
+  theHFElectronicsSim->setRandomEngine(engine);
+  theHOElectronicsSim->setRandomEngine(engine);
+  theZDCElectronicsSim->setRandomEngine(engine);
 
   if (theHitCorrection!=0) theHitCorrection->setRandomEngine(engine);
 
@@ -256,24 +148,18 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
 
 HcalDigitizer::~HcalDigitizer() {
   delete theHBHEDigitizer;
-  delete theHBHESiPMDigitizer;
   delete theHODigitizer;
-  delete theHOSiPMDigitizer;
   delete theHFDigitizer;
   delete theZDCDigitizer;
   delete theParameterMap;
   delete theHcalShape;
-  delete theSiPMShape;
   delete theHFShape;
   delete theZDCShape;
   delete theHcalIntegratedShape;
-  delete theSiPMIntegratedShape;
   delete theHFIntegratedShape;
   delete theZDCIntegratedShape;
   delete theHBHEResponse;
-  delete theHBHESiPMResponse;
   delete theHOResponse;
-  delete theHOSiPMResponse;
   delete theHFResponse;
   delete theZDCResponse;
   delete theHBHEElectronicsSim;
@@ -293,7 +179,6 @@ HcalDigitizer::~HcalDigitizer() {
 void HcalDigitizer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
-  noiseGenerator->setElectronicsSim(theHBHEElectronicsSim);
   theHBHEDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHBHEAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -301,7 +186,6 @@ void HcalDigitizer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseG
 void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
-  noiseGenerator->setElectronicsSim(theHFElectronicsSim);
   theHFDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -309,7 +193,6 @@ void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
 void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
-  noiseGenerator->setElectronicsSim(theHOElectronicsSim);
   theHODigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHOAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -317,7 +200,6 @@ void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
 void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
-  noiseGenerator->setElectronicsSim(theZDCElectronicsSim);
   theZDCDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -379,15 +261,9 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   if(isHCAL&&hbhegeo)
-  {
-    if(theHBHEDigitizer) theHBHEDigitizer->run(*col, *hbheResult);
-    if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->run(*col, *hbheResult);
-  }
+    theHBHEDigitizer->run(*col, *hbheResult);
   if(isHCAL&&hogeo)
-  {
-    if(theHODigitizer) theHODigitizer->run(*col, *hoResult);
-    if(theHOSiPMDigitizer) theHOSiPMDigitizer->run(*col, *hoResult);
-  }
+    theHODigitizer->run(*col, *hoResult);
   if(isHCAL&&hfgeo)
     theHFDigitizer->run(*col, *hfResult);  
   if(isZDC&&zdcgeo) 
@@ -410,100 +286,33 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<CaloGeometryRecord>().get(geometry);
-  // See if it's been updated
-  if(&*geometry != theGeometry)
-  {
-    theGeometry = &*geometry;
-    updateGeometry();
-  }
-}
+  theHBHEResponse->setGeometry(&*geometry);
+  theHOResponse->setGeometry(&*geometry);
+  theHFResponse->setGeometry(&*geometry);
+  theZDCResponse->setGeometry(&*geometry);
 
-
-void  HcalDigitizer::updateGeometry()
-{
-  if(theHBHEResponse) theHBHEResponse->setGeometry(theGeometry);
-  if(theHBHESiPMResponse) theHBHESiPMResponse->setGeometry(theGeometry);
-  if(theHOResponse) theHOResponse->setGeometry(theGeometry);
-  if(theHOSiPMResponse) theHOSiPMResponse->setGeometry(theGeometry);
-  theHFResponse->setGeometry(theGeometry);
-  theZDCResponse->setGeometry(theGeometry);
-
-  const vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const vector<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
-  const vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
+  const vector<DetId>& hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const vector<DetId>& heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const vector<DetId>& hoCells =  geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const vector<DetId>& hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const vector<DetId>& zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
   //const vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
   //const vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
   //std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
-  if(zdcCells.empty()) zdcgeo = false;
-  if(hbCells.empty() && heCells.empty()) hbhegeo = false;
-  if(hoCells.empty()) hogeo = false;
-  if(hfCells.empty()) hfgeo = false;
+  if(zdcCells.size()==0) zdcgeo = false;
+  if(hbCells.size()==0&&heCells.size()==0) hbhegeo = false;
+  if(hoCells.size()==0) hogeo = false;
+  if(hfCells.size()==0) hfgeo = false;
   // combine HB & HE
 
 
-  theHBHEDetIds = hbCells;
-  theHBHEDetIds.insert(theHBHEDetIds.end(), heCells.begin(), heCells.end());
+  hbheCells_ = hbCells ;
+  hbheCells_.insert(hbheCells_.end(), heCells.begin(), heCells.end());
 
-  HcalDigitizerImpl::fillCells(theHBHEDetIds, theHBHEDigitizer, theHBHESiPMDigitizer);
-  //HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
-  buildHOSiPMCells(hoCells);
+  theHBHEDigitizer->setDetIds(hbheCells_);
+  theHODigitizer->setDetIds(hoCells);
   theHFDigitizer->setDetIds(hfCells);
   theZDCDigitizer->setDetIds(zdcCells); 
 }
 
-
-void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells)
-{
-  // all HPD
-  if(theHOSiPMCode == 0)
-  {
-    theHODigitizer->setDetIds(allCells);
-  }
-  else if(theHOSiPMCode == 1)
-  {
-    theHOSiPMDigitizer->setDetIds(allCells);
-    // FIXME pick Zecotek or hamamatsu?
-  } 
-  else if(theHOSiPMCode == 2)// hardcode which are SiPM 
-  {
-    std::vector<HcalDetId> zecotekDetIds;
-    std::vector<HcalDetId> hamamatsuDetIds;
-    for(std::vector<DetId>::const_iterator detItr = allCells.begin();
-        detItr != allCells.end(); ++detItr)
-    {
-      HcalDetId hcalId(*detItr);
-      int ieta = hcalId.ieta();
-      int iphi = hcalId.iphi(); 
-      if ((ieta>=5 && ieta <= 10 )  && (iphi >=47 && iphi <=52))
-      {
-        zecotekDetIds.push_back(hcalId);
-        theHOSiPMDetIds.push_back(*detItr);
-      } 
-      else if(((ieta>=5 && ieta <= 10 ) && (iphi >=53 && iphi <=58))
-           || ((ieta>=11 && ieta <= 15 )  && (iphi >=59 && iphi <=70))){
-        hamamatsuDetIds.push_back(hcalId);
-        theHOSiPMDetIds.push_back(*detItr);
-      }
-      else {
-        theHOHPDDetIds.push_back(*detItr);
-      }
-    }
-    assert(theHODigitizer);
-    assert(theHOSiPMDigitizer);
-    theHODigitizer->setDetIds(theHOHPDDetIds);
-    theHOSiPMDigitizer->setDetIds(theHOSiPMDetIds);
-    theHOSiPMHitFilter.setDetIds(theHOSiPMDetIds);
-    // FIXME not applying a HitFilter to the HPDs, for now
-    theParameterMap->setHOZecotekDetIds(zecotekDetIds);
-    theParameterMap->setHOHamamatsuDetIds(hamamatsuDetIds);
-
-    // make sure we don't got through this exercise again
-    theHOSiPMCode = -2;
-  }
-}
-
-      
-    
 

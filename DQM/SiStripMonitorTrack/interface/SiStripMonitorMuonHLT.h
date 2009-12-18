@@ -29,7 +29,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 //#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
@@ -47,29 +46,8 @@
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
-
-	//needed for normalisation
-//Id
-#include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
-#include <DataFormats/SiStripDetId/interface/TECDetId.h>
-#include <DataFormats/SiStripDetId/interface/TIDDetId.h>
-#include <DataFormats/SiStripDetId/interface/TOBDetId.h>
-#include <DataFormats/SiStripDetId/interface/TIBDetId.h>
-//BoundPlane
-#include <DataFormats/GeometrySurface/interface/BoundPlane.h>
-#include <DataFormats/GeometrySurface/interface/BoundSurface.h>
-#include <DataFormats/GeometrySurface/interface/Bounds.h>
-#include <DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h>
-#include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
-//Point
-#include <DataFormats/GeometryVector/interface/Point2DBase.h>
-//Root
-#include "TGraph.h"
-#include "TFile.h"
-#include "TH1F.h"
-#include "TMath.h"
-#include "Math/GenVector/CylindricalEta3D.h"
-	//////////////////////////
+//#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+//#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 //
 // class decleration
@@ -86,9 +64,6 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       MonitorElement* EtaPhiOnTrackClustersMap;
       MonitorElement* EtaDistribOnTrackClustersMap;
       MonitorElement* PhiDistribOnTrackClustersMap;
-      MonitorElement* EtaPhiL3MuTrackClustersMap;
-      MonitorElement* EtaDistribL3MuTrackClustersMap;
-      MonitorElement* PhiDistribL3MuTrackClustersMap;
   };
 						    
 
@@ -99,16 +74,8 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
    private:
       virtual void beginRun(const edm::Run& run, const edm::EventSetup& es);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      void analyzeOnTrackClusters( const reco::Track* l3tk, const TrackerGeometry & theTracker, bool isL3MuTrack = true );
       virtual void endJob() ;
       void createMEs(const edm::EventSetup& es);
-      //methods needed for normalisation
-      float GetEtaWeight(string label, GlobalPoint gp);
-      float GetPhiWeight(string label, GlobalPoint gp);
-      void GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker,
-                                  std::map< string,std::vector<float> > & m_PhiStripMod_Eta,std::map< string,std::vector<float> > & m_PhiStripMod_Nb);
-      void Normalizer (std::vector<DetId> Dets,const TrackerGeometry & theTracker);
-      void PrintNormalization (std::vector<string> v_LabelHisto);
 
       // ----------member data ---------------------------
 
@@ -121,35 +88,14 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       int nTrig_;           /// mutriggered events
       int prescaleEvt_;     ///every n events
       bool verbose_;
-      bool normalize_;
-      bool printNormalize_;
-
-      //booleans to active part of the code
-      bool runOnClusters_;   //all clusters collection 
-      bool runOnMuonCandidates_;  //L3 muons candidates
-      bool runOnTracks_;     //tracks available in HLT stream
 
       //tag for collection taken as input
       edm::InputTag clusterCollectionTag_;
       edm::InputTag l3collectionTag_;
-      edm::InputTag TrackCollectionTag_;
 
       int HistoNumber; //nof layers in Tracker = 34 
       TkDetMap* tkdetmap_;
       std::map<std::string, LayerMEs> LayerMEMap;
-      //2D info from TkHistoMap 
-      TkHistoMap* tkmapAllClusters;
-      TkHistoMap* tkmapOnTrackClusters;
-      TkHistoMap* tkmapL3MuTrackClusters;
-
-    
-      // FOR NORMALISATION     
-      std::map< string,std::vector<float> > m_BinPhi ;
-      std::map< string,std::vector<float> > m_BinEta ;
-      std::map< string,std::vector<float> > m_ModNormPhi;
-      std::map< string,std::vector<float> > m_ModNormEta;
-      
-
 
 };
 #endif

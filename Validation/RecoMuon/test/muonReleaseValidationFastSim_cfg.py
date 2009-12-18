@@ -6,7 +6,7 @@ process = cms.Process("PROCESSNAME")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### standard includes
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load('Configuration.StandardSequences.GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -50,7 +50,8 @@ else:
 
 process.endjob_step = cms.Path(process.endOfProcess)
 
-process.load("DQMServices.Components.EDMtoMEConverter_cff")
+#process.load("DQMServices.Components.EDMtoMEConverter_cff")
+process.load('Configuration.StandardSequences.EDMtoMEAtJobEnd_cff')
 
 process.load("Validation.Configuration.postValidation_cff")
 process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
@@ -59,8 +60,8 @@ process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
 #process.multiTrackValidator.outputFile = 'mtv.SAMPLE.root'
 
 
-process.cutsRecoTracks.algorithm = cms.string('ALGORITHM')
-process.cutsRecoTracks.quality = cms.string('QUALITY')
+process.cutsRecoTracks.algorithm = ['ALGORITHM']
+process.cutsRecoTracks.quality = ['QUALITY']
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 
@@ -202,13 +203,15 @@ if ValidationSequence=="harvesting":
 
 if (FastSim):
     process.harvesting= cms.Sequence(
-        process.EDMtoMEConverter
+#        process.EDMtoMEConverter
+        process.EDMtoME
         *process.postValidation_fastsim
         *process.HLTMuonPostVal_FastSim
         *process.dqmSaver)
 else:
     process.harvesting= cms.Sequence(
-        process.EDMtoMEConverter
+#        process.EDMtoMEConverter
+        process.EDMtoME
         *process.postValidation
         *process.HLTMuonPostVal
         *process.dqmSaver)

@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.16 2009/11/13 23:25:30 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.20 2009/12/03 01:38:45 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -102,6 +102,10 @@ void FourVectorHLTClient::initialize(){
        // custompathnames_.push_back(pathconf->getParameter<std::string>("pathname"));  
     }
 
+  pathsSummaryFolder_ = parameters_.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/FourVector/PathsSummary/"));
+  pathsSummaryHLTCorrelationsFolder_ = parameters_.getUntrackedParameter ("hltCorrelationsFolder",std::string("HLT/FourVector/PathsSummary/HLT Correlations/"));
+  pathsSummaryFilterCountsFolder_ = parameters_.getUntrackedParameter ("filterCountsFolder",std::string("HLT/FourVector/PathsSummary/Filters Counts/"));
+  pathsSummaryFilterEfficiencyFolder_ = parameters_.getUntrackedParameter ("filterEfficiencyFolder",std::string("HLT/FourVector/PathsSummary/Filters Efficiencies/"));
 
       
 }
@@ -151,11 +155,10 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
   // Work with PathsSummary ME's
   //////////////////////////////
-  TString pathsSummaryFolder_ = TString("HLT/FourVector/PathsSummary/");
-  dbe_->setCurrentFolder(pathsSummaryFolder_.Data());
+  dbe_->setCurrentFolder(pathsSummaryFolder_.c_str());
  
   std::vector<MonitorElement*> summaryME;
-  summaryME = dbe_->getContents(pathsSummaryFolder_.Data());
+  summaryME = dbe_->getContents(pathsSummaryFilterCountsFolder_.c_str());
 
   vector<float> hltPassCount;
 
@@ -164,8 +167,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
     TString nameME = (summaryME[i])->getName();
     LogDebug("FourVectorHLTClient") << "ME = " << nameME << endl;
 
-    TString fullPathToME    = pathsSummaryFolder_+"/"+nameME;
-    LogDebug("FourVectorHLTClient") << "fullPath   = " << fullPathToME << endl;
+    TString fullPathToME    = pathsSummaryFilterCountsFolder_ + nameME;
     LogDebug("FourVectorHLTClient") << "fullPathME = " << fullPathToME << endl;
 
     if(nameME.Contains("Filters_")) {
@@ -195,8 +197,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
       }
 
-      TString pathsSummaryFilterEfficiencyFolder_ = TString("HLT/FourVector/PathsSummary/Filters Efficiencies");
-      dbe_->setCurrentFolder(pathsSummaryFilterEfficiencyFolder_.Data());
+      dbe_->setCurrentFolder(pathsSummaryFilterEfficiencyFolder_.c_str());
 
       dbe_->book1D(nameMEeff.Data(), effHist);
 
@@ -207,74 +208,31 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
   // Normalize PassPass and PassFail Matrices
   //////////////////////////////////////////////
+  vector<string> name;
+  name.push_back("All");
+  name.push_back("Muon");
+  name.push_back("Egamma");
+  name.push_back("JetMET");
+  name.push_back("Rest");
+  name.push_back("Special");
 
-  // Get PassPass
-  TString pathToPassPassCorrelationME_ = pathsSummaryFolder_ + "HLTPassPass_Correlation";
-  MonitorElement *MEPassPass    = dbe_->get(pathToPassPassCorrelationME_.Data());
+  string fullPathToME; 
 
-  // Get PassFail
-  TString pathToPassFailCorrelationME_ = pathsSummaryFolder_ + "HLTPassFail_Correlation";
-  MonitorElement *MEPassFail    = dbe_->get(pathToPassFailCorrelationME_.Data());
+  for (unsigned int i=0;i<name.size();i++) {
 
-  if(MEPassPass && MEPassFail) {
+    fullPathToME = pathsSummaryFolder_ +"HLT_"+name[i]+"_PassPass";
+    v_ME_HLTPassPass_.push_back( dbe_->get(fullPathToME));
 
-    TH2F* MEHistPassFail = MEPassFail->getTH2F() ;
-    TH2F* MEHistPassPass = MEPassPass->getTH2F() ;
+    fullPathToME = pathsSummaryHLTCorrelationsFolder_+"HLT_"+name[i]+"_PassPass_Normalized";
+    v_ME_HLTPassPass_Normalized_.push_back( dbe_->get(fullPathToME));
 
-    TString nameMEPassPassNormalized           = MEPassPass->getName()+"_Normalized";
-    TString titleMEPassPassNormalized          = MEPassPass->getTitle()+" Normalized to number of Pass";
+    fullPathToME = pathsSummaryHLTCorrelationsFolder_+"HLT_"+name[i]+"_Pass_Normalized_Any";
+    v_ME_HLTPass_Normalized_Any_.push_back( dbe_->get(fullPathToME));
 
-    TH2F* MEHistPassPassNormalized = (TH2F*) MEHistPassPass->Clone(nameMEPassPassNormalized.Data());
-    MEHistPassPassNormalized->SetTitle(titleMEPassPassNormalized.Data());
+  }
+  normalizeHLTMatrix();
+  
 
-    TString nameMEPassFailNormalized           = MEPassFail->getName()+"_Normalized";
-    TString titleMEPassFailNormalized          = MEPassFail->getTitle()+" Normalized to number of Pass";
-
-    TH2F* MEHistPassFailNormalized = (TH2F*) MEHistPassFail->Clone(nameMEPassFailNormalized.Data());
-    MEHistPassFailNormalized->SetTitle(titleMEPassFailNormalized.Data());
-
-    float passCount = 0;
-    unsigned int nBinsX = MEHistPassPass->GetNbinsX();
-    unsigned int nBinsY = MEHistPassPass->GetNbinsY();
-
-    for(unsigned int binX = 0; binX < nBinsX+1; binX++) {
-       
-      passCount = MEHistPassPassNormalized->GetBinContent(binX,binX);
-
-      for(unsigned int binY = 0; binY < nBinsY+1; binY++) {
-
-        if(passCount != 0) {
-
-          // normalize each bin to number of passCount
-          float normalizedBinContentPassPass = (MEHistPassPass->GetBinContent(binX,binY))/passCount;
-          float normalizedBinContentPassFail = (MEHistPassFail->GetBinContent(binX,binY))/passCount;
-
-          MEHistPassPassNormalized->SetBinContent(binX,binY,normalizedBinContentPassPass);
-          MEHistPassFailNormalized->SetBinContent(binX,binY,normalizedBinContentPassFail);
-
-        }
-        else {
-
-          MEHistPassPassNormalized->SetBinContent(binX,binY,0);
-          MEHistPassFailNormalized->SetBinContent(binX,binY,0);
-
-        } // end if else
-     
-      } // end for binY
-
-    } // end for binX
-
-    TString pathsSummaryHLTCorrelationsFolder_ = TString("HLT/FourVector/PathsSummary/HLT Correlations");
-    dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.Data());
-
-    dbe_->book2D(nameMEPassPassNormalized.Data(), MEHistPassPassNormalized);
-    dbe_->book2D(nameMEPassFailNormalized.Data(), MEHistPassFailNormalized);
-
-
-    //delete MEHistPassPassNormalized;
-    //delete MEHistPassFailNormalized;
-
-  } // end if MEs
 
   // HLT paths
   TObjArray *hltPathNameColl = new TObjArray(100);
@@ -287,21 +245,12 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
  
   fullPathHLTFolders = dbe_->getSubdirs();
  
-  LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient] endRun: sourceDir_(" << sourceDir_.Data() << ") has " << fullPathHLTFolders.size() << " folders. " << endl;
+  LogDebug("FourVectorHLTClient")<<"endRun: sourceDir_(" << sourceDir_.Data() << ") has " << fullPathHLTFolders.size() << " folders. " << endl;
  
-  /*
-  if(! dbe_->containsAnyMonitorable(sourceDir_.Data())) {
  
-    LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient] endLuminosityBlock: sourceDir_(" << sourceDir_.Data() << ") has no MEs " << endl;
-    return;
-
-  }
-  */
- 
-  //LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient] endLuminosityBlock: Interesting dir has MEs " << endl;
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
  
-    LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient] endRun: sourceDir_(" << sourceDir_.Data() << ") folder["<< i << "] = " << fullPathHLTFolders[i] << endl;
+    LogDebug("FourVectorHLTClient")<<"endRun: sourceDir_(" << sourceDir_.Data() << ") folder["<< i << "] = " << fullPathHLTFolders[i] << endl;
     TString hltPath = fullPathHLTFolders[i].substr(fullPathHLTFolders[i].rfind('/')+1, fullPathHLTFolders[i].size());
  
     ///////////////////////////
@@ -697,5 +646,58 @@ void FourVectorHLTClient::calculateRatio(TH1F* effHist, TH1F* denHist) {
   
   }
 
+
+}
+
+void FourVectorHLTClient::normalizeHLTMatrix() {
+
+    
+  for (unsigned int i =0;i<v_ME_HLTPassPass_.size();i++) {
+
+    MonitorElement* ME_HLTPassPass_ = v_ME_HLTPassPass_[i]; 
+    MonitorElement* ME_HLTPassPass_Normalized_ = v_ME_HLTPassPass_Normalized_[i]; 
+    MonitorElement* ME_HLTPass_Normalized_Any_ = v_ME_HLTPass_Normalized_Any_[i]; 
+
+    if(!ME_HLTPassPass_ || !ME_HLTPassPass_Normalized_ || !ME_HLTPass_Normalized_Any_) return;
+
+    float passCount = 0;
+    unsigned int nBinsX = ME_HLTPassPass_->getTH2F()->GetNbinsX();
+    unsigned int nBinsY = ME_HLTPassPass_->getTH2F()->GetNbinsY();
+
+    for(unsigned int binX = 0; binX < nBinsX+1; binX++) {
+       
+      passCount = ME_HLTPassPass_->getTH2F()->GetBinContent(binX,binX);
+
+
+      for(unsigned int binY = 0; binY < nBinsY+1; binY++) {
+
+        if(passCount != 0) {
+
+          // normalize each bin to number of passCount
+          float normalizedBinContentPassPass = (ME_HLTPassPass_->getTH2F()->GetBinContent(binX,binY))/passCount;
+          //float normalizedBinContentPassFail = (ME_HLTPassFail_->getTH2F()->GetBinContent(binX,binY))/passCount;
+
+          ME_HLTPassPass_Normalized_->getTH2F()->SetBinContent(binX,binY,normalizedBinContentPassPass);
+          //ME_HLTPassFail_Normalized_->getTH2F()->SetBinContent(binX,binY,normalizedBinContentPassFail);
+
+          if(binX == nBinsX) {
+
+            ME_HLTPass_Normalized_Any_->getTH1F()->SetBinContent(binY,normalizedBinContentPassPass);
+
+          }
+
+        }
+        else {
+
+          ME_HLTPassPass_Normalized_->getTH2F()->SetBinContent(binX,binY,0);
+          //ME_HLTPassFail_Normalized_->getTH2F()->SetBinContent(binX,binY,0);
+
+        } // end if else
+     
+      } // end for binY
+
+    } // end for binX
+  
+  } // end for i
 
 }

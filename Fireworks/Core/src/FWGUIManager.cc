@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.169 2009/11/18 22:46:23 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.180 2009/12/06 22:22:36 amraktad Exp $
 
 //
 
@@ -32,6 +32,7 @@
 #include "TGTab.h"
 #include "TG3DLine.h"
 #include "TGListTree.h"
+#include "TGLViewer.h"
 #include "TEveBrowser.h"
 #include "TBrowser.h"
 #include "TGMenu.h"
@@ -41,6 +42,7 @@
 #include "TEveWindow.h"
 #include "TEveWindowManager.h"
 #include "TEveSelection.h"
+#include "TEveViewer.h"
 #include "TGFileDialog.h"
 #include "TGSlider.h"
 #include "TColor.h"
@@ -85,11 +87,10 @@
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
-#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
-#include "Fireworks/Core/src/FWCheckBoxIcon.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
@@ -116,14 +117,14 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
-			   CmsShowMain* iCmsShowMain,
+			                  const CmsShowMain* iCmsShowMain,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
    m_eiManager(iEIMgr),
    m_changeManager(iCMgr),
    m_colorManager(iColorMgr),
-   m_presentEvent(0),
+   m_cmsShowMain(iCmsShowMain),
    m_continueProcessingEvents(false),
    m_waitForUserAction(true),
    m_code(0),
@@ -141,7 +142,6 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
-   m_cmsShowMain = iCmsShowMain;
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
@@ -201,7 +201,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
 
       TQObject::Connect(m_cmsShowMainFrame->m_filterShowGUIBtn, "Clicked()", "FWGUIManager", this, "showEventFilterGUI()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterEnableBtn,  "Clicked()", "FWGUIManager", this, "toggleEventFilterEnable()"); 
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEnableBtn,  "Clicked()", "FWGUIManager", this, "filterButtonClicked()"); 
 
       TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)"  , "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
@@ -323,12 +323,19 @@ FWGUIManager::fileChanged(const TFile* iFile)
 }
 
 void
-FWGUIManager::loadEvent(const fwlite::Event& event) {
+FWGUIManager::loadEvent() {
    // To be replaced when we can get index from fwlite::Event
-   m_cmsShowMainFrame->loadEvent(event);
-   m_presentEvent=&event;
+   
+   TEveViewerList* viewers = gEve->GetViewers();
+   for (TEveElement::List_i i=viewers->BeginChildren(); i!= viewers->EndChildren(); ++i)
+   {
+      TEveViewer* ev = dynamic_cast<TEveViewer*>(*i);
+      ev->GetGLViewer()->DeleteOverlayAnnotations();
+   }
+   
+   m_cmsShowMainFrame->loadEvent(*m_cmsShowMain->getCurrentEvent());
    if(m_dataAdder) {
-      m_dataAdder->update(m_openFile, &event);
+      m_dataAdder->update(m_openFile, m_cmsShowMain->getCurrentEvent());
    }
 }
 
@@ -351,9 +358,9 @@ FWGUIManager::playEventsBackwardsAction()
 }
 
 CSGContinuousAction*
-FWGUIManager::autoRewindAction()
+FWGUIManager::loopAction()
 {
-   return m_cmsShowMainFrame->autoRewindAction();
+   return m_cmsShowMainFrame->loopAction();
 }
 
 void
@@ -431,7 +438,7 @@ FWGUIManager::addData()
       m_dataAdder = new FWGUIEventDataAdder(100,100,
                                             m_eiManager,
                                             m_cmsShowMainFrame,
-                                            m_presentEvent,
+                                            m_cmsShowMain->getCurrentEvent(),
                                             m_openFile,
                                             m_viewManagerManager->supportedTypesAndRepresentations());
    }
@@ -732,7 +739,13 @@ FWGUIManager::getGUIManager()
 {
    return m_guiManager;
 }
- 
+
+const fwlite::Event*
+FWGUIManager::getCurrentEvent() const
+{
+   return m_cmsShowMain->getCurrentEvent();  
+}
+
 void
 FWGUIManager::promptForConfigurationFile()
 {
@@ -1028,7 +1041,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // !! when position and size is clear map window
    m_cmsShowMainFrame->MapSubwindows();
    m_cmsShowMainFrame->Layout();
-   m_cmsShowMainFrame->MapWindow();
+   m_cmsShowMainFrame->MapRaised();
 
    // set from view reading area info nd view info
    float_t leftWeight =1;
@@ -1191,33 +1204,35 @@ FWGUIManager::finishUpColorChange()
 }
 //______________________________________________________________________________
 
-void FWGUIManager::showEventFilterGUI()
+void
+FWGUIManager::showEventFilterGUI()
 {
    showEventFilterGUI_.emit(m_cmsShowMainFrame);
 }
 
-void FWGUIManager::toggleEventFilterEnable()
+void
+FWGUIManager::filterButtonClicked()
 {
-   bool enable = m_cmsShowMainFrame->m_filterEnableBtn->IsOn();
-   if (!enable)
-      m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
-
-   eventFilterEnable_.emit(enable);
+   filterButtonClicked_.emit();
 }
 
-void FWGUIManager::eventFilterMessageChanged(int sel, int total)
+void
+FWGUIManager::setFilterButtonText(const char* txt)
 {
-   m_cmsShowMainFrame->m_filterShowGUIBtn->SetText(Form("Events are filtered. %d out of %d events are shown", sel, total));
+   m_cmsShowMainFrame->m_filterShowGUIBtn->SetText(txt);
 }
 
-void FWGUIManager::updateEventFilterEnable(bool enable)
-{   
-   m_cmsShowMainFrame->m_filterEnableBtn->SetOn(enable, false);
-   if (!enable)
-      m_cmsShowMainFrame->m_filterShowGUIBtn->SetText("Event Filtering is OFF");
+void
+FWGUIManager::setFilterButtonIcon(int state)
+{
+   int i = state*3;
+   m_cmsShowMainFrame->m_filterEnableBtn->setIcons(m_cmsShowMainFrame->m_filterIcons[i],
+                                                   m_cmsShowMainFrame->m_filterIcons[i+1],
+                                                   m_cmsShowMainFrame->m_filterIcons[i+2]);
 }
 
-void FWGUIManager::editEventFilters(bool edit)
+void
+FWGUIManager::updateEventFilterEnable(bool btnEnabled)
 {
-   m_cmsShowMainFrame->m_filterEnableBtn->SetState(edit ? kButtonDisabled : kButtonEngaged);
+   m_cmsShowMainFrame->m_filterEnableBtn->SetEnabled(btnEnabled);
 }

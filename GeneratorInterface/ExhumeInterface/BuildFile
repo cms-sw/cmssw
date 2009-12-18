@@ -1,14 +1,19 @@
-<use name=FWCore/Framework>
-<use name=GeneratorInterface/Core>
-<use name=GeneratorInterface/Pythia6Interface>
-<use name=SimDataFormats/GeneratorProducts>
 <use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=hepmc>
 <use name=clhep>
 <use name=pythia6>
 <use name=f77compiler>
 <use name=lhapdf>
 <use name=heppdt>
+<use name=GeneratorInterface/Core>
+<use name=GeneratorInterface/Pythia6Interface>
+<use name=GeneratorInterface/ExternalDecays>
+<use name=GeneratorInterface/PartonShowerVeto>
 <export>
  <lib name=GeneratorInterfaceExhumeInterface>
 </export>
+
+
+

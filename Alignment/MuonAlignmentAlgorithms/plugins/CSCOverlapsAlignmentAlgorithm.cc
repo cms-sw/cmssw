@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.6 2009/11/08 10:32:15 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.4 2009/03/27 09:20:48 flucke Exp $
 //
 //
 
@@ -42,7 +42,6 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 #include "TH1F.h"
-#include "TH2F.h"
 #include "TProfile.h"
 #include "TStyle.h"
 
@@ -67,7 +66,6 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
       double redChi2(const std::vector<const TrackingRecHit*> &hits, bool convention2pi, double zcenter, double intercept, double slope);
       bool summarize(Alignable *ali, double &rotyDiff, double &rotyDiff_err2, double &twistDiff, double &twistDiff_err2, double &phiPosDiff, double &phiPosDiff_err2, double &rotzDiff, double &rotzDiff_err2, double &rotyDiffRMS, double &phiPosDiffRMS, double &rotzDiffRMS);
       bool summarize2(Alignable *ai, Alignable *aiprev, double &resid_i, double &resid_err2_i, double &resid_iprev, double &resid_err2_iprev, double &residRMS_i, double &residRMS_iprev);
-      bool summarize3(Alignable *ai, double &resid_i, double &resid_err2_i, double &residRMS_i);
       bool matrixSolution(int endcap, int station, int ring);
 
       AlignmentParameterStore* m_alignmentParameterStore;
@@ -99,31 +97,9 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
       std::map<Alignable*,TH1F*> m_hist_indiv_relativephi;
       std::map<Alignable*,TProfile*> m_hist_indiv_intercept_relativephi;
 
-      std::map<Alignable*,TH1F*> m_hist_beamlineAngle;
-      TH2F *m_overlaps_occupancy;
-      TH2F *m_overlaps_occupancy_beamline;
-      TH2F *m_overlaps_occupancy_quality;
-      TH2F *m_overlaps_XYpos_mep1;
-      TH2F *m_overlaps_XYpos_mep2;
-      TH2F *m_overlaps_XYpos_mep3;
-      TH2F *m_overlaps_XYpos_mep4;
-      TH2F *m_overlaps_XYpos_mem1;
-      TH2F *m_overlaps_XYpos_mem2;
-      TH2F *m_overlaps_XYpos_mem3;
-      TH2F *m_overlaps_XYpos_mem4;
-      TH2F *m_overlaps_RPhipos_mep1;
-      TH2F *m_overlaps_RPhipos_mep2;
-      TH2F *m_overlaps_RPhipos_mep3;
-      TH2F *m_overlaps_RPhipos_mep4;
-      TH2F *m_overlaps_RPhipos_mem1;
-      TH2F *m_overlaps_RPhipos_mem2;
-      TH2F *m_overlaps_RPhipos_mem3;
-      TH2F *m_overlaps_RPhipos_mem4;
-
       std::string m_mode;
       double m_maxHitErr;
       int m_minHitsPerChamber;
-      double m_beamlineAngle;
       double m_maxRotYDiff;
       double m_maxRPhiDiff;
       double m_maxRedChi2;
@@ -170,7 +146,6 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
    , m_mode(iConfig.getParameter<std::string>("mode"))
    , m_maxHitErr(iConfig.getParameter<double>("maxHitErr"))
    , m_minHitsPerChamber(iConfig.getParameter<int>("minHitsPerChamber"))
-   , m_beamlineAngle(iConfig.getParameter<double>("beamlineAngle"))
    , m_maxRotYDiff(iConfig.getParameter<double>("maxRotYDiff"))
    , m_maxRPhiDiff(iConfig.getParameter<double>("maxRPhiDiff"))
    , m_maxRedChi2(iConfig.getParameter<double>("maxRedChi2"))
@@ -197,7 +172,7 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
        for (int station = 1;  station <= 4;  station++) {
 	 int rings = 2;
 	 if (station == 1) rings = 4;
-	 if (station == 4) rings = 2;   // ME4/2 exists now
+	 if (station == 4) rings = 1;
 	 for (int ring = 1;  ring <= rings;  ring++) {
 	   std::stringstream name;
 	   name << "ME" << (endcap == 1 ? "p" : "m") << station << "_" << ring;
@@ -289,8 +264,6 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
 	m_hist_indiv_relativephi[*ali] = ring->make<TH1F>((std::string("indiv_relativephi") + name2.str()).c_str(), (std::string("#phi") + title2.str()).c_str(), 64, 0.165, 0.185);
 	m_hist_indiv_intercept_relativephi[*ali] = ring->make<TProfile>((std::string("indiv_intercept_relativephi") + name2.str()).c_str(), (std::string("#phi residual versus #phi") + title2.str()).c_str(), 16, 0.165, 0.185);
 
-	m_hist_beamlineAngle[*ali] = ring->make<TH1F>((std::string("beamlineAngle") + name2.str()).c_str(), (std::string("d(r#phi)/dz") + title2.str()).c_str(), 100, -1., 1.);
-
 	m_hist_redChi2[*ali]->StatOverflows(kTRUE);
 	m_hist_RotYDiff[*ali]->StatOverflows(kTRUE);
 	m_hist_TwistDiff[*ali]->StatOverflows(kTRUE);
@@ -300,105 +273,8 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
 	m_hist_vertpos[*ali]->StatOverflows(kTRUE);
 	m_hist_indiv_relativephi[*ali]->StatOverflows(kTRUE);
 	m_hist_indiv_intercept_relativephi[*ali]->StatOverflows(kTRUE);
-	m_hist_beamlineAngle[*ali]->StatOverflows(kTRUE);
 
       } // end if makeHistograms
-   }
-
-   if (m_makeHistograms) {
-     edm::Service<TFileService> tfileService;
-     m_overlaps_occupancy = tfileService->make<TH2F>("overlaps_occupancy", "Overlap-track occupancy", 36, 1, 37, 20, 1, 21);
-     m_overlaps_occupancy_beamline = tfileService->make<TH2F>("overlaps_occupancy_beamline", "Overlap-track occupancy (with beamline-pointing)", 36, 1, 37, 20, 1, 21);
-     m_overlaps_occupancy_quality = tfileService->make<TH2F>("overlaps_occupancy_quality", "Overlap-track occupancy (beamline and quality cuts)", 36, 1, 37, 20, 1, 21);
-     for (int i = 1;  i <= 36;  i++) {
-	std::stringstream pairname;
-	pairname << i << "-";
-	if (i+1 == 37) pairname << 1;
-	else pairname << (i+1);
-	m_overlaps_occupancy->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-	m_overlaps_occupancy_beamline->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-	m_overlaps_occupancy_quality->GetXaxis()->SetBinLabel(i, pairname.str().c_str());
-     }
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(1, "ME-4/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(2, "ME-4/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(3, "ME-3/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(4, "ME-3/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(5, "ME-2/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(6, "ME-2/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(7, "ME-1/3");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(13, "ME+1/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(14, "ME+1/3");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(15, "ME+2/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(16, "ME+2/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(17, "ME+3/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(18, "ME+3/2");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(19, "ME+4/1");
-     m_overlaps_occupancy->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(1, "ME-4/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(2, "ME-4/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(3, "ME-3/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(4, "ME-3/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(5, "ME-2/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(6, "ME-2/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(7, "ME-1/3");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(13, "ME+1/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(14, "ME+1/3");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(15, "ME+2/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(16, "ME+2/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(17, "ME+3/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(18, "ME+3/2");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(19, "ME+4/1");
-     m_overlaps_occupancy_beamline->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(1, "ME-4/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(2, "ME-4/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(3, "ME-3/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(4, "ME-3/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(5, "ME-2/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(6, "ME-2/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(7, "ME-1/3");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(8, "ME-1/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(9, "ME-1/1b");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(10, "ME-1/1a");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(11, "ME+1/1a");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(12, "ME+1/1b");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(13, "ME+1/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(14, "ME+1/3");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(15, "ME+2/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(16, "ME+2/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(17, "ME+3/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(18, "ME+3/2");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(19, "ME+4/1");
-     m_overlaps_occupancy_quality->GetYaxis()->SetBinLabel(20, "ME+4/2");
-
-     m_overlaps_XYpos_mep1 = tfileService->make<TH2F>("overlaps_XYpos_mep1", "Positions: ME+1", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mep2 = tfileService->make<TH2F>("overlaps_XYpos_mep2", "Positions: ME+2", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mep3 = tfileService->make<TH2F>("overlaps_XYpos_mep3", "Positions: ME+3", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mep4 = tfileService->make<TH2F>("overlaps_XYpos_mep4", "Positions: ME+4", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem1 = tfileService->make<TH2F>("overlaps_XYpos_mem1", "Positions: ME-1", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem2 = tfileService->make<TH2F>("overlaps_XYpos_mem2", "Positions: ME-2", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem3 = tfileService->make<TH2F>("overlaps_XYpos_mem3", "Positions: ME-3", 140, -700., 700., 140, -700., 700.);
-     m_overlaps_XYpos_mem4 = tfileService->make<TH2F>("overlaps_XYpos_mem4", "Positions: ME-4", 140, -700., 700., 140, -700., 700.);
-
-     m_overlaps_RPhipos_mep1 = tfileService->make<TH2F>("overlaps_RPhipos_mep1", "Positions: ME+1", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mep2 = tfileService->make<TH2F>("overlaps_RPhipos_mep2", "Positions: ME+2", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mep3 = tfileService->make<TH2F>("overlaps_RPhipos_mep3", "Positions: ME+3", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mep4 = tfileService->make<TH2F>("overlaps_RPhipos_mep4", "Positions: ME+4", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem1 = tfileService->make<TH2F>("overlaps_RPhipos_mem1", "Positions: ME-1", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem2 = tfileService->make<TH2F>("overlaps_RPhipos_mem2", "Positions: ME-2", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem3 = tfileService->make<TH2F>("overlaps_RPhipos_mem3", "Positions: ME-3", 144, -M_PI, M_PI, 21, 0., 700.);
-     m_overlaps_RPhipos_mem4 = tfileService->make<TH2F>("overlaps_RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
    }
 
    if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
@@ -558,13 +434,6 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
       int istation = -1000;
       int iring = -1000;
       std::vector<const TrackingRecHit*> evenhits, oddhits;
-
-      double globalXsum = 0.;
-      double globalYsum = 0.;
-      double globalPhisum = 0.;
-      double globalRsum = 0.;
-      double globalN = 0.;
-
       for (std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();  hit != station->end();  ++hit) {
 	CSCDetId id((*hit)->geographicalId().rawId());
 	iendcap = id.endcap();
@@ -581,19 +450,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
 	  oddChamber = chamberId;
 	  oddhits.push_back(*hit);
 	}
-
-	GlobalPoint glboalPosition = m_cscGeometry->idToDet(id)->surface().toGlobal((*hit)->localPosition());
-	globalXsum += glboalPosition.x();
-	globalYsum += glboalPosition.y();
-	globalPhisum += glboalPosition.phi();
-	globalRsum += glboalPosition.perp();
-	globalN += 1.;
       } // end loop over hits to find the even and odd chambers
-
-      double globalXpos = globalXsum / globalN;
-      double globalYpos = globalYsum / globalN;
-      double globalPhipos = globalPhisum / globalN;
-      double globalRpos = globalRsum / globalN;
       
       if (distinct_chambers.size() != 2) break;  // how could that happen?  Be careful anyway...
 
@@ -655,177 +512,115 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
       bool even_is_lesser = (evenChamber.chamber() < oddChamber.chamber());
       if (evenChamber.chamber() == nchambers  &&  oddChamber.chamber() == 1) even_is_lesser = true;   // handle wrap-around cases
       else if (oddChamber.chamber() == nchambers  &&  evenChamber.chamber() == 1) even_is_lesser = false;
-      
+
       double rotyDiff, phiPosDiff, rotyDiff_err2, phiPosDiff_err2, redChi2_i, redChi2_inext, relativephi_i, slope_i;
-      
+
       if (even_is_lesser) {
-	 chamber_i = m_alignableNavigator->alignableFromDetId(evenChamber).alignable();
-	 chamber_inext = m_alignableNavigator->alignableFromDetId(oddChamber).alignable();
-	 
-	 m_radius[chamber_i] = evenR0;
-	 m_radius[chamber_inext] = oddR0;
-	 redChi2_i = even_redChi2;
-	 redChi2_inext = odd_redChi2;
-	 relativephi_i = even_phipos - evenphi;
-	 slope_i = even_slope;
-	 
-	 rotyDiff = odd_roty - even_roty;  // the (N+1) - (N) difference is odd minus even
-	 phiPosDiff = odd_phipos - even_phipos;
+	chamber_i = m_alignableNavigator->alignableFromDetId(evenChamber).alignable();
+	chamber_inext = m_alignableNavigator->alignableFromDetId(oddChamber).alignable();
+
+	m_radius[chamber_i] = evenR0;
+	m_radius[chamber_inext] = oddR0;
+	redChi2_i = even_redChi2;
+	redChi2_inext = odd_redChi2;
+	relativephi_i = even_phipos - evenphi;
+	slope_i = even_slope;
+
+	rotyDiff = odd_roty - even_roty;  // the (N+1) - (N) difference is odd minus even
+	phiPosDiff = odd_phipos - even_phipos;
       }
       else {
-	 chamber_i = m_alignableNavigator->alignableFromDetId(oddChamber).alignable();
-	 chamber_inext = m_alignableNavigator->alignableFromDetId(evenChamber).alignable();
-	 
-	 m_radius[chamber_i] = oddR0;
-	 m_radius[chamber_inext] = evenR0;
-	 redChi2_i = odd_redChi2;
-	 redChi2_inext = even_redChi2;
-	 relativephi_i = odd_phipos - oddphi;
-	 slope_i = odd_slope;
-	 
-	 rotyDiff = even_roty - odd_roty;  // the (N+1) - (N) difference is even minus odd
-	 phiPosDiff = even_phipos - odd_phipos;
+	chamber_i = m_alignableNavigator->alignableFromDetId(oddChamber).alignable();
+	chamber_inext = m_alignableNavigator->alignableFromDetId(evenChamber).alignable();
+
+	m_radius[chamber_i] = oddR0;
+	m_radius[chamber_inext] = evenR0;
+	redChi2_i = odd_redChi2;
+	redChi2_inext = even_redChi2;
+	relativephi_i = odd_phipos - oddphi;
+	slope_i = odd_slope;
+	
+	rotyDiff = even_roty - odd_roty;  // the (N+1) - (N) difference is even minus odd
+	phiPosDiff = even_phipos - odd_phipos;
       }
-      
+
       if (m_useFitWeightsInMean) {
-	 rotyDiff_err2 = odd_roty_err2 + even_roty_err2;
-	 phiPosDiff_err2 = odd_phipos_err2 + even_phipos_err2;
+	rotyDiff_err2 = odd_roty_err2 + even_roty_err2;
+	phiPosDiff_err2 = odd_phipos_err2 + even_phipos_err2;
       }
       else {
-	 rotyDiff_err2 = 1.;
-	 phiPosDiff_err2 = 1.;
+	rotyDiff_err2 = 1.;
+	phiPosDiff_err2 = 1.;
       }
-      
+
       double rphiPosDiff = phiPosDiff * radius;
       double rphiPosDiff_err2 = phiPosDiff_err2 * radius * radius;
-      
+
       // double length = chamber_i->surface().length();
 
-      double ringbin = 0;
-      CSCDetId cscid(chamber_i->geomDetId().rawId());
-      if (cscid.endcap() == 2  &&  cscid.station() == 4  &&  cscid.ring() == 2) ringbin = 1.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 4  &&  cscid.ring() == 1) ringbin = 2.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 3  &&  cscid.ring() == 2) ringbin = 3.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 3  &&  cscid.ring() == 1) ringbin = 4.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 2  &&  cscid.ring() == 2) ringbin = 5.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 2  &&  cscid.ring() == 1) ringbin = 6.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 1  &&  cscid.ring() == 3) ringbin = 7.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 1  &&  cscid.ring() == 2) ringbin = 8.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 1  &&  cscid.ring() == 1) ringbin = 9.5;
-      else if (cscid.endcap() == 2  &&  cscid.station() == 1  &&  cscid.ring() == 4) ringbin = 10.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 1  &&  cscid.ring() == 4) ringbin = 11.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 1  &&  cscid.ring() == 1) ringbin = 12.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 1  &&  cscid.ring() == 2) ringbin = 13.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 1  &&  cscid.ring() == 3) ringbin = 14.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 2  &&  cscid.ring() == 1) ringbin = 15.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 2  &&  cscid.ring() == 2) ringbin = 16.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 3  &&  cscid.ring() == 1) ringbin = 17.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 3  &&  cscid.ring() == 2) ringbin = 18.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 4  &&  cscid.ring() == 1) ringbin = 19.5;
-      else if (cscid.endcap() == 1  &&  cscid.station() == 4  &&  cscid.ring() == 2) ringbin = 20.5;
-      double overlapbin = cscid.chamber() + 0.5;
-
-      if (m_makeHistograms) {
-	 if (even_is_lesser) {
-	    m_hist_beamlineAngle[chamber_i]->Fill(even_roty);
-	    m_hist_beamlineAngle[chamber_inext]->Fill(odd_roty);
-	 }
-	 else {
-	    m_hist_beamlineAngle[chamber_i]->Fill(odd_roty);
-	    m_hist_beamlineAngle[chamber_inext]->Fill(even_roty);
-	 }
-
-	 m_overlaps_occupancy->Fill(overlapbin, ringbin);
-      }
-
-      if (fabs(even_roty) < m_beamlineAngle  &&  fabs(odd_roty) < m_beamlineAngle) {
-
-	 if (m_makeHistograms) m_overlaps_occupancy_beamline->Fill(overlapbin, ringbin);
-
-	 if ((m_maxRotYDiff < 0.  ||  fabs(rotyDiff) < m_maxRotYDiff)  &&
-	     (m_maxRPhiDiff < 0.  ||  fabs(phiPosDiff) * m_radius[chamber_i] < m_maxRPhiDiff)  &&
-	     (m_maxRedChi2 < 0.  ||  (even_redChi2 > 0.  &&  even_redChi2 < m_maxRedChi2  &&  odd_redChi2 > 0.  &&  odd_redChi2 < m_maxRedChi2))  &&
+      if ((m_maxRotYDiff < 0.  ||  fabs(rotyDiff) < m_maxRotYDiff)  &&
+	  (m_maxRPhiDiff < 0.  ||  fabs(phiPosDiff) * m_radius[chamber_i] < m_maxRPhiDiff)  &&
+	  (m_maxRedChi2 < 0.  ||  (even_redChi2 > 0.  &&  even_redChi2 < m_maxRedChi2  &&  odd_redChi2 > 0.  &&  odd_redChi2 < m_maxRedChi2))  &&
 // 	  (m_fiducialY < 0.  ||  (fabs(vertpos) < m_fiducialY * length/2.))  &&
 // 	  (m_fiducialMinPhi < 0.  ||  m_fiducialMaxPhi < 0.  ||  (m_fiducialMinPhi < relativephi_i  &&  relativephi_i < m_fiducialMaxPhi))  &&
-	     true) {
-	    
-	    if (m_makeHistograms) {
-	       m_hist_redChi2[chamber_i]->Fill(redChi2_i);
-	       m_hist_redChi2[chamber_inext]->Fill(redChi2_inext);
+	  true) {
+
+	if (m_makeHistograms) {
+	  m_hist_redChi2[chamber_i]->Fill(redChi2_i);
+	  m_hist_redChi2[chamber_inext]->Fill(redChi2_inext);
 	
-	       m_hist_RotYDiff[chamber_i]->Fill(rotyDiff * 1000.);
-	       m_hist_TwistDiff[chamber_i]->Fill((rotyDiff * 1000.) / (vertpos / 100.));
-	       m_hist_PhiPosDiff[chamber_i]->Fill(phiPosDiff * 1000.);
-	       m_hist_RPhiPosDiff[chamber_i]->Fill(rphiPosDiff * 10.);
-	       m_hist_RotZDiff[chamber_i]->Fill((rphiPosDiff / vertpos) * 1000.);
-	       m_hist_vertpos[chamber_i]->Fill(vertpos);
+	  m_hist_RotYDiff[chamber_i]->Fill(rotyDiff * 1000.);
+	  m_hist_TwistDiff[chamber_i]->Fill((rotyDiff * 1000.) / (vertpos / 100.));
+	  m_hist_PhiPosDiff[chamber_i]->Fill(phiPosDiff * 1000.);
+	  m_hist_RPhiPosDiff[chamber_i]->Fill(rphiPosDiff * 10.);
+	  m_hist_RotZDiff[chamber_i]->Fill((rphiPosDiff / vertpos) * 1000.);
+	  m_hist_vertpos[chamber_i]->Fill(vertpos);
 	
-	       m_hist_slopeVsY[chamber_i]->Fill(vertpos, rotyDiff);
-	       m_hist_interceptVsY[chamber_i]->Fill(vertpos, rphiPosDiff);
-	       m_hist_interceptVsY2[chamber_i]->Fill(vertpos, phiPosDiff * 1000.);
+	  m_hist_slopeVsY[chamber_i]->Fill(vertpos, rotyDiff);
+	  m_hist_interceptVsY[chamber_i]->Fill(vertpos, rphiPosDiff);
+	  m_hist_interceptVsY2[chamber_i]->Fill(vertpos, phiPosDiff * 1000.);
 
-	       int index = iendcap * 100 + istation * 10 + iring;
-	       m_hist_all_vertpos[index]->Fill(vertpos);
-	       m_hist_all_relativephi[index]->Fill(relativephi_i);
-	       m_hist_all_slope[index]->Fill(slope_i);
-	       m_hist_intercept_vertpos[index]->Fill(vertpos, phiPosDiff);
-	       m_hist_intercept_relativephi[index]->Fill(relativephi_i, phiPosDiff);
-	       m_hist_intercept_slope[index]->Fill(slope_i, phiPosDiff);
+	  int index = iendcap * 100 + istation * 10 + iring;
+	  m_hist_all_vertpos[index]->Fill(vertpos);
+	  m_hist_all_relativephi[index]->Fill(relativephi_i);
+	  m_hist_all_slope[index]->Fill(slope_i);
+	  m_hist_intercept_vertpos[index]->Fill(vertpos, phiPosDiff);
+	  m_hist_intercept_relativephi[index]->Fill(relativephi_i, phiPosDiff);
+	  m_hist_intercept_slope[index]->Fill(slope_i, phiPosDiff);
 
-	       m_hist_indiv_relativephi[chamber_i]->Fill(relativephi_i);
-	       m_hist_indiv_intercept_relativephi[chamber_i]->Fill(relativephi_i, phiPosDiff);
+	  m_hist_indiv_relativephi[chamber_i]->Fill(relativephi_i);
+	  m_hist_indiv_intercept_relativephi[chamber_i]->Fill(relativephi_i, phiPosDiff);
+	}
 
-	       m_overlaps_occupancy_quality->Fill(overlapbin, ringbin);
-
-	       if (cscid.endcap() == 1  &&  cscid.station() == 1) m_overlaps_XYpos_mep1->Fill(globalXpos, globalYpos);
-	       else if (cscid.endcap() == 1  &&  cscid.station() == 2) m_overlaps_XYpos_mep2->Fill(globalXpos, globalYpos);
-	       else if (cscid.endcap() == 1  &&  cscid.station() == 3) m_overlaps_XYpos_mep3->Fill(globalXpos, globalYpos);
-	       else if (cscid.endcap() == 1  &&  cscid.station() == 4) m_overlaps_XYpos_mep4->Fill(globalXpos, globalYpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 1) m_overlaps_XYpos_mem1->Fill(globalXpos, globalYpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 2) m_overlaps_XYpos_mem2->Fill(globalXpos, globalYpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 3) m_overlaps_XYpos_mem3->Fill(globalXpos, globalYpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 4) m_overlaps_XYpos_mem4->Fill(globalXpos, globalYpos);
-
-	       if (cscid.endcap() == 1  &&  cscid.station() == 1) m_overlaps_RPhipos_mep1->Fill(globalPhipos, globalRpos);
-	       else if (cscid.endcap() == 1  &&  cscid.station() == 2) m_overlaps_RPhipos_mep2->Fill(globalPhipos, globalRpos);
-	       else if (cscid.endcap() == 1  &&  cscid.station() == 3) m_overlaps_RPhipos_mep3->Fill(globalPhipos, globalRpos);
-	       else if (cscid.endcap() == 1  &&  cscid.station() == 4) m_overlaps_RPhipos_mep4->Fill(globalPhipos, globalRpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 1) m_overlaps_RPhipos_mem1->Fill(globalPhipos, globalRpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 2) m_overlaps_RPhipos_mem2->Fill(globalPhipos, globalRpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 3) m_overlaps_RPhipos_mem3->Fill(globalPhipos, globalRpos);
-	       else if (cscid.endcap() == 2  &&  cscid.station() == 4) m_overlaps_RPhipos_mem4->Fill(globalPhipos, globalRpos);
-	    }
-
-	    // "x" is vertpos, "y" is the quantity under study
-	    m_rotyDiff_N[chamber_i]++;
-	    m_rotyDiff_y[chamber_i] += rotyDiff;
-	    m_rotyDiff_yy[chamber_i] += rotyDiff * rotyDiff;
-	    m_rotyDiff_xw[chamber_i] += vertpos / rotyDiff_err2;
-	    m_rotyDiff_yw[chamber_i] += rotyDiff / rotyDiff_err2;
-	    m_rotyDiff_xyw[chamber_i] += vertpos * rotyDiff / rotyDiff_err2;
-	    m_rotyDiff_xxw[chamber_i] += vertpos * vertpos / rotyDiff_err2;
-	    m_rotyDiff_w[chamber_i] += 1. / rotyDiff_err2;
+	// "x" is vertpos, "y" is the quantity under study
+	m_rotyDiff_N[chamber_i]++;
+	m_rotyDiff_y[chamber_i] += rotyDiff;
+	m_rotyDiff_yy[chamber_i] += rotyDiff * rotyDiff;
+	m_rotyDiff_xw[chamber_i] += vertpos / rotyDiff_err2;
+	m_rotyDiff_yw[chamber_i] += rotyDiff / rotyDiff_err2;
+	m_rotyDiff_xyw[chamber_i] += vertpos * rotyDiff / rotyDiff_err2;
+	m_rotyDiff_xxw[chamber_i] += vertpos * vertpos / rotyDiff_err2;
+	m_rotyDiff_w[chamber_i] += 1. / rotyDiff_err2;
 	
-	    m_phiPosDiff_N[chamber_i]++;
-	    m_phiPosDiff_y[chamber_i] += phiPosDiff;
-	    m_phiPosDiff_yy[chamber_i] += phiPosDiff * phiPosDiff;
-	    m_phiPosDiff_xw[chamber_i] += vertpos / phiPosDiff_err2;
-	    m_phiPosDiff_yw[chamber_i] += phiPosDiff / phiPosDiff_err2;
-	    m_phiPosDiff_xyw[chamber_i] += vertpos * phiPosDiff / phiPosDiff_err2;
-	    m_phiPosDiff_xxw[chamber_i] += vertpos * vertpos / phiPosDiff_err2;
-	    m_phiPosDiff_w[chamber_i] += 1. / phiPosDiff_err2;
+	m_phiPosDiff_N[chamber_i]++;
+	m_phiPosDiff_y[chamber_i] += phiPosDiff;
+	m_phiPosDiff_yy[chamber_i] += phiPosDiff * phiPosDiff;
+	m_phiPosDiff_xw[chamber_i] += vertpos / phiPosDiff_err2;
+	m_phiPosDiff_yw[chamber_i] += phiPosDiff / phiPosDiff_err2;
+	m_phiPosDiff_xyw[chamber_i] += vertpos * phiPosDiff / phiPosDiff_err2;
+	m_phiPosDiff_xxw[chamber_i] += vertpos * vertpos / phiPosDiff_err2;
+	m_phiPosDiff_w[chamber_i] += 1. / phiPosDiff_err2;
 
-	    m_rphiPosDiff_N[chamber_i]++;
-	    m_rphiPosDiff_y[chamber_i] += rphiPosDiff / vertpos;
-	    m_rphiPosDiff_yy[chamber_i] += rphiPosDiff * rphiPosDiff / vertpos / vertpos;
-	    m_rphiPosDiff_xw[chamber_i] += vertpos / rphiPosDiff_err2;
-	    m_rphiPosDiff_yw[chamber_i] += rphiPosDiff / rphiPosDiff_err2;
-	    m_rphiPosDiff_xyw[chamber_i] += vertpos * rphiPosDiff / rphiPosDiff_err2;
-	    m_rphiPosDiff_xxw[chamber_i] += vertpos * vertpos / rphiPosDiff_err2;
-	    m_rphiPosDiff_w[chamber_i] += 1. / rphiPosDiff_err2;
-	 }
+	m_rphiPosDiff_N[chamber_i]++;
+	m_rphiPosDiff_y[chamber_i] += rphiPosDiff / vertpos;
+	m_rphiPosDiff_yy[chamber_i] += rphiPosDiff * rphiPosDiff / vertpos / vertpos;
+	m_rphiPosDiff_xw[chamber_i] += vertpos / rphiPosDiff_err2;
+	m_rphiPosDiff_yw[chamber_i] += rphiPosDiff / rphiPosDiff_err2;
+	m_rphiPosDiff_xyw[chamber_i] += vertpos * rphiPosDiff / rphiPosDiff_err2;
+	m_rphiPosDiff_xxw[chamber_i] += vertpos * vertpos / rphiPosDiff_err2;
+	m_rphiPosDiff_w[chamber_i] += 1. / rphiPosDiff_err2;
+      }
 
-      } // end if pointing to beamline (small beamlineAngle)
     } // end loop over stations on this track
   } // end loop over tracks
 }
@@ -1050,30 +845,6 @@ bool CSCOverlapsAlignmentAlgorithm::summarize2(Alignable *ai, Alignable *aiprev,
   return true;
 }
 
-bool CSCOverlapsAlignmentAlgorithm::summarize3(Alignable *ai, double &resid_i, double &resid_err2_i, double &residRMS_i) {
-  double rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i;
-
-  if (!summarize(ai, rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i)) return false;
-
-  if (m_mode == std::string("roty")) {
-    resid_i = rotyDiff_i;
-    resid_err2_i = rotyDiff_err2_i;
-    residRMS_i = rotyDiffRMS_i;
-  }
-  else if (m_mode == std::string("phipos")) {
-    resid_i = phiPosDiff_i;
-    resid_err2_i = phiPosDiff_err2_i;
-    residRMS_i = phiPosDiffRMS_i;
-  }
-  else if (m_mode == std::string("rotz")) {
-    resid_i = rotzDiff_i;
-    resid_err2_i = rotzDiff_err2_i;
-    residRMS_i = rotzDiffRMS_i;
-  }
-  
-  return true;
-}
-
 bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int ring) {
   int nchambers = 36;
   if (station > 1  &&  ring == 1) nchambers = 18;
@@ -1096,63 +867,14 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
     if (a[i] == NULL) throw cms::Exception("CSCOverlapsAlignmentAlgorithm") << "ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << " is incomplete (chamber " << i+1 << " is not alignable; please correct the configuration)" << std::endl;
   }
 
-  // try to recover rings with one contiguous break
-  double sum_of_residuals = 0.;
-  std::vector<bool> okaymap;
-  for (int i = 0;  i < nchambers;  i++) {
-    double rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i;
-    if (summarize(a[i], rotyDiff_i, rotyDiff_err2_i, twistDiff_i, twistDiff_err2_i, phiPosDiff_i, phiPosDiff_err2_i, rotzDiff_i, rotzDiff_err2_i, rotyDiffRMS_i, phiPosDiffRMS_i, rotzDiffRMS_i)) {
-       if (m_mode == std::string("roty")) {
-	  sum_of_residuals += rotyDiff_i;
-       }
-       else if (m_mode == std::string("phipos")) {
-	  sum_of_residuals += phiPosDiff_i;
-       }
-       else if (m_mode == std::string("rotz")) {
-	  sum_of_residuals += rotzDiff_i;
-       }
-
-       okaymap.push_back(true);
-    }
-    else {
-       okaymap.push_back(false);
-    }
-  }
-
-  int numdiffs = 0;
-  int nummissing = 0;
-  for (int i = 0;  i < nchambers;  i++) {
-    int iprev = (i + nchambers - 1) % nchambers;
-    if (okaymap[i] != okaymap[iprev]) numdiffs++;
-    if (!okaymap[i]) nummissing++;
-  }
-
   for (int i = 0;  i < nchambers;  i++) {
     int iprev = (i + nchambers - 1) % nchambers;
     int inext = (i + 1) % nchambers;
 
     double resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev;
     if (!summarize2(a[i], a[iprev], resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev)) {
-       if (numdiffs > 2  ||  nummissing > nchambers - 2) {
-	  edm::LogError("CSCOverlapsAlignmentAlgorithm") << "ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << " is incomplete (chamber " << i+1 << " has " << m_rotyDiff_N[a[i]] << " and chamber " << iprev+1 << " has " << m_rotyDiff_N[a[iprev]] << " tracks, while the minimum is " << m_minTracksPerAlignable << "); numdiffs " << numdiffs << " nummissing " << nummissing << " skipping this ring." << std::endl;
-	  return false;
-       }
-
-       // patch by assuming perfect closure if missing
-       if (!summarize3(a[i], resid_i, resid_err2_i, residRMS_i)) {
-	  if (nummissing == 1) resid_i = -sum_of_residuals;
-	  else if (okaymap[i] != okaymap[iprev]  ||  okaymap[i] != okaymap[inext]) resid_i = -sum_of_residuals / 2.;
-	  else resid_i = 0.;
-	  resid_err2_i = 0.;
-	  residRMS_i = 0.;
-       }
-       if (!summarize3(a[iprev], resid_iprev, resid_err2_iprev, residRMS_iprev)) {
-	  if (nummissing == 1) resid_iprev = -sum_of_residuals;
-	  else if (okaymap[i] != okaymap[iprev]  ||  okaymap[i] != okaymap[inext]) resid_iprev = -sum_of_residuals / 2.;
-	  else resid_iprev = 0.;
-	  resid_err2_iprev = 0.;
-	  residRMS_iprev = 0.;
-       }
+      edm::LogError("CSCOverlapsAlignmentAlgorithm") << "ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << " is incomplete (chamber " << i+1 << " has " << m_rotyDiff_N[a[i]] << " and chamber " << iprev+1 << " has " << m_rotyDiff_N[a[iprev]] << " tracks, while the minimum is " << m_minTracksPerAlignable << "); skipping this ring." << std::endl;
+      return false;
     }
 
     v[i] = resid_iprev - resid_i;
@@ -1258,16 +980,8 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
     int iprev = (i + nchambers - 1) % nchambers;
     int inext = (i + 1) % nchambers;
 
-    bool itsmissing = false;
-    double resid_i, resid_err2_i, residRMS_i;
-    if (!summarize3(a[i], resid_i, resid_err2_i, residRMS_i)) {
-       if (nummissing == 1) resid_i = -sum_of_residuals;
-       else if (okaymap[i] != okaymap[iprev]  ||  okaymap[i] != okaymap[inext]) resid_i = -sum_of_residuals / 2.;
-       else resid_i = 0.;
-       resid_err2_i = 0.;
-       residRMS_i = 0.;
-       itsmissing = true;
-    }
+    double resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev;
+    summarize2(a[i], a[iprev], resid_i, resid_err2_i, resid_iprev, resid_err2_iprev, residRMS_i, residRMS_iprev);  // already verified to return true (above)
 
     double chi2i = pow(resid_i - p[inext] + p[i], 2.);
 
@@ -1275,20 +989,14 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
     if (m_mode == std::string("roty")) Ntracks = m_rotyDiff_N[a[i]];
     else if (m_mode == std::string("phipos")) Ntracks = m_phiPosDiff_N[a[i]];
     else if (m_mode == std::string("rotz")) Ntracks = m_rphiPosDiff_N[a[i]];
-    
+    double RMSoverSqrtN = residRMS_i / sqrt(Ntracks);
+    total_closure_errFromRMS += RMSoverSqrtN * RMSoverSqrtN;
+
     std::stringstream plusorminus;
     if (m_useFitWeightsInMean) plusorminus << " +- " << sqrt(resid_err2_i);
-
-    if (itsmissing) {
-       output << (inext+1) << "-" << (i+1) << " is missing (ntracks: " << Ntracks << ") faked with " << resid_i << " old chi2i: " << (resid_i*resid_i) << " new chi2i: " << chi2i << std::endl;
-    }
-    else {
-       double RMSoverSqrtN = residRMS_i / sqrt(Ntracks);
-       total_closure_errFromRMS += RMSoverSqrtN * RMSoverSqrtN;
-       output << (inext+1) << "-" << (i+1) << " residuals: " << resid_i << plusorminus.str() << " RMS/sqrt(" << Ntracks << "): " << RMSoverSqrtN << " old chi2i: " << (resid_i*resid_i) << " new chi2i: " << chi2i << std::endl;
-    }
+    output << (inext+1) << "-" << (i+1) << " residuals: " << resid_i << plusorminus.str() << " RMS/sqrt(" << Ntracks << "): " << RMSoverSqrtN << " old chi2i: " << (resid_i*resid_i) << " new chi2i: " << chi2i << std::endl;
     output << "delta parameter " << (j+1) << ": " << p[j] << std::endl;
-    
+
     total_closure += resid_i;
     total_closure_err2 += resid_err2_i;
     old_chi2 += pow(resid_i, 2.);
@@ -1300,7 +1008,7 @@ bool CSCOverlapsAlignmentAlgorithm::matrixSolution(int endcap, int station, int 
   mean_term = mean_term / nchambers / nchambers;
   new_chi2 += pow(mean_term, 2.);
 
-  output << "Mean of corrections: " << -mean_term * nchambers << std::endl;
+  output << "Mean of corrections: " << mean_term << std::endl;
   std::stringstream plusorminus;
   if (m_useFitWeightsInMean) plusorminus << " +- " << sqrt(total_closure_err2);
   output << "Total closure: " << total_closure << plusorminus.str() << " ErrFromRMS: " << sqrt(total_closure_errFromRMS) << " closure per chamber: " << total_closure / nchambers << std::endl;

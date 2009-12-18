@@ -32,16 +32,12 @@
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CalibCalorimetry/HcalStandardModules/interface/HcalCondXML.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 #include "TFile.h"
 #include "TProfile.h"
 #include "TH1.h"
-#include "TH2.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-
 #include <math.h>
 #include <iostream>
 #include <map>
@@ -96,7 +92,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    std::string widthsfCfilename;
    std::string XMLfilename;
    std::string XMLtag;
-   std::string ZSfilename;
 
    TH1F *HBMeans;
    TH1F *HBWidths;
@@ -107,10 +102,12 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    TH1F *HOMeans;
    TH1F *HOWidths;
 
-   TH2F *dephist[4];
-
    TFile *theFile;
    bool firsttime;
+   HcalPedestals* rawPedsItem;
+   HcalPedestalWidths* rawWidthsItem;
+   HcalPedestals* rawPedsItemfc;
+   HcalPedestalWidths* rawWidthsItemfc;
 };
 #endif
 

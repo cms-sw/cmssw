@@ -95,368 +95,391 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
   prtlvl_ = ps.getUntrackedParameter<int>("dfPrtLvl");
   dfmon_checkNevents = ps.getUntrackedParameter<int>("DataFormatMonitor_checkNevents",checkNevents_);
-  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("DataFormatMonitor_AllowedCalibTypes",AllowedCalibTypes_);
 
-  if (m_dbe)
-    {
-      std::string type;
-      m_dbe->setCurrentFolder(baseFolder_);
-      
-      ProblemCells=m_dbe->book2D(" HardwareWatchCells",
-				 " Hardware Watch Cells for HCAL",
-				 85,-42.5,42.5,
-				 72,0.5,72.5);
-      ProblemCells->setAxisTitle("i#eta",1);
-      ProblemCells->setAxisTitle("i#phi",2);
-      SetEtaPhiLabels(ProblemCells);
-      SetupEtaPhiHists(ProblemCellsByDepth," Hardware Watch Cells", "");
-      
-      //Initialize maps "problemcount" and "problemfound" before first event.
-      unsigned int etabins=0;
-      unsigned int phibins=0;
-      for (unsigned int depth=0; depth<4; ++depth)
-	{
-	  etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
-	  phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
-	  for (unsigned int eta=0; eta<etabins;++eta)
-	    {
-	      for (unsigned int phi=0;phi<phibins;++phi)
-		{
-		  problemcount[eta][phi][depth]=0;
-		  problemfound[eta][phi][depth]=false;
-		}
-	    }
-	}
-      
-      meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
-      meEVT_->Fill(ievt_);    
-      meTOTALEVT_ = m_dbe->bookInt("Data Format Total Events Processed");
-      meTOTALEVT_->Fill(tevt_);
-      
-      m_dbe->setCurrentFolder(baseFolder_ + "/Corruption"); /// Below, "Corruption" FOLDER
-      type = "01 Common Data Format violations";
-      meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
-      meCDFErrorFound_->setAxisTitle("HCAL FED ID", 1);
-      meCDFErrorFound_->setBinLabel(1, "Hdr1BitUnset", 2);
-      meCDFErrorFound_->setBinLabel(2, "FmtNumChange", 2);
-      meCDFErrorFound_->setBinLabel(3, "BOE not '0x5'", 2);
-      meCDFErrorFound_->setBinLabel(4, "Hdr2Bit Set", 2);
-      meCDFErrorFound_->setBinLabel(5, "Hdr1 36-55", 2);
-      meCDFErrorFound_->setBinLabel(6, "BOE not 0", 2);
-      meCDFErrorFound_->setBinLabel(7, "Trlr1Bit Set", 2);
-      meCDFErrorFound_->setBinLabel(8, "Size Error", 2);
-      meCDFErrorFound_->setBinLabel(9, "TrailerBad", 2);
-      
-      type = "02 DCC Event Format violation";
-      meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,6,0.5,6.5);
-      meDCCEventFormatError_->setAxisTitle("HCAL FED ID", 1);
-      meDCCEventFormatError_->setBinLabel(1, "FmtVers Changed", 2);
-      meDCCEventFormatError_->setBinLabel(2, "StrayBits Changed", 2);
-      meDCCEventFormatError_->setBinLabel(3, "HTRStatusPad", 2);
-      meDCCEventFormatError_->setBinLabel(4, "32bitPadErr", 2);
-      meDCCEventFormatError_->setBinLabel(5, "Number Mismatch Bit Miscalc", 2);      
-      meDCCEventFormatError_->setBinLabel(6, "Low 8 HTR Status Bits Miscopy", 2);	       
-      
-      type = "04 HTR BCN when OrN Diff";
-      meBCNwhenOrNDiff_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-      meBCNwhenOrNDiff_->setAxisTitle("BCN",1);
-      meBCNwhenOrNDiff_->setAxisTitle("# of Entries",2);
-      
-      type = "03 OrN Difference HTR - DCC";
-      meOrNCheck_ = m_dbe->book1D(type,type,65,-32.5,32.5);
-      meOrNCheck_->setAxisTitle("htr OrN - dcc OrN",1);
-      
-      type = "03 OrN Inconsistent - HTR vs DCC";
-      meOrNSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
-      meOrNSynch_->setAxisTitle("FED #",1);
-      meOrNSynch_->setAxisTitle("Spigot #",2);
-      
-      type = "05 BCN Difference HTR - DCC";
-      meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
-      meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
-      
-      type = "05 BCN Inconsistent - HTR vs DCC";
-      meBCNSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
-      meBCNSynch_->setAxisTitle("FED #",1);
-      meBCNSynch_->setAxisTitle("Slot #",2);
-      
-      type = "06 EvN Difference HTR - DCC";
-      meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
-      meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
-      
-      type = "06 EvN Inconsistent - HTR vs DCC";
-      meEvtNumberSynch_= m_dbe->book2D(type,type,32,0,32, 15,0,15);
-      meEvtNumberSynch_->setAxisTitle("FED #",1);
-      meEvtNumberSynch_->setAxisTitle("Slot #",2);
-      
-      //     ---------------- 
-      //     | E!P | UE | TR |                                           
-      // ----|  ND | OV | ID |					       
-      // | T | CRC | ST | ODD| 					       
-      // -------------------- 					       
-      type="07 LRB Data Corruption Indicators";  
-      meLRBDataCorruptionIndicators_= m_dbe->book2D(type,type,
-						    THREE_FED,0,THREE_FED,
-						    THREE_SPG,0,THREE_SPG);
-      label_xFEDs   (meLRBDataCorruptionIndicators_, 4); // 3 bins + 1 margin per ch.
-      label_ySpigots(meLRBDataCorruptionIndicators_, 4); // 3 bins + 1 margin each spgt
-      
-      //     ---------------- 
-      //     | CT | BE | LW |
-      //     | HM | 15 | WW | (Wrong Wordcount)
-      //     | TM | CK | IW | (Illegal Wordcount)
-      //     ---------------- 
-      type="08 Half-HTR Data Corruption Indicators";
-      meHalfHTRDataCorruptionIndicators_= m_dbe->book2D(type,type,
-							THREE_FED,0,THREE_FED,
-							THREE_SPG,0,THREE_SPG);
-      label_xFEDs   (meHalfHTRDataCorruptionIndicators_, 4); // 3 bins + 1 margin per ch.
-      label_ySpigots(meHalfHTRDataCorruptionIndicators_, 4); // 3 bins + 1 margin each spgt
-      
-      //    ------------
-      //    | !DV | Er  |
-      //    | NTS | Cap |
-      //    ------------
-      type = "09 Channel Integrity Summarized by Spigot";
-      meChannSumm_DataIntegrityCheck_= m_dbe->book2D(type,type,
-						     TWO___FED,0,TWO___FED,
-						     TWO__SPGT,0,TWO__SPGT);
-      label_xFEDs   (meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per ch.
-      label_ySpigots(meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per spgt
-      
-      m_dbe->setCurrentFolder(baseFolder_ + "/Corruption/Channel Data Integrity");
-      char label[10];
-      for (int f=0; f<NUMDCCS; f++){      
-	sprintf(label, "FED %03d Channel Integrity", f+700);
-	meChann_DataIntegrityCheck_[f] =  m_dbe->book2D(label,label,
-							TWO_CHANN,0,TWO_CHANN,
-							TWO__SPGT,0,TWO__SPGT);
-	label_xChanns (meChann_DataIntegrityCheck_[f], 3); // 2 bins + 1 margin per ch.
-	label_ySpigots(meChann_DataIntegrityCheck_[f], 3); // 2 bins + 1 margin per spgt
-	;}
-      
-      m_dbe->setCurrentFolder(baseFolder_ + "/Data Flow"); ////Below, "Data Flow" FOLDER
-      type="DCC Event Counts";
-      mefedEntries_ = m_dbe->book1D(type,type,32,699.5,731.5);
-      
-      type = "BCN from DCCs";
-      medccBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-      medccBCN_->setAxisTitle("BCN",1);
-      medccBCN_->setAxisTitle("# of Entries",2);
-      
-      type = "BCN from HTRs";
-      meBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-      meBCN_->setAxisTitle("BCN",1);
-      meBCN_->setAxisTitle("# of Entries",2);
-      
-      type = "DCC Data Block Size Distribution";
-      meFEDRawDataSizes_=m_dbe->book1D(type,type,1200,-0.5,12000.5);
-      meFEDRawDataSizes_->setAxisTitle("# of bytes",1);
-      meFEDRawDataSizes_->setAxisTitle("# of Data Blocks",2);
-      
-      type = "DCC Data Block Size Profile";
-      meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
-      type = "DCC Data Block Size Each FED";
-      meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 240,0,12000);
-      
-      //     ------------
-      //     | OW | OFW |    "Two Caps HTR; Three Caps FED."
-      //     | BZ | BSY |
-      //     | EE | RL  |
-      // ----------------
-      // | CE |            (corrected error, Hamming code)
-      // ------
-      type = "01 Data Flow Indicators";
-      meDataFlowInd_= m_dbe->book2D(type,type,
-				    TWO___FED,0,TWO___FED,
-				    THREE_SPG,0,THREE_SPG);
-      label_xFEDs   (meDataFlowInd_, 3); // 2 bins + 1 margin per ch.
-      label_ySpigots(meDataFlowInd_, 4); // 3 bins + 1 margin each spgt
-      
-      m_dbe->setCurrentFolder(baseFolder_ + "/Diagnostics"); ////Below, "Diagnostics" FOLDER
-      
-      type = "DCC Firmware Version";
-      meDCCVersion_ = m_dbe->bookProfile(type,type, 32, 699.5, 731.5, 256, -0.5, 255.5);
-      meDCCVersion_ ->setAxisTitle("FED ID", 1);
-      
-      type = "HTR Status Word HBHE";
-      HTR_StatusWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
-      labelHTRBits(HTR_StatusWd_HBHE,1);
-      
-      type = "HTR Status Word HF";
-      HTR_StatusWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
-      labelHTRBits(HTR_StatusWd_HF,1);
-      
-      type = "HTR Status Word HO";
-      HTR_StatusWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
-      labelHTRBits(HTR_StatusWd_HO,1);
-      
-      int maxbits = 16;//Look at all 16 bits of the Error Words
-      type = "HTR Status Word by Crate";
-      meErrWdCrate_ = m_dbe->book2D(type,type,18,-0.5,17.5,maxbits,-0.5,maxbits-0.5);
-      meErrWdCrate_ -> setAxisTitle("Crate #",1);
-      labelHTRBits(meErrWdCrate_,2);
-      
-      type = "Unpacking - HcalHTRData check failures";
-      meInvHTRData_= m_dbe->book2D(type,type,16,-0.5,15.5,32,699.5,731.5);
-      meInvHTRData_->setAxisTitle("Spigot #",1);
-      meInvHTRData_->setAxisTitle("DCC #",2);
-      
-      type = "HTR Fiber Orbit Message BCN";
-      meFibBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-      meFibBCN_->setAxisTitle("BCN of Fib Orb Msg",1);
-      
-      type = "HTR Status Word - Crate 0";
-      meCrate0HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate0HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate0HTRErr_,2);
-      
-      type = "HTR Status Word - Crate 1";
-      meCrate1HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate1HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate1HTRErr_,2);
-      
-      type = "HTR Status Word - Crate 2";
-      meCrate2HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate2HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate2HTRErr_,2);
-      
-      type = "HTR Status Word - Crate 3";
-      meCrate3HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate3HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate3HTRErr_,2);
-      
-      type = "HTR Status Word - Crate 4";
-      meCrate4HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate4HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate4HTRErr_,2);
+  if ( m_dbe ) {
+    std::string type;
+    m_dbe->setCurrentFolder(baseFolder_);
 
-      type = "HTR Status Word - Crate 5";
-      meCrate5HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate5HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate5HTRErr_,2);
+    ProblemCells=m_dbe->book2D(" HardwareWatchCells",
+			       " Hardware Watch Cells for HCAL",
+			       85,-42.5,45.5,
+			       72,0.5,72.5);
+    ProblemCells->setAxisTitle("i#eta",1);
+    ProblemCells->setAxisTitle("i#phi",2);
+    SetEtaPhiLabels(ProblemCells);
+    SetupEtaPhiHists(ProblemCellsByDepth," Hardware Watch Cells", "");
 
-      type = "HTR Status Word - Crate 6";
-      meCrate6HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate6HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate6HTRErr_,2);
+    //Initialize maps "problemcount" and "problemfound" before first event.
+    unsigned int etabins=0;
+    unsigned int phibins=0;
+    for (unsigned int depth=0; depth<4; ++depth)
+      {
+	etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
+	phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
+	for (unsigned int eta=0; eta<etabins;++eta)
+	  {
+	    for (unsigned int phi=0;phi<phibins;++phi)
+	      {
+		problemcount[eta][phi][depth]=0;
+		problemfound[eta][phi][depth]=false;
+	      }
+	  }
+      }
 
-      type = "HTR Status Word - Crate 7";
-      meCrate7HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate7HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate7HTRErr_,2);
+    meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
+    meEVT_->Fill(ievt_);    
+    meTOTALEVT_ = m_dbe->bookInt("Data Format Total Events Processed");
+    meTOTALEVT_->Fill(tevt_);
+    
+    m_dbe->setCurrentFolder(baseFolder_ + "/Corruption"); /// Below, "Corruption" FOLDER
+    type = "01 Common Data Format violations";
+    meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
+    meCDFErrorFound_->setAxisTitle("HCAL FED ID", 1);
+    meCDFErrorFound_->setBinLabel(1, "Hdr1BitUnset", 2);
+    meCDFErrorFound_->setBinLabel(2, "FmtNumChange", 2);
+    meCDFErrorFound_->setBinLabel(3, "BOE not '0x5'", 2);
+    meCDFErrorFound_->setBinLabel(4, "Hdr2Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(5, "Hdr1 36-55", 2);
+    meCDFErrorFound_->setBinLabel(6, "BOE not 0", 2);
+    meCDFErrorFound_->setBinLabel(7, "Trlr1Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(8, "Size Error", 2);
+    meCDFErrorFound_->setBinLabel(9, "TrailerBad", 2);
 
-      type = "HTR Status Word - Crate 9";
-      meCrate9HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate9HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate9HTRErr_,2);
+    type = "02 DCC Event Format violation";
+    meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,6,0.5,6.5);
+    meDCCEventFormatError_->setAxisTitle("HCAL FED ID", 1);
+    meDCCEventFormatError_->setBinLabel(1, "FmtVers Changed", 2);
+    meDCCEventFormatError_->setBinLabel(2, "StrayBits Changed", 2);
+    meDCCEventFormatError_->setBinLabel(3, "HTRStatusPad", 2);
+    meDCCEventFormatError_->setBinLabel(4, "32bitPadErr", 2);
+    meDCCEventFormatError_->setBinLabel(5, "Number Mismatch Bit Miscalc", 2);      
+    meDCCEventFormatError_->setBinLabel(6, "Low 8 HTR Status Bits Miscopy", 2);	       
 
-      type = "HTR Status Word - Crate 10";
-      meCrate10HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate10HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate10HTRErr_,2);
+    type = "04 HTR BCN when OrN Diff";
+    meBCNwhenOrNDiff_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+    meBCNwhenOrNDiff_->setAxisTitle("BCN",1);
+    meBCNwhenOrNDiff_->setAxisTitle("# of Entries",2);
 
-      type = "HTR Status Word - Crate 11";
-      meCrate11HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate11HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate11HTRErr_,2);
+    type = "03 OrN Difference Between Ref HTR and DCC";
+    meOrNCheck_ = m_dbe->book1D(type,type,65,-32.5,32.5);
+    meOrNCheck_->setAxisTitle("htr OrN - dcc OrN",1);
 
-      type = "HTR Status Word - Crate 12";
-      meCrate12HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate12HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate12HTRErr_,2);
+    type = "03 OrN Inconsistent - HTR vs Ref HTR";
+    meOrNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    meOrNSynch_->setAxisTitle("Slot #",1);
+    meOrNSynch_->setAxisTitle("Crate #",2);
 
-      type = "HTR Status Word - Crate 13";
-      meCrate13HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate13HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate13HTRErr_,2);
+    type = "05 BCN Difference Between Ref HTR and DCC";
+    meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
+    meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
 
-      type = "HTR Status Word - Crate 14";
-      meCrate14HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate14HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate14HTRErr_,2);
+    type = "05 BCN Inconsistent - HTR vs Ref HTR";
+    meBCNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    meBCNSynch_->setAxisTitle("Slot #",1);
+    meBCNSynch_->setAxisTitle("Crate #",2);
 
-      type = "HTR Status Word - Crate 15";
-      meCrate15HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate15HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate15HTRErr_,2);
+    type = "06 EvN Difference Between Ref HTR and DCC";
+    meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
+    meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
 
-      type = "HTR Status Word - Crate 17";
-      meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
-      meCrate17HTRErr_ ->setAxisTitle("Slot #",1);
-      labelHTRBits(meCrate17HTRErr_,2);
+    type = "06 EvN Inconsistent - HTR vs Ref HTR";
+    meEvtNumberSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    meEvtNumberSynch_->setAxisTitle("Slot #",1);
+    meEvtNumberSynch_->setAxisTitle("Crate #",2);
 
-      type = "HTR UnSuppressed Event Fractions";
-      meUSFractSpigs_ = m_dbe->book1D(type,type,481,0,481);
-      for(int f=0; f<NUMDCCS; f++) {
-	sprintf(label, "FED 7%02d", f);
-	meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
-	for(int s=1; s<HcalDCCHeader::SPIGOT_COUNT; s++) {
-	  sprintf(label, "sp%02d", s);
-	  meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
+    //     ---------------- 
+    //     | E!P | UE | TR |                                           
+    // ----|  ND | OV | ID |					       
+    // | T | CRC | ST | ODD| 					       
+    // -------------------- 					       
+    type="07 LRB Data Corruption Indicators";  
+    meLRBDataCorruptionIndicators_= m_dbe->book2D(type,type,
+						 THREE_FED,0,THREE_FED,
+						 THREE_SPG,0,THREE_SPG);
+    label_xFEDs   (meLRBDataCorruptionIndicators_, 4); // 3 bins + 1 margin per ch.
+    label_ySpigots(meLRBDataCorruptionIndicators_, 4); // 3 bins + 1 margin each spgt
 
-      // Firmware version
-      type = "HTR Firmware Version";
-      //  Maybe change to Profile histo eventually
-      //meHTRFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
-      meHTRFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,180,75.5,255.5);
-      meHTRFWVersion_->setAxisTitle("Crate #",1);
-      meHTRFWVersion_->setAxisTitle("HTR Firmware Version",2);
+    //     ---------------- 
+    //     | CT | BE | LW |
+    //     | HM | 15 | WW | (Wrong Wordcount)
+    //     | TM | CK | IW | (Illegal Wordcount)
+    //     ---------------- 
+    type="08 Half-HTR Data Corruption Indicators";
+    meHalfHTRDataCorruptionIndicators_= m_dbe->book2D(type,type,
+						 THREE_FED,0,THREE_FED,
+						 THREE_SPG,0,THREE_SPG);
+    label_xFEDs   (meHalfHTRDataCorruptionIndicators_, 4); // 3 bins + 1 margin per ch.
+    label_ySpigots(meHalfHTRDataCorruptionIndicators_, 4); // 3 bins + 1 margin each spgt
 
-      type = "HTR Fiber 1 Orbit Message BCNs";
-      meFib1OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-      type = "HTR Fiber 2 Orbit Message BCNs";
-      meFib2OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-      type = "HTR Fiber 3 Orbit Message BCNs";
-      meFib3OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-      type = "HTR Fiber 4 Orbit Message BCNs";
-      meFib4OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-      type = "HTR Fiber 5 Orbit Message BCNs";
-      meFib5OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-      type = "HTR Fiber 6 Orbit Message BCNs";
-      meFib6OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-      type = "HTR Fiber 7 Orbit Message BCNs";
-      meFib7OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-      type = "HTR Fiber 8 Orbit Message BCNs";
-      meFib8OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    } // if (m_dbe)
+    //    ------------
+    //    | !DV | Er  |
+    //    | NTS | Cap |
+    //    ------------
+    type = "09 Channel Integrity Summarized by Spigot";
+    meChannSumm_DataIntegrityCheck_= m_dbe->book2D(type,type,
+						   TWO___FED,0,TWO___FED,
+						   TWO__SPGT,0,TWO__SPGT);
+    label_xFEDs   (meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per ch.
+    label_ySpigots(meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per spgt
+ 
+    m_dbe->setCurrentFolder(baseFolder_ + "/Corruption/Channel Data Integrity");
+    char label[10];
+    for (int f=0; f<NUMDCCS; f++){      
+      sprintf(label, "FED %03d Channel Integrity", f+700);
+      meChann_DataIntegrityCheck_[f] =  m_dbe->book2D(label,label,
+						      TWO_CHANN,0,TWO_CHANN,
+						      TWO__SPGT,0,TWO__SPGT);
+      label_xChanns (meChann_DataIntegrityCheck_[f], 3); // 2 bins + 1 margin per ch.
+      label_ySpigots(meChann_DataIntegrityCheck_[f], 3); // 2 bins + 1 margin per spgt
+      ;}
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/Data Flow"); ////Below, "Data Flow" FOLDER
+    type="DCC Event Counts";
+    mefedEntries_ = m_dbe->book1D(type,type,32,699.5,731.5);
+
+    type = "BCN from DCCs";
+    medccBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+    medccBCN_->setAxisTitle("BCN",1);
+    medccBCN_->setAxisTitle("# of Entries",2);
+
+    type = "BCN from HTRs";
+    meBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+    meBCN_->setAxisTitle("BCN",1);
+    meBCN_->setAxisTitle("# of Entries",2);
+
+    type = "DCC Data Block Size Distribution";
+    meFEDRawDataSizes_=m_dbe->book1D(type,type,1200,-0.5,12000.5);
+    meFEDRawDataSizes_->setAxisTitle("# of bytes",1);
+    meFEDRawDataSizes_->setAxisTitle("# of Data Blocks",2);
+
+    type = "DCC Data Block Size Profile";
+    meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
+    type = "DCC Data Block Size Each FED";
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 240,0,12000);
+
+    //     ------------
+    //     | OW | OFW |    "Two Caps HTR; Three Caps FED."
+    //     | BZ | BSY |
+    //     | EE | RL  |
+    // ----------------
+    // | CE |            (corrected error, Hamming code)
+    // ------
+    type = "01 Data Flow Indicators";
+    meDataFlowInd_= m_dbe->book2D(type,type,
+				  TWO___FED,0,TWO___FED,
+				  THREE_SPG,0,THREE_SPG);
+    label_xFEDs   (meDataFlowInd_, 3); // 2 bins + 1 margin per ch.
+    label_ySpigots(meDataFlowInd_, 4); // 3 bins + 1 margin each spgt
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/Diagnostics"); ////Below, "Diagnostics" FOLDER
+    type = "DCC Status Bits";
+    meDCCStatusBits_ = m_dbe->book2D(type,type,32,699.5,731.5, 25,0.5,25.5);
+    meDCCStatusBits_->setAxisTitle("HCAL FED ID", 1);      
+    meDCCStatusBits_->setBinLabel( 1, "700", 1);
+    meDCCStatusBits_->setBinLabel( 2, "701", 1);
+    meDCCStatusBits_->setBinLabel( 3, "702", 1);
+    meDCCStatusBits_->setBinLabel( 4, "703", 1);
+    meDCCStatusBits_->setBinLabel( 5, "704", 1);
+    meDCCStatusBits_->setBinLabel( 6, "705", 1);
+    meDCCStatusBits_->setBinLabel( 7, "706", 1);
+    meDCCStatusBits_->setBinLabel( 8, "707", 1);
+    meDCCStatusBits_->setBinLabel( 9, "708", 1);
+    meDCCStatusBits_->setBinLabel(10, "709", 1);
+    meDCCStatusBits_->setBinLabel(11, "710", 1);
+    meDCCStatusBits_->setBinLabel(12, "711", 1);
+    meDCCStatusBits_->setBinLabel(13, "712", 1);
+    meDCCStatusBits_->setBinLabel(14, "713", 1);
+    meDCCStatusBits_->setBinLabel(15, "714", 1);
+    meDCCStatusBits_->setBinLabel(16, "715", 1);
+    meDCCStatusBits_->setBinLabel(17, "716", 1);
+    meDCCStatusBits_->setBinLabel(18, "717", 1);
+    meDCCStatusBits_->setBinLabel(19, "718", 1);
+    meDCCStatusBits_->setBinLabel(20, "719", 1);
+    meDCCStatusBits_->setBinLabel(21, "720", 1);
+    meDCCStatusBits_->setBinLabel(22, "721", 1);
+    meDCCStatusBits_->setBinLabel(23, "722", 1);
+    meDCCStatusBits_->setBinLabel(24, "723", 1);
+    meDCCStatusBits_->setBinLabel(25, "724", 1);
+    meDCCStatusBits_->setBinLabel(26, "725", 1);
+    meDCCStatusBits_->setBinLabel(27, "726", 1);
+    meDCCStatusBits_->setBinLabel(28, "727", 1);
+    meDCCStatusBits_->setBinLabel(29, "728", 1);
+    meDCCStatusBits_->setBinLabel(30, "729", 1);
+    meDCCStatusBits_->setBinLabel(31, "730", 1);
+    meDCCStatusBits_->setBinLabel(32, "731", 1);
+    meDCCStatusBits_->setBinLabel( 1, "TTS_OFW", 2);
+    meDCCStatusBits_->setBinLabel( 2, "TTS_BSY", 2);
+    meDCCStatusBits_->setBinLabel( 3, "TTS_SYN", 2);
+    meDCCStatusBits_->setBinLabel( 4, "L1A_EvN Mis", 2);
+    meDCCStatusBits_->setBinLabel( 5, "BcN/OrN Mis", 2);
+    meDCCStatusBits_->setBinLabel( 6, "CT_EvN Mis", 2);
+    meDCCStatusBits_->setBinLabel( 7, "CT_BcN Mis", 2);
+    meDCCStatusBits_->setBinLabel( 8, "OrbitLenEr", 2);
+    meDCCStatusBits_->setBinLabel( 9, "TTC_SingEr", 2);
+    meDCCStatusBits_->setBinLabel(10, "TTC_DoubEr", 2);
+
+    type = "DCC Firmware Version";
+    meDCCVersion_ = m_dbe->bookProfile(type,type, 32, 699.5, 731.5, 256, -0.5, 255.5);
+    meDCCVersion_ ->setAxisTitle("FED ID", 1);
+
+    type = "HTR Status Word HBHE";
+    HTR_StatusWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    labelHTRBits(HTR_StatusWd_HBHE,1);
+
+    type = "HTR Status Word HF";
+    HTR_StatusWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    labelHTRBits(HTR_StatusWd_HF,1);
+  
+    type = "HTR Status Word HO";
+    HTR_StatusWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
+    labelHTRBits(HTR_StatusWd_HO,1);
+
+    int maxbits = 16;//Look at all 16 bits of the Error Words
+    type = "HTR Status Word by Crate";
+    meErrWdCrate_ = m_dbe->book2D(type,type,18,-0.5,17.5,maxbits,-0.5,maxbits-0.5);
+    meErrWdCrate_ -> setAxisTitle("Crate #",1);
+    labelHTRBits(meErrWdCrate_,2);
+
+    type = "Unpacking - HcalHTRData check failures";
+    meInvHTRData_= m_dbe->book2D(type,type,16,-0.5,15.5,32,699.5,731.5);
+    meInvHTRData_->setAxisTitle("Spigot #",1);
+    meInvHTRData_->setAxisTitle("DCC #",2);
+
+    type = "HTR Fiber Orbit Message BCN";
+    meFibBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+    meFibBCN_->setAxisTitle("BCN of Fib Orb Msg",1);
+
+    type = "HTR Status Word - Crate 0";
+    meCrate0HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate0HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate0HTRErr_,2);
+
+    type = "HTR Status Word - Crate 1";
+    meCrate1HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate1HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate1HTRErr_,2);
+
+    type = "HTR Status Word - Crate 2";
+    meCrate2HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate2HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate2HTRErr_,2);
+
+    type = "HTR Status Word - Crate 3";
+    meCrate3HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate3HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate3HTRErr_,2);
+
+    type = "HTR Status Word - Crate 4";
+    meCrate4HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate4HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate4HTRErr_,2);
+
+    type = "HTR Status Word - Crate 5";
+    meCrate5HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate5HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate5HTRErr_,2);
+
+    type = "HTR Status Word - Crate 6";
+    meCrate6HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate6HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate6HTRErr_,2);
+
+    type = "HTR Status Word - Crate 7";
+    meCrate7HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate7HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate7HTRErr_,2);
+
+    type = "HTR Status Word - Crate 9";
+    meCrate9HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate9HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate9HTRErr_,2);
+
+    type = "HTR Status Word - Crate 10";
+    meCrate10HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate10HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate10HTRErr_,2);
+
+    type = "HTR Status Word - Crate 11";
+    meCrate11HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate11HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate11HTRErr_,2);
+
+    type = "HTR Status Word - Crate 12";
+    meCrate12HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate12HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate12HTRErr_,2);
+
+    type = "HTR Status Word - Crate 13";
+    meCrate13HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate13HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate13HTRErr_,2);
+
+    type = "HTR Status Word - Crate 14";
+    meCrate14HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate14HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate14HTRErr_,2);
+
+    type = "HTR Status Word - Crate 15";
+    meCrate15HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate15HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate15HTRErr_,2);
+
+    type = "HTR Status Word - Crate 17";
+    meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
+    meCrate17HTRErr_ ->setAxisTitle("Slot #",1);
+    labelHTRBits(meCrate17HTRErr_,2);
+
+    type = "HTR UnSuppressed Event Fractions";
+    meUSFractSpigs_ = m_dbe->book1D(type,type,481,0,481);
+    for(int f=0; f<NUMDCCS; f++) {
+      sprintf(label, "FED 7%02d", f);
+      meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
+      for(int s=1; s<HcalDCCHeader::SPIGOT_COUNT; s++) {
+	sprintf(label, "sp%02d", s);
+	meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
+
+    // Firmware version
+    type = "HTR Firmware Version";
+    //  Maybe change to Profile histo eventually
+    //meHTRFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
+    meHTRFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,180,75.5,255.5);
+    meHTRFWVersion_->setAxisTitle("Crate #",1);
+    meHTRFWVersion_->setAxisTitle("HTR Firmware Version",2);
+
+    type = "HTR Fiber 1 Orbit Message BCNs";
+    meFib1OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "HTR Fiber 2 Orbit Message BCNs";
+    meFib2OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "HTR Fiber 3 Orbit Message BCNs";
+    meFib3OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "HTR Fiber 4 Orbit Message BCNs";
+    meFib4OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "HTR Fiber 5 Orbit Message BCNs";
+    meFib5OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "HTR Fiber 6 Orbit Message BCNs";
+    meFib6OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "HTR Fiber 7 Orbit Message BCNs";
+    meFib7OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "HTR Fiber 8 Orbit Message BCNs";
+    meFib8OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    
+  }
+
   return;
 }
 
 void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, 
 					 const HcalUnpackerReport& report, 
-					 const HcalElectronicsMap& emap,
-					 int CalibType){
-  
+					 const HcalElectronicsMap& emap){
   if(!m_dbe) { 
     printf("HcalDataFormatMonitor::processEvent DQMStore not instantiated!!!\n");  
     return;}
   
-  bool processevent=false;
-  if (AllowedCalibTypes_.size()==0)
-    processevent=true;
-  else
-    {
-      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
-        {
-          if (AllowedCalibTypes_[i]==CalibType)
-            {
-              processevent=true;
-              break;
-            }
-        }
-    }
-  if (fVerbosity>1) std::cout <<"<HcalDataFormatMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
-  if (!processevent)
-    return;
-
-
   HcalBaseMonitor::processEvent();
   
-  // Call these to make sure histograms get updated
-  ProblemCells->update();
+  ProblemCells->setBinContent(0,0,ievt_);
   for (int depth=0;depth<4;++depth) 
-    ProblemCellsByDepth.depth[depth]->update();
+    ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
 
   lastEvtN_ = -1;
   lastBCN_ = -1;
@@ -465,12 +488,12 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   // Fill event counters (underflow bins of histograms)
   // This is the only way we can make these histograms appear in online DQM!
   // Weird!  -- Jeff, 4/27/09
-  meLRBDataCorruptionIndicators_->update();
-  meHalfHTRDataCorruptionIndicators_->update();
-  meChannSumm_DataIntegrityCheck_->update();
+  meLRBDataCorruptionIndicators_->Fill(-1,-1,1);
+  meHalfHTRDataCorruptionIndicators_->Fill(-1,-1,1);
+  meChannSumm_DataIntegrityCheck_->Fill(-1,-1,1);
   for (int f=0; f<NUMDCCS; f++)      
-    meChann_DataIntegrityCheck_[f]->update();
-  meDataFlowInd_->update();
+    meChann_DataIntegrityCheck_[f]->Fill(-1,-1,1);
+  meDataFlowInd_->Fill(-1,-1,1);
 
   // Loop over all FEDs reporting the event, unpacking if good.
   for (vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) {
@@ -496,8 +519,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 	}
     }
 
-  //if (0== (ievt_ % dfmon_checkNevents))
-  //  UpdateMEs();
+  if (0== (ievt_ % dfmon_checkNevents))
+    UpdateMEs();
   //Transfer this event's problem info to 
   for (unsigned int depth=0; depth<4; ++depth)
     {
@@ -537,9 +560,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   //Before all else, how much data are we dealing with here?
   uint64_t* lastDataWord = (uint64_t*) ( raw.data()+(raw.size())-(1*sizeof(uint64_t)) );
   int EvFragLength = (int) (*lastDataWord>>(4*8)) & 0x0000000000FFFFFF ; //Shift right 4 bytes, get low 3 bytes.
-  meFEDRawDataSizes_->Fill(EvFragLength*8);      //# 64-bit DAQ words *8 = # bytes. 
-  meEvFragSize_ ->Fill(dccid, EvFragLength*8);   //# 64-bit DAQ words *8 = # bytes. 
-  meEvFragSize2_ ->Fill(dccid, EvFragLength*8);  //# 64-bit DAQ words *8 = # bytes. 
+  meFEDRawDataSizes_->Fill(EvFragLength);
+  meEvFragSize_ ->Fill(dccid, EvFragLength);
+  meEvFragSize2_ ->Fill(dccid, EvFragLength);
   
   //Orbit, BunchCount, and Event Numbers
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
@@ -583,8 +606,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
  				(dccid,dccHeader->getSlink64ReservedBits() & 0x0000FFFF ) );
     CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   } // then check against it.
-  if (((int) dccHeader->getSlink64ReservedBits() & 0x0000FFFF ) != CDFReservedBits_it->second) {
+  if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second) {
     meCDFErrorFound_->Fill(dccid,5);
+    //Momentary fix, while I check the dataformat of calibration events. Which bit is which? _jmsj
     //CDFProbThisDCC = true; 
   }
   /* 6 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]
@@ -673,6 +697,17 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     }
   }
   
+  if (TTS_state & 0x1)                  meDCCStatusBits_->Fill(dccid, 1);
+  if (TTS_state & 0x4)                  meDCCStatusBits_->Fill(dccid, 2);
+  if (TTS_state & 0x2)                  meDCCStatusBits_->Fill(dccid, 3);
+  if (dccHeader->SawL1A_EvN_MxMx()   )  meDCCStatusBits_->Fill(dccid, 4);
+  if (dccHeader->SawL1A_BcN_MxMx()   )  meDCCStatusBits_->Fill(dccid, 5);
+  if (dccHeader->SawCT_EvN_MxMx()    )  meDCCStatusBits_->Fill(dccid, 6);
+  if (dccHeader->SawCT_BcN_MxMx()    )  meDCCStatusBits_->Fill(dccid, 7);
+  if (dccHeader->SawOrbitLengthErr() )  meDCCStatusBits_->Fill(dccid, 8);
+  if (dccHeader->SawTTC_SingErr()    )  meDCCStatusBits_->Fill(dccid, 9);
+  if (dccHeader->SawTTC_DoubErr()    )  meDCCStatusBits_->Fill(dccid,10);
+
   unsigned char HTRErrorList=0; 
   for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
     HTRErrorList=dccHeader->getSpigotErrorBits(j);    
@@ -734,7 +769,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	//Already mapped any HTR problem with this one.
       }
     } //else spigot marked "Present"
-    if (dccHeader->getSpigotDataLength(spigot) <(unsigned long)4) {
+    if (dccHeader->getSpigotDataLength(spigot) <(unsigned long)10) {
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+1]++;  //Lost HTR Data for sure.
       mapHTRproblem(dcc_, spigot);
     }    
@@ -784,11 +819,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       }
       DataFlowInd_[fed2offset+0][spg3offset+0]++;
       continue;}
-    else{ //For non-EE, both CompactMode and !CompactMode
-      bool CM = (htr.getExtHdr7() >> 14)&0x0001;
-      if (( CM && ( (HTRwdcount-NDAQ-NTP) != 12) )
-	  ||                                
-	  (!CM && ( (HTRwdcount-NDAQ-NTP) != 20) )  ) {	//incompatible Sizes declared. Skip it.
+    else{ //For non-EE,
+      if ((HTRwdcount-NDAQ-NTP) != 20) {	//incompatible Sizes declared. Skip it.
 	++HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+1];
 	continue;} }
 
@@ -818,28 +850,43 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     meHTRFWVersion_->Fill(cratenum,htrFWVer);  
 
     ///check that all HTRs have the same L1A number.
-    int EvtNdiff = htrEvtN - dccEvtNum;
-    if (EvtNdiff!=0) {
-      meEvtNumberSynch_->Fill(dcc_,spigot);
+    if(lastEvtN_==-1) {
+      lastEvtN_ = htrEvtN;  ///the first one will be the reference
+      int EvtNdiff = htrEvtN - dccEvtNum;
       meEvtNCheck_->Fill(EvtNdiff);
-      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< dccEvtNum << "  "<<htrEvtN <<endl;
+      if (EvtNdiff!=0) meEvtNumberSynch_->Fill(slotnum,cratenum);
+    } else {
+      if((int) htrEvtN!=lastEvtN_) {
+	meEvtNumberSynch_->Fill(slotnum,cratenum);
+	if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< lastEvtN_ << "  "<<htrEvtN <<endl;
+      }
     }
 
     ///check that all HTRs have the same BCN
-    int BCNdiff = htrBCN-dccBCN;
-    if (BCNdiff!=0) {
-      meBCNSynch_->Fill(dcc_,spigot);
+    if(lastBCN_==-1) {
+      lastBCN_ = htrBCN;  ///the first one will be the reference
+      int BCNdiff = htrBCN-dccBCN;
       meBCNCheck_->Fill(BCNdiff);
-      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< dccBCN << "  "<<htrBCN <<endl;
+      if (BCNdiff!=0) meBCNSynch_->Fill(slotnum,cratenum);
+    } else {
+      if((int)htrBCN!=lastBCN_) {
+	meBCNSynch_->Fill(slotnum,cratenum);
+	if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< lastBCN_ << "  "<<htrBCN <<endl;
+      }
     }
 
     ///check that all HTRs have the same OrN
-    int OrNdiff = htrOrN-dccOrN;
-    if (OrNdiff!=0) {
-      meOrNSynch_->Fill(dcc_,spigot);
+    if(lastOrN_==-1) {
+      lastOrN_ = htrOrN;  ///the first one will be the reference
+      int OrNdiff = htrOrN-dccOrN;
       meOrNCheck_->Fill(OrNdiff);
-      meBCNwhenOrNDiff_->Fill(htrBCN); // Are there special BCN where OrN mismatched occur? Let's see.
-      if (prtlvl_==1)cout << "++++ OrN # out of sync, ref, this HTR: "<< dccOrN << "  "<<htrOrN <<endl;
+      if (OrNdiff!=0) meOrNSynch_->Fill(slotnum,cratenum);
+    } else {
+      if((int)htrOrN!=lastOrN_) {
+	meOrNSynch_->Fill(slotnum,cratenum);
+	meBCNwhenOrNDiff_->Fill(htrBCN); // Are there special BCN where OrN mismatched occur?
+	if (prtlvl_==1)cout << "++++ OrN # out of sync, ref, this HTR: "<< lastOrN_ << "  "<<htrOrN <<endl;
+      }
     }
 
     bool htrUnSuppressed=(HTRraw[6]>>15 & 0x0001);
@@ -851,12 +898,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     //Fake a problem with each HTR a unique number of times.
     //if ( (spigot+1) >= ievt_ ) 
-    //mapHTRproblem(dcc_,spigot); 
+    //  mapHTRproblem(dcc_,spigot); 
 
     //Fake a problem with each real calorimeter cell a unique number of times.
-    //for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) {
-    //  //  if (htrchan>ievt_)
-    //  mapChannproblem(dcc_,spigot,htrchan); }
+    //for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) 
+    //  if (htrchan>ievt_)
+    //	mapChannproblem(dcc_,spigot,htrchan); 
 
     MonitorElement* tmpErr = 0;
     HcalDetId HDI = hashedHcalDetId_[hashup(dcc_,spigot)];
@@ -913,10 +960,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	    mapHTRproblem(dcc_,spigot); break;
 	  case ( 5): //LW
 	    HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
-	    //Sometimes set spuriously at startup, per-fiber, .: Leniency: 8
-	    if (HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+2] > 8) {
-	      mapHTRproblem(dcc_,spigot); break; }
-	  case ( 3): //L1 (previous L1A violated trigger rules)
+	    mapHTRproblem(dcc_,spigot); break;
+	  case ( 3): //RL (rejected previous L1A)
 	    DataFlowInd_[fed2offset+1][spg3offset+0]++; break;
 	  case ( 1): //BZ
 	    DataFlowInd_[fed2offset+0][spg3offset+1]++; break;
@@ -958,8 +1003,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     int samplecounter=-1;
     int htrchan=-1; // Valid: [1,24]
     int chn2offset=0; 
-    int NTS = htr.getNDD(); //number time slices, in precision channels
-    ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset+0]=NTS;//For normalization by client
     // Run over DAQ words for this spigot
     for (qie_work=qie_begin; qie_work!=qie_end; qie_work++) {
       if (qie_work->raw()==0xFFFF)  // filler word
@@ -973,7 +1016,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	++Chann_DataIntegrityCheck_[dcc_][chn2offset-1][spg2offset-1];//tally
 	if (samplecounter !=-1) { //Wrap up the previous channel if there is one
 	  //Check the previous digi for number of timeslices
-	  if ((samplecounter != NTS) &&
+	  if ((samplecounter != htr.getNDD()) &&
 	      (samplecounter != 1)             ) { //Wrong DigiSize
 	    ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
 	    ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
@@ -1001,9 +1044,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     } // end loop over all timesamples in this spigot
     //Wrap up the last channel
     //Check the last digi for number of timeslices
-    if ((samplecounter != NTS) &&
+    if ((samplecounter != htr.getNDD()) &&
 	(samplecounter != 1)            &&
-	(samplecounter !=-1)             ) { //Wrong DigiSize (unexpected num. timesamples)
+	(samplecounter !=-1)             ) { //Wrong DigiSize
       ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
       ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
       mapChannproblem(dcc_,spigot,htrchan); 
@@ -1140,9 +1183,7 @@ void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
     myeta = CalcEtaBin(HDI.subdet(),
 		       HDI.ieta(),
 		       mydepth);
-    if (myeta>=0 && myeta<85 &&
-	(myphi-1)>=0 && (myphi-1)<72 &&
-	(mydepth-1)>=0 && (mydepth-1)<4)
+    if (myeta>=0)
       problemfound[myeta][myphi-1][mydepth-1] = true;
   }
 }
@@ -1164,9 +1205,7 @@ void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
     myeta = CalcEtaBin(HDI.subdet(),
 		       HDI.ieta(),
 		       mydepth);
-    if (myeta>=0 && myeta<85 &&
-	(myphi-1)>=0 && (myphi-1)<72 &&
-	(mydepth-1)>=0 && (mydepth-1)<4)
+    if (myeta>=0)
       problemfound[myeta][myphi-1][mydepth-1] = true;
   }
 }   // void HcalDataFormatMonitor::mapHTRproblem(...)
@@ -1187,18 +1226,10 @@ void HcalDataFormatMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
   myeta = CalcEtaBin(HDI.subdet(),
 		     HDI.ieta(),
 		     mydepth);
-  if (myeta>=0 && myeta<85 &&
-      (myphi-1)>=0 && (myphi-1)<72 &&
-      (mydepth-1)>=0 && (mydepth-1)<4)
-    problemfound[myeta][myphi-1][mydepth-1] = true;
+  if (myeta>=0)
+      problemfound[myeta][myphi-1][mydepth-1] = true;
 }   // void HcalDataFormatMonitor::mapChannproblem(...)
 
-void HcalDataFormatMonitor::endLuminosityBlock(void) {
-  if (LBprocessed_==true) return;  // LB already processed
-  UpdateMEs();
-  LBprocessed_=true; 
-  return;
-}
 
 void HcalDataFormatMonitor::UpdateMEs (void ) {
   for (int x=0; x<THREE_FED; x++)
@@ -1227,7 +1258,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
       if (DataFlowInd_[x][y])
 	meDataFlowInd_->setBinContent(x+1,y+1,DataFlowInd_[x][y]);
 
-  uint64_t probcnt=0;
+  uint64_t probfrac=0;
 
   int etabins=0;
   int phibins=0;
@@ -1245,14 +1276,14 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	{
 	  for (int phi=0;phi<phibins;++phi)
 	    {
-	      probcnt=((uint64_t) problemcount[eta][phi][depth] );
-	      if (probcnt==0) continue;
+	      probfrac=((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);
+	      if (probfrac==0) continue;
 	      filleta=CalcIeta(eta,depth+1); // calculate ieta from eta counter
 	      // Offset true ieta for HF plotting
-	      if (isHF(eta,depth+1)) 
+	      if (isHF(eta,depth+1))
 		filleta<0 ? filleta-- : filleta++;
-	      ProblemCellsByDepth.depth[depth]->Fill(filleta,phi+1,probcnt);
-		ProblemCells->Fill(filleta,phi+1,probcnt); 
+	      ProblemCellsByDepth.depth[depth]->Fill(filleta,phi+1,probfrac);
+	      ProblemCells->Fill(filleta,phi+1,probfrac);
 	    }
 	}
     }
@@ -1262,12 +1293,12 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
   for (int eta=0;eta<etabins;++eta)
     {
       for (int phi=0;phi<phibins;++phi)
-  	{
+	{
 	  if (ProblemCells->getBinContent(eta+1,phi+1)>ievt_)
-  	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
-  	}
+	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
+	}
     }
-  
+
   FillUnphysicalHEHFBins(ProblemCells);
   FillUnphysicalHEHFBins(ProblemCellsByDepth);
 } //UpdateMEs

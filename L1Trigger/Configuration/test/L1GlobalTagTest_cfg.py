@@ -10,26 +10,26 @@ process = cms.Process('L1GlobalTagTest')
 # choose the global tag type
 # 310 ->
 
-#useGlobalTag = 'MC_31X_V1'
+useGlobalTag = 'MC_31X_V9'
 #useGlobalTag = 'STARTUP31X_V1'
 
-useGlobalTag = 'GR09_31X_V1P'
+#useGlobalTag = 'GR09_31X_V1P'
 #useGlobalTag = 'GR09_31X_V1H'
 
 # include printing for subsystems
-printL1Rct = False
+printL1Rct = True
 printL1Gct = True
 
-printL1DtTPG = False
-printL1DtTF = False
+printL1DtTPG = True
+printL1DtTF = True
 
-printL1CscTF= False
+printL1CscTF= True
 
-printL1Rpc = False
+printL1Rpc = True
 
-printL1Gmt = False
+printL1Gmt = True
 
-printL1Gt = False
+printL1Gt = True
 
 # specific run number (use empty source) or run over given event sample (POOL source - default)
 cmsSource = 'EmptySource'

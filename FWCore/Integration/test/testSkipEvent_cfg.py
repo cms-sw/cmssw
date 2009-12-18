@@ -5,14 +5,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-# We only want to declare this one as rethrow to reproduce
-# the bug that motivated creation of this test.
-# This way if the OutputModule fails to find TriggerResults
-# it will stop the process, but we do not want to declare other
-# other categories as Rethrow because we are testing the
-# SkipEvent behavior.
+# We are testing the SkipEvent behavior.
 process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('ProductNotFound')
+    SkipEvent = cms.untracked.vstring('EventCorruption')
 )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")

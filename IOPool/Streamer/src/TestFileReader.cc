@@ -1,4 +1,4 @@
-
+ 
 #include "IOPool/Streamer/interface/TestFileReader.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -44,11 +44,10 @@ namespace edmtestp
     filename_(filename),
     //ist_(filename_.c_str(),ios_base::binary | ios_base::in),
     //reader_(ist_),
-    stream_reader_(new StreamerInputFile(filename)),
-    to_(to)
-  {
+    streamReader_(new StreamerInputFile(filename)),
+    to_(to) {
 
-   const InitMsgView* init =  stream_reader_->startMessage();
+   const InitMsgView* init =  streamReader_->startMessage();
    std::auto_ptr<edm::SendJobHeader> p = StreamerInputSource::deserializeRegistry(*init);
     /**
     if(!ist_)
@@ -62,12 +61,11 @@ namespace edmtestp
 
     **/
 
-    if(edm::registryIsSubset(*p,prods)==false)
-      {
+    if(edm::registryIsSubset(*p, prods) == false) {
 	throw edm::Exception(errors::Configuration,"TestFileReader")
 	  << "the header record in file " << filename_
 	  << "is not consistent with the one for the program \n";
-      }
+    }
 
     // 13-Oct-2008, KAB - Added the following code to put the 
     // INIT message on the input queue.
@@ -82,31 +80,26 @@ namespace edmtestp
     b.commit(sizeof(stor::FragEntry));
   }
 
-  TestFileReader::~TestFileReader()
-  {
+  TestFileReader::~TestFileReader() {
   }
 
-  void TestFileReader::start()
-  {
+  void TestFileReader::start() {
     me_.reset(new boost::thread(boost::bind(TestFileReader::run,this)));
   }
 
-  void TestFileReader::join()
-  {
+  void TestFileReader::join() {
     me_->join();
   }
 
-  void TestFileReader::run(TestFileReader* t)
-  {
+  void TestFileReader::run(TestFileReader* t) {
     t->readEvents();
   }
 
-  void TestFileReader::readEvents()
-  {
+  void TestFileReader::readEvents() {
 
-   while( stream_reader_->next() ) { 
+   while(streamReader_->next()) { 
        EventBuffer::ProducerBuffer b(to_);
-       const EventMsgView* eview =  stream_reader_->currentRecord();
+       const EventMsgView* eview = streamReader_->currentRecord();
 
        // 13-Oct-2008, KAB - we need to make a copy of the event message
        // for two reasons:  1) the processing of the events is often done

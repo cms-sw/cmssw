@@ -38,7 +38,7 @@ process.GlobalTag.globaltag = cms.string('MC_3XY_V12::All')
 ## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-## std sequence for PAT
+## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## std sequence to produce the ttGenEvt
@@ -56,11 +56,11 @@ addTtSemiLepHypotheses(process,
 #removeTtSemiLepHypGenMatch(process)
 
 ## change maximum number of jets taken into account per event (default: 4)
-#setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
+## process.ttSemiLepEvent.maxNJets = 5
 
 ## change maximum number of jet combinations taken into account per event (default: 1)
-#process.findTtSemiLepJetCombMVA.maxNComb        = -1
-#process.kinFitTtSemiLepEventHypothesis.maxNComb = -1
+## process.findTtSemiLepJetCombMVA.maxNComb        = -1
+## process.kinFitTtSemiLepEventHypothesis.maxNComb = -1
 
 ## process path
 process.p = cms.Path(process.patDefaultSequence *
@@ -77,11 +77,11 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 process.outpath = cms.EndPath(process.out)
 
-## PAT content
+## pat content
 from PhysicsTools.PatAlgos.patEventContent_cff import *
 process.out.outputCommands += patTriggerEventContent
 process.out.outputCommands += patExtraAodEventContent
 process.out.outputCommands += patEventContentNoLayer1Cleaning
-## TQAF content
+## tqaf content
 from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import *
 process.out.outputCommands += tqafEventContent

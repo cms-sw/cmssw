@@ -38,6 +38,8 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
     {
       SumE[i] = 0;
       NumHits[i]= 0;
+      MinTimeHits[i] = 0.;
+      MaxTimeHits[i] = 0.;
     }
   
   for( HBHERecHitCollection::const_iterator hit = TheHBHERecHits->begin() ; hit != TheHBHERecHits->end() ; hit++ )
@@ -64,7 +66,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  
 	  float time = hit->time();
 	  MinTimeHits[iPhi] = time < MinTimeHits[iPhi] ? time : MinTimeHits[iPhi];
-	  MaxTimeHits[iPhi] = time < MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
+	  MaxTimeHits[iPhi] = time > MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
 	}
     }
   
@@ -108,8 +110,8 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 		{
 		  HcalDetId id_j = HcalDetId(Hits[j]->id() );
 		  int ieta_j = id_j.ieta();
-		  if( ieta_i > ieta_j ) PlusToMinus += 1. ;
-		  else MinusToPlus += 1.;
+		  if( ieta_i > ieta_j ) PlusToMinus += TMath::Abs(ieta_i - ieta_j ) ;
+		  else MinusToPlus += TMath::Abs(ieta_i - ieta_j);
 		}
 	    }
 	  float PlusZOriginConfidence = (PlusToMinus + MinusToPlus )? PlusToMinus / ( PlusToMinus + MinusToPlus ) : -1. ;

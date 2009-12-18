@@ -48,13 +48,10 @@ Profiler = {
     'SimpleMemReport'         : 'SimpleMem_Parser',
     'EdmSize'                 : 'Edm_Size',
     'IgProfperf'              : 'IgProf_perf.PERF_TICKS',
-    'IgProfperf @@@ reuse'    : 'IgProf_perf.PERF_TICKS',
     'IgProfMemTotal'          : 'IgProf_mem.MEM_TOTAL',
     'IgProfMemTotal @@@ reuse': 'IgProf_mem.MEM_TOTAL',
     'IgProfMemLive'           : 'IgProf_mem.MEM_LIVE',
     'IgProfMemLive @@@ reuse' : 'IgProf_mem.MEM_LIVE',
-    'IgProfMemMax'            : 'IgProf_mem.MEM_MAX',
-    'IgProfMemMax @@@ reuse'  : 'IgProf_mem.MEM_MAX',
     'IgProfMemAnalyse'        : 'IgProf_mem.ANALYSE',
     'valgrind'                : 'ValgrindFCE',
     'memcheck_valgrind'       : 'Memcheck_Valgrind',
@@ -387,7 +384,6 @@ def getProfileArray(ProfileCode):
         'IgProfperf',
         'IgProfMemTotal',
         'IgProfMemLive',
-        #'IgProfMemMax', #Should add this here... but instead of changing the profile code numbers (really should, using options instead of numbers...) I am hacking the IgProfMemLive one: when this one is selected I will also include the IgProfMemMax profile (and analysis is analyse is there)
         'IgProfMemAnalyse',
         'valgrind',
         'memcheck_valgrind',
@@ -397,26 +393,16 @@ def getProfileArray(ProfileCode):
     if _noprof:
         Profile.append(AllowedProfile[-1])
     else:
-        #FIXME:
-        #Horrible code!
         for i in range(10):
             if str(i) in ProfileCode:
-                firstCase = (i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode)) \
-                            or (i == 1 and str(2) in ProfileCode)
-                secCase   = (i==4 and str(7) in ProfileCode) \
-                            or (i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode)) \
-                            or (i == 6 and str(7) in ProfileCode)
+                firstCase = i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode) or i == 1 and str(2) in ProfileCode
+                secCase   = i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode) or i == 6 and str(7) in ProfileCode
                 
                 if firstCase or secCase:
                     Profile.append(AllowedProfile[i] + ' @@@ reuse')
-                    #Here's the hack:
-                    if i==6: #i.e. IgProfMemLive
-                        Profile.append("IgProfMemMax @@@ reuse")
                 else:
                     Profile.append(AllowedProfile[i])
-                    if i==6: #i.e. IgProfMemLive
-                        Profile.append("IgProfMemMax")
-
+                
     return Profile
 
 def writeStepHead(simcandles,acandle,step):
@@ -438,7 +424,7 @@ def pythonFragment(step,cmsdriverOptions):
     # Convenient CustomiseFragment dictionary to map the correct customise Python fragment for cmsDriver.py:
     #It is now living in cmsPerfCommons.py!
     
-    if "--pileup" in cmsdriverOptions and not (step == "HLT" or step.startswith("RAW2DIGI")):
+    if "--pileup" in cmsdriverOptions:
         return CustomiseFragment['DIGI-PILEUP']
     elif CustomiseFragment.has_key(step):
         return CustomiseFragment[step] 
@@ -569,12 +555,7 @@ def writeCommands(simcandles,
     else:
         if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
             #print "userInputFile: %s"%userInputFile
-            if ("--pileup" in cmsDriverOptions) and (steps[0]=="HLT" or steps[0].startswith("RAW2DIGI")) :
-                userInputFile = "../INPUT_PILEUP_EVENTS.root"
-                stepIndex=AllSteps.index(steps[0].split("-")[0].split(":")[0])
-                rootFileStr=""
-                
-            elif userInputFile == "":
+            if userInputFile == "":
                 #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
                 (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt)
             else: #To be implemented if we want to have input file capability beyond the HLT and RAW2DIGI-RECO workflows
@@ -584,7 +565,7 @@ def writeCommands(simcandles,
                 #else:
                     #print "There!"
                 #    stepIndex=AllSteps.index(steps[0])
-                rootFileStr=""
+                rootFileStr=""    
             #Now take care of setting the indeces and input root file name right for the profiling part...
             if fstROOTfile:
                 fstROOTfileStr = rootFileStr
@@ -749,7 +730,6 @@ def writeCommands(simcandles,
                                CustomiseFragment['DIGI'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
                                cmsDriverOptions #For FASTSIM PU need the whole cmsDriverOptions! [:cmsDriverOptions.index('--pileup')] 
                            ))
-                    
                     else:
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
@@ -771,66 +751,25 @@ def writeCommands(simcandles,
                         stepLabel = stepToWrite+"_PILEUP"
                     #Add kludge here to make the IGPROF ANALYSE work:
                     #The idea is to:
-                    #1-Check if ANALYSE is there everytime we're handling IGPROF profiles
+                    #1-Check if ANALYSE is there everytime we're handling IGPROF profiles, check also it is not IgProfPerf, for which it makes no sense to dump intermediate profiles.
                     #2-If it is there then write 2 lines instead of 1: add a @@@ reuse to the first line and a second line with ANALYSE @@@ the same metadata
                     #[3-Catch the case of ANALYSE by itself and raise an exception]
                     #4-Catch the case of ANALYSE proper, and do nothing in that case (already taken care by the second lines done after PERF_TICKS, MEM_TOTAL and MEM_LIVE.
                     #print "EEEEEEE %s"%prof
-                    #We actually want the analyse to be used also for IgProf perf!
-                    if 'IgProf' in prof: # and 'perf' not in prof:
-                        #New IgProf naming scheme:
-                        #Add a new naming scheme to simplify the handling in igprof-navigator:
-                        #Candle___Step___Conditions__PileUpOption__IgProfProfile___Event.gz (and .sql3)
-
-                        #Creating the IgProfProfile variable, to be either IgProfMem or IgProfPerf, the two types of profiling:
-                        IgProfProfile="IgProf"
-                        if "Mem" in prof:
-                            if "reuse" in prof:
-                                IgProfProfile="IgProfMem @@@ reuse"
-                            else:
-                                IgProfProfile="IgProfMem"
-                        else:
-                            if "reuse" in prof:
-                                IgProfProfile="IgProfPerf @@@ reuse"
-                            else:
-                                IgProfProfile="IgProfPerf"
-
-                        #Conditions and PileUpOption are extracted from the cmsDriverOptions:
-                        Conditions="UNKNOWN_CONDITIONS"
-                        PileUp="NOPILEUP"
-                        EventContent="UNKNOWN_EVENTCONTENT"
-                        tokens=cmsDriverOptions.split("--")
-                        for token in tokens:
-                            keywords=token.split(" ")
-                            if "=" in keywords[0]:
-                                keywords=keywords[0].split("=")
-                            if "conditions" in keywords[0]:
-                                #Complicated expression, just to get rid of FrontierConditions_GlobalTag, and ::All at the end:
-                                if "," in keywords[1]:#Added if to handle new --conditions convention for cmsDriver.py (no more FrontierConditions... in front of it)
-                                    Conditions=keywords[1].split(",")[1].split("::")[0] #"backward" compatibility...
-                                else:
-                                    Conditions=keywords[1].split("::")[0] 
-                            elif "pileup" in keywords[0]:
-                                PileUp=keywords[1]
-                            elif "eventcontent" in keywords[0]:
-                                EventContent=keywords[1]
-                        #so here's our new MetaName:
-                        MetaName=acandle+"___"+stepToWrite+"___"+PileUp+"___"+Conditions+"___"+EventContent+"___"+IgProfProfile
+                    if 'IgProf' in prof and 'perf' not in prof:
                         
                         if 'Analyse' not in prof and (lambda x: 'Analyse' in x,Profile):
                                 
-                            simcandles.write("%s @@@ %s @@@ %s\n" % (Command,
+                            simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
                                                                            Profiler[prof],
-                                                                           MetaName))
-                                                                           #FileName[acandle],
-                                                                           #stepLabel,
-                                                                           #prof))
-                            simcandles.write("%s @@@ %s @@@ %s\n" % (Command,
-                                                                           Profiler[prof].split(".")[0]+'.ANALYSE.'+Profiler[prof].split(".")[1], #Add the IgProf counter in here (e.g. IgProfMem.ANALYSE.MEM_TOTAL)
-                                                                           MetaName))
-                                                                           #FileName[acandle],
-                                                                           #stepLabel,
-                                                                           #prof))
+                                                                           FileName[acandle],
+                                                                           stepLabel,
+                                                                           prof))
+                            simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                                                                           Profiler[prof].split(".")[0]+'.ANALYSE',
+                                                                           FileName[acandle],
+                                                                           stepLabel,
+                                                                           prof))
                         elif 'Analyse' in prof:
                             pass
                     else:    
@@ -933,7 +872,6 @@ def main(argv=sys.argv):
     #
 
     Profile = getProfileArray(ProfileCode)
-
 
     ##################
     # Write the commands for the report to the file

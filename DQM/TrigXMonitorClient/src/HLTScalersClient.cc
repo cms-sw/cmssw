@@ -1,15 +1,6 @@
-// $Id: HLTScalersClient.cc,v 1.10 2009/11/04 06:00:05 lorenzo Exp $
+// $Id: HLTScalersClient.cc,v 1.7 2008/09/04 11:06:02 lorenzo Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
-// Revision 1.10  2009/11/04 06:00:05  lorenzo
-// changed folders
-//
-// Revision 1.9  2009/11/04 03:44:54  lorenzo
-// added folder param
-//
-// Revision 1.8  2008/09/07 12:16:23  wittich
-// protect against divide-by-zero in rate calculation
-//
 // Revision 1.7  2008/09/04 11:06:02  lorenzo
 // changed to _EvF folder
 //
@@ -67,14 +58,13 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
   nLumi_(0),
   currentRate_(0),
   currentLumiBlockNumber_(0),
-  first_(true),
-  folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", "HLT/HLScalers_EvF"))
+  first_(true)
 {
   LogDebug("Status") << "constructor" ;
   // get back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
   assert(dbe_ != 0); // blammo!
-  dbe_->setCurrentFolder(folderName_);
+  dbe_->setCurrentFolder("HLT/HLTScalers_EvF");
 
   currentRate_ = dbe_->book1D("cur_rate", 
 			      "current lumi section rate per path",
@@ -109,7 +99,7 @@ void HLTScalersClient::beginJob(const edm::EventSetup& c)
 {
   LogDebug("Status") << "beingJob" ;
   if (dbe_) {
-    dbe_->setCurrentFolder(folderName_);
+    dbe_->setCurrentFolder("HLT/HLTScalers_EvF");
   }
 }
 
@@ -131,8 +121,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			const edm::EventSetup& c)
 {
   nLumi_ = lumiSeg.id().luminosityBlock();
-  std::string scalHisto_ = folderName_ + "/hltScalers";
-  MonitorElement *scalers = dbe_->get(scalHisto_);
+
+  MonitorElement *scalers = dbe_->get("HLT/HLTScalers_EvF/hltScalers");
   if ( scalers == 0 ) {
     LogInfo("Status") << "cannot get hlt scalers histogram, bailing out.";
     return;
@@ -149,7 +139,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       int whichHisto = i/kPerHisto;
       int whichBin = i%kPerHisto + 1;
       char pname[256];
-      snprintf(pname, 256, "%s/path%03d",folderName_.c_str(), i);
+      snprintf(pname, 256, "HLT/HLTScalers_EvF/path%03d", i);
       MonitorElement *name = dbe_->get(pname);
       std::string sname;
       if ( name ) {
@@ -161,14 +151,11 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       hltCurrentRate_[whichHisto]->setBinLabel(whichBin, sname.c_str());
       snprintf(pname, 256, "Rate - path %s (Path # %03d)", sname.c_str(), i);
       rateHistories_[i]->setTitle(pname);
-      currentRate_->setBinLabel(i+1, sname.c_str());
-      scalers->setBinLabel(i+1, sname.c_str());
     }
     first_ = false;
   }
 
-  std::string nLumiHisto_ = folderName_ + "/nLumiBlock";
-  MonitorElement *nLumi = dbe_->get(nLumiHisto_);
+  MonitorElement *nLumi = dbe_->get("HLT/HLTScalers_EvF/nLumiBlock");
   int testval = (nLumi!=0?nLumi->getIntValue():-1);
   LogDebug("Parameter") << "Lumi Block from DQM: "
 			<< testval
@@ -199,7 +186,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       LogDebug("Parameter") << "rate path " << i << " is " << rate;
     }
     currentRate_->setBinContent(i, rate);
-    hltCurrentRate_[i/kPerHisto]->setBinContent(i%kPerHisto, rate);
+    hltCurrentRate_[i/kPerHisto]->setBinContent(i%kPerHisto+1, rate);
     //currentRate_->setBinError(i, error);
     scalerCounters_[i-1] = ulong(current_count);
     rateHistories_[i-1]->setBinContent(nL, rate);

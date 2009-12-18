@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.10 2009/02/10 21:45:54 lowette Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.9 2008/03/06 17:46:38 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -81,19 +81,14 @@ namespace sistrip {
   static const char pedestalsMin_[]       = "PedestalMin";
 
   // noise
-  static const char noiseAllStrips_[]       = "StripNoise";
-  static const char noiseMean_[]            = "NoiseMean";
-  static const char noiseSpread_[]          = "NoiseRmsSpread";
-  static const char noiseMax_[]             = "NoiseMax";
-  static const char noiseMin_[]             = "NoiseMin";
-  static const char numOfDead_[]            = "NumOfDeadStrips";
-  static const char numOfNoisy_[]           = "NumOfNoisyStrips";
-  static const char noiseKSAllStrips_[]     = "StripNoiseKS";
-  static const char noiseChi2AllStrips_[]   = "StripNoiseChi2";
-  static const char noiseGausAllStrips_[]   = "StripNoiseGaus";
-  static const char noisebin84Percent_[]  	= "Bin84Percent";
-  static const char noiseSignif_[]  		= "StripNoiseSignif";
-  
+  static const char noiseAllStrips_[]     = "StripNoise";
+  static const char noiseMean_[]          = "NoiseMean";
+  static const char noiseSpread_[]        = "NoiseRmsSpread";
+  static const char noiseMax_[]           = "NoiseMax";
+  static const char noiseMin_[]           = "NoiseMin";
+  static const char numOfDead_[]          = "NumOfDeadStrips";
+  static const char numOfNoisy_[]         = "NumOfNoisyStrips";
+
   // Fine Delay
   static const char fineDelayPos_[]       = "FineDelayPosition";
   static const char fineDelayErr_[]       = "FineDelayError";
@@ -192,13 +187,9 @@ namespace sistrip {
 		     NOISE_MIN        = 210, 
 		     NUM_OF_DEAD      = 211, 
 		     NUM_OF_NOISY     = 212,
-             NOISE_KS_ALL_STRIPS = 215,
-			 NOISE_GAUS_ALL_STRIPS  = 216,
-             NOISE_BIN_84_PERCENT  = 217,
-             NOISE_CHI2_ALL_STRIPS = 218,
-             NOISE_SIGNIF_ALL_STRIPS = 219,
-             FINE_DELAY_POS = 601,
-             FINE_DELAY_ERROR = 602,
+
+                     FINE_DELAY_POS = 601,
+                     FINE_DELAY_ERROR = 602,
 
 		     CALIBRATION_AMPLITUDE    = 701,
 		     CALIBRATION_TAIL         = 702,

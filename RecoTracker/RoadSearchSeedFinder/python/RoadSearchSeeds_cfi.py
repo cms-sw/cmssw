@@ -43,11 +43,13 @@ roadSearchSeeds = cms.EDFilter("RoadSearchSeedFinder",
     # roads service label
     RoadsLabel = cms.string(''),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+    PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
     # In the case of double sided sensors, return in addition to matched also stereo rechits which have not been matched
     OuterSeedRecHitAccessUseStereo = cms.bool(False),
     # restrict track reconstruction to events which have less than MaxNumberOfCosmicClusters;
     # doClusterCheck needs to be 'true' in order to have an effect
     MaxNumberOfCosmicClusters = cms.uint32(300),
+    MaxNumberOfPixelClusters = cms.uint32(300),
     # minimal transverse momentum of reconstructed tracks cut on seeds in GeV
     MinimalReconstructedTransverseMomentum = cms.double(1.5),
     # phi range in radians to restrict loop over detid's in rings

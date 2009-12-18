@@ -19,8 +19,9 @@ Collection of cond db command line utilities in bin dir
 - remove_mapping
 - cmscond_list_iov
 - cmscond_build_iov
+- cmscond_duplicate_iov
 - cmscond_export_iov
-- cmscond_shiffle_iov
+- cmscond_load_iov
 - cmscond_delete_iov
 
 Detail see <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCondDB">CondDB Wiki</a>
@@ -28,11 +29,7 @@ Detail see <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCondDB">Cond
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- CSVBlankLineParser
-- CSVDataLineParser
-- CSVFieldMap
-- CSVHeaderLineParser
-
+-
 
 
 \subsection modules Modules

@@ -1,61 +1,56 @@
 #ifndef CondIter_CondBasicIter_h
 #define CondIter_CondBasicIter_h
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
-
+#include "CondCore/Utilities/interface/CondPyInterface.h"
 #include <string>
-
-
-namespace cond {
-  class DbConnection;
-}
 
 
 class CondBasicIter{
 
-private:
-        
-  cond::IOVIterator* ioviterator;
-  std::string payloadContainer;
-  cond::DbSession mysession;
-  cond::DbConnection* myconnection;
-  /*minimum and maximum of the interval where search IOVs*/     
-  unsigned int iter_Min;
-  unsigned int iter_Max;
-  /*start time of each IOV*/
-  unsigned int m_startTime;
-  /*stop time of each IOV*/
-  unsigned int m_stopTime;
-  unsigned int m_time;
-  
-  
+protected:
+  cond::RDBMS rdbms;
+  cond::CondDB db;
+  cond::IOVProxy iov;
+  cond::IOVProxy::const_iterator iter;
+ 
  public:
   
-  CondBasicIter();
+  CondBasicIter();    
   ~CondBasicIter();    
-  
-  template <class A> friend class CondIter;
   
   
   /**
      tell Iter to point to a database. After this call Iter can be used.
      Direct Access to database through frontier
      It needs:
-     \li \c NameDB -> name of the database
-     \li \c File -> Tag human-readable of the content of the database
+     \li \c NameDB -> name of the database (connection string)
+     \li \c Tag -> Tag human-readable of the content of the database
      \li \c User -> name of the User (if you don't need to authenticate don't write anything here)
      \li \c Pass -> Password to access database (if you don't need to authenticate don't write anything here)
      \li \c nameBlob -> to handle blob type of data (if it is not needed this field has to be left empty)
   */
   
+  CondBasicIter(const std::string & NameDB,
+		const std::string & Tag,
+		const std::string & User,
+		const std::string & Pass,
+		const std::string & nameBlob = ""
+		);
+
+  CondBasicIter(const std::string & NameDB,
+		const std::string & Tag,
+		const std::string & auth = ""
+		);
+
   void create(const std::string & NameDB,
-	      const std::string & File,
-	      const std::string & User = "",
-	      const std::string & Pass = "",
+	      const std::string & Tag,
+	      const std::string & User,
+	      const std::string & Pass,
 	      const std::string & nameBlob = ""
+	      );
+
+  void create(const std::string & NameDB,
+	      const std::string & Tag,
+	      const std::string & auth = ""
 	      );
   
   
@@ -63,7 +58,6 @@ private:
      Set the range of interest of the Iterator of the IOVs.
   */ 
   void setRange(unsigned int min,unsigned int max);
-  void setRange(int min,int max); 
   
   
   /**
@@ -71,61 +65,39 @@ private:
   */  
   
   void setMin(unsigned int min);
-  void setMin(int min);
   
   /**
      Set the maximum of the range of interest of the Iterator of the IOVs.
   */  
   
   void setMax(unsigned int max);
-  void setMax(int max);
-  
+ 
   /**
      Get the mean time of the Iterval of Validity.
   */  
-  unsigned int getTime();
+  unsigned int getTime() const;
   
   /**
      Get the SINCE TIME of the Interval of Validity.
   */
-  unsigned int getStartTime();
+  unsigned int getStartTime()  const;
   
   /**
      Get the TILL TIME of the Interval of Validity.
   */
-  unsigned int getStopTime();
+  unsigned int getStopTime()  const;
   
   /**
-     Get the minimum of the range of interest of the Iterator of the IOVs.
+     Get the token correpsonding to the Interval of Validity.
   */
-  unsigned int getMin();
-  
-  /**
-     Get the maximum of the range of interest of the Iterator of the IOVs.
-  */     
-  unsigned int getMax();
-  
-  
-  /**
-     Get the minimum and the maximum of the range of interest of the Iterator of the IOVs.
-  */ 
-  void getRange(unsigned int*,unsigned int*);
-  
-  /**
-     Set the SINCE TIME of the IOV just analized inside the class CondBasicIter.
-  */
-  void setStartTime(unsigned int start);
-  
-  /**
-     Set the TILL TIME of the IOV just analized inside the class CondBasicIter.
-  */
-  void setStopTime(unsigned int stop); 
-  
-  /**
-     Set the avarage time of the IOV just analized inside the class CondBasicIter.
-  */      
-  void setTime(unsigned int time); 
-  
+  std::string const & getToken() const;
+
+
+  bool init();
+  bool forward();
+  bool make();
+  virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;
+  virtual void clear() =0;
 };
 
 

@@ -15,7 +15,7 @@
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 
 TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& cfg):
-  leps_      (cfg.getParameter<edm::InputTag>("leps"    )),
+  leptons_   (cfg.getParameter<edm::InputTag>("leptons" )),
   jets_      (cfg.getParameter<edm::InputTag>("jets"    )),
   mets_      (cfg.getParameter<edm::InputTag>("mets"    )),
   matching_  (cfg.getParameter<edm::InputTag>("matching")),
@@ -50,7 +50,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   evt.getByLabel("genEvt", genEvt);
 
   edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
-  evt.getByLabel(leps_, leptons);
+  evt.getByLabel(leptons_, leptons);
 
   // skip events with no appropriate lepton candidate
   if( leptons->empty() ) return;

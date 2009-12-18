@@ -36,7 +36,7 @@ void ApvTimingAlgorithm::extract( const std::vector<TH1*>& histos ) {
   
   // Extract FED key from histo title
   if ( !histos.empty() ) { anal()->fedKey( extractFedKey( histos.front() ) ); }
- 
+  
   // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
@@ -153,7 +153,7 @@ void ApvTimingAlgorithm::analyse() {
     anal->addErrorCode(sistrip::smallTickMarkHeight_);
     return; 
   }
- 
+  
   // Find rms spread in "baseline" samples
   float mean = 0.;
   float mean2 = 0.;
@@ -173,21 +173,10 @@ void ApvTimingAlgorithm::analyse() {
   // Find rising edges (derivative across two bins > threshold) 
   std::map<uint16_t,float> edges;
   for ( uint16_t ibin = 1; ibin < nbins-1; ibin++ ) {
-    if  (bin_entries[ibin+4] &&
-	 bin_entries[ibin+3] && 
-	 bin_entries[ibin+2] && 
-	 bin_entries[ibin+1] && 
-	 bin_entries[ibin] && 
-	 bin_entries[ibin-1]) {
+    if ( bin_entries[ibin+1] && 
+	 bin_entries[ibin-1] ) {
       float derivative = bin_contents[ibin+1] - bin_contents[ibin-1];
-      float derivative1 = bin_contents[ibin+1] - bin_contents[ibin];
-      float derivative2 = bin_contents[ibin+2] - bin_contents[ibin+1];
-      float derivative3 = bin_contents[ibin+3] - bin_contents[ibin+2];
-      
-      if ( derivative > 3.*baseline_rms && 
-	   derivative1 > 1.*baseline_rms && 
-	   derivative2 > 1.*baseline_rms && 
-	   derivative3 > 1.*baseline_rms ) { 
+      if ( derivative > 3.*baseline_rms ) { 
 	edges[ibin] = derivative; 
       }
     }
@@ -207,8 +196,6 @@ void ApvTimingAlgorithm::analyse() {
 
     // Iterate through 50 subsequent samples
     bool valid = true;
-    int lowpointcount = 0;
-    const int lowpointallow = 25;  //Number of points allowed to fall below threshhold w/o invalidating tick mark
     for ( uint16_t ii = 0; ii < 50; ii++ ) {
       uint16_t bin = iter->first + ii;
 
@@ -223,20 +210,17 @@ void ApvTimingAlgorithm::analyse() {
       temp = bin_contents[bin+1] - bin_contents[bin-1];
       
       // Store max derivative
-      if ( temp > max_derivative && ii < 10) {
+      if ( temp > max_derivative ) {
 	max_derivative = temp;
 	max_derivative_bin = bin;
       }
-
-
-      // Check if majority of samples following edge are all "high"
+      
+      // Check if samples following edge are all "high"
       if ( ii > 10 && ii < 40 && bin_entries[bin] &&
-	   bin_contents[bin] < baseline + 5.*baseline_rms ) {
-	lowpointcount++;
-	if(lowpointcount > lowpointallow){
-	  valid = false; 
-	}
+	   bin_contents[bin] < baseline + 5.*baseline_rms ) { 
+	valid = false; 
       }
+
     }
 
     // Break from loop if tick mark found
@@ -261,5 +245,5 @@ void ApvTimingAlgorithm::analyse() {
   } else {
     anal->addErrorCode(sistrip::missingTickMark_);
   }
-    
+  
 }

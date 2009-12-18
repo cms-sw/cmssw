@@ -28,7 +28,7 @@
 #include <iostream>
 
 // Default constructor.
-DDLElementaryMaterial::DDLElementaryMaterial(  DDLElementRegistry* myreg ) : DDLMaterial(myreg)
+DDLElementaryMaterial::DDLElementaryMaterial()
 {
 }
 
@@ -38,7 +38,7 @@ DDLElementaryMaterial::~DDLElementaryMaterial()
 }
 
 // Upon encountering an end of an ElementaryMaterial element, we call DDCore
-void DDLElementaryMaterial::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLElementaryMaterial::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLElementaryMaterial::processElement started");
 
@@ -50,7 +50,7 @@ void DDLElementaryMaterial::processElement (const std::string& name, const std::
 			      , ev.eval(nmspace, atts.find("atomicWeight")->second)
 			      , ev.eval(nmspace, atts.find("density")->second));
 
-  DDLMaterial::setReference(nmspace, cpv);
+  DDLMaterial::setReference(nmspace);
   clear();
 
   DCOUT_V('P', "DDLElementaryMaterial::processElement completed.");

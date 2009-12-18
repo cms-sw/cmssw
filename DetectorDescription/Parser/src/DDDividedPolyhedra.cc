@@ -17,8 +17,8 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //--------------------------------------------------------------------------
-DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision& div, DDCompactView& cpv )
-  :  DDDividedGeometryObject(div,cpv)
+DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision & div )
+  :  DDDividedGeometryObject( div )
 {
   checkParametersValidity();
   setType( "DivisionPolyhedraRho" );
@@ -155,8 +155,8 @@ DDLogicalPart DDDividedPolyhedraRho::makeDDLogicalPart ( const int copyNo ) cons
 }
 
 //--------------------------------------------------------------------------
-DDDividedPolyhedraPhi::DDDividedPolyhedraPhi ( const DDDivision& div, DDCompactView& cpv )
-  :  DDDividedGeometryObject(div,cpv)
+DDDividedPolyhedraPhi::DDDividedPolyhedraPhi ( const DDDivision & div )
+  :  DDDividedGeometryObject( div )
 { 
   checkParametersValidity();
   setType( "DivisionPolyhedraPhi" );
@@ -308,8 +308,8 @@ DDLogicalPart DDDividedPolyhedraPhi::makeDDLogicalPart( const int copyNo ) const
 }
 
 //--------------------------------------------------------------------------
-DDDividedPolyhedraZ::DDDividedPolyhedraZ ( const DDDivision& div, DDCompactView& cpv )
-  :  DDDividedGeometryObject(div, cpv)
+DDDividedPolyhedraZ::DDDividedPolyhedraZ ( const DDDivision & div )
+  :  DDDividedGeometryObject ( div )
 { 
   checkParametersValidity();
   setType( "DivisionPolyhedraZ" );

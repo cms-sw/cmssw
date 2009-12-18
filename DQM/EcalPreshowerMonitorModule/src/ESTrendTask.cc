@@ -102,33 +102,33 @@ void ESTrendTask::setup(void) {
 	int iz = (i==0)? 1:-1;
 	sprintf(histo, "ES Trending RH Occ per 5 mins Z %d P %d", iz, j+1);
 	hESRecHitTrend_[i][j] = dqmStore_->bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
-	hESRecHitTrend_[i][j]->setAxisTitle("Minutes", 1);
+	hESRecHitTrend_[i][j]->setAxisTitle("Elapse time (Minutes)", 1);
 	hESRecHitTrend_[i][j]->setAxisTitle("ES RecHit Occupancy / 5 minutes", 2);
 
 	sprintf(histo, "ES Trending RH Occ per hour Z %d P %d", iz, j+1);
 	hESRecHitTrendHr_[i][j] = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-	hESRecHitTrendHr_[i][j]->setAxisTitle("Hours", 1);
+	hESRecHitTrendHr_[i][j]->setAxisTitle("Elapse time (Hours)", 1);
 	hESRecHitTrendHr_[i][j]->setAxisTitle("ES RecHit Occupancy / hour", 2);
       }
 
     sprintf(histo, "ES Trending SLink CRC Error per 5 mins");
     hESSLinkErrTrend_ = dqmStore_->bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
-    hESSLinkErrTrend_->setAxisTitle("Minutes", 1);
+    hESSLinkErrTrend_->setAxisTitle("Elapse time (Minutes)", 1);
     hESSLinkErrTrend_->setAxisTitle("ES SLink CRC Err / 5 minutes", 2);
 
     sprintf(histo, "ES Trending Fiber Error per 5 mins");
     hESFiberErrTrend_ = dqmStore_->bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
-    hESFiberErrTrend_->setAxisTitle("Minutes", 1);
+    hESFiberErrTrend_->setAxisTitle("Elapse time (Minutes)", 1);
     hESFiberErrTrend_->setAxisTitle("ES Fiber Err / 5 minutes", 2);
 
     sprintf(histo, "ES Trending SLink CRC Error per hour");
     hESSLinkErrTrendHr_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-    hESSLinkErrTrendHr_->setAxisTitle("Hours", 1);
+    hESSLinkErrTrendHr_->setAxisTitle("Elapse time (Hours)", 1);
     hESSLinkErrTrendHr_->setAxisTitle("ES SLink CRC Err / hour", 2);
 
     sprintf(histo, "ES Trending Fiber Error per hour");
     hESFiberErrTrendHr_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-    hESFiberErrTrendHr_->setAxisTitle("Hours", 1);
+    hESFiberErrTrendHr_->setAxisTitle("Elapse time (Hours)", 1);
     hESFiberErrTrendHr_->setAxisTitle("ES Fiber Err / hour", 2);
   }
 

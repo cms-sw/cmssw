@@ -59,8 +59,10 @@ HcalLedAnalyzer::HcalLedAnalyzer(const edm::ParameterSet& ps){
   m_inputPedestals_run = ps.getUntrackedParameter<int>("inputPedsRun", 1);
 
   // CORAL required variables to be set, even if not needed
-  if (!::getenv("CORAL_AUTH_USER")) ::putenv("CORAL_AUTH_USER=blah");
-  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv("CORAL_AUTH_PASSWORD=blah"); 
+  const char* foo1 = "CORAL_AUTH_USER=blah";
+  const char* foo2 = "CORAL_AUTH_PASSWORD=blah";
+  if (!::getenv("CORAL_AUTH_USER")) ::putenv(const_cast<char*>(foo1));
+  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv(const_cast<char*>(foo2)); 
 }
 
 HcalLedAnalyzer::~HcalLedAnalyzer(){

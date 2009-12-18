@@ -30,8 +30,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
 /** \class HLTAnalyzer
   *  
   * $Date: November 2006
@@ -65,9 +63,7 @@ private:
   HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
 
-  double xSection_, filterEff_, treeWeight;
-
-  edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventInfo_;
+  edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
   edm::InputTag muon_;
   std::string l1extramc_, l1extramu_;
   edm::InputTag m_l1extramu;
@@ -83,7 +79,7 @@ private:
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctBitCounts_,gctRingSums_;
 
-  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_;
+  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_;//,MuLinkTag_;
   edm::InputTag HLTTau_;
 
   // btag OpenHLT input collections
@@ -119,16 +115,10 @@ private:
   edm::InputTag NonIsoElectronLW_;
   edm::InputTag IsoEleTrackIsolLW_;
   edm::InputTag NonIsoEleTrackIsolLW_;
-  edm::InputTag IsoElectronSS_;
-  edm::InputTag NonIsoElectronSS_;
-  edm::InputTag IsoEleTrackIsolSS_;
-  edm::InputTag NonIsoEleTrackIsolSS_;
   edm::InputTag L1IsoPixelSeeds_;
   edm::InputTag L1NonIsoPixelSeeds_;
   edm::InputTag L1IsoPixelSeedsLW_;
   edm::InputTag L1NonIsoPixelSeedsLW_;
-  edm::InputTag L1IsoPixelSeedsSS_;
-  edm::InputTag L1NonIsoPixelSeedsSS_;
 
   // AlCa OpenHLT input collections  
   edm::InputTag EERecHitTag_; 
@@ -138,12 +128,7 @@ private:
   edm::InputTag HBHERecHitTag_;   
   edm::InputTag HORecHitTag_;   
   edm::InputTag HFRecHitTag_;   
-  edm::InputTag IsoPixelTrackTagL3_;
-  edm::InputTag IsoPixelTrackTagL2_; 
-  edm::InputTag IsoPixelTrackVerticesTag_;
-
-  // Track OpenHLT input collections
-  edm::InputTag PixelTracksTagL3_; 
+  edm::InputTag IsoPixelTrackTagL3_; 
 
   int errCnt;
   const int errMax(){return 100;}

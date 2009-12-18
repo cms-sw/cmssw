@@ -8,13 +8,12 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   UploadHwConfig   = cms.untracked.bool(False),
   UploadAnalyses   = cms.untracked.bool(False),
   DisableDevices   = cms.untracked.bool(False),
+  DisableBadStrips = cms.untracked.bool(False),
   SaveClientFile   = cms.untracked.bool(True),
   SummaryXmlFile   = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
   # individual parameters
   ApvTimingParameters      = cms.PSet(
-    SkipFecUpdate = cms.bool(False),  # skip upload of APV PLL settings
-    SkipFedUpdate = cms.bool(False),  # skip upload of FED frame finding threshold
-    TargetDelay = cms.int32(-1)       # -1: latest tick (old default), otherwise target delay for all ticks' rising edge
+    TargetDelay = cms.int32(-1)        # -1: latest tick (old default), otherwise target delay for all ticks' rising edge
   ),
   CalibrationParameters    = cms.PSet(),
   DaqScopeModeParameters   = cms.PSet(),
@@ -33,22 +32,18 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
     SkipGainUpdate = cms.bool(False)  # wether to keep the gain the same as already on the db
   ),
   PedestalsParameters      = cms.PSet(
-    DeadStripMax        = cms.double(5),    # number times the noise spread below mean noise
-    NoisyStripMin       = cms.double(5),    # number times the noise spread above mean noise
-    HighThreshold       = cms.double(5),    # analysis-wide high threshold for the fed zero suppression
-    LowThreshold        = cms.double(2),    # analysis-wide low threshold for the fed zero suppression
-    DisableBadStrips    = cms.bool(False),  # for experts! disables bad strips on the fed level 
-    KeepsStripsDisabled = cms.bool(False)   # for experts! keep strips disabled as in the db's current state
+    DeadStripMax  = cms.double(5),   # number times the noise spread below mean noise
+    NoisyStripMin = cms.double(5),   # number times the noise spread above mean noise
+    HighThreshold = cms.double(5),   # analysis-wide high threshold for the fed zero suppression
+    LowThreshold  = cms.double(2)    # analysis-wide low threshold for the fed zero suppression
   ),
-  PedsOnlyParameters       = cms.PSet(),
-  PedsFullNoiseParameters  = cms.PSet(
-    DeadStripMax        = cms.double(5),    # number times the noise spread below mean noise
-    NoisyStripMin       = cms.double(5),    # number times the noise spread above mean noise
-    HighThreshold       = cms.double(5),    # analysis-wide high threshold for the fed zero suppression
-    LowThreshold        = cms.double(2),    # analysis-wide low threshold for the fed zero suppression
-    DisableBadStrips    = cms.bool(False),  # for experts! disables bad strips on the fed level 
-    KeepsStripsDisabled = cms.bool(False)   # for experts! keeps strip disabling as in the db's current state
-  ),
-  SamplingParameters       = cms.PSet(),
-  VpspScanParameters       = cms.PSet(),
+  PedsOnlyParameters	   = cms.PSet(),
+#  PedsFullNoiseParameters  = cms.PSet(
+#    DeadStripMax  = cms.double(5),  # number times the noise spread below mean noise
+#    NoisyStripMin = cms.double(5),  # number times the noise spread above mean noise
+#    HighThreshold = cms.double(5),  # analysis-wide high threshold for the fed zero suppression
+#    LowThreshold  = cms.double(2)   # analysis-wide low threshold for the fed zero suppression
+#  ),
+  SamplingParameters	   = cms.PSet(),
+  VpspScanParameters	   = cms.PSet(),
 )

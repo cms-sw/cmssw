@@ -69,7 +69,7 @@ namespace edm
 
     if (pr_->newHeader()) {   
         FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
-        // A new file has been opened and we must compare Heraders here !!
+        // A new file has been opened and we must compare Headers here !!
         //Get header/init from Producer
         InitMsgView const* header = pr_->getHeader();
         deserializeAndMergeWithRegistry(*header, true);

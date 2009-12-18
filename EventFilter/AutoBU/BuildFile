@@ -1,11 +1,10 @@
 <use name=EventFilter/Utilities>
-<use name=EventFilter/TriggerAdapter>
 <use name=EventFilter/Playback>
 <use name=DataFormats/FEDRawData>
 <use name=xdaq>
 <use name=CLHEP>
 <use name=root>
-<lib name=rubuilderevm>
+
 <export>
   <lib name=EventFilterAutoBU>
   <use name=EventFilter/Utilities>

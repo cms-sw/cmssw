@@ -125,6 +125,16 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects()
         unsigned long irun=0;
 	if(num_runs>0){
 
+          // going to query the ecal logic id 
+	  vector<EcalLogicID> my_StripEcalLogicId_EE;
+	  my_StripEcalLogicId_EE = econn->getEcalLogicIDSetOrdered( "ECAL_readout_strip",
+						    1, 1000,
+						    1, 100,
+						    0,5,
+						    "EE_offline_stripid",123 );
+	  std::cout <<" GOT the logic ID for the EE trigger strips "<< std::endl;
+
+
 	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
@@ -201,28 +211,43 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects()
 	            // EE data
 	            if (ecid_name=="ECAL_readout_strip"){
 		      // EE data
-		      // TCC
+		      // fed
 		      int id1=ecid_xt.getID1();
-	              // TT
+	              // ccu
 		      int id2=ecid_xt.getID2();
 	              // Strip
 		      int id3=ecid_xt.getID3();	
-			       	
-		      char ch[10];
-		      sprintf(ch,"%d%d%d", id1, id2, id3);
-		
-		      std::string S ="";
-		      S.insert(0,ch);
-		
-		      // local strip identifier       
-		      unsigned int stripEEId = atoi(S.c_str());		   
-		
+		  
+		      bool set_the_strip=false;
+		      int stripEEId;
+		      for (int istrip=0; istrip<(int)my_StripEcalLogicId_EE.size(); istrip++) {
+
+			if(!set_the_strip){
+			  
+			  if(my_StripEcalLogicId_EE[istrip].getID1()==id1 
+			     && my_StripEcalLogicId_EE[istrip].getID2()==id2
+			     && my_StripEcalLogicId_EE[istrip].getID3()==id3 
+			     ){
+			    stripEEId =my_StripEcalLogicId_EE[istrip].getLogicID();
+			    set_the_strip=true;
+			    break;
+			  }
+			}
+			
+		      }
+		       
 		      EcalTPGFineGrainStripEE::Item item;
 		      item.threshold = (unsigned int)rd_fgr.getThreshold();
 		      item.lut = (unsigned int)rd_fgr.getLUTFgr();
 		      
-	              fgrStripEE->setValue(stripEEId,item);
-	              ++icells;
+		      if(set_the_strip){
+	                fgrStripEE->setValue(stripEEId,item);
+	              } else {
+			std::cout <<" these may be the additional towers TCC/TT "
+				  << id1<<"/"<<id2<<endl;
+		      }
+		      
+		      ++icells;
 	            }
 	          }
 	    

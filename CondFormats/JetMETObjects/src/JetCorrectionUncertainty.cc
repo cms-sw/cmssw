@@ -1,226 +1,165 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-#include "CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/SimpleJetCorrectorParameters.h"
+#include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/PtEtaPhiE4D.h"
-#include "Math/Vector3D.h"
 #include "Math/LorentzVector.h"
-#include <vector>
-#include <string>
+typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELorentzVectorD;
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVectorD;
 
 /////////////////////////////////////////////////////////////////////////
 JetCorrectionUncertainty::JetCorrectionUncertainty () 
-{
-  mJetEta = -9999;
-  mJetPt  = -9999;
-  mJetPhi = -9999;
-  mJetE   = -9999;
-  mJetEMF = -9999;
-  mLepPx  = -9999;
-  mLepPy  = -9999;
-  mLepPz  = -9999;
-  mIsJetEset   = false;
-  mIsJetPtset  = false;
-  mIsJetPhiset = false;
-  mIsJetEtaset = false;
-  mIsJetEMFset = false;
-  mIsLepPxset  = false;
-  mIsLepPyset  = false;
-  mIsLepPzset  = false;
-  mAddLepToJet = false;
-  mUncertainty = new SimpleJetCorrectionUncertainty();
-}
-/////////////////////////////////////////////////////////////////////////
-JetCorrectionUncertainty::JetCorrectionUncertainty(const std::string& fDataFile)  
-{
-  mJetEta = -9999;
-  mJetPt  = -9999;
-  mJetPhi = -9999;
-  mJetE   = -9999;
-  mJetEMF = -9999;
-  mLepPx  = -9999;
-  mLepPy  = -9999;
-  mLepPz  = -9999;
-  mIsJetEset   = false;
-  mIsJetPtset  = false;
-  mIsJetPhiset = false;
-  mIsJetEtaset = false;
-  mIsJetEMFset = false;
-  mIsLepPxset  = false;
-  mIsLepPyset  = false;
-  mIsLepPzset  = false;
-  mAddLepToJet = false;
-  mUncertainty = new SimpleJetCorrectionUncertainty(fDataFile);
-}
+: mParameters (0) 
+{}
+
+JetCorrectionUncertainty::JetCorrectionUncertainty (const std::string& fDataFile) 
+: mParameters (new SimpleJetCorrectorParameters (fDataFile)) 
+{}
 /////////////////////////////////////////////////////////////////////////
 JetCorrectionUncertainty::~JetCorrectionUncertainty () 
 {
-  delete mUncertainty;
+  delete mParameters;
 }
 /////////////////////////////////////////////////////////////////////////
-void JetCorrectionUncertainty::setParameters(const std::string& fDataFile) 
+double JetCorrectionUncertainty::uncertaintyPtEta (double fPt, double fEta, std::string fDirection) const 
 {
-  //---- delete the mParameters pointer before setting the new address ---
-  delete mUncertainty; 
-  mUncertainty = new SimpleJetCorrectionUncertainty(fDataFile);
-}
-/////////////////////////////////////////////////////////////////////////
-float JetCorrectionUncertainty::getUncertainty(bool fDirection) 
-{
-  float result;
-  std::vector<float> vx,vy;
-  vx = fillVector(mUncertainty->parameters().definitions().binVar());
-  vy = fillVector(mUncertainty->parameters().definitions().parVar());
-  result = mUncertainty->uncertainty(vx,vy[0],fDirection);
-  mIsJetEset   = false;
-  mIsJetPtset  = false;
-  mIsJetPhiset = false;
-  mIsJetEtaset = false;
-  mIsJetEMFset = false;
-  mIsLepPxset  = false;
-  mIsLepPyset  = false;
-  mIsLepPzset  = false;
+  double result = 1.;
+  int band = mParameters->bandIndex(fEta);
+  if (band<0) 
+    band = fEta<0 ? 0 : mParameters->size()-1;
+  else if (band==0 || band==int(mParameters->size())-1)
+    result = uncertaintyBandPtEta (band, fPt, fEta, fDirection);
+  else
+    { 
+      double etaMiddle[3];
+      double etaValue[3];
+      for(int i=0; i<3; i++)
+        {  
+          etaMiddle[i] = mParameters->record (band+i-1).etaMiddle();
+          etaValue[i]  = uncertaintyBandPtEta (band+i-1, fPt, fEta, fDirection);
+          //std::cout<<etaMiddle[i]<<" "<<etaValue[i]<<std::endl;
+        }
+      result = quadraticInterpolation(fEta,etaMiddle,etaValue);  
+    }
   return result;
 }
-//------------------------------------------------------------------------ 
-//--- Reads the parameter names and fills a vector of floats -------------
-//------------------------------------------------------------------------
-std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::string>& fNames)
+/////////////////////////////////////////////////////////////////////////
+double JetCorrectionUncertainty::uncertaintyXYZT (double fPx, double fPy, double fPz, double fE, std::string fDirection) const 
 {
-  std::vector<float> result;
-  for(unsigned i=0;i<fNames.size();i++)
+  XYZTLorentzVectorD p4 (fPx, fPy, fPz, fE);
+  return uncertaintyPtEta (p4.Pt(), p4.Eta(), fDirection);
+}
+/////////////////////////////////////////////////////////////////////////
+double JetCorrectionUncertainty::uncertaintyEtEtaPhiP (double fEt, double fEta, double fPhi, double fP, std::string fDirection) const 
+{
+  double costhetainv = cosh (fEta);
+  return uncertaintyPtEta (fP/costhetainv, fEta, fDirection);
+}
+/////////////////////////////////////////////////////////////////////////
+double JetCorrectionUncertainty::uncertaintyBandPtEta (unsigned fBand, double fPt, double fEta, std::string fDirection) const 
+{
+  if (fBand >= mParameters->size()) 
+    throw cms::Exception ("JetCorrectionUncertainty")<<"wrong band: "<<fBand<<": only "<<mParameters->size()<<" is available"<<", eta = "<<fEta;
+  const std::vector<float>& p = mParameters->record (fBand).parameters ();
+  if ((p.size() % 3) != 0)
+    throw cms::Exception ("JetCorrectionUncertainty")<<"wrong # of parameters: multiple of 3 expected, "<<p.size()<< " got";
+  if ((fDirection != "UP") && (fDirection != "DOWN"))
+    throw cms::Exception ("JetCorrectionUncertainty")<<"wrong error direction: "<<fDirection<< ". Choose \"UP\" or \"DOWN\"";
+  std::vector<double> ptMiddle,uncertaintyUP,uncertaintyDOWN;
+  unsigned int N = p.size()/3;
+  unsigned int i,ind;
+  int bin;
+  double resultUP,resultDOWN,result;
+  for(i=0;i<N;i++)
     {
-      if (fNames[i] == "JetEta")
-        {
-          if (!mIsJetEtaset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet eta is not set";
-          result.push_back(mJetEta);
-        }
-      else if (fNames[i] == "JetPt")
-        {
-          if (!mIsJetPtset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet pt is not set";  
-          result.push_back(mJetPt);
-        }
-      else if (fNames[i] == "JetPhi")
-        {
-          if (!mIsJetPhiset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet phi is not set";  
-          result.push_back(mJetPt);
-        }
-      else if (fNames[i] == "JetE")
-        {
-          if (!mIsJetEset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet energy is not set";
-          result.push_back(mJetE);
-        }
-      else if (fNames[i] == "JetEMF")
-        {
-          if (!mIsJetEMFset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet emf is not set";
-          result.push_back(mJetEMF);
-        } 
-      else if (fNames[i] == "LepPx")
-        {
-          if (!mIsLepPxset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" lepton px is not set";  
-          result.push_back(mLepPx);
-        }
-      else if (fNames[i] == "LepPy")
-        {
-          if (!mIsLepPyset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" lepton py is not set";  
-          result.push_back(mLepPy);
-        }
-      else if (fNames[i] == "LepPz")
-        {
-          if (!mIsLepPzset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" lepton pz is not set";  
-          result.push_back(mLepPz);
-        }
+      ind = 3*i;
+      ptMiddle.push_back(p[ind]);
+      uncertaintyDOWN.push_back(p[ind+1]);
+      uncertaintyUP.push_back(p[ind+2]); 
+    }
+  if (fPt<=ptMiddle[0])
+    {
+      resultUP = uncertaintyUP[0];
+      resultDOWN = uncertaintyDOWN[0];
+    }  
+  else if (fPt>=ptMiddle[N-1])
+    {
+      resultUP = uncertaintyUP[N-1];
+      resultDOWN = uncertaintyDOWN[N-1];
+    } 
+  else
+    {
+      bin = findPtBin(ptMiddle,fPt); 
+      resultUP = linearInterpolation(fPt,ptMiddle[bin],ptMiddle[bin+1],uncertaintyUP[bin],uncertaintyUP[bin+1]);
+      resultDOWN = linearInterpolation(fPt,ptMiddle[bin],ptMiddle[bin+1],uncertaintyDOWN[bin],uncertaintyDOWN[bin+1]);
+    }
+  if (fDirection=="UP")
+    result = resultUP;
+  else
+    result = resultDOWN;
+  return result;
+}
+/////////////////////////////////////////////////////////////////////////
+double JetCorrectionUncertainty::quadraticInterpolation(double z, const double x[3], const double y[3]) const
+{
+  // Quadratic interpolation through the points (x[i],y[i]). First find the parabola that
+  // is defined by the points and then calculate the y(z).
+  double D[4],a[3];
+  D[0] = x[0]*x[1]*(x[0]-x[1])+x[1]*x[2]*(x[1]-x[2])+x[2]*x[0]*(x[2]-x[0]);
+  D[3] = y[0]*(x[1]-x[2])+y[1]*(x[2]-x[0])+y[2]*(x[0]-x[1]);
+  D[2] = y[0]*(pow(x[2],2)-pow(x[1],2))+y[1]*(pow(x[0],2)-pow(x[2],2))+y[2]*(pow(x[1],2)-pow(x[0],2));
+  D[1] = y[0]*x[1]*x[2]*(x[1]-x[2])+y[1]*x[0]*x[2]*(x[2]-x[0])+y[2]*x[0]*x[1]*(x[0]-x[1]);
+  if (D[0] != 0)
+    {
+      a[0] = D[1]/D[0];
+      a[1] = D[2]/D[0];
+      a[2] = D[3]/D[0];
+    }
+  else
+    {
+      a[0] = 0;
+      a[1] = 0;
+      a[2] = 0;
+    }
+  double r = a[0]+z*(a[1]+z*a[2]);
+  return r;
+}
+/////////////////////////////////////////////////////////////////////////
+double JetCorrectionUncertainty::linearInterpolation(double z, const double x1, const double x2, const double y1, const double y2) const
+{
+  // Linear interpolation through the points (x[i],y[i]). First find the line that
+  // is defined by the points and then calculate the y(z).
+  double a,b,r;
+  r = 0;
+  if (x1 == x2)
+    {
+      if (y1 == y2)
+        r = y1;
       else
-        throw cms::Exception("JetCorrectionUncertainty::")<<" unknown parameter "<<fNames[i];
-    }     
-  return result;      
+        std::cout<<"ERROR!!!"<<std::endl;
+    } 
+  else   
+    {
+      a = (y2-y1)/(x2-x1);
+      b = (y1*x2-y2*x1)/(x2-x1);
+      r = a*z+b;
+    }
+  return r;
 }
-//------------------------------------------------------------------------ 
-//--- Calculate the PtRel (needed for the SLB) ---------------------------
-//------------------------------------------------------------------------
-float JetCorrectionUncertainty::getPtRel()
+/////////////////////////////////////////////////////////////////////////
+int JetCorrectionUncertainty::findPtBin(std::vector<double> v, double x) const
 {
-  typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float> > PtEtaPhiELorentzVector;
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > XYZVector;
-  PtEtaPhiELorentzVector jet;
-  XYZVector lep;
-  jet.SetPt(mJetPt);
-  jet.SetEta(mJetEta);
-  jet.SetPhi(mJetPhi);
-  jet.SetE(mJetE);
-  lep.SetXYZ(mLepPx,mLepPy,mLepPz);
-  float lj_x = (mAddLepToJet) ? lep.X()+jet.Px() : jet.Px();
-  float lj_y = (mAddLepToJet) ? lep.Y()+jet.Py() : jet.Py();
-  float lj_z = (mAddLepToJet) ? lep.Z()+jet.Pz() : jet.Pz();
-  // absolute values squared
-  float lj2  = lj_x*lj_x+lj_y*lj_y+lj_z*lj_z;
-  if (!(lj2 > 0))
-    throw cms::Exception("JetCorrectionUncertainty")<<" not positive lepton-jet momentum: "<<lj2;
-  float lep2 = lep.X()*lep.X()+lep.Y()*lep.Y()+lep.Z()*lep.Z();
-  // projection vec(mu) to lepjet axis
-  float lepXlj = lep.X()*lj_x+lep.Y()*lj_y+lep.Z()*lj_z;
-  // absolute value squared and normalized
-  float pLrel2 = lepXlj*lepXlj/lj2;
-  // lep2 = pTrel2 + pLrel2
-  float pTrel2 = lep2-pLrel2;
-  return (pTrel2 > 0) ? std::sqrt(pTrel2) : 0.0;
+  int i;
+  int n = v.size()-1;
+  if (n<=0) return -1;
+  if (x<v[0] || x>=v[n])
+    return -1;
+  for(i=0;i<n;i++)
+   {
+     if (x>=v[i] && x<v[i+1])
+       return i;
+   }
+  return 0; 
 }
-//------------------------------------------------------------------------ 
-//--- Setters ------------------------------------------------------------
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setJetEta(float fEta)
-{
-  mJetEta = fEta;
-  mIsJetEtaset = true;
-}
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setJetPt(float fPt)
-{
-  mJetPt = fPt;
-  mIsJetPtset  = true;
-}
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setJetPhi(float fPhi)
-{
-  mJetPhi = fPhi;
-  mIsJetPhiset  = true;
-}
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setJetE(float fE)
-{
-  mJetE = fE;
-  mIsJetEset   = true;
-}
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setJetEMF(float fEMF)
-{
-  mJetEMF = fEMF;
-  mIsJetEMFset = true;
-}
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setLepPx(float fPx)
-{
-  mLepPx = fPx;
-  mIsLepPxset  = true;
-}
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setLepPy(float fPy)
-{
-  mLepPy = fPy;
-  mIsLepPyset  = true;
-}
-//------------------------------------------------------------------------
-void JetCorrectionUncertainty::setLepPz(float fPz)
-{
-  mLepPz = fPz;
-  mIsLepPzset  = true;
-}
-//------------------------------------------------------------------------
+
+

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.11 2009/11/10 10:47:46 innocent Exp $
+// $Id: HcalO2OManager.cc,v 1.12 2009/11/18 23:02:26 lsexton Exp $
 //
 
 
@@ -33,7 +33,6 @@
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"

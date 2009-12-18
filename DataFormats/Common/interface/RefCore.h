@@ -47,6 +47,8 @@ namespace edm {
 
     EDProduct const* getProductPtr(char const* type) const;
 
+    void productNotFoundException(char const* type) const;
+
     void wrongTypeException(char const* expectedType, char const* actualType) const;
 
     void nullPointerForTransientException(char const* type) const;

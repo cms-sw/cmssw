@@ -4,7 +4,7 @@
 //
 // Package:     DataFormats/Provenance
 // Class:      Timestamp
-// 
+//
 /**\class Timestamp Timestamp.h DataFormats/Provenance/interface/Timestamp.h
 
  Description: Defines an instance in time from the Online system
@@ -25,12 +25,11 @@
 // forward declarations
 namespace edm {
    typedef unsigned long long TimeValue_t;
-   
-class Timestamp
-{
+
+class Timestamp {
 
    public:
-      Timestamp(TimeValue_t iValue) ;
+      explicit Timestamp(TimeValue_t iValue);
       Timestamp();
 
       virtual ~Timestamp();
@@ -38,50 +37,50 @@ class Timestamp
       TimeValue_t value() const;
 
       // ---------- const member functions ---------------------
-      bool operator==(const Timestamp& iRHS) const {
+      bool operator==(Timestamp const& iRHS) const {
          return timeHigh_ == iRHS.timeHigh_ &&
          timeLow_ == iRHS.timeLow_;
       }
-      bool operator!=(const Timestamp& iRHS) const {
+      bool operator!=(Timestamp const& iRHS) const {
          return !(*this == iRHS);
       }
 
-      bool operator<(const Timestamp& iRHS) const {
+      bool operator<(Timestamp const& iRHS) const {
          if(timeHigh_ == iRHS.timeHigh_) {
             return timeLow_ < iRHS.timeLow_;
          }
          return timeHigh_ < iRHS.timeHigh_;
       }
-      bool operator<=(const Timestamp& iRHS) const {
+      bool operator<=(Timestamp const& iRHS) const {
          if(timeHigh_ == iRHS.timeHigh_) {
             return timeLow_ <= iRHS.timeLow_;
          }
          return timeHigh_ <= iRHS.timeHigh_;
       }
-      bool operator>(const Timestamp& iRHS) const {
+      bool operator>(Timestamp const& iRHS) const {
          if(timeHigh_ == iRHS.timeHigh_) {
             return timeLow_ > iRHS.timeLow_;
          }
          return timeHigh_ > iRHS.timeHigh_;
       }
-      bool operator>=(const Timestamp& iRHS) const {
+      bool operator>=(Timestamp const& iRHS) const {
          if(timeHigh_ == iRHS.timeHigh_) {
             return timeLow_ >= iRHS.timeLow_;
          }
          return timeHigh_ >= iRHS.timeHigh_;
       }
-      
+
       // ---------- static member functions --------------------
-      static const Timestamp& invalidTimestamp();
-      static const Timestamp& endOfTime();
-      static const Timestamp& beginOfTime();
-      
+      static Timestamp const& invalidTimestamp();
+      static Timestamp const& endOfTime();
+      static Timestamp const& beginOfTime();
+
       // ---------- member functions ---------------------------
 
    private:
-      //Timestamp(const Timestamp&); // allow default
+      //Timestamp(Timestamp const&); // allow default
 
-      //const Timestamp& operator=(const Timestamp&); // allow default
+      //Timestamp const& operator=(Timestamp const&); // allow default
 
       // ---------- member data --------------------------------
       // ROOT does not support ULL

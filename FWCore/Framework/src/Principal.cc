@@ -231,20 +231,31 @@ namespace edm {
   }
 
   Principal::SharedConstGroupPtr const
-  Principal::getGroup(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
+  Principal::getGroup(BranchID const& bid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
     ProductTransientIndex index = preg_->indexFrom(bid);
     if(index == ProductRegistry::kInvalidIndex){
        return SharedConstGroupPtr();
     }
-    return getGroupByIndex(index, resolveProd, fillOnDemand);
+    return getGroupByIndex(index, resolveProd, resolveProv, fillOnDemand);
   }
 
   Principal::SharedConstGroupPtr const
-  Principal::getGroupByIndex(ProductTransientIndex const& index, bool resolveProd, bool fillOnDemand) const {
+  Principal::getGroupByIndex(ProductTransientIndex const& index, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
 
     SharedConstGroupPtr const& g = groups_[index];
     if (0 == g.get()) {
       return g;
+    }
+    if (resolveProv && (g->provenanceAvailable() || g->onDemand())) {
+      if(g->onDemand()) {
+         //must execute the unscheduled to get the provenance
+         this->resolveProduct(*g, true);
+         //check if this failed (say because of a caught exception)
+         if(0 == g->product()) {
+            return g;
+         }
+      }
+      this->resolveProvenance(*g);
     }
     if (resolveProd && !g->productUnavailable()) {
       this->resolveProduct(*g, fillOnDemand);
@@ -398,7 +409,7 @@ namespace edm {
       if(selector.match(*(it->branchDescription()))) {
 
         //now see if the data is actually available
-        SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+        SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false, false);
         // Skip product if not available.
         if (group && !group->productUnavailable()) {
           this->resolveProduct(*group, true);
@@ -407,6 +418,7 @@ namespace edm {
           if (!group->productUnavailable() && !group->onDemand()) {
             // Found a good match, save it
 	    BasicHandle bh(group->product(), group->provenance());
+	    bh.provenance()->setStore(branchMapperPtr_);
             results.push_back(bh);
           }
         }
@@ -443,7 +455,7 @@ namespace edm {
       if(selector.match(*(it->branchDescription()))) {
 
         //now see if the data is actually available
-        SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+        SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false, false);
         // Skip product if not available.
         if (group && !group->productUnavailable()) {
           this->resolveProduct(*group, true);
@@ -457,6 +469,7 @@ namespace edm {
 	    if (count == 0U) {
               // Found a unique (so far) match, save it
 	      result = BasicHandle(group->product(), group->provenance());
+	      result.provenance()->setStore(branchMapperPtr_);
 	    }
 	    ++count;
           }
@@ -530,7 +543,7 @@ namespace edm {
         continue;
       }
       //now see if the data is actually available
-      SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+      SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false, false);
       // Skip product if not available.
       if (group && !group->productUnavailable()) {
         this->resolveProduct(*group, true);
@@ -539,6 +552,7 @@ namespace edm {
         if (!group->productUnavailable() && !group->onDemand()) {
           // Found the match
 	  result = BasicHandle(group->product(), group->provenance());
+	  result.provenance()->setStore(branchMapperPtr_);
 	  return true;
         }
       }
@@ -548,7 +562,7 @@ namespace edm {
 
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
-    SharedConstGroupPtr const& g = getGroup(bid, getProd, false);
+    SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
     if (g.get() == 0) {
         throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
          << "No entry is present for this branch.\n"
@@ -563,7 +577,7 @@ namespace edm {
 
   Provenance
   Principal::getProvenance(BranchID const& bid) const {
-    SharedConstGroupPtr const& g = getGroup(bid, false, true);
+    SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
     if (g.get() == 0) {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "getProvenance: no product with given branch id: "<< bid << "\n";
@@ -590,10 +604,12 @@ namespace edm {
     provenances.clear();
     for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if ((*i)->provenanceAvailable()) {
-	if ((*i)->provenance()->isPresent() && (*i)->provenance()->product().present()) {
-	   provenances.push_back((*i)->provenance());
-	}
-      }
+        resolveProvenance(**i);
+        if ((*i)->provenance()->productProvenanceSharedPtr() &&
+            (*i)->provenance()->isPresent() &&
+            (*i)->provenance()->product().present())
+           provenances.push_back((*i)->provenance());
+        }
     }
   }
 

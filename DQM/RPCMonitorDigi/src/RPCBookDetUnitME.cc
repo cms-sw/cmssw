@@ -57,9 +57,9 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
     os<<"ClusterSize_"<<nameRoll;
     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 20, 0.5, 20.5);
    dbe->tag( meMap[os.str()],  rpcdqm::CLUSTERSIZE);
- //    os.str("");
-//     os<<"NumberOfClusters_"<<nameRoll;
-//     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 10, 0.5, 10.5);
+    os.str("");
+    os<<"NumberOfClusters_"<<nameRoll;
+    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 10, 0.5, 10.5);
 
     os.str("");
     os<<"NumberOfDigi_"<<nameRoll;

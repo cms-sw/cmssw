@@ -38,6 +38,7 @@ protected:
       GenJet,
       CaloJet,
       PFJet,
+      TrackJet,
       LastJetType  // no real type, technical
     };
     static const char *names[];
@@ -54,6 +55,9 @@ protected:
   }
   inline bool makeGenJet(const JetType::Type &fTag) {
     return fTag == JetType::GenJet;
+  }
+  inline bool makeTrackJet(const JetType::Type &fTag) {
+    return fTag == JetType::TrackJet;
   }
   inline bool makeBasicJet(const JetType::Type &fTag) {
     return fTag == JetType::BasicJet;
@@ -136,8 +140,8 @@ protected:
   // This will write the jets to the event. 
   // The default is to write out the single jet collection in the default "produces"
   // statement. 
-  // This is a function template that can be called for the four types
-  // CaloJet, PFJet, GenJet, BasicJet. This is not suitable
+  // This is a function template that can be called for the five types
+  // CaloJet, PFJet, GenJet, TrackJet, BasicJet. This is not suitable
   // for compound jets. 
   // Note: The "output" method is virtual and can be overriden.
   // The default behavior is to call the function template "writeJets". 
@@ -171,9 +175,11 @@ protected:
   bool                  restrictInputs_;            // restrict inputs to first "maxInputs" inputs.
   unsigned int          maxInputs_;                 // maximum number of inputs. 
 
-  // for fastjet flavor of pileup calculation
-  bool                  doPUFastjet_;               // add the pileup calculation from fastjet?
-
+  // for fastjet jet area calculation
+  bool                  doAreaFastjet_;             // calculate area w/ fastjet?
+  // for fastjet rho calculation
+  bool                  doRhoFastjet_;              // calculate rho w/ fastjet?
+  
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
   double                nSigmaPU_;                  // number of sigma for pileup
@@ -195,7 +201,7 @@ protected:
   unsigned int          maxRecoveredHcalCells_;	    // maximum number of recovered HCAL cells  
   unsigned int          maxProblematicHcalCells_;   // maximum number of problematic HCAL cells
 
-  reco::CandidateView             inputs_;          // input candidates
+  std::vector<edm::Ptr<reco::Candidate> > inputs_;  // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point           vertex_;          // Primary vertex 
   ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
   JetDefPtr                       fjJetDefinition_; // fastjet jet definition

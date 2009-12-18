@@ -14,15 +14,17 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripRPZProxyBuilder.cc,v 1.1 2009/01/16 20:01:29 amraktad Exp $
+// $Id: FWSiStripRPZProxyBuilder.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
 //
 
 // system include files
 #include "TEveManager.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
+#include "TEveStraightLineSet.h"
 
 // user include files
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 
@@ -97,6 +99,24 @@ void FWSiStripRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList**
       }
 
       gEve->AddElement(list,tList);
+/////////////////////////////////////////////////////	   
+//LatB
+	   static int C2D=0;
+	   static int PRINT=0;
+	   if (C2D) {
+		   if (PRINT) std::cout<<"SiStripCluster  "<<index<<", "<<title<<std::endl;
+		   TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+		   for(edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
+			   short fs = (*ic).firstStrip ();
+			   double bc = (*ic).barycenter();
+			   TVector3 point, pointA, pointB; fireworks::localSiStrip(point, pointA, pointB, bc, id, iItem);
+			   if (PRINT) std::cout<<"SiStripCluster first strip "<<fs<<", bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+			   scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+			   scposition->SetLineColor(kRed);
+		   }
+		   gEve->AddElement(scposition,tList);
+	   }
+/////////////////////////////////////////////////////	   
    }
 }
 

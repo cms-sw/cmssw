@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.27 2009/08/12 18:17:21 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.28 2009/08/12 19:18:45 chrjones Exp $
 //
 
 // system include files
@@ -441,9 +441,12 @@ CmsShowEDI::runSelection() {
    if (m_item != 0){
       try {
          m_selectError->Clear();
-         m_item->selectionManager()->clearSelection();
+         //NOTE call clearModelSelectionLeaveItem so that the item does not get deselected
+         // just for safety use a copy of the pointer to m_item
+         FWEventItem* item = m_item;
+         item->selectionManager()-> clearModelSelectionLeaveItem();
 
-         selector.select(m_item, selection);
+         selector.select(item, selection);
       } catch( const FWExpressionException& e) {
          m_selectError->AddLine(e.what().c_str());
          m_selectError->Update();

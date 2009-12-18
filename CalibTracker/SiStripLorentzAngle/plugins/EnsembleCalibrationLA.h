@@ -16,28 +16,15 @@ class EnsembleCalibrationLA : public edm::EDAnalyzer {
 
  private:
   
-  void write_ensembles_text(const Book&);
+  void write_ensembles_text(const Book&) const;
   void write_ensembles_plots(const Book&) const;
   void write_samples_plots(const Book&) const;
-  void write_calibrations() const;
 
   const std::vector<std::string> inputFiles;
   const std::string inFileLocation, Prefix;
   const unsigned maxEvents,samples, nbins;
   const double lowBin,highBin;
   std::vector<int> vMethods;
-
-  struct MethodCalibrations {
-    MethodCalibrations() : 
-      slopes(std::vector<float>(14,0)),
-      offsets(std::vector<float>(14,10)),
-      pulls(std::vector<float>(14,0)) {}
-    std::vector<float> slopes;
-    std::vector<float> offsets;
-    std::vector<float> pulls;
-  };
-  std::map<std::string,MethodCalibrations> calibrations;
-  
 };
 }
 #endif

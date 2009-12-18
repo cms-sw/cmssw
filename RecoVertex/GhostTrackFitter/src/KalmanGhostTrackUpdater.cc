@@ -34,8 +34,7 @@ namespace {
 	typedef SMatrix<double, 2, 2> Matrix22;
 
 	struct KalmanState {
-		KalmanState(const GhostTrackPrediction &pred,
-		            const GhostTrackState &state);
+		KalmanState() {}
 
 		Vector2		residual;
 		Matrix2S	measErr, measPredErr;
@@ -43,45 +42,49 @@ namespace {
 	};
 }
 
-KalmanState::KalmanState(const GhostTrackPrediction &pred,
-                         const GhostTrackState &state)
+static void kalmanInitState(const GhostTrackPrediction &pred,
+                            const GhostTrackState &state,
+                            KalmanState &kalmanState)
 {
 	using namespace ROOT::Math;
 
-	const GlobalPoint &point = state.tsos().globalPosition();
-
-	// precomputed values
+	// used in local 2d plane transformation perpendicular in x-y to pred
 	double x = std::cos(pred.phi());
 	double y = std::sin(pred.phi());
-	double dz = pred.cotTheta();
-	double lip = x * point.x() + y * point.y();
-	double tip = x * point.y() - y * point.x();
+
+	const GlobalPoint &point = state.tsos().globalPosition();
+
+	// lambda
+	double rho2 = pred.rho2();
+	double l = (point - pred.origin()) * pred.direction() / rho2;
+
+	// predicted state (no transport transformation needed)
+	Vector4 vec = pred.prediction();
+	Matrix4S err = pred.covariance();
 
 	// jacobian of global -> local
 	Matrix23 measToLocal;
-	measToLocal(0, 0) = - dz * x;
-	measToLocal(0, 1) = - dz * y;
-	measToLocal(0, 2) = 1.;
+	measToLocal(0, 2) = rho2;
 	measToLocal(1, 0) = y;
 	measToLocal(1, 1) = -x;
 
-	// measurement error on the 2d plane projection
-	measErr = Similarity(measToLocal,
+	// measurement in local 2d plane projection
+	Vector2 meas(rho2 * point.z(), y * point.x() - x * point.y());
+	kalmanState.measErr = Similarity(measToLocal,
 		state.tsos().cartesianError().matrix().Sub<Matrix3S>(0, 0));
 
 	// jacobian of representation to measurement transformation
-	h(0, 0) = 1.;
-	h(0, 2) = lip;
-	h(0, 3) = dz * tip;
-	h(1, 1) = -1.;
-	h(1, 3) = -lip;
+	kalmanState.h(0, 0) = 1.;
+	kalmanState.h(0, 2) = l;
+	kalmanState.h(1, 1) = -1.;
+	kalmanState.h(1, 3) = -l;
 
-	// error on prediction
-	measPredErr = Similarity(h, pred.covariance());
+	// predicted measurement
+	Vector2 measPred(rho2 * (vec[0] + l * vec[2]), -vec[1]);
+	kalmanState.measPredErr = Similarity(kalmanState.h, err);
 
 	// residual
-	residual[0] = point.z() - pred.z() - dz * lip;
-	residual[1] = pred.ip() - tip;
+	kalmanState.residual = meas - measPred;
 }
 
 GhostTrackPrediction KalmanGhostTrackUpdater::update(
@@ -91,14 +94,11 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 {
 	using namespace ROOT::Math;
 
-	KalmanState kalmanState(pred, state);
-
-	if (state.weight() < 1.0e-3)
-		return pred;
+	KalmanState kalmanState;
+	kalmanInitState(pred, state, kalmanState);
 
 	// inverted combined error
-	Matrix2S invErr = kalmanState.measPredErr +
-	                  (1.0 / state.weight()) * kalmanState.measErr;
+	Matrix2S invErr = kalmanState.measErr + kalmanState.measPredErr;
 	if (!invErr.Invert())
 		return pred;
 
@@ -106,9 +106,11 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 	Matrix42 gain = pred.covariance() * Transpose(kalmanState.h) * invErr;
 
 	// new prediction
-	Vector4 newPred = pred.prediction() + (gain * kalmanState.residual);
+	Vector4 newPred = pred.prediction() + state.weight() *
+						(gain * kalmanState.residual);
 	Matrix44 tmp44 = SMatrixIdentity();
-	tmp44 = (tmp44 - gain * kalmanState.h) * pred.covariance();
+	tmp44 = (tmp44 - sqr(state.weight()) *
+		              (gain * kalmanState.h)) * pred.covariance();
 	Matrix4S newError(tmp44.LowerBlock());
 
 	// filtered residuals
@@ -117,8 +119,7 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 	Vector2 filtRes = tmp22 * kalmanState.residual;
 	tmp22 *= kalmanState.measErr;
 	Matrix2S filtResErr(tmp22.LowerBlock());
-	if (!filtResErr.Invert())
-		return pred;
+	filtResErr.Invert();
 
 	ndof += state.weight() * 2.;
 	chi2 += state.weight() * Similarity(filtRes, filtResErr);
@@ -129,25 +130,18 @@ GhostTrackPrediction KalmanGhostTrackUpdater::update(
 void KalmanGhostTrackUpdater::contribution(
 				const GhostTrackPrediction &pred,
 				const GhostTrackState &state,
-				double &ndof, double &chi2,
-				bool withPredError) const
+				double &ndof, double &chi2) const
 {
 	using namespace ROOT::Math;
 
-	KalmanState kalmanState(pred, state);
+	KalmanState kalmanState;
+	kalmanInitState(pred, state, kalmanState);
 
-	// this is called on the full predicted state,
-	// so the residual is already with respect to the filtered state
-
-	// inverted error
-	Matrix2S invErr = kalmanState.measErr;
-	if (withPredError)
-		invErr += kalmanState.measPredErr;
-	if (!invErr.Invert()) {
+	if (kalmanState.measErr.Invert()) {
+		ndof = 2.;
+		chi2 = Similarity(kalmanState.residual, kalmanState.measErr);
+	} else {
 		ndof = 0.;
 		chi2 = 0.;
 	}
-
-	ndof = 2.;
-	chi2 = Similarity(kalmanState.residual, invErr);
 }                            

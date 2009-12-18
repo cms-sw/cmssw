@@ -6,8 +6,8 @@
  * HLTFilter to select muons that points to a cylinder of configurable radius
  * and lenght.
  *
- * $Date: 2008/06/04 14:17:37 $
- * $Revision: 1.2 $
+ * $Date: 07/11/2007 15:14:23 CET $
+ * $Revision: 1.0 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -17,8 +17,6 @@
 
 /* Collaborating Class Declarations */
 class Propagator;
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 /* C++ Headers */
 #include <string>
@@ -29,29 +27,25 @@ class Propagator;
 
 class HLTMuonPointingFilter : public HLTFilter {
 
-public:
-  
-  /// Constructor
-  HLTMuonPointingFilter(const edm::ParameterSet&) ;
-  
-  /// Destructor
-  ~HLTMuonPointingFilter() ;
-  
-  /* Operations */ 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  
-private:
-  std::string theSTAMuonLabel; // label of muons 
-  std::string thePropagatorName; // name of propagator to be used
+  public:
+
+/// Constructor
+    HLTMuonPointingFilter(const edm::ParameterSet&) ;
+
+/// Destructor
+    ~HLTMuonPointingFilter() ;
+
+/* Operations */ 
+    virtual bool filter(edm::Event&, const edm::EventSetup&);
+
+  private:
+    std::string theSTAMuonLabel; // label of muons 
+    std::string thePropagatorName; // name of propagator to be used
     double theRadius;  // radius of cylinder
-  double theMaxZ;    // half lenght of cylinder
-  
-  Cylinder::CylinderPointer theCyl;
-  Plane::PlanePointer thePosPlane,theNegPlane;
-  
-  mutable Propagator* thePropagator;
-  unsigned long long  m_cacheRecordId;
-  
+    double theMaxZ;    // half lenght of cylinder
+
+    mutable Propagator* thePropagator;
+
 };
 #endif // Muon_HLTMuonPointingFilter_h
 

@@ -50,7 +50,10 @@ namespace cms
       std::string inputType;
       std::string METtype;
       std::string alias;
-
+      
+      //Calculate MET Significance (not necessary at HLT)
+      bool calculateSignificance;
+      
       //Use HF in CaloMET calculation?
       bool noHF;
       
@@ -59,7 +62,6 @@ namespace cms
 
       //Use only fiducial GenParticles in GenMET calculation? 
       bool onlyFiducial; 
-
 
       //Temporary implementation of response function for Track Corrected MET
       //TH2D *responseFunction_;  

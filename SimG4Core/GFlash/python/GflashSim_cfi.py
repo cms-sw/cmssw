@@ -8,6 +8,7 @@ g4SimHits.Physics.GFlash = cms.PSet(
     GflashEMShowerModel = cms.bool(True),
     GflashHadronShowerModel = cms.bool(True),
     GflashHcalOuter = cms.bool(True),
+    GflashExportToFastSim = cms.bool(False),
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_histogram.root'),
     Verbosity = cms.untracked.int32(0),

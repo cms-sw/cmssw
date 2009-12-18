@@ -27,25 +27,23 @@ namespace cond {
       return old ? *m_OldData : m_data->data(); 
     }
     
-    
     void clear() {
       m_data.clear();
       m_OldData.clear();
     }
     
     
-    bool load(pool::IDataSvc * svc, std::string const & token) {
+    bool load(pool::IDataSvc * svc, std::string const & itoken) {
       old = false;
       clear();
       bool ok = false;
       // try wrapper, if not try plain
-      pool::Ref<DataWrapper> ref(svc,token);
+      pool::Ref<DataWrapper> ref(svc,itoken);
       if (ref) {
         m_data.copyShallow(ref);
-        m_data->data();
-        ok= true;
+        ok = m_data->loadData();
       } else {
-        pool::Ref<DataT> refo(svc,token);
+        pool::Ref<DataT> refo(svc,itoken);
         if (refo) {
           old = true;
           m_OldData.copyShallow(refo);

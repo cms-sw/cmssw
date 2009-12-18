@@ -13,7 +13,7 @@ EcalFenixLinearizer::EcalFenixLinearizer(bool famos)
 
 EcalFenixLinearizer::~EcalFenixLinearizer(){
   if (init_) {
-    for (int i=0;i<vectorbadXStatus_.size();i++){
+    for (int i=0;i<(int)vectorbadXStatus_.size();i++){
       delete vectorbadXStatus_[i];
     }
   }    

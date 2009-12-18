@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMReferenceHistogramRootFileRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -64,7 +64,7 @@ namespace edmtest {
 	  throw cms::Exception ("Record not found") << "Record \"DQMReferenceHistogramRootFileRcd" 
 						    << "\" does not exist!" << std::endl;
 	}
-	edm::ESHandle<GeometryFile> rootgeo;
+	edm::ESHandle<FileBlob> rootgeo;
 	iSetup.get<DQMReferenceHistogramRootFileRcd>().get(rootgeo);
 	//std::cout<<"ROOT FILE IN MEMORY"<<std::endl;
 	boost::scoped_ptr<std::vector<unsigned char> > tb( (*rootgeo).getUncompressedBlob() );

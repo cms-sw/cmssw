@@ -105,12 +105,12 @@ class HcalLogicalMapGenerator {
     int ipixelHE[NRMFIBR][NFCH][NRMSLOT];
     int iadcquiHBHE[NRMFIBR][NFCH][2];
  
-    char* S_slbin_odd[8];
-    char* S_slbin_even[8];
-    char* rct_rackHBHE[18];
-    char* S_slbin_7[4];
-    char* S_slbin_3[4];
-    char* rct_rackHF[18];
+    const char* S_slbin_odd[8];
+    const char* S_slbin_even[8];
+    const char* rct_rackHBHE[18];
+    const char* S_slbin_7[4];
+    const char* S_slbin_3[4];
+    const char* rct_rackHF[18];
  
     int slb_table[29];
     int HO_RM_table[24][16][2];

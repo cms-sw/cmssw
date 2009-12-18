@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/10/25 17:47:50 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/04/07 10:58:21 $
+ *  $Revision: 1.9 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -25,7 +25,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Run.h"
 
 #include <memory>
 #include <string>
@@ -49,12 +48,10 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c){}
 
   /// Histograms initialisation
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
   /// Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// test operations
   void doKinematicsTests(std::string muonType, int bin);

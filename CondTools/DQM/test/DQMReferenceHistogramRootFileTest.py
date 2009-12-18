@@ -8,8 +8,7 @@ process.MessageLogger=cms.Service("MessageLogger",
                                   )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_31X_DQM_SUMMARY')
-process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/build/diguida/conddb')
+process.CondDBCommon.connect = cms.string('sqlite_file:ROOTFILE_Test.db')
 process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(1) #3 for high verbosity
 
@@ -23,7 +22,7 @@ process.source = cms.Source("EmptyIOVSource", #needed to EvSetup in order to loa
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           timetype = cms.untracked.string('runnumber'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFile'),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('FileBlob'),
                                                                      tag = cms.string('ROOTFILE_Test') 
                                                                      )
                                                             ),
@@ -31,7 +30,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           )
 
 process.dqmReferenceHistogramRootFileTest = cms.EDAnalyzer("DQMReferenceHistogramRootFilePopConAnalyzer",
-                                           record = cms.string('GeometryFile'),
+                                           record = cms.string('FileBlob'),
                                            loggingOn = cms.untracked.bool(True), #always True, needs to create the log db
                                            SinceAppendMode = cms.bool(True),
                                            Source = cms.PSet(ROOTFile = cms.untracked.string("salvo.root"),

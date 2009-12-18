@@ -5,9 +5,8 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
+#include "CondCore/IOVService/interface/IOVProxy.h"
 //#include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -244,13 +243,12 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     cond::DbScopedTransaction transaction(m_session);
     transaction.start(false);
     
-    cond::IOVService iovmanager(m_session);
-    std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(""));
-    editor->create(myrecord.m_timetype, firstTillTime);
+    cond::IOVEditor editor(m_session);
+    editor.create(myrecord.m_timetype, firstTillTime);
     objToken = payloadToken(m_session,myrecord.m_withWrapper);
-    unsigned int payloadIdx=editor->append(firstSinceTime, objToken);
-    iovToken=editor->token();
-    editor->stamp(cond::userInfo(),false);
+    unsigned int payloadIdx=editor.append(firstSinceTime, objToken);
+    iovToken=editor.token();
+    editor.stamp(cond::userInfo(),false);
     
     cond::MetaData metadata(m_session);
 
@@ -357,13 +355,12 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
     throw cond::Exception(std::string("PoolDBOutputService::appendIOV: cannot append to non-existing tag ")+record.m_tag );  
   }
 
-  cond::IOVService iovmanager(pooldb);
-  std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(record.m_iovtoken));
- 
+  cond::IOVEditor editor(pooldb,record.m_iovtoken);
+  
   unsigned int payloadIdx =  record.m_freeInsert ? 
-    editor->freeInsert(sinceTime,payloadToken) :
-    editor->append(sinceTime,payloadToken);
-  editor->stamp(cond::userInfo(),false);
+    editor.freeInsert(sinceTime,payloadToken) :
+    editor.append(sinceTime,payloadToken);
+  editor.stamp(cond::userInfo(),false);
   return payloadIdx;
 }
 
@@ -377,10 +374,9 @@ cond::service::PoolDBOutputService::insertIOV( cond::DbSession& pooldb,
     throw cond::Exception(std::string("PoolDBOutputService::insertIOV: cannot append to non-existing tag ")+record.m_tag );  
   }
   
-  cond::IOVService iovmanager(pooldb);
-  std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(record.m_iovtoken));
-  unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
-  editor->stamp(cond::userInfo(),false);
+  cond::IOVEditor editor(pooldb,record.m_iovtoken);
+  unsigned int payloadIdx=editor.insert(tillTime,payloadToken);
+  editor.stamp(cond::userInfo(),false);
   return payloadIdx;
 }
 
@@ -405,13 +401,14 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordN
   cond::service::serviceCallbackRecord& record=this->lookUpRecord(EventSetupRecordName);
   result.name=record.m_tag;
   result.token=record.m_iovtoken;
-  //use ioviterator to find out.
-  cond::DbScopedTransaction transaction(m_session);
-  transaction.start(true);
-  cond::IOVService iovmanager(m_session);
-  std::auto_ptr<cond::IOVIterator> iit(iovmanager.newIOVIterator(result.token,cond::IOVService::backwardIter));
-  iit->next(); // just to initialize
-  result.lastInterval=iit->validity();
-  result.lastPayloadToken=iit->payloadToken();
-  result.size=iit->size();
- }
+  //use iovproxy to find out.
+  cond::IOVProxy iov(m_session, record.m_iovtoken, true, false);
+  result.size=iov.size();
+  if (result.size>0) {
+    // get last object
+    iov.tail(1);
+    cond::IOVElementProxy last = *iov.begin();
+    result.lastInterval = cond::ValidityInterval(last.since(), last.till());
+    result.lastPayloadToken=last.token();
+  }
+}

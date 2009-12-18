@@ -8,29 +8,24 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include <TTree.h>
 #include "SymmetryFit.h"
-class TProfile;
 class Book;
 
 class LA_Filler_Fitter {
 
  public:
 
-  enum Method { WIDTH =1<<0, FIRST_METHOD=1<<0, 
-		PROB1 =1<<1,
-		AVGV2 =1<<2,  
-		AVGV3 =1<<3, 
-		RMSV2 =1<<4,
-		RMSV3 =1<<5, LAST_METHOD=1<<5};
-		//MULTI =1<<6, LAST_METHOD=1<<6};
+  enum Method { WIDTH  =1<<0, FIRST_METHOD=1<<0, 
+		RATIO  =1<<1,  
+		SQRTVAR=1<<2, 
+		SYMM   =1<<3,
+		MULTI  =1<<4, LAST_METHOD=1<<4};
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
-    case WIDTH: return      "_width_prof";
-    case PROB1: return fit? SymmetryFit::name(method(m,0)): "_prob_w1"   ;  
-    case AVGV2: return fit? SymmetryFit::name(method(m,0)): "_avg_var_w2";  
-    case AVGV3: return fit? SymmetryFit::name(method(m,0)): "_avg_var_w3";  
-    case RMSV2: return fit? SymmetryFit::name(method(m,0)): "_rms_var_w2";  
-    case RMSV3: return fit? SymmetryFit::name(method(m,0)): "_rms_var_w3";  
-      //case MULTI: return fit? SymmetryFit::name(method(m,0)): "_multi";
+    case WIDTH:  return "_width_prof";
+    case RATIO:  return std::string("_tanLA")+(fit?  "_ratio":"");
+    case SQRTVAR:return "_sqrtVar_prof";
+    case SYMM:   return fit? SymmetryFit::name("_symm") : "_symm";
+    case MULTI:   return fit? SymmetryFit::name("_multi") : "_multi";
     default: return "_UNKNOWN";
     }
   }
@@ -61,19 +56,15 @@ class LA_Filler_Fitter {
   LA_Filler_Fitter(int methods, int M, int N, double low, double up, unsigned max=0) :
     ensembleSize_(M),
     ensembleBins_(N),ensembleLow_(low),ensembleUp_(up),
-    byLayer_(true),byModule_(false),
-    localYbin_(0),
-    stripsPerBin_(0),
+    byLayer_(false),byModule_(false),
     maxEvents_(max),
     methods_(methods)
-      {};
-    
-  LA_Filler_Fitter(int methods, bool layer, bool module, float localybin, unsigned stripbin, unsigned max=0) : 
+    {};
+  
+  LA_Filler_Fitter(int methods, bool layer, bool module, unsigned max=0) : 
     ensembleSize_(0),
     ensembleBins_(0),ensembleLow_(0),ensembleUp_(0),
     byLayer_(layer),byModule_(module),
-    localYbin_(localybin),
-    stripsPerBin_(stripbin),
     maxEvents_(max),
     methods_(methods)
     {};
@@ -81,9 +72,17 @@ class LA_Filler_Fitter {
   void fill(TTree*, Book&);
   void summarize_ensembles(Book&);
   
-  static void fit(Book& book) { make_and_fit_symmchi2(book); fit_width_profile(book); }
+  static void fit(Book& book) { 
+    make_and_fit_ratio(book); 
+    make_and_fit_symmchi2(book);
+    make_and_fit_multisymmchi2(book);
+    fit_profile(book,method(WIDTH)); 
+    fit_profile(book,method(SQRTVAR)); 
+  }
+  static void make_and_fit_ratio(Book&);
   static void make_and_fit_symmchi2(Book&);
-  static void fit_width_profile(Book&);
+  static void make_and_fit_multisymmchi2(Book&);
+  static void fit_profile(Book&, const std::string);
   
   static Result result(Method, const std::string name, const Book&);
   static std::map< std::string,                      Result  >    layer_results(const Book&, const Method);
@@ -97,21 +96,19 @@ class LA_Filler_Fitter {
   static std::string subdetLabel(const SiStripDetId);
   static std::string moduleLabel(const SiStripDetId);
   static std::string layerLabel(const SiStripDetId);
-  static unsigned layer_index(bool TIB, bool stereo, unsigned layer) { return  layer + (TIB?0:6) +(stereo?1:0) + ( (layer>2)?1:(layer==1)?-1:0 );}
   
-  static TH1* rms_profile(const std::string, const TProfile* const);
-  static TH1* subset_probability(const std::string name, const TH1* const , const TH1* const );
-  static unsigned find_rebin(const TH1* const);
-
  private:
   
-  const int ensembleSize_, ensembleBins_;
-  const double ensembleLow_, ensembleUp_;
-  const bool byLayer_, byModule_;
-  const float localYbin_;
-  const unsigned stripsPerBin_;
-  const Long64_t maxEvents_;
-  const int methods_;
+  static unsigned guess_bin(const TH1* const);
+  static unsigned find_rebin(const TH1* const);
+  static TH1* rms_from_x_xx(const std::string, const TH1* const, const TH1* const);
+  static TH1* subset_probability(const std::string name, const TH1* const , const TH1* const );
+
+  int ensembleSize_, ensembleBins_;
+  double ensembleLow_, ensembleUp_;
+  bool byLayer_, byModule_;
+  Long64_t maxEvents_;
+  int methods_;
 };
 
 std::ostream& operator<<(std::ostream&, const LA_Filler_Fitter::Result&);

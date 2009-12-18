@@ -12,11 +12,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject0TRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject38TRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject4TRcd.h"
-#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 
 
 class SiPixelTemplateDBObjectReader : public edm::EDAnalyzer {
@@ -24,25 +20,18 @@ class SiPixelTemplateDBObjectReader : public edm::EDAnalyzer {
       explicit SiPixelTemplateDBObjectReader(const edm::ParameterSet&);
       ~SiPixelTemplateDBObjectReader();
 
-   private:
+			//		typedef std::vector<std::string> vstring;
+
+private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 		
-			edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd>  SiPixTemplDBObjectWatcher_;
-      edm::ESWatcher<SiPixelTemplateDBObject0TRcd>  SiPixTemplDBObj0TWatcher_;
-			edm::ESWatcher<SiPixelTemplateDBObject38TRcd> SiPixTemplDBObj38TWatcher_;
-			edm::ESWatcher<SiPixelTemplateDBObject4TRcd>  SiPixTemplDBObj4TWatcher_;
-			
+      edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixelTemplateDBObjectWatcher_;
+
       std::string theTemplateCalibrationLocation;
       bool theDetailedTemplateDBErrorOutput;
       bool theFullTemplateDBOutput;
-			float theMagField;
-			bool testStandalone;
-			
-			SiPixelTemplateDBObject dbobject;
-			bool hasTriggeredWatcher;			
-			
 
 };
 

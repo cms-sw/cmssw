@@ -21,8 +21,8 @@ class TtGenEvent: public TopGenEvent {
 
   /// empty constructor  
   TtGenEvent() {};
-  /// default constructor from decaySubset and initSubset
-  TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset);
+  /// default constructor
+  TtGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
   /// default destructor
   virtual ~TtGenEvent() {};
 
@@ -63,7 +63,7 @@ class TtGenEvent: public TopGenEvent {
   /// get top of hadronic decay branch
   const reco::GenParticle* hadronicDecayTop(bool excludeTauLeptons=false) const;
   /// get light quark of hadronic decay branch
-  const reco::GenParticle* hadronicDecayQuark(bool invertFlavor=false) const;
+  const reco::GenParticle* hadronicDecayQuark(bool invert=false) const;
   /// get light anti-quark of hadronic decay branch
   const reco::GenParticle* hadronicDecayQuarkBar() const {return hadronicDecayQuark(true); };
   /// gluons as radiated from the leptonicly decaying top quark
@@ -78,6 +78,14 @@ class TtGenEvent: public TopGenEvent {
   const reco::GenParticle* neutrino(bool excludeTauLeptons=false) const;
   /// get anti-neutrino for semi-leptonic or full leptonic decays
   const reco::GenParticle* neutrinoBar(bool excludeTauLeptons=false) const;
+  /// get light quark from top for full hadronic decays
+  const reco::GenParticle* lightQFromTop() const;
+  /// get light anti-quark from top for full hadronic decays
+  const reco::GenParticle* lightQBarFromTop() const;
+  /// get light quark from anti-top for full hadronic decays
+  const reco::GenParticle* lightQFromTopBar() const;
+  /// get light anti-quark from anti-top for full hadronic decays
+  const reco::GenParticle* lightQBarFromTopBar() const;
 
  private:
 

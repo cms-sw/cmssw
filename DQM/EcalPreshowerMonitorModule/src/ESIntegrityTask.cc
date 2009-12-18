@@ -33,9 +33,40 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
    prefixME_      = ps.getUntrackedParameter<string>("prefixME", "");
    enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
    mergeRuns_     = ps.getUntrackedParameter<bool>("mergeRuns", false);
+   lookup_        = ps.getUntrackedParameter<FileInPath>("LookupTable");
 
    dccCollections_   = ps.getParameter<InputTag>("ESDCCCollections");
    kchipCollections_ = ps.getParameter<InputTag>("ESKChipCollections");
+
+   // read in look-up table
+   for (int i=0; i<2; ++i) 
+     for (int j=0; j<2; ++j) 
+       for (int k=0; k<40; ++k) 
+	 for (int m=0; m<40; ++m) {
+	   fed_[i][j][k][m] = -1; 
+	   kchip_[i][j][k][m] = -1;
+	   fiber_[i][j][k][m] = -1;
+	 }
+
+   int nLines_, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
+   ifstream file;
+   file.open(lookup_.fullPath().c_str());
+   if( file.is_open() ) {
+     
+     file >> nLines_;
+     
+     for (int i=0; i<nLines_; ++i) {
+       file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
+       
+       z = (iz==-1) ? 2:iz;
+       fed_[z-1][ip-1][ix-1][iy-1] = fed;
+       kchip_[z-1][ip-1][ix-1][iy-1] = kchip;
+       fiber_[z-1][ip-1][ix-1][iy-1] = (fiber-1)+(optorx-1)*12;
+     }
+   } 
+   else {
+     cout<<"ESIntegrityTask : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
+   }
 
 }
 
@@ -156,7 +187,15 @@ void ESIntegrityTask::setup(void){
       meKEC_ = dqmStore_->book1D(histo, histo, 1550, -0.5, 1549.5);
       meKEC_->setAxisTitle("ES KChip", 1);
       meKEC_->setAxisTitle("Num of EC mismatch", 2);
-
+      
+      for (int i=0; i<2; ++i) 
+	for (int j=0; j<2; ++j) {
+	  int iz = (i==0)? 1:-1;
+	  sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j+1);
+	  meDIErrors_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+	  meDIErrors_[i][j]->setAxisTitle("Si X", 1);
+	  meDIErrors_[i][j]->setAxisTitle("Si Y", 2);
+	}
    }
 
 }
@@ -199,6 +238,12 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
    meFiberOff_->Fill(575, 36, 1);
    meEVDR_->Fill(575, 36, 1);
 
+   // # of DI errors
+   Double_t nDIErr[56][36];
+   for (int i=0; i<56; ++i) 
+     for (int j=0; j<36; ++j)
+       nDIErr[i][j] = 0;
+
    // DCC 
    vector<int> fiberStatus;
    if ( e.getByLabel(dccCollections_, dccs) ) {
@@ -211,7 +256,10 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
        meDCCErr_->Fill(dcc.fedId(), dcc.getDCCErrors());
        
        // SLink CRC error
-       if (dcc.getDCCErrors() == 101) meSLinkCRCErr_->Fill(dcc.fedId());
+       if (dcc.getDCCErrors() == 101) {
+	 meSLinkCRCErr_->Fill(dcc.fedId());
+	 for (int j=0; j<36; ++j) nDIErr[dcc.fedId()-520][j]++;
+       }
        
        if (dcc.getOptoRX0() == 129) {
 	 meOptoRX_->Fill(dcc.fedId(), 0);
@@ -226,17 +274,26 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 	 if (((dcc.getOptoBC2()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
        }
        
-       if (dcc.getOptoRX0() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 0);
-       if (dcc.getOptoRX1() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 1);
-       if (dcc.getOptoRX2() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 2);
+       if (dcc.getOptoRX0() == 128) {
+	 meDCCCRCErr_->Fill(dcc.fedId(), 0);
+	 for (int j=0; j<12; ++j) nDIErr[dcc.fedId()-520][j]++;
+       }
+       if (dcc.getOptoRX1() == 128) {
+	 meDCCCRCErr_->Fill(dcc.fedId(), 1);
+	 for (int j=12; j<24; ++j) nDIErr[dcc.fedId()-520][j]++;
+       }
+       if (dcc.getOptoRX2() == 128) {
+	 meDCCCRCErr_->Fill(dcc.fedId(), 2);
+	 for (int j=24; j<36; ++j) nDIErr[dcc.fedId()-520][j]++;
+       }
        
        fiberStatus = dcc.getFEChannelStatus();
        
        for (unsigned int i=0; i<fiberStatus.size(); ++i) {
-	 //if (fiberStatus[i]==0 || fiberStatus[i]==7 || fiberStatus[i]==13 || fiberStatus[i]==14 || fiberStatus[i]==9) 
-	 //meFiberStatus_->Fill(dcc.fedId(), 1);
-	 if (fiberStatus[i]==4 || fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12) 
+	 if (fiberStatus[i]==4 || fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12) {
 	   meFiberBadStatus_->Fill(dcc.fedId(), i+1, 1);
+	   nDIErr[dcc.fedId()-520][i]++;
+	 }
 	 if (fiberStatus[i]==7) 
 	   meFiberOff_->Fill(dcc.fedId(), i+1, 1);
 	 if (fiberStatus[i]==6) 
@@ -270,6 +327,19 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
    } else {
      LogWarning("ESIntegrityTask") << kchipCollections_  << " not available";
    }
+
+   // Fill # of DI errors
+   for (int iz=0; iz<2; ++iz) 
+     for (int ip=0; ip<2; ++ip)
+       for (int ix=0; ix<40; ++ix)
+	 for (int iy=0; iy<40; ++iy) {
+
+	   if (fed_[iz][ip][ix][iy] == -1) continue;
+
+	   if (nDIErr[fed_[iz][ip][ix][iy]-520][fiber_[iz][ip][ix][iy]] > 0)
+	     meDIErrors_[iz][ip]->Fill(ix+1, iy+1, 1);
+
+	 }
 
 }
 

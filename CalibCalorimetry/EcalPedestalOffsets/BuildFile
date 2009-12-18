@@ -10,25 +10,11 @@
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=OnlineDB/EcalCondDB>
 <use name=Geometry/EcalMapping>
-<use name=oracle>
+<use name=OnlineDB/Oracle>
 <use name=clhep>
 
 <flags EDM_PLUGIN=1>
 <export>
   <lib name=CalibCalorimetryEcalPedestalOffsets>
-  <use name=DataFormats/FEDRawData>
-  <use name=DataFormats/EcalDetId>
-  <use name=CondFormats/EcalObjects>
-  <use name=OnlineDB/EcalCondDB>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=DataFormats/EcalDigi>
-  <use name=DataFormats/EcalRecHit>
-  <use name=CondFormats/EcalObjects>
-  <use name=DataFormats/EcalRawData>
-  <use name=CondFormats/DataRecord>
-  <use name=RecoLocalCalo/EcalRecAlgos>
-  <use name=Geometry/EcalMapping>
-  <use name=oracle>
   <use name=clhep>
 </export>

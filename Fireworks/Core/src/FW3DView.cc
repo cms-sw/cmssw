@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.23 2009/11/05 15:11:40 dmytro Exp $
+// $Id: FW3DView.cc,v 1.25 2009/12/10 13:27:01 amraktad Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
 #include "TEveScene.h"
-
+#include <RVersion.h>
 
 // user include files
 #include "Fireworks/Core/interface/FW3DView.h"
@@ -99,10 +99,17 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_showWireFrame(this, "Show Wire Frame", true),
-   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
+   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l),
+   m_lineWidth(this,"Line width",1.0,1.0,10.0)
 {
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer(0);
+#else
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+#endif
+
    iParent->ReplaceWindow(nv);
 
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
@@ -145,6 +152,7 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DView::showTrackerEndcap,this));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DView::showWireFrame,this));
    m_geomTransparency.changed_.connect(boost::bind(&FW3DView::setTransparency,this));
+   m_lineWidth.changed_.connect(boost::bind(&FW3DView::lineWidthChanged,this));
 }
 
 FW3DView::~FW3DView()
@@ -548,6 +556,12 @@ FW3DView::saveImageTo(const std::string& iName) const
    }
 }
 
+void
+FW3DView::lineWidthChanged()
+{
+   m_embeddedViewer->SetLineScale(m_lineWidth.value());
+   m_embeddedViewer->RequestDraw();
+}
 //
 // static member functions
 //

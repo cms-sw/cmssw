@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/05 17:17:37 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/10/25 17:47:46 $
+ *  $Revision: 1.19 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -18,7 +18,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Run.h"
+
 
 #include "DQMOffline/Muon/test/langauFit.C"
 #include <string>
@@ -71,7 +71,7 @@ MuonTestSummary::~MuonTestSummary(){}
 void MuonTestSummary::beginJob(const edm::EventSetup& context){
 
   metname = "muonTestSummary";
-  LogTrace(metname)<<"[MuonTestSummary] beginJob: Histo booking";
+  LogTrace(metname)<<"[MuonTestSummary] Histo booking";
 
   // book the summary histos
   dbe->setCurrentFolder("Muons/TestSummary"); 
@@ -203,9 +203,7 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
 }
 
 
-void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonTestSummary]: beginRun";
+void MuonTestSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
   // initialisation of histo bins
   for(int xBin=1; xBin<=5; xBin++){
@@ -241,21 +239,12 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
       summaryCertificationMap->Fill(xBin,yBin,0);
     }
   }
+
 }
 
-void MuonTestSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  //  LogTrace(metname)<<"[MuonTestSummary]: beginLuminosityBlock";
-}
+
 
 void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  //  LogTrace(metname)<<"[MuonTestSummary]: endLuminosityBlock, performing the DQM LS client operation";
-
-}
-
-void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonTestSummary]: endRun, performing the DQM end of run client operation";
 
   // fill the kinematics report summary
   doKinematicsTests("GlbMuon_Glb_", 1);
@@ -344,7 +333,7 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
 
   summaryReport->Fill((GLB+TK+STA+energyDeposits+multiplicity)/5.0);
 
-}
+ }
 
 
 void MuonTestSummary::doKinematicsTests(string muonType, int bin){

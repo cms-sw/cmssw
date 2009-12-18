@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.17 2009/11/10 20:43:55 amraktad Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.18 2009/11/14 16:22:37 chrjones Exp $
 //
 
 // system include files
@@ -138,8 +138,10 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
             const FWEventItem::ModelInfo& info = item()->modelInfo(index);
             if(info.displayProperties().isVisible()) {
                if(m_handleEcal) {
+				   //std::cout <<"show ecal "<<index<<std::endl;
                   (m_hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
                } else {
+				   //std::cout <<"show hcal "<<index<<std::endl;
                   (m_hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
                }
                if(info.isSelected()) {
@@ -162,6 +164,7 @@ FWCaloTowerRPZProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
       }
       m_data->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       m_data->CellSelectionChanged();
+	  m_data->DataChanged(); //needed to force it to redraw cells
    }
 }
 

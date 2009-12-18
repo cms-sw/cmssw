@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.12 2009/11/10 14:49:01 lowette Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.11 2009/10/09 09:27:06 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
@@ -27,8 +27,6 @@ class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public Pedesta
   // parameters
   float highThreshold_;
   float lowThreshold_;
-  bool disableBadStrips_;
-  bool keepStripsDisabled_;
 
 };
 

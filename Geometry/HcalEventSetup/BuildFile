@@ -9,6 +9,7 @@
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=Geometry/HcalTowerAlgo>
+  <use name=Geometry/CaloEventSetup>
   <use name=DataFormats/HcalDetId>
 </export>
 <flags EDM_PLUGIN=1>
@@ -22,6 +23,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/HcalTowerAlgo>
+<use name=Geometry/CaloEventSetup>
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/Alignment>
 <use name=CondFormats/GeometryObjects>

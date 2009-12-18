@@ -7,29 +7,43 @@
 
 namespace cond {
 
+  BasePayloadProxy::Stats BasePayloadProxy::stats = {0,0,0};
+
 
   BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
                                      const std::string & token,
                                      bool errorPolicy) :
     m_doThrow(errorPolicy), m_iov(session,token,true,false) {
-    
+    ++stats.nProxy;
   }
 
 
   BasePayloadProxy::~BasePayloadProxy(){}
 
-  void BasePayloadProxy::loadFor(cond::Time_t time) {
+  cond::ValidityInterval BasePayloadProxy::loadFor(cond::Time_t time) {
     m_element = *m_iov.find(time);
     make();
+    return cond::ValidityInterval(m_element.since(),m_element.till());
   }
 
+  cond::ValidityInterval BasePayloadProxy::loadFor(size_t n) {
+    m_element.set(m_iov.iov(),n);
+    make();
+    return cond::ValidityInterval(m_element.since(),m_element.till());
+  }
+
+
   void  BasePayloadProxy::make() {
+    ++stats.nMake;
     bool ok = false;
     if ( isValid()) {
+      // check if (afterall) the payload is still the same...
+      if (m_element.token()==token()) return;
       cond::DbTransaction& trans = m_element.db().transaction();
       trans.start(true);
       try {
         ok = load(&m_element.db().poolCache(),m_element.token());
+	if (ok) m_token = m_element.token();
       }	catch( const pool::Exception& e) {
         if (m_doThrow) throw cond::Exception(std::string("Condition Payload loader: ")+ e.what());
         ok = false;
@@ -42,6 +56,7 @@ namespace cond {
       if (m_doThrow)
         throw cond::Exception("Condition Payload loader: invalid data");
     }
+    if (ok)  ++stats.nLoad;
   }
 
 

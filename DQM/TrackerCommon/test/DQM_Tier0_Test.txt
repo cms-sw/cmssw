@@ -2,10 +2,10 @@
 
 eval `scramv1 r -csh`
 
-cmsDriver.py step2_DT2_1 -s RAW2DIGI,RECO:reconstructionCosmics,DQM -n 1000 --eventcontent RECO --conditions FrontierConditions_GlobalTag,CRAFT09_R_V8::All --geometry Ideal --filein /store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/001404E1-0F8A-DE11-ADB3-000423D99EEE.root --data --scenario cosmics  >& p2.1.log &
+cmsDriver.py step2_DT2_1 -s RAW2DIGI,RECO:reconstructionCosmics,DQM -n 1000 --eventcontent RECO --conditions FrontierConditions_GlobalTag,CRAFT09_R_V3::All --geometry Ideal --filein /store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/001404E1-0F8A-DE11-ADB3-000423D99EEE.root --data --scenario cosmics  >& p2.1.log &
 
-cmsDriver.py step2_DT2_2 -s RAW2DIGI,RECO:reconstructionCosmics,DQM -n 1000 --eventcontent RECO --conditions FrontierConditions_GlobalTag,CRAFT09_R_V8::All --geometry Ideal --filein /store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/002174A8-E989-DE11-8B4D-000423D6CA42.root --data --scenario cosmics >& p2.2.log &
+cmsDriver.py step2_DT2_2 -s RAW2DIGI,RECO:reconstructionCosmics,DQM -n 1000 --eventcontent RECO --conditions FrontierConditions_GlobalTag,CRAFT09_R_V3::All --geometry Ideal --filein /store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/002174A8-E989-DE11-8B4D-000423D6CA42.root --data --scenario cosmics >& p2.2.log &
 
-cmsDriver.py step2_DT2_3 -s RAW2DIGI,RECO:reconstructionCosmics,DQM -n 1000 --eventcontent RECO --conditions FrontierConditions_GlobalTag,CRAFT09_R_V8::All --geometry Ideal --filein /store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/0053DAF7-E889-DE11-B3D7-000423D98834.root --data --scenario cosmics  >& p2.3.log &
+cmsDriver.py step2_DT2_3 -s RAW2DIGI,RECO:reconstructionCosmics,DQM -n 1000 --eventcontent RECO --conditions FrontierConditions_GlobalTag,CRAFT09_R_V3::All --geometry Ideal --filein /store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/0053DAF7-E889-DE11-B3D7-000423D98834.root --data --scenario cosmics  >& p2.3.log &
 
 ###

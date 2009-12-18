@@ -56,7 +56,7 @@ L1TdeGCT::beginJob(const edm::EventSetup&) {
 
   // (em) iso, no-iso, (jets) cen, for, tau
   std::string cLabel[nGctColl_]= 
-    {"IsoEM", "NoisoEM", "CenJet", "ForJet", "TauJet", "HT", "MET", "ET", "MHT", "HFSums", "HFCnts"};
+    {"IsoEM", "NoisoEM", "CenJet", "ForJet", "TauJet"};
   const int nerr  = 5; 
   const int nbit = 32;
   

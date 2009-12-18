@@ -17,8 +17,8 @@
 #include <iomanip>
 
 //--------------------------------------------------------------------------
-DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView& cpv) : 
-  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedBoxX::DDDividedBoxX( const DDDivision & div) : 
+  DDDividedGeometryObject::DDDividedGeometryObject(div)
 {
   checkParametersValidity();
   setType( "DivisionBoxX" );
@@ -104,8 +104,8 @@ DDLogicalPart DDDividedBoxX::makeDDLogicalPart( const int copyNo ) const
 }
 
 //--------------------------------------------------------------------------
-DDDividedBoxY::DDDividedBoxY( const DDDivision& div, DDCompactView& cpv) : 
-  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedBoxY::DDDividedBoxY( const DDDivision & div) : 
+  DDDividedGeometryObject::DDDividedGeometryObject(div)
 {
   checkParametersValidity();
   setType( "DivisionBoxY" );
@@ -192,8 +192,8 @@ DDLogicalPart DDDividedBoxY::makeDDLogicalPart( const int copyNo ) const
 }
 
 //--------------------------------------------------------------------------
-DDDividedBoxZ::DDDividedBoxZ( const DDDivision& div, DDCompactView& cpv) : 
-  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedBoxZ::DDDividedBoxZ( const DDDivision & div) : 
+  DDDividedGeometryObject::DDDividedGeometryObject(div)
 {
   checkParametersValidity();
   setType( "DivisionBoxZ" );

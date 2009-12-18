@@ -70,7 +70,7 @@ public:
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob() {}
+  void beginJob(const edm::EventSetup &);
   void endJob();
 };
 
@@ -81,7 +81,7 @@ ListGroups::~ListGroups() {
 }
 
 void
-ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
+ListGroups::beginJob(const edm::EventSetup & setup) {
   edm::ESHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
   DDFilteredView fv(*hDdd);
@@ -105,6 +105,10 @@ ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
     std::cout << "\t" << position << std::endl;
   };
   std::cout << std::endl;
+}
+
+void
+ListGroups::analyze(const edm::Event &, const edm::EventSetup &) {
 }
 
 void

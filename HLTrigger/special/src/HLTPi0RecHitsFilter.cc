@@ -94,7 +94,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   nMinRecHitsSel1stCluster_ = iConfig.getParameter<int>("nMinRecHitsSel1stCluster");
   nMinRecHitsSel2ndCluster_ = iConfig.getParameter<int>("nMinRecHitsSel2ndCluster");
   
-  
+  maxNumberofSeeds_    = iConfig.getParameter<unsigned int> ("maxNumberofSeeds");
+  maxNumberofClusters_ = iConfig.getParameter<unsigned int> ("maxNumberofClusters");
   
   doSelForPi0Barrel_ = iConfig.getParameter<bool> ("doSelForPi0Barrel");  
   if(doSelForPi0Barrel_){
@@ -445,8 +446,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     EBRecHits.push_back(*itb);
     
     
-    if (energy > clusSeedThr_) seeds.push_back(*itb);
-    
+    if (energy > clusSeedThr_) {
+      seeds.push_back(*itb);
+      if( seeds.size() > maxNumberofSeeds_) return false; 
+    }
   }
   
   
@@ -606,18 +609,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     RecHitsCluster.push_back(RecHitsInWindow);
     RecHitsCluster5x5.push_back(RecHitsInWindow5x5);
     
-    
-
     if(debug_>=1){
       cout<<"3x3_cluster_eb (n,nxt,e,et eta,phi,s4s9,s9s25) "<<nClus<<" "<<int(RecHitsInWindow.size())<<" "<<eClus[nClus]<<" "<<etClus[nClus]<<" "<<etaClus[nClus]<<" "<<phiClus[nClus]<<" "<<s4s9Clus[nClus]<<" "
 	  <<s9s25Clus[nClus]<<endl;
     }
     
-    
-
     nClus++;
-    //if (nClus == MAXCLUS) return false; 
-
+    if( nClus > (int) maxNumberofClusters_) return false; 
+    
   }
   
 
@@ -979,7 +978,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     EERecHits.push_back(*ite);
     
     
-    if (energy > clusSeedThrEndCap_) seedsEndCap.push_back(*ite);
+    if (energy > clusSeedThrEndCap_) {
+      seedsEndCap.push_back(*ite);
+      if( seedsEndCap.size() > maxNumberofSeeds_) return false;
+    }
     
   }
   
@@ -1140,6 +1142,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     nClusEndCap++;
+
+    if( nClusEndCap > (int) maxNumberofClusters_) return false; 
+    
     ///    if (nClusEndCap == MAXCLUS) return false; 
   }
   

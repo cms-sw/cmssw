@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:35 EDT 2008
-// $Id: FWCustomIconsButton.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWCustomIconsButton.cc,v 1.6 2009/11/23 14:53:40 amraktad Exp $
 //
 
 // system include files
@@ -35,11 +35,14 @@ FWCustomIconsButton::FWCustomIconsButton(const TGWindow* iParent,
                                          const TGPicture* iUpIcon,
                                          const TGPicture* iDownIcon,
                                          const TGPicture* iDisabledIcon,
+                                         const TGPicture* iBelowMouseIcon,
                                          Int_t id, GContext_t norm, UInt_t option) :
    TGButton(iParent,id, norm, option),
    m_upIcon(iUpIcon),
    m_downIcon(iDownIcon),
-   m_disabledIcon(iDisabledIcon)
+   m_disabledIcon(iDisabledIcon),
+   m_belowMouseIcon(iBelowMouseIcon),
+   m_inside(false)
 {
    assert(0!=iUpIcon);
    assert(0!=iDownIcon);
@@ -87,9 +90,39 @@ FWCustomIconsButton::swapIcons(const TGPicture*& iUpIcon,
    fClient->NeedRedraw(this);
 }
 
+void
+FWCustomIconsButton::setIcons(const TGPicture* iUpIcon,
+                              const TGPicture* iDownIcon,
+                              const TGPicture* iDisabledIcon,
+                              const TGPicture* iBelowMouseIcon)
+{
+   m_upIcon       = iUpIcon;
+   m_downIcon     = iDownIcon;
+   m_disabledIcon = iDisabledIcon;
+   m_belowMouseIcon = iBelowMouseIcon;
+
+   gVirtualX->ShapeCombineMask(GetId(), 0, 0, m_upIcon->GetMask());
+   fClient->NeedRedraw(this);
+}
+
 //
 // const member functions
 //
+
+//______________________________________________________________________________
+bool FWCustomIconsButton::HandleCrossing(Event_t *event)
+{
+   if (event->fType == kEnterNotify)
+      m_inside = true;      
+   else if (event->fType == kLeaveNotify)   
+      m_inside = false;
+
+   fClient->NeedRedraw(this);
+
+   return TGButton::HandleCrossing(event);
+}
+
+
 void
 FWCustomIconsButton::DoRedraw()
 {
@@ -100,9 +133,14 @@ FWCustomIconsButton::DoRedraw()
    int y = (fHeight - fTHeight) >> 1;
 
    gVirtualX->FillRectangle(fId, fNormGC, 2,2,fWidth,fHeight);
-   switch(fState) {
+   
+   switch(fState)
+   {
       case kButtonUp:
-         m_upIcon->Draw(fId, fNormGC,x,y);
+         if (m_belowMouseIcon && m_inside)
+              m_belowMouseIcon->Draw(fId, fNormGC,x,y);
+         else
+              m_upIcon->Draw(fId, fNormGC,x,y);
          break;
       case kButtonEngaged:
       case kButtonDown:

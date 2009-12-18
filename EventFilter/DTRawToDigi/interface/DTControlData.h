@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2009/04/06 16:30:07 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/04/02 14:12:44 $
+ *  $Revision: 1.7 $
  *  \author M. Zanetti - INFN Padova
  *  \revision I. Josa - Ciemat Madrid
  */
@@ -13,7 +13,6 @@
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include <DataFormats/FEDRawData/src/fed_trailer.h>
 
 #include <vector>
 
@@ -114,8 +113,7 @@ public:
  /// Constructor
  DTDDUData(const FEDHeader & dduHeader, const FEDTrailer & dduTrailer):
    theDDUHeader(dduHeader),
-   theDDUTrailer(dduTrailer),
-   crcErrorBitSet(false)
+   theDDUTrailer(dduTrailer)
  {}
 
 
@@ -131,13 +129,6 @@ public:
  inline void addDDUStatusWord( const DTDDUSecondStatusWord & word) {
    theDDUStatusWord = word;
  }
- inline void checkCRCBit(const unsigned char* trailer) {
-   const fedt_struct* theTrailer(reinterpret_cast<const fedt_t*>(trailer));
-   if(((theTrailer->conscheck & 0x00000004) >> 2) == 1) {
-     crcErrorBitSet = true;
-   }
-   crcErrorBitSet = false;
- }
 
  /// Getters
  inline const FEDHeader & getDDUHeader() const {return theDDUHeader;}
@@ -146,17 +137,14 @@ public:
    return theROSStatusWords;}
  inline const DTDDUSecondStatusWord & getSecondStatusWord() const {
    return theDDUStatusWord;}
- inline bool crcErrorBit() const {
-   return crcErrorBitSet;
- }
-  
+
+
 private:
 
  FEDHeader theDDUHeader;
  FEDTrailer theDDUTrailer;
  std::vector<DTDDUFirstStatusWord> theROSStatusWords;
  DTDDUSecondStatusWord theDDUStatusWord;
- bool crcErrorBitSet;
 
 };
 

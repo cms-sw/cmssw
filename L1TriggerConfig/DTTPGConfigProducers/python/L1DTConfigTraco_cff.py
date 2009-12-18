@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 TracoParametersBlock = cms.PSet(
     TracoParameters = cms.PSet(
         SPRGCOMP = cms.int32(2),
-
         FHTMSK = cms.int32(0), ## single HTRIG enabling on first/second tracks
 
         DD = cms.int32(18), ## DD traco parameter: this is fixed

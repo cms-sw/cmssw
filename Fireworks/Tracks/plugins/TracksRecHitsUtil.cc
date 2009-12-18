@@ -3,6 +3,7 @@
 //
 
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
@@ -23,7 +24,9 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, TEveElementList** product)
+void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, 
+					   TEveElementList** product,
+					   bool showHits, bool showModules)
 {
    TEveElementList* tList = *product;
    if ( !tList && *product ) {
@@ -50,21 +53,55 @@ void TracksRecHitsUtil::buildTracksRecHits(const FWEventItem* iItem, TEveElement
        it != tracks->end(); ++it,++index) {
       TEveElementList* trkList = new TEveElementList(Form("track%d",index));
       gEve->AddElement(trkList,tList);
-      addHits(*it, iItem, trkList);
+      if (showHits)    addHits(*it, iItem, trkList, false);
+      if (showModules) addModules(*it, iItem, trkList, false);
    }
 
 }
 
+
 void
 TracksRecHitsUtil::addHits(const reco::Track& track,
                            const FWEventItem* iItem,
-                           TEveElement* trkList)
+                           TEveElement* trkList,
+                           bool addNearbyHits)
+{
+    std::vector<TVector3> pixelPoints;
+    fireworks::pushPixelHits(pixelPoints, *iItem, track);
+    TEveElementList* pixels = new TEveElementList("Pixels");
+    trkList->AddElement(pixels);
+    if (addNearbyHits) {
+        // get the extra hits
+        std::vector<TVector3> pixelExtraPoints;
+        fireworks::pushNearbyPixelHits(pixelExtraPoints, *iItem, track);
+        // draw first the others
+        fireworks::addTrackerHits3D(pixelExtraPoints, pixels, kRed, 1);
+        // then the good ones, so they're on top
+        fireworks::addTrackerHits3D(pixelPoints, pixels, kGreen, 1);
+    } else {
+        // just add those points with the default color
+        fireworks::addTrackerHits3D(pixelPoints, pixels, iItem->defaultDisplayProperties().color(), 1);
+    }
+
+    // strips
+    TEveElementList* strips = new TEveElementList("Strips");
+    trkList->AddElement(strips);
+    fireworks::addSiStripClusters(iItem, track, strips, iItem->defaultDisplayProperties().color(), addNearbyHits);
+    
+}
+
+void
+TracksRecHitsUtil::addModules(const reco::Track& track,
+                           const FWEventItem* iItem,
+                           TEveElement* trkList,
+                           bool addLostHits)
 {
    try {
      std::set<unsigned int> ids;
       for(trackingRecHit_iterator recIt = track.recHitsBegin(); recIt != track.recHitsEnd(); ++recIt){
-         if((*recIt)->isValid()){
-            DetId detid = (*recIt)->geographicalId();
+         DetId detid = (*recIt)->geographicalId();
+         if (!addLostHits && !(*recIt)->isValid()) continue;
+         if(detid.rawId() != 0){
             TString name("");
 	    switch (detid.det())
 	      {
@@ -120,7 +157,23 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
                if(0!=shape) {
                   shape->SetMainTransparency(65);
                   shape->SetPickable(kTRUE);
-                  shape->SetMainColor(iItem->defaultDisplayProperties().color());
+                  switch ((*recIt)->type()) {
+                      case TrackingRecHit::valid:
+                          shape->SetMainColor(iItem->defaultDisplayProperties().color());
+                          break;
+                      case TrackingRecHit::missing:
+                          name += "LOST ";
+                          shape->SetMainColor(kRed);
+                          break;
+                      case TrackingRecHit::inactive:
+                          name += "INACTIVE ";
+                          shape->SetMainColor(28);
+                          break;
+                      case TrackingRecHit::bad:
+                          name += "BAD ";
+                          shape->SetMainColor(218);
+                          break;
+                  }
                   shape->SetTitle(name + ULong_t(detid.rawId()));
                   trkList->AddElement(shape);
                } else {

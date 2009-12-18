@@ -27,12 +27,12 @@ class DDLElementaryMaterial : public DDLMaterial
  public:
 
   /// Constructor
-  DDLElementaryMaterial( DDLElementRegistry* myreg );
+  DDLElementaryMaterial();
 
   /// Destructor
   ~DDLElementaryMaterial();
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
+  void processElement (const std::string& name, const std::string& nmspace); 
 
 };
 #endif

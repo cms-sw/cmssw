@@ -19,6 +19,8 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -48,7 +50,30 @@ namespace edm {
 	boost::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
 	  return  boost::shared_ptr<T>(ptr, do_nothing_deleter());
 	}
+
+	ProcessHistoryID
+	deleteFromProcessHistory(ProcessHistoryID const& phid, std::string const& processName) {
+	// Delete the current process from the process history.  This must be done to maintain consistency
+	// for runs or lumis when the principal cache is flushed, because the process history modified flag,
+	// stored in the principal, is lost when the cache is flushed.	
+	  if (!phid.isValid()) {
+	    return phid;
+	  }
+	  ProcessHistory ph;
+	  bool found = ProcessHistoryRegistry::instance()->getMapped(phid, ph);
+	  assert(found);
+	  ProcessHistory newPH;
+	  newPH.reserve(ph.size());
+	  for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
+	    if (processName != it->processName()) {
+	      newPH.push_back(*it);
+	    }
+          }
+	  ProcessHistoryRegistry::instance()->insertMapped(newPH);
+	  return newPH.id();
+	}
   }
+
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       ProductRegistryHelper(),
       actReg_(desc.actReg_),
@@ -259,7 +284,7 @@ namespace edm {
   int
   InputSource::markRun() {
     assert(doneReadAhead_);
-    assert(state_ = IsRun);
+    assert(state_ == IsRun);
     assert(!limitReached());
     doneReadAhead_ = false;
     return principalCache_->runPrincipal().run();
@@ -287,7 +312,7 @@ namespace edm {
   int
   InputSource::markLumi() {
     assert(doneReadAhead_);
-    assert(state_ = IsLumi);
+    assert(state_ == IsLumi);
     assert(!limitReached());
     doneReadAhead_ = false;
     --remainingLumis_;
@@ -510,6 +535,16 @@ namespace edm {
 
   void
   InputSource::endJob() {}
+
+  void
+  InputSource::respondToClearingLumiCache() {
+    if (lumiAuxiliary_) lumiAuxiliary_->setProcessHistoryID(deleteFromProcessHistory(lumiAuxiliary_->processHistoryID(), processConfiguration().processName()));
+  }
+
+  void
+  InputSource::respondToClearingRunCache() {
+    if (runAuxiliary_) runAuxiliary_->setProcessHistoryID(deleteFromProcessHistory(runAuxiliary_->processHistoryID(), processConfiguration().processName()));
+  }
 
   void 
   InputSource::preForkReleaseResources() {}

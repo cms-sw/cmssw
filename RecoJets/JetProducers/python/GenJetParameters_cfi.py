@@ -14,7 +14,8 @@ GenJetParameters = cms.PSet(
        nSigmaPU = cms.double(1.0),
        radiusPU = cms.double(0.5),  
     # fastjet-style pileup     
-    doPUFastjet    = cms.bool(False),
+    doAreaFastjet  = cms.bool(False),
+    doRhoFastjet   = cms.bool(False),
       # if doPU is false, these are not read:
       Active_Area_Repeats = cms.int32(5),
       GhostArea = cms.double(0.01),

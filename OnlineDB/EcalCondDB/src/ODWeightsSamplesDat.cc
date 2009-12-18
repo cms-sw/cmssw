@@ -119,8 +119,8 @@ void ODWeightsSamplesDat::writeArrayDB(const std::vector< ODWeightsSamplesDat > 
 
   ODWeightsSamplesDat dataitem;
   
-
-  for (int count = 0; count != data.size(); count++) {
+  int n_data= (int) data.size();
+  for (int count = 0; count <n_data ; count++) {
     dataitem=data[count];
     ids[count]=iovID;
     xx[count]=dataitem.getFedId();

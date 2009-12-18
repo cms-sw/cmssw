@@ -32,14 +32,14 @@ class DDLRotationByAxis : public DDXMLElement
  public:
 
   /// Constructor 
-  DDLRotationByAxis( DDLElementRegistry* myreg );
+  DDLRotationByAxis();
 
   /// Destructor
   virtual ~DDLRotationByAxis();
 
-  virtual void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  virtual void preProcessElement (const std::string& name, const std::string& nmspace);
 
-  virtual void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  virtual void processElement (const std::string& name, const std::string& nmspace);
 
   virtual DDRotationMatrix processOne(DDRotationMatrix R, std::string& axis, std::string& angle); 
 

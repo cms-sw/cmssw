@@ -14,8 +14,11 @@
 @create_dcu_core
 @create_dcu_data
 
+/*
 @create_laser_core
 @create_laser_data
+*/
+@create_laser_new
 
 @create_calibration_core
 @create_calibration_data

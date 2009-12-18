@@ -57,7 +57,7 @@ void SetUpProfileHistograms( TProfile* h1, TProfile* h2,
     }
 }
 
-void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__RelVal__Validation.root")
+void SiPixelRecoCompare()
 {
   gROOT ->Reset();
     
@@ -73,19 +73,19 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
   TFile * sfile = new TFile(sfilename);
   TDirectory * sdir=gDirectory; 
   
-  char path[500];
-  sprintf(path,"DQMData/Run 1/%s/DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel",originalName);
-  cout << "path = " << path << endl;
 
-  if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
-  else if (rfile->cd("DQMData/RecoTrackV")) rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
-  else if (rfile->cd(path)) rfile->cd(path);
-  rdir=gDirectory;
+ if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
+ else if(rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel"))rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
+ else if(rfile->cd("DQMData/Run 1/Tracking"))rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Pixel");
+ else if(rfile->cd("DQMData/Tracking/TrackingRecHits/Pixel"))rfile->cd("DQMData/Tracking/TrackingRecHits/Pixel");
+ rdir=gDirectory;
 
-  if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
-  else if (sfile->cd("DQMData/RecoTrackV")) sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
-  else if (sfile->cd(path)) sfile->cd(path);
-  sdir=gDirectory; 
+ if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
+ else if(sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel"))sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
+ else if(sfile->cd("DQMData/Run 1/Tracking"))sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Pixel");
+ else if(sfile->cd("DQMData/Tracking/TrackingRecHits/Pixel"))sfile->cd("DQMData/Tracking/TrackingRecHits/Pixel");
+ sdir=gDirectory; 
+
 
   Char_t histo[200];
     

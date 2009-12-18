@@ -15,13 +15,12 @@
 
 class HLTriggerSelector { 
  public:
-  HLTriggerSelector(edm::InputTag & triggerTag, std::vector<std::string > selectTriggers){
+  HLTriggerSelector(const edm::ParameterSet & iConfig){
     //if (iConfig.exists("HLTriggerSelector")){
     // const edm::ParameterSet & pset = iConfig.getParameter<edm::ParameterSet>("HLTriggerSelector");
       
-    //theTriggerResulTag = iConfig.getParameter< edm::InputTag >("TriggerResultsTag");
-    theTriggerResulTag = triggerTag;
-    //std::vector<std::string> selectTriggers = iConfig.getParameter<std::vector<std::string> >("HLTPaths");
+    theTriggerResulTag = iConfig.getParameter< edm::InputTag >("TriggerResultsTag");
+    std::vector<std::string> selectTriggers = iConfig.getParameter<std::vector<std::string> >("HLTPaths");
       
     //get the configuration
     HLTConfigProvider hltConfig;

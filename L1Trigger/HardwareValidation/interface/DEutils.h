@@ -23,7 +23,7 @@ struct DEutils {
   public:
   
   DEutils() {
-    if(de_type()>38)
+    if(de_type()>30)
       edm::LogError("L1ComparatorDeutilsCollType") //throw cms::Exception("ERROR") 
 	<< "DEutils::DEutils() :: "
 	<< "specialization is still missing for collection of type:" 

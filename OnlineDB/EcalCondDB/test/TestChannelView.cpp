@@ -58,7 +58,7 @@ public:
     vector<EcalLogicID> ecid_vec;
     ecid_vec = econn->getEcalLogicIDSet("EB_elec_crystal_number", 10, 10, 1, 10,EcalLogicID::NULLID, EcalLogicID::NULLID,"EB_crystal_number");
     //    ecid = econn->getEcalLogicID("EB_crystal_number", 10, c);
-    for (int i=0; i<ecid_vec.size() ; i++){
+    for (int i=0; i<(int)ecid_vec.size() ; i++){
       int id1=ecid_vec[i].getID1();
       int id2=ecid_vec[i].getID2();
       int log_id=ecid_vec[i].getLogicID();

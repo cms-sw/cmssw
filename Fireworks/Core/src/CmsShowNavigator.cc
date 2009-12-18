@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.53 2009/11/18 20:13:41 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.81 2009/12/12 18:28:00 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -16,7 +16,6 @@
 #include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
-#include "TEventList.h"
 #include "TError.h"
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
@@ -27,9 +26,11 @@
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
+#include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constructors and destructor
@@ -37,20 +38,22 @@
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_currentEvent(0),
 
-   m_filtersEnabled(false),
-   m_filterModeOR(true),
-  
-   m_filtersNeedUpdate(),
+   m_filterState(kOff),
+   m_filterMode(kOr),
+
+   m_filesNeedUpdate(true),
+   m_newFileOnNextEvent(false),
 
    m_maxNumberOfFilesToChain(1),
 
    m_main(main),
    m_guiFilter(0)
-{ 
+{
 }
 
 CmsShowNavigator::~CmsShowNavigator()
 {
+   if (m_guiFilter) delete m_guiFilter;
 }
 
 //
@@ -60,7 +63,7 @@ CmsShowNavigator::~CmsShowNavigator()
 bool
 CmsShowNavigator::openFile(const std::string& fileName)
 {
-   try 
+   try
    {
       // delete all previous files
       while ( m_files.size() > 0 )
@@ -70,21 +73,18 @@ CmsShowNavigator::openFile(const std::string& fileName)
          file->closeFile();
          delete file;
       }
-      
+
       FWFileEntry* newFile = new FWFileEntry(fileName);
       m_files.push_back(newFile);
-      if (!m_currentFile.m_isSet)
-         setCurrentFile(m_files.begin());
-   
-      if (m_filtersEnabled)
-      {
-         for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
-         {
-            newFile->filters().push_back(new FWFileEntry::Filter(*i));
-         }
-         m_filtersNeedUpdate = true;
+      setCurrentFile(m_files.begin());
+
+      // set filters
+      for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+         newFile->filters().push_back(new FWFileEntry::Filter(*i));
+
+      if (m_filterState != kOff)
          updateFileFilters();
-      }
+
       return true;
    }
    catch (std::exception& iException) {
@@ -94,45 +94,53 @@ CmsShowNavigator::openFile(const std::string& fileName)
 }
 
 bool
-CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
+CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSize, bool live)
 {
    try
    {
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::appendFile [" << fileName << "]" << std::endl;
+
       FWFileEntry* newFile = new FWFileEntry(fileName);
       if ( newFile->file() == 0 )
       {
          delete newFile;
          return false; //bad file
       }
-   
-      unsigned int nFilesKeep = checkMaxFileSize ? m_maxNumberOfFilesToChain : 1;
-      // remove extra files
-      while ( m_files.size() > 0 && m_files.size() >= nFilesKeep &&
-              m_files.begin() != m_currentFile)
+      
+      if (checkFileQueueSize)
       {
-         FWFileEntry* file = m_files.front();
-         file->closeFile();
-         delete file;
-         m_files.pop_front();
+         int toErase = m_files.size() - (m_maxNumberOfFilesToChain + 1);
+         while (toErase > 0)
+         {
+            FileQueue_i si = m_files.begin();
+            if (m_currentFile == si)
+               si++;
+            FWFileEntry* file = *si;
+            file->closeFile();
+            delete file;
+            
+            m_files.erase(si);
+            --toErase;
+         }
+
+         if (m_files.size() >= m_maxNumberOfFilesToChain)
+            fwLog(fwlog::kWarning) << "  " <<  (int)m_files.size() << " chained files more than maxNumberOfFilesToChain \n" <<  m_maxNumberOfFilesToChain << std::endl;
       }
-   
-      if (m_files.size() >= m_maxNumberOfFilesToChain)
-         printf("WARNING:: %d chained files more than maxNumberOfFilesToChain [%d]\n", (int)m_files.size(), m_maxNumberOfFilesToChain);
 
       m_files.push_back(newFile);
+
+      // Needed for proper handling of first registered file when -port option is in effect.
       if (!m_currentFile.m_isSet)
          setCurrentFile(m_files.begin());
 
-      if (m_filtersEnabled)
-      {
-         for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
-         {
-            newFile->filters().push_back(new FWFileEntry::Filter(*i));
-         }
-         m_filtersNeedUpdate = true;
+      // set filters
+      for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+         newFile->filters().push_back(new FWFileEntry::Filter(*i));
+
+      if (m_filterState != kOff)     
          updateFileFilters();
-      }
-   }
+
+   }   
    catch(std::exception& iException)
    {
       std::cerr <<"Navigator::openFile caught exception "<<iException.what()<<std::endl;
@@ -143,23 +151,21 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkMaxFileSize)
 }
 
 //______________________________________________________________________________
-void
-CmsShowNavigator::eventFilterEnableCallback(Bool_t x)
-{
-   if (m_filtersEnabled == x)
-      return;
-   
-   m_filtersEnabled = x;
-   if (m_filtersEnabled)
-   {
-      m_filtersNeedUpdate = true;
-      updateFileFilters();
-   }
-}
 
-//______________________________________________________________________________
 void CmsShowNavigator::setCurrentFile(FileQueue_i fi)
 {
+   if (fwlog::presentLogLevel() == fwlog::kDebug)
+   {
+      int cnt = 0;
+      for (FileQueue_i i = m_files.begin(); i!= m_files.end(); i++)
+      {
+         if ( i == fi) break;
+         cnt++;
+      }
+      
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::setCurrentFile [" << (*fi)->file()->GetName() << "] file idx in chain [" << cnt << "/" << m_files.size() -1 << "]" << std::endl;
+   }
+   
    m_currentFile = fi;
    fileChanged_.emit((*m_currentFile)->file());
 }
@@ -170,10 +176,16 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
    if (fi != m_currentFile)
       setCurrentFile(fi);
 
+   if (fwlog::presentLogLevel() == fwlog::kDebug)
+   {
+      int total = (*fi)->tree()->GetEntries();
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::goTo  current file event [" << event  << "/" << total -1<< "]"  << std::endl;
+   }
+   
    (*m_currentFile)->event()->to(event);
    m_currentEvent = event;
 
-   newEvent_.emit(*((*m_currentFile)->event()));
+   newEvent_.emit();
 }
 
 void
@@ -188,7 +200,7 @@ CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
       fwEvent->fillFileIndex();
       it = fwEvent->fileIndex_.findEventPosition(run, 0, event, true);
       if (fwEvent->fileIndex_.end() != it)
-         goTo(file, event);
+         goTo(file, (*file)->getTreeEntryFromEventId(event));
    }
 }
 
@@ -198,9 +210,17 @@ void
 CmsShowNavigator::firstEvent()
 {
    FileQueue_i x = m_files.begin();
-   if (m_filtersEnabled)
+   if (m_filterState == kOn)
    {
-       goTo(x,  (*x)->firstSelectedEvent());
+      while (x != m_files.end())
+      {
+         if ((*x)->hasSelectedEvents())
+         {
+            goTo(x, (*x)->firstSelectedEvent());
+            return;
+         }
+         ++x;
+      }
    }
    else
    {
@@ -210,14 +230,23 @@ CmsShowNavigator::firstEvent()
 
 void
 CmsShowNavigator::lastEvent()
-{ 
-   FileQueue_i x = m_files.end(); --x;
-   if (m_filtersEnabled)
+{
+   FileQueue_i x = m_files.end();
+   if (m_filterState == kOn)
    {
-      goTo(x, (*x)->lastSelectedEvent());
+      while (x != m_files.begin())
+      {
+         --x;
+         if ((*x)->hasSelectedEvents())
+         {
+            goTo(x, (*x)->lastSelectedEvent());
+            return;
+         }
+      }
    }
    else
    {
+      --x;
       goTo(x, (*x)->lastEvent());
    }
 }
@@ -246,7 +275,7 @@ CmsShowNavigator::nextSelectedEvent()
          ++i;
       }
    }
-   
+
    return false;
 }
 
@@ -255,7 +284,19 @@ CmsShowNavigator::nextSelectedEvent()
 void
 CmsShowNavigator::nextEvent()
 {
-   if (m_filtersEnabled)
+   if (m_newFileOnNextEvent)
+   {
+      FileQueue_i last = m_files.end(); --last;
+      if (m_filterState == kOn)
+         goTo(last, (*last)->firstSelectedEvent());
+      else
+         goTo(last, 0);
+
+      m_newFileOnNextEvent = false;
+      return;
+   }
+   
+   if (m_filterState == kOn)
    {
       nextSelectedEvent();
       return;
@@ -270,7 +311,7 @@ CmsShowNavigator::nextEvent()
       {
          FileQueue_i x = m_currentFile ; ++x;
          if (x != m_files.end())
-         {  
+         {
             goTo(x, 0);
          }
       }
@@ -309,7 +350,7 @@ CmsShowNavigator::previousSelectedEvent()
 void
 CmsShowNavigator::previousEvent()
 {
-   if (m_filtersEnabled)
+   if (m_filterState == kOn)
    {
       previousSelectedEvent();
    }
@@ -322,9 +363,10 @@ CmsShowNavigator::previousEvent()
       else
       {
          // last event in previous file
-         FileQueue_i x = m_currentFile ; --x;
+         FileQueue_i x = m_currentFile;
          if (x != m_files.begin())
-         {  
+         {
+            --x;
             goTo(x, (*x)->lastEvent());
          }
       }
@@ -334,50 +376,89 @@ CmsShowNavigator::previousEvent()
 //______________________________________________________________________________
 
 void
-CmsShowNavigator::updateFileFilters()
+CmsShowNavigator::toggleFilterEnable()
 {
-   bool haveActiveFilters = false;
-   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
-   {
-      if ((*file)->hasActiveFilters())
-      {
-         haveActiveFilters = true;
-         break;
-      }
-   }
+   // callback
 
-   if (haveActiveFilters)
-   {
-      std::list<FWFileEntry::Filter>::iterator it;
-      for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
-      {
-         if (m_filtersNeedUpdate) (*file)->filtersNeedUpdate();
-         (*file)->updateFilters(m_main.m_eiManager.get(), m_filterModeOR);
-      }
+   fwLog(fwlog::kInfo) << "CmsShowNavigator::toggleFilterEnable filters enabled [" << ( m_filterState == kOff) << "]" << std::endl;
 
-      // go to nearest file
-      if (!(*m_currentFile)->isEventSelected(m_currentEvent))
-      { 
-         if (!nextSelectedEvent())
-            nextSelectedEvent();
-      }
-      eventFilterMessageChanged_.emit(getNSelectedEvents(), getNTotalEvents());
-      m_filtersNeedUpdate = false;
+   if (m_filterState == kOff)
+   {
+      m_filterState = kOn;
+      if (m_guiFilter)
+         m_guiFilter->m_filterDisableAction->enable();
+
+      updateFileFilters();
    }
    else
    {
-      m_filtersEnabled = false;
+      m_filterState = kOff;
+      if (m_guiFilter)
+         m_guiFilter->m_filterDisableAction->disable();
    }
 
-   // update gui
-   updateEventFilterEnable_.emit(m_filtersEnabled);
+   filterStateChanged_.emit(m_filterState);
+}
+
+void
+CmsShowNavigator::withdrawFilter()
+{
+   fwLog(fwlog::kInfo) << "CmsShowNavigator::witdrawFilter" << std::endl;
+   m_filterState = kWithdrawn;
+   filterStateChanged_.emit(m_filterState);
+}
+
+void
+CmsShowNavigator::resumeFilter()
+{
+   fwLog(fwlog::kInfo) << "CmsShowNavigator::resumeFilter" << std::endl;
+   m_filterState = kOn;
+   filterStateChanged_.emit(m_filterState);
+}
+
+void
+CmsShowNavigator::updateFileFilters()
+{
+   // run filters on files
+   std::list<FWFileEntry::Filter>::iterator it;
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+   {
+      if ( m_filesNeedUpdate) (*file)->needUpdate();
+      (*file)->updateFilters(m_main.m_eiManager.get(), m_filterMode == kOr);
+   }
+   updateSelectorsInfo();
+    m_filesNeedUpdate = false;
+
+   // go to nearest file
+   if (!(*m_currentFile)->isEventSelected(m_currentEvent))
+   {
+      if (!nextSelectedEvent())
+         nextSelectedEvent();
+   }
+
+   int nSelected = getNSelectedEvents();
+   if (nSelected)
+   {
+      if (m_filterState == kWithdrawn)
+         resumeFilter();
+      postFiltering_.emit();
+   }
+   else
+   {
+      withdrawFilter();
+   }
+
+   if (fwlog::presentLogLevel() == fwlog::kDebug)
+   {
+      fwLog(fwlog::kDebug) << "CmsShowNavigator::updateFileFilters selected events over files [" << getNSelectedEvents() << "/" << getNTotalEvents() << "]" << std::endl;
+   }
 }
 
 //=======================================================================
 void
 CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
 {
-   // printf("remove filter %s \n", (*si)->m_expression.c_str());
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::removeFilter " << (*si)->m_expression << std::endl;
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -392,17 +473,17 @@ CmsShowNavigator::removeFilter(std::list<FWEventSelector*>::iterator si)
             break;
          }
       }
-   } 
+   }
 
    delete *si;
-   m_selectors.erase(si);  
-   m_filtersNeedUpdate = true;
+   m_selectors.erase(si);
+   m_filesNeedUpdate = true;
 }
 
 void
 CmsShowNavigator::addFilter(FWEventSelector* ref)
 {
-   //  printf("add filter %s\n", ref->m_expression.c_str());
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::addFilter " << ref->m_expression << std::endl;
 
    FWEventSelector* selector = new FWEventSelector(ref);
    m_selectors.push_back(selector);
@@ -411,13 +492,13 @@ CmsShowNavigator::addFilter(FWEventSelector* ref)
    {
       (*file)->filters ().push_back(new FWFileEntry::Filter(selector));
    }
-   m_filtersNeedUpdate = true;
+   m_filesNeedUpdate = true;
 }
 
 void
-CmsShowNavigator::changeFilter(FWEventSelector* selector)
+CmsShowNavigator::changeFilter(FWEventSelector* selector, bool updateFilter)
 {
-   // printf("change filter %s\n", selector->m_expression.c_str());
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::changeFilter " << selector->m_expression << std::endl;
 
    std::list<FWFileEntry::Filter*>::iterator it;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -426,30 +507,38 @@ CmsShowNavigator::changeFilter(FWEventSelector* selector)
       {
          if ((*it)->m_selector == selector)
          {
-            (*it)->m_needsUpdate = true;
+            if (updateFilter)  (*it)->m_needsUpdate = true;
+            (*it)->m_selector->m_expression  = selector->m_expression;
             break;
          }
-
-      } 
+      }
    }
-   m_filtersNeedUpdate = true;
+   m_filesNeedUpdate = true;
 }
 
 void
 CmsShowNavigator::applyFiltersFromGUI()
 {
-   // compare changes and then call updateFileFilters
+   m_filesNeedUpdate = false;
 
+   // check if filters are set ON
+   if (m_filterState == kOff)
+   {
+      m_filesNeedUpdate = true;
+      m_filterState = kOn;
+      m_guiFilter->m_filterDisableAction->enable();
+      filterStateChanged_.emit(m_filterState);
+   }
+
+   // compare changes and then call updateFileFilters
    std::list<FWEventSelector*>::iterator    si = m_selectors.begin();
    std::list<FWGUIEventSelector*>::iterator gi = m_guiFilter->guiSelectors().begin();
 
-   m_filtersNeedUpdate = false;
-
-   if (m_filterModeOR != m_guiFilter->isLogicalOR()) {  
-      m_filterModeOR = m_guiFilter->isLogicalOR();
-      m_filtersNeedUpdate = true;
+   if (m_filterMode != m_guiFilter->getFilterMode()) {
+      m_filterMode = m_guiFilter->getFilterMode();
+      m_filesNeedUpdate = true;
    }
-      
+
    while (si != m_selectors.end() || gi != m_guiFilter->guiSelectors().end())
    {
       if (gi == m_guiFilter->guiSelectors().end() && si != m_selectors.end())
@@ -468,11 +557,10 @@ CmsShowNavigator::applyFiltersFromGUI()
          {
             FWEventSelector* g  = (*gi)->guiSelector();
             FWEventSelector* o = *si;
-            if (o->m_enabled != g->m_enabled)
-               m_filtersNeedUpdate = true;
-            if (o->m_expression != g->m_expression || o->m_enabled != g->m_enabled) {
+            bool filterNeedUpdate = o->m_expression != g->m_expression;
+            if (filterNeedUpdate || o->m_enabled != g->m_enabled) {
                *o = *g;
-               changeFilter(*si);
+               changeFilter(*si, filterNeedUpdate);
             }
             else
             {
@@ -492,33 +580,9 @@ CmsShowNavigator::applyFiltersFromGUI()
          }
       }
    }
-   m_filtersEnabled = true;
-   updateFileFilters();
-   fflush(stdout);
-}
 
-//______________________________________________________________________________
-int 
-CmsShowNavigator::getNSelectedEvents()
-{ 
-   int sum = 0;
-   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
-   {
-      sum += (*file)->globalSelection()->GetN();
-   }
-   return sum;      
-}
-
-int
-CmsShowNavigator::getNTotalEvents()
-{  
-   int sum = 0;
-   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
-   {
-      sum += (*file)->tree()->GetEntries();
-   }
-
-   return sum;      
+   if ( m_filesNeedUpdate )
+      updateFileFilters();
 }
 
 //______________________________________________________________________________
@@ -527,14 +591,35 @@ CmsShowNavigator::getNTotalEvents()
 bool
 CmsShowNavigator::isFirstEvent()
 {
-   int first =  (m_filtersEnabled) ? (*m_files.begin())->firstSelectedEvent() : 0;
-   return  first == m_currentEvent;
+   if (m_filterState == kOn)
+   {
+      FileQueue_i firstSelectedFile;
+      for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+      {
+         if ((*file)->hasSelectedEvents())
+         {
+            firstSelectedFile = file;
+            break;
+         }
+      }
+
+      if (firstSelectedFile == m_currentFile)
+         return (*m_currentFile)->firstSelectedEvent() == m_currentEvent;
+   }
+   else
+   {
+      if (m_currentFile == m_files.begin())
+      {
+         return m_currentEvent == 0;
+      }
+   }
+   return false;
 }
 
 bool
 CmsShowNavigator::isLastEvent()
 {
-   if (m_filtersEnabled)
+   if (m_filterState == kOn)
    {
       FileQueue_i lastSelectedFile;
       for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -557,6 +642,108 @@ CmsShowNavigator::isLastEvent()
    return false;
 }
 
+//______________________________________________________________________________
+void
+CmsShowNavigator::updateSelectorsInfo()
+{
+ 
+   // reset
+   std::list<FWEventSelector*>::const_iterator sel = m_selectors.begin();
+   while ( sel != m_selectors.end())
+   {
+      (*sel)->m_selected = 0;
+      (*sel)->m_updated  = true;
+      ++sel;
+   }
+
+   // loop file filters
+   std::list<FWFileEntry::Filter*>::iterator i;
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+   {
+      std::list<FWFileEntry::Filter*>& filters = (*file)->filters();
+      for (i = filters.begin(); i != filters.end(); ++i)
+      {
+         if ((*i)->m_eventList)
+         {
+            (*i)->m_selector->m_selected += (*i)->m_eventList->GetN();
+         }
+
+         if ((*i)->m_needsUpdate) 
+            (*i)->m_selector->m_updated = false;
+      }
+   }
+   if (m_guiFilter) 
+   {
+      std::list<FWGUIEventSelector*>::const_iterator gs = m_guiFilter->guiSelectors().begin();
+      while ( gs !=  m_guiFilter->guiSelectors().end())
+      {
+         (*gs)->updateNEvents();
+         ++gs;
+      }
+   }
+}
+
+int
+CmsShowNavigator::getNSelectedEvents()
+{
+   int sum = 0;
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+   {
+      sum += (*file)->globalSelection()->GetN();
+   }
+   return sum;
+}
+
+int
+CmsShowNavigator::getNTotalEvents()
+{
+   int sum = 0;
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+   {
+      sum += (*file)->tree()->GetEntries();
+   }
+
+   return sum;
+}
+
+const char*
+CmsShowNavigator::filterStatusMessage()
+{
+   if (m_filterState == kOn)
+      return Form("%d events are selected from %d.", getNSelectedEvents(), getNTotalEvents());
+   else if (m_filterState == kOff)
+      return "Filtering is OFF.";
+   else
+      return "Filtering is disabled.";
+}
+
+bool
+CmsShowNavigator::canEditFiltersExternally()
+{
+   bool haveActiveFilters = false;
+   for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+   {
+      if ((*file)->hasActiveFilters())
+      {
+         haveActiveFilters = true;
+         break;
+      }
+   }
+
+   bool btnEnabled = haveActiveFilters;
+
+   if (m_guiFilter && m_guiFilter->isOpen())
+      btnEnabled = false;
+
+   return btnEnabled;
+}
+
+void
+CmsShowNavigator::editFiltersExternally()
+{
+   editFiltersExternally_.emit(canEditFiltersExternally());
+}
+
 void
 CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
 {
@@ -564,27 +751,23 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
    {
       m_guiFilter = new FWGUIEventFilter(p);
       m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
-      m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::finishEditFilters));
+      m_guiFilter->m_filterDisableAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::toggleFilterEnable));
+      m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::editFiltersExternally));
+      filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
    }
-   
+
    if (m_guiFilter->IsMapped())
    {
       m_guiFilter->CloseWindow();
-      CmsShowNavigator::editFilters_.emit(false);
    }
    else
    {
-      m_guiFilter->show(&m_selectors, (*m_currentFile)->event(), m_filterModeOR);
-      CmsShowNavigator::editFilters_.emit(true);
+      m_guiFilter->show(&m_selectors, m_filterMode, m_filterState);
+      editFiltersExternally_.emit(canEditFiltersExternally());
    }
-
 }
 
-void
-CmsShowNavigator::finishEditFilters()
-{
-   editFilters_.emit(false);
-}
+//______________________________________________________________________________
 
 void
 CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
@@ -600,7 +783,9 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
       const FWConfiguration* value = iFrom.valueForKey( "EventFilter_enabled" );
       assert(value);
       std::istringstream s(value->value());
-      s>>m_filtersEnabled;
+      int x;
+      s>> x;
+      m_filterState = x ? kOn : kOff;
    }
 
    for(int i=0; i<numberOfFilters; ++i) {
@@ -645,6 +830,6 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
       ++numberOfFilters;
    }
    iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
-   iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d",m_filtersEnabled)));
+   iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d", m_filterState == kOn ? 1 : 0)));
 }
 

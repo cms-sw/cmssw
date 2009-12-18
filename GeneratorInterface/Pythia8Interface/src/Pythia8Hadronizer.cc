@@ -136,22 +136,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     pythia->setRndmEnginePtr(RP8);
     pythiaEvent = &pythia->event;
 
-
-    for(ParameterCollector::const_iterator line = parameters.begin();
-        line != parameters.end(); ++line) {
-        if (line->find("Random:") != std::string::npos)
-            throw cms::Exception("PythiaError")
-                << "Attempted to set random number "
-                   "using Pythia commands.  Please use "
-                   "the RandomNumberGeneratorService."
-                << std::endl;
-
-        if (!pythia->readString(*line))
-            throw cms::Exception("PythiaError")
-                << "Pythia 8 did not accept \""
-                << *line << "\"." << std::endl;
-    }
-
     if(LHEInputFileName != string()) {
 
       cout << endl;
@@ -166,7 +150,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
       pythia->init(lhaUP.get());
 
     }
-    cout << "end of init for external" << endl;
 
     return true;
 }
@@ -222,9 +205,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 bool Pythia8Hadronizer::hadronize()
 {
     if(LHEInputFileName == string()) {
-      cout << "start loading event" << endl;
       lhaUP->loadEvent(lheEvent());
-      cout << "finish loading event" << endl;
     }
 
     if (!pythia->next())

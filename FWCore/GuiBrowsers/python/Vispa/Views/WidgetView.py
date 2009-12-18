@@ -25,6 +25,9 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
         self._selection = None
         self._updatingFlag = 0
 
+    def widgets(self):
+        return self._widgetDict.values()
+
     def widgetSelected(self, widget):
         """ Emits signal widgetSelected that the TabController can connect to.
         """
@@ -64,22 +67,24 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
             self._selection = widget.positionName
             self._updatingFlag +=1
             widget.select()
-            self._updatingFlag -=1
             if self.parent() and isinstance(self.parent().parent(), ZoomableScrollArea):
                 self.parent().parent().ensureWidgetVisible(widget,offset,offset)
+            self._updatingFlag -=1
         else:
             self._selection = None
             self._updatingFlag +=1
             self.deselectAllWidgets()
             self._updatingFlag -=1
 
-    def restoreSelection(self):
+    def restoreSelection(self,offset=5):
         """ Restore selection.
         """
         if self._selection in self._widgetDict.keys():
             widget = self._widgetDict[self._selection]
             self._updatingFlag +=1
             widget.select()
+            if self.parent() and isinstance(self.parent().parent(), ZoomableScrollArea):
+                self.parent().parent().ensureWidgetVisible(widget,offset,offset)
             self._updatingFlag -=1
 
     def selection(self):

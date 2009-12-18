@@ -4,14 +4,17 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.1 2009/10/04 12:13:07 dmytro Exp $
+// $Id: TrackUtils.h,v 1.6 2009/12/10 16:12:54 latb Exp $
 //
 
 // system include files
 #include "Rtypes.h"
 
 // user include files
+#include "TEveTrack.h"
 #include "TEveVSDStructs.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+
 
 // forward declarations
 namespace reco {
@@ -20,8 +23,10 @@ namespace reco {
 }
 class TEveElement;
 class TEveTrackPropagator;
-class FWModelId;
 class DetId;
+class TGeoHMatrix;
+
+class SiPixelCluster;
 
 namespace fireworks {
    struct State {
@@ -67,16 +72,21 @@ public:
 
    double pixelLocalX(const double mpx, const int m_nrows);
    double pixelLocalY(const double mpy, const int m_ncols);
+	void localSiPixel(TVector3& point, double lx, double ly, DetId id, const FWEventItem* iItem); 
+   void localSiStrip(TVector3& point, TVector3& pointA, TVector3& pointB, double bc, DetId id, const FWEventItem* iItem);
    // monoPoints include pixels (why?)
-   void pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints,
-                        const FWModelId &id, const reco::Track &t);
+   void pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t);
+   void pushPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t);   
+   void pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t);   
+   void pushPixelCluster(std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c) ; 
+   void pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t);
+   void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color, bool addNearbyClusters);
    void addTrackerHitsEtaPhi(std::vector<TVector3> &points, class TEveElementList *tList,
                              Color_t color, int size);
    void addTrackerHits3D(std::vector<TVector3> &points, class TEveElementList *tList,
                          Color_t color, int size);
-
-
-
+   void addTrackerHits2Dbarrel(std::vector<TVector3> &points, class TEveElementList *tList,
+			       Color_t color, int size);
 }
 
 #endif

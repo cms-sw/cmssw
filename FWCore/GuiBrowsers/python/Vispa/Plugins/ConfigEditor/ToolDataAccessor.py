@@ -12,8 +12,8 @@ from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 
 import FWCore.ParameterSet.Config as cms
-import FWCore.GuiBrowsers.ParameterSet_patch
-FWCore.GuiBrowsers.ParameterSet_patch.ACTIVATE_INSPECTION=False
+import FWCore.GuiBrowsers.EnablePSetHistory
+FWCore.GuiBrowsers.EnablePSetHistory.ACTIVATE_INSPECTION=False
 from FWCore.GuiBrowsers.ConfigToolBase import ConfigToolBase
 from FWCore.GuiBrowsers.editorTools import UserCodeTool
 import PhysicsTools.PatAlgos.tools as tools
@@ -29,6 +29,9 @@ for toolsFile in toolsFiles:
         tool=getattr(module,name)
         if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not tool._label in toolsDict.keys() and not tool==ConfigToolBase:
             toolsDict[tool._label]=tool
+# Show test tool
+#rom FWCore.GuiBrowsers.editorTools import ChangeSource
+#oolsDict["ChangeSource"]=ChangeSource
 
 cmsswDir="$CMSSW_BASE"
 cmsswReleaseDir="$CMSSW_RELEASE_BASE"
@@ -87,6 +90,7 @@ class ToolDataAccessor(BasicDataAccessor):
         self._applyTool=ApplyTool()
         self._toolModules={}
         self._processCopy=None
+        self._parameterErrors={}
         
     def children(self, object):
         """ Return the children of a container object.
@@ -150,13 +154,18 @@ class ToolDataAccessor(BasicDataAccessor):
             # for UserCodeTool
             process=self.configDataAccessor().process()
             try:
+                process.disableRecording()
                 exec value
-            except Exception:
-                QCoreApplication.instance().errorMessage("Error in python code (see logfile for details):\n"+str(e))
-                logging.debug(__name__ + ": setProperty: Error in python code: "+exception_traceback())
-                return False
-        if isinstance(value,str):
-            # e.g. for cms.InputTag
+                process.enableRecording()
+                process.resetModified()
+                process.resetModifiedObjects()
+            except Exception,e:
+                error="Error in python code (see logfile for details):\n"+str(e)
+                logging.warning(__name__ + ": setProperty: Error in python code: "+exception_traceback())
+                self._parameterErrors[str(id(object))+"."+name]=error
+                return error
+        elif isinstance(value,str):
+            # for e.g. cms.InputTag
             try:
                 exec "value="+value
             except:
@@ -164,20 +173,22 @@ class ToolDataAccessor(BasicDataAccessor):
         if name!="comment":
             try:
                 object.setParameter(name,value)
-                return True
             except Exception, e:
-                QCoreApplication.instance().errorMessage("Cannot set parameter "+name+" (see logfile for details):\n"+str(e))
-                logging.debug(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
-                return False
+                error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
+                logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
+                self._parameterErrors[str(id(object))+"."+name]=error
+                return error
         elif name=="comment":
             try:
-                print "comment"
                 object.setComment(value)
-                return True
             except Exception, e:
-                QCoreApplication.instance().errorMessage("Cannot set comment (see logfile for details):\n"+str(e))
-                logging.debug(__name__ + ": setComment: Cannot set comment "+exception_traceback())
-                return False  
+                error="Cannot set comment (see logfile for details):\n"+str(e)
+                logging.warning(__name__ + ": setProperty: Cannot set comment "+exception_traceback())
+                self._parameterErrors[str(id(object))+"."+name]=error
+                return error  
+        if str(id(object))+"."+name in self._parameterErrors.keys():
+            del self._parameterErrors[str(id(object))+"."+name]
+        return True
 
     def setConfigDataAccessor(self,accessor):
         self._configDataAccessor=accessor
@@ -194,13 +205,7 @@ class ToolDataAccessor(BasicDataAccessor):
         return self.updateProcess()
     
     def addTool(self,tool):
-        try:
-            tool.apply(self.configDataAccessor().process())
-        except Exception,e:
-            logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
-            QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
-            self.updateProcess()
-            return False
+        tool.apply(self.configDataAccessor().process())
         self.configDataAccessor().setProcess(self.configDataAccessor().process())
         return True
 
@@ -218,6 +223,7 @@ class ToolDataAccessor(BasicDataAccessor):
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
             return False
         self.configDataAccessor().setProcess(process)
+        self._parameterErrors={}
         return True
 
     def updateToolList(self):
@@ -246,3 +252,6 @@ class ToolDataAccessor(BasicDataAccessor):
 
     def toolModules(self):
         return self._toolModules
+
+    def parameterErrors(self,object):
+        return [self._parameterErrors[key] for key in self._parameterErrors.keys() if str(id(object))==key.split(".")[0]] 

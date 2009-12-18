@@ -5,11 +5,7 @@ siStripGainESProducer = cms.ESProducer("SiStripGainESProducer",
     printDebug = cms.untracked.bool(False),
     NormalizationFactor = cms.double(1.0),
     AutomaticNormalization = cms.bool(False),
-    APVGain = cms.VPSet(
-        cms.PSet(
-            Label = cms.string('')
-        ),
-    )
+    APVGain = cms.string('')
 )
 
 

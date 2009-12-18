@@ -128,8 +128,9 @@ void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat > data, ODFEDelays
 
   ODDelaysDat dataitem;
   
+  int n_data= (int) data.size();
 
-  for (int count = 0; count != data.size(); count++) {
+  for (int count = 0; count < n_data ; count++) {
     dataitem=data[count];
     ids[count]=iovID;
     xx[count]=dataitem.getSMId();

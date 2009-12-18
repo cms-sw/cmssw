@@ -9,12 +9,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.69 2009/11/16 17:26:31 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.86 2009/12/07 09:38:07 amraktad Exp $
 //
 // hacks
-#define private public
+// #define private public
 #include "DataFormats/FWLite/interface/Event.h"
-#undef private
+// #undef private
 
 // system include files
 #include <sigc++/sigc++.h>
@@ -38,6 +38,7 @@
 #include <TGTextEntry.h>
 #include <TG3DLine.h>
 #include <TGSlider.h>
+#include <TGMsgBox.h>
 
 #include <TSystem.h>
 #include <TImage.h>
@@ -54,6 +55,9 @@
 
 #include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
+
+#include <fstream>
+
 //
 // constants, enums and typedefs
 //
@@ -72,29 +76,31 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterShowGUIBtn(),
    m_runEntry(0),
    m_eventEntry(0),
-   m_delaySliderListener(0)
+   m_delaySliderListener(0),
+   m_fworksAbout(0)
 {
    const unsigned int backgroundColor=0x2f2f2f;
    const unsigned int textColor= 0xb3b3b3;
 
    m_manager = m;
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
+   CSGAction *appendData = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
-   loadConfig->disable();
+   loadConfig->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
    CSGAction *exportImage = new CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
    CSGAction *undo = new CSGAction(this, cmsshow::sUndo.c_str());
-   undo->disable();
+   undo->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *redo = new CSGAction(this, cmsshow::sRedo.c_str());
-   redo->disable();
+   redo->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *cut = new CSGAction(this, cmsshow::sCut.c_str());
-   cut->disable();
+   cut->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *copy = new CSGAction(this, cmsshow::sCopy.c_str());
-   copy->disable();
+   copy->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *paste = new CSGAction(this, cmsshow::sPaste.c_str());
-   paste->disable();
+   paste->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
@@ -104,7 +110,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
    CSGContinuousAction *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
    CSGContinuousAction *playEventsBack = new CSGContinuousAction(this, cmsshow::sPlayEventsBack.c_str());
-   CSGContinuousAction *autoRewind = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
+   CSGContinuousAction *loop = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
    CSGAction *showObjInsp = new CSGAction(this, cmsshow::sShowObjInsp.c_str());
    CSGAction *showEventDisplayInsp = new CSGAction(this, cmsshow::sShowEventDisplayInsp.c_str());
    CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
@@ -119,7 +125,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_goToLast = goToLast;
    m_playEvents = playEvents;
    m_playEventsBack = playEventsBack;
-   m_autoRewindAction = autoRewind;
+   m_loopAction = loop;
 
    goToFirst->setToolTip("Goto first event");
    goToLast->setToolTip("Goto last event");
@@ -128,16 +134,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEvents->setToolTip("Play events");
    playEventsBack->setToolTip("Play events backwards");
 
-   TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 14);
+   TGCompositeFrame *menuTopFrame = new TGCompositeFrame(this, 1, 1, kHorizontalFrame, backgroundColor);
+
+   TGMenuBar *menuBar = new TGMenuBar(menuTopFrame, this->GetWidth(), 28, kHorizontalFrame);
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    m_newViewerMenu = new TGPopupMenu(gClient->GetRoot());
 
    fileMenu->AddPopup("New Viewer", m_newViewerMenu);
    fileMenu->AddSeparator();
    
    openData->createMenuEntry(fileMenu);
+   appendData->createMenuEntry(fileMenu);
    searchFiles->createMenuEntry(fileMenu);
    //searchFiles->disable();
    loadConfig->createMenuEntry(fileMenu);
@@ -158,7 +167,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    undo->createMenuEntry(editMenu);
    undo->createShortcut(kKey_Z, "CTRL", GetId());
    redo->createMenuEntry(editMenu);
@@ -173,7 +182,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    paste->createShortcut(kKey_V, "CTRL", GetId());
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));  
+   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));  
 
    colorset->createMenuEntry(viewMenu);
    colorset->createShortcut(kKey_B, "CTRL", GetId());
@@ -192,10 +201,10 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEvents->createShortcut(kKey_Space, "CTRL", GetId());
    playEventsBack->createMenuEntry(viewMenu);
    playEventsBack->createShortcut(kKey_Space, "CTRL+SHIFT", GetId());
-   autoRewind->createMenuEntry(viewMenu);
+   loop->createMenuEntry(viewMenu);
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
    showObjInsp->createMenuEntry(windowMenu);
    showObjInsp->createShortcut(kKey_I, "CTRL", GetId());
@@ -204,7 +213,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    showAddCollection->createMenuEntry(windowMenu);
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
 
@@ -215,11 +224,17 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    while ((title = (TGMenuTitle *)next()))
       title->SetTextColor(textColor);
 
-   AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
-   
+   menuTopFrame->AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+   AddFrame(menuTopFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+
+   // !!!! MT Line separating menu from other window components.
+   // I would even remove it and squeeze the navigation buttons up.
+   AddFrame(new TGFrame(this, 1, 1, kChildFrame, 0x503020),
+            new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+
    TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
-   TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0,backgroundColor);
+   TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0, backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
 
@@ -347,9 +362,24 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0, backgroundColor);
    
    TGCompositeFrame *lframe = new TGHorizontalFrame(filterFrame, 50, entryHeight, kFixedSize, backgroundColor);
-   m_filterEnableBtn = new TGCheckButton(filterFrame,"");
+
+   // filter state Off
+   m_filterIcons[0] = fClient->GetPicture("unchecked_t.xpm");
+   m_filterIcons[1] = fClient->GetPicture("unchecked_t.xpm");
+   m_filterIcons[2] = fClient->GetPicture("unchecked_dis_t.xpm");
+   
+   // filter state On
+   m_filterIcons[3] = fClient->GetPicture("checked_t.xpm");
+   m_filterIcons[4] = fClient->GetPicture("checked_t.xpm");
+   m_filterIcons[5] = fClient->GetPicture("checked_dis_t.xpm");
+   
+   // filter withdrawn
+   m_filterIcons[6] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
+   m_filterIcons[7] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg-over.png");
+   m_filterIcons[8] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
+   
+   m_filterEnableBtn = new FWCustomIconsButton(lframe, m_filterIcons[0], m_filterIcons[1], m_filterIcons[2]);
    m_filterEnableBtn->SetBackgroundColor(backgroundColor);
-   m_filterEnableBtn->SetTextColor(0xFFFFFF);
    m_filterEnableBtn->SetToolTipText("Enable/disable event filtering");
    lframe->AddFrame(m_filterEnableBtn, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
    filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,0,0,0,0));
@@ -357,7 +387,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterShowGUIBtn = new TGTextButton(filterFrame,"Event filtering is OFF");
    m_filterShowGUIBtn->SetBackgroundColor(backgroundColor);
    m_filterShowGUIBtn->SetTextColor(0xFFFFFF);
-   m_filterShowGUIBtn->SetToolTipText("Edit event selection");
+   m_filterShowGUIBtn->SetToolTipText("Edit filters");
    filterFrame->AddFrame(m_filterShowGUIBtn,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
 
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
@@ -384,13 +414,30 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
    //  logo
-   TGVerticalFrame* logoFrame = new TGVerticalFrame(fullbar, 140, 48, kFixedSize);
+   {
+      TGVerticalFrame* parentLogoFrame = new TGVerticalFrame(fullbar, 70, 53, kFixedSize); 
+      parentLogoFrame->SetBackgroundColor(backgroundColor);
+      fullbar->AddFrame(parentLogoFrame, new TGLayoutHints(kLHintsRight| kLHintsCenterY, 0, 0, 0 ));
 
-   TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"logo-fireworks.png");
-   logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
-   fullbar->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 5, 0, 0));
-
-
+      TGVerticalFrame* logoFrame = new TGVerticalFrame(parentLogoFrame, 53, 53, kFixedSize);
+      TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir() + "CMSRedOnBlackThick.png");
+      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 17, 0, 0));
+   }
+   {
+      TGCompositeFrame *logoFrame = new TGCompositeFrame(this, 61, 23, kFixedSize | kHorizontalFrame, backgroundColor);
+      FWCustomIconsButton *infoBut =
+         new FWCustomIconsButton(logoFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray.png"),
+                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-green.png"),
+                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"),
+                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"));
+      logoFrame->AddFrame(infoBut);
+      infoBut->Connect("Clicked()", "CmsShowMainFrame", this, "showFWorksInfo()");
+      //TImage *logoImg  = TImage::Open( FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray.png");
+      //logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      menuTopFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsBottom, 0, 13, 3, 1));
+   }
+  
    /**************************************************************************/
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
@@ -401,7 +448,18 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    nextEvent->disable();
    playEvents->disable();
    playEventsBack->disable();
-   autoRewind->disable();
+   loop->disable();
+   
+   //NOTE: There appears to be a bug in ROOT such that creating a menu item and setting it as
+   // disabled immediately is ignored.  Therefore we have to wait till here to actually get ROOT
+   // to disable these menu items
+   loadConfig->disable();
+   undo->disable();
+   redo->disable();
+   cut->disable();
+   copy->disable();
+   paste->disable();
+   
    
    TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
    csArea->VSplit(200);
@@ -460,18 +518,19 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
 
    m_timeText->SetText( fw::getLocalTime( event ).c_str() );
    char title[128];
-   snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
+   snprintf(title,128,"Lumi block id: %d", event.eventAuxiliary().luminosityBlock());
    m_lumiBlock->SetText( title );
+}
 
-   // loadEvent gets called before the special cases [at beginning, at end, etc]
-   // so we can enable all our event controls here
+void CmsShowMainFrame::enableNavigatorControls()
+{
    m_nextEvent->enable();
    m_previousEvent->enable();
    m_goToFirst->enable();
    m_goToLast->enable();
    m_playEvents->enable();
    m_playEventsBack->enable();
-   m_autoRewindAction->enable();
+   m_loopAction->enable();
 }
 
 void  CmsShowMainFrame::CloseWindow()
@@ -500,18 +559,14 @@ CmsShowMainFrame::enablePrevious(bool enable)
    if (m_previousEvent != 0) {
       if (enable) {
          m_previousEvent->enable();
+         m_goToFirst->enable();
          m_playEventsBack->enable();
       } else {
          m_previousEvent->disable();
+         m_goToFirst->disable();
          m_playEventsBack->disable();
          m_playEventsBack->stop();
       }
-   }
-   if (m_goToFirst != 0) {
-      if (enable)
-         m_goToFirst->enable();
-      else
-         m_goToFirst->disable();
    }
 }
 
@@ -521,12 +576,12 @@ CmsShowMainFrame::enableNext(bool enable)
    if (m_nextEvent != 0) {
       if (enable) {
          m_nextEvent->enable();
-         m_playEvents->enable();
          m_goToLast->enable();
+         m_playEvents->enable();
       } else {
          m_nextEvent->disable();
-         m_playEvents->disable();
          m_goToLast->disable();
+         m_playEvents->disable();
          m_playEvents->stop();
       }
    }
@@ -616,3 +671,58 @@ CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt
    lframe->AddFrame(label,     new TGLayoutHints(kLHintsRight | kLHintsBottom));
    p->AddFrame(lframe, new TGLayoutHints(kLHintsLeft  | kLHintsBottom, 0, 4, 0, 0));
 }
+
+class InfoFrame : public TGMainFrame {
+public:
+   InfoFrame(const TGWindow* p, UInt_t w, UInt_t h, UInt_t opts) : TGMainFrame(p, w, h, opts) {}
+   virtual ~InfoFrame() {}
+   
+   virtual void CloseWindow()
+   {
+      UnmapWindow();  
+   }
+};
+
+void
+CmsShowMainFrame::showFWorksInfo()
+{
+   if (m_fworksAbout == 0)
+   {
+      TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
+      gSystem->ExpandPathName(infoFileName);
+      
+      ifstream infoFile(infoFileName);
+      TString infoText;
+      infoText.ReadFile(infoFile);
+      infoFile.close();
+ 
+      const UInt_t ww = 280, hh = 180;
+      
+      m_fworksAbout = new InfoFrame(gClient->GetRoot(), ww, hh, kVerticalFrame | kFixedSize);
+      m_fworksAbout->SetWMSizeHints(ww, hh, ww, hh, 0, 0);
+      m_fworksAbout->SetBackgroundColor(0x2f2f2f);
+      
+      TGFrame* logoFrame = new TGFrame(m_fworksAbout, 140, 48, kFixedSize);
+      TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"logo-fireworks.png");
+      logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
+      m_fworksAbout->AddFrame(logoFrame, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 16, 0));
+      
+      TGLabel* label = new TGLabel(m_fworksAbout, infoText);
+      label->SetBackgroundColor(0x2f2f2f);
+      label->SetForegroundColor(0xffffff);
+      m_fworksAbout->AddFrame(label, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY));      
+            
+      TGTextButton* btn = new TGTextButton(m_fworksAbout, "  OK  ");
+      btn->SetBackgroundColor(0x2f2f2f);
+      btn->SetForegroundColor(0xffffff);
+      m_fworksAbout->AddFrame(btn, new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 0, 12));
+      btn->Connect("Clicked()", "TGMainFrame", m_fworksAbout, "CloseWindow()");
+
+      m_fworksAbout->MapSubwindows();
+      m_fworksAbout->Layout();
+   }
+   
+   m_fworksAbout->MapRaised();
+}
+
+

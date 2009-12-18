@@ -24,7 +24,6 @@ public:
   //  typedef SiStripClusterCollection::Range                ClusterRange;
   //  typedef SiStripClusterCollection::ContainerIterator    ClusterIterator;
   typedef StripClusterParameterEstimator::LocalValues    LocalValues;
-  typedef StripClusterParameterEstimator::VLocalValues    VLocalValues;
 
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
@@ -77,17 +76,10 @@ public:
   const StripGeomDetUnit& specificGeomDet() const {return *theStripGDU;}
 
   TransientTrackingRecHit::RecHitPointer
-  buildRecHit( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
+  buildRecHit( const SiStripClusterRef&, const LocalTrajectoryParameters& ltp) const;
 
   TransientTrackingRecHit::RecHitPointer
-  buildRecHit( const SiStripRegionalClusterRef&, const TrajectoryStateOnSurface& ltp) const;
-
-    
-  TkStripMeasurementDet::RecHitContainer 
-  buildRecHits( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
-  
-  TkStripMeasurementDet::RecHitContainer 
-  buildRecHits( const SiStripRegionalClusterRef&, const TrajectoryStateOnSurface& ltp) const;
+  buildRecHit( const SiStripRegionalClusterRef&, const LocalTrajectoryParameters& ltp) const;
 
 
   bool  isEmpty() {return empty;}
@@ -169,12 +161,11 @@ private:
       }
       return false;
   }
-  
+
   template<class ClusterRefT>
-    void buildSimpleRecHit( const ClusterRefT& cluster,
-			    const TrajectoryStateOnSurface& ltp,
-			    std::vector<SiStripRecHit2D>& res) const;
-  
+  SiStripRecHit2D
+  buildSimpleRecHit( const ClusterRefT& cluster, const LocalTrajectoryParameters& ltp) const;
+
 };
 
 #endif

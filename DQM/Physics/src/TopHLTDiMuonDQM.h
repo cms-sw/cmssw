@@ -4,8 +4,8 @@
 /*
  *  DQM HLT Dimuon Test Client
  *
- *  $Date: 2009/09/25 12:58:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/16 16:43:28 $
+ *  $Revision: 1.2 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -34,13 +34,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include <DataFormats/Common/interface/Ref.h>
-
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -81,27 +76,18 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   DQMStore* dbe_;
   std::string monitorName_;
   std::string level_;
+
   int counterEvt_;
   int prescaleEvt_;
-
-  int N_sig[100];
-  int N_trig[100];
-  float Eff[100];
+  double coneSize_;
 
   edm::InputTag triggerResults_;
   edm::InputTag L1_Collection_;
+  edm::InputTag L2_Collection_;
   edm::InputTag L3_Collection_;
-  edm::InputTag L3_Isolation_;
 
   std::vector<std::string> hltPaths_L1_;
   std::vector<std::string> hltPaths_L3_;
-  std::vector<std::string> hltPaths_sig_;
-  std::vector<std::string> hltPaths_trig_;
-
-  double muon_pT_cut_;
-  double muon_eta_cut_;
-  double MassWindow_up_;
-  double MassWindow_down_;
 
   // ----------member data ---------------------------
 
@@ -109,24 +95,13 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
 
   MonitorElement * Trigs;
   MonitorElement * NMuons;
-  MonitorElement * NMuons_charge;
-  MonitorElement * NMuons_iso;
   MonitorElement * PtMuons;
-  MonitorElement * PtMuons_sig;
-  MonitorElement * PtMuons_trig;
   MonitorElement * EtaMuons;
-  MonitorElement * EtaMuons_sig;
-  MonitorElement * EtaMuons_trig;
   MonitorElement * PhiMuons;
-  MonitorElement * DiMuonMassRC;
-  MonitorElement * DiMuonMassRC_LOG;
-  MonitorElement * DiMuonMassWC;
-  MonitorElement * DiMuonMassWC_LOG;
+  MonitorElement * DiMuonMass;
+  MonitorElement * DiMuonMass_LOG;
   MonitorElement * DeltaEtaMuons;
   MonitorElement * DeltaPhiMuons;
-  MonitorElement * MuonEfficiency_pT;
-  MonitorElement * MuonEfficiency_eta;
-  MonitorElement * TriggerEfficiencies;
 
 };
 

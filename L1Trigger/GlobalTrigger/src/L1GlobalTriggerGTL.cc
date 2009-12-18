@@ -140,15 +140,17 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
         edm::Handle<std::vector<L1MuGMTCand> > muonData;
         iEvent.getByLabel(muGmtInputTag, muonData);
 
-        if (m_verbosity && !muonData.isValid()) {
-            edm::LogWarning("L1GlobalTriggerGTL")
-            << "\nWarning: std::vector<L1MuGMTCand> with input tag " << muGmtInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
-        }
-        else {
+        if (!muonData.isValid()) {
+            if (m_verbosity) {
+                edm::LogWarning("L1GlobalTriggerGTL")
+                        << "\nWarning: std::vector<L1MuGMTCand> with input tag "
+                        << muGmtInputTag
+                        << "\nrequested in configuration, but not found in the event.\n"
+                        << std::endl;
+            }
+        } else {
 
-            std::vector< L1MuGMTCand>::const_iterator itMuon;
+            std::vector<L1MuGMTCand>::const_iterator itMuon;
             for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
                 if ((*itMuon).bx() == iBxInEvent) {
 

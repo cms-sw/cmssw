@@ -4,23 +4,23 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.2 2009/11/17 22:24:31 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.9 2009/12/07 21:14:07 amraktad Exp $
 //
 
 // system include files
 #include <string>
 #include <sigc++/sigc++.h>
 
-#include "TEventList.h"
 #include "TTree.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
+#include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
 // forward declarations
-class TEventList;
+class FWTEventList;
 class CSGAction;
 class CmsShowMain;
 class TFile;
@@ -35,7 +35,7 @@ class FWFileEntry {
 public:
    struct Filter
    {
-      TEventList*        m_eventList;
+      FWTEventList*      m_eventList;
       FWEventSelector*   m_selector;  // owned by navigator
       bool               m_needsUpdate;
       
@@ -44,19 +44,20 @@ public:
       {
          delete m_eventList;
       }
+
+      bool hasSelectedEvents()
+      {
+         return m_eventList && m_eventList->GetN();
+      }
    };
    
    FWFileEntry(const std::string& name);
    virtual ~FWFileEntry();
-   
-   bool hasSelectedEvents() const {
-      return m_eventTree && m_globalEventList->GetN()>0;
-   }
-   
+      
    TFile*         file()  { return m_file; }
    fwlite::Event* event() { return m_event; }
    TTree*         tree()  { return m_eventTree; }
-   TEventList*    globalSelection() { return m_globalEventList; }
+   FWTEventList*    globalSelection() { return m_globalEventList; }
    
    std::list<Filter*>& filters() { return m_filterEntries; }
    
@@ -77,23 +78,26 @@ public:
    int  nextSelectedEvent(int event);
    int  previousSelectedEvent(int event);
 
-   void filtersNeedUpdate() { m_filtersNeedUpdate = true; }
+   void needUpdate() { m_needUpdate = true; }
    void updateFilters(FWEventItemsManager* eiMng, bool isOR);
+
+   int  getTreeEntryFromEventId(int entry);
 
 private:
    FWFileEntry(const FWFileEntry&);    // stop default
    const FWFileEntry& operator=(const FWFileEntry&);    // stop default
    
    void runFilter(Filter* fe, FWEventItemsManager* eiMng);
+   bool filterEventsWithCustomParser(Filter* filter);
 
    std::string            m_name;
    TFile*                 m_file;
    TTree*                 m_eventTree;
    fwlite::Event*         m_event;
    
-   bool                   m_filtersNeedUpdate; // To be set in navigator::filterChanged/Added, newFile
+   bool                   m_needUpdate; // To be set in navigator::filterChanged/Added, newFile
    
    std::list<Filter*>     m_filterEntries;
-   TEventList*            m_globalEventList;
+   FWTEventList*          m_globalEventList;
 };
 #endif

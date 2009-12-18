@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // Raw data collection headers
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // GCT Format Translators
@@ -33,24 +32,18 @@ using std::hex;
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
-  fedId_(iConfig.getUntrackedParameter<int>("gctFedId", FEDNumbering::MINTriggerGCTFEDID)),
+  fedId_(iConfig.getParameter<int>("gctFedId")),
   hltMode_(iConfig.getParameter<bool>("hltMode")),
-  numberOfGctSamplesToUnpack_(iConfig.getParameter<unsigned>("numberOfGctSamplesToUnpack")),
-  numberOfRctSamplesToUnpack_(iConfig.getParameter<unsigned>("numberOfRctSamplesToUnpack")),
   unpackSharedRegions_(iConfig.getParameter<bool>("unpackSharedRegions")),
   formatVersion_(iConfig.getParameter<unsigned>("unpackerVersion")),
-  checkHeaders_(iConfig.getUntrackedParameter<bool>("checkHeaders",false)),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   formatTranslator_(0),
-  errors_(0),
-  errorCounters_(MAX_ERR_CODE+1),  // initialise with the maximum error codes!
   unpackFailures_(0)
 {
   LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_;
 
   // If the GctFormatTranslate version has been forced from config file, instantiate the relevant one.
   /***  THIS OBVIOUSLY STINKS - NEED TO REPLACE WITH SOMETHING BETTER THAN MASSIVE IF-ELSE SOON ***/
-  /***  WHEN THIS MESS IS REMOVED REMEMBER THAT THE V38 FORMAT TRANSLATE HAS A DIFERENT CTOR TO THE OTHERS ***/
   if(formatVersion_ == 0) { edm::LogInfo("GCT") << "The required GCT Format Translator will be automatically determined from the first S-Link packet header."; }
   else if(formatVersion_ == 1)
   {
@@ -65,7 +58,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   else if(formatVersion_ == 3)
   {
     edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateV38";
-    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_, numberOfGctSamplesToUnpack_, numberOfRctSamplesToUnpack_);    
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_);    
   }
   else
   { 
@@ -132,60 +125,41 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
-  std::auto_ptr<GctUnpackCollections> colls(new GctUnpackCollections(iEvent));  
-  errors_ = colls->errors();
-  
   // get raw data collection
   edm::Handle<FEDRawDataCollection> feds;
   iEvent.getByLabel(inputLabel_, feds);
-
-  // if raw data collection is present, do the unpacking
-  if (feds.isValid()) {
-  
-    const FEDRawData& gctRcd = feds->FEDData(fedId_);
+  const FEDRawData& gctRcd = feds->FEDData(fedId_);
  
-    LogDebug("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size();
+  LogDebug("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size();
 
-    // check for empty events
-    if(gctRcd.size() < 16) {
-      LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
-		      << gctRcd.size() << "). Returning empty collections!";
-      addError(1);
-      return;
-    }
-
-    // If no format translator yet set, need to auto-detect from header.
-    // If auto format detection fails, we have no concrete format
-    // translator instantiated... set error and bail
-    if(!formatTranslator_) {
-      if(!autoDetectRequiredFormatTranslator(gctRcd.data())) return;
-    }
-    
-    // reset collection of block headers
-    blockHeaders_.clear();
-
-    // do the unpacking
-    unpack(gctRcd, iEvent, colls.get()); 
-
-    // check headers, if enabled
-    if (checkHeaders_) checkHeaders();
-    
-    // dump summary in verbose mode
-    if(verbose_) { doVerboseOutput(blockHeaders_, colls.get()); }
-    
+  // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
+  std::auto_ptr<GctUnpackCollections> colls(new GctUnpackCollections(iEvent));
+  
+  // do a simple check of the raw data - this will detect empty events
+  if(gctRcd.size() < 16)
+  {
+    LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
+                    << gctRcd.size() << "). Returning empty collections!";
+    ++unpackFailures_;
   }
-
+  else{ unpack(gctRcd, iEvent, colls.get()); }
 }
 
 
 void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollections * const colls)
 {
-
-  // We should now have a valid formatTranslator pointer
-  formatTranslator_->setUnpackCollections(colls);
-
   const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
+
+  // If no format translator yet set, need to auto-detect from header.
+  if(!formatTranslator_)
+  {
+    // If auto format detection fails, we have no concrete format
+    // translator instantiated... so bail from event.
+    if(!autoDetectRequiredFormatTranslator(data)) { return; }
+  }
+
+  // We should now have a valid formatTranslator pointer  
+  formatTranslator_->setUnpackCollections(colls);
 
   // Data offset - starts at 16 as there is a 64-bit S-Link header followed
   // by a 64-bit software-controlled header (for pipeline format version
@@ -194,14 +168,12 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollectio
 
   const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
 
+  GctBlockHeaderCollection bHdrs; // Vector for storing block headers for verbosity print-out.
+
   // read blocks
   for (unsigned nb=0; dPtr<dEnd; ++nb)
   {
-    if(nb >= MAX_BLOCKS) {
-      LogDebug("GCT") << "Reached block limit - bailing out from this event!";
-      addError(6);
-      break; 
-    }
+    if(nb >= MAX_BLOCKS) { LogDebug("GCT") << "Reached block limit - bailing out from this event!"; ++unpackFailures_; break; }
   
     // read block header
     GctBlockHeader blockHeader = formatTranslator_->generateBlockHeader(&data[dPtr]);
@@ -210,22 +182,21 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollectio
     if(!formatTranslator_->convertBlock(&data[dPtr+4], blockHeader)) // Record if we had an unpack problem then skip rest of event.
     {
       LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!";
-      addError(4);
-      break;
+      ++unpackFailures_; break;
     } 
 
     // advance pointer
     dPtr += 4*(blockHeader.blockLength()*blockHeader.nSamples()+1); // *4 because blockLen is in 32-bit words, +1 for header
 
-    // if verbose or checking block headers, store the header
-    if (verbose_ || checkHeaders_) blockHeaders_.push_back(blockHeader);
-
+    // If verbose, store the header in vector.
+    if(verbose_) { bHdrs.push_back(blockHeader); }
   }
 
+  // dump summary in verbose mode
+  if(verbose_) { doVerboseOutput(bHdrs, colls); }
 }
 
 
-// detect raw data format version from known raw data address 
 bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
 {
   LogDebug("GCT") << "About to auto-detect the required format translator from the firmware version header.";
@@ -234,8 +205,6 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   unsigned firmwareHeader = p32[2];
 
   /***  THIS OBVIOUSLY STINKS - NEED TO REPLACE WITH SOMETHING BETTER THAN MASSIVE IF-ELSE SOON ***/
-  /***  WHEN THIS MESS IS REMOVED REMEMBER THAT THE V38 FORMAT TRANSLATE HAS A DIFERENT CTOR TO THE OTHERS ***/
-
   if( firmwareHeader >= 25 && firmwareHeader <= 35 )
   {
     edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
@@ -245,7 +214,7 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   else if( firmwareHeader == 38 )
   {
     edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
-    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_, numberOfGctSamplesToUnpack_, numberOfRctSamplesToUnpack_);
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_);
     return true;
   }
   else if( firmwareHeader == 0x00000000 )
@@ -254,26 +223,16 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
     formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_, unpackSharedRegions_);
     return true;
   }
-  // these lines comments otherwise error is not reported!!!
-  //  else if(firmwareHeader == 0xdeadffff) { /* Driver detected unknown firmware version. L1TriggerError code? */ }
-  //  else if( firmwareHeader == 0xaaaaaaaa) { /* Before driver firmware version checks implemented. L1TriggerError code?  */ }
-  else { /* Totally unknown firmware header */
+  else if(firmwareHeader == 0xdeadffff) { /* Driver detected unknown firmware version. L1TriggerError code? */ }
+  else if( firmwareHeader == 0xaaaaaaaa) { /* Before driver firmware version checks implemented. L1TriggerError code?  */ }
+  else { /* Totally unknown firmware header. L1TriggerError code?  */ }
   
-    LogDebug("GCT") << "Failed to determine unpacker to use from the firmware version header! "
-      "(firmware header = 0x" << hex << firmwareHeader << dec << ")";
-    addError(2);
-    return false;
-  }
+  LogDebug("GCT") << "Failed to determine unpacker to use from the firmware version header! "
+                     "(firmware header = 0x" << hex << firmwareHeader << dec << ")";
 
+  ++unpackFailures_;
+  return false;
 }
-
-
-void GctRawToDigi::checkHeaders() {
-
-  // TODO : loop over block headers found this event and check for consistency
-
-}
-
 
 void GctRawToDigi::doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * const colls) const
 {
@@ -287,52 +246,13 @@ void GctRawToDigi::doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const 
   edm::LogVerbatim("GCT") << os.str();
 }
 
-
-
-void GctRawToDigi::addError(const unsigned code) {
-
-  // check this isn't going to break error handling
-  if (code > MAX_ERR_CODE) {
-    edm::LogError("GCT") << "Unknown error code : " << code;
-    return;
-  }
-
-  // print message on first instance of this error
-  if (errorCounters_.at(code) == 0) {
-    std::ostringstream os;
-    if (code == 1) os << "FED record empty or too short";
-    else if (code == 2) os << "Unknown raw data version";
-    else if (code == 3) os << "Detected unknown firmware version";
-    else if (code == 4) os << "Detected unknown data block";
-    else if (code == 5) os << "Block headers out of sync";
-    else if (code == 5) os << "Too many blocks";
-    edm::LogError("GCT") << "Unpacking error " << code << " : " << os;
-  }
-
-  // increment error counter
-  ++(errorCounters_.at(code));
-  
-  // store error in event if possible
-  if (errors_ != 0) {
-    errors_->push_back(L1TriggerError(fedId_, code));
-  }
-  else edm::LogError("GCT") << "Detected error (code=" << code << ") but no error collection available!";
-
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void GctRawToDigi::endJob()
 {
-  unsigned total=0;
-  std::ostringstream os;
-
-  for (unsigned i=0; i<MAX_ERR_CODE+1; ++i) {
-    total+=errorCounters_.at(i);
-    os << "Error " << i << " (" << errorCounters_.at(i) << ")";
-  }
-   
-  if (total>0) {
-    edm::LogError("GCT") << "Encountered " << total << " unpacking errors. " << os;
+  if(unpackFailures_ > 0)
+  {
+    edm::LogError("GCT") << "GCT unpacker encountered " << unpackFailures_
+                         << " unpack errors in total during this job!";
   }  
 }
 

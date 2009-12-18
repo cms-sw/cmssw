@@ -13,11 +13,8 @@ eventEmbeddingMixParameters = cms.PSet(
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),
     Label = cms.string(''),
-    bunchspace = cms.int32(125),
-    mixProdStep1 = cms.bool(False),
-    mixProdStep2 = cms.bool(False),
-    useCurrentProcessOnly = cms.bool(False)
-    )
+    bunchspace = cms.int32(125)
+)
 simEventEmbeddingMixParameters = cms.PSet(
     eventEmbeddingMixParameters,
     mixObjects = cms.PSet(
@@ -101,13 +98,10 @@ noMix.mixObjects.mixVertices.input = cms.VInputTag(cms.InputTag("hiSignalG4SimHi
 
 mixGenHI = cms.EDProducer("HiMixingModule",
                           genEventEmbeddingMixParameters,
-                          signalTag = cms.vstring("hiSignal","hiSignalG4SimHits"),
-                          srcGEN = cms.vstring("hiSignal","generator")
+                          signalTag = cms.vstring("hiSignal","hiSignalG4SimHits")
                           )
 
 mix = cms.EDProducer("HiMixingModule",
                      simEventEmbeddingMixParameters,
-                     signalTag = cms.vstring("hiSignal","hiSignalG4SimHits"),
-                     srcGEN = cms.vstring("hiSignal","generator"),
-                     srcSIM = cms.vstring("hiSignalG4SimHits","g4SimHits")
+                     signalTag = cms.vstring("hiSignal","hiSignalG4SimHits")
                      )

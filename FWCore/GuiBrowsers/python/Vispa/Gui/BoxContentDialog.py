@@ -76,7 +76,7 @@ class BoxContentDialog(QDialog):
         QDialog.keyPressEvent(self, event)
 
     def script(self):
-        return str(self._scriptTextEdit.toPlainText()).replace("\n", "\\n")
+        return str(self._scriptTextEdit.toPlainText().toAscii()).replace("\n", "\\n")
     
     def setScript(self, script):
         self._scriptTextEdit.insertPlainText(script)

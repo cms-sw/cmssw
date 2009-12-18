@@ -10,9 +10,10 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -33,18 +34,7 @@ process.ALCARECOStreamMuAlStandAloneCosmics = cms.OutputModule("PoolOutputModule
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlStandAloneCosmics:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOMuAlStandAloneCosmics_*_*', 
-        'keep *_muonCSCDigis_*_*', 
-        'keep *_muonDTDigis_*_*', 
-        'keep *_muonRPCDigis_*_*', 
-        'keep *_dt1DRecHits_*_*', 
-        'keep *_dt2DSegments_*_*', 
-        'keep *_dt4DSegments_*_*', 
-        'keep *_csc2DRecHits_*_*', 
-        'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOMuAlStandAloneCosmics_noDrop.outputCommands,
     fileName = cms.untracked.string('MuAlStandAloneCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlStandAloneCosmics'),
@@ -55,9 +45,7 @@ process.ALCARECOStreamHcalCalHOCosmics = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalHOCosmics:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep HOCalibVariabless_*_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOHcalCalHOCosmics_noDrop.outputCommands,
     fileName = cms.untracked.string('HcalCalHOCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('HcalCalHOCosmics'),
@@ -70,13 +58,7 @@ process.ALCARECOStreamTkAlCosmics0T = cms.OutputModule("PoolOutputModule",
             'pathALCARECOTkAlCosmicsCosmicTF0T:RECO', 
             'pathALCARECOTkAlCosmicsRS0T:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOTkAlCosmics*0T_*_*', 
-        'keep *_eventAuxiliaryHistoryProducer_*_*', 
-        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
-        'keep L1MuGMTReadoutCollection_gtDigis_*_*', 
-        'keep Si*Cluster*_si*Clusters_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOTkAlCosmics0T_noDrop.outputCommands,
     fileName = cms.untracked.string('TkAlCosmics0T.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('TkAlCosmics0T'),
@@ -87,19 +69,7 @@ process.ALCARECOStreamRpcCalHLT = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECORpcCalHLT:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_muonDTDigis_*_*', 
-        'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
-        'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
-        'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 
-        'keep *_dt4DSegments_*_*', 
-        'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*', 
-        'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
-        'keep L1MuRegionalCands_*_RPCb_*', 
-        'keep L1MuRegionalCands_*_RPCf_*', 
-        'keep L1MuGMTCands_*_*_*', 
-        'keep L1MuGMTReadoutCollection_*_*_*'),
+    outputCommands = process.OutALCARECORpcCalHLT_noDrop.outputCommands,
     fileName = cms.untracked.string('RpcCalHLT.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('RpcCalHLT'),
@@ -110,18 +80,7 @@ process.ALCARECOStreamMuAlGlobalCosmics = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlGlobalCosmics:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOMuAlGlobalCosmics_*_*', 
-        'keep *_muonCSCDigis_*_*', 
-        'keep *_muonDTDigis_*_*', 
-        'keep *_muonRPCDigis_*_*', 
-        'keep *_dt1DRecHits_*_*', 
-        'keep *_dt2DSegments_*_*', 
-        'keep *_dt4DSegments_*_*', 
-        'keep *_csc2DRecHits_*_*', 
-        'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOMuAlGlobalCosmics_noDrop.outputCommands,
     fileName = cms.untracked.string('MuAlGlobalCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlGlobalCosmics'),
@@ -132,18 +91,7 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlCalIsolatedMu:RECO')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOMuAlCalIsolatedMu_*_*', 
-        'keep *_muonCSCDigis_*_*', 
-        'keep *_muonDTDigis_*_*', 
-        'keep *_muonRPCDigis_*_*', 
-        'keep *_dt1DRecHits_*_*', 
-        'keep *_dt2DSegments_*_*', 
-        'keep *_dt4DSegments_*_*', 
-        'keep *_csc2DRecHits_*_*', 
-        'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
+    outputCommands = process.OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands,
     fileName = cms.untracked.string('MuAlCalIsolatedMu.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlCalIsolatedMu'),

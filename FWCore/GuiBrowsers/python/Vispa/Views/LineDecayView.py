@@ -1,8 +1,8 @@
-import sys      # for maxint
+import sys
 import math
 
 from PyQt4.QtCore import Qt, QPoint, QPointF, QRect, QSize, SIGNAL, QCoreApplication, QMimeData
-from PyQt4.QtGui import QWidget, QPainter, QPolygon, QColor, QPen, QPalette, QPainterPath, QFont, QFontMetrics, QApplication, QDrag, QPixmap,QSizePolicy
+from PyQt4.QtGui import QWidget, QPainter, QPolygon, QColor, QPen, QPalette, QPainterPath, QFont, QFontMetrics, QApplication, QDrag, QPixmap,QSizePolicy,QMessageBox
 
 import logging
 
@@ -20,14 +20,16 @@ from Vispa.Views.WidgetView import WidgetView
 
 try:
     from pxl.algorithms import *
-except Exception:
-    logging.info(__name__ + ": " + exception_traceback())
-    
+    import_autolayout_error=None
+except Exception,e:
+    import_autolayout_error=(str(e),exception_traceback())
+
 class LineDecayView(WidgetView):
     
     LABEL = "&Line Decay View"
 
     DECAY_OBJECT_MIME_TYPE = "text/x-decay-object"
+    WARNING_ABOVE = 1000
     
     def __init__(self, parent=None):
         WidgetView.__init__(self, parent)
@@ -39,9 +41,17 @@ class LineDecayView(WidgetView):
         self._nodeVector = None
         self._operationId = 0
         self._editable=False
+        self._noDecorationsMode=False
+        self._topLevelContainer=None
         
         self._crateDecayObjectsDecaysThreadChain = ThreadChain()
         self.connect(self._crateDecayObjectsDecaysThreadChain, SIGNAL("finishedThreadChain"), self.createDecayObjectsThreadChainFinished)
+
+    def noDecorationsMode(self):
+        return self._noDecorationsMode
+    
+    def operationId(self):
+        return self._operationId
         
     def decayObjectMimeType(self):
         return self.DECAY_OBJECT_MIME_TYPE
@@ -64,6 +74,18 @@ class LineDecayView(WidgetView):
         self.cancel()
         self._updatingFlag+=1
         operationId = self._operationId
+        numObjects=self.numberDataObjectChildren()
+        self._noDecorationsMode=numObjects>abs(self.WARNING_ABOVE)
+        if self.WARNING_ABOVE>0 and numObjects>self.WARNING_ABOVE:
+            result=QCoreApplication.instance().showMessageBox("You are about to display more than "+str(numObjects)+" (>"+str(self.WARNING_ABOVE)+") objects. This may take some time. Labels will not be displayed.",
+                                                                       "Would you like to continue?",
+                                                                       QMessageBox.Yes | QMessageBox.No,
+                                                                       QMessageBox.Yes, [("Yes (remember my decision)",QMessageBox.YesRole)])
+            if result == QMessageBox.No:
+                self._updatingFlag -=1
+                return False
+            if result == 0:
+                self.WARNING_ABOVE=-self.WARNING_ABOVE
         existingWidgets = []
         for object in self.applyFilter(self.dataObjects()):
             if object == None:
@@ -72,11 +94,8 @@ class LineDecayView(WidgetView):
             if self.dataAccessor().isContainer(object):
                 # event or event view
                 eventWidget = self.createLineDecayContainer(object)
+                self._topLevelContainer=eventWidget
                 existingWidgets += [eventWidget]
-#                if self.dataAccessor():
-#                    for childObject in self.applyFilter(self.dataAccessor().children(object)):
-#                        if self.dataAccessor().isContainer(childObject):
-#                            self.createLineDecayContainer(childObject, object)
             else:
                 # particle
                 particleWidget = ParticleWidget(self, ParticleWidget.NONE, "", "")
@@ -96,7 +115,7 @@ class LineDecayView(WidgetView):
                 existingWidgets += [particleWidget]
                 
         for child in self.children():
-            if operationId != self._operationId:
+            if operationId != self.operationId():
                 self._updatingFlag -=1
                 return False
             if hasattr(child, "object") and not child in existingWidgets:
@@ -125,6 +144,10 @@ class LineDecayView(WidgetView):
             
     def autolayout(self):
         #logging.debug(self.__class__.__name__ +": autolayout()")
+        if import_autolayout_error!=None:
+            logging.error(__name__ + ": Could not import autolayout algorithm: "+import_autolayout_error[1])
+            QCoreApplication.instance().errorMessage("Could not import autolayout algorithm (see logfile for details):\n"+import_autolayout_error[0])
+            return
         margin = 10 * self.zoomFactor()
         x = margin
         y = margin
@@ -215,8 +238,8 @@ class LineDecayView(WidgetView):
             parent=parent.parent()
         return None
 
-    def pxlEvent(self):
-        return self._pxlEvent
+    def topLevelContainer(self):
+        return self._topLevelContainer
     
     def onSelected(self, object):
         """ When item is selected in SubView forward signal.
@@ -232,6 +255,12 @@ class LineDecayView(WidgetView):
                 
     def editable(self):
         return self._editable
+    
+    def scrollBarValueChanged(self, event):
+        for child in self.children():
+            if isinstance(child, LineDecayContainer):
+                child.scheduleUpdateVisibleList(True)
+        
         
 class LineDecayContainer(WidgetContainer, ObjectHolder):
     """ Represents an Event or  EventView
@@ -244,18 +273,17 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
     WIDTH = 300
     HEIGHT = 300
     
-    # new properties
-    NO_DECORATIONS_ABOVE_NUMBER_OF_OBJECTS = 10000
-    
     def __init__(self, parent):
         logging.debug(self.__class__.__name__ +": __init__()")
         self._subWidgetStartY = 0
+        self._updateVisibleListFlag = True
         ObjectHolder.__init__(self)
         WidgetContainer.__init__(self, parent)
         self.setEditable(parent.editable())
         self.setSelectable(True)
         
         self._selectedList = []
+        self._visibleList = []
         self._hoveredObject = None
         self.setMouseTracking(True)     # receive mouse events even if no button is pressed
         self._titleClicked = False
@@ -270,6 +298,9 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if isinstance(parent, LineDecayContainer):
             self.connect(self, SIGNAL("finishedAutolayouting"), parent.childFinishedAutolayouting)
 
+    def noDecorationsMode(self):
+        return self.parent().noDecorationsMode()
+            
     def applyFilter(self,objects):
         """ Redirect filtering to parent.
         """
@@ -378,6 +409,8 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         for child in self.dataObjects():
             if isinstance(child, Zoomable):
                 child.setZoom(zoom)
+                
+        self.scheduleUpdateVisibleList()
         self.update()
         
 #    def dataObjectsNodePriority(self):
@@ -440,6 +473,33 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if event.mimeData().hasFormat(LineDecayView.DECAY_OBJECT_MIME_TYPE):
                 event.acceptProposedAction()
         
+    def createObject(self,dropType,pos):
+        newObject = None
+        if dropType == "Node":
+            newObject = self.addDecayNode(pos)
+        elif dropType == "EventView":
+            newObject = self.createChildContainer(self.object().createEventView(), pos)
+            # connect selected signal to parent
+            parent=self
+            while hasattr(parent,"parent"):
+                if hasattr(parent,"onSelected"):
+                    self.connect(newObject, SIGNAL("selected"), parent.onSelected)
+                    break
+                parent=parent.parent()
+        else:
+            newObject = self.addParticleByType(dropType, pos)
+                
+        if newObject:
+            self.update(newObject.boundingRect())
+            if self._editable:
+                self.autosize()     # instead of full autolayout
+            self.select(newObject)
+            if self.tabController():
+                self.tabController().setModified()
+                if hasattr(self.tabController(),"updateTreeView"):
+                    self.tabController().updateTreeView()
+        return newObject
+        
     def dropEvent(self, event):
         """ Handle drop of module.
         """
@@ -450,141 +510,132 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if event.mimeData().hasFormat(LineDecayView.DECAY_OBJECT_MIME_TYPE):
             dropType = str(event.mimeData().data(LineDecayView.DECAY_OBJECT_MIME_TYPE))
             pos = event.pos() / self.zoomFactor()
-            newObject = None
-            if dropType == "Node":
-                newObject = self.addDecayNode(pos)
-            elif dropType == "EventView":
-                newObject = self.createChildContainer(self.object().createEventView(), pos)
-                # connect selected signal to parent
-                parent=self
-                while hasattr(parent,"parent"):
-                    if hasattr(parent,"onSelected"):
-                        self.connect(newObject, SIGNAL("selected"), parent.onSelected)
-                        break
-                    parent=parent.parent()
-            else:
-                newObject = self.addDecayObject(None,dropType, pos)
-                
-            if newObject:
+            if self.createObject(dropType, pos):
                 event.acceptProposedAction()
-                self.update(newObject.boundingRect())
-                if self._editable:
-                    self.autosize()     # instead of full autolayout
-                self.deselectAllWidgets()
-                self.select(newObject)
-                if self.tabController():
-                    self.tabController().setModified()
-                    if hasattr(self.tabController(),"updateTreeView"):
-                        self.tabController().updateTreeView()
                     
-    def addObject(self, object):
-        """ Supposed to replace part of addDecayObject getting a pxl object as argument.
-        """
-        pass
-        
-    def addDecayObject(self, object=None, objectType=None, pos=None):
+    def addParticleByType(self, objectType=None, pos=None):
         """ This function adds a decay object to this view.
         
         object or objectType may either be a valid pxl object (e.g. a particle) or a string specifiying the object type.
         pos is in 100% coordinates.
         """
-        # TODO: split this function is easy understandable parts
-        #logging.debug(self.__class__.__name__ +": addDecayObject()")
+        
+        if not objectType:
+            # this is nothing
+            return None
+        
+        object = self.dataAccessor().createParticle()
+        object.setName(objectType)  # use this name to find id
+        particleId = self.dataAccessor().particleId(object)
+        if particleId != None:
+            object.setParticleId(particleId)
+        particleName = self.dataAccessor().defaultName(object)
+        if particleName:
+            # normalize name using id
+            object.setName(particleName)
+        object.setCharge(self.dataAccessor().charge(object))
+        self._pxlObject.setObject(object)
+        
+        return self.addObject(object, pos)
+    
+    def addObject(self, object, pos=None):
+        """ This function accepts a data object (e.g. a pxl object), creates and DecayObject for it adds the latter to this container's objects list. 
+        
+        """
+        if not object:
+            return None
+        
         if not pos:
             pos = QPoint(10, 10)
         else:
             pos -= QPoint(0.5 * DecayLine.DEFAULT_LENGTH, 0)
         
-        if not object and not objectType:
-            # this is nothing
-            return None
-        elif object:
-            # argument is a (pxl) object
-            # TODO: add check objectOrObjectType is a valid pxl object
-            if self.dataAccessor():
-                dataObjectId = self.dataAccessor().id(object)
-                # id() is slow, so ids of existing objects are stored
-                if dataObjectId in self._existingObjectIds:
-                    # there is already a DecayObject for this object
-                    return None
-        
-        newObject = None
-        if objectType:
-            #if self.dataAccessor() and objectOrObjectType in ["Particle", "Electron", "Muon", "e", "electron_neutrino", "muon", "muon_neutrino", "tau", "tau_neutrino", "u", "d", "c", "s", "t", "b", "photon", "W+", "W-", "Z", "gluon", "Higgs", "UHECR"]:
-                object = self.dataAccessor().createParticle()
-                object.setName(objectType)  # use this name to find id
-                particleId = self.dataAccessor().particleId(object)
-                if particleId != None:
-                    object.setParticleId(particleId)
-                particleName = self.dataAccessor().defaultName(object)
-                if particleName:
-                    # normalize name using id
-                    object.setName(particleName)
-                object.setCharge(self.dataAccessor().charge(object))
-                dataObjectId = self.dataAccessor().id(object)       # uuid
-                self._pxlObject.setObject(object)
-        
-                
-        # no elif because object might be created in if-case above
-        if object:
+        # id() is slow, so ids of existing objects are stored
+        if self.dataAccessor():
+            dataObjectId = self.dataAccessor().id(object)
+            if dataObjectId in self._existingObjectIds:
+                # maybe here should the existing object be returned
+                return None                
             self._existingObjectIds.append(str(dataObjectId))
-            newObject = DecayLine(self, QPoint(pos), QPoint(pos.x() + DecayLine.DEFAULT_LENGTH, pos.y()))
-            newObject.setObject(object)
-            if self.dataAccessor():
-                newObject.setLabel(self.dataAccessor().label(object))
-                newObject.setColor(self.dataAccessor().color(object))
-                newObject.setLineStyle(self.dataAccessor().lineStyle(object))
-            self._particlesDict[object] = newObject
-            
-            # map pxl relations to gui components
-            # TODO: try to implement without unite(), so DecayOjbect directly uses correct nodes
-            if self.dataAccessor():
-                for daughter in self.dataAccessor().daughterRelations(object):
-                    if daughter in self._particlesDict.keys():
-                        daughterDecayObject = self._particlesDict[daughter]
-                        oldDaughter = newObject.daughterNode()
-                        if daughterDecayObject.motherNode().unite(oldDaughter):
-                            self.removeObject(oldDaughter)
-                for mother in self.dataAccessor().motherRelations(object):
-                    if mother in self._particlesDict.keys():
-                        motherDecayObject = self._particlesDict[mother]
-                        oldMother = newObject.motherNode()
-                        if motherDecayObject.daughterNode().unite(oldMother):
-                            self.removeObject(oldMother)
         
-        if newObject:
-            self.appendObject(newObject)
+        # map pxl relations to gui components
+        # find potentially, already existing DecayNodes to be used by the DecayLine that will be created below
+        motherNode = None
+        daughterNode = None 
+        if self.dataAccessor():
+            for daughter in self.dataAccessor().daughterRelations(object):
+                if daughter in self._particlesDict.keys():
+                    daughterDecayObject = self._particlesDict[daughter]
+                    if not daughterNode:
+                        daughterNode = daughterDecayObject.motherNode()
+                    elif daughterDecayObject.motherNode() != daughterNode and \
+                        daughterDecayObject.motherNode().unite(daughterNode):
+                            # already found one daughter
+                            # need to make sure all of the other relevant nodes are united
+                            self.removeObject(daughterNode)
+                            daughterNode = daughterDecayObject.motherNode()
+                                
+            for mother in self.dataAccessor().motherRelations(object):
+                if mother in self._particlesDict.keys():
+                    motherDecayObject = self._particlesDict[mother]
+                    if not motherNode:
+                        motherNode = motherDecayObject.daughterNode()
+                    elif motherDecayObject.daughterNode() != motherNode and \
+                        motherDecayObject.daughterNode().unite(motherNode):
+                            # already found one mother
+                            # need to make sure all of the other relevant nodes are united
+                            self.removeObject(motherNode)
+                            motherNode = motherDecayObject.daughterNode()
+        if not motherNode:
+            motherNode = QPoint(pos)
+        if not daughterNode:
+            daughterNode = QPoint(pos.x() + DecayLine.DEFAULT_LENGTH, pos.y())
+            
+        # create DecayLine
+        newObject = DecayLine(self, motherNode, daughterNode)
+        newObject.setObject(object)
+        if self.dataAccessor():
+            newObject.setLabel(self.dataAccessor().label(object))
+            newObject.setColor(self.dataAccessor().color(object))
+            newObject.setLineStyle(self.dataAccessor().lineStyle(object))
+        self._particlesDict[object] = newObject
+
+        self.appendObject(newObject)    
+        self.scheduleUpdateVisibleList()
         return newObject
-    
+        
     def addDecayNode(self, pos):
         newObject = DecayNode(self, pos)
+        self.scheduleUpdateVisibleList()
         return self.appendObject(newObject)
+    
+    def operationId(self):
+        return self.parent().operationId()
     
     def createDecayObjectsFromPxlObject(self, operationId):
         """ Creates DecayObjects for all particles in the set pxl object.
         
         In addition this function is called on all child LineDecayContainers.
         """
-        self._operationId=operationId
         #logging.debug(self.__class__.__name__ +": createDecayObjectsFromPxlObject()")
         if self._pxlObject and self.dataAccessor():
-            if operationId != self._operationId:
-                self._updatingFlag -=1
-                return False
             for childObject in self.applyFilter(self.dataAccessor().children(self._pxlObject)):
+                if operationId != self.operationId():
+                    return False
                 if self.dataAccessor().isContainer(childObject):
                     self.createChildContainer(childObject)
                 else:
-                    self.addDecayObject(childObject)
+                    self.addObject(childObject)
                 
         for child in self.children():
             #if not Application.NO_PROCESS_EVENTS:
             #    QCoreApplication.instance().processEvents()
-            if operationId != self._operationId:
-                self._updatingFlag -=1
+            if operationId != self.operationId():
                 return False
             if isinstance(child, LineDecayContainer):
-                child.createDecayObjectsFromPxlObject(operationId)
+                if not child.createDecayObjectsFromPxlObject(operationId):
+                    return False
+        return True
             
     def decayObject(self, pxlObject):
         """ Returns the DecayObject which represents the given pxlObject or None if there is no such one.
@@ -624,11 +675,46 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             self.update(object.boundingRect())
         self._selectedList = []
         
-    def objectMoved(self, object, oldBoundingRect=None):
-        rect = object.boundingRect()
+    def objectMoved(self, decayObject, oldBoundingRect=None):
+        boundingRect = decayObject.boundingRect()
         if oldBoundingRect:
-            rect = rect.unite(oldBoundingRect)
-        self.update(rect)
+            self.update(boundingRect.unite(oldBoundingRect))
+        else:
+            self.update(boundingRect)
+        
+        # update visiblity list
+        objectIsVisible = False
+        if self.visibleRegion().intersects(boundingRect):
+            objectIsVisible = True
+        if decayObject in self._visibleList:
+            if not objectIsVisible:
+                self._visibleList.remove(decayObject)
+        elif objectIsVisible:
+            self._visibleList.append(decayObject)
+        
+    def scheduleUpdateVisibleList(self, update=True):
+        self._updateVisibleListFlag = update
+        for child in self.children():
+            if isinstance(child, LineDecayContainer):
+                child.scheduleUpdateVisibleList(update)
+
+    def updateVisibleList(self, force=False):
+        if not self._updateVisibleListFlag and not force:
+            return
+        
+        #logging.debug("%s: updateVisibleList()" % self.__class__.__name__)
+        
+        region = self.visibleRegion()
+        self._visibleList = []
+        for decayObject in reversed(self.dataObjects()):
+        #for decayObject in oldVisibleList + self.dataObjects():
+            if region.intersects(decayObject.boundingRect()):
+                self._visibleList.append(decayObject)
+        
+        self._updateVisibleListFlag = False
+        
+    def showEvent(self, event):
+        self.scheduleUpdateVisibleList()
         
     def paint(self, painter):
         WidgetContainer.paint(self, painter)
@@ -638,28 +724,32 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             return
         
         generalPaintMode = 0x0
-        if len(self.dataObjects()) > self.NO_DECORATIONS_ABOVE_NUMBER_OF_OBJECTS:
+        if self.noDecorationsMode():
             generalPaintMode = DecayObject.PAINT_MODE_NO_DECORATIONS
         
-        if self.dataObjectsCount() > 50:
-            painter.setRenderHint(QPainter.RenderHint())
-            
-        for object in reversed(self.dataObjects()):
-            if isinstance(object, DecayLine):
-                paintMode = generalPaintMode
-                if object in self._selectedList:
-                    paintMode |= DecayObject.PAINT_MODE_SELECTED
-                if object == self._hoveredObject:
-                    paintMode |= DecayObject.PAINT_MODE_HOVERED
-                object.paint(painter, paintMode)
-        for object in self.dataObjects():
-            if isinstance(object, DecayNode):
-                paintMode = generalPaintMode
-                if object in self._selectedList:
-                    paintMode |= DecayObject.PAINT_MODE_SELECTED
-                if object == self._hoveredObject:
-                    paintMode |= DecayObject.PAINT_MODE_HOVERED
-                object.paint(painter, paintMode)
+        #if self.dataObjectsCount() > 50:
+        #    painter.setRenderHint(QPainter.Antialiasing, False)
+        
+        self.updateVisibleList()
+        decayNodes = []
+        painterClipRegion = self.visibleRegion()
+        for decayObject in reversed(self._visibleList):
+            if isinstance(decayObject, DecayLine):
+                self.paintDecayObject(painter, decayObject, generalPaintMode)
+            if isinstance(decayObject, DecayNode):
+                # paint nodes after lines, so that they appear above the lines
+                decayNodes.append(decayObject)
+                    
+        for decayObject in decayNodes:
+            self.paintDecayObject(painter, decayObject, generalPaintMode)
+                
+    def paintDecayObject(self, painter, decayObject, generalPaintMode):
+        paintMode = generalPaintMode
+        if decayObject in self._selectedList:
+            paintMode |= DecayObject.PAINT_MODE_SELECTED
+        if decayObject == self._hoveredObject:
+            paintMode |= DecayObject.PAINT_MODE_HOVERED
+        decayObject.paint(painter, paintMode)
         
     def mousePressEvent(self, event):
         if self.isTitlePoint(event.pos()):
@@ -692,7 +782,10 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if not bool(event.buttons()):
             # no button pressed -> hovering
             to_hover_object = None
-            for object in self.dataObjects():
+            if not self._visibleList:
+                self._visibleList = self.dataObjects()
+            
+            for object in self._visibleList:
                 if object.containsPoint(event.pos()):
                     if isinstance(object, DecayNode):
                         # prefere nodes over other DecayObjects (especially DecayLines)
@@ -742,19 +835,25 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         """ Calls delete() method if backspace or delete key is pressed when widget has focus.
         """
         if (event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete) and self._editable:
+            controller=self.tabController()
+            if controller:
+                controller.tab().propertyView().clear()
+                
             if self.isSelected():
                 self.delete()
             elif len(self._selectedList) > 0:
                 self.removeObject(self._selectedList[0])
             
-            if self.tabController():
-                self.tabController().setModified()
-                if hasattr(self.tabController(),"updateTreeView"):
-                    self.tabController().updateTreeView()
+            if controller:
+                controller.setModified()
+                if hasattr(controller,"updateTreeView"):
+                    controller.updateTreeView()
+                    #controller.autolayout()
     
     def delete(self):
-        if WidgetContainer.delete(self) and hasattr(self.parent(), "object"):
-            self.parent().object().removeObject(self.object())
+        parent = self.parent()
+        if WidgetContainer.delete(self) and hasattr(parent, "object"):
+            parent.object().removeObject(self.object())
             self._pxlObject = None
     
     def removeObject(self, decayObject):
@@ -772,6 +871,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
                 self._particlesDict.pop(decayObject.object(), None)
                 self._pxlObject.removeObject(decayObject.object())
             ObjectHolder.removeObject(self, decayObject)
+            self.scheduleUpdateVisibleList()
             #self.tabController().updateContent()        # not here, can create infinite loop
 
     def autolayout(self):
@@ -1080,19 +1180,29 @@ class DecayLine(DecayObject):
     
     HUNDREDEIGHTY_OVER_PI = 180 / math.pi
     
-    def __init__(self, parent, startPoint, endPoint):
+    def __init__(self, parent, startPointOrNode, endPointOrNode):
         DecayObject.__init__(self, parent)
         self._pxlObject = None
         
         if isinstance(parent, LineDecayContainer):
             self._selfContained = False
-            self._startNode = parent.addDecayNode(startPoint)
-            self._endNode = parent.addDecayNode(endPoint)
+            if isinstance(startPointOrNode, QPoint):
+                # startPoint
+                self._startNode = parent.addDecayNode(startPointOrNode)
+            else:
+                # startNode
+                self._startNode = startPointOrNode
+            if isinstance(endPointOrNode, QPoint):
+                # endPoint
+                self._endNode = parent.addDecayNode(endPointOrNode)
+            else:
+                # endNode
+                self._endNode = endPointOrNode
         else:
             # make it possible to use DecayLine outside LineDecayContainer
             self._selfContained = True
-            self._startNode = DecayNode(parent, startPoint)
-            self._endNode = DecayNode(parent, endPoint)
+            self._startNode = DecayNode(parent, startPointOrNode)
+            self._endNode = DecayNode(parent, endPointOrNode)
         
         self._startNode.appendObject(self)
         self._endNode.appendObject(self)
@@ -1102,6 +1212,9 @@ class DecayLine(DecayObject):
         self._showLabel = True
         self._labelMatrix = None
         self._labelBoundingRect = None
+        self._recalculateBoundingRect = True
+        self._boundingRect = None
+        self._arrowBoundingRect = None
         
     def delete(self):
         self._startNode.removeObject(self)
@@ -1121,6 +1234,7 @@ class DecayLine(DecayObject):
         
     def setObject(self, object):
         self._pxlObject = object
+        self._recalculateBoundingRect = True
         
     def object(self):
         return self._pxlObject
@@ -1136,9 +1250,11 @@ class DecayLine(DecayObject):
     
     def setLineStyle(self, style):
         self._lineStyle = style
+        self._recalculateBoundingRect = True
         
     def setColor(self, color):
         self._color = color
+        self._recalculateBoundingRect = True
         
     def setLabel(self, label):
         self._label = label
@@ -1162,6 +1278,7 @@ class DecayLine(DecayObject):
             self._endNode.removeObject(self)
             self._endNode = newNode
             self._endNode.appendObject(self)
+        self._recalculateBoundingRect = True
         return self.nodeType(newNode)
     
     def lineWidth(self):
@@ -1186,22 +1303,37 @@ class DecayLine(DecayObject):
         else:
             penColor = self._color
             if paintMode & DecayObject.PAINT_MODE_HOVERED:
-                penColor = penColor.lighter(150)
+                penColor = penColor.lighter(80)
+                
+        showDirectionArrow = paintMode & DecayObject.PAINT_MODE_HOVERED or paintMode & DecayObject.PAINT_MODE_SELECTED
+        extendedSize = self.extendedSize()
         
-        if self.extendedSize():
-            # spiral or wave line
-            
+        if extendedSize or showDirectionArrow:
             z = self.zoomFactor()
             if self._startNode.x() < self._endNode.x():
+                forwardDirection = True
                 xNull = self._startNode.x() * z
                 yNull = self._startNode.y() * z
             else:
+                forwardDirection = False
                 xNull = self._endNode.x() * z
                 yNull = self._endNode.y() * z
+            
+            l = self.length(zoomed = True)
+            
+            slope = self.slope()
+            angle = math.atan(slope)
+            angleDegree = angle * self.HUNDREDEIGHTY_OVER_PI
+            
+            painter.translate(QPointF(xNull, yNull))    # rotate around start point
+            painter.rotate(angleDegree)
+        
+        if extendedSize:
+            # spiral or wave line
+            
             #deltaX = abs(self._startNode.x() - self._endNode.x()) * z
             #deltaY = abs(self._startNode.y() - self._endNode.y()) * z
             
-            l = self.length(zoomed = True)
             ## l = (n + 1/2) * r * 2 * math.pi
             designRadius = 1.2 * z
             # n: number of spirals
@@ -1233,23 +1365,34 @@ class DecayLine(DecayObject):
                     y = a * math.cos(x/r)
                     path.lineTo(QPointF(x, y))
                     x += 0.2 * r / z
-             
-            slope = self.slope()
-            angle = math.atan(slope)
-            angleDegree = angle * self.HUNDREDEIGHTY_OVER_PI
-            
-            painter.translate(QPointF(xNull, yNull))    # rotate around start point
-            painter.rotate(angleDegree)
+
             painter.setPen(QPen(penColor, 0.5*self.lineWidth(), Qt.SolidLine))
             painter.drawPath(path)
-            painter.resetTransform()
-
         else:
             painter.setPen(QPen(penColor, self.lineWidth(), self.qtLineStyle()))
-            painter.drawLine(self._startNode.position() * self.zoomFactor(), self._endNode.position() * self.zoomFactor())
+            if showDirectionArrow:
+                painter.drawLine(QPoint(0,0), QPoint(l, 0))
+            else:    
+                painter.drawLine(self._startNode.position() * self.zoomFactor(), self._endNode.position() * self.zoomFactor())
+
+        if showDirectionArrow:
+            arrowLength = 14 * z
+            d = 7 * z
+            self._arrowMatrix = painter.combinedMatrix()
+            if forwardDirection:
+                painter.drawLine(l-arrowLength, d, l, 0)
+                painter.drawLine(l-arrowLength, -d, l, 0)
+                self._arrowBoundingRect = QRect(l-arrowLength, d, arrowLength, 2*d)
+            else:
+                painter.drawLine(0, 0, arrowLength, d)
+                painter.drawLine(0, 0, arrowLength, -d)
+                self._arrowBoundingRect = QRect(l-arrowLength, d, arrowLength, 2*d)
+        else:
+            self._arrowBoundingRect = None
             
+        painter.resetTransform()
         if not paintMode & DecayObject.PAINT_MODE_NO_DECORATIONS:
-            if self.extendedSize():
+            if extendedSize:
                 # don't recalculate angles
                 self.drawText(painter, paintMode, slope, angle, angleDegree)
             else:
@@ -1261,6 +1404,27 @@ class DecayLine(DecayObject):
             
         #painter.drawRect(self.boundingRect())
     
+    # simple paint method for debugging
+#    def paint(self, painter, paintMode=0x0):
+#        if paintMode & DecayObject.PAINT_MODE_SELECTED:
+#            penColor = QColor(Qt.blue)
+#        else:
+#            penColor = self._color
+#            if paintMode & DecayObject.PAINT_MODE_HOVERED:
+#                penColor = penColor.lighter(150)
+#       
+#        painter.setPen(QPen(penColor, self.lineWidth(), Qt.SolidLine))
+#        painter.drawLine(self._startNode.position() * self.zoomFactor(), self._endNode.position() * self.zoomFactor())
+#            
+#        if not paintMode & DecayObject.PAINT_MODE_NO_DECORATIONS:
+#            self.drawText(painter, paintMode)
+#            
+#        if self._selfContained:
+#            self._startNode.paint(painter, paintMode)
+#            self._endNode.paint(painter, paintMode)
+#            
+#        #painter.drawRect(self.boundingRect())
+    
     def drawText(self, painter, paintMode=0x0, *args):
         if not self._showLabel or not self._label:
             return
@@ -1268,10 +1432,12 @@ class DecayLine(DecayObject):
             slope = args[0]
             #angle = args[1]
             angleDegree = args[2]
+            needTransformation = False
         else:
             slope = self.slope()
             #angle = math.atan(slope)
             angleDegree = math.atan(slope) * self.HUNDREDEIGHTY_OVER_PI
+            needTransformation = True
         
         font = QFont()
         font.setPointSize(12 * self.zoomFactor())
@@ -1310,6 +1476,8 @@ class DecayLine(DecayObject):
         painter.resetTransform()
         
     def boundingRect(self):
+        if not self._recalculateBoundingRect and self._boundingRect:
+            return self._boundingRect
         contains_area_size = self.CONTAINS_AREA_SIZE
         if self.extendedSize():
             contains_area_size += 4
@@ -1323,8 +1491,11 @@ class DecayLine(DecayObject):
         
         rect = QRect(topLeft, bottomRight)
         if self._labelBoundingRect:
-            return rect.united(self._labelMatrix.mapRect(self._labelBoundingRect))
-        return rect
+            rect = rect.united(self._labelMatrix.mapRect(self._labelBoundingRect))
+        if self._arrowBoundingRect:
+            rect = rect.united(self._arrowMatrix.mapRect(self._arrowBoundingRect))
+        self._boundingRect = rect
+        return self._boundingRect
     
     def slope(self):
         deltaX = self._endNode.x() - self._startNode.x()
@@ -1371,10 +1542,12 @@ class DecayLine(DecayObject):
             pos = (self._startNode.position() + self._endNode.position()) * 0.5
         self._startNode.select(pos)
         self._endNode.select(pos)
+        self._recalculateBoundingRect = True
         
     def move(self, pos):
         self._startNode.move(pos)
         self._endNode.move(pos)
+        self._recalculateBoundingRect = True
 
 class ParticleWidget(VispaWidget):
     
@@ -1420,15 +1593,28 @@ class ParticleWidget(VispaWidget):
             self.setColors(QColor(64, 0, 0), QColor(127, 0, 0), QColor(191, 0, 0))
         elif type == self.HIGGS:
             self.setColors(QColor(28, 63, 253), QColor(27, 118, 255), QColor(21, 169, 250))
+            
+        if hasattr(parent,"particleDoubleClicked"):
+            self.connect(self,SIGNAL("mouseDoubleClicked"),parent.particleDoubleClicked)
+        if hasattr(parent,"particleRightClicked"):
+            self.connect(self,SIGNAL("mouseRightPressed"),parent.particleRightClicked)
         
     def setMimeDataType(self, type):
         self._mimeDataType = type
+
+    def dragData(self):
+        return self._dragData
+
+    def mouseDoubleClickEvent(self, event):
+        self.emit(SIGNAL("mouseDoubleClicked"), self)
         
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self._dragStartPosition = QPoint(event.pos())   # copy, does not work without on SL 4.0
         if isinstance(self.parent(), WidgetView):
             self.parent().widgetSelected(self)
+        if event.button()==Qt.RightButton:
+            self.emit(SIGNAL("mouseRightPressed"), event.globalPos(), self)
             
     def mouseMoveEvent(self, event):
         if not (event.buttons() & Qt.LeftButton):
@@ -1471,3 +1657,5 @@ class ParticleWidget(VispaWidget):
         """ Return None for decay object.
         """
         return None
+
+ 	  	 

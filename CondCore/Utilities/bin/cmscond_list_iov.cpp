@@ -7,10 +7,6 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
-
-
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 

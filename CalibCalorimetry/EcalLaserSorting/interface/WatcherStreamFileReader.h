@@ -29,7 +29,7 @@ public:
   const EventMsgView* getNextEvent();
   const bool newHeader(); 
 
-  StreamerInputFile* getInputFile();
+  edm::StreamerInputFile* getInputFile();
 
   void closeFile();
   
@@ -57,7 +57,7 @@ private:
   
   /** Cached input file stream
    */
-  std::auto_ptr<StreamerInputFile> streamerInputFile_;
+  std::auto_ptr<edm::StreamerInputFile> streamerInputFile_;
 
   std::string fileName_;
 

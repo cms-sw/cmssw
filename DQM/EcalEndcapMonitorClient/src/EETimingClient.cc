@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.88 $
+ * $Date: 2009/08/27 15:41:04 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -338,8 +338,10 @@ void EETimingClient::analyze(void) {
   }
 
   uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("PHYSICS_MEAN_TIMING_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("PHYSICS_RMS_TIMING_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("TIMING_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("TIMING_RMS_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("TIMING_MEAN_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("TIMING_RMS_ERROR");
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunTTErrorsDat> mask2;

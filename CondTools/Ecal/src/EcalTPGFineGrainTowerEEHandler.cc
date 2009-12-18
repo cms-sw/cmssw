@@ -109,6 +109,14 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
 
 	unsigned long irun;
 	if(num_runs>0){
+	  // going to query the ecal logic id 
+	    vector<EcalLogicID> my_TTEcalLogicId_EE;
+	    my_TTEcalLogicId_EE = econn->getEcalLogicIDSetOrdered( "EE_trigger_tower",
+						    1, 200,
+						    1, 70,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EE_offline_towerid",12 );
+	    std::cout <<" GOT the logic ID for the EE trigger towers "<< std::endl;
 
 	  for(int kr=0; kr<(int)run_vec.size(); kr++){
 
@@ -180,21 +188,34 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
 	      	    std::string ecid_name=ecid_xt.getName();
 	      
 	      	    if (ecid_name=="EE_trigger_tower") {
-	              // SM number
-	              int smid=ecid_xt.getID1();
-	              // TT number
-	              int towerid=ecid_xt.getID2();
-                
-		      char identTT[10];
-		      sprintf(identTT,"%d%d", smid, towerid);
-	        
-		      std::string S="";
-		      S.insert(0,identTT);
-		
-		      unsigned int towerEEId = 0;
-		      towerEEId = atoi(S.c_str());
-				
-                      fgrMap->setValue(towerEEId, rd_fgr.getLUTValue());
+
+      	      	      int tccid=ecid_xt.getID1();
+      	      	      // TT number
+	      	      int towerid=ecid_xt.getID2();
+
+		      bool set_the_tower=false;
+		      int towid;
+		      for (int itower=0; itower<my_TTEcalLogicId_EE.size(); itower++) {
+
+			if(!set_the_tower){
+			  
+			  if(my_TTEcalLogicId_EE[itower].getID1()==tccid && my_TTEcalLogicId_EE[itower].getID2()==towerid){
+			    towid =my_TTEcalLogicId_EE[itower].getLogicID();
+			    set_the_tower=true;
+			    break;
+			  }
+			}
+			
+		      }
+		      
+		      if(set_the_tower){
+			fgrMap->setValue(towid, rd_fgr.getLUTValue());
+
+		      } else {
+			std::cout <<" these may be the additional towers TCC/TT "
+				  << tccid<<"/"<<towerid<<endl;
+		      }
+	      	      
 	              ++itowers;
 	      	    }
 	    	  }

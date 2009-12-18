@@ -79,7 +79,7 @@ void testeventmsg::initMsg()
   InitMsg from_new(out,outsz,true);
   InitMsg from_old(in,sizeof(out),false);
 
-  int sz = from_code.codeSize()  + sizeof(InitMsg::Header);
+  int sz = from_code.codeSize()  + sizeof(InitMsg::InitMsgHeader);
 
   // -----------
   CPPUNIT_ASSERT( from_code.getDataSize() == bufsz-sz );
@@ -121,8 +121,8 @@ void testeventmsg::eventMsg()
   EventMsg from_new(out,outsz,evt,run,2,5);
   EventMsg from_old(in);
 
-  int sz = from_code.codeSize() + sizeof(EventMsg::Header);
-  int sz_out = from_new.codeSize() + sizeof(EventMsg::Header);
+  int sz = from_code.codeSize() + sizeof(EventMsg::EventMsgHeader);
+  int sz_out = from_new.codeSize() + sizeof(EventMsg::EventMsgHeader);
 
   // -----------
   CPPUNIT_ASSERT( setup.msgSize() == setup.msgSize() ); // gets rid of unused variable warning

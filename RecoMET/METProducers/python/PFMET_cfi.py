@@ -17,5 +17,6 @@ pfMet = cms.EDProducer("METProducer",
                        alias = cms.string('PFMET'),
                        noHF = cms.bool(False),
                        globalThreshold = cms.double(0.0),
-                       InputType = cms.string('PFCandidateCollection')
+                       InputType = cms.string('PFCandidateCollection'),
+                       calculateSignificance = cms.bool(True)
                        )

@@ -92,6 +92,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			     p.getParameter<edm::ParameterSet>("Calorimetry"),			     
 			     p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
 			     p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
+                             p.getParameter<edm::ParameterSet>("GFlash"),
 			     random);
 
 }

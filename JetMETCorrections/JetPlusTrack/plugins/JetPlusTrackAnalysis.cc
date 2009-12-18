@@ -106,9 +106,9 @@ void JetPlusTrackAnalysis::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("partm",  partm, "partm[4000]/F");  
 // Tracks block
    myTree->Branch("NumRecoTrack", &NumRecoTrack, "NumRecoTrack/I");
-   myTree->Branch("TrackRecoEt",  TrackRecoEt, "TrackRecoEt[5000]/F");
-   myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[5000]/F");
-   myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[5000]/F");
+   myTree->Branch("TrackRecoEt",  TrackRecoEt, "TrackRecoEt[NumRecoTrack]/F");
+   myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[NumRecoTrack]/F");
+   myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[NumRecoTrack]/F");
 
 // Calo Geometry
    edm::ESHandle<CaloGeometry> pG;

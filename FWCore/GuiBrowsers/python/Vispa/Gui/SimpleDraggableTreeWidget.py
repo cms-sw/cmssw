@@ -1,5 +1,5 @@
-from PyQt4.QtCore import QMimeData, QByteArray, Qt, QSize, QPoint, QVariant
-from PyQt4.QtGui import QTreeWidget, QImage, QDrag, QPixmap, QIcon, QPalette, QColor
+from PyQt4.QtCore import QMimeData, QByteArray, Qt, QSize, QPoint, QVariant,SIGNAL
+from PyQt4.QtGui import QTreeWidget, QImage, QDrag, QPixmap, QIcon, QPalette, QColor,QTreeWidgetItem
 
 import logging
 
@@ -89,4 +89,8 @@ class SimpleDraggableTreeWidget(QTreeWidget):
             defaultDropAction = Qt.IgnoreAction
             drag.exec_(supportedActions, defaultDropAction)
 
-     
+    def mousePressEvent(self,event):
+        QTreeWidget.mousePressEvent(self,event)
+        if event.button()==Qt.RightButton:
+            self.emit(SIGNAL("mouseRightPressed"), event.globalPos())
+    

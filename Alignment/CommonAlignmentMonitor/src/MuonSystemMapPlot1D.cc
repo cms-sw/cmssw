@@ -2,10 +2,10 @@
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorMuonSystemMap1D.h"
 #include "TMath.h"
 
-const double MuonSystemMapPlot1D_xrange = 30.;
-const double MuonSystemMapPlot1D_yrange = 50.;
-const double MuonSystemMapPlot1D_dxdzrange = 50.;
-const double MuonSystemMapPlot1D_dydzrange = 200.;
+#define XRANGE 30.
+#define YRANGE 50.
+#define DXDZRANGE 50.
+#define DYDZRANGE 200.
 
 MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::string name, AlignmentMonitorMuonSystemMap1D *module, int bins, double low, double high, bool twodimensional)
    : m_name(name), m_bins(bins), m_twodimensional(twodimensional)
@@ -76,10 +76,10 @@ MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::string name, AlignmentMonitorMuonS
   if (m_twodimensional) m_y_2dweight = module->book2D("/iterN/", name_y_2dweight.str().c_str(), "", m_bins, low, high, 80, -40., 40.);
   m_dxdz_2dweight = module->book2D("/iterN/", name_dxdz_2dweight.str().c_str(), "", m_bins, low, high, 80, -40., 40.);
   if (m_twodimensional) m_dydz_2dweight = module->book2D("/iterN/", name_dydz_2dweight.str().c_str(), "", m_bins, low, high, 80, -40., 40.);
-  m_x_hist = module->book1D("/iterN/", name_x_hist.str().c_str(), "", m_bins, -MuonSystemMapPlot1D_xrange, MuonSystemMapPlot1D_xrange);
-  if (m_twodimensional) m_y_hist = module->book1D("/iterN/", name_y_hist.str().c_str(), "", m_bins, -MuonSystemMapPlot1D_yrange, MuonSystemMapPlot1D_yrange);
-  m_dxdz_hist = module->book1D("/iterN/", name_dxdz_hist.str().c_str(), "", m_bins, -MuonSystemMapPlot1D_dxdzrange, MuonSystemMapPlot1D_dxdzrange);
-  if (m_twodimensional) m_dydz_hist = module->book1D("/iterN/", name_dydz_hist.str().c_str(), "", m_bins, -MuonSystemMapPlot1D_dydzrange, MuonSystemMapPlot1D_dydzrange);
+  m_x_hist = module->book1D("/iterN/", name_x_hist.str().c_str(), "", m_bins, -XRANGE, XRANGE);
+  if (m_twodimensional) m_y_hist = module->book1D("/iterN/", name_y_hist.str().c_str(), "", m_bins, -YRANGE, YRANGE);
+  m_dxdz_hist = module->book1D("/iterN/", name_dxdz_hist.str().c_str(), "", m_bins, -DXDZRANGE, DXDZRANGE);
+  if (m_twodimensional) m_dydz_hist = module->book1D("/iterN/", name_dydz_hist.str().c_str(), "", m_bins, -DYDZRANGE, DYDZRANGE);
   m_x_weights = module->book1D("/iterN/", name_x_weights.str().c_str(), "", m_bins, low, high);
   if (m_twodimensional) m_y_weights = module->book1D("/iterN/", name_y_weights.str().c_str(), "", m_bins, low, high);
   m_dxdz_weights = module->book1D("/iterN/", name_dxdz_weights.str().c_str(), "", m_bins, low, high);
@@ -110,7 +110,7 @@ void MuonSystemMapPlot1D::fill_x(char charge, double abscissa, double residx, do
       double residual = residx * 10.;
       double weight = dof / chi2;
 
-      if (fabs(residual) < MuonSystemMapPlot1D_xrange) {
+      if (fabs(residual) < XRANGE) {
 	 m_x_prof->Fill(abscissa, residual);
 	 if (charge > 0) m_x_profPos->Fill(abscissa, residual);
 	 else m_x_profNeg->Fill(abscissa, residual);
@@ -129,7 +129,7 @@ void MuonSystemMapPlot1D::fill_y(char charge, double abscissa, double residy, do
       double residual = residy * 10.;
       double weight = dof / chi2;
       
-      if (fabs(residual) < MuonSystemMapPlot1D_yrange) {
+      if (fabs(residual) < YRANGE) {
 	 m_y_prof->Fill(abscissa, residual);
 	 if (charge > 0) m_y_profPos->Fill(abscissa, residual);
 	 else m_y_profNeg->Fill(abscissa, residual);
@@ -148,7 +148,7 @@ void MuonSystemMapPlot1D::fill_dxdz(char charge, double abscissa, double slopex,
       double residual = slopex * 1000.;
       double weight = dof / chi2;
       
-      if (fabs(residual) < MuonSystemMapPlot1D_dxdzrange) {
+      if (fabs(residual) < DXDZRANGE) {
 	 m_dxdz_prof->Fill(abscissa, residual);
 	 if (charge > 0) m_dxdz_profPos->Fill(abscissa, residual);
 	 else m_dxdz_profNeg->Fill(abscissa, residual);
@@ -167,7 +167,7 @@ void MuonSystemMapPlot1D::fill_dydz(char charge, double abscissa, double slopey,
       double residual = slopey * 1000.;
       double weight = dof / chi2;
       
-      if (fabs(residual) < MuonSystemMapPlot1D_dydzrange) {
+      if (fabs(residual) < DYDZRANGE) {
 	 m_dydz_prof->Fill(abscissa, residual);
 	 if (charge > 0) m_dydz_profPos->Fill(abscissa, residual);
 	 else m_dydz_profNeg->Fill(abscissa, residual);

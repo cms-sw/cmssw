@@ -116,19 +116,17 @@ public:
     float beta_vec[61200];
     float r25_vec[61200];
     float nic_vec[61200];
-    int ih4_vec[61200];
     for(int ic=0; ic<61200; ic++){
       beta_vec[ic]=0;
       r25_vec[ic]=0;
       temp_vec[ic]=0;
       nic_vec[ic]=0;
-      ih4_vec[ic]=0;
     }
 
 
-    int sm,i,j,ih4,temp;
+    int sm,i;
     float beta, r25, nic;
-    int slot_num=0;
+    // int slot_num=0;
     while( fin.peek() != EOF )
       {
 
@@ -146,7 +144,6 @@ public:
 	beta_vec[ic]=beta;
 	r25_vec[ic]=r25;
 	temp_vec[ic]=1.0;
-	ih4_vec[ic]=ih4;
 	nic_vec[ic]=nic;
       }
 

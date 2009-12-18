@@ -37,7 +37,7 @@
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor
 // ---------------------------------------------------------------------------
-DDLSAX2ExpressionHandler::DDLSAX2ExpressionHandler( DDCompactView& cpv ) : DDLSAX2FileHandler::DDLSAX2FileHandler(cpv) // : inConstantsSection_(false)
+DDLSAX2ExpressionHandler::DDLSAX2ExpressionHandler() // : inConstantsSection_(false)
 {
 }
 
@@ -80,10 +80,10 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
 	  else if (myattname == "value")
 	    varValue = myvalue;
 	}
-      //      DDLParser* beingParsed = DDLParser::instance();
-      //      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
+      DDLParser* beingParsed = DDLParser::instance();
+      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
       ExprEvalInterface & ev = ExprEvalSingleton::instance();
-      ev.set(nmspace_, varName, varValue);
+      ev.set(nmspace, varName, varValue);
     }
 }
 

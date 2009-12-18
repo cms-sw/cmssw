@@ -67,16 +67,17 @@ namespace cond {
              bool keepOpen);
     
     struct IterHelp {
-        typedef IOVElementProxy result_type;
-        IterHelp(impl::IOVImpl & in);
+      typedef IOVElementProxy result_type;
+      IterHelp() : iov(0){}
+      IterHelp(impl::IOVImpl & in);
 
         result_type const & operator()(int i) const {
-          elem.set(iov,i);
+          if (iov) elem.set(*iov,i);
           return elem;
         }
 
         private:
-        IOV const & iov;
+        IOV const * iov;
         mutable IOVElementProxy elem;
     };
     

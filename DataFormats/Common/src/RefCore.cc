@@ -45,14 +45,19 @@ namespace edm {
     }
     EDProduct const* product = productGetter()->getIt(id_);
     if (product == 0) {
-      throw edm::Exception(errors::ProductNotFound)
-	<< "RefCore: A request to resolve a reference to a product of type: "
-	<< type
-        << "with ProductID "<< id_
-	<< "\ncan not be satisfied because the product cannot be found."
-	<< "\nProbably the branch containing the product is not stored in the input file.\n";
+      productNotFoundException(type);
     }
     return product;
+  }
+
+  void
+  RefCore::productNotFoundException(char const* type) const {
+    throw edm::Exception(errors::ProductNotFound)
+      << "RefCore: A request to resolve a reference to a product of type: "
+      << type
+      << "with ProductID "<< id_
+      << "\ncan not be satisfied because the product cannot be found."
+      << "\nProbably the branch containing the product is not stored in the input file.\n";
   }
 
   void
@@ -67,7 +72,7 @@ namespace edm {
 
   void
   RefCore::nullPointerForTransientException(char const* type) const {
-    throw edm::Exception(errors::ProductNotFound)
+    throw edm::Exception(errors::InvalidReference)
 	<< "RefCore: A request to resolve a transient reference to a product of type: "
 	<< type
 	<< "\ncan not be satisfied because the pointer to the product is null.\n";

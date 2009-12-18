@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.32 2009/11/14 11:31:13 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.41 2009/12/11 21:18:44 dmytro Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ public:
    void resetInitialization();
    void draw();
    void openData();
+   void appendData();
    void openDataViaURL();
    void quit();
    void doExit();
@@ -90,28 +91,19 @@ public:
       return m_numberOfFieldEstimates;
    }
    static void   guessFieldIsOn( bool guess );
+   static void   guessField( double estimate );
    static void   resetFieldEstimate();
-   static double getCaloScale() {
-      return m_caloScale;
-   }
-   static void   setCaloScale(double var) {
-      m_caloScale = var;
-   }
-
+   
    // ---------- member functions ---------------------------
    //  int draw(const fwlite::Event& );
 
    void registerPhysicsObject(const FWPhysicsObjectDesc&);
 
    void notified(TSocket*);
-
-   CmsShowNavigator* navigator(){
-      return m_navigator;
-   };
+   const fwlite::Event* getCurrentEvent() const;
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default
-
    const CmsShowMain& operator=(const CmsShowMain&); // stop default
 
    void loadGeometry();
@@ -127,6 +119,7 @@ private:
    void doPreviousEvent();
    void doNextEvent();
    void doLastEvent();
+   void goToRunEvent(int, int);
    void checkPosition();
 
    void playForward();
@@ -134,12 +127,14 @@ private:
    void stopPlaying();
    void reachedEnd();
    void reachedBeginning();
-   void setPlayAutoRewind();
-   void unsetPlayAutoRewind();
+   void setPlayLoop();
+   void unsetPlayLoop();
 
-   void setPlayAutoRewindImp();
-   void unsetPlayAutoRewindImp();
+   void setPlayLoopImp();
+   void unsetPlayLoopImp();
 
+   void navigatorChangedFilterState(int);
+   void filterButtonClicked();
    void preFiltering();
    void postFiltering();
 
@@ -150,31 +145,37 @@ private:
 
    void startAutoLoadTimer();
    void stopAutoLoadTimer();
+   void setupAutoLoad(float);
 
    // ---------- member data --------------------------------
    std::auto_ptr<FWConfigurationManager> m_configurationManager;
-   std::auto_ptr<FWModelChangeManager> m_changeManager;
-   std::auto_ptr<FWColorManager> m_colorManager;
-   std::auto_ptr<FWSelectionManager> m_selectionManager;
-   std::auto_ptr<FWEventItemsManager> m_eiManager;
-   std::auto_ptr<FWViewManagerManager> m_viewManager;
-   std::auto_ptr<FWGUIManager> m_guiManager;
-   std::auto_ptr<fireworks::Context> m_context;
+   std::auto_ptr<FWModelChangeManager>   m_changeManager;
+   std::auto_ptr<FWColorManager>         m_colorManager;
+   std::auto_ptr<FWSelectionManager>     m_selectionManager;
+   std::auto_ptr<FWEventItemsManager>    m_eiManager;
+   std::auto_ptr<FWViewManagerManager>   m_viewManager;
+   std::auto_ptr<FWGUIManager>           m_guiManager;
+   std::auto_ptr<fireworks::Context>     m_context;
 
    CmsShowNavigator* m_navigator;
 
-   DetIdToMatrix m_detIdToGeo;
-   std::string m_inputFileName;
-   std::string m_configFileName;
-   std::string m_geomFileName;
-   static bool m_autoField;                    // data derived magnetif field state
+   DetIdToMatrix            m_detIdToGeo;
+   std::vector<std::string> m_inputFiles;
+   bool                     m_loadedAnyInputFile;
+   std::string              m_configFileName;
+   std::string              m_geomFileName;
+
+   static bool   m_autoField;                  // data derived magnetif field state
    static double m_magneticField;
-   static int m_numberOfFieldEstimates;
-   static int m_numberOfFieldIsOnEstimates;
-   static double m_caloScale;
+   static int    m_numberOfFieldEstimates;
+   static int    m_numberOfFieldIsOnEstimates;
+
+   static double m_magneticFieldEstimateSum;
+   static double m_magneticFieldEstimateSum2;
+   static int m_numberOfFieldValueEstimates;
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
-   std::auto_ptr<CmsShowSearchFiles> m_searchFiles;
+   std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;
 
    TTimer* m_autoLoadTimer;
    Bool_t  m_autoLoadTimerRunning;
@@ -183,10 +184,11 @@ private:
    bool m_live;
    bool m_isPlaying;
    bool m_forward;
-   bool m_rewindMode;
+   bool m_loop;
    Float_t m_playDelay;  // delay between events in seconds
    Int_t m_lastPointerPositionX;
    Int_t m_lastPointerPositionY;
+   Int_t m_liveTimeout;
 
    std::auto_ptr<TMonitor> m_monitor;
 };

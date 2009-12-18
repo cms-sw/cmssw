@@ -33,19 +33,6 @@ DTConfigTrivialProducer::DTConfigTrivialProducer(const edm::ParameterSet& ps)
   //get and store parameter set 
   m_ps = ps;
   m_manager = new DTConfigManager();
-
-  // set debug
-  edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
-  bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
-  m_manager->setDTTPGDebug(dttpgdebug);
-
-  // DB specific requests
-  bool tracoLutsFromDB = m_ps.getParameter< bool        >("TracoLutsFromDB");
-  bool useBtiAcceptParam = m_ps.getParameter< bool        >("UseBtiAcceptParam");
-
-  // set specific DB requests
-  m_manager->setLutFromDB(tracoLutsFromDB);
-  m_manager->setUseAcceptParam(useBtiAcceptParam);
 }
 
 
@@ -84,11 +71,12 @@ void DTConfigTrivialProducer::buildManager()
   edm::ParameterSet tups = conf_ps.getParameter<edm::ParameterSet>("TUParameters");
   DTConfigBti bticonf(tups.getParameter<edm::ParameterSet>("BtiParameters"));
   DTConfigTraco tracoconf(tups.getParameter<edm::ParameterSet>("TracoParameters"));
-  DTConfigLUTs lutconf(tups.getParameter<edm::ParameterSet>("LutParameters"));
   DTConfigTSTheta tsthetaconf(tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
   DTConfigTSPhi tsphiconf(tups.getParameter<edm::ParameterSet>("TSPhiParameters"));
   DTConfigTrigUnit trigunitconf(tups);
-   
+  
+  m_manager->setDTTPGDebug(dttpgdebug);
+
   for (int iwh=-2;iwh<=2;++iwh){
     for (int ist=1;ist<=4;++ist){
       for (int ise=1;ise<=12;++ise){
@@ -138,9 +126,6 @@ void DTConfigTrivialProducer::buildManager()
 	m_manager->setDTConfigTSPhi(chambid,tsphiconf);
 	m_manager->setDTConfigTrigUnit(chambid,trigunitconf);
 	
-	// fill LUTs
-	m_manager->setDTConfigLUTs(chambid,lutconf);
-        
       }
     }
   }
@@ -193,9 +178,6 @@ void DTConfigTrivialProducer::buildManager()
       m_manager->setDTConfigTSTheta(chambid,tsthetaconf);
       m_manager->setDTConfigTSPhi(chambid,tsphiconf);
       m_manager->setDTConfigTrigUnit(chambid,trigunitconf);
-
-      // fill LUTs
-      m_manager->setDTConfigLUTs(chambid,lutconf);
       
     }
   }

@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/11/10 14:10:56 $
-  * $Revision: 1.35 $
+  * $Date: 2009/10/12 08:47:49 $
+  * $Revision: 1.33 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -37,9 +37,8 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   ~HcalHotCellMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun();
   void setupNeighborParams(const edm::ParameterSet& ps, hotNeighborParams& N, std::string type);
-  void done();
+  void done(std::map<HcalDetId, unsigned int>& myqual); 
   void clearME(); // overrides base class function
   void reset();
 
@@ -48,8 +47,12 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits,
-		    const HcalDbService& cond,
-		    int   CalibType
+                    //const ZDCRecHitCollection& zdcHits,
+                    //const HBHEDigiCollection& hbhedigi,
+                    //const HODigiCollection& hodigi,
+                    //const HFDigiCollection& hfdigi,
+                    //const ZDCDigiCollection& zdcdigi, 
+                    const HcalDbService& cond
                     );
 
   void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
@@ -59,8 +62,7 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   void processEvent_rechitneighbors( const HBHERecHitCollection& hbheHits,
                                      const HORecHitCollection& hoHits,
                                      const HFRecHitCollection& hfHits);
-  void beginLuminosityBlock(int lb);
-  void endLuminosityBlock();
+  void fillHotHistosAtEndRun();
   void periodicReset();
 
  private:
@@ -72,11 +74,13 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   void zeroCounters();
 
   bool hotmon_makeDiagnostics_;
-  int hotmon_minEvents_; // minimum # of events in a lumi block before persistent test will be checked
+
   // Booleans to control which of the three hot cell checking routines are used
   bool hotmon_test_neighbor_;
   bool hotmon_test_energy_;
   bool hotmon_test_persistent_;
+
+  int hotmon_checkNevents_;  // specify how often to check is cell is hot
 
   double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_, ZDCenergyThreshold_;
   double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_, ZDCpersistentThreshold_;

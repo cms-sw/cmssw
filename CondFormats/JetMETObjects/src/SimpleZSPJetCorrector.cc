@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJetCorrector.cc,v 1.1 2007/10/01 10:37:20 kodolova Exp $
+// $Id: SimpleZSPJetCorrector.cc,v 1.4 2007/08/15 12:50:38 ratnik Exp $
 //
 // MC Jet Corrector
 //
@@ -28,8 +28,20 @@ namespace {
     ParametrizationZSPJet(int ptype, vector<double> parameters):type(ptype),p(parameters){};
     double value(double e) const {
       double enew(e);
+      switch(type){
+      case 1:
+	{
+
           double koef = 1. - p[0] + p[1]/((e+p[2])*(e+p[2]));
 	  enew=e/koef;
+	  
+	  break;
+	}
+      default:
+	std::cerr << "JetCalibratorZSPJet: Error: unknown parametrization type '"
+		  << type << "'" << std::endl;
+	break;
+      }
       return enew;
     }
     

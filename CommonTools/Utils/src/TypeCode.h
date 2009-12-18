@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TypeCode.h,v 1.1 2007/12/20 10:07:15 llista Exp $
+ * \version $Id: TypeCode.h,v 1.1 2009/02/24 14:10:22 llista Exp $
  *
  */
 
@@ -16,7 +16,7 @@ namespace reco {
       charType, uCharType,
       shortType, uShortType, 
       longType, uLongType, 
-      boolType,
+      boolType, enumType,
       invalid
     };
   }

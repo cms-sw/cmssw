@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/11/04 10:54:54 $
- * $Revision: 1.467 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.466 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -201,6 +201,14 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     } else {
       cout << " enableCleanup switch is OFF" << endl;
     }
+  }
+
+  // DQM Client name
+
+  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
+
+  if ( verbose_ ) {
+    cout << " Client '" << clientName_ << "' " << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).

@@ -582,11 +582,12 @@ int EcalEleCalibLooper::EEregionCheck (const int ics, const int ips)  const
 
 
 //Shifts eta in other coordinates (from 0 to 170)
-inline int EcalEleCalibLooper::etaShifter (const int etaOld) const
+int EcalEleCalibLooper::etaShifter (const int etaOld) const
    {
-     assert (etaOld);
      if (etaOld < 0) return etaOld + 85;
      else if (etaOld > 0) return etaOld + 84;
+     assert(0!=etaOld); // etaOld = 0, apparently not a foreseen value, so fail
+     return 999; // dummy statement to silence compiler warning
    }
 
 

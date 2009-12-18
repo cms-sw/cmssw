@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.56 $
- *  $Date: 2009/10/14 14:42:03 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.58 $
+ *  $Date: 2009/11/30 10:12:34 $
+ *  (last update by $Author: ckleinw $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -251,15 +251,6 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
   std::pair<unsigned int, unsigned int> hitResultXy(0,0);
   if (refTrajPtr->isValid()) {
     
-//  // write special data to the milleBinary.dat
-//  const unsigend int nPar = 6;
-//  std::vector<int> integers(nPar); // filled with 0.
-//  std::vector<float> floats(nPar);
-//  for (int i = 0; i < nPar; ++i) {
-//    floats[i] = refTrajPtr->globalPars()[i];
-//  }
-//  theMille->special(nPar, &(floats[0]), &(integers[0]));
-
     // to add hits if all fine:
     std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());
     // collect hit statistics, assuming that there are no y-only hits
@@ -280,7 +271,14 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
     for (unsigned int iMsMeas = 0; iMsMeas < refTrajPtr->numberOfMsMeas(); ++iMsMeas) {
       this->addMsMeas(refTrajPtr, iMsMeas);
     }
-        
+    
+    /* FIXME sm/chk add the Spot constraint starting from inner TSOS: 
+    // needs steering: theBeamspot for beamspot constraint
+    //                 theAliBeamspot for determination of beamspot 
+    // beamspot position and size required, take from Event ?
+    if (theBeamspot) this->addBeamSpotConstraint(refTrajPtr, iEvent);
+    */ 
+             
     // kill or end 'track' for mille, depends on #hits criterion
     if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
       theMille->kill();
@@ -336,7 +334,7 @@ int MillePedeAlignmentAlgorithm::addMeasurementData
   } else if (theFloatBufferX.empty()) {
     return 0; // empty for X: no alignable for hit
   } else { 
-    return this->callMille2D(refTrajPtr, iHit, theIntBuffer, theFloatBufferX, theFloatBufferY);
+    return this->callMille(refTrajPtr, iHit, theIntBuffer, theFloatBufferX, theFloatBufferY);
   }
 }
 
@@ -769,6 +767,62 @@ void MillePedeAlignmentAlgorithm
 
 //__________________________________________________________________________________________________
 int MillePedeAlignmentAlgorithm
+::callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+	    unsigned int iTrajHit, const std::vector<int> &globalLabels,
+	    const std::vector<float> &globalDerivativesX,
+	    const std::vector<float> &globalDerivativesY)
+{
+  const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
+  if((aRecHit)->dimension() == 1) {
+    return this->callMille1D(refTrajPtr, iTrajHit, globalLabels, globalDerivativesX);
+  } else {
+    return this->callMille2D(refTrajPtr, iTrajHit, globalLabels,
+			     globalDerivativesX, globalDerivativesY);
+  }
+}
+
+
+//__________________________________________________________________________________________________
+int MillePedeAlignmentAlgorithm
+::callMille1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+              unsigned int iTrajHit, const std::vector<int> &globalLabels,
+              const std::vector<float> &globalDerivativesX)
+{
+  const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
+  const unsigned int xIndex = iTrajHit*2; // the even ones are local x
+
+  // local derivatives
+  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
+  const int nLocal  = locDerivMatrix.num_col();
+  std::vector<float> localDerivatives(nLocal);
+  for (unsigned int i = 0; i < localDerivatives.size(); ++i) {
+    localDerivatives[i] = locDerivMatrix[xIndex][i];
+  }
+
+  // residuum and error
+  float residX = refTrajPtr->measurements()[xIndex] - refTrajPtr->trajectoryPositions()[xIndex];
+  float hitErrX = TMath::Sqrt(refTrajPtr->measurementErrors()[xIndex][xIndex]);
+
+  // number of global derivatives
+  const int nGlobal = globalDerivativesX.size();
+
+  // &(localDerivatives[0]) etc. are valid - as long as vector is not empty
+  // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
+  theMille->mille(nLocal, &(localDerivatives[0]), nGlobal, &(globalDerivativesX[0]),
+		  &(globalLabels[0]), residX, hitErrX);
+
+  if (theMonitor) {
+    theMonitor->fillDerivatives(aRecHit, &(localDerivatives[0]), nLocal,
+				&(globalDerivativesX[0]), nGlobal);
+    theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
+			      iTrajHit, residX, hitErrX, false);
+  }
+
+  return 1;
+}
+
+//__________________________________________________________________________________________________
+int MillePedeAlignmentAlgorithm
 ::callMille2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
               unsigned int iTrajHit, const std::vector<int> &globalLabels,
               const std::vector<float> &globalDerivativesx,
@@ -833,15 +887,6 @@ int MillePedeAlignmentAlgorithm
   theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
 		  &(globalLabels[0]), newResidX, newHitErrX);
 
-//   // write special (hit) data to the milleBinary.dat
-//   int nPar=3;
-//   std::vector<int> integers(nPar); // filled with 0.
-//   std::vector<float> floats(nPar);
-//   floats[0] = aRecHit->globalPosition().x();
-//   floats[1] = aRecHit->globalPosition().y();
-//   floats[2] = aRecHit->globalPosition().z();
-//   theMille->special(nPar, &(floats[0]), &(integers[0]));
-
   if (theMonitor) {
     theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX, nGlobal);
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
@@ -860,6 +905,7 @@ int MillePedeAlignmentAlgorithm
 
   return (isReal2DHit ? 2 : 1);
 }
+
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm
 ::addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iMsMeas)
@@ -947,3 +993,99 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
   
   theMille->end();
 }
+
+/*____________________________________________________
+void MillePedeAlignmentAlgorithm::addBeamSpotConstraint
+(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+ const edm::Event & iEvent )
+{
+  // --- get BS from Event:
+  const  reco::BeamSpot* bSpot;
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByType(recoBeamSpotHandle);
+  bSpot = recoBeamSpotHandle.product();
+  
+  //GlobalPoint gPointBs(0.,0.,0.);
+  GlobalPoint gPointBs(bSpot->x0(), bSpot->y0(), bSpot->z0());
+  const TrajectoryStateOnSurface trackTsos = refTrajPtr->trajectoryStates()[0];
+  // create a FTS from innermost TSOS:
+  FreeTrajectoryState innerFts = *(trackTsos.freeTrajectoryState());
+  //create a TrajectoryStateClosestToBeamLine: 
+  TrajectoryStateClosestToPointBuilder *tsctpBuilder = new TSCPBuilderNoMaterial();
+  TrajectoryStateClosestToPoint tsctp = tsctpBuilder->operator()(trackTsos,gPointBs);
+  FreeTrajectoryState pcaFts = tsctp.theState();
+  edm::LogInfo("CHK") << " beamspot TSCP " << tsctp.referencePoint() << tsctp.position()
+   << tsctp.perigeeParameters().vector();   
+  const AlgebraicVector5 perigeeVecPars =  tsctp.perigeeParameters().vector(); 
+  
+  PerigeeConversions perigeeConv;
+  const AlgebraicMatrix55& curv2perigee = perigeeConv.jacobianCurvilinear2Perigee(pcaFts);
+  edm::LogInfo("CHK") << " beamspot C2P " << curv2perigee;
+  
+  //propagation
+  AnalyticalPropagator propagator(&(innerFts.parameters().magneticField()), anyDirection);
+  std::pair< TrajectoryStateOnSurface, double > tsosWithPath = propagator.propagateWithPath(pcaFts,trackTsos.surface());
+  edm::LogInfo("CHK") << " beamspot s0 " << tsosWithPath.second;
+  edm::LogInfo("CHK") << " beamspot t2c " << refTrajPtr->trajectoryToCurv();
+  if (!tsosWithPath.first.isValid())  return; 
+  
+  // jacobian in curvilinear frame for propagation from the end point (inner TSOS) to the starting point (PCA) 
+  AnalyticalCurvilinearJacobian curvJac( pcaFts.parameters(),
+                                         tsosWithPath.first.globalPosition(),
+                                         tsosWithPath.first.globalMomentum(), 
+                                         tsosWithPath.second );
+  int ierr;
+  const AlgebraicMatrix55& matCurvJac = curvJac.jacobian().Inverse(ierr);
+  edm::LogInfo("CHK") << " beamspot CurvJac " << matCurvJac;
+  // jacobion trajectory to curvilinear
+  // const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
+  const AlgebraicMatrix55& traj2curv = asSMatrix<5,5>(refTrajPtr->trajectoryToCurv());   
+  //combine the transformation jacobian:
+  AlgebraicMatrix55 newJacobian = curv2perigee * matCurvJac * traj2curv;
+  edm::LogInfo("CHK") << " beamspot newJac " << newJacobian;
+
+  //get the Beam Spot residual
+  const float residuumIP = -perigeeVecPars[3];
+  const float sigmaIP = bSpot->BeamWidth();
+  edm::LogInfo("CHK2") << " beamspot-res " << residuumIP << " " << perigeeVecPars[0] << " " << perigeeVecPars[1] << " " << perigeeVecPars[2];
+      
+  std::vector<float> ipLocalDerivs(5);
+  for (unsigned int i = 0; i < ipLocalDerivs.size(); ++i) {
+    ipLocalDerivs[i] = newJacobian(3,i);
+  }
+
+  // to be fixed: null global derivatives is right but the size is detemined from SelPar.size! 
+  std::vector<float>  ipGlobalDerivs(4);
+  for (unsigned int i = 0; i < 4; ++i) {
+    ipGlobalDerivs[i] = 0.;
+  }
+  std::vector<int> ipGlobalLabels(4);
+  for (unsigned int i = 0; i < 4; ++i) {
+    ipGlobalLabels[i] = 0;
+  }
+
+  if(theAliBeamspot){
+  double phi = perigeeVecPars[2];
+  double dz  = perigeeVecPars[4];
+  ipGlobalDerivs[0] = sin(phi);
+  ipGlobalDerivs[1] = -cos(phi);
+  ipGlobalDerivs[2] = sin(phi)*dz;
+  ipGlobalDerivs[3] = -cos(phi)*dz;
+ 
+  ipGlobalLabels[0] = 250000;
+  ipGlobalLabels[1] = 250001;
+  ipGlobalLabels[2] = 250002;
+  ipGlobalLabels[3] = 250003;
+  }
+
+
+  theMille->mille(ipLocalDerivs.size(), &(ipLocalDerivs[0]),
+  	  ipGlobalDerivs.size(), &(ipGlobalDerivs[0]), &(ipGlobalLabels[0]),
+  	  residuumIP, sigmaIP);
+
+
+  // delete new objects:
+    delete tsctpBuilder;
+    tsctpBuilder = NULL;
+     
+} */

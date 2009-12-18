@@ -34,7 +34,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Default constructor
-DDLRotationAndReflection::DDLRotationAndReflection(  DDLElementRegistry* myreg ) : DDXMLElement(myreg) 
+DDLRotationAndReflection::DDLRotationAndReflection() 
 {
 }
 
@@ -43,7 +43,7 @@ DDLRotationAndReflection::~DDLRotationAndReflection()
 {
 }
 
-void DDLRotationAndReflection::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLRotationAndReflection::processElement (const std::string& name, const std::string& nmspace)
 {
 
   DCOUT_V('P', "DDLRotationAndReflection::processElement started " << name);

@@ -1,18 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'sqlite_file:blob.db'
+    #'oracle://devdb10/cms_xiezhen_dev'
+
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/user/x/xiezhen')
-    ),
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    process.CondDBCommon,
+    DumpStat=cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('mySiStripNoisesRcd'),
         tag = cms.string('noise_tag')
     )),
-    #connect = cms.string('oracle://devdb10/cms_xiezhen_dev')
-    connect = cms.string('sqlite_file:blob.db')
 )
 
 process.source = cms.Source("EmptyIOVSource",

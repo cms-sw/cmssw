@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.28 2009/09/29 19:26:32 dmytro Exp $
+// $Id: CmsShowMainFrame.h,v 1.35 2009/12/04 18:59:43 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ class TGNumberEntryField;
 class TGLabel;
 class TGSlider;
 class FWIntValueListener;
+class FWCustomIconsButton;
 
 namespace fwlite {
    class Event;
@@ -65,6 +66,7 @@ public:
   virtual void CloseWindow();
 
    void loadEvent(const fwlite::Event& event);
+   void enableNavigatorControls();
    void quit();
    virtual void enableActions(bool enable = true);
    void enablePrevious(bool enable = true);
@@ -79,8 +81,8 @@ public:
    CSGContinuousAction* playEventsAction() const {
       return m_playEvents;
    }
-   CSGContinuousAction* autoRewindAction() const {
-      return m_autoRewindAction;
+   CSGContinuousAction* loopAction() const {
+      return m_loopAction;
    }
    
    CSGContinuousAction* playEventsBackwardsAction() const {
@@ -89,12 +91,16 @@ public:
 
    CSGAction* createNewViewerAction(const std::string& iActionName);
 
+   void showFWorksInfo();
+
 protected:
-   TGCheckButton*       m_filterEnableBtn;
+   FWCustomIconsButton* m_filterEnableBtn;
    TGTextButton*        m_filterShowGUIBtn;
    TGNumberEntryField*  m_runEntry;
    TGNumberEntryField*  m_eventEntry;
    FWIntValueListener*  m_delaySliderListener;
+   
+   const TGPicture*     m_filterIcons[9];
 
 private:
    CmsShowMainFrame(const CmsShowMainFrame&); // stop default
@@ -112,9 +118,12 @@ private:
    CSGAction *m_goToFirst;
    CSGAction *m_goToLast;
    CSGAction *m_playDelay;
+   CSGAction *m_fworksInfo;
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
-   CSGContinuousAction *m_autoRewindAction;
+   CSGContinuousAction *m_loopAction;
+   
+   TGMainFrame* m_fworksAbout;
 
    TGSlider* m_delaySlider;
    TGLabel*  m_delayLabel;

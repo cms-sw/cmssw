@@ -1,9 +1,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
@@ -136,24 +133,17 @@ void DDCompactView::global()
  // DDName n = l.ddname();
   static DDCompactViewImpl* global_=0;
   if (!global_) {
-    // set up a default "root" 
     DDLogicalPart rt = DDRootDef::instance().root();
     if(rt.isDefined().first) { 
       const DDName & tmp = rt.ddname();
       DDLogicalPart aRoot(tmp);
       global_ = new DDCompactViewImpl(aRoot); // FIXME!!!!!!!
-    } else {
-      DDName defddname("DefaultRoot", "default");
-      DDMaterial mat(defddname, 7., 14., 0.0001);
-      DDSolid ss = DDSolidFactory::shapeless(defddname);
-      DDLogicalPart defRoot(defddname,mat,ss);
-      global_ = new DDCompactViewImpl(defRoot);
-    }
+    }  
   }
   // DCOUT('C', "DC: CompactView root=" << DDRootDef::instance().root() );
   if (!global_)
     throw DDException("Global CompactView construction failed ..");  
-  //  global_->setRoot(DDRootDef::instance().root());
+  global_->setRoot(DDRootDef::instance().root());
 
   rep_ = global_;
 }

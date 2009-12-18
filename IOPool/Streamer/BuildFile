@@ -7,6 +7,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/RootAutoLibraryLoader>
 <use name=FWCore/ServiceRegistry>
+<use name=FWCore/Sources>
 <use name=FWCore/Utilities>
 <use name=FWCore/Version>
 <use name=Utilities/StorageFactory>

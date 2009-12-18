@@ -1,4 +1,5 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
+
 
 #18012008 Various tests of EE numberings
 use warnings;
@@ -25,8 +26,12 @@ sub new {
 		   'EB_crystal_number' => \&define_EB_crystal_number,
 		   'EB_elec_crystal_number' => \&define_EB_elec_crystal_number,
 		   'EB_fe_crystal_number' => \&define_EB_fe_crystal_number,
+		   'ECAL_crystal_number_fedccuxt' => \&define_ECAL_crystal_number_fedccuxt,
+		   'ECAL_readout_strip' => \&define_ECAL_readout_strip,
+		   'ECAL_trigger_tower' => \&define_ECAL_trigger_tower,
 		   'EB_crystal_index' => \&define_EB_crystal_index,
 		   'EB_trigger_tower' => \&define_EB_trigger_tower,
+		   'EB_readout_tower' => \&define_EB_readout_tower,
 		   'EB_supermodule' => \&define_EB_supermodule,
 		   'EB_module' => \&define_EB_module,
 		   'EB_HV_channel' => \&define_EB_HV_channel,
@@ -37,6 +42,7 @@ sub new {
 		   'EB_PTM_T_amb' => \&define_EB_PTM_T_amb,
 		   'EB_token_ring' => \&define_EB_token_ring,
 		   'EB_LM_channel' => \&define_EB_LM_channel,
+		   'EB_LM_side' => \&define_EB_LM_side,
 		   'EB_LM_PN' => \&define_EB_LM_PN,
 		   'EB_T_capsule' => \&define_EB_T_capsule,
 		   'EB_VFE' => \&define_EB_VFE,
@@ -44,8 +50,11 @@ sub new {
 		   'EB_LVRB_T_sensor' => \&define_EB_LVRB_T_sensor,
 		   'EB_mem_TT' => \&define_EB_mem_TT,
 		   'EB_mem_channel' => \&define_EB_mem_channel,
-		   'EB_crystal_number_to_EB_trigger_tower'
-		   => \&define_EB_crystal_number_to_EB_trigger_tower,
+		   'EB_trigger_crystal_number' => \&define_EB_trigger_crystal_number,
+		   'ECAL_crystal_number_fedccuxt_to_EB_crystal_number' => \&define_ECAL_crystal_number_fedccuxt_to_EB_crystal_number,
+		   'ECAL_trigger_tower_to_EB_trigger_tower' => \&define_ECAL_trigger_tower_to_EB_trigger_tower,
+		   'EB_readout_tower_to_EB_trigger_tower' => \&define_EB_readout_tower_to_EB_trigger_tower,
+		   'EB_crystal_number_to_EB_trigger_tower' => \&define_EB_crystal_number_to_EB_trigger_tower,
 		   'EB_crystal_number_to_EB_LV_channel'
 		   => \&define_EB_crystal_number_to_EB_LV_channel,
 		   'EB_crystal_number_to_EB_module'
@@ -58,6 +67,10 @@ sub new {
 		   => \&define_EB_crystal_number_to_EB_LM_channel,
 		   'EB_crystal_number_to_EB_LM_PN'
 		   => \&define_EB_crystal_number_to_EB_LM_PN,
+		   'EB_crystal_number_to_EB_LM_side'
+		   => \&define_EB_crystal_number_to_EB_LM_side,
+		   'EB_LM_side_to_EB_crystal_number'
+		   => \&define_EB_LM_side_to_EB_crystal_number,
 		   'EB_crystal_number_to_EB_T_capsule'
 		   => \&define_EB_crystal_number_to_EB_T_capsule,
 		   'EB_T_capsule_to_EB_crystal_number'
@@ -74,46 +87,74 @@ sub new {
 		   => \&define_EB_constr_crystal_number_to_EB_crystal_number,
 		   'EB_constr_supermodule_to_EB_supermodule'
 		   => \&define_EB_constr_supermodule_to_EB_supermodule,
+		   'EB_crystal_number_to_ECAL_LMR'
+		   => \&define_EB_crystal_number_to_ECAL_LMR,
 		   'EB_fe_crystal_number_to_EB_crystal_number',
 		   => \&define_EB_fe_crystal_number_to_EB_crystal_number,
 
 		#endcap
-		'EE_side' => \&define_EE_side,
-		'EE_D' => \&define_EE_D,
-		'EE_sector' => \&define_EE_sector,
-		'EE_DCC' =>\&define_EE_DCC, 	
-		'EE_crystal_number' => \&define_EE_crystal_number,
-		'ECAL_TCC'=>\&define_ECAL_TCC,
-		'EE_crystal_hashed' => \&define_EE_crystal_hashed,
-		'EE_trigger_tower'=>\&define_EE_trigger_tower,
-		'EE_readout_tower'=>\&define_EE_readout_tower,
-		'EE_readout_strip'=>\&define_EE_readout_strip,
-		'EE_trigger_strip'=>\&define_EE_trigger_strip,
-		'EE_crystal_readout_strip'=>\&define_EE_crystal_readout_strip,
-		'EE_crystal_trigger_strip'=>\&define_EE_crystal_trigger_strip,
-		'EE_elec_crystal_number'=>\&define_EE_elec_crystal_number,
-                'EE_readout_tower_xyz'=>\&define_EE_readout_tower_xyz,
-                'EE_readout_tower_zseccu'=>\&define_EE_readout_tower_zseccu,
-		'EE_HV_channel'=>\&define_EE_HV_channel,
-		'EE_LV_channel'=>\&define_EE_LV_channel,
+		   'EE_side' => \&define_EE_side,
+		   'EE_D' => \&define_EE_D,
+		   'EE_sector' => \&define_EE_sector,
+		   'EE_DCC' =>\&define_EE_DCC, 	
+		   'EE_crystal_number' => \&define_EE_crystal_number,
+		   'ECAL_TCC'=>\&define_ECAL_TCC,
+		   'EE_crystal_hashed' => \&define_EE_crystal_hashed,
+		   'EE_trigger_tower'=>\&define_EE_trigger_tower,
+		   'EE_readout_tower'=>\&define_EE_readout_tower,
+		   'EE_readout_strip'=>\&define_EE_readout_strip,
+		   'EE_trigger_strip'=>\&define_EE_trigger_strip,
+		   'EE_crystal_readout_strip'=>\&define_EE_crystal_readout_strip,
+		   'EE_crystal_trigger_strip'=>\&define_EE_crystal_trigger_strip,
+		   'EE_elec_crystal_number'=>\&define_EE_elec_crystal_number,
+		   'EE_readout_tower_xyz'=>\&define_EE_readout_tower_xyz,
+		   'EE_readout_tower_zseccu'=>\&define_EE_readout_tower_zseccu,
+		   'EE_HV_channel'=>\&define_EE_HV_channel,
+		   'EE_HVA_channel'=>\&define_EE_HVA_channel,
+		   'EE_HVD_channel'=>\&define_EE_HVD_channel,
+		   'EE_LV_channel'=>\&define_EE_LV_channel,
+		   'EE_readout_strip_zseccu'=>\&define_EE_readout_strip_zseccu,
+		   'EE_LM_LMM'=>\&define_EE_LM_LMM,
+		   'EE_LM_PN'=>\&define_EE_LM_PN,
+		   'EE_PTM_T_amb'=>\&define_EE_PTM_T_amb,
+		   'EE_PTM_H_amb'=>\&define_EE_PTM_H_amb,
+		   'EE_LM_PN'=>\&define_EE_LM_PN,
+		   'ECAL_LMR'=>\&define_ECAL_LMR,
+		   'ECAL_DCC'=>\&define_ECAL_DCC,
+		   'ECAL_DCC_input'=>\&define_ECAL_DCC_input,
+		   'ECAL_SRP'=>\&define_ECAL_SRP,
 
 		#endcap mappings
-		'EE_readout_tower_to_EE_crystal_number'=>\&define_EE_readout_tower_to_EE_crystal_number,
-		'EE_trigger_tower_to_EE_crystal_number'=>\&define_EE_trigger_tower_to_EE_crystal_number,
-		'EE_crystal_number_to_EE_trigger_tower'=>\&define_EE_crystal_number_to_EE_trigger_tower,
-		'EE_crystal_number_to_EE_readout_tower'=>\&define_EE_crystal_number_to_EE_readout_tower,
-		'EE_crystal_readout_strip_to_EE_crystal_number'=>\&define_EE_crystal_readout_strip_to_EE_crystal_number,
+                   'ECAL_crystal_number_fedccuxt_to_EE_crystal_number' => \&define_ECAL_crystal_number_fedccuxt_to_EE_crystal_number,
+		   'EE_readout_tower_to_EE_crystal_number'=>\&define_EE_readout_tower_to_EE_crystal_number,
+		   'EE_trigger_tower_to_EE_crystal_number'=>\&define_EE_trigger_tower_to_EE_crystal_number,
+		   'EE_crystal_number_to_EE_trigger_tower'=>\&define_EE_crystal_number_to_EE_trigger_tower,
+		   'EE_crystal_number_to_EE_readout_tower'=>\&define_EE_crystal_number_to_EE_readout_tower,
+		   'EE_crystal_number_to_EE_readout_strip'=>\&define_EE_crystal_number_to_EE_readout_strip,
+		   'EE_crystal_readout_strip_to_EE_crystal_number'=>\&define_EE_crystal_readout_strip_to_EE_crystal_number,
+		   'EE_crystal_trigger_strip_to_EE_crystal_number'=>\&define_EE_crystal_trigger_strip_to_EE_crystal_number,
 		   'EE_crystal_number_to_EE_LV_channel'		   => \&define_EE_crystal_number_to_EE_LV_channel,
 		   'EE_crystal_number_to_EE_HV_channel'		   => \&define_EE_crystal_number_to_EE_HV_channel,
 		   'EE_readout_tower_xyz_to_EE_readout_tower'=>\&define_EE_readout_tower_xyz_to_EE_readout_tower,
 		   'EE_readout_tower_xyz_to_EE_HV_channel'=>\&define_EE_readout_tower_xyz_to_EE_HV_channel,
+		   'EE_readout_tower_xyz_to_EE_HVA_channel'=>\&define_EE_readout_tower_xyz_to_EE_HVA_channel,
+		   'EE_readout_tower_xyz_to_EE_HVD_channel'=>\&define_EE_readout_tower_xyz_to_EE_HVD_channel,
 		   'EE_readout_tower_xyz_to_EE_LV_channel'=>\&define_EE_readout_tower_xyz_to_EE_LV_channel,
 		   'EE_crystal_number_to_EE_sector'		   => \&define_EE_crystal_number_to_EE_sector,
 		   'EE_sector_to_EE_crystal_number'		   => \&define_EE_sector_to_EE_crystal_number,
-                'EE_readout_tower_zseccu_to_EE_readout_tower'=>\&define_EE_readout_tower_zseccu_to_EE_readout_tower
+		   'EE_readout_tower_zseccu_to_EE_readout_tower'=>\&define_EE_readout_tower_zseccu_to_EE_readout_tower,
+		   'EE_readout_strip_zseccu_to_EE_readout_strip'=>\&define_EE_readout_strip_zseccu_to_EE_readout_strip ,
+		   'EE_crystal_number_to_EE_LM_LMM'	   => \&define_EE_crystal_number_to_EE_LM_LMM,
+		   'EE_crystal_number_to_EE_LM_PN'		   => \&define_EE_crystal_number_to_EE_LM_PN,
+		   'EE_crystal_number_to_ECAL_LMR'	   => \&define_EE_crystal_number_to_ECAL_LMR,
+                   'EE_trigger_tower_to_EE_offline_towerid' => \&define_EE_trigger_tower_to_EE_offline_towerid,
+                   'EE_trigger_tower_to_EE_offline_towerid_more' => \&define_EE_trigger_tower_to_EE_offline_towerid_more,
+		   'EE_trigger_strip_to_EE_offline_stripid' => \&define_EE_trigger_strip_to_EE_offline_stripid,
+		   'ECAL_readout_strip_to_EE_readout_strip' => \&define_ECAL_readout_strip_to_EE_readout_strip,
+		   'ECAL_readout_strip_to_EE_offline_stripid' => \&define_ECAL_readout_strip_to_EE_offline_stripid,
+		   'ECAL_readout_strip_to_EB_VFE' => \&define_ECAL_readout_strip_to_EB_VFE
 
 	 };
-
 
   bless($this, $class);
   return $this;
@@ -248,7 +289,7 @@ sub define_EE_sector {
 	foreach my $side (1,-1) {
 		my $sideIndex = $side + 1;
 		foreach my $sector (1..9) {
-			my $logic_id = sprintf "2011001%01d%02d", $sideIndex, $sector;
+			my $logic_id = sprintf "2000001%01d%02d", $sideIndex, $sector;
 			push @logic_ids, $logic_id;
 			push @channel_ids, [$side, $sector];
 		}
@@ -351,6 +392,71 @@ sub define_ECAL_TCC {
 		channel_ids => \@channel_ids};
 }
 
+sub define_ECAL_DCC {
+
+	my $name = "ECAL_DCC";
+	my $idnames = ["DCC"];
+	my $description = "DCC number in ECAL";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#whole ECAL
+	foreach my $DCC (601..654) {
+		my  $logic_id = sprintf "2%03d", $DCC;
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$DCC];
+	}
+	
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+}
+
+sub define_ECAL_DCC_input {
+
+	my $name = "ECAL_DCC_input";
+	my $idnames = ["DCC", "channel"];
+	my $description = "DCC input channel MEM 1-2 SRP 3 TCC 4-7";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#whole ECAL
+	foreach my $DCC (601..654) {
+	    foreach my $chan (1..7) {
+		my  $logic_id = sprintf "%03d%01d", $DCC,$chan;
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$DCC,$chan];
+	    }
+	}
+	
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+}
+
+sub define_ECAL_SRP {
+
+	my $name = "ECAL_SRP";
+	my $idnames = ["SRP"];
+	my $description = "SRP number in ECAL";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#whole ECAL
+	foreach my $SRP (1..54) {
+		my  $logic_id = sprintf "2%03d", $SRP;
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$SRP];
+	}
+	
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+}
+
 
 sub define_EE_crystal_hashed {
 
@@ -430,7 +536,7 @@ sub define_EE_readout_tower {
 		$DCC = $channels[0] + 600;
 		$readout_tower = $channels[1];
 
-		my $logic_id = sprintf "20000%03d%02d", $DCC, $readout_tower;
+		my $logic_id = sprintf "21100%03d%02d", $DCC, $readout_tower;
 		push @logic_ids, $logic_id;
 		push @channel_ids, [$DCC, $readout_tower];
 	}
@@ -483,10 +589,32 @@ sub define_EE_trigger_tower {
 		$TCC = $channels[0];
 		$trigger_tower = $channels[1];
 
-		my $logic_id = sprintf "20000%03d%02d", $TCC, $trigger_tower;
+		my $logic_id = sprintf "21000%03d%02d", $TCC, $trigger_tower;
 		push @logic_ids, $logic_id;
 		push @channel_ids, [$TCC, $trigger_tower];
 	}
+
+# additional towers for Pascal inner sectors 
+
+	my @TT_new1 = (21,23,25,27);
+	foreach my $TCC_m (1..18) {
+	    foreach my $TT_m (@TT_new1) {
+		my  $logic_id = sprintf "21000%03d%02d", $TCC_m, $TT_m;
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$TCC_m, $TT_m];
+	    }
+	}
+
+	my @TT_new2 = (22,24,26,28);
+	foreach my $TCC_m (91..108) {
+	    foreach my $TT_m (@TT_new2) {
+		my  $logic_id = sprintf "21000%03d%02d", $TCC_m, $TT_m;
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$TCC_m, $TT_m];
+	    }
+	}
+
+
 	
 	return {name => $name, idnames => $idnames,
 		description => $description, logic_ids => \@logic_ids,
@@ -537,9 +665,87 @@ sub define_EE_readout_strip {
 		$DCC = $channels[0];
 		$readout_tower = $channels[1];
 		$readout_strip = $channels[2];
-		my $logic_id = sprintf "2001%03d%02d%01d", $DCC, $readout_tower, $readout_strip;
+		my $logic_id = sprintf "2121%03d%02d%01d", $DCC, $readout_tower, $readout_strip;
 		push @logic_ids, $logic_id;
 		push @channel_ids, [$DCC, $readout_tower,$readout_strip];
+	}
+	
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+}
+
+sub define_EE_readout_strip_zseccu {
+
+	my $name = "EE_readout_strip_zseccu";
+	my $idnames = ["z_x_sector","ccu_id","readout_strip"];
+	my $description = "Readout Strips in the EE by sector and ccu";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $readout_tower;
+	my $readout_strip;
+	my @ids;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+	
+		my $DCC=$channels[4];
+		my $sector=0;
+		if($DCC<10) {
+		    if($DCC<=3){
+			$sector=$DCC+6;
+		    } else {
+			$sector=$DCC-3;
+		    } 
+		}else {
+		    if($DCC<=48){
+			$sector=$DCC-39;
+		    } else {
+			$sector=$DCC-48;
+		    }
+		} 
+		my $ccu_id=$channels[13];
+
+		my $sideIndex=$channels[2]+1;
+		
+
+	        #id =DCC TTower readout_strip;
+	        my $id = sprintf "%01d %01d %02d %01d",$sideIndex, $sector, $ccu_id, $channels[6];
+
+	        push @ids, $id;
+	}
+
+	#perlish - returns unique entries using internal references AND a hash
+	#(actually, not an original idea)
+
+	undef my %saw;
+	my @unique = grep(!$saw{$_}++, @ids);
+	
+	foreach my $id (@unique) {
+
+		my @channels = split (/ /, $id);
+		my $sideIndex = $channels[0];
+		my $sector= $channels[1];
+		my $ccu_id= $channels[2];
+		my $strip= $channels[3];
+		my $side= $sideIndex-1;
+		my $logic_id = sprintf "213%01d%02d%02d%02d", $sideIndex, $sector, $ccu_id, $strip;
+		push @logic_ids, $logic_id;
+		$sector=$sector*$side;
+		push @channel_ids, [$sector, $ccu_id, $strip];
 	}
 	
 	return {name => $name, idnames => $idnames,
@@ -590,7 +796,7 @@ sub define_EE_trigger_strip {
 		$TCC = $channels[0];
 		$trigger_tower = $channels[1];
 		$trigger_strip = $channels[2];
-		my $logic_id = sprintf "2001%03d%02d%01d", $TCC, $trigger_tower, $trigger_strip;
+		my $logic_id = sprintf "2140%03d%02d%01d", $TCC, $trigger_tower, $trigger_strip;
 		push @logic_ids, $logic_id;
 		push @channel_ids, [$TCC, $trigger_tower,$trigger_strip];
 	}
@@ -765,6 +971,175 @@ sub define_EE_HV_channel {
 		description => $description, logic_ids => \@logic_ids,
 		channel_ids => \@channel_ids};
 
+}
+sub define_EE_HVA_channel {
+
+	my $name = "EE_HVA_channel";
+	my $idnames = ["dee", "channel"];
+	my $description = "HV anode by Dee and chan in the Endcaps";
+
+	my @channel_ids;
+	my @logic_ids;
+
+
+	foreach my $D (1..4) {
+	    foreach my $chan (1..2) {
+		my $logic_id = sprintf "20604%02d0%02d", $D, $chan;
+			push @logic_ids, $logic_id;
+			push @channel_ids, [$D, $chan];
+		}
+	}
+
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+
+}
+
+sub define_EE_HVD_channel {
+
+	my $name = "EE_HVD_channel";
+	my $idnames = ["dee", "channel"];
+	my $description = "HV dynode by Dee and chan in the Endcaps";
+
+	my @channel_ids;
+	my @logic_ids;
+
+
+	foreach my $D (1..4) {
+	    foreach my $chan (1..2) {
+		my $logic_id = sprintf "20605%02d0%02d", $D, $chan;
+			push @logic_ids, $logic_id;
+			push @channel_ids, [$D, $chan];
+		}
+	}
+
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+
+}
+
+sub define_EE_LMM {
+
+	my $name = "EE_LMM";
+	my $idnames = ["dee", "lmm"];
+	my $description = "Endcap Laser Monitoring Modules";
+
+	my @channel_ids;
+	my @logic_ids;
+
+
+	foreach my $D (1..4) {
+	    foreach my $chan (1..19) {
+		my $logic_id = sprintf "20601%02d0%02d", $D, $chan;
+			push @logic_ids, $logic_id;
+			push @channel_ids, [$D, $chan];
+		}
+	}
+
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+
+}
+
+sub define_EE_LM_PN {
+
+	my $name = "EE_LM_PN";
+	my $idnames = ["dee", "PN"];
+	my $description = "Endcap PN";
+
+	my @channel_ids;
+	my @logic_ids;
+
+
+	foreach my $D (1..4) {
+	    foreach my $chan (0..9) {
+		foreach my $side (1..2) {
+		    my $channel=$side*100+$chan;
+		    my $logic_id = sprintf "20602%02d%03d", $D,$channel;
+			push @logic_ids, $logic_id;
+			push @channel_ids, [$D, $channel];
+		}
+	    }
+	}
+
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+
+}
+
+sub define_ECAL_LMR {
+
+	my $name = "ECAL_LMR";
+	my $idnames = ["channel"];
+	my $description = "EcalLaserMonitoringRegion EB-EB+EE+EE-";
+
+	my @channel_ids;
+	my @logic_ids;
+
+
+	    foreach my $chan (1..92) {
+		my $logic_id="";
+		if($chan<=72){
+		    $logic_id = sprintf "10603000%02d", $chan;
+		} else {
+		    $logic_id = sprintf "20603000%02d", $chan;
+		}		
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$chan];
+	    }
+	    
+	
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+
+}
+sub define_EE_PTM_H_amb {
+  my $name = "EE_PTM_H_amb";
+  my $idnames = ["Dee", "channel"];
+  my $description = "ECAL Endcap Ambient humidity sensors";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $Dee (1..4) {
+    foreach my $channel (1..4) {
+      my $logic_id = sprintf "211020%01d0%02d", $Dee, $channel;
+      push @logic_ids, $logic_id;
+      push @channel_ids, [ $Dee, $channel ];
+    }
+  }
+
+  return {
+	  name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_EE_PTM_T_amb {
+  my $name = "EE_PTM_T_amb";
+  my $idnames = ["Dee", "channel"];
+  my $description = "ECAL Endcap Ambient temperature sensors";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $Dee (1..4) {
+    foreach my $channel (1..24) {
+      my $logic_id = sprintf "211010%01d0%02d", $Dee, $channel;
+      push @logic_ids, $logic_id;
+      push @channel_ids, [ $Dee, $channel ];
+    }
+  }
+
+  return {
+	  name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
 }
 
 
@@ -1080,6 +1455,61 @@ sub define_EB_fe_crystal_number {
 	  logic_ids => \@logic_ids, channel_ids => \@channel_ids};
 }
 
+sub define_ECAL_crystal_number_fedccuxt {
+  my $name = "ECAL_crystal_number_fedccuxt";
+  my $idnames = ["FED", "CCU", "channel"];
+  my $description = "ECAL Barrel crystals by fed ccu crystal(0-24)";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $FED (610..645) {
+    foreach my $TT (1..68) {
+      foreach my $xtal (0..24) {
+	my $logic_id = sprintf "120%03d%02d%02d", $FED, $TT, $xtal;
+	push @logic_ids, $logic_id;
+	push @channel_ids, [ $FED, $TT, $xtal ];
+      }
+    }
+  }
+
+# endcap part
+  #opening file
+  open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+  #reading it into an array
+  my @lines = <FILE>;
+  #getting the first line out	
+  shift @lines;
+  
+  #temp variables
+  my $DCC;
+  my $readout_tower;
+  my $readout_strip;
+  my $crystal_readout_strip;
+  my $crystal_readout_strip_id;
+  
+  foreach my $line (@lines) {
+
+      my @channels = split (/ /, $line);
+      
+      $DCC = $channels[4] + 600;
+      $readout_tower= $channels[5];
+      $readout_strip= $channels[6];
+      $crystal_readout_strip=$channels[7];
+      
+      
+      $crystal_readout_strip_id=($readout_strip-1)*5+$crystal_readout_strip-1;
+      
+      my $logic_id = sprintf "120%03d%02d%02d", $DCC, $readout_tower, $crystal_readout_strip_id;
+      push @logic_ids, $logic_id;
+      push @channel_ids, [$DCC, $readout_tower,$crystal_readout_strip_id];
+  }
+
+
+  return {name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids};
+}
+
 
 sub define_EB_trigger_tower {
   my $name = "EB_trigger_tower";
@@ -1095,6 +1525,53 @@ sub define_EB_trigger_tower {
       push @channel_ids, [ $SM, $tt ];
     }
   }
+
+  return {
+	  name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_ECAL_trigger_tower {
+  my $name = "ECAL_trigger_tower";
+  my $idnames = ["TCC", "trigger_tower"];
+  my $description = "Trigger towers in the ECAL barrel by tcc and tt";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $SM (37..72) {
+    foreach my $tt (1..68) {
+      my $logic_id = sprintf "122%03d00%02d", $SM, $tt;
+      push @logic_ids, $logic_id;
+      push @channel_ids, [ $SM, $tt ];
+    }
+  }
+
+
+
+  return {
+	  name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+sub define_EB_readout_tower {
+  my $name = "EB_readout_tower";
+  my $idnames = ["FED", "tower"];
+  my $description = "Readout towers in the ECAL barrel by fed and tower";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $SM (610..645) {
+    foreach my $tt (1..68) {
+      my $logic_id = sprintf "123%03d00%02d", $SM, $tt;
+      push @logic_ids, $logic_id;
+      push @channel_ids, [ $SM, $tt ];
+    }
+  }
+
+
 
   return {
 	  name => $name, idnames => $idnames,
@@ -1298,6 +1775,30 @@ sub define_EB_token_ring {
 	 };
 }
 
+
+
+sub define_EB_LM_side {
+  my $name = "EB_LM_side";
+  my $idnames = ["SM", "side"];
+  my $description = "ECAL Barrel Laser Regions";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $SM (0..36) {
+    foreach my $channel (0..1) {
+      my $logic_id = sprintf "1132%02d00%02d", $SM, $channel;
+      push @logic_ids, $logic_id;
+      push @channel_ids, [ $SM, $channel ];
+    }
+  }
+
+  return {
+	  name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
 sub define_EB_LM_channel {
   my $name = "EB_LM_channel";
   my $idnames = ["SM", "channel"];
@@ -1380,6 +1881,74 @@ sub define_EB_VFE {
       }
     }
   }
+
+  return {
+	  name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 }
+}
+
+sub define_ECAL_readout_strip {
+  my $name = "ECAL_readout_strip";
+  my $idnames = ["FED", "CCU", "strip"];
+  my $description = "Ecal readout strip by fed ccu strip";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $SM (610..645) {
+    foreach my $TT (1..68) {
+      foreach my $VFE (1..5) {
+	my $logic_id = sprintf "121%03d%02d%02d", $SM, $TT, $VFE;
+	push @logic_ids, $logic_id;
+	push @channel_ids, [ $SM, $TT, $VFE ];
+      }
+    }
+  }
+
+
+# endcap strips 
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $DCC;
+	my $readout_tower;
+	my $readout_strip;
+	my @ids;
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+	        #id =DCC TTower readout_strip;
+		my $FED=$channels[4]+600;
+	        my $id = sprintf "%03d %02d %02d", $FED,$channels[5],$channels[6];
+
+	        push @ids, $id;
+	}
+
+	#perlish - returns unique entries using internal references AND a hash
+	#(actually, not an original idea)
+
+	undef my %saw;
+	my @unique = grep(!$saw{$_}++, @ids);
+	
+	foreach my $id (@unique) {
+
+		my @channels = split (/ /, $id);
+		$DCC = $channels[0];
+		$readout_tower = $channels[1];
+		$readout_strip = $channels[2];
+		my $logic_id = sprintf "121%03d%02d%02d", $DCC, $readout_tower, $readout_strip;
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$DCC, $readout_tower,$readout_strip];
+	}
 
   return {
 	  name => $name, idnames => $idnames,
@@ -1525,7 +2094,7 @@ sub define_EE_crystal_number_to_EE_trigger_tower {
 		push @channel_ids, [$side, $ix, $iy];
 
 		#trigger tower logic id: 20000XXXYY XXX=TCC, YY=trigger tower
-		$logic_id = sprintf "20000%03d%02d", $TCC, $trigger_tower;
+		$logic_id = sprintf "21000%03d%02d", $TCC, $trigger_tower;
 		push @logic_ids, $logic_id;
 
 	}
@@ -1536,6 +2105,7 @@ sub define_EE_crystal_number_to_EE_trigger_tower {
 	};
 
 }
+
 
 
 sub define_EE_trigger_tower_to_EE_crystal_number {
@@ -1588,6 +2158,193 @@ sub define_EE_trigger_tower_to_EE_crystal_number {
 	};
 
 }
+
+
+sub define_EE_trigger_tower_to_EE_offline_towerid {
+
+	my $name = "EE_trigger_tower";	
+	my $maps_to = "EE_offline_towerid";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $TCC;
+	my $offline_id;
+	my $trigger_tower;
+	my $ix;
+	my $iy;
+	my $sideIndex;
+	my $logic_id;
+	my @ids;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$sideIndex = $channels[2] + 1;
+
+		$TCC = $channels[8];
+		$trigger_tower = $channels[9];
+		$offline_id = $channels[18];
+
+	        my $id = sprintf "%03d %02d %9d", $channels[8],$channels[9], $channels[18];
+
+	        push @ids, $id;
+	}
+
+	#perlish - returns unique entries using internal references AND a hash
+	#(actually, not an original idea)
+
+	undef my %saw;
+	my @unique = grep(!$saw{$_}++, @ids);
+	
+	foreach my $id (@unique) {
+
+		my @channels = split (/ /, $id);
+		$TCC           = $channels[0];
+		$trigger_tower = $channels[1];
+		$offline_id    = $channels[2];
+
+		my $logic_id = sprintf "%9d", $offline_id;
+		push @logic_ids, $logic_id;
+
+		#trigger tower ids: TCC, trigger tower
+		push @channel_ids, [$TCC, $trigger_tower];
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+sub define_EE_trigger_tower_to_EE_offline_towerid_more {
+
+	my $name = "EE_trigger_tower";	
+	my $maps_to = "EE_offline_towerid";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "additionaltowers.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $TCC;
+	my $offline_id;
+	my $trigger_tower;
+	my $ix;
+	my $iy;
+	my $sideIndex;
+	my $logic_id;
+	my @ids;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+
+		$TCC           = $channels[0];
+		$trigger_tower = $channels[1];
+		$offline_id    = $channels[2];
+
+		my $logic_id = sprintf "%9d", $offline_id;
+		push @logic_ids, $logic_id;
+
+		#trigger tower ids: TCC, trigger tower
+		push @channel_ids, [$TCC, $trigger_tower];
+
+
+	}
+
+	#perlish - returns unique entries using internal references AND a hash
+	#(actually, not an original idea)
+	
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+sub define_EE_trigger_strip_to_EE_offline_stripid {
+
+	my $name = "EE_trigger_strip";	
+	my $maps_to = "EE_offline_stripid";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $TCC;
+	my $trigger_tower;
+	my $trigger_strip;
+	my @ids;
+	my $offline_id ;
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+	        #id =TCC TriggerTower trigger_strip;
+	        my $id = sprintf "%03d %02d %01d %06d", $channels[8],$channels[9],$channels[10], $channels[19];
+
+	        push @ids, $id;
+	}
+
+	#perlish - returns unique entries using internal references AND a hash
+	#(actually, not an original idea)
+
+	undef my %saw;
+	my @unique = grep(!$saw{$_}++, @ids);
+	
+	foreach my $id (@unique) {
+
+		my @channels = split (/ /, $id);
+		$TCC = $channels[0];
+		$trigger_tower = $channels[1];
+		$trigger_strip = $channels[2];
+		$offline_id= $channels[3];
+
+		my $logic_id = sprintf "%6d", $offline_id;
+
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$TCC, $trigger_tower,$trigger_strip];
+	}
+
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+
 sub define_EE_crystal_number_to_EE_sector {
 
 	my $name = "EE_crystal_number";
@@ -1634,13 +2391,12 @@ sub define_EE_crystal_number_to_EE_sector {
 			$sector=$DCC-48;
 		    }
 		} 
-		my $logic_id =sprintf "2011001%01d%02d", $sideIndex, $sector;
+		my $logic_id = sprintf "2000001%01d%02d", $sideIndex, $sector;
 
-		if($side!=1) {
 		#xtal number ids: side, ix, iy
 		push @channel_ids, [$side, $ix, $iy];
 		push @logic_ids, $logic_id;
-	    }
+
 	}
 
 	return { 
@@ -1649,6 +2405,8 @@ sub define_EE_crystal_number_to_EE_sector {
 	};
 
 }
+
+
 
 
 sub define_EE_sector_to_EE_crystal_number {
@@ -1751,7 +2509,59 @@ sub define_EE_crystal_number_to_EE_readout_tower {
 		$readout_tower = $channels[5];
 
 		#readout tower logic id: 2000XXXYY XXX=DCC, YY=readout tower
-		$logic_id = sprintf "20000%03d%02d", $DCC, $readout_tower;
+		$logic_id = sprintf "21100%03d%02d", $DCC, $readout_tower;
+		push @logic_ids, $logic_id;
+
+		#xtal number ids: ix, iy, iz
+		push @channel_ids, [$side, $ix, $iy];
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+sub define_EE_crystal_number_to_EE_readout_strip {
+
+	my $name = "EE_crystal_number";
+	my $maps_to = "EE_readout_strip";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $DCC;
+	my $readout_tower;
+	my $readout_strip;
+	my $ix;
+	my $iy;
+	my $side;
+
+	my $logic_id;
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+
+		$DCC = $channels[4] ;
+		$readout_tower = $channels[5];
+		$readout_strip = $channels[6];
+		my $logic_id = sprintf "2121%03d%02d%01d", $DCC, $readout_tower, $readout_strip;
+
 		push @logic_ids, $logic_id;
 
 		#xtal number ids: ix, iy, iz
@@ -1860,7 +2670,7 @@ sub define_EE_readout_tower_xyz_to_EE_readout_tower {
 
                 #id =DCC-600 ROTower;
 	$DCC=$channels[4]+600;
-	my $id = sprintf "20000%03d%02d", $DCC,$channels[5];
+	my $id = sprintf "21100%03d%02d", $DCC,$channels[5];
 	my $ifound=-1;
 	for my $i (0..$count) {
 	    if($id== $ids[$i]) {
@@ -1952,14 +2762,9 @@ sub define_EE_readout_tower_zseccu_to_EE_readout_tower {
 
 
 
-
-
-
-
-
                 #id =DCC-600 ROTower;
 	$DCC=$channels[4]+600;
-	my $id = sprintf "20000%03d%02d", $DCC,$channels[5];
+	my $id = sprintf "21100%03d%02d", $DCC,$channels[5];
 	my $ifound=-1;
 	for my $i (0..$count) {
 	    if($id== $ids[$i]) {
@@ -1970,6 +2775,8 @@ sub define_EE_readout_tower_zseccu_to_EE_readout_tower {
     
 	if($ifound==-1) {
 	    $count++;
+	    $sideIndex = $iz + 1;
+
 	    push @ids, $id;
 	    push @ixs, $sector;
 	    push @iys, $ccu_id;
@@ -1989,7 +2796,7 @@ sub define_EE_readout_tower_zseccu_to_EE_readout_tower {
 
 sub define_EE_readout_tower_xyz_to_EE_HV_channel {
 
-	my $name = "EE_readout_tower_xyz";
+    my $name = "EE_readout_tower_xyz";
     my $maps_to = "EE_HV_channel";
 
     my @channel_ids;
@@ -2201,6 +3008,128 @@ sub define_EE_crystal_readout_strip_to_EE_crystal_number {
 
 }
 
+sub define_ECAL_crystal_number_fedccuxt_to_EE_crystal_number {
+
+	my $name = "ECAL_crystal_number_fedccuxt";
+	my $maps_to = "EE_crystal_number";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $DCC;
+	my $readout_tower;	
+	my $readout_strip;
+	my $crystal_readout_strip;
+	my $crystal_readout_strip_id;
+	my $ix;
+	my $iy;
+	my $side;
+
+	my $logic_id;
+
+	foreach my $line (@lines) {
+
+		my @channels = split (/ /, $line);
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		my $sideIndex = $side + 1;
+
+		#EE_crystal_number logicId
+		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
+		push @logic_ids, $logic_id;
+
+	        $DCC = $channels[4] + 600;
+		$readout_tower= $channels[5];
+		$readout_strip= $channels[6];
+		$crystal_readout_strip=$channels[7];
+
+		#crystal_readout_strip_id=(strip-1)*5+channel_in_strip
+		$crystal_readout_strip_id=($readout_strip-1)*5+$crystal_readout_strip-1;
+
+		#crystal_readout_strip ids: DCC, RO Tower, crystal_readout_strip_id
+		push @channel_ids, [$DCC, $readout_tower,$crystal_readout_strip_id];
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+sub define_EE_crystal_trigger_strip_to_EE_crystal_number {
+
+	my $name = "EE_crystal_trigger_strip";
+	my $maps_to = "EE_crystal_number";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+	my $TCC;
+	my $trigger_tower;
+	my $trigger_strip;
+	my $crystal_trigger_strip;
+	my $crystal_trigger_strip_id;
+
+	my $ix;
+	my $iy;
+	my $side;
+
+	my $logic_id;
+
+	my @ids;
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		my $sideIndex = $side + 1;
+
+		#EE_crystal_number logicId
+		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
+		push @logic_ids, $logic_id;
+
+
+	        $TCC = $channels[8];
+		$trigger_tower= $channels[9];
+		$trigger_strip= $channels[10];
+		$crystal_trigger_strip=$channels[11];
+
+		#crystal_trigger_strip_id=(strip-1)*5+channel_in_strip
+		$crystal_trigger_strip_id=($trigger_strip-1)*5+$crystal_trigger_strip;
+
+		push @channel_ids, [$TCC, $trigger_tower,$crystal_trigger_strip_id];
+	}
+
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
 
 
 
@@ -2309,6 +3238,314 @@ sub define_EE_crystal_number_to_EE_LV_channel {
 	};
 
 }
+
+
+
+sub define_EE_readout_strip_zseccu_to_EE_readout_strip {
+
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	my @ids;
+
+	my $name = "EE_readout_strip_zseccu";
+	my $maps_to = "EE_readout_strip";
+
+	my $logic_id;
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+	
+		my $DCC=$channels[4];
+		my $sector=0;
+		if($DCC<10) {
+		    if($DCC<=3){
+			$sector=$DCC+6;
+		    } else {
+			$sector=$DCC-3;
+		    } 
+		}else {
+		    if($DCC<=48){
+			$sector=$DCC-39;
+		    } else {
+			$sector=$DCC-48;
+		    }
+		} 
+		my $ccu_id=$channels[13];
+
+		my $sideIndex=$channels[2]+1;
+		
+
+
+	        my $id = sprintf "%01d %01d %02d %01d",$sideIndex, $sector, $ccu_id, $channels[6];
+		
+		my $logic_id = sprintf "2121%03d%02d%01d", $channels[4],$channels[5],$channels[6];
+
+	        push @ids, $id;
+		push @logic_ids, $logic_id;
+
+
+	}
+
+
+
+	my @logic_ids_uni;
+
+
+
+	my $i=-1;
+	for my $id (@logic_ids) {
+	    $i++;
+	    my $ifound=0;
+
+	    for my $id_uni (@logic_ids_uni) {
+		
+		if($id == $id_uni ) {
+		    $ifound=1;
+
+		    last;
+		}
+	    }
+	    if($ifound==0){
+
+                push @logic_ids_uni, $logic_ids[$i];
+
+		my @channels = split (/ /, $ids[$i]);
+		my $sideIndex = $channels[0];
+		my $sector= $channels[1];
+		my $ccu_id= $channels[2];
+		my $strip= $channels[3];
+		my $side= $sideIndex-1;
+		$sector=$sector*$side;
+		push @channel_ids, [$sector, $ccu_id, $strip];
+		
+	    }
+	}
+    
+
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids_uni, channel_ids => \@channel_ids
+	};
+
+}
+
+sub define_EE_crystal_number_to_ECAL_LMR {
+
+	my $name = "EE_crystal_number";
+	my $maps_to = "ECAL_LMR";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+
+	my $ix;
+	my $iy;
+	my $side;
+	my $logic_id;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		my $sideIndex = $side + 1;
+		my $DCC = $channels[4];
+		my $sector=0;
+		if($DCC<10) {
+		    if($DCC<=3){
+			$sector=$DCC+6;
+		    } else {
+			$sector=$DCC-3;
+		    } 
+		}else {
+		    if($DCC<=48){
+			$sector=$DCC-39;
+		    } else {
+			$sector=$DCC-48;
+		    }
+		} 
+		my $lmr_chan=0;
+
+		if($side==1){
+		    $lmr_chan=$DCC+600-573;
+		    if(($DCC==53&&$ix>50)||$DCC==54) {
+			$lmr_chan=$lmr_chan+1;
+		    }
+		} else {
+		    $lmr_chan=$DCC+600-518;
+		    if(($DCC==8&&$ix>50)||$DCC==9) {
+			$lmr_chan=$lmr_chan+1;
+		    }
+		}
+
+		my $logic_id = sprintf "20603000%02d", $lmr_chan;
+		
+
+		#xtal number ids: side, ix, iy
+		push @channel_ids, [$side, $ix, $iy];
+		push @logic_ids, $logic_id;
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+sub define_EE_crystal_number_to_EE_LMM {
+
+	my $name = "EE_crystal_number";
+	my $maps_to = "EE_LMM";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+
+	my $ix;
+	my $iy;
+	my $side;
+	my $logic_id;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		my $sideIndex = $side + 1;
+		my $Dee = $channels[14];
+		my $lmm = $channels[17];
+
+                my $logic_id = sprintf "20601%02d0%02d",$Dee, $lmm;
+
+		
+
+		#xtal number ids: side, ix, iy
+		push @channel_ids, [$side, $ix, $iy];
+		push @logic_ids, $logic_id;
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+
+
+sub define_EE_crystal_number_to_EE_LM_PN {
+
+	my $name = "EE_crystal_number";
+	my $maps_to = "EE_LM_PN";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+
+	my $ix;
+	my $iy;
+	my $side;
+	my $logic_id;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		my $sideIndex = $side + 1;
+		my $Dee = $channels[14];
+		my $lmm = $channels[17];
+		my $ccu_id=$channels[13];
+		my $pns=0;
+
+		if($lmm==1) { $pns=100;}
+		if($lmm==2)  { $pns=101;}
+		if($lmm==3)  { $pns=102;}
+		if($lmm==4)  { $pns=103;}
+		if($lmm==5)  { $pns=207;}
+		if($lmm==6)  { $pns=205;}
+		if($lmm==7)  { $pns=206;}
+		if($lmm==8)  { $pns=209;}
+		if($lmm==9)  { $pns=200;}
+		if($lmm==10) { $pns=201;}
+		if($lmm==11) { $pns=202;}
+		if($lmm==12) { $pns=203;}
+		if($lmm==13) { $pns=204;}
+		if($lmm==14) { $pns=107;}
+		if($lmm==15) { $pns=105;}
+		if($lmm==16) { $pns=106;}
+		if($lmm==17) { $pns=109;}
+		if($lmm==18) { $pns=104;}
+		if($lmm==19) { $pns=108;}
+
+
+		my $logic_id = sprintf "20602%02d%03d", $Dee,$pns;
+		if($lmm==18 && ($ccu_id==37 || $ccu_id==40 ||  $ccu_id==40 ) ){
+		    $logic_id = sprintf "20602%02d%03d", $Dee,209;
+		}
+		#xtal number ids: side, ix, iy
+		push @channel_ids, [$side, $ix, $iy];
+		push @logic_ids, $logic_id;
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+
+
 
 
 
@@ -2578,6 +3815,49 @@ sub define_EB_fe_crystal_number_to_EB_crystal_number {
 	 };
 }
 
+sub define_ECAL_crystal_number_fedccuxt_to_EB_crystal_number {
+  my $cn_def = define_EB_crystal_number();
+  my $cn_logic_ids = $cn_def->{logic_ids};
+  my $cn_channel_ids = $cn_def->{channel_ids};
+  my $count = scalar @{$cn_logic_ids};
+
+  my $name = "ECAL_crystal_number_fedccuxt";
+  my $maps_to = "EB_crystal_number";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  # get the logic_id for this cn channel
+  my $cn_id;
+  for my $i (0..$count-1) {
+    my @ids = @{$$cn_channel_ids[$i]};
+    my ($SM, $cn) = @ids[0..1];
+    my ($tt, $fecn) = cn_to_fecn($cn);	
+    $cn_id = $$cn_logic_ids[$i];
+
+
+#   now convert SM in FED 
+    if($SM>0){
+    my $FED=0; 
+    if($SM <=18 ){
+	$FED=627+$SM;
+    }
+    if($SM >=19 ){
+	$FED=609+($SM-18);
+    }
+
+    # set the mapping
+    push @logic_ids, $cn_id;
+    push @channel_ids, [$FED, $tt, $fecn];
+}          
+  }
+  
+  return { 
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
 
 sub define_EB_elec_crystal_number_to_EB_crystal_number {
   my $cn_def = define_EB_crystal_number();
@@ -2619,6 +3899,8 @@ sub define_EB_elec_crystal_number_to_EB_crystal_number {
 	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
 	 };
 }
+
+
 
 sub define_EB_crystal_number_to_EB_HV_channel {
   my $hv_def = define_EB_HV_channel();
@@ -2769,6 +4051,136 @@ sub define_EB_crystal_number_to_EB_LM_channel {
 
       # set the mapping
       push @logic_ids, $lm_id;
+      push @channel_ids, [ $SM, $xtal ];
+
+      # print "SM $SM xtal $xtal -> LM $lm\n";
+    }
+  }
+
+  return { 
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_EB_crystal_number_to_EB_LM_side {
+  my $lm_def = define_EB_LM_side();
+  my $lm_logic_ids = $lm_def->{logic_ids};
+  my $lm_channel_ids = $lm_def->{channel_ids};
+  my $count = scalar @{$lm_logic_ids};
+
+  my $name = "EB_crystal_number";
+  my $maps_to = "EB_LM_side";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (0..36) {
+    for my $xtal (1..1700) {
+      my $j = POSIX::floor(($xtal-1)/20.0);
+      my $i = ($xtal-1) - 20*$j;
+
+      my $lm;
+      if ($j < 5) {
+	$lm = 1;
+      } else {
+	$lm=1;
+	if($i<10) 
+	{ 
+	    $lm=0;
+	}
+      }
+
+      my $logic_id = sprintf "1132%02d00%02d", $SM, $lm;
+      
+      # set the mapping
+      push @logic_ids, $logic_id;
+      push @channel_ids, [ $SM, $xtal ];
+
+      # print "SM $SM xtal $xtal -> LM $lm\n";
+    }
+  }
+
+  return { 
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_EB_LM_side_to_EB_crystal_number {
+  my $maps_to = "EB_crystal_number";
+  my $name = "EB_LM_side";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (1..36) {
+    for my $xtal (1..1700) {
+      my $j = POSIX::floor(($xtal-1)/20.0);
+      my $i = ($xtal-1) - 20*$j;
+
+      my $lm;
+      if ($j < 5) {
+	$lm = 1;
+      } else {
+	$lm=1;
+	if($i<10) 
+	{ 
+	    $lm=0;
+	}
+      }
+
+      my $logic_id = sprintf "1011%02d%04d", $SM, $xtal;
+      push @logic_ids, $logic_id;
+      push @channel_ids, [ $SM, $lm ];
+
+    }
+  }
+
+  return { 
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+
+
+sub define_EB_crystal_number_to_ECAL_LMR {
+
+  my $name = "EB_crystal_number";
+  my $maps_to = "ECAL_LMR";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (1..36) {
+    for my $xtal (1..1700) {
+      my $j = POSIX::floor(($xtal-1)/20.0);
+      my $i = ($xtal-1) - 20*$j;
+
+      my $lm;
+      if ($j < 5) {
+	$lm = 0;
+      } else {
+	  if($i<10) { 
+	      $lm=1;
+	  }else {
+	      $lm=0;
+	  }
+      }
+      my $sm_ord=0;
+      if($SM>18) {
+	  $sm_ord=$SM-18;
+      } else {
+	  $sm_ord=$SM+18;
+      }
+      
+      my $chan=($sm_ord-1)*2+$lm+1;
+
+      my $logic_id = sprintf "10603000%02d", $chan;
+      
+      # set the mapping
+      push @logic_ids, $logic_id;
       push @channel_ids, [ $SM, $xtal ];
 
       # print "SM $SM xtal $xtal -> LM $lm\n";
@@ -3001,6 +4413,228 @@ sub define_EB_crystal_number_to_EB_VFE {
 #      print "SM $SM xtal $xtal -> tt $tt vfe $vfe\n";
     }
   }
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_ECAL_readout_strip_to_EB_VFE {
+  my $vfe_def = define_EB_VFE();
+  my $vfe_logic_ids = $vfe_def->{logic_ids};
+  my $vfe_channel_ids = $vfe_def->{channel_ids};
+  my $count = scalar @{$vfe_logic_ids};
+
+  my $name = "ECAL_readout_strip";
+  my $maps_to = "EB_VFE";
+
+  my @logic_ids;
+  my @channel_ids;
+
+
+  for my $n (0..$count-1) {
+      my @ids = @{ $$vfe_channel_ids[$n] };
+      
+      my $SM=$ids[0];
+      my $tt=$ids[1];
+      my $vfe=$ids[2] ;
+      my $vfe_id = $$vfe_logic_ids[$n];
+      
+#   now convert SM in FED 
+      if($SM>0){
+	  my $FED=0; 
+	  if($SM <=18 ){
+	      $FED=627+$SM;
+	  }
+	  if($SM >=19 ){
+	      $FED=609+($SM-18);
+	  }
+      
+	  # set the mapping
+	  push @logic_ids, $vfe_id;
+	  push @channel_ids, [ $FED, $tt, $vfe ];
+      }
+    }
+
+
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+sub define_ECAL_readout_strip_to_EE_readout_strip {
+  my $vfe_def = define_EE_readout_strip();
+  my $vfe_logic_ids = $vfe_def->{logic_ids};
+  my $vfe_channel_ids = $vfe_def->{channel_ids};
+  my $count = scalar @{$vfe_logic_ids};
+
+  my $name = "ECAL_readout_strip";
+  my $maps_to = "EE_readout_strip";
+
+  my @logic_ids;
+  my @channel_ids;
+
+
+  for my $n (0..$count-1) {
+      my @ids = @{ $$vfe_channel_ids[$n] };
+      
+      my $dcc=$ids[0]+600;
+      my $tt=$ids[1];
+      my $vfe=$ids[2] ;
+      my $vfe_id = $$vfe_logic_ids[$n];
+      
+      
+      # set the mapping
+      push @logic_ids, $vfe_id;
+      push @channel_ids, [ $dcc, $tt, $vfe ];
+
+
+
+  }
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_ECAL_readout_strip_to_EE_offline_stripid {
+
+	my $name = "ECAL_readout_strip";	
+	my $maps_to = "EE_offline_stripid";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+	#temp variables
+	my $DCC;
+	my $readout_tower;
+	my $readout_strip;
+	my @ids;
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+	        #id =DCC TTower readout_strip;
+		my $FED=$channels[4]+600;
+	        my $id = sprintf "%03d %02d %02d %06d", $FED,$channels[5],$channels[6],$channels[19];
+
+	        push @ids, $id;
+	}
+
+	#perlish - returns unique entries using internal references AND a hash
+	#(actually, not an original idea)
+
+	undef my %saw;
+	my @unique = grep(!$saw{$_}++, @ids);
+	
+	foreach my $id (@unique) {
+
+		my @channels = split (/ /, $id);
+		$DCC = $channels[0];
+		$readout_tower = $channels[1];
+		$readout_strip = $channels[2];
+		my $logic_id = $channels[3];
+		push @logic_ids, $logic_id;
+		push @channel_ids, [$DCC, $readout_tower,$readout_strip];
+	}
+
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+
+}
+
+sub define_ECAL_trigger_tower_to_EB_trigger_tower {
+  my $vfe_def = define_EB_trigger_tower();
+  my $vfe_logic_ids = $vfe_def->{logic_ids};
+  my $vfe_channel_ids = $vfe_def->{channel_ids};
+  my $count = scalar @{$vfe_logic_ids};
+
+  my $name = "ECAL_trigger_tower";
+  my $maps_to = "EB_trigger_tower";
+
+  my @logic_ids;
+  my @channel_ids;
+
+
+  for my $n (0..$count-1) {
+      my @ids = @{ $$vfe_channel_ids[$n] };
+      
+      my $SM=$ids[0];
+      my $tt=$ids[1];
+      my $vfe_id = $$vfe_logic_ids[$n];
+      
+#   now convert SM in FED 
+      if($SM>0){
+	  my $TCC=0; 
+	  if($SM <=18 ){
+	      $TCC=54+$SM;
+	  }
+	  if($SM >=19 ){
+	      $TCC=36+($SM-18);
+	  }
+      
+	  # set the mapping
+	  push @logic_ids, $vfe_id;
+	  push @channel_ids, [ $TCC, $tt ];
+      }
+    }
+
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+sub define_EB_readout_tower_to_EB_trigger_tower {
+  my $vfe_def = define_EB_trigger_tower();
+  my $vfe_logic_ids = $vfe_def->{logic_ids};
+  my $vfe_channel_ids = $vfe_def->{channel_ids};
+  my $count = scalar @{$vfe_logic_ids};
+
+  my $name = "EB_readout_tower";
+  my $maps_to = "EB_trigger_tower";
+
+  my @logic_ids;
+  my @channel_ids;
+
+
+  for my $n (0..$count-1) {
+      my @ids = @{ $$vfe_channel_ids[$n] };
+      
+      my $SM=$ids[0];
+      my $tt=$ids[1];
+      my $vfe_id = $$vfe_logic_ids[$n];
+      
+#   now convert SM in FED 
+      if($SM>0){
+	  my $TCC=0; 
+	  if($SM <=18 ){
+	      $TCC=627+$SM;
+	  }
+	  if($SM >=19 ){
+	      $TCC=609+($SM-18);
+	  }
+      
+	  # set the mapping
+	  push @logic_ids, $vfe_id;
+	  push @channel_ids, [ $TCC, $tt ];
+      }
+    }
+
 
   return {
 	  name => $name, maps_to => $maps_to,

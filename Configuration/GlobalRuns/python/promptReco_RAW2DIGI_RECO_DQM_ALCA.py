@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.9 $'),
+    version = cms.untracked.string('$Revision: 1.12 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -35,13 +35,13 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Commissioning09/Cosmics/RAW/v3/000/106/019/FECCF15C-4872-DE11-BDB2-000423D944F8.root')
+    fileNames = cms.untracked.vstring(     '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/065/186A3A47-89DD-DE11-B613-001D09F2516D.root')
 )
 
 # Output definition
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = process.RECOEventContent.outputCommands,
-    fileName = cms.untracked.string('promptReco_RAW2DIGI_RECO_DQM_ALCA.root'),
+    fileName = cms.untracked.string('promptCosmic.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('RECO'),
         filterName = cms.untracked.string('')
@@ -61,8 +61,13 @@ process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
 )
 process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+process.ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo_noDrop.outputCommands)
+process.ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDrop.outputCommands)
+process.ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
+
 # Other statements
-process.GlobalTag.globaltag = 'GR09_31X_V4P::All'
+process.GlobalTag.globaltag = 'GR09_P_V6::All'
 
 # Path and EndPath definitions
 
@@ -116,4 +121,4 @@ process.out_step = cms.EndPath(process.FEVT)
 process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECORpcCalHLT,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOTkAlCosmicsRS0T,process.pathALCARECODQM,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOMuAlStandAloneCosmics,process.endjob_step,process.out_step,process.ALCARECOStreamCombinedOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECORpcCalHLT,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOTkAlCosmicsRS0T,process.pathALCARECOTkAlBeamHalo,process.pathALCARECOMuAlBeamHalo,process.pathALCARECOMuAlBeamHaloOverlaps,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOMuAlStandAloneCosmics,process.pathALCARECODQM,process.endjob_step,process.out_step,process.ALCARECOStreamCombinedOutPath)

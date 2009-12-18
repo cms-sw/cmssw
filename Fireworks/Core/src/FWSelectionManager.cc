@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.9 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWSelectionManager.cc,v 1.10 2009/08/12 18:12:45 chrjones Exp $
 //
 
 // system include files
@@ -89,6 +89,18 @@ FWSelectionManager::clearItemSelection()
        ++it) {
       //NOTE: this will cause
       (*it)->unselectItem();
+   }
+}
+
+void 
+FWSelectionManager::clearModelSelectionLeaveItem()
+{
+   FWChangeSentry sentry(*m_changeManager);
+   for(std::set<FWModelId>::iterator it = m_selection.begin(), itEnd = m_selection.end();
+       it != itEnd;
+       ++it) {
+      //NOTE: this will cause
+      it->unselect();
    }
 }
 

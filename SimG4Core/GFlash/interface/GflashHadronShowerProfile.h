@@ -15,6 +15,10 @@
 
 #include <vector>
 
+class FSimTrack;
+class EcalHitMaker;
+class HcalHitMaker;
+
 class GflashHadronShowerProfile 
 {
 public:
@@ -24,12 +28,14 @@ public:
   GflashHadronShowerProfile (edm::ParameterSet parSet);
   virtual ~GflashHadronShowerProfile ();
 
-  virtual void loadParameters(const G4FastTrack& fastTrack);
-  void hadronicParameterization(const G4FastTrack& fastTrack);
-  G4int getShowerType() { return theShowerType; }
+  void initialize(const G4FastTrack& fastTrack);
+  virtual void loadParameters();
+  void hadronicParameterization();
+  GflashShowino* getGflashShowino() { return theShowino; }
+  void initFastSimCaloHit(EcalHitMaker *aEcalHitMaker,
+                          HcalHitMaker *aHcalHitMaker);
 
 protected:
-  void setShowerType(const G4FastTrack& fastTrack);
   G4double longitudinalProfile(G4double showerDepth, G4double pathLength);
   G4double hoProfile(G4double pathLength, G4double refDepth);
   void doCholeskyReduction(G4double **cc, G4double **vv, const G4int ndim);
@@ -53,8 +59,7 @@ protected:
   edm::ParameterSet theParSet;
   G4double theBField;
   G4bool theGflashHcalOuter;
-
-  G4int theShowerType ; 
+  G4bool theExportToFastSim;
 
   G4Step *theGflashStep; 
   GflashShowino *theShowino; 
@@ -68,6 +73,10 @@ protected:
   G4double longEcal[Gflash::NPar];  
   G4double longHcal[Gflash::NPar];  
   G4double lateralPar[Gflash::kNumberCalorimeter][Gflash::Nrpar]; 
+
+  //FastSim related Output
+  EcalHitMaker* theEcalHitMaker;
+  HcalHitMaker* theHcalHitMaker;
 
 };
 

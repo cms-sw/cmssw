@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <stdlib.h>
 #include <set>
 #include "TGClient.h"
 #include "TGHtml.h"
@@ -37,11 +38,13 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-   {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files","t"},
-   {"http://", "Web site known by you",0},
-   {"file:","Local file [you must type full path name]",0},
-   {"dcap://","dCache [FNAL]",0},
-   {"rfio://","Castor [CERN]",0}
+  {"http://fireworks.web.cern.ch/fireworks/","Pre-selected example files at CERN","t"},
+  {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files in USA","t"},
+  {"http://", "Web site known by you",0},
+  {"file:","Local file [you must type full path name]",0},
+  {"dcap://","dCache [FNAL]",0},
+  {"rfio://","Castor [CERN]",0}
+  
 };
 
 static const std::string s_httpPrefix("http:");
@@ -54,8 +57,15 @@ static const char *s_noBrowserMessage[] = {
    "<HTML><HEAD><TITLE>No Browser Available</TITLE> ",
    "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
    "<BODY> ",
-   "No file browser is available for this prefix.  You can still type the full URL into the above text box to open the EDM ROOT file.<BR>",
-   "Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name (e.g. http://www.site.org) is supported for browsing."
+   //"No file browser is available for this prefix.  You can still type the full URL into the above text box to open the EDM ROOT file.<BR>",
+   //"Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name (e.g. http://www.site.org) is supported for browsing."
+   "<b>Welcome....</b><BR>",
+   "<BR>",
+   "<b>You may look at examples:</b><BR>",
+   "If you are in Europe, open example data files at CERN: <a href=http://fireworks.web.cern.ch/fireworks/>http://fireworks.web.cern.ch/fireworks/</a><BR>",
+   "If you are in US, open example data files at UCSD: <a href=http://uaf-2.t2.ucsd.edu/fireworks/>http://uaf-2.t2.ucsd.edu/fireworks/</a><BR>",
+   "<BR>"
+   "<b>You also may load files with Choose Prefix </b><BR>"
    "</BODY></HTML> ",
    0
 };

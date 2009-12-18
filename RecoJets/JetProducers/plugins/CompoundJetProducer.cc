@@ -101,7 +101,7 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
       for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
 	// Add a ptr to this constituent
 	if ( *fastSubIt < static_cast<int>(inputs_.size()) ) 
-	  subjetConstituents.push_back( inputs_.ptrAt( *fastSubIt ) );
+	  subjetConstituents.push_back( inputs_[*fastSubIt] );
       }
 
       // This holds the subjet-to-hardjet mapping

@@ -19,7 +19,7 @@
 #include <fcntl.h>
 #include <cstring>
 
-char * fileName = "scalers.dat";
+const char * fileName = "scalers.dat";
 
 int main(int argc, char** argv)
 {

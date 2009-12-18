@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.113 2009/11/18 18:39:25 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.138 2009/12/12 20:23:22 amraktad Exp $
 //
 
 // system include files
@@ -62,6 +62,10 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
+#include "Fireworks/Core/src/FWCheckBoxIcon.h"
+
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
 
@@ -78,6 +82,8 @@
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
+#include "Fireworks/Core/interface/fwLog.h"
+
 #include "TVirtualX.h"
 
 //
@@ -91,7 +97,10 @@ bool CmsShowMain::m_autoField = true;
 double CmsShowMain::m_magneticField = 3.8;
 int CmsShowMain::m_numberOfFieldEstimates = 0;
 int CmsShowMain::m_numberOfFieldIsOnEstimates = 0;
-double CmsShowMain::m_caloScale = 2;
+
+double CmsShowMain::m_magneticFieldEstimateSum = 0;
+double CmsShowMain::m_magneticFieldEstimateSum2 = 0;
+int CmsShowMain::m_numberOfFieldValueEstimates = 0;
 
 void CmsShowMain::setMagneticField(double var)
 {
@@ -100,11 +109,27 @@ void CmsShowMain::setMagneticField(double var)
 
 double CmsShowMain::getMagneticField()
 {
-   if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 ||
-        m_numberOfFieldEstimates == 0 )
-      return m_magneticField;
-   else
-      return 0;
+  if (! m_autoField) {
+    // printf("field values is fixed to %0.2f\n",m_magneticField);
+    return m_magneticField;
+  }
+  if ( m_numberOfFieldValueEstimates > 2 ){
+    double rms = sqrt(m_magneticFieldEstimateSum2*m_numberOfFieldValueEstimates -
+		      m_magneticFieldEstimateSum*m_magneticFieldEstimateSum)/m_numberOfFieldValueEstimates;
+    // printf("trying to get field with high quality tracks: N=%d, B=%0.2f, RMS=%0.2f\n",
+    //	   m_numberOfFieldValueEstimates, m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates,rms);
+    if ( rms < 0.5 ) {
+      //printf("field is guessed with high quality tracks: B=%0.2f, RMS=%0.2f\n",
+      //       m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates,rms);
+      return m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates;
+    }
+  }
+  // printf("field On/Off state is guessed, value is fixed\n");
+  if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 ||
+       m_numberOfFieldEstimates == 0 )
+    return m_magneticField;
+  else
+    return 0;
 }
 
 void CmsShowMain::guessFieldIsOn(bool isOn)
@@ -113,34 +138,51 @@ void CmsShowMain::guessFieldIsOn(bool isOn)
    ++m_numberOfFieldEstimates;
 }
 
+void CmsShowMain::guessField(double estimate)
+{
+  m_magneticFieldEstimateSum += estimate;
+  m_magneticFieldEstimateSum2 += estimate*estimate;
+  ++m_numberOfFieldValueEstimates;
+}
+
 void CmsShowMain::resetFieldEstimate()
 {
    m_numberOfFieldIsOnEstimates = 0;
    m_numberOfFieldEstimates = 0;
+   m_magneticFieldEstimateSum = 0;
+   m_magneticFieldEstimateSum2 = 0;
+   m_numberOfFieldValueEstimates = 0;
+}
+
+const fwlite::Event* CmsShowMain::getCurrentEvent() const
+{
+   return m_navigator->getCurrentEvent();
 }
 
 //
 // constructors and destructor
 //
-static const char* const kInputFileOpt ="input-file";
-static const char* const kInputFileCommandOpt ="input-file,i";
-static const char* const kConfigFileOpt = "config-file";
+static const char* const kInputFilesOpt        = "input-files";
+static const char* const kInputFilesCommandOpt = "input-files,i";
+static const char* const kConfigFileOpt        = "config-file";
 static const char* const kConfigFileCommandOpt = "config-file,c";
-static const char* const kGeomFileOpt = "geom-file";
-static const char* const kGeomFileCommandOpt = "geom-file,g";
-static const char* const kNoConfigFileOpt = "noconfig";
+static const char* const kGeomFileOpt          = "geom-file";
+static const char* const kGeomFileCommandOpt   = "geom-file,g";
+static const char* const kNoConfigFileOpt      = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
-static const char* const kPlayOpt = "play";
-static const char* const kPlayCommandOpt = "play,p";
-static const char* const kLoopOpt = "loop";
-static const char* const kLoopCommandOpt = "loop";
-static const char* const kDebugOpt = "debug";
-static const char* const kDebugCommandOpt = "debug,d";
-static const char* const kEveOpt = "eve";
-static const char* const kEveCommandOpt = "eve";
-static const char* const kAdvancedRenderOpt = "shine";
+static const char* const kPlayOpt              = "play";
+static const char* const kPlayCommandOpt       = "play,p";
+static const char* const kLoopOpt              = "loop";
+static const char* const kLoopCommandOpt       = "loop";
+static const char* const kDebugOpt             = "debug";
+static const char* const kDebugCommandOpt      = "debug,d";
+static const char* const kLogLevelCommandOpt   = "log";
+static const char* const kLogLevelOpt          = "log";
+static const char* const kEveOpt               = "eve";
+static const char* const kEveCommandOpt        = "eve";
+static const char* const kAdvancedRenderOpt        = "shine";
 static const char* const kAdvancedRenderCommandOpt = "shine,s";
-static const char* const kHelpOpt = "help";
+static const char* const kHelpOpt        = "help";
 static const char* const kHelpCommandOpt = "help,h";
 // static const char* const kSoftOpt = "soft";
 static const char* const kSoftCommandOpt = "soft";
@@ -148,7 +190,8 @@ static const char* const kPortCommandOpt = "port";
 static const char* const kPlainRootCommandOpt = "root";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
 static const char* const kChainCommandOpt = "chain";
-static const char* const kLiveCommandOpt = "live";
+static const char* const kLiveCommandOpt  = "live";
+static const char* const kFieldCommandOpt = "field";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
@@ -163,16 +206,20 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                     m_eiManager.get(),
                                     m_colorManager.get())),
    m_navigator(new CmsShowNavigator(*this)),
+
+   m_loadedAnyInputFile(false),
+
    m_autoLoadTimer(0),
    m_autoLoadTimerRunning(kFALSE),
    m_liveTimer(0),
    m_live(0),
    m_isPlaying(false),
    m_forward(true),
-   m_rewindMode(false),
+   m_loop(false),
    m_playDelay(3.f),
    m_lastPointerPositionX(-999),
-   m_lastPointerPositionY(-999)
+   m_lastPointerPositionY(-999),
+   m_liveTimeout(600000)
    //  m_configFileName(iConfigFileName)
 {
    //m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
@@ -184,7 +231,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       namespace po = boost::program_options;
       po::options_description desc(descString);
       desc.add_options()
-         (kInputFileCommandOpt,    po::value<std::string>(), "Input root file")
+         (kInputFilesCommandOpt, po::value< std::vector<std::string> >(),   "Input root files")
          (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
          (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
          (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
@@ -195,13 +242,15 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          (kPlainRootCommandOpt,                              "Plain ROOT without event display")
          (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
          (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
+         (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
          (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
          (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
-         (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain.")
-         (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display.")
+         (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
+         (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
+         (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
          (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
-      p.add(kInputFileOpt, -1);
+      p.add(kInputFilesOpt, -1);
 
       int newArgc = argc;
       char **newArgv = argv;
@@ -215,6 +264,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          std::cout << desc <<std::endl;
          exit(0);
       }
+      
+      if(vm.count(kLogLevelOpt)) {
+         fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelOpt].as<unsigned int>());
+         fwlog::setPresentLogLevel(level);
+      }
+
       if(vm.count(kPlainRootCommandOpt)) {
          std::cout << "Plain ROOT prompt requested" <<std::endl;
          return;
@@ -226,14 +281,16 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       // input file
-      if (vm.count(kInputFileOpt)) {
-         m_inputFileName = vm[kInputFileOpt].as<std::string>();
+      if (vm.count(kInputFilesOpt)) {
+         m_inputFiles = vm[kInputFilesOpt].as< std::vector<std::string> >();
       }
 
-      if (!m_inputFileName.size())
+      if (!m_inputFiles.size())
          std::cout << "No data file given." << std::endl;
+      else if (m_inputFiles.size() == 1)
+         std::cout << "Input: " << m_inputFiles.front() << std::endl;
       else
-         std::cout << "Input: " << m_inputFileName.c_str() << std::endl;
+         std::cout << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
 
       // configuration file
       if (vm.count(kConfigFileOpt)) {
@@ -260,8 +317,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
       bool eveMode = vm.count(kEveOpt);
 
-      //Delay creating guiManager until here so that if we have a 'help' request we don't
-      // open any graphics
+      
+      //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
+      // open any graphics or build dictionaries
+      AutoLibraryLoader::enable();
+
       m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
                                                                   m_eiManager.get(),
                                                                   m_changeManager.get(),
@@ -314,7 +374,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
       if (vm.count(kLoopOpt))
-         setPlayAutoRewind();
+         setPlayLoop();
 
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
@@ -331,8 +391,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_startupTasks->addTask(f);
       }
       if (vm.count(kPlayOpt)) {
-         m_playDelay = vm[kPlayOpt].as<float>();
-         f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
+         f=boost::bind(&CmsShowMain::setupAutoLoad, this, vm[kPlayOpt].as<float>());
          m_startupTasks->addTask(f);
       }
 
@@ -340,6 +399,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       {
          f=boost::bind(&CmsShowMain::setLiveMode, this);
          m_startupTasks->addTask(f);
+      }
+      if(vm.count(kFieldCommandOpt)) {
+         m_magneticField = vm[kFieldCommandOpt].as<double>();
+         m_autoField = false;
       }
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
@@ -449,11 +512,32 @@ void CmsShowMain::openData()
    m_guiManager->clearStatus();
 }
 
-void 
+void CmsShowMain::appendData()
+{
+   const char* kRootType[] = {"ROOT files","*.root", 0, 0};
+   TGFileInfo fi;
+   fi.fFileTypes = kRootType;
+   /* this is how things used to be done:
+      fi.fIniDir = ".";
+      this is bad because the destructor calls delete[] on fIniDir.
+    */
+   fi.fIniDir = new char[10];
+   strcpy(fi.fIniDir, ".");
+   new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
+   m_guiManager->updateStatus("loading file ...");
+   if (fi.fFilename) {
+      m_navigator->appendFile(fi.fFilename, false, false);
+      checkPosition();
+      draw();
+   }
+   m_guiManager->clearStatus();
+}
+
+void
 CmsShowMain::openDataViaURL()
 {
    if (m_searchFiles.get() == 0) {
-      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles("", 
+      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles("",
                                                                                 "Open Remote Data Files",
                                                                                 m_guiManager->getMainFrame(),
                                                                                 500, 400));
@@ -738,12 +822,22 @@ public:
 }
 
 //______________________________________________________________________________
+void
+CmsShowMain::setupAutoLoad(float x)
+{
+   m_playDelay = x;
+   if (!m_guiManager->playEventsAction()->isEnabled())
+      m_guiManager->playEventsAction()->enable();
+
+   m_guiManager->playEventsAction()->switchMode();
+}
+
 void CmsShowMain::startAutoLoadTimer()
 {
    m_autoLoadTimer->SetTime((Long_t)(m_playDelay*1000));
    m_autoLoadTimer->Reset();
    m_autoLoadTimer->TurnOn();
-   m_autoLoadTimerRunning = kTRUE;  
+   m_autoLoadTimerRunning = kTRUE;
 }
 
 void CmsShowMain::stopAutoLoadTimer()
@@ -752,52 +846,74 @@ void CmsShowMain::stopAutoLoadTimer()
    m_autoLoadTimerRunning = kFALSE;
 }
 
+//_______________________________________________________________________________
 void CmsShowMain::autoLoadNewEvent()
-{   
+{
    stopAutoLoadTimer();
-    
-   if ((m_forward && m_navigator->isLastEvent() && m_monitor.get()) ||
-       (!m_forward && m_navigator->isFirstEvent() && m_monitor.get())) 
-   { 
-      // do nothing if reached end/beginning in port mode
-      startAutoLoadTimer();
+   
+   // case when start with no input file
+   if (!m_loadedAnyInputFile)
+   {
+      if (m_monitor.get()) 
+         startAutoLoadTimer();
       return;
    }
 
+   bool reachedEnd = (m_forward && m_navigator->isLastEvent()) || (!m_forward && m_navigator->isFirstEvent());
 
-   m_forward ? m_navigator->nextEvent() : m_navigator->previousEvent();
-   
-   draw();
+   if (m_loop && reachedEnd)
+   {
+      m_forward ? m_navigator->firstEvent() : m_navigator->lastEvent();
+      draw();
+   }
+   else if (!reachedEnd)
+   {
+      m_forward ? m_navigator->nextEvent() : m_navigator->previousEvent();
+      draw();
+   }
 
-   // stop loop at ends if necessary
-   if ( (m_rewindMode || m_monitor.get()) == kFALSE)
-   { 
+   // stop loop in case no loop or monitor mode
+   if ( reachedEnd && (m_loop || m_monitor.get()) == kFALSE)
+   {
       if (m_forward && m_navigator->isLastEvent())
       {
          m_guiManager->enableActions();
-         m_guiManager->disableNext();
-         return;
+         checkPosition();
       }
 
       if ((!m_forward) && m_navigator->isFirstEvent())
       {
          m_guiManager->enableActions();
-         m_guiManager->disableNext();
-         return;
+         checkPosition();
       }
    }
-
-   startAutoLoadTimer();   
+   else
+   {
+      startAutoLoadTimer();
+   }
 }
 
 //______________________________________________________________________________
 
 void CmsShowMain::checkPosition()
 {
+   if ((m_monitor.get() || m_loop ) && m_isPlaying)
+      return;
+   
+   m_guiManager->getMainFrame()->enableNavigatorControls();
+
    if (m_navigator->isFirstEvent())
+   {
       m_guiManager->disablePrevious();
+   }
+
    if (m_navigator->isLastEvent())
+   {
       m_guiManager->disableNext();
+      // force enable play events action in --port mode
+      if (m_monitor.get() && !m_guiManager->playEventsAction()->isEnabled())
+         m_guiManager->playEventsAction()->enable();
+   }
 }
 
 void CmsShowMain::doFirstEvent()
@@ -827,6 +943,13 @@ void CmsShowMain::doLastEvent()
    draw();
 }
 
+void CmsShowMain::goToRunEvent(int run, int event)
+{
+   m_navigator->goToRunEvent(run, event);
+   checkPosition();
+   draw();
+}
+
 //==============================================================================
 
 void
@@ -838,19 +961,17 @@ CmsShowMain::setupDataHandling()
    m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
 
    // navigator filtering  ->
-   m_navigator->updateEventFilterEnable_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable,m_guiManager.get(),_1));
-   m_navigator->editFilters_.connect(boost::bind(&FWGUIManager::editEventFilters, m_guiManager.get(),_1));
-   m_navigator->eventFilterMessageChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessageChanged,m_guiManager.get(),_1, _2));
-   m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
+   m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1));
+   m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState,this, _1));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
 
    // navigator fitlering <-
    m_guiManager->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator,_1));
-   m_guiManager->eventFilterEnable_.connect(boost::bind(&CmsShowNavigator::eventFilterEnableCallback, m_navigator,_1));
+   m_guiManager->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
 
-
-   if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-   if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
+   if (m_guiManager->getAction(cmsshow::sOpenData)    != 0) m_guiManager->getAction(cmsshow::sOpenData)   ->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
+   if (m_guiManager->getAction(cmsshow::sAppendData)  != 0) m_guiManager->getAction(cmsshow::sAppendData) ->activated.connect(sigc::mem_fun(*this, &CmsShowMain::appendData));
+   if (m_guiManager->getAction(cmsshow::sSearchFiles) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doNextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
@@ -859,35 +980,53 @@ CmsShowMain::setupDataHandling()
       m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doFirstEvent));
    if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0)
       m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doLastEvent));
+ 
+   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMain::goToRunEvent,this,_1,_2));
+
+
    if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
    m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playForward));
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
    m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playBackward));
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
-   m_guiManager->autoRewindAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::setPlayAutoRewindImp));
-   m_guiManager->autoRewindAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::unsetPlayAutoRewindImp));
+   m_guiManager->loopAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::setPlayLoopImp));
+   m_guiManager->loopAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::unsetPlayLoopImp));
 
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
-   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToRunEvent,m_navigator,_1,_2));
-
-
+  
+   // init data from  CmsShowNavigator configuration, can do this with signals since there were not connected yet
+   m_guiManager->setFilterButtonIcon(m_navigator->getFilterState());
    m_autoLoadTimer = new SignalTimer();
    ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
 
-   if(m_inputFileName.size()) {
-      m_guiManager->updateStatus("loading data file...");
-      if (!m_navigator->openFile(m_inputFileName) ) {
-         m_guiManager->updateStatus("failed to load data file");
-         openData();
-      } else {
-         m_navigator->firstEvent();
-         checkPosition();
-         draw();
+   for (unsigned int ii = 0; ii < m_inputFiles.size(); ++ii)
+   {
+      const std::string& fname = m_inputFiles[ii];
+      if (fname.size())
+      {
+         m_guiManager->updateStatus("loading data file ...");
+         if (!m_navigator->appendFile(fname, false, false))
+         {
+            m_guiManager->updateStatus("failed to load data file");
+            openData();
+         }
+         else
+         {
+            m_loadedAnyInputFile = true;
+         }
       }
    }
-   else if (m_monitor.get() != 0) {
+
+   if (m_loadedAnyInputFile)
+   {
+      m_navigator->firstEvent();
+      checkPosition();
+      draw();
+   }
+   else if (m_monitor.get() != 0)
+   {
       openData();
    }
 }
@@ -899,7 +1038,18 @@ CmsShowMain::setLiveMode()
    m_liveTimer = new SignalTimer();
    ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
 
-   m_liveTimer->SetTime(600000);
+
+   Window_t rootw, childw;
+   Int_t root_x, root_y, win_x, win_y;
+   UInt_t mask;
+   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
+                           rootw, childw,
+                           root_x, root_y,
+                           win_x, win_y,
+                           mask);
+
+
+   m_liveTimer->SetTime(m_liveTimeout);
    m_liveTimer->Reset();
    m_liveTimer->TurnOn();
 }
@@ -926,23 +1076,27 @@ CmsShowMain::setupSocket(unsigned int iSocket)
    m_monitor->Add(server);
 }
 
-
 void
 CmsShowMain::notified(TSocket* iSocket)
 {
    TServerSocket* server = dynamic_cast<TServerSocket*> (iSocket);
-   if(0!=server) {
+   if (server)
+   {
       TSocket* connection = server->Accept();
-      if(0!=connection) {
+      if (connection)
+      {
          m_monitor->Add(connection);
          std::stringstream s;
          s << "received connection from "<<iSocket->GetInetAddress().GetHostName();
          m_guiManager->updateStatus(s.str().c_str());
       }
-   } else {
+   }
+   else
+   {
       char buffer[4096];
       memset(buffer,0,sizeof(buffer));
-      if( iSocket->RecvRaw(buffer, sizeof(buffer)) <= 0) {
+      if (iSocket->RecvRaw(buffer, sizeof(buffer)) <= 0)
+      {
          m_monitor->Remove(iSocket);
          //std::stringstream s;
          //s << "closing connection to "<<iSocket->GetInetAddress().GetHostName();
@@ -952,7 +1106,8 @@ CmsShowMain::notified(TSocket* iSocket)
       }
       std::string fileName(buffer);
       std::string::size_type lastNonSpace = fileName.find_last_not_of(" \n\t");
-      if(lastNonSpace != std::string::npos) {
+      if(lastNonSpace != std::string::npos)
+      {
          fileName.erase(lastNonSpace+1);
       }
 
@@ -960,13 +1115,20 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"New file notified '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
-      m_navigator->appendFile(fileName, !m_live);
+      bool appended = m_navigator->appendFile(fileName, true, m_live);
+
+      if (appended && m_live && m_isPlaying && m_forward)
+      {
+         m_navigator->activateNewFileOnNextEvent();
+      }
+
       // bootstrap case: --port  and no input file
-      if (m_inputFileName.empty())
+      if (!m_loadedAnyInputFile)
       {
          m_navigator->firstEvent();
+         m_loadedAnyInputFile = true;
       }
-      m_inputFileName = fileName;
+
       std::stringstream sr;
       sr <<"New file registered '"<<fileName<<"'";
       m_guiManager->updateStatus(sr.str().c_str());
@@ -995,58 +1157,84 @@ void
 CmsShowMain::stopPlaying()
 {
    stopAutoLoadTimer();
+   if (m_live)
+      m_navigator->resetNewFileOnNextEvent();
    m_isPlaying = false;
    m_guiManager->enableActions();
    checkPosition();
 }
 
 void
-CmsShowMain::setPlayAutoRewind()
+CmsShowMain::setPlayLoop()
 {
-   if(!m_rewindMode) {
-      setPlayAutoRewindImp();
-      m_guiManager->autoRewindAction()->activated();
+   if(!m_loop) {
+      setPlayLoopImp();
+      m_guiManager->loopAction()->activated();
    }
 }
 
 void
-CmsShowMain::unsetPlayAutoRewind()
+CmsShowMain::unsetPlayLoop()
 {
-   if(m_rewindMode) {
-      unsetPlayAutoRewindImp();
-      m_guiManager->autoRewindAction()->stop();
+   if(m_loop) {
+      unsetPlayLoopImp();
+      m_guiManager->loopAction()->stop();
    }
 }
 
 void
-CmsShowMain::setPlayAutoRewindImp()
+CmsShowMain::setPlayLoopImp()
 {
-   m_rewindMode = true;
+   m_loop = true;
 }
 
 void
-CmsShowMain::unsetPlayAutoRewindImp()
+CmsShowMain::unsetPlayLoopImp()
 {
-   m_rewindMode = false;
+   m_loop = false;
+}
+
+void
+CmsShowMain::navigatorChangedFilterState(int state)
+{
+   m_guiManager->setFilterButtonIcon(state);
+   if (m_navigator->filesNeedUpdate() == false)
+   {
+      m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
+      checkPosition();
+   }
+}
+
+void
+CmsShowMain::filterButtonClicked()
+{
+   if (m_navigator->getFilterState() == CmsShowNavigator::kWithdrawn )
+      m_guiManager->showEventFilterGUI();
+   else
+      m_navigator->toggleFilterEnable();
 }
 
 void
 CmsShowMain::preFiltering()
 {
-   if (!m_isPlaying) m_guiManager->enableActions(false);
+   // called only if filter has changed
    m_guiManager->updateStatus("Filtering events");
 }
+
 void
 CmsShowMain::postFiltering()
 {
-   if (!m_isPlaying) m_guiManager->enableActions(true);
+   // called only filter is changed
    m_guiManager->clearStatus();
+   draw();
+   checkPosition();
+   m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
 }
 
 void
 CmsShowMain::checkLiveMode()
 {
-   if (m_isPlaying) return;
+   m_liveTimer->TurnOff();
 
    Window_t rootw, childw;
    Int_t root_x, root_y, win_x, win_y;
@@ -1056,12 +1244,21 @@ CmsShowMain::checkLiveMode()
                            root_x, root_y,
                            win_x, win_y,
                            mask);
-   if ( m_lastPointerPositionX == root_x &&
+
+
+   if ( !m_isPlaying &&
+        m_lastPointerPositionX == root_x && 
         m_lastPointerPositionY == root_y )
    {
       m_guiManager->playEventsAction()->switchMode();
    }
+
    m_lastPointerPositionX = root_x;
    m_lastPointerPositionY = root_y;
+
+
+   m_liveTimer->SetTime((Long_t)(m_liveTimeout));
+   m_liveTimer->Reset();
+   m_liveTimer->TurnOn();
 }
 

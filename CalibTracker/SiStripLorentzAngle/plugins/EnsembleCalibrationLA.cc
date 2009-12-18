@@ -37,39 +37,18 @@ endJob()
   write_ensembles_text(book);
   write_ensembles_plots(book);
   write_samples_plots(book);
-  write_calibrations();
 }
 
 void EnsembleCalibrationLA::
-write_ensembles_text(const Book& book) {
+write_ensembles_text(const Book& book) const {
   std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
   BOOST_FOREACH(ensemble, LA_Filler_Fitter::ensemble_summary(book)) {
     fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
     BOOST_FOREACH(LA_Filler_Fitter::EnsembleSummary summary, ensemble.second)
       file << summary << std::endl;
-
+    
     const std::pair<std::pair<float,float>,std::pair<float,float> > line = LA_Filler_Fitter::offset_slope(ensemble.second);
     const float pull =  LA_Filler_Fitter::pull(ensemble.second);
-
-    unsigned index = 15;
-    std::string label;
-    {
-      std::cout << ensemble.first << std::endl;
-      boost::regex format(".*(T[IO]B)_layer(\\d)([as])_(.*)");
-      if(boost::regex_match(ensemble.first,format)) {
-	const bool TIB = "TIB" == boost::regex_replace(ensemble.first, format, "\\1");
-	const bool stereo = "s" == boost::regex_replace(ensemble.first, format, "\\3");
-	std::cout << "stereo: "<< stereo << std::endl;
-	const unsigned layer = boost::lexical_cast<unsigned>(boost::regex_replace(ensemble.first, format, "\\2"));
-	label = boost::regex_replace(ensemble.first, format, "\\4");
-	index = LA_Filler_Fitter::layer_index(TIB,stereo,layer);
-	std::cout << "index: "<< index << std::endl;
-
-	calibrations[label].slopes[index]=line.second.first;
-	calibrations[label].offsets[index]=line.first.first;
-	calibrations[label].pulls[index]=pull;
-      }
-    }
 
     file << std::endl << std::endl
 	 << "# Best Fit Line: "	 
@@ -97,19 +76,6 @@ write_samples_plots(const Book& book) const {
   for(Book::const_iterator hist = book.begin(".*(measure|merr|ensembleReco|pull)"); hist!=book.end(); ++hist)
     hist->second->Write();
   file.Close();
-}
-
-void EnsembleCalibrationLA::
-write_calibrations() const {
-  fstream file((Prefix+"calibrations.dat").c_str(),std::ios::out);
-  std::pair<std::string,MethodCalibrations> cal;
-  BOOST_FOREACH(cal,calibrations) {
-    file << cal.first << std::endl
-	 << "\t slopes(";    BOOST_FOREACH(float i, cal.second.slopes) file << i<< ","; file << ")" << std::endl
-	 << "\t offsets(";   BOOST_FOREACH(float i, cal.second.offsets) file << i<< ","; file << ")" << std::endl
-	 << "\t pulls(";     BOOST_FOREACH(float i, cal.second.pulls) file << i<< ","; file << ")" << std::endl;
-  }
-  file.close();
 }
   
 }

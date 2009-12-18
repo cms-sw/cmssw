@@ -57,7 +57,6 @@ namespace edm {
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), principalCache(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 :
 			   new RootInputFileSequence(pset, *this, catalog(1), principalCache(), false)),
-    secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), processConfiguration()) : 0),
     branchIDsToReplace_(),
     numberOfEventsBeforeBigSkip_(0),
     numberOfEventsInBigSkip_(0),
@@ -187,10 +186,10 @@ namespace edm {
 						      primaryPrincipal->id().event(),
 						      true, false);
       if (found) {
-        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_);
+	EventPrincipal ep(secondaryFileSequence_->fileProductRegistry(), processConfiguration());
+        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(ep);
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
-        secondaryEventPrincipal_->clearPrincipal();
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";

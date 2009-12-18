@@ -46,39 +46,24 @@ namespace edm {
     branchesMustMatch_(BranchDescription::Permissive),
     flatDistribution_(),
     fileIndexes_(fileCatalogItems().size()),
+    eventSkipperByID_(primarySequence ? EventSkipperByID::create(pset).release() : 0),
     eventsRemainingInFile_(0),
-    startAtRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
-    startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
-    startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
     currentRun_(0U),
     currentLumi_(0U),
     skippedToRun_(0U),
     skippedToLumi_(0U),
     skippedToEvent_(0U),
     skippedToEntry_(FileIndex::Element::invalidEntry),
-    skipEvents_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
-    whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToSkip", std::vector<LuminosityBlockRange>())),
-    whichLumisToProcess_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToProcess", std::vector<LuminosityBlockRange>())),
-    whichEventsToSkip_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToSkip",std::vector<EventRange>())),
-    whichEventsToProcess_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToProcess",std::vector<EventRange>())),
-    noEventSort_(pset.getUntrackedParameter<bool>("noEventSort", false)),
+    numberOfEventsToSkip_(primarySequence ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
+    noEventSort_(primarySequence ? pset.getUntrackedParameter<bool>("noEventSort", false) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
-    duplicateChecker_(),
-    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary()))
-  {
-    if(!primarySequence_) noEventSort_ = false;
-    if(!whichLumisToProcess_.empty() && !whichEventsToProcess_.empty()) {
-      throw edm::Exception(errors::Configuration)
-        << "Illegal configuration options passed to PoolSource\n"
-        << "You cannot request both \"luminosityBlocksToProcess\" and \"eventsToProcess\".\n";
-    }
-
-    if(primarySequence_ && primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
+    duplicateChecker_(primarySequence ? new DuplicateChecker(pset) : 0),
+    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
 
     StorageFactory *factory = StorageFactory::get();
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
@@ -101,10 +86,8 @@ namespace edm {
       }
       if(rootFile_) {
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
-	if(primarySequence_) {
-	  if(skipEvents_ != 0) {
-	    skipEvents(skipEvents_, cache);
-	  }
+	if(numberOfEventsToSkip_ != 0) {
+	  skipEvents(numberOfEventsToSkip_, cache);
 	}
       }
     }
@@ -184,12 +167,10 @@ namespace edm {
       std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex = fileIter_ - fileIterBegin_;
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
-	  startAtRun_, startAtLumi_, startAtEvent_, skipEvents_ != 0,
-	  whichLumisToSkip_, whichEventsToSkip_,
+	  eventSkipperByID_, numberOfEventsToSkip_ != 0,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
 	  setRun_,
-	  whichLumisToProcess_, whichEventsToProcess_,
 	  noEventSort_,
 	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_,
           fileIndexes_, currentFileIndex));
@@ -391,10 +372,8 @@ namespace edm {
         if(rootFile_) break;
       }
       if(rootFile_) {
-	if(primarySequence_) {
-	  if(skipEvents_ != 0) {
-	    skipEvents(skipEvents_, cache);
-	  }
+	if(numberOfEventsToSkip_ != 0) {
+	  skipEvents(numberOfEventsToSkip_, cache);
 	}
       }
     }
@@ -403,23 +382,23 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   bool
   RootInputFileSequence::skipEvents(int offset, PrincipalCache& cache) {
-    assert (skipEvents_ == 0 || skipEvents_ == offset);
-    skipEvents_ = offset;
-    while(skipEvents_ != 0) {
-      bool atEnd = rootFile_->skipEvents(skipEvents_);
-      if((skipEvents_ > 0 || atEnd) && !nextFile(cache)) {
-	skipEvents_ = 0;
+    assert (numberOfEventsToSkip_ == 0 || numberOfEventsToSkip_ == offset);
+    numberOfEventsToSkip_ = offset;
+    while(numberOfEventsToSkip_ != 0) {
+      bool atEnd = rootFile_->skipEvents(numberOfEventsToSkip_);
+      if((numberOfEventsToSkip_ > 0 || atEnd) && !nextFile(cache)) {
+	numberOfEventsToSkip_ = 0;
 	return false;
       }
-      if(skipEvents_ < 0 && !previousFile(cache)) {
-	skipEvents_ = 0;
+      if(numberOfEventsToSkip_ < 0 && !previousFile(cache)) {
+	numberOfEventsToSkip_ = 0;
         return false;
       }
     }
     int dummy = 0;
     bool atTheEnd = rootFile_->skipEvents(dummy);
     if (atTheEnd && !nextFile(cache)) {
-      skipEvents_ = 0;
+      numberOfEventsToSkip_ = 0;
       return false;
     }
     setSkipInfo();

@@ -45,7 +45,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-DTBtiChip::DTBtiChip(DTBtiCard* card, DTTrigGeom* geom, int supl, int n, DTConfigBti* conf): _card(card), _geom(geom), _config(conf) {
+DTBtiChip::DTBtiChip(DTTrigGeom* geom, int supl, int n, DTConfigBti* conf): _geom(geom), _config(conf) {
 
 
  // original constructor
@@ -79,8 +79,28 @@ DTBtiChip::DTBtiChip(DTBtiCard* card, DTTrigGeom* geom, int supl, int n, DTConfi
   DTChamberId sid = _geom->statId();
   _id = DTBtiId(sid, supl, n);
 
+  //all this is obsolete, in new DTConfig setup... SV 15/I/2007
+  //if(config()->trigSetupGeom()){
+    //set K acceptance for each bti! SV
+    //_MinKleftTraco = config()->LL_bti(n,supl);
+    //_MaxKleftTraco = config()->LH_bti(n,supl);
+    //_MinKcenterTraco = config()->CL_bti(n,supl);
+    //_MaxKcenterTraco = config()->CH_bti(n,supl);
+    //_MinKrightTraco = config()->RL_bti(n,supl);
+    //_MaxKrightTraco = config()->RH_bti(n,supl);
+
+    //if(config()->debug()>2){
+      //cout << "K acceptance:" << endl;
+      //cout << "  for left traco "<<_MinKleftTraco<<"<K<"<<_MaxKleftTraco<<endl;
+      //cout << "  for center traco "<<_MinKcenterTraco<<"<K<"<<_MaxKcenterTraco<<endl;
+      //cout << "  for right traco "<<_MinKrightTraco<<"<K<"<<_MaxKrightTraco<<endl;
+    //}
+    // end debugging
+  //}
+
+
   //if(config()->trigSetupGeom() == 0){
-    // set K acceptance in theta view for this BTI: 6 bit resolution....  
+    // set K acceptance for this BTI: 6 bit resolution....  
     _MinKAcc = 0;
     _MaxKAcc = 63;
 	
@@ -149,57 +169,40 @@ DTBtiChip::DTBtiChip(DTBtiCard* card, DTTrigGeom* geom, int supl, int n, DTConfi
 // theta bti acceptance cut is in bti chip (no traco in theta!)
     // acceptance is determined about BTI angle wrt vertex with programmable value 
     if(_id.superlayer()==2){
-      // 091105 SV theta bti trigger angular acceptance in CMSSW is computed from geometry 
-      // (theta of the bti) +- a given tolerance config()->KAccTheta(): tolerance NOT in 
-      // hardware configuration. The hw tolerance is given in the system and the 
-      // overall acceptance is computed "before" data (CH,CL) is given to the MC
-      // or written in the DB. No way to "extract" the tolerance from DB yet.
+//      float distp2 = (int)(2*_geom->cellH()*config()->ST()/_geom->cellPitch());   SV fix 17/III/07
+      float distp2 = 2*_geom->cellH()*config()->ST()/_geom->cellPitch();
+      float K0 = config()->ST();
 
-      if(_card->useAcceptParamFlag()==0){
-
-	//float distp2 = (int)(2*_geom->cellH()*config()->ST()/_geom->cellPitch());   SV fix 17/III/07
-      	float distp2 = 2*_geom->cellH()*config()->ST()/_geom->cellPitch();
-      	float K0 = config()->ST();
-
-      	// position of BTI 1 and of current one
-      	DTBtiId _id1 = DTBtiId(sid,supl,1);
-      	GlobalPoint gp1 = _geom->CMSPosition(_id1); 
-      	GlobalPoint gp = CMSPosition();
-      	if(config()->debug()>3){
-        	cout << "Position: R=" << gp.perp() << "cm, Phi=" << gp.phi()*180/3.14159;
-        	cout << " deg, Z=" << gp.z() << " cm" << endl;
-      	}
-	// new geometry: modified wrt old due to specularity of theta SLs --> fixed 6/9/06 
-      	float theta;
-      	if(gp1.z() < 0.0) 
-      		theta = atan( -(gp.z())/gp.perp() );				
-      	else 
-        	theta = atan( (gp.z())/gp.perp() );
-
-	// set BTI acceptance window : fixed wrt ORCA on 6/9/06  
-      	float fktmin = tan(theta)*distp2+K0 ;
-	int ktmin = static_cast<int>(fktmin)-config()->KAccTheta();
-      	float fktmax = tan(theta)*distp2+K0+1;
-	int ktmax = static_cast<int>(fktmax)+config()->KAccTheta();
-      	if(ktmin>_MinKAcc)
-		_MinKAcc=ktmin;
-      	if(ktmax<_MaxKAcc)
-		_MaxKAcc=ktmax;
+      // position of BTI 1 and of current one
+      DTBtiId _id1 = DTBtiId(sid,supl,1);
+      GlobalPoint gp1 = _geom->CMSPosition(_id1); 
+      GlobalPoint gp = CMSPosition();
+      if(config()->debug()>3){
+        cout << "Position: R=" << gp.perp() << "cm, Phi=" << gp.phi()*180/3.14159;
+        cout << " deg, Z=" << gp.z() << " cm" << endl;
       }
-      // 091105 SV acceptance is taken simply from CH, CL parameters
-      else {
-	_MinKAcc = config()->CL();
-	_MaxKAcc = config()->CH();
-      }	
+// new geometry: modified wrt old due to specularity of theta SLs --> fixed 6/9/06 
+      float theta;
+      if(gp1.z() < 0.0) 
+      	theta = atan( -(gp.z())/gp.perp() );				
+      else 
+        theta = atan( (gp.z())/gp.perp() );
 
-      // debugging
-      if(config()->debug()>2){
-        cout << "CMS position:" << CMSPosition() << endl;
-        cout << "K acceptance (theta view):" << _MinKAcc << "," << _MaxKAcc  << endl;
-      }// end debugging
-	 
+// set BTI acceptance window : fixed wrt ORCA on 6/9/06  
+      float fktmin = tan(theta)*distp2+K0 ;
+	  int ktmin = static_cast<int>(fktmin)-config()->KAccTheta();
+      float fktmax = tan(theta)*distp2+K0+1;
+	  int ktmax = static_cast<int>(fktmax)+config()->KAccTheta();
+      if(ktmin>_MinKAcc)_MinKAcc=ktmin;
+      if(ktmax<_MaxKAcc)_MaxKAcc=ktmax;
     }//end theta acceptance computation 
 
+    // debugging
+    if(config()->debug()>2){
+      cout << "CMS position:" << CMSPosition() << endl;
+      cout << "K acceptance:" << _MinKAcc << "," << _MaxKAcc  << endl;
+    }
+    // end debugging
   //}// end if trigSetupGeom=0
 
 
@@ -838,8 +841,8 @@ DTBtiChip::store(const int eq, const int code, const int K, const int X,
   else{
     // remove out of range triggers (acceptances defined in constructor)
     if(config()->debug()>2){
-      cout << "DTBtiChip::store, REJECTED TRIGGER at step "<< currentStep();
-      cout << " allowed K range in theta view is: [";
+      cout << "DTBtiChip::store, at step "<< currentStep();
+      cout << " allowed K range is: [";
       cout << _MinKAcc << ","<< _MaxKAcc << "]";
       cout << "K value is " << K << endl; 
     }

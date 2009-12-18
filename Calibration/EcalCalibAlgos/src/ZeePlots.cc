@@ -32,7 +32,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-ZeePlots::ZeePlots( char* fileName )
+ZeePlots::ZeePlots( const char* fileName )
 {
 
   fileName_ = fileName;

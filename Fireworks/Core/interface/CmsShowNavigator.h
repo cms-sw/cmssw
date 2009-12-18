@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.32 2009/11/18 17:13:54 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.46 2009/12/07 21:12:53 amraktad Exp $
 //
 
 // system include files
@@ -32,9 +32,13 @@ namespace edm {
 
 class CmsShowNavigator : public FWConfigurable
 {
+public:
+   enum EFilterState { kOff, kOn, kWithdrawn };
+   enum EFilterMode  { kOr = 1, kAnd = 2 };
+   
 private:
-   typedef std::deque<FWFileEntry*> FQBase_t;
-   typedef FQBase_t::iterator       FQBase_i;
+   typedef std::list<FWFileEntry*> FQBase_t;
+   typedef FQBase_t::iterator      FQBase_i;
 
 
    struct FileQueue_t : public FQBase_t
@@ -74,10 +78,8 @@ public:
    void setFrom(const FWConfiguration&);
 
    Int_t realEntry(Int_t rawEntry);
-   std::pair<std::deque<FWFileEntry*>::iterator,Int_t> realEntry(Int_t run, Int_t event);
-
-   bool openFile(const std::string& fileName);
-   bool appendFile(const std::string& fileName, bool checkMaxFileSize);
+   bool  openFile(const std::string& fileName);
+   bool  appendFile(const std::string& fileName, bool checkFileQueueSize, bool live);
 
    void nextEvent();
    void previousEvent();
@@ -91,11 +93,7 @@ public:
    void eventFilterEnableCallback(Bool_t);
    void filterEvents();
    void filterEventsAndReset();
-
-   int  getNSelectedEvents();
-   int  getNTotalEvents();
-
-
+  
    void setMaxNumberOfFilesToChain( unsigned int i ) {
       m_maxNumberOfFilesToChain = i;
    }
@@ -104,28 +102,42 @@ public:
 
    void showEventFilterGUI(const TGWindow* p);
    void applyFiltersFromGUI();
-
-   const fwlite::Event* getCurrentEvent() { return (*m_currentFile)->event();}
+   void toggleFilterEnable();
+   void withdrawFilter();
+   void resumeFilter();
    
-   sigc::signal<void, const fwlite::Event&> newEvent_;
+   const fwlite::Event* getCurrentEvent() const { return (*m_currentFile)->event();}
+   const char* filterStatusMessage();
+   int  getNSelectedEvents();
+   int  getNTotalEvents();
+   bool canEditFiltersExternally();
+   bool filesNeedUpdate() const { return m_filesNeedUpdate; }
+   int  getFilterState() { return m_filterState; }
+   
+   void activateNewFileOnNextEvent() { m_newFileOnNextEvent = true; }
+   void resetNewFileOnNextEvent()    { m_newFileOnNextEvent = false; }
+
+   sigc::signal<void> newEvent_;
    sigc::signal<void, const TFile*> fileChanged_;
    sigc::signal<void> preFiltering_;
    sigc::signal<void> postFiltering_;
-   sigc::signal<void, int, int> eventFilterMessageChanged_;
-   sigc::signal<void, bool>updateEventFilterEnable_;
-   sigc::signal<void, bool>editFilters_;
+   sigc::signal<void, bool> editFiltersExternally_;
+   sigc::signal<void, int> filterStateChanged_;
+  
 
 private:
    CmsShowNavigator(const CmsShowNavigator&);    // stop default
    const CmsShowNavigator& operator=(const CmsShowNavigator&);    // stop default
+
    void setCurrentFile(FileQueue_i);
    void updateFileFilters();
+   void updateSelectorsInfo();
 
    void removeFilter(std::list<FWEventSelector*>::iterator);
    void addFilter(FWEventSelector*);
-   void changeFilter(FWEventSelector*);
-   void finishEditFilters();
-   
+   void changeFilter(FWEventSelector*, bool filterNeedUpdate);
+
+   void editFiltersExternally();
    void newFile(FileQueue_i);
 
    // ---------- member data --------------------------------
@@ -135,9 +147,10 @@ private:
    FileQueue_i m_currentFile;
    int m_currentEvent;
 
-   bool m_filtersEnabled;
-   bool m_filterModeOR;
-   bool m_filtersNeedUpdate;
+   EFilterState m_filterState;
+   int          m_filterMode;
+   bool         m_filesNeedUpdate;
+   bool         m_newFileOnNextEvent;
    
    unsigned int m_maxNumberOfFilesToChain;
    // entry is an event index nubmer which runs from 0 to

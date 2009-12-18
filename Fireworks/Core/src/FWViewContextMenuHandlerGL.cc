@@ -44,6 +44,7 @@ FWViewContextMenuHandlerGL::select(int iEntryIndex, const FWModelId &id, int iX,
 
       const char* txt = Form("%s %d", id.item()->name().c_str(), id.index());   
       TGLAnnotation* an = new TGLAnnotation(v, txt,  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight(), pnt);
+      an->SetUseColorSet(true);
       an->SetTextSize(0.03);
    }
    else if (iEntryIndex == kCameraCenter)

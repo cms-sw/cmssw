@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.16 2009/08/25 21:32:49 dellaric Exp $
+// $Id: L1Scalers.cc,v 1.15 2009/07/20 18:11:01 dellaric Exp $
 #include <iostream>
 
 
@@ -141,9 +141,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 
     // First, the default
     // vector of bool
-    for(int iebx=0; iebx<=4; iebx++) {
-      DecisionWord gtDecisionWord = gtRecord->decisionWord(iebx-2);
-//    DecisionWord gtDecisionWord = gtRecord->decisionWord();
+    DecisionWord gtDecisionWord = gtRecord->decisionWord();
     if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
        // loop over dec. bit to get total rate (no overlap)
        for ( int i = 0; i < 128; ++i ) {
@@ -157,7 +155,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       for ( int i = 0; i < 128; ++i ) {
 	if ( gtDecisionWord[i] ) {
 	  l1scalers_->Fill(i);
-	  l1scalersBx_->Fill(gtfeBx-2+iebx,i);
+	  l1scalersBx_->Fill(gtfeBx,i);
 	  for ( int j = i + 1; j < 128; ++j ) {
 	    if ( gtDecisionWord[j] ) {
 	      l1Correlations_->Fill(i,j);
@@ -167,15 +165,12 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 	}
       }
     }   
-    }
     // loop over technical triggers
     // vector of bool again. 
-    for(int iebx=0; iebx<=4; iebx++) {
-      TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(iebx-2);
-//    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
+    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
     if ( ! tw.empty() ) {
        // loop over dec. bit to get total rate (no overlap)
-      for ( int i = 0; i < 64; ++i ) {
+       for ( int i = 0; i < 64; ++i ) {
          if ( tw[i] ) {
 	   rateTtCounter_++;
            l1TtCounter_->Fill(rateTtCounter_);
@@ -185,11 +180,10 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       for ( int i = 0; i < 64; ++i ) {
 	if ( tw[i] ) {
 	  l1techScalers_->Fill(i);
-	  l1techScalersBx_->Fill(gtfeBx-2+iebx, i);
+	  l1techScalersBx_->Fill(gtfeBx, i);
 	}
       } 
     } // ! tw.empty
-    }
   } // getbylabel succeeded
 
 

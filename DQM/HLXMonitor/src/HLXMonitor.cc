@@ -30,7 +30,6 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    AquireMode       = iConfig.getUntrackedParameter< unsigned int >("AquireMode",  0);
    Accumulate       = iConfig.getUntrackedParameter< bool         >("Accumulate",  true); // all
    TriggerBX        = iConfig.getUntrackedParameter< unsigned int >("TriggerBX",   50);
-   MinLSBeforeSave  = iConfig.getUntrackedParameter< unsigned int >("MinLSBeforeSave", 1);
    reconnTime       = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",5);
    DistribIP1       = iConfig.getUntrackedParameter< std::string  >("PrimaryHLXDAQIP", "vmepcs2f17-18");
    DistribIP2       = iConfig.getUntrackedParameter< std::string  >("SecondaryHLXDAQIP", "vmepcs2f17-19");
@@ -60,7 +59,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    set2AboveIndex   = 5;
 
    runNumLength     = 9;
-   secNumLength     = 8;
+   secNumLength     = 6;
 
    if(NUM_HLX > 36)       
      NUM_HLX = 36;
@@ -131,25 +130,25 @@ HLXMonitor::SetupHists()
       dbe_->setCurrentFolder(monitorName_+"/HFPlus/Wedge"+tempStreamer.str());
 
       Set1Below[iWedge]   = dbe_->book1D("Set1_Below",   
-				    "HF+ Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 1",  
+				    "HF+ Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 1",  
 				    NBINS, XMIN, XMAX);
       Set1Between[iWedge] = dbe_->book1D("Set1_Between", 
-				    "HF+ Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 1",
+				    "HF+ Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 1",
 				    NBINS, XMIN, XMAX);
       Set1Above[iWedge]   = dbe_->book1D("Set1_Above",   
-				    "HF+ Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 1",  
+				    "HF+ Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 1",  
 				    NBINS, XMIN, XMAX);
       Set2Below[iWedge]   = dbe_->book1D("Set2_Below",   
-				    "HF+ Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 2",  
+				    "HF+ Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 2",  
 				    NBINS, XMIN, XMAX);
       Set2Between[iWedge] = dbe_->book1D("Set2_Between", 
-				    "HF+ Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 2",
+				    "HF+ Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 2",
 				    NBINS, XMIN, XMAX);
       Set2Above[iWedge]   = dbe_->book1D("Set2_Above",   
-				    "HF+ Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 2",  
+				    "HF+ Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 2",  
 				    NBINS, XMIN, XMAX);    
       ETSum[iWedge]       = dbe_->book1D("ETSum",        
-				    "HF+ Wedge "+wedgeNum.str()+": E_{T} Sum",                
+				    "HF+ Wedge "+wedgeNum.str()+" E_{T} Sum",                
 				    NBINS, XMIN, XMAX);    
 
       dbe_->tagContents(monitorName_+"/HFPlus/Wedge"+tempStreamer.str(), iWedge+1);
@@ -169,25 +168,25 @@ HLXMonitor::SetupHists()
 
 	 dbe_->setCurrentFolder(monitorName_+"/HFMinus/Wedge"+tempStreamer.str());
 	 Set1Below[iWedge]   = dbe_->book1D("Set1_Below",
-				       "HF- Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 1",  
+				       "HF- Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 1",  
 				       NBINS, XMIN, XMAX);
 	 Set1Between[iWedge] = dbe_->book1D("Set1_Between",
-				       "HF- Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 1",
+				       "HF- Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 1",
 				       NBINS, XMIN, XMAX);
 	 Set1Above[iWedge]   = dbe_->book1D("Set1_Above",   
-				       "HF- Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 1",  
+				       "HF- Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 1",  
 				       NBINS, XMIN, XMAX); 
 	 Set2Below[iWedge]   = dbe_->book1D("Set2_Below",   
-				       "HF- Wedge "+wedgeNum.str()+": Below Threshold 1 - Set 2",  
+				       "HF- Wedge "+wedgeNum.str()+" Below Threshold 1 - Set 2",  
 				       NBINS, XMIN, XMAX); 
 	 Set2Between[iWedge] = dbe_->book1D("Set2_Between", 
-				       "HF- Wedge "+wedgeNum.str()+": Between Threshold 1 & 2 - Set 2",
+				       "HF- Wedge "+wedgeNum.str()+" Between Threshold 1 & 2 - Set 2",
 				       NBINS, XMIN, XMAX); 
 	 Set2Above[iWedge]   = dbe_->book1D("Set2_Above",   
-				       "HF- Wedge "+wedgeNum.str()+": Above Threshold 2 - Set 2",  
+				       "HF- Wedge "+wedgeNum.str()+" Above Threshold 2 - Set 2",  
 				       NBINS, XMIN, XMAX); 
 	 ETSum[iWedge]       = dbe_->book1D("ETSum",        
-				       "HF- Wedge "+wedgeNum.str()+": E_{T} Sum",                
+				       "HF- Wedge "+wedgeNum.str()+" E_{T} Sum",                
 				       NBINS, XMIN, XMAX); 
 
 	 dbe_->tagContents(monitorName_+"/HFMinus/Wedge"+tempStreamer.str(), iWedge+1);
@@ -244,7 +243,7 @@ HLXMonitor::SetupHists()
    std::string CompEtSumYTitle = "E_{T} Sum per active tower";
    std::string CompOccYTitle   = "Occupancy per active tower";
 
-   HFCompareEtSum = dbe_->book1D("HFCompareEtSum","E_{T} Sum",NUM_HLX, 0, NUM_HLX );
+   HFCompareEtSum = dbe_->book1D("HFCompareEtSum","E_{T} Sum - cyclic trigger ",NUM_HLX, 0, NUM_HLX );
    HFCompareEtSum->setAxisTitle( CompXTitle, 1 );
    HFCompareEtSum->setAxisTitle( CompEtSumYTitle, 2 );
  
@@ -344,6 +343,7 @@ HLXMonitor::SetupHists()
    AvgOccAboveSet2->setAxisTitle( AvgXTitle, 1 );
    AvgOccAboveSet2->setAxisTitle( AvgOccYTitle, 2 );
 
+
    // Luminosity Histograms
    dbe_->setCurrentFolder(monitorName_+"/Luminosity");
 
@@ -410,7 +410,6 @@ HLXMonitor::SetupHists()
    std::string HistEtSumYTitle = "Average E_{T} Sum";
    std::string HistOccYTitle = "Average Occupancy";
    std::string HistLumiYTitle = "Luminosity";
-   std::string HistLumiErrorYTitle = "Luminosity Error (%)";
    std::string BXvsTimeXTitle = "Time (LS)";
    std::string BXvsTimeYTitle = "BX";
 
@@ -492,7 +491,7 @@ HLXMonitor::SetupHists()
    BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeXTitle, 1 );
    BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeYTitle, 2 );
 
-   BXvsTimeAvgEtSumHFM  = dbe_->book2D( "BXvsTimeAvgEtSumHFM", "Average Et Sum: HF-",          
+   BXvsTimeAvgEtSumHFM  = dbe_->book2D( "BXvsTimeAvgEtSumHFM", "Average Et Sum: HF+",          
    MAX_LS, 0.5, (double)MAX_LS+0.5, NBINS, (double)XMIN, (double)XMAX);
    BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeXTitle, 1 );
    BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeYTitle, 2 );
@@ -529,22 +528,6 @@ HLXMonitor::SetupHists()
    MAX_LS, 0.5, (double)MAX_LS+0.5);
    HistInstantLumiOccSet2->setAxisTitle( HistXTitle, 1 );
    HistInstantLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
-
-   HistInstantLumiEtSumError   = dbe_->book1D( "HistInstantLumiEtSumError", "Luminosity Error: Et Sum",
-   MAX_LS, 0.5, (double)MAX_LS+0.5);
-   HistInstantLumiEtSumError->setAxisTitle( HistXTitle, 1 );
-   HistInstantLumiEtSumError->setAxisTitle( HistLumiErrorYTitle, 2 );
-   
-   HistInstantLumiOccSet1Error = dbe_->book1D( "HistInstantLumiOccSet1Error", "Luminosity Error: Occ Set1",
-   MAX_LS, 0.5, (double)MAX_LS+0.5);
-   HistInstantLumiOccSet1Error->setAxisTitle( HistXTitle, 1 );
-   HistInstantLumiOccSet1Error->setAxisTitle( HistLumiErrorYTitle, 2 ); 
-   
-   HistInstantLumiOccSet2Error = dbe_->book1D( "HistInstantLumiOccSet2Error", "Luminosity Error: Occ Set2",
-   MAX_LS, 0.5, (double)MAX_LS+0.5);
-   HistInstantLumiOccSet2Error->setAxisTitle( HistXTitle, 1 );
-   HistInstantLumiOccSet2Error->setAxisTitle( HistLumiErrorYTitle, 2 );
-
 
    HistIntegratedLumiEtSum   = dbe_->book1D( "HistIntegratedLumiEtSum", "Integrated Luminosity: Et Sum",
    MAX_LS, 0.5, (double)MAX_LS+0.5);
@@ -594,10 +577,6 @@ HLXMonitor::SetupHists()
    RecentIntegratedLumiOccSet2->setAxisTitle( RecentHistXTitle, 1 );
    RecentIntegratedLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
 
-   std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
-   for( size_t i=0, e = systems.size(); i<e; ++i ){
-      std::cout << "Systems " << systems[i] << std::endl;
-   }
  
    dbe_->showDirStructure();
 }
@@ -613,51 +592,12 @@ void HLXMonitor::SetupEventInfo( )
 
    dbe_->setCurrentFolder(currentfolder) ;
 
-   pEvent_ = 0;
-   evtRateCount_ = 0;
-   gettimeofday(&currentTime_,NULL);
-   lastAvgTime_ = currentTime_;
-   evtRateWindow_ = 0.5;
-
    //Event specific contents
    runId_     = dbe_->bookInt("iRun");
    lumisecId_ = dbe_->bookInt("iLumiSection");
 
-   eventId_   = dbe_->bookInt("iEvent");
-   eventId_->Fill(-1);
-   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
-   
-   dbe_->setCurrentFolder(currentfolder) ;
-   //Process specific contents
-   processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
-   processTimeStamp_->Fill(getUTCtime(&currentTime_));
-   processLatency_ = dbe_->bookFloat("processLatency");
-   processTimeStamp_->Fill(-1);
-   processEvents_ = dbe_->bookInt("processedEvents");
-   processEvents_->Fill(pEvent_);
-   processEventRate_ = dbe_->bookFloat("processEventRate");
-   processEventRate_->Fill(-1); 
-   nUpdates_= dbe_->bookInt("processUpdates");
-   nUpdates_->Fill(-1);
- 
-   //Static Contents
-   processId_= dbe_->bookInt("processID"); 
-   processId_->Fill(gSystem->GetPid());
-   processStartTimeStamp_ = dbe_->bookFloat("processStartTimeStamp");
-   processStartTimeStamp_->Fill(getUTCtime(&currentTime_));
-   runStartTimeStamp_ = dbe_->bookFloat("runStartTimeStamp");
-   hostName_= dbe_->bookString("hostName",gSystem->HostName());
-   processName_= dbe_->bookString("processName",subSystemName_);
-   workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
-   cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
-   dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
-
    reportSummary_ = dbe_->bookFloat("reportSummary");
    reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 18, 0., 18., 2, -1.5, 1.5);
-   TH2F *summaryHist = reportSummaryMap_->getTH2F();
-   summaryHist->GetYaxis()->SetBinLabel(1,"HF-");
-   summaryHist->GetYaxis()->SetBinLabel(2,"HF+");
-   summaryHist->GetXaxis()->SetTitle("Wedge #");
 
    // Fill the report summary objects with default values, since these will only
    // be filled at the change of run.
@@ -701,19 +641,13 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( HLXTCP.ReceiveLumiSection( lumiSection ) == 1 )
    {
       // If this is the first time through, set the runNumber ...
-      if( runNumber_ != lumiSection.hdr.runNumber ){
-	 runNumber_ = lumiSection.hdr.runNumber;
-	 //std::cout << "Run number is: " << runNumber_ << std::endl;
-         timeval startruntime;
-         gettimeofday(&startruntime,NULL);
-	 runStartTimeStamp_->Fill(getUTCtime(&startruntime));
-      }
+      if( runNumber_ != lumiSection.hdr.runNumber ) runNumber_ = lumiSection.hdr.runNumber;
+      //std::cout << "Run number is: " << runNumber_ << std::endl;
       
       // Fill the monitoring histograms 
       FillHistograms(lumiSection);
       FillHistoHFCompare(lumiSection);
-      FillEventInfo(lumiSection,iEvent);
-      FillReportSummary();
+      FillEventInfo(lumiSection);
       
       cout << "Run: " << lumiSection.hdr.runNumber 
 	   << " Section: " << lumiSection.hdr.sectionNumber 
@@ -758,19 +692,11 @@ void HLXMonitor::SaveDQMFile(){
   std::ostringstream tempStreamer;
   tempStreamer << OutputDir << "/" << OutputFilePrefix << "_" << subSystemName_
 	       << "_R" << std::setfill('0') << std::setw(runNumLength) 
-	       << runNumber_ << "_T00000001.root";
-
-  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
-  char rewrite[64]; sprintf(rewrite, "\\1Run %d/\\2/Run summary", runNumber_);
-  int saveReference_ = DQMStore::SaveWithoutReference;
-  int saveReferenceQMin_ = dqm::qstatus::STATUS_OK;
-
-  for( size_t i = 0, e = systems.size(); i != e; ++i )
-     if (systems[i] != "Reference")
-         dbe_->save( tempStreamer.str(), systems[i], "^(Reference/)?([^/]+)", rewrite,
-		     (DQMStore::SaveReferenceTag)saveReference_, saveReferenceQMin_);
-
-  //dbe_->save(tempStreamer.str());
+	       << runNumber_ 
+// 	       << "_" << std::setfill('0') << std::setw(secNumLength) 
+// 	       << lumiSection.hdr.sectionNumber
+ 	       << ".root";
+  dbe_->save(tempStreamer.str());
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -831,15 +757,25 @@ void HLXMonitor::endJob()
 
 void HLXMonitor::EndRun( bool saveFile )
 {
-   FillReportSummary();
+   // Run summary - Loop over the HLX's and fill the map, 
+   // also calculate the overall quality.
+   float overall = 0.0;
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
+      unsigned int iWedge = HLXHFMap[iHLX] + 1;
+      unsigned int iEta = 2;
+      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
+      float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
+      reportSummaryMap_->setBinContent(iWedge,iEta,frac);
+      overall += frac;
+   }   
+      
+   overall /= (float)NUM_HLX;
+   if( overall > 1.0 ) overall = 0.0;
+   //std::cout << "Filling report summary! Main. " << overall << std::endl;
+   reportSummary_->Fill(overall);
    
    // Do some things that should be done at the end of the run ...
-   if( saveFile && runNumber_ != 0 ){
-      if( int(lumiSectionCount/64) >= (int)MinLSBeforeSave ) SaveDQMFile();
-      else std::cout << "Num LS's (" << int(lumiSectionCount/64) << ") "
-		     << "is less than required minumum (" << MinLSBeforeSave
-		     << "). File will not be saved!" << std::endl;
-   }  
+   if( saveFile ) SaveDQMFile();  
    expectedNibbles_ = 0;
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
    
@@ -860,16 +796,14 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    int fillBin = lumiSectionCount+1;
    if( fillBin > 128 )
    {
-      // If we are already more than 2 LS's in, move everything back by one bin
-      // and fill the last bin with the new value.
-      for( int iBin = 1; iBin<128; ++iBin )
+      for( int iBin = 1; iBin<128; iBin++ )
       {
-	 RecentInstantLumiEtSum->setBinContent(iBin,RecentInstantLumiEtSum->getBinContent(iBin+1));
-	 RecentInstantLumiOccSet1->setBinContent(iBin,RecentInstantLumiOccSet1->getBinContent(iBin+1));
-	 RecentInstantLumiOccSet2->setBinContent(iBin,RecentInstantLumiOccSet2->getBinContent(iBin+1));
-	 RecentIntegratedLumiEtSum->setBinContent(iBin,RecentIntegratedLumiEtSum->getBinContent(iBin+1));
-	 RecentIntegratedLumiOccSet1->setBinContent(iBin,RecentIntegratedLumiOccSet1->getBinContent(iBin+1));
-	 RecentIntegratedLumiOccSet2->setBinContent(iBin,RecentIntegratedLumiOccSet2->getBinContent(iBin+1));
+	 RecentInstantLumiEtSum->setBinContent(iBin,RecentInstantLumiEtSum->getBinContent(iBin));
+	 RecentInstantLumiOccSet1->setBinContent(iBin,RecentInstantLumiOccSet1->getBinContent(iBin));
+	 RecentInstantLumiOccSet2->setBinContent(iBin,RecentInstantLumiOccSet2->getBinContent(iBin));
+	 RecentIntegratedLumiEtSum->setBinContent(iBin,RecentIntegratedLumiEtSum->getBinContent(iBin));
+	 RecentIntegratedLumiOccSet1->setBinContent(iBin,RecentIntegratedLumiOccSet1->getBinContent(iBin));
+	 RecentIntegratedLumiOccSet2->setBinContent(iBin,RecentIntegratedLumiOccSet2->getBinContent(iBin));
       }
       fillBin = 128;
    }
@@ -909,19 +843,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
       HistInstantLumiOccSet1->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc1));
       HistInstantLumiOccSet2->setBinContent(lsBinOld,sectionInstantSumOcc2);
       HistInstantLumiOccSet2->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc2));
-    
-      double etDenom   = fabs(sectionInstantSumEt);
-      if( etDenom < 1e-10 ) etDenom = 1e-10;
-      double occ1Denom   = fabs(sectionInstantSumOcc1);
-      if( occ1Denom < 1e-10 ) occ1Denom = 1e-10;
-      double occ2Denom   = fabs(sectionInstantSumOcc2);
-      if( occ2Denom < 1e-10 ) occ2Denom = 1e-10;
-      double etError   = 100.0*sqrt(sectionInstantErrSumEt)/etDenom;
-      double occ1Error = 100.0*sqrt(sectionInstantErrSumOcc1)/occ1Denom;
-      double occ2Error = 100.0*sqrt(sectionInstantErrSumOcc2)/occ2Denom;
-      HistInstantLumiEtSumError->setBinContent(lsBinOld,etError);
-      HistInstantLumiOccSet1Error->setBinContent(lsBinOld,occ1Error);
-      HistInstantLumiOccSet2Error->setBinContent(lsBinOld,occ2Error);
       
       double histOldBinContent = HistIntegratedLumiEtSum->getBinContent(lsBinOld-1);
       double histNewBinContent = histOldBinContent + sectionInstantSumEt; 
@@ -993,47 +914,18 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	    double normOccSet2Between = (double)section.occupancy[iHLX].data[set2BetweenIndex][iBX]/(double)norm[1];
 	    double normOccSet2Above   = (double)section.occupancy[iHLX].data[set2AboveIndex][iBX]/(double)norm[1];
 
-	    // Weights ... 1/dy**2
-	    double wOccSet1Below   =  1;
-	    double wOccSet1Between =  1;
-	    double wOccSet1Above   =  1;
-	    double wOccSet2Below   =  1;
-	    double wOccSet2Between =  1;
-	    double wOccSet2Above   =  1;
-
-	    if(normOccSet1Below > 0 && normOccSet1Below < 1) 
-	       wOccSet1Below   =  (double)norm[0]/normOccSet1Below*(1-normOccSet1Below);
-	    if(normOccSet1Between > 0 && normOccSet1Between < 1) 
-	       wOccSet1Between =  (double)norm[0]/normOccSet1Between*(1-normOccSet1Between);
-	    if(normOccSet1Above > 0 && normOccSet1Above < 1) 
-	       wOccSet1Above   =  (double)norm[0]/normOccSet1Above*(1-normOccSet1Above);
-	    if(normOccSet2Below > 0 && normOccSet2Below < 1) 
-	       wOccSet2Below   =  (double)norm[1]/normOccSet2Below*(1-normOccSet2Below);
-	    if(normOccSet2Between > 0 && normOccSet2Between < 1) 
-	       wOccSet2Between =  (double)norm[1]/normOccSet2Between*(1-normOccSet2Between);
-	    if(normOccSet2Above > 0 && normOccSet2Above < 1) 
-	       wOccSet2Above   =  (double)norm[1]/normOccSet2Above*(1-normOccSet2Above);
-
 	    // Averages & check sum
 	    if( iBX < NUM_BUNCHES-100 )
 	    {
 	       AvgEtSum->Fill( iWedge,normEt);
 	
-// 	       AvgOccBelowSet1->  Fill( iWedge, normOccSet1Below,   wOccSet1Below   );
-// 	       AvgOccBetweenSet1->Fill( iWedge, normOccSet1Between, wOccSet1Between );
-// 	       AvgOccAboveSet1->  Fill( iWedge, normOccSet1Above,   wOccSet1Above   );
-	   
-// 	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below,   wOccSet2Below   );
-// 	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between, wOccSet2Between );
-// 	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above,   wOccSet2Above   );
-
 	       AvgOccBelowSet1->  Fill( iWedge, normOccSet1Below   );
 	       AvgOccBetweenSet1->Fill( iWedge, normOccSet1Between );
 	       AvgOccAboveSet1->  Fill( iWedge, normOccSet1Above   );
 	   
-	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below   );
-	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between );
-	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above   );
+	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below    );
+	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between  );
+	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above    );
 
 	       if( iWedge < 18 )
 	       {
@@ -1204,7 +1096,7 @@ void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION & section)
   }
 }
 
-void HLXMonitor::FillEventInfo(const LUMI_SECTION & section, const edm::Event& e)
+void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
 {
    // New run .. set the run number and fill run summaries ...
    std::cout << "Run number " << runNumber_ << " Section hdr run number " 
@@ -1220,44 +1112,6 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION & section, const edm::Event& e
       totalNibbles_[iWedge-1] += section.occupancy[iHLX].hdr.numNibbles; 
    }   
 
-   eventId_->Fill(e.id().event());
-   eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
- 
-   pEvent_++;
-   evtRateCount_++;
-   processEvents_->Fill(pEvent_);
- 
-   lastUpdateTime_=currentTime_;
-   gettimeofday(&currentTime_,NULL);  
-   processTimeStamp_->Fill(getUTCtime(&currentTime_));
-   processLatency_->Fill(getUTCtime(&lastUpdateTime_,&currentTime_));
- 
-   float time = getUTCtime(&lastAvgTime_,&currentTime_);
-   if(time>=(evtRateWindow_*60.0)){
-      processEventRate_->Fill((float)evtRateCount_/time);
-      evtRateCount_ = 0;
-      lastAvgTime_ = currentTime_;    
-   }
-
-}
-
-void HLXMonitor::FillReportSummary(){
-   // Run summary - Loop over the HLX's and fill the map, 
-   // also calculate the overall quality.
-   float overall = 0.0;
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
-      unsigned int iWedge = HLXHFMap[iHLX] + 1;
-      unsigned int iEta = 2;
-      float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
-      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
-      reportSummaryMap_->setBinContent(iWedge,iEta,frac);
-      overall += frac;
-   }   
-      
-   overall /= (float)NUM_HLX;
-   if( overall > 1.0 ) overall = 0.0;
-   //std::cout << "Filling report summary! Main. " << overall << std::endl;
-   reportSummary_->Fill(overall);
 }
 
 void HLXMonitor::ResetAll()
@@ -1331,9 +1185,6 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(HistInstantLumiEtSum);
    dbe_->softReset(HistInstantLumiOccSet1);
    dbe_->softReset(HistInstantLumiOccSet2);
-   dbe_->softReset(HistInstantLumiEtSumError);
-   dbe_->softReset(HistInstantLumiOccSet1Error);
-   dbe_->softReset(HistInstantLumiOccSet2Error);
    dbe_->softReset(HistIntegratedLumiEtSum);
    dbe_->softReset(HistIntegratedLumiOccSet1);
    dbe_->softReset(HistIntegratedLumiOccSet2);
@@ -1349,11 +1200,6 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(BXvsTimeAvgEtSumHFM);
 }
 
-double HLXMonitor::getUTCtime(timeval* a, timeval* b){
-  double deltaT=(*a).tv_sec*1000.0+(*a).tv_usec/1000.0;
-  if(b!=NULL) deltaT=(*b).tv_sec*1000.0+(*b).tv_usec/1000.0 - deltaT;
-  return deltaT/1000.0;
-}
 
 
 //define this as a plug-in

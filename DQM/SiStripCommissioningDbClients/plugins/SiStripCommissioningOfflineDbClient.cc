@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.24 2009/11/12 12:35:43 dellaric Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.23 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -11,7 +11,7 @@
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
-#include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
+// #include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
@@ -28,7 +28,10 @@ SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const 
   : SiStripCommissioningOfflineClient(pset),
     uploadAnal_( pset.getUntrackedParameter<bool>("UploadAnalyses",false) ),
     uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) ),
-    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) )
+    uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
+    uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) ),
+    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) ),
+    disableBadStrips_( pset.getUntrackedParameter<bool>("DisableBadStrips",false) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
@@ -102,7 +105,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
   else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( pset, bei_, db ); }
   else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( pset, bei_, db ); }
   else if ( runType_ == sistrip::PEDS_ONLY )    { histos_ = new PedsOnlyHistosUsingDb( pset, bei_, db ); }
-  else if ( runType_ == sistrip::PEDS_FULL_NOISE ) { histos_ = new PedsFullNoiseHistosUsingDb( pset, bei_, db ); }
+//  else if ( runType_ == sistrip::PEDS_FULL_NOISE ) { histos_ = new PedsFullNoiseHistosUsingDb( pset, bei_, db ); }
   else if ( runType_ == sistrip::NOISE )        { histos_ = new NoiseHistosUsingDb( pset, bei_, db ); }
   else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( pset, bei_, db ); }
   else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( pset, bei_, db ); }
@@ -131,6 +134,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
     tmp->doUploadConf( uploadConf_ ); 
     tmp->doUploadAnal( uploadAnal_ ); 
     tmp->disableDevices( disableDevices_ );
+    tmp->disableBadStrips( disableBadStrips_ );
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
        << std::endl
@@ -141,12 +145,22 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
        << ( tmp->doUploadAnal() ? "true" : "false" )
        << std::endl
        << " Disable problematic devices?          : " 
-       << ( tmp->disableDevices() ? "true" : "false" );
+       << ( tmp->disableDevices() ? "true" : "false" )
+       << std::endl
+       << " Disable dead/noisy strips?            : " 
+       << ( tmp->disableBadStrips() ? "true" : "false" );
     edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
     edm::LogError(mlDqmClient_) 
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " NULL pointer to CommissioningHistosUsingDb!";
+  }
+  
+  // Flags specific to APV timing task 
+  ApvTimingHistosUsingDb* temp = dynamic_cast<ApvTimingHistosUsingDb*>(histos_);
+  if ( temp ) { 
+    temp->uploadPllSettings( uploadFecSettings_ );
+    temp->uploadFedSettings( uploadFedSettings_ );
   }
 
 }

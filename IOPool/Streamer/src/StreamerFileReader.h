@@ -1,31 +1,37 @@
 #ifndef IOPool_Streamer_StreamerFileReader_h
 #define IOPool_Streamer_StreamerFileReader_h
 
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/StreamerInputFile.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
-#include <iostream>
+#include <vector>
 
-namespace edm
-{
-  class StreamerFileReader 
-  {
+class InitMsgView;
+class EventMsgView;
+
+namespace edm {
+  class InputSourceDescription;
+  class ParameterSet;
+  class EventPrincipal;
+  class EventSkipperByID;
+  class StreamerInputFile;
+  class StreamerFileReader : public StreamerInputSource {
   public:
-    StreamerFileReader(edm::ParameterSet const& pset);
-    ~StreamerFileReader();
+    StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc);
+    virtual ~StreamerFileReader();
+    virtual EventPrincipal* read();
 
-     const InitMsgView* getHeader(); 
-     const EventMsgView* getNextEvent();
-     const bool newHeader(); 
+    InitMsgView const* getHeader(); 
+    EventMsgView const* getNextEvent();
+    bool const newHeader(); 
 
   private:  
-
-     std::vector<std::string> streamerNames_; /** names of Streamer files */
-     std::auto_ptr<StreamerInputFile> stream_reader_;
+    std::vector<std::string> streamerNames_; // names of Streamer files
+    std::auto_ptr<StreamerInputFile> streamReader_;
+    boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    int numberOfEventsToSkip_;
   };
 
 } //end-of-namespace-def

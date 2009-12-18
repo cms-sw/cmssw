@@ -40,7 +40,6 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   nValidTriggers_(0),
   ndenomAccept_(0)
 {
-  denominatorWild_ = iConfig.getUntrackedParameter<std::string>("denominatorWild","");
   denominator_ = iConfig.getUntrackedParameter<std::string>("denominator");
   directory_ = iConfig.getUntrackedParameter<std::string>("directory","HLT/HLTMonMuon");
   //label_ = iConfig.getParameter<std::string>("label");
@@ -49,18 +48,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   dbe_ = NULL;
   dbe_ = Service < DQMStore > ().operator->();
   dbe_->setVerbose(0);
-
-}
-
-
-HLTMonBitSummary::~HLTMonBitSummary(){}
-
-//
-// member functions
-//
-
-void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
-    
+  
   //initialize the hlt configuration from the process name if not blank
   std::string processName = inputTag_.process();
   if (processName != ""){
@@ -69,7 +57,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
     hltConfig.init(processName);
   
     //run trigger selection
-    HLTriggerSelector trigSelect(inputTag_,HLTPathsByName_);
+    HLTriggerSelector trigSelect(iConfig);
     HLTPathsByName_.swap(trigSelect.theSelectTriggers);
     count_.resize(HLTPathsByName_.size());
     HLTPathsByIndex_.resize(HLTPathsByName_.size());
@@ -113,22 +101,21 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
 	}
       }//end for modulesName
     }//end for nValidTriggers_
-
-
-    //check denominator
-    if( denominatorWild_.size() != 0 ) HLTPathDenomName_.push_back(denominatorWild_);
-    HLTriggerSelector denomSelect(inputTag_,HLTPathDenomName_);
-    HLTPathDenomName_.swap(denomSelect.theSelectTriggers);
-    //for (unsigned int i = 0; i < HLTPathDenomName_.size(); i++)
-    //  std::cout << "testing denom: " << HLTPathDenomName_[i] << std::endl;
-    if(HLTPathDenomName_.size()==1) denominator_ = HLTPathDenomName_[0];
-
   }//end if process
 
+}
 
+
+HLTMonBitSummary::~HLTMonBitSummary(){}
+
+//
+// member functions
+//
+
+void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
+  
   if(dbe_){
-
-    if (directory_ != "" && directory_.substr(directory_.length()-1,1) != "/" ) directory_ = directory_+"/" ;
+    if (directory_ != "" ) directory_ = directory_+"/" ;
 
     int nbin = nValidTriggers_;
 
@@ -182,8 +169,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
     h2_ = dbe_->book2D("PassingBits_Correlation","PassingBits_Correlation",nBin,min,max, nBin,min,max);
     pf_ = dbe_->book1D("Efficiency_Summary","Efficiency_Summary", nBin, min, max);
     if (denominator_!="")
-      //ratio_ = dbe_->book1D(std::string("Ratio_"+denominator_),std::string("Ratio_"+denominator_),nBin,min,max);
-      ratio_ = dbe_->book1D("HLTRate_wrtL1","HLTRate_wrtL1",nBin,min,max);
+      ratio_ = dbe_->book1D(std::string("Ratio_"+denominator_),std::string("Ratio_"+denominator_),nBin,min,max);
     else 
       ratio_=0;
 
@@ -346,11 +332,9 @@ void HLTMonBitSummary::endJob() {
   
   std::stringstream report;
   report <<" out of: "<<total_<<" events.\n";
-  if(!count_.empty()){
-    for (uint i=0; i!=HLTPathsByName_.size();i++){
-      report<<HLTPathsByName_[i]<<" passed: "<<count_[i]<<" times.\n";
-      count_[i]=0;
-    }
+  for (uint i=0; i!=HLTPathsByName_.size();i++){
+    report<<HLTPathsByName_[i]<<" passed: "<<count_[i]<<" times.\n";
+    count_[i]=0;
   }
   
   edm::LogInfo("HLTMonBitSummary|BitSummary")<<report.str();

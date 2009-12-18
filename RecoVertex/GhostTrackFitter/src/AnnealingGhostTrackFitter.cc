@@ -15,7 +15,7 @@ namespace {
 
 AnnealingGhostTrackFitter::AnnealingGhostTrackFitter()
 {
-	annealing.reset(new GeometricAnnealing(6.0, 64.0, 0.25));
+	annealing.reset(new GeometricAnnealing(2.5, 16.0, 0.25));
 }
 
 void AnnealingGhostTrackFitter::postFit(
@@ -34,7 +34,11 @@ void AnnealingGhostTrackFitter::postFit(
 		if (ndof == 0. || firstStep)
 			continue;
 
-		state->setWeight(annealing->weight(chi2));
+		double weight = 0.;
+		if (state->weight() > 1.0e-9)
+			weight = annealing->weight(chi2 / state->weight());
+
+		state->setWeight(weight);
 	}
 
 	if (firstStep)

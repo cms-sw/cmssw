@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.8 2009/05/29 13:28:21 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.7 2009/05/29 12:58:50 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
@@ -37,8 +37,14 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
   
   bool uploadConf_;
   
+  bool uploadFecSettings_;
+  
+  bool uploadFedSettings_;
+  
   bool disableDevices_;
 
+  bool disableBadStrips_;
+  
 };
 
 #endif // DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H

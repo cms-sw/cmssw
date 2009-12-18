@@ -130,8 +130,6 @@ namespace reco {
     virtual int status() const  = 0;
     /// set status word
     virtual void setStatus( int status )  = 0;
-    /// long lived flag
-    static const unsigned int longLivedTag;
     /// set long lived flag
     virtual void setLongLived()  = 0;
     /// is long lived?

@@ -28,12 +28,12 @@ class DDLAlgoPosPart : public DDXMLElement
  public:
 
   /// Constructor
-  DDLAlgoPosPart( DDLElementRegistry* myreg );
+  DDLAlgoPosPart();
 
   /// Destructor
   ~DDLAlgoPosPart();
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
+  void processElement (const std::string& name, const std::string& nmspace); 
 
 };
 

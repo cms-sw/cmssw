@@ -32,6 +32,7 @@ correction code</b>
 <p>
 <pre>
    cvs co -r V04-02-01 Validation/RecoJets
+   cvs co -r V01-08-27 JetMETCorrections/Configuration # if you are using the above for 31X and 32X
    scramv1 b
 </pre>
 
@@ -51,7 +52,6 @@ Execute the following commands:
 <pre>
    cd Validation/RecoJets/analysis
    cmsRun allJets_validation_cfg.py
-   # cmsRun allJets_validation_before_330pre4_cfg.py (if 330 and before pre4)
 </pre>
 
 <p>This will produce a output root file containing histograms of various

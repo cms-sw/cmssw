@@ -37,7 +37,7 @@ namespace cond {
 
   protected:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) {
-     bool ok = super::load(svc, token);
+      bool ok = super::load(svc, token);
       me.load(super::operator()());
       return ok;
     }

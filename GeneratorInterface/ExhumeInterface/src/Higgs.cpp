@@ -7,13 +7,11 @@
 
 //#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
 
-extern "C" {
-  extern struct {
-     int mdcy[3][500], mdme[2][8000];
-     double brat[8000];
-     int kfdp[5][8000];
-  } pydat3_;
-}
+extern struct {
+	int mdcy[3][500], mdme[2][8000];
+	double brat[8000];
+	int kfdp[5][8000];
+} pydat3_;
 #define pydat3 pydat3_
 
 /////////////////////////////////////////////////////////////////////////////

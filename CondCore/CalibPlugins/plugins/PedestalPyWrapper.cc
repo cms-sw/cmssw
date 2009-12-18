@@ -75,9 +75,9 @@ namespace cond {
       for (size_t i=0; i< m_what.size(); i++) m_what[i] = v[what.quantity()[i]];
     }
     void compute(Class const & it){
-      for (int i=0; i<m_which.size();i++) {
-	if (m_which[i]<  it.m_pedestals.size())
-	  for (size_t j=0; j< m_what.size(); j++) add(m_what[j](it.m_pedestals[m_which[i]]));
+      for (size_t i=0; i<m_which.size(); ++i) {
+	if (m_which[i]<  int(it.m_pedestals.size()))
+	  for (size_t j=0; j< m_what.size(); ++j) add(m_what[j](it.m_pedestals[m_which[i]]));
       }
     }
   private:

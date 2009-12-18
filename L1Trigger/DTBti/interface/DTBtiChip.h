@@ -6,8 +6,8 @@
  *   Internally uses DTBtiHit to store muon digis
  *
  *
- *   $Date: 2008/06/30 13:41:36 $
- *   $Revision: 1.6 $
+ *   $Date: 2007/04/27 08:37:37 $
+ *   $Revision: 1.5 $
  *
  *   \author S. Vanini
  */
@@ -34,7 +34,7 @@ class DTDigi;
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
-#include "L1Trigger/DTBti/interface/DTBtiCard.h"
+
 
 //---------------
 // C++ Headers --
@@ -53,7 +53,7 @@ class DTBtiChip {
   //DTBtiChip(DTTrigGeom* geom, int supl, int n);
 
   //! new constructor with configuration 
-  DTBtiChip(DTBtiCard* card, DTTrigGeom* geom, int supl, int n, DTConfigBti* _config );
+  DTBtiChip(DTTrigGeom* geom, int supl, int n, DTConfigBti* _config );
 
   //! Copy constructor
   DTBtiChip(const DTBtiChip& bti);
@@ -169,9 +169,6 @@ class DTBtiChip {
   DTConfigBti* _config;
 
   DTBtiId _id;
-
-  // parent card
-  DTBtiCard* _card;
 
   // input data from DTDigis
   std::vector<const DTDigi*> _digis[9];

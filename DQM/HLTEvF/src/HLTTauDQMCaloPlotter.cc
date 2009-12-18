@@ -173,20 +173,9 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    //Fill the regional Jets
    //Be carefu;l with the double counting
 
-   for(unsigned int j=0;j<l2preJets_.size();++j) {
-
-     bool gotPreJets =true;
-     try {
-       gotPreJets*=iEvent.getByLabel(l2preJets_[j],l2Regional);
-     }
-     catch (cms::Exception& exception) {
-       gotPreJets =false;
-     }
-
-
-     if(gotPreJets)
-       if((!l2Regional.failedToGet()))
-       {
+   for(unsigned int j=0;j<l2preJets_.size();++j)
+     if(iEvent.getByLabel(l2preJets_[j],l2Regional))
+     {
        for(unsigned int i=0;i<l2Regional->size();++i)
 	 {
 	   const Jet& jet = (*l2Regional)[i];
@@ -215,19 +204,11 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	 }
      }
-   }
 
 
-     bool gotL2 =true;
-     try {
-       gotL2*=iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);
-     }
-     catch (cms::Exception& exception) {
-       gotL2 =false;
-     }
 
 
-     if(gotL2)
+   if(iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc))//get the Association class
      {
        //If the Collection exists do work
        if(l2TauInfoAssoc->size()>0)
@@ -282,17 +263,7 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		   isoEtaEffDenom->Fill(refLV.eta());
 		   isoPhiEffDenom->Fill(refLV.phi());
 
-		   bool gotIsoL2 =true;
-		   try {
-		     gotIsoL2*=iEvent.getByLabel(l2Isolated_,l2Isolated);
-		   }
-		   catch (cms::Exception& exception) {
-		     gotIsoL2 =false;
-		   }
-
-  	
-
-		   if(gotIsoL2)
+  		   if(iEvent.getByLabel(l2Isolated_,l2Isolated))
 		     if(l2Isolated.isValid());
 		     {
 		       if(matchJet(jet,*l2Isolated))

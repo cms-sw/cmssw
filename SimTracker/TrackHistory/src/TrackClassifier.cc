@@ -19,7 +19,7 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) : TrackCategori
     tracer_.depth(-2);
 
     // Set the maximum d0pull for the bad category
-    badPull_ = pset.getUntrackedParameter<double>("badPull");
+    badD0Pull_ = pset.getUntrackedParameter<double>("badD0Pull");
 
     // Set the minimum decay length for detecting long decays
     longLivedDecayLength_ = pset.getUntrackedParameter<double>("longLivedDecayLength");
@@ -51,7 +51,11 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
     setup.getData(particleDataTable_);
 
     // get the beam spot
-    event.getByLabel(beamSpotLabel_, beamSpot_);
+    edm::Handle<reco::BeamSpot> beamSpot;
+    event.getByLabel(beamSpotLabel_, beamSpot);
+    beamSpot_ = reco::TrackBase::Point(
+                    beamSpot->x0(), beamSpot->y0(), beamSpot->z0()
+                );
 
     // Transient track builder
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
@@ -115,7 +119,7 @@ TrackClassifier const & TrackClassifier::evaluate (TrackingParticleRef const & t
     if ( recotrack.isNonnull() )
     {
         flags_[Reconstructed] = true;
-        // Classify all the tracks by their association and reconstruction information
+        // Classify all the tracks by their association and reconstruction information        
         reconstructionInformation(recotrack);
         // Analyse the track reconstruction quality
         qualityInformation(recotrack);
@@ -150,7 +154,6 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
     TrackingParticleRef tpr = tracer_.simParticle();
 
     // Compute tracking particle parameters at point of closest approach to the beamline
-    
     const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 
     FreeTrajectoryState ftsAtProduction(
@@ -170,33 +173,23 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
 
     TSCPBuilderNoMaterial tscpBuilder;
 
+    GlobalPoint theBS(beamSpot_.x(), beamSpot_.y(), beamSpot_.z());
+
     TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
-        ftsAtProduction,
-        GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0())
-    );
+                ftsAtProduction, theBS );
 
-    GlobalVector v = tsAtClosestApproach.theState().position() 
-                   - GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0());
+
+    GlobalVector v = tsAtClosestApproach.theState().position() - theBS;
     GlobalVector p = tsAtClosestApproach.theState().momentum();
-   
-    // Simulated dxy
-    double dxySim = -v.x()*sin(p.phi()) + v.y()*cos(p.phi());
 
-    // Simulated dz
-    double dzSim = v.z() - (v.x()*p.x() + v.y()*p.y())*p.z()/p.perp2();   
+    // Simulated d0
+    double d0Sim = - (-v.x()*sin(p.phi()) + v.y()*cos(p.phi()));
 
-    // Calculate the dxy pull
-    double dxyPull = std::abs(
-        track->dxy( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dxySim
-    ) / track->dxyError();
-
-    // Calculate the dx pull
-    double dzPull = std::abs(
-        track->dz( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dzSim
-    ) / track->dzError();
+    // Calculate the d0 pull
+    double d0Pull = std::abs(-track->dxy(beamSpot_) - d0Sim) / track->d0Error();
 
     // Return true if d0Pull > badD0Pull sigmas
-    flags_[Bad] = (dxyPull > badPull_ || dzPull > badPull_);
+    flags_[Bad] = (d0Pull > badD0Pull_);
 }
 
 
@@ -214,7 +207,8 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
     // run the hit-by-hit reconstruction quality analysis
     quality_.evaluate(tracer_.simParticleTrail(), track);
 
-    unsigned int maxLayers = std::min(numberOfInnerLayers_, quality_.numberOfLayers());
+    unsigned int maxLayers = std::min(numberOfInnerLayers_,
+                                      quality_.numberOfLayers());
 
     // check the innermost layers for bad hits
     for (unsigned int i = 0; i < maxLayers; i++)
@@ -284,22 +278,30 @@ void TrackClassifier::processesAtGenerator()
                 // Check if the particle exist in the table
                 if (particleData)
                 {
+                    bool longlived = false;
                     // Check if their life time is bigger than longLivedDecayLength_
                     if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
                         // Check for B, C weak decays and long lived decays
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
-                        update(flags_[LongLivedDecay], true);
+                        longlived = true;
                     }
                     // Check Tau, Ks and Lambda decay
                     update(flags_[TauDecay], pdgid == 15);
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
-                    update(flags_[JpsiDecay], pdgid == 443);
-                    update(flags_[XiDecay], pdgid == 3312);
-                    update(flags_[SigmaPlusDecay], pdgid == 3222);
-                    update(flags_[SigmaMinusDecay], pdgid == 3112);
+                    update(flags_[Jpsi], pdgid == 443);
+                    update(
+                        flags_[LongLivedDecay],
+                        !flags_[BWeakDecay] &&
+                        !flags_[CWeakDecay] &&
+                        !flags_[TauDecay] &&
+                        !flags_[KsDecay] &&
+                        !flags_[LambdaDecay] &&
+                        !flags_[Jpsi] && 
+                        longlived
+                    );
                 }
             }
         }
@@ -354,32 +356,8 @@ void TrackClassifier::processesAtSimulation()
             // Collect the G4 process of the first psimhit (it should be the same for all of them)
             unsigned short process = (*iparticle)->pSimHit_begin()->processType();
 
-            // Flagging all the different processes
-
-            update(
-                flags_[KnownProcess],
-                process != G4::Undefined &&
-                process != G4::Unknown &&
-                process != G4::Primary
-            );
-
-            update(flags_[UndefinedProcess], process == G4::Undefined);
-            update(flags_[UnknownProcess], process == G4::Unknown);
-            update(flags_[PrimaryProcess], process == G4::Primary);
-            update(flags_[HadronicProcess], process == G4::Hadronic);
-            update(flags_[DecayProcess], process == G4::Decay);
-            update(flags_[ComptonProcess], process == G4::Compton);
-            update(flags_[AnnihilationProcess], process == G4::Annihilation);
-            update(flags_[EIoniProcess], process == G4::EIoni);
-            update(flags_[HIoniProcess], process == G4::HIoni);
-            update(flags_[MuIoniProcess], process == G4::MuIoni);
-            update(flags_[PhotonProcess], process == G4::Photon);
-            update(flags_[MuPairProdProcess], process == G4::MuPairProd);
-            update(flags_[ConversionsProcess], process == G4::Conversions);
-            update(flags_[EBremProcess], process == G4::EBrem);
-            update(flags_[SynchrotronRadiationProcess], process == G4::SynchrotronRadiation);
-            update(flags_[MuBremProcess], process == G4::MuBrem);
-            update(flags_[MuNuclProcess], process == G4::MuNucl);
+            // Look for conversion process
+            flags_[Conversion] = (process == G4::Conversions);
 
             // Special treatment for decays
             if (process == G4::Decay)
@@ -394,26 +372,53 @@ void TrackClassifier::processesAtSimulation()
                     // Check if the particle exist in the table
                     if (particleData)
                     {
+                        bool longlived = false;
                         // Check if their life time is bigger than 1e-14
                         if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
                         {
                             // Check for B, C weak decays and long lived decays
                             update(flags_[BWeakDecay], particleID.hasBottom());
                             update(flags_[CWeakDecay], particleID.hasCharm());
-                            update(flags_[LongLivedDecay], true);
+                            longlived = true;
                         }
-
                         // Check Tau, Ks and Lambda decay
                         update(flags_[TauDecay], pdgid == 15);
                         update(flags_[KsDecay], pdgid == 310);
                         update(flags_[LambdaDecay], pdgid == 3122);
-                        update(flags_[JpsiDecay], pdgid == 443);
-                        update(flags_[XiDecay], pdgid == 3312);
-                        update(flags_[OmegaDecay], pdgid == 3334);
-                        update(flags_[SigmaPlusDecay], pdgid == 3222);
-                        update(flags_[SigmaMinusDecay], pdgid == 3112);
+                        update(flags_[Jpsi], pdgid == 443);
+                        update(
+                            flags_[LongLivedDecay],
+                            !flags_[BWeakDecay] &&
+                            !flags_[CWeakDecay] &&
+                            !flags_[TauDecay] &&
+                            !flags_[KsDecay] &&
+                            !flags_[LambdaDecay] &&
+                            !flags_[Jpsi] &&
+                            longlived
+                        );
                     }
                 }
+                update(
+                    flags_[Interaction],
+                    !flags_[BWeakDecay] &&
+                    !flags_[CWeakDecay] &&
+                    !flags_[LongLivedDecay] &&
+                    !flags_[TauDecay] &&
+                    !flags_[KsDecay] &&
+                    !flags_[LambdaDecay] &&
+                    !flags_[Jpsi] 
+                );
+            }
+            else
+            {
+                update(
+                    flags_[Interaction],
+                    process != G4::Undefined &&
+                    process != G4::Unknown &&
+                    process != G4::Primary &&
+                    process != G4::Hadronic &&
+                    process != G4::Conversions
+                );
             }
         }
     }

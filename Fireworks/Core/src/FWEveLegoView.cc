@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.65 2009/11/10 14:36:23 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.68 2009/11/30 14:29:12 dmytro Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TAttAxis.h"
+#include "RVersion.h"
 //EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
 #define private public
 #include "TGLEmbeddedViewer.h"
@@ -90,7 +91,12 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_cameraSet(false)
 {
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer(0);
+#else
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+#endif
+
    iParent->ReplaceWindow(nv);
 
    TGLEmbeddedViewer* ev = m_embeddedViewer;
@@ -125,6 +131,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->SetScaleColorTransparency(kWhite, 0);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+         // ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
          eh->SetLego(m_lego);
       }
    }
@@ -165,8 +172,8 @@ void
 FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
    TGLViewer* v =  m_viewer->GetGLViewer();
-   if ( iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark() ||
-        iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark() )
+   if ( (iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark()) ||
+        (iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark()) )
    {
       v->SwitchColorSet();
       m_overlay->SetScaleColorTransparency(iColor==FWColorManager::kWhiteIndex ? kGray + 3 : kWhite, 0);
@@ -194,6 +201,10 @@ FWEveLegoView::setCameras()
       *m_orthoCameraMatrixRef = *m_orthoCameraMatrix;
       *m_orthoCameraZoomRef = m_orthoCameraZoom;
    }
+   if (!m_topView && m_embeddedViewer) {
+       m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   }
+
    m_cameraSet = true;
 }
 

@@ -9,7 +9,9 @@ namespace reco {
 		CombinedTrackUsed = 1, GlobalTrackUsed = 1, 
 		InnerTrackUsed = 2, TrackUsed = 2, 
 		OuterTrackUsed = 3, StandAloneTrackUsed = 3,
-		TreatedAsPion = 4};
+		TreatedAsPion = 4,
+		MuonP4V4QUsed = 5, MuonCandidateValuesUsed = 5
+    };
 
     MuonMETCorrectionData(): type_(0), corrX_(0), corrY_(0) {}
     MuonMETCorrectionData(Type type, float corrX, float corrY): type_(type), corrX_(corrX), corrY_(corrY) {}

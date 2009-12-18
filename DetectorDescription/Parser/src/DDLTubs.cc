@@ -30,7 +30,7 @@
 
 
 // Default constructor
-DDLTubs::DDLTubs(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
+DDLTubs::DDLTubs()
 {
 
 }
@@ -41,7 +41,7 @@ DDLTubs::~DDLTubs()
 }
 
 // Upon encountering the end of a Tubs element, call DDCore.
-void DDLTubs::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLTubs::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLTubs::processElement started");
 
@@ -90,7 +90,7 @@ void DDLTubs::processElement (const std::string& name, const std::string& nmspac
       std::string msg = "\nDDLTubs::processElement could not process element.";
       throwError(msg);
     }
-  DDLSolid::setReference(nmspace, cpv);
+  DDLSolid::setReference(nmspace);
 
   DCOUT_V('P', "DDLTubs::processElement completed");
 

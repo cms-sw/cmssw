@@ -1036,7 +1036,7 @@ class Application(QApplication):
         """
         QMessageBox.about(self.mainWindow(), 'Info', message)
         
-    def showMessageBox(self, text, informativeText="", standardButtons=QMessageBox.Ok | QMessageBox.Cancel | QMessageBox.Ignore, defaultButton=QMessageBox.Ok):
+    def showMessageBox(self, text, informativeText="", standardButtons=QMessageBox.Ok | QMessageBox.Cancel | QMessageBox.Ignore, defaultButton=QMessageBox.Ok, extraButtons=None):
         """ Shows a standardized message box and returns the pressed button.
         
         See documentation on Qt's QMessageBox for a list of possible standard buttons.
@@ -1047,6 +1047,9 @@ class Application(QApplication):
         msgBox.setText(text)
         msgBox.setInformativeText(informativeText)
         msgBox.setStandardButtons(standardButtons)
+        if extraButtons!=None:
+            for button,role in extraButtons:
+                msgBox.addButton(button,role)
         msgBox.setDefaultButton(defaultButton)
         return msgBox.exec_()
         
