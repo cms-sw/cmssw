@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu May 15 14:37:59 CEST 2008
-// $Id: PlottingDevice.cc,v 1.1 2009/03/03 13:07:29 llista Exp $
+// $Id: PlottingDevice.cc,v 1.6 2009/05/11 14:29:49 llista Exp $
 //
 //
 
@@ -43,7 +43,7 @@ class PlottingDevice : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -100,7 +100,7 @@ PlottingDevice::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-void PlottingDevice::beginJob(const edm::EventSetup&){}
+void PlottingDevice::beginJob(){}
 void PlottingDevice::endJob() {}
 
 //define this as a plug-in
