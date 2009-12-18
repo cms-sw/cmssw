@@ -13,7 +13,7 @@
 //
 // Original Author:  Efe Yazgan
 //         Created:  Thu Jul 24 10:31:07 CEST 2008
-// $Id: HcalHPDFilter.cc,v 1.2 2008/07/29 07:26:55 efe Exp $
+// $Id: HcalHPDFilter.cc,v 1.1 2008/07/29 08:10:14 efe Exp $
 //
 //
 
@@ -42,7 +42,7 @@ class HcalHPDFilter : public edm::EDFilter {
       ~HcalHPDFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -95,7 +95,7 @@ HcalHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalHPDFilter::beginJob(const edm::EventSetup&)
+HcalHPDFilter::beginJob()
 {
 }
 

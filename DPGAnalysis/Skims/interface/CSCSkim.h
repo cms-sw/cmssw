@@ -80,7 +80,7 @@ class CSCSkim : public edm::EDFilter {
   ~CSCSkim();
      
   // Analysis routines
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup);
   virtual void endJob() ;
        

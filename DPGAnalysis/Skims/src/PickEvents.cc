@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Henry Schmitt
 //         Created:  Mon Sep 15 19:36:37 CEST 2008
-// $Id: PickEvents.cc,v 1.1 2008/09/18 08:59:28 schmittm Exp $
+// $Id: PickEvents.cc,v 1.2 2009/03/27 14:01:32 malgeri Exp $
 //         Modified: 27/03/2009 Luca Malgeri
 //                   reading external file, defining selection syntax
 //
@@ -49,7 +49,7 @@ class PickEvents : public edm::EDFilter {
       ~PickEvents();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -116,7 +116,7 @@ PickEvents::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void 
-PickEvents::beginJob(const edm::EventSetup&)
+PickEvents::beginJob()
 {
   using namespace std;
 

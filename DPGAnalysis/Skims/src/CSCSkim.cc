@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.7 2009/03/26 09:12:37 schmittm Exp $
+// $Id: CSCSkim.cc,v 1.8 2009/03/26 09:25:04 schmittm Exp $
 //
 //
 //======================================================================
@@ -113,7 +113,7 @@ CSCSkim::~CSCSkim()
 //  BEGIN JOB
 //================
 void 
-CSCSkim::beginJob(const edm::EventSetup&)
+CSCSkim::beginJob()
 {
   // set counters to zero
   nEventsAnalyzed = 0;

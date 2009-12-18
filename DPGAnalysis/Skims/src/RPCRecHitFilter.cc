@@ -108,7 +108,7 @@ RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig){
 
 }
 
-void RPCRecHitFilter::beginJob( const edm::EventSetup& iSetup)
+void RPCRecHitFilter::beginJob()
 {
 
 }

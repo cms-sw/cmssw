@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Henry Schmitt
 //         Created:  Thu Oct 30 21:31:44 CET 2008
-// $Id$
+// $Id: RPCNoise.cc,v 1.1 2008/11/02 20:05:36 schmittm Exp $
 //
 //
 // system include files
@@ -91,7 +91,7 @@ class RPCNoise : public edm::EDFilter {
       ~RPCNoise();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -170,7 +170,7 @@ RPCNoise::~RPCNoise()
 
 
 void 
-RPCNoise::beginJob(const edm::EventSetup&)
+RPCNoise::beginJob()
 {
   // initialize variables
   nEventsAnalyzed = 0;

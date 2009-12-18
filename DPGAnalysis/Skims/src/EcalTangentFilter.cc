@@ -49,7 +49,7 @@ bool EcalTangentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void EcalTangentFilter::beginJob(const edm::EventSetup&){
+void EcalTangentFilter::beginJob(){
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
