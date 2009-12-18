@@ -31,7 +31,7 @@ void HcalNZSMonitor::setup(const edm::ParameterSet& ps,
   
   vector<string> names;
   names.push_back(string("HLT_HcalPhiSym"));
-  names.push_back(string("HLT_HcalNZS"));
+  names.push_back(string("HLT_HcalNZS_8E29"));
 
   triggers_=ps.getUntrackedParameter<vector<string> >("NZSMonitor_nzsHLTnames",names);
   period_=ps.getUntrackedParameter<int>("NZSMonitor_NZSeventPeriod",4096);
@@ -125,14 +125,14 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw, edm::Trigg
    if (andAcc) 
      {
        nAndAcc++;
-       meTrigFrac_->Fill(triggers_.size()+1,nAndAcc/nAcc_Total);
+       meTrigFrac_->setBinContent(triggers_.size()+1,nAndAcc/(float)nAcc_Total);
      }
    if (orAcc)
      {
        nAcc_Total++;
        for (unsigned int l=0; l<triggers_.size(); l++)
 	 {
-	   meTrigFrac_->setBinContent(l+1,nAcc[l]/nAcc_Total);
+	   meTrigFrac_->setBinContent(l+1,nAcc[l]/(float)nAcc_Total);
 	 }
      }
      
