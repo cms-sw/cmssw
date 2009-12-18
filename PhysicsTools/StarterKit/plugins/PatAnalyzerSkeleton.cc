@@ -105,7 +105,7 @@ PatAnalyzerSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PatAnalyzerSkeleton::beginJob(const edm::EventSetup&)
+PatAnalyzerSkeleton::beginJob()
 {
   //{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
   // define some histograms using the framework tfileservice. Define the output file name in your .cfg.

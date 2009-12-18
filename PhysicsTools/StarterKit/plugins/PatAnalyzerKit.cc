@@ -77,7 +77,7 @@ void PatAnalyzerKit::produce( edm::Event & evt, const edm::EventSetup & es )
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-PatAnalyzerKit::beginJob(const edm::EventSetup&)
+PatAnalyzerKit::beginJob()
 {
 }
 

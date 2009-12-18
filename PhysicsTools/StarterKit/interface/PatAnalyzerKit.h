@@ -43,7 +43,7 @@
 //
 // Original Author:  Eric Vaandering, Salvatore Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: PatAnalyzerKit.h,v 1.2 2008/07/07 20:06:54 srappocc Exp $
+// $Id: PatAnalyzerKit.h,v 1.3 2008/10/24 21:18:27 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -84,7 +84,7 @@ public:
 protected:
 
   // beginJob
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   // produce is where the ntuples are made
   virtual void produce( edm::Event &, const edm::EventSetup & );
   // endJob

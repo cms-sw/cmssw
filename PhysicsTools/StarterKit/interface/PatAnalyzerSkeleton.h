@@ -17,7 +17,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Apr 21 10:03:50 CEST 2008
-// $Id: PatAnalyzerSkeleton.cc,v 1.2 2008/05/13 10:25:05 fblekman Exp $
+// $Id: PatAnalyzerSkeleton.h,v 1.1 2008/06/04 15:04:33 srappocc Exp $
 //
 //
 
@@ -61,7 +61,7 @@ class PatAnalyzerSkeleton : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

@@ -19,7 +19,7 @@
 //
 // Original Author:  Sal Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompositeKit.h,v 1.5 2008/07/09 16:31:47 srappocc Exp $
+// $Id: CompositeKit.h,v 1.6 2008/10/24 21:18:27 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -49,7 +49,7 @@ public:
   virtual ~CompositeKit();
 
 protected:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void produce( edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
