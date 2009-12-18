@@ -96,22 +96,22 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   if( isValid(closestToWMassIndices[0], jets) ){
-    setCandidate(jets, closestToWMassIndices[0], lightQ_);
+    setCandidate(jets, closestToWMassIndices[0], lightQ_, jetCorrectionLevel("wQuarkMix"));
     match[TtSemiLepEvtPartons::LightQ] = closestToWMassIndices[0];
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
-    setCandidate(jets, closestToWMassIndices[1], lightQBar_);
+    setCandidate(jets, closestToWMassIndices[1], lightQBar_, jetCorrectionLevel("wQuarkMix"));
     match[TtSemiLepEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
   
   if( isValid(hadB, jets) ){
-    setCandidate(jets, hadB, hadronicB_);
+    setCandidate(jets, hadB, hadronicB_, jetCorrectionLevel("bQuark"));
     match[TtSemiLepEvtPartons::HadB] = hadB;
   }
 
   if( isValid(lepB, jets) ){
-    setCandidate(jets, lepB, leptonicB_);
+    setCandidate(jets, lepB, leptonicB_, jetCorrectionLevel("bQuark"));
     match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 
