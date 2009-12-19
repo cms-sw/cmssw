@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.155 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: Configuration/GenProduction/python/PYTHIA6_MinBias_900GeV_cff.py -s GEN,FASTSIM --pileup=NoPileUp --conditions=STARTUP3X_V8K::All --eventcontent=FEVTDEBUGHLT --beamspot=Early900GeVCollision --datatier GEN-SIM-DIGI-RECO --no_exec
+# with command line options: Configuration/GenProduction/python/PYTHIA6_MinBias_900GeV_cff.py -s GEN,FASTSIM --pileup=NoPileUp --conditions=STARTUP3X_V8K::All --eventcontent=RECODEBUG --beamspot=Early900GeVCollision --datatier GEN-SIM-DIGI-RECO -n 100 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
@@ -63,7 +63,7 @@ process.source = cms.Source("EmptySource")
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
+    outputCommands = process.RECODEBUGEventContent.outputCommands,
     fileName = cms.untracked.string('PYTHIA6_MinBias_900GeV_cff_py_GEN_FASTSIM.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RECO'),
