@@ -145,26 +145,19 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     // histograms
     //=========================================
 
-    MonitorElement * h_matchingObject_Num ;
-
-    MonitorElement * h_matchingObject_Eta ;
-    MonitorElement * h_matchingObject_AbsEta ;
-    MonitorElement * h_matchingObject_P ;
-    MonitorElement * h_matchingObject_Pt ;
-    MonitorElement * h_matchingObject_Phi ;
-    MonitorElement * h_matchingObject_Z ;
-
     // electron basic quantities
-    MonitorElement * h_ele_vertexP ;
     MonitorElement * h_ele_vertexPt ;
-    MonitorElement * h_ele_Et ;
+//    MonitorElement * h_ele_vertexEtaVsPhi ;
     MonitorElement * h_ele_vertexEta ;
     MonitorElement * h_ele_vertexPhi ;
+//    MonitorElement * h_ele_vertexP ;
+//    MonitorElement * h_ele_charge ;
+//    MonitorElement * h_ele_Et ;
+//    MonitorElement * h_ele_vertexXvsY ;
     MonitorElement * h_ele_vertexX ;
     MonitorElement * h_ele_vertexY ;
     MonitorElement * h_ele_vertexZ ;
-    MonitorElement * h_ele_vertexTIP ;
-    MonitorElement * h_ele_charge ;
+//    MonitorElement * h_ele_vertexTIP ;
 
     // # rec electrons
     MonitorElement * histNum_ ;
@@ -239,6 +232,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     MonitorElement * h_ele_fbremVsEta ;
     MonitorElement * h_ele_fbremVsPhi ;
     MonitorElement * h_ele_fbremVsPt ;
+    MonitorElement * h_ele_classes ;
 
     MonitorElement * h_ele_mva ;
     MonitorElement * h_ele_provenance ;
@@ -255,20 +249,27 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     MonitorElement * h_ele_mee ;
     MonitorElement * h_ele_mee_os ;
 
-    // histos for matched objects
-
-    MonitorElement * h_matchedObject_Eta ;
-    MonitorElement * h_matchedObject_AbsEta ;
-    MonitorElement * h_matchedObject_Pt ;
-    MonitorElement * h_matchedObject_Phi ;
-    MonitorElement * h_matchedObject_Z ;
-
-    MonitorElement * h_ele_classes ;
-    MonitorElement * h_matchedEle_eta ;
-    MonitorElement * h_matchedEle_eta_golden ;
-    MonitorElement * h_matchedEle_eta_shower ;
-    //MonitorElement * h_matchedEle_eta_bbrem ;
-    //MonitorElement * h_matchedEle_eta_narrow ;
+//    // histos for matching and matched objects
+//
+//    MonitorElement * h_matchedEle_eta ;
+//    MonitorElement * h_matchedEle_eta_golden ;
+//    MonitorElement * h_matchedEle_eta_shower ;
+//    //MonitorElement * h_matchedEle_eta_bbrem ;
+//    //MonitorElement * h_matchedEle_eta_narrow ;
+//
+//    MonitorElement * h_matchedObject_Eta ;
+//    MonitorElement * h_matchedObject_AbsEta ;
+//    MonitorElement * h_matchedObject_Pt ;
+//    MonitorElement * h_matchedObject_Phi ;
+//    MonitorElement * h_matchedObject_Z ;
+//
+//    MonitorElement * h_matchingObject_Num ;
+//    MonitorElement * h_matchingObject_Eta ;
+//    MonitorElement * h_matchingObject_AbsEta ;
+//    MonitorElement * h_matchingObject_P ;
+//    MonitorElement * h_matchingObject_Pt ;
+//    MonitorElement * h_matchingObject_Phi ;
+//    MonitorElement * h_matchingObject_Z ;
 
  } ;
 

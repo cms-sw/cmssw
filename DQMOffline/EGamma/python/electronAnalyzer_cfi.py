@@ -10,16 +10,20 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     FinalStep = cms.string("AtRunEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
+    
     ElectronCollection = cms.InputTag("gsfElectrons"),
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
-    MatchingCondition = cms.string("Cone"),
     ReadAOD = cms.bool(False),
-
+    
+    Selection = cms.int32(1), # 0=All elec, 1=Etcut, 2=Iso, 3=eId, 4=T&P
+    InputFolderName = cms.string(""),
+    OutputFolderName = cms.string(""),
+    
+    MatchingCondition = cms.string("Cone"),
     MaxPtMatchingObject = cms.double(100.0),
     MaxAbsEtaMatchingObject = cms.double(2.5),
     DeltaR = cms.double(0.3),
     
-    Selection = cms.int32(1), # 0=All elec, 1=Etcut, 2=Iso, 3=eId, 4=T&P
     MassLow = cms.double(60),
     MassHigh = cms.double(120),
     TpCheckSign = cms.bool(False),  
@@ -27,7 +31,7 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     ProbeEtCut = cms.bool(False),
     ProbeCheckClass = cms.bool(False),                                        
 
-    MinEt = cms.double(0.),
+    MinEt = cms.double(10.),
     MinPt = cms.double(0.),
     MaxAbsEta = cms.double(2.5),
     SelectEb = cms.bool(False),
@@ -56,7 +60,7 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     MinMva = cms.double(-10000.),
     MaxTipBarrel = cms.double(10000.),
     MaxTipEndcaps = cms.double(10000.),
-    MaxTkIso03 = cms.double(10000.),
+    MaxTkIso03 = cms.double(5.),
     MaxHcalIso03Depth1Barrel = cms.double(10000.),
     MaxHcalIso03Depth1Endcaps = cms.double(10000.),
     MaxHcalIso03Depth2Endcaps = cms.double(10000.),

@@ -21,6 +21,8 @@ ElectronDqmAnalyzerBase::ElectronDqmAnalyzerBase( const edm::ParameterSet& conf 
   finalStep_ = conf.getParameter<std::string>("FinalStep") ;
   inputFile_ = conf.getParameter<std::string>("InputFile") ;
   outputFile_ = conf.getParameter<std::string>("OutputFile") ;
+  inputInternalPath_ = "Egamma/ElectronAnalyzer/" + conf.getParameter<std::string>("InputFolderName") ;
+  outputInternalPath_ = "Egamma/ElectronAnalyzer/" + conf.getParameter<std::string>("OutputFolderName") ;
  }
 
 ElectronDqmAnalyzerBase::~ElectronDqmAnalyzerBase()
@@ -34,6 +36,7 @@ void ElectronDqmAnalyzerBase::beginJob()
   store_->setVerbose(verbosity_) ;
   if (inputFile_!="")
    { store_->open(inputFile_) ; }
+  store_->setCurrentFolder(outputInternalPath_) ;
   book() ;
  }
 
@@ -43,6 +46,7 @@ void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & 
    {
     if (finalDone_)
      { edm::LogWarning("ElectronDqmAnalyzerBase::endRun")<<"finalize() already called" ; }
+    store_->setCurrentFolder(outputInternalPath_) ;
     finalize() ;
     finalDone_ = true ;
    }
@@ -53,6 +57,7 @@ void ElectronDqmAnalyzerBase::endLuminosityBlock( edm::LuminosityBlock const &, 
    {
     if (finalDone_)
      { edm::LogWarning("ElectronDqmAnalyzerBase::endLuminosityBlock")<<"finalize() already called" ; }
+    store_->setCurrentFolder(outputInternalPath_) ;
     finalize() ;
     finalDone_ = true ;
    }
@@ -64,6 +69,7 @@ void ElectronDqmAnalyzerBase::endJob()
    {
     if (finalDone_)
      { edm::LogWarning("ElectronDqmAnalyzerBase::endJob")<<"finalize() already called" ; }
+    store_->setCurrentFolder(outputInternalPath_) ;
     finalize() ;
     finalDone_ = true ;
    }
@@ -71,14 +77,11 @@ void ElectronDqmAnalyzerBase::endJob()
    { store_->save(outputFile_) ; }
  }
 
-void ElectronDqmAnalyzerBase::setStoreFolder( const std::string & path )
- { store_->setCurrentFolder(path) ; }
-
 MonitorElement * ElectronDqmAnalyzerBase::get( const std::string & name )
  {
-  MonitorElement * me = store_->get(name) ;
+  MonitorElement * me = store_->get(inputInternalPath_+"/"+name) ;
   if (!me)
-   { edm::LogWarning("ElectronDqmAnalyzerBase::get")<<"Unknown histogram "<<name ; }
+   { edm::LogWarning("ElectronDqmAnalyzerBase::get")<<"Unknown histogram "<<inputInternalPath_+"/"+name ; }
   return me ;
  }
 

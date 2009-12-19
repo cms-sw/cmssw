@@ -29,10 +29,8 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     virtual void finalize() {}
 
     // utility methods
-
     bool finalStepDone() { return finalDone_ ; }
     int verbosity() { return verbosity_ ; }
-    void setStoreFolder( const std::string & path ) ;
     MonitorElement * get( const std::string & name ) ;
     void remove( const std::string & name ) ;
 
@@ -118,6 +116,8 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     std::string finalStep_ ;
     std::string inputFile_ ;
     std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
     DQMStore * store_ ;
     bool finalDone_ ;
 

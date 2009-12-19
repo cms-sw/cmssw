@@ -143,80 +143,20 @@ ElectronAnalyzer::~ElectronAnalyzer()
 
 void ElectronAnalyzer::book()
  {
-  if (Selection_==0) { setStoreFolder("Egamma/ElectronAnalyzer/AllElectrons") ; }
-  else if (Selection_==1) { setStoreFolder("Egamma/ElectronAnalyzer/SelectionEt") ; }
-  else if (Selection_==2) { setStoreFolder("Egamma/ElectronAnalyzer/SelectionEtIso") ; }
-  else if (Selection_==3) { setStoreFolder("Egamma/ElectronAnalyzer/SelectionEtIsoElID") ; }
-  else if (Selection_==4) { setStoreFolder("Egamma/ElectronAnalyzer/TagAndProbe") ; }
-  else
-   {
-    edm::LogError("ElectronAnalyzer::book")<<"Unknown selection strategy "<<Selection_ ;
-    setStoreFolder("Egamma/ElectronAnalyzer") ;
-   }
-
   nEvents_ = 0 ;
   nAfterTrigger_ = 0 ;
 
-  // matching object
-//  std::string::size_type locSC = matchingObjectCollection_.label().find( "SuperCluster", 0 );
-//  std::string type;
-//  if ( locSC != std::string::npos ) {
-//    //std::cout << "Matching objects are SuperClusters "<< std::endl;
-//    type = "SC";
-//  } else {
-//    //std::cout << "Didn't recognize input matching objects!! " << std::endl;
-//  }
-  std::string matchingObjectType ;
-  if (std::string::npos!=matchingObjectCollection_.label().find("SuperCluster",0))
-   { matchingObjectType = "SC" ; }
-  if (matchingObjectType=="")
-   { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
-  else
-   { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
-  std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
-  h_matchingObject_Num = bookH1withSumw2("h_matchingObject_Num",htitle,nbinfhits,0.,fhitsmax,xtitle) ;
-//  std::string htitle, hlabel ;
-//  hlabel="h_"+type+"Num"; htitle="# "+type+"s";
-//  h_matchingObjectNum              = new TH1F( hlabel.c_str(), htitle.c_str(),    nbinfhits,0.,fhitsmax );
-
-  // matching object distributions
-//  hlabel="h_"+type+"_eta"; htitle=type+" #eta";
-//  h_ele_matchingObjectEta             = dbe_->book1D( hlabel.c_str(), htitle.c_str(), nbineta,etamin,etamax);
-//  hlabel="h_"+type+"_abseta"; htitle=type+" |#eta|";
-//  h_matchingObjectAbsEta             = new TH1F( hlabel.c_str(), htitle.c_str(), nbineta/2,0.,etamax);
-//  hlabel="h_"+type+"_P"; htitle=type+" p";
-//  h_matchingObjectP               = new TH1F( hlabel.c_str(), htitle.c_str(),              nbinp,0.,pmax);
-//  hlabel="h_"+type+"_Pt"; htitle=type+" pt";
-//  h_ele_matchingObjectPt               = dbe_->book1D( hlabel.c_str(),htitle.c_str(),            nbinpteff,5.,ptmax);
-//  hlabel="h_"+type+"_phi"; htitle=type+" phi";
-//  h_ele_matchingObjectPhi               = dbe_->book1D( hlabel.c_str(), htitle.c_str(),        nbinphi,phimin,phimax);
-//  hlabel="h_"+type+"_z"; htitle=type+" z";
-//  h_ele_matchingObjectZ      = dbe_->book1D( hlabel.c_str(), htitle.c_str(),    50, -25, 25 );
-  h_matchingObject_Eta = bookH1("h_matchingObject_Eta",matchingObjectType+" #eta",nbineta,etamin,etamax,"#eta_{SC}");
-  h_matchingObject_AbsEta = bookH1("h_matchingObject_AbsEta",matchingObjectType+" |#eta|",nbineta/2,0.,etamax,"|#eta|_{SC}");
-  h_matchingObject_P = bookH1("h_matchingObject_P",matchingObjectType+" p",nbinp,0.,pmax,"E_{SC} (GeV)");
-  h_matchingObject_Pt = bookH1("h_matchingObject_Pt",matchingObjectType+" pt",nbinpteff,5.,ptmax);
-  h_matchingObject_Phi = bookH1("h_matchingObject_Phi",matchingObjectType+" phi",nbinphi,phimin,phimax);
-  h_matchingObject_Z = bookH1("h_matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25);
-
-  // matched electrons
-  h_ele_vertexP = bookH1("h_ele_vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
-//  h_ele_vertexPt = bookH1( "h_ele_vertexPt",       "ele p_{T} at vertex",  nbinpt,0.,ptmax);
-//  h_ele_vertexEta = bookH1( "h_ele_vertexEta",      "ele #eta at vertex",    nbineta,etamin,etamax);
-//  h_ele_vertexPhi = bookH1( "h_ele_vertexPhi",      "ele #phi at vertex",    nbinphi,phimin,phimax);
-//  h_ele_vertexX = bookH1( "h_ele_vertexX",      "ele x at vertex",    nbinxyz,-0.1,0.1 );
-//  h_ele_vertexY = bookH1( "h_ele_vertexY",      "ele y at vertex",    nbinxyz,-0.1,0.1 );
-//  h_ele_vertexZ = bookH1( "h_ele_vertexZ",      "ele z at vertex",    nbinxyz,-25, 25 );
-//  h_ele_charge = bookH1( "h_ele_charge",         "ele charge",             5,-2.,2.);
+  // matched electrons ?
   h_ele_vertexPt = bookH1( "h_ele_vertexPt","ele transverse momentum",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-  h_ele_Et = bookH1( "h_ele_Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
   h_ele_vertexEta = bookH1( "h_ele_vertexEta","ele momentum eta",nbineta,etamin,etamax,"#eta");
   h_ele_vertexPhi = bookH1( "h_ele_vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
   h_ele_vertexX = bookH1( "h_ele_vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)" );
   h_ele_vertexY = bookH1( "h_ele_vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)" );
   h_ele_vertexZ = bookH1( "h_ele_vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)" );
-  h_ele_vertexTIP = bookH1( "h_ele_vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
-  h_ele_charge = bookH1( "h_ele_charge","ele charge",5,-2.,2.,"charge");
+//  h_ele_vertexP = bookH1("h_ele_vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
+//  h_ele_Et = bookH1( "h_ele_Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
+//  h_ele_vertexTIP = bookH1( "h_ele_vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
+//  h_ele_charge = bookH1( "h_ele_charge","ele charge",5,-2.,2.,"charge");
 
   // # rec electrons
   histNum_= bookH1("h_recEleNum","# rec electrons",20, 0.,20.,"N_{ele}");
@@ -293,6 +233,7 @@ void ElectronAnalyzer::book()
   h_ele_fbremVsEta = bookH2("h_ele_fbremVsEta","ele brem fraction vs eta",nbineta2D,etamin,etamax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
   h_ele_fbremVsPhi = bookH2("h_ele_fbremVsPhi","ele brem fraction vs phi",nbinphi2D,phimin,phimax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
   h_ele_fbremVsPt = bookH2("h_ele_fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
+  h_ele_classes = bookH1( "h_ele_classes", "ele electron classes",      150,0.0,150.);
 
   h_ele_mva = bookH1( "h_ele_mva","ele identification mva",100,-1.,1.);
   h_ele_provenance = bookH1( "h_ele_provenance","ele provenance",5,-2.,3.);
@@ -311,24 +252,44 @@ void ElectronAnalyzer::book()
   h_ele_mee_os = bookH1("h_ele_mee_os","ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
   h_ele_mee = bookH1("h_ele_mee","ele pairs invariant mass", nbinmee, meemin, meemax,"m_{ee} (GeV/c^{2})");
 
-  //===========================
-  // histos for matched objects
-  //===========================
 
-  h_matchedObject_Eta = bookH1withSumw2("h_matchedObject_Eta","Efficiency vs matching SC #eta",nbineta,etamin,etamax);
-  h_matchedObject_AbsEta = bookH1withSumw2("h_matchedObject_AbsEta","Efficiency vs matching SC |#eta|",nbineta/2,0.,2.5);
-  h_matchedObject_Pt = bookH1withSumw2("h_matchedObject_Pt","Efficiency vs matching SC E_{T}",nbinpteff,5.,ptmax);
-  h_matchedObject_Phi = bookH1withSumw2("h_matchedObject_Phi","Efficiency vs matching SC phi",nbinphi,phimin,phimax);
-  h_matchedObject_Z = bookH1withSumw2("h_matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25);
-
-  // classes
-  h_ele_classes = bookH1( "h_ele_classes", "ele electron classes",      150,0.0,150.);
-  h_matchedEle_eta = bookH1( "h_matchedEle_eta", "ele electron eta",  nbineta/2,0.0,etamax);
-  h_matchedEle_eta_golden = bookH1( "h_matchedEle_eta_golden", "ele electron eta golden",  nbineta/2,0.0,etamax);
-  h_matchedEle_eta_shower = bookH1( "h_matchedEle_eta_shower", "ele electron eta showering",  nbineta/2,0.0,etamax);
-  //h_matchedEle_eta_bbrem = bookH1( "h_matchedEle_eta_bbrem", "ele electron eta bbrem",  nbineta/2,0.0,etamax);
-  //h_matchedEle_eta_narrow = bookH1( "h_matchedEle_eta_narrow", "ele electron eta narrow",  nbineta/2,0.0,etamax);
-
+//
+//  //===========================
+//  // histos for matching and matched matched objects
+//  //===========================
+//
+//  // matching object
+//  std::string matchingObjectType ;
+//  if (std::string::npos!=matchingObjectCollection_.label().find("SuperCluster",0))
+//   { matchingObjectType = "SC" ; }
+//  if (matchingObjectType=="")
+//   { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
+//  else
+//   { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
+//  std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
+//  h_matchingObject_Num = bookH1withSumw2("h_matchingObject_Num",htitle,nbinfhits,0.,fhitsmax,xtitle) ;
+//
+//  // matching object distributions
+//  h_matchingObject_Eta = bookH1("h_matchingObject_Eta",matchingObjectType+" #eta",nbineta,etamin,etamax,"#eta_{SC}");
+//  h_matchingObject_AbsEta = bookH1("h_matchingObject_AbsEta",matchingObjectType+" |#eta|",nbineta/2,0.,etamax,"|#eta|_{SC}");
+//  h_matchingObject_P = bookH1("h_matchingObject_P",matchingObjectType+" p",nbinp,0.,pmax,"E_{SC} (GeV)");
+//  h_matchingObject_Pt = bookH1("h_matchingObject_Pt",matchingObjectType+" pt",nbinpteff,5.,ptmax);
+//  h_matchingObject_Phi = bookH1("h_matchingObject_Phi",matchingObjectType+" phi",nbinphi,phimin,phimax);
+//  h_matchingObject_Z = bookH1("h_matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25);
+//
+//  h_matchedObject_Eta = bookH1withSumw2("h_matchedObject_Eta","Efficiency vs matching SC #eta",nbineta,etamin,etamax);
+//  h_matchedObject_AbsEta = bookH1withSumw2("h_matchedObject_AbsEta","Efficiency vs matching SC |#eta|",nbineta/2,0.,2.5);
+//  h_matchedObject_Pt = bookH1withSumw2("h_matchedObject_Pt","Efficiency vs matching SC E_{T}",nbinpteff,5.,ptmax);
+//  h_matchedObject_Phi = bookH1withSumw2("h_matchedObject_Phi","Efficiency vs matching SC phi",nbinphi,phimin,phimax);
+//  h_matchedObject_Z = bookH1withSumw2("h_matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25);
+//
+//  // classes
+//  h_matchedEle_eta = bookH1( "h_matchedEle_eta", "ele electron eta",  nbineta/2,0.0,etamax);
+//  h_matchedEle_eta_golden = bookH1( "h_matchedEle_eta_golden", "ele electron eta golden",  nbineta/2,0.0,etamax);
+//  h_matchedEle_eta_shower = bookH1( "h_matchedEle_eta_shower", "ele electron eta showering",  nbineta/2,0.0,etamax);
+//  //h_matchedEle_eta_bbrem = bookH1( "h_matchedEle_eta_bbrem", "ele electron eta bbrem",  nbineta/2,0.0,etamax);
+//  //h_matchedEle_eta_narrow = bookH1( "h_matchedEle_eta_narrow", "ele electron eta narrow",  nbineta/2,0.0,etamax);
+//
  }
 
 void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
@@ -376,16 +337,16 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     if (!selected(gsfIter,vertexTIP)) continue ;
 
     // electron related distributions
-    h_ele_vertexP->Fill( gsfIter->p() );
     h_ele_vertexPt->Fill( gsfIter->pt() );
-    h_ele_Et->Fill( gsfIter->superCluster()->energy()/cosh( gsfIter->superCluster()->eta()) );
     h_ele_vertexEta->Fill( gsfIter->eta() );
     h_ele_vertexPhi->Fill( gsfIter->phi() );
     h_ele_vertexX->Fill( gsfIter->vertex().x() );
     h_ele_vertexY->Fill( gsfIter->vertex().y() );
     h_ele_vertexZ->Fill( gsfIter->vertex().z() );
-    h_ele_vertexTIP->Fill( vertexTIP );
-    h_ele_charge->Fill( gsfIter->charge() );
+//    h_ele_vertexP->Fill( gsfIter->p() );
+//    h_ele_Et->Fill( gsfIter->superCluster()->energy()/cosh( gsfIter->superCluster()->eta()) );
+//    h_ele_vertexTIP->Fill( vertexTIP );
+//    h_ele_charge->Fill( gsfIter->charge() );
 
     // supercluster related distributions
     reco::SuperClusterRef sclRef = gsfIter->superCluster() ;
@@ -490,32 +451,32 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
    }
 
   // association matching object-reco electrons
-  int matchingObjectNum=0;
+//  int matchingObjectNum=0;
   reco::SuperClusterCollection::const_iterator moIter ;
   for
    ( moIter=recoClusters->begin() ;
      moIter!=recoClusters->end() ;
      moIter++ )
    {
-    // number of matching objects
-    matchingObjectNum++;
+//    // number of matching objects
+//    matchingObjectNum++;
 
     if
      ( moIter->energy()/cosh(moIter->eta())>maxPtMatchingObject_ ||
        fabs(moIter->eta())> maxAbsEtaMatchingObject_ )
      { continue ; }
 
-    // suppress the endcaps
-    //if (fabs(moIter->eta()) > 1.5) continue;
-    // select central z
-    //if ( fabs((*mcIter)->production_vertex()->position().z())>50.) continue;
-
-    h_matchingObject_Eta->Fill( moIter->eta() );
-    h_matchingObject_AbsEta->Fill( fabs(moIter->eta()) );
-    h_matchingObject_P->Fill( moIter->energy() );
-    h_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
-    h_matchingObject_Phi->Fill( moIter->phi() );
-    h_matchingObject_Z->Fill(  moIter->z() );
+//    // suppress the endcaps
+//    //if (fabs(moIter->eta()) > 1.5) continue;
+//    // select central z
+//    //if ( fabs((*mcIter)->production_vertex()->position().z())>50.) continue;
+//
+//    h_matchingObject_Eta->Fill( moIter->eta() );
+//    h_matchingObject_AbsEta->Fill( fabs(moIter->eta()) );
+//    h_matchingObject_P->Fill( moIter->energy() );
+//    h_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
+//    h_matchingObject_Phi->Fill( moIter->phi() );
+//    h_matchingObject_Z->Fill(  moIter->z() );
 
     if (Selection_<4)
      {
@@ -614,7 +575,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
 
             h_ele_mee_os->Fill(invMass) ;
 
-            fillMatchedHistos(moIter,*gsfIter2) ;
+//            fillMatchedHistos(moIter,*gsfIter2) ;
            }
          }
        }
@@ -622,7 +583,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
 
    } // loop overmatching object
 
-  h_matchingObject_Num->Fill(matchingObjectNum) ;
+//  h_matchingObject_Num->Fill(matchingObjectNum) ;
 
  }
 
@@ -641,20 +602,20 @@ void ElectronAnalyzer::fillMatchedHistos
    const reco::GsfElectron & electron )
  {
   // generated distributions for matched electrons
-  h_matchedObject_Eta->Fill( moIter->eta() );
-  h_matchedObject_AbsEta->Fill( fabs(moIter->eta()) );
-  h_matchedObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
-  h_matchedObject_Phi->Fill( moIter->phi() );
-  h_matchedObject_Z->Fill( moIter->z() );
+//  h_matchedObject_Eta->Fill( moIter->eta() );
+//  h_matchedObject_AbsEta->Fill( fabs(moIter->eta()) );
+//  h_matchedObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
+//  h_matchedObject_Phi->Fill( moIter->phi() );
+//  h_matchedObject_Z->Fill( moIter->z() );
 
   //classes
-  int eleClass = electron.classification() ;
-  h_ele_classes->Fill(eleClass) ;
-  h_matchedEle_eta->Fill(fabs(electron.eta()));
-  if (electron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(fabs(electron.eta()));
-  if (electron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(fabs(electron.eta()));
-  //if (electron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(electron.eta()));
-  //if (electron.classification() == GsfElectron::OLDNARROW) h_matchedEle_eta_narrow->Fill(fabs(electron.eta()));
+//  int eleClass = electron.classification() ;
+//  h_ele_classes->Fill(eleClass) ;
+//  h_matchedEle_eta->Fill(fabs(electron.eta()));
+//  if (electron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(fabs(electron.eta()));
+//  if (electron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(fabs(electron.eta()));
+//  //if (electron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(electron.eta()));
+//  //if (electron.classification() == GsfElectron::OLDNARROW) h_matchedEle_eta_narrow->Fill(fabs(electron.eta()));
  }
 
 bool ElectronAnalyzer::trigger( const edm::Event & e )

@@ -19,9 +19,9 @@ process.dqmElectronClientAllElectrons.InputFile = cms.string(os.environ['TEST_HI
 process.dqmElectronClientAllElectrons.FinalStep = cms.string("AtJobEnd")
 process.dqmElectronClientSelectionEt.FinalStep = cms.string("AtJobEnd")
 process.dqmElectronClientSelectionEtIso.FinalStep = cms.string("AtJobEnd")
+process.dqmElectronClientSelectionEtIso.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 process.dqmElectronClientSelectionEtIsoElID.FinalStep = cms.string("AtJobEnd")
 process.dqmElectronClientTagAndProbe.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronClientTagAndProbe.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
 process.p = cms.Path(process.electronClientSequence*process.dqmStoreStats)
 

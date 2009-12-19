@@ -10,5 +10,7 @@ dqmElectronOfflineClient = cms.EDAnalyzer("ElectronOfflineClient",
     FinalStep = cms.string("AtRunEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
+    InputFolderName = cms.string(""),
+    OutputFolderName = cms.string("")
 
 )
