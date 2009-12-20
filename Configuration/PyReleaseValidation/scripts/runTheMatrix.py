@@ -71,9 +71,39 @@ class WorkFlowRunner(Thread):
         
         # run the first workflow:
         cmd = preamble
-        cmd += self.wf.cmdStep1 + ' --fileout file:raw.root '
-        cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'.log ',)
-        retStep1 = self.doCmd(cmd)
+
+        inFile = 'file:raw.root'
+        if 'REALDATA' in self.wf.cmdStep1:
+            realDataRe = re.compile('REALDATA:\s*(/[A-Za-z].*),\s*RUN:\s*(?P<run>\d+)(,\s*FILES:\s*(?P<files>\d+))?(,\s*EVENTS:\s*(?P<events>\d+))?,\s*LABEL:\s*(?P<label>.*)')
+            realDataMatch = realDataRe.match(self.wf.cmdStep1)
+            if realDataMatch:
+                run    = realDataMatch.group("run")
+                label  = realDataMatch.group("label")
+
+                files  = None
+                events = None
+                if realDataMatch.group("files") : files=realDataMatch.group("files")
+                if realDataMatch.group("events"): events=realDataMatch.group("events")
+
+                print "run, files, events, label", run, files, events, label 
+                cmd += 'dbs search --noheader --url=http://cmst0dbs.cern.ch/cms_dbs_prod_tier0/servlet/DBSServlet '
+                cmd += "--query='find file where dataset like "+realDataMatch.group(1)
+                cmd += " and run=" + run+ "' "
+                cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'-dbsquery.log',)
+                retStep1 = self.doCmd(cmd)
+                if retStep1 == 0:
+                    lf = open(wfDir+'/step1_'+self.wf.nameId+'-dbsquery.log', 'r')
+                    lines = lf.readlines()
+                    lf.close()
+                    inFile = lines[0].strip()
+            else:
+                print "ERROR: found REALDATA in '"+self.wf.cmdStep1+"' but not RE match !!??!"
+                retStep1 = -99
+        else:
+            cmd += self.wf.cmdStep1 + ' --fileout file:raw.root '
+            cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'.log ',)
+            retStep1 = self.doCmd(cmd)
+
         print " ... ret: " , retStep1
 
         # prepare and run the next workflows -- if the previous step was OK :
@@ -83,8 +113,12 @@ class WorkFlowRunner(Thread):
         retStep4 = 0
         if self.wf.cmdStep2 and retStep1 == 0:
             fullcmd = preamble
-            fullcmd += self.wf.cmdStep2 + ' --filein file:raw.root --fileout file:reco.root '
+            fullcmd += self.wf.cmdStep2
             if ' -n ' not in fullcmd: fullcmd += ' -n 100 '
+            fullcmd += ' --fileout file:reco.root '
+            if self.wf.numId == 41.0 : # for HI B0 step2 use a file from a previous relval production as step1 doesn't write any output in 1 hour:
+                inFile = '/castor/cern.ch/cms/store/relval/CMSSW_3_4_0/RelValPyquen_GammaJet_pt20_4TeV/GEN-SIM-RAW/MC_3XY_V14-v1/0008/46F11B87-37EA-DE11-9337-00248C0BE005.root'
+            fullcmd += ' --filein '+inFile+ ' '
             fullcmd += ' > %s 2>&1; ' % ('step2_'+self.wf.nameId+'.log ',)
             # print fullcmd
             retStep2 = self.doCmd(fullcmd)
@@ -229,35 +263,25 @@ class MatrixReader(object):
 
             realMatch = realRe.match(line)
             if realMatch :
+                num  = realMatch.group(1).strip()
+                name = realMatch.group(2).strip().replace('<','').replace('>','').replace(':','')
+                next = realMatch.group(3).strip().replace('+','').replace(',', ' ')
+                cmd  = realMatch.group(4).strip()
+                step2 = "None"
+                step3 = "None"
+                step4 = "None"
+
+                steps = next.split()
+                if len(steps) > 0:
+                    step2 = steps[0].strip()
+                if len(steps) > 1:
+                    step3 = steps[1].strip()
+                if len(steps) > 2:
+                    step4 = steps[2].strip()
+                
+                self.step1WorkFlows[float(num)+offset] = (str(float(num)+offset), name, step2, step3, step4, cmd, None)
                 continue
-##-not now                num  = realMatch.group(1).strip()
-##-not now                name = realMatch.group(2).strip().replace('<','').replace('>','').replace(':','')
-##-not now                next = realMatch.group(3).strip().replace('+','').replace(',', ' ')
-##-not now                real = realMatch.group(4).strip()
-##-not now                dummy, inFile, run, runNr = real.split()
-##-not now                cmd  = ""
-##-not now
-##-not now                # for run on real data. use:
-##-not now                cmdReal = 'cmsDriver.py step2 '
-##-not now                cmdReal += '-s RAW2DIGI,RECO:reconstructionCosmics_woDeDx,ALCA:MuAlCalIsolatedMu+RpcCalHLT '
-##-not now                cmdReal += '--relval 25000,100 --datatier RECO --eventcontent RECO '
-##-not now                cmdReal += '--conditions FrontierConditions_GlobalTag,CRAFT_30X::All '
-##-not now                cmdReal += '--scenario cosmics --data '
-##-not now                cmdReal += '--fileIn file:'
-##-not now                # ... and the file/run from the line ...
-##-not now
-##-not now                step2 = "None"
-##-not now                step3 = "None"
-##-not now                try:
-##-not now                    step2, step3 = next.split()
-##-not now                    step2 = step2.strip()
-##-not now                    step3 = step3.strip()
-##-not now                except ValueError:
-##-not now                    if len(next) > 0:
-##-not now                        step2 = next.strip()
-##-not now                    pass
-##-not now                self.step1WorkFlows[float(num)] = (num, name, step2, step3, cmd, real)
-##-not now                continue
+            
                 
             step1Match = step1Re.match(line)
             if step1Match :
@@ -558,6 +582,39 @@ def runSelected(testList, nThreads=4, show=False) :
 
     return ret
 
+# ================================================================================
+
+def runData(testList, nThreads=4, show=False) :
+
+    mrd = MatrixReader()
+    files = ['cmsDriver_realData_hlt.txt']
+    for matrixFile in files:
+        try:
+            mrd.readMatrix(matrixFile)
+        except Exception, e:
+            print "ERROR reading file:", matrixFile, str(e)
+
+    try:
+        mrd.createWorkFlows()
+    except Exception, e:
+        print "ERROR creating workflows :", str(e)
+
+    ret = 0
+    if show:
+        if not testList or testList == ['all']:
+            mrd.show()
+        else:
+            mrd.show([float(x) for x in testList])
+        print 'selected items:', testList
+    else:
+        mRunnerHi = MatrixRunner(mrd.workFlows, nThreads)
+        if not testList or testList == ['all']:
+            ret = mRunnerHi.runTests()
+        else:
+            ret = mRunnerHi.runTests(testList)
+
+    return ret
+
 # --------------------------------------------------------------------------------
 
 def runAll(testList=None, nThreads=4, show=False) :
@@ -600,6 +657,23 @@ def runOnly(only, show, nThreads=4):
         print "found request to run relvals only for ",what
 
 
+# --------------------------------------------------------------------------------
+
+def usage():
+    print "Usage:", sys.argv[0], ' [options] '
+    print """
+Where options is one of the following:
+  -d, --data <list> comma-separated list of workflows to use from the realdata file.
+                    <list> can be "all" to select all data workflows
+  -l, --list <list> comma-separated list of workflows to use from the standard/highstat files
+                    highstat files are offset by 100.
+  -j, --nproc <n>   run <n> processes in parallel (default: 4 procs)
+  -s, --selected    run a subset of 8 workflows (usually in the CustomIB)
+  -n, -q, --show    show the (selected) workflows
+
+<list>s should be put in single- or double-quotes to avoid confusion with/by the shell
+"""
+
 # ================================================================================
 
 if __name__ == '__main__':
@@ -607,7 +681,7 @@ if __name__ == '__main__':
     import getopt
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "j:sl:nqo:", ["nproc=",'selected','list=','showMatrix','only='])
+        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:", ['help',"nproc=",'selected','list=','showMatrix','only=','data='])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
@@ -618,7 +692,11 @@ if __name__ == '__main__':
     sel = None
     show = False
     only = None
+    data = None
     for opt, arg in opts :
+        if opt in ('-h','--help'):
+            usage()
+            sys.exit(0)
         if opt in ('-j', "--nproc" ):
             np=int(arg)
         if opt in ('-n','-q','--showMatrix', ):
@@ -629,6 +707,8 @@ if __name__ == '__main__':
             only = []
         if opt in ('-l','--list',) :
             sel = arg.split(',')
+        if opt in ('-d','--data',) :
+            data = arg.split(',')
 
     # print "sel",sel
     ret = 0
@@ -636,6 +716,8 @@ if __name__ == '__main__':
         ret = runSelected(testList=sel, nThreads=np, show=show)
     elif only != None:
         ret = runOnly(only=only, show=show, nThreads=np)
+    elif data != None:
+        ret = runData(testList=data, show=show, nThreads=np)
     else:
         ret = runAll(show=show, nThreads=np)
 
