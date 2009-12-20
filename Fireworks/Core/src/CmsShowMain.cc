@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.139 2009/12/13 12:27:10 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.140 2009/12/17 17:19:49 amraktad Exp $
 //
 
 // system include files
@@ -16,37 +16,27 @@
 #include <sigc++/sigc++.h>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
-#include "TEveManager.h"
-#include "TEveViewer.h"
-#include "TEveBrowser.h"
+#include <string.h>
+
 #include "TSystem.h"
 #include "TClass.h"
-#include "TEveTrackProjected.h"
-#include "TEveSelection.h"
-#include "TEveLine.h"
+#include "TGLWidget.h"
 #include "TTimer.h"
-#include "TColor.h"
-//socket
-#include "TMonitor.h"
-#include "TServerSocket.h"
-//memset
-#include "string.h"
-
-//geometry
+#include "TStopwatch.h"
 #include "TFile.h"
 #include "TROOT.h"
-
-#include "TGButton.h"
-#include "TGComboBox.h"
-#include "TGLabel.h"
-#include "TGTextEntry.h"
-#include "TStopwatch.h"
 #include "TGFileDialog.h"
+#include "TMonitor.h"
+#include "TServerSocket.h"
+
+#include "TEveManager.h"
+#include "TEveBrowser.h"
+#include "TEveTrackProjected.h"
+#include "TEveSelection.h"
 
 //needed to work around a bug
-#include "TApplication.h"
+//#include "TApplication.h"
 
-// user include files
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWEveLegoViewManager.h"
@@ -54,6 +44,7 @@
 #include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FW3DViewManager.h"
+
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -62,13 +53,6 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
-#include "Fireworks/Core/interface/FWCustomIconsButton.h"
-#include "Fireworks/Core/src/FWCheckBoxIcon.h"
-
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-
-#include "DataFormats/FWLite/interface/Event.h"
-
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
 #include "Fireworks/Core/interface/Context.h"
 
@@ -84,7 +68,8 @@
 
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "TVirtualX.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "DataFormats/FWLite/interface/Event.h"
 
 //
 // constants, enums and typedefs
@@ -220,10 +205,18 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_lastPointerPositionX(-999),
    m_lastPointerPositionY(-999),
    m_liveTimeout(600000)
-   //  m_configFileName(iConfigFileName)
 {
-   //m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
+   try {
+      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
+      delete w;
+   }
+   catch (std::exception& iException) {
+      std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
+      throw;
+   } 
+   
    m_eiManager->setContext(m_context.get());
+   
    try {
       std::string descString(argv[0]);
       descString += " [options] <data file>\nAllowed options";
