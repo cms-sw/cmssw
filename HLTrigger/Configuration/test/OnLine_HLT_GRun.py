@@ -8957,7 +8957,7 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'STARTUP3X_V14::All'
+    process.GlobalTag.globaltag         = 'STARTUP3X_V15::All'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 
 if 'Level1MenuOverride' in process.__dict__:
@@ -8982,3 +8982,8 @@ process.options.wantSummary = cms.untracked.bool(True)
 process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
 process.MessageLogger.categories.append('L1GtTrigReport')
 process.MessageLogger.categories.append('HLTrigReport')
+#
+# Removing prescales
+if 'PrescaleService' in process.__dict__:
+    process.PrescaleService.prescaleTable = cms.VPSet( )
+# 
