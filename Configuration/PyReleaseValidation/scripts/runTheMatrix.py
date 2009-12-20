@@ -114,10 +114,15 @@ class WorkFlowRunner(Thread):
         if self.wf.cmdStep2 and retStep1 == 0:
             fullcmd = preamble
             fullcmd += self.wf.cmdStep2
-            if ' -n ' not in fullcmd: fullcmd += ' -n 100 '
+            if ' -n ' not in fullcmd : fullcmd += ' -n 100 '
             fullcmd += ' --fileout file:reco.root '
-            if self.wf.numId == 41.0 : # for HI B0 step2 use a file from a previous relval production as step1 doesn't write any output in 1 hour:
-                inFile = '/castor/cern.ch/cms/store/relval/CMSSW_3_4_0/RelValPyquen_GammaJet_pt20_4TeV/GEN-SIM-RAW/MC_3XY_V14-v1/0008/46F11B87-37EA-DE11-9337-00248C0BE005.root'
+            print '=====>>> ', self.wf.nameId, self.wf.numId
+
+            # for HI B0 step2 use a file from a previous relval production as step1 doesn't write
+            # any output in 1 hour.
+            if '41.0' in str(self.wf.numId) : 
+                inFile = 'rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_4_0/RelValPyquen_GammaJet_pt20_4TeV/GEN-SIM-RAW/MC_3XY_V14-v1/0008/46F11B87-37EA-DE11-9337-00248C0BE005.root'
+
             fullcmd += ' --filein '+inFile+ ' '
             fullcmd += ' > %s 2>&1; ' % ('step2_'+self.wf.nameId+'.log ',)
             # print fullcmd
@@ -352,28 +357,32 @@ class MatrixReader(object):
 
     def showWorkFlows(self, selected=None):
 
+        maxLen = 100 # for summary, limit width of output
+        fmt1   = "%-6s %-35s [1]: %s ..."
+        fmt2   = "       %35s [%d]: %s ..."
         print "\nfound a total of ", len(self.workFlows), ' workflows:'
         if selected:
             print "      of which the following", len(selected), 'were selected:'
-            
+            maxLen = -1  # for individual listing, no limit on width
+            fmt1   = "%-6s %-35s [1]: %s " 
+            fmt2   = "       %35s [%d]: %s"
         n1 = 0
         n2 = 0
         n3 = 0
         n4 = 0
-        maxLen = 100
         for wf in self.workFlows:
             if selected and float(wf.numId) not in selected: continue
             n1+=1
-            print "%-6s %-35s [1]: %s ..." % (wf.numId, wf.nameId, wf.cmdStep1[:maxLen])
+            print fmt1 % (wf.numId, wf.nameId, wf.cmdStep1[:maxLen])
             if wf.cmdStep2:
                 n2+=1
-                print "       %35s [2]: %s ..." % ( ' ', wf.cmdStep2[:maxLen])
+                print fmt2 % ( ' ', 2, wf.cmdStep2[:maxLen])
                 if wf.cmdStep3:
                     n3+=1
-                    print "       %35s [3]: %s ..." % ( ' ', wf.cmdStep3[:maxLen])
+                    print fmt2 % ( ' ', 3, wf.cmdStep3[:maxLen])
                     if wf.cmdStep4:
                         n4+=1
-                        print "       %35s [4]: %s ..." % ( ' ', wf.cmdStep4[:maxLen])
+                        print fmt2 % ( ' ', 4, wf.cmdStep4[:maxLen])
 
         print n1, 'workflows for step1,'
         print n2, 'workflows for step1 + step2,'
