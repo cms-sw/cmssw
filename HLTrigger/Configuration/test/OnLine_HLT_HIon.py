@@ -2462,7 +2462,7 @@ process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hl
 process.HLTOutput = cms.EndPath( process.hltOutputA )
 process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAPHISYM + process.hltOutputALCAP0 + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
 
-process.setName_('HLTHIon')
+process.setName_('HLT')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
@@ -2497,8 +2497,3 @@ process.options.wantSummary = cms.untracked.bool(True)
 process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
 process.MessageLogger.categories.append('L1GtTrigReport')
 process.MessageLogger.categories.append('HLTrigReport')
-#
-# Removing prescales
-if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.prescaleTable = cms.VPSet( )
-# 
