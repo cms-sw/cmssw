@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # NOTE: THIS IS JUST A SKELETON, YOU SHOULD FILL IT IN WITH "replace"
 
-allPatGenericParticles = cms.EDProducer("PATGenericParticleProducer",
+patGenericParticles = cms.EDProducer("PATGenericParticleProducer",
     ## Input (anything readable with View<Candidate>
     src = cms.InputTag("REPLACE_ME"),
 
