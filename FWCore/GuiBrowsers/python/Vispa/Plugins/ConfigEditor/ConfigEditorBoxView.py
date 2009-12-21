@@ -68,18 +68,6 @@ class ConfigEditorBoxView(BoxDecayView):
                 connectionWidget.show()
         return True
     
-    def widgetDoubleClicked(self, widget):
-        """ Emits signal widgetSelected that the TabController can connect to.
-        """
-        logging.debug(__name__ + ": widgetDoubleClicked")
-        BoxDecayView.widgetDoubleClicked(self, widget)
-        if hasattr(widget, "object"):
-            if hasattr(widget, "positionName"):
-                self._selection = widget.positionName
-                self.emit(SIGNAL("doubleClicked"), widget.object)
-            else:
-                self.emit(SIGNAL("doubleClicked"), widget.object())
-    
     def highlight(self, objects=None):
         """ Mark objects.
         """
