@@ -43,7 +43,7 @@ PFPileUp::~PFPileUp() { }
 
 
 
-void PFPileUp::beginJob(const edm::EventSetup & es) { }
+void PFPileUp::beginJob() { }
 
 
 void PFPileUp::produce(Event& iEvent, 

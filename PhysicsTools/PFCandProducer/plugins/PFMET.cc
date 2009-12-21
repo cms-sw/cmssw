@@ -45,7 +45,7 @@ PFMET::~PFMET() { }
 
 
 
-void PFMET::beginJob(const edm::EventSetup & es) { }
+void PFMET::beginJob() { }
 
 
 void PFMET::produce(Event& iEvent, 
