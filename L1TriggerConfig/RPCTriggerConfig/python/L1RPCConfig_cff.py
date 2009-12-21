@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 rpcconf = cms.ESProducer("RPCTriggerConfig",
-    filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/Eff90PPT12/v1/'),
+    filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/D_20091204NewMagF__all_12/v1/'),
     PACsPerTower = cms.untracked.int32(12)
 )
 
