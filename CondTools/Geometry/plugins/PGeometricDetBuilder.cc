@@ -34,7 +34,7 @@ PGeometricDetBuilder::~PGeometricDetBuilder()
 }
 
 void
-PGeometricDetBuilder::beginJob( edm::EventSetup const& es) 
+PGeometricDetBuilder::beginRun( edm::EventSetup const& es) 
 {
   PGeometricDet* pgd = new PGeometricDet;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;

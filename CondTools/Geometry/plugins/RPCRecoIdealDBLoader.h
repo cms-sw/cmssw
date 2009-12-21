@@ -13,7 +13,7 @@ class RPCRecoIdealDBLoader : public edm::EDAnalyzer {
  public:
   explicit RPCRecoIdealDBLoader( const edm::ParameterSet& iConfig );
   ~RPCRecoIdealDBLoader();
-  virtual void beginJob( edm::EventSetup const& );
+  virtual void beginRun( edm::EventSetup const& );
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob() {};
 

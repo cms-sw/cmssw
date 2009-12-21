@@ -29,7 +29,7 @@ XMLGeometryBuilder::~XMLGeometryBuilder()
 }
 
 void
-XMLGeometryBuilder::beginJob( edm::EventSetup const& es) 
+XMLGeometryBuilder::beginJob() 
 {
   std::cout<<"XMLGeometryBuilder::beginJob"<<std::endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;

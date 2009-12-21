@@ -14,7 +14,7 @@ class XMLGeometryBuilder : public edm::EDAnalyzer {
  public:
   explicit XMLGeometryBuilder( const edm::ParameterSet& iConfig );
   ~XMLGeometryBuilder();
-  virtual void beginJob( edm::EventSetup const& );
+  virtual void beginJob();
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob() {};
  private:

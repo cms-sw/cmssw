@@ -37,9 +37,9 @@ CSCRecoIdealDBLoader::~CSCRecoIdealDBLoader()
 }
 
 void
-CSCRecoIdealDBLoader::beginJob( edm::EventSetup const& es) 
+CSCRecoIdealDBLoader::beginRun( edm::EventSetup const& es) 
 {
-  std::cout<<"CSCRecoIdealDBLoader::beginJob"<<std::endl;
+  std::cout<<"CSCRecoIdealDBLoader::beginRun"<<std::endl;
   RecoIdealGeometry* rig = new RecoIdealGeometry;
   CSCRecoDigiParameters* rdp = new CSCRecoDigiParameters;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;

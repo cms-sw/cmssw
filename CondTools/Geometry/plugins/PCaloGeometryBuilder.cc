@@ -24,7 +24,7 @@ PCaloGeometryBuilder::~PCaloGeometryBuilder()
 }
 
 void
-PCaloGeometryBuilder::beginJob( edm::EventSetup const& es )
+PCaloGeometryBuilder::beginRun( edm::EventSetup const& es )
 {
    const std::string toDB ( "_toDB" ) ;
 

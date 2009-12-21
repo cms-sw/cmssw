@@ -36,7 +36,7 @@ DTRecoIdealDBLoader::~DTRecoIdealDBLoader()
 }
 
 void
-DTRecoIdealDBLoader::beginJob( edm::EventSetup const& es) 
+DTRecoIdealDBLoader::beginRun( edm::EventSetup const& es) 
 {
   RecoIdealGeometry* rig = new RecoIdealGeometry;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
