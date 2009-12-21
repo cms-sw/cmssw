@@ -139,7 +139,7 @@ MixCollectionValidation::~MixCollectionValidation()
    // (e.g. close files, deallocate resources etc.)
 }
 
-void MixCollectionValidation::beginJob(edm::EventSetup const&iSetup) {
+void MixCollectionValidation::beginJob() {
 } 
 
 

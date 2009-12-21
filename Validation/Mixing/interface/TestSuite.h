@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.h,v 1.2 2007/02/27 17:05:08 uberthon Exp $
+// $Id: TestSuite.h,v 1.3 2008/02/29 20:48:53 ksmith Exp $
 //
 //
 
@@ -41,7 +41,7 @@ class TestSuite : public edm::EDAnalyzer {
 
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&iSetup);
+      virtual void beginJob();
       virtual void endJob();
      
    private:

@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.7 2009/01/28 16:33:57 ebecheva Exp $
+// $Id: GlobalTest.cc,v 1.8 2009/12/11 15:05:51 ebecheva Exp $
 //
 //
 
@@ -59,7 +59,7 @@ GlobalTest::~GlobalTest()
    // (e.g. close files, deallocate resources etc.)
 }
 
-void GlobalTest::beginJob(edm::EventSetup const&iSetup) {
+void GlobalTest::beginJob() {
   using namespace std;
   
   // get hold of back-end interface

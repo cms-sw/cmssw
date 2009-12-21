@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.10 2008/02/29 20:48:54 ksmith Exp $
+// $Id: TestSuite.cc,v 1.11 2009/01/28 16:33:57 ebecheva Exp $
 //
 //
 
@@ -52,7 +52,7 @@ TestSuite::~TestSuite()
    // (e.g. close files, deallocate resources etc.)
 }
 
-void TestSuite::beginJob(edm::EventSetup const&iSetup) {
+void TestSuite::beginJob() {
 
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->(); 

@@ -27,7 +27,7 @@ public:
   explicit MixCollectionValidation(const edm::ParameterSet&);
   ~MixCollectionValidation();
 
-  void beginJob(edm::EventSetup const&iSetup);
+  void beginJob();
   void endJob();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
