@@ -43,6 +43,9 @@ namespace spr{
   double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug=false);
 
   template< typename T>
+  std::vector<std::pair<DetId,double> > eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug=false);
+
+  template< typename T>
   double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, bool debug=false);
 
   // Energy in ietaXiphi crystal matrix
@@ -56,6 +59,9 @@ namespace spr{
   // returns energy deposited from the vector of hits
   template <typename T>
   double energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, bool debug=false);
+
+  template <typename T>
+  std::vector<std::pair<DetId,double> > energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, bool debug=false);
   
 }
 

@@ -18,7 +18,7 @@ namespace spr{
     std::vector< typename T::const_iterator> ecalHits   = spr::hitECALmatrix(navigator,hits,ieta,iphi,debug);
 
     // return a map of matching type and energy of SimHits
-    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, ecalHits, trkInfo, timeCut, debug);
+    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, ecalHits, trkInfo, timeCut, false, debug);
   }
 
   template <typename T>
@@ -89,7 +89,54 @@ namespace spr{
   }
 
   template <typename T>
-  std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut, bool debug) {
+  spr::energyMap eECALSimInfoMatrix(const edm::Event& iEvent, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut, bool debug) {
+
+    if (debug)
+      std::cout << "Processing eECALSimInfo " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
+
+    //matching SimTrack
+    edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+
+    //vector of Ecal cells in NxN
+    std::vector<DetId> vdets = spr::matrixECALIds(det, ieta, iphi, geo, caloTopology, debug);
+
+    //List of Hit vectors for EB and EE
+    std::vector< typename T::const_iterator> hitEB, hitEE, hit;
+    for (unsigned int i1=0; i1<vdets.size(); i1++) {
+      if (vdets[i1] != DetId(0)) {
+        if (vdets[i1].subdetId()==EcalBarrel) {
+          hit = spr::findHit(hitsEB,vdets[i1]);
+          for (unsigned int i2=0; i2<hit.size(); i2++) {
+            if (std::count(hitEB.begin(),hitEB.end(),hit[i2]) == 0)
+              hitEB.push_back(hit[i2]);
+          }
+        } else if (vdets[i1].subdetId()==EcalEndcap) {
+          hit = spr::findHit(hitsEE,vdets[i1]);
+          for (unsigned int i2=0; i2<hit.size(); i2++) {
+            if (std::count(hitEE.begin(),hitEE.end(),hit[i2]) == 0)
+              hitEE.push_back(hit[i2]);
+          }
+        }
+      }
+    }
+
+    // return a map of matching type and energy of SimHits
+    spr::energyMap eMapEB =  spr::caloSimInfo(geo, hitsEB, SimTk, SimVtx, hitEB, trkInfo, timeCut, false, debug);
+    spr::energyMap eMapEE =  spr::caloSimInfo(geo, hitsEE, SimTk, SimVtx, hitEE, trkInfo, timeCut, false, debug);
+    if (eMapEB.pdgId == 0) eMapEB.pdgId = eMapEE.pdgId;
+    for (unsigned k=0; k<eMapEE.matched.size(); k++) eMapEB.matched.push_back(eMapEE.matched[k]);
+    for (unsigned k=0; k<eMapEE.gamma.size(); k++) eMapEB.gamma.push_back(eMapEE.gamma[k]);
+    for (unsigned k=0; k<eMapEE.charged.size(); k++) eMapEB.charged.push_back(eMapEE.charged[k]);
+    for (unsigned k=0; k<eMapEE.neutral.size(); k++) eMapEB.neutral.push_back(eMapEE.neutral[k]);
+    for (unsigned k=0; k<eMapEE.matched.size(); k++) eMapEB.matched.push_back(eMapEE.matched[k]);
+    for (unsigned k=0; k<eMapEE.gamma.size(); k++) eMapEB.gamma.push_back(eMapEE.gamma[k]);
+    for (unsigned k=0; k<eMapEE.rest.size(); k++) eMapEB.rest.push_back(eMapEE.rest[k]);
+    for (unsigned k=0; k<eMapEE.all.size(); k++) eMapEB.all.push_back(eMapEE.all[k]);
+    return eMapEB;
+  }
+
+  template <typename T>
+  std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut, bool includeHO, bool debug) {
 
     if (debug)
       std::cout << "Processing eHCALSimInfo " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
@@ -100,11 +147,11 @@ namespace spr{
     // get the hits in Hcal in NxN around det
     std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixNew(topology,det,hits,ieta,iphi,false, debug);
 
-    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, debug);
+    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
   }
 
   template <typename T>
-  std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, double timeCut, bool debug) {
+  std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, double timeCut, bool includeHO, bool debug) {
 
     if (debug)
       std::cout << "Processing eHCALSimInfo " << ietaE+ietaW+1 << "x"<< iphiN+iphiS+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
@@ -115,11 +162,11 @@ namespace spr{
     // get the hits in Hcal in NxN around det
     std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,ietaE,ietaW,iphiN,iphiS,false,debug);
 
-    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, debug);
+    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
   }
 
   template <typename T>
-  std::map<std::string,double> eHCALSimInfoTotal(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, int itry, double timeCut, bool debug) {
+  std::map<std::string,double> eHCALSimInfoTotal(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, int itry, double timeCut, bool includeHO, bool debug) {
 
     if (debug)
       std::cout << "Processing eHCALSimInfo " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
@@ -133,14 +180,14 @@ namespace spr{
     if (itry >= 0) {
       // get the hits in Hcal in NxN around det
       std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itry],etaphi.ietaW[itry],etaphi.iphiN[itry],etaphi.iphiS[itry],false, debug);
-      simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, debug);
+      simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
     } else {
       int itrym = 0;
       std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrym],etaphi.ietaW[itrym],etaphi.iphiN[itrym],etaphi.iphiS[itrym],false, debug);
-      simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, debug);
+      simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
       for (int itrys = 1; itrys < etaphi.ntrys; ++itrys) {
 	hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrys],etaphi.ietaW[itrys],etaphi.iphiN[itrys],etaphi.iphiS[itrys],false, debug);
-        std::map<std::string, double> simInfoX = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, debug);
+        std::map<std::string, double> simInfoX = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
         if (simInfoX["eTotal"] > simInfo["eTotal"]) {
 	  simInfo = simInfoX;
           itrym   = itrys;
@@ -148,6 +195,21 @@ namespace spr{
       }
     }
     return simInfo;
+  }
+
+  template <typename T>
+  spr::energyMap eHCALSimInfoMatrix(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut, bool includeHO, bool debug) {
+
+    if (debug)
+      std::cout << "Processing eHCALSimInfoMatrix " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
+
+    // get the matching SimTrack pointer
+    edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
+
+    // get the hits in Hcal in NxN around det
+    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixNew(topology,det,hits,ieta,iphi,false, debug);
+
+    return spr::caloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
   }
 
   template <typename T>
@@ -172,8 +234,8 @@ namespace spr{
       }
     }
 
-    std::map<std::string,double> eEBSimInfo = spr::eCaloSimInfo(geo, hitsEB, SimTk, SimVtx, hitEB, trkInfo, timeCut, debug);
-    std::map<std::string,double> eEESimInfo = spr::eCaloSimInfo(geo, hitsEE, SimTk, SimVtx, hitEE, trkInfo, timeCut, debug);
+    std::map<std::string,double> eEBSimInfo = spr::eCaloSimInfo(geo, hitsEB, SimTk, SimVtx, hitEB, trkInfo, timeCut, false, debug);
+    std::map<std::string,double> eEESimInfo = spr::eCaloSimInfo(geo, hitsEE, SimTk, SimVtx, hitEE, trkInfo, timeCut, false, debug);
 
     int matchedId = eEBSimInfo["pdgMatched"];
     if (matchedId == 0) matchedId = eEESimInfo["pdgMatched"];
@@ -204,7 +266,7 @@ namespace spr{
   }
 
   template <typename T>
-  std::map<std::string,double> eCaloSimInfo(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit,  edm::SimTrackContainer::const_iterator trkInfo, double timeCut, bool debug){
+  std::map<std::string,double> eCaloSimInfo(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit,  edm::SimTrackContainer::const_iterator trkInfo, double timeCut, bool includeHO, bool debug){
 
     int matchedId = 0;         //pdgid
 
@@ -230,6 +292,7 @@ namespace spr{
         double tof = timeOfFlight(id_, geo, debug);
 	bool ok = true;
 	if (((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalForward))) ok = false;
+	if ((!includeHO) && ((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalOuter))) ok = false;
         if ((hit[ihit]->time() <= (tof+timeCut)) && ok) {
 
     	 // if the hitId matches with matching trackId
@@ -282,9 +345,161 @@ namespace spr{
     return simInfo;
   }
 
+  template <typename T>
+  spr::energyMap caloSimInfo(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit,  edm::SimTrackContainer::const_iterator trkInfo, double timeCut, bool includeHO, bool debug){
+
+    int matchedId = 0;         //pdgid
+
+    if (debug) {
+      if( trkInfo != SimTk->end()) std::cout <<"In eCaloSimInfo::  matchSimTrk:"<< trkInfo->trackId() << " matchedId " << trkInfo->type() << std::endl;
+      else                         std::cout <<"In eCaloSimInfo::  not valid track pointer" << std::endl;
+    }
+
+    std::vector<std::pair<DetId,double> > detSum, detGamma, detCharged, detNeutral, detRest, detAll;
+
+    if (trkInfo != SimTk->end()) {
+
+      unsigned int matchSimTrk = trkInfo->trackId();
+      matchedId                = trkInfo->type();         //pdgid
+
+      edm::SimTrackContainer::const_iterator simTrkItr;
+      edm::SimVertexContainer::const_iterator simVtxItr;
+    
+      for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+
+	DetId id_ = (DetId)(hit[ihit]->id());
+        double tof = timeOfFlight(id_, geo, debug);
+        double energySum = 0, energyRest=0;
+        double energyGamma=0, energyNeutral=0, energyCharged=0;
+	bool ok = true;
+	if (((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalForward))) ok = false;
+	if ((!includeHO) && ((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalOuter))) ok = false;
+        if ((hit[ihit]->time() <= (tof+timeCut)) && ok) {
+
+    	 // if the hitId matches with matching trackId
+          if (hit[ihit]->geantTrackId() == (int)matchSimTrk ) {
+	    energySum = hit[ihit]->energy();
+          } else { 
+         // trace back the history and check the pdgId of origin SimTrack of SimHit
+	    bool found = false;
+	    for (simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
+	      if (hit[ihit]->geantTrackId() == (int)simTrkItr->trackId()) {
+  	        found = true;
+	        bool match = spr::validSimTrack(matchSimTrk, simTrkItr, SimTk, SimVtx, debug);
+ 	        if      (match) {energySum = hit[ihit]->energy();}
+	        else {
+	          edm::SimTrackContainer::const_iterator parentItr =  spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug); 
+	          if (debug) {
+                    if (parentItr != SimTk->end() ) std::cout << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", " << parentItr->type() << " Energy " << hit[ihit]->energy() << std::endl;
+                    else                            std::cout << "original parent of " << simTrkItr->trackId() << " not found; Energy " << hit[ihit]->energy() << std::endl;
+                  }
+	          if (parentItr == SimTk->end() )        { energyRest = hit[ihit]->energy();}
+	          else if (parentItr->type()  == 22)     { energyGamma = hit[ihit]->energy();}
+	          else if ((int)parentItr->charge()== 0) { energyNeutral = hit[ihit]->energy();}
+	          else                                     energyCharged = hit[ihit]->energy();
+	        }
+	        break;
+	      } 
+	    }
+	    if (!found) energyRest = hit[ihit]->energy();
+	    if (debug) std::cout << "Hit " << ihit << ": " << *hit[ihit] << std::endl;
+	    found = false;
+            if (energySum > 0) {
+              for (unsigned int k=0; k<detSum.size(); k++) {
+                if (id_ == detSum[k].first) {
+                  found = true;
+                  detSum[k].second += energySum;
+                  break;
+                }
+              }
+              if (!found) detSum.push_back(std::pair<DetId,double>(id_,energySum));
+            } else if (energyRest > 0) {
+              for (unsigned int k=0; k<detRest.size(); k++) {
+                if (id_ == detRest[k].first) {
+                  found = true;
+                  detRest[k].second += energyRest;
+                  break;
+                }
+              }
+              if (!found) detRest.push_back(std::pair<DetId,double>(id_,energyRest));
+            } else if (energyGamma > 0) {
+              for (unsigned int k=0; k<detGamma.size(); k++) {
+                if (id_ == detGamma[k].first) {
+                  found = true;
+                  detGamma[k].second += energyGamma;
+                  break;
+                }
+              }
+              if (!found) detGamma.push_back(std::pair<DetId,double>(id_,energyGamma));
+            } else if (energyCharged > 0) {
+              for (unsigned int k=0; k<detCharged.size(); k++) {
+                if (id_ == detCharged[k].first) {
+                  found = true;
+                  detCharged[k].second += energyCharged;
+                  break;
+                }
+              }
+              if (!found) detCharged.push_back(std::pair<DetId,double>(id_,energyCharged));
+            } else if (energyNeutral > 0) {
+              for (unsigned int k=0; k<detNeutral.size(); k++) {
+                if (id_ == detNeutral[k].first) {
+                  found = true;
+                  detNeutral[k].second += energyNeutral;
+                  break;
+                }
+              }
+              if (!found) detNeutral.push_back(std::pair<DetId,double>(id_,energyNeutral));
+            }
+            found = false;
+            double energyTot = energySum+energyGamma+energyNeutral+energyCharged+energyRest;
+            for (unsigned int k=0; k<detAll.size(); k++) {
+              if (id_ == detAll[k].first) {
+                found = true;
+                detAll[k].second += energyTot;
+                break;
+              }
+            }
+            if (!found) detAll.push_back(std::pair<DetId,double>(id_,energyTot));
+          }
+        }
+      } // loop over hits
+    }
+
+    spr::energyMap simInfo;
+    simInfo.pdgId   = matchedId;
+    simInfo.matched = detSum;
+    simInfo.gamma   = detGamma;
+    simInfo.charged = detCharged;
+    simInfo.neutral = detNeutral;
+    simInfo.rest    = detRest;
+    simInfo.all     = detAll;
+    if (debug) {
+      std::cout << "CaloSimInfo:: for particle " << simInfo.pdgId << "\n"
+	        << "All detIds " << detAll.size() << "\n";
+      for (unsigned int k=0; k<detAll.size(); ++k)
+        std::cout << k << " detId 0x" << std::hex << detAll[k].first.rawId() << std::dec << detAll[k].second << "\n";
+      std::cout << "Matched detIds" << detSum.size() << "\n";
+      for (unsigned int k=0; k<detSum.size(); ++k)
+        std::cout << k << " detId 0x" << std::hex << detSum[k].first.rawId() << std::dec << detSum[k].second << "\n";
+      std::cout << "Gamma detIds" << detGamma.size() << "\n";
+      for (unsigned int k=0; k<detGamma.size(); ++k)
+        std::cout << k << " detId 0x" << std::hex << detGamma[k].first.rawId() << std::dec << detGamma[k].second << "\n";
+      std::cout << "Charged detIds" << detSum.size() << "\n";
+      for (unsigned int k=0; k<detCharged.size(); ++k)
+        std::cout << k << " detId 0x" << std::hex << detCharged[k].first.rawId() << std::dec << detCharged[k].second << "\n";
+      std::cout << "Neutral detIds" << detNeutral.size() << "\n";
+      for (unsigned int k=0; k<detNeutral.size(); ++k)
+        std::cout << k << " detId 0x" << std::hex << detNeutral[k].first.rawId() << std::dec << detNeutral[k].second << "\n";
+      std::cout << "Rest detIds" << detRest.size() << "\n";
+      for (unsigned int k=0; k<detRest.size(); ++k)
+        std::cout << k << " detId 0x" << std::hex << detRest[k].first.rawId() << std::dec << detRest[k].second << "\n";
+    }
+    return simInfo;
+  }
+
   // Returns total energy of CaloSimHits which originate from the matching SimTrack
   template <typename T>
-  double eCaloSimInfo(const edm::Event& iEvent, const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, double timeCut, bool debug) {
+  double eCaloSimInfo(const edm::Event& iEvent, const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, double timeCut, bool includeHO, bool debug) {
 	
     // 	
     std::vector<int> matchedId = spr::matchedSimTrackId(iEvent, SimTk, SimVtx, pTrack, associate, debug);
@@ -304,6 +519,7 @@ namespace spr{
         double tof = timeOfFlight(id_, geo, debug);
 	bool ok = true;
 	if (((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalForward))) ok = false;
+	if ((!includeHO) && ((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalOuter))) ok = false;
         if ((ihit->time() <= (tof+timeCut)) && ok) {
 
           int  id = ihit->geantTrackId();
@@ -393,11 +609,11 @@ namespace spr{
 
     std::vector<int> matchedId = spr::matchedSimTrackId(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
-    return spr::missedCaloHits(hits, matchedId, ecalHits, flag, debug);
+    return spr::missedCaloHits(hits, matchedId, ecalHits, flag, false, debug);
   }
 
   template <typename T>
-  std::vector<typename T::const_iterator> missedHCALHits(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, bool flag, bool debug) {
+  std::vector<typename T::const_iterator> missedHCALHits(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, bool flag, bool includeHO, bool debug) {
 
     if (debug) {
       std::cout << "Processing missedHCALHits " << 2*ieta+1 << "x" << 2*iphi+1 << " and Flag " << flag << std::endl;
@@ -410,11 +626,11 @@ namespace spr{
 
     std::vector<int> matchedId = spr::matchedSimTrackId(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
-    return spr::missedCaloHits(hits, matchedId, hit, flag, debug);
+    return spr::missedCaloHits(hits, matchedId, hit, flag, includeHO, debug);
   }
 
   template <typename T>
-  std::vector<typename T::const_iterator> missedCaloHits(edm::Handle<T>& hits, std::vector<int> matchedId, std::vector< typename T::const_iterator> caloHits, bool flag, bool debug ) {
+  std::vector<typename T::const_iterator> missedCaloHits(edm::Handle<T>& hits, std::vector<int> matchedId, std::vector< typename T::const_iterator> caloHits, bool flag, bool includeHO, bool debug ) {
 
     std::vector<typename T::const_iterator> missedHits;
     std::vector<typename T::const_iterator> usedHits;
@@ -428,7 +644,11 @@ namespace spr{
 	    found = true; break;
 	  }
         }
-        if (found) {
+	DetId id_ = (DetId)(ihit->id());
+	bool ok = true;
+	if (((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalForward))) ok = false;
+	if ((!includeHO) && ((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalOuter))) ok = false;
+        if (found && ok) {
 	  if (flag) {
 	    if (count(caloHits.begin(),caloHits.end(),ihit) == 0) missedHits.push_back(ihit);
           } else {
@@ -439,7 +659,11 @@ namespace spr{
     }
     if (!flag) {
       for (unsigned int ii=0; ii<caloHits.size(); ii++) {
-        if (count(usedHits.begin(),usedHits.end(),caloHits[ii]) == 0) missedHits.push_back(caloHits[ii]);
+	DetId id_ = (DetId)(caloHits[ii]->id());
+	bool ok = true;
+	if (((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalForward))) ok = false;
+	if ((!includeHO) && ((int)(id_.det())==4) && (id_.subdetId()==(int)(HcalOuter))) ok = false;
+        if (count(usedHits.begin(),usedHits.end(),caloHits[ii]) == 0 && ok) missedHits.push_back(caloHits[ii]);
       }
     }
     if (debug) {

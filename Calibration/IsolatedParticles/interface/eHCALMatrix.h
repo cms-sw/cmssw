@@ -37,6 +37,9 @@ namespace spr{
   double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, bool algoNew=true, bool debug=false);
 
   template< typename T>
+  std::vector< std::pair< DetId,double> > eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, bool debug=false);
+
+  template< typename T>
   double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO=false, bool debug=false);
 
   template< typename T>
@@ -56,6 +59,9 @@ namespace spr{
 
   template <typename T>
   std::vector<typename T::const_iterator> hitHCALneighbours(std::vector<DetId>& vdets, const HcalTopology* topology, edm::Handle<T>& hits, bool includeHO=false, bool debug=false);
+
+  template <typename T>
+  std::vector<std::pair<DetId,double> > energyDetIdHCALneighbours(std::vector<DetId>& vdets, const HcalTopology* topology, edm::Handle<T>& hits, bool includeHO=false, bool debug=false);
 }
 
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.icc"
