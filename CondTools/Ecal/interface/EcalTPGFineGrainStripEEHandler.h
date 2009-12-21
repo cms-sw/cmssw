@@ -78,8 +78,8 @@ namespace popcon
 	    		  return streamOut.str();
 			}
 
-			unsigned long m_firstRun ;
-			unsigned long m_lastRun ;
+			unsigned int m_firstRun ;
+			unsigned int m_lastRun ;
 			std::map<std::string, int> correspEBId;
 			std::map<std::string, int> correspEEId;
 			
@@ -94,7 +94,7 @@ namespace popcon
 			std::string m_runtype;
 			string m_i_tag;
 			int m_i_version;
-			int m_i_run_number;
+			unsigned int m_i_run_number;
 			int m_i_fgrStripEE;
 
 	};

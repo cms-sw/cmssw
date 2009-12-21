@@ -25,8 +25,8 @@ popcon::EcalTPGWeightIdMapHandler::EcalTPGWeightIdMapHandler(const edm::Paramete
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGWeightIdMapHandler")) {
 
         edm::LogInfo("EcalTPGWeightIdMapHandler") << "EcalTPGWeightIdMap Source handler constructor";
-        m_firstRun=(unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
-        m_lastRun=(unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
+        m_firstRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
+        m_lastRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
         m_sid= ps.getParameter<std::string>("OnlineDBSID");
         m_user= ps.getParameter<std::string>("OnlineDBUser");
         m_pass= ps.getParameter<std::string>("OnlineDBPassword");
@@ -59,8 +59,8 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
     	std::cout << " First object for this tag " << std::endl;
     	}
 
-	int max_since=0;
-	max_since=(int)tagInfo().lastInterval.first;
+	unsigned int max_since=0;
+	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
 	edm::LogInfo("EcalTPGWeightIdMapHandler") << "max_since : "  << max_since;
 	Ref weightIdMap_db = lastPayload();
 	
@@ -95,35 +95,35 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 	readFromFile("last_tpg_weightIdMap_settings.txt");
 
 
- 	int min_run=m_i_run_number+1;
+ 	unsigned int min_run=m_i_run_number+1;
 
-	if(m_firstRun<(unsigned int)m_i_run_number) {
-	  min_run=(int) m_i_run_number+1;
+	if(m_firstRun<m_i_run_number) {
+	  min_run=m_i_run_number+1;
 	} else {
-	  min_run=(int)m_firstRun;
+	  min_run=m_firstRun;
 	}
 	
 	if(min_run<max_since) {
-	  min_run=  max_since+1; // we have to add 1 to the last transferred one
+	  min_run=max_since+1; // we have to add 1 to the last transferred one
 	} 
 
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
 
-	int max_run=(int)m_lastRun;
+	unsigned int max_run=m_lastRun;
 	edm::LogInfo("EcalTPGWeightIdMapHandler") << "min_run= " << min_run << "max_run= " << max_run;
 
         RunList my_list;
         my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
       
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
-	int num_runs=run_vec.size();
+	size_t num_runs=run_vec.size();
 	edm::LogInfo("EcalTPGWeightIdMapHandler") << "number of Mon runs is : "<< num_runs;
 
-	unsigned long irun;
+	unsigned int irun;
 	if(num_runs>0){
-	  for(int kr=0; kr<(int)run_vec.size(); kr++){
+	  for(size_t kr=0; kr<run_vec.size(); kr++){
 
-	    irun=(unsigned long) run_vec[kr].getRunNumber();
+	    irun=static_cast<unsigned int>(run_vec[kr].getRunNumber());
 
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" **************** "<<std::endl;
@@ -192,11 +192,11 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 		  rd_w =  p->second;
 	  	  // EB and EE data 
 	  	  EcalTPGWeights w;		
-	  	  unsigned int weight0 = (unsigned int)rd_w.getWeight4();
-	  	  unsigned int weight1 = (unsigned int)rd_w.getWeight3();
-	  	  unsigned int weight2 = (unsigned int)rd_w.getWeight2();
-	  	  unsigned int weight3 = (unsigned int)rd_w.getWeight1()- 0x80;
-	  	  unsigned int weight4 = (unsigned int)rd_w.getWeight0();
+	  	  unsigned int weight0 = static_cast<unsigned int>(rd_w.getWeight4());
+	  	  unsigned int weight1 = static_cast<unsigned int>(rd_w.getWeight3());
+	  	  unsigned int weight2 = static_cast<unsigned int>(rd_w.getWeight2());
+	  	  unsigned int weight3 = static_cast<unsigned int>(rd_w.getWeight1()- 0x80);
+	  	  unsigned int weight4 = static_cast<unsigned int>(rd_w.getWeight0());
 	  
         	  w.setValues(weight0,weight1,weight2,weight3,weight4);
         	  weightMap->setValue(rd_w.getWeightGroupId(),w);

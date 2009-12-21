@@ -15,8 +15,8 @@ popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps)
 
 	std::cout << "EcalLaser Source handler constructor\n" << std::endl;
 
-	m_firstRun=(unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
-	m_lastRun=(unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
+	m_firstRun=static_cast<unsigned long>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
+	m_lastRun=static_cast<unsigned long>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
 	m_sid= ps.getParameter<std::string>("OnlineDBSID");
 	m_user= ps.getParameter<std::string>("OnlineDBUser");
 	m_pass= ps.getParameter<std::string>("OnlineDBPassword");
@@ -34,7 +34,7 @@ bool popcon::EcalLaserHandler::checkAPDPN(float x, float old_x)
 {
   bool result=true;
   if(x<=0 || x>20) result=false;
-  if((old_x!=1.000 && old_x!=0) && abs(x-old_x)/old_x>100.00 ) result=false; 
+  if((old_x!=1.000 && old_x!=0) && abs(x-old_x)/old_x>100.00) result=false; 
   return result;
 }
 
@@ -232,7 +232,7 @@ void popcon::EcalLaserHandler::getNewObjects()
     unsigned long long the_zero_since=0;
     
     int oseq_first=onlineSeq_vec[0].getSequenceNumber();
-    unsigned long long orun_first=(unsigned long long)onlineSeq_vec[0].getRunIOV().getRunNumber();
+    unsigned long long orun_first=static_cast<unsigned long long>(onlineSeq_vec[0].getRunIOV().getRunNumber());
       
 
 
@@ -320,7 +320,7 @@ void popcon::EcalLaserHandler::getNewObjects()
       //  std::cout<< "nsubr="<<nsubruns[kt]<<endl;
       int iseq=lmf_run_vec[kt].getSequenceNumber();
       int i_lmr=lmf_run_vec[kt].getLMRNumber();
-      unsigned long long irun=(unsigned long long) lmf_run_vec[kt].getRunIOV().getRunNumber();
+      unsigned long long irun=static_cast<unsigned long long>(lmf_run_vec[kt].getRunIOV().getRunNumber());
 
       if(old_seq!=iseq || irun!=irun_old) {
 	// we enter here at the first sub run of a sequence
@@ -361,7 +361,7 @@ void popcon::EcalLaserHandler::getNewObjects()
       Time_t t_early_old= 0;
 
 
-      unsigned long long irun=(unsigned long long) lmf_run_vec[kr].getRunIOV().getRunNumber();
+      unsigned long long irun=static_cast<unsigned long long>(lmf_run_vec[kr].getRunIOV().getRunNumber());
       
       if(old_seq!=iseq || irun!=irun_old) {
 	// we enter here at the first sub run of a sequence 

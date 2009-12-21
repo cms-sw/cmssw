@@ -32,9 +32,9 @@ EcalTestDevDB::EcalTestDevDB(const edm::ParameterSet& iConfig) :
   std::string tag;
   std::string record;
 
-  m_firstRun=(unsigned long)atoi( iConfig.getParameter<std::string>("firstRun").c_str());
-  m_lastRun=(unsigned long)atoi( iConfig.getParameter<std::string>("lastRun").c_str());
-  m_interval=(unsigned int)atoi( iConfig.getParameter<std::string>("interval").c_str());
+  m_firstRun=static_cast<unsigned long>(atoi( iConfig.getParameter<std::string>("firstRun").c_str()));
+  m_lastRun=static_cast<unsigned long>(atoi( iConfig.getParameter<std::string>("lastRun").c_str()));
+  m_interval=static_cast<unsigned long>(atoi( iConfig.getParameter<std::string>("interval").c_str()));
 
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toCopy = iConfig.getParameter<Parameters>("toCopy");
@@ -394,7 +394,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	EBDetId ebid(iEta,iPhi);	
 	int hi = ebid.hashedIndex();
 
-	if (hi< (int) laser->getLaserMap().size()) {
+	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
 	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
@@ -415,7 +415,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	//APDPNpair.p2 = double(1);
 	
 	int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
+	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
 	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
@@ -429,7 +429,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	//APDPNpair.p1 = double(1);
 	//APDPNpair.p2 = double(1);
 	hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
+	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
 	      edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
@@ -440,7 +440,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
     
     std::cout << std::endl;
     for(int i=0; i<92; i++){
-      if (i< (int)laser->getTimeMap().size()) {
+      if (i< static_cast<int>(laser->getTimeMap().size())) {
 	TimeStamp.t1 = edm::Timestamp(1380*(i_run-m_firstRun) + 15*i);
 	TimeStamp.t2 = edm::Timestamp(1380*(i_run-m_firstRun + 1) + 15*i);
  	laser->setTime(i, TimeStamp);
@@ -464,7 +464,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	EBDetId ebid(iEta,iPhi);
 	int hi = ebid.hashedIndex();
 
-	if (hi< (int) laser->getLaserMap().size()) {
+	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
 	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
@@ -480,7 +480,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	
 	EEDetId eedetidpos(iX,iY,1);	
 	int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
+	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
 	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
@@ -492,7 +492,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	
 	EEDetId eedetidneg(iX,iY,-1);
 	hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
+	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
 	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
@@ -503,7 +503,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
  
     std::cout << std::endl;
     for(int i=0; i<92; i++){
-      if (i< (int)laser->getTimeMap().size()) {
+      if (i< static_cast<int>(laser->getTimeMap().size())) {
 	TimeStamp.t1 = edm::Timestamp(1380*(i_run-m_firstRun) + 15*i);
 	TimeStamp.t2 = edm::Timestamp(1380*(i_run-m_firstRun + 1) + 15*i);
  	laser->setTime(i, TimeStamp);
@@ -537,7 +537,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       EBDetId ebid(iEta,iPhi);
 
       int hi = ebid.hashedIndex();
-      if (hi< (int) laser->getMap().size()) {
+      if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, APDPNref);
       } else {
 	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
@@ -556,7 +556,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       APDPNref=double(1.5);
       
       int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
+      if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, APDPNref);
       } else {
 	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
@@ -569,7 +569,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       APDPNref=double(1.5);
       
       hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
+      if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, APDPNref);
       } else {
 	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
@@ -596,7 +596,7 @@ EcalTestDevDB::generateEcalLaserAlphas() {
       EBDetId ebid(iEta,iPhi);
 
       int hi = ebid.hashedIndex();
-      if (hi< (int) laser->getMap().size()) {
+      if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, Alpha);
       } else {
 	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	        
@@ -614,7 +614,7 @@ EcalTestDevDB::generateEcalLaserAlphas() {
       Alpha = double(1.55);
       
       int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
+      if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, Alpha);
       } else {
 	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  
@@ -626,7 +626,7 @@ EcalTestDevDB::generateEcalLaserAlphas() {
       Alpha = double(1.55);
       
       hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
+      if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, Alpha);
       } else {
 	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  

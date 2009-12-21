@@ -11,7 +11,7 @@
 //
 // Original Author:  Vladlen Timciuc
 //         Created:  Wed Jul  4 13:55:56 CEST 2007
-// $Id: EcalGetLaserData.cc,v 1.3 2007/12/21 14:39:52 meridian Exp $
+// $Id: EcalGetLaserData.cc,v 1.4 2009/12/17 23:26:04 wmtan Exp $
 //
 //
 
@@ -131,7 +131,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EBDetId ebdetid(iEta,iPhi);
 	  int hi = ebdetid.hashedIndex();
 	  
-	  if (hi< (int)laserRatiosMap.size()) {
+	  if (hi<static_cast<int>(laserRatiosMap.size())) {
 	    apdpnpair = laserRatiosMap[hi];
 	    std::cout << "A sample value of APDPN pair EB : " 
 		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;	  	  
@@ -152,7 +152,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EEDetId eedetidpos(iX,iY,1);
 	  int hi = eedetidpos.hashedIndex();
 	  
-	  if (hi< (int)laserRatiosMap.size()) {
+	  if (hi< static_cast<int>(laserRatiosMap.size())) {
 	    apdpnpair = laserRatiosMap[hi];
 	    std::cout << "A sample value of APDPN pair EE+ : " 
 		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
@@ -165,7 +165,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EEDetId eedetidneg(iX,iY,1);
 	  hi = eedetidneg.hashedIndex();
 	  
-	  if (hi< (int)laserRatiosMap.size()) {
+	  if (hi< static_cast<int>(laserRatiosMap.size())) {
 	    apdpnpair = laserRatiosMap[hi];
 	    std::cout << "A sample value of APDPN pair EE- : " 
 		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
@@ -200,7 +200,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EBDetId ebdetid(iEta,iPhi);
           int hi = ebdetid.hashedIndex();
 	  
-	  if (hi< (int)laserRefMap.size()) {
+	  if (hi< static_cast<int>(laserRefMap.size())) {
 	    apdpnref = laserRefMap[hi];
 	    cout << "A sample value of APDPN Reference value EB : "  
 		 << hi << " : " << apdpnref << endl;	  	  
@@ -220,7 +220,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EEDetId eedetidpos(iX,iY,1);
 	  int hi = eedetidpos.hashedIndex();
 	  
-	  if (hi< (int)laserRefMap.size()) {
+	  if (hi< static_cast<int>(laserRefMap.size())) {
 	    apdpnref = laserRefMap[hi];
 	    cout << "A sample value of APDPN Reference value EE+ : "  
 		 << hi << " : " << apdpnref << endl;	  	  		  
@@ -234,7 +234,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EEDetId eedetidneg(iX,iY,-1);
 	  hi = eedetidneg.hashedIndex();
 	  
-	  if (hi< (int)laserRefMap.size()) {
+	  if (hi< static_cast<int>(laserRefMap.size())) {
 	    apdpnref = laserRefMap[hi];
 	    cout << "A sample value of APDPN Reference value EE- : "  
 		 << hi << " : " << apdpnref << endl;	  	 
@@ -264,7 +264,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EBDetId ebdetid(iEta,iPhi);
           int hi = ebdetid.hashedIndex();
 	  
-	  if (hi< (int)laserAlphaMap.size()) {
+	  if (hi< static_cast<int>(laserAlphaMap.size())) {
 	    alpha = laserAlphaMap[hi];
 	    cout << " A sample value of Alpha value EB : " << hi << " : " << alpha << endl;
 	  } else {
@@ -283,7 +283,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EEDetId eedetidpos(iX,iY,1);
 	  int hi = eedetidpos.hashedIndex();
 	  
-	  if (hi< (int)laserAlphaMap.size()) {
+	  if (hi< static_cast<int>(laserAlphaMap.size())) {
 	    alpha = laserAlphaMap[hi];
 	    cout << " A sample value of Alpha value EE+ : " << hi << " : " << alpha << endl;  
 	  } else {
@@ -296,7 +296,7 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  EEDetId eedetidneg(iX,iY,-1);
 	  hi = eedetidneg.hashedIndex();
 	  
-	  if (hi< (int)laserAlphaMap.size()) {
+	  if (hi< static_cast<int>(laserAlphaMap.size())) {
 	    alpha = laserAlphaMap[hi];
 	    cout << " A sample value of Alpha value EE- : " << hi << " : " << alpha << endl;
 	  } else {

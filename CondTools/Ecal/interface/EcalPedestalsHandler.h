@@ -75,8 +75,8 @@ namespace popcon
 		private:
 			const EcalPedestals * mypedestals;
 
-			unsigned long m_firstRun ;
-			unsigned long m_lastRun ;
+			unsigned int m_firstRun ;
+			unsigned int m_lastRun ;
 			
 			std::string m_location;
 			std::string m_gentag;

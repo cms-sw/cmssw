@@ -9,8 +9,8 @@ popcon::EcalPedestalsHandler::EcalPedestalsHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalPedestalsHandler")) {
 
 	std::cout << "EcalPedestals Source handler constructor\n" << std::endl;
-        m_firstRun=(unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
-        m_lastRun=(unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
+        m_firstRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
+        m_lastRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
         m_sid= ps.getParameter<std::string>("OnlineDBSID");
         m_user= ps.getParameter<std::string>("OnlineDBUser");
         m_pass= ps.getParameter<std::string>("OnlineDBPassword");
@@ -59,8 +59,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
   std::ostringstream ss; 
   ss<<"ECAL ";
 
-	int max_since=0;
-	max_since=(int)tagInfo().lastInterval.first;
+	unsigned int max_since=0;
+	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
 	std::cout << "max_since : "  << max_since << endl;
 	Ref ped_db = lastPayload();
 	
@@ -182,25 +182,25 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	mon_list.setMonRunTag(mon_tag);
 	mon_list.setRunTag(my_runtag);
 	//    mon_list=econn->fetchMonRunList(my_runtag, mon_tag);
-	int min_run=0;
-	if(m_firstRun<(unsigned long)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	unsigned int min_run=0;
+	if(m_firstRun<max_since) {
+	  min_run=max_since+1; // we have to add 1 to the last transferred one
 	} else {
-	  min_run=(int)m_firstRun;
+	  min_run=m_firstRun;
 	}
 
-	int max_run=(int)m_lastRun;
+	unsigned int max_run=m_lastRun;
 	mon_list=econn->fetchMonRunList(my_runtag, mon_tag,min_run,max_run );
       
 	std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
-	int mon_runs=mon_run_vec.size();
+	size_t mon_runs=mon_run_vec.size();
 	cout <<"number of Mon runs is : "<< mon_runs<< endl;
 
 	if(mon_runs>0){
 
-	  for(int kr=0; kr<mon_runs; kr++){
+	  for(size_t kr=0; kr<mon_runs; kr++){
 
-	    unsigned long irun=(unsigned long) mon_run_vec[kr].getRunIOV().getRunNumber();
+	    unsigned int irun=static_cast<unsigned int>(mon_run_vec[kr].getRunIOV().getRunNumber());
 	  
 	    cout << "retrieve the data for run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << endl;
 	  
@@ -432,8 +432,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 
 void popcon::EcalPedestalsHandler::getNewObjectsH2()
 {
-	int max_since=0;
-	max_since=(int)tagInfo().lastInterval.first;
+	unsigned int max_since=0;
+	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
 	std::cout << "max_since : "  << max_since << endl;
 	Ref ped_db = lastPayload();
 	
@@ -519,20 +519,20 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 	mon_list.setMonRunTag(mon_tag);
 	mon_list.setRunTag(my_runtag);
 	//    mon_list=econn->fetchMonRunList(my_runtag, mon_tag);
-	int min_run=(int)max_since+1; // we have to add 1 to the last transferred one 
+	unsigned int min_run=max_since+1; // we have to add 1 to the last transferred one 
 	
-	int max_run=(int)m_lastRun;
+	unsigned int max_run=m_lastRun;
 	mon_list=econn->fetchMonRunList(my_runtag, mon_tag,min_run,max_run );
       
 	std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
-	int mon_runs=mon_run_vec.size();
+	size_t mon_runs=mon_run_vec.size();
 	cout <<"number of Mon runs is : "<< mon_runs<< endl;
 
 	if(mon_runs>0){
 
-	  for(int kr=0; kr<mon_runs; kr++){
+	  for(size_t kr=0; kr<mon_runs; kr++){
 
-	    unsigned long irun=(unsigned long) mon_run_vec[kr].getRunIOV().getRunNumber();
+	    unsigned int irun=static_cast<unsigned int>(mon_run_vec[kr].getRunIOV().getRunNumber());
 	  
 	    cout << "here is first sub run : "<< mon_run_vec[kr].getSubRunNumber() << endl;
 	    cout << "here is the run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << endl;

@@ -27,8 +27,8 @@ popcon::EcalTPGBadXTHandler::EcalTPGBadXTHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGBadXTHandler")) {
 
         edm::LogInfo("EcalTPGBadXTHandler") << "EcalTPGBadXT Source handler constructor.";
-        m_firstRun=(unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
-        m_lastRun=(unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
+        m_firstRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
+        m_lastRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
         m_sid= ps.getParameter<std::string>("OnlineDBSID");
         m_user= ps.getParameter<std::string>("OnlineDBUser");
         m_pass= ps.getParameter<std::string>("OnlineDBPassword");
@@ -52,8 +52,8 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
         edm::LogInfo("EcalTPGBadXTHandler") << "Started GetNewObjects!!!";
 
         
-        int max_since=0;
-        max_since=(int)tagInfo().lastInterval.first;
+        unsigned int max_since=0;
+        max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
         edm::LogInfo("EcalTPGBadXTHandler") << "max_since : "  << max_since;
         edm::LogInfo("EcalTPGBadXTHandler")  << "retrieved last payload ";
 
@@ -85,12 +85,12 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	readFromFile("last_tpg_badXT_settings.txt");
 
 
- 	int min_run=m_i_run_number+1;
+ 	unsigned int min_run=m_i_run_number+1;
 
-	if(m_firstRun<(unsigned int)m_i_run_number) {
-	  min_run=(int) m_i_run_number+1;
+	if(m_firstRun<m_i_run_number) {
+	  min_run=m_i_run_number+1;
 	} else {
-	  min_run=(int)m_firstRun;
+	  min_run=m_firstRun;
 	}
 	if(min_run<max_since) {
 	  min_run=  max_since+1; // we have to add 1 to the last transferred one
@@ -99,21 +99,21 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
 
 
-	int max_run=(int)m_lastRun;
+	unsigned int max_run=m_lastRun;
 	edm::LogInfo("EcalTPGBadXTHandler") << "min_run= " << min_run << "max_run= " << max_run;
 
 	RunList my_list; 
 	my_list=econn->fetchRunListByLocation(my_runtag, min_run, max_run, my_locdef); 
       
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
-	int num_runs=run_vec.size();
+	size_t num_runs=run_vec.size();
 
 	std::cout <<"number of runs is : "<< num_runs<< endl;
 
 	vector<EcalLogicID> my_EcalLogicId;
 	vector<EcalLogicID> my_EcalLogicId_EE;
 
-	unsigned long irun=0;
+	unsigned int irun=0;
 	if(num_runs>0){
 
 
@@ -131,9 +131,9 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 
 
 
-	  for(int kr=0; kr<(int)run_vec.size(); kr++){
+	  for(size_t kr=0; kr<run_vec.size(); kr++){
 	    cout << "here we are in run "<<kr<<endl;
-	    irun=(unsigned long) run_vec[kr].getRunNumber();
+	    irun=static_cast<unsigned int>(run_vec[kr].getRunNumber());
 	    
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" **************** "<<std::endl;
@@ -224,7 +224,7 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	      	      // get crystal id
 	      	      int xt_num=0;
 	      
-	      	      for(int ixt=0; ixt<(int)my_EcalLogicId.size(); ixt++){
+	      	      for(size_t ixt=0; ixt<my_EcalLogicId.size(); ixt++){
 		
 		 	if(my_EcalLogicId[ixt].getID1()==fed_id && my_EcalLogicId[ixt].getID2()==tt_id 
 		   	&& my_EcalLogicId[ixt].getID3()==xt_id ) {
@@ -248,7 +248,7 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	              int y=0;
 	              int z=0; 
 
-	              for(int ixt=0; ixt<(int)my_EcalLogicId_EE.size(); ixt++){
+	              for(size_t ixt=0; ixt<my_EcalLogicId_EE.size(); ixt++){
 		
 		        if(my_EcalLogicId_EE[ixt].getID1()==fed_id && my_EcalLogicId_EE[ixt].getID2()==tt_id 
 		          && my_EcalLogicId_EE[ixt].getID3()==xt_id ) {

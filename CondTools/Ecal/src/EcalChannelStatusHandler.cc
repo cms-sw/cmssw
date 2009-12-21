@@ -60,8 +60,8 @@ popcon::EcalChannelStatusHandler::EcalChannelStatusHandler(const edm::ParameterS
 
   std::cout << "EcalChannelStatus Source handler constructor\n" << std::endl;
 
-  m_firstRun       = (unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
-  m_lastRun        = (unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
+  m_firstRun       = static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
+  m_lastRun        = static_cast<unsigned int>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
   m_sid            = ps.getParameter<std::string>("OnlineDBSID");
   m_user           = ps.getParameter<std::string>("OnlineDBUser");
   m_pass           = ps.getParameter<std::string>("OnlineDBPassword");
@@ -442,7 +442,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
   std::vector< ODBadTTDat > badTT_dat;
   econn->fetchConfigDataSet(&badTT_dat, &mybadTT);
   
-  for(int iTT=0; iTT<(int)badTT_dat.size(); iTT++){
+  for(size_t iTT=0; iTT<badTT_dat.size(); iTT++){
     int fed_id = badTT_dat[iTT].getFedId();
     int tt_id  = badTT_dat[iTT].getTTId();
     if (tt_id<69) *daqFile << fed_id << " " << tt_id << endl;
@@ -461,7 +461,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
       std::vector<EcalLogicID> badCrystals;
       badCrystals=econn->getEcalLogicIDSet("EE_readout_tower",fed_id, fed_id, tt_id, tt_id, EcalLogicID::NULLID,EcalLogicID::NULLID, "EE_crystal_number");    
  
-      for(int mycrys=0; mycrys<(int)badCrystals.size(); mycrys++){
+      for(size_t mycrys=0; mycrys<badCrystals.size(); mycrys++){
 	EcalLogicID ecid_xt = badCrystals[mycrys];
 	int zSide = 999;
 	int log_id = ecid_xt.getLogicID();
@@ -484,7 +484,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
       std::vector<EcalLogicID> badCrystals;   
       badCrystals=econn->getEcalLogicIDSet("EB_trigger_tower",db_fedId, db_fedId, tt_id, tt_id, EcalLogicID::NULLID, EcalLogicID::NULLID, "EB_crystal_number");
       
-      for(int mycrys=0; mycrys<(int)badCrystals.size(); mycrys++){
+      for(size_t mycrys=0; mycrys<badCrystals.size(); mycrys++){
 	EcalLogicID ecid_xt = badCrystals[mycrys];
 	int sm_num  = ecid_xt.getID1();
 	int log_id  = ecid_xt.getLogicID();
@@ -1589,8 +1589,8 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   ss << "ECAL ";
 
   // here we retrieve all the runs of a given type after the last from online DB   
-  int max_since=0;
-  max_since=(int)tagInfo().lastInterval.first;
+  unsigned int max_since=0;
+  max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
   std::cout << "max_since : "  << max_since << endl;
 
   cout << "Retrieving run list from ONLINE DB ... " << endl;
@@ -1620,11 +1620,11 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   
 
   // range of validity
-  int min_run=0;
-  if(m_firstRun<(unsigned long)max_since) {
-    min_run=  (int)max_since+1;    // we have to add 1 to the last transferred one
-  } else { min_run=(int)m_firstRun; }
-  int max_run=(int)m_lastRun;
+  unsigned int min_run=0;
+  if(m_firstRun<max_since) {
+    min_run=max_since+1;    // we have to add 1 to the last transferred one
+  } else { min_run=m_firstRun; }
+  unsigned int max_run=m_lastRun;
 
   
   // here we retrieve the Monitoring run records  

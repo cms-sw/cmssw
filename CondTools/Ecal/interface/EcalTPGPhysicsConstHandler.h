@@ -80,8 +80,8 @@ namespace popcon
 	  
 			const EcalTPGPhysicsConst * m_physicsConst;
 
-			unsigned long m_firstRun ;
-			unsigned long m_lastRun ;
+			unsigned int m_firstRun ;
+			unsigned int m_lastRun ;
 			
 			std::string m_location;
 			std::string m_gentag;
@@ -94,7 +94,7 @@ namespace popcon
 			std::string m_runtype;
 			string m_i_tag;
 			int m_i_version;
-			int m_i_run_number;
+			unsigned int m_i_run_number;
 			int m_i_physClin;
 			int m_i_physClut;
 			int m_i_physCfgr;

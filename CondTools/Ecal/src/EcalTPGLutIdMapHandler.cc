@@ -25,8 +25,8 @@ popcon::EcalTPGLutIdMapHandler::EcalTPGLutIdMapHandler(const edm::ParameterSet &
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGLutIdMapHandler")) {
 
         edm::LogInfo("EcalTPGLutIdMapHandler") << "EcalTPGLutIdMap Source handler constructor";
-        m_firstRun=(unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
-        m_lastRun=(unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
+        m_firstRun=(unsigned int)atoi( ps.getParameter<std::string>("firstRun").c_str());
+        m_lastRun=(unsigned int)atoi( ps.getParameter<std::string>("lastRun").c_str());
         m_sid= ps.getParameter<std::string>("OnlineDBSID");
         m_user= ps.getParameter<std::string>("OnlineDBUser");
         m_pass= ps.getParameter<std::string>("OnlineDBPassword");
@@ -59,8 +59,8 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
     	std::cout << " First object for this tag " << std::endl;
     	}
 
-	int max_since=0;
-	max_since=(int)tagInfo().lastInterval.first;
+	unsigned int max_since=0;
+	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
 	edm::LogInfo("EcalTPGLutIdMapHandler") << "max_since : "  << max_since;
 	edm::LogInfo("EcalTPGLutIdMapHandler") << "retrieved last payload ";
 
@@ -94,38 +94,38 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects()
 	readFromFile("last_tpg_lutIdMap_settings.txt");
 
 
- 	int min_run=m_i_run_number+1;
+ 	unsigned int min_run=m_i_run_number+1;
 
-	if(m_firstRun<(unsigned int)m_i_run_number) {
-	  min_run=(int) m_i_run_number+1;
+	if(m_firstRun<m_i_run_number) {
+	  min_run=m_i_run_number+1;
 	} else {
-	  min_run=(int)m_firstRun;
+	  min_run=m_firstRun;
 	}
 	
 	if(min_run<max_since) {
-	  min_run=  max_since+1; // we have to add 1 to the last transferred one
+	  min_run=max_since+1; // we have to add 1 to the last transferred one
 	}
 	
 	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
 
 
-	int max_run=(int)m_lastRun;
+	unsigned int max_run=m_lastRun;
 	edm::LogInfo("EcalTPGLutIdMapHandler") << "min_run=  " << min_run << "max_run= " << max_run;
 
 	RunList my_list;
     	my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
       
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
-	int num_runs=run_vec.size();
+	size_t num_runs=run_vec.size();
 
 	std::cout <<"number of runs is : "<< num_runs<< endl;
 	
-	unsigned long irun;
+	unsigned int irun;
 	if(num_runs>0){
 
-	  for(int kr=0; kr<(int)run_vec.size(); kr++){
+	  for(size_t kr=0; kr<run_vec.size(); kr++){
 
-	    irun=(unsigned long) run_vec[kr].getRunNumber();
+	    irun=static_cast<unsigned int>(run_vec[kr].getRunNumber());
 
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" **************** "<<std::endl;
