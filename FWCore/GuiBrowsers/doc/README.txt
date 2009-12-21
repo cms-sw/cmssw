@@ -6,8 +6,8 @@ https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEdmBrowser
 HOW TO RUN CONFIGBROWSER/CONFIGEDITOR
 
 Enter your CMSSW environment (any >=CMSSW_2_1_X):
-   cmsrel CMSSW_2_1_17
-   cd CMSSW_2_1_17/src
+   cmsrel CMSSW_3_3_4
+   cd CMSSW_3_3_4/src
    cmsenv
 And run:
    edmConfigEditor

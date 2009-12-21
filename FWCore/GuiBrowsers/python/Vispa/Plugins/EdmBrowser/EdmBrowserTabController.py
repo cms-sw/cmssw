@@ -20,23 +20,26 @@ class EdmBrowserTabController(EventBrowserTabController):
     
     def updateViewMenu(self):
         EventBrowserTabController.updateViewMenu(self)
-        self.plugin().expandToDepthAction().setVisible(hasattr(self.tab().centerView(),"expandToDepthAction"))
+        self.plugin().expandToDepthAction().setVisible(True)
         self.plugin().boxContentAction().setVisible(False)
         self.disconnect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onDoubleClicked)
         self.connect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onDoubleClicked)
 
     def onDoubleClicked(self,object):
-        logging.debug(__name__ + ": onCenterViewDoubleClicked()")
-        if not self.dataAccessor().isRead(object):
-            if self.dataAccessor().read(object)!=None:
-                self.updateCenterView()
+        logging.debug(__name__ + ": onDoubleClicked()")
+        if not self.tab().centerView().isUpdated(object):
+            self.dataAccessor().read(object)
+            self.updateCenterView()
 
     def onTreeViewSelected(self,select):
-        EventBrowserTabController.onTreeViewSelected(self,self.dataAccessor().read(select,self._treeDepth+1))
+        EventBrowserTabController.onTreeViewSelected(self,self.dataAccessor().read(select,self._treeDepth))
+
+    def onSelected(self,select):
+        EventBrowserTabController.onSelected(self,self.dataAccessor().read(select))
 
     def updateCenterView(self,propertyView=True):
         if self.tab().treeView().selection():
-            self.dataAccessor().read(self.tab().treeView().selection(),self._treeDepth+1)
+            self.dataAccessor().read(self.tab().treeView().selection(),self._treeDepth)
         EventBrowserTabController.updateCenterView(self,propertyView)
 
     def expandToDepthDialog(self):

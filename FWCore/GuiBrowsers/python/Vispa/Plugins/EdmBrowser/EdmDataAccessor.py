@@ -10,6 +10,8 @@ from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Plugins.EdmBrowser.ParticleDataList import defaultParticleDataList
 
 import ROOT
+from ROOT import *
+
 from DataFormats.FWLite import Events, Handle
 
 def eq(self,other):
@@ -37,6 +39,13 @@ def all(container):
         yield container[entry]
     except:
       pass
+  # loop over c buffer
+  #elif hasattr(container,'begin') and hasattr(container,'end'):
+  #    begin=container.begin()
+  #    end=container.end()
+  #    while (begin!=end):
+  #        yield begin.__deref__()
+  #        begin.__preinc__()
 
 class BranchDummy(object):
     def __init__(self,branchtuple):
@@ -67,7 +76,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         self.maxLevels=2
         self.maxDaughters=1000
         
-    def isRead(self,object,levels=2):
+    def isRead(self,object,levels=1):
         if not id(object) in self._edmChildrenObjects.keys():
             return False
         if levels>1 and id(object) in self._edmChildren.keys():
@@ -85,7 +94,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
 
     def isContainer(self,object):
         """ Get children of an object """
-        if id(object) in self._edmChildren.keys():
+        if id(object) in self._edmChildren.keys() and self.isRead(object):
             return len(self._edmChildren[id(object)])>0
         else:
             return True
@@ -164,67 +173,66 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         ref=False
         if typshort in ref_types:
             try:
-                value=object.get()
-                if type(value)==type(None):
-                    value="ERROR: Could not get "+self.getType(object)
-                else:
-                    ref=True
+                if hasattr(object, "isNull") and object.isNull():
+                    value="ERROR: "+self.getType(object)+" object is null"
+                elif hasattr(object, "isAvailable") and not object.isAvailable():
+                    value="ERROR: "+self.getType(object)+" object is not available"
+                else:    
+                    value=object.get()
+                    if type(value)==type(None):
+                        value="ERROR: Could not get "+self.getType(object)
+                    else:
+                        ref=True
             except Exception, message:
                 value="ERROR: "+str(message)
         return value,ref
 
-    def getObjectValue(self,object):
-        """ return the content of an object """
-        typ=self.getShortType(object)
-        types=["int","long","float","complex","str","unicode","char","short","bool","double","string"]
-        value=None
-        try:
-            if True in [typ.endswith(t) for t in types]:
-                if isinstance(object,float):
-                    object="%g" % object
-                value=str(object)
-            else:
-                value=object
-        except Exception, message:
-            value="ERROR: "+str(message)
-        return value
-
     def getObjectContent(self,object):
         """ get string value of a method """
-        value=None
         if not callable(object):
-            value=self.getObjectValue(object)
+            return object
         else:
             typ=""
+            if not object.__doc__ or str(object.__doc__)=="":
+                return "ERROR: Empty __doc__ string"
             docs=str(object.__doc__).split("\n")
             for doc in docs:
                 parameters=[]
                 for p in doc[doc.find("(")+1:doc.find(")")].split(","):
                     if p!="" and not "=" in p:
                         parameters+=[p]
+                if len(parameters)!=0:
+                    continue
                 typestring=doc[:doc.find("(")]
-                if len(parameters)==0 and not "void" in typestring:
-                    typ=" ".join(typestring.split(" ")[:len(typestring.split(" "))-1]).strip(" ")
+                split_typestring=typestring.split(" ")
+                templates=0
+                end_typestring=0
+                for i in reversed(range(len(split_typestring))):
+                    templates+=split_typestring[i].count("<")
+                    templates-=split_typestring[i].count(">")
+                    if templates==0:
+                        end_typestring=i
+                        break
+                typ=" ".join(split_typestring[:end_typestring])
             hidden_types=["iterator","Iterator"]
-            broken_types=["ROOT::"]
-            
-            if str(object.__doc__)=="":
-                value="ERROR: Empty __doc__ string"
-            elif True in [t in typ for t in hidden_types]:
-                value=None
-            elif True in [t in typ for t in broken_types]:
-                value="ERROR: Cannot display object of type "+typ
-            elif typ!="":
-                try:
-                    object=object()
-                    value=self.getObjectValue(object)
-                except Exception, message:
-                    value="ERROR: "+str(message)
-        return value
+            root_types=["ROOT::"]
+            if typ=="" or "void" in typ or True in [t in typ for t in hidden_types]:
+                return None
+            if True in [t in typ for t in root_types] and ROOT.TClass.GetClass(typ)==None:
+                return "ERROR: Cannot display object of type "+typ
+            try:
+                object=object()
+                value=object
+            except Exception, message:
+                value="ERROR: "+str(message)
+            if "Buffer" in str(type(value)):
+                return "ERROR: Cannot display object of type "+typ
+            else:
+                return value
 
     def isVectorObject(self,object):
         typ=self.getShortType(object)
-        return typ=="list" or typ[-6:].lower()=="vector" or typ[-3:].lower()=="map" or typ[-10:].lower()=="collection" or hasattr(object,"size")  
+        return typ=="list" or typ[-6:].lower()=="vector" or typ[-3:].lower()=="map" or typ[-10:].lower()=="collection" or hasattr(object,"size")
 
     def compareObjects(self,a,b):
         same=False
@@ -238,8 +246,8 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         objects=[]
         # subobjects
         objectdict={}
-        hidden_attr=["front","back","IsA","clone","masterClone","masterClonePtr","mother","motherRef","motherPtr","daughter","daughterRef","daughterPtr"]
-        broken_attr=["jtaRef"]
+        hidden_attr=["front","back","IsA","clone","masterClone","masterClonePtr","mother","motherRef","motherPtr","daughter","daughterRef","daughterPtr","is_back_safe"]
+        broken_attr=[]#["jtaRef"]
         for attr1,property1 in self.getObjectProperties(object):
             if attr1 in hidden_attr:
                 pass
@@ -265,9 +273,6 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     name=self.getType(value)+" ["+str(n)+"]"
                 objects+=[(name,value,ref,typ)]
                 n+=1
-            if (not hasattr(object,"size") and len(objects)==0) or\
-               (hasattr(object,"size") and object.size()!=n):
-                objects+=[("ERROR","ERROR: Unable to read vector.",False,True)]
         # read candidate relations
         for name,mother,ref,propertyType in objects:
             if hasattr(mother,"numberOfDaughters") and hasattr(mother,"daughter"):
@@ -373,8 +378,11 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         if not id(edmobject) in self._edmLabel.keys():
             if not type(edmobject) in (int,float,long,complex,str,unicode,bool):
                 # override comparison operator of object
-                type(edmobject).__eq__=eq
-                type(edmobject).__ne__=ne
+                try:
+                    type(edmobject).__eq__=eq
+                    type(edmobject).__ne__=ne
+                except:
+                    pass
             self._edmLabel[id(edmobject)]=label
             self._edmParent[id(edmobject)]=mother
             self._edmChildren[id(edmobject)]=[]
@@ -390,7 +398,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
 
     def readDaughtersRecursive(self,edmobject,objects,levels=1):
         """ read daughter objects of an edmobject """
-        logging.debug(__name__ + ": readDaughterObjects (levels="+str(levels)+"): "+str(edmobject))
+        logging.debug(__name__ + ": readDaughtersRecursive (levels="+str(levels)+"): "+str(edmobject))
         # read children information
         if not id(edmobject) in self._edmChildrenObjects.keys():
             self._edmChildrenObjects[id(edmobject)]=self.getDaughterObjects(edmobject)
@@ -415,7 +423,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                 return objects,False
         return objects,ok
 
-    def read(self,object,levels=2):
+    def read(self,object,levels=1):
         """ reads contents of a branch """
         logging.debug(__name__ + ": read")
         if isinstance(object,BranchDummy):
@@ -437,11 +445,15 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                 else:
                     self._edmChildrenObjects[id(object)]=[("ERROR","ERROR: Branch is not valid.",False,True)]
                     logging.warning("Branch is not valid: "+object.branchtuple[0]+".")
+                    object.invalid=True
                     return object
             except Exception, e:
                 self._edmChildrenObjects[id(object)]=[("ERROR","ERROR: Unable to read branch : "+str(e),False,True)]
+                object.unreadable=True
                 logging.warning("Unable to read branch "+object.branchtuple[0]+" : "+exception_traceback())
                 return object
+        if self.isRead(object,levels):
+            return object
         if levels>0:
             self.readDaughtersRecursive(object,[],levels)
         return object
@@ -585,6 +597,8 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                 result=self.read(branch,0)
                 if isinstance(result,BranchDummy):
                     self._dataObjects.remove(result)
+                if hasattr(result,"unreadable") or hasattr(result,"invalid"):
+                    self._branches.remove(result.branchtuple)
             return True
         else:
             return False

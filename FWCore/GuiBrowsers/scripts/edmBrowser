@@ -46,6 +46,9 @@ from Vispa.Main.Application import *
 from Vispa.Plugins.EdmBrowser.EdmBrowserPlugin import *
 
 if __name__ == "__main__":
+    if not os.path.isdir(preferencesDirectory):
+        logging.info("Preferences Directory not found. Creating it under "+preferencesDirectory)
+        os.mkdir(preferencesDirectory)
     app = Application(sys.argv)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("EdmBrowser")
