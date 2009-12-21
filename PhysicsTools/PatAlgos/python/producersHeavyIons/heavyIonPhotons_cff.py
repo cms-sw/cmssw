@@ -11,7 +11,7 @@ makeHeavyIonPhotons = cms.Sequence(
     # pat and HI specifics    
     photonMatch *
     # object production
-    allLayer1Photons
+    patPhotons
     )
 
 

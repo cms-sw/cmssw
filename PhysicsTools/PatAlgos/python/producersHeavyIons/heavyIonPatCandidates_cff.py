@@ -5,7 +5,7 @@ from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonMuons_cff import *
 from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonPhotons_cff import *
 from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonProducer_cfi import *
 
-heavyIonObjects = cms.Sequence(
+heavyIonPatCandidates = cms.Sequence(
     heavyIon +
     makeHeavyIonJets +
     makeHeavyIonPhotons +

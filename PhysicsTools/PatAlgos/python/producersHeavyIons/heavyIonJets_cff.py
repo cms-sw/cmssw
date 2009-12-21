@@ -10,7 +10,7 @@ makeHeavyIonJets = cms.Sequence(
     heavyIonCleanedGenJets *
     jetGenJetMatch *
     # object production
-    allLayer1Jets
+    patAK5CaloJets
     )
 
 
