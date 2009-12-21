@@ -33,9 +33,9 @@ WriteOneGeometryFromXML::~WriteOneGeometryFromXML()
 }
 
 void
-WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es) 
+WriteOneGeometryFromXML::beginRun( edm::EventSetup const& es) 
 {
-  std::cout<<"WriteOneGeometryFromXML::beginJob"<<std::endl;
+  std::cout<<"WriteOneGeometryFromXML::beginRun"<<std::endl;
   PIdealGeometry* pgeom = new PIdealGeometry;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){

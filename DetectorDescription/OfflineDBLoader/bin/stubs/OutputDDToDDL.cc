@@ -59,9 +59,9 @@ OutputDDToDDL::~OutputDDToDDL()
 }
 
 void
-OutputDDToDDL::beginJob( edm::EventSetup const& es) 
+OutputDDToDDL::beginRun( edm::EventSetup const& es) 
 {
-  std::cout<<"OutputDDToDDL::beginJob"<<std::endl;
+  std::cout<<"OutputDDToDDL::beginRun"<<std::endl;
 
   edm::ESHandle<DDCompactView> pDD;
 
