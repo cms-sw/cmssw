@@ -31,7 +31,7 @@ def makeAODTrackCandidates(process,
                                                     )
             )
     ## run production of TrackCandidates at the very beginning of the sequence
-    process.patDefaultSequence.replace(process.allLayer1Objects, getattr(process, 'patAOD' + label + 'Unfiltered') * getattr(process, 'patAOD' + label) * process.allLayer1Objects)
+    process.patDefaultSequence.replace(process.patCandidates, getattr(process, 'patAOD' + label + 'Unfiltered') * getattr(process, 'patAOD' + label) * process.patCandidates)
 
     
 def makePATTrackCandidates(process, 
@@ -47,7 +47,7 @@ def makePATTrackCandidates(process,
     create pat track candidates from AOD track collections:
     
     process       : process
-    label         : output will be 'all/selectedLayer1'+label
+    label         : output will be 'all/selectedPat'+label
     input         : name of the input collection
     selection     : selection on PAT Layer 1 objects
     isolation     : isolation to use (as 'source': value of dR)
@@ -61,33 +61,33 @@ def makePATTrackCandidates(process,
                     'jet', 'met' as input string
     ------------------------------------------------------------------    
     """
-    ## add allLayer1Tracks to the process
-    from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import allLayer1GenericParticles
-    setattr(process, 'allLayer1' + label, allLayer1GenericParticles.clone(src = input))
-    ## add selectedLayer1Tracks to the process
-    setattr(process, 'selectedLayer1' + label, cms.EDFilter("PATGenericParticleSelector",
-                                                            src = cms.InputTag("allLayer1"+label),
+    ## add patTracks to the process
+    from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
+    setattr(process, 'pat' + label, patGenericParticles.clone(src = input))
+    ## add selectedPatTracks to the process
+    setattr(process, 'selectedPat' + label, cms.EDFilter("PATGenericParticleSelector",
+                                                            src = cms.InputTag("pat"+label),
                                                             cut = cms.string(selection) 
                                                             ) 
             )
-    ## add cleanLayer1Tracks to the process
-    from PhysicsTools.PatAlgos.cleaningLayer1.genericTrackCleaner_cfi import cleanLayer1Tracks
-    setattr(process, 'cleanLayer1' + label, cleanLayer1Tracks.clone(src = cms.InputTag('selectedLayer1' + label)))
+    ## add cleanPatTracks to the process
+    from PhysicsTools.PatAlgos.cleaningLayer1.genericTrackCleaner_cfi import cleanPatTracks
+    setattr(process, 'cleanPat' + label, cleanPatTracks.clone(src = cms.InputTag('selectedPat' + label)))
 
     ## get them as variables, so we can put them in the sequences and/or configure them
-    l1cands         = getattr(process, 'allLayer1' + label)
-    selectedL1cands = getattr(process, 'selectedLayer1' + label)
-    cleanL1cands    = getattr(process, 'cleanLayer1' + label)
+    l1cands         = getattr(process, 'pat' + label)
+    selectedL1cands = getattr(process, 'selectedPat' + label)
+    cleanL1cands    = getattr(process, 'cleanPat' + label)
 
     ## insert them in sequence, after the electrons
-    process.allLayer1Objects.replace(process.allLayer1Electrons, l1cands + process.allLayer1Electrons)
-    process.selectedLayer1Objects.replace(process.selectedLayer1Electrons, process.selectedLayer1Electrons + selectedL1cands)
-    process.cleanLayer1Objects.replace(process.cleanLayer1Electrons, process.cleanLayer1Electrons + cleanL1cands)
+    process.patCandidates.replace(process.patElectrons, l1cands + process.patElectrons)
+    process.selectedPatCandidates.replace(process.selectedPatElectrons, process.selectedPatElectrons + selectedL1cands)
+    process.cleanPatCandidates.replace(process.cleanPatElectrons, process.cleanPatElectrons + cleanL1cands)
     
     ## add them to the Summary Tables
-    process.allLayer1Summary.candidates += [ cms.InputTag("allLayer1"+label) ]
-    process.selectedLayer1Summary.candidates += [ cms.InputTag("selectedLayer1"+label) ]
-    process.cleanLayer1Summary.candidates += [ cms.InputTag("cleanLayer1"+label) ]
+    process.patCandidateSummary.candidates += [ cms.InputTag("allPat"+label) ]
+    process.selectedPatCandidateSummary.candidates += [ cms.InputTag("selectedPat"+label) ]
+    process.cleanPatCandidateSummary.candidates += [ cms.InputTag("cleanPat"+label) ]
     
     ## isolation: start with empty config
     if(isolation or isoDeposits):
@@ -192,7 +192,7 @@ def makeTrackCandidates(process,
     particleType  : particle type (for mass) 
     preselection  : preselection cut on the AOD candidates
     selection     : selection cut on the PAT candidates (for the
-                    selectedLayer1Candidate collection)
+                    selectedPatCandidate collection)
     isolation     : isolation to use (as 'source': value of dR)
                     tracker     : as muon iso from tracks
                     ecalTowers  : as muon iso from calo towers.
