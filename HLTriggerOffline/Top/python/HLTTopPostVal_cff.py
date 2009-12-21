@@ -100,7 +100,18 @@ hltTopPostJet.efficiency     = (
     )
           
        
-   
+hltTopPost4Jets = HLTTopPostProcessor.clone()
+
+hltTopPost4Jets.subDirs        = ['HLT/Top/4JetsPlus1MuonToCompareWithData']  
+hltTopPost4Jets.efficiency     = (
+  #  "TrigEFF                      'my title; my x-label;    my y-label' pt_trig_off_mu pt_off_mu",
+   "EffVsPt_HLTMu9_4Jets1MuonMon      'HLT_Mu9    ; p_{T #mu };         Trigger_Efficiency'  Muon1Pt_4Jets1MuonHLTMu9Mon     Muon1Pt_4Jets1MuonMon",
+   "EffVsEta_HLTMu9_4Jets1MuonMon     'HLT_Mu9   ; #eta_{#mu };         Trigger_Efficiency'  Muon1Eta_4Jets1MuonHLTMu9Mon    Muon1Eta_4Jets1MuonMon",   
+   "EffVsNJets_HLTMu9_4Jets1MuonMon        'HLT_Mu9   ; Jet multiplicity;    Trigger_Efficiency'  NJets_4Jets1MuonHLTMu9Mon       NJets_4Jets1MuonMon",   
+                      
+    )
+          
+          
     
 
     
@@ -110,6 +121,7 @@ HLTTopPostVal = cms.Sequence(
     hltTopPostDimu   *
     hltTopPostDiel   *
     hltTopPostEmu   *
-    hltTopPostJet
+    hltTopPostJet   *
+    hltTopPost4Jets
    
 )

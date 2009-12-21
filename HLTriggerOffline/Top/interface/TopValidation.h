@@ -147,6 +147,14 @@ bool outputMEsInRootFile;
   MonitorElement*     pt_off_emu_electron;
   
   
+  //// 4jets + 1muon eff monitoring
+  MonitorElement*      ptmuon_4jet1muSel;
+  MonitorElement*      etamuon_4jet1muSel;
+  MonitorElement*      Njets_4jet1muSel;
+  MonitorElement*      ptmuon_4jet1muSel_hltmu9;
+  MonitorElement*      etamuon_4jet1muSel_hltmu9;
+  MonitorElement*      Njets_4jet1muSel_hltmu9;
+  
 //////////////////  
   
   MonitorElement*  h_ptmu1_trig[100];
