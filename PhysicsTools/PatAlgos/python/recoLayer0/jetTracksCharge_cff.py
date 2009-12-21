@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 ## Compute JET Charge
-patJetCharge = cms.EDFilter("JetChargeProducer",
+patAK5CaloJetCharge = cms.EDFilter("JetChargeProducer",
     src = cms.InputTag("ak5JetTracksAssociatorAtVertex"), ## a reco::JetTracksAssociation::Container
     # -- JetCharge parameters --
     var = cms.string('Pt'),
     exp = cms.double(1.0)
 )
 
-patJetTracksCharge = cms.Sequence(patJetCharge)
+# removed for testing and final cleanup
+# patJetTracksCharge = cms.Sequence(patAK5CaloJetCharge)
