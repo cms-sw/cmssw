@@ -1,16 +1,16 @@
 #ifndef PhysicsTools_PatExamples_interface_WPlusJetsEventSelector_h
 #define PhysicsTools_PatExamples_interface_WPlusJetsEventSelector_h
 
-#include "PhysicsTools/Utilities/interface/EventSelector.h"
+#include "PhysicsTools/SelectorUtils/interface/EventSelector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-#include "PhysicsTools/PatUtils/interface/ElectronVPlusJetsIDSelectionFunctor.h"
-#include "PhysicsTools/PatUtils/interface/MuonVPlusJetsIDSelectionFunctor.h"
-#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/ElectronVPlusJetsIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/MuonVPlusJetsIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 
 class WPlusJetsEventSelector : public EventSelector {
  public:
