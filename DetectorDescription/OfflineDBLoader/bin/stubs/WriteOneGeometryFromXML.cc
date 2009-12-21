@@ -33,11 +33,7 @@ WriteOneGeometryFromXML::~WriteOneGeometryFromXML()
 }
 
 void
-<<<<<<< WriteOneGeometryFromXML.cc
-WriteOneGeometryFromXML::beginRun( edm::EventSetup const& es) 
-=======
 WriteOneGeometryFromXML::beginRun( const edm::Run&, edm::EventSetup const& es) 
->>>>>>> 1.8.2.2
 {
   std::cout<<"WriteOneGeometryFromXML::beginRun"<<std::endl;
   PIdealGeometry* pgeom = new PIdealGeometry;

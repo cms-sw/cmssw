@@ -23,11 +23,7 @@ class OutputDDToDDL : public edm::EDAnalyzer {
  public:
   explicit OutputDDToDDL( const edm::ParameterSet& iConfig );
   ~OutputDDToDDL();
-<<<<<<< OutputDDToDDL.h
-  virtual void beginRun( edm::EventSetup const& );
-=======
   virtual void beginRun( const edm::Run&, edm::EventSetup const& );
->>>>>>> 1.3.2.2
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob() {};
 
