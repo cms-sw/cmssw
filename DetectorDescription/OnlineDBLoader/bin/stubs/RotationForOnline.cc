@@ -1,7 +1,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Mon Apr  9 11:36:53 CDT 2007
-// $Id: RotationForOnline.cc,v 1.3 2007/11/27 00:13:58 case Exp $
+// $Id: RotationForOnline.cc,v 1.4.2.1 2009/12/21 19:28:22 case Exp $
 //
 //
 
@@ -36,7 +36,7 @@ class RotationForOnline : public edm::EDAnalyzer {
    public:
       explicit RotationForOnline(const edm::ParameterSet&);
       ~RotationForOnline();
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginRun(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -87,7 +87,7 @@ RotationForOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-RotationForOnline::beginJob(const edm::EventSetup& iSetup)
+RotationForOnline::beginRun(const edm::EventSetup& iSetup)
 {
   // set tolerance for "near zero"
   double tolerance= 1.0e-3;
