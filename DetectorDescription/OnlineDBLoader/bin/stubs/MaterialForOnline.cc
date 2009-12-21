@@ -1,6 +1,6 @@
 // Original Author:  Jie Chen
 //         Created:  Thu Apr  5 10:36:22 CDT 2007
-// $Id: MaterialForOnline.cc,v 1.5.2.1 2009/12/21 19:28:22 case Exp $
+// $Id: MaterialForOnline.cc,v 1.5.2.2 2009/12/21 23:22:57 case Exp $
 //
 //
 
@@ -36,7 +36,7 @@ class MaterialForOnline : public edm::EDAnalyzer {
    public:
       explicit MaterialForOnline(const edm::ParameterSet&);
       ~MaterialForOnline();
-      virtual void beginRun(const edm::EventSetup&) ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -87,7 +87,7 @@ MaterialForOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MaterialForOnline::beginRun(const edm::EventSetup& iSetup)
+MaterialForOnline::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
   std::string materialFileName("MATERIALS.dat");
   std::string elementaryMaterialFileName("ELEMENTARYMATERIALS.dat");

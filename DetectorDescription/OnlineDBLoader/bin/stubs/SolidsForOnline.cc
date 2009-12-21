@@ -26,7 +26,7 @@ public:
   ~SolidsForOnline();
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginRun( const edm::EventSetup& );
+  virtual void beginRun( const edm::Run&, const edm::EventSetup& );
   
 private: 
 
@@ -38,11 +38,11 @@ SolidsForOnline::SolidsForOnline( const edm::ParameterSet& iConfig ) { }
 
 SolidsForOnline::~SolidsForOnline() { }
 
-void SolidsForOnline::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) { 
+void SolidsForOnline::analyze( const edm::Event& iEvent,  const edm::EventSetup& iSetup ) { 
   std::cout << "analyze does nothing" << std::endl;
 }
 
-void SolidsForOnline::beginRun( const edm::EventSetup& iSetup ) {
+void SolidsForOnline::beginRun( const edm::Run&, const edm::EventSetup& iSetup ) {
 
 // TRD1 and Trapezoid can be in the same files.
 

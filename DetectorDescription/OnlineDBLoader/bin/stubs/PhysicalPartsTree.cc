@@ -30,7 +30,7 @@ public:
   ~PhysicalPartsTree();
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginRun( const edm::EventSetup& );
+  virtual void beginRun( const edm::Run&, const edm::EventSetup& );
   
 private: 
 
@@ -51,7 +51,7 @@ void PhysicalPartsTree::analyze( const edm::Event& iEvent, const edm::EventSetup
   std::cout << "analyze does nothing" << std::endl;
 }
 
-void PhysicalPartsTree::beginRun( const edm::EventSetup& iSetup ) {
+void PhysicalPartsTree::beginRun( const edm::Run&, const edm::EventSetup& iSetup ) {
   //set a tolerance for "near zero"
   double tolerance = 1.0e-3;
 
