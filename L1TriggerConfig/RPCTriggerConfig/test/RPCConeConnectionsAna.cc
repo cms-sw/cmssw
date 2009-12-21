@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id: RPCConeConnectionsAna.cc,v 1.3 2009/05/22 14:18:26 fruboes Exp $
+// $Id: RPCConeConnectionsAna.cc,v 1.4 2009/05/25 08:02:59 fruboes Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class RPCConeConnectionsAna : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       int getDCCNumber(int iTower, int iSec);
@@ -114,7 +114,7 @@ RPCConeConnectionsAna::~RPCConeConnectionsAna()
 
 // ------------ method called to for each event  ------------
 void
-RPCConeConnectionsAna::beginJob(const edm::EventSetup& evtSetup)
+RPCConeConnectionsAna::beginJob()
 {}
 
 

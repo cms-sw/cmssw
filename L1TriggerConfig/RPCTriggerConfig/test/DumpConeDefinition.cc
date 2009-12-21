@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: DumpConeDefinition.cc,v 1.1 2009/04/04 10:56:20 fruboes Exp $
+// $Id: DumpConeDefinition.cc,v 1.2 2009/06/01 10:00:47 fruboes Exp $
 //
 //
 
@@ -52,7 +52,7 @@ class DumpConeDefinition : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -143,7 +143,7 @@ DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DumpConeDefinition::beginJob(const edm::EventSetup&)
+DumpConeDefinition::beginJob()
 {
 }
 

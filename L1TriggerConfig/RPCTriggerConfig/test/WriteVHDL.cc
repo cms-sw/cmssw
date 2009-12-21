@@ -66,7 +66,7 @@ class WriteVHDL : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       int getDCCNumber(int iTower, int iSec);
@@ -128,7 +128,7 @@ WriteVHDL::~WriteVHDL()
 
 // ------------ method called to for each event  ------------
 void
-WriteVHDL::beginJob(const edm::EventSetup& evtSetup) 
+WriteVHDL::beginJob() 
 {}
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: DumpL1RPCConfig.cc,v 1.2 2009/06/01 09:35:31 fruboes Exp $
+// $Id: DumpL1RPCConfig.cc,v 1.3 2009/06/01 10:00:47 fruboes Exp $
 //
 //
 
@@ -50,7 +50,7 @@ class DumpL1RPCConfig : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -155,7 +155,7 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DumpL1RPCConfig::beginJob(const edm::EventSetup&)
+DumpL1RPCConfig::beginJob()
 {
 }
 

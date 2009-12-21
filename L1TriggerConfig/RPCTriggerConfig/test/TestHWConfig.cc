@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: TestHWConfig.cc,v 1.2 2008/06/24 10:28:59 michals Exp $
+// $Id: TestHWConfig.cc,v 1.3 2009/05/29 20:36:37 michals Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class TestHWConfig : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -131,7 +131,7 @@ TestHWConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TestHWConfig::beginJob(const edm::EventSetup&)
+TestHWConfig::beginJob()
 {
 }
 
