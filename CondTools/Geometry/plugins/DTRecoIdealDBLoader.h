@@ -15,7 +15,7 @@ class DTRecoIdealDBLoader : public edm::EDAnalyzer {
  public:
   explicit DTRecoIdealDBLoader( const edm::ParameterSet& iConfig );
   ~DTRecoIdealDBLoader();
-  virtual void beginRun( edm::EventSetup const& );
+  virtual void beginRun( const edm::Run&, edm::EventSetup const& );
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob() {};
 

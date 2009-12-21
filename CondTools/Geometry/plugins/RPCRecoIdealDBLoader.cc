@@ -36,7 +36,7 @@ RPCRecoIdealDBLoader::~RPCRecoIdealDBLoader()
 }
 
 void
-RPCRecoIdealDBLoader::beginRun( edm::EventSetup const& es) 
+RPCRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es) 
 {
   RecoIdealGeometry* rig = new RecoIdealGeometry;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;

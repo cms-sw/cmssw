@@ -16,7 +16,7 @@ class PGeometricDetBuilder : public edm::EDAnalyzer {
  public:
   explicit PGeometricDetBuilder( const edm::ParameterSet& iConfig );
   ~PGeometricDetBuilder();
-  virtual void beginRun( edm::EventSetup const& );
+  virtual void beginRun( const edm::Run&, edm::EventSetup const& );
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob() {};
   void putOne ( const GeometricDet* gd, PGeometricDet* pgd, int lev );

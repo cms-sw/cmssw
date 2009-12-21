@@ -37,7 +37,7 @@ CSCRecoIdealDBLoader::~CSCRecoIdealDBLoader()
 }
 
 void
-CSCRecoIdealDBLoader::beginRun( edm::EventSetup const& es) 
+CSCRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es) 
 {
   std::cout<<"CSCRecoIdealDBLoader::beginRun"<<std::endl;
   RecoIdealGeometry* rig = new RecoIdealGeometry;

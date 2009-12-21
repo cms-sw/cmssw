@@ -15,7 +15,7 @@ class PCaloGeometryBuilder : public edm::EDAnalyzer
 
       ~PCaloGeometryBuilder();
 
-      virtual void beginRun( edm::EventSetup const& );
+      virtual void beginRun( const edm::Run&, edm::EventSetup const& );
       virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
       virtual void endJob() {};
 
