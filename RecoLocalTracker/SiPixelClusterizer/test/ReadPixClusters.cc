@@ -67,7 +67,7 @@ class ReadPixClusters : public edm::EDAnalyzer {
   explicit ReadPixClusters(const edm::ParameterSet& conf);  
   virtual ~ReadPixClusters();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void beginJob();
   virtual void endJob();
   
  private:
@@ -113,7 +113,7 @@ ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf)
 ReadPixClusters::~ReadPixClusters() { }  
 
 // ------------ method called at the begining   ------------
-void ReadPixClusters::beginJob(const edm::EventSetup& iSetup) {
+void ReadPixClusters::beginJob() {
   cout << "Initialize PixelClusterTest " <<endl;
  
 #ifdef HISTOS
