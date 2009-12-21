@@ -15,6 +15,7 @@ from Modules import _Module
 from SequenceTypes import *
 from SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
 from SequenceVisitors import PathValidator, EndPathValidator
+from Utilities import *
 import DictTypes
 
 from ExceptionHandling import *
