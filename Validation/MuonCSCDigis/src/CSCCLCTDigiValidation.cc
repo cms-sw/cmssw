@@ -30,12 +30,12 @@ CSCCLCTDigiValidation::CSCCLCTDigiValidation(DQMStore* dbe, const edm::InputTag 
 CSCCLCTDigiValidation::~CSCCLCTDigiValidation()
 {
 
-  for(int i = 0; i < 10; ++i)
-  {
-    edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
-      << " is " << theTimeBinPlots[i]->getMean() 
-      << " +/- " << theTimeBinPlots[i]->getRMS();
-  }
+//   for(int i = 0; i < 10; ++i)
+//   {
+//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
+//       << " is " << theTimeBinPlots[i]->getMean() 
+//       << " +/- " << theTimeBinPlots[i]->getRMS();
+//   }
 
 }
 

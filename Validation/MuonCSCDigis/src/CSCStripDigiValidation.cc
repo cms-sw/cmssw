@@ -37,9 +37,9 @@ CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe,
 
 CSCStripDigiValidation::~CSCStripDigiValidation() {
  
-  edm::LogInfo("CSCDigiValidation") << "RATIO for strips 4 to 5 : " << theRatio4to5Plot->getMean();
-  edm::LogInfo("CSCDigiValidation") << "RATIO for strips 6 to 5 : " << theRatio6to5Plot->getMean();
-  edm::LogInfo("CSCDigiValidation") << "NDIGIS per event : " << theNDigisPerEventPlot->getMean();
+//   edm::LogInfo("CSCDigiValidation") << "RATIO for strips 4 to 5 : " << theRatio4to5Plot->getMean();
+//   edm::LogInfo("CSCDigiValidation") << "RATIO for strips 6 to 5 : " << theRatio6to5Plot->getMean();
+//   edm::LogInfo("CSCDigiValidation") << "NDIGIS per event : " << theNDigisPerEventPlot->getMean();
 
 }
 

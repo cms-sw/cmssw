@@ -35,14 +35,14 @@ CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe,
 
 CSCComparatorDigiValidation::~CSCComparatorDigiValidation()
 {
-  for(int i = 0; i < 10; ++i)
-  {
-    edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName()
-      << " is " << theTimeBinPlots[i]->getMean()
-      << " +/- " << theTimeBinPlots[i]->getRMS();
-    edm::LogInfo("CSCDigiValidation") << "Mean charge of " << the3StripPlots[i]->getName()
-      << " is " << the3StripPlots[i]->getMean();
-  }
+//   for(int i = 0; i < 10; ++i)
+//   {
+//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName()
+//       << " is " << theTimeBinPlots[i]->getMean()
+//       << " +/- " << theTimeBinPlots[i]->getRMS();
+//     edm::LogInfo("CSCDigiValidation") << "Mean charge of " << the3StripPlots[i]->getName()
+//       << " is " << the3StripPlots[i]->getMean();
+//   }
 }
 
 

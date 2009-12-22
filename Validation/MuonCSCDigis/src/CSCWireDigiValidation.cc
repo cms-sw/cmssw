@@ -32,14 +32,14 @@ CSCWireDigiValidation::CSCWireDigiValidation(DQMStore* dbe, const edm::InputTag 
 
 CSCWireDigiValidation::~CSCWireDigiValidation()
 {
-  for(int i = 0; i < 10; ++i)
-  {
-    edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
-      << " is " << theTimeBinPlots[i]->getMean() 
-      << " +/- " << theTimeBinPlots[i]->getRMS();
-    edm::LogInfo("CSCDigiValidation") << "RMS of " << theResolutionPlots[i]->getName() 
-      << " is " << theResolutionPlots[i]->getRMS();
-  }
+//   for(int i = 0; i < 10; ++i)
+//   {
+//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
+//       << " is " << theTimeBinPlots[i]->getMean() 
+//       << " +/- " << theTimeBinPlots[i]->getRMS();
+//     edm::LogInfo("CSCDigiValidation") << "RMS of " << theResolutionPlots[i]->getName() 
+//       << " is " << theResolutionPlots[i]->getRMS();
+//   }
 }
 
 
