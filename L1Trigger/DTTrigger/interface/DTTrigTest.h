@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2008/09/05 16:06:35 $
- *   $Revision: 1.7 $
+ *   $Date: 2008/09/06 11:59:42 $
+ *   $Revision: 1.8 $
  *
  *   \author C. Battilana
  */
@@ -41,7 +41,8 @@ public:
   ~DTTrigTest();
 
   //! Create tree and Branches
-  void beginJob(const edm::EventSetup & iEventSetup);
+  //void beginJob(const edm::EventSetup & iEventSetup);
+  void beginJob();
 
   //! Close Tree and write File
   void endJob();

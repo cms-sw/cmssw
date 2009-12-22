@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2008/09/05 16:06:35 $
- *   $Revision: 1.11 $
+ *   $Date: 2008/09/06 11:59:42 $
+ *   $Revision: 1.12 $
  *
  *   \author C. Battilana
  */
@@ -83,8 +83,8 @@ void DTTrigTest::endJob(){
 
 }
 
-void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
-    
+//void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
+void DTTrigTest::beginJob(){   
   // get DTConfigManager
   // ESHandle< DTConfigManager > confManager ;
   // iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
