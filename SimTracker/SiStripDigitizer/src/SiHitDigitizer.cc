@@ -46,7 +46,7 @@ SiHitDigitizer::processHit(const PSimHit* hit, const StripGeomDetUnit& det, Glob
 			   std::vector<double>& locAmpl, size_t& firstChannelWithSignal, size_t& lastChannelWithSignal){
   
   // Compute the drift direction for this det
-  double moduleThickness = det.specificSurface().bounds().thickness(); // full detector thicness
+  double moduleThickness = det.specificSurface().bounds().thickness(); // active detector thicness
   double timeNormalisation = (moduleThickness*moduleThickness)/(2.*depletionVoltage*chargeMobility);
   LocalVector driftDir = DriftDirection(&det,bfield,langle);
   
