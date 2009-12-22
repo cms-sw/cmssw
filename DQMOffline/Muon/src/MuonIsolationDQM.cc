@@ -370,7 +370,7 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuonIsolationDQM::beginJob(const edm::EventSetup&)
+MuonIsolationDQM::beginJob(void)
 {
   
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"

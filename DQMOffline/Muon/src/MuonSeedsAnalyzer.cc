@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.12 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -41,7 +41,7 @@ MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceP
 MuonSeedsAnalyzer::~MuonSeedsAnalyzer() { }
 
 
-void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DQMStore * dbe) {
+void MuonSeedsAnalyzer::beginJob(DQMStore * dbe) {
 
   metname = "seedsAnalyzer";
 

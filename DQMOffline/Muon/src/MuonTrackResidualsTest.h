@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the residuals of the track parameters comparing STA/tracker only/global muons
  *
- *  $Date: 2008/07/16 13:20:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/12 17:27:55 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -49,7 +49,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);

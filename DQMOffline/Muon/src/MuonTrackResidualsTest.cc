@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/18 08:43:46 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/11/12 17:28:05 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -51,7 +51,7 @@ MuonTrackResidualsTest::~MuonTrackResidualsTest(){
 }
 
 
-void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
+void MuonTrackResidualsTest::beginJob(void){
 
   metname = "trackResidualsTest";
   theDbe->setCurrentFolder("Muons/Tests/trackResidualsTest");

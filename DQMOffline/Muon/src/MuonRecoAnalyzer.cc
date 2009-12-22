@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/07 09:28:23 $
+ *  $Date: 2009/12/10 13:04:06 $
  *  $Revision: 1.20 $
  *  \author G. Mila - INFN Torino
  *  updated: G. Hesketh, CERN
@@ -34,7 +34,7 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet, MuonServicePro
 MuonRecoAnalyzer::~MuonRecoAnalyzer() { }
 
 
-void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
 
   metname = "muRecoAnalyzer";
 

@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/06/09 13:41:20 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/07/16 09:56:36 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -32,7 +32,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   virtual ~MuonAnalyzer();
   
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup);
+  void beginJob(void);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);

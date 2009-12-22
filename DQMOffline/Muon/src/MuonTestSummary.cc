@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/12 17:27:48 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/12/10 13:04:06 $
+ *  $Revision: 1.23 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -73,7 +73,7 @@ MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
 
 MuonTestSummary::~MuonTestSummary(){}
 
-void MuonTestSummary::beginJob(const edm::EventSetup& context){
+void MuonTestSummary::beginJob(void){
 
   metname = "muonTestSummary";
   LogTrace(metname)<<"[MuonTestSummary] beginJob: Histo booking";

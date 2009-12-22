@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/17 15:36:10 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/11/18 11:48:36 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,7 +42,7 @@ SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet, MuonSe
 SegmentTrackAnalyzer::~SegmentTrackAnalyzer() { }
 
 
-void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+void SegmentTrackAnalyzer::beginJob(DQMStore * dbe) {
 
 
   metname = "segmTrackAnalyzer";

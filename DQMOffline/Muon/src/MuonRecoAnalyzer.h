@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2009/05/07 09:28:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/10 13:04:06 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,7 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   virtual ~MuonRecoAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore *dbe);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);

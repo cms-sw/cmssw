@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/28 14:36:00 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/01/28 14:37:30 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -38,7 +38,7 @@ MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pS
 MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() { }
 
 
-void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+void MuonEnergyDepositAnalyzer::beginJob( DQMStore * dbe) {
 
   metname = "muEnergyDepositAnalyzer";
 

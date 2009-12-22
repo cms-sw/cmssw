@@ -4,7 +4,7 @@
 /** \class DTSegmentsTask
  *  DQM Analysis of 4D DT segments
  *
- *  $Date: 2008/04/24 13:56:29 $
+ *  $Date: 2008/10/06 08:55:14 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -28,7 +28,7 @@ public:
   virtual ~DTSegmentsTask();
 
   /// book the histos
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   /// Endjob
   void endJob();

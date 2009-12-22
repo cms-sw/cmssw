@@ -62,7 +62,7 @@ public:
   virtual ~CSCOfflineMonitor();
 
   // Operations
-  void beginJob(edm::EventSetup const& iSetup);
+  void beginJob(void);
   void endJob(void); 
  
 

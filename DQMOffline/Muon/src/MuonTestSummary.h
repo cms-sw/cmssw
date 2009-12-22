@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/11/12 17:27:45 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/12/10 13:04:06 $
+ *  $Revision: 1.14 $
  *  \author  G. Mila - INFN Torino
  *  updates:  G. Hesketh - CERN
  *   
@@ -44,7 +44,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c){}

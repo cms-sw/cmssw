@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the recostruction efficiency of Sta/Glb on eta, phi parameters
  *
- *  $Date: 2009/05/07 09:28:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/12 17:27:35 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -49,7 +49,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(void);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);

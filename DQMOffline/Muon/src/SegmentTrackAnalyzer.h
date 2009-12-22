@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for segments associated to the muon track
  *
- *  $Date: 2008/05/23 13:48:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/01/29 14:47:01 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -36,7 +36,7 @@ class SegmentTrackAnalyzer : public MuonAnalyzerBase {
   virtual ~SegmentTrackAnalyzer();
   
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore *dbe);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Track& recoTrack);

@@ -6,8 +6,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date$
- *  $Revision$
+ *  $Date: 2008/03/28 15:21:03 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,7 @@ class MuonAnalyzerBase {
   virtual ~MuonAnalyzerBase() {}
   
   /// Inizialize parameters for histo binning
-  virtual void beginJob(edm::EventSetup const& iSetup,  DQMStore* dbe)= 0;
+  virtual void beginJob(DQMStore* dbe)= 0;
 
   /// Get the analysis of the muon properties
   void analyze(const edm::Event&, const edm::EventSetup&, reco::Muon& recoMuon){}

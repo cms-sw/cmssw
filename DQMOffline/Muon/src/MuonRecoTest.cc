@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/08 08:29:08 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/11/12 17:27:38 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -52,7 +52,7 @@ MuonRecoTest::~MuonRecoTest(){
 }
 
 
-void MuonRecoTest::beginJob(const edm::EventSetup& context){
+void MuonRecoTest::beginJob(void){
 
   metname = "muonRecoTest";
   theDbe->setCurrentFolder("Muons/Tests/muonRecoTest");

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 12:07:47 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/10/25 17:49:13 $
+ *  $Revision: 1.21 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -96,19 +96,19 @@ MuonAnalyzer::~MuonAnalyzer() {
 }
 
 
-void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
+void MuonAnalyzer::beginJob(void) {
 
   metname = "muonAnalyzer";
 
   LogTrace(metname)<<"[MuonAnalyzer] Parameters initialization";
   theDbe = edm::Service<DQMStore>().operator->();
  
-  if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer->beginJob(iSetup, theDbe);
-  if(theSeedsAnalyzerFlag) theSeedsAnalyzer->beginJob(iSetup, theDbe);
-  if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer->beginJob(iSetup, theDbe);
+  if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer->beginJob(theDbe);
+  if(theSeedsAnalyzerFlag) theSeedsAnalyzer->beginJob(theDbe);
+  if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer->beginJob(theDbe);
   if(theMuonSegmentsAnalyzerFlag) {
-    theGlbMuonSegmentsAnalyzer->beginJob(iSetup, theDbe);
-    theStaMuonSegmentsAnalyzer->beginJob(iSetup, theDbe);
+    theGlbMuonSegmentsAnalyzer->beginJob(theDbe);
+    theStaMuonSegmentsAnalyzer->beginJob(theDbe);
   }
 
 }

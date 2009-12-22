@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/16 13:55:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/10/21 12:07:47 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -50,7 +50,7 @@ DTSegmentsTask::~DTSegmentsTask(){
 }
 
 
-void DTSegmentsTask::beginJob(const edm::EventSetup& context){
+void DTSegmentsTask::beginJob(void){
  
  // the name of the 4D rec hits collection
   theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");

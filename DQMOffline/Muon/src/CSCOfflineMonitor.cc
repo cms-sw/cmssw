@@ -25,7 +25,7 @@ CSCOfflineMonitor::CSCOfflineMonitor(const ParameterSet& pset){
 
 }
 
-void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
+void CSCOfflineMonitor::beginJob(void){
       dbe = Service<DQMStore>().operator->();
 
       // Occupancies
