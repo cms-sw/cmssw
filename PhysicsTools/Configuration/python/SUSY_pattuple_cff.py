@@ -140,26 +140,8 @@ def addJetMET(process):
                      )
 	
     #-- Track Jets ----------------------------------------------------------------
-    # Select tracks for track jets
-    process.load("PhysicsTools.RecoAlgos.TrackWithVertexSelector_cfi")
-    process.trackWithVertexSelector.src              = cms.InputTag("generalTracks")
-    process.trackWithVertexSelector.ptMax            = cms.double(500.0) 
-    process.trackWithVertexSelector.normalizedChi2   = cms.double(100.0)
-    process.trackWithVertexSelector.vertexTag        = cms.InputTag("offlinePrimaryVertices")
-    process.trackWithVertexSelector.copyTrajectories = cms.untracked.bool(False)
-    process.trackWithVertexSelector.vtxFallback      = cms.bool(False)
-    process.trackWithVertexSelector.useVtx           = cms.bool(False)
-    process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-    process.tracksForJets = cms.EDProducer("ConcreteChargedCandidateProducer",
-                                           src = cms.InputTag("trackWithVertexSelector"),
-                                           particleType = cms.string('pi+')
-                                           )
-	
-    #add track jet collection
-    process.load('RecoJets.JetProducers.ak5TrackJets_cfi')
-    process.addTrackJets = cms.Sequence(  process.trackWithVertexSelector
-                                          * process.tracksForJets
-                                          * process.ak5TrackJets )
+    process.load('RecoJets.Configuration.RecoTrackJets_cff')
+    process.addTrackJets = cms.Sequence ( process.recoTrackJets )
     addJetCollection(process,cms.InputTag('ak5TrackJets'),
                      'AK5Track',
                      doJTA        = False,
@@ -186,7 +168,7 @@ def addJetMET(process):
     # Rename default jet collection for uniformity
     process.cleanLayer1JetsAK5 = process.cleanLayer1Jets
     process.layer1METsAK5      = process.layer1METs
-    process.layer1MHTsAK5      = process.layer1MHTs
+    #process.layer1MHTsAK5      = process.layer1MHTs
 
     # Modify subsequent modules
     process.cleanLayer1Hemispheres.patJets = process.cleanLayer1JetsAK5.label()
@@ -195,7 +177,7 @@ def addJetMET(process):
     # Modify counters' input
     process.allLayer1Summary.candidates.remove(cms.InputTag('layer1METs'))
     process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsAK5'))
-    process.allLayer1Summary.candidates.remove(cms.InputTag('layer1MHTs'))
+    #process.allLayer1Summary.candidates.remove(cms.InputTag('layer1MHTs'))
     process.allLayer1Summary.candidates.append(cms.InputTag('layer1MHTsAK5'))
     process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsAK5'))
