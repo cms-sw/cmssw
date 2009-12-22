@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-muRecoTest = cms.EDFilter("MuonRecoTest",
+muRecoTest = cms.EDAnalyzer("MuonRecoTest",
     phiMin = cms.double(-3.2),
     # number of luminosity block to analyse
     diagnosticPrescale = cms.untracked.int32(1),

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # MuDepositEnergyMonitoring
-muDepEnergyMonitoring = cms.EDFilter("MuDepositEnergyMonitoring",
+muDepEnergyMonitoring = cms.EDAnalyzer("MuDepositEnergyMonitoring",
     hadS9SizeMin = cms.double(-0.5),
     OutputMEsInRootFile = cms.bool(False),
     CosmicsCollectionLabel = cms.InputTag("muons"),
