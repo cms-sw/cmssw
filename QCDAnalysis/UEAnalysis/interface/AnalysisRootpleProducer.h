@@ -20,6 +20,7 @@
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
+#include <TVector.h>
 #include <TObjString.h>
 #include <TClonesArray.h>
 
@@ -31,28 +32,39 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+
 
 // access trigger results
 #include <FWCore/Framework/interface/TriggerNames.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
+#include "QCDAnalysis/UEAnalysis/interface/TLorentzVectorL.h"
 
 using namespace edm;
 using namespace reco;
 using namespace trigger;
 using std::vector;
 
+
+
+
+
 class AnalysisRootpleProducer : public edm::EDAnalyzer
 {
   
+
 public:
   
   //
   explicit AnalysisRootpleProducer( const edm::ParameterSet& ) ;
   virtual ~AnalysisRootpleProducer() {} // no need to delete ROOT stuff
   // as it'll be deleted upon closing TFile
-  
+
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob( const edm::EventSetup& ) ;
   virtual void endJob() ;
@@ -99,16 +111,55 @@ private:
   int EventKind;
   
   TClonesArray* MonteCarlo;
+  TClonesArray* MonteCarlo2;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;
   TClonesArray* Track;
+  TClonesArray* AssVertex;
   TClonesArray* TracksJet;
   TClonesArray* CalorimeterJet;
   TClonesArray* acceptedTriggers;
 
   double genEventScale;
+  //info sull'evento 
+  int eventNum;
+  int lumiBlock;
+  int runNumber;
+  int bx;
 
+  //tracks with vertex
+  Int_t   m_npv;
+  Double_t m_pvx[10];
+  Double_t m_pvxErr[10];
+  Double_t m_pvy[10];
+  Double_t m_pvyErr[10];
+  Double_t m_pvz[10];
+  Double_t m_pvzErr[10];
+  Double_t m_pvchi2[10];
+  int   m_pvntk[10];
+  
+  //Double_t  m_pvtkp[5000];
+  //Double_t m_pvtkpt[5000];
+  //Double_t m_pvtketa[5000];
+  //Double_t m_pvtkphi[5000];
+  //Double_t m_pvtknhit[5000];
+  //Double_t m_pvtkchi2norm[5000];
+  //Double_t m_pvtkd0[5000];
+  //Double_t m_pvtkd0Err[5000];
+  //Double_t m_pvtkdz[5000];
+  //Double_t m_pvtkdzErr[5000];
 
+  //int  m_ntk;
+  //Double_t  m_tkp[5000];
+  //Double_t m_tkpt[5000];
+  //Double_t m_tketa[5000];
+  //Double_t m_tkphi[5000];
+  //Double_t m_tknhit[5000];
+  //Double_t m_tkchi2norm[5000];
+  //Double_t m_tkd0[5000];
+  //Double_t m_tkd0Err[5000];
+  //Double_t m_tkdz[5000];
+  //Double_t m_tkdzErr[5000];
   vector<int>  pdgidList;
 
 };

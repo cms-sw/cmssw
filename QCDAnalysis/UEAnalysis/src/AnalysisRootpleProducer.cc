@@ -33,6 +33,10 @@ public:
     return a.pt() > b.pt();
   }
 };
+
+
+
+
  
 void AnalysisRootpleProducer::store(){
 
@@ -85,12 +89,19 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
 
   // save TClonesArrays of TLorentzVectors
   // i.e. store 4-vectors of particles and jets
-
+  
+ 
   MonteCarlo = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("MonteCarlo", "TClonesArray", &MonteCarlo, 128000, 0);
 
+  MonteCarlo2 = new TClonesArray("TVector", 10000);
+  AnalysisTree->Branch("MonteCarlo2", "TClonesArray", &MonteCarlo2,128000, 0);
+
   Track = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("Track", "TClonesArray", &Track, 128000, 0);
+
+  AssVertex = new TClonesArray("TLorentzVector", 10000);
+  AnalysisTree->Branch("AssVertex", "TClonesArray", &AssVertex, 128000, 0);
 
   InclusiveJet = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("InclusiveJet", "TClonesArray", &InclusiveJet, 128000, 0);
@@ -108,6 +119,43 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
   AnalysisTree->Branch("acceptedTriggers", "TClonesArray", &acceptedTriggers, 128000, 0);
 
   AnalysisTree->Branch("genEventScale", &genEventScale, "genEventScale/D");
+ 
+  AnalysisTree->Branch("eventNum",&eventNum,"eventNum/I");
+  AnalysisTree->Branch("lumiBlock",&lumiBlock,"lumiBlock/I");
+  AnalysisTree->Branch("runNumber",&runNumber,"runNumber/I");
+  AnalysisTree->Branch("bx",&bx,"bx/I");
+
+  //AnalysisTree->Branch("npv",&m_npv,"npv/I");
+  //AnalysisTree->Branch("pvx",m_pvx, "pvx[npv]/D");
+  //AnalysisTree->Branch("pvy",m_pvy, "pvy[npv]/D");
+  //AnalysisTree->Branch("pvz",m_pvz, "pvz[npv]/D");
+  //AnalysisTree->Branch("pvxErr",m_pvxErr, "pvxErr[npv]/D");
+  //AnalysisTree->Branch("pvyErr",m_pvyErr, "pvyErr[npv]/D");
+  //AnalysisTree->Branch("pvzErr",m_pvzErr, "pvzErr[npv]/D");
+  //  AnalysisTree->Branch("pvntk", m_pvntk, "pvntk[npv]/I");
+  
+  //AnalysisTree->Branch("pvtkp",m_pvtkp,"pvtkp[npv]/D");
+  //AnalysisTree->Branch("pvtkpt",m_pvtkpt,"pvtkpt[5000]/D");
+  //AnalysisTree->Branch("pvtketa",m_pvtketa,"pvtketa[5000]/D");
+  //AnalysisTree->Branch("pvtkphi",m_pvtkphi,"pvtkphi[5000]/D");
+  //AnalysisTree->Branch("pvtkchi2norm",m_pvtkchi2norm,"pvtkchi2norm[5000]/D");
+  //AnalysisTree->Branch("pvtknhit",m_pvtknhit,"pvtknhit[5000]/D");
+  //AnalysisTree->Branch("pvtkd0",m_pvtkd0,"pvtkd0[5000]/D");
+  //AnalysisTree->Branch("pvtkd0Err",m_pvtkd0Err,"pvtkd0Err[5000]/D");
+  //AnalysisTree->Branch("pvtkdz",m_pvtkdz,"pvtkdz[5000]/D");
+  //AnalysisTree->Branch("pvtkdzErr",m_pvtkdzErr,"pvtkdzErr[5000]/D");
+
+  //AnalysisTree->Branch("ntk",&m_ntk,"ntk/I");
+  //AnalysisTree->Branch("tkpt",m_tkpt,"tkpt[ntk]/D");
+  //AnalysisTree->Branch("tketa",m_tketa,"tketa[ntk]/D");
+  //AnalysisTree->Branch("tkphi",m_tkphi,"tkphi[ntk]/D");
+  //AnalysisTree->Branch("tkchi2norm",m_tkchi2norm,"tkchi2norm[ntk]/D");
+  //AnalysisTree->Branch("tknhit",m_tknhit,"tknhit[ntk]/D");
+  //AnalysisTree->Branch("tkd0",m_tkd0,"tkd0[ntk]/D");
+  //AnalysisTree->Branch("tkd0Err",m_tkd0Err,"tkd0Err[ntk]/D");
+  //AnalysisTree->Branch("tkdz",m_tkdz,"tkdz[ntk]/D");
+  //AnalysisTree->Branch("tkdzErr",m_tkdzErr,"tkdzErr[ntk]/D");
+
 }
 
   
@@ -119,7 +167,11 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
   ///
 
   // if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
-
+ 
+  eventNum   = e.id().event() ;
+  runNumber  = e.id().run() ;
+  lumiBlock  = e.luminosityBlock() ;
+  bx = e.bunchCrossing();
   if(!onlyRECO){
   Handle<GenEventInfoProduct> hEventInfo;
   e.getByLabel(genEventScaleTag , hEventInfo);
@@ -197,6 +249,55 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
     e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
     e.getByLabel( genJetCollName    , GenJetsHandle    );
 
+
+    //Primary Vertex
+ //primary vertex extraction --------------------------------------------------------------------------
+
+  int ipv = 0;
+  edm::Handle<reco::VertexCollection> primaryVertexHandle;
+  e.getByLabel("offlinePrimaryVertices",primaryVertexHandle);
+  /* 
+ if(primaryVertexHandle->size()>0){
+
+for(reco::VertexCollection::const_iterator it = primaryVertexHandle->begin(), ed = primaryVertexHandle->end();
+	 it != ed; ++it) {
+  reco::Vertex pv;
+  pv = (*it);
+  m_pvx[ipv] = pv.x();
+  m_pvy[ipv] = pv.y();
+  m_pvz[ipv] = pv.z();
+  
+  m_pvxErr[ipv] = pv.xError();
+  m_pvyErr[ipv] = pv.yError();
+  m_pvzErr[ipv] = pv.zError();
+  
+  // int ipvtk=0;
+  // for(reco::Vertex::trackRef_iterator pvt = pv.tracks_begin(); pvt!= pv.tracks_end(); pvt++){
+  // const reco::Track & track = *pvt->get();
+  //  
+  // m_pvtkpt[ipv+ipvtk]=track.pt();
+  //  m_pvtkp[ipv+ipvtk]=track.p();
+  //  m_pvtketa[ipv+ipvtk]=track.eta();
+  //  m_pvtkphi[ipv+ipvtk]=track.phi();
+  //  m_pvtkchi2norm[ipv+ipvtk]=track.normalizedChi2();
+  //  m_pvtkd0[ipv+ipvtk]=track.d0();
+  //  m_pvtkd0Err[ipv+ipvtk]=track.d0Error();
+  //  m_pvtkdz[ipv+ipvtk]=track.dz();
+  //  m_pvtkdzErr[ipv+ipvtk]=track.dzError();
+  //  m_pvtknhit[ipv+ipvtk]=track.recHitsSize();
+       
+  // ipvtk++;
+  // }
+  //   m_pvntk[ipv] = ipvtk;
+   ipv++;
+}
+  }
+  m_npv = ipv;
+*/
+
+
+
+  ///-------------------------------
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
     
     EventKind = Evt->signal_process_id();
@@ -263,7 +364,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
     // hadron level particles
     if (CandHandleMC->size()){
-      
+    
       for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	   it != itEnd;it++)
 	{
@@ -297,7 +398,9 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       std::vector<math::XYZTLorentzVector>::const_iterator it(GenPart.begin()), itEnd(GenPart.end());
       for( int iMonteCarlo(0); it != itEnd; ++it, ++iMonteCarlo )
 	{
+	 
 	  new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
+	
 	}
     }
 
@@ -307,6 +410,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
   // reco level analysis
 
   std::vector<math::XYZTLorentzVector> Tracks;
+  std::vector<math::XYZPoint> AssVertices; 
   std::vector<CaloJet> RecoCaloJetContainer;
   std::vector<BasicJet> TracksJetContainer;
 
@@ -372,24 +476,51 @@ if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) )
 	}
     }
 
+// edm::Handle< reco::TrackCollection  > trackColl;
+// e.getByLabel(tracksCollName,trackColl);
 
+
+// for (reco::TrackCollection::const_iterator it = trackColl->begin();
+//                                           it != trackColl->end();
+//                                           it++){
+//   m_tkpt[m_ntk]=it->pt();
+//   m_tkp[m_ntk]=it->p();
+//   m_tketa[m_ntk]=it->eta();
+//   m_tkphi[m_ntk]=it->phi();
+//   m_tkchi2norm[m_ntk]=it->normalizedChi2();
+//   m_tkd0[m_ntk]=it->d0();
+//   m_tkd0Err[m_ntk]=it->d0Error();
+//   m_tkdz[m_ntk]=it->dz();
+//   m_tkdzErr[m_ntk]=it->dzError();
+    
+//   m_ntk++;    
+//   }
+
+
+ int iTracks=0;
   if ( e.getByLabel( tracksCollName , CandHandleRECO ) )
     {
       if(CandHandleRECO->size())
 	{
+	  
 	  //for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
 	  for(edm::View<reco::Candidate>::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
 	      it!=itEnd;++it)
 	    {
-	      Tracks.push_back(it->p4());
+	      new ((*Track)[iTracks]) TLorentzVector(it->p4().Px(), it->p4().Py(), it->p4().Pz(), it->p4().E());
+	      //Tracks.push_back(it->p4());
+	      // AssVertices.push_back(it->vertex());	
+	     new ((*AssVertex)[iTracks]) TLorentzVector(it->vertex().x(),it->vertex().y(),it->vertex().z(),0); 
+	     iTracks++; 
 	    }
-	  std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
+	  // std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
 	  
-	  std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
-	  for(int iTracks(0); it != itEnd; ++it, ++iTracks)
-	    {
-	      new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
-	    }
+	  //  std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
+	  //   for(int iTracks(0); it != itEnd; ++it, ++iTracks)
+	  //  {
+	  //   new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
+	  
+	  //   }
 	}
     }
   
