@@ -11,7 +11,8 @@
 #include <TVector3.h>
 #include <TObjString.h>
 #include <TClonesArray.h>
-
+  bool rejectRunLumi(int run, int lumi);
+bool goodBunchCrossing(int run, int bx);
 vector<string> nameList; 
 
 ///
@@ -47,17 +48,18 @@ UEAnalysisOnRootple::UEAnalysisOnRootple()
       ///
       /// Summer09 HLT names
       ///
-      HLTBitNames[0]  = "HLT_MinBiasPixel";
-      HLTBitNames[1]  = "HLT_MinBiasHcal";
-      HLTBitNames[2]  = "HLT_MinBiasEcal";
-      HLTBitNames[3]  = "HLT_MinBiasPixel_Trk5";
-      HLTBitNames[4]  = "HLT_ZeroBias";
-      HLTBitNames[5]  = "HLT_Jet30";
-      HLTBitNames[6]  = "HLT_Jet50";
-      HLTBitNames[7]  = "HLT_Jet80";
-      HLTBitNames[8]  = "HLT_Jet110";
-      HLTBitNames[9]  = "HLT_Jet180";
-      HLTBitNames[10] = "HLT_Jet250";
+      HLTBitNames[0]  = "HLT_MinBiasPixel_SingleTrack";
+      HLTBitNames[1]  = "HLT_MinBiasPixel_DoubleTrack";
+      HLTBitNames[2]  = "HLT_MinBiasBSC";
+      HLTBitNames[3]  = "HLT_MinBiasBSC_OR";
+      HLTBitNames[4]  = "HLT_L1_BPTX1kHz";
+      HLTBitNames[5]  = "HLT_HFThreshold";
+      HLTBitNames[6]  = "HLT_MinBiasPixel";
+      HLTBitNames[7]  = "HLT_MinBiasHcal";
+      HLTBitNames[8]  = "HLT_MinBiasPixel_Trk5";
+      HLTBitNames[9]  = "HLT_ZeroBias";
+      HLTBitNames[10]  = "HLT_L1Jet15";
+      HLTBitNames[11]  = "HLT_Jet30";
 
     }
 
@@ -242,7 +244,7 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
 
   Long64_t nentries = fChain->GetEntriesFast();
   cout << "number of entries: " << nentries << endl;
-
+ 
   Long64_t nbytes = 0, nb = 0;
 
   ///
@@ -264,17 +266,31 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
-      
+  
       ///
       /// Veto events with too large pThat to avoid overlap.
       ///
-      if ( genEventScale >= pThatMax ) continue;
+      //if ( genEventScale >= pThatMax ) continue;
 
+      if(runNumber!=123596) continue;	 
+	 cout<<"run"<<runNumber<<endl;
+	 a2++;
+	 cout<<"eventi nel run"<<a2<<endl;
+      ///Selection Run e Lumisection
+      if( rejectRunLumi(runNumber,lumiBlock) ) continue;
+      if ( !goodBunchCrossing(runNumber,bx) ){ cout<<"bunch crossing cattivo"<<endl; a1++; continue;}
+      else {cout<<"bx buono"<<endl;}
+    
 
+      cout<<"selezionati bx"<<a1<<endl;
+      ///Selezione bx 
+
+	
       ///
       /// save frequency of trigger accepts
       ///
-      if ( type == "HLT" ) hltHistos->fill( *acceptedTriggers );
+      int a=0;
+      if ( type == "HLT" ) hltHistos->fill( *acceptedTriggers,genEventScale);
 
 
       ///
@@ -345,16 +361,16 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
       if (type=="UE")
 	{
 	  ///
-	  /// Hadron level analysis
+	  /// Hadron level analysis (all trigger)
 	  ///
 	  UEActivityFinder *activityGenFinder = new UEActivityFinder( etaRegion , ptThreshold );
 	  UEActivity       *activityGen       = new UEActivity();
-	  if ( activityGenFinder->find( *ChargedJet, *MonteCarlo, *activityGen ) ) ueHistos->fill( *activityGen );
+	  if ( activityGenFinder->find( *TracksJet, *Track, *activityGen ) ) ueHistos->fill( *activityGen );
 	  delete activityGen;
 	  delete activityGenFinder;
 	  
 	  ///
-	  /// Track analysis
+	  /// Track analysis (different trigger)
 	  ///
 	  UEActivityFinder *activityFinder = new UEActivityFinder( etaRegion , ptThreshold );
 	  UEActivity       *activity       = new UEActivity();
@@ -431,6 +447,12 @@ void UEAnalysisOnRootple::Init(TTree *tree, string type)
    acceptedTriggers = 0;
    genEventScale = 0;
 
+   runNumber=0;
+   lumiBlock=0;
+   bx=0;
+
+   a1=0;
+   a2=0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -448,7 +470,11 @@ void UEAnalysisOnRootple::Init(TTree *tree, string type)
    fChain->SetBranchAddress("MonteCarlo", &MonteCarlo, &b_MonteCarlo);
    fChain->SetBranchAddress("ChargedJet", &ChargedJet, &b_ChargedJet);
    fChain->SetBranchAddress("MCGamma", &MCGamma, &b_MCGamma);
-
+  
+   fChain->SetBranchAddress("lumiBlock", &lumiBlock, &b_lumiBlock);
+   fChain->SetBranchAddress("runNumber", &runNumber, &b_runNumber);
+   fChain->SetBranchAddress("bx", &bx, &b_bx);
+  
    if ( type != "UEGen" || type != "MPIGen" || type != "Gam" )
      {
        fChain->SetBranchAddress("InclusiveJet", &InclusiveJet, &b_InclusiveJet);
@@ -457,6 +483,7 @@ void UEAnalysisOnRootple::Init(TTree *tree, string type)
        fChain->SetBranchAddress("CalorimeterJet", &CalorimeterJet, &b_CalorimeterJet);
        fChain->SetBranchAddress("acceptedTriggers", &acceptedTriggers, &b_acceptedTriggers);
        fChain->SetBranchAddress("genEventScale", &genEventScale, &b_genEventScale );
+     
      }
    Notify();
 }
@@ -481,3 +508,28 @@ Int_t UEAnalysisOnRootple::Cut(Long64_t entry)
 // returns -1 otherwise.
    return 1;
 }
+
+bool rejectRunLumi(int run, int lumi){ 
+  if ( (run==123592 && (  lumi<3 || lumi>12)) ||
+       //    (run==123596 && ( (lumi>2 && lumi<9) || lumi==67 || lumi==68 ) ) ||
+       (run==123596 && lumi<=68 ) ||
+       (run==123615 &&    lumi<72 ) ||
+       (run==123732 && (  lumi<56 || lumi>=62) ) ||
+       (run==123815 && (  lumi<7 || lumi>16) ) ||
+      !(run==123592 || run==123596 || run==123615 || run==123732 || run==123815 ) )
+              return true;
+  else        return false;
+ 
+  }
+
+bool goodBunchCrossing(int run, int bx){
+ 
+  if (run==123596 || run==123615) {
+    if ((bx==51) || (bx==2724))  return true; 
+    }
+    else if (run==123732) {
+      if ((bx==3487) || (bx==2596))  return true;
+      }
+      else return false;
+
+  }

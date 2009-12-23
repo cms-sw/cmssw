@@ -43,7 +43,12 @@ public :
   TClonesArray    *CalorimeterJet;
   TClonesArray    *acceptedTriggers;
   Double_t        genEventScale;
+  Int_t           runNumber;
+  Int_t           lumiBlock;
+  Int_t           bx;
 
+  Int_t a1;
+  Int_t a2;
   // List of branches
   TBranch        *b_EventKind;   //!
   TBranch        *b_MonteCarlo;   //!
@@ -55,6 +60,9 @@ public :
   TBranch        *b_CalorimeterJet;   //!
   TBranch        *b_acceptedTriggers;   //!
   TBranch        *b_genEventScale;
+  TBranch        *b_runNumber;
+  TBranch        *b_lumiBlock;
+  TBranch        *b_bx;
 
   UEAnalysisOnRootple();
   virtual ~UEAnalysisOnRootple();
@@ -110,7 +118,7 @@ public :
   TH1D* h_eventScale;
   double pThatMax;
 
-  std::string HLTBitNames[11]; 
+  std::string HLTBitNames[12]; 
 
   string SampleType;
   UEJetAreaHistograms*  areaHistos;
