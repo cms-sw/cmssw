@@ -89,11 +89,14 @@ private:
   TH1F *HFTime;
   TH1F *HFEneP;
   TH1F *HFTimeP;
+  TH1F *HFTimePM;
   TH1F *HFEneM;
   TH1F *HFTimeM;
   TH1F *HFLEne;
   TH1F *HFLTime;
   TH1F *HFSEne;
+  TH2F *HFLvsS;
+
   TH1F *HFSTime;
   TH1F *HOEne;
   TH1F *HOTime;
@@ -135,9 +138,11 @@ private:
   TH2F *fedSize;
   TH1F *totFedSize;
 
-  TH1F *h_towerHadEn;
-  TH1F *h_towerEmEn;
-  TH1F *h_towerEmFrac;
+  TH1F *towerHadEn;
+  TH1F *towerEmEn;
+  TH1F *towerOuterEn;
+
+  TH1F *towerEmFrac;
 
   TH1F *RBX_et;
   TH1F *RBX_hadEnergy;
@@ -212,9 +217,11 @@ private:
   TH1F *h_nCalJets;
   TH1F *h_nGenJets;
 
+  TH1F *caloEtaEt;
   TH1F *caloEta;
   TH1F *caloPhi;
 
+  TH1F *hitEtaEt;
   TH1F *hitEta;
   TH1F *hitPhi;
 
@@ -246,7 +253,8 @@ private:
   TH1F *h_jet2Pt;
   TH1F *h_jet1PtHLT;
 
-  TH1F *EMFraction;
+  TH1F *jetHOEne;
+  TH1F *jetEMFraction;
   TH1F *NTowers;
 
   TH2F *h_EmEnergy;
@@ -264,6 +272,7 @@ private:
   TH1F *st_iPhi;
   TH1F *st_Frac;
 
+  TH2F *HFvsZ;
   TH2F *EBvHB;
   TH2F *EEvHE;
   TH2F *ECALvHCAL;

@@ -73,6 +73,8 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
+
+#define INVALID 9999.
 #define DEBUG false
 #define MAXJETS 100
 
@@ -96,6 +98,9 @@ typedef struct HPD_struct {
 } HPD ;
 
 
+
+float totBNC, nBNC[4000];
+
 RBX RBXColl[36];
 HPD HPDColl[144];
 
@@ -118,26 +123,29 @@ myJetAna::myJetAna( const ParameterSet & cfg ) :
 
 void myJetAna::beginJob( const EventSetup & ) {
 
+
+
   edm::Service<TFileService> fs;
 
-
   // --- passed selection cuts 
-  h_pt     = fs->make<TH1F>( "pt",  "Jet p_{T}", 100, 0, 1000 );
-  h_ptRBX  = fs->make<TH1F>( "ptRBX",  "RBX: Jet p_{T}", 100, 0, 1000 );
-  h_ptHPD  = fs->make<TH1F>( "ptHPD",  "HPD: Jet p_{T}", 100, 0, 1000 );
-  h_ptTower  = fs->make<TH1F>( "ptTower",  "Jet p_{T}", 100, 0, 1000 );
-  h_et     = fs->make<TH1F>( "et",  "Jet E_{T}", 100, 0, 1000 );
+  h_pt     = fs->make<TH1F>( "pt",  "Jet p_{T}", 100, 0, 100 );
+  h_ptRBX  = fs->make<TH1F>( "ptRBX",  "RBX: Jet p_{T}", 100, 0, 100 );
+  h_ptHPD  = fs->make<TH1F>( "ptHPD",  "HPD: Jet p_{T}", 100, 0, 100 );
+  h_ptTower  = fs->make<TH1F>( "ptTower",  "Jet p_{T}", 100, 0, 100 );
+  h_et     = fs->make<TH1F>( "et",  "Jet E_{T}", 100, 0, 100 );
   h_eta    = fs->make<TH1F>( "eta", "Jet #eta", 100, -4, 4 );
   h_phi    = fs->make<TH1F>( "phi", "Jet #phi", 50, -M_PI, M_PI );
   // ---
 
+  hitEtaEt  = fs->make<TH1F>( "hitEtaEt", "RecHit #eta", 90, -45, 45 );
   hitEta    = fs->make<TH1F>( "hitEta", "RecHit #eta", 90, -45, 45 );
   hitPhi    = fs->make<TH1F>( "hitPhi", "RecHit #phi", 73, 0, 73 );
 
+  caloEtaEt  = fs->make<TH1F>( "caloEtaEt", "CaloTower #eta", 100, -4, 4 );
   caloEta    = fs->make<TH1F>( "caloEta", "CaloTower #eta", 100, -4, 4 );
   caloPhi    = fs->make<TH1F>( "caloPhi", "CaloTower #phi", 50, -M_PI, M_PI );
 
-  dijetMass  =  fs->make<TH1F>("dijetMass","DiJet Mass",100,0,4000);
+  dijetMass  =  fs->make<TH1F>("dijetMass","DiJet Mass",100,0,100);
 
   totEneLeadJetEta1 = fs->make<TH1F>("totEneLeadJetEta1","Total Energy Lead Jet Eta1 1",100,0,1500);
   totEneLeadJetEta2 = fs->make<TH1F>("totEneLeadJetEta2","Total Energy Lead Jet Eta2 1",100,0,1500);
@@ -154,15 +162,16 @@ void myJetAna::beginJob( const EventSetup & ) {
   hadFracEta2 = fs->make<TH1F>("hadFracEta21","Hadronic Fraction Eta2 Jet 1",100,0,1);
   hadFracEta3 = fs->make<TH1F>("hadFracEta31","Hadronic Fraction Eta3 Jet 1",100,0,1);
 
-  SumEt  = fs->make<TH1F>("SumEt","SumEt",100,0,50);
+  SumEt  = fs->make<TH1F>("SumEt","SumEt",100,0,100);
   MET    = fs->make<TH1F>("MET",  "MET",100,0,50);
+  METSig = fs->make<TH1F>("METSig",  "METSig",100,0,50);
+  MEx    = fs->make<TH1F>("MEx",  "MEx",100,-20,20);
+  MEy    = fs->make<TH1F>("MEy",  "MEy",100,-20,20);
+  METPhi = fs->make<TH1F>("METPhi",  "METPhi",315,0,3.15);
   MET_RBX    = fs->make<TH1F>("MET_RBX",  "MET",100,0,1000);
   MET_HPD    = fs->make<TH1F>("MET_HPD",  "MET",100,0,1000);
   MET_Tower  = fs->make<TH1F>("MET_Tower",  "MET",100,0,1000);
-  METSig = fs->make<TH1F>("METSig",  "METSig",100,0,50);
-  MEx    = fs->make<TH1F>("MEx",  "MEx",100,-10,10);
-  MEy    = fs->make<TH1F>("MEy",  "MEy",100,-10,10);
-  METPhi = fs->make<TH1F>("METPhi",  "METPhi",100,0,4);
+
 
   h_Vx     = fs->make<TH1F>("Vx",  "Vx",100,-0.5,0.5);
   h_Vy     = fs->make<TH1F>("Vy",  "Vy",100,-0.5,0.5);
@@ -180,9 +189,11 @@ void myJetAna::beginJob( const EventSetup & ) {
   ETime = fs->make<TH1F>("ETime","Ecal Time",200,-200,200);
   HTime = fs->make<TH1F>("HTime","Hcal Time",200,-200,200);
 
-  h_towerHadEn  = fs->make<TH1F>("h_towerHadEn" ,"Hadronic Energy in Calo Tower",12000,-20,100);
-  h_towerEmEn  	= fs->make<TH1F>("h_towerEmEn"  ,"EM Energy in Calo Tower",12000,-20,100);
-  h_towerEmFrac	= fs->make<TH1F>("h_towerEmFrac","EM Fraction of Energy in Calo Tower",1000,0.,1.0);
+  towerHadEn    = fs->make<TH1F>("towerHadEn" ,"Hadronic Energy in Calo Tower",2000,-100,100);
+  towerEmEn  	= fs->make<TH1F>("towerEmEn"  ,"EM Energy in Calo Tower",2000,-100,100);
+  towerOuterEn  = fs->make<TH1F>("towerOuterEn"  ,"HO Energy in Calo Tower",2000,-100,100);
+
+  towerEmFrac	= fs->make<TH1F>("towerEmFrac","EM Fraction of Energy in Calo Tower",100,-1.,1.);
 
   RBX_et        = fs->make<TH1F>("RBX_et","ET in RBX",1000,-20,100);
   RBX_hadEnergy = fs->make<TH1F>("RBX_hadEnergy","Hcal Energy in RBX",1000,-20,100);
@@ -245,23 +256,28 @@ void myJetAna::beginJob( const EventSetup & ) {
   HOHrp2Ene     = fs->make<TH1F>( "HOHrp2Ene" ,  "HOHrp2Ene", 12000, -20 , 100 );
   HOHrp2Time    = fs->make<TH1F>( "HOHrp2Time", "HOHrp2Time",   200, -200, 200 );
 
+  HFvsZ    = fs->make<TH2F>( "HFvsZ", "HFvsZ",100,-50,50,100,-50,50);
+
   HOocc    = fs->make<TH2F>( "HOocc", "HOocc",81,-40.5,40.5,70,0.5,70.5);
   HBocc    = fs->make<TH2F>( "HBocc", "HBocc",81,-40.5,40.5,70,0.5,70.5);
   HEocc    = fs->make<TH2F>( "HEocc", "HEocc",81,-40.5,40.5,70,0.5,70.5);
   HFocc    = fs->make<TH2F>( "HFocc", "HFocc",81,-40.5,40.5,70,0.5,70.5);
 
-  HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 200, -5, 10 );
+  HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 210, -10, 200 );
   HFEneP    = fs->make<TH1F>( "HFEneP",  "HFEneP", 200, -5, 10 );
   HFEneM    = fs->make<TH1F>( "HFEneM",  "HFEneM", 200, -5, 10 );
   HFTime    = fs->make<TH1F>( "HFTime", "HFTime", 200, -50, 100 );
-  HFTimeP   = fs->make<TH1F>( "HFTimeP", "HFTimeP", 200, -50, 100 );
-  HFTimeM   = fs->make<TH1F>( "HFTimeM", "HFTimeM", 200, -50, 100 );
+  HFTimeP   = fs->make<TH1F>( "HFTimeP", "HFTimeP", 100, -50, 50 );
+  HFTimeM   = fs->make<TH1F>( "HFTimeM", "HFTimeM", 100, -50, 50 );
+  HFTimePM  = fs->make<TH1F>( "HFTimePM", "HFTimePM", 100, -50, 50 );
 
   // Histos for separating HF long/short fibers:
   HFLEne     = fs->make<TH1F>( "HFLEne",  "HFLEne", 200, -5, 10 );
   HFLTime    = fs->make<TH1F>( "HFLTime", "HFLTime", 200, -50, 100 );
   HFSEne     = fs->make<TH1F>( "HFSEne",  "HFSEne", 200, -5, 10 );
   HFSTime    = fs->make<TH1F>( "HFSTime", "HFSTime", 200, -50, 100 );
+
+  HFLvsS     = fs->make<TH2F>( "HFLvsS", "HFLvsS",220,-20,200,220,-20,200);
 
 
   EBEne     = fs->make<TH1F>( "EBEne",  "EBEne", 200, -5, 10 );
@@ -281,7 +297,7 @@ void myJetAna::beginJob( const EventSetup & ) {
   EEnegTime = fs->make<TH1F>( "EEnegTime", "EEnegTime", 200, -50, 100 );
   EEposTime = fs->make<TH1F>( "EEposTime", "EEposTime", 200, -50, 100 );
 
-  h_ptCal     = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 50, 0, 1000 );
+  h_ptCal     = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 100, 0, 100 );
   h_etaCal    = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -4, 4 );
   h_phiCal    = fs->make<TH1F>( "phiCal", "#phi of  CalJet", 50, -M_PI, M_PI );
 
@@ -310,7 +326,8 @@ void myJetAna::beginJob( const EventSetup & ) {
   h_UnclusteredE       = fs->make<TH1F>( "UnclusteredE", "Unclustered E", 200, 0, 20 );
   h_TotalUnclusteredE  = fs->make<TH1F>( "TotalUnclusteredE", "Total Unclustered E", 200, 0, 100 );
 
-  EMFraction           = fs->make<TH1F>( "EMFraction", "Jet EM Fraction", 100, 0, 1 );
+  jetHOEne              = fs->make<TH1F>("jetHOEne" ,"HO Energy in Jet",100, 0,100);
+  jetEMFraction         = fs->make<TH1F>( "jetEMFraction", "Jet EM Fraction", 100, -1., 1. );
   NTowers              = fs->make<TH1F>( "NTowers", "Number of Towers", 100, 0, 100 );
 
 
@@ -343,6 +360,10 @@ void myJetAna::beginJob( const EventSetup & ) {
   EMF_EtaX  = fs->make<TProfile>("EMF_EtaX","EMF EtaX", 100, -50, 50, 0, 10);
   EMF_PhiX  = fs->make<TProfile>("EMF_PhiX","EMF PhiX", 100, 0, 100, 0, 10);
 
+
+  totBNC = 0;
+  for (int i=0; i<4000; i++)  nBNC[i] = 0;
+
 }
 
 // ************************
@@ -351,11 +372,18 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
  
   using namespace edm;
 
-  bool Pass;
+  bool Pass, Pass_HFTime, Pass_DiJet, Pass_BunchCrossing, Pass_Trigger, Pass_Vertex;
 
   int EtaOk10, EtaOk13, EtaOk40;
 
   double LeadMass;
+
+  double HFRecHit[100][100][2];
+
+  double towerEtCut, towerECut, towerE;
+
+  towerEtCut = 1.0;
+  towerECut  = 1.0;
 
   double HBHEThreshold = 1.0;
   double HFThreshold   = 4.0;
@@ -363,7 +391,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   float pt1;
 
-  float minJetPt = 30.;
+  float minJetPt = 5.;
   float minJetPt10 = 10.;
   int jetInd, allJetInd;
   LeadMass = -1;
@@ -373,7 +401,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   std::cout << dcsStatus << std::endl;
   if (dcsStatus.isValid()) {
   }
-
 
   //  DcsStatus dcsStatus;
   //  Handle<DcsStatus> dcsStatus;
@@ -388,7 +415,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   std::cout << ">>>> ANA: Run = "    << evt.id().run() 
 	    << " Event = " << evt.id().event()
 	    << " Bunch Crossing = " << evt.bunchCrossing() 
-	    << " Orbit Number = "  << evt.orbitNumber()
+	    << " Orbit Number = "   << evt.orbitNumber()
 	    << " Luminosity Block = "  << evt.luminosityBlock()
 	    <<  std::endl;
   
@@ -405,10 +432,15 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   }
   ***/
 
+  // ***********************
+  // ***  Pass Trigger
+  // ***********************
+
 
   // **** Get the TriggerResults container
   Handle<TriggerResults> triggerResults;
   evt.getByLabel(theTriggerResultsLabel, triggerResults);
+  //  evt.getByLabel("TriggerResults::HLT", triggerResults);
 
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
@@ -417,7 +449,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
 
-      /****
+      /***
       std::cout << ">>> Trigger Name (" <<  i << ") = " << triggerNames.triggerName(i)
 		<< " Accept = " << triggerResults->accept(i)
 		<< std::endl;
@@ -431,9 +463,14 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
       if (DEBUG) std::cout <<  triggerNames.triggerName(i) << std::endl;
 
-      if ( (triggerNames.triggerName(i) == "HLT_ZeroBias")  || 
-	   (triggerNames.triggerName(i) == "HLT_MinBias")   || 
-	   (triggerNames.triggerName(i) == "HLT_MinBiasHcal") )  {
+      //      if ( (triggerNames.triggerName(i) == "HLT_ZeroBias")  || 
+      //	   (triggerNames.triggerName(i) == "HLT_MinBias")   || 
+      //	   (triggerNames.triggerName(i) == "HLT_MinBiasHcal") )  {
+
+      if (triggerNames.triggerName(i) == "HLT_MinBiasBSC") {
+	Pass_Trigger = true;
+      } else {
+	Pass_Trigger = false;
       }
 
     }
@@ -451,43 +488,244 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
       "automatically select events";
 
+    Pass_Trigger = true;
+
     //return;
   }
 
 
+  // *************************
+  // ***  Pass Bunch Crossing
+  // *************************
+
   // *** Check Luminosity Section
-  if (evt.id().run()==122294)
+  if (evt.id().run() == 122294)
     if ( (evt.luminosityBlock() >= 37) && (evt.luminosityBlock() <= 43) ) 
       Pass = true;
-  if (evt.id().run()==122314)
+  if (evt.id().run() == 122314)
     if ( (evt.luminosityBlock() >= 24) && (evt.luminosityBlock() <= 37) ) 
       Pass = true;
+  if (evt.id().run() == 123575)
+      Pass = true;
+  if (evt.id().run() == 123596)
+      Pass = true;
+
+
+  // ***********
+  if (evt.id().run() == 124009) {
+    if ( (evt.bunchCrossing() == 51) ||
+	 (evt.bunchCrossing() == 151) ||
+	 (evt.bunchCrossing() == 2824) ) {
+      Pass = true;
+    }
+  }
+
+  if (evt.id().run() == 124020) {
+    if ( (evt.bunchCrossing() == 51) ||
+	 (evt.bunchCrossing() == 151) ||
+	 (evt.bunchCrossing() == 2824) ) {
+      Pass = true;
+    }
+  }
+
+  if (evt.id().run() == 124024) {
+    if ( (evt.bunchCrossing() == 51) ||
+	 (evt.bunchCrossing() == 151) ||
+	 (evt.bunchCrossing() == 2824) ) {
+      Pass = true;
+    }
+  }
+
+  if ( (evt.bunchCrossing() == 51)   ||
+       (evt.bunchCrossing() == 151)  ||
+       (evt.bunchCrossing() == 2596) || 
+       (evt.bunchCrossing() == 2724) || 
+       (evt.bunchCrossing() == 2824) ||
+       (evt.bunchCrossing() == 3487) ) {
+    Pass_BunchCrossing = true;
+  } else {
+    Pass_BunchCrossing = false;
+  }
+  
+
+
+  // ***********************
+  // ***  Pass HF Timing 
+  // ***********************
+
+  double HFM_ETime, HFP_ETime;
+  double HFM_E, HFP_E;
+  double HF_PMM;
+
+  HFM_ETime = 0.;
+  HFM_E = 0.;
+  HFP_ETime = 0.;
+  HFP_E = 0.;
+
+  for (int i=0; i<100; i++) {
+    for (int j=0; j<100; j++) {
+      HFRecHit[i][j][0] = -10.;
+      HFRecHit[i][j][1] = -10.;
+    }
+  }
+
+
+  try {
+    std::vector<edm::Handle<HFRecHitCollection> > colls;
+    evt.getManyByType(colls);
+    std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        if (j->id().subdet() == HcalForward) {
+
+	  float en = j->energy();
+	  HcalDetId id(j->detid().rawId());
+	  int ieta = id.ieta();
+	  int iphi = id.iphi();
+	  int depth = id.depth();
+	  
+	  HFRecHit[ieta+41][iphi][depth-1] = en;
+
+	  if (j->id().ieta()<0) {
+	    if (j->energy() > HFThreshold) {
+	      HFM_ETime += j->energy()*j->time(); 
+	      HFM_E     += j->energy();
+	    }
+	  } else {
+	    if (j->energy() > HFThreshold) {
+	      HFP_ETime += j->energy()*j->time(); 
+	      HFP_E     += j->energy();
+	    }
+	  }
+
+        }
+      }
+    }
+  } catch (...) {
+    cout << "No HF RecHits." << endl;
+  }
+
+  if ((HFP_E > 0.) && (HFM_E > 0.)) {
+    HF_PMM = (HFP_ETime / HFP_E) - (HFM_ETime / HFM_E);
+    HFTimePM->Fill(HF_PMM); 
+  } else {
+    HF_PMM = INVALID;
+  }
+
+  
+  if (fabs(HF_PMM) < 10.)  {
+    Pass_HFTime = true;
+  } else {
+    Pass_HFTime = false;
+  }
+
+
+  // **************************
+  // ***  Pass DiJet Criteria
+  // **************************
+  double highestPt;
+  double nextPt;
+  double dphi;
+  int    nDiJet, nJet;
+
+  nJet      = 0;
+  nDiJet    = 0;
+  highestPt = 0.0;
+  nextPt    = 0.0;
+
+  allJetInd = 0;
+  Handle<CaloJetCollection> caloJets;
+  evt.getByLabel( CaloJetAlgorithm, caloJets );
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) {
+
+    // TODO: verify first two jets are the leading jets
+    if (nJet == 0) p4tmp[0] = cal->p4();
+    if (nJet == 1) p4tmp[1] = cal->p4();
+
+    if ( (cal->pt() > 3.) && 
+	 (fabs(cal->eta()) < 3.0) ) { 
+      nDiJet++;
+    }
+    nJet++;
+
+  }  
+  
+
+  if (nDiJet > 1) {
+    dphi = deltaPhi(p4tmp[0].phi(), p4tmp[1].phi());
+    Pass_DiJet = true;
+  } else {
+    dphi = INVALID;
+    Pass_DiJet = false;
+  }
+      
+
+  // **************************
+  // ***  Pass Vertex
+  // **************************
+  double VTX;
+  int nVTX;
+
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  evt.getByLabel("offlinePrimaryVertices", vertexCollection);
+  const reco::VertexCollection vC = *(vertexCollection.product());
+
+  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
+
+  nVTX = vC.size();
+  for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
+    VTX  = vertex->z();
+  }
+
+  if (fabs(VTX) < 20.) {
+    Pass_Vertex = true;
+  } else {
+    Pass_Vertex = false;
+  }
+
+  // ***********************
+  // ***********************
+
+
+  nBNC[evt.bunchCrossing()]++;
+  totBNC++;
+    
+  //  Pass = true;
+
+  // *** Check for tracks
+  //  edm::Handle<reco::TrackCollection> trackCollection;
+  //  evt.getByLabel("generalTracks", trackCollection);
+  //  const reco::TrackCollection tC = *(trackCollection.product());
+  //  if ((Pass) && (tC.size()>1)) {
+  //  } else {
+  //    Pass = false;
+  //  } 
+
+
+  // **************************
+  // *** Event Passed Selection
+  // **************************
+
+  if ( (Pass_BunchCrossing) && 
+       (Pass_DiJet)         &&
+       (Pass_HFTime)        &&
+       (Pass_Vertex) ) {
+    Pass = true;
+  } else {
+    Pass = false;
+  }
 
   std::cout << "+++ Result " 
 	    << " Event = " 
 	    << evt.id().run()
 	    << " LS = "
 	    << evt.luminosityBlock()
+	    << " dphi = "
+	    << dphi
 	    << " Pass = " 
 	    << Pass
 	    << std::endl;
-
-  
-
-  // *** Check for tracks
-  edm::Handle<reco::TrackCollection> trackCollection;
-  evt.getByLabel("generalTracks", trackCollection);
-  const reco::TrackCollection tC = *(trackCollection.product());
-  if ((Pass) && (tC.size()>1)) {
-  } else {
-    Pass = false;
-  } 
-
-
-
-  // **************************
-  // *** Event Passed Selection
-  // **************************
+        
   if (Pass) {
  
 
@@ -544,14 +782,21 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
        tower != caloTowers->end(); tower++) {
 
     // Raw tower energy without grouping or thresholds
-    h_towerHadEn->Fill(tower->hadEnergy());
-    h_towerEmEn->Fill(tower->emEnergy());
+
+    towerHadEn->Fill(tower->hadEnergy());
+    towerEmEn->Fill(tower->emEnergy());
+    towerOuterEn->Fill(tower->outerEnergy());
+
+    //    towerHadEt->Fill(tower->hadEt());
+    //    towerEmEt->Fill(tower->emEt());
+    //    towerOuterEt->Fill(tower->outerEt());
+
     if ((tower->emEnergy()+tower->hadEnergy()) != 0) {
       emFrac = tower->emEnergy()/(tower->emEnergy()+tower->hadEnergy());
+      towerEmFrac->Fill(emFrac);
     } else {
       emFrac = 0.;
     }
-    h_towerEmFrac->Fill(emFrac);
 
     /***
       std::cout << "ETotal = " << ETotal 
@@ -576,7 +821,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     HCALTotalCaloTowerE += tower->hadEnergy();
     ECALTotalCaloTowerE += tower->emEnergy();
 
-    caloEta->Fill(tower->eta());
+    towerE = tower->hadEnergy() + tower->emEnergy();
+    if (tower->et() > towerEtCut) caloEtaEt->Fill(tower->eta());
+    if (towerE      > towerECut)  caloEta->Fill(tower->eta());
     caloPhi->Fill(tower->phi());
 
     if (fabs(tower->eta()) < 1.3) {
@@ -786,8 +1033,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   //  const JetCorrector* corrector = 
   //    JetCorrector::getJetCorrector (JetCorrectionService, es);
 
-  double highestPt;
-  double nextPt;
 
   highestPt = 0.0;
   nextPt    = 0.0;
@@ -818,10 +1063,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       p4tmp[0] = cal->p4();
       if ( fabs(cal->eta()) < 1.0) EtaOk10++;
       if ( fabs(cal->eta()) < 1.3) EtaOk13++;
-      if ( fabs(cal->eta()) < 4.0) EtaOk40++;
-      
-      
-  }
+      if ( fabs(cal->eta()) < 4.0) EtaOk40++;            
+    }
     if (allJetInd == 2) {
       h_jet2Pt->Fill( cal->pt() );
       p4tmp[1] = cal->p4();
@@ -865,7 +1108,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     float emEne   = ijet->emEnergyInEB() + ijet->emEnergyInEE() + ijet->emEnergyInHF();
     float had     = ijet->energyFractionHadronic();    
 
-    EMFraction->Fill(ijet->emEnergyFraction());    
+    jetHOEne->Fill(ijet->hadEnergyInHO());    
+    jetEMFraction->Fill(ijet->emEnergyFraction());    
 
     float j_et = ijet->et();
 
@@ -1042,13 +1286,28 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   }
 
 
+  HFM_ETime = 0.;
+  HFM_E = 0.;
+  HFP_ETime = 0.;
+  HFP_E = 0.;
+  
   try {
     std::vector<edm::Handle<HFRecHitCollection> > colls;
     evt.getManyByType(colls);
     std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	//	std::cout << *j << std::endl;
+
+	/****
+	float en = j->energy();
+	HcalDetId id(j->detid().rawId());
+	int ieta = id.ieta();
+	int iphi = id.iphi();
+	int depth = id.depth();
+	*****/
+
+	//  std::cout << *j << std::endl;
+
         if (j->id().subdet() == HcalForward) {
 	  HFEne->Fill(j->energy()); 
 	  if (j->energy() > HFThreshold) {
@@ -1059,13 +1318,20 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	    hitPhi->Fill(j->id().iphi());
 	  }
 
-
 	  if (j->id().ieta()<0) {
-	    HFEneM->Fill(j->energy()); 
-	    if (j->energy() > HFThreshold) HFTimeM->Fill(j->time()); 
+	    if (j->energy() > HFThreshold) {
+	      //	      HFTimeM->Fill(j->time()); 
+	      HFEneM->Fill(j->energy()); 
+	      HFM_ETime += j->energy()*j->time(); 
+	      HFM_E     += j->energy();
+	    }
 	  } else {
-	    HFEneP->Fill(j->energy()); 
-	    if (j->energy() > HFThreshold) HFTimeP->Fill(j->time()); 
+	    if (j->energy() > HFThreshold) {
+	      //	      HFTimeP->Fill(j->time()); 
+	      HFEneP->Fill(j->energy()); 
+	      HFP_ETime += j->energy()*j->time(); 
+	      HFP_E     += j->energy();
+	    }
 	  }
 
 	  // Long and short fibers
@@ -1082,6 +1348,24 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   } catch (...) {
     cout << "No HF RecHits." << endl;
   }
+
+  for (int i=0; i<100; i++) {
+     for (int j=0; j<100; j++) {
+       HFLvsS->Fill(HFRecHit[i][j][1], HFRecHit[i][j][0]);  
+     }
+  }
+
+
+  if (HFP_E > 0.) HFTimeP->Fill(HFP_ETime / HFP_E);
+  if (HFM_E > 0.) HFTimeM->Fill(HFM_ETime / HFM_E);
+
+  if ((HFP_E > 0.) && (HFM_E > 0.)) {
+    HF_PMM = (HFP_ETime / HFP_E) - (HFM_ETime / HFM_E);
+    HFTimePM->Fill(HF_PMM); 
+  } else {
+    HF_PMM = INVALID;
+  }
+
 
 
   try {
@@ -1147,10 +1431,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   } catch (...) {
     cout << "No HO RecHits." << endl;
   }
+
   HCALTotalE = HBTotalE + HETotalE + HFTotalE + HOTotalE;
-
   ECALTotalE = EBTotalE = EETotalE = 0.;
-
 
 
   try {
@@ -1538,21 +1821,28 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // ********************************
   // *** Vertex
   // ********************************
-  /****
+  VTX  = INVALID;
+  nVTX = 0;
+
   edm::Handle<reco::VertexCollection> vertexCollection;
   evt.getByLabel("offlinePrimaryVertices", vertexCollection);
   const reco::VertexCollection vC = *(vertexCollection.product());
 
   std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
+  nVTX = vC.size();
   for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
 
     h_Vx->Fill(vertex->x());
     h_Vy->Fill(vertex->y());
     h_Vz->Fill(vertex->z());
-    h_VNTrks->Fill(vertex->tracksSize());
+    VTX  = vertex->z();
+    //    h_VNTrks->Fill(vertex->tracksSize());
 
   }
-  ****/
+
+  if ((HF_PMM != INVALID) || (nVTX > 0)) {
+    HFvsZ->Fill(HF_PMM,VTX);
+  }
 
   // ********************************
   // *** Tracks
@@ -1698,6 +1988,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 // ***********************************
 // ***********************************
 void myJetAna::endJob() {
+
+  for (int i=0; i<4000; i++) {
+    if ((nBNC[i]/totBNC) > 0.05) {
+      std::cout << "+++ " << i << " " 
+		<< (nBNC[i]/totBNC) << " "
+		<< nBNC[i]          << " " 
+		<< totBNC           << " " 
+		<< std::endl;      
+    }
+  }
+
 
 }
 #include "FWCore/Framework/interface/MakerMacros.h"

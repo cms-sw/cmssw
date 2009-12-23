@@ -37,6 +37,7 @@ using namespace reco;
 using namespace std;
 
 #define DEBUG false
+#define INVALID 9999.
 
 typedef struct RBX_struct {
   double et;
@@ -74,9 +75,9 @@ myFilter::myFilter(const edm::ParameterSet& cfg) :
   _nEvent      = 0;
   _acceptedEvt = 0;
   _passPt      = 0;
+  _passNJets   = 0;
   _passNTrks   = 0;
   _passEMF     = 0;
-  _passNJets   = 0;
   _passNTowers = 0;
   _passMET     = 0;
   _passMETSig  = 0;
@@ -99,9 +100,9 @@ void myFilter::endJob() {
   std::cout << "myFilter: accepted " 
 	    << _acceptedEvt << " / " <<  _nEvent <<  " events." << std::endl;
   std::cout << "Pt           = " << _passPt          << std::endl;
+  std::cout << "NJets        = " << _passNJets       << std::endl;
   std::cout << "NTrks        = " << _passNTrks       << std::endl;
   std::cout << "EMF          = " << _passEMF         << std::endl;
-  std::cout << "NJets        = " << _passNJets       << std::endl;
   std::cout << "NTowers      = " << _passNTowers     << std::endl;
   std::cout << "MET          = " << _passMET         << std::endl;
   std::cout << "METSig       = " << _passMETSig      << std::endl;
@@ -114,6 +115,10 @@ void myFilter::endJob() {
 bool
 myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
+  double HFThreshold   = 4.0;
+  double HOThreshold   = 1.0;
+
+
   bool result         = false;
   bool filter_Pt      = false;
   bool filter_NTrks   = false;
@@ -125,6 +130,99 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   bool filter_HighPtTower  = false;
   bool filter_NRBX         = false;
   bool filter_HLT          = false;
+
+
+  bool Pass = false;
+  if (evt.id().run() == 124009) {
+    if ( (evt.bunchCrossing() == 51)  ||
+	 (evt.bunchCrossing() == 151) ||
+         (evt.bunchCrossing() == 2824) ) {
+      Pass = true;
+    }
+  }
+  if (evt.id().run() == 124020) {
+    if ( (evt.bunchCrossing() == 51)  ||
+	 (evt.bunchCrossing() == 151) ||
+         (evt.bunchCrossing() == 2824) ) {
+      Pass = true;
+    }
+  }
+  if (evt.id().run() == 124024) {
+    if ( (evt.bunchCrossing() == 51)  ||
+	 (evt.bunchCrossing() == 151) ||
+         (evt.bunchCrossing() == 2824) ) {
+      Pass = true;
+    }
+  }
+
+  if ( (evt.bunchCrossing() == 51)  ||
+       (evt.bunchCrossing() == 151) ||
+       (evt.bunchCrossing() == 2824) ) {
+    Pass = true;
+  }
+
+
+  // ***********************
+  // ***********************
+
+  double HFM_ETime, HFP_ETime;
+  double HFM_E, HFP_E;
+  double HF_PMM;
+
+  HFM_ETime = 0.;
+  HFM_E = 0.;
+  HFP_ETime = 0.;
+  HFP_E = 0.;
+
+  try {
+    std::vector<edm::Handle<HFRecHitCollection> > colls;
+    evt.getManyByType(colls);
+    std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        if (j->id().subdet() == HcalForward) {
+
+          if (j->id().ieta()<0) {
+            if (j->energy() > HFThreshold) {
+              HFM_ETime += j->energy()*j->time();
+              HFM_E     += j->energy();
+            }
+          } else {
+            if (j->energy() > HFThreshold) {
+              HFP_ETime += j->energy()*j->time();
+              HFP_E     += j->energy();
+            }
+          }
+
+
+        }
+      }
+    }
+  } catch (...) {
+    cout << "No HF RecHits." << endl;
+  }
+
+  if ((HFP_E > 0.) && (HFM_E > 0.)) {
+    HF_PMM = (HFP_ETime / HFP_E) - (HFM_ETime / HFM_E);
+  } else {
+    HF_PMM = INVALID;
+  }
+
+
+  if (fabs(HF_PMM) < 10.) {
+    Pass = true;
+  } else {
+    Pass = false;
+  }
+
+
+
+  if (Pass) {
+  std::cout << ">>>> FIL: Run = "    << evt.id().run()
+            << " Event = " << evt.id().event()
+            << " Bunch Crossing = " << evt.bunchCrossing()
+            << " Orbit Number = "  << evt.orbitNumber()
+            <<  std::endl;
 
   // *********************************************************
   // --- Event Classification
@@ -155,15 +253,16 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     HPDColl[i].nTowers   = 0;
   }
 
-  std::cout << ">>>> FIL: Run = "    << evt.id().run()
-            << " Event = " << evt.id().event()
-            << " Bunch Crossing = " << evt.bunchCrossing()
-            << " Orbit Number = "  << evt.orbitNumber()
-            <<  std::endl;
 
 
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
        tower != caloTowers->end(); tower++) {
+
+    if (tower->hadEnergy() < 0.) {
+    }
+    if (tower->emEnergy() < 0.) {
+    }
+    
 
     if (tower->et()>0.5) {
 
@@ -420,11 +519,12 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
       filter_HighPtTower = true; 
     }
 
-    if (ijet->pt() > 100.)                filter_Pt  = true;
-    if (ijet->pt() > 5.)  njet++;
+    if (ijet->pt() > 20.) filter_Pt  = true;
+    if (ijet->pt() > 10.)  njet++;
     if (ijet->pt() > 10.) {
       if (ijet->emEnergyFraction() > 0.05)  filter_EMF = true;
     }
+
     //    if (filter_EMF) {
     //      std::cout << "pt = "   << ijet->pt() 
     //		<< " EMF = " << ijet->emEnergyFraction() << std::endl;
@@ -433,7 +533,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     //    std::cout << "pt = "   << ijet->pt() << std::endl;
 
   }
-  if (njet > 4) filter_NJets = true;
+  if (njet > 1) filter_NJets = true;
   //  if (filter_EMF) {
   //    std::cout << "NJets = "   << njet << std::endl;
   //  }
@@ -466,18 +566,23 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     //    _acceptedEvt++;
   }
 
-
+  /***
   if ( (filter_Pt)  || (filter_NTrks) || (filter_EMF) || (filter_NJets) || 
        (filter_MET) || (filter_METSig) || (filter_HighPtTower) ) {
     result = true;
     _acceptedEvt++;
   }
-  
+  ***/
+
+  if ( (filter_Pt) || (filter_NJets) ) {
+    result = true;
+    _acceptedEvt++;
+  }  
 
   if (filter_Pt)           _passPt++;
+  if (filter_NJets)        _passNJets++;
   if (filter_NTrks)        _passNTrks++;
   if (filter_EMF)          _passEMF++;
-  if (filter_NJets)        _passNJets++;
   if (filter_MET)          _passMET++;
   if (filter_METSig)       _passMETSig++;
   if (filter_HighPtTower)  _passHighPtTower++;
@@ -494,6 +599,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   ****/
 
   //  result = true;
+
+  }
 
   if (result) {
     std::cout << "<<<< Event Passed" 
