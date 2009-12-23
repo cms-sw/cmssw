@@ -6,15 +6,15 @@
 
 namespace spr{
 
-  math::XYZPoint propagateECAL( const reco::Track *track, const MagneticField* bfield ) {
+  std::pair<math::XYZPoint,bool> propagateECAL( const reco::Track *track, const MagneticField* bfield ) {    
     return spr::propagateCalo (track, bfield, 319.2, 129.4, 1.479);
   }
 
-  math::XYZPoint propagateHCAL( const reco::Track *track, const MagneticField* bfield ) {
+  std::pair<math::XYZPoint,bool> propagateHCAL( const reco::Track *track, const MagneticField* bfield ) {
     return spr::propagateCalo (track, bfield, 402.7, 180.7, 1.392);
   }
 
-  math::XYZPoint propagateCalo( const reco::Track *track, const MagneticField* bField, float zdist, float radius, float corner ) {
+  std::pair<math::XYZPoint,bool> propagateCalo( const reco::Track *track, const MagneticField* bField, float zdist, float radius, float corner ) {
     
     math::XYZPoint outerTrkPosition;
     
@@ -40,6 +40,7 @@ namespace spr{
 
     TrajectoryStateOnSurface tsosb = myAP.propagate( fts, *barrel);
 
+    bool ok=true;
     if ( tsose.isValid() && tsosb.isValid() ) {
       float absEta = std::abs(tsosb.globalPosition().eta());
       if (absEta < corner)
@@ -52,8 +53,9 @@ namespace spr{
       outerTrkPosition.SetXYZ( tsosb.globalPosition().x(), tsosb.globalPosition().y(), tsosb.globalPosition().z() );
     } else {
       outerTrkPosition.SetXYZ( -999., -999., -999. );
+      ok = false;
     }
-    return outerTrkPosition;
+    return std::pair<math::XYZPoint,bool>(outerTrkPosition,ok);
   }
 
 }

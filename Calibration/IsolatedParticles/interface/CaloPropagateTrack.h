@@ -8,9 +8,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 namespace spr{
-  math::XYZPoint propagateECAL( const reco::Track*, const MagneticField* ) ;
-  math::XYZPoint propagateHCAL( const reco::Track*, const MagneticField* ) ;
-  math::XYZPoint propagateCalo( const reco::Track*, const MagneticField*, float zdist, float radius, float corner ) ;
+  std::pair<math::XYZPoint,bool> propagateECAL( const reco::Track*, const MagneticField* ) ;
+  std::pair<math::XYZPoint,bool> propagateHCAL( const reco::Track*, const MagneticField* ) ;
+  std::pair<math::XYZPoint,bool> propagateCalo( const reco::Track*, const MagneticField*, float zdist, float radius, float corner ) ;
 
 }
 #endif
