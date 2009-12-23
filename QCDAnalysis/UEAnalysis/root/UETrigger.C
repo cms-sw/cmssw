@@ -25,12 +25,14 @@ UETriggerHistograms::UETriggerHistograms( const char* fileName, string *triggerN
   h_triggerAccepts 
     = new TH1D("h_triggerAccepts", 
 	       "h_triggerAccepts;HL Trigger Accepts;Events",
-	       12, -0.5, 11.5 );
+	       16, -0.5, 15.5 );
 
+h_eventScale = new TH1D("h_eventScale", "h_eventScale", 100, 0., 200.);
   unsigned int iHLTbit(0);
-  for ( ; iHLTbit<11; ++iHLTbit )
+  for ( ; iHLTbit<12; ++iHLTbit )
     {
       HLTBitNames[iHLTbit] = triggerNames[iHLTbit];
+   
     }
 }
 
@@ -38,7 +40,7 @@ UETriggerHistograms::UETriggerHistograms( const char* fileName, string *triggerN
 ///_______________________________________________________________________
 ///
 void
-UETriggerHistograms::fill( TClonesArray& acceptedTriggers )
+UETriggerHistograms::fill( TClonesArray& acceptedTriggers ,Double_t genEventScale)
 {
   ///
   /// Histo filler for reco-only analysis
@@ -53,18 +55,20 @@ UETriggerHistograms::fill( TClonesArray& acceptedTriggers )
   ///
   /// ask if trigger was accepted and fill corresponding bin
   ///
+
+  h_eventScale->Fill( genEventScale );
   bool hltAccept( false );
   unsigned int nAcceptedTriggers( acceptedTriggers.GetSize() );
   for ( unsigned int itrig(0); itrig<nAcceptedTriggers; ++itrig )
     {
-      unsigned triggerAccept( 11 );
+      unsigned triggerAccept( 15 );
 
       unsigned int iHLTbit(0);
-      for ( ; iHLTbit<11; ++iHLTbit )
+      for ( ; iHLTbit<12; ++iHLTbit )
 	{
 	  std::string filterName( acceptedTriggers.At(itrig)->GetName() );      
 
-	  //cout << "[UETrigger] Compare " << filterName << " with " << HLTBitNames[iHLTbit] << endl;
+	  // cout << "[UETrigger] Compare " << filterName << " with " << HLTBitNames[iHLTbit] << endl;
 	  if ( filterName == HLTBitNames[iHLTbit] ) triggerAccept = iHLTbit;
 	}
 

@@ -26,15 +26,15 @@ class UETriggerHistograms {
   UETriggerHistograms( const char*, string* );
   ~UETriggerHistograms() { file->Write(); file->Close(); }; 
   
-  void fill( TClonesArray& );
+  void fill( TClonesArray&,Double_t);
   
   private :
     
   TFile* file;
   
-  string HLTBitNames[11];
+  string HLTBitNames[12];
   TH1D* h_triggerAccepts;
-  
+  TH1D* h_eventScale;  
 };
 
 #endif
