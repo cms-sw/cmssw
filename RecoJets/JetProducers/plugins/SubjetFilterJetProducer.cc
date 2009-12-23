@@ -37,7 +37,8 @@ SubjetFilterJetProducer::SubjetFilterJetProducer(const edm::ParameterSet& iConfi
 	 iConfig.getParameter<double>("rParam"),
 	 iConfig.getParameter<double>("jetPtMin"),
 	 iConfig.getParameter<double>("massDropCut"),
-	 iConfig.getParameter<double>("asymmCut"))
+	 iConfig.getParameter<double>("asymmCut"),
+	 iConfig.getParameter<bool>  ("asymmCutLater"))
 {
   produces<reco::BasicJetCollection>("fat");
   makeProduces(moduleLabel_,"sub");

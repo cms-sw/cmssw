@@ -21,7 +21,8 @@ public:
   SubjetFilterAlgorithm(const std::string& moduleLabel,
 			const std::string& jetAlgorithm,
 			double rParam, double jetPtMin,
-			double massDropCut, double asymmCut);
+			double massDropCut, double asymmCut,
+			bool asymmCutLater);
   virtual ~SubjetFilterAlgorithm();
   
 
@@ -46,7 +47,8 @@ private:
   double                  jetPtMin_;
   double                  massDropCut_;
   double                  asymmCut2_;
-
+  bool                    asymmCutLater_;
+  
   unsigned                ntotal_;
   unsigned                nfound_;
 

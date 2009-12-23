@@ -10,5 +10,6 @@ caSubjetFilterPFJets = cms.EDProducer(
     jetAlgorithm = cms.string("CambridgeAachen"),
     rParam       = cms.double(1.2),
     massDropCut  = cms.double(0.667),
-    asymmCut     = cms.double(0.3)
+    asymmCut     = cms.double(0.3),
+    asymmCutLater= cms.bool(False)
     )
