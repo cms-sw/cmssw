@@ -24,7 +24,7 @@ process.TFileService = cms.Service("TFileService",
 
 # the analyzer itself - empty parameter set 
 #
-process.TestHepMCEvt = cms.EDAnalyzer( "HZZ4muAnalyzer" )
+process.TestHepMCEvt = cms.EDAnalyzer( "HZZ4muExampleAnalyzer" )
 
 process.p1 = cms.Path( process.TestHepMCEvt )
 

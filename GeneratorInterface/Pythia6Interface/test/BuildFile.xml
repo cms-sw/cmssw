@@ -1,7 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 
-<library file="HZZ4muAnalyzer.cc" name="HZZ4muAnalyzer">
+<library file="HZZ4muAnalyzer.cc" name="HZZ4muExampleAnalyzer">
   <use name="root"/>
   <use name="hepmc"/>
   <use name="SimDataFormats/GeneratorProducts"/> 
