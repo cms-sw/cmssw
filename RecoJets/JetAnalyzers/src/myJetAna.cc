@@ -58,7 +58,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-#include "DataFormats/Scalers/interface/DcsStatus.h"
+// #include "DataFormats/Scalers/interface/DcsStatus.h"
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -396,11 +396,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   int jetInd, allJetInd;
   LeadMass = -1;
 
-  Handle<DcsStatusCollection> dcsStatus;
-  evt.getByLabel("scalersRawToDigi", dcsStatus);
-  std::cout << dcsStatus << std::endl;
-  if (dcsStatus.isValid()) {
-  }
+  //  Handle<DcsStatusCollection> dcsStatus;
+  //  evt.getByLabel("scalersRawToDigi", dcsStatus);
+  //  std::cout << dcsStatus << std::endl;
+  //  if (dcsStatus.isValid()) {
+  //  }
 
   //  DcsStatus dcsStatus;
   //  Handle<DcsStatus> dcsStatus;
