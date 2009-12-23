@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.5 2008/01/22 21:12:06 muzaffar Exp $
+// $Id: H4muAnalyzer.cc,v 1.6 2009/02/23 14:11:31 saout Exp $
 //
 //
 
@@ -96,4 +96,5 @@ H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(H4muAnalyzer);
+typedef H4muAnalyzer H4muExampleAnalyzer;
+DEFINE_FWK_MODULE(H4muExampleAnalyzer);

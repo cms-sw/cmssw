@@ -1,7 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="rootmath"/>
-<library file="H4muAnalyzer.cc" name="H4muAnalyzer">
+<library file="H4muAnalyzer.cc" name="H4muExampleAnalyzer">
 	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="PhysicsTools/UtilAlgos"/>
 	<use name="hepmc"/>

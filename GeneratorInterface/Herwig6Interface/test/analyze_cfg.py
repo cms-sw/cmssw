@@ -6,7 +6,7 @@ process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring("file:herwigHZZ4mu.root")
 )
 
-process.h4muAnalyzer = cms.EDAnalyzer("H4muAnalyzer")
+process.h4muAnalyzer = cms.EDAnalyzer("H4muExampleAnalyzer")
 
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string("H4mu_histo.root")
