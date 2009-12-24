@@ -859,6 +859,18 @@ void DisplayManager::createGTrack( reco::PFRecTrack &tr,
       graphicMap_.insert(pair<int,GPFBase *> (ident, gt));
   }   
 }
+
+
+void DisplayManager::displayEvent(int run, int lumi, int event) {
+  reset();
+  em_->processEvent(run, lumi, event);  
+  eventNumber_= em_->eventNumber();
+  loadGraphicObjects();
+  isGraphicLoaded_= true;
+  displayAll();
+}
+
+
 //________________________________________________________
 void DisplayManager::display(int ientry)
 {

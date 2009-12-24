@@ -65,6 +65,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   outTree_(0),
   outEvent_(0),
   //   clusters_(new reco::PFClusterCollection),
+  eventAuxiliary_( new edm::EventAuxiliary ),
   clustersECAL_(new reco::PFClusterCollection),
   clustersHCAL_(new reco::PFClusterCollection),
   clustersHFEM_(new reco::PFClusterCollection),
@@ -88,22 +89,36 @@ PFRootEventManager::PFRootEventManager(const char* file)
 
   readOptions(file, true, true);
  
+  initializeEventInformation();
        
   //   maxERecHitEcal_ = -1;
   //   maxERecHitHcal_ = -1;
 
 }
 
+
+void PFRootEventManager::initializeEventInformation() {
+
+  for( unsigned entry=0; entry<tree_->GetEntries(); ++entry) {
+    readEventAuxiliary( entry ); 
+    
+    mapEventToEntry_[ eventAuxiliary_->run()][eventAuxiliary_->luminosityBlock()][eventAuxiliary_->event()] = entry;
+  }
+
+  cout<<"Number of events: "<<mapEventToEntry_.size()
+      <<" starting with event: "<<mapEventToEntry_.begin()->first<<endl;
+}
+
+
 void PFRootEventManager::reset() { 
 
   if(outEvent_) {
     outEvent_->reset();
     outTree_->GetBranch("event")->SetAddress(&outEvent_);
-  } 
-  
-  
- 
+  }  
 }
+
+
 
 void PFRootEventManager::readOptions(const char* file, 
                                      bool refresh, 
@@ -1059,6 +1074,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("print", "verbosity", verbosity_ );
   cout<<"verbosity : "<<verbosity_<<endl;
 
+
+
+  
+
 }
 
 void PFRootEventManager::connect( const char* infilename ) {
@@ -1466,6 +1485,9 @@ void PFRootEventManager::connect( const char* infilename ) {
     }
   }
 
+  eventAuxiliaryBranch_ = tree_->GetBranch( "EventAuxiliary" );
+
+
   setAddresses();
 
 }
@@ -1474,6 +1496,7 @@ void PFRootEventManager::connect( const char* infilename ) {
 
 
 void PFRootEventManager::setAddresses() {
+
   if( rechitsECALBranch_ ) rechitsECALBranch_->SetAddress(&rechitsECAL_);
   if( rechitsHCALBranch_ ) rechitsHCALBranch_->SetAddress(&rechitsHCAL_);
   if( rechitsHFEMBranch_ ) rechitsHFEMBranch_->SetAddress(&rechitsHFEM_);
@@ -1549,6 +1572,42 @@ void PFRootEventManager::write() {
 }
 
 
+int PFRootEventManager::eventToEntry(int run, int lumi, int event) const {
+  
+  RunsMap::const_iterator iR = mapEventToEntry_.find( run );
+  if( iR != mapEventToEntry_.end() ) {
+    LumisMap::const_iterator iL = iR->second.find( lumi );
+    if( iL != iR->second.end() ) {
+      EventToEntry::const_iterator iE = iL->second.find( event );
+      if( iE != iL->second.end() ) {
+	return iE->second;
+      }  
+      else {
+	cout<<"event "<<event<<" not found in run "<<run<<", lumi "<<lumi<<endl;
+      }
+    }
+    else {
+      cout<<"lumi "<<lumi<<" not found in run "<<run<<endl;
+    }
+  }
+  else{
+    cout<<"run "<<run<<" not found"<<endl;
+  }
+  return -1;    
+}
+
+bool PFRootEventManager::processEvent(int run, int lumi, int event) {
+
+  int entry = eventToEntry(run, lumi, event);
+  if( entry < 0 ) {
+    cout<<"event "<<event<<" is not present, sorry."<<endl;
+    return false;
+  }
+  else
+    return processEntry( entry ); 
+} 
+
+
 bool PFRootEventManager::processEntry(int entry) {
 
   reset();
@@ -1557,13 +1616,17 @@ bool PFRootEventManager::processEntry(int entry) {
  
   if( outEvent_ ) outEvent_->setNumber(entry);
 
+  readEventAuxiliary( entry ); 
+
   if(verbosity_ == VERBOSE  || 
      // entry < 3000 ||
      (entry < 100 && entry%10 == 0) || 
      (entry < 1000 && entry%100 == 0) || 
      entry%1000 == 0 ) 
-    cout<<"process entry "<< entry << endl;
-  
+    cout<<"process entry "<< entry 
+	<<", event:"<<eventAuxiliary_->event()
+	<<", run "<<eventAuxiliary_->run()<< endl;
+
   bool goodevent =  readFromSimulation(entry);
 
   if(verbosity_ == VERBOSE ) {
@@ -1622,11 +1685,13 @@ bool PFRootEventManager::processEntry(int entry) {
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
   
+  goodevent = eventAccepted(); 
+
   //COLIN the PFJet and PFMET benchmarks are very messy. 
   //COLIN    compare with the filling of the PFCandidateBenchmark, which is one line. 
   
   // evaluate PFJet Benchmark 
-  if(doPFJetBenchmark_) { // start PFJet Benchmark
+  if(goodevent && doPFJetBenchmark_) { // start PFJet Benchmark
 
     PFJetBenchmark_.process(pfJets_, genJets_);
     double resPt = PFJetBenchmark_.resPtMax();
@@ -1662,7 +1727,7 @@ bool PFRootEventManager::processEntry(int entry) {
 
   //COLIN would  be nice to move this long code to a separate function. 
   // is it necessary to re-set everything at each event?? 
-  if(doPFMETBenchmark_) { // start PFMet Benchmark
+  if(goodevent && doPFMETBenchmark_) { // start PFMet Benchmark
 
     // Fill here the various met benchmarks
     // pfMET vs GenMET
@@ -1692,7 +1757,7 @@ bool PFRootEventManager::processEntry(int entry) {
     }
   }// end PFMET Benchmark
 
-  if( doPFCandidateBenchmark_ ) {
+  if( goodevent && doPFCandidateBenchmark_ ) {
     pfCandidateManager_.fill( *pfCandidates_, genParticlesCMSSW_);
   }
     
@@ -1712,7 +1777,7 @@ bool PFRootEventManager::processEntry(int entry) {
 
   
   } // end tau Benchmark
-  
+
   if(goodevent && outTree_) 
     outTree_->Fill();
 
@@ -1721,6 +1786,39 @@ bool PFRootEventManager::processEntry(int entry) {
   
   return goodevent;
 
+}
+
+
+
+bool PFRootEventManager::eventAccepted() const {
+  // return highPtJet(10); 
+  return highPtPFCandidate( 10, PFCandidate::h ); 
+} 
+
+
+bool PFRootEventManager::highPtJet(double ptMin) const {
+  for( unsigned i=0; i<pfJets_.size(); ++i) {
+    if( pfJets_[i].pt() > ptMin ) return true;
+  }
+  return false;
+}
+
+bool PFRootEventManager::highPtPFCandidate( double ptMin, 
+					    PFCandidate::ParticleType type) const {
+  for( unsigned i=0; i<pfCandidates_->size(); ++i) {
+
+    const PFCandidate& pfc = (*pfCandidates_)[i];
+    if(type!= PFCandidate::X &&  
+       pfc.particleId() != type ) continue;
+    if( pfc.pt() > ptMin ) return true;
+  }
+  return false;
+}
+
+
+void PFRootEventManager::readEventAuxiliary(int entry) {
+  eventAuxiliaryBranch_->SetAddress( &eventAuxiliary_ );
+  eventAuxiliaryBranch_->GetEntry( entry );
 }
 
 
@@ -2174,9 +2272,13 @@ void PFRootEventManager::clustering() {
 
   // HF clustering -------------------------------------------
 
+  fillRecHitMask( mask, rechitsHFEM_ );
+  clusterAlgoHFEM_.setMask( mask );  
   clusterAlgoHFEM_.doClustering( rechitsHFEM_ );
   clustersHFEM_ = clusterAlgoHFEM_.clusters();
   
+  fillRecHitMask( mask, rechitsHFHAD_ );
+  clusterAlgoHFHAD_.setMask( mask );  
   clusterAlgoHFHAD_.doClustering( rechitsHFHAD_ );
   clustersHFHAD_ = clusterAlgoHFHAD_.clusters();
   
@@ -2409,6 +2511,10 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( ecalMask, *clustersECAL_ );
   vector<bool> hcalMask;
   fillClusterMask( hcalMask, *clustersHCAL_ );
+  vector<bool> hfemMask;
+  fillClusterMask( hfemMask, *clustersHFEM_ );
+  vector<bool> hfhadMask;
+  fillClusterMask( hfhadMask, *clustersHFHAD_ );
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
   
@@ -2416,7 +2522,7 @@ void PFRootEventManager::particleFlow() {
 			 muonh,nuclh,convh,v0,
 			 ecalh, hcalh, hfemh, hfhadh, psh,
 			 trackMask,gsftrackMask,
-			 ecalMask, hcalMask, psMask );
+			 ecalMask, hcalMask, hfemMask, hfhadMask, psMask );
 
   pfBlockAlgo_.findBlocks();
   
@@ -3180,7 +3286,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
       string seedstatus = "    ";
       if(clusterAlgoECAL_.isSeed(i) ) 
         seedstatus = "SEED";
-      printRecHit(rechitsECAL_[i], seedstatus.c_str(), out );
+      printRecHit(rechitsECAL_[i], i, seedstatus.c_str(), out );
     }
     out<<endl;
     out<<"HCAL RecHits =============================================="<<endl;
@@ -3188,7 +3294,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
       string seedstatus = "    ";
       if(clusterAlgoHCAL_.isSeed(i) ) 
         seedstatus = "SEED";
-      printRecHit(rechitsHCAL_[i], seedstatus.c_str(), out);
+      printRecHit(rechitsHCAL_[i], i, seedstatus.c_str(), out);
     }
     out<<endl;
     out<<"HFEM RecHits =============================================="<<endl;
@@ -3196,7 +3302,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
       string seedstatus = "    ";
       if(clusterAlgoHFEM_.isSeed(i) ) 
         seedstatus = "SEED";
-      printRecHit(rechitsHFEM_[i], seedstatus.c_str(), out);
+      printRecHit(rechitsHFEM_[i], i, seedstatus.c_str(), out);
     }
     out<<endl;
     out<<"HFHAD RecHits =============================================="<<endl;
@@ -3204,7 +3310,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
       string seedstatus = "    ";
       if(clusterAlgoHFHAD_.isSeed(i) ) 
         seedstatus = "SEED";
-      printRecHit(rechitsHFHAD_[i], seedstatus.c_str(), out);
+      printRecHit(rechitsHFHAD_[i], i, seedstatus.c_str(), out);
     }
     out<<endl;
     out<<"PS RecHits ================================================"<<endl;
@@ -3212,7 +3318,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
       string seedstatus = "    ";
       if(clusterAlgoPS_.isSeed(i) ) 
         seedstatus = "SEED";
-      printRecHit(rechitsPS_[i], seedstatus.c_str(), out);
+      printRecHit(rechitsPS_[i], i, seedstatus.c_str(), out);
     }
     out<<endl;
   }
@@ -3616,7 +3722,8 @@ PFRootEventManager::printGenParticles(std::ostream& out,
 }
 
 
-void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh, 
+void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
+				      unsigned index,  
                                       const char* seedstatus,
                                       ostream& out) const {
 
@@ -3628,7 +3735,7 @@ void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
   
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if( !cutg || cutg->IsInside( eta, phi ) ) 
-    out<<seedstatus<<" "<<rh<<endl;;
+    out<<index<<"\t"<<seedstatus<<" "<<rh<<endl;;
 }
 
 void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,

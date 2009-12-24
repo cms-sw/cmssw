@@ -3,6 +3,8 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
@@ -188,6 +190,8 @@ class PFRootEventManager {
   /// destructor
   virtual ~PFRootEventManager();
   
+  void initializeEventInformation();
+
   virtual void write();
   
   /// reset before next event
@@ -211,9 +215,17 @@ class PFRootEventManager {
 
   /// sets addresses for all branches
   void setAddresses();
+
+  int eventToEntry(int run, int lumi, int event) const;
   
-  /// process one entry 
+  /// process one event (pass the CMS event number)
+  virtual bool processEvent(int run, int lumi, int event); 
+
+  /// process one entry (pass the TTree entry)
   virtual bool processEntry(int entry);
+
+  /// read event information
+  void readEventAuxiliary( int entry );
 
   /// read data from simulation tree
   bool readFromSimulation(int entry);
@@ -316,7 +328,7 @@ class PFRootEventManager {
   std::string  expand(const std::string& oldString) const;
 
   /// print a rechit
-  void   printRecHit(const reco::PFRecHit& rh, 
+  void   printRecHit(const reco::PFRecHit& rh, unsigned index, 
                      const char* seed="    ",
                      std::ostream& out = std::cout) const;
   
@@ -366,10 +378,18 @@ class PFRootEventManager {
   /*   std::vector<int> getViewSizeEtaPhi() {return viewSizeEtaPhi_;} */
   /*   std::vector<int> getViewSize()       {return viewSize_;} */
   
-  void readCMSSWJets();
+  void readCMSSWJets();  
   
-  
-  
+  /// returns true if the event is accepted(have a look at the function implementation)
+  bool eventAccepted() const;
+
+  /// returns true if there is at least one jet with pT>pTmin
+  bool highPtJet( double ptMin ) const; 
+
+  /// returns true if there is a PFCandidate of a given type over a given pT
+  bool highPtPFCandidate( double ptMin, 
+			  reco::PFCandidate::ParticleType type = PFCandidate::X) const;
+
   // data members -------------------------------------------------------
 
   /// current event
@@ -395,8 +415,10 @@ class PFRootEventManager {
   TH1F*            h_deltaETvisible_MCPF_;
  
 
-  // MC branches --------------------------
+  // branches --------------------------
   
+  TBranch*   eventAuxiliaryBranch_;
+
   /// rechits branch  
   TBranch*   hitsBranch_;          
   
@@ -499,6 +521,9 @@ class PFRootEventManager {
   TBranch*   recPFMETBranch_;
   
   
+  /// event auxiliary information
+  edm::EventAuxiliary*      eventAuxiliary_;
+
   /// rechits ECAL
   reco::PFRecHitCollection rechitsECAL_;
 
@@ -817,5 +842,9 @@ class PFRootEventManager {
   
   std::auto_ptr<METManager>   metManager_; 
   
+  typedef std::map<int, int>  EventToEntry;
+  typedef std::map<int, EventToEntry> LumisMap;
+  typedef std::map<int, LumisMap> RunsMap;
+  RunsMap  mapEventToEntry_;
 };
 #endif

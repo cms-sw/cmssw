@@ -41,6 +41,7 @@ class DisplayManager {
   void readOptions( const char* file );
 
   void display(int ientry);
+  void displayEvent( int run, int lumi, int event); 
   void displayAll(bool noRedraw = true);
   void displayNext();
   void displayNextInteresting(int ientry);
