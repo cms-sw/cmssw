@@ -105,7 +105,7 @@ L1GctEmulator::~L1GctEmulator() {
 }
 
 
-void L1GctEmulator::beginJob(const edm::EventSetup& c)
+void L1GctEmulator::beginJob()
 {
 }
 

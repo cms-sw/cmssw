@@ -214,7 +214,7 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1GctValidation::beginJob(const edm::EventSetup&)
+L1GctValidation::beginJob()
 {
   edm::Service<TFileService> fs;
 

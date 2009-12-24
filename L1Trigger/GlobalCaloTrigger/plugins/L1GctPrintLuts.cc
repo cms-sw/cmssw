@@ -66,16 +66,9 @@ L1GctPrintLuts::~L1GctPrintLuts()
 void
 L1GctPrintLuts::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-// This is where we work ...
-void 
-L1GctPrintLuts::beginJob(const edm::EventSetup& c)
-{
   // get config data from EventSetup
   // check this has been done successfully before proceeding
-  if (configureGct(c) == 0) {
+  if (configureGct(iSetup) == 0) {
 
     // Write to a new file
     struct stat buffer ;
@@ -150,6 +143,13 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
       file.close();
     }
   }
+}
+
+// ------------ method called once each job just before starting event loop  ------------
+// This is where we work ...
+void 
+L1GctPrintLuts::beginJob()
+{
 }
 
 // The configuration method for the Gct - copied from L1GctEmulator

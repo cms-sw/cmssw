@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.7 2009/03/17 08:12:58 heath Exp $
+// $Id: L1GctEmulator.h,v 1.8 2009/03/27 16:31:35 heath Exp $
 //
 //
 
@@ -41,7 +41,7 @@ class L1GctEmulator : public edm::EDProducer {
   ~L1GctEmulator();
 
  private:
-  void beginJob(const edm::EventSetup& c) ;
+  void beginJob() ;
   void produce(edm::Event& e, const edm::EventSetup& c);
   void endJob() ;
 
