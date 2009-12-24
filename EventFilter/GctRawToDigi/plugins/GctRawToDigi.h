@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.31 2009/09/18 15:07:05 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.32 2009/11/16 20:57:13 tapper Exp $
 //
 //
 
@@ -52,7 +52,7 @@ public:
   
 private: // methods
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
   /// Unpacks the raw data
