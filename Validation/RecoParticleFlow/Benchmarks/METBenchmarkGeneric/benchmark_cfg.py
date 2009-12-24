@@ -22,7 +22,7 @@ process.load("RecoParticleFlow.Configuration.DBS_Samples.%s_%s_cfi" % (fa, fb) )
 #)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3000)
+    input = cms.untracked.int32(-1)
 )
 
 process.load("Validation.RecoParticleFlow.metBenchmark_cff")

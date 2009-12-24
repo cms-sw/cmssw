@@ -53,7 +53,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.aod = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('aod_QCDForPF_Full_003.root'),
+    fileName = cms.untracked.string('/tmp/pjanot/aod_QCDForPF_Full_003.root'),
     outputCommands = cms.untracked.vstring(
         'keep *'
     )
@@ -64,6 +64,6 @@ process.outpath = cms.EndPath(process.aod)
 EOF
 cmsRun TEST_cfg.py
 
-rfcp aod_QCDForPF_Full_003.root /castor/cern.ch/user/p/pjanot/CMSSW341/aod_QCDForPF_Full_003.root
+rfcp /tmp/pjanot/aod_QCDForPF_Full_003.root /castor/cern.ch/user/p/pjanot/CMSSW341/aod_QCDForPF_Full_003.root
 #rm aod_QCDForPF_Full_003.root
 

@@ -53,7 +53,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.reco = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('reco_QCDForPF_Full_002.root'),
+    fileName = cms.untracked.string('/tmp/pjanot/reco_QCDForPF_Full_002.root'),
     outputCommands = cms.untracked.vstring(
         'keep *'
     )
@@ -64,6 +64,6 @@ process.outpath = cms.EndPath(process.reco)
 EOF
 cmsRun TEST_cfg.py
 
-rfcp reco_QCDForPF_Full_002.root /castor/cern.ch/user/p/pjanot/CMSSW341/reco_QCDForPF_Full_002.root
+rfcp /tmp/pjanot/reco_QCDForPF_Full_002.root /castor/cern.ch/user/p/pjanot/CMSSW341/reco_QCDForPF_Full_002.root
 #rm reco_QCDForPF_Full_002.root
 
