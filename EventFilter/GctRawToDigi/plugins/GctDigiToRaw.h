@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctDigiToRaw.h,v 1.2 2009/04/06 18:47:59 frazier Exp $
+// $Id: GctDigiToRaw.h,v 1.7 2009/04/07 10:51:08 frazier Exp $
 //
 //
 
@@ -45,7 +45,7 @@ class GctDigiToRaw : public edm::EDProducer {
   ~GctDigiToRaw();
   
  private: // methods
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   

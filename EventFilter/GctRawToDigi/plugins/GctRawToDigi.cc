@@ -122,7 +122,7 @@ GctRawToDigi::~GctRawToDigi()
 //
 
 // ------------ method called once each job just before starting event loop  ------------
-void GctRawToDigi::beginJob(const edm::EventSetup&)
+void GctRawToDigi::beginJob() 
 {
 }
 

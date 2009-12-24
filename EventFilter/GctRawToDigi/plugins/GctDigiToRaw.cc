@@ -214,7 +214,7 @@ void GctDigiToRaw::print(FEDRawData& data) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GctDigiToRaw::beginJob(const edm::EventSetup&)
+GctDigiToRaw::beginJob()
 {
 }
 
