@@ -122,11 +122,7 @@ GctRawToDigi::~GctRawToDigi()
 //
 
 // ------------ method called once each job just before starting event loop  ------------
-<<<<<<< GctRawToDigi.cc
 void GctRawToDigi::beginJob()
-=======
-void GctRawToDigi::beginJob() 
->>>>>>> 1.64
 {
 }
 
