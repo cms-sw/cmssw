@@ -80,7 +80,7 @@ cp -r $jobdir $PBS_O_WORKDIR
 def batchScriptCERN( remoteFile, remoteDir, index ):
    
    
-   script = """#!/usr/local/bin/bash
+   script = """#!/bin/bash
 #BSUB -q 8nm
 echo 'environment:'
 echo
