@@ -47,7 +47,6 @@ Implementation:
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 // Local to project
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
@@ -60,8 +59,8 @@ Implementation:
 #include "CondFormats/DataRecord/interface/TTUBoardSpecsRcd.h"
 
 //Technical trigger bits
-#include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h>
-#include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h>
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
 
 
 //...........................................................................

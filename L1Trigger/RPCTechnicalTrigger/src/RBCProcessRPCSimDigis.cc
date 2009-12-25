@@ -1,9 +1,10 @@
-// $Id: $
+// $Id: RBCProcessRPCSimDigis.cc,v 1.1 2009/09/20 22:06:50 aosorio Exp $
 // Include files 
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCSimDigis.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCProcessRPCSimDigis

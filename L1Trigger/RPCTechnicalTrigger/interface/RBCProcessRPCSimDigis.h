@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCProcessRPCSimDigis.h,v 1.1 2009/09/20 22:06:49 aosorio Exp $
 #ifndef INTERFACE_RBCPROCESSRPCSIMDIGIS_H 
 #define INTERFACE_RBCPROCESSRPCSIMDIGIS_H 1
 
@@ -12,11 +12,9 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
-//...RPCDigiSimLink
-#include <DataFormats/Common/interface/DetSetVector.h>
-#include <SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h>
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
 // From project
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h" 

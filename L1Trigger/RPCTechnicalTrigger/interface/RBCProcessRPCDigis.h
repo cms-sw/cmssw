@@ -14,7 +14,6 @@
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 // From project
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h" 

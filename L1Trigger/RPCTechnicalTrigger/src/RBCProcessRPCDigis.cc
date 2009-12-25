@@ -1,4 +1,4 @@
-// $Id: RBCProcessRPCDigis.cc,v 1.3 2009/09/20 22:06:50 aosorio Exp $
+// $Id: RBCProcessRPCDigis.cc,v 1.4 2009/10/26 12:52:15 aosorio Exp $
 // Include files 
 
 
@@ -6,6 +6,7 @@
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCDigis.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardGLSignal.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCProcessRPCDigis
