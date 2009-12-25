@@ -20,7 +20,7 @@ class SubjetFilterAlgorithm
 public:
   SubjetFilterAlgorithm(const std::string& moduleLabel,
 			const std::string& jetAlgorithm,
-			double rParam, double jetPtMin,
+			unsigned nFatMax, double rParam, double jetPtMin,
 			double massDropCut, double asymmCut,
 			bool asymmCutLater);
   virtual ~SubjetFilterAlgorithm();
@@ -43,6 +43,7 @@ public:
 private:
   std::string             moduleLabel_;
   std::string             jetAlgorithm_;
+  unsigned                nFatMax_;
   double                  rParam_;
   double                  jetPtMin_;
   double                  massDropCut_;

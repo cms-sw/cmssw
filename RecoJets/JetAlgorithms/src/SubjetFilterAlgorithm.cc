@@ -30,11 +30,13 @@ ostream & operator<<(ostream & ostr, fastjet::PseudoJet & jet);
 //______________________________________________________________________________
 SubjetFilterAlgorithm::SubjetFilterAlgorithm(const std::string& moduleLabel,
 					     const std::string& jetAlgorithm,
+					     unsigned nFatMax,
 					     double rParam, double jetPtMin,
 					     double massDropCut,double asymmCut,
 					     bool asymmCutLater)
   : moduleLabel_(moduleLabel)
   , jetAlgorithm_(jetAlgorithm)
+  , nFatMax_(nFatMax)
   , rParam_(rParam)
   , jetPtMin_(jetPtMin)
   , massDropCut_(massDropCut)
@@ -75,13 +77,14 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
 {
   ntotal_++;
 
+  // DEBUG
   //cout<<endl<<ntotal_<<". EVENT:"<<endl;
   
   fastjet::ClusterSequence cs(fjInputs,*fjJetDef_);
   vector<fastjet::PseudoJet> fjFatJets =
     fastjet::sorted_by_pt(cs.inclusive_jets(jetPtMin_));
   
-  unsigned nFat = (int)std::min((int)fjFatJets.size(),1);
+  unsigned nFat = (int)std::min(fjFatJets.size(),nFatMax_);
   for (unsigned iFat=0;iFat<nFat;iFat++) {
     fastjet::PseudoJet fjFatJet = fjFatJets[iFat];
     fastjet::PseudoJet fjCurrentJet(fjFatJet);
@@ -103,10 +106,10 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
       }
     }
     
-    if (!hadSubJets) continue;
+    if (!hadSubJets) break;
     
     if (asymmCutLater_&&
-	fjSubJet1.kt_distance(fjSubJet2)<=asymmCut2_*fjCurrentJet.m2()) continue;
+	fjSubJet1.kt_distance(fjSubJet2)<=asymmCut2_*fjCurrentJet.m2()) break;
     
     
     vector<fastjet::PseudoJet> fjFilterJets;

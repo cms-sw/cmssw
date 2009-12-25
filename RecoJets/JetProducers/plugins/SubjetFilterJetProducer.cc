@@ -32,13 +32,14 @@ using namespace std;
 //______________________________________________________________________________
 SubjetFilterJetProducer::SubjetFilterJetProducer(const edm::ParameterSet& iConfig)
   : VirtualJetProducer(iConfig)
-  , alg_(iConfig.getParameter<string>("@module_label"),
-	 iConfig.getParameter<string>("jetAlgorithm"),
-	 iConfig.getParameter<double>("rParam"),
-	 iConfig.getParameter<double>("jetPtMin"),
-	 iConfig.getParameter<double>("massDropCut"),
-	 iConfig.getParameter<double>("asymmCut"),
-	 iConfig.getParameter<bool>  ("asymmCutLater"))
+  , alg_(iConfig.getParameter<string>  ("@module_label"),
+	 iConfig.getParameter<string>  ("jetAlgorithm"),
+	 iConfig.getParameter<unsigned>("nFatMax"),
+	 iConfig.getParameter<double>  ("rParam"),
+	 iConfig.getParameter<double>  ("jetPtMin"),
+	 iConfig.getParameter<double>  ("massDropCut"),
+	 iConfig.getParameter<double>  ("asymmCut"),
+	 iConfig.getParameter<bool>    ("asymmCutLater"))
 {
   produces<reco::BasicJetCollection>("fat");
   makeProduces(moduleLabel_,"sub");

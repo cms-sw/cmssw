@@ -8,6 +8,7 @@ caSubjetFilterGenJets = cms.EDProducer(
     GenJetParameters,
     AnomalousCellParameters,
     jetAlgorithm = cms.string("CambridgeAachen"),
+    nFatMax      = cms.uint32(1),
     rParam       = cms.double(1.2),
     massDropCut  = cms.double(0.667),
     asymmCut     = cms.double(0.3),
