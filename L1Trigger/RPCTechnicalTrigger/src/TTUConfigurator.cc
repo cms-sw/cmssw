@@ -1,10 +1,11 @@
-// $Id: TTUConfigurator.cc,v 1.1 2009/06/04 11:52:59 aosorio Exp $
+// $Id: TTUConfigurator.cc,v 1.2 2009/10/29 20:04:02 ghete Exp $
 // Include files 
 
 
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUConfigurator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TTUConfigurator
@@ -21,10 +22,9 @@ TTUConfigurator::TTUConfigurator( const std::string& infile ) {
   m_in->open( infile.c_str() );
   
   if(!m_in->is_open()) {
-    std::cout << "TTUConfigurator> cannot open file" << std::endl;
+    edm::LogError("TTUConfigurator") << "TTUConfigurator cannot open file";
     m_hasConfig = false;
   } else {
-    std::cout << "TTUConfigurator> file is now open" << std::endl;
     m_hasConfig = true;
   }
   
