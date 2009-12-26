@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MuonRefProducer
-// Class:      MuonRefProducer
+// Package:    TagProbeMuonRefProducer
+// Class:      TagProbeMuonRefProducer
 // 
-/**\class MuonRefProducer MuonRefProducer.cc PhysicsTools/MuonRefProducer/src/MuonRefProducer.cc
+/**\class TagProbeMuonRefProducer MuonRefProducer.cc PhysicsTools/MuonRefProducer/src/MuonRefProducer.cc
 
  Description: <one line class summary>
 
@@ -13,11 +13,11 @@
 //
 // Original Authors:  Nadia Adam, Valerie Halyo
 //         Created:  Wed Oct  8 11:06:35 CDT 2008
-// $Id: MuonRefProducer.cc,v 1.3 2009/09/15 18:30:13 valerieh Exp $
+// $Id: TagProbeMuonRefProducer.cc,v 1.4 2009/11/06 13:15:34 hegner Exp $
 //
 
 
-#include "PhysicsTools/TagAndProbe/interface/MuonRefProducer.h"
+#include "PhysicsTools/TagAndProbe/interface/TagProbeMuonRefProducer.h"
 #include "DataFormats/Candidate/interface/Candidate.h" 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h" 
@@ -46,7 +46,7 @@
 //
 // constructors and destructor
 //
-MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
+TagProbeMuonRefProducer::TagProbeMuonRefProducer(const edm::ParameterSet& iConfig)
 {
 
    // Probe collection
@@ -66,7 +66,7 @@ MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
 }
 
 
-MuonRefProducer::~MuonRefProducer()
+TagProbeMuonRefProducer::~TagProbeMuonRefProducer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -81,7 +81,7 @@ MuonRefProducer::~MuonRefProducer()
 
 // ------------ method called to produce the data  ------------
 void
-MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TagProbeMuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 
@@ -97,7 +97,7 @@ MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<  edm::RefVector<reco::MuonCollection> > probes;
    if( !iEvent.getByLabel( probeCollection_, probes ) )
    {
-      edm::LogWarning("MuonRefProducer") << "Could not extract probe muons with input tag "
+      edm::LogWarning("TagProbeMuonRefProducer") << "Could not extract probe muons with input tag "
 				 << probeCollection_;
    }
 
@@ -106,7 +106,7 @@ MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<reco::BeamSpot> beamSpot;
    if( !iEvent.getByLabel("offlineBeamSpot",beamSpot) )
    {
-     edm::LogError("MuonRefProducer") << "Could not extract Beam Spot with input tag";
+     edm::LogError("TagProbeMuonRefProducer") << "Could not extract Beam Spot with input tag";
 				
    }
 
@@ -159,17 +159,17 @@ MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuonRefProducer::beginJob()
+TagProbeMuonRefProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-MuonRefProducer::endJob() {
+TagProbeMuonRefProducer::endJob() {
 }
 
 bool 
-MuonRefProducer::selectMuonIdAlgo(const reco::Muon&  muonCand){
+TagProbeMuonRefProducer::selectMuonIdAlgo(const reco::Muon&  muonCand){
 
 
   std::string muonid(muonIdAlgo_);
@@ -235,4 +235,4 @@ MuonRefProducer::selectMuonIdAlgo(const reco::Muon&  muonCand){
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MuonRefProducer);
+DEFINE_FWK_MODULE(TagProbeMuonRefProducer);

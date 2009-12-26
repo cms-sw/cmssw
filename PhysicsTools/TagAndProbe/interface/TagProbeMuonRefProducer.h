@@ -1,11 +1,11 @@
-#ifndef src_PhysicsTools_MuonRefProducer_h
-#define src_PhysicsTools_MuonRefProducer_h
+#ifndef src_PhysicsTools_TagProbeMuonRefProducer_h
+#define src_PhysicsTools_TagProbeMuonRefProducer_h
 // -*- C++ -*-
 //
 // Package:     PhysicsTools
-// Class  :     MuonRefProducer
+// Class  :     TagProbeMuonRefProducer
 // 
-/**\class MuonRefProducer MuonRefProducer.h src/PhysicsTools/interface/MuonRefProducer.h
+/**\class TagProbeMuonRefProducer MuonRefProducer.h src/PhysicsTools/interface/MuonRefProducer.h
 
  Description: <one line class summary>
 
@@ -42,11 +42,11 @@
 // class decleration
 //
 
-class MuonRefProducer : public edm::EDProducer 
+class TagProbeMuonRefProducer : public edm::EDProducer 
 {
    public:
-      explicit MuonRefProducer(const edm::ParameterSet&);
-      ~MuonRefProducer();
+      explicit TagProbeMuonRefProducer(const edm::ParameterSet&);
+      ~TagProbeMuonRefProducer();
 
 
       bool selectMuonIdAlgo(const reco::Muon& muonCand);
