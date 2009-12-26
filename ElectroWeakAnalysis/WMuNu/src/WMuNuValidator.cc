@@ -25,7 +25,7 @@ public:
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();
   void init_histograms();
-  void fill_histogram(char*, const double&);
+  void fill_histogram(const char*, const double&);
 private:
   bool fastOption_;
   edm::InputTag trigTag_;
@@ -234,7 +234,7 @@ void WMuNuValidator::init_histograms() {
       }
 }
 
-void WMuNuValidator::fill_histogram(char* name, const double& var) {
+void WMuNuValidator::fill_histogram(const char* name, const double& var) {
       if (fastOption_) return;
       h1_[name]->Fill(var);
 }
