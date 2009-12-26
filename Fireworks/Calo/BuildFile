@@ -4,10 +4,6 @@
 <use name=rootrflx>
 <lib name=Eve>
 <use name=Fireworks/Core>
-<flags CXXFLAGS="-g -O0">
 <export>
   <lib name=FireworksCalo>
-  <use name=Fireworks/Core>
-  <use name=DataFormats/Common>
-  <use name=rootrflx>
 </export>
