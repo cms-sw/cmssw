@@ -23,7 +23,7 @@ Int_t sample=0;
 
 //  TCut tr_cut = "eTrack>41 && eTrack<59";  label = new TText(0.97,0.1, "40-60 GeV"); sample=50;
 //  TCut tr_cut = "eTrack>5 && eTrack<100";  label = new TText(0.97,0.1, "MinBias"); sample=900;
-  TCut tr_cut = "eTrack>5 && eTrack<100";  label = new TText(0.97,0.1, "Data @ 900 GeV"); sample=900;
+  TCut tr_cut = "eTrack>5 && eTrack<60";  label = new TText(0.97,0.1, "Data @ 900 GeV"); sample=900;
 
   
 label -> SetNDC();
@@ -33,7 +33,7 @@ label->SetTextAngle(90);
 
 TCut tr_quality = "numValidTrkHits>=13 && (abs(etaTrack) <= 1.47 || numValidTrkStrips>=9)"; 
  TCut mip_cut = "eECAL<1";
- TCut hit_dist = "iDr<0.5";
+ TCut hit_dist = "iDr<1.5";
  TCut ptNear = "PtNearBy<2";
 TCut selection = tr_cut && mip_cut && tr_quality && hit_dist && ptNear;
   
@@ -651,7 +651,7 @@ label -> Draw();
   hh1 -> Delete();
 
 
-  ftree -> Draw("iDr>>hh1", selection, "");
+  ftree -> Draw("delR>>hh1", selection, "");
   hh1 -> SetLineColor(kGreen+2);
   hh1 -> SetTitle("dR(#eta,#phi) maxHit - assosiator point");
   //  hh1 -> SetMaximum(0.6);
