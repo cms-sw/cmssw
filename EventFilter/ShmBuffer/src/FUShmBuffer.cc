@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <stdint.h>
 
 // the shmem keys are henceforth going to be FIXED for a give userid
 // prior to creation, the application will attempt to get ownership
