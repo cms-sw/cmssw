@@ -13,7 +13,7 @@ Int_t sample=0;
 // TString imgpath("~/afs/public_html/validation/cone26piplus/");  
 // TFile* tf = new TFile("./ValidFile_plus.root","OPEN");
 
- TString imgpath("~/afs/public_html/validation/");  
+ TString imgpath("~/afs/public_html/validation/data900v2/");  
  TFile* tf = new TFile("./ValidFile_data900v3sp.root","OPEN");
 // TFile* tf = new TFile("./ValidFile_MB900.root","OPEN");
  //TFile* tf = new TFile("./ValidFile_XX_4.root","OPEN");
@@ -33,8 +33,7 @@ label->SetTextAngle(90);
 
 TCut tr_quality = "numValidTrkHits>=13 && (abs(etaTrack) <= 1.47 || numValidTrkStrips>=9)"; 
  TCut mip_cut = "eECAL<1";
-// TCut hit_dist = "iDr<1.5";
- TCut hit_dist = "sqrt(dietatr*dietatr+diphitr*diphitr)<1.5";
+ TCut hit_dist = "iDr<0.5";
  TCut ptNear = "PtNearBy<2";
 TCut selection = tr_cut && mip_cut && tr_quality && hit_dist && ptNear;
   
@@ -567,7 +566,8 @@ label -> Draw();
   hh1 -> Delete();
   hh2 -> Delete();
 
-  ftree -> Draw("e3x3After>>hh1", selection, "");
+  c1 -> SetLogy();
+  ftree -> Draw("e3x3After>>hh1", selection&&"e3x3After<100", "");
   hh1 -> SetLineColor(kBlue+1);
   hh1 -> SetTitle("e3x3");
 label -> Draw();
@@ -585,6 +585,7 @@ label -> Draw();
   c1 -> SaveAs(imgpath+"p23.png");  
   hh1 -> Delete();
   hh2 -> Delete();
+  c1 -> SetLogy(0);
 
 
   ftree -> Draw("(e5x5After-e3x3After)/eTrack:eTrack>>hh2", selection && "abs(iEta)<17", "prof");
@@ -606,7 +607,8 @@ label -> Draw();
   hh2 -> Delete();
 
   c1 -> SetLogy();
-  ftree -> Draw("eCentHitAfter/eClustAfter>>hh1", selection && "eClustAfter>10", "");
+//  ftree -> Draw("eCentHitAfter/eClustAfter>>hh1", selection && "eClustAfter>10", "");
+  ftree -> Draw("eCentHitBefore/eClustBefore>>hh1", selection && "eClustBefore>3", "");
   hh1 -> SetLineColor(kBlue+1);
   hh1 -> SetTitle("eCentral/eClust");
 label -> Draw();
@@ -830,7 +832,9 @@ label -> Draw();
   c1 -> SaveAs(imgpath+"p40.png");  
   hh1 -> Delete();
 
-  ftree -> Draw("sqrt(dietatr*dietatr+diphitr*diphitr)>>hh1", tr_cut && mip_cut && tr_quality && ptNear, "");
+  ftree -> Draw("iDr>>hh1", tr_cut && mip_cut && tr_quality && ptNear, "");
+//  ftree -> Draw("sqrt(dietatr*dietatr+diphitr*diphitr)>>hh1", tr_cut && mip_cut && tr_quality && 
+//ptNear, "");
   hh1 -> SetLineColor(kGreen+2);
   hh1 -> SetTitle("maxHit - trackHit distance");
   hh1 -> SetXTitle("#sqrt{#Deltai#eta^2 + #Deltai#phi^2}");
@@ -874,12 +878,11 @@ label -> Draw();
   leg->AddEntry(hh2,"|iEta|<17","l");
   leg->AddEntry(hh1,"|iEta|>17","l");
   leg -> Draw();
-  c1 -> SetLogy(0);
-
 label -> Draw();
    c1->SaveAs(imgpath+"p45.png");  
    hh1 -> Delete();
    hh2 -> Delete();
+  c1 -> SetLogy(0);
 
 
   ftree -> Draw("iEta:iPhi>>hh1", selection&&"abs(iEta)<20", "colz");
