@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <stdint.h>
 
 /**
  * @author: M. De Mattia

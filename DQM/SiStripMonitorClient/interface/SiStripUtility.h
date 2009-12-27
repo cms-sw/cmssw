@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2009/06/07 16:27:47 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/09/22 12:59:41 $
+ *  $Revision: 1.14 $
  *  \author Suchandra Dutta
   */
 
@@ -14,7 +14,7 @@
 #include <fstream>
 #include <string>
 #include <map>
-
+#include <stdint.h>
 
 class MonitorElement;
 class DQMStore;

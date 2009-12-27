@@ -2,6 +2,7 @@
 #define GUARD_HDQMInspectorConfigTracking_h
 
 #include <string>
+#include <stdint.h>
 
 #include "DQMServices/Diagnostic/interface/HDQMInspectorConfigBase.h"
 
