@@ -3,10 +3,11 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Validator")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V5::All'
+process.GlobalTag.globaltag = 'GR09_P_V6::All'
+#process.GlobalTag.globaltag = 'MC_31X_V5::All'
 process.prefer("GlobalTag")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(200)
 
@@ -18,19 +19,15 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff")
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_cff")
 #process.IsoProd.SkipNeutralIsoCheck = cms.untracked.bool(True)
-process.IsoProd.MinTrackP = cms.double(1.0)
+process.IsoProd.MinTrackP = cms.double(4.0)
 
 process.isoHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("Calibration.HcalCalibAlgos.calib_validator_cfi")
-process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_XX.root")
-process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt")
-#process.ValidationIsoTrk.calibFactorsFileName =cms.string("Calibration/HcalCalibAlgos/data/calibConst_IsoTrk_testCone_26.3cm.txt")
 process.ValidationIsoTrk.AxB = cms.string("Cone")
-#process.ValidationIsoTrk.AxB = cms.string("3x3")
-process.ValidationIsoTrk.calibrationConeSize = cms.double(26)
+process.ValidationIsoTrk.calibrationConeSize = cms.double(26.2)
 process.ValidationIsoTrk.takeAllRecHits = cms.untracked.bool(False)
 
 process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
@@ -68,6 +65,9 @@ process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bo
 process.pts = cms.EDFilter("PathTimerInserter")
 process.PathTimerService = cms.Service("PathTimerService")
 
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('ValidFile_XX.root')
+)
 
 process.p = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.ValidationIsoTrk)
 #process.p = cms.Path(process.IsoProd*process.ValidationIsoTrk)

@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.4 2009/10/23 15:35:10 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.5 2009/12/16 21:57:38 andrey Exp $
 //
 
 // system include files
@@ -48,10 +48,15 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+//TFile Service
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH1F.h"
+
 
 #include <fstream>
 #include <map>
@@ -130,7 +135,7 @@ private:
   Float_t emEnergy;
   Float_t targetE;
 
-  TFile* rootFile;
+  //TFile* rootFile;
   //  TTree* tree;
   TTree *tTree, *fTree;
 
@@ -163,7 +168,7 @@ private:
   int iPhi;
   int iEtaTr;
   int iPhiTr;
-  float iDr;
+  float iDr, delR;
   int dietatr;
   int diphitr;
 
@@ -181,6 +186,11 @@ private:
   const HcalRespCorrs* respRecalib;
  //  map<UInt_t, Float_t> CalibFactors; 
   //  Bool_t ReadCalibFactors(string);
+
+  TH1F *nTracks;
+
+  edm::Service<TFileService> fs;
+  // int Lumi_n;
 
   
 };
@@ -312,16 +322,11 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(hbheLabel_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-  /*
-  edm::Handle<HBHERecHitCollection> genhbhe;
-  iEvent.getByLabel(genhbheLabel_,genhbhe);
-  const HBHERecHitCollection genHithbhe = *(genhbhe.product());
-  */
-
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
 
+  // Lumi_n=iEvent.luminosityBlock();
   parameters_.useEcal = true;
   parameters_.useHcal = true;
   parameters_.useCalo = false;
@@ -333,7 +338,9 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //cout<<"Hello World. TrackCollectionSize: "<< pixelTracks->size()<<endl;
 
   //cout<<" generalTracks Size: "<< generalTracks->size()<<endl;
- 
+  int n = generalTracks->size();
+  nTracks->Fill(n);
+
   if(takeGenTracks_ && iEvent.id().event()%10==1)
     {
       gen = generalTracks->size();
@@ -378,21 +385,6 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
     }
 
-  /*
-  if(takeAllRecHits_ && iEvent.id().event()%500==1)
-    {
-      Nhits=0;
-      for (HBHERecHitCollection::const_iterator hhit=genHithbhe.begin(); hhit!=genHithbhe.end(); hhit++) 
-	{
-	  hbheiEta[Nhits] = hhit->id().ieta();	  
-	  hbheiPhi[Nhits] = hhit->id().iphi();	 
-	  hbheDepth[Nhits] = hhit->id().depth();	 
-	  hbheEnergy[Nhits] = hhit->energy();
-	  Nhits++;
-	  
-	}
-    }    
-  */  
   tTree -> Fill();
 
 if (pixelTracks->size()==0) return;
@@ -409,7 +401,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
    for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = pixelTracks->begin(); it!=pixelTracks->end(); it++)
    //for (reco::TrackCollection::const_iterator it = pixelTracks->begin(); it!=pixelTracks->end(); it++)
    { 
-	  //if (floor(100000*trit->pt())==floor(100000*it->pt())) 
+
 	  if (abs((trit->pt() - it->pt())/it->pt()) < 0.005 && abs(trit->eta() - it->eta()) < 0.01) 
 	   {
 	     isoMatched=it;
@@ -445,6 +437,9 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 
       emEnergy = isoMatched->energyIn();
 
+      //cout<<"Point 0.3.  Matched :: pt: "<<trit->pt()<<" wholeEnergy: "<<trackE<<"  emEnergy: "<<emEnergy<<"  eta: "<<etahcal<<" phi: "<<phihcal<<endl;
+      //cout<<"Point 0.4.  EM energy in cone: "<<emEnergy<<"  EtaHcal: "<<etahcal<<"  PhiHcal: "<<phihcal<<endl;
+
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,trackAssociator_.getFreeTrajectoryState(iSetup, *trit), parameters_);
       
       //float etaecal=info.trkGlobPosAtEcal.eta();
@@ -465,8 +460,28 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 
         GlobalPoint gP(xTrkHcal,yTrkHcal,zTrkHcal);
 
-      //cout<<"Point 0.3.  Matched :: pt: "<<trit->pt()<<" wholeEnergy: "<<trackE<<"  emEnergy: "<<emEnergy<<"  eta: "<<etahcal<<" phi: "<<phihcal<<endl;
-      //cout<<"Point 0.4.  EM energy in cone: "<<emEnergy<<"  EtaHcal: "<<etahcal<<"  PhiHcal: "<<phihcal<<endl;
+
+	int iphitrue = -10;
+	int ietatrue = 100;
+
+	if (etahcal<1.392) 
+	  {
+	    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+	    //    const GlobalPoint tempPoint(newx, newy, newz);
+	    //const DetId tempId = gHB->getClosestCell(tempPoint);
+	    const HcalDetId tempId = gHB->getClosestCell(gP);
+	    ietatrue = tempId.ieta();
+	    iphitrue = tempId.iphi();
+	  }
+
+	if (etahcal>1.392 &&  etahcal<3.0) 
+	  {
+	    const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
+	    const HcalDetId tempId = gHE->getClosestCell(gP);
+	    ietatrue = tempId.ieta();
+	    iphitrue = tempId.iphi();
+	  }
+
       /*
 	float dphi = fabs(info.trkGlobPosAtHcal.phi() - phihit); 
 	if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
@@ -492,10 +507,13 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
       usedHits.clear();
       //cout <<"Point 1. Entrance to HBHECollection"<<endl;
 
-      float dddeta = 1000.;
-      float dddphi = 1000.;
-      int iphitrue = 1234;
-      int ietatrue = 1234;
+      //float dddeta = 1000.;
+      //float dddphi = 1000.;
+      //int iphitrue = 1234;
+      //int ietatrue = 1234;
+
+      GlobalPoint gPhot;
+
 
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{
@@ -530,7 +548,8 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
 	  float deta = fabs(etahcal - etahit); 
 	  float dr = sqrt(dphi*dphi + deta*deta);
-
+	  
+	  /*
 	  if (deta<dddeta) {
 	   ietatrue = ietahitm;
 	   dddeta=deta;
@@ -540,8 +559,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  iphitrue = iphihitm;
 	  dddphi=dphi;
 	  }
-
-	  //  cout<<"ieta: "<<ietahitm<<"  iphi: "<<iphihitm<<"  depthhit: "<<depthhit<<"  dr: "<<dr<<endl;    
+	  */
 	  
 	  if(dr<associationConeSize_) 
 	    {
@@ -570,12 +588,17 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 		  MaxHit.dr   = dr;
 		  //MaxHit.depthhit  = (hhit->id()).depth();
 		  MaxHit.depthhit  = 1;
+
+		  //gPhot = geo->getPosition(hhit->detid());
 		}
 
 	    }
 	} //end of all HBHE hits cycle
       
       usedHits.clear();
+
+      //cout<<"Hottest ieta: "<<MaxHit.ietahitm<<"  iphi: "<<MaxHit.iphihitm<<"  dr: "<<MaxHit.dr<<endl;    
+      //cout<<"Track   ieta: "<<ietatrue<<"  iphi: "<<iphitrue<<endl;    
       
       //cout<<"Point 3.  MaxHit :::En "<<MaxHit.hitenergy<<"  ieta: "<<MaxHit.ietahitm<<"  iphi: "<<MaxHit.iphihitm<<endl;
       
@@ -685,12 +708,10 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 			  
 			  HTime[numHits]=  hhit->time();
 			  numHits++;
-			  
-			  
+			  			  
 			  eClustBefore += hhit->energy();
 			  eClustAfter += hhit->energy()*factor;
-			  
-			  
+			  			  
 			  if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
 			    {	
 			      eBeforeDepth1 += hhit->energy();
@@ -714,13 +735,9 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 				
           		  HTime[numHits]=  hhit->time();
 			  numHits++;			      
-			  
-			  
+			  			  
 			  eClustBefore += hhit->energy();
 			  eClustAfter += hhit->energy() * factor;
-			  
-			  //e3x3Before += hhit->energy();
-			  //e3x3After += hhit->energy()*factor;
 			  
 			  if ((hhit->id().depth() == 1) && (abs(hhit->id().ieta()) > 17) && (abs(hhit->id().ieta()) < 29))
 			    {	
@@ -736,9 +753,8 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 			}
 		    }//end of 3x3
 		  
-		  
-		  
-                  if (AxB_=="Cone" && getDistInPlaneSimple(gP,pos2) < calibrationConeSize_) {
+		  		  
+                  if (AxB_=="Cone" && getDistInPlaneSimple(gP, pos2) < calibrationConeSize_) {
 		    
 		    HTime[numHits]=  hhit->time();
 		    numHits++;			      
@@ -798,7 +814,8 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  
 	  iEtaTr = ietatrue;
 	  iPhiTr = iphitrue;
-	  iDr = MaxHit.dr;
+	  iDr = sqrt(diphi_M_P*diphi_M_P+dieta_M_P*dieta_M_P);
+	  delR = MaxHit.dr;
 	  dietatr = dieta_M_P;
 	  diphitr = diphi_M_P;
 	  
@@ -827,10 +844,16 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup& iSetup)
    LogWarning("CalibConstants")<<"   Not Found!! ";
  }
  
+ 
+ //  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
+ 
+ //@@@@@@@@@@@@@
+  TFileDirectory ValDir = fs->mkdir("Validation");
+ 
+ nTracks = fs->make<TH1F>("nTracks","general;number of general tracks",11,-0.5,10.5);
 
-  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
   
-  tTree = new TTree("tTree", "Tree for gen info"); 
+ tTree = new TTree("tTree", "Tree for gen info"); 
 
   if(takeGenTracks_) { 
     tTree->Branch("gen", &gen, "gen/I");
@@ -848,18 +871,9 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup& iSetup)
     tTree->Branch("pixPhi", pixPhi, "pixPhi[pix]/F");
     tTree->Branch("pixEta", pixEta, "pixEta[pix]/F");
   }
-  /*
-  if(takeAllRecHits_) {
-    tTree->Branch("Nhits", &Nhits, "Nhits/I");
-    tTree->Branch("hbheiEta", hbheiEta, "hbheiEta[Nhits]/I");
-    tTree->Branch("hbheiPhi", hbheiPhi, "hbheiPhi[Nhits]/I");
-    tTree->Branch("hbheDepth", hbheDepth, "hbheDepth[Nhits]/I");
-    tTree->Branch("hbheEnergy", hbheEnergy, "hbheEnergy[Nhits]/F");
-  }
-  */
 
   fTree = new TTree("fTree", "Tree for IsoTrack Calibration"); 
-  
+   
   fTree->Branch("eventNumber", &eventNumber, "eventNumber/I");
   fTree->Branch("runNumber", &runNumber, "runNumber/I");
 
@@ -896,6 +910,7 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup& iSetup)
   fTree->Branch("dietatr", &dietatr, "dietatr/I");
   fTree->Branch("diphitr", &diphitr, "diphitr/I");
   fTree->Branch("iDr", &iDr, "iDr/F");
+  fTree->Branch("delR", &delR, "delR/F");
 
   fTree->Branch("iTime", &iTime, "iTime/F");
   fTree->Branch("HTime", HTime, "HTime[numHits]/F");
@@ -915,90 +930,9 @@ ValidIsoTrkCalib::beginJob(const edm::EventSetup& iSetup)
 void 
 ValidIsoTrkCalib::endJob() 
 {
-  rootFile->Write();
-  rootFile->Close();
+  //  rootFile->Write();
+  //rootFile->Close();
 }
-
-
-
-//Bool_t ValidIsoTrkCalib::ReadCalibFactors(map<UInt_t, Float_t> CalibFactorsMap, string FileName) {
-/*
-
- Bool_t ValidIsoTrkCalib::ReadCalibFactors(string FileName) {
-
-  //  ifstream CalibFile(calibFactorsFileName_.c_str());
-
- edm::FileInPath pathto_calibFactorsFileName_(FileName);
- // edm::FileInPath pathto_calibFactorsFileName_( calibFactorsFileName_.c_str() );
-
- cout<<"  ---- Path to calib.txt FULL:"<<pathto_calibFactorsFileName_.fullPath().c_str() <<endl;
-
- ifstream CalibFile(pathto_calibFactorsFileName_.fullPath().c_str());
-
-
-  if (!CalibFile) {
-    //cout << "\nERROR: Can not find file with phi symmetry constants " <<  PHI_SYM_COR_FILENAME.Data() << endl;
-    cout << "Can't find Calib Corrections File!! ---\n" << endl;
-    return kFALSE;
-  }
-
-  // assumes the format used in CSA08, first line is a comment
-
-  Int_t   iEta;
-  UInt_t  iPhi;
-  UInt_t  depth;
-  TString sdName;
-  UInt_t  detId;
-
-  Float_t value;
-  HcalSubdetector sd;
-
-  std::string line;
-
-  while (getline(CalibFile, line)) {
-
-    if(!line.size() || line[0]=='#') continue;
-
-
-    std::istringstream linestream(line);
-    linestream >> iEta >> iPhi >> depth >> sdName >> value >> hex >> detId;
-
-
-    if (sdName=="HB") sd = HcalBarrel;
-    else if (sdName=="HE") sd = HcalEndcap;
-    else if (sdName=="HO") sd = HcalOuter;
-    else if (sdName=="HF") sd = HcalForward;
-    else {
-      cout << "\nInvalid detector name in phi symmetri constants file: " << sdName.Data() << endl;
-      cout << "Check file and rerun!\n" << endl;
-      return kFALSE;
-    }
-
-    // check if the data is consistent    
-  
-    if (HcalDetId(sd, iEta, iPhi, depth) != HcalDetId(detId)) {
-      cout << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n" << endl;
-      return kFALSE;    
-    }
-   
-    if (!(HcalDetId::validDetId(sd, iEta, iPhi, depth))) {
-      cout << "\nInvalid DetId from: iEta=" << iEta << " iPhi=" << iPhi << " depth=" << depth 
-	   << " subdet=" << sdName.Data() << " detId=" << detId << endl << endl; 
-      return kFALSE;    
-    }
-    
-
-    //CalibFactorsMap[HcalDetId(sd, iEta, iPhi, depth)] = value;
-    CalibFactors[HcalDetId(sd, iEta, iPhi, depth)] = value;
-    //    if (iEta==1){cout<<CalibFactorsMap[HcalDetId(sd, iEta, iPhi, depth)]<<endl;}
-  }
-
-  return kTRUE;
-}
-*/
-
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ValidIsoTrkCalib);

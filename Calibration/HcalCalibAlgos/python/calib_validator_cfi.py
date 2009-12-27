@@ -17,8 +17,8 @@ ValidationIsoTrk = cms.EDAnalyzer("ValidIsoTrkCalib",
         HcalIsolTrackInput = cms.InputTag("IsoProd:HcalIsolatedTrackCollection"),
         trackInput = cms.InputTag("IsoProd:IsoTrackTracksCollection"),
         associationConeSize = cms.double(0.5),
-        outputFileName = cms.string("ValidFile.root"),
-        calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt"),
+#        outputFileName = cms.string("ValidFile.root"),
+#        calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt"),
         AxB = cms.string("Cone"),
         calibrationConeSize = cms.double(26),
 
@@ -30,7 +30,6 @@ ValidationIsoTrk = cms.EDAnalyzer("ValidIsoTrkCalib",
         energyMaxIso = cms.double(1000.0),
 	maxPNear = cms.double(500.0), #def=2; so no actual cut. apply it later 
 
-#	takeAllRecHits = cms.untracked.bool(False),
 	takeGenTracks = cms.untracked.bool(False),
 
         genTracksLabel = cms.InputTag("generalTracks"),

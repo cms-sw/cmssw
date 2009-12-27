@@ -13,15 +13,17 @@ Int_t sample=0;
 // TString imgpath("~/afs/public_html/validation/cone26piplus/");  
 // TFile* tf = new TFile("./ValidFile_plus.root","OPEN");
 
- TString imgpath("~/afs/public_html/validation/minbias900/");  
- TFile* tf = new TFile("./ValidFile_MB900.root","OPEN");
-// TFile* tf = new TFile("./ValidFile_XX.root","OPEN");
+ TString imgpath("~/afs/public_html/validation/");  
+ TFile* tf = new TFile("./ValidFile_data900v3sp.root","OPEN");
+// TFile* tf = new TFile("./ValidFile_MB900.root","OPEN");
+ //TFile* tf = new TFile("./ValidFile_XX_4.root","OPEN");
   
 
   //TCut tr_cut = "eTrack>47 && eTrack<53";  label = new TText(0.97,0.1, "50 GeV"); sample=50;
 
 //  TCut tr_cut = "eTrack>41 && eTrack<59";  label = new TText(0.97,0.1, "40-60 GeV"); sample=50;
-  TCut tr_cut = "eTrack>5 && eTrack<100";  label = new TText(0.97,0.1, "MinBias"); sample=900;
+//  TCut tr_cut = "eTrack>5 && eTrack<100";  label = new TText(0.97,0.1, "MinBias"); sample=900;
+  TCut tr_cut = "eTrack>5 && eTrack<100";  label = new TText(0.97,0.1, "Data @ 900 GeV"); sample=900;
 
   
 label -> SetNDC();
@@ -31,13 +33,16 @@ label->SetTextAngle(90);
 
 TCut tr_quality = "numValidTrkHits>=13 && (abs(etaTrack) <= 1.47 || numValidTrkStrips>=9)"; 
  TCut mip_cut = "eECAL<1";
+// TCut hit_dist = "iDr<1.5";
  TCut hit_dist = "sqrt(dietatr*dietatr+diphitr*diphitr)<1.5";
  TCut ptNear = "PtNearBy<2";
 TCut selection = tr_cut && mip_cut && tr_quality && hit_dist && ptNear;
   
 
-  TTree* ftree = (TTree*)tf->Get("fTree");  
-  TTree* ttree = (TTree*)tf->Get("tTree");
+//  TTree* ftree = (TTree*)tf->Get("fTree");  
+//  TTree* ttree = (TTree*)tf->Get("tTree");
+  TTree* ftree = (TTree*)tf->Get("ValidationIsoTrk/fTree");  
+  TTree* ttree = (TTree*)tf->Get("ValidationIsoTrk/tTree");
    Int_t  nentries = (Int_t)ftree->GetEntries();
   Double_t nent = 1.;
   TCanvas* c1 = new TCanvas("c1","all",0,0,350,350);
@@ -46,6 +51,7 @@ TCut selection = tr_cut && mip_cut && tr_quality && hit_dist && ptNear;
   ftree -> Draw("eTrack>>eTrack", selection);
   eTrack -> SetTitle("eTrack");
 label -> Draw();
+  c1 -> SetLogy();
    c1->SaveAs(imgpath+"p01.png");  
    
   ftree -> Draw("eECAL>>eECAL", tr_cut, "");
@@ -54,6 +60,8 @@ label -> Draw();
   eECAL -> SetTitle("EM energy");
 label -> Draw();
   c1->SaveAs(imgpath+"p02.png");  
+
+  c1 -> SetLogy(0);
 
   ftree -> Draw("numHits>>nh2", selection&&"abs(iEta)>17");
 nh2 -> SetBins(20, 0,20);
@@ -158,8 +166,12 @@ label -> Draw();
   hh1 -> Delete();
   hh2 -> Delete();
 
-  ftree -> Draw("eClustAfter/eTrack>>hh2", selection&&"abs(iEta)<17 && eClustAfter/eTrack>0.2", "goff");
-  ftree -> Draw("eClustBefore/eTrack>>hh1", selection&&"abs(iEta)<17 && eClustBefore/eTrack>0.2", "goff");
+//  ftree -> Draw("eClustAfter/eTrack>>hh2", selection&&"abs(iEta)<17 && eClustAfter/eTrack>0.2", 
+//"goff");
+//  ftree -> Draw("eClustBefore/eTrack>>hh1", selection&&"abs(iEta)<17 && eClustBefore/eTrack>0.2", 
+//"goff");
+  ftree -> Draw("eClustAfter/eTrack>>hh2", selection&&"abs(iEta)<17", "goff");
+  ftree -> Draw("eClustBefore/eTrack>>hh1", selection&&"abs(iEta)<17", "goff");
   hh2 -> SetLineColor(kGreen+2);
   hh1 -> SetLineColor(kRed+1);
   hh2 -> SetTitle("Response in HBarrel |iEta|<17");
@@ -193,8 +205,10 @@ label -> Draw();
   hh1 -> Delete();
   hh2 -> Delete();
 
-  ftree -> Draw("eClustAfter/eTrack>>hh2", selection&&"abs(iEta)>17  && eClustAfter/eTrack>0.2");
-  ftree -> Draw("eClustBefore/eTrack>>hh1", selection&&"abs(iEta)>17  && eClustBefore/eTrack>0.2");
+//  ftree -> Draw("eClustAfter/eTrack>>hh2", selection&&"abs(iEta)>17  && eClustAfter/eTrack>0.2");
+//  ftree -> Draw("eClustBefore/eTrack>>hh1", selection&&"abs(iEta)>17  && eClustBefore/eTrack>0.2");
+  ftree -> Draw("eClustAfter/eTrack>>hh2", selection&&"abs(iEta)>17");
+  ftree -> Draw("eClustBefore/eTrack>>hh1", selection&&"abs(iEta)>17");
   hh2 -> SetLineColor(kGreen+2);
   hh1 -> SetLineColor(kRed+1);
   hh2 -> SetTitle("Response in HEndcap |iEta|>17");
@@ -448,6 +462,8 @@ label -> Draw();
   ftree -> Draw("runNumber>>hh1", selection);
   hh1 -> SetTitle("Run Number");
 hh1 -> SetLineColor(kBlue);
+hh1 -> SetNdivisions(404);
+
 label -> Draw();
   c1->SaveAs(imgpath+"p16.png");  
   hh1 -> Delete();
@@ -589,12 +605,14 @@ label -> Draw();
   hh1 -> Delete();
   hh2 -> Delete();
 
+  c1 -> SetLogy();
   ftree -> Draw("eCentHitAfter/eClustAfter>>hh1", selection && "eClustAfter>10", "");
   hh1 -> SetLineColor(kBlue+1);
   hh1 -> SetTitle("eCentral/eClust");
 label -> Draw();
   c1 -> SaveAs(imgpath+"p25.png");  
   hh1 -> Delete();
+  c1 -> SetLogy(0);
 
   ftree -> Draw("(eClustAfter-eCentHitAfter)/eTrack:eTrack>>hh2", selection && "abs(iEta) < 17", "prof");
   ftree -> Draw("(eClustAfter-eCentHitAfter)/eTrack:eTrack>>hh1", selection && "abs(iEta) > 17", "prof");
@@ -744,7 +762,7 @@ label -> Draw();
   hh2 -> SetLineColor(kBlue+1);
   leg = new TLegend(0.5,0.7,0.99,0.83);
   leg -> SetTextSize(0.04);
-  leg->AddEntry(hh1,"all 3x3 rechits","l");
+  leg->AddEntry(hh1,"rechits in cluster","l");
   leg->AddEntry(hh2,"central hit","l");
   leg -> Draw();
 label -> Draw();
@@ -759,7 +777,7 @@ label -> Draw();
   hh1 -> SetTitle("time in HEndcap");
   leg = new TLegend(0.5,0.7,0.99,0.83);
   leg -> SetTextSize(0.04);
-  leg->AddEntry(hh1,"all 3x3 rechits","l");
+  leg->AddEntry(hh1,"rechits in cluster","l");
   leg->AddEntry(hh2,"central hit","l");
   leg -> Draw();
 label -> Draw();
@@ -768,11 +786,13 @@ label -> Draw();
   hh2 -> Delete();
 
 
+  c1 -> SetLogy();
   ftree -> Draw("PtNearBy>>hh1", "", "");
   hh1 -> SetTitle("pt near");
 label -> Draw();
   c1 -> SaveAs(imgpath+"p36.png");  
   hh1 -> Delete();
+  c1 -> SetLogy(0);
 
   ftree -> Draw("numValidTrkHits>>hh1", tr_cut && mip_cut && hit_dist, "");
 //hh1 -> SetMaximum(hh2->GetMaximum()+10);
@@ -842,9 +862,10 @@ label -> Draw();
    c1->SaveAs(imgpath+"p44.png");  
    hh1 -> Delete();
 
+  c1 -> SetLogy();
   ftree -> Draw("eECAL>>hh1", selection&&"abs(iEta)>17", "");
  ftree -> Draw("eECAL>>hh2", selection&&"abs(iEta)<17", "same");
-  hh1 -> SetTitle("ecal energy cs iEta");
+  hh1 -> SetTitle("ecal energy vs iEta");
   hh1 -> SetXTitle("energy");
   hh1 -> SetLineColor(kGreen+2);
   hh2 -> SetLineColor(kRed+2);
@@ -853,6 +874,7 @@ label -> Draw();
   leg->AddEntry(hh2,"|iEta|<17","l");
   leg->AddEntry(hh1,"|iEta|>17","l");
   leg -> Draw();
+  c1 -> SetLogy(0);
 
 label -> Draw();
    c1->SaveAs(imgpath+"p45.png");  
