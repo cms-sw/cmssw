@@ -1,5 +1,6 @@
 
 #include <cstring>
+#include <cstdio>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"

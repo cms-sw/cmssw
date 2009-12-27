@@ -5,8 +5,8 @@
  *  TO BE REMOVED IN FUTURE RELEASES
  *
  *
- *  $Date: 2009/05/28 17:19:10 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2009/06/05 09:31:22 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -28,6 +28,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <cstdio>
 
 //-------------------
 // Initializations --
