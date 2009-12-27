@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cmath>
+#include <stdint.h>
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/ErrorPropogationTypes.h"
 
 namespace reco {
