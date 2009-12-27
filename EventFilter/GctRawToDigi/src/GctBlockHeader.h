@@ -7,13 +7,13 @@
 * \brief Simple class for holding the basic attributes of an 32-bit block header.
 * * 
 * \author Robert Frazier
-* $Revision: 1.16 $
-* $Date: 2009/04/07 10:58:37 $
+* $Revision: 1.17 $
+* $Date: 2009/04/09 11:09:26 $
 */
 
 // C++ headers
 #include <ostream>
-
+#include <stdint.h>
 
 class GctBlockHeader
 {
