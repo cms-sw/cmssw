@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <cstdio>
 
 using namespace std;
 

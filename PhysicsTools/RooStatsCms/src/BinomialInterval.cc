@@ -1,5 +1,5 @@
 #include <string>
-
+#include <cstdio>
 #include "Math/PdfFuncMathCore.h"
 #include "Math/QuantFuncMathCore.h"
 
