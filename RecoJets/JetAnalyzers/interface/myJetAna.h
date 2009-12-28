@@ -69,26 +69,38 @@ private:
   // ---
   
   // --- RecHits
+  TH1F *HBEneOOT;
+  TH1F *HEEneOOT;
+  TH1F *HFEneOOT;
+  TH1F *HOEneOOT;
+
   TH1F *HBEne;
+  TH1F *HBEneTh;
   TH1F *HBEneX;
   TH1F *HBEneY;
   TH1F *HBTime;
+  TH1F *HBTimeTh;
   TH1F *HBTimeX;
   TH1F *HBTimeY;
   TH1F *HEEne;
+  TH1F *HEEneTh;
   TH1F *HEEneX;
   TH1F *HEEneY;
   TH1F *HEposEne;
   TH1F *HEnegEne;
   TH1F *HETime;
+  TH1F *HETimeTh;
   TH1F *HETimeX;
   TH1F *HETimeY;
   TH1F *HEposTime;
   TH1F *HEnegTime;
   TH1F *HFEne;
+  TH1F *HFEneTh;
   TH1F *HFTime;
+  TH1F *HFTimeTh;
   TH1F *HFEneP;
   TH1F *HFTimeP;
+  TH1F *HFTimePMa;
   TH1F *HFTimePM;
   TH1F *HFEneM;
   TH1F *HFTimeM;
@@ -97,9 +109,16 @@ private:
   TH1F *HFSEne;
   TH2F *HFLvsS;
 
+  TH2F *HBTvsE;
+  TH2F *HETvsE;
+  TH2F *HFTvsE;
+  TH2F *HOTvsE;
+
   TH1F *HFSTime;
   TH1F *HOEne;
+  TH1F *HOEneTh;
   TH1F *HOTime;
+  TH1F *HOTimeTh;
   TH2F *HOocc;
   TH2F *HBocc;
   TH2F *HEocc;
@@ -119,17 +138,21 @@ private:
   TH1F *HOHrp2Ene;
   TH1F *HOHrp2Time;
   TH1F *EBEne;
+  TH1F *EBEneTh;
   TH1F *EBEneX;
   TH1F *EBEneY;
   TH1F *EBTime;
+  TH1F *EBTimeTh;
   TH1F *EBTimeX;
   TH1F *EBTimeY;
   TH1F *EEEne;
+  TH1F *EEEneTh;
   TH1F *EEEneX;
   TH1F *EEEneY;
   TH1F *EEnegEne;
   TH1F *EEposEne;
   TH1F *EETime;
+  TH1F *EETimeTh;
   TH1F *EETimeX;
   TH1F *EETimeY;
   TH1F *EEnegTime;
