@@ -15,7 +15,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Sat May 24 12:00:56 CET 2008
-// $Id: KtAlgorithm.cc,v 1.2 2008/11/24 22:43:28 hvanhaev Exp $
+// $Id: KtAlgorithm.cc,v 1.3 2009/02/27 16:11:49 hvanhaev Exp $
 //
 //
 
@@ -182,8 +182,7 @@ CastorClusterCollection KtAlgorithm::runKtAlgo (const CastorTowerRefVector& Inpu
   } 
   
   // start merging until only one cluster is left
-  int ncluster;
-  while (ncluster=protoclusters.size()>1) {
+  while (protoclusters.size()>1) {
          
         // call calcddi and calcdPairs function
   	std::vector<double> ddi;

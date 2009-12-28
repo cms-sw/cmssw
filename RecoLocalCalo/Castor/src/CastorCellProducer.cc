@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: Castor.cc,v 1.3 2008/12/09 08:44:01 hvanhaev Exp $
+// $Id: CastorCellProducer.cc,v 1.1 2009/02/27 16:12:53 hvanhaev Exp $
 //
 //
 
@@ -126,7 +126,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     int zside = rh.id().zside();
     
     // define CastorCell properties
-    double zCell;
+    double zCell=0.;
     double phiCell;
     double rhoCell;
       
