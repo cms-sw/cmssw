@@ -221,7 +221,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
 
     float x = 0, y = 0, z = 0;
 
-    if(id.sector() > 10 || 1 <= id.sector() && id.sector() <= 4){ 
+    if(id.sector() > 10 || (1 <= id.sector() && id.sector() <= 4)){ 
       x = rhitglob.x()*cos(-_phi)-rhitglob.y()*sin(-_phi);
       y = rhitglob.y()*cos(-_phi)+rhitglob.x()*sin(-_phi);
       z = rhitglob.z();

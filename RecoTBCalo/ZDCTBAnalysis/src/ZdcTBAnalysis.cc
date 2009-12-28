@@ -157,8 +157,8 @@ void ZdcTBAnalysis::analyze(const HcalTBEventPosition& chpos){
   chpos.getChamberHits('H',wchx,wchy);
   
   // just take 5 first hits of chambers (5 tick cycles)
-  int indTop = 5;
-  int indx = 0;
+  unsigned int indTop = 5;
+  unsigned int indx = 0;
    for (indx = 0; indx < wcax.size(); indx++)
     if (indx < indTop)chamb.WCAx[indx] = wcax[indx];
   for (indx = 0; indx < wcay.size(); indx++)

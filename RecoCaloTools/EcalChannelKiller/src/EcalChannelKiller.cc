@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id: EcalChannelKiller.cc,v 1.4 2009/09/10 09:29:39 elmer Exp $
+// $Id: EcalChannelKiller.cc,v 1.5 2009/12/14 22:23:43 wmtan Exp $
 //
 //
 
@@ -88,7 +88,6 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    const EcalRecHitCollection* hit_collection = rhcHandle.product();
  
-   int nTot = hit_collection->size();
    int nRed = 0;
    
    // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and put in the Event:

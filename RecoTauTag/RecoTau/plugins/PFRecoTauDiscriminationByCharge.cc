@@ -25,7 +25,7 @@ class PFRecoTauDiscriminationByCharge : public PFTauDiscriminationProducerBase  
 double PFRecoTauDiscriminationByCharge::discriminate(const PFTauRef& thePFTauRef)
 {
    uint16_t nSigTk        =  thePFTauRef->signalPFChargedHadrCands().size();
-   bool chargeok          =  (abs(thePFTauRef->charge()) == chargeReq_);
+   bool chargeok          =  (abs(thePFTauRef->charge()) == int(chargeReq_));
    bool oneOrThreeProngOK =  ( (nSigTk==1) || (nSigTk==3) || !oneOrThreeProng_ );
 
    return ( (chargeok && oneOrThreeProngOK) ? 1. : 0. );
