@@ -995,7 +995,7 @@ inline bool DEutils<EcalTrigPrimDigiCollection>::is_empty(col_cit it) const {
 template<>
 inline bool DEutils<HcalTrigPrimDigiCollection>::is_empty(col_cit it) const { 
   unsigned int mask = 0x01ff;
-  return (  it->size()==0 || (it->t0().raw()&mask==0) || it->SOI_compressedEt()==0 );
+  return (  it->size()==0 || ((it->t0().raw()&mask)==0) || it->SOI_compressedEt()==0 );
 }
 
 template<>
