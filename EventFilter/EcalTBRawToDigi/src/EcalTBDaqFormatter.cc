@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2008/01/21 11:21:01 $
- *  $Revision: 1.72 $
+ *  $Date: 2009/09/03 22:47:49 $
+ *  $Revision: 1.73 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -843,8 +843,8 @@ std::pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int c
   else
     eta += (kCrystalsPerTower - 1 - xtal)/kCardsPerTower;
 
-  if (rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 1 ||
-      !rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 0)
+  if ((rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 1) ||
+      (!rightTower(tower_id) && (xtal/kCardsPerTower)%2 == 0))
 
     phi += (kChannelsPerCard - 1 - xtal%kChannelsPerCard);
   else

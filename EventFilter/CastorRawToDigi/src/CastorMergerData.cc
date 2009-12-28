@@ -1,6 +1,6 @@
 /*  
- *  $Date: 2009/02/10 12:50:58 $
- *  $Revision: 1.00 $
+ *  $Date: 2009/02/20 17:46:27 $
+ *  $Revision: 1.1 $
  *  \author A. Campbell - DESY
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -134,7 +134,7 @@ void CastorMergerData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, 
   m_ownData[4]=((m_formatVersion&0xF)<<12)|(bcn&0xFFF);
   m_ownData[5]|=((nps&0xF)<<4)|0x1;
   m_ownData[6]=((firmwareRev&0x70000)>>3)|(firmwareRev&0x1FFF);
-  m_ownData[7]=pipeline&0xFF | ((ndd&0x1F)<<8);
+  m_ownData[7]=(pipeline&0xFF) | ((ndd&0x1F)<<8);
   m_ownData[m_rawLength-4]&=0x7FF;
   m_ownData[m_rawLength-4]|=(ndd&0x1F)<<11;
   

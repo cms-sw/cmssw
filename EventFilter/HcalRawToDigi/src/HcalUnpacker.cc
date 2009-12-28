@@ -377,7 +377,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     htr.getHistogramFibers(f[0],f[1]);
 
     for (int nf=0; nf<2; nf++) {
-      if (f[nf]<0 || nf==1 && f[0]==f[1]) continue; // skip if invalid or the same
+      if (f[nf]<0 || (nf==1 && f[0]==f[1])) continue; // skip if invalid or the same
       for (fc=0; fc<=2; fc++) {
 	HcalElectronicsId eid(fc,f[nf],spigot,dccid);	  
 	eid.setHTR(htr_cr,htr_slot,htr_tb);
