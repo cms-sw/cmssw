@@ -215,7 +215,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
         for(edm::PCaloHitContainer::const_iterator
               simHit = simHitsBarrel->begin();
               simHit!= simHitsBarrel->end(); simHit++)
-        if(simHit->geantTrackId() == simTrack->g4Track_begin()->trackId() &&
+	  if(simHit->geantTrackId() == static_cast<int>(simTrack->g4Track_begin()->trackId()) && //the sign of trackId tells whether there was a match  
            simHit->energy() > 0.060)
         {
           EBDetId detId(simHit->id());
@@ -238,7 +238,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
         for(edm::PCaloHitContainer::const_iterator
               simHit = simHitsEndcap->begin();
               simHit!= simHitsEndcap->end(); simHit++)
-        if(simHit->geantTrackId() == simTrack->g4Track_begin()->trackId() &&
+	  if(simHit->geantTrackId() == static_cast<int>(simTrack->g4Track_begin()->trackId()) && //the sign of trackId tells whether there was a match
            simHit->energy() > 0.060)
         {
           EEDetId detId(simHit->id());
