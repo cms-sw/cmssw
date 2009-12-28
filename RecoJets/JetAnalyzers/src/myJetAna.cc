@@ -222,9 +222,9 @@ void myJetAna::beginJob( const EventSetup & ) {
   h_nCalJets  =  fs->make<TH1F>( "nCalJets",  "Number of CalJets", 20, 0, 20 );
 
   HBEneOOT  = fs->make<TH1F>( "HBEneOOT",  "HBEneOOT", 200, -5, 10 );
-  HEEneOOT  = fs->make<TH1F>( "HBEneOOT",  "HBEneOOT", 200, -5, 10 );
-  HFEneOOT  = fs->make<TH1F>( "HBEneOOT",  "HBEneOOT", 200, -5, 10 );
-  HOEneOOT  = fs->make<TH1F>( "HBEneOOT",  "HBEneOOT", 200, -5, 10 );
+  HEEneOOT  = fs->make<TH1F>( "HEEneOOT",  "HEEneOOT", 200, -5, 10 );
+  HFEneOOT  = fs->make<TH1F>( "HFEneOOT",  "HFEneOOT", 200, -5, 10 );
+  HOEneOOT  = fs->make<TH1F>( "HOEneOOT",  "HOEneOOT", 200, -5, 10 );
 
   HBEne     = fs->make<TH1F>( "HBEne",  "HBEne", 200, -5, 10 );
   HBEneTh   = fs->make<TH1F>( "HBEneTh",  "HBEneTh", 200, -5, 10 );
