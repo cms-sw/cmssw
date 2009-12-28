@@ -43,7 +43,6 @@
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
-#include "QCDAnalysis/UEAnalysis/interface/TLorentzVectorL.h"
 
 using namespace edm;
 using namespace reco;
