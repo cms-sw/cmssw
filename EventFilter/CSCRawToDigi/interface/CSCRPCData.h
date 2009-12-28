@@ -27,7 +27,7 @@ private:
   static bool debug;
   int ntbins_;
   int size_;
-  unsigned short theData[2*4*32];
+  unsigned short theData[2*4*32+2];
 };
 
 #endif
