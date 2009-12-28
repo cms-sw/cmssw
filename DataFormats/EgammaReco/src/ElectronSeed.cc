@@ -4,11 +4,13 @@
 
 using namespace reco ;
 
+
 ElectronSeed::ElectronSeed()
  : TrajectorySeed(), ctfTrack_(), caloCluster_(),
-   isEcalDriven_(false), isTrackerDriven_(false),
-   subDet2_(0), dRz2_(std::numeric_limits<float>::infinity()),
-   dPhi2_(std::numeric_limits<float>::infinity())
+   subDet2_(0), 
+   dRz2_(std::numeric_limits<float>::infinity()),
+   dPhi2_(std::numeric_limits<float>::infinity()),
+   isEcalDriven_(false), isTrackerDriven_(false)
 
  {}
 
@@ -16,18 +18,21 @@ ElectronSeed::ElectronSeed
  ( const TrajectorySeed & seed )
  : TrajectorySeed(seed),
    ctfTrack_(), caloCluster_(),
-   isEcalDriven_(false), isTrackerDriven_(false),
-   subDet2_(0), dRz2_(std::numeric_limits<float>::infinity()),
-   dPhi2_(std::numeric_limits<float>::infinity())
+   subDet2_(0), 
+   dRz2_(std::numeric_limits<float>::infinity()),
+   dPhi2_(std::numeric_limits<float>::infinity()),
+   isEcalDriven_(false), 
+   isTrackerDriven_(false) 
  {}
 
 ElectronSeed::ElectronSeed
  ( PTrajectoryStateOnDet & pts, recHitContainer & rh, PropagationDirection & dir )
  : TrajectorySeed(pts,rh,dir),
    ctfTrack_(), caloCluster_(),
-   isEcalDriven_(false), isTrackerDriven_(false),
    subDet2_(0), dRz2_(std::numeric_limits<float>::infinity()),
-   dPhi2_(std::numeric_limits<float>::infinity())
+   dPhi2_(std::numeric_limits<float>::infinity()),
+   isEcalDriven_(false), 
+  isTrackerDriven_(false)
  {}
 
 void ElectronSeed::setCtfTrack

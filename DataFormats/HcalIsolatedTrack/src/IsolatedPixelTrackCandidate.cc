@@ -23,7 +23,7 @@ bool IsolatedPixelTrackCandidate::overlap( const Candidate & c ) const {
 
 std::pair<int,int> IsolatedPixelTrackCandidate::towerIndex() const
 {
-  int ieta, iphi;
+  int ieta=0, iphi=0;
   for (int i=1; i<21; i++)
     {
       if (fabs(track_->eta())<(i*0.087)&&fabs(track_->eta())>(i-1)*0.087) ieta=int(fabs(track_->eta())/track_->eta())*i;

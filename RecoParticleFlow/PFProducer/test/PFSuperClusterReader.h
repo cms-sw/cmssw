@@ -11,7 +11,6 @@
 #include <string>
 #include <map>
 
-class reco::PFCandidate;
 
 class PFSuperClusterReader : public edm::EDAnalyzer
 {
