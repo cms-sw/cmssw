@@ -21,12 +21,11 @@ bool CSCRPCData::debug = false;
 CSCRPCData::CSCRPCData(int ntbins) 
   :ntbins_(ntbins)
 {
-  bzero(theData, 516);
   theData[0] = 0x6b04;
   for(int i = 1; i < 257; ++i) {
     // data format is bits 12-14 are RPC number, 0 to 3
     int rpc = (i-1)/14;
-    theData[i] |= rpc << 12;
+    theData[i] = rpc << 12;
 
     // bits 8-11 of the first word of the pair is time bin
     int tbin = ((i-1)%14)/2;
