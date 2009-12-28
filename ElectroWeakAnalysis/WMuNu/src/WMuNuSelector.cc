@@ -30,7 +30,7 @@ class WMuNuSelector : public edm::EDFilter {
 public:
   WMuNuSelector (const edm::ParameterSet &);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();
   void init_histograms();
 private:
@@ -145,7 +145,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
 {
 }
 
-void WMuNuSelector::beginJob(const EventSetup &) {
+void WMuNuSelector::beginJob() {
       nall = 0;
       ntrig=0;
       npresel=0;

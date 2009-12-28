@@ -36,7 +36,7 @@ public:
 private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();
 
   edm::InputTag muonTag_;
@@ -93,7 +93,7 @@ WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
   produces< WMuNuCandidateCollection >();
 }
 
-void WMuNuProducer::beginJob(const EventSetup &) {
+void WMuNuProducer::beginJob() {
 }
 
 void WMuNuProducer::endJob() {

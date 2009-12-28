@@ -22,7 +22,7 @@ class WMuNuValidator : public edm::EDFilter {
 public:
   WMuNuValidator (const edm::ParameterSet &);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();
   void init_histograms();
   void fill_histogram(const char*, const double&);
@@ -134,7 +134,7 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
 {
 }
 
-void WMuNuValidator::beginJob(const EventSetup &) {
+void WMuNuValidator::beginJob() {
       nall = 0;
       nsel = 0;
 
