@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.84 2009/12/14 23:40:21 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.85 2009/12/15 13:19:24 chamont Exp $
 //
 //
 
@@ -1094,7 +1094,7 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
     // forced the MVA value to translatorUndefined
     if (minMVA_<pfTranslatorUndefined)
      {
-      edm::LogWarning("GsfElectronAlgo")
+      LogDebug("GsfElectronAlgo")
         <<"Parameter minMVA is inferior to the cut applied by PFlow translator."
         <<" Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster." ;
      }
@@ -1102,7 +1102,7 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
      {
       // the MVA value has been forced to translatorUndefined, inferior minMVAPflow
       // so the cut actually applied is the PFlow one
-      edm::LogWarning("GsfElectronAlgo")
+       edm::LogWarning("GsfElectronAlgo")
         <<"Parameter minMVA will have no effect on ecal (and eventually tracker) seeded electrons."
         <<" It is inferior to the cut already defined by PFlow translator." ;
      }
