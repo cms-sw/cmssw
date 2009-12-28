@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.5 2009/12/16 21:57:38 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.6 2009/12/27 20:49:03 andrey Exp $
 //
 
 // system include files
@@ -261,7 +261,7 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
 
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");
   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("allowMissingInputs", true);
-  outputFileName_=iConfig.getParameter<std::string>("outputFileName");
+//  outputFileName_=iConfig.getParameter<std::string>("outputFileName");
   //  calibFactorsFileName_=iConfig.getParameter<std::string>("calibFactorsFileName");
 
 
