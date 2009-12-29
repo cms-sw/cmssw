@@ -342,6 +342,14 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "thresh_Pt_Seed_Ecal_Barrel", 
                    threshPtSeedEcalBarrel);
 
+  double threshCleanEcalBarrel = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_Ecal_Barrel", 
+                   threshCleanEcalBarrel);
+
+  double minS4S1CleanEcalBarrel = 0.0;
+  options_->GetOpt("clustering", "minS4S1_Clean_Ecal_Barrel", 
+                   minS4S1CleanEcalBarrel);
+
   double threshEcalEndcap = 0.2;
   options_->GetOpt("clustering", "thresh_Ecal_Endcap", threshEcalEndcap);
 
@@ -355,6 +363,14 @@ void PFRootEventManager::readOptions(const char* file,
   double threshPtSeedEcalEndcap = 0.0;
   options_->GetOpt("clustering", "thresh_Pt_Seed_Ecal_Endcap",
                    threshPtSeedEcalEndcap);
+
+  double threshCleanEcalEndcap = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_Ecal_Endcap", 
+                   threshCleanEcalEndcap);
+
+  double minS4S1CleanEcalEndcap = 0.0;
+  options_->GetOpt("clustering", "minS4S1_Clean_Ecal_Endcap", 
+                   minS4S1CleanEcalEndcap);
 
   double showerSigmaEcal = 3;  
   options_->GetOpt("clustering", "shower_Sigma_Ecal",
@@ -383,11 +399,17 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoECAL_.setThreshPtBarrel( threshPtEcalBarrel );
   clusterAlgoECAL_.setThreshPtSeedBarrel( threshPtSeedEcalBarrel );
   
+  clusterAlgoECAL_.setThreshCleanBarrel(threshCleanEcalBarrel);
+  clusterAlgoECAL_.setS4S1CleanBarrel(minS4S1CleanEcalBarrel);
+
   clusterAlgoECAL_.setThreshEndcap( threshEcalEndcap );
   clusterAlgoECAL_.setThreshSeedEndcap( threshSeedEcalEndcap );
 
   clusterAlgoECAL_.setThreshPtEndcap( threshPtEcalEndcap );
   clusterAlgoECAL_.setThreshPtSeedEndcap( threshPtSeedEcalEndcap );
+
+  clusterAlgoECAL_.setThreshCleanEndcap(threshCleanEcalEndcap);
+  clusterAlgoECAL_.setS4S1CleanEndcap(minS4S1CleanEcalEndcap);
 
   clusterAlgoECAL_.setNNeighbours( nNeighboursEcal );
   clusterAlgoECAL_.setShowerSigma( showerSigmaEcal );
@@ -445,6 +467,14 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "thresh_Pt_Seed_Hcal_Barrel", 
                    threshPtSeedHcalBarrel);
 
+  double threshCleanHcalBarrel = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_Hcal_Barrel", 
+                   threshCleanHcalBarrel);
+
+  double minS4S1CleanHcalBarrel = 0.0;
+  options_->GetOpt("clustering", "minS4S1_Clean_Hcal_Barrel", 
+                   minS4S1CleanHcalBarrel);
+
   double threshHcalEndcap = 0.8;
   options_->GetOpt("clustering", "thresh_Hcal_Endcap", threshHcalEndcap);
 
@@ -458,6 +488,14 @@ void PFRootEventManager::readOptions(const char* file,
   double threshPtSeedHcalEndcap = 0.0;
   options_->GetOpt("clustering", "thresh_Pt_Seed_Hcal_Endcap",
                    threshPtSeedHcalEndcap);
+
+  double threshCleanHcalEndcap = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_Hcal_Endcap", 
+                   threshCleanHcalEndcap);
+
+  double minS4S1CleanHcalEndcap = 0.0;
+  options_->GetOpt("clustering", "minS4S1_Clean_Hcal_Endcap", 
+                   minS4S1CleanHcalEndcap);
 
   double showerSigmaHcal    = 15;
   options_->GetOpt("clustering", "shower_Sigma_Hcal",
@@ -488,11 +526,17 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHCAL_.setThreshPtBarrel( threshPtHcalBarrel );
   clusterAlgoHCAL_.setThreshPtSeedBarrel( threshPtSeedHcalBarrel );
   
+  clusterAlgoHCAL_.setThreshCleanBarrel(threshCleanHcalBarrel);
+  clusterAlgoHCAL_.setS4S1CleanBarrel(minS4S1CleanHcalBarrel);
+
   clusterAlgoHCAL_.setThreshEndcap( threshHcalEndcap );
   clusterAlgoHCAL_.setThreshSeedEndcap( threshSeedHcalEndcap );
 
   clusterAlgoHCAL_.setThreshPtEndcap( threshPtHcalEndcap );
   clusterAlgoHCAL_.setThreshPtSeedEndcap( threshPtSeedHcalEndcap );
+
+  clusterAlgoHCAL_.setThreshCleanEndcap(threshCleanHcalEndcap);
+  clusterAlgoHCAL_.setS4S1CleanEndcap(minS4S1CleanHcalEndcap);
 
   clusterAlgoHCAL_.setNNeighbours( nNeighboursHcal );
   clusterAlgoHCAL_.setShowerSigma( showerSigmaHcal );
@@ -521,6 +565,14 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "thresh_Pt_Seed_HFEM", 
                    threshPtSeedHFEM);
   
+  double threshCleanHFEM = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_HFEM", 
+                   threshCleanHFEM);
+
+  double minS4S1CleanHFEM = 0.0;
+  options_->GetOpt("clustering", "minS4S1_Clean_HFEM", 
+                   minS4S1CleanHFEM);
+
   double showerSigmaHFEM    = 0.1;
   options_->GetOpt("clustering", "shower_Sigma_HFEM",
                    showerSigmaHFEM);
@@ -547,6 +599,9 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHFEM_.setThreshPtEndcap( threshPtHFEM );
   clusterAlgoHFEM_.setThreshPtSeedEndcap( threshPtSeedHFEM );
 
+  clusterAlgoHFEM_.setThreshCleanEndcap(threshCleanHFEM);
+  clusterAlgoHFEM_.setS4S1CleanEndcap(minS4S1CleanHFEM);
+
   clusterAlgoHFEM_.setNNeighbours( nNeighboursHFEM );
   clusterAlgoHFEM_.setShowerSigma( showerSigmaHFEM );
 
@@ -557,7 +612,6 @@ void PFRootEventManager::readOptions(const char* file,
 
   clusterAlgoHFEM_.enableDebugging( clusteringDebug ); 
 
-  
   // clustering HFHAD 
 
   double threshHFHAD = 0.;
@@ -574,6 +628,14 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "thresh_Pt_Seed_HFHAD", 
                    threshPtSeedHFHAD);
   
+  double threshCleanHFHAD = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_HFHAD", 
+                   threshCleanHFHAD);
+
+  double minS4S1CleanHFHAD = 0.0;
+  options_->GetOpt("clustering", "minS4S1_Clean_HFHAD", 
+                   minS4S1CleanHFHAD);
+
   double showerSigmaHFHAD    = 0.1;
   options_->GetOpt("clustering", "shower_Sigma_HFHAD",
                    showerSigmaHFHAD);
@@ -600,6 +662,9 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHFHAD_.setThreshPtEndcap( threshPtHFHAD );
   clusterAlgoHFHAD_.setThreshPtSeedEndcap( threshPtSeedHFHAD );
 
+  clusterAlgoHFHAD_.setThreshCleanEndcap(threshCleanHFHAD);
+  clusterAlgoHFHAD_.setS4S1CleanEndcap(minS4S1CleanHFHAD);
+
   clusterAlgoHFHAD_.setNNeighbours( nNeighboursHFHAD );
   clusterAlgoHFHAD_.setShowerSigma( showerSigmaHFHAD );
 
@@ -609,9 +674,6 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHFHAD_.setUseCornerCells( useCornerCellsHFHAD );
 
   clusterAlgoHFHAD_.enableDebugging( clusteringDebug ); 
-
-  
-
 
   // clustering preshower
 
@@ -626,9 +688,14 @@ void PFRootEventManager::readOptions(const char* file,
                    threshSeedPS);
   
   double threshPtSeedPS = 0.0;
-  options_->GetOpt("clustering", "thresh_Pt_Seed_PS", 
-                   threshPtSeedPS);
+  options_->GetOpt("clustering", "thresh_Pt_Seed_PS", threshPtSeedPS);
   
+  double threshCleanPS = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_PS", threshCleanPS);
+
+  double minS4S1CleanPS = 0.0;
+  options_->GetOpt("clustering", "minS4S1_Clean_PS", minS4S1CleanPS);
+
   //Comment Michel: PSBarrel shall be removed?
   double threshPSBarrel     = threshPS;
   double threshSeedPSBarrel = threshSeedPS;
@@ -636,11 +703,17 @@ void PFRootEventManager::readOptions(const char* file,
   double threshPtPSBarrel     = threshPtPS;
   double threshPtSeedPSBarrel = threshPtSeedPS;
 
+  double threshCleanPSBarrel = threshCleanPS;
+  double minS4S1CleanPSBarrel = minS4S1CleanPS;
+
   double threshPSEndcap     = threshPS;
   double threshSeedPSEndcap = threshSeedPS;
 
   double threshPtPSEndcap     = threshPtPS;
   double threshPtSeedPSEndcap = threshPtSeedPS;
+
+  double threshCleanPSEndcap = threshCleanPS;
+  double minS4S1CleanPSEndcap = minS4S1CleanPS;
 
   double showerSigmaPS    = 0.1;
   options_->GetOpt("clustering", "shower_Sigma_PS",
@@ -670,11 +743,17 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoPS_.setThreshPtBarrel( threshPtPSBarrel );
   clusterAlgoPS_.setThreshPtSeedBarrel( threshPtSeedPSBarrel );
   
+  clusterAlgoPS_.setThreshCleanBarrel(threshCleanPSBarrel);
+  clusterAlgoPS_.setS4S1CleanBarrel(minS4S1CleanPSBarrel);
+
   clusterAlgoPS_.setThreshEndcap( threshPSEndcap );
   clusterAlgoPS_.setThreshSeedEndcap( threshSeedPSEndcap );
 
   clusterAlgoPS_.setThreshPtEndcap( threshPtPSEndcap );
   clusterAlgoPS_.setThreshPtSeedEndcap( threshPtSeedPSEndcap );
+
+  clusterAlgoPS_.setThreshCleanEndcap(threshCleanPSEndcap);
+  clusterAlgoPS_.setS4S1CleanEndcap(minS4S1CleanPSEndcap);
 
   clusterAlgoPS_.setNNeighbours( nNeighboursPS );
   clusterAlgoPS_.setShowerSigma( showerSigmaPS );
@@ -685,9 +764,6 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoPS_.setUseCornerCells( useCornerCellsPS );
 
   clusterAlgoPS_.enableDebugging( clusteringDebug ); 
-
-  
-
 
   // options for particle flow ---------------------------------------------
 
@@ -1619,7 +1695,7 @@ bool PFRootEventManager::processEntry(int entry) {
   readEventAuxiliary( entry ); 
 
   if(verbosity_ == VERBOSE  || 
-     // entry < 3000 ||
+     // entry < 10000 ||
      (entry < 100 && entry%10 == 0) || 
      (entry < 1000 && entry%100 == 0) || 
      entry%1000 == 0 ) 
@@ -1685,13 +1761,13 @@ bool PFRootEventManager::processEntry(int entry) {
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
   
-  goodevent = eventAccepted(); 
-
   //COLIN the PFJet and PFMET benchmarks are very messy. 
   //COLIN    compare with the filling of the PFCandidateBenchmark, which is one line. 
   
+  goodevent = eventAccepted(); 
+
   // evaluate PFJet Benchmark 
-  if(goodevent && doPFJetBenchmark_) { // start PFJet Benchmark
+  if(doPFJetBenchmark_) { // start PFJet Benchmark
 
     PFJetBenchmark_.process(pfJets_, genJets_);
     double resPt = PFJetBenchmark_.resPtMax();
@@ -1727,7 +1803,7 @@ bool PFRootEventManager::processEntry(int entry) {
 
   //COLIN would  be nice to move this long code to a separate function. 
   // is it necessary to re-set everything at each event?? 
-  if(goodevent && doPFMETBenchmark_) { // start PFMet Benchmark
+  if(doPFMETBenchmark_) { // start PFMet Benchmark
 
     // Fill here the various met benchmarks
     // pfMET vs GenMET
@@ -1792,7 +1868,8 @@ bool PFRootEventManager::processEntry(int entry) {
 
 bool PFRootEventManager::eventAccepted() const {
   // return highPtJet(10); 
-  return highPtPFCandidate( 10, PFCandidate::h ); 
+  //return highPtPFCandidate( 10, PFCandidate::h ); 
+  return true;
 } 
 
 

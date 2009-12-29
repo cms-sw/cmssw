@@ -12,12 +12,18 @@ particleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
     # cell threshold in HCAL barrel 
     thresh_Barrel = cms.double(0.8),
     thresh_Pt_Barrel = cms.double(0.0),
+    # cleaning threshold and minimum S4/S1 fraction in HCAL barrel
+    thresh_Clean_Barrel = cms.double(25.0),
+    minS4S1_Clean_Barrel = cms.double(0.01),
     # seed threshold in HCAL endcap 
     thresh_Seed_Endcap = cms.double(1.1),
     thresh_Pt_Seed_Endcap = cms.double(0.0),
     # cell threshold in HCAL endcap
     thresh_Endcap = cms.double(0.8),    
-    thresh_Pt_Endcap = cms.double(0.0),    
+    thresh_Pt_Endcap = cms.double(0.0),
+    # cleaning threshold and minimum S4/S1 fraction in HCAL barrel
+    thresh_Clean_Endcap = cms.double(30.0),
+    minS4S1_Clean_Endcap = cms.double(0.01),                                         
     #----HCAL options
     # n neighbours in HCAL 
     nNeighbours = cms.int32(4),

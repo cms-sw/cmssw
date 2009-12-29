@@ -61,6 +61,9 @@ class PFClusterAlgo {
   void setThreshSeedBarrel(double thresh) {threshSeedBarrel_ = thresh;}
   void setThreshPtSeedBarrel(double thresh) {threshPtSeedBarrel_ = thresh;}
 
+  /// set barrel clean threshold
+  void setThreshCleanBarrel(double thresh) {threshCleanBarrel_ = thresh;}
+  void setS4S1CleanBarrel(double thresh) {minS4S1Barrel_ = thresh;}
 
   /// set  endcap threshold
   void setThreshEndcap(double thresh) {threshEndcap_ = thresh;}
@@ -69,6 +72,10 @@ class PFClusterAlgo {
   /// set  endcap seed threshold
   void setThreshSeedEndcap(double thresh) {threshSeedEndcap_ = thresh;}
   void setThreshPtSeedEndcap(double thresh) {threshPtSeedEndcap_ = thresh;}
+
+  /// set endcap clean threshold
+  void setThreshCleanEndcap(double thresh) {threshCleanEndcap_ = thresh;}
+  void setS4S1CleanEndcap(double thresh) {minS4S1Endcap_ = thresh;}
 
 
   /// set number of neighbours for  
@@ -152,7 +159,9 @@ class PFClusterAlgo {
   enum Parameter { THRESH, 
 		   SEED_THRESH,
 		   PT_THRESH,
-		   SEED_PT_THRESH};
+		   SEED_PT_THRESH,
+                   CLEAN_THRESH,
+                   CLEAN_S4S1};
   
 
   /// \return the value of a parameter of a given type, see enum Parameter,
@@ -163,7 +172,8 @@ class PFClusterAlgo {
   enum SeedState {
     UNKNOWN=-1,
     NO=0,
-    YES=1
+    YES=1,
+    CLEAN=2
   };
 
 
@@ -252,6 +262,14 @@ class PFClusterAlgo {
   ///  endcap seed threshold
   double threshSeedEndcap_;
   double threshPtSeedEndcap_;
+
+  /// Barrel cleaning threshold and S4/S1 smallest fractiom
+  double threshCleanBarrel_;
+  double minS4S1Barrel_;
+
+  /// Endcap cleaning threshold and S4/S1 smallest fractiom
+  double threshCleanEndcap_;
+  double minS4S1Endcap_;
 
   ///  number of neighbours
   int    nNeighbours_;

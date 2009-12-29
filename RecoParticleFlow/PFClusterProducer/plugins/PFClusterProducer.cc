@@ -36,6 +36,11 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   double threshPtSeedBarrel = 
     iConfig.getParameter<double>("thresh_Pt_Seed_Barrel");
 
+  double threshCleanBarrel = 
+    iConfig.getParameter<double>("thresh_Clean_Barrel");
+  double minS4S1CleanBarrel = 
+    iConfig.getParameter<double>("minS4S1_Clean_Barrel");
+
   double threshEndcap = 
     iConfig.getParameter<double>("thresh_Endcap");
   double threshSeedEndcap = 
@@ -45,6 +50,11 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getParameter<double>("thresh_Pt_Endcap");
   double threshPtSeedEndcap = 
     iConfig.getParameter<double>("thresh_Pt_Seed_Endcap");
+
+  double threshCleanEndcap = 
+    iConfig.getParameter<double>("thresh_Clean_Endcap");
+  double minS4S1CleanEndcap = 
+    iConfig.getParameter<double>("minS4S1_Clean_Endcap");
 
 
   int nNeighbours = 
@@ -69,11 +79,17 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusterAlgo_.setThreshPtBarrel( threshPtBarrel );
   clusterAlgo_.setThreshPtSeedBarrel( threshPtSeedBarrel );
   
+  clusterAlgo_.setThreshCleanBarrel(threshCleanBarrel);
+  clusterAlgo_.setS4S1CleanBarrel(minS4S1CleanBarrel);
+
   clusterAlgo_.setThreshEndcap( threshEndcap );
   clusterAlgo_.setThreshSeedEndcap( threshSeedEndcap );
 
   clusterAlgo_.setThreshPtEndcap( threshPtEndcap );
   clusterAlgo_.setThreshPtSeedEndcap( threshPtSeedEndcap );
+
+  clusterAlgo_.setThreshCleanEndcap(threshCleanEndcap);
+  clusterAlgo_.setS4S1CleanEndcap(minS4S1CleanEndcap);
 
   clusterAlgo_.setNNeighbours( nNeighbours );
 
@@ -157,6 +173,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       <<clusterAlgo_<<endl;
   }    
   
+  std::cout << clusterAlgo_ << std::endl;
+
   // get clusters out of the clustering algorithm 
   // and put them in the event. There is no copy.
   auto_ptr< vector<reco::PFCluster> > 

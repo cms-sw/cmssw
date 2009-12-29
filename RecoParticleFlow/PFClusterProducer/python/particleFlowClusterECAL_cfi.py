@@ -14,12 +14,18 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     # cell threshold in ECAL barrel 
     thresh_Barrel = cms.double(0.08),
     thresh_Pt_Barrel = cms.double(0.00),
+    # cleaning threshold and minimum S4/S1 fraction in ECAL barrel
+    thresh_Clean_Barrel = cms.double(10.0),
+    minS4S1_Clean_Barrel = cms.double(0.01),
     # seed threshold in ECAL endcap 
     thresh_Seed_Endcap = cms.double(0.6),
     thresh_Pt_Seed_Endcap = cms.double(0.15),
     # cell threshold in ECAL endcap 
     thresh_Endcap = cms.double(0.3),
     thresh_Pt_Endcap = cms.double(0.00),
+    # cleaning threshold and minimum S4/S1 fraction in ECAL endcap
+    thresh_Clean_Endcap = cms.double(15.0),
+    minS4S1_Clean_Endcap = cms.double(0.01),
     # n neighbours in ECAL 
     nNeighbours = cms.int32(8),
     # sigma of the shower in ECAL 

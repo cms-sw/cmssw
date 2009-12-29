@@ -23,6 +23,10 @@ PFClusterAlgo::PFClusterAlgo() :
   threshPtEndcap_(0.),
   threshSeedEndcap_(0.6),
   threshPtSeedEndcap_(0.),
+  threshCleanBarrel_(1E5),
+  minS4S1Barrel_(0.),
+  threshCleanEndcap_(1E5),
+  minS4S1Endcap_(0.),
   nNeighbours_(4),
   posCalcNCrystal_(-1),
   posCalcP1_(-1),
@@ -119,6 +123,12 @@ double PFClusterAlgo::parameter( Parameter paramtype,
     case SEED_PT_THRESH:
       value = threshPtSeedBarrel_;
       break;
+    case CLEAN_THRESH:
+      value = threshCleanBarrel_;
+      break;
+    case CLEAN_S4S1:
+      value = minS4S1Barrel_;
+      break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
 	  <<paramtype<<endl;
@@ -144,6 +154,12 @@ double PFClusterAlgo::parameter( Parameter paramtype,
       break;
     case SEED_PT_THRESH:
       value = threshPtSeedEndcap_;
+      break;
+    case CLEAN_THRESH:
+      value = threshCleanEndcap_;
+      break;
+    case CLEAN_S4S1:
+      value = minS4S1Endcap_;
       break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
@@ -193,6 +209,10 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 				   static_cast<PFLayer::Layer>(layer) );
     double seedPtThresh = parameter( SEED_PT_THRESH, 
 				     static_cast<PFLayer::Layer>(layer) );
+    double cleanThresh = parameter( CLEAN_THRESH, 
+				    static_cast<PFLayer::Layer>(layer) );
+    double minS4S1 = parameter( CLEAN_S4S1, 
+				static_cast<PFLayer::Layer>(layer) );
 
 
 #ifdef PFLOW_DEBUG
@@ -209,6 +229,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       
     // Find the cell unused neighbours
     const vector<unsigned>* nbp;
+    double tighter = 1.0;
 
     switch ( layer ) { 
     case PFLayer::ECAL_BARREL:         
@@ -216,6 +237,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
     case PFLayer::HCAL_BARREL1:
     case PFLayer::HCAL_BARREL2:
     case PFLayer::HCAL_ENDCAP:
+      tighter = 2.0;
     case PFLayer::HF_EM:
     case PFLayer::HF_HAD:
       if( nNeighbours_ == 4 ) {
@@ -257,6 +279,34 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       }
     }
       
+
+    // Cleaning : check energetic, isolated seeds, likely to come from erratic noise.
+    if ( rhenergy > cleanThresh ) { 
+      const vector<unsigned>& neighbours4 = *(& wannaBeSeed.neighbours4());
+      // Determine the fraction of surrounding energy
+      double surroundingEnergy = 0.;
+      for(unsigned in4=0; in4<neighbours4.size(); in4++) {
+	const reco::PFRecHit& neighbour = rechit( neighbours4[in4], rechits ); 
+	surroundingEnergy += neighbour.energy();
+      }
+      double fraction = surroundingEnergy/wannaBeSeed.energy();
+      // Mask the seed and the hit if energetic/isolated rechit
+      if ( fraction < minS4S1 ) {
+	// Double the energy cleaning threshold when close to the ECAL/HCAL - HF transition
+	double eta = fabs(wannaBeSeed.position().eta());
+	if ( eta < 2.8 || rhenergy > tighter*cleanThresh ) { 
+	  seedStates_[rhi] = CLEAN;
+	  mask_[rhi] = false;
+	  std::cout << "A seed with E/pT/eta = " << wannaBeSeed.energy() 
+		    << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() 
+		    << " and with surrounding energy = " << surroundingEnergy 
+		    << " in layer " << layer 
+		    << " had been cleaned " << std::endl
+		    << "(Cuts were : " << cleanThresh << " and " << minS4S1 << std::endl; 
+	}
+      }
+    }
+
     if ( seedStates_[rhi] == YES ) {
 
       // seeds_ contains the indices of all seeds. 
@@ -1107,15 +1157,24 @@ ostream& operator<<(ostream& out,const PFClusterAlgo& algo) {
   if(!out) return out;
   out<<"PFClusterAlgo parameters : "<<endl;
   out<<"-----------------------------------------------------"<<endl;
-  out<<"threshBarrel     : "<<algo.threshBarrel_     <<endl;
-  out<<"threshSeedBarrel : "<<algo.threshSeedBarrel_ <<endl;
-  out<<"threshEndcap     : "<<algo.threshEndcap_     <<endl;
-  out<<"threshSeedEndcap : "<<algo.threshSeedEndcap_ <<endl;
-  out<<"nNeighbours      : "<<algo.nNeighbours_      <<endl;
-  out<<"posCalcNCrystal  : "<<algo.posCalcNCrystal_  <<endl;
-  out<<"posCalcP1        : "<<algo.posCalcP1_        <<endl;
-  out<<"showerSigma      : "<<algo.showerSigma_      <<endl;
-  out<<"useCornerCells   : "<<algo.useCornerCells_   <<endl;
+  out<<"threshBarrel       : "<<algo.threshBarrel_       <<endl;
+  out<<"threshSeedBarrel   : "<<algo.threshSeedBarrel_   <<endl;
+  out<<"threshPtBarrel     : "<<algo.threshPtBarrel_     <<endl;
+  out<<"threshPtSeedBarrel : "<<algo.threshPtSeedBarrel_ <<endl;
+  out<<"threshCleanBarrel  : "<<algo.threshCleanBarrel_  <<endl;
+  out<<"minS4S1Barrel      : "<<algo.minS4S1Barrel_      <<endl;
+  out<<"threshEndcap       : "<<algo.threshEndcap_       <<endl;
+  out<<"threshSeedEndcap   : "<<algo.threshSeedEndcap_   <<endl;
+  out<<"threshPtEndcap     : "<<algo.threshPtEndcap_     <<endl;
+  out<<"threshPtSeedEndcap : "<<algo.threshPtSeedEndcap_ <<endl;
+  out<<"threshEndcap       : "<<algo.threshEndcap_       <<endl;
+  out<<"threshCleanEndcap  : "<<algo.threshCleanEndcap_  <<endl;
+  out<<"minS4S1Endcap      : "<<algo.minS4S1Endcap_      <<endl;
+  out<<"nNeighbours        : "<<algo.nNeighbours_        <<endl;
+  out<<"posCalcNCrystal    : "<<algo.posCalcNCrystal_    <<endl;
+  out<<"posCalcP1          : "<<algo.posCalcP1_          <<endl;
+  out<<"showerSigma        : "<<algo.showerSigma_        <<endl;
+  out<<"useCornerCells     : "<<algo.useCornerCells_     <<endl;
 
   out<<endl;
   out<<algo.pfClusters_->size()<<" clusters:"<<endl;
