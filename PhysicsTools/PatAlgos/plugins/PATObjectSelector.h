@@ -1,5 +1,5 @@
 //
-// $Id: PATObjectSelector.h,v 1.3.4.1 2009/01/22 12:09:09 gpetrucc Exp $
+// $Id: PATObjectSelector.h,v 1.4 2009/03/26 05:02:42 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectSelector_h
@@ -7,10 +7,10 @@
 
 #include "DataFormats/Common/interface/RefVector.h"
 
-#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"

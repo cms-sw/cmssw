@@ -3,7 +3,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
-#include "PhysicsTools/UtilAlgos/interface/Merger.h"
+#include "CommonTools/UtilAlgos/interface/Merger.h"
 
 typedef Merger<reco::IsolatedPFCandidateCollection> IsolatedPFCandidateMerger;
 

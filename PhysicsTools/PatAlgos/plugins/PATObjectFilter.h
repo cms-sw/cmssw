@@ -1,22 +1,22 @@
 //
-// $Id: PATObjectFilter.h,v 1.3 2009/01/22 14:13:23 veelken Exp $
+// $Id: PATObjectFilter.h,v 1.4 2009/03/26 22:38:58 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectFilter_h
 #define PhysicsTools_PatAlgos_PATObjectFilter_h
 
-#include "PhysicsTools/UtilAlgos/interface/AnySelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectCountFilter.h"
-#include "PhysicsTools/UtilAlgos/interface/MinNumberSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/MaxNumberSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
+#include "CommonTools/UtilAlgos/interface/AnySelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
+#include "CommonTools/UtilAlgos/interface/MinNumberSelector.h"
+#include "CommonTools/UtilAlgos/interface/MaxNumberSelector.h"
+#include "CommonTools/UtilAlgos/interface/AndSelector.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/View.h"
 
 namespace pat {
 
-  typedef ObjectCountFilter<edm::View<reco::Candidate>, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> > PATCandViewCountFilter;
+  typedef ObjectCountFilter<edm::View<reco::Candidate>, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> >::type PATCandViewCountFilter;
 
 }
 

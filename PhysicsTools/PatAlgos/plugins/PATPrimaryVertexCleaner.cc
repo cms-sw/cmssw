@@ -1,5 +1,5 @@
 #include "PhysicsTools/PatAlgos/interface/PATPrimaryVertexSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 typedef ObjectSelector<PATPrimaryVertexSelector> PATPrimaryVertexCleaner;
 

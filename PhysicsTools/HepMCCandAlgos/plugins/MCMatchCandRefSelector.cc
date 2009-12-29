@@ -4,9 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectRefSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectRefSelector.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 
 using namespace edm;
 using namespace reco;

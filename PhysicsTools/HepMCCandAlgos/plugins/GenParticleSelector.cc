@@ -6,8 +6,8 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 typedef SingleObjectSelector<
