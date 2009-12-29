@@ -71,7 +71,7 @@ public:
   explicit HLTBtagLifetimeAnalyzer(const edm::ParameterSet& config);
   virtual ~HLTBtagLifetimeAnalyzer();
 
-  virtual void beginJob(const edm::EventSetup & setup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event & event, const edm::EventSetup & setup);
   virtual void endJob();
 
@@ -203,7 +203,7 @@ HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer()
 {
 }
 
-void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup)
+void HLTBtagLifetimeAnalyzer::beginJob()
 {
   m_ratePlots.init( "Event", "Event", m_levels.size() );
   m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );

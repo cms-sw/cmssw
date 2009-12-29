@@ -120,7 +120,7 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
 //       method called once each job just before starting event loop          //
 ////////////////////////////////////////////////////////////////////////////////
 void 
-EmDQMReco::beginJob(const edm::EventSetup&)
+EmDQMReco::beginJob()
 {
   //edm::Service<TFileService> fs;
   dbe->setCurrentFolder(dirname_);

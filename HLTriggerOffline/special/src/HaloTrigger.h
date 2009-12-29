@@ -40,7 +40,7 @@ public:
 	
 protected:
 	void analyze(const edm::Event& e, const edm::EventSetup& es);
-	void beginJob(const edm::EventSetup& es);
+	void beginJob();
 	void endJob(void);
 	
 private:

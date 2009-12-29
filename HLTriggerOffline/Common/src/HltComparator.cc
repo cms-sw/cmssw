@@ -1,6 +1,6 @@
 // Originally written by James Jackson
 // modified by Peter Wittich
-// $Id: HltComparator.cc,v 1.4 2009/07/19 14:34:19 wittich Exp $
+// $Id: HltComparator.cc,v 1.5 2009/08/06 17:42:53 wittich Exp $
 
 // user include files
 #include "HLTriggerOffline/Common/interface/HltComparator.h"
@@ -277,7 +277,7 @@ HltComparator::filter(edm::Event & event,
 
 
 void
-HltComparator::beginJob(const edm::EventSetup &)
+HltComparator::beginJob()
 {
 }
 

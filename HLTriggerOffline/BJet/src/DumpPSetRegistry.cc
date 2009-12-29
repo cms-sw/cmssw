@@ -19,7 +19,7 @@ public:
   explicit DumpPSetRegistry(const edm::ParameterSet& config);
   virtual ~DumpPSetRegistry();
     
-  virtual void beginJob(const edm::EventSetup & setup);
+  virtual void beginJob();
   virtual void analyze(const edm::Event & event, const edm::EventSetup & setup);
   virtual void endJob();
 };
@@ -32,7 +32,7 @@ DumpPSetRegistry::~DumpPSetRegistry()
 {
 }
 
-void DumpPSetRegistry::beginJob(const edm::EventSetup & setup) 
+void DumpPSetRegistry::beginJob() 
 {
   const edm::pset::Registry * registry = edm::pset::Registry::instance();
   for (edm::pset::Registry::const_iterator i = registry->begin(); i != registry->end(); ++i)

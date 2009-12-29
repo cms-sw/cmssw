@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.21 2009/11/13 20:41:38 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.22 2009/11/16 20:58:12 berryhil Exp $
 //
 //
 
@@ -108,7 +108,7 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       std::string ParseL1SeedModule(const std::string& pathname);
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

@@ -30,7 +30,7 @@ public:
   // Operations
 
   void analyze(const edm::Event & event, const edm::EventSetup&);
-  void beginJob(const edm::EventSetup&);
+  void beginJob();
   void endJob();
 
 private:

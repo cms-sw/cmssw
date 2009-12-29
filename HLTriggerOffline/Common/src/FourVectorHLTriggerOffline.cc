@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.31 2009/11/13 20:41:06 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.32 2009/11/16 20:58:39 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
@@ -514,7 +514,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
 // -- method called once each job just before starting event loop  --------
 void 
-FourVectorHLTriggerOffline::beginJob(const edm::EventSetup&)
+FourVectorHLTriggerOffline::beginJob()
 {
   nev_ = 0;
   DQMStore *dbe = 0;

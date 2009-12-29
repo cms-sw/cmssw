@@ -68,7 +68,7 @@ HaloTrigger::HaloTrigger(const ParameterSet& ps)
 HaloTrigger::~HaloTrigger()
 {}
 
-void HaloTrigger::beginJob(const EventSetup& es)
+void HaloTrigger::beginJob()
 {
 	/////////////////////////
 	// Initialize Counters //
@@ -174,7 +174,7 @@ void HaloTrigger::beginJob(const EventSetup& es)
 		PlusEffDen = dbe->book1D("PlusEffDen", "Plus Endcap denomenator", 50, 0, 750);
 	}
 	
-	es.get<MuonGeometryRecord>().get(m_cscGeometry);
+	//es.get<MuonGeometryRecord>().get(m_cscGeometry);
 	for( int i=0; i<50; ++i)
 	{
 		numCountPlus[i] = 0;
@@ -209,6 +209,10 @@ void HaloTrigger::endJob(void)
 
 void HaloTrigger::analyze(const Event& e, const EventSetup& es)
 {
+
+
+	es.get<MuonGeometryRecord>().get(m_cscGeometry);
+	
 	edm::Handle<edm::SimVertexContainer> simvertices_handle;
 	e.getByLabel("g4SimHits",simvertices_handle);
     edm::SimVertexContainer const* simvertices = simvertices_handle.product();

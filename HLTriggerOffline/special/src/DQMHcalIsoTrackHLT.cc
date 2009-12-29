@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id: DQMHcalIsoTrackHLT.cc,v 1.1 2009/03/03 11:09:08 safronov Exp $
+// $Id: DQMHcalIsoTrackHLT.cc,v 1.2 2009/03/25 12:57:18 safronov Exp $
 //
 //
 
@@ -67,7 +67,7 @@ private:
 
   DQMStore* dbe_;  
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -310,7 +310,7 @@ void DQMHcalIsoTrackHLT::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
 }
 
-void DQMHcalIsoTrackHLT::beginJob(const edm::EventSetup&)
+void DQMHcalIsoTrackHLT::beginJob()
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);
