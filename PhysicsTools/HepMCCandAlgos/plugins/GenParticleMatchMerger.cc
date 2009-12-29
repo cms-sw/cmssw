@@ -1,4 +1,4 @@
-#include "PhysicsTools/UtilAlgos/interface/CollectionAdder.h"
+#include "CommonTools/UtilAlgos/interface/CollectionAdder.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 typedef CollectionAdder<reco::GenParticleMatch> GenParticleMatchMerger;

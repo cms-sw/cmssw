@@ -7,7 +7,7 @@
  * template class to store isolation
  *
  */
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "PhysicsTools/UtilAlgos/interface/MasterCollectionHelper.h"
+#include "CommonTools/UtilAlgos/interface/MasterCollectionHelper.h"
 #include <vector>
 
 namespace helper {

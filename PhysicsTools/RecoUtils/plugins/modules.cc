@@ -5,7 +5,7 @@
 
 DEFINE_SEAL_MODULE();
 
-#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "CommonTools/UtilAlgos/interface/EventSelector.h"
 
 #include "PhysicsTools/RecoUtils/plugins/CandidateEventSelector.h"
 

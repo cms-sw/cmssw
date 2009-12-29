@@ -7,7 +7,7 @@
  * template class to store isolation
  *
  */
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
