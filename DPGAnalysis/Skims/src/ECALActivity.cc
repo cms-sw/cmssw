@@ -55,9 +55,9 @@ bool ECALActivity::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool ee= false;
   bool etot= false;
 
-  int ievt = iEvent.id().event();
-  int irun = iEvent.id().run();
-  int ils = iEvent.luminosityBlock();
+  //int ievt = iEvent.id().event();
+  //int irun = iEvent.id().run();
+  //int ils = iEvent.luminosityBlock();
 
   int  ebabovethresh=0;
   int  eeabovethresh=0;

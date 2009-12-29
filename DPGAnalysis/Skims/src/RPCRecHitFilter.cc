@@ -268,9 +268,9 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } 
 	}
 	
-	if(( vectorEndcapCandsPositive[1] && vectorEndcapCandsPositive[2] ||
-	     vectorEndcapCandsPositive[1] && vectorEndcapCandsPositive[3] ||
-	     vectorEndcapCandsPositive[2] && vectorEndcapCandsPositive[3]  )) {
+	if(( (vectorEndcapCandsPositive[1] && vectorEndcapCandsPositive[2]) ||
+	     (vectorEndcapCandsPositive[1] && vectorEndcapCandsPositive[3]) ||
+	     (vectorEndcapCandsPositive[2] && vectorEndcapCandsPositive[3])  )) {
 	  cond2 = true;
 	  break;
 	} 	
@@ -293,9 +293,9 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } 
 	}
 	
-	if(( vectorEndcapCandsNegative[1] && vectorEndcapCandsNegative[2] ||
-	     vectorEndcapCandsNegative[1] && vectorEndcapCandsNegative[3] ||
-	     vectorEndcapCandsNegative[2] && vectorEndcapCandsNegative[3]  )) {
+	if(( (vectorEndcapCandsNegative[1] && vectorEndcapCandsNegative[2]) ||
+	     (vectorEndcapCandsNegative[1] && vectorEndcapCandsNegative[3]) ||
+	     (vectorEndcapCandsNegative[2] && vectorEndcapCandsNegative[3])  )) {
 	  cond3 = true;
 	  break;
 	} 	
