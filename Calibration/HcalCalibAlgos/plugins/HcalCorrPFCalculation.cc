@@ -32,6 +32,9 @@
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -53,12 +56,12 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   
   double RecalibFactor(HcalDetId id);
 
- std::string outputFile_;
-  std::string hcalselector_;
-  std::string ecalselector_;
-  std::string eventype_;
-  std::string sign_;
-  std::string mc_;
+  //std::string outputFile_;
+  //std::string hcalselector_;
+  //std::string ecalselector_;
+  //std::string eventype_;
+  //std::string sign_;
+  //std::string mc_;
   bool        Respcorr_;
   bool        PFcorr_;
   bool        Conecorr_;
@@ -75,11 +78,13 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
 
   int nevtot;
 
- const HcalRespCorrs* respRecalib;
+  const HcalRespCorrs* respRecalib;
   const HcalPFCorrs* pfRecalib;
 
-    SteppingHelixPropagator* stepPropF;
+  SteppingHelixPropagator* stepPropF;
   MagneticField *theMagField;
+
+  edm::Service<TFileService> fs;
 
   TProfile *nCells, *nCellsNoise, *enHcal, *enHcalNoise;
   TH1F *enEcalB, *enEcalE;
@@ -106,17 +111,9 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
 
 HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
 
-  outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+  //  outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   
-  
-  //  Char_t histo[20];
-
-  //hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
-  //ecalselector_ = conf.getUntrackedParameter<std::string>("ecalselector", "yes");
-  //eventype_     = conf.getUntrackedParameter<std::string>("eventype", "single");
-  //sign_         = conf.getUntrackedParameter<std::string>("sign", "*");
-  //mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
-  Respcorr_        = conf.getUntrackedParameter<bool>("RespcorrAdd", false);
+    Respcorr_        = conf.getUntrackedParameter<bool>("RespcorrAdd", false);
   PFcorr_        = conf.getUntrackedParameter<bool>("PFcorrAdd", false);
   Conecorr_        = conf.getUntrackedParameter<bool>("ConeCorrAdd", true);
   radius_       = conf.getUntrackedParameter<double>("ConeRadiusCm", 40.);
@@ -202,17 +199,17 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
   // TProfile *nCells, *nCellsNoise, *en, *enNoise;
   //TFile *rootFile;
   
-  rootFile = new TFile(outputFile_.c_str(),"RECREATE");
+  //rootFile = new TFile(outputFile_.c_str(),"RECREATE");
   
   
-  nCells = new TProfile("nCells", "nCells", 83, -41.5, 41.5); 
-  nCellsNoise = new TProfile("nCellsNoise", "nCellsNoise", 83, -41.5, 41.5); 
+  nCells = fs->make<TProfile>("nCells", "nCells", 83, -41.5, 41.5); 
+  nCellsNoise = fs->make<TProfile>("nCellsNoise", "nCellsNoise", 83, -41.5, 41.5); 
   
-  enHcal = new TProfile("enHcal", "enHcal", 83, -41.5, 41.5); 
-  enHcalNoise = new TProfile("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
+  enHcal = fs->make<TProfile>("enHcal", "enHcal", 83, -41.5, 41.5); 
+  enHcalNoise =  fs->make<TProfile>("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
   
-  enEcalB = new TH1F("enEcalB", "enEcalB", 500, -5,50); 
-  enEcalE = new TH1F("enEcalE", "enEcalE", 500, -5,50); 
+  enEcalB = fs->make<TH1F>("enEcalB", "enEcalB", 500, -5,50); 
+  enEcalE = fs->make<TH1F>("enEcalE", "enEcalE", 500, -5,50); 
   
   // Response corrections w/o re-rechitting
   AddRecalib=kFALSE;
@@ -239,6 +236,7 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
 void HcalCorrPFCalculation::endJob() 
 {
 
+  /*
   nCells -> Write();
   nCellsNoise -> Write();
   enHcal -> Write();
@@ -248,6 +246,7 @@ void HcalCorrPFCalculation::endJob()
   enEcalE -> Write();
 
   rootFile->Close();
+  */
 }
 
 
@@ -374,11 +373,42 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       float HcalConeNoise    = 0.;
       int UsedCells = 0;
       int UsedCellsNoise = 0;
+
+
+      int iphitrue = -10;
+      int ietatrue = 100;
       
-      float dddeta = 1000.;
-      float dddphi = 1000.;
-      int iphitrue = 1234;
-      int ietatrue = 1234;
+      if (etahcal<1.392) 
+	{
+	  const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+	  //    const GlobalPoint tempPoint(newx, newy, newz);
+	  //const DetId tempId = gHB->getClosestCell(tempPoint);
+	  const HcalDetId tempId = gHB->getClosestCell(gPointHcal);
+	  ietatrue = tempId.ieta();
+	  iphitrue = tempId.iphi();
+	}
+      
+      if (etahcal>1.392 &&  etahcal<3.0) 
+	{
+	  const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
+	  const HcalDetId tempId = gHE->getClosestCell(gPointHcal);
+	  ietatrue = tempId.ieta();
+	  iphitrue = tempId.iphi();
+	}
+      
+      if (etahcal>3.0 &&  etahcal<5.0) 
+	{
+	  const CaloSubdetectorGeometry* gHF = geo->getSubdetectorGeometry(DetId::Hcal,HcalForward);
+	  const HcalDetId tempId = gHF->getClosestCell(gPointHcal);
+	  ietatrue = tempId.ieta();
+	  iphitrue = tempId.iphi();
+	}
+      
+
+      //float dddeta = 1000.;
+      //float dddphi = 1000.;
+      //int iphitrue = 1234;
+      //int ietatrue = 1234;
       
       //Calculate Ecal energy:      
       for (EBRecHitCollection::const_iterator ehit=HitecalEB.begin(); ehit!=HitecalEB.end(); ehit++)	
@@ -399,17 +429,25 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       if(abs(etaecal)<1.5) enEcalB -> Fill(eEcalCone); 
       if(abs(etaecal)>1.5 && abs(etaecal)<3.1) enEcalE -> Fill(eEcalCone); 
 
+
+      struct
+      {
+	int iphihitm;
+	int ietahitm;
+	int depthhit;
+	float hitenergy;
+	float dr;
+      } MaxHit;
+
+      MaxHit.hitenergy=-100.;
+
+
       Float_t recal = 1.0;
+
 
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{ 
-	  //Float_t resprecal = 1.;
-	  //Float_t pfrecal = 1.;
-	  //if(AddRecalib) {
-	  //  if(Respcorr_) resprecal = respRecalib -> getValues(hhit->detid())->getValue();
-	  // if(PFcorr_)   pfrecal = recal * pfRecalib   -> getValues(hhit->detid())->getValue();
-	  //  recal = resprecal*pfrecal;
-	  //}
+	
 	  recal = RecalibFactor(hhit->detid());
 	  //cout<<"recal: "<<recal<<endl;
 
@@ -432,18 +470,34 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  double deta = fabs(etahcal - etahit); 
 	  double dr = sqrt(dphi*dphi + deta*deta);
 	  
-	  //here looking for iEta and iPhi of track position (we know only eta and phi from info)
-	  if (deta<dddeta) {
-	    ietatrue = ietahit;
-	    dddeta=deta;
-	  }
-	  
-	  if (dphi<dddphi) {
-	    iphitrue = iphihit;
-	    dddphi=dphi;
-	  }
-	  
 	  dr =  getDistInPlaneSimple(gPointHcal,pos);
+
+	  if(dr<60.) 
+	    {
+	      
+	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
+		{
+		  int iphihit2  = (hhit2->id()).iphi();
+		  int ietahit2  = (hhit2->id()).ieta();
+		  int depthhit2 = (hhit2->id()).depth();
+		  float enehit2 = hhit2->energy() * recal;
+		  
+		  if (iphihit==iphihit2 && ietahit==ietahit2  && depthhit!=depthhit2)  enehit = enehit+enehit2;
+		
+		}	  	  
+	      
+	      //Find a Hit with Maximum Energy
+	      
+	      if(enehit > MaxHit.hitenergy) 
+		{
+ 		  MaxHit.hitenergy =  enehit;
+		  MaxHit.ietahitm   = (hhit->id()).ieta();
+		  MaxHit.iphihitm   = (hhit->id()).iphi();
+		  MaxHit.dr   = dr;
+		  //MaxHit.depthhit  = (hhit->id()).depth();
+		  MaxHit.depthhit  = 1;
+		}
+	    }
 	  
 	  if(dr<radius_ && enehit>0.01) 
 	    {
@@ -471,8 +525,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	    }
 	} //end of all HBHE hits cycle
       
-
-
       if(doHF){
 	for (HFRecHitCollection::const_iterator hhit=Hithf.begin(); hhit!=Hithf.end(); hhit++) 
 	{
@@ -499,17 +551,22 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  double deta = fabs(etahcal - etahit); 
 	  double dr = sqrt(dphi*dphi + deta*deta);
 	  
-	  if (deta<dddeta) {
-	    ietatrue = ietahit;
-	    dddeta=deta;
-	  }
-	  
-	  if (dphi<dddphi) {
-	    iphitrue = iphihit;
-	    dddphi=dphi;
-	  }
-	  
 	  dr =  getDistInPlaneSimple(gPointHcal,pos);
+	  
+
+	  if(dr<60.) 
+	    {
+	      //Find a Hit with Maximum Energy
+	      
+	      if(enehit > MaxHit.hitenergy) 
+		{
+ 		  MaxHit.hitenergy =  enehit;
+		  MaxHit.ietahitm   = (hhit->id()).ieta();
+		  MaxHit.iphihitm   = (hhit->id()).iphi();
+		  MaxHit.dr   = dr;
+		  MaxHit.depthhit  = 1;
+		}
+	    }
 	  
 	  if(dr<radius_ && enehit>0.01) 
 	    {
@@ -537,10 +594,19 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	} //end of all HF hits cycle
       } //end of doHF
 
+      int dieta_M_P = 100;
+      int diphi_M_P = 100;
+      if(MaxHit.ietahitm*ietatrue>0) {dieta_M_P = abs (MaxHit.ietahitm-ietatrue);}
+      if(MaxHit.ietahitm*ietatrue<0) {dieta_M_P = abs(MaxHit.ietahitm-ietatrue)-1;}
+      diphi_M_P = abs(MaxHit.iphihitm-iphitrue);
+      diphi_M_P =  diphi_M_P>36 ? 72-diphi_M_P : diphi_M_P; 
+
+      float iDr = sqrt(diphi_M_P*diphi_M_P+dieta_M_P*dieta_M_P);
+
       
       Bool_t passCuts = kFALSE;
       //passCuts=kTRUE; 
-      if(eEcalCone < energyECALmip) passCuts = kTRUE;
+      if(eEcalCone < energyECALmip && iDr<2.) passCuts = kTRUE;
       
       if(passCuts)
 	{
