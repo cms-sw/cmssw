@@ -57,7 +57,7 @@ class PATHIPhotonTestModule : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
    
@@ -143,7 +143,7 @@ datatemp->Fill(var);
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PATHIPhotonTestModule::beginJob(const edm::EventSetup&)
+PATHIPhotonTestModule::beginJob()
 {
 
    datatemp = fs->make<TNtuple>("gammas", "photon candidate info", 
