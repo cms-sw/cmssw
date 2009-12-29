@@ -1,8 +1,8 @@
 /** \class ExampleMuonAnalyzer
  *  Analyzer of the muon objects
  *
- *  $Date: 2009/09/29 20:05:28 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/06 10:06:22 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
