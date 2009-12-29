@@ -25,7 +25,7 @@
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TH1F.h"
