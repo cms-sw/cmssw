@@ -1,7 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Validation/RecoParticleFlow/plugins/GenJetClosestMatchSelectorDefinition.h"
 
 typedef ObjectSelector<GenJetClosestMatchSelectorDefinition> GenJetClosestMatchSelector;
