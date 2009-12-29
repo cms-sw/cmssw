@@ -12,7 +12,7 @@ Implementation:
 */
 //
 // Original Author:  "Paolo Meridiani CERN CMG"
-// $Id: testEcalClusterSeverityAlgo.cc,v 1.1 2009/10/10 09:18:37 meridian Exp $
+// $Id: testEcalClusterSeverityAlgo.cc,v 1.2 2009/10/22 13:08:03 ferriff Exp $
 
 
 
@@ -140,7 +140,7 @@ public:
 
 private:
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -300,7 +300,7 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 }
 
 
-void testEcalClusterSeverityAlgo::beginJob(const edm::EventSetup&)
+void testEcalClusterSeverityAlgo::beginJob()
 {
 }
 

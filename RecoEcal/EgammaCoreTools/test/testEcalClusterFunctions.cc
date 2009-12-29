@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterFunctions.cc,v 1.8 2008/10/30 14:17:16 sharper Exp $
+// $Id: testEcalClusterFunctions.cc,v 1.1 2008/12/10 16:44:01 ferriff Exp $
 //
 //
 
@@ -43,7 +43,7 @@ class testEcalClusterFunctions : public edm::EDAnalyzer {
                 ~testEcalClusterFunctions();
 
         private:
-                virtual void beginJob(const edm::EventSetup&) ;
+                virtual void beginJob() ;
                 virtual void analyze(const edm::Event&, const edm::EventSetup&);
                 virtual void endJob() ;
                 EcalClusterFunctionBaseClass *ff_;
@@ -81,7 +81,7 @@ void testEcalClusterFunctions::analyze(const edm::Event& ev, const edm::EventSet
 
 
 
-void testEcalClusterFunctions::beginJob(const edm::EventSetup&)
+void testEcalClusterFunctions::beginJob()
 {
 }
 

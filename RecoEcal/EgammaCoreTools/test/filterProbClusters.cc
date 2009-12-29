@@ -35,7 +35,7 @@ public:
   explicit ProbClustersFilter(const edm::ParameterSet&);
   ~ProbClustersFilter();
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 private:
@@ -115,7 +115,7 @@ bool ProbClustersFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   return problematicClusters;
 }
 
-void ProbClustersFilter::beginJob(const edm::EventSetup&) {
+void ProbClustersFilter::beginJob() {
 }
 
 void ProbClustersFilter::endJob() 

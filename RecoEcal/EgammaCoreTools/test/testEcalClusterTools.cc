@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.8 2008/10/30 14:17:16 sharper Exp $
+// $Id: testEcalClusterTools.cc,v 1.9 2009/02/04 16:14:29 arizzi Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class testEcalClusterTools : public edm::EDAnalyzer {
 
 
         private:
-                virtual void beginJob(const edm::EventSetup&) ;
+                virtual void beginJob() ;
                 virtual void analyze(const edm::Event&, const edm::EventSetup&);
                 virtual void endJob() ;
 
@@ -183,7 +183,7 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
 
 
 
-void testEcalClusterTools::beginJob(const edm::EventSetup&)
+void testEcalClusterTools::beginJob()
 {
 }
 
