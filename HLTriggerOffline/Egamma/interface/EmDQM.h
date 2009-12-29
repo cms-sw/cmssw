@@ -57,6 +57,7 @@ private:
   double genEtAcc;
   // plotting paramters
   double plotEtaMax;
+  double plotPhiMax;
   double plotPtMin ;
   double plotPtMax ;
   unsigned int plotBins ;
@@ -70,24 +71,31 @@ private:
   ////////////////////////////////////////////////////////////
   // Et & eta distributions
   std::vector<MonitorElement*> etahist;
+  std::vector<MonitorElement*> phihist;
   std::vector<MonitorElement*> ethist;
   std::vector<MonitorElement*> etahistmatch;
+  std::vector<MonitorElement*> phihistmatch;
   std::vector<MonitorElement*> ethistmatch;
   std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
   std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
+  std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
   // Isolation distributions
   std::vector<MonitorElement*> etahistiso;
+  std::vector<MonitorElement*> phihistiso;
   std::vector<MonitorElement*> ethistiso;
   std::vector<MonitorElement*> etahistisomatch;
+  std::vector<MonitorElement*> phihistisomatch;
   std::vector<MonitorElement*> ethistisomatch;
-  std::vector<MonitorElement*> histEtIsoOfHltObjMatchToGen;
+  std::vector<MonitorElement*> histEtIsoOfHltObjMatchToGen; 
   std::vector<MonitorElement*> histEtaIsoOfHltObjMatchToGen;
+  std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToGen;
   // Plots of efficiency per step
   MonitorElement* total;
   MonitorElement* totalmatch;
   //generator histograms
   MonitorElement* etgen;
   MonitorElement* etagen;
+  MonitorElement* phigen;
 
   // interface to DQM framework
   DQMStore * dbe;
