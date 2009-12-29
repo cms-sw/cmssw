@@ -6,8 +6,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 
 #include "RecoEgamma/ElectronIdentification/plugins/ElectronIDSelector.h"
 #include "RecoEgamma/ElectronIdentification/plugins/ElectronIDSelectorCutBased.h"
