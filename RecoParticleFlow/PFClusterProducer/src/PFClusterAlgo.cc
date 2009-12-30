@@ -189,6 +189,9 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 #endif
 
 
+  // An empty list of neighbours
+  const vector<unsigned> noNeighbours(0, static_cast<unsigned>(0));
+
   // loop on rechits (sorted by decreasing energy - not E_T)
   for(EH ih = eRecHits_.begin(); ih != eRecHits_.end(); ih++ ) {
 
@@ -243,8 +246,14 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       if( nNeighbours_ == 4 ) {
 	nbp = & wannaBeSeed.neighbours4();
       }
-      else if( nNeighbours_ == 8 )
+      else if( nNeighbours_ == 8 ) {
 	nbp = & wannaBeSeed.neighbours8();
+      }
+      else if( nNeighbours_ == 0 ) {
+	nbp = & noNeighbours;
+	// Allows for no clustering at all: all rechits are clusters.
+	// Useful for HF
+      }
       else {
 	cerr<<"you're not allowed to set n neighbours to "
 	    <<nNeighbours_<<endl;

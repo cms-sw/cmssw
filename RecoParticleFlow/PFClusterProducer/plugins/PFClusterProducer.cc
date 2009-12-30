@@ -173,8 +173,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       <<clusterAlgo_<<endl;
   }    
   
-  std::cout << clusterAlgo_ << std::endl;
-
   // get clusters out of the clustering algorithm 
   // and put them in the event. There is no copy.
   auto_ptr< vector<reco::PFCluster> > 

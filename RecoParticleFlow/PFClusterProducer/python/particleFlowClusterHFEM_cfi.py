@@ -28,7 +28,7 @@ particleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
     minS4S1_Clean_Endcap = cms.double(0.01),
     #----HCAL options
     # n neighbours in HFEM 
-    nNeighbours = cms.int32(4),
+    nNeighbours = cms.int32(0),
     # sigma of the shower in HCAL     
     showerSigma = cms.double(10.0),
     # n crystals for position calculation in HFEM
