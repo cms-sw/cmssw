@@ -1,11 +1,8 @@
-<use name=DataFormats/CLHEP>
 <use name=DataFormats/Common>
-<use name=DataFormats/GeometrySurface>
-<use name=DataFormats/Math>
 <use name=rootcore>
 <use name=rootrflx>
+<use name=clhep>
 <export>
-  <use name=DataFormats/Math>
   <use name=rootcore>
   <lib name=DataFormatsBeamSpot>
 </export>
