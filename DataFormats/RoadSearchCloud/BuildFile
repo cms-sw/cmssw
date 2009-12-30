@@ -1,9 +1,8 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/TrackingRecHit>
 <use name=rootrflx>
+<use name=clhep>
 <export>
   <use name=DataFormats/Common>
-  <use name=DataFormats/TrackingRecHit>
 
   <lib name=DataFormatsRoadSearchCloud>
 </export>

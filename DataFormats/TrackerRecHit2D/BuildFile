@@ -2,9 +2,8 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
-<use name=DataFormats/SiPixelCluster>
-<use name=DataFormats/SiStripCluster>
 <use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/SiStripCluster>
 <use name=FWCore/MessageLogger>
 <use name=rootrflx>
 <export>
@@ -12,8 +11,6 @@
   <use name=DataFormats/DetId>
   <use name=DataFormats/GeometrySurface>
   <use name=DataFormats/GeometryVector>
-  <use name=DataFormats/SiPixelCluster>
-  <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/TrackingRecHit>
   <lib name=DataFormatsTrackerRecHit2D>
 </export>

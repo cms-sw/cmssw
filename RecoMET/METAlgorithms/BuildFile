@@ -8,11 +8,8 @@
 <use name=MagneticField/Engine>
 <use name=TrackingTools/GeomPropagators>
 <use name=Geometry/CaloTopology>
-<use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/ParticleFlowCandidate>
-<use name=RecoEcal/EgammaCoreTools>
-<use name=L1Trigger/CSCTriggerPrimitives>
-
+<use name=DataFormats/L1GlobalMuonTrigger>
 <export>
  <lib name=RecoMETMETAlgorithms>
  <use name=DataFormats/METReco>
@@ -21,7 +18,5 @@
  <use name=DataFormats/CSCRecHit>
  <use name=Geometry/CaloTopology>
  <use name=DataFormats/ParticleFlowCandidate>
-<use name=RecoEcal/EgammaCoreTools>
-<use name=L1Trigger/CSCTriggerPrimitives>
 </export>
 

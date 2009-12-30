@@ -9,7 +9,6 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/Track>
 <use name=DataFormats/HepMCCandidate>
-<use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CommonDetUnit> 
 <use name=Geometry/Records>

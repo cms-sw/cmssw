@@ -1,8 +1,6 @@
-<use name=DataFormats/DetId>
 <use name=boost>
 <use name=rootrflx>
 <export>
-  <use name=DataFormats/DetId>
   <use name=boost>
   <lib name=DataFormatsSiStripDetId>
 </export>

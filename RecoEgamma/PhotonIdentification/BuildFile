@@ -2,14 +2,12 @@
 <use name=FWCore/PluginManager>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/BeamSpot>
 <use name=DataFormats/EgammaCandidates>
 <use name=CondFormats/PhysicsToolsObjects>
-<use name=CondFormats/EgammaObjects>
 <use name=CondFormats/DataRecord>
 <use name=Geometry/CaloGeometry>
 <use name=RecoCaloTools/MetaCollections>
-<use name=RecoEcal/EgammaCoreTools>
-<use name=RecoEgamma/EgammaPhotonAlgos>
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <export>
   <lib name=RecoEgammaPhotonIdentification>
@@ -18,12 +16,9 @@
   <use name=DataFormats/HcalRecHit>
   <use name=DataFormats/EgammaReco>
   <use name=CondFormats/PhysicsToolsObjects>
-  <use name=CondFormats/EgammaObjects>
   <use name=CondFormats/DataRecord>
   <use name=Geometry/CaloGeometry>
   <use name=RecoCaloTools/MetaCollections>
-  <use name=RecoEcal/EgammaCoreTools>
-  <use name=RecoEgamma/EgammaPhotonAlgos>
   <use name=DataFormats/EgammaCandidates>
   <use name=RecoEgamma/EgammaIsolationAlgos>
 </export>

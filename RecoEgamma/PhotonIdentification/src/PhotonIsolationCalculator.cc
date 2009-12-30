@@ -27,7 +27,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"

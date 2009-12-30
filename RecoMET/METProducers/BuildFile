@@ -7,6 +7,7 @@
 <use name=DataFormats/TrackReco>
 <use name=CalibFormats/HcalObjects>
 <use name=RecoLocalCalo/HcalRecAlgos>
+<use name=Geometry/CSCGeometry>
 <export>
  <lib name=RecoMETMETProducers>
  <use name=DataFormats/METReco>

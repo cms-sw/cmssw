@@ -35,4 +35,5 @@
 <use name=RecoEcal/EgammaClusterAlgos>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=Utilities/Timing>
+<use name=Geometry/EcalAlgo>
 <flags EDM_PLUGIN=1>

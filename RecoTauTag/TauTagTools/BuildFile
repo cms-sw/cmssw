@@ -10,6 +10,7 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TransientTrack>
 <use name=RecoVertex/VertexPrimitives>
+<use name=DataFormats/HepMCCandidate>
 <use name=root>
 <export>
   <lib name=RecoTauTagTauTagTools>

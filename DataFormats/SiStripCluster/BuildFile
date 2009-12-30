@@ -1,11 +1,7 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/SiStripCommon>
-<use name=DataFormats/SiStripDigi>
 <use name=boost>
 <use name=rootrflx>
 <export>
-  <use name=DataFormats/SiStripDigi>
-  <use name=DataFormats/SiStripCommon>
   <use name=boost>
   <lib name=DataFormatsSiStripCluster>
 </export>

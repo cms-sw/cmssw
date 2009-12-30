@@ -1,25 +1,19 @@
-<use name=CondFormats/DataRecord>
-<use name=CondFormats/EcalObjects>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
 <use name=FWCore/Framework>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
-<use name=Geometry/EcalAlgo>
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=clhep>
 <export>
   <lib name=RecoEcalEgammaCoreTools>
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/EcalObjects>
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
   <use name=FWCore/Framework>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
-  <use name=Geometry/EcalAlgo>
   <use name=RecoLocalCalo/EcalRecAlgos>
   <use name=clhep>
 </export>

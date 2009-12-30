@@ -6,7 +6,6 @@
 <use name=CondFormats/PhysicsToolsObjects>
 <use name=Geometry/CaloGeometry>
 <use name=RecoCaloTools/MetaCollections>
-<use name=RecoEgamma/EgammaPhotonAlgos>
 
 <library name=RecoEgammaPhotonIdentificationPlugins file="*.cc">
   <use name=RecoEgamma/PhotonIdentification>

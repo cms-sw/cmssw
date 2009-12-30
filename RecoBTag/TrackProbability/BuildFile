@@ -1,5 +1,4 @@
 <use name=CondFormats/DataRecord>
-<use name=DataFormats/BTauReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
@@ -7,20 +6,16 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Engine>
-<use name=RecoBTag/BTagTools>
-<use name=RecoBTag/XMLCalibration>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=xerces-c>
 <export>
-  <use name=DataFormats/BTauReco>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=MagneticField/Engine>
-  <use name=RecoBTag/XMLCalibration>
   <use name=xerces-c>
   <lib name=RecoBTagTrackProbability>
 </export>

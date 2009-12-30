@@ -1,9 +1,6 @@
-<use name=DataFormats/TrajectorySeed>
-<use name=DataFormats/L1Trigger>
 <use name=rootrflx>
-
+<use name=clhep>
+<use name=DataFormats/Common>
 <export>
-   <use name=DataFormats/L1Trigger>
-   <use name=DataFormats/TrajectorySeed>
    <lib name=DataFormatsMuonSeed>
 </export>
