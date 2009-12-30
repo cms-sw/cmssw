@@ -16,6 +16,7 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
+<use name=DataFormats/SiStripCluster>
 <use name=clhep>
 <use name=rootcore>
 
