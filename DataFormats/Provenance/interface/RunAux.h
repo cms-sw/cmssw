@@ -9,10 +9,10 @@
 // Auxiliary run information that is persistent.
 // Obsolete format, used for backward compatibility only.
 
-namespace edm
-{
-  struct RunAuxiliary;
-  struct RunAux {
+namespace edm {
+  class RunAuxiliary;
+  class RunAux {
+  public:
     RunAux() : processHistoryID_(), id_() {}
     ~RunAux() {}
     mutable ProcessHistoryID processHistoryID_;

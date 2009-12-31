@@ -16,13 +16,13 @@ namespace edm {
   bool
   isSameEvent(EventAuxiliary const& a, EventAuxiliary const& b) {
     return
-      a.id_ == b.id_ &&
-      a.processGUID_ == b.processGUID_ &&
+      a.id() == b.id() &&
+      a.processGUID() == b.processGUID() &&
       a.luminosityBlock() == b.luminosityBlock() &&
-      a.time_ == b.time_ &&
-      a.isRealData_ == b.isRealData_ &&
-      a.experimentType_ == b.experimentType_ &&
-      a.bunchCrossing_ == b.bunchCrossing_ &&
-      a.storeNumber_ == b.storeNumber_;
+      a.time() == b.time() &&
+      a.isRealData() == b.isRealData() &&
+      a.experimentType() == b.experimentType() &&
+      a.bunchCrossing() == b.bunchCrossing() &&
+      a.storeNumber() == b.storeNumber();
   }
 }

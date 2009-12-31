@@ -12,8 +12,9 @@
 // Obsolete format, used for backward compatibility only.
 
 namespace edm {
-  struct EventAuxiliary;
-  struct EventAux {
+  class EventAuxiliary;
+  class EventAux {
+  public:
     EventAux() : processHistoryID_(), id_(), time_(), luminosityBlockID_() {}
     ~EventAux() {}
     mutable ProcessHistoryID processHistoryID_;

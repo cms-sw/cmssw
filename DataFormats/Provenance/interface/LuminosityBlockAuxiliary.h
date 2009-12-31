@@ -10,9 +10,11 @@
 
 // Auxiliary luminosity block data that is persistent
 
-namespace edm
-{
-  struct LuminosityBlockAuxiliary {
+namespace edm {
+  class LuminosityBlockAux;
+  class LuminosityBlockAuxiliary {
+  public:
+    friend void conversion(LuminosityBlockAux const&, LuminosityBlockAuxiliary&);
     LuminosityBlockAuxiliary() :
 	processHistoryID_(),
 	id_(),
@@ -40,13 +42,18 @@ namespace edm
     LuminosityBlockNumber_t luminosityBlock() const {return id().luminosityBlock();}
     RunNumber_t run() const {return id().run();}
     LuminosityBlockID const& id() const {return id_;}
+    LuminosityBlockID& id() {return id_;}
     Timestamp const& beginTime() const {return beginTime_;}
+    void setBeginTime(Timestamp const& time) {
+      if (beginTime_ == Timestamp::invalidTimestamp()) beginTime_ = time;
+    }
     Timestamp const& endTime() const {return endTime_;}
     void setEndTime(Timestamp const& time) {
       if (endTime_ == Timestamp::invalidTimestamp()) endTime_ = time;
     }
     bool mergeAuxiliary(LuminosityBlockAuxiliary const& newAux);
 
+  private:
     // most recent process that processed this lumi block
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;

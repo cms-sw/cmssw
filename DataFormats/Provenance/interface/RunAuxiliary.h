@@ -10,9 +10,11 @@
 
 // Auxiliary run data that is persistent
 
-namespace edm
-{
-  struct RunAuxiliary {
+namespace edm {
+  class RunAux;
+  class RunAuxiliary {
+  public:
+    friend void conversion(RunAux const&, RunAuxiliary&);
     RunAuxiliary() :
 	processHistoryID_(),
 	allEventsProcessHistories_(),
@@ -36,14 +38,19 @@ namespace edm
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     void setProcessHistoryID(ProcessHistoryID const& phid) const {processHistoryID_ = phid;}
     RunID const& id() const {return id_;}
+    RunID& id() {return id_;}
     Timestamp const& beginTime() const {return beginTime_;}
     Timestamp const& endTime() const {return endTime_;}
     RunNumber_t run() const {return id_.run();}
+    void setBeginTime(Timestamp const& time) {
+      if (beginTime_ == Timestamp::invalidTimestamp()) beginTime_ = time;
+    }
     void setEndTime(Timestamp const& time) {
       if (endTime_ == Timestamp::invalidTimestamp()) endTime_ = time;
     }
     bool mergeAuxiliary(RunAuxiliary const& aux);
 
+  private:
     // most recent process that put a RunProduct into this run
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;

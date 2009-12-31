@@ -34,15 +34,14 @@ namespace edm {
 class EventID {
 
    public:
-   
-   
       EventID() : run_(0), luminosityBlock_(0), event_(0) {}
       EventID(RunNumber_t iRun, LuminosityBlockNumber_t iLumi, EventNumber_t iEvent) :
 	run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}
       
       // ---------- const member functions ---------------------
       RunNumber_t run() const { return run_; }
-      LuminosityBlockNumber_t luminosityBlock() const { return luminosityBlock_; }
+      LuminosityBlockNumber_t const& luminosityBlock() const { return luminosityBlock_; }
+      LuminosityBlockNumber_t& luminosityBlock() { return luminosityBlock_; }
       EventNumber_t event() const { return event_; }
    
       //moving from one EventID to another one

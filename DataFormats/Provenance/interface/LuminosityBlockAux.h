@@ -8,10 +8,10 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 
 // Auxiliary luminosity block data that is persistent
-namespace edm
-{
-  struct LuminosityBlockAuxiliary;
-  struct LuminosityBlockAux {
+namespace edm {
+  class LuminosityBlockAuxiliary;
+  class LuminosityBlockAux {
+  public:
     LuminosityBlockAux() : processHistoryID_(), id_(), runID_() {}
     ~LuminosityBlockAux() {}
     mutable ProcessHistoryID processHistoryID_;

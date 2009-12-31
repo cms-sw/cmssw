@@ -62,7 +62,8 @@ namespace edm {
 
     bool operator!=(ModuleDescription const& rh) const;
     
-  // private: public for now.  Will be made private ASAP.
+  private:
+  
     // ID of parameter set of the creator
     ParameterSetID parameterSetID_;
 

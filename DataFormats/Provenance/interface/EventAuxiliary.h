@@ -9,9 +9,11 @@
 
 // Auxiliary event data that is persistent
 
-namespace edm
-{
-  struct EventAuxiliary {
+namespace edm {
+  class EventAux;
+  class EventAuxiliary {
+  public:
+    friend void conversion(EventAux const&, EventAuxiliary&);
     // Updated on 9 Feb. '09 on a request from Emelio Meschi
     enum ExperimentType {
       Undefined          =  0,
@@ -54,9 +56,11 @@ namespace edm
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     EventID const& id() const {return id_;}
+    EventID& id() {return id_;}
     std::string const& processGUID() const {return processGUID_;}
     Timestamp const& time() const {return time_;}
-    LuminosityBlockNumber_t const luminosityBlock() const {return id_.luminosityBlock() != 0U ? id_.luminosityBlock() : luminosityBlock_;}
+    LuminosityBlockNumber_t luminosityBlock() const {return id_.luminosityBlock() != 0U ? id_.luminosityBlock() : luminosityBlock_;}
+    void resetObsoleteInfo() {luminosityBlock_ = 0;}
     EventNumber_t event() const {return id_.event();}
     RunNumber_t run() const {return id_.run();}
     bool isRealData() const {return isRealData_;}
@@ -65,6 +69,7 @@ namespace edm
     int orbitNumber() const {return orbitNumber_;}
     int storeNumber() const {return storeNumber_;}
 
+  private:
     // most recently process that processed this event
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
