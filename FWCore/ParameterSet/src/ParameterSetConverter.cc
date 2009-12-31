@@ -69,7 +69,7 @@ namespace edm {
     parameterSetIdConverter_(idConverter)
   {
     for (ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-      parameterSets_.push_back(std::make_pair(i->second.pset_, i->first));
+      parameterSets_.push_back(std::make_pair(i->second.pset(), i->first));
     }
     if (alreadyByReference) {
       noConvertParameterSets();

@@ -157,7 +157,7 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM, ostream& o
     if(itFind == iPSM.end()){
       oErrorLog << "No ParameterSetID for " << itH->parameterSetID() << std::endl;
     } else {
-      edm::ParameterSet processConfig(itFind->second.pset_);
+      edm::ParameterSet processConfig(itFind->second.pset());
       std::vector<std::string> sourceStrings, moduleStrings;
       //get the sources
       std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string> >("@all_essources");
@@ -300,7 +300,7 @@ ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
         std::cout << "But it would have been empty anyway\n";
       }
     } else {
-      edm::ParameterSet ps(i->second.pset_);
+      edm::ParameterSet ps(i->second.pset());
       std::cout << ps << '\n';
     }
   } else {
@@ -404,7 +404,7 @@ ProvenanceDumper::work_() {
 
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
   for (ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
-    edm::ParameterSet pset(i->second.pset_);
+    edm::ParameterSet pset(i->second.pset());
     pset.setID(i->first);
     psetRegistry.insertMapped(pset);
   }
@@ -440,7 +440,7 @@ ProvenanceDumper::work_() {
     for (edm::ProcessHistory::const_iterator itH = it->begin(), e = it->end();
     itH != e;
     ++itH) {
-    std::cout << edm::ParameterSet(psm[ itH->parameterSetID() ].pset_) << std::endl;
+    std::cout << edm::ParameterSet(psm[ itH->parameterSetID() ].pset()) << std::endl;
     }
     }
   */
@@ -500,7 +500,7 @@ ProvenanceDumper::work_() {
 	exitCode_ = 1;
       } else {
 	std::cout << " parameters: " <<
-	  edm::ParameterSet((*itpsm).second.pset_) << std::endl;
+	  edm::ParameterSet((*itpsm).second.pset()) << std::endl;
       }
       std::cout << std::endl;
     }

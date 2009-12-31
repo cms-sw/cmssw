@@ -27,7 +27,7 @@ namespace edm {
       fillme.clear();
       // Note: The tracked part is in the registry.
       for (iter i = reg->begin(), e = reg->end(); i != e; ++i) {
-	fillme[i->first].pset_ = i->second.toString();
+	fillme[i->first].pset() = i->second.toString();
       }
     }
   } // namespace pset
