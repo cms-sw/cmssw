@@ -84,8 +84,8 @@ namespace evf{
   void Stepper::preModule(const edm::ModuleDescription& desc)
   {
     wait_on_signal();
-    modulename_ = desc.moduleName_;
-    modulelabel_ = desc.moduleLabel_;
+    modulename_ = desc.moduleName();
+    modulelabel_ = desc.moduleLabel();
   }
 
   void Stepper::postModule(const edm::ModuleDescription& desc)

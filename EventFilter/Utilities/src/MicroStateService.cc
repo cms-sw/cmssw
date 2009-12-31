@@ -69,7 +69,7 @@ namespace evf{
   void MicroStateService::preModule(const edm::ModuleDescription& desc)
   {
     boost::mutex::scoped_lock sl(lock_);
-    microstate2_ = desc.moduleLabel_;
+    microstate2_ = desc.moduleLabel();
   }
 
   void MicroStateService::postModule(const edm::ModuleDescription& desc)

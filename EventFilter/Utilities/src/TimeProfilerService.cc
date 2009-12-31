@@ -45,7 +45,7 @@ namespace evf{
   void TimeProfilerService::postModule(const edm::ModuleDescription& desc)
   {
     double t = getTime() - curr_module_time_;
-    std::map<std::string, times>::iterator it = profiles_.find(desc.moduleLabel_);
+    std::map<std::string, times>::iterator it = profiles_.find(desc.moduleLabel());
     if(it==profiles_.end())
       {
 	times tt;
@@ -53,7 +53,7 @@ namespace evf{
 	tt.total_ = 0.;
 	tt.max_ = 0.;
 	tt.firstEvent_ = t;
-	profiles_.insert(std::pair<std::string, times>(desc.moduleLabel_,tt));
+	profiles_.insert(std::pair<std::string, times>(desc.moduleLabel(),tt));
       }      
     else
       {
