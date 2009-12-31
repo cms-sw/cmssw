@@ -92,7 +92,7 @@ namespace edm {
 
     void swap(LuminosityBlockPrincipal&);
   private:
-    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
+    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID();}
 
     virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 

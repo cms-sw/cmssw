@@ -564,7 +564,7 @@ Event::history() const
         b->SetAddress(&pEventProcessHistoryIDs);
         b->GetEntry(0);
         edm::EventProcessHistoryID target(aux_.id(), edm::ProcessHistoryID());
-        processHistoryID = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target)->processHistoryID_;
+        processHistoryID = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target)->processHistoryID();
       } 
     } 
 
@@ -701,7 +701,7 @@ Event::fillParameterSetRegistry() const
       edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
       for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
           i != iEnd; ++i) {
-        edm::ParameterSet pset(i->second.pset_);
+        edm::ParameterSet pset(i->second.pset());
         pset.setID(i->first);
         psetRegistry.insertMapped(pset);
       } 

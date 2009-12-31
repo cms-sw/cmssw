@@ -288,7 +288,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
          eventHistoryBranch->SetAddress(&pHistory);
          m_->eventHistoryTree_->GetEntry(iEntry);
          
-         history_->setProcessHistoryID(aux.processHistoryID_);
+         history_->setProcessHistoryID(aux.processHistoryID());
       }
       try {
 	 m_->reader_->setEntry(iEntry);
@@ -392,7 +392,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
   for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
       i != iEnd; ++i) {
-    edm::ParameterSet pset(i->second.pset_);
+    edm::ParameterSet pset(i->second.pset());
     pset.setID(i->first);
     psetRegistry.insertMapped(pset);
    } 

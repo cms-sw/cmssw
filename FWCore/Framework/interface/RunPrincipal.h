@@ -78,7 +78,7 @@ namespace edm {
     void swap(RunPrincipal&);
 
   private:
-    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
+    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID();}
 
     virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
