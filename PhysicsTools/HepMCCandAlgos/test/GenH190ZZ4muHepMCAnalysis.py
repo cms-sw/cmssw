@@ -83,7 +83,7 @@ process.source = Source( "PythiaSource",
 	"MSTP(128)=2             !dec.prods out of doc section, point at parents in the main section"))
 	)
 	      
-process.TestHepMCEvt = EDAnalyzer( "HZZ4muAnalyzer",
+process.TestHepMCEvt = EDAnalyzer( "HZZ4muTestAnalyzer",
                        HistOutFile=untracked.string("TestHZZ4muMass.root") )
 
 process.p1 = Path( process.TestHepMCEvt )
