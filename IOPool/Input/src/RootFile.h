@@ -140,9 +140,9 @@ namespace edm {
     void fillHistory();
     boost::shared_ptr<LuminosityBlockAuxiliary> fillLumiAuxiliary();
     boost::shared_ptr<RunAuxiliary> fillRunAuxiliary();
-    void overrideRunNumber(RunID & id);
-    void overrideRunNumber(LuminosityBlockID & id);
-    void overrideRunNumber(EventID & id, bool isRealData);
+    void overrideRunNumber(RunID& id);
+    void overrideRunNumber(LuminosityBlockID& id);
+    void overrideRunNumber(EventID& id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void dropOnInput(ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable);
     void readParentageTree();

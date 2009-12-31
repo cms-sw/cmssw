@@ -339,7 +339,7 @@ namespace edm {
     pEventAux_ = &e.aux();
    
     // Store an invailid process history ID in EventAuxiliary for obsolete field.
-    pEventAux_->processHistoryID_ = ProcessHistoryID(); // backward compatibility
+    pEventAux_->processHistoryID() = ProcessHistoryID(); // backward compatibility
     
     // Because getting the data may cause an exception to be thrown we want to do that
     // first before writing anything to the file about this event

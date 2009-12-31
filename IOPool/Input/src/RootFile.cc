@@ -229,7 +229,7 @@ namespace edm {
       // Merge into the parameter set registry.
       pset::Registry& psetRegistry = *pset::Registry::instance();
       for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-        ParameterSet pset(i->second.pset_);
+        ParameterSet pset(i->second.pset());
         pset.setID(i->first);
         psetRegistry.insertMapped(pset);
       } 
@@ -681,12 +681,12 @@ namespace edm {
       if(eventProcessHistoryIDs_.empty()) {
 	history_->setProcessHistoryID(eventAux().processHistoryID());
       } else {
-        if(eventProcessHistoryIter_->eventID_ != eventAux().id()) {
+        if(eventProcessHistoryIter_->eventID() != eventAux().id()) {
           EventProcessHistoryID target(eventAux().id(), ProcessHistoryID());
           eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);	
-          assert(eventProcessHistoryIter_->eventID_ == eventAux().id());
+          assert(eventProcessHistoryIter_->eventID() == eventAux().id());
         }
-	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID_);
+	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID());
         ++eventProcessHistoryIter_;
       }
     }
@@ -716,10 +716,10 @@ namespace edm {
       conversion(lumiAux, *lumiAuxiliary);
     }
     if(provenanceAdaptor_) {
-      lumiAuxiliary->processHistoryID_ = provenanceAdaptor_->convertID(lumiAuxiliary->processHistoryID_);
+      lumiAuxiliary->processHistoryID() = provenanceAdaptor_->convertID(lumiAuxiliary->processHistoryID());
     }
     if(lumiAuxiliary->luminosityBlock() == 0 && !fileFormatVersion().runsAndLumis()) {
-      lumiAuxiliary->id_ = LuminosityBlockID(RunNumber_t(1), LuminosityBlockNumber_t(1));
+      lumiAuxiliary->id() = LuminosityBlockID(RunNumber_t(1), LuminosityBlockNumber_t(1));
     }
     return lumiAuxiliary;
   }
@@ -737,7 +737,7 @@ namespace edm {
       conversion(runAux, *runAuxiliary);
     }
     if(provenanceAdaptor_) {
-      runAuxiliary->processHistoryID_ = provenanceAdaptor_->convertID(runAuxiliary->processHistoryID_);
+      runAuxiliary->processHistoryID() = provenanceAdaptor_->convertID(runAuxiliary->processHistoryID());
     }
     return runAuxiliary;
   }
@@ -807,11 +807,11 @@ namespace edm {
     fillEventAuxiliary();
     if(!fileFormatVersion().lumiInEventID()) {
 	//ugly, but will disappear when the backward compatibility is done with schema evolution.
-	const_cast<EventID&>(eventAux_.id()).setLuminosityBlockNumber(eventAux_.luminosityBlock_);
-	eventAux_.luminosityBlock_ = 0;
+	const_cast<EventID&>(eventAux_.id()).setLuminosityBlockNumber(eventAux_.luminosityBlock());
+	eventAux_.resetObsoleteInfo();
     }
     fillHistory();
-    overrideRunNumber(eventAux_.id_, eventAux().isRealData());
+    overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
     std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventAux()));
     // We're not done ... so prepare the EventPrincipal
@@ -853,7 +853,7 @@ namespace edm {
     runTree_.setEntryNumber(fileIndexIter_->entry_); 
     boost::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
     assert(runAuxiliary->run() == fileIndexIter_->run_);
-    overrideRunNumber(runAuxiliary->id_);
+    overrideRunNumber(runAuxiliary->id());
     Service<JobReport> reportSvc;
     reportSvc->reportInputRunNumber(runAuxiliary->run());
     if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
@@ -863,8 +863,8 @@ namespace edm {
         // back up, so event will not be skipped.
         eventTree_.previous();
       }
-      runAuxiliary->beginTime_ = eventAux().time(); 
-      runAuxiliary->endTime_ = Timestamp::invalidTimestamp();
+      runAuxiliary->setBeginTime(eventAux().time()); 
+      runAuxiliary->setEndTime(Timestamp::invalidTimestamp());
     }
     return runAuxiliary;
   }
@@ -900,14 +900,14 @@ namespace edm {
 
       LuminosityBlockID lumi = LuminosityBlockID(fileIndexIter_->run_, fileIndexIter_->lumi_);
       overrideRunNumber(lumi);
-      return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(lumi.run(), lumi.luminosityBlock(), eventAux().time_, Timestamp::invalidTimestamp()));
+      return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(lumi.run(), lumi.luminosityBlock(), eventAux().time(), Timestamp::invalidTimestamp()));
     }
     // End code for backward compatibility before the exixtence of lumi trees.
     lumiTree_.setEntryNumber(fileIndexIter_->entry_); 
     boost::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary = fillLumiAuxiliary();
     assert(lumiAuxiliary->run() == fileIndexIter_->run_);
     assert(lumiAuxiliary->luminosityBlock() == fileIndexIter_->lumi_);
-    overrideRunNumber(lumiAuxiliary->id_);
+    overrideRunNumber(lumiAuxiliary->id());
     Service<JobReport> reportSvc;
     reportSvc->reportInputLumiSection(lumiAuxiliary->run(), lumiAuxiliary->luminosityBlock());
 
@@ -918,8 +918,8 @@ namespace edm {
         // back up, so event will not be skipped.
         eventTree_.previous();
       }
-      lumiAuxiliary->beginTime_ = eventAux().time();
-      lumiAuxiliary->endTime_ = Timestamp::invalidTimestamp();
+      lumiAuxiliary->setBeginTime(eventAux().time());
+      lumiAuxiliary->setEndTime(Timestamp::invalidTimestamp());
     }
     return lumiAuxiliary;
   }
@@ -976,7 +976,7 @@ namespace edm {
   }
 
   void
-  RootFile::overrideRunNumber(RunID & id) {
+  RootFile::overrideRunNumber(RunID& id) {
     if(forcedRunOffset_ != 0) {
       id = RunID(id.run() + forcedRunOffset_);
     } 
@@ -984,7 +984,7 @@ namespace edm {
   }
 
   void
-  RootFile::overrideRunNumber(LuminosityBlockID & id) {
+  RootFile::overrideRunNumber(LuminosityBlockID& id) {
     if(forcedRunOffset_ != 0) {
       id = LuminosityBlockID(id.run() + forcedRunOffset_, id.luminosityBlock());
     } 
@@ -992,7 +992,7 @@ namespace edm {
   }
 
   void
-  RootFile::overrideRunNumber(EventID & id, bool isRealData) {
+  RootFile::overrideRunNumber(EventID& id, bool isRealData) {
     if(forcedRunOffset_ != 0) {
       if(isRealData) {
         throw edm::Exception(errors::Configuration,"RootFile::RootFile()")
@@ -1102,7 +1102,7 @@ namespace edm {
 
   namespace {
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease180(RootTree & rootTree, BranchType const& type, ProductRegistry const& preg) {
+    makeBranchMapperInRelease180(RootTree& rootTree, BranchType const& type, ProductRegistry const& preg) {
       boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
 
@@ -1125,7 +1125,7 @@ namespace edm {
     }
 
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease200(RootTree & rootTree, BranchType const& type, ProductRegistry const& preg) {
+    makeBranchMapperInRelease200(RootTree& rootTree, BranchType const& type, ProductRegistry const& preg) {
       rootTree.fillStatus();
       boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
@@ -1143,7 +1143,7 @@ namespace edm {
     }
 
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease210(RootTree & rootTree, BranchType const& type) {
+    makeBranchMapperInRelease210(RootTree& rootTree, BranchType const& type) {
       boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
       if(type == InEvent) {
@@ -1179,7 +1179,7 @@ namespace edm {
     }
 
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease300(RootTree & rootTree) {
+    makeBranchMapperInRelease300(RootTree& rootTree) {
       boost::shared_ptr<BranchMapperWithReader> mapper(
 	new BranchMapperWithReader(rootTree.branchEntryInfoBranch(), rootTree.entryNumber()));
       mapper->setDelayedRead(true);
@@ -1188,7 +1188,7 @@ namespace edm {
   }
 
   boost::shared_ptr<BranchMapper>
-  RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
+  RootFile::makeBranchMapper(RootTree& rootTree, BranchType const& type) const {
     if(fileFormatVersion().splitProductIDs()) {
       return makeBranchMapperInRelease300(rootTree);
     } else if(fileFormatVersion().perEventProductIDs()) {
