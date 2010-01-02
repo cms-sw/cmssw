@@ -3,7 +3,6 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/VertexReco>
-<use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/ParticleFlowCandidate>
 <use name=DataFormats/TrackReco>
 <use name=FWCore/Framework>
@@ -17,11 +16,8 @@
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/IPTools>
-<use name=RecoJets/JetAlgorithms>
 <use name=RecoTauTag/TauTagTools>
-<use name=RecoMuon/MuonIdentification>
 <use name=RecoVertex/KalmanVertexFit>
-<use name=CommonTools/CandUtils>
 <export>
   <use name=SimDataFormats/Vertex>
   <use name=DataFormats/TauReco>
@@ -31,7 +27,6 @@
   <use name=FWCore/ParameterSet>
   <use name=RecoTauTag/TauTagTools>
   <use name=RecoVertex/KalmanVertexFit>
-  <use name=CommonTools/CandUtils>
   <lib name=RecoTauTagRecoTau>
 </export>
 

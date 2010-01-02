@@ -1,6 +1,8 @@
 <library file="*.cc" name=RecoTauTagRecoTauPlugins>
   <flags EDM_PLUGIN=1>
+  <use name=CommonTools/CandUtils>
   <use name=DataFormats/Candidate>
+  <use name=DataFormats/MuonReco>
   <use name=TrackingTools/TransientTrack>
   <use name=RecoVertex/VertexPrimitives>
   <use name=PhysicsTools/IsolationUtils>
