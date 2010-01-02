@@ -1,5 +1,4 @@
 <use name=SimDataFormats/Vertex>
-<use name=DataFormats/JetReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/VertexReco>
@@ -17,7 +16,6 @@
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/IPTools>
 <use name=RecoTauTag/TauTagTools>
-<use name=RecoVertex/KalmanVertexFit>
 <export>
   <use name=SimDataFormats/Vertex>
   <use name=DataFormats/TauReco>
@@ -26,7 +24,6 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=RecoTauTag/TauTagTools>
-  <use name=RecoVertex/KalmanVertexFit>
   <lib name=RecoTauTagRecoTau>
 </export>
 
