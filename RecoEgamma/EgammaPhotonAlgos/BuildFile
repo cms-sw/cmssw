@@ -1,6 +1,5 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/Common>	
 <use name=DataFormats/TrajectorySeed>
@@ -26,7 +25,6 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <lib name=RecoEgammaEgammaPhotonAlgos>
-  <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
   <use name=DataFormats/Common>	
   <use name=DataFormats/TrajectorySeed>
