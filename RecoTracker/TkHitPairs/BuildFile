@@ -9,7 +9,6 @@
 <use name=DataFormats/SiStripDetId>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=RecoTracker/TkMSParametrization>	 
-<use name=RecoTracker/TkTrackingRegions>
 <use name=RecoTracker/TkSeedingLayers>
 <export>
    <lib name=RecoTrackerTkHitPairs>
@@ -24,7 +23,6 @@
    <use name=DataFormats/SiStripDetId>
    <use name=TrackingTools/TransientTrackingRecHit>
    <use name=RecoTracker/TkMSParametrization>	 
-   <use name=RecoTracker/TkTrackingRegions>
    <use name=RecoTracker/TkSeedingLayers>
  </export>
 

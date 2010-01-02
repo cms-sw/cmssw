@@ -1,3 +1,4 @@
+<use name=MagneticField/Engine>
 <use name=TrackPropagation/Geant4e>
 <use name=CLHEP>
 <use name=DataFormats/CLHEP>

@@ -16,6 +16,7 @@
 <use name=clhep>
 <use name=boost>#
 <use name=CondCore/DBOutputService>
+<use name=CondFormats/SiPixelObjects>
 <export>
 <lib name=CalibTrackerSiPixelLorentzAngle>
 </export>

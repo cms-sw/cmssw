@@ -1,12 +1,8 @@
 <use name=boost>
 <use name=clhep>
 
-<use name=CondCore/DBCommon>
-<use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
 
 <use name=CondFormats/DataRecord>
-<use name=CondFormats/SiPixelObjects>
 <use name=DataFormats/SiPixelDetId>
 
 <use name=DataFormats/SiStripDetId>
@@ -22,7 +18,6 @@
 
 <use name=RecoTracker/Record>
 <use name=RecoTracker/TkDetLayers>
-<use name=RecoTracker/TkMSParametrization>
 
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/TransientTrackingRecHit>
@@ -32,11 +27,7 @@
    <lib name=RecoTrackerTkSeedingLayers>
    <use name=boost>
    <use name=clhep>
-   <use name=CondCore/DBCommon>
-   <use name=CondCore/IOVService>
-   <use name=CondCore/MetaDataService>
    <use name=CondFormats/DataRecord>
-   <use name=CondFormats/SiPixelObjects>
    <use name=DataFormats/SiPixelDetId>
    <use name=DataFormats/SiStripDetId>
    <use name=DataFormats/TrackerRecHit2D>

@@ -1,9 +1,6 @@
-<use name=DataFormats/Common>
 <use name=rootrflx>
 <use name=clhep>
 <export>
-  <use name=DataFormats/Common>
-
   <lib name=DataFormatsRoadSearchCloud>
 </export>
 

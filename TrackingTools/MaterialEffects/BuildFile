@@ -1,17 +1,15 @@
-<use name=DataFormats/TrajectorySeed>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=TrackingTools/GeomPropagators>
-<use name=TrackingTools/PatternTools>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackPropagation/RungeKutta>
+<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=boost>
 <export>
-  <use name=DataFormats/TrajectorySeed>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=MagneticField/Engine>

@@ -1,7 +1,5 @@
 <use name=boost>
 <use name=clhep>
-<use name=DataFormats/Math>
-<use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/PatternTools>
 <use name=Geometry/CommonDetUnit>
@@ -10,11 +8,8 @@
  <lib name=TrackingToolsKalmanUpdators>
  <use name=TrackingTools/PatternTools>
 <use name=Geometry/CommonDetUnit>                                               
- <use name=DataFormats/Math>
- <use name=TrackingTools/TransientTrackingRecHit>
  <use name=TrackingTools/TrajectoryState>
 </export>
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
-<use name=TrackingTools/Records>
-<use name=MagneticField/Engine>
+

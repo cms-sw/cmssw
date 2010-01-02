@@ -22,4 +22,5 @@
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/EcalRawData>
 <use name=RecoEgamma/EgammaTools>
+<use name=RecoTracker/TkTrackingRegions>
 <flags EDM_PLUGIN=1>

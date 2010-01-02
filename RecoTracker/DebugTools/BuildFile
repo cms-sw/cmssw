@@ -1,9 +1,5 @@
-<use name=SimDataFormats/GeneratorProducts>
-
-<use name=AnalysisDataFormats/TrackInfo>
-<use name=DataFormats/BeamSpot>
-<use name=SimDataFormats/TrackingAnalysis>
-
+<use name=clhep>
+<use name=rootmath>
 <export>
  <lib name=RecoTrackerDebugTools>
  <use name=RecoTracker/CkfPattern>

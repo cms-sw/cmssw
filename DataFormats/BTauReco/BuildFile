@@ -1,7 +1,4 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/EgammaReco>
-<use name=DataFormats/GeometryCommonDetAlgo>
-<use name=DataFormats/GeometryVector>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/ParticleFlowCandidate>
@@ -14,9 +11,6 @@
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
-  <use name=DataFormats/EgammaReco>
-  <use name=DataFormats/GeometryCommonDetAlgo>
-  <use name=DataFormats/GeometryVector>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/Math>
   <use name=DataFormats/ParticleFlowCandidate>

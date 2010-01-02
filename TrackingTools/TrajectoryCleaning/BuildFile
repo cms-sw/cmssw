@@ -1,6 +1,5 @@
 <export>
  <lib name=TrackingToolsTrajectoryCleaning>
- <use name=TrackingTools/TransientTrackingRecHit>
  <use name=TrackingTools/PatternTools>
  <use name=DataFormats/SiPixelDetId>
  <use name=DataFormats/SiStripDetId>
@@ -8,7 +7,6 @@
  <use name=DataFormats/TrackingRecHit>
 </export>
 
-<use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackingTools/PatternTools>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>

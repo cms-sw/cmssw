@@ -1,3 +1,6 @@
+<use name=TrackingTools/Records>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
 <use name=TrackingTools/PatternTools>
 <use name=Geometry/TrackerGeometryBuilder>
 #<use name=Geometry/CaloEventSetup>

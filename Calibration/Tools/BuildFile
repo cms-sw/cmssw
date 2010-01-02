@@ -1,6 +1,7 @@
 # -*-SH-*-
 #removed plugin (lm 18042007)
 
+<use name=Utilities/Timing>
 <use name=FWCore/Framework>
 #<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>

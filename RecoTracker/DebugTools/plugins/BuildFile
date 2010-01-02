@@ -8,6 +8,9 @@
 <use name=MagneticField/Records>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/PatternTools>
+<use name=AnalysisDataFormats/TrackInfo>
+<use name=RecoTracker/MeasurementDet>
+
 <library file="*.cc" name=RecoTrackerDebugToolsPlugins>
       <flags EDM_PLUGIN=1>
 </library>

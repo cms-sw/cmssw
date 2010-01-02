@@ -6,29 +6,25 @@
  <use name="FWCore/Framework">
  <use name="FWCore/ParameterSet">
  <use name="FWCore/Utilities">
- <use name="DataFormats/GeometryCommonDetAlgo">
  <use name="DataFormats/GeometrySurface">
  <use name="TrackingTools/GeomPropagators">
- <use name="TrackingTools/Records">
  <use name="TrackingTools/TrajectoryState">
  <use name="TrackingTools/PatternTools">
  <use name="DataFormats/GsfTrackReco">
-<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse -fassociative-math -funsafe-math-optimizations">
+#<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse -fassociative-math -funsafe-math-optimizations">
 </export>
 
  <use name="FWCore/Framework">
  <use name="FWCore/MessageLogger">
  <use name="FWCore/ParameterSet">
  <use name="FWCore/Utilities">
- <use name="DataFormats/GeometryCommonDetAlgo">
  <use name="Geometry/CommonDetUnit">
  <use name="DataFormats/GeometrySurface">
  <use name="TrackingTools/GeomPropagators">
- <use name="TrackingTools/Records">
  <use name="TrackingTools/TrajectoryParametrization">
  <use name="TrackingTools/TrajectoryState">
  <use name="TrackingTools/PatternTools">
  <use name="DataFormats/GsfTrackReco">
  <use name="DataFormats/TrackReco">
-<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse -fassociative-math -funsafe-math-optimizations -ftree-vectorizer-verbose=7">
+#<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse -fassociative-math -funsafe-math-optimizations -ftree-vectorizer-verbose=7">
 

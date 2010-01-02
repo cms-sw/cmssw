@@ -1,11 +1,7 @@
 
 <export>
  <lib name=TrackingToolsMeasurementDet>
- <use name=TrackingTools/TrajectoryState>
- <use name=TrackingTools/DetLayers>
  <use name=TrackingTools/TransientTrackingRecHit>
 </export>
 
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/DetLayers>
  <use name=TrackingTools/TransientTrackingRecHit>

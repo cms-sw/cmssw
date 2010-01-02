@@ -15,15 +15,12 @@
  <use name=RecoLocalTracker/Records>
  <use name=RecoLocalTracker/SiPixelRecHits>
  <use name=RecoLocalTracker/SiStripRecHitConverter>
- <use name=RecoTracker/Record>
- <use name=RecoTracker/TkDetLayers>
  <use name=RecoTracker/TransientTrackingRecHit>
- <use name=TrackingTools/MeasurementDet>
  <use name=TrackingTools/TrajectoryState>
  <use name=TrackingTools/TransientTrackingRecHit>
 </export>
 
-
+<use name=TrackingTools/GeomPropagators>
 <use name=CalibFormats/SiStripObjects>
 <use name=CondFormats/SiPixelObjects>
 <use name=CalibTracker/Records>
@@ -41,10 +38,6 @@
 <use name=RecoLocalTracker/Records>
 <use name=RecoLocalTracker/SiPixelRecHits>
 <use name=RecoLocalTracker/SiStripRecHitConverter>
-<use name=RecoTracker/Record>
-<use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/TransientTrackingRecHit>
-<use name=TrackingTools/KalmanUpdators>
-<use name=TrackingTools/MeasurementDet>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>

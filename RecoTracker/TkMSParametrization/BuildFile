@@ -6,6 +6,7 @@
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/Record>
 <use name=MagneticField/Records>
+<use name=MagneticField/Engine>
 <export>
   <lib name=RecoTrackerTkMSParametrization>
   <use name=clhep>

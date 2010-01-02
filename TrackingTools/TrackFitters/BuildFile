@@ -3,22 +3,19 @@
 
 <export>
  <lib name=TrackingToolsTrackFitters>
- <use name=TrackingTools/KalmanUpdators>
  <use name=TrackingTools/GeomPropagators>
- <use name=TrackingTools/MaterialEffects>
  <use name=FWCore/MessageLogger>
  <use name=TrackingTools/RecoGeometry>
 </export>
 
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackingTools/RecoGeometry>
-<use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/GeomPropagators>
-<use name=TrackingTools/MaterialEffects>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
 <use name=TrackingTools/Records>
-<use name=MagneticField/Engine>
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
 

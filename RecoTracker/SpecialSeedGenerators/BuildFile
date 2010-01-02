@@ -26,6 +26,7 @@
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/MaterialEffects>
 <flags EDM_PLUGIN="1">
 <export>
   <use name=DataFormats/Common>

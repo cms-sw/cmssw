@@ -1,17 +1,12 @@
 <use name=boost>
-<use name=DataFormats/DetId>
-<use name=Geometry/Records>
+<use name=clhep>
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackingRecHit>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/CommonDetUnit>
-<use name=TrackingTools/Records>
-<use name=TrackingTools/TrajectoryState>
 <use name=DataFormats/GeometrySurface>
-<use name=DataFormats/CLHEP>
-<use name=DataFormats/GeometryCommonDetAlgo>
 <export>
 <lib name=TrackingToolsTransientTrackingRecHit>
   <use name=FWCore/Framework>

@@ -1,7 +1,5 @@
-<use name=DataFormats/GeometryVector>
 <use name=FWCore/Framework>
 <export>
-  <use name=DataFormats/GeometryVector>
   <lib name=MagneticFieldEngine>
 </export>
 

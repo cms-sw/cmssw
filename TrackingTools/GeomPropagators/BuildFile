@@ -1,18 +1,12 @@
-<use name=DataFormats/TrajectorySeed>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
-<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/GeometrySurface>
-<use name=MagneticField/Engine>
 <use name=TrackingTools/AnalyticalJacobians>
 <use name=TrackingTools/TrajectoryState>
 <export>
-  <use name=DataFormats/TrajectorySeed>
   <use name=FWCore/Utilities>
-  <use name=DataFormats/GeometryCommonDetAlgo>
   <use name=DataFormats/GeometrySurface>
-  <use name=MagneticField/Engine>
   <use name=TrackingTools/TrajectoryState>
   <lib name=TrackingToolsGeomPropagators>
 </export>

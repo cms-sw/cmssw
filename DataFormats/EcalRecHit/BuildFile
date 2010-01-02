@@ -1,12 +1,10 @@
 <use name=DataFormats/CaloRecHit>
 <use name=DataFormats/Common>
-<use name=DataFormats/DetId>
 <use name=DataFormats/EcalDetId>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/CaloRecHit>
   <use name=DataFormats/Common>
-  <use name=DataFormats/DetId>
   <lib name=DataFormatsEcalRecHit>
 </export>
 

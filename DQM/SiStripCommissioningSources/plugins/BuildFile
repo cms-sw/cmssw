@@ -16,6 +16,9 @@
   <use name=TrackingTools/TrackFitters>
   <use name=TrackingTools/TransientTrack>
   <use name=Geometry/TrackerGeometryBuilder>
+  <use name=DataFormats/SiStripCluster>
+  <use name=TrackingTools/MaterialEffects>
+  <use name=TrackingTools/KalmanUpdators>
   <flags EDM_PLUGIN=1>
 </library>
 

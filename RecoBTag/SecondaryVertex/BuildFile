@@ -1,8 +1,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Math>
-<use name=DataFormats/GeometryVector>
-<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/BTauReco>
@@ -10,8 +8,6 @@
 <export>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/Math>
-  <use name=DataFormats/GeometryVector>
-  <use name=DataFormats/GeometryCommonDetAlgo>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
   <use name=DataFormats/BTauReco>

@@ -2,6 +2,7 @@
 <use name=FWCore/Framework>
 <use name=TrackingTools/TrajectoryState>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackingRecHit>
 <export>	
 <lib name=RecoTrackerIterativeTracking>
 </export>
