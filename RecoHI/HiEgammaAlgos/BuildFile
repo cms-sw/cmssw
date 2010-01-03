@@ -1,6 +1,5 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Candidate>
 <use name=Geometry/CaloGeometry>
@@ -8,7 +7,6 @@
 <use name=root>
 <export>
   <use name=FWCore/Framework>
-  <use name=DataFormats/HcalRecHit>
   <use name=DataFormats/EgammaReco>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloEventSetup>

@@ -4,8 +4,6 @@
  <use name=DataFormats/DTDigi>
  <use name=DataFormats/Common>
  <use name=Geometry/DTGeometry>
- <use name=MagneticField/Records>
- <use name=MagneticField/Engine>
  <use name=CalibMuon/DTDigiSync>
 
 <export>

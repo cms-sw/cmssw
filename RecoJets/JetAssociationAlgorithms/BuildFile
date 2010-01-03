@@ -7,8 +7,6 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrack>
-<use name=MagneticField/Engine>
-<use name=RecoVertex/VertexPrimitives>
 <export>
   <lib name=RecoJetsJetAssociationAlgorithms>
   <use name=DataFormats/JetReco>

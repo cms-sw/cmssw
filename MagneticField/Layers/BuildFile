@@ -1,7 +1,5 @@
-<use name=DataFormats/GeometryVector>
 
 <export>
-  <use name=DataFormats/GeometryVector>
   <lib name=MagneticFieldLayers>
 </export>
 

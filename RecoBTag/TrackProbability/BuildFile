@@ -1,13 +1,8 @@
-<use name=CondFormats/DataRecord>
 <use name=DataFormats/TrackReco>
-<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
 <use name=xerces-c>
 <export>
   <use name=DataFormats/TrackReco>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
   <use name=xerces-c>
   <lib name=RecoBTagTrackProbability>
 </export>

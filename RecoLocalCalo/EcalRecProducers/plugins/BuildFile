@@ -1,3 +1,6 @@
+<use name=CalibCalorimetry/EcalTPGTools>
+<use name=RecoLocalCalo/EcalDeadChannelRecoveryAlgos>
+<use name=Geometry/CaloGeometry>
 <use name=RecoLocalCalo/EcalRecProducers>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>

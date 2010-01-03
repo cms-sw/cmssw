@@ -1,14 +1,11 @@
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
-<use name=DetectorDescription/Core>
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Layers>
 <use name=MagneticField/VolumeGeometry>
-<use name=Utilities/BinningTools>
 <export>
   <use name=DataFormats/GeometrySurface>
-  <use name=DetectorDescription/Core>
   <use name=MagneticField/Engine>
   <use name=MagneticField/Layers>
   <lib name=MagneticFieldVolumeBasedEngine>

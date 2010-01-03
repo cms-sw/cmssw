@@ -3,7 +3,6 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/Records>
-<use name=RecoEcal/EgammaCoreTools>
 <use name=rootcore>
 <export>
   <use name=DataFormats/EcalDetId>
@@ -11,7 +10,6 @@
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=Geometry/Records>
-  <use name=RecoEcal/EgammaCoreTools>
   <use name=rootcore>
   <lib name=RecoLocalCaloEcalDeadChannelRecoveryAlgos>
 </export>

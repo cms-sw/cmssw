@@ -1,12 +1,10 @@
 <use name=FWCore/Framework>
-<use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=Geometry/CaloGeometry>
 <use name=RecoEcal/EgammaCoreTools>
 <export>
   <lib name=RecoEgammaElectronIdentification>
   <use name=FWCore/Framework>
-  <use name=DataFormats/HcalRecHit>
   <use name=DataFormats/EgammaReco>
   <use name=Geometry/CaloGeometry>
   <use name=RecoEcal/EgammaCoreTools>

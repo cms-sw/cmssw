@@ -7,10 +7,8 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Interpolation>
 <use name=MagneticField/Layers>
-<use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/VolumeGeometry>
 <use name=Utilities/BinningTools>
-<use name=Utilities/General>
 #CLHEP is required only for SystemOfUnits.h
 <use name=clhep> 
 <export>
