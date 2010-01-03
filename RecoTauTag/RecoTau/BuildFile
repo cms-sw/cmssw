@@ -1,3 +1,4 @@
+<use name=MagneticField/Engine>
 <use name=SimDataFormats/Vertex>
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
