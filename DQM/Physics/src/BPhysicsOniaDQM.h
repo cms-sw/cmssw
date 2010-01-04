@@ -6,15 +6,14 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2009/06/26 10:18:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/17 10:31:14 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
-
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 
 class DQMStore;
 class MonitorElement;
@@ -29,7 +28,7 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   virtual ~BPhysicsOniaDQM();
   
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup);
+  void beginJob();
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
