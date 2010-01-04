@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.13 2009/07/28 17:26:08 eperez Exp $
+// $Id: EcalDigiToRaw.cc,v 1.16 2009/08/31 00:35:18 franzoni Exp $
 //
 //
 
@@ -289,7 +289,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalDigiToRaw::beginJob(const edm::EventSetup&)
+EcalDigiToRaw::beginJob()
 {
 	Headerblockformatter_ -> SetParam(this);
 	Towerblockformatter_  -> SetParam(this);

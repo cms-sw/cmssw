@@ -15,7 +15,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.h,v 1.6 2008/07/23 18:17:34 franzoni Exp $
+// $Id: EcalDigiToRaw.h,v 1.7 2009/05/29 14:36:39 franzoni Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class EcalDigiToRaw : public edm::EDProducer {
        EcalDigiToRaw(const edm::ParameterSet& pset);
        virtual ~EcalDigiToRaw();
 
-      void beginJob(const edm::EventSetup& c) ;
+      void beginJob();
       void produce(edm::Event& e, const edm::EventSetup& c);
       void endJob() ;
 
