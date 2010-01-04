@@ -449,44 +449,46 @@ void MuonGeometryArrange::makeGraph(int sizeI, float smi, float sma,
   return; 
 }
 //////////////////////////////////////////////////
-void MuonGeometryArrange::beginJob(const edm::EventSetup& iSetup){
-	//upload the ROOT geometries
-//	createROOTGeometry(iSetup);
-
-  // My stuff
-   MuonAlignmentInputXML inputMethod1(_inputXMLCurrent);
-   inputAlign1 = new MuonAlignment(iSetup, inputMethod1);
-   inputAlign1->fillGapsInSurvey(0, 0);
-   MuonAlignmentInputXML inputMethod2(_inputXMLReference);
-   inputAlign2 = new MuonAlignment(iSetup, inputMethod2);
-   inputAlign2->fillGapsInSurvey(0, 0);
-   MuonAlignmentInputXML inputMethod3(_inputXMLReference);
-   inputAlign2a = new MuonAlignment(iSetup, inputMethod3);
-   inputAlign2a->fillGapsInSurvey(0, 0);
-
-   inputGeometry1 = static_cast<Alignable*> (inputAlign1->getAlignableMuon());
-   inputGeometry2 = static_cast<Alignable*> (inputAlign2->getAlignableMuon());
-   Alignable* inputGeometry2Copy2 = 
-                 static_cast<Alignable*> (inputAlign2a->getAlignableMuon());
-	
-  //compare the goemetries
-   compare(inputGeometry1, inputGeometry2, inputGeometry2Copy2);
-	
-  //write out ntuple
-  //might be better to do within output module
-   _theFile->cd();
-   _alignTree->Write();
-   endHist();
-//   _theFile->Close();
-	
+void MuonGeometryArrange::beginJob(){
+  firstEvent_ = true;
 }
-
 
 //////////////////////////////////////////////////
 void MuonGeometryArrange::createROOTGeometry(const edm::EventSetup& iSetup){}
 //////////////////////////////////////////////////
 void MuonGeometryArrange::analyze(const edm::Event&, 
-	const edm::EventSetup& iSetup){}
+				  const edm::EventSetup& iSetup){
+  if (firstEvent_) {
+    
+    // My stuff
+    MuonAlignmentInputXML inputMethod1(_inputXMLCurrent);
+    inputAlign1 = new MuonAlignment(iSetup, inputMethod1);
+    inputAlign1->fillGapsInSurvey(0, 0);
+    MuonAlignmentInputXML inputMethod2(_inputXMLReference);
+    inputAlign2 = new MuonAlignment(iSetup, inputMethod2);
+    inputAlign2->fillGapsInSurvey(0, 0);
+    MuonAlignmentInputXML inputMethod3(_inputXMLReference);
+    inputAlign2a = new MuonAlignment(iSetup, inputMethod3);
+    inputAlign2a->fillGapsInSurvey(0, 0);
+    
+    inputGeometry1 = static_cast<Alignable*> (inputAlign1->getAlignableMuon());
+    inputGeometry2 = static_cast<Alignable*> (inputAlign2->getAlignableMuon());
+    Alignable* inputGeometry2Copy2 = 
+      static_cast<Alignable*> (inputAlign2a->getAlignableMuon());
+    
+    //compare the goemetries
+    compare(inputGeometry1, inputGeometry2, inputGeometry2Copy2);
+    
+    //write out ntuple
+    //might be better to do within output module
+    _theFile->cd();
+    _alignTree->Write();
+    endHist();
+    //   _theFile->Close();
+    
+    firstEvent_ = false;
+  }
+}
 
 /////////////////////////////////////////////////
 void MuonGeometryArrange::compare(Alignable* refAli, Alignable* curAli,

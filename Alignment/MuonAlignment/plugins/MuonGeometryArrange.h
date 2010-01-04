@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2008/11/25 22:15:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/15 17:09:58 $
+ *  $Revision: 1.2 $
  *  \author Nhan Tran
  */
 
@@ -49,9 +49,7 @@ public:
 		);
 	
   /// Read from DB and print survey info.
-	virtual void beginJob(
-		const edm::EventSetup&
-		);
+	virtual void beginJob();
 
 	virtual void analyze(
 		const edm::Event&,
@@ -170,7 +168,7 @@ struct MGACollection {
 	float _surWidth, _surLength;
 	double _surRot[9];
 	
-
+        bool firstEvent_;
 	
 };
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.12 2008/04/08 22:53:21 pivarski Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.13 2009/10/07 20:46:38 pivarski Exp $
 //
 //
 
@@ -47,9 +47,7 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
 
       bool m_done;
       std::string m_input, m_output;
@@ -200,14 +198,6 @@ MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup
       throw cms::Exception("BadConfig") << "Set maxEvents.input to 1.  (Your output is okay.)" << std::endl;
    }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-MuonGeometryDBConverter::endJob() { }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuonGeometryDBConverter);

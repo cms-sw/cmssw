@@ -8,7 +8,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 process.MuonGeometryDBConverter = cms.EDFilter("MuonGeometryDBConverter",
     outputXML = cms.PSet(
@@ -16,7 +16,8 @@ process.MuonGeometryDBConverter = cms.EDFilter("MuonGeometryDBConverter",
         eulerAngles = cms.bool(False),
         survey = cms.bool(False),
         rawIds = cms.bool(False),
-        fileName = cms.string('tmp2.xml')
+        fileName = cms.string('tmp2.xml'),
+        precision = cms.int32(6)
     ),
     shiftErr = cms.double(5.0),
     fileName = cms.string('tmp.xml'),
