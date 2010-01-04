@@ -1,13 +1,14 @@
 /* 
  *  \class TAPDPulse
  *
- *  $Date: 2008/04/28 15:04:33 $
+ *  $Date: 2009/06/02 12:55:20 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TAPDPulse.h>
 #include <TMath.h>
-# include <iostream>
+#include <iostream>
+#include <cassert>
 using namespace std;
 
 //ClassImp(TAPDPulse)

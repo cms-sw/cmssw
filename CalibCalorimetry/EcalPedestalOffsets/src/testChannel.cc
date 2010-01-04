@@ -1,8 +1,8 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2008/01/22 19:08:11 $
- * $Revision: 1.9 $
+ * $Date: 2008/04/23 14:59:08 $
+ * $Revision: 1.10 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -46,7 +46,7 @@ testChannel::~testChannel ()
 
 
 //! begin the job
-void testChannel::beginJob (edm::EventSetup const& eventSetup)
+void testChannel::beginJob ()
 {
    LogDebug ("testChannel") << "entering beginJob ..." ;
 }

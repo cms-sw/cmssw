@@ -1,13 +1,15 @@
 /* 
  *  \class TMom
  *
- *  $Date: 2008/04/28 15:04:33 $
+ *  $Date: 2009/06/02 12:55:21 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMom.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>
 #include <TMath.h>
+
+#include <cassert>
 
 using namespace std;
 

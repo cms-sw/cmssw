@@ -1,14 +1,15 @@
 /* 
  *  \class TPNPulse
  *
- *  $Date: 2008/04/28 15:04:33 $
+ *  $Date: 2009/06/02 12:55:21 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNPulse.h>
 
 #include <TMath.h>
-# include <iostream>
+#include <iostream>
+#include <cassert>
 using namespace std;
 
 //ClassImp(TPNPulse)

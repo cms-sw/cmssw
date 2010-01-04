@@ -1,7 +1,7 @@
 /* 
  *  \class EcalLaserAnalyzer
  *
- *  $Date: 2008/05/16 09:17:38 $
+ *  $Date: 2009/06/02 12:55:19 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -193,7 +193,7 @@ EcalLaserAnalyzer::~EcalLaserAnalyzer(){
 
 
 //========================================================================
-void EcalLaserAnalyzer::beginJob(edm::EventSetup const&) {
+void EcalLaserAnalyzer::beginJob() {
   //========================================================================
 
   

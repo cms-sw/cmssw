@@ -5,8 +5,8 @@
  * \file testChannel.h
  * \class testChannel
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2007/12/13 09:36:53 $
- * $Revision: 1.4 $
+ * $Date: 2008/04/23 14:59:08 $
+ * $Revision: 1.5 $
  * \author P. Govoni (testChannel.govoni@cernNOSPAM.ch)
  *
 */
@@ -56,7 +56,7 @@ class testChannel: public edm::EDAnalyzer
     void analyze (edm::Event const& event, edm::EventSetup const& eventSetup) ;
     
     //! BeginJob
-    void beginJob (edm::EventSetup const& eventSetup) ;
+    void beginJob () ;
     
     //! EndJob
     void endJob (void) ;

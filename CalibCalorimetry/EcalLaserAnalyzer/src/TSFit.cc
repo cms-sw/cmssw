@@ -1,15 +1,15 @@
 /* 
  *  \class TSFit
  *
- *  $Date: 2007/07/27 18:08:04 $
+ *  $Date: 2009/06/02 12:55:21 $
  *  \author: Jean-Pierre Pansart - CEA/Saclay
  */
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TSFit.h>
 
-#include <stdio.h>
-#include <math.h>
-
+#include <cstdio>
+#include <cmath>
+#include <cstring>
 
 //ClassImp(TSFit)
 

@@ -318,7 +318,7 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 	
 	nborn_min = (int)num_fit_min[nevt] ;
 	nborn_max = (int)num_fit_max[nevt] ;
-        if(k < nborn_min | k > nborn_max ) continue ;
+        if(k < nborn_min || k > nborn_max ) continue ;
         tsig[0] =(double)k  ;
 
 	

@@ -1,7 +1,7 @@
 /* 
  *  \class TMarkov
  *
- *  $Date: 2007/07/27 18:08:04 $
+ *  $Date: 2009/06/02 12:55:21 $
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
 
@@ -124,12 +124,17 @@ void TMarkov::peakFinder(int *bing)
     
     maximum *= 0.75;
     pass=0;
-    for(int i=1,pass=0;i<nu+1;i++)
-       if(binu[i] > maximum)
-         if(pass == 0)
-         { firstBin=i; lastBin=i; pass=1; }
-         else
-              lastBin=i;
+    for(int i=1,pass=0;i<nu+1;i++) {
+       if(binu[i] > maximum) {
+         if(pass == 0) {
+                firstBin=i;
+                lastBin=i;
+                pass=1;
+         } else {
+                 lastBin=i;
+         }
+       }
+    }
 
     peak[0] = (barycentre/sum);
     peak[1]= (double)(lastBin-firstBin+1);

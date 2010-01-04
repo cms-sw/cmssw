@@ -1,7 +1,7 @@
 /* 
  *  \class TAPD
  *
- *  $Date: 2008/04/28 14:42:22 $
+ *  $Date: 2009/06/02 12:55:20 $
  *  \author: Julie Malcles  - CEA/Saclay
  */
 
@@ -12,6 +12,7 @@
 
 using namespace std;
 #include <iostream>
+#include <cassert>
 
 //ClassImp(TAPD)
 
@@ -83,9 +84,9 @@ void TAPD::addEntry(double apd, double pn, double pn0, double pn1, double time, 
     mom[ivar]->addEntry(val[ivar],valcuts[ivar]); 
     //    cout << "addEntry: val[ivar=" << ivar <<"] = "<<val[ivar]<< endl;
     
-    for(int ic=0;ic<_cutvars[ivar].size();ic++){
+    for(size_t ic=0;ic<_cutvars[ivar].size();ic++){
       //      cout << "addEntry: valcuts[ivar="<< ivar <<"][ic="<<ic<<"] = "<<valcuts[ivar].at(ic)<< endl;
-      for(int iv=0;iv<_cutvars[ivar].size();iv++){
+      for(size_t iv=0;iv<_cutvars[ivar].size();iv++){
 	//	cout <<"low cut:"<<_apdcuts[0][ivar].at(iv)<<", high cut:"<<_apdcuts[1][ivar].at(iv)<<", cutvar: "<<_cutvars[ivar].at(iv)<< endl;
       }
     }
@@ -119,8 +120,8 @@ void TAPD::setCut(int ivar, std::vector<int> cutVars, std::vector<double> lowCut
   assert(ivar<nOutVar);
   int cutdim=cutVars.size();
   assert(cutdim<nOutVar);
-  assert(cutdim==lowCut.size());
-  assert(cutdim==highCut.size());
+  assert(cutdim==(int)lowCut.size());
+  assert(cutdim==(int)highCut.size());
   
   _apdcuts[0][ivar].clear();
   _apdcuts[1][ivar].clear();

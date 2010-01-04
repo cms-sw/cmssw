@@ -1,7 +1,7 @@
 /* 
  *  \class TShapeAnalysis
  *
- *  $Date: 2007/11/19 17:46:47 $
+ *  $Date: 2009/06/02 12:55:21 $
  *  original author: Patrice Verrecchia 
  *   modified by Julie Malcles - CEA/Saclay
  */
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <math.h>
 #include <time.h>
+#include <cassert>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -555,7 +556,7 @@ void TShapeAnalysis::printshapeData(int gRunNumber)
         if(index[i] >= 0) {
           nev= (int) npassok[i];
           double trise= alpha_val[i]*beta_val[i];
-          fprintf( fd, "%d %d 1 %d %d %f %f %f %f\n",
+          fprintf( fd, "%d %d 1 %ld %ld %f %f %f %f\n",
                 index[i],nev,timestart,timestop,alpha_val[i],beta_val[i],trise,width_val[i]);
 	}
      }

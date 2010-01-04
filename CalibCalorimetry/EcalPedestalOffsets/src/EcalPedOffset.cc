@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/04/25 17:05:51 $
- * $Revision: 1.14 $
+ * $Date: 2008/05/13 16:04:39 $
+ * $Revision: 1.15 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -87,10 +87,10 @@ EcalPedOffset::~EcalPedOffset ()
 // -----------------------------------------------------------------------------
 
 
-//! begin the job
-void EcalPedOffset::beginJob (EventSetup const& eventSetup)
+//! begin the run
+void EcalPedOffset::beginRun (Run const &, EventSetup const& eventSetup)
 {
-  LogDebug ("EcalPedOffset") << "entering beginJob..." ;
+  LogDebug ("EcalPedOffset") << "entering beginRun..." ;
 
   edm::ESHandle< EcalElectronicsMapping > handle;
   eventSetup.get< EcalMappingRcd >().get(handle);

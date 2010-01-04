@@ -5,8 +5,8 @@
  * \file EcalPedOffset.h
  * \class EcalPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2008/02/13 10:27:12 $
- * $Revision: 1.2 $
+ * $Date: 2008/03/02 13:52:22 $
+ * $Revision: 1.3 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -41,8 +41,8 @@ class EcalPedOffset: public edm::EDAnalyzer
     ///! Analyze
     void analyze(edm::Event const& event, edm::EventSetup const& eventSetup);
     
-    //! BeginJob
-    void beginJob(edm::EventSetup const& eventSetup);
+    //! BeginRun
+    void beginRun(edm::Run const &, edm::EventSetup const& eventSetup);
     
     //! EndJob
     void endJob(void);
