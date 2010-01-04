@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.9 2009/02/04 16:14:29 arizzi Exp $
+// $Id: testEcalClusterTools.cc,v 1.10 2009/12/29 19:06:04 wmtan Exp $
 //
 //
 
@@ -57,12 +57,8 @@ class testEcalClusterTools : public edm::EDAnalyzer {
                 edm::InputTag reducedBarrelRecHitCollection_;
                 edm::InputTag reducedEndcapRecHitCollection_;
 
-
         private:
-                virtual void beginJob() ;
                 virtual void analyze(const edm::Event&, const edm::EventSetup&);
-                virtual void endJob() ;
-
 };
 
 
@@ -179,17 +175,6 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "zernike20................ " << EcalClusterTools::zernike20( *it, eeRecHits, geometry ) << std::endl;
                 std::cout << "zernike42................ " << EcalClusterTools::zernike42( *it, eeRecHits, geometry ) << std::endl;
         }
-}
-
-
-
-void testEcalClusterTools::beginJob()
-{
-}
-
-
-
-void testEcalClusterTools::endJob() {
 }
 
 //define this as a plug-in

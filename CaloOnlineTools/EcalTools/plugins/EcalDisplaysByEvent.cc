@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.cc,v 1.1 2008/12/12 02:34:36 scooper Exp $
+// $Id: EcalDisplaysByEvent.cc,v 1.2 2009/03/28 14:09:00 ferriff Exp $
 //
 //
 
@@ -109,7 +109,7 @@ EcalDisplaysByEvent::~EcalDisplaysByEvent()
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalDisplaysByEvent::beginJob(const edm::EventSetup& c)
+EcalDisplaysByEvent::beginRun(edm::Run const &, edm::EventSetup const & c)
 {
   edm::ESHandle< EcalElectronicsMapping > handle;
   c.get< EcalMappingRcd >().get(handle);
@@ -118,7 +118,7 @@ EcalDisplaysByEvent::beginJob(const edm::EventSetup& c)
 
 // ------------ method called to for each event  ------------
 void
-EcalDisplaysByEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalDisplaysByEvent::analyze(edm::Event const & iEvent, edm::EventSetup const & iSetup)
 {
 
   // get the headers

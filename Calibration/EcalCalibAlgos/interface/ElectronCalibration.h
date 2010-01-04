@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibration.h,v 1.6 2007/10/30 16:07:49 beaucero Exp $
+// $Id: ElectronCalibration.h,v 1.9 2009/03/20 10:25:35 argiro Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class ElectronCalibration : public edm::EDAnalyzer {
       ~ElectronCalibration();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
    private:
 

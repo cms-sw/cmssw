@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2008/02/29 20:48:26 $
- * $Revision: 1.19 $
+ * $Date: 2008/10/29 10:54:11 $
+ * $Revision: 1.20 $
  * \author F. Cossutti
  *
 */
@@ -133,7 +133,7 @@ EcalEndcapDigisValidation::~EcalEndcapDigisValidation(){
  
 }
 
-void EcalEndcapDigisValidation::beginJob(const EventSetup& c){
+void EcalEndcapDigisValidation::beginRun(Run const &, EventSetup const & c){
 
   checkCalibrations(c);
 
@@ -143,7 +143,7 @@ void EcalEndcapDigisValidation::endJob(){
 
 }
 
-void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
+void EcalEndcapDigisValidation::analyze(Event const & e, EventSetup const & c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
@@ -273,7 +273,7 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
   
 }
 
-void  EcalEndcapDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+void  EcalEndcapDigisValidation::checkCalibrations(edm::EventSetup const & eventSetup) 
 {
 
   // ADC -> GeV Scale

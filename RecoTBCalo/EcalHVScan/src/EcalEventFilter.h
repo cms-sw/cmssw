@@ -3,7 +3,7 @@
 // NB: the interval is inclusive! both firstEvent and lastEvent are selected OR rejected
 // Author: Shahram Rahatlou, University of Rome & INFN
 // Date:   16 Dec 2005
-// $Id: EcalEventFilter.h,v 1.1 2006/01/02 14:43:57 rahatlou Exp $
+// $Id: EcalEventFilter.h,v 1.2 2006/04/21 01:45:25 wmtan Exp $
 //
 #ifndef RECOTBCALO_ECALHVSCAN_ECALEVENTFILTER_HH
 #define RECOTBCALO_ECALHVSCAN_ECALEVENTFILTER_HH
@@ -26,7 +26,6 @@ public:
   explicit EcalEventFilter(const edm::ParameterSet& );
   virtual ~EcalEventFilter();
   virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-  virtual void beginJob(edm::EventSetup const&);
   virtual void endJob();
 
 

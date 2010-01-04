@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2009/09/01 13:55:40 $
- * $Revision: 1.9 $
+ * $Date: 2009/10/02 12:12:27 $
+ * $Revision: 1.10 $
  * \author F. Cossutti
  *
 */
@@ -70,10 +70,10 @@ EcalMixingModuleValidation(const edm::ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(edm::Event const & e, edm::EventSetup const & c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+// BeginRun
+void beginRun(edm::Run const &, edm::EventSetup const & c);
 
 // EndRun
 void endRun(const edm::Run& r, const edm::EventSetup& c);
@@ -87,7 +87,7 @@ private:
 
  void findPedestal(const DetId & detId, int gainId, double & ped) const;
 
- void checkCalibrations(const edm::EventSetup & c);
+ void checkCalibrations(edm::EventSetup const & c);
  
  std::string HepMCLabel;
  std::string hitsProducer_;

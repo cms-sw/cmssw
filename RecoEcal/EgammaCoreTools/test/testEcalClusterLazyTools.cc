@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterLazyTools.cc,v 1.5 2009/02/04 16:14:29 arizzi Exp $
+// $Id: testEcalClusterLazyTools.cc,v 1.6 2009/12/29 19:06:04 wmtan Exp $
 //
 //
 
@@ -59,9 +59,7 @@ class testEcalClusterLazyTools : public edm::EDAnalyzer {
                 edm::InputTag reducedEndcapRecHitCollection_;
 
         private:
-                virtual void beginJob() ;
                 virtual void analyze(const edm::Event&, const edm::EventSetup&);
-                virtual void endJob() ;
 
 };
 
@@ -165,17 +163,6 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
                 std::cout << "zernike20................ " << lazyTools.zernike20( *it ) << std::endl;
                 std::cout << "zernike42................ " << lazyTools.zernike42( *it ) << std::endl;
         }
-}
-
-
-
-void testEcalClusterLazyTools::beginJob()
-{
-}
-
-
-
-void testEcalClusterLazyTools::endJob() {
 }
 
 //define this as a plug-in

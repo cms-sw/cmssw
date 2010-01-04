@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper
 //         Created:  Tue Feb  5 11:35:45 CST 2008
-// $Id: EcalPulseShapeGrapher.cc,v 1.3 2008/05/26 14:22:41 scooper Exp $
+// $Id: EcalPulseShapeGrapher.cc,v 1.1 2008/06/04 19:44:49 scooper Exp $
 //
 //
 
@@ -258,12 +258,6 @@ EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    }
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-EcalPulseShapeGrapher::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

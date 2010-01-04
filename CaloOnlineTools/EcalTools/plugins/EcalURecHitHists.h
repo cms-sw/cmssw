@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.h,v 1.3 2008/04/10 18:18:08 scooper Exp $
+// $Id: EcalURecHitHists.h,v 1.4 2008/04/22 21:08:24 scooper Exp $
 //
 //
 
@@ -60,8 +60,8 @@ class EcalURecHitHists : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
       virtual void endJob() ;
       std::string intToString(int num);
       void initHists(int);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.h,v 1.7 2008/09/26 07:45:09 scooper Exp $
+// $Id: EcalDisplaysByEvent.h,v 1.1 2008/12/12 02:34:36 scooper Exp $
 //
 //
 
@@ -69,8 +69,8 @@ class EcalDisplaysByEvent : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
       virtual void endJob() ;
       std::string intToString(int num);
       std::string floatToString(float num);

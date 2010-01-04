@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper
 //         Created:  Tue Feb  5 11:35:45 CST 2008
-// $Id: EcalPulseShapeGrapher.h,v 1.2 2008/05/26 14:22:41 scooper Exp $
+// $Id: EcalPulseShapeGrapher.h,v 1.1 2008/06/04 19:44:49 scooper Exp $
 //
 //
 
@@ -51,7 +51,6 @@ class EcalPulseShapeGrapher : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

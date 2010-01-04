@@ -95,7 +95,7 @@ EcalTPGAnalyzer::~EcalTPGAnalyzer()
   file_->Close();
 }
 
-void EcalTPGAnalyzer::beginJob(const edm::EventSetup& evtSetup)
+void EcalTPGAnalyzer::beginRun(edm::Run const &, edm::EventSetup const & evtSetup)
 {
   // geometry
   ESHandle<CaloGeometry> theGeometry;
@@ -111,7 +111,7 @@ void EcalTPGAnalyzer::beginJob(const edm::EventSetup& evtSetup)
 }
 
 
-void EcalTPGAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup & iSetup)
+void EcalTPGAnalyzer::analyze(edm::Event const & iEvent, edm::EventSetup const & iSetup)
 {
 
 

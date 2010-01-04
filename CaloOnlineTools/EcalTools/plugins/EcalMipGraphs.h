@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.7 2008/08/28 00:30:35 scooper Exp $
+// $Id: EcalMipGraphs.h,v 1.7 2008/12/12 02:40:46 scooper Exp $
 //
 //
 
@@ -66,8 +66,8 @@ class EcalMipGraphs : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
       virtual void endJob() ;
       std::string intToString(int num);
       std::string floatToString(float num);

@@ -29,7 +29,6 @@ class ElectronRecalibSuperClusterAssociator : public edm::EDProducer
 
   virtual ~ElectronRecalibSuperClusterAssociator();
 
-  virtual void beginJob(edm::EventSetup const&iSetup);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:

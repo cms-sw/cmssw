@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2009/09/01 13:55:40 $
- * $Revision: 1.22 $
+ * $Date: 2009/10/02 12:12:27 $
+ * $Revision: 1.23 $
  * \author F. Cossutti
  *
 */
@@ -199,7 +199,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
 
 EcalMixingModuleValidation::~EcalMixingModuleValidation(){}
 
-void EcalMixingModuleValidation::beginJob(const EventSetup& c){
+void EcalMixingModuleValidation::beginRun(Run const &, EventSetup const & c){
 
   checkCalibrations(c);
 
@@ -292,7 +292,7 @@ void EcalMixingModuleValidation::bunchSumTest(std::vector<MonitorElement *> & th
 
 } 
 
-void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
+void EcalMixingModuleValidation::analyze(Event const & e, EventSetup const & c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
@@ -640,7 +640,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   
 }                                                                                       
 
-void  EcalMixingModuleValidation::checkCalibrations(const edm::EventSetup & eventSetup) {
+void  EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const & eventSetup) {
   
   // ADC -> GeV Scale
   edm::ESHandle<EcalADCToGeVConstant> pAgc;

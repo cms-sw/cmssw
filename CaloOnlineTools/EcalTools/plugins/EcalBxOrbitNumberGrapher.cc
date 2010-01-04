@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalBxOrbitNumberGrapher.cc,v 1.2 2008/12/11 10:58:06 abenagli Exp $
+// $Id: EcalBxOrbitNumberGrapher.cc,v 1.1 2008/12/12 02:34:36 scooper Exp $
 //
 //
 
@@ -130,7 +130,7 @@ void EcalBxOrbitNumberGrapher::initHists(int FED)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalBxOrbitNumberGrapher::beginJob(const edm::EventSetup& c)
+EcalBxOrbitNumberGrapher::beginJob()
 {
   bxnumberPlot_ = new TH1F("bxnumber", "BX number of interexting events",3600, 0., 3600.);
   orbitErrorPlot_ = new TH1F("bxOfOrbitDiffs", "BX number of interexting events with orbit changes",3600, 0., 3600.);

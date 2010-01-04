@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2008/01/22 22:20:49 $
- * $Revision: 1.1 $
+ * $Date: 2008/04/10 18:18:08 $
+ * $Revision: 1.2 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *
@@ -62,7 +62,7 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
   bool ebIsGiven  = false;  
   // FEDs and EBs
   if ( requestedFeds_[0] != -1 ) {
-    edm::LogInfo("EcalDigiDisplay") << "FED id is given! Goining to beginJob! ";
+    edm::LogInfo("EcalDigiDisplay") << "FED id is given! Goining to beginRun! ";
     fedIsGiven = true;
   }else {
     if ( requestedEbs_[0] !="none" ) {
@@ -176,9 +176,9 @@ EcalDigiDisplay::~EcalDigiDisplay() {
 }
     
 //========================================================================
-void EcalDigiDisplay::beginJob(const edm::EventSetup& c) {
+void EcalDigiDisplay::beginRun(edm::Run const &, edm::EventSetup const& c) {
 //========================================================================
-  edm::LogInfo("EcalDigiDisplay") << "entering beginJob! ";
+  edm::LogInfo("EcalDigiDisplay") << "entering beginRun! ";
 
   edm::ESHandle<EcalElectronicsMapping> elecHandle;
     c.get<EcalMappingRcd>().get(elecHandle);
@@ -186,7 +186,7 @@ void EcalDigiDisplay::beginJob(const edm::EventSetup& c) {
 }
 
 //========================================================================
-void EcalDigiDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c) {
+void EcalDigiDisplay::analyze( edm::Event const & e, edm::EventSetup const & c) {
 //========================================================================
 
   if (!inputIsOk) return;

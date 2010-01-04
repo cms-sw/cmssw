@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.1 2008/11/26 14:49:25 meridian Exp $
+// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.2 2009/10/02 19:39:29 heltsley Exp $
 //
 //
 
@@ -102,7 +102,7 @@ EcalSimple2007H4TBAnalyzer::~EcalSimple2007H4TBAnalyzer()
 
 //========================================================================
 void
-EcalSimple2007H4TBAnalyzer::beginJob(edm::EventSetup const& iSetup) {
+EcalSimple2007H4TBAnalyzer::beginRun(edm::Run const &, edm::EventSetup const& iSetup) {
 //========================================================================
 
   edm::ESHandle<CaloGeometry> pG;
@@ -230,7 +230,7 @@ EcalSimple2007H4TBAnalyzer::endJob() {
 
 //========================================================================
 void
-EcalSimple2007H4TBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
+EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup const & iSetup ) {
 //========================================================================
 
    using namespace edm;

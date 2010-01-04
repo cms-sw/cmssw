@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.cc,v 1.3 2008/04/10 18:18:08 scooper Exp $
+// $Id: EcalURecHitHists.cc,v 1.4 2008/04/22 21:08:24 scooper Exp $
 //
 //
 
@@ -88,7 +88,7 @@ EcalURecHitHists::~EcalURecHitHists()
 
 // ------------ method called to for each event  ------------
 void
-EcalURecHitHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalURecHitHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSetup)
 {
   int ievt = iEvent.id().event();
   Handle<EcalUncalibratedRecHitCollection> EBhits;
@@ -216,7 +216,7 @@ void EcalURecHitHists::initHists(int FED)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalURecHitHists::beginJob(const edm::EventSetup& c)
+EcalURecHitHists::beginRun(edm::Run const &, edm::EventSetup const & c)
 {
   edm::ESHandle<EcalElectronicsMapping> elecHandle;
   c.get<EcalMappingRcd>().get(elecHandle);

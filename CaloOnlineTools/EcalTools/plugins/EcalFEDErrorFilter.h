@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.h,v 1.2 2008/07/08 08:32:59 meridian Exp $
+// $Id: EcalFEDErrorFilter.h,v 1.1 2008/12/12 02:34:35 scooper Exp $
 //
 //
 
@@ -49,9 +49,7 @@ public:
   ~EcalFEDErrorFilter();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
   // ----------member data ---------------------------
   

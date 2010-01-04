@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.1 2008/12/12 02:34:36 scooper Exp $
+// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.2 2009/07/08 11:47:23 scooper Exp $
 //
 //
 
@@ -50,9 +50,7 @@ public:
   ~EcalFEDWithCRCErrorProducer();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
   // ----------member data ---------------------------
   
@@ -144,17 +142,6 @@ EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
   
   iEvent.put(producedData);  
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-EcalFEDWithCRCErrorProducer::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-EcalFEDWithCRCErrorProducer::endJob() {
 }
 
 //define this as a plug-in

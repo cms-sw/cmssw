@@ -25,8 +25,8 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   ~EcalDigiDisplay();
   
  private:
-  virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob(const edm::EventSetup& c);
+  virtual void analyze( edm::Event const & e, edm::EventSetup const & c);
+  virtual void beginRun(edm::Run const &, edm::EventSetup const & c);
   virtual void endJob();
   
  protected:

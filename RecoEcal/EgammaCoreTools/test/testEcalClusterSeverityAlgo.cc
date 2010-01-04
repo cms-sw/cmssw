@@ -12,7 +12,7 @@ Implementation:
 */
 //
 // Original Author:  "Paolo Meridiani CERN CMG"
-// $Id: testEcalClusterSeverityAlgo.cc,v 1.2 2009/10/22 13:08:03 ferriff Exp $
+// $Id: testEcalClusterSeverityAlgo.cc,v 1.3 2009/12/29 19:06:04 wmtan Exp $
 
 
 
@@ -140,7 +140,6 @@ public:
 
 private:
 
-  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -298,12 +297,6 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 	myTreeVariables_.nSc=problematicSC;
 	tree_ -> Fill();
 }
-
-
-void testEcalClusterSeverityAlgo::beginJob()
-{
-}
-
 
 
 void testEcalClusterSeverityAlgo::endJob() {

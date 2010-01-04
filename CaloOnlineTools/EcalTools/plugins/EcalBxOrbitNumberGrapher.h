@@ -14,7 +14,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalBxOrbitNumberGrapher.h,v 1.1 2008/07/10 22:20:07 haupt Exp $
+// $Id: EcalBxOrbitNumberGrapher.h,v 1.1 2008/12/12 02:34:36 scooper Exp $
 //
 //
 
@@ -55,7 +55,7 @@ class EcalBxOrbitNumberGrapher : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       void initHists(int);

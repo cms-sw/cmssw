@@ -73,7 +73,7 @@ ElectronCalibration::~ElectronCalibration()
 }
 
 //========================================================================
-void ElectronCalibration::beginJob(edm::EventSetup const& iSetup) {
+void ElectronCalibration::beginJob() {
   //========================================================================
    f = new TFile(rootfile_.c_str(),"RECREATE");
 

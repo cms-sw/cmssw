@@ -47,7 +47,7 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   ~PhiSymmetryCalibration();
 
   /// Called at beginning of job
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginRun(edm::Run const &, edm::EventSetup const &);
 
   /// Called at end of job
   virtual void endJob();

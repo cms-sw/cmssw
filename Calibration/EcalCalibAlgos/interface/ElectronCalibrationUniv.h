@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibrationUniv.h,v 1.1 2007/11/15 17:38:50 beaucero Exp $
+// $Id: ElectronCalibrationUniv.h,v 1.4 2009/03/20 10:25:35 argiro Exp $
 //
 //
 
@@ -61,7 +61,7 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       ~ElectronCalibrationUniv();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
       virtual void endJob();
    private:
       DetId  findMaxHit(const std::vector<DetId> & v1,const EBRecHitCollection *EBhits,const EERecHitCollection *EEhits);

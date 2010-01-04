@@ -28,7 +28,7 @@ public:
     
 private:
   virtual void analyze(const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob(const edm::EventSetup& c);
+  virtual void beginJob();
   virtual void endJob();
  
   //  void pnGraphs (edm::Handle<EcalPnDiodeDigiCollection> PNs );

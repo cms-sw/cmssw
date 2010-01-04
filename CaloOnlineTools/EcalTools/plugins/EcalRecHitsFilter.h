@@ -50,7 +50,7 @@ class EcalRecHitsFilter : public edm::EDFilter {
       ~EcalRecHitsFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter ( edm::Event &, const edm::EventSetup &);
       virtual void endJob() ;
 

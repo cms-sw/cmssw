@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.cc,v 1.1 2008/12/12 02:34:35 scooper Exp $
+// $Id: EcalFEDErrorFilter.cc,v 1.2 2009/07/08 11:47:23 scooper Exp $
 //
 //
 
@@ -84,15 +84,4 @@ EcalFEDErrorFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   
   return false;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-EcalFEDErrorFilter::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-EcalFEDErrorFilter::endJob() {
 }

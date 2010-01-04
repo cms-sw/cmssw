@@ -9,7 +9,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.h,v 1.3 2006/07/28 12:27:22 meridian Exp $
+// $Id: EcalSimpleTBAnalyzer.h,v 1.4 2006/08/03 17:24:46 meridian Exp $
 //
 
 
@@ -47,7 +47,7 @@ class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
  private:
 

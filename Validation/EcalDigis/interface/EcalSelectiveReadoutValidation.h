@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2009/08/08 11:49:13 $
- * $Revision: 1.10 $
+ * $Date: 2009/11/04 09:51:16 $
+ * $Revision: 1.11 $
  *
  */
 
@@ -64,7 +64,7 @@ public:
 protected:
 
   /// Analyzes the event.
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(edm::Event const & e, edm::EventSetup const & c);
 
   /// Calls at begin of run
   void beginRun(const edm::Run& r, const edm::EventSetup& c); 

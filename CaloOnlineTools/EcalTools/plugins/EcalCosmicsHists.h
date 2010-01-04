@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalCosmicsHists.h,v 1.2 2008/12/12 02:37:41 scooper Exp $
+// $Id: EcalCosmicsHists.h,v 1.3 2009/08/27 17:13:24 ferriff Exp $
 //
 //
 
@@ -75,8 +75,8 @@ class EcalCosmicsHists : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
       virtual void endJob() ;
       std::string intToString(int num);
       void initHists(int);

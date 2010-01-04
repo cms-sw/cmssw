@@ -40,8 +40,8 @@ class EcalTPGAnalyzer : public edm::EDAnalyzer {
 public:
   explicit EcalTPGAnalyzer(const edm::ParameterSet&);
   ~EcalTPGAnalyzer();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(edm::Event const &, edm::EventSetup const &);
+  virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
   
 private:
   struct EcalTPGVariables

@@ -121,7 +121,7 @@ EcalPedHists::~EcalPedHists()
 {
 }
 
-void EcalPedHists::beginJob(const edm::EventSetup& c)
+void EcalPedHists::beginRun(edm::Run const &, edm::EventSetup const & c)
 {
   edm::ESHandle<EcalElectronicsMapping> elecHandle;
   c.get<EcalMappingRcd>().get(elecHandle);

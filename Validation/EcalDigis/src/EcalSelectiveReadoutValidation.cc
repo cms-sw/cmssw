@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2009/11/04 09:51:16 $
- * $Revision: 1.25 $
+ * $Date: 2009/11/16 10:46:29 $
+ * $Revision: 1.26 $
  *
  */
 
@@ -704,8 +704,8 @@ double EcalSelectiveReadoutValidation::getL1aRate() const{
   return (double)(l1aOfTmax - l1aOfTmin) / ((tmax-tmin) * 25e-9);
 }
 
-void EcalSelectiveReadoutValidation::analyze(const Event& event,
-					     const EventSetup& es){
+void EcalSelectiveReadoutValidation::analyze(Event const & event,
+					     EventSetup const & es){
 
   updateL1aRate(event);
   
@@ -1376,8 +1376,8 @@ void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventS
 }
 
 void
-EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
-					  const edm::EventSetup& es){
+EcalSelectiveReadoutValidation::analyzeTP(edm::Event const & event,
+					  edm::EventSetup const & es){
   EcalTPGScale ecalScale;
 #if (CMSSW_COMPAT_VERSION>=210)
   ecalScale.setEventSetup(es) ;

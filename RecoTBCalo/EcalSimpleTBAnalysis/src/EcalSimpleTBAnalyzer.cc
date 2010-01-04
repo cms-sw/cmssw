@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.7 2007/08/11 05:52:12 innocent Exp $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.8 2007/12/21 16:10:55 ferriff Exp $
 //
 //
 
@@ -97,7 +97,7 @@ EcalSimpleTBAnalyzer::~EcalSimpleTBAnalyzer()
 
 //========================================================================
 void
-EcalSimpleTBAnalyzer::beginJob(edm::EventSetup const&) {
+EcalSimpleTBAnalyzer::beginJob() {
 //========================================================================
 
   // Amplitude vs TDC offset

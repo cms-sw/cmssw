@@ -111,7 +111,7 @@ EcalCosmicsHists::~EcalCosmicsHists()
 
 // ------------ method called to for each event  ------------
 void
-EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSetup)
 {
   bool hasEndcapClusters = true;
   int ievt = iEvent.id().event();
@@ -1499,7 +1499,7 @@ void EcalCosmicsHists::initHists(int FED)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalCosmicsHists::beginJob(const edm::EventSetup& eventSetup)
+EcalCosmicsHists::beginRun(edm::Run const &, edm::EventSetup const & eventSetup)
 {
   edm::ESHandle< EcalElectronicsMapping > handle;
   eventSetup.get< EcalMappingRcd >().get(handle);

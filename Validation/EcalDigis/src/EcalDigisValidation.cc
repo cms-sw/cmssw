@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2008/05/05 10:45:22 $
- * $Revision: 1.28 $
+ * $Date: 2008/10/29 10:54:11 $
+ * $Revision: 1.29 $
  * \author F. Cossutti
  *
 */
@@ -118,7 +118,7 @@ EcalDigisValidation::~EcalDigisValidation(){
 
 }
 
-void EcalDigisValidation::beginJob(const EventSetup& c){
+void EcalDigisValidation::beginRun(Run const &, EventSetup const & c){
 
   checkCalibrations(c);
 
@@ -128,7 +128,7 @@ void EcalDigisValidation::endJob(){
 
 }
 
-void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
+void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
 
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
@@ -432,7 +432,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   
 }                                                                                       
 
-void  EcalDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+void  EcalDigisValidation::checkCalibrations(edm::EventSetup const & eventSetup) 
 {
 
   // ADC -> GeV Scale

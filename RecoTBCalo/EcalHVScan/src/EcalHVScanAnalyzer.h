@@ -8,7 +8,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalHVScanAnalyzer.h,v 1.1 2006/01/02 14:43:57 rahatlou Exp $
+// $Id: EcalHVScanAnalyzer.h,v 1.2 2006/11/17 16:36:12 rahatlou Exp $
 //
 
 
@@ -55,7 +55,7 @@ class EcalHVScanAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
  private:
 

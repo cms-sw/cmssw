@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2008/02/29 20:48:26 $
- * $Revision: 1.18 $
+ * $Date: 2008/10/29 10:54:11 $
+ * $Revision: 1.19 $
  * \author F. Cossutti
  *
 */
@@ -126,7 +126,7 @@ EcalBarrelDigisValidation::~EcalBarrelDigisValidation(){
  
 }
 
-void EcalBarrelDigisValidation::beginJob(const EventSetup& c){
+void EcalBarrelDigisValidation::beginRun(Run const &, EventSetup const & c){
 
   checkCalibrations(c);
 
@@ -136,7 +136,7 @@ void EcalBarrelDigisValidation::endJob(){
 
 }
 
-void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
+void EcalBarrelDigisValidation::analyze(Event const & e, EventSetup const & c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
@@ -261,7 +261,7 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
     
 }
 
-void  EcalBarrelDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
+void  EcalBarrelDigisValidation::checkCalibrations(edm::EventSetup const & eventSetup) 
   {
     
   // ADC -> GeV Scale

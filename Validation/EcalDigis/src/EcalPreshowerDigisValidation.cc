@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2008/02/29 20:48:27 $
- * $Revision: 1.13 $
+ * $Date: 2008/10/29 10:54:11 $
+ * $Revision: 1.14 $
  * \author F. Cossutti
  *
 */
@@ -60,18 +60,6 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
 
   }
  
-}
-
-EcalPreshowerDigisValidation::~EcalPreshowerDigisValidation(){
- 
-}
-
-void EcalPreshowerDigisValidation::beginJob(const EventSetup& c){
-
-}
-
-void EcalPreshowerDigisValidation::endJob(){
-
 }
 
 void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){

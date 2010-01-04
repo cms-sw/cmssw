@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelDigisValidation.h
  *
- * $Date: 2008/02/18 14:20:28 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/29 20:48:25 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -48,15 +48,15 @@ EcalBarrelDigisValidation(const edm::ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(edm::Event const & e, edm::EventSetup const & c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginRun(edm::Run const &, edm::EventSetup const & c);
 
 // EndJob
 void endJob(void);
 
-void checkCalibrations(const edm::EventSetup & c);
+void checkCalibrations(edm::EventSetup const & c);
 
 private:
 

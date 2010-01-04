@@ -76,7 +76,7 @@ bool EcalRecHitsFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 void 
-EcalRecHitsFilter::beginJob(const edm::EventSetup&)
+EcalRecHitsFilter::beginJob()
 {
   nRecHitsGreater1GevPerEvent_hist = new TH1F("nRecHitsGreater1GevPerEvent_hist","nRecHitsGreater1GevPerEvent_hist",65000,0.,65000.);
   nRecHitsGreater1GevPerEvent_hist_MAP = new TH2F("nRecHitsGreater1GevPerEvent_hist_MAP","nRecHitsGreater1GevPerEvent_hist_MAP",360,1.,361.,171,-85.,86.);

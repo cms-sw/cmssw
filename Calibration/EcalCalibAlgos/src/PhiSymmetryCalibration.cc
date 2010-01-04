@@ -82,7 +82,7 @@ PhiSymmetryCalibration::~PhiSymmetryCalibration()
 //_____________________________________________________________________________
 // Initialize algorithm
 
-void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
+void PhiSymmetryCalibration::beginRun( edm::Run const &, edm::EventSetup const & iSetup )
 {
 
   edm::LogInfo("Calibration") << "[PhiSymmetryCalibration] At begin job ...";

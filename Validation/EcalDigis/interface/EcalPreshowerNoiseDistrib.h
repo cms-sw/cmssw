@@ -33,19 +33,10 @@ public:
 /// Constructor
 EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps);
 
-/// Destructor
-~EcalPreshowerNoiseDistrib();
-
 protected:
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob(const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
 
 private:
 

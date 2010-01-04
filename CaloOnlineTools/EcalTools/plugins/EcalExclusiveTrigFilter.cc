@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Thu May 22 11:40:12 CEST 2008
-// $Id: EcalExclusiveTrigFilter.cc,v 1.1 2008/05/27 11:39:23 torimoto Exp $
+// $Id: EcalExclusiveTrigFilter.cc,v 1.1 2008/06/04 19:43:52 scooper Exp $
 //
 //
 
@@ -190,15 +190,4 @@ EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     return(isEcalL1 && !isDTL1 && !isRPCL1 && !isCSCL1 && !isHCALL1);
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-EcalExclusiveTrigFilter::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-EcalExclusiveTrigFilter::endJob() {
 }

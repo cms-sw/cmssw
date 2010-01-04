@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram RAHATLOU
 //         Created:  Tue Aug  2 16:15:01 CEST 2005
-// $Id: EcalHVScanAnalyzer.cc,v 1.3 2006/11/17 16:36:12 rahatlou Exp $
+// $Id: EcalHVScanAnalyzer.cc,v 1.4 2007/12/21 16:05:25 ferriff Exp $
 //
 //
 #include "RecoTBCalo/EcalHVScan/src/EcalHVScanAnalyzer.h"
@@ -81,7 +81,7 @@ EcalHVScanAnalyzer::~EcalHVScanAnalyzer()
 
 //========================================================================
 void
-EcalHVScanAnalyzer::beginJob(edm::EventSetup const&) {
+EcalHVScanAnalyzer::beginJob() {
 //========================================================================
   h_ampl_=TH1F("amplitude","Fitted Pulse Shape Amplitude",800,300,2700);
   h_jitt_=TH1F("jitter","Fitted Pulse Shape Jitter",500,0.,5.);
@@ -219,11 +219,13 @@ EcalHVScanAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
    // take a look at PNdiodes
    Handle<EcalPnDiodeDigiCollection> h_pndiodes;
    iEvent.getByLabel( pndiodeProducer_,h_pndiodes);
+   const EcalPnDiodeDigiCollection * pndiodes = 0;
    if ( h_pndiodes.isValid() ) {
-           const EcalPnDiodeDigiCollection* pndiodes = h_pndiodes.product();
+           pndiodes = h_pndiodes.product();
            std::cout << "length of EcalPnDiodeDigiCollection: " << pndiodes->size() << std::endl;
    } else {
            edm::LogError("EcalHVScannerError") << "Error! can't get the EcalPnDiodeDigiCollection object " << std::endl;
+           return;
    }
 
    // find max of PND signal
@@ -250,11 +252,13 @@ EcalHVScanAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
      //std::cout << "EcalHVScanAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( hitProducer_, hitCollection_,phits);
    //iEvent.getByLabel( hitProducer_, phits);
+   const EcalUncalibratedRecHitCollection* hits = 0;
    if ( phits.isValid() ) {
-           const EcalUncalibratedRecHitCollection* hits = phits.product(); // get a ptr to the product
+           hits = phits.product(); // get a ptr to the product
            std::cout << "# of EcalUncalibratedRecHits hits: " << hits->size() << std::endl;
    } else {
            edm::LogError("EcalHVScannerError") << "Error! can't get the product " << hitCollection_;
+           return;
    }
 
    // reset tree variables

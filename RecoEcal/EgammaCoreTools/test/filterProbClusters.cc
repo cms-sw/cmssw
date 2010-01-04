@@ -35,9 +35,7 @@ public:
   explicit ProbClustersFilter(const edm::ParameterSet&);
   ~ProbClustersFilter();
 private:
-  virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
 private:
   int maxDistance_;
   float maxGoodFraction_;
@@ -113,13 +111,6 @@ bool ProbClustersFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
   return problematicClusters;
-}
-
-void ProbClustersFilter::beginJob() {
-}
-
-void ProbClustersFilter::endJob() 
-{
 }
 
 DEFINE_FWK_MODULE(ProbClustersFilter);

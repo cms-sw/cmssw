@@ -49,10 +49,6 @@ ElectronRecalibSuperClusterAssociator::~ElectronRecalibSuperClusterAssociator()
 {
 }
 
-void ElectronRecalibSuperClusterAssociator::beginJob(edm::EventSetup const&iSetup) 
-{     
-}
-
 // ------------ method called to produce the data  ------------
 void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::EventSetup& iSetup) 
 {

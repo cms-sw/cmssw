@@ -4,8 +4,8 @@
 /*
  * \file EcalPreshowerDigisValidation.h
  *
- * $Date: 2008/02/18 14:20:28 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/29 20:48:25 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -42,19 +42,10 @@ public:
 /// Constructor
 EcalPreshowerDigisValidation(const edm::ParameterSet& ps);
 
-/// Destructor
-~EcalPreshowerDigisValidation();
-
 protected:
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob(const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
 
 private:
 

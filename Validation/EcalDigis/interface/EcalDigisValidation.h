@@ -4,8 +4,8 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2008/02/29 20:48:25 $
- * $Revision: 1.11 $
+ * $Date: 2008/12/11 12:27:21 $
+ * $Revision: 1.12 $
  * \author F. Cossutti
  *
 */
@@ -61,17 +61,17 @@ EcalDigisValidation(const edm::ParameterSet& ps);
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(edm::Event const & e, edm::EventSetup const & c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+// BeginRun
+void beginRun(edm::Run const &, edm::EventSetup const & c);
 
 // EndJob
 void endJob(void);
 
 private:
 
- void checkCalibrations(const edm::EventSetup & c);
+ void checkCalibrations(edm::EventSetup const & c);
  
  std::string HepMCLabel;
  std::string g4InfoLabel;

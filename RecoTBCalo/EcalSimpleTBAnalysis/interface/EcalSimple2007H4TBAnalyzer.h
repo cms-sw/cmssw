@@ -9,7 +9,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimple2007H4TBAnalyzer.h,v 1.4 2006/08/03 17:24:46 meridian Exp $
+// $Id: EcalSimple2007H4TBAnalyzer.h,v 1.1 2008/11/26 14:49:25 meridian Exp $
 //
 
 
@@ -48,8 +48,8 @@ class EcalSimple2007H4TBAnalyzer : public edm::EDAnalyzer {
       ~EcalSimple2007H4TBAnalyzer();
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void analyze( edm::Event const &, edm::EventSetup const & );
+      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
       virtual void endJob();
  private:
       std::string rootfile_;

@@ -56,17 +56,6 @@ EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const ParameterSet& ps):
   }
 }
 
-EcalPreshowerNoiseDistrib::~EcalPreshowerNoiseDistrib(){
-  
-}
-
-void EcalPreshowerNoiseDistrib::beginJob(const EventSetup& c){
-  
-}
-
-void EcalPreshowerNoiseDistrib::endJob(){
-  
-}
 
 void EcalPreshowerNoiseDistrib::analyze(const Event& e, const EventSetup& c){
 

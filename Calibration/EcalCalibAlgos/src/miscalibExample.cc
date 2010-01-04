@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.5 2007/12/31 18:43:07 ratnik Exp $
+// $Id: miscalibExample.cc,v 1.6 2008/01/22 19:01:42 muzaffar Exp $
 //
 //
 
@@ -81,7 +81,7 @@ miscalibExample::~miscalibExample()
 
 //========================================================================
 void
-miscalibExample::beginJob(edm::EventSetup const& iSetup) {
+miscalibExample::beginJob() {
 //========================================================================
 
   // Book histograms 

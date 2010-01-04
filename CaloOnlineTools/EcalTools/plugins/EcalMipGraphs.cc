@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.10 2008/09/11 09:53:07 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.9 2008/12/12 02:40:46 scooper Exp $
 //
 //
 
@@ -98,7 +98,7 @@ EcalMipGraphs::~EcalMipGraphs()
 
 // ------------ method called to for each event  ------------
 void
-EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalMipGraphs::analyze(edm::Event const & iEvent, edm::EventSetup const & iSetup)
 {
 
   // get the headers
@@ -364,7 +364,7 @@ void EcalMipGraphs::initHists(int FED)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalMipGraphs::beginJob(const edm::EventSetup& c)
+EcalMipGraphs::beginRun(edm::Run const &, edm::EventSetup const & c)
 {
   edm::ESHandle< EcalElectronicsMapping > handle;
   c.get< EcalMappingRcd >().get(handle);

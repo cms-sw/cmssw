@@ -2,8 +2,8 @@
  * module dumping TGraph with 50 data frames from Pn Diodes
  *   
  * 
- * $Date: 2008/01/22 22:20:53 $
- * $Revision: 1.1 $
+ * $Date: 2008/05/05 13:24:15 $
+ * $Revision: 1.2 $
  * \author K. Kaadze
  * \author G. Franzoni 
  *
@@ -122,7 +122,7 @@ EcalPnGraphs::~EcalPnGraphs(){
 }
 
 //=============================================================================
-void EcalPnGraphs::beginJob(const edm::EventSetup& c) {
+void EcalPnGraphs::beginJob() {
 //=============================================================================
   edm::LogInfo("EcalPhGraphs") << "entering beginJob! " ;
 }
