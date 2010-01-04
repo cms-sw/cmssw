@@ -40,6 +40,8 @@ metreco = cms.Sequence(
         htMetKT4+
         htMetKT6+
         htMetIC5+
+        htMetAK5+
+        htMetAK7+
         muonMETValueMapProducer+
         corMetGlobalMuons+
         muonTCMETValueMapProducer+

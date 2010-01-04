@@ -60,4 +60,21 @@ htMetKT6 = cms.EDProducer("METProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
+htMetAK5 = cms.EDProducer("METProducer",
+    src = cms.InputTag("ak5CaloJets"),
+    METType = cms.string('MET'),
+    alias = cms.string('HTMETAK5'),
+    noHF = cms.bool(False),
+    globalThreshold = cms.double(20.0),
+    InputType = cms.string('CaloJetCollection')
+)
+
+htMetAK7 = cms.EDProducer("METProducer",
+    src = cms.InputTag("ak7CaloJets"),
+    METType = cms.string('MET'),
+    alias = cms.string('HTMETAK7'),
+    noHF = cms.bool(False),
+    globalThreshold = cms.double(20.0),
+    InputType = cms.string('CaloJetCollection')
+)
 
