@@ -5,10 +5,12 @@ from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonGenJetCleaner_cfi import *
 
 makeHeavyIonJets = cms.Sequence(
     # reco pre-production
-    jetCorrFactors *
+#    jetCorrFactors * # changed by F.Blekman to fix compilation errors. Please check/confirm.
+    patJetCorrections *
     # pat and HI specifics
     heavyIonCleanedGenJets *
-    jetGenJetMatch *
+#    jetGenJetMatch * and another change...
+    patAK5CaloJetGenJetMatch *
     # object production
     patAK5CaloJets
     )
