@@ -126,7 +126,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
 }
 
 void 
-TtSemiLepJetCombMVAComputer::beginJob(const edm::EventSetup&)
+TtSemiLepJetCombMVAComputer::beginJob()
 {
 }
 

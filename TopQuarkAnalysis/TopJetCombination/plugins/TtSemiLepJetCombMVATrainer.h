@@ -29,7 +29,7 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
   
  private:
   
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 
