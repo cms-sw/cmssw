@@ -137,14 +137,14 @@ SiStripGain* SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStr
 
 template<typename TDependentRecord, typename TInputRecord>
 double  SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::getNFactor(const int apvGainIndex){
-  double NFactor;
+  double NFactor=0.;
 
   if(automaticMode_ || printdebug_ ){
 
     std::vector<uint32_t> DetIds;
     pDD[apvGainIndex]->getDetIds(DetIds);
 
-    double SumOfGains=0;
+    double SumOfGains=0.;
     int NGains=0;
     
     for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
