@@ -2,9 +2,7 @@
 <use name="DataFormats/GeometryCommonDetAlgo">
 <use name="DataFormats/GeometrySurface">
 <use name="DataFormats/GeometryVector">
-<use name="DataFormats/MuonSeed">
 <use name="DataFormats/SiStripDetId">
-<use name="DataFormats/TrackCandidate">
 <use name="DataFormats/TrackReco">
 <use name="DataFormats/TrackerRecHit2D">
 <use name="DataFormats/TrajectorySeed">
@@ -16,7 +14,6 @@
 <use name="Geometry/TrackerGeometryBuilder">
 <use name="MagneticField/Engine">
 <use name="RecoMuon/GlobalTrackingTools">
-<use name="RecoMuon/TrackerSeedGenerator">
 <use name="RecoMuon/TrackingTools">
 <use name="RecoTracker/CkfPattern">
 <use name="RecoTracker/MeasurementDet">
@@ -38,9 +35,7 @@
   <use name="DataFormats/GeometryCommonDetAlgo">
   <use name="DataFormats/GeometrySurface">
   <use name="DataFormats/GeometryVector">
-  <use name="DataFormats/MuonSeed">
   <use name="DataFormats/SiStripDetId">
-  <use name="DataFormats/TrackCandidate">
   <use name="DataFormats/TrackReco">
   <use name="DataFormats/TrackerRecHit2D">
   <use name="DataFormats/TrajectorySeed">
@@ -52,7 +47,6 @@
   <use name="Geometry/TrackerGeometryBuilder">
   <use name="MagneticField/Engine">
   <use name="RecoMuon/GlobalTrackingTools">
-  <use name="RecoMuon/TrackerSeedGenerator">
   <use name="RecoMuon/TrackingTools">
   <use name="RecoTracker/CkfPattern">
   <use name="RecoTracker/MeasurementDet">

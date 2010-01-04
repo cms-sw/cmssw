@@ -7,12 +7,6 @@
 <use name=TrackingTools/PatternTools>
 <use name=RecoPixelVertexing/PixelTriplets>
 <use name=RecoPixelVertexing/PixelTrackFitting>
-<use name=SimDataFormats/GeneratorProducts>
-<use name=RecoVertex/VertexTools>
-<use name=RecoVertex/KalmanVertexFit>
-<use name=RecoTracker/TkSeedGenerator>
-<use name=TrackingTools/TrajectoryCleaning>
-<use name=RecoTracker/CkfPattern>
 <use name=TrackingTools/TrajectoryFiltering>
 <use name=TrackingTools/Records>
 <use name=RecoLocalTracker/Records>
@@ -29,12 +23,6 @@
  <use name=TrackingTools/PatternTools>
  <use name=RecoPixelVertexing/PixelTriplets>
  <use name=RecoPixelVertexing/PixelTrackFitting>
- <use name=SimDataFormats/GeneratorProducts>
- <use name=RecoVertex/VertexTools>
- <use name=RecoVertex/KalmanVertexFit>
- <use name=RecoTracker/TkSeedGenerator>
- <use name=TrackingTools/TrajectoryCleaning>
- <use name=RecoTracker/CkfPattern>
  <use name=TrackingTools/TrajectoryFiltering>
  <use name=TrackingTools/Records>
  <use name=RecoLocalTracker/Records>

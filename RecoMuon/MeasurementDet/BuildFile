@@ -1,17 +1,12 @@
+<use name=DataFormats/MuonDetId>
 <use name="FWCore/Framework">
 <use name="FWCore/MessageLogger">
 <use name="FWCore/ParameterSet">
 <use name="RecoMuon/TransientTrackingRecHit">
-<use name="TrackingTools/DetLayers">
-<use name="TrackingTools/GeomPropagators">
-<use name="TrackingTools/TrajectoryState">
 <export>
   <use name="FWCore/Framework">
   <use name="FWCore/MessageLogger">
   <use name="FWCore/ParameterSet">
   <use name="RecoMuon/TransientTrackingRecHit">
-  <use name="TrackingTools/DetLayers">
-  <use name="TrackingTools/GeomPropagators">
-  <use name="TrackingTools/TrajectoryState">
   <lib name="RecoMuonMeasurementDet">
 </export>

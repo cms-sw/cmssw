@@ -1,7 +1,6 @@
 <use name=CommonTools/Clustering1D>
 <use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/GeometryVector>
-<use name=RecoVertex/AdaptiveVertexFit>
 <use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/LinearizationPointFinders>
 <use name=RecoVertex/VertexPrimitives>

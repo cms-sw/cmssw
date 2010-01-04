@@ -1,12 +1,8 @@
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/GeomPropagators>
 <export>
  <lib name=RecoVertexKinematicFitPrimitives>
- <use name=RecoVertex/KalmanVertexFit>
  <use name=RecoVertex/VertexPrimitives>
- <use name=RecoVertex/VertexTools>
- <use name=DataFormats/Math>
 </export>
 
-<use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/VertexPrimitives>
-<use name=RecoVertex/VertexTools>
-<use name=DataFormats/Math>

@@ -1,9 +1,8 @@
 <use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
 <use name=clhep>
 <export>
   <lib name=RecoLocalCaloEcalRecProducers>
-  <use name=FWCore/ParameterSet>
   <use name=RecoLocalCalo/EcalRecAlgos>
   <use name=FWCore/MessageLogger>
   <use name=clhep>

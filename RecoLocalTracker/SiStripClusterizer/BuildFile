@@ -1,7 +1,6 @@
 <use name=DataFormats/Common>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/DataRecord>
@@ -14,7 +13,6 @@
 <use name=DataFormats/Common>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/DataRecord>

@@ -1,3 +1,4 @@
+<use name=Geometry/CSCGeometry>
 <use name=FWCore/Framework>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>

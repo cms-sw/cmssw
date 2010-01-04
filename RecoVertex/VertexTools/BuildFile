@@ -1,16 +1,12 @@
-<use name=CommonTools/Clustering1D>
-<use name=CommonTools/Statistics>
 <use name=DataFormats/BeamSpot>
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/TrackReco>
-<use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<use name=MagneticField/Engine>
 <use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/PatternTools>

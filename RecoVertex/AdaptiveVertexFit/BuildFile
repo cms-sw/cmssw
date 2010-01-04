@@ -1,15 +1,10 @@
+<use name=FWCore/ParameterSet>
 <use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/GeometryVector>
-<use name=RecoVertex/KalmanVertexFit>
-<use name=RecoVertex/LinearizationPointFinders>
 <use name=RecoVertex/VertexPrimitives>
-<use name=RecoVertex/VertexTools>
 <export>
   <use name=DataFormats/GeometryVector>
-  <use name=RecoVertex/KalmanVertexFit>
-  <use name=RecoVertex/LinearizationPointFinders>
   <use name=RecoVertex/VertexPrimitives>
-  <use name=RecoVertex/VertexTools>
   <lib name=RecoVertexAdaptiveVertexFit>
 </export>
 

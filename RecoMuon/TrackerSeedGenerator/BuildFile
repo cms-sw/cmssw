@@ -3,8 +3,6 @@
 <use name="DataFormats/GeometryCommonDetAlgo">
 <use name="DataFormats/GeometryVector">
 <use name="DataFormats/L1GlobalMuonTrigger">
-<use name="DataFormats/Math">
-<use name="DataFormats/MuonSeed">
 <use name="DataFormats/TrackReco">
 <use name="DataFormats/TrackerRecHit2D">
 <use name="DataFormats/TrackingRecHit">
@@ -15,7 +13,6 @@
 <use name="FWCore/PluginManager">
 <use name="MagneticField/Engine">
 <use name="MagneticField/Records">
-<use name="RecoMuon/TrackingTools">
 <use name="RecoPixelVertexing/PixelTrackFitting">
 <use name="RecoTracker/TkMSParametrization">
 <use name="RecoTracker/TkSeedingLayers">
@@ -31,8 +28,6 @@
   <use name="DataFormats/GeometryCommonDetAlgo">
   <use name="DataFormats/GeometryVector">
   <use name="DataFormats/L1GlobalMuonTrigger">
-  <use name="DataFormats/Math">
-  <use name="DataFormats/MuonSeed">
   <use name="DataFormats/TrackReco">
   <use name="DataFormats/TrackerRecHit2D">
   <use name="DataFormats/TrackingRecHit">
@@ -43,7 +38,6 @@
   <use name="FWCore/PluginManager">
   <use name="MagneticField/Engine">
   <use name="MagneticField/Records">
-  <use name="RecoMuon/TrackingTools">
   <use name="RecoPixelVertexing/PixelTrackFitting">
   <use name="RecoTracker/TkMSParametrization">
   <use name="RecoTracker/TkSeedingLayers">

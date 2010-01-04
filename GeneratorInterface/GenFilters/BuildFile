@@ -15,6 +15,7 @@
 <use name=MagneticField/Records>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/Records>
 
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>

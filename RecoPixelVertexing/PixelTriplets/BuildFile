@@ -6,7 +6,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/CommonTopologies>
 <use name=RecoTracker/TkHitPairs>
-<use name=RecoTracker/TkTrackingRegions>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=RecoTracker/TkSeedingLayers>
@@ -22,7 +21,6 @@
  <use name=Geometry/CommonDetUnit>
  <use name=Geometry/CommonTopologies>
  <use name=RecoTracker/TkHitPairs>
- <use name=RecoTracker/TkTrackingRegions>
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
  <use name=RecoTracker/TkSeedingLayers>

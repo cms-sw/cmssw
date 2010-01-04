@@ -1,4 +1,6 @@
 <library name="FastSimulationMuonsPlugins" file="*.cc">
+ <use name=RecoMuon/TrackerSeedGenerator>
+ <use name=Geometry/RPCGeometry>
  <use name="CondFormats/DataRecord">
  <use name="CondFormats/L1TObjects">
  <use name="DataFormats/L1GlobalMuonTrigger">

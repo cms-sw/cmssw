@@ -1,3 +1,4 @@
+<use name=Utilities/Timing>
 <use name=Alignment/KalmanAlignmentAlgorithm>
 <use name=TrackingTools/KalmanUpdators>
 <library file="*.cc" name=AlignmentKalmanAlignmentPlugins>

@@ -1,5 +1,5 @@
 <use name=MagneticField/Engine>
-<use name=SimDataFormats/Vertex>
+<use name=MagneticField/Records>
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/VertexReco>
@@ -13,12 +13,10 @@
 <use name=Geometry/CaloTopology>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
-<use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/IPTools>
 <use name=RecoTauTag/TauTagTools>
 <export>
-  <use name=SimDataFormats/Vertex>
   <use name=DataFormats/TauReco>
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>

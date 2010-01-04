@@ -1,5 +1,5 @@
 <use name=FWCore/MessageLogger>
-
+<use name=TrackPropagation/SteppingHelixPropagator>
 <use name=Alignment/CommonAlignment>
 <use name=Alignment/CommonAlignmentAlgorithm>
 <use name=Alignment/MuonAlignment>

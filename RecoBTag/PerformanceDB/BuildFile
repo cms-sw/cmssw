@@ -4,7 +4,6 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
 
-<use name=CondCore/PluginSystem>
 
 <export>
   <lib name=RecoBTagPerformanceDB>

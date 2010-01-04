@@ -3,18 +3,12 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
-<use name=DataFormats/SiStripDigi>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
-<use name=CondCore/DBCommon>
-<use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerGeometryBuilder>	
 
 <export>
 <lib name=RecoLocalTrackerSiStripZeroSuppression>
@@ -23,16 +17,10 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
-<use name=DataFormats/SiStripDigi>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
-<use name=CondCore/DBCommon>
-<use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerGeometryBuilder>	
 </export>

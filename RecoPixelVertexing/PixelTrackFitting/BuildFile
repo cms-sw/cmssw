@@ -1,5 +1,4 @@
 <use name=CommonTools/Statistics>
-<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/SiPixelDetId>
@@ -23,13 +22,11 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
-<use name=RecoPixelVertexing/PixelTriplets>
 <use name=RecoTracker/TransientTrackingRecHit>
 
 <export>
  <lib name=RecoPixelVertexingPixelTrackFitting>
  <use name=CommonTools/Statistics>
- <use name=DataFormats/GeometryCommonDetAlgo>
  <use name=DataFormats/GeometrySurface>
  <use name=DataFormats/GeometryVector>
  <use name=DataFormats/SiPixelDetId>
@@ -53,6 +50,5 @@
  <use name=TrackingTools/TrajectoryParametrization>
  <use name=TrackingTools/TrajectoryState>
  <use name=TrackingTools/TransientTrackingRecHit>
- <use name=RecoPixelVertexing/PixelTriplets>
  <use name=RecoTracker/TransientTrackingRecHit>
 </export>

@@ -1,4 +1,3 @@
-<use name="DataFormats/CSCRecHit">
 <use name="DataFormats/Common">
 <use name="DataFormats/DTRecHit">
 <use name="DataFormats/GeometrySurface">

@@ -1,3 +1,4 @@
+<use name=TrackPropagation/SteppingHelixPropagator>
 <use name="DataFormats/GeometrySurface">
 <use name="DataFormats/MuonDetId">
 <use name="FWCore/Framework">

@@ -1,3 +1,5 @@
+<use name=DataFormats/MuonReco>
+<use name=Geometry/RPCGeometry>
 <use name=DQM/TrackingMonitor>
 <use name=FWCore/Framework>
 <use name=RecoTracker/TkNavigation>
