@@ -42,13 +42,13 @@ void PedsFullNoiseAlgorithm::extract( const std::vector<TH1*>& histos ) {
   }
 
   // Check number of histograms
-  if ( histos.size() != 3 ) { 
-  	anal()->addErrorCode(sistrip::numberOfHistos_);
+  if ( histos.size() != 4 ) { 
+    anal()->addErrorCode(sistrip::numberOfHistos_);
   }
   
   // Extract FED key from histo title
   if ( !histos.empty() ) { 
-  	anal()->fedKey( extractFedKey( histos.front() ) );
+    anal()->fedKey( extractFedKey( histos.front() ) );
   }
   
   // Extract 1D histograms
@@ -61,18 +61,22 @@ void PedsFullNoiseAlgorithm::extract( const std::vector<TH1*>& histos ) {
 // TO BE UPDATED!!!
     // Check run type
     SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::PEDS_ONLY ) {
+/*    if ( title.runType() != sistrip::PEDS_FULL_NOISE ) {
       anal()->addErrorCode(sistrip::unexpectedTask_);
       continue;
     }
-    
+*/
     // Extract peds histos
-    if ( title.extraInfo().find(sistrip::extrainfo::pedestals_) != std::string::npos ) {
+    if ( title.extraInfo().find(sistrip::extrainfo::roughPedestals_) != std::string::npos ) {
+      //@@ something here for rough peds?
+    } else if ( title.extraInfo().find(sistrip::extrainfo::pedestals_) != std::string::npos ) {
       hPeds_.first = *ihis;
       hPeds_.second = (*ihis)->GetName();
     } else if ( title.extraInfo().find(sistrip::extrainfo::commonMode_) != std::string::npos ) {
       //@@ something here for CM plots?
-    } else if ( title.extraInfo().find(sistrip::extrainfo::noise_) != std::string::npos ) {
+    } else if ( title.extraInfo().find(sistrip::extrainfo::noiseProfile_) != std::string::npos ) {
+      //@@ something here for noise profile plot?
+    } else if ( title.extraInfo().find(sistrip::extrainfo::noise2D_) != std::string::npos ) {
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
     } else { 
@@ -114,7 +118,6 @@ void PedsFullNoiseAlgorithm::analyse() {
   
   TProfile * peds_histo = dynamic_cast<TProfile *>(hPeds_.first);
   TH2S * noise_histo = dynamic_cast<TH2S *>(hNoise_.first);
-  
   if ( !peds_histo ) {
     anal->addErrorCode(sistrip::nullPtr_);
     return;
@@ -130,12 +133,10 @@ void PedsFullNoiseAlgorithm::analyse() {
     return;
   }
 
-  if ( (noise_histo->GetNbinsX() != 50 && noise_histo->GetNbinsX() != 60) || noise_histo->GetNbinsY() != 256 ) {
+  if ( noise_histo->GetNbinsY() != 256 ) { // X range is configurable
     anal->addErrorCode(sistrip::numberOfBins_);
     return;
   }
-  
-  //std::cout << anal->detId();
   
   // Iterate through APVs 
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
@@ -147,7 +148,7 @@ void PedsFullNoiseAlgorithm::analyse() {
     // Iterate through strips of APV
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
 
-		anal->ksProb_[iapv].push_back(0);
+        anal->ksProb_[iapv].push_back(0);
         anal->chi2Prob_[iapv].push_back(0);
         anal->noiseGaus_[iapv].push_back(0);
         anal->bin84Percent_[iapv].push_back(0);
@@ -155,37 +156,38 @@ void PedsFullNoiseAlgorithm::analyse() {
         
         // pedestals and raw noise
         if ( peds_histo ) {
-	    	if ( peds_histo->GetBinEntries(iapv*128 + istr + 1) ) {
-	        	anal->peds_[iapv][istr] = peds_histo->GetBinContent(iapv*128 + istr + 1);
-	            p_sum += anal->peds_[iapv][istr];
-	            p_sum2 += (anal->peds_[iapv][istr] * anal->peds_[iapv][istr]);
-	            if ( anal->peds_[iapv][istr] > p_max ) { p_max = anal->peds_[iapv][istr];}
-	            if ( anal->peds_[iapv][istr] < p_min ) { p_min = anal->peds_[iapv][istr];}
-
-	            anal->raw_[iapv][istr] = peds_histo->GetBinError(iapv*128 + istr + 1);
-	            r_sum += anal->raw_[iapv][istr];
-	            r_sum2 += (anal->raw_[iapv][istr] * anal->raw_[iapv][istr]);
-	            if ( anal->raw_[iapv][istr] > r_max ) { r_max = anal->raw_[iapv][istr]; }
-	            if ( anal->raw_[iapv][istr] < r_min ) { r_min = anal->raw_[iapv][istr]; }
-	        }
+	    if ( peds_histo->GetBinEntries(iapv*128 + istr + 1) ) {
+	        anal->peds_[iapv][istr] = peds_histo->GetBinContent(iapv*128 + istr + 1);
+	        p_sum += anal->peds_[iapv][istr];
+	        p_sum2 += (anal->peds_[iapv][istr] * anal->peds_[iapv][istr]);
+	        if ( anal->peds_[iapv][istr] > p_max ) { p_max = anal->peds_[iapv][istr];}
+	        if ( anal->peds_[iapv][istr] < p_min ) { p_min = anal->peds_[iapv][istr];}
+	        anal->raw_[iapv][istr] = peds_histo->GetBinError(iapv*128 + istr + 1);
+	        r_sum += anal->raw_[iapv][istr];
+	        r_sum2 += (anal->raw_[iapv][istr] * anal->raw_[iapv][istr]);
+	        if ( anal->raw_[iapv][istr] > r_max ) { r_max = anal->raw_[iapv][istr]; }
+	        if ( anal->raw_[iapv][istr] < r_min ) { r_min = anal->raw_[iapv][istr]; }
+	    }
         } 
 
         // Noise
         if ( noise_histo ) {
             TH1D * noisehist = noise_histo->ProjectionX("projx", iapv*128 + istr + 1, iapv*128 + istr + 1);
-       		char GausFit[128];
-	    	memset(GausFit,0,128);
-  	    	sprintf(GausFit,"%.f/(2.5*%.3f)*exp(-0.5*((x-%.3f)/%.3f)**2)",
-        		noisehist->Integral(),noisehist->GetRMS(),noisehist->GetMean(),noisehist->GetRMS());
-  	    	TF1 * fit = new TF1("fit",GausFit,-noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
-  	    	TH1F * FitHisto = new TH1F("FitHisto","FitHisto",noisehist->GetNbinsX(),
-            							-noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
-  	   		FitHisto->Add(fit);
+            char GausFit[128];
+            memset(GausFit,0,128);
+            sprintf(GausFit,"%.f/(2.5*%.3f)*exp(-0.5*((x-%.3f)/%.3f)**2)",
+            noisehist->Integral(),noisehist->GetRMS(),noisehist->GetMean(),noisehist->GetRMS());
+            TF1 * fit = new TF1("fit",GausFit,-noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
+            TH1F * FitHisto = new TH1F("FitHisto","FitHisto",
+                                       noisehist->GetNbinsX(),
+                                       -noisehist->GetNbinsX()/2,
+                                       noisehist->GetNbinsX()/2);
+            FitHisto->Add(fit);
             FitHisto->Sumw2();
             noisehist->Sumw2();
             if(noisehist->Integral() > 0){
                 anal->ksProb_[iapv][istr] = noisehist->KolmogorovTest(FitHisto)*1000;
-                anal->chi2Prob_[iapv][istr] = FitHisto->Chi2Test(noisehist, "OFUF")*1000;
+//                anal->chi2Prob_[iapv][istr] = FitHisto->Chi2Test(noisehist, "OFUF")*1000;
             }
            /* 
             if(anal->ksProb_[iapv][istr] < 10){
