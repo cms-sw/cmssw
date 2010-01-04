@@ -43,7 +43,7 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   // debuging with 'TopDecaySubset_printSource'
   printSource(*src);
   // determine shower model
-  if(showerModel_=kStart) showerModel_=checkShowerModel(*src);
+  if(showerModel_==kStart) showerModel_=checkShowerModel(*src);
 
   // create target vector
   std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
