@@ -33,7 +33,7 @@ Some examples of InputSource subclasses may be:
 
  1) EmptySource: creates EventPrincipals which contain no EDProducts.
  2) PoolSource: creates EventPrincipals which "contain" the data
-    read from a POOL file. This source should provide for delayed loading
+    read from a EDM/ROOT file. This source should provide for delayed loading
     of data, thus the quotation marks around contain.
  3) DAQSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
