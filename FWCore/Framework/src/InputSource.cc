@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include <cassert> 
-#include <cstring> 
+#include <cassert>
+#include <cstring>
 #include "PrincipalCache.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -43,11 +43,11 @@ namespace edm {
 	  return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
 	struct do_nothing_deleter {
-	  void  operator () (void const*) const {}
+	  void operator()(void const*) const {}
 	};
 	template <typename T>
 	boost::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
-	  return  boost::shared_ptr<T>(ptr, do_nothing_deleter());
+	  return boost::shared_ptr<T>(ptr, do_nothing_deleter());
 	}
 
 	ProcessHistoryID
@@ -101,13 +101,12 @@ namespace edm {
     std::string const defaultMode("RunsLumisAndEvents");
     std::string const runMode("Runs");
     std::string const runLumiMode("RunsAndLumis");
+
     // The default value provided as the second argument to the getUntrackedParameter function call
     // is not used when the ParameterSet has been validated and the parameters are not optional
-    // in the description.  This is currently true when PoolSource is the primary input source.
-    // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
-    // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
-    // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
-    // and should be deleted from the code.
+    // in the description.  As soon as all primary input sources and all modules with a secondary
+    // input sources have defined descriptions, the defaults in the getUntrackedParameterSet function
+    // calls can and should be deleted from the code.
     std::string processingMode = pset.getUntrackedParameter<std::string>("processingMode", defaultMode);
     if (processingMode == runMode) {
       processingMode_ = Runs;
@@ -421,7 +420,7 @@ namespace edm {
   InputSource::setLumi(LuminosityBlockNumber_t) {
       throw edm::Exception(errors::LogicError)
         << "InputSource::setLumi()\n"
-        << "Luminosity Block ID  cannot be modified for this type of Input Source\n"
+        << "Luminosity Block ID cannot be modified for this type of Input Source\n"
         << "Contact a Framework Developer\n";
   }
 
@@ -441,7 +440,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
   }
 
-  void 
+  void
   InputSource::preRead() {
 
     Service<RandomNumberGenerator> rng;
@@ -450,7 +449,7 @@ namespace edm {
     }
   }
 
-  void 
+  void
   InputSource::postRead(Event& event) {
 
     Service<RandomNumberGenerator> rng;
@@ -491,12 +490,12 @@ namespace edm {
     lumiPrematurelyRead_ = false;
   }
 
-  void 
+  void
   InputSource::doPreForkReleaseResources() {
     preForkReleaseResources();
   }
-  
-  void 
+
+  void
   InputSource::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
     if(maxEvents_ > 0) {
       unsigned int numberOfSequences = maxEvents_/iNumberOfSequentialEvents;
@@ -518,8 +517,8 @@ namespace edm {
     }
     postForkReacquireResources(iChildIndex, iNumberOfChildren, iNumberOfSequentialEvents);
   }
-  
-  void 
+
+  void
   InputSource::wakeUp_() {}
 
   void
@@ -550,12 +549,11 @@ namespace edm {
     if (runAuxiliary_) runAuxiliary_->setProcessHistoryID(deleteFromProcessHistory(runAuxiliary_->processHistoryID(), processConfiguration().processName()));
   }
 
-  void 
+  void
   InputSource::preForkReleaseResources() {}
-  void 
+  void
   InputSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {}
 
-   
   RunNumber_t
   InputSource::run() const {
     assert(runAuxiliary());

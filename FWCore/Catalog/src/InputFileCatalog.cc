@@ -1,6 +1,5 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.cc,v 1.6 2008/04/25 13:48:18 eulisse Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -61,15 +60,12 @@ namespace edm {
 
             // The default value provided as the second argument to the getUntrackedParameter function call
             // is not used when the ParameterSet has been validated and the parameters are not optional
-            // in the description.  This is currently true when PoolSource is the primary input source.
-            // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
-            // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
-            // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
-            // and should be deleted from the code.
+            // in the description.  As soon as all primary input sources and all modules with a secondary
+            // input sources have defined descriptions, the defaults in the getUntrackedParameterSet function
+	    // calls can and should be deleted from the code.
 	    std::string overriderUrl = pset.getUntrackedParameter<std::string>("overrideCatalog", std::string());
-           if (!overriderUrl.empty ())
-	    {  
-              pool::URIParser overriderParser(overriderUrl); 
+            if (!overriderUrl.empty ()) {
+              pool::URIParser overriderParser(overriderUrl);
               overriderParser.parse();
               catalog().addReadCatalog(overriderParser.contactstring());
 	    }
@@ -78,8 +74,8 @@ namespace edm {
 	    pool::URIParser parser(url());
 	    parser.parse();
 
-           catalog().addReadCatalog(parser.contactstring());
-           catalog().connect();
+            catalog().addReadCatalog(parser.contactstring());
+            catalog().connect();
 
             catalog().start();
 	    setActive();

@@ -5,13 +5,11 @@
 
 namespace edm {
   EventSkipperByID::EventSkipperByID(ParameterSet const& pset) :
-        // The default value provided as the second argument to the getUntrackedParameter function call
-        // is not used when the ParameterSet has been validated and the parameters are not optional
-        // in the description.  This is currently true when PoolSource is the primary input source.
-        // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
-        // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
-        // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
-        // and should be deleted from the code.
+	// The default value provided as the second argument to the getUntrackedParameter function call
+	// is not used when the ParameterSet has been validated and the parameters are not optional
+	// in the description.  As soon as all primary input sources and all modules with a secondary
+	// input sources have defined descriptions, the defaults in the getUntrackedParameterSet function
+	// calls can and should be deleted from the code.
         firstRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
         firstLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 0U)),
         firstEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
