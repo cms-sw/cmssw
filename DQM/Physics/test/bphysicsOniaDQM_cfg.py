@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    "rfio:/castor/cern.ch/user/m/malgeri/TTbar_RAWDEBUG_pre10_1.root"
+    "rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_5_0_pre2/RelValJpsiMM/GEN-SIM-RECO/STARTUP3X_V14-v1/0009/4ACD6646-81ED-DE11-AFD9-00261894393E.root"
                            )
                             )
 
