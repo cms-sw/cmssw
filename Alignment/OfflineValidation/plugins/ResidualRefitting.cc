@@ -1045,7 +1045,7 @@ void ResidualRefitting::zero_trackExtrap(ResidualRefitting::storage_trackExtrap*
 //  
 // Begin Job
 // 
-void ResidualRefitting::beginJob( const EventSetup& ) {
+void ResidualRefitting::beginJob() {
 
 	std::cout<<"Creating file "<< outputFileName_.c_str()<<std::endl;
 

@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2008/10/07 11:15:30 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/16 17:58:55 $
+ *  $Revision: 1.8 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -121,7 +121,7 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset):
 MuonAlignmentAnalyzer::~MuonAlignmentAnalyzer(){
 }
 
-void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
+void MuonAlignmentAnalyzer::beginJob(){
 
 //  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
   

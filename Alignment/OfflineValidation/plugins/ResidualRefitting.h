@@ -203,7 +203,7 @@ class ResidualRefitting : public edm::EDAnalyzer{
 	~ResidualRefitting();
 	
 	virtual void analyze(const edm::Event&, const edm::EventSetup&);
-	virtual void beginJob(const edm::EventSetup& ) ;
+	virtual void beginJob() ;
 	virtual void endJob() ;
 //Zero Storage
 	void zero_storage();

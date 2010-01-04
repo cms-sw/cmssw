@@ -7,7 +7,7 @@
  *  and residuals (base EDAnalyzer for Muon Alignment Offline DQM)
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2008/09/09 08:56:47 $
+ *  $Date: 2008/09/17 14:52:17 $
  *  $Revision: 1.5 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
@@ -52,7 +52,7 @@ public:
 
     void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-    virtual void beginJob(const edm::EventSetup& eventSetup) ;
+    virtual void beginJob() ;
     virtual void endJob() ;
 protected:
 

@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 process.p = cms.Path(process.TrackerGeometryCompare)
 process.TrackerGeometryCompare.inputROOTFile1 = 'CRAFT08_vs_IDEAL.Comparison_commonLasSubDets.root'

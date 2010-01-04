@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: Tracker_OldtoNewConverter.cc,v 1.3 2008/01/22 19:03:59 muzaffar Exp $
+// $Id: Tracker_OldtoNewConverter.cc,v 1.1 2008/02/27 17:35:48 ebutz Exp $
 //
 //
 
@@ -44,7 +44,7 @@ public:
 	
 	
 private:
-	virtual void beginJob(const edm::EventSetup &iSetup);
+	virtual void beginJob();
 	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
 	virtual void endJob() ;
 	
@@ -110,7 +110,7 @@ void Tracker_OldtoNewConverter::analyze(const edm::Event& iEvent, const edm::Eve
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void Tracker_OldtoNewConverter::beginJob(const edm::EventSetup& iSetup)
+void Tracker_OldtoNewConverter::beginJob()
 {
 	
 	m_inputTFile = new TFile(m_inputFile.c_str());

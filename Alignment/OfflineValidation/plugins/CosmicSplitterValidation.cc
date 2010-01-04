@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.6 2009/07/01 10:29:32 flucke Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.7 2009/08/21 16:25:44 wmtan Exp $
 //
 //
 
@@ -75,7 +75,7 @@ public:
 	
 	
 private:
-	virtual void beginJob(const edm::EventSetup &iSetup);
+	virtual void beginJob();
 	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
 	virtual void endJob() ;
 	
@@ -498,7 +498,7 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void CosmicSplitterValidation::beginJob(const edm::EventSetup& iSetup)
+void CosmicSplitterValidation::beginJob()
 {
 	edm::LogInfo("beginJob") << "Begin Job" << std::endl;
 	

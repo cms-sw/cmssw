@@ -151,8 +151,14 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 	
 }
 
-void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
-	
+void TrackerGeometryCompare::beginJob(){
+  firstEvent_ = true;
+}
+
+void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& iSetup){
+
+  if (firstEvent_) {
+
 	//upload the ROOT geometries
 	createROOTGeometry(iSetup);
 	
@@ -187,9 +193,10 @@ void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 		poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd");
 		
 	}		
-	
-}
 
+	firstEvent_ = false;
+  }
+}
 
 void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	
@@ -296,10 +303,6 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
-	
-}
-
-void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& iSetup){
 	
 }
 

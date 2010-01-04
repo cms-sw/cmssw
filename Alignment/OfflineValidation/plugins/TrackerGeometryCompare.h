@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2009/02/17 14:19:19 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/07/24 13:48:19 $
+ *  $Revision: 1.9 $
  *  \author Nhan Tran
  */
 
@@ -46,9 +46,7 @@ public:
 		);
 	
   /// Read from DB and print survey info.
-	virtual void beginJob(
-		const edm::EventSetup&
-		);
+	virtual void beginJob();
 
 	virtual void analyze(
 		const edm::Event&,
@@ -127,7 +125,7 @@ private:
 	uint32_t _identifiers[6];
 	double _surRot[9];
 	
-
+	bool firstEvent_;
 	
 };
 

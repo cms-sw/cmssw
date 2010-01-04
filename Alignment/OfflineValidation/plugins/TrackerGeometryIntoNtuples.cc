@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.3 2009/05/27 09:07:02 fabiocos Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.4 2009/11/19 10:57:23 ntran Exp $
 //
 //
 
@@ -57,9 +57,7 @@ public:
 	
 	
 private:
-	virtual void beginJob(const edm::EventSetup &iSetup);
 	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
-	virtual void endJob() ;
 	
 	void addBranches();
 	
@@ -199,12 +197,6 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
-{}
-
-
-
 void TrackerGeometryIntoNtuples::addBranches() {
 	
 	m_tree->Branch("rawid", &m_rawid, "rawid/I");
@@ -226,12 +218,6 @@ void TrackerGeometryIntoNtuples::addBranches() {
 	m_treeErrors->Branch("yz", &m_yz, "yz/D");
 		
 }
-
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TrackerGeometryIntoNtuples::endJob() {
-}
-
 
 
 //define this as a plug-in

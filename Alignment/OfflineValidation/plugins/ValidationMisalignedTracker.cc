@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.5 2008/01/22 19:03:59 muzaffar Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.1 2008/02/27 17:36:46 ebutz Exp $
 //
 //
 
@@ -239,16 +239,9 @@ ValidationMisalignedTracker::~ValidationMisalignedTracker()
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ValidationMisalignedTracker::beginJob(const edm::EventSetup & iSetup)
+ValidationMisalignedTracker::beginJob()
 {
- 
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  for (unsigned int w=0;w<associators.size();w++) {
-    iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-    associatore.push_back( (const TrackAssociatorBase *) theAssociator.product() );
-  }
-  
-
+  firstEvent_ = true;
 }
 
 // ------------ method called to for each event  ------------
@@ -257,6 +250,16 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 {
    using namespace edm;
   
+   if (firstEvent_) {
+     ESHandle<TrackAssociatorBase> theAssociator;
+     for (unsigned int w=0;w<associators.size();w++) {
+       iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
+       associatore.push_back( (const TrackAssociatorBase *) theAssociator.product() );
+     }
+     
+     firstEvent_ = false;
+   }
+   
    edm::LogInfo("Tracker Misalignment Validation") << "\n Starting!";
 
    // Monte Carlo Z selection
