@@ -293,22 +293,22 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
     if ( rhenergy > cleanThresh ) { 
       const vector<unsigned>& neighbours4 = *(& wannaBeSeed.neighbours4());
       // Determine the fraction of surrounding energy
-      double surroundingEnergy = 0.;
+      double surroundingEnergy = wannaBeSeed.energyUp();
       for(unsigned in4=0; in4<neighbours4.size(); in4++) {
 	const reco::PFRecHit& neighbour = rechit( neighbours4[in4], rechits ); 
-	surroundingEnergy += neighbour.energy();
+	surroundingEnergy += neighbour.energy() + neighbour.energyUp();
       }
       double fraction = surroundingEnergy/wannaBeSeed.energy();
       // Mask the seed and the hit if energetic/isolated rechit
       if ( fraction < minS4S1 ) {
 	// Double the energy cleaning threshold when close to the ECAL/HCAL - HF transition
 	double eta = fabs(wannaBeSeed.position().eta());
-	if ( eta < 2.8 || rhenergy > tighter*cleanThresh ) { 
+	if ( eta < 5.0 && ( eta < 2.8 || rhenergy > tighter*cleanThresh ) ) { 
 	  seedStates_[rhi] = CLEAN;
 	  mask_[rhi] = false;
 	  std::cout << "A seed with E/pT/eta = " << wannaBeSeed.energy() 
 		    << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() 
-		    << " and with surrounding energy = " << surroundingEnergy 
+		    << " and with surrounding energy = " << surroundingEnergy/ wannaBeSeed.energy()
 		    << " in layer " << layer 
 		    << " had been cleaned " << std::endl
 		    << "(Cuts were : " << cleanThresh << " and " << minS4S1 << std::endl; 

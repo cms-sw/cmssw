@@ -238,33 +238,37 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		double energyhadHF = weight_HFhad_ * energy;
 		// Some energy in the tower !
 		if((energyemHF+energyhadHF) < thresh_HF_ ) continue;
+
 		// The EM energy might be negative, as it amounts to Long - Short
 		// In that case, put the EM "energy" in the HAD energy
 		// Just to avoid systematic positive bias due to "Short" high fluctuations
 		if ( energyemHF < thresh_HF_ ) { 
 		  energyhadHF += energyemHF;
 		  energyemHF = 0.;
-		// Otherwise, create an EM rechit.
-		} else {
-		  if ( HF_Calib_ ) { 
-		    energy   *= myPFCorr->getValues(detid)->getValue();
-		    energyEM *= myPFCorr->getValues(detid)->getValue();
-		  }
-		  pfrhHFEM = createHcalRecHit( detid, 
-					   energyemHF, 
-					   PFLayer::HF_EM, 
-					   hcalEndcapGeometry,
-					   ct.id().rawId() );
-		}
-		// And create a HAD rechit with either the HAD or the HAD+EM energy. 
-		if(energyhadHF > thresh_HF_ ){
-		  pfrhHFHAD = createHcalRecHit( detid, 
-					    energyhadHF, 
-					    PFLayer::HF_HAD, 
-					    hcalEndcapGeometry,
-					    ct.id().rawId() );
 		}
 
+		// Apply HCAL DPG calibration factors, if requested
+		if ( HF_Calib_ ) { 
+		  energyhadHF   *= myPFCorr->getValues(detid)->getValue();
+		  energyemHF *= myPFCorr->getValues(detid)->getValue();
+		}
+		
+		// Create an EM and a HAD rechit if above threshold.
+		if ( energyemHF > thresh_HF_ || energyhadHF > thresh_HF_ ) { 
+		  pfrhHFEM = createHcalRecHit( detid, 
+					       energyemHF, 
+					       PFLayer::HF_EM, 
+					       hcalEndcapGeometry,
+					       ct.id().rawId() );
+		  pfrhHFHAD = createHcalRecHit( detid, 
+						energyhadHF, 
+						PFLayer::HF_HAD, 
+						hcalEndcapGeometry,
+						ct.id().rawId() );
+		  pfrhHFEM->setEnergyUp(energyhadHF);		  
+		  pfrhHFHAD->setEnergyUp(energyemHF);
+		}
+		
 	      }
 	      break;
 	    default:

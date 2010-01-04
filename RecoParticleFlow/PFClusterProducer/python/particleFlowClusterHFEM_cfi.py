@@ -15,8 +15,8 @@ particleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
     thresh_Barrel = cms.double(0.8),
     thresh_Pt_Barrel = cms.double(0.0),
     # cleaning threshold and minimum S4/S1 fraction in HF barrel (!)
-    thresh_Clean_Barrel = cms.double(1E5),
-    minS4S1_Clean_Barrel = cms.double(0.01),
+    thresh_Clean_Barrel = cms.double(80.),
+    minS4S1_Clean_Barrel = cms.double(0.02),
     # seed threshold in HF endcap 
     thresh_Seed_Endcap = cms.double(1.4),
     thresh_Pt_Seed_Endcap = cms.double(0.0),
@@ -24,8 +24,8 @@ particleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
     thresh_Endcap = cms.double(0.8),
     thresh_Pt_Endcap = cms.double(0.0),
     # cleaning threshold and minimum S4/S1 fraction in HF endcap
-    thresh_Clean_Endcap = cms.double(1E5),
-    minS4S1_Clean_Endcap = cms.double(0.01),
+    thresh_Clean_Endcap = cms.double(80.),
+    minS4S1_Clean_Endcap = cms.double(0.02),
     #----HCAL options
     # n neighbours in HFEM 
     nNeighbours = cms.int32(0),
