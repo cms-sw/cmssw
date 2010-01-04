@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/10/21 14:07:24 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/11/10 11:14:53 $
+ *  $Revision: 1.23 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -47,7 +47,9 @@
 
 // To use callgrind for code profiling uncomment also the following define.
 //#define USE_CALLGRIND
+#ifdef USE_CALLGRIND
 #include "valgrind/callgrind.h"
+#endif
 
 using namespace std;
 using namespace edm;
