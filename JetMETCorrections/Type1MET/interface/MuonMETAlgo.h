@@ -16,7 +16,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"

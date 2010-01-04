@@ -11,7 +11,7 @@
  * \version   1st Version May 14, 2005
  ************************************************************/
 
-#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 

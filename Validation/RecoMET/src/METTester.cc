@@ -33,7 +33,7 @@
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
