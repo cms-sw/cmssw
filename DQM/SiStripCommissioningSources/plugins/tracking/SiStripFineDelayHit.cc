@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.11 2009/10/31 22:42:11 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.10.2.1 2010/01/04 16:39:27 lowette Exp $
 //
 //
 
@@ -564,7 +564,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripFineDelayHit::beginRun (edm::Run &, edm::EventSetup const &iSetup)
+SiStripFineDelayHit::beginRun(edm::Run & run, const edm::EventSetup & iSetup)
 {
    // Retrieve FED cabling object
    edm::ESHandle<SiStripFedCabling> cabling;
@@ -584,9 +584,3 @@ SiStripFineDelayHit::beginRun (edm::Run &, edm::EventSetup const &iSetup)
      }
    }
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripFineDelayHit::endJob() {
-}
-
