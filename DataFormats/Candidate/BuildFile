@@ -1,4 +1,3 @@
-<use name=DataFormats/CaloRecHit>
 <use name=DataFormats/Common>
 <use name=DataFormats/Math>
 <use name=FWCore/Utilities>
