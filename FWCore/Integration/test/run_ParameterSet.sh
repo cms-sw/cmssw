@@ -6,11 +6,15 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 
 pushd ${LOCAL_TMP_DIR}
 
-# The process in the first test below should fail.  The test
-# passes when the process fails because of an illegal parameter.
+# Intentionally fails because of an illegal parameter in a module.
   echo ${test} ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}_cfg.py 2> ${test}.txt
   grep "Illegal parameter" ${test}.txt || die "cmsRun ${test}_cfg.py" $?
+
+# Intentionally fails because of an illegal parameter in a source.
+  echo testIllegalSourceParameter_cfg.py ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/testIllegalSourceParameter_cfg.py 2> testIllegalSourceParameter_cfg.txt
+  grep "Illegal parameter" testIllegalSourceParameter_cfg.txt || die "cmsRun testIllegalSourceParameter_cfg.py" $?
 
 # Auto generate a cfi file
   echo edmWriteConfigs ------------------------------------------------------------

@@ -46,6 +46,9 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -227,6 +230,23 @@ namespace edm {
       throw edm::Exception(errors::Configuration, "FailedInputSource")
 	<< "Configuration of main input source has failed\n";
     }
+
+    std::string modtype;
+    try {
+      modtype = main_input->getParameter<std::string>("@module_type");
+      std::auto_ptr<edm::ParameterSetDescriptionFillerBase> filler(
+        edm::ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
+      ConfigurationDescriptions descriptions(filler->baseType());
+      filler->fill(descriptions);
+      descriptions.validate(*main_input, std::string("source"));
+    }
+    catch (cms::Exception& iException) {
+      edm::Exception toThrow(errors::Configuration, "Failed validating main input source configuration.");
+      toThrow << "\nSource plugin name is \"" << modtype << "\"\n";
+      toThrow.append(iException);
+      throw toThrow;
+    }
+
     main_input->registerIt();
  
     // Fill in "ModuleDescription", in case the input source produces

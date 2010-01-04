@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/bind.hpp"
 
@@ -33,7 +34,8 @@ namespace {
 
 namespace edm {
 
-  ConfigurationDescriptions::ConfigurationDescriptions() :
+  ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType) :
+    baseType_(baseType),
     unknownDescDefined_(false)
   { }
 
@@ -58,6 +60,18 @@ namespace edm {
   ConfigurationDescriptions::add(std::string const& label,
                                  ParameterSetDescription const& psetDescription) {
 
+    if (baseType_ == std::string("Source")) {
+      if (label != std::string("source")) {
+        throw edm::Exception(edm::errors::LogicError,
+          "ConfigurationDescriptions::add, when adding a ParameterSetDescription for a source the label must be \"source\"\n");
+      }
+      if (descriptions_.size() != 0U ||
+          unknownDescDefined_ == true) {
+        throw edm::Exception(edm::errors::LogicError,
+          "ConfigurationDescriptions::add, for a source only 1 ParameterSetDescription may be added\n");
+      }
+    }
+
     // To minimize the number of copies involved create an empty description first
     // and push it into the vector.  Then perform the copy.
     std::pair<std::string, ParameterSetDescription> pairWithEmptyDescription;
@@ -70,6 +84,15 @@ namespace edm {
 
   void
   ConfigurationDescriptions::addUnknownLabel(ParameterSetDescription const& psetDescription) {
+
+    if (baseType_ == std::string("Source")) {
+      if (descriptions_.size() != 0U ||
+          unknownDescDefined_ == true) {
+        throw edm::Exception(edm::errors::LogicError,
+          "ConfigurationDescriptions::addUnknownLabel, for a source only 1 ParameterSetDescription may be added\n");
+      }
+    }
+
     unknownDescDefined_ = true;
     descForUnknownLabels_ = psetDescription;
   }
@@ -116,7 +139,13 @@ namespace edm {
                                               std::string const& baseType,
                                               std::string const& pluginName)
   {
-    std::string cfi_filename = labelAndDesc.first + "_cfi.py";
+    std::string cfi_filename;
+    if (baseType == std::string("Source")) {
+      cfi_filename = pluginName + "_cfi.py";
+    }
+    else {
+      cfi_filename = labelAndDesc.first + "_cfi.py";
+    }
     std::ofstream outFile(cfi_filename.c_str());
 
 
@@ -131,7 +160,12 @@ namespace edm {
   
     outFile.close();
 
-    std::cout << labelAndDesc.first << "\n";
+    if (baseType == std::string("Source")) {
+      std::cout << pluginName << "\n";
+    }
+    else {
+      std::cout << labelAndDesc.first << "\n";
+    }
   }
 
   void ConfigurationDescriptions::print(std::ostream & os,
@@ -176,7 +210,7 @@ namespace edm {
         if (descriptions_.empty()) {
           ss << "This plugin has only one PSet description. "
              << "This description is always used to validate configurations. "
-             << "Because this configuration has no module label, no cfi files will be generated.";
+             << "Because this configuration has no label, no cfi files will be generated.";
         }
         else {
           ss << "This plugin has " << (descriptions_.size() + 1U) << " PSet descriptions. "
@@ -190,7 +224,7 @@ namespace edm {
         if (descriptions_.size() == 1U) {
           ss << "This plugin has " << descriptions_.size() << " PSet description. "
              << "This description is always used to validate configurations. "
-             << "The module label below is used when generating the cfi file.";
+             << "The label below is used when generating the cfi file.";
         }
         else {
           ss << "This plugin has " << descriptions_.size() << " PSet descriptions. "
@@ -280,7 +314,14 @@ namespace edm {
       os << "description without a module label\n";
     }
     else {
-      if (!brief) os << "module label: ";
+      if (!brief) {
+        if (baseType_ == std::string("Source")) {
+          os << "label: ";
+        }
+        else {
+          os << "module label: ";
+        }
+      }
       os << label << "\n";      
     }
 

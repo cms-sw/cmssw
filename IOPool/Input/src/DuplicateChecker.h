@@ -28,6 +28,7 @@ not at all.
 namespace edm {
 
   class ParameterSet;
+  class ParameterSetDescription;
 
   class DuplicateChecker {
   public:
@@ -46,6 +47,8 @@ namespace edm {
 
     bool isDuplicateAndCheckActive(EventID const& eventID,
                                    std::string const& fileName);
+
+    static void fillDescription(ParameterSetDescription & desc);
 
   private:
 

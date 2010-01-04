@@ -57,7 +57,7 @@ namespace edm {
     typedef typename UserType::WorkerType WorkerType;
 
     try {
-      ConfigurationDescriptions descriptions;
+      ConfigurationDescriptions descriptions(UserType::baseType());
       UserType::fillDescriptions(descriptions);
       descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));
       p.pset_->registerIt();

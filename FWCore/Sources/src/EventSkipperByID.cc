@@ -1,9 +1,17 @@
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
   EventSkipperByID::EventSkipperByID(ParameterSet const& pset) :
+        // The default value provided as the second argument to the getUntrackedParameter function call
+        // is not used when the ParameterSet has been validated and the parameters are not optional
+        // in the description.  This is currently true when PoolSource is the primary input source.
+        // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
+        // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
+        // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
+        // and should be deleted from the code.
         firstRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
         firstLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 0U)),
         firstEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
@@ -102,5 +110,21 @@ namespace edm {
   bool
   EventSkipperByID::operator()(FileIndex::Element& e) const {
     return skipIt(e.run_, e.lumi_, e.event_);
+  }
+
+  void
+  EventSkipperByID::fillDescription(ParameterSetDescription & desc) {
+
+    desc.addUntracked<unsigned int>("firstRun", 1U);
+    desc.addUntracked<unsigned int>("firstLuminosityBlock", 0U);
+    desc.addUntracked<unsigned int>("firstEvent", 1U);
+
+    std::vector<LuminosityBlockRange> defaultLumis;
+    desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToSkip", defaultLumis);
+    desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToProcess", defaultLumis);
+
+    std::vector<EventRange> defaultEvents;
+    desc.addUntracked<std::vector<EventRange> >("eventsToSkip", defaultEvents);
+    desc.addUntracked<std::vector<EventRange> >("eventsToProcess", defaultEvents);
   }
 }

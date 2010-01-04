@@ -2,7 +2,7 @@
 #define FWCore_Catalog_InputFileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.h,v 1.2 2008/01/31 02:49:16 wmtan Exp $
+// $Id: InputFileCatalog.h,v 1.3 2008/03/14 03:46:02 wmtan Exp $
 //
 // Class InputFileCatalog. Services to manage InputFile catalog
 //
@@ -16,6 +16,8 @@
 
 namespace edm {
   class ParameterSet;
+  class ParameterSetDescription;
+
   class InputFileCatalog : public FileCatalog {
   public:
     explicit InputFileCatalog(ParameterSet const& pset,
@@ -28,6 +30,9 @@ namespace edm {
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
     std::vector<std::string> const& fileNames() const {return fileNames_;}
     bool empty() const {return fileCatalogItems_.empty();}
+
+    static void fillDescription(ParameterSetDescription & desc);
+
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     std::vector<std::string> logicalFileNames_;

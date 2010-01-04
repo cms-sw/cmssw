@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TFile.h"
@@ -54,6 +55,13 @@ namespace edm {
     skippedToLumi_(0U),
     skippedToEvent_(0U),
     skippedToEntry_(FileIndex::Element::invalidEntry),
+    // The default value provided as the second argument to the getUntrackedParameter function call
+    // is not used when the ParameterSet has been validated and the parameters are not optional
+    // in the description.  This is currently true when PoolSource is the primary input source.
+    // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
+    // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
+    // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
+    // and should be deleted from the code.
     numberOfEventsToSkip_(primarySequence ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(primarySequence ? pset.getUntrackedParameter<bool>("noEventSort", false) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
@@ -70,10 +78,6 @@ namespace edm {
       factory->stagein(fileIter_->fileName());
 
     std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
-    if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
-
-    // "fileMatchMode" is for backward compatibility.
-    parametersMustMatch = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
 
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
@@ -659,6 +663,27 @@ namespace edm {
       LogAbsolute("fileAction") << ts << msg << file;
       FlushMessageLog();
     }
+  }
+
+  void
+  RootInputFileSequence::fillDescription(ParameterSetDescription & desc) {
+    desc.addUntracked<unsigned int>("skipEvents", 0U);
+    desc.addUntracked<bool>("noEventSort", false);
+    desc.addUntracked<bool>("skipBadFiles", false);
+    desc.addUntracked<unsigned int>("cacheSize", 0U);
+    desc.addUntracked<int>("treeMaxVirtualSize", -1);
+    desc.addUntracked<unsigned int>("setRunNumber", 0U);
+    desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true);
+
+    std::string defaultString("permissive");
+    desc.addUntracked<std::string>("parametersMustMatch", defaultString);
+    desc.addUntracked<std::string>("branchesMustMatch", defaultString);
+
+    std::vector<std::string> defaultStrings(1U, std::string("keep *"));
+    desc.addUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
+
+    EventSkipperByID::fillDescription(desc);
+    DuplicateChecker::fillDescription(desc);
   }
 }
 

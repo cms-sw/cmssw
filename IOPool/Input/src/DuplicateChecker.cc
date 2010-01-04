@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <cassert>
 #include <algorithm>
@@ -25,6 +26,13 @@ namespace {
     dataType_(unknown),
     itIsKnownTheFileHasNoDuplicates_(false)
   {
+    // The default value provided as the second argument to the getUntrackedParameter function call
+    // is not used when the ParameterSet has been validated and the parameters are not optional
+    // in the description.  This is currently true when PoolSource is the primary input source.
+    // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
+    // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
+    // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
+    // and should be deleted from the code.
     std::string duplicateCheckMode =
       pset.getUntrackedParameter<std::string>("duplicateCheckMode", std::string("checkAllFilesOpened"));
 
@@ -129,5 +137,11 @@ namespace {
       return true;
     }
     return false;
+  }
+
+  void
+  DuplicateChecker::fillDescription(ParameterSetDescription & desc) {
+    std::string defaultString("checkAllFilesOpened");
+    desc.addUntracked<std::string>("duplicateCheckMode", defaultString);
   }
 }

@@ -30,7 +30,6 @@
 namespace edm {
 
   namespace {
-	int const improbable = -65783927;
 	std::string const& suffix(int count) {
 	  static std::string const st("st");
 	  static std::string const nd("nd");
@@ -99,17 +98,16 @@ namespace edm {
     if (primary_) {
       assert(desc.productRegistry_ != 0);
     }
-    int maxEventsOldStyle = pset.getUntrackedParameter<int>("maxEvents", improbable);
-    if (maxEventsOldStyle != improbable) {
-      throw edm::Exception(errors::Configuration)
-        << "InputSource::InputSource()\n"
-	<< "The 'maxEvents' parameter for sources is no longer supported.\n"
-        << "Please use instead the process level parameter set\n"
-        << "'untracked PSet maxEvents = {untracked int32 input = " << maxEventsOldStyle << "}'\n";
-    }
     std::string const defaultMode("RunsLumisAndEvents");
     std::string const runMode("Runs");
     std::string const runLumiMode("RunsAndLumis");
+    // The default value provided as the second argument to the getUntrackedParameter function call
+    // is not used when the ParameterSet has been validated and the parameters are not optional
+    // in the description.  This is currently true when PoolSource is the primary input source.
+    // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
+    // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
+    // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
+    // and should be deleted from the code.
     std::string processingMode = pset.getUntrackedParameter<std::string>("processingMode", defaultMode);
     if (processingMode == runMode) {
       processingMode_ = Runs;
@@ -135,6 +133,12 @@ namespace edm {
   std::string
   InputSource::baseType() {
     return std::string("Source");
+  }
+
+  void
+  InputSource::fillDescription(ParameterSetDescription & desc) {
+    std::string defaultString("RunsLumisAndEvents");
+    desc.addUntracked<std::string>("processingMode", defaultString);
   }
 
   EventPrincipal* const

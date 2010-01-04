@@ -38,6 +38,7 @@ namespace edm {
   class InputFileCatalog;
   class FileIndex;
   class DuplicateChecker;
+  class ParameterSetDescription;
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
@@ -69,6 +70,7 @@ namespace edm {
     void readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result); 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
+    static void fillDescription(ParameterSetDescription & desc);
   private:
     void initFile(bool skipBadFiles);
     bool nextFile(PrincipalCache& cache);

@@ -7,7 +7,7 @@
 // 
 /**\class ConfigurationDescriptions ConfigurationDescriptions.h FWCore/ParameterSet/interface/ConfigurationDescriptions.h
 
- Used to hold ParameterSetDescriptions with corresponding module labels
+ Used to hold ParameterSetDescriptions corresponding to labels
 
 */
 //
@@ -27,7 +27,7 @@ namespace edm {
   class ConfigurationDescriptions {
   public:
 
-    ConfigurationDescriptions();
+    ConfigurationDescriptions(std::string const& baseType);
 
     ~ConfigurationDescriptions();
 
@@ -95,6 +95,8 @@ namespace edm {
                        size_t lineWidth,
                        int indentationn,
                        DescriptionCounter & counter) const;
+
+    std::string baseType_;
 
     std::vector<std::pair<std::string, ParameterSetDescription> > descriptions_;
 

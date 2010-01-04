@@ -287,45 +287,8 @@ namespace edm {
 
     edm::ParameterSetDescription desc;
 
-    desc.addOptionalUntracked<unsigned int>("firstRun", 1U);
-    desc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 0U);
-    desc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
-    desc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
-
-    std::vector<LuminosityBlockRange> defaultLumis;
-    desc.addOptionalUntracked<std::vector<LuminosityBlockRange> >("lumisToSkip", defaultLumis);
-    desc.addOptionalUntracked<std::vector<LuminosityBlockRange> >("lumisToProcess", defaultLumis);
-
-    std::vector<EventRange> defaultEvents;
-    desc.addOptionalUntracked<std::vector<EventRange> >("eventsToSkip", defaultEvents);
-    desc.addOptionalUntracked<std::vector<EventRange> >("eventsToProcess", defaultEvents);
-
-    desc.addOptionalUntracked<bool>("noEventSort", false);
-    desc.addOptionalUntracked<bool>("skipBadFiles", false);
-    desc.addOptionalUntracked<bool>("needSecondaryFileNames", false);
-    desc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches", true);
-    desc.addOptionalUntracked<unsigned int>("cacheSize", 0U);
-    desc.addOptionalUntracked<int>("treeMaxVirtualSize", -1);
-    desc.addOptionalUntracked<unsigned int>("setRunNumber", 0U);
-
-    std::vector<std::string> defaultStrings(1U, std::string("keep *"));
-    desc.addOptionalUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
-
-    std::string defaultString("permissive");
-    desc.addOptionalUntracked<std::string>("fileMatchMode", defaultString);
-
-    defaultString = "checkAllFilesOpened";
-    desc.addOptionalUntracked<std::string>("duplicateCheckMode", defaultString);
-
-    defaultStrings.clear();
-    desc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
-    desc.addOptionalUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
-
-    defaultString.clear();
-    desc.addOptionalUntracked<std::string>("overrideCatalog", defaultString);
-
-    defaultString = "RunsLumisAndEvents";
-    desc.addOptionalUntracked<std::string>("processingMode", defaultString);
+    EDInputSource::fillDescription(desc);
+    RootInputFileSequence::fillDescription(desc);
 
     descriptions.add("source", desc);
   }

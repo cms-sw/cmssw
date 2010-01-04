@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.cc,v 1.5 2008/04/16 16:20:33 wmtan Exp $
+// $Id: InputFileCatalog.cc,v 1.6 2008/04/25 13:48:18 eulisse Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -15,6 +15,7 @@
 #include "FileCatalog/IFCAction.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -57,6 +58,14 @@ namespace edm {
 	  // to support multiple different catalogs.
           if (catalog().nReadCatalogs() == 0) {
 	    // Add the override catalog, if specified in the pset.
+
+            // The default value provided as the second argument to the getUntrackedParameter function call
+            // is not used when the ParameterSet has been validated and the parameters are not optional
+            // in the description.  This is currently true when PoolSource is the primary input source.
+            // The modules that use PoolSource as a SecSource have not defined their fillDescriptions function
+            // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
+            // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
+            // and should be deleted from the code.
 	    std::string overriderUrl = pset.getUntrackedParameter<std::string>("overrideCatalog", std::string());
            if (!overriderUrl.empty ())
 	    {  
@@ -108,5 +117,11 @@ namespace edm {
 	  << "before the file name in your configuration file.\n";
       }
     }
+  }
+
+  void
+  InputFileCatalog::fillDescription(ParameterSetDescription & desc) {
+    std::string defaultString;
+    desc.addUntracked<std::string>("overrideCatalog", defaultString);
   }
 }

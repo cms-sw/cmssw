@@ -78,7 +78,7 @@ namespace {
 
     std::string baseType = filler->baseType();
  
-    edm::ConfigurationDescriptions descriptions;
+    edm::ConfigurationDescriptions descriptions(filler->baseType());
 
     try {
       filler->fill(descriptions);

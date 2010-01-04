@@ -59,6 +59,7 @@ Some examples of InputSource subclasses may be:
 namespace edm {
   class ParameterSet;
   class ConfigurationDescriptions;
+  class ParameterSetDescription;
   class ActivityRegistry;
   class EventPrincipal;
 
@@ -89,6 +90,7 @@ namespace edm {
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static std::string baseType();
+    static void fillDescription(ParameterSetDescription & desc);
 
     ItemType nextItemType();
 

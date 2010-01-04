@@ -2,7 +2,7 @@
 #define FWCore_Sources_EDInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: EDInputSource.h,v 1.4 2008/02/22 19:09:36 wmtan Exp $
+$Id: EDInputSource.h,v 1.5 2008/03/14 03:46:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -16,6 +16,8 @@ $Id: EDInputSource.h,v 1.4 2008/02/22 19:09:36 wmtan Exp $
 namespace edm {
   class InputSourceDescription;
   class ParameterSet;
+  class ParameterSetDescription;
+
   class EDInputSource : public InputSource {
   public:
     explicit EDInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -31,6 +33,8 @@ namespace edm {
       return n ? secondaryCatalog_.fileCatalogItems() : catalog_.fileCatalogItems();
     }
     InputFileCatalog& catalog(int n = 0) {return n ? secondaryCatalog_ : catalog_;}
+
+    static void fillDescription(ParameterSetDescription & desc);
 
   private:
     virtual void setRun(RunNumber_t);

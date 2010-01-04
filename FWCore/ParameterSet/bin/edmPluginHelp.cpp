@@ -127,7 +127,7 @@ namespace {
       return;
     }
 
-    edm::ConfigurationDescriptions descriptions;
+    edm::ConfigurationDescriptions descriptions(filler->baseType());
 
     try {
       filler->fill(descriptions);

@@ -12,6 +12,8 @@
 
 namespace edm {
   class ParameterSet;
+  class ParameterSetDescription;
+
   class EventSkipperByID {
   public:
     explicit EventSkipperByID(ParameterSet const& pset);
@@ -23,6 +25,7 @@ namespace edm {
     bool somethingToSkip() const;
     static
     std::auto_ptr<EventSkipperByID>create(ParameterSet const& pset);
+    static void fillDescription(ParameterSetDescription & desc);
 
   private:
 
