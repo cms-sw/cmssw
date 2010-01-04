@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: TrackerToMuonPropagator.cc,v 1.2 2008/04/29 03:23:41 pivarski Exp $
+// $Id: TrackerToMuonPropagator.cc,v 1.3 2008/05/06 10:47:05 pivarski Exp $
 //
 //
 
@@ -66,7 +66,7 @@ class TrackerToMuonPropagator : public edm::EDProducer {
       ~TrackerToMuonPropagator();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -270,7 +270,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TrackerToMuonPropagator::beginJob(const edm::EventSetup&)
+TrackerToMuonPropagator::beginJob()
 {
 }
 
