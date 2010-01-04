@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.41 2009/06/18 20:52:39 lowette Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.42 2009/11/10 14:37:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -69,7 +69,7 @@ SiStripCommissioningOfflineClient::~SiStripCommissioningOfflineClient() {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup ) {
+void SiStripCommissioningOfflineClient::beginRun( const edm::EventSetup& setup ) {
   LogTrace(mlDqmClient_) 
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Analyzing root file(s)...";

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.12 2008/07/01 12:47:59 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.13 2009/11/10 14:37:01 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -34,7 +34,7 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   SiStripCommissioningOfflineClient( const edm::ParameterSet& );
   virtual ~SiStripCommissioningOfflineClient();
   
-  virtual void beginJob( edm::EventSetup const& );
+  virtual void beginRun( edm::EventSetup const& );
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   virtual void endJob();
   
