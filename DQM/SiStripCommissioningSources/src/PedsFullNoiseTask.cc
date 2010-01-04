@@ -204,7 +204,7 @@ void PedsFullNoiseTask::book()
                                                 fedKey(),
                                                 sistrip::LLD_CHAN, 
                                                 connection().lldChannel(),
-                                                sistrip::extrainfo::noiseProfile_ ).title();
+                                                sistrip::extrainfo::noise2D_ ).title();
   noisehist_.histo( dqm()->book2S( titlenoise2d, titlenoise2d,
                                    2*nadcnoise_, -nadcnoise_, nadcnoise_,
                                    nstrips_, -0.5, nstrips_*1.-0.5 ) );
