@@ -30,7 +30,7 @@ class EwkMuLumiMonitorDQM : public edm::EDAnalyzer {
 public:
   EwkMuLumiMonitorDQM (const edm::ParameterSet &);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
