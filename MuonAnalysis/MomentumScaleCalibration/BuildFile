@@ -1,46 +1,16 @@
-<use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
-<use name=TrackingTools/TransientTrack>
 <use name=FWCore/PluginManager>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/MuonReco>
+<use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/Track>
-
-<use name="CondFormats/PhysicsToolsObjects">
-
-<use name=hepmc>
-<use name=heppdt>
-<use name=CLHEP>
-<use name=root>
-<use name=rootgraphics>
-<use name=ROOTMath>
-<use name=ROOTMinuit>
+<use name=SimDataFormats/GeneratorProducts>
+<use name=clhep>
+<use name=rootminuit>
+<use name=rootrflx>
+<use name=roothistmatrix>
 
 <flags CXXFLAGS="-O0 -g3 -fno-inline">
-
 <export>
   <lib name=MuonAnalysisMomentumScaleCalibration>
-  <use name=FWCore/Framework>
-  <use name=FWCore/Utilities>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/ServiceRegistry>
-  <use name=TrackingTools/TransientTrack>
-  <use name=FWCore/PluginManager>
-  <use name=DataFormats/TrackReco>
-  <use name=DataFormats/MuonReco>
-  <use name=DataFormats/Common>
-  <use name=SimDataFormats/Track>
-
-  <use name="CondFormats/PhysicsToolsObjects">
-
-  <use name=hepmc>
-  <use name=heppdt>
-  <use name=CLHEP>
-  <use name=root>
-  <use name=rootgraphics>
-  <use name=ROOTMath>
-  <use name=ROOTMinuit>
 </export>
