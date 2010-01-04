@@ -41,7 +41,7 @@ HLT_Photon10_L1R_DQM = cms.EDFilter("EmDQM",
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(10.0),
     reqNum = cms.uint32(1),
-    PtMax = cms.untracked.double(20.0),
+    PtMax = cms.untracked.double(200.0),
     useHumanReadableHistTitles = cms.untracked.bool(False),
 
     # Filters from collections listed above
