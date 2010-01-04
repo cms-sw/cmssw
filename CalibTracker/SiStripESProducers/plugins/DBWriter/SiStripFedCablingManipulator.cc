@@ -22,7 +22,7 @@ void SiStripFedCablingManipulator::endRun(const edm::Run & run, const edm::Event
   SiStripFedCabling *obj=0;
   manipulate(esobj.product(),obj);
 
-  cond::Time_t Time_;  
+  cond::Time_t Time_ = 0;
   
   //And now write  data in DB
   edm::Service<cond::service::PoolDBOutputService> dbservice;
@@ -64,7 +64,8 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiSt
   std::map<uint32_t, std::pair<uint32_t, uint32_t> > dcuDetIdMap;
   uint32_t dcuid, Olddetid, Newdetid; 
   
-  if(fp.c_str()==""){
+  // if(fp.c_str()==""){
+  if(fp.empty()){
     edm::LogInfo("SiStripFedCablingManipulator") << "::manipulate : since no file is specified, the copy of the input cabling will be applied"<< std::endl;
     oobj= new SiStripFedCabling(*iobj);
 

@@ -62,8 +62,8 @@ void SiStripLorentzAngleGenerator::createObject() {
   vector<double> TOB_PerCent_Errs(_pset.getParameter<vector<double> >("TOB_PerCent_Errs"));
 
   // If max values are passed they must be equal in number to the min values.
-  if( TIB_EstimatedValuesMax.size() != 0 && (TIB_EstimatedValuesMin.size() != TIB_EstimatedValuesMax.size()) ||
-      TOB_EstimatedValuesMax.size() != 0 && (TOB_EstimatedValuesMin.size() != TOB_EstimatedValuesMax.size()) ) {
+  if( (TIB_EstimatedValuesMax.size() != 0 && (TIB_EstimatedValuesMin.size() != TIB_EstimatedValuesMax.size())) ||
+      (TOB_EstimatedValuesMax.size() != 0 && (TOB_EstimatedValuesMin.size() != TOB_EstimatedValuesMax.size())) ) {
     cout << "ERROR: size of min and max values is different" << endl;
     cout << "TIB_EstimatedValuesMin.size() = " << TIB_EstimatedValuesMin.size() << ", TIB_EstimatedValuesMax.size() " << TIB_EstimatedValuesMax.size() << endl;
     cout << "TOB_EstimatedValuesMin.size() = " << TOB_EstimatedValuesMin.size() << ", TOB_EstimatedValuesMax.size() " << TOB_EstimatedValuesMax.size() << endl;
