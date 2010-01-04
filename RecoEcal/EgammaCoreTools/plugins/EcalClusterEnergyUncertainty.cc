@@ -14,8 +14,11 @@ float EcalClusterEnergyUncertainty::getValue( const reco::SuperCluster & superCl
 	
 	int offset = 0; 
 	
-	if ( superCluster.algoID() == reco::CaloCluster::hybrid ) offset = 0; 
-	else if ( superCluster.algoID() == reco::CaloCluster::multi5x5 ) offset = 36; 
+	//if ( superCluster.algoID() == reco::CaloCluster::hybrid ) offset = 0; 
+	//else if ( superCluster.algoID() == reco::CaloCluster::multi5x5 ) offset = 36; 
+        // TEMPORARY FIX!!
+	if ( eta < 1.5 ) offset = 0; 
+	else if ( eta >= 1.5 ) offset = 36; 
 	else { 
 	  // not supported now 
 	  //std::cout << "Not supported value " << superCluster.algoID() << std::endl;
