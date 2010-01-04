@@ -17,7 +17,6 @@ public:
   ~DBWriter();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) {};
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {};
 

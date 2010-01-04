@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ResolutionAnalyzer.h,v 1.7 2009/08/07 15:57:16 demattia Exp $
+// $Id: ResolutionAnalyzer.h,v 1.8 2010/01/04 16:12:33 demattia Exp $
 //
 //
 
@@ -72,7 +72,6 @@ public:
   ~ResolutionAnalyzer();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) {};
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {};
 

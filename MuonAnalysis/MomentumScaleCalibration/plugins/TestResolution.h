@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestResolution.h,v 1.1 2009/11/03 10:45:16 demattia Exp $
+// $Id: TestResolution.h,v 1.2 2010/01/04 16:12:34 demattia Exp $
 //
 //
 
@@ -61,7 +61,6 @@ public:
   ~TestResolution();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) {};
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {};
   template<typename T>
