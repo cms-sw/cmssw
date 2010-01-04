@@ -62,7 +62,7 @@ namespace edm {
             // is not used when the ParameterSet has been validated and the parameters are not optional
             // in the description.  As soon as all primary input sources and all modules with a secondary
             // input sources have defined descriptions, the defaults in the getUntrackedParameterSet function
-	    // calls can and should be deleted from the code.
+            // calls can and should be deleted from the code.
 	    std::string overriderUrl = pset.getUntrackedParameter<std::string>("overrideCatalog", std::string());
             if (!overriderUrl.empty ()) {
               pool::URIParser overriderParser(overriderUrl);
