@@ -22,17 +22,19 @@
 //
 
 class SiStripCommissioningSeedFilter : public edm::EDFilter {
+
    public:
+
       explicit SiStripCommissioningSeedFilter(const edm::ParameterSet&);
       ~SiStripCommissioningSeedFilter() {}
 
    private:
-      virtual void beginJob(const edm::EventSetup&) {}
+
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() {}
       
       // ----------member data ---------------------------
       edm::InputTag inputModuleLabel_;
+
 };
 
 #endif

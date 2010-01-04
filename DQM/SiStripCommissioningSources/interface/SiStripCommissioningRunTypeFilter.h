@@ -24,18 +24,20 @@
 //
 
 class SiStripCommissioningRunTypeFilter : public edm::EDFilter {
+
    public:
+
       explicit SiStripCommissioningRunTypeFilter(const edm::ParameterSet&);
       ~SiStripCommissioningRunTypeFilter() {}
 
    private:
-      virtual void beginJob(const edm::EventSetup&) {}
+
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() {}
       
       // ----------member data ---------------------------
       edm::InputTag inputModuleLabel_;
       std::vector<sistrip::RunType> runTypes_;
+
 };
 
 #endif

@@ -15,7 +15,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Tue May 27 11:11:05 CEST 2008
-// $Id$
+// $Id: ClusterCount.h,v 1.1 2008/06/09 12:43:30 delaer Exp $
 //
 //
 
@@ -42,18 +42,20 @@
 //
 
 class ClusterCount : public edm::EDAnalyzer {
+
    public:
+
       explicit ClusterCount(const edm::ParameterSet&);
       ~ClusterCount();
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
 
       // ----------member data ---------------------------
       edm::InputTag clusterLabel_;
+
 };
 
 #endif
