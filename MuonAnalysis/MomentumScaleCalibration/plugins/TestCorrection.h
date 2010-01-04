@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.3 2009/03/16 12:36:17 demattia Exp $
+// $Id: TestCorrection.h,v 1.4 2009/03/26 18:12:45 demattia Exp $
 //
 //
 
@@ -66,9 +66,9 @@ public:
   ~TestCorrection();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void initialize(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob() {};
   template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {
     std::vector<reco::LeafCandidate> muons;

@@ -696,17 +696,6 @@ bool ResolutionAnalyzer::checkDeltaR(const reco::Particle::LorentzVector & genMu
   return false;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ResolutionAnalyzer::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ResolutionAnalyzer::endJob() {
-}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(ResolutionAnalyzer);
 

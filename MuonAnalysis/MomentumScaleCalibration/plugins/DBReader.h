@@ -29,8 +29,8 @@ class DBReader : public edm::EDAnalyzer
   explicit DBReader( const edm::ParameterSet& );
   ~DBReader();
 
-  void beginJob ( const edm::EventSetup& iSetup );
-  
+  void initialize( const edm::EventSetup& iSetup );
+
   void analyze( const edm::Event&, const edm::EventSetup& );
 
  private:

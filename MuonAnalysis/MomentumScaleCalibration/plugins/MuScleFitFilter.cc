@@ -225,14 +225,3 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
   return write;
 
 }
-
-// Method called once per job just before starting event loop
-// ----------------------------------------------------------
-void MuScleFitFilter::beginJob(const EventSetup&) {
-}
-
-// Method called once per job just after ending the event loop
-// -----------------------------------------------------------
-void MuScleFitFilter::endJob() {
-}
-

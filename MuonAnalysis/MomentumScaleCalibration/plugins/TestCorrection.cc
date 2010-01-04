@@ -84,6 +84,8 @@ TestCorrection::~TestCorrection()
 void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
+  initialize(iSetup);
+
   ++eventCounter_;
   if ( eventCounter_%100 == 0 ) {
     std::cout << "Event number " << eventCounter_ << std::endl;
@@ -183,16 +185,12 @@ lorentzVector TestCorrection::correctMuon( const lorentzVector & muon ) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TestCorrection::beginJob(const edm::EventSetup&)
+TestCorrection::initialize(const edm::EventSetup&)
 {
   // Read the pdf from root file. They are used by massProb when finding the muon pair, needed
   // for the mass histograms.
   readProbabilityDistributionsFromFile();
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TestCorrection::endJob() {}
 
 //define this as a plug-in
 // DEFINE_FWK_MODULE(TestCorrection);
