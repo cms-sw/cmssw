@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/12 21:32:45 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/08/17 22:27:13 $
+ *  $Revision: 1.11 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -67,7 +67,7 @@ EwkDQM::~EwkDQM() {
 }
 
 
-void EwkDQM::beginJob(EventSetup const& iSetup) {
+void EwkDQM::beginJob() {
 
   logTraceName = "EwkAnalyzer";
 

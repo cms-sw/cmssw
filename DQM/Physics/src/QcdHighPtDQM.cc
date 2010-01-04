@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/17 10:24:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/22 15:47:05 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -48,7 +48,7 @@ QcdHighPtDQM::~QcdHighPtDQM() {
 }
 
 
-void QcdHighPtDQM::beginJob(EventSetup const& iSetup) {
+void QcdHighPtDQM::beginJob() {
  
   theDbe = Service<DQMStore>().operator->();
 

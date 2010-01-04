@@ -32,7 +32,7 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
   virtual ~QcdHighPtDQM();
   
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup);
+  void beginJob();
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);

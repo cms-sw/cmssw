@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/07/14 10:31:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/09/08 20:04:28 $
+ *  $Revision: 1.8 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -30,7 +30,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   virtual ~QcdPhotonsDQM();
   
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup);
+  void beginJob();
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 16:03:12 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/09/08 20:04:25 $
+ *  $Revision: 1.16 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -58,7 +58,7 @@ QcdPhotonsDQM::~QcdPhotonsDQM() {
 }
 
 
-void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
+void QcdPhotonsDQM::beginJob() {
  
   logTraceName = "QcdPhotonAnalyzer";
 
