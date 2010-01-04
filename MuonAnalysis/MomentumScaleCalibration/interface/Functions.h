@@ -1713,7 +1713,7 @@ class resolutionFunctionType18 : public resolutionFunctionBase<T> {
 
     if(fabsEta<=0.6)
       return( ptPart + parval[3]);
-    else if(eta>0.6 && eta<=1.3 || eta>=-1.3 && eta<-0.6) {//eta in barrel + overlap
+    else if((eta>0.6 && eta<=1.3) || (eta>=-1.3 && eta<-0.6)) {//eta in barrel + overlap
       double par = parval[3] - 0.6*parval[4] - 0.6*0.6*parval[5];
       return( ptPart + par + parval[4]*fabsEta + parval[5]*eta*eta );
     }
