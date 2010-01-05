@@ -7,9 +7,11 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 // 
 #include "FWCore/Framework/interface/ESHandle.h" 
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -37,7 +39,6 @@ public:
   
   
 private:
-  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -100,8 +101,7 @@ private:
   GlobalVector magField;
   std::vector<float> ptused;
 
-  bool firstEvent_;
-
+  edm::ESWatcher<TrackAssociatorRecord> watchTrackAssociatorRecord_;
 };
 
 #endif

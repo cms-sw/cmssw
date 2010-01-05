@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.1 2008/02/27 17:36:46 ebutz Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.2 2010/01/04 18:24:37 mussgill Exp $
 //
 //
 
@@ -25,7 +25,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -237,27 +236,19 @@ ValidationMisalignedTracker::~ValidationMisalignedTracker()
 // member functions
 //
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ValidationMisalignedTracker::beginJob()
-{
-  firstEvent_ = true;
-}
-
 // ------------ method called to for each event  ------------
 void
 ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
   
-   if (firstEvent_) {
+   if (watchTrackAssociatorRecord_.check(iSetup)) {
+     associatore.clear();
      ESHandle<TrackAssociatorBase> theAssociator;
      for (unsigned int w=0;w<associators.size();w++) {
-       iSetup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-       associatore.push_back( (const TrackAssociatorBase *) theAssociator.product() );
+       iSetup.get<TrackAssociatorRecord>().get(associators[w], theAssociator);
+       associatore.push_back( theAssociator.product() );
      }
-     
-     firstEvent_ = false;
    }
    
    edm::LogInfo("Tracker Misalignment Validation") << "\n Starting!";
