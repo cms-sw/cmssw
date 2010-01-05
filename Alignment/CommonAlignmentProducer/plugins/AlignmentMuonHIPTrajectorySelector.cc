@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Feb 20 10:56:46 CST 2008
-// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.2 2008/03/25 03:20:48 pivarski Exp $
+// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.2 2008/05/20 12:40:58 pivarski Exp $
 //
 //
 
@@ -58,9 +58,7 @@ class AlignmentMuonHIPTrajectorySelector : public edm::EDProducer {
       ~AlignmentMuonHIPTrajectorySelector();
 
    private:
-      virtual void beginJob(const edm::EventSetup&);
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
       
       // ---------- member data --------------------------------
       edm::InputTag m_input;
@@ -207,14 +205,6 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
    // put it in the Event
    iEvent.put(newTrajTrackMap);
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-AlignmentMuonHIPTrajectorySelector::beginJob(const edm::EventSetup&) {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-AlignmentMuonHIPTrajectorySelector::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AlignmentMuonHIPTrajectorySelector);

@@ -11,36 +11,47 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class  GlobalPositionRcdRead : public edm::EDAnalyzer {
-   public:
-      explicit  GlobalPositionRcdRead(const edm::ParameterSet& iConfig ) {};
-      ~GlobalPositionRcdRead() {}
-  virtual void beginJob(const edm::EventSetup& iSetup);
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
-    std::cout << "Calling empty GlobalPositionRcdRead::analyze which is empty. "
-	      << "Set 'untracked PSet maxEvents = {untracked int32 input = 0}'"; 
-  };
-};
-  
-void GlobalPositionRcdRead::beginJob(const edm::EventSetup& evtSetup) 
+class  GlobalPositionRcdRead : public edm::EDAnalyzer
 {
-   std::cout << "Reading from database in GlobalPositionRcdRead::beginJob..." << std::endl;
+public:
+  explicit GlobalPositionRcdRead( const edm::ParameterSet& iConfig )
+    : nEventCalls_(0)
+  {}
+  ~GlobalPositionRcdRead() {}
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup); 
+  
+private:
 
-   edm::ESHandle<Alignments> globalPositionRcd;
-   evtSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+  unsigned int nEventCalls_;
+};
 
-   std::cout << "Expecting entries in " << DetId(DetId::Tracker).rawId() << " " 
-	     << DetId(DetId::Muon).rawId() << " " << DetId(DetId::Ecal).rawId() << " " 
-	     << DetId(DetId::Hcal).rawId() << std::endl;
-   for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd->m_align.begin();
-	i != globalPositionRcd->m_align.end();  ++i) {
-      std::cout << "entry " << i->rawId() 
-		<< " translation " << i->translation() 
-		<< " angles " << i->rotation().eulerAngles() << std::endl;
-      std::cout << i->rotation() << std::endl;
-   }
+void GlobalPositionRcdRead::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
+{
+  if (nEventCalls_>0) {
+    std::cout << "Reading from DB to be done only once, "
+	      << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'." << std::endl;
+ 
+    return;
+  }
 
-   std::cout << "done!" << std::endl;
+  std::cout << "Reading from database in GlobalPositionRcdRead::analyze..." << std::endl;
+  
+  edm::ESHandle<Alignments> globalPositionRcd;
+  evtSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+  
+  std::cout << "Expecting entries in " << DetId(DetId::Tracker).rawId() << " " 
+	    << DetId(DetId::Muon).rawId() << " " << DetId(DetId::Ecal).rawId() << " " 
+	    << DetId(DetId::Hcal).rawId() << std::endl;
+  for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd->m_align.begin();
+       i != globalPositionRcd->m_align.end();  ++i) {
+    std::cout << "entry " << i->rawId() 
+	      << " translation " << i->translation() 
+	      << " angles " << i->rotation().eulerAngles() << std::endl;
+    std::cout << i->rotation() << std::endl;
+  }
+  
+  std::cout << "done!" << std::endl;
+  nEventCalls_++;
 }
 
 //define this as a plug-in

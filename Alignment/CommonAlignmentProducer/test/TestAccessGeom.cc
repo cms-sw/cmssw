@@ -13,7 +13,7 @@
 //
 // Original Author:  Gero Flucke
 //         Created:  Sat Feb 16 20:56:04 CET 2008
-// $Id: TestAccessGeom.cc,v 1.1 2008/03/13 14:45:35 flucke Exp $
+// $Id: TestAccessGeom.cc,v 1.2 2008/06/26 10:05:09 flucke Exp $
 //
 //
 
@@ -55,9 +55,7 @@ class TestAccessGeom : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
 
       // ----------member data ---------------------------
 
@@ -145,18 +143,6 @@ TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::LogInfo("Test") << "@SUB=analyze" << "Succesfully accessed " << tkGeomLabels_.size() 
                        << " Tracker-, " << dtGeomLabels_.size() << " DT- and "
                        << cscGeomLabels_.size() << " CSC-geometries.";
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TestAccessGeom::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TestAccessGeom::endJob() {
 }
 
 //define this as a plug-in
