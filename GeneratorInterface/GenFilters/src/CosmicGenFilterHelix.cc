@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.10 2009/10/28 09:42:59 flucke Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.11 2009/12/15 10:29:32 fabiocos Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -24,8 +24,8 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/Utils/interface/TFileDirectory.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TMath.h>

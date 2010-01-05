@@ -6,7 +6,6 @@
 <use name=clhep> 
 <use name=root>
 <use name=pythia6>
-<use name=GeneratorInterface/Pythia6Interface>
 <use name=SimGeneral/HepPDTRecord>
 
 <use name=DataFormats/GeometryVector>
@@ -17,7 +16,7 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/Records>
 
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/BaseParticlePropagator>
@@ -27,19 +26,4 @@
 
 <flags EDM_PLUGIN=1>
 <export>
- <use name=boost>
- <use name=FWCore/Framework>
- <use name=SimDataFormats/GeneratorProducts>
- <use name=hepmc>
- <use name=heppdt> 
- <use name=SimGeneral/HepPDTRecord>
- <use name=clhep>
- <use name=root> 
- <use name=pythia6>
- <use name=GeneratorInterface/Pythia6Interface>
- <use name=DataFormats/GeometryVector>
- <use name=DataFormats/GeometrySurface>
-<use name=FastSimulation/Particle>
-<use name=FastSimulation/BaseParticlePropagator>
-<use name=DataFormats/HepMCCandidate>
 </export>
