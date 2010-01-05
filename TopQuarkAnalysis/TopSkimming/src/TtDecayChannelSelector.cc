@@ -188,7 +188,7 @@ unsigned int
 TtDecayChannelSelector::countProngs(const reco::Candidate& part) const
 {
   // if stable, return 1 or 0
-  if(part.status()==TopDecayID::stable){
+  if(part.status()==1){
     return (part.charge()!=0);
   }
   // if unstable, call recursively on daughters
