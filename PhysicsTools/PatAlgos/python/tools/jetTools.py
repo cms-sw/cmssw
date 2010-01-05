@@ -251,20 +251,20 @@ def switchJetCollection(process,
     ------------------------------------------------------------------        
     """
     ## save label of old jet collection
-    l1Jets      = getattr(process,l1jetCollection.moduleLabel)
-    oldLabel    = l1jets.jetSource 
-    mcjetparton = getattr(process,l1jets.genPartonMatch.moduleLabel)
-    mcjetjet    = getattr(process,l1jets.genJetMatch.moduleLabel)
-    mcjetflass  = getattr(process,l1jets.JetPartonMapSource.moduleLabel)
+    l1Jets      = getattr(process,l1JetCollection.moduleLabel)
+    oldLabel    = l1Jets.jetSource 
+    mcjetparton = getattr(process,l1Jets.genPartonMatch.moduleLabel)
+    mcjetjet    = getattr(process,l1Jets.genJetMatch.moduleLabel)
+    mcjetflass  = getattr(process,l1Jets.JetPartonMapSource.moduleLabel)
     mcjetparass = getattr(process,mcjetflass.srcByReference.moduleLabel)
-    jetcorr     = getattr(process,l1jets.jetCorrFactorsSource[0].moduleLabel)
+    jetcorr     = getattr(process,l1Jets.jetCorrFactorsSource[0].moduleLabel)
     ## replace input jet collection for generator matches
-    mcjetpar.src     = jetCollection
+    mcjetparton.src     = jetCollection
     mcjetjet.src     = jetCollection
     mcjetjet.matched = genJetCollection
     mcjetparass.jets = jetCollection
     ## replace input jet collection for pat jet production
-    l1jets.jetSource = jetCollection
+    l1Jets.jetSource = jetCollection
         ## make VInputTag from strings
     def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
@@ -272,13 +272,13 @@ def switchJetCollection(process,
         ## replace jet track association
         process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
         from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
-        if (l1jetCollection.moduleLabel=="patAK5CaloJets"):
+        if (l1JetCollection.moduleLabel=="patAK5CaloJets"):
             process.jetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection)
-            process.makePatJets.replace(process.patJetCharge, process.jetTracksAssociatorAtVertex+process.patJetCharge)
-            process.patJetCharge.src = 'jetTracksAssociatorAtVertex'
-            l1jets.trackAssociationSource = 'jetTracksAssociatorAtVertex'
-        if (l1jetCollection.moduleLabel=="pfPatJets"):
-            jetvtx = getattr(process,l1jets.trackAssociationSource.moduleLabel)
+            process.makePatJets.replace(process.patAK5CaloJetCharge, process.jetTracksAssociatorAtVertex+process.patAK5CaloJetCharge)
+            process.patAK5CaloJetCharge.src = 'jetTracksAssociatorAtVertex'
+            l1Jets.trackAssociationSource = 'jetTracksAssociatorAtVertex'
+        if (l1JetCollection.moduleLabel=="pfPatJets"):
+            jetvtx = getattr(process,l1Jets.trackAssociationSource.moduleLabel)
             jetvtx.jets = jetCollection
     else:
         ## remove the jet track association from the std
@@ -286,36 +286,36 @@ def switchJetCollection(process,
         process.makePatJets.remove(process.patJetCharge)
         ## switch embedding of track association and jet
         ## charge estimate to 'False'
-        l1jets.addAssociatedTracks = False
-        l1jets.addJetCharge = False
+        l1Jets.addAssociatedTracks = False
+        l1Jets.addJetCharge = False
 
     if (doBTagging):
         ## replace b tagging sequence; add postfix label 'AOD' as crab will
         ## crashes when confronted with empy labels
-        if (l1jetCollection.moduleLabel=="patAK5CaloJets"):
+        if (l1JetCollection.moduleLabel=="patAK5CaloJets"):
             (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD')
             process.makePatJets.replace(process.jetTracksAssociatorAtVertex, process.jetTracksAssociatorAtVertex+btagSeq)
-        if (l1jetCollection.moduleLabel=="pfPatJets"):
+        if (l1JetCollection.moduleLabel=="pfPatJets"):
             (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'PF')
             process.makepflayer1Jets.replace(process.jetTracksAssociatorAtVertexPF,process.jetTracksAssociatorAtVertexPF+btagSeq)
         ## add b tagging sequence before running the patAK5CaloJets modules
         ## replace corresponding tags for pat jet production
-        l1jets.trackAssociationSource = btagLabels['jta']
-        l1jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
-        l1jets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
+        l1Jets.trackAssociationSource = btagLabels['jta']
+        l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
+        l1Jets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
     else:
         ## remove b tagging from the std sequence
-        l1jets.remove(process.secondaryVertexNegativeTagInfos)
-        l1jets.remove(process.simpleSecondaryVertexNegativeBJetTags)
+        l1Jets.remove(process.secondaryVertexNegativeTagInfos)
+        l1Jets.remove(process.simpleSecondaryVertexNegativeBJetTags)
         ## switch embedding of b tagging for pat
         ## jet production to 'False'
-        l1jets.addBTagInfo = False
+        l1Jets.addBTagInfo = False
 
     if (doJetID):
         jetIdLabelNew = jetIdLabel + 'JetID'
-        l1jets.jetIDMap = cms.InputTag( jetIdLabelNew )
+        l1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
     else:
-        l1jets.addJetID = cms.bool(False)
+        l1Jets.addJetID = cms.bool(False)
 
     if (jetCorrLabel!=None):
         ## replace jet energy corrections; catch
@@ -355,7 +355,7 @@ def switchJetCollection(process,
         process.patJetMETCorrections.remove(process.jetCorrFactors)
         ## switch embedding of jetCorrFactors off
         ## for pat jet production
-        l1jets.addJetCorrFactors = False
+        l1Jets.addJetCorrFactors = False
     
 
 def addJetCollection(process,

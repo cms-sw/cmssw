@@ -207,13 +207,13 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",
         process.pfCountPatCandidates += counter
 
         
-def switchToPFMET(process,input=cms.InputTag('pfMET'),metColl=cms.InputTag('layer1METs')):
+def switchToPFMET(process,input=cms.InputTag('pfMET'),metColl=cms.InputTag('patAK5CaloMETs')):
     print 'MET: using ', input
     module =  getattr(process,metColl.moduleLabel)
     oldMETSource = module.metSource
     module.metSource = input
     module.addMuonCorrections = False
-    if (metColl.moduleLabel=='layer1METs'):
+    if (metColl.moduleLabel=='patAK5CaloMETs'):
         process.patDefaultSequence.remove(process.patMETCorrections)
 
 
@@ -244,7 +244,7 @@ def switchToPFJets(process,
                         jetCorrLabel=( algo, 'PF' ), 
                         genJetCollection = genJetCollectionName,
                         doType1MET=False,
-                        l1jetCollection=l1jetColl
+                        l1JetCollection=l1jetColl
                         )  
     l1jets   = getattr(process,l1jetColl.moduleLabel)
     l1jets.embedCaloTowers   = False
