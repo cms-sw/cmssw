@@ -72,7 +72,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else if (nevt_==0 && fileEventOffset_<0) {
     string line;
     //skip first fileEventOffset input crossings 
-    for(unsigned i=0; i<abs(fileEventOffset_); i++) {
+    for(unsigned i=0; i<(unsigned)abs(fileEventOffset_); i++) {
       unsigned iline=0;
       while (getline(file_, line) && !line.empty()) {
 	iline++;

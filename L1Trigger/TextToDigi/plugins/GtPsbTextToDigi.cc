@@ -180,10 +180,10 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       		  << std::dec 
       		  << "\n\n" << std::flush;
 
-      if(tmp!=cbs[cycle]) 
-	if(m_bc0[ifile]==-1 && cycle==1 && tmp==1)
+      if(tmp!=cbs[cycle]){
+	if(m_bc0[ifile]==-1 && cycle==1 && tmp==1){
 	  m_bc0[ifile] = (m_nevt-m_fileEventOffset);
-	else 
+	}else{
 	  throw cms::Exception("GtPsbTextToDigiTextFileFormatError") 
 	    //std::cout << "GtPsbTextToDigiTextFileFormatError " 
 	    << "GtPsbTextToDigi::produce : "
@@ -191,7 +191,8 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    << "\n in line:" << (m_nevt-m_fileEventOffset)*2-1  
 	    << " cycle:" << tmp << " is different from " << cbs[cycle]
 	    << std::endl;
-      
+        }
+      }
       data[ifile][cycle] = (uLongBuffer&0x7fff);
     } //cycle loop
   } //ifile loop
