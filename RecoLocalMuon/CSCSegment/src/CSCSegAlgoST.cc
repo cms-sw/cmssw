@@ -40,6 +40,7 @@ CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   dXclusBoxMax           = ps.getParameter<double>("dXclusBoxMax");
   dYclusBoxMax           = ps.getParameter<double>("dYclusBoxMax");
   preClustering          = ps.getParameter<bool>("preClustering");
+  preClustering_useChaining    = ps.getParameter<bool>("preClusteringUseChaining");
   Pruning                = ps.getParameter<bool>("Pruning");
   BrutePruning           = ps.getParameter<bool>("BrutePruning");
   BPMinImprovement        = ps.getParameter<double>("BPMinImprovement");
@@ -104,7 +105,18 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
   
   if(preClustering) {
     // run a pre-clusterer on the given rechits to split obviously separated segment seeds:
-    rechits_clusters = clusterHits( theChamber, rechits );
+    if(preClustering_useChaining){
+      // it uses X,Y,Z information; there are no configurable parameters used;
+      // the X, Y, Z "cuts" are just (much) wider than the LCT readout ones
+      // (which are actually not step functions); this new code could accomodate
+      // the clusterHits one below but we leave it for security and backward 
+      // comparison reasons 
+      rechits_clusters = chainHits( theChamber, rechits );
+    }
+    else{
+      // it uses X,Y information + configurable parameters
+      rechits_clusters = clusterHits( theChamber, rechits );
+    }
     // loop over the found clusters:
     for(std::vector<ChamberHitContainer>::iterator sub_rechits = rechits_clusters.begin(); sub_rechits !=  rechits_clusters.end(); ++sub_rechits ) {
       // clear the buffer for the subset of segments:
@@ -451,6 +463,142 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
 
       return rechits_clusters; 
 }
+
+
+std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+
+  std::vector<ChamberHitContainer> rechits_chains; // this is a collection of groups of rechits
+
+
+  std::vector<const CSCRecHit2D*> temp;
+
+  std::vector< ChamberHitContainer > seeds;
+
+  std::vector <bool> usedCluster;
+
+  // split rechits into subvectors and return vector of vectors:
+  // Loop over rechits
+  // Create one seed per hit
+  std::cout<<" rechits.size() = "<<rechits.size()<<std::endl;
+  for(unsigned int i = 0; i < rechits.size(); ++i) {
+    temp.clear();
+    temp.push_back(rechits[i]);
+    seeds.push_back(temp);
+    usedCluster.push_back(false);
+  }
+  bool isME11a = false;
+  if ("ME1/a" == aChamber->specs()->chamberTypeName()){
+    isME11a = true;
+  }
+  // merge chains that are too close ("touch" each other)
+  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+    for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
+      if(usedCluster[MMM] || usedCluster[NNN]){
+        continue;
+      }
+      // all is in the way we define "good";
+      // try not to "cluster" the hits but to "chain" them;
+      // it does the clustering but also does a better job
+      // for inclined tracks (not clustering them togheter;
+      // crossed tracks would be still clustered together) 
+      // 22.12.09: In fact it is not much more different 
+      // than the "clustering", we just introduce another
+      // variable in the game - Z. And it make sense 
+      // to re-introduce Y (or actually wire group mumber)
+      // in a similar way as for the strip number - see
+      // the code below.
+      bool goodToMerge  = isGoodToMerge(isME11a, seeds[NNN], seeds[MMM]);
+      if(goodToMerge){
+        // merge chains!
+        // merge by adding seed NNN to seed MMM and erasing seed NNN
+
+        // add seed NNN to MMM (lower to larger number)
+        seeds[MMM].insert(seeds[MMM].end(),seeds[NNN].begin(),seeds[NNN].end());
+
+        // mark seed NNN as used
+        usedCluster[NNN] = true;
+        // we have merged a seed (NNN) to the highter seed (MMM) - need to contimue to
+        // next seed (NNN+1)
+        break;
+      }
+
+    }
+  }
+
+  // hand over the final seeds to the output
+  // would be more elegant if we could do the above step with
+  // erasing the merged ones, rather than the
+
+  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+    if(usedCluster[NNN]) continue; //skip seeds that have been marked as used up in merging
+    rechits_chains.push_back(seeds[NNN]);
+  }
+
+  //***************************************************************
+
+      return rechits_chains;
+}
+
+bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain) {
+  for(uint iRH_new = 0;iRH_new<newChain.size();++iRH_new){
+    int layer_new = newChain[iRH_new]->cscDetId().layer()-1;     
+    int middleStrip_new = newChain[iRH_new]->channels().size()/2;
+    int centralStrip_new = newChain[iRH_new]->channels()[middleStrip_new];
+    int middleWire_new = newChain[iRH_new]->wgroups().size()/2;
+    int centralWire_new = newChain[iRH_new]->wgroups()[middleWire_new];
+    bool layerRequirementOK = false;
+    bool stripRequirementOK = false;
+    bool wireRequirementOK = false;
+    bool goodToMerge = false;
+    for(uint iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
+      int layer_old = oldChain[iRH_old]->cscDetId().layer()-1;
+      int middleStrip_old = oldChain[iRH_old]->channels().size()/2;
+      int centralStrip_old = oldChain[iRH_old]->channels()[middleStrip_old];
+      int middleWire_old = oldChain[iRH_old]->wgroups().size()/2;
+      int centralWire_old = oldChain[iRH_old]->wgroups()[middleWire_old];
+
+      // to be chained, two hits need to be in neighbouring layers...
+      // or should it be better to allow skipping one layer? skipping two?
+      // ok let's be just one for now
+      if(layer_new==layer_old+1 || layer_new==layer_old-1 ||
+	 layer_new==layer_old+2 || layer_new==layer_old-2 ){
+        layerRequirementOK = true;
+      }
+      int allStrips = 48;
+      //to be chained, two hits need to be "close" in strip number (can do it in phi
+      // but it doesn't really matter); let "close" means upto 2 strips (3?) - 
+      // this is more compared to what CLCT readout patterns allow 
+      if(centralStrip_new==centralStrip_old ||
+         centralStrip_new==centralStrip_old+1 || centralStrip_new==centralStrip_old-1 ||
+         centralStrip_new==centralStrip_old+2 || centralStrip_new==centralStrip_old-2){
+        stripRequirementOK = true;
+      }
+      // same for wires (and ALCT patterns)
+      if(centralWire_new==centralWire_old ||
+         centralWire_new==centralWire_old+1 || centralStrip_new==centralWire_old-1 ||
+         centralWire_new==centralWire_old+2 || centralStrip_new==centralWire_old-2){
+        wireRequirementOK = true;
+      }
+
+      if(isME11a){
+	if(centralStrip_new==centralStrip_old+1-allStrips || centralStrip_new==centralStrip_old-1-allStrips ||
+	   centralStrip_new==centralStrip_old+2-allStrips || centralStrip_new==centralStrip_old-2-allStrips ||
+	   centralStrip_new==centralStrip_old+1+allStrips || centralStrip_new==centralStrip_old-1+allStrips ||
+	   centralStrip_new==centralStrip_old+2+allStrips || centralStrip_new==centralStrip_old-2+allStrips){
+	  stripRequirementOK = true;
+	}
+      }
+      if(layerRequirementOK && stripRequirementOK && wireRequirementOK){
+        goodToMerge = true;
+        return goodToMerge;
+      }
+    }
+  }
+  return false;
+}
+
+
+
 
 double CSCSegAlgoST::theWeight(double coordinate_1, double coordinate_2, double coordinate_3, float layer_1, float layer_2, float layer_3) {
   double sub_weight = 0;

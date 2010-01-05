@@ -67,6 +67,12 @@ public:
    */
   std::vector< std::vector<const CSCRecHit2D*> > clusterHits(const CSCChamber* aChamber, ChamberHitContainer rechits);
 
+
+   /* Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
+   */
+     std::vector< std::vector<const CSCRecHit2D*> > chainHits(const CSCChamber* aChamber, ChamberHitContainer rechits);
+
+
   /**
    * Remove bad hits from found segments based not only on chi2, but also on charge and 
    * further "low level" chamber information.
@@ -92,6 +98,9 @@ private:
   void fitSlopes(void);
   void fillChiSquared(void);
   void fillLocalDirection(void);
+
+  bool isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain);
+
   CLHEP::HepMatrix derivativeMatrix(void) const;
   AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
@@ -157,6 +166,7 @@ private:
   double  dYclusBoxMax;
   int     maxRecHitsInCluster;
   bool    preClustering;
+  bool    preClustering_useChaining;
   bool    Pruning;
   bool    BrutePruning;
   double  BPMinImprovement;
