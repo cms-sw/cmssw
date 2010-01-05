@@ -1,7 +1,6 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/MetaDataService/interface/MetaDataSchemaUtility.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
-#include "CondCore/MetaDataService/interface/MetaDataExceptions.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/SchemaException.h"
 #include "RelationalAccess/ISchema.h"
@@ -16,6 +15,34 @@
 #include "CoralBase/Attribute.h"
 #include <memory>
 //#include <iostream>
+
+
+namespace {
+
+    std::string mdErrorPrefix(const std::string& source, const std::string& name) {
+      return source+std::string(": metadata entry \"")+name+std::string("\" ");
+    }
+    
+
+    void mdError(const std::string& source, const std::string& name, const std::string& mess) {
+      throw cond::Exception(mdErrorPrefix(source,name)+mess);
+    }
+    
+    void mdDuplicateEntryError(const std::string& source, const std::string& name) {
+      mdError(source, name, "Already exists");
+    }
+
+    void mdNoTable(const std::string& source, const std::string& name) {
+      mdError(source, name, "cond MetaData table does not exist: please initialize");
+    }
+
+    void mdNoEntry(const std::string& source, const std::string& name) {
+      mdError(source, name, "does not exists");
+    }
+
+}
+
+
 cond::MetaData::MetaData(cond::DbSession& coraldb):m_coraldb(coraldb){
 }
 cond::MetaData::~MetaData(){
@@ -34,9 +61,9 @@ cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken,
     rowBuffer[cond::MetaDataNames::timetypeColumn()].data<int>()=timetype;
     dataEditor.insertRow( rowBuffer );
   }catch( const coral::DuplicateEntryInUniqueKeyException& er ){
-    throw cond::MetaDataDuplicateEntryException("addMapping",name);
+    mdDuplicateEntryError("addMapping",name);
   }catch(std::exception& er){
-    throw cond::Exception(std::string("MetaData::addMapping error: ")+er.what());
+    mdError("MetaData::addMapping",name,er.what());
   }
   return true;
 }
@@ -44,7 +71,7 @@ bool
 cond::MetaData::replaceToken(const std::string& name, const std::string& newtoken){
   try{
     if(!m_coraldb.nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
-      throw cond::Exception( "MetaData::replaceToken MetaData table doesnot exist" );
+      mdNoTable("MetaData::replaceToken", name);
     }
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle(cond::MetaDataNames::metadataTable());
     coral::AttributeList inputData;
@@ -59,15 +86,15 @@ cond::MetaData::replaceToken(const std::string& name, const std::string& newtoke
     condition+="= :oldTag";
     dataEditor.updateRows( setClause, condition, inputData );
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
-    ///do not remove ! must ignore this exception!!!
-    throw cond::MetaDataDuplicateEntryException("MetaData::replaceToken",name);
+    mdDuplicateEntryError("replaceToken",name);
   }catch(std::exception& er){
-    throw cond::Exception(std::string("MetaData::replaceToken error: ")+er.what());
+    mdError("MetaData::replaceToken",name,er.what());
   }
   return true;
 }
 const std::string 
 cond::MetaData::getToken( const std::string& name ) const{
+  bool ok=false;
   std::string iovtoken;
   try{
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
@@ -84,18 +111,20 @@ cond::MetaData::getToken( const std::string& name ) const{
     while( cursor.next() ) {
       const coral::AttributeList& row = cursor.currentRow();
       iovtoken=row[ cond::MetaDataNames::tokenColumn() ].data<std::string>();
+      ok=true;
     }
   }catch(const coral::TableNotExistingException& er){
-    ///must ignore this exception!!!
-    //m_coraldb.commit();
-    return "";
+    mdNoTable("MetaData::getToken", name);
   }catch(const std::exception& er){
-    throw cond::Exception( std::string("MetaData::getToken error: ")+er.what() );
+    mdError("MetaData::getToken", name,er.what() );
   }
+  if (!ok) mdNoEntry("MetaData::getToken", name);
   return iovtoken;
 }
+
 void 
-cond::MetaData::getEntryByTag( const std::string& tagname, cond::MetaDataEntry& result )const{
+cond::MetaData::getEntryByTag( const std::string& tagname, cond::MetaDataEntry& result ) const{
+  bool ok=false;
   result.tagname=tagname;
   try{
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
@@ -116,16 +145,16 @@ cond::MetaData::getEntryByTag( const std::string& tagname, cond::MetaDataEntry& 
       int tp=row[ cond::MetaDataNames::timetypeColumn() ].data<int>();
       result.timetype=(cond::TimeType)tp;
       //result.timetype=row[ cond::MetaDataNames::timetypeColumn() ].data<int>();
+      ok=true;
     }
   }catch(const coral::TableNotExistingException& er){
-    ///must ignore this exception!!!
-    //m_coraldb.commit();
-    return;
+    mdNoTable("MetaData::getEntryByTag", tagname);
   }catch(const std::exception& er){
-    throw cond::Exception( std::string("MetaData::getEntryByTag error: ")+er.what() );
+    mdError("MetaData::getEntryByTag", tagname, er.what() );
   }
-  return;
+  if (!ok) mdNoEntry("MetaData::getEntryByTag", tagname);
 }
+
 /*
 void 
 cond::MetaData::createTable(const std::string& tabname){
@@ -143,6 +172,7 @@ cond::MetaData::createTable(const std::string& tabname){
   table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
 }
 */
+
 bool cond::MetaData::hasTag( const std::string& name ) const{
   bool result=false;
   try{
@@ -161,10 +191,11 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
     ///do not remove ! must ignore this exception!!!
     return false;
   }catch(const std::exception& er){
-    throw cond::Exception( std::string("MetaData::hasTag: " )+er.what() );
+    mdError("MetaData::hasTag", name, er.what() );
   }
   return result;
 }
+
 void 
 cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
   try{
@@ -182,9 +213,10 @@ cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
     ///do not remove ! must ignore this exception!!!
     return;
   }catch(const std::exception& er){
-    throw cond::Exception( std::string("MetaData::listAllTag: " )+er.what() );
+    throw cond::Exception( std::string("MetaData::listAllTags: " )+er.what() );
   }
 }
+
 void 
 cond::MetaData::listAllEntries( std::vector<cond::MetaDataEntry>& result ) const{
   try{
@@ -210,6 +242,7 @@ cond::MetaData::listAllEntries( std::vector<cond::MetaDataEntry>& result ) const
     throw cond::Exception( std::string("MetaData::listAllEntries: " )+er.what() );
   }
 }
+
 void 
 cond::MetaData::deleteAllEntries(){
   coral::AttributeList emptybinddata;
