@@ -105,7 +105,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
         theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);
         theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ((*simHitIter).first), (*simHitIter).second);
         // sum signal on strips
-        for (size_t iChannel=localFirstChannel; iChannel<=localLastChannel; iChannel++) {
+        for (size_t iChannel=localFirstChannel; iChannel<localLastChannel; iChannel++) {
           if(locAmpl[iChannel]>0.) {             
             detAmpl[iChannel]+=locAmpl[iChannel];
             locAmpl[iChannel]=0;

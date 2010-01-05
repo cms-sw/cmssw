@@ -27,7 +27,7 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
   genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
   
   // noise on strips with signal:
-  for (size_t iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
+  for (size_t iChannel=minChannel; iChannel<maxChannel; iChannel++) {
     if(in[iChannel] != 0) {
       in[iChannel] += gaussDistribution->fire(0.,noiseRMS);
     }
@@ -51,7 +51,7 @@ void SiGaussianTailNoiseAdder::createRaw(std::vector<double> &in,
   noiseRMS = nrms; 
   
   // noise on strips with signal:
-  for (size_t iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
+  for (size_t iChannel=minChannel; iChannel<maxChannel; iChannel++) {
     if(in[iChannel] != 0) {
       in[iChannel] += gaussDistribution->fire(0.,noiseRMS);
     }
