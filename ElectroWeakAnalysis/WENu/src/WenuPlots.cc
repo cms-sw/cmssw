@@ -342,7 +342,7 @@ void
 WenuPlots::beginJob(const edm::EventSetup&)
 {
   //std::cout << "In beginJob()" << std::endl;
-  Double_t Pi = TMath::Pi();
+  //  Double_t Pi = TMath::Pi();
   //  TString histo_file = outputFile_;
   //  histofile = new TFile( histo_file,"RECREATE");
 
