@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 10:04:19 $
- *  $Revision: 1.25 $
+ *  $Date: 2009/10/19 15:56:19 $
+ *  $Revision: 1.26 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -73,7 +73,7 @@ DTSegmentAnalysisTask::~DTSegmentAnalysisTask(){
 }
 
 
-void DTSegmentAnalysisTask::beginJob(const edm::EventSetup& context){ 
+void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& context){ 
 
    // Get the DT Geometry
   context.get<MuonGeometryRecord>().get(dtGeom);

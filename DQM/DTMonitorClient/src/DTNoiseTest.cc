@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2008/10/03 09:32:02 $
- * $Revision: 1.19 $
+ * $Date: 2008/12/13 10:02:28 $
+ * $Revision: 1.20 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -58,11 +58,18 @@ DTNoiseTest::~DTNoiseTest(){
 
 
 
-void DTNoiseTest::beginJob(const edm::EventSetup& context){
+void DTNoiseTest::beginJob(){
 
   edm::LogVerbatim ("noise") <<"[DTNoiseTest]: BeginJob";
 
   updates = 0;
+
+}
+
+
+void DTNoiseTest::beginRun(const edm::Run& run, const edm::EventSetup& context){
+
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: BeginRun";
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);

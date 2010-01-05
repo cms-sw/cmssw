@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2009/06/09 13:20:05 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/08 14:47:07 $
+ *  $Revision: 1.7 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -49,7 +49,13 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(edm::Run const& run, edm::EventSetup const& context);
+
+  /// Perform begin lumiblock operations
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -95,9 +101,6 @@ protected:
 
  /// Get the ME name (by wheel)
   std::string getMEName(std::string histoTag, std::string subfolder, int wh);
-
-  /// Perform begin lumiblock operations
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   
   /// Get top folder name
   inline std::string & topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; } ;

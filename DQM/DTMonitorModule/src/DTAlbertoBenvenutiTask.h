@@ -5,8 +5,8 @@
 /*
  * \file DTAlbertoBenvenutiTask.h
  *
- * $Date: 2008/07/24 12:56:37 $
- * $Revision: 1.2 $
+ * $Date: 2008/12/13 10:02:29 $
+ * $Revision: 1.3 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -49,7 +49,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   void beginRun(const edm::Run&, const edm::EventSetup&);
 

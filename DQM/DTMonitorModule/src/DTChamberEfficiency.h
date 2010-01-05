@@ -34,15 +34,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
-
-
-
-
-
-
-
-
-
 #include <vector>
 
 namespace reco {
@@ -72,7 +63,7 @@ class DTChamberEfficiency : public edm::EDAnalyzer
 
   //Operations
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-  void beginJob(const edm::EventSetup&);
+  void beginJob();
   void beginRun(const edm::Run& , const edm::EventSetup&);
   void endJob();
 

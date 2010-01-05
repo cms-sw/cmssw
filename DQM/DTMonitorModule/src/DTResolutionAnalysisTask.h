@@ -10,8 +10,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/11/20 09:12:47 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/07/16 08:52:08 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -37,8 +37,8 @@ public:
   /// Destructor
   virtual ~DTResolutionAnalysisTask();
 
-  /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  /// BeginRun
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;

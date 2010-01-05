@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/07/08 16:28:18 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -57,15 +57,20 @@ DTNoiseAnalysisTest::~DTNoiseAnalysisTest(){
 }
 
 
-void DTNoiseAnalysisTest::beginJob(const edm::EventSetup& context){
+void DTNoiseAnalysisTest::beginJob(){
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") <<"[DTNoiseAnalysisTest]: BeginJob"; 
 
   nevents = 0;
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 
   // book the histos
-  bookHistos();  
+  bookHistos();
+
+}
+
+void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
 

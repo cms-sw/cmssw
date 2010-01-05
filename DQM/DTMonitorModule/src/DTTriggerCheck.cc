@@ -31,7 +31,7 @@ DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
 DTTriggerCheck::~DTTriggerCheck(){
 }
 
-void DTTriggerCheck::beginJob(const EventSetup& setup){
+void DTTriggerCheck::beginJob(){
 }
 
 void DTTriggerCheck::endJob(){

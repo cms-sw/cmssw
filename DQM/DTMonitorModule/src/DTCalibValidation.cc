@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/31 08:49:53 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/02/19 11:48:49 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -14,13 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-// To remove into CMSSW versions before 20X
 #include "DQMServices/Core/interface/DQMStore.h"
-// To add into CMSSW version before 20X
-/*#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-  #include "DQMServices/Daemon/interface/MonitorDaemon.h"*/
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -62,7 +56,7 @@ DTCalibValidation::~DTCalibValidation(){
 }
 
 
-void DTCalibValidation::beginJob(const edm::EventSetup& context){
+void DTCalibValidation::beginJob(){
 
   // the name of the rechits collection at step 1
   recHits1DLabel = parameters.getUntrackedParameter<string>("recHits1DLabel");

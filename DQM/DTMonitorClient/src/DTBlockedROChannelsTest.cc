@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/10/19 14:04:13 $
- * $Revision: 1.5 $
+ * $Date: 2009/10/19 16:18:47 $
+ * $Revision: 1.6 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -51,7 +51,7 @@ DTBlockedROChannelsTest::~DTBlockedROChannelsTest() {
 
 
 // book histos
-void DTBlockedROChannelsTest::beginJob(const EventSetup& context) {
+void DTBlockedROChannelsTest::beginJob() {
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
     << "[DTBlockedROChannelsTest]: BeginJob";
 

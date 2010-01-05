@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 14:05:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/19 17:07:11 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -33,7 +33,7 @@ DTCertificationSummary::~DTCertificationSummary() {}
 
 
 
-void DTCertificationSummary::beginJob(const EventSetup& setup){
+void DTCertificationSummary::beginJob(){
   // get the DQMStore
   theDbe = Service<DQMStore>().operator->();
   

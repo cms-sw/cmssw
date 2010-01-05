@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/11/03 14:20:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/27 13:26:40 $
+ *  $Revision: 1.7 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -45,12 +45,13 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& context);
+  void beginJob();
 
+  /// BeginRun
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) ;
 
   /// Endjob
   void endJob();
-
   
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 

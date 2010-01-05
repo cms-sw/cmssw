@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/09 13:20:05 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/08/03 16:10:19 $
+ *  $Revision: 1.9 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -52,9 +52,9 @@ DTLocalTriggerEfficiencyTest::~DTLocalTriggerEfficiencyTest(){
 }
 
 
-void DTLocalTriggerEfficiencyTest::beginJob(const edm::EventSetup& c){
+void DTLocalTriggerEfficiencyTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
   
-  DTLocalTriggerBaseTest::beginJob(c);
+  DTLocalTriggerBaseTest::beginRun(r,c);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 
   vector<string>::const_iterator iTr   = trigSources.begin();

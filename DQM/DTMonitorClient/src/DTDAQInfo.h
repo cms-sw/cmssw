@@ -4,8 +4,8 @@
 /** \class DTDAQInfo
  *  No description available.
  *
- *  $Date: 2009/10/02 10:34:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/19 14:06:00 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -32,7 +32,7 @@ public:
 protected:
   
 private:
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);

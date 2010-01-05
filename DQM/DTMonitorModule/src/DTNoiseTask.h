@@ -4,8 +4,8 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: 2008/07/09 14:13:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/07/08 15:53:12 $
+ *  $Revision: 1.6 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -41,7 +41,7 @@ public:
 
 protected:
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   void beginRun(const edm::Run&, const edm::EventSetup&);
 

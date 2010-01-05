@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/06 10:50:04 $
- *  $Revision: 1.34 $
+ *  $Date: 2009/03/09 10:44:31 $
+ *  $Revision: 1.35 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -67,9 +67,9 @@ DTResolutionTest::~DTResolutionTest(){
 }
 
 
-void DTResolutionTest::beginJob(const edm::EventSetup& context){
+void DTResolutionTest::beginRun(const edm::Run& run, const edm::EventSetup& context){
 
-  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: BeginJob"; 
+  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: BeginRun";
 
   nevents = 0;
   // Get the geometry

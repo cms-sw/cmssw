@@ -7,8 +7,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/07 15:29:13 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/01 00:39:52 $
+ *  $Revision: 1.7 $
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
  *  M. Zanetti - CERN PH
@@ -62,10 +62,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);

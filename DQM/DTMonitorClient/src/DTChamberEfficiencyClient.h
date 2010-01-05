@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/12/15 10:38:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/27 14:46:12 $
+ *  $Revision: 1.4 $
  *  \author  M. Pelliccioni - INFN Torino
  *   
  */
@@ -48,7 +48,7 @@ public:
 
 protected:
 
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
   void beginRun(const edm::Run& run, const edm::EventSetup& setup);
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void endJob();

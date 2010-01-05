@@ -4,8 +4,8 @@
 /** \class DTCertificationSummary
  *  No description available.
  *
- *  $Date: 2009/03/02 17:03:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/19 14:05:29 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -30,7 +30,7 @@ public:
 protected:
   
 private:
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);

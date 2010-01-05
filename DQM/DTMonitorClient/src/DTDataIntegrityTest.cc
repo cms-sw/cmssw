@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2009/05/19 14:18:23 $
- * $Revision: 1.29 $
+ * $Date: 2009/05/20 14:17:28 $
+ * $Revision: 1.30 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -45,7 +45,7 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
 }
 
 
-void DTDataIntegrityTest::beginJob(const EventSetup& context){
+void DTDataIntegrityTest::beginJob(){
 
   LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: BeginJob";
 

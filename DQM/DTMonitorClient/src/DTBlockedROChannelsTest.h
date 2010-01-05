@@ -5,8 +5,8 @@
  * *
  *  DQM Client to Summarize LS by LS the status of the Read-Out channels.
  *
- *  $Date: 2009/06/10 10:03:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/19 14:04:13 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - University and INFN Torino
  *   
  */
@@ -36,7 +36,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
   void beginRun(const edm::Run& run, const edm::EventSetup& c);

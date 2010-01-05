@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 09:32:02 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/12/13 10:02:28 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,17 +55,22 @@ DTDeadChannelTest::~DTDeadChannelTest(){
 }
 
 
-void DTDeadChannelTest::beginJob(const edm::EventSetup& context){
+void DTDeadChannelTest::beginJob(){
 
   edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: BeginJob";
 
   nevents = 0;
 
+}
+
+void DTDeadChannelTest::beginRun(Run const& run, EventSetup const& context) {
+
+  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: BeginRun";
+
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
-
 
 
 void DTDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {

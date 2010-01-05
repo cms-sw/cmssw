@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/13 10:02:29 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/02 14:28:25 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -128,20 +128,22 @@ void DTAlbertoBenvenutiTask::endJob(){
 }
 
 
-void DTAlbertoBenvenutiTask::beginJob(const edm::EventSetup& context){
+void DTAlbertoBenvenutiTask::beginJob(){
 
   if(debug)
     cout<<"[DTAlbertoBenvenutiTask]: BeginJob"<<endl;
 
   nevents = 0;
 
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 }
 
 
 
 void DTAlbertoBenvenutiTask::beginRun(const edm::Run&, const edm::EventSetup& context) {
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
+
   // tTrig 
   if (parameters.getUntrackedParameter<bool>("readDB", true)) 
     context.get<DTTtrigRcd>().get(tTrigMap);
@@ -149,7 +151,6 @@ void DTAlbertoBenvenutiTask::beginRun(const edm::Run&, const edm::EventSetup& co
   // t0s 
   if (parameters.getParameter<bool>("performPerWireT0Calibration")) 
     context.get<DTT0Rcd>().get(t0Map);
-
 
 }
 

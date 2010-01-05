@@ -5,8 +5,8 @@
  *  Analysis on DT residuals to validate the kFactor
  *
  *
- *  $Date: 2008/10/07 13:59:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/31 08:51:46 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -46,7 +46,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
   virtual ~DTCalibValidation();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
   void beginRun(const edm::Run&, const edm::EventSetup&);

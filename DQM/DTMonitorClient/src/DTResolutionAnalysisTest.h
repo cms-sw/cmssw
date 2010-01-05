@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/07/16 09:11:45 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/19 13:14:55 $
+ *  $Revision: 1.8 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -39,7 +39,10 @@ public:
   virtual ~DTResolutionAnalysisTest();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);

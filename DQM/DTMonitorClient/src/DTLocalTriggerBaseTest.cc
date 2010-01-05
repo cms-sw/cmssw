@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/08 14:47:07 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/10/30 14:27:55 $
+ *  $Revision: 1.14 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -39,15 +39,20 @@ DTLocalTriggerBaseTest::~DTLocalTriggerBaseTest(){
 
 }
 
-void DTLocalTriggerBaseTest::beginJob(const edm::EventSetup& context){
+void DTLocalTriggerBaseTest::beginJob(){
 
   LogVerbatim(category()) << "[" << testName << "Test]: BeginJob";
   nevents = 0;
   nLumiSegs = 0;
-  context.get<MuonGeometryRecord>().get(muonGeom);
   
 }
 
+void DTLocalTriggerBaseTest::beginRun(Run const& run, EventSetup const& context) {
+
+  LogVerbatim(category()) << "[" << testName << "Test]: BeginRun";
+  context.get<MuonGeometryRecord>().get(muonGeom);
+
+}
 
 void DTLocalTriggerBaseTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 

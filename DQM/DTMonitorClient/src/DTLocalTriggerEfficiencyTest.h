@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/08/03 16:10:23 $
+ *  $Revision: 1.4 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -39,8 +39,8 @@ protected:
   /// Compute 2D efficiency plots
   void makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result);
 
-  /// Begin Job
-  void beginJob(const edm::EventSetup& c);
+  /// BeginRun
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// DQM Client Diagnostic
   void runClientDiagnostic();

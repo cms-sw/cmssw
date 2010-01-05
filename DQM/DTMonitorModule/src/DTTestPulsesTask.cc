@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2008/05/06 13:26:47 $
- * $Revision: 1.14 $
+ * $Date: 2009/03/02 14:28:25 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -58,11 +58,15 @@ DTTestPulsesTask::~DTTestPulsesTask(){
 }
 
 
-void DTTestPulsesTask::beginJob(const edm::EventSetup& context){
+void DTTestPulsesTask::beginJob(){
 
   cout<<"[DTTestPulsesTask]: BeginJob"<<endl;
 
   nevents = 0;
+
+}
+
+void DTTestPulsesTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
@@ -71,7 +75,6 @@ void DTTestPulsesTask::beginJob(const edm::EventSetup& context){
   //context.get<DTRangeT0Rcd>().get(t0RangeMap);
 
 }
-
 
 void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, string histoTag) {
 

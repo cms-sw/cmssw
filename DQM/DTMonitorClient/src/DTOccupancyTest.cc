@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/27 08:49:58 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/03/27 13:26:40 $
+ *  $Revision: 1.14 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -64,14 +64,11 @@ DTOccupancyTest::~DTOccupancyTest(){
 
 
 
-void DTOccupancyTest::beginJob(const EventSetup& context){
+void DTOccupancyTest::beginJob(){
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: BeginJob";
 
   // Event counter
   nevents = 0;
-
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 
   // Book the summary histos
   //   - one summary per wheel
@@ -105,6 +102,18 @@ void DTOccupancyTest::beginJob(const EventSetup& context){
   } else { // default is AllHits histo
     nameMonitoredHisto = "OccupancyAllHits_perCh";
   }
+
+}
+
+
+
+
+void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
+
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: BeginRun";
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
 

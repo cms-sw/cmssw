@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 11:30:35 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/03/02 14:29:03 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -56,7 +56,7 @@ DTEfficiencyTask::~DTEfficiencyTask(){
 }  
 
 
-void DTEfficiencyTask::beginJob(const edm::EventSetup& context){
+void DTEfficiencyTask::beginJob(){
   // the name of the 4D rec hits collection
   theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
   // the name of the rechits collection

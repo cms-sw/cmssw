@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/02 10:34:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/19 14:06:00 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -44,7 +44,7 @@ DTDAQInfo::~DTDAQInfo() {}
 
 
 
-void DTDAQInfo::beginJob(const EventSetup& setup){
+void DTDAQInfo::beginJob(){
   // get the DQMStore
   theDbe = Service<DQMStore>().operator->();
   

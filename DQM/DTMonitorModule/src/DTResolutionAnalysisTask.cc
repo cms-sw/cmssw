@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 10:04:19 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/08/25 21:32:48 $
+ *  $Revision: 1.20 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -55,15 +55,14 @@ DTResolutionAnalysisTask::~DTResolutionAnalysisTask(){
 
 }
 
+void DTResolutionAnalysisTask::beginRun(const Run& run, const EventSetup& setup) {
 
-void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& setup){
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
-//   theDbe->setCurrentFolder("DT/02-Segments");
+  //   theDbe->setCurrentFolder("DT/02-Segments");
 
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
-
 
   // Book the histograms
   vector<DTChamber*> chambers = dtGeom->chambers();

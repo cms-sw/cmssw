@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2008/03/01 00:39:54 $
- * $Revision: 1.7 $
+ * $Date: 2008/05/06 13:26:47 $
+ * $Revision: 1.8 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -66,18 +66,24 @@ void DTDigiForNoiseTask::endJob(){
 }
 
 
-void DTDigiForNoiseTask::beginJob(const edm::EventSetup& context){
+void DTDigiForNoiseTask::beginJob(){
 
   if(debug)
     cout<<"[DTDigiForNoiseTask]: BeginJob"<<endl;
 
   nevents = 0;
 
+}
+
+void DTDigiForNoiseTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+
+  if(debug)
+    cout<<"[DTDigiForNoiseTask]: BeginRun"<<endl;
+
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
-
 
 void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   

@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2009/02/26 12:08:47 $
- * $Revision: 1.29 $
+ * $Date: 2009/07/08 15:34:47 $
+ * $Revision: 1.30 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -53,7 +53,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   void beginRun(const edm::Run&, const edm::EventSetup&);
 

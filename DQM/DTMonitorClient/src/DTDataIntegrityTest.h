@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2009/05/19 14:18:23 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/05/20 14:17:01 $
+ *  $Revision: 1.12 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -34,7 +34,7 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
   void beginRun(const edm::Run& run, const edm::EventSetup& c);

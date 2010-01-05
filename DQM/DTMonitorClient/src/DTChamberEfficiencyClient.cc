@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/07 10:11:28 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/04/28 14:27:09 $
+ *  $Revision: 1.6 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -43,15 +43,12 @@ DTChamberEfficiencyClient::~DTChamberEfficiencyClient()
      << "DTChamberEfficiencyClient: Destructor called";
 }
 
-void DTChamberEfficiencyClient::beginJob(const EventSetup& context)
+void DTChamberEfficiencyClient::beginJob()
 {
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: BeginJob";
 
   nevents = 0;
-
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 
   bookHistos();
   return;

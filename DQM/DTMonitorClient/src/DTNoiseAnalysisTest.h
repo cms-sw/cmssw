@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/22 12:45:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/03 14:21:43 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -44,7 +44,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) ;
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);

@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2009/08/03 16:08:38 $
- * $Revision: 1.35 $
+ * $Date: 2009/09/24 06:52:24 $
+ * $Revision: 1.36 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -69,14 +69,20 @@ DTLocalTriggerTask::~DTLocalTriggerTask() {
 }
 
 
-void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
-
+void DTLocalTriggerTask::beginJob(){
  
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: BeginJob" << endl;
 
+  nevents = 0;
+
+}
+
+void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: BeginRun" << endl;   
+
   context.get<MuonGeometryRecord>().get(muonGeom);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
-  nevents = 0;
 
   if(parameters.getUntrackedParameter<bool>("staticBooking", true)) {  // Static histo booking
    
@@ -203,8 +209,9 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
     }
     
   }
-  
+
 }
+
 
 void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   
@@ -601,7 +608,7 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs
 	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
 	    if (innerME.find("DCC_BestQual"+trigsrc) == innerME.end())
 	      bookHistos(id,"LocalTriggerPhi","DCC_BestQual"+trigsrc);
-	    innerME.find("DCC_BestQual"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // CB Best Qual Trigger Phi view
+	    innerME.find("DCC_BestQual"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // Best Qual Trigger Phi view
 	  }
 // 	  if (thcode_best[wh+3][st][sc]>0){
 // 	    DTChamberId id(wh,st,sc);
@@ -609,7 +616,7 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs
 // 	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
 // 	    if (innerME.find("DCC_ThetaBestQual"+trigsrc) == innerME.end())
 // 	      bookHistos(id,"LocalTriggerTheta","DCC_ThetaBestQual"+trigsrc);
-// 	    innerME.find("DCC_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+3][st][sc]); // CB Best Qual Trigger Theta view
+// 	    innerME.find("DCC_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+3][st][sc]); // Best Qual Trigger Theta view
 // 	  }
 	}
       }
@@ -692,12 +699,12 @@ void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsD
 	  dduphcode_best[wh+3][st][sec]<7){
 	if (innerME.find("DDU_BestQual"+trigsrc) == innerME.end())
 	  bookHistos(id,"LocalTriggerPhi","DDU_BestQual"+trigsrc);
-	innerME.find("DDU_BestQual"+trigsrc)->second->Fill(dduphcode_best[wh+3][st][sec]);  // CB Best Qual Trigger Phi view
+	innerME.find("DDU_BestQual"+trigsrc)->second->Fill(dduphcode_best[wh+3][st][sec]);  // Best Qual Trigger Phi view
       }
       if (dduthcode_best[wh+3][st][sec]>0){
 	if (innerME.find("DDU_ThetaBestQual"+trigsrc) == innerME.end())
 	  bookHistos(id,"LocalTriggerTheta","DDU_ThetaBestQual"+trigsrc);
-	innerME.find("DDU_ThetaBestQual"+trigsrc)->second->Fill(dduthcode_best[wh+3][st][sec]); // CB Best Qual Trigger Theta view
+	innerME.find("DDU_ThetaBestQual"+trigsrc)->second->Fill(dduthcode_best[wh+3][st][sec]); // Best Qual Trigger Theta view
       }  
     }
   }

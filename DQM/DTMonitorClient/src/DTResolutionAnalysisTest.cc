@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 14:09:07 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/10/19 16:19:19 $
+ *  $Revision: 1.19 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -58,14 +58,11 @@ DTResolutionAnalysisTest::~DTResolutionAnalysisTest(){
 }
 
 
-void DTResolutionAnalysisTest::beginJob(const EventSetup& context){
+void DTResolutionAnalysisTest::beginJob(){
 
   LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginJob"; 
 
   nevents = 0;
-
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 
   // global residual summary
   dbe->setCurrentFolder(topHistoFolder);
@@ -120,6 +117,15 @@ void DTResolutionAnalysisTest::beginJob(const EventSetup& context){
        bookHistos(wheel, sector);
     }
   }
+
+}
+
+void DTResolutionAnalysisTest::beginRun(const Run& run, const EventSetup& context){
+
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginRun"; 
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
 

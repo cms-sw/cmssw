@@ -1,8 +1,8 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2009/08/07 14:36:37 $
- * $Revision: 1.3 $
+ * $Date: 2009/10/19 15:58:47 $
+ * $Revision: 1.4 $
  * \author C.Battilana - CIEMAT
  *
 */
@@ -60,20 +60,17 @@ DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
 }
 
 
-void DTTriggerEfficiencyTask::beginJob(const edm::EventSetup& context){
+void DTTriggerEfficiencyTask::beginJob(){
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginJob" << endl;
 
   detailedPlots = parameters.getUntrackedParameter<bool>("detailedAnalysis",false);
-  processDCC = parameters.getUntrackedParameter<bool>("processDCC",true);    // CB Li metto untracked? Guarda resto del DQM...
+  processDCC = parameters.getUntrackedParameter<bool>("processDCC",true);
   processDDU = parameters.getUntrackedParameter<bool>("processDDU",true);
   minBXDDU = parameters.getUntrackedParameter<int>("minBXDDU",0);
   maxBXDDU = parameters.getUntrackedParameter<int>("maxBXDDU",20);
   
-  context.get<MuonGeometryRecord>().get(muonGeom);
-  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
   nevents = 0;
-
 
   for (int wh=-2;wh<=2;++wh){
     if (processDCC) {
@@ -107,6 +104,15 @@ void DTTriggerEfficiencyTask::beginJob(const edm::EventSetup& context){
       }
     }
   } // end of wheel loop
+
+}
+
+void DTTriggerEfficiencyTask::beginRun(const edm::Run& run, const edm::EventSetup& context){
+
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginRun" << endl;
+
+  context.get<MuonGeometryRecord>().get(muonGeom);
+  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 
 }
 

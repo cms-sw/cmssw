@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/11/05 11:49:48 $
+ *  $Revision: 1.1 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -29,8 +29,11 @@ public:
 
 protected:
 
-  /// Begin Job
-  void beginJob(const edm::EventSetup& c);
+  /// BeginJob
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Run client analysis
   void runClientDiagnostic();

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/19 13:40:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 18:45:23 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -68,11 +68,16 @@ DTCreateSummaryHistos::~DTCreateSummaryHistos(){
 }
 
 
-void DTCreateSummaryHistos::beginJob(const edm::EventSetup& context){
+void DTCreateSummaryHistos::beginJob(){
 
   edm::LogVerbatim ("histos") << "[DTCreateSummaryHistos]: BeginJob";
 
   nevents = 0;
+
+}
+
+void DTCreateSummaryHistos::beginRun(const edm::Run& run, const edm::EventSetup& context){
+
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 

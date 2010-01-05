@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/09 13:20:05 $
+ *  $Revision: 1.3 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -47,9 +47,9 @@ DTLocalTriggerTPTest::~DTLocalTriggerTPTest(){
 
 }
 
-void DTLocalTriggerTPTest::beginJob(const edm::EventSetup& c){
+void DTLocalTriggerTPTest::beginJob(){
   
-  DTLocalTriggerBaseTest::beginJob(c);
+  DTLocalTriggerBaseTest::beginJob();
 
 
   vector<string>::const_iterator iTr   = trigSources.begin();
@@ -74,6 +74,14 @@ void DTLocalTriggerTPTest::beginJob(const edm::EventSetup& c){
   }
 
 }
+
+
+void DTLocalTriggerTPTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
+  
+  DTLocalTriggerBaseTest::beginRun(r,c);
+
+}
+
 
 void DTLocalTriggerTPTest::runClientDiagnostic() {
 

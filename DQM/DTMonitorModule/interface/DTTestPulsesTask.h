@@ -4,8 +4,8 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2007/11/06 17:36:45 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/01 00:39:53 $
+ * $Revision: 1.7 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -47,7 +47,10 @@ public:
 protected:
   
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Book the ME
   void bookHistos(const DTLayerId& dtLayer, std::string folder, std::string histoTag);

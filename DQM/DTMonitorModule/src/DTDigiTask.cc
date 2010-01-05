@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2009/04/20 17:20:38 $
- * $Revision: 1.60 $
+ * $Date: 2009/07/08 15:34:47 $
+ * $Revision: 1.61 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -115,18 +115,18 @@ void DTDigiTask::endJob(){
 
 
 
-void DTDigiTask::beginJob(const edm::EventSetup& context){
+void DTDigiTask::beginJob(){
   LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: BeginJob"<<endl;
 
   nevents = 0;
-
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 }
 
 
 void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
   LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: begin run"<<endl;
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
 
   // tTrig 
   if (readTTrigDB) 

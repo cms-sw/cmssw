@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/07 10:16:49 $
- *  $Revision: 1.29 $
+ *  $Date: 2009/08/13 14:30:34 $
+ *  $Revision: 1.30 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -65,16 +65,23 @@ DTSegmentAnalysisTest::~DTSegmentAnalysisTest(){
 }
 
 
-void DTSegmentAnalysisTest::beginJob(const EventSetup& context){
+void DTSegmentAnalysisTest::beginJob(){
 
   LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: BeginJob"; 
 
   nevents = 0;
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 
   // book the histos
   bookHistos();  
+
+}
+
+
+void DTSegmentAnalysisTest::beginRun(const Run& run, const EventSetup& context){
+
+  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: BeginRun"; 
+
+  context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
 

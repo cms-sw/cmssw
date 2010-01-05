@@ -103,7 +103,7 @@ DTChamberEfficiency::~DTChamberEfficiency()
   delete theEstimator;
 }
 
-void DTChamberEfficiency::beginJob(const EventSetup& eventSetup) {
+void DTChamberEfficiency::beginJob() {
 
   LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: beginOfJob";

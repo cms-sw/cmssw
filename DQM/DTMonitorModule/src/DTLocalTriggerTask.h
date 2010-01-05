@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2009/04/09 15:44:50 $
- * $Revision: 1.1 $
+ * $Date: 2009/07/29 10:30:30 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -56,8 +56,11 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
  protected:
   
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
-  
+  void beginJob();
+
+  ///Beginrun
+  void beginRun(const edm::Run& , const edm::EventSetup&);
+
   /// Book the histograms
   void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
 

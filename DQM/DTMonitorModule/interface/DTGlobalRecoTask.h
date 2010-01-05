@@ -4,8 +4,8 @@
 /*
  * \file DTGlobalRecoTask.h
  *
- * $Date: 2006/10/18 18:04:26 $
- * $Revision: 1.2 $
+ * $Date: 2008/03/01 00:39:53 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -44,7 +44,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob();
 
 // EndJob
 void endJob(void);

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/08 15:53:12 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/08/25 21:32:48 $
+ *  $Revision: 1.17 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -76,7 +76,7 @@ DTNoiseTask::~DTNoiseTask(){}
 
 
 /// BeginJob
-void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
+void DTNoiseTask::beginJob() {
 
    LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: BeginJob"<<endl;
 

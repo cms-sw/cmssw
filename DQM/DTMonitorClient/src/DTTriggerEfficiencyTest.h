@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/29 11:10:52 $
+ *  $Revision: 1.1 $
  *  \author  C. Battilana - CIEMAT
  *   
  */
@@ -35,8 +35,11 @@ protected:
   /// Compute 2D efficiency plots
   void makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result);
 
-  /// Begin Job
-  void beginJob(const edm::EventSetup& c);
+  /// BeginJob
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// DQM Client Diagnostic
   void runClientDiagnostic();

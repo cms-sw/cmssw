@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/23 15:02:09 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/05/06 14:02:08 $
+ *  $Revision: 1.18 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -54,17 +54,20 @@ DTEfficiencyTest::~DTEfficiencyTest(){
 }
 
 
-void DTEfficiencyTest::beginJob(const edm::EventSetup& context){
+void DTEfficiencyTest::beginJob(){
 
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: BeginJob";
 
   nevents = 0;
 
+}
+
+void DTEfficiencyTest::beginRun(Run const& run, EventSetup const& context) {
+
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
-
 
 void DTEfficiencyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 

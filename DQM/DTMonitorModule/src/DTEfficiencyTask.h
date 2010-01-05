@@ -8,8 +8,8 @@
  *  All histos are produced per Layer
  *
  *
- *  $Date: 2007/11/06 17:34:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/01 00:39:54 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -37,7 +37,7 @@ public:
   virtual ~DTEfficiencyTask();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;

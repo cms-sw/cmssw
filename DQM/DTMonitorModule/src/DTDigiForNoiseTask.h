@@ -4,8 +4,8 @@
 /*
  * \file DTDigiForNoiseTask.h
  *
- * $Date: 2007/11/06 17:31:33 $
- * $Revision: 1.4 $
+ * $Date: 2008/03/01 00:39:54 $
+ * $Revision: 1.5 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -49,7 +49,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
+
+  /// BeginRun
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Book the ME
   void bookHistos(const DTLayerId& dtSL);

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/17 16:22:37 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/02 17:03:50 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -33,7 +33,7 @@ DTDCSSummary::~DTDCSSummary() {}
 
 
 
-void DTDCSSummary::beginJob(const EventSetup& setup){
+void DTDCSSummary::beginJob(){
   // get the DQMStore
   theDbe = Service<DQMStore>().operator->();
   
@@ -49,8 +49,6 @@ void DTDCSSummary::beginJob(const EventSetup& setup){
     dcsFractions[wheel] = theDbe->bookFloat(streams.str());
     dcsFractions[wheel]->Fill(-1);
   }
-
-  //
 
 }
 

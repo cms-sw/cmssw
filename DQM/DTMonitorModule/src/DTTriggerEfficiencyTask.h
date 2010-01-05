@@ -4,8 +4,8 @@
 /*
  * \file DTTriggerEfficiencyTask.h
  *
- * $Date: 2009/06/15 14:59:22 $
- * $Revision: 1.0 $
+ * $Date: 2009/07/29 10:30:30 $
+ * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -55,8 +55,11 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
  protected:
   
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
   
+  /// BeginRun
+  void beginRun(const edm::Run& run, const edm::EventSetup& context);
+
   /// Book chamber granularity histograms
   void bookChamberHistos(const DTChamberId& dtCh, std::string histoTag, std::string folder="");
 

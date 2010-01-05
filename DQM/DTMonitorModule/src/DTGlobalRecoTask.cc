@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/01/22 18:46:59 $
- * $Revision: 1.3 $
+ * $Date: 2008/03/01 00:39:54 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -33,7 +33,7 @@ DTGlobalRecoTask::~DTGlobalRecoTask(){
 
 }
 
-void DTGlobalRecoTask::beginJob(const edm::EventSetup& c){
+void DTGlobalRecoTask::beginJob(){
 
   nevents = 0;
 

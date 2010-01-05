@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2008/10/03 09:32:02 $
- * $Revision: 1.18 $
+ * $Date: 2008/12/13 10:02:28 $
+ * $Revision: 1.19 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
@@ -62,17 +62,23 @@ DTtTrigCalibrationTest::~DTtTrigCalibrationTest(){
 }
 
 
-void DTtTrigCalibrationTest::beginJob(const edm::EventSetup& context){
+void DTtTrigCalibrationTest::beginJob(){
 
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: BeginJob";
 
   nevents = 0;
 
+}
+
+
+void DTtTrigCalibrationTest::beginRun(Run const& run, EventSetup const& context) {
+
+  edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: BeginRun";
+
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
-
 
 void DTtTrigCalibrationTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
@@ -90,7 +96,6 @@ void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup&
   edm::LogVerbatim ("tTrigCalibration") << "[DTtTrigCalibrationTest]: "<<nevents<<" events";
 
 }
-
 
 
 void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {

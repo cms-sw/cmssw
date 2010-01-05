@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/29 11:10:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/08/03 16:10:24 $
+ *  $Revision: 1.11 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -53,16 +53,14 @@ DTLocalTriggerLutTest::~DTLocalTriggerLutTest(){
 }
 
 
-void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
+void DTLocalTriggerLutTest::beginJob(){
   
-  DTLocalTriggerBaseTest::beginJob(c);
-
+  DTLocalTriggerBaseTest::beginJob();
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
   vector<string>::const_iterator iHw   = hwSources.begin();
   vector<string>::const_iterator hwEnd = hwSources.end();
-
 
   //Booking
   if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
@@ -103,6 +101,13 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
       bookCmsHistos("PhibLutSummary");
     }	
   }
+
+}
+
+
+void DTLocalTriggerLutTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
+  
+  DTLocalTriggerBaseTest::beginRun(r,c);
 
 }
 

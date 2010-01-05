@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/13 17:15:22 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/01 00:39:52 $
+ *  $Revision: 1.7 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -51,10 +51,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -70,7 +70,6 @@ protected:
 
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
-
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 

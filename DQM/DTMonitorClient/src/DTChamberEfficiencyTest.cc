@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/08 09:10:59 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/10/22 09:40:34 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -54,14 +54,11 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 }
 
 
-void DTChamberEfficiencyTest::beginJob(const edm::EventSetup& context){
+void DTChamberEfficiencyTest::beginJob(){
 
   edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: BeginJob"; 
 
   nevents = 0;
-
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
 

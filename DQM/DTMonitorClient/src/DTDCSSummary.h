@@ -4,7 +4,7 @@
 /** \class DTDCSSummary
  *  No description available.
  *
- *  $Date: 2008/12/12 18:04:17 $
+ *  $Date: 2009/03/02 17:03:50 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -30,7 +30,7 @@ public:
 protected:
   
 private:
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);

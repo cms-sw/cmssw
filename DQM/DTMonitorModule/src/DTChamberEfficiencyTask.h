@@ -10,8 +10,8 @@
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2008/09/29 10:25:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/29 13:06:34 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -45,7 +45,7 @@ public:
   virtual ~DTChamberEfficiencyTask();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
   void beginRun(const edm::Run& run, const edm::EventSetup& setup);

@@ -37,7 +37,7 @@ public:
 void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
 // BeginJob
-void beginJob(const edm::EventSetup& setup);
+void beginJob();
 
 // EndJob
 void endJob();
