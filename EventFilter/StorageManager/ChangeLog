@@ -1,3 +1,23 @@
+2009-12-31 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V05-04-05
+	* Use new accessor to ModuleDescription instead of now private data memeber
+
+2009-12-27 Peter Elmer <Peter.Elmer@cern.ch>
+
+	* tag V05-04-04
+	* Add missing <cstdio> include, required for gcc4.4
+
+2009-12-18 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V05-04-03
+	* beginJob migration from beginJob(const EventSetup_) to beginJob()
+
+2009-12-11 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V05-04-02
+	* Remove unused EventID from DQMHttpSource
+
 2009-11-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-04-01
