@@ -5,7 +5,8 @@ process = cms.Process("TKAN")
 
 # The number of events to be processed.
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+###    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(-1)
 )
 
 ###process.Tracer = cms.Service("Tracer")
@@ -34,25 +35,25 @@ process.source = cms.Source(
 ##        #'file:SinglePion_FastFull_6.root',
 ##        #'file:SinglePion_FastFull_7.root'
 ##        'file:SinglePion_FastFull_All.root'
-##        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E0_1.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E1_1.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E2_1.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E3_1.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E3_2.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E4_1.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E4_2.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_1.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_2.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_3.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E5_4.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_1.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_2.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_3.root',
-##         'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E6_4.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E7_1.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E7_2.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E7_3.root',
-        'rfio:/castor/cern.ch/user/a/azzi/CMSSW330pre6/fevt_SinglePion_E7_4.root'
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E0_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E1_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E2_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E3_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E3_2.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E4_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E4_2.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E5_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E5_2.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E5_3.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E5_4.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E6_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E6_2.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E6_3.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E6_4.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E7_1.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E7_2.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E7_3.root',
+    'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E7_4.root'
     ),
     noEventSort=cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
@@ -72,29 +73,24 @@ process.testTK = cms.EDFilter(
         # Protons with energy in excess of this value (GeV) will kept no matter what
         EProton = cms.double(99999.0)
     ),
-##    firstFull = cms.InputTag("firstStepTracksWithQuality","","PROD"),
     zeroFull = cms.InputTag("zeroStepHighPurity","","PROD"),
     zeroFast = cms.InputTag("zeroStepFilter","","TKAN"),
     firstFull = cms.InputTag("firstStepHighPurity","","PROD"),
     firstFast = cms.InputTag("firstfilter","","TKAN"),
-##    secondFull = cms.InputTag("secStep","","PROD"),
     secondFull = cms.InputTag("secfilter","","PROD"),
     secondFast = cms.InputTag("secStep","","TKAN"),
-##    thirdFull = cms.InputTag("thStep","","PROD"),
     thirdFull = cms.InputTag("thfilter","","PROD"),
     thirdFast = cms.InputTag("thStep","","TKAN"),
-##    fourthFull = cms.InputTag("pixellessStep","","PROD"),
-    fourthFull = cms.InputTag("fourthfilter","","PROD"),
+##    fourthFull = cms.InputTag("fourthfilter","","PROD"),
+    fourthFull = cms.InputTag("fourthStepHighPurity","","PROD"),
     fourthFast = cms.InputTag("fouStep","","TKAN"),
-##    fifthFull = cms.InputTag("tobtecStep","","PROD"),
     fifthFull = cms.InputTag("fifthStepHighPurity","","PROD"),
     fifthFast = cms.InputTag("fifthStep","","TKAN"),
 )
 
 # Famos SimHits 
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.GlobalTag.globaltag = "MC_3XY_V14::All"
-##process.GlobalTag.globaltag = "STARTUP_31X::All"
+process.GlobalTag.globaltag = "MC_3XY_V15::All"
 
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
@@ -128,7 +124,7 @@ process.o1 = cms.OutputModule(
        "drop *_mix_*_*"
     )
 )
-##process.outpath = cms.EndPath(process.o1)
+process.outpath = cms.EndPath(process.o1)
 
 ##process.load('logger_cfi')
 ###process.MessageLogger._moduleCanTalk('iterativeFirstSeeds')

@@ -43,7 +43,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V9::All"
+process.GlobalTag.globaltag = "MC_3XY_V15::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -110,9 +110,17 @@ process.firstStepHighPurity = cms.EDFilter("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
+process.fourthStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("pixellessStep")
+                                           )
 process.fifthStepHighPurity = cms.EDFilter("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("tobtecStep")
+                                           )
+process.generalTracksHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("generalTracks")
                                            )
 
 
@@ -128,7 +136,7 @@ process.fevt = cms.OutputModule(
       'keep *_secfilter*_*_*',
       'keep *_thfilter*_*_*',
       'keep *_fourthfilter*_*_*',
-      'keep *_thfilter*_*_*',
+      'keep *_fourthStepHighPurity*_*_*',
       'keep *_fifthStepHighPurity*_*_*',
       # zero step 
       'keep *_zeroStep*_*_*',
@@ -152,6 +160,7 @@ process.fevt = cms.OutputModule(
       'keep *_merge4th5thTracks*_*_*',
       #merge of firstStepTracksWithQuality+iterTracks
       "keep *_generalTracks_*_*",      
+      "keep *_generalTracksHighPurity_*_*",      
       'keep *_*Seed*_*_*',
       'keep *_sec*_*_*',
       'keep *_th*_*_*',
@@ -174,7 +183,9 @@ process.p6= cms.Path(process.reconstruction+
   #select only High purity step 0/1 fullsim tracks
                      process.zeroStepHighPurity+
                      process.firstStepHighPurity+
-                     process.fifthStepHighPurity
+                     process.fourthStepHighPurity+
+                     process.fifthStepHighPurity+
+                     process.generalTracksHighPurity
                      )
 process.outpath = cms.EndPath(process.fevt)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)

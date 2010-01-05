@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/a/azzi/CMSSW330pre6/
-cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_3_0_pre6/src/
+castorDir=/castor/cern.ch/user/a/azzi/CMSSW350pre2/
+cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_5_0_pre2/src/
 
 njobs=0
 nevt=0
