@@ -45,8 +45,8 @@ void DDPixBarStackLinearGap::initialize(const DDNumericArguments & nArgs,
   LogDebug("TrackerGeom") << "DDPixBarStackLinearGap debug: Parent " << parentName 
 			  << "\tChild " << childName << " NameSpace " 
                           << idNameSpace << "\tNumber " << number <<"\tEndRings "<<ringmodules
-			  << "\tAxis (theta/phi) " << theta/deg << ", "
-			  << phi/deg << "\t(Offset/Delta) " << offset << ", " 
+			  << "\tAxis (theta/phi) " << theta/CLHEP::deg << ", "
+			  << phi/CLHEP::deg << "\t(Offset/Delta) " << offset << ", " 
 			  << delta << "\tCentre " << centre[0] << ", " 
 			  << centre[1] << ", " << centre[2] << "\tRotation "
 			  << rotMat;

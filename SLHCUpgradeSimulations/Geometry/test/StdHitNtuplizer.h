@@ -54,16 +54,16 @@ class StdHitNtuplizer : public edm::EDAnalyzer
  protected:
 
   void fillEvt(const edm::Event& );
-  void fillSRecHit(const int subid, SiStripRecHit2DCollection::const_iterator pixeliter,
+  void fillSRecHit(const int subid, SiStripRecHit2DCollectionOld::const_iterator pixeliter,
                    const GeomDet* theGeom);
-  void fillSRecHit(const int subid, SiStripMatchedRecHit2DCollection::const_iterator pixeliter,
+  void fillSRecHit(const int subid, SiStripMatchedRecHit2DCollectionOld::const_iterator pixeliter,
                    const GeomDet* theGeom);
   void fillSRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
                    const GeomDet* theGeom);
   //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
   //                 const GeomDet* PixGeom);
   void fillPRecHit(const int subid, const int layer_num,
-                   SiPixelRecHitCollection::const_iterator pixeliter,
+                   SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
                    const int num_simhit,
                    std::vector<PSimHit>::const_iterator closest_simhit,
                    const GeomDet* PixGeom);

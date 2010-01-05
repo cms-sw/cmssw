@@ -10,17 +10,25 @@ process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.SiPixelFakeGainOfflineESSource.file = 'SLHCUpgradeSimulations/Geometry/data/longbarrel/PixelSkimmedGeometry_empty.txt'
-#process.SiPixelFakeGainOfflineESSource.file = 'SLHCUpgradeSimulations/Geometry/data/longbarrel/PixelSkimmedGeometry.txt'
-process.SiPixelFakeLorentzAngleESSource.file = 'SLHCUpgradeSimulations/Geometry/data/longbarrel/PixelSkimmedGeometry.txt'
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
+
+process.siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
+    file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/longbarrel/PixelSkimmedGeometry.txt')
+)
+process.es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFakeGainOfflineESSource")
+
+process.siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleESSource",
+    file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/longbarrel/PixelSkimmedGeometry.txt')
+)
+process.es_prefer_fake_lorentz = cms.ESPrefer("SiPixelFakeLorentzAngleESSource","siPixelFakeLorentzAngleESSource")
 
 process.load("FWCore/MessageService/MessageLogger_cfi")
-#process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullLBmu50")
+process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullLBmu50")
 #process.MessageLogger.detailedInfo_strawb_mu50 = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'))
 #process.MessageLogger.debugModules= cms.untracked.vstring("PixelGeom")
 
-# this config frament brings you the generator information
+# this config fragment brings you the generator information
 process.load("Configuration.StandardSequences.Generator_cff")
 
 # this config frament brings you 3 steps of the detector simulation:
@@ -33,6 +41,7 @@ process.load("Configuration.StandardSequences.Generator_cff")
 #           cal=ecal+ecal-0-suppression+hcal), muon=csc+dt+rpc)
 #
 process.load("Configuration.StandardSequences.Simulation_cff")
+process.TrackerDigiGeometryESModule.applyAlignment = False
 
 # please note the IMPORTANT: 
 # in order to operate Digis, one needs to include Mixing module 
@@ -84,10 +93,18 @@ process.simSiPixelDigis.AddPixelInefficiency = -1
 
 process.siPixelClusters.src = 'simSiPixelDigis'
 process.siPixelClusters.MissCalibrate = False
-process.siStripZeroSuppression.RawDigiProducersList[0].RawDigiProducer = 'simSiStripDigis'
-process.siStripZeroSuppression.RawDigiProducersList[1].RawDigiProducer = 'simSiStripDigis'
-process.siStripZeroSuppression.RawDigiProducersList[2].RawDigiProducer = 'simSiStripDigis'
-process.siStripClusters.DigiProducersList[0].DigiProducer= 'simSiStripDigis'
+
+process.simSiStripDigis.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof")
+#Setting this to "" gives error in pdigi
+#process.siStripZeroSuppression.RawDigiProducersList[0].RawDigiProducer = 'simSiStripDigis'
+#process.siStripZeroSuppression.RawDigiProducersList[1].RawDigiProducer = 'simSiStripDigis'
+#process.siStripZeroSuppression.RawDigiProducersList[2].RawDigiProducer = 'simSiStripDigis'
+#process.siStripClusters.DigiProducersList[0].DigiProducer= 'simSiStripDigis'
+process.siStripZeroSuppression.RawDigiProducersList[0].RawDigiProducer = ''
+process.siStripZeroSuppression.RawDigiProducersList[1].RawDigiProducer = ''
+process.siStripZeroSuppression.RawDigiProducersList[2].RawDigiProducer = ''
+process.siStripClusters.DigiProducersList[0].DigiProducer= ''
+
 #
 # change from default of 8bit ADC (255) for stack layers (1=1 bit, 7=3 bits)
 # need to change both digitizer and clusterizer
@@ -105,12 +122,12 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
-# replace FlatRandomPtGunSource.PGunParameters.PartID={13}
-process.FlatRandomPtGunSource.PGunParameters.MinPt = 0.9
-process.FlatRandomPtGunSource.PGunParameters.MaxPt = 50.0
-process.FlatRandomPtGunSource.PGunParameters.MinEta = -2.4
-process.FlatRandomPtGunSource.PGunParameters.MaxEta = 2.4
-process.FlatRandomPtGunSource.AddAntiParticle = cms.untracked.bool(True)
+process.generator.PGunParameters.MinPt = 0.9
+process.generator.PGunParameters.MaxPt = 50.0
+process.generator.PGunParameters.MinEta = -2.4
+process.generator.PGunParameters.MaxEta = 2.4
+process.generator.Verbosity = 1
+process.generator.AddAntiParticle = True
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
@@ -136,25 +153,32 @@ process.multiTrackValidator.outputFile = "validfullLB_muon_50GeV.root"
 process.multiTrackValidator.nint = cms.int32(20)
 process.multiTrackValidator.nintpT = cms.int32(25)
 process.multiTrackValidator.maxpT = cms.double(50.0)
+process.multiTrackValidator.skipHistoFit = False
 
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")
-process.pixellayertriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
-        'BPix1+BPix3+BPix4',
-        'BPix2+BPix3+BPix4',
-        'BPix1+BPix2+BPix4',
-        'BPix1+BPix2+FPix1_pos',
-        'BPix1+BPix2+FPix1_neg',
-        'BPix1+FPix1_pos+FPix2_pos',
-        'BPix1+FPix1_neg+FPix2_neg',
-        'BPix1+FPix2_pos+FPix3_pos',
-        'BPix1+FPix2_neg+FPix3_neg',
-        'FPix1_pos+FPix2_pos+FPix3_pos',
-        'FPix1_neg+FPix2_neg+FPix3_neg')
+#process.pixellayertriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
+#        'BPix1+BPix3+BPix4',
+#        'BPix2+BPix3+BPix4',
+#        'BPix1+BPix2+BPix4',
+#        'BPix1+BPix2+FPix1_pos',
+#        'BPix1+BPix2+FPix1_neg',
+#        'BPix1+FPix1_pos+FPix2_pos',
+#        'BPix1+FPix1_neg+FPix2_neg',
+#        'BPix1+FPix2_pos+FPix3_pos',
+#        'BPix1+FPix2_neg+FPix3_neg',
+#        'FPix1_pos+FPix2_pos+FPix3_pos',
+#        'FPix1_neg+FPix2_neg+FPix3_neg')
 # restrict vertex fining in trackingtruthprod to smaller volume (note: these numbers in mm)
 process.mergedtruth.volumeRadius = cms.double(100.0)
 process.mergedtruth.volumeZ = cms.double(900.0)
 process.mergedtruth.discardOutVolume = cms.bool(True)
+process.mergedtruth.simHitCollections.pixel = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof',
+                         'g4SimHitsTrackerHitsPixelBarrelHighTof',
+                         'g4SimHitsTrackerHitsPixelEndcapLowTof', 
+                         'g4SimHitsTrackerHitsPixelEndcapHighTof')
+process.mergedtruth.simHitCollections.tracker = []
+process.mergedtruth.simHitCollections.muon = []
 
 #process.cutsTPEffic.ptMin = cms.double(2.5)
 #process.cutsTPFake.ptMin = cms.double(2.0)
@@ -180,6 +204,13 @@ process.mixedlayerpairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.pixellayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.pixellayertriplets.FPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.ctfWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
+
+process.MeasurementTracker.stripClusterProducer=cms.string('')
+process.MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+#Prevent strips...
+
 #next may not be needed
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.TTRHBuilder = cms.string('WithTrackAngle')
@@ -189,7 +220,8 @@ process.load("RecoTracker.SiTrackerMRHTools.SiTrackerMultiRecHitUpdator_cff")
 process.siTrackerMultiRecHitUpdator.TTRHBuilder = cms.string('WithTrackAngle')
 
 #replace with correct component in cloned version (replace with original TTRH producer)
-process.preFilterFirstStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+#Where has this gone?  idr 29/9/9  : From RecoTracker/Configuration/python/RecoTracker_cff.py
+#process.preFilterFirstStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
 process.secPixelRecHits.CPE = cms.string('PixelCPEfromTrackAngle')
 process.seclayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.seclayertriplets.FPix.TTRHBuilder = cms.string('WithTrackAngle')
@@ -231,13 +263,14 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
 
 process.Timing =  cms.Service("Timing")
 
-process.p0 = cms.Path(process.pgen)
+process.p0 = cms.Path(process.generator+process.pgen)
 process.p1 = cms.Path(process.psim)
 process.p2 = cms.Path(process.pdigi)
 process.p3 = cms.Path(process.L1Emulator)
 #process.p4 = cms.Path(process.DigiToRaw)
 #process.p5 = cms.Path(process.RawToDigi)
-process.p5 = cms.Path(process.trackerlocalreco)
+#process.p5 = cms.Path(process.trackerlocalreco)
+process.p5 = cms.Path(process.pixeltrackerlocalreco)
 process.p6 = cms.Path(process.offlineBeamSpot+process.oldTracking_wtriplets)
 #process.p6 = cms.Path(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks)
 #process.p6 = cms.Path(process.reconstruction)
@@ -249,4 +282,4 @@ process.p8 = cms.Path(process.ReadLocalMeasurement)
 process.outpath = cms.EndPath(process.FEVT)
 #process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.p7,process.outpath)
 #process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p5,process.outpath)
-process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p5,process.p6,process.p7)
+process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p5,process.p6,process.p7,process.p8)
