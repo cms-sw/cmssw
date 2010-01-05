@@ -1,6 +1,5 @@
 #include "CondCore/MetaDataService/interface/MetaDataSchemaUtility.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
-#include "CondCore/MetaDataService/interface/MetaDataExceptions.h"
 #include "RelationalAccess/SchemaException.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
