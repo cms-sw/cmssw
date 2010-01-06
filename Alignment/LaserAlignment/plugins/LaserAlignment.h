@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/07/15 15:07:48 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/10/14 07:34:14 $
+ *  $Revision: 1.27 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -87,7 +87,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
   explicit LaserAlignment( edm::ParameterSet const& theConf );
   ~LaserAlignment();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob( void );
   virtual void produce( edm::Event&, edm::EventSetup const& );
   virtual void endJob( void );
   virtual void endRun( edm::Run&, const edm::EventSetup& );
@@ -244,7 +244,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
   std::string theAlignRecordName, theErrorRecordName;
 
-
+  bool firstEvent_;
 
 };
 #endif

@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2009/06/11 13:33:13 $
- *  $Revision: 1.38 $
+ *  $Date: 2009/08/26 17:50:06 $
+ *  $Revision: 1.39 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -122,7 +122,7 @@ LaserAlignment::~LaserAlignment() {
 ///
 ///
 ///
-void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
+void LaserAlignment::beginJob() {
 
 
   // write sumed histograms to file (if selected in cfg)
@@ -140,21 +140,6 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
 
   // detector id maps (hard coded)
   fillDetectorId();
-
-  // access the tracker
-  theSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );
-  theSetup.get<IdealGeometryRecord>().get( gD );
-
-  // access pedestals (from db..) if desired
-  edm::ESHandle<SiStripPedestals> pedestalsHandle;
-  if( theDoPedestalSubtraction ) {
-    theSetup.get<SiStripPedestalsRcd>().get( pedestalsHandle );
-    fillPedestalProfiles( pedestalsHandle );
-  }
-
-  // global positions
-  //  edm::ESHandle<Alignments> theGlobalPositionRcd;
-  theSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get( theGlobalPositionRcd );
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   //   PROFILE, HISTOGRAM & FITFUNCTION INITIALIZATION
@@ -260,23 +245,7 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
     
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
 
-
-
-  // select the reference geometry
-  if( !updateFromInputGeometry ) {
-    // the AlignableTracker object is initialized with the ideal geometry
-    edm::ESHandle<GeometricDet> theGeometricDet;
-    theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
-    TrackerGeomBuilderFromGeometricDet trackerBuilder;
-    TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet);
-    theAlignableTracker = new AlignableTracker(&(*theRefTracker));
-  }
-  else {
-    // the AlignableTracker object is initialized with the input geometry from DB
-    theAlignableTracker = new AlignableTracker( &(*theTrackerGeometry) );
-  }
-
-
+  firstEvent_ = true;
 }
 
 
@@ -289,6 +258,39 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
 ///
 void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSetup)  {
 
+  if (firstEvent_) {
+
+    // access the tracker
+    theSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );
+    theSetup.get<IdealGeometryRecord>().get( gD );
+    
+    // access pedestals (from db..) if desired
+    edm::ESHandle<SiStripPedestals> pedestalsHandle;
+    if( theDoPedestalSubtraction ) {
+      theSetup.get<SiStripPedestalsRcd>().get( pedestalsHandle );
+      fillPedestalProfiles( pedestalsHandle );
+    }
+    
+    // global positions
+    //  edm::ESHandle<Alignments> theGlobalPositionRcd;
+    theSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get( theGlobalPositionRcd );
+
+    // select the reference geometry
+    if( !updateFromInputGeometry ) {
+      // the AlignableTracker object is initialized with the ideal geometry
+      edm::ESHandle<GeometricDet> theGeometricDet;
+      theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
+      TrackerGeomBuilderFromGeometricDet trackerBuilder;
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet);
+      theAlignableTracker = new AlignableTracker(&(*theRefTracker));
+    }
+    else {
+      // the AlignableTracker object is initialized with the input geometry from DB
+      theAlignableTracker = new AlignableTracker( &(*theTrackerGeometry) );
+    }
+    
+    firstEvent_ = false;
+  }
 
   LogDebug("LaserAlignment") << "==========================================================="
 			      << "\n   Private analysis of event #"<< theEvent.id().event() 

@@ -159,7 +159,7 @@ void LaserAlignmentT0Producer::produce( edm::Event& iEvent, const edm::EventSetu
 ///
 ///
 ///
-void LaserAlignmentT0Producer::beginJob( const edm::EventSetup& ) {
+void LaserAlignmentT0Producer::beginJob() {
   
   // fill the vector with LAS det ids
   FillDetIds();

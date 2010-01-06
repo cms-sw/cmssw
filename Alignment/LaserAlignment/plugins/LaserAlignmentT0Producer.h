@@ -8,7 +8,7 @@
 //
 // Original Author:  Jan Olzem
 //         Created:  Wed Feb 13 17:30:40 CET 2008
-// $Id: LaserAlignmentT0Producer.h,v 1.1 2008/02/20 09:50:54 olzem Exp $
+// $Id: LaserAlignmentT0Producer.h,v 1.2 2008/03/03 09:43:32 olzem Exp $
 //
 //
 
@@ -38,7 +38,7 @@ public:
   ~LaserAlignmentT0Producer();
   
 private:
-  virtual void beginJob( const edm::EventSetup& ) ;
+  virtual void beginJob() ;
   virtual void produce( edm::Event&, const edm::EventSetup& );
   virtual void endJob();
   void FillDetIds( void );
