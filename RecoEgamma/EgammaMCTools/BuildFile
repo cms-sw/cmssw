@@ -3,7 +3,7 @@
 <use name=SimDataFormats/Vertex>
 <use name=clhep>
 <use name=SimDataFormats/CrossingFrame>
-export>
+<export>
   <lib name=RecoEgammaEgammaMCTools>
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/Vertex>
