@@ -575,8 +575,8 @@ bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer newChain, Cha
       }
       // same for wires (and ALCT patterns)
       if(centralWire_new==centralWire_old ||
-         centralWire_new==centralWire_old+1 || centralStrip_new==centralWire_old-1 ||
-         centralWire_new==centralWire_old+2 || centralStrip_new==centralWire_old-2){
+         centralWire_new==centralWire_old+1 || centralWire_new==centralWire_old-1 ||
+         centralWire_new==centralWire_old+2 || centralWire_new==centralWire_old-2){
         wireRequirementOK = true;
       }
 
