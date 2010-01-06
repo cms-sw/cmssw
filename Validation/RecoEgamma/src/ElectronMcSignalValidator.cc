@@ -553,7 +553,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
        {
         h1_ele_mee_os->Fill(sqrt(mee2));
         if (gsfIter->isEB() && gsfIter2->isEB()) { h1_ele_mee_os_ebeb->Fill(sqrt(mee2)) ; }
-        if (gsfIter->isEB() && gsfIter2->isEE()) { h1_ele_mee_os_ebee->Fill(sqrt(mee2)) ; }
+	if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h1_ele_mee_os_ebee -> Fill(sqrt(mee2));	
         if (gsfIter->isEE() && gsfIter2->isEE()) { h1_ele_mee_os_eeee->Fill(sqrt(mee2)) ; }
         if
          ( (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||

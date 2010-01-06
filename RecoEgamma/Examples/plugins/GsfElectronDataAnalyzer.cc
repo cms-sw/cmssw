@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    RecoEgamma/Examples
@@ -13,7 +14,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.32 2009/10/10 09:09:18 chamont Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.33 2009/12/14 23:22:31 chamont Exp $
 //
 //
 
@@ -1342,7 +1343,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    if (gsfIter->charge()*gsfIter2->charge()<0.) {
 	      h_ele_mee_os -> Fill(sqrt(mee2));
 	      if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));
-	      if (gsfIter->isEB() && gsfIter2->isEE()) h_ele_mee_os_ebee -> Fill(sqrt(mee2));
+	      if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h_ele_mee_os_ebee -> Fill(sqrt(mee2));	
 	      if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));
 	      if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
 		 (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) ||
