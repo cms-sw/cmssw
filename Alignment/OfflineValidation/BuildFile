@@ -16,7 +16,7 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/CSCGeometryBuilder>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 #TrackingTools/Records to be added for interface/TrackerValidationVariables.h, 

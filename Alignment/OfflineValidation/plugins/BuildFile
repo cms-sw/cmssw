@@ -14,7 +14,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 <use name=SimDataFormats/Track>
