@@ -13,7 +13,7 @@
 //
 // Original Author:  Mike Anderson
 //         Created:  Tue Apr 22 10:19:02 CDT 2008
-// $Id: PhotonJetAnalyzer.cc,v 1.1 2008/05/27 21:52:15 ksmith Exp $
+// $Id: PhotonJetAnalyzer.h,v 1.1 2009/11/10 18:52:45 rwolf Exp $
 //
 //
 
@@ -48,7 +48,7 @@ class PhotonJetAnalyzer : public edm::EDAnalyzer {
 
 
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob() ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 

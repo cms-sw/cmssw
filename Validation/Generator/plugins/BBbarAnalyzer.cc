@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: BBbarAnalyzer.cc,v 1.3 2009/07/31 23:21:07 kharchil Exp $
+// $Id: BBbarAnalyzer.cc,v 1.1 2009/11/10 18:52:45 rwolf Exp $
 //
 //
 
@@ -89,7 +89,7 @@ BBbarAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
      
 void 
-BBbarAnalyzer::beginJob(const edm::EventSetup&)
+BBbarAnalyzer::beginJob()
 {
 }
 

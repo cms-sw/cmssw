@@ -145,7 +145,7 @@ PhotonJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 void 
-PhotonJetAnalyzer::beginJob(const edm::EventSetup&)
+PhotonJetAnalyzer::beginJob()
 {
 
   // Plotting variables

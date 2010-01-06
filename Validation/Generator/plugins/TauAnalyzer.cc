@@ -159,7 +159,7 @@ TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TauAnalyzer::beginJob(const edm::EventSetup&)
+TauAnalyzer::beginJob()
 {
 }
 

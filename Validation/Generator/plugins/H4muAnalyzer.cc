@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.3 2009/07/31 23:21:08 kharchil Exp $
+// $Id: H4muAnalyzer.cc,v 1.1 2009/11/10 18:52:45 rwolf Exp $
 //
 //
 
@@ -82,7 +82,7 @@ H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void 
-H4muAnalyzer::beginJob(const edm::EventSetup&)
+H4muAnalyzer::beginJob()
 {
 }
 

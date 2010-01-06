@@ -125,7 +125,7 @@ PFJetTester::~PFJetTester()
 {
 }
 
-void PFJetTester::beginJob(const edm::EventSetup& c){
+void PFJetTester::beginJob(){
 }
 
 void PFJetTester::endJob() {

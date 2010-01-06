@@ -3,8 +3,8 @@
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
  *  BasicGenTest:
- *  $Date: 2009/09/18 16:55:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/10 18:54:47 $
+ *  $Revision: 1.5 $
  *  \author Joseph Zennamo SUNY-Buffalo; Based on: ConverterTester*/
 
 // framework & common header files
@@ -24,7 +24,7 @@ class BasicGenTest : public edm::EDAnalyzer
  public:
   explicit BasicGenTest(const edm::ParameterSet&);
   virtual ~BasicGenTest();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);

@@ -6,7 +6,7 @@
 //
 // Original Author:  Kenneth Smith
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: NewAnalyzer.cc,v 1.6 2009/07/31 23:21:08 kharchil Exp $
+// $Id: NewAnalyzer.cc,v 1.1 2009/11/10 18:52:45 rwolf Exp $
 //
 //
 
@@ -511,7 +511,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void 
-NewAnalyzer::beginJob(const edm::EventSetup&)
+NewAnalyzer::beginJob()
 {
 }
 

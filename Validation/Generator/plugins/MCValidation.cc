@@ -291,10 +291,10 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 } // end genparticles
 
 void 
-MCValidation::beginJob(const edm::EventSetup& iSetup)
+MCValidation::beginJob()
 {
-  
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField) ;
+  // what is this needed for ?????
+  //iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField) ;
 
   outfile.open(theOutfileName.c_str()) ;
 

@@ -3,8 +3,8 @@
  *  Class to fill dqm monitor elements from existing EDM file
  *
  *  BasicGenTest:
- *  $Date: 2009/09/18 16:55:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/10 19:00:51 $
+ *  $Revision: 1.6 $
  *  \author Joseph Zennamo SUNY-Buffalo; Based on: ConverterTester*/
  
 #include "HepMC/GenEvent.h"
@@ -33,7 +33,7 @@ BasicGenTest::BasicGenTest(const edm::ParameterSet& iPSet)
 
 BasicGenTest::~BasicGenTest() {}
 
-void BasicGenTest::beginJob(const edm::EventSetup& iSetup)
+void BasicGenTest::beginJob()
 {
   if(dbe){
     ///Setting the DQM top directories

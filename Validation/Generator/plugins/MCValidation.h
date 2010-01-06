@@ -26,7 +26,7 @@
 //
 // Original Author:  Devdatta MAJUMDER
 //         Created:  Thu Apr 10 19:55:14 CEST 2008
-// $Id: MCValidation.cc,v 1.2 2009/07/31 23:21:08 kharchil Exp $
+// $Id: MCValidation.h,v 1.1 2009/11/10 18:52:45 rwolf Exp $
 //
 //
 
@@ -95,7 +95,7 @@ public:
   ~MCValidation();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
