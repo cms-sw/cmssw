@@ -42,7 +42,7 @@ public:
   
 private:
   /// all that needs to be done at the beginning of a run
-  virtual void beginJob(const edm::EventSetup& setup){};
+  virtual void beginJob(){};
   /// all that needs to done during the event loop
   virtual void produce(edm::Event& event, const edm::EventSetup& setup);
   /// all that needs to be done at the end of a run

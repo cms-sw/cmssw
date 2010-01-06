@@ -322,7 +322,7 @@ TopDecayChannelChecker::dumpDecayChain(const edm::View<reco::GenParticle>& src) 
 
 /// all that needs to be done at the beginning of a run
 void 
-TopDecayChannelChecker::beginJob(const edm::EventSetup& setup)
+TopDecayChannelChecker::beginJob()
 {
   dqmStore_->setCurrentFolder("TopDecayChannelChecker");
 
