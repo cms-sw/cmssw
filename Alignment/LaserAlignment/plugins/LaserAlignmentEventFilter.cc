@@ -42,7 +42,7 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent,
   return selectEvent;
 }
 
-void LaserAlignmentEventFilter::beginJob( const edm::EventSetup& ) {
+void LaserAlignmentEventFilter::beginJob() {
 }
 
 void LaserAlignmentEventFilter::endJob() {
