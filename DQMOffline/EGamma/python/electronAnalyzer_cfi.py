@@ -10,14 +10,17 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     FinalStep = cms.string("AtRunEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
-    
-    ElectronCollection = cms.InputTag("gsfElectrons"),
-    MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
-    ReadAOD = cms.bool(False),
-    
-    Selection = cms.int32(1), # 0=All elec, 1=Etcut, 2=Iso, 3=eId, 4=T&P
     InputFolderName = cms.string(""),
     OutputFolderName = cms.string(""),
+    
+    Selection = cms.int32(1), # 0=All elec, 1=Etcut, 2=Iso, 3=eId, 4=T&P
+    ElectronCollection = cms.InputTag("gsfElectrons"),
+    MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
+    TrackCollection = cms.InputTag("generalTracks"),
+    GsfTrackCollection = cms.InputTag("electronGsfTracks"),
+    VertexCollection = cms.InputTag(""),
+    ReadAOD = cms.bool(False),
+    
     
     MatchingCondition = cms.string("Cone"),
     MaxPtMatchingObject = cms.double(100.0),
@@ -81,7 +84,7 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     NbinDphiMatch = cms.int32(100), NbinDphiMatch2D = cms.int32(50), DphiMatchMin = cms.double(-0.2), DphiMatchMax = cms.double(0.2),
     NbinFhits = cms.int32(30), FhitsMax = cms.double(30.0),
     NbinLhits = cms.int32(5), LhitsMax = cms.double(10.0),
-    NbinXyz = cms.int32(50),
+    NbinXyz = cms.int32(50), NbinXyz2D = cms.int32(25),
     NbinPopTrue = cms.int32(75), PopTrueMin = cms.double(0.0), PopTrueMax = cms.double(1.5),
     NbinMee = cms.int32(100), MeeMin = cms.double(0.0), MeeMax = cms.double(150.),
     NbinHoe = cms.int32(100), HoeMin = cms.double(0.0), HoeMax = cms.double(0.5)

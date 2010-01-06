@@ -32,19 +32,22 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     // parameters
     //=========================================
 
-    // general, I/O
+    // general, collections
+    int Selection_;
     edm::InputTag electronCollection_;
     edm::InputTag matchingObjectCollection_;
-    std::string matchingCondition_; //NEW
+    edm::InputTag gsftrackCollection_;
+    edm::InputTag trackCollection_;
+    edm::InputTag vertexCollection_;
     bool readAOD_; //NEW
 
     // matching
+    std::string matchingCondition_; //NEW
     double maxPtMatchingObject_; // SURE ?
     double maxAbsEtaMatchingObject_; // SURE ?
     double deltaR_;
 
     // tag and probe NEW
-    int Selection_;
     double massLow_;
     double massHigh_;
     bool TPchecksign_;
@@ -105,7 +108,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     int nbindphimatch; int nbindphimatch2D; double dphimatchmin; double dphimatchmax;
     int nbinfhits; double fhitsmax;
     int nbinlhits; double lhitsmax;
-    int nbinxyz;
+    int nbinxyz; int nbinxyz2D;
     int nbinpoptrue; double poptruemin; double poptruemax; //NEW
     int nbinmee; double meemin; double meemax; //NEW
     int nbinhoe; double hoemin; double hoemax; //NEW
@@ -145,131 +148,160 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     // histograms
     //=========================================
 
-    // electron basic quantities
-    MonitorElement * h_ele_vertexPt ;
-//    MonitorElement * h_ele_vertexEtaVsPhi ;
-    MonitorElement * h_ele_vertexEta ;
-    MonitorElement * h_ele_vertexPhi ;
-//    MonitorElement * h_ele_vertexP ;
-//    MonitorElement * h_ele_charge ;
-//    MonitorElement * h_ele_Et ;
-//    MonitorElement * h_ele_vertexXvsY ;
-    MonitorElement * h_ele_vertexX ;
-    MonitorElement * h_ele_vertexY ;
-    MonitorElement * h_ele_vertexZ ;
-//    MonitorElement * h_ele_vertexTIP ;
+    // general
+    MonitorElement * h2_ele_beamSpotXvsY ;
+    MonitorElement * py_ele_nElectronsVsLs ;
+    MonitorElement * py_ele_nClustersVsLs ;
+    MonitorElement * py_ele_nGsfTracksVsLs ;
+    MonitorElement * py_ele_nTracksVsLs ;
+    MonitorElement * py_ele_nVerticesVsLs ;
+    MonitorElement * h1_ele_triggers ;
 
-    // # rec electrons
-    MonitorElement * histNum_ ;
+    // basic quantities
+//    MonitorElement * h1_ele_num_ ; // number of electrons in a single event
+//    MonitorElement * h1_ele_charge ;
+//    MonitorElement * h1_ele_vertexP ;
+//    MonitorElement * h1_ele_Et ;
+//    MonitorElement * h1_ele_vertexTIP ;
+//    MonitorElement * h1_ele_vertexEta ;
+//    MonitorElement * h1_ele_vertexPhi ;
+//    MonitorElement * h1_ele_vertexX ;
+//    MonitorElement * h1_ele_vertexY ;
+    MonitorElement * h1_ele_vertexPt_barrel ;
+    MonitorElement * h1_ele_vertexPt_endcaps ;
+    MonitorElement * h2_ele_vertexEtaVsPhi ;
+    MonitorElement * h2_ele_vertexXvsY ;
+    MonitorElement * h1_ele_vertexZ ;
 
-    // SuperClusters
-    MonitorElement * histSclEn_ ;
-    MonitorElement * histSclEt_ ;
-    MonitorElement * histSclEta_ ;
-    MonitorElement * histSclPhi_ ;
-    MonitorElement * histSclSigEtaEta_ ;
+    // super-clusters
+//    MonitorElement * h1_scl_En ;
+//    MonitorElement * h1_scl_Eta ;
+//    MonitorElement * h1_scl_Phi ;
+    MonitorElement * h1_scl_Et ;
 
-    // electron track
-    MonitorElement * h_ele_ambiguousTracks ;
-    MonitorElement * h_ele_ambiguousTracksVsEta ;
-    MonitorElement * h_ele_ambiguousTracksVsPhi ;
-    MonitorElement * h_ele_ambiguousTracksVsPt ;
-    MonitorElement * h_ele_foundHits ;
-    MonitorElement * h_ele_foundHitsVsEta ;
-    MonitorElement * h_ele_foundHitsVsPhi ;
-    MonitorElement * h_ele_foundHitsVsPt ;
-    MonitorElement * h_ele_lostHits ;
-    MonitorElement * h_ele_lostHitsVsEta ;
-    MonitorElement * h_ele_lostHitsVsPhi ;
-    MonitorElement * h_ele_lostHitsVsPt ;
-    MonitorElement * h_ele_chi2 ;
-    MonitorElement * h_ele_chi2VsEta ;
-    MonitorElement * h_ele_chi2VsPhi ;
-    MonitorElement * h_ele_chi2VsPt ;
+    // gsf tracks
+//    MonitorElement * h1_ele_ambiguousTracks ;
+//    MonitorElement * h2ele_ambiguousTracksVsEta ;
+//    MonitorElement * h2_ele_ambiguousTracksVsPhi ;
+//    MonitorElement * h2_ele_ambiguousTracksVsPt ;
+    MonitorElement * h1_ele_chi2 ;
+    MonitorElement * py_ele_chi2VsEta ;
+    MonitorElement * py_ele_chi2VsPhi ;
+//    MonitorElement * h2_ele_chi2VsPt ;
+    MonitorElement * h1_ele_foundHits ;
+    MonitorElement * py_ele_foundHitsVsEta ;
+    MonitorElement * py_ele_foundHitsVsPhi ;
+//    MonitorElement * h2_ele_foundHitsVsPt ;
+    MonitorElement * h1_ele_lostHits ;
+    MonitorElement * py_ele_lostHitsVsEta ;
+    MonitorElement * py_ele_lostHitsVsPhi ;
+//    MonitorElement * h2_ele_lostHitsVsPt ;
 
     // electron matching and ID
-    //MonitorElement * h_ele_EoPout ;
+    //MonitorElement * h_ele_EopOut ;
     //MonitorElement * h_ele_dEtaCl_propOut ;
     //MonitorElement * h_ele_dPhiCl_propOut ;
-    MonitorElement * h_ele_Eop ;
-    MonitorElement * h_ele_EopVsEta ;
-    MonitorElement * h_ele_EopVsPhi ;
-    MonitorElement * h_ele_EopVsPt ;
-    MonitorElement * h_ele_EeleOPout ;
-    MonitorElement * h_ele_EeleOPoutVsEta ;
-    MonitorElement * h_ele_EeleOPoutVsPhi ;
-    MonitorElement * h_ele_EeleOPoutVsPt ;
-    MonitorElement * h_ele_dEtaSc_propVtx ;
-    MonitorElement * h_ele_dEtaSc_propVtxVsEta ;
-    MonitorElement * h_ele_dEtaSc_propVtxVsPhi ;
-    MonitorElement * h_ele_dEtaSc_propVtxVsPt ;
-    MonitorElement * h_ele_dPhiSc_propVtx ;
-    MonitorElement * h_ele_dPhiSc_propVtxVsEta ;
-    MonitorElement * h_ele_dPhiSc_propVtxVsPhi ;
-    MonitorElement * h_ele_dPhiSc_propVtxVsPt ;
-    MonitorElement * h_ele_dEtaEleCl_propOut ;
-    MonitorElement * h_ele_dEtaEleCl_propOutVsEta ;
-    MonitorElement * h_ele_dEtaEleCl_propOutVsPhi ;
-    MonitorElement * h_ele_dEtaEleCl_propOutVsPt ;
-    MonitorElement * h_ele_dPhiEleCl_propOut ;
-    MonitorElement * h_ele_dPhiEleCl_propOutVsEta ;
-    MonitorElement * h_ele_dPhiEleCl_propOutVsPhi ;
-    MonitorElement * h_ele_dPhiEleCl_propOutVsPt ;
-    MonitorElement * h_ele_Hoe ;
-    MonitorElement * h_ele_HoeVsEta ;
-    MonitorElement * h_ele_HoeVsPhi ;
-    MonitorElement * h_ele_HoeVsPt ;
+//    MonitorElement * h1_ele_Eop ;
+//    MonitorElement * h2_ele_EopVsEta ;
+    MonitorElement * h1_ele_Eop_barrel ;
+    MonitorElement * h1_ele_Eop_endcaps ;
+    MonitorElement * py_ele_EopVsPhi ;
+//    MonitorElement * h1_ele_EopVsPt ;
+//    MonitorElement * h1_ele_EeleOPout ;
+//    MonitorElement * h2_ele_EeleOPoutVsEta ;
+    MonitorElement * h1_ele_EeleOPout_barrel ;
+    MonitorElement * h1_ele_EeleOPout_endcaps ;
+//    MonitorElement * h2_ele_EeleOPoutVsPhi ;
+//    MonitorElement * h2_ele_EeleOPoutVsPt ;
+//    MonitorElement * h1_ele_dEtaSc_propVtx ;
+//    MonitorElement * h2_ele_dEtaSc_propVtxVsEta ;
+    MonitorElement * h1_ele_dEtaSc_propVtx_barrel ;
+    MonitorElement * h1_ele_dEtaSc_propVtx_endcaps ;
+    MonitorElement * py_ele_dEtaSc_propVtxVsPhi ;
+//    MonitorElement * h2_ele_dEtaSc_propVtxVsPt ;
+//    MonitorElement * h1_ele_dEtaEleCl_propOut ;
+//    MonitorElement * h2_ele_dEtaEleCl_propOutVsEta ;
+    MonitorElement * h1_ele_dEtaEleCl_propOut_barrel ;
+    MonitorElement * h1_ele_dEtaEleCl_propOut_endcaps ;
+//    MonitorElement * h2_ele_dEtaEleCl_propOutVsPhi ;
+//    MonitorElement * h2_ele_dEtaEleCl_propOutVsPt ;
+//    MonitorElement * h1_ele_dPhiSc_propVtx ;
+//    MonitorElement * h2_ele_dPhiSc_propVtxVsEta ;
+    MonitorElement * h1_ele_dPhiSc_propVtx_barrel ;
+    MonitorElement * h1_ele_dPhiSc_propVtx_endcaps ;
+    MonitorElement * py_ele_dPhiSc_propVtxVsPhi ;
+//    MonitorElement * h2_ele_dPhiSc_propVtxVsPt ;
+//    MonitorElement * h1_ele_dPhiEleCl_propOut ;
+//    MonitorElement * h2_ele_dPhiEleCl_propOutVsEta ;
+    MonitorElement * h1_ele_dPhiEleCl_propOut_barrel ;
+    MonitorElement * h1_ele_dPhiEleCl_propOut_endcaps ;
+//    MonitorElement * h2_ele_dPhiEleCl_propOutVsPhi ;
+//    MonitorElement * h2_ele_dPhiEleCl_propOutVsPt ;
+//    MonitorElement * h1_ele_Hoe ;
+//    MonitorElement * h2_ele_HoeVsEta ;
+    MonitorElement * h1_ele_Hoe_barrel ;
+    MonitorElement * h1_ele_Hoe_endcaps ;
+    MonitorElement * py_ele_HoeVsPhi ;
+//    MonitorElement * h2_ele_HoeVsPt ;
+    MonitorElement * h1_scl_SigEtaEta_barrel ;
+    MonitorElement * h1_scl_SigEtaEta_endcaps ;
+
+    // fbrem related variables
     //MonitorElement * h_ele_outerP ;
     //MonitorElement * h_ele_outerP_mode ;
-    MonitorElement * h_ele_innerPt_mean ;
-    MonitorElement * h_ele_outerPt_mean ;
-    MonitorElement * h_ele_outerPt_mode ;
+//    MonitorElement * h_ele_innerPt_mean ;
+//    MonitorElement * h_ele_outerPt_mean ;
+//    MonitorElement * h_ele_outerPt_mode ;
+//    MonitorElement * h_ele_PinMnPout ;
+//    MonitorElement * h_ele_PinMnPout_mode ;
+    MonitorElement * h1_ele_fbrem ;
+    MonitorElement * py_ele_fbremVsEta ;
+    MonitorElement * py_ele_fbremVsPhi ;
+//    MonitorElement * h2_ele_fbremVsPt ;
+    MonitorElement * h1_ele_classes ;
 
-    MonitorElement * h_ele_PinMnPout ;
-    MonitorElement * h_ele_PinMnPout_mode ;
+    // pflow
+    MonitorElement * h1_ele_mva ;
+    MonitorElement * h1_ele_provenance ;
 
-    MonitorElement * h_ele_fbrem ;
-    MonitorElement * h_ele_fbremVsEta ;
-    MonitorElement * h_ele_fbremVsPhi ;
-    MonitorElement * h_ele_fbremVsPt ;
-    MonitorElement * h_ele_classes ;
+    // isolation
+    MonitorElement * h1_ele_tkSumPt_dr03 ;
+    MonitorElement * h1_ele_ecalRecHitSumEt_dr03 ;
+    MonitorElement * h1_ele_hcalTowerSumEt_dr03 ;
+//    MonitorElement * h1_ele_hcalDepth1TowerSumEt_dr03 ;
+//    MonitorElement * h1_ele_hcalDepth2TowerSumEt_dr03 ;
+//    MonitorElement * h1_ele_tkSumPt_dr04 ;
+//    MonitorElement * h1_ele_ecalRecHitSumEt_dr04 ;
+//    MonitorElement * h1_ele_hcalTowerSumEt_dr04 ;
+////    MonitorElement * h1_ele_hcalDepth1TowerSumEt_dr04 ;
+////    MonitorElement * h1_ele_hcalDepth2TowerSumEt_dr04 ;
 
-    MonitorElement * h_ele_mva ;
-    MonitorElement * h_ele_provenance ;
+    // di-electron mass
+    MonitorElement * h1_ele_mee ;
+    MonitorElement * h1_ele_mee_os ;
 
-    MonitorElement * h_ele_tkSumPt_dr03 ;
-    MonitorElement * h_ele_ecalRecHitSumEt_dr03 ;
-    MonitorElement * h_ele_hcalDepth1TowerSumEt_dr03 ;
-    MonitorElement * h_ele_hcalDepth2TowerSumEt_dr03 ;
-    MonitorElement * h_ele_tkSumPt_dr04 ;
-    MonitorElement * h_ele_ecalRecHitSumEt_dr04 ;
-    MonitorElement * h_ele_hcalDepth1TowerSumEt_dr04 ;
-    MonitorElement * h_ele_hcalDepth2TowerSumEt_dr04 ;
 
-    MonitorElement * h_ele_mee ;
-    MonitorElement * h_ele_mee_os ;
+    // histos for matching and matched objects
 
-//    // histos for matching and matched objects
-//
-//    MonitorElement * h_matchedEle_eta ;
-//    MonitorElement * h_matchedEle_eta_golden ;
-//    MonitorElement * h_matchedEle_eta_shower ;
-//    //MonitorElement * h_matchedEle_eta_bbrem ;
-//    //MonitorElement * h_matchedEle_eta_narrow ;
-//
-//    MonitorElement * h_matchedObject_Eta ;
-//    MonitorElement * h_matchedObject_AbsEta ;
-//    MonitorElement * h_matchedObject_Pt ;
-//    MonitorElement * h_matchedObject_Phi ;
-//    MonitorElement * h_matchedObject_Z ;
-//
-//    MonitorElement * h_matchingObject_Num ;
-//    MonitorElement * h_matchingObject_Eta ;
-//    MonitorElement * h_matchingObject_AbsEta ;
-//    MonitorElement * h_matchingObject_P ;
-//    MonitorElement * h_matchingObject_Pt ;
-//    MonitorElement * h_matchingObject_Phi ;
-//    MonitorElement * h_matchingObject_Z ;
+//    MonitorElement * h1_matchedEle_eta ;
+//    MonitorElement * h1_matchedEle_eta_golden ;
+//    MonitorElement * h1_matchedEle_eta_shower ;
+//    //MonitorElement * h1_matchedEle_eta_bbrem ;
+//    //MonitorElement * h1_matchedEle_eta_narrow ;
+
+    MonitorElement * h1_matchedObject_Eta ;
+//    MonitorElement * h1_matchedObject_AbsEta ;
+    MonitorElement * h1_matchedObject_Pt ;
+    MonitorElement * h1_matchedObject_Phi ;
+    MonitorElement * h1_matchedObject_Z ;
+
+//    MonitorElement * h1_matchingObject_Num ;
+    MonitorElement * h1_matchingObject_Eta ;
+//    MonitorElement * h1_matchingObject_AbsEta ;
+//    MonitorElement * h1_matchingObject_P ;
+    MonitorElement * h1_matchingObject_Pt ;
+    MonitorElement * h1_matchingObject_Phi ;
+    MonitorElement * h1_matchingObject_Z ;
 
  } ;
 

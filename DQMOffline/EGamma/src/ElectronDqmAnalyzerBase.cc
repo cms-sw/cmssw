@@ -21,8 +21,8 @@ ElectronDqmAnalyzerBase::ElectronDqmAnalyzerBase( const edm::ParameterSet& conf 
   finalStep_ = conf.getParameter<std::string>("FinalStep") ;
   inputFile_ = conf.getParameter<std::string>("InputFile") ;
   outputFile_ = conf.getParameter<std::string>("OutputFile") ;
-  inputInternalPath_ = "Egamma/ElectronAnalyzer/" + conf.getParameter<std::string>("InputFolderName") ;
-  outputInternalPath_ = "Egamma/ElectronAnalyzer/" + conf.getParameter<std::string>("OutputFolderName") ;
+  inputInternalPath_ = "Egamma/Electrons/" + conf.getParameter<std::string>("InputFolderName") ;
+  outputInternalPath_ = "Egamma/Electrons/" + conf.getParameter<std::string>("OutputFolderName") ;
  }
 
 ElectronDqmAnalyzerBase::~ElectronDqmAnalyzerBase()

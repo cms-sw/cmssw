@@ -45,10 +45,10 @@ void ElectronOfflineClient::finalize()
 //  //remove("h_matchedEle_eta_bbrem") ;
 //  //remove("h_matchedEle_eta_narrow") ;
 
-//  bookH1andDivide("h_ele_ptEff","h_matchedObject_Pt","h_matchingObject_Pt","p_{T} (GeV/c)","Efficiency","fraction of reco ele matching a reco SC") ;
-//  bookH1andDivide("h_ele_etaEff","h_matchedObject_Eta","h_matchingObject_Eta","#eta","Efficiency","fraction of reco ele matching a reco SC") ;
+  bookH1andDivide("h1_ele_ptEff","h1_matchedObject_Pt","h1_matchingObject_Pt","p_{T} (GeV/c)","Efficiency","fraction of reco ele matching a reco SC") ;
+  bookH1andDivide("h1_ele_etaEff","h1_matchedObject_Eta","h1_matchingObject_Eta","#eta","Efficiency","fraction of reco ele matching a reco SC") ;
 //  bookH1andDivide("h_ele_absEtaEff","h_matchedObject_AbsEta","h_matchingObject_AbsEta","|#eta|","Efficiency","fraction of reco ele matching a reco SC") ;
-//  bookH1andDivide("h_ele_phiEff","h_matchedObject_Phi","h_matchingObject_Phi","#phi (rad)","Efficiency","fraction of reco ele matching a reco SC") ;
-//  bookH1andDivide("h_ele_zEff","h_matchedObject_Z","h_matchingObject_Z","cm","Efficiency","fraction of reco ele matching a reco SC") ;
+  bookH1andDivide("h1_ele_phiEff","h1_matchedObject_Phi","h1_matchingObject_Phi","#phi (rad)","Efficiency","fraction of reco ele matching a reco SC") ;
+  bookH1andDivide("h1_ele_zEff","h1_matchedObject_Z","h1_matchingObject_Z","cm","Efficiency","fraction of reco ele matching a reco SC") ;
  }
 
