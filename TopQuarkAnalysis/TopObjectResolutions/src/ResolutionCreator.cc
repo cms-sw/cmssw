@@ -11,7 +11,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //needed for TFileService
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //needed for MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
