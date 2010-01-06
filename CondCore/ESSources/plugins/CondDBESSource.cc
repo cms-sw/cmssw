@@ -162,7 +162,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
       nsess.open( it->pfn, true );
       // keep transaction open if source is not transactional (such as FronTier)
-      if (!nsess.isTransactional()) nsess.transaction().start(true);
+      // if (!nsess.isTransactional()) nsess.transaction().start(true);
       sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
     cond::MetaData metadata(nsess);
