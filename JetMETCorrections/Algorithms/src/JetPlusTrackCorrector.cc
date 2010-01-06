@@ -41,7 +41,8 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
     leakage_( Map( pset.getParameter<std::string>("LeakageMap"), verbose_ ) ),
     pionMass_(0.140),
     muonMass_(0.105),
-    elecMass_(0.000511)
+    elecMass_(0.000511),
+    maxEta_( pset.getParameter<double>("MaxJetEta") )
 {
   
   if ( verbose_ ) {

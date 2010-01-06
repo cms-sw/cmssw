@@ -394,6 +394,9 @@ class JetPlusTrackCorrector : public JetCorrector {
   double pionMass_;
   double muonMass_;
   double elecMass_;
+
+  // Jet-related
+  double maxEta_;
   
 };
 
@@ -410,7 +413,7 @@ inline double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 
 inline bool JetPlusTrackCorrector::eventRequired() const { return true; }
 inline bool JetPlusTrackCorrector::vectorialCorrection() const { return vectorial_; }
-inline bool JetPlusTrackCorrector::canCorrect( const reco::Jet& jet ) const { return ( fabs( jet.eta() ) <= 2.1 ); }
+inline bool JetPlusTrackCorrector::canCorrect( const reco::Jet& jet ) const { return ( fabs( jet.eta() ) <= maxEta_ ); }
 
 inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4& jet, 
 									const TrackRefs& pions, 
