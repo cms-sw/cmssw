@@ -2,7 +2,7 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id: TkLasBeamFitter.cc,v 1.6 2009/08/31 10:26:50 kaschube Exp $
+           $Id: TkLasBeamFitter.cc,v 1.7 2009/10/14 07:34:14 flucke Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 
@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
