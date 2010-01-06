@@ -9,11 +9,7 @@ SiPixelRawDataErrorSource = cms.EDFilter("SiPixelRawDataErrorSource",
     reducedSet = cms.untracked.bool(False),
     modOn = cms.untracked.bool(True),
     ladOn = cms.untracked.bool(False),
-    layOn = cms.untracked.bool(False),
-    phiOn = cms.untracked.bool(False),
-    ringOn = cms.untracked.bool(False),
-    bladeOn = cms.untracked.bool(False),
-    diskOn = cms.untracked.bool(False)    
+    bladeOn = cms.untracked.bool(False)
 )
 
 

@@ -72,10 +72,8 @@
        bool slowDown;
        bool reducedSet;
        bool modOn;
-       //barrel:
-       bool ladOn, layOn, phiOn;
-       //forward:
-       bool ringOn, bladeOn, diskOn;
+       bool ladOn;
+       bool bladeOn;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;

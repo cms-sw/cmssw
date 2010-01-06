@@ -55,11 +55,7 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
-  layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
-  phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
-  ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
-  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
-  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) )
+  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
@@ -77,10 +73,7 @@ SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource()
 void SiPixelRawDataErrorSource::beginJob(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::beginJob - Initialisation ... " << std::endl;
-  LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
-		       << layOn << "/" << phiOn << std::endl;
-  LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
-		       << ringOn << std::endl;
+  LogInfo ("PixelDQM") << "Mod/Lad/Blade " << modOn << "/" << ladOn << "/" << bladeOn << std::endl;
 
   eventNo = 0;
   // Build map
@@ -119,7 +112,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
 
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
+    (*struct_iter).second->fill(*input, reducedSet, modOn, ladOn, bladeOn);
     
   }
 
@@ -239,48 +232,12 @@ void SiPixelRawDataErrorSource::bookMEs(){
       }
     }
     
-    if(layOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)) {
-        (*struct_iter).second->book( conf_, reducedSet, 2 );
-      }
-      else {
-        LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
-      }
-    }
-    
-    if(phiOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)) {
-        (*struct_iter).second->book( conf_, reducedSet, 3 );
-      }
-      else {
-        LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
-      }
-    }
-    
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)) {
         (*struct_iter).second->book( conf_, reducedSet, 4 );
       }
       else {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
-      }
-    }
-    
-    if(diskOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)) {
-        (*struct_iter).second->book( conf_, reducedSet, 5 );
-      }
-      else {
-        LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
-      }
-    }
-    
-    if(ringOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)) {
-        (*struct_iter).second->book( conf_, reducedSet, 6 );
-      }
-      else {
-        LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
     

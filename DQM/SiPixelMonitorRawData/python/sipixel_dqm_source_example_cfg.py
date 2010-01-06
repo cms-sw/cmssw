@@ -34,11 +34,7 @@ process.SiPixelRawDataErrorSource.slowDown = False
 #process.SiPixelHLTSource.reducedSet = False
 process.SiPixelRawDataErrorSource.modOn = True
 process.SiPixelRawDataErrorSource.ladOn = False
-process.SiPixelRawDataErrorSource.layOn = False
-process.SiPixelRawDataErrorSource.phiOn = False
-process.SiPixelRawDataErrorSource.ringOn = False
 process.SiPixelRawDataErrorSource.bladeOn = False
-process.SiPixelRawDataErrorSource.diskOn = False
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
