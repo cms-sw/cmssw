@@ -114,6 +114,7 @@ void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 
 void DeDxDiscriminatorLearner::algoEndJob()
 {
+
    if( strcmp(algoMode.c_str(),"MultiJob")==0){
 	TFile* Output = new TFile(HistoFile.c_str(), "RECREATE");
       	Charge_Vs_Path->Write();
@@ -124,10 +125,17 @@ void DeDxDiscriminatorLearner::algoEndJob()
 	Charge_Vs_Path = (TH3F*)(Input->FindObjectAny("Charge_Vs_Path"))->Clone();  
 	Input->Close();
    }
+
 }
 
 void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+   m_tracker = tkGeom.product();
+
+
+
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
@@ -137,6 +145,7 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
 
   unsigned track_index = 0;
   for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
+
       const Track      track = *it->val;
       const Trajectory traj  = *it->key;
 
@@ -165,6 +174,7 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
 
       }
    }
+
 }
 
 
@@ -178,13 +188,11 @@ void DeDxDiscriminatorLearner::Learn(const SiStripRecHit2D* sistripsimplehit,Tra
    uint32_t                detId          = cluster->geographicalId();
    int                     firstStrip     = cluster->firstStrip();
    stModInfo* MOD                         = MODsColl[detId];
-
    // Sanity Checks
    if( ampls.size()>MaxNrStrips)                                                                      { return; }
 // if( DeDxDiscriminatorTools::IsSaturatingStrip  (ampls))                                            { return; }
    if( DeDxDiscriminatorTools::IsSpanningOver2APV (firstStrip, ampls.size()))                         { return; }
    if(!DeDxDiscriminatorTools::IsFarFromBorder    (trajState, m_tracker->idToDetUnit(DetId(detId)) )) { return; }
-
    // Fill Histo Path Vs Charge/Path
    double charge = DeDxDiscriminatorTools::charge(ampls);
    double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
@@ -194,7 +202,7 @@ void DeDxDiscriminatorLearner::Learn(const SiStripRecHit2D* sistripsimplehit,Tra
 
 PhysicsTools::Calibration::HistogramD3D* DeDxDiscriminatorLearner::getNewObject()
 {
-   if( strcmp(algoMode.c_str(),"MultiJob")==0)return NULL;
+//   if( strcmp(algoMode.c_str(),"MultiJob")==0)return NULL;
 
    PhysicsTools::Calibration::HistogramD3D* obj;
    obj = new PhysicsTools::Calibration::HistogramD3D(

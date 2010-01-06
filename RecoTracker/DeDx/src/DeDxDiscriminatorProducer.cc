@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.10 2009/05/21 04:23:00 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.11 2009/05/25 07:50:48 querten Exp $
 //
 //
 
@@ -78,8 +78,6 @@ DeDxDiscriminatorProducer::~DeDxDiscriminatorProducer(){}
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
-   printf("BEGIN RUN");
-
    edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> DeDxMapHandle_;    
    if(      strcmp(Reccord.c_str(),"SiStripDeDxMip_3D_Rcd")==0){
       iSetup.get<SiStripDeDxMip_3D_Rcd>() .get(DeDxMapHandle_);
@@ -232,6 +230,10 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
+
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+   m_tracker = tkGeom.product();
  
    std::vector<DeDxData> dEdxDiscrims( TrajToTrackMap.size() );
 
