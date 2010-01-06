@@ -92,7 +92,7 @@ class ProbeFlag {
         ~ProbeFlag() ;
 
         /// Addess for ROOT Branch
-        int8_t * address() { return &value_; }
+        int32_t * address() { return &value_; }
 
         /// name
         const std::string & name() const { return name_; }
@@ -107,7 +107,7 @@ class ProbeFlag {
         /// the name of the variable, which becomes the ROOT branch name
         std::string name_;
         /// the place where we store the value, and that ROOT uses to fill the tree
-        mutable int8_t value_;
+        mutable int32_t value_;
 
         /// true if it's an external Candidate View, false if it's a StringParser cut
         bool external_;

@@ -63,7 +63,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
         tree_->Branch(it->name().c_str(), it->address(), (it->name()+"/F").c_str());
     }
     for (std::vector<tnp::ProbeFlag>::iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
-        tree_->Branch(it->name().c_str(), it->address(), (it->name()+"/B").c_str());
+        tree_->Branch(it->name().c_str(), it->address(), (it->name()+"/I").c_str());
     }
     
     // set up weights, if needed
