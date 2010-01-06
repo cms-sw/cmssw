@@ -44,7 +44,17 @@ ALCARECOTkAlZMuMuTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRec
     TrackPtMin = 0.0,
     TrackPtMax = 150.0
 )
-ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM )
+
+from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import ALCARECOTkAlZMuMuHLT
+ALCARECOTkAlZMuMuHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*Mu.*"],
+    eventSetupPathsKey =  ALCARECOTkAlZMuMuHLT.eventSetupPathsKey.value()
+)
+
+ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM + ALCARECOTkAlZMuMuHLTDQM )
 
 #########################################################
 #############---  TkAlJpsiMuMu ---#######################
@@ -69,7 +79,16 @@ ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     MassMax = 4.0,
     TrackPtMax = 50
 )
-ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM )
+
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import ALCARECOTkAlJpsiMuMuHLT
+ALCARECOTkAlJpsiMuMuHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*Mu.*"],
+    eventSetupPathsKey =  ALCARECOTkAlJpsiMuMuHLT.eventSetupPathsKey.value()
+)
+
+ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM + ALCARECOTkAlJpsiMuMuHLTDQM)
 
 ############################################################
 #############---  TkAlUpsilonMuMu ---#######################
@@ -93,8 +112,16 @@ ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     MassMax = 10,
     TrackPtMax = 50
 )
-ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM)
 
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import ALCARECOTkAlUpsilonMuMuHLT
+ALCARECOTkAlUpsilonMuMuHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*Mu.*"],
+    eventSetupPathsKey =  ALCARECOTkAlUpsilonMuMuHLT.eventSetupPathsKey.value()
+)
+
+ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuHLTDQM)
 
 #########################################################
 #############---  TkAlBeamHalo ---#######################
@@ -107,7 +134,19 @@ ALCARECOTkAlBeamHaloTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
-ALCARECOTkAlBeamHaloDQM = cms.Sequence( ALCARECOTkAlBeamHaloTrackingDQM )
+
+# no BeamHalo HLT bits yet
+#from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_cff import ALCARECOTkAlBeamHaloHLT
+#ALCARECOTkAlBeamHaloHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+#    histLabel = __selectionName,
+#    HLTPaths = ["HLT_.*L1.*"],
+#    eventSetupPathsKey =  ALCARECOTkAlBeamHaloHLT.eventSetupPathsKey.value()
+#)
+
+ALCARECOTkAlBeamHaloDQM = cms.Sequence( ALCARECOTkAlBeamHaloTrackingDQM 
+#+ ALCARECOTkAlBeamHaloHLTDQM 
+)
 
 ########################################################
 #############---  TkAlMinBias ---#######################
@@ -137,10 +176,17 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     SumChargeBin = 101,
     SumChargeMin = -50.5,
     SumChargeMax = 50.5
-
 )
 
-ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import ALCARECOTkAlMinBiasNOTHLT
+ALCARECOTkAlMinBiasHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlMinBiasNOTHLT.eventSetupPathsKey.value()
+)
+
+ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM+ALCARECOTkAlMinBiasHLTDQM)
 
 #############################################################
 #############---  TkAlMuonIsolated ---#######################
@@ -162,7 +208,16 @@ ALCARECOTkAlMuonIsolatedTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName
 )
-ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM + ALCARECOTkAlMuonIsolatedTkAlDQM)
+
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_cff import ALCARECOTkAlMuonIsolatedHLT
+ALCARECOTkAlMuonIsolatedHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlMuonIsolatedHLT.eventSetupPathsKey.value()
+)
+
+ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM + ALCARECOTkAlMuonIsolatedTkAlDQM+ALCARECOTkAlMuonIsolatedHLTDQM)
 
 ####################################################
 #############---  TkAlLAS ---#######################
@@ -211,7 +266,14 @@ ALCARECOTkAlCosmicsCTF0TTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 # margins and settings
     useSignedR = True
 )
-ALCARECOTkAlCosmicsCTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCTF0TTrackingDQM + ALCARECOTkAlCosmicsCTF0TTkAlDQM)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCARECOTkAlCosmics0THLT
+ALCARECOTkAlCosmicsCTF0THLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmics0THLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsCTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCTF0TTrackingDQM + ALCARECOTkAlCosmicsCTF0TTkAlDQM+ALCARECOTkAlCosmicsCTF0THLTDQM)
 
 #############################
 ### TkAlCosmicsCosmicTF0T ###
@@ -229,7 +291,14 @@ ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
     ReferenceTrackProducer = 'cosmictrackfinderP5',
     AlgoName = 'ALCARECO'+__selectionName
 )
-ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM + ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM )
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCARECOTkAlCosmics0THLT
+ALCARECOTkAlCosmicsCosmicTF0THLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmics0THLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM + ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM +ALCARECOTkAlCosmicsCosmicTF0THLTDQM)
 
 #######################
 ### TkAlCosmicsRS0T ###
@@ -247,7 +316,14 @@ ALCARECOTkAlCosmicsRS0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
     ReferenceTrackProducer = 'rsWithMaterialTracksP5',
     AlgoName = 'ALCARECO'+__selectionName
 )
-ALCARECOTkAlCosmicsRS0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRS0TTrackingDQM + ALCARECOTkAlCosmicsRS0TTkAlDQM)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCARECOTkAlCosmics0THLT
+ALCARECOTkAlCosmicsRS0THLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmics0THLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsRS0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRS0TTrackingDQM + ALCARECOTkAlCosmicsRS0TTkAlDQM+ALCARECOTkAlCosmicsRS0THLTDQM)
 
 ##########################################################################
 ###### DQM modules for cosmic data taking with momentum measurement ######
@@ -270,7 +346,14 @@ ALCARECOTkAlCosmicsCTFTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
     ReferenceTrackProducer = ALCARECOTkAlCosmicsCTF0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName
 )
-ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFTrackingDQM + ALCARECOTkAlCosmicsCTFTkAlDQM )
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import ALCARECOTkAlCosmicsHLT
+ALCARECOTkAlCosmicsCTFHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFTrackingDQM + ALCARECOTkAlCosmicsCTFTkAlDQM +ALCARECOTkAlCosmicsCTFHLTDQM)
 
 ###########################
 ### TkAlCosmicsCosmicTF ###
@@ -282,13 +365,20 @@ ALCARECOTkAlCosmicsCosmicTFTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone
     AlgoName = 'ALCARECO'+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
-ALCARECOTkAlCosmicsCosmicTFTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
+ALCARECOTkAlCosmicsCosmicTFTkAlDQM = ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName
 )
-ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTrackingDQM + ALCARECOTkAlCosmicsCosmicTFTkAlDQM)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import ALCARECOTkAlCosmicsHLT
+ALCARECOTkAlCosmicsCosmicTFHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTrackingDQM + ALCARECOTkAlCosmicsCosmicTFTkAlDQM+ALCARECOTkAlCosmicsCosmicTFHLTDQM)
 
 #####################
 ### TkAlCosmicsRS ###
@@ -306,5 +396,12 @@ ALCARECOTkAlCosmicsRSTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
     ReferenceTrackProducer = ALCARECOTkAlCosmicsRS0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName
 )
-ALCARECOTkAlCosmicsRSDQM = cms.Sequence( ALCARECOTkAlCosmicsRSTrackingDQM + ALCARECOTkAlCosmicsRSTkAlDQM )
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import ALCARECOTkAlCosmicsHLT
+ALCARECOTkAlCosmicsRSHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsRSDQM = cms.Sequence( ALCARECOTkAlCosmicsRSTrackingDQM + ALCARECOTkAlCosmicsRSTkAlDQM+ALCARECOTkAlCosmicsRSHLTDQM )
 
