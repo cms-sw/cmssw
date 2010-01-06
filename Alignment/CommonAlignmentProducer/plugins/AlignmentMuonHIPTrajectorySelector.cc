@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Feb 20 10:56:46 CST 2008
-// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.2 2008/05/20 12:40:58 pivarski Exp $
+// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.3 2010/01/05 11:22:37 mussgill Exp $
 //
 //
 
@@ -45,7 +45,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1F.h"
 
 //

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.9 2009/08/29 18:18:07 pivarski Exp $
+// $Id: AlignmentMonitorBase.h,v 1.10 2009/09/15 17:09:49 pivarski Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 // user include files
-#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+#include "CommonTools/Utils/interface/TFileDirectory.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"

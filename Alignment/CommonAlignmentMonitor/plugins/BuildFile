@@ -67,7 +67,7 @@
  <use name=Geometry/Records>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/TrackingGeometryAligner>
- <use name=PhysicsTools/UtilAlgos>
+ <use name=CommonTools/UtilAlgos>
  <use name=TrackingTools/PatternTools>
  <use name=root>
  <flags EDM_PLUGIN=1>

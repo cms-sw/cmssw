@@ -9,7 +9,7 @@
 <use name=FWCore/MessageLogger>
 <use name=TrackingTools/PatternTools>
 <use name=root>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 <use name=Alignment/MuonAlignmentAlgorithms>
 <export>
