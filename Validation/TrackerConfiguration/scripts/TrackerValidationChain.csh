@@ -1,6 +1,9 @@
 #! /bin/csh
 
-set RefRelease="CMSSW_3_4_0_pre6"
+setenv SCRAM_ARCH slc5_ia32_gcc434
+eval `scramv1 runtime -csh`
+
+set RefRelease="CMSSW_3_5_0_pre1"
 set WebDir=$CMSSW_VERSION # this is where you want the plots to end up; normally, you should put here the current release
 
 # Possible values are:
@@ -21,15 +24,11 @@ set copyWWW="false"
 #set copyWWW="true"
 
 # set the histogram file name in Comparison mode
-#set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre5-MC_31X_V8-v1__GEN-SIM-RECO.root"
-set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_4_0_pre7-MC_3XY_V14-v1__GEN-SIM-RECO_1.root"
+set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_5_0_pre2-MC_3XY_V14-v1__GEN-SIM-RECO_1.root"
 
 #reference histogram file name
 #set refhistogramfile="DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root"
-#set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre4-MC_31X_V8-v1__GEN-SIM-RECO.root"
-set refhistogramfile="DQM_V0001_R000000001__CMSSW_3_4_0_pre6__RelVal__Validation.root"
-setenv SCRAM_ARCH slc5_ia32_gcc434
-eval `scramv1 runtime -csh`
+set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_5_0_pre1-MC_3XY_V14-v1__GEN-SIM-RECO_1.root"
 
 setenv DATADIR $CMSSW_BASE/src
 setenv REFDIRS /afs/cern.ch/cms/performance/tracker/activities/validation/ReferenceFiles
