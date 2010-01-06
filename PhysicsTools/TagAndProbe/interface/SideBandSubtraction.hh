@@ -14,7 +14,7 @@ public:
   void Configure(const edm::ParameterSet& SBSPSet);
   void Subtract(const TH1F& Total, TH1F& Result);
 private:
-  std::vector< double > intervals_;
+  double Peak_, SD_;
 };
 
 #endif
