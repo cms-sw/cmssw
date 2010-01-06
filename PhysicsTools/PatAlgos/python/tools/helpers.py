@@ -124,3 +124,17 @@ def jetCollectionString(prefix='', algo='AK5', type='Calo'):
     jetCollectionString+=type
     jetCollectionString+='Jets'
     return jetCollectionString
+
+def contains(sequence, moduleName):
+    """
+    ------------------------------------------------------------------
+    return True if a module with name 'module' is contained in the 
+    sequence with name 'sequence' and False otherwise. This version
+    is not so nice as it also returns True for any substr of the name
+    of a contained module.
+
+    sequence : sequence [e.g. process.patDefaultSequence]
+    module   : module name as a string
+    ------------------------------------------------------------------    
+    """
+    return not sequence.__str__().find(moduleName)==-1    

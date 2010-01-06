@@ -30,7 +30,6 @@ def patchJetCorrFactors_(jetCorrFactors, newAlgo):
         corrLevels = getattr(jetCorrFactors, 'corrLevels').value()
         corrLevels.L7Parton = corrLevels.L7Parton.value().replace(newAlgo, 'SC7')
 
-
 def switchJECSet(process,
                  newName
                  ):
@@ -44,7 +43,6 @@ def switchJECSet(process,
     """
     jetCorrFactors = getattr(process, 'jetCorrFactors')
     jetCorrFactors.corrSample = newName
-
 
 def switchJECParameters(jetCorrFactors,
                         newAlgo,
@@ -85,7 +83,6 @@ def switchJECParameters(jetCorrFactors,
     ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
     ##
     patchJetCorrFactors_(jetCorrFactors, newAlgo)    
-
 
 def runBTagging(process,
                 jetCollection,
@@ -200,7 +197,47 @@ def runBTagging(process,
     ## return the combined sequence and the labels defined above
     return (seq, labels)
 
+def removeBTagging(process,
+                   label
+                   ) :
+    """
+    ------------------------------------------------------------------        
+    remove sequence to run b tagging on AOD input for a given jet
+    collection including a JetTracksAssociatorAtVertex with name
+    'jetTracksAssociatorAtVertex' + 'label'
 
+    process       : process       
+    label         : postfix label to identify new sequence/modules
+    ------------------------------------------------------------------        
+    """    
+    ## remove a module from the patDefaultSequence, but
+    ## check in advance whether it is contained or not
+    def removeSafe(moduleName):
+        ## check if module with this name is contained in the
+        ## patDefaultSequence
+        if( contains(process.patDefaultSequence, moduleName)):
+            ## check whether this module is the last one
+            ## in process.makePatJets
+            if( contains(process.makePatJets, '+') ):
+                ## if yes remove it from the sequence
+                process.patDefaultSequence.remove(getattr(process, moduleName))
+            else:
+                ## and remove the whole sequence otherwise
+               process.patDefaultSequence.remove(process.makePatJets) 
+
+    ## define jetTracksAssociator; for switchJetCollection
+    ## the label is 'AOD' as empty labels will lead to crashes
+    ## of crab. In this case the postfix label is skiped,
+    ## otherwise a postfix label is added as for the other
+    ## labels
+    jtaLabel = 'jetTracksAssociatorAtVertex'
+
+
+   # print getattr(process,'btaggingTagInfos'+label)
+   # process.patDefaultSequence.remove(getattr(process,'btaggingTagInfos'+label))
+   # print getattr(process,'btaggingTagInfos'+label)
+   # process.patDefaultSequence.remove(getattr(process,'btaggingTagInfos'+label))
+    
 def switchJetCollection(process,
                         jetCollection    = cms.InputTag("ak5CaloJets"),
                         algoLabel        = "AK5",
@@ -417,8 +454,8 @@ def addJetCollection(process,
     ## replacements when adding new modules
     standardType='Calo'
 
-    ## create new module label from old module
-    ## label and return
+    ## create old module label from standardAlgo
+    ## and standardType and return
     def oldLabel(prefix=''):        
         return jetCollectionString(prefix, standardAlgo, standardType)
 
@@ -563,17 +600,80 @@ def addJetCollection(process,
         ## switch jetCorrFactors off
         l1Jets.addJetCorrFactors = False
 
+def removeJetCollection(process,
+                        algoLabel='AK5',
+                        typeLabel='Calo'
+                        ):
+    """
+    ------------------------------------------------------------------        
+    add a new collection of jets in PAT
+
+    process          : process
+    jetCollection    : input jet collection    
+    algoLabel        : label to indicate the jet algorithm (e.g.'AK5')
+    typeLabel        : label to indicate the type of constituents (e.
+                       g. 'Calo', 'Pflow', 'Jpt', ...)    
+    ------------------------------------------------------------------                     
+    """
+    ## defines standard algorithm for
+    ## replacements when adding new modules
+    label=algoLabel+typeLabel
+    ## create old module label from algoLabel
+    ## and typeLabel and return
+    def oldLabel(prefix=''):        
+        return jetCollectionString(prefix, algoLabel, typeLabel)
+
+    ## remove a module from the patDefaultSequence, but
+    ## check in advance whether it is contained or not
+    def removeSafe(moduleName):
+        ## check if module with this name is contained in the
+        ## patDefaultSequence
+        if( contains(process.patDefaultSequence, moduleName)):
+            ## check whether this module is the last one
+            ## in process.makePatJets
+            if( contains(process.makePatJets, '+') or contains(process.makePatJets, '*')):
+                ## if yes remove it from the sequence
+                process.patDefaultSequence.remove(getattr(process, moduleName))
+            else:
+                ## and remove the whole sequence otherwise
+               process.patDefaultSequence.remove(process.makePatJets) 
+
+    ## remove patJets
+    removeSafe(oldLabel())
+    ## remove selectedPatJets if contained
+    removeSafe(oldLabel('selected'))
+    ## remove cleanPatJets if contained
+    removeSafe(oldLabel('clean'))
+    ## remove countPatJets if cotnained
+    removeSafe(oldLabel('count'))
+    ## remove gen jet matching
+    removeSafe('pat'+label+'JetPartonMatch')
+    removeSafe('pat'+label+'JetGenJetMatch')
+    ## remove jet partons
+    print 'pat'+label+'JetPartons'
+    removeSafe('pat'+label+'JetPartons')
+    ## remove parton and flavour associations
+    removeSafe('pat'+label+'JetPartonAssociation')
+    removeSafe('pat'+label+'JetFlavourAssociation')
+    ## remove jet charge
+    removeSafe('pat'+label+'JetCharge')
+
+    ## remove btagging
+    if( not(algoLabel=='AK5' and typeLabel=='Calo') ):        
+        ## remove b tagging from the sequence        
+        removeSafe('jetTracksAssociatorAtVertex'+label)
+        process.patDefaultSequence.remove(getattr(process,'btagging'+label))
+
+    ## remove jetCorrFactors
+    removeSafe('pat'+label+'JetCorrFactors')
+    ## add a clone of the type1MET correction for the new jet collection
+    removeSafe('metJESCor'+label+'Jet')
+    removeSafe('metJESCor'+label+'JetMuons')
+    removeSafe('pat'+label+'METs')
+
     print '****************'
     print process.patDefaultSequence
     print '****************'
-
-#
-#
-# continue here: this needs a bit more massage 'AK5Calo' needs to be aded to all of the cff module labels
-#
-#
-
-
 
 def addJetID(process,
              jetSrc,
