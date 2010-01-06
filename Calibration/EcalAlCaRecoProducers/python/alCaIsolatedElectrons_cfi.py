@@ -8,7 +8,11 @@ alCaIsolatedElectrons = cms.EDProducer("AlCaElectronsProducer",
     ebRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     alcaBarrelHitCollection = cms.string('alcaBarrelHits'),
     eventWeight = cms.double(1.0),
-    eeRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    eeRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    esRecHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+    alcaPreshowerHitCollection = cms.string('alcaPreshowerHits'),
+    esNstrips = cms.int32(20),
+    esNcolumns = cms.int32(1)                                       
 )
 
 

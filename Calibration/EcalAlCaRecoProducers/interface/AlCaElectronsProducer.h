@@ -49,7 +49,7 @@ class AlCaElectronsProducer : public edm::EDProducer {
       ~AlCaElectronsProducer();
 
  
-//PG       void beginJob()
+//PG       void beginJob (const edm::EventSetup&)
 //PG         {
 //PG           std::cerr << "saveTest beginJob" << std::endl ;
 //PG           m_failMap = new TH2F ("failMap","failMap",100,0,100,100,0,100) ;
@@ -78,12 +78,16 @@ class AlCaElectronsProducer : public edm::EDProducer {
   
   edm::InputTag ebRecHitsLabel_;
   edm::InputTag eeRecHitsLabel_;
+  edm::InputTag esRecHitsLabel_;
   edm::InputTag electronLabel_;
   std::string alcaBarrelHitsCollection_;
   std::string alcaEndcapHitsCollection_;
+  std::string alcaPreshowerHitsCollection_;
   int etaSize_;
   int phiSize_;
   float weight_;
+  int esNstrips_;
+  int esNcolumns_;
 
   bool selectByEleNum_;
   int minEleNumber_;
