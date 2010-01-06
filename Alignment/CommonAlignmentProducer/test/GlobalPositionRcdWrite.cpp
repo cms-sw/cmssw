@@ -29,7 +29,6 @@ class  GlobalPositionRcdWrite : public edm::EDAnalyzer {
 	 , nEventCalls_(0)
       {};
       ~GlobalPositionRcdWrite() {}
-  virtual void beginJob(const edm::EventSetup& iSetup) {};
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
 
    private:
