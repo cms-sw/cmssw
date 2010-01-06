@@ -38,6 +38,13 @@ int main(){
     } catch (cond::Exception const & ce) {
       std::cout << "OK " << ce.what() << std::endl;
     }
+    try { 
+      std::vector<std::string> alltags;
+      metadata.listAllTags(alltags);
+    } catch (cond::Exception const & ce) {
+      std::cout << "OK " << ce.what() << std::endl;
+    }
+
     coralDb.transaction().commit();
 
 

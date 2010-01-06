@@ -33,7 +33,7 @@ namespace {
     }
 
     void mdNoTable(const std::string& source, const std::string& name) {
-      mdError(source, name, "cond MetaData table does not exist: please initialize");
+      mdError(source, name, ". Cond-MetaData table does not exist: please initialize");
     }
 
     void mdNoEntry(const std::string& source, const std::string& name) {
@@ -210,8 +210,7 @@ cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
     }
     cursor.close();
   }catch(const coral::TableNotExistingException& er){
-    ///do not remove ! must ignore this exception!!!
-    return;
+        mdNoTable("MetaData::listAllTags", "All");
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::listAllTags: " )+er.what() );
   }
@@ -236,8 +235,7 @@ cond::MetaData::listAllEntries( std::vector<cond::MetaDataEntry>& result ) const
     }
     cursor.close();
   }catch(const coral::TableNotExistingException& er){
-    ///do not remove ! must ignore this exception!!!
-    return;
+         mdNoTable("MetaData::listAllEntries", "All");
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::listAllEntries: " )+er.what() );
   }
