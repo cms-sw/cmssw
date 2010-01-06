@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/29 20:48:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/13 21:17:08 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -79,7 +79,7 @@ GlobalHitsProdHistStripper::~GlobalHitsProdHistStripper()
     if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-void GlobalHitsProdHistStripper::beginJob(const edm::EventSetup& iSetup)
+void GlobalHitsProdHistStripper::beginJob( void )
 {
   return;
 }

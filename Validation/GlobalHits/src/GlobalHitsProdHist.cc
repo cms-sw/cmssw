@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/20 23:53:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/15 17:44:39 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -613,7 +613,7 @@ GlobalHitsProdHist::~GlobalHitsProdHist()
 {
 }
 
-void GlobalHitsProdHist::beginJob(const edm::EventSetup& iSetup)
+void GlobalHitsProdHist::beginJob( void )
 {
   return;
 }

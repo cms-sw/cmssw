@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/12/11 09:20:30 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/05/25 15:08:35 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -82,7 +82,7 @@ class GlobalHitsProducer : public edm::EDProducer
 
   explicit GlobalHitsProducer(const edm::ParameterSet&);
   virtual ~GlobalHitsProducer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   

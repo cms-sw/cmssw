@@ -94,7 +94,7 @@ GlobalHitsTester::~GlobalHitsTester()
     if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-void GlobalHitsTester::beginJob(const edm::EventSetup& iSetup)
+void GlobalHitsTester::beginJob( void )
 {
   return;
 }

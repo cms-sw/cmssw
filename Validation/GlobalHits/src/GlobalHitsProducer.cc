@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/20 23:53:45 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/05/27 16:53:49 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -120,15 +120,18 @@ GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
       << ":" << HCalSrc_.instance() << "\n"
       << "===============================\n";
   }
+
+  // migrated here from beginJob
+  clear();
+
 }
 
 GlobalHitsProducer::~GlobalHitsProducer() 
 {
 }
 
-void GlobalHitsProducer::beginJob(const edm::EventSetup& iSetup)
+void GlobalHitsProducer::beginJob( void )
 {
-  clear();
   return;
 }
 

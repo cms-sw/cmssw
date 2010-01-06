@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2009/07/23 16:01:28 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/07/24 14:51:29 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -80,7 +80,7 @@ class GlobalHitsAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalHitsAnalyzer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   

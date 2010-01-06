@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/07/23 16:01:28 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/07/24 14:51:29 $
+ *  $Revision: 1.17 $
  *  \author M. Strang SUNY-Buffalo
  */
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -668,7 +668,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
 GlobalHitsAnalyzer::~GlobalHitsAnalyzer() {}
 
-void GlobalHitsAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void GlobalHitsAnalyzer::beginJob( void )
 {
   return;
 }

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/27 18:42:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/13 21:17:08 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -514,7 +514,7 @@ GlobalHitsHistogrammer::~GlobalHitsHistogrammer()
     if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-void GlobalHitsHistogrammer::beginJob(const edm::EventSetup& iSetup)
+void GlobalHitsHistogrammer::beginJob( void )
 {
   return;
 }

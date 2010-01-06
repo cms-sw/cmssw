@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2008/03/13 21:17:07 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/05/25 15:08:35 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -50,7 +50,7 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
 
   explicit GlobalHitsProdHistStripper(const edm::ParameterSet&);
   virtual ~GlobalHitsProdHistStripper();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
