@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/18 23:07:01 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/02/27 18:42:05 $
+ *  $Revision: 1.16 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -120,7 +120,7 @@ class GlobalDigisProducer : public edm::EDProducer
 
   explicit GlobalDigisProducer(const edm::ParameterSet&);
   virtual ~GlobalDigisProducer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   

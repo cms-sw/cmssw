@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/27 18:42:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/13 21:15:52 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -63,7 +63,7 @@ class GlobalDigisHistogrammer : public edm::EDAnalyzer
 
   explicit GlobalDigisHistogrammer(const edm::ParameterSet&);
   virtual ~GlobalDigisHistogrammer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   

@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/03/27 20:21:30 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/20 14:32:42 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -123,7 +123,7 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalDigisAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalDigisAnalyzer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob( void );
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   

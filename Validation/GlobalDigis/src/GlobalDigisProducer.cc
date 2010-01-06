@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/15 23:22:51 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/03/04 16:36:04 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -96,14 +96,14 @@ GlobalDigisProducer::~GlobalDigisProducer()
 {
 }
 
-void GlobalDigisProducer::beginJob(const edm::EventSetup& iSetup)
+void GlobalDigisProducer::beginJob( void )
 {
   std::string MsgLoggerCat = "GlobalDigisProducer_beginJob";
 
-  // setup calorimeter constants from service
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
+//   // setup calorimeter constants from service
+//   edm::ESHandle<EcalADCToGeVConstant> pAgc;
+//   iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+//   const EcalADCToGeVConstant* agc = pAgc.product();
   
   EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
 
@@ -114,17 +114,17 @@ void GlobalDigisProducer::beginJob(const edm::EventSetup& iSetup)
 
   delete defaultRatios;
 
-  ECalbarrelADCtoGeV_ = agc->getEBValue();
-  ECalendcapADCtoGeV_ = agc->getEEValue();
+//   ECalbarrelADCtoGeV_ = agc->getEBValue();
+//   ECalendcapADCtoGeV_ = agc->getEEValue();
 
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) 
       << "Modified Calorimeter gain constants: g0 = " << ECalgainConv_[0]
       << ", g1 = " << ECalgainConv_[1] << ", g2 = " << ECalgainConv_[2]
       << ", g3 = " << ECalgainConv_[3];
-    edm::LogInfo(MsgLoggerCat)
-      << "Modified Calorimeter ADCtoGeV constants: barrel = " 
-      << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
+//     edm::LogInfo(MsgLoggerCat)
+//       << "Modified Calorimeter ADCtoGeV constants: barrel = " 
+//       << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
   }
 
   // clear storage vectors
@@ -148,6 +148,21 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
 
   // keep track of number of events processed
   ++count;
+
+
+  // THIS BLOCK MIGRATED HERE FROM beginJob:
+  // setup calorimeter constants from service
+  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+  const EcalADCToGeVConstant* agc = pAgc.product();
+  ECalbarrelADCtoGeV_ = agc->getEBValue();
+  ECalendcapADCtoGeV_ = agc->getEEValue();
+  if (verbosity >= 0) {
+    edm::LogInfo(MsgLoggerCat)
+      << "Modified Calorimeter ADCtoGeV constants: barrel = " 
+      << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
+  }
+  
 
   // get event id information
   int nrun = iEvent.id().run();

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/27 18:42:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/13 21:15:53 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -424,7 +424,7 @@ GlobalDigisHistogrammer::~GlobalDigisHistogrammer()
     if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-void GlobalDigisHistogrammer::beginJob(const edm::EventSetup& iSetup)
+void GlobalDigisHistogrammer::beginJob( void )
 {
   std::string MsgLoggerCat = "GlobalDigisHistogrammer_beginJob";
 
