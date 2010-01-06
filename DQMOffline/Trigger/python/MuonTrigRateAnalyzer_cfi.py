@@ -22,37 +22,37 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
    customCollection = cms.VPSet(
 
  	cms.untracked.PSet(
- 	  collectionName = cms.untracked.string ("barrelMuons"),
+ 	  collectionName = cms.untracked.string ("allStandAloneMuons"),
  	  # The track collection is just a switch, not a true collection name
-	  trackCollection = cms.untracked.string ("globalTrack"),
+	  # track collection can be innerTrack, outerTrack, globalTrack
+	  # innerTrack means the muon will required to be a tracker muon
+	  # outerTrack means that muon will required to be a standalone muon
+	  # globalTrack means that the muon will be required to be a global muon
+	  trackCollection = cms.untracked.string ("outerTrack"),
 	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
 	  z0cut = cms.untracked.double(25.0),
-	  recoCuts = cms.untracked.string ("abs(eta) < 0.9"),
-	  hltCuts  = cms.untracked.string ("abs(eta) < 0.9")	  
+	  recoCuts = cms.untracked.string ("abs(eta) < 2.0"),
+	  hltCuts  = cms.untracked.string ("abs(eta) < 2.0")	  
 	),
 
 
-	## cms.untracked.PSet(
-## 	  collectionName = cms.untracked.string ("endcapMuons"),
-## 	  trackCollection = cms.untracked.string ("globalTrack"),
-## 	  requiredTriggers = cms.untracked.vstring(""),
-## 	  d0cut = cms.untracked.double(2.0),
-## 	  z0cut = cms.untracked.double(25.0), # 3 meters
-## 	  recoCuts = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0"),
-## 	  hltCuts  = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0")
-## 	),
 
 
  	cms.untracked.PSet(
- 	  collectionName = cms.untracked.string ("barrelMuons"),
+ 	  collectionName = cms.untracked.string ("allTrackerMuons"),
  	  # The track collection is just a switch, not a true collection name
-	  trackCollection = cms.untracked.string ("globalTrack"),
+	  # track collection can be innerTrack, outerTrack, globalTrack
+	  # innerTrack means the muon will required to be a tracker muon
+	  # outerTrack means that muon will required to be a standalone muon
+	  # globalTrack means that the muon will be required to be a global muon
+
+	  trackCollection = cms.untracked.string ("innerTrack"),
 	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
 	  z0cut = cms.untracked.double(25.0),
-	  recoCuts = cms.untracked.string ("abs(eta) < 0.9"),
-	  hltCuts  = cms.untracked.string ("abs(eta) < 0.9")	  
+	  recoCuts = cms.untracked.string ("abs(eta) < 2.0"),
+	  hltCuts  = cms.untracked.string ("abs(eta) < 2.0")	  
 	),
 
 
@@ -60,6 +60,11 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 
 	cms.untracked.PSet(
 	  collectionName = cms.untracked.string ("allMuons"),
+	  # 
+	  # innerTrack means the muon will required to be a tracker muon
+	  # outerTrack means that muon will required to be a standalone muon
+	  # globalTrack means that the muon will be required to be a global muon
+      #
 	  trackCollection = cms.untracked.string ("globalTrack"),
 	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
@@ -124,24 +129,12 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	# This list contains triggers from both 8E29, 1E31
     # 									
 									
-	TriggerNames = cms.vstring(
-        "HLT_L1Mu",
-        "HLT_L1MuOpen",
-		"HLT_L1Mu20",
-		"HLT_L1Mu20HQ",
-		"HLT_L1Mu30",		
-		"HLT_L2Mu9",
-		"HLT_L2Mu11",
-        "HLT_IsoMu3",
-		"HLT_IsoMu9",        
-        "HLT_Mu3",
-        "HLT_Mu5",
-        "HLT_Mu9",
-        "HLT_Mu11",
-		"HLT_Mu15",
-        "HLT_DoubleMu3",
-        "HLT_DoubleMu0",
-		"HLT_L1DoubleMuOpen"		
+	TriggerRegExpStrings = cms.vstring(
+	"HLT_L[12]Mu[^_]*$",
+	"HLT_[iI]soMu[^_]*$",
+	"HLT_Mu[^_]*$",
+	"HLT_L[12]DoubleMu[^_]*$",
+	"HLT_DoubleMu[^_]*$"
     ),
 
 
