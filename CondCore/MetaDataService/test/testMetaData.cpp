@@ -34,7 +34,7 @@ int main(){
       std::cout << "OK " << ce.what() << std::endl;
     }
     try { 
-      metadata.geTag("crap");
+      metadata.getToken("crap");
     } catch (cond::Exception const & ce) {
       std::cout << "OK " << ce.what() << std::endl;
     }
@@ -56,7 +56,7 @@ int main(){
       std::cout << "OK " << ce.what() << std::endl;
     }
     try { 
-      metadata.geTag("crap");
+      metadata.getToken("crap");
     } catch (cond::Exception const & ce) {
       std::cout << "OK " << ce.what() << std::endl;
     }
