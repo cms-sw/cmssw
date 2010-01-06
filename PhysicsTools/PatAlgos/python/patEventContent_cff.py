@@ -1,22 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
 patEventContentNoCleaning = [
-    'keep *_selectedPatPhotons_*_*', 
-    'keep *_selectedPatElectrons_*_*', 
-    'keep *_selectedPatMuons_*_*', 
-    'keep *_selectedPatTaus_*_*', 
-    'keep *_selectedPat*Jets*_*_*', 
+    'keep *_selectedPatPhotons_*_*',
+    'keep *_selectedPatElectrons_*_*',
+    'keep *_selectedPatMuons_*_*',
+    'keep *_selectedPatTaus_*_*',
+    'keep *_selectedPat*Jets*_*_*',
     'keep *_pat*METs*_*_*',
     'keep *_selectedPatPFParticles_*_*'
 ]
 
 patEventContent = [
-    'keep *_cleanPatPhotons_*_*', 
-    'keep *_cleanPatElectrons_*_*', 
-    'keep *_cleanPatMuons_*_*', 
-    'keep *_cleanPatTaus_*_*', 
-    'keep *_cleanPat*Jets_*_*', 
-    'keep *_patMETs*_*_*',
+    'keep *_cleanPatPhotons_*_*',
+    'keep *_cleanPatElectrons_*_*',
+    'keep *_cleanPatMuons_*_*',
+    'keep *_cleanPatTaus_*_*',
+    'keep *_cleanPat*Jets_*_*',
+    'keep *_pat*METs*_*_*',
     'keep *_cleanPatHemispheres_*_*',
     'keep *_cleanPatPFParticles_*_*'
 ]
@@ -25,14 +25,14 @@ patExtraAodEventContent = [
     # GEN
     'keep recoGenParticles_genParticles_*_*',
     'keep GenEventInfoProduct_*_*_*',
-    'keep GenRunInfoProduct_*_*_*', 
+    'keep GenRunInfoProduct_*_*_*',
     # RECO
-    'keep recoTracks_generalTracks_*_*', 
+    'keep recoTracks_generalTracks_*_*',
     'keep *_towerMaker_*_*',
     'keep *_offlineBeamSpot_*_*',
     'keep *_offlinePrimaryVertices_*_*',
     # TRIGGER
-    'keep edmTriggerResults_TriggerResults_*_*', 
+    'keep edmTriggerResults_TriggerResults_*_*',
     'keep *_hltTriggerSummaryAOD_*_*'
 ]
 
@@ -48,12 +48,12 @@ patTriggerStandAloneEventContent = [
 ]
 
 patEventContentTriggerMatch = [
-    'keep *_cleanPatPhotonsTriggerMatch_*_*', 
-    'keep *_cleanPatElectronsTriggerMatch_*_*', 
-    'keep *_cleanPatMuonsTriggerMatch_*_*', 
-    'keep *_cleanPatTausTriggerMatch_*_*', 
-    'keep *_cleanPatJetsTriggerMatch_*_*', 
-    'keep *_patMETsTriggerMatch_*_*'
+    'keep *_cleanPatPhotonsTriggerMatch_*_*',
+    'keep *_cleanPatElectronsTriggerMatch_*_*',
+    'keep *_cleanPatMuonsTriggerMatch_*_*',
+    'keep *_cleanPatTausTriggerMatch_*_*',
+    'keep *_cleanPat*JetsTriggerMatch_*_*',
+    'keep *_pat*METsTriggerMatch_*_*'
 ]
 
 patHiEventContent = [
