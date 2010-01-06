@@ -7,6 +7,7 @@
  */
 #include <string>
 #include "CommonTools/Utils/interface/TH1AddDirectorySentry.h"
+#include <TDirectory.h>
 
 namespace fwlite {
  class TFileService;
@@ -24,35 +25,35 @@ public:
   template<typename T>
   T * make() const {
     T* t = new T();
-    t->SetDirectory(cd()); 
+    cd()->Append(t); 
     return t;
   }
   /// make new ROOT object
   template<typename T, typename Arg1>
   T * make( const Arg1 & a1 ) const {
     T * t = new T( a1 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t; 
   }
   /// make new ROOT object
   template<typename T, typename Arg1, typename Arg2>
   T * make( const Arg1 & a1, const Arg2 & a2 ) const {
     T * t =  new T( a1, a2 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
   template<typename T, typename Arg1, typename Arg2, typename Arg3>
   T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3 ) const {
     T * t =  new T( a1, a2, a3 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
   template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
   T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4 ) const {
     T * t =  new T( a1, a2, a3, a4 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -61,7 +62,7 @@ public:
   T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4, 
 	    const Arg5 & a5 ) const {
     T * t =  new T( a1, a2, a3, a4, a5 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -70,7 +71,7 @@ public:
   T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4, 
 	    const Arg5 & a5, const Arg6 & a6 ) const {
     T * t =  new T( a1, a2, a3, a4, a5, a6 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -79,7 +80,7 @@ public:
   T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4, 
 	    const Arg5 & a5, const Arg6 & a6, const Arg7 & a7 ) const {
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -88,7 +89,7 @@ public:
   T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4, 
 	    const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8 ) const {
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -99,7 +100,7 @@ public:
 	    const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
 	    const Arg9 & a9 ) const {
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -110,7 +111,7 @@ public:
 	    const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
 	    const Arg9 & a9, const Arg10 & a10 ) const {
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -121,7 +122,7 @@ public:
 	    const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
 	    const Arg9 & a9, const Arg10 & a10, const Arg11 & a11 ) const {
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// make new ROOT object
@@ -132,7 +133,7 @@ public:
 	    const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
 	    const Arg9 & a9, const Arg10 & a10, const Arg11 & a11, const Arg12 & a12 ) const {
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 );
-    t->SetDirectory(cd());
+    cd()->Append(t);
     return t;
   }
   /// create a new subdirectory
