@@ -479,7 +479,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  std::cout<<" rechits.size() = "<<rechits.size()<<std::endl;
+  //std::cout<<" rechits.size() = "<<rechits.size()<<std::endl;
   for(unsigned int i = 0; i < rechits.size(); ++i) {
     temp.clear();
     temp.push_back(rechits[i]);
