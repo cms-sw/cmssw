@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Sep 26 02:50:24 CEST 2009
-// $Id$
+// $Id: StandAloneTest.cc,v 1.1 2009/11/16 21:49:39 pivarski Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
