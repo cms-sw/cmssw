@@ -42,14 +42,14 @@
   comp.SetAxis(1, -200,200);
   TCanvas c1a("c1a", "DeltaMET");
   Styles::FormatPad( &c1a, false); 
-  comp.DrawSlice("delta_et_VS_et_", 2, 1000, mode);
+  comp.DrawSlice("delta_et_VS_et_", 3, 1000, mode);
 //comp.Draw("DeltaEt", mode);
   Styles::SavePlot("deltaMET", outdir.c_str() );
 
   comp.SetAxis(1, -400,400);
   TCanvas c1al("c1al", "DeltaMET_log");
   Styles::FormatPad( &c1al, false , false, true  ); 
-  comp.DrawSlice("delta_et_VS_et_", 2, 1000, mode);
+  comp.DrawSlice("delta_et_VS_et_", 3, 1000, mode);
   Styles::SavePlot("deltaMET_log", outdir.c_str() );
 //comp.SetAxis(1);
 
@@ -84,7 +84,7 @@
   comp.SetAxis(1, -3.2,3.2);
   TCanvas c3a("c3a", "DeltaPhi");
   Styles::FormatPad( &c3a, false );
-  comp.DrawSlice("delta_phi_VS_et_", 2, 1000, mode);
+  comp.DrawSlice("delta_phi_VS_et_", 3, 1000, mode);
   Styles::SavePlot("deltaPhi", outdir.c_str() );
 
   TCanvas c3b("c3b", "pf vs Gen");
@@ -131,37 +131,37 @@
   comp.SetAxis(1, -200,200);
   TCanvas c7("c7", "DeltaMET_20_50");
   Styles::FormatPad( &c7, false );
-  comp.DrawSlice("delta_et_VS_et_", 2, 5, mode);
+  comp.DrawSlice("delta_et_VS_et_", 3, 5, mode);
   Styles::SavePlot("deltaMET_20_50", outdir.c_str() );
 
   comp.SetAxis(1, -1000,1000);
   TCanvas c8("c8", "DeltaMET_50_100");
   Styles::FormatPad( &c8, false );
-  comp.DrawSlice("delta_et_VS_et_", 5, 10, mode);
+  comp.DrawSlice("delta_et_VS_et_", 6, 10, mode);
   Styles::SavePlot("deltaMET_50_100", outdir.c_str() );
 
   comp.SetAxis(1, -200,200);
   TCanvas c9("c9", "DeltaMET_100_200");
   Styles::FormatPad( &c9, false );
-  comp.DrawSlice("delta_et_VS_et_", 10, 20, mode);
+  comp.DrawSlice("delta_et_VS_et_", 11, 20, mode);
   Styles::SavePlot("deltaMET_100_200", outdir.c_str() );
 
   comp.SetAxis(1, -200,200);
   TCanvas c10("c10", "DeltaPhi_20_50");
   Styles::FormatPad( &c10, false );
-  comp.DrawSlice("delta_phi_VS_et_", 2, 5, mode);
+  comp.DrawSlice("delta_phi_VS_et_", 3, 5, mode);
   Styles::SavePlot("deltaPhi_20_50", outdir.c_str() );
 
   comp.SetAxis(1, -200,200);
   TCanvas c11("c11", "DeltaPhi_50_100");
   Styles::FormatPad( &c11, false );
-  comp.DrawSlice("delta_phi_VS_et_", 5, 10, mode);
+  comp.DrawSlice("delta_phi_VS_et_", 6, 10, mode);
   Styles::SavePlot("deltaPhi_50_100", outdir.c_str() );
 
   comp.SetAxis(1, -200,200);
   TCanvas c12("c12", "DeltaPhi_100_200");
   Styles::FormatPad( &c12, false );
-  comp.DrawSlice("delta_phi_VS_et_", 10, 20, mode);
+  comp.DrawSlice("delta_phi_VS_et_", 11, 20, mode);
   Styles::SavePlot("deltaPhi_100_200", outdir.c_str() );
 
   mode = Comparator::GRAPH;
@@ -172,12 +172,12 @@
 
   TCanvas c13("c13", "sigmaMET_MET");
   Styles::FormatPad( &c13, false );
-  comp.DrawGaussSigmaOverMeanXSlice("delta_et_VS_et_", 2, 2, 20, false, mode);
+  comp.DrawGaussSigmaOverMeanXSlice("delta_et_VS_et_", 2, 3, 20, false, mode);
   Styles::SavePlot("sigmaMET_MET", outdir.c_str() );
 
   TCanvas c14b("c14b", "sigmaPhi");
   Styles::FormatPad( &c14b, false );
-  comp.DrawGaussSigmaSlice("delta_phi_VS_et_", 3, 2, 20, false, mode);
+  comp.DrawGaussSigmaSlice("delta_phi_VS_et_", 3, 3, 20, false, mode);
   Styles::SavePlot("sigmaPhib", outdir.c_str() );
 
 // mode = Comparator::SCALE;
