@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.4 2009/10/21 15:48:28 gbauer Exp $
+# $Id: smCleanupFiles.pl,v 1.5 2009/11/16 11:10:40 gbauer Exp $
 
 use strict;
 use warnings;
@@ -14,15 +14,15 @@ my ($constraint_runnumber, $constraint_uptorun, $constraint_filename, $constrain
 
 sub usage
 {
-  print " 
-  ############################################################################## 
-  
-  Usage $0 [--help] [--debug] [--nothing]  [--now] 
+  print "
+  ##############################################################################
+
+  Usage $0 [--help] [--debug] [--nothing]  [--now]
   Almost all the parameters are obvious. Non-obvious ones are:
    --now : suppress 'sleep' in delete based on host ID
 
-  ##############################################################################   
-  \n";
+  ##############################################################################
+ \n";
   exit 0;
 }
 
@@ -57,13 +57,12 @@ $help       = 0;
 $debug      = 0;
 $nothing    = 0;
 $now        = 0;
-$filename   = ''; 
+$filename   = '';
 $dataset    = '';
 $uptorun    = 0;
 $runnumber  = 0;
 $safety     = 100;
 $hostname   = '';
-$rmexitcode = 0;
 $execute    = 1;
 $maxfiles   = 1;
 $fileagemin = 130;
@@ -74,38 +73,35 @@ $hostname   = `hostname -s`;
 chomp($hostname);
 
 GetOptions(
-           "help"          => \$help,
-           "debug"         => \$debug,
-           "nothing"       => \$nothing,
-           "now"           => \$now,
-           "force"         => \$force,
-           "config=s"      => \$config,
-           "hostname=s"    => \$hostname,
-           "run=i"         => \$runnumber,
-           "runnumber=i"   => \$runnumber,
-	   "uptorun=s"	   => \$uptorun,
-	   "filename=s"	   => \$filename,
-	   "dataset=s"	   => \$dataset,
-           "stream=s"      => \$stream,
-           "maxfiles=i"    => \$maxfiles,
-           "fileagemin=i"  => \$fileagemin
+           "help"          =>\$help,
+           "debug"         =>\$debug,
+           "nothing"       =>\$nothing,
+           "now"           =>\$now,
+           "force"         =>\$force,
+           "config=s"      =>\$config,
+           "hostname=s"    =>\$hostname,
+           "run=i"         =>\$runnumber,
+           "runnumber=i"   =>\$runnumber,
+	   "uptorun=s"	   =>\$uptorun,
+	   "filename=s"	   =>\$filename,
+	   "dataset=s"	   =>\$dataset,
+           "stream=s"      =>\$stream,
+           "maxfiles=i"    =>\$maxfiles,
+           "fileagemin=i"  =>\$fileagemin
 	  );
 
 $help && usage;
 if ($nothing) { $execute = 0; $debug = 1; }
 
 
-
-
 #time stagger deletes on the various MAIN SM nodes:
-if (!$now) { 
-    my $deletedelay=4.0;
-    my ($aa, $bb, $cc, $rack, $node) = split(/[cC-]/, $hostname, 5);
-    if( $rack=="06" || $rack=="07"){
-	my $nodesleep = $deletedelay*( 2*($rack-6)+$node-12 );
-        print "For node $hostname go to sleep for $nodesleep min \n";
-	`sleep "$nodesleep"m`;
-	}
+if (!$now) {
+    my $deletedelay = 4;
+    if( my ( $rack, $node ) = ( $hostname =~ /srv-c2c(0[67])-(\d+)$/i ) ) {
+	my $nodesleep = $deletedelay * ( 2 * ( $rack - 6 ) + $node - 12 );
+        $debug && print "For node $hostname go to sleep for $nodesleep min\n";
+	sleep $nodesleep * 60;
+    }
 }
 
 
@@ -118,14 +114,14 @@ if(-e $config) {
     usage();
 }
 
-# Look for files in FILES_TRANS_CHECKED - implies closed and safety >= 100 in the old scheme. 
+# Look for files in FILES_TRANS_CHECKED - implies closed and safety >= 100 in the old scheme.
 # Alternate queries for different values of these? even needed?
-# These files need to be in FILES_CREATED and FILES_INJECTED to 
+# These files need to be in FILES_CREATED and FILES_INJECTED to
 # check correct hostname and pathname. They must not be in FILES_DELETED.
 my $basesql = "select PATHNAME, CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME, HOSTNAME from CMS_STOMGR.FILES_TRANS_CHECKED inner join " .
                "CMS_STOMGR.FILES_CREATED on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME inner join " .
                "CMS_STOMGR.FILES_INJECTED on CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
-               "where not exists (select * from CMS_STOMGR.FILES_DELETED " . 
+               "where not exists (select * from CMS_STOMGR.FILES_DELETED " .
                                   "where CMS_STOMGR.FILES_DELETED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME)";
 
 # Sorting by time
@@ -141,98 +137,103 @@ $constraint_dataset   = '';
 if ($runnumber) { $constraint_runnumber = " and RUNNUMBER = $runnumber"; }
 if ($uptorun)   { $constraint_uptorun   = " and RUNNUMBER >= $uptorun";  }
 if ($filename)  { $constraint_filename  = " and CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME = '$filename'";}
-if ($hostname)  { $constraint_hostname  = " and HOSTNAME = '$hostname'";} 
+if ($hostname)  { $constraint_hostname  = " and HOSTNAME = '$hostname'";}
 if ($dataset)   { $constraint_dataset   = " and SETUPLABEL = '$dataset'";}
 
 # Compose DB query
 my $myquery = '';
 $myquery = "$basesql $constraint_runnumber $constraint_uptorun $constraint_filename $constraint_hostname $constraint_dataset $endsql";
 
-$debug && print "******BASE QUERY: \n   $myquery, \n";
+$debug && print "******BASE QUERY:\n   $myquery,\n";
 
 my $dbi    = "DBI:Oracle:cms_rcms";
 my $dbh    = DBI->connect($dbi,$reader,$phrase)
-    or die "Can't make DB connection: $DBI::errstr \n";
+    or die "Can't make DB connection: $DBI::errstr\n";
 
 my $insertDel = $dbh->prepare("insert into CMS_STOMGR.FILES_DELETED (FILENAME,DTIME) VALUES (?,TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))");
 my $sth  = $dbh->prepare($myquery);
-$sth->execute() || die "Initial DB query failed: $dbh->errstr \n";
+$sth->execute() || die "Initial DB query failed: $dbh->errstr\n";
 
 ############## Parse and process the result
 my $nFiles   = 0;
 my $nRMFiles = 0;
 my $nRMind   = 0;
 
-my @row;  
+my @row;
 
-$debug && print "MAXFILES: $maxfiles \n";
+$debug && print "MAXFILES: $maxfiles\n";
 
-while ( $nFiles<$maxfiles &&  (@row = $sth->fetchrow_array) ) { 
+while ( $nFiles<$maxfiles &&  (@row = $sth->fetchrow_array) ) {
 
-    $debug   && print "       -------------------------------------------------------------------- \n";
+    $rmexitcode = 9999;    # Be over-cautious and set a non-zero default
+    $debug   && print "       --------------------------------------------------------------------\n";
     $nFiles++;
 
     # get .ind file name
-    my $fileIND  =  "$row[0]/$row[1]";
-    $fileIND =~ s/\.dat$/\.ind/;
-    $fileIND =~ s/\.root$/\.ind/;
-
-    # remove file
-    my $CHMODCOMMAND = "sudo chmod 666 $row[0]/$row[1]";
-    my $RMCOMMAND    = "rm -f $row[0]/$row[1]";
-    my $FILEAGEMIN   =  (time - (stat("$row[0]/$row[1]"))[9])/60;
-
-    $debug   && print "$FILEAGEMIN $fileagemin\n";
-    $debug   && print "$RMCOMMAND \n";
-
-    $rmexitcode = 9998;
-
-    if ($execute && -e "$row[0]/$row[1]" && $FILEAGEMIN > $fileagemin)
-    {
-	$chmodexitcode = system($CHMODCOMMAND);
-	$rmexitcode    = system($RMCOMMAND);	
-	$debug  && print "   ===> rm dat file successful?: $rmexitcode \n";
-    } elsif (!$execute && -e "$row[0]/$row[1]" && $FILEAGEMIN > $fileagemin) {
-	#if we're not executing anything want to fake 
-	print "Pretending to remove $row[0]/$row[1] \n";
-	$rmexitcode = 0;
-    } else {
-        if ($force) {
-            print "File $row[0]/$row[1] does not exist, but force=1, so continue \n";
-            $rmexitcode = 0;
-        } elsif ($FILEAGEMIN < $fileagemin)  {
-            print "File $row[0]/$row[1] too young to die\n";
-        } else {
-            print "File $row[0]/$row[1] does not exist \n";
-            $rmexitcode =0;
-        }
+    my $file =  "$row[0]/$row[1]";
+    my $fileIND;
+    if ( $file =~ /^(.*)\.(?:dat|root)$/ ) {
+        $fileIND = $1 . '.ind';
     }
-    $debug && print "\n";
+
+    if ( -e $file ) {
+        my $FILEAGEMIN   =  (time - (stat(_))[9])/60;
+        $debug   && print "$FILEAGEMIN $fileagemin\n";
+
+        if ($execute && $FILEAGEMIN > $fileagemin) {
+            if ( unlink( $file ) == 1 ) {
+                # unlink should return 1: removed 1 file
+		$rmexitcode = 0;
+            } else {
+                print "Removal of $file failed\n";
+                $rmexitcode = 9996;
+           }
+        } elsif (!$execute && $FILEAGEMIN > $fileagemin) {
+	    #if we're not executing anything want to fake
+	    print "Pretending to remove $file\n";
+	    $rmexitcode = 0;
+        } elsif ($FILEAGEMIN < $fileagemin) {
+            print "File $file too young to die\n";
+            $rmexitcode = 9995;
+        } else {
+            print "This should never happen. File $file has issues!\n";
+            $rmexitcode = 9994;
+        }
+    } elsif ($force) {
+        print "File $file does not exist, but force=1, so continue\n";
+        $rmexitcode = 0;
+    } elsif ( ! -d $row[0] ) {
+        print "Path $row[0] does not exist. Are the disks mounted?\n";
+        $rmexitcode = 9998;
+    } else {
+        print "File $file does not exist\n";
+        $rmexitcode = 9997;
+    }
     #$rmexitcode =0;
     # check file was really removed
-    if ($rmexitcode != 0)
-    {  
-	print "Can not delete file: $row[0]/$row[1] \n";
-    } else {
+    if ($rmexitcode != 0) {
+	print "Could not delete file: $file (rmexitcode=$rmexitcode)\n";
+    } elsif ( ! -e $file ) {
 	$nRMFiles++;
 	
 	# insert file into deleted db
 	$insertDel->bind_param(1,$row[1]);
 	$insertDel->bind_param(2,gettimestamp(time));
-	$execute && ($insertDel->execute() || die "DB insert into deleted files failed: $insertDel->errstr \n");
+	$execute && ($insertDel->execute() || die "DB insert into deleted files failed: $insertDel->errstr\n");
 	my $delErr = $insertDel->errstr;
 	if(defined($delErr)) {
-	    print "Delete DB insert produced error: $delErr \n";
+	    print "Delete DB insert produced error: $delErr\n";
 	} else {
 	    $debug && print "File inserted into deleted DB, rm .ind\n";
 	    if ( $execute && -e $fileIND) {
-		$CHMODCOMMAND = `sudo chmod 666 $fileIND`;
                 my $rmIND = `rm -f $fileIND`;
                 if (! -e "$fileIND" ) {$nRMind++;}
 	    }
 	}
+    } else {
+        print "Unlink returned success, but file $file is still there!\n";
     }
-    
+
 
 }
 
@@ -241,10 +242,13 @@ $sth->finish();
 
 $dbh->disconnect;
 
-print "\n=================> DONE!: \n";
-print ">>BASE QUERY WAS: \n   $myquery, \n";
-print " $nFiles Files Processed\n" . 
+# Only print summary if STDIN is a tty, so not in cron
+if( -t STDIN ) {
+    print "\n=================> DONE!:\n";
+    print ">>BASE QUERY WAS:\n   $myquery,\n";
+    print " $nFiles Files Processed\n" .
       " $nRMFiles Files rm-ed\n" .
       " $nRMind ind Files removed\n\n\n";
+}
 
 exit 0;
