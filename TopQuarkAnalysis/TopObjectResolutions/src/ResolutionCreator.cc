@@ -11,7 +11,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //needed for TFileService
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"   // to be replaced by the following line as soon as
+//#include "CommonTools/UtilAlgos/interface/TFileService.h"  // a new tag of CommonTools/UtilAlgos/ is in 3_4_X
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //needed for MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
