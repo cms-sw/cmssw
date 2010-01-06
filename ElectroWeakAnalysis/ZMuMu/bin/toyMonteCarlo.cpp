@@ -100,7 +100,7 @@ int main(int argc, char * argv[]){
   TRandom3 *rndm = new TRandom3();
   int o;
   char* endPtr;
-  char* pdf("analysis_Z_133pb_trackIso_3.root");
+  const char* pdf("analysis_Z_133pb_trackIso_3.root");
   double yield(3810.0), effTrk(.996), effSa(.987),effHlt(.913), effIso(.982),factor(1.0),MIN(60.),MAX(120.);
   double slopeMuTk(0.02), a0MuTk(1.0), a1MuTk(0.0), a2MuTk(0.0);
   double slopeMuMuNonIso(0.02),a0MuMuNonIso(1.0), a1MuMuNonIso(0.0), a2MuMuNonIso(0.0);
