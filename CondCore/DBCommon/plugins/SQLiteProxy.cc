@@ -17,6 +17,8 @@ namespace cond{
       }
       return m_userconnect;
     }
+    bool isTransactional() const { return true;}
+
     std::string m_userconnect;
   };  
 }//ns cond
