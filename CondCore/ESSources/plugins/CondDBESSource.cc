@@ -161,6 +161,8 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       nsess = m_connection.createSession();
       if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
       nsess.open( it->pfn, true );
+      // keep transaction open if source is not transactional (such as FronTier)
+      if (!nsess.isTransactional) ness.transaction.start(true);
       sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
     cond::MetaData metadata(nsess);
@@ -228,6 +230,9 @@ CondDBESSource::~CondDBESSource() {
       dumpInfo(std::cout,(*b).first,*(*b).second);
       std::cout << "\n" << std::endl;
     }
+
+    // FIXME
+    // We shall eventually close transaction and session...
   }
 }
 

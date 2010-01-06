@@ -17,6 +17,8 @@ namespace cond{
     ~FrontierProxy();
     void initialize(const std::string&userconnect,const DbConnection& connection);
     std::string getRealConnectString() const;
+    bool isTransactional() const { return false;}
+
   private:
     static unsigned int countslash(const std::string& input);
   private:
@@ -30,6 +32,7 @@ cond::FrontierProxy::FrontierProxy(){
   m_refreshtablelist.reserve(10);
   m_refreshtablelist.push_back(cond::IOVNames::iovTableName());
   m_refreshtablelist.push_back(cond::IOVNames::iovDataTableName());
+  // do not refesh tag table in production...
   m_refreshtablelist.push_back(cond::MetaDataNames::metadataTable());
 }
 

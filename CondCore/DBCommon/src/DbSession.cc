@@ -204,6 +204,10 @@ cond::DbConnection const & cond::DbSession::connection() const {
 }
 
 
+bool cond::DbSession::isTransactional() const {
+  return m_implementation->technologyProxy->isTransactional();
+}
+
 void cond::DbSession::setBlobStreamingService( const std::string& serviceName )
 {
   m_implementation->m_blobStreamingService = serviceName;
