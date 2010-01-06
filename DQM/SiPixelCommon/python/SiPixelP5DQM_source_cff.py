@@ -42,11 +42,7 @@ SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
 #RawDataErrors
 SiPixelRawDataErrorSource.modOn = True
 SiPixelRawDataErrorSource.ladOn = False
-SiPixelRawDataErrorSource.layOn = False
-SiPixelRawDataErrorSource.phiOn = False
 SiPixelRawDataErrorSource.bladeOn = False
-SiPixelRawDataErrorSource.diskOn = False
-SiPixelRawDataErrorSource.ringOn = False
 #Digi
 SiPixelDigiSource.modOn = True
 SiPixelDigiSource.twoDimOn = True
