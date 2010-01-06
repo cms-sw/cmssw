@@ -308,7 +308,7 @@ jetTriggerMatchHLT4jet = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 # matches to HLT1MET65
 # including example of "wrong" match (cleanPatMuons which fired MET trigger),
 metTriggerMatchHLT1MET65 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "patMETs" ),
+    src     = cms.InputTag( "patAK5CaloMETs" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( '*' ),

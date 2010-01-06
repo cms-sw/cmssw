@@ -30,24 +30,24 @@ cleanPatTausTriggerMatch = cms.EDProducer( "PATTriggerMatchTauEmbedder",
 )
 
 # embedding in jets
-cleanPatJetsTriggerMatch = cms.EDProducer( "PATTriggerMatchJetEmbedder",
-    src     = cms.InputTag( "cleanPatJets" ),
+cleanPatAK5CaloJetsTriggerMatch = cms.EDProducer( "PATTriggerMatchJetEmbedder",
+    src     = cms.InputTag( "cleanPatAK5CaloJets" ),
     matches = cms.VInputTag()
 )
 
 # embedding in MET
-patMETsTriggerMatch = cms.EDProducer( "PATTriggerMatchMETEmbedder",
-    src     = cms.InputTag( "patMETs" ),
+patAK5CaloMETsTriggerMatch = cms.EDProducer( "PATTriggerMatchMETEmbedder",
+    src     = cms.InputTag( "patAK5CaloMETs" ),
     matches = cms.VInputTag()
 )
 
 
 # embeding sequence
 patTriggerMatchEmbedder = cms.Sequence(
-    cleanPatPhotonsTriggerMatch   +
-    cleanPatElectronsTriggerMatch +
-    cleanPatMuonsTriggerMatch     +
-    cleanPatTausTriggerMatch      +
-    cleanPatJetsTriggerMatch      +
-    patMETsTriggerMatch
+    cleanPatPhotonsTriggerMatch     +
+    cleanPatElectronsTriggerMatch   +
+    cleanPatMuonsTriggerMatch       +
+    cleanPatTausTriggerMatch        +
+    cleanPatAK5CaloJetsTriggerMatch +
+    patAK5CaloMETsTriggerMatch
 )

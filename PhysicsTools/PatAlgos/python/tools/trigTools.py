@@ -1,16 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.patEventContent_cff import *
-    
+
 def switchOnTrigger( process ):
     """ Enables trigger information in PAT  """
     ## add trigger modules to path
     process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
     process.patDefaultSequence += process.patTriggerSequence
-
     ## configure pat trigger
     process.patTrigger.onlyStandAlone = False
-
     ## add trigger specific event content to PAT event content
     process.out.outputCommands += patTriggerEventContent
     for matchLabel in process.patTriggerEvent.patTriggerMatches:
@@ -20,7 +18,6 @@ def switchOnTriggerStandAlone( process ):
     ## add trigger modules to path
     process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
     process.patDefaultSequence += process.patTriggerSequence
-
     ## configure pat trigger
     process.patTrigger.onlyStandAlone = True
     process.patTriggerSequence.remove( process.patTriggerEvent )
