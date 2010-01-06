@@ -17,22 +17,19 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_3_1
-setenv CMSSWver2 3_3_5
-setenv OLDRELEASE 331
-setenv NEWRELEASE 335
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv CMSSWver1 3_4_0
+setenv CMSSWver2 3_4_1
+setenv OLDRELEASE 340
+setenv NEWRELEASE 341
+setenv OLDPRERELEASE pre6 
+setenv NEWPRERELEASE
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
-#setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+
+setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
-
 
 
 #Name of sample (affects output directory name and htmldescription only) 
