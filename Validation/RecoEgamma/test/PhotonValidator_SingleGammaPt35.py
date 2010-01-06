@@ -32,7 +32,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal335_SingleGammaPt35.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal341_SingleGammaPt35.root'
 
 photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
@@ -42,23 +42,22 @@ noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
+# official RelVal 341 single Photons pt=35GeV            
 
-# official RelVal 335 single Photons pt=35GeV            
+        '/store/relval/CMSSW_3_4_1/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V14-v1/0004/0E5F21BA-B6ED-DE11-BC4A-003048D2C1C4.root',
+        '/store/relval/CMSSW_3_4_1/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V14-v1/0003/0213D232-6DED-DE11-B34F-001D09F251D1.root'
 
-        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt35/GEN-SIM-RECO/MC_31X_V9-v1/0008/B4B8348F-12DC-DE11-BB4B-0018F3D0963C.root',
-        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt35/GEN-SIM-RECO/MC_31X_V9-v1/0007/2CBBB8BF-CADB-DE11-B6E8-002618943894.root'
-  
     ),
                             
                             
     secondaryFileNames = cms.untracked.vstring(
+# official RelVal 341 single Photons pt=35GeV
 
-# official RelVal 335 single Photons pt=35GeV
-        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0008/C67BB188-12DC-DE11-98CC-001731AF6BCB.root',
-        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0007/F08BB5C4-CADB-DE11-AC7C-001BFCDBD184.root',
-        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0007/A64AACC2-CADB-DE11-9E2D-002618943874.root',
-        '/store/relval/CMSSW_3_3_5/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V9-v1/0007/48EA5FBE-CADB-DE11-B7B9-002618943915.root'
-     
+        '/store/relval/CMSSW_3_4_1/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0004/08D970AB-B6ED-DE11-A109-003048D373AE.root',
+        '/store/relval/CMSSW_3_4_1/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0003/DE3CFF45-6DED-DE11-8020-001D09F2516D.root',
+        '/store/relval/CMSSW_3_4_1/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0003/A04A615A-6DED-DE11-A536-001D09F2AF96.root',
+        '/store/relval/CMSSW_3_4_1/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0003/96EA7A86-69ED-DE11-A73A-003048D3756A.root'   
+
     )
  )
 
