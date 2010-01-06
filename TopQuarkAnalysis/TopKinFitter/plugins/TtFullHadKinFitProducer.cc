@@ -277,10 +277,11 @@ TtFullHadKinFitProducer::constraint(unsigned configParameter)
 {
   TtFullHadKinFitter::Constraint result;
   switch(configParameter){
-  case TtFullHadKinFitter::kWPlusMass  : result=TtFullHadKinFitter::kWPlusMass;  break;
-  case TtFullHadKinFitter::kWMinusMass : result=TtFullHadKinFitter::kWMinusMass; break;
-  case TtFullHadKinFitter::kTopMass    : result=TtFullHadKinFitter::kTopMass;    break;
-  case TtFullHadKinFitter::kTopBarMass : result=TtFullHadKinFitter::kTopBarMass; break;
+  case TtFullHadKinFitter::kWPlusMass      : result=TtFullHadKinFitter::kWPlusMass;      break;
+  case TtFullHadKinFitter::kWMinusMass     : result=TtFullHadKinFitter::kWMinusMass;     break;
+  case TtFullHadKinFitter::kTopMass        : result=TtFullHadKinFitter::kTopMass;        break;
+  case TtFullHadKinFitter::kTopBarMass     : result=TtFullHadKinFitter::kTopBarMass;     break;
+  case TtFullHadKinFitter::kEqualTopMasses : result=TtFullHadKinFitter::kEqualTopMasses; break;
   default: 
     throw cms::Exception("WrongConfig") 
       << "Chosen fit constraint is not supported: " << configParameter << "\n";

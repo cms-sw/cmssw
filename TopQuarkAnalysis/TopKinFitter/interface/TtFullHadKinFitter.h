@@ -27,7 +27,7 @@ class TtFullHadKinFitter {
 
  public:
   /// supported constraints
-  enum Constraint{ kWPlusMass=1, kWMinusMass, kTopMass, kTopBarMass };
+  enum Constraint{ kWPlusMass=1, kWMinusMass, kTopMass, kTopBarMass, kEqualTopMasses };
   /// supported parameterizations
   enum Param{ kEMom, kEtEtaPhi, kEtThetaPhi };
   

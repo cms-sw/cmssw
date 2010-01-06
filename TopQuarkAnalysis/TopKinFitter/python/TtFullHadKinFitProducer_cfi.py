@@ -41,8 +41,9 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # set constraints
     # 1: W1-mass, 2: W2-mass
     # 3: t1-mass, 4: t2-mass
+    # 5: equal top-masses
     # ------------------------------------------------                                   
-    constraints = cms.vuint32(1, 2, 3, 4),
+    constraints = cms.vuint32(1, 2, 5),
 
     # ------------------------------------------------
     # set mass values used in the constraints

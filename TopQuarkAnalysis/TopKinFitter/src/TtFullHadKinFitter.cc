@@ -48,7 +48,8 @@ TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDe
 TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF,
 				       std::vector<Constraint> constraints, double mW, double mTop):
   fitter_(0), b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  jetParam_(jetParam), maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF), constraints_(constraints), mW_(mW), mTop_(mTop)
+  jetParam_(jetParam), maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF),
+  constraints_(constraints), mW_(mW), mTop_(mTop)
 {
   setupFitter();
 }
@@ -74,10 +75,11 @@ TtFullHadKinFitter::printSetup() const
   std::stringstream constr;
   for(unsigned int i=0; i<constraints_.size(); ++i){
     switch(constraints_[i]){
-    case kWPlusMass  : constr << "    * W+-mass   (" << mW_   << " GeV) \n"; break;
-    case kWMinusMass : constr << "    * W--mass   (" << mW_   << " GeV) \n"; break;
-    case kTopMass    : constr << "    * t-mass    (" << mTop_ << " GeV) \n"; break;
-    case kTopBarMass : constr << "    * tBar-mass (" << mTop_ << " GeV) \n"; break;
+    case kWPlusMass      : constr << "    * W+-mass   (" << mW_   << " GeV) \n"; break;
+    case kWMinusMass     : constr << "    * W--mass   (" << mW_   << " GeV) \n"; break;
+    case kTopMass        : constr << "    * t-mass    (" << mTop_ << " GeV) \n"; break;
+    case kTopBarMass     : constr << "    * tBar-mass (" << mTop_ << " GeV) \n"; break;
+    case kEqualTopMasses : constr << "    * equal t-masses \n"; break;
     }
   }
   edm::LogVerbatim( "TtFullHadKinFitter" ) 
@@ -131,15 +133,19 @@ TtFullHadKinFitter::setupJets()
 void 
 TtFullHadKinFitter::setupConstraints() 
 {
-  massConstr_[kWPlusMass ] = new TFitConstraintM("WPlusMass" , "WPlusMass"  ,  0,  0, mW_  );
-  massConstr_[kWMinusMass] = new TFitConstraintM("WMinusMass", "WMinusMass" ,  0,  0, mW_  );
-  massConstr_[kTopMass   ] = new TFitConstraintM("TopMass"   , "TopMass"    ,  0,  0, mTop_);
-  massConstr_[kTopBarMass] = new TFitConstraintM("TopBarMass", "TopBarMass" ,  0,  0, mTop_);
+  massConstr_[kWPlusMass     ] = new TFitConstraintM("WPlusMass"     , "WPlusMass"      ,  0,  0, mW_   );
+  massConstr_[kWMinusMass    ] = new TFitConstraintM("WMinusMass"    , "WMinusMass"     ,  0,  0, mW_   );
+  massConstr_[kTopMass       ] = new TFitConstraintM("TopMass"       , "TopMass"        ,  0,  0, mTop_ );
+  massConstr_[kTopBarMass    ] = new TFitConstraintM("TopBarMass"    , "TopBarMass"     ,  0,  0, mTop_ );
+  massConstr_[kEqualTopMasses] = new TFitConstraintM("EqualTopMasses", "EqualTopMasses" ,  0,  0, 0     );
   
-  massConstr_[kWPlusMass ]->addParticles1(lightQ_, lightQBar_);
-  massConstr_[kWMinusMass]->addParticles1(lightP_, lightPBar_);
-  massConstr_[kTopMass   ]->addParticles1(b_, lightQ_, lightQBar_);
-  massConstr_[kTopBarMass]->addParticles1(bBar_, lightP_, lightPBar_);
+  massConstr_[kWPlusMass     ]->addParticles1(lightQ_, lightQBar_);
+  massConstr_[kWMinusMass    ]->addParticles1(lightP_, lightPBar_);
+  massConstr_[kTopMass       ]->addParticles1(b_, lightQ_, lightQBar_);
+  massConstr_[kTopBarMass    ]->addParticles1(bBar_, lightP_, lightPBar_);
+  massConstr_[kEqualTopMasses]->addParticles1(b_, lightQ_, lightQBar_);
+  massConstr_[kEqualTopMasses]->addParticles2(bBar_, lightP_, lightPBar_);
+
 }
 
 /// setup fitter 
