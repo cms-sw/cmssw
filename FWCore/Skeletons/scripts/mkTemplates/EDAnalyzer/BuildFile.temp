@@ -3,12 +3,12 @@
 <use name=FWCore/ParameterSet>
 <flags EDM_PLUGIN=1>
 @example_track <use name=DataFormats/TrackReco>
-@example_histo <use name=PhysicsTools/UtilAlgos>
+@example_histo <use name=CommonTools/UtilAlgos>
 <export>
    <lib name=skelsubsysanlzrname>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
 @example_track    <use name=DataFormats/TrackReco>
-@example_histo    <use name=PhysicsTools/UtilAlgos> 
+@example_histo    <use name=CommonTools/UtilAlgos> 
 </export>
