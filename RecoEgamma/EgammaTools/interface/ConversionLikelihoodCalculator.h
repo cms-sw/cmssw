@@ -13,6 +13,7 @@ class ConversionLikelihoodCalculator
       void setWeightsFile(const char * weightsFile);
 
       double calculateLikelihood(reco::ConversionRef conversion);
+      double calculateLikelihood(reco::Conversion& conversion);
 
    private:
       TMVA::Reader * reader_;
