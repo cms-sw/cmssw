@@ -77,7 +77,6 @@ PASS_HLT = "!triggerObjectMatchesByPath('%s').empty()" % ("HLT_Mu3",);
 process.tagMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("patMuons"),
     cut = cms.string("isGlobalMuon && pt > 3 && abs(eta) < 2.4 && " + TRACK_CUTS + " && " +PASS_HLT ), 
-    filter = cms.bool(True),
 )
 process.glbMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("patMuons"),
