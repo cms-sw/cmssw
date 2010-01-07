@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: BPAGTrigAnalyzer.cc,v 1.2 2009/08/31 14:12:51 rekovic Exp $
+// $Id: BPAGTrigAnalyzer.cc,v 1.3 2009/11/03 14:06:24 slaunwhj Exp $
 //
 //
 
@@ -226,8 +226,11 @@ BPAGTrigAnalyzer::BPAGTrigAnalyzer(const ParameterSet& pset)
   
   
   HLTConfigProvider hltConfig;
-  hltConfig.init(theHltProcessName);
-  vector<string> validTriggerNames = hltConfig.triggerNames();
+  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
+  vector<string> validTriggerNames;
+
+  if (hltConfigInitSuccess)
+    validTriggerNames = hltConfig.triggerNames();
 
   if (validTriggerNames.size() < 1) {
     LogTrace ("HLTMuonVal") << endl << endl << endl

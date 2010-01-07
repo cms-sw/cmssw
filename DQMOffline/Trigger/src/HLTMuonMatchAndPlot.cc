@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/11/11 08:36:13 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/11/11 09:16:06 $
+ *  $Revision: 1.14 $
  */
 
 
@@ -74,7 +74,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
   LogTrace ("HLTMuonVal") << "HLTMuonMatchAndPlot: Constructor: Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
   HLTConfigProvider hltConfig;
-  hltConfig.init(theHltProcessName);
+  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
 
   theNumberOfObjects = ( TString(triggerName).Contains("Double") ) ? 2 : 1;
   theTriggerName     = triggerName;
@@ -139,22 +139,25 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   string theLastHltFilter = "";
 
   theL1SeedModuleForHLTPath = "" ;
-  
+
+
   for ( size_t i = 0; i < moduleNames.size(); i++ ) {
     string module = moduleNames[i];
 
-    LogTrace ("HLTMuonVal") << "Considering Module named    "
-                            << module
-                            << "      which has type =    "
-                            << hltConfig.moduleType(module);
+    if (hltConfigInitSuccess) {
+      LogTrace ("HLTMuonVal") << "Considering Module named    "
+                              << module
+                              << "      which has type =    "
+                              << hltConfig.moduleType(module);
 
-    if ( hltConfig.moduleType(module) == "HLTLevel1GTSeed" ) {
-      LogTrace ("HLTMuonVal") << "Module = " << module
-                              <<  " is a HLTLevel1GTSeed!!"
-                              << endl
-                              << "Storing it as L1Seed"
-                              << endl;
-      theL1SeedModuleForHLTPath = module;
+      if ( hltConfig.moduleType(module) == "HLTLevel1GTSeed" ) {
+        LogTrace ("HLTMuonVal") << "Module = " << module
+                                <<  " is a HLTLevel1GTSeed!!"
+                                << endl
+                                << "Storing it as L1Seed"
+                                << endl;
+        theL1SeedModuleForHLTPath = module;
+      }
     }
 
     
@@ -1826,17 +1829,25 @@ TrackRef HLTMuonMatchAndPlot::getCandTrackRef (MuonSelectionStruct mySelection, 
   
   if (trackCollection == "innerTrack") {
     LogTrace ("HLTMuonVal") << "----> GET " << trackCollection;
-    theTrack = candMuon.innerTrack();
 
+    if ( candMuon.isTrackerMuon() ) {
+      theTrack = candMuon.innerTrack();
+    }
+    
   } else if ( trackCollection == "outerTrack" ) {
     
-    LogTrace ("HLTMuonVal") << "----> GET " << trackCollection; 
-    theTrack = candMuon.outerTrack();
+    LogTrace ("HLTMuonVal") << "----> GET " << trackCollection;
+
+    if ( candMuon.isStandAloneMuon() ) {
+      theTrack = candMuon.outerTrack();
+    }
     
   } else if ( trackCollection == "globalTrack") {
 
-    LogTrace ("HLTMuonVal") << "----> GET " << trackCollection;    
-    theTrack = candMuon.globalTrack();
+    LogTrace ("HLTMuonVal") << "----> GET " << trackCollection;
+    if (candMuon.isGlobalMuon()) {
+      theTrack = candMuon.globalTrack();
+    }
   }
 
   if (theTrack.isNonnull()) {

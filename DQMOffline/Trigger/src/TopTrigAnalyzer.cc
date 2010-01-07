@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: TopTrigAnalyzer.cc,v 1.2 2009/10/02 13:09:43 slaunwhj Exp $
+// $Id: TopTrigAnalyzer.cc,v 1.3 2009/11/03 14:06:20 slaunwhj Exp $
 //
 //
 
@@ -194,8 +194,11 @@ TopTrigAnalyzer::TopTrigAnalyzer(const ParameterSet& pset)
   
   
   HLTConfigProvider hltConfig;
-  hltConfig.init(theHltProcessName);
-  vector<string> validTriggerNames = hltConfig.triggerNames();
+  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
+  vector<string> validTriggerNames;
+
+  if (hltConfigInitSuccess)
+    validTriggerNames = hltConfig.triggerNames();
 
   if (validTriggerNames.size() < 1) {
     LogTrace ("HLTMuonVal") << endl << endl << endl

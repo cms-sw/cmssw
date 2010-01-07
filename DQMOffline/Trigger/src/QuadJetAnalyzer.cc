@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.10 2009/08/25 10:03:15 slaunwhj Exp $
+// $Id: QuadJetAnalyzer.cc,v 1.4 2009/11/03 14:06:25 slaunwhj Exp $
 //
 //
 
@@ -105,8 +105,11 @@ QuadJetAnalyzer::QuadJetAnalyzer(const ParameterSet& pset)
   
   LogTrace ("HLTMuonVal") << "Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
   HLTConfigProvider hltConfig;
-  hltConfig.init(theHltProcessName);
-  vector<string> validTriggerNames = hltConfig.triggerNames();
+  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
+  vector<string> validTriggerNames;
+
+  if (hltConfigInitSuccess)
+    validTriggerNames = hltConfig.triggerNames();
 
   if (validTriggerNames.size() < 1) {
     LogInfo ("HLTMuonVal") << endl << endl << endl

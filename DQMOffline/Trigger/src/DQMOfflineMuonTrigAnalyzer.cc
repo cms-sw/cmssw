@@ -12,7 +12,7 @@
 */
 //
 // Jason Slaunwhite, based on code from Jeff Klukas
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.10 2009/08/25 10:03:15 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.11 2009/10/02 13:09:41 slaunwhj Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 
 #include "TFile.h"
 #include "TDirectory.h"
-
+#include "TPRegexp.h"
 
 
 
@@ -71,7 +71,22 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   LogTrace ("HLTMuonVal") << "\n\n Inside MuonTriggerRate Constructor\n\n";
   
   vector<string> triggerNames = pset.getParameter< vector<string> >
-                                ("TriggerNames");
+                                ("TriggerRegExpStrings");
+
+  vector<TPRegexp> trigRegExps;
+  
+  for (vector<string>::const_iterator iTrigName = triggerNames.begin();
+       iTrigName != triggerNames.end();
+       iTrigName ++) {
+
+    trigRegExps.push_back( TPRegexp((*iTrigName).c_str()) );
+    
+    LogTrace ("HLTMuonVal") << "Trigger Reg Exp = " << trigRegExps.back().GetPattern() << endl;
+  }
+
+  
+       
+  
   string theHltProcessName = pset.getParameter<string>("HltProcessName");
 
   //string defRecoLabel = pset.getUntrackedParameter<string>("RecoLabel","");
@@ -171,9 +186,17 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   
   
   LogTrace ("HLTMuonVal") << "Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
+
+
+  // Be careful. If hltConfig provider doesn't initialize sucessfully,
+  // then you can get in trouble.
+
   HLTConfigProvider hltConfig;
-  hltConfig.init(theHltProcessName);
-  vector<string> validTriggerNames = hltConfig.triggerNames();
+  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
+  vector<string> validTriggerNames;
+
+  if (hltConfigInitSuccess)
+    validTriggerNames = hltConfig.triggerNames();
 
   if (validTriggerNames.size() < 1) {
     LogInfo ("HLTMuonVal") << endl << endl << endl
@@ -188,6 +211,22 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
 
   vector<string>::const_iterator iDumpName;
   unsigned int numTriggers = 0;
+  
+  vector<string> parsedMuonTrigNames;
+
+  // declare a bunch of trigger name patterns that you'd like to match
+  // and do the matching
+  // the end of line anchor removes matches to
+  // multi-object triggers
+  TPRegexp l1l2MuTrigExp   ("HLT_L[12]Mu[^_]*$");
+  TPRegexp isoMuTrigExp    ("HLT_[iI]soMu[^_]*$");
+  TPRegexp normalMuExp     ("HLT_Mu[^_]*$");
+  TPRegexp l1l2DoubleExp   ("HLT_L[12]DoubleMu[^_]*$");
+  TPRegexp normalDoubleExp ("HLT_DoubleMu[^_]*$");
+
+
+  
+  
   for (iDumpName = validTriggerNames.begin();
        iDumpName != validTriggerNames.end();
        iDumpName++) {
@@ -196,27 +235,54 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
                             << " is called " << (*iDumpName)
                             << endl;
     numTriggers++;
+
+    TString tempTStringModName(*iDumpName);
+
+    bool matchesAnyRegexp = false;
+    for (vector<TPRegexp>::const_iterator iTrigRegExp = trigRegExps.begin();
+         iTrigRegExp != trigRegExps.end();
+         iTrigRegExp ++) {
+      TPRegexp tempRegExp((*iTrigRegExp));
+      if (tempTStringModName.Contains(tempRegExp))
+          matchesAnyRegexp = true;
+    }
+
+    if (matchesAnyRegexp) {
+
+      LogTrace ("HLTMuonVal") << "------> This is a muon trigger"
+                              << endl;
+
+      parsedMuonTrigNames.push_back(*iDumpName);
+
+    }
+    
   }
 
+  // loop over each combination of selection + trigger
+  // make a match and plot analyzer for each combination
 
   vector<MuonSelectionStruct>::iterator iMuonSelector;
   vector<string>::iterator iName = customNames.begin();
+
+  LogTrace ("HLTMuonVal") << "Looping over custom selectors" << endl;
+  unsigned numSelectors = 0;
   for ( iMuonSelector = customSelectors.begin();
         iMuonSelector != customSelectors.end();
         iMuonSelector++) {
-  
-    for( size_t i = 0; i < triggerNames.size(); i++) {
-      bool isValidTriggerName = false;
-      for ( size_t j = 0; j < validTriggerNames.size(); j++ )
-        if ( triggerNames[i] == validTriggerNames[j] ) isValidTriggerName = true;
-      if ( !isValidTriggerName ) {}   
-      else {
-        vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-        HLTMuonMatchAndPlot *analyzer;
-        analyzer = new HLTMuonMatchAndPlot( pset, triggerNames[i], moduleNames, (*iMuonSelector), (*iName), validTriggerNames );
-        theTriggerAnalyzers.push_back( analyzer );
-      }
+
+    cout << "Num selectors  =  " << numSelectors << endl;
+    
+    for( size_t i = 0; i < parsedMuonTrigNames.size(); i++) {
+      
+      LogTrace ("HLTMuonVal") << "PARSED: Making match and plot for trigger " << parsedMuonTrigNames[i] << endl;
+      
+      vector<string> moduleNames = hltConfig.moduleLabels( parsedMuonTrigNames[i] );
+      HLTMuonMatchAndPlot *analyzer;
+      analyzer = new HLTMuonMatchAndPlot( pset, parsedMuonTrigNames[i], moduleNames, (*iMuonSelector), (*iName), validTriggerNames );
+      theTriggerAnalyzers.push_back( analyzer );
+      
     }
+    numSelectors++;
     iName++;
   }
   //theOverlapAnalyzer = new HLTMuonOverlap( pset );    
