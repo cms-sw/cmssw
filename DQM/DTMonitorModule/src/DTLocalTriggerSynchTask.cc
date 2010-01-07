@@ -2,8 +2,8 @@
 /*
  * \file DTLocalTriggerSynchTask.cc
  * 
- * $Date: 2009/11/02 14:42:45 $
- * $Revision: 1.2 $
+ * $Date: 2009/11/15 14:00:37 $
+ * $Revision: 1.3 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -62,7 +62,7 @@ DTLocalTriggerSynchTask::~DTLocalTriggerSynchTask() {
 }
 
 
-void DTLocalTriggerSynchTask::beginJob(const edm::EventSetup& context){
+void DTLocalTriggerSynchTask::beginJob(){
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: BeginJob" << endl;
 
@@ -76,14 +76,6 @@ void DTLocalTriggerSynchTask::beginJob(const edm::EventSetup& context){
   dbe = edm::Service<DQMStore>().operator->();
   dbe->setCurrentFolder("DT/90-LocalTriggerSynch/");
   dbe->bookFloat("BXTimeSpacing")->Fill(bxTime);
-  context.get<MuonGeometryRecord>().get(muonGeom);
-
-  std::vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
-  std::vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
-
-  for (; chambIt!=chambEnd; ++chambIt) { 
-    bookHistos((*chambIt)->id());
-  } 
   
 }
 
@@ -91,17 +83,20 @@ void DTLocalTriggerSynchTask::beginRun(const Run& run, const EventSetup& context
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask") <<"[DTLocalTriggerSynchTask]: Begin Run"<<endl;
 
+  context.get<MuonGeometryRecord>().get(muonGeom);
   tTrigSync = DTTTrigSyncFactory::get()->create(parameters.getParameter<std::string>("tTrigMode"),
 						parameters.getParameter<edm::ParameterSet>("tTrigModeConfig"));
   tTrigSync->setES(context);
+
 
   std::vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
   std::vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
 
   for (; chambIt!=chambEnd; ++chambIt) { 
+    bookHistos((*chambIt)->id());
     triggerHistos[(*chambIt)->id().rawId()]["tTrig_SL1"]->Fill(tTrigSync->offset(DTWireId((*chambIt)->id(),1,1,2)));
     triggerHistos[(*chambIt)->id().rawId()]["tTrig_SL3"]->Fill(tTrigSync->offset(DTWireId((*chambIt)->id(),3,1,2)));
-  }   
+  } 
   
 }
 

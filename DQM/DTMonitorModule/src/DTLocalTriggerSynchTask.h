@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerSynchTask.h
  *
- * $Date: 2009/10/16 08:38:49 $
- * $Revision: 1.1 $
+ * $Date: 2009/11/02 14:42:45 $
+ * $Revision: 1.2 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -56,7 +56,7 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
  protected:
   
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
   
   /// Book the histograms
   void bookHistos(const DTChamberId& dtCh );
