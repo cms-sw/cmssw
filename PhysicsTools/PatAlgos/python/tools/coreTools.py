@@ -43,17 +43,23 @@ def removeMCMatching(process,
 
     process : process
     name    : collection name; supported are 'Photons', 'Electrons',
-              'Muons', 'Taus', 'Jets', 'METs', 'All'
+              'Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons',
+              'PFTaus','PFMuons'
     ------------------------------------------------------------------    
     """
+    print "************** MC dependence removal ************"
     for obj in range(len(names)):    
         if( names[obj] == 'Photons'   or names[obj] == 'All' ):
+            print "removing MC dependence photons"
             _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons') 
         if( names[obj] == 'Electrons' or names[obj] == 'All' ):
+            print "removing MC dependence electrons"
             _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons') 
         if( names[obj] == 'Muons'     or names[obj] == 'All' ):
+            print "removing MC dependence muons"
             _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons') 
         if( names[obj] == 'Taus'      or names[obj] == 'All' ):
+            print "removing MC dependence taus"
             _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
             ## remove mc extra modules for taus
             process.patDefaultSequence.remove(process.tauGenJets)
@@ -64,6 +70,7 @@ def removeMCMatching(process,
             tauProducer.embedGenJetMatch    = False
             tauProducer.genJetMatch         = ''         
         if( names[obj] == 'Jets'      or names[obj] == 'All' ):
+            print "removing MC dependence jets"
             ## remove mc extra modules for jets
             process.patDefaultSequence.remove(process.patAK5CaloJetPartonMatch)
             process.patDefaultSequence.remove(process.patAK5CaloJetGenJetMatch)
@@ -83,25 +90,31 @@ def removeMCMatching(process,
             metProducer.addGenMET           = False
             metProducer.genMETSource        = ''       
         if( names[obj] == 'PFElectrons' or names[obj] == 'PFAll' ):
-            _removeMCMatchingForPATObject(process, 'electronMatch', 'pfLayer1Electrons') 
+            print "now removing MC dependence PF electrons"
+            _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons') 
         if( names[obj] == 'PFMuons'     or names[obj] == 'PFAll' ):
-            _removeMCMatchingForPATObject(process, 'pfMuonMatch', 'pfLayer1Muons') 
+            print "now removing MC dependence PF muons"
+            _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons') 
         if( names[obj] == 'PFTaus'      or names[obj] == 'PFAll' ):
-            _removeMCMatchingForPATObject(process, 'pfTauMatch', 'pfLayer1Taus')
-            process.PFPATafterPAT.remove(process.pfTauGenJetMatch)
+            print "now removing MC dependence PF taus"
+            _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
+            process.patDefaultSequence.remove(process.tauGenJetMatch)
+            process.patDefaultSequence.remove(process.tauGenJets)
             ## remove mc extra configs for taus
-            tauProducer = getattr(process, 'pfLayer1Taus')
+            tauProducer = getattr(process, 'patTaus')
             tauProducer.addGenJetMatch      = False
             tauProducer.embedGenJetMatch    = False
             tauProducer.genJetMatch         = ''         
         if( names[obj] == 'PFJets'      or names[obj] == 'PFAll' ):
+            print "now removing MC dependence PF jets"
             ## remove mc extra modules for jets
-            process.PFPATafterPAT.remove(process.pfJetPartonMatch)
-            process.PFPATafterPAT.remove(process.pfJetGenJetMatch)
-            process.PFPATafterPAT.remove(process.pfJetPartonAssociation)
-            process.PFPATafterPAT.remove(process.pfJetFlavourAssociation)     
+            process.patDefaultSequence.remove(process.patJetPartons)
+            process.patDefaultSequence.remove(process.patAK5PFlowJetPartonMatch)
+            process.patDefaultSequence.remove(process.patAK5PFlowJetGenJetMatch)
+            process.patDefaultSequence.remove(process.patAK5PFlowJetPartonAssociation)
+            process.patDefaultSequence.remove(process.patAK5PFlowJetFlavourAssociation)     
             ## remove mc extra configs for jets
-            jetProducer = getattr(process, 'pfLayer1Jets')
+            jetProducer = getattr(process, 'patAK5PFlowJets')
             jetProducer.addGenPartonMatch   = False
             jetProducer.embedGenPartonMatch = False
             jetProducer.genPartonMatch      = ''
@@ -110,10 +123,11 @@ def removeMCMatching(process,
             jetProducer.getJetMCFlavour     = False
             jetProducer.JetPartonMapSource  = ''       
         if( names[obj] == 'PFMETs'      or names[obj] == 'PFAll' ):
+            print "now removing MC dependence PF MET"
             ## remove mc extra configs for jets
-            metProducer = getattr(process, 'pfLayer1METs')        
-            metProducer.addGenMET           = False
-            metProducer.genMETSource        = ''      
+            metProducer = getattr(process, 'pfMET')        
+            metProducer.addGenMET           = cms.bool(False)
+            metProducer.genMETSource        = cms.InputTag('')      
 
 def _removeMCMatchingForPATObject(process, matcherName, producerName):
     ## remove mcMatcher from the default sequence
