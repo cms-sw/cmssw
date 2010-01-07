@@ -13,7 +13,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Fri Nov 14 15:00:43 GMT 2008
-// $Id: AnalysisErsatz.h,v 1.1 2009/10/14 13:20:39 rnandi Exp $
+// $Id: AnalysisErsatz.h,v 1.2 2009/12/08 09:57:46 rnandi Exp $
 //
 //
 
@@ -76,7 +76,7 @@ class AnalysisErsatz : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

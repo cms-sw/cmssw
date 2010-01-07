@@ -31,7 +31,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Feb 12 11:22:04 CET 2009
-// $Id: ZeeCandidateFilter.cc,v 1.1 2009/09/23 09:23:07 rompotis Exp $
+// $Id: ZeeCandidateFilter.cc,v 1.2 2009/12/09 08:56:28 rompotis Exp $
 //
 //
 
@@ -75,7 +75,6 @@ class ZeeCandidateFilter : public edm::EDFilter {
       ~ZeeCandidateFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       bool isInFiducial(double eta);
@@ -399,12 +398,6 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    //cout << "This event has passed!" << endl;
    return true;
-}
-
-// ------------ method called once each job just before starting event loop  -
-void 
-ZeeCandidateFilter::beginJob(const edm::EventSetup&)
-{
 }
 
 // ------------ method called once each job just after ending the event loop  -

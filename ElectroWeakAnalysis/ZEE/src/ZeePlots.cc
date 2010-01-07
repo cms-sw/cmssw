@@ -397,7 +397,7 @@ bool ZeePlots::CheckCut2Inv(const pat::Electron *ele, int i) {
 
 // ------------ method called once each job just before starting event loop  --
 void 
-ZeePlots::beginJob(const edm::EventSetup&)
+ZeePlots::beginJob()
 {
   //std::cout << "In beginJob()" << std::endl;
   h_mee      = new TH1F("h_mee",      "h_mee",       200, 0, 200);

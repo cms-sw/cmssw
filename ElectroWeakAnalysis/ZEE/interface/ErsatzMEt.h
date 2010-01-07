@@ -15,7 +15,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Tue Nov 11 16:47:29 GMT 2008
-// $Id: ErsatzMEt.h,v 1.1 2009/10/13 16:25:08 rnandi Exp $
+// $Id: ErsatzMEt.h,v 1.2 2009/12/08 09:57:46 rnandi Exp $
 //
 //
 
@@ -97,7 +97,7 @@ class ErsatzMEt : public edm::EDAnalyzer {
 
 
    private:
-      	virtual void beginJob(const edm::EventSetup&) ;
+      	virtual void beginJob() ;
       	virtual void analyze(const edm::Event&, const edm::EventSetup&);
 //	std::map<reco::GsfElectronRef, reco::SuperClusterRef> probeFinder(const std::vector<reco::GsfElectronRef>&,
 //							const edm::Handle<reco::SuperClusterCollection>&,

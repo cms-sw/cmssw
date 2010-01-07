@@ -53,7 +53,7 @@ AnalysisErsatz::~AnalysisErsatz()
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void AnalysisErsatz::beginJob(const edm::EventSetup& )
+void AnalysisErsatz::beginJob()
 {
 	edm::Service<TFileService> fs;
 	t_ = fs->make<TTree>("AnalysisData", "Analysis of Ersatz MEt Properties");

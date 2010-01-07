@@ -69,14 +69,11 @@ ErsatzMEt::~ErsatzMEt()
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void ErsatzMEt::beginJob(const edm::EventSetup& setup)
+void ErsatzMEt::beginJob()
 {
 	edm::Service<TFileService> fs;
 
 	t_ = fs->make<TTree>("ErsatzMEt", "Data on ErsatzMEt");
-	
-	setup.get<CaloGeometryRecord>().get(geoHandle_);
-	setup.get<CaloTopologyRecord>().get(pTopology_);
 	
 	edm::LogDebug_("","", 75)<<"Creating Ersatz MEt branches.";
 	
@@ -219,6 +216,10 @@ void ErsatzMEt::beginJob(const edm::EventSetup& setup)
 
 void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 {
+
+       es.get<CaloGeometryRecord>().get(geoHandle_);
+       es.get<CaloTopologyRecord>().get(pTopology_);
+
 	edm::LogDebug_("","", 151)<<"Initialising variables.";
 	nTags_ = -99; nProbes_ = -99;
 	CaloMEt_ = -99.; CaloMEtphi_ = -99.;
