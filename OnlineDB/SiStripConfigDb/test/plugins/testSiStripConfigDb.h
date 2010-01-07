@@ -1,5 +1,5 @@
-// Last commit: $Id: testSiStripConfigDb.h,v 1.1 2008/03/26 09:13:11 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: testSiStripConfigDb.h,v 1.2 2008/04/29 11:57:06 bainbrid Exp $
+// Latest tag:  $Name: V07-01-06 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h,v $
 
 #ifndef OnlineDB_SiStripConfigDb_testSiStripConfigDb_H
@@ -24,7 +24,7 @@ class testSiStripConfigDb : public edm::EDAnalyzer {
   testSiStripConfigDb( const edm::ParameterSet& );
   ~testSiStripConfigDb();
   
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& ) {;}
   void endJob() {;}
 

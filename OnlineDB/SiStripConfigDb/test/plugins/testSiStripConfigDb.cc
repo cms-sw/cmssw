@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.16 2009/02/20 10:04:24 alinn Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.17 2009/04/06 16:57:28 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -49,7 +49,7 @@ testSiStripConfigDb::~testSiStripConfigDb() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
+void testSiStripConfigDb::beginJob() {
 
   
   // -------------------- INITIALISATION --------------------
