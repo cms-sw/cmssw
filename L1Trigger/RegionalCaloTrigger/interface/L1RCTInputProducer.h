@@ -22,7 +22,6 @@ class L1RCTInputProducer : public edm::EDProducer
  public:
   explicit L1RCTInputProducer(const edm::ParameterSet& ps);
   virtual ~L1RCTInputProducer();
-  virtual void beginJob(const edm::EventSetup& c);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
  private:
   L1RCTLookupTables* rctLookupTables;

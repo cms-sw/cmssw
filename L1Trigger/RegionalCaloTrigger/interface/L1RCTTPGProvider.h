@@ -13,7 +13,7 @@
 //
 // Original Author:  Michail Bachtis
 //         Created:  Tue Mar 10 18:29:22 CDT 2009
-// $Id$
+// $Id: L1RCTTPGProvider.h,v 1.1 2009/03/31 04:15:04 bachtis Exp $
 //
 //
 
@@ -40,7 +40,6 @@ class L1RCTTPGProvider : public edm::EDProducer {
       ~L1RCTTPGProvider();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

@@ -16,7 +16,7 @@
 //
 // Original Author:  jleonard
 //         Created:  Fri Apr 11 16:27:07 CEST 2008
-// $Id: L1RCTLutWriter.h,v 1.2 2008/05/30 14:32:04 jleonard Exp $
+// $Id: L1RCTLutWriter.h,v 1.3 2008/07/10 16:57:07 jleonard Exp $
 //
 //
 
@@ -57,7 +57,6 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   void writeRcLutFile(unsigned short card);

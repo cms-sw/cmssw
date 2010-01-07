@@ -18,7 +18,7 @@ RCT.
 //
 // Original Author:  pts/65
 //         Created:  Fri Nov 23 12:08:31 CET 2007
-// $Id$
+// $Id: MaskedRctInputDigiProducer.h,v 1.1 2007/11/27 10:14:57 jleonard Exp $
 //
 //
 
@@ -49,7 +49,6 @@ public:
   ~MaskedRctInputDigiProducer();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
