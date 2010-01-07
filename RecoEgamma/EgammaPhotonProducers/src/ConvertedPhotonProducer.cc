@@ -162,6 +162,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   nEvt_++;  
 
   LogDebug("ConvertedPhotonProducer")   << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
+  std::cout    << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
   
   //
   // create empty output collections
@@ -456,7 +457,10 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
         
 	minAppDist=calculateMinApproachDistance( trackPairRef[0],  trackPairRef[1]);
 
-	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, algo);
+	double like = -999.;
+	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, like, algo);
+	like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
+        newCandidate.setMVAout(like);
 	outputConvPhotonCollection.push_back(newCandidate);
 	
 	
@@ -538,7 +542,10 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	      }	    
 	      
 	    } // bool On/Off one track case recovery using generalTracks  
-	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, algo );
+	    double like = -999.;
+	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, like, algo);
+	    like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
+	    newCandidate.setMVAout(like);
 	    outputConvPhotonCollection.push_back(newCandidate);
 	      
 	      
@@ -554,39 +561,6 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
     }
     
 
-
-
-
-    /*
-    if (  allPairs.size() ==0 || nFound ==0) {
-      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
-      LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
-      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
-      
-      std::vector<math::XYZPoint> trkPositionAtEcal;
-      std::vector<reco::CaloClusterPtr> matchingBC;
-
-      scPtrVec.clear();
-      scPtrVec.push_back(aClus);     
-      reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
-      outputConvPhotonCollection.push_back(newCandidate);
-
-     
-      if ( newCandidate.conversionVertex().isValid() ) 
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer theConversionVertex " <<  newCandidate.conversionVertex().position().x() << " " <<  newCandidate.conversionVertex().position().y() << " " <<  newCandidate.conversionVertex().position().z() << "\n";
-      
-
-     
-      
-      myCands++;
-      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
-      
-    }
-    */
-    
-  
 
     
   }
@@ -656,14 +630,12 @@ std::vector<reco::ConversionRef>  ConvertedPhotonProducer::solveAmbiguity(const 
   std::multimap<double, reco::ConversionRef, std::greater<double> >   convMap;
 
   for ( unsigned int icp=0; icp< conversionHandle->size(); icp++) {
-
     reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
-
+    
     //std::cout << " cpRef " << cpRef->nTracks() << " " <<  cpRef ->caloCluster()[0]->energy() << std::endl;    
-
     if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue;    
     if ( !cpRef->isConverted() ) continue;  
-    double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
+    double like = cpRef->MVAout();
     //    std::cout << " Like " << like << std::endl;
     convMap.insert ( std::make_pair(like,cpRef) );
     
@@ -674,7 +646,7 @@ std::vector<reco::ConversionRef>  ConvertedPhotonProducer::solveAmbiguity(const 
   std::multimap<double, reco::ConversionRef>::iterator  iMap; 
   std::vector<reco::ConversionRef> bestRefs;
   for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
-    //  std::cout << " Like list in the map " <<  iMap->first << " " << (iMap->second)->EoverP() << std::endl;
+    //    std::cout << " Like list in the map " <<  iMap->first << " " << (iMap->second)->EoverP() << std::endl;
     bestRefs.push_back(  iMap->second );
     if (  int(bestRefs.size()) ==  maxNumOfCandidates_ ) break;   
   }
