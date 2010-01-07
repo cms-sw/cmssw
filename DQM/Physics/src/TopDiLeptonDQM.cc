@@ -17,10 +17,16 @@ TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
   initialize();
 
   moduleName_      = ps.getUntrackedParameter<string>("moduleName");
+  outputFile_      = ps.getUntrackedParameter<string>("outputFile");
   triggerResults_  = ps.getParameter<InputTag>("TriggerResults");
   hltPaths_        = ps.getParameter<vector<string> >("hltPaths");
   hltPaths_sig_    = parameters_.getParameter<vector<string> >("hltPaths_sig");
   hltPaths_trig_   = parameters_.getParameter<vector<string> >("hltPaths_trig");
+
+  vertex_          = ps.getParameter<edm::InputTag>("vertexCollection");
+  vertex_X_cut_    = ps.getParameter<double>("vertex_X_cut");
+  vertex_Y_cut_    = ps.getParameter<double>("vertex_Y_cut");
+  vertex_Z_cut_    = ps.getParameter<double>("vertex_Z_cut");
 
   muons_           = ps.getParameter<edm::InputTag>("muonCollection");
   muon_pT_cut_     = ps.getParameter<double>("muon_pT_cut");
@@ -44,6 +50,9 @@ TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
   N_mumu = 0;
   N_muel = 0;
   N_elel = 0;
+
+  //  const char *fileName = outputFile_.c_str();
+  //  outfile.open (fileName);
 
 }
 
@@ -72,6 +81,8 @@ void TopDiLeptonDQM::beginJob() {
   Nmuons_        = dbe_->book1D("03_Nmuons",     "Number of muons",               20,   0.,  10.);
   Nmuons_iso_    = dbe_->book1D("04_Nmuons_iso", "Number of isolated muons",      20,   0.,  10.);
   Nmuons_charge_ = dbe_->book1D("Nmuons_charge", "Number of muons * moun charge", 19, -10.,  10.);
+  VxVy_muons_    = dbe_->book2D("VxVy_muons",    "Vertex x-y-positon (global)",   50 ,  0.,   1., 50 , 0., 1.);
+  Vz_muons_      = dbe_->book1D("Vz_muons",      "Vertex z-positon (global)",     40 ,  0.,  20.);
   pT_muons_      = dbe_->book1D("pT_muons",      "P_T of muons",                  40,   0., 200.);
   eta_muons_     = dbe_->book1D("eta_muons",     "Eta of muons",                  50,  -5.,   5.);
   phi_muons_     = dbe_->book1D("phi_muons",     "Phi of muons",                  40,  -4.,   4.);
@@ -122,6 +133,7 @@ void TopDiLeptonDQM::beginJob() {
   D_phi_elecs_  = dbe_->book1D("D_phi_elecs",    "#Delta phi_elecs", 20, -5., 5.);
   D_eta_lepts_  = dbe_->book1D("D_eta_lepts",    "#Delta eta_lepts", 20, -5., 5.);
   D_phi_lepts_  = dbe_->book1D("D_phi_lepts",    "#Delta phi_lepts", 20, -5., 5.);
+
 }
 
 
@@ -143,13 +155,47 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   bool Fired_Signal_Trigger[100]  = {false};
   bool Fired_Control_Trigger[100] = {false};
 
-  int N_leptons = 0;
+  //  int N_event   = (evt.id()).event();
 
+  int N_leptons = 0;
   int N_iso_mu  = 0;
   int N_iso_el  = 0;
   int N_iso_lep = 0;
 
   double DilepMass = 0.;
+
+  double vertex_X  = 100.;
+  double vertex_Y  = 100.;
+  double vertex_Z  = 100.;
+
+  // ------------------------
+  //  Analyze Primary Vertex
+  // ------------------------
+
+  edm::Handle<reco::VertexCollection> vertexs;
+  evt.getByLabel(vertex_, vertexs);
+
+  if( vertexs.failedToGet() ) {
+
+    //    cout << endl << "----------------------------" << endl;
+    //    cout << "--- NO PRIMARY VERTEX !! ---" << endl;
+    //    cout << "----------------------------" << endl << endl;
+
+  }
+
+  if( !vertexs.failedToGet() ) {
+
+    reco::VertexCollection::const_iterator vertex;
+
+    for(vertex = vertexs->begin(); vertex!= vertexs->end(); ++vertex) {
+
+      vertex_X = vertex->position().x();
+      vertex_Y = vertex->position().y();
+      vertex_Z = vertex->position().z();
+
+    }
+
+  }
 
   // -------------------------
   //  Analyze Trigger Results
@@ -241,10 +287,35 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     for(muon = muons->begin(); muon!= muons->end(); ++muon) {
 
-      float N_muons = muons->size();
-      float Q_muon  = muon->charge();
+      float  N_muons = muons->size();
+      float  Q_muon  = muon->charge();
 
       Nmuons_charge_->Fill(N_muons*Q_muon);
+
+      double track_X = 100.;
+      double track_Y = 100.;
+      double track_Z = 100.;
+
+      if( muon->isGlobalMuon() ) {
+
+	reco::TrackRef track = muon->globalTrack();
+
+	track_X = track->vx();
+	track_Y = track->vy();
+	track_Z = track->vz();
+
+	VxVy_muons_->Fill(track_X,track_Y);
+	Vz_muons_->Fill(track_Z);
+
+      }
+
+      // Vertex and kinematic cuts
+
+      if(          track_X > vertex_X_cut_ )  continue;
+      if(          track_Y > vertex_Y_cut_ )  continue;
+      if(          track_Z > vertex_Z_cut_ )  continue;
+      if(     muon->pt()   < muon_pT_cut_  )  continue;
+      if( abs(muon->eta()) > muon_eta_cut_ )  continue;
 
       reco::MuonIsolation muIso03 = muon->isolationR03();
 
@@ -308,6 +379,24 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
       Nelecs_charge_->Fill(N_elecs*Q_elec);
 
+      double track_X = 100.;
+      double track_Y = 100.;
+      double track_Z = 100.;
+
+      reco::GsfTrackRef track = elec->gsfTrack();
+
+      track_X = track->vx();
+      track_Y = track->vy();
+      track_Z = track->vz();
+
+      // Vertex and kinematic cuts
+
+      if(          track_X > vertex_X_cut_ )  continue;
+      if(          track_Y > vertex_Y_cut_ )  continue;
+      if(          track_Z > vertex_Z_cut_ )  continue;
+      if(     elec->pt()   < elec_pT_cut_  )  continue;
+      if( abs(elec->eta()) > elec_eta_cut_ )  continue;
+
       reco::GsfElectron::IsolationVariables elecIso = elec->dr03IsolationVariables();
 
       double elecCombRelIso = 1.;
@@ -347,79 +436,84 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   //  if( N_iso_mu > 1 && Fired_Control_Trigger[0] ) {
   if( N_iso_mu > 1 ) {
 
-    ++N_mumu;
+    // Vertex cut
 
-    Events_->Fill(1.);
-    Events_->setBinLabel( 2, "#mu #mu", 1);
+    if( vertex_X < vertex_X_cut_ && vertex_Y < vertex_Y_cut_ && vertex_Z < vertex_Z_cut_ ) {
 
-    reco::MuonCollection::const_reference mu1 = muons->at(0);
-    reco::MuonCollection::const_reference mu2 = muons->at(1);
+      ++N_mumu;
 
-    DilepMass = sqrt( (mu1.energy()+mu2.energy())*(mu1.energy()+mu2.energy())
-		      - (mu1.px()+mu2.px())*(mu1.px()+mu2.px())
-		      - (mu1.py()+mu2.py())*(mu1.py()+mu2.py())
-		      - (mu1.pz()+mu2.pz())*(mu1.pz()+mu2.pz())
-		      );
+      Events_->Fill(1.);
+      Events_->setBinLabel( 2, "#mu #mu", 1);
 
-    // Opposite muon charges -> Right Charge (RC)
+      reco::MuonCollection::const_reference mu1 = muons->at(0);
+      reco::MuonCollection::const_reference mu2 = muons->at(1);
 
-    if( mu1.charge()*mu2.charge() < 0. ) {
+      DilepMass = sqrt( (mu1.energy()+mu2.energy())*(mu1.energy()+mu2.energy())
+			- (mu1.px()+mu2.px())*(mu1.px()+mu2.px())
+			- (mu1.py()+mu2.py())*(mu1.py()+mu2.py())
+			- (mu1.pz()+mu2.pz())*(mu1.pz()+mu2.pz())
+			);
 
-      dimassRC_LOG10_->Fill( log10(DilepMass) );
-      dimassRC_->Fill(      DilepMass );
-      dimassRC_LOGX_->Fill( DilepMass );
+      // Opposite muon charges -> Right Charge (RC)
 
-      if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
+      if( mu1.charge()*mu2.charge() < 0. ) {
 
-	//	cout << "DilepMass: " << DilepMass << endl;
+	dimassRC_LOG10_->Fill( log10(DilepMass) );
+	dimassRC_->Fill(      DilepMass );
+	dimassRC_LOGX_->Fill( DilepMass );
 
-	for(muon = muons->begin(); muon!= muons->end(); ++muon) {
+	if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
 
-	  if(     muon->pt()   < muon_pT_cut_     )  continue;
-	  if( abs(muon->eta()) > muon_eta_cut_    )  continue;
+	  //	  cout << "DilepMass: " << DilepMass << endl;
 
-	  pT_muons_->Fill(  muon->pt() );
-	  eta_muons_->Fill( muon->eta() );
-	  phi_muons_->Fill( muon->phi() );
+	  for(muon = muons->begin(); muon!= muons->end(); ++muon) {
 
-	}
+	    pT_muons_->Fill(  muon->pt() );
+	    eta_muons_->Fill( muon->eta() );
+	    phi_muons_->Fill( muon->phi() );
 
-	D_eta_muons_->Fill(mu1.eta()-mu2.eta());
-	D_phi_muons_->Fill(mu1.phi()-mu2.phi());
+	  }
 
-	// Determinating trigger efficiencies
+	  D_eta_muons_->Fill(mu1.eta()-mu2.eta());
+	  D_phi_muons_->Fill(mu1.phi()-mu2.phi());
 
-	//	cout << "-----------------------------"   << endl;
+	  //	  if( mu1.isGlobalMuon() && mu2.isGlobalMuon() )  outfile << N_event << "\n";
 
-	for( int k = 0; k < N_SignalPaths; ++k ) {
+	  // Determinating trigger efficiencies
 
-	  if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
+	  //	cout << "-----------------------------"   << endl;
 
-	  if( Fired_Control_Trigger[k] )  ++N_trig[k];
+	  for( int k = 0; k < N_SignalPaths; ++k ) {
 
-	  if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
+	    if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
 
-	  //	  cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
-	  //	  cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
-	  //	  cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
-	  //	  cout << "-----------------------------" << endl;
+	    if( Fired_Control_Trigger[k] )  ++N_trig[k];
 
-	  TriggerEff_->setBinContent( k+1, Eff[k] );
-	  TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
+	    if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
+
+	    //	    cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
+	    //	    cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
+	    //	    cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
+	    //	    cout << "-----------------------------" << endl;
+
+	    TriggerEff_->setBinContent( k+1, Eff[k] );
+	    TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
+
+	  }
 
 	}
 
       }
 
-    }
+      // Same muon charges -> Wrong Charge (WC)
 
-    // Same muon charges -> Wrong Charge (WC)
+      if( mu1.charge()*mu2.charge() > 0. ) {
 
-    if( mu1.charge()*mu2.charge() > 0. ) {
+	dimassWC_LOG10_->Fill( log10(DilepMass) );
+	dimassWC_->Fill(      DilepMass );
+	dimassWC_LOGX_->Fill( DilepMass );
 
-      dimassWC_LOG10_->Fill( log10(DilepMass) );
-      dimassWC_->Fill(      DilepMass );
-      dimassWC_LOGX_->Fill( DilepMass );
+      }
 
     }
 
@@ -434,90 +528,92 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     //    cout << "+++ I am a mu/e EVENT !!! +++" << endl;
 
-    ++N_muel;
+    // Vertex cut
 
-    Events_->Fill(2.);
-    Events_->setBinLabel( 3, "#mu e", 1);
+    if( vertex_X < vertex_X_cut_ && vertex_Y < vertex_Y_cut_ && vertex_Z < vertex_Z_cut_ ) {
 
-    reco::MuonCollection::const_reference        mu1 = muons->at(0);
-    reco::GsfElectronCollection::const_reference el1 = elecs->at(0);
+      ++N_muel;
 
-    DilepMass = sqrt( (mu1.energy()+el1.energy())*(mu1.energy()+el1.energy())
-		      - (mu1.px()+el1.px())*(mu1.px()+el1.px())
-		      - (mu1.py()+el1.py())*(mu1.py()+el1.py())
-		      - (mu1.pz()+el1.pz())*(mu1.pz()+el1.pz())
-		      );
+      Events_->Fill(2.);
+      Events_->setBinLabel( 3, "#mu e", 1);
 
-    // Opposite lepton charges -> Right Charge (RC)
+      reco::MuonCollection::const_reference        mu1 = muons->at(0);
+      reco::GsfElectronCollection::const_reference el1 = elecs->at(0);
 
-    if( mu1.charge()*el1.charge() < 0. ) {
+      DilepMass = sqrt( (mu1.energy()+el1.energy())*(mu1.energy()+el1.energy())
+			- (mu1.px()+el1.px())*(mu1.px()+el1.px())
+			- (mu1.py()+el1.py())*(mu1.py()+el1.py())
+			- (mu1.pz()+el1.pz())*(mu1.pz()+el1.pz())
+			);
 
-      dimassRC_LOG10_->Fill( log10(DilepMass) );
-      dimassRC_->Fill(      DilepMass );
-      dimassRC_LOGX_->Fill( DilepMass );
+      // Opposite lepton charges -> Right Charge (RC)
 
-      if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
+      if( mu1.charge()*el1.charge() < 0. ) {
 
-	//	cout << "DilepMass: " << DilepMass << endl;
+	dimassRC_LOG10_->Fill( log10(DilepMass) );
+	dimassRC_->Fill(      DilepMass );
+	dimassRC_LOGX_->Fill( DilepMass );
 
-	for(muon = muons->begin(); muon!= muons->end(); ++muon) {
+	if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
 
-	  if(     muon->pt()   < muon_pT_cut_     )  continue;
-	  if( abs(muon->eta()) > muon_eta_cut_    )  continue;
+	  //	  cout << "DilepMass: " << DilepMass << endl;
 
-	  pT_muons_->Fill(  muon->pt() );
-	  eta_muons_->Fill( muon->eta() );
-	  phi_muons_->Fill( muon->phi() );
+	  for(muon = muons->begin(); muon!= muons->end(); ++muon) {
 
-	}
+	    pT_muons_->Fill(  muon->pt() );
+	    eta_muons_->Fill( muon->eta() );
+	    phi_muons_->Fill( muon->phi() );
 
-	for(elec = elecs->begin(); elec!= elecs->end(); ++elec) {
+	  }
 
-	  if(     elec->pt()   < elec_pT_cut_     )  continue;
-	  if( abs(elec->eta()) > elec_eta_cut_    )  continue;
+	  for(elec = elecs->begin(); elec!= elecs->end(); ++elec) {
 
-	  pT_elecs_->Fill(  elec->pt() );
-	  eta_elecs_->Fill( elec->eta() );
-	  phi_elecs_->Fill( elec->phi() );
+	    pT_elecs_->Fill(  elec->pt() );
+	    eta_elecs_->Fill( elec->eta() );
+	    phi_elecs_->Fill( elec->phi() );
 
-	}
+	  }
 
-	D_eta_lepts_->Fill(mu1.eta()-el1.eta());
-	D_phi_lepts_->Fill(mu1.phi()-el1.phi());
+	  D_eta_lepts_->Fill(mu1.eta()-el1.eta());
+	  D_phi_lepts_->Fill(mu1.phi()-el1.phi());
 
-	// Determinating trigger efficiencies
+	  //	  if( mu1.isGlobalMuon() && el1.isGlobalMuon() )  outfile << N_event << "\n";
 
-	//	cout << "-----------------------------"   << endl;
+	  // Determinating trigger efficiencies
 
-	for( int k = 0; k < N_SignalPaths; ++k ) {
+	  //	  cout << "-----------------------------"   << endl;
 
-	  if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
+	  for( int k = 0; k < N_SignalPaths; ++k ) {
 
-	  if( Fired_Control_Trigger[k] )  ++N_trig[k];
+	    if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
 
-	  if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
+	    if( Fired_Control_Trigger[k] )  ++N_trig[k];
 
-	  //	  cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
-	  //	  cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
-	  //	  cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
-	  //	  cout << "-----------------------------" << endl;
+	    if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
 
-	  TriggerEff_->setBinContent( k+1, Eff[k] );
-	  TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
+	    //	    cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
+	    //	    cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
+	    //	    cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
+	    //	    cout << "-----------------------------" << endl;
+
+	    TriggerEff_->setBinContent( k+1, Eff[k] );
+	    TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
+
+	  }
 
 	}
 
       }
 
-    }
+      // Same muon charges -> Wrong Charge (WC)
 
-    // Same muon charges -> Wrong Charge (WC)
+      if( mu1.charge()*el1.charge() > 0. ) {
 
-    if( mu1.charge()*el1.charge() > 0. ) {
+	dimassWC_LOG10_->Fill( log10(DilepMass) );
+	dimassWC_->Fill(      DilepMass );
+	dimassWC_LOGX_->Fill( DilepMass );
 
-      dimassWC_LOG10_->Fill( log10(DilepMass) );
-      dimassWC_->Fill(      DilepMass );
-      dimassWC_LOGX_->Fill( DilepMass );
+      }
 
     }
 
@@ -530,79 +626,84 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   //  if( N_iso_el > 1 && Fired_Control_Trigger[0] ) {
   if( N_iso_el > 1 ) {
 
-    ++N_elel;
+    // Vertex cut
 
-    Events_->Fill(3.);
-    Events_->setBinLabel( 4, "e e", 1);
+    if( vertex_X < vertex_X_cut_ && vertex_Y < vertex_Y_cut_ && vertex_Z < vertex_Z_cut_ ) {
 
-    reco::GsfElectronCollection::const_reference el1 = elecs->at(0);
-    reco::GsfElectronCollection::const_reference el2 = elecs->at(1);
+      ++N_elel;
 
-    DilepMass = sqrt( (el1.energy()+el2.energy())*(el1.energy()+el2.energy())
-		      - (el1.px()+el2.px())*(el1.px()+el2.px())
-		      - (el1.py()+el2.py())*(el1.py()+el2.py())
-		      - (el1.pz()+el2.pz())*(el1.pz()+el2.pz())
-		      );
+      Events_->Fill(3.);
+      Events_->setBinLabel( 4, "e e", 1);
 
-    // Opposite lepton charges -> Right Charge (RC)
+      reco::GsfElectronCollection::const_reference el1 = elecs->at(0);
+      reco::GsfElectronCollection::const_reference el2 = elecs->at(1);
 
-    if( el1.charge()*el2.charge() < 0. ) {
+      DilepMass = sqrt( (el1.energy()+el2.energy())*(el1.energy()+el2.energy())
+			- (el1.px()+el2.px())*(el1.px()+el2.px())
+			- (el1.py()+el2.py())*(el1.py()+el2.py())
+			- (el1.pz()+el2.pz())*(el1.pz()+el2.pz())
+			);
 
-      dimassRC_LOG10_->Fill( log10(DilepMass) );
-      dimassRC_->Fill(      DilepMass );
-      dimassRC_LOGX_->Fill( DilepMass );
+      // Opposite lepton charges -> Right Charge (RC)
 
-      if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
+      if( el1.charge()*el2.charge() < 0. ) {
 
-	//	cout << "DilepMass: " << DilepMass << endl;
+	dimassRC_LOG10_->Fill( log10(DilepMass) );
+	dimassRC_->Fill(      DilepMass );
+	dimassRC_LOGX_->Fill( DilepMass );
 
-	for(elec = elecs->begin(); elec!= elecs->end(); ++elec) {
+	if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
 
-	  if(     elec->pt()   < elec_pT_cut_     )  continue;
-	  if( abs(elec->eta()) > elec_eta_cut_    )  continue;
+	  //	  cout << "DilepMass: " << DilepMass << endl;
 
-	  pT_elecs_->Fill(  elec->pt() );
-	  eta_elecs_->Fill( elec->eta() );
-	  phi_elecs_->Fill( elec->phi() );
+	  for(elec = elecs->begin(); elec!= elecs->end(); ++elec) {
 
-	}
+	    pT_elecs_->Fill(  elec->pt() );
+	    eta_elecs_->Fill( elec->eta() );
+	    phi_elecs_->Fill( elec->phi() );
 
-	D_eta_elecs_->Fill(el1.eta()-el2.eta());
-	D_phi_elecs_->Fill(el1.phi()-el2.phi());
+	  }
 
-	// Determinating trigger efficiencies
+	  D_eta_elecs_->Fill(el1.eta()-el2.eta());
+	  D_phi_elecs_->Fill(el1.phi()-el2.phi());
 
-	//	cout << "-----------------------------"   << endl;
+	  //	  if( el1.isGlobalMuon() && el2.isGlobalMuon() )  outfile << N_event << "\n";
 
-	for( int k = 0; k < N_SignalPaths; ++k ) {
+	  // Determinating trigger efficiencies
 
-	  if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
+	  //	  cout << "-----------------------------"   << endl;
 
-	  if( Fired_Control_Trigger[k] )  ++N_trig[k];
+	  for( int k = 0; k < N_SignalPaths; ++k ) {
 
-	  if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
+	    if( Fired_Signal_Trigger[k] && Fired_Control_Trigger[k] )  ++N_sig[k];
 
-	  //	  cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
-	  //	  cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
-	  //	  cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
-	  //	  cout << "-----------------------------" << endl;
+	    if( Fired_Control_Trigger[k] )  ++N_trig[k];
 
-	  TriggerEff_->setBinContent( k+1, Eff[k] );
-	  TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
+	    if( N_trig[k] != 0 )  Eff[k] = N_sig[k]/static_cast<float>(N_trig[k]);
+
+	    //	    cout << "Signal Trigger  : " << hltPaths_sig_[k]  << "\t: " << N_sig[k]  << endl;
+	    //	    cout << "Control Trigger : " << hltPaths_trig_[k] << "\t: " << N_trig[k] << endl;
+	    //	    cout << "Trigger Eff.cy  : " << Eff[k]  << endl;
+	    //	    cout << "-----------------------------" << endl;
+
+	    TriggerEff_->setBinContent( k+1, Eff[k] );
+	    TriggerEff_->setBinLabel( k+1, "#frac{["+hltPaths_sig_[k]+"]}{vs. ["+hltPaths_trig_[k]+"]}", 1);
+
+	  }
 
 	}
 
       }
 
-    }
+      // Same muon charges -> Wrong Charge (WC)
 
-    // Same muon charges -> Wrong Charge (WC)
+      if( el1.charge()*el2.charge() > 0. ) {
 
-    if( el1.charge()*el2.charge() > 0. ) {
+	dimassWC_LOG10_->Fill( log10(DilepMass) );
+	dimassWC_->Fill(      DilepMass );
+	dimassWC_LOGX_->Fill( DilepMass );
 
-      dimassWC_LOG10_->Fill( log10(DilepMass) );
-      dimassWC_->Fill(      DilepMass );
-      dimassWC_LOGX_->Fill( DilepMass );
+      }
 
     }
 
@@ -616,5 +717,7 @@ void TopDiLeptonDQM::endRun(const Run& r, const EventSetup& context) {
 }
 
 void TopDiLeptonDQM::endJob() {
+
+  //  outfile.close();
 
 }

@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -16,6 +18,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -26,6 +29,9 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 class TH1F;
@@ -53,10 +59,13 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     DQMStore * dbe_;
 
     std::string moduleName_;
+    std::string outputFile_;
     edm::InputTag triggerResults_;
     std::vector<std::string> hltPaths_;
     std::vector<std::string> hltPaths_sig_;
     std::vector<std::string> hltPaths_trig_;
+
+    std::ofstream outfile;
 
     int N_sig[100];
     int N_trig[100];
@@ -65,6 +74,11 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     int N_mumu;
     int N_muel;
     int N_elel;
+
+    edm::InputTag vertex_;
+    double vertex_X_cut_;
+    double vertex_Y_cut_;
+    double vertex_Z_cut_;
 
     edm::InputTag muons_;
     double muon_pT_cut_;
@@ -86,6 +100,8 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     MonitorElement * Nmuons_;
     MonitorElement * Nmuons_iso_;
     MonitorElement * Nmuons_charge_;
+    MonitorElement * VxVy_muons_;
+    MonitorElement * Vz_muons_;
     MonitorElement * pT_muons_;
     MonitorElement * eta_muons_;
     MonitorElement * phi_muons_;
