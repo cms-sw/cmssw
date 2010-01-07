@@ -18,7 +18,7 @@ from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
 
 
 def batchScriptCCIN2P3():
-   script = """#!/usr/local/bin/bash
+   script = """!/usr/bin/env bash
 #PBS -l platform=LINUX,u_sps_cmsf,M=2000MB,T=2000000
 #PBS -q T
 #PBS -eo
