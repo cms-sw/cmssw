@@ -8,7 +8,7 @@ tnp::TPTreeFiller::TPTreeFiller(const edm::ParameterSet config) :
 
     // set up MC if needed
     if (config.getParameter<bool>("isMC")) {
-        tree_->Branch("mcTrue", &mcTrue_, "mcTrue/B");
+        tree_->Branch("mcTrue", &mcTrue_, "mcTrue/I");
     }
 }
 

@@ -17,7 +17,7 @@ class TPTreeFiller : public BaseTreeFiller {
         /// extra branch for the mass
         mutable float  mass_;
         /// extra branch for the mc truth
-        mutable int8_t mcTrue_;
+        mutable int32_t mcTrue_;
 };
 }
 
