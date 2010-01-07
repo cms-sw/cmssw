@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 #
 # producer for photonCore collection
-# $Id: photonCore_cfi.py,v nancy Exp $
+# $Id: photonCore_cfi.py,v 1.1 2009/03/25 11:17:18 nancy Exp $
 #
 photonCore = cms.EDProducer("PhotonCoreProducer",
     conversionProducer = cms.string('conversions'),
@@ -14,7 +14,7 @@ photonCore = cms.EDProducer("PhotonCoreProducer",
     pixelSeedProducer = cms.string('ecalDrivenElectronSeeds'),
     minSCEt = cms.double(10.0),
     risolveConversionAmbiguity = cms.bool(True),
-    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
+#    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
 )
 
 
