@@ -18,10 +18,7 @@ ca6TrackJets = ca4TrackJets.clone( rParam = 0.6 )
 
 recoTrackJets   =cms.Sequence(trackWithVertexRefSelector+
                               trackRefsForJets+
-                              sisCone5TrackJets+sisCone7TrackJets+
-                              kt4TrackJets+kt6TrackJets+
-                              iterativeCone5TrackJets+
-                              ak5TrackJets+ak7TrackJets)
+                              ak5TrackJets+iterativeCone5TrackJets)
 
 recoAllTrackJets=cms.Sequence(trackWithVertexRefSelector+
                               trackRefsForJets+
