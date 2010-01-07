@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTHiggsBits_WW = cms.EDFilter("HLTHiggsBits",
+HLTHiggsBits_WW = cms.EDAnalyzer("HLTHiggsBits",
   ##  hcalDigisLabel = cms.string('hcalTriggerPrimitiveDigis'),
     muon = cms.string('muons'),
   ##  L1GTObjectMapTag = cms.InputTag("l1GtEmulDigis"),

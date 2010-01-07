@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTHiggsPostProcessor = cms.EDFilter("DQMGenericClient",
+HLTHiggsPostProcessor = cms.EDAnalyzer("DQMGenericClient",
     subDirs           = cms.untracked.vstring('HLT/Higgs/HWW'),
     verbose           = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName    = cms.untracked.string(''),

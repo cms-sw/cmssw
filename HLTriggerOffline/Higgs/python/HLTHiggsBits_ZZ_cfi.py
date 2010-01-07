@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTHiggsBits_ZZ = cms.EDFilter("HLTHiggsBits",
+HLTHiggsBits_ZZ = cms.EDAnalyzer("HLTHiggsBits",
   
     muon = cms.string('muons'),
     histName = cms.string(''),
