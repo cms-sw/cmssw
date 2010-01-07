@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.32 2009/12/12 13:48:23 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.33 2009/12/12 15:17:33 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -74,7 +74,11 @@ SiPixelDigiSource::~SiPixelDigiSource()
 }
 
 
-void SiPixelDigiSource::beginJob(const edm::EventSetup& iSetup){
+void SiPixelDigiSource::beginJob(){
+  firstRun = true;  
+}
+
+void SiPixelDigiSource::beginRun(const edm::EventSetup& iSetup){
   
   LogInfo ("PixelDQM") << " SiPixelDigiSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
@@ -84,16 +88,18 @@ void SiPixelDigiSource::beginJob(const edm::EventSetup& iSetup){
   
   LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << " and set to high resolution? " << hiRes << "\n";
 
-  eventNo = 0;
-  lumSec = 0;
-  nLumiSecs = 0;
-  nBigEvents = 0;
+  if(firstRun){
+    eventNo = 0;
+    lumSec = 0;
+    nLumiSecs = 0;
+    nBigEvents = 0;
   
-  // Build map
-  buildStructure(iSetup);
-  // Book Monitoring Elements
-  bookMEs();
-
+    // Build map
+    buildStructure(iSetup);
+    // Book Monitoring Elements
+    bookMEs();
+    firstRun = false;
+  }
 }
 
 

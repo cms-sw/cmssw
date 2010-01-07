@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.13 2009/12/10 20:18:42 wehrlilu Exp $
+// $Id: SiPixelDigiSource.h,v 1.14 2009/12/11 13:18:58 merkelp Exp $
 //
 
 #include <memory>
@@ -54,8 +54,9 @@
        typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
+       virtual void beginRun(edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs();
@@ -85,6 +86,8 @@
        int nBigEvents;
        MonitorElement* bigEventRate;
        int bigEventSize;
+       
+       bool firstRun;
     
  };
 

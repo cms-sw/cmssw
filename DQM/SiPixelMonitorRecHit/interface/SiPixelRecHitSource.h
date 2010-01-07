@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.6 2008/08/08 14:26:21 merkelp Exp $
+// $Id: SiPixelRecHitSource.h,v 1.7 2009/06/19 09:30:00 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -60,8 +60,9 @@
 //       typedef edm::DetSet<PixelRecHit>::const_iterator    RecHitIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
+       virtual void beginRun(edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs();
@@ -83,6 +84,8 @@
        bool ladOn, layOn, phiOn;
        //forward:
        bool ringOn, bladeOn, diskOn; 
+       
+       bool firstRun;
 
  };
 

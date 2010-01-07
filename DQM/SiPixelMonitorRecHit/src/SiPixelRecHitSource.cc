@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.22 2009/10/20 14:57:29 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.23 2009/10/21 12:29:46 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -81,7 +81,12 @@ SiPixelRecHitSource::~SiPixelRecHitSource()
 }
 
 
-void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
+void SiPixelRecHitSource::beginJob(){
+  firstRun = true;
+}
+
+
+void SiPixelRecHitSource::beginRun(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRecHitSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
@@ -89,14 +94,15 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
 	    << ringOn << std::endl;
   LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << "\n";
-  eventNo = 0;
-	
-  // Build map
-  buildStructure(iSetup);
-	
-  // Book Monitoring Elements
-  bookMEs();
-
+  
+  if(firstRun){
+    eventNo = 0;
+    // Build map
+    buildStructure(iSetup);
+    // Book Monitoring Elements
+    bookMEs();
+    firstRun = false;
+  }
 }
 
 
