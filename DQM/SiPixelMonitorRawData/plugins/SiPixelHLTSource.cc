@@ -64,14 +64,21 @@ SiPixelHLTSource::~SiPixelHLTSource()
 }
 
 
-void SiPixelHLTSource::beginJob(const edm::EventSetup& iSetup){
-  LogInfo ("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
-  eventNo = 0;
-  // Build map
-  iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-  // Book Monitoring Elements
-  bookMEs();
+void SiPixelHLTSource::beginJob(){
+  firstRun = true;
+}
 
+void SiPixelHLTSource::beginRun(const edm::EventSetup& iSetup){
+  LogInfo ("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
+  
+  if(firstRun){
+    eventNo = 0;
+    // Build map
+    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+    // Book Monitoring Elements
+    bookMEs();
+    firstRun = false;
+  }
 }
 
 

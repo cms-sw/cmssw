@@ -52,8 +52,9 @@
        ~SiPixelHLTSource();
 
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
+       virtual void beginRun(edm::EventSetup const&) ;
        virtual void bookMEs();
 
     private:
@@ -68,6 +69,7 @@
        MonitorElement* meRawWords_;
        MonitorElement* meNCRCs_;
        MonitorElement* meNErrors_;
+       bool firstRun;
  };
 
 #endif
