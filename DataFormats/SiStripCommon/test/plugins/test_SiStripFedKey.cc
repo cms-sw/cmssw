@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFedKey.cc,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
+// Last commit: $Id: test_SiStripFedKey.cc,v 1.4 2008/02/22 09:53:15 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFedKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -33,7 +33,7 @@ testSiStripFedKey::~testSiStripFedKey() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripFedKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripFedKey::beginJob() {
   
   uint32_t cntr = 0;
   uint32_t start = time(NULL);

@@ -1,4 +1,4 @@
-// Last commit: $Id: test_Template.h,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
+// Last commit: $Id: test_Template.h,v 1.2 2007/07/31 15:20:25 ratnik Exp $
 
 #ifndef DQM_SiStripCommissioningClients_test_Template_H
 #define DQM_SiStripCommissioningClients_test_Template_H
@@ -17,7 +17,7 @@ class test_Template : public edm::EDAnalyzer {
   test_Template( const edm::ParameterSet& );
   ~test_Template();
   
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
 

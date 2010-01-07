@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: examples_SiStripFecKey.cc,v 1.1 2008/05/20 13:57:03 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/examples_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -34,7 +34,7 @@ examplesSiStripFecKey::~examplesSiStripFecKey() {
 
 // -----------------------------------------------------------------------------
 // 
-void examplesSiStripFecKey::beginJob( const edm::EventSetup& setup ) {
+void examplesSiStripFecKey::beginJob() {
   
   SiStripFecKey invalid;
   SiStripFecKey inv(sistrip::invalid_,

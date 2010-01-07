@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripNullKey.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_SiStripNullKey.cc,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripNullKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -32,7 +32,7 @@ testSiStripNullKey::~testSiStripNullKey() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripNullKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripNullKey::beginJob() {
   
   // Tests for utility methods
 

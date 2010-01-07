@@ -1,4 +1,4 @@
-// Last commit: $Id: perf_SiStripFecKey.cc,v 1.1 2008/05/20 13:57:03 bainbrid Exp $
+// Last commit: $Id: perf_SiStripFecKey.cc,v 1.2 2009/02/23 14:51:37 lowette Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/perf_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -34,7 +34,7 @@ perfSiStripFecKey::~perfSiStripFecKey() {
 
 // -----------------------------------------------------------------------------
 // 
-void perfSiStripFecKey::beginJob( const edm::EventSetup& setup ) {
+void perfSiStripFecKey::beginJob() {
   
   edm::LogInfo(mlDqmCommon_)
     << "[SiStripFecKey::" << __func__ << "]"

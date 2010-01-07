@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.h,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.h,v 1.4 2008/05/20 13:56:29 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_testSiStripFecKey_H
 #define DataFormats_SiStripCommon_testSiStripFecKey_H
@@ -17,7 +17,7 @@ class testSiStripFecKey : public edm::EDAnalyzer {
   testSiStripFecKey( const edm::ParameterSet& );
   ~testSiStripFecKey();
   
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
 

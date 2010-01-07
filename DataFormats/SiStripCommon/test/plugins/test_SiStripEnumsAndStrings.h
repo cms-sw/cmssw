@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripEnumsAndStrings.h,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_SiStripEnumsAndStrings.h,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_testSiStripEnumsAndStrings_H
 #define DataFormats_SiStripCommon_testSiStripEnumsAndStrings_H
@@ -17,7 +17,7 @@ class testSiStripEnumsAndStrings : public edm::EDAnalyzer {
   testSiStripEnumsAndStrings( const edm::ParameterSet& );
   ~testSiStripEnumsAndStrings();
   
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
   

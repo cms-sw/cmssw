@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripKey.cc,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
+// Last commit: $Id: test_SiStripKey.cc,v 1.4 2009/02/10 21:45:54 lowette Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripKey.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -51,7 +51,7 @@ testSiStripKey::~testSiStripKey() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripKey::beginJob() {
   
   edm::LogVerbatim(mlDqmCommon_)
     << "[SiStripKey::" << __func__ << "]"

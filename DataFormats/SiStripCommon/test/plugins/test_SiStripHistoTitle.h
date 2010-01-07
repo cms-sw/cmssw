@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripHistoTitle.h,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_SiStripHistoTitle.h,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_testSiStripHistoTitle_H
 #define DataFormats_SiStripCommon_testSiStripHistoTitle_H
@@ -17,7 +17,7 @@ class testSiStripHistoTitle : public edm::EDAnalyzer {
   testSiStripHistoTitle( const edm::ParameterSet& );
   ~testSiStripHistoTitle();
   
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
   

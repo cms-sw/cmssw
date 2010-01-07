@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: examples_SiStripFecKey.h,v 1.1 2008/05/20 13:57:03 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_examplesSiStripFecKey_H
 #define DataFormats_SiStripCommon_examplesSiStripFecKey_H
@@ -19,7 +19,7 @@ class examplesSiStripFecKey : public edm::EDAnalyzer {
   examplesSiStripFecKey( const edm::ParameterSet& );
   ~examplesSiStripFecKey();
   
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
 

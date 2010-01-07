@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripHistoTitle.cc,v 1.3 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_SiStripHistoTitle.cc,v 1.4 2008/01/14 09:18:17 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripHistoTitle.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -35,7 +35,7 @@ testSiStripHistoTitle::~testSiStripHistoTitle() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripHistoTitle::beginJob( const edm::EventSetup& setup ) {
+void testSiStripHistoTitle::beginJob() {
 
   LogTrace(mlDqmCommon_) 
     << "[SiStripHistoTitle::" << __func__ << "]"

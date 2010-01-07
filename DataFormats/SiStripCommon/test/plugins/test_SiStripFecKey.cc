@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.cc,v 1.7 2008/02/22 09:53:15 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.cc,v 1.8 2008/05/20 13:56:29 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -36,7 +36,7 @@ testSiStripFecKey::~testSiStripFecKey() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripFecKey::beginJob( const edm::EventSetup& setup ) {
+void testSiStripFecKey::beginJob() {
   
   uint32_t cntr = 0;
   std::vector<uint32_t> keys;

@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripEnumsAndStrings.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_SiStripEnumsAndStrings.cc,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripEnumsAndStrings.h"
 #include "FWCore/Framework/interface/Event.h" 
@@ -32,7 +32,7 @@ testSiStripEnumsAndStrings::~testSiStripEnumsAndStrings() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripEnumsAndStrings::beginJob( const edm::EventSetup& setup ) {
+void testSiStripEnumsAndStrings::beginJob() {
 
   // sistrip::View
   {
