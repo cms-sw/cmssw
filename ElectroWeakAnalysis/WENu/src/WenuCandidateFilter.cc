@@ -75,7 +75,6 @@ class WenuCandidateFilter : public edm::EDFilter {
       ~WenuCandidateFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       bool isInFiducial(double eta);
@@ -479,12 +478,6 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    return true;
 
-}
-
-// ------------ method called once each job just before starting event loop  -
-void 
-WenuCandidateFilter::beginJob(const edm::EventSetup&)
-{
 }
 
 // ------------ method called once each job just after ending the event loop  -

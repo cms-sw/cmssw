@@ -339,7 +339,7 @@ double WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
 
 // ------------ method called once each job just before starting event loop  --
 void 
-WenuPlots::beginJob(const edm::EventSetup&)
+WenuPlots::beginJob()
 {
   //std::cout << "In beginJob()" << std::endl;
   //  Double_t Pi = TMath::Pi();

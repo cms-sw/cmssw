@@ -40,7 +40,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Oct 16 17:11:55 CEST 2008
-// $Id: GenPurposeSkimmerData.cc,v 1.2 2009/09/29 08:41:51 rompotis Exp $
+// $Id: GenPurposeSkimmerData.cc,v 1.1 2009/12/10 16:48:23 rompotis Exp $
 //
 //
 
@@ -896,7 +896,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 
 // ------------ method called once each job just before starting event loop  --
 void 
-GenPurposeSkimmerData::beginJob(const edm::EventSetup&)
+GenPurposeSkimmerData::beginJob()
 {
   //std::cout << "In beginJob()" << std::endl;
   TString filename_histo = outputFile_;
