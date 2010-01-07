@@ -397,10 +397,7 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-L1RCTTPGProvider::beginJob(const edm::EventSetup&)
-{
-}
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

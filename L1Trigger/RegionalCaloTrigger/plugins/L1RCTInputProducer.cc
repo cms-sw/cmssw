@@ -55,9 +55,7 @@ L1RCTInputProducer::~L1RCTInputProducer()
   if(rctLookupTables != 0) delete rctLookupTables;
 }
 
-void L1RCTInputProducer::beginJob(const edm::EventSetup& eventSetup)
-{
-}
+
 
 void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {

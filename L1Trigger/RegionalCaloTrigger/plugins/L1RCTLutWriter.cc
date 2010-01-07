@@ -228,11 +228,7 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-L1RCTLutWriter::beginJob(const edm::EventSetup&)
-{
-}
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

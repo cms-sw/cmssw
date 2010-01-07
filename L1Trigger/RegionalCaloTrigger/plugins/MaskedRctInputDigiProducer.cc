@@ -378,10 +378,7 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-MaskedRctInputDigiProducer::beginJob(const edm::EventSetup&)
-{
-}
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
