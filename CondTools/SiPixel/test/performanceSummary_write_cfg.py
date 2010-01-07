@@ -9,6 +9,10 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'MC_3XY_V15::All'
+
+
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
     lastValue = cms.uint64(1),
@@ -19,9 +23,9 @@ process.source = cms.Source("EmptyIOVSource",
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(2),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+        authenticationPath = cms.untracked.string('.')
     ),
-    timetype = cms.string('runnumber'),
+    timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:sipixelperformancesummary.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelPerformanceSummaryRcd'),

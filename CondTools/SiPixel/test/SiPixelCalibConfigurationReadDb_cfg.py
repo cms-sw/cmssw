@@ -20,11 +20,11 @@ process.readcalib = cms.EDFilter("SiPixelCalibConfigurationReadDb",
 process.p1 = cms.Path(process.readcalib)
 process.sipixelcalib_essource.toGet = cms.VPSet(cms.PSet(
     record = cms.string('SiPixelCalibConfigurationRcd'),
-    tag = cms.string('GainCalibration_default')
+    tag = cms.string('SiPixelCalibConfiguration_test')
 #    tag = cms.string('PixelAlive_default')
 #    tag = cms.string('SCurve_default')
 
 ))
-process.sipixelcalib_essource.connect='frontier://FrontierProd/CMS_COND_21X_PIXEL'
+process.sipixelcalib_essource.connect='sqlite_file:siPixelCalibConfiguration.db'
 
 

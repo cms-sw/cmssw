@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(2),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+        authenticationPath = cms.untracked.string('.')
     ),
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(

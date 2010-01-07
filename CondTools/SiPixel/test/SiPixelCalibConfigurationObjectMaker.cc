@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Sep 19 13:43:52 CEST 2007
-// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.4 2008/06/26 12:04:02 fblekman Exp $
+// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.5 2009/10/21 15:53:31 heyburn Exp $
 //
 //
 
@@ -42,7 +42,7 @@ class SiPixelCalibConfigurationObjectMaker : public edm::EDAnalyzer {
       explicit SiPixelCalibConfigurationObjectMaker(const edm::ParameterSet&);
       ~SiPixelCalibConfigurationObjectMaker();
 
-  virtual void beginJob(const edm::EventSetup&) {;}
+  virtual void beginJob() {;}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {;}
 

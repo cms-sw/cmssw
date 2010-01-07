@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Sep 20 12:13:20 CEST 2007
-// $Id: SiPixelCalibConfigurationReadDb.cc,v 1.1 2008/02/14 20:29:55 fblekman Exp $
+// $Id: SiPixelCalibConfigurationReadDb.cc,v 1.2 2009/02/10 09:27:50 fblekman Exp $
 //
 //
 
@@ -42,7 +42,7 @@ class SiPixelCalibConfigurationReadDb : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -153,7 +153,7 @@ SiPixelCalibConfigurationReadDb::analyze(const edm::Event& iEvent, const edm::Ev
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCalibConfigurationReadDb::beginJob(const edm::EventSetup&)
+SiPixelCalibConfigurationReadDb::beginJob()
 {
 }
 

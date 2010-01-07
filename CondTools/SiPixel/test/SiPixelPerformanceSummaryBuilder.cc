@@ -27,6 +27,18 @@ SiPixelPerformanceSummaryBuilder::~SiPixelPerformanceSummaryBuilder() {}
 
 
 void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::ESHandle<TrackerGeometry> pDD;
+  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::LogInfo("SiPixelPerformanceSummaryBuilder") << pDD->detUnits().size() <<" detectors" << std::endl;
+
+  for (TrackerGeometry::DetUnitContainer::const_iterator it=pDD->detUnits().begin(); 
+       it!=pDD->detUnits().end(); it++) {
+    if (dynamic_cast<PixelGeomDetUnit*>((*it))!=0) {
+      detectorModules_.push_back((*it)->geographicalId().rawId());
+    }
+  }
+  edm::LogInfo("Modules") << "detectorModules_.size() = "<< detectorModules_.size();
+
   SiPixelPerformanceSummary* performanceSummary = new SiPixelPerformanceSummary();
   
   for (std::vector<uint32_t>::const_iterator iDet=detectorModules_.begin(); // fill object
@@ -72,19 +84,7 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
 }
 
 
-void SiPixelPerformanceSummaryBuilder::beginJob(const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  edm::LogInfo("SiPixelPerformanceSummaryBuilder") << pDD->detUnits().size() <<" detectors" << std::endl;
-
-  for (TrackerGeometry::DetUnitContainer::const_iterator it=pDD->detUnits().begin(); 
-       it!=pDD->detUnits().end(); it++) {
-    if (dynamic_cast<PixelGeomDetUnit*>((*it))!=0) {
-      detectorModules_.push_back((*it)->geographicalId().rawId());
-    }
-  }
-  edm::LogInfo("Modules") << "detectorModules_.size() = "<< detectorModules_.size();
-}
+void SiPixelPerformanceSummaryBuilder::beginJob() {}
 
 
 void SiPixelPerformanceSummaryBuilder::endJob() {}
