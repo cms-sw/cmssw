@@ -60,11 +60,11 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   const CSCHaloData CSCData = (*TheCSCHaloData.product() );
   //Loose Id 
-  if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() ) 
+  if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.CSCHaloHLTAccept() )
     TheBeamHaloSummary->GetCSCHaloReport()[0] = 1;
 
   //Tight Id 
-  if( CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks() )
+  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) || (CSCData.CSCHaloHLTAccept() && CSCData.NumberOfHaloTracks() ) )
     TheBeamHaloSummary->GetCSCHaloReport()[1] = 1;
   
   // Ecal Specific Halo Data
@@ -79,11 +79,10 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
       bool EcaliPhi = false;
       //Loose Id
       if(iWedge-> Energy() > L_EcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > L_EcalPhiWedgeConfidence)
-        {
-          EcalLooseId = true;
-          EcaliPhi = true;
-        }
-
+	{
+	  EcalLooseId = true;
+	  EcaliPhi = true;
+	}
 
       //Tight Id
       if( iWedge-> Energy() > T_EcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents && iWedge->ZDirectionConfidence() > L_EcalPhiWedgeConfidence )
@@ -96,7 +95,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
         {
           if( iWedge->iPhi() == TheBeamHaloSummary->GetEcaliPhiSuspects()[i] )
             {
-              EcaliPhi = false;  // already stored this iPhi                                                                                                                   
+              EcaliPhi = false;  // already stored this iPhi 
 	      continue;
             }
         }
@@ -163,7 +162,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	{
           if( iWedge->iPhi() == TheBeamHaloSummary->GetHcaliPhiSuspects()[i] )
             {
-              HcaliPhi = false;  // already stored this iPhi                                                                                                                  
+              HcaliPhi = false;  // already stored this iPhi 
 	      continue;
             }
 	}
@@ -195,8 +194,6 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       if( iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents )
         GlobalTightId = true;
-      if( iWedge->MaxTime() < T_EcalPhiWedgeToF )
-        GlobalTightId = true;
       if( abs(iWedge->ZDirectionConfidence() > T_EcalPhiWedgeConfidence) )
 	GlobalTightId = true;
     }
@@ -205,8 +202,6 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       if( iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents )
         GlobalTightId = true;
-      if( iWedge->MaxTime() < T_HcalPhiWedgeToF )
-	GlobalTightId = true;
       if( abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence )
 	GlobalTightId = true;
     }
@@ -215,10 +210,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TheBeamHaloSummary->GetGlobalHaloReport()[0] = 1;
   if( GlobalTightId )
     TheBeamHaloSummary->GetGlobalHaloReport()[1] = 1;
-  
-  
-  
-
+ 
   iEvent.put(TheBeamHaloSummary);
   return;
 }
