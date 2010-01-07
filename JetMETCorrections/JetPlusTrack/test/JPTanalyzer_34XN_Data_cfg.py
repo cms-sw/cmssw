@@ -1,98 +1,86 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("RECO4")
 
-# Some generic services and conditions data
-process.Timing = cms.Service("Timing")
-process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
+process.load('Configuration/StandardSequences/Services_cff')
+process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
+process.load('Configuration/StandardSequences/L1Reco_cff')
+process.load('Configuration/StandardSequences/Reconstruction_cff')
+process.load('DQMOffline/Configuration/DQMOffline_cff')
+process.load('Configuration/StandardSequences/EndOfProcess_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration/EventContent/EventContent_cff')
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Simulation_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP3X_V12::All')
-# process.GlobalTag.globaltag = cms.string('MC_31X_V8::All')
+process.GlobalTag.globaltag = cms.string('GR09_R_34X_V2::All')
 
-# Input files: RelVal QCD 80-120 GeV, STARTUP conditions, 9000 events, from CMSSW_3_2_5 (replace with 33X when available!)
-process.source = cms.Source(
-    "PoolSource", 
-    fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/FA7139E8-97BD-DE11-A3E2-002618943935.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/BC3224A5-9ABD-DE11-A625-002354EF3BDB.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/8C578DA3-C0BD-DE11-9DEA-0017312A250B.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/7A29EA77-9DBD-DE11-A3BC-0026189438ED.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/3EA8A506-10BE-DE11-BB21-0018F3D09704.root',
-    '/store/relval/CMSSW_3_4_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/04383FF7-9EBD-DE11-8511-0018F3D09616.root',)
-    )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-
-# Identify GenParticles to be used to build GenJets (ie, no neutrinos or BSM)
-process.load("RecoJets.Configuration.GenJetParticles_cff")
-process.genParticlesForJets.ignoreParticleIDs = cms.vuint32(
-    1000022, 2000012, 2000014,
-    2000016, 1000039, 5000039,
-    4000012, 9900012, 9900014,
-    9900016, 39, 12, 14, 16
-    )
-process.genParticlesForJets.excludeFromResonancePids = cms.vuint32(12, 14, 16)
-
-# Build reco::GenJets from GenParticles
-from RecoJets.JetProducers.ic5GenJets_cfi import iterativeCone5GenJets
-process.iterativeCone5GenJetsNoNuBSM = iterativeCone5GenJets.clone()
-
-# Jet-track association
-# from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import*
-# ZSPiterativeCone5JetTracksAssociatorAtVertex        = iterativeCone5JetTracksAssociatorAtVertex.clone() 
-# ZSPiterativeCone5JetTracksAssociatorAtVertex.jets   = cms.InputTag("ZSPJetCorJetIcone5")
-# ZSPiterativeCone5JetTracksAssociatorAtCaloFace      = iterativeCone5JetTracksAssociatorAtCaloFace.clone()
-# ZSPiterativeCone5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("ZSPJetCorJetIcone5")
-# ZSPiterativeCone5JetExtender                        = iterativeCone5JetExtender.clone() 
-# ZSPiterativeCone5JetExtender.jets                   = cms.InputTag("ZSPJetCorJetIcone5")
-# ZSPiterativeCone5JetExtender.jet2TracksAtCALO       = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtCaloFace")
-# ZSPiterativeCone5JetExtender.jet2TracksAtVX         = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex")
-# ZSPrecoJetAssociations = cms.Sequence(
-#     ZSPiterativeCone5JetTracksAssociatorAtVertex *
-#     ZSPiterativeCone5JetTracksAssociatorAtCaloFace *
-#     ZSPiterativeCone5JetExtender
-#     )
-
-# ZSP and JPT corrections
-
-# process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
+
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
+
+#### Choose techical bits 40 and coincidence with BPTX (0)
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
+process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND 40 AND NOT (36 OR 37 OR 38 OR 39)')
+#### remove monster events
+process.monster = cms.EDFilter(
+    "FilterOutScraping",
+    applyfilter = cms.untracked.bool(True),
+    debugOn = cms.untracked.bool(True),
+    numtrack = cms.untracked.uint32(10),
+    thresh = cms.untracked.double(0.2)
+    )
+####
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+# last re-reco /MinimumBias/BeamCommissioning09-SD_AllMinBias-Dec19thSkim_341_v1
+### For 219, file from RelVal
+process.source = cms.Source("PoolSource",
+   fileNames = cms.untracked.vstring(
+#         '/store/data/BeamCommissioning09/ZeroBias/RECO/v2/000/123/596/F494AB9A-40E2-DE11-8D1E-000423D33970.root'
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/E63696DD-A5ED-DE11-9217-00261894382D.root'
+#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/F08F782B-77E8-DE11-B1FC-0019B9F72BFF.root',
+#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/EE9412FD-80E8-DE11-9FDD-000423D94908.root',
+#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/7C9741F5-78E8-DE11-8E69-001D09F2AD84.root',
+#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/44255E49-80E8-DE11-B6DB-000423D991F0.root',
+#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/3C02A810-7CE8-DE11-BB51-003048D375AA.root',
+#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/04F15557-7BE8-DE11-8A41-003048D2C1C4.root',
+#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/04092AB7-75E8-DE11-958F-000423D98750.root'
+#         'file:./RECOHcalCalMinBias.root'
+)
+)
 
 # Analyzer module
 process.myanalysis = cms.EDFilter(
     "JPTAnalyzer",
     HistOutFile      = cms.untracked.string('analysis.root'),
-    calojets         = cms.string('iterativeCone5CaloJets'),
+#    calojets         = cms.string('iterativeCone5CaloJets'),
 #    calojets         = cms.string('sisCone5CaloJets'),
-#    calojets         = cms.string('ak5CaloJets'),
-    zspjets          = cms.string('ZSPJetCorJetIcone5'),
+    calojets         = cms.string('ak5CaloJets'),
+#    zspjets          = cms.string('ZSPJetCorJetIcone5'),
 #    zspjets          = cms.string('ZSPJetCorJetSiscone5'),
-#    zspjets          = cms.string('ZSPJetCorJetAntiKt5'),
-    genjets          = cms.string('iterativeCone5GenJetsNoNuBSM'),
-#    genjets          = cms.string('sisCone5GenJets'),
-#    genjets          = cms.string('ak5GenJets'),
-    JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorIcone5')
+    zspjets          = cms.string('ZSPJetCorJetAntiKt5'),
+#    JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorIcone5')
 #    JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorSiscone5')
-#    JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorAntiKt5')
+    JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorAntiKt5')
     )
 
 process.dump = cms.EDFilter("EventContentAnalyzer")
 
 # Path
 process.p1 = cms.Path(
-    process.genParticlesForJets *
-    process.iterativeCone5GenJetsNoNuBSM *
-    process.ZSPJetCorrectionsIcone5 *
-    process.ZSPrecoJetAssociationsIcone5 *
+   process.hltLevel1GTSeed *
+   process.monster *
+#    process.ZSPJetCorrectionsIcone5 *
+#    process.ZSPrecoJetAssociationsIcone5 *
 #    process.ZSPJetCorrectionsSisCone5 *
 #    process.ZSPrecoJetAssociationsSisCone5 *
-#    process.ZSPJetCorrectionsAntiKt5 *	
-#    process.ZSPrecoJetAssociationsAntiKt5 *
+    process.ZSPJetCorrectionsAntiKt5 *	
+    process.ZSPrecoJetAssociationsAntiKt5 *
     process.myanalysis 
     )
 
