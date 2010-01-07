@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.12 2009/12/08 14:12:58 dshpakov Exp $
+// $Id: DiskWriter.cc,v 1.13 2009/12/17 18:28:58 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -113,14 +113,14 @@ void DiskWriter::writeNextEvent()
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedEventSample(event.totalDataSize());
 
-    if( event.messageCode() == Header::EVENT )
+    if( event.isEndOfLumiSectionMessage() )
+      {
+        processEndOfLumiSection( event );
+      }
+    else
       {
         writeEventToStreams( event );
         checkForFileTimeOuts();
-      }
-    else // end of luminosity section
-      {
-        processEndOfLumiSection( event );
       }
 
   }
@@ -277,12 +277,11 @@ void DiskWriter::destroyStreams()
 }
 
 
-void DiskWriter::processEndOfLumiSection( I2OChain& msg )
+void DiskWriter::processEndOfLumiSection(const I2OChain& msg)
 {
   const uint32_t ls = msg.lumiSection();
   std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
     boost::bind(&StreamHandler::closeFilesForLumiSection, _1, ls));
-  msg.release();
 }
 
 
