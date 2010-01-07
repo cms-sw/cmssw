@@ -18,8 +18,7 @@
 
 
 PhotonCoreProducer::PhotonCoreProducer(const edm::ParameterSet& config) : 
-  conf_(config),
-  theLikelihoodCalc_(0)
+  conf_(config)
 
 {
 
@@ -31,7 +30,6 @@ PhotonCoreProducer::PhotonCoreProducer(const edm::ParameterSet& config) :
   PhotonCoreCollection_ = conf_.getParameter<std::string>("photonCoreCollection");
   pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
-  likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
 
   // Register the product
@@ -44,14 +42,11 @@ PhotonCoreProducer::~PhotonCoreProducer() {}
 
 
 void  PhotonCoreProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
-  theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
-  edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
-  theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
 
 }
 
 void  PhotonCoreProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
-  delete theLikelihoodCalc_;
+
 }
 
 
@@ -206,7 +201,7 @@ reco::ConversionRef  PhotonCoreProducer::solveAmbiguity(const edm::Handle<reco::
 
     if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue;    
     if ( !cpRef->isConverted() ) continue;  
-    double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
+    double like = cpRef->MVAout();
     //    std::cout << " Like " << like << std::endl;
     convMap.insert ( std::make_pair(cpRef,like) );
     //std::cout << " convMap size " << convMap.size() << std::endl;

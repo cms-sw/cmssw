@@ -3,9 +3,9 @@
 /** \class PhotonCoreProducer
  **  
  **
- **  $Id: PhotonCoreProducer.h,v 1.33 2009/03/04 21:20:09 nancy Exp $ 
- **  $Date: 2009/03/04 21:20:09 $ 
- **  $Revision: 1.33 $
+ **  $Id: PhotonCoreProducer.h,v 1.1 2009/03/25 11:18:31 nancy Exp $ 
+ **  $Date: 2009/03/25 11:18:31 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -27,7 +27,6 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 
@@ -72,7 +71,6 @@ class PhotonCoreProducer : public edm::EDProducer {
   edm::ParameterSet conf_;
   bool validPixelSeeds_;
   bool risolveAmbiguity_;
-  std::string likelihoodWeights_;
-  ConversionLikelihoodCalculator* theLikelihoodCalc_;
+
 };
 #endif
