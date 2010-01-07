@@ -42,7 +42,7 @@ class ProbeVariable {
         ~ProbeVariable() ;
 
         /// Addess for ROOT Branch
-        float * address() { return &value_; }
+        float * address() const { return &value_; }
 
         /// name
         const std::string & name() const { return name_; }
@@ -92,7 +92,7 @@ class ProbeFlag {
         ~ProbeFlag() ;
 
         /// Addess for ROOT Branch
-        int32_t * address() { return &value_; }
+        int32_t * address() const { return &value_; }
 
         /// name
         const std::string & name() const { return name_; }
