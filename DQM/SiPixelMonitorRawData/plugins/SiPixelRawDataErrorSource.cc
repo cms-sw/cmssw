@@ -70,17 +70,23 @@ SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource()
 }
 
 
-void SiPixelRawDataErrorSource::beginJob(const edm::EventSetup& iSetup){
+void SiPixelRawDataErrorSource::beginJob(){
+  firstRun = true;
+}
 
-  LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::beginJob - Initialisation ... " << std::endl;
+void SiPixelRawDataErrorSource::beginRun(const edm::EventSetup& iSetup){
+
+  LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::beginRun - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Blade " << modOn << "/" << ladOn << "/" << bladeOn << std::endl;
 
-  eventNo = 0;
-  // Build map
-  buildStructure(iSetup);
-  // Book Monitoring Elements
-  bookMEs();
-
+  if(firstRun){
+    eventNo = 0;
+    // Build map
+    buildStructure(iSetup);
+    // Book Monitoring Elements
+    bookMEs();
+    firstRun = false;
+  }
 }
 
 
