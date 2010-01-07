@@ -63,7 +63,9 @@ class STAnalyzer : public edm::EDAnalyzer {
 /* Operations */ 
     void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-    virtual void beginJob(const edm::EventSetup &);
+    virtual void beginJob();
+    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+
 
   private:
     void analyzeSATrack(const edm::Event & event, const edm::EventSetup& eventSetup);

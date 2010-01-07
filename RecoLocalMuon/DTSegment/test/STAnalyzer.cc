@@ -165,18 +165,27 @@ STAnalyzer::~STAnalyzer() {
   theFile->Close();
 }
 
-/* Operations */ 
-void STAnalyzer::beginJob(const EventSetup& eventSetup) {
-  if (debug) cout << "STAnalyzer::beginJob" << endl;
+void STAnalyzer::beginRun(const edm::Run& run, const EventSetup& setup) {
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  setup.get<MuonGeometryRecord>().get(dtGeom);
 
+  static bool FirstPass = true;
+
+  if(FirstPass){
   const std::vector<DTChamber*> & chs = dtGeom->chambers();
   for (std::vector<DTChamber*>::const_iterator ch = chs.begin();
        ch!=chs.end() ; ++ch) 
     hitsPerChamber[(*ch)->id()]=0;
+  }
 
+  FirstPass = false;
+
+}
+
+/* Operations */ 
+void STAnalyzer::beginJob() {
+  if (debug) cout << "STAnalyzer::beginJob" << endl;
 }
 
 void STAnalyzer::analyze(const Event & event,
