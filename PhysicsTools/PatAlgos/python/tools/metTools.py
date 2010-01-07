@@ -23,7 +23,7 @@ def addTcMET(process,
         addAlso(label, new)
 
     ## addClone('corMetType1Icone5Muons', uncorMETInputTag = cms.InputTag("tcMet"))
-    addClone('patMETs', metSource = cms.InputTag("tcMet"))
+    addClone('patAK5CaloMETs', metSource = cms.InputTag("tcMet"))
 
     ## add new met collections output to the pat summary
     process.patCandidateSummary.candidates += [ cms.InputTag('patMETs'+postfixLabel) ]
@@ -50,7 +50,7 @@ def addPfMET(process,
         addAlso(label, new)
 
     ## addClone('corMetType1Icone5Muons', uncorMETInputTag = cms.InputTag("tcMet"))
-    addClone('patMETs', metSource = cms.InputTag("pfMet"), addMuonCorrections = False)
+    addClone('patAK5CaloMETs', metSource = cms.InputTag("pfMet"), addMuonCorrections = False)
 
     ## add new met collections output to the pat summary
     process.patCandidateSummary.candidates += [ cms.InputTag('patMETs'+postfixLabel) ]
