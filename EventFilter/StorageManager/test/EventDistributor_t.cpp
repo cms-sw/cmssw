@@ -88,6 +88,7 @@ void testEventDistributor::initEventDistributor()
       DQMConsumerMonitorCollection& dcmc = 
         _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
       _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
+      _sharedResources->_configuration.reset(new Configuration(app->getApplicationInfoSpace(), 0));
     }
 }
 
