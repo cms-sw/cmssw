@@ -59,7 +59,7 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet& ps){
 DTPreCalibrationTask::~DTPreCalibrationTask(){}
 
 
-void DTPreCalibrationTask::beginJob(const edm::EventSetup& context){
+void DTPreCalibrationTask::beginJob(){
  
   for(int wheel=-2; wheel<=2; wheel++){
    for(int sector=1; sector<=14; sector++){

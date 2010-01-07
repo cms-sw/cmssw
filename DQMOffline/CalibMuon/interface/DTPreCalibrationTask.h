@@ -5,8 +5,8 @@
  *  Analysis on DT digis (TB + occupancy) before the calibration step
  *
  *
- *  $Date: 2009/03/25 09:18:27 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/08/05 10:50:47 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -39,7 +39,7 @@ public:
   virtual ~DTPreCalibrationTask();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
  
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
