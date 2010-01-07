@@ -38,6 +38,7 @@ process.Timing = cms.Service("Timing")
 
 process.prodpixel = cms.EDFilter("SiPixelDetInfoFileWriter",
     FilePath = cms.untracked.string('PixelSkimmedGeometry_longbarrel.dat'),
+    WriteROCInfo = cms.untracked.bool(True)
 )
 
 process.asciiPrint = cms.OutputModule("AsciiOutputModule")
