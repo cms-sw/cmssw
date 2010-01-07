@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: InitMsgData.cc,v 1.1 2009/09/29 14:43:41 dshpakov Exp $
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
@@ -11,25 +11,10 @@ namespace stor
   {
 
     InitMsgData::InitMsgData(toolbox::mem::Reference* pRef) :
-      ChainData(pRef),
+      ChainData(pRef, I2O_SM_PREAMBLE, Header::INIT),
       _headerFieldsCached(false)
     {
       parseI2OHeader();
-
-      if (_fragmentCount > 1)
-        {
-          toolbox::mem::Reference* curRef = _ref->getNextReference();
-          while (curRef)
-            {
-              validateMessageCode(curRef, I2O_SM_PREAMBLE);
-              curRef = curRef->getNextReference();
-            }
-        }
-
-      if (!faulty() && _fragmentCount == _expectedNumberOfFragments)
-        {
-          markComplete();
-        }
     }
 
     unsigned long InitMsgData::do_headerSize() const
@@ -143,7 +128,6 @@ namespace stor
     {
       if (parsable())
         {
-          _messageCode = Header::INIT;
           I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
             (I2O_SM_PREAMBLE_MESSAGE_FRAME*) _ref->getDataLocation();
           _fragKey.code_ = _messageCode;

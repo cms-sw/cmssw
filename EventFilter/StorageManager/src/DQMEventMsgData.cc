@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: DQMEventMsgData.cc,v 1.1 2009/09/29 15:12:47 dshpakov Exp $
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
@@ -11,27 +11,10 @@ namespace stor
   {
 
     DQMEventMsgData::DQMEventMsgData(toolbox::mem::Reference* pRef) :
-      ChainData(pRef)
+      ChainData(pRef, I2O_SM_DQM, Header::DQM_EVENT),
+      _headerFieldsCached(false)
     {
-
-      _headerFieldsCached = false;
-
       parseI2OHeader();
-
-      if (_fragmentCount > 1)
-        {
-          toolbox::mem::Reference* curRef = _ref->getNextReference();
-          while (curRef)
-            {
-              validateMessageCode(curRef, I2O_SM_DQM);
-              curRef = curRef->getNextReference();
-            }
-        }
-
-      if (!faulty() && _fragmentCount == _expectedNumberOfFragments)
-        {
-          markComplete();
-        }
     }
 
     inline std::string DQMEventMsgData::do_topFolderName() const
@@ -130,7 +113,6 @@ namespace stor
     {
       if (parsable())
         {
-          _messageCode = Header::DQM_EVENT;
           I2O_SM_DQM_MESSAGE_FRAME *smMsg =
             (I2O_SM_DQM_MESSAGE_FRAME*) _ref->getDataLocation();
           _fragKey.code_ = _messageCode;

@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: ErrorEventData.cc,v 1.1 2009/09/29 15:29:59 dshpakov Exp $
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
@@ -11,25 +11,10 @@ namespace stor
   {
 
     ErrorEventMsgData::ErrorEventMsgData(toolbox::mem::Reference* pRef) :
-      ChainData(pRef),
+      ChainData(pRef, I2O_SM_ERROR, Header::ERROR_EVENT),
       _headerFieldsCached(false)
     {
       parseI2OHeader();
-
-      if (_fragmentCount > 1)
-        {
-          toolbox::mem::Reference* curRef = _ref->getNextReference();
-          while (curRef)
-            {
-              validateMessageCode(curRef, I2O_SM_ERROR);
-              curRef = curRef->getNextReference();
-            }
-        }
-
-      if (!faulty() && _fragmentCount == _expectedNumberOfFragments)
-        {
-          markComplete();
-        }
     }
 
     unsigned long ErrorEventMsgData::do_headerSize() const
@@ -133,7 +118,6 @@ namespace stor
     {
       if (parsable())
         {
-          _messageCode = Header::ERROR_EVENT;
           I2O_SM_DATA_MESSAGE_FRAME *smMsg =
             (I2O_SM_DATA_MESSAGE_FRAME*) _ref->getDataLocation();
           _fragKey.code_ = _messageCode;
