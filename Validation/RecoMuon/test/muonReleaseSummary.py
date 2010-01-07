@@ -12,10 +12,10 @@ RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
-NewCondition='MC'
-RefCondition='MC'
-#NewCondition='STARTUP'
-#RefCondition='STARTUP'
+#NewCondition='MC'
+#RefCondition='MC'
+NewCondition='STARTUP'
+RefCondition='STARTUP'
 
 NewFastSim=False
 RefFastSim=False
@@ -122,7 +122,7 @@ for sample in samples :
         elif (GetFilesFromCastor):
 # Check the number of events in the harvested samples, needed to retrieve the path on castor
             if (CastorRepository=='/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'):
-                os.system('rfcp '+CastorRefRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+                os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
             else:
                 if (NewFastSim):
                     NEVT='27000'
