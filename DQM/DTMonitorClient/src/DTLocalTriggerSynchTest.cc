@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/28 17:08:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/02 14:43:41 $
+ *  $Revision: 1.3 $
  *  \author C. Battilana - CIEMAT
  */
 
@@ -55,10 +55,8 @@ DTLocalTriggerSynchTest::~DTLocalTriggerSynchTest(){
 }
 
 
-void DTLocalTriggerSynchTest::beginJob(const edm::EventSetup& c){
+void DTLocalTriggerSynchTest::beginJob(){
   
-  DTLocalTriggerBaseTest::beginJob(c);
-
   numHistoTag   = parameters.getParameter<string>("numHistoTag");
   denHistoTag   = parameters.getParameter<string>("denHistoTag");
   ratioHistoTag = parameters.getParameter<string>("ratioHistoTag");
@@ -67,6 +65,12 @@ void DTLocalTriggerSynchTest::beginJob(const edm::EventSetup& c){
   nBXLow        = parameters.getParameter<int>("nBXLow");
   nBXHigh       = parameters.getParameter<int>("nBXHigh");
   minEntries    = parameters.getParameter<int>("minEntries");
+
+}
+
+void DTLocalTriggerSynchTest::beginRun(const Run& run, const EventSetup& c) {
+
+  DTLocalTriggerBaseTest::beginRun(run,c);
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -88,10 +92,6 @@ void DTLocalTriggerSynchTest::beginJob(const edm::EventSetup& c){
       }
     }
   }
-  
-}
-
-void DTLocalTriggerSynchTest::beginRun(const Run& run, const EventSetup& c) {
 
   LogVerbatim(category()) << "[" << testName << "Test]: beginRun" << endl;
 

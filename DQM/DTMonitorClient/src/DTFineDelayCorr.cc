@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/30 14:27:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/11/15 14:03:06 $
+ *  $Revision: 1.2 $
  *  \author M. Giunta, C. Battilana 
  */
 
@@ -56,8 +56,7 @@ DTFineDelayCorr::~DTFineDelayCorr(){
 }
 
 
-void DTFineDelayCorr::beginJob(const EventSetup& evSU){
-  DTLocalTriggerBaseTest::beginJob(evSU);
+void DTFineDelayCorr::beginJob(){
 
   // Tag for Hardware Source (DDU or DCC)
   hwSource = parameters.getParameter<string>("hwSource");
@@ -76,8 +75,14 @@ void DTFineDelayCorr::beginJob(const EventSetup& evSU){
   // Require Minimum Number Of Entries in the t0Mean Histogram
   minEntries =  parameters.getUntrackedParameter<int>("minEntries",5);
 
+}
+
+void DTFineDelayCorr::beginRun(const Run& run, const EventSetup& evSU){
+
+  DTLocalTriggerBaseTest::beginRun(run,evSU);
   evSU.get< DTConfigManagerRcd >().get(dtConfig);
   evSU.get< DTTPGParametersRcd >().get(worstPhaseMap);
+
 }
 
 void DTFineDelayCorr::runClientDiagnostic() {

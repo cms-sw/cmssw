@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/10/28 17:08:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/02 14:43:41 $
+ *  $Revision: 1.3 $
  *  \author  C. Battilana - CIEMAT
  *   
  */
@@ -40,7 +40,7 @@ protected:
   float getFloatFromME(DTChamberId chId, std::string meType);
 
   /// Begin Job
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// begin Run
   void beginRun(const edm::Run& run, const edm::EventSetup& c);
