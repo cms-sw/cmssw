@@ -365,7 +365,7 @@ testI2OChain::invalid_fragment()
     CPPUNIT_ASSERT(!frag.empty());
     CPPUNIT_ASSERT(!frag.complete());
     CPPUNIT_ASSERT(frag.faulty());
-    CPPUNIT_ASSERT(frag.messageCode() == Header::INVALID);
+    CPPUNIT_ASSERT(frag.messageCode() == Header::ERROR_EVENT);
     CPPUNIT_ASSERT(frag.fragmentCount() == 1);
     CPPUNIT_ASSERT(frag.rbBufferId() == 0);
     CPPUNIT_ASSERT(frag.fuProcessId() == 0);
@@ -378,7 +378,7 @@ testI2OChain::invalid_fragment()
     CPPUNIT_ASSERT(!frag.empty());
     CPPUNIT_ASSERT(!frag.complete());
     CPPUNIT_ASSERT(frag.faulty());
-    CPPUNIT_ASSERT(frag.messageCode() == Header::INVALID);
+    CPPUNIT_ASSERT(frag.messageCode() == Header::ERROR_EVENT);
     CPPUNIT_ASSERT(frag.fragmentCount() == 1);
     CPPUNIT_ASSERT(frag.rbBufferId() == 0);
     CPPUNIT_ASSERT(frag.fuProcessId() == 0);
@@ -392,7 +392,7 @@ testI2OChain::invalid_fragment()
     CPPUNIT_ASSERT(!frag.empty());
     CPPUNIT_ASSERT(!frag.complete());
     CPPUNIT_ASSERT(frag.faulty());
-    CPPUNIT_ASSERT(frag.messageCode() == Header::INVALID);
+    CPPUNIT_ASSERT(frag.messageCode() == Header::ERROR_EVENT);
     CPPUNIT_ASSERT(frag.fragmentCount() == 1);
     CPPUNIT_ASSERT(frag.rbBufferId() == 0);
     CPPUNIT_ASSERT(frag.fuProcessId() == 0);
@@ -1479,7 +1479,7 @@ testI2OChain::fragkey_mismatches()
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
     CPPUNIT_ASSERT(!frag1.faulty());
-    CPPUNIT_ASSERT(frag1.messageCode() != Header::INVALID);
+    CPPUNIT_ASSERT(frag1.messageCode() == Header::INIT);
     CPPUNIT_ASSERT(frag1.rbBufferId() == 0);
 
     Reference* ref1 = allocate_frame_with_sample_header(100, 3, 0);
@@ -1490,7 +1490,7 @@ testI2OChain::fragkey_mismatches()
     CPPUNIT_ASSERT(!frag2.empty());
     CPPUNIT_ASSERT(!frag2.complete());
     CPPUNIT_ASSERT(frag2.faulty());
-    CPPUNIT_ASSERT(frag2.messageCode() == Header::INVALID);
+    CPPUNIT_ASSERT(frag2.messageCode() == Header::INIT);
     CPPUNIT_ASSERT(frag2.rbBufferId() == 0);
 
     try
