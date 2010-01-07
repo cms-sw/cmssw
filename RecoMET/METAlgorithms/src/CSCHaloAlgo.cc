@@ -10,6 +10,17 @@ using namespace std;
 using namespace edm;
 #include "TMath.h"
 
+CSCHaloAlgo::CSCHaloAlgo()
+{
+  deta_threshold = 0.;
+  min_inner_radius = 0.;
+  max_inner_radius = 9999.;
+  min_outer_radius = 0.;
+  max_outer_radius = 9999.;
+  dphi_threshold = 999.;
+  norm_chi2_threshold = 999.;
+}
+
 reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,edm::Handle<edm::TriggerResults>& TheHLTResults )
 {
   reco::CSCHaloData TheCSCHaloData;
@@ -19,15 +30,26 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 	{
 	  bool StoreTrack = false;
 	  // Calculate global phi coordinate for central most rechit in the track
-	  //float global_phi = 0.;
-	  float global_z = 1200.;
-	  GlobalPoint ClosestGlobalPosition;
+	  float innermost_global_z = 1500.;
+	  float outermost_global_z = 0.;
+	  GlobalPoint InnerMostGlobalPosition;  // smallest abs(z)
+	  GlobalPoint OuterMostGlobalPosition;  // largest abs(z)
+	  
 	  for(unsigned int j = 0 ; j < iTrack->extra()->recHits().size(); j++ )
 	    {
 	      edm::Ref<TrackingRecHitCollection> hit( iTrack->extra()->recHits(), j );
 	      DetId TheDetUnitId(hit->geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;
-	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;
+	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC )
+		 {
+		   if( TheDetUnitId.subdetId() != MuonSubdetId::DT )
+		     {
+		       StoreTrack = false;
+		       break;  // definitely, not halo
+		     }
+		   continue;
+		 }
+
 
 	      //Its a CSC Track, store it
 	      StoreTrack = true;
@@ -38,14 +60,41 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 	      const GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
 
 	      float z = TheGlobalPosition.z();
-	      if( TMath::Abs(z) < global_z )
+	      if( TMath::Abs(z) < innermost_global_z )
 		{
-		  global_z = TMath::Abs(z);
-		  ClosestGlobalPosition = GlobalPoint( TheGlobalPosition);
+		  innermost_global_z = TMath::Abs(z);
+		  InnerMostGlobalPosition = GlobalPoint( TheGlobalPosition);
+		}
+	      if( TMath::Abs(z) > outermost_global_z )
+		{
+		  outermost_global_z = TMath::Abs(z);
+		  OuterMostGlobalPosition = GlobalPoint( TheGlobalPosition );
 		}
 	    }
-	  TheCSCHaloData.GetCSCTrackImpactPositions().push_back(ClosestGlobalPosition);
+	  float deta = TMath::Abs( OuterMostGlobalPosition.eta() - InnerMostGlobalPosition.eta() );
+	  float dphi = TMath::ACos( TMath::Cos( OuterMostGlobalPosition.phi() - InnerMostGlobalPosition.phi() ) ) ;
+	  float innermost_x = InnerMostGlobalPosition.x() ;
+	  float innermost_y = InnerMostGlobalPosition.y();
+	  float outermost_x = OuterMostGlobalPosition.x();
+	  float outermost_y = OuterMostGlobalPosition.y();
+	  float innermost_r = TMath::Sqrt(innermost_x *innermost_x + innermost_y * innermost_y );
+	  float outermost_r = TMath::Sqrt(outermost_x *outermost_x + outermost_y * outermost_y );
 	  
+	  if( deta < deta_threshold )
+	    StoreTrack = false;
+	  if( dphi > dphi_threshold )
+	    StoreTrack = false;
+	  if( innermost_r < min_inner_radius )
+	    StoreTrack = false;
+	  if( innermost_r > max_inner_radius )
+	    StoreTrack = false;
+	  if( outermost_r < min_outer_radius )
+	    StoreTrack = false;
+	  if( outermost_r > max_outer_radius )
+	    StoreTrack  = false;
+	  if( iTrack->normalizedChi2() > norm_chi2_threshold )
+	    StoreTrack = false;
+
 	  if( StoreTrack )
 	    {
 	      edm::Ref<TrackCollection> TheTrackRef( TheCSCTracks, iTrack - TheCSCTracks->begin() ) ;
@@ -53,22 +102,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 	    }
 	}
     }
-
-  /*
-    if( TheCSCSegments.isValid() )
-    {
-    for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin(); iSegment != TheCSCSegments->end(); iSegment++) 
-    {
-    }    
-    }
-    if( TheCSCRecHits.isValid() )
-    {
-    for(CSCRecHit2DCollection::const_iterator iCSCRecHit = TheCSCRecHits->begin();   iCSCRecHit != TheCSCRecHits->end(); iCSCRecHit++ )
-    {
-    }
-    }
-  */
-
 
    if( TheHLTResults.isValid() )
      {
@@ -80,11 +113,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
          {
            if( vIT_HLTBit[index].label().size() )
              {
-               //Get the HLT bit and check to make sure it is valid                                                                                                         
+               //Get the HLT bit and check to make sure it is valid 
                unsigned int bit = TheTriggerNames.triggerIndex( vIT_HLTBit[index].label().c_str());
                if( bit < TheHLTResults->size() )
                  {
-		   //If any of the HLT names given by the user accept, then the event passes                                                                                 
+		   //If any of the HLT names given by the user accept, then the event passes
 		   if( TheHLTResults->accept( bit ) && !TheHLTResults->error( bit ) )
 		     {
 		       EventPasses = true;
