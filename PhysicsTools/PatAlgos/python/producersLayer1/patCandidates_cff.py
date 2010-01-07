@@ -18,7 +18,7 @@ patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("patTaus"),
         cms.InputTag("patPhotons"),
         cms.InputTag("patAK5CaloJets"),
-        cms.InputTag("patMETs"),
+        cms.InputTag("patAK5CaloMETs"),
 #       cms.InputTag("patMHTs")
     )
 )
