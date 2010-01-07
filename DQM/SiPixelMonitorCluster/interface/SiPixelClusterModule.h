@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.11 2009/12/03 17:07:23 wehrlilu Exp $
+// $Id: SiPixelClusterModule.h,v 1.12 2009/12/08 10:41:13 wehrlilu Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -25,7 +25,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/cstdint.hpp>
-//*
+
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -106,7 +106,6 @@ class SiPixelClusterModule {
   MonitorElement* mePixClustersLad_px_;
   MonitorElement* mePixClustersLad_py_;
 
-  //**
   MonitorElement* meSizeYvsEtaBarrel_; 
 
   MonitorElement* meNClustersLay_;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.20 2009/12/03 17:07:23 wehrlilu Exp $
+// $Id: SiPixelClusterSource.cc,v 1.21 2009/12/08 10:41:13 wehrlilu Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -78,7 +78,11 @@ SiPixelClusterSource::~SiPixelClusterSource()
 }
 
 
-void SiPixelClusterSource::beginJob(const edm::EventSetup& iSetup){
+void SiPixelClusterSource::beginJob(){
+  firstRun = true;
+}
+
+void SiPixelClusterSource::beginRun(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelClusterSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
@@ -88,12 +92,14 @@ void SiPixelClusterSource::beginJob(const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << "\n";
   LogInfo ("PixelDQM") << "Smiley (Cluster sizeY vs. Cluster eta) is " << smileyOn << "\n";
 
-  eventNo = 0;
-  // Build map
-  buildStructure(iSetup);
-  // Book Monitoring Elements
-  bookMEs();
-
+  if(firstRun){
+    eventNo = 0;
+    // Build map
+    buildStructure(iSetup);
+    // Book Monitoring Elements
+    bookMEs();
+    firstRun = false;
+  }
 }
 
 

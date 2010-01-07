@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.13 2009/12/03 17:07:23 wehrlilu Exp $
+// $Id: SiPixelClusterSource.h,v 1.14 2009/12/08 10:41:13 wehrlilu Exp $
 
 #include <memory>
 
@@ -48,7 +48,6 @@
 
 #include <boost/cstdint.hpp>
 
-//**
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -68,8 +67,9 @@
        typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob(edm::EventSetup const&) ;
+       virtual void beginJob() ;
        virtual void endJob() ;
+       virtual void beginRun(edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs();
@@ -91,6 +91,7 @@
        //forward:
        bool ringOn, bladeOn, diskOn; 
        bool smileyOn; //cluster sizeY vs Cluster eta plot 
+       bool firstRun;
 };
 
 #endif
