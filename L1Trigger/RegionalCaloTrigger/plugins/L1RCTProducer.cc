@@ -56,7 +56,6 @@ L1RCTProducer::~L1RCTProducer()
 }
 
 
-
 void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
 
