@@ -24,6 +24,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
                          const float DCA,
 			 const std::vector<math::XYZVector> & trackPin,
 			 const std::vector<math::XYZVector> & trackPout,
+                         const float mva,
 			 ConversionAlgorithm algo):  
 			 
 
@@ -34,6 +35,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
   theMinDistOfApproach_(DCA),
   theTrackPin_(trackPin),
   theTrackPout_(trackPout),
+  theMVAout_(mva),
   algorithm_(algo) 
  { }
 

@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.7 2009/03/11 13:04:47 nancy Exp $
+ * \version $Id: Conversion.h,v 1.8 2009/11/03 22:25:33 nancy Exp $
  *
  */
 
@@ -40,6 +40,7 @@ namespace reco {
 		  const float DCA,        
 		  const std::vector<math::XYZVector> & trackPin ,
 		  const std::vector<math::XYZVector> & trackPout,
+                  const float mva,
 		  ConversionAlgorithm=undefined);
       
       
@@ -49,7 +50,7 @@ namespace reco {
       virtual ~Conversion();
       /// returns a clone of the candidate
       Conversion * clone() const;
-      /// Poiner to CaloCluster (foe Egamma Conversions it points to  a SuperCluster)
+      /// Pointer to CaloCluster (foe Egamma Conversions it points to  a SuperCluster)
       reco::CaloClusterPtrVector caloCluster() const ;
       /// vector of references to  tracks
       std::vector<reco::TrackRef> tracks() const ; 
@@ -59,6 +60,10 @@ namespace reco {
       bool isConverted() const;
       /// Number of tracks= 0,1,2
       unsigned int nTracks() const {return  tracks().size(); }
+      /// set the value  of the TMVA output
+      void setMVAout(const float& mva) { theMVAout_=mva;}
+      /// get the value  of the TMVA output
+      double MVAout() const { return theMVAout_;}
       /// if nTracks=2 returns the pair invariant mass
       double pairInvariantMass() const;
       /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks 
@@ -119,9 +124,10 @@ namespace reco {
       std::vector<math::XYZVector> theTrackPin_;    
       /// P_out of tracks
       std::vector<math::XYZVector> theTrackPout_;    
+      /// TMVA output
+      float theMVAout_;
       /// conversion algorithm/provenance
       uint8_t algorithm_;
-
 
 
   };
