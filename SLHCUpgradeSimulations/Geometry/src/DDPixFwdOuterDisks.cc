@@ -31,11 +31,11 @@ Author:  Pratima Jindal, Purdue University Calumet
   // -- Input geometry parameters :  -----------------------------------------------------
 
 const int DDPixFwdOuterDisks::nBlades = 36;            // Number of blades
-const double DDPixFwdOuterDisks::bladeAngle = 20.*deg;    // Angle of blade rotation around its axis
-const double DDPixFwdOuterDisks::zPlane = 5.46*mm;             // Common shift in Z for all blades (with respect to disk center plane)
-const double DDPixFwdOuterDisks::bladeZShift = 0*mm;     // Shift in Z between the axes of two adjacent blades
+const double DDPixFwdOuterDisks::bladeAngle = 20.*CLHEP::deg;    // Angle of blade rotation around its axis
+const double DDPixFwdOuterDisks::zPlane = 5.46*CLHEP::mm;             // Common shift in Z for all blades (with respect to disk center plane)
+const double DDPixFwdOuterDisks::bladeZShift = 0*CLHEP::mm;     // Shift in Z between the axes of two adjacent blades
   
-const double DDPixFwdOuterDisks::ancorRadius = 121.4*mm; // Distance from beam line to ancor point defining center of "blade frame"
+const double DDPixFwdOuterDisks::ancorRadius = 121.4*CLHEP::mm; // Distance from beam line to ancor point defining center of "blade frame"
   
 
 std::map<std::string, int> DDPixFwdOuterDisks::copyNumbers;
@@ -107,30 +107,30 @@ void DDPixFwdOuterDisks::execute() {
   
   // -- Get translation and rotation from "blade frame" to "child frame", if any :
   
-  HepRotation childRotMatrix = HepRotation();
+  CLHEP::HepRotation childRotMatrix = CLHEP::HepRotation();
   if (childRotationName != "") {
     DDRotation childRotation = DDRotation(DDName(DDSplit(childRotationName).first, DDSplit(childRotationName).second));
     // due to conversion to ROOT::Math::Rotation3D -- Michael Case
     DD3Vector x, y, z;
     childRotation.rotation()->GetComponents(x, y, z); // these are the orthonormal columns.
-    HepRep3x3 tr(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-    childRotMatrix = HepRotation(tr);
+    CLHEP::HepRep3x3 tr(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+    childRotMatrix = CLHEP::HepRotation(tr);
   }
 
   
-  Hep3Vector childTranslation;
+  CLHEP::Hep3Vector childTranslation;
 
 
-  childTranslation = Hep3Vector(childTranslationVector[0],childTranslationVector[1],childTranslationVector[2]);
+  childTranslation = CLHEP::Hep3Vector(childTranslationVector[0],childTranslationVector[1],childTranslationVector[2]);
 
   
   // Create a matrix for rotation around blade axis (to "blade frame") :
   
-  HepRotation bladeRotMatrix(Hep3Vector(0.,1.,0.), effBladeAngle);
+  CLHEP::HepRotation bladeRotMatrix(CLHEP::Hep3Vector(0.,1.,0.), effBladeAngle);
   
   // Cycle over Phi positions, placing copies of the child volume :
 
-  double deltaPhi = (360./nBlades)*deg;
+  double deltaPhi = (360./nBlades)*CLHEP::deg;
   int nQuarter = nBlades/4;
   double zShiftMax = effBladeZShift*((nQuarter-1)/2.);
 
@@ -143,19 +143,19 @@ void DDPixFwdOuterDisks::execute() {
     
     // calculate Phi and Z shift for this blade :
 
-    double phi = (iBlade + 0.5) * deltaPhi - 90.*deg;
+    double phi = (iBlade + 0.5) * deltaPhi - 90.*CLHEP::deg;
     int iQuarter = iBlade % nQuarter;
     double zShift = - zShiftMax + iQuarter * effBladeZShift;
     
     // compute rotation matrix from mother to blade frame :
     
-    HepRotation* rotMatrix = new HepRotation(Hep3Vector(0.,0.,1.), phi);
+    CLHEP::HepRotation* rotMatrix = new CLHEP::HepRotation(CLHEP::Hep3Vector(0.,0.,1.), phi);
     (*rotMatrix) *= bladeRotMatrix;
     
     // convert translation vector from blade frame to mother frame, and add Z shift :
     
-    Hep3Vector translation = (*rotMatrix)(childTranslation + Hep3Vector(0., ancorRadius, 0.));
-    translation += Hep3Vector(0., 0., zShift + zPlane);
+    CLHEP::Hep3Vector translation = (*rotMatrix)(childTranslation + CLHEP::Hep3Vector(0., ancorRadius, 0.));
+    translation += CLHEP::Hep3Vector(0., 0., zShift + zPlane);
     
     // create DDRotation for placing the child if not already existent :
 

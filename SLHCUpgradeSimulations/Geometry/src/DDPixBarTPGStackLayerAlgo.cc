@@ -92,7 +92,7 @@ void DDPixBarTPGStackLayerAlgo::execute() {
   // Keep a running tally to check that there are no phi gaps.
   double phi_coverage = 0.0;		// Running total of Phi coverage
   bool covered=0;			// Set to 1 when there is at least 2Pi of coverage in phi
-  double dphi = twopi/number;		// Phi difference between successive ladders
+  double dphi = CLHEP::twopi/number;		// Phi difference between successive ladders
   double phi_offset = module_offset;	// Phi rotation of the ladders
   double radius_offset = 0.0;		// Distance from <R> that the stacks are shifted in or out
   double deltaX, deltaY; 		// Offset to correct for ladder thickness
@@ -149,10 +149,10 @@ void DDPixBarTPGStackLayerAlgo::execute() {
   std::string name;
 
   int component_copy_no=1;
-  double phi0 = 90*deg;
-  double phi =0*deg;
-  double phix=0*deg;
-  double phiy=0*deg;
+  double phi0 = 90*CLHEP::deg;
+  double phi =0*CLHEP::deg;
+  double phix=0*CLHEP::deg;
+  double phiy=0*CLHEP::deg;
   DDTranslation tran;
   DDRotation rot;
 
@@ -168,7 +168,7 @@ void DDPixBarTPGStackLayerAlgo::execute() {
   DDName mother = parent().name();
   std::string idName = DDSplit(mother).first;
 
-  DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerDz, r_vol_inner, r_vol_outer, 0, twopi);
+  DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerDz, r_vol_inner, r_vol_outer, 0, CLHEP::twopi);
 
   DDName matname(DDSplit(VolumeMaterial).first, DDSplit(VolumeMaterial).second);
   DDMaterial matter(matname);
@@ -176,7 +176,7 @@ void DDPixBarTPGStackLayerAlgo::execute() {
 
   LogDebug("PixelGeom") << "DDPixBarTPGStackLayerAlgo test: " 
 			<< DDName(idName, idNameSpace) << " Tubs made of " 
-			<< VolumeMaterial << " from 0 to " << twopi/deg 
+			<< VolumeMaterial << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 			<< " with Rin " << r_vol_inner << " Rout " << r_vol_outer 
 			<< " ZHalf " << 0.5*layerDz;
 
@@ -237,8 +237,8 @@ void DDPixBarTPGStackLayerAlgo::execute() {
     double phi_coverage_i=0.0;
     // First the modules
     phi = phi0 + i*dphi;
-    phix = phi + (90*deg) - phi_offset ;
-    phiy = phix + (90*deg) ;
+    phix = phi + (90*CLHEP::deg) - phi_offset ;
+    phiy = phix + (90*CLHEP::deg) ;
 
     deltaX= 0.5*ladderThick*cos(phi-phi_offset);
     deltaY= 0.5*ladderThick*sin(phi-phi_offset);
@@ -250,7 +250,7 @@ void DDPixBarTPGStackLayerAlgo::execute() {
     //inner layer of stack
     tran = DDTranslation(radius*cos(phi)-deltaX, radius*sin(phi)-deltaY, 0);
     name = idName + dbl_to_string(component_copy_no);
-    rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+    rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
     DDpos (ladderFullDown, layer, component_copy_no, tran, rot);
 
@@ -265,7 +265,7 @@ void DDPixBarTPGStackLayerAlgo::execute() {
     //outer layer of stack
     tran = DDTranslation(radius*cos(phi)+deltaX, radius*sin(phi)+deltaY, 0);
     name = idName + dbl_to_string(component_copy_no);
-    rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+    rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
     DDpos (ladderFullUp, layer, component_copy_no, tran, rot);
 
@@ -283,15 +283,15 @@ void DDPixBarTPGStackLayerAlgo::execute() {
 
     phi_coverage += phi_coverage_i;
     //std::cout<<"\nLooking at phi = "<< phi<<"\tNumber "<<component_copy_no-1<<"\t with "<<phi_coverage_i<<"\trad of coverage for a total coverage of "<<phi_coverage;
-    if (phi_coverage>twopi&&covered==0) {
+    if (phi_coverage>CLHEP::twopi&&covered==0) {
        //std::cout<<"\nPhi coverage is achieved after "<<(component_copy_no-1)/2.0<<" ladders for R="<<radius/10.0<<" cm.\t and "<<number<<" ladders were asked for";
        covered=1;
     }
 
  
   }
-  //std::cout<<"\nLayer covered "<<phi_coverage<<" radians in phi.   (2Pi="<<twopi<<")";
-  if (phi_coverage<twopi) { throw cms::Exception("DDPixBarTPGStackLayerAlgo")
+  //std::cout<<"\nLayer covered "<<phi_coverage<<" radians in phi.   (2Pi="<<CLHEP::twopi<<")";
+  if (phi_coverage<CLHEP::twopi) { throw cms::Exception("DDPixBarTPGStackLayerAlgo")
       <<"\nAsking for a Geometry with gaps in phi.\n";}
 
 // Iterate over the number of ladders (now 2 cooltubes per ladder)
@@ -302,13 +302,13 @@ void DDPixBarTPGStackLayerAlgo::execute() {
 
   for (int i=0; i<number; i++) {
     phi = phi0 + i*dphi;
-    phix = phi + (90*deg) - phi_offset;
-    phiy = phix + (90*deg) ;
+    phix = phi + (90*CLHEP::deg) - phi_offset;
+    phiy = phix + (90*CLHEP::deg) ;
 
-    deltaX= coolOffset*cos(90*deg-phi+phi_offset);
-    deltaY= coolOffset*sin(90*deg-phi+phi_offset);
-    deltaX2= coolOffset2*cos(90*deg-phi+phi_offset);
-    deltaY2= coolOffset2*sin(90*deg-phi+phi_offset);
+    deltaX= coolOffset*cos(90*CLHEP::deg-phi+phi_offset);
+    deltaY= coolOffset*sin(90*CLHEP::deg-phi+phi_offset);
+    deltaX2= coolOffset2*cos(90*CLHEP::deg-phi+phi_offset);
+    deltaY2= coolOffset2*sin(90*CLHEP::deg-phi+phi_offset);
 
     double radius;              
     if((i%2)==0) radius=moduleRadius-radius_offset;
@@ -319,7 +319,7 @@ void DDPixBarTPGStackLayerAlgo::execute() {
 
     name = idName + "xxx"+dbl_to_string(i+10000);
 
-    rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+    rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
     DDpos (coolTube, layer, i*2+1, tran, rot);
     LogDebug("PixelGeom") << "DDPixBarTPGStackLayerAlgo test: " << coolTube.name() 
 			  << " number " << i*2+1 << " positioned in " 
@@ -335,7 +335,7 @@ void DDPixBarTPGStackLayerAlgo::execute() {
 
        name = idName + "xxx2"+dbl_to_string(i+10000);
 
-       rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+       rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
        DDpos (coolTube, layer, number*2+i*2+1, tran, rot);
        LogDebug("PixelGeom") << "DDPixBarTPGStackLayerAlgo test: " << coolTube.name() 
                              << " number " << number*2+i*2+1 << " positioned in " 
