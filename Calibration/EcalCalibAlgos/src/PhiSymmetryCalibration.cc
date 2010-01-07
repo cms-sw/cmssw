@@ -647,7 +647,8 @@ void PhiSymmetryCalibration::endJob()
     header.tag_="unknown";
     header.date_="Mar 24 1973";
 
-    EcalIntercalibConstantsXMLTranslator::writeXML(newcalibfile,header,intercalib_constants, intercalib_errors );
+    EcalIntercalibConstantsXMLTranslator::writeXML(newcalibfile,header,
+						   intercalib_constants );
 
     eehisto.Write();
     ebhisto.Write();
