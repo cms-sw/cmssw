@@ -18,7 +18,7 @@ public:
 
   ~SiStripDetVOffBuilder();
 
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void initialize( const edm::EventSetup& );
 
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
 

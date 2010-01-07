@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: testSiStripHashedDetId.cc,v 1.1 2008/01/09 13:27:27 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/test/plugins/testSiStripHashedDetId.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
@@ -41,7 +41,7 @@ testSiStripHashedDetId::~testSiStripHashedDetId() {
 
 // -----------------------------------------------------------------------------
 // 
-void testSiStripHashedDetId::beginJob( const edm::EventSetup& setup ) {
+void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   edm::LogVerbatim(mlDqmCommon_)
     << "[SiStripHashedDetId::" << __func__ << "]"
     << " Tests the generation of DetId hash map...";
@@ -194,6 +194,7 @@ void testSiStripHashedDetId::beginJob( const edm::EventSetup& setup ) {
 // 
 void testSiStripHashedDetId::analyze( const edm::Event& event, 
 				       const edm::EventSetup& setup ) {
+  initialize(setup);
   LogTrace(mlDqmCommon_) 
     << "[testSiStripHashedDetId::" << __func__ << "]"
     << " Analyzing run/event "

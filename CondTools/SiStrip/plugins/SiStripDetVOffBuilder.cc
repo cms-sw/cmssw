@@ -26,7 +26,7 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder( const edm::ParameterSet& iConfig )
 SiStripDetVOffBuilder::~SiStripDetVOffBuilder(){}
 
 
-void SiStripDetVOffBuilder::beginJob( const edm::EventSetup& iSetup ) {
+void SiStripDetVOffBuilder::initialize( const edm::EventSetup& iSetup ) {
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
@@ -49,7 +49,9 @@ void SiStripDetVOffBuilder::beginJob( const edm::EventSetup& iSetup ) {
   }
 }
 
-void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup){
+void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup)
+{
+  initialize(iSetup);
 
   unsigned int run=evt.id().run();
 

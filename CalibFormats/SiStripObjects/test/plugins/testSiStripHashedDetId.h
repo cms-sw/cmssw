@@ -17,7 +17,7 @@ class testSiStripHashedDetId : public edm::EDAnalyzer {
   testSiStripHashedDetId( const edm::ParameterSet& );
   ~testSiStripHashedDetId();
   
-  void beginJob( edm::EventSetup const& );
+  void initialize( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
   
