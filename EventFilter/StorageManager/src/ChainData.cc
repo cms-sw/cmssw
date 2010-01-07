@@ -1,6 +1,4 @@
-// $Id: ChainData.cc,v 1.1.2.2 2009/10/13 14:13:54 mommsen Exp $
-
-#include "toolbox/mem/Reference.h"
+// $Id: ChainData.cc,v 1.2 2009/10/13 15:08:34 mommsen Exp $
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -15,17 +13,24 @@
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
+#include "interface/shared/i2oXFunctionCodes.h"
+#include "interface/shared/version.h"
+
+
 using namespace stor;
 
 // A ChainData object may or may not contain a Reference.
-detail::ChainData::ChainData(toolbox::mem::Reference* pRef) :
+detail::ChainData::ChainData(toolbox::mem::Reference* pRef,
+                             const unsigned short i2oMessageCode,
+                             const unsigned int messageCode) :
   _streamTags(),
   _eventConsumerTags(),
   _dqmEventConsumerTags(),
   _ref(pRef),
   _complete(false),
   _faultyBits(0),
-  _messageCode(Header::INVALID),
+  _messageCode(messageCode),
+  _i2oMessageCode(i2oMessageCode),
   _fragKey(Header::INVALID,0,0,0,0,0),
   _fragmentCount(0),
   _expectedNumberOfFragments(0),
@@ -85,10 +90,16 @@ detail::ChainData::ChainData(toolbox::mem::Reference* pRef) :
 	    {
 	      validateExpectedFragmentCount(curRef, TOTAL_COUNT_MISMATCH);
 	      validateFragmentOrder(curRef, workingIndex);
-	    }
+              validateMessageCode(curRef, _i2oMessageCode);
+ 	    }
 	  
 	  curRef = curRef->getNextReference();
 	}
+    }
+
+  if (!faulty() && _fragmentCount == _expectedNumberOfFragments)
+    {
+      markComplete();
     }
 }
 
@@ -326,6 +337,7 @@ void detail::ChainData::swap(ChainData& other)
   std::swap(_complete, other._complete);
   std::swap(_faultyBits, other._faultyBits);
   std::swap(_messageCode, other._messageCode);
+  std::swap(_i2oMessageCode, other._i2oMessageCode);
   std::swap(_fragKey, other._fragKey);
   std::swap(_fragmentCount, other._fragmentCount);
   std::swap(_expectedNumberOfFragments, other._expectedNumberOfFragments);
@@ -603,6 +615,15 @@ std::vector<QueueID> const& detail::ChainData::getEventConsumerTags() const
 std::vector<QueueID> const& detail::ChainData::getDQMEventConsumerTags() const
 {
   return _dqmEventConsumerTags;
+}
+
+bool detail::ChainData::isEndOfLumiSectionMessage() const
+{
+  #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
+  return ( _i2oMessageCode == I2O_EVM_LUMISECTION );
+  #else
+  return false;
+  #endif
 }
 
 bool

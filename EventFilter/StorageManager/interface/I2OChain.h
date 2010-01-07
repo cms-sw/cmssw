@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.5 2009/07/20 13:06:10 mommsen Exp $
+// $Id: I2OChain.h,v 1.6 2009/08/28 16:41:50 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef StorageManager_I2OChain_h
@@ -28,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/28 16:41:50 $
    */
 
 
@@ -265,11 +265,18 @@ namespace stor {
     std::vector<QueueID> getDQMEventConsumerTags() const;
 
     /**
-       Returns the message code for the chain.  Valid values
+       Returns the message code for the chain. Valid values
        are Header::INVALID, Header::INIT, Header::EVENT, Header::DQM_EVENT,
        and Header::ERROR_EVENT from IOPool/Streamer/interface/MsgHeader.h.
      */
     unsigned int messageCode() const;
+
+    /**
+       Returns the I2O function code for the chain. Valid values
+       are defined in interface/shared/i2oXFunctionCodes.h.
+       If now chain is found, 0xffff is returned.
+     */
+    unsigned short i2oMessageCode() const;
 
     /**
        Returns the resource broker buffer ID from the contained message.
@@ -523,6 +530,12 @@ namespace stor {
        the StorageManager, but it will *not* be changed in the I2O header.
      */
     void assertRunNumber(uint32 runNumber);
+
+    /**
+       Returns true if the I2O function code indicates that the message
+       represents an end-of-lumi-section signal.
+     */
+    bool isEndOfLumiSectionMessage() const;
 
   private:
 

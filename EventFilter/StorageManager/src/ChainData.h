@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.5 2009/09/29 15:29:59 dshpakov Exp $
+// $Id: ChainData.h,v 1.6 2009/10/12 13:15:29 dshpakov Exp $
 
 #ifndef CHAINDATA_H
 #define CHAINDATA_H
@@ -39,6 +39,7 @@ namespace stor
     ///////////////////////////////////////////////////////////////////
     class ChainData
     {
+    protected:
       enum BitMasksForFaulty { INVALID_INITIAL_REFERENCE = 0x1,
                                CORRUPT_INITIAL_HEADER = 0x2,
                                INVALID_SECONDARY_REFERENCE = 0x4,
@@ -51,7 +52,9 @@ namespace stor
 
 
     public:
-      explicit ChainData(toolbox::mem::Reference* pRef);
+      explicit ChainData(toolbox::mem::Reference*,
+                         unsigned short i2oMessageCode = 0x9999,
+                         unsigned int messageCode = Header::INVALID);
       virtual ~ChainData();
       bool empty() const;
       bool complete() const;
@@ -65,6 +68,7 @@ namespace stor
       unsigned long* getBufferData() const;
       void swap(ChainData& other);
       unsigned int messageCode() const {return _messageCode;}
+      unsigned short i2oMessageCode() const {return _i2oMessageCode;}
       FragKey const& fragmentKey() const {return _fragKey;}
       unsigned int fragmentCount() const {return _fragmentCount;}
       unsigned int rbBufferId() const {return _rbBufferId;}
@@ -122,6 +126,8 @@ namespace stor
       std::vector<QueueID> const& getEventConsumerTags() const;
       std::vector<QueueID> const& getDQMEventConsumerTags() const;
 
+      bool isEndOfLumiSectionMessage() const;
+
     private:
       std::vector<StreamID> _streamTags;
       std::vector<QueueID> _eventConsumerTags;
@@ -134,6 +140,7 @@ namespace stor
       unsigned int _faultyBits;
 
       unsigned int _messageCode;
+      unsigned short _i2oMessageCode;
       FragKey _fragKey;
       unsigned int _fragmentCount;
       unsigned int _expectedNumberOfFragments;

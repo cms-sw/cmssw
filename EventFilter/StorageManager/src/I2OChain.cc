@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.15 2009/12/03 14:31:46 dshpakov Exp $
+// $Id: I2OChain.cc,v 1.16 2009/12/17 18:28:58 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -16,6 +16,7 @@
 
 #include "interface/evb/i2oEVBMsgs.h"
 #include "interface/shared/i2oXFunctionCodes.h"
+#include "interface/shared/version.h"
 
 
 namespace stor
@@ -32,8 +33,7 @@ namespace stor
       {
         I2O_PRIVATE_MESSAGE_FRAME *pvtMsg =
           (I2O_PRIVATE_MESSAGE_FRAME*) pRef->getDataLocation();
-        if (!pvtMsg || ((size_t)(pvtMsg->StdMessageFrame.MessageSize*4) <
-                        sizeof(I2O_SM_MULTIPART_MESSAGE_FRAME)))
+        if (!pvtMsg)
           {
             _data.reset(new detail::ChainData(pRef));
             return;
@@ -64,7 +64,7 @@ namespace stor
           #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
           case I2O_EVM_LUMISECTION:
             {
-              _data.reset( new detail::EndLumiSectMsgData( pRef ) );
+              _data.reset(new detail::EndLumiSectMsgData(pRef));
               break;
             }
           #endif
@@ -219,6 +219,12 @@ namespace stor
   {
     if (!_data) return Header::INVALID;
     return _data->messageCode();
+  }
+
+  unsigned short I2OChain::i2oMessageCode() const
+  {
+    if (!_data) return 0xffff;
+    return _data->i2oMessageCode();
   }
 
   unsigned int I2OChain::rbBufferId() const
@@ -566,6 +572,12 @@ namespace stor
           "The event number can not be determined from an empty I2OChain.");
       }
     return _data->eventNumber();
+  }
+
+  bool I2OChain::isEndOfLumiSectionMessage() const
+  {
+    if (!_data) return false;
+    return _data->isEndOfLumiSectionMessage();
   }
 
 } // namespace stor
