@@ -11,8 +11,8 @@
  *
  * Only one parameter to set the name of the output ROOT file.
  *
- *  $Date: 2007/06/19 14:50:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/19 14:56:18 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -29,18 +29,18 @@ class SurveyDBReader:
 		 );
 
   /// Read from DB and print survey info.
-  virtual void beginJob(
-			const edm::EventSetup&
-			);
+  virtual void beginJob() { theFirstEvent = true; }
 
   virtual void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       ) {}
+		       );
 
   private:
 
   std::string theFileName;
+
+  bool theFirstEvent;
 };
 
 #endif

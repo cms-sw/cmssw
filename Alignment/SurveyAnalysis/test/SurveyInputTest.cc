@@ -11,7 +11,7 @@ SurveyInputTest::SurveyInputTest(const edm::ParameterSet& cfg):
 {
 }
 
-void SurveyInputTest::beginJob(const edm::EventSetup&)
+void SurveyInputTest::beginJob()
 {
   addComponent( create( theConfig.getParameter<std::string>("detector") ) );
 }

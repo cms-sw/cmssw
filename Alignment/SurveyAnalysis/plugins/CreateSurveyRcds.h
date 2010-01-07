@@ -5,8 +5,8 @@
  *
  *  Class to create Survey[Error]Rcd for alignment with survey constraint
  *
- *  $Date: 2007/10/08 16:38:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/10 08:41:47 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -24,15 +24,13 @@ class CreateSurveyRcds:
 	public:
 		
 		CreateSurveyRcds(
-						 const edm::ParameterSet&
-						 );
+				 const edm::ParameterSet&
+				 );
 		
-		/// Read ideal tracker geometry from DB
-		virtual void beginJob(
-							  const edm::EventSetup&
-							  );
-		
-		virtual void analyze(const edm::Event&, const edm::EventSetup&);
+		virtual void analyze(
+				     const edm::Event&, 
+				     const edm::EventSetup&
+				     );
 		
 	private:
 		

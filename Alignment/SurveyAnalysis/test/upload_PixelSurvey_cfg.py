@@ -9,7 +9,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 process.tracker = cms.EDFilter("SurveyInputTrackerFromDB",
 	textFileName = cms.string('../data/FPixBPix_Survey.txt')

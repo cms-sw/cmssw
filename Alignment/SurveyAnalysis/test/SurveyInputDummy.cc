@@ -30,15 +30,19 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg):
   }
 }
 
-void SurveyInputDummy::beginJob(const edm::EventSetup& setup)
+void SurveyInputDummy::analyze(const edm::Event&, const edm::EventSetup& setup)
 {
-  edm::ESHandle<TrackerGeometry> tracker;
-  setup.get<TrackerDigiGeometryRecord>().get( tracker );
+  if (theFirstEvent) {
+    edm::ESHandle<TrackerGeometry> tracker;
+    setup.get<TrackerDigiGeometryRecord>().get( tracker );
+    
+    Alignable* ali = new AlignableTracker( &*tracker );
+    
+    addSurveyInfo(ali);
+    addComponent(ali);
 
-  Alignable* ali = new AlignableTracker( &*tracker );
-
-  addSurveyInfo(ali);
-  addComponent(ali);
+    theFirstEvent = false;
+  }
 }
 
 void SurveyInputDummy::addSurveyInfo(Alignable* ali)

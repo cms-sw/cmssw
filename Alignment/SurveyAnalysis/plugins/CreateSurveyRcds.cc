@@ -33,11 +33,6 @@ CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
 	m_generatedSimple = cfg.getUntrackedParameter< bool > ("generatedSimple");
 }
 
-void CreateSurveyRcds::beginJob(const edm::EventSetup& setup)
-{
-}
-
-
 void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	
 	edm::ESHandle<GeometricDet>  geom;

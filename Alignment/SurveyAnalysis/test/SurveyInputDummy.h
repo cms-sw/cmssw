@@ -24,8 +24,8 @@
  *  The covariance matrix for all structures of a level will be diagonal
  *  given by value^2 * identity.
  *
- *  $Date: 2007/10/10 20:54:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/15 10:22:42 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 
@@ -42,9 +42,10 @@ class SurveyInputDummy:
 		   );
 
   /// Read ideal tracker geometry from DB
-  virtual void beginJob(
-			const edm::EventSetup&
-			);
+  virtual void analyze(
+		       const edm::Event&,
+		       const edm::EventSetup&
+		       );
 
   private:
 

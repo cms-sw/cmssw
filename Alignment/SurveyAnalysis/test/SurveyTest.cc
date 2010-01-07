@@ -26,7 +26,7 @@ SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
   }
 }
 
-void SurveyTest::beginJob(const edm::EventSetup&)
+void SurveyTest::beginJob()
 {
   Alignable* det = SurveyInputBase::detector();
 

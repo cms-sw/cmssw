@@ -5,8 +5,8 @@
  *
  *  Abstract base class to read survey raw measurements.
  *
- *  $Date: 2007/04/07 01:58:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/15 18:14:04 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -22,15 +22,13 @@ class SurveyInputBase:
   virtual ~SurveyInputBase();
 
   /// Read data from input.
-  virtual void beginJob(
-			const edm::EventSetup&
-			) = 0;
+  virtual void beginJob() { theFirstEvent = true; }
 
   /// Do nothing for each event.
   virtual void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       ) {}
+		       ) = 0;
 
   /// Get alignable detector as read from input.
   inline static Alignable* detector();
@@ -40,6 +38,10 @@ class SurveyInputBase:
   static void addComponent(
 			   Alignable*
 			   );
+
+  protected:
+
+  bool theFirstEvent;
 
   private:
 

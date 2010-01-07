@@ -5,8 +5,8 @@
  *
  *  Class to read ideal tracker from DB.
  *
- *  $Date: 2007/05/08 22:36:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/08 16:38:04 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -23,9 +23,10 @@ public:
 			   );
 	
   /// Read ideal tracker geometry from DB
-  virtual void beginJob(
-			const edm::EventSetup&
-			);
+  virtual void analyze(
+		       const edm::Event&,
+		       const edm::EventSetup&
+		       );
 	
 private:
 	

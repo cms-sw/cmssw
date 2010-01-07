@@ -5,8 +5,8 @@
  *
  *  Class to read survey raw measurements from a config file.
  *
- *  $Date: 2007/01/17 $
- *  $Revision: 1 $
+ *  $Date: 2007/04/07 01:58:49 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -23,9 +23,12 @@ class SurveyInputTest:
 		  );
 
   /// Read data from cfg file
-  virtual void beginJob(
-			const edm::EventSetup&
-			);
+  virtual void beginJob();
+  
+  virtual void analyze(
+		       const edm::Event&,
+		       const edm::EventSetup&
+		       ) {}
 
   private:
 

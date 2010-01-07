@@ -5,8 +5,8 @@
  *
  *  Analyser module for testing.
  *
- *  $Date: 2007/05/03 20:59:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/10 20:54:07 $
+ *  $Revision: 1.6 $
  *  \author Chung Khim Lae
  */
 
@@ -21,7 +21,7 @@ class SurveyTest:
 
   SurveyTest(const edm::ParameterSet&);
 
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
 

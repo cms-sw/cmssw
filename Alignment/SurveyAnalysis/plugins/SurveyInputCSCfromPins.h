@@ -6,7 +6,7 @@
  *  Class to read ideal tracker from DB.
  *
  *  $Date: Fri Jun 29 09:20:52 CEST 2007
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *  \author Dmitry Yakorev
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,7 +20,7 @@ public:
   SurveyInputCSCfromPins(const edm::ParameterSet&);
 	
   /// Read ideal tracker geometry from DB
-  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
 

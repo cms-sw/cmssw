@@ -22,10 +22,11 @@ textFileName( cfg.getParameter<std::string>("textFileName") )
 {
 }
 
-void SurveyInputTrackerFromDB::beginJob(const edm::EventSetup& setup )
+void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup& setup)
 {
-	
-	//  std::cout << "***************ENTERING BEGIN JOB******************" << std::endl;
+  if (theFirstEvent) {
+
+	//  std::cout << "***************ENTERING INITIALIZATION******************" << std::endl;
 	
 	//Get map from textreader
 	SurveyInputTextReader dataReader;
@@ -53,7 +54,8 @@ void SurveyInputTrackerFromDB::beginJob(const edm::EventSetup& setup )
 	poolDbService->writeOne<Alignments>( myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd" );
 	poolDbService->writeOne<AlignmentErrors>( myAlignmentErrors, poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd" );
 	
-	
+	theFirstEvent = false;
+  }
 }
 
 void SurveyInputTrackerFromDB::addSurveyInfo(Alignable* ali)
@@ -66,7 +68,7 @@ void SurveyInputTrackerFromDB::addSurveyInfo(Alignable* ali)
 	align::ErrorMatrix error;
 
 	SurveyInputTextReader::MapType::const_iterator it
-    = uIdMap.find(std::make_pair(ali->id(), ali->alignableObjectId()));
+	  = uIdMap.find(std::make_pair(ali->id(), ali->alignableObjectId()));
 
 	if (it != uIdMap.end()){
 		

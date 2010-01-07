@@ -109,9 +109,11 @@ void SurveyInputCSCfromPins::errors(double a, double b, bool missing1, bool miss
    dy_phix /= trials;
 }
 
-void SurveyInputCSCfromPins::beginJob(const edm::EventSetup& iSetup)
+void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 {
-	edm::LogInfo("SurveyInputCSCfromPins") << "***************ENTERING BEGIN JOB******************" << "  \n";
+  if (theFirstEvent) {
+
+	edm::LogInfo("SurveyInputCSCfromPins") << "***************ENTERING INITIALIZATION******************" << "  \n";
 	
 	std::ifstream in;
   	in.open(m_pinPositions.c_str());
@@ -149,9 +151,7 @@ void SurveyInputCSCfromPins::beginJob(const edm::EventSetup& iSetup)
  	AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
  	AlignableNavigator* theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
  
- 
- 
- 	std::vector<Alignable*> theEndcaps = theAlignableMuon->CSCEndcaps();
+  	std::vector<Alignable*> theEndcaps = theAlignableMuon->CSCEndcaps();
  
 	for (std::vector<Alignable*>::const_iterator aliiter = theEndcaps.begin();  aliiter != theEndcaps.end();  ++aliiter) {
      
@@ -269,7 +269,13 @@ void SurveyInputCSCfromPins::beginJob(const edm::EventSetup& iSetup)
  		fillAllRecords(*aliiter);
     	} 
 
-	edm::LogInfo("SurveyInputCSCfromPins") << "*************END BEGIN JOB***************" << "  \n";
+	delete theAlignableMuon;
+	delete theAlignableNavigator;
+
+	edm::LogInfo("SurveyInputCSCfromPins") << "*************END INITIALIZATION***************" << "  \n";
+
+	theFirstEvent = false;
+  }
 }
 
 

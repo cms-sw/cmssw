@@ -18,24 +18,27 @@ SurveyMisalignmentInput::SurveyMisalignmentInput(const edm::ParameterSet& cfg):
 {
 }
 
-void SurveyMisalignmentInput::beginJob(const edm::EventSetup& setup)
+void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& setup)
 {
+  if (theFirstEvent) {
+    edm::ESHandle<GeometricDet> geom;
+    setup.get<IdealGeometryRecord>().get(geom);	 
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
+    addComponent(new AlignableTracker( tracker ) );
 
-  edm::ESHandle<GeometricDet>  geom;
-  setup.get<IdealGeometryRecord>().get(geom);	 
-  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
-  addComponent(new AlignableTracker( tracker ) );
+    edm::LogInfo("SurveyMisalignmentInput") << "Starting!";
+    // Retrieve alignment[Error]s from DBase
+    setup.get<TrackerAlignmentRcd>().get( alignments );
+    
+    //Get map from textreader
+    SurveyInputTextReader dataReader;
+    dataReader.readFile( textFileName );
+    uIdMap = dataReader.UniqueIdMap();
+    
+    addSurveyInfo( detector() );
 
-  edm::LogInfo("SurveyMisalignmentInput") << "Starting!";
-  // Retrieve alignment[Error]s from DBase
-  setup.get<TrackerAlignmentRcd>().get( alignments );
-
-  //Get map from textreader
-  SurveyInputTextReader dataReader;
-  dataReader.readFile( textFileName );
-  uIdMap = dataReader.UniqueIdMap();
-
-  addSurveyInfo( detector() );
+    theFirstEvent = false;
+  }
 }
 
 
