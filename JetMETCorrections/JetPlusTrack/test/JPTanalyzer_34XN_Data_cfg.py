@@ -38,7 +38,7 @@ process.monster = cms.EDFilter(
     )
 ####
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 # last re-reco /MinimumBias/BeamCommissioning09-SD_AllMinBias-Dec19thSkim_341_v1
 ### For 219, file from RelVal
@@ -59,7 +59,7 @@ process.source = cms.Source("PoolSource",
 
 # Analyzer module
 process.myanalysis = cms.EDFilter(
-    "JPTAnalyzer",
+    "JPTAnalyzer_Data",
     HistOutFile      = cms.untracked.string('analysis.root'),
 #    calojets         = cms.string('iterativeCone5CaloJets'),
 #    calojets         = cms.string('sisCone5CaloJets'),
