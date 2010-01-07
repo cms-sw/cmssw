@@ -44,7 +44,7 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  void readBadAPVs();
+  bool readBadAPVs();
 
   void readHistogram(MonitorElement* aMe,
 		     unsigned int & aCounter, 

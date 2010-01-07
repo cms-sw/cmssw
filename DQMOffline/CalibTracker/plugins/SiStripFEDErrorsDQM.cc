@@ -27,19 +27,20 @@ void SiStripFEDErrorsDQM::analyze(const edm::Event& iEvent, const edm::EventSetu
   //update cabling
   updateCabling(iSetup);
 
-  readBadAPVs();
-
-  // Save the parameters to the db.
-  edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( mydbservice.isAvailable() ){
-    if( mydbservice->isNewTagRequest("SiStripBadStripRcd") ){
-      mydbservice->createNewIOV<SiStripBadStrip>(obj_, mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripBadStripRcd");
-    } else {
-      mydbservice->appendSinceTime<SiStripBadStrip>(obj_, mydbservice->currentTime(),"SiStripBadStripRcd");      
+  if (readBadAPVs())
+    {
+      // Save the parameters to the db.
+      edm::Service<cond::service::PoolDBOutputService> mydbservice;
+      if( mydbservice.isAvailable() ){
+	if( mydbservice->isNewTagRequest("SiStripBadStripRcd") ){
+	  mydbservice->createNewIOV<SiStripBadStrip>(obj_, mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripBadStripRcd");
+	} else {
+	  mydbservice->appendSinceTime<SiStripBadStrip>(obj_, mydbservice->currentTime(),"SiStripBadStripRcd");      
+	}
+      } else {
+	edm::LogError("SiStripFEDErrorsDQM")<<"Service is unavailable"<<std::endl;
+      }
     }
-  } else {
-    edm::LogError("SiStripFEDErrorsDQM")<<"Service is unavailable"<<std::endl;
-  }
 
 }
 
@@ -65,27 +66,30 @@ void SiStripFEDErrorsDQM::updateCabling(const edm::EventSetup& iSetup)
   }
 }
 
-void SiStripFEDErrorsDQM::readBadAPVs(){
+bool SiStripFEDErrorsDQM::readBadAPVs(){
 
-  std::cout << "SiStripFEDErrorsDQM::readBadAPVs" << std::endl;
+  //std::cout << "[SiStripFEDErrorsDQM::readBadAPVs]" << std::endl;
 
   openRequestedFile();
 
-  std::cout << "[readBadComponents]: opened requested file" << std::endl;
+  //std::cout << "[SiStripFEDErrorsDQM::readBadAPVs]: opened requested file" << std::endl;
 
   obj_=new SiStripBadStrip();
 
   SiStripDetInfoFileReader lReader(fp_.fullPath());
 
-  dqmStore_->cd();
+  std::ostringstream lPath;
+  lPath << "Run " << getRunNumber() << "/SiStrip/Run summary/ReadoutView/";
 
-  std::string lBaseDir = "ReadoutView/";
-  if (!goToDir(lBaseDir)) return;
-  lBaseDir = dqmStore_->pwd();
+  dqmStore_->setCurrentFolder(lPath.str());
+  LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] Now in " << dqmStore_->pwd() << std::endl;
+
+  std::string lBaseDir = dqmStore_->pwd();
 
   std::vector<std::pair<std::string,unsigned int> > lFedsFolder;
   //for FED errors, use summary folder and fedId=0
-  lFedsFolder.push_back(std::pair<std::string,unsigned int>("FedMonitoringSummary/",0));
+  //do not put a slash or "goToDir" won't work...
+  lFedsFolder.push_back(std::pair<std::string,unsigned int>("FedMonitoringSummary",0));
 
   //for FE/channel/APV errors, they are written in a folder per FED, 
   //if there was at least one error.
@@ -96,12 +100,13 @@ void SiStripFEDErrorsDQM::readBadAPVs(){
 
     std::ostringstream lFedDir;
     lFedDir << "FrontEndDriver" << ifed;
-    
-    if (!dqmStore_->dirExists(lFedDir.str())) continue;
+    if (!goToDir(lFedDir.str())) continue;
+    //if (!dqmStore_->dirExists(lFedDir.str())) continue;
     else {
-      if (debug_) std::cout << " - Errors detected for FED " << ifed << std::endl;
+      if (debug_) LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] - Errors detected for FED " << ifed << std::endl;
       lFedsFolder.push_back(std::pair<std::string,unsigned int>(lFedDir.str(),ifed));
     }
+    dqmStore_->goUp();
   }
 
   unsigned int nAPVsTotal = 0;
@@ -119,30 +124,43 @@ void SiStripFEDErrorsDQM::readBadAPVs(){
     }
   }
 
-  if (debug_) std::cout << "Total number of APVs found : " << nAPVsTotal << std::endl;
+  edm::LogInfo("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] Total number of APVs found : " << nAPVsTotal << std::endl;
 
   unsigned int nAPVsWithErrorTotal = 0;
   unsigned int nFolders = 0;
-  float lNorm = 1;
+  float lNorm = 0;
 
+  
   for( std::vector<std::pair<std::string,unsigned int> >::const_iterator iFolder = lFedsFolder.begin(); 
        iFolder != lFedsFolder.end(); 
        ++iFolder ) {//loop on lFedsFolders
     std::string lDirName = lBaseDir + "/" + (*iFolder).first;
     unsigned int lFedId = (*iFolder).second;
     
-    if (!dqmStore_->dirExists(lDirName)) continue;
+    if (!goToDir((*iFolder).first)) continue;
 
-    dqmStore_->cd(lDirName);
-
+    std::vector<MonitorElement *> lMeVec = dqmStore_->getContents(lDirName);
+    
     if (nFolders == 0) {
-      std::string lNormHist = lDirName + "/nFEDErrors";
-      lNorm = (dqmStore_->get(lNormHist))->getEntries();
+      
+      for( std::vector<MonitorElement *>::const_iterator iMe = lMeVec.begin(); 
+	   iMe != lMeVec.end(); 
+	   ++iMe ) {//loop on ME found in directory
+      
+	std::string lMeName = (*iMe)->getName() ;
+	if (lMeName.find("nFEDErrors") != lMeName.npos){
+	  lNorm = (*iMe)->getEntries();
+	}
+      }
+      //if norm histo has not been found, no point in continuing....
+      if (lNorm < 1) {
+	edm::LogError("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] nFEDErrors not found, norm is " << lNorm << std::endl;
+	return false;
+      }
     }
 
     unsigned int nAPVsWithError = 0;
-    std::vector<MonitorElement *> lMeVec = dqmStore_->getContents(lDirName);
-    
+        
     for( std::vector<MonitorElement *>::const_iterator iMe = lMeVec.begin(); 
 	 iMe != lMeVec.end(); 
 	 ++iMe ) {//loop on ME found in directory
@@ -156,7 +174,8 @@ void SiStripFEDErrorsDQM::readBadAPVs(){
 	lookForErrors = 
 	  lMeName.find("DataMissing") != lMeName.npos ||
 	  lMeName.find("AnyFEDErrors") != lMeName.npos || 
-	  lMeName.find("CorruptBuffer") != lMeName.npos;
+	  (lMeName.find("CorruptBuffer") != lMeName.npos && 
+	   lMeName.find("nFED") == lMeName.npos);
       }
       else {
 	//for the others, it is channel or FE errors.
@@ -176,11 +195,15 @@ void SiStripFEDErrorsDQM::readBadAPVs(){
     nAPVsWithErrorTotal += nAPVsWithError;      
     ++nFolders;
 
+    dqmStore_->goUp();
+
   }//loop on lFedsFolders
 
-  if (debug_) std::cout << "Total APVs with error found above threshold = " << nAPVsWithErrorTotal << std::endl;
+  edm::LogInfo("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] Total APVs with error found above threshold = " << nAPVsWithErrorTotal << std::endl;
 
   dqmStore_->cd();
+
+  return true;
 }//method
 
 void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
@@ -196,7 +219,8 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
   else if (lMeName.find("AnyFEDErrors") != lMeName.npos) {
     lFlag = 1;
   }
-  else if (lMeName.find("CorruptBuffer") != lMeName.npos) {
+  else if (lMeName.find("CorruptBuffer") != lMeName.npos && 
+	   lMeName.find("nFED") == lMeName.npos) {
     lFlag = 2;
   }
   else if (lMeName.find("FEMissing") != lMeName.npos) {
@@ -217,9 +241,13 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
   else if (lMeName.find("APVError") != lMeName.npos) {
     lFlag = 8;
   }
+  else {
+    edm::LogError("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readHistogramError] Shouldn't be here ..." << std::endl;
+    return;
+  }
 
   if (debug_) {
-    std::cout << "Reading histo : " << lMeName << ", flag = " << lFlag << std::endl;
+    LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readHistogramError] Reading histo : " << lMeName << ", flag = " << lFlag << std::endl;
   }
 
   unsigned int lNBins = aMe->getNbinsX();
@@ -227,6 +255,8 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
   bool lIsFedHist = false;
   bool lIsAPVHist = false;
   bool lIsFeHist = false;
+  bool lIsChHist = false;
+
   if (lNBins > 200) {
     lBinShift = FEDNumbering::MINSiStripFEDID-1;//shift for FED ID from bin number
     lIsFedHist = true;
@@ -235,18 +265,23 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
     lBinShift = -1;//shift for channel/APV/FE id from bin number
     if (lNBins > 100) lIsAPVHist = true;
     else if (lNBins < 10) lIsFeHist = true;
+    else lIsChHist = true;
   }
 
   if (debug_) { 
-    std::cout << "lIsFedHist: " << lIsFedHist << std::endl
-	      << "lIsAPVHist: " << lIsAPVHist << std::endl
-	      << "lIsFeHist: " << lIsFeHist << std::endl;
+    LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readHistogramError] lIsFedHist: " << lIsFedHist << std::endl
+				    << "[SiStripFEDErrorsDQM::readHistogramError] lIsAPVHist: " << lIsAPVHist << std::endl
+				    << "[SiStripFEDErrorsDQM::readHistogramError] lIsFeHist : " << lIsFeHist << std::endl
+				    << "[SiStripFEDErrorsDQM::readHistogramError] lIsChHist : " << lIsChHist << std::endl;
   }
 
   for (unsigned int ibin(1); ibin<lNBins+1; ibin++){
     if (aMe->getBinContent(ibin)>0){
       float lStat = aMe->getBinContent(ibin)*1./aNorm;
-      if (lStat <= threshold_) continue;
+      if (lStat <= threshold_) {
+	if (debug_) LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readHistogramError] ---- Below threshold : " << lStat << std::endl;
+	continue;
+      }
       if (lIsFedHist) {
 	unsigned int lFedId = ibin+lBinShift;
 	//loop on all enabled channels of this FED....
@@ -294,9 +329,15 @@ void SiStripFEDErrorsDQM::addBadAPV(const FedChannelConnection & aConnection,
                                     const unsigned short aFlag,
                                     unsigned int & aCounter)
 {
-  if (!aConnection.isConnected()) return;
+  if (!aConnection.isConnected()) {
+    edm::LogWarning("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::addBadAPV] Warning, incompatible cabling ! Channel is not connected ... " << std::endl;
+    return;
+  }
   unsigned int lDetid = aConnection.detId();
-  if (!lDetid || lDetid == sistrip::invalid32_) return;
+  if (!lDetid || lDetid == sistrip::invalid32_) {
+    edm::LogWarning("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::addBadAPV] Warning, incompatible cabling ! DetId is invalid: " << lDetid << std::endl;
+    return;
+  }
   //unsigned short nChInModule = aConnection.nApvPairs();
   unsigned short lApvNum = 0;
   if (aAPVNumber < 2) {
@@ -323,24 +364,17 @@ void SiStripFEDErrorsDQM::addBadStrips(const FedChannelConnection & aConnection,
 
   lBadStripRange = obj_->encode(lFirstBadStrip,lConsecutiveBadStrips,aFlag);
 
-  LogDebug("SiStripBadComponentsDQM") << "detid " << aDetId << " \t"
-                                      << ", APV " << aApvNum
-                                      << ", flag " << aFlag
-                                      << std::endl;
-
-  if (debug_) {
-    std::cout << " ---- Adding : detid " << aDetId
-	      << " (FED " << aConnection.fedId() 
-	      << ", Ch " << aConnection.fedCh () << ")"
-	      << ", APV " << aApvNum
-	      << ", flag " << aFlag
-	      << std::endl;
-  }
+  LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::addBadStrips] ---- Adding : detid " << aDetId
+				  << " (FED " << aConnection.fedId() 
+				  << ", Ch " << aConnection.fedCh () << ")"
+				  << ", APV " << aApvNum
+				  << ", flag " << aFlag
+				  << std::endl;
 
   lStripVector.push_back(lBadStripRange);
   SiStripBadStrip::Range lRange(lStripVector.begin(),lStripVector.end());
   //if ( !obj_->put(aDetId,lRange) ) {
-  //  edm::LogError("SiStripBadFiberBuilder")<<"[SiStripBadFiberBuilder::analyze] detid already exists." << std::endl;
+  //  edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
   //}
   
   aCounter++;

@@ -6,7 +6,47 @@ process = cms.Process("TEST")
 # message logger
 ######################### 
 
-#process.MessageLogger = cms.Service("MessageLogger",
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    info = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+        #limit = cms.untracked.int32(100000),
+        noLineBreaks = cms.untracked.bool(False)
+        ),
+    #suppressInfo = cms.untracked.vstring(),
+    # allows to suppress output from specific modules 
+    #suppressDebug = cms.untracked.vstring(),
+    debug = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
+        #limit = cms.untracked.int32(100000),
+        noLineBreaks = cms.untracked.bool(False)
+        ),
+    warning = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING'),
+        #limit = cms.untracked.int32(100000),
+        noLineBreaks = cms.untracked.bool(False)
+        ),
+    cerr = cms.untracked.PSet(
+        threshold = cms.untracked.string('ERROR'),
+        #limit = cms.untracked.int32(100000),
+        noLineBreaks = cms.untracked.bool(False)
+        ),
+    error = cms.untracked.PSet(
+        threshold = cms.untracked.string('ERROR'),
+        #limit = cms.untracked.int32(100000),
+        noLineBreaks = cms.untracked.bool(False)
+        ),
+    #suppressWarning = cms.untracked.vstring(),
+    debugModules = cms.untracked.vstring('*'),#'siStripFEDMonitor'),
+    destinations = cms.untracked.vstring('cerr', 
+                                         'debug', 
+                                         'info', 
+                                         'warning', 
+                                         'error')
+
+    )
+
+#process.MessageLogger = cms.Service("MessageLogger"
 #destinations = cms.untracked.vstring('cout', 'readFromFile'),
 #readFromFile = cms.untracked.PSet(
 #    threshold = cms.untracked.string('DEBUG')),
@@ -29,7 +69,7 @@ process.maxEvents = cms.untracked.PSet(
 # )
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(118066)
+    firstRun = cms.untracked.uint32(123815)
 )
 
 #########################
@@ -43,7 +83,8 @@ process.load("DQMServices.Core.DQM_cfg")
 ########################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
-process.GlobalTag.globaltag = "GR09_31X_V1P::All"
+#process.GlobalTag.globaltag = "GR09_31X_V1P::All"
+process.GlobalTag.globaltag = "GR09_P_V7::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 ########################
@@ -89,10 +130,10 @@ logconnect = cms.untracked.string("sqlite_file:log.db")
 ############################################
 
 process.siStripFEDErrorsDQM = cms.EDAnalyzer("SiStripFEDErrorsDQM",
-                                             RunNb = cms.uint32(108298),
+                                             RunNb = cms.uint32(123815),
                                              accessDQMFile = cms.bool(True),
-                                             FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Online/118/066/DQM_V0001_R000118066.root"),
-                                             ME_DIR = cms.untracked.string("Run 118066"),
+                                             FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Online/123/815/DQM_V0001_SiStrip_R000123815.root"),
+                                             ME_DIR = cms.untracked.string("Run 123815"),
                                              histoList = cms.VPSet(),
                                              Threshold = cms.untracked.double(0.01),
                                              Debug = cms.untracked.uint32(1)
