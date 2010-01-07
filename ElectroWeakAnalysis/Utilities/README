@@ -87,6 +87,22 @@ src/ISRWeightProducer.cc (IN PROGRESS)
   "src/SimpleSystematicsAnalyzer.cc". A test example is 
   "test/SimpleSystematicsAnalyzer.py".
 
+src/WeakWeakEffectsWeightProducer.cc
+====================================
+- Writes into the data structure a product containing the event weight ("double") 
+to take into account Weak effects in Drell-Yan production when using PYTHIA. It 
+corrects two weak effects: a) effects included in rhof_effective, b) Sudakov-terms 
+relevant at very high invariant mass.
+  Example of usage:
+      process.weakWeight = cms.EDProducer("WeakEffectsWeightProducer",
+            GenParticlesTag = cms.untracked.InputTag("genParticles"),
+            RhoParameter = cms.untracked.double(1.004)
+      )
+
+- This weight information can be processed via the Analyzer
+  "src/SimpleMassShift.cc". A test example is 
+  "test/SimpleMassShift.py".
+
 src/FSRWeightProducer.cc (IN PROGRESS)
 ======================================
 - Writes into the data structure a product containing the event weight ("double")
