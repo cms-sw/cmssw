@@ -295,10 +295,10 @@ def addJetCollection(process,
     ## add a clone of selectedPatJets    
     addClone(oldLabel('selected'), src=cms.InputTag(newLabel(oldLabel())))
     ## add a clone of cleanPatJets    
-    if (doL1Cleaning or doL1Counters):
+    if( doL1Cleaning or doL1Counters ):
         addClone(oldLabel('clean'), src=cms.InputTag(newLabel(oldLabel('selected'))))
     ## add a clone of countPatJets    
-    if (doL1Counters):
+    if( doL1Counters ):
         addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('clean'))))
 
     ## get attributes of new module
@@ -527,7 +527,7 @@ def addJetID(process,
     ## replace jet id sequence
     process.load("RecoJets.JetProducers.ak5JetID_cfi")
     setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
-    process.makeAllLayer1Jets.replace( process.jetPartonMatch, getattr(process,jetIdLabel) + process.jetPartonMatch )
+    process.makePatJets.replace( process.patAK5CaloJetPartonMatch, getattr(process,jetIdLabel) + process.patAK5CaloJetPartonMatch )
 
 def setTagInfos(process,
                 coll = "allLayer1Jets",
