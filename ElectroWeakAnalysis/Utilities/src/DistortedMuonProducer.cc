@@ -15,7 +15,7 @@ class DistortedMuonProducer : public edm::EDProducer {
       ~DistortedMuonProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -101,7 +101,7 @@ DistortedMuonProducer::~DistortedMuonProducer(){
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void DistortedMuonProducer::beginJob(const edm::EventSetup& iSetup) {
+void DistortedMuonProducer::beginJob() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

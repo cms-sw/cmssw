@@ -7,7 +7,7 @@ public:
       SimpleSystematicsAnalyzer(const edm::ParameterSet& pset);
       virtual ~SimpleSystematicsAnalyzer();
       virtual bool filter(edm::Event &, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& eventSetup) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
 private:
       std::string selectorPath_;
@@ -39,7 +39,7 @@ SimpleSystematicsAnalyzer::SimpleSystematicsAnalyzer(const edm::ParameterSet& ps
 SimpleSystematicsAnalyzer::~SimpleSystematicsAnalyzer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void SimpleSystematicsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
+void SimpleSystematicsAnalyzer::beginJob(){
       originalEvents_ = 0;
       selectedEvents_ = 0;
       edm::LogVerbatim("SimpleSystematicsAnalysis") << "Uncertainties will be determined for the following tags: ";

@@ -23,7 +23,7 @@ class ISRWeightProducer : public edm::EDProducer {
       ~ISRWeightProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -60,7 +60,7 @@ ISRWeightProducer::ISRWeightProducer(const edm::ParameterSet& pset) {
 ISRWeightProducer::~ISRWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void ISRWeightProducer::beginJob(const edm::EventSetup&) {}
+void ISRWeightProducer::beginJob() {}
 
 /////////////////////////////////////////////////////////////////////////////////////
 void ISRWeightProducer::endJob(){}

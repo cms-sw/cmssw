@@ -23,7 +23,7 @@ class PdfWeightProducer : public edm::EDProducer {
       ~PdfWeightProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -61,7 +61,7 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
 PdfWeightProducer::~PdfWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void PdfWeightProducer::beginJob(const edm::EventSetup&) {
+void PdfWeightProducer::beginJob() {
       for (unsigned int k=1; k<=pdfSetNames_.size(); k++) {
             LHAPDF::initPDFSet(k,pdfSetNames_[k-1]);
             //LHAPDF::getDescription(k);

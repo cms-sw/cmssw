@@ -23,7 +23,7 @@ class FSRWeightProducer : public edm::EDProducer {
       ~FSRWeightProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       double alphaRatio(double) ;
@@ -44,7 +44,7 @@ FSRWeightProducer::FSRWeightProducer(const edm::ParameterSet& pset) {
 FSRWeightProducer::~FSRWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void FSRWeightProducer::beginJob(const edm::EventSetup&) {}
+void FSRWeightProducer::beginJob() {}
 
 /////////////////////////////////////////////////////////////////////////////////////
 void FSRWeightProducer::endJob(){}

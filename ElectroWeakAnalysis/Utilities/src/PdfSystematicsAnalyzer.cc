@@ -7,7 +7,7 @@ public:
       PdfSystematicsAnalyzer(const edm::ParameterSet& pset);
       virtual ~PdfSystematicsAnalyzer();
       virtual bool filter(edm::Event &, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& eventSetup) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
 private:
       std::string selectorPath_;
@@ -40,7 +40,7 @@ PdfSystematicsAnalyzer::PdfSystematicsAnalyzer(const edm::ParameterSet& pset) :
 PdfSystematicsAnalyzer::~PdfSystematicsAnalyzer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void PdfSystematicsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
+void PdfSystematicsAnalyzer::beginJob(){
       originalEvents_ = 0;
       selectedEvents_ = 0;
       edm::LogVerbatim("PDFAnalysis") << "PDF uncertainties will be determined for the following sets: ";
