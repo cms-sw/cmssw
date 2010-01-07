@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.10 2009/10/20 14:51:27 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.11 2009/10/21 12:30:25 merkelp Exp $
 
 
 #include <iostream>
@@ -86,9 +86,15 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
 }
 
 
-void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
+void SiPixelTrackResidualSource::beginJob() {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginJob()" << endl;
+  firstRun = true;
+}
 
+void SiPixelTrackResidualSource::beginRun(edm::EventSetup const& iSetup) {
+  LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginRun()" << endl;
+
+if(firstRun){
   // retrieve TrackerGeometry for pixel dets
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
@@ -469,6 +475,9 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
       meSubdetResidualY[s] = dbe_->book1D(hisID,"Pixel Hit-to-Track Residual in Y",500,-5.,5.);  
     }
   }
+  
+  firstRun = false;
+}
 }
 
 

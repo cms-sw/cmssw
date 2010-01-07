@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.2 2008/11/05 13:53:07 wehrlilu Exp $
+// $Id: SiPixelTrackResidualSource.h,v 1.3 2009/03/27 11:05:26 wehrlilu Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
@@ -44,8 +44,9 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     explicit SiPixelTrackResidualSource(const edm::ParameterSet&);
             ~SiPixelTrackResidualSource();
 
-    virtual void beginJob(edm::EventSetup const& iSetup);
+    virtual void beginJob();
     virtual void endJob(void);
+    virtual void beginRun(edm::EventSetup const& iSetup);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   private: 
@@ -190,6 +191,8 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClPosDisk2pzNotOnTrack; 
     MonitorElement* meClPosDisk1mzNotOnTrack; 
     MonitorElement* meClPosDisk2mzNotOnTrack; 
+    
+    bool firstRun;
 };
 
 #endif
