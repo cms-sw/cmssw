@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.18 2009/11/24 16:39:15 mommsen Exp $
+// $Id: Configuration.cc,v 1.19 2009/12/01 13:58:08 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -12,6 +12,7 @@
 #include <toolbox/net/Utils.h>
 
 #include <sstream>
+
 
 namespace stor
 {
@@ -154,7 +155,7 @@ namespace stor
     _diskWriteParamCopy._filePath = "/tmp";
     _diskWriteParamCopy._otherDiskPaths.clear();
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
-    _diskWriteParamCopy._setupLabel = "Data";
+    _diskWriteParamCopy._setupLabel = DEFAULT_DATA_SETUP_LABEL;
     _diskWriteParamCopy._nLogicalDisk = 0;
     _diskWriteParamCopy._maxFileSizeMB = 0;
     _diskWriteParamCopy._highWaterMark = 0.9;

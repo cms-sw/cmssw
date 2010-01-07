@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.10 2009/09/18 11:08:59 mommsen Exp $
+// $Id: Configuration.h,v 1.11 2009/11/09 15:40:55 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -18,6 +18,12 @@
 #include "xdata/Vector.h"
 
 #include "boost/thread/mutex.hpp"
+
+namespace
+{
+  const std::string DEFAULT_DATA_SETUP_LABEL = "Data";
+} // anonymous namespace
+
 
 namespace stor
 {
@@ -51,6 +57,8 @@ namespace stor
     std::string _smInstanceString;
     std::string _hostName;
     int _initialSafetyLevel;  // what is this used for?
+
+    bool isData() { return ( _setupLabel == DEFAULT_DATA_SETUP_LABEL ); }
   };
 
   /**
@@ -121,8 +129,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/09/18 11:08:59 $
+   * $Revision: 1.11 $
+   * $Date: 2009/11/09 15:40:55 $
    */
 
   class Configuration : public xdata::ActionListener
