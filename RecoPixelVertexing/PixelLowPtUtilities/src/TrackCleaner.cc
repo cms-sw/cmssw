@@ -146,8 +146,10 @@ TracksWithRecHits TrackCleaner::cleanTracks
 
   RecHitMap recHitMap;
 
+/*
   LogTrace("MinBiasTracking")
     << " [TrackCleaner] fill rechit map";
+*/
 
   // Fill the rechit map
   for(unsigned int i = 0; i < tracks.size(); i++)

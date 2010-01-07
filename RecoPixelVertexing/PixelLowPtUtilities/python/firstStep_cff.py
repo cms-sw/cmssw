@@ -30,7 +30,9 @@ pixel3Vertices.TrackCollection = 'pixel3ProtoTracks'
 pixel3PrimTracks  = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixel3PrimTracks.passLabel  = 'Pixel triplet tracks with vertex constraint'
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = cms.bool(True)
-pixel3PrimTracks.FilterPSet.ptMin = cms.double(0.2)
+
+#pixel3PrimTracks.FilterPSet.ptMin = cms.double(0.2)
+#pixel3PrimTracks.FilterPSet.ptMax = cms.double(3.0)
 
 ############################
 # Primary seeds

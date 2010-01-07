@@ -28,9 +28,6 @@
 #include <vector>
 using namespace std;
 
-
-
-
 /*****************************************************************************/
 ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter()
 {
@@ -205,6 +202,14 @@ bool ClusterShapeTrajectoryFilter::qualityFilter
 bool ClusterShapeTrajectoryFilter::qualityFilter
   (const TempTrajectory& trajectory) const
 {
+  TempTrajectory t = trajectory;
+
+  // Check if ok
+  if(toBeContinued(t)) return true;
+
+  // Should take out last
+  if(t.measurements().size() <= 3) return false;
+
   return true;
 }
 

@@ -130,6 +130,9 @@ bool ClusterShapeTrackFilter::operator()
   (const reco::Track* track,
    const vector<const TrackingRecHit *> & recHits) const
 {
+  // Do not even look at pairs
+  if(recHits.size() <= 2) return true;
+
   // Check pt
   if(track->pt() < ptMin ||
      track->pt() > ptMax)

@@ -33,6 +33,8 @@ GroupedCkfTrajectoryBuilder.maxCand = 5
 GroupedCkfTrajectoryBuilder.intermediateCleaning = False
 GroupedCkfTrajectoryBuilder.alwaysUseInvalidHits = False
 GroupedCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
+GroupedCkfTrajectoryBuilder.inOutTrajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
+GroupedCkfTrajectoryBuilder.useSameTrajFilter = cms.bool(True)
 
 # Propagator, pion mass
 MaterialPropagator.Mass          = cms.double(0.139)

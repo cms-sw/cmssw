@@ -75,6 +75,7 @@ secondCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderE
 secondCkfTrajectoryBuilder.ComponentName          = 'secondCkfTrajectoryBuilder'
 secondCkfTrajectoryBuilder.MeasurementTrackerName = 'secondMeasurementTracker'
 secondCkfTrajectoryBuilder.trajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
+secondCkfTrajectoryBuilder.inOutTrajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
 
 #################################
 # Secondary track candidates

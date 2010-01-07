@@ -60,11 +60,14 @@ thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixelTertTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixelTertTracks.passLabel = 'Pixel pair tracks with vertex constraint'
-pixelTertTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
+pixelTertTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.4 # 0.2
 pixelTertTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
 pixelTertTracks.OrderedHitsFactoryPSet.ComponentName = 'StandardHitPairGenerator'
 pixelTertTracks.OrderedHitsFactoryPSet.SeedingLayers = 'ThirdLayerPairs'
 pixelTertTracks.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName = 'StandardHitPairGenerator'
+pixelTertTracks.FilterPSet = cms.PSet(
+        ComponentName = cms.string('none')
+    )
 
 #################################
 # Tertiary seeds
@@ -87,6 +90,7 @@ thirdCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderES
 thirdCkfTrajectoryBuilder.ComponentName          = 'thirdCkfTrajectoryBuilder'
 thirdCkfTrajectoryBuilder.MeasurementTrackerName = 'thirdMeasurementTracker'
 thirdCkfTrajectoryBuilder.trajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
+thirdCkfTrajectoryBuilder.inOutTrajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
 
 #################################
 # Tertiary track candidates

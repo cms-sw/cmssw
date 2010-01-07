@@ -409,6 +409,8 @@ bool ClusterShapeHitFilter::isCompatible
 
 //  cerr << "   id = " << recHit.geographicalId().rawId() << endl;
 
+//cerr << " hit " << HitInfo::getInfo(recHit);
+
   LocalVector ldir =
     theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);
 
