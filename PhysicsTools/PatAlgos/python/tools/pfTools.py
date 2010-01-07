@@ -239,13 +239,18 @@ def switchToPFJets(process,
    
     switchJetCollection(process,
                         input,
+                        algo,
+                        'PFlow',
                         doJTA=True,
                         doBTagging=True,
                         jetCorrLabel=( algo, 'PF' ), 
-                        genJetCollection = genJetCollectionName,
                         doType1MET=False,
-                        l1JetCollection=l1jetColl
-                        )  
+                        doL1Cleaning = False,                     
+                        doL1Counters = False,   
+                        genJetCollection = genJetCollectionName,
+                        doJetID =True
+                        )
+    
     l1jets   = getattr(process,l1jetColl.moduleLabel)
     l1jets.embedCaloTowers   = False
 #    l1jets.embedPFCandidates   = True
