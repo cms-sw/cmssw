@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.6 2009/10/13 15:08:33 mommsen Exp $
+// $Id: DiskWriter.h,v 1.7 2009/12/08 14:12:58 dshpakov Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -30,9 +30,9 @@ namespace stor {
    * It gets the next event from the StreamQueue and writes it
    * to the appropriate stream file(s) on disk. 
    *
-   * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Author: dshpakov $
+   * $Revision: 1.7 $
+   * $Date: 2009/12/08 14:12:58 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -129,7 +129,7 @@ namespace stor {
        Close files at the end of a luminosity section and release
        message memory:
     */
-    void processEndOfLumiSection( I2OChain& );
+    void processEndOfLumiSection(const I2OChain&);
 
     xdaq::Application* _app;
     SharedResourcesPtr _sharedResources;
