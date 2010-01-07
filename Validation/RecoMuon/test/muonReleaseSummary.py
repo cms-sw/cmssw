@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_4_0_pre5'
-RefVersion='3_4_0_pre4'
+NewVersion='3_5_0_pre2'
+RefVersion='3_5_0_pre1'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -37,40 +37,36 @@ Publish=False
 
 GetFilesFromCastor=True
 GetRefsFromCastor=True
-CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
+#CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
+CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
+### Older repositories:
 #CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 #CastorRepository = '/castor/cern.ch/user/n/nuno/preproduction/harvest'
 #CastorRepository = '/castor/cern.ch/user/j/jhegeman/preproduction_summer09/3_1_2'
 
 ValidateHLT=True
-
+if (NewFastSim|RefFastSim):
+    ValidateSEED=False
+else:
+    ValidateSEED=True
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
-    NewLabel=NewCondition+'_3XY_V12_FastSim'
+    NewLabel=NewCondition+'_3XY_V14_FastSim'
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    NewLabel=NewCondition+'_3XY_V12'
-#    NewLabel=NewCondition+'31X_V3_preproduction_312'
+    NewLabel=NewCondition+'_3XY_V14'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'3X_V11'
+        NewLabel=NewCondition+'3X_V14'
     NewFormat='GEN-SIM-RECO'
 
 if (RefFastSim):
     RefTag = RefCondition+'_noPU_ootb_FSIM'
-    RefLabel=RefCondition+'_3XY_V12_FastSim'
-    RefFormat='GEN-SIM-DIGI-RECO'
 else:
     RefTag = RefCondition+'_noPU_ootb'
-    RefLabel=RefCondition+'_3XY_V12'
-#    RefLabel=RefCondition+'_31X_V2_preproduction_311'
-    if (RefCondition=='STARTUP'):
-        RefLabel=RefCondition+'3X_V11'
-    RefFormat='GEN-SIM-RECO'
 
 NewLabel=NewLabel+'-v1'
-RefLabel=RefLabel+'-v1'
 
 if (NewFastSim):
     NewCondition=NewCondition+'_FSIM'
@@ -84,6 +80,7 @@ CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 
 macro='macro/TrackValHistoPublisher.C'
+macroSeed='macro/SeedValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
@@ -124,19 +121,20 @@ for sample in samples :
 
         elif (GetFilesFromCastor):
 # Check the number of events in the harvested samples, needed to retrieve the path on castor
-            if (NewFastSim):
-                NEVT='27000'
+            if (CastorRepository=='/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'):
+                os.system('rfcp '+CastorRefRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
             else:
-                NEVT='9000'
-                if (sample=='RelValSingleMuPt10'):
-                    NEVT='25000'
-                elif(sample=='RelValZMM'):
-                    NEVT='8995'
-                elif((sample=='RelValTTbar')&(NewCondition=='STARTUP')):
-                    NEVT='34000'
-            os.system('rfcp '+CastorRepository+'/'+NewVersion+'/'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'/run_1/nevents_'+NEVT+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'_1.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
-#            os.system('rfcp '+CastorRepository+'/'+NewRelease+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
-#preprod-hegeman              os.system('rfcp '+CastorRepository+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'_1.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+                if (NewFastSim):
+                    NEVT='27000'
+                else:
+                    NEVT='9000'
+                    if (sample=='RelValSingleMuPt10'):
+                        NEVT='25000'
+                    elif(sample=='RelValZMM'):
+                        NEVT='8995'
+                    elif((sample=='RelValTTbar')&(NewCondition=='STARTUP')):
+                        NEVT='34000'
+                    os.system('rfcp '+CastorRepository+'/'+NewVersion+'/'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'/run_1/nevents_'+NEVT+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'_1.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
 
         elif (os.path.isfile(newSample)) :
             os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
@@ -153,16 +151,21 @@ for sample in samples :
 
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
+        seedcfgFileName='SEED'+sample+'_'+NewRelease+'_'+RefRelease
 
         if os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'):
             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
+            if (ValidateSEED):
+                replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
         else:
             print "No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample
             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
+            if (ValidateSEED):
+                replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
 
         templatemacroFile = open(macro, 'r')
         macroFile = open(cfgFileName+'.C' , 'w' )
@@ -173,8 +176,15 @@ for sample in samples :
             hltmacroFile = open(hltcfgFileName+'.C' , 'w' )
             replace(replace_map_HLT, templatemacroFile, hltmacroFile)
 
+        if (ValidateSEED):
+            templatemacroFile = open(macroSeed, 'r')
+            seedmacroFile = open(seedcfgFileName+'.C' , 'w' )
+            replace(replace_map_SEED, templatemacroFile, seedmacroFile)
+
         if(Submit):
             os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
+            if (ValidateSEED):
+                os.system('root -b -q -l '+ seedcfgFileName+'.C'+ '>  macro.'+seedcfgFileName+'.log')
             if (ValidateHLT):
                 os.system('root -b -q -l '+ hltcfgFileName+'.C'+ '>  macro.'+hltcfgFileName+'.log')
 
