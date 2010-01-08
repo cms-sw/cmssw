@@ -12,7 +12,7 @@
 */
 //
 // Jason Slaunwhite, based on code from Jeff Klukas
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.11 2009/10/02 13:09:41 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.12 2010/01/07 13:18:12 slaunwhj Exp $
 //
 //
 
@@ -270,7 +270,7 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
         iMuonSelector != customSelectors.end();
         iMuonSelector++) {
 
-    cout << "Num selectors  =  " << numSelectors << endl;
+    LogTrace ("HLTMuonVal") << "Num selectors  =  " << numSelectors << endl;
     
     for( size_t i = 0; i < parsedMuonTrigNames.size(); i++) {
       
