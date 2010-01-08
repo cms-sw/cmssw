@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/18 15:17:25 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/06/25 13:18:44 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -82,11 +82,11 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
 
 
   // Fit the histo
-  char *option = "Q";
+  string option = "Q";
   if(theVerbosityLevel >= 2)
     option = "";
 
-  hTimeBox->Fit("IntGauss", option, "",xFitMin, xFitMax);
+  hTimeBox->Fit("IntGauss", option.c_str(), "",xFitMin, xFitMax);
 
   // Get fitted parameters
   double mean =  fIntGaus->GetParameter("Mean");
