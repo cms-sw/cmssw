@@ -12,7 +12,11 @@ class UserCodeTool(ConfigToolBase):
         self.addParameter(self._defaultParameters,'code','', 'User code modifying the process: e.g. process.maxevents=1')
         self._parameters=copy.deepcopy(self._defaultParameters)  
     def dumpPython(self):
-        return ("",self._parameters['code'].value)
+        dumpPython=""
+        if self._comment!="":
+            dumpPython = "#"+self._comment+"\n"
+        dumpPython+=self._parameters['code'].value
+        return ("",dumpPython)
     def __call__(self,process,code):
         self.setParameter(self._parameters,'code',code, 'User code modifying the process: e.g. process.maxevents=1')
         self.apply(process)
@@ -44,7 +48,10 @@ class ChangeSource(ConfigToolBase):
    
     def dumpPython(self):
         dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n"
-        dumpPython = "\nchangeSource(process, "
+        dumpPython=""
+        if self._comment!="":
+            dumpPython = "#"+self._comment
+        dumpPython += "\nchangeSource(process, "
         dumpPython +='"'+ str(self.getvalue('source'))+'"'+')'+'\n'
         return (dumpPythonImport,dumpPython)
 
