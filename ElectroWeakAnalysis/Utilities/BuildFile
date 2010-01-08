@@ -9,11 +9,12 @@
 <use name=CommonTools/CandUtils>
 <use name=rootrflx>
 
+<use name=RecoMuon/Records>
 <use name=CondFormats/RecoMuonObjects>
 <use name=MuonAnalysis/MomentumScaleCalibration>
 
 ##### CASE A: just as release default, for technical reasons ------->
-##### (WARNING: PDF weight producer will be very, very slow)
+###### (WARNING: PDF weight producer will be very, very slow)
 <use name=lhapdf>
 #####################################################################
 
