@@ -181,7 +181,30 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
         BuildPFTauConstituents = true;       
      }
   }
+    // set the leading, signal cone and isolation annulus Tracks (the initial list of Tracks was catched through a JetTracksAssociation object, not through the charged hadr. PFCandidates inside the PFJet ; the motivation for considering these objects is the need for checking that a selection by the charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.)
+    TrackRef myleadTk=myPFTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
+    myPFTau.setleadTrack(myleadTk);
+    if(myleadTk.isNonnull()){
+        double myleadTkDZ=(*myleadTk).dz();
+        double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
+        double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     
+        if (UseTrackLeadTrackDZconstraint_){
+            myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ));
+            
+            TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
+            TrackRefVector myFilteredTracks = TauTagTools::filteredTracksByNumTrkHits(myUnfilteredTracks, Track_IsolAnnulus_minNhits_);
+            myPFTau.setisolationTracks(myFilteredTracks);
+            
+        }else{
+            myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_Track_minPt_));
+            
+            TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_Track_minPt_);
+            TrackRefVector myFilteredTracks = TauTagTools::filteredTracksByNumTrkHits(myUnfilteredTracks, Track_IsolAnnulus_minNhits_);
+            myPFTau.setisolationTracks(myFilteredTracks);
+        }
+    }
 
+    //Building PF Componentes
   if (BuildPFTauConstituents)
   {
     //Compute energy of the PFTau considering only inner constituents (inner == pfcandidates inside a cone which is equal to the maximum value of the signal cone)
@@ -321,29 +344,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
     myPFTau.setVertex(math::XYZPoint(myPFTau_refInnerPosition_x,myPFTau_refInnerPosition_y,myPFTau_refInnerPosition_z));
   }  
-  // set the leading, signal cone and isolation annulus Tracks (the initial list of Tracks was catched through a JetTracksAssociation object, not through the charged hadr. PFCandidates inside the PFJet ; the motivation for considering these objects is the need for checking that a selection by the charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.)
-  TrackRef myleadTk=myPFTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
-  myPFTau.setleadTrack(myleadTk);
-  if(myleadTk.isNonnull()){
-    double myleadTkDZ=(*myleadTk).dz();
-    double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
-    double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     
-    if (UseTrackLeadTrackDZconstraint_){
-      myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ));
-
-      TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
-      TrackRefVector myFilteredTracks = TauTagTools::filteredTracksByNumTrkHits(myUnfilteredTracks, Track_IsolAnnulus_minNhits_);
-      myPFTau.setisolationTracks(myFilteredTracks);
-
-    }else{
-      myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_Track_minPt_));
-      
-      TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_Track_minPt_);
-      TrackRefVector myFilteredTracks = TauTagTools::filteredTracksByNumTrkHits(myUnfilteredTracks, Track_IsolAnnulus_minNhits_);
-      myPFTau.setisolationTracks(myFilteredTracks);
-    }
-  }
-  
+    
   /* For elecron rejection */
   double myECALenergy             =  0.;
   double myHCALenergy             =  0.;
