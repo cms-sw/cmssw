@@ -1,20 +1,25 @@
 #
 #  SUSY-PAT configuration fragment
 #
-#  PAT configuration for the SUSY group - 33X series
+#  PAT configuration for the SUSY group - 33X/34X series
 #  More information here:
 #  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV7
 
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV_ReReco332'):
+def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV',mcVersion=''):
+    
     if not mcInfo:
 	removeMCDependence(process)
+    else:
+	loadMCVersion(process,mcVersion)
     loadPAT(process,JetMetCorrections)
     addJetMET(process)
     loadPATTriggers(process,HLTMenu)
     loadPF2PAT(process,mcInfo)
+    if mcVersion == '31x' and mcInfo:
+	runSUSY33xOn31xMC(process)
 
     # Full path
     process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
@@ -22,7 +27,16 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Su
                                                    * process.patTrigger*process.patTriggerEvent
 						   * process.PFPATafterPAT )
 
-def loadPAT(process,JetMetCorrections='Summer09_7TeV_ReReco332'):
+def loadMCVersion(process, mcVersion):
+    #-- Missing ak5GenJets in 3.3.2 samples ---------------------------------------
+    from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC, run33xOn31xMC
+    if mcVersion == '31x':
+    	run33xOn31xMC( process )
+    if mcVersion == '31xReReco332':
+	run33xOnReRecoMC( process, "ak5GenJets" )
+
+
+def loadPAT(process,JetMetCorrections):
     #-- PAT standard config -------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
@@ -58,7 +72,7 @@ def loadPF2PAT(process,mcInfo):
     process.pfElectronsPtGt5.ptMin = cms.double(2.0)
 	
     
-def loadPATTriggers(process,HLTMenu='HLT'):
+def loadPATTriggers(process,HLTMenu):
     #-- Trigger matching ----------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
     switchOnTrigger( process )
@@ -168,7 +182,7 @@ def addJetMET(process):
     # Rename default jet collection for uniformity
     process.cleanLayer1JetsAK5 = process.cleanLayer1Jets
     process.layer1METsAK5      = process.layer1METs
-    #process.layer1MHTsAK5      = process.layer1MHTs
+    process.layer1MHTsAK5      = process.layer1MHTs
 
     # Modify subsequent modules
     process.cleanLayer1Hemispheres.patJets = process.cleanLayer1JetsAK5.label()
@@ -177,7 +191,7 @@ def addJetMET(process):
     # Modify counters' input
     process.allLayer1Summary.candidates.remove(cms.InputTag('layer1METs'))
     process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsAK5'))
-    #process.allLayer1Summary.candidates.remove(cms.InputTag('layer1MHTs'))
+    process.allLayer1Summary.candidates.remove(cms.InputTag('layer1MHTs'))
     process.allLayer1Summary.candidates.append(cms.InputTag('layer1MHTsAK5'))
     process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsAK5'))
@@ -235,7 +249,8 @@ def getSUSY_pattuple_outputCommands( process ):
 	#'keep *_gsfElectrons_*_*',
 	#'keep *_softPFElectrons_*_*',
 	#'keep *_eid*_*_*',
-        #'keep recoPFCandidates_particleFlow_*_*',
+        'drop patPFParticles_pfLayer*_*_*', # drop PAT particles
+	'keep recoPFCandidates_particleFlow_*_*',
         'keep recoSuperClusters_corrected*_*_*',
 	'keep recoSuperClusters_pfElectronTranslator_*_*',
         'keep *_gsfElectronCores_*_*',    #Keep electron core
