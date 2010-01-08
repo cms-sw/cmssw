@@ -62,14 +62,18 @@ namespace cond {
     virtual edmProxyP edmProxy() const=0;
 
 
+    DataProxyWrapperBase();
     explicit DataProxyWrapperBase(std::string const & il);
+    // late initialize (to allow to load ALL library first)
+    virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
+			  std::string const & il, std::string const & cs, std::string const & tag)=0;
+
+    void addInfo(std::string const & il, std::string const & cs, std::string const & tag);
+    
+
     virtual ~DataProxyWrapperBase();
     std::string const & label() const { return m_label;}
 
-    void addInfo(std::string const & cs, std::string const & tag) { 
-      m_connString = cs; m_tag=tag;
-    }
-    
     std::string const & connString() const { return m_connString;}
     std::string const & tag() const { return m_tag;}
 
@@ -105,18 +109,20 @@ public:
   }
 
   // constructor from plugin...
-  DataProxyWrapper(cond::DbSession& session,
-		   Args const & args) :
-    cond::DataProxyWrapperBase(args.second),
-    m_proxy(new PayProxy(session,args.first,false)),
-    m_edmProxy(new DataProxy(m_proxy)){
-   //NOTE: We do this so that the type 'DataT' will get registered
+  DataProxyWrapper() {
+    //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
-    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
   }
 
+  // late initialize (to allow to load ALL library first)
+  virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
+			std::string const & il, std::string const & cs, std::string const & tag) {
+    m_proxy.reset(new PayProxy(session,iovtoken,false));
+    m_edmProxy.reset(new DataProxy(m_proxy));
+    addInfo(il, cs, tag);
+  }
     
   virtual edm::eventsetup::TypeTag type() const { return m_type;}
   virtual ProxyP proxy() const { return m_proxy;}

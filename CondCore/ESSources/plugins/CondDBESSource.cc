@@ -178,12 +178,13 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
      * dinstinguished only by their label...
      */
     cond::DataProxyWrapperBase * pb =  
-      cond::ProxyFactory::get()->create(buildName(it->recordname), nsess,
-					cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
+      cond::ProxyFactory::get()->create(buildName(it->recordname));
     // owenship...
     ProxyP proxy(pb);
     // add more info (not in constructor to overcome the mess/limitation of the templated factory
-    proxy->addInfo(it->pfn, it->tag);
+    proxy->lateInit(nsess,result.iovtoken, 
+		    it->labelname, it->pfn, it->tag
+		    );
     //  instert in the map
     m_proxies.insert(std::make_pair(it->recordname, proxy));
   }
