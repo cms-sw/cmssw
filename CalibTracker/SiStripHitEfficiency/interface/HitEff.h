@@ -50,7 +50,7 @@ class HitEff : public edm::EDAnalyzer {
   uint checkLayer(uint iidd);
 
  private:
-  virtual void beginJob(const edm::EventSetup& c);
+  virtual void beginJob();
   virtual void endJob(); 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 

@@ -81,7 +81,7 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
 // Virtual destructor needed.
 HitEff::~HitEff() { }
 
-void HitEff::beginJob(const edm::EventSetup& c){
+void HitEff::beginJob(){
 
   edm::Service<TFileService> fs;
 
