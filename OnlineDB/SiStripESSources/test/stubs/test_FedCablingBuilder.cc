@@ -1,5 +1,5 @@
-// Last commit: $Id: test_FedCablingBuilder.cc,v 1.4 2007/03/28 10:30:14 bainbrid Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: test_FedCablingBuilder.cc,v 1.5 2008/05/26 13:37:26 giordano Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilder.h"
@@ -16,7 +16,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-void test_FedCablingBuilder::beginJob( const edm::EventSetup& setup ) {
+void test_FedCablingBuilder::analyze( const edm::Event& event, const edm::EventSetup& setup ) {
   
   LogTrace(mlCabling_) 
     << "[test_FedCablingBuilder::" << __func__ << "]"

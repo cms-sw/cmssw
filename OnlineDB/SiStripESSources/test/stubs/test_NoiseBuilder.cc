@@ -1,5 +1,5 @@
-// Last commit: $Id: test_NoiseBuilder.cc,v 1.2 2008/03/04 16:42:42 giordano Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: test_NoiseBuilder.cc,v 1.3 2008/05/26 13:37:26 giordano Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.h"
@@ -16,7 +16,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-void test_NoiseBuilder::beginJob( const edm::EventSetup& setup ) {
+void test_NoiseBuilder::analyze(const edm::Event& event, const edm::EventSetup& setup ) {
   
   LogTrace(mlCabling_) 
     << "[test_NoiseBuilder::" << __func__ << "]"

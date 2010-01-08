@@ -1,5 +1,5 @@
-// Last commit: $Id: test_NoiseBuilder.h,v 1.2 2007/03/28 10:30:14 bainbrid Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: test_NoiseBuilder.h,v 1.3 2008/05/26 13:37:26 giordano Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.h,v $
 
 #ifndef OnlineDB_SiStripESSources_test_NoiseBuilder_H
@@ -21,8 +21,8 @@ class test_NoiseBuilder : public edm::EDAnalyzer {
   test_NoiseBuilder( const edm::ParameterSet& ) {;}
   virtual ~test_NoiseBuilder() {;}
   
-  void beginJob( edm::EventSetup const& );
-  void analyze( const edm::Event&, const edm::EventSetup& ) {;}
+  void beginJob() {;}
+  void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
   
 };

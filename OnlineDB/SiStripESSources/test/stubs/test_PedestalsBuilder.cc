@@ -1,5 +1,5 @@
-// Last commit: $Id: test_PedestalsBuilder.cc,v 1.2 2008/05/14 10:59:42 giordano Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: test_PedestalsBuilder.cc,v 1.3 2008/05/26 13:37:26 giordano Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h"
@@ -16,7 +16,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-void test_PedestalsBuilder::beginJob( const edm::EventSetup& setup ) {
+void test_PedestalsBuilder::analyze( const edm::Event& event, const edm::EventSetup& setup ) {
   
   LogTrace(mlCabling_) 
     << "[test_PedestalsBuilder::" << __func__ << "]"
