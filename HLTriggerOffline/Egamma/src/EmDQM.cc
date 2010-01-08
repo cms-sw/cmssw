@@ -12,8 +12,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
+//#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -24,7 +23,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 ////////////////////////////////////////////////////////////////////////////////
