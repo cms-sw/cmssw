@@ -28,7 +28,9 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   
   virtual ~SiPixelLorentzAngleDB();
   
-  virtual void beginJob(const edm::EventSetup& c);
+  //  virtual void beginJob(const edm::EventSetup& c);
+
+  virtual void beginJob();
   
   virtual void endJob(); 
   

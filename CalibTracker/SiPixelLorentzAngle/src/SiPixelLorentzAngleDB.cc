@@ -34,7 +34,7 @@ SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) :
 
   //BeginJob
 
-void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
+void SiPixelLorentzAngleDB::beginJob(){
   
 }
 // Virtual destructor needed.

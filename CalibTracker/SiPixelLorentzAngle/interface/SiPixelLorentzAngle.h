@@ -90,7 +90,8 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   explicit SiPixelLorentzAngle(const edm::ParameterSet& conf);
   
   virtual ~SiPixelLorentzAngle();
-  virtual void beginJob(const edm::EventSetup& c);
+  //virtual void beginJob(const edm::EventSetup& c);
+  virtual void beginJob();
   virtual void endJob(); 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   
