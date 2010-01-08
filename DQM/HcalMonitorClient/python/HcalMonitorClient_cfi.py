@@ -87,7 +87,7 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
 
                           ########################################################################
                           # Noise Client
-                          NoiseClient                                  = cms.untracked.bool(True),
+                          NoiseClient                                  = cms.untracked.bool(False),
                           ########################################################################
                           
                           # CaloTowerClient
