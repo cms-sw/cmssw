@@ -109,7 +109,7 @@ public:
   }
 
   // constructor from plugin...
-  DataProxyWrapper() {
+  explicit DataProxyWrapper(const char * source=0) : m_source (source ? source : "") {
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -119,7 +119,9 @@ public:
   // late initialize (to allow to load ALL library first)
   virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
 			std::string const & il, std::string const & cs, std::string const & tag) {
-    m_proxy.reset(new PayProxy(session,iovtoken,false));
+    m_proxy.reset(new PayProxy(session,iovtoken,false, 
+			       m_source.empty() ?  (const char *)(0) , m_source.c_str() 
+			       ));
     m_edmProxy.reset(new DataProxy(m_proxy));
     addInfo(il, cs, tag);
   }
@@ -129,6 +131,7 @@ public:
   virtual edmProxyP edmProxy() const { return m_edmProxy;}
  
 private:
+  std::string m_source;
   edm::eventsetup::TypeTag m_type;
   boost::shared_ptr<cond::PayloadProxy<DataT> >  m_proxy;
   edmProxyP m_edmProxy;
