@@ -187,7 +187,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     cond::MetaData metadata(nsess);
     cond::DbScopedTransaction transaction(nsess);
     transaction.start(true);
-    std::string iovtoken = metadata.geTag(it->tag);
+    std::string iovtoken = metadata.getTag(it->tag);
     transaction.commit();
     // initialize
     m_proxies[it->recordname]->lateInit(nsess,iovtoken, 
