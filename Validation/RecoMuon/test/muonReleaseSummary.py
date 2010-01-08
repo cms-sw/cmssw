@@ -12,10 +12,10 @@ RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
-#NewCondition='MC'
-#RefCondition='MC'
-NewCondition='STARTUP'
-RefCondition='STARTUP'
+NewCondition='MC'
+RefCondition='MC'
+#NewCondition='STARTUP'
+#RefCondition='STARTUP'
 
 NewFastSim=False
 RefFastSim=False
@@ -35,8 +35,8 @@ elif (NewCondition=='STARTUP'):
 Submit=True
 Publish=False
 
-GetFilesFromCastor=True
-GetRefsFromCastor=True
+GetFilesFromCastor=False
+GetRefsFromCastor=False
 #CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 ### Older repositories:
@@ -46,9 +46,9 @@ CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 ValidateHLT=True
 if (NewFastSim|RefFastSim):
-    ValidateSEED=False
+    ValidateDQM=False
 else:
-    ValidateSEED=True
+    ValidateDQM=True
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
@@ -81,6 +81,7 @@ CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 macro='macro/TrackValHistoPublisher.C'
 macroSeed='macro/SeedValHistoPublisher.C'
+macroReco='macro/RecoValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
@@ -152,19 +153,22 @@ for sample in samples :
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
         seedcfgFileName='SEED'+sample+'_'+NewRelease+'_'+RefRelease
+        recocfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
 
         if os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'):
             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
-            if (ValidateSEED):
+            if (ValidateDQM):
+                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'RecoValHistoPublisher': recocfgFileName}
                 replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
         else:
             print "No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample
             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
-            if (ValidateSEED):
+            if (ValidateDQM):
+                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'RecoValHistoPublisher': recocfgFileName}
                 replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
 
         templatemacroFile = open(macro, 'r')
@@ -176,17 +180,21 @@ for sample in samples :
             hltmacroFile = open(hltcfgFileName+'.C' , 'w' )
             replace(replace_map_HLT, templatemacroFile, hltmacroFile)
 
-        if (ValidateSEED):
+        if (ValidateDQM):
+            templatemacroFile = open(macroReco, 'r')
+            recomacroFile = open(recocfgFileName+'.C' , 'w' )
+            replace(replace_map_RECO, templatemacroFile, recomacroFile)
             templatemacroFile = open(macroSeed, 'r')
             seedmacroFile = open(seedcfgFileName+'.C' , 'w' )
             replace(replace_map_SEED, templatemacroFile, seedmacroFile)
 
         if(Submit):
             os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
-            if (ValidateSEED):
-                os.system('root -b -q -l '+ seedcfgFileName+'.C'+ '>  macro.'+seedcfgFileName+'.log')
             if (ValidateHLT):
                 os.system('root -b -q -l '+ hltcfgFileName+'.C'+ '>  macro.'+hltcfgFileName+'.log')
+            if (ValidateDQM):
+                os.system('root -b -q -l '+ recocfgFileName+'.C'+ '>  macro.'+recocfgFileName+'.log')
+                os.system('root -b -q -l '+ seedcfgFileName+'.C'+ '>  macro.'+seedcfgFileName+'.log')
 
         if(Publish):
             if(os.path.exists(newdir)==False):
