@@ -113,8 +113,7 @@ namespace cond {
     }
         
     virtual void invalidateCache() {
-      // don't, preserve data for future access
-      // m_data.clear();
+      m_data.clear();
     }
 
 

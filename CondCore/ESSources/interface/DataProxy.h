@@ -33,6 +33,10 @@ template< class RecordT, class DataT >
     return &(*m_data)();
   }
   virtual void invalidateCache() {
+    // don't, preserve data for future access
+    // m_data->invalidateCache();
+  }
+  virtual void invalidateTransientCache() {
     m_data->invalidateCache();
   }
   private:
