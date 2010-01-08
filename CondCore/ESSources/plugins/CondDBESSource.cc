@@ -153,6 +153,25 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
  
   typedef std::map<std::string, cond::DbSession> Sessions;
   Sessions sessions;
+
+    /* load DataProxy Plugin (it is strongly typed due to EventSetup ideosyncrasis)
+     * construct proxy
+     * contrary to EventSetup the "object-name" is not used as identifier: multipl entries in a record are
+     * dinstinguished only by their label...
+     * done in two step: first create ProxyWrapper loading ALL required dictionaries
+     * this will allow to initialize POOL in one go for each "database"
+     * The real initialization of the Data-Proxies is done in the second loop 
+     */
+
+  for(it=itBeg;it!=itEnd;++it){
+    cond::DataProxyWrapperBase * pb =  
+      cond::ProxyFactory::get()->create(buildName(it->recordname));
+    // owenship...
+    ProxyP proxy(pb);
+   //  instert in the map
+    m_proxies.insert(std::make_pair(it->recordname, proxy));
+  }
+  // init sessions and DataProxies
   for(it=itBeg;it!=itEnd;++it){
     Sessions::iterator p = sessions.find( it->pfn);
     cond::DbSession nsess;
@@ -162,34 +181,21 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
       nsess.open( it->pfn, true );
       // keep transaction open if source is not transactional (such as FronTier)
-      // if (!nsess.isTransactional()) nsess.transaction().start(true);
+      if (!nsess.isTransactional()) nsess.transaction().start(true);
       sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
     cond::MetaData metadata(nsess);
     cond::DbScopedTransaction transaction(nsess);
     transaction.start(true);
-    cond::MetaDataEntry result;
-    metadata.getEntryByTag(it->tag,result);
+    std::string iovtoken = metadata.geTag(it->tag);
     transaction.commit();
-
-    /* load DataProxy Plugin (it is strongly typed due to EventSetup ideosyncrasis)
-     * construct proxy
-     * contrary to EventSetup the "object-name" is not used as identifier: multipl entries in a record are
-     * dinstinguished only by their label...
-     */
-    cond::DataProxyWrapperBase * pb =  
-      cond::ProxyFactory::get()->create(buildName(it->recordname));
-    // owenship...
-    ProxyP proxy(pb);
-    // add more info (not in constructor to overcome the mess/limitation of the templated factory
-    proxy->lateInit(nsess,result.iovtoken, 
-		    it->labelname, it->pfn, it->tag
-		    );
-    //  instert in the map
-    m_proxies.insert(std::make_pair(it->recordname, proxy));
+    // initialize
+    m_proxies[it->recordname]->lateInit(nsess,iovtoken, 
+					it->labelname, it->pfn, it->tag
+					);
   }
 
-  // expose all other tags to the Proxy! 
+  // one loaded expose all other tags to the Proxy! 
   CondGetterFromESSource visitor(m_proxies);
   ProxyMap::iterator b= m_proxies.begin();
   ProxyMap::iterator e= m_proxies.end();
