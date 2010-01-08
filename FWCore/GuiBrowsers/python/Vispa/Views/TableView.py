@@ -171,7 +171,7 @@ class TableView(AbstractView, QTableWidget):
         """
         logging.debug(__name__ + ": itemSelectionChanged")
         if not self._updatingFlag:
-            self._selection = self.currentRow()
+            self._selection = self.item(self.currentRow(),self._firstColumn).text()
             if self.item(self.currentRow(),self._firstColumn)!=None:
                 self.emit(SIGNAL("selected"), self.item(self.currentRow(),self._firstColumn).object)
             else:
@@ -184,18 +184,19 @@ class TableView(AbstractView, QTableWidget):
         items = []
         for i in range(self.rowCount()):
             if self.item(i,self._firstColumn).object == object:
-                items += [(i)]
+                items += [self.item(i,self._firstColumn)]
         if len(items) > 0:
-            first=sorted(items)[0]
-            self._selection = first
+            item = items[0]
+            self._selection = item.text()
             self._updatingFlag +=1
-            self.setCurrentCell(first,0)
+            self.setCurrentItem(item)
             self._updatingFlag -=1
 
     def _selectedRow(self):
-        if self._selection<self.rowCount():
-            return self._selection
-        elif self.rowCount()>0:
+        for i in range(self.rowCount()):
+            if self.item(i,self._firstColumn).text() == self._selection:
+                return i
+        if self.rowCount()>0:
             return 0
         else:
             return None

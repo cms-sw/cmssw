@@ -20,7 +20,7 @@ except Exception,e:
     import_dotexport_error=(str(e),exception_traceback())
 
 try:
-    from ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir, toolsDict
+    from ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
     from ToolDialog import ToolDialog
     import_tools_error=None
 except Exception,e:
@@ -325,7 +325,7 @@ class ConfigEditorTabController(BrowserTabController):
         self._importAction = self.plugin().application().createAction('&Import configuration...', self.importButtonClicked, "F2")
         self._configMenu.addAction(self._importAction)
         self._configToolBar.addAction(self._importAction)
-        self._applyPatToolAction = self.plugin().application().createAction('&Apply PAT tool...', self.applyButtonClicked, "F3")
+        self._applyPatToolAction = self.plugin().application().createAction('&Apply tool...', self.applyButtonClicked, "F3")
         self._configMenu.addAction(self._applyPatToolAction)
         self._configToolBar.addAction(self._applyPatToolAction)
         self.selected()
@@ -418,10 +418,6 @@ class ConfigEditorTabController(BrowserTabController):
 
     def applyButtonClicked(self):
         logging.debug(__name__ + ": applyButtonClicked")
-        if len(toolsDict.keys())==0:
-            logging.error(__name__ + ": Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
-            self.plugin().application().errorMessage("Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
-            return
         if not self._toolDialog:
             self._toolDialog=ToolDialog()
         self._toolDialog.setDataAccessor(self._toolDataAccessor)
