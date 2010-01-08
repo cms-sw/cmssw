@@ -47,7 +47,7 @@ class ChangeSource(ConfigToolBase):
         return self._defaultParameters
    
     def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n"
+        dumpPythonImport = "\nfrom FWCore.GuiBrowsers.editorTools import *\n"
         dumpPython=""
         if self._comment!="":
             dumpPython = "#"+self._comment
@@ -61,12 +61,8 @@ class ChangeSource(ConfigToolBase):
         self.setParameter('source',source)
         self.apply(process) 
         
-    def apply(self, process):
+    def toolCode(self, process):
         source=self._parameters['source'].value
-        process.disableRecording()
         process.source.fileNames=cms.untracked.vstring(source)
-        process.enableRecording()
-        action=self.__copy__()
-        process.addAction(action)
     
 changeSource=ChangeSource()
