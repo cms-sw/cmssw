@@ -110,6 +110,18 @@ public:
 			      const std::string& yAxisTitle
 			      );
 
+  MonitorElement* bookProfile(const std::string& configName,
+			      const std::string& name,
+			      const std::string& title,
+			      const unsigned int nBins, 
+			      const double min, 
+			      const double max,
+			      const double minY, 
+			      const double maxY,
+			      const std::string& xAxisTitle,
+			      const std::string& yAxisTitle
+			      );
+
 protected:
   
   DQMStore* dqm_;

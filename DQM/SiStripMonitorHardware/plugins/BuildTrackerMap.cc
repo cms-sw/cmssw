@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.4 2009/11/04 10:14:16 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.5 2009/11/05 12:23:58 amagnan Exp $
 //
 
 #include <sstream>
@@ -166,9 +166,9 @@ void BuildTrackerMapPlugin::read(bool aMechView){
   TH1F *p_deltaMean = new TH1F("p_deltaMean",";CM_{mean}(APV0)-CM_{mean}(APV1)",500,-2,2);
   TH1F *p_deltaRMS = new TH1F("p_deltaRMS",";CM_{RMS}(APV0)-CM_{RMS}(APV1)",500,0,3);
   TH1F *p_MeanAPV0 = new TH1F("p_MeanAPV0",";CM_{mean}(APV0)",500,100,140);
-  TH1F *p_MeanAPV1 = new TH1F("p_MeanAPV1",";CM_{mean}(APV1)",500,100,140);
+  //TH1F *p_MeanAPV1 = new TH1F("p_MeanAPV1",";CM_{mean}(APV1)",500,100,140);
   TH1F *p_RMSAPV0 = new TH1F("p_RMSAPV0",";CM_{RMS}(APV0)",500,0,10);
-  TH1F *p_RMSAPV1 = new TH1F("p_RMSAPV1",";CM_{RMS}(APV1)",500,0,10);
+  //TH1F *p_RMSAPV1 = new TH1F("p_RMSAPV1",";CM_{RMS}(APV1)",500,0,10);
 
 
 
@@ -180,22 +180,22 @@ void BuildTrackerMapPlugin::read(bool aMechView){
     for(size_t i=0;i<dets.size();++i){
       if(dets[i]>0){
 	//if(tkHistoMap[5]->getEntries(dets[i])>0 && tkHistoMap[5]->getValue(dets[i])) {
-	if(nHists > 5){
-	  if (tkHistoMap[5]->getValue(dets[i]) > 1) {
-	    list << dets[i] << " " << tkHistoMap[5]->getValue(dets[i]) << std::endl;
+	if(nHists > 3){
+	  if (tkHistoMap[3]->getValue(dets[i]) > 1) {
+	    list << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
 	  }
-	p_deltaRMS->Fill(tkHistoMap[5]->getValue(dets[i]));
+	p_deltaRMS->Fill(tkHistoMap[3]->getValue(dets[i]));
 	}
 	p_MeanAPV0->Fill(tkHistoMap[0]->getValue(dets[i]));
-	p_MeanAPV1->Fill(tkHistoMap[1]->getValue(dets[i]));
-	p_RMSAPV0->Fill(tkHistoMap[2]->getValue(dets[i]));
-	if (tkHistoMap[2]->getValue(dets[i]) > 2)
-	  listRms0 << dets[i] << " " << tkHistoMap[2]->getValue(dets[i]) << std::endl;
-	p_RMSAPV1->Fill(tkHistoMap[3]->getValue(dets[i]));
-	if (tkHistoMap[3]->getValue(dets[i]) > 2)
-	  listRms1 << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
+	//p_MeanAPV1->Fill(tkHistoMap[1]->getValue(dets[i]));
+	p_RMSAPV0->Fill(tkHistoMap[1]->getValue(dets[i]));
+	if (tkHistoMap[1]->getValue(dets[i]) > 2)
+	  listRms0 << dets[i] << " " << tkHistoMap[1]->getValue(dets[i]) << std::endl;
+	//p_RMSAPV1->Fill(tkHistoMap[3]->getValue(dets[i]));
+	//if (tkHistoMap[3]->getValue(dets[i]) > 2)
+	//listRms1 << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
 
-	if(nHists > 4) p_deltaMean->Fill(tkHistoMap[4]->getValue(dets[i]));
+	if(nHists > 2) p_deltaMean->Fill(tkHistoMap[2]->getValue(dets[i]));
       }
     }
   }
@@ -214,11 +214,11 @@ void BuildTrackerMapPlugin::read(bool aMechView){
 
   TPaveStats *statBox[2] = {0,0};  
   statBox[0] = (TPaveStats*)p_MeanAPV0->FindObject("stats");
-  statBox[1] = (TPaveStats*)p_MeanAPV1->FindObject("stats");
+  //statBox[1] = (TPaveStats*)p_MeanAPV1->FindObject("stats");
 
   p_MeanAPV0->Draw();
-  p_MeanAPV1->SetLineColor(2);
-  p_MeanAPV1->Draw("same");
+  //p_MeanAPV1->SetLineColor(2);
+  //p_MeanAPV1->Draw("same");
   if (statBox[0]) statBox[0]->Draw("same");
   if (statBox[1]) { 
     statBox[1]->SetLineColor(2);
@@ -229,11 +229,11 @@ void BuildTrackerMapPlugin::read(bool aMechView){
   lCan->Print("./meanAPVstotal.C");
 
   statBox[0] = (TPaveStats*)p_RMSAPV0->FindObject("stats");
-  statBox[1] = (TPaveStats*)p_RMSAPV1->FindObject("stats");
+  //statBox[1] = (TPaveStats*)p_RMSAPV1->FindObject("stats");
 
   p_RMSAPV0->Draw();
-  p_RMSAPV1->SetLineColor(2);
-  p_RMSAPV1->Draw("same");
+  //p_RMSAPV1->SetLineColor(2);
+  //p_RMSAPV1->Draw("same");
   if (statBox[0]) statBox[0]->Draw("same");
   if (statBox[1]) { 
     statBox[1]->SetLineColor(2);

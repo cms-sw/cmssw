@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('DQMCMMonitor')
 
+process.load('Configuration/StandardSequences/Services_cff')
+process.load('FWCore/MessageService/MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
@@ -96,6 +100,7 @@ process.load("DPGAnalysis.SiStripTools.apvshotsanalyzer_cfi")
 
 process.load('DQM.SiStripMonitorHardware.siStripCMMonitor_cfi')
 process.siStripCMMonitor.FillWithEventNumber = False
+process.siStripCMMonitor.FillWithLocalEventNumber = False
 process.siStripCMMonitor.FedIdVec = 100,200,400
 process.siStripCMMonitor.PrintDebugMessages = 1
 process.siStripCMMonitor.WriteDQMStore = True

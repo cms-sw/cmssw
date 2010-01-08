@@ -164,3 +164,36 @@ MonitorElement* HistogramBase::bookProfile(const std::string& configName,
   }
 }
  
+
+MonitorElement* HistogramBase::bookProfile(const std::string& configName,
+					   const std::string& name,
+					   const std::string& title,
+					   const unsigned int nBins, 
+					   const double min, 
+					   const double max,
+					   const double minY, 
+					   const double maxY,
+					   const std::string& xAxisTitle,
+					   const std::string& yAxisTitle
+					   )
+{
+ 
+  if (histogramConfig_[configName].enabled) {
+    MonitorElement* histo = dqm_->bookProfile(name,
+					      title,
+					      nBins,
+					      min,
+					      max,
+					      minY,
+					      maxY
+					      );
+
+    histo->setAxisTitle(xAxisTitle,1);
+    histo->setAxisTitle(yAxisTitle,2);
+    //automatically set the axis range: will accomodate new values keeping the same number of bins.
+    //histo->getTProfile()->SetBit(TH1::kCanRebin);
+    return histo;
+  } else {
+    return NULL;
+  }
+}
