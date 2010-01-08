@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-triggerSummaryAnalyzerRAW = cms.EDFilter("TriggerSummaryAnalyzerRAW",
+triggerSummaryAnalyzerRAW = cms.EDAnalyzer("TriggerSummaryAnalyzerRAW",
     inputTag = cms.InputTag("hltTriggerSummaryRAW")
 )
 
