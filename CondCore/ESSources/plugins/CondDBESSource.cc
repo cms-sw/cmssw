@@ -154,24 +154,23 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   typedef std::map<std::string, cond::DbSession> Sessions;
   Sessions sessions;
 
-    /* load DataProxy Plugin (it is strongly typed due to EventSetup ideosyncrasis)
-     * construct proxy
-     * contrary to EventSetup the "object-name" is not used as identifier: multipl entries in a record are
-     * dinstinguished only by their label...
-     * done in two step: first create ProxyWrapper loading ALL required dictionaries
-     * this will allow to initialize POOL in one go for each "database"
-     * The real initialization of the Data-Proxies is done in the second loop 
-     */
-
+  /* load DataProxy Plugin (it is strongly typed due to EventSetup ideosyncrasis)
+   * construct proxy
+   * contrary to EventSetup the "object-name" is not used as identifier: multiple entries in a record are
+   * dinstinguished only by their label...
+   * done in two step: first create ProxyWrapper loading ALL required dictionaries
+   * this will allow to initialize POOL in one go for each "database"
+   * The real initialization of the Data-Proxies is done in the second loop 
+   */
+  std::vector<cond::DataProxyWrapperBase *> proxyWrappers(m_tagCollection.size());
+  size_t ipb=0;
   for(it=itBeg;it!=itEnd;++it){
-    cond::DataProxyWrapperBase * pb =  
+    proxyWrappers[ipb++] =  
       cond::ProxyFactory::get()->create(buildName(it->recordname));
-    // owenship...
-    ProxyP proxy(pb);
-   //  instert in the map
-    m_proxies.insert(std::make_pair(it->recordname, proxy));
   }
+  // now all required libraries have been loaded
   // init sessions and DataProxies
+  ipb=0;
   for(it=itBeg;it!=itEnd;++it){
     Sessions::iterator p = sessions.find( it->pfn);
     cond::DbSession nsess;
@@ -187,12 +186,16 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     cond::MetaData metadata(nsess);
     cond::DbScopedTransaction transaction(nsess);
     transaction.start(true);
-    std::string iovtoken = metadata.getTag(it->tag);
+    std::string iovtoken = metadata.getToken(it->tag);
     transaction.commit();
+    // owenship...
+    ProxyP proxy(proxyWrappers[ipb++]);
+   //  instert in the map
+    m_proxies.insert(std::make_pair(it->recordname, proxy));
     // initialize
-    m_proxies[it->recordname]->lateInit(nsess,iovtoken, 
-					it->labelname, it->pfn, it->tag
-					);
+    proxy->lateInit(nsess,iovtoken, 
+		    it->labelname, it->pfn, it->tag
+		    );
   }
 
   // one loaded expose all other tags to the Proxy! 
