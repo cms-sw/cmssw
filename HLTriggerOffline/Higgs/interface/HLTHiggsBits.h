@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2009/10/23 14:10:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/25 10:36:54 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+//#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 #include "FWCore/Framework/interface/Event.h"
@@ -40,7 +40,7 @@
 
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+//#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 
 //Include DQM core
