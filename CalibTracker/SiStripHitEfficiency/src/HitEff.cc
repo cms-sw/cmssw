@@ -530,7 +530,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		      FinalResSig = (*ires)[1];
 		      for (uint i = 0; i<ires->size(); i++) {
 			if (DEBUG) cout << "filling final cluster. i = " << i << " before fill FinalCluster[i]=" << FinalCluster[i] << " and (*ires)[i] =" << (*ires)[i] << endl;
-			if (DEBUG) FinalCluster[i] = (*ires)[i];
+			FinalCluster[i] = (*ires)[i];
 			if (DEBUG) cout << "filling final cluster. i = " << i << " after fill FinalCluster[i]=" << FinalCluster[i] << " and (*ires)[i] =" << (*ires)[i] << endl;
 		      }
 		    }
