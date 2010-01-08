@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/12/03 14:45:16 $
- * $Revision: 1.156 $
+ * $Date: 2009/12/14 17:45:16 $
+ * $Revision: 1.158 $
  * \author W Fisher
  * \author J Temple
  *
@@ -33,6 +33,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   laserMon_ = 0;
   expertMon_ = 0;  eeusMon_ = 0;
   zdcMon_ = 0;
+
+  nzsMon_=0; // need to initialize to 0!
 
   ////////////////////////////////////
   detDiagPed_ =0; detDiagLed_ =0; detDiagLas_ =0; detDiagNoise_ =0; detDiagTiming_=0;
@@ -373,11 +375,12 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   HEpresent_ = 0;
   HOpresent_ = 0;
   HFpresent_ = 0;
+
   reset();
 
   if ( dbe_ != NULL ){
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
-   
+
     meIEVTALL_ = dbe_->bookInt("Events Processed");
     meIEVTRAW_ = dbe_->bookInt("Events with Raw Data");
     meIEVTDIGI_= dbe_->bookInt("Events with Digis");
@@ -410,19 +413,23 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   if (digiMon_)   digiMon_->beginRun();
   if (pedMon_)    pedMon_->beginRun();
   if (rhMon_)     rhMon_->beginRun();
+
   if (beamMon_)   beamMon_->beginRun(c,run.run()); // pass in event setup to get list of bad channel quality cells 
   if (expertMon_) expertMon_->beginRun();
   if (pedMon_)    pedMon_->beginRun();
   if (ledMon_)    ledMon_->beginRun();
   if (laserMon_)  laserMon_->beginRun();
+
   if (mtccMon_)   mtccMon_->beginRun();
   if (hotMon_)    hotMon_->beginRun();
   if (deadMon_)   deadMon_->beginRun();
   if (ctMon_)     ctMon_->beginRun();
+
   if (tpMon_)     tpMon_->beginRun();
   if (zdcMon_)    zdcMon_->beginRun();
   if (eeusMon_)   eeusMon_->beginRun();
-  if (nzsMon_)     nzsMon_->beginRun();
+
+  if (nzsMon_!=NULL)     nzsMon_->beginRun();
 
   edm::ESHandle<HcalDbService> pSetup;
   c.get<HcalDbRecord>().get( pSetup );
@@ -494,7 +501,7 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   */
   if (Online_ && lumiSeg.luminosityBlock()<ilumisec)
     return;
-  
+
   // Otherwise, run normal startups
   ilumisec = lumiSeg.luminosityBlock();
   if(digiMon_!=0)   {  digiMon_->beginLuminosityBlock(ilumisec);}
@@ -661,7 +668,7 @@ void HcalMonitorModule::reset(){
   if(detDiagLed_!=0) detDiagLed_->reset();
   if(detDiagLas_!=0) detDiagLas_->reset();
   if(detDiagNoise_!=0) detDiagNoise_->reset();
-  if(detDiagTiming_!=0) detDiagNoise_->reset();
+  if(detDiagTiming_!=0) detDiagTiming_->reset();
   /////////////////////////////////////////////////////
 
 }
@@ -766,11 +773,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       dccBCN = dccHeader->getBunchId();
       if (dccBCN!=101)
 	{
-	  //if (i-FEDNumbering::MINHCALFEDID==0 && debug_>-1) cout <<"\t\tHUZZAH! ievent = "<< ievent_<<" BCN = "<<dccBCN<<endl;
+	  //if (i-FEDNumbering::MINHCALFEDID==0 && debug_>-1) std::cout <<"\t\tHUZZAH! ievent = "<< ievent_<<" BCN = "<<dccBCN<<endl;
 	}
       else
 	{
-	  // cout <<"BCN = "<<dccBCN<<endl;
+	  // std::cout <<"BCN = "<<dccBCN<<endl;
 	  //return;
 	}
 
