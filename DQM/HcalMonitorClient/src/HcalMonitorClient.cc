@@ -365,6 +365,8 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if (debug_>0)
     std::cout << endl<<"<HcalMonitorClient> Standard endRun() for run " << r.id().run() << endl<<endl;
 
+  if (!Online_)
+    analyze();
 
   if( debug_ >0) std::cout <<"HcalMonitorClient: processed events: "<<ievt_<<endl;
 
@@ -489,7 +491,8 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
   if( debug_>0 ) std::cout << "HcalMonitorClient: endLuminosityBlock" << endl;
   if(prescaleLS_>0 && !prescale()){
     // do scheduled tasks...
-    analyze();
+    if (Online_)
+      analyze();
   }
 
   return;
