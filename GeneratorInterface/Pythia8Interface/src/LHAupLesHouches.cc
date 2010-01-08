@@ -52,11 +52,18 @@ bool LHAupLesHouches::setEvent(int inProcId)
 		            hepeup.SPINUP[i]);
 
 	const lhef::LHEEvent::PDF *pdf = event->getPDF();
-	if (pdf)
-		this->setPdf(pdf->id.first, pdf->id.second,
-		             pdf->x.first, pdf->x.second,
-		             pdf->scalePDF,
-		             pdf->xPDF.first, pdf->xPDF.second, true);
+	if (pdf) {
+	  this->setPdf(pdf->id.first, pdf->id.second,
+	               pdf->x.first, pdf->x.second,
+	               pdf->scalePDF,
+	               pdf->xPDF.first, pdf->xPDF.second, true);
+	}
+	else {
+	  this->setPdf(hepeup.IDUP[0], hepeup.IDUP[1],
+	               hepeup.PUP[0][3] / runInfo->getHEPRUP()->EBMUP.first,
+	               hepeup.PUP[1][3] / runInfo->getHEPRUP()->EBMUP.second,
+	               0., 0., 0., false);
+	}
 
 //	hadronisation->onBeforeHadronisation().emit();
 
