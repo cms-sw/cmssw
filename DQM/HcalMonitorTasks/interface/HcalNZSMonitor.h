@@ -8,7 +8,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/FWLite/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include <math.h>
 
 class HcalNZSMonitor: public HcalBaseMonitor {
