@@ -21,14 +21,14 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/METReco/interface/MET.h"
+/*#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h" 
 #include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h" 
+#include "DataFormats/METReco/interface/GenMETCollection.h" */
 
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -38,8 +38,8 @@
 
 
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
+//#include "DataFormats/VertexReco/interface/Vertex.h"
+//#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -54,7 +54,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+//#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 
 //Include DQM core
