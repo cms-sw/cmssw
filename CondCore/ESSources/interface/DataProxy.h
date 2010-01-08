@@ -120,8 +120,9 @@ public:
   virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
 			std::string const & il, std::string const & cs, std::string const & tag) {
     m_proxy.reset(new PayProxy(session,iovtoken,false, 
-			       m_source.empty() ?  (const char *)(0) , m_source.c_str() 
-			       ));
+			       m_source.empty() ?  (const char *)(0) : m_source.c_str() 
+			       )
+		  );
     m_edmProxy.reset(new DataProxy(m_proxy));
     addInfo(il, cs, tag);
   }
