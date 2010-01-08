@@ -114,8 +114,8 @@ void SeedValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
  // Get the number of events for the normalization:
  TH1F *sevt, *revt;
- sdir->GetObject("DQMData/Run 1/Muons/Run summary/RecoMuonV/RecoMuon_TrackAssoc/Muons/NMuon",sevt);
- rdir->GetObject("DQMData/Run 1/Muons/Run summary/RecoMuonV/RecoMuon_TrackAssoc/Muons/NMuon",revt);
+ sdir->GetObject("RecoMuonV/RecoMuon_TrackAssoc/Muons/NMuon",sevt);
+ rdir->GetObject("RecoMuonV/RecoMuon_TrackAssoc/Muons/NMuon",revt);
  Double_t snorm = 1.;
  if (sevt && revt) {
    if (revt->GetEntries()>0) snorm = sevt->GetEntries()/revt->GetEntries();
