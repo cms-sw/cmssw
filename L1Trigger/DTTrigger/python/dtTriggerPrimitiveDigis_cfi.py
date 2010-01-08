@@ -19,7 +19,10 @@ dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
     # Convert output into DTTF sector numbering: 
     # false means [1-12] (useful for debug)
     # true is [0-11] useful as input for the DTTF emulator
-    DTTFSectorNumbering = cms.bool(True)
+    DTTFSectorNumbering = cms.bool(True),
+    lut_btic = cms.untracked.int32(31),
+    lut_dump_flag = cms.untracked.bool(False)
+ 
 )
 
 
