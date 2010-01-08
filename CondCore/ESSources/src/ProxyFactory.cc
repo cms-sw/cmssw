@@ -22,7 +22,7 @@ cond::DataProxyWrapperBase::DataProxyWrapperBase(std::string const & il) : m_lab
 
 cond::DataProxyWrapperBase::~DataProxyWrapperBase(){}
 
-cond::DataProxyWrapperBase::addInfo(std::string const & il, std::string const & cs, std::string const & tag) { 
+void cond::DataProxyWrapperBase::addInfo(std::string const & il, std::string const & cs, std::string const & tag) { 
   m_label=il; m_connString = cs; m_tag=tag;
 }
 
