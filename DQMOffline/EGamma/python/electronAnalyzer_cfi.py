@@ -18,7 +18,7 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
     TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),
-    VertexCollection = cms.InputTag(""),
+    VertexCollection = cms.InputTag("offlinePrimaryVertices"),
     ReadAOD = cms.bool(False),
     
     
