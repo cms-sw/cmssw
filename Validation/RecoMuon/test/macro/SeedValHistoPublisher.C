@@ -112,11 +112,15 @@ void SeedValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  }
 
 
- // Look for normalization histos:
- TH1F *snorm;
- sdir->GetObject("DQMData/Run 1/Muons/Run summary/RecoMuonV/Muons/NMuon",snorm);
- TH1F *rnorm;
- rdir->GetObject("DQMData/Run 1/Muons/Run summary/RecoMuonV/Muons/NMuon",rnorm);
+ // Get the number of events for the normalization:
+ TH1F *sevt, *revt;
+ sdir->GetObject("DQMData/Run 1/Muons/Run summary/RecoMuonV/RecoMuon_TrackAssoc/Muons/NMuon",sevt);
+ rdir->GetObject("DQMData/Run 1/Muons/Run summary/RecoMuonV/RecoMuon_TrackAssoc/Muons/NMuon",revt);
+ Double_t snorm = 1.;
+ if (sevt && revt) {
+   if (revt->GetEntries()>0) snorm = sevt->GetEntries()/revt->GetEntries();
+ }
+ else {  cout << " *** Missing seed normalization histos"; }
 
  TCanvas *canvas;
  
@@ -178,14 +182,11 @@ void SeedValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    canvas = new TCanvas("Seeds1","Seeds eta and phi",1000,1050);
 
+   // Normalize to the same number of "new" events:
    NormalizeHistograms(rh1,snorm);
-   NormalizeHistograms(sh1,snorm);
    NormalizeHistograms(rh2,snorm);
-   NormalizeHistograms(sh2,snorm);
    NormalizeHistograms(rh3,snorm);
-   NormalizeHistograms(sh3,snorm);
    NormalizeHistograms(rh4,snorm);
-   NormalizeHistograms(sh4,snorm);
 
    plot4histos(canvas,
 	       sh1,rh1,sh2,rh2,
@@ -234,18 +235,13 @@ void SeedValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    
    canvas = new TCanvas("Seeds2","Seeds momenta and hits",1000,1400);
    
+   // Normalize to the same number of "new" events:
    NormalizeHistograms(rh1,snorm);
-   NormalizeHistograms(sh1,snorm);
    NormalizeHistograms(rh2,snorm);
-   NormalizeHistograms(sh2,snorm);
    NormalizeHistograms(rh3,snorm);
-   NormalizeHistograms(sh3,snorm);
    NormalizeHistograms(rh4,snorm);
-   NormalizeHistograms(sh4,snorm);
    NormalizeHistograms(rh5,snorm);
-   NormalizeHistograms(sh5,snorm);
    NormalizeHistograms(rh6,snorm);
-   NormalizeHistograms(sh6,snorm);
 
    plot6histos(canvas,
 	      sh1,rh1,sh2,rh2,
@@ -299,6 +295,12 @@ void NormalizeHistograms(TH1F* h1, TH1F* h2)
       h1->Scale(scale1);
       h2->Scale(scale2);
     }
+}
+
+void NormalizeHistograms(TH1F* h1, Double_t nrm)
+{
+  if (h1==0) return;
+  h1->Scale(nrm);
 }
 
 
