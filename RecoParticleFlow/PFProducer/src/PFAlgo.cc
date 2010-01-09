@@ -624,6 +624,26 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       //active[iTrack] = false;
       std::vector<unsigned> tmpi;
       std::vector<unsigned> kTrack;
+      
+      // Some cleaning : secondary tracks without calo's and large momentum must be fake
+      double DPt = trackRef->ptError();
+      if ( ecalElems.empty() && trackMomentum > 30. && DPt > 0.5 && 
+	   ( trackRef->algo() == TrackBase::iter3 || 
+	     trackRef->algo() == TrackBase::iter4 || 
+	     trackRef->algo() == TrackBase::iter5 ) ) {
+	unsigned nHits =  elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
+	unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement();
+
+	std::cout << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum 
+		  << " / " << elements[iTrack].trackRef()->pt() << " +/- " << DPt 
+		  << " / " << elements[iTrack].trackRef()->eta() 
+		  << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit 
+		  << ") hits (lost hits) has been cleaned" << std::endl;
+	active[iTrack] = false;
+	continue;
+      }
+
+
       tmpi.push_back(reconstructTrack( elements[iTrack]));
       kTrack.push_back(iTrack);
       active[iTrack] = false;
