@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Math/GenVector/VectorUtil.h"
 
 
@@ -76,6 +77,8 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
     seedStates_.push_back( UNKNOWN ); 
     usedInTopo_.push_back( false ); 
   }  
+
+  cleanRBXAndHPD( rechits);
 
   // look for seeds.
   findSeeds( rechits );
@@ -176,6 +179,193 @@ double PFClusterAlgo::parameter( Parameter paramtype,
   return value;
 }
 
+
+void 
+PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
+
+  std::map< int, std::vector<unsigned> > hpds;
+  std::map< int, std::vector<unsigned> > rbxs;
+
+  for(EH ih = eRecHits_.begin(); ih != eRecHits_.end(); ih++ ) {
+
+    unsigned  rhi      = ih->second; 
+
+    if(! masked(rhi) ) continue;
+    // rechit was asked to be processed
+    const reco::PFRecHit& rhit = rechit( rhi, rechits);
+    //double energy = rhit.energy();
+    int layer = rhit.layer();
+    if ( layer != PFLayer::HCAL_BARREL1 &&
+	 layer != PFLayer::HCAL_ENDCAP ) break;
+    HcalDetId theHcalDetId = HcalDetId(rhit.detId());
+    int ieta = theHcalDetId.ieta();
+    int iphi = theHcalDetId.iphi();
+    int ihpd = ieta < 0 ?  
+      ( layer == PFLayer::HCAL_ENDCAP ?  -(iphi+1)/2-100 : -iphi ) : 
+      ( layer == PFLayer::HCAL_ENDCAP ?   (iphi+1)/2+100 :  iphi ) ;      
+    hpds[ihpd].push_back(rhi);
+    int irbx = ieta < 0 ? 
+      ( layer == PFLayer::HCAL_ENDCAP ?  -(iphi+5)/4 - 20 : -(iphi+5)/4 ) : 
+      ( layer == PFLayer::HCAL_ENDCAP ?   (iphi+5)/4 + 20 :  (iphi+5)/4 ) ;      
+    if ( irbx == 19 ) irbx = 1;
+    else if ( irbx == -19 ) irbx = -1;
+    else if ( irbx == 39 ) irbx = 21;
+    else if ( irbx == -39 ) irbx = -21;
+    rbxs[irbx].push_back(rhi);
+  }
+
+  // Loop on readout boxes
+  for ( std::map<int, std::vector<unsigned> >::iterator itrbx = rbxs.begin();
+	itrbx != rbxs.end(); ++itrbx ) { 
+    if ( ( abs(itrbx->first)<20 && itrbx->second.size() > 30 ) || 
+	 ( abs(itrbx->first)>20 && itrbx->second.size() > 30 ) ) { 
+      const std::vector<unsigned>& rhits = itrbx->second;
+      double totalEta = 0.;
+      double totalEtaW = 0.;
+      double totalPhi = 0.;
+      double totalPhiW = 0.;
+      double totalEta2 = 1E-9;
+      double totalEta2W = 1E-9;
+      double totalPhi2 = 1E-9;
+      double totalPhi2W = 1E-9;
+      double totalEnergy = 0.;
+      double totalEnergy2 = 1E-9;
+      unsigned nSeeds = rhits.size();
+      unsigned nSeeds0 = rhits.size();
+      std::map< int,std::vector<unsigned> > theHPDs;
+      for ( unsigned jh=0; jh < rhits.size(); ++jh ) {
+	const reco::PFRecHit& hit = rechit(rhits[jh], rechits);
+	// Check if the hit is a seed
+	unsigned nN = 0;
+	bool isASeed = true;
+	const vector<unsigned>& neighbours4 = *(& hit.neighbours4());
+	for(unsigned in=0; in<neighbours4.size(); in++) {
+	  const reco::PFRecHit& neighbour = rechit( neighbours4[in], rechits ); 
+	  // one neighbour has a higher energy -> the tested rechit is not a seed
+	  if( neighbour.energy() > hit.energy() ) {
+	    --nSeeds;
+	    --nSeeds0;
+	    isASeed = false;
+	    break;
+	  } else {
+	    if ( neighbour.energy() > 0.4 ) ++nN;
+	  }
+	}
+	if ( isASeed && !nN ) --nSeeds0;
+
+	HcalDetId theHcalDetId = HcalDetId(hit.detId());
+	// int ieta = theHcalDetId.ieta();
+	int iphi = theHcalDetId.iphi();
+	// std::cout << "Hit : " << hit.energy() << " " << ieta << " " << iphi << std::endl;
+	if ( hit.layer() == PFLayer::HCAL_BARREL1 )
+	  theHPDs[iphi].push_back(rhits[jh]);
+	else
+	  theHPDs[(iphi-1)/2].push_back(rhits[jh]);
+	totalEnergy += hit.energy();
+	totalPhi += fabs(hit.position().phi());
+	totalPhiW += hit.energy()*fabs(hit.position().phi());
+	totalEta += hit.position().eta();
+	totalEtaW += hit.energy()*hit.position().eta();
+	totalEnergy2 += hit.energy()*hit.energy();
+	totalPhi2 += hit.position().phi()*hit.position().phi();
+	totalPhi2W += hit.energy()*hit.position().phi()*hit.position().phi();
+	totalEta2 += hit.position().eta()*hit.position().eta();
+	totalEta2W += hit.energy()*hit.position().eta()*hit.position().eta();
+      }
+      // totalPhi /= totalEnergy;
+      totalPhi /= rhits.size();
+      totalEta /= rhits.size();
+      totalPhiW /= totalEnergy;
+      totalEtaW /= totalEnergy;
+      totalPhi2 /= rhits.size();
+      totalEta2 /= rhits.size();
+      totalPhi2W /= totalEnergy;
+      totalEta2W /= totalEnergy;
+      totalPhi2 = std::sqrt(totalPhi2 - totalPhi*totalPhi);
+      totalEta2 = std::sqrt(totalEta2 - totalEta*totalEta);
+      totalPhi2W = std::sqrt(totalPhi2W - totalPhiW*totalPhiW);
+      totalEta2W = std::sqrt(totalEta2W - totalEtaW*totalEtaW);
+      totalEnergy /= rhits.size();
+      totalEnergy2 /= rhits.size();
+      totalEnergy2 = std::sqrt(totalEnergy2 - totalEnergy*totalEnergy);
+      //if ( totalPhi2W/totalEta2W < 0.18 ) { 
+      if ( nSeeds0 > 6 ) {
+	unsigned nHPD15 = 0;
+	for ( std::map<int, std::vector<unsigned> >::iterator itHPD = theHPDs.begin();
+	      itHPD != theHPDs.end(); ++itHPD ) { 
+	  int hpdN = itHPD->first;
+	  const std::vector<unsigned>& hpdHits = itHPD->second;
+	  if ( ( abs(hpdN) < 100 && hpdHits.size() > 14 ) || 
+	       ( abs(hpdN) > 100 && hpdHits.size() > 14 ) ) ++nHPD15;
+	}
+	if ( nHPD15 > 1 ) { 
+	  std::cout << "Read out box numero " << itrbx->first 
+		    << " has " << itrbx->second.size() << " hits in it !"
+		    << std::endl << "sigma Eta/Phi = " << totalEta2 << " " << totalPhi2 << " " << totalPhi2/totalEta2
+		    << std::endl << "sigma EtaW/PhiW = " << totalEta2W << " " << totalPhi2W << " " << totalPhi2W/totalEta2W
+		    << std::endl << "E = " << totalEnergy << " +/- " << totalEnergy2
+		    << std::endl << "nSeeds = " << nSeeds << " " << nSeeds0
+		    << std::endl;
+	  for ( std::map<int, std::vector<unsigned> >::iterator itHPD = theHPDs.begin();
+		itHPD != theHPDs.end(); ++itHPD ) { 
+	    unsigned hpdN = itHPD->first;
+	    const std::vector<unsigned>& hpdHits = itHPD->second;
+	    std::cout << "HPD number " << hpdN << " contains " << hpdHits.size() << " hits" << std::endl;
+	  }
+	}
+      }
+    }
+  }
+
+  // Loop on hpd's
+  std::map<int, std::vector<unsigned> >::iterator neighbour1;
+  std::map<int, std::vector<unsigned> >::iterator neighbour2;
+  unsigned size1 = 0;
+  unsigned size2 = 0;
+  for ( std::map<int, std::vector<unsigned> >::iterator ithpd = hpds.begin();
+	ithpd != hpds.end(); ++ithpd ) { 
+
+    const std::vector<unsigned>& rhits = ithpd->second;
+    double totalEnergy = 0.;
+    double totalEnergy2 = 1E-9;
+    for ( unsigned jh=0; jh < rhits.size(); ++jh ) {
+      const reco::PFRecHit& hit = rechit(rhits[jh], rechits);
+      totalEnergy += hit.energy();
+      totalEnergy2 += hit.energy()*hit.energy();
+    }
+    totalEnergy /= rhits.size();
+    totalEnergy2 /= rhits.size();
+    totalEnergy2 = std::sqrt(totalEnergy2 - totalEnergy*totalEnergy);
+
+    if ( ithpd->first == 1 ) neighbour1 = hpds.find(72);
+    else if ( ithpd->first == -1 ) neighbour1 = hpds.find(-72);
+    else if ( ithpd->first == 101 ) neighbour1 = hpds.find(136);
+    else if ( ithpd->first == -101 ) neighbour1 = hpds.find(-136);
+    else neighbour1 = ithpd->first > 0 ? hpds.find(ithpd->first-1) : hpds.find(ithpd->first+1) ;
+
+    if ( ithpd->first == 72 ) neighbour2 = hpds.find(1);
+    else if ( ithpd->first == -72 ) neighbour2 = hpds.find(-1);
+    else if ( ithpd->first == 136 ) neighbour2 = hpds.find(101);
+    else if ( ithpd->first == -136 ) neighbour2 = hpds.find(-101);
+    else neighbour2 = ithpd->first > 0 ? hpds.find(ithpd->first+1) : hpds.find(ithpd->first-1) ;
+    
+    size1 = neighbour1 != hpds.end() ? neighbour1->second.size() : 0;
+    size2 = neighbour2 != hpds.end() ? neighbour2->second.size() : 0;
+    
+    //if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 13 ) || 
+    //     ( abs(ithpd->first) < 100 && ithpd->second.size() > 11 ) )
+    //  if ( (float)(size1 + size2)/(float)ithpd->second.size() < 0.5 ) 
+    if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 15 ) || 
+         ( abs(ithpd->first) < 100 && ithpd->second.size() > 12 ) )
+      if ( (float)(size1 + size2)/(float)ithpd->second.size() < 1.0 ) 
+	std::cout << "HPD numero " << ithpd->first 
+		  << " has " << ithpd->second.size() << " hits in it !" << std::endl
+		  << "Neighbours : " << size1 << " " << size2
+		  << std::endl;
+
+  }
+
+}
 
 
 void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
@@ -290,25 +480,47 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       
 
     // Cleaning : check energetic, isolated seeds, likely to come from erratic noise.
-    if ( rhenergy > cleanThresh ) { 
+    if ( wannaBeSeed.energy() > cleanThresh ) { 
       const vector<unsigned>& neighbours4 = *(& wannaBeSeed.neighbours4());
       // Determine the fraction of surrounding energy
+      //std::cout << "Energy of the cell and energy Up : " << wannaBeSeed.energy() 
+      //          << " " << wannaBeSeed.energyUp() << std::endl;
+      //std::cout << "Energies of the neighbours : " << std::endl;
       double surroundingEnergy = wannaBeSeed.energyUp();
+      double neighbourEnergy = 0.;
+      double layerEnergy = 0.;
       for(unsigned in4=0; in4<neighbours4.size(); in4++) {
 	const reco::PFRecHit& neighbour = rechit( neighbours4[in4], rechits ); 
 	surroundingEnergy += neighbour.energy() + neighbour.energyUp();
+	neighbourEnergy += neighbour.energy() + neighbour.energyUp();
+	layerEnergy += neighbour.energy();
+	//std::cout << in4 << ": " << neighbour.energy() << " " << neighbour.energyUp() << std::endl;
       }
-      double fraction = surroundingEnergy/wannaBeSeed.energy();
+      // Fraction 0 is the balance between EM and HAD layer for this tower
+      double fraction0 = layer == PFLayer::HF_EM || layer == PFLayer::HF_HAD ? 
+	wannaBeSeed.energyUp()/wannaBeSeed.energy() : 1.;
+      // Fraction 1 is the balance between the hit and its neighbours from both layers
+      double fraction1 = surroundingEnergy/wannaBeSeed.energy();
+      // Fraction 2 is the balance between the tower and the tower neighbours
+      double fraction2 = neighbourEnergy/(wannaBeSeed.energy()+wannaBeSeed.energyUp());
+      // Fraction 3 is the balance between the hits and the hits neighbours in the same layer.
+      double fraction3 = layerEnergy/(wannaBeSeed.energy());
       // Mask the seed and the hit if energetic/isolated rechit
-      if ( fraction < minS4S1 ) {
+      // if ( fraction0 < minS4S1 || fraction1 < minS4S1 || fraction2 < minS4S1 || fraction3 < minS4S1 ) {
+      // if ( fraction1 < minS4S1 || ( wannaBeSeed.energy() > 1.5*cleanThresh && fraction0 + fraction3 < minS4S1 ) ) {
+      if ( fraction1 < minS4S1 ) {
 	// Double the energy cleaning threshold when close to the ECAL/HCAL - HF transition
 	double eta = fabs(wannaBeSeed.position().eta());
-	if ( eta < 5.0 && ( eta < 2.8 || rhenergy > tighter*cleanThresh ) ) { 
+	if (   eta < 5.0 &&                                            // No cleaning for the HF border 
+	     ( eta < 2.8 || rhenergy > tighter*cleanThresh ) &&        // Tighter cleaning for the EB-HB/HF transition 
+	     ( abs(eta-1.48) > 0.02 || fraction1 < minS4S1/tighter )   // Tighter cleaning for the EB/EE transition 
+	    ) { 
 	  seedStates_[rhi] = CLEAN;
 	  mask_[rhi] = false;
-	  std::cout << "A seed with E/pT/eta = " << wannaBeSeed.energy() 
+	  std::cout << "A seed with E/pT/eta = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
 		    << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() 
-		    << " and with surrounding energy = " << surroundingEnergy/ wannaBeSeed.energy()
+		    << " and with surrounding fractions = " << fraction0 << " " << fraction1 
+		    << " " << fraction2 << " " << fraction3
 		    << " in layer " << layer 
 		    << " had been cleaned " << std::endl
 		    << "(Cuts were : " << cleanThresh << " and " << minS4S1 << std::endl; 
@@ -371,7 +583,8 @@ void PFClusterAlgo::buildTopoClusters( const reco::PFRecHitCollection& rechits )
     if(topocluster.empty() ) continue;
     
     topoClusters_.push_back( topocluster );
-  } 
+
+  }
 
 #ifdef PFLOW_DEBUG
   if(debug_) 

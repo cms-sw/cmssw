@@ -185,6 +185,10 @@ class PFClusterAlgo {
 
  private:
 
+  /// Clean HCAL readout box noise and HPD discharge
+  void cleanRBXAndHPD( const reco::PFRecHitCollection& rechits );
+
+
   /// look for seeds 
   void findSeeds( const reco::PFRecHitCollection& rechits );
 
