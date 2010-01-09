@@ -67,7 +67,8 @@ class GatherAllModulesVisitor(object):
     def __init__(self):
         self._modules = []
     def enter(self,visitee):
-        self._modules.append(visitee)
+        if isinstance(visitee,cms._Module):
+            self._modules.append(visitee)
     def leave(self,visitee):
         pass
     def modules(self):
