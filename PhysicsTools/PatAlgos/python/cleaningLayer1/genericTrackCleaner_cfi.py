@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatTracks = cms.EDFilter("PATGenericParticleCleaner",
+cleanPatTracks = cms.EDProducer("PATGenericParticleCleaner",
     src = cms.InputTag("REPLACE_ME"), 
 
     # preselection (any string-based cut on pat::GenericParticle)

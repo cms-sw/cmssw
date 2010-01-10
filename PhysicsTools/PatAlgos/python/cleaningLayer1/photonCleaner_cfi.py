@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatPhotons = cms.EDFilter("PATPhotonCleaner",
+cleanPatPhotons = cms.EDProducer("PATPhotonCleaner",
     ## Input collection of Photons
     src = cms.InputTag("selectedPatPhotons"),
 

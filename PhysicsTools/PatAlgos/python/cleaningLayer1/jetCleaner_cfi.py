@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatAK5CaloJets = cms.EDFilter("PATJetCleaner",
+cleanPatAK5CaloJets = cms.EDProducer("PATJetCleaner",
     src = cms.InputTag("selectedPatAK5CaloJets"), 
 
     # preselection (any string-based cut on pat::Jet)

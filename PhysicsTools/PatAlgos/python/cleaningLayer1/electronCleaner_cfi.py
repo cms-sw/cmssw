@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatElectrons = cms.EDFilter("PATElectronCleaner",
+cleanPatElectrons = cms.EDProducer("PATElectronCleaner",
     ## pat electron input source
     src = cms.InputTag("selectedPatElectrons"), 
 

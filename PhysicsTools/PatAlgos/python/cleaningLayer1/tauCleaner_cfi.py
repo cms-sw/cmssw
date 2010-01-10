@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatTaus = cms.EDFilter("PATTauCleaner",
+cleanPatTaus = cms.EDProducer("PATTauCleaner",
     src = cms.InputTag("selectedPatTaus"), 
 
     # preselection (any string-based cut on pat::Tau)
