@@ -37,10 +37,10 @@ Tests with same datasets as release validation
   <!--var name="DBS_RELEASE" value="LOCAL"-->
   <!--var name="DBS_COND" value=""-->
 
-  <var name="PUB_INPUT_FOLDER" value="DQMData/Egamma/ElectronAnalyzer/">
+  <var name="PUB_INPUT_FOLDER" value="DQMData/Egamma/Electrons/">
   <var name="PUB_TITLE" value="DQMOffline Electron Histograms">
   <var name="PUB_COMMENT" value="Histograms for CMSSW ${TEST_RELEASE}">
-  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/340pre5/Electrons/DqmOffline">
+  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/350pre1/Electrons/DqmOffline2">
   
   <environment name="Pt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">

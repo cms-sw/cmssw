@@ -181,26 +181,26 @@ void ElectronAnalyzer::book()
   h1_ele_triggers = bookH1("h1_ele_triggers","hlt triggers",128,0.,128.) ;
 
   // basic quantities
-//  h1_ele_num_= bookH1("h_ele_num","# rec electrons",20, 0.,20.,"N_{ele}");
-//  h1_ele_vertexP = bookH1("h_ele_vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
-//  h1_ele_Et = bookH1("h_ele_Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
-//  h1_ele_vertexTIP = bookH1("h_ele_vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
-//  h1_ele_charge = bookH1("h_ele_charge","ele charge",5,-2.,2.,"charge");
-  h1_ele_vertexPt_barrel = bookH1("h_ele_vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-  h1_ele_vertexPt_endcaps = bookH1("h_ele_vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-//  h1_ele_vertexEta = bookH1("h_ele_vertexEta","ele momentum eta",nbineta,etamin,etamax,"#eta");
-//  h1_ele_vertexPhi = bookH1("h_ele_vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h2_ele_vertexEtaVsPhi = bookH2("h_ele_vertexEtaVsPhi","ele momentum #eta vs #phi",nbinphi2D,phimin,phimax,nbineta2D,etamin,etamax,"#phi (rad)","#eta");
-//  h1_ele_vertexX = bookH1("h_ele_vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)" );
-//  h1_ele_vertexY = bookH1("h_ele_vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)" );
-  h2_ele_vertexXvsY = bookH2("h_ele_vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"y (cm)","x (cm)" );
-  h1_ele_vertexZ = bookH1("h_ele_vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)" );
+//  h1_ele_num_= bookH1("h1_ele_num","# rec electrons",20, 0.,20.,"N_{ele}");
+//  h1_ele_vertexP = bookH1("h1_ele_vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
+//  h1_ele_Et = bookH1("h1_ele_Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
+//  h1_ele_vertexTIP = bookH1("h1_ele_vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
+//  h1_ele_charge = bookH1("h1_ele_charge","ele charge",5,-2.,2.,"charge");
+  h1_ele_vertexPt_barrel = bookH1("h1_ele_vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
+  h1_ele_vertexPt_endcaps = bookH1("h1_ele_vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
+//  h1_ele_vertexEta = bookH1("h1_ele_vertexEta","ele momentum eta",nbineta,etamin,etamax,"#eta");
+//  h1_ele_vertexPhi = bookH1("h1_ele_vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
+  h2_ele_vertexEtaVsPhi = bookH2("h2_ele_vertexEtaVsPhi","ele momentum #eta vs #phi",nbinphi2D,phimin,phimax,nbineta2D,etamin,etamax,"#phi (rad)","#eta");
+//  h1_ele_vertexX = bookH1("h1_ele_vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)" );
+//  h1_ele_vertexY = bookH1("h1_ele_vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)" );
+  h2_ele_vertexXvsY = bookH2("h2_ele_vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"y (cm)","x (cm)" );
+  h1_ele_vertexZ = bookH1("h1_ele_vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)" );
 
   // super-clusters
-//  h1_scl_En = bookH1("h_scl_energy","ele supercluster energy",nbinp,0.,pmax);
-//  h1_scl_Eta = bookH1("h_scl_eta","ele supercluster eta",nbineta,etamin,etamax);
-//  h1_scl_Phi = bookH1("h_scl_phi","ele supercluster phi",nbinphi,phimin,phimax);
-  h1_scl_Et = bookH1("h_scl_et","ele supercluster transverse energy",nbinpt,0.,ptmax);
+//  h1_scl_En = bookH1("h1_scl_energy","ele supercluster energy",nbinp,0.,pmax);
+//  h1_scl_Eta = bookH1("h1_scl_eta","ele supercluster eta",nbineta,etamin,etamax);
+//  h1_scl_Phi = bookH1("h1_scl_phi","ele supercluster phi",nbinphi,phimin,phimax);
+  h1_scl_Et = bookH1("h1_scl_et","ele supercluster transverse energy",nbinpt,0.,ptmax);
 
   // electron track
 //  h1_ele_ambiguousTracks = bookH1("h1_ele_ambiguousTracks","ele # ambiguous tracks",  5,0.,5.);
@@ -261,13 +261,13 @@ void ElectronAnalyzer::book()
 //  h1_ele_innerPt_mean = bookH1( "h1_ele_innerPt_mean","ele track inner p_{T}, mean",nbinpt,0.,ptmax,"P_{T in} (GeV/c)");
 //  h1_ele_outerPt_mean = bookH1( "h1_ele_outerPt_mean","ele track outer p_{T}, mean",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
 //  h1_ele_outerPt_mode = bookH1( "h1_ele_outerPt_mode","ele track outer p_{T}, mode",nbinpt,0.,ptmax,"P_{T out} (GeV/c)");
-//  //h_ele_PinMnPout_mode = bookH1( "h1_ele_PinMnPout_mode","ele track inner p - outer p, mode"   ,nbinp,0.,100.);
+//  //h1_ele_PinMnPout_mode = bookH1( "h1_ele_PinMnPout_mode","ele track inner p - outer p, mode"   ,nbinp,0.,100.);
 //  h1_ele_PinMnPout = bookH1( "h1_ele_PinMnPout","ele track inner p - outer p, mean" ,nbinp,0.,200.,"P_{vertex} - P_{out} (GeV/c)");
 //  h1_ele_PinMnPout_mode = bookH1( "h1_ele_PinMnPout_mode","ele track inner p - outer p, mode",nbinp,0.,100.,"P_{vertex} - P_{out}, mode (GeV/c)");
   h1_ele_fbrem = bookH1("h1_ele_fbrem","ele brem fraction",100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
   py_ele_fbremVsEta = bookP1("py_ele_fbremVsEta","ele <brem fraction> vs #eta",nbineta2D,etamin,etamax,0.,1.,"#eta","P_{in} - P_{out} / P_{in}") ;
   py_ele_fbremVsPhi = bookP1("py_ele_fbremVsPhi","ele <brem fraction> vs #phi",nbinphi2D,phimin,phimax,0.,1.,"#phi","P_{in} - P_{out} / P_{in}") ;
-//  h_ele_fbremVsPt = bookH2("h_ele_fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
+//  h2_ele_fbremVsPt = bookH2("h2_ele_fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
   h1_ele_classes = bookH1("h1_ele_classes","ele electron classes",150,0.0,150.);
 
   // pflow
