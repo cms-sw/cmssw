@@ -132,9 +132,9 @@ private:
   
 };
 
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/AndSelector.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 typedef SingleObjectSelector<reco::CandidateView, 
     AndSelector<ZToMuMuIsoDepositSelector<IsolatedSelector>, 

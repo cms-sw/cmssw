@@ -1,5 +1,5 @@
-#include "PhysicsTools/UtilAlgos/interface/OverlapExclusionSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/OverlapExclusionSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include <iostream>
 
