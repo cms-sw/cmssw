@@ -3,17 +3,16 @@
 #include "DQMOffline/Trigger/interface/EgHLTMonElemMgrEBEE.h"
 #include "DQMOffline/Trigger/interface/EgHLTEgCutCodes.h"
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
-#include "DQMOffline/Trigger/interface/EgHLTMonElemWithCutEBEE.h"
 #include "DQMOffline/Trigger/interface/EgHLTCutMasks.h"
 
-#include <boost/algorithm/string.hpp>
 
 using namespace egHLT;
 
 void MonElemFuncs::initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& histVec,const std::string& baseName,const BinData& bins)
 {
   addStdHist<OffEle,float>(histVec,baseName+"_et",baseName+" E_{T};E_{T} (GeV)",bins.et,&OffEle::et); 
-  addStdHist<OffEle,float>(histVec,baseName+"_etHigh",baseName+" E_{T};E_{T} (GeV)",bins.etHigh,&OffEle::et);
+  addStdHist<OffEle,float>(histVec,baseName+"_etHigh",baseName+" E_{T};E_{T} (GeV)",bins.etHigh,&OffEle::et); 
+  addStdHist<OffEle,float>(histVec,baseName+"_etSC",baseName+" E^{SC}_{T};E^{SC}_{T} (GeV)",bins.et,&OffEle::etSC);
   addStdHist<OffEle,float>(histVec,baseName+"_eta",baseName+" #eta;#eta",bins.eta,&OffEle::detEta);		
   addStdHist<OffEle,float>(histVec,baseName+"_phi",baseName+" #phi;#phi (rad)",bins.phi,&OffEle::phi);
   addStdHist<OffEle,int>(histVec,baseName+"_charge",baseName+" Charge; charge",bins.charge,&OffEle::charge);
@@ -47,6 +46,7 @@ void MonElemFuncs::initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& his
 {
   addStdHist<OffPho,float>(histVec,baseName+"_et",baseName+" E_{T};E_{T} (GeV)",bins.et,&OffPho::et); 
   addStdHist<OffPho,float>(histVec,baseName+"_etHigh",baseName+" E_{T};E_{T} (GeV)",bins.etHigh,&OffPho::et);
+  addStdHist<OffPho,float>(histVec,baseName+"_etSC",baseName+" E^{SC}_{T};E^{SC}_{T} (GeV)",bins.et,&OffPho::etSC);
   addStdHist<OffPho,float>(histVec,baseName+"_eta",baseName+" #eta;#eta",bins.eta,&OffPho::detEta);		
   addStdHist<OffPho,float>(histVec,baseName+"_phi",baseName+" #phi;#phi (rad)",bins.phi,&OffPho::phi);
   
@@ -234,6 +234,9 @@ void MonElemFuncs::initTightLooseTrigHists(std::vector<MonElemContainer<OffPho>*
     else addTightLooseTrigHist(phoMonElems,tightTrig,looseTrig,phoCut,"pho",bins);
   }
 }
+
+
+
    
 //there is nothing electron specific here, will template at some point
 void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,
@@ -285,7 +288,8 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffPho>*>&
   phoMonElems.push_back(passMonElem);
   phoMonElems.push_back(failMonElem);
 }
-  
+
+
 
 //we transfer ownership of eleCut to the monitor elements
 void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
@@ -350,15 +354,20 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 //tag and probe trigger efficiencies
 //this is to do measure the trigger efficiency with respect to a fully selected offline electron
 //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
-void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
 {
   for(size_t filterNr=0;filterNr<filterNames.size();filterNr++){ 
     
-    std::string trigName(filterNames[filterNr]);
-    int stdCutCode = EgCutCodes::getCode("detEta:crack:sigmaIEtaIEta:hadem:dPhiIn:dEtaIn"); //will have it non hardcoded at a latter date
-    MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut(TrigCodes::getCode(trigName),stdCutCode,&OffEle::cutCode));
-    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName+"_"+monElemCont->name()+"_gsfEle_all",bins,new EgGreaterCut<OffEle,float>(15.,&OffEle::etSC));
-    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName+"_"+monElemCont->name()+"_gsfEle_pass",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(15.,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));
+    std::string trigName(filterNames[filterNr]); 
+    float etCutValue = trigTools::getEtThresFromName(trigName);
+    MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut(TrigCodes::getCode(trigName),cutMask,&OffEle::cutCode));
+    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName+"_"+monElemCont->name()+"_gsfEle_all",bins,new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC));
+    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName+"_"+monElemCont->name()+"_gsfEle_pass",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));
+    
+    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffEle,float>(trigName+"_"+monElemCont->name()+"_gsfEle_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
+								       bins.et.nr,bins.et.min,bins.et.max,&OffEle::et));
+    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffEle,float>(trigName+"_"+monElemCont->name()+"_gsfEle_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
+									      bins.et.nr,bins.et.min,bins.et.max,&OffEle::et,new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));
     eleMonElems.push_back(monElemCont);
   } //end filter names loop
    

@@ -26,8 +26,9 @@ egHLTOffFiltersToMon = cms.PSet (
     "hltL1NonIsoDoublePhotonEt5eeResPMMassFilter",
     "hltL1NonIsoDoublePhotonEt5JpsiPMMassFilter",
     "hltL1NonIsoDoublePhotonEt5UpsPMMassFilter",
-
-
+    #l1
+    "hltPreL1SingleEG5",
+    "hltPreL1SingleEG8",
     
 
     #1E31
@@ -41,7 +42,11 @@ egHLTOffFiltersToMon = cms.PSet (
     "hltL1NonIsoDoubleElectronEt5JpsiPMMassFilter",
     "hltL1NonIsoDoubleElectronEt5UpsPMMassFilter",
     "hltL1NonIsoHLTNonIsoDoubleElectronEt10PixelMatchFilter",
-   
+
+    #si strip
+    "hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15PixelMatchFilter",
+    "hltL1NonIsoHLTNonIsoSingleElectronSiStripEt20PixelMatchFilter",
+    
     #photon triggers
     "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter",
     "hltL1NonIsoHLTLEITISinglePhotonEt10TrackIsolFilter",
@@ -81,7 +86,10 @@ egHLTOffFiltersToMon = cms.PSet (
     "hltL1NonIsoHLTNonIsoDoublePhotonEt10HcalIsolFilter",
     "hltL1NonIsoHLTNonIsoDoublePhotonEt15HcalIsolFilter",
     "hltL1NonIsoHLTVLEIDoublePhotonEt15HcalIsolFilter",
-    
+
+    #l1
+    "hltPreL1SingleEG5",
+    "hltPreL1SingleEG8",
     ),
 
     eleTightLooseTrigNames=cms.vstring(
@@ -91,6 +99,7 @@ egHLTOffFiltersToMon = cms.PSet (
     "hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter:hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter",
     "hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter:hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter",
     "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter:hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter",
+    "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter:hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15PixelMatchFilter",
     #"hltL1NonIsoHLTNonIsoDoubleElectronEt5PixelMatchFilter:hltPreL1DoubleEG5",
 
     #photon
@@ -110,8 +119,8 @@ egHLTOffFiltersToMon = cms.PSet (
     "hltL1NonIsoHLTNonIsoSingleElectronEt15LTITrackIsolFilter:hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter",
     "hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdTrackIsolFilterESet25LTI:hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdDphiFilter",
     "hltL1NonIsoHLTNonIsoSingleElectronEt20PixelMatchFilter:hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter",
-    
-    
+    "hltL1NonIsoHLTNonIsoSingleElectronEt20PixelMatchFilter:hltL1NonIsoHLTNonIsoSingleElectronSiStripEt20PixelMatchFilter",
+    "hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter:hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15PixelMatchFilter",
 
     #pho triggers
     "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter:hltPreL1SingleEG5",

@@ -104,21 +104,20 @@ void EgHLTOfflineSource::beginJob()
   for(size_t i=0;i<phoHLTFilterNames_.size();i++) addPhoTrigPath(phoHLTFilterNames_[i]);
  
   //efficiencies of one trigger path relative to another
-  MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,
-					new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
+  MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
+					///	new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
   MonElemFuncs::initTightLooseTrigHistsTrigCuts(eleMonElems_,eleTightLooseTrigNames_,binData_);
 
-
-  MonElemFuncs::initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,
-					new EgHLTDQMVarCut<OffPho>(cutMasks_.stdPho,&OffPho::cutCode)); 
+  ;
+  MonElemFuncs::initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,"pho");
+    //	new EgHLTDQMVarCut<OffPho>(cutMasks_.stdPho,&OffPho::cutCode)); 
   MonElemFuncs::initTightLooseTrigHistsTrigCuts(phoMonElems_,phoTightLooseTrigNames_,binData_);
 
   //di-object triggers
-  MonElemFuncs::initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,
-			
-		new EgDiEleCut(cutMasks_.stdEle,&OffEle::cutCode));
-  MonElemFuncs::initTightLooseTrigHists(phoMonElems_,diPhoTightLooseTrigNames_,binData_,
-					new EgDiPhoCut(cutMasks_.stdPho,&OffPho::cutCode));
+  MonElemFuncs::initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,"gsfEle");
+					//	new EgDiEleCut(cutMasks_.stdEle,&OffEle::cutCode));
+  MonElemFuncs::initTightLooseTrigHists(phoMonElems_,diPhoTightLooseTrigNames_,binData_,"pho");
+					//				new EgDiPhoCut(cutMasks_.stdPho,&OffPho::cutCode));
 
   MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(eleMonElems_,diEleTightLooseTrigNames_,binData_);
   MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(phoMonElems_,diPhoTightLooseTrigNames_,binData_);
@@ -127,7 +126,7 @@ void EgHLTOfflineSource::beginJob()
   //tag and probe trigger efficiencies
   //this is to do measure the trigger efficiency with respect to a fully selected offline electron
   //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
-  MonElemFuncs::initTrigTagProbeHists(eleMonElems_,eleHLTFilterNames_,binData_);
+  MonElemFuncs::initTrigTagProbeHists(eleMonElems_,eleHLTFilterNames_,cutMasks_.trigTPEle,binData_);
   
   //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
   // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);

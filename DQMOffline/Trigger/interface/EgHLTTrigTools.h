@@ -23,6 +23,9 @@ namespace egHLT {
     void translateFiltersToPathNames(const std::vector<std::string>& filters,std::vector<std::string>& paths,const std::string& hltTag);
     std::string getL1SeedFilterOfPath(const std::string& path,const std::string& hltTag);
 
+    //looks for string Et and then looks for a number after that (currently the standard of all E/g triggers)
+    //returns 0 if unsuccessful
+    float getEtThresFromName(const std::string& trigName);
   }
   
   //I have the horrible feeling that I'm converting into an intermediatry format and then coverting back again

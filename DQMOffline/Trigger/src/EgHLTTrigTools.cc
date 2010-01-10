@@ -187,3 +187,23 @@ std::string trigTools::getL1SeedFilterOfPath(const std::string& path,const std::
   return dummy;
 
 }
+  
+//hunts for first instance of pattern EtX where X = a number of any length and returns X
+float  trigTools::getEtThresFromName(const std::string& trigName)
+{
+  size_t etStrPos = trigName.find("Et");
+  while(etStrPos!=std::string::npos && trigName.find_first_of("1234567890",etStrPos)!=etStrPos+2){
+    etStrPos = trigName.find("Et",etStrPos+1);  
+  }
+  if(etStrPos!=std::string::npos && trigName.find_first_of("1234567890",etStrPos)==etStrPos+2){
+    size_t endOfEtValStr = trigName.find_first_not_of("1234567890",etStrPos+2);  
+
+    std::istringstream etValStr(trigName.substr(etStrPos+2,endOfEtValStr-etStrPos-2));
+    float etVal;
+    etValStr>> etVal;
+    return etVal;
+    
+  }
+  return 0;
+
+}

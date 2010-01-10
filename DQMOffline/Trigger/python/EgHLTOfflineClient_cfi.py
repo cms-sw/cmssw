@@ -19,16 +19,16 @@ egHLTOffDQMClient = cms.EDFilter("EgHLTOfflineClient",
                                                               'isolEm','isolHad','isolPtTrks',
                                                               'hltIsolHad','hltIsoltrksEle','hltIsolTrksPho'),
                                  eleEffTags=cms.vstring('effVsEt','effVsEta','effVsPhi'), #used for vs vars and T&P, Fake rate tags
-                                 eleTrigTPEffVsVars=cms.vstring('et','eta','phi','charge'),
-                                 eleLooseTightTrigEffVsVars=cms.vstring('et','eta','phi','charge',
+                                 eleTrigTPEffVsVars=cms.vstring('et','eta','phi','charge','etUnCut'),
+                                 eleLooseTightTrigEffVsVars=cms.vstring('et','eta','phi','charge','etUnCut',
                                                                         'hOverE','sigmaIEtaIEta','dPhiIn','dEtaIn'),
                                  
                                  phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','r9',
                                                           'isolEm','isolHad','isolPtTrks','isolNrTrks'),
                                  phoSingleEffVars=cms.vstring('sigmaIEtaIEta','hltIsolHad','hltIsolTrksPho'),
                                  phoEffTags=cms.vstring('effVsEt','effVsEta','effVsPhi'),
-                                 phoTrigTPEffVsVars=cms.vstring('et','eta','phi','charge'),
-                                 phoLooseTightTrigEffVsVars=cms.vstring('et','eta','phi',
+                                 phoTrigTPEffVsVars=cms.vstring('et','eta','phi','charge','etUnCut'),
+                                 phoLooseTightTrigEffVsVars=cms.vstring('et','eta','phi','etUnCut',
                                                                         'hOverE','sigmaIEtaIEta')
                                  )
 
