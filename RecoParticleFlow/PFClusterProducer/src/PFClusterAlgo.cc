@@ -233,6 +233,7 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
       unsigned nSeeds = rhits.size();
       unsigned nSeeds0 = rhits.size();
       std::map< int,std::vector<unsigned> > theHPDs;
+      std::multimap< double,unsigned > theEnergies;
       for ( unsigned jh=0; jh < rhits.size(); ++jh ) {
 	const reco::PFRecHit& hit = rechit(rhits[jh], rechits);
 	// Check if the hit is a seed
@@ -261,6 +262,7 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	  theHPDs[iphi].push_back(rhits[jh]);
 	else
 	  theHPDs[(iphi-1)/2].push_back(rhits[jh]);
+	theEnergies.insert(std::pair<double,unsigned>(hit.energy(),rhits[jh]));
 	totalEnergy += hit.energy();
 	totalPhi += fabs(hit.position().phi());
 	totalPhiW += hit.energy()*fabs(hit.position().phi());
@@ -312,6 +314,28 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	    const std::vector<unsigned>& hpdHits = itHPD->second;
 	    std::cout << "HPD number " << hpdN << " contains " << hpdHits.size() << " hits" << std::endl;
 	  }
+	  std::multimap<double, unsigned >::iterator ntEn = theEnergies.end();
+	  --ntEn;
+	  unsigned nn = 0;
+	  double threshold = 1.;
+	  for ( std::multimap<double, unsigned >::iterator itEn = theEnergies.begin();
+		itEn != theEnergies.end(); ++itEn ) {
+	    ++nn;
+	    if ( nn < 5 ) { 
+	      mask_[itEn->second] = false;
+	    } else if ( nn == 5 ) { 
+	      threshold = itEn->first * 5.;
+	      mask_[itEn->second] = false;
+	    } else { 
+	      if ( itEn->first < threshold ) mask_[itEn->second] = false;
+	    }
+	    if ( !mask_[itEn->second] ) 
+	      std::cout << "Hit Energies = " << itEn->first 
+			<< " " << ntEn->first/itEn->first << " masked " << std::endl;
+	    else 
+	      std::cout << "Hit Energies = " << itEn->first 
+			<< " " << ntEn->first/itEn->first << " kept for clustering " << std::endl;
+	  }
 	}
       }
     }
@@ -326,12 +350,14 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	ithpd != hpds.end(); ++ithpd ) { 
 
     const std::vector<unsigned>& rhits = ithpd->second;
+    std::multimap< double,unsigned > theEnergies;
     double totalEnergy = 0.;
     double totalEnergy2 = 1E-9;
     for ( unsigned jh=0; jh < rhits.size(); ++jh ) {
       const reco::PFRecHit& hit = rechit(rhits[jh], rechits);
       totalEnergy += hit.energy();
       totalEnergy2 += hit.energy()*hit.energy();
+      theEnergies.insert(std::pair<double,unsigned>(hit.energy(),rhits[jh]));
     }
     totalEnergy /= rhits.size();
     totalEnergy2 /= rhits.size();
@@ -357,12 +383,34 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
     //  if ( (float)(size1 + size2)/(float)ithpd->second.size() < 0.5 ) 
     if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 15 ) || 
          ( abs(ithpd->first) < 100 && ithpd->second.size() > 12 ) )
-      if ( (float)(size1 + size2)/(float)ithpd->second.size() < 1.0 ) 
+      if ( (float)(size1 + size2)/(float)ithpd->second.size() < 1.0 ) {
 	std::cout << "HPD numero " << ithpd->first 
 		  << " has " << ithpd->second.size() << " hits in it !" << std::endl
 		  << "Neighbours : " << size1 << " " << size2
 		  << std::endl;
-
+	std::multimap<double, unsigned >::iterator ntEn = theEnergies.end();
+	--ntEn;
+	unsigned nn = 0;
+	double threshold = 1.;
+	for ( std::multimap<double, unsigned >::iterator itEn = theEnergies.begin();
+	      itEn != theEnergies.end(); ++itEn ) {
+	  ++nn;
+	  if ( nn < 5 ) { 
+	    mask_[itEn->second] = false;
+	  } else if ( nn == 5 ) { 
+	    threshold = itEn->first * 2.5;
+	    mask_[itEn->second] = false;
+	  } else { 
+	    if ( itEn->first < threshold ) mask_[itEn->second] = false;
+	  }
+	  if ( !mask_[itEn->second] ) 
+	    std::cout << "Hit Energies = " << itEn->first 
+		      << " " << ntEn->first/itEn->first << " masked " << std::endl;
+	  else 
+	    std::cout << "Hit Energies = " << itEn->first 
+		      << " " << ntEn->first/itEn->first << " kept for clustering " << std::endl;
+	}
+      }
   }
 
 }
@@ -656,6 +704,7 @@ PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
       continue;
     }
 			     
+    if( !masked(nbs[i]) ) continue;
     buildTopoCluster( cluster, nbs[i], rechits );
   }
 #ifdef PFLOW_DEBUG
