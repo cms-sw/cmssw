@@ -1,7 +1,5 @@
-<use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
-<use name=DataFormats/StdDictionaries>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TauReco>
@@ -12,20 +10,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/BTauReco>
-<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=rootrflx>
 <export>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/StdDictionaries>
-  <use name=DataFormats/Candidate>
-  <use name=DataFormats/MuonReco>
-  <use name=DataFormats/TauReco>
-  <use name=DataFormats/JetReco>
-  <use name=DataFormats/METReco>
-  <use name=DataFormats/EgammaCandidates>
-  <use name=DataFormats/TrackReco>
-  <use name=DataFormats/HepMCCandidate>
-  <use name=DataFormats/BTauReco>
-  <use name=DataFormats/GeometryCommonDetAlgo>
   <lib name=DataFormatsPatCandidates>
 </export>
