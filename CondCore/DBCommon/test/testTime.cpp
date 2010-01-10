@@ -1,11 +1,13 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/IOVInfo.h"
 
 
 #include <iostream>
 #include <sys/time.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
 int main() {
+  std::cout << cond::userInfo() << std::endl;
   ::timeval tv;
   gettimeofday(&tv,0);
   std::cout<<"sec "<<tv.tv_sec<<std::endl;
