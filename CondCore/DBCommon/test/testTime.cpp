@@ -14,8 +14,8 @@ int main() {
   std::cout<<"micro sec "<<tv.tv_usec<<std::endl;
   edm::Timestamp tmstamp((unsigned long long)tv.tv_sec*1000000+(unsigned long long)tv.tv_usec);
   std::cout<<"timestamp of the day since 1970 in microsecond "<<tmstamp.value()<<std::endl;
-  edm::Timestamp tstamp((unsigned long long)tv.tv_usec);
-  std::cout<<"timestamp of the day since 1970 in second "<<tstamp.value()<<std::endl;
+  edm::Timestamp tstamp((unsigned long long)tv.tv_sec*1000000);
+  std::cout<<"timestamp of the day since 1970 in second "<<tstamp.value()/1000000<<std::endl;
   //from  IORawData/DaqSource/plugins/DaqSource.cc
   edm::TimeValue_t daqtime=0LL;
   ::timeval stv;
