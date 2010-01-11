@@ -21,12 +21,12 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   mapHisto_["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass, maxPt);
   mapHisto_["hRecBestMuVSEta"] = new HPartVSEta ("hRecBestMuVSEta", minMass, maxMass, maxPt);
-  //mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
+  //mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass);
   mapHisto_["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 
   mapHisto_["hRecBestRes"]          = new HParticle   ("hRecBestRes", minMass, maxMass, maxPt);
   mapHisto_["hRecBestResAllEvents"] = new HParticle   ("hRecBestResAllEvents", minMass, maxMass, maxPt);
-  //mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
+  //mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass);
   // If not finding Z, use a smaller mass window
   mapHisto_["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass, maxPt);
   //Generated Mass versus pt
@@ -94,14 +94,14 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 }
 
 void MuScleFitBase::clearHistoMap() {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin(); 
+  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin();
        histo!=mapHisto_.end(); histo++) {
     delete (*histo).second;
   }
 }
 
 void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin(); 
+  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin();
        histo!=mapHisto_.end(); histo++) {
     // This is to avoid writing into subdirs. Need a workaround.
     theFiles_[iLoop]->cd();
@@ -139,7 +139,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     for ( int i=0; i<24; i++ ) {
       char nameh[6];
       sprintf (nameh,"GLZ%d",i);
-      GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
+      GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh));
     }
   }
   GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
@@ -152,23 +152,28 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   // Read the limits for M and Sigma axis for each pdf
   // Note: we assume all the Z histograms to have the same limits
   // x is mass, y is sigma
+  // We also take ResMass as the mean value between the two axis
   if( theMuonType_!=2 ) {
-    MuScleFitUtils::ResHalfWidth[0] = (GLZ[0]->GetXaxis()->GetXmax() - GLZ[0]->GetXaxis()->GetXmin())/2;
+    MuScleFitUtils::ResHalfWidth[0] = (GLZ[0]->GetXaxis()->GetXmax() - GLZ[0]->GetXaxis()->GetXmin())/2.;
     MuScleFitUtils::ResMaxSigma[0] = (GLZ[0]->GetYaxis()->GetXmax() - GLZ[0]->GetYaxis()->GetXmin());
+    MuScleFitUtils::ResMass[0] = (GLZ[0]->GetXaxis()->GetXmax() + GLZ[0]->GetXaxis()->GetXmin())/2.;
   }
   else {
-    MuScleFitUtils::ResHalfWidth[0] = (GL[0]->GetXaxis()->GetXmax() - GL[0]->GetXaxis()->GetXmin())/2;
+    MuScleFitUtils::ResHalfWidth[0] = (GL[0]->GetXaxis()->GetXmax() - GL[0]->GetXaxis()->GetXmin())/2.;
     MuScleFitUtils::ResMaxSigma[0] = (GL[0]->GetYaxis()->GetXmax() - GL[0]->GetYaxis()->GetXmin());
+    MuScleFitUtils::ResMass[0] = (GL[0]->GetXaxis()->GetXmax() + GL[0]->GetXaxis()->GetXmin())/2.;
   }
   for( int i=1; i<6; ++i ) {
-    MuScleFitUtils::ResHalfWidth[i] = (GL[i]->GetXaxis()->GetXmax() - GL[i]->GetXaxis()->GetXmin())/2;
+    MuScleFitUtils::ResHalfWidth[i] = (GL[i]->GetXaxis()->GetXmax() - GL[i]->GetXaxis()->GetXmin())/2.;
     MuScleFitUtils::ResMaxSigma[i] = (GL[i]->GetYaxis()->GetXmax() - GL[i]->GetYaxis()->GetXmin());
+    MuScleFitUtils::ResMass[i] = (GL[i]->GetXaxis()->GetXmax() + GL[i]->GetXaxis()->GetXmin())/2.;
   }
   // if( debug_>2 ) {
-    for( int i=0; i<6; ++i ) {
-      cout << "MuScleFitUtils::ResHalfWidth["<<i<<"] = " << MuScleFitUtils::ResHalfWidth[i] << endl;
-      cout << "MuScleFitUtils::ResMaxSigma["<<i<<"] = " << MuScleFitUtils::ResMaxSigma[i] << endl;
-    }
+  for( int i=0; i<6; ++i ) {
+    cout << "MuScleFitUtils::ResMass["<<i<<"] = " << MuScleFitUtils::ResMass[i] << endl;
+    cout << "MuScleFitUtils::ResHalfWidth["<<i<<"] = " << MuScleFitUtils::ResHalfWidth[i] << endl;
+    cout << "MuScleFitUtils::ResMaxSigma["<<i<<"] = " << MuScleFitUtils::ResMaxSigma[i] << endl;
+  }
   // }
 
   // Extract normalization for mass slice in Y bins of Z
@@ -177,20 +182,39 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     int nBinsX = GLZ[iY]->GetNbinsX();
     int nBinsY = GLZ[iY]->GetNbinsY();
     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-      cout << "Error: for histogram \"" << GLZ[iY]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl; 
+      cout << "Error: for histogram \"" << GLZ[iY]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl;
       cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
       exit(1);
     }
+    // double sigmaMin = GLZ[iY]->GetYaxis()->GetXmin();
     for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
-      MuScleFitUtils::GLZNorm[iY][iy] = 0.;
+      MuScleFitUtils::GLZNorm[iY][iy] = 1.;
       for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
         MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
-        MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
+        MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy]*(2*MuScleFitUtils::ResHalfWidth[0])/MuScleFitUtils::nbins;
+        // MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
       }
-      if (debug_>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
-                        << MuScleFitUtils::GLZValue[iY][500][iy] 
-                        << " GLZNorm[" << iY << "][" << iy << "] = " 
-                        << MuScleFitUtils::GLZNorm[iY][iy] << endl;
+
+//      double sigma = sigmaMin + (double(iy)+0.1)*(MuScleFitUtils::ResMaxSigma[0])/double(nBinsY);
+//      double minMass = MuScleFitUtils::ResMass[0] - MuScleFitUtils::ResHalfWidth[0];
+//      double maxMass = MuScleFitUtils::ResMass[0] + MuScleFitUtils::ResHalfWidth[0];
+//      TF1 * probForIntegral = new TF1("probForIntegral", ProbForIntegral(sigma, 0, iY, true), minMass, maxMass, 0);
+//      MuScleFitUtils::GLZNorm[iY][iy] = probForIntegral->Integral(minMass, maxMass);
+//
+//      cout << "GLZNorm["<<iY<<"]["<<iy<<"] = " << MuScleFitUtils::GLZNorm[iY][iy] << endl;
+//
+//      double tempNorm = 0.;
+//      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
+//        // MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
+//        tempNorm += MuScleFitUtils::GLZValue[iY][ix][iy];
+//      }
+//      cout << "Old normalization = " << tempNorm << endl;
+
+
+//      if (debug_>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = "
+//                        << MuScleFitUtils::GLZValue[iY][500][iy]
+//                        << " GLZNorm[" << iY << "][" << iy << "] = "
+//                        << MuScleFitUtils::GLZNorm[iY][iy] << endl;
     }
   }
   // Extract normalization for each mass slice
@@ -199,24 +223,60 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     int nBinsX = GL[ires]->GetNbinsX();
     int nBinsY = GL[ires]->GetNbinsY();
     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-      cout << "Error: for histogram \"" << GLZ[ires]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl; 
+      cout << "Error: for histogram \"" << GLZ[ires]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl;
       cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
       exit(1);
     }
+    // double sigmaMin = GL[ires]->GetYaxis()->GetXmin();
+
     for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
+
+//      MuScleFitUtils::GLNorm[ires][iy] = 1.;
+//      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
+//        MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent (ix+1, iy+1);
+//      }
+//
+//      double sigma = sigmaMin + (double(iy)+0.1)*(MuScleFitUtils::ResMaxSigma[ires])/double(nBinsY);
+//      double minMass = MuScleFitUtils::ResMass[ires] - MuScleFitUtils::ResHalfWidth[ires];
+//      double maxMass = MuScleFitUtils::ResMass[ires] + MuScleFitUtils::ResHalfWidth[ires];
+//
+//      TF1 * probForIntegral = new TF1("probForIntegral", ProbForIntegral(sigma, ires, ires, false), minMass, maxMass, 0);
+//      MuScleFitUtils::GLNorm[ires][iy] = probForIntegral->Integral(minMass, maxMass);
+//
+//      cout << "GLNorm["<<ires<<"]["<<iy<<"] = " << MuScleFitUtils::GLNorm[ires][iy] << endl;
+//
+//      double tempNorm = 0.;
+//      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
+//        tempNorm += MuScleFitUtils::GLValue[ires][ix][iy];
+//      }
+//      cout << "Old normalization = " << tempNorm << endl;
+
       MuScleFitUtils::GLNorm[ires][iy] = 0.;
+//      double tempSum = 0.;
+//      double tempSumNorm = 0.;
       for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
         MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent (ix+1, iy+1);
-        MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
+        // N.B. approximation: we should compute the integral of the function used to compute the probability (linear
+        // interpolation of the mass points). This computation could be troublesome because the points have a steep
+        // variation near the mass peak and the normal integral is not precise in these conditions.
+        // Furthermore it is slow.
+//        tempSum += MuScleFitUtils::GLValue[ires][ix][iy];
+//        tempSumNorm += MuScleFitUtils::GLValue[ires][ix][iy]*(2*MuScleFitUtils::ResHalfWidth[ires]);
+        MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy]*(2*MuScleFitUtils::ResHalfWidth[ires])/MuScleFitUtils::nbins;
+        // MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
       }
-      if (debug_>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
-                        << MuScleFitUtils::GLValue[ires][500][iy] 
-                        << " GLNorm[" << ires << "][" << iy << "] = " 
-                        << MuScleFitUtils::GLNorm[ires][iy] << endl;
+//      cout << "tempSum["<<ires<<"]["<<iy<<"] = " << tempSum << endl;
+//      cout << "tempSumNorm["<<ires<<"]["<<iy<<"] = " << tempSumNorm << endl;
+//      cout << "MuScleFitUtils::GLNorm["<<ires<<"]["<<iy<<"] = " << MuScleFitUtils::GLNorm[ires][iy] << endl;
+
+      //      if (debug_>2) cout << "GLValue[" << ires << "][500][" << iy << "] = "
+//                        << MuScleFitUtils::GLValue[ires][500][iy]
+//                        << " GLNorm[" << ires << "][" << iy << "] = "
+//                        << MuScleFitUtils::GLNorm[ires][iy] << endl;
+//      MuScleFitUtils::GLNorm[ires][iy] *= (2*MuScleFitUtils::ResHalfWidth[ires])/(double)MuScleFitUtils::nbins;
     }
   }
   // Free all the memory for the probability histograms.
-
   for ( int i=0; i<24; i++ ) {
     delete GLZ[i];
   }
@@ -226,92 +286,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   delete GL[3];
   delete GL[4];
   delete GL[5];
-//  ProbsFile->Close();
   delete ProbsFile;
 }
-
-// void MuScleFitBase::readProbabilityDistributions( const edm::EventSetup & eventSetup )
-// {
-
-//   edm::ESHandle<MuScleFitLikelihoodPdf> likelihoodPdf;
-//   eventSetup.get<MuScleFitLikelihoodPdfRcd>().get(likelihoodPdf);
-//   string smSuffix = "";
-
-//   // Should read different histograms in the two cases
-//   if ( theMuonType_ == 2 ) {
-//     smSuffix = "SM";
-//     cout << "Error: Not yet implemented..." << endl;
-//     exit(1);
-//   }
-
-//   edm::LogInfo("MuScleFit") << "[MuScleFit::readProbabilityDistributions] End Reading MuScleFitLikelihoodPdfRcd" << endl;
-//   vector<PhysicsTools::Calibration::HistogramD2D>::const_iterator histo = likelihoodPdf->histograms.begin();
-//   vector<string>::const_iterator name = likelihoodPdf->names.begin();
-//   vector<int>::const_iterator xBins = likelihoodPdf->xBins.begin();
-//   vector<int>::const_iterator yBins = likelihoodPdf->yBins.begin();
-//   int ires = 0;
-//   int iY = 0;
-//   for( ; histo != likelihoodPdf->histograms.end(); ++histo, ++name, ++xBins, ++yBins ) {
-//     int nBinsX = *xBins;
-//     int nBinsY = *yBins;
-//     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-//       cout << "Error: for histogram \"" << *name << "\" bins are not " << MuScleFitUtils::nbins << endl; 
-//       cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
-//       exit(1);
-//     }
-
-//     // cout << "name = " << *name << endl;
-
-//     // To separate the Z histograms from the other resonances we use tha names.
-//     if( name->find("GLZ") != string::npos ) {
-//       // ATTENTION: they are expected to be ordered
-
-//       // cout << "For iY = " << iY << " the histogram is \"" << *name << "\"" << endl;
-
-//       // Extract normalization for mass slice in Y bins of Z
-//       // ---------------------------------------------------
-//       for(int iy=1; iy<=nBinsY; iy++){
-//         MuScleFitUtils::GLZNorm[iY][iy] = 0.;
-//         for(int ix=1; ix<=nBinsX; ix++){
-//           MuScleFitUtils::GLZValue[iY][ix][iy] = histo->binContent (ix+1, iy+1);
-//           MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
-//         }
-//         if (debug_>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
-//                           << MuScleFitUtils::GLZValue[iY][500][iy] 
-//                           << " GLZNorm[" << iY << "][" << iy << "] = " 
-//                           << MuScleFitUtils::GLZNorm[iY][iy] << endl;
-//       }
-//       // increase the histogram counter
-//       ++iY;
-//     }
-//     else {
-//       // ATTENTION: they are expected to be ordered
-
-//       // Extract normalization for each mass slice
-//       // -----------------------------------------
-
-//       // cout << "For ires = " << ires << " the histogram is \"" << *name << "\"" << endl;
-
-//       // The histograms are filled like the root TH2D from which they are taken,
-//       // meaning that bin = 0 is the underflow and nBins+1 is the overflow.
-//       // We start from 1 and loop up to the last bin, excluding under/overflow.
-//       for(int iy=1; iy<=nBinsY; iy++){
-//         MuScleFitUtils::GLNorm[ires][iy] = 0.;
-//         for(int ix=1; ix<=nBinsX; ix++){
-//           MuScleFitUtils::GLValue[ires][ix][iy] = histo->binContent (ix+1, iy+1);
-//           MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
-//         }
-//         if (debug_>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
-//                           << MuScleFitUtils::GLValue[ires][500][iy] 
-//                           << " GLNorm[" << ires << "][" << iy << "] = " 
-//                           << MuScleFitUtils::GLNorm[ires][iy] << endl;
-//       }
-//       // increase the histogram counter
-//       ++ires;
-//     }
-//   }
-// }
-
-
 
 #endif

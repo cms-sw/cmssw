@@ -36,7 +36,6 @@ DBWriter::~DBWriter()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 // ------------ method called to for each event  ------------

@@ -184,15 +184,11 @@ lorentzVector TestCorrection::correctMuon( const lorentzVector & muon ) {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TestCorrection::initialize(const edm::EventSetup&)
+void TestCorrection::initialize(const edm::EventSetup&)
 {
   // Read the pdf from root file. They are used by massProb when finding the muon pair, needed
   // for the mass histograms.
   readProbabilityDistributionsFromFile();
 }
-
-//define this as a plug-in
-// DEFINE_FWK_MODULE(TestCorrection);
 
 #endif // TESTCORRECTION_CC

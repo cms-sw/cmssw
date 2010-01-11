@@ -2,11 +2,11 @@
 #define MuScleFitUtils_H
 
 /** \class DTHitQualityUtils
- *  
+ *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/10/28 16:55:51 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/11/10 11:15:05 $
+ *  $Revision: 1.15 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -37,7 +37,7 @@ template <class T> class resolutionFunctionBase;
 class backgroundFunctionBase;
 class BackgroundHandler;
 
-class SimTrack; 
+class SimTrack;
 class TString;
 class TTree;
 
@@ -45,7 +45,7 @@ typedef reco::Particle::LorentzVector lorentzVector;
 
 class MuScleFitUtils {
 public:
-  
+
   // Constructor
   // ----------
   MuScleFitUtils() {};
@@ -86,11 +86,11 @@ public:
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
 
   static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
-  static double massProb( const double & mass, const double & rapidity, const double & massResol, const std::vector<double> & parval );
+  static double massProb( const double & mass, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false );
   // static double massProb( const double & mass, const double & rapidity, const double & massResol, std::auto_ptr<double> parval );
-  static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval );
+  static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
   static double massProb2( const double & mass, const int ires, const double & massResol ); // Not used yet
-  static double computeWeight( const double & mass, const int iev );
+  static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
 
 
   static double deltaPhi( const double & phi1, const double & phi2 )
@@ -117,10 +117,10 @@ public:
   static bool ResFound;   // bool flag true if best resonance found (cuts on pt and eta)
 
   static const int totalResNum; // Total number of resonance: 6
-  static double massWindowHalfWidth[6][3]; // parameter set by MuScleFitUtils
+  static double massWindowHalfWidth[3][6]; // parameter set by MuScleFitUtils
   static double ResGamma[6];     // parameter set by MuScleFitUtils
   static double ResMass[6];      // parameter set by MuScleFitUtils
-  static double ResMassForBackground[3]; // The three windows used to fit the background
+  static double crossSection[6];
   static const double mMu2;
   static const double muMass;
 
@@ -181,9 +181,9 @@ public:
   static double x[7][10000]; // smearing values set by MuScleFit constructor
   static int goodmuon;       // number of events with a usable resonance
   static int counter_resprob;// number of times there are resolution problems
-  static double GLZValue[40][1001][1001]; // matrix with integral values of Lorentz * Gaussian 
+  static double GLZValue[40][1001][1001]; // matrix with integral values of Lorentz * Gaussian
   static double GLZNorm[40][1001];        // normalization values per each sigma
-  static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian 
+  static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian
   static double GLNorm[6][1001];        // normalization values per each sigma
   static double ResMaxSigma[6];         // max sigma of matrix
   static double ResHalfWidth[6];        // halfwidth in matrix
@@ -195,7 +195,7 @@ public:
   // static std::map<unsigned int,std::vector<double> > parvalue;
   static std::vector<int> parfix;
   static std::vector<int> parorder;
-  
+
   static std::vector<std::pair<lorentzVector,lorentzVector> > SavedPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > genPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > simPair;
@@ -204,6 +204,8 @@ public:
 
   // Pointer to the minuit object
   static TMinuit * rminPtr_;
+  // Value stored to check whether to apply a new normalization to the likelihood
+  static double oldNormalization_;
 
   // This must be set to true if using events generated with Sherpa
   static bool sherpa_;
@@ -235,17 +237,17 @@ public:
   /// Method to check if the mass value is within the mass window of the i-th resonance.
   static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );
 
-protected:
-
   /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
   static double probability( const double & mass, const double & massResol,
                              const double GLvalue[][1001][1001], const double GLnorm[][1001],
                              const int iRes, const int iY );
 
+protected:
+
 private:
-  
+
    struct byPt {
-     bool operator() (const reco::Muon &a, const reco::Muon &b) const { 
+     bool operator() (const reco::Muon &a, const reco::Muon &b) const {
        return a.pt() > b.pt();
      }
    };

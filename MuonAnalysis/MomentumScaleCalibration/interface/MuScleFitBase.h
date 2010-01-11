@@ -37,15 +37,7 @@ protected:
   /// Save the histograms map to file
   void writeHistoMap( const unsigned int iLoop );
 
-  /**
-   * Read probability distributions from the database.
-   * These are 2-D PDFs containing a grid of 1000x1000 values of the
-   * integral of Lorentz * Gaussian as a function
-   * of mass and resolution of a given measurement,
-   * for each of the six considered di-muon resonances.
-   */
-  // void readProbabilityDistributions( const edm::EventSetup & eventSetup );
-  /// Raed probability distributions from a local root file.
+  /// Read probability distributions from a local root file.
   void readProbabilityDistributionsFromFile();
 
   string probabilitiesFileInPath_;
@@ -60,6 +52,26 @@ protected:
 
   unsigned int useType_;
 
+  /// Functor used to compute the normalization integral of probability functions
+  class ProbForIntegral
+  {
+  public:
+    ProbForIntegral( const double & massResol, const int iRes, const int iY, const bool isZ ) :
+      massResol_(massResol),
+      iRes_(iRes), iY_(iY), isZ_(isZ)
+    {}
+    double operator()(const double * mass, const double *)
+    {
+      if( isZ_ ) {
+        return( MuScleFitUtils::probability(*mass, massResol_, MuScleFitUtils::GLZValue, MuScleFitUtils::GLZNorm, iRes_, iY_) );
+      }
+      return( MuScleFitUtils::probability(*mass, massResol_, MuScleFitUtils::GLValue, MuScleFitUtils::GLNorm, iRes_, iY_) );
+    }
+  protected:
+    double massResol_;
+    int iRes_, iY_;
+    bool isZ_;
+  };
 
   /// The files were the histograms are saved
   std::vector<TFile*> theFiles_;
