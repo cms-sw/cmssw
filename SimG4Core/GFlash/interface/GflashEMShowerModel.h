@@ -24,7 +24,7 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModel.h,v 1.5 2008/06/03 21:35:51 dwjang Exp $
+// $Id: GflashEMShowerModel.h,v 1.6 2008/09/26 17:01:23 dwjang Exp $
 // GEANT4 tag $Name:  $
 //
 //
@@ -46,6 +46,10 @@
 #include "G4VFastSimulationModel.hh"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "G4TouchableHandle.hh"
+#include "G4Navigator.hh"
+#include "G4Step.hh"
+
 class GflashEMShowerProfile;
 
 class GflashEMShowerModel : public G4VFastSimulationModel {
@@ -59,12 +63,20 @@ class GflashEMShowerModel : public G4VFastSimulationModel {
   G4bool IsApplicable(const G4ParticleDefinition&);
   void DoIt(const G4FastTrack&, G4FastStep&);
 
+private:
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
+  void makeHits(const G4FastTrack& fastTrack);
+  void updateGflashStep(G4ThreeVector position, G4double time);
 
 private:
-
   edm::ParameterSet theParSet;
+  bool theWatcherOn;
+
   GflashEMShowerProfile *theProfile;
+
+  G4Step *theGflashStep;
+  G4Navigator *theGflashNavigator;
+  G4TouchableHandle  theGflashTouchableHandle;
 
 };
 #endif
