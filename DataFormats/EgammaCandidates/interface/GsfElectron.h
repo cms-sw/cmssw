@@ -32,13 +32,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.36 2009/12/11 08:59:17 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.37 2009/12/11 09:09:41 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.37  2009/12/11 09:09:41  chamont
+// tranform NARROW into OLDNARROW, and add closestCtfTrack to GsfElectronCore
+//
 // Revision 1.36  2009/12/11 08:59:17  chamont
 // reintroduce temporarily NARROW so that Photons have a usable tag
 //
@@ -515,7 +518,7 @@ class GsfElectron : public RecoCandidate
 
   public :
 
-    enum Classification { UNKNOWN =-1, GOLDEN, BIGBREM, OLDNARROW, SHOWERING, GAP } ;
+    enum Classification { UNKNOWN=-1, GOLDEN=0, BIGBREM=1, OLDNARROW=2, SHOWERING=3, GAP=4 } ;
 
     // accessors
     float fbrem() const { return fbrem_ ; }
