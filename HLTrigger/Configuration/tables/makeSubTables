@@ -5,9 +5,9 @@
 # usage: ./runMe.sh
 #
 
-MASTER="/dev/CMSSW_3_4_0/pre9/HLT"     # no version, take the latest one
-TARGET="/dev/CMSSW_3_4_0/pre9"         # directory where to store the sub-tables
-TABLES="1E31 8E29 GRun HIon"           # which sub-ytables to create
+MASTER="/dev/CMSSW_3_4_0/HLT"      # no version, take the latest one
+TARGET="/dev/CMSSW_3_4_0"          # directory where to store the sub-tables
+TABLES="1E31 8E29 GRun HIon"       # which sub-ytables to create
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
