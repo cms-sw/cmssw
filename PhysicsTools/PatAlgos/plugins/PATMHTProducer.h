@@ -13,7 +13,7 @@
 //
 // Original Author:  Xin Shi & Freya Blekman, Cornell University
 //         Created:  Fri Sep 12 17:58:29 CEST 2008
-// $Id: PATMHTProducer.h,v 1.2.2.2 2009/07/20 19:37:41 xshi Exp $
+// $Id: PATMHTProducer.h,v 1.3 2009/11/10 22:15:25 xshi Exp $
 //
 //
 
@@ -69,7 +69,7 @@ namespace pat {
     ~PATMHTProducer();
     
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob() ;
     virtual void beginRun(const edm::EventSetup&) ;
     virtual void produce(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;

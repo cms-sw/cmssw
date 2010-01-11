@@ -14,7 +14,7 @@
 //
 // Original Author:  Tanja Rommerskirchen
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.cc,v 1.7 2008/10/09 14:01:45 adamwo Exp $
+// $Id: PATHemisphereProducer.cc,v 1.8 2008/10/13 16:20:18 trommers Exp $
 //
 //
 
@@ -198,12 +198,6 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-PATHemisphereProducer::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

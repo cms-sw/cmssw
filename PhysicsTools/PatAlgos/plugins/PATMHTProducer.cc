@@ -1,5 +1,5 @@
 //
-// $Id: PATMHTProducer.cc,v 1.5 2009/11/10 22:15:25 xshi Exp $
+// $Id: PATMHTProducer.cc,v 1.6 2009/11/24 20:20:52 fblekman Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"
@@ -54,7 +54,7 @@ pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet & iConfig){
 pat::PATMHTProducer::~PATMHTProducer() {
 }
 
-void pat::PATMHTProducer::beginJob(const edm::EventSetup& iSetup) {
+void pat::PATMHTProducer::beginJob() {
   setUncertaintyParameters();
 }
 void pat::PATMHTProducer::beginRun(const edm::EventSetup& iSetup) {

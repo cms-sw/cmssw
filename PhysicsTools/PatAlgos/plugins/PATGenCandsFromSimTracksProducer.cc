@@ -6,7 +6,7 @@
    
 
   \author   Jordan Tucker (original module), Giovanni Petrucciani (PAT integration)
-  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.5 2009/03/26 05:34:29 hegner Exp $
+  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.6 2009/03/26 20:44:37 vadler Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,10 +32,10 @@ public:
   ~PATGenCandsFromSimTracksProducer() {}
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() {}
 
+  bool firstEvent_;
   edm::InputTag src_;
   int setStatus_;
   std::set<int>         pdgIds_; // these are the ones we really use
@@ -114,6 +114,7 @@ using namespace reco;
 using pat::PATGenCandsFromSimTracksProducer;
 
 PATGenCandsFromSimTracksProducer::PATGenCandsFromSimTracksProducer(const ParameterSet& cfg) :
+  firstEvent_(true),
   src_(cfg.getParameter<InputTag>("src")),            // source sim tracks & vertices
   setStatus_(cfg.getParameter<int32_t>("setStatus")), // set status of GenParticle to this code
   makeMotherLink_(cfg.existsAs<bool>("makeMotherLink") ? cfg.getParameter<bool>("makeMotherLink") : false),
@@ -142,27 +143,6 @@ PATGenCandsFromSimTracksProducer::PATGenCandsFromSimTracksProducer(const Paramet
             "GEANT particles with generator level (e.g.PYHIA) mothers won't have mother links.\n";
     }
     produces<GenParticleCollection>();
-}
-
-void PATGenCandsFromSimTracksProducer::beginJob(const EventSetup &iSetup) 
-{
-    if (!pdts_.empty()) {
-        pdgIds_.clear();
-        for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-            itp->setup(iSetup); // decode string->pdgId and vice-versa
-            pdgIds_.insert(abs(itp->pdgId()));
-        }
-        pdts_.clear();
-    }
-    if (!motherPdts_.empty()) {
-        motherPdgIds_.clear();
-        for (vector<PdtEntry>::iterator itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
-            itp->setup(iSetup); // decode string->pdgId and vice-versa
-            motherPdgIds_.insert(abs(itp->pdgId()));
-        }
-        motherPdts_.clear();
-    }
-
 }
 
 const SimTrack * 
@@ -244,7 +224,28 @@ PATGenCandsFromSimTracksProducer::makeGenParticle_(const SimTrack &tk, const edm
 
 
 void PATGenCandsFromSimTracksProducer::produce(Event& event,
-					    const EventSetup& eSetup) {
+					    const EventSetup& iSetup) {
+
+  if (firstEvent_){
+    if (!pdts_.empty()) {
+      pdgIds_.clear();
+      for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
+	itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                
+	pdgIds_.insert(abs(itp->pdgId()));
+      }
+      pdts_.clear();
+    }
+    if (!motherPdts_.empty()) {
+      motherPdgIds_.clear();
+      for (vector<PdtEntry>::iterator itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
+	itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                
+	motherPdgIds_.insert(abs(itp->pdgId()));
+      }
+      motherPdts_.clear();
+    }
+    firstEvent_ = false;
+  }
+
   // Simulated tracks (i.e. GEANT particles).
   Handle<SimTrackContainer> simtracks;
   event.getByLabel(src_, simtracks);

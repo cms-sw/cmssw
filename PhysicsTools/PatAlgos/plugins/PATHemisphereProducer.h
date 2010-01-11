@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.h,v 1.5 2008/08/13 16:00:53 trommers Exp $
+// $Id: PATHemisphereProducer.h,v 1.6 2008/10/09 14:01:45 adamwo Exp $
 //
 //
 
@@ -44,7 +44,6 @@ class PATHemisphereProducer : public edm::EDProducer {
       ~PATHemisphereProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
