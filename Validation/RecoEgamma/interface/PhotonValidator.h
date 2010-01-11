@@ -11,7 +11,7 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
+//#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/08/04 18:15:18 $ 
- **  $Revision: 1.26 $
+ **  $Date: 2009/08/19 16:52:21 $ 
+ **  $Revision: 1.27 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -85,10 +85,6 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::ESHandle<CaloGeometry> theCaloGeom_;	    
   edm::ESHandle<CaloTopology> theCaloTopo_;
 
-  std::string likelihoodWeights_;
-  ConversionLikelihoodCalculator* theLikelihoodCalc_;
-
-           
   std::string photonCollectionProducer_;       
   std::string photonCollection_;
 

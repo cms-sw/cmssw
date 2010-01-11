@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/08/19 16:52:14 $ 
- **  $Revision: 1.50 $
+ **  $Date: 2009/09/24 20:27:54 $ 
+ **  $Revision: 1.51 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -133,8 +133,7 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
     dCotCutValue_ = pset.getParameter<double>("dCotCutValue");   
     dCotHardCutValue_ = pset.getParameter<double>("dCotHardCutValue");   
     signal_ = pset.getParameter<bool>("signal");
-    likelihoodWeights_= pset.getParameter<std::string>("MVA_weights_location");
-   
+    
    
 
   }
@@ -1207,10 +1206,6 @@ void  PhotonValidator::beginJob() {
   theEventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
   theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
 
-  theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
-  edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
-  theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
-
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();  
 
 }
@@ -1218,7 +1213,6 @@ void  PhotonValidator::beginJob() {
 void  PhotonValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
 
   delete thePhotonMCTruthFinder_;
-  delete theLikelihoodCalc_; 
 
 }
 
@@ -1907,7 +1901,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       reco::ConversionRefVector conversions = matchingPho.conversions();
       for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 	reco::ConversionRef aConv=conversions[iConv];
-	double like = theLikelihoodCalc_->calculateLikelihood(aConv);      
+	double like = aConv->MVAout();
   	if ( like < likelihoodCut_ ) continue;      
 
 	h2_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
@@ -2372,7 +2366,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     reco::ConversionRefVector conversions = aPho.conversions();
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
       reco::ConversionRef aConv=conversions[iConv];
-      double like = theLikelihoodCalc_->calculateLikelihood(aConv);      
+      double like = aConv->MVAout();   
       if ( like < likelihoodCut_ ) continue;      
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       
