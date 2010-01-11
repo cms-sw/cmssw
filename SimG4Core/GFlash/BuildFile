@@ -3,9 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=SimG4Core/Physics>
-<use name=FastSimulation/Event>
-<use name=FastSimulation/CaloHitMakers>
-<use name=DataFormats/Math>
+<use name=SimGeneral/GFlash>
 <use name=geant4core>
 <use name=clhep>
 <use name=boost>
