@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.11 2009/10/21 12:30:25 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.12 2010/01/07 17:11:44 merkelp Exp $
 
 
 #include <iostream>
@@ -85,16 +85,16 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
   }
 }
 
-
 void SiPixelTrackResidualSource::beginJob() {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginJob()" << endl;
   firstRun = true;
 }
 
-void SiPixelTrackResidualSource::beginRun(edm::EventSetup const& iSetup) {
+
+void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup const& iSetup) {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginRun()" << endl;
 
-if(firstRun){
+  if(firstRun){
   // retrieve TrackerGeometry for pixel dets
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
@@ -477,7 +477,7 @@ if(firstRun){
   }
   
   firstRun = false;
-}
+  }
 }
 
 
@@ -497,13 +497,11 @@ void SiPixelTrackResidualSource::endJob(void) {
 
 void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
   ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
   const TrackerGeometry* theTrackerGeometry = TG.product();
-  
   ESHandle<MagneticField> MF;
   iSetup.get<IdealMagneticFieldRecord>().get(MF);
   const MagneticField* theMagneticField = MF.product();
@@ -584,7 +582,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     																
     	    // fill the residual histograms 
 	    std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find(refitTTRH->geographicalId().rawId());	
-    	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 				
+    	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);			
     																
     	    if (debug_) {
 	      if (ttrhDet->subDetector()==GeomDetEnumerators::PixelBarrel) {			        		       
@@ -608,7 +606,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   iEvent.getByLabel(tracksrc_,trajCollectionHandle);
   const std::vector<Trajectory> trajColl = *(trajCollectionHandle.product());
-    
+   
   //get tracks
   edm::Handle<std::vector<reco::Track> > trackCollectionHandle;
   iEvent.getByLabel(tracksrc_,trackCollectionHandle);
