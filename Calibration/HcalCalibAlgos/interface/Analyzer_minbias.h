@@ -54,7 +54,7 @@ class Analyzer_minbias : public edm::EDAnalyzer {
       ~Analyzer_minbias();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
       virtual void beginRun( const edm::Run& r, const edm::EventSetup& iSetup);
       virtual void endRun( const edm::Run& r, const edm::EventSetup& iSetup);

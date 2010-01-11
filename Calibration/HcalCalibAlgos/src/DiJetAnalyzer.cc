@@ -221,7 +221,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-DiJetAnalyzer::beginJob(const edm::EventSetup& iSetup)
+DiJetAnalyzer::beginJob()
 {
 
   hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;

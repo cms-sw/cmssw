@@ -49,7 +49,7 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   HcalCorrPFCalculation(edm::ParameterSet const& conf);
   ~HcalCorrPFCalculation();
   virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
  private:
   double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
@@ -194,7 +194,7 @@ HcalCorrPFCalculation::~HcalCorrPFCalculation() {
   
 }
 
-void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
+void HcalCorrPFCalculation::beginJob(){
   
   // TProfile *nCells, *nCellsNoise, *en, *enNoise;
   //TFile *rootFile;
@@ -214,22 +214,22 @@ void HcalCorrPFCalculation::beginJob(const edm::EventSetup& c){
   // Response corrections w/o re-rechitting
   AddRecalib=kFALSE;
 
-  try{
+//  try{
     
-    edm::ESHandle <HcalRespCorrs> recalibCorrs;
-    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-    respRecalib = recalibCorrs.product();
+//    edm::ESHandle <HcalRespCorrs> recalibCorrs;
+//    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
+//    respRecalib = recalibCorrs.product();
     
-    edm::ESHandle <HcalPFCorrs> pfCorrs;
-    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
-    pfRecalib = pfCorrs.product();
+//    edm::ESHandle <HcalPFCorrs> pfCorrs;
+//    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
+//    pfRecalib = pfCorrs.product();
     
-    AddRecalib = kTRUE;;
+//    AddRecalib = kTRUE;;
     // LogMessage("CalibConstants")<<"   OK ";
     
-  }catch(const cms::Exception & e) {
-    LogWarning("CalibConstants")<<"   Not Found!! ";
-  }
+//  }catch(const cms::Exception & e) {
+//    LogWarning("CalibConstants")<<"   Not Found!! ";
+//  }
   
     
 }
@@ -251,6 +251,26 @@ void HcalCorrPFCalculation::endJob()
 
 
 void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
+
+
+  try{
+
+    edm::ESHandle <HcalRespCorrs> recalibCorrs;
+    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
+    respRecalib = recalibCorrs.product();
+
+    edm::ESHandle <HcalPFCorrs> pfCorrs;
+    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
+    pfRecalib = pfCorrs.product();
+
+    AddRecalib = kTRUE;;
+    // LogMessage("CalibConstants")<<"   OK ";
+
+  }catch(const cms::Exception & e) {
+    LogWarning("CalibConstants")<<"   Not Found!! ";
+  }
+
+
   
     edm::ESHandle<CaloGeometry> pG;
     c.get<CaloGeometryRecord>().get(pG);

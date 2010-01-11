@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.15 2009/08/25 16:56:19 andrey Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.16 2009/10/23 15:31:33 andrey Exp $
 //
 //
 
@@ -102,7 +102,7 @@ public:
 double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -760,7 +760,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalIsoTrkAnalyzer::beginJob(const edm::EventSetup&)
+HcalIsoTrkAnalyzer::beginJob()
 {
 
   //  MyL3Algo = new MinL3AlgoUniv<HcalDetId>(eventWeight);

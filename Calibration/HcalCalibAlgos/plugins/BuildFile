@@ -35,7 +35,7 @@
 <use name=clhep>
 <use name=hepmc>
 <use name=CondTools/Hcal>
-
+<use name=PhysicsTools/UtilAlgos>
 ############
 
 #### Needed for ValidIsoTrkCalib

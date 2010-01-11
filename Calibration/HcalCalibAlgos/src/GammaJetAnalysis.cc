@@ -86,7 +86,7 @@ GammaJetAnalysis::~GammaJetAnalysis()
 
 }
 
-void GammaJetAnalysis::beginJob( const edm::EventSetup& iSetup)
+void GammaJetAnalysis::beginJob()
 {
    hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ; 
    myTree = new TTree("GammaJet","GammaJet Tree");
@@ -121,9 +121,9 @@ void GammaJetAnalysis::beginJob( const edm::EventSetup& iSetup)
 
 // end of tree declaration
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);
-   geo = pG.product();
+//   edm::ESHandle<CaloGeometry> pG;
+//   iSetup.get<CaloGeometryRecord>().get(pG);
+//   geo = pG.product();
 
   myout_part = new ofstream((myName+"_part.dat").c_str()); 
   if(!myout_part) cout << " Output file not open!!! "<<endl;
@@ -160,6 +160,12 @@ void GammaJetAnalysis::endJob()
 void
 GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<CaloGeometryRecord>().get(pG);
+   geo = pG.product();
+
+
   using namespace edm;
   std::vector<Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);

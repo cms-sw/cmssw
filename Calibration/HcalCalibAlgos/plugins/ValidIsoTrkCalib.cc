@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.6 2009/12/27 20:49:03 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.7 2009/12/28 21:48:14 andrey Exp $
 //
 
 // system include files
@@ -74,7 +74,7 @@ public:
 
 private:
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -300,6 +300,16 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    using namespace edm;
    
+ try{
+   edm::ESHandle <HcalRespCorrs> recalibCorrs;
+   iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
+   respRecalib = recalibCorrs.product();
+
+   LogInfo("CalibConstants")<<"  Loaded:  OK ";
+
+ }catch(const cms::Exception & e) {
+   LogWarning("CalibConstants")<<"   Not Found!! ";
+ }
 
    edm::Handle<reco::TrackCollection> generalTracks;
    iEvent.getByLabel(genTracksLabel_, generalTracks);
@@ -828,21 +838,21 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ValidIsoTrkCalib::beginJob(const edm::EventSetup& iSetup)
+ValidIsoTrkCalib::beginJob()
 {
 
   // if(!ReadCalibFactors(calibFactorsFileName_.c_str() )) {cout<<"Cant read file with cailib coefficients!! ---"<<endl;}
 
- try{   
-   edm::ESHandle <HcalRespCorrs> recalibCorrs;
-   iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-   respRecalib = recalibCorrs.product();
-
-   LogInfo("CalibConstants")<<"  Loaded:  OK ";
-   
- }catch(const cms::Exception & e) {
-   LogWarning("CalibConstants")<<"   Not Found!! ";
- }
+// try{   
+//   edm::ESHandle <HcalRespCorrs> recalibCorrs;
+//   iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
+//   respRecalib = recalibCorrs.product();
+//
+//   LogInfo("CalibConstants")<<"  Loaded:  OK ";
+//   
+// }catch(const cms::Exception & e) {
+//   LogWarning("CalibConstants")<<"   Not Found!! ";
+// }
  
  
  //  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");

@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV, Sergey PETRUSHANKO
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.2 2009/03/17 08:42:46 safronov Exp $
+// $Id: ValidationHcalIsoTrackAlCaReco.h,v 1.1 2009/03/27 12:26:20 kodolova Exp $
 //
 //
 
@@ -80,7 +80,7 @@ private:
 
   DQMStore* dbe_;  
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 

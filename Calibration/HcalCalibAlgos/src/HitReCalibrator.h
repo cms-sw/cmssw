@@ -40,7 +40,7 @@ class HitReCalibrator : public edm::EDProducer {
       explicit HitReCalibrator(const edm::ParameterSet&);
       ~HitReCalibrator();
 
-      virtual void beginJob(const edm::EventSetup& );
+      virtual void beginJob();
 
       virtual void produce(edm::Event &, const edm::EventSetup&);
    private:

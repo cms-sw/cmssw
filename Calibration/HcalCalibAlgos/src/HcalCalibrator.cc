@@ -19,7 +19,7 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id: HcalCalibrator.cc,v 1.3 2009/03/22 15:12:58 anastass Exp $
+// $Id: HcalCalibrator.cc,v 1.4 2009/10/26 01:48:57 anastass Exp $
 //
 //
 //_________________________________________________________________________________
@@ -121,21 +121,24 @@ HcalCalibrator::~HcalCalibrator() {
 
 void
 HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<CaloGeometryRecord>().get(pG);
+   mTheCaloGeometry = pG.product();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 
 void
-HcalCalibrator::beginJob(const edm::EventSetup& evtSetup) {
+HcalCalibrator::beginJob() {
 
   //  ESHandle<CaloGeometry> theGeometry;
   //  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
   //  evtSetup.get<CaloGeometryRecord>().get( theGeometry );
 
 
-   edm::ESHandle<CaloGeometry> pG;
-   evtSetup.get<CaloGeometryRecord>().get(pG);     
-   mTheCaloGeometry = pG.product();
+  // edm::ESHandle<CaloGeometry> pG;
+  // evtSetup.get<CaloGeometryRecord>().get(pG);     
+  // mTheCaloGeometry = pG.product();
 
 }
 

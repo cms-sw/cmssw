@@ -77,7 +77,7 @@ void Analyzer_minbias::endRun( const edm::Run& r, const edm::EventSetup& iSetup)
  std::cout<<" Runnumber "<<r.run()<<" Nevents  "<<nevent_run<<std::endl;
 }
 
-void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
+void Analyzer_minbias::beginJob()
 {
    
    hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;

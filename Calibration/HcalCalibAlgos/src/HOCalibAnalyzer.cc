@@ -13,8 +13,8 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Sat Jul  7 09:51:31 CEST 2007
-// $Id: HOCalibAnalyzer.cc,v 1.6 2008/10/08 09:39:53 kodolova Exp $
-// $Id: HOCalibAnalyzer.cc,v 1.6 2008/10/08 09:39:53 kodolova Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.7 2009/02/11 19:29:56 elmer Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.7 2009/02/11 19:29:56 elmer Exp $
 //
 //
 
@@ -223,7 +223,7 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
 
    private:
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -1477,7 +1477,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HOCalibAnalyzer::beginJob(const edm::EventSetup&)
+HOCalibAnalyzer::beginJob()
 {
 }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV, Sergey PETRUSHANKO
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.2 2009/03/17 08:42:46 safronov Exp $
+// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.1 2009/03/27 12:26:20 kodolova Exp $
 //
 //
 
@@ -374,7 +374,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
     
 }
 
-void ValidationHcalIsoTrackAlCaReco::beginJob(const edm::EventSetup&)
+void ValidationHcalIsoTrackAlCaReco::beginJob()
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);

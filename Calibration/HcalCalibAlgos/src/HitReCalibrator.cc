@@ -32,7 +32,7 @@ HitReCalibrator::HitReCalibrator(const edm::ParameterSet& iConfig)
    produces<HFRecHitCollection>("DiJetsHFReRecHitCollection");
 
 }
-void HitReCalibrator::beginJob( const edm::EventSetup& iSetup)
+void HitReCalibrator::beginJob()
 {
 }
 

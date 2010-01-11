@@ -49,7 +49,7 @@ HcalConstantsASCIIWriter::~HcalConstantsASCIIWriter()
 
 }
 
-void HcalConstantsASCIIWriter::beginJob( const edm::EventSetup& iSetup)
+void HcalConstantsASCIIWriter::beginJob()
 {
     edm::FileInPath f1(file_output);
     string fDataFile = f1.fullPath();
