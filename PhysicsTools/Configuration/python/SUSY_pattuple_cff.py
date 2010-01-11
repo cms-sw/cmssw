@@ -237,6 +237,7 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_offlinePrimaryVertices_*_*',
         'keep *_offlineBeamSpot_*_*',
         'keep *_towerMaker_*_*',                 # Keep CaloTowers for cross-cleaning
+        'keep edmMergeableCounter_eventCountProducer_*_*',
         'keep recoTracks_generalTracks_*_*',
 	#'keep recoTrackExtras_*_*_*',
 	'keep *_pfLayer*_*_*', # Keep PF2PAT output
