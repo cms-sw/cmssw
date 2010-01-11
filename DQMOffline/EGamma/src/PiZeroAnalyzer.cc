@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2009/01/28 14:00:07 $ 
+ **  $Date: 2009/03/26 15:53:37 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -85,7 +85,7 @@ PiZeroAnalyzer::~PiZeroAnalyzer() {
 }
 
 
-void PiZeroAnalyzer::beginJob( const edm::EventSetup& setup)
+void PiZeroAnalyzer::beginJob()
 {
   
   hltConfig_.init("HLT");

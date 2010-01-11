@@ -65,7 +65,7 @@
  **  
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2009/01/26 09:51:05 $ 
+ **  $Date: 2009/01/28 14:01:50 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -94,7 +94,7 @@ class PiZeroAnalyzer : public edm::EDAnalyzer
                                    
       
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob( const edm::EventSetup& ) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
  
  private:

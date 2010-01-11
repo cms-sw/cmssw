@@ -7,7 +7,7 @@
 //
 // Original Author:  Louis James Antonelli
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: PhotonDataCertification.cc,v 1.5 2009/09/01 12:00:57 lantonel Exp $
+// $Id: PhotonDataCertification.cc,v 1.6 2009/10/08 12:02:06 lantonel Exp $
 //
 
 
@@ -51,7 +51,7 @@ PhotonDataCertification::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PhotonDataCertification::beginJob(const edm::EventSetup&)
+PhotonDataCertification::beginJob()
 {
 }
 

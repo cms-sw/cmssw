@@ -53,7 +53,7 @@ class PhotonDataCertification : public edm::EDAnalyzer {
       ~PhotonDataCertification();
 
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;

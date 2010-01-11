@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/11/18 15:20:28 $ 
+ **  $Date: 2009/12/15 18:27:55 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -56,7 +56,7 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 PhotonOfflineClient::~PhotonOfflineClient()
 {}
 
-void PhotonOfflineClient::beginJob( const edm::EventSetup& setup)
+void PhotonOfflineClient::beginJob()
 {}
 
 void PhotonOfflineClient::analyze(const edm::Event& e, const edm::EventSetup& esup)
