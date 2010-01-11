@@ -33,7 +33,7 @@ cond::FrontierProxy::FrontierProxy(){
   m_refreshtablelist.push_back(cond::IOVNames::iovTableName());
   m_refreshtablelist.push_back(cond::IOVNames::iovDataTableName());
   // do not refesh tag table in production...
-  m_refreshtablelist.push_back(cond::MetaDataNames::metadataTable());
+  // m_refreshtablelist.push_back(cond::MetaDataNames::metadataTable());
 }
 
 cond::FrontierProxy::~FrontierProxy(){
