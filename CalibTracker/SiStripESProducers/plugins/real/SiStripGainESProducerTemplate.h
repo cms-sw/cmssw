@@ -81,13 +81,13 @@ void SiStripGainESProducerTemplate<TDependentRecord, TInputRecord>::fillApvGain(
 {
   // Put in an empty ApvGain and fill it
   pDD.push_back(edm::ESHandle<SiStripApvGain>());
-  string recordName( recordLabelPair.first );
-  string labelName( recordLabelPair.second );
+  std::string recordName( recordLabelPair.first );
+  std::string labelName( recordLabelPair.second );
   if( recordName == "SiStripApvGainRcd" ) a.getRecord<SiStripApvGainRcd>().get( labelName, pDD.back() );
   else if( recordName == "SiStripApvGain2Rcd" ) a.getRecord<SiStripApvGain2Rcd>().get( labelName, pDD.back() );
   else if( recordName == "SiStripApvGain3Rcd" ) a.getRecord<SiStripApvGain3Rcd>().get( labelName, pDD.back() );
-  else edm::LogError("SiStripGainESProducer::SiStripGainNormalizationFunction") << "ERROR: unrecognized record name " << recordName << endl
-                     << "please specify one of: SiStripApvGainRcd, SiStripApvGain2Rcd, SiStripApvGain3Rcd" << endl;
+  else edm::LogError("SiStripGainESProducer::SiStripGainNormalizationFunction") << "ERROR: unrecognized record name " << recordName << std::endl
+										<< "please specify one of: SiStripApvGainRcd, SiStripApvGain2Rcd, SiStripApvGain3Rcd" << std::endl;
 }
 
 template<typename TDependentRecord, typename TInputRecord>
