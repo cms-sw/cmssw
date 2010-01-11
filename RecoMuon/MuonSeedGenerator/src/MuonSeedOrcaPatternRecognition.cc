@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2009/02/07 01:31:56 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/02/17 23:01:36 $
+ *  $Revision: 1.7 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -21,6 +21,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+
 
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -96,36 +98,33 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
 					    enableDTMeasurement,enableCSCMeasurement,false);
 
-  MuonRecHitContainer list9 = muonMeasurements.recHits(MB4DL,event);
-  MuonRecHitContainer list6 = muonMeasurements.recHits(MB3DL,event);
-  MuonRecHitContainer list7 = muonMeasurements.recHits(MB2DL,event);
-  MuonRecHitContainer list8 = muonMeasurements.recHits(MB1DL,event);
+  MuonRecHitContainer list9 = filterSegments(muonMeasurements.recHits(MB4DL,event));
+  MuonRecHitContainer list6 = filterSegments(muonMeasurements.recHits(MB3DL,event));
+  MuonRecHitContainer list7 = filterSegments(muonMeasurements.recHits(MB2DL,event));
+  MuonRecHitContainer list8 = filterSegments(muonMeasurements.recHits(MB1DL,event));
 
-  if(false) {
-    dumpLayer("MB4 ", list9);
-    dumpLayer("MB3 ", list6);
-    dumpLayer("MB2 ", list7);
-    dumpLayer("MB1 ", list8);
-  }
-
+  dumpLayer("MB4 ", list9);
+  dumpLayer("MB3 ", list6);
+  dumpLayer("MB2 ", list7);
+  dumpLayer("MB1 ", list8);
 
   bool* MB1 = zero(list8.size());
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
 
-  endcapPatterns(muonMeasurements.recHits(ME11Bwd,event),
-                 muonMeasurements.recHits(ME12Bwd,event),
-                 muonMeasurements.recHits(ME2Bwd,event),
-                 muonMeasurements.recHits(ME3Bwd,event),
-                 muonMeasurements.recHits(ME4Bwd,event),
+  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Bwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME12Bwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME2Bwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME3Bwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME4Bwd,event)),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
 
-  endcapPatterns(muonMeasurements.recHits(ME11Fwd,event),
-                 muonMeasurements.recHits(ME12Fwd,event),
-                 muonMeasurements.recHits(ME2Fwd,event),
-                 muonMeasurements.recHits(ME3Fwd,event),
-                 muonMeasurements.recHits(ME4Fwd,event),
+  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Fwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME12Fwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME2Fwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME3Fwd,event)),
+                 filterSegments(muonMeasurements.recHits(ME4Fwd,event)),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
 
@@ -274,13 +273,11 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   bool * MB1, bool * MB2, bool * MB3,
   std::vector<MuonRecHitContainer> & result)
 {
-  if(false) {
-    dumpLayer("ME4 ", me4);
-    dumpLayer("ME3 ", me3);
-    dumpLayer("ME2 ", me2);
-    dumpLayer("ME12 ", me12);
-    dumpLayer("ME11 ", me11);
-  }
+  dumpLayer("ME4 ", me4);
+  dumpLayer("ME3 ", me3);
+  dumpLayer("ME2 ", me2);
+  dumpLayer("ME12 ", me12);
+  dumpLayer("ME11 ", me11);
 
   std::vector<MuonRecHitContainer> patterns;
   MuonRecHitContainer crackSegments;
@@ -455,7 +452,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
                                  const MuonRecHitContainer &recHits, bool* used) const {
 
   MuonRecHitContainer good_rhit;
-
+  MuonPatternRecoDumper theDumper;
   //+v get all rhits compatible with the seed on dEta/dPhi Glob.
 
   ConstMuonRecHitPointer first = seedSegments[0]; // first rechit of seed
@@ -649,8 +646,6 @@ void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitConta
 }
 
 
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-
 
 void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecHitContainer & segments) const
 {
@@ -665,3 +660,41 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
 }
 
 
+MuonSeedOrcaPatternRecognition::MuonRecHitContainer 
+MuonSeedOrcaPatternRecognition::filterSegments(const MuonRecHitContainer & segments) const
+{
+MuonPatternRecoDumper theDumper;
+  MuonRecHitContainer result;
+  double theBarreldThetaCut = 0.2;
+  double theEndcapdThetaCut = 0.3;
+  for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
+      segmentItr != segments.end(); ++segmentItr)
+  {
+    double dtheta = (*segmentItr)->globalDirection().theta() -  (*segmentItr)->globalPosition().theta();
+    if((*segmentItr)->isDT())
+    {
+      // only apply the cut to 4D segments
+      if((*segmentItr)->dimension() == 2 || fabs(dtheta) < theBarreldThetaCut)
+      {
+        result.push_back(*segmentItr);
+      }
+      else 
+      {
+        LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+      }
+
+    }
+    else if((*segmentItr)->isCSC()) 
+    {
+      if(fabs(dtheta) < theEndcapdThetaCut)
+      {
+        result.push_back(*segmentItr);
+      }
+      else 
+      {
+         LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+      }
+    }
+  }
+  return result;
+}

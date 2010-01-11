@@ -36,6 +36,9 @@ private:
 
   void dumpLayer(const char * name, const MuonRecHitContainer & segments) const;
 
+  /// apply some cuts to segments before using them
+  MuonRecHitContainer filterSegments(const MuonRecHitContainer & segments) const;
+
   std::vector<double> theCrackEtas;
   double theCrackWindow;
 };
