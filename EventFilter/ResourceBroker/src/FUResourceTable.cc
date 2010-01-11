@@ -532,9 +532,8 @@ void FUResourceTable::postEndOfLumiSection(MemRef_t* bufRef)
     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   //make sure to fill up the shmem so no process will miss it
   // but processes will have to handle duplicates
-  // dummy out this function for now !!!
-  //  for(unsigned int i = 0; i < nbRawCells_; i++) 
-  //    shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
+  for(unsigned int i = 0; i < nbRawCells_; i++) 
+    shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
 }
 
 

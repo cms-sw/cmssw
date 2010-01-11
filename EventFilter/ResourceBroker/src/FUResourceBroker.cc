@@ -359,7 +359,7 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 //______________________________________________________________________________
 void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference* bufRef)
 {
-  //  resourceTable_->postEndOfLumiSection(bufRef); // this method dummy for now
+  resourceTable_->postEndOfLumiSection(bufRef); // this method dummy for now
   I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   
