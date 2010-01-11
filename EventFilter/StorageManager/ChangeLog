@@ -1,3 +1,26 @@
+2010-01-11 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-05-00
+	* Remove no-longer used configuration parameters
+	  (pushMode2Proxy, maxESEventRate, maxESDataRate, idleConsumerTimeout
+	   fairShareES, DQMmaxESEventRate, DQMidleConsumerTimeout,
+	   esSelectedHLTOutputModule)
+	* Remove obsolete 'progressMarker'
+	* Additional monitoring quantities for event rate/bandwidth
+	  per output stream
+	* Sentinel alarm for physics events neither written to a stream nor
+	  requested by consumers
+	* Use EoLS signal to close files for completed lumi sections
+	* Introduce a finer grained event selection allowing for and/not
+	  combination of triggers in a given HLT path when using the
+	  'TriggerSelector' parameter
+	* Implement new HLT configuration parameter 'fractionToDisk' specifying
+	  the fraction of events written for the given stream
+	* Protect against NULL pointers returned from the edm::StreamDQMDeserializer.
+	  This problem originates from scalar types in DQM tree which no longer
+	  inherit from TObject (DQMServices/Core V03-13-00 and later)
+	* Update and integrate the play-back system
+
 2009-12-31 William Tanenbaum <wmtan@fnal.gov>
 
 	* tag V05-04-05
