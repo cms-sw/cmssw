@@ -79,6 +79,19 @@ b.1) ntupleViewer_Chain_RealData.C
   The parametrs previously specifyed (STRINGsomething) are now set directly in the
   program: don't forget to modify them as you need.
 
+For run:
+bash$: g++ -pthread -m32 
+-I/afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.22.00d-cms4/include 
+-L/afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.22.00d-cms4/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint
+-lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm
+-ldl -rdynamic ntupleViewer_Chain_RealData.C -o ntplueViewer
+
+bash$: ./ntplueViewer RunNumber
+
+RunNumber is Run number that you want to analyze. (bash$: ./ntplueViewer 
+125296) 
+
+
 b.2) ntupleViewer_Chain_MC.C:
   As b.1, but in addition teh reference 'validation plots' are divided also for different kind processes (HC, SD, DD)
 
