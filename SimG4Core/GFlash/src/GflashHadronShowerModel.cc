@@ -1,10 +1,20 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SimG4Core/GFlash/interface/GflashHadronShowerModel.h"
-#include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashPiKShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashProtonShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashAntiProtonShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashNameSpace.h"
-#include "SimG4Core/GFlash/interface/GflashHistogram.h"
+
+#include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashProtonShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashAntiProtonShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashNameSpace.h"
+#include "SimGeneral/GFlash/interface/GflashHistogram.h"
+#include "SimGeneral/GFlash/interface/GflashHit.h"
+
+#include "G4FastSimulationManager.hh"
+#include "G4TransportationManager.hh"
+#include "G4TouchableHandle.hh"
+#include "G4VSensitiveDetector.hh"
+#include "G4VPhysicalVolume.hh"
 
 #include "G4PionMinus.hh"
 #include "G4PionPlus.hh"
@@ -13,13 +23,8 @@
 #include "G4Proton.hh"
 #include "G4AntiProton.hh"
 #include "G4VProcess.hh"
-#include "G4RegionStore.hh"
-#include "G4FastSimulationManager.hh"
 
 #include <vector>
-
-#include "SimG4Core/GFlash/interface/GflashTrajectory.h"
-#include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
 GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, edm::ParameterSet parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet)
@@ -29,11 +34,17 @@ GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* e
   theProtonProfile = new GflashProtonShowerProfile(parSet);
   theAntiProtonProfile = new GflashAntiProtonShowerProfile(parSet);
   theHisto = GflashHistogram::instance();
+
+  theGflashStep = new G4Step();
+  theGflashTouchableHandle = new G4TouchableHistory();
+  theGflashNavigator = new G4Navigator();
+
 }
 
 GflashHadronShowerModel::~GflashHadronShowerModel()
 {
   if(theProfile) delete theProfile;
+  if(theGflashStep) delete theGflashStep;
 }
 
 G4bool GflashHadronShowerModel::IsApplicable(const G4ParticleDefinition& particleType)
@@ -92,10 +103,70 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
   if(particleType == G4AntiProton::AntiProtonDefinition()) theProfile = theAntiProtonProfile;
   else if(particleType == G4Proton::ProtonDefinition()) theProfile = theProtonProfile;
 
-  theProfile->initialize(fastTrack);
+  //input variables for GflashHadronShowerProfile
+  G4int showerType = findShowerType(fastTrack);
+  G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
+  G4double globalTime = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetGlobalTime();
+  G4double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
+  G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition()/cm;
+  G4ThreeVector momentum = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
+
+  theProfile->initialize(showerType,energy,globalTime,charge,position,momentum);
   theProfile->loadParameters();
   theProfile->hadronicParameterization();
 
+  // make hits
+  makeHits(fastTrack);
+
+}
+
+void GflashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
+
+  std::vector<GflashHit>& gflashHitList = theProfile->getGflashHitList();
+
+  theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
+  theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*>
+    (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
+  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
+
+  std::vector<GflashHit>::const_iterator spotIter    = gflashHitList.begin();
+  std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
+
+  for( ; spotIter != spotIterEnd; spotIter++){
+
+    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),
+								  theGflashTouchableHandle, false);
+    updateGflashStep(spotIter->getPosition(),spotIter->getTime());
+
+    G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
+    if( aCurrentVolume == 0 ) continue;
+
+    G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
+    if(lv->GetRegion()->GetName() != "CaloRegion") continue;
+	  
+    theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
+    G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
+
+    if( aSensitive == 0 ) continue;
+    
+    G4String nameCalor = aCurrentVolume->GetName();
+    nameCalor.assign(nameCalor,0,2);
+    G4double samplingWeight = 1.0; 
+    if(nameCalor == "HB" || nameCalor=="HE" || nameCalor == "HT") samplingWeight = Gflash::scaleSensitive;
+    
+    theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy()*samplingWeight);
+
+    aSensitive->Hit(theGflashStep);
+
+  }
+}
+
+void GflashHadronShowerModel::updateGflashStep(G4ThreeVector spotPosition, G4double timeGlobal)
+{
+  theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
+  theGflashStep->GetPreStepPoint()->SetPosition(spotPosition);
+  theGflashStep->GetPostStepPoint()->SetPosition(spotPosition);
+  theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
 }
 
 G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& fastTrack)
@@ -164,7 +235,7 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
   if(fabs(eta) > Gflash::EtaMax[Gflash::kESPM] && fabs(eta) < Gflash::EtaMin[Gflash::kENCA]) {
     if(verbosity>0) {
-      std::cout << "GflashHadronShowerModel: excluding region of eta = " << eta << std::endl;
+       edm::LogInfo("SimGeneralGFlash") << "GflashHadronShowerModel: excluding region of eta = " << eta;
     }
     return true;  
   }
@@ -198,4 +269,68 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   }
 
   return isExcluded;
+}
+
+G4int GflashHadronShowerModel::findShowerType(const G4FastTrack& fastTrack)
+{
+  // Initialization of longitudinal and lateral parameters for 
+  // hadronic showers. Simulation of the intrinsic fluctuations
+
+  // type of hadron showers subject to the shower starting point (ssp)
+  // showerType = -1 : default (invalid) 
+  // showerType =  0 : ssp before EBRY (barrel crystal) 
+  // showerType =  1 : ssp inside EBRY
+  // showerType =  2 : ssp after  EBRY before HB
+  // showerType =  3 : ssp inside HB
+  // showerType =  4 : ssp before EFRY (endcap crystal) 
+  // showerType =  5 : ssp inside EFRY 
+  // showerType =  6 : ssp after  EFRY before HE
+  // showerType =  7 : ssp inside HE
+    
+  G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
+  G4LogicalVolume* lv = touch->GetVolume()->GetLogicalVolume();
+
+  std::size_t pos1  = lv->GetName().find("EBRY");
+  std::size_t pos11 = lv->GetName().find("EWAL");
+  std::size_t pos12 = lv->GetName().find("EWRA");
+  std::size_t pos2  = lv->GetName().find("EFRY");
+
+  G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition()/cm;
+  Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(position);
+
+  G4int showerType = -1;
+
+  //central
+  if (kCalor == Gflash::kESPM || kCalor == Gflash::kHB ) {
+
+    G4double posRho = position.getRho();
+
+    if(pos1 != std::string::npos || pos11 != std::string::npos || pos12 != std::string::npos ) {
+      showerType = 1;
+    }
+    else {
+      if(kCalor == Gflash::kESPM) {
+	showerType = 2;
+	if( posRho < Gflash::Rmin[Gflash::kESPM]+ Gflash::ROffCrystalEB ) showerType = 0;
+      }
+      else showerType = 3;
+    }
+
+  }
+  //forward
+  else if (kCalor == Gflash::kENCA || kCalor == Gflash::kHE) {
+    if(pos2 != std::string::npos) {
+      showerType = 5;
+    }
+    else {
+      if(kCalor == Gflash::kENCA) {
+	showerType = 6;
+	if(fabs(position.getZ()) < Gflash::Zmin[Gflash::kENCA] + Gflash::ZOffCrystalEE) showerType = 4;
+      }
+      else showerType = 7;
+    }
+    //@@@need z-dependent correction on the mean energy reponse
+  }
+
+  return showerType;
 }
