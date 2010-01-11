@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.11 2009/09/23 09:31:32 hegner Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.12 2009/10/28 08:31:51 srappocc Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -29,8 +29,6 @@ class GenParticleProducer : public edm::EDProducer {
   /// destructor
   ~GenParticleProducer();
 
-  /// module init at begin of job
-  void beginJob( const edm::EventSetup & );
   /// process one event
   virtual void produce( edm::Event& e, const edm::EventSetup& );
   int chargeTimesThree( int ) const;
@@ -45,6 +43,8 @@ class GenParticleProducer : public edm::EDProducer {
   edm::InputTag src_;
   std::vector<std::string> vectorSrc_;
 
+  /// whether the first event was looked at
+  bool firstEvent_; 
   /// unknown code treatment flag
   bool abortOnUnknownPDGCode_;
   /// save bar-codes
@@ -83,6 +83,7 @@ static const int PDGCacheMax = 32768;
 static const double mmToCm = 0.1;
 
 GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
+  firstEvent_(true), 
   abortOnUnknownPDGCode_( cfg.getUntrackedParameter<bool>( "abortOnUnknownPDGCode", true ) ),
   saveBarCodes_( cfg.getUntrackedParameter<bool>( "saveBarCodes", false ) ),
   chargeP_( PDGCacheMax, 0 ), chargeM_( PDGCacheMax, 0 ),
@@ -120,29 +121,29 @@ int GenParticleProducer::chargeTimesThree( int id ) const {
   return f->second;
 }
 
-void GenParticleProducer::beginJob( const EventSetup & es ) {
-  ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData( pdt );
-  for( HepPDT::ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
-    const HepPDT::ParticleID & id = p->first;
-    int pdgId = id.pid(), apdgId = abs( pdgId );
-    int q3 = id.threeCharge();
-    if ( apdgId < PDGCacheMax && pdgId > 0 ) {
-      chargeP_[ apdgId ] = q3;
-      chargeM_[ apdgId ] = -q3;
-    } else if ( apdgId < PDGCacheMax ) {
-      chargeP_[ apdgId ] = -q3;
-      chargeM_[ apdgId ] = q3;
-    } else {
-      chargeMap_[ pdgId ] = q3; 
-      chargeMap_[ -pdgId ] = -q3;
-    } 
-  }
-}
-
 void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 
-
+  if (firstEvent_) {
+     ESHandle<HepPDT::ParticleDataTable> pdt;
+     es.getData( pdt );
+     for( HepPDT::ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
+       const HepPDT::ParticleID & id = p->first;
+       int pdgId = id.pid(), apdgId = abs( pdgId );
+       int q3 = id.threeCharge();
+       if ( apdgId < PDGCacheMax && pdgId > 0 ) {
+	 chargeP_[ apdgId ] = q3;
+	 chargeM_[ apdgId ] = -q3;
+       } else if ( apdgId < PDGCacheMax ) {
+	 chargeP_[ apdgId ] = -q3;
+	 chargeM_[ apdgId ] = q3;
+       } else {
+	 chargeMap_[ pdgId ] = q3;
+	 chargeMap_[ -pdgId ] = -q3;
+       }
+     }
+     firstEvent_ = false; 
+   }
+      
    barcodes_.clear();
    
    size_t totalSize = 0;

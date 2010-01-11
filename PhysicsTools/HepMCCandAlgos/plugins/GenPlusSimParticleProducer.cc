@@ -42,10 +42,10 @@ public:
   ~GenPlusSimParticleProducer() {}
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() {}
 
+  bool firstEvent_;
   edm::InputTag src_;
   int setStatus_;
   std::set<int>         pdgIds_; // these are the ones we really use
@@ -95,6 +95,7 @@ using namespace reco;
 using pat::GenPlusSimParticleProducer;
 
 GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet& cfg) :
+  firstEvent_(true),
   src_(cfg.getParameter<InputTag>("src")),            // source sim tracks & vertices
   setStatus_(cfg.getParameter<int32_t>("setStatus")), // set status of GenParticle to this code
   genParticles_(cfg.getParameter<InputTag>("genParticles")) // get the genParticles to add GEANT particles to
@@ -113,18 +114,6 @@ GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet& cfg) 
   }
   produces<GenParticleCollection>();
   produces<vector<int> >();
-}
-
-void GenPlusSimParticleProducer::beginJob(const EventSetup &iSetup) 
-{
-  if (!pdts_.empty()) {
-    pdgIds_.clear();
-    for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-      itp->setup(iSetup); // decode string->pdgId and vice-versa
-      pdgIds_.insert(abs(itp->pdgId()));
-    }
-    pdts_.clear();
-  }
 }
 
 void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
@@ -186,7 +175,19 @@ void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
 }
 
 void GenPlusSimParticleProducer::produce(Event& event,
-					    const EventSetup& eSetup) {
+					    const EventSetup& iSetup) {
+  if (firstEvent_){
+    if (!pdts_.empty()) {
+      pdgIds_.clear();
+      for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
+        itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                      
+        pdgIds_.insert(abs(itp->pdgId()));
+      }
+      pdts_.clear();
+    }
+    firstEvent_ = false;
+  }
+
   // Simulated tracks (i.e. GEANT particles).
   Handle<SimTrackContainer> simtracks;
   event.getByLabel(src_, simtracks);

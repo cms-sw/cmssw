@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleDecaySelector.cc,v 1.1 2007/12/05 15:12:49 llista Exp $
+ * \version $Id: GenParticleDecaySelector.cc,v 1.2 2008/12/05 20:50:47 hegner Exp $
  *
  */
 
@@ -18,8 +18,7 @@ public:
 private:
   /// process one event
   void produce(edm::Event& e, const edm::EventSetup&);
-  /// begin job
-  void beginJob(const edm::EventSetup&);
+  bool firstEvent_;
   /// source collection name  
   edm::InputTag src_;  
   /// particle type
@@ -42,17 +41,16 @@ using namespace reco;
 using namespace std;
 
 GenParticleDecaySelector::GenParticleDecaySelector(const edm::ParameterSet& cfg) :
+  firstEvent_(true),
   src_(cfg.getParameter<InputTag>("src")),
   particle_(cfg.getParameter<PdtEntry>("particle")),
   status_(cfg.getParameter<int>("status")) {
   produces<GenParticleCollection>();
 }
 
-void GenParticleDecaySelector::beginJob(const edm::EventSetup &es) {
-  particle_.setup(es);
-}
+void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup& es) {
+  if (firstEvent_) {particle_.setup(es); firstEvent_ = false;}
 
-void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup&) {
   Handle<GenParticleCollection> genParticles;
   evt.getByLabel(src_, genParticles);
   auto_ptr<GenParticleCollection> decay(new GenParticleCollection);

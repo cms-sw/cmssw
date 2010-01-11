@@ -244,12 +244,6 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-FlavorHistoryFilter::beginJob(const edm::EventSetup&)
-{
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 FlavorHistoryFilter::endJob() {

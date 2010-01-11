@@ -21,7 +21,7 @@ HZZ4muAnalyzer::HZZ4muAnalyzer( const ParameterSet& pset )
 {
 }
 
-void HZZ4muAnalyzer::beginJob( const EventSetup& )
+void HZZ4muAnalyzer::beginJob()
 {
   
   fOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;

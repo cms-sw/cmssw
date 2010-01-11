@@ -53,9 +53,6 @@ FlavorHistoryProducer::FlavorHistoryProducer( const ParameterSet & p ) :
 FlavorHistoryProducer::~FlavorHistoryProducer() { 
 }
 
-void FlavorHistoryProducer::beginJob( const EventSetup & es ) {
-}
-
 void FlavorHistoryProducer::produce( Event& evt, const EventSetup& ) 
 {
   if ( verbose_ ) cout << "---------- Hello from FlavorHistoryProducer! -----" << endl;

@@ -23,7 +23,7 @@ public:
   GenParticlePruner(const edm::ParameterSet&);
 private:
   void produce(edm::Event&, const edm::EventSetup&);
-  void beginJob(const edm::EventSetup&);
+  bool firstEvent_;
   edm::InputTag src_;
   int keepOrDropAll_;
   std::vector<std::string> selection_;
@@ -92,34 +92,11 @@ void GenParticlePruner::parse(const std::string & selection, ::helper::SelectCod
 }
 
 GenParticlePruner::GenParticlePruner(const ParameterSet& cfg) :
+  firstEvent_(true),
   src_(cfg.getParameter<InputTag>("src")), keepOrDropAll_(drop),
   selection_(cfg.getParameter<vector<string> >("select")) {
   using namespace ::helper;
   produces<GenParticleCollection>();
-}
-
-void GenParticlePruner::beginJob(const EventSetup& es) {
-  PdgEntryReplacer rep(es);
-  for(vector<string>::const_iterator i = selection_.begin(); i != selection_.end(); ++i) {
-    string cut;
-    ::helper::SelectCode code;
-    parse(*i, code, cut);
-    if(code.all_) {
-      if(i != selection_.begin()) 
-	throw Exception(errors::Configuration)
-	  << "selections \"keep *\" and \"drop *\" can be used only as first options. Here used in position # " 
-	  << (i - selection_.begin()) + 1 << "\n" << endl;
-      switch(code.keepOrDrop_) {
-          case ::helper::SelectCode::kDrop :
-              keepOrDropAll_ = drop; break;
-          case ::helper::SelectCode::kKeep :
-              keepOrDropAll_ = keep; 
-      };
-    } else {
-      cut = rep.replace(cut);
-      select_.push_back(make_pair(StringCutObjectSelector<GenParticle>(cut), code));
-    }
-  }
 }
 
 void GenParticlePruner::flagDaughters(const reco::GenParticle & gen, int keepOrDrop) {
@@ -152,7 +129,32 @@ void GenParticlePruner::recursiveFlagMothers(size_t index, const reco::GenPartic
   }
 }
 
-void GenParticlePruner::produce(Event& evt, const EventSetup&) {
+void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
+  if (firstEvent_) {
+    PdgEntryReplacer rep(es);
+    for(vector<string>::const_iterator i = selection_.begin(); i != selection_.end(); ++i) {
+      string cut;
+      ::helper::SelectCode code;
+      parse(*i, code, cut);
+      if(code.all_) {
+        if(i != selection_.begin())
+          throw Exception(errors::Configuration)
+            << "selections \"keep *\" and \"drop *\" can be used only as first options. Here used in position # "
+            << (i - selection_.begin()) + 1 << "\n" << endl;
+        switch(code.keepOrDrop_) {
+        case ::helper::SelectCode::kDrop :
+	  keepOrDropAll_ = drop; break;
+        case ::helper::SelectCode::kKeep :
+	  keepOrDropAll_ = keep;
+        };
+      } else {
+        cut = rep.replace(cut);
+        select_.push_back(make_pair(StringCutObjectSelector<GenParticle>(cut), code));
+      }
+    }
+    firstEvent_ = false;
+  }
+
   using namespace ::helper;
   Handle<GenParticleCollection> src;
   evt.getByLabel(src_, src);

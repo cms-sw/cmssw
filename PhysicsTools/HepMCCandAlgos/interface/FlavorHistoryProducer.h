@@ -62,8 +62,6 @@ class FlavorHistoryProducer : public edm::EDProducer {
   ~FlavorHistoryProducer();
 
  private:
-  /// module init at begin of job
-  void beginJob( const edm::EventSetup & );
   /// process one event
   void produce( edm::Event& e, const edm::EventSetup& );
 
