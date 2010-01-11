@@ -16,15 +16,8 @@
 <use name=TrackingTools/TrackFitters> # for TSOS combiner in DualKalman
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=RecoTracker/TransientTrackingRecHit>
+<use name=TrackPropagation/RungeKutta>
 <export>
-  <use name=Alignment/CommonAlignmentAlgorithm>
-  <use name=Alignment/TwoBodyDecay>
-  <use name=DataFormats/CLHEP>
-  <use name=DataFormats/GeometrySurface>
-  <use name=FWCore/PluginManager>
-  <use name=TrackingTools/PatternTools>
-  <use name=TrackingTools/TrajectoryState>
-  <use name=TrackingTools/TransientTrackingRecHit>
   <lib name=AlignmentReferenceTrajectories>
 </export>
 
