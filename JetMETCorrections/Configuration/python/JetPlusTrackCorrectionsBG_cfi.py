@@ -9,9 +9,9 @@ JPTZSPCorrectorICone5BG = cms.PSet(
    
     # Filtering tracks using quality
 
-    UseTrackQuality = cms.bool(True),
+    UseTrackQuality = cms.bool(False),
     TrackQuality    = cms.string('highPurity'),
-    tracks = cms.InputTag("hiGlobalPrimTracks"),
+    tracks = cms.InputTag("hiSelectedTracks"),
  
     # Response and efficiency maps
     ResponseMap   = cms.string("JetMETCorrections/Configuration/data/CMSSW_340_response"),

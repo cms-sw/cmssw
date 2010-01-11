@@ -4,10 +4,6 @@ from RecoJets.Configuration.RecoJetAssociations_cff import *
 
 # ---------- Service definition 
 
-
-
-
-
 from JetMETCorrections.Configuration.JetPlusTrackCorrectionsBG_cfi import *
 
 JetPlusTrackZSPCorrectorIcone5BG = cms.ESSource(
@@ -60,12 +56,12 @@ JetPlusTrackZSPCorJetAntiKt5BG = cms.EDProducer(
 
 # IC05
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
-ZSPiterativeCone5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGlobalPrimTracks")
-ZSPiterativeCone5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiGlobalPrimTracks")
+ZSPiterativeCone5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiSelectedTracks")
+ZSPiterativeCone5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiSelectedTracks")
 
 JetPlusTrackZSPCorrectorIcone5.UseMuons = cms.bool(False)
 JetPlusTrackZSPCorrectorIcone5.UseElectrons = cms.bool(False)
-
+JetPlusTrackZSPCorrectorIcone5.UseTrackQuality = cms.bool(False)
 
 ZSPrecoJetAssociationsIcone5PU = cms.Sequence(
     ZSPiterativeCone5JetTracksAssociatorAtVertex*
@@ -82,11 +78,11 @@ JetPlusTrackCorrectionsIcone5BG = cms.Sequence(
 
 
 # Siscone
-ZSPSisCone5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGlobalPrimTracks")
-ZSPSisCone5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiGlobalPrimTracks")
+ZSPSisCone5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiSelectedTracks")
+ZSPSisCone5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiSelectedTracks")
 JetPlusTrackZSPCorrectorSiscone5.UseMuons = cms.bool(False)
 JetPlusTrackZSPCorrectorSiscone5.UseElectrons = cms.bool(False)
-
+JetPlusTrackZSPCorrectorSiscone5.UseTrackQuality = cms.bool(False)
 
 ZSPrecoJetAssociationsSisCone5PU = cms.Sequence(
     ZSPSisCone5JetTracksAssociatorAtVertex*
@@ -102,11 +98,11 @@ JetPlusTrackCorrectionsSisCone5BG = cms.Sequence(
     )
 
 # Anti-Kt
-ZSPAntiKt5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiGlobalPrimTracks")
-ZSPAntiKt5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiGlobalPrimTracks")
+ZSPAntiKt5JetTracksAssociatorAtVertex.tracks = cms.InputTag("hiSelectedTracks")
+ZSPAntiKt5JetTracksAssociatorAtCaloFace.tracks = cms.InputTag("hiSelectedTracks")
 JetPlusTrackZSPCorrectorAntiKt5.UseMuons = cms.bool(False)
 JetPlusTrackZSPCorrectorAntiKt5.UseElectrons = cms.bool(False)
-
+JetPlusTrackZSPCorrectorAntiKt5.UseTrackQuality = cms.bool(False)
     
 ZSPrecoJetAssociationsAntiKt5PU = cms.Sequence(
     ZSPAntiKt5JetTracksAssociatorAtVertex*
