@@ -68,7 +68,7 @@ void SiPixelHLTSource::beginJob(){
   firstRun = true;
 }
 
-void SiPixelHLTSource::beginRun(const edm::EventSetup& iSetup){
+void SiPixelHLTSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
   
   if(firstRun){

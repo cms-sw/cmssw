@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.14 2009/12/08 10:41:13 wehrlilu Exp $
+// $Id: SiPixelClusterSource.h,v 1.15 2010/01/07 16:50:54 merkelp Exp $
 
 #include <memory>
 
@@ -69,7 +69,7 @@
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob() ;
        virtual void endJob() ;
-       virtual void beginRun(edm::EventSetup const&) ;
+       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs();

@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.23 2009/10/21 12:29:46 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.24 2010/01/07 17:03:54 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -86,7 +86,7 @@ void SiPixelRecHitSource::beginJob(){
 }
 
 
-void SiPixelRecHitSource::beginRun(const edm::EventSetup& iSetup){
+void SiPixelRecHitSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRecHitSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 

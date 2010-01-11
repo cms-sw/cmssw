@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.7 2009/06/19 09:30:00 merkelp Exp $
+// $Id: SiPixelRecHitSource.h,v 1.8 2010/01/07 17:03:54 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -62,7 +62,7 @@
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob() ;
        virtual void endJob() ;
-       virtual void beginRun(edm::EventSetup const&) ;
+       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs();

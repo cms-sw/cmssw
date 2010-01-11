@@ -74,7 +74,7 @@ void SiPixelRawDataErrorSource::beginJob(){
   firstRun = true;
 }
 
-void SiPixelRawDataErrorSource::beginRun(const edm::EventSetup& iSetup){
+void SiPixelRawDataErrorSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::beginRun - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Blade " << modOn << "/" << ladOn << "/" << bladeOn << std::endl;

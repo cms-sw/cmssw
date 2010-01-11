@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.14 2009/12/11 13:18:58 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.15 2010/01/07 17:00:02 merkelp Exp $
 //
 
 #include <memory>
@@ -56,7 +56,7 @@
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob() ;
        virtual void endJob() ;
-       virtual void beginRun(edm::EventSetup const&) ;
+       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs();

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.33 2009/12/12 15:17:33 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.34 2010/01/07 17:00:02 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -78,8 +78,7 @@ void SiPixelDigiSource::beginJob(){
   firstRun = true;  
 }
 
-void SiPixelDigiSource::beginRun(const edm::EventSetup& iSetup){
-  
+void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelDigiSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
 		       << layOn << "/" << phiOn << std::endl;

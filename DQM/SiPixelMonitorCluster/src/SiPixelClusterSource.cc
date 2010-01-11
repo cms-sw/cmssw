@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.21 2009/12/08 10:41:13 wehrlilu Exp $
+// $Id: SiPixelClusterSource.cc,v 1.22 2010/01/07 16:46:17 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -82,7 +82,7 @@ void SiPixelClusterSource::beginJob(){
   firstRun = true;
 }
 
-void SiPixelClusterSource::beginRun(const edm::EventSetup& iSetup){
+void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelClusterSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
