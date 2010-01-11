@@ -177,17 +177,17 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   }
   ///////////////////////////////////////////////////////////////
   if( ps.getUntrackedParameter<bool>("DetDiagPedestalClient", false) ){
-    if(debug_>0)   cout << "===>DQM DetDiagPedestal Client is ON" << endl;
+    if(debug_>0)   std::cout << "===>DQM DetDiagPedestal Client is ON" << endl;
     detdiagped_client_ = new HcalDetDiagPedestalClient();
     detdiagped_client_->init(ps, dbe_,"DetDiagPedestalClient");
   }
   if( ps.getUntrackedParameter<bool>("DetDiagLEDClient", false) ){
-    if(debug_>0)   cout << "===>DQM DetDiagLED Client is ON" << endl;
+    if(debug_>0)   std::cout << "===>DQM DetDiagLED Client is ON" << endl;
     detdiagled_client_ = new HcalDetDiagLEDClient();
     detdiagled_client_->init(ps, dbe_,"DetDiagLEDClient");
   }
   if( ps.getUntrackedParameter<bool>("DetDiagLaserClient", false) ){
-    if(debug_>0)   cout << "===>DQM DetDiagLaser Client is ON" << endl;
+    if(debug_>0)   std::cout << "===>DQM DetDiagLaser Client is ON" << endl;
     detdiaglas_client_ = new HcalDetDiagLaserClient();
     detdiaglas_client_->init(ps, dbe_,"DetDiagLaserClient");
   }
@@ -242,10 +242,7 @@ void HcalMonitorClient::resetAllME() {
   if( pedestal_client_ )   pedestal_client_->resetAllME();
   if( led_client_ )        led_client_->resetAllME();
   if( laser_client_ )      laser_client_->resetAllME();
-  if( hot_client_ )        {
-    cout <<"Resetting all ME!"<<endl;
-    hot_client_->resetAllME();
-  }
+  if( hot_client_ )        hot_client_->resetAllME();
   if( dead_client_ )       dead_client_->resetAllME();
   if( tp_client_ )         tp_client_->resetAllME();
   if( ct_client_ )         ct_client_->resetAllME();
@@ -456,7 +453,7 @@ void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const Eve
   // don't allow 'backsliding' across lumi blocks in online running
   // This still won't prevent some lumi blocks from being evaluated multiple times.  Need to think about this.
   //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
-  if (debug_>0) cout <<"Entered Monitor Client beginLuminosityBlock for LS = "<<l.luminosityBlock()<<endl;
+  if (debug_>0) std::cout <<"Entered Monitor Client beginLuminosityBlock for LS = "<<l.luminosityBlock()<<endl;
   ilumisec_ = l.luminosityBlock();
   if( debug_>0 ) std::cout << "HcalMonitorClient: beginLuminosityBlock" << endl;
   if( summary_client_)      summary_client_->SetLS(ilumisec_);
