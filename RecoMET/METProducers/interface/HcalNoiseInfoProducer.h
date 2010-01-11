@@ -77,8 +77,6 @@ namespace reco {
     bool fillJets_;         // fill jet information into HcalNoiseSummary
     bool fillTracks_;       // fill track information into HcalNoiseSummary
 
-    bool refillRefVectors_; // find HcalNoiseRBXs already present in the event, and fill the RefVectors
-
     // These provide the requirements for writing an RBX to the event
     double RBXEnergyThreshold_; // minimum energy to even be considered for writing to edm
     double minRecHitEnergy_;    // Minimum rechit energy to consider
