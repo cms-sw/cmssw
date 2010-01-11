@@ -487,6 +487,19 @@ void FUShmBuffer::writeRawEmptyEvent()
   postRawRead();
 }
 
+//______________________________________________________________________________
+void FUShmBuffer::writeRawLumiSectionEvent(unsigned int ls)
+{
+  FUShmRawCell* cell=rawCellToWrite();
+  cell->setLumiSection(ls);
+  evt::State_t state=evtState(cell->index());
+  assert(state==evt::RAWWRITING);
+  setEvtState(cell->index(),evt::LUMISECTION);
+  postRawIndexToRead(cell->index());
+  if (segmentationMode_) shmdt(cell);
+  postRawRead();
+}
+
 
 //______________________________________________________________________________
 void FUShmBuffer::writeRecoEmptyEvent()

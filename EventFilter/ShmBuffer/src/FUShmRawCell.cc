@@ -30,6 +30,7 @@ FUShmRawCell::FUShmRawCell(unsigned int payloadSize)
   : payloadSize_(payloadSize)
   , nFed_(NFED_MAX)
   , nSuperFrag_(NSUPERFRAG_MAX)
+  , lumiSection_(0)
 {
   fedSizeOffset_=sizeof(FUShmRawCell);
   unsigned int* fedSizeAddr;
@@ -73,6 +74,7 @@ FUShmRawCell::~FUShmRawCell()
 void FUShmRawCell::initialize(unsigned int index)
 {
   index_=index;
+  lumiSection_=0;
 }
 
 
@@ -146,7 +148,7 @@ void FUShmRawCell::clear()
 {
   fuResourceId_=0xffffffff;
   buResourceId_=0xffffffff;
-  
+  lumiSection_ =0;
   unsigned int* fedSizeAddr;
   fedSizeAddr=(unsigned int*)((unsigned long)this+fedSizeOffset_);
   for (unsigned int i=0;i<nFed();i++) *fedSizeAddr++=0;
@@ -203,7 +205,11 @@ unsigned char* FUShmRawCell::writeData(unsigned char* data,
   return result;
 }
 
-
+//______________________________________________________________________________
+void FUShmRawCell::setLumiSection(unsigned int ls)
+{
+  lumiSection_=ls;
+}
 //______________________________________________________________________________
 bool FUShmRawCell::markFed(unsigned int i,
 			   unsigned int size,

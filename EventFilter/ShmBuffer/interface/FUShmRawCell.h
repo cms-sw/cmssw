@@ -49,8 +49,9 @@ namespace evf {
 
     bool           markFed(unsigned int i,unsigned int size,unsigned char*addr);
     bool           markSuperFrag(unsigned int i,unsigned int size,unsigned char*addr);
-    
-    
+
+    void           setLumiSection(unsigned int);
+    unsigned int   getLumiSection() const {return lumiSection_;}
     //
     // static member functions
     //
@@ -68,6 +69,7 @@ namespace evf {
     unsigned int payloadSize_;
     unsigned int nFed_;
     unsigned int nSuperFrag_;
+    unsigned int lumiSection_;
     unsigned int fedSizeOffset_;
     unsigned int fedOffset_;
     unsigned int superFragSizeOffset_;

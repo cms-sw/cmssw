@@ -18,7 +18,7 @@ namespace evf {
   
   // define event data states
   namespace evt {
-    enum State_t { EMPTY,
+    enum State_t { EMPTY, LUMISECTION,
 		   RAWWRITING, RAWWRITTEN,
 		   RAWREADING, RAWREAD,
 		   PROCESSING, PROCESSED,
@@ -99,6 +99,7 @@ namespace evf {
     void           releaseRawCell(FUShmRawCell* cell);
     
     void           writeRawEmptyEvent();
+    void           writeRawLumiSectionEvent(unsigned int);
     void           writeRecoEmptyEvent();
     void           writeDqmEmptyEvent();
     
