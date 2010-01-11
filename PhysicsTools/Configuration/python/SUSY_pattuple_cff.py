@@ -21,11 +21,13 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Su
     if mcVersion == '31x' and mcInfo:
 	runSUSY33xOn31xMC(process)
 
+	process.eventCountProducer = cms.EDProducer("EventCountProducer")
+
     # Full path
     process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
                                                    *process.patDefaultSequence
                                                    * process.patTrigger*process.patTriggerEvent
-						   * process.PFPATafterPAT )
+						   * process.PFPATafterPAT * process.eventCountProducer )
 
 def loadMCVersion(process, mcVersion):
     #-- Missing ak5GenJets in 3.3.2 samples ---------------------------------------
