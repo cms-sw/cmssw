@@ -1,10 +1,20 @@
+2010-01-11 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V01-09-00
+	* Introduce a finer grained event selection allowing for and/not
+	  combination of triggers in a given HLT path when using the
+	  'TriggerSelector' parameter
+	* Add configuration parameter 'dropOldLumisectionEvents' to
+	  discard events from previous lumi sections
+	* Use explicit brackets to avoid compiler warning
+
 2009-08-19  Remi Mommsen <remigius.mommsen@cern.ch>
 
 	* tag V01-08-15
 	* Add the option 'esSelectedEventSelection', an array of strings, used to
 	  specify the event selection used by the proxy server when requesting
 	  events from the StorageManager.
-	
+
 2009-05-22  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-14
