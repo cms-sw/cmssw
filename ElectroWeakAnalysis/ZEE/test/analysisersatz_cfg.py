@@ -69,5 +69,5 @@ process.add_( cms.Service(
 process.p = cms.Path(process.analyse)
 #process.p = cms.Path(process.WenuFilSeq*process.egammaIsolationSequence*process.analyse)
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("WenuTrue.root"),
+        fileName = cms.string("WenuTrue_AODSIM.root"),
 )

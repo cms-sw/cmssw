@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ErsatzMEtParams = cms.PSet(
 MCTruthCollection = cms.InputTag("genParticles"),
 ElectronCollection = cms.InputTag("gsfElectrons"),
+PfElectronCollection = cms.InputTag("pfElectrons"),
 HybridScCollection = cms.InputTag("correctedHybridSuperClusters"),
 M5x5ScCollection = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
 sigmaElectronicNoise_EB = cms.double(0.03),

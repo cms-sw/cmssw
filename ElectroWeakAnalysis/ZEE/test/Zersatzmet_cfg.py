@@ -34,8 +34,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.source = cms.Source("PoolSource",
 #	fileNames = newFileNames
-    #fileNames = cms.untracked.vstring()
-    fileNames = cms.untracked.vstring("file:/tmp/rnandi/Zee_AODSIM.root")
+    fileNames = cms.untracked.vstring()
+    #fileNames = cms.untracked.vstring("file:/tmp/rnandi/Zee_AODSIM.root", "file:/tmp/rnandi/Zee_AODSIM_2.root")
 #	"/store/mc/Summer08/Zee/GEN-SIM-RECO/IDEAL_V11_redigi_v2/0008/0840D3A9-A000-DE11-ABF8-00161725E4EB.root")
 )
 
@@ -43,13 +43,8 @@ from ElectroWeakAnalysis.ZEE.ersatzmet_cfi import ErsatzMEtParams
 #from ElectroWeakAnalysis.ErsatzMEt.EtaWeights_cff import EtaWeightsPS 
 process.ErsatzMEt = cms.EDAnalyzer('ErsatzMEt',
 ErsatzMEtParams,
-#MCTruthCollection = cms.InputTag("genParticles"),
-#CaloTowerCollection = cms.InputTag("towerMaker"),
-Zevent = cms.bool(True)
-#mTPmin = cms.double(61.),
-#mTPmax = cms.double(121.),
-#etaWidth = cms.int32(7),
-#phiWidth = cms.int32(25)
+Zevent = cms.bool(True),
+HLTPathCheck = cms.bool(False)
 )
 # Other statements
 process.ZeeMcEleFilter = cms.EDFilter("MCParticlePairFilter",
@@ -66,4 +61,4 @@ process.ZeeFilSeq = cms.Sequence(process.ZeeMcEleFilter)
 #process.p = cms.Path(process.ZeeFilSeq*process.egammaIsolationSequence*process.corMetType1Icone5*process.ErsatzMEt)
 #process.p = cms.Path(process.ZeeFilSeq*process.egammaIsolationSequence*process.ErsatzMEt)
 process.p = cms.Path(process.ErsatzMEt)
-process.TFileService = cms.Service("TFileService", fileName = cms.string("Zee.root"))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("Zee_AODSIM.root"))
