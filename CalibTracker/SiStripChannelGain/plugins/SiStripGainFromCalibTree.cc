@@ -297,6 +297,7 @@ SiStripGainFromCalibTree::algoAnalyzeTheTree()
 
       unsigned int                 eventnumber    = 0;    tree->SetBranchAddress(EventPrefix + "event"          + EventSuffix, &eventnumber   , NULL);
       unsigned int                 runnumber      = 0;    tree->SetBranchAddress(EventPrefix + "run"            + EventSuffix, &runnumber     , NULL);
+      std::vector<bool>*           TrigTech    = 0;    tree->SetBranchAddress(EventPrefix + "TrigTech"    + EventSuffix, &TrigTech   , NULL);
 
       std::vector<double>*         trackchi2ndof  = 0;    tree->SetBranchAddress(TrackPrefix + "chi2ndof"       + TrackSuffix, &trackchi2ndof , NULL);
       std::vector<float>*          trackp         = 0;    tree->SetBranchAddress(TrackPrefix + "momentum"       + TrackSuffix, &trackp        , NULL);
@@ -330,6 +331,8 @@ SiStripGainFromCalibTree::algoAnalyzeTheTree()
 //      for (unsigned int ientry = 0; ientry < tree->GetEntries() && ientry<50000; ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
          tree->GetEntry(ientry);
+
+         if(!(*TrigTech)[0])continue;
 
          NEvent++;
          NTrack+=(*trackp).size();
