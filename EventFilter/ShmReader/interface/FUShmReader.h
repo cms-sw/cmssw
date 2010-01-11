@@ -25,7 +25,7 @@ public:
   virtual
   void setRunNumber(edm::RunNumber_t runNumber) { runNumber_=runNumber; }
   
-  bool fillRawData(edm::EventID& eID,
+  int fillRawData(edm::EventID& eID,
 		   edm::Timestamp& tstamp, 
 		   FEDRawDataCollection*& data);
   

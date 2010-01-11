@@ -58,9 +58,9 @@ FUShmReader::~FUShmReader()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-bool FUShmReader::fillRawData(EventID& eID,
-			      Timestamp& tstamp, 
-			      FEDRawDataCollection*& data)
+int FUShmReader::fillRawData(EventID& eID,
+			     Timestamp& tstamp, 
+			     FEDRawDataCollection*& data)
 {
   // just in case the reader hasn't yet attached to the shm segment
   if (0==shmBuffer_) {
@@ -89,7 +89,13 @@ bool FUShmReader::fillRawData(EventID& eID,
     shmBuffer_=0;
     event_=0;
     lastCellIndex_=0xffffffff;
-    return false;
+    return 0;
+  }
+  else if(state==evt::LUMISECTION){
+    unsigned int ls = newCell->getLumiSection();
+    shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
+    shmBuffer_->scheduleRawCellForDiscard(newCell->index());
+    return (-1)*ls;
   }
   else assert(state==evt::RAWREADING);
   
@@ -111,7 +117,7 @@ bool FUShmReader::fillRawData(EventID& eID,
   eID=EventID(runNumber_,1U,evtNumber_);
   data=event_;
   
-  return true;
+  return evtNumber_;
 }
 
 
