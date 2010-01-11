@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/12/15 18:27:55 $ 
+ **  $Date: 2010/01/11 09:41:06 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -386,9 +386,9 @@ void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement*
 void  PhotonOfflineClient::adjustLimits(MonitorElement* me){
 
   //std::cout << "kind: " << me->kind() << std::endl;
-  if(me->kind()==4) adjustLimitsTH1F(me);
-  else if(me->kind()==7) adjustLimitsTH2F(me);
-  else if(me->kind()==11) adjustLimitsTProfile(me);
+  if(me->kind()==  DQMNet::DQM_PROP_TYPE_TH1F) adjustLimitsTH1F(me);
+  else if(me->kind()==DQMNet::DQM_PROP_TYPE_TH2F) adjustLimitsTH2F(me);
+  else if(me->kind()==DQMNet::DQM_PROP_TYPE_TPROF) adjustLimitsTProfile(me);
 
 }
 
