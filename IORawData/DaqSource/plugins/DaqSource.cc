@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2009/09/23 23:35:02 $
- *  $Revision: 1.35 $
+ *  $Date: 2009/12/09 21:08:54 $
+ *  $Revision: 1.36 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -37,10 +37,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-namespace daqsource{
-  static unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
-  static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
-}
 
 namespace edm {
  namespace daqsource{
@@ -154,7 +150,8 @@ namespace edm {
     FEDRawDataCollection* fedCollection(0);
   
     // let reader_ fill the fedCollection 
-    if(!reader_->fillRawData(eventId, tstamp, fedCollection)) {
+    int retval = reader_->fillRawData(eventId, tstamp, fedCollection);
+    if(retval==0) {
       // fillRawData() failed, clean up the fedCollection in case it was allocated!
       if (0 != fedCollection) delete fedCollection;
       noMoreEvents_ = true;
@@ -163,6 +160,25 @@ namespace edm {
       pthread_mutex_unlock(&mutex_);
       return IsStop;
     }
+    else if(retval<0)
+      {
+	if(luminosityBlockNumber_ != (-1)*retval+1)
+	  {
+	    luminosityBlockNumber_ = (-1)*retval+1;
+	    pthread_mutex_lock(&mutex_);
+	    pthread_cond_signal(&cond_);
+	    pthread_mutex_unlock(&mutex_);
+	    ::usleep(1000);
+	    
+	    pthread_mutex_lock(&mutex_);
+	    pthread_mutex_unlock(&mutex_);
+	    newLumi_ = true;
+	    lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	    resetLuminosityBlockAuxiliary();
+	  }
+	else
+	  return IsInvalid;
+      }
     if (eventId.event() == 0) {
       throw edm::Exception(errors::LogicError)
         << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
@@ -247,6 +263,7 @@ namespace edm {
 
       readAndCacheLumi();
       setLumiPrematurelyRead();
+      if(retval<0) return IsLumi;
     }
 
     // make a brand new event

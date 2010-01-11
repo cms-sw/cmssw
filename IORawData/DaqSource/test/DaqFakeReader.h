@@ -5,8 +5,8 @@
  *  Generates empty FEDRawData of random size for all FEDs
  *  Proper headers and trailers are included; but the payloads are all 0s
  *
- *  $Date: 2007/03/07 08:31:19 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/04/19 13:28:46 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -30,9 +30,9 @@ class DaqFakeReader : public DaqBaseReader
   //
 
   // Generate and fill FED raw data for a full event
-  virtual bool fillRawData(edm::EventID& eID,
-			   edm::Timestamp& tstamp, 
-			   FEDRawDataCollection*& data);
+  virtual int fillRawData(edm::EventID& eID,
+			  edm::Timestamp& tstamp, 
+			  FEDRawDataCollection*& data);
   
 private:
   //

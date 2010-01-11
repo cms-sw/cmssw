@@ -7,8 +7,8 @@
  *  Derived classes must have a constructor accepting a
  *  parameter (const edm::ParameterSet& pset).
  *
- *  $Date: 2006/10/29 16:28:27 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/07/07 16:33:32 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -38,8 +38,8 @@ public:
 
   /// overload to fill the fed collection to be put in the transient
   /// event store. NOTE: the FEDRawDataCollection data must be created
-  /// (with new) withing the method; ownership is passed to the caller.
-  virtual bool fillRawData(edm::EventID& eID,
+  /// (with new) within the method; ownership is passed to the caller.
+  virtual int fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
 			   FEDRawDataCollection*& data) = 0;  
   
