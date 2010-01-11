@@ -32,7 +32,7 @@ namespace helpers {
   };
 }
 
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <algorithm>
 #include <string>
 #include <vector>
