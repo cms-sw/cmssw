@@ -48,9 +48,7 @@ namespace edm {
 
 
     private:
-      //NOTE: until this interface is removed from the system we need this
-      // call in order to diagnose any problems in the EventSetup system
-      virtual void beginJob(EventSetup const&) ;
+      virtual void beginJob();
 
       virtual void analyze(Event const&, EventSetup const&);
       virtual void endJob() ;
@@ -156,8 +154,7 @@ namespace edm {
   
   // ------------ method called once each job just before starting event loop  ------------
   void 
-  PrintEventSetupContent::beginJob(const EventSetup& iSetup) {
-    print(iSetup);
+  PrintEventSetupContent::beginJob() {
   }
   
   // ------------ method called once each job just after ending the event loop  ------------
