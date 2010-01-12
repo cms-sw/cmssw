@@ -558,10 +558,16 @@ bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer newChain, Cha
       int centralWire_old = oldChain[iRH_old]->wgroups()[middleWire_old];
 
       // to be chained, two hits need to be in neighbouring layers...
-      // or should it be better to allow skipping one layer? skipping two?
-      // ok let's be just one for now
+      // or better allow few missing layers (upto 3 to avoid inefficiencies);
+      // however we'll not make an angle correction because it
+      // worsen the situation in some of the "regular" cases 
+      // (not making the correction means that the conditions for
+      // forming a cluster are different if we have missing layers -
+      // this could affect events at the boundaries ) 
       if(layer_new==layer_old+1 || layer_new==layer_old-1 ||
-	 layer_new==layer_old+2 || layer_new==layer_old-2 ){
+	 layer_new==layer_old+2 || layer_new==layer_old-2 ||
+	 layer_new==layer_old+3 || layer_new==layer_old-3 ||
+	 layer_new==layer_old+4 || layer_new==layer_old-4 ){
         layerRequirementOK = true;
       }
       int allStrips = 48;
