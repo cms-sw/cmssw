@@ -11,6 +11,7 @@ towerSchemeBAnalyzer = cms.EDAnalyzer(
     CaloTowersLabel = cms.InputTag("towerMaker"),
     FineBinning = cms.untracked.bool(False),
     FolderName = cms.untracked.string("JetMET/CaloTowers/SchemeB"),
+    HLTSelection = cms.untracked.bool(False),
     HLTResultsLabel = cms.InputTag("TriggerResults::HLT"),
     HLTBitLabels = cms.VInputTag(
     cms.InputTag("HLT_MET100"),
@@ -24,6 +25,7 @@ towerOptAnalyzer = cms.EDAnalyzer(
     CaloTowersLabel = cms.InputTag("calotoweroptmaker"),
     FineBinning = cms.untracked.bool(False),
     FolderName = cms.untracked.string("JetMET/CaloTowers/Optimized"),
+    HLTSelection = cms.untracked.bool(False),
     HLTResultsLabel = cms.InputTag("TriggerResults::HLT"),
     HLTBitLabels = cms.VInputTag(
     cms.InputTag("HLT_MET100"),

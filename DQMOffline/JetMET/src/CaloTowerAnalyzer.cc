@@ -70,8 +70,9 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
   
   debug_               = iConfig.getParameter<bool>("Debug");
   finebinning_         = iConfig.getUntrackedParameter<bool>("FineBinning"); 
-  FolderName_            = iConfig.getUntrackedParameter<string>("FolderName");
+  FolderName_          = iConfig.getUntrackedParameter<string>("FolderName");
 
+  hltselection_        = iConfig.getUntrackedParameter<bool>("HLTSelection"); 
   
 }
 
@@ -233,7 +234,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       return;
     }
 
-  if( !EventPasses ) 
+  if( !EventPasses && hltselection_ ) 
     return;
   
   //----------GREG & CHRIS' idea---///

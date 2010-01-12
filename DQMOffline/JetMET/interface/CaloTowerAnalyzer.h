@@ -40,6 +40,7 @@ private:
   bool debug_;
   double energyThreshold_;
   bool finebinning_;
+  bool hltselection_;
   std::string FolderName_;
   int Nevents;
 };
