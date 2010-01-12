@@ -90,8 +90,10 @@ public:
     pair<double, double> result = backgroundHandler_->backgroundFunction( true, parval, 6, 5,
                                                                           resConsidered, ResMass, massWindowHalfWidth,
                                                                           1, mass, 1000 );
+    double lowerBound = backgroundHandler_->backgroundWindow_[2].lowerBound();
+    double upperBound = backgroundHandler_->backgroundWindow_[2].upperBound();
     CPPUNIT_ASSERT( result.first == parval[4] );
-    CPPUNIT_ASSERT( float(result.second) == float(parval[5]*exp(-parval[5]*mass)) );
+    CPPUNIT_ASSERT( float(result.second) == float(-parval[5]*exp(-parval[5]*mass)/(exp(-parval[5]*upperBound) - exp(-parval[5]*lowerBound))) );
   }
 
   void testSetParameters()
