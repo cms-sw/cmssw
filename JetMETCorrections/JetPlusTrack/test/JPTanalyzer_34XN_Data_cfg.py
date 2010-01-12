@@ -40,22 +40,54 @@ process.monster = cms.EDFilter(
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-# last re-reco /MinimumBias/BeamCommissioning09-SD_AllMinBias-Dec19thSkim_341_v1
+
+# last re-reco /MinimumBias/BeamCommissioning09-SD_AllMinBias-Dec19thSkim_341_v1/RAW-RECO
+# dbs search --query="find run where dataset=/MinimumBias/BeamCommissioning09-SD_AllMinBias-Dec19thSkim_341_v1/RAW-RECO"
+# dbs search --query="find file where dataset=/MinimumBias/BeamCommissioning09-SD_AllMinBias-Dec19thSkim_341_v1/RAW-RECO and run=124020"
+
 ### For 219, file from RelVal
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-#         '/store/data/BeamCommissioning09/ZeroBias/RECO/v2/000/123/596/F494AB9A-40E2-DE11-8D1E-000423D33970.root'
-'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/E63696DD-A5ED-DE11-9217-00261894382D.root'
-#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/F08F782B-77E8-DE11-B1FC-0019B9F72BFF.root',
-#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/EE9412FD-80E8-DE11-9FDD-000423D94908.root',
-#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/7C9741F5-78E8-DE11-8E69-001D09F2AD84.root',
-#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/44255E49-80E8-DE11-B6DB-000423D991F0.root',
-#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/3C02A810-7CE8-DE11-BB51-003048D375AA.root',
-#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/04F15557-7BE8-DE11-8A41-003048D2C1C4.root',
-#        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/04092AB7-75E8-DE11-958F-000423D98750.root'
-#         'file:./RECOHcalCalMinBias.root'
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/E63696DD-A5ED-DE11-9217-00261894382D.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/E03CA059-ACED-DE11-9ECF-00261894388D.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/DAC9A273-AEED-DE11-9AFE-00261894397F.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/DAB63AE3-A5ED-DE11-B770-0026189438F2.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/BCF4F55B-ACED-DE11-A210-0030486791DC.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/AA6AF32B-A8ED-DE11-9FD5-003048D3C010.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/9279CC40-AAED-DE11-87A4-00261894392C.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/9080ADD7-A5ED-DE11-A8D2-00261894388D.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/82020FFB-A7ED-DE11-88BD-003048678FF8.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/7CA3E946-AAED-DE11-A018-00304867906C.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/76EEB0DF-A5ED-DE11-9BED-001A92971AD0.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/62A14048-AAED-DE11-A08A-002618943884.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/603F01D7-A5ED-DE11-B9B0-00304867BED8.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/5469908D-B0ED-DE11-8355-002618943867.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/4C701344-AAED-DE11-BF8D-0026189438A7.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/46663C28-A8ED-DE11-A1D9-002618943945.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/36777C8E-B0ED-DE11-A8AC-002618FDA28E.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/3258955B-ACED-DE11-B201-002618943809.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/306184F6-A7ED-DE11-AE6C-003048678F06.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/0CC8B05A-ACED-DE11-88F5-00261894382D.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/0A7FD35A-ACED-DE11-A58F-00261894397F.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/04C8B343-AAED-DE11-B79E-00248C0BE014.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/E2F293FB-90ED-DE11-9E96-001A92811732.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/D25B7D86-9BED-DE11-B5D7-003048678C06.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/BE98BC7D-9BED-DE11-95E4-001731EF61B4.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/A67DE9FD-9EED-DE11-9996-003048678A88.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/98C25867-99ED-DE11-A143-002618FDA28E.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/96E47027-97ED-DE11-BF05-003048678B38.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/8C9D405C-9DED-DE11-8A33-00304867906C.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/8AB23F5E-9DED-DE11-8E26-0018F3D09688.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/7083B20A-9FED-DE11-914C-00261894383A.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/6C3C8E01-95ED-DE11-8279-003048678FE0.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/605782F3-90ED-DE11-B5E7-002618943950.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/386B095B-9DED-DE11-B20A-002618FDA28E.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/2AEB4383-9BED-DE11-8720-003048679220.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/1C5F7A27-97ED-DE11-BE35-001A92971ACC.root',
+'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0004/16E12B7D-9BED-DE11-99CF-003048678B8E.root')
 )
-)
+# add after dataset name in crab job
+# runselection = XXXXXX, YYYYYYY, .....
 
 # Analyzer module
 process.myanalysis = cms.EDFilter(
@@ -64,6 +96,8 @@ process.myanalysis = cms.EDFilter(
 #    calojets         = cms.string('iterativeCone5CaloJets'),
 #    calojets         = cms.string('sisCone5CaloJets'),
     calojets         = cms.string('ak5CaloJets'),
+    jetsID           = cms.string('ak5JetID'),
+    jetExtender      = cms.string('ak5JetExtender'),
 #    zspjets          = cms.string('ZSPJetCorJetIcone5'),
 #    zspjets          = cms.string('ZSPJetCorJetSiscone5'),
     zspjets          = cms.string('ZSPJetCorJetAntiKt5'),
