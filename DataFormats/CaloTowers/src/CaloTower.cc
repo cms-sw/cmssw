@@ -205,9 +205,9 @@ int CaloTower::numCrystals() const {
 // Set the CaloTower status word from the number of bad/recovered/problematic
 // cells in HCAL and ECAL.
 
-void CaloTower::setCaloTowerStatus(uint numBadHcalChan,uint numBadEcalChan, 
-				   uint numRecHcalChan,uint numRecEcalChan,
-				   uint numProbHcalChan,uint numProbEcalChan) {
+void CaloTower::setCaloTowerStatus(unsigned int numBadHcalChan,unsigned int numBadEcalChan, 
+				   unsigned int numRecHcalChan,unsigned int numRecEcalChan,
+				   unsigned int numProbHcalChan,unsigned int numProbEcalChan) {
 
   twrStatusWord_ = 0x0;
 

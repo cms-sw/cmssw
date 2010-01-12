@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2009/02/25 07:05:54 $
-$Revision: 1.14 $
+$Date: 2009/04/09 05:03:00 $
+$Revision: 1.15 $
 \author J. Mans - Minnesota
 */
 
@@ -56,9 +56,9 @@ public:
   // set CaloTower status based on the number of
   // bad/recovered/problematic cells in ECAL and HCAL
 
-  void setCaloTowerStatus(uint numBadHcalChan,uint numBadEcalChan, 
-			  uint numRecHcalChan,uint numRecEcalChan,
-			  uint numProbHcalChan,uint numProbEcalChan);
+  void setCaloTowerStatus(unsigned int numBadHcalChan,unsigned int numBadEcalChan, 
+			  unsigned int numRecHcalChan,unsigned int numRecEcalChan,
+			  unsigned int numProbHcalChan,unsigned int numProbEcalChan);
 
   void setCaloTowerStatus(uint32_t s) { twrStatusWord_ = s; }
 
@@ -145,13 +145,13 @@ public:
   // number of bad/recovered/problematic cells in the tower
   // separately for ECAL and HCAL
 
-  uint numBadEcalCells() const { return (twrStatusWord_ & 0x1F); }
-  uint numRecoveredEcalCells() const { return ((twrStatusWord_ >> 5) & 0x1F); }
-  uint numProblematicEcalCells() const { return ((twrStatusWord_ >> 10) & 0x1F); }
+  unsigned int numBadEcalCells() const { return (twrStatusWord_ & 0x1F); }
+  unsigned int numRecoveredEcalCells() const { return ((twrStatusWord_ >> 5) & 0x1F); }
+  unsigned int numProblematicEcalCells() const { return ((twrStatusWord_ >> 10) & 0x1F); }
 
-  uint numBadHcalCells() const { return ( (twrStatusWord_ >> 15)& 0x7); }
-  uint numRecoveredHcalCells() const { return ((twrStatusWord_ >> 18) & 0x7); }
-  uint numProblematicHcalCells() const { return ((twrStatusWord_ >> 21) & 0x7); }
+  unsigned int numBadHcalCells() const { return ( (twrStatusWord_ >> 15)& 0x7); }
+  unsigned int numRecoveredHcalCells() const { return ((twrStatusWord_ >> 18) & 0x7); }
+  unsigned int numProblematicHcalCells() const { return ((twrStatusWord_ >> 21) & 0x7); }
 
   // the status word itself
   uint32_t towerStatusWord() const { return twrStatusWord_; }
