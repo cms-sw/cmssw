@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: QuadJetAnalyzer.cc,v 1.4 2009/11/03 14:06:25 slaunwhj Exp $
+// $Id: QuadJetAnalyzer.cc,v 1.5 2010/01/07 13:18:16 slaunwhj Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+//#include "CommonTools/Utilities/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
