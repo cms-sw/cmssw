@@ -24,7 +24,8 @@
 using namespace std;
 
 TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const int xBins, const double & deltaX, const double & xMin, const double & xMax,
-                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor, const TH1F* allHisto);
+                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor, const TH1F* allHisto,
+                      const double & b = 0);
 
 void BackgroundCheck()
 {
@@ -33,6 +34,7 @@ void BackgroundCheck()
   TFile * backgroundFile = new TFile("0_MuScleFit.root", "READ");
 
   TH1F * allHisto = (TH1F*)allFile->Get("hRecBestRes_Mass");
+  // TH1F * allHisto = (TH1F*)allFile->Get("hRecBestResAllEvents_Mass");
   TH1F * resonanceHisto = (TH1F*)resonanceFile->Get("hRecBestRes_Mass");
   TH1F * backgroundHisto = (TH1F*)backgroundFile->Get("hRecBestRes_Mass");
 
@@ -62,17 +64,27 @@ void BackgroundCheck()
 
   // IMPORTANT: parameters to change
   // -------------------------------
-  ires.push_back(3);
-  Bgrp1.push_back(0.386119);
-  a.push_back(0.111908);
-  leftWindowFactor.push_back(10.);
-  rightWindowFactor.push_back(10.);
-
   ires.push_back(5);
-  Bgrp1.push_back(0.856432);
-  a.push_back(0.407596);
-  leftWindowFactor.push_back(10.);
-  rightWindowFactor.push_back(10.);
+
+  // Exponential
+  // Bgrp1.push_back(0.556895);
+  // a.push_back(1.11443);
+  // Bgrp1.push_back(0.22022);
+  // a.push_back(1.07583);
+
+  // Linear
+  // Bgrp1.push_back(0.512332);
+  // a.push_back(140.06);
+  // a.push_back(-23.9593);
+
+  // leftWindowFactor.push_back(1. + 0.2946/0.2);
+  // rightWindowFactor.push_back(1. - 0.2946/0.2);
+  // leftWindowFactor.push_back(4. + 0.2946/0.2);
+  // rightWindowFactor.push_back(4. - 0.2946/0.2);
+  leftWindowFactor.push_back(1.);
+  rightWindowFactor.push_back(1.);
+  // leftWindowFactor.push_back(4.);
+  // rightWindowFactor.push_back(4.);
 
   // -------------------------------
 
@@ -80,7 +92,7 @@ void BackgroundCheck()
   vector<TH1F*> backgroundFunctionHisto;
   for( unsigned int i=0; i<ires.size(); ++i ) {
     backgroundFunctionHisto.push_back( buildHistogram(ResMass, ResHalfWidth, xBins, deltaX, xMin, xMax,
-                                                      ires[i], Bgrp1[i], a[i], leftWindowFactor[i], rightWindowFactor[i], allHisto) );
+                                                      ires[i], Bgrp1[i], a[i], leftWindowFactor[i], rightWindowFactor[i], allHisto, a[i+1]) );
   }
 
   TLegend * legend = new TLegend( 0.55, 0.65, 0.76, 0.82 );
@@ -115,7 +127,8 @@ void BackgroundCheck()
 }
 
 TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const int xBins, const double & deltaX, const double & xMin, const double & xMax,
-                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor, const TH1F* allHisto)
+                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor, const TH1F* allHisto,
+                      const double & b)
 {
   // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
   double lowWindowValue = ResMass[ires]-leftWindowFactor*ResHalfWidth[ires];
@@ -129,42 +142,61 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
 
   double xWidth = deltaX/xBins;
 
-  // Exponential
-  // -----------
-  TF1 * backgroundFunction = new TF1("backgroundFunction", "[0]*([1]*exp(-[1]*x))", xMin, xMax );
 
-  backgroundFunction->SetParameter(0, 1);
-  backgroundFunction->SetParameter(1, a);
+  TF1 * backgroundFunction = 0;
+  TH1F * backgroundFunctionHisto = 0;
 
-  TH1F * backgroundFunctionHisto = new TH1F("backgroundFunctionHisto", "backgroundFunctionHisto", xBins, xMin, xMax);
-  for( int xBin = 0; xBin < xBins; ++xBin ) {
-    // Compute the value in the mean bin point.
-    // backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Eval((xBin+1/2)*xWidth));
-    backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Integral(xBin*xWidth, (xBin+1)*xWidth));
-    // cout << "xBin = " << xBin << ", backgroundFunction->Eval((xBin+1/2)*xWidth) = " << backgroundFunction->Eval((xBin+1/2)*xWidth) << endl;
+  bool exponential = true;
+  if( exponential ) {
+    // Exponential
+    // -----------
+    // backgroundFunction = new TF1("backgroundFunction", "[0]*([1]*exp(-[1]*x))", xMin, xMax );
+    backgroundFunction = new TF1("backgroundFunction", "[0]*(-[1]*exp(-[1]*x)/(exp(-[1]*(3.0969+0.8)) - exp(-[1]*(3.0969-0.8)) ))", xMin, xMax );
+    backgroundFunction->SetParameter(0, 1);
+    backgroundFunction->SetParameter(1, a);
+    backgroundFunctionHisto = new TH1F("backgroundFunctionHisto", "backgroundFunctionHisto", xBins, xMin, xMax);
+    for( int xBin = 0; xBin < xBins; ++xBin ) {
+      backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Integral(xBin*xWidth, (xBin+1)*xWidth));
+    }
+  }
+  else {
+    // Linear
+    // ------
+    backgroundFunction = new TF1("backgroundFunction", "[0]*([1]+[2]*x)", xMin, xMax );
+    backgroundFunction->SetParameter(0, 1);
+    backgroundFunction->SetParameter(1, a);
+    backgroundFunction->SetParameter(2, b);
+    backgroundFunctionHisto = new TH1F("backgroundFunctionHisto", "backgroundFunctionHisto", xBins, xMin, xMax);
+    for( int xBin = 0; xBin < xBins; ++xBin ) {
+      backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Integral(xBin*xWidth, (xBin+1)*xWidth));
+    }
   }
 
-  // Compute the integral used to rescale the background function only in the region actually used for the computation.
-  // (Where the function was also normalized, which is also the region the values refer to).
-  // double integral = allHisto->Integral(0, lowBin) + allHisto->Integral(upBin, xBins);
-  double integral = allHisto->Integral(lowBin, upBin);
-  double functionIntegral = backgroundFunction->Integral(lowWindowValue, upWindowValue);
-  double functionHistoIntegral = backgroundFunctionHisto->Integral(lowBin, upBin);
-  double normalization = integral/functionIntegral*Bgrp1/(upBin-lowBin);
-  double normalizationHisto = integral*Bgrp1/functionHistoIntegral;
+  // The integral of the background function is 1
+  // The function must be rescaled multiplying it to the number of events and k = Bgrp1
+  double totEvents = allHisto->Integral(lowBin, upBin);
+  backgroundFunctionHisto->Scale(Bgrp1*totEvents);
+  backgroundFunction->SetParameter(0, Bgrp1*totEvents);
 
-  // To normalize the function so that its integral in the resonance mass
-  // window gives the fraction of events determined by the fit.
-  // This is divided by the number of bins in that interval (after rebinning).
-  backgroundFunction->SetParameter(0, normalization);
+//   // Compute the integral used to rescale the background function only in the region actually used for the computation.
+//   // (Where the function was also normalized, which is also the region the values refer to).
+//   double functionIntegral = backgroundFunction->Integral(lowWindowValue, upWindowValue);
+//   double functionHistoIntegral = backgroundFunctionHisto->Integral(lowBin, upBin);
+//   double normalization = integral/functionIntegral*Bgrp1/(upBin-lowBin);
+//   double normalizationHisto = integral*Bgrp1/functionHistoIntegral;
 
-  backgroundFunctionHisto->Scale(normalizationHisto);
+//   // To normalize the function so that its integral in the resonance mass
+//   // window gives the fraction of events determined by the fit.
+//   // This is divided by the number of bins in that interval (after rebinning).
+//   backgroundFunction->SetParameter(0, normalization);
 
-  cout << "Integral = " << integral << endl;
+//   backgroundFunctionHisto->Scale(normalizationHisto);
+
+  cout << "Total events in the background window = " << totEvents << endl;
   cout << "FunctionHisto integral = " << backgroundFunctionHisto->Integral(lowBin, upBin) << endl;
-  cout << "Bgrp1 from histo = " << backgroundFunctionHisto->Integral(lowBin, upBin)/integral << endl;
+//   cout << "Bgrp1 from histo = " << backgroundFunctionHisto->Integral(lowBin, upBin)/integral << endl;
   cout << "Function integral = " << backgroundFunction->Integral(lowWindowValue, upWindowValue) << endl;
-  cout << "Bgrp1 from function = " << backgroundFunction->Integral(lowWindowValue, upWindowValue)/integral << endl;
+//   cout << "Bgrp1 from function = " << backgroundFunction->Integral(lowWindowValue, upWindowValue)/integral << endl;
 
   return backgroundFunctionHisto;
 }
