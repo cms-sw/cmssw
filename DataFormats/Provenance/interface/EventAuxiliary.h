@@ -60,6 +60,7 @@ namespace edm {
     std::string const& processGUID() const {return processGUID_;}
     Timestamp const& time() const {return time_;}
     LuminosityBlockNumber_t luminosityBlock() const {return id_.luminosityBlock() != 0U ? id_.luminosityBlock() : luminosityBlock_;}
+    LuminosityBlockNumber_t oldLuminosityBlock() const {return luminosityBlock_;}
     void resetObsoleteInfo() {luminosityBlock_ = 0;}
     EventNumber_t event() const {return id_.event();}
     RunNumber_t run() const {return id_.run();}

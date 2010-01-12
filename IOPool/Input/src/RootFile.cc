@@ -807,7 +807,7 @@ namespace edm {
     fillEventAuxiliary();
     if(!fileFormatVersion().lumiInEventID()) {
 	//ugly, but will disappear when the backward compatibility is done with schema evolution.
-	const_cast<EventID&>(eventAux_.id()).setLuminosityBlockNumber(eventAux_.luminosityBlock());
+	const_cast<EventID&>(eventAux_.id()).setLuminosityBlockNumber(eventAux_.oldLuminosityBlock());
 	eventAux_.resetObsoleteInfo();
     }
     fillHistory();
