@@ -40,7 +40,7 @@ process.source = cms.Source("PoolSource",
 #        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/3C02A810-7CE8-DE11-BB51-003048D375AA.root',
 #        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/04F15557-7BE8-DE11-8A41-003048D2C1C4.root',
 #        '/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/124/120/04092AB7-75E8-DE11-958F-000423D98750.root'
-         'file:./RECOHcalCalMinBias.root'
+         'file:./reco900GeV123596.root'
 )
 )
 
@@ -58,6 +58,18 @@ process.source = cms.Source("PoolSource",
 #    inputTrackLabel = cms.untracked.string('generalTracks')
 #)
 
+#### remove monster events
+process.monster = cms.EDFilter(
+    "FilterOutScraping",
+    applyfilter = cms.untracked.bool(True),
+    debugOn = cms.untracked.bool(True),
+    numtrack = cms.untracked.uint32(10),
+    thresh = cms.untracked.double(0.2)
+    )
+####
+
+
+
 process.myjetplustrack = cms.EDFilter("JetPlusTrackCollisionAnalysis",
     HistOutFile = cms.untracked.string('JetAnalysis.root'),
     src1 = cms.InputTag("ak5CaloJets"),
@@ -74,5 +86,5 @@ process.myjetplustrack = cms.EDFilter("JetPlusTrackCollisionAnalysis",
 )
 
 
-process.p1 = cms.Path(process.ZSPJetCorrectionsAntiKt5*process.JetPlusTrackCorrectionsAntiKt5*process.myjetplustrack)
+process.p1 = cms.Path(process.monster*process.ZSPJetCorrectionsAntiKt5*process.JetPlusTrackCorrectionsAntiKt5*process.myjetplustrack)
 #process.p1 = cms.Path(process.hltLevel1GTSeed*process.ZSPJetCorrectionsAntiKt5*process.JetPlusTrackCorrectionsAntiKt5*process.myjetplustrack)
