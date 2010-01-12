@@ -39,6 +39,9 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
+#include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
+#include "DataFormats/JetReco/interface/JetID.h"
 //
 // muons and tracks
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -51,6 +54,8 @@
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 // candidates
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -86,12 +91,17 @@ class JPTAnalyzer_Data : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
+  // JPT corrector
+  const JetPlusTrackCorrector* jptCorrector_;
+  //
   // output root file
   string fOutputFileName ;
   // names of modules, producing object collections
   // raw calo jets
   string calojetsSrc;
+  string jetsIDSrc;
+  string jetExtenderSrc;
   // calo jets after zsp corrections
   string zspjetsSrc;
   //
@@ -177,7 +187,9 @@ JPTAnalyzer_Data::JPTAnalyzer_Data(const edm::ParameterSet& iConfig)
   //
   // get names of input object collections
   // raw calo jets
-  calojetsSrc   = iConfig.getParameter< std::string > ("calojets");
+  calojetsSrc      = iConfig.getParameter< std::string > ("calojets");
+  jetsIDSrc        = iConfig.getParameter< std::string > ("jetsID");
+  //  jetExtenderSrc   = iConfig.getParameter< std::string > ("jetExtender");
   // calo jets after zsp corrections
   zspjetsSrc    = iConfig.getParameter< std::string > ("zspjets");
   //
@@ -276,6 +288,13 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    edm::Handle<CaloJetCollection> calojets;
    iEvent.getByLabel(calojetsSrc, calojets);
+
+   //   Handle<JetExtendedAssociation::Container> jetExtender;
+   //   iEvent.getByLabel(jetExtenderSrc,jetExtender);
+
+   Handle<ValueMap<reco::JetID> > jetsID;
+   iEvent.getByLabel(jetsIDSrc,jetsID);
+
    // get calo jet after zsp collection
    edm::Handle<CaloJetCollection> zspjets;
    iEvent.getByLabel(zspjetsSrc, zspjets);
@@ -283,73 +302,161 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      cout << "====> number of calo jets "<< calojets->size() 
 	  << " number if zsp jets = " << zspjets->size() << endl;
      */
-   if(calojets->size() > 0) {
 
-     // MC jet energy corrections
-     //       const JetCorrector* correctorMCJ = JetCorrector::getJetCorrector (JetCorrectionMCJ, iSetup);
-     // ZSP jet energy corrections
-     //       const JetCorrector* correctorZSP = JetCorrector::getJetCorrector (JetCorrectionZSP, iSetup);
-     // Jet+tracks energy corrections
+   // get vertex
+   Handle<reco::VertexCollection> recVtxs;
+   iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+   int nvtx = 0;
+   double mPVx, mPVy, mPVz;
+   int ntrk = 0;
+   for(unsigned int ind = 0; ind < recVtxs->size(); ind++) 
+     {
+       if (!((*recVtxs)[ind].isFake())) 
+	 {
+	   nvtx = nvtx + 1;
+	   if(nvtx == 1) {
+	     mPVx = (*recVtxs)[ind].x();
+	     mPVy = (*recVtxs)[ind].y();
+	     mPVz = (*recVtxs)[ind].z();
+	     ntrk = (*recVtxs)[ind].tracksSize();
+	   }
+	 }
+     }
+   
+   if( (nvtx == 1) && (ntrk > 3) ) {
+
+     /*
+     cout <<"   Vertex found, X = " << mPVx
+          <<" Y = " << mPVy
+	  <<" Z = " << mPVz 
+	  <<" ntrk = " << ntrk << endl;
      
-     const JetCorrector* correctorJPT = JetCorrector::getJetCorrector (JetCorrectionJPT, iSetup);
-     
-     // loop over jets and do matching with gen jets
-     int jc = 0;
-     
-     for( CaloJetCollection::const_iterator cjet = calojets->begin(); 
-	  cjet != calojets->end(); ++cjet ){ 
-       jc++;
-       //
-       CLHEP::HepLorentzVector cjetc(cjet->px(), cjet->py(), cjet->pz(), cjet->energy());
-       /*
-	 cout <<" ==> calo jet Et = " << cjet->pt()
-	 <<" eta = " << cjet->eta()
-	 <<" phi = " << cjet->phi() << endl;
-       */
-       CaloJetCollection::const_iterator zspjet;
-       for( zspjet = zspjets->begin(); 
-	    zspjet != zspjets->end(); ++zspjet ){ 
-	 CLHEP::HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
-	 double dr = zspjetc.deltaR(cjetc);
-	 /*
-	   cout <<"      zspjet Et = " << zspjet->pt()
-	   <<" eta = " << zspjet->eta()
-	   <<" phi = " << zspjet->phi()
-	   <<" dr = " << dr << endl;
-	 */
-	 if(dr < 0.001) break;
-       }
-       /*
-	 cout <<" --> matched zsp jet found Et = " << zspjet->pt()
-	 <<" eta = " << zspjet->eta()
-	 <<" phi = " << zspjet->phi() << endl;
-       */
-       // JPT corrections
-       double scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
-       Jet::LorentzVector jetscaleJPT(zspjet->px()*scaleJPT, zspjet->py()*scaleJPT,
-				      zspjet->pz()*scaleJPT, zspjet->energy()*scaleJPT);
-       /*
-	 cout <<" ..> corrected jpt jet Et = " << jetscaleJPT.pt()
-	 <<" eta = " << jetscaleJPT.eta()
-	 <<" phi = " << jetscaleJPT.phi() << endl;
-       */
-       CaloJet cjetJPT(jetscaleJPT, cjet->getSpecific(), cjet->getJetConstituents());
+     */
+
+     if( (calojets->size() > 0) && (zspjets->size() > 0) ) {
+
+       // MC jet energy corrections
+       //       const JetCorrector* correctorMCJ = JetCorrector::getJetCorrector (JetCorrectionMCJ, iSetup);
+       // ZSP jet energy corrections
+       //       const JetCorrector* correctorZSP = JetCorrector::getJetCorrector (JetCorrectionZSP, iSetup);
+       // Jet+tracks energy corrections
        
-       if(jc == 1) {
+       const JetCorrector* correctorJPT = JetCorrector::getJetCorrector (JetCorrectionJPT, iSetup);
+       
+       // loop over jets and do matching with gen jets
+       // number of all raw calo jets
+       int jc = 0;
+       // number of raw calo jets passed jet ID and eta < 2.0
+       int jcgood = 0;
+       // number of jtp jets > 10 GeV       
+       int jjpt = 0;
+
+       for( CaloJetCollection::const_iterator cjet = calojets->begin(); 
+	    cjet != calojets->end(); ++cjet ){ 
 	 
-	 EtaRaw1 = cjet->eta(); 
-	 PhiRaw1 = cjet->phi();
-	 EtRaw1  = cjet->pt();
-	 //	   EtMCJ1  = cjetMCJ.pt(); 
-	 EtZSP1  = zspjet->pt(); 
-	 EtJPT1  = cjetJPT.pt(); 
-       }
-       if(jc == 2) {
-	 EtaRaw2 = cjet->eta(); 
-	 PhiRaw2 = cjet->phi();
-	 EtRaw2  = cjet->pt();
-	 EtZSP2  = zspjet->pt(); 
-	 EtJPT2  = cjetJPT.pt(); 
+	 // raw jet selection 
+	 RefToBase<Jet> jetRef(Ref<CaloJetCollection>(calojets,jc));
+	 double mN90  = (*calojets)[jc].n90();
+	 double mEmf  = (*calojets)[jc].emEnergyFraction(); 	
+	 double mfHPD = (*jetsID)[jetRef].fHPD;
+	 double mfRBX = (*jetsID)[jetRef].fRBX; 
+	 
+	 jc++;
+	 
+	 // good jet selections
+	 
+	 if(mEmf < 0.01) continue;
+	 if(mfHPD>0.98) continue;
+	 if(mfRBX>0.98) continue;
+	 if(mN90 < 2) continue;
+	 if(fabs(cjet->eta()) > 2.0) continue;
+	 
+	 //
+	 CLHEP::HepLorentzVector cjetc(cjet->px(), cjet->py(), cjet->pz(), cjet->energy());
+	 /*
+	   cout <<" ==> calo jet Et = " << cjet->pt()
+	   <<" eta = " << cjet->eta()
+	   <<" phi = " << cjet->phi() << endl;
+	 */
+
+	 /*	 
+	 cout <<"  == jet N = " << jcgood
+	      <<" pt = " << cjet->pt()
+	      <<" eta = " << cjet->eta()
+	      <<" mEmf = " << mEmf
+	      <<" mfHPD = " << mfHPD
+	      <<" mfRBX = " << mfRBX << endl;
+	 */
+
+	 int iczsp = 0;
+	 
+	 CaloJetCollection::const_iterator zspjet;
+	 for( zspjet = zspjets->begin(); 
+	      zspjet != zspjets->end(); ++zspjet ){ 
+	   CLHEP::HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
+	   double dr = zspjetc.deltaR(cjetc);
+
+	   /*	   
+	   cout <<"      zspjet Et = " << zspjet->pt()
+		<<" eta = " << zspjet->eta()
+		<<" phi = " << zspjet->phi()
+		<<" dr = " << dr << endl;
+	   */
+
+	   if(dr < 0.001) {
+	     iczsp = 1;
+	     break;
+	   }
+	 }
+	 
+	 if(iczsp == 0) continue;
+	 
+	 jcgood = jcgood + 1;
+
+	 /*
+	 cout <<" --> matched zsp jet found Et = " << zspjet->pt()
+	      <<" eta = " << zspjet->eta()
+	      <<" phi = " << zspjet->phi() << endl;
+	 */
+
+	 // JPT corrections
+	 double scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
+	 Jet::LorentzVector jetscaleJPT(zspjet->px()*scaleJPT, zspjet->py()*scaleJPT,
+					zspjet->pz()*scaleJPT, zspjet->energy()*scaleJPT);
+	 /* 
+	 cout <<" ....> corrected jpt jet Et = " << jetscaleJPT.pt()
+	      <<" eta = " << jetscaleJPT.eta()
+	      <<" phi = " << jetscaleJPT.phi() << endl;
+	 */
+	 CaloJet cjetJPT(jetscaleJPT, cjet->getSpecific(), cjet->getJetConstituents());
+
+	 jpt::MatchedTracks pions;
+	 jpt::MatchedTracks muons;
+	 jpt::MatchedTracks electrons;
+	 const bool particlesOK = true;
+	 jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(correctorJPT);
+	 jptCorrector_->matchTracks(cjetJPT,iEvent,iSetup,pions,muons,electrons);
+	 
+	 if(cjetJPT.pt() > 10.) {
+
+	   jjpt = jjpt + 1;
+	   
+	   if(jjpt == 1) {
+	     EtaRaw1 = cjet->eta(); 
+	     PhiRaw1 = cjet->phi();
+	     EtRaw1  = cjet->pt();
+	     EtZSP1  = zspjet->pt(); 
+	     EtJPT1  = cjetJPT.pt(); 
+	   }
+	   if(jjpt == 2) {
+	     EtaRaw2 = cjet->eta(); 
+	     PhiRaw2 = cjet->phi();
+	     EtRaw2  = cjet->pt();
+	     EtZSP2  = zspjet->pt(); 
+	     EtJPT2  = cjetJPT.pt(); 
+	   }
+	   t1->Fill();
+	 }
        }
      }
    }
@@ -364,9 +471,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        }
      */
    // fill tree
-   t1->Fill();
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(JPTAnalyzer_Data);
