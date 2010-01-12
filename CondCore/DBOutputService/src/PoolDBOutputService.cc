@@ -358,9 +358,9 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
   return payloadIdx;
 }
 
-void cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string& recordName, 
-						  bool withlogging) {
-  
+void 
+cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string& recordName, 
+					     bool withlogging) {
   // not fully working.. not be used for now...
   Record & record  = lookUpRecord(recordName);
   if( record.m_isNewTag ) {

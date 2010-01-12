@@ -11,10 +11,9 @@ namespace popcon {
     m_record(pset.getParameter<std::string> ("record")),
     m_payload_name(pset.getUntrackedParameter<std::string> ("name","")),
     m_LoggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true)),
-    m_IsDestDbCheckedInQueryLog(pset.getUntrackedParameter< bool > ("IsDestDbCheckedInQueryLog","True"))
+    m_IsDestDbCheckedInQueryLog(pset.getUntrackedParameter< bool > ("IsDestDbCheckedInQueryLog","True")),
     m_close(pset.getUntrackedParameter< bool > ("closeIOV",false)),
-    m_lastTill(pset.getUntrackedParameter< bool > ("lastTill",0)),
-
+    m_lastTill(pset.getUntrackedParameter< bool > ("lastTill",0))
     {
       //TODO set the policy (cfg or global configuration?)
       //Policy if corrupted data found
@@ -55,11 +54,12 @@ namespace popcon {
   
   
   void PopCon::finalize(Time_t lastTill) {
-
+    
     if (m_close) {
       // avoid to close it before lastSince
       if (m_lastTill>lastTill) lastTill=m_lastTill;
       m_dbService->closeIOV(lastTill,m_record);
     }
+  }
   
 }
