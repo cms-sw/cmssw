@@ -106,22 +106,34 @@ offlineDQMMuonTrigCosmics = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	# list of triggers
     # any triggers not in the hlt configuraiton
     # will be ignored
+
 									
-	TriggerNames = cms.vstring(
-        "HLT_L1Mu",
-        "HLT_L1MuOpen",
-		"HLT_L1Mu20",
-        "HLT_L2Mu9",
-		"HLT_L2Mu11",
-        "HLT_IsoMu3",        
-        "HLT_Mu3",
-        "HLT_Mu5",
-        "HLT_Mu9",        
-        "HLT_DoubleMu3",
-        "HLT_DoubleMu0",
-		"HLT_L1DoubleMuOpen",
-		"HLT_L2Mu3",
+	TriggerRegExpStrings = cms.vstring(
+	"HLT_L[12]Mu[^_]*$",
+	"HLT_[iI]soMu[^_]*$",
+	"HLT_Mu[^_]*$",
+	"HLT_L[12]DoubleMu[^_]*$",
+	"HLT_DoubleMu[^_]*$"
     ),
+
+
+
+									
+	# TriggerNames = cms.vstring(
+#         "HLT_L1Mu",
+#         "HLT_L1MuOpen",
+# 		"HLT_L1Mu20",
+#         "HLT_L2Mu9",
+# 		"HLT_L2Mu11",
+#         "HLT_IsoMu3",        
+#         "HLT_Mu3",
+#         "HLT_Mu5",
+#         "HLT_Mu9",        
+#         "HLT_DoubleMu3",
+#         "HLT_DoubleMu0",
+# 		"HLT_L1DoubleMuOpen",
+# 		"HLT_L2Mu3",
+#     ),
 
 
 )
