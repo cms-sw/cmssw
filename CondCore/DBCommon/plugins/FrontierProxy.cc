@@ -23,7 +23,8 @@ namespace cond{
     static unsigned int countslash(const std::string& input);
   private:
     std::string m_userconnect;
-    std::vector<std::string> m_refreshtablelist;
+    std::string m_transactionID;
+  std::vector<std::string> m_refreshtablelist;
   };
 }//ns cond
 
@@ -53,6 +54,7 @@ cond::FrontierProxy::getRealConnectString() const{
     }
     result=localconfservice->lookupCalibConnect(m_userconnect);
   }
+  if (!m_transactionID.empty()) result +="(freshkey="+m_transactionID+')';
   return result;
 }
 
@@ -81,6 +83,8 @@ cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnectio
   for(std::vector<std::string>::iterator it=ibeg; it!=iend; ++it){
     connection.webCacheControl().refreshTable(refreshConnect,*it );
   }
+  
+  m_transactionID = connection.configuration().m_transactionID;
 }
 unsigned int
 cond::FrontierProxy::countslash(const std::string& input) {
