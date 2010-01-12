@@ -21,8 +21,8 @@ original_paths     = []
 original_endpaths  = []
 original_sequences = []
 
-# Replacement for __import__()
-def import_hook(name, globals=None, locals=None, fromlist=None):
+# replacement for __import__() as in Python 2.4 - the "level" parameter is not used
+def import_hook(name, globals=None, locals=None, fromlist=None, level=-1):
     parent = determine_parent(globals)
     q, tail = find_head_package(parent, name)
     m = load_tail(q, tail)
