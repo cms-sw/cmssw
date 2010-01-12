@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'IDEAL_V11::All'
+process.GlobalTag.globaltag = 'DESIGN_3X_V14::All'
 process.source = cms.Source("EmptySource")
 
 process.htr_xml = cms.EDFilter("HtrXmlPattern",
