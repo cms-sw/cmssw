@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.3 2009/04/01 10:45:52 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.4 2009/08/25 20:48:01 hegner Exp $
 //
 
 
@@ -32,19 +32,15 @@ PATTriggerEventProducer::~PATTriggerEventProducer()
 {
 }
 
-void PATTriggerEventProducer::beginRun( edm::Run & iRun, const edm::EventSetup & iSetup )
-{
-  if ( ! hltConfig_.init( nameProcess_ ) ) {
-    edm::LogError( "hltConfigExtraction" ) << "HLT config extraction err with process name " << nameProcess_;
-    return;
-  }                          
-}
-
 void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  bool changed( true );
+  if ( ! hltConfig_.init( iEvent, nameProcess_, changed ) ) {
+    edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+    return;
+  }
   if ( hltConfig_.size() <= 0 ) {
-    edm::LogError( "hltConfigSize" ) << "HLT config size err" << "\n"
-                                     << "Check for occurence of an \"errHltConfigExtraction\" from beginRun()";
+    edm::LogError( "hltConfigSize" ) << "HLT config size error";
     return;
   }
   edm::Handle< edm::TriggerResults > handleTriggerResults;
@@ -64,7 +60,7 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
   assert( handleTriggerObjects->size() == handleTriggerObjectsStandAlone->size() );
 
   // produce trigger event
-  
+
   std::auto_ptr< TriggerEvent > triggerEvent( new TriggerEvent( std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error() ) );
   // set product references to trigger collections
   if ( handleTriggerPaths.isValid() ) {
@@ -82,7 +78,7 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
   } else {
     edm::LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
   }
-  
+
   // produce trigger match association and set references
   if ( handleTriggerObjects.isValid() ) {
     for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {
@@ -122,7 +118,7 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
       }
     }
   }
-  
+
   iEvent.put( triggerEvent );
 }
 

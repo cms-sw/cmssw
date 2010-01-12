@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.6 2009/08/25 20:48:01 hegner Exp $
+// $Id: PATTriggerProducer.cc,v 1.7 2009/09/05 17:13:56 vadler Exp $
 //
 
 
@@ -36,19 +36,15 @@ PATTriggerProducer::~PATTriggerProducer()
 {
 }
 
-void PATTriggerProducer::beginRun( edm::Run & iRun, const edm::EventSetup & iSetup )
-{
-  if ( ! hltConfig_.init( nameProcess_ ) ) {
-    edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
-    return;
-  }                          
-}
-
 void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  bool changed( true );
+  if ( ! hltConfig_.init( iEvent, nameProcess_, changed ) ) {
+    edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+    return;
+  }
   if ( hltConfig_.size() <= 0 ) {
-    edm::LogError( "errorHltConfigSize" ) << "HLT config size error" << "\n"
-                                          << "Check for occurence of an \"errorHltConfigExtraction\" from beginRun()";
+    edm::LogError( "errorHltConfigSize" ) << "HLT config size error";
     return;
   }
   edm::Handle< edm::TriggerResults > handleTriggerResults;
@@ -65,16 +61,16 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // produce trigger paths and determine status of modules
-  
+
   const unsigned sizePaths( hltConfig_.size() );
   const unsigned sizeFilters( handleTriggerEvent->sizeFilters() );
   const unsigned sizeObjects( handleTriggerEvent->sizeObjects() );
-    
+
   std::auto_ptr< TriggerPathCollection > triggerPaths( new TriggerPathCollection() );
   triggerPaths->reserve( onlyStandAlone_ ? 0 : sizePaths );
   std::map< std::string, int > moduleStates;
   std::multimap< std::string, std::string > filterPaths;
-  
+
   for ( size_t iP = 0; iP < sizePaths; ++iP ) {
     const std::string namePath( hltConfig_.triggerName( iP ) );
     const unsigned indexPath( hltConfig_.triggerIndex( namePath ) );
@@ -101,7 +97,7 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         if ( indexFilter < sizeFilters ) {
           triggerPath.addFilterIndex( indexFilter );
         }
-        const unsigned slotModule( hltConfig_.moduleIndex( indexPath, nameModule ) ); 
+        const unsigned slotModule( hltConfig_.moduleIndex( indexPath, nameModule ) );
         indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
       }
       // store path
@@ -118,23 +114,23 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }
-  
+
   if ( ! onlyStandAlone_ ) {
     iEvent.put( triggerPaths );
   }
-  
+
   // produce trigger filters and store used trigger object types
   // (only last active filter(s) available from trigger::TriggerEvent)
-  
+
   std::auto_ptr< TriggerFilterCollection > triggerFilters( new TriggerFilterCollection() );
   triggerFilters->reserve( onlyStandAlone_ ? 0 : sizeFilters );
   std::multimap< trigger::size_type, int >         filterIds;
   std::multimap< trigger::size_type, std::string > filterLabels;
-  
+
   for ( size_t iF = 0; iF < sizeFilters; ++iF ) {
     const std::string nameFilter( handleTriggerEvent->filterTag( iF ).label() );
     const trigger::Keys & keys = handleTriggerEvent->filterKeys( iF );
-    const trigger::Vids & ids  = handleTriggerEvent->filterIds( iF );   
+    const trigger::Vids & ids  = handleTriggerEvent->filterIds( iF );
     assert( ids.size() == keys.size() );
     for ( size_t iK = 0; iK < keys.size(); ++iK ) {
       filterLabels.insert( std::pair< trigger::size_type, std::string >( keys[ iK ], nameFilter ) ); // only for objects used in last active filter
@@ -170,14 +166,14 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   if ( ! onlyStandAlone_ ) {
     iEvent.put( triggerFilters );
   }
-  
+
   // produce trigger objects
-  
+
   std::auto_ptr< TriggerObjectCollection > triggerObjects( new TriggerObjectCollection() );
   triggerObjects->reserve( onlyStandAlone_ ? 0 : sizeObjects );
   std::auto_ptr< TriggerObjectStandAloneCollection > triggerObjectsStandAlone( new TriggerObjectStandAloneCollection() );
   triggerObjectsStandAlone->reserve( sizeObjects );
-  
+
   const trigger::Keys & collectionKeys( handleTriggerEvent->collectionKeys() );
   for ( size_t iO = 0, iC = 0; iO < sizeObjects && iC < handleTriggerEvent->sizeCollections(); ++iO ) {
 
@@ -211,7 +207,7 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
     triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
   }
-  
+
   if ( ! onlyStandAlone_ ) {
     iEvent.put( triggerObjects );
   }
