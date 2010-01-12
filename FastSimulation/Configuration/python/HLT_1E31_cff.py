@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_4_0/pre9/1E31/V4 (CMSSW_3_4_0_pre7_HLT1)
+# /dev/CMSSW_3_5_0/pre1/1E31/V2 (CMSSW_3_5_0_pre2_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre9/1E31/V4')
+  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/1E31/V2')
 )
 
 
@@ -305,9 +305,9 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       Level = cms.int32( 0 )
     )
   ),
-  RecoveredRecHitBits = cms.vstring(  ),
+  DropChannelStatusBits = cms.vstring(  ),
   appendToDataLabel = cms.string( "" ),
-  DropChannelStatusBits = cms.vstring(  )
+  RecoveredRecHitBits = cms.vstring(  )
 )
 hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryBuilderMumu" ),
@@ -665,7 +665,6 @@ hltIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -795,7 +794,6 @@ hltIterativeCone5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -1729,7 +1727,6 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
     PtCut = cms.double( 1.0 ),
     PCut = cms.double( 2.5 ),
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
-    tkSeedGenerator = cms.string( "TSGForRoadSearchOI" ),
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorOpposite',
         'SteppingHelixPropagatorAlong' ),
@@ -1737,17 +1734,13 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
       UseMuonNavigation = cms.untracked.bool( True )
     ),
     MuonTrackingRegionBuilder = cms.PSet(  ),
-    TrackerSeedCleaner = cms.PSet(  ),
-    TSGFromMixedPairs = cms.PSet(  ),
-    TSGFromPixelTriplets = cms.PSet(  ),
-    TSGFromPixelPairs = cms.PSet(  ),
-    TSGForRoadSearchOI = cms.PSet( 
+    TkSeedGenerator = cms.PSet( 
       propagatorCompatibleName = cms.string( "SteppingHelixPropagatorOpposite" ),
       option = cms.uint32( 3 ),
-      maxChi2 = cms.double( 40.0 ),
+      ComponentName = cms.string( "TSGForRoadSearch" ),
       errorMatrixPset = cms.PSet( 
-        atIP = cms.bool( True ),
         action = cms.string( "use" ),
+        atIP = cms.bool( True ),
         errorMatrixValuesPSet = cms.PSet( 
           pf3_V12 = cms.PSet( 
             action = cms.string( "scale" ),
@@ -1765,15 +1758,12 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
             action = cms.string( "scale" ),
             values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
           ),
+          yAxis = cms.vdouble( 0.0, 1.0, 1.4, 10.0 ),
           pf3_V15 = cms.PSet( 
             action = cms.string( "scale" ),
             values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
           ),
-          pf3_V34 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          yAxis = cms.vdouble( 0.0, 1.0, 1.4, 10.0 ),
+          zAxis = cms.vdouble( -3.14159, 3.14159 ),
           pf3_V33 = cms.PSet( 
             action = cms.string( "scale" ),
             values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
@@ -1799,7 +1789,10 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
             action = cms.string( "scale" ),
             values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
           ),
-          zAxis = cms.vdouble( -3.14159, 3.14159 ),
+          pf3_V34 = cms.PSet( 
+            action = cms.string( "scale" ),
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
+          ),
           pf3_V35 = cms.PSet( 
             action = cms.string( "scale" ),
             values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
@@ -1817,8 +1810,13 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
       propagatorName = cms.string( "SteppingHelixPropagatorAlong" ),
       manySeeds = cms.bool( False ),
       copyMuonRecHit = cms.bool( False ),
-      ComponentName = cms.string( "TSGForRoadSearch" )
+      maxChi2 = cms.double( 40.0 )
     ),
+    TrackerSeedCleaner = cms.PSet(  ),
+    TSGFromMixedPairs = cms.PSet(  ),
+    TSGFromPixelTriplets = cms.PSet(  ),
+    TSGFromPixelPairs = cms.PSet(  ),
+    TSGForRoadSearchOI = cms.PSet(  ),
     TSGForRoadSearchIOpxl = cms.PSet(  ),
     TSGFromPropagation = cms.PSet(  ),
     TSGFromCombinedHits = cms.PSet(  )
@@ -4064,7 +4062,6 @@ hltIconeTau1Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4098,7 +4095,6 @@ hltIconeTau2Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4132,7 +4128,6 @@ hltIconeTau3Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4166,7 +4161,6 @@ hltIconeTau4Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4200,7 +4194,6 @@ hltIconeCentral1Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4234,7 +4227,6 @@ hltIconeCentral2Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4268,7 +4260,6 @@ hltIconeCentral3Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4302,7 +4293,6 @@ hltIconeCentral4Regional = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -4784,7 +4774,6 @@ hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     doPUOffsetCorr = cms.bool( False ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
