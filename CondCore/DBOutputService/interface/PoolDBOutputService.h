@@ -144,7 +144,13 @@ namespace cond{
         }	
       }
       
-      
+      // close the IOVSequence setting lastTill
+      void closeIOV(Time_t lastTill, const std::string& recordName, 
+                    bool withlogging=false) {
+
+
+      }
+
       // BW-compatible signature
       template<typename T>
       void createNewIOV( T* firstPayloadObj,

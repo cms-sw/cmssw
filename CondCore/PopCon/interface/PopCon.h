@@ -60,7 +60,7 @@ namespace popcon {
      
   private:
      void initialize();
-     void finalize();
+     void finalize(Time_t lastTill);
 
 
   private:

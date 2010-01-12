@@ -358,6 +358,23 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
   return payloadIdx;
 }
 
+void cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string& recordName, 
+						  bool withlogging) {
+  
+  // not fully working.. not be used for now...
+  Record & record  = lookUpRecord(recordName);
+  if( record.m_isNewTag ) {
+    throw cond::Exception(std::string("PoolDBOutputService::closeIOV: cannot close non-existing tag ")+record.m_tag );
+  }
+  cond::DbScopedTransaction transaction(m_session);
+  transaction.start(false); 
+  cond::IOVEditor editor(m_session,record.m_iovtoken);
+  editor.updateClosure(lastTill);
+  editor.stamp(cond::userInfo(),false);
+  transaction.commit();
+}
+
+
 
 void
 cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& recordName,const std::string& dataprovenance,const std::string& usertext)

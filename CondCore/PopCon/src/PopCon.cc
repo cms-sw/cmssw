@@ -55,6 +55,11 @@ namespace popcon {
   
   
   void PopCon::finalize(Time_t lastTill) {
-  }
+
+    if (m_close) {
+      // avoid to close it before lastSince
+      if (m_lastTill>lastTill) lastTill=m_lastTill;
+      m_dbService->closeIOV(lastTill,m_record);
+    }
   
 }
