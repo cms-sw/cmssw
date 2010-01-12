@@ -38,8 +38,13 @@ BackgroundHandler::BackgroundHandler( const vector<int> & identifiers,
   // Build the resonance windows
   for( unsigned int i=0; i<6; ++i ) {
     double mass = ResMass[i];
-    resonanceWindow_.push_back( MassWindow( mass, mass - massWindowHalfWidth[i], mass + massWindowHalfWidth[i],
-                                            vector<unsigned int>(1,i), backgroundFunctionService(identifiers[resToReg_[i]]) ) );
+    double lowerLimit = mass - massWindowHalfWidth[i];
+    double upperLimit = mass + massWindowHalfWidth[i];
+    resonanceWindow_.push_back( MassWindow( mass, lowerLimit, upperLimit,
+                                            vector<unsigned int>(1,i),
+                                            backgroundFunctionService(identifiers[resToReg_[i]],
+                                                                      lowerLimit,
+                                                                      upperLimit) ) );
   }
 
   // Build the background windows
@@ -61,10 +66,10 @@ BackgroundHandler::BackgroundHandler( const vector<int> & identifiers,
   unsigned int i=0;
   typedef vector<unsigned int> indexVec;
   BOOST_FOREACH(const indexVec & index, indexes) {
-    backgroundWindow_.push_back( MassWindow( resMassForRegion[i],
-        resMassForRegion[i] - massWindowHalfWidth[regToResHW_[i]]*leftWindowFactors[i],
-        resMassForRegion[i] + massWindowHalfWidth[regToResHW_[i]]*rightWindowFactors[i],
-        index, backgroundFunctionService(identifiers[i]) ) );
+    double lowerLimit = resMassForRegion[i] - massWindowHalfWidth[regToResHW_[i]]*leftWindowFactors[i];
+    double upperLimit = resMassForRegion[i] + massWindowHalfWidth[regToResHW_[i]]*rightWindowFactors[i];
+    backgroundWindow_.push_back( MassWindow( resMassForRegion[i], lowerLimit, upperLimit, index,
+                                             backgroundFunctionService(identifiers[i], lowerLimit, upperLimit ) ) );
     ++i;
   }
   // Initialize the parNums to be used in the shifts of parval
@@ -162,9 +167,17 @@ void BackgroundHandler::rescale( vector<double> & parBgr, const double * ResMass
     TF1 * backgroundFunctionForIntegral = backgroundWindow.backgroundFunction()->functionForIntegral((parBgr.begin()+
                                                                                                       parNumsRegions_[iRegion]));
     // WARNING: this expects the background fraction parameter to be parBgr[0] for all the background functions.
-    double eventsScaleFactor = backgroundFunctionForIntegral->GetParameter(0)*backgroundWindow.events();
+    // double backgroundEventsInBackgroundWindow = backgroundFunctionForIntegral->GetParameter(0)*backgroundWindow.events();
 
-    cout << "rescale: eventsScaleFactor = " << eventsScaleFactor << endl;
+    // double backgroundWindowIntegral = backgroundFunctionForIntegral->Integral(backgroundWindow.lowerBound(),
+    //                                                                           backgroundWindow.upperBound());
+
+    double kOld = backgroundFunctionForIntegral->GetParameter(0);
+    double Nbw = backgroundWindow.events();
+    double Ibw = backgroundFunctionForIntegral->Integral(backgroundWindow.lowerBound(),
+                                                         backgroundWindow.upperBound());
+
+    // cout << "rescale: background events in background window = " << backgroundEvents << endl;
 
     // index is the index of the resonance in the background window
     BOOST_FOREACH( unsigned int index, *(backgroundWindow.indexes()) )
@@ -174,16 +187,31 @@ void BackgroundHandler::rescale( vector<double> & parBgr, const double * ResMass
         parBgr[parNumsResonances_[index]+iPar] = parBgr[parNumsRegions_[resToReg_[index]]+iPar];
       }
 
-      // Compute the integral of the background function in the resonance window.
-      // This is the estimated number of background events in the resonance window.
-      double backgroundIntegral = eventsScaleFactor*backgroundFunctionForIntegral->Integral(resonanceWindow_[index].lowerBound(),
-          resonanceWindow_[index].upperBound());
+      // double resonanceWindowIntegral = backgroundFunctionForIntegral->Integral(resonanceWindow_[index].lowerBound(),
+      //                                                                          resonanceWindow_[index].upperBound());
 
       // Estimated fraction of events in the resonance window
-      parBgr[parNumsResonances_[index]] = backgroundIntegral/(resonanceWindow_[index].events());
-      cout << "rescale: backgroundIntegral = " << backgroundIntegral << endl;
-      cout << "rescale: resonanceWindow_[index].events() = " << resonanceWindow_[index].events() << endl;
-      cout << "rescale: parBgr["<<parNumsResonances_[index]<<"] = " << backgroundIntegral/(resonanceWindow_[index].events()) << endl;
+      double Irw = backgroundFunctionForIntegral->Integral(resonanceWindow_[index].lowerBound(),
+                                                           resonanceWindow_[index].upperBound());
+      double Nrw = resonanceWindow_[index].events();
+
+      // parBgr[parNumsResonances_[index]] = (1 - Nrw/Nbw*(1 - kOld*(1 - Ibw)))/(1-Irw);
+      parBgr[parNumsResonances_[index]] = kOld*Nbw/Nrw*Irw/Ibw;
+
+      double kNew = parBgr[parNumsResonances_[index]];
+      cout << "For resonance = " << index << endl;
+      cout << "Nbw = " << Nbw << ", Ibw = " << Ibw << endl;
+      cout << "Nrw = " << Nrw << ", Irw = " << Irw << endl;
+      cout << "k = " << kOld << ", k' = " << parBgr[parNumsResonances_[index]] << endl;
+      // cout << "background fraction in background window = Nbw*k*Ibw/((1-k) + k*Ibw) = " << Nbw*kOld*Ibw/((1-kOld) + kOld*Ibw) << endl;
+      // cout << "background fraction in resonance window = Nrw*k'*Irw/((1-k') + k'*Irw) = " << Nrw*kNew*Irw/((1-kNew) + kNew*Irw) << endl;
+      cout << "background fraction in background window = Nbw*k = " << Nbw*kOld << endl;
+      cout << "background fraction in resonance window = Nrw*k' = " << Nrw*kNew << endl;
+
+      // parBgr[parNumsResonances_[index]] = backgroundEventsInBackgroundWindow/(resonanceWindow_[index].events())*resonanceWindowIntegral/backgroundWindowIntegral;
+      // cout << "rescale: backgroundIntegral = " << backgroundIntegral << endl;
+      // cout << "rescale: resonanceWindow_["<<index<<"].events() = " << resonanceWindow_[index].events() << endl;
+      // cout << "rescale: parBgr["<<parNumsResonances_[index]<<"] = " << backgroundIntegral/(resonanceWindow_[index].events()) << endl;
     }
     ++iRegion;
     delete backgroundFunctionForIntegral;
@@ -199,13 +227,11 @@ pair<double, double> BackgroundHandler::backgroundFunction( const bool doBackgro
     // Return the values for the region
     int iReg = resToReg_[ires];
     return make_pair( parval[parNumsRegions_[iReg]],
-                      (*(backgroundWindow_[iReg].backgroundFunction()))( &(parval[parNumsRegions_[iReg]]), resTotNum, ires,
-                                                                         resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins ) );
+                      (*(backgroundWindow_[iReg].backgroundFunction()))( &(parval[parNumsRegions_[iReg]]), mass ) );
   }
   // Return the values for the resonance
   return make_pair( parval[parNumsResonances_[ires]],
-                    (*(resonanceWindow_[ires].backgroundFunction()))( &(parval[parNumsResonances_[ires]]), resTotNum, ires,
-                                                                      resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins ) );
+                    (*(resonanceWindow_[ires].backgroundFunction()))( &(parval[parNumsResonances_[ires]]), mass ) );
 }
 
 void BackgroundHandler::countEventsInAllWindows(const vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,

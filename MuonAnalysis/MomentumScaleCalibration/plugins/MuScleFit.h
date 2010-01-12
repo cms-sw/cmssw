@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/10/28 16:54:27 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/11/10 11:15:29 $
+ *  $Revision: 1.24 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -74,7 +74,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   virtual edm::EDLooper::Status duringFastLoop();
 
   template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks ); 
+  std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks );
  private:
 
  protected:
@@ -93,12 +93,6 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
    */
   void checkParameters();
 
-//   // Fill, clean and write to file the Map of Histograms
-//   // ---------------------------------------------------
-//   void fillHistoMap(TFile* outputFile, unsigned int iLoop);
-//   void clearHistoMap();
-//   void writeHistoMap();
-
   MuonServiceProxy *theService;
 
   // Counters
@@ -113,7 +107,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   // Constants
   // ---------
-  double minResMass_hwindow[6]; 
+  double minResMass_hwindow[6];
   double maxResMass_hwindow[6];
 
   // Total number of loops
@@ -122,9 +116,6 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   unsigned int loopCounter;
 
   bool fastLoop;
-
-  // Tree with muon info for Likelihood evaluation
-  // TTree* muonTree;
 
   MuScleFitPlotter *plotter;
 
@@ -137,6 +128,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   bool compareToSimTracks_;
   edm::InputTag simTracksCollection_;
   bool PATmuons_;
+  string genParticlesName_;
 };
 
 template<typename T>
@@ -151,16 +143,16 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
     // Apply smearing if needed, and then bias
     // ---------------------------------------
     MuScleFitUtils::goodmuon++;
-    if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
+    if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
                        << ": initial value   Pt = " << mu.Pt() << endl;
     if (MuScleFitUtils::SmearType>0) {
       mu = MuScleFitUtils::applySmearing( mu );
-      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
                          << ": after smearing  Pt = " << mu.Pt() << endl;
-    } 
+    }
     if (MuScleFitUtils::BiasType>0) {
       mu = MuScleFitUtils::applyBias( mu, track->charge() );
-      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
                          << ": after bias      Pt = " << mu.Pt() << endl;
     }
     reco::LeafCandidate muon(track->charge(),mu);

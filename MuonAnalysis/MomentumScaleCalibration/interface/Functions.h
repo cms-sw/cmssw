@@ -1859,9 +1859,10 @@ resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const in
  */
 class backgroundFunctionBase {
  public:
+  backgroundFunctionBase(const double & lowerLimit, const double & upperLimit) :
+    lowerLimit_(lowerLimit), upperLimit_(upperLimit) {}
   virtual ~backgroundFunctionBase() {};
-  virtual double operator()( const double * parval, const int resTotNum, const int ires, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) = 0;
+  virtual double operator()( const double * parval, const double & mass ) = 0;
   virtual int parNum() const { return parNum_; }
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) = 0;
@@ -1876,6 +1877,8 @@ class backgroundFunctionBase {
   virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const = 0;
 protected:
   int parNum_;
+  double lowerLimit_;
+  double upperLimit_;
   /// This method sets the parameters
   virtual void setPar(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
                       const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt,
@@ -1892,39 +1895,58 @@ protected:
     }
   }
 };
-/// Constant
-// ---------
+/// Linear
+// -------
 class backgroundFunctionType1 : public backgroundFunctionBase {
  public:
   /**
-   * This is a constant normalized to unity in the span of the window (1000 bins in mass)
-   * NB: wherever there are more than a single resonance contributing, the background fraction
-   * gets multiplied by the number of signals. This allows to have the same normalization
-   * throughout the spectrum: the background fraction (Bgrp1 in this fit) will represent
-   * the right fraction overall. This is because where two resonances overlap their windows
-   * a given background fraction will contribute only half to Bgrp1.
-   *
-   * ATTENTION: due to changes in the structure of the base function, this function is not valid anymore.
+   * Returns the value of the linear function f(M) = a + b*M for M < -a/b, 0 otherwise. <br>
+   * b is chosen to be negative (background decreasing when M increases). <br>
+   * The function is normalized to unity for M in [0, infinity).
    */
-  backgroundFunctionType1() { this->parNum_ = 1; }
-  virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) {
-    return( nres/(double)nbins );
+  backgroundFunctionType1(const double & lowerLimit, const double & upperLimit) :
+    backgroundFunctionBase(lowerLimit, upperLimit)
+    { this->parNum_ = 3; }
+  virtual double operator()( const double * parval, const double & mass )
+  {
+    double a = parval[1];
+    double b = parval[2];
+
+    double norm = -(a*lowerLimit_ + b*lowerLimit_*lowerLimit_/2.);
+
+    if( -a/b > upperLimit_ ) norm += a*upperLimit_ + b*upperLimit_*upperLimit_/2.;
+    else norm += -a*a/(2*b);
+
+    if( mass < -a/b ) return (a + b*mass)/norm;
+    else return 0;
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
-    double thisStep[] = {0.1};
-    TString thisParName[] = {"Bgr fraction"};
+    double thisStep[] = {0.01, 0.01, 0.01};
+    TString thisParName[] = {"Bgr fraction", "Constant", "Linear"};
     if( muonType == 1 ) {
-      double thisMini[] = {0.0};
-      double thisMaxi[] = {1.0};
+      double thisMini[] = {0.0,  0., -300.};
+      double thisMaxi[] = {1.0, 300.,   0.};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMini[] = {0.0};
-      double thisMaxi[] = {1.0};
+      double thisMini[] = {0.0,  0., -300.};
+      double thisMaxi[] = {1.0, 300.,   0.};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
-  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const {return 0;}
+  /**
+   * This method receives a background function of its same type and rescales the parameters. <br>
+   * It is used for e.g. backgroundForUpsilon->rescale(backgroundRegionUpsilons);
+   */
+  virtual void rescale()
+  {
+  }
+  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const
+  {
+    TF1 * backgroundFunctionForIntegral = new TF1("backgroundFunctionForIntegral","[0] + [1]*x");
+    backgroundFunctionForIntegral->SetParameter(0, *parBgrIt);
+    backgroundFunctionForIntegral->SetParameter(1, *(parBgrIt+1));
+    return( backgroundFunctionForIntegral );
+  }
 };
 /// Exponential
 // ------------
@@ -1935,17 +1957,14 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
    * equal to unity, and then, when adding together all the resonances, one gets a meaningful
    * result for the overall background fraction.
    */
-  backgroundFunctionType2() { this->parNum_ = 2; }
-  virtual double operator()( const double * parval, const int resTotNum, const int ires, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) {
-//    double PB = 0.;
-//    if (resConsidered[ires]) {
-//      double Bgrp2 = parval[1];
-//      PB += Bgrp2*exp(-Bgrp2*mass); // * (2*ResHalfWidth[ires])/(double)nbins;
-//    }
-//    return PB;
+  backgroundFunctionType2(const double & lowerLimit, const double & upperLimit) :
+    backgroundFunctionBase(lowerLimit, upperLimit)
+    { this->parNum_ = 2; }
+  virtual double operator()( const double * parval, const double & mass )
+  {
     double Bgrp2 = parval[1];
-    return Bgrp2*exp(-Bgrp2*mass);
+    double norm = -(exp(-Bgrp2*upperLimit_) - exp(-Bgrp2*lowerLimit_))/Bgrp2;
+    return exp(-Bgrp2*mass)/norm;
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
     double thisStep[] = {0.01, 0.01};
@@ -1970,61 +1989,63 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
   }
   virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const
   {
-    TF1 * backgroundFunctionForIntegral = new TF1("backgroundFunctionForIntegral","[0]*([1]*exp(-[1]*x))");
-    backgroundFunctionForIntegral->SetParameter(0, *parBgrIt);
-    backgroundFunctionForIntegral->SetParameter(1, *(parBgrIt+1));
+    TF1 * backgroundFunctionForIntegral = new TF1("backgroundFunctionForIntegral","[0]*exp(-[0]*x)");
+    // backgroundFunctionForIntegral->SetParameter(0, *parBgrIt);
+    backgroundFunctionForIntegral->SetParameter(0, *(parBgrIt+1));
     return( backgroundFunctionForIntegral );
   }
 };
-/// Constant + Exponential
-// -------------------------------------------------------------------------------- //
-// ATTENTION: TODO: the normalization must be adapted to the asymmetric mass window //
-// -------------------------------------------------------------------------------- //
-
-class backgroundFunctionType3 : public backgroundFunctionBase {
- public:
-  // pass parval[shift]
-  backgroundFunctionType3() { this->parNum_ = 3; }
-  virtual double operator()( const double * parval, const int resTotNum, const int ires, const bool * resConsidered,
-                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) {
-    double PB = 0.;
-    double Bgrp2 = parval[1];
-    double Bgrp3 = parval[2];
-    for (int ires=0; ires<resTotNum; ires++) {
-      // In this case, by integrating between A and B, we get for f=exp(a-bx)+k:
-      // INT = exp(a)/b*(exp(-bA)-exp(-bB))+k*(B-A) so our function, which in 1000 bins between A and B
-      // gets a total of 1, is f = (exp(a-bx)+k)*(B-A)/nbins / (INT)
-      // ----------------------------------------------------------------------------------------------
-      if (resConsidered[ires]) {
-	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires]))>0) {
-	  PB += (exp(-Bgrp2*mass)+Bgrp3) *
-	    2*ResHalfWidth[ires]/(double)nbins /
-	    ( (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires])))/
-	      Bgrp2 + Bgrp3*2*ResHalfWidth[ires] );
-	} else {
-	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;
-	}
-      }
-    }
-    return PB;
-  }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
-    double thisStep[] = {0.1, 0.001, 0.1};
-    TString thisParName[] = {"Bgr fraction", "Bgr slope", "Bgr constant"};
-    if( muonType == 1 ) {
-      double thisMini[] = {0.0, 0.000000001, 0.0};
-      double thisMaxi[] = {1.0, 0.2, 1000};
-      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
-    } else {
-      double thisMini[] = {0.0, 0.000000001, 0.0};
-      double thisMaxi[] = {1.0, 0.2, 1000};
-      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
-    }
-  }
-  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const {return 0;};
-};
+///// Constant + Exponential
+//// -------------------------------------------------------------------------------- //
+//// ATTENTION: TODO: the normalization must be adapted to the asymmetric mass window //
+//// -------------------------------------------------------------------------------- //
+//
+//class backgroundFunctionType3 : public backgroundFunctionBase {
+// public:
+//  // pass parval[shift]
+//  backgroundFunctionType3(const double & lowerLimit, const double & upperLimit) :
+//    backgroundFunctionBase(lowerLimit, upperLimit)
+//    { this->parNum_ = 3; }
+//  virtual double operator()( const double * parval, const int resTotNum, const int ires, const bool * resConsidered,
+//                             const double * ResMass, const double ResHalfWidth[], const int MuonType, const double & mass, const int nbins ) {
+//    double PB = 0.;
+//    double Bgrp2 = parval[1];
+//    double Bgrp3 = parval[2];
+//    for (int ires=0; ires<resTotNum; ires++) {
+//      // In this case, by integrating between A and B, we get for f=exp(a-bx)+k:
+//      // INT = exp(a)/b*(exp(-bA)-exp(-bB))+k*(B-A) so our function, which in 1000 bins between A and B
+//      // gets a total of 1, is f = (exp(a-bx)+k)*(B-A)/nbins / (INT)
+//      // ----------------------------------------------------------------------------------------------
+//      if (resConsidered[ires]) {
+//	if (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires]))>0) {
+//	  PB += (exp(-Bgrp2*mass)+Bgrp3) *
+//	    2*ResHalfWidth[ires]/(double)nbins /
+//	    ( (exp(-Bgrp2*(ResMass[ires]-ResHalfWidth[ires]))-exp(-Bgrp2*(ResMass[ires]+ResHalfWidth[ires])))/
+//	      Bgrp2 + Bgrp3*2*ResHalfWidth[ires] );
+//	} else {
+//	  cout << "Impossible to compute Background probability! - some fix needed - Bgrp2=" << Bgrp2 << endl;
+//	}
+//      }
+//    }
+//    return PB;
+//  }
+//  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+//    double thisStep[] = {0.1, 0.001, 0.1};
+//    TString thisParName[] = {"Bgr fraction", "Bgr slope", "Bgr constant"};
+//    if( muonType == 1 ) {
+//      double thisMini[] = {0.0, 0.000000001, 0.0};
+//      double thisMaxi[] = {1.0, 0.2, 1000};
+//      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
+//    } else {
+//      double thisMini[] = {0.0, 0.000000001, 0.0};
+//      double thisMaxi[] = {1.0, 0.2, 1000};
+//      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
+//    }
+//  }
+//  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const {return 0;};
+//};
 
 /// Service to build the background functor corresponding to the passed identifier
-backgroundFunctionBase * backgroundFunctionService( const int identifier );
+backgroundFunctionBase * backgroundFunctionService( const int identifier, const double & lowerLimit, const double & upperLimit );
 
 #endif // FUNCTIONS_H

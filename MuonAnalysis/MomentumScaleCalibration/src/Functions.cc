@@ -50,8 +50,8 @@ scaleFunctionBase<vector<double> > * scaleFunctionVecService( const int identifi
   case ( 16 ): return ( new scaleFunctionType16<vector<double> > ); break;
   case ( 17 ): return ( new scaleFunctionType17<vector<double> > ); break;
   case ( 18 ): return ( new scaleFunctionType18<vector<double> > ); break;
-  case ( 19 ): return ( new scaleFunctionType19<vector<double> > ); break;  
-  case ( 20 ): return ( new scaleFunctionType20<vector<double> > ); break;  
+  case ( 19 ): return ( new scaleFunctionType19<vector<double> > ); break;
+  case ( 20 ): return ( new scaleFunctionType20<vector<double> > ); break;
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
@@ -120,13 +120,13 @@ resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const in
   }
 }
 
-backgroundFunctionBase * backgroundFunctionService( const int identifier )
+backgroundFunctionBase * backgroundFunctionService( const int identifier, const double & lowerLimit, const double & upperLimit )
 {
   switch ( identifier ) {
   case ( 0 ): cout << "Error: background function type " << identifier << " not defined" << endl; exit(1); break;
-  case ( 1 ): return new backgroundFunctionType1; break;
-  case ( 2 ): return new backgroundFunctionType2; break;
-  case ( 3 ): return new backgroundFunctionType3; break;
+  case ( 1 ): return new backgroundFunctionType1(lowerLimit, upperLimit); break;
+  case ( 2 ): return new backgroundFunctionType2(lowerLimit, upperLimit); break;
+  // case ( 3 ): return new backgroundFunctionType3(lowerLimit, upperLimit); break;
   default: cout << "Error: undefined background function type = " << identifier << endl; exit(1); break;
   }
 }

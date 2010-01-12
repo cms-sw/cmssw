@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/11/10 11:15:27 $
-//  $Revision: 1.67 $
+//  $Date: 2010/01/11 09:31:33 $
+//  $Revision: 1.68 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -234,6 +234,7 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   simTracksCollection_ = pset.getUntrackedParameter<InputTag>("SimTracksCollection", InputTag("g4SimHits"));
 
   PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
+  genParticlesName_ = pset.getUntrackedParameter<string>("GenParticlesName", "genParticles");
 
   // This must be set to true if using events generated with Sherpa
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
@@ -556,7 +557,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
       }
       else {
         // cout << "HepMCProduct non existent. Trying with genParticles" << endl;
-        event.getByLabel ("genParticles", genParticles);
+        event.getByLabel( genParticlesName_, genParticles );
         if( genParticles.isValid() ) {
 
           MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(genParticles) );
