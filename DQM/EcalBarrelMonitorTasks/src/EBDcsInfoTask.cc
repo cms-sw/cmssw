@@ -82,10 +82,9 @@ void EBDcsInfoTask::endJob(void) {
 
 void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
-  nTotLumi = 0;
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
-      nReadyLumi[iptt][iett] = 0;
+      readyLumi[iptt][iett] = 1;
     }
   }
 
@@ -93,7 +92,7 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
 void EBDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 
-  this->fillMonitorElements(nReadyLumi, nTotLumi);
+  this->fillMonitorElements(readyLumi);
 
 }
 
@@ -101,10 +100,9 @@ void EBDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
-  nTotRun = 0;
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
-      nReadyRun[iptt][iett] = 0;
+      readyRun[iptt][iett] = 1;
     }
   }
 
@@ -112,7 +110,7 @@ void EBDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
 
 void EBDcsInfoTask::endRun(const Run& r, const EventSetup& c) {
 
-  this->fillMonitorElements(nReadyRun, nTotRun);
+  this->fillMonitorElements(readyRun);
 
 }
 
@@ -151,9 +149,6 @@ void EBDcsInfoTask::cleanup(void){
 
 void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
 
-  nTotRun++;
-  nTotLumi++;
-
   Handle<DcsStatusCollection> dcsh;
 
   if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
@@ -165,9 +160,9 @@ void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){
         
         if ( dcsh->size() > 0 ) ready = (iett < 17) ? (*dcsh)[0].ready(DcsStatus::EBm) : (*dcsh)[0].ready(DcsStatus::EBp);
 
-        if ( ready ) {
-          nReadyRun[iptt][iett]++;
-          nReadyLumi[iptt][iett]++;
+        if ( !ready ) {
+          readyRun[iptt][iett] = 0;
+          readyLumi[iptt][iett] = 0;
         }
 
       }
@@ -179,25 +174,30 @@ void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){
 
 }
 
-void EBDcsInfoTask::fillMonitorElements(int nReady[72][34], int nTot) {
+void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
 
-  float readinessSum = 0.;
+  float readySum[36];
+  for ( int ism = 0; ism < 36; ism++ ) readySum[ism] = 0;
+  float readySumTot = 0.;
+
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
       
-      float readiness = float(nReady[iptt][iett])/float(nTot);
+      if(meEBDcsActiveMap_) meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, ready[iptt][iett] );
 
-      if(meEBDcsActiveMap_) meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, readiness );
-
-      // take one tower of the FED as a flag
       int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4; 
-      if( meEBDcsActive_[ism] ) meEBDcsActive_[ism]->Fill( readiness );
-
-      readinessSum += readiness;
+      if(ready[iptt][iett]) {
+        readySum[ism]++;
+        readySumTot++;
+      }
 
     }
-  }      
+  }
 
-  if( meEBDcsFraction_ ) meEBDcsFraction_->Fill(readinessSum/34./72.);
+  for ( int ism = 0; ism < 36; ism++ ) {
+    if( meEBDcsActive_[ism] ) meEBDcsActive_[ism]->Fill( readySum[ism]/68. );
+  }
+
+  if( meEBDcsFraction_ ) meEBDcsFraction_->Fill(readySumTot/34./72.);
 
 }

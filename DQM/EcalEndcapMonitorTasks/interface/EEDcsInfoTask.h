@@ -46,7 +46,7 @@ void cleanup(void);
   
 private:
 
-void fillMonitorElements(int nReady[40][20], int nTot);
+void fillMonitorElements(int ready[40][20]);
   
 DQMStore* dqmStore_;
 
@@ -62,9 +62,8 @@ MonitorElement* meEEDcsFraction_;
 MonitorElement* meEEDcsActive_[18];
 MonitorElement* meEEDcsActiveMap_;
 
-int nReadyRun[40][20];
-int nReadyLumi[40][20];
-int nTotRun, nTotLumi;
+int readyRun[40][20];
+int readyLumi[40][20];
 
 };
 

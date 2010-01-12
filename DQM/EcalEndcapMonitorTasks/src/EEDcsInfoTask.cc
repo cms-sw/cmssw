@@ -84,10 +84,9 @@ void EEDcsInfoTask::endJob(void) {
 
 void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
-  nTotLumi = 0;
   for ( int itx = 0; itx < 40; itx++ ) {
     for ( int ity = 0; ity < 20; ity++ ) {
-      nReadyLumi[itx][ity] = 0;
+      readyLumi[itx][ity] = 1;
     }
   }
 
@@ -95,7 +94,7 @@ void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
 void EEDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 
-  this->fillMonitorElements(nReadyLumi, nTotLumi);
+  this->fillMonitorElements(readyLumi);
 
 }
 
@@ -103,10 +102,9 @@ void EEDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
-  nTotRun = 0;
   for ( int itx = 0; itx < 40; itx++ ) {
     for ( int ity = 0; ity < 20; ity++ ) {
-      nReadyRun[itx][ity] = 0;
+      readyRun[itx][ity] = 1;
     }
   }
 
@@ -114,7 +112,7 @@ void EEDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
 
 void EEDcsInfoTask::endRun(const Run& r, const EventSetup& c) {
 
-  this->fillMonitorElements(nReadyRun, nTotRun);
+  this->fillMonitorElements(readyRun);
 
 }
 
@@ -153,9 +151,6 @@ void EEDcsInfoTask::cleanup(void){
 
 void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
 
-  nTotRun++;
-  nTotLumi++;
-
   Handle<DcsStatusCollection> dcsh;
 
   if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
@@ -169,9 +164,9 @@ void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){
         
           if ( dcsh->size() > 0 ) ready = (iz < 0) ? (*dcsh)[0].ready(DcsStatus::EEm) : (*dcsh)[0].ready(DcsStatus::EEp);
         
-          if ( ready ) {
-            nReadyRun[offsetSC+itx][ity]++;
-            nReadyLumi[offsetSC+itx][ity]++;
+          if ( !ready ) {
+            readyRun[offsetSC+itx][ity] = 0;
+            readyLumi[offsetSC+itx][ity] = 0;
           }
         
         }
@@ -184,10 +179,17 @@ void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){
 
 }
 
-void EEDcsInfoTask::fillMonitorElements(int nReady[40][20], int nTot) {
+void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
 
-  float readinessSum = 0.;
-  int nValidChannels = 0;
+  float readySum[18];
+  int nValidChannels[18];
+  for ( int ism = 0; ism < 18; ism++ ) {
+    readySum[ism] = 0;
+    nValidChannels[ism] = 0;
+  }
+  float readySumTot = 0.;
+  int nValidChannelsTot = 0;
+
   for ( int iz = -1; iz < 2; iz+=2 ) {
     for ( int itx = 0; itx < 20; itx++ ) {
       for ( int ity = 0; ity < 20; ity++ ) {
@@ -202,18 +204,18 @@ void EEDcsInfoTask::fillMonitorElements(int nReady[40][20], int nTot) {
 
             if( EEDetId::validDetId(ix+1, iy+1, iz) ) {    
 
-              float readiness = float(nReady[offsetSC+itx][ity])/float(nTot);
-              
-              if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( offset+ix+1, iy+1, readiness );
+              if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( offset+ix+1, iy+1, ready[offsetSC+itx][ity] );
               
               EEDetId id = EEDetId(ix+1, iy+1, iz, EEDetId::XYMODE);
 
-              // take one crystal of the FED as flag        
               int ism = Numbers::iSM(id);
-              if( meEEDcsActive_[ism-1] ) meEEDcsActive_[ism-1]->Fill( readiness );
-          
-              readinessSum += readiness;
-              nValidChannels++;
+              if(ready[offsetSC+itx][ity]) {
+                readySum[ism-1]++;
+                readySumTot++;
+              }
+              
+              nValidChannels[ism-1]++;
+              nValidChannelsTot++;
 
             } else {
               if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( offset+ix+1, iy+1, -1.0 );
@@ -225,6 +227,10 @@ void EEDcsInfoTask::fillMonitorElements(int nReady[40][20], int nTot) {
     }
   }
 
-  if( meEEDcsFraction_ ) meEEDcsFraction_->Fill(float(readinessSum/float(nValidChannels)));
+  for ( int ism = 0; ism < 18; ism++ ) {
+    if( meEEDcsActive_[ism] ) meEEDcsActive_[ism]->Fill( readySum[ism]/float(nValidChannels[ism]) );
+  }
+
+  if( meEEDcsFraction_ ) meEEDcsFraction_->Fill( readySumTot/float(nValidChannelsTot) );
 
 }
