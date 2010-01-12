@@ -1,6 +1,6 @@
 #ifndef UtilAlgos_IMASelector_h
 #define UtilAlgos_IMASelector_h
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <iostream>
 
 

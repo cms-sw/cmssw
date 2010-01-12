@@ -7,7 +7,7 @@
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/MuonReco>
 <use name=CalibFormats/HcalObjects>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=DataFormats/DetId>
 <use name=DataFormats/HcalCalibObjects>
 <use name=DataFormats/EcalDigi>

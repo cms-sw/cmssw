@@ -17,7 +17,7 @@
  <use name="FWCore/Utilities">
  <use name="Geometry/CaloGeometry">
  <use name="Geometry/CaloTopology">
- <use name="PhysicsTools/UtilAlgos">
+ <use name="CommonTools/UtilAlgos">
  <use name="TrackingTools/PatternTools">
  <use name="TrackingTools/TrajectoryState">
  <use name="clhep">

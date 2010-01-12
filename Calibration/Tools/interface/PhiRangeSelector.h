@@ -1,6 +1,6 @@
 #ifndef UtilAlgos_PhiRangeSelector_h
 #define UtilAlgos_PhiRangeSelector_h
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 
 
 struct PhiRangeSelector {
