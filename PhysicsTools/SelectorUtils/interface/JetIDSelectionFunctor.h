@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: JetIDSelectionFunctor.h,v 1.2 2009/12/21 20:24:53 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.3 2010/01/08 15:27:07 srappocc Exp $
 */
 
 
@@ -137,11 +137,6 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( ignoreCut("MINIMAL_EMF") || abs_eta > 2.6 || emf > 0.01 ) passCut( ret, "MINIMAL_EMF");
             
     if ( quality_ == LOOSE_AOD ) {
-      passCut( ret, "LOOSE_fHPD");
-      passCut( ret, "LOOSE_N90Hits");
-      passCut( ret, "LOOSE_EMF");
-      passCut( ret, "TIGHT_fHPD");
-      passCut( ret, "TIGHT_EMF");
       // loose fhpd cut from aod
       if ( ignoreCut("LOOSE_AOD_fHPD")    || jetID.approximatefHPD < 0.98 ) passCut( ret, "LOOSE_AOD_fHPD");
       // loose n90 hits cut
@@ -159,9 +154,6 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 	
     }
     else if ( quality_ == LOOSE || quality_ == TIGHT ) {
-      passCut( ret, "LOOSE_AOD_fHPD");
-      passCut( ret, "LOOSE_AOD_N90Hits");
-      passCut( ret, "LOOSE_AOD_EMF");
       // loose fhpd cut
       if ( ignoreCut("LOOSE_fHPD")    || jetID.fHPD < 0.98 ) passCut( ret, "LOOSE_fHPD");
       // loose n90 hits cut
@@ -204,7 +196,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 	if ( ignoreCut("TIGHT_EMF") || tight_emf ) passCut(ret, "TIGHT_EMF");
       }// end if tight
     }// end if loose or tight
-    
+
+    setIgnored( ret );    
 
     return (bool)ret;
   }
