@@ -54,7 +54,7 @@ namespace popcon {
   }
   
   
-  void PopCon::finalize() {
+  void PopCon::finalize(Time_t lastTill) {
   }
   
 }

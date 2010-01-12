@@ -149,7 +149,7 @@ namespace popcon {
 		   );
     
     
-    finalize();
+    finalize(payloads.empty() ? Time_t(0): payloads.back().time);
   }
  
 }
