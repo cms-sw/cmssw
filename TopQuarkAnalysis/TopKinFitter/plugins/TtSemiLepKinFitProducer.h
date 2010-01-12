@@ -227,8 +227,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 	// do the kinematic fit
 	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0]);
 
-	if( status != -10 ) { // skip this jet combination if kinematic fit was aborted
-	                      // (due to errors during fitting)
+	if( status == 0 ) { // only take into account converged fits
 	  KinFitResult result;
 	  result.Status = status;
 	  result.Chi2 = fitter->fitS();
