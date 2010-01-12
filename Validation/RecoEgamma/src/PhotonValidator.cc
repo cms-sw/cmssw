@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/09/24 20:27:54 $ 
- **  $Revision: 1.51 $
+ **  $Date: 2010/01/11 17:16:53 $ 
+ **  $Revision: 1.52 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -425,6 +425,20 @@ void  PhotonValidator::beginJob() {
     //
     h_phoBkgEta_ = dbe_->book1D("phoBkgEta"," Photon Bkg Eta ",etaBin,etaMin, etaMax) ;
     h_phoBkgPhi_ = dbe_->book1D("phoBkgPhi"," Photon Bkg Phi ",phiBin,phiMin,phiMax) ;
+    //
+    h_phoBkgDEta_ = dbe_->book1D("phoBkgDEta"," Photon Eta(rec)-Eta(true) ",dEtaBin,dEtaMin, dEtaMax) ;
+    h_phoBkgDPhi_ = dbe_->book1D("phoBkgDPhi"," Photon  Phi(rec)-Phi(true) ",dPhiBin,dPhiMin,dPhiMax) ;
+    //
+    histname = "phoBkgE";
+    h_phoBkgE_[0]=dbe_->book1D(histname+"All"," Photon Bkg Energy: All ecal ", eBin,eMin, eMax);
+    h_phoBkgE_[1]=dbe_->book1D(histname+"Barrel"," Photon Bkg Energy: barrel ",eBin,eMin, eMax);
+    h_phoBkgE_[2]=dbe_->book1D(histname+"Endcap"," Photon Bkg Energy: Endcap ",eBin,eMin, eMax);
+    //
+    histname = "phoBkgEt";
+    h_phoBkgEt_[0] = dbe_->book1D(histname+"All"," Photon Nkg Transverse Energy: All ecal ", etBin,etMin, etMax);
+    h_phoBkgEt_[1] = dbe_->book1D(histname+"Barrel"," Photon Bkg Transverse Energy: Barrel ",etBin,etMin, etMax);
+    h_phoBkgEt_[2] = dbe_->book1D(histname+"Endcap"," Photon BkgTransverse Energy: Endcap ",etBin,etMin, etMax);
+
     //
     histname = "scBkgE";
     h_scBkgE_[0] = dbe_->book1D(histname+"All","    SC bkg Energy: All Ecal  ",eBin,eMin, eMax);
@@ -864,7 +878,6 @@ void  PhotonValidator::beginJob() {
 
 
     dbe_->setCurrentFolder("EgammaV/PhotonValidator/ConversionInfo");
-
 
     histname="nConv";
     h_nConv_[0][0] = dbe_->book1D(histname+"All","Number Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
@@ -2186,7 +2199,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 	    if ( aConv->conversionVertex().isValid() ) {
-	      float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
+	      //	      float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
 	    
 	      //	      h2_etaVsRreco_[0]->Fill (aConv->caloCluster()[0]->eta(),sqrt(aConv->conversionVertex().position().perp2()) );         
 	      //h_convVtxRvsZ_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
@@ -2477,9 +2490,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   
 
   ///////////////// histograms for background
-
-  bool jetMatching=false;
-  const reco::GenJet* matchingJet=0;
   float nPho=0;
   for (reco::GenJetCollection::const_iterator genJetIter = genJetCollection.begin();
        genJetIter != genJetCollection.end();	 ++genJetIter) {
@@ -2490,7 +2500,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     float mcJetPhi= genJetIter->phi();
     mcJetPhi_= phiNormalization(mcJetPhi);
     mcJetEta_= genJetIter->eta();
-    float mcJetE=  genJetIter->emEnergy() + genJetIter->hadEnergy() ;      
     float mcJetPt = genJetIter->pt() ;
     
     h_SimJet_[0]->Fill ( mcJetEta_);
@@ -2498,8 +2507,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     h_SimJet_[2]->Fill ( mcJetPt );
 
     std::vector<reco::Photon> thePhotons;
-    int index=0;
-    int iMatch=-1;
     bool matched=false;
     
     reco::Photon matchingPho;    
@@ -2556,10 +2563,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     }
     
 
-    int type=0;
+
     const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
     float photonE = matchingPho.energy();
-    float photonEt= matchingPho.energy()/cosh( matchingPho.eta()) ;
+    float photonEt= matchingPho.et();
     float r9 = matchingPho.r9();
     float r1 = matchingPho.r1x5();
     float r2 = matchingPho.r2x5();
@@ -2597,8 +2604,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_scBkgPhi_->Fill( matchingPho.superCluster()->phi() );
       h_scBkgE_[0]->Fill( matchingPho.superCluster()->energy() );
       h_scBkgEt_[0]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
+      //
       h_phoBkgEta_->Fill( matchingPho.eta() );
       h_phoBkgPhi_->Fill( matchingPho.phi() );
+      h_phoBkgE_[0]->Fill( photonE );
+      h_phoBkgEt_[0]->Fill( photonEt);
+      h_phoBkgDEta_->Fill (  matchingPho.eta() - mcJetEta_ );
+      h_phoBkgDPhi_->Fill (  matchingPho.phi() - mcJetPhi_ );
 
       
       h_r9Bkg_[0]->Fill( r9 );
