@@ -47,6 +47,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 // ecal
 //#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -308,22 +310,22 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
    int nvtx = 0;
    double mPVx, mPVy, mPVz;
-   int ntrk = 0;
+   int ntrkV = 0;
    for(unsigned int ind = 0; ind < recVtxs->size(); ind++) 
      {
        if (!((*recVtxs)[ind].isFake())) 
 	 {
 	   nvtx = nvtx + 1;
 	   if(nvtx == 1) {
-	     mPVx = (*recVtxs)[ind].x();
-	     mPVy = (*recVtxs)[ind].y();
-	     mPVz = (*recVtxs)[ind].z();
-	     ntrk = (*recVtxs)[ind].tracksSize();
+	     mPVx  = (*recVtxs)[ind].x();
+	     mPVy  = (*recVtxs)[ind].y();
+	     mPVz  = (*recVtxs)[ind].z();
+	     ntrkV = (*recVtxs)[ind].tracksSize();
 	   }
 	 }
      }
    
-   if( (nvtx == 1) && (ntrk > 3) ) {
+   if( (nvtx == 1) && (ntrkV > 3) ) {
 
      /*
      cout <<"   Vertex found, X = " << mPVx
@@ -374,12 +376,10 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 //
 	 CLHEP::HepLorentzVector cjetc(cjet->px(), cjet->py(), cjet->pz(), cjet->energy());
 	 /*
-	   cout <<" ==> calo jet Et = " << cjet->pt()
-	   <<" eta = " << cjet->eta()
-	   <<" phi = " << cjet->phi() << endl;
-	 */
-
-	 /*	 
+	 cout <<" ==> calo jet Et = " << cjet->pt()
+	      <<" eta = " << cjet->eta()
+	      <<" phi = " << cjet->phi() << endl;
+	 
 	 cout <<"  == jet N = " << jcgood
 	      <<" pt = " << cjet->pt()
 	      <<" eta = " << cjet->eta()
@@ -387,7 +387,6 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      <<" mfHPD = " << mfHPD
 	      <<" mfRBX = " << mfRBX << endl;
 	 */
-
 	 int iczsp = 0;
 	 
 	 CaloJetCollection::const_iterator zspjet;
@@ -395,13 +394,6 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      zspjet != zspjets->end(); ++zspjet ){ 
 	   CLHEP::HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
 	   double dr = zspjetc.deltaR(cjetc);
-
-	   /*	   
-	   cout <<"      zspjet Et = " << zspjet->pt()
-		<<" eta = " << zspjet->eta()
-		<<" phi = " << zspjet->phi()
-		<<" dr = " << dr << endl;
-	   */
 
 	   if(dr < 0.001) {
 	     iczsp = 1;
@@ -412,12 +404,6 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 if(iczsp == 0) continue;
 	 
 	 jcgood = jcgood + 1;
-
-	 /*
-	 cout <<" --> matched zsp jet found Et = " << zspjet->pt()
-	      <<" eta = " << zspjet->eta()
-	      <<" phi = " << zspjet->phi() << endl;
-	 */
 
 	 // JPT corrections
 	 double scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
@@ -435,8 +421,26 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 jpt::MatchedTracks electrons;
 	 const bool particlesOK = true;
 	 jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(correctorJPT);
-	 jptCorrector_->matchTracks(cjetJPT,iEvent,iSetup,pions,muons,electrons);
-	 
+
+	 jptCorrector_->matchTracks((*zspjet),iEvent,iSetup,pions,muons,electrons);
+	 int NtrkJPT = pions.inVertexOutOfCalo_.size() + pions.inVertexInCalo_.size();
+	 for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
+	      iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
+	   const double pt  = (*iInConeVtxTrk)->pt();
+	   const double eta = (*iInConeVtxTrk)->eta();
+	   const double phi = (*iInConeVtxTrk)->phi();
+
+	   int trkNVhits  = (*iInConeVtxTrk)->numberOfValidHits();
+	   int Nlayers    = (*iInConeVtxTrk)->hitPattern().trackerLayersWithMeasurement();
+	   int NpxlHits   = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
+	   int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
+	                    (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+
+	   cout <<"  --> track pT = " << pt
+		<<"  eta = " << eta
+		<<"  phi = " << phi << endl;
+	 }
+
 	 if(cjetJPT.pt() > 10.) {
 
 	   jjpt = jjpt + 1;
