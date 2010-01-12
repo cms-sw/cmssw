@@ -8,8 +8,11 @@ mergedSuperClusters = cms.EDFilter("SuperClusterMerger",
 )
 
 from DQMOffline.EGamma.electronAnalyzer_cfi import *
+from DQMOffline.EGamma.electronTagProbeAnalyzer_cfi import *
 dqmElectronAnalysis.MinEt = cms.double(10.) ;
-dqmElectronAnalysis.MaxTkIso03 = cms.double(5.) ;
+dqmElectronAnalysis.MaxTkIso03 = cms.double(1.) ;
+dqmElectronTagProbeAnalysis.MinEt = cms.double(10.) ;
+dqmElectronTagProbeAnalysis.MaxTkIso03 = cms.double(1.) ;
 
 dqmElectronAnalysisAllElectrons = dqmElectronAnalysis.clone() ;
 dqmElectronAnalysisAllElectrons.Selection = 0 ;
@@ -21,15 +24,11 @@ dqmElectronAnalysisSelectionEt.OutputFolderName = cms.string("Et10") ;
 
 dqmElectronAnalysisSelectionEtIso = dqmElectronAnalysis.clone() ;
 dqmElectronAnalysisSelectionEtIso.Selection = 2 ;
-dqmElectronAnalysisSelectionEtIso.OutputFolderName = cms.string("Et10Iso5") ;
+dqmElectronAnalysisSelectionEtIso.OutputFolderName = cms.string("Et10Iso1") ;
 
 dqmElectronAnalysisSelectionEtIsoElID = dqmElectronAnalysis.clone() ;
 dqmElectronAnalysisSelectionEtIsoElID.Selection = 3 ;
-dqmElectronAnalysisSelectionEtIsoElID.OutputFolderName = cms.string("Et10Iso5ElID") ;
-
-dqmElectronAnalysisTagAndProbe = dqmElectronAnalysis.clone() ;
-dqmElectronAnalysisTagAndProbe.Selection = 4 ;
-dqmElectronAnalysisTagAndProbe.OutputFolderName = cms.string("TagAndProbe") ;
+dqmElectronAnalysisSelectionEtIsoElID.OutputFolderName = cms.string("Et10Iso1ElID") ;
 
 electronAnalyzerSequence = cms.Sequence(
    mergedSuperClusters
@@ -37,5 +36,5 @@ electronAnalyzerSequence = cms.Sequence(
  * dqmElectronAnalysisSelectionEt
  * dqmElectronAnalysisSelectionEtIso
 # * dqmElectronAnalysisSelectionEtIsoElID
-# * dqmElectronAnalysisTagAndProbe
+ * dqmElectronTagProbeAnalysis
 )

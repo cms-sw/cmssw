@@ -1,6 +1,6 @@
 
-#ifndef DQMOffline_EGamma_ElectronAnalyzer_h
-#define DQMOffline_EGamma_ElectronAnalyzer_h
+#ifndef DQMOffline_EGamma_ElectronTagProbeAnalyzer_h
+#define DQMOffline_EGamma_ElectronTagProbeAnalyzer_h
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 
@@ -10,18 +10,19 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
+
 class MagneticField ;
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-class ElectronAnalyzer : public ElectronDqmAnalyzerBase
+class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
  {
   public:
 
-    explicit ElectronAnalyzer(const edm::ParameterSet& conf);
-    virtual ~ElectronAnalyzer();
+    explicit ElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
+    virtual ~ElectronTagProbeAnalyzer();
 
     virtual void book() ;
     virtual void analyze( const edm::Event & e, const edm::EventSetup & c) ;
@@ -41,11 +42,19 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     edm::InputTag vertexCollection_;
     bool readAOD_; //NEW
 
-    // matching
-    std::string matchingCondition_; //NEW
-    double maxPtMatchingObject_; // SURE ?
-    double maxAbsEtaMatchingObject_; // SURE ?
-    double deltaR_;
+//    // matching
+//    std::string matchingCondition_; //NEW
+//    double maxPtMatchingObject_; // SURE ?
+//    double maxAbsEtaMatchingObject_; // SURE ?
+//    double deltaR_;
+
+    // tag and probe NEW
+    double massLow_;
+    double massHigh_;
+    bool TPchecksign_;
+    bool TAGcheckclass_;
+    bool PROBEetcut_;
+    bool PROBEcheckclass_;
 
     // electron selection NEW
     double minEt_;
@@ -114,6 +123,9 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     float computeInvMass
      ( const reco::GsfElectron & e1,
        const reco::GsfElectron & e2 ) ;
+    void fillMatchedHistos
+     ( const reco::SuperClusterCollection::const_iterator & moIter,
+       const reco::GsfElectron & electron ) ;
 
     bool selected( const reco::GsfElectronCollection::const_iterator & gsfIter , double vertexTIP ) ;
     bool generalCut( const reco::GsfElectronCollection::const_iterator & gsfIter) ;
@@ -138,13 +150,13 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     //=========================================
 
     // general
-    MonitorElement * h2_ele_beamSpotXvsY ;
-    MonitorElement * py_ele_nElectronsVsLs ;
-    MonitorElement * py_ele_nClustersVsLs ;
-    MonitorElement * py_ele_nGsfTracksVsLs ;
-    MonitorElement * py_ele_nTracksVsLs ;
-    MonitorElement * py_ele_nVerticesVsLs ;
-    MonitorElement * h1_ele_triggers ;
+//    MonitorElement * h2_ele_beamSpotXvsY ;
+//    MonitorElement * py_ele_nElectronsVsLs ;
+//    MonitorElement * py_ele_nClustersVsLs ;
+//    MonitorElement * py_ele_nGsfTracksVsLs ;
+//    MonitorElement * py_ele_nTracksVsLs ;
+//    MonitorElement * py_ele_nVerticesVsLs ;
+//    MonitorElement * h1_ele_triggers ;
 
     // basic quantities
 //    MonitorElement * h1_ele_num_ ; // number of electrons in a single event
@@ -174,16 +186,16 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h2_ele_ambiguousTracksVsPhi ;
 //    MonitorElement * h2_ele_ambiguousTracksVsPt ;
     MonitorElement * h1_ele_chi2 ;
-    MonitorElement * py_ele_chi2VsEta ;
-    MonitorElement * py_ele_chi2VsPhi ;
+//    MonitorElement * py_ele_chi2VsEta ;
+//    MonitorElement * py_ele_chi2VsPhi ;
 //    MonitorElement * h2_ele_chi2VsPt ;
     MonitorElement * h1_ele_foundHits ;
-    MonitorElement * py_ele_foundHitsVsEta ;
-    MonitorElement * py_ele_foundHitsVsPhi ;
+//    MonitorElement * py_ele_foundHitsVsEta ;
+//    MonitorElement * py_ele_foundHitsVsPhi ;
 //    MonitorElement * h2_ele_foundHitsVsPt ;
     MonitorElement * h1_ele_lostHits ;
-    MonitorElement * py_ele_lostHitsVsEta ;
-    MonitorElement * py_ele_lostHitsVsPhi ;
+//    MonitorElement * py_ele_lostHitsVsEta ;
+//    MonitorElement * py_ele_lostHitsVsPhi ;
 //    MonitorElement * h2_ele_lostHitsVsPt ;
 
     // electron matching and ID
@@ -194,7 +206,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h2_ele_EopVsEta ;
     MonitorElement * h1_ele_Eop_barrel ;
     MonitorElement * h1_ele_Eop_endcaps ;
-    MonitorElement * py_ele_EopVsPhi ;
+//    MonitorElement * py_ele_EopVsPhi ;
 //    MonitorElement * h1_ele_EopVsPt ;
 //    MonitorElement * h1_ele_EeleOPout ;
 //    MonitorElement * h2_ele_EeleOPoutVsEta ;
@@ -206,7 +218,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h2_ele_dEtaSc_propVtxVsEta ;
     MonitorElement * h1_ele_dEtaSc_propVtx_barrel ;
     MonitorElement * h1_ele_dEtaSc_propVtx_endcaps ;
-    MonitorElement * py_ele_dEtaSc_propVtxVsPhi ;
+//    MonitorElement * py_ele_dEtaSc_propVtxVsPhi ;
 //    MonitorElement * h2_ele_dEtaSc_propVtxVsPt ;
 //    MonitorElement * h1_ele_dEtaEleCl_propOut ;
 //    MonitorElement * h2_ele_dEtaEleCl_propOutVsEta ;
@@ -218,7 +230,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h2_ele_dPhiSc_propVtxVsEta ;
     MonitorElement * h1_ele_dPhiSc_propVtx_barrel ;
     MonitorElement * h1_ele_dPhiSc_propVtx_endcaps ;
-    MonitorElement * py_ele_dPhiSc_propVtxVsPhi ;
+//    MonitorElement * py_ele_dPhiSc_propVtxVsPhi ;
 //    MonitorElement * h2_ele_dPhiSc_propVtxVsPt ;
 //    MonitorElement * h1_ele_dPhiEleCl_propOut ;
 //    MonitorElement * h2_ele_dPhiEleCl_propOutVsEta ;
@@ -230,7 +242,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h2_ele_HoeVsEta ;
     MonitorElement * h1_ele_Hoe_barrel ;
     MonitorElement * h1_ele_Hoe_endcaps ;
-    MonitorElement * py_ele_HoeVsPhi ;
+//    MonitorElement * py_ele_HoeVsPhi ;
 //    MonitorElement * h2_ele_HoeVsPt ;
     MonitorElement * h1_scl_SigEtaEta_barrel ;
     MonitorElement * h1_scl_SigEtaEta_endcaps ;
@@ -244,8 +256,8 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h_ele_PinMnPout ;
 //    MonitorElement * h_ele_PinMnPout_mode ;
     MonitorElement * h1_ele_fbrem ;
-    MonitorElement * py_ele_fbremVsEta ;
-    MonitorElement * py_ele_fbremVsPhi ;
+//    MonitorElement * py_ele_fbremVsEta ;
+//    MonitorElement * py_ele_fbremVsPhi ;
 //    MonitorElement * h2_ele_fbremVsPt ;
     MonitorElement * h1_ele_classes ;
 

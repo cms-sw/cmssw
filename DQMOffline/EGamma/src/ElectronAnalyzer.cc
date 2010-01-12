@@ -48,14 +48,6 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
   maxAbsEtaMatchingObject_ = conf.getParameter<double>("MaxAbsEtaMatchingObject");
   deltaR_ = conf.getParameter<double>("DeltaR");
 
-  // tag and probe
-  massLow_ = conf.getParameter< double >("MassLow");
-  massHigh_ = conf.getParameter< double >("MassHigh");
-  TPchecksign_ = conf.getParameter<bool>("TpCheckSign");
-  TAGcheckclass_ = conf.getParameter<bool>("TagCheckClass");
-  PROBEetcut_ = conf.getParameter<bool>("ProbeEtCut");
-  PROBEcheckclass_ = conf.getParameter<bool>("ProbeCheckClass");
-
   // electron selection
   minEt_ = conf.getParameter<double>("MinEt");
   minPt_ = conf.getParameter<double>("MinPt");
@@ -95,8 +87,8 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
 
   // for trigger
   triggerResults_ = conf.getParameter<edm::InputTag>("TriggerResults");
-  HLTPathsByName_= conf.getParameter<std::vector<std::string > >("HltPaths");
-  HLTPathsByIndex_.resize(HLTPathsByName_.size());
+//  HLTPathsByName_= conf.getParameter<std::vector<std::string > >("HltPaths");
+//  HLTPathsByIndex_.resize(HLTPathsByName_.size());
 
   // histos limits and binning
   nbineta=conf.getParameter<int>("NbinEta");
@@ -169,38 +161,38 @@ ElectronAnalyzer::~ElectronAnalyzer()
 void ElectronAnalyzer::book()
  {
   nEvents_ = 0 ;
-  nAfterTrigger_ = 0 ;
+  //nAfterTrigger_ = 0 ;
 
   // general
   h2_ele_beamSpotXvsY = bookH2("h2_ele_beamSpotXvsY","beam spot x vs y",100,-1.,1.,100,-1.,1.,"x (cm)","y (cm)") ;
-  py_ele_nElectronsVsLs= bookP1("py_ele_nElectronsVsLs","# gsf electrons vs LS",150,0.,150.,0.,20.,"LS","<N_{ele}>") ;
-  py_ele_nClustersVsLs= bookP1("py_ele_nClustersVsLs","# clusters vs LS",150,0.,150.,0.,100.,"LS","<N_{SC}>") ;
-  py_ele_nGsfTracksVsLs= bookP1("py_ele_nGsfTracksVsLs","# gsf tracks vs LS",150,0.,150.,0.,20.,"LS","<N_{GSF tk}>") ;
-  py_ele_nTracksVsLs= bookP1("py_ele_nTracksVsLs","# tracks vs LS",150,0.,150.,0.,100.,"LS","<N_{gen tk}>") ;
-  py_ele_nVerticesVsLs= bookP1("py_ele_nVerticesVsLs","# vertices vs LS",150,0.,150.,0.,10.,"LS","<N_{vert}>") ;
+  py_ele_nElectronsVsLs = bookP1("py_ele_nElectronsVsLs","# gsf electrons vs LS",150,0.,150.,0.,20.,"LS","<N_{ele}>") ;
+  py_ele_nClustersVsLs = bookP1("py_ele_nClustersVsLs","# clusters vs LS",150,0.,150.,0.,100.,"LS","<N_{SC}>") ;
+  py_ele_nGsfTracksVsLs = bookP1("py_ele_nGsfTracksVsLs","# gsf tracks vs LS",150,0.,150.,0.,20.,"LS","<N_{GSF tk}>") ;
+  py_ele_nTracksVsLs = bookP1("py_ele_nTracksVsLs","# tracks vs LS",150,0.,150.,0.,100.,"LS","<N_{gen tk}>") ;
+  py_ele_nVerticesVsLs = bookP1("py_ele_nVerticesVsLs","# vertices vs LS",150,0.,150.,0.,10.,"LS","<N_{vert}>") ;
   h1_ele_triggers = bookH1("h1_ele_triggers","hlt triggers",128,0.,128.,"HLT bit") ;
 
   // basic quantities
-//  h1_ele_num_= bookH1("h_ele_num","# rec electrons",20, 0.,20.,"N_{ele}");
-//  h1_ele_vertexP = bookH1("h_ele_vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
-//  h1_ele_Et = bookH1("h_ele_Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
-//  h1_ele_vertexTIP = bookH1("h_ele_vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
-//  h1_ele_charge = bookH1("h_ele_charge","ele charge",5,-2.,2.,"charge");
-  h1_ele_vertexPt_barrel = bookH1("h_ele_vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-  h1_ele_vertexPt_endcaps = bookH1("h_ele_vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-//  h1_ele_vertexEta = bookH1("h_ele_vertexEta","ele momentum #eta",nbineta,etamin,etamax,"#eta");
-//  h1_ele_vertexPhi = bookH1("h_ele_vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h2_ele_vertexEtaVsPhi = bookH2("h_ele_vertexEtaVsPhi","ele momentum #eta vs #phi",nbinphi2D,phimin,phimax,nbineta2D,etamin,etamax,"#phi (rad)","#eta");
-//  h1_ele_vertexX = bookH1("h_ele_vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)");
-//  h1_ele_vertexY = bookH1("h_ele_vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)");
-  h2_ele_vertexXvsY = bookH2("h_ele_vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"y (cm)","x (cm)");
-  h1_ele_vertexZ = bookH1("h_ele_vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)");
+//  h1_ele_num_= bookH1("h1_ele_num","# rec electrons",20, 0.,20.,"N_{ele}");
+//  h1_ele_vertexP = bookH1("h1_ele_vertexP",        "ele p at vertex",       nbinp,0.,pmax,"p_{vertex} (GeV/c)");
+//  h1_ele_Et = bookH1("h1_ele_Et","ele SC transverse energy",  nbinpt,0.,ptmax,"E_{T} (GeV)");
+//  h1_ele_vertexTIP = bookH1("h1_ele_vertexTIP","ele transverse impact parameter (wrt bs)",90,0.,0.15,"TIP (cm)");
+//  h1_ele_charge = bookH1("h1_ele_charge","ele charge",5,-2.,2.,"charge");
+  h1_ele_vertexPt_barrel = bookH1("h1_ele_vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
+  h1_ele_vertexPt_endcaps = bookH1("h1_ele_vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
+//  h1_ele_vertexEta = bookH1("h1_ele_vertexEta","ele momentum #eta",nbineta,etamin,etamax,"#eta");
+//  h1_ele_vertexPhi = bookH1("h1_ele_vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
+  h2_ele_vertexEtaVsPhi = bookH2("h2_ele_vertexEtaVsPhi","ele momentum #eta vs #phi",nbinphi2D,phimin,phimax,nbineta2D,etamin,etamax,"#phi (rad)","#eta");
+//  h1_ele_vertexX = bookH1("h1_ele_vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)");
+//  h1_ele_vertexY = bookH1("h1_ele_vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)");
+  h2_ele_vertexXvsY = bookH2("h2_ele_vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"y (cm)","x (cm)");
+  h1_ele_vertexZ = bookH1("h1_ele_vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)");
 
   // super-clusters
-//  h1_scl_En = bookH1("h_scl_energy","ele supercluster energy",nbinp,0.,pmax,"E (GeV)");
-//  h1_scl_Eta = bookH1("h_scl_eta","ele supercluster #eta",nbineta,etamin,etamax,"#eta");
-//  h1_scl_Phi = bookH1("h_scl_phi","ele supercluster #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h1_scl_Et = bookH1("h_scl_et","ele supercluster transverse energy",nbinpt,0.,ptmax,"E_{T} (GeV)");
+//  h1_scl_En = bookH1("h1_scl_energy","ele supercluster energy",nbinp,0.,pmax,"E (GeV)");
+//  h1_scl_Eta = bookH1("h1_scl_eta","ele supercluster #eta",nbineta,etamin,etamax,"#eta");
+//  h1_scl_Phi = bookH1("h1_scl_phi","ele supercluster #phi",nbinphi,phimin,phimax,"#phi (rad)");
+  h1_scl_Et = bookH1("h1_scl_et","ele supercluster transverse energy",nbinpt,0.,ptmax,"E_{T} (GeV)");
 
   // electron track
 //  h1_ele_ambiguousTracks = bookH1("h1_ele_ambiguousTracks","ele # ambiguous tracks",  5,0.,5.,"N_{amb. tk}");
@@ -221,11 +213,11 @@ void ElectronAnalyzer::book()
 //  h2_ele_lostHitsVsPt = bookH2("h2_ele_lostHitsVsPt","ele track # lost hits vs #eta",nbinpt2D,0.,ptmax,nbinlhits,0.,lhitsmax,"p_{T} (GeV/c)","<# hits>");
 
   // electron matching and ID
-  //h_ele_EoPout = bookH1( "h_ele_EoPout","ele E/P_{out}",nbineop,0.,eopmax,"E_{seed}/P_{out}");
-  //h_ele_dEtaCl_propOut = bookH1( "h_ele_dEtaCl_propOut","ele #eta_{cl} - #eta_{tr}, prop from outermost",nbindetamatch,detamatchmin,detamatchmax,"#eta_{seedcl} - #eta_{tr}");
-  //h_ele_dPhiCl_propOut = bookH1( "h_ele_dPhiCl_propOut","ele #phi_{cl} - #phi_{tr}, prop from outermost",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{seedcl} - #phi_{tr} (rad)");
-  //h_ele_outerP = bookH1( "h_ele_outerP","ele track outer p, mean",nbinp,0.,pmax,"P_{out} (GeV/c)");
-  //h_ele_outerP_mode = bookH1( "h_ele_outerP_mode","ele track outer p, mode",nbinp,0.,pmax,"P_{out} (GeV/c)");
+  //h1_ele_EoPout = bookH1( "h1_ele_EoPout","ele E/P_{out}",nbineop,0.,eopmax,"E_{seed}/P_{out}");
+  //h1_ele_dEtaCl_propOut = bookH1( "h1_ele_dEtaCl_propOut","ele #eta_{cl} - #eta_{tr}, prop from outermost",nbindetamatch,detamatchmin,detamatchmax,"#eta_{seedcl} - #eta_{tr}");
+  //h1_ele_dPhiCl_propOut = bookH1( "h1_ele_dPhiCl_propOut","ele #phi_{cl} - #phi_{tr}, prop from outermost",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{seedcl} - #phi_{tr} (rad)");
+  //h1_ele_outerP = bookH1( "h1_ele_outerP","ele track outer p, mean",nbinp,0.,pmax,"P_{out} (GeV/c)");
+  //h1_ele_outerP_mode = bookH1( "h1_ele_outerP_mode","ele track outer p, mode",nbinp,0.,pmax,"P_{out} (GeV/c)");
   h1_ele_Eop_barrel = bookH1( "h1_ele_Eop_barrel","ele E/P_{vertex} in barrel",nbineop,0.,eopmax,"E/P_{vertex}");
   h1_ele_Eop_endcaps = bookH1( "h1_ele_Eop_endcaps","ele E/P_{vertex} in endcaps",nbineop,0.,eopmax,"E/P_{vertex}");
   py_ele_EopVsPhi = bookP1("py_ele_EopVsPhi","ele <E/P_{vertex}> vs #phi",nbinphi2D,phimin,phimax,0.,eopmax,"#phi (rad)","<E/P_{vertex}>");
@@ -250,10 +242,10 @@ void ElectronAnalyzer::book()
   h1_ele_dPhiEleCl_propOut_endcaps = bookH1( "h1_ele_dPhiEleCl_propOut_endcaps","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in endcaps",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
 //  h2_ele_dPhiEleCl_propOutVsPhi = bookH2("h2_ele_dPhiEleCl_propOutVsPhi","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs #phi",nbinphi2D,phimin,phimax,nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
 //  h2_ele_dPhiEleCl_propOutVsPt = bookH2("h2_ele_dPhiEleCl_propOutVsPt","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"p_{T} (GeV/c)","#phi_{elecl} - #phi_{tr} (rad)");
-  h1_ele_Hoe_barrel = bookH1("h1_ele_Hoe_barrel","ele hadronic energy / em energy, in barrel", nbinhoe, hoemin, hoemax,"H/E") ;
-  h1_ele_Hoe_endcaps = bookH1("h1_ele_Hoe_endcaps","ele hadronic energy / em energy, in endcaps", nbinhoe, hoemin, hoemax,"H/E") ;
-  py_ele_HoeVsPhi = bookP1("py_ele_HoeVsPhi","ele <hadronic energy / em energy> vs #phi",nbinphi2D,phimin,phimax,hoemin,hoemax,"#phi (rad)","<H/E>") ;
-//  h2_ele_HoeVsPt = bookH2("h2_ele_HoeVsPt","ele hadronic energy / em energy vs pt",nbinpt2D,0.,ptmax,nbinhoe,hoemin,hoemax,"p_{T} (GeV/c)","<H/E>") ;
+  h1_ele_Hoe_barrel = bookH1("h1_ele_Hoe_barrel","ele hadronic energy / em energy, in barrel", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY") ;
+  h1_ele_Hoe_endcaps = bookH1("h1_ele_Hoe_endcaps","ele hadronic energy / em energy, in endcaps", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY") ;
+  py_ele_HoeVsPhi = bookP1("py_ele_HoeVsPhi","ele <hadronic energy / em energy> vs #phi",nbinphi2D,phimin,phimax,hoemin,hoemax,"#phi (rad)","<H/E>","ELE_LOGY") ;
+//  h2_ele_HoeVsPt = bookH2("h2_ele_HoeVsPt","ele hadronic energy / em energy vs pt",nbinpt2D,0.,ptmax,nbinhoe,hoemin,hoemax,"p_{T} (GeV/c)","<H/E>","ELE_LOGY") ;
   h1_scl_SigEtaEta_barrel = bookH1("h1_scl_sigetaeta_barrel","ele supercluster sigma ieta ieta in barrel",100,0.,0.05,"sietaieta");
   h1_scl_SigEtaEta_endcaps = bookH1("h1_scl_sigetaeta_endcaps","ele supercluster sigma ieta ieta in endcaps",100,0.,0.05,"sietaieta");
 
@@ -267,7 +259,7 @@ void ElectronAnalyzer::book()
   h1_ele_fbrem = bookH1("h1_ele_fbrem","ele brem fraction",100,0.,1.,"P_{in} - P_{out} / P_{in}","N events") ;
   py_ele_fbremVsEta = bookP1("py_ele_fbremVsEta","ele <brem fraction> vs #eta",nbineta2D,etamin,etamax,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>") ;
   py_ele_fbremVsPhi = bookP1("py_ele_fbremVsPhi","ele <brem fraction> vs #phi",nbinphi2D,phimin,phimax,0.,1.,"#phi (rad)","<P_{in} - P_{out} / P_{in}>") ;
-//  h_ele_fbremVsPt = bookH2("h_ele_fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"p_{T} (GeV/c)","<P_{in} - P_{out} / P_{in}>") ;
+//  h2_ele_fbremVsPt = bookH2("h2_ele_fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"p_{T} (GeV/c)","<P_{in} - P_{out} / P_{in}>") ;
   h1_ele_classes = bookH1("h1_ele_classes","ele electron classes",10,0.0,10.);
 
   // pflow
@@ -275,16 +267,16 @@ void ElectronAnalyzer::book()
   h1_ele_provenance = bookH1( "h1_ele_provenance","ele provenance",5,-2.,3.,"provenance");
 
   // isolation
-  h1_ele_tkSumPt_dr03 = bookH1("h1_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.,"TkIsoSum (GeV/c)");
-  h1_ele_ecalRecHitSumEt_dr03 = bookH1("h1_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.,"EcalIsoSum (GeV)");
-  h1_ele_hcalTowerSumEt_dr03 = bookH1("h1_ele_hcalTowerSumEt_dr03","hcal isolation sum, dR=0.3",100,0.0,20.,"HcalIsoSum (GeV)");
-//  h1_ele_hcalDepth1TowerSumEt_dr03 = bookH1("h1_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.,"Hcal1IsoSum (GeV)");
-//  h1_ele_hcalDepth2TowerSumEt_dr03 = bookH1("h1_ele_hcalDepth2TowerSumEt_dr03","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum (GeV)");
-//  h1_ele_tkSumPt_dr04 = bookH1("h1_ele_tkSumPt_dr04","hcal isolation sum",100,0.0,20.,"TkIsoSum (GeV/c)");
-//  h1_ele_ecalRecHitSumEt_dr04 = bookH1("h1_ele_ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.,"EcalIsoSum (GeV)");
-//  h1_ele_hcalTowerSumEt_dr04 = bookH1("h1_ele_hcalTowerSumEt_dr04","hcal isolation sum, dR=0.4",100,0.0,20.,"HcalIsoSum (GeV)");
-////  h1_ele_hcalDepth1TowerSumEt_dr04 = bookH1("h1_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.,"Hcal1IsoSum (GeV)");
-////  h1_ele_hcalDepth2TowerSumEt_dr04 = bookH1("h1_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum (GeV)");
+  h1_ele_tkSumPt_dr03 = bookH1("h1_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.,"TkIsoSum (GeV/c)","Events","ELE_LOGY");
+  h1_ele_ecalRecHitSumEt_dr03 = bookH1("h1_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.,"EcalIsoSum (GeV)","Events","ELE_LOGY");
+  h1_ele_hcalTowerSumEt_dr03 = bookH1("h1_ele_hcalTowerSumEt_dr03","hcal isolation sum, dR=0.3",100,0.0,20.,"HcalIsoSum (GeV)","Events","ELE_LOGY");
+//  h1_ele_hcalDepth1TowerSumEt_dr03 = bookH1("h1_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.,"Hcal1IsoSum (GeV)","Events","ELE_LOGY");
+//  h1_ele_hcalDepth2TowerSumEt_dr03 = bookH1("h1_ele_hcalDepth2TowerSumEt_dr03","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum (GeV)","Events","ELE_LOGY");
+//  h1_ele_tkSumPt_dr04 = bookH1("h1_ele_tkSumPt_dr04","hcal isolation sum",100,0.0,20.,"TkIsoSum (GeV/c)","Events","ELE_LOGY");
+//  h1_ele_ecalRecHitSumEt_dr04 = bookH1("h1_ele_ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.,"EcalIsoSum (GeV)","Events","ELE_LOGY");
+//  h1_ele_hcalTowerSumEt_dr04 = bookH1("h1_ele_hcalTowerSumEt_dr04","hcal isolation sum, dR=0.4",100,0.0,20.,"HcalIsoSum (GeV)","Events","ELE_LOGY");
+////  h1_ele_hcalDepth1TowerSumEt_dr04 = bookH1("h1_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.,"Hcal1IsoSum (GeV)","Events","ELE_LOGY");
+////  h1_ele_hcalDepth2TowerSumEt_dr04 = bookH1("h1_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum (GeV)","Events","ELE_LOGY");
 
   // di-electron mass
   h1_ele_mee_os = bookH1("h1_ele_mee_os","ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
@@ -305,7 +297,7 @@ void ElectronAnalyzer::book()
   else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
 //  std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
-//  h_matchingObject_Num = bookH1withSumw2("h_matchingObject_Num",htitle,nbinfhits,0.,fhitsmax,xtitle) ;
+//  h1_matchingObject_Num = bookH1withSumw2("h1_matchingObject_Num",htitle,nbinfhits,0.,fhitsmax,xtitle) ;
 
   // matching object distributions
   h1_matchingObject_Eta = bookH1withSumw2("h1_matchingObject_Eta",matchingObjectType+" #eta",nbineta,etamin,etamax,"#eta_{SC}");
@@ -322,19 +314,19 @@ void ElectronAnalyzer::book()
   h1_matchedObject_Z = bookH1withSumw2("h1_matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25,"z (cm)");
 
 //  // classes
-//  h_matchedEle_eta = bookH1( "h_matchedEle_eta", "ele electron #eta",  nbineta/2,0.0,etamax,"#eta");
-//  h_matchedEle_eta_golden = bookH1( "h_matchedEle_eta_golden", "ele electron #eta golden",  nbineta/2,0.0,etamax,"#eta");
-//  h_matchedEle_eta_shower = bookH1( "h_matchedEle_eta_shower", "ele electron #eta showering",  nbineta/2,0.0,etamax,"#eta");
-//  //h_matchedEle_eta_bbrem = bookH1( "h_matchedEle_eta_bbrem", "ele electron #eta bbrem",  nbineta/2,0.0,etamax,"#eta");
-//  //h_matchedEle_eta_narrow = bookH1( "h_matchedEle_eta_narrow", "ele electron #eta narrow",  nbineta/2,0.0,etamax,"#eta");
+//  h1_matchedEle_eta = bookH1( "h1_matchedEle_eta", "ele electron #eta",  nbineta/2,0.0,etamax,"#eta");
+//  h1_matchedEle_eta_golden = bookH1( "h1_matchedEle_eta_golden", "ele electron #eta golden",  nbineta/2,0.0,etamax,"#eta");
+//  h1_matchedEle_eta_shower = bookH1( "h1_matchedEle_eta_shower", "ele electron #eta showering",  nbineta/2,0.0,etamax,"#eta");
+//  //h1_matchedEle_eta_bbrem = bookH1( "h1_matchedEle_eta_bbrem", "ele electron #eta bbrem",  nbineta/2,0.0,etamax,"#eta");
+//  //h1_matchedEle_eta_narrow = bookH1( "h1_matchedEle_eta_narrow", "ele electron #eta narrow",  nbineta/2,0.0,etamax,"#eta");
 //
  }
 
 void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
 {
   nEvents_++ ;
-  if (!trigger(iEvent)) return ;
-  nAfterTrigger_++ ;
+//  if (!trigger(iEvent)) return ;
+//  nAfterTrigger_++ ;
 
 //  edm::Handle<SuperClusterCollection> barrelSCs ;
 //  iEvent.getByLabel("correctedHybridSuperClusters",barrelSCs) ;
@@ -553,105 +545,75 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     h1_matchingObject_Phi->Fill( moIter->phi() );
     h1_matchingObject_Z->Fill(  moIter->z() );
 
-    if (Selection_<4)
+    bool okGsfFound = false ;
+    double gsfOkRatio = 999999999. ;
+    reco::GsfElectron bestGsfElectron ;
+    reco::GsfElectronCollection::const_iterator gsfIter ;
+    for
+     ( gsfIter=gsfElectrons->begin() ;
+       gsfIter!=gsfElectrons->end() ;
+       gsfIter++ )
      {
-      bool okGsfFound = false ;
-      double gsfOkRatio = 999999999. ;
-      reco::GsfElectron bestGsfElectron ;
-      reco::GsfElectronCollection::const_iterator gsfIter ;
+      reco::GsfElectronCollection::const_iterator gsfIter2 ;
       for
-       ( gsfIter=gsfElectrons->begin() ;
-         gsfIter!=gsfElectrons->end() ;
-         gsfIter++ )
+       ( gsfIter2=gsfIter+1;
+         gsfIter2!=gsfElectrons->end() ;
+         gsfIter2++ )
        {
-        reco::GsfElectronCollection::const_iterator gsfIter2 ;
-        for
-         ( gsfIter2=gsfIter+1;
-           gsfIter2!=gsfElectrons->end() ;
-           gsfIter2++ )
+        float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
+        h1_ele_mee->Fill(invMass) ;
+        if (((gsfIter->charge())*(gsfIter2->charge()))<0.)
+         { h1_ele_mee_os->Fill(invMass) ; }
+       }
+
+      double vertexTIP =
+       (gsfIter->vertex().x()-bs.position().x()) * (gsfIter->vertex().x()-bs.position().x()) +
+       (gsfIter->vertex().y()-bs.position().y()) * (gsfIter->vertex().y()-bs.position().y()) ;
+      vertexTIP = sqrt(vertexTIP) ;
+
+      // select electrons
+      if (!selected(gsfIter,vertexTIP)) continue ;
+
+      // matching with a cone in eta phi
+      if ( matchingCondition_ == "Cone" )
+       {
+        double dphi = gsfIter->phi()-moIter->phi() ;
+        if (fabs(dphi)>CLHEP::pi)
+         { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
+        double deltaR = sqrt(pow((moIter->eta()-gsfIter->eta()),2) + pow(dphi,2)) ;
+        if ( deltaR < deltaR_ )
          {
-          float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
-          h1_ele_mee->Fill(invMass) ;
-          if (((gsfIter->charge())*(gsfIter2->charge()))<0.)
-           { h1_ele_mee_os->Fill(invMass) ; }
-         }
-
-        double vertexTIP =
-         (gsfIter->vertex().x()-bs.position().x()) * (gsfIter->vertex().x()-bs.position().x()) +
-         (gsfIter->vertex().y()-bs.position().y()) * (gsfIter->vertex().y()-bs.position().y()) ;
-        vertexTIP = sqrt(vertexTIP) ;
-
-        // select electrons
-        if (!selected(gsfIter,vertexTIP)) continue ;
-
-        // matching with a cone in eta phi
-        if ( matchingCondition_ == "Cone" )
-         {
-          double dphi = gsfIter->phi()-moIter->phi() ;
-          if (fabs(dphi)>CLHEP::pi)
-           { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-          double deltaR = sqrt(pow((moIter->eta()-gsfIter->eta()),2) + pow(dphi,2)) ;
-          if ( deltaR < deltaR_ )
+          //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
+          //(gsfIter->charge() > 0.) ){
+          double tmpGsfRatio = gsfIter->p()/moIter->energy() ;
+          if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) )
            {
-            //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
-            //(gsfIter->charge() > 0.) ){
-            double tmpGsfRatio = gsfIter->p()/moIter->energy() ;
-            if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) )
-             {
-              gsfOkRatio = tmpGsfRatio;
-              bestGsfElectron=*gsfIter;
-              okGsfFound = true;
-             }
-            //}
+            gsfOkRatio = tmpGsfRatio;
+            bestGsfElectron=*gsfIter;
+            okGsfFound = true;
            }
-         }
-       } // loop over rec ele to look for the best one
-      if (okGsfFound)
-       { fillMatchedHistos(moIter,bestGsfElectron) ; }
-     }
-    else
-     {
-      reco::GsfElectron bestGsfElectron ;
-      reco::GsfElectronCollection::const_iterator gsfIter ;
-      for
-       ( gsfIter=gsfElectrons->begin() ;
-         gsfIter!=gsfElectrons->end() ;
-         gsfIter++ )
-       {
-        double vertexTIP =
-         (gsfIter->vertex().x()-bs.position().x()) * (gsfIter->vertex().x()-bs.position().x()) +
-         (gsfIter->vertex().y()-bs.position().y()) * (gsfIter->vertex().y()-bs.position().y()) ;
-        vertexTIP = sqrt(vertexTIP) ;
-
-        // select electrons
-        if (!selected(gsfIter,vertexTIP)) continue ;
-
-        reco::GsfElectronCollection::const_iterator gsfIter2 ;
-        for
-         ( gsfIter2=gsfIter+1 ;
-           gsfIter2!=gsfElectrons->end() ;
-           gsfIter2++ )
-         {
-          float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
-          h1_ele_mee->Fill(invMass) ;
-
-          if (TPchecksign_ && (((gsfIter->charge())*(gsfIter2->charge()))>=0.)) break ;
-
-          // conditions Tag
-          if(TAGcheckclass_ && (gsfIter->classification()==GsfElectron::SHOWERING || gsfIter->isGap())) break ;
-
-          // conditions Probe
-          if(PROBEetcut_ && (gsfIter2->superCluster()->energy()/cosh(gsfIter2->superCluster()->eta())<minEt_)) continue;
-          if(PROBEcheckclass_ && (gsfIter2->classification()==GsfElectron::SHOWERING || gsfIter2->isGap())) continue;
-
-          if( invMass < massLow_ || invMass > massHigh_ ) continue ;
-
-          h1_ele_mee_os->Fill(invMass) ;
-
-          fillMatchedHistos(moIter,*gsfIter2) ;
+          //}
          }
        }
-     } // end of Selection_>=4
+     } // loop over rec ele to look for the best one
+    if (okGsfFound)
+     {
+      // generated distributions for matched electrons
+      h1_matchedObject_Eta->Fill( moIter->eta() );
+    //  h1_matchedObject_AbsEta->Fill( fabs(moIter->eta()) );
+      h1_matchedObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
+      h1_matchedObject_Phi->Fill( moIter->phi() );
+      h1_matchedObject_Z->Fill( moIter->z() );
+
+      //classes
+    //  int eleClass = bestGsfElectron.classification() ;
+    //  h_ele_classes->Fill(eleClass) ;
+    //  h_matchedEle_eta->Fill(fabs(bestGsfElectron.eta()));
+    //  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(fabs(bestGsfElectron.eta()));
+    //  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(fabs(bestGsfElectron.eta()));
+    //  //if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(bestGsfElectron.eta()));
+    //  //if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h_matchedEle_eta_narrow->Fill(fabs(bestGsfElectron.eta()));
+     }
 
    } // loop overmatching object
 
@@ -669,102 +631,81 @@ float ElectronAnalyzer::computeInvMass
   return invMass ;
  }
 
-void ElectronAnalyzer::fillMatchedHistos
- ( const reco::SuperClusterCollection::const_iterator & moIter,
-   const reco::GsfElectron & electron )
- {
-  // generated distributions for matched electrons
-  h1_matchedObject_Eta->Fill( moIter->eta() );
-//  h1_matchedObject_AbsEta->Fill( fabs(moIter->eta()) );
-  h1_matchedObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
-  h1_matchedObject_Phi->Fill( moIter->phi() );
-  h1_matchedObject_Z->Fill( moIter->z() );
-
-  //classes
-//  int eleClass = electron.classification() ;
-//  h_ele_classes->Fill(eleClass) ;
-//  h_matchedEle_eta->Fill(fabs(electron.eta()));
-//  if (electron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(fabs(electron.eta()));
-//  if (electron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(fabs(electron.eta()));
-//  //if (electron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(electron.eta()));
-//  //if (electron.classification() == GsfElectron::OLDNARROW) h_matchedEle_eta_narrow->Fill(fabs(electron.eta()));
- }
-
-bool ElectronAnalyzer::trigger( const edm::Event & e )
- {
-  // retreive TriggerResults from the event
-  edm::Handle<edm::TriggerResults> triggerResults ;
-  e.getByLabel(triggerResults_,triggerResults) ;
-
-  bool accept = false ;
-
-  if (triggerResults.isValid())
-   {
-    //std::cout << "TriggerResults found, number of HLT paths: " << triggerResults->size() << std::endl;
-    // get trigger names
-    edm::TriggerNames triggerNames_;
-    triggerNames_.init(*triggerResults) ;
-//    if (nEvents_==1)
+//bool ElectronAnalyzer::trigger( const edm::Event & e )
+// {
+//  // retreive TriggerResults from the event
+//  edm::Handle<edm::TriggerResults> triggerResults ;
+//  e.getByLabel(triggerResults_,triggerResults) ;
+//
+//  bool accept = false ;
+//
+//  if (triggerResults.isValid())
+//   {
+//    //std::cout << "TriggerResults found, number of HLT paths: " << triggerResults->size() << std::endl;
+//    // get trigger names
+//    edm::TriggerNames triggerNames_;
+//    triggerNames_.init(*triggerResults) ;
+////    if (nEvents_==1)
+////     {
+////      for (unsigned int i=0; i<triggerNames_.size(); i++)
+////       { std::cout << "trigger path= " << triggerNames_.triggerName(i) << std::endl; }
+////     }
+//
+//    unsigned int n = HLTPathsByName_.size() ;
+//    for (unsigned int i=0; i!=n; i++)
 //     {
-//      for (unsigned int i=0; i<triggerNames_.size(); i++)
-//       { std::cout << "trigger path= " << triggerNames_.triggerName(i) << std::endl; }
+//      HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]) ;
 //     }
-
-    unsigned int n = HLTPathsByName_.size() ;
-    for (unsigned int i=0; i!=n; i++)
-     {
-      HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]) ;
-     }
-
-    // empty input vectors (n==0) means any trigger paths
-    if (n==0)
-     {
-      n=triggerResults->size() ;
-      HLTPathsByName_.resize(n) ;
-      HLTPathsByIndex_.resize(n) ;
-      for ( unsigned int i=0 ; i!=n ; i++)
-       {
-        HLTPathsByName_[i]=triggerNames_.triggerName(i) ;
-        HLTPathsByIndex_[i]=i ;
-       }
-     }
-
-//    if (nEvents_==1)
+//
+//    // empty input vectors (n==0) means any trigger paths
+//    if (n==0)
 //     {
-//      if (n>0)
+//      n=triggerResults->size() ;
+//      HLTPathsByName_.resize(n) ;
+//      HLTPathsByIndex_.resize(n) ;
+//      for ( unsigned int i=0 ; i!=n ; i++)
 //       {
-//        std::cout << "HLT trigger paths requested: index, name and valididty:" << std::endl;
-//        for (unsigned int i=0; i!=n; i++)
+//        HLTPathsByName_[i]=triggerNames_.triggerName(i) ;
+//        HLTPathsByIndex_[i]=i ;
+//       }
+//     }
+//
+////    if (nEvents_==1)
+////     {
+////      if (n>0)
+////       {
+////        std::cout << "HLT trigger paths requested: index, name and valididty:" << std::endl;
+////        for (unsigned int i=0; i!=n; i++)
+////         {
+////          bool validity = HLTPathsByIndex_[i]<triggerResults->size();
+////          std::cout
+////            << " " << HLTPathsByIndex_[i]
+////            << " " << HLTPathsByName_[i]
+////            << " " << validity << std::endl;
+////         }
+////       }
+////     }
+//
+//    // count number of requested HLT paths which have fired
+//    unsigned int fired=0 ;
+//    for ( unsigned int i=0 ; i!=n ; i++ )
+//     {
+//      if (HLTPathsByIndex_[i]<triggerResults->size())
+//       {
+//        if (triggerResults->accept(HLTPathsByIndex_[i]))
 //         {
-//          bool validity = HLTPathsByIndex_[i]<triggerResults->size();
-//          std::cout
-//            << " " << HLTPathsByIndex_[i]
-//            << " " << HLTPathsByName_[i]
-//            << " " << validity << std::endl;
+//          fired++ ;
+//          h1_ele_triggers->Fill(float(HLTPathsByIndex_[i]));
+//          //std::cout << "Fired HLT path= " << HLTPathsByName_[i] << std::endl ;
+//          accept = true ;
 //         }
 //       }
 //     }
-
-    // count number of requested HLT paths which have fired
-    unsigned int fired=0 ;
-    for ( unsigned int i=0 ; i!=n ; i++ )
-     {
-      if (HLTPathsByIndex_[i]<triggerResults->size())
-       {
-        if (triggerResults->accept(HLTPathsByIndex_[i]))
-         {
-          fired++ ;
-          h1_ele_triggers->Fill(float(HLTPathsByIndex_[i]));
-          //std::cout << "Fired HLT path= " << HLTPathsByName_[i] << std::endl ;
-          accept = true ;
-         }
-       }
-     }
-
-   }
-
-  return accept ;
- }
+//
+//   }
+//
+//  return accept ;
+// }
 
 bool ElectronAnalyzer::selected( const reco::GsfElectronCollection::const_iterator & gsfIter , double vertexTIP )
  {

@@ -12,10 +12,6 @@ class ElectronOfflineClient : public ElectronDqmAnalyzerBase
 
     virtual void finalize() ;
 
-  private:
-
-    int Selection_ ;
-
  } ;
 
 #endif

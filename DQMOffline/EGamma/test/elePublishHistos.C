@@ -18,7 +18,7 @@ int elePublishHistos()
   TString pub_output_dir = gSystem->Getenv("PUB_OUTPUT_DIR") ;
   TString pub_title = gSystem->Getenv("PUB_TITLE") ;
   TString pub_comment = gSystem->Getenv("PUB_COMMENT") ;
-  
+
   // prepare unix output directory
   pub_output_dir = gSystem->ExpandPathName(pub_output_dir.Data()) ;
   if (gSystem->AccessPathName(pub_output_dir.Data())==kFALSE)
@@ -27,7 +27,7 @@ int elePublishHistos()
    { std::cerr<<"Failed to create "<<pub_output_dir<<std::endl ; exit(1) ; }
   else
    { std::cout<<"Creating "<<pub_output_dir<<std::endl ; }
-  
+
   // open input file
   if (gSystem->CopyFile(pub_input_file.Data(),(pub_output_dir+"/"+pub_input_file).Data(),kTRUE)<0)
    { std::cerr<<"Failed to copy "<<pub_input_file<<std::endl ; exit(2) ; }
@@ -44,7 +44,7 @@ int elePublishHistos()
    }
   else
    { std::cerr<<"Failed to open "<<pub_input_file<<std::endl ; exit(3) ; }
-  
+
 
   // web page header
   std::ofstream web_page((pub_output_dir+"/index.html").Data()) ;
@@ -82,7 +82,6 @@ int elePublishHistos()
   eleStyle->SetGridColor(0);
   eleStyle->SetGridStyle(3);
   eleStyle->SetGridWidth(1);
-  eleStyle->SetOptStat(1);
   eleStyle->SetPadTickX(1);
   eleStyle->SetPadTickY(1);
   eleStyle->SetHistLineColor(1);
@@ -90,7 +89,6 @@ int elePublishHistos()
   eleStyle->SetHistLineWidth(2);
   eleStyle->SetEndErrorSize(2);
   eleStyle->SetErrorX(0.);
-  eleStyle->SetOptStat(1);
   eleStyle->SetTitleColor(1, "XYZ");
   eleStyle->SetTitleFont(42, "XYZ");
   eleStyle->SetTitleXOffset(1.0);
@@ -106,7 +104,7 @@ int elePublishHistos()
   eleStyle->SetMarkerSize(0.8);
   eleStyle->cd();
   gROOT->ForceStyle();
-  
+
   // variables for the next loops
   int cat_num ;
   TList * keys1, * keys2 ;
@@ -114,11 +112,11 @@ int elePublishHistos()
   TObject * obj1, * obj2 ;
   TDirectory * dir ;
   TH1 * histo ;
-  TString short_histo_name, anchor_name ;
+  TString short_histo_name, anchor_name, histo_option ;
   file->cd(pub_input_folder) ;
   keys1 = gDirectory->GetListOfKeys() ;
   TIter * nextKey1, * nextKey2 ;
-  
+
   // top table
   std::cout<<"Writing top table"<<std::endl ;
   web_page
@@ -145,7 +143,7 @@ int elePublishHistos()
       if (obj2->IsA()->InheritsFrom("TH1")==kFALSE)
        { std::cout<<"Ignoring object "<<obj2->GetName()<<std::endl ; continue ; }
       short_histo_name = obj2->GetName() ;
-      short_histo_name.Remove(0,2) ;
+      //short_histo_name.Remove(0,3) ;
       anchor_name = dir->GetName() ;
       anchor_name += "_" ;
       anchor_name += short_histo_name ;
@@ -182,14 +180,14 @@ int elePublishHistos()
       if (obj2->IsA()->InheritsFrom("TH1")==kFALSE)
        { std::cout<<"Ignoring object "<<obj2->GetName()<<std::endl ; continue ; }
       histo = (TH1 *)obj2 ;
-      
+
       std::cout
         <<dir->GetName()<<"/"<<histo->GetName()<<";"<<key2->GetCycle()
         <<" has "<<histo->GetEntries()<<" entries"
         <<" (~"<<histo->GetEffectiveEntries()<<")"
         <<" of mean value "<<histo->GetMean()
         <<std::endl ;
-      
+
       histo_name = histo->GetName() ;
       if (left_histo_name.IsNull()==kFALSE)
        {
@@ -203,9 +201,9 @@ int elePublishHistos()
        }
       else
        { left_histo_name = histo_name ; }
-       
+
       short_histo_name = histo_name ;
-      short_histo_name.Remove(0,2) ;
+      //short_histo_name.Remove(0,3) ;
       anchor_name = dir->GetName() ;
       anchor_name += "_" ;
       anchor_name += short_histo_name ;
@@ -215,20 +213,35 @@ int elePublishHistos()
       canvas_name += anchor_name ;
       canvas = new TCanvas(canvas_name) ;
       canvas->SetFillColor(10) ;
-        
+
       histo->SetLineColor(2) ;
       histo->SetMarkerColor(2) ;
       histo->SetLineWidth(3) ;
-      histo->Draw("E1 P") ;
+
+      histo_option = histo->GetOption() ;
+      if (histo_option.Contains("ELE_LOGY")==kTRUE)
+       { canvas->SetLogy(1) ; }
+
+      if (histo->IsA()->InheritsFrom("TH2")==kFALSE)
+       {
+        gStyle->SetOptStat(1) ;
+        histo->Draw("E1 P") ;
+       }
+      else
+       {
+        gStyle->SetPalette(1) ;
+        gStyle->SetOptStat("e") ;
+        histo->Draw("COLZ") ;
+       }
       canvas->SaveAs(gif_path.Data()) ;
-    
+
       web_page
         <<"<a id=\""<<anchor_name<<"\" name=\""<<anchor_name<<"\"></a>"
         <<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"500\" src=\""<<gif_name<<"\"></a><br>\n" ;
      }
    }
   web_page<<"</td></tr></table>\n" ;
-  
+
   // the end
   web_page<<"\n</html>"<<std::endl ;
   web_page.close() ;

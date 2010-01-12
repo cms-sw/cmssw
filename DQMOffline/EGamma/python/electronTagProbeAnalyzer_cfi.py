@@ -4,28 +4,35 @@
 
 import FWCore.ParameterSet.Config as cms
 
-dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
+dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtRunEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
-    InputFolderName = cms.string(""),
-    OutputFolderName = cms.string(""),
+    InputFolderName = cms.string("TagAndProbe"),
+    OutputFolderName = cms.string("TagAndProbe"),
     
-    Selection = cms.int32(1), # 0=All elec, 1=Etcut, 2=Iso, 3=eId
+    Selection = cms.int32(3), # 0=All elec, 1=Etcut, 2=Iso, 3=eId
     ElectronCollection = cms.InputTag("gsfElectrons"),
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
     TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),
-    VertexCollection = cms.InputTag("offlinePrimaryVertices"),
+    VertexCollection = cms.InputTag(""),
     ReadAOD = cms.bool(False),
     
-    MatchingCondition = cms.string("Cone"),
-    MaxPtMatchingObject = cms.double(100.0),
-    MaxAbsEtaMatchingObject = cms.double(2.5),
-    DeltaR = cms.double(0.3),
+    #MatchingCondition = cms.string("Cone"),
+    #MaxPtMatchingObject = cms.double(100.0),
+    #MaxAbsEtaMatchingObject = cms.double(2.5),
+    #DeltaR = cms.double(0.3),
     
+    MassLow = cms.double(60),
+    MassHigh = cms.double(120),
+    TpCheckSign = cms.bool(False),  
+    TagCheckClass = cms.bool(False),  
+    ProbeEtCut = cms.bool(False),
+    ProbeCheckClass = cms.bool(False),                                        
+
     MinEt = cms.double(10.),
     MinPt = cms.double(0.),
     MaxAbsEta = cms.double(2.5),
@@ -55,7 +62,7 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     MinMva = cms.double(-10000.),
     MaxTipBarrel = cms.double(10000.),
     MaxTipEndcaps = cms.double(10000.),
-    MaxTkIso03 = cms.double(1.),
+    MaxTkIso03 = cms.double(5.),
     MaxHcalIso03Depth1Barrel = cms.double(10000.),
     MaxHcalIso03Depth1Endcaps = cms.double(10000.),
     MaxHcalIso03Depth2Endcaps = cms.double(10000.),
@@ -63,7 +70,6 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     MaxEcalIso03Endcaps = cms.double(10000.),
 
     TriggerResults = cms.InputTag("TriggerResults::HLT"),
-
     NbinEta = cms.int32(50), NbinEta2D = cms.int32(50), EtaMin = cms.double(-2.5), EtaMax = cms.double(2.5),
     NbinPhi = cms.int32(64), NbinPhi2D = cms.int32(32), PhiMax = cms.double(3.2), PhiMin = cms.double(-3.2),
     NbinPt = cms.int32(50), NbinPtEff = cms.int32(19), NbinPt2D = cms.int32(50), PtMax = cms.double(100.0),

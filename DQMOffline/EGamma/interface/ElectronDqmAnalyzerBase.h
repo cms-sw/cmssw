@@ -37,30 +37,35 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     MonitorElement * bookH1
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
-       const std::string & titleX ="", const std::string & titleY ="Events" ) ;
+       const std::string & titleX ="", const std::string & titleY ="Events",
+       Option_t * option = "" ) ;
 
     MonitorElement * bookH1withSumw2
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
-       const std::string & titleX ="", const std::string & titleY ="Events" ) ;
+       const std::string & titleX ="", const std::string & titleY ="Events",
+       Option_t * option = ""  ) ;
 
     MonitorElement * bookH2
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        int nchY, double lowY, double highY,
-     const std::string & titleX ="", const std::string & titleY ="" ) ;
+       const std::string & titleX ="", const std::string & titleY ="",
+       Option_t * option = ""  ) ;
 
     MonitorElement * bookH2withSumw2
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        int nchY, double lowY, double highY,
-       const std::string & titleX ="", const std::string & titleY ="" ) ;
+       const std::string & titleX ="", const std::string & titleY ="",
+       Option_t * option = ""  ) ;
 
     MonitorElement * bookP1
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
                  double lowY, double highY,
-       const std::string & titleX ="", const std::string & titleY ="" ) ;
+       const std::string & titleX ="", const std::string & titleY ="",
+       Option_t * option = ""  ) ;
 
     MonitorElement * bookH1andDivide
      ( const std::string & name, MonitorElement * num, MonitorElement * denom,
