@@ -1,3 +1,8 @@
+2010-01-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-08-01-00
+	* backport for 333 to use with slc4 tests
+	
 2010-01-11  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-08-01

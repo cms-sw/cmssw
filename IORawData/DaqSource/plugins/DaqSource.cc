@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2010/01/11 16:14:26 $
- *  $Revision: 1.37 $
+ *  $Date: 2010/01/11 16:31:01 $
+ *  $Revision: 1.38 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -268,10 +268,11 @@ namespace edm {
     }
 
     // make a brand new event
-    eventId = EventID(runNumber_, luminosityBlockNumber_, eventId.event());
+    eventId = EventID(runNumber_, eventId.event());
     std::auto_ptr<EventAuxiliary> eventAux(
       new EventAuxiliary(eventId, processGUID(),
 			 timestamp(),
+			 luminosityBlockNumber_,
 			 true,
 			 evttype,
 			 bunchCrossing,
