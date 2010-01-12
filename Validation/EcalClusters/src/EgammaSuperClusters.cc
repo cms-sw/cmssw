@@ -9,7 +9,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
-//#include "PhysicsTools/Utilities/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"

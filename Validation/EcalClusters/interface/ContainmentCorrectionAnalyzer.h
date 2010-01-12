@@ -27,7 +27,7 @@
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
 #include "Validation/EcalClusters/interface/EcalSimPhotonMCTruth.h"
 //

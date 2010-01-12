@@ -15,6 +15,6 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
