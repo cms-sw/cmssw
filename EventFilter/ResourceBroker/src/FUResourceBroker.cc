@@ -16,6 +16,7 @@
 
 #include "i2o/Method.h"
 #include "interface/shared/i2oXFunctionCodes.h"
+#include "interface/evb/i2oEVBMsgs.h"
 #include "xcept/tools.h"
 
 #include "toolbox/mem/HeapAllocator.h"
@@ -363,8 +364,10 @@ void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference* buf
   I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   
-  LOG4CPLUS_WARN(log_, "Received END-OF-LS from EVM for LS " << lsg->lumiSection);
+  LOG4CPLUS_WARN(log_, "Received END-OF-LS from EVM for LS " << msg->lumiSection);
+
 }
+
 
 
 
