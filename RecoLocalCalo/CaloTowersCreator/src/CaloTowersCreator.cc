@@ -91,8 +91,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
   allowMissingInputs_(conf.getParameter<bool>("AllowMissingInputs")),
 
-  theHcalAcceptSeverityLevel_(conf.getParameter<uint>("HcalAcceptSeverityLevel")),
-  theEcalAcceptSeverityLevel_(conf.getParameter<uint>("EcalAcceptSeverityLevel")),
+  theHcalAcceptSeverityLevel_(conf.getParameter<unsigned int>("HcalAcceptSeverityLevel")),
+  theEcalAcceptSeverityLevel_(conf.getParameter<unsigned int>("EcalAcceptSeverityLevel")),
 
   theRecoveredHcalHitsAreUsed_(conf.getParameter<bool>("UseHcalRecoveredHits")),
   theRecoveredEcalHitsAreUsed_(conf.getParameter<bool>("UseEcalRecoveredHits"))

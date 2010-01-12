@@ -35,8 +35,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2009/03/22 20:14:47 $
-  * $Revision: 1.16 $
+  * $Date: 2009/05/05 12:02:38 $
+  * $Revision: 1.17 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -140,16 +140,16 @@ public:
   // Assign to categories based on info from DB and RecHit status
   // Called in assignHit to check if the energy should be added to
   // calotower, and how to flag the channel
-  uint hcalChanStatusForCaloTower(const CaloRecHit* hit);
-  uint ecalChanStatusForCaloTower(const CaloRecHit* hit);
+  unsigned int hcalChanStatusForCaloTower(const CaloRecHit* hit);
+  unsigned int ecalChanStatusForCaloTower(const CaloRecHit* hit);
 
   // Channel flagging is based on acceptable severity levels specified in the
   // configuration file. These methods are used to pass the values read in
   // CaloTowersCreator
   // 
   // from DB
-  void setHcalAcceptSeverityLevel(uint level) {theHcalAcceptSeverityLevel = level;} 
-  void setEcalAcceptSeverityLevel(uint level) {theEcalAcceptSeverityLevel = level;} 
+  void setHcalAcceptSeverityLevel(unsigned int level) {theHcalAcceptSeverityLevel = level;} 
+  void setEcalAcceptSeverityLevel(unsigned int level) {theEcalAcceptSeverityLevel = level;} 
 
   // flag to use recovered hits
   void setRecoveredHcalHitsAreUsed(bool flag) {theRecoveredHcalHitsAreUsed = flag; };
@@ -264,8 +264,8 @@ private:
   // fields that hold the information passed from the CaloTowersCreator configuration file:
   // controll what is considered bad/recovered/problematic channel for CaloTower purposes 
   //
-  uint theHcalAcceptSeverityLevel;
-  uint theEcalAcceptSeverityLevel;
+  unsigned int theHcalAcceptSeverityLevel;
+  unsigned int theEcalAcceptSeverityLevel;
   // flag to use recovered hits
   bool theRecoveredHcalHitsAreUsed;
   bool theRecoveredEcalHitsAreUsed;

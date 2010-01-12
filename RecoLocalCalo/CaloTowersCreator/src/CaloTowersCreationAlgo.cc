@@ -336,7 +336,7 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
       else {   // barrel/endcap
 
         // find if its in EB, or EE; determine from first ecal constituent found
-        for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
+        for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
           DetId constId = ctcItr->constituent(iConst);
           if (constId.det()!=DetId::Ecal) continue;
           getThresholdAndWeight(constId, threshold, weight);
@@ -344,7 +344,7 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
           break;
         }
         // HO
-        for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
+        for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
           DetId constId = ctcItr->constituent(iConst);
           if (constId.det()!=DetId::Hcal) continue;
           if (HcalDetId(constId).subdet()!=HcalOuter) continue;
@@ -353,7 +353,7 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
           break;
         }
         // HB/HE
-        for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
+        for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
           DetId constId = ctcItr->constituent(iConst);
           if (constId.det()!=DetId::Hcal) continue;
           if (HcalDetId(constId).subdet()==HcalOuter) continue;
@@ -395,7 +395,7 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
     rescaledTower.setHcalTime( int(ctcItr->hcalTime()*100.0 + 0.5) );
 
     std::vector<DetId> contains;
-    for (uint iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
+    for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
       contains.push_back(ctcItr->constituent(iConst));
     }
     rescaledTower.addConstituents(contains);
@@ -434,7 +434,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 						 towerDetId.iphi());
     MetaTower & tower29 = find(towerDetId29);
 
-    uint chStatusForCT = hcalChanStatusForCaloTower(recHit);
+    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
       
     // bad channels are counted regardless of energy threshold
 
@@ -495,7 +495,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
     
     if (det == DetId::Ecal) {
       
-      uint chStatusForCT = ecalChanStatusForCaloTower(recHit);
+      unsigned int chStatusForCT = ecalChanStatusForCaloTower(recHit);
       
       // For ECAL we count all bad channels after the metatower is complete 
 
@@ -548,7 +548,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
     else {
       HcalDetId hcalDetId(detId);
       
-      uint chStatusForCT = hcalChanStatusForCaloTower(recHit);
+      unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
 
       if(hcalDetId.subdet() == HcalOuter) {
  
@@ -876,14 +876,14 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     // "Bad" channels (not used in energy assignment) can be flagged during
     // CaloTower creation only if specified in the configuration file
 
-    uint numBadHcalChan  = mt.numBadHcalCells;
-    //    uint numBadEcalChan  = mt.numBadEcalCells;
-    uint numBadEcalChan  = 0;   //
+    unsigned int numBadHcalChan  = mt.numBadHcalCells;
+    //    unsigned int numBadEcalChan  = mt.numBadEcalCells;
+    unsigned int numBadEcalChan  = 0;   //
 
-    uint numRecHcalChan  = mt.numRecHcalCells;
-    uint numRecEcalChan  = mt.numRecEcalCells;
-    uint numProbHcalChan = mt.numProbHcalCells;
-    uint numProbEcalChan = mt.numProbEcalCells;
+    unsigned int numRecHcalChan  = mt.numRecHcalCells;
+    unsigned int numRecEcalChan  = mt.numRecEcalCells;
+    unsigned int numProbHcalChan = mt.numProbHcalCells;
+    unsigned int numProbEcalChan = mt.numProbEcalCells;
 
     // now add dead/off/... channels not used in RecHit reconstruction for HCAL 
     if (hcalDropChMap.find(id) != hcalDropChMap.end()) numBadHcalChan += hcalDropChMap[id];
@@ -1357,7 +1357,7 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 
 //////  Get status of the channel contributing to the tower
 
-uint CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit* hit) {
+unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit* hit) {
 
   const DetId id = hit->detid();
 
@@ -1386,7 +1386,7 @@ uint CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit* hit) {
 
 
 
-uint CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
+unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
 
   const DetId id = hit->detid();
   uint16_t dbStatus = theEcalChStatus->find(id)->getStatusCode();

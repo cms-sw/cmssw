@@ -16,8 +16,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2008/11/16 16:22:48 $
-  * $Revision: 1.4 $
+  * $Date: 2009/02/25 07:41:01 $
+  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {
@@ -40,8 +40,8 @@ private:
 
   // more compact flags: all HCAL are combined
   
-  uint theHcalAcceptSeverityLevel_;
-  uint theEcalAcceptSeverityLevel_;
+  unsigned int theHcalAcceptSeverityLevel_;
+  unsigned int theEcalAcceptSeverityLevel_;
   
   // flag to use recovered hits
   bool theRecoveredHcalHitsAreUsed_;
