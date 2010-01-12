@@ -50,7 +50,7 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( bool connectionShari
                                                             int connectionRetrialTimeOut,
                                                             bool poolAutomaticCleanUp,
                                                             const::std::string& authenticationPath,
-                                                            const::std::string& transactionID,
+                                                            const::std::string& transactionId,
 							    coral::MsgLevel msgLev,
                                                             coral::monitor::Level monitorLev,
                                                             bool SQLMonitoring ):
@@ -61,7 +61,7 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( bool connectionShari
   m_connectionRetrialTimeOut(true,connectionRetrialTimeOut),
   m_poolAutomaticCleanUp(true,poolAutomaticCleanUp),
   m_authPath(authenticationPath),
-  m_transactionId(transactionID),
+  m_transactionId(transactionId),
   m_messageLevel(msgLev),
   m_monitoringLevel(monitorLev),
   m_SQLMonitoring(SQLMonitoring),
@@ -76,7 +76,7 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( const cond::DbConnec
   m_connectionRetrialTimeOut(rhs.m_connectionRetrialTimeOut),
   m_poolAutomaticCleanUp(rhs.m_poolAutomaticCleanUp),
   m_authPath(rhs.m_authPath),
-  m_transactionId(rhs.transactionID),
+  m_transactionId(rhs.m_transactionId),
   m_messageLevel(rhs.m_messageLevel),
   m_monitoringLevel(rhs.m_monitoringLevel),
   m_SQLMonitoring(rhs.m_SQLMonitoring),
@@ -96,7 +96,7 @@ cond::DbConnectionConfiguration::operator=( const cond::DbConnectionConfiguratio
   m_connectionRetrialTimeOut = rhs.m_connectionRetrialTimeOut;
   m_poolAutomaticCleanUp = rhs.m_poolAutomaticCleanUp;
   m_authPath = rhs.m_authPath;
-  m_transactionId=rhs.transactionID;
+  m_transactionId=rhs.m_transactionId;
   m_messageLevel = rhs.m_messageLevel;
   m_monitoringLevel = rhs.m_monitoringLevel;
   m_SQLMonitoring = rhs.m_SQLMonitoring;
@@ -106,7 +106,7 @@ cond::DbConnectionConfiguration::operator=( const cond::DbConnectionConfiguratio
 void cond::DbConnectionConfiguration::setParameters( const edm::ParameterSet& connectionPset ){
   std::string authPath = connectionPset.getUntrackedParameter<std::string>("authenticationPath","");
   setAuthenticationPath(authPath);
-  setTransactionID(connectionPset.getUntrackedParameter<std::string>("TransactionID",""));
+  setTransactionId(connectionPset.getUntrackedParameter<std::string>("TransactionId",""));
   int messageLevel = connectionPset.getUntrackedParameter<int>("messageLevel",0);
   coral::MsgLevel level = coral::Error;
   switch (messageLevel) {
@@ -177,7 +177,7 @@ void cond::DbConnectionConfiguration::setAuthenticationPath( const std::string& 
 
 
 void cond::DbConnectionConfiguration::setTransactionId( std::string const & tid) {
-  m_transactionID=tid;
+  m_transactionId=tid;
 }
 
 void cond::DbConnectionConfiguration::setMessageLevel( coral::MsgLevel l ) {
