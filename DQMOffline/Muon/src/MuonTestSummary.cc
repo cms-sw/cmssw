@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/10 13:04:06 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/12/22 17:43:09 $
+ *  $Revision: 1.24 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -165,7 +165,10 @@ void MuonTestSummary::beginJob(void){
   theSummaryContents.push_back(dbe->bookFloat("GLB"));
   theSummaryContents.push_back(dbe->bookFloat("kinematics_TK"));
   theSummaryContents.push_back(dbe->bookFloat("muonId_TK"));
+  theSummaryContents.push_back(dbe->bookFloat("residuals_TK"));
   theSummaryContents.push_back(dbe->bookFloat("TK"));
+  theSummaryContents.push_back(dbe->bookFloat("kinematics_STA"));
+  theSummaryContents.push_back(dbe->bookFloat("residuals_STA"));
   theSummaryContents.push_back(dbe->bookFloat("STA"));
   theSummaryContents.push_back(dbe->bookFloat("energyDeposits"));
   theSummaryContents.push_back(dbe->bookFloat("multiplicity"));
@@ -316,17 +319,36 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   summaryReportMap->setBinContent(2,3,kinematicsSummaryMap->getBinContent(4,3));
   summaryReportMap->setBinContent(3,3,kinematicsSummaryMap->getBinContent(5,3));
   
-  double residualsSummary = 0;
-  for(int i=1; i<=residualsSummaryMap->getNbinsX(); i++)
-    for (int j=1; j<=residualsSummaryMap->getNbinsY(); j++) 
-      residualsSummary += residualsSummaryMap->getBinContent(i,i);
-  
-  residualsSummary /=residualsSummaryMap->getNbinsX()*residualsSummaryMap->getNbinsY();
-  summaryReportMap->setBinContent(1,4, residualsSummary);
-  
-  summaryReportMap->setBinContent(2,4,-1.0/6.0);
-  summaryReportMap->setBinContent(3,4,-1.0/6.0);
 
+  //-- modified GH
+  double residualsSummary = 0;
+  //put the TRK-STA resid & pulls in the first bin ("GLB")
+  //then the GLB-TRK and GLB-STA residuals in the 2nd and 3rd
+  for(int i=3; i<=residualsSummaryMap->getNbinsX(); i++)
+    for (int j=1; j<=residualsSummaryMap->getNbinsY(); j++) 
+      residualsSummary += residualsSummaryMap->getBinContent(i,j);
+  residualsSummary /=2*residualsSummaryMap->getNbinsY();
+  summaryReportMap->setBinContent(1,4, residualsSummary);
+
+  residualsSummary=0;
+  for(int i=1; i<=1; i++)
+    for (int j=1; j<=residualsSummaryMap->getNbinsY(); j++) 
+      residualsSummary += residualsSummaryMap->getBinContent(i,j);
+  residualsSummary /=1*residualsSummaryMap->getNbinsY();
+  summaryReportMap->setBinContent(2,4,residualsSummary);
+  
+  residualsSummary=0;
+  for(int i=2; i<=2; i++)
+    for (int j=1; j<=residualsSummaryMap->getNbinsY(); j++) 
+      residualsSummary += residualsSummaryMap->getBinContent(i,j);
+  residualsSummary /=1*residualsSummaryMap->getNbinsY(); 
+  summaryReportMap->setBinContent(3,4,residualsSummary);
+  
+  //--
+
+
+
+  //-- modified GH
   float idtest=0;
   for(int i=1; i<=2; i++)
     for(int j=1; j<=5; j++)
@@ -340,6 +362,9 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   idtest/=10.;
   summaryReportMap->setBinContent(2,5,idtest);
   summaryReportMap->setBinContent(3,5,-1.0/6.0);
+  //--
+
+
 
   //summaryReportMap->setBinContent(1,6,double(energySummaryMap->getBinContent(1,1)+energySummaryMap->getBinContent(1,2)+energySummaryMap->getBinContent(1,3))/3.0);
   //summaryReportMap->setBinContent(2,6,double(energySummaryMap->getBinContent(2,1)+energySummaryMap->getBinContent(2,2)+energySummaryMap->getBinContent(2,3))/3.0);
@@ -351,6 +376,7 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   summaryReportMap->setBinContent(2,7,multiplicitySummaryMap->getBinContent(2));
   summaryReportMap->setBinContent(3,7,multiplicitySummaryMap->getBinContent(3));
 
+
   double kinematics_GLB = double(summaryReportMap->getBinContent(1,1)+summaryReportMap->getBinContent(1,2)+summaryReportMap->getBinContent(1,3))/3.0;
   theSummaryContents[0]->Fill(kinematics_GLB);
   double muonId_GLB = double(summaryReportMap->getBinContent(1,5));
@@ -359,19 +385,26 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   theSummaryContents[2]->Fill(residuals_GLB);
   double GLB = (kinematics_GLB+muonId_GLB+residuals_GLB)/3.0;
   theSummaryContents[3]->Fill(GLB);
+
   double kinematics_TK = double(summaryReportMap->getBinContent(2,1)+summaryReportMap->getBinContent(2,2)+summaryReportMap->getBinContent(2,3))/3.0;
   theSummaryContents[4]->Fill(kinematics_TK);
   double muonId_TK = double(summaryReportMap->getBinContent(2,5));
   theSummaryContents[5]->Fill(muonId_TK);
-  double TK = double(kinematics_TK+muonId_TK)/2.0;
-  theSummaryContents[6]->Fill(TK);
+  double residuals_TK = double(summaryReportMap->getBinContent(2,4));
+  theSummaryContents[6]->Fill(residuals_TK);
+  double TK = double(kinematics_TK+muonId_TK+residuals_TK)/3.0;
+  theSummaryContents[7]->Fill(TK);
+
   double kinematics_STA = double(summaryReportMap->getBinContent(3,1)+summaryReportMap->getBinContent(3,2)+summaryReportMap->getBinContent(3,3))/3.0;
-  double STA = kinematics_STA;
-  theSummaryContents[7]->Fill(STA);
+  theSummaryContents[8]->Fill(kinematics_STA);
+  double residuals_STA = double(summaryReportMap->getBinContent(3,4));
+  theSummaryContents[9]->Fill(residuals_STA);
+  double STA = double(kinematics_STA+residuals_STA)/2.0;
+  theSummaryContents[10]->Fill(STA);
   double energyDeposits = double(summaryReportMap->getBinContent(1,6)+summaryReportMap->getBinContent(2,6)+summaryReportMap->getBinContent(3,6))/3.0;
-  theSummaryContents[8]->Fill(energyDeposits);
+  theSummaryContents[11]->Fill(energyDeposits);
   double multiplicity = double(summaryReportMap->getBinContent(1,7)+summaryReportMap->getBinContent(2,7)+summaryReportMap->getBinContent(3,7))/3.0;
-  theSummaryContents[9]->Fill(multiplicity);
+  theSummaryContents[12]->Fill(multiplicity);
 
   summaryReport->Fill((GLB+TK+STA+energyDeposits+multiplicity)/5.0);
 
