@@ -29,7 +29,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 using namespace reco;
