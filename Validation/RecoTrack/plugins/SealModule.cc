@@ -17,8 +17,8 @@ DEFINE_ANOTHER_FWK_MODULE(SiPixelTrackingRecHitsValid);
 // #include "Validation/RecoTrack/interface/TPEfficiencySelector.h"
 // #include "Validation/RecoTrack/interface/TrackFakeRateSelector.h"
 // #include "Validation/RecoTrack/interface/TPFakeRateSelector.h"
-// #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-// #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+// #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+// #include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 
 // typedef 
 // ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection,RecoTrackSelector> > 

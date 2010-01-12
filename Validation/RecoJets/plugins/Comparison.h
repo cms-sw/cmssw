@@ -15,7 +15,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Validation/RecoJets/interface/NameScheme.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 template <typename Ref, typename RefQualifier, typename Rec, typename RecQualifier, typename Alg>

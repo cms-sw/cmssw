@@ -16,7 +16,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
