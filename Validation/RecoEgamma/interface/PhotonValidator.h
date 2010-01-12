@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/01/11 17:17:22 $ 
- **  $Revision: 1.28 $
+ **  $Date: 2010/01/12 11:20:48 $ 
+ **  $Revision: 1.29 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -480,6 +480,18 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h2_nTrkSolidConeDR04VsEtBkg_[3];
   MonitorElement* p_nTrkSolidConeDR04VsEtBkg_[3];
   //
+  MonitorElement* h_convEtaBkg_;
+  MonitorElement* h_convPhiBkg_;
+  MonitorElement* h_mvaOutBkg_[3];
+  MonitorElement* nHitsVsEtaBkg_;
+  MonitorElement* h_tkChi2Bkg_;
+  MonitorElement* h_EoverPTracksBkg_[3];
+  MonitorElement* h_PoverETracksBkg_[3];
+  MonitorElement* h_DPhiTracksAtVtxBkg_[3];
+  MonitorElement* h_DCotTracksBkg_[3];
+  MonitorElement* h_convVtxYvsXBkg_; 
+  MonitorElement* h_convVtxRvsZBkg_[2];
+
 
 
 };

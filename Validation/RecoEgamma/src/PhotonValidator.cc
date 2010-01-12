@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/01/11 17:16:53 $ 
- **  $Revision: 1.52 $
+ **  $Date: 2010/01/12 11:20:31 $ 
+ **  $Revision: 1.53 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -435,7 +435,7 @@ void  PhotonValidator::beginJob() {
     h_phoBkgE_[2]=dbe_->book1D(histname+"Endcap"," Photon Bkg Energy: Endcap ",eBin,eMin, eMax);
     //
     histname = "phoBkgEt";
-    h_phoBkgEt_[0] = dbe_->book1D(histname+"All"," Photon Nkg Transverse Energy: All ecal ", etBin,etMin, etMax);
+    h_phoBkgEt_[0] = dbe_->book1D(histname+"All"," Photon Bkg Transverse Energy: All ecal ", etBin,etMin, etMax);
     h_phoBkgEt_[1] = dbe_->book1D(histname+"Barrel"," Photon Bkg Transverse Energy: Barrel ",etBin,etMin, etMax);
     h_phoBkgEt_[2] = dbe_->book1D(histname+"Endcap"," Photon BkgTransverse Energy: Endcap ",etBin,etMin, etMax);
 
@@ -602,8 +602,41 @@ void  PhotonValidator::beginJob() {
     p_nTrkSolidConeDR04VsEtBkg_[0] = dbe_->bookProfile(histname+"All","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
     p_nTrkSolidConeDR04VsEtBkg_[1] = dbe_->bookProfile(histname+"Barrel","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
     p_nTrkSolidConeDR04VsEtBkg_[2] = dbe_->bookProfile(histname+"Endcap","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+    //
+    h_convEtaBkg_ = dbe_->book1D("convEtaBkg"," converted Photon Bkg Eta 2 tracks",etaBin,etaMin, etaMax) ;
+    h_convPhiBkg_ = dbe_->book1D("convPhiBkg"," converted Photon Bkg Phi ",phiBin,phiMin,phiMax) ;
+    //
+    histname="mvaOutBkg";
+    h_mvaOutBkg_[0] = dbe_->book1D(histname+"All"," mvaOut  conversions bkg : All Ecal",100, 0., 1.);
+    h_mvaOutBkg_[1] = dbe_->book1D(histname+"Barrel"," mvaOut conversions bkg: Barrel Ecal",100, 0., 1.);
+    h_mvaOutBkg_[2] = dbe_->book1D(histname+"Endcap"," mvaOut  conversions bkg: Endcap Ecal",100, 0., 1.);
+
+    histname="PoverEtracksBkg";
+    h_PoverETracksBkg_[0] = dbe_->book1D(histname+"All"," bkg photons conversion p/E: all Ecal ",povereBin, povereMin, povereMax);
+    h_PoverETracksBkg_[1] = dbe_->book1D(histname+"Barrel","bkg photons conversion p/E: Barrel Ecal",povereBin, povereMin, povereMax);
+    h_PoverETracksBkg_[2] = dbe_->book1D(histname+"Endcap"," bkg photons conversion p/E: Endcap Ecal ",povereBin, povereMin, povereMax);
+
+    histname="EoverPtracksBkg";
+    h_EoverPTracksBkg_[0] = dbe_->book1D(histname+"All"," bkg photons conversion E/p: all Ecal ",eoverpBin, eoverpMin, eoverpMax);
+    h_EoverPTracksBkg_[1] = dbe_->book1D(histname+"Barrel","bkg photons conversion E/p: Barrel Ecal",eoverpBin, eoverpMin, eoverpMax);
+    h_EoverPTracksBkg_[2] = dbe_->book1D(histname+"Endcap"," bkg photons conversion E/p: Endcap Ecal ",eoverpBin, eoverpMin, eoverpMax);
+
+    histname="hDCotTracksBkg";
+    h_DCotTracksBkg_[0]= dbe_->book1D(histname+"All"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
+    h_DCotTracksBkg_[1]= dbe_->book1D(histname+"Barrel"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
+    h_DCotTracksBkg_[2]= dbe_->book1D(histname+"Endcap"," bkg Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
+
+    histname="hDPhiTracksAtVtxBkg";
+    h_DPhiTracksAtVtxBkg_[0] =dbe_->book1D(histname+"All", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    h_DPhiTracksAtVtxBkg_[1] =dbe_->book1D(histname+"Barrel", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    h_DPhiTracksAtVtxBkg_[2] =dbe_->book1D(histname+"Endcap", " Bkg Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+
+    h_convVtxRvsZBkg_[0] =   dbe_->book2D("convVtxRvsZAllBkg"," Bkg Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
+    h_convVtxRvsZBkg_[1] =   dbe_->book2D("convVtxRvsZBarrelBkg"," Bkg Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
+    h_convVtxYvsXBkg_ =   dbe_->book2D("convVtxYvsXTrkBarrelBkg"," Bkg Photon Reco conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.); 
 
 
+    //
     dbe_->setCurrentFolder("EgammaV/PhotonValidator/Photons");
 
     h_phoEta_[0] = dbe_->book1D("phoEta"," Photon Eta ",etaBin,etaMin, etaMax) ;
@@ -1910,7 +1943,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_nConv_[type][0]->Fill(float( matchingPho.conversions().size()));          
 
     
-      ////////////////// plot quantitied related to conversions
+      ////////////////// plot quantities related to conversions
       reco::ConversionRefVector conversions = matchingPho.conversions();
       for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 	reco::ConversionRef aConv=conversions[iConv];
@@ -2146,11 +2179,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	    }
 
-	    float  dPhiTracksAtVtx = -99;
-	    float phiTk1=  tracks[0]->innerMomentum().phi();
-	    float phiTk2=  tracks[1]->innerMomentum().phi();
-	    dPhiTracksAtVtx = phiTk1-phiTk2;
-	    dPhiTracksAtVtx = phiNormalization( dPhiTracksAtVtx );
+	    float  dPhiTracksAtVtx =  aConv->dPhiTracksAtVtx();
 
 	    h_DPhiTracksAtVtx_[type][0]->Fill( dPhiTracksAtVtx);
 	    h2_DPhiTracksAtVtxVsEta_->Fill( mcEta_, dPhiTracksAtVtx);
@@ -2737,6 +2766,55 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
 
 
+      ////////////////// plot quantities related to conversions
+      reco::ConversionRefVector conversions = matchingPho.conversions();
+      for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
+	reco::ConversionRef aConv=conversions[iConv];
+	std::vector<reco::TrackRef> tracks = aConv->tracks();
+	double like = aConv->MVAout();
+  	if ( like < likelihoodCut_ ) continue;      
+        if ( tracks.size() < 2 ) continue; 	
+	h_convEtaBkg_->Fill( aConv->caloCluster()[0]->eta() );
+	h_convPhiBkg_->Fill( aConv->caloCluster()[0]->phi() );
+	h_mvaOutBkg_[0]-> Fill(like);
+	float eoverp= aConv->EoverP();
+	h_EoverPTracksBkg_[0] ->Fill( eoverp ) ;
+	h_PoverETracksBkg_[0] ->Fill( 1./eoverp ) ;
+	h_DCotTracksBkg_[0] ->Fill ( aConv->pairCotThetaSeparation() );
+	float  dPhiTracksAtVtx =  aConv->dPhiTracksAtVtx();
+	h_DPhiTracksAtVtxBkg_[0]->Fill( dPhiTracksAtVtx);
+	
+	if ( phoIsInBarrel ) {
+	  h_mvaOutBkg_[1]-> Fill(like);
+	  h_EoverPTracksBkg_[1] ->Fill( eoverp ) ;
+	  h_PoverETracksBkg_[1] ->Fill( 1./eoverp ) ;
+	  h_DCotTracksBkg_[1] ->Fill ( aConv->pairCotThetaSeparation() );
+	  h_DPhiTracksAtVtxBkg_[1]->Fill( dPhiTracksAtVtx);
+	}     else if ( phoIsInEndcap )  {
+	  h_mvaOutBkg_[2]-> Fill(like);
+	  h_EoverPTracksBkg_[2] ->Fill( eoverp ) ;
+	  h_PoverETracksBkg_[2] ->Fill( 1./eoverp ) ;
+	  h_DCotTracksBkg_[2] ->Fill ( aConv->pairCotThetaSeparation() );
+	  h_DPhiTracksAtVtxBkg_[2]->Fill( dPhiTracksAtVtx);
+	}
+	
+	if ( aConv->conversionVertex().isValid() ) {
+	  
+	  double convR= sqrt(aConv->conversionVertex().position().perp2());
+	  double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + 
+	    aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
+	  if ( scalar < 0 ) convR= -sqrt(aConv->conversionVertex().position().perp2());
+	  
+	  h_convVtxRvsZBkg_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
+	  if ( fabs(aConv->caloCluster()[0]->eta() ) <= 1.) {
+	    
+	    h_convVtxYvsXBkg_ ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
+	    h_convVtxRvsZBkg_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR  ) ;
+	  }
+	} // end vertex valid
+	
+	
+      } // end loop over conversions
   } // end loop over sim jets
   
   h_nPho_->Fill(float(nPho));

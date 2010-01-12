@@ -17,19 +17,19 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_4_1
+setenv CMSSWver1 3_5_0
 setenv CMSSWver2 3_5_0
-setenv OLDRELEASE 341
+setenv OLDRELEASE 350
 setenv NEWRELEASE 350
-setenv OLDPRERELEASE 
+setenv OLDPRERELEASE pre2
 setenv NEWPRERELEASE pre2
 
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
-setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1  /tmp/nancy/CMSSW_3_5_X_2010-01-11-0300/src/Validation/RecoEgamma/test
+setenv WorkDir2  /tmp/nancy/CMSSW_3_5_X_2010-01-11-0300/src/Validation/RecoEgamma/test
 
 #Name of sample (affects output directory name and htmldescription only) 
 
@@ -103,6 +103,10 @@ cat > scaledhistosForBkg <<EOF
   scBkgEtAll
   phoBkgEta
   phoBkgPhi
+  phoBkgEAll
+  phoBkgEtAll
+  phoBkgDEta
+  phoBkgDPhi
   r9BkgBarrel
   r9BkgEndcap
   r1BkgBarrel
@@ -118,6 +122,17 @@ cat > scaledhistosForBkg <<EOF
   nTrkSolidConeDR04BkgBarrel
   nTrkSolidConeDR04BkgEndcap
   
+  convEtaBkg
+  convPhiBkg
+  PoverEtracksBkgAll
+  PoverEtracksBkgBarrel 
+  PoverEtracksBkgEndcap
+  mvaOutBkgAll
+  mvaOutBkgBarrel
+  mvaOutBkgEndcap
+
+  hDPhiTracksAtVtxBkgAll
+  hDCotTracksBkgAll
 
 EOF
 
@@ -128,6 +143,10 @@ cat > scaledhistosForBkgLogScale <<EOF
   hOverEBkgEndcap
   hcalTowerSumEtConeDR04BkgBarrel
   hcalTowerSumEtConeDR04BkgEndcap
+
+  EoverPtracksBkgAll
+  EoverPtracksBkgBarrel 
+  EoverPtracksBkgEndcap
 
 EOF
 
