@@ -18,13 +18,13 @@ cond::DbConnectionConfiguration::defaultConfigurations(){
   // coral default
   s_defaultConfigurations.push_back( cond::DbConnectionConfiguration() );
   // cms default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", coral::Error, coral::monitor::Off, false ) );
+  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "", coral::Error, coral::monitor::Off, false ) );
   // prod default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", coral::Error, coral::monitor::Off, false ) );
+  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "", coral::Error, coral::monitor::Off, false ) );
   // tool default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", coral::Error, coral::monitor::Off, false ) );
+  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "",coral::Error, coral::monitor::Off, false ) );
   // web default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", coral::Error, coral::monitor::Off, false ) );
+  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "",coral::Error, coral::monitor::Off, false ) );
   return s_defaultConfigurations;
 }
 
@@ -35,7 +35,8 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration():
   m_connectionRetrialPeriod(false,0),
   m_connectionRetrialTimeOut(false,0),
   m_poolAutomaticCleanUp(false,false),
-  m_authPath(""),
+  m_authPath(),
+  m_transactionId(),
   m_messageLevel(coral::Error),
   m_monitoringLevel(coral::monitor::Off),
   m_SQLMonitoring(false),
@@ -49,7 +50,8 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( bool connectionShari
                                                             int connectionRetrialTimeOut,
                                                             bool poolAutomaticCleanUp,
                                                             const::std::string& authenticationPath,
-                                                            coral::MsgLevel msgLev,
+                                                            const::std::string& transactionID,
+							    coral::MsgLevel msgLev,
                                                             coral::monitor::Level monitorLev,
                                                             bool SQLMonitoring ):
   m_connectionSharing(true,connectionSharing),
@@ -59,6 +61,7 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( bool connectionShari
   m_connectionRetrialTimeOut(true,connectionRetrialTimeOut),
   m_poolAutomaticCleanUp(true,poolAutomaticCleanUp),
   m_authPath(authenticationPath),
+  m_transactionId(transactionID),
   m_messageLevel(msgLev),
   m_monitoringLevel(monitorLev),
   m_SQLMonitoring(SQLMonitoring),
@@ -73,6 +76,7 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( const cond::DbConnec
   m_connectionRetrialTimeOut(rhs.m_connectionRetrialTimeOut),
   m_poolAutomaticCleanUp(rhs.m_poolAutomaticCleanUp),
   m_authPath(rhs.m_authPath),
+  m_transactionId(rhs.transactionID),
   m_messageLevel(rhs.m_messageLevel),
   m_monitoringLevel(rhs.m_monitoringLevel),
   m_SQLMonitoring(rhs.m_SQLMonitoring),
@@ -92,6 +96,7 @@ cond::DbConnectionConfiguration::operator=( const cond::DbConnectionConfiguratio
   m_connectionRetrialTimeOut = rhs.m_connectionRetrialTimeOut;
   m_poolAutomaticCleanUp = rhs.m_poolAutomaticCleanUp;
   m_authPath = rhs.m_authPath;
+  m_transactionId=rhs.transactionID;
   m_messageLevel = rhs.m_messageLevel;
   m_monitoringLevel = rhs.m_monitoringLevel;
   m_SQLMonitoring = rhs.m_SQLMonitoring;
@@ -101,6 +106,7 @@ cond::DbConnectionConfiguration::operator=( const cond::DbConnectionConfiguratio
 void cond::DbConnectionConfiguration::setParameters( const edm::ParameterSet& connectionPset ){
   std::string authPath = connectionPset.getUntrackedParameter<std::string>("authenticationPath","");
   setAuthenticationPath(authPath);
+  setTransactionID(connectionPset.getUntrackedParameter<std::string>("TransactionID",""));
   int messageLevel = connectionPset.getUntrackedParameter<int>("messageLevel",0);
   coral::MsgLevel level = coral::Error;
   switch (messageLevel) {
@@ -169,8 +175,12 @@ void cond::DbConnectionConfiguration::setAuthenticationPath( const std::string& 
   m_authPath = p;
 }
 
-void cond::DbConnectionConfiguration::setMessageLevel( coral::MsgLevel l )
-{
+
+void cond::DbConnectionConfiguration::setTransactionId( std::string const & tid) {
+  m_transactionID=tid;
+}
+
+void cond::DbConnectionConfiguration::setMessageLevel( coral::MsgLevel l ) {
   m_messageLevel = l; 
 }
 

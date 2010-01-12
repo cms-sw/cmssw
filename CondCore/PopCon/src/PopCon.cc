@@ -12,14 +12,15 @@ namespace popcon {
     m_payload_name(pset.getUntrackedParameter<std::string> ("name","")),
     m_LoggingOn(pset.getUntrackedParameter< bool > ("loggingOn",true)),
     m_IsDestDbCheckedInQueryLog(pset.getUntrackedParameter< bool > ("IsDestDbCheckedInQueryLog","True"))
+    m_close(pset.getUntrackedParameter< bool > ("closeIOV",false)),
+    m_lastTill(pset.getUntrackedParameter< bool > ("lastTill",0)),
+
     {
       //TODO set the policy (cfg or global configuration?)
       //Policy if corrupted data found
       
-      edm::LogInfo ("PopCon") << "This is PopCon (Populator of Condition) V3.00\n"
-        << "It is still in active developement\n"
-			      << "We apologise for the verbosity of the output, for the criptic messages, for the limited functionalities and the poor documentation\n"<<
-	"Please report any problem and feature request through the savannah portal under the category conditions\n" ; 
+      edm::LogInfo ("PopCon") << "This is PopCon (Populator of Condition) V3.10\n"
+			      << "Please report any problem and feature request through the savannah portal under the category conditions\n" ; 
 
     }
   

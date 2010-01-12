@@ -80,6 +80,10 @@ namespace popcon {
     cond::TagInfo m_tagInfo;
     
     cond::LogDBEntry m_logDBEntry;
+
+    bool m_close;
+    Time_t m_lastTill;
+
     
   };
 

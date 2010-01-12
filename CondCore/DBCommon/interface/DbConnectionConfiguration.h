@@ -57,6 +57,8 @@ namespace cond{
     void setPoolAutomaticCleanUp( bool flag );
     // authentication 
     void setAuthenticationPath( const std::string& p );
+    // transaction ID for multijob (used by frontier)
+    void setTransactionId( std::string const & tid);
     // message level
     void setMessageLevel( coral::MsgLevel l );
     // monitoring level
@@ -83,6 +85,7 @@ namespace cond{
     std::pair<bool,int> m_connectionRetrialTimeOut;
     std::pair<bool,bool> m_poolAutomaticCleanUp;
     std::string m_authPath;
+    std::string m_transactionID;
     coral::MsgLevel m_messageLevel;
     coral::monitor::Level m_monitoringLevel;  
     //int m_idleConnectionCleanupPeriod;
