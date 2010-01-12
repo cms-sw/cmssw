@@ -67,7 +67,7 @@ namespace edm {
 
     virtual bool filter(Event&, EventSetup const&) = 0;
     //This interface is deprecated
-    virtual void beginJob(EventSetup const&){beginJob();}
+    virtual void beginJob(EventSetup const&);
     virtual void beginJob(){}
     virtual void endJob(){}
     virtual bool beginRun(Run&, EventSetup const&){return true;}

@@ -19,6 +19,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "BeginJobCleanup.h"
+
 namespace edm {
   // This grotesque little function exists just to allow calling of
   // ConstProductRegistry::allBranchDescriptions in the context of
@@ -201,9 +203,15 @@ namespace edm {
 
   OutputModule::~OutputModule() { }
 
-  void OutputModule::doBeginJob(EventSetup const& c) {
+  void OutputModule::doBeginJob(EventSetup const& es) {
     selectProducts();
-    beginJob(c);
+    allModuleNames().insert(moduleDescription_.moduleName());
+    this->beginJob();
+    this->beginJob(es);
+  }
+
+  void OutputModule::beginJob(EventSetup const& es) {
+    allModuleNames().erase(moduleDescription_.moduleName());
   }
 
   void OutputModule::doEndJob() {

@@ -60,6 +60,8 @@
 
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 
+#include "BeginJobCleanup.h"
+
 using edm::serviceregistry::ServiceLegacy; 
 using edm::serviceregistry::kOverlapIsError;
 
@@ -839,6 +841,13 @@ namespace edm {
       throw;
     }
     schedule_->beginJob(es);
+    if (!allModuleNames().empty()) {
+      cms::Exception exception("Modules still calling beginJob(EventSetup):\n");
+      for (std::set<std::string>::const_iterator it = allModuleNames().begin(), itEnd = allModuleNames().end(); it != itEnd; ++it) {
+	exception << *it << "\n";
+      }
+      throw exception;
+    }
     actReg_->postBeginJobSignal_();
     // toerror.succeeded(); // should we add this?
   }

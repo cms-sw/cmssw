@@ -12,6 +12,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "BeginJobCleanup.h"
+
 namespace edm {
   EDProducer::EDProducer() :
       ProducerBase(),
@@ -34,7 +36,14 @@ namespace edm {
 
   void 
   EDProducer::doBeginJob(EventSetup const& es) {
+    allModuleNames().insert(moduleDescription_.moduleName());
+    this->beginJob();
     this->beginJob(es);
+  }
+  
+  void 
+  EDProducer::beginJob(EventSetup const& es) {
+    allModuleNames().erase(moduleDescription_.moduleName());
   }
   
   void 

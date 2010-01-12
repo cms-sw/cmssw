@@ -341,6 +341,7 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock&);
     virtual void beginRun(Run&);
     virtual void endRun(Run&);
+    virtual void beginJob();
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
     virtual void preForkReleaseResources();

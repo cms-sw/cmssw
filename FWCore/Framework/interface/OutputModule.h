@@ -179,7 +179,7 @@ namespace edm {
 
     virtual void write(EventPrincipal const& e) = 0;
     //This interface is deprecated
-    virtual void beginJob(EventSetup const&){beginJob();}
+    virtual void beginJob(EventSetup const&);
     virtual void beginJob(){}
     virtual void endJob(){}
     virtual void beginRun(RunPrincipal const& r){}

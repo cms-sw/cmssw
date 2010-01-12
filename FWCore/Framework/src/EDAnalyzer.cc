@@ -12,6 +12,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "BeginJobCleanup.h"
+
 namespace edm {
   EDAnalyzer::~EDAnalyzer() {
   }
@@ -27,7 +29,14 @@ namespace edm {
 
   void
   EDAnalyzer::doBeginJob(EventSetup const& es) {
+    allModuleNames().insert(moduleDescription_.moduleName());
+    this->beginJob();
     this->beginJob(es);
+  }
+
+  void
+  EDAnalyzer::beginJob(EventSetup const&) {
+    allModuleNames().erase(moduleDescription_.moduleName());
   }
   
   void 
