@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.20 2009/02/04 15:42:10 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.21 2009/03/04 13:34:25 vlimant Exp $
 //
 //
 
@@ -107,16 +107,24 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
      DeDxHitCollection dedxHits;
      vector<DeDxTools::RawHits> hits; 
      DeDxTools::trajectoryRawHits(traj, hits, usePixel, useStrip);
-  
+ 
+     int NClusterSaturating = 0; 
      for(size_t i=0; i < hits.size(); i++)
      {
 	 float pathLen=thickness(hits[i].detId)/std::abs(hits[i].angleCosine);
 	 float charge=normalization(hits[i].detId)*hits[i].charge*std::abs(hits[i].angleCosine); 
 	 dedxHits.push_back( DeDxHit( charge, distance(hits[i].detId), pathLen, hits[i].detId) );
+
+         if(hits[i].NSaturating>0)NClusterSaturating++;
      }
   
      sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());   
      std::pair<float,float> val_and_error = m_estimator->dedx(dedxHits);
+
+
+     //WARNING: Since the dEdX Error is not properly computed for the moment
+     //It was decided to store the number of saturating cluster in that dataformat
+     val_and_error.second = NClusterSaturating; 
 
      dedxEstimate[j] = DeDxData(val_and_error.first, val_and_error.second, dedxHits.size() );
   }

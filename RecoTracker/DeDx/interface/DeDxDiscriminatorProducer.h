@@ -56,6 +56,7 @@ private:
 
   double GetProbability       (const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState);
   double ComputeDiscriminator (std::vector<double>& vect_probs);
+  int    ClusterSaturatingStrip(const SiStripRecHit2D* sistripsimplehit);
 
 
   // ----------member data ---------------------------

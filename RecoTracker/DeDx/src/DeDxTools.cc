@@ -40,10 +40,14 @@ using namespace reco;
 	   stereo.angleCosine = cosine;
 	   const std::vector<uint8_t> &  amplitudes = matchedHit->monoHit()->cluster()->amplitudes(); 
 	   mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
        
 	   const std::vector<uint8_t> & amplitudesSt = matchedHit->stereoHit()->cluster()->amplitudes();
 	   stereo.charge = accumulate(amplitudesSt.begin(), amplitudesSt.end(), 0);
-	   
+           stereo.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)stereo.NSaturating++;}
+   
 	   mono.detId= matchedHit->monoHit()->geographicalId();
 	   stereo.detId= matchedHit->stereoHit()->geographicalId();
 
@@ -61,6 +65,9 @@ using namespace reco;
            mono.angleCosine = cosine; 
            const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
            mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
+
            mono.detId= singleHit->geographicalId();
            hits.push_back(mono);
       
@@ -74,6 +81,9 @@ using namespace reco;
            mono.angleCosine = cosine; 
            const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
            mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
+
            mono.detId= singleHit->geographicalId();
            hits.push_back(mono);
       
@@ -85,7 +95,8 @@ using namespace reco;
            pixel.trajectoryMeasurement = &(*it);
 
            pixel.angleCosine = cosine; 
-           pixel.charge = pixelHit->cluster()->charge();;
+           pixel.charge = pixelHit->cluster()->charge();
+           pixel.NSaturating=-1;
            pixel.detId= pixelHit->geographicalId();
            hits.push_back(pixel);
        }

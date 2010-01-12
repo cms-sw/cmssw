@@ -8,7 +8,7 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
     exponent       = cms.double(-2.0),
 
     UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(True),
+    UsePixel       = cms.bool(False),
     MeVperADCStrip = cms.double(3.61e-06*250),
     MeVperADCPixel = cms.double(3.61e-06)
 )
