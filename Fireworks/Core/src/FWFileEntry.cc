@@ -254,23 +254,18 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
 
    Int_t result = m_eventTree->Draw(">>fworks_filter", interpretedSelection.c_str());
    
-   if (result >= 0)
-   {
-      if (filter->m_eventList)
-         filter->m_eventList->Reset();
-      else
-         filter->m_eventList = new FWTEventList;
-
-      filter->m_eventList->Add(flist);
-      
-      fwLog(fwlog::kDebug) << "FWFile::runFilter file [" << m_file->GetName() << "], filter [" << filter->m_selector->m_expression << "], selected [" << flist->GetN() << "]" << std::endl;
-   }
+   if (filter->m_eventList)
+      filter->m_eventList->Reset();
    else
-   {
-      fwLog(fwlog::kWarning) << "FWFile::runFilter [" << m_file->GetName() << "] filter [" << filter->m_selector->m_expression << "]  invalid. Disabled." << std::endl;
-      filter->m_selector->m_enabled = false;
-   }
+      filter->m_eventList = new FWTEventList;
+
+   filter->m_eventList->Add(flist);
       
+   if (result < 0)
+      fwLog(fwlog::kWarning) << "FWFile::runFilter in file [" << m_file->GetName() << "] filter [" << filter->m_selector->m_expression << "] is invalid." << std::endl;
+   else      
+      fwLog(fwlog::kDebug) << "FWFile::runFilter is file [" << m_file->GetName() << "], filter [" << filter->m_selector->m_expression << "] has ["  << flist->GetN() << "] events selected" << std::endl;
+
    // Set back the old branch buffers.
    {
       std::auto_ptr<TIterator> pIt( branches->MakeIterator());
