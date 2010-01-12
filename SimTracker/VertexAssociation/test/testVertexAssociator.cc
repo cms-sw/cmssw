@@ -10,7 +10,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
