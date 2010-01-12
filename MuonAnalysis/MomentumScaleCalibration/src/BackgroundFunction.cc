@@ -56,7 +56,8 @@ void BackgroundFunction::readParameters( TString fileName )
       // scaleFunction_ = scaleFunctionArray[scaleFunctionNum];
       functionId_.push_back(functionNum);
       // scaleFunctionVec_.push_back( scaleFunctionArray[scaleFunctionNum] );
-      backgroundFunctionVec_.push_back( backgroundFunctionService( functionNum ) );
+      // TODO: fix the lower and upper limits of the function
+      backgroundFunctionVec_.push_back( backgroundFunctionService( functionNum, 0., 200. ) );
     }
     // Take the parameters for the current iteration
     if ( (lineInt != string::npos) ) {
