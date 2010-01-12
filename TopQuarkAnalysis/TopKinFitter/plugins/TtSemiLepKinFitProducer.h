@@ -335,11 +335,12 @@ TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constr
 {
   TtSemiLepKinFitter::Constraint result;
   switch(val){
-  case TtSemiLepKinFitter::kWHadMass     : result=TtSemiLepKinFitter::kWHadMass;     break;
-  case TtSemiLepKinFitter::kWLepMass     : result=TtSemiLepKinFitter::kWLepMass;     break;
-  case TtSemiLepKinFitter::kTopHadMass   : result=TtSemiLepKinFitter::kTopHadMass;   break;
-  case TtSemiLepKinFitter::kTopLepMass   : result=TtSemiLepKinFitter::kTopLepMass;   break;
-  case TtSemiLepKinFitter::kNeutrinoMass : result=TtSemiLepKinFitter::kNeutrinoMass; break;
+  case TtSemiLepKinFitter::kWHadMass       : result=TtSemiLepKinFitter::kWHadMass;       break;
+  case TtSemiLepKinFitter::kWLepMass       : result=TtSemiLepKinFitter::kWLepMass;       break;
+  case TtSemiLepKinFitter::kTopHadMass     : result=TtSemiLepKinFitter::kTopHadMass;     break;
+  case TtSemiLepKinFitter::kTopLepMass     : result=TtSemiLepKinFitter::kTopLepMass;     break;
+  case TtSemiLepKinFitter::kNeutrinoMass   : result=TtSemiLepKinFitter::kNeutrinoMass;   break;
+  case TtSemiLepKinFitter::kEqualTopMasses : result=TtSemiLepKinFitter::kEqualTopMasses; break;
   default: 
     throw cms::Exception("WrongConfig") 
       << "Chosen fit constraint is not supported: " << val << "\n";

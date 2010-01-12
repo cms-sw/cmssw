@@ -53,11 +53,12 @@ void TtSemiLepKinFitter::printSetup() const
   std::stringstream constr;
   for(unsigned int i=0; i<constrList_.size(); ++i){
     switch(constrList_[i]){
-    case kWHadMass     : constr << "    * hadronic W-mass (" << mW_   << " GeV) \n"; break;
-    case kWLepMass     : constr << "    * leptonic W-mass (" << mW_   << " GeV) \n"; break;
-    case kTopHadMass   : constr << "    * hadronic t-mass (" << mTop_ << " GeV) \n"; break;
-    case kTopLepMass   : constr << "    * leptonic t-mass (" << mTop_ << " GeV) \n"; break;
-    case kNeutrinoMass : constr << "    * neutrino   mass (0 GeV) \n"; break;
+    case kWHadMass       : constr << "    * hadronic W-mass (" << mW_   << " GeV) \n"; break;
+    case kWLepMass       : constr << "    * leptonic W-mass (" << mW_   << " GeV) \n"; break;
+    case kTopHadMass     : constr << "    * hadronic t-mass (" << mTop_ << " GeV) \n"; break;
+    case kTopLepMass     : constr << "    * leptonic t-mass (" << mTop_ << " GeV) \n"; break;
+    case kNeutrinoMass   : constr << "    * neutrino   mass (0 GeV) \n"; break;
+    case kEqualTopMasses : constr << "    * equal    t-masses \n"; break;
     }
   }
   edm::LogVerbatim( "TtSemiLepKinFitter" ) 
@@ -118,17 +119,20 @@ void TtSemiLepKinFitter::setupLeptons()
 
 void TtSemiLepKinFitter::setupConstraints() 
 {
-  massConstr_[kWHadMass    ] = new TFitConstraintM("WMassHad",    "WMassHad",    0,  0, mW_  );
-  massConstr_[kWLepMass    ] = new TFitConstraintM("WMassLep",    "WMassLep",    0,  0, mW_  );
-  massConstr_[kTopHadMass  ] = new TFitConstraintM("TopMassHad",  "TopMassHad",  0,  0, mTop_);
-  massConstr_[kTopLepMass  ] = new TFitConstraintM("TopMassLep",  "TopMassLep",  0,  0, mTop_);
-  massConstr_[kNeutrinoMass] = new TFitConstraintM("NeutrinoMass","NeutrinoMass",0,  0,    0.);
-  
-  massConstr_[kWHadMass    ]->addParticles1(hadP_,   hadQ_    );
-  massConstr_[kWLepMass    ]->addParticles1(lepton_, neutrino_);
-  massConstr_[kTopHadMass  ]->addParticles1(hadP_, hadQ_, hadB_);
-  massConstr_[kTopLepMass  ]->addParticles1(lepton_, neutrino_, lepB_);
-  massConstr_[kNeutrinoMass]->addParticle1 (neutrino_);
+  massConstr_[kWHadMass      ] = new TFitConstraintM("WMassHad",      "WMassHad",      0, 0, mW_  );
+  massConstr_[kWLepMass      ] = new TFitConstraintM("WMassLep",      "WMassLep",      0, 0, mW_  );
+  massConstr_[kTopHadMass    ] = new TFitConstraintM("TopMassHad",    "TopMassHad",    0, 0, mTop_);
+  massConstr_[kTopLepMass    ] = new TFitConstraintM("TopMassLep",    "TopMassLep",    0, 0, mTop_);
+  massConstr_[kNeutrinoMass  ] = new TFitConstraintM("NeutrinoMass",  "NeutrinoMass",  0, 0,    0.);
+  massConstr_[kEqualTopMasses] = new TFitConstraintM("EqualTopMasses","EqualTopMasses",0, 0,    0.);
+
+  massConstr_[kWHadMass      ]->addParticles1(hadP_,   hadQ_    );
+  massConstr_[kWLepMass      ]->addParticles1(lepton_, neutrino_);
+  massConstr_[kTopHadMass    ]->addParticles1(hadP_, hadQ_, hadB_);
+  massConstr_[kTopLepMass    ]->addParticles1(lepton_, neutrino_, lepB_);
+  massConstr_[kNeutrinoMass  ]->addParticle1 (neutrino_);
+  massConstr_[kEqualTopMasses]->addParticles1(hadP_, hadQ_, hadB_);
+  massConstr_[kEqualTopMasses]->addParticles2(lepton_, neutrino_, lepB_);
 }
 
 void TtSemiLepKinFitter::setupFitter() 
