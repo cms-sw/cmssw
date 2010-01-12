@@ -141,11 +141,6 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void HtrXmlPattern::beginJob(const edm::EventSetup&)
-{
-}
-
 void HtrXmlPattern::do_hand_fill(const HcalElectronicsMap *emap)
 {
   HtrXmlPatternSet *hxps=m_tool->GetPatternSet();

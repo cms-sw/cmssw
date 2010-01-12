@@ -24,7 +24,6 @@ public:
   ~HtrXmlPattern();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   virtual void do_hand_fill(const HcalElectronicsMap*);
