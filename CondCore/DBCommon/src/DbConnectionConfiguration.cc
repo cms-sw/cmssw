@@ -288,7 +288,7 @@ const std::string& cond::DbConnectionConfiguration::authenticationPath() const
   return m_authPath;
 }
 
-const std::string& cond::DbConnectionConfiguration:transactionId() const {
+const std::string& cond::DbConnectionConfiguration::transactionId() const {
   return m_transactionId;
 }
 
