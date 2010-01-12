@@ -106,7 +106,7 @@ cond::DbConnectionConfiguration::operator=( const cond::DbConnectionConfiguratio
 void cond::DbConnectionConfiguration::setParameters( const edm::ParameterSet& connectionPset ){
   std::string authPath = connectionPset.getUntrackedParameter<std::string>("authenticationPath","");
   setAuthenticationPath(authPath);
-  setTransactionId(connectionPset.getUntrackedParameter<std::string>("TransactionId",""));
+  setTransactionId(connectionPset.getUntrackedParameter<std::string>("transactionId",""));
   int messageLevel = connectionPset.getUntrackedParameter<int>("messageLevel",0);
   coral::MsgLevel level = coral::Error;
   switch (messageLevel) {
