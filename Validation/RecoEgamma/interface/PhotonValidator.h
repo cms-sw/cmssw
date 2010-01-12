@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/08/19 16:52:21 $ 
- **  $Revision: 1.27 $
+ **  $Date: 2010/01/11 17:17:22 $ 
+ **  $Revision: 1.28 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -415,7 +415,12 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_scBkgPhi_;
   MonitorElement* h_phoBkgEta_;
   MonitorElement* h_phoBkgPhi_;
+  MonitorElement* h_phoBkgDEta_;
+  MonitorElement* h_phoBkgDPhi_;
+  MonitorElement* h_phoBkgE_[3];
+  MonitorElement* h_phoBkgEt_[3];
   
+
   MonitorElement* h_scBkgE_[3];
   MonitorElement* h_scBkgEt_[3];
 
