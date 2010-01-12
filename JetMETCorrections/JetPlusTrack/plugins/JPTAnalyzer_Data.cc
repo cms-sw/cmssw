@@ -274,7 +274,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    t_NLayers = 20;
    for(int il = 0; il < 20; il++)
      {
-       NLayers[il] = 0;;
+       NLayers[il] = 0;
      }
 
    //
@@ -486,18 +486,18 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
-		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
 	       const double pt  = (*iInConeVtxTrk)->pt();
-	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 
 	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexInCalo_.begin(); 
 		  iInConeVtxTrk != pions.inVertexInCalo_.end(); ++iInConeVtxTrk) {
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
-		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
 	       const double pt  = (*iInConeVtxTrk)->pt();
-	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 
 	   }
@@ -514,18 +514,18 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
-		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
 	       const double pt  = (*iInConeVtxTrk)->pt();
-	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 
 	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexInCalo_.begin(); 
 		  iInConeVtxTrk != pions.inVertexInCalo_.end(); ++iInConeVtxTrk) {
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
-		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
 	       const double pt  = (*iInConeVtxTrk)->pt();
-	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 	   }
 	   t1->Fill();
