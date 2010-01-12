@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.140 2009/12/17 17:19:49 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.141 2009/12/20 22:18:33 amraktad Exp $
 //
 
 // system include files
@@ -268,6 +268,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          return;
       }
 
+      if(vm.count(kPortCommandOpt)) 
+         setupSocket(vm[kPortCommandOpt].as<unsigned int>());
+
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
@@ -372,11 +375,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
          f=boost::bind(&CmsShowMain::setupDebugSupport,this);
-         m_startupTasks->addTask(f);
-      }
-
-      if(vm.count(kPortCommandOpt)) {
-         f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
       }
       if(vm.count(kChainCommandOpt)) {
@@ -1066,6 +1064,11 @@ CmsShowMain::setupSocket(unsigned int iSocket)
 {
    m_monitor = std::auto_ptr<TMonitor>(new TMonitor);
    TServerSocket* server = new TServerSocket(iSocket,kTRUE);
+   if (server->GetErrorCode())
+   {
+      fwLog(fwlog::kError) << "CmsShowMain::setupSocket, can't create socket on port "<< iSocket << "." << std::endl;
+      exit(0);
+   }
    m_monitor->Connect("Ready(TSocket*)","CmsShowMain",this,"notified(TSocket*)");
    m_monitor->Add(server);
 }
