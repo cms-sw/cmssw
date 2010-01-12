@@ -114,8 +114,11 @@ class JPTAnalyzer_Data : public edm::EDAnalyzer {
   // Jet+tracks energy corrections
   string JetCorrectionJPT;
   // variables to store in ntpl
-  double  EtaGen1, PhiGen1, EtaRaw1, PhiRaw1, EtGen1, EtRaw1, EtMCJ1, EtZSP1, EtJPT1, DRMAXgjet1;
-  double  EtaGen2, PhiGen2, EtaRaw2, PhiRaw2, EtGen2, EtRaw2, EtMCJ2, EtZSP2, EtJPT2, DRMAXgjet2;
+  double  EtaGen1, PhiGen1, EtaRaw1, PhiRaw1, EtGen1, EtRaw1, EtMCJ1, EtZSP1, EtJPT1, DRMAXgjet1, pTtrkMax1;
+  double  EtaGen2, PhiGen2, EtaRaw2, PhiRaw2, EtGen2, EtRaw2, EtMCJ2, EtZSP2, EtJPT2, DRMAXgjet2, pTtrkMax2;
+  int     Ntrk1;
+  int     Ntrk2;
+  int     jjpt;
   // output root file and tree
   TFile*      hOutputFile ;
   TTree*      t1;
@@ -150,6 +153,8 @@ JPTAnalyzer_Data::beginJob(const edm::EventSetup&)
   t1->Branch("EtZSP1",&EtZSP1,"EtZSP1/D");
   t1->Branch("EtJPT1",&EtJPT1,"EtJPT1/D");
   t1->Branch("DRMAXgjet1",&DRMAXgjet1,"DRMAXgjet1/D");
+  t1->Branch("Ntrk1",&Ntrk1,"Ntrk1/I");
+  t1->Branch("pTtrkMax1",&pTtrkMax1,"pTtrkMax1/D");
 
   t1->Branch("EtaGen2",&EtaGen2,"EtaGen2/D");
   t1->Branch("PhiGen2",&PhiGen2,"PhiGen2/D");
@@ -161,6 +166,10 @@ JPTAnalyzer_Data::beginJob(const edm::EventSetup&)
   t1->Branch("EtZSP2",&EtZSP2,"EtZSP2/D");
   t1->Branch("EtJPT2",&EtJPT2,"EtJPT2/D");
   t1->Branch("DRMAXgjet2",&DRMAXgjet2,"DRMAXgjet2/D");
+  t1->Branch("Ntrk2",&Ntrk1,"Ntrk2/I");
+  t1->Branch("pTtrkMax2",&pTtrkMax2,"pTtrkMax2/D");
+
+  t1->Branch("jjpt",&jjpt,"jjpt/I");
 
   return ;
 }
@@ -239,6 +248,8 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    EtZSP1  = 0.;
    EtJPT1  = 0.;
    DRMAXgjet1 = 1000.;
+   Ntrk1 = 0.;
+   pTtrkMax1 = 0.;
 
    EtaGen2 = 0.;
    PhiGen2 = 0.;
@@ -250,6 +261,10 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    EtZSP2  = 0.;
    EtJPT2  = 0.;
    DRMAXgjet2 = 1000.;
+   Ntrk2 = 0.;
+   pTtrkMax2 = 0.;
+
+   jjpt = 0;
 
    //   edm::ESHandle<CaloGeometry> geometry;
    //   iSetup.get<IdealGeometryRecord>().get(geometry);
@@ -351,7 +366,6 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        // number of raw calo jets passed jet ID and eta < 2.0
        int jcgood = 0;
        // number of jtp jets > 10 GeV       
-       int jjpt = 0;
 
        for( CaloJetCollection::const_iterator cjet = calojets->begin(); 
 	    cjet != calojets->end(); ++cjet ){ 
@@ -421,26 +435,31 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 jpt::MatchedTracks electrons;
 	 const bool particlesOK = true;
 	 jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(correctorJPT);
-
 	 jptCorrector_->matchTracks((*zspjet),iEvent,iSetup,pions,muons,electrons);
 	 int NtrkJPT = pions.inVertexOutOfCalo_.size() + pions.inVertexInCalo_.size();
+	 double pTtrkMax = 0.;
+	 double pTMax = 0.;
 	 for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
 	      iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
 	   const double pt  = (*iInConeVtxTrk)->pt();
-	   const double eta = (*iInConeVtxTrk)->eta();
-	   const double phi = (*iInConeVtxTrk)->phi();
+	   if(pt > pTMax) {
+	     pTtrkMax = pt;
+	     pTMax = pTtrkMax;
+	   }
+	 }
 
-	   int trkNVhits  = (*iInConeVtxTrk)->numberOfValidHits();
-	   int Nlayers    = (*iInConeVtxTrk)->hitPattern().trackerLayersWithMeasurement();
-	   int NpxlHits   = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
+	 for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexInCalo_.begin(); 
+	      iInConeVtxTrk != pions.inVertexInCalo_.end(); ++iInConeVtxTrk) {
+	   const double pt  = (*iInConeVtxTrk)->pt();
+	   if(pt > pTMax) {
+	     pTtrkMax = pt;
+	     pTMax = pTtrkMax;
+	   }
+	 }
+
+	   int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	   int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
 	                    (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
-
-	   cout <<"  --> track pT = " << pt
-		<<"  eta = " << eta
-		<<"  phi = " << phi 
-		<<"  Nlayers = " <<  Nlayers << endl;
-	 }
 
 	 if(cjetJPT.pt() > 10.) {
 
@@ -451,7 +470,9 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     PhiRaw1 = cjet->phi();
 	     EtRaw1  = cjet->pt();
 	     EtZSP1  = zspjet->pt(); 
-	     EtJPT1  = cjetJPT.pt(); 
+	     EtJPT1  = cjetJPT.pt();
+	     Ntrk1   = NtrkJPT;  
+	     pTtrkMax1 = pTtrkMax;	   
 	   }
 	   if(jjpt == 2) {
 	     EtaRaw2 = cjet->eta(); 
@@ -459,6 +480,8 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     EtRaw2  = cjet->pt();
 	     EtZSP2  = zspjet->pt(); 
 	     EtJPT2  = cjetJPT.pt(); 
+	     Ntrk2   = NtrkJPT;  
+	     pTtrkMax2 = pTtrkMax;	   
 	   }
 	   t1->Fill();
 	 }
