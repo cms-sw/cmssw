@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.141 2009/12/20 22:18:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.142 2010/01/12 11:44:02 amraktad Exp $
 //
 
 // system include files
@@ -268,9 +268,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          return;
       }
 
-      if(vm.count(kPortCommandOpt)) 
-         setupSocket(vm[kPortCommandOpt].as<unsigned int>());
-
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
@@ -360,6 +357,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,
                                                           m_guiManager.get()) );
       CmsShowTaskExecutor::TaskFunctor f;
+      // first check if port is not occupied
+      if (vm.count(kPortCommandOpt)) { 	 
+         f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>()); 	 
+         m_startupTasks->addTask(f); 	 
+      }
+    
       f=boost::bind(&CmsShowMain::loadGeometry,this);
       m_startupTasks->addTask(f);
 
