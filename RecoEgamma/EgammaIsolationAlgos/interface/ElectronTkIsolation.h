@@ -32,6 +32,18 @@ class ElectronTkIsolation {
 			double drb,
 			const reco::TrackCollection*,
 			reco::TrackBase::Point beamPoint) ;
+
+  ElectronTkIsolation ( double extRadius,
+                        double intRadiusBarrel,
+			double intRadiusEndcap,
+			double stripBarrel,
+			double stripEndcap,			
+                        double ptLow,
+                        double lip,
+                        double drb,
+                        const reco::TrackCollection*,
+                        reco::TrackBase::Point beamPoint) ;
+
   //destructor 
   ~ElectronTkIsolation() ;
  
@@ -43,7 +55,10 @@ class ElectronTkIsolation {
  private:
     
   double extRadius_ ;
-  double intRadius_ ;
+  double intRadiusBarrel_ ;
+  double intRadiusEndcap_ ;
+  double stripBarrel_ ;
+  double stripEndcap_ ;
   double ptLow_ ;
   double lip_ ;
   double drb_;

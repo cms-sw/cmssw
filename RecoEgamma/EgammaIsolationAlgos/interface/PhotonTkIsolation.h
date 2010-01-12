@@ -32,7 +32,27 @@ class PhotonTkIsolation {
 		     double drb,
 		     const reco::TrackCollection*,
 		     reco::TrackBase::Point beamPoint) ;
- 
+
+  PhotonTkIsolation (double extRadius,
+                     double intRadius,
+                     double strip,
+                     double etLow,
+                     double lip,
+                     double drb,
+                     const reco::TrackCollection*,
+                     reco::TrackBase::Point beamPoint) ;
+
+  PhotonTkIsolation (double extRadius,
+                     double intRadiusBarrel,
+		     double intRadiusEndcap,
+		     double stripBarrel,
+                     double stripEndcap,		
+                     double etLow,
+                     double lip,
+                     double drb,
+                     const reco::TrackCollection*,
+                     reco::TrackBase::Point beamPoint) ;
+
    //destructor 
   ~PhotonTkIsolation() ;
     //methods
@@ -43,7 +63,10 @@ class PhotonTkIsolation {
  private:
 
   double extRadius_ ;
-  double intRadius_ ;
+  double intRadiusBarrel_ ;
+  double intRadiusEndcap_ ;
+  double stripBarrel_;
+  double stripEndcap_;
   double etLow_ ;
   double lip_ ;
   double drb_;

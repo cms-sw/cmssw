@@ -36,7 +36,54 @@ PhotonTkIsolation::PhotonTkIsolation (double extRadius,
  				      const reco::TrackCollection* trackCollection,
 				      reco::TrackBase::Point beamPoint)   :
   extRadius_(extRadius),
-  intRadius_(intRadius),
+  intRadiusBarrel_(intRadius),
+  intRadiusEndcap_(intRadius),
+  stripBarrel_(0.0),
+  stripEndcap_(0.0),
+  etLow_(etLow),
+  lip_(lip),
+  drb_(drb),
+  trackCollection_(trackCollection),
+  beamPoint_(beamPoint)
+{
+}
+
+PhotonTkIsolation::PhotonTkIsolation (double extRadius,
+                                      double intRadius,
+                                      double strip,
+                                      double etLow,
+                                      double lip,
+                                      double drb,
+                                      const reco::TrackCollection* trackCollection,
+                                      reco::TrackBase::Point beamPoint)   :
+  extRadius_(extRadius),
+  intRadiusBarrel_(intRadius),
+  intRadiusEndcap_(intRadius),
+  stripBarrel_(strip),
+  stripEndcap_(strip),
+  etLow_(etLow),
+  lip_(lip),
+  drb_(drb),
+  trackCollection_(trackCollection),
+  beamPoint_(beamPoint)
+{
+}
+
+PhotonTkIsolation::PhotonTkIsolation (double extRadius,
+                                      double intRadiusBarrel,
+                                      double intRadiusEndcap,
+                                      double stripBarrel,
+                                      double stripEndcap,
+                                      double etLow,
+                                      double lip,
+                                      double drb,
+                                      const reco::TrackCollection* trackCollection,
+                                      reco::TrackBase::Point beamPoint)   :
+  extRadius_(extRadius),
+  intRadiusBarrel_(intRadiusBarrel),
+  intRadiusEndcap_(intRadiusEndcap),
+  stripBarrel_(stripBarrel),
+  stripEndcap_(stripEndcap),
   etLow_(etLow),
   lip_(lip),
   drb_(drb),
@@ -60,6 +107,7 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) 
 
   //Take the photon position
   math::XYZVector mom= photon->momentum();
+  double photonEta = photon->eta();
 
   //loop over tracks
   for(reco::TrackCollection::const_iterator trItr = trackCollection_->begin(); trItr != trackCollection_->end(); ++trItr){
@@ -74,13 +122,22 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) 
     if (fabs( (*trItr).dxy(beamPoint_) ) > drb_   ) // only consider tracks from the main vertex
       continue;
     double dr = DeltaR(tmpTrackMomentumAtVtx,mom) ;
-    if(fabs(dr) < extRadius_ &&
-       fabs(dr) >= intRadius_ )
-      {
-	++counter;
-	ptSum += this_pt;
-      }
-    
+    double deta = (*trItr).eta() - photonEta ;
+    if (fabs(photonEta) < 1.479) {
+    	if(fabs(dr) < extRadius_ && fabs(dr) >= intRadiusBarrel_ && fabs(deta) >= stripBarrel_) 
+      	{
+	    ++counter;
+	    ptSum += this_pt;
+      	}
+    }
+    else {
+        if(fabs(dr) < extRadius_ && fabs(dr) >= intRadiusEndcap_ && fabs(deta) >= stripEndcap_)
+        {
+            ++counter;
+            ptSum += this_pt;
+        }
+    }
+
   }//end loop over tracks
 
   std::pair<int,double> retval;

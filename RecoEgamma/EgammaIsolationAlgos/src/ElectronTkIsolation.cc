@@ -8,7 +8,6 @@
 //C++ includes
 #include <vector>
 #include <functional>
-
 //ROOT includes
 #include <Math/VectorUtil.h>
 
@@ -32,7 +31,33 @@ ElectronTkIsolation::ElectronTkIsolation (double extRadius,
 					  const reco::TrackCollection* trackCollection,
 					  reco::TrackBase::Point beamPoint) :
   extRadius_(extRadius),
-  intRadius_(intRadius),
+  intRadiusBarrel_(intRadius),
+  intRadiusEndcap_(intRadius),
+  stripBarrel_(0.0),
+  stripEndcap_(0.0),
+  ptLow_(ptLow),
+  lip_(lip),
+  drb_(drb),
+  trackCollection_(trackCollection),
+  beamPoint_(beamPoint)
+{
+}
+
+ElectronTkIsolation::ElectronTkIsolation (double extRadius,
+                                          double intRadiusBarrel,
+                                          double intRadiusEndcap,
+                                          double stripBarrel,
+                                          double stripEndcap,
+                                          double ptLow,
+                                          double lip,
+                                          double drb,
+                                          const reco::TrackCollection* trackCollection,
+                                          reco::TrackBase::Point beamPoint) :
+  extRadius_(extRadius),
+  intRadiusBarrel_(intRadiusBarrel),
+  intRadiusEndcap_(intRadiusEndcap),
+  stripBarrel_(stripBarrel),
+  stripEndcap_(stripEndcap),
   ptLow_(ptLow),
   lip_(lip),
   drb_(drb),
@@ -53,6 +78,7 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* elect
   //Take the electron track
   reco::GsfTrackRef tmpTrack = electron->gsfTrack() ;
   math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
+  double tmpElectronEtaAtVertex = (*tmpTrack).eta();
 
 
   for ( reco::TrackCollection::const_iterator itrTr  = (*trackCollection_).begin() ; 
@@ -68,12 +94,22 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* elect
     if (fabs( (*itrTr).dxy(beamPoint_) ) > drb_   )
       continue;
     double dr = ROOT::Math::VectorUtil::DeltaR(tmpTrackMomentumAtVtx,tmpElectronMomentumAtVtx) ;
-    if ( fabs(dr) < extRadius_ && 
-	 fabs(dr) >= intRadius_ )
-      {
-	++counter ;
-	ptSum += this_pt;
-      }
+    double deta = (*itrTr).eta() - tmpElectronEtaAtVertex;
+    if (fabs(tmpElectronEtaAtVertex) < 1.479) { 
+    	if ( fabs(dr) < extRadius_ && fabs(dr) >= intRadiusBarrel_ && fabs(deta) >= stripBarrel_)
+      	{
+	    ++counter ;
+	    ptSum += this_pt;
+      	}
+    }
+    else {
+        if ( fabs(dr) < extRadius_ && fabs(dr) >= intRadiusEndcap_ && fabs(deta) >= stripEndcap_)
+        {
+            ++counter ;
+            ptSum += this_pt;
+        }
+    }
+
   }//end loop over tracks                 
   
   std::pair<int,double> retval;

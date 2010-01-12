@@ -34,7 +34,10 @@ class EgammaElectronTkNumIsolationProducer : public edm::EDProducer {
   edm::InputTag beamspotProducer_;
 
   double ptMin_;
-  double intRadius_;
+  double intRadiusBarrel_;
+  double intRadiusEndcap_;
+  double stripBarrel_;
+  double stripEndcap_;
   double extRadius_;
   double maxVtxDist_;
   double drb_;

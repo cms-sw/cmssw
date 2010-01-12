@@ -32,7 +32,10 @@ EgammaPhotonTkIsolationProducer::EgammaPhotonTkIsolationProducer(const edm::Para
   beamspotProducer_        = conf_.getParameter<edm::InputTag>("BeamspotProducer");
 
   ptMin_                = conf_.getParameter<double>("ptMin");
-  intRadius_            = conf_.getParameter<double>("intRadius");
+  intRadiusBarrel_      = conf_.getParameter<double>("intRadiusBarrel");
+  intRadiusEndcap_      = conf_.getParameter<double>("intRadiusEndcap");
+  stripBarrel_          = conf_.getParameter<double>("stripBarrel");
+  stripEndcap_          = conf_.getParameter<double>("stripEndcap");
   extRadius_            = conf_.getParameter<double>("extRadius");
   maxVtxDist_           = conf_.getParameter<double>("maxVtxDist");
   drb_                  = conf_.getParameter<double>("maxVtxDistXY");
@@ -72,7 +75,7 @@ EgammaPhotonTkIsolationProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::ValueMap<double>::Filler filler(*isoMap);
   std::vector<double> retV(photonHandle->size(),0);
 
-  PhotonTkIsolation myTkIsolation (extRadius_,intRadius_,ptMin_,maxVtxDist_,drb_,trackCollection,beamspot) ;
+  PhotonTkIsolation myTkIsolation (extRadius_,intRadiusBarrel_,intRadiusEndcap_,stripBarrel_,stripEndcap_,ptMin_,maxVtxDist_,drb_,trackCollection,beamspot) ;
 
   for(unsigned int i = 0 ; i < photonHandle->size(); ++i ){
     double isoValue = myTkIsolation.getPtTracks(&(photonHandle->at(i)));

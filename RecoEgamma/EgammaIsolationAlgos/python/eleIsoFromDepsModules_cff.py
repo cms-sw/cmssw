@@ -6,7 +6,7 @@ eleIsoFromDepsTk = cms.EDProducer("CandIsolatorFromDeposits",
         src = cms.InputTag("eleIsoDepositTk"),
         weight = cms.string('1'),
         deltaR = cms.double(0.3),
-        vetos = cms.vstring('0.04','Threshold(0.7)'),
+        vetos = cms.vstring('RectangularEtaPhiVeto(-0.015,0.015,-0.5,0.5)','Threshold(0.7)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )
