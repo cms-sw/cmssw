@@ -56,7 +56,7 @@ cond::FrontierProxy::getRealConnectString() const{
   }
   if (!m_transactionId.empty()) {
     size_t l = result.rfind('/');
-    result.insert("(freshkey="+m_transactionId+')',l+1);
+    result.insert(l+1,"(freshkey="+m_transactionId+')';
     
   }
   return result;
