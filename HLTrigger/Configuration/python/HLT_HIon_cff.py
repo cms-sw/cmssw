@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/pre1/HIon/V1 (CMSSW_3_5_0_pre2)
+# /dev/CMSSW_3_5_0/pre1/HIon/V2 (CMSSW_3_5_0_pre2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/HIon/V2')
 )
 
 
@@ -912,8 +912,10 @@ hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
 )
 hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
-    gctFedId = cms.int32( 745 ),
+    gctFedId = cms.untracked.int32( 745 ),
     hltMode = cms.bool( True ),
+    numberOfGctSamplesToUnpack = cms.uint32( 1 ),
+    numberOfRctSamplesToUnpack = cms.uint32( 1 ),
     unpackSharedRegions = cms.bool( False ),
     unpackerVersion = cms.uint32( 0 )
 )

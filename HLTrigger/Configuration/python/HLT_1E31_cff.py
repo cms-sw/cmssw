@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/pre1/1E31/V1 (CMSSW_3_5_0_pre2)
+# /dev/CMSSW_3_5_0/pre1/1E31/V2 (CMSSW_3_5_0_pre2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/1E31/V1')
+  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/1E31/V2')
 )
 
 
@@ -912,8 +912,10 @@ hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
 )
 hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
-    gctFedId = cms.int32( 745 ),
+    gctFedId = cms.untracked.int32( 745 ),
     hltMode = cms.bool( True ),
+    numberOfGctSamplesToUnpack = cms.uint32( 1 ),
+    numberOfRctSamplesToUnpack = cms.uint32( 1 ),
     unpackSharedRegions = cms.bool( False ),
     unpackerVersion = cms.uint32( 0 )
 )
@@ -2330,7 +2332,6 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
     PtCut = cms.double( 1.0 ),
     PCut = cms.double( 2.5 ),
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
-    tkSeedGenerator = cms.string( "TSGForRoadSearchOI" ),
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorOpposite',
         'SteppingHelixPropagatorAlong' ),
@@ -2338,17 +2339,13 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
       UseMuonNavigation = cms.untracked.bool( True )
     ),
     MuonTrackingRegionBuilder = cms.PSet(  ),
-    TrackerSeedCleaner = cms.PSet(  ),
-    TSGFromMixedPairs = cms.PSet(  ),
-    TSGFromPixelTriplets = cms.PSet(  ),
-    TSGFromPixelPairs = cms.PSet(  ),
-    TSGForRoadSearchOI = cms.PSet( 
+    TkSeedGenerator = cms.PSet( 
       propagatorCompatibleName = cms.string( "SteppingHelixPropagatorOpposite" ),
       option = cms.uint32( 3 ),
-      maxChi2 = cms.double( 40.0 ),
+      ComponentName = cms.string( "TSGForRoadSearch" ),
       errorMatrixPset = cms.PSet( 
-        atIP = cms.bool( True ),
         action = cms.string( "use" ),
+        atIP = cms.bool( True ),
         errorMatrixValuesPSet = cms.PSet( 
           pf3_V12 = cms.PSet( 
             action = cms.string( "scale" ),
@@ -2366,15 +2363,12 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
             action = cms.string( "scale" ),
             values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
           ),
+          yAxis = cms.vdouble( 0.0, 1.0, 1.4, 10.0 ),
           pf3_V15 = cms.PSet( 
             action = cms.string( "scale" ),
             values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
           ),
-          pf3_V34 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          yAxis = cms.vdouble( 0.0, 1.0, 1.4, 10.0 ),
+          zAxis = cms.vdouble( -3.14159, 3.14159 ),
           pf3_V33 = cms.PSet( 
             action = cms.string( "scale" ),
             values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
@@ -2400,7 +2394,10 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
             action = cms.string( "scale" ),
             values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
           ),
-          zAxis = cms.vdouble( -3.14159, 3.14159 ),
+          pf3_V34 = cms.PSet( 
+            action = cms.string( "scale" ),
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
+          ),
           pf3_V35 = cms.PSet( 
             action = cms.string( "scale" ),
             values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
@@ -2418,8 +2415,13 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
       propagatorName = cms.string( "SteppingHelixPropagatorAlong" ),
       manySeeds = cms.bool( False ),
       copyMuonRecHit = cms.bool( False ),
-      ComponentName = cms.string( "TSGForRoadSearch" )
+      maxChi2 = cms.double( 40.0 )
     ),
+    TrackerSeedCleaner = cms.PSet(  ),
+    TSGFromMixedPairs = cms.PSet(  ),
+    TSGFromPixelTriplets = cms.PSet(  ),
+    TSGFromPixelPairs = cms.PSet(  ),
+    TSGForRoadSearchOI = cms.PSet(  ),
     TSGForRoadSearchIOpxl = cms.PSet(  ),
     TSGFromPropagation = cms.PSet(  ),
     TSGFromCombinedHits = cms.PSet(  )
