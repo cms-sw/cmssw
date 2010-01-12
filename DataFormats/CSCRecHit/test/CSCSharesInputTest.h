@@ -6,7 +6,7 @@
 //
 // Original Author:  Phillip Killewald
 //         Created:  Thu Jan 29 17:33:51 CET 2009
-// $Id: CSCSharesInputTest.h,v 1.1 2009/03/26 14:30:48 ptc Exp $
+// $Id: CSCSharesInputTest.h,v 1.2 2009/12/14 22:22:28 wmtan Exp $
 //
 
 
@@ -20,7 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TNtuple.h"
 
 

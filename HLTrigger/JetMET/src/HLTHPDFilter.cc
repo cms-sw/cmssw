@@ -1,6 +1,6 @@
 /* \class HLTHPDFilter
  *
- * $Id: HLTHPDFilter.cc,v 1.2 2008/06/24 22:47:20 fedor Exp $
+ * $Id: HLTHPDFilter.cc,v 1.3 2008/06/25 00:36:06 fedor Exp $
  *
  * Fedor Ratnikov (UMd) May 19, 2008
  */
@@ -23,7 +23,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1F.h"
 #include "TH2F.h"
 

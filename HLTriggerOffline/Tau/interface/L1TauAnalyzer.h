@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.h,v 1.2 2008/12/06 08:57:08 bachtis Exp $
+// $Id: L1TauAnalyzer.h,v 1.3 2009/12/18 20:44:55 wmtan Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "TLorentzVector.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
+#include "CommonTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
 
 #include "TH1.h"
 

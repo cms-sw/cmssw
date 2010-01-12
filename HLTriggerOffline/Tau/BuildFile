@@ -19,7 +19,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>

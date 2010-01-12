@@ -1,6 +1,6 @@
 // Originally written by James Jackson
 // modified by Peter Wittich
-// $Id: HltComparator.cc,v 1.5 2009/08/06 17:42:53 wittich Exp $
+// $Id: HltComparator.cc,v 1.6 2009/12/29 01:20:46 nuno Exp $
 
 // user include files
 #include "HLTriggerOffline/Common/interface/HltComparator.h"
@@ -9,7 +9,7 @@
 
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <TH1.h>
 #include <vector>
