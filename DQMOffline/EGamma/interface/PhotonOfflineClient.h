@@ -2,7 +2,7 @@
 #define PhotonOfflineClient_H
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/12/15 18:23:35 $ 
+ **  $Date: 2010/01/11 09:40:36 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US

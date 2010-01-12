@@ -2,7 +2,7 @@
 #define PhotonAnalyzer_H
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -85,7 +85,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/07/28 12:08:18 $ 
+ **  $Date: 2009/07/28 13:47:35 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
