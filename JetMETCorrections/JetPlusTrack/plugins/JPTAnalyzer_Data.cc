@@ -119,6 +119,8 @@ class JPTAnalyzer_Data : public edm::EDAnalyzer {
   int     Ntrk1;
   int     Ntrk2;
   int     jjpt;
+  int     NLayers[20];
+  int     t_NLayers;
   // output root file and tree
   TFile*      hOutputFile ;
   TTree*      t1;
@@ -170,6 +172,9 @@ JPTAnalyzer_Data::beginJob(const edm::EventSetup&)
   t1->Branch("pTtrkMax2",&pTtrkMax2,"pTtrkMax2/D");
 
   t1->Branch("jjpt",&jjpt,"jjpt/I");
+
+  t1->Branch("t_NLayers",&t_NLayers,"t_NLayers/I");
+  t1->Branch("NLayers",NLayers,"NLayers[t_NLayers]/I");
 
   return ;
 }
@@ -266,6 +271,13 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    jjpt = 0;
 
+   t_NLayers = 20;
+   for(int il = 0; il < 20; il++)
+     {
+       NLayers[il] = 0;;
+     }
+
+   //
    //   edm::ESHandle<CaloGeometry> geometry;
    //   iSetup.get<IdealGeometryRecord>().get(geometry);
 
@@ -457,10 +469,6 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   }
 	 }
 
-	   int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
-	   int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
-	                    (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
-
 	 if(cjetJPT.pt() > 10.) {
 
 	   jjpt = jjpt + 1;
@@ -473,6 +481,25 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     EtJPT1  = cjetJPT.pt();
 	     Ntrk1   = NtrkJPT;  
 	     pTtrkMax1 = pTtrkMax;	   
+
+	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
+		  iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
+	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
+	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
+		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+	       const double pt  = (*iInConeVtxTrk)->pt();
+	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	     }
+
+	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexInCalo_.begin(); 
+		  iInConeVtxTrk != pions.inVertexInCalo_.end(); ++iInConeVtxTrk) {
+	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
+	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
+		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+	       const double pt  = (*iInConeVtxTrk)->pt();
+	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	     }
+
 	   }
 	   if(jjpt == 2) {
 	     EtaRaw2 = cjet->eta(); 
@@ -482,6 +509,24 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     EtJPT2  = cjetJPT.pt(); 
 	     Ntrk2   = NtrkJPT;  
 	     pTtrkMax2 = pTtrkMax;	   
+
+	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
+		  iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
+	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
+	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
+		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+	       const double pt  = (*iInConeVtxTrk)->pt();
+	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	     }
+
+	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexInCalo_.begin(); 
+		  iInConeVtxTrk != pions.inVertexInCalo_.end(); ++iInConeVtxTrk) {
+	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
+	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
+		 (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
+	       const double pt  = (*iInConeVtxTrk)->pt();
+	       NLayers[NpxlLayers+NoutLayers] += NLayers[NpxlLayers+NoutLayers]; 
+	     }
 	   }
 	   t1->Fill();
 	 }
