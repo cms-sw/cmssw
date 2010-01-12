@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/01/04 12:02:27 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/01/11 09:31:28 $
+ *  $Revision: 1.25 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -1207,7 +1207,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         PB = bgrResult.second;
 
         PStot[ires] = (1-Bgrp1)*PS[ires] + Bgrp1*PB;
-        cout << "PStot["<<ires<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[ires]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[ires] << endl;
+        if( MuScleFitUtils::debug>0 ) cout << "PStot["<<ires<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[ires]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[ires] << endl;
       }
     }
   }
@@ -1242,7 +1242,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     cout << "Using background window, P = " << P << endl;
   }
 
-  if( doUseBkgrWindow ) cout << "doUseBkgrWindow true, P = " << P << endl;
+  // if( doUseBkgrWindow ) cout << "doUseBkgrWindow true, P = " << P << endl;
 
   if( MuScleFitUtils::signalProb_ != 0 && MuScleFitUtils::backgroundProb_ != 0 ) {
     double PStotTemp = 0.;

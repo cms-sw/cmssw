@@ -1861,20 +1861,22 @@ class backgroundFunctionBase {
  public:
   backgroundFunctionBase(const double & lowerLimit, const double & upperLimit) :
     lowerLimit_(lowerLimit), upperLimit_(upperLimit) {}
-  virtual ~backgroundFunctionBase() {};
-  virtual double operator()( const double * parval, const double & mass ) = 0;
+  virtual ~backgroundFunctionBase()
+  {
+    delete functionForIntegral_;
+  };
+  virtual double operator()( const double * parval, const double & mass ) const = 0;
   virtual int parNum() const { return parNum_; }
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) = 0;
-  //   virtual void setLeftWindowFactor(const double & leftWindowFactor) { leftWindowFactor_ = leftWindowFactor; }
-  //   virtual void setRightWindowFactor(const double & rightWindowFactor) { rightWindowFactor_ = rightWindowFactor; }
-  /**
-   * This method rescales the background fraction parameters from the regions to the single resonance windows.
-   * It should be called when starting an iteration in which no background function is fitted while in the
-   * previous iteration there was a fit of the background function.
-   */
-  virtual void rescale() {}
-  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const = 0;
+  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const
+  {
+    functionForIntegral_ = new FunctionForIntegral(this, parBgrIt);
+    TF1 * backgroundFunctionForIntegral = new TF1("backgroundFunctionForIntegral", functionForIntegral_,
+                                                  lowerLimit_, upperLimit_, this->parNum_);
+    return( backgroundFunctionForIntegral );
+  }
+
 protected:
   int parNum_;
   double lowerLimit_;
@@ -1884,16 +1886,39 @@ protected:
                       const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt,
                       double* thisStep, double* thisMini, double* thisMaxi, TString* thisParName ) {
     for( int iPar=0; iPar<this->parNum_; ++iPar ) {
-      // Start[iPar] = parBgr[iPar];
       Start[iPar] = *(parBgrIt+iPar);
       Step[iPar] = thisStep[iPar];
       Mini[iPar] = thisMini[iPar];
       Maxi[iPar] = thisMaxi[iPar];
-      // ind[iPar] = parBgrOrder[iPar];
       ind[iPar] = *(parBgrOrderIt+iPar);
       parname[iPar] = thisParName[iPar];
     }
   }
+  class FunctionForIntegral
+  {
+  public:
+    FunctionForIntegral( const backgroundFunctionBase * function,
+                         const vector<double>::const_iterator & parBgrIt ) :
+      function_(function)
+    {
+      parval_ = new double[function_->parNum()];
+      for( int i=0; i < function_->parNum(); ++i ) {
+        parval_[i] = *(parBgrIt);
+      }
+    }
+    ~FunctionForIntegral()
+    {
+      delete parval_;
+    }
+    double operator()(const double * mass, const double *) const
+    {
+      return( (*function_)(parval_, *mass) );
+    }
+  protected:
+    const backgroundFunctionBase * function_;
+    double * parval_;
+  };
+  mutable FunctionForIntegral * functionForIntegral_;
 };
 /// Linear
 // -------
@@ -1902,12 +1927,11 @@ class backgroundFunctionType1 : public backgroundFunctionBase {
   /**
    * Returns the value of the linear function f(M) = a + b*M for M < -a/b, 0 otherwise. <br>
    * b is chosen to be negative (background decreasing when M increases). <br>
-   * The function is normalized to unity for M in [0, infinity).
    */
   backgroundFunctionType1(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
     { this->parNum_ = 3; }
-  virtual double operator()( const double * parval, const double & mass )
+  virtual double operator()( const double * parval, const double & mass ) const
   {
     double a = parval[1];
     double b = parval[2];
@@ -1933,20 +1957,6 @@ class backgroundFunctionType1 : public backgroundFunctionBase {
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
-  /**
-   * This method receives a background function of its same type and rescales the parameters. <br>
-   * It is used for e.g. backgroundForUpsilon->rescale(backgroundRegionUpsilons);
-   */
-  virtual void rescale()
-  {
-  }
-  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const
-  {
-    TF1 * backgroundFunctionForIntegral = new TF1("backgroundFunctionForIntegral","[0] + [1]*x");
-    backgroundFunctionForIntegral->SetParameter(0, *parBgrIt);
-    backgroundFunctionForIntegral->SetParameter(1, *(parBgrIt+1));
-    return( backgroundFunctionForIntegral );
-  }
 };
 /// Exponential
 // ------------
@@ -1960,7 +1970,7 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
   backgroundFunctionType2(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
     { this->parNum_ = 2; }
-  virtual double operator()( const double * parval, const double & mass )
+  virtual double operator()( const double * parval, const double & mass ) const
   {
     double Bgrp2 = parval[1];
     double norm = -(exp(-Bgrp2*upperLimit_) - exp(-Bgrp2*lowerLimit_))/Bgrp2;
@@ -1978,21 +1988,6 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
       double thisMaxi[] = {1.0, 10.};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
     }
-  }
-  /**
-   * This method receives a background function of its same type and rescales the parameters. <br>
-   * It is used for e.g. backgroundForUpsilon->rescale(backgroundRegionUpsilons);
-   */
-  virtual void rescale()
-  {
-
-  }
-  virtual TF1* functionForIntegral(const vector<double>::const_iterator & parBgrIt) const
-  {
-    TF1 * backgroundFunctionForIntegral = new TF1("backgroundFunctionForIntegral","[0]*exp(-[0]*x)");
-    // backgroundFunctionForIntegral->SetParameter(0, *parBgrIt);
-    backgroundFunctionForIntegral->SetParameter(0, *(parBgrIt+1));
-    return( backgroundFunctionForIntegral );
   }
 };
 ///// Constant + Exponential
