@@ -7,6 +7,7 @@
 
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -31,6 +32,8 @@ EEDcsInfoTask::EEDcsInfoTask(const ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  dcsStatusCollection_ = ps.getParameter<edm::InputTag>("DcsStatusCollection");
 
   meEEDcsFraction_ = 0;
   meEEDcsActiveMap_ = 0;
@@ -81,56 +84,37 @@ void EEDcsInfoTask::endJob(void) {
 
 void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
-  this->reset();
-
-  int nErrors = 0;
-  int nErrorsEE[18];
-  int nValidChannels = 0;
-  int nValidChannelsEE[18];
-
-  for (int i = 0; i < 18; i++) {
-    nErrorsEE[i] = 0;
-    nValidChannelsEE[i] = 0;
-  }
-
-  for ( int iz = -1; iz < 2; iz+=2 ) {
-    for ( int ix = 1; ix <= 100; ix++ ) {
-      for ( int iy = 1; iy <= 100; iy++ ) {
-        int jx = (iz==1) ? 100 + ix : ix;
-        int jy = iy;
-        if( EEDetId::validDetId(ix, iy, iz) ) {
-          meEEDcsActiveMap_->setBinContent( jx, jy, -1.0 );
-
-          EEDetId id = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-          
-          int ism = Numbers::iSM(id);
-
-          nValidChannelsEE[ism]++;
-          nErrorsEE[ism]++;
-          nValidChannels++;
-          nErrors++;
-
-        }
-        else meEEDcsActiveMap_->setBinContent( jx, jy, -1.0 );
-      }
-    }
-  }
-
-  if( meEEDcsFraction_ ) { 
-    if( nValidChannels>0 ) meEEDcsFraction_->Fill( 1.0 - nErrors/nValidChannels );
-    else meEEDcsFraction_->Fill( 0.0 );
-  }
-
-  for (int i = 0; i < 18; i++) {
-    if( meEEDcsActive_[i] ) {
-      if( nValidChannelsEE[i]>0 ) meEEDcsActive_[i]->Fill( 1.0 - nErrorsEE[i]/nValidChannelsEE[i] );
-      else meEEDcsActive_[i]->Fill( 0.0 );
+  nTotLumi = 0;
+  for ( int itx = 0; itx < 40; itx++ ) {
+    for ( int ity = 0; ity < 20; ity++ ) {
+      nReadyLumi[itx][ity] = 0;
     }
   }
 
 }
 
 void EEDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+
+  this->fillMonitorElements(nReadyLumi, nTotLumi);
+
+}
+
+void EEDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+  nTotRun = 0;
+  for ( int itx = 0; itx < 40; itx++ ) {
+    for ( int ity = 0; ity < 20; ity++ ) {
+      nReadyRun[itx][ity] = 0;
+    }
+  }
+
+}
+
+void EEDcsInfoTask::endRun(const Run& r, const EventSetup& c) {
+
+  this->fillMonitorElements(nReadyRun, nTotRun);
 
 }
 
@@ -168,5 +152,79 @@ void EEDcsInfoTask::cleanup(void){
 }
 
 void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
+
+  nTotRun++;
+  nTotLumi++;
+
+  Handle<DcsStatusCollection> dcsh;
+
+  if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
+
+    for ( int iz = -1; iz < 2; iz+=2 ) {
+      for ( int itx = 0; itx < 20; itx++ ) {
+        for ( int ity = 0; ity < 20; ity++ ) {
+        
+          int offsetSC = (iz > 0) ? 0 : 20;
+          bool ready = false;
+        
+          if ( dcsh->size() > 0 ) ready = (iz < 0) ? (*dcsh)[0].ready(DcsStatus::EEm) : (*dcsh)[0].ready(DcsStatus::EEp);
+        
+          if ( ready ) {
+            nReadyRun[offsetSC+itx][ity]++;
+            nReadyLumi[offsetSC+itx][ity]++;
+          }
+        
+        }
+      }
+    }
+    
+  } else {
+    LogWarning("EEDcsInfoTask") << dcsStatusCollection_ << " not available";
+  }
+
+}
+
+void EEDcsInfoTask::fillMonitorElements(int nReady[40][20], int nTot) {
+
+  float readinessSum = 0.;
+  int nValidChannels = 0;
+  for ( int iz = -1; iz < 2; iz+=2 ) {
+    for ( int itx = 0; itx < 20; itx++ ) {
+      for ( int ity = 0; ity < 20; ity++ ) {
+        for ( int h = 0; h < 5; h++ ) {
+          for ( int k = 0; k < 5; k++ ) {
+            
+            int ix = 5*itx + h;
+            int iy = 5*ity + k;
+
+            int offsetSC = (iz > 0) ? 0 : 20;
+            int offset = (iz > 0) ? 0 : 100;
+
+            if( EEDetId::validDetId(ix+1, iy+1, iz) ) {    
+
+              float readiness = float(nReady[offsetSC+itx][ity])/float(nTot);
+              
+              if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( offset+ix+1, iy+1, readiness );
+              
+              EEDetId id = EEDetId(ix+1, iy+1, iz, EEDetId::XYMODE);
+
+              // take one crystal of the FED as flag        
+              int ism = Numbers::iSM(id);
+              if( meEEDcsActive_[ism-1] ) meEEDcsActive_[ism-1]->Fill( readiness );
+          
+              readinessSum += readiness;
+              nValidChannels++;
+
+            } else {
+              if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( offset+ix+1, iy+1, -1.0 );
+            }
+
+          }
+        }
+      }
+    }
+  }
+
+  if( meEEDcsFraction_ ) meEEDcsFraction_->Fill(float(readinessSum/float(nValidChannels)));
 
 }

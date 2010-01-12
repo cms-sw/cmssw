@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -29,6 +30,8 @@ EBDcsInfoTask::EBDcsInfoTask(const ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  dcsStatusCollection_ = ps.getParameter<edm::InputTag>("DcsStatusCollection");
 
   meEBDcsFraction_ = 0;
   meEBDcsActiveMap_ = 0;
@@ -79,47 +82,37 @@ void EBDcsInfoTask::endJob(void) {
 
 void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
-  this->reset();
-
-  int nErrors = 0;
-  int nErrorsEB[36];
-  int nValidChannels = 0;
-  int nValidChannelsEB[36];
-
-  for (int i = 0; i < 36; i++) {
-    nErrorsEB[i] = 0;
-    nValidChannelsEB[i] = 0;
-  }
-
+  nTotLumi = 0;
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
-      meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, -1.0 );
-      int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4; 
-      // placeholder 
-      if(1==1) {
-        nValidChannelsEB[ism]++;
-        nErrorsEB[ism]++;
-        nValidChannels++;
-        nErrors++;
-      }
-    }
-  }
-  
-  if( meEBDcsFraction_ ) { 
-    if( nValidChannels>0 ) meEBDcsFraction_->Fill( 1.0 - nErrors/nValidChannels );
-    else meEBDcsFraction_->Fill( 0.0 );
-  }
-
-  for (int i = 0; i < 36; i++) {
-    if( meEBDcsActive_[i] ) {
-      if( nValidChannelsEB[i]>0 ) meEBDcsActive_[i]->Fill( 1.0 - nErrorsEB[i]/nValidChannelsEB[i] );
-      else meEBDcsActive_[i]->Fill( 0.0 );
+      nReadyLumi[iptt][iett] = 0;
     }
   }
 
 }
 
 void EBDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+
+  this->fillMonitorElements(nReadyLumi, nTotLumi);
+
+}
+
+void EBDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+  nTotRun = 0;
+  for ( int iett = 0; iett < 34; iett++ ) {
+    for ( int iptt = 0; iptt < 72; iptt++ ) {
+      nReadyRun[iptt][iett] = 0;
+    }
+  }
+
+}
+
+void EBDcsInfoTask::endRun(const Run& r, const EventSetup& c) {
+
+  this->fillMonitorElements(nReadyRun, nTotRun);
 
 }
 
@@ -157,5 +150,54 @@ void EBDcsInfoTask::cleanup(void){
 }
 
 void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
+
+  nTotRun++;
+  nTotLumi++;
+
+  Handle<DcsStatusCollection> dcsh;
+
+  if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
+
+    for ( int iett = 0; iett < 34; iett++ ) {
+      for ( int iptt = 0; iptt < 72; iptt++ ) {
+
+        bool ready = false;
+        
+        if ( dcsh->size() > 0 ) ready = (iett < 17) ? (*dcsh)[0].ready(DcsStatus::EBm) : (*dcsh)[0].ready(DcsStatus::EBp);
+
+        if ( ready ) {
+          nReadyRun[iptt][iett]++;
+          nReadyLumi[iptt][iett]++;
+        }
+
+      }
+    }
+    
+  } else {
+    LogWarning("EBDcsInfoTask") << dcsStatusCollection_ << " not available";
+  }
+
+}
+
+void EBDcsInfoTask::fillMonitorElements(int nReady[72][34], int nTot) {
+
+  float readinessSum = 0.;
+  for ( int iett = 0; iett < 34; iett++ ) {
+    for ( int iptt = 0; iptt < 72; iptt++ ) {
+      
+      float readiness = float(nReady[iptt][iett])/float(nTot);
+
+      if(meEBDcsActiveMap_) meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, readiness );
+
+      // take one tower of the FED as a flag
+      int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4; 
+      if( meEBDcsActive_[ism] ) meEBDcsActive_[ism]->Fill( readiness );
+
+      readinessSum += readiness;
+
+    }
+  }      
+
+  if( meEBDcsFraction_ ) meEBDcsFraction_->Fill(readinessSum/34./72.);
 
 }

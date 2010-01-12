@@ -32,6 +32,12 @@ void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::Eve
 /// EndLuminosityBlock
 void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
 /// Reset
 void reset(void);
 
@@ -39,6 +45,8 @@ void reset(void);
 void cleanup(void);
   
 private:
+
+void fillMonitorElements(int nReady[40][20], int nTot);
   
 DQMStore* dqmStore_;
 
@@ -48,9 +56,15 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
+edm::InputTag dcsStatusCollection_; 
+
 MonitorElement* meEEDcsFraction_;
 MonitorElement* meEEDcsActive_[18];
 MonitorElement* meEEDcsActiveMap_;
+
+int nReadyRun[40][20];
+int nReadyLumi[40][20];
+int nTotRun, nTotLumi;
 
 };
 
