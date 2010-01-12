@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Sun Nov 30 19:05:41 CET 2008
-// $Id: EventWithHistoryProducer.cc,v 1.1 2009/02/25 12:13:49 venturia Exp $
+// $Id: EventWithHistoryProducer.cc,v 1.1 2009/07/20 16:06:59 venturia Exp $
 //
 //
 
@@ -44,7 +44,7 @@ class EventWithHistoryProducer : public edm::EDProducer {
       ~EventWithHistoryProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -110,7 +110,7 @@ EventWithHistoryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EventWithHistoryProducer::beginJob(const edm::EventSetup&)
+EventWithHistoryProducer::beginJob()
 {
 }
 

@@ -28,7 +28,7 @@ class APVLatencyBuilder : public edm::EDAnalyzer {
   ~APVLatencyBuilder(){};
 
 private:
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){};
   virtual void endRun(const edm::Run& iRun, const edm::EventSetup&);
@@ -40,7 +40,7 @@ APVLatencyBuilder::APVLatencyBuilder( const edm::ParameterSet& iConfig ):
   _latIOVs(iConfig.getParameter<std::vector<edm::ParameterSet> >("latencyIOVs"))
 {}
 
-void APVLatencyBuilder::beginJob(const edm::EventSetup&) {
+void APVLatencyBuilder::beginJob() {
 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 

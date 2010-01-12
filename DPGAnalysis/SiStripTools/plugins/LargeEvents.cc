@@ -56,7 +56,7 @@ class LargeEvents : public edm::EDFilter {
       ~LargeEvents();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -149,7 +149,7 @@ LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ------------ method called once each job just before starting event loop  ------------
 template <class T>
 void 
-LargeEvents<T>::beginJob(const edm::EventSetup&)
+LargeEvents<T>::beginJob()
 {
 }
 

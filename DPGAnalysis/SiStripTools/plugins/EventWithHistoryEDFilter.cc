@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Tue Dec  9 18:33:42 CET 2008
-// $Id: EventWithHistoryEDFilter.cc,v 1.1 2009/07/20 16:06:58 venturia Exp $
+// $Id: EventWithHistoryEDFilter.cc,v 1.2 2009/09/25 12:03:27 venturia Exp $
 //
 //
 
@@ -48,7 +48,7 @@ public:
   
 private:
   
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -127,7 +127,7 @@ EventWithHistoryEDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EventWithHistoryEDFilter::beginJob(const edm::EventSetup&)
+EventWithHistoryEDFilter::beginJob()
 {}
 
 // ------------ method called once each job just after ending the event loop  ------------

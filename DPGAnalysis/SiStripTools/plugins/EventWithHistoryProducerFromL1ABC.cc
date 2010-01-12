@@ -46,7 +46,7 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
       ~EventWithHistoryProducerFromL1ABC();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void beginRun(edm::Run&, const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endRun(edm::Run&, const edm::EventSetup&) ;
@@ -161,7 +161,7 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EventWithHistoryProducerFromL1ABC::beginJob(const edm::EventSetup&)
+EventWithHistoryProducerFromL1ABC::beginJob()
 {
 }
 

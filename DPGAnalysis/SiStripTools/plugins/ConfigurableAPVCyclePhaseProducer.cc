@@ -48,7 +48,7 @@ class ConfigurableAPVCyclePhaseProducer : public edm::EDProducer {
       ~ConfigurableAPVCyclePhaseProducer();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -188,7 +188,7 @@ ConfigurableAPVCyclePhaseProducer::produce(edm::Event& iEvent, const edm::EventS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ConfigurableAPVCyclePhaseProducer::beginJob(const edm::EventSetup&)
+ConfigurableAPVCyclePhaseProducer::beginJob()
 {
 }
 

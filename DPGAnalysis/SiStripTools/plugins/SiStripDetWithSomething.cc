@@ -51,7 +51,7 @@ class SiStripDetWithSomething : public edm::EDFilter {
       ~SiStripDetWithSomething();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -134,7 +134,7 @@ SiStripDetWithSomething<T>::filter(edm::Event& iEvent, const edm::EventSetup& iS
 // ------------ method called once each job just before starting event loop  ------------
 template <class T>
 void 
-SiStripDetWithSomething<T>::beginJob(const edm::EventSetup&)
+SiStripDetWithSomething<T>::beginJob()
 {
 }
 

@@ -58,7 +58,7 @@ class APVCyclePhaseProducerFromL1ABC : public edm::EDProducer {
       ~APVCyclePhaseProducerFromL1ABC();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void endRun(edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -275,7 +275,7 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-APVCyclePhaseProducerFromL1ABC::beginJob(const edm::EventSetup&)
+APVCyclePhaseProducerFromL1ABC::beginJob()
 {
 }
 
