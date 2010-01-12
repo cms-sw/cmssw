@@ -187,9 +187,8 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
 	// do the kinematic fit
 	int status = fitter->fit(jetCombi);
 	  
-	if( status!=-10 ) { 
-	  // fill struct KinFitResults if was not
-	  // aborted (due to errors during fitting)
+	if( status == 0 ) { 
+	  // fill struct KinFitResults if fit converged
 	  KinFitResult result;
 	  result.Status   = status;
 	  result.Chi2     = fitter->fitS();
