@@ -57,7 +57,7 @@ TopHLTDiMuonDQM::~TopHLTDiMuonDQM() {
 
 
 //--------------------------------------------------------
-void TopHLTDiMuonDQM::beginJob(const EventSetup& context) {
+void TopHLTDiMuonDQM::beginJob(void) {
 
   dbe_ = Service<DQMStore>().operator->();
 
