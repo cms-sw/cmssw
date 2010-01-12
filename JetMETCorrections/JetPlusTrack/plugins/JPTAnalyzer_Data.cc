@@ -438,7 +438,8 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	   cout <<"  --> track pT = " << pt
 		<<"  eta = " << eta
-		<<"  phi = " << phi << endl;
+		<<"  phi = " << phi 
+		<<"  Nlayers = " <<  Nlayers << endl;
 	 }
 
 	 if(cjetJPT.pt() > 10.) {
