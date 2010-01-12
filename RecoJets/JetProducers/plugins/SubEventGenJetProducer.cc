@@ -88,6 +88,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
    subInputs_.clear();
    nSubParticles_.clear();
    hydroTag_.clear();
+   inputs_.clear();
 
    // get inputs and convert them to the fastjet format (fastjet::PeudoJet)
    edm::Handle<reco::CandidateView> inputsHandle;
