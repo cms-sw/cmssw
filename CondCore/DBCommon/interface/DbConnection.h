@@ -50,7 +50,8 @@ namespace cond{
 
     DbSession createSession() const;
 
-    DbConnectionConfiguration& configuration();
+    DbConnectionConfiguration & configuration();
+    DbConnectionConfiguration const & configuration() const;
 
     coral::IConnectionService& connectionService() const;
 

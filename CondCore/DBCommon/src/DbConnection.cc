@@ -94,7 +94,12 @@ bool cond::DbConnection::isOpen() const
   return m_implementation->m_connectionService;
 }
   
-cond::DbConnectionConfiguration& cond::DbConnection::configuration()
+cond::DbConnectionConfiguration & cond::DbConnection::configuration()
+{
+  return m_implementation->m_configuration;
+}
+
+cond::DbConnectionConfiguration const & cond::DbConnection::configuration() const
 {
   return m_implementation->m_configuration;
 }
