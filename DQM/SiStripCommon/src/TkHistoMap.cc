@@ -170,17 +170,20 @@ float TkHistoMap::getEntries(uint32_t& detid){
   return tkHistoMap_[layer]->getTProfile2D()->GetBinEntries(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
 }
 
-void TkHistoMap::dumpInTkMap(TrackerMap* tkmap){
+void TkHistoMap::dumpInTkMap(TrackerMap* tkmap,bool dumpEntries){
   for(int layer=1;layer<HistoNumber;++layer){
     std::vector<uint32_t> dets;
     tkdetmap_->getDetsForLayer(layer,dets);
     for(size_t i=0;i<dets.size();++i){
-      if(dets[i]>0)
+      if(dets[i]>0){
 	if(getEntries(dets[i])>0) {
-	  tkmap->fill(dets[i],getValue(dets[i]));
+	  tkmap->fill(dets[i],
+		      dumpEntries ? getEntries(dets[i]) : getValue(dets[i])
+		      );
 	}
+      }
     }
-  }
+  } 
 }
 
 #include "TCanvas.h"
