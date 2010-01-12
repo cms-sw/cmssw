@@ -88,6 +88,12 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
+  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool isHalfModule = false;
+  if(barrel){
+    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
+  }
 
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
@@ -131,84 +137,70 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
       meROCNmbr_ = theDMBE->bookInt(hid);
     }
     delete theHistogramId;
-  } else if(type==1){
-    SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+  } else if(type==1 && barrel){
+    uint32_t DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
+    char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
+    hid = src.label() + "_" + sladder;
+    if(isHalfModule) hid += "H";
+    else hid += "F";
     // Types of errors
-    hid = theHistogramId->setHistoId("errorType",id_);
-    meErrorTypeLad_ = theDMBE->book1D(hid,"Type of errors",15,24.5,39.5);
+    meErrorTypeLad_ = theDMBE->book1D("errorType_"+hid,"Type of errors",15,24.5,39.5);
     meErrorTypeLad_->setAxisTitle("Type of errors",1);
     // Number of errors
-    hid = theHistogramId->setHistoId("NErrors",id_);
-    meNErrorsLad_ = theDMBE->book1D(hid,"Number of errors",10,0.,10.);
+    meNErrorsLad_ = theDMBE->book1D("NErrors_"+hid,"Number of errors",10,0.,10.);
     meNErrorsLad_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
     // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
-    hid = theHistogramId->setHistoId("TBMMessage",id_);
-    meTBMMessageLad_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessageLad_ = theDMBE->book1D("TBMMessage_"+hid,"TBM trailer message",8,-0.5,7.5);
     meTBMMessageLad_->setAxisTitle("TBM message",1);
     // For error type 30, the type of problem encoded in the FSM bits, 0 = none
     // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
-    hid = theHistogramId->setHistoId("TBMType",id_);
-    meTBMTypeLad_ = theDMBE->book1D(hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypeLad_ = theDMBE->book1D("TBMType_"+hid,"State Machine message",5,-0.5,4.5);
     meTBMTypeLad_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      hid = theHistogramId->setHistoId("EvtNbr",id_);
-      meEvtNbrLad_ = theDMBE->bookInt(hid);
+      meEvtNbrLad_ = theDMBE->bookInt("EvtNbr_"+hid);
       // For error type 36, the invalid ROC number
-      hid = theHistogramId->setHistoId("ROCId",id_);
-      meROCIdLad_ = theDMBE->bookInt(hid);
+      meROCIdLad_ = theDMBE->bookInt("ROCId_"+hid);
       // For error type 37, the invalid dcol values
-      hid = theHistogramId->setHistoId("DCOLId",id_);
-      meDCOLIdLad_ = theDMBE->bookInt(hid);
+      meDCOLIdLad_ = theDMBE->bookInt("DCOLId_"+hid);
       // For error type 37, the invalid ROC values
-      hid = theHistogramId->setHistoId("PXId",id_);
-      mePXIdLad_ = theDMBE->bookInt(hid);
+      mePXIdLad_ = theDMBE->bookInt("PXId_"+hid);
       // For error type 38, the ROC that is being read out of order
-      hid = theHistogramId->setHistoId("ROCNmbr",id_);
-      meROCNmbrLad_ = theDMBE->bookInt(hid);
+      meROCNmbrLad_ = theDMBE->bookInt("ROCNmbr_"+hid);
     }
-    delete theHistogramId;
-  } else if(type==4){
-    SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+  } else if(type==4 && endcap){
+    uint32_t blade= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).bladeName();
+    char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+    hid = src.label() + "_" + sblade;
     // Types of errors
-    hid = theHistogramId->setHistoId("errorType",id_);
-    meErrorTypeBlade_ = theDMBE->book1D(hid,"Type of errors",15,24.5,39.5);
+    meErrorTypeBlade_ = theDMBE->book1D("errorType_"+hid,"Type of errors",15,24.5,39.5);
     meErrorTypeBlade_->setAxisTitle("Type of errors",1);
     // Number of errors
-    hid = theHistogramId->setHistoId("NErrors",id_);
-    meNErrorsBlade_ = theDMBE->book1D(hid,"Number of errors",10,0.,10.);
+    meNErrorsBlade_ = theDMBE->book1D("NErrors_"+hid,"Number of errors",10,0.,10.);
     meNErrorsBlade_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
     // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
-    hid = theHistogramId->setHistoId("TBMMessage",id_);
-    meTBMMessageBlade_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessageBlade_ = theDMBE->book1D("TBMMessage_"+hid,"TBM trailer message",8,-0.5,7.5);
     meTBMMessageBlade_->setAxisTitle("TBM message",1);
     // For error type 30, the type of problem encoded in the FSM bits, 0 = none
     // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
-    hid = theHistogramId->setHistoId("TBMType",id_);
-    meTBMTypeBlade_ = theDMBE->book1D(hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypeBlade_ = theDMBE->book1D("TBMType_"+hid,"State Machine message",5,-0.5,4.5);
     meTBMTypeBlade_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      hid = theHistogramId->setHistoId("EvtNbr",id_);
-      meEvtNbrBlade_ = theDMBE->bookInt(hid);
+      meEvtNbrBlade_ = theDMBE->bookInt("EvtNbr_"+hid);
       // For error type 36, the invalid ROC number
-      hid = theHistogramId->setHistoId("ROCId",id_);
-      meROCIdBlade_ = theDMBE->bookInt(hid);
+      meROCIdBlade_ = theDMBE->bookInt("ROCId_"+hid);
       // For error type 37, the invalid dcol values
-      hid = theHistogramId->setHistoId("DCOLId",id_);
-      meDCOLIdBlade_ = theDMBE->bookInt(hid);
+      meDCOLIdBlade_ = theDMBE->bookInt("DCOLId_"+hid);
       // For error type 37, the invalid ROC values
-      hid = theHistogramId->setHistoId("PXId",id_);
-      mePXIdBlade_ = theDMBE->bookInt(hid);
+      mePXIdBlade_ = theDMBE->bookInt("PXId_"+hid);
       // For error type 38, the ROC that is being read out of order
-      hid = theHistogramId->setHistoId("ROCNmbr",id_);
-      meROCNmbrBlade_ = theDMBE->bookInt(hid);
+      meROCNmbrBlade_ = theDMBE->bookInt("ROCNmbr_"+hid);
     }
-    delete theHistogramId;
   }
     
 //std::cout<<"...leaving SiPixelRawDataErrorModule::book. "<<std::endl;
