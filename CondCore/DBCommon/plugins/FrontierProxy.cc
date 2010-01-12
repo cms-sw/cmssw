@@ -54,7 +54,11 @@ cond::FrontierProxy::getRealConnectString() const{
     }
     result=localconfservice->lookupCalibConnect(m_userconnect);
   }
-  if (!m_transactionId.empty()) result +="(freshkey="+m_transactionId+')';
+  if (!m_transactionId.empty()) {
+    size_t l = result.rfind('/');
+    result.insert("(freshkey="+m_transactionId+')',l+1);
+    
+  }
   return result;
 }
 
