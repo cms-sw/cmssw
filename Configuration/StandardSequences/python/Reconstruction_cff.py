@@ -11,6 +11,7 @@ from RecoEcal.Configuration.RecoEcal_cff import *
 from RecoJets.Configuration.RecoJets_cff import *
 from RecoJets.Configuration.JetIDProducers_cff import *
 from RecoJets.Configuration.CaloTowersRec_cff import *
+from RecoJets.Configuration.RecoTrackJets_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
 from RecoMuon.Configuration.RecoMuon_cff import *
 # Higher level objects
@@ -42,7 +43,7 @@ localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets*recoJetIds+muonrecoComplete+electronGsfTracking)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets*recoJetIds+recoTrackJets+muonrecoComplete+electronGsfTracking)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*metrecoPlusHCALNoise*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
