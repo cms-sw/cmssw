@@ -22,7 +22,7 @@
 #include "DQM/HLTEvF/interface/HLTriggerSelector.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h" 
+#include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TH2F.h"
