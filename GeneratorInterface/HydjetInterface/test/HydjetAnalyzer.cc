@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.19 2009/10/06 15:40:24 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.20 2009/12/15 10:43:27 fabiocos Exp $
 //
 //
 
@@ -38,7 +38,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"

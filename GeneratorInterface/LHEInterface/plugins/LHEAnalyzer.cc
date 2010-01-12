@@ -27,7 +27,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "GeneratorInterface/LHEInterface/interface/JetInput.h"
 #include "GeneratorInterface/LHEInterface/interface/JetClustering.h"

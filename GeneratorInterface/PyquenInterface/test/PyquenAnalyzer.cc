@@ -1,4 +1,4 @@
-// $Id: PyquenAnalyzer.cc,v 1.8 2009/01/09 10:23:13 saout Exp $
+// $Id: PyquenAnalyzer.cc,v 1.9 2009/12/15 12:25:55 fabiocos Exp $
 
 #include <iostream>
 
@@ -14,7 +14,7 @@
 #include "HepMC/HeavyIon.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TFile.h"
 #include "TH1.h"

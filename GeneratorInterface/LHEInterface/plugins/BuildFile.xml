@@ -21,7 +21,7 @@
 	<use name="FWCore/Framework"/>
 	<use name="DataFormats/StdDictionaries"/>
 	<use name="SimDataFormats/GeneratorProducts"/>
-	<use name="PhysicsTools/UtilAlgos"/>
+	<use name="CommonTools/UtilAlgos"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">

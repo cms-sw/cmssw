@@ -3,7 +3,7 @@
 <use name="rootmath"/>
 <library file="H4muAnalyzer.cc" name="H4muExampleAnalyzer">
 	<use name="SimDataFormats/GeneratorProducts"/>
-	<use name="PhysicsTools/UtilAlgos"/>
+	<use name="CommonTools/UtilAlgos"/>
 	<use name="hepmc"/>
 	<use name="root"/>
 	<flags EDM_PLUGIN="1"/>

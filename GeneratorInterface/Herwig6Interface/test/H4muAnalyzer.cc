@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.6 2009/02/23 14:11:31 saout Exp $
+// $Id: H4muAnalyzer.cc,v 1.7 2009/12/23 17:01:35 yarba Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 //
