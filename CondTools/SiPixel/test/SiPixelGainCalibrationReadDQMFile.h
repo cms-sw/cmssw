@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.h,v 1.1 2009/02/04 16:05:55 rougny Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.h,v 1.2 2009/05/28 22:12:55 dlange Exp $
 //
 //
 
@@ -55,7 +55,7 @@ class SiPixelGainCalibrationReadDQMFile : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void beginRun(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;

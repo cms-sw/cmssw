@@ -264,7 +264,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjOfflineBuilder::beginJob(const edm::EventSetup&) {
+SiPixelCondObjOfflineBuilder::beginJob() {
   if(fromFile_) {
     if( loadFromFile() ) {
       edm::LogInfo("SiPixelCondObjOfflineBuilder")<<" Calibration loaded: Map size " 

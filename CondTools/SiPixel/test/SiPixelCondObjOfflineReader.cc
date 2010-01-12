@@ -185,7 +185,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
+SiPixelCondObjOfflineReader::beginJob()
 {
 }
 

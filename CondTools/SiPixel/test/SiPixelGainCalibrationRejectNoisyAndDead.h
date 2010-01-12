@@ -49,7 +49,7 @@ class SiPixelGainCalibrationRejectNoisyAndDead : public edm::EDAnalyzer {
       SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
       SiPixelGainCalibrationForHLT *theGainCalibrationDbInputForHLT_;
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

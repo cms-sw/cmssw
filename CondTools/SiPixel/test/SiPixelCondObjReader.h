@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjReader.h,v 1.7 2009/02/18 10:39:40 rougny Exp $
+// $Id: SiPixelCondObjReader.h,v 1.8 2009/05/28 22:12:55 dlange Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,7 +43,7 @@ public:
   explicit SiPixelCondObjReader( const edm::ParameterSet& iConfig);
 
   ~SiPixelCondObjReader(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 

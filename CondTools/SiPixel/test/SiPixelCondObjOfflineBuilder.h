@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineBuilder.h,v 1.6 2009/05/28 22:12:55 dlange Exp $
+// $Id: SiPixelCondObjOfflineBuilder.h,v 1.7 2009/11/20 19:21:29 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -37,7 +37,7 @@ public:
   explicit SiPixelCondObjOfflineBuilder( const edm::ParameterSet& iConfig);
 
   ~SiPixelCondObjOfflineBuilder(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
   bool loadFromFile();

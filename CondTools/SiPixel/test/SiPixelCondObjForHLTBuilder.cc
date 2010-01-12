@@ -274,7 +274,7 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjForHLTBuilder::beginJob(const edm::EventSetup&) {
+SiPixelCondObjForHLTBuilder::beginJob() {
   if(fromFile_) {
     if( loadFromFile() ) {
       edm::LogInfo("SiPixelCondObjForHLTBuilder")<<" Calibration loaded: Map size " 

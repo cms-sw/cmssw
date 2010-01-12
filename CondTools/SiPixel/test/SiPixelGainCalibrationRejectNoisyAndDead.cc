@@ -13,7 +13,7 @@
 //
 // Original Author:  Romain Rougny
 //         Created:  Tue Feb  3 15:18:02 CET 2009
-// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.4 2009/02/20 14:21:37 rougny Exp $
+// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.5 2009/10/21 15:53:42 heyburn Exp $
 //
 //
 
@@ -460,7 +460,7 @@ SiPixelGainCalibrationRejectNoisyAndDead::analyze(const edm::Event& iEvent, cons
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelGainCalibrationRejectNoisyAndDead::beginJob(const edm::EventSetup&)
+SiPixelGainCalibrationRejectNoisyAndDead::beginJob()
 {
 }
 

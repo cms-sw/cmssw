@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjForHLTBuilder.h,v 1.5 2009/05/28 22:12:54 dlange Exp $
+// $Id: SiPixelCondObjForHLTBuilder.h,v 1.6 2009/11/20 19:21:02 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -37,7 +37,7 @@ public:
   explicit SiPixelCondObjForHLTBuilder( const edm::ParameterSet& iConfig);
 
   ~SiPixelCondObjForHLTBuilder(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
   bool loadFromFile();

@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.5 2009/05/28 22:12:55 dlange Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.6 2009/10/21 15:53:42 heyburn Exp $
 //
 //
 
@@ -546,7 +546,7 @@ void SiPixelGainCalibrationReadDQMFile::beginRun(const edm::EventSetup& iSetup){
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelGainCalibrationReadDQMFile::beginJob(const edm::EventSetup&)
+SiPixelGainCalibrationReadDQMFile::beginJob()
 {
   //   this is where all the analysis is done
   

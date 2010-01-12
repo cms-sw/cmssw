@@ -177,7 +177,7 @@ SiPixelCondObjReader::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjReader::beginJob(const edm::EventSetup& iSetup)
+SiPixelCondObjReader::beginJob()
 {
 }
 

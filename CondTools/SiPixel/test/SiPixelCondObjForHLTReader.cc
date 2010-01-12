@@ -182,7 +182,7 @@ SiPixelCondObjForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjForHLTReader::beginJob(const edm::EventSetup& iSetup)
+SiPixelCondObjForHLTReader::beginJob()
 {
 }
 

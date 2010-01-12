@@ -215,7 +215,7 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjBuilder::beginJob(const edm::EventSetup&) {
+SiPixelCondObjBuilder::beginJob() {
   if(fromFile_) {
     if( loadFromFile() ) {
       edm::LogInfo("SiPixelCondObjBuilder")<<" Calibration loaded: Map size " 

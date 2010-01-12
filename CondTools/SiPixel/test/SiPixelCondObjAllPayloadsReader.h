@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjAllPayloadsReader.h,v 1.3 2008/11/12 14:13:06 heyburn Exp $
+// $Id: SiPixelCondObjAllPayloadsReader.h,v 1.4 2009/05/28 22:12:54 dlange Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -48,7 +48,7 @@ public:
   explicit SiPixelCondObjAllPayloadsReader( const edm::ParameterSet& iConfig);
 
   ~SiPixelCondObjAllPayloadsReader(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 
