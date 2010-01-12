@@ -9,7 +9,7 @@
 <use name=CondCore/PluginSystem>
 <use name=CondCore/DBOutputService>
 <use name=CondCore/DBCommon>
-<use name=PhysicsTools/UtilAlgos> 
+<use name=CommonTools/UtilAlgos> 
 <use name=DataFormats/SiStripDigi> 
 <use name=DataFormats/SiStripCluster> 
 <use name=DataFormats/Scalers> 
