@@ -21,6 +21,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DataFormats/JetReco/interface/JetID.h"
+
 using namespace std;
 namespace cms
 {
@@ -39,6 +41,7 @@ JetPlusTrackCollisionAnalysis::JetPlusTrackCollisionAnalysis(const edm::Paramete
    mInputJetsCaloTower = iConfig.getParameter<edm::InputTag>("src1");
    mInputJetsZSPCorrected = iConfig.getParameter<edm::InputTag>("src2");   
    mInputJetsJPTCorrected = iConfig.getParameter<edm::InputTag>("src3");
+   mJetsIDName            = iConfig.getParameter<std::string>("jetsID");
 
    m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel");
 
@@ -82,6 +85,10 @@ void JetPlusTrackCollisionAnalysis::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("JetRecoEtaCaloTower",  JetRecoEtaCaloTower, "JetRecoEtaCaloTower[10]/F");
    myTree->Branch("JetRecoPhiCaloTower",  JetRecoPhiCaloTower, "JetRecoPhiCaloTower[10]/F");
    myTree->Branch("JetRecoEtRecHit",  JetRecoEtRecHit, "JetRecoEtRecHit[10]/F");
+   myTree->Branch("JetRecoEmf",  JetRecoEmf, "JetRecoEmf[10]/F");
+   myTree->Branch("JetRecofHPD",  JetRecofHPD, "JetRecofHPD[10]/F");
+   myTree->Branch("JetRecofRBX",  JetRecofRBX, "JetRecofRBX[10]/F");
+
 
    myTree->Branch("NumRecoCone", &NumRecoCone, "NumRecoCone/I");
    myTree->Branch("EcalEnergyCone",  EcalEnergyCone, "EcalEnergyCone[10]/F");
@@ -191,6 +198,11 @@ void JetPlusTrackCollisionAnalysis::analyze(
 
 // CaloJets
 
+  edm::Handle<edm::ValueMap<reco::JetID> > jetsID;
+  iEvent.getByLabel(mJetsIDName,jetsID);
+
+    int ind=0;
+
     NumRecoJetsCaloTower = 0;
 
     edm::Handle<reco::CaloJetCollection> jets0;
@@ -212,6 +224,8 @@ void JetPlusTrackCollisionAnalysis::analyze(
 	      
 	      if( NumRecoJetsCaloTower < 10 )
 		{
+               edm::RefToBase<reco::Jet> jetRef(edm::Ref<reco::CaloJetCollection>(jets0,ind));
+
 //                jpt::MatchedTracks pions;
 //                jpt::MatchedTracks muons;
 //                jpt::MatchedTracks electrons;
@@ -223,8 +237,13 @@ void JetPlusTrackCollisionAnalysis::analyze(
 		  JetRecoEtCaloTower[NumRecoJetsCaloTower] = (*jet).et();
 		  JetRecoEtaCaloTower[NumRecoJetsCaloTower] = (*jet).eta();
 		  JetRecoPhiCaloTower[NumRecoJetsCaloTower] = (*jet).phi();
+                  JetRecoEmf[NumRecoJetsCaloTower] = (*jet).emEnergyFraction();
+                  JetRecofHPD[NumRecoJetsCaloTower] = (*jetsID)[jetRef].fHPD;
+                  JetRecofRBX[NumRecoJetsCaloTower] = (*jetsID)[jetRef].fRBX;
+
 		  NumRecoJetsCaloTower++;
 		  cout<<" Raw et "<<(*jet).et()<<" Eta "<<(*jet).eta()<<" Phi "<<(*jet).phi()<<endl;
+                  ind++ ;
 		} // CaloJets <10
 	    } // Calojets cycle
 	} // jets collection non-empty

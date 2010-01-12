@@ -48,6 +48,7 @@ private:
      TTree*      myTree;
      int NumRecoJetsCaloTower, NumRecoJetsZSPCorrected, NumRecoJetsRecHit, NumRecoJetsJPTCorrected;
      float JetRecoEtCaloTower[10],JetRecoEtaCaloTower[10],JetRecoPhiCaloTower[10];
+     float JetRecoEmf[10], JetRecofHPD[10], JetRecofRBX[10];
      float JetRecoEtZSPCorrected[10],JetRecoEtaZSPCorrected[10],JetRecoPhiZSPCorrected[10];
      float JetRecoEtRecHit[10],EcalEnergyCone[10],HcalEnergyConeZSP[10],HcalEnergyConeNZSP[10];
      float JetRecoEtJPTCorrected[10],JetRecoEtaJPTCorrected[10],JetRecoPhiJPTCorrected[10];
@@ -64,6 +65,7 @@ private:
   edm::InputTag mInputJetsJPTCorrected; 
 
   std::string m_inputTrackLabel;
+  std::string mJetsIDName;
   std::vector<edm::InputTag> ecalLabels_;
   edm::InputTag ebrechit;
   edm::InputTag eerechit;
