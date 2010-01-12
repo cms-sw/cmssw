@@ -288,6 +288,11 @@ const std::string& cond::DbConnectionConfiguration::authenticationPath() const
   return m_authPath;
 }
 
+const std::string& cond::DbConnectionConfiguration:transactionId() const {
+  return m_transactionId;
+}
+
+
 coral::MsgLevel cond::DbConnectionConfiguration::messageLevel() const 
 {
   return m_messageLevel;

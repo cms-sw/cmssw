@@ -76,6 +76,7 @@ namespace cond{
     int connectionRetrialTimeOut() const;
     bool isPoolAutomaticCleanUpEnabled() const;
     const std::string& authenticationPath() const;
+    const std::string& transactionId() const;
     coral::MsgLevel messageLevel() const;
     bool isSQLMonitoringEnabled() const;
     private:

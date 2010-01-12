@@ -84,7 +84,7 @@ cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnectio
     connection.webCacheControl().refreshTable(refreshConnect,*it );
   }
   
-  m_transactionId = connection.configuration().m_transactionId;
+  m_transactionId = connection.configuration().transactionId();
 }
 unsigned int
 cond::FrontierProxy::countslash(const std::string& input) {
