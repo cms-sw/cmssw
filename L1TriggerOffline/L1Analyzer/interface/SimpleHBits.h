@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 10:07:41 CET 2006
-// $Id: SimpleHBits.h,v 1.1 2009/03/26 16:33:08 tapper Exp $
+// $Id: SimpleHBits.h,v 1.2 2009/04/01 11:54:48 tapper Exp $
 //
 
 #include <cmath>
@@ -24,7 +24,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" // Paramters
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
+#include "CommonTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
 #include "DataFormats/Candidate/interface/Candidate.h" // Candidate definition
 
 #include "TH1.h" // RooT histogram class

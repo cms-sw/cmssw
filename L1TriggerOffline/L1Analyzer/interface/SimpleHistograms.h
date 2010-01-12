@@ -16,12 +16,12 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 10:07:41 CET 2006
-// $Id: SimpleHistograms.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
+// $Id: SimpleHistograms.h,v 1.2 2007/07/08 08:14:03 elmer Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" // Paramters
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
+#include "CommonTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
 #include "DataFormats/Candidate/interface/Candidate.h" // Candidate definition
 
 #include "TH1.h" // RooT histogram class

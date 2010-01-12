@@ -12,7 +12,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/EgammaReco>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerOfflineL1Analyzer>
@@ -29,5 +29,5 @@
    <use name=DataFormats/JetReco>
    <use name=DataFormats/METReco>
    <use name=DataFormats/EgammaReco>
-   <use name=PhysicsTools/UtilAlgos>	
+   <use name=CommonTools/UtilAlgos>	
 </export>

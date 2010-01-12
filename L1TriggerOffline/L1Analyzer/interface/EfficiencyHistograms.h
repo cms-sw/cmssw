@@ -16,12 +16,12 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:48 CET 2006
-// $Id: EfficiencyHistograms.h,v 1.3 2007/11/13 16:29:00 tapper Exp $
+// $Id: EfficiencyHistograms.h,v 1.4 2007/11/19 16:45:50 tapper Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" // Paramters
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
+#include "CommonTools/UtilAlgos/interface/TFileService.h" // Framework service for histograms
 #include "DataFormats/Candidate/interface/Candidate.h" // Candidate definition
 
 #include "TH1.h" // RooT histogram class
