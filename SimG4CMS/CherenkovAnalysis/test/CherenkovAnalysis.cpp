@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frederic Ronga
 //         Created:  Wed Mar 12 17:39:55 CET 2008
-// $Id: CherenkovAnalysis.cpp,v 1.3 2008/04/24 09:43:23 fronga Exp $
+// $Id: CherenkovAnalysis.cpp,v 1.4 2009/11/13 13:53:53 fambrogl Exp $
 //
 //
 
@@ -36,7 +36,7 @@ Implementation:
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <TH1F.h>
 
 class CherenkovAnalysis : public edm::EDAnalyzer {

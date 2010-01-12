@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 16:41:33 EST 2005
-// $Id: G4StepStatistics.h,v 1.5 2009/02/27 14:11:03 gbenelli Exp $
+// $Id: G4StepStatistics.h,v 1.6 2009/02/27 16:56:23 gbenelli Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@
 #include "G4ParticleDefinition.hh"
 #include <map>
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <PhysicsTools/UtilAlgos/interface/TFileService.h>
+#include <CommonTools/UtilAlgos/interface/TFileService.h>
 
 #include <TROOT.h>
 #include <TTree.h>

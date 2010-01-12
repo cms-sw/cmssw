@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Histo.cc,v 1.3 2008/03/01 21:28:41 sunanda Exp $
+// $Id: HcalTB04Histo.cc,v 1.4 2008/07/24 15:19:16 sunanda Exp $
 //
  
 // system include files
@@ -19,7 +19,7 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB04Histo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
  
 //
 // constructors and destructor

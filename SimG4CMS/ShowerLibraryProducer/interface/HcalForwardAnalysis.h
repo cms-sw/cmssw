@@ -14,7 +14,7 @@
 #include "SimG4CMS/ShowerLibraryProducer/interface/HFShowerG4Hit.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 #include "G4Step.hh"

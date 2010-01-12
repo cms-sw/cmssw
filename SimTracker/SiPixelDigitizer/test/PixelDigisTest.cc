@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.20 2009/11/24 13:13:53 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.21 2009/11/27 15:23:35 dkotlins Exp $
 //
 //
 // system include files
@@ -65,7 +65,7 @@
 
 // To use root histos
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 // For ROOT

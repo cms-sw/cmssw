@@ -14,7 +14,7 @@ Implementation:
 // 
 // Original Author: Taylan Yetkin
 // Created: Tue Feb 10 08:43:07 CST 2009
-// $Id: AnalyzeTuples.h,v 1.1 2009/03/30 20:04:11 tyetkin Exp $
+// $Id: AnalyzeTuples.h,v 1.2 2009/11/13 13:55:23 fambrogl Exp $
 // 
 // 
 
@@ -36,7 +36,7 @@ Implementation:
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
