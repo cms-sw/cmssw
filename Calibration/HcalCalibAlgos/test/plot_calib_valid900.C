@@ -13,9 +13,9 @@ Int_t sample=0;
 // TString imgpath("~/afs/public_html/validation/cone26piplus/");  
 // TFile* tf = new TFile("./ValidFile_plus.root","OPEN");
 
- TString imgpath("~/afs/public_html/validation/data900v2/");  
- TFile* tf = new TFile("./ValidFile_data900v3sp.root","OPEN");
-// TFile* tf = new TFile("./ValidFile_MB900.root","OPEN");
+ TString imgpath("~/afs/public_html/validation/");  
+// TFile* tf = new TFile("./ValidFile_data900v3sp.root","OPEN");
+ TFile* tf = new TFile("~/afs/arch/ValidFile_MC900v2.root","OPEN");
  //TFile* tf = new TFile("./ValidFile_XX_4.root","OPEN");
   
 
@@ -23,25 +23,29 @@ Int_t sample=0;
 
 //  TCut tr_cut = "eTrack>41 && eTrack<59";  label = new TText(0.97,0.1, "40-60 GeV"); sample=50;
 //  TCut tr_cut = "eTrack>5 && eTrack<100";  label = new TText(0.97,0.1, "MinBias"); sample=900;
-  TCut tr_cut = "eTrack>5 && eTrack<60";  label = new TText(0.97,0.1, "Data @ 900 GeV"); sample=900;
+  TCut tr_cut = "eTrack>5 && eTrack<60";  label = new TText(0.97,0.2, "Data @ 900 GeV"); sample=900;
 
   
 label -> SetNDC();
 label->SetTextAlign(11); 
 label->SetTextSize(0.05);
 label->SetTextAngle(90);
+ label->SetTextColor(kRed);
 
-TCut tr_quality = "numValidTrkHits>=13 && (abs(etaTrack) <= 1.47 || numValidTrkStrips>=9)"; 
+  TCut test = "";
+//   TCut test = "eCentHitBefore/eClustBefore>1.";
+TCut tr_quality = "numValidTrkHits<11 && (abs(etaTrack) <= 1.47 || numValidTrkStrips>=11)"; 
  TCut mip_cut = "eECAL<1";
- TCut hit_dist = "iDr<1.5";
+ TCut hit_dist = "sqrt(dietatr*dietatr+diphitr*diphitr)<1.5";
+// TCut hit_dist = "iDr<1.5";
  TCut ptNear = "PtNearBy<2";
-TCut selection = tr_cut && mip_cut && tr_quality && hit_dist && ptNear;
+TCut selection = test && tr_cut && mip_cut && tr_quality && hit_dist && ptNear;
   
 
-//  TTree* ftree = (TTree*)tf->Get("fTree");  
-//  TTree* ttree = (TTree*)tf->Get("tTree");
-  TTree* ftree = (TTree*)tf->Get("ValidationIsoTrk/fTree");  
-  TTree* ttree = (TTree*)tf->Get("ValidationIsoTrk/tTree");
+  TTree* ftree = (TTree*)tf->Get("fTree");  
+  TTree* ttree = (TTree*)tf->Get("tTree");
+//  TTree* ftree = (TTree*)tf->Get("ValidationIsoTrk/fTree");  
+//  TTree* ttree = (TTree*)tf->Get("ValidationIsoTrk/tTree");
    Int_t  nentries = (Int_t)ftree->GetEntries();
   Double_t nent = 1.;
   TCanvas* c1 = new TCanvas("c1","all",0,0,350,350);
@@ -579,7 +583,7 @@ label -> Draw();
   ftree -> Draw("e3x3After/eClustAfter>>hh2", selection && "eClustAfter>15", "");
   hh1 -> SetLineColor(kRed+1);
   hh2 -> SetLineColor(kGreen+2);
-  hh2 -> SetTitle("e3x3/eHcalClast");
+  hh2 -> SetTitle("e3x3/eHcalClust");
   hh1 -> Draw("same");
 label -> Draw();
   c1 -> SaveAs(imgpath+"p23.png");  
@@ -650,7 +654,9 @@ label -> Draw();
   c1 -> SaveAs(imgpath+"p28.png");  
   hh1 -> Delete();
 
-
+  
+/*
+  //ftree -> Draw("iDr>>hh1", selection, "");
   ftree -> Draw("delR>>hh1", selection, "");
   hh1 -> SetLineColor(kGreen+2);
   hh1 -> SetTitle("dR(#eta,#phi) maxHit - assosiator point");
@@ -658,7 +664,8 @@ label -> Draw();
 label -> Draw();
   c1 -> SaveAs(imgpath+"p29.png");  
   hh1 -> Delete();
-
+*/
+  
   ftree -> Draw("(e5x5After-eClustAfter)/eTrack>>hh1", selection, "");
   hh1 -> SetLineColor(kBlue);
   hh1 -> SetTitle("(e5x5-eClust)/eTrack");
