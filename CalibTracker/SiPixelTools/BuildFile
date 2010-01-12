@@ -17,17 +17,4 @@
 <use name=DQMServices/Core>
 <export>
    <lib name=CalibTrackerSiPixelTools>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=CalibFormats/SiPixelObjects>
-   <use name=FWCore/ServiceRegistry>
-   <use name=FWCore/MessageLogger>
-   <use name=DataFormats/FEDRawData>
-   <use name=PhysicsTools/UtilAlgos>
-   <use name=DataFormats/SiPixelDigi>
-   <use name=CondFormats/DataRecord>
-   <use name=Geometry/Records>
-   <use name=DQM/SiPixelCommon>
-   <use name=DQMServices/Core>
 </export>

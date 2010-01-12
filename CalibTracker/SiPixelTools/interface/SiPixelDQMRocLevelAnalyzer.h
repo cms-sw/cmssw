@@ -16,7 +16,7 @@
 //
 // Original Author:  Lukas Wehrli
 //         Created:  Thu Sep 30 14:03:02 CEST 2008
-// $Id$
+// $Id: SiPixelDQMRocLevelAnalyzer.h,v 1.1 2008/10/17 12:28:49 wehrlilu Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <string>
 #include "TH1D.h"
 #include "TFile.h"
