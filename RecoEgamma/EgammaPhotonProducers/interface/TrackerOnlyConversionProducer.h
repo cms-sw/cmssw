@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2009/10/15 14:00:05 $
- **  $Revision: 1.4 $
+ **  $Date: 2010/01/11 18:47:14 $
+ **  $Revision: 1.7 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -35,6 +35,15 @@
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicTree.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
+
 
 //Tracker tracks
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -62,16 +71,19 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
 	      const reco::TrackRefVector& allTracks,
 	      const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
+	      const reco::Vertex& the_pvtx,
 	      reco::ConversionCollection & outputConvPhotonCollection);
 
       void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
 	      const reco::TrackRefVector& allTracks,
 	      const reco::CaloClusterPtr& basicClusterPtrs,
+	      const reco::Vertex& the_pvtx,
 	      reco::ConversionCollection & outputConvPhotonCollection);
 
       //track quality cut, returns pass or no
       inline bool trackQualityFilter(const edm::Ref<reco::TrackCollection>&  ref, bool isLeft);
       inline bool trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref);
+      inline bool trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref, const reco::Vertex& the_pvtx);
 
       //track impact point at ECAL wall, returns validity to access position ew
       bool getTrackImpactPosition(const TrackRef& tk_ref, 
@@ -102,6 +114,8 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      const math::XYZPoint& trackImpactPosition,
 	      reco::CaloClusterPtr& closestBC);
 
+      reco::Vertex transVertex(const RefCountedKinematicTree & tree, const RefCountedKinematicVertex& vertex);
+
    private:
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -126,6 +140,9 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       std::string ConvertedPhotonCollection_;
 
       bool allowD0_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
+
+      bool usePvtx_;//if use primary vertices
+      std::string vertexProducer_;
 
       double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
 
