@@ -171,7 +171,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _pixROCy(getDouble("PixelROC_Y",*fv)),
   _stereo(getString("TrackerStereoDetectors",*fv)==strue),
   _siliconAPVNum(getDouble("SiliconAPVNumber",*fv)),
-  _fromDD(true_)
+  _fromDD(true)
 {
 }
 
