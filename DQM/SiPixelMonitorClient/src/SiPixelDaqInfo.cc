@@ -17,11 +17,11 @@ SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet& ps) {
 
 SiPixelDaqInfo::~SiPixelDaqInfo(){}
 
-void SiPixelDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  EventSetup& iSetup){
-  
+void SiPixelDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  EventSetup& iSetup){}
+
+
+void SiPixelDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-
-
   if(0 != iSetup.find( recordKey ) ) {
     // cout<<"record key found"<<endl;
     //get fed summary information
@@ -67,8 +67,52 @@ void SiPixelDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, cons
   }
 }
 
+void SiPixelDaqInfo::endRun(const edm::Run&  r, const  edm::EventSetup& iSetup){
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
+  if(0 != iSetup.find( recordKey ) ) {
+    // cout<<"record key found"<<endl;
+    //get fed summary information
+    ESHandle<RunInfo> sumFED;
+    iSetup.get<RunInfoRcd>().get(sumFED);    
+    vector<int> FedsInIds= sumFED->m_fed_in;   
 
-void SiPixelDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){}
+    int FedCount=0;
+    int FedCountBarrel=0;
+    int FedCountEndcap=0;
+
+    //loop on all active feds
+    for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
+      int fedID=FedsInIds[fedItr];
+      //make sure fed id is in allowed range  
+      //cout<<fedID<<endl;   
+      if(fedID>=FEDRange_.first && fedID<=FEDRange_.second){
+        ++FedCount;
+	if(fedID>=0 && fedID<=31) ++FedCountBarrel;
+	else if(fedID>=32 && fedID<=39) ++FedCountEndcap;
+      }
+    }   
+
+    //Fill active fed fraction ME
+    if(NumberOfFeds_>0){
+      //all Pixel:
+      Fraction_->Fill( FedCount/NumberOfFeds_);
+      //Barrel:
+      FractionBarrel_->Fill( FedCountBarrel/32.);
+      //Endcap:
+      FractionEndcap_->Fill( FedCountEndcap/8.);
+    }else{
+      Fraction_->Fill(-1);
+      FractionBarrel_->Fill(-1);
+      FractionEndcap_->Fill(-1);
+    } 
+    
+  }else{      
+    Fraction_->Fill(-1);	       
+    FractionBarrel_->Fill(-1);
+    FractionEndcap_->Fill(-1);
+    return; 
+  }
+}
 
 
 void SiPixelDaqInfo::beginJob(){

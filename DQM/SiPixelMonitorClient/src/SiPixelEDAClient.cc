@@ -132,8 +132,17 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 // -- Begin Job
 //
 void SiPixelEDAClient::beginJob(){
-//  cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
+  firstRun = true;
+}
+//
+// -- Begin Run
+//
+void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
+  edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begining of Run";
+//  cout<<"Entering SiPixelEDAClient::beginRun: "<<endl;
 
+  if(firstRun){
+  
   // Read the summary configuration file
   if (!sipixelWebInterface_->readConfiguration(tkMapFrequency_,summaryFrequency_)) {
      edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Error to read configuration file!! Summary will not be produced!!!";
@@ -153,6 +162,8 @@ void SiPixelEDAClient::beginJob(){
   sipixelActionExecutor_->setupQTests(bei_);
   // Creating Summary Histos:
   sipixelActionExecutor_->createSummary(bei_);
+  // Booking Efficiency Histos:
+  sipixelActionExecutor_->bookEfficiency(bei_);
   // Creating occupancy plots:
   sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
   // Booking noisy pixel ME's:
@@ -164,14 +175,11 @@ void SiPixelEDAClient::beginJob(){
 //  sipixelActionExecutor_->bookTrackerMaps(bei_, "charge");
 //  sipixelActionExecutor_->bookTrackerMaps(bei_, "ndigis");
 //  sipixelActionExecutor_->bookTrackerMaps(bei_, "NErrors");
+  
+  firstRun = false;
+  }
 
-//  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
-}
-//
-// -- Begin Run
-//
-void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begining of Run";
+//  cout<<"...leaving SiPixelEDAClient::beginRun. "<<endl;
 
 }
 //
@@ -223,10 +231,12 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
-  if(actionOnLumiSec_ && nLumiSecs_ % 1 == 0 ){
+  if(actionOnLumiSec_ && !Tier0Flag_ && nLumiSecs_ % 1 == 0 ){
     //cout << " Updating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
+     //cout << " Updating efficiency plots" << endl;
+    sipixelActionExecutor_->createEfficiency(bei_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
@@ -249,21 +259,6 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
   }   
          
-  // -- Create TrackerMap  according to the frequency
-//  if (tkMapFrequency_ != -1 && nLumiBlock%tkMapFrequency_ == 1) {
-//    cout << " Creating Tracker Map " << endl;
-//    trackerMapCreator_->create(bei_);
-//    //sipixelWebInterface_->setTkMapFlag(true);
-//
-//  }
-  // Create predefined plots
-//  if (nLumiBlock%staticUpdateFrequency_  == 1) {
-//    cout << " Creating predefined plots " << endl;
-//    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::PlotHistogramFromLayout);
-//    sipixelWebInterface_->performAction();
-//  }
-
-
 //  cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
@@ -279,6 +274,8 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //cout << " Updating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
+     //cout << " Updating efficiency plots" << endl;
+    sipixelActionExecutor_->createEfficiency(bei_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();

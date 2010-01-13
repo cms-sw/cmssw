@@ -53,6 +53,10 @@ class SiPixelActionExecutor {
  ~SiPixelActionExecutor();
 
  void createSummary(    	    DQMStore    		 * bei);
+ void bookEfficiency(    	    DQMStore    		 * bei);
+ void createEfficiency(    	    DQMStore    		 * bei);
+ void fillEfficiency(    	    DQMStore    		 * bei,
+                                    bool                           isbarrel);
  void bookOccupancyPlots(    	    DQMStore    		 * bei,
                                     bool                           hiRes,
 									bool				isbarrel);
@@ -133,6 +137,13 @@ private:
   
   MonitorElement * OccupancyMap;
   MonitorElement * PixelOccupancyMap;
+  MonitorElement * HitEfficiency_L1;
+  MonitorElement * HitEfficiency_L2;
+  MonitorElement * HitEfficiency_L3;
+  MonitorElement * HitEfficiency_Dp1;
+  MonitorElement * HitEfficiency_Dp2;
+  MonitorElement * HitEfficiency_Dm1;
+  MonitorElement * HitEfficiency_Dm2;
   
   int createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, bool isBarrel);
   void getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k, Int_t l);

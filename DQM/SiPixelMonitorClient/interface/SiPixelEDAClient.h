@@ -75,7 +75,8 @@ private:
   bool offlineXMLfile_;
   int nFEDs_;
   bool Tier0Flag_;
-
+  bool firstRun;
+  
   std::ostringstream html_out_;
 };
 
