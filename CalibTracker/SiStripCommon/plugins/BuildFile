@@ -1,5 +1,5 @@
 <use name=RecoLocalTracker/SiStripClusterizer>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=SimTracker/TrackAssociation>
 <use name=SimTracker/Records>
 <use name=TrackingTools/TrackFitters>

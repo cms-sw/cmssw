@@ -15,8 +15,8 @@
  *  See the file doc/README for more detailed documentation, including
  *  advantages, disadvantages, and use philosophy.
  *  
- *  $Date: 2009/09/30 22:20:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/11/24 15:57:52 $
+ *  $Revision: 1.2 $
  *  \author Burt Betchart - University of Rochester <burton.andrew.betchart@cern.ch>
  */
 
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <string>
 #include <vector>
