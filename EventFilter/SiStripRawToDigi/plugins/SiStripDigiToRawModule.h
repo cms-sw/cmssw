@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.h,v 1.5 2009/08/19 13:39:21 bbetchar Exp $
+// Last commit: $Id: SiStripDigiToRawModule.h,v 1.6 2009/09/14 14:01:03 nc302 Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
@@ -26,8 +26,8 @@ namespace sistrip {
     DigiToRawModule( const edm::ParameterSet& );
     ~DigiToRawModule();
   
-    virtual void beginJob( const edm::EventSetup& ) {;}
-    virtual void endJob() {;}
+    virtual void beginJob() {}
+    virtual void endJob() {}
   
     virtual void produce( edm::Event&, const edm::EventSetup& );
   

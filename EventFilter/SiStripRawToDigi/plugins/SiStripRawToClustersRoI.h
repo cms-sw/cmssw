@@ -39,7 +39,6 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   SiStripRawToClustersRoI( const edm::ParameterSet& );
   ~SiStripRawToClustersRoI();
   
-  virtual void beginJob( const edm::EventSetup& );
   virtual void beginRun( edm::Run&, const edm::EventSetup& );
   virtual void produce( edm::Event&, const edm::EventSetup& );
   

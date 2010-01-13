@@ -36,11 +36,6 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) 
 
 SiStripRawToClustersRoI::~SiStripRawToClustersRoI() {}
 
-void SiStripRawToClustersRoI::beginJob(const edm::EventSetup& setup) {
-  //@@ unstable behaviour if uncommented!
-  //updateCabling( setup );  
-}
-
 void SiStripRawToClustersRoI::beginRun( edm::Run&, const edm::EventSetup& setup) {
   updateCabling( setup );  
 }
