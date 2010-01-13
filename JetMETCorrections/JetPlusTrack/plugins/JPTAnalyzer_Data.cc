@@ -118,6 +118,8 @@ class JPTAnalyzer_Data : public edm::EDAnalyzer {
   double  EtaGen2, PhiGen2, EtaRaw2, PhiRaw2, EtGen2, EtRaw2, EtMCJ2, EtZSP2, EtJPT2, DRMAXgjet2, pTtrkMax2;
   int     Ntrk1;
   int     Ntrk2;
+  int     NLayersMaxPtTrk1;
+  int     NLayersMaxPtTrk2;
   int     jjpt;
   int     NLayers[20];
   int     t_NLayers;
@@ -157,6 +159,7 @@ JPTAnalyzer_Data::beginJob(const edm::EventSetup&)
   t1->Branch("DRMAXgjet1",&DRMAXgjet1,"DRMAXgjet1/D");
   t1->Branch("Ntrk1",&Ntrk1,"Ntrk1/I");
   t1->Branch("pTtrkMax1",&pTtrkMax1,"pTtrkMax1/D");
+  t1->Branch("NLayersMaxPtTrk1",&NLayersMaxPtTrk1,"NLayersMaxPtTrk1/I");
 
   t1->Branch("EtaGen2",&EtaGen2,"EtaGen2/D");
   t1->Branch("PhiGen2",&PhiGen2,"PhiGen2/D");
@@ -170,6 +173,7 @@ JPTAnalyzer_Data::beginJob(const edm::EventSetup&)
   t1->Branch("DRMAXgjet2",&DRMAXgjet2,"DRMAXgjet2/D");
   t1->Branch("Ntrk2",&Ntrk1,"Ntrk2/I");
   t1->Branch("pTtrkMax2",&pTtrkMax2,"pTtrkMax2/D");
+  t1->Branch("NLayersMaxPtTrk2",&NLayersMaxPtTrk2,"NLayersMaxPtTrk2/I");
 
   t1->Branch("jjpt",&jjpt,"jjpt/I");
 
@@ -255,6 +259,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    DRMAXgjet1 = 1000.;
    Ntrk1 = 0.;
    pTtrkMax1 = 0.;
+   NLayersMaxPtTrk1 = 0;
 
    EtaGen2 = 0.;
    PhiGen2 = 0.;
@@ -268,6 +273,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    DRMAXgjet2 = 1000.;
    Ntrk2 = 0.;
    pTtrkMax2 = 0.;
+   NLayersMaxPtTrk2 = 0;
 
    jjpt = 0;
 
@@ -451,12 +457,14 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 int NtrkJPT = pions.inVertexOutOfCalo_.size() + pions.inVertexInCalo_.size();
 	 double pTtrkMax = 0.;
 	 double pTMax = 0.;
+	 int NLayersMaxPtTrk;
 	 for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
 	      iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
 	   const double pt  = (*iInConeVtxTrk)->pt();
 	   if(pt > pTMax) {
 	     pTtrkMax = pt;
 	     pTMax = pTtrkMax;
+	     NLayersMaxPtTrk = (*iInConeVtxTrk)->hitPattern().trackerLayersWithMeasurement();
 	   }
 	 }
 
@@ -466,6 +474,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   if(pt > pTMax) {
 	     pTtrkMax = pt;
 	     pTMax = pTtrkMax;
+	     NLayersMaxPtTrk = (*iInConeVtxTrk)->hitPattern().trackerLayersWithMeasurement();
 	   }
 	 }
 
@@ -481,7 +490,8 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     EtJPT1  = cjetJPT.pt();
 	     Ntrk1   = NtrkJPT;  
 	     pTtrkMax1 = pTtrkMax;	   
-
+	     NLayersMaxPtTrk1 = NLayersMaxPtTrk; 
+   
 	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
 		  iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
@@ -509,6 +519,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     EtJPT2  = cjetJPT.pt(); 
 	     Ntrk2   = NtrkJPT;  
 	     pTtrkMax2 = pTtrkMax;	   
+	     NLayersMaxPtTrk2 = NLayersMaxPtTrk; 
 
 	     for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
 		  iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
