@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.18 2009/11/03 20:08:55 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.21 2010/01/11 18:47:15 hlliu Exp $
 //
 //
 
@@ -83,6 +83,12 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 
     if (allowD0_)
 	d0Cut_ = iConfig.getParameter<double>("d0");
+    
+    usePvtx_ = iConfig.getParameter<bool>("UsePvtx");//if use primary vertices
+
+    if (usePvtx_){
+	vertexProducer_   = iConfig.getParameter<std::string>("primaryVertexProducer");
+    }
 
     if (allowTrackBC_) {
 	//Track-cluster matching eta and phi cuts
@@ -99,7 +105,7 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 
     if (allowVertex_){
 	maxDistance_ = iConfig.getParameter<double>("maxDistance");
-	maxOfInitialValue_ = iConfig.getParameter<double>("maxOfInitialValue");
+	//maxOfInitialValue_ = iConfig.getParameter<double>("maxOfInitialValue");
 	maxNbrOfIterations_ = iConfig.getParameter<int>("maxNbrOfIterations");
     }
     //Track cuts on left right track: at least one leg reaches ECAL
@@ -161,6 +167,11 @@ inline bool TrackerOnlyConversionProducer::trackQualityFilter(const edm::Ref<rec
 inline bool TrackerOnlyConversionProducer::trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref){
     //NOTE if not allow d0 cut, always true
     return ((!allowD0_) || !(ref->d0()*ref->charge()/ref->d0Error()<d0Cut_));
+}
+
+inline bool TrackerOnlyConversionProducer::trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref, const reco::Vertex& the_pvtx){
+    //
+    return ((!allowD0_) || !(-ref->dxy(the_pvtx.position())*ref->charge()/ref->dxyError()<d0Cut_));
 }
 
 double TrackerOnlyConversionProducer::getMinApproach(const TrackRef& ll, const TrackRef& rr, const MagneticField* magField){
@@ -295,7 +306,10 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     //DeltaPhi as preselection cut
     const double phi_l = tk_l->innerMomentum().phi();
     const double phi_r = tk_r->innerMomentum().phi();
-    const double dPhi = phi_l - phi_r;
+    double dPhi = phi_l - phi_r;
+    dPhi = fmod(dPhi, Geom::twoPi());//mod to +-twoPi
+    //if (dPhi<1.0*Geom::pi()) dPhi+=Geom::twoPi();
+    //if (dPhi>= Geom::pi()) dPhi-=Geom::twoPi();
 
     if (fabs(dPhi) > deltaPhi_) return false;//Delta Phi cut for pair
 
@@ -319,9 +333,9 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     }
 
     if (allowMinApproach_){
-        const double distance = getMinApproach(tk_l, tk_r, magField);
+	const double distance = getMinApproach(tk_l, tk_r, magField);
 
-	if (distance < minApproach_) return false;
+	if (distance < minApproach_ || distance >10.) return false;
 	else
 	    appDist = distance;
     }
@@ -348,6 +362,37 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     return true;
 }
 
+//back port to 3_3_5 from Thomas' 3_4_x kinematic vertex class
+reco::Vertex TrackerOnlyConversionProducer::transVertex(const RefCountedKinematicTree & tree, const RefCountedKinematicVertex& kvertex){
+    //If the vertex is invalid, return an invalid TV !
+    if (!kvertex->vertexIsValid() || tree==0) return reco::Vertex();
+
+    //accessing the tree components, move pointer to top
+    if (!tree->findDecayVertex(kvertex)) return reco::Vertex();
+    vector<RefCountedKinematicParticle> daughters = tree->daughterParticles();
+
+    reco::Vertex vertex(reco::Vertex::Point(kvertex->position()),
+	    // 	RecoVertex::convertError(theVertexState.error()), 
+	    kvertex->error().matrix_new(), 
+	    kvertex->chiSquared(), kvertex->degreesOfFreedom(), daughters.size() );
+
+    /*
+    for (vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();
+	    i != daughters.end(); ++i) {
+
+	const TransientTrackKinematicParticle * ttkp = dynamic_cast<const TransientTrackKinematicParticle * >(&(**i));
+	if(ttkp != 0) {
+	    const reco::TrackTransientTrack * ttt = dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack());
+	    if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
+		reco::TrackRef tr = ttt->persistentTrackRef();
+		vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
+	    }
+	}
+    }
+    */
+    return vertex;
+
+}
 //because reco::vertex uses track ref, so have to keep them
 bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r, 
 	const MagneticField* magField,
@@ -364,7 +409,7 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
 
     edm::ParameterSet pSet;
     pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
-    pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
+    //pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
     pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
 
     KinematicParticleFactoryFromTransientTrack pFactory;
@@ -390,7 +435,7 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
 		const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
 		if (chi2Prob>0.005){                                                                                  
 		    //const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
-		    the_vertex = *gamma_dec_vertex;
+		    the_vertex = transVertex(myTree, gamma_dec_vertex);
 		    the_vertex.add(reco::TrackBaseRef(tk_l));
 		    the_vertex.add(reco::TrackBaseRef(tk_r));
 		    found = true;
@@ -449,6 +494,7 @@ inline void TrackerOnlyConversionProducer::getCircleCenter(const edm::RefToBase<
 void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSetup& iSetup,
 	const reco::TrackRefVector& allTracks,
 	const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
+	const reco::Vertex& the_pvtx,
 	reco::ConversionCollection & outputConvPhotonCollection){
 
     edm::ESHandle<TrackerGeometry> trackerGeomHandle;
@@ -477,7 +523,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
     for (reco::TrackRefVector::const_iterator ref = allTracks.begin(); ref != allTracks.end(); ++ref){
 	const TrackRef& tk_ref = *ref;
 
-	if ( !(trackQualityFilter(tk_ref, true)) ) continue;
+	//if ( !(trackQualityFilter(tk_ref, true)) ) continue;
 
 	//map TrackRef to Eta
 	trackInnerEta.insert(std::make_pair(tk_ref->innerMomentum().eta(), ref-allTracks.begin()));
@@ -509,9 +555,17 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
     isPaired.assign(allTracks.size(), false);
     for( reco::TrackRefVector::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
 	if ((allowTrackBC_ && !trackValidECAL[ll-allTracks.begin()]) //this Left leg should have valid BC
-		|| !(trackD0Cut(*ll)) //d0*charge signicifance for converted photons
+		//|| !(trackD0Cut(*ll)) //d0*charge signicifance for converted photons
 		|| isPaired[ll-allTracks.begin()]) //this track should not be used in another pair
 	    continue;
+
+	if (the_pvtx.isValid()){
+	    if (!(trackD0Cut(*ll, the_pvtx)))
+		continue;
+	} else {
+	    if (!(trackD0Cut(*ll)))
+		continue;
+	}
 	const double left_eta = (*ll)->innerMomentum().eta();
 	bool found_right = false;//check if right leg found, if no but allowSingleLeg_, go build a conversion with left leg
 	std::vector<int> right_candidates;//store all right legs passed the cut (theta/approach and ref pair)
@@ -526,115 +580,101 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 	    //TODO find the closest one rather than the first matching
 	    const edm::Ref<reco::TrackCollection> & right = allTracks[rr->second];
 
-	    if ( !(trackQualityFilter(right, false) ) //track quality cut
-		    || isPaired[rr->second] //this track should not be in another pair
+	    if ( //!(trackQualityFilter(right, false) ) || 
+		    isPaired[rr->second] //this track should not be in another pair
 		    //|| right == (*ll) //no double counting (dummy if require opposite charge)
-		    || !(trackD0Cut(*ll)) //d0*charge significance for converted photons
+		    //|| !(trackD0Cut(right)) //d0*charge significance for converted photons
 		    || (allowTrackBC_ && !trackValidECAL[rr->second] && rightBC_) // if right track matches ECAL
 		    || (allowOppCharge_ && (*ll)->charge())*(right->charge()) > 0) //opposite charge
 		continue;
 
+	    //track pair pass the quality cut
+	    if (!( (trackQualityFilter((*ll), true) && trackQualityFilter(right, false))
+		|| (trackQualityFilter((*ll), false) && trackQualityFilter(right, true)) ) )
+		continue;
+
+	    if (the_pvtx.isValid()){
+		if (!(trackD0Cut(right, the_pvtx)))
+		    continue;
+	    } else {
+		if (!(trackD0Cut(right)))
+		    continue;
+	    }
 	    const std::pair<reco::TrackRef, reco::CaloClusterPtr> the_left = std::make_pair<reco::TrackRef, reco::CaloClusterPtr>((*ll), trackMatchedBC[ll-allTracks.begin()]);
 	    const std::pair<reco::TrackRef, reco::CaloClusterPtr> the_right = std::make_pair<reco::TrackRef, reco::CaloClusterPtr>(right, trackMatchedBC[rr->second]);
 
 	    double app_distance = -999.;
 	    if ( checkTrackPair(the_left, the_right, magField, app_distance) ){
 		reco::Vertex the_vertex;//by default it is invalid
-		if (allowVertex_){
-		    if (checkVertex((*ll), right, magField, the_vertex)){
-			right_candidates.push_back(rr->second);
-			right_candidate_theta.push_back(right->innerMomentum().Theta());
-			right_candidate_approach.push_back(app_distance);
-			vertex_candidates.push_back(the_vertex);
+		//if allow vertex and there is a vertex, go vertex finding, otherwise
+		if (allowVertex_) {
+		    const bool found_vertex = checkVertex((*ll), right, magField, the_vertex);
+		}
+		right_candidates.push_back(rr->second);
+		right_candidate_theta.push_back(right->innerMomentum().Theta());
+		right_candidate_approach.push_back(app_distance);
+		vertex_candidates.push_back(the_vertex);//this vertex can be valid or not
+	    }
+	}
+	//fill collection with all right candidates
+	if (!right_candidates.empty()){//find a good right track
+	    for (unsigned int ii = 0; ii< right_candidates.size(); ++ii){
+		const int right_index = right_candidates[ii];
+		edm::Ref<reco::TrackCollection> right = allTracks[right_index];;
+		const double min_approach = right_candidate_approach[ii];
+		//if all cuts passed, go ahead to make conversion candidates
+		std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
+		trackPairRef.push_back((*ll));//left track
+		trackPairRef.push_back(right);//right track
+
+		std::vector<math::XYZVector> trackPin;
+		std::vector<math::XYZVector> trackPout;
+
+		if ((*ll)->extra().isNonnull() && right->extra().isNonnull()){//only available on TrackExtra
+		    trackPin.push_back((*ll)->innerMomentum());
+		    trackPin.push_back(right->innerMomentum());
+		    trackPout.push_back((*ll)->outerMomentum());
+		    trackPout.push_back(right->outerMomentum());
+		}
+
+		reco::CaloClusterPtrVector scPtrVec;
+		reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
+		//if using kinematic fit
+		if (allowVertex_) 
+		    theConversionVertex = vertex_candidates[ii];
+
+		std::vector<math::XYZPoint> trkPositionAtEcal;
+		std::vector<reco::CaloClusterPtr> matchingBC;
+
+		if (allowTrackBC_){//TODO find out the BC ptrs if not doing matching, otherwise, leave it empty
+		    const int lbc_handle = bcHandleId[ll-allTracks.begin()],
+			  rbc_handle = bcHandleId[right_index];
+
+		    trkPositionAtEcal.push_back(trackImpactPosition[ll-allTracks.begin()]);//left track
+		    if (trackValidECAL[right_index])//second track ECAL position may be invalid
+			trkPositionAtEcal.push_back(trackImpactPosition[right_index]);
+
+		    matchingBC.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
+		    scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
+		    if (trackValidECAL[right_index]){//second track ECAL position may be invalid
+			matchingBC.push_back(trackMatchedBC[right_index]);
+			if (!(trackMatchedBC[right_index] == trackMatchedBC[ll-allTracks.begin()])//avoid 1 bc 2 tk
+				&& lbc_handle == rbc_handle )//avoid ptr from different collection
+			    scPtrVec.push_back(trackMatchedBC[right_index]);
 		    }
-		} else {
-		    right_candidates.push_back(rr->second);
-		    right_candidate_theta.push_back(right->innerMomentum().Theta());
-		    right_candidate_approach.push_back(app_distance);
 		}
+		const float minAppDist = min_approach;
+
+		reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
+
+		reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist, trackPin, trackPout, algo );
+		outputConvPhotonCollection.push_back(newCandidate);
+
+		found_right = true;
+		isPaired[ll-allTracks.begin()] = true;//mark this track is used in pair
+		isPaired[right_index] = true;
 	    }
-	}
-	//take the closest to left as right
-	double min_theta = 999., min_approach = -999;;
-	edm::Ref<reco::TrackCollection> right;
-	reco::Vertex fitted_vertex;
-	int right_index = -1;
-	for (unsigned int ii = 0; ii< right_candidates.size(); ++ii){
-	    const double theta_l = (*ll)->innerMomentum().Theta();
-	    const double dCotTheta = 1./tan(theta_l) - 1./tan(right_candidate_theta[ii]);
-	    const double distance = right_candidate_approach[ii];
-	    if (allowVertex_){//with vertex
-		if ((vertex_candidates[ii].isValid()) &&  min_approach <= distance){
-		    min_theta = dCotTheta;
-		    min_approach = distance;
-		    right_index = right_candidates[ii];;
-		    right = allTracks[right_index];
-		    fitted_vertex = vertex_candidates[ii];
-		}
-	    } else {//no vertex, cut based analysis
-		if (fabs(min_theta) > fabs(dCotTheta) 
-			&&  min_approach <= distance){
-		    min_theta = dCotTheta;
-		    min_approach = distance;
-		    right_index = right_candidates[ii];;
-		    right = allTracks[right_index];
-		}
-	    }
-	}
-
-	//make collections
-	if (right_index > -1){//find a good right track
-	    //if all cuts passed, go ahead to make conversion candidates
-	    std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
-	    trackPairRef.push_back((*ll));//left track
-	    trackPairRef.push_back(right);//right track
-
-	    std::vector<math::XYZVector> trackPin;
-	    std::vector<math::XYZVector> trackPout;
-
-	    if ((*ll)->extra().isNonnull() && right->extra().isNonnull()){//only available on TrackExtra
-		trackPin.push_back((*ll)->innerMomentum());
-		trackPin.push_back(right->innerMomentum());
-		trackPout.push_back((*ll)->outerMomentum());
-		trackPout.push_back(right->outerMomentum());
-	    }
-
-	    reco::CaloClusterPtrVector scPtrVec;
-	    reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
-	    //if using kinematic fit
-	    if (allowVertex_) theConversionVertex = fitted_vertex;
-
-	    std::vector<math::XYZPoint> trkPositionAtEcal;
-	    std::vector<reco::CaloClusterPtr> matchingBC;
-
-	    if (allowTrackBC_){//TODO find out the BC ptrs if not doing matching, otherwise, leave it empty
-		const int lbc_handle = bcHandleId[ll-allTracks.begin()],
-		      rbc_handle = bcHandleId[right_index];
-
-		trkPositionAtEcal.push_back(trackImpactPosition[ll-allTracks.begin()]);//left track
-		if (trackValidECAL[right_index])//second track ECAL position may be invalid
-		    trkPositionAtEcal.push_back(trackImpactPosition[right_index]);
-
-		matchingBC.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
-		scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
-		if (trackValidECAL[right_index]){//second track ECAL position may be invalid
-		    matchingBC.push_back(trackMatchedBC[right_index]);
-		    if (!(trackMatchedBC[right_index] == trackMatchedBC[ll-allTracks.begin()])//avoid 1 bc 2 tk
-			    && lbc_handle == rbc_handle )//avoid ptr from different collection
-			scPtrVec.push_back(trackMatchedBC[right_index]);
-		}
-	    }
-	    const float minAppDist = min_approach;
-
-	    reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
-
-	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist, trackPin, trackPout, algo );
-	    outputConvPhotonCollection.push_back(newCandidate);
-
-	    found_right = true;
-	    isPaired[ll-allTracks.begin()] = true;//mark this track is used in pair
-	    isPaired[right_index] = true;
-	    break; // to get another left leg and start new conversion
+	    //break; // to get another left leg and start new conversion
 	}
 	if (!found_right && allowSingleLeg_){
 	    /*
@@ -688,10 +728,41 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	iEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
     }
 
+    edm::Handle<reco::VertexCollection> vertexHandle;
+    reco::VertexCollection vertexCollection;
+    if (usePvtx_){
+	iEvent.getByLabel(vertexProducer_, vertexHandle);
+	if (!vertexHandle.isValid()) {
+	    edm::LogError("TrackerOnlyConversionProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
+	    usePvtx_ = false;
+	}
+	if (usePvtx_)
+	    vertexCollection = *(vertexHandle.product());
+    }
+
+    reco::Vertex the_pvtx;
+    double low_chi2 = 9999.;
+    int low_chi2_index = -1;
+    //taking the lowest chi2 primary vertex
+    for (reco::VertexCollection::const_iterator itr = vertexCollection.begin(); itr != vertexCollection.end(); ++itr){
+	if (low_chi2> (itr->normalizedChi2())){
+	    low_chi2 = itr->normalizedChi2();
+	    low_chi2_index = itr-vertexCollection.begin();
+	}
+    }
+    if (low_chi2_index>-1)
+	the_pvtx = vertexCollection[low_chi2_index];
+
     reco::TrackRefVector allTracks;
     int total_tracks = 0;
     for (unsigned int ii = 0; ii<trackCollectionHandles.size(); ++ii)
        total_tracks += trackCollectionHandles[ii]->size();
+    
+    if (total_tracks>150){
+	iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+	return;
+    }
+	    
     allTracks.reserve(total_tracks);//for many tracks to save relocation time
 
     for (unsigned int ii = 0; ii<trackCollectionHandles.size(); ++ii){
@@ -719,7 +790,7 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	}
     }
 
-    buildCollection( iEvent, iSetup, allTracks, basicClusterPtrs, outputConvPhotonCollection);//allow empty basicClusterPtrs
+    buildCollection( iEvent, iSetup, allTracks, basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
 
     outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(), outputConvPhotonCollection.end());
     iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
