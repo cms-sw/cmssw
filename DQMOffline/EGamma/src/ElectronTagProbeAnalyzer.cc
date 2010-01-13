@@ -190,10 +190,10 @@ void ElectronTagProbeAnalyzer::book()
   h1_ele_vertexPt_endcaps = bookH1("h1_ele_vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
 //  h1_ele_vertexEta = bookH1("h1_ele_vertexEta","ele momentum eta",nbineta,etamin,etamax,"#eta");
 //  h1_ele_vertexPhi = bookH1("h1_ele_vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h2_ele_vertexEtaVsPhi = bookH2("h2_ele_vertexEtaVsPhi","ele momentum #eta vs #phi",nbinphi2D,phimin,phimax,nbineta2D,etamin,etamax,"#phi (rad)","#eta");
+  h2_ele_vertexEtaVsPhi = bookH2("h2_ele_vertexEtaVsPhi","ele momentum #eta vs #phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax,"#eta","#phi (rad)");
 //  h1_ele_vertexX = bookH1("h1_ele_vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)" );
 //  h1_ele_vertexY = bookH1("h1_ele_vertexY","ele vertex y",nbinxyz,-0.1,0.1,"y (cm)" );
-  h2_ele_vertexXvsY = bookH2("h2_ele_vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"y (cm)","x (cm)" );
+  h2_ele_vertexXvsY = bookH2("h2_ele_vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"x (cm)","y (cm)" );
   h1_ele_vertexZ = bookH1("h1_ele_vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)" );
 
   // super-clusters
@@ -268,7 +268,7 @@ void ElectronTagProbeAnalyzer::book()
   // py_ele_fbremVsEta = bookP1("py_ele_fbremVsEta","ele <brem fraction> vs #eta",nbineta2D,etamin,etamax,0.,1.,"#eta","P_{in} - P_{out} / P_{in}") ;
   //py_ele_fbremVsPhi = bookP1("py_ele_fbremVsPhi","ele <brem fraction> vs #phi",nbinphi2D,phimin,phimax,0.,1.,"#phi","P_{in} - P_{out} / P_{in}") ;
 //  h_ele_fbremVsPt = bookH2("h_ele_fbremVsPt","ele brem fraction vs pt",nbinpt2D,0.,ptmax,100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
-  h1_ele_classes = bookH1("h1_ele_classes","ele electron classes",150,0.0,150.);
+  h1_ele_classes = bookH1("h1_ele_classes","ele electron classes",10,0.0,10.);
 
   // pflow
   h1_ele_mva = bookH1( "h1_ele_mva","ele identification mva",100,-1.,1.);
@@ -491,8 +491,8 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
         // basic quantities
         if (gsfIter->isEB()) h1_ele_vertexPt_barrel->Fill( bestGsfElectron.pt() );
         if (gsfIter->isEE()) h1_ele_vertexPt_endcaps->Fill( bestGsfElectron.pt() );
-        h2_ele_vertexEtaVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eta() );
-        h2_ele_vertexXvsY->Fill( bestGsfElectron.vertex().y(), bestGsfElectron.vertex().x() );
+        h2_ele_vertexEtaVsPhi->Fill( bestGsfElectron.eta(), bestGsfElectron.phi() );
+        h2_ele_vertexXvsY->Fill( bestGsfElectron.vertex().x(), bestGsfElectron.vertex().y() );
         h1_ele_vertexZ->Fill( bestGsfElectron.vertex().z() );
 
         // supercluster related distributions
@@ -532,10 +532,11 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
          h1_scl_SigEtaEta_endcaps->Fill( bestGsfElectron.scSigmaEtaEta() );
         }
 
-
         // fbrem
         h1_ele_fbrem->Fill(bestGsfElectron.fbrem()) ;
-        h1_ele_classes->Fill(bestGsfElectron.classification());
+        int eleClass = bestGsfElectron.classification() ;
+        if (bestGsfElectron.isEE()) eleClass+=5;
+        h1_ele_classes->Fill(eleClass);
 
         // pflow
         h1_ele_mva->Fill(bestGsfElectron.mva()) ;

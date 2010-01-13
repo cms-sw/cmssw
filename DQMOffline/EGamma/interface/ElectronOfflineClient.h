@@ -12,6 +12,10 @@ class ElectronOfflineClient : public ElectronDqmAnalyzerBase
 
     virtual void finalize() ;
 
+  private:
+
+    std::string effHistoTitle_ ;
+
  } ;
 
 #endif

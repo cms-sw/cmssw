@@ -222,16 +222,21 @@ int elePublishHistos()
       if (histo_option.Contains("ELE_LOGY")==kTRUE)
        { canvas->SetLogy(1) ; }
 
-      if (histo->IsA()->InheritsFrom("TH2")==kFALSE)
+      if (histo->IsA()->InheritsFrom("TH2")==kTRUE)
        {
-        gStyle->SetOptStat(1) ;
+        gStyle->SetPalette(1) ;
+        gStyle->SetOptStat(111) ;
+        histo->Draw("COLZ") ;
+       }
+      else if (histo->IsA()->InheritsFrom("TProfile")==kTRUE)
+       {
+        gStyle->SetOptStat(111) ;
         histo->Draw("E1 P") ;
        }
       else
        {
-        gStyle->SetPalette(1) ;
-        gStyle->SetOptStat("e") ;
-        histo->Draw("COLZ") ;
+        gStyle->SetOptStat(111111) ;
+        histo->Draw("E1 P") ;
        }
       canvas->SaveAs(gif_path.Data()) ;
 

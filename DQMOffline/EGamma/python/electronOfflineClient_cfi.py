@@ -12,6 +12,6 @@ dqmElectronOfflineClient = cms.EDAnalyzer("ElectronOfflineClient",
     InputFolderName = cms.string(""),
     OutputFolderName = cms.string(""),
     
-    Selection = cms.int32(1) # 0=All elec, 1=Etcut, 2=Iso, 3=eId, 4=T&P
+    EffHistoTitle = cms.string("fraction of reco ele matching a reco sc")
 
 )

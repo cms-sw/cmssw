@@ -7,7 +7,9 @@
 
 ElectronOfflineClient::ElectronOfflineClient( const edm::ParameterSet & conf )
  : ElectronDqmAnalyzerBase(conf)
- {}
+ {
+  effHistoTitle_ = conf.getParameter<std::string>("EffHistoTitle") ;
+ }
 
 ElectronOfflineClient::~ElectronOfflineClient()
  {}
@@ -43,11 +45,22 @@ void ElectronOfflineClient::finalize()
 //  //remove("h1_matchedEle_eta_bbrem") ;
 //  //remove("h1_matchedEle_eta_narrow") ;
 
-  bookH1andDivide("h1_ele_ptEff","h1_matchedObject_Pt","h1_matchingObject_Pt","p_{T} (GeV/c)","Efficiency","fraction of reco ele matching a reco SC") ;
-  bookH1andDivide("h1_ele_etaEff","h1_matchedObject_Eta","h1_matchingObject_Eta","#eta","Efficiency","fraction of reco ele matching a reco SC") ;
-//  bookH1andDivide("h1_ele_absEtaEff","h1_matchedObject_AbsEta","h1_matchingObject_AbsEta","|#eta|","Efficiency","fraction of reco ele matching a reco SC") ;
-  bookH1andDivide("h1_ele_phiEff","h1_matchedObject_Phi","h1_matchingObject_Phi","#phi (rad)","Efficiency","fraction of reco ele matching a reco SC") ;
-  bookH1andDivide("h1_ele_zEff","h1_matchedObject_Z","h1_matchingObject_Z","cm","Efficiency","fraction of reco ele matching a reco SC") ;
+  if (effHistoTitle_=="")
+   {
+    bookH1andDivide("h1_ele_ptEff","h1_matchedObject_Pt","h1_matchingObject_Pt","p_{T} (GeV/c)","Efficiency","Efficiency vs p_{T}") ;
+    bookH1andDivide("h1_ele_etaEff","h1_matchedObject_Eta","h1_matchingObject_Eta","#eta","Efficiency","Efficiency vs #eta") ;
+  //  bookH1andDivide("h1_ele_absEtaEff","h1_matchedObject_AbsEta","h1_matchingObject_AbsEta","|#eta|","Efficiency","Efficiency vs |#eta|") ;
+    bookH1andDivide("h1_ele_phiEff","h1_matchedObject_Phi","h1_matchingObject_Phi","#phi (rad)","Efficiency","Efficiency vs #phi") ;
+    bookH1andDivide("h1_ele_zEff","h1_matchedObject_Z","h1_matchingObject_Z","z (cm)","Efficiency","Efficiency vs z") ;
+   }
+  else
+   {
+    bookH1andDivide("h1_ele_ptEff","h1_matchedObject_Pt","h1_matchingObject_Pt","p_{T} (GeV/c)","Efficiency",effHistoTitle_) ;
+    bookH1andDivide("h1_ele_etaEff","h1_matchedObject_Eta","h1_matchingObject_Eta","#eta","Efficiency",effHistoTitle_) ;
+  //  bookH1andDivide("h1_ele_absEtaEff","h1_matchedObject_AbsEta","h1_matchingObject_AbsEta","|#eta|","Efficiency",effHistoTitle_) ;
+    bookH1andDivide("h1_ele_phiEff","h1_matchedObject_Phi","h1_matchingObject_Phi","#phi (rad)","Efficiency",effHistoTitle_) ;
+    bookH1andDivide("h1_ele_zEff","h1_matchedObject_Z","h1_matchingObject_Z","z (cm)","Efficiency",effHistoTitle_) ;
+   }
 
   remove("h1_matchedObject_Pt") ;
   remove("h1_matchedObject_Eta") ;
