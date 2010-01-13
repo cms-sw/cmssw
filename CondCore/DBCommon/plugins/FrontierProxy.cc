@@ -65,6 +65,8 @@ cond::FrontierProxy::getRealConnectString() const{
 void 
 cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnection& connection) {
   m_userconnect = userconnect;
+  m_transactionId = connection.configuration().transactionId();
+
   std::string refreshConnect;
   std::string realconnect=this->getRealConnectString();
   std::string::size_type startRefresh = realconnect.find("://");
@@ -88,7 +90,6 @@ cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnectio
     connection.webCacheControl().refreshTable(refreshConnect,*it );
   }
   
-  m_transactionId = connection.configuration().transactionId();
 }
 unsigned int
 cond::FrontierProxy::countslash(const std::string& input) {
