@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondCore/DBCommon/interface/TagMetadata.h"
 #include "CondCore/DBCommon/interface/Time.h"
-#include <boost/functional/hash.hpp>
 
 namespace edm{
   class ParameterSet;
