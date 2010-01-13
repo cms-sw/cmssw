@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTTestAnalyzer.h,v 1.9 2008/04/01 09:31:38 jleonard Exp $
+// $Id: L1RCTTestAnalyzer.h,v 1.10 2008/05/02 16:53:01 jleonard Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

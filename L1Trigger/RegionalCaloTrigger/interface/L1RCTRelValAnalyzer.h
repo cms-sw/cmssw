@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTRelValAnalyzer.h,v 1.1 2008/02/20 17:46:04 jleonard Exp $
+// $Id: L1RCTRelValAnalyzer.h,v 1.1 2008/02/20 17:54:07 jleonard Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
