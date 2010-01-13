@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLT_Ele15_SiStrip_L1RDQM = cms.EDFilter("EmDQM",
+HLT_Ele15_SiStrip_L1RDQM = cms.EDAnalyzer("EmDQM",
     triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),

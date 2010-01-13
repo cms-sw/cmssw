@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-doubleEle5SWL1RDQM = cms.EDFilter("EmDQM",
+doubleEle5SWL1RDQM = cms.EDAnalyzer("EmDQM",
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(2),

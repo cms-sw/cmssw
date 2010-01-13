@@ -43,7 +43,7 @@ import FWCore.ParameterSet.Config as cms
 #  the "HLTCollectionLabels" below.
 ##########################################################
 
-HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
+HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM = cms.EDAnalyzer("EmDQM",
     triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
     pdgGen = cms.int32(22),     
     genEtaAcc = cms.double(2.5),
