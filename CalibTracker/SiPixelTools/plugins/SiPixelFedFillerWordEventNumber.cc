@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andres Carlos FLOREZ B
 //         Created:  Thu Jun 26 09:02:02 CEST 2008
-// $Id: SiPixelFedFillerWordEventNumber.cc,v 1.2 2008/08/04 13:37:44 florez Exp $
+// $Id: SiPixelFedFillerWordEventNumber.cc,v 1.3 2009/02/17 16:13:50 muzaffar Exp $
 //
 //
 
@@ -409,7 +409,7 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelFedFillerWordEventNumber ::beginJob(const edm::EventSetup&)
+SiPixelFedFillerWordEventNumber ::beginJob()
 {
 }
 

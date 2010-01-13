@@ -34,7 +34,7 @@ SiPixelDQMRocLevelAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelDQMRocLevelAnalyzer::beginJob(const edm::EventSetup&)
+SiPixelDQMRocLevelAnalyzer::beginJob()
 {
   std::string filename = conf_.getUntrackedParameter<std::string>("fileName");
   bRS = conf_.getUntrackedParameter<bool>("barrelRocStud");

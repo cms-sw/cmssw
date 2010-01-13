@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.6 2008/05/20 11:36:28 vasquez Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.7 2008/07/04 12:42:50 fblekman Exp $
 //
 //
 
@@ -76,6 +76,13 @@ void
 SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+
+  static int first(1); 
+  if (1 == first) {
+    first = 0; 
+    iSetup.get<TrackerDigiGeometryRecord>().get( geom_ );
+    theHistogramIdWorker_ = new SiPixelHistogramId(siPixelProducerLabel_.label());
+  }
   
   Handle<DetSetVector<SiPixelCalibDigiError> > thePlaquettes;
   iEvent.getByLabel(siPixelProducerLabel_, thePlaquettes);
@@ -125,10 +132,8 @@ SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm::Eve
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelErrorsDigisToCalibDigis::beginJob(const edm::EventSetup& iSetup)
+SiPixelErrorsDigisToCalibDigis::beginJob()
 {
-  iSetup.get<TrackerDigiGeometryRecord>().get( geom_ );
-  theHistogramIdWorker_ = new SiPixelHistogramId(siPixelProducerLabel_.label());
 
 }
 

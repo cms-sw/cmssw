@@ -16,7 +16,7 @@
 //
 // Original Author:  Lukas Wehrli
 //         Created:  Thu Sep 30 14:03:02 CEST 2008
-// $Id: SiPixelDQMRocLevelAnalyzer.h,v 1.1 2008/10/17 12:28:49 wehrlilu Exp $
+// $Id: SiPixelDQMRocLevelAnalyzer.h,v 1.2 2010/01/12 05:32:29 hegner Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class SiPixelDQMRocLevelAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

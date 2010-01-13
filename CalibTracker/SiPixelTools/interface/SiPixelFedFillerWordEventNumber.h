@@ -28,7 +28,7 @@ class SiPixelFedFillerWordEventNumber  : public edm::EDProducer {
       bool SaveFillerWordsbool;
       
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       edm::ParameterSet config_;

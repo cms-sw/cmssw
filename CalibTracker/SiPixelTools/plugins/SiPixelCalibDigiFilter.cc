@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov  6 16:59:50 CET 2007
-// $Id: SiPixelCalibDigiFilter.cc,v 1.2 2007/11/19 12:13:51 fblekman Exp $
+// $Id: SiPixelCalibDigiFilter.cc,v 1.1 2007/12/13 15:57:59 friis Exp $
 //
 //
 
@@ -80,7 +80,7 @@ SiPixelCalibDigiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCalibDigiFilter::beginJob(const edm::EventSetup&)
+SiPixelCalibDigiFilter::beginJob()
 {
 }
 

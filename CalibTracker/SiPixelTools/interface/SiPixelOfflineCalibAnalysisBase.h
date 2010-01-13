@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.14 2008/08/26 10:03:29 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.15 2008/08/29 14:56:27 fblekman Exp $
 //
 //
 
@@ -131,7 +131,7 @@ private:
   //virtual calibrationSetup() function.  Derived classes should put beginJob functionality there.
   virtual void beginRun(const edm::Run &, const edm::EventSetup &);
   void beginRun(const edm::EventSetup& iSetup);
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginJob();
   
   //calibrationSetup will be used by derived classes
   virtual void calibrationSetup(const edm::EventSetup& iSetup);
