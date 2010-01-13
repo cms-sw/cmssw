@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.83 2009/12/17 19:31:11 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.84 2009/12/18 01:12:11 chrjones Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -850,8 +850,16 @@ void
 CmsShowNavigator::setupMemoryInfo(int numEvents)
 {
    m_memoryInfoSamples = numEvents;
-   m_memoryResidentVec.reserve(m_memoryInfoSamples);
+
    m_memoryVirtualVec.reserve (m_memoryInfoSamples);
+   m_memoryVirtualVec.SetTitle("VirtualMemory");
+   m_memoryVirtualVec.GetXaxis("events");
+   m_memoryVirtualVec.GetYaxis("kB");
+
+   m_memoryResidentVec.reserve(m_memoryInfoSamples);
+   m_memoryResidentVec.SetTitle("ResidentMemory");
+   m_memoryResidentVec.GetXaxis("events");
+   m_memoryResidentVec.GetYaxis("kB");
 }
 
 void
@@ -866,13 +874,14 @@ CmsShowNavigator::writeMemoryInfo()
       fwLog(fwlog::kInfo) <<  m_memoryResidentVec.size() << " RESIDENT << " <<
          m_memoryResidentVec.back() << "VIRTUAL << " << m_memoryVirtualVec.back() << std::endl;
    }
-   else
+   if (m_memoryResidentVec.size() % 100 == 0)
    {
       fwLog(fwlog::kInfo) << "Writing memory info to file memoryUsage_PID" << std::endl;
       TDirectory* gd= gDirectory;
       TFile* gf= gFile;
       {
-         TFile* file = TFile::Open(Form("memoryUsage_%d.root", gSystem->GetPid()), "RECREATE"); 
+         TFile* file = TFile::Open(Form("memoryUsage_%d.root", gSystem->GetPid()), "RECREATE");
+         file->cd(); 
          Int_t n = m_memoryResidentVec.size();
          TGraph gr(n);
          TGraph gv(n);
@@ -883,11 +892,10 @@ CmsShowNavigator::writeMemoryInfo()
          }
          gr.Write(Form("ResidentMemory"), TObject::kOverwrite);
          gv.Write(Form("VirtualMemory") , TObject::kOverwrite);
-         file->cd();
+         file->Close();
       }
       gDirectory = gd;
       gFile = gf;
-      m_memoryInfoSamples = 0;
    }
 }
 
