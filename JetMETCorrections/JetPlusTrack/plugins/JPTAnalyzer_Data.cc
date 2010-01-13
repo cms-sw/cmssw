@@ -171,7 +171,7 @@ JPTAnalyzer_Data::beginJob(const edm::EventSetup&)
   t1->Branch("EtZSP2",&EtZSP2,"EtZSP2/D");
   t1->Branch("EtJPT2",&EtJPT2,"EtJPT2/D");
   t1->Branch("DRMAXgjet2",&DRMAXgjet2,"DRMAXgjet2/D");
-  t1->Branch("Ntrk2",&Ntrk1,"Ntrk2/I");
+  t1->Branch("Ntrk2",&Ntrk2,"Ntrk2/I");
   t1->Branch("pTtrkMax2",&pTtrkMax2,"pTtrkMax2/D");
   t1->Branch("NLayersMaxPtTrk2",&NLayersMaxPtTrk2,"NLayersMaxPtTrk2/I");
 
@@ -457,7 +457,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 int NtrkJPT = pions.inVertexOutOfCalo_.size() + pions.inVertexInCalo_.size();
 	 double pTtrkMax = 0.;
 	 double pTMax = 0.;
-	 int NLayersMaxPtTrk;
+	 int NLayersMaxPtTrk = 0;
 	 for (reco::TrackRefVector::const_iterator iInConeVtxTrk = pions.inVertexOutOfCalo_.begin(); 
 	      iInConeVtxTrk != pions.inVertexOutOfCalo_.end(); ++iInConeVtxTrk) {
 	   const double pt  = (*iInConeVtxTrk)->pt();
