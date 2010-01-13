@@ -16,8 +16,11 @@ process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
 process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
 process.AlignmentProducer.algoConfig.maxRelParameterError = '1e99'
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
+##
 process.AlignmentProducer.algoConfig.eventPrescale= 1
 process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
+#process.AlignmentProducer.algoConfig.outfile =  '<PATH>/main/HIPAlignmentEvents.root'
+#process.AlignmentProducer.algoConfig.outfile2 = '<PATH>/main/HIPAlignmentAlignables.root'
 
 
 # this part only needed for survey constraint
@@ -33,11 +36,11 @@ process.survey = cms.ESSource("PoolDBESSource",
             record = cms.string('TrackerSurveyErrorRcd'),
             tag = cms.string('errorTag')
         )),
-    connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_forMC_UltraTightTOB_311.db')
-
+     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_ALLTK_PXFoppPXB_tightSSTUltraTightTOB_311.db')
 )
+
 #process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det','TOBRod','TECPetal','TECRing','TIDRing','TIDSide']
-process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det','TIBString','TOBRod','TECRing','TIDSide','TECPetal']
+process.AlignmentProducer.algoConfig.surveyResiduals = ['Det','TIBString','TOBRod','TECRing','TIDSide','TECPetal']
 process.AlignmentProducer.useSurvey = True
 """
 # end of survey constraint part

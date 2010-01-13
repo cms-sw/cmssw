@@ -433,13 +433,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 {
 	if (isCollector) return;
 	
-	//check if the pointer to the AliHitValueMap is not empty
-	/*
-	  AliClusterValueMap PrescMap;
-	  if (eventInfo.clusterValueMap_){
-	  PrescMap=*(eventInfo.clusterValueMap_);
-	  } 
-	*/
 	TrajectoryStateCombiner tsoscomb;
 	
 	int itr=0;
@@ -447,9 +440,14 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	for(itr=0;itr<MAXREC;++itr){
 		m_Nhits[itr]=0;
 		m_Pt[itr]=-5.0;
+		m_P[itr]=-5.0;
+		m_nhPXB[itr]=0;
+		m_nhPXF[itr]=0;
 		m_Eta[itr]=-99.0;
 		m_Phi[itr]=-4.0;
 		m_Chi2n[itr]=-11.0;
+		m_d0[itr]=-999;
+		m_dz[itr]=-999;
 	}
 	itr=0;
 	
@@ -467,9 +465,15 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 		float pt    = track->pt();
 		float eta   = track->eta();
 		float phi   = track->phi();
+		float p     = track->p();
 		float chi2n = track->normalizedChi2();
 		int   nhit  = track->numberOfValidHits();
-		
+		float d0    = track->d0();
+		float dz    = track->dz();
+
+		int nhpxb   = track->hitPattern().numberOfValidPixelBarrelHits();
+		int nhpxf   = track->hitPattern().numberOfValidPixelEndcapHits();
+
 		if (verbose) edm::LogInfo("Alignment") << "New track pt,eta,phi,chi2n,hits: " << pt <<","<< eta <<","<< phi <<","<< chi2n << ","<<nhit;
 		//edm::LogWarning("Alignment") << "New track pt,eta,phi,chi2n,hits: " << pt <<","<< eta <<","<< phi <<","<< chi2n << ","<<nhit;
 		
@@ -477,9 +481,14 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 		if (itr<MAXREC) {
 			m_Nhits[itr]=nhit;
 			m_Pt[itr]=pt;
+			m_P[itr]=p;
 			m_Eta[itr]=eta;
 			m_Phi[itr]=phi;
 			m_Chi2n[itr]=chi2n;
+			m_nhPXB[itr]=nhpxb;
+			m_nhPXF[itr]=nhpxf;
+			m_d0[itr]=d0;
+			m_dz[itr]=dz;
 			itr++;
 			m_Ntracks=itr;
 		}
@@ -492,82 +501,21 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 		for (vector<TrajectoryMeasurement>::iterator im=measurements.begin();
 			 im!=measurements.end(); im++) {
 			TrajectoryMeasurement meas = *im;
-			const TransientTrackingRecHit* ttrhit = &(*meas.recHit());
-			const TrackingRecHit *hit=ttrhit->hit();
-			if (hit->isValid()  &&  theAlignableDetAccessor->detAndSubdetInMap(hit->geographicalId() )) {
-			  // this is the updated state (including the current hit)
-			  //TrajectoryStateOnSurface tsos=meas.updatedState();
-			  // combine fwd and bwd predicted state to get state 
-			  // which excludes current hit
-			  
-			  //////////Hit prescaling part
-			  bool skiphit=false;
-			  if (eventInfo.clusterValueMap_){
-			    //check from the PrescalingMap if the hit was taken. 
-			    //If not skip to the next TM
-			    //bool hitTaken=false;
-			    AlignmentClusterFlag myflag;
-			    
-			    int subDet= hit->geographicalId().subdetId();
-			    if(subDet>2){
-			      const std::type_info &type = typeid(*hit);
-			      
-			      
-			      if (type == typeid(SiStripRecHit1D)) {
-
-				const SiStripRecHit1D *stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
-				if (stripHit1D) {
-				  SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
-				  // myflag=PrescMap[stripclust];
-				  myflag=(*eventInfo.clusterValueMap_)[stripclust];
+			const TransientTrackingRecHit* hit = &(*meas.recHit());
+			if (hit->isValid()  &&  theAlignableDetAccessor->detAndSubdetInMap( hit->geographicalId() )) {
+				// this is the updated state (including the current hit)
+				//TrajectoryStateOnSurface tsos=meas.updatedState();
+				// combine fwd and bwd predicted state to get state 
+				// which excludes current hit
+				TrajectoryStateOnSurface tsos = tsoscomb.combine(
+																 meas.forwardPredictedState(),
+																 meas.backwardPredictedState());
+				
+				if(tsos.isValid()){
+					hitvec.push_back(hit);
+					//tsosvec.push_back(tsos);
+					tsosvec.push_back(tsos);
 				}
-				else{
-				  edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit)<<endl;
-				}
-			      }//end if type = SiStripRecHit1D
-			      else if(type == typeid(SiStripRecHit2D)){
-				const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
-				if(stripHit2D){
-				  SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
-				  //myflag=PrescMap[stripclust];
-				  myflag=(*eventInfo.clusterValueMap_)[stripclust];
-				}
-				else{
-				  edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;
-				}
-			      }//end if type == sistriprechit2d
-			    }//end if hit from strips
-			    else{
-			      const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-			      if(pixelhit){
-				SiPixelClusterRefNew  pixelclust(pixelhit->cluster());
-				//myflag=PrescMap[pixelclust];
-				myflag=(*eventInfo.clusterValueMap_)[pixelclust];
-			      }
-			      else{
-				 edm::LogError("HIPAlignmentAlgorithm")<<"ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed!   TypeId of the TTRH: "<<className(*ttrhit)<<endl;
-			      }
-			    }//end 'else' it is a pixel hit
-			    // bool hitTaken=myflag.isTaken();
-			    if(!myflag.isTaken()){
-			      skiphit=true;
-			      continue;
-			    }
-			  }//end if Prescaled Hits
-			  ////////////////////////////////
-			  if(skiphit){
-			    throw cms::Exception("LogicError")<<"ERROR  in <HIPAlignmentAlgorithm::run>: this hit should have been skipped! "<<endl;
-			  }
-
-			  TrajectoryStateOnSurface tsos = tsoscomb.combine(
-									   meas.forwardPredictedState(),
-									   meas.backwardPredictedState());
-			  
-			  if(tsos.isValid()){
-			    hitvec.push_back(ttrhit);
-			    //tsosvec.push_back(tsos);
-			    tsosvec.push_back(tsos);
-			  }
 			}
 		}
 		
@@ -854,10 +802,15 @@ void HIPAlignmentAlgorithm::bookRoot(void)
 	//theTree->Branch("Event",   &m_Event,   "Event/I");
 	theTree->Branch("Ntracks", &m_Ntracks, "Ntracks/I");
 	theTree->Branch("Nhits",    m_Nhits,   "Nhits[Ntracks]/I");       
+	theTree->Branch("nhPXB",    m_nhPXB,   "nhPXB[Ntracks]/I");       
+	theTree->Branch("nhPXF",    m_nhPXF,   "nhPXF[Ntracks]/I");       
 	theTree->Branch("Pt",       m_Pt,      "Pt[Ntracks]/F");
+	theTree->Branch("P",        m_P,       "P[Ntracks]/F");
 	theTree->Branch("Eta",      m_Eta,     "Eta[Ntracks]/F");
 	theTree->Branch("Phi",      m_Phi,     "Phi[Ntracks]/F");
 	theTree->Branch("Chi2n",    m_Chi2n,   "Chi2n[Ntracks]/F");
+	theTree->Branch("d0",        m_d0,       "d0[Ntracks]/F");
+	theTree->Branch("dz",        m_dz,       "dz[Ntracks]/F");
 	
 	// book Alignable-wise ROOT Tree
 	
@@ -1103,12 +1056,17 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(char* filename,int iter,int ierr){
 	TTree *jobtree=(TTree*)jobfile->Get(treeName);
 	//address and read the variables 
 	static const int nmaxtrackperevent=1000;
-	int jobNtracks, jobNhitspertrack[nmaxtrackperevent];
-	float jobPt[nmaxtrackperevent], jobEta[nmaxtrackperevent] , jobPhi[nmaxtrackperevent] , jobChi2n[nmaxtrackperevent];
+	int jobNtracks, jobNhitspertrack[nmaxtrackperevent], jobnhPXB[nmaxtrackperevent], jobnhPXF[nmaxtrackperevent];
+	float jobP[nmaxtrackperevent],jobPt[nmaxtrackperevent], jobEta[nmaxtrackperevent] , jobPhi[nmaxtrackperevent], jobd0[nmaxtrackperevent], jobdz[nmaxtrackperevent] , jobChi2n[nmaxtrackperevent];
 	
 	jobtree->SetBranchAddress("Ntracks",&jobNtracks);
 	jobtree->SetBranchAddress("Nhits",  jobNhitspertrack);
+	jobtree->SetBranchAddress("nhPXB",  jobnhPXB);
+	jobtree->SetBranchAddress("nhPXF",  jobnhPXF);
 	jobtree->SetBranchAddress("Pt",     jobPt);
+	jobtree->SetBranchAddress("P",      jobP);
+	jobtree->SetBranchAddress("d0",      jobd0);
+	jobtree->SetBranchAddress("dz",      jobdz);
 	jobtree->SetBranchAddress("Eta",    jobEta);
 	jobtree->SetBranchAddress("Phi",    jobPhi);
 	jobtree->SetBranchAddress("Chi2n",  jobChi2n);
@@ -1126,9 +1084,14 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(char* filename,int iter,int ierr){
 				totntrk=ntrk+1;
 				m_Nhits[ntrk]=jobNhitspertrack[ntrk];
 				m_Pt[ntrk]=jobPt[ntrk];
+				m_P[ntrk]=jobP[ntrk];
+				m_nhPXB[ntrk]=jobnhPXB[ntrk];
+				m_nhPXF[ntrk]=jobnhPXF[ntrk];
 				m_Eta[ntrk]=jobEta[ntrk];
 				m_Phi[ntrk]=jobPhi[ntrk];
 				m_Chi2n[ntrk]=jobChi2n[ntrk];
+				m_d0[ntrk]=jobd0[ntrk];
+				m_dz[ntrk]=jobdz[ntrk];
 			}//end if j<MAXREC
 			else{
 				edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::fillEventwiseTree] Number of tracks in Eventwise tree exceeds MAXREC: "<<m_Ntracks<<"  Skipping exceeding tracks.";

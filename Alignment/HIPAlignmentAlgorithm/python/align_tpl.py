@@ -11,34 +11,35 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 # "including" common configuration
 <COMMON>
 
-process.source = cms.Source("PoolSource",
-#							useCSA08Kludge = cms.untracked.bool(True),
-							fileNames = cms.untracked.vstring(<FILE>)
-)
-
-process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-process.offlinePrimaryVertices.TrackLabel = cms.InputTag("TrackRefitter1")
-
+if 'COSMICS' =='<FLAG>':
+    process.source = cms.Source("PoolSource",
+                                useCSA08Kludge = cms.untracked.bool(True),
+                                fileNames = cms.untracked.vstring(<FILE>)
+                                )
+else :
+    process.source = cms.Source("PoolSource",
+                                #useCSA08Kludge = cms.untracked.bool(True),
+                                fileNames = cms.untracked.vstring(<FILE>)
+                                )
+    
 # "including" selection for this track sample
 <SELECTION>
 
 
 # parameters for HIP
 process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
-<<<<<<< align_tpl.py
-########process.AlignmentProducer.HitPrescaleMap = '' #if this is not empty, turn on the usage of prescaled hits
-=======
 process.AlignmentProducer.HitPrescaleMap = '' #if this is not empty, turn on the usage of prescaled hits
->>>>>>> 1.9
 process.AlignmentProducer.algoConfig.outpath = ''
 process.AlignmentProducer.algoConfig.uvarFile = '<PATH>/IOUserVariables.root'
 ###process.AlignmentProducer.algoConfig.uvarFile = './IOUserVariables.root'
-process.AlignmentProducer.algoConfig.eventPrescale= 100
+if 'COSMICS' =='<FLAG>':
+    process.AlignmentProducer.algoConfig.eventPrescale= 1
+else :
+    process.AlignmentProducer.algoConfig.eventPrescale= 1
 process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 #process.AlignmentProducer.algoConfig.outfile =  '<PATH>/HIPAlignmentEvents.root'
 #process.AlignmentProducer.algoConfig.outfile2 = '<PATH>/HIPAlignmentAlignables.root'
-process.AlignmentProducer.algoConfig.applyAPE = True
+process.AlignmentProducer.algoConfig.applyAPE = False
 
 process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(cms.PSet(
 															function = cms.string('linear'),
@@ -91,15 +92,28 @@ process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(cms.PSet(
 												   )	
 
 
-#no constraints
-#process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
+
+#### If we are in collisions, apply selections on PhysDeclared bit, L1 trigger bits, LumiSections
+if 'COSMICS' !='<FLAG>':
+# process only some lumi sections: from LS69, run 123596 till LS 999 in event 124119 
+    process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('123596:69-124119:999')
+# do not process some other runs: in this case: skip all events from event#1 in run 124120 till last event of run 124120
+    process.source.eventsToSkip = cms.untracked.VEventRange('124120:1-124120:MAX')
+#filters on L1 trigger bits
+    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+    process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+    process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
+    process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT 36 AND NOT 37 AND NOT 38 AND NOT 39')
+#filter on PhysDecl bit
+    process.skimming = cms.EDFilter("PhysDecl",
+                                    applyfilter = cms.untracked.bool(True)
+                                    )
+
 
 #constraints
-if 'MBVertex'=='<FLAG>':
-    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.offlinePrimaryVertices*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.doConstraint*process.TrackRefitter2)
-elif 'MB'=='<FLAG>':
-    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
-elif 'COSMICS' =='<FLAG>':
+###if 'MBVertex'=='<FLAG>':
+###    process.p = cms.Path(process.hltLevel1GTSeed*process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.offlinePrimaryVertices*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.doConstraint*process.TrackRefitter2)
+if 'COSMICS' =='<FLAG>':
     process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
 else :
-    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
+    process.p = cms.Path(process.hltLevel1GTSeed*process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
