@@ -46,7 +46,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
 
    theGeometry = 0;
    theTriggerTowerMap = 0;
-
+   theElecMap = 0;
 }
 
 
