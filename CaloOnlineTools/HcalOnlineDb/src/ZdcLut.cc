@@ -1,4 +1,5 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
+#include <stdlib.h>
 
 /**
 
