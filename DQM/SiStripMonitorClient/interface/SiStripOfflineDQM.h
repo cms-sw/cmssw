@@ -56,12 +56,14 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Analyze                                                                               
+  /// Analyze
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
 
- /// End Of Luminosity
-                                                                               
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
+  /// End Of Luminosity
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+
+  /// EndRun
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Endjob
   void endJob();

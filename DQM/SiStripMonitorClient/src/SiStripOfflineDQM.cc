@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.31 2009/10/29 20:59:42 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.32 2009/11/05 21:06:22 dutta Exp $
 //
 //
 
@@ -150,8 +150,9 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
  *
  * @param Event                             
  *   Event  
- *                                                      
- * @param eSetup                                                                                        *  Event Setup object with Geometry, Magnetic Field, etc.    
+ *                 
+ * @param eSetup 
+ *  Event Setup object with Geometry, Magnetic Field, etc.    
  */
 void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
@@ -162,9 +163,18 @@ void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSet
  * End Lumi
  *
 */
-void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-
+void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
+}
+/** 
+ * @brief 
+ * 
+ * End Run
+ *
+*/
+void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endRun";
 
   // Access Cabling
   edm::ESHandle< SiStripDetCabling > det_cabling;

@@ -56,12 +56,13 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Begin Of Luminosity
-                                                                               
+  /// End Of Luminosity
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
-  /// Analyze
+  /// EndRun
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
+  /// Analyze
   void analyze(edm::Event const&, edm::EventSetup const&);
 
 
@@ -88,5 +89,6 @@ private:
 
   edm::ESHandle<SiStripDetVOff> siStripDetVOff_;
   edm::ESHandle< SiStripDetCabling > detCabling_;
+  int  nFEDConnected;
 };
 #endif

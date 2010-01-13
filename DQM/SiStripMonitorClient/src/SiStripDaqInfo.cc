@@ -127,8 +127,14 @@ void SiStripDaqInfo::analyze(edm::Event const& event, edm::EventSetup const& eSe
 //
 // -- End Luminosity Block
 //
-void SiStripDaqInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup){
-  edm::LogInfo ("SiStripDaqInfo") <<"SiStripDaqInfo:: Luminosity Block";
+void SiStripDaqInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
+  edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
+}
+//
+// -- End Run
+//
+void SiStripDaqInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+  edm::LogInfo ("SiStripDaqInfo") <<"SiStripDaqInfo::EndRun";
   fillDummyStatus();
 
   if (nFedTotal == 0) {

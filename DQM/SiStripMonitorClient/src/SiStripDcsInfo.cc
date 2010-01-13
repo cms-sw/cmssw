@@ -117,22 +117,8 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
   }
   if (!bookedStatus_) bookStatus();
-}
-//
-// -- Analyze
-//
-void SiStripDcsInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
-}
 
-//
-// -- Begin Luminosity Block
-//
-void SiStripDcsInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup){
-  edm::LogInfo ("SiStripDcsInfo") <<"SiStripDcsInfo:: Luminosity Block";
-
-  fillDummyStatus();
-
-  int nFEDConnected = 0;
+  nFEDConnected = 0;
   const FEDNumbering numbering;
   const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
   const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
@@ -151,9 +137,30 @@ void SiStripDcsInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm
 	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
       }
       edm::LogInfo ("SiStripDcsInfo") << " SiStripDcsInfo :: Connected FEDs " << nFEDConnected;
-      if (nFEDConnected > 0) fillStatus();
     }
   } 
+}
+//
+// -- Analyze
+//
+void SiStripDcsInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
+}
+//
+// -- End Luminosity Block
+//
+void SiStripDcsInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
+  edm::LogInfo( "SiStripDcsInfo") << "SiStripDcsInfo::endLuminosityBlock";
+}
+//
+// -- End Run
+//
+void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+  edm::LogInfo ("SiStripDcsInfo") <<"SiStripDcsInfo::EndRun";
+
+  fillDummyStatus();
+
+  if (nFEDConnected > 0) fillStatus();
+
 }
 //
 // -- Get Faulty Detectors
@@ -209,8 +216,8 @@ void SiStripDcsInfo::fillStatus(){
       float fraction = 1.0  - faulty_det*1.0/total_det;   
       it->second.DcsFractionME->Reset();
       it->second.DcsFractionME->Fill(fraction);
-      edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus : Sub Detector " << it->first << "  " 
-				      << total_det  << " " << faulty_det << endl;
+      edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus : Sub Detector "
+                  << it->first << "  " << total_det  << " " << faulty_det << endl;
     }
   } 
 }

@@ -72,6 +72,7 @@ void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup con
 void SiStripCertificationInfo::bookSiStripCertificationMEs() {
   if (!sistripCertificationBooked_) {
     string strip_dir = "";
+
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
     if (strip_dir.size() > 0) {
       dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
@@ -168,12 +169,18 @@ void SiStripCertificationInfo::bookTrackingCertificationMEs() {
 //
 void SiStripCertificationInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
 }
+//
+// -- End Luminosity Block
+//
+void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
+  edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
+}
 
 //
-// -- End of Luminosity Block
+// -- End of Run
 //
-void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup){
-  edm::LogInfo ("SiStripCertificationInfo") <<"SiStripCertificationInfo:: Luminosity Block";
+void SiStripCertificationInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+  edm::LogInfo ("SiStripCertificationInfo") <<"SiStripCertificationInfo:: End Run";
 
   fillDummySiStripCertification();
   fillDummyTrackingCertification();
@@ -319,17 +326,19 @@ void SiStripCertificationInfo::resetSiStripCertificationMEs() {
 // -- Fill Dummy SiStrip Certification
 //
 void SiStripCertificationInfo::fillDummySiStripCertification() {
-  resetSiStripCertificationMEs(); 
-  SiStripCertification->Fill(-1.0);
-  for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
-       it != SubDetMEsMap.end(); it++) {   
-    it->second.det_fractionME->Reset();
-    it->second.det_fractionME->Fill(-1.0);
-  }
-
-  for (int xbin = 1; xbin < SiStripCertificationSummaryMap->getNbinsX()+1; xbin++) {
-    for (int ybin = 1; ybin < SiStripCertificationSummaryMap->getNbinsY()+1; ybin++) {
-      SiStripCertificationSummaryMap->Fill(xbin, ybin, -1.0);
+  resetSiStripCertificationMEs();
+  if (sistripCertificationBooked_) {
+    SiStripCertification->Fill(-1.0);
+    for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
+	 it != SubDetMEsMap.end(); it++) {   
+      it->second.det_fractionME->Reset();
+      it->second.det_fractionME->Fill(-1.0);
+    }
+    
+    for (int xbin = 1; xbin < SiStripCertificationSummaryMap->getNbinsX()+1; xbin++) {
+      for (int ybin = 1; ybin < SiStripCertificationSummaryMap->getNbinsY()+1; ybin++) {
+	SiStripCertificationSummaryMap->Fill(xbin, ybin, -1.0);
+      }
     }
   }
 } 
@@ -338,14 +347,15 @@ void SiStripCertificationInfo::fillDummySiStripCertification() {
 //
 void SiStripCertificationInfo::fillDummyTrackingCertification() {
   resetTrackingCertificationMEs();
+  if (trackingCertificationBooked_) {
+    TrackingCertification->Fill(-1.0);
+    
+    TrackingCertificationRate->Fill(-1.0);
+    
+    TrackingCertificationChi2overDoF->Fill(-1.0);
 
-  TrackingCertification->Fill(-1.0);
-
-  TrackingCertificationRate->Fill(-1.0);
-
-  TrackingCertificationChi2overDoF->Fill(-1.0);
-
-  TrackingCertificationRecHits->Fill(-1.0);
+    TrackingCertificationRecHits->Fill(-1.0);
+  }
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripCertificationInfo);
