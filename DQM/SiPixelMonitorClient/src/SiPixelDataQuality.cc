@@ -2107,7 +2107,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       //checking for any digis or FED errors to decide if this module is in DAQ:  
       string full_path = currDir + "/" + (*it);
-      cout<<"path: "<<full_path<<" , detId= "<<detId<<endl;
+      //cout<<"path: "<<full_path<<" , detId= "<<detId<<endl;
       if(detId==-1 && full_path.find("SUMOFF")==string::npos &&
          ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
 	  (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos)) && 
