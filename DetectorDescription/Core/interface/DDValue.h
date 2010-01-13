@@ -33,7 +33,12 @@ public:
   
   //! create a named empty value
   DDValue(const std::string &);
-  
+
+  //! create a named empty value
+  DDValue(const char *);
+ 
+  void init(const std::string &);
+ 
   //! creates a named DDValue initialized with a std::vector of values 
   explicit DDValue(const std::string &, const std::vector<DDValuePair>&);
   

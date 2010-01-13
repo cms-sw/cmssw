@@ -9,10 +9,7 @@
 
 //map<std::string,unsigned int> DDValue::indexer_;
 //std::vector<std::string> DDValue::names_(1);
-
-DDValue::DDValue(const std::string & name)
- : id_(0)
-{
+void DDValue::init(const std::string &name) {
   unsigned int temp = indexer().size()+1;
   typedef std::map<std::string,unsigned int>::iterator itT;
   std::pair<itT,bool> result = indexer().insert(std::make_pair(name,temp));
@@ -26,20 +23,24 @@ DDValue::DDValue(const std::string & name)
   }  
 }
 
+
+
+DDValue::DDValue(const std::string & name)
+ : id_(0)
+{
+  init(name);
+}
+
+DDValue::DDValue(const char * name)
+ : id_(0)
+{
+  init(name);
+}
+
 DDValue::DDValue(const std::string & name, const std::vector<DDValuePair>& v) 
  : id_(0)
 {
-  unsigned int temp = indexer().size()+1;
-  typedef std::map<std::string,unsigned int>::iterator itT;
-  std::pair<itT,bool> result = indexer().insert(std::make_pair(name,temp));
-  
-  if (result.second) {
-    id_ = temp;
-    names().push_back(name);
-  }
-  else {
-    id_ = result.first->second;
-  }  
+  init(name);
   
   std::vector<DDValuePair>::const_iterator it = v.begin();
   std::vector<std::string> svec;
@@ -56,19 +57,9 @@ DDValue::DDValue(const std::string & name, const std::vector<DDValuePair>& v)
 
 
 DDValue::DDValue(const std::string & name, double val) 
- : id_(0)
- {
-  unsigned int temp = indexer().size()+1;
-  typedef std::map<std::string,unsigned int>::iterator itT;
-  std::pair<itT,bool> result = indexer().insert(std::make_pair(name,temp));
+ : id_(0) {
+  init(name);
   
-  if (result.second) {
-    id_ = temp;
-    names().push_back(name);
-  }
-  else {
-    id_ = result.first->second;
-  }  
   std::vector<std::string> svec(1,""); 
   std::vector<double> dvec(1,val);
   
