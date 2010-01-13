@@ -23,9 +23,9 @@ class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
  public:
   explicit SiPixelFedCablingMapWriter( const edm::ParameterSet& cfg);
   ~SiPixelFedCablingMapWriter();
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob( );
-  virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
+  virtual void analyze(const edm::Event& , const edm::EventSetup&);
  private:
   SiPixelFedCablingTree * cabling;
   string record_;
@@ -54,13 +54,18 @@ SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter(){
 }
 
 
-void SiPixelFedCablingMapWriter::beginJob( const edm::EventSetup& iSetup ) {
-   edm::LogInfo("BeginJob method ");
-   std::cout << "-------HERE-----------" << endl;
-   cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
-   std::cout << "-------HERE2-----------" << endl;
-   edm::LogInfo("PRINTING MAP:") << cabling->print(3) << endl;
-   edm::LogInfo("BeginJob method .. end");
+void SiPixelFedCablingMapWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  static int first(1); 
+  if (1 == first) {
+    first = 0; 
+    std::cout << "-------HERE-----------" << endl;
+    cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
+    std::cout << "-------HERE2-----------" << endl;
+    edm::LogInfo("PRINTING MAP:") << cabling->print(3) << endl;
+  }
+}
+
+void SiPixelFedCablingMapWriter::beginJob() {
 }
 
 void SiPixelFedCablingMapWriter::endJob( ) {
