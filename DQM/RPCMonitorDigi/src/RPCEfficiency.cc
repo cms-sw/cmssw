@@ -6,6 +6,7 @@ camilo.carrilloATcern.ch
 ****************************************/
 
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiency.h"
+
 #include <memory>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
@@ -61,6 +62,8 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
   dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
 
+  folderPath=iConfig.getUntrackedParameter<std::string>("folderPath","RPC/RPCEfficiency/");
+  
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
@@ -69,13 +72,13 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
   dbe = edm::Service<DQMStore>().operator->();
   
-  std::string folder = "RPC/RPCEfficiency/MuonSegEff/";
+  std::string folder = folderPath+"MuonSegEff";
   dbe->setCurrentFolder(folder);
   statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
   
   if(debug) std::cout<<"booking Global histograms"<<std::endl;
   
-  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/Barrel";
+  folder = folderPath+"MuonSegEff/"+"Residuals/Barrel";
   dbe->setCurrentFolder(folder);
 
   //Barrel
@@ -101,7 +104,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking Residuals for EndCap"<<std::endl;
-  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/EndCap";
+  folder = folderPath+"MuonSegEff/"+"/Residuals/EndCap";
   dbe->setCurrentFolder(folder);
 
   //Endcap  
@@ -150,7 +153,7 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
 	if(debug) std::cout<<"Booking for "<<rpcId.rawId()<<std::endl;
-	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips());
+	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath+"MuonSegEff/");
 	
 	if(region==0&&(incldt||incldtMB4)){
 	  //std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
@@ -277,13 +280,30 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
   Handle<RPCRecHitCollection> rpcHits;
-  iEvent.getByType(rpcHits);
+  
+  bool accessTorpcRecHits = true;
+  try {
+    iEvent.getByType(rpcHits);
+  }catch( cms::Exception& exception ) {
+    std::cout<<"RPC RecHits were not found"<<std::endl;
+    accessTorpcRecHits = false;
+  }
 
+  if(accessTorpcRecHits){
+  
   if(incldt){
     if(debug) std::cout<<"\t Getting the DT Segments"<<std::endl;
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
-    iEvent.getByLabel(dt4DSegments, all4DSegments);
-    if(all4DSegments->size()>0){
+
+    bool accessToDtSegments = true;
+    try {
+      iEvent.getByLabel(dt4DSegments, all4DSegments);
+    }catch( cms::Exception& exception ) {
+      std::cout<<"DT Segments were not found"<<std::endl;
+      accessToDtSegments = false;
+    }
+
+    if(accessToDtSegments) if(all4DSegments->size()>0){
       if(all4DSegments->size()<=16) statistics->Fill(2);
 
       if(debug) std::cout<<"\t Number of DT Segments in this event = "<<all4DSegments->size()<<std::endl;
@@ -828,9 +848,16 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(inclcsc){
     if(debug) std::cout <<"\t Getting the CSC Segments"<<std::endl;
     edm::Handle<CSCSegmentCollection> allCSCSegments;
-    iEvent.getByLabel(cscSegments, allCSCSegments);
     
-    if(allCSCSegments->size()>0){
+    bool accessToCSCSegments = true;
+    try{    
+      iEvent.getByLabel(cscSegments, allCSCSegments);
+    }catch(cms::Exception& exception){
+      std::cout<<"CSC Segments were not found"<<std::endl;
+      accessToCSCSegments = false;
+    }   
+    
+    if(accessToCSCSegments) if(allCSCSegments->size()>0){
       statistics->Fill(18);
 
       if(debug) std::cout<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
@@ -1136,6 +1163,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }else{
       if(debug) std::cout<<"CSC This Event doesn't have any CSCSegment"<<std::endl;
     }
+  }
   }
 }
 

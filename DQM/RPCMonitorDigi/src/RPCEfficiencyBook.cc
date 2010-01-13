@@ -10,12 +10,10 @@
 #include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & detId,int nstrips) {
+std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & detId,int nstrips,std::string folder) {
   
   std::map<std::string, MonitorElement*> meMap;
    
-  std::string folder = "RPC/RPCEfficiency/MuonSegEff/";
-
   dbe->setCurrentFolder(folder);
 
   char meId [128];
