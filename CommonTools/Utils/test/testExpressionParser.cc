@@ -194,6 +194,10 @@ void testExpressionParser::checkAll() {
   bp = std::pair<std::string,float>("aaa", 1.0); jet.addBDiscriminatorPair(bp); 
   bp = std::pair<std::string,float>("b c", 2.0); jet.addBDiscriminatorPair(bp); 
   bp = std::pair<std::string,float>("d " , 3.0); jet.addBDiscriminatorPair(bp); 
+  pat::JetCorrFactors::FlavourCorrections dummyfc;
+  pat::JetCorrFactors jcfs("a",2.f,2.f,2.f,1.f,dummyfc,dummyfc,dummyfc,std::vector<float>());
+  jet.setCorrFactors(jcfs);
+  jet.setCorrStep(pat::JetCorrFactors::L3);
   CPPUNIT_ASSERT(jet.bDiscriminator("aaa") == 1.0);
   CPPUNIT_ASSERT(jet.bDiscriminator("b c") == 2.0);
   CPPUNIT_ASSERT(jet.bDiscriminator("d ")  == 3.0);
@@ -205,6 +209,8 @@ void testExpressionParser::checkAll() {
     checkJet("bDiscriminator('aaa')"  , jet.bDiscriminator("aaa"));
     checkJet("bDiscriminator(\"b c\")", jet.bDiscriminator("b c"));
     checkJet("bDiscriminator(\"d \")" , jet.bDiscriminator("d " ));
+    checkJet("correctedJet('RAW').pt",  jet.correctedJet("RAW").pt());
+    checkJet("correctedJet('Raw').pt",  jet.correctedJet(pat::JetCorrFactors::Raw).pt());
   }
 
   {
