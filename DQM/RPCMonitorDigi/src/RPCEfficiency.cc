@@ -76,7 +76,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   dbe->setCurrentFolder(folder);
   statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
   
-  if(debug) std::cout<<"booking Global histograms"<<std::endl;
+  if(debug) std::cout<<"booking Global histograms with "<<folderPath<<std::endl;
   
   folder = folderPath+"MuonSegEff/"+"Residuals/Barrel";
   dbe->setCurrentFolder(folder);

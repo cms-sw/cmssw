@@ -11,12 +11,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
-std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDetId & detId,int nstrips) {
+std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDetId & detId,int nstrips, std::string folderPath) {
   
   std::map<std::string, MonitorElement*> meMap;
    
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
-  std::string folder = "RPC/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(detId);
+  std::string folder = folderPath+ "RollByRoll/" +  folderStr->folderStructure(detId);
 
   delete folderStr;
 
