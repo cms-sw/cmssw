@@ -1,7 +1,7 @@
 #include <iostream>
 //
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
 #include "RecoEgamma/Examples/plugins/MCPhotonAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"

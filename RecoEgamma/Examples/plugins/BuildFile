@@ -11,7 +11,7 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=TrackingTools/MaterialEffects>
 <use name=TrackingTools/TrajectoryState>
 <use name=FWCore/Framework>
