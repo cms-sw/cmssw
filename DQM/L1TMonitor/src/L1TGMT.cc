@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2009/01/30 14:08:11 $
- * $Revision: 1.25 $
+ * $Date: 2009/11/07 17:35:42 $
+ * $Revision: 1.26 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -60,15 +60,233 @@ L1TGMT::~L1TGMT()
 {
 }
 
-void L1TGMT::beginJob(const EventSetup& c)
+void L1TGMT::beginJob()
 {
-
-  std::string subs[5] = { "DTTF", "RPCb", "CSCTF", "RPCf", "GMT" };
 
   nev_ = 0;
   evnum_old_ = -1;
   bxnum_old_ = -1;
 
+}
+
+
+void L1TGMT::endJob(void)
+{
+  if(verbose_) cout << "L1TGMT: end job...." << endl;
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+
+ if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
+
+ return;
+}
+
+void L1TGMT::analyze(const Event& e, const EventSetup& c)
+{
+  
+  if(nev_==0) {
+    book_(c);
+  }
+  
+  nev_++; 
+  if(verbose_) cout << "L1TGMT: analyze...." << endl;
+
+
+  edm::Handle<L1MuGMTReadoutCollection> pCollection;
+  e.getByLabel(gmtSource_,pCollection);
+  
+  if (!pCollection.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
+    << gmtSource_.label() ;
+    return;
+  }
+
+  // remember the bx of 1st candidate of each system (9=none)
+  int bx1st[4] = {9, 9, 9, 9};
+
+  // get GMT readout collection
+  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+  // get record vector
+  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  // loop over records of individual bx's
+  vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+  
+  for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) 
+  {
+    
+    vector<L1MuRegionalCand> INPCands[4] = {
+        RRItr->getDTBXCands(),
+        RRItr->getBrlRPCCands(),
+        RRItr->getCSCCands(),
+        RRItr->getFwdRPCCands()
+    };
+    vector<L1MuGMTExtendedCand> GMTCands   = RRItr->getGMTCands();
+    
+    vector<L1MuRegionalCand>::const_iterator INPItr;
+    vector<L1MuGMTExtendedCand>::const_iterator GMTItr;
+    vector<L1MuGMTExtendedCand>::const_iterator GMTItr2;
+    
+    int BxInEvent = RRItr->getBxInEvent();
+    
+    // count non-empty candidates in this bx
+    int nSUBS[5] = {0, 0, 0, 0, 0};
+    for(int i=0; i<4; i++) {
+      for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
+        if(!INPItr->empty()) {
+          nSUBS[i]++;
+          if(bx1st[i]==9) bx1st[i]=BxInEvent;
+        }
+      }      
+      subs_nbx[i]->Fill(float(nSUBS[i]),float(BxInEvent));
+    }
+
+    for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
+      if(!GMTItr->empty()) nSUBS[GMT]++;
+    }
+    subs_nbx[GMT]->Fill(float(nSUBS[GMT]),float(BxInEvent));
+    
+////////////////////////////////////////////////////////////////////////////////////////////
+    // from here care only about the L1A bunch crossing
+    if(BxInEvent!=0) continue;
+    
+    // get the absolute bx number of the L1A
+    int Bx = RRItr->getBxNr();
+    int Ev = RRItr->getEvNr();
+    
+    bx_number->Fill(double(Bx));
+ 
+    for(int i=0; i<4; i++) {
+      for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
+        if(INPItr->empty()) continue;
+        subs_eta[i]->Fill(INPItr->etaValue());
+        subs_phi[i]->Fill(phiconv_(INPItr->phiValue()));
+        subs_pt[i]->Fill(INPItr->ptValue());
+        subs_qty[i]->Fill(INPItr->quality());
+        subs_etaphi[i]->Fill(INPItr->etaValue(),phiconv_(INPItr->phiValue()));
+        subs_etaqty[i]->Fill(INPItr->etaValue(),INPItr->quality());
+        int word = INPItr->getDataWord();
+        for( int j=0; j<32; j++ ) {
+          if( word&(1<<j) ) subs_bits[i]->Fill(float(j));
+        }
+      }
+    }
+        
+    for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
+      if(GMTItr->empty()) continue;
+      subs_eta[GMT]->Fill(GMTItr->etaValue());
+      subs_phi[GMT]->Fill(phiconv_(GMTItr->phiValue()));
+      subs_pt[GMT]->Fill(GMTItr->ptValue());
+      subs_qty[GMT]->Fill(GMTItr->quality());
+      subs_etaphi[GMT]->Fill(GMTItr->etaValue(),phiconv_(GMTItr->phiValue()));
+      subs_etaqty[GMT]->Fill(GMTItr->etaValue(),GMTItr->quality());
+      int word = GMTItr->getDataWord();
+      for( int j=0; j<32; j++ ) {
+        if( word&(1<<j) ) subs_bits[GMT]->Fill(float(j));
+      }
+      
+      if(GMTItr->isMatchedCand()) {
+        if(GMTItr->quality()>3) {
+          eta_dtcsc_and_rpc->Fill(GMTItr->etaValue());
+          phi_dtcsc_and_rpc->Fill(phiconv_(GMTItr->phiValue()));
+          etaphi_dtcsc_and_rpc->Fill(GMTItr->etaValue(),phiconv_(GMTItr->phiValue()));
+        }
+      } else if(GMTItr->isRPC()) {
+        if(GMTItr->quality()>3) {
+          eta_rpc_only->Fill(GMTItr->etaValue());
+          phi_rpc_only->Fill(phiconv_(GMTItr->phiValue()));
+          etaphi_rpc_only->Fill(GMTItr->etaValue(),phiconv_(GMTItr->phiValue()));        
+        }
+      } else {
+        if(GMTItr->quality()>3) {
+          eta_dtcsc_only->Fill(GMTItr->etaValue());
+          phi_dtcsc_only->Fill(phiconv_(GMTItr->phiValue()));
+          etaphi_dtcsc_only->Fill(GMTItr->etaValue(),phiconv_(GMTItr->phiValue()));
+        }
+        
+        if(GMTItr != GMTCands.end()){
+          for( GMTItr2 = GMTCands.begin(); GMTItr2 != GMTCands.end(); ++GMTItr2 ) {
+            if(GMTItr2==GMTItr) continue;
+            if(GMTItr2->empty()) continue;
+            if(GMTItr2->isRPC()) {
+              if(GMTItr->isFwd()) {
+                dist_eta_csc_rpc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
+                dist_phi_csc_rpc->Fill( phiconv_(GMTItr->phiValue()) - phiconv_(GMTItr2->phiValue()) );
+              } else {
+                dist_eta_dt_rpc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
+                dist_phi_dt_rpc->Fill( phiconv_(GMTItr->phiValue()) - phiconv_(GMTItr2->phiValue()) );                
+              }
+            } else {
+              if(!(GMTItr->isFwd()) && GMTItr2->isFwd()) {
+                dist_eta_dt_csc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
+                dist_phi_dt_csc->Fill( phiconv_(GMTItr->phiValue()) - phiconv_(GMTItr2->phiValue()) );
+              } else if(GMTItr->isFwd() && !(GMTItr2->isFwd())){
+                dist_eta_dt_csc->Fill( GMTItr2->etaValue() - GMTItr->etaValue() );
+                dist_phi_dt_csc->Fill( phiconv_(GMTItr->phiValue()) - phiconv_(GMTItr2->phiValue()) );                
+              }
+            }
+          }     
+        }
+        
+      }
+      
+    }
+    
+    n_rpcb_vs_dttf ->Fill(float(nSUBS[DTTF]),float(nSUBS[RPCb]));
+    n_rpcf_vs_csctf->Fill(float(nSUBS[CSCTF]),float(nSUBS[RPCf]));
+    n_csctf_vs_dttf->Fill(float(nSUBS[DTTF]),float(nSUBS[CSCTF]));
+    
+    regional_triggers->Fill(-1.); // fill underflow for normalization
+    if(nSUBS[GMT]) regional_triggers->Fill(0.); // fill all muon bin
+    int ioff=1;
+    for(int i=0; i<4; i++) {
+      if(nSUBS[i]) regional_triggers->Fill(float(5*i+nSUBS[i]+ioff));
+    }
+    if(nSUBS[DTTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(22.);
+    if(nSUBS[DTTF] && nSUBS[CSCTF]) regional_triggers->Fill(23.);
+    if(nSUBS[CSCTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(24.);
+    if(nSUBS[DTTF] && nSUBS[CSCTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(25.);
+        
+    // fill only if previous event corresponds to previous trigger
+//    if( (Ev - evnum_old_) == 1 && bxnum_old_ > -1 ) {
+    // assume getting all events in a sequence (usefull only from reco data)
+      if( bxnum_old_ > -1 ) {
+      int dBx = Bx - bxnum_old_ + 3564*(e.orbitNumber() - obnum_old_);
+      for(int id = 0; id<4; id++) {
+        if( trsrc_old_&(1<<id) ) {
+          for(int i=0; i<4; i++) {
+            if(nSUBS[i]) subs_dbx[i]->Fill(float(dBx),float(id));
+          }
+        }
+      }
+      
+    }
+    
+    // save quantities for the next event
+    evnum_old_ = Ev;
+    bxnum_old_ = Bx;
+    obnum_old_ = e.orbitNumber();
+    trsrc_old_ = 0;
+    for(int i=0; i<4; i++) {
+      if(nSUBS[i])  trsrc_old_ |= (1<<i);
+    }
+  }
+  
+  if(bx1st[DTTF]<9  && bx1st[RPCb]<9)  bx_dt_rpc->Fill(bx1st[DTTF], bx1st[RPCb]);
+  if(bx1st[CSCTF]<9 && bx1st[RPCf]<9) bx_csc_rpc->Fill(bx1st[CSCTF],bx1st[RPCf]);
+  if(bx1st[DTTF]<9 && bx1st[CSCTF]<9)  bx_dt_csc->Fill(bx1st[DTTF], bx1st[CSCTF]);
+
+}
+
+double L1TGMT::phiconv_(float phi) {
+  double phiout = double(phi);
+  phiout *= piconv_;
+  phiout += 0.001; // add a small value to get off the bin edge
+  return phiout;
+}
+
+void L1TGMT::book_(const EventSetup& c)
+{
+
+  std::string subs[5] = { "DTTF", "RPCb", "CSCTF", "RPCf", "GMT" };
 
   edm::ESHandle< L1MuTriggerScales > trigscales_h;
   c.get< L1MuTriggerScalesRcd >().get( trigscales_h );
@@ -365,210 +583,3 @@ void L1TGMT::beginJob(const EventSetup& c)
 }
 
 
-void L1TGMT::endJob(void)
-{
-  if(verbose_) cout << "L1TGMT: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
-
- if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
-
- return;
-}
-
-void L1TGMT::analyze(const Event& e, const EventSetup& c)
-{
-  nev_++; 
-  if(verbose_) cout << "L1TGMT: analyze...." << endl;
-
-
-  edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  e.getByLabel(gmtSource_,pCollection);
-  
-  if (!pCollection.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
-    << gmtSource_.label() ;
-    return;
-  }
-
-  // remember the bx of 1st candidate of each system (9=none)
-  int bx1st[4] = {9, 9, 9, 9};
-
-  // get GMT readout collection
-  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
-  // get record vector
-  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-  // loop over records of individual bx's
-  vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
-  
-  for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) 
-  {
-    
-    vector<L1MuRegionalCand> INPCands[4] = {
-        RRItr->getDTBXCands(),
-        RRItr->getBrlRPCCands(),
-        RRItr->getCSCCands(),
-        RRItr->getFwdRPCCands()
-    };
-    vector<L1MuGMTExtendedCand> GMTCands   = RRItr->getGMTCands();
-    
-    vector<L1MuRegionalCand>::const_iterator INPItr;
-    vector<L1MuGMTExtendedCand>::const_iterator GMTItr;
-    vector<L1MuGMTExtendedCand>::const_iterator GMTItr2;
-    
-    int BxInEvent = RRItr->getBxInEvent();
-    
-    // count non-empty candidates in this bx
-    int nSUBS[5] = {0, 0, 0, 0, 0};
-    for(int i=0; i<4; i++) {
-      for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
-        if(!INPItr->empty()) {
-          nSUBS[i]++;
-          if(bx1st[i]==9) bx1st[i]=BxInEvent;
-        }
-      }      
-      subs_nbx[i]->Fill(float(nSUBS[i]),float(BxInEvent));
-    }
-
-    for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
-      if(!GMTItr->empty()) nSUBS[GMT]++;
-    }
-    subs_nbx[GMT]->Fill(float(nSUBS[GMT]),float(BxInEvent));
-    
-////////////////////////////////////////////////////////////////////////////////////////////
-    // from here care only about the L1A bunch crossing
-    if(BxInEvent!=0) continue;
-    
-    // get the absolute bx number of the L1A
-    int Bx = RRItr->getBxNr();
-    int Ev = RRItr->getEvNr();
-    
-    bx_number->Fill(double(Bx));
- 
-    for(int i=0; i<4; i++) {
-      for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
-        if(INPItr->empty()) continue;
-        subs_eta[i]->Fill(INPItr->etaValue());
-        subs_phi[i]->Fill(phiconv(INPItr->phiValue()));
-        subs_pt[i]->Fill(INPItr->ptValue());
-        subs_qty[i]->Fill(INPItr->quality());
-        subs_etaphi[i]->Fill(INPItr->etaValue(),phiconv(INPItr->phiValue()));
-        subs_etaqty[i]->Fill(INPItr->etaValue(),INPItr->quality());
-        int word = INPItr->getDataWord();
-        for( int j=0; j<32; j++ ) {
-          if( word&(1<<j) ) subs_bits[i]->Fill(float(j));
-        }
-      }
-    }
-        
-    for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
-      if(GMTItr->empty()) continue;
-      subs_eta[GMT]->Fill(GMTItr->etaValue());
-      subs_phi[GMT]->Fill(phiconv(GMTItr->phiValue()));
-      subs_pt[GMT]->Fill(GMTItr->ptValue());
-      subs_qty[GMT]->Fill(GMTItr->quality());
-      subs_etaphi[GMT]->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));
-      subs_etaqty[GMT]->Fill(GMTItr->etaValue(),GMTItr->quality());
-      int word = GMTItr->getDataWord();
-      for( int j=0; j<32; j++ ) {
-        if( word&(1<<j) ) subs_bits[GMT]->Fill(float(j));
-      }
-      
-      if(GMTItr->isMatchedCand()) {
-        if(GMTItr->quality()>3) {
-          eta_dtcsc_and_rpc->Fill(GMTItr->etaValue());
-          phi_dtcsc_and_rpc->Fill(phiconv(GMTItr->phiValue()));
-          etaphi_dtcsc_and_rpc->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));
-        }
-      } else if(GMTItr->isRPC()) {
-        if(GMTItr->quality()>3) {
-          eta_rpc_only->Fill(GMTItr->etaValue());
-          phi_rpc_only->Fill(phiconv(GMTItr->phiValue()));
-          etaphi_rpc_only->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));        
-        }
-      } else {
-        if(GMTItr->quality()>3) {
-          eta_dtcsc_only->Fill(GMTItr->etaValue());
-          phi_dtcsc_only->Fill(phiconv(GMTItr->phiValue()));
-          etaphi_dtcsc_only->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));
-        }
-        
-        if(GMTItr != GMTCands.end()){
-          for( GMTItr2 = GMTCands.begin(); GMTItr2 != GMTCands.end(); ++GMTItr2 ) {
-            if(GMTItr2==GMTItr) continue;
-            if(GMTItr2->empty()) continue;
-            if(GMTItr2->isRPC()) {
-              if(GMTItr->isFwd()) {
-                dist_eta_csc_rpc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
-                dist_phi_csc_rpc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );
-              } else {
-                dist_eta_dt_rpc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
-                dist_phi_dt_rpc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );                
-              }
-            } else {
-              if(!(GMTItr->isFwd()) && GMTItr2->isFwd()) {
-                dist_eta_dt_csc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
-                dist_phi_dt_csc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );
-              } else if(GMTItr->isFwd() && !(GMTItr2->isFwd())){
-                dist_eta_dt_csc->Fill( GMTItr2->etaValue() - GMTItr->etaValue() );
-                dist_phi_dt_csc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );                
-              }
-            }
-          }     
-        }
-        
-      }
-      
-    }
-    
-    n_rpcb_vs_dttf ->Fill(float(nSUBS[DTTF]),float(nSUBS[RPCb]));
-    n_rpcf_vs_csctf->Fill(float(nSUBS[CSCTF]),float(nSUBS[RPCf]));
-    n_csctf_vs_dttf->Fill(float(nSUBS[DTTF]),float(nSUBS[CSCTF]));
-    
-    regional_triggers->Fill(-1.); // fill underflow for normalization
-    if(nSUBS[GMT]) regional_triggers->Fill(0.); // fill all muon bin
-    int ioff=1;
-    for(int i=0; i<4; i++) {
-      if(nSUBS[i]) regional_triggers->Fill(float(5*i+nSUBS[i]+ioff));
-    }
-    if(nSUBS[DTTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(22.);
-    if(nSUBS[DTTF] && nSUBS[CSCTF]) regional_triggers->Fill(23.);
-    if(nSUBS[CSCTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(24.);
-    if(nSUBS[DTTF] && nSUBS[CSCTF] && (nSUBS[RPCb] || nSUBS[RPCf])) regional_triggers->Fill(25.);
-        
-    // fill only if previous event corresponds to previous trigger
-//    if( (Ev - evnum_old_) == 1 && bxnum_old_ > -1 ) {
-    // assume getting all events in a sequence (usefull only from reco data)
-      if( bxnum_old_ > -1 ) {
-      int dBx = Bx - bxnum_old_ + 3564*(e.orbitNumber() - obnum_old_);
-      for(int id = 0; id<4; id++) {
-        if( trsrc_old_&(1<<id) ) {
-          for(int i=0; i<4; i++) {
-            if(nSUBS[i]) subs_dbx[i]->Fill(float(dBx),float(id));
-          }
-        }
-      }
-      
-    }
-    
-    // save quantities for the next event
-    evnum_old_ = Ev;
-    bxnum_old_ = Bx;
-    obnum_old_ = e.orbitNumber();
-    trsrc_old_ = 0;
-    for(int i=0; i<4; i++) {
-      if(nSUBS[i])  trsrc_old_ |= (1<<i);
-    }
-  }
-  
-  if(bx1st[DTTF]<9  && bx1st[RPCb]<9)  bx_dt_rpc->Fill(bx1st[DTTF], bx1st[RPCb]);
-  if(bx1st[CSCTF]<9 && bx1st[RPCf]<9) bx_csc_rpc->Fill(bx1st[CSCTF],bx1st[RPCf]);
-  if(bx1st[DTTF]<9 && bx1st[CSCTF]<9)  bx_dt_csc->Fill(bx1st[DTTF], bx1st[CSCTF]);
-
-}
-
-double L1TGMT::phiconv(float phi) {
-  double phiout = double(phi);
-  phiout *= piconv_;
-  phiout += 0.001; // add a small value to get off the bin edge
-  return phiout;
-}
