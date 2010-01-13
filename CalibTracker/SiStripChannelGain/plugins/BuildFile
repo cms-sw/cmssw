@@ -27,7 +27,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos> 
 
 <library file="*.cc" name=CalibTrackerSiStripChannelGainPlugins>
 <flags EDM_PLUGIN=1>
