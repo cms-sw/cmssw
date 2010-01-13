@@ -1,14 +1,15 @@
-# $Id: BuildFile,v 1.9 2009/11/15 19:45:54 loizides Exp $
+# $Id: BuildFile,v 1.10 2009/11/19 20:22:06 rwolf Exp $
 
 <use name=DQMServices/Core>
 <use name=FWCore/Framework>
 <use name=DataFormats/MuonReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=DataFormats/EgammaCandidates>
 <use name=HLTrigger/HLTcore>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
