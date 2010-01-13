@@ -186,35 +186,12 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
       cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
       exit(1);
     }
-    // double sigmaMin = GLZ[iY]->GetYaxis()->GetXmin();
     for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
-      MuScleFitUtils::GLZNorm[iY][iy] = 1.;
+      MuScleFitUtils::GLZNorm[iY][iy] = 0.;
       for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-        MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
+        MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent(ix+1, iy+1);
         MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy]*(2*MuScleFitUtils::ResHalfWidth[0])/MuScleFitUtils::nbins;
-        // MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
       }
-
-//      double sigma = sigmaMin + (double(iy)+0.1)*(MuScleFitUtils::ResMaxSigma[0])/double(nBinsY);
-//      double minMass = MuScleFitUtils::ResMass[0] - MuScleFitUtils::ResHalfWidth[0];
-//      double maxMass = MuScleFitUtils::ResMass[0] + MuScleFitUtils::ResHalfWidth[0];
-//      TF1 * probForIntegral = new TF1("probForIntegral", ProbForIntegral(sigma, 0, iY, true), minMass, maxMass, 0);
-//      MuScleFitUtils::GLZNorm[iY][iy] = probForIntegral->Integral(minMass, maxMass);
-//
-//      cout << "GLZNorm["<<iY<<"]["<<iy<<"] = " << MuScleFitUtils::GLZNorm[iY][iy] << endl;
-//
-//      double tempNorm = 0.;
-//      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-//        // MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
-//        tempNorm += MuScleFitUtils::GLZValue[iY][ix][iy];
-//      }
-//      cout << "Old normalization = " << tempNorm << endl;
-
-
-//      if (debug_>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = "
-//                        << MuScleFitUtils::GLZValue[iY][500][iy]
-//                        << " GLZNorm[" << iY << "][" << iy << "] = "
-//                        << MuScleFitUtils::GLZNorm[iY][iy] << endl;
     }
   }
   // Extract normalization for each mass slice
@@ -227,53 +204,17 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
       cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
       exit(1);
     }
-    // double sigmaMin = GL[ires]->GetYaxis()->GetXmin();
 
     for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
-
-//      MuScleFitUtils::GLNorm[ires][iy] = 1.;
-//      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-//        MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent (ix+1, iy+1);
-//      }
-//
-//      double sigma = sigmaMin + (double(iy)+0.1)*(MuScleFitUtils::ResMaxSigma[ires])/double(nBinsY);
-//      double minMass = MuScleFitUtils::ResMass[ires] - MuScleFitUtils::ResHalfWidth[ires];
-//      double maxMass = MuScleFitUtils::ResMass[ires] + MuScleFitUtils::ResHalfWidth[ires];
-//
-//      TF1 * probForIntegral = new TF1("probForIntegral", ProbForIntegral(sigma, ires, ires, false), minMass, maxMass, 0);
-//      MuScleFitUtils::GLNorm[ires][iy] = probForIntegral->Integral(minMass, maxMass);
-//
-//      cout << "GLNorm["<<ires<<"]["<<iy<<"] = " << MuScleFitUtils::GLNorm[ires][iy] << endl;
-//
-//      double tempNorm = 0.;
-//      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-//        tempNorm += MuScleFitUtils::GLValue[ires][ix][iy];
-//      }
-//      cout << "Old normalization = " << tempNorm << endl;
-
       MuScleFitUtils::GLNorm[ires][iy] = 0.;
-//      double tempSum = 0.;
-//      double tempSumNorm = 0.;
       for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-        MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent (ix+1, iy+1);
+        MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent(ix+1, iy+1);
         // N.B. approximation: we should compute the integral of the function used to compute the probability (linear
         // interpolation of the mass points). This computation could be troublesome because the points have a steep
         // variation near the mass peak and the normal integral is not precise in these conditions.
         // Furthermore it is slow.
-//        tempSum += MuScleFitUtils::GLValue[ires][ix][iy];
-//        tempSumNorm += MuScleFitUtils::GLValue[ires][ix][iy]*(2*MuScleFitUtils::ResHalfWidth[ires]);
         MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy]*(2*MuScleFitUtils::ResHalfWidth[ires])/MuScleFitUtils::nbins;
-        // MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
       }
-//      cout << "tempSum["<<ires<<"]["<<iy<<"] = " << tempSum << endl;
-//      cout << "tempSumNorm["<<ires<<"]["<<iy<<"] = " << tempSumNorm << endl;
-//      cout << "MuScleFitUtils::GLNorm["<<ires<<"]["<<iy<<"] = " << MuScleFitUtils::GLNorm[ires][iy] << endl;
-
-      //      if (debug_>2) cout << "GLValue[" << ires << "][500][" << iy << "] = "
-//                        << MuScleFitUtils::GLValue[ires][500][iy]
-//                        << " GLNorm[" << ires << "][" << iy << "] = "
-//                        << MuScleFitUtils::GLNorm[ires][iy] << endl;
-//      MuScleFitUtils::GLNorm[ires][iy] *= (2*MuScleFitUtils::ResHalfWidth[ires])/(double)MuScleFitUtils::nbins;
     }
   }
   // Free all the memory for the probability histograms.

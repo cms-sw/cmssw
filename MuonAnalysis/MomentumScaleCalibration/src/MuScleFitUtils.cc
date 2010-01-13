@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/01/11 09:31:28 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/01/12 11:52:59 $
+ *  $Revision: 1.26 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -1177,6 +1177,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
       // separately after this loop
       PB = bgrResult.second;
       PStot[0] = (1-Bgrp1)*PS[0] + Bgrp1*PB;
+      if( MuScleFitUtils::debug>0 ) cout << "PStot["<<0<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[0]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[0] << endl;
     }
   }
   // Next check the other resonances

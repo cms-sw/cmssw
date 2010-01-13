@@ -1941,7 +1941,7 @@ class backgroundFunctionType1 : public backgroundFunctionBase {
     if( -a/b > upperLimit_ ) norm += a*upperLimit_ + b*upperLimit_*upperLimit_/2.;
     else norm += -a*a/(2*b);
 
-    if( mass < -a/b ) return (a + b*mass)/norm;
+    if( mass < -a/b && norm != 0 ) return (a + b*mass)/norm;
     else return 0;
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
@@ -1974,7 +1974,8 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
   {
     double Bgrp2 = parval[1];
     double norm = -(exp(-Bgrp2*upperLimit_) - exp(-Bgrp2*lowerLimit_))/Bgrp2;
-    return exp(-Bgrp2*mass)/norm;
+    if( norm != 0 ) return exp(-Bgrp2*mass)/norm;
+    else return 0.;
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double>::const_iterator & parBgrIt, const vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
     double thisStep[] = {0.01, 0.01};
