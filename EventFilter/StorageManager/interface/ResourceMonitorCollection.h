@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.19 2009/10/13 15:08:33 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.20 2009/11/11 15:50:36 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.19 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.20 $
+   * $Date: 2009/11/11 15:50:36 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -119,7 +119,7 @@ namespace stor {
 
     void calcNumberOfCopyWorkers();
     void calcNumberOfInjectWorkers();
-    int getProcessCount(const std::string processName);
+    int getProcessCount(const std::string& processName, const int& uid=-1);
 
     typedef std::set<std::string> SATABeasts;
     void checkSataBeasts();

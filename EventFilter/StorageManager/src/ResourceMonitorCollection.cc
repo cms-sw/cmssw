@@ -1,9 +1,10 @@
-// $Id: ResourceMonitorCollection.cc,v 1.25 2009/10/13 16:52:59 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.26 2009/11/11 15:50:35 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <sys/stat.h>
 #include <sys/statfs.h>
 #include <dirent.h>
 #include <fnmatch.h>
@@ -489,37 +490,38 @@ namespace {
   {
     return !fnmatch("[1-9]*", dir->d_name, 0);
   }
-  
-  bool grep(const struct dirent *dir, const std::string name)
+
+  bool matchUid(const std::string& filename, const uid_t& uid)
   {
-    bool match = false;
-    
-    std::ostringstream cmdline;
-    cmdline << "/proc/" << dir->d_name << "/cmdline";
+    struct stat filestat;
+    int result = stat(filename.c_str(), &filestat);
+    return (result == 0 && filestat.st_uid == uid);
+  }
+
+  bool grep(const std::string& cmdline, const std::string& name)
+  {
     
     std::ifstream in;
-    in.open( cmdline.str().c_str() );
+    in.open( cmdline.c_str() );
     
+    std::string line;
     if ( in.is_open() )
     {
-      std::string line;
-      while( getline(in,line) )
+      std::string tmp;
+      while( getline(in,tmp,'\0') )
       {
-        if ( line.find(name) != std::string::npos )
-        {
-          match = true;
-          break;
-        }
+        line.append(tmp);
+        line.append(" ");
       }
       in.close();
     }
-    
-    return match;
+
+    return ( line.find(name) != std::string::npos );
   }
 }
 
 
-int ResourceMonitorCollection::getProcessCount(const std::string processName)
+int ResourceMonitorCollection::getProcessCount(const std::string& processName, const int& uid)
 {
   
   int count(0);
@@ -527,12 +529,15 @@ int ResourceMonitorCollection::getProcessCount(const std::string processName)
   int n;
   
   n = scandir("/proc", &namelist, filter, 0);
-  
   if (n < 0) return -1;
   
   while(n--)
   {
-    if ( grep(namelist[n], processName) )
+    std::ostringstream cmdline;
+    cmdline << "/proc/" << namelist[n]->d_name << "/cmdline";
+
+    if ( grep(cmdline.str(), processName) &&
+      (uid < 0 || matchUid(cmdline.str(), uid)) )
     {
       ++count;
     }

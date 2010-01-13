@@ -19,6 +19,7 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
   CPPUNIT_TEST(notMountedDisk);
   CPPUNIT_TEST(diskUsage);
   CPPUNIT_TEST(processCount);
+  CPPUNIT_TEST(processCountWithArguments);
 
   CPPUNIT_TEST(noSataBeasts);
   CPPUNIT_TEST(sataBeastOkay);
@@ -36,6 +37,7 @@ public:
   void notMountedDisk();
   void diskUsage();
   void processCount();
+  void processCountWithArguments();
 
   void noSataBeasts();
   void sataBeastOkay();
@@ -164,12 +166,31 @@ testResourceMonitorCollection::processCount()
 {
   const int processes = 2;
 
+  uid_t myUid = getuid();
+
   for (int i = 0; i < processes; ++i)
     system("sh ./processCountTest.sh &");
 
   int processCount = _rmc->getProcessCount("processCountTest.sh");
-
   CPPUNIT_ASSERT( processCount == processes);
+  
+  processCount = _rmc->getProcessCount("processCountTest.sh", myUid);
+  CPPUNIT_ASSERT( processCount == processes);
+}
+
+
+void
+testResourceMonitorCollection::processCountWithArguments()
+{
+  const int processes = 3;
+
+  for (int i = 0; i < processes; ++i)
+    system("sh ./processCountTest.sh foo &");
+
+  int processCountFoo = _rmc->getProcessCount("processCountTest.sh foo");
+  int processCountBar = _rmc->getProcessCount("processCountTest.sh bar");
+  CPPUNIT_ASSERT( processCountFoo == processes);
+  CPPUNIT_ASSERT( processCountBar == 0);
 }
 
 
