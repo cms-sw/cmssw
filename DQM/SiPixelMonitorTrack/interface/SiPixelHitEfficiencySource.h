@@ -42,8 +42,9 @@ class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
     explicit SiPixelHitEfficiencySource(const edm::ParameterSet&);
             ~SiPixelHitEfficiencySource();
 
-    virtual void beginJob(edm::EventSetup const& iSetup);
+    virtual void beginJob();
     virtual void endJob(void);
+    virtual void beginRun(const edm::Run& r, edm::EventSetup const& iSetup);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   private: 
@@ -63,6 +64,8 @@ class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
     //forward:
     bool ringOn, bladeOn, diskOn; 
 
+    bool firstRun;
+    
     std::map<uint32_t, SiPixelHitEfficiencyModule*> theSiPixelStructure;
     
     int nmissing,nvalid; 

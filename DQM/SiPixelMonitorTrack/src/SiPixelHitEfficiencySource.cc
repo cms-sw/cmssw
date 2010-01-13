@@ -84,10 +84,15 @@ SiPixelHitEfficiencySource::~SiPixelHitEfficiencySource() {
   }
 }
 
-
-void SiPixelHitEfficiencySource::beginJob(edm::EventSetup const& iSetup) {
+void SiPixelHitEfficiencySource::beginJob() {
   LogInfo("PixelDQM") << "SiPixelHitEfficiencySource beginJob()" << endl;
+  firstRun = true;
+}
 
+void SiPixelHitEfficiencySource::beginRun(const edm::Run& r, edm::EventSetup const& iSetup) {
+  LogInfo("PixelDQM") << "SiPixelHitEfficiencySource beginRun()" << endl;
+  
+  if(firstRun){
   // retrieve TrackerGeometry for pixel dets
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
@@ -148,6 +153,8 @@ void SiPixelHitEfficiencySource::beginJob(edm::EventSetup const& iSetup) {
   nvalid=0;
   nmissing=0;
   
+  firstRun = false;
+  }
 }
 
 
@@ -163,9 +170,9 @@ void SiPixelHitEfficiencySource::endJob(void) {
   } 
   LogInfo("PixelDQM") << endl; // dbe_->showDirStructure();
   
-  std::cout<< "********** SUMMARY **********"<<std::endl;
-  std::cout<< "number of valid hits: "<<nvalid<<std::endl;
-  std::cout<< "number of missing hits: "<<nmissing<<std::endl;
+  //std::cout<< "********** SUMMARY **********"<<std::endl;
+  //std::cout<< "number of valid hits: "<<nvalid<<std::endl;
+  //std::cout<< "number of missing hits: "<<nmissing<<std::endl;
 }
 
 
