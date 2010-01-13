@@ -5,8 +5,8 @@
  *
  *  Class to dump Pixel DCS object from database to ROOT file.
  *
- *  $Date: 2008/11/30 19:41:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/05/09 22:21:34 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 template <class Record>
 class PixelDCSObjectReader:

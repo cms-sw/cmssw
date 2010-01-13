@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya BLEKMAN
 //         Created:  Tue Aug  5 16:22:46 CEST 2008
-// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.6 2009/10/21 15:53:42 heyburn Exp $
+// $Id: SiPixelGainCalibrationReadDQMFile.cc,v 1.7 2010/01/12 11:29:54 rougny Exp $
 //
 //
 
@@ -53,7 +53,7 @@
 #include "TTree.h"
 
 #include "CondTools/SiPixel/test/SiPixelGainCalibrationReadDQMFile.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //
 // class decleration
