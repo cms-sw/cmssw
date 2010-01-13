@@ -22,7 +22,7 @@ SiPixelTemplateDBObjectReader::~SiPixelTemplateDBObjectReader()
 }
 
 void 
-SiPixelTemplateDBObjectReader::beginJob(const edm::EventSetup& setup)
+SiPixelTemplateDBObjectReader::beginJob()
 {
 }
 

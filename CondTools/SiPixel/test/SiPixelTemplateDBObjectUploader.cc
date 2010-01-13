@@ -29,7 +29,7 @@ SiPixelTemplateDBObjectUploader::~SiPixelTemplateDBObjectUploader()
 }
 
 void 
-SiPixelTemplateDBObjectUploader::beginJob(const edm::EventSetup&)
+SiPixelTemplateDBObjectUploader::beginJob()
 {
 }
 

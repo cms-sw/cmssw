@@ -13,7 +13,7 @@ SiPixelCPEGenericErrorParmReader::~SiPixelCPEGenericErrorParmReader()
 }
 
 void 
-SiPixelCPEGenericErrorParmReader::beginJob(const edm::EventSetup& setup)
+SiPixelCPEGenericErrorParmReader::beginJob()
 {
 }
 

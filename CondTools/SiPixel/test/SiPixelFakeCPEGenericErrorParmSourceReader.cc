@@ -15,7 +15,7 @@ SiPixelFakeCPEGenericErrorParmSourceReader::~SiPixelFakeCPEGenericErrorParmSourc
 }
 
 void 
-SiPixelFakeCPEGenericErrorParmSourceReader::beginJob(const edm::EventSetup& es)
+SiPixelFakeCPEGenericErrorParmSourceReader::beginJob()
 {
 }
 

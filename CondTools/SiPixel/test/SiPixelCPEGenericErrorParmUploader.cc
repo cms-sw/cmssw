@@ -16,7 +16,7 @@ SiPixelCPEGenericErrorParmUploader::~SiPixelCPEGenericErrorParmUploader()
 }
 
 void 
-SiPixelCPEGenericErrorParmUploader::beginJob(const edm::EventSetup&)
+SiPixelCPEGenericErrorParmUploader::beginJob()
 {
 }
 

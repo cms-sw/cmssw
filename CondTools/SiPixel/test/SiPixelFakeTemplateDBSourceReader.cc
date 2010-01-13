@@ -13,7 +13,7 @@ SiPixelFakeTemplateDBSourceReader::~SiPixelFakeTemplateDBSourceReader()
 }
 
 void 
-SiPixelFakeTemplateDBSourceReader::beginJob(const edm::EventSetup& setup)
+SiPixelFakeTemplateDBSourceReader::beginJob()
 {
 }
 
