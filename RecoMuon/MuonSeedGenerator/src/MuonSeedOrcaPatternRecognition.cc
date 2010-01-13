@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2009/02/17 23:01:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/11 23:49:08 $
+ *  $Revision: 1.8 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -666,7 +666,7 @@ MuonSeedOrcaPatternRecognition::filterSegments(const MuonRecHitContainer & segme
 MuonPatternRecoDumper theDumper;
   MuonRecHitContainer result;
   double theBarreldThetaCut = 0.2;
-  double theEndcapdThetaCut = 0.3;
+  double theEndcapdThetaCut = 0.7;
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
