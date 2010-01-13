@@ -60,13 +60,13 @@ lumiprocess = { '8e29':'HLT',
 # produce generated paricles in acceptance               #
 ##########################################################
 
-genp = cms.EDFilter("PdgIdAndStatusCandViewSelector",
+genp = cms.EDProducer("PdgIdAndStatusCandViewSelector",
     status = cms.vint32(3),
     src = cms.InputTag("genParticles"),
     pdgId = cms.vint32(11)  # replaced in loop
 )
 
-fiducial = cms.EDFilter("EtaPtMinCandViewSelector",
+fiducial = cms.EDProducer("EtaPtMinCandViewSelector",
     src = cms.InputTag("genp"),
     etaMin = cms.double(-2.5),  # to be replaced in loop ?
     etaMax = cms.double(2.5),   # to be replaced in loop ?
