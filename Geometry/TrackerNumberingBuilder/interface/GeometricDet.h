@@ -40,7 +40,7 @@ class GeometricDet {
   /**
    * Constructors to be used when looping over DDD
    */
-  GeometricDet(nav_type navtype, GeometricEnumType dd);
+  GeometricDet(nav_type const & navtype, GeometricEnumType dd);
   GeometricDet(DDExpandedView* ev, GeometricEnumType dd);
   GeometricDet(DDFilteredView* fv, GeometricEnumType dd);
   GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType dd);

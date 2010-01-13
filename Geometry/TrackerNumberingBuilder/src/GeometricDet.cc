@@ -16,8 +16,10 @@
 
 namespace {
 
+  std::string strue("true");
+
   template<typename DDView>
-  double  getDouble(const std::string & s,  DDView const & ev) {
+  double  getDouble(const  char * s,  DDView const & ev) {
     DDValue val(s);
     std::vector<const DDsvalues_type *> result;
     ev.specificsV(result);
@@ -41,7 +43,7 @@ namespace {
   }
 
   template<typename DDView>
-  std::string  getString(const std::string & s,  DDView const & ev) {
+  std::string  getString(const  char * s,  DDView const & ev) {
     DDValue val(s);
     std::vector<const DDsvalues_type *> result;
     ev.specificsV(result);
@@ -76,7 +78,7 @@ GeometricDet::~GeometricDet(){
 }
 
 // for use outside CMSSW framework only since it asks for a default DDCompactView...
-GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navtype), _type(type){ 
+GeometricDet::GeometricDet(nav_type const & navtype, GeometricEnumType type) : _ddd(navtype), _type(type){ 
   //
   // I need to find the params by myself :(
   //
@@ -104,7 +106,7 @@ GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navt
   _pixROCCols = getDouble("PixelROCCols",ev);
   _pixROCx = getDouble("PixelROC_X",ev);
   _pixROCy = getDouble("PixelROC_Y",ev);
-  _stereo =  getString("TrackerStereoDetectors",ev)=="true";
+  _stereo =  getString("TrackerStereoDetectors",ev)==strue;
   _siliconAPVNum = getDouble("SiliconAPVNumber",ev);
 
 }
@@ -140,35 +142,37 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
 
 }
 
-GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(type){
+GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : 
   //
   // Set by hand the _ddd
   //
-  _fromDD = true;
-  _ddd = fv->navPos();
-  _params = ((fv->logicalPart()).solid()).parameters();
-  _trans = fv->translation();
-  _phi = _trans.Phi();
-  _rho = _trans.Rho();
-  _rot = fv->rotation();
-  _shape = ((fv->logicalPart()).solid()).shape();
-  _ddname = ((fv->logicalPart()).ddname()).name();
-  _parents = fv->geoHistory();
-  _volume   = ((fv->logicalPart()).solid()).volume();
-  _density  = ((fv->logicalPart()).material()).density();
-  //  _weight   = (fv->logicalPart()).weight();
-  _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
-  _copy     = fv->copyno();
-  _material = ((fv->logicalPart()).material()).name().fullname();
-  _radLength = getDouble("TrackerRadLength",*fv);
-  _xi = getDouble("TrackerXi",*fv);
-  _pixROCRows = getDouble("PixelROCRows",*fv);
-  _pixROCCols = getDouble("PixelROCCols",*fv);
-  _pixROCx = getDouble("PixelROC_X",*fv);
-  _pixROCy = getDouble("PixelROC_Y",*fv);
-  _stereo =  getString("TrackerStereoDetectors",*fv)=="true";
-  _siliconAPVNum = getDouble("SiliconAPVNumber",*fv);
+  _trans(fv->translation()),
+  _phi(_trans.Phi()),
+  _rho(_trans.Rho()),
+  _rot(fv->rotation()),
+  _shape(((fv->logicalPart()).solid()).shape()),
+  _ddd(fv->navPos()),
+  _ddname(((fv->logicalPart()).ddname()).name()),
+  _type(type),
+  _params(((fv->logicalPart()).solid()).parameters()),
 
+  _parents(fv->geoHistory()),
+  _volume(((fv->logicalPart()).solid()).volume()),
+  _density(((fv->logicalPart()).material()).density()),
+  //  _weight   = (fv->logicalPart()).weight();
+  _weight(_density * ( _volume / 1000.)), // volume mm3->cm3
+  _copy(fv->copyno()),
+  _material(((fv->logicalPart()).material()).name().fullname()),
+  _radLength(getDouble("TrackerRadLength",*fv)),
+  _xi(getDouble("TrackerXi",*fv)),
+  _pixROCRows(getDouble("PixelROCRows",*fv)),
+  _pixROCCols(getDouble("PixelROCCols",*fv)),
+  _pixROCx(getDouble("PixelROC_X",*fv)),
+  _pixROCy(getDouble("PixelROC_Y",*fv)),
+  _stereo(getString("TrackerStereoDetectors",*fv)==strue),
+  _siliconAPVNum(getDouble("SiliconAPVNumber",*fv)),
+  _fromDD(true_)
+{
 }
 
 GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumType type) : _type(type) {
