@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.142 2010/01/12 11:44:02 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.143 2010/01/12 15:22:24 amraktad Exp $
 //
 
 // system include files
@@ -499,6 +499,7 @@ void CmsShowMain::openData()
    m_guiManager->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->openFile(fi.fFilename);
+      m_loadedAnyInputFile = true;
       m_navigator->firstEvent();
       checkPosition();
       draw();
@@ -521,6 +522,7 @@ void CmsShowMain::appendData()
    m_guiManager->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->appendFile(fi.fFilename, false, false);
+      m_loadedAnyInputFile = true;
       checkPosition();
       draw();
    }
