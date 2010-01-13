@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.84 2009/12/18 01:12:11 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.85 2010/01/13 11:37:12 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -20,6 +20,7 @@
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
 #include "TBranch.h"
+#include "TAxis.h"
 
 #include  <TApplication.h>
 #include  <TSystem.h>
@@ -850,16 +851,8 @@ void
 CmsShowNavigator::setupMemoryInfo(int numEvents)
 {
    m_memoryInfoSamples = numEvents;
-
    m_memoryVirtualVec.reserve (m_memoryInfoSamples);
-   m_memoryVirtualVec.SetTitle("VirtualMemory");
-   m_memoryVirtualVec.GetXaxis("events");
-   m_memoryVirtualVec.GetYaxis("kB");
-
    m_memoryResidentVec.reserve(m_memoryInfoSamples);
-   m_memoryResidentVec.SetTitle("ResidentMemory");
-   m_memoryResidentVec.GetXaxis("events");
-   m_memoryResidentVec.GetYaxis("kB");
 }
 
 void
@@ -883,8 +876,14 @@ CmsShowNavigator::writeMemoryInfo()
          TFile* file = TFile::Open(Form("memoryUsage_%d.root", gSystem->GetPid()), "RECREATE");
          file->cd(); 
          Int_t n = m_memoryResidentVec.size();
-         TGraph gr(n);
          TGraph gv(n);
+         gv.SetTitle("VirtualMemory");
+         gv.GetXaxis()->SetTitle("events");
+         gv.GetYaxis()->SetTitle("kB");
+         TGraph gr(n);
+         gr.SetTitle("ResidentMemory");
+         gr.GetXaxis()->SetTitle("events");
+         gr.GetYaxis()->SetTitle("kB");
          for(Int_t i=0; i<n; i++)
          {
             gr.SetPoint(i, i, m_memoryResidentVec[i]);
