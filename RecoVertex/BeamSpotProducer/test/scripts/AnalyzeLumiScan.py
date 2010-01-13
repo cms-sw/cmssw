@@ -19,7 +19,9 @@ import commands
 
 def get_list_files(run,ls1,ls2,mode):
     lfiles = []
-    dbsquery = "dbs search --query=\"find file where dataset=/ExpressPhysics/*/FEVT and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+" order by lumi asc\" > tmplist.txt"
+#    dbsquery = "dbs search --query=\"find file where dataset=/ExpressPhysics/*/FEVT and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+" order by lumi asc\" > tmplist.txt"
+    dbsquery = "dbs search --query=\"find file where dataset=/MinimumBias/BeamCommissioning09-Dec19thReReco_341_v1/RECO and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+" order by lumi asc\" > tmplist.txt"
+
     #print dbsquery
     os.system(dbsquery)
     n=0
@@ -32,6 +34,8 @@ def get_list_files(run,ls1,ls2,mode):
         prefix=""
     elif mode == 1: ## lxplus
         prefix="rfio:/castor/cern.ch/cms"
+    elif mode == 2: ## cmslpc
+	prefix="dcache:/pnfs/cms/WAX/11"
     else:
         print "Mode = "+str(mode)+" is not supported"
 
@@ -51,7 +55,7 @@ def get_list_files(run,ls1,ls2,mode):
 def main():
     
     if len(sys.argv) < 4:
-        print "\n [Usage] python AnalyzeLumiScan.py <LumiScanLists.txt> <caf/lxplus> <local/batch>"
+        print "\n [Usage] python AnalyzeLumiScan.py <LumiScanLists.txt> <caf/lxplus/cmslpc> <local/batch>"
         sys.exit()
 
     cfidir = "../../python/"
@@ -64,6 +68,9 @@ def main():
         fmode = 0
     elif mode == "lxplus":
         fmode = 1
+    elif mode == "cmslpc":
+	fmode = 2
+	jobmode = "local" ## temporary
     else:
         print "Mode not supported"
         sys.exit()

@@ -23,10 +23,12 @@ from ROOT import gROOT,gPad,TH1F,TLegend,TFile,TStyle,TAxis
 def get_list_files(directory,pattern="txt"):
     dir = []
     dir = os.listdir(directory)
+    dir.sort(cmp)
     lfiles = []
 
     for f in dir:
         if f.find(pattern) != -1:
+	    #print f
             lfiles.append(f)
     return lfiles;
 
