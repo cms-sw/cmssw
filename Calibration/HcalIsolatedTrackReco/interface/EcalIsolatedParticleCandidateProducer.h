@@ -34,7 +34,7 @@ class EcalIsolatedParticleCandidateProducer : public edm::EDProducer {
     edm::InputTag EBrecHitCollectionLabel_;
     edm::InputTag EErecHitCollectionLabel_;
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

@@ -114,8 +114,7 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 
-void ECALRegFEDSelector::beginJob(const edm::EventSetup&)
-{
+void ECALRegFEDSelector::beginJob() {
 }
 
 

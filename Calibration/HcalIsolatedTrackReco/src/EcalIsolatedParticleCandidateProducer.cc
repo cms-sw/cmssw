@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.7 2008/02/20 07:54:31 safronov Exp $
+// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.8 2008/05/13 20:51:01 heltsley Exp $
 //
 //
 
@@ -220,8 +220,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalIsolatedParticleCandidateProducer::beginJob(const edm::EventSetup&)
-{
+EcalIsolatedParticleCandidateProducer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

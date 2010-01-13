@@ -143,8 +143,7 @@ SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 void 
-SiStripRegFEDSelector::beginJob(const edm::EventSetup&)
-{
+SiStripRegFEDSelector::beginJob() {
 }
 
 void 

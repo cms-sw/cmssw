@@ -223,8 +223,7 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void SubdetFEDSelector::beginJob(const edm::EventSetup&)
-{
+void SubdetFEDSelector::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

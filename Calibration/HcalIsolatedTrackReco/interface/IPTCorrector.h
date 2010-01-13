@@ -26,8 +26,6 @@ class IPTCorrector : public edm::EDProducer {
   IPTCorrector (const edm::ParameterSet& ps);
   ~IPTCorrector();
 
-
-  virtual void beginJob (edm::EventSetup const & es){};
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:
