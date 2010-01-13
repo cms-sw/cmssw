@@ -75,17 +75,7 @@ DDValue::DDValue(const std::string & name, double val)
 DDValue::DDValue(const std::string & name, const std::string & sval, double dval) 
  : id_(0)
  {
-  unsigned int temp = indexer().size()+1;
-  typedef std::map<std::string,unsigned int>::iterator itT;
-  std::pair<itT,bool> result = indexer().insert(std::make_pair(name,temp));
-  
-  if (result.second) {
-    id_ = temp;
-    names().push_back(name);
-  }
-  else {
-    id_ = result.first->second;
-  }  
+   init(name);
   
   std::vector<std::string> svec(1,sval);
   std::vector<double> dvec(1,dval);
@@ -100,17 +90,7 @@ DDValue::DDValue(const std::string & name, const std::string & sval, double dval
 DDValue::DDValue(const std::string & name, const std::string & sval) 
  : id_(0)
  {
-  unsigned int temp = indexer().size()+1;
-  typedef std::map<std::string,unsigned int>::iterator itT;
-  std::pair<itT,bool> result = indexer().insert(std::make_pair(name,temp));
-  
-  if (result.second) {
-    id_ = temp;
-    names().push_back(name);
-  }
-  else {
-    id_ = result.first->second;
-  }  
+   init(name);
   
   std::vector<std::string> svec(1,sval);
   std::vector<double> dvec(1,0);
