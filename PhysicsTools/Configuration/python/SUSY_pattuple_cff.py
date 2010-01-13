@@ -21,7 +21,8 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Su
     if mcVersion == '31x' and mcInfo:
 	runSUSY33xOn31xMC(process)
 
-	process.eventCountProducer = cms.EDProducer("EventCountProducer")
+    #-- Counter for the number of processed events --------------------------------
+    process.eventCountProducer = cms.EDProducer("EventCountProducer")
 
     # Full path
     process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
@@ -228,9 +229,10 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep recoGenJets_iterativeCone5GenJets_*_*',
         'keep recoGenJets_sisCone5GenJets_*_*',
         'keep recoGenJets_ak5GenJets*_*_*',
+	'keep recoGenJets_anti*5GenJets_*_*',
         'keep recoGenMETs_*_*_*',
         # Trigger information
-        'keep edmTriggerResults_TriggerResults_*_HLT',
+        'keep edmTriggerResults_TriggerResults_*_HLT*',
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep L1GlobalTriggerObjectMapRecord_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_*_*_*',
