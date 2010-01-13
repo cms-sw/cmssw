@@ -146,7 +146,7 @@ CastorMonitorModule::~CastorMonitorModule(){
 //=================================================================//
 //========================== beginJob =============================//
 //================================================================//
-void CastorMonitorModule::beginJob(const edm::EventSetup& c){
+void CastorMonitorModule::beginJob(){
   ievt_ = 0;
   ievt_pre_=0;
 

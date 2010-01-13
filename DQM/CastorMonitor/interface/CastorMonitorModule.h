@@ -63,7 +63,7 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   ////---- beginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
   
   ////---- beginRun
   void beginRun(const edm::Run& run, const edm::EventSetup& c);
