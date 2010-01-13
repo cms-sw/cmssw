@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.21 2010/01/11 18:47:15 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.11 2010/01/13 11:15:36 nancy Exp $
 //
 //
 
@@ -260,6 +260,8 @@ bool TrackerOnlyConversionProducer::getMatchedBC(const std::multimap<double, rec
     } else
 	return false;
 }
+
+
 
 bool TrackerOnlyConversionProducer::getMatchedBC(const reco::CaloClusterPtrVector& bcMap,
 	const math::XYZPoint& trackImpactPosition,
