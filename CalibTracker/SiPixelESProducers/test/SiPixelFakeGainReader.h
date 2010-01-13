@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelFakeGainReader.h,v 1.2 2008/02/11 15:24:21 friis Exp $
+// $Id: SiPixelFakeGainReader.h,v 1.3 2009/05/28 22:20:44 dlange Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,7 +43,8 @@ public:
   explicit SiPixelFakeGainReader( const edm::ParameterSet& iConfig);
 
   ~SiPixelFakeGainReader(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
+  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 

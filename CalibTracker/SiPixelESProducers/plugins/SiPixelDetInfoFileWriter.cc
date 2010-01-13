@@ -3,7 +3,7 @@
 // Class:      SiPixelDetInfoFileWriter
 // Original Author:  V.Chiochia (adapted from the Strip version by G.Bruno)
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiPixelDetInfoFileWriter.cc,v 1.1 2007/08/08 16:22:29 chiochia Exp $
+// $Id: SiPixelDetInfoFileWriter.cc,v 1.2 2008/01/22 19:15:07 muzaffar Exp $
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,14 +38,11 @@ SiPixelDetInfoFileWriter::~SiPixelDetInfoFileWriter(){
 
 
 
-void SiPixelDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
-
+void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run , const edm::EventSetup &iSetup){
 
   outputFile_.open(filePath_.c_str());
 
-
   if (outputFile_.is_open()){
-
 
     edm::ESHandle<TrackerGeometry> pDD;
 
@@ -83,5 +80,10 @@ void SiPixelDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
     return;
   
   }
+
+}
+
+
+void SiPixelDetInfoFileWriter::beginJob() {
 
 }

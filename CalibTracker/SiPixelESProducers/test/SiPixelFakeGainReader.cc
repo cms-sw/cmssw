@@ -79,45 +79,55 @@ SiPixelFakeGainReader::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelFakeGainReader::beginJob(const edm::EventSetup& iSetup)
+SiPixelFakeGainReader::beginJob()
+{
+}
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+SiPixelFakeGainReader::beginRun(const edm::Run &run , const edm::EventSetup &iSetup)
 {
 
-  edm::LogInfo("SiPixelFakeGainReader") <<"[SiPixelFakeGainReader::beginJob] Opening ROOT file  " <<std::endl;
-  fFile = new TFile(filename_.c_str(),"RECREATE");
-  fFile->mkdir("Pedestals");
-  fFile->mkdir("Gains");
-  fFile->cd();
-  char name[128];
-
-  // Get Geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get( tkgeom );
-
-  // Get the calibration data
-  //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-  //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
-  SiPixelGainCalibrationService_.setESObjects(iSetup);
-  edm::LogInfo("SiPixelFakeGainReader") << "[SiPixelFakeGainReader::beginJob] End Reading FakeGainects" << std::endl;
-  // Get the list of DetId's
-  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
-  //SiPixelGainCalibration_->getDetIds(vdetId_);
-  // Loop over DetId's
-  for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
-    uint32_t detid = *detid_iter;
+  static int first(1); 
+  if (1 == first) {
+    first = 0; 
+    edm::LogInfo("SiPixelFakeGainReader") <<"[SiPixelFakeGainReader::beginJob] Opening ROOT file  " <<std::endl;
+    fFile = new TFile(filename_.c_str(),"RECREATE");
+    fFile->mkdir("Pedestals");
+    fFile->mkdir("Gains");
+    fFile->cd();
+    char name[128];
     
-    const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-    if (_PixelGeomDetUnit==0){
-      edm::LogError("SiPixelFakeGainDisplay")<<"[SiPixelFakeGainReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
-      continue;
-    }     
-    // Book histograms
-    sprintf(name,"Pedestals_%d",detid);
-    fFile->cd();fFile->cd("Pedestals");
-    _TH1F_Pedestals_m[detid] = new TH1F(name,name,50,0.,50.);    
-    sprintf(name,"Gains_%d",detid);
-    fFile->cd();fFile->cd("Gains");
-    _TH1F_Gains_m[detid] = new TH1F(name,name,100,0.,10.);    
+    // Get Geometry
+    iSetup.get<TrackerDigiGeometryRecord>().get( tkgeom );
+    
+    // Get the calibration data
+    //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
+    //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
+    SiPixelGainCalibrationService_.setESObjects(iSetup);
+    edm::LogInfo("SiPixelFakeGainReader") << "[SiPixelFakeGainReader::beginJob] End Reading FakeGainects" << std::endl;
+    // Get the list of DetId's
+    std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
+    //SiPixelGainCalibration_->getDetIds(vdetId_);
+    // Loop over DetId's
+    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
+      uint32_t detid = *detid_iter;
+      
+      const PixelGeomDetUnit* _PixelGeomDetUnit = dynamic_cast<const PixelGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
+      if (_PixelGeomDetUnit==0){
+	edm::LogError("SiPixelFakeGainDisplay")<<"[SiPixelFakeGainReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
+	continue;
+      }     
+      // Book histograms
+      sprintf(name,"Pedestals_%d",detid);
+      fFile->cd();fFile->cd("Pedestals");
+      _TH1F_Pedestals_m[detid] = new TH1F(name,name,50,0.,50.);    
+      sprintf(name,"Gains_%d",detid);
+      fFile->cd();fFile->cd("Gains");
+      _TH1F_Gains_m[detid] = new TH1F(name,name,100,0.,10.);    
+    }
   }
-  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

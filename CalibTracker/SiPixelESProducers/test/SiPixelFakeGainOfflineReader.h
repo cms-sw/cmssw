@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelFakeGainOfflineReader.h,v 1.1 2008/02/11 15:24:17 friis Exp $
+// $Id: SiPixelFakeGainOfflineReader.h,v 1.2 2009/05/28 22:20:43 dlange Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,7 +43,8 @@ public:
   explicit SiPixelFakeGainOfflineReader( const edm::ParameterSet& iConfig);
 
   ~SiPixelFakeGainOfflineReader(){};
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob( );
+  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 
