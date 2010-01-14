@@ -47,11 +47,11 @@ void ElectronOfflineClient::finalize()
 
   if (effHistoTitle_=="")
    {
-    bookH1andDivide("h1_ele_ptEff","h1_matchedObject_Pt","h1_matchingObject_Pt","p_{T} (GeV/c)","Efficiency","Efficiency vs p_{T}") ;
-    bookH1andDivide("h1_ele_etaEff","h1_matchedObject_Eta","h1_matchingObject_Eta","#eta","Efficiency","Efficiency vs #eta") ;
-  //  bookH1andDivide("h1_ele_absEtaEff","h1_matchedObject_AbsEta","h1_matchingObject_AbsEta","|#eta|","Efficiency","Efficiency vs |#eta|") ;
-    bookH1andDivide("h1_ele_phiEff","h1_matchedObject_Phi","h1_matchingObject_Phi","#phi (rad)","Efficiency","Efficiency vs #phi") ;
-    bookH1andDivide("h1_ele_zEff","h1_matchedObject_Z","h1_matchingObject_Z","z (cm)","Efficiency","Efficiency vs z") ;
+    bookH1andDivide("h1_ele_ptEff","h1_matchedObject_Pt","h1_matchingObject_Pt","p_{T} (GeV/c)","Efficiency","efficiency vs p_{T}") ;
+    bookH1andDivide("h1_ele_etaEff","h1_matchedObject_Eta","h1_matchingObject_Eta","#eta","Efficiency","efficiency vs #eta") ;
+  //  bookH1andDivide("h1_ele_absEtaEff","h1_matchedObject_AbsEta","h1_matchingObject_AbsEta","|#eta|","Efficiency","efficiency vs |#eta|") ;
+    bookH1andDivide("h1_ele_phiEff","h1_matchedObject_Phi","h1_matchingObject_Phi","#phi (rad)","Efficiency","efficiency vs #phi") ;
+    bookH1andDivide("h1_ele_zEff","h1_matchedObject_Z","h1_matchingObject_Z","z (cm)","Efficiency","efficiency vs z") ;
    }
   else
    {

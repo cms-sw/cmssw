@@ -49,7 +49,7 @@ ElectronGeneralAnalyzer::~ElectronGeneralAnalyzer()
 
 void ElectronGeneralAnalyzer::book()
  {
-  h2_ele_beamSpotXvsY = bookH2("h2_ele_beamSpotXvsY","beam spot x vs y",100,-1.,1.,100,-1.,1.,"x (cm)","y (cm)") ;
+  h2_ele_beamSpotXvsY = bookH2("h2_ele_beamSpotXvsY","beam spot x vs y",100,-0.1,0.1,100,-0.1,0.1,"x (cm)","y (cm)") ;
   py_ele_nElectronsVsLs = bookP1("py_ele_nElectronsVsLs","# gsf electrons vs LS",150,0.,150.,0.,20.,"LS","<N_{ele}>") ;
   py_ele_nClustersVsLs = bookP1("py_ele_nClustersVsLs","# clusters vs LS",150,0.,150.,0.,100.,"LS","<N_{SC}>") ;
   py_ele_nGsfTracksVsLs = bookP1("py_ele_nGsfTracksVsLs","# gsf tracks vs LS",150,0.,150.,0.,20.,"LS","<N_{GSF tk}>") ;
