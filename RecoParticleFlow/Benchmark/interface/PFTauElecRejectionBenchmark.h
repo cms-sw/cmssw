@@ -15,7 +15,7 @@
 #include "Math/GenVector/PxPyPzE4D.h"
 #include "TLorentzVector.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include <string>
