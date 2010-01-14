@@ -1,9 +1,7 @@
 <use name=DataFormats/Common>
 <use name=rootrflx>
-<use name=clhep>
+<use name=clhepheader>
 <export>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/Math>
   <lib name=DataFormatsEgammaReco>
 </export>
 
