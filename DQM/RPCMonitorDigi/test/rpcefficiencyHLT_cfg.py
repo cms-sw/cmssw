@@ -15,14 +15,16 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V1::All"
+process.GlobalTag.globaltag = "MC_3XY_V15::All"
 process.prefer("GlobalTag")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RECO/v1/000/119/580/76BDF4A8-1ACA-DE11-9177-000423D98E6C.root')
+#   fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RECO/v1/000/119/580/76BDF4A8-1ACA-DE11-9177-000423D98E6C.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0010/B2084415-22EE-DE11-9BA9-002618943842.root')
+#   fileNames = cms.untracked.vstring('file:/tmp/carrillo/B2084415-22EE-DE11-9BA9-002618943842.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -46,12 +48,16 @@ process.museg = cms.EDFilter("RPCEfficiency",
     MaxD = cms.untracked.double(80.0),
     MaxDrb4 = cms.untracked.double(150.0),
 
-    cscSegments = cms.untracked.string('cscSegments'),
-    dt4DSegments = cms.untracked.string('dt4DSegments'),
+ #   cscSegments = cms.untracked.string('cscSegments'),
+ #   dt4DSegments = cms.untracked.string('dt4DSegments'),
+
+    cscSegments = cms.untracked.string('hltCscSegments'),
+    dt4DSegments = cms.untracked.string('hltDt4DSegments'),
+
 
     folderPath = cms.untracked.string('HLT/HLTMonMuon/RPC/'),
 
-    EffSaveRootFile = cms.untracked.bool(False)
+    EffSaveRootFile = cms.untracked.bool(True)
 )
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
