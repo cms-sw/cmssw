@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/22 17:43:09 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/01/12 21:17:15 $
+ *  $Revision: 1.25 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -407,6 +407,48 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   theSummaryContents[12]->Fill(multiplicity);
 
   summaryReport->Fill((GLB+TK+STA+energyDeposits+multiplicity)/5.0);
+
+
+  //global barrel:
+  float muonIDsummary=0;
+  for(int i=2; i<=5; i++)
+    muonIDsummary += muonIdSummaryMap->getBinContent(1, i);
+  summaryCertificationMap->Fill(4, 5, muonIDsummary/4.);
+    
+  //global EC:
+   muonIDsummary=0;
+  for(int i=2; i<=5; i++)
+    muonIDsummary += muonIdSummaryMap->getBinContent(2, i);
+  summaryCertificationMap->Fill(7, 5, muonIDsummary/4.);
+    
+  //tracker barrel:
+  muonIDsummary=0;
+  for(int i=2; i<=5; i++)
+    muonIDsummary += muonIdSummaryMap->getBinContent(3, i);
+  summaryCertificationMap->Fill(5, 5, muonIDsummary/4.);
+    
+  //tracker EC:
+   muonIDsummary=0;
+  for(int i=2; i<=5; i++)
+    muonIDsummary += muonIdSummaryMap->getBinContent(4, i);
+  summaryCertificationMap->Fill(8, 5, muonIDsummary/4.);
+    
+
+  double muonId_GLB_B = double(summaryCertificationMap->getBinContent(4,5));
+  theCertificationContents[3]->Fill(muonId_GLB_B);
+  double muonId_GLB_EC = double(summaryCertificationMap->getBinContent(7,5));
+  theCertificationContents[6]->Fill(muonId_GLB_EC);
+
+  double muonId_TK_B = double(summaryCertificationMap->getBinContent(5,5));
+  theCertificationContents[5]->Fill(muonId_TK_B);
+  double muonId_TK_EC = double(summaryCertificationMap->getBinContent(8,5));
+  theCertificationContents[8]->Fill(muonId_TK_EC);
+
+
+
+
+
+
 
 }
 
