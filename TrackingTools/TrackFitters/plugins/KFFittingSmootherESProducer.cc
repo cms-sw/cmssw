@@ -32,6 +32,9 @@ KFFittingSmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){
   std::string fname = pset_.getParameter<std::string>("Fitter");
   std::string sname = pset_.getParameter<std::string>("Smoother");
   double theEstimateCut = pset_.getParameter<double>("EstimateCut");
+
+  double theLogPixelProbabilityCut = pset_.getParameter<double>("LogPixelProbabilityCut"); // ggiurgiu@fnal.gov
+
   int theMinNumberOfHits = pset_.getParameter<int>("MinNumberOfHits");
   bool rejectTracksFlag = pset_.getParameter<bool>("RejectTracks");
   bool breakTrajWith2ConsecutiveMissing = pset_.getParameter<bool>("BreakTrajWith2ConsecutiveMissing");
@@ -44,7 +47,9 @@ KFFittingSmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){
   iRecord.get(sname, smooth);
   
   _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFFittingSmoother(*fit.product(), *smooth.product(),
-								       theEstimateCut,theMinNumberOfHits,rejectTracksFlag,
+								       theEstimateCut,
+								       theLogPixelProbabilityCut, // ggiurgiu@fnal.gov
+								       theMinNumberOfHits,rejectTracksFlag,
 								       breakTrajWith2ConsecutiveMissing,noInvalidHitsBeginEnd));
   return _fitter;
 }
