@@ -49,6 +49,10 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   nHitMin_( cfg.getParameter<double>( "nHitMin" ) ),
   nHitMax_( cfg.getParameter<double>( "nHitMax" ) ),
   chi2nMax_( cfg.getParameter<double>( "chi2nMax" ) ),
+  d0Min_(  cfg.getParameter<double>( "d0Min" ) ),
+  d0Max_(  cfg.getParameter<double>( "d0Max" ) ),
+  dzMin_(  cfg.getParameter<double>( "dzMin" ) ),
+  dzMax_(  cfg.getParameter<double>( "dzMax" ) ),
   minHitChargeStrip_( cfg.getParameter<double>( "minHitChargeStrip" ) ),
   minHitIsolation_( cfg.getParameter<double>( "minHitIsolation" ) ),
   rphirecHitsTag_( cfg.getParameter<edm::InputTag>("rphirecHits") ),
@@ -207,6 +211,8 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
     float phi=trackp->phi();
     int nhit = trackp->numberOfValidHits(); 
     float chi2n = trackp->normalizedChi2();
+    float d0    = trackp->d0();
+    float dz    = trackp->dz();
 
     // edm::LogDebug("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
     //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
@@ -216,7 +222,9 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
        && eta>etaMin_ && eta<etaMax_ 
        && phi>phiMin_ && phi<phiMax_ 
        && nhit>=nHitMin_ && nhit<=nHitMax_
-       && chi2n<chi2nMax_) {
+       && chi2n<chi2nMax_
+       && d0>=d0Min_ && d0<=d0Max_
+       && dz>=dzMin_ && dz<=dzMax_) {
       bool trkQualityOk=false ;
       if (!applyTrkQualityCheck_ &&!applyIterStepCheck_)trkQualityOk=true ; // nothing required
       else trkQualityOk = this->isOkTrkQuality(trackp);
@@ -237,7 +245,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
-      || minHitsinFPIX_ || minHitsinBPIX_ || nHitMin2D_ || chargeCheck_
+      || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ ||nHitMin2D_ || chargeCheck_
       || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)) {
     // any detailed hit cut is active, so have to check
     
