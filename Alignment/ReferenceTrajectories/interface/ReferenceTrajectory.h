@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2009/11/30 10:12:34 $
- * by         : $Author: ckleinw $
+ * last update: $Date: 2009/12/17 12:27:31 $
+ * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -39,6 +39,8 @@ class MagneticField;
 class MaterialEffectsUpdator;
 class BoundPlane;
 
+namespace reco { class BeamSpot; }
+
 class ReferenceTrajectory : public ReferenceTrajectoryBase
 {
 
@@ -51,29 +53,31 @@ public:
      to the flight of particle, but note that ReferenceTrajectory::recHits()
      returns the hits always in order of flight],
      the material effects to be considered and a particle mass,
-     the magnetic field of the event is needed for propagations etc.
+     the magnetic field and beamSpot of the event are needed for propagations etc.
    */
   ReferenceTrajectory(const TrajectoryStateOnSurface &referenceTsos,
 		      const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 		      bool hitsAreReverse,
 		      const MagneticField *magField,
-		      MaterialEffects materialEffects = combined, 
-		      PropagationDirection propDir = alongMomentum,
-		      double mass = 0.10565836);
+		      MaterialEffects materialEffects,
+		      PropagationDirection propDir,
+		      double mass,
+		      const reco::BeamSpot &beamSpot);
   virtual ~ReferenceTrajectory() {}
 
   virtual ReferenceTrajectory* clone() const { return new ReferenceTrajectory(*this); }
 
 protected:
 
-  ReferenceTrajectory( unsigned int nPar = 0, unsigned int nHits = 0, MaterialEffects materialEffects = none );
+  ReferenceTrajectory(unsigned int nPar, unsigned int nHits, MaterialEffects materialEffects);
 
   /** internal method to calculate members
    */
   virtual bool construct(const TrajectoryStateOnSurface &referenceTsos, 
 			 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 			 double mass, MaterialEffects materialEffects,
-			 const PropagationDirection propDir, const MagneticField *magField);
+			 const PropagationDirection propDir, const MagneticField *magField,
+			 const reco::BeamSpot &beamSpot);
 
   /** internal method to get apropriate updator
    */

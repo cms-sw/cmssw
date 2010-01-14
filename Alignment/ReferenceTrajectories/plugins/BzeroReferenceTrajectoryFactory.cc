@@ -1,5 +1,3 @@
-// Do not include .h from plugin directory, but locally:
-#include "BzeroReferenceTrajectoryFactory.h"
 #include "Alignment/ReferenceTrajectories/interface/BzeroReferenceTrajectory.h" 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
@@ -10,6 +8,41 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
+
+/// A factory that produces instances of class BzeroReferenceTrajectory from a
+/// given TrajTrackPairCollection.
+
+
+class BzeroReferenceTrajectoryFactory : public TrajectoryFactoryBase
+{
+public:
+
+  BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config);
+  virtual ~BzeroReferenceTrajectoryFactory();
+
+  /// Produce the reference trajectories.
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const ExternalPredictionCollection &external,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual BzeroReferenceTrajectoryFactory* clone() const { return new BzeroReferenceTrajectoryFactory( *this ); }
+
+private:
+
+  double theMass;
+  double theMomentumEstimate;
+};
+
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config )
@@ -23,8 +56,9 @@ BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory( void ) {}
 
 
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection
-BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-					       const ConstTrajTrackPairCollection & tracks ) const
+BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+					      const ConstTrajTrackPairCollection &tracks,
+					      const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -44,7 +78,8 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 										 magneticField.product(),
 										 materialEffects(),
 										 propagationDirection(),
-										 theMass, theMomentumEstimate)));
+										 theMass, theMomentumEstimate,
+										 beamSpot)));
     }
 
     ++itTracks;
@@ -55,9 +90,10 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
 
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection
-BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-					       const ConstTrajTrackPairCollection& tracks,
-					       const ExternalPredictionCollection& external ) const
+BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+					      const ConstTrajTrackPairCollection &tracks,
+					      const ExternalPredictionCollection &external,
+					      const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -88,7 +124,7 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 	ReferenceTrajectoryPtr refTraj( new BzeroReferenceTrajectory( *itExternal, input.second, false,
 								      magneticField.product(), materialEffects(),
 								      propagationDirection(), theMass,
-								      theMomentumEstimate ) );
+								      theMomentumEstimate, beamSpot ) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
 	refTraj->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
@@ -101,7 +137,8 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 										   magneticField.product(),
 										   materialEffects(),
 										   propagationDirection(),
-										   theMass, theMomentumEstimate)));
+										   theMass, theMomentumEstimate,
+										   beamSpot)));
       }
     }
 

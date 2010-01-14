@@ -1,5 +1,3 @@
-// Do not include .h from plugin directory, but locally:
-#include "TwoBodyDecayTrajectoryFactory.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
@@ -20,6 +18,65 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectory.h"
+
+#include "Alignment/TwoBodyDecay/interface/TwoBodyDecayFitter.h"
+
+/**
+   by Edmund Widl, see CMS NOTE-2007/032.
+   extension for BreakPoints or BrokenLines by Claus Kleinwort
+ */
+
+class TwoBodyDecayTrajectoryFactory : public TrajectoryFactoryBase
+{
+public:
+
+  typedef TwoBodyDecayVirtualMeasurement VirtualMeasurement;
+  typedef TwoBodyDecayTrajectoryState::TsosContainer TsosContainer;
+  typedef TwoBodyDecayTrajectory::ConstRecHitCollection ConstRecHitCollection;
+
+  TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config);
+  ~TwoBodyDecayTrajectoryFactory() {}
+
+  /// Produce the trajectories.
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const ExternalPredictionCollection &external,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual TwoBodyDecayTrajectoryFactory* clone() const { return new TwoBodyDecayTrajectoryFactory(*this); }
+
+protected:
+  const ReferenceTrajectoryCollection constructTrajectories(const ConstTrajTrackPairCollection &tracks,
+							    const TwoBodyDecay &tbd,
+							    const MagneticField *magField,
+							    const reco::BeamSpot &beamSpot,
+							    bool setParameterErrors) const;
+
+  bool match(const TrajectoryStateOnSurface &state,
+	     const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
+    
+  void produceVirtualMeasurement(const edm::ParameterSet &config);
+
+  VirtualMeasurement theVM;
+
+  TwoBodyDecayFitter* theFitter;
+
+  double theNSigmaCutValue;
+  bool theUseRefittedStateFlag;
+  bool theConstructTsosWithErrorsFlag;
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::ParameterSet& config )
   : TrajectoryFactoryBase( config ),
     theFitter( new TwoBodyDecayFitter( config ) ),
@@ -32,8 +89,9 @@ TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::Paramet
 
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection
-TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
-					     const ConstTrajTrackPairCollection& tracks ) const
+TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+					    const ConstTrajTrackPairCollection &tracks,
+					    const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -60,7 +118,7 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
       return trajectories;
     }
 
-    return constructTrajectories( tracks, tbd, magneticField.product(), false );
+    return constructTrajectories( tracks, tbd, magneticField.product(), beamSpot, false );
   }
   else
   {
@@ -73,9 +131,10 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
 
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection
-TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
-					     const ConstTrajTrackPairCollection& tracks,
-					     const ExternalPredictionCollection& external ) const
+TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+					    const ConstTrajTrackPairCollection &tracks,
+					    const ExternalPredictionCollection &external,
+					    const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -106,12 +165,12 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
 	return trajectories;
       }
 
-      return constructTrajectories( tracks, tbd, magneticField.product(), true );
+      return constructTrajectories( tracks, tbd, magneticField.product(), beamSpot, true );
     }
     else
     {
       // Return without external estimate
-      trajectories = this->trajectories( setup, tracks );
+      trajectories = this->trajectories(setup, tracks, beamSpot);
     }
   }
   else
@@ -128,6 +187,7 @@ const TwoBodyDecayTrajectoryFactory::ReferenceTrajectoryCollection
 TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCollection& tracks,
 						      const TwoBodyDecay& tbd,
 						      const MagneticField* magField,
+						      const reco::BeamSpot &beamSpot,
 						      bool setParameterErrors ) const
 {
   ReferenceTrajectoryCollection trajectories;
@@ -167,7 +227,7 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   // set the flag for reversing the RecHits to false, since they are already in the correct order.
   TwoBodyDecayTrajectory* result = new TwoBodyDecayTrajectory( trajectoryState, recHits, magField,
 							       materialEffects(), propagationDirection(),
-							       false, theUseRefittedStateFlag,
+							       false, beamSpot, theUseRefittedStateFlag,
 							       theConstructTsosWithErrorsFlag );
   if ( setParameterErrors && tbd.hasError() ) result->setParameterErrors( tbd.covariance() );
   trajectories.push_back( ReferenceTrajectoryPtr( result ) );
@@ -207,17 +267,19 @@ void TwoBodyDecayTrajectoryFactory::produceVirtualMeasurement( const edm::Parame
 {
   const edm::ParameterSet bsc = config.getParameter< edm::ParameterSet >( "BeamSpot" );
   const edm::ParameterSet ppc = config.getParameter< edm::ParameterSet >( "ParticleProperties" );
+  // FIXME: Should get 3D beamspot and errors from BeamSpot input from
+  //        event with extrapolation of tracks to beam line?
 
-  theBeamSpot = GlobalPoint( bsc.getParameter< double >( "MeanX" ),
-			     bsc.getParameter< double >( "MeanY" ),
-			     bsc.getParameter< double >( "MeanZ" ) );
+  GlobalPoint theBeamSpot( bsc.getParameter< double >( "MeanX" ),
+			   bsc.getParameter< double >( "MeanY" ),
+			   bsc.getParameter< double >( "MeanZ" ) );
 
-  theBeamSpotError = GlobalError( bsc.getParameter< double >( "VarXX" ),
-				  bsc.getParameter< double >( "VarXY" ),
-				  bsc.getParameter< double >( "VarYY" ),
-				  bsc.getParameter< double >( "VarXZ" ),
-				  bsc.getParameter< double >( "VarYZ" ),
-				  bsc.getParameter< double >( "VarZZ" ) );
+  GlobalError theBeamSpotError( bsc.getParameter< double >( "VarXX" ),
+				bsc.getParameter< double >( "VarXY" ),
+				bsc.getParameter< double >( "VarYY" ),
+				bsc.getParameter< double >( "VarXZ" ),
+				bsc.getParameter< double >( "VarYZ" ),
+				bsc.getParameter< double >( "VarZZ" ) );
 
   theVM = VirtualMeasurement( ppc.getParameter< double >( "PrimaryMass" ),
 			      ppc.getParameter< double >( "PrimaryWidth" ),

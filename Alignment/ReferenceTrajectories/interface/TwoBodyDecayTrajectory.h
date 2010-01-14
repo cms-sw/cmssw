@@ -9,6 +9,8 @@
    by Edmund Widl, see CMS NOTE-2007/032.
  */
 
+namespace reco { class BeamSpot; }
+
 class TwoBodyDecayTrajectory : public ReferenceTrajectoryBase
 {
 
@@ -20,11 +22,12 @@ public:
   TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState & trajectoryState,
 			  const ConstRecHitCollection & recHits,
 			  const MagneticField* magField,
-			  MaterialEffects materialEffects = combined,
-			  PropagationDirection propDir = alongMomentum,
-			  bool hitsAreReverse = false,
-			  bool useRefittedState = true,
-			  bool constructTsosWithErrors = false );
+			  MaterialEffects materialEffects,
+			  PropagationDirection propDir,
+			  bool hitsAreReverse,
+			  const reco::BeamSpot &beamSpot,
+			  bool useRefittedState,
+			  bool constructTsosWithErrors );
 
   TwoBodyDecayTrajectory( void );
 
@@ -44,6 +47,7 @@ private:
 		  const MagneticField* field,
 		  MaterialEffects materialEffects,
 		  PropagationDirection propDir,
+		  const reco::BeamSpot &beamSpot,
 		  bool useRefittedState,
 		  bool constructTsosWithErrors );
 

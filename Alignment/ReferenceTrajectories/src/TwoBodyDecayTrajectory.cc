@@ -16,6 +16,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 						MaterialEffects materialEffects,
 						PropagationDirection propDir,
 						bool hitsAreReverse,
+						const reco::BeamSpot &beamSpot,
 						bool useRefittedState,
 						bool constructTsosWithErrors )
 
@@ -42,12 +43,12 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
     }
 
     theValidityFlag = this->construct( trajectoryState, fwdRecHits, magField, materialEffects, propDir,
-				       useRefittedState, constructTsosWithErrors );
+				       beamSpot, useRefittedState, constructTsosWithErrors );
   }
   else
   {
     theValidityFlag = this->construct( trajectoryState, recHits, magField, materialEffects, propDir,
-				       useRefittedState, constructTsosWithErrors );
+				       beamSpot, useRefittedState, constructTsosWithErrors );
   }
 }
 
@@ -62,6 +63,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
 					const MagneticField* field,
 					MaterialEffects materialEffects,
 					PropagationDirection propDir,
+					const reco::BeamSpot &beamSpot,
 					bool useRefittedState,
 					bool constructTsosWithErrors )
 {  
@@ -74,7 +76,8 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   //
 
   // construct a trajectory (hits should be already in correct order)
-  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects, propDir, mass );
+  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects,
+				   propDir, mass, beamSpot);
 
   // check if construction of trajectory was successful
   if ( !trajectory1.isValid() ) return false;
@@ -93,7 +96,8 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   // second track
   //
 
-  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects, propDir, mass );
+  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects,
+				   propDir, mass, beamSpot );
 
   if ( !trajectory2.isValid() ) return false;
   

@@ -46,10 +46,11 @@ public:
 				const ConstRecHitContainer &forwardRecHits,
 				const ConstRecHitContainer &backwardRecHits,
 				const MagneticField *magField,
-				MaterialEffects materialEffects = combined, 
-				PropagationDirection propDir = alongMomentum,
-				double mass = 0.10565836,
-				double momentumEstimate = 1.5 );
+				MaterialEffects materialEffects,
+				PropagationDirection propDir,
+				double mass,
+				double momentumEstimate,
+				const reco::BeamSpot &beamSpot);
 
   virtual ~DualBzeroReferenceTrajectory() {}
 
@@ -61,7 +62,8 @@ protected:
 					 const ConstRecHitContainer &recHits,
 					 double mass, MaterialEffects materialEffects,
 					 const PropagationDirection propDir,
-					 const MagneticField *magField) const;
+					 const MagneticField *magField,
+					 const reco::BeamSpot &beamSpot) const;
 
   virtual AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const;
 

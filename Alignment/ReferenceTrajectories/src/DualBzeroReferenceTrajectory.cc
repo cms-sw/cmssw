@@ -16,25 +16,28 @@ DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory( const TrajectoryStat
 							    MaterialEffects materialEffects,
 							    PropagationDirection propDir,
 							    double mass,
-							    double momentumEstimate )
+							    double momentumEstimate, 
+							    const reco::BeamSpot &beamSpot)
   : DualReferenceTrajectory(referenceTsos.localParameters().mixedFormatVector().kSize - 1,
 			    numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1),
     theMomentumEstimate(momentumEstimate)
 {
-    theValidityFlag = DualReferenceTrajectory::construct( referenceTsos,
-							forwardRecHits,
-							backwardRecHits,
-							mass, materialEffects,
-							propDir, magField );
+    theValidityFlag = DualReferenceTrajectory::construct(referenceTsos,
+							 forwardRecHits,
+							 backwardRecHits,
+							 mass, materialEffects,
+							 propDir, magField,
+							 beamSpot);
 }
 
 
 ReferenceTrajectory*
 DualBzeroReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos, 
-				   const ConstRecHitContainer &recHits,
-				   double mass, MaterialEffects materialEffects,
-				   const PropagationDirection propDir,
-				   const MagneticField *magField) const
+					const ConstRecHitContainer &recHits,
+					double mass, MaterialEffects materialEffects,
+					const PropagationDirection propDir,
+					const MagneticField *magField,
+					const reco::BeamSpot &beamSpot) const
 {
   if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
     << "[DualBzeroReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
@@ -42,7 +45,7 @@ DualBzeroReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenc
   return new BzeroReferenceTrajectory(referenceTsos, recHits,
 				      false, magField,
 				      materialEffects, propDir,
-				      mass, theMomentumEstimate);
+				      mass, theMomentumEstimate, beamSpot);
 }
 
 

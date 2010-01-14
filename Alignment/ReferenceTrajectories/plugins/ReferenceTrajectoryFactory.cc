@@ -4,10 +4,38 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
-// Do not include .h from plugin directory, but locally:
-#include "ReferenceTrajectoryFactory.h"
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h" 
 
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
+
+/// A factory that produces instances of class ReferenceTrajectory from a given TrajTrackPairCollection.
+
+class ReferenceTrajectoryFactory : public TrajectoryFactoryBase
+{
+public:
+  ReferenceTrajectoryFactory(const edm::ParameterSet &config);
+  virtual ~ReferenceTrajectoryFactory();
+
+  /// Produce the reference trajectories.
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const ExternalPredictionCollection &external,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual ReferenceTrajectoryFactory* clone() const { return new ReferenceTrajectoryFactory(*this); }
+
+protected:
+
+  double theMass;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 ReferenceTrajectoryFactory::ReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config )
@@ -20,8 +48,9 @@ ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory( void ) {}
 
 
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection
-ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-					  const ConstTrajTrackPairCollection & tracks ) const
+ReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+					 const ConstTrajTrackPairCollection &tracks,
+					 const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -39,7 +68,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
 									    magneticField.product(), materialEffects(),
-									    propagationDirection(), theMass)));
+									    propagationDirection(), theMass, beamSpot)));
     }
 
     ++itTracks;
@@ -52,7 +81,8 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection
 ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 					  const ConstTrajTrackPairCollection& tracks,
-					  const ExternalPredictionCollection& external ) const
+					  const ExternalPredictionCollection& external,
+					  const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -82,7 +112,8 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 	// set the flag for reversing the RecHits to false, since they are already in the correct order.
 	ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
 								 magneticField.product(), materialEffects(),
-								 propagationDirection(), theMass) );
+								 propagationDirection(), theMass,
+								 beamSpot) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
 	refTraj->setParameterErrors( externalParamErrors );
@@ -93,7 +124,8 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
       {
 	trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
 									      magneticField.product(), materialEffects(),
-									      propagationDirection(), theMass)));
+									      propagationDirection(), theMass,
+									      beamSpot)));
       }
     }
 

@@ -8,10 +8,50 @@
 
 #include <algorithm>
 
-// Do not include .h from plugin directory, but locally:
-#include "DualTrajectoryFactory.h"
 #include "Alignment/ReferenceTrajectories/interface/DualReferenceTrajectory.h" 
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
+/// A factory that produces instances of class ReferenceTrajectory from a given TrajTrackPairCollection.
+
+
+class DualTrajectoryFactory : public TrajectoryFactoryBase
+{
+public:
+  DualTrajectoryFactory(const edm::ParameterSet &config);
+  virtual ~DualTrajectoryFactory();
+
+  /// Produce the reference trajectories.
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup  &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const ExternalPredictionCollection &external,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual DualTrajectoryFactory* clone() const { return new DualTrajectoryFactory(*this); }
+
+protected:
+  struct DualTrajectoryInput
+  {
+    TrajectoryStateOnSurface refTsos;
+    TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
+    TransientTrackingRecHit::ConstRecHitContainer bwdRecHits;
+  };
+
+  const DualTrajectoryInput referenceStateAndRecHits(const ConstTrajTrackPair &track) const;
+
+  const TrajectoryStateOnSurface propagateExternal(const TrajectoryStateOnSurface &external,
+						   const Surface &surface,
+						   const MagneticField *magField) const;
+
+  double theMass;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 DualTrajectoryFactory::DualTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config )
@@ -24,8 +64,9 @@ DualTrajectoryFactory::~DualTrajectoryFactory( void ) {}
 
 
 const DualTrajectoryFactory::ReferenceTrajectoryCollection
-DualTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-				     const ConstTrajTrackPairCollection & tracks ) const
+DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+				    const ConstTrajTrackPairCollection &tracks,
+				    const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -46,7 +87,7 @@ DualTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 							       magneticField.product(),
 							       materialEffects(),
 							       propagationDirection(),
-							       theMass ) );
+							       theMass, beamSpot ) );
       trajectories.push_back( ptr );
     }
 
@@ -57,9 +98,10 @@ DualTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 }
 
 const DualTrajectoryFactory::ReferenceTrajectoryCollection
-DualTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-				     const ConstTrajTrackPairCollection& tracks,
-				     const ExternalPredictionCollection& external ) const
+DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+				    const ConstTrajTrackPairCollection &tracks,
+				    const ExternalPredictionCollection &external,
+				    const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -98,7 +140,7 @@ DualTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 								 magneticField.product(),
 								 materialEffects(),
 								 propagationDirection(),
-								 theMass ) );
+								 theMass, beamSpot ) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( propExternal.localError().matrix() ) );
 	ptr->setParameterErrors( externalParamErrors );
@@ -112,7 +154,7 @@ DualTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 								 magneticField.product(),
 								 materialEffects(),
 								 propagationDirection(),
-								 theMass ) );
+								 theMass, beamSpot ) );
 	trajectories.push_back( ptr );
       }
     }

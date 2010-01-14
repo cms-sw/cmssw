@@ -8,10 +8,53 @@
 
 #include <algorithm>
 
-// Do not include .h from plugin directory, but locally:
-#include "DualBzeroTrajectoryFactory.h"
 #include "Alignment/ReferenceTrajectories/interface/DualBzeroReferenceTrajectory.h" 
 
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
+
+/// A factory that produces instances of class ReferenceTrajectory from a given TrajTrackPairCollection.
+
+
+class DualBzeroTrajectoryFactory : public TrajectoryFactoryBase
+{
+public:
+  DualBzeroTrajectoryFactory(const edm::ParameterSet &config);
+  virtual ~DualBzeroTrajectoryFactory();
+
+  /// Produce the reference trajectories.
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							    const reco::BeamSpot &beamSpot) const;
+
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const ExternalPredictionCollection &external,
+							   const reco::BeamSpot &beamSpot) const;
+
+  virtual DualBzeroTrajectoryFactory* clone() const { return new DualBzeroTrajectoryFactory(*this); }
+
+protected:
+  struct DualBzeroTrajectoryInput
+  {
+    TrajectoryStateOnSurface refTsos;
+    TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
+    TransientTrackingRecHit::ConstRecHitContainer bwdRecHits;
+  };
+
+  const DualBzeroTrajectoryInput referenceStateAndRecHits(const ConstTrajTrackPair &track) const;
+
+  const TrajectoryStateOnSurface propagateExternal(const TrajectoryStateOnSurface &external,
+						   const Surface &surface,
+						   const MagneticField *magField) const;
+
+  double theMass;
+  double theMomentumEstimate;
+  
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 DualBzeroTrajectoryFactory::DualBzeroTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config )
@@ -25,8 +68,9 @@ DualBzeroTrajectoryFactory::~DualBzeroTrajectoryFactory( void ) {}
 
 
 const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection
-DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-				     const ConstTrajTrackPairCollection & tracks ) const
+DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup  &setup,
+					 const ConstTrajTrackPairCollection &tracks,
+					 const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -48,7 +92,8 @@ DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 								    materialEffects(),
 								    propagationDirection(),
 								    theMass,
-								    theMomentumEstimate ) );
+								    theMomentumEstimate,
+								    beamSpot) );
       trajectories.push_back( ptr );
     }
 
@@ -59,9 +104,10 @@ DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 }
 
 const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection
-DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-				     const ConstTrajTrackPairCollection& tracks,
-				     const ExternalPredictionCollection& external ) const
+DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
+					 const ConstTrajTrackPairCollection &tracks,
+					 const ExternalPredictionCollection &external,
+					 const reco::BeamSpot &beamSpot) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -101,7 +147,8 @@ DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 								      materialEffects(),
 								      propagationDirection(),
 								      theMass,
-								      theMomentumEstimate ) );
+								      theMomentumEstimate,
+								      beamSpot ) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( propExternal.localError().matrix() ) );
 	ptr->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
@@ -109,6 +156,8 @@ DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
       }
       else
       {
+// GF: Why is the following commented? That is different from the other factories
+//     that usually have the non-external prediction ReferenceTrajectory as fall back...
 // 	ReferenceTrajectoryPtr ptr( new DualBzeroReferenceTrajectory( input.refTsos,
 // 								      input.fwdRecHits,
 // 								      input.bwdRecHits,
@@ -116,8 +165,8 @@ DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 // 								      materialEffects(),
 // 								      propagationDirection(),
 // 								      theMass,
-// 								      theMomentumEstimate ) );
-
+// 								      theMomentumEstimate,
+//       							      beamSpot ) );
 	DualBzeroReferenceTrajectory test( input.refTsos,
 					   input.fwdRecHits,
 					   input.bwdRecHits,
@@ -125,7 +174,8 @@ DualBzeroTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 					   materialEffects(),
 					   propagationDirection(),
 					   theMass,
-					   theMomentumEstimate );
+					   theMomentumEstimate,
+					   beamSpot );
 
 	//trajectories.push_back( ptr );
       }

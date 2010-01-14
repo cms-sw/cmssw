@@ -12,6 +12,8 @@
 /// ReferenceTrajectoryBase, from a TrajTrackPairCollection.
 
 
+namespace reco { class BeamSpot;}
+
 class TrajectoryFactoryBase
 {
 
@@ -28,12 +30,14 @@ public:
   TrajectoryFactoryBase( const edm::ParameterSet & config );
   virtual ~TrajectoryFactoryBase( void );
 
-  virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup & setup,
-							    const ConstTrajTrackPairCollection & tracks ) const = 0;
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const reco::BeamSpot &beamSpot) const = 0;
 
-  virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup& setup,
-							    const ConstTrajTrackPairCollection& tracks,
-							    const ExternalPredictionCollection& external ) const = 0;
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+							   const ConstTrajTrackPairCollection &tracks,
+							   const ExternalPredictionCollection &external,
+							   const reco::BeamSpot &beamSpot) const = 0;
 
   virtual TrajectoryFactoryBase* clone( void ) const = 0;
 
