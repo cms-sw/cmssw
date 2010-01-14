@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.11 2010/01/13 11:15:36 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.12 2010/01/13 12:22:12 nancy Exp $
 //
 //
 
@@ -103,9 +103,11 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 
     }
 
+
+  
     if (allowVertex_){
 	maxDistance_ = iConfig.getParameter<double>("maxDistance");
-	//maxOfInitialValue_ = iConfig.getParameter<double>("maxOfInitialValue");
+	maxOfInitialValue_ = iConfig.getParameter<double>("maxOfInitialValue");
 	maxNbrOfIterations_ = iConfig.getParameter<int>("maxNbrOfIterations");
     }
     //Track cuts on left right track: at least one leg reaches ECAL
@@ -411,7 +413,7 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
 
     edm::ParameterSet pSet;
     pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
-    //pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
+    pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
     pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
 
     KinematicParticleFactoryFromTransientTrack pFactory;
@@ -609,8 +611,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 	    if ( checkTrackPair(the_left, the_right, magField, app_distance) ){
 		reco::Vertex the_vertex;//by default it is invalid
 		//if allow vertex and there is a vertex, go vertex finding, otherwise
+		//		bool found_vertex = false;
 		if (allowVertex_) {
-		    const bool found_vertex = checkVertex((*ll), right, magField, the_vertex);
+		  checkVertex((*ll), right, magField, the_vertex);
 		}
 		right_candidates.push_back(rr->second);
 		right_candidate_theta.push_back(right->innerMomentum().Theta());
@@ -631,12 +634,15 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
 		std::vector<math::XYZVector> trackPin;
 		std::vector<math::XYZVector> trackPout;
-
+		std::vector<math::XYZPoint> trackInnPos;
+ 
 		if ((*ll)->extra().isNonnull() && right->extra().isNonnull()){//only available on TrackExtra
-		    trackPin.push_back((*ll)->innerMomentum());
-		    trackPin.push_back(right->innerMomentum());
-		    trackPout.push_back((*ll)->outerMomentum());
-		    trackPout.push_back(right->outerMomentum());
+		  trackInnPos.push_back(  (*ll)->innerPosition());
+		  trackInnPos.push_back(  right->innerPosition());
+		  trackPin.push_back((*ll)->innerMomentum());
+		  trackPin.push_back(right->innerMomentum());
+		  trackPout.push_back((*ll)->outerMomentum());
+		  trackPout.push_back(right->outerMomentum());
 		}
 
 		reco::CaloClusterPtrVector scPtrVec;
@@ -668,8 +674,8 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		const float minAppDist = min_approach;
 
 		reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
-
-		reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist, trackPin, trackPout, algo );
+                float dummy=0;
+		reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist,  trackInnPos, trackPin, trackPout, dummy, algo );
 		outputConvPhotonCollection.push_back(newCandidate);
 
 		found_right = true;

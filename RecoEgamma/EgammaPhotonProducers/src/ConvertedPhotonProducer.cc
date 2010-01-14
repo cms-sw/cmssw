@@ -353,6 +353,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
+    std::vector<math::XYZPoint> trackInnPos;
     std::vector<math::XYZVector> trackPin;
     std::vector<math::XYZVector> trackPout;
     float minAppDist=-99;
@@ -424,7 +425,8 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 	//// loop over tracks in the pair  for creating a reference
 	trackPairRef.clear();
-        trackPin.clear();
+        trackInnPos.clear();
+	trackPin.clear();
 	trackPout.clear();
       
 	
@@ -436,6 +438,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	  
 	  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  if ( myTkRef->extra().isNonnull() ) {
+	    trackInnPos.push_back(  myTkRef->innerPosition());
 	    trackPin.push_back(  myTkRef->innerMomentum());
 	    trackPout.push_back(  myTkRef->outerMomentum());
 	  }
@@ -458,7 +461,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	minAppDist=calculateMinApproachDistance( trackPairRef[0],  trackPairRef[1]);
 
 	double like = -999.;
-	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, like, algo);
+	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackInnPos, trackPin, trackPout, like, algo);
 	like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
         newCandidate.setMVAout(like);
 	outputConvPhotonCollection.push_back(newCandidate);
@@ -474,6 +477,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
  
 	    //std::cout << "   ConvertedPhotonProducer recovering one track " <<  "\n";
 	    trackPairRef.clear();
+	    trackInnPos.clear();
 	    trackPin.clear();
 	    trackPout.clear();
 	    std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin();
@@ -481,6 +485,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
 	    reco::TrackRef myTk= ttt->persistentTrackRef(); 
 	    if ( myTk->extra().isNonnull() ) {
+	      trackInnPos.push_back(  myTk->innerPosition());
 	      trackPin.push_back(  myTk->innerMomentum());
 	      trackPout.push_back(  myTk->outerMomentum());
 	    }
@@ -516,6 +521,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 		
 		// std::cout << "  ConvertedPhotonProducer chosen dCotTheta " <<  fabs(dCotTheta) << std::endl;
 		if ( fabs(dCotTheta) < deltaCotCut_ && minAppDist > minApproachDisCut_ ) {
+		  trackInnPos.push_back(  goodRef->innerPosition());	
 		  trackPin.push_back(  goodRef->innerMomentum());
 		  trackPout.push_back(  goodRef->outerMomentum());
 		  trackPairRef.push_back( goodRef );
@@ -543,7 +549,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	      
 	    } // bool On/Off one track case recovery using generalTracks  
 	    double like = -999.;
-	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, like, algo);
+	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackInnPos, trackPin, trackPout, like, algo);
 	    like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
 	    newCandidate.setMVAout(like);
 	    outputConvPhotonCollection.push_back(newCandidate);
