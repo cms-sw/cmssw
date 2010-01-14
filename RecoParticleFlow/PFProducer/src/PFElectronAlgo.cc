@@ -1444,14 +1444,9 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	  if  (typeassoecal == reco::PFBlockElement::HCAL) {
 	    const reco::PFBlockElementCluster * clust =  
 	      dynamic_cast<const reco::PFBlockElementCluster*>((&elements[(assoecalgsf_index[ips])])); 
-	    float df=fabs(momentum_gsf.phi()-clust->clusterRef()->position().phi());
-	    if (df<0.1) {
-	      // Not used for the moments
-	      // elementsToAdd.push_back((assogsf_index[ielegsf])); 
-	      //Eene+=clust->clusterRef()->energy(;)
-	      Hene+=clust->clusterRef()->energy();
-	      hcal++;
-	    }
+	    elementsToAdd.push_back((assoecalgsf_index[ips])); 
+	    Hene+=clust->clusterRef()->energy();
+	    hcal++;
 	  }
 	}
 	elementsToAdd.push_back((assogsf_index[ielegsf]));
@@ -1567,17 +1562,6 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 		ps2EneFromBremTot+=psref->energy();
 		elementsToAdd.push_back(assoelebrem_index[ielebrem]);
 	      }	  
-	      if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::HCAL) {
-		reco::PFClusterRef clusterRef = elements[(assoelebrem_index[ielebrem])].clusterRef();
-		float df=fabs(momentum_gsf.phi()-clusterRef->position().phi());
-		if (df<0.1) {
-		  // Not used for the moments
-		  // elementsToAdd.push_back(index_assobrem_index[ielebrem]); 
-		  //Eene+= clusterRef->energy();
-		  Hene+= clusterRef->energy();
-		  hcal++;
-		}
-	      }     
 	    }
 	    
 
@@ -1751,8 +1735,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	temp_Candidate.set_mva_e_pi(BDToutput_[cgsf]);
 	temp_Candidate.setEcalEnergy(Eene);
 	temp_Candidate.setRawEcalEnergy(RawEene);
-	//	std::cout << " Creating Candidate Total/Raw " << Eene << " " << RawEene << std::endl;
-	temp_Candidate.setHcalEnergy(0.);  // Use HCAL energy? 
+	// Note the Hcal energy is set but the element is never locked 
+	temp_Candidate.setHcalEnergy(Hene);  
 	temp_Candidate.setPs1Energy(ps1TotEne);
 	temp_Candidate.setPs2Energy(ps2TotEne);
 	temp_Candidate.setTrackRef(RefKF);   
