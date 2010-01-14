@@ -4,7 +4,7 @@
 /** \class TCTauAlgo
  *
  * Calculates TCTau based on detector response to charged particles
- * using the tracker 
+ * using the tracker. The correction works for isolated taus.
  *
  * \authors    R.Kinnunen, S.Lehti, A.Nikitenko
  *
@@ -54,11 +54,11 @@ class TCTauAlgorithm {
 	TCTauAlgorithm(const edm::ParameterSet&);
         ~TCTauAlgorithm();
 
-	TLorentzVector recalculateEnergy(const reco::CaloTau&);
-        TLorentzVector recalculateEnergy(const reco::CaloJet&);
-        TLorentzVector recalculateEnergy(const reco::Jet&);
-        TLorentzVector recalculateEnergy(const reco::IsolatedTauTagInfo&);
-	TLorentzVector recalculateEnergy(const reco::CaloJet&,const TrackRef&,const TrackRefVector&);
+	math::XYZTLorentzVector recalculateEnergy(const reco::CaloTau&);
+        math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&);
+        math::XYZTLorentzVector recalculateEnergy(const reco::Jet&);
+        math::XYZTLorentzVector recalculateEnergy(const reco::IsolatedTauTagInfo&);
+	math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&,const TrackRef&,const TrackRefVector&);
 
 	void inputConfig(const edm::ParameterSet& iConfig);
 	void eventSetup(const edm::Event&,const edm::EventSetup&);

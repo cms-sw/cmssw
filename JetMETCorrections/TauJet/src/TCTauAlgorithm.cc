@@ -137,7 +137,7 @@ void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& 
 }
 
 
-TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet){
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet){
 
 	const TrackRef& leadTk = jet.leadTrack();
 
@@ -150,7 +150,7 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet){
 	return recalculateEnergy(caloJet,leadTk,associatedTracks);
 }
 
-TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet){
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet){
 
 	TrackRef leadTk;
         TrackRefVector associatedTracks;
@@ -188,10 +188,10 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet){
 
 	if(ptmax > 0) return recalculateEnergy(caloJet,leadTk,theFilteredTracks);
 
-	return TLorentzVector(0,0,0,0);
+	return math::XYZTLorentzVector(0,0,0,0);
 }
 
-TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::Jet& tau){
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::Jet& tau){
 
 	cout << "TCTauAlgorithm::recalculateEnergy(const reco::Jet&) "
              << "is not working. " << endl;
@@ -205,7 +205,7 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::Jet& tau){
         return recalculateEnergy(caloJet);
 }
 
-TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::IsolatedTauTagInfo& tau){
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::IsolatedTauTagInfo& tau){
 
 	const TrackRef& leadTk = tau.leadingSignalTrack(matchingCone,tkptmin);
 
@@ -218,11 +218,11 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::IsolatedTauTagInfo&
         return recalculateEnergy(caloJet,leadTk,associatedTracks);
 }
 
-TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,const TrackRef& leadTk,const TrackRefVector& associatedTracks){
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,const TrackRef& leadTk,const TrackRefVector& associatedTracks){
 
         all++;
 
-        TLorentzVector p4(0,0,0,0);
+        math::XYZTLorentzVector p4(0,0,0,0);
 
         if(leadTk.isNull()) return p4;
 
@@ -253,7 +253,7 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,co
 
         pair<XYZVector,XYZVector> caloClustersPhoton = getClusterEnergy(caloJet,ltrackEcalHitPoint,ecalCone);
         XYZVector EcalClusterPhoton = caloClustersPhoton.first;
-	TLorentzVector p4photons(EcalClusterPhoton.X() - EcalCluster.X(),
+	math::XYZTLorentzVector p4photons(EcalClusterPhoton.X() - EcalCluster.X(),
                                  EcalClusterPhoton.Y() - EcalCluster.Y(),
                                  EcalClusterPhoton.Z() - EcalCluster.Z(),
                                  EcalClusterPhoton.R() - EcalCluster.R());
@@ -285,12 +285,12 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,co
         pair<XYZVector,XYZVector> caloClustersPhoton = getClusterEnergy(caloJet,ltrackEcalHitPoint,ecalCone);
         XYZVector EcalClusterPhoton = caloClustersPhoton.first;
 /*
-        TLorentzVector p4photons(EcalClusterPhoton.X() - EcalCluster.X(),
+        math::XYZTLorentzVector p4photons(EcalClusterPhoton.X() - EcalCluster.X(),
                                  EcalClusterPhoton.Y() - EcalCluster.Y(),
                                  EcalClusterPhoton.Z() - EcalCluster.Z(),
                                  EcalClusterPhoton.R() - EcalCluster.R());
 */
-	TLorentzVector p4photons(0,0,0,EcalClusterPhoton.R() - EcalCluster.R());
+	math::XYZTLorentzVector p4photons(0,0,0,EcalClusterPhoton.R() - EcalCluster.R());
 
         if( eCaloOverTrack > etCaloOverTrackMin  && eCaloOverTrack < etCaloOverTrackMax ) {
 

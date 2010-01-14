@@ -19,6 +19,10 @@ void TCTauCorrector::eventSetup(const edm::Event& iEvent, const edm::EventSetup&
 	tcTauAlgorithm->eventSetup(iEvent,iSetup);
 }
 
+math::XYZTLorentzVector TCTauCorrector::correctedP4(const reco::CaloTau& fJet) const {
+	return tcTauAlgorithm->recalculateEnergy(fJet);
+}
+
 double TCTauCorrector::correction(const reco::Jet& fJet, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
 	eventSetup(iEvent,iSetup);
@@ -32,7 +36,7 @@ double TCTauCorrector::correction(const reco::Jet& fJet) const {
 
 	if(fJet.et() == 0) return 0;
 
-        TLorentzVector corrected = tcTauAlgorithm->recalculateEnergy(fJet);
+        math::XYZTLorentzVector corrected = tcTauAlgorithm->recalculateEnergy(fJet);
         return corrected.Et()/fJet.et();
 }
 
@@ -40,7 +44,7 @@ double TCTauCorrector::correction(const reco::CaloJet& fJet) const {
 
         if(fJet.et() == 0) return 0;
 
-        TLorentzVector corrected = tcTauAlgorithm->recalculateEnergy(fJet);
+        math::XYZTLorentzVector corrected = tcTauAlgorithm->recalculateEnergy(fJet);
         return corrected.Et()/fJet.et();
 }
 
@@ -48,7 +52,7 @@ double TCTauCorrector::correction(const reco::CaloTau& fJet) const {
 
         if(fJet.et() == 0) return 0;
 
-        TLorentzVector corrected = tcTauAlgorithm->recalculateEnergy(fJet);
+        math::XYZTLorentzVector corrected = tcTauAlgorithm->recalculateEnergy(fJet);
         return corrected.Et()/fJet.et();
 }
 

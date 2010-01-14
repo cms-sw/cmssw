@@ -28,6 +28,8 @@ class TCTauCorrector :  public JetCorrector {
         TCTauCorrector(const edm::ParameterSet& fParameters);
 	virtual ~TCTauCorrector();
 
+	math::XYZTLorentzVector correctedP4(const reco::CaloTau&) const;
+
 	virtual double correction(const reco::Jet&,const edm::Event&,const edm::EventSetup&) const;
 	virtual double correction(const math::XYZTLorentzVector&) const;
 	virtual double correction(const reco::Jet&) const;
