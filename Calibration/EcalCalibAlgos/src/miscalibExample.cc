@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.6 2008/01/22 19:01:42 muzaffar Exp $
+// $Id: miscalibExample.cc,v 1.7 2010/01/04 15:07:18 ferriff Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 
 
 
-// class decleration
+// class declaration
 //
 /*
 class miscalibExample : public edm::EDAnalyzer {
@@ -46,7 +46,7 @@ class miscalibExample : public edm::EDAnalyzer {
       ~miscalibExample();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
    private:
 
