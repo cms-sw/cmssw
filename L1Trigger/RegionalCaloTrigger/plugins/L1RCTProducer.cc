@@ -201,10 +201,27 @@ void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
   }
 
 
+  //SCALES
+
   // energy scale to convert eGamma output
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
+
+
+ // get energy scale to convert input from ECAL
+  edm::ESHandle<L1CaloEcalScale> ecalScale;
+  eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+  const L1CaloEcalScale* e = ecalScale.product();
+  
+  // get energy scale to convert input from HCAL
+  edm::ESHandle<L1CaloHcalScale> hcalScale;
+  eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+  const L1CaloHcalScale* h = hcalScale.product();
+
+  // set scales
+  rctLookupTables->setEcalScale(e);
+  rctLookupTables->setHcalScale(h);
 
 
   rctLookupTables->setRCTParameters(r);
