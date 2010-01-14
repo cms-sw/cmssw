@@ -67,10 +67,15 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
   else
     useOnlyOnePV_ = false;
 
-  if ( iConfig.exists("DrTrVtxMax") )
+  if ( iConfig.exists("DzTrVtxMax") )
     dzTrVtxMax_          = iConfig.getParameter<double>("DzTrVtxMax");
   else
-    dzTrVtxMax_ = false;
+    dzTrVtxMax_ = 999999.;
+  if ( iConfig.exists("DxyTrVtxMax") )
+    dxyTrVtxMax_          = iConfig.getParameter<double>("DxyTrVtxMax");
+  else
+    dxyTrVtxMax_ = 999999.;
+
 }
 
 
@@ -159,15 +164,17 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
         // loop over input track candidates
         for (std::vector<edm::Ptr<reco::RecoChargedRefCandidate> >::iterator itIn = allInputs.begin(); itIn != allInputs.end(); ++itIn) {
           // check if the track is close enough to the vertex
-          float dz = fabs((*itIn)->vertex().z() - itVtx->z());
+          float dz = (*itIn)->track()->dz(itVtx->position());
+          float dxy = (*itIn)->track()->dxy(itVtx->position());
           if (dz > dzTrVtxMax_) continue;
+          if (dxy > dxyTrVtxMax_) continue;
           bool closervtx = false;
           // now loop over the vertices a second time
           for (reco::VertexCollection::const_iterator itVtx2 = pvCollection->begin(); itVtx2 != pvCollection->end(); ++itVtx2) {
             // and check this track is closer to any other vertex (if more than 1 vertex considered)
             if (!useOnlyOnePV_ &&
                 itVtx != itVtx2 &&
-                fabs((*itIn)->vertex().z()-itVtx2->z()) < dz) {
+                (*itIn)->track()->dz(itVtx2->position()) < dz) {
               closervtx = true;
               break; // 1 closer vertex makes the track already not matched, so break
             }

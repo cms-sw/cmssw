@@ -33,6 +33,7 @@ protected:
   bool useOnlyVertexTracks_;
   bool useOnlyOnePV_;
   float dzTrVtxMax_;
+  float dxyTrVtxMax_;
 
 };
 

@@ -24,7 +24,9 @@ TrackJetParameters = cms.PSet(
     UseOnlyVertexTracks = cms.bool(False),
     # only consider the highest-sum-pT PV for clustering
     UseOnlyOnePV        = cms.bool(True),
-    # maximum z-distance bweteen track and vertex for association (in cm)
-    DzTrVtxMax          = cms.double(0.5)
-      
+    # maximum z-distance between track and vertex for association (in cm)
+    DzTrVtxMax          = cms.double(0.5),
+    # maximum xy-distance between track and vertex for association (in cm)
+    DxyTrVtxMax         = cms.double(0.1)
+
     )
