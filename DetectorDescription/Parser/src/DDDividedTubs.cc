@@ -123,7 +123,7 @@ DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView& cpv)
       }
     }
 
-  std::cout << " DDDividedTubsPhi - no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width() << "\n DivType " << divisionType_ << std::endl;
+  //  std::cout << " DDDividedTubsPhi - no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width() << "\n DivType " << divisionType_ << std::endl;
  
 }
 

@@ -100,7 +100,7 @@ DDXMLElement* DDLElementRegistry::getElement(const std::string& name)
   if (it != registry_.end()) {
     myret = it->second;
   } else {
-    std::cout << " making first and only " << name << std::endl;
+    //    std::cout << " making first and only " << name << std::endl;
     // Make the Solid handlers and register them.
     if (name == "Box")
       {
@@ -245,7 +245,7 @@ DDXMLElement* DDLElementRegistry::getElement(const std::string& name)
     
     // Actually register the thing
     //   instance()->registerElement(name, myret);
-      std::cout << "about to register a " << name << std::endl;
+    //      std::cout << "about to register a " << name << std::endl;
     registry_[name] = myret;
   }
   return myret;
