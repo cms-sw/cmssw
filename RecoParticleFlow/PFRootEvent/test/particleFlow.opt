@@ -157,7 +157,7 @@ display  r/z      1
 // color, pscolor, style, size
 display cluster_attributes 2 5 20 1
 // color, line style, marker style, marker size 
-display track_attributes   8 1 8 1
+display track_attributes   8 1 8 0.5
 display gsf_attributes   419 2 23 1
 display brem_attributes   921 3 22 1
 // color, line style, marker size 
@@ -189,8 +189,8 @@ clustering thresh_Seed_Ecal_Barrel     	0.23
 clustering thresh_Pt_Seed_Ecal_Barrel   0.00
 
 // cleaning thresholds for ECAL barrel seeds
-clustering thresh_Clean_Ecal_Barrel     10.  
-clustering minS4S1_Clean_Ecal_Barrel    0.01
+clustering thresh_Clean_Ecal_Barrel     4.
+clustering minS4S1_Clean_Ecal_Barrel    0.04 -0.024
 
 // threshold on ECAL endcap rechits.
 clustering thresh_Ecal_Endcap           0.30
@@ -202,7 +202,7 @@ clustering thresh_Pt_Seed_Ecal_Endcap   0.15
 
 // cleaning thresholds for ECAL end-caps seeds
 clustering thresh_Clean_Ecal_Endcap     15.
-clustering minS4S1_Clean_Ecal_Endcap    0.01
+clustering minS4S1_Clean_Ecal_Endcap    0.04 -0.025
 
 // build topo-cluster from cells with 1 common side or corner
 clustering useCornerCells_Ecal 1
@@ -233,6 +233,7 @@ clustering depthCor_B 		  7.4
 clustering depthCor_A_preshower   0.89
 clustering depthCor_B_preshower   4.0
 
+
 // ------------ clustering HCAL ----------------------------
 
 // threshold on HCAL barrel rechits
@@ -242,8 +243,8 @@ clustering thresh_Pt_Hcal_Barrel        0.0
 clustering thresh_Seed_Hcal_Barrel      0.8
 clustering thresh_Pt_Seed_Hcal_Barrel   0.0
 // cleaning thresholds for HCAL barrel seeds
-clustering thresh_Clean_Hcal_Barrel     25.
-clustering minS4S1_Clean_Hcal_Barrel    0.01
+clustering thresh_Clean_Hcal_Barrel     35.
+clustering minS4S1_Clean_Hcal_Barrel    0.032 -0.045
 // threshold on HCAL endcap rechits
 clustering thresh_Hcal_Endcap           0.8
 clustering thresh_Pt_Hcal_Endcap        0.0
@@ -251,8 +252,8 @@ clustering thresh_Pt_Hcal_Endcap        0.0
 clustering thresh_Seed_Hcal_Endcap      1.1
 clustering thresh_Pt_Seed_Hcal_Endcap   0.0
 // cleaning thresholds for HCAL barrel seeds
-clustering thresh_Clean_Hcal_Endcap     30.
-clustering minS4S1_Clean_Hcal_Endcap    0.01
+clustering thresh_Clean_Hcal_Endcap     45.
+clustering minS4S1_Clean_Hcal_Endcap    0.032 -0.045
 
 // build topo-cluster from cells with 1 common side or corner
 clustering useCornerCells_Hcal 1
@@ -277,10 +278,10 @@ clustering thresh_HFEM			0.8
 clustering thresh_Seed_HFEM		1.4
 clustering thresh_Pt_HFEM		0.0
 clustering thresh_Pt_Seed_HFEM		0.0
-clustering thresh_Clean_HFEM            100.
-clustering minS4S1_Clean_HFEM           0.01
+clustering thresh_Clean_HFEM            80
+clustering minS4S1_Clean_HFEM           0.11 -0.19
 clustering shower_Sigma_HFEM		10
-clustering neighbours_HFEM		8
+clustering neighbours_HFEM		0
 clustering posCalc_nCrystal_HFEM        5
 clustering posCalc_p1_HFEM		0
 
@@ -292,10 +293,10 @@ clustering thresh_HFHAD			0.8
 clustering thresh_Seed_HFHAD		1.4
 clustering thresh_Pt_HFHAD		0.0
 clustering thresh_Pt_Seed_HFHAD		0.0
-clustering thresh_Clean_HFHAD           100.
-clustering minS4S1_Clean_HFHAD           0.01
+clustering thresh_Clean_HFHAD           120
+clustering minS4S1_Clean_HFHAD          0.045 -0.080
 clustering shower_Sigma_HFHAD		10
-clustering neighbours_HFHAD		8
+clustering neighbours_HFHAD		0
 clustering posCalc_nCrystal_HFHAD        5
 clustering posCalc_p1_HFHAD		0
 
@@ -307,8 +308,8 @@ clustering thresh_Pt_PS			0.00000
 // seed threshold for preshower rechits
 clustering thresh_Seed_PS		0.00012
 clustering thresh_Pt_Seed_PS		0.00000
-clustering thresh_Clean_PS              0.04
-clustering minS4S1_Clean_PS             0.01
+clustering thresh_Clean_PS              1E5
+clustering minS4S1_Clean_PS             0.00 0.00
 clustering shower_Sigma_PS              0.2
 clustering neighbours_PS                8
 clustering posCalc_p1_PS                0
@@ -530,7 +531,7 @@ pfmet_benchmark trueMetSpecificEtaCut 2.4
 
 // PFCandidateBenchmark options   ------------------------------------------
 
-pfCandidate_benchmark on/off		1
+pfCandidate_benchmark on/off		0
 pfCandidate_benchmark subdirectory	Currently_not_used
 pfCandidate_benchmark dRMax		0.2
 pfCandidate_benchmark ptMin		2
