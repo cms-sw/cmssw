@@ -15,6 +15,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "Fireworks/Core/interface/FWDetailView.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
@@ -46,9 +48,7 @@ FWTrackResidualDetailView::FWTrackResidualDetailView ():
 
 FWTrackResidualDetailView::~FWTrackResidualDetailView ()
 {
-    getEveWindow()->DestroyWindow();
 }
-
 
 void
 FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* track)
@@ -99,31 +99,21 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
 }
 
 void
-FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* slot)
+FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
 {
-   TCanvas *infoCanvas, *histCanvas;
-   TEveWindow* wp = makePackCanvas(slot, infoCanvas, histCanvas);
-   setEveWindow(wp);
-   wp->SetElementName("Residual Detail View");
-   
-
    if (!track->extra().isAvailable()) {
      printf("Error: no track extra information is available.\n");
-     histCanvas->cd();
+     m_viewCanvas->cd();
      TLatex* latex = new TLatex();
      latex->SetTextSize(0.1);
      latex->DrawLatex(0.1, 0.5, "No track extra information");
      return;
    }
    prepareData(id, track);
-   
-   // info
-   infoCanvas->cd();
-   makeLegend();
-   histCanvas->cd();
 
    // draw histogram
-   histCanvas->SetHighLightColor(-1);
+   m_viewCanvas->cd();
+   m_viewCanvas->SetHighLightColor(-1);
    TH2F* h_res = new TH2F("h_resx","h_resx",10,-5.5,5.5,m_ndet,0,m_ndet);
    TPad* padX = new TPad("pad1","pad1", 0.2, 0., 0.8, 0.99);
    padX->SetBorderMode(0);
@@ -230,8 +220,10 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
    pt->AddText(res_str);
    pt->Draw();
    
-   histCanvas->cd();
-   histCanvas->SetEditable(kFALSE);
+   m_viewCanvas->cd();
+   m_viewCanvas->SetEditable(kFALSE);
+
+   setTextInfo(id, track);
 }
 
 double
@@ -265,8 +257,10 @@ FWTrackResidualDetailView::printDebug()
 }
 
 void
-FWTrackResidualDetailView::makeLegend()
+FWTrackResidualDetailView::setTextInfo(const FWModelId &/*id*/, const reco::Track* /*track*/)
 {
+   m_infoCanvas->cd();
+
    char mytext[256];
    Double_t fontsize = 0.07;
    TLatex* latex = new TLatex();

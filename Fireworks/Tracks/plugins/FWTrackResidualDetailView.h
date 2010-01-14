@@ -31,32 +31,33 @@
 //      bad      = there were many bad strips within the ellipse = 3
 //
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "Rtypes.h"
-#include "Fireworks/Core/interface/FWDetailView.h"
+#include "Fireworks/Core/interface/FWDetailViewCanvas.h"
+
 class DetIdToMatrix;
 class FWModelId;
 class TEveWindowSlot;
 class TEveWindow;
 
-class FWTrackResidualDetailView : public FWDetailView<reco::Track>{
+namespace reco {
+   class Track;
+}
+
+class FWTrackResidualDetailView : public FWDetailViewCanvas<reco::Track>{
 public:
    FWTrackResidualDetailView();
    virtual ~FWTrackResidualDetailView();
-
-   void build (const FWModelId &id, const reco::Track*, TEveWindowSlot*);
-protected:
 
 private:
    FWTrackResidualDetailView(const FWTrackResidualDetailView&); // stop default
    const FWTrackResidualDetailView& operator=(const FWTrackResidualDetailView&); // stop default
 
+   virtual void build (const FWModelId &id, const reco::Track*);
+   virtual void setTextInfo(const FWModelId &id, const reco::Track*);
+
    double getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX);
    void prepareData(const FWModelId &id, const reco::Track*);
    void printDebug();
-   //  void drawBox(Double_t* pos, Color_t fillCol, Int_t fillType, bool bg=kTRUE);
-   void makeLegend();
 
    int m_ndet;
    int m_nhits;

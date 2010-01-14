@@ -11,49 +11,47 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.17 2009/10/27 19:25:03 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.18 2009/11/06 06:34:07 dmytro Exp $
 //
 
 // user include files
-#include "Fireworks/Core/interface/FWDetailView.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
-#include "TEveWindow.h"
+#include "Fireworks/Core/interface/FWDetailViewGL.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 class TEveCaloDataVec;
 class TEveCaloLego;
-class TGLViewer;
+class FWECALDetailViewBuilder;
 
-class FWElectronDetailView : public FWDetailView<reco::GsfElectron> {
+namespace reco {
+  class GsfElectron;
+}
+
+
+class FWElectronDetailView : public FWDetailViewGL<reco::GsfElectron> {
 
 public:
    FWElectronDetailView();
    virtual ~FWElectronDetailView();
 
-   virtual void build (const FWModelId &id, const reco::GsfElectron*, TEveWindowSlot*);
-
-
-   virtual void setBackgroundColor(Color_t col);
-
 private:
-
    FWElectronDetailView(const FWElectronDetailView&); // stop default
    const FWElectronDetailView& operator=(const FWElectronDetailView&); // stop default
 
-   virtual double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
-   virtual double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);
-   virtual math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
-   virtual void addTrackPointsInCaloData(const reco::GsfElectron*, TEveCaloLego*);
+   virtual void build (const FWModelId &id, const reco::GsfElectron*);
+   virtual void setTextInfo(const FWModelId &id, const reco::GsfElectron*);
 
-   void drawCrossHair(const reco::GsfElectron*, TEveCaloLego*, TEveElementList*);
-   void addInfo(const reco::GsfElectron*, TEveElementList*);
-   double makeLegend (double x0, double y0,
-                      const reco::GsfElectron*, const FWModelId&);
+   double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
+   double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);
+   math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
+   void addTrackPointsInCaloData(const reco::GsfElectron*, TEveCaloLego*);
+
+   void   addSceneInfo(const reco::GsfElectron *i, TEveElementList* tList);
+   void   drawCrossHair(const reco::GsfElectron*, TEveCaloLego*, TEveElementList*);
+
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
 
-   TGLViewer*    m_viewer;
    TEveCaloData* m_data;
+   FWECALDetailViewBuilder* m_builder;
 };
 
 #endif

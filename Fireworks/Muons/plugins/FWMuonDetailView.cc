@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.19 2009/10/31 22:38:28 chrjones Exp $
+// $Id: FWMuonDetailView.cc,v 1.20 2009/11/27 22:10:40 dmytro Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -15,7 +15,6 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
-#include "TEveManager.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
@@ -26,35 +25,29 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
 //
 // constructors and destructor
 //
 FWMuonDetailView::FWMuonDetailView():
-   m_viewer(0),
-   m_data(0)
+   m_data(0),
+   m_builder(0)
 { 
 }
 
 FWMuonDetailView::~FWMuonDetailView()
 {
-   getEveWindow()->DestroyWindow();
-   m_data->DecDenyDestroy();
+   if (m_data) m_data->DecDenyDestroy();
+   delete m_builder;
 }
 
 //
 // member functions
 //
-void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveWindowSlot* base)
+void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
 {
-
    if(0==iMuon) return;
-
-   TEveScene*  scene(0);
-   TEveViewer* viewer(0);
-   TCanvas*    canvas(0);
-   TEveWindow* eveWindow = FWDetailViewBase::makePackViewer(base, canvas, viewer, scene);
-   setEveWindow(eveWindow);
-   m_viewer = viewer->GetGLViewer();
 
    double eta = iMuon->eta();
    double phi = iMuon->phi();
@@ -64,23 +57,20 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
       phi = iMuon->calEnergy().ecal_position.phi();
    }
 
-   FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
-                                   eta, phi, 10);
-   canvas->cd();
-   double y = makeLegend(0.02,0.95,iMuon,id);
-   builder.makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
-
-   builder.showSuperClusters(kGreen+2, kGreen+4);
+   m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
+                                           eta, phi, 10);
+ 
+   m_builder->showSuperClusters(kGreen+2, kGreen+4);
    if ( iMuon->isEnergyValid() ) {
       std::vector<DetId> ids;
       ids.push_back(iMuon->calEnergy().ecal_id);
-      builder.setColor(kYellow,ids);
+      m_builder->setColor(kYellow,ids);
    }
 
-   TEveCaloLego* lego = builder.build();
+   TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   scene->AddElement(lego);
-   addInfo(iMuon, scene);
+   m_eveScene->AddElement(lego);
+   addSceneInfo(iMuon, m_eveScene);
 
    // draw axis at the window corners
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
@@ -88,25 +78,29 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
    overlay->SetShowScales(0); // temporary
-   m_viewer->AddOverlayElement(overlay);
+   viewerGL()->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   m_viewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh =
-      new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
-   m_viewer->SetEventHandler(eh);
+      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   viewerGL()->SetEventHandler(eh);
 
-   m_viewer->UpdateScene();
-   m_viewer->CurrentCamera().Reset();
+   viewerGL()->UpdateScene();
+   viewerGL()->CurrentCamera().Reset();
    gEve->Redraw3D();
+
+   setTextInfo(id, iMuon);
 }
 
-double
-FWMuonDetailView::makeLegend( double x0, double y0,
-			      const reco::Muon *muon,
-			      const FWModelId& id )
+void
+FWMuonDetailView::setTextInfo(const FWModelId& id, const reco::Muon *muon)
 {
-   TLatex* latex = new TLatex(0.02, 0.970, "");
+   m_infoCanvas->cd();
+   double y0 = 0.95;
+   double x0 = 0.02; 
+
+   TLatex* latex = new TLatex(x0, y0, "");
    const double textsize(0.05);
    latex->SetTextSize(2*textsize);
 
@@ -124,28 +118,30 @@ FWMuonDetailView::makeLegend( double x0, double y0,
    y -= fontsize;
    // summary
    if (muon->charge() > 0)
-     latex->DrawLatex(x, y, " charge = +1");
+      latex->DrawLatex(x, y, " charge = +1");
    else
-     latex->DrawLatex(x, y, " charge = -1");
+      latex->DrawLatex(x, y, " charge = -1");
    y -= fontsize;
 
-   if (! muon->isEnergyValid() ) return y;
-   // delta phi/eta in
-   latex->DrawLatex(x, y, "ECAL energy in:");
-   y -= fontsize;
-   latex->DrawLatex(x, y,  Form(" crossed crystalls = %.3f",
-				muon->calEnergy().em) );
-   y -= fontsize;
-   latex->DrawLatex(x, y,  Form(" 3x3 crystall shape = %.3f",
-				muon->calEnergy().emS9) );
-   y -= fontsize;
-   latex->DrawLatex(x, y,  Form(" 5x5 crystall shape = %.3f",
-				muon->calEnergy().emS25) );
-   return y;
+   if (muon->isEnergyValid() )
+   {
+      // delta phi/eta in
+      latex->DrawLatex(x, y, "ECAL energy in:");
+      y -= fontsize;
+      latex->DrawLatex(x, y,  Form(" crossed crystalls = %.3f",
+                                   muon->calEnergy().em) );
+      y -= fontsize;
+      latex->DrawLatex(x, y,  Form(" 3x3 crystall shape = %.3f",
+                                   muon->calEnergy().emS9) );
+      y -= fontsize;
+      latex->DrawLatex(x, y,  Form(" 5x5 crystall shape = %.3f",
+                                   muon->calEnergy().emS25) );
+   }
+   m_builder->makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
 }
 
 void
-FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
+FWMuonDetailView::addSceneInfo(const reco::Muon *i, TEveElementList* tList)
 {
    // muon direction at vertex
 
@@ -234,11 +230,5 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
    tList->AddElement(lines);
 }
 
-
-void
-FWMuonDetailView::setBackgroundColor(Color_t col)
-{
-   FWColorManager::setColorSetViewer(m_viewer, col);
-}
 
 REGISTER_FWDETAILVIEW(FWMuonDetailView,Muon);

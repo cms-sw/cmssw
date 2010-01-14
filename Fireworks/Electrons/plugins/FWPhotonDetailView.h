@@ -10,38 +10,34 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.h,v 1.7 2009/10/27 19:25:03 amraktad Exp $
+// $Id: FWPhotonDetailView.h,v 1.8 2009/11/06 06:34:07 dmytro Exp $
 //
 
 // user include files
-#include "Fireworks/Core/interface/FWDetailView.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "Fireworks/Core/interface/FWDetailViewGL.h"
 
-#include "TEveWindow.h"
+class FWECALDetailViewBuilder;
+namespace reco {
+class Photon;
+}
 
-class TEveWindowSlot;
-class TGLViewer;
-
-class FWPhotonDetailView : public FWDetailView<reco::Photon> {
+class FWPhotonDetailView : public FWDetailViewGL<reco::Photon> {
 
 public:
    FWPhotonDetailView();
    virtual ~FWPhotonDetailView();
 
-   virtual void build (const FWModelId &id, const reco::Photon*, TEveWindowSlot*);
-
-   virtual void setBackgroundColor(Color_t col);
+   virtual void build (const FWModelId &id, const reco::Photon*);
+   virtual void setTextInfo(const FWModelId &id, const reco::Photon*);
 
 private:
    FWPhotonDetailView(const FWPhotonDetailView&); // stop default
    const FWPhotonDetailView& operator=(const FWPhotonDetailView&); // stop default
-   double makeLegend(double x0, double y0,
-                     const reco::Photon*, const FWModelId&);
-   void addInfo(const reco::Photon*, TEveElementList*);
 
-   TGLViewer*    m_viewer;
+   void addSceneInfo(const reco::Photon*, TEveElementList*);
+
    TEveCaloData* m_data;
+   FWECALDetailViewBuilder* m_builder;
 };
 
 #endif

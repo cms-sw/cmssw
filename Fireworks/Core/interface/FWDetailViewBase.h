@@ -21,17 +21,7 @@
 
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
-class TCanvas;
-class TGCompositeFrame;
-class TCanvas;
-class TGPack;
-
-class TEveViewer;
-class TEveScene ;
-class TEveWindowSlot;
 class TEveWindow;
-class TGVerticalFrame;
-
 class FWModelId;
 
 class FWDetailViewBase
@@ -39,10 +29,11 @@ class FWDetailViewBase
 public:
    virtual ~FWDetailViewBase ();
 
-   void  build (const FWModelId&, TEveWindowSlot*);
+   void  build (const FWModelId&);
    TEveWindow*  getEveWindow() { return m_eveWindow; }
    void         setEveWindow(TEveWindow* w) { m_eveWindow = w;} 
 
+   virtual void init(TEveWindowSlot*) = 0;
    virtual void setBackgroundColor(Color_t col) {}
 
    //canvas utilities
@@ -51,16 +42,12 @@ public:
 
 protected:
    FWDetailViewBase(const std::type_info&);
-
-   TEveWindow* makePackCanvas(TEveWindowSlot *&slot, TCanvas *&infoCavas, TCanvas *&viewCanvas);
-   TEveWindow* makePackViewer(TEveWindowSlot *&slot, TCanvas *&canvas, TEveViewer *&eveViewer, TEveScene *&scene);
-   TEveWindow* makePackViewerGui(TEveWindowSlot *&slot, TCanvas *&canvas, TGVerticalFrame *&guiFrame, TEveViewer *&eveViewer, TEveScene *&scene);
-  
+ 
 private:
    FWDetailViewBase(const FWDetailViewBase&); // stop default
    const FWDetailViewBase& operator=(const FWDetailViewBase&); // stop default
 
-   virtual void build(const FWModelId&, const void*, TEveWindowSlot* slot) = 0;
+   virtual void build(const FWModelId&, const void*) = 0;
 
    TEveWindow         *m_eveWindow;
    FWSimpleProxyHelper m_helper;

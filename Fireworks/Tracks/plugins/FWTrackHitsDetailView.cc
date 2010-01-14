@@ -6,7 +6,6 @@
 #include "TGLEmbeddedViewer.h"
 #include "TEveManager.h"
 #include "TEveTrack.h"
-//#include "TEveTrans.h"
 #include "TEveText.h"
 #include "TEveGeoShape.h"
 #include "TGLFontManager.h"
@@ -38,8 +37,8 @@
 #include "Fireworks/Tracks/interface/CmsMagField.h"
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
-m_viewer(0),
 m_modules(0),
+m_moduleLabels(0),
 m_hits(0),
 m_slider(0),
 m_sliderListener()
@@ -48,25 +47,15 @@ m_sliderListener()
 
 FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 {
-    getEveWindow()->DestroyWindow();
 }
 
 void
-FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
-{   
-   TEveScene*  scene(0);
-   TEveViewer* viewer(0);
-   TCanvas*    canvas(0);
-   TGVerticalFrame* guiFrame;
-   TEveWindow* eveWindow = FWDetailViewBase::makePackViewerGui(base, canvas, guiFrame, viewer, scene);
-   eveWindow->SetElementName("Track Hits Detail View");
-   setEveWindow(eveWindow);
-   m_viewer = (TGLEmbeddedViewer*)viewer->GetGLViewer();
-   
+FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
+{      
    bool labelsOn = false;
    {
-      TGCompositeFrame* f  = new TGVerticalFrame(guiFrame);
-      guiFrame->AddFrame(f);
+      TGCompositeFrame* f  = new TGVerticalFrame(m_guiFrame);
+      m_guiFrame->AddFrame(f);
       f->AddFrame(new TGLabel(f, "Module Transparency:"), new TGLayoutHints(kLHintsLeft, 2, 2, 0, 0));
       m_slider = new TGHSlider(f, 120, kSlider1 | kScaleNo);
       f->AddFrame(m_slider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 1, 4));
@@ -80,29 +69,30 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 
    {
       CSGAction* action = new CSGAction(this, "Show Module Labels");
-      TGCheckButton* b = new TGCheckButton(guiFrame, "Show Module Labels" );
+      TGCheckButton* b = new TGCheckButton(m_guiFrame, "Show Module Labels" );
       b->SetState(labelsOn ? kButtonDown : kButtonUp, false);
-      guiFrame->AddFrame(b, new TGLayoutHints( kLHintsNormal, 2, 3, 1, 4));
+      m_guiFrame->AddFrame(b, new TGLayoutHints( kLHintsNormal, 2, 3, 1, 4));
       TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::rnrLabels));
    }
    {
       CSGAction* action = new CSGAction(this, " Pick Camera Center ");
-      action->createTextButton(guiFrame, new TGLayoutHints( kLHintsNormal, 2, 0, 1, 4));
+      action->createTextButton(m_guiFrame, new TGLayoutHints( kLHintsNormal, 2, 0, 1, 4));
+      action->setToolTip("Click on object in viewer to set camera center.");
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
    }
 
-   TGCompositeFrame* p = (TGCompositeFrame*)guiFrame->GetParent();
+   TGCompositeFrame* p = (TGCompositeFrame*)m_guiFrame->GetParent();
    p->MapSubwindows();
    p->Layout();
     
    m_modules = new TEveElementList("Modules");
-   scene->AddElement(m_modules);
+   m_eveScene->AddElement(m_modules);
    m_moduleLabels = new TEveElementList("Modules");
-   scene->AddElement(m_moduleLabels);
+   m_eveScene->AddElement(m_moduleLabels);
    TracksRecHitsUtil::addModules(*track, id.item(), m_modules, true);
    m_hits = new TEveElementList("Hits");
-   scene->AddElement(m_hits);
+   m_eveScene->AddElement(m_hits);
    TracksRecHitsUtil::addHits(*track, id.item(), m_hits, true);
    for (TEveElement::List_i i=m_modules->BeginChildren(); i!=m_modules->EndChildren(); ++i)
    {
@@ -147,7 +137,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    prop->SetRnrReferences(kTRUE);
    prop->SetRnrDecay(kTRUE);
    prop->SetRnrFV(kTRUE);
-   scene->AddElement(trk);
+   m_eveScene->AddElement(trk);
 
 
 // -- add PixelHits
@@ -156,42 +146,45 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 //    fireworks::pushPixelHits(pixelPoints, *id.item(), *track);
 //    TEveElementList* list = new TEveElementList("PixelHits");
 //    fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
-//    scene->AddElement(list);
+//    m_eveScene->AddElement(list);
 	
 //    list = new TEveElementList("SiStripClusterHits");
 // 	fireworks::addSiStripClusters(id.item(), *track, list, kRed);
-//    scene->AddElement(list);
+//    m_eveScene->AddElement(list);
 //LatB
 
-   scene->Repaint(true);
+   m_eveScene->Repaint(true);
 
-   m_viewer->UpdateScene();
-   m_viewer->CurrentCamera().Reset();
-   m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
-   m_viewer->SetStyle(TGLRnrCtx::kOutline);
-   m_viewer->SetDrawCameraCenter(kTRUE);
+   viewerGL()->UpdateScene();
+   viewerGL()->CurrentCamera().Reset();
+   viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
+   viewerGL()->SetStyle(TGLRnrCtx::kOutline);
+   viewerGL()->SetDrawCameraCenter(kTRUE);
 
-   addInfo(canvas);
+   setTextInfo(id, track);
 }
 
 void
 FWTrackHitsDetailView::setBackgroundColor(Color_t col)
 {
    // Callback for cmsShow change of background
-   
-   FWColorManager::setColorSetViewer(m_viewer, col);
+   return;
+   FWColorManager::setColorSetViewer(viewerGL(), col);
 
    // adopt label colors to background, this should be implemneted in TEveText
-   Color_t x = m_viewer->GetRnrCtx()->ColorSet().Foreground().GetColorIndex();
-   for (TEveElement::List_i i=m_moduleLabels->BeginChildren(); i!=m_moduleLabels->EndChildren(); ++i)
-      (*i)->SetMainColor(x);
+   if (m_moduleLabels)
+   {
+      Color_t x = viewerGL()->GetRnrCtx()->ColorSet().Foreground().GetColorIndex();
+      for (TEveElement::List_i i=m_moduleLabels->BeginChildren(); i!=m_moduleLabels->EndChildren(); ++i)
+         (*i)->SetMainColor(x);
+   }
 }
 
 
 void
 FWTrackHitsDetailView::pickCameraCenter()
 {
-   m_viewer->PickCameraCenter();
+   viewerGL()->PickCameraCenter();
 }
 
 void
@@ -205,9 +198,9 @@ FWTrackHitsDetailView::transparencyChanged(int x)
 }
 
 void
-FWTrackHitsDetailView::addInfo(TCanvas* canvas)
+FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track*)
 {
-   canvas->cd();
+   m_infoCanvas->cd();
 
    Double_t fontSize = 0.07;
    TLatex* latex = new TLatex();

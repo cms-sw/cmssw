@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.51 2009/10/31 22:37:35 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.52 2009/11/30 10:38:59 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -120,7 +120,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    assert(0!=m_detailView);
 
    TEveWindowSlot* ws  = (TEveWindowSlot*)(m_eveFrame->GetEveWindow());
-   m_detailView->build(id, ws);
+   m_detailView->init(ws);
+   m_detailView->build(id);
    m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
    m_mainFrame->MapSubwindows();
    m_mainFrame->Layout();

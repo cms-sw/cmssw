@@ -25,11 +25,11 @@ public:
    }
 
 private:
-   virtual void build(const FWModelId& iID, const void* iData, TEveWindowSlot* s) {
-      build(iID, reinterpret_cast<const T*> (iData), s);
-   }
+   virtual void build(const FWModelId& iID, const void* iData) {
+      build(iID, reinterpret_cast<const T*> (iData));   }
 
-   virtual void build(const FWModelId&, const T*, TEveWindowSlot*) = 0;
+   virtual void build(const FWModelId&, const T*) = 0;
+   virtual void setTextInfo(const FWModelId&, const T*) = 0;
 };
 
 #endif

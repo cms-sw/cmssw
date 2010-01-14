@@ -1,7 +1,7 @@
 //
 // Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.21 2009/10/31 22:38:28 chrjones Exp $
+// $Id: FWPhotonDetailView.cc,v 1.22 2009/11/06 06:34:07 dmytro Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -10,7 +10,6 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
-#include "TEveManager.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
@@ -18,101 +17,96 @@
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "Fireworks/Electrons/plugins/FWPhotonDetailView.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "Fireworks/Electrons/plugins/FWPhotonDetailView.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
+
 //
 // constructors and destructor
 //
-FWPhotonDetailView::FWPhotonDetailView() :
-   m_viewer(0)
+FWPhotonDetailView::FWPhotonDetailView():
+m_builder(0)
 {
 }
 
 FWPhotonDetailView::~FWPhotonDetailView()
 {
-   getEveWindow()->DestroyWindow();
+   if (m_data) m_data->DecDenyDestroy();
+   delete m_builder;
 }
 
 //
 // member functions
 //
-void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton, TEveWindowSlot* base)
+void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton)
 {
-   if(0==iPhoton) return;
-
-   TEveScene*  scene(0);
-   TEveViewer* viewer(0);
-   TCanvas*    canvas(0);
-   TEveWindow* eveWindow = FWDetailViewBase::makePackViewer(base, canvas, viewer, scene);
-   setEveWindow(eveWindow);
-   m_viewer = viewer->GetGLViewer();
+   if(!iPhoton) return;
 
    // build ECAL objects
-   FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
+   m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
                                    iPhoton->caloPosition().eta(), iPhoton->caloPosition().phi(), 25);
-   canvas->cd();
-   double y = makeLegend(0.02,0.95,iPhoton, id);
-   builder.makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
+   m_builder->showSuperClusters(kGreen+2, kGreen+4);
 
-   builder.showSuperClusters(kGreen+2, kGreen+4);
    if ( iPhoton->superCluster().isAvailable() )
-      builder.showSuperCluster(*(iPhoton->superCluster()), kYellow);
-   TEveCaloLego* lego = builder.build();
+      m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow);
+   TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   scene->AddElement(lego);
+   m_eveScene->AddElement(lego);
 
    // add Photon specific details
-   addInfo(iPhoton, scene);
+   addSceneInfo(iPhoton, m_eveScene);
 
    // draw axis at the window corners
-   m_viewer =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
    overlay->SetShowScales(1); // temporary
-   m_viewer->AddOverlayElement(overlay);
+   viewerGL()->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   m_viewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh =
-      new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
-   m_viewer->SetEventHandler(eh);
-   m_viewer->UpdateScene();
-   m_viewer->CurrentCamera().Reset();
+      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   viewerGL()->SetEventHandler(eh);
+   viewerGL()->UpdateScene();
+   viewerGL()->CurrentCamera().Reset();
 
-   m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
+   viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
+
+   setTextInfo(id, iPhoton);
 }
 
-double
-FWPhotonDetailView::makeLegend(double x0, double y0,
-                               const reco::Photon *photon,
-                               const FWModelId& id)
+//______________________________________________________________________________
+
+void
+FWPhotonDetailView::setTextInfo(const FWModelId& id, const reco::Photon *photon)
 {
-   TLatex* latex = new TLatex(0.02, 0.970, "");
+   m_infoCanvas->cd();
+   float_t x = 0.02;
+   float y = 0.97;
+   TLatex* latex = new TLatex(x, y, "");
    const double textsize(0.05);
    latex->SetTextSize(2*textsize);
 
-   float_t x = x0;
-   float y = y0;
-   float fontsize = latex->GetTextSize()*0.6;
-
+   float h = latex->GetTextSize()*0.6;
    latex->DrawLatex(x, y, id.item()->modelName(id.index()).c_str() );
-   y -= fontsize;
-   latex->SetTextSize(textsize);
-   fontsize = latex->GetTextSize()*0.6;
+   y -= h;
 
    latex->DrawLatex(x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
                                photon->et(), photon->eta(), photon->phi()) );
-   return y;
+   y -= h;
+   m_builder->makeLegend(x,y,kGreen+2,kGreen+4,kYellow);
 }
 
+//______________________________________________________________________________
+
 void
-FWPhotonDetailView::addInfo(const reco::Photon *i, TEveElementList* tList)
+FWPhotonDetailView::addSceneInfo(const reco::Photon *i, TEveElementList* tList)
 {
    unsigned int subdetId(0);
    if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
@@ -153,12 +147,6 @@ FWPhotonDetailView::addInfo(const reco::Photon *i, TEveElementList* tList)
    seedposition->SetMarkerStyle(2);
    seedposition->SetMarkerColor(kRed);
    tList->AddElement(seedposition);
-}
-
-void
-FWPhotonDetailView::setBackgroundColor(Color_t col)
-{
-   FWColorManager::setColorSetViewer(m_viewer, col);
 }
 
 REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon);
