@@ -1,5 +1,5 @@
 <use name=rootrflx>
-<use name=clhep>
+<use name=clhepheader>
 <use name=DataFormats/Common>
 <export>
    <lib name=DataFormatsMuonSeed>
