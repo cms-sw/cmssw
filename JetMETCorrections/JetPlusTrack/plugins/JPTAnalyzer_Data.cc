@@ -126,6 +126,7 @@ class JPTAnalyzer_Data : public edm::EDAnalyzer {
   // output root file and tree
   TFile*      hOutputFile ;
   TTree*      t1;
+  bool scalar_;
 };
 
 //
@@ -219,6 +220,7 @@ JPTAnalyzer_Data::JPTAnalyzer_Data(const edm::ParameterSet& iConfig)
   //  JetCorrectionZSP = iConfig.getParameter< std::string > ("JetCorrectionZSP");
   // Jet+tracks energy corrections
   JetCorrectionJPT = iConfig.getParameter< std::string > ("JetCorrectionJPT");
+  scalar_ = iConfig.getUntrackedParameter<bool> ("UseScalarMethod",false);
 }
 
 
@@ -437,10 +439,24 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 
 	 jcgood = jcgood + 1;
 
+	 // ZSP JetRef
+	 edm::RefToBase<reco::Jet> zspRef( edm::Ref<CaloJetCollection>( zspjets, zspjet - zspjets->begin() ) );
+
 	 // JPT corrections
-	 double scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
-	 Jet::LorentzVector jetscaleJPT(zspjet->px()*scaleJPT, zspjet->py()*scaleJPT,
-					zspjet->pz()*scaleJPT, zspjet->energy()*scaleJPT);
+	 double scaleJPT = -1.;
+	 Jet::LorentzVector jetscaleJPT;
+	 if ( scalar_ ) {
+	   scaleJPT = correctorJPT->correction ( (*zspjet), zspRef, iEvent, iSetup );
+	   jetscaleJPT = Jet::LorentzVector( zspjet->px()*scaleJPT, 
+					     zspjet->py()*scaleJPT,
+					     zspjet->pz()*scaleJPT, 
+					     zspjet->energy()*scaleJPT );
+	 } else {
+	   JetCorrector::LorentzVector p4;
+	   scaleJPT = correctorJPT->correction( *zspjet, zspRef, iEvent, iSetup, p4 );
+	   jetscaleJPT = Jet::LorentzVector( p4.Px(), p4.Py(), p4.Pz(), p4.E() );
+	 }
+	 
 	 /* 
 	 cout <<" ....> corrected jpt jet Et = " << jetscaleJPT.pt()
 	      <<" eta = " << jetscaleJPT.eta()
@@ -451,7 +467,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 jpt::MatchedTracks pions;
 	 jpt::MatchedTracks muons;
 	 jpt::MatchedTracks electrons;
-	 const bool particlesOK = true;
+	 //const bool particlesOK = true;
 	 jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(correctorJPT);
 	 jptCorrector_->matchTracks((*zspjet),iEvent,iSetup,pions,muons,electrons);
 	 int NtrkJPT = pions.inVertexOutOfCalo_.size() + pions.inVertexInCalo_.size();
@@ -497,7 +513,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
 		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
-	       const double pt  = (*iInConeVtxTrk)->pt();
+	       //const double pt  = (*iInConeVtxTrk)->pt();
 	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 
@@ -506,7 +522,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
 		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
-	       const double pt  = (*iInConeVtxTrk)->pt();
+	       //const double pt  = (*iInConeVtxTrk)->pt();
 	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 
@@ -526,7 +542,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
 		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
-	       const double pt  = (*iInConeVtxTrk)->pt();
+	       //const double pt  = (*iInConeVtxTrk)->pt();
 	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 
@@ -535,7 +551,7 @@ JPTAnalyzer_Data::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	       int NpxlLayers = (*iInConeVtxTrk)->hitPattern().pixelLayersWithMeasurement();
 	       int NoutLayers = (*iInConeVtxTrk)->hitPattern().stripTOBLayersWithMeasurement() +
 		                (*iInConeVtxTrk)->hitPattern().stripTECLayersWithMeasurement();
-	       const double pt  = (*iInConeVtxTrk)->pt();
+	       //const double pt  = (*iInConeVtxTrk)->pt();
 	       if(NpxlLayers == 3) NLayers[NpxlLayers+NoutLayers] = NLayers[NpxlLayers+NoutLayers] + 1; 
 	     }
 	   }
