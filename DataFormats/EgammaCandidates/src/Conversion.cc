@@ -22,6 +22,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 			 const reco::Vertex  & convVtx,
 			 const std::vector<reco::CaloClusterPtr> & matchingBC,
                          const float DCA,
+			 const std::vector<math::XYZPoint> & innPoint,
 			 const std::vector<math::XYZVector> & trackPin,
 			 const std::vector<math::XYZVector> & trackPout,
                          const float mva,
@@ -33,27 +34,58 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
   theConversionVertex_(convVtx), 
   theMatchingBCs_(matchingBC), 
   theMinDistOfApproach_(DCA),
+  theTrackInnerPosition_(innPoint),
   theTrackPin_(trackPin),
   theTrackPout_(trackPout),
   theMVAout_(mva),
   algorithm_(algo) 
- { }
+ { 
+   
+ }
+
+
+
+Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+			 const std::vector<reco::TrackRef> tr, 
+			 const reco::Vertex  & convVtx,
+			 ConversionAlgorithm algo):  
+  caloCluster_(sc), tracks_(tr), 
+  theConversionVertex_(convVtx), 
+  algorithm_(algo) 
+ { 
+
+
+  theMinDistOfApproach_ = 9999.;
+  theMVAout_ = 9999.;
+  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
+
+   
+ }
+
+
 
 Conversion::Conversion() { 
+
+  algorithm_=0;
   theMinDistOfApproach_ = 9999.;
+  theMVAout_ = 9999.;
+  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
   theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
   theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
   theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
   theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
     
 }
-
-
-//Conversion::Conversion(): 
-// theMinDistOfApproach_(9999.),
-// theTrackPin_(math::XYZVector(0.,0.,0.),math::XYZVector(0.,0.,0.) ),
-// theTrackPout_(math::XYZVector(0.,0.,0.),math::XYZVector(0.,0.,0.) ){
-//} 
 
 
 Conversion::~Conversion() { }
