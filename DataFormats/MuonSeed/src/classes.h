@@ -1,7 +1,5 @@
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-#include "DataFormats/CLHEP/interface/Migration.h" 
-#include <boost/cstdint.hpp> 
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
