@@ -21,6 +21,7 @@ dqmElectronClientSelectionEtIsoElID.OutputFolderName = cms.string("Et10Iso1ElID"
 dqmElectronClientTagAndProbe = dqmElectronOfflineClient.clone() ;
 dqmElectronClientTagAndProbe.InputFolderName = cms.string("TagAndProbe") ;
 dqmElectronClientTagAndProbe.OutputFolderName = cms.string("TagAndProbe") ;
+dqmElectronClientTagAndProbe.EffHistoTitle = cms.string("")
 
 electronOfflineClientSequence = cms.Sequence(
    dqmElectronClientAllElectrons

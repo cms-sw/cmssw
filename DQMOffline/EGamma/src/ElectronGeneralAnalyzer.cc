@@ -37,11 +37,11 @@ ElectronGeneralAnalyzer::ElectronGeneralAnalyzer( const edm::ParameterSet & conf
   trackCollection_ = conf.getParameter<edm::InputTag>("TrackCollection");
   vertexCollection_ = conf.getParameter<edm::InputTag>("VertexCollection");
   gsftrackCollection_ = conf.getParameter<edm::InputTag>("GsfTrackCollection");
-
-  // for trigger
   triggerResults_ = conf.getParameter<edm::InputTag>("TriggerResults");
-  HLTPathsByName_= conf.getParameter<std::vector<std::string > >("HltPaths");
-  HLTPathsByIndex_.resize(HLTPathsByName_.size());
+
+//  // for trigger
+//  HLTPathsByName_= conf.getParameter<std::vector<std::string > >("HltPaths");
+//  HLTPathsByIndex_.resize(HLTPathsByName_.size());
  }
 
 ElectronGeneralAnalyzer::~ElectronGeneralAnalyzer()
@@ -88,60 +88,18 @@ void ElectronGeneralAnalyzer::analyze( const edm::Event& iEvent, const edm::Even
   py_ele_nGsfTracksVsLs->Fill(float(ils),(*gsfTracks).size());
   py_ele_nTracksVsLs->Fill(float(ils),(*tracks).size());
   py_ele_nVerticesVsLs->Fill(float(ils),(*vertices).size());
-  trigger(iEvent) ;
- }
 
-bool ElectronGeneralAnalyzer::trigger( const edm::Event & e )
- {
-  // retreive TriggerResults from the event
+  // trigger
   edm::Handle<edm::TriggerResults> triggerResults ;
-  e.getByLabel(triggerResults_,triggerResults) ;
-
-  bool accept = false ;
-
+  iEvent.getByLabel(triggerResults_,triggerResults) ;
   if (triggerResults.isValid())
    {
-    //std::cout << "TriggerResults found, number of HLT paths: " << triggerResults->size() << std::endl;
-    // get trigger names
-    edm::TriggerNames triggerNames_;
-    triggerNames_.init(*triggerResults) ;
-
-    unsigned int n = HLTPathsByName_.size() ;
-    for (unsigned int i=0; i!=n; i++)
+    unsigned int i, n = triggerResults->size() ;
+    for ( i=0 ; i!=n ; ++i )
      {
-      HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]) ;
-     }
-
-    // empty input vectors (n==0) means any trigger paths
-    if (n==0)
-     {
-      n=triggerResults->size() ;
-      HLTPathsByName_.resize(n) ;
-      HLTPathsByIndex_.resize(n) ;
-      for ( unsigned int i=0 ; i!=n ; i++)
-       {
-        HLTPathsByName_[i]=triggerNames_.triggerName(i) ;
-        HLTPathsByIndex_[i]=i ;
-       }
-     }
-
-    // count number of requested HLT paths which have fired
-    unsigned int fired=0 ;
-    for ( unsigned int i=0 ; i!=n ; i++ )
-     {
-      if (HLTPathsByIndex_[i]<triggerResults->size())
-       {
-        if (triggerResults->accept(HLTPathsByIndex_[i]))
-         {
-          fired++ ;
-          h1_ele_triggers->Fill(float(HLTPathsByIndex_[i]));
-          //std::cout << "Fired HLT path= " << HLTPathsByName_[i] << std::endl ;
-          accept = true ;
-         }
-       }
+      if (triggerResults->accept(i))
+       { h1_ele_triggers->Fill(float(i)) ; }
      }
    }
-
-  return accept ;
  }
 

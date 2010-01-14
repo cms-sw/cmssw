@@ -41,14 +41,14 @@ class ElectronGeneralAnalyzer : public ElectronDqmAnalyzerBase
 
     // for trigger
     edm::InputTag triggerResults_;
-    std::vector<std::string > HLTPathsByName_;
-
-    //=========================================
-    // general attributes and utility methods
-    //=========================================
-
-    bool trigger( const edm::Event & e ) ;
-    std::vector<unsigned int> HLTPathsByIndex_;
+    //std::vector<std::string > HLTPathsByName_;
+//
+//    //=========================================
+//    // general attributes and utility methods
+//    //=========================================
+//
+//    bool trigger( const edm::Event & e ) ;
+//    std::vector<unsigned int> HLTPathsByIndex_;
 
     //=========================================
     // histograms
