@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.155 $"
+__version__ = "$Revision: 1.156 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -404,7 +404,7 @@ class ConfigBuilder(object):
 	if self._options.isMC==True:
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
-                
+                self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"                
 
         # now for #%#$#! different scenarios
 
@@ -817,7 +817,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.155 $"),
+              (version=cms.untracked.string("$Revision: 1.156 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
