@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/pre1/HIon/V2 (CMSSW_3_5_0_pre2_HLT1)
+# /dev/CMSSW_3_5_0/pre1/HIon/V3 (CMSSW_3_5_X_2010-01-13-1200)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/HIon/V2')
+  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/HIon/V3')
 )
 
 
@@ -1118,6 +1118,9 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
 )
 hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltTowerMakerForAll" ),

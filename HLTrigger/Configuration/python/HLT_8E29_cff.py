@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/pre1/8E29/V2 (CMSSW_3_5_0_pre2_HLT1)
+# /dev/CMSSW_3_5_0/pre1/8E29/V3 (CMSSW_3_5_X_2010-01-13-1200)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/8E29/V2')
+  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/8E29/V3')
 )
 
 
@@ -1118,6 +1118,9 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
 )
 hltIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltTowerMakerForAll" ),
@@ -4414,6 +4417,9 @@ hltCaloTowersTau1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 0 )
 )
 hltIconeTau1Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersTau1Regional" ),
@@ -4447,6 +4453,9 @@ hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 1 )
 )
 hltIconeTau2Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersTau2Regional" ),
@@ -4480,6 +4489,9 @@ hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 2 )
 )
 hltIconeTau3Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersTau3Regional" ),
@@ -4513,6 +4525,9 @@ hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 3 )
 )
 hltIconeTau4Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersTau4Regional" ),
@@ -4546,6 +4561,9 @@ hltCaloTowersCentral1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 0 )
 )
 hltIconeCentral1Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersCentral1Regional" ),
@@ -4579,6 +4597,9 @@ hltCaloTowersCentral2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 1 )
 )
 hltIconeCentral2Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersCentral2Regional" ),
@@ -4612,6 +4633,9 @@ hltCaloTowersCentral3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 2 )
 )
 hltIconeCentral3Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersCentral3Regional" ),
@@ -4645,6 +4669,9 @@ hltCaloTowersCentral4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     TauId = cms.int32( 3 )
 )
 hltIconeCentral4Regional = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.2 ),
     src = cms.InputTag( "hltCaloTowersCentral4Regional" ),
@@ -5078,6 +5105,9 @@ hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     ecalInputs = cms.VInputTag(  )
 )
 hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltStoppedHSCPTowerMakerForAll" ),
