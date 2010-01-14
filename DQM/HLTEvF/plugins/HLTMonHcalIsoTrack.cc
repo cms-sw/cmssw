@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id: HLTMonHcalIsoTrack.cc,v 1.1 2009/12/08 10:18:57 safronov Exp $
+// $Id: HLTMonHcalIsoTrack.cc,v 1.2 2009/12/17 12:02:24 safronov Exp $
 //
 //
 
@@ -235,7 +235,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
 }
 
-void HLTMonHcalIsoTrack::beginJob(const edm::EventSetup&)
+void HLTMonHcalIsoTrack::beginJob()
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);

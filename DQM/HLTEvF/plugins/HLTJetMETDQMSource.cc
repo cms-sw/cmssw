@@ -885,7 +885,7 @@ if (verbose_) cout <<  "  N " << N << "  trigger name " << v->getPath() << endl;
 
 // -- method called once each job just before starting event loop  --------
 void 
-HLTJetMETDQMSource::beginJob(const edm::EventSetup&){
+HLTJetMETDQMSource::beginJob(){
   nev_ = 0;
   DQMStore *dbe = 0;
   dbe = Service<DQMStore>().operator->();
