@@ -8,7 +8,6 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
-<use name=CalibFormats/HcalObjects>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/L1TObjects>
@@ -17,6 +16,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/HepMCCandidate>
+<use name=CalibFormats/HcalObjects>
 <use name=CondFormats/RunInfo>
 <use name=root>
 
@@ -32,7 +32,6 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
-<use name=CalibFormats/HcalObjects>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/L1TObjects>
@@ -42,5 +41,7 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=CondFormats/RunInfo>
 <use name=clhep>
+<use name=CalibFormats/HcalObjects>
+<use name=CondFormats/RunInfo>
 <use name=root>
 </export>

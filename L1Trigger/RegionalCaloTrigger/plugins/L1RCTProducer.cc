@@ -56,8 +56,10 @@ L1RCTProducer::~L1RCTProducer()
 }
 
 
+
 void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+
 
   // Refresh configuration information every event
   // Hopefully, this does not take too much time
@@ -78,6 +80,22 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
+
+
+ // get energy scale to convert input from ECAL
+  edm::ESHandle<L1CaloEcalScale> ecalScale;
+  eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+  const L1CaloEcalScale* e = ecalScale.product();
+      
+  // get energy scale to convert input from HCAL
+  edm::ESHandle<L1CaloHcalScale> hcalScale;
+  eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+  const L1CaloHcalScale* h = hcalScale.product();
+
+  // set scales
+  rctLookupTables->setEcalScale(e);
+  rctLookupTables->setHcalScale(h);
+
 
   rctLookupTables->setRCTParameters(r);
   rctLookupTables->setChannelMask(c);
