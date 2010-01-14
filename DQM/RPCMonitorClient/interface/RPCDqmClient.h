@@ -23,7 +23,7 @@ public:
   virtual ~ RPCDqmClient();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& );
+  void beginJob( );
 
   //Begin Run
    void beginRun(const edm::Run& , const edm::EventSetup&);
