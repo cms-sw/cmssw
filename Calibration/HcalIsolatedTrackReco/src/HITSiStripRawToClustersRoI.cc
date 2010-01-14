@@ -30,23 +30,23 @@ HITSiStripRawToClustersRoI::HITSiStripRawToClustersRoI(const edm::ParameterSet& 
 
 HITSiStripRawToClustersRoI::~HITSiStripRawToClustersRoI() {}
 
-void HITSiStripRawToClustersRoI::beginJob(const edm::EventSetup& setup) {
-
-  setup.get<SiStripRegionCablingRcd>().get(cabling_);
-  allregions_.reserve(cabling_->getRegionCabling().size());
-  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
-    for (uint32_t isubdet=0;isubdet<cabling_->getRegionCabling()[iregion].size();isubdet++) {  
-      for (uint32_t ilayer=0;ilayer<cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
-	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SubDet>(isubdet),ilayer);
-	allregions_.push_back(index);
-      }
-    }
-  }
-}
+void HITSiStripRawToClustersRoI::beginJob() {}
 
 void HITSiStripRawToClustersRoI::endJob() {}
 
 void HITSiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& setup) {
+
+  setup.get<SiStripRegionCablingRcd>().get(cabling_);
+  allregions_.reserve(cabling_->getRegionCabling().size());
+  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
+    for (uint32_t isubdet=0;isubdet<cabling_->getRegionCabling()[iregion].size();isubdet++) {
+      for (uint32_t ilayer=0;ilayer<cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
+        uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SubDet>(isubdet),ilayer);
+        allregions_.push_back(index);
+      }
+    }
+  }
+
   
   edm::Handle< LazyGetter > lazygetter;
   event.getByLabel(siStripLazyGetter_,lazygetter);

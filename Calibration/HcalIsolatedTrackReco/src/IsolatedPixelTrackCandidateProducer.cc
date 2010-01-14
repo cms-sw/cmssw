@@ -71,13 +71,14 @@ IsolatedPixelTrackCandidateProducer::~IsolatedPixelTrackCandidateProducer() {
 
 }
 
-void IsolatedPixelTrackCandidateProducer::beginJob (edm::EventSetup const & es) {
-  edm::ESHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get(pDD);
-  getEcalConstants(&(*pDD));
-}
+void IsolatedPixelTrackCandidateProducer::beginJob () {}
 
 void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
+
+  //get ECAL constants:
+  edm::ESHandle<DDCompactView> pDD;
+  theEventSetup.get<IdealGeometryRecord>().get(pDD);
+  getEcalConstants(&(*pDD));
 
   reco::IsolatedPixelTrackCandidateCollection* trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
 

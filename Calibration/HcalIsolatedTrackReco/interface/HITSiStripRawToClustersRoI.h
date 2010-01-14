@@ -45,7 +45,7 @@ class HITSiStripRawToClustersRoI : public edm::EDProducer {
   HITSiStripRawToClustersRoI( const edm::ParameterSet& );
   ~HITSiStripRawToClustersRoI();
   
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob( );
   virtual void endJob();
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
