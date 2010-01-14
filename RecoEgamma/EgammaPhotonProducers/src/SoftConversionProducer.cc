@@ -223,7 +223,8 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 	}
 
         double dummy = -9999.;
-	reco::Conversion  newCandidate(scRefs,  trkRefs,  trkPositionAtEcal, theConversionVertex, clusterRefs,  minAppDist, trackPin, trackPout, dummy );
+        std::vector<math::XYZPoint> dummyVec;
+	reco::Conversion  newCandidate(scRefs,  trkRefs,  trkPositionAtEcal, theConversionVertex, clusterRefs,  minAppDist,dummyVec,  trackPin, trackPout, dummy );
 
 	// Check this candidate is already in the collection.
 	// This is checking that two tracks in a conversion candidate are identicial.
