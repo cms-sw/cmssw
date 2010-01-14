@@ -16,7 +16,7 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.8 2009/09/28 19:10:02 askew Exp $
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.9 2009/10/27 10:53:37 sani Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -115,8 +115,10 @@ PhotonIDSimpleAnalyzer::beginJob()
   h_trk_pt_hollow_ = new TH1F("photonTrackHollowIso",   "Sum of track pT in a hollow cone" ,     300, 0, 300);
   h_ntrk_solid_    = new TH1F("photonTrackCountSolid",  "Number of tracks in a cone of #DeltaR", 100, 0, 100);
   h_ntrk_hollow_   = new TH1F("photonTrackCountHollow", "Number of tracks in a hollow cone",     100, 0, 100);
-  h_ebgap_         = new TH1F("photonInEBgap",          "Ecal Barrel gap flag",  2, -0.5, 1.5);
-  h_eeGap_         = new TH1F("photonInEEgap",          "Ecal Endcap gap flag",  2, -0.5, 1.5);
+  h_ebetagap_         = new TH1F("photonInEBEtagap",          "Ecal Barrel eta gap flag",  2, -0.5, 1.5);
+  h_ebphigap_         = new TH1F("photonInEBEtagap",          "Ecal Barrel phi gap flag",  2, -0.5, 1.5);
+  h_eeringGap_         = new TH1F("photonInEERinggap",          "Ecal Endcap ring gap flag",  2, -0.5, 1.5);
+  h_eedeeGap_         = new TH1F("photonInEEDeegap",          "Ecal Endcap dee gap flag",  2, -0.5, 1.5);
   h_ebeeGap_       = new TH1F("photonInEEgap",          "Ecal Barrel/Endcap gap flag",  2, -0.5, 1.5);
   h_r9_            = new TH1F("photonR9",               "R9 = E(3x3) / E(SuperCluster)", 300, 0, 3);
 
@@ -206,8 +208,10 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
       h_trk_pt_hollow_->Fill(pho->trkSumPtHollowConeDR04());
       h_ntrk_solid_->   Fill(pho->nTrkSolidConeDR04());
       h_ntrk_hollow_->  Fill(pho->nTrkHollowConeDR04());
-      h_ebgap_->        Fill(pho->isEBGap());
-      h_eeGap_->        Fill(pho->isEEGap()); 
+      h_ebetagap_->        Fill(pho->isEBEtaGap());
+      h_ebphigap_->        Fill(pho->isEBPhiGap());
+      h_eeringGap_->        Fill(pho->isEERingGap()); 
+      h_eedeeGap_->        Fill(pho->isEEDeeGap()); 
       h_ebeeGap_->      Fill(pho->isEBEEGap());
       h_r9_->           Fill(pho->r9());
 
@@ -237,8 +241,10 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
 	recPhoton.isolationHollowTrkCone = pho->trkSumPtHollowConeDR04();
 	recPhoton.nTrkSolidCone          = pho->nTrkSolidConeDR04();
 	recPhoton.nTrkHollowCone         = pho->nTrkHollowConeDR04();
-	recPhoton.isEBGap                = pho->isEBGap();
-	recPhoton.isEEGap                = pho->isEEGap();
+	recPhoton.isEBEtaGap                = pho->isEBEtaGap();
+	recPhoton.isEBPhiGap                = pho->isEBPhiGap();
+	recPhoton.isEERingGap                = pho->isEERingGap();
+	recPhoton.isEEDeeGap                = pho->isEEDeeGap();
 	recPhoton.isEBEEGap              = pho->isEBEEGap();
         recPhoton.r9                     = pho->r9();
         recPhoton.et                     = pho->et();
@@ -253,7 +259,7 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
 
       // Record whether it was near any module gap.
       // Very convoluted at the moment.
-      bool inAnyGap = pho->isEBEEGap() || (pho->isEB()&&pho->isEBGap()) || (pho->isEE()&&pho->isEEGap());
+      bool inAnyGap = pho->isEBEEGap() || (pho->isEB()&&pho->isEBEtaGap()) ||(pho->isEB()&&pho->isEBPhiGap())  || (pho->isEE()&&pho->isEERingGap()) || (pho->isEE()&&pho->isEEDeeGap()) ;
       if (inAnyGap) {
         h_photonInAnyGap_->Fill(1.0);
       } else {
@@ -290,8 +296,10 @@ PhotonIDSimpleAnalyzer::endJob()
   h_trk_pt_hollow_->Write();
   h_ntrk_solid_->   Write();
   h_ntrk_hollow_->  Write();
-  h_ebgap_->     Write();
-  h_eeGap_->     Write();
+  h_ebetagap_->     Write();
+  h_ebphigap_->     Write();
+  h_eeringGap_->     Write();
+  h_eedeeGap_->     Write();
   h_ebeeGap_->   Write();
   h_r9_->        Write();
 

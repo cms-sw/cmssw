@@ -129,13 +129,13 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LooseEM, bool
       TightPhoton = false;
       return;
     }
-    if (pho->isEB() && pho->isEBGap()){
+    if ( pho->isEBEtaGap() || pho->isEBPhiGap() ){
       LooseEM     = false;
       LoosePhoton = false;
       TightPhoton = false;
       return;
     }
-    if (pho->isEE() && pho->isEEGap()){
+    if ( pho->isEERingGap() || pho->isEEDeeGap()  ){
       LooseEM     = false;
       LoosePhoton = false;
       TightPhoton = false;
@@ -460,13 +460,13 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LooseEM, bool
       
       return;
     }
-    if (pho->isEB() && pho->isEBGap()){
+    if ( pho->isEBEtaGap() ||  pho->isEBPhiGap() ){
       LooseEM     = false;
       LoosePhoton = false;
       TightPhoton = false;
       return;
     }
-    if (pho->isEE() && pho->isEEGap()){
+    if (pho->isEERingGap() || pho->isEEDeeGap() ){
       LooseEM     = false;
       LoosePhoton = false;
       TightPhoton = false;

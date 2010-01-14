@@ -28,8 +28,10 @@ public:
   void classify(const reco::Photon* photon, 
 		bool &isEBPho,
 		bool &isEEPho,
-		bool &isEBGap,
-		bool &isEEGap,
+		bool &isEBEtaGap,
+		bool &isEBPhiGap,
+		bool &isEERingGap,
+		bool &isEEDeeGap,
 		bool &isEBEEGap);
   void calculateTrackIso(const reco::Photon* photon,
 			 const edm::Event &e,

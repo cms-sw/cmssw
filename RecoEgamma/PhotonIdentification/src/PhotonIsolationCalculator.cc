@@ -166,17 +166,21 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 
 
   //Get fiducial flags. This does not really belong here
-  bool isEBPho   = false;
-  bool isEEPho   = false;
-  bool isEBGap   = false;
-  bool isEEGap   = false;
-  bool isEBEEGap = false;
-  classify(pho, isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap);
+  bool isEBPho     = false;
+  bool isEEPho     = false;
+  bool isEBEtaGap  = false;
+  bool isEBPhiGap  = false;
+  bool isEERingGap = false;
+  bool isEEDeeGap  = false;
+  bool isEBEEGap   = false;
+  classify(pho, isEBPho, isEEPho, isEBEtaGap, isEBPhiGap, isEERingGap, isEEDeeGap, isEBEEGap);
   phofid.isEB = isEBPho;
   phofid.isEE = isEEPho;
-  phofid.isEBGap = isEBGap;
-  phofid.isEEGap = isEEGap;
-  phofid.isEBEEGap = isEBEEGap;
+  phofid.isEBEtaGap  = isEBEtaGap;
+  phofid.isEBPhiGap  = isEBPhiGap;
+  phofid.isEERingGap = isEERingGap;
+  phofid.isEEDeeGap  = isEEDeeGap;
+  phofid.isEBEEGap   = isEBEEGap;
   
   // Calculate isolation variables. cone sizes and thresholds
   // are set for Barrel and endcap separately 
@@ -393,11 +397,21 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 
 
 void PhotonIsolationCalculator::classify(const reco::Photon* photon, 
-			    bool &isEBPho,
-			    bool &isEEPho,
-			    bool &isEBGap,
-			    bool &isEEGap,
-			    bool &isEBEEGap){
+					 bool &isEBPho,
+					 bool &isEEPho,
+					 bool &isEBEtaGap,
+					 bool &isEBPhiGap,
+					 bool &isEERingGap,
+					 bool &isEEDeeGap,
+					 bool &isEBEEGap){
+
+
+  const reco::CaloCluster & seedCluster = *(photon->superCluster()->seed()) ;
+  // following line is temporary until the D. Evans or F. Ferri submit the new tag for ClusterAlgos 
+  // DEfinitive will be 
+  // DetId seedXtalId = scRef->seed()->seed();
+  DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
+  int detector = seedXtalId.subdetId() ;
 
   //Set fiducial flags for this photon.
   double eta = photon->superCluster()->position().eta();
@@ -405,41 +419,31 @@ void PhotonIsolationCalculator::classify(const reco::Photon* photon,
   double feta = fabs(eta);
 
   //Are you in the Ecal Endcap (EE)?
-  if(feta>1.479) 
-    isEEPho = true;
-  else 
+  if (detector==EcalBarrel) {
     isEBPho = true;
+    if (EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)))
+      {
+	if (fabs(feta-1.479)<.1)
+	  { isEBEEGap = true ; }
+	else
+	  { isEBEtaGap = true ; }
+      }
+    if (EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId)))
+      { isEBPhiGap = true ; }
 
-  // Set fiducial flags (isEBGap, isEEGap...
-
-  //Are you in the gap between EE and Ecal Barrel (EB)?
-  if (fabs(feta-1.479)<.1) isEBEEGap=true; 
-
-  // Set isEBGap if photon is 
-  //  in the barrel (|eta| < 1.5), and 
-  //  photon is closer than "modulePhiBoundary_" (set in cfg)
-  //  to a phi module/supermodule boundary (same thing)
-  if (feta < 1.5) {
-    if (phi < 0) phi += TMath::Pi()*2.;
-    Float_t phiRelative = fmod( phi , 20*TMath::Pi()/180 ) - 10*TMath::Pi()/180;
-    if ( fabs(phiRelative) < modulePhiBoundary_ ) isEBGap=true;
+  } else if (detector==EcalEndcap) {
+    isEEPho = true;
+    if (EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)))
+      {
+	if (fabs(feta-1.479)<.1)
+	  { isEBEEGap = true ; }
+	else
+	  { isEERingGap = true ; }
+      }
+    if (EEDetId::isNextToDBoundary(EEDetId(seedXtalId)))
+      { isEEDeeGap = true ; }
   }
 
-  // Set isEBGap if photon is between specific eta values 
-  // in the "moduleEtaBoundary_" variable.
-  // Loop over the vector of Eta boundaries given in the config file
-  bool nearEtaBoundary = false;
-  for (unsigned int i=0; i < moduleEtaBoundary_.size(); i+=2) {
-    // Checks to see if it's between the 0th and 1st entry, the 2nd and 3rd entry...etc
-    if ( (feta > moduleEtaBoundary_[i]) && (feta < moduleEtaBoundary_[i+1]) ) {
-      //std::cout << "Photon between eta " << moduleEtaBoundary_[i] << " and " << moduleEtaBoundary_[i+1] << std::endl;
-      nearEtaBoundary = true;
-      break;
-    }
-  }
-
-  // If it's near an eta boundary and in the Barrel
-  if (nearEtaBoundary) isEBGap=true;
 
 }
 

@@ -63,8 +63,10 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
 	float isolationHollowTrkCone;
 	float nTrkSolidCone;
 	float nTrkHollowCone;
-        float isEBGap;
-	float isEEGap;
+        float isEBEtaGap;
+        float isEBPhiGap;
+	float isEERingGap;
+	float isEEDeeGap;
 	float isEBEEGap;
 	float r9;
 	float et;
@@ -86,8 +88,10 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
       TH1F* h_trk_pt_hollow_;
       TH1F* h_ntrk_solid_;
       TH1F* h_ntrk_hollow_;
-      TH1F* h_ebgap_;
-      TH1F* h_eeGap_;
+      TH1F* h_ebetagap_;
+      TH1F* h_ebphigap_;
+      TH1F* h_eeringGap_;
+      TH1F* h_eedeeGap_;
       TH1F* h_ebeeGap_;
       TH1F* h_r9_;
 
