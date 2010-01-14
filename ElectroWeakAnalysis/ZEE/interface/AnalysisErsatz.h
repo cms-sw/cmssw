@@ -13,7 +13,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Fri Nov 14 15:00:43 GMT 2008
-// $Id: AnalysisErsatz.h,v 1.2 2009/12/08 09:57:46 rnandi Exp $
+// $Id: AnalysisErsatz.h,v 1.3 2010/01/07 13:51:08 hegner Exp $
 //
 //
 
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //Random Number Generator
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandFlat.h"
