@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2009/11/07 17:35:42 $
- * $Revision: 1.26 $
+ * $Date: 2010/01/13 13:04:58 $
+ * $Revision: 1.27 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -69,6 +69,15 @@ void L1TGMT::beginJob()
 
 }
 
+void L1TGMT::beginRun(const edm::Run& r, const edm::EventSetup& c)
+{
+  
+  if(nev_==0) {
+      book_(c);
+    }
+
+}
+
 
 void L1TGMT::endJob(void)
 {
@@ -82,10 +91,6 @@ void L1TGMT::endJob(void)
 
 void L1TGMT::analyze(const Event& e, const EventSetup& c)
 {
-  
-  if(nev_==0) {
-    book_(c);
-  }
   
   nev_++; 
   if(verbose_) cout << "L1TGMT: analyze...." << endl;

@@ -4,8 +4,8 @@
 /*
  * \file L1TGMT.h
  *
- * $Date: 2009/11/07 17:35:41 $
- * $Revision: 1.9 $
+ * $Date: 2010/01/13 13:04:58 $
+ * $Revision: 1.10 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -57,6 +57,9 @@ void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
 void beginJob(void);
+
+// BeginRun
+void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
