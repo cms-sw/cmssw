@@ -63,6 +63,9 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
   HF_Calib_ =
     iConfig.getParameter<bool>("HF_Calib");
 
+  shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
+  longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
+
 
   //--ab
   produces<reco::PFRecHitCollection>("HFHAD").setBranchAlias("HFHADRecHits");
@@ -238,6 +241,28 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		double energyhadHF = weight_HFhad_ * energy;
 		// Some energy in the tower !
 		if((energyemHF+energyhadHF) < thresh_HF_ ) continue;
+
+		// Some energy must be in the long fibres is there is some energy in the short fibres ! 
+		double longFibre = energyemHF + energyhadHF/2.;
+		double shortFibre = energyhadHF/2.;
+		int ieta = detid.ieta();
+		int iphi = detid.iphi();
+		if ( longFibre/shortFibre < longFibre_Fraction && shortFibre > shortFibre_Cut ) {
+		  // Check if the long-fibre hit was not cleaned already (because hot)
+		  // In this case don't apply the cleaning
+		  HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);
+		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId);
+		  unsigned theStatusValue = theStatus->getValue();
+		  if ( !theStatusValue ) { 
+		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			      << ", Energy em/had/long/short = " 
+			      << energyemHF << " " << energyhadHF << " "
+			      << longFibre << " " << shortFibre << " " 
+			      << ". The status value is " << theStatusValue
+			      << ". Short fibres were cleaned." << std::endl;
+		    continue;
+		  }
+		}
 
 		// The EM energy might be negative, as it amounts to Long - Short
 		// In that case, put the EM "energy" in the HAD energy

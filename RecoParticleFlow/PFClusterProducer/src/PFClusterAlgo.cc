@@ -2,6 +2,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "TFile.h"
+#include "TH2F.h"
+#include "TROOT.h"
 
 
 #include <stdexcept>
@@ -33,8 +36,23 @@ PFClusterAlgo::PFClusterAlgo() :
   posCalcP1_(-1),
   showerSigma_(5),
   useCornerCells_(false),
-  debug_(false) {}
+  debug_(false) 
+{
+  file_ = 0;
+  hBNeighbour = 0;
+  hENeighbour = 0;
+}
 
+void
+PFClusterAlgo::write() { 
+
+  if ( file_ ) { 
+    file_->Write();
+    cout << "Benchmark output written to file " << file_->GetName() << endl;
+    file_->Close();
+  }
+
+}
 
 
 void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle ) {
@@ -103,7 +121,8 @@ void PFClusterAlgo::setMask( const std::vector<bool>& mask ) {
 
 
 double PFClusterAlgo::parameter( Parameter paramtype, 
-				 PFLayer::Layer layer)  const {
+				 PFLayer::Layer layer,
+				 unsigned iCoeff )  const {
   
 
   double value = 0;
@@ -130,7 +149,7 @@ double PFClusterAlgo::parameter( Parameter paramtype,
       value = threshCleanBarrel_;
       break;
     case CLEAN_S4S1:
-      value = minS4S1Barrel_;
+      value = minS4S1Barrel_[iCoeff];
       break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
@@ -162,7 +181,7 @@ double PFClusterAlgo::parameter( Parameter paramtype,
       value = threshCleanEndcap_;
       break;
     case CLEAN_S4S1:
-      value = minS4S1Endcap_;
+      value = minS4S1Endcap_[iCoeff];
       break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
@@ -452,8 +471,10 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 				     static_cast<PFLayer::Layer>(layer) );
     double cleanThresh = parameter( CLEAN_THRESH, 
 				    static_cast<PFLayer::Layer>(layer) );
-    double minS4S1 = parameter( CLEAN_S4S1, 
-				static_cast<PFLayer::Layer>(layer) );
+    double minS4S1_a = parameter( CLEAN_S4S1, 
+				  static_cast<PFLayer::Layer>(layer), 0 );
+    double minS4S1_b = parameter( CLEAN_S4S1, 
+				  static_cast<PFLayer::Layer>(layer), 1 );
 
 
 #ifdef PFLOW_DEBUG
@@ -470,7 +491,8 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       
     // Find the cell unused neighbours
     const vector<unsigned>* nbp;
-    double tighter = 1.0;
+    double tighterE = 1.0;
+    double tighterF = 1.0;
 
     switch ( layer ) { 
     case PFLayer::ECAL_BARREL:         
@@ -478,7 +500,8 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
     case PFLayer::HCAL_BARREL1:
     case PFLayer::HCAL_BARREL2:
     case PFLayer::HCAL_ENDCAP:
-      tighter = 2.0;
+      tighterE = 2.0;
+      tighterF = 3.0;
     case PFLayer::HF_EM:
     case PFLayer::HF_HAD:
       if( nNeighbours_ == 4 ) {
@@ -528,7 +551,9 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       
 
     // Cleaning : check energetic, isolated seeds, likely to come from erratic noise.
-    if ( wannaBeSeed.energy() > cleanThresh ) { 
+    if ( file_ || wannaBeSeed.energy() > cleanThresh ) { 
+      
+      //std::cout << layer << " " << hBNeighbour << " " << wannaBeSeed.energy() << " " << fraction1 << std::endl;
       const vector<unsigned>& neighbours4 = *(& wannaBeSeed.neighbours4());
       // Determine the fraction of surrounding energy
       //std::cout << "Energy of the cell and energy Up : " << wannaBeSeed.energy() 
@@ -556,22 +581,44 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       // Mask the seed and the hit if energetic/isolated rechit
       // if ( fraction0 < minS4S1 || fraction1 < minS4S1 || fraction2 < minS4S1 || fraction3 < minS4S1 ) {
       // if ( fraction1 < minS4S1 || ( wannaBeSeed.energy() > 1.5*cleanThresh && fraction0 + fraction3 < minS4S1 ) ) {
-      if ( fraction1 < minS4S1 ) {
-	// Double the energy cleaning threshold when close to the ECAL/HCAL - HF transition
-	double eta = fabs(wannaBeSeed.position().eta());
-	if (   eta < 5.0 &&                                            // No cleaning for the HF border 
-	     ( eta < 2.8 || rhenergy > tighter*cleanThresh ) &&        // Tighter cleaning for the EB-HB/HF transition 
-	     ( abs(eta-1.48) > 0.02 || fraction1 < minS4S1/tighter )   // Tighter cleaning for the EB/EE transition 
-	    ) { 
-	  seedStates_[rhi] = CLEAN;
-	  mask_[rhi] = false;
-	  std::cout << "A seed with E/pT/eta = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
-		    << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() 
-		    << " and with surrounding fractions = " << fraction0 << " " << fraction1 
-		    << " " << fraction2 << " " << fraction3
-		    << " in layer " << layer 
-		    << " had been cleaned " << std::endl
-		    << "(Cuts were : " << cleanThresh << " and " << minS4S1 << std::endl; 
+      
+      if ( file_ ) { 
+	if ( layer == PFLayer::ECAL_BARREL || layer == PFLayer::HCAL_BARREL1 ) 
+	  ;
+	  // hBNeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
+	else if ( fabs(wannaBeSeed.position().eta()) < 5.0  ) {
+	  if ( layer == PFLayer::ECAL_ENDCAP || layer == PFLayer::HCAL_ENDCAP ) { 
+	    if ( fabs(wannaBeSeed.position().eta()) < 2.8  ) hENeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
+	  } else { 
+	    hENeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
+	  }
+	}
+      }
+      
+      if ( wannaBeSeed.energy() > cleanThresh ) { 
+	double f1Cut = minS4S1_a * log10(wannaBeSeed.energy()) + minS4S1_b;
+	if ( fraction1 < f1Cut ) {
+	  // Double the energy cleaning threshold when close to the ECAL/HCAL - HF transition
+	  double eta = fabs(wannaBeSeed.position().eta());
+	  if (   eta < 5.0 &&                                          // No cleaning for the HF border 
+	       ( eta < 2.85 || ( rhenergy > tighterE*cleanThresh && 
+		         	 fraction1 < f1Cut/tighterF) )   &&    // Tighter cleaning for the EB-HB/HF transition 
+	       ( abs(eta-1.48) > 0.02 || fraction1 < f1Cut/tighterF )  // Tighter cleaning for the EB/EE transition 
+	      ) { 
+	    if ( file_ ) { 
+	      if ( layer == PFLayer::ECAL_BARREL || layer == PFLayer::HCAL_BARREL1 ) 
+		hBNeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
+	    }
+	    seedStates_[rhi] = CLEAN;
+	    mask_[rhi] = false;
+	    std::cout << "A seed with E/pT/eta = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
+		      << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() 
+		      << " and with surrounding fractions = " << fraction0 << " " << fraction1 
+		      << " " << fraction2 << " " << fraction3
+		      << " in layer " << layer 
+		      << " had been cleaned " << std::endl
+		      << "(Cuts were : " << cleanThresh << " and " << f1Cut << ")" << std::endl; 
+	  }
 	}
       }
     }
@@ -1433,14 +1480,14 @@ ostream& operator<<(ostream& out,const PFClusterAlgo& algo) {
   out<<"threshPtBarrel     : "<<algo.threshPtBarrel_     <<endl;
   out<<"threshPtSeedBarrel : "<<algo.threshPtSeedBarrel_ <<endl;
   out<<"threshCleanBarrel  : "<<algo.threshCleanBarrel_  <<endl;
-  out<<"minS4S1Barrel      : "<<algo.minS4S1Barrel_      <<endl;
+  out<<"minS4S1Barrel      : "<<algo.minS4S1Barrel_[0]<<" x log10(E) + "<<algo.minS4S1Barrel_[1]<<endl;
   out<<"threshEndcap       : "<<algo.threshEndcap_       <<endl;
   out<<"threshSeedEndcap   : "<<algo.threshSeedEndcap_   <<endl;
   out<<"threshPtEndcap     : "<<algo.threshPtEndcap_     <<endl;
   out<<"threshPtSeedEndcap : "<<algo.threshPtSeedEndcap_ <<endl;
   out<<"threshEndcap       : "<<algo.threshEndcap_       <<endl;
   out<<"threshCleanEndcap  : "<<algo.threshCleanEndcap_  <<endl;
-  out<<"minS4S1Endcap      : "<<algo.minS4S1Endcap_      <<endl;
+  out<<"minS4S1Endcap      : "<<algo.minS4S1Endcap_[0]<<" x log10(E) + "<<algo.minS4S1Endcap_[1]<<endl;
   out<<"nNeighbours        : "<<algo.nNeighbours_        <<endl;
   out<<"posCalcNCrystal    : "<<algo.posCalcNCrystal_    <<endl;
   out<<"posCalcP1          : "<<algo.posCalcP1_          <<endl;

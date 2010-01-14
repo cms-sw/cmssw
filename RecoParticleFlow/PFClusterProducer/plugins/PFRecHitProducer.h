@@ -19,6 +19,7 @@
 // For RecHits calibration wrt 50 GeV pions.
 // #include "CondFormats//HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats//HcalObjects/interface/HcalPFCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 /**\class PFRecHitProducer 
 \brief Base producer for particle flow rechits (PFRecHit) 
@@ -63,7 +64,7 @@ class PFRecHitProducer : public edm::EDProducer {
   // the access to the response corection factors
   // const HcalRespCorrs* myRespCorr;
   const HcalPFCorrs* myPFCorr;
-
+  const HcalChannelQuality* theHcalChStatus;
 
 };
 

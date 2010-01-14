@@ -11,8 +11,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
-
 using namespace std;
 using namespace edm;
 
@@ -38,8 +36,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 
   double threshCleanBarrel = 
     iConfig.getParameter<double>("thresh_Clean_Barrel");
-  double minS4S1CleanBarrel = 
-    iConfig.getParameter<double>("minS4S1_Clean_Barrel");
+  std::vector<double> minS4S1CleanBarrel = 
+    iConfig.getParameter< std::vector<double> >("minS4S1_Clean_Barrel");
 
   double threshEndcap = 
     iConfig.getParameter<double>("thresh_Endcap");
@@ -53,8 +51,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 
   double threshCleanEndcap = 
     iConfig.getParameter<double>("thresh_Clean_Endcap");
-  double minS4S1CleanEndcap = 
-    iConfig.getParameter<double>("minS4S1_Clean_Endcap");
+  std::vector<double> minS4S1CleanEndcap = 
+    iConfig.getParameter< std::vector<double> >("minS4S1_Clean_Endcap");
 
 
   int nNeighbours = 
@@ -118,10 +116,6 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     reco::PFCluster::setDepthCorParameters( dcormode, 
 					    dcora, dcorb, 
 					    dcorap, dcorbp );
-
-
-
-
 
 
   // access to the collections of rechits from the various detectors:

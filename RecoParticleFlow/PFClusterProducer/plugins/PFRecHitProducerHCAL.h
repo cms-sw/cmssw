@@ -94,6 +94,10 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   bool HCAL_Calib_;
   bool HF_Calib_;
 
+  // Don't allow large energy in short fibres if there is no energy in long fibres
+  double shortFibre_Cut;  
+  double longFibre_Fraction;
+
 
 };
 

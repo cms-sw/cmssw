@@ -11,6 +11,7 @@
 // For RecHits calibration wrt 50 GeV pions.
 // #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -64,6 +65,12 @@ PFRecHitProducer::beginRun(edm::Run& run,
   edm::ESHandle<HcalPFCorrs> pfrchandle;
   es.get<HcalPFCorrsRcd>().get(pfrchandle);
   myPFCorr= pfrchandle.product();
+
+  // Get cleaned channels in the HCAL and HF 
+  // HCAL channel status map ****************************************
+  edm::ESHandle<HcalChannelQuality> hcalChStatus;    
+  es.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  theHcalChStatus = hcalChStatus.product();
 
 }
 

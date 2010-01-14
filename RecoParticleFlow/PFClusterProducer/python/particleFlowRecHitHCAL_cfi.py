@@ -23,7 +23,13 @@ particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
 
 # HCAL DPG RecHit calibration
     HCAL_Calib = cms.bool(True),
-    HF_Calib = cms.bool(False)
+    HF_Calib = cms.bool(False),
+
+# Cut short fibres if no long fibre energy
+    ShortFibre_Cut = cms.double(60.),
+    LongFibre_Fraction = cms.double(0.05)
+
+                                  
                                   
 )
 

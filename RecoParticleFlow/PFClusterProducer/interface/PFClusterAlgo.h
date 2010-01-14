@@ -7,13 +7,15 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-
+#include <string>
 #include <vector>
 #include <map>
 #include <set>
 
 #include <memory>
 
+class TFile;
+class TH2F;
 
 /// \brief Algorithm for particle flow clustering
 /*!
@@ -34,7 +36,7 @@ class PFClusterAlgo {
   PFClusterAlgo();
 
   /// destructor
-  virtual ~PFClusterAlgo() {}
+  virtual ~PFClusterAlgo() {;}
 
   /// set hits on which clustering will be performed 
   // void init(const std::map<unsigned, reco::PFRecHit* >& rechits );
@@ -63,7 +65,7 @@ class PFClusterAlgo {
 
   /// set barrel clean threshold
   void setThreshCleanBarrel(double thresh) {threshCleanBarrel_ = thresh;}
-  void setS4S1CleanBarrel(double thresh) {minS4S1Barrel_ = thresh;}
+  void setS4S1CleanBarrel(const std::vector<double>& coeffs) {minS4S1Barrel_ = coeffs;}
 
   /// set  endcap threshold
   void setThreshEndcap(double thresh) {threshEndcap_ = thresh;}
@@ -75,8 +77,10 @@ class PFClusterAlgo {
 
   /// set endcap clean threshold
   void setThreshCleanEndcap(double thresh) {threshCleanEndcap_ = thresh;}
-  void setS4S1CleanEndcap(double thresh) {minS4S1Endcap_ = thresh;}
+  void setS4S1CleanEndcap(const std::vector<double>& coeffs) {minS4S1Endcap_ = coeffs;}
 
+  /// set endcap clean threshold
+  void setHistos(TFile* file, TH2F* hB, TH2F* hE) {file_=file; hBNeighbour = hB; hENeighbour = hE;}
 
   /// set number of neighbours for  
   void setNNeighbours(int n) { nNeighbours_ = n;}
@@ -124,7 +128,8 @@ class PFClusterAlgo {
   /// get shower sigma
   double showerSigma() const { return showerSigma_ ;}
 
-
+  /// write histos
+  void write();
   /// ----------------------------------------------------------------
 
 
@@ -166,7 +171,7 @@ class PFClusterAlgo {
 
   /// \return the value of a parameter of a given type, see enum Parameter,
   /// in a given layer. 
-  double parameter( Parameter paramtype, PFLayer::Layer layer) const; 
+  double parameter( Parameter paramtype, PFLayer::Layer layer, unsigned iCoeff = 0) const; 
 
   
   enum SeedState {
@@ -187,7 +192,6 @@ class PFClusterAlgo {
 
   /// Clean HCAL readout box noise and HPD discharge
   void cleanRBXAndHPD( const reco::PFRecHitCollection& rechits );
-
 
   /// look for seeds 
   void findSeeds( const reco::PFRecHitCollection& rechits );
@@ -269,11 +273,11 @@ class PFClusterAlgo {
 
   /// Barrel cleaning threshold and S4/S1 smallest fractiom
   double threshCleanBarrel_;
-  double minS4S1Barrel_;
+  std::vector<double> minS4S1Barrel_;
 
   /// Endcap cleaning threshold and S4/S1 smallest fractiom
   double threshCleanEndcap_;
-  double minS4S1Endcap_;
+  std::vector<double> minS4S1Endcap_;
 
   ///  number of neighbours
   int    nNeighbours_;
@@ -297,6 +301,12 @@ class PFClusterAlgo {
 
   /// product number 
   static  unsigned  prodNum_;
+
+  // Histograms
+  TH2F* hBNeighbour;
+  TH2F* hENeighbour;
+  TFile*     file_; 
+
 };
 
 #endif
