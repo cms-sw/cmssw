@@ -3,14 +3,10 @@
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>
 <use name=FWCore/Utilities>
-<use name=clhep>
+<use name=clhepheader>
 <use name=rootrflx>
 <use name=rootmath>
 <export>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/SiPixelDetId>
-  <use name=DataFormats/SiStripDetId>
-  <use name=FWCore/Utilities>
   <lib name=DataFormatsTrackReco>
 </export>
 
