@@ -46,7 +46,7 @@
 
 // To use root histos
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // For ROOT
 #include <TROOT.h>
@@ -278,10 +278,11 @@ void ReadPixClusters::analyze(const edm::Event& e,
   int numberOfDetUnits3 = 0;
   int numOfClustersPerDet3=0;        
   int numOfClustersPerLay3=0;        
-  
-  static int module1[416][160] = {0};
-  static int module2[416][160] = {0};
-  static int module3[416][160] = {0};
+
+  // Gavril : Add another set of braces to make to compiler happy. Otherwise it complains. 
+  static int module1[416][160] = {{0}};
+  static int module2[416][160] = {{0}};
+  static int module3[416][160] = {{0}};
 
   // get vector of detunit ids
   //--- Loop over detunits.
@@ -367,8 +368,12 @@ void ReadPixClusters::analyze(const edm::Event& e,
       //hrowsB->Fill(float(rows));
       
       PXBDetId pdetId = PXBDetId(detid);
-      unsigned int detTypeP=pdetId.det();
-      unsigned int subidP=pdetId.subdetId();
+      
+      // Gavril: These variables are not used. Comment out to avoid warnings.  
+      // unsigned int detTypeP=pdetId.det();
+      // unsigned int subidP=pdetId.subdetId();
+     
+
       // Barell layer = 1,2,3
       layerC=pdetId.layer();
       // Barrel ladder id 1-20,32,44.
