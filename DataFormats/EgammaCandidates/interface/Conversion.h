@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.8 2009/11/03 22:25:33 nancy Exp $
+ * \version $Id: Conversion.h,v 1.9 2010/01/07 17:39:15 nancy Exp $
  *
  */
 
@@ -38,13 +38,19 @@ namespace reco {
 		  const reco::Vertex  &  convVtx,
 		  const std::vector<reco::CaloClusterPtr> & matchingBC,
 		  const float DCA,        
+		  const std::vector<math::XYZPoint> & innPoint,
 		  const std::vector<math::XYZVector> & trackPin ,
 		  const std::vector<math::XYZVector> & trackPout,
                   const float mva,
 		  ConversionAlgorithm=undefined);
       
       
+      Conversion( const reco::CaloClusterPtrVector clu, 
+		  const std::vector<reco::TrackRef> tr,
+		  const reco::Vertex  &  convVtx,
+		  ConversionAlgorithm=undefined);
       
+           
       
       /// destructor
       virtual ~Conversion();
@@ -91,6 +97,8 @@ namespace reco {
       const std::vector<reco::CaloClusterPtr>&  bcMatchingWithTracks() const { return theMatchingBCs_;}
       /// signed transverse impact parameter for each track
       std::vector<double> tracksSigned_d0() const ;
+      /// Vector containing the position of the innermost hit of each track
+      const std::vector<math::XYZPoint>& tracksInnerPosition() const {return theTrackInnerPosition_;}
       /// Vector of track momentum measured at the outermost hit
       const std::vector<math::XYZVector>& tracksPout() const {return theTrackPout_;}
       /// Vector of track momentum measured at the innermost hit
@@ -120,6 +128,8 @@ namespace reco {
       std::vector<reco::CaloClusterPtr> theMatchingBCs_;
       /// Distance of min approach of the two tracks
       float theMinDistOfApproach_;
+      /// P_in of tracks
+      std::vector<math::XYZPoint> theTrackInnerPosition_;    
       /// P_in of tracks
       std::vector<math::XYZVector> theTrackPin_;    
       /// P_out of tracks
