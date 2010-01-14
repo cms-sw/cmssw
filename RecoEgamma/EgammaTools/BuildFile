@@ -6,7 +6,9 @@
 <use name=RecoCaloTools/MetaCollections>
 <use name=clhep>
 <use name=root>
-<flags LDFLAGS="-lTMVA">
+<use name=PhysicsTools/MVAComputer>
+<use name=PhysicsTools/MVATrainer>
+<use name=CondFormats/DataRecord>
 <export>
   <use name=FWCore/Framework>
   <use name=DataFormats/HcalRecHit>
