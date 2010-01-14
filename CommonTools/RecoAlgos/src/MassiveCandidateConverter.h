@@ -9,7 +9,7 @@ namespace edm { class EventSetup; }
 namespace converter {
   struct MassiveCandidateConverter {
     MassiveCandidateConverter( const edm::ParameterSet & );
-    void beginJob( const edm::EventSetup & );
+    void beginFirstRun( const edm::EventSetup & );
 
   protected:
     double massSqr_;

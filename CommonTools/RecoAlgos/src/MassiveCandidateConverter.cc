@@ -11,7 +11,7 @@ MassiveCandidateConverter::MassiveCandidateConverter( const edm::ParameterSet & 
   massSqr_(0), particle_( cfg.getParameter<PdtEntry>( "particleType" ) ) {
 }
 
-void MassiveCandidateConverter::beginJob( const EventSetup & es ) {
+void MassiveCandidateConverter::beginFirstRun( const EventSetup & es ) {
   particle_.setup(es);
   massSqr_ = particle_.data().mass(); 
   massSqr_ *= massSqr_;

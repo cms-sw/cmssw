@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.1 $
  *
- * $Id: CandidateProducer.h,v 1.4 2008/01/17 13:29:37 llista Exp $
+ * $Id: CandidateProducer.h,v 1.1 2009/03/04 13:11:31 llista Exp $
  *
  */
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -71,15 +71,21 @@ public:
   CandidateProducer(const edm::ParameterSet & cfg) :
     src_(cfg.template getParameter<edm::InputTag>("src")), 
     converter_(cfg),
-    selector_(reco::modules::make<Selector>(cfg)){
+    selector_(reco::modules::make<Selector>(cfg)),
+    initialized_(false) {
     produces<CColl>();
   }
   /// destructor
   ~CandidateProducer() { }
   
 private:
-  /// begin job
-  void beginJob(const edm::EventSetup& es) { converter_.beginJob(es); }
+  /// begin job (first run)
+  void beginRun(const edm::Run&, const edm::EventSetup& es) {
+    if (!initialized_) {
+      converter_.beginFirstRun(es);
+      initialized_ = true;
+    }
+  }
   /// process one event
   void produce(edm::Event& evt, const edm::EventSetup& es) {
     edm::Handle<TColl> src;
@@ -103,6 +109,8 @@ private:
   Conv converter_;
   /// selector
   Selector selector_;
+  /// particles initialized?
+  bool initialized_;
 };
 
 #endif
