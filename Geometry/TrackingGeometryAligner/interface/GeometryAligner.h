@@ -97,7 +97,13 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  // Alignment Position Error only if non-zero to save memory
 	  GlobalError error( (*iAlignError).matrix() );
 	  if ( error.cxx() || error.cyy() || error.czz() ||
-	       error.cyx() || error.czx() || error.czy() ) {
+	       error.cyx() || error.czx() || error.czy() ||
+               iGeomDet->alignmentPositionError() ) {
+	    // FIXME (AM): The check on the existence of a pointer to an AlignmentPositionError
+	    // in iGoemDet is needed to make sure that a previously set APE is reset to all zeros
+	    // in case the new APE is all zero. Ideally the checking of an all zero value APE
+	    // should go into GeomDet::setAlignmentPositionError.
+	    
 	    AlignmentPositionError ape( error );
 	    this->setAlignmentPositionError( *iGeomDet, ape );
 	    ++nAPE;
