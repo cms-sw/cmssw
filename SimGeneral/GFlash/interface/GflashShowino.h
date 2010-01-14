@@ -22,17 +22,17 @@ public:
 
   int getShowerType() { return theShowerType; }
   double getEnergy() { return theEnergy; }
+  double getPathLengthOnEcal() { return thePathLengthOnEcal; }
   double getPathLengthAtShower() { return thePathLengthAtShower; }
   Gflash3Vector& getPositionAtShower() { return thePositionAtShower; }
-  double getStepLengthToOut() { return theStepLengthToOut; }
   double getStepLengthToHcal() { return theStepLengthToHcal; }
+  double getStepLengthToOut() { return theStepLengthToOut; }
   GflashTrajectory* getHelix() { return theHelix; }
 
   double getGlobalTime() { return theGlobalTime; }
   double getPathLength() { return thePathLength; }
   Gflash3Vector& getPosition() { return thePosition; }
   double getEnergyDeposited() { return theEnergyDeposited ; }
-  double getDepthAtShower() { return theDepthAtShower ; }
 
   void setGlobalTime(double globalTime) { theGlobalTime = globalTime; }
   void setPathLength(double pathLength) { thePathLength = pathLength; }
@@ -40,6 +40,8 @@ public:
   void addEnergyDeposited(double energy ) { theEnergyDeposited += energy; }
 
 private:
+  Gflash3Vector& simulateFirstInteractionPoint(int showType);
+  int convertShowerType(int fastSimShowerType, const Gflash3Vector& pos);
   void evaluateLengths();
 
 private:
@@ -47,11 +49,11 @@ private:
   //fixed at the shower starting point
   int theShowerType ; 
   double theEnergy;
-  double thePathLengthAtShower;
   Gflash3Vector thePositionAtShower;
-  double theStepLengthToOut;
+  double thePathLengthAtShower;
+  double thePathLengthOnEcal;
   double theStepLengthToHcal;
-  GflashTrajectory* theHelix;
+  double theStepLengthToOut;
 
   //updated along the showino trajectory line
   double thePathLength;
@@ -59,8 +61,7 @@ private:
   Gflash3Vector thePosition;
   double theEnergyDeposited;
 
-  double theDepthAtShower;
-
+  GflashTrajectory* theHelix;
 };
 
 #endif
