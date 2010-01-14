@@ -6,17 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Riostream.h"
 
-
-#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
-#include "Utilities/General/interface/ClassName.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-
 class AlignableNavigator;
 class TFile;
 class TTree;
@@ -110,8 +99,8 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   // variables for event-wise tree
   static const int MAXREC = 99;
   //int m_Run,m_Event;
-  int m_Ntracks,m_Nhits[MAXREC];
-  float m_Pt[MAXREC],m_Eta[MAXREC],m_Phi[MAXREC],m_Chi2n[MAXREC];
+  int m_Ntracks,m_Nhits[MAXREC],m_nhPXB[MAXREC],m_nhPXF[MAXREC];
+  float m_Pt[MAXREC],m_Eta[MAXREC],m_Phi[MAXREC],m_Chi2n[MAXREC],m_P[MAXREC],m_d0[MAXREC],m_dz[MAXREC];
 
   // variables for alignable-wise tree
   int m2_Nhit,m2_Type,m2_Layer;
