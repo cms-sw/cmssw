@@ -6,6 +6,7 @@ from RecoJets.JetProducers.ak5TrackJets_cfi import ak5TrackJets
 from RecoJets.JetProducers.gk5TrackJets_cfi import gk5TrackJets
 from RecoJets.JetProducers.kt4TrackJets_cfi import kt4TrackJets
 from RecoJets.JetProducers.ca4TrackJets_cfi import ca4TrackJets
+from CommonTools.RecoAlgos.TrackWithVertexRefSelector_cfi import *
 from RecoJets.JetProducers.TracksForJets_cff import *
 
 
