@@ -82,7 +82,7 @@ namespace {
       out << "\n oids,sinces:";
       cond::BasePayloadProxy::ObjIds const & ids =  proxy.proxy()->stats.ids;
       for (cond::BasePayloadProxy::ObjIds::const_iterator id=ids.begin(); id!=ids.end(); ++id)
-	out << " " << 
+	out << " "
 	    << std::ios::hex << (*id).oid1 <<"-"<< (*id).oid2 <<"," 
 	    << std::ios::dec <<  (*id).since;
     }
