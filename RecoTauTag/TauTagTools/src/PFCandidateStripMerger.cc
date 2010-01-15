@@ -3,10 +3,12 @@
 
 using namespace reco;
 using namespace std;
-PFCandidateStripMerger::PFCandidateStripMerger()
+PFCandidateStripMerger::PFCandidateStripMerger():
+  PFCandidateMergerBase()
 {}
 
-PFCandidateStripMerger::PFCandidateStripMerger(const edm::ParameterSet& config)
+PFCandidateStripMerger::PFCandidateStripMerger(const edm::ParameterSet& config):
+  PFCandidateMergerBase(config)
 {
   inputPdgIds_ = config.getParameter<std::vector<int> >("stripCandidatesPdgIds");
   etaAssociationDistance_ = config.getParameter<double>("stripEtaAssociationDistance");
