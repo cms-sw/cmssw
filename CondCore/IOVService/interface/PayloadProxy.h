@@ -34,11 +34,12 @@ namespace cond {
       unsigned int oid1;
       unsigned int oid2;
     };
+    typedef  std::vector<ObjId> ObjIds;
     struct Stats {
       int nProxy;
       int nMake;
       int nLoad;
-      std::vector<ObjId> ids;
+      ObjIds ids;
     };
 
     // global stat

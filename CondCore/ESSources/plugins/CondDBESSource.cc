@@ -79,8 +79,8 @@ namespace {
       ;
     if ( proxy.proxy()->stats.nLoad>0) {
       out << "\n oids,sinces:";
-      BasePayloadProxy::ObjIds const & ids =  proxy.proxy()->stats.ids;
-      for (BasePayloadProxy::ObjIds::const_iterator id=ids.begin(); id!=ids.end(); ++id)
+      cond::BasePayloadProxy::ObjIds const & ids =  proxy.proxy()->stats.ids;
+      for (cond::BasePayloadProxy::ObjIds::const_iterator id=ids.begin(); id!=ids.end(); ++id)
 	out << " " << (*id).oid1 <<"."<< (*id).oid2 <<"," <<  (*id).since;
     }
   }
