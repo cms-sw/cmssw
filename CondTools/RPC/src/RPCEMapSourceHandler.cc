@@ -8,12 +8,7 @@ popcon::RPCEMapSourceHandler::RPCEMapSourceHandler(const edm::ParameterSet& ps) 
   m_dummy(ps.getUntrackedParameter<int>("WriteDummy",0)),
   m_validate(ps.getUntrackedParameter<int>("Validate",0)),
   m_connect(ps.getUntrackedParameter<std::string>("OnlineConn","")),
-  m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath",".")),
-  m_host(ps.getUntrackedParameter<std::string>("OnlineDBHost","oracms.cern.ch")),
-  m_sid(ps.getUntrackedParameter<std::string>("OnlineDBSID","omds")),
-  m_user(ps.getUntrackedParameter<std::string>("OnlineDBUser","RPC_CONFIGURATION")),
-  m_pass(ps.getUntrackedParameter<std::string>("OnlineDBPass","blahblah")),
-  m_port(ps.getUntrackedParameter<int>("OnlineDBPort",10121))
+  m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath","."))
 {
 }
 
@@ -48,13 +43,8 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
 
   eMap =  new RPCEMap(eMap_version);
       if (m_dummy==0) {
-        if (m_connect=="") {
-          ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
-          readEMap0();
-        } else {
-          ConnectOnlineDB(m_connect,m_authpath);
-          readEMap1();
-        }
+        ConnectOnlineDB(m_connect,m_authpath);
+        readEMap1();
         DisconnectOnlineDB();
       }
 
@@ -70,17 +60,6 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
         }
 
 //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
-}
-
-void popcon::RPCEMapSourceHandler::ConnectOnlineDB(string host, string sid, string user, string pass, int port=1521)
-{
-  stringstream ss;
-  ss << "//" << host << ":" << port << "/" << sid;
-
-  cout << "RPCEMapSourceHandler: connecting to " << host << "..." << flush;
-  env = Environment::createEnvironment(Environment::OBJECT);
-  conn = env->createConnection(user, pass, ss.str());
-  cout << "Done." << endl;
 }
 
 void popcon::RPCEMapSourceHandler::ConnectOnlineDB(string connect, string authPath)
@@ -106,234 +85,6 @@ void popcon::RPCEMapSourceHandler::DisconnectOnlineDB()
     delete connection ;
     delete session ;
   }
-}
-
-void popcon::RPCEMapSourceHandler::readEMap0()
-{
-  Statement* stmt = conn->createStatement();
-  string sqlQuery ="";
-
-  cout << endl <<"RPCEMapSourceHandler: start to build RPC e-Map..." << flush << endl << endl;
-
-  // Get FEDs
-  RPCEMap::dccItem thisDcc;
-  sqlQuery=" SELECT DCCBoardId, FEDNumber FROM DCCBoard WHERE DCCBoardId>0 ORDER BY FEDNumber ";
-  stmt->setSQL(sqlQuery.c_str());
-  ResultSet* rset = stmt->executeQuery();
-  std::pair<int,int> tmp_tbl;
-  std::vector< std::pair<int,int> > theDAQ;
-  while (rset->next()) {
-    tmp_tbl.first=rset->getInt(1);
-    tmp_tbl.second=rset->getInt(2);
-    theDAQ.push_back(tmp_tbl);
-  }
-  for(unsigned int iFED=0;iFED<theDAQ.size();iFED++) {
-    thisDcc.theId=theDAQ[iFED].second;
-    std::vector<std::pair<int,int> > theTB;
-// get TBs
-    RPCEMap::tbItem thisTB;
-    sqlQuery = " SELECT TriggerBoardId, DCCInputChannelNum FROM TriggerBoard ";
-    sqlQuery += " WHERE DCCBoard_DCCBoardId= ";
-    sqlQuery += IntToString(theDAQ[iFED].first);
-    sqlQuery += " ORDER BY DCCInputChannelNum ";
-    stmt->setSQL(sqlQuery.c_str());
-    rset = stmt->executeQuery();
-    int ntbs=0;
-    while (rset->next()) {
-      ntbs++;
-      tmp_tbl.first=rset->getInt(1);
-      tmp_tbl.second=rset->getInt(2);
-      theTB.push_back(tmp_tbl);
-    }
-    for(unsigned int iTB=0;iTB<theTB.size();iTB++) {
-      thisTB.theNum=theTB[iTB].second;
-      std::vector<std::pair<int,int> > theLink;
-// get links
-      RPCEMap::linkItem thisLink;
-      sqlQuery = " SELECT Board_BoardId, TriggerBoardInputNum FROM LinkConn ";
-      sqlQuery += " WHERE TB_TriggerBoardId= ";
-      sqlQuery +=  IntToString(theTB[iTB].first);
-      sqlQuery += " ORDER BY TriggerBoardInputNum ";
-      stmt->setSQL(sqlQuery.c_str());
-      rset = stmt->executeQuery();
-      int nlinks=0;
-      while (rset->next()) {
-        nlinks++;
-        tmp_tbl.first=rset->getInt(1);
-        tmp_tbl.second=rset->getInt(2);
-        theLink.push_back(tmp_tbl);
-      }
-      for(unsigned int iLink=0;iLink<theLink.size();iLink++) {
-        int boardId=theLink[iLink].first;
-        thisLink.theTriggerBoardInputNumber=theLink[iLink].second;
-        std::vector<std::pair<int,string> > theLB;
-        std::pair<int,string> tmpLB;
-        // Get master LBs first...
-        RPCEMap::lbItem thisLB;
-        sqlQuery = " SELECT Name ";
-        sqlQuery += " FROM Board ";
-        sqlQuery += " WHERE BoardId= ";
-        sqlQuery +=  IntToString(theLink[iLink].first);
-        stmt->setSQL(sqlQuery.c_str());
-        rset = stmt->executeQuery();
-        int nlbs=0;
-        while (rset->next()) {
-          nlbs++;
-          tmpLB.first=theLink[iLink].first;
-          tmpLB.second=rset->getString(1);
-          theLB.push_back(tmpLB);
-        }
-        // then slaves
-        sqlQuery = " SELECT LinkBoard.LinkBoardId, Board.Name ";
-        sqlQuery += " FROM LinkBoard, Board ";
-        sqlQuery += " WHERE LinkBoard.MasterId= ";
-        sqlQuery +=  IntToString(theLink[iLink].first);
-        sqlQuery += " AND Board.BoardId=LinkBoard.LinkBoardId";
-        sqlQuery += " AND LinkBoard.MasterId<>LinkBoard.LinkBoardId";
-        sqlQuery += " ORDER BY LinkBoard.LinkBoardId ";
-        stmt->setSQL(sqlQuery.c_str());
-        rset = stmt->executeQuery();
-        while (rset->next()) {
-          nlbs++;
-          tmpLB.first=rset->getInt(1);
-          tmpLB.second=rset->getString(2);
-          theLB.push_back(tmpLB);
-        }
-        for(unsigned int iLB=0; iLB<theLB.size(); iLB++) {
-          thisLB.theMaster = (theLB[iLB].first==boardId);
-// extract all relevant information from BOARD.NAME
-          std::string theName = theLB[iLB].second;
-          int slength = theName.length();
-          thisLB.theLinkBoardNumInLink=atoi((theName.substr(slength-1,1)).c_str());
-          int wheel=atoi((theName.substr(6,1)).c_str());
-          std::string char1=(theName.substr(4,1)).c_str();
-          std::string char2=(theName.substr(slength-7,1)).c_str();
-          int num3=atoi((theName.substr(slength-6,1)).c_str());
-          std::string char4=(theName.substr(slength-5,1)).c_str();
-          bool itsS1to9=(theName.substr(slength-11,1)=="S");
-          int n1=10;
-          int n2=1;
-          int n3=0;
-          if (!itsS1to9) {
-            n1=11;
-            n2=2;
-          }
-          int sector=atoi((theName.substr(slength-n1,n2)).c_str());
-          std::string char1Val[2]={"B","E"};                              // 1,2
-          std::string char2Val[3]={"N","M","P"};                          // 0,1,2
-          std::string char4Val[9]={"0","1","2","3","A","B","C","D","E"};  // 0,...,8
-          for (int i=0; i<2; i++) if (char1==char1Val[i]) n1=i+1;
-          for (int i=0; i<3; i++) if (char2==char2Val[i]) n2=i;
-          for (int i=0; i<9; i++) if (char4==char4Val[i]) n3=i;
-          thisLB.theCode=n3+num3*10+n2*100+n1*1000+wheel*10000+sector*100000;
-          FEBStruct tmpFEB;
-          std::vector<FEBStruct> theFEB;
-// get FEBs
-          RPCEMap::febItem thisFeb;
-          sqlQuery = " SELECT FEBLocation.FEBLocationId,";
-          sqlQuery += "  FEBLocation.CL_ChamberLocationId,";
-          sqlQuery += "  FEBConnector.FEBConnectorId,";
-          sqlQuery += "  FEBLocation.FEBLocalEtaPartition,"; 
-          sqlQuery += "  FEBLocation.PosInLocalEtaPartition,";
-          sqlQuery += "  FEBLocation.FEBCMSEtaPartition,";
-          sqlQuery += "  FEBLocation.PosInCMSEtaPartition,";
-          sqlQuery += "  FEBConnector.LinkBoardInputNum ";
-          sqlQuery += " FROM FEBLocation, FEBConnector ";
-          sqlQuery += " WHERE FEBLocation.LB_LinkBoardId= ";
-          sqlQuery +=  IntToString(theLB[iLB].first);
-          sqlQuery += "  AND FEBLocation.FEBLocationId=FEBConnector.FL_FEBLocationId";
-          sqlQuery += " ORDER BY FEBLocation.FEBLocationId, FEBConnector.FEBConnectorId";
-          stmt->setSQL(sqlQuery.c_str());
-          rset = stmt->executeQuery();
-          int nfebs=0;
-          while (rset->next()) {
-            nfebs++;
-            tmpFEB.febId=rset->getInt(1);
-            tmpFEB.chamberId=rset->getInt(2);
-            tmpFEB.connectorId=rset->getInt(3);
-            tmpFEB.localEtaPart=rset->getString(4);
-            tmpFEB.posInLocalEtaPart=rset->getInt(5);
-            tmpFEB.cmsEtaPart=rset->getString(6);
-            tmpFEB.posInCmsEtaPart=rset->getInt(7);
-            tmpFEB.lbInputNum=rset->getInt(8);
-            theFEB.push_back(tmpFEB);
-          }
-          for(unsigned int iFEB=0; iFEB<theFEB.size(); iFEB++) {
-            std::string temp=theFEB[iFEB].localEtaPart;
-            std::string localEtaVal[6]={"Forward","Central","Backward","A","B","C"};
-            char localEtaPartition=0;
-            for (int i=0; i<6; i++) if (temp==localEtaVal[i]) localEtaPartition=i+1;
-            char positionInLocalEtaPartition=theFEB[iFEB].posInLocalEtaPart;
-            temp=theFEB[iFEB].cmsEtaPart;
-            std::string cmsEtaVal[6]={"1","2","3","A","B","C"};
-            char cmsEtaPartition=0;
-            for (int i=0; i<6; i++) if (temp==cmsEtaVal[i]) cmsEtaPartition=i+1;
-            char positionInCmsEtaPartition=theFEB[iFEB].posInCmsEtaPart;
-            thisFeb.thePartition=positionInLocalEtaPartition+10*localEtaPartition+100*positionInCmsEtaPartition+1000*cmsEtaPartition;
-            thisFeb.theLinkBoardInputNum=theFEB[iFEB].lbInputNum;
-            // Get chamber 
-            sqlQuery = "SELECT DiskOrWheel, Layer, Sector, Subsector,";
-            sqlQuery += " ChamberLocationName,";
-            sqlQuery += " FEBZOrnt, FEBRadOrnt, BarrelOrEndcap";
-            sqlQuery += " FROM ChamberLocation ";
-            sqlQuery += " WHERE ChamberLocationId= ";
-            sqlQuery +=  IntToString(theFEB[iFEB].chamberId);
-            stmt->setSQL(sqlQuery.c_str());
-            rset = stmt->executeQuery();
-            while (rset->next()) {
-              char diskOrWheel=rset->getInt(1)+3;
-              char layer=rset->getInt(2);
-              int sector=rset->getInt(3);
-              temp=rset->getString(4);
-              std::string subsVal[5]={"--","-","","+","++"};
-              char subsector=0;
-              for (int i=0; i<5; i++) if (temp==subsVal[i]) subsector=i;
-              temp=rset->getString(6);
-              char febZOrnt=0;
-              if (temp=="+z") febZOrnt=1;
-              temp=rset->getString(7);
-              char febZRadOrnt=0;
-              std::string febZRVal[3]={"","IN","OUT"};
-              for (int i=0; i<3; i++) if (temp==febZRVal[i]) febZRadOrnt=i;
-              temp=rset->getString(8);
-              char barrelOrEndcap=0;
-              if (temp=="Barrel") barrelOrEndcap=1;
-              thisFeb.theChamber=sector+100*subsector+1000*febZRadOrnt+5000*febZOrnt+10000*diskOrWheel+100000*layer+1000000*barrelOrEndcap;
-            }
-            // Get Strips
-            sqlQuery = "SELECT CableChannelNum, ChamberStripNumber, CmsStripNumber";
-            sqlQuery += " FROM ChamberStrip ";
-            sqlQuery += " WHERE FC_FEBConnectorId= ";
-            sqlQuery +=  IntToString(theFEB[iFEB].connectorId);
-            sqlQuery += " ORDER BY CableChannelNum";
-            stmt->setSQL(sqlQuery.c_str());
-            rset = stmt->executeQuery();
-            int nstrips=0;
-            while (rset->next()) {
-              int cablePinNumber=rset->getInt(1);
-              int chamberStripNumber=rset->getInt(2);
-              int cmsStripNumber=rset->getInt(3);
-              int thisStrip=cablePinNumber*10000+chamberStripNumber*100+cmsStripNumber;
-              eMap->theStrips.push_back(thisStrip);
-              nstrips++;
-            }
-            thisFeb.nStrips=nstrips;
-            eMap->theFebs.push_back(thisFeb);
-          }
-          thisLB.nFebs=nfebs;
-          eMap->theLBs.push_back(thisLB);
-        }
-        thisLink.nLBs=nlbs;
-        eMap->theLinks.push_back(thisLink);
-      }
-      thisTB.nLinks=nlinks;
-      eMap->theTBs.push_back(thisTB);
-    }
-    thisDcc.nTBs=ntbs;
-    std::cout<<"DCC added"<<std::endl;
-    eMap->theDccs.push_back(thisDcc);
-  }
-  cout << endl <<"Building RPC e-Map done!" << flush << endl << endl;
 }
 
 void popcon::RPCEMapSourceHandler::readEMap1()
@@ -576,23 +327,42 @@ void popcon::RPCEMapSourceHandler::readEMap1()
             query8->addToTableList("CHAMBERSTRIP");
             query8->addToOutputList("CHAMBERSTRIP.CABLECHANNELNUM","CABLECHANNELNUM");
             query8->addToOutputList("CHAMBERSTRIP.CHAMBERSTRIPNUMBER","CHAMBERSTRIPNUM");
-            query8->addToOutputList("CHAMBERSTRIP.CMSSTRIPNUMBER","CMSSTRIPNUM");
+//            query8->addToOutputList("CHAMBERSTRIP.CMSSTRIPNUMBER","CMSSTRIPNUM");
             query8->addToOrderList("CABLECHANNELNUM");
             condition = "CHAMBERSTRIP.FC_FEBCONNECTORID="+IntToString(theFEB[iFEB].connectorId);
             query8->setCondition( condition, conditionData );
             coral::ICursor& cursor8 = query8->execute();
+// NEW: do not store all the strip information as goes, only the minimum data needed to
+// reproduce it later on
             int nstrips=0;
+            int firstChamberStrip=0;
+            int firstPin=0;
+            int lastChamberStrip=0;
+            int lastPin=0;
             while (cursor8.next()) {
               const coral::AttributeList& row = cursor8.currentRow();
-              int cablePinNumber=row["CABLECHANNELNUM"].data<short>();
-              int chamberStripNumber=row["CHAMBERSTRIPNUM"].data<int>();
-              int cmsStripNumber=row["CMSSTRIPNUM"].data<int>();
-              int thisStrip=cablePinNumber*10000+chamberStripNumber*100+cmsStripNumber;
-              eMap->theStrips.push_back(thisStrip);
+              lastChamberStrip=row["CHAMBERSTRIPNUM"].data<int>();
+              lastPin=row["CABLECHANNELNUM"].data<short>();
+              if (nstrips==0) {
+                firstChamberStrip=lastChamberStrip;
+                firstPin=lastPin;
+              }
               nstrips++;
             }
             delete query8;
-            thisFeb.nStrips=nstrips;
+            int algo = -1;
+            if (firstPin == 1 && lastPin == nstrips) 
+              { algo = 1; }
+            else if (firstPin == 2 && lastPin == nstrips+1)
+              { algo = 2; }
+            else if (firstPin == 3 && lastPin == nstrips+2)
+              { algo = 3; }
+            else if (firstPin == 2 && lastPin == nstrips+2)
+              { algo = 0;}
+            else
+              { cout<<" Unknown algo : "<<firstPin<<" "<<lastPin<<std::endl; }
+            if ((lastPin-firstPin)*(lastChamberStrip-firstChamberStrip) < 0) algo=algo+4;
+            thisFeb.theAlgo=algo+100*firstChamberStrip+10000*nstrips;
             eMap->theFebs.push_back(thisFeb);
           }
           thisLB.nFebs=nfebs;
