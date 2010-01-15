@@ -305,7 +305,7 @@ FUShmRawCell* FUShmBuffer::rawCellToRead()
   unsigned int iCell=nextRawReadIndex();
   FUShmRawCell* cell=rawCell(iCell);
   evt::State_t  state=evtState(iCell);
-  assert(state==evt::RAWWRITTEN||state==evt::EMPTY);
+  assert(state==evt::RAWWRITTEN||state==evt::EMPTY||state==evt::LUMISECTION);
   if (state==evt::RAWWRITTEN) {
     setEvtPrcId(iCell,getpid());
     setEvtState(iCell,evt::RAWREADING);
