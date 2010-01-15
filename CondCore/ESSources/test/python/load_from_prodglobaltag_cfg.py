@@ -41,9 +41,19 @@ process = cms.Process("TEST")
 
 process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untracked.bool(True)))
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
 process.GlobalTag.globaltag = gName
-process.GlobalTag.DumpStat =  True
+process.GlobalTag.RefreshEachRun=cms.untracked.bool(False)
+process.GlobalTag.DumpStat=cms.untracked.bool(True)
+process.GlobalTag.pfnPrefix=cms.untracked.string('')
+process.GlobalTag.pfnPostfix=cms.untracked.string('')
+process.GlobalTag.DBParameters.authenticationPath = "/afs/cern.ch/cms/DB/conddb"
+process.GlobalTag.DBParameters.connectionTimeOut = 0
+process.GlobalTag.DBParameters.messageLevel = 0
+process.GlobalTag.DBParameters.transactionId = cms.untracked.string("")
+
+
+
 # 'GR09_P_V6::All'
 #'CRAFT09_R_V9::All'
 #'MC_31X_V9::All'

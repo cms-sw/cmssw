@@ -20,7 +20,12 @@ process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untr
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
 process.GlobalTag.globaltag = options.globalTag+'::All'
-process.GlobalTag.DumpStat =  True
+process.GlobalTag.RefreshEachRun=cms.untracked.bool(False)
+process.GlobalTag.DumpStat=cms.untracked.bool(True)
+process.GlobalTag.pfnPrefix=cms.untracked.string('')
+process.GlobalTag.pfnPostfix=cms.untracked.string('')
+
+
 # 'GR09_P_V6::All'
 #'CRAFT09_R_V9::All'
 #'MC_31X_V9::All'
