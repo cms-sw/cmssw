@@ -81,7 +81,7 @@ namespace {
       out << "\n oids,sinces:";
       cond::BasePayloadProxy::ObjIds const & ids =  proxy.proxy()->stats.ids;
       for (cond::BasePayloadProxy::ObjIds::const_iterator id=ids.begin(); id!=ids.end(); ++id)
-	out << " " << (*id).oid1 <<"."<< (*id).oid2 <<"," <<  (*id).since;
+	out << " " << (*id).oid1 <<"-"<< (*id).oid2 <<"," <<  (*id).since;
     }
   }
 
