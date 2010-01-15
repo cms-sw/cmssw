@@ -27,7 +27,7 @@ namespace cond {
                                      bool errorPolicy) :
     m_doThrow(errorPolicy), m_iov(session,token,true,false) {
     ++gstats.nProxy;
-    BasePayloadProxy::Stats s = {0,0,0,vector<ObjID>()};
+    BasePayloadProxy::Stats s = {0,0,0,ObjIds()};
     stats = s;
   }
 
