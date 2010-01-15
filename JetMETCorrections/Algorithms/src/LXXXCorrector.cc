@@ -30,7 +30,7 @@ LXXXCorrector::LXXXCorrector(const edm::ParameterSet& fConfig)
   fileName += level;
   if (!algorithm.empty()) fileName += "_" + algorithm;
   fileName += ".txt";
-  edm::LogInfo("FileName")<<"initialize from "<<fileName;
+  //edm::LogInfo("FileName")<<"initialize from "<<fileName;
   
   edm::FileInPath fip(fileName); 
 
