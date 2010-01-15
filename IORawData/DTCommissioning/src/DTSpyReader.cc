@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/08 15:43:49 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/12/11 20:33:04 $
+ *  $Revision: 1.8 $
  *  \author M. Zanetti
  */
 
@@ -140,7 +140,7 @@ void DTSpyReader::swap(uint64_t & word) {
 
 uint64_t DTSpyReader::dmaUnpack(const uint32_t* dmaData, bool & isData) {
   
-  uint32_t unpackedData[2];
+  uint32_t unpackedData[2] = {0, 0};
   // adjust 4 32-bits words  into 2 32-bits words
   unpackedData[0] |= dmaData[3] & 0x3ffff;
   unpackedData[0] |= (dmaData[2] << 18 ) & 0xfffc0000;

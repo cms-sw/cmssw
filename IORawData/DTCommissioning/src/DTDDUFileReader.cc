@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/10/31 14:34:29 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/12/11 21:28:58 $
+ *  $Revision: 1.19 $
  *  \author M. Zanetti
  */
 
@@ -186,7 +186,7 @@ uint64_t DTDDUFileReader::dmaUnpack(bool & isData, int & nread) {
   nread += inputFile.read(dataPointer<uint32_t>( &td[2] ), 4);
   nread += inputFile.read(dataPointer<uint32_t>( &td[3] ), 4);
 
-  uint32_t data[2];
+  uint32_t data[2] = {0, 0};
   // adjust 4 32-bits words  into 2 32-bits words
   data[0] |= td[3] & 0x3ffff;
   data[0] |= (td[2] << 18 ) & 0xfffc0000;

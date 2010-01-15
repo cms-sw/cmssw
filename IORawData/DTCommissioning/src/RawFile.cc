@@ -41,9 +41,11 @@ RawFile* RawFile::open(const char* path) {
   if (strcmp(prefix,"castor")==0) rfioFlag = true;
 
   if (rfioFlag) {
-    inputFile = rfio_fopen(filename,"r");
+    char chopt[] = "r";
+    inputFile = rfio_fopen(filename,chopt);
   } else {
-    inputFile = fopen(filename,"rb");
+    char chopt[] = "rb";
+    inputFile = fopen(filename,chopt);
   }
   if( !inputFile ) {
       cout << "RawFile: the input file '" << filename << "' is not present" << endl;
