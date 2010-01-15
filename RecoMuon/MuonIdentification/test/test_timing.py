@@ -39,13 +39,16 @@ process.muonAnalyzer = cms.EDFilter("MuonTimingValidator",
   PtCut = cms.double(1.0),
   etaMax = cms.double(2.4),
   etaMin = cms.double(0.0),
+  PlotScale = cms.double(1.0),
+  DTcut  = cms.int32(8),
+  CSCcut = cms.int32(4),
   open = cms.string('recreate'),
-  out = cms.string('test_timingv.root')
+  out = cms.string('test_timing.root')
 )
 
 process.prefer("GlobalTag")
 
-process.GlobalTag.globaltag = 'MC_31X_V3::All'
+process.GlobalTag.globaltag = 'MC_3XY_V14::All'
 #process.GlobalTag.globaltag = 'STARTUP_V7::All'
 
 process.p = cms.Path(muontiming)

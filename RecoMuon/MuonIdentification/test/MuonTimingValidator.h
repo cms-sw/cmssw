@@ -4,8 +4,8 @@
 /** \class MuonTimingValidator
  *  Analyzer of the timing information in the reco::Muon object
  *
- *  $Date: 2009/10/16 09:07:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/07 13:12:00 $
+ *  $Revision: 1.2 $
  *  \author P. Traczyk    CERN
  */
 
@@ -77,7 +77,8 @@ private:
   edm::InputTag SIMtrackTags_; 
 
   string out, open;
-  double  theMinEta, theMaxEta, theMinPt, thePtCut, theMinPtres, theMaxPtres;
+  double  theMinEta, theMaxEta, theMinPt, thePtCut, theMinPtres, theMaxPtres, theScale;
+  int theDtCut, theCscCut;
   int theNBins;
 
   Handle<reco::MuonCollection> MuCollection;
@@ -100,13 +101,24 @@ private:
   TStyle* effStyle;
 
   TH1F* hi_sta_pt  ;
-  TH1F* hi_tk_pt  ;
+  TH1F* hi_tk_pt   ;
   TH1F* hi_glb_pt  ;
+  TH1F* hi_sta_phi ;
+  TH1F* hi_tk_phi  ;
+  TH1F* hi_glb_phi ;
 
   TH1F* hi_mutime_vtx;
   TH1F* hi_mutime_vtx_err;
 
+  TH1F* hi_dtcsc_vtx;
+  TH1F* hi_dtecal_vtx;
+  TH1F* hi_ecalcsc_vtx;
+  TH1F* hi_dthcal_vtx;
+  TH1F* hi_hcalcsc_vtx;
+  TH1F* hi_hcalecal_vtx;
+
   TH1F* hi_cmbtime_ibt;
+  TH2F* hi_cmbtime_ibt_pt;
   TH1F* hi_cmbtime_ibt_err;
   TH1F* hi_cmbtime_ibt_pull;
   TH1F* hi_cmbtime_fib;
@@ -121,6 +133,7 @@ private:
   TH1F* hi_cmbtime_ndof;
 
   TH1F* hi_dttime_ibt;
+  TH2F* hi_dttime_ibt_pt;
   TH1F* hi_dttime_ibt_err;
   TH1F* hi_dttime_ibt_pull;
   TH1F* hi_dttime_fib;
@@ -136,6 +149,7 @@ private:
   TH1F* hi_dttime_ndof;
 
   TH1F* hi_csctime_ibt;
+  TH2F* hi_csctime_ibt_pt;
   TH1F* hi_csctime_ibt_err;
   TH1F* hi_csctime_ibt_pull;
   TH1F* hi_csctime_fib;
@@ -154,6 +168,12 @@ private:
   TH1F* hi_ecal_time_pull;
   TH1F* hi_ecal_time_ecut;
   TH1F* hi_ecal_energy;
+
+  TH1F* hi_hcal_time;
+  TH1F* hi_hcal_time_err;
+  TH1F* hi_hcal_time_pull;
+  TH1F* hi_hcal_time_ecut;
+  TH1F* hi_hcal_energy;
 
   TH1F* hi_tk_eta  ;
   TH1F* hi_sta_eta  ;
