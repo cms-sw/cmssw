@@ -13,7 +13,7 @@
 //
 // Original Author:  Sep 15 09:45
 //         Created:  Mon Sep 15 09:49:08 CEST 2008
-// $Id: TagProbeFitTreeProducer.cc,v 1.1 2009/12/15 22:45:12 gpetrucc Exp $
+// $Id: TagProbeFitTreeProducer.cc,v 1.2 2009/12/16 11:17:07 gpetrucc Exp $
 //
 //
 
@@ -174,8 +174,8 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 bool
 TagProbeFitTreeProducer::checkMother(const reco::GenParticleRef &ref) const {
-    if (motherPdgId_.empty()) return true;
     if (ref.isNull()) return false;
+    if (motherPdgId_.empty()) return true;
     if (motherPdgId_.find(abs(ref->pdgId())) != motherPdgId_.end()) return true;
     reco::GenParticle::mothers m = ref->motherRefVector();
     for (reco::GenParticle::mothers::const_iterator it = m.begin(), e = m.end(); it != e; ++it) {
