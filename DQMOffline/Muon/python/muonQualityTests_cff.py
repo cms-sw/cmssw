@@ -11,13 +11,24 @@ muonSourcesQualityTests = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests1.xml')
 )
+muonComp2RefQualityTests = cms.EDFilter("QualityTester",
+    prescaleFactor = cms.untracked.int32(1),
+    qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/Mu_Comp2RefChi2.xml')
+)
+
+muonComp2RefKolmoQualityTests = cms.EDFilter("QualityTester",
+    prescaleFactor = cms.untracked.int32(1),
+    qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/Mu_Comp2RefKolmogorov.xml')
+)
+
 
 muonClientsQualityTests = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests2.xml')
 )
 
-cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*ClientTrackEfficiencySTACosmicMuons*muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonCosmicTestSummary)
+cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*ClientTrackEfficiencySTACosmicMuons*muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonComp2RefQualityTests*muonComp2RefKolmoQualityTests*muonCosmicTestSummary)
 
-muonQualityTests = cms.Sequence(muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonTestSummary)
+muonQualityTests = cms.Sequence(muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonComp2RefQualityTests*muonComp2RefKolmoQualityTests*muonTestSummary)
+
 
