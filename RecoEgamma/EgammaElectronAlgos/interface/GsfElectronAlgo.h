@@ -83,7 +83,8 @@ class GsfElectronAlgo {
       bool applyPreselection, bool applyEtaCorrection,
       bool applyAmbResolution, unsigned ambSortingStrategy, unsigned ambClustersOverlapStrategy,
       bool addPflowElectrons,
-      double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
+      double intRadiusBarrelTk, double intRadiusEndcapTk, double stripBarrelTk, double stripEndcapTk,
+      double ptMinTk, double maxVtxDistTk, double maxDrbTk,
       double intRadiusHcal, double etMinHcal,
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
       double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
@@ -268,7 +269,10 @@ class GsfElectronAlgo {
     bool addPflowElectrons_;
 
     // isolation variables parameters
-    double intRadiusTk_;
+    double intRadiusBarrelTk_;
+    double intRadiusEndcapTk_;
+    double stripBarrelTk_;
+    double stripEndcapTk_;
     double ptMinTk_;
     double maxVtxDistTk_;
     double maxDrbTk_;

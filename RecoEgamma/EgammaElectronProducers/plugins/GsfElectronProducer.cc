@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.24 2009/10/15 13:28:05 chamont Exp $
+// $Id: GsfElectronProducer.cc,v 1.25 2009/10/29 23:13:36 chamont Exp $
 //
 //
 
@@ -94,7 +94,10 @@ GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet& iConfig )
 		    iConfig.getParameter<unsigned>("ambSortingStrategy"),
 		    iConfig.getParameter<unsigned>("ambClustersOverlapStrategy"),
 		    iConfig.getParameter<bool>("addPflowElectrons"),
-		    iConfig.getParameter<double>("intRadiusTk"),
+		    iConfig.getParameter<double>("intRadiusBarrelTk"),
+		    iConfig.getParameter<double>("intRadiusEndcapTk"),
+		    iConfig.getParameter<double>("stripBarrelTk"),
+		    iConfig.getParameter<double>("stripEndcapTk"),
 		    iConfig.getParameter<double>("ptMinTk"),
 		    iConfig.getParameter<double>("maxVtxDistTk"),
 		    iConfig.getParameter<double>("maxDrbTk"),

@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.85 2009/12/15 13:19:24 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.86 2009/12/28 05:22:43 dlange Exp $
 //
 //
 
@@ -110,7 +110,8 @@ GsfElectronAlgo::GsfElectronAlgo
    bool applyPreselection, bool applyEtaCorrection,
    bool applyAmbResolution, unsigned ambSortingStrategy, unsigned ambClustersOverlapStrategy,
    bool addPflowElectrons,
-   double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
+   double intRadiusBarrelTk, double intRadiusEndcapTk, double stripBarrelTk, double stripEndcapTk,
+   double ptMinTk, double maxVtxDistTk, double maxDrbTk,
    double intRadiusHcal, double etMinHcal,
    double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
    double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
@@ -140,7 +141,8 @@ GsfElectronAlgo::GsfElectronAlgo
    applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection),
    applyAmbResolution_(applyAmbResolution), ambSortingStrategy_(ambSortingStrategy), ambClustersOverlapStrategy_(ambClustersOverlapStrategy),
    addPflowElectrons_(addPflowElectrons),
-   intRadiusTk_(intRadiusTk), ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
+   intRadiusBarrelTk_(intRadiusBarrelTk), intRadiusEndcapTk_(intRadiusEndcapTk), stripBarrelTk_(stripBarrelTk), stripEndcapTk_(stripEndcapTk),
+   ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
    etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
    vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals), ctfTracksCheck_(false),
@@ -387,10 +389,11 @@ void GsfElectronAlgo::process(
 
   // Isolation algos
 
-  float extRadiusSmall=0.3, extRadiusLarge=0.4, intRadius=intRadiusTk_;
+  float extRadiusSmall=0.3, extRadiusLarge=0.4 ;
+  float intRadiusBarrel=intRadiusBarrelTk_, intRadiusEndcap=intRadiusEndcapTk_, stripBarrel=stripBarrelTk_, stripEndcap=stripEndcapTk_ ;
   float ptMin=ptMinTk_, maxVtxDist=maxVtxDistTk_, drb=maxDrbTk_;
-  ElectronTkIsolation tkIsolation03(extRadiusSmall,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bs.position()) ;
-  ElectronTkIsolation tkIsolation04(extRadiusLarge,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bs.position()) ;
+  ElectronTkIsolation tkIsolation03(extRadiusSmall,intRadiusBarrel,intRadiusEndcap,stripBarrel,stripEndcap,ptMin,maxVtxDist,drb,ctfTracksH.product(),bs.position()) ;
+  ElectronTkIsolation tkIsolation04(extRadiusLarge,intRadiusBarrel,intRadiusEndcap,stripBarrel,stripEndcap,ptMin,maxVtxDist,drb,ctfTracksH.product(),bs.position()) ;
 
   float egHcalIsoConeSizeOutSmall=0.3, egHcalIsoConeSizeOutLarge=0.4;
   float egHcalIsoConeSizeIn=intRadiusHcal_,egHcalIsoPtMin=etMinHcal_;
@@ -497,13 +500,22 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
   GsfElectronPtrCollection::iterator e1 ;
   for( ei=1, e1=inEle.begin() ;  e1!=inEle.end() ; ++ei, ++e1 )
    {
-    LogDebug("")<<"========== preSelection "<<ei<<"/"<<emax<<"==========" ;
+    LogDebug("")<<"========== pre-selection "<<ei<<"/"<<emax<<"==========" ;
 
     // kind of construction algorithm
     bool eg = (*e1)->core()->ecalDrivenSeed();
     bool pf = (*e1)->core()->trackerDrivenSeed() && !(*e1)->core()->ecalDrivenSeed() ;
     if (eg&&pf) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be both egamma and purely pflow" ; }
     if ((!eg)&&(!pf)) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be neither egamma nor purely pflow" ; }
+
+    // MVA blessing
+    if ( (eg && ((*e1)->mva()>=minMVA_)) || (pf && ((*e1)->mva()>=minMVAPflow_)) )
+     {
+      outEle.push_back(*e1) ;
+      LogDebug("") << "electron has passed preselection criteria ";
+      LogDebug("") << "=================================================";
+      continue ;
+     }
 
     // Et cut
     LogDebug("") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
@@ -598,11 +610,9 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if (eg && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIP_) continue;
     if (pf && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) continue;
 
+    outEle.push_back(*e1) ;
     LogDebug("") << "electron has passed preselection criteria ";
     LogDebug("") << "=================================================";
-
-    outEle.push_back(*e1) ;
-
    }
  }
 
@@ -1079,7 +1089,7 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
   edm::ParameterSet mvaBlock = pset.getParameter<edm::ParameterSet>("MVACutBlock") ;
   double pfTranslatorMinMva = mvaBlock.getParameter<double>("MVACut") ;
   double pfTranslatorUndefined = -99. ;
-  if (minMVAPflow_<pfTranslatorMinMva)
+  if (applyPreselection_&&(minMVAPflow_<pfTranslatorMinMva))
    {
     // For pure tracker seeded electrons, if MVA is under translatorMinMva, there is no supercluster
     // of any kind available, so GsfElectronCoreProducer has already discarded the electron.
@@ -1087,14 +1097,14 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
       <<"Parameter minMVAPflow will have no effect on purely tracker seeded electrons."
       <<" It is inferior to the cut already applied by PFlow translator." ;
    }
-  if (minMVA_<pfTranslatorMinMva)
+  if (applyPreselection_&&(minMVA_<pfTranslatorMinMva))
    {
     // For ecal seeded electrons, there is a cluster and GsfElectronCoreProducer has kept all electrons,
     // but when MVA is under translatorMinMva, the translator has not stored the supercluster and
     // forced the MVA value to translatorUndefined
     if (minMVA_<pfTranslatorUndefined)
      {
-      LogDebug("GsfElectronAlgo")
+      edm::LogWarning("GsfElectronAlgo")
         <<"Parameter minMVA is inferior to the cut applied by PFlow translator."
         <<" Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster." ;
      }
@@ -1114,7 +1124,8 @@ void GsfElectronAlgo::checkEcalSeedingParameters( edm::ParameterSetID const & ps
   edm::ParameterSet pset ;
   edm::pset::Registry::instance()->getMapped(psetid,pset) ;
   edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
-//  edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
+  edm::ParameterSet orderedHitsFactoryPSet = seedConfiguration.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet") ;
+  //  edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
 //
 //  if (seedParameters.getParameter<bool>("applyHOverECut"))
 //   {
