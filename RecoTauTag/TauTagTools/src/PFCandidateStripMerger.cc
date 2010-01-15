@@ -11,8 +11,7 @@ PFCandidateStripMerger::PFCandidateStripMerger(const edm::ParameterSet& config)
   inputPdgIds_ = config.getParameter<std::vector<int> >("stripCandidatesPdgIds");
   etaAssociationDistance_ = config.getParameter<double>("stripEtaAssociationDistance");
   phiAssociationDistance_ = config.getParameter<double>("stripPhiAssociationDistance");
-
-    
+  stripPtThreshold_ = config.getParameter<double>("stripPtThreshold");
 }
 
 
@@ -76,6 +75,7 @@ PFCandidateStripMerger::mergeCandidates(const PFCandidateRefVector& candidates)
 
     vector<PFCandidateRefVector> strips;
 
+
   //Repeat while there are still unclusterized gammas
   while(cands.size()>0) {
 
@@ -99,13 +99,15 @@ PFCandidateStripMerger::mergeCandidates(const PFCandidateRefVector& candidates)
 	    notAssociated.push_back(cands.at(i));
 	  }
     }
-    //Save the strip
-    strips.push_back(strip);
+    //Save the strip if it is over threshold
+    if(stripVector.pt()>stripPtThreshold_)
+      strips.push_back(strip);
+
     //Swap the candidate vector with the non associated vector
     cands.swap(notAssociated);
     //Clear 
     notAssociated.clear();
   }
- 
+
   return strips;
 }
