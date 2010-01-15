@@ -86,8 +86,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
   maxNumOfCandidates_        = conf_.getParameter<int>("maxNumOfCandidates");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");  
-  likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
-  risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
+  
  
   // use onfiguration file to setup output collection names
   ConvertedPhotonCollection_     = conf_.getParameter<std::string>("convertedPhotonCollection");
@@ -133,10 +132,7 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder_);
 
   theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
-  edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
-  theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
   
-
 }
 
 
@@ -289,8 +285,8 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
     LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer  allPairs.size " << allPairs.size() << "\n";      
 
-    buildCollections(scBarrelHandle, bcBarrelHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
-    buildCollections(scEndcapHandle, bcEndcapHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
+    buildCollections(theEventSetup, scBarrelHandle, bcBarrelHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
+    buildCollections(theEventSetup, scEndcapHandle, bcEndcapHandle, hcalTowersHandle, generalTrkHandle, allPairs, outputConvPhotonCollection);
   }
   
   // put the product in the event
@@ -300,14 +296,10 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
 
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  if ( validBarrelSCHandle) cleanCollections(theEvent,
-					     theEventSetup,
-					     scBarrelHandle,
+  if ( validBarrelSCHandle) cleanCollections(scBarrelHandle,
 					     conversionHandle,
 					     cleanedConversionCollection);
-  if ( validEndcapSCHandle) cleanCollections(theEvent,
-					     theEventSetup,
-					     scEndcapHandle,
+  if ( validEndcapSCHandle) cleanCollections(scEndcapHandle,
 					     conversionHandle,
 					     cleanedConversionCollection);
 						
@@ -319,12 +311,13 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 }
 
 
-void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
-						  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
-						  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
-						  const edm::Handle<reco::TrackCollection>  & generalTrkHandle,
-						  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
-                                                  reco::ConversionCollection & outputConvPhotonCollection)
+void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,  
+						 const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+						 const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+						 const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
+						 const edm::Handle<reco::TrackCollection>  & generalTrkHandle,
+						 std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
+						 reco::ConversionCollection & outputConvPhotonCollection)
 
 {
 
@@ -462,7 +455,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 	double like = -999.;
 	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackInnPos, trackPin, trackPout, like, algo);
-	like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
+	like = theLikelihoodCalc_->calculateLikelihood(newCandidate, es );
         newCandidate.setMVAout(like);
 	outputConvPhotonCollection.push_back(newCandidate);
 	
@@ -550,7 +543,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	    } // bool On/Off one track case recovery using generalTracks  
 	    double like = -999.;
 	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackInnPos, trackPin, trackPout, like, algo);
-	    like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
+	    like = theLikelihoodCalc_->calculateLikelihood(newCandidate, es);
 	    newCandidate.setMVAout(like);
 	    outputConvPhotonCollection.push_back(newCandidate);
 	      
@@ -578,9 +571,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 }
 
 
-void ConvertedPhotonProducer::cleanCollections(edm::Event& evt,
-					      edm::EventSetup const & es,
-					      const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 					      const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle,
 					      reco::ConversionCollection & outputConversionCollection) {
 

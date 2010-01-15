@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaTools.PhotonConversionMVAComputer_cfi import *
 #
 #  configuration for producer of converted photons
 #  
@@ -27,7 +28,6 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     deltaCotCut = cms.double(0.05),
     minApproachDisCut  = cms.double(0.),
     maxNumOfCandidates = cms.int32(3),
-    risolveConversionAmbiguity = cms.bool(True),                         
-    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
-)
+    risolveConversionAmbiguity = cms.bool(True)                         
+ )
 

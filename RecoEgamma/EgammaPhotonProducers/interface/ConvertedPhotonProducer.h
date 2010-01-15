@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.30 2009/05/07 20:15:50 nancy Exp $ 
- **  $Date: 2009/05/07 20:15:50 $ 
- **  $Revision: 1.30 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.31 2009/05/12 16:47:04 nancy Exp $ 
+ **  $Date: 2009/05/12 16:47:04 $ 
+ **  $Revision: 1.31 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -48,16 +48,20 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
 
  private:
+  
 
-  void buildCollections ( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+
+
+
+
+  void buildCollections ( edm::EventSetup const & es,
+                          const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 			  const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			  const edm::Handle<reco::TrackCollection>  & trkHandle,
 			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
 			  reco::ConversionCollection & outputConvPhotonCollection);
-  void cleanCollections (edm::Event& evt,
-			 edm::EventSetup const & es,
-			 const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+  void cleanCollections (const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			 const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle,
 			 reco::ConversionCollection & outputCollection);
 			   
@@ -105,8 +109,9 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   double minApproachDisCut_;
   int    maxNumOfCandidates_;
   bool risolveAmbiguity_;
-  std::string likelihoodWeights_;
   ConversionLikelihoodCalculator* theLikelihoodCalc_;
+
+
 
 };
 #endif
