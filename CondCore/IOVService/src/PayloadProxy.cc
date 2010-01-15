@@ -7,7 +7,7 @@
 
 namespace {
 
-  void fillIt(BasePayloadProxy::ObjId & obj, std::string const & token, cond::Time_t since) {
+  void fillIt(cond::BasePayloadProxy::ObjId & obj, std::string const & token, cond::Time_t since) {
     obj.since = since;
     size_t i1 = token.rfind('=');
     size_t i2 = token.rfind('-');
