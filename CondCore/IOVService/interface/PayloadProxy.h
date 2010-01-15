@@ -29,10 +29,16 @@ namespace cond {
   class BasePayloadProxy {
   public:
 
+    struct ObjId {
+      cond::Time_t since;
+      unsigned int oid1;
+      unsigned int oid2;
+    };
     struct Stats {
       int nProxy;
       int nMake;
       int nLoad;
+      std::vector<ObjId> ids;
     };
 
     // global stat

@@ -5,6 +5,18 @@
 #include "DataSvc/RefException.h"
 
 
+namespace {
+
+  void fillIt(BasePayloadProxy::ObjId & obj, std::string const & token, cond::Time_t since) {
+    obj.since = since;
+    size_t i1 = token.rfind('=');
+    size_t i2 = token.rfind('-');
+    obj.oid1 = ::atoi(token.substr(i1+1,8));
+    obj.oid2 = ::atoi(token.substr(i2+1,8));
+  }
+
+}
+
 namespace cond {
 
   BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0};
@@ -15,7 +27,7 @@ namespace cond {
                                      bool errorPolicy) :
     m_doThrow(errorPolicy), m_iov(session,token,true,false) {
     ++gstats.nProxy;
-    BasePayloadProxy::Stats s = {0,0,0};
+    BasePayloadProxy::Stats s = {0,0,0,vector<ObjID>()};
     stats = s;
   }
 
@@ -59,7 +71,11 @@ namespace cond {
       if (m_doThrow)
         throw cond::Exception("Condition Payload loader: invalid data");
     }
-    if (ok) { ++gstats.nLoad; ++stats.nLoad;}
+    if (ok) { 
+      ++gstats.nLoad; ++stats.nLoad;
+      stats.ids.push_back(ObjId());
+      load(stats.ids.back(),m_token, m_element.since());
+    }
   }
 
 

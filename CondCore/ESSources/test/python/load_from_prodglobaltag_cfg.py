@@ -1,3 +1,5 @@
+#load all (and only!) records in a given globaltag
+
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('runNumber',
@@ -43,6 +45,7 @@ process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untr
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
 process.GlobalTag.globaltag = gName
+
 process.GlobalTag.RefreshEachRun=cms.untracked.bool(False)
 process.GlobalTag.DumpStat=cms.untracked.bool(True)
 process.GlobalTag.pfnPrefix=cms.untracked.string('')
@@ -54,12 +57,9 @@ process.GlobalTag.DBParameters.transactionId = cms.untracked.string("")
 
 
 
-# 'GR09_P_V6::All'
-#'CRAFT09_R_V9::All'
-#'MC_31X_V9::All'
-#'GR09_31X_V5P::All'
+#process.GlobalTag.pfnPrefix = cms.untracked.string('oracle://cms_orcoff_prod/')
 #process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
-#process.GlobalTag.pfnPostfix = "_0911"
+#process.GlobalTag.pfnPostfix = "_0912"
 #process.GlobalTag.toGet = cms.VPSet()
 #process.GlobalTag.toGet.append(
 #   cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
