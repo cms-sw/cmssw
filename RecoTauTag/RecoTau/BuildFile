@@ -16,6 +16,9 @@
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/IPTools>
 <use name=RecoTauTag/TauTagTools>
+<use name=RecoVertex/KalmanVertexFit>
+
+
 <export>
   <use name=DataFormats/TauReco>
   <use name=DataFormats/VertexReco>
