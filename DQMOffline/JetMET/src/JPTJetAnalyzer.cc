@@ -80,6 +80,8 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
     verbose_(config.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     jptCorrectorName_(config.getParameter<std::string>("JPTCorrectorName")),
     zspCorrectorName_(config.getParameter<std::string>("ZSPCorrectorName")),
+    jptCorrector_(NULL),
+    zspCorrector_(NULL),
     writeDQMStore_(config.getUntrackedParameter<bool>("WriteDQMStore")),
     dqmStoreFileName_(),
     trackPropagator_(new jptJetAnalysis::TrackPropagatorToCalo),
@@ -155,18 +157,10 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
 JPTJetAnalyzer::~JPTJetAnalyzer()
 {}
 
-void JPTJetAnalyzer::beginJob(const edm::EventSetup& eventSetup, DQMStore* dqmStore)
+void JPTJetAnalyzer::beginJob(edm::EventSetup const& iSetup, DQMStore* dqmStore)
+//void JPTJetAnalyzer::beginJob(DQMStore* dqmStore)
 {
   dqm_ = dqmStore;
-  //get JPT corrector
-  const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,eventSetup);
-  if (!corrector) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << jptCorrectorName_ << "from the EventSetup";
-  jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
-  if (!jptCorrector_) edm::LogError(messageLoggerCatregory) << "Corrector with name " << jptCorrectorName_ << " is not a JetPlusTrackCorrector";
-  //get ZSP corrector
-  zspCorrector_ = JetCorrector::getJetCorrector(zspCorrectorName_,eventSetup);
-  if (!zspCorrector_) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << zspCorrectorName_ << "from the EventSetup";
-  
   //book histograms
   dqmStore->setCurrentFolder(histogramPath_);
   bookHistograms(dqmStore);
@@ -174,6 +168,18 @@ void JPTJetAnalyzer::beginJob(const edm::EventSetup& eventSetup, DQMStore* dqmSt
 
 void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets)
 {
+  //get jet correctors
+  if (!jptCorrector_) {
+    const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,eventSetup);
+    if (!corrector) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << jptCorrectorName_ << "from the EventSetup";
+    jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
+    if (!jptCorrector_) edm::LogError(messageLoggerCatregory) << "Corrector with name " << jptCorrectorName_ << " is not a JetPlusTrackCorrector";
+  }
+  if (!zspCorrector_) {
+    zspCorrector_ = JetCorrector::getJetCorrector(zspCorrectorName_,eventSetup);
+    if (!zspCorrector_) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << zspCorrectorName_ << "from the EventSetup";
+  }
+  
   double pt1 = 0;
   double pt2 = 0;
   double pt3 = 0;
