@@ -24,7 +24,7 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModel.h,v 1.6 2008/09/26 17:01:23 dwjang Exp $
+// $Id: GflashEMShowerModel.h,v 1.7 2010/01/11 16:32:45 syjun Exp $
 // GEANT4 tag $Name:  $
 //
 //
@@ -67,6 +67,7 @@ private:
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
   void makeHits(const G4FastTrack& fastTrack);
   void updateGflashStep(G4ThreeVector position, G4double time);
+  G4int findShowerType(const G4FastTrack& fastTrack);
 
 private:
   edm::ParameterSet theParSet;

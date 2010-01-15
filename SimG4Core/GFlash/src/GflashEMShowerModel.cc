@@ -92,7 +92,7 @@ void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastSte
   fastStep.ProposePrimaryTrackPathLength(0.0);
 
   //input variables for GflashEMShowerProfile with showerType = 1 (shower starts inside crystals)
-  G4int showerType = 1;
+  G4int showerType =  findShowerType(fastTrack);
   G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
   G4double globalTime = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetGlobalTime();
   G4double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
@@ -171,4 +171,68 @@ G4bool GflashEMShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack) 
   if(fabs(eta) > 1.3 && fabs(eta) < 1.57) return true;
 
   return isExcluded;
+}
+
+G4int GflashEMShowerModel::findShowerType(const G4FastTrack& fastTrack)
+{
+  // Initialization of longitudinal and lateral parameters for
+  // hadronic showers. Simulation of the intrinsic fluctuations
+
+  // type of hadron showers subject to the shower starting point (ssp)
+  // showerType = -1 : default (invalid)
+  // showerType =  0 : ssp before EBRY (barrel crystal)
+  // showerType =  1 : ssp inside EBRY
+  // showerType =  2 : ssp after  EBRY before HB
+  // showerType =  3 : ssp inside HB
+  // showerType =  4 : ssp before EFRY (endcap crystal)
+  // showerType =  5 : ssp inside EFRY
+  // showerType =  6 : ssp after  EFRY before HE
+  // showerType =  7 : ssp inside HE
+
+  G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
+  G4LogicalVolume* lv = touch->GetVolume()->GetLogicalVolume();
+
+  std::size_t pos1  = lv->GetName().find("EBRY");
+  std::size_t pos11 = lv->GetName().find("EWAL");
+  std::size_t pos12 = lv->GetName().find("EWRA");
+  std::size_t pos2  = lv->GetName().find("EFRY");
+
+  G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition()/cm;
+  Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(position);
+
+  G4int showerType = -1;
+
+  //central
+  if (kCalor == Gflash::kESPM || kCalor == Gflash::kHB ) {
+
+    G4double posRho = position.getRho();
+
+    if(pos1 != std::string::npos || pos11 != std::string::npos || pos12 != std::string::npos ) {
+      showerType = 1;
+    }
+    else {
+      if(kCalor == Gflash::kESPM) {
+        showerType = 2;
+        if( posRho < Gflash::Rmin[Gflash::kESPM]+ Gflash::ROffCrystalEB ) showerType = 0;
+      }
+      else showerType = 3;
+    }
+
+  }
+  //forward
+  else if (kCalor == Gflash::kENCA || kCalor == Gflash::kHE) {
+    if(pos2 != std::string::npos) {
+      showerType = 5;
+    }
+    else {
+      if(kCalor == Gflash::kENCA) {
+        showerType = 6;
+        if(fabs(position.getZ()) < Gflash::Zmin[Gflash::kENCA] + Gflash::ZOffCrystalEE) showerType = 4;
+      }
+      else showerType = 7;
+    }
+    //@@@need z-dependent correction on the mean energy reponse
+  }
+
+  return showerType;
 }
