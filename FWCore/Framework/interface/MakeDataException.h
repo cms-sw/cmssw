@@ -34,7 +34,7 @@ if(outOfBoundsValue) {
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -66,8 +66,8 @@ class MakeDataExceptionInfo : public MakeDataExceptionInfoBase
 public:
   MakeDataExceptionInfo(const DataKey &iKey) 
   : MakeDataExceptionInfoBase(iKey, 
-                              heterocontainer::HCTypeTagTemplate<DataT,DataKey>::className(), 
-                              heterocontainer::HCTypeTagTemplate<RecordT, EventSetupRecordKey>::className()) {}
+                              heterocontainer::className<DataT>(), 
+                              heterocontainer::className<RecordT>()) {}
 };
 
 class MakeDataException : public cms::Exception

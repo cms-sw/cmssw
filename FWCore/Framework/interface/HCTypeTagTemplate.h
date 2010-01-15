@@ -8,6 +8,8 @@
 // Description: initializer class for HCTypeTag
 //
 // Usage:
+//    NOTE: This class will go away once CondTools/L1Trigger/interface/L1ConfigOnlineProdBase.h switches to using className<T>()
+//
 //    See HCTypeTag.h for usage.
 //
 //    This templated class does NOT have a definition of the method
@@ -20,11 +22,14 @@
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.7 2005/11/16 00:17:39 chrjones Exp $
+// $Id: HCTypeTagTemplate.h,v 1.8 2009/04/26 22:18:35 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.8  2009/04/26 22:18:35  chrjones
+// Now register type at shared object load time rather than at dynamic load time. This should decrease 'code bloat' caused by the function local static.
+//
 // Revision 1.7  2005/11/16 00:17:39  chrjones
 // moved constructor definition to avoid physical coupling problems with the template parameters
 //
@@ -84,7 +89,7 @@ namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
 template < class T, class Group >
-class HCTypeTagTemplate : public HCTypeTag< Group >
+class HCTypeTagTemplate 
 {
    public:
 
@@ -93,7 +98,9 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
       //virtual ~HCTypeTagTemplate(); //not needed
 
       // ---------- static member functions --------------------
-      static const char* className();
+      static const char* className() {
+         return edm::eventsetup::heterocontainer::className<T>();
+      }
 
    protected:
 
@@ -111,19 +118,5 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
       }
    }
 }
-// c preprocessor macros
-
-// easy way to custom build the className method
-#define HCTYPETAGTEMPLATE_CLASSNAME(Tname, group) \
-template <> \
-const char* \
-edm::eventsetup::heterocontainer::HCTypeTagTemplate< Tname, group >::className() \
-{ return #Tname ; }
-
-#define HCTYPETAGTEMPLATE_CLASSNAME_1_COMMA(Tname1, Tname2, group) \
-template <> \
-const char* \
-edm::eventsetup::heterocontainer::HCTypeTagTemplate< Tname1,Tname2 , group >::className() \
-{ return #Tname1 "," #Tname2 ; }
 
 #endif

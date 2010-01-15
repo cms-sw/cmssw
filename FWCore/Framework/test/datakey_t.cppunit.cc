@@ -9,7 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cstring>
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 using namespace edm;
 using namespace edm::eventsetup;
@@ -92,13 +92,13 @@ namespace edm {
     namespace heterocontainer {
 	template<>
 	const char*
-	HCTypeTagTemplate<Dummy, edm::eventsetup::DataKey>::className() {
+	className<Dummy>() {
 	   return "Dummy";
 	}
 
 	template<>
 	const char*
-	HCTypeTagTemplate<Dummy2, edm::eventsetup::DataKey>::className() {
+	className<Dummy2>() {
 	   return "Dummy2";
 	}
     }

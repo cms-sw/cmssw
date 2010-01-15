@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 
 #include "FWCore/Framework/interface/HCMethods.icc"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 
@@ -37,7 +37,7 @@ namespace edm {
     namespace heterocontainer {
 	template<>
 	const char*
-	  HCTypeTagTemplate<eventsetuprecord_t::DummyRecord, edm::eventsetup::EventSetupRecordKey>::className() {
+	  className<eventsetuprecord_t::DummyRecord>() {
 	   return "DummyRecord";
 	}
     }
@@ -107,7 +107,7 @@ namespace edm {
     namespace heterocontainer {
 	template<>
 	const char*
-	edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy, edm::eventsetup::DataKey>::className() {
+	className<Dummy>() {
 	   return "Dummy";
 	}
     }

@@ -28,14 +28,6 @@
 //class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> {};
 
 #include "FWCore/Framework/interface/HCMethods.icc"
-//#include "FWCore/Framework/interface/HCTypeTag.icc"
-/*
-template<>
-const char*
-edm::eventsetup::heterocontainer::HCTypeTagTemplate<DummyRecord, edm::eventsetup::EventSetupRecordKey>::className() {
-   return "DummyRecord";
-}
-*/
 
 
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"

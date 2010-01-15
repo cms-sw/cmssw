@@ -68,7 +68,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
@@ -109,7 +109,7 @@ public:
                   const char* category_name = "NoDataException") :
   NoDataExceptionBase(iRecordKey, iDataKey, category_name)
   {
-    constructMessage(heterocontainer::HCTypeTagTemplate<T,DataKey>::className(),
+    constructMessage(heterocontainer::className<T>(),
                      providerButNoDataMessage(iRecordKey));
   }
 
@@ -119,7 +119,7 @@ public:
                   const std::string& iExtraInfo ) :
   NoDataExceptionBase(iRecordKey, iDataKey, category_name)  
   {
-    constructMessage(heterocontainer::HCTypeTagTemplate<T,DataKey>::className(),
+    constructMessage(heterocontainer::className<T>(),
                      iExtraInfo);
   }
 

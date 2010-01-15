@@ -31,7 +31,7 @@
 // system include files
 #include <string>
 // user include files
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
@@ -49,13 +49,13 @@ class NoRecordException : public cms::Exception
   // ---------- Constructors and destructor ----------------
   NoRecordException():cms::Exception("NoRecord")
   {
-    no_record_exception_message_builder(*this,heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className());
+    no_record_exception_message_builder(*this,heterocontainer::className<T>());
   }
 
 
   NoRecordException(const EventSetupRecordKey& iKey):cms::Exception("NoRecordFromDependentRecord")
   {
-    no_dependent_record_exception_message_builder(*this,iKey,heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className());
+    no_dependent_record_exception_message_builder(*this,iKey,heterocontainer::className<T>());
   }
       virtual ~NoRecordException() throw() {}
 

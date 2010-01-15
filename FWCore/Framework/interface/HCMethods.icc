@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 16:03:32 EDT 1998
-// $Id: HCMethods.icc,v 1.5 2005/09/01 23:30:48 wmtan Exp $
+// $Id: HCMethods.icc,v 1.6 2006/08/26 13:31:22 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCMethods.icc,v $
+// Revision 1.6  2006/08/26 13:31:22  chrjones
+// replaced C style cast with a static_cast
+//
 // Revision 1.5  2005/09/01 23:30:48  wmtan
 // fix rule violations found by rulechecker
 //
@@ -52,20 +55,20 @@
 
 // user include files
 #include "FWCore/Framework/interface/HCMethods.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
          template< class Type, class Key, class IdTag >
          Key makeKey(const IdTag& iIdTag) {
-            static HCTypeTag< Key > typeTag = HCTypeTagTemplate<Type, Key>();
+            static HCTypeTag typeTag = HCTypeTag::make<Type>();
             return Key(typeTag, iIdTag);
          }
          
          template< class Type, class Key>
          Key makeKey() {
-            static HCTypeTag< Key > typeTag = HCTypeTagTemplate<Type, Key>();
+            static HCTypeTag typeTag = HCTypeTag::make<Type>();
             return Key(typeTag);
          }
          

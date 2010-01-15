@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:13:07 EST 2005
-// $Id: DataKeyTags.h,v 1.4 2005/09/01 05:43:13 wmtan Exp $
+// $Id: DataKeyTags.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -28,9 +28,7 @@
 namespace edm {
    namespace eventsetup {
       
-      class DataKey;
-      
-      typedef heterocontainer::HCTypeTag<DataKey> TypeTag;
+      typedef heterocontainer::HCTypeTag TypeTag;
       
       class SimpleStringTag {
         public:
