@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.19 2009/11/23 18:45:04 syjun Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.1 2010/01/11 16:12:56 syjun Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 //
@@ -215,7 +215,7 @@ void GflashEMShowerProfile::parameterization()
     // Apply absolute energy scale
     // Convert into MeV unit
     double hitEnergy = deltaEnergy / nSpotsInStep * e25Scale * CLHEP::GeV;
-    double hitTime = theShowino->getGlobalTime()*CLHEP::nanosecond + (pathLength - pathLength0)/3.0;
+    double hitTime = theShowino->getGlobalTime()*CLHEP::nanosecond + (pathLength - pathLength0)/30.0;
 
     GflashHit aHit;
 
@@ -239,7 +239,7 @@ void GflashEMShowerProfile::parameterization()
       if( std::fabs(hitPosition.getZ()/CLHEP::cm) > Gflash::Zmax[Gflash::kHE]) continue;
 
       // put energy and position to a Hit
-      aHit.setEnergy(hitTime);
+      aHit.setTime(hitTime);
       aHit.setEnergy(hitEnergy);
       aHit.setPosition(hitPosition);
       theGflashHitList.push_back(aHit);
