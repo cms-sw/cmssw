@@ -25,7 +25,6 @@ class PFCandidateStripMerger : public PFCandidateMergerBase
   double etaAssociationDistance_;//eta Clustering Association Distance
   double phiAssociationDistance_;//phi Clustering Association Distance
   
-  double stripPtThreshold_;
 
   //Private Methods
   bool candidateMatches(const reco::PFCandidateRef&);

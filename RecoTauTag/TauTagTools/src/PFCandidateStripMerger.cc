@@ -13,7 +13,7 @@ PFCandidateStripMerger::PFCandidateStripMerger(const edm::ParameterSet& config):
   inputPdgIds_ = config.getParameter<std::vector<int> >("stripCandidatesPdgIds");
   etaAssociationDistance_ = config.getParameter<double>("stripEtaAssociationDistance");
   phiAssociationDistance_ = config.getParameter<double>("stripPhiAssociationDistance");
-  stripPtThreshold_ = config.getParameter<double>("stripPtThreshold");
+
 }
 
 
@@ -88,7 +88,7 @@ PFCandidateStripMerger::mergeCandidates(const PFCandidateRefVector& candidates)
     PFCandidateRefVector strip;
     math::XYZTLorentzVector stripVector;
     strip.push_back(cands.at(0));
-    stripVector+=cands.at(0)->p4();
+    stripVector=cands.at(0)->p4();
 
     //Loop and associate
     for(unsigned int i=1;i<cands.size();++i) {
@@ -101,9 +101,8 @@ PFCandidateStripMerger::mergeCandidates(const PFCandidateRefVector& candidates)
 	    notAssociated.push_back(cands.at(i));
 	  }
     }
-    //Save the strip if it is over threshold
-    if(stripVector.pt()>stripPtThreshold_)
-      strips.push_back(strip);
+    //Save the strip 
+    strips.push_back(strip);
 
     //Swap the candidate vector with the non associated vector
     cands.swap(notAssociated);
