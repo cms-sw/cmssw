@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelMonitorDigiProcess")
@@ -24,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    debugVerbosity = cms.untracked.uint32(10),
 #    debugFlag = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring('file:/tmp/vesna/Digis_nokilling.root')
+    fileNames = cms.untracked.vstring('file:Digis_test.root')
 )
 
 process.LockService = cms.Service("LockService",

@@ -68,9 +68,13 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource", fileNames = readFiles, secondaryFileNames = secFiles)
 
 
-readFiles.extend( ['/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/E8103237-33E4-DE11-A447-001A92810AEE.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/A4865AED-2CE4-DE11-9081-002354EF3BE2.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/9411F4EC-2CE4-DE11-A782-003048678FE4.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V9A-v1/0008/1219A3F4-2CE4-DE11-9FCB-001A9281173A.root'] );
+readFiles.extend( ['/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V14-v1/0010/5A350B10-22EE-DE11-A87B-00261894390C.root',
+        '/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V14-v1/0009/B68CBE3D-7AED-DE11-A58C-00304867906C.root',
+        '/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V14-v1/0009/90C81086-79ED-DE11-BD0F-003048678E6E.root',
+        '/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V14-v1/0009/44AB713D-7AED-DE11-A173-0026189438D5.root',
+        '/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V14-v1/0009/1A3B7D8B-79ED-DE11-82F0-003048D3FC94.root'] );
 
-secFiles.extend( [ '/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0009/FEF402CE-9EE4-DE11-8EE5-00261894388A.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/F2F7DFEE-2CE4-DE11-99A7-001BFCDBD182.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/CADFF1EA-2CE4-DE11-B4E7-0026189438FD.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/C06C50F0-2CE4-DE11-BE00-0018F3D096F8.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/A60C53EA-2CE4-DE11-94BC-00261894394B.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/9C468D6B-2DE4-DE11-90B1-0018F3D096F8.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/920E11E4-2CE4-DE11-A58B-002354EF3BDE.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/369953EB-2CE4-DE11-8184-0026189438C2.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/32C3A59C-2BE4-DE11-81CD-0026189438E0.root','/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0008/1460206A-2DE4-DE11-A417-001A928116AE.root'] )
+secFiles.extend( ['/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0010/EA0D420C-22EE-DE11-A3B7-00261894387B.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/E89CA380-79ED-DE11-924B-0026189437FC.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/CC8A0D8B-79ED-DE11-9D98-003048679080.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/C08EE63B-7AED-DE11-9551-00304867BFAE.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/AAAC2C85-79ED-DE11-9F7F-00261894380B.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/A2145787-79ED-DE11-B743-00261894389E.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/9A112B3B-7AED-DE11-B8CD-003048678FA6.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/54306D80-79ED-DE11-8F8F-003048678CA2.root','/store/relval/CMSSW_3_5_0_pre2/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V14-v1/0009/16CABA3A-7AED-DE11-BC9E-003048678E2A.root'] )
 
 
 
@@ -90,11 +94,11 @@ secFiles.extend( [ '/store/relval/CMSSW_3_3_6/RelValSingleMuPt10/GEN-SIM-DIGI-RA
 
 
 # Choose the global tag here:
-process.GlobalTag.globaltag = 'MC_3XY_V9A::All'
+process.GlobalTag.globaltag = 'MC_3XY_V14::All'
 
 process.o1 = cms.OutputModule("PoolOutputModule",
                               outputCommands = cms.untracked.vstring('drop *','keep *_*_*_DigiTest'),
-            fileName = cms.untracked.string('file:/tmp/vesna/Digis_test.root')  
+            fileName = cms.untracked.string('file:Digis_test.root')  
 )
 
 process.Timing = cms.Service("Timing")

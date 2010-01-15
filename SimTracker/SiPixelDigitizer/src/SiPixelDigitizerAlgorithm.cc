@@ -393,6 +393,8 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   // Destructor
   delete gaussDistribution_;
   delete flatDistribution_;
+  delete smearedChargeDistribution_;
+
   delete theSiPixelGainCalibrationService_;
 
   // Threshold gaussian smearing:
@@ -466,7 +468,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     // Find the threshold in noise units, needed for the noiser.
 
   unsigned int Sub_detid=DetId(detID).subdetId();
-    
+
   if(theNoiseInElectrons>0.){
     if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
       if(addThresholdSmearing) { 
@@ -1044,14 +1046,17 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
     
-    float signalInElectrons = (*i).second ;   // signal in electrons
+        float signalInElectrons = (*i).second ;   // signal in electrons
+
+	//       std::cout << "signalInElectrons = " << signalInElectrons << std::endl;
+
     // Do the miss calibration for calibration studies only.
     //if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons)
 
     // Do only for pixels above threshold
 
-    if ( signalInElectrons >= thePixelThresholdInE) { // check threshold
-      
+       if ( signalInElectrons >= thePixelThresholdInE) { // check threshold
+             
       int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
       int adc=0;  // ADC count as integer
@@ -1118,53 +1123,47 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
     
-    //    std::cout << "Initial signal is: " << (*i).second << std::endl;
-
-    if(addChargeVCALSmearing) 
+         if(addChargeVCALSmearing) 
       {
-
-	smearedChargeDistribution_ = new CLHEP::RandGaussQ(rndEngine, 0. , theSmearedChargeRMS);
 	
-	if((*i).second < 3000)
+	if((*i).second > 0 && (*i).second < 3000)
 	  {
 	    theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
-	  }
-	if((*i).second > 3000  && (*i).second < 6000)
-	  {
+	  } else if((*i).second >= 3000  && (*i).second < 6000){
 	    theSmearedChargeRMS = 307.6 - (*i).second * 0.01;
-	  }
-	if((*i).second > 6000) 
-	  {
+	  } else if((*i).second >= 6000) {
 	    theSmearedChargeRMS = -432.4 +(*i).second * 0.123;
+	}
 
-	  }
+	smearedChargeDistribution_ = new CLHEP::RandGaussQ(rndEngine, 0. , theSmearedChargeRMS);
 
+	// Noise from Vcal smearing:
 	float noise_ChargeVCALSmearing = smearedChargeDistribution_->fire() ;
-	(*i).second += Amplitude( noise_ChargeVCALSmearing,0,-1.); 
-
-	//	std::cout << "The signal after charge smearing: " << (*i).second << std::endl;
-
-	// Now add full READOUT Noise: 
-	// Noises: full readout noise + full readout noise.
-	// Will be used if we have the ChargeVCALSmearing boolean in the configuration file set to TRUE: 
-	// Define the Gaussian distribution that will take care of the pixel charge smearing:
-	
+	// Noise from full readout:
 	float noise  = gaussDistribution_->fire() ;
 
-	(*i).second +=Amplitude(noise,0,-1.);
+		if(((*i).second + Amplitude(noise+noise_ChargeVCALSmearing,0,-1.)) < 0. ) {
+		  (*i).second.set(0);}
+		else{
+	(*i).second +=Amplitude(noise+noise_ChargeVCALSmearing,0,-1.);
+		}
 
-      } // end if(addChargeVCALSmearing)
-    else 
-      {
+      } // End if addChargeVCalSmearing
+	 else
+     {
 	// Noise: ONLY full READOUT Noise.
 	// Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
 
 	float noise  = gaussDistribution_->fire() ;
-	(*i).second += Amplitude(noise ,0,-1.);  
-      }
+		if(((*i).second + Amplitude(noise,0,-1.)) < 0. ) {
+		  (*i).second.set(0);}
+		else{
+	(*i).second +=Amplitude(noise,0,-1.);
+		}
+     } // end if only Noise from full readout
     
   }
-  
+
   if(!addNoisyPixels)  // Option to skip noise in non-hit pixels
     return;
 
@@ -1212,8 +1211,8 @@ void SiPixelDigitizerAlgorithm::add_noise() {
       _signal[chan] = Amplitude (noise, 0,-1.);
     }
   }
-  
-} 
+
+}
 
 /***********************************************************************/
 
