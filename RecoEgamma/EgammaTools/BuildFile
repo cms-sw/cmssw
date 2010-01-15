@@ -9,6 +9,7 @@
 <use name=PhysicsTools/MVAComputer>
 <use name=PhysicsTools/MVATrainer>
 <use name=CondFormats/DataRecord>
+<use name=CondCore/EgammaPlugins>
 <export>
   <use name=FWCore/Framework>
   <use name=DataFormats/HcalRecHit>
@@ -17,4 +18,5 @@
   <use name=Geometry/CaloGeometry>
   <use name=RecoCaloTools/MetaCollections>
   <lib name=RecoEgammaEgammaTools>
+  <use name=CondCore/EgammaPlugins>
 </export>
