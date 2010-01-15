@@ -113,6 +113,10 @@ private:
   double expMultiplicitySta_max;
 
   // the report MEs
+//------
+  MonitorElement* KolmogorovTestSummaryMap;
+  MonitorElement* chi2TestSummaryMap;
+//-----
   MonitorElement* kinematicsSummaryMap;
   MonitorElement* residualsSummaryMap;
   MonitorElement* muonIdSummaryMap;

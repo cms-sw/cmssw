@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/12 21:17:15 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/01/14 20:22:14 $
+ *  $Revision: 1.26 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -94,6 +94,33 @@ void MuonTestSummary::beginJob(void){
   kinematicsSummaryMap->setBinLabel(2,"#eta",2);
   kinematicsSummaryMap->setBinLabel(3,"#phi",2);
    
+  //chi2 kinematics quality test report
+  chi2TestSummaryMap = dbe->book2D("chi2TestSummaryMap","#chi2 quality test summary",5,1,6,3,1,4);
+  chi2TestSummaryMap->setAxisTitle("track monitored",1);
+  chi2TestSummaryMap->setBinLabel(1,"GLB",1);
+  chi2TestSummaryMap->setBinLabel(2,"TKfromGLB",1);
+  chi2TestSummaryMap->setBinLabel(3,"STAfromGLB",1);
+  chi2TestSummaryMap->setBinLabel(4,"TK",1);
+  chi2TestSummaryMap->setBinLabel(5,"STA",1);
+  chi2TestSummaryMap->setAxisTitle("parameter tested",2);
+  chi2TestSummaryMap->setBinLabel(1,"#chi^{2}",2);
+  chi2TestSummaryMap->setBinLabel(2,"#eta",2);
+  chi2TestSummaryMap->setBinLabel(3,"#phi",2);
+
+//Kolmogorov  kinematics quality test report
+  KolmogorovTestSummaryMap = dbe->book2D("KolmogorovTestSummaryMap","Kolmogorov quality test summary",5,1,6,3,1,4);
+  KolmogorovTestSummaryMap->setAxisTitle("track monitored",1);
+  KolmogorovTestSummaryMap->setBinLabel(1,"GLB",1);
+  KolmogorovTestSummaryMap->setBinLabel(2,"TKfromGLB",1);
+  KolmogorovTestSummaryMap->setBinLabel(3,"STAfromGLB",1);
+  KolmogorovTestSummaryMap->setBinLabel(4,"TK",1);
+  KolmogorovTestSummaryMap->setBinLabel(5,"STA",1);
+  KolmogorovTestSummaryMap->setAxisTitle("parameter tested",2);
+  KolmogorovTestSummaryMap->setBinLabel(1,"#chi^{2}",2);
+  KolmogorovTestSummaryMap->setBinLabel(2,"#eta",2);
+  KolmogorovTestSummaryMap->setBinLabel(3,"#phi",2);
+
+
   // residuals test report
   residualsSummaryMap = dbe->book2D("residualsSummaryMap","Residuals test summary",4,1,5,4,1,5);
   residualsSummaryMap->setAxisTitle("residuals",1);
@@ -223,37 +250,39 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   // initialisation of histo bins
   for(int xBin=1; xBin<=5; xBin++){
     for(int yBin=1; yBin<=3; yBin++){
-      kinematicsSummaryMap->Fill(xBin,yBin,0);
+      kinematicsSummaryMap->Fill(xBin,yBin,1);
+      chi2TestSummaryMap->Fill(xBin,yBin,1); 
+      KolmogorovTestSummaryMap->Fill(xBin,yBin,1);
     }
   }
   for(int xBin=1; xBin<=residualsSummaryMap->getNbinsX(); xBin++){
     for(int yBin=1; yBin<=residualsSummaryMap->getNbinsY(); yBin++){
-      residualsSummaryMap->Fill(xBin,yBin,0);
+      residualsSummaryMap->Fill(xBin,yBin,1);
     }
   }
   residualsSummaryMap->setBinContent(4, 4, 1); //not used for now
 
   for(int xBin=1; xBin<=muonIdSummaryMap->getNbinsX(); xBin++){
     for(int yBin=1; yBin<=muonIdSummaryMap->getNbinsY(); yBin++){
-      muonIdSummaryMap->Fill(xBin,yBin,0);
+      muonIdSummaryMap->Fill(xBin,yBin,1);
     }
   }
   for(int xBin=1; xBin<=3; xBin++){
     for(int yBin=1; yBin<=3; yBin++){
-      energySummaryMap->Fill(xBin,yBin,0);
+      energySummaryMap->Fill(xBin,yBin,1);
     }
   }
   for(int xBin=1; xBin<=3; xBin++){
-    multiplicitySummaryMap->Fill(xBin,0);
+    multiplicitySummaryMap->Fill(xBin,1);
   }
   for(int xBin=1; xBin<=3; xBin++){
     for(int yBin=1; yBin<=7; yBin++){
-      summaryReportMap->Fill(xBin,yBin,0);
+      summaryReportMap->Fill(xBin,yBin,1);
     }
   }
   for(int xBin=1; xBin<=9; xBin++){
     for(int yBin=1; yBin<=7; yBin++){
-      summaryCertificationMap->Fill(xBin,yBin,0);
+      summaryCertificationMap->Fill(xBin,yBin,1);
     }
   }
 }
@@ -309,6 +338,7 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   doMultiplicityTests();
   
   // fill the final report summary
+  /*
   summaryReportMap->setBinContent(1,1,double(kinematicsSummaryMap->getBinContent(1,1)+kinematicsSummaryMap->getBinContent(2,1)+kinematicsSummaryMap->getBinContent(3,1))/3.0);
   summaryReportMap->setBinContent(2,1,kinematicsSummaryMap->getBinContent(4,1));
   summaryReportMap->setBinContent(3,1,kinematicsSummaryMap->getBinContent(5,1));
@@ -318,7 +348,19 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   summaryReportMap->setBinContent(1,3,double(kinematicsSummaryMap->getBinContent(1,3)+kinematicsSummaryMap->getBinContent(2,3)+kinematicsSummaryMap->getBinContent(3,3))/3.0);
   summaryReportMap->setBinContent(2,3,kinematicsSummaryMap->getBinContent(4,3));
   summaryReportMap->setBinContent(3,3,kinematicsSummaryMap->getBinContent(5,3));
-  
+  */  
+  //Changed to KolmogorovQuality test--------------------------
+  summaryReportMap->setBinContent(1,1,double(KolmogorovTestSummaryMap->getBinContent(1,1)+KolmogorovTestSummaryMap->getBinContent(2,1)+KolmogorovTestSummaryMap->getBinContent(3,1))/3.0);
+  summaryReportMap->setBinContent(2,1,KolmogorovTestSummaryMap->getBinContent(4,1));
+  summaryReportMap->setBinContent(3,1,KolmogorovTestSummaryMap->getBinContent(5,1));
+  summaryReportMap->setBinContent(1,2,double(KolmogorovTestSummaryMap->getBinContent(1,2)+KolmogorovTestSummaryMap->getBinContent(2,2)+KolmogorovTestSummaryMap->getBinContent(3,2))/3.0);
+  summaryReportMap->setBinContent(2,2,KolmogorovTestSummaryMap->getBinContent(4,2));
+  summaryReportMap->setBinContent(3,2,KolmogorovTestSummaryMap->getBinContent(5,2));
+  summaryReportMap->setBinContent(1,3,double(KolmogorovTestSummaryMap->getBinContent(1,3)+KolmogorovTestSummaryMap->getBinContent(2,3)+KolmogorovTestSummaryMap->getBinContent(3,3))/3.0);
+  summaryReportMap->setBinContent(2,3,KolmogorovTestSummaryMap->getBinContent(4,3));
+  summaryReportMap->setBinContent(3,3,KolmogorovTestSummaryMap->getBinContent(5,3));
+
+
 
   //-- modified GH
   double residualsSummary = 0;
@@ -461,71 +503,169 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
   MonitorElement * chi2Histo = dbe->get(path);
 
   if(chi2Histo){
-
     TH1F * chi2Histo_root = chi2Histo->getTH1F();
-    int maxBin = chi2Histo_root->GetMaximumBin();
-    if(chi2Histo_root->Integral(maxBin+1,chi2Histo_root->GetNbinsX())!=0){
-      double fraction = double(chi2Histo_root->Integral(1,maxBin))/double(chi2Histo_root->Integral(maxBin+1,chi2Histo_root->GetNbinsX()));
-      LogTrace(metname)<<"chi2 fraction for "<<muonType<<" : "<<fraction<<endl;
-      if(fraction>(chi2Fraction-chi2Spread) && fraction<(chi2Fraction+chi2Spread))
-	kinematicsSummaryMap->setBinContent(bin,1,1);
-      else
-	kinematicsSummaryMap->setBinContent(bin,1,0);
+    if(chi2Histo_root->GetEntries()>20){
+
+      //Standard QT based on fraction of events below and above a cut
+      LogTrace(metname)<<"chi2 kin test based on fraction for "<<muonType<<endl;
+      int maxBin = chi2Histo_root->GetMaximumBin();
+      if(chi2Histo_root->Integral(maxBin+1,chi2Histo_root->GetNbinsX())!=0){
+	double fraction = double(chi2Histo_root->Integral(1,maxBin))/double(chi2Histo_root->Integral(maxBin+1,chi2Histo_root->GetNbinsX()));
+	LogTrace(metname)<<"chi2 fraction for "<<muonType<<" : "<<fraction<< " must be within "<< chi2Fraction-chi2Spread<<","<<chi2Fraction+chi2Spread<<endl;
+	if(fraction>(chi2Fraction-chi2Spread) && fraction<(chi2Fraction+chi2Spread))
+	  kinematicsSummaryMap->setBinContent(bin,1,1);
+	else
+	  kinematicsSummaryMap->setBinContent(bin,1,0);
+      }
+
+      //QT based on comp wrt reference based on chi2
+      LogTrace(metname)<<"chi2 kin test based on comp wrt reference on terms of chi2 for "<<muonType<<endl;
+      const QReport * myQReport = chi2Histo->getQReport("Mu_Comp2RefChi2"); //get QReport associated to your ME  
+      if(myQReport) {
+	LogTrace(metname) << "Chi2Report exists!!";
+	float qtresult = myQReport->getQTresult(); // get QT result value
+	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult << " qtstatus "<<qtstatus<<endl;
+	chi2TestSummaryMap->setBinContent(bin,1,qtresult);
+      }
+      //QT based on comp wrt reference based on kolmogorov test
+      LogTrace(metname)<<"chi2 kin test based on comp wrt reference using kolmogorov for "<<muonType<<endl;
+      const QReport * myQReportKolmo = chi2Histo->getQReport("Mu_Comp2RefKolmogorov");
+      if(myQReportKolmo) {
+	LogTrace(metname) << "Chi2Report Kolmogorov exists!!";
+	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
+	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	KolmogorovTestSummaryMap->setBinContent(bin,1,qtresult);
+      }
+
     }
-   }
+    else{
+      LogTrace(metname) << "[MuonTestSummary]: Test of Chi2 Kin not performed for "<< muonType << " because # entries < 20 ";
+    }
+  }
 
 
 
   // pseudorapidity test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "eta";
   MonitorElement * etaHisto = dbe->get(path);
-  
-  if(etaHisto){
 
+  if(etaHisto){
     TH1F * etaHisto_root = etaHisto->getTH1F();
-    double binSize = (etaHisto_root->GetXaxis()->GetXmax()-etaHisto_root->GetXaxis()->GetXmin())/etaHisto_root->GetNbinsX();
-    int binZero = int((0-etaHisto_root->GetXaxis()->GetXmin())/binSize);
-    if(etaHisto_root->Integral(1,binZero-1)!=0 && etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX())!=0){
-      double symmetryFactor = 
-	double(etaHisto_root->Integral(1,binZero-1)) / double(etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX()));
-      double errSymmetryFactor =
-	symmetryFactor*sqrt(1.0/double(etaHisto_root->Integral(1,binZero-1)) + 1.0/double(etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX())));
-      LogTrace(metname)<<"eta symmetryFactor for "<<muonType<<" : "<<symmetryFactor<<endl;
-      LogTrace(metname)<<"eta errSymmetryFactor for "<<muonType<<" : "<<errSymmetryFactor<<endl;
-      double tParameter;
-      if((symmetryFactor-etaExpected)>0) tParameter=double(symmetryFactor-etaExpected)/errSymmetryFactor;
-      else tParameter=double(-symmetryFactor+etaExpected)/errSymmetryFactor;
-      if (tParameter<1.95) //2sigma rejection
-	kinematicsSummaryMap->setBinContent(bin,2,1);
-      else
-	kinematicsSummaryMap->setBinContent(bin,2,0);
+    if (etaHisto_root ->GetEntries()>20){
+
+      //Standard QT based on fraction of events below and above a cut
+      LogTrace(metname)<<"eta kin test based on fraction for "<<muonType<<endl;
+      double binSize = (etaHisto_root->GetXaxis()->GetXmax()-etaHisto_root->GetXaxis()->GetXmin())/etaHisto_root->GetNbinsX();
+      int binZero = int((0-etaHisto_root->GetXaxis()->GetXmin())/binSize);
+      if(etaHisto_root->Integral(1,binZero-1)!=0 && etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX())!=0){
+	double symmetryFactor = 
+	  double(etaHisto_root->Integral(1,binZero-1)) / double(etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX()));
+	double errSymmetryFactor =
+	  symmetryFactor*sqrt(1.0/double(etaHisto_root->Integral(1,binZero-1)) + 1.0/double(etaHisto_root->Integral(binZero,etaHisto_root->GetNbinsX())));
+	LogTrace(metname)<<"eta symmetryFactor for "<<muonType<<" : "<<symmetryFactor<< " (expected :" <<etaExpected <<")"<<endl;
+	LogTrace(metname)<<"eta errSymmetryFactor for "<<muonType<<" : "<<errSymmetryFactor<<endl;
+	double tParameter;
+	if((symmetryFactor-etaExpected)>0) tParameter=double(symmetryFactor-etaExpected)/errSymmetryFactor;
+	else tParameter=double(-symmetryFactor+etaExpected)/errSymmetryFactor;
+	LogTrace(metname)<<"eta tParameter for "<<muonType<<" : "<<tParameter<<" (expected < 1.95)" <<endl;
+	if (tParameter<1.95) //2sigma rejection
+	  kinematicsSummaryMap->setBinContent(bin,2,1);
+	else
+	  kinematicsSummaryMap->setBinContent(bin,2,0);
+      }
+
+      //QT based on comp wrt reference based on chi2
+      LogTrace(metname)<<"eta kin test based on comp wrt reference on terms of chi2 for "<<muonType<<endl;
+      const QReport * myQReport = etaHisto->getQReport("Mu_Comp2RefChi2"); //get QReport associated to your ME
+      if(myQReport) {
+	LogTrace(metname) << "EtaReport exists!!";
+	float qtresult = myQReport->getQTresult(); // get QT result value
+	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult << " qtstatus "<<qtstatus<<endl;
+	chi2TestSummaryMap->setBinContent(bin,2,qtresult);
+      }
+
+      //QT based on comp wrt reference based on kolmogorov test
+      LogTrace(metname)<<"eta kin test based on comp wrt reference using kolmogorov for "<<muonType<<endl;
+      const QReport * myQReportKolmo = etaHisto->getQReport("Mu_Comp2RefKolmogorov");
+      if(myQReportKolmo) {
+	LogTrace(metname) << "EtaReport Kolmogorov exists!!";
+	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
+	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	KolmogorovTestSummaryMap->setBinContent(bin,2,qtresult);
+      }
+      
+    }
+    else{
+      LogTrace(metname) << "[MuonTestSummary]: Test of Eta Kin not performed for "<< muonType << " because # entries < 20 ";
     }
   }
+
 
 
   // phi test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "phi";
   MonitorElement * phiHisto = dbe->get(path);
 
-  if(phiHisto){
-
+  if(phiHisto ){
     TH1F * phiHisto_root = phiHisto->getTH1F();
-    double binSize = (phiHisto_root->GetXaxis()->GetXmax()-phiHisto_root->GetXaxis()->GetXmin())/phiHisto_root->GetNbinsX();
-    int binZero = int((0-phiHisto_root->GetXaxis()->GetXmin())/binSize);
-    if(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())!=0 && phiHisto_root->Integral(1,binZero)!=0){
-      double symmetryFactor = 
-	double(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())) / double(phiHisto_root->Integral(1,binZero));
-      double errSymmetryFactor = 
-	symmetryFactor*sqrt(1.0/double(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())) + 1.0/double(phiHisto_root->Integral(1,binZero)));
-      LogTrace(metname)<<"phi symmetryFactor for "<<muonType<<" : "<<symmetryFactor<<endl;
-      LogTrace(metname)<<"phi errSymmetryFactor for "<<muonType<<" : "<<errSymmetryFactor<<endl;
-      double tParameter;
-      if((symmetryFactor-phiExpected)>0) tParameter=double(symmetryFactor-phiExpected)/errSymmetryFactor;
-      else tParameter=double(-symmetryFactor+phiExpected)/errSymmetryFactor;
+    if(phiHisto_root ->GetEntries()>20){    
+
+      //Standard QT based on fraction of events below and above a cut
+      LogTrace(metname)<<"phi kin test based on fraction for "<<muonType<<endl;
+      double binSize = (phiHisto_root->GetXaxis()->GetXmax()-phiHisto_root->GetXaxis()->GetXmin())/phiHisto_root->GetNbinsX();
+      int binZero = int((0-phiHisto_root->GetXaxis()->GetXmin())/binSize);
+      if(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())!=0 && phiHisto_root->Integral(1,binZero)!=0){
+	double symmetryFactor = 
+	  double(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())) / double(phiHisto_root->Integral(1,binZero));
+	double errSymmetryFactor = 
+	  symmetryFactor*sqrt(1.0/double(phiHisto_root->Integral(binZero+1,phiHisto_root->GetNbinsX())) + 1.0/double(phiHisto_root->Integral(1,binZero)));
+	LogTrace(metname)<<"phi symmetryFactor for "<<muonType<<" : "<<symmetryFactor<< "(phi expected :" <<phiExpected <<")"<<endl;
+	LogTrace(metname)<<"phi errSymmetryFactor for "<<muonType<<" : "<<errSymmetryFactor<<endl;
+	double tParameter;
+	if((symmetryFactor-phiExpected)>0) tParameter=double(symmetryFactor-phiExpected)/errSymmetryFactor;
+	else tParameter=double(-symmetryFactor+phiExpected)/errSymmetryFactor;
+	LogTrace(metname)<<"phi tParameter for "<<muonType<<" : "<<tParameter<<" (expected < 1.95)" <<endl;
       if (tParameter<1.95) //2sigma rejection
 	kinematicsSummaryMap->setBinContent(bin,3,1);
       else
 	kinematicsSummaryMap->setBinContent(bin,3,0);
+      }
+
+      //QT based on comp wrt reference based on chi2
+      LogTrace(metname)<<"phi kin test based on comp wrt reference on terms of chi2 for "<<muonType<<endl;
+      const QReport * myQReport = phiHisto->getQReport("Mu_Comp2RefChi2"); //get QReport associated to your ME
+      if(myQReport) {
+	LogTrace(metname) << "PhiReport exists!!";
+	float qtresult = myQReport->getQTresult(); // get QT result value
+	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	chi2TestSummaryMap->setBinContent(bin,3,qtresult);
+     }
+
+      //QT based on comp wrt reference based on kolmogorov test
+      LogTrace(metname)<<"phi kin test based on comp wrt reference using kolmogorov for "<<muonType<<endl;
+      const QReport * myQReportKolmo = phiHisto->getQReport("Mu_Comp2RefKolmogorov");
+      if(myQReportKolmo) {
+	LogTrace(metname) << "PhiReport Kolmogorov exists!!";
+	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
+	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	KolmogorovTestSummaryMap->setBinContent(bin,3,qtresult);
+      }
+
+    }
+    else{
+      LogTrace(metname) << "[MuonTestSummary]: Test of Phi Kin not performed for "<< muonType << " because # entries < 20 ";
     }
   }
 
@@ -556,8 +696,8 @@ void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  
       mean_err = gfit->GetParErrors()[2];
       sigma = gfit->GetParameter(2);
       sigma_err = gfit->GetParErrors()[2];
-      LogTrace(metname)<<"mean: "<<mean<<" +- "<<mean_err<<" for "<<type<<"_"<<parameter<<endl;
-      LogTrace(metname)<<"sigma: "<<sigma<<" +- "<<sigma_err<<" for "<<type<<"_"<<parameter<<endl;
+      LogTrace(metname)<<"Gaussian fit mean: "<<mean<<" +- "<<mean_err<<" for "<<type<<"_"<<parameter<<endl;
+      LogTrace(metname)<<"Gaussina fit sigma: "<<sigma<<" +- "<<sigma_err<<" for "<<type<<"_"<<parameter<<endl;
     }
   }
   else{
@@ -584,6 +724,7 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
     
     if(residualsHisto){
       
+      LogTrace(metname) << "[MuonTestSummary]: Starting Gaussian fit for Test of  Res_"<<type<<"_"<<parameter<< endl;
       GaussFit( type, parameter, residualsHisto, mean, mean_err, sigma, sigma_err); 
       
       if(sigma!=-1 && parameter=="eta" && type=="TkGlb"){
@@ -622,6 +763,7 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
       
       if(pullHisto){
 	
+	LogTrace(metname) << "[MuonTestSummary]: Starting Gaussian fit for Test of  Pull_"<<type<<"_"<<parameter<< endl;
 	GaussFit( type, parameter, pullHisto, mean, mean_err, sigma, sigma_err); 
 
 	if(sigma!=-1 && parameter=="eta" ){
@@ -647,8 +789,9 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
     MonitorElement * residualsHisto = dbe->get(path);
     
     if(residualsHisto){
+      LogTrace(metname) << "[MuonTestSummary]: Test of  Charge Comparison "<<type<<"_"<<parameter<< endl;
       if((residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4))!=0){
-	LogTrace(metname)<<"charge comparison TkGlb: "<<residualsHisto->getBinContent(4)/double(residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4))<<endl;
+	LogTrace(metname)<<"Charge comparison TkGlb: "<<residualsHisto->getBinContent(4)/double(residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4))<<endl;
 	if(residualsHisto->getBinContent(4)/double(residualsHisto->getBinContent(3)+residualsHisto->getBinContent(4)) < resChargeLimit_tkGlb)
 	  residualsSummaryMap->setBinContent(1, 4, 1);
 	else
