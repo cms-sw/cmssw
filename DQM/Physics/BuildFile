@@ -1,10 +1,11 @@
-# $Id: BuildFile,v 1.10 2009/11/19 20:22:06 rwolf Exp $
+# $Id: BuildFile,v 1.11 2010/01/13 13:47:36 veelken Exp $
 
 <use name=DQMServices/Core>
 <use name=FWCore/Framework>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
