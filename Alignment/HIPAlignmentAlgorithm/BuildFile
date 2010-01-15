@@ -4,16 +4,10 @@
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrackFitters>
-<use name=RecoTracker/TransientTrackingRecHit>
-<use name=DataFormats/Alignment>
 <use name=rootcore>
 <use name=Alignment/CommonAlignment>
 <use name=Alignment/CommonAlignmentAlgorithm>
-<use name=Alignment/TrackerAlignment>
 <flags EDM_PLUGIN=1>
 <export>
-  <use name=Alignment/CommonAlignment>
-  <use name=Alignment/CommonAlignmentAlgorithm>
   <lib name=AlignmentHIPAlignmentAlgorithm>
 </export>
-
