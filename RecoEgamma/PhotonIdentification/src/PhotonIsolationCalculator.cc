@@ -64,7 +64,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("isolationtrackThresholdA_Barrel") );
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("longImpactParameterA_Barrel") );
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("transImpactParameterA_Barrel") );
-
+  trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("isolationtrackEtaSliceA_Barrel") );
 
   ecalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("EcalRecHitInnerRadiusA_Barrel") );
   ecalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("EcalRecHitOuterRadiusA_Barrel") );
@@ -72,7 +72,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   ecalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("EcalRecHitThreshEA_Barrel") );
   ecalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("EcalRecHitThreshEtA_Barrel") );
 
-  hcalIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("HcalTowerInnerRadiusA_Barrel") );
+  hcalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("HcalTowerInnerRadiusA_Barrel") );
   hcalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("HcalTowerOuterRadiusA_Barrel") );
   hcalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("HcalTowerThreshEA_Barrel") );
   hcalIsoBarrelRadiusA_.push_back( conf.getParameter<double>("HcalDepth1TowerInnerRadiusA_Barrel") );
@@ -88,7 +88,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   trkIsoBarrelRadiusB_.push_back(  conf.getParameter<double>("isolationtrackThresholdB_Barrel") );
   trkIsoBarrelRadiusB_.push_back(  conf.getParameter<double>("longImpactParameterB_Barrel") );
   trkIsoBarrelRadiusB_.push_back(  conf.getParameter<double>("transImpactParameterB_Barrel") );
-
+  trkIsoBarrelRadiusB_.push_back(  conf.getParameter<double>("isolationtrackEtaSliceB_Barrel") );
 
   ecalIsoBarrelRadiusB_.push_back( conf.getParameter<double>("EcalRecHitInnerRadiusB_Barrel") );
   ecalIsoBarrelRadiusB_.push_back( conf.getParameter<double>("EcalRecHitOuterRadiusB_Barrel") );
@@ -110,15 +110,16 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("TrackConeOuterRadiusA_Endcap") );
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("TrackConeInnerRadiusA_Endcap") ) ;
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("isolationtrackThresholdA_Endcap") );
+  trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("isolationtrackEtaSliceA_Endcap") );
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("longImpactParameterA_Endcap") );
   trkIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("transImpactParameterA_Endcap") );
 
 
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitInnerRadiusA_Endcap") );
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitOuterRadiusA_Endcap") );
-  ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitEtaSliceA_Endcap") );
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitThreshEA_Endcap") );
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitThreshEtA_Endcap") );
+  ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitEtaSliceA_Endcap") );
 
   hcalIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("HcalTowerInnerRadiusA_Endcap") );
   hcalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("HcalTowerOuterRadiusA_Endcap") );
@@ -136,7 +137,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   trkIsoEndcapRadiusB_.push_back(  conf.getParameter<double>("isolationtrackThresholdB_Endcap") );
   trkIsoEndcapRadiusB_.push_back(  conf.getParameter<double>("longImpactParameterB_Endcap") );
   trkIsoEndcapRadiusB_.push_back(  conf.getParameter<double>("transImpactParameterB_Endcap") );
-
+  trkIsoEndcapRadiusB_.push_back(  conf.getParameter<double>("isolationtrackEtaSliceB_Endcap") );
 
   ecalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("EcalRecHitInnerRadiusB_Endcap") );
   ecalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("EcalRecHitOuterRadiusB_Endcap") );
@@ -153,6 +154,8 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerInnerRadiusB_Endcap") );
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerOuterRadiusB_Endcap") );
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerThreshEB_Endcap") );
+
+
 
 }
 
@@ -189,6 +192,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   const reco::BasicCluster & seedCluster = *(scRef->seed()) ;
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
   int detector = seedXtalId.subdetId() ;
+
   if (detector==EcalBarrel) {
 
     trackConeOuterRadiusA_    = trkIsoBarrelRadiusA_[0];
@@ -196,6 +200,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     isolationtrackThresholdA_ = trkIsoBarrelRadiusA_[2];
     trackLipRadiusA_          = trkIsoBarrelRadiusA_[3];
     trackD0RadiusA_           = trkIsoBarrelRadiusA_[4];
+    isolationtrackEtaSliceA_  = trkIsoBarrelRadiusA_[5];
 
     photonEcalRecHitConeInnerRadiusA_  = ecalIsoBarrelRadiusA_[0];
     photonEcalRecHitConeOuterRadiusA_  = ecalIsoBarrelRadiusA_[1];
@@ -219,7 +224,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     isolationtrackThresholdB_ = trkIsoBarrelRadiusB_[2];
     trackLipRadiusB_          = trkIsoBarrelRadiusB_[3];
     trackD0RadiusB_           = trkIsoBarrelRadiusB_[4];
-
+    isolationtrackEtaSliceB_  = trkIsoBarrelRadiusB_[5];
 
     photonEcalRecHitConeInnerRadiusB_  = ecalIsoBarrelRadiusB_[0];
     photonEcalRecHitConeOuterRadiusB_  = ecalIsoBarrelRadiusB_[1];
@@ -248,6 +253,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     isolationtrackThresholdA_ = trkIsoEndcapRadiusA_[2];
     trackLipRadiusA_          = trkIsoEndcapRadiusA_[3];
     trackD0RadiusA_           = trkIsoEndcapRadiusA_[4];
+    isolationtrackEtaSliceA_  = trkIsoEndcapRadiusA_[5];
 
     photonEcalRecHitConeInnerRadiusA_  = ecalIsoEndcapRadiusA_[0];
     photonEcalRecHitConeOuterRadiusA_  = ecalIsoEndcapRadiusA_[1];
@@ -269,8 +275,9 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     trackConeOuterRadiusB_    = trkIsoEndcapRadiusB_[0];
     trackConeInnerRadiusB_    = trkIsoEndcapRadiusB_[1];
     isolationtrackThresholdB_ = trkIsoEndcapRadiusB_[2];
-    trackLipRadiusA_          = trkIsoEndcapRadiusA_[3];
-    trackD0RadiusA_           = trkIsoEndcapRadiusA_[4];
+    trackLipRadiusB_          = trkIsoEndcapRadiusB_[3];
+    trackD0RadiusB_           = trkIsoEndcapRadiusB_[4];
+    isolationtrackEtaSliceB_  = trkIsoEndcapRadiusB_[5];
 
 
     photonEcalRecHitConeInnerRadiusB_  = ecalIsoEndcapRadiusB_[0];
@@ -291,18 +298,18 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 
   }
 
-
+ 
   //Calculate hollow cone track isolation, CONE A
   int ntrkA=0;
   double trkisoA=0;
   calculateTrackIso(pho, e, trkisoA, ntrkA, isolationtrackThresholdA_,    
-		    trackConeOuterRadiusA_, trackConeInnerRadiusA_);
+		    trackConeOuterRadiusA_, trackConeInnerRadiusA_, isolationtrackEtaSliceA_ );
 
   //Calculate solid cone track isolation, CONE A
   int sntrkA=0;
   double strkisoA=0;
   calculateTrackIso(pho, e, strkisoA, sntrkA, isolationtrackThresholdA_,    
-		    trackConeOuterRadiusA_, 0.);
+		    trackConeOuterRadiusA_, 0., isolationtrackEtaSliceA_ );
 
   phoisolR1.nTrkHollowCone = ntrkA;
   phoisolR1.trkSumPtHollowCone = trkisoA;
@@ -313,13 +320,13 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   int ntrkB=0;
   double trkisoB=0;
   calculateTrackIso(pho, e, trkisoB, ntrkB, isolationtrackThresholdB_,    
-		    trackConeOuterRadiusB_, trackConeInnerRadiusB_);
+		    trackConeOuterRadiusB_, trackConeInnerRadiusB_,  isolationtrackEtaSliceB_ );
 
   //Calculate solid cone track isolation, CONE B
   int sntrkB=0;
   double strkisoB=0;
   calculateTrackIso(pho, e, strkisoB, sntrkB, isolationtrackThresholdB_,    
-		    trackConeOuterRadiusB_, 0.);
+		    trackConeOuterRadiusB_, 0., isolationtrackEtaSliceB_);
 
   phoisolR2.nTrkHollowCone = ntrkB;
   phoisolR2.trkSumPtHollowCone = trkisoB;
@@ -415,33 +422,34 @@ void PhotonIsolationCalculator::classify(const reco::Photon* photon,
 
   //Set fiducial flags for this photon.
   double eta = photon->superCluster()->position().eta();
-  double phi = photon->superCluster()->position().phi();
   double feta = fabs(eta);
 
-  //Are you in the Ecal Endcap (EE)?
   if (detector==EcalBarrel) {
+
+
     isEBPho = true;
-    if (EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)))
-      {
-	if (fabs(feta-1.479)<.1)
-	  { isEBEEGap = true ; }
-	else
-	  { isEBEtaGap = true ; }
-      }
+    if (EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId))) {
+      if (fabs(feta-1.479)<.1) isEBEEGap = true ; 
+      else
+	isEBEtaGap = true ; 
+    }
+
     if (EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId)))
-      { isEBPhiGap = true ; }
+      isEBPhiGap = true ; 
+
+
 
   } else if (detector==EcalEndcap) {
+
     isEEPho = true;
-    if (EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)))
-      {
-	if (fabs(feta-1.479)<.1)
-	  { isEBEEGap = true ; }
-	else
-	  { isEERingGap = true ; }
-      }
+    if (EEDetId::isNextToRingBoundary(EEDetId(seedXtalId))) {
+      if (fabs(feta-1.479)<.1) isEBEEGap = true ; 
+      else
+	isEERingGap = true ; 
+    }
+
     if (EEDetId::isNextToDBoundary(EEDetId(seedXtalId)))
-      { isEEDeeGap = true ; }
+      isEEDeeGap = true ; 
   }
 
 
@@ -453,7 +461,8 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
 						  int &ntrkCone,
 						  double pTThresh,
 						  double RCone,
-						  double RinnerCone, 
+						  double RinnerCone,
+                                                  double etaSlice, 
 						  double lip, 
 						  double d0){
   int counter  =0;
@@ -473,11 +482,17 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
   e.getByLabel(beamSpotProducerTag_,recoBeamSpotHandle);
   vertexBeamSpot = *recoBeamSpotHandle;
   
-  PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, lip , d0, trackCollection, math::XYZPoint(vertexBeamSpot.x0(),vertexBeamSpot.y0(),vertexBeamSpot.z0()));
+  PhotonTkIsolation phoIso(RCone, 
+			   RinnerCone, 
+			   etaSlice,  
+			   pTThresh, 
+			   lip , 
+			   d0, 
+			   trackCollection, 
+			   math::XYZPoint(vertexBeamSpot.x0(),vertexBeamSpot.y0(),vertexBeamSpot.z0()));
+
   counter = phoIso.getNumberTracks(photon);
   ptSum = phoIso.getPtTracks(photon);
-  //delete phoIso;
-  
   ntrkCone = counter;
   trkCone = ptSum;
 }

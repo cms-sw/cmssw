@@ -40,8 +40,10 @@ public:
 			 double pTThresh=0,
 			 double RCone=.4,
 			 double RinnerCone=.1,
+                         double etaSlice=0.015,
                          double lip=0.2,
                          double d0=0.1);
+
 
 
   double calculateEcalRecHitIso(const reco::Photon* photon,
@@ -117,6 +119,7 @@ public:
   double trackConeOuterRadiusA_;
   double trackConeInnerRadiusA_;
   double isolationtrackThresholdA_;
+  double isolationtrackEtaSliceA_;
   double trackLipRadiusA_;
   double trackD0RadiusA_;
 
@@ -138,6 +141,7 @@ public:
   double trackConeOuterRadiusB_;
   double trackConeInnerRadiusB_;
   double isolationtrackThresholdB_;
+  double isolationtrackEtaSliceB_;
   double trackLipRadiusB_;
   double trackD0RadiusB_;
 
