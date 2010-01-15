@@ -31,8 +31,9 @@
 #include <exception>
 //#include <iostream>
 
-#include "CondFormats/Common/interface/TimeConversions.h"
 
+#include "CondFormats/Common/interface/TimeConversions.h"
+#include <iomanip>
 
 namespace {
   /* utility ot build the name of the plugin corresponding to a given record
@@ -81,7 +82,9 @@ namespace {
       out << "\n oids,sinces:";
       cond::BasePayloadProxy::ObjIds const & ids =  proxy.proxy()->stats.ids;
       for (cond::BasePayloadProxy::ObjIds::const_iterator id=ids.begin(); id!=ids.end(); ++id)
-	out << " " << (*id).oid1 <<"-"<< (*id).oid2 <<"," <<  (*id).since;
+	out << " " << 
+	    << std::ios::hex << (*id).oid1 <<"-"<< (*id).oid2 <<"," 
+	    << std::ios::dec <<  (*id).since;
     }
   }
 
