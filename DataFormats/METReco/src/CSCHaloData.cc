@@ -53,6 +53,7 @@ CSCHaloData::CSCHaloData()
   nTriggers_MinusZ = 0 ;
   nTracks_PlusZ = 0 ;
   nTracks_MinusZ = 0;
+  HLTAccept=false;
 }
 int CSCHaloData::NumberOfHaloTriggers(int z) const
 {
