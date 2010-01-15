@@ -8,22 +8,34 @@ FebConnectorSpec::FebConnectorSpec(
   : theLinkBoardInputNum(num),
     theChamber(chamber),
     theFeb(feb),
+    theAlgo(0),
     theRawId(0)
 { }
 
-void FebConnectorSpec::add(const ChamberStripSpec & strip)
+const ChamberStripSpec FebConnectorSpec::strip( int pinNumber) const
 {
-  theStrips.push_back(strip);
-}
-
-const ChamberStripSpec * FebConnectorSpec::strip( int pinNumber) const
-{
-  //FIXME - temporary implementaion, to be replace by LUT (in preparation)
-  typedef std::vector<ChamberStripSpec>::const_iterator IT;
-  for (IT it=theStrips.begin(); it != theStrips.end(); it++) {
-    if(pinNumber==it->cablePinNumber) return &(*it);
+  int nStrips=theAlgo/10000;
+  int firstChamberStrip=(theAlgo-10000*nStrips)/100;
+  int pinAlgo=theAlgo-10000*nStrips-100*firstChamberStrip;
+  int slope=1;
+  if (pinAlgo > 3) {
+    pinAlgo=pinAlgo-4;
+    slope=-1;
   }
-  return 0;
+  bool valid=true;
+  if (pinNumber < pinAlgo) valid=false;
+  if (!pinAlgo && (pinNumber < 2)) valid=false;
+  if (pinAlgo && (pinNumber > pinAlgo+nStrips-1)) valid=false;
+  if (!pinAlgo && (pinNumber > nStrips+2 || pinNumber == 9)) valid=false;
+  int chamberStripNumber=0;
+  if (valid) {
+    if (pinAlgo !=0) chamberStripNumber=firstChamberStrip+slope*(pinNumber-pinAlgo);
+    else if (pinNumber < 9) chamberStripNumber=firstChamberStrip+slope*(pinNumber-2);
+    else chamberStripNumber=firstChamberStrip+slope*(pinNumber-3);
+  }
+  ChamberStripSpec aStrip={pinNumber,chamberStripNumber,0};
+//  std::cout<<pinNumber<<" "<<chamberStripNumber<<std::endl;
+  return aStrip;
 }
 
 const uint32_t & FebConnectorSpec::rawId() const
@@ -44,8 +56,11 @@ std::string FebConnectorSpec::print(int depth) const
   str << theChamber.print(depth)<< std::endl << theFeb.print(depth) ;
   depth--;
   if (depth >=0) {
-    typedef std::vector<ChamberStripSpec>::const_iterator IT;
-    for (IT it=theStrips.begin(); it != theStrips.end(); it++) str << (*it).print(depth); 
+    int nStrips=theAlgo/10000;
+    for (int istrip=0; istrip<nStrips; istrip++) {
+      ChamberStripSpec aStrip={cablePinNo(istrip),chamberStripNo(istrip),cmsStripNo(istrip)};
+      str << aStrip.print(depth); 
+    }
   }
   return str.str();
 }

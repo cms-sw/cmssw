@@ -28,7 +28,7 @@ class RPCReadOutMapBuilder : public edm::EDAnalyzer {
  public:
   explicit RPCReadOutMapBuilder( const edm::ParameterSet& );
   ~RPCReadOutMapBuilder();
-  virtual void beginJob();
+  virtual void beginJob( const edm::EventSetup& );
   virtual void endJob();
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
  private:
@@ -75,7 +75,7 @@ void RPCReadOutMapBuilder::endJob()
 }
 
 // ------------ method called to produce the data  ------------
-void RPCReadOutMapBuilder::beginJob()
+void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup ) 
 {
   cout << "BeginJob method " << endl;
   cout<<"Building RPC Cabling"<<endl;   
@@ -94,12 +94,13 @@ void RPCReadOutMapBuilder::beginJob()
             FebLocationSpec febLocation = {3,2,1,2};
             ChamberLocationSpec chamber = {1,5,3,1,1,1,1};
             FebConnectorSpec febConn(ifeb, chamber, febLocation);
-            for (int istrip=0; istrip <= 15; istrip++) {
+/*              for (int istrip=0; istrip <= 15; istrip++) {
               int chamberStrip = ifeb*16+istrip;
               int cmsStrip = chamberStrip;
               ChamberStripSpec strip = {istrip, chamberStrip, cmsStrip};
               febConn.add( strip);
-            }
+            } */
+//            febConn.addStrips(16,1,1,1,1);
             lb.add(febConn); 
           }
           lc.add(lb);

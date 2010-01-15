@@ -95,18 +95,13 @@ std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >
             /* if (febInLB != febCheck) {
               edm::LogError("rawDataFrame") << " problem with febInLB: " <<febInLB<<" "<<febCheck;
 	      } */
-            const std::vector<ChamberStripSpec> & strips = febConnector.strips();
-
-            for (std::vector<ChamberStripSpec>::const_iterator 
-                is = strips.begin(); is != strips.end(); is++) {
-              const ChamberStripSpec & strip = (*is);
-              int stripPinInFeb = strip.cablePinNumber;
-//              if ( strip.cmsStripNumber == stripInDU) {
-              if ( strip.chamberStripNumber == stripInDU) {
+            for (int istrip=0; istrip<febConnector.nstrips(); istrip++) {
+              int stripPinInFeb = febConnector.cablePinNo(istrip);
+              if (febConnector.cmsStripNo(istrip) == stripInDU) {
                 result.push_back(
                     std::make_pair( eleIndex, LinkBoardPackedStrip( febInLB, stripPinInFeb) ) ); 
               }
-            } 
+            }
           } 
         }
       }
@@ -146,9 +141,9 @@ RPCReadOutMapping::StripInDetUnit
   const FebConnectorSpec * feb = location.feb(febInLB);
   if (feb) {
     detUnit = feb->rawId();
-    const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
-    if (strip) {
-      stripInDU = strip->chamberStripNumber;
+    const ChamberStripSpec strip = feb->strip(stripPinInFeb);
+    if (strip.chamberStripNumber) {
+      stripInDU = strip.chamberStripNumber;
     } else {
       // LogWarning("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
       //                             <<" strip pin: "<< stripPinInFeb
@@ -175,7 +170,6 @@ RPCReadOutMapping::StripInDetUnit
 // ALL BELOW IS TEMPORARY, TO BE REMOVED !!!!
 //
 
-
 std::pair<LinkBoardElectronicIndex, int>  
 RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip, int dccInputChannel) const{
 
@@ -194,8 +188,8 @@ RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip, int d
 	 if(feb && feb->rawId()==detId){
 	   for(int l=1;l<17;l++){
 	     int pin = l;
-	     const ChamberStripSpec *aStrip = feb->strip(pin);
-	     if(aStrip && aStrip->cmsStripNumber==strip){
+	     const ChamberStripSpec aStrip = feb->strip(pin);
+	     if(aStrip.cmsStripNumber==strip){
 	       int bitInLink = (i-1)*16+l-1;
 	       std::pair<LinkBoardElectronicIndex, int> stripInfo(linkboard,bitInLink);
 	       return stripInfo;
@@ -251,4 +245,3 @@ std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::
  }
  return vLBforChamber;
 }
-
