@@ -732,7 +732,7 @@ void HIPAlignmentAlgorithm::setAlignmentPositionError(void)
 		double function = pars[6];
 		
 		// Printout for debug
-		printf("APE: %d alignables\n", alignables.size());
+		printf("APE: %u alignables\n", (unsigned int)alignables.size());
 		for ( int i=0; i<21; ++i ) {
 			double apelinstest=calcAPE(apeSPar,i,0.);
 			double apeexpstest=calcAPE(apeSPar,i,1.);
