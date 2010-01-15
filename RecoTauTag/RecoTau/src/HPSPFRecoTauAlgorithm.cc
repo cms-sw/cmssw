@@ -1,4 +1,5 @@
 #include "RecoTauTag/RecoTau/interface/HPSPFRecoTauAlgorithm.h"
+
 #include "Math/GenVector/VectorUtil.h"
 using namespace reco;
 
@@ -218,17 +219,17 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo)
 		
 	      //calculate the cone size : For the strip use it as one candidate !
 	      double tauCone=0.0;
-	      if(coneMetric_ =="Angle")
+	      if(coneMetric_ =="angle")
 		tauCone=fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4()));
-	      else if(coneMetric_ == "DeltaR")
+	      else if(coneMetric_ == "DR")
 		tauCone=ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4());
 	      
 	      //if the strip is further away from the hadron increase the cone
-	      if(coneMetric_ =="Angle"){
+	      if(coneMetric_ =="angle"){
 		if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip))>tauCone)
 		  tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip));
 	      }
-	      else if(coneMetric_ =="DeltaR") {
+	      else if(coneMetric_ =="DR") {
 		if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip)>tauCone)
 		  tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip);
 	      }
@@ -340,29 +341,29 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 
 		//calculate the cone size from the reconstructed Objects
 		double tauCone=0.0;
-		if(coneMetric_ =="Angle") {
+		if(coneMetric_ =="angle") {
 		  tauCone=fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4()));
 		}
-		else if(coneMetric_ =="DeltaR") {
+		else if(coneMetric_ =="DR") {
 		  tauCone=fabs(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()));
 		}
 		
 		//if the strip is further away increase the cone
-		if(coneMetric_ =="DeltaR") {
+		if(coneMetric_ =="DR") {
 		  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1)>tauCone)
 		    tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1);
 		}
-		else if(coneMetric_ =="Angle") {
+		else if(coneMetric_ =="angle") {
 		  if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1))>tauCone)
 		    tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1));
 		}
 
 		//Now the second strip
-		if(coneMetric_ =="DeltaR"){
+		if(coneMetric_ =="DR"){
 		  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2)>tauCone)
 		    tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2);
 		}
-		else if(coneMetric_ =="Angle"){
+		else if(coneMetric_ =="angle"){
 		  if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2))>tauCone)
 		    tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2));
 		}
@@ -486,14 +487,14 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
 		    signal.push_back(h3);
 		    //calculate the tau cone by getting the maximum distance
 		    std::vector<double> tauCones;
-		    if(coneMetric_=="DeltaR")
+		    if(coneMetric_=="DR")
 		      {  
 			tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),p1));
 			tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),p2));
 			tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),p3));
 			std::sort(tauCones.begin(),tauCones.end());
 		      }
-		    else if(coneMetric_=="Angle")
+		    else if(coneMetric_=="angle")
 		      {  
 			tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),p1)));
 			tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),p2)));
@@ -529,24 +530,11 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
 
 
 bool 
-HPSPFRecoTauAlgorithm::isNarrowTau(const reco::PFTau& tau,double cone)
+HPSPFRecoTauAlgorithm::isNarrowTau(reco::PFTau& tau,double cone)
 {
-  double denominator = 1.0;
-  if(narrownessMetric_ == "ET")
-    denominator = tau.pt();
-  else if (narrownessMetric_ =="Energy")
-    denominator = tau.energy();
-  else if (narrownessMetric_ =="None")
-    denominator = 1.0;
 
-
-  //Check the boundaries
-  double allowedConeSize =coneParameter_/denominator;
-  if(allowedConeSize>maxSignalCone_)
-    allowedConeSize = maxSignalCone_;
-  if(allowedConeSize<minSignalCone_)
-    allowedConeSize = minSignalCone_;
-
+  PFTauElementsOperators myOperators(tau);
+  double allowedConeSize =myOperators.computeConeSize(coneSizeFormula,minSignalCone_,maxSignalCone_);
   if(cone<allowedConeSize)
     return true;
   else
@@ -747,8 +735,7 @@ HPSPFRecoTauAlgorithm::configure(const edm::ParameterSet& p)
   threeProngMassWindow_          = p.getParameter<std::vector<double> >("threeProngMassWindow");
   matchingCone_                  = p.getParameter<double>("matchingCone");
   coneMetric_                    = p.getParameter<std::string>("coneMetric");
-  narrownessMetric_              = p.getParameter<std::string>("narrownessMetric");
-  coneParameter_                 = p.getParameter<double>("coneParameter");
+  coneSizeFormula_               = p.getParameter<std::string>("coneSizeFormula");
   minSignalCone_                 = p.getParameter<double>("minimumSignalCone");
   maxSignalCone_                 = p.getParameter<double>("maximumSignalCone");
 
@@ -757,7 +744,7 @@ HPSPFRecoTauAlgorithm::configure(const edm::ParameterSet& p)
   //Initialize The Merging Algorithm!
   if(emMerger_ =="StripBased")
     candidateMerger_ =  new PFCandidateStripMerger(p);
-
+  //Add the Pi0 Merger from Evan here
 
   if(oneProngStripMassWindow_.size()!=2) 
     throw cms::Exception("") << "OneProngStripMassWindow must be a vector of size 2 [min,max] " << std::endl;
@@ -765,10 +752,12 @@ HPSPFRecoTauAlgorithm::configure(const edm::ParameterSet& p)
     throw cms::Exception("") << "OneProngTwoStripsMassWindow must be a vector of size 2 [min,max] " << std::endl;
   if(threeProngMassWindow_.size()!=2) 
     throw cms::Exception("") << "ThreeProngMassWindow must be a vector of size 2 [min,max] " << std::endl;
-  if(coneMetric_!= "Angle" && coneMetric_ != "DeltaR") 
-    throw cms::Exception("") << "Cone Metric should be Angle or DeltaR " << std::endl;
-  if(narrownessMetric_ != "ET" && narrownessMetric_ != "Energy" && narrownessMetric_ != "None") 
-    throw cms::Exception("") << "Narrowness Metric should be ET or Energy " << std::endl;
+  if(coneMetric_!= "angle" && coneMetric_ != "DR") 
+    throw cms::Exception("") << "Cone Metric should be angle or DR " << std::endl;
+
+  coneSizeFormula = TauTagTools::computeConeSizeTFormula(coneSizeFormula_,"Signal cone size Formula");
+
+
 }
 
 

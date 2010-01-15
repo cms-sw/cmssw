@@ -18,6 +18,9 @@ bachtis@cern.ch
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
+#include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
+
 
 class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
 {
@@ -45,7 +48,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   reco::PFTauCollection buildThreeProngs(const reco::PFTauTagInfoRef&);
 
   //Narrowness selection
-  bool isNarrowTau(const reco::PFTau&,double);
+  bool isNarrowTau(reco::PFTau&,double);
 
   //Associate Isolation Candidates
   void associateIsolationCandidates(reco::PFTau&,double);
@@ -111,14 +114,16 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
 
   //Cone Narrowness. Unfortunately we have to remove TFormula! 
   //The code supports A(DeltaR or Angle) < coneParameter_/(ET or ENERGY)
-  std::string coneMetric_; //DeltaR or Angle
-  std::string narrownessMetric_; //ET or energy
-  double coneParameter_;  
+  std::string coneSizeFormula_;
+  std::string coneMetric_;
   double minSignalCone_;
   double maxSignalCone_;
 
 
-//SORTERS
+  TFormula coneSizeFormula;
+
+
+  //SORTERS for overlap filtering
   class HPSSorterByIsolation
   {
   public:
