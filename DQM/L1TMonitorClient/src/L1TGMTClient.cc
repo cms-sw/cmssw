@@ -52,6 +52,11 @@ void L1TGMTClient::beginJob(void){
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
 
+}
+
+//--------------------------------------------------------
+void L1TGMTClient::beginRun(const Run& r, const EventSetup& context) {
+
   // get backendinterface
   dbe_ = Service<DQMStore>().operator->();  
 
@@ -86,10 +91,6 @@ void L1TGMTClient::beginJob(void){
   eff_etaphi_rpc->setAxisTitle("phi (deg)",2);
   eff_etaphi_rpc->getTH2F()->Sumw2();
   
-}
-
-//--------------------------------------------------------
-void L1TGMTClient::beginRun(const Run& r, const EventSetup& context) {
 }
 
 //--------------------------------------------------------
