@@ -11,7 +11,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-
 //Digi stuff
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
@@ -62,12 +61,11 @@
 #include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <iomanip>
+#include <cstdio>
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   numOfEvents(0) {
