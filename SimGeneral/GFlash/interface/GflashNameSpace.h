@@ -5,6 +5,8 @@
 
 namespace Gflash {
 
+  //unit convention: energy in GeV, length in cm, time in nanosecond
+
   enum CalorimeterNumber {
     kNULL = -1,         // ECAL Barrel - ESPM
     kESPM,              // ECAL Barrel - ESPM
@@ -35,7 +37,6 @@ namespace Gflash {
   const double LengthCrystalEE  = 22.0;
 
   //constants needed for GflashHadronShowerModel
-  //  const double energyCutOff                 = 1.0*GeV;
   const double energyCutOff                 = 1.0;
 
   //cut value for quasi-elastic like interactions on the secondary energy, 
@@ -51,8 +52,7 @@ namespace Gflash {
   const double radLength[kNumberCalorimeter] = { 0.89, 1.49, 0.89, 1.49, 1.49, 1.76}; // in cm
   const double intLength[kNumberCalorimeter] = { 22.4,16.42, 22.4, 16.42, 16.42, 16.77}; // in cm
   const double Z[kNumberCalorimeter]         = { 68.36, 68.36, 68.36, 68.36, 68.36, 55.845}; // mass of molicule
-  //  const double criticalEnergy                = 8.6155 / GeV;
-  const double criticalEnergy                = 8.6155;
+  const double criticalEnergy                = 0.0086155;
 
   // The step size of showino along the helix trajectory in cm unit
   const double divisionStep = 1.0;
@@ -67,7 +67,6 @@ namespace Gflash {
   const double MinEnergyCutOffForHO = 2.5;
 
   //additional energy scale for the Hcal sensitive detector
-  //  const double scaleSensitive = 0.167;
   const double scaleSensitive = 0.200;
 
   // properties for different sub-detectors (calorimeters)
@@ -245,27 +244,11 @@ namespace Gflash {
     {  1.8135e+00,  1.3818e+00, -5.6838e-01,  1.9306e+00 },
     {  9.9975e-01,  6.0775e-01, -9.2005e-01,  2.8056e+00 },
     { -6.2579e-01,  2.9609e-01,  2.0549e+00,  3.7047e+00 },
-    //LogNormal of Had Energy for mip-like response based on 2006 H2 test beam data
-    //    {  4.4527e+00,  5.7913e+00,  1.6584e-01,  4.6872e+00 },
-    //    {  2.4081e-01,  1.6057e-01, -6.1439e-01,  1.9368e+00 },
-    //00
-    //    {  3.4320e+00,  3.9837e+00,  2.6104e-01,  3.5677e+00 },
-    //    {  3.9622e-01,  2.6984e-01, -1.1775e+00,  1.5219e+00 },
-    //    {  3.3135e+00,  3.9849e+00,  2.5124e-01,  3.4296e+00 },
-    //    {  8.1115e+00,  8.0098e+00, -7.7129e-01, -1.0883e+00 },
-    //    {  3.4993e+00,  3.0534e+00,  3.3056e-01,  3.6079e+00 },
-    //    {  4.6082e+00,  4.5404e+00, -6.6109e-01, -1.1066e+00 },
     {  3.4519e+00,  2.9611e+00,  3.4592e-01,  3.5619e+00 },
     {  4.0909e-01,  3.6049e-01, -8.1641e-01,  1.0249e+00 },
 
     //correction of response if ssp is between Ecal and Hcal
-    //    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00 }
     {  0.9800e-01,  0.8400e-01,  1.6000e+00,  4.2000e+00 }
-    //Gaussian of Had Energy for mip-like pbar response based on Geant4
-    //    {  8.1252e-01,  1.4076e-02,  8.8000e+00,  3.2000e+00 },
-    //    {  7.5440e-02,  2.8322e-02, -9.3557e-01,  2.0069e+00 },
-    //correction of response if ssp is between Ecal and Hcal
-    //    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00 }
   };
 
   const double pbar_par[8*NPar][4] = {
