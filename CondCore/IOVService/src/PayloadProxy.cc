@@ -74,7 +74,7 @@ namespace cond {
     if (ok) { 
       ++gstats.nLoad; ++stats.nLoad;
       stats.ids.push_back(ObjId());
-      fillit(stats.ids.back(),m_token, m_element.since());
+      fillIt(stats.ids.back(),m_token, m_element.since());
     }
   }
 
