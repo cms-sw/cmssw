@@ -4,8 +4,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-#from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-from SimGeneral.HepPDTESSource.pdt_cfi import *
+from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 # Random numbers initialization service
 # pick it up directly
 from IOMC.RandomEngine.IOMC_cff import *

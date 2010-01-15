@@ -6,5 +6,6 @@ GlobalTag = cms.ESSource("PoolDBESSource",
     CondDBSetup,
     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'),
 #    connect = cms.string('sqlite_fip:CondCore/TagCollection/data/GlobalTag.db'), #For use during release integration
-    globaltag = cms.string('UNSPECIFIED::All')
+    globaltag = cms.string('UNSPECIFIED::All'),
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 )
