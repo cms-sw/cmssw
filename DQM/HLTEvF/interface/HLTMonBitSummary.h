@@ -27,12 +27,12 @@
 
 
 class HLTMonBitSummary : public edm::EDAnalyzer {
-   public:
-      explicit HLTMonBitSummary(const edm::ParameterSet&);
-      ~HLTMonBitSummary();
-
-private:
-  virtual void beginJob() {}
+ public:
+  explicit HLTMonBitSummary(const edm::ParameterSet&);
+  ~HLTMonBitSummary();
+  
+ private:
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   virtual void beginRun(const edm::Run  & r, const edm::EventSetup  &);
@@ -44,6 +44,7 @@ private:
 
   std::vector<std::string > HLTPathsByName_;
   std::vector<std::string > HLTPathNamesConfig_;
+  std::vector<std::string > HLTPathNamesConfigPreVal_;
   std::vector<std::string > HLTPathNamesKey_;
 
   std::vector<std::string > HLTPathDenomName_;
@@ -60,6 +61,8 @@ private:
   std::vector <std::vector <std::string> > triggerFilters_;
   std::vector <std::vector <uint> > triggerFilterIndices_;
 
+  bool configFlag_;
+  bool filterFlag_;
 
   unsigned int total_;
   unsigned int nValidTriggers_;

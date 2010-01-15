@@ -39,7 +39,7 @@ using namespace std;
 
 HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
-  HLTPathNamesConfig_(iConfig.getParameter<std::vector<std::string > >("HLTPaths")),
+  HLTPathNamesConfigPreVal_(iConfig.getParameter<std::vector<std::string > >("HLTPaths")),
   total_(0),
   nValidTriggers_(0),
   nValidConfigTriggers_(0),
@@ -54,6 +54,8 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   filterTypes_ = iConfig.getUntrackedParameter<std::vector<std::string > >("filterTypes",dummyFilters_);
   esPathsKey_ = iConfig.getUntrackedParameter<std::string>("eventSetupPathsKey","");
 
+  configFlag_ = false;
+  filterFlag_ = false;
 
   dbe_ = NULL;
   dbe_ = Service < DQMStore > ().operator->();
@@ -96,9 +98,10 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
       HLTPathNamesKey_ = triggerBits->decompose(listIter->second);
     }
     //otherwise read HLTPaths from configuration
-    if(HLTPathNamesConfig_.size()){
+    HLTPathNamesConfig_.clear();
+    if(HLTPathNamesConfigPreVal_.size()){
       //run trigger selection
-      HLTriggerSelector trigSelect(inputTag_,HLTPathNamesConfig_);
+      HLTriggerSelector trigSelect(inputTag_,HLTPathNamesConfigPreVal_);
       HLTPathNamesConfig_.swap(trigSelect.theSelectTriggers);
     }
 
@@ -117,75 +120,94 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 
 
     //combine two vectors
+    HLTPathsByName_.clear();
     HLTPathsByName_.reserve(HLTPathNamesConfig_.size() + HLTPathNamesKey_.size());
     HLTPathsByName_.insert(HLTPathsByName_.end(),HLTPathNamesConfig_.begin(),HLTPathNamesConfig_.end());
     HLTPathsByName_.insert(HLTPathsByName_.end(),HLTPathNamesKey_.begin(),HLTPathNamesKey_.end());
 
     count_.resize(HLTPathsByName_.size());
     HLTPathsByIndex_.resize(HLTPathsByName_.size());
-        
-    nValidTriggers_ = HLTPathsByName_.size();
-    nValidConfigTriggers_ = HLTPathNamesConfig_.size();
 
-    //get the configuration
-    HLTConfigProvider hltConfig;
-  
-    //get all the filters -
-    //only if filterTypes_ is nonempty and only on HLTPathNamesConfig_ paths
-    if( hltConfig.init(processName) && !filterTypes_.empty()){
-      for( size_t i = 0; i < nValidConfigTriggers_; i++) {
-	// create a row [triggername,filter1name, filter2name, etc.] 
-	triggerFilters_.push_back(vector <string>());  
-	// create a row [0, filter1index, filter2index, etc.]
-	triggerFilterIndices_.push_back(vector <uint>()); 
-      
-	vector<string> moduleNames = hltConfig.moduleLabels( HLTPathNamesConfig_[i] ); 
-      
-	triggerFilters_[i].push_back(HLTPathNamesConfig_[i]);//first entry is trigger name      
-	triggerFilterIndices_[i].push_back(0);
-      
-	int numModule = 0, numFilters = 0;
-	string moduleName, moduleType;
-	unsigned int moduleIndex;
-      
-	//print module name
-	vector<string>::const_iterator iDumpModName;
-	for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
-	  moduleName = *iDumpModName;
-	  moduleType = hltConfig.moduleType(moduleName);
-	  moduleIndex = hltConfig.moduleIndex(HLTPathNamesConfig_[i], moduleName);
-	  LogDebug ("HLTMonBitSummary") << "Module"      << numModule
-					<< " is called " << moduleName
-					<< " , type = "  << moduleType
-					<< " , index = " << moduleIndex
-					<< endl;
-	  numModule++;
-	  for(size_t k = 0; k < filterTypes_.size(); k++) {
-	    if(moduleType == filterTypes_[k]) {
-	      numFilters++;
-	      triggerFilters_[i].push_back(moduleName);
-	      triggerFilterIndices_[i].push_back(moduleIndex);
-	    }
-	  }
-	}//end for modulesName
-      }//end for nValidConfigTriggers_
+    
+    if(nValidTriggers_ != HLTPathsByName_.size() && total_!=0 ){
+      LogWarning("HLTMonBitSummary") << "The number of valid triggers has changed since beginning of job." 
+				     << std::endl
+				     << "BitSummary histograms do not support changing configurations."
+				     << std::endl
+				     << "Processing of events halted.";
+      configFlag_ = true;
     }
-    
-    
-    //check denominator
-    if( denominatorWild_.size() != 0 ) HLTPathDenomName_.push_back(denominatorWild_);
-    HLTriggerSelector denomSelect(inputTag_,HLTPathDenomName_);
-    HLTPathDenomName_.swap(denomSelect.theSelectTriggers);
-    //for (unsigned int i = 0; i < HLTPathDenomName_.size(); i++)
-    //  std::cout << "testing denom: " << HLTPathDenomName_[i] << std::endl;
-    if(HLTPathDenomName_.size()==1) denominator_ = HLTPathDenomName_[0];
-    
+
+    if(!configFlag_){
+
+      nValidTriggers_ = HLTPathsByName_.size();
+      nValidConfigTriggers_ = HLTPathNamesConfig_.size();
+
+      //get the configuration
+      HLTConfigProvider hltConfig;
+  
+      //get all the filters -
+      //only if filterTypes_ is nonempty and only on HLTPathNamesConfig_ paths
+      if( hltConfig.init(processName) && !filterTypes_.empty()){
+	triggerFilters_.clear();
+	triggerFilterIndices_.clear();
+	for( size_t i = 0; i < nValidConfigTriggers_; i++) {
+	  // create a row [triggername,filter1name, filter2name, etc.] 
+	  triggerFilters_.push_back(vector <string>());  
+	  // create a row [0, filter1index, filter2index, etc.]
+	  triggerFilterIndices_.push_back(vector <uint>()); 
+      
+	  vector<string> moduleNames = hltConfig.moduleLabels( HLTPathNamesConfig_[i] ); 
+      
+	  triggerFilters_[i].push_back(HLTPathNamesConfig_[i]);//first entry is trigger name      
+	  triggerFilterIndices_[i].push_back(0);
+      
+	  int numModule = 0, numFilters = 0;
+	  string moduleName, moduleType;
+	  unsigned int moduleIndex;
+      
+	  //print module name
+	  vector<string>::const_iterator iDumpModName;
+	  for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
+	    moduleName = *iDumpModName;
+	    moduleType = hltConfig.moduleType(moduleName);
+	    moduleIndex = hltConfig.moduleIndex(HLTPathNamesConfig_[i], moduleName);
+	    LogDebug ("HLTMonBitSummary") << "Module"      << numModule
+					  << " is called " << moduleName
+					  << " , type = "  << moduleType
+					  << " , index = " << moduleIndex
+					  << endl;
+	    numModule++;
+	    for(size_t k = 0; k < filterTypes_.size(); k++) {
+	      if(moduleType == filterTypes_[k]) {
+		numFilters++;
+		triggerFilters_[i].push_back(moduleName);
+		triggerFilterIndices_[i].push_back(moduleIndex);
+	      }
+	    }
+	  }//end for modulesName
+	}//end for nValidConfigTriggers_
+      }
+      else{
+	LogError("HLTMonBitSummary") << "HLTConfigProvider initialization with process name " 
+				       << processName << " failed." << endl
+				       << "Could not get filter names." << endl;
+	filterFlag_ = true;
+      }
+
+      //check denominator
+      HLTPathDenomName_.clear();
+      if( denominatorWild_.size() != 0 ) HLTPathDenomName_.push_back(denominatorWild_);
+      HLTriggerSelector denomSelect(inputTag_,HLTPathDenomName_);
+      HLTPathDenomName_.swap(denomSelect.theSelectTriggers);
+      //for (unsigned int i = 0; i < HLTPathDenomName_.size(); i++)
+      //  std::cout << "testing denom: " << HLTPathDenomName_[i] << std::endl;
+      if(HLTPathDenomName_.size()==1) denominator_ = HLTPathDenomName_[0];
+    }
   }//end if process
 
        
-  if(dbe_){
-
-    if (directory_ != "" && directory_.substr(directory_.length()-1,1) != "/" ) directory_ = directory_+"/" ;
+  if(dbe_ && !configFlag_){
 
     int nbin = nValidConfigTriggers_;
     
@@ -195,10 +217,13 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
     int nbin_sub = 8;
     
     // Count histos for efficiency plots
-    if(!filterTypes_.empty()){
+    if(!filterTypes_.empty() && !filterFlag_){
       dbe_->setCurrentFolder(directory_ + "Trigger_Filters/");
       //hCountSummary = dbe_->book1D("hCountSummary", "Count Summary", nbin+1, -0.5, 0.5+(double)nbin);
     
+      hSubFilterCount.clear();
+      hSubFilterEff.clear();
+
       for( int trig = 0; trig < nbin; trig++ ) {
 	// count plots for subfilter
 	//hSubFilterCount[trig] = dbe_->book1D("Filters_" + triggerFilters_[trig][0], 
@@ -230,25 +255,14 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
     std::stringstream rNs;
     rNs<<r.run();
     std::string rN = rNs.str();
-  
-    float min = -0.5;
-    float max = HLTPathsByName_.size()-0.5;
-    uint nBin = HLTPathsByName_.size();
-  
     LogDebug("HLTMonBitSummary")<<"this is the beginning of a NEW run: "<< r.run();
- 
-    dbe_->setCurrentFolder(directory_);
 
-    h1_ = dbe_->book1D("PassingBits_Summary_"+histLabel_,"PassingBits_Summary_"+histLabel_, nBin, min, max);
-    h2_ = dbe_->book2D("PassingBits_Correlation_"+histLabel_,"PassingBits_Correlation_"+histLabel_,nBin,min,max, nBin,min,max);
-    pf_ = dbe_->book1D("Efficiency_Summary_"+histLabel_,"Efficiency_Summary_"+histLabel_, nBin, min, max);
-    if (denominator_!="")
-      //ratio_ = dbe_->book1D(std::string("Ratio_"+denominator_),std::string("Ratio_"+denominator_),nBin,min,max);
-      ratio_ = dbe_->book1D("HLTRate_"+histLabel_,"HLTRate_"+histLabel_,nBin,min,max);
-    else 
-      ratio_=0;
+    //h1_->Reset();
+    // h2_->Reset();
+    //pf_->Reset();
+    //if (ratio_) ratio_->Reset();
 
-    for (uint i=0; i!=nBin; ++i){
+    for (uint i=0; i < nValidTriggers_ && i < 200 ; ++i){
       h1_->getTH1F()->GetXaxis()->SetBinLabel(i+1,HLTPathsByName_[i].c_str());
       h2_->getTH2F()->GetXaxis()->SetBinLabel(i+1,HLTPathsByName_[i].c_str());
       h2_->getTH2F()->GetYaxis()->SetBinLabel(i+1,HLTPathsByName_[i].c_str());
@@ -267,6 +281,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 void
 HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if(configFlag_) return;
      
   total_++;    
   const string invalid("@@invalid@@");
@@ -301,7 +316,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //cout << "Trigger Name = " << HLTPathNamesConfig_[trig] << ", trh->index = " << lastModule << " " << trh->accept(HLTPathsByIndex_[trig]) << endl; 
     
     //check if trigger exists in TriggerResults
-    if(!filterTypes_.empty() && HLTPathsByIndex_[trig] < trh->size()) {
+    if(!filterTypes_.empty() && !filterFlag_ && HLTPathsByIndex_[trig] < trh->size()) {
       lastModule = trh->index(HLTPathsByIndex_[trig]);
 	
       //go through the list of filters
@@ -413,7 +428,30 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //-----------------E n d  o f  B i t P l o t t i n g   S e c t i o n-----------------//
        
 }
+void HLTMonBitSummary::beginJob() {  
 
+  if(dbe_){
+    if (directory_ != "" && directory_.substr(directory_.length()-1,1) != "/" ) directory_ = directory_+"/" ;
+  
+    float min = -0.5;
+    float max = 200-0.5;
+    //uint nBin = HLTPathsByName_.size();
+    uint nBin = 200;
+   
+    dbe_->setCurrentFolder(directory_);
+
+    h1_ = dbe_->book1D("PassingBits_Summary_"+histLabel_,"PassingBits_Summary_"+histLabel_, nBin, min, max);
+    h2_ = dbe_->book2D("PassingBits_Correlation_"+histLabel_,"PassingBits_Correlation_"+histLabel_,nBin,min,max, nBin,min,max);
+    pf_ = dbe_->book1D("Efficiency_Summary_"+histLabel_,"Efficiency_Summary_"+histLabel_, nBin, min, max);
+    if (denominator_!="")
+      //ratio_ = dbe_->book1D(std::string("Ratio_"+denominator_),std::string("Ratio_"+denominator_),nBin,min,max);
+      ratio_ = dbe_->book1D("HLTRate_"+histLabel_,"HLTRate_"+histLabel_,nBin,min,max);
+    else 
+      ratio_=0;
+
+  }
+
+}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void HLTMonBitSummary::endJob() {  
