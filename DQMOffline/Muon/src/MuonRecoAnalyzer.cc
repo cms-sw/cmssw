@@ -21,6 +21,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
+#include "TMath.h"
 using namespace std;
 using namespace edm;
 
@@ -146,6 +147,12 @@ void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
   chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Sta_chi2OverDf", "#chi_{2}OverDF_{STAfromGLB}", chi2Bin, chi2Min, chi2Max));
   chi2OvDFTrack = dbe->book1D("TkMuon_chi2OverDf", "#chi_{2}OverDF_{TK}", chi2Bin, chi2Min, chi2Max);
   chi2OvDFStaTrack = dbe->book1D("StaMuon_chi2OverDf", "#chi_{2}OverDF_{STA}", chi2Bin, chi2Min, chi2Max);
+//--------------------------
+  probchi2GlbTrack.push_back(dbe->book1D(histname+"Glb_probchi", "Prob #chi_{GLB}", 120, chi2Min, 1.20));
+  probchi2GlbTrack.push_back(dbe->book1D(histname+"Tk_probchi", "Prob #chi_{TKfromGLB}", 120, chi2Min, 1.20));
+  probchi2GlbTrack.push_back(dbe->book1D(histname+"Sta_probchi", "Prob #chi_{STAfromGLB}", 120, chi2Min, 1.20));
+  probchi2Track=dbe->book1D("TkMuon_probchi", "Prob #chi_{TK}", 120, chi2Min, 1.20);
+  probchi2StaTrack=dbe->book1D("StaMuon_probchi", "Prob #chi_{STA}", 120, chi2Min, 1.20);
 
   // monitoring of the momentum
   pBin = parameters.getParameter<int>("pBin");
@@ -393,6 +400,14 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     chi2OvDFGlbTrack[0]->Fill(recoCombinedGlbTrack->normalizedChi2());
     chi2OvDFGlbTrack[1]->Fill(recoTkGlbTrack->normalizedChi2());
     chi2OvDFGlbTrack[2]->Fill(recoStaGlbTrack->normalizedChi2());
+//-------------------------
+//    double probchi = TMath::Prob(recoCombinedGlbTrack->normalizedChi2(),recoCombinedGlbTrack->ndof());
+//    cout << "rellenando histos."<<endl;
+    probchi2GlbTrack[0]->Fill(TMath::Prob(recoCombinedGlbTrack->chi2(),recoCombinedGlbTrack->ndof()));
+    probchi2GlbTrack[1]->Fill(TMath::Prob(recoTkGlbTrack->chi2(),recoTkGlbTrack->ndof()));
+    probchi2GlbTrack[2]->Fill(TMath::Prob(recoStaGlbTrack->chi2(),recoStaGlbTrack->ndof()));
+    //    cout << "rellenados histos."<<endl;
+//-------------------------
 
     pGlbTrack[0]->Fill(recoCombinedGlbTrack->p());
     pGlbTrack[1]->Fill(recoTkGlbTrack->p());
@@ -512,6 +527,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     thetaTrack->Fill(recoTrack->theta());
     phiTrack->Fill(recoTrack->phi());
     chi2OvDFTrack->Fill(recoTrack->normalizedChi2());
+    probchi2Track->Fill(TMath::Prob(recoTrack->chi2(),recoTrack->ndof()));
     pTrack->Fill(recoTrack->p());
     ptTrack->Fill(recoTrack->pt());
     qTrack->Fill(recoTrack->charge());
@@ -530,6 +546,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     thetaStaTrack->Fill(recoStaTrack->theta());
     phiStaTrack->Fill(recoStaTrack->phi());
     chi2OvDFStaTrack->Fill(recoStaTrack->normalizedChi2());
+    probchi2StaTrack->Fill(TMath::Prob(recoStaTrack->chi2(),recoStaTrack->ndof()));
     pStaTrack->Fill(recoStaTrack->p());
     ptStaTrack->Fill(recoStaTrack->pt());
     qStaTrack->Fill(recoStaTrack->charge());
