@@ -9,7 +9,8 @@ OutALCARECOSiStripCalZeroBias_noDrop = cms.PSet(
         'keep *_ALCARECOSiStripCalZeroBias_*_*',
         'keep *_calZeroBiasClusters_*_*',
         'keep *_MEtoEDMConverter_*_*',
-        'keep L1AcceptBunchCrossings_*_*_*')
+        'keep L1AcceptBunchCrossings_*_*_*',
+        'keep *_TriggerResults_*_*')
 )
 
 import copy
