@@ -2,7 +2,6 @@
 #define RecoTauTag_TauTagTools_PFTauDiscriminantBase
 
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
-//#include "PhysicsTools/UtilAlgos/interface/DeltaR.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "CommonTools/Utils/interface/Angle.h"
 #include "RecoTauTag/TauTagTools/interface/PFTauDiscriminantManager.h"
