@@ -21,11 +21,12 @@ class TrackerMapDDDtoID {
   TrackerMapDDDtoID(const GeometricDet* iDet);
   ~TrackerMapDDDtoID(){clear();}
 
+  /*
   unsigned int id(const DDExpandedView &) const;
-
   //! calculate the id of a given node
   unsigned int id(const DDFilteredView &) const;
-  
+  */
+
   //! calculate the id of a given node
   unsigned int id(const nav_type &) const;
 

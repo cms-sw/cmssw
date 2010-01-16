@@ -38,7 +38,7 @@ void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
   edm::LogInfo("TrackerMapDDDtoID")<<"Created TrackerMapDDDtoID; results in "<<allDetectors.size()<<" detectors numbered.";
 }
 
-
+/*
 unsigned int TrackerMapDDDtoID::id(const DDExpandedView & e) const
 {
   return id(e.navPos());
@@ -49,7 +49,7 @@ unsigned int TrackerMapDDDtoID::id(const DDFilteredView & f) const
 {
   return id(f.navPos());
 }
-
+*/
 
 unsigned int TrackerMapDDDtoID::id(const nav_type & n) const
 {

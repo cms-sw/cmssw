@@ -487,7 +487,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
 		  //
 		  Output << "            raw Id = " << rawid << " (" << binary_detid << ")"
-			 << "\t nav type = " << detNavType << std::endl;
+			 << "\t nav type = " << printNavType(&detNavType.front(),detNavType.size()) << std::endl;
 		  
 		  // variables
 		  fillModuleVariables(mapDetIdToGeometricDet[myDetId], polarRadius, phiRad, z);
@@ -664,7 +664,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
 		  //
 		  Output << "            raw Id = " << rawid << " (" << binary_detid << ")"
-			 << "\t nav type = " << detNavType << std::endl;
+			 << "\t nav type = " << printNavType(&detNavType.front(),detNavType.size()) << std::endl;
 		  
 		  // variables
 		  fillModuleVariables(mapDetIdToGeometricDet[myDetId], polarRadius, phiRad, z);
@@ -875,7 +875,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      GeometricDet::nav_type detNavType = mapDetIdToGeometricDet[myDetId]->navType();
 		      //
 		      Output << "            raw Id = " << rawid << " (" << binary_detid << ")"
-			     << "\t nav type = " << detNavType << std::endl;
+			     << "\t nav type = " << printNavType(&detNavType.front(),detNavType.size()) << std::endl;
 		      
 		      // variables
 		      fillModuleVariables(mapDetIdToGeometricDet[myDetId], polarRadius, phiRad, z);
