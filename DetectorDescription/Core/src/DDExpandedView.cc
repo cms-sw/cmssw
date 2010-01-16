@@ -517,7 +517,12 @@ bool DDExpandedView::descend(const DDGeoHistory & sc)
 }
 
 
-bool DDExpandedView:: goTo(const nav_type & newpos)
+bool DDExpandedView::goTo(const nav_type & newpos) {
+  return goto(&newpos.front(),newpos.size());
+
+}
+
+bool DDExpandedView::goTo(int const * newpos, size_t sz)
 {
   bool result(false);
   
@@ -530,9 +535,7 @@ bool DDExpandedView:: goTo(const nav_type & newpos)
   reset();
   
   // try to navigate down to the newpos
-  nav_type::size_type sz = newpos.size();
-  nav_type::size_type i = 1;
-  for (; i < sz; ++i) {
+  for (size_t i = 1; i < sz; ++i) {
     result = firstChild();
     if (result) {
       int pos = newpos[i];
