@@ -59,7 +59,8 @@ public:
   
   //! transversed the DDExpandedView according to the given stack of sibling numbers
   bool goTo(const nav_type &);
-  
+  bool goto(int const * newpos, size_t sz);
+
   //! return the stack of sibling numbers which indicates the current position in the DDExpandedView
   nav_type navPos() const;
   
@@ -135,5 +136,6 @@ protected:
   //std::map<std::string,std::string> dummySpecifics_;    
 };
 
+std::ostream & printNavType(std::ostream &, int const * n, size_t sz);
 std::ostream & operator<<(std::ostream &, const DDExpandedView::nav_type &);
 #endif
