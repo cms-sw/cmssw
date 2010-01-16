@@ -13,6 +13,10 @@
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
+#include <ext/pool_allocator.h>
+// waiting for template-alias
+#define PoolAlloc  __gnu_cxx::__pool_alloc
+
 //class DetId;
 class DDFilteredView;
 
@@ -23,10 +27,15 @@ class DDFilteredView;
 
 class GeometricDet {
  public:
-  
+
+  typedef DDExpandedView::nav_type DDnav_type;
+
   typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
   typedef std::vector< GeometricDet const *>  GeometricDetContainer;
-  typedef DDExpandedView::nav_type nav_type;
+  
+  typedef std::vector< DDExpandedNode, PollAlloc<DDExpandedNode> > GeoHistory;
+  typedef std::vector<int, PollAlloc<int> > nav_type;
+
   typedef Surface::PositionType Position;
   typedef Surface::RotationType Rotation;
 
@@ -40,7 +49,7 @@ class GeometricDet {
   /**
    * Constructors to be used when looping over DDD
    */
-  GeometricDet(nav_type const & navtype, GeometricEnumType dd);
+  GeometricDet(DDnav_type const & navtype, GeometricEnumType dd);
   GeometricDet(DDExpandedView* ev, GeometricEnumType dd);
   GeometricDet(DDFilteredView* fv, GeometricEnumType dd);
   GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType dd);
@@ -112,7 +121,7 @@ class GeometricDet {
   /** parents() retuns the geometrical history
    * mec: only works if this is built from DD and not from reco DB.
    */
-  std::vector< DDExpandedNode > const &  parents() const {return _parents;}
+  GeoHistory const &  parents() const {return _parents;}
   //rr  
   
   /**
@@ -177,7 +186,7 @@ class GeometricDet {
   //FIXME
   mutable DetId _geographicalID;
 
-  std::vector< DDExpandedNode > _parents;
+  GeoHistory _parents;
   double _volume;
   double _density;
   double _weight;
@@ -195,5 +204,6 @@ class GeometricDet {
 
 };
 
+#undefine PoolAlloc
 #endif
 
