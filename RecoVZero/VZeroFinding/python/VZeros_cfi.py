@@ -16,4 +16,3 @@ pixelVZeros = cms.EDProducer("VZeroProducer",
     maxImpactMother = cms.double(0.2)
 )
 
-
