@@ -583,8 +583,8 @@ DDExpandedView::nav_type DDExpandedView::copyNumbers() const
 std::ostream & operator<<(std::ostream & os, const DDExpandedView::nav_type & n) {
   return printNavType(os,&n.front(),n.size());
 }
-std::ostream & printNavType(std::ostream &, int const * n, size_t sz);
-{
+
+std::ostream & printNavType(std::ostream &, int const * n, size_t sz){
   os << '(' ;
   for (int const * it=n; it != n+sz; ++it) {
     os << *it << ',';
