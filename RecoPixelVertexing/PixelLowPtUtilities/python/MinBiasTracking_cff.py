@@ -27,7 +27,7 @@ secondStep = cms.Sequence(secondClusters
                         * globalSecoTracks)
 
 ###################################
-# Third step, pairs, not used
+# Third step, pairs, r=0.2 cm
 thirdStep  = cms.Sequence( thirdClusters
                          * thirdPixelRecHits
                          * thirdStripRecHits
@@ -39,8 +39,6 @@ thirdStep  = cms.Sequence( thirdClusters
 ###################################
 # Tracklist combiner
 allTracks = cms.EDFilter("TrackListCombiner",
-#   trackProducers = cms.vstring('pixel3PrimTracks',
-#                                'pixel3SecoTracks')
     trackProducers = cms.vstring('globalPrimTracks',
                                  'globalSecoTracks',
                                  'globalTertTracks')

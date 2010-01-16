@@ -60,8 +60,7 @@ thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixelTertTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixelTertTracks.passLabel = 'Pixel pair tracks with vertex constraint'
-pixelTertTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.4 # 0.2
-pixelTertTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
+pixelTertTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = cms.bool(True)
 pixelTertTracks.OrderedHitsFactoryPSet.ComponentName = 'StandardHitPairGenerator'
 pixelTertTracks.OrderedHitsFactoryPSet.SeedingLayers = 'ThirdLayerPairs'
 pixelTertTracks.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName = 'StandardHitPairGenerator'

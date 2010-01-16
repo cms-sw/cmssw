@@ -40,6 +40,3 @@ GroupedCkfTrajectoryBuilder.useSameTrajFilter = cms.bool(True)
 MaterialPropagator.Mass          = cms.double(0.139)
 OppositeMaterialPropagator.Mass  = cms.double(0.139)
 RungeKuttaTrackerPropagator.Mass = cms.double(0.139)
-
-#from TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi import *
-#KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut = cms.double(999999.)
