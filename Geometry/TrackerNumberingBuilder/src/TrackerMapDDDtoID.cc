@@ -61,17 +61,20 @@ unsigned int TrackerMapDDDtoID::id(const nav_type & n) const
 }
 
 
-std::vector<TrackerMapDDDtoID::nav_type> TrackerMapDDDtoID::allNavTypes() const{
+std::vector<TrackerMapDDDtoID::nav_type> const & TrackerMapDDDtoID::allNavTypes() const{
   return navVec;
 }
 
-TrackerMapDDDtoID::nav_type TrackerMapDDDtoID::navType(uint32_t num) const
+namespace {
+  const TrackerMapDDDtoID::nav_type nullresult;
+}
+
+TrackerMapDDDtoID::nav_type const & TrackerMapDDDtoID::navType(uint32_t num) const
 { 
   std::map<uint32_t,nav_type>::const_iterator it = revpath2id_.find(num);
-  nav_type result;
   if (it != revpath2id_.end())
-    result = it->second;
-  return result;  
+    return it->second;
+  return nullresult;  
 }
 
 void TrackerMapDDDtoID::clear(){
