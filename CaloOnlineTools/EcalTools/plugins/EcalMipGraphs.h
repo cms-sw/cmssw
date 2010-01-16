@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.7 2008/12/12 02:40:46 scooper Exp $
+// $Id: EcalMipGraphs.h,v 1.8 2010/01/04 15:07:40 ferriff Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"

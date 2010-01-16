@@ -13,7 +13,7 @@
 <use name=Geometry/EcalMapping>
 <use name=Geometry/CaloTopology>
 <use name=HLTrigger/HLTcore>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=TrackingTools/TrackAssociator>
 <use name=rootgraphics>
 <use name=rootcore>

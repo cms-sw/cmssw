@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.h,v 1.1 2008/12/12 02:34:36 scooper Exp $
+// $Id: EcalDisplaysByEvent.h,v 1.2 2010/01/04 15:07:39 ferriff Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
