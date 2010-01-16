@@ -59,7 +59,7 @@ public:
   
   //! transversed the DDExpandedView according to the given stack of sibling numbers
   bool goTo(const nav_type &);
-  bool goto(int const * newpos, size_t sz);
+  bool goTo(int const * newpos, size_t sz);
 
   //! return the stack of sibling numbers which indicates the current position in the DDExpandedView
   nav_type navPos() const;

@@ -518,7 +518,7 @@ bool DDExpandedView::descend(const DDGeoHistory & sc)
 
 
 bool DDExpandedView::goTo(const nav_type & newpos) {
-  return goto(&newpos.front(),newpos.size());
+  return goTo(&newpos.front(),newpos.size());
 
 }
 
