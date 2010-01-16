@@ -204,6 +204,6 @@ class GeometricDet {
 
 };
 
-#undefine PoolAlloc
+#undef PoolAlloc
 #endif
 
