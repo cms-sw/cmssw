@@ -42,7 +42,7 @@ process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",
@@ -98,7 +98,7 @@ process.GlobalTag.globaltag = 'MC_3XY_V14::All'
 
 process.o1 = cms.OutputModule("PoolOutputModule",
                               outputCommands = cms.untracked.vstring('drop *','keep *_*_*_DigiTest'),
-            fileName = cms.untracked.string('file:Digis_test.root')  
+            fileName = cms.untracked.string('file:/tmp/vesna/Digis_test.root')  
 )
 
 process.Timing = cms.Service("Timing")

@@ -269,6 +269,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Init the random number services  
   if(addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing ) {
     gaussDistribution_ = new CLHEP::RandGaussQ(rndEngine, 0., theReadoutNoise);
+    gaussDistributionVCALNoise_ = new CLHEP::RandGaussQ(rndEngine, 0., 1.);
     flatDistribution_ = new CLHEP::RandFlat(rndEngine, 0., 1.);
     
     if(addNoise) { 
@@ -392,8 +393,8 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   
   // Destructor
   delete gaussDistribution_;
+  delete gaussDistributionVCALNoise_;
   delete flatDistribution_;
-  delete smearedChargeDistribution_;
 
   delete theSiPixelGainCalibrationService_;
 
@@ -1125,20 +1126,17 @@ void SiPixelDigitizerAlgorithm::add_noise() {
     
          if(addChargeVCALSmearing) 
       {
-	
-	if((*i).second > 0 && (*i).second < 3000)
+	if((*i).second < 3000)
 	  {
 	    theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
-	  } else if((*i).second >= 3000  && (*i).second < 6000){
+	  } else if((*i).second < 6000){
 	    theSmearedChargeRMS = 307.6 - (*i).second * 0.01;
-	  } else if((*i).second >= 6000) {
+	  } else{
 	    theSmearedChargeRMS = -432.4 +(*i).second * 0.123;
 	}
 
-	smearedChargeDistribution_ = new CLHEP::RandGaussQ(rndEngine, 0. , theSmearedChargeRMS);
-
 	// Noise from Vcal smearing:
-	float noise_ChargeVCALSmearing = smearedChargeDistribution_->fire() ;
+	float noise_ChargeVCALSmearing = theSmearedChargeRMS * gaussDistributionVCALNoise_->fire() ;
 	// Noise from full readout:
 	float noise  = gaussDistribution_->fire() ;
 
@@ -1147,6 +1145,8 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 		else{
 	(*i).second +=Amplitude(noise+noise_ChargeVCALSmearing,0,-1.);
 		}
+
+		//		std::cout<< "signal after noise " << (*i).second << std::endl;
 
       } // End if addChargeVCalSmearing
 	 else

@@ -377,6 +377,8 @@ class SiPixelDigitizerAlgorithm  {
 
     CLHEP::RandFlat *flatDistribution_;
     CLHEP::RandGaussQ *gaussDistribution_;
+    CLHEP::RandGaussQ *gaussDistributionVCALNoise_;
+
     
     // Threshold gaussian smearing:
     CLHEP::RandGaussQ *smearedThreshold_FPix_;
