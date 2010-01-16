@@ -34,10 +34,10 @@ siStripFEDMonitor.APVErrorBitsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.APVAddressErrorBitsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.UnlockedBitsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.OOSBitsDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.FETimeDiffTIBHistogramConfig.Enabled = False
-siStripFEDMonitor.FETimeDiffTOBHistogramConfig.Enabled = False
-siStripFEDMonitor.FETimeDiffTECBHistogramConfig.Enabled = False
-siStripFEDMonitor.FETimeDiffTECFHistogramConfig.Enabled = False
+siStripFEDMonitor.FETimeDiffTIBHistogramConfig.Enabled = True
+siStripFEDMonitor.FETimeDiffTOBHistogramConfig.Enabled = True
+siStripFEDMonitor.FETimeDiffTECBHistogramConfig.Enabled = True
+siStripFEDMonitor.FETimeDiffTECFHistogramConfig.Enabled = True
 #Error counting histograms
 siStripFEDMonitor.nFEDErrorsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
