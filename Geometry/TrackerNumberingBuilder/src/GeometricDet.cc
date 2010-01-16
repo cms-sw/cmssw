@@ -78,14 +78,15 @@ GeometricDet::~GeometricDet(){
 }
 
 // for use outside CMSSW framework only since it asks for a default DDCompactView...
-GeometricDet::GeometricDet(nav_type const & navtype, GeometricEnumType type) : _ddd(navtype), _type(type){ 
+GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) : 
+  _ddd(navtype.begin(),navtype.end()), _type(type){ 
   //
   // I need to find the params by myself :(
   //
   _fromDD = true;
   DDCompactView cpv; // bad, bad, bad!
   DDExpandedView ev(cpv);
-  ev.goTo(_ddd);
+  ev.goTo(navtype);
   _params = ((ev.logicalPart()).solid()).parameters();
   _trans = ev.translation();
   _phi = _trans.Phi();
@@ -93,7 +94,7 @@ GeometricDet::GeometricDet(nav_type const & navtype, GeometricEnumType type) : _
   _rot = ev.rotation();
   _shape = ((ev.logicalPart()).solid()).shape();
   _ddname = ((ev.logicalPart()).ddname()).name();
-  _parents = ev.geoHistory();
+  _parents = GeoHistory(ev.geoHistory().begin(),ev.geoHistory().end()) ;
   _volume   = ((ev.logicalPart()).solid()).volume();
   _density  = ((ev.logicalPart()).material()).density();
   //  _weight  = (ev.logicalPart()).weight();
@@ -116,7 +117,7 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   // Set by hand the _ddd
   //
   _fromDD = true;
-  _ddd = fv->navPos();
+  _ddd = nav_type(fv->navPos().begin(),fv->navPos().end() );
   _params = ((fv->logicalPart()).solid()).parameters();  
   _trans = fv->translation();
   _phi = _trans.Phi();
@@ -124,7 +125,7 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   _rot = fv->rotation();
   _shape = ((fv->logicalPart()).solid()).shape();
   _ddname = ((fv->logicalPart()).ddname()).name();
-  _parents = fv->geoHistory();
+  _parents = GeoHistory(fv->geoHistory().begin(),fv->geoHistory().end()) ;
   _volume   = ((fv->logicalPart()).solid()).volume();  
   _density  = ((fv->logicalPart()).material()).density();
   //  _weight   = (fv->logicalPart()).weight();  
@@ -151,12 +152,12 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _rho(_trans.Rho()),
   _rot(fv->rotation()),
   _shape(((fv->logicalPart()).solid()).shape()),
-  _ddd(fv->navPos()),
+  _ddd(fv->navPos().begin(),fv->navPos().end()),
   _ddname(((fv->logicalPart()).ddname()).name()),
   _type(type),
   _params(((fv->logicalPart()).solid()).parameters()),
 
-  _parents(fv->geoHistory()),
+  _parents(fv->geoHistory().begin(),fv->geoHistory().end()),
   _volume(((fv->logicalPart()).solid()).volume()),
   _density(((fv->logicalPart()).material()).density()),
   //  _weight   = (fv->logicalPart()).weight();
@@ -203,7 +204,7 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   //  std::cout << "name = " << onePGD._name;
   _ddname = DDName(onePGD._name, onePGD._ns);//, "fromdb");
   //  std::cout << "DDName = " << _ddname << std::endl;
-  _parents = DDGeoHistory(); // will remain empty... hate wasting the space but want all methods to work.
+  _parents = GeoHistory(); // will remain empty... hate wasting the space but want all methods to work.
   _volume = onePGD._volume;
   _density = onePGD._density;
   _weight = onePGD._weight;

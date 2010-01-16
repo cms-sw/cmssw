@@ -33,8 +33,8 @@ class GeometricDet {
   typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
   typedef std::vector< GeometricDet const *>  GeometricDetContainer;
   
-  typedef std::vector< DDExpandedNode, PollAlloc<DDExpandedNode> > GeoHistory;
-  typedef std::vector<int, PollAlloc<int> > nav_type;
+  typedef std::vector< DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
+  typedef std::vector<int, PoolAlloc<int> > nav_type;
 
   typedef Surface::PositionType Position;
   typedef Surface::RotationType Rotation;
