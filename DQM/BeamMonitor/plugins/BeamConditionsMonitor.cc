@@ -2,8 +2,8 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/11/04 22:41:24 $
- * $Revision: 1.3 $
+ * $Date: 2009/11/05 21:38:17 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -44,7 +44,7 @@ BeamConditionsMonitor::~BeamConditionsMonitor() {
 
 
 //--------------------------------------------------------
-void BeamConditionsMonitor::beginJob(const EventSetup& context) {
+void BeamConditionsMonitor::beginJob() {
   
   // book some histograms here
   // create and cd into new folder

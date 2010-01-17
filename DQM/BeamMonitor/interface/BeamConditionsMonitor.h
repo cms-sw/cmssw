@@ -3,8 +3,8 @@
 
 /** \class BeamConditionsMonitor
  * *
- *  $Date: 2009/11/04 04:16:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/04 22:43:11 $
+ *  $Revision: 1.3 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -33,7 +33,7 @@ class BeamConditionsMonitor : public edm::EDAnalyzer {
  protected:
    
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   // BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);

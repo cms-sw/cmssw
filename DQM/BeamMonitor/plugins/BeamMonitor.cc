@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/12/07 00:22:55 $
- * $Revision: 1.15 $
+ * $Date: 2009/12/08 04:59:28 $
+ * $Revision: 1.16 $
  *
  */
 
@@ -58,7 +58,7 @@ BeamMonitor::~BeamMonitor() {
 
 
 //--------------------------------------------------------
-void BeamMonitor::beginJob(const EventSetup& context) {
+void BeamMonitor::beginJob() {
 
   // book some histograms here
   const int    dxBin = parameters_.getParameter<int>("dxBin");
@@ -259,7 +259,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
   
   if (debug_) cout << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of selected tracks" << endl;
-  int itrk = 0;
+  unsigned int itrk = 0;
   for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
        BSTrk != theBSvector.end();
        ++BSTrk, ++itrk){

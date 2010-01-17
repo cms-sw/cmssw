@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/12/06 04:31:49 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/12/08 04:59:52 $
+ *  $Revision: 1.10 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -34,7 +34,7 @@ class BeamMonitor : public edm::EDAnalyzer {
  protected:
    
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   // BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
@@ -71,11 +71,11 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   int countEvt_;       //counter
   int countLumi_;      //counter
-  int nthBSTrk_;       //
+  unsigned int nthBSTrk_;       //
   int nFitElements_;
   int nFits;
   double deltaSigCut_;
-  int min_Ntrks_;
+  unsigned int min_Ntrks_;
 
   bool resetHistos_;
   // ----------member data ---------------------------
