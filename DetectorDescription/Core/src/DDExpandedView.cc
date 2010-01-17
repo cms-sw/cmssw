@@ -522,7 +522,7 @@ bool DDExpandedView::goTo(const nav_type & newpos) {
 
 }
 
-bool DDExpandedView::goTo(navRange newpos) {
+bool DDExpandedView::goTo(NavRange newpos) {
   return goTo(newpos.first,newpos.second);
 }
 
