@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.155 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -101,23 +101,7 @@ process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
 ## ECAL
 process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
-process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEB = 1.138
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEB = 1.655
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEE = 1.138
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEE = 1.655
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-
-##Preshower
-process.ecalPreshowerRecHit.ESGain = 2
-process.ecalPreshowerRecHit.ESBaseline = 0
-process.ecalPreshowerRecHit.ESMIPADC = 55
 
 ##only for 34X
 #process.ecalPreshowerRecHit.ESRecoAlgo = 1
@@ -125,9 +109,6 @@ process.ecalPreshowerRecHit.ESMIPADC = 55
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
-
-process.hbhereco.firstSample = 1
-process.hbhereco.samplesToAdd = 8
 
 process.zdcreco.firstSample = 4
 process.zdcreco.samplesToAdd = 3
