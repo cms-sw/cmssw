@@ -522,6 +522,10 @@ bool DDExpandedView::goTo(const nav_type & newpos) {
 
 }
 
+bool DDExpandedView::goTo(navRange newpos) {
+  return goTo(newpos.first,newpos.second);
+}
+
 bool DDExpandedView::goTo(int const * newpos, size_t sz)
 {
   bool result(false);
@@ -577,11 +581,6 @@ DDExpandedView::nav_type DDExpandedView::copyNumbers() const
     result[it] = history_[it].copyno();
   }
   return result;
-}
-
-
-std::ostream & operator<<(std::ostream & os, const DDExpandedView::nav_type & n) {
-  return printNavType(os,&n.front(),n.size());
 }
 
 std::ostream & printNavType(std::ostream & os, int const * n, size_t sz){

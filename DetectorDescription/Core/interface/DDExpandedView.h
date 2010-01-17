@@ -142,7 +142,7 @@ std::ostream & printNavType(std::ostream &, int const * n, size_t sz);
 inline std::ostream & operator<<(std::ostream & os, const DDExpandedView::nav_type &) n {
     return printNavType(os,&n.front(),n.size());
 }
-inline std::ostream & operator<<(std::ostream & od, const DDExpandedView::NavRange & n) {
-    return printNavType(os,&n.first,n.second);
+inline std::ostream & operator<<(std::ostream & os, const DDExpandedView::NavRange & n) {
+    return printNavType(os,n.first,n.second);
 }
 #endif
