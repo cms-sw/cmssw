@@ -209,12 +209,12 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   Output << "************************ List of modules with positions ************************" << std::endl;
   for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
-    GeometricDet::nav_type detNavType = modules[i]->navType();
+    GeometricDet::NavRange detPos = modules[i]->navpos();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
     Output << " ******** raw Id = " << rawid << " (" << binary_rawid << ") ";
     if ( fromDDD_ && printDDD_ ) {
-      Output << "\t nav type = " << detNavType;
+      Output << "\t nav type = " << detPos;
     } 
     Output << std::endl;
     int subdetid = modules[i]->geographicalID().subdetId();
@@ -539,7 +539,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     // NumberingScheme
     NumberingOutput << rawid;
     if ( fromDDD_ && printDDD_ ) {
-      NumberingOutput << " " << detNavType;
+      NumberingOutput << " " << detPos;
     }
     NumberingOutput << " "
 		    << std::fixed << std::setprecision(4) << modules[i]->translation().X() << " "

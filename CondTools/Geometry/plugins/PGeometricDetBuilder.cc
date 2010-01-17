@@ -199,10 +199,10 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
   item._stereo         = gd->stereo();
   item._siliconAPVNum = gd->siliconAPVNum();
 
-  GeometricDet::nav_type nt = gd->navType();
+  GeometricDet::nav_type const & nt = gd->navType();
   size_t nts = nt.size();
   item._numnt = nts;
-  std::vector<int> tempnt = nt;
+  std::vector<int> tempnt(nt.begin(),nt.end());
   for ( size_t extrant = nt.size(); extrant < 11; ++extrant ) {
     tempnt.push_back(-1);
   } 

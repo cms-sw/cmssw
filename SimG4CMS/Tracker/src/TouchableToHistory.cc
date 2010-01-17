@@ -23,8 +23,9 @@ void TouchableToHistory::buildAll(){
   if (alreadySet == true) return;
   alreadySet = true;
 
+  //FIXME (now just make it compile)
   TrackerMapDDDtoID dddToID(myGeomDet);
-  std::vector<nav_type> allSensitiveDets = dddToID.allNavTypes();
+  std::vector<TrackerMapDDDtoID::nav_type> const & allSensitiveDets = dddToID.allNavTypes();
   edm::LogInfo("TrackerSimInfoNumbering")<<" TouchableTo History: got "<<allSensitiveDets.size()<<" sensitive detectors from TrackerMapDDDtoID.";
   //DDCompactView cv;
   DDExpandedView view(*myCompactView);
@@ -32,8 +33,9 @@ void TouchableToHistory::buildAll(){
   G4Navigator* theNavigator = new G4Navigator();
   theNavigator->SetWorldVolume(theStdNavigator->GetWorldVolume());
 
-  for (std::vector<nav_type>::iterator it = allSensitiveDets.begin();  it != allSensitiveDets.end(); it++){
-    view.goTo(*it);
+  for (std::vector<TrackerMapDDDtoID::nav_type>::const_iterator it = allSensitiveDets.begin();  it != allSensitiveDets.end(); 
+it++){
+    view.goTo(&(*it).front(),(*it).size());
     DDTranslation t =view.translation(); 
     theNavigator->LocateGlobalPointAndSetup(G4ThreeVector(t.x(),t.y(),t.z()));
     G4TouchableHistory * hist = theNavigator->CreateTouchableHistory(); 
@@ -43,7 +45,7 @@ void TouchableToHistory::buildAll(){
     u_int32_t oldsize = myDirectMap.size();
 #endif
 
-    myMap[st] = *it;
+    myMap[st] = nav_type((*it).begin(),(*it).end());
     myDirectMap[st] = dddToID.id(*it);
 
     /*
