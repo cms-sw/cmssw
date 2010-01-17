@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.2 2009/06/11 18:15:03 boudoul Exp $
+// $Id: TrackingMonitor.h,v 1.3 2009/11/05 17:07:51 boudoul Exp $
 
 #include <memory>
 #include <fstream>
@@ -25,44 +25,50 @@ Monitoring source for general quantities related to tracks.
 
 class DQMStore;
 class TrackAnalyzer;
+class TrackBuildingAnalyzer;
 class TProfile;
 
-class TrackingMonitor : public edm::EDAnalyzer {
-   public:
-      explicit TrackingMonitor(const edm::ParameterSet&);
-      ~TrackingMonitor();
-      virtual void beginJob(void);
-      virtual void endJob(void);
+class TrackingMonitor : public edm::EDAnalyzer 
+{
+    public:
+        explicit TrackingMonitor(const edm::ParameterSet&);
+        ~TrackingMonitor();
+        virtual void beginJob(void);
+        virtual void endJob(void);
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-   private:
-  void doProfileX(TH2 * th2, MonitorElement* me);
-  void doProfileX(MonitorElement * th2m, MonitorElement* me);
-  
+    private:
+        void doProfileX(TH2 * th2, MonitorElement* me);
+        void doProfileX(MonitorElement * th2m, MonitorElement* me);
 
-      // ----------member data ---------------------------
 
-//  unsigned int minTracks_;
+        // ----------member data ---------------------------
 
-  std::string histname;  //for naming the histograms according to algorithm used
+        std::string histname;  //for naming the histograms according to algorithm used
 
-  DQMStore * dqmStore_;
-  edm::ParameterSet conf_;
+        DQMStore * dqmStore_;
+        edm::ParameterSet conf_;
 
-  // the track analyzer
-  TrackAnalyzer * theTrackAnalyzer;
-  edm::InputTag bsSrc;
-  MonitorElement * NumberOfTracks;
-  MonitorElement * NumberOfSeeds;
-  MonitorElement * SeedEta;
-  MonitorElement * SeedPhi;
-  MonitorElement * SeedTheta;
-  MonitorElement * NumberOfTrackCandidates;
-  MonitorElement * NumberOfMeanRecHitsPerTrack;
-  MonitorElement * NumberOfMeanLayersPerTrack;  
+        // the track analyzer
+        edm::InputTag bsSrc;
 
-  std::string builderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
+        TrackAnalyzer * theTrackAnalyzer;
+        TrackBuildingAnalyzer  * theTrackBuildingAnalyzer;
+
+        // Tracks 
+        MonitorElement * NumberOfTracks;
+        MonitorElement * NumberOfMeanRecHitsPerTrack;
+        MonitorElement * NumberOfMeanLayersPerTrack;  
+
+        // Track Seeds 
+        MonitorElement * NumberOfSeeds;
+
+        // Track Candidates
+        MonitorElement * NumberOfTrackCandidates;
+
+        std::string builderName;
+        edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
 };
-#endif
+
+#endif //define TrackingMonitor_H
