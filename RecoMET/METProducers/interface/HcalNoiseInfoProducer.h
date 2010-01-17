@@ -24,8 +24,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+
 
 namespace reco {
 
@@ -63,25 +65,20 @@ namespace reco {
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
 
     // other helper functions
-    bool isProblematicRBX(const HcalNoiseRBX& rbx) const;
-    void fillOtherSummaryVariables(HcalNoiseSummary& summary, const HcalNoiseRBX& rbx) const;
+    void fillOtherSummaryVariables(HcalNoiseSummary& summary, const CommonHcalNoiseRBXData& data) const;
 
     
     //
     // parameters
-    //      
+    //
     
     bool fillDigis_;        // fill digi information into HcalNoiseRBXs
     bool fillRecHits_;      // fill rechit information into HcalNoiseRBXs and HcalNoiseSummary
     bool fillCaloTowers_;   // fill calotower information into HcalNoiseRBXs and HcalNoiseSummary
-    bool fillJets_;         // fill jet information into HcalNoiseSummary
     bool fillTracks_;       // fill track information into HcalNoiseSummary
 
     // These provide the requirements for writing an RBX to the event
-    double RBXEnergyThreshold_; // minimum energy to even be considered for writing to edm
-    double minRecHitEnergy_;    // Minimum rechit energy to consider
-    int maxProblemRBXs_;        // maximum number of problematic RBXs to be written to the event record
-    bool writeAllRBXs_;         // write all the RBXs (above the energy threshold) to the event, whether "noisy" or not
+    int maxProblemRBXs_;   // maximum number of problematic RBXs to be written to the event record
 
     // parameters for calculating summary variables
     int maxCaloTowerIEta_;      // maximum caloTower ieta
@@ -92,7 +89,9 @@ namespace reco {
     std::string recHitCollName_;       // name of the rechit collection
     std::string caloTowerCollName_;    // name of the caloTower collection
     std::string trackCollName_;        // name of the track collection
-    std::string hcalNoiseRBXCollName_; // name of the HcalNoiseRBX collection that we're adding RefVector information to
+
+    double minRecHitE_, minLowHitE_, minHighHitE_; // parameters used to determine noise status
+    HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
     
   };
   
