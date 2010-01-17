@@ -35,10 +35,10 @@ MonitorTrackResiduals.OutputMEsInRootFile = False
 MonitorTrackResiduals.Mod_On = False
 
 # TrackingMonitor ####
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
-TrackMon.FolderName          = 'Tracking/TrackParameters'
-TrackMon.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
-
+from DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi import *
+TrackerCollisionTrackMon.FolderName          = 'Tracking/TrackParameters'
+TrackerCollisionTrackMon.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
+TrackerCollisionTrackMon
 # DQM Services
 dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('SiStrip')
@@ -49,6 +49,6 @@ TkDetMap = cms.Service("TkDetMap")
 SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 
 # Sequence
-SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackMon*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackerCollisionTrackMon*dqmInfoSiStrip)
 
 

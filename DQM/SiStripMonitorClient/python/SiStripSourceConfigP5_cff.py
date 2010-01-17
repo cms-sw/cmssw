@@ -105,8 +105,8 @@ TrackMon_rs.doSeedParameterHistos = True
 
 # Clone for General Track (for Collision data)
 
-import DQM.TrackingMonitor.TrackingMonitor_cfi
-TrackMon_gentk = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
+TrackMon_gentk = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
 TrackMon_gentk.FolderName          = 'Tracking/TrackParameters'
 TrackMon_gentk.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
 
