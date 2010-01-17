@@ -57,6 +57,7 @@ public:
   int latency_;
   uint32_t FG_threshold_;
   uint32_t ZS_threshold_;
+  int ZS_threshold_I_;
   int numberOfSamples_;
   int numberOfPresamples_;
   uint32_t minSignalThreshold_;

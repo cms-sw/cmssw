@@ -28,6 +28,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
       numberOfSamples_ = 1; 
       numberOfPresamples_ = 0;
    }
+   // Switch to integer for comparisons - remove compiler warning
+   ZS_threshold_I_ = ZS_threshold_;
 }
 
 
@@ -267,7 +269,7 @@ void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection & result){
    for (HcalTrigPrimDigiCollection::iterator tp = result.begin(); tp != result.end(); ++tp){
       bool ZS = true;
       for (int i=0; i<tp->size(); ++i) {
-         if (tp->sample(i).compressedEt()  > ZS_threshold_) {
+         if (tp->sample(i).compressedEt()  > ZS_threshold_I_) {
             ZS=false;
             break;
          }
