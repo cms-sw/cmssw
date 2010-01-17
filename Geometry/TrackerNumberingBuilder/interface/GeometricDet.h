@@ -29,6 +29,7 @@ class GeometricDet {
  public:
 
   typedef DDExpandedView::nav_type DDnav_type;
+  typedef DDExpandedView::NavRange NavRange;
 
   typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
   typedef std::vector< GeometricDet const *>  GeometricDetContainer;
@@ -92,7 +93,15 @@ class GeometricDet {
   DDSolidShape const & shape() const  {return _shape;}
   GeometricEnumType type() const {return _type;}
   DDName const & name() const {return _ddname;};
-  nav_type navType() const {return _ddd;}
+
+  // internal representaion
+  nav_type const & navType() const {return _ddd;}
+  // representation neutral interface
+  NavRange navRange() const {return NavRange(&_ddd.front(),_ddd.size());}
+  // more meaningfull name (maybe)
+  NavRange navpos() const {return NavRange(&_ddd.front(),_ddd.size());}
+
+
   std::vector<double> const & params() const {return _params;}
 
 
