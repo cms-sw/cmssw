@@ -179,15 +179,13 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
 // PGeometricDet is persistent version... make it... then come back here and make the
 // constructor.
 GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumType type) :
-  _fromDD(false),
-
   _trans(onePGD._x, onePGD._y, onePGD._z),
   _phi(onePGD._phi), //_trans.Phi()),
   _rho(onePGD._rho), //_trans.Rho()),
   _rot(onePGD._a11, onePGD._a12, onePGD._a13, 
        onePGD._a21, onePGD._a22, onePGD._a23,
        onePGD._a31, onePGD._a32, onePGD._a33),
-  _shape(onePGD._shape),
+  _shape(DDSolidShapesName.index(onePGD._shape)),
   _ddd(),
   _ddname(onePGD._name, onePGD._ns),//, "fromdb");
   _type(type),
@@ -206,7 +204,9 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   _pixROCx(onePGD._pixROCx),
   _pixROCy(onePGD._pixROCy),
   _stereo(onePGD._stereo),
-  _siliconAPVNum(onePGD._siliconAPVNum) {
+  _siliconAPVNum(onePGD._siliconAPVNum),
+  _fromDD(false)
+ {
 
   
  if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
