@@ -22,7 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/METFwd.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 
