@@ -208,7 +208,7 @@ public:
   /// dtor
   virtual ~SiPixelRawDumper() {}
 
-  void beginJob( const edm::EventSetup& ) {countEvents=0;}
+  void beginJob() {countEvents=0;}
 
   // end of job 
   void endJob() {cout<<" Total events " <<countEvents<<endl;}
