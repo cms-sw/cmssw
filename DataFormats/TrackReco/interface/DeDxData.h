@@ -13,6 +13,7 @@ namespace reco {
 
       float dEdx() const;
       float dEdxError() const;
+      int   numberOfSaturatedMeasurements() const;
       unsigned int numberOfMeasurements() const;
 
     private:
