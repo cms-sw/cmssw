@@ -70,7 +70,7 @@ useLocalFiles = False
 
 # number of events to be processed and source file
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(200)
+    input=cms.untracked.int32(2000)
 )
 
 readFiles = cms.untracked.vstring()
@@ -144,7 +144,7 @@ process.simBscDigis = L1TriggerOffline.L1Analyzer.bscTrigger_cfi.bscTrigger.clon
 # RPC Technical Trigger
 import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
 process.simRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
-
+process.simRpcTechTrigDigis.RPCDigiLabel = 'simMuonRPCDigis'
 
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
