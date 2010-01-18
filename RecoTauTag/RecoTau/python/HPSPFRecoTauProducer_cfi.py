@@ -55,10 +55,5 @@ hpsPFRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       coneMetric        = cms.string("DR"),
       coneSizeFormula   = cms.string("2.8/ET"),
       minimumSignalCone = cms.double(0.05),
-      maximumSignalCone = cms.double(0.1),
-      coneParameter     = cms.double(2.8)
-
-
-
-
+      maximumSignalCone = cms.double(0.1)
 )
