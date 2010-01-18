@@ -61,7 +61,7 @@ class aod2patFilterZee : public edm::EDFilter {
       ~aod2patFilterZee();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
   //bool isInFiducial(double eta);
@@ -176,8 +176,7 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  -
 void 
-aod2patFilterZee::beginJob(const edm::EventSetup&)
-{
+aod2patFilterZee::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  -
