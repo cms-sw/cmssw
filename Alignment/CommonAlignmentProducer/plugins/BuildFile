@@ -17,7 +17,6 @@
  <use name=Alignment/CommonAlignmentAlgorithm>
  <use name=Alignment/CommonAlignmentMonitor>
  <use name=Alignment/CommonAlignmentParametrization>
- <use name=Alignment/CommonAlignmentProducer>
  <use name=Alignment/MuonAlignment>
  <use name=Alignment/TrackerAlignment>
  <use name=CondCore/DBOutputService>
