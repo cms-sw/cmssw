@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.38 $
-///  last update: $Date: 2009/10/13 13:48:19 $
+///  Revision   : $Revision: 1.39 $
+///  last update: $Date: 2009/10/14 08:38:37 $
 ///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
@@ -685,44 +685,48 @@ void AlignmentProducer::writeDB(Alignments *alignments,
 				const std::string &errRcd,
 				const AlignTransform *globalCoordinates) const
 {
+  Alignments * tempAlignments = alignments;
+  AlignmentErrors * tempAlignmentErrors = alignmentErrors;
+
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (!poolDb.isAvailable()) { // Die if not available
-    delete alignments;      // promised to take over ownership...
-    delete alignmentErrors; // dito
+    delete tempAlignments;      // promised to take over ownership...
+    delete tempAlignmentErrors; // dito
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   }
 
   if (globalCoordinates  // happens only if (applyDbAlignment_ == true)
       && globalCoordinates->transform() != AlignTransform::Transform::Identity) {
-    // FIXME: remove the global coordinate transformation from these alignments!
-    // GeometryAligner aligner;
-    // Alignments localAlignments = aligner.removeGlobalTransform(alignments,
-    //                              globalCoordinates);
-    // and put &localAlignments into the database
-    // (the removal code should be in GeometryAligner so that a
-    // developer can see that the inverse is properly calculated in
-    // the same file that it is added)
-    // 
-    // Would we have to adjust errors as well? 
-    // GF: Yes since they are defined in global coordinates and will have
-    // to be transformed to new global coordinates...
-    edm::LogError("Alignment") << "@SUB=AlignmentProducer::writeDB"
-			       << "Would have to remove globalCoordinates!";
+
+    tempAlignments = new Alignments();            // temporary storage for
+    tempAlignmentErrors = new AlignmentErrors();  // final alignments and errors
+
+    GeometryAligner aligner;
+    aligner.removeGlobalTransform(alignments, alignmentErrors,
+                                  *globalCoordinates,
+                                  tempAlignments, tempAlignmentErrors);
+    
+    delete alignments;       // have to delete original alignments
+    delete alignmentErrors;  // same thing for the errors
+
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::writeDB"
+			      << "globalCoordinates removed from alignments (" << alignRcd
+			      << ") and errors (" << alignRcd << ").";
   }
   
   if (saveToDB_) {
     edm::LogInfo("Alignment") << "Writing Alignments to " << alignRcd << ".";
-    poolDb->writeOne<Alignments>(alignments, poolDb->beginOfTime(), alignRcd);
+    poolDb->writeOne<Alignments>(tempAlignments, poolDb->beginOfTime(), alignRcd);
   } else { // poolDb->writeOne(..) takes over 'alignments' ownership,...
-    delete alignments; // ...otherwise we have to delete, as promised!
+    delete tempAlignments; // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentErrors to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrors>(alignmentErrors, poolDb->beginOfTime(), errRcd);
+    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, poolDb->beginOfTime(), errRcd);
   } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
-    delete alignmentErrors; // ...otherwise we have to delete, as promised!
+    delete tempAlignmentErrors; // ...otherwise we have to delete, as promised!
   }
 }
 
