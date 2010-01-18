@@ -426,8 +426,6 @@ if [ "${lbo}" = "LIBS" ]; then
   touch ${libsfile}.tmp
   find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   find ./${dir1}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./         -name '*.md5' > tmp.lst && tar -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./${dir1}/ -name '*'     > tmp.lst && tar -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   gzip -9 ${libsfile}.tmp && mv ${libsfile}.tmp.gz ${libsfile}
   md5sum ${libsfile} > ${libfmd5s}
   mv ${libsfile} ${shrun}/
@@ -436,19 +434,14 @@ elif [ "${lbo}" = "LBCR" ]; then
   touch ${libsfile}.tmp
   find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   find ./${dir1}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./         -name '*.md5' > tmp.lst && tar -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./${dir1}/ -name '*'     > tmp.lst && tar -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   gzip -9 ${libsfile}.tmp && mv ${libsfile}.tmp.gz ${libsfile}
   md5sum ${libsfile} > ${libfmd5s}
   find ./${dir2}/ -name '*.*' -exec md5sum {} \; > ${crssmd5s}
   touch ${crssfile}.tmp
   find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./         -name '*.md5' > tmp.lst && tar -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./${dir2}/ -name '*'     > tmp.lst && tar -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   if [ -e ${dir3} ]; then
   find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./${dir3}/ -name '*'     > tmp.lst && tar -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   fi
   gzip -9 ${crssfile}.tmp && mv ${crssfile}.tmp.gz ${crssfile}
   md5sum ${crssfile} > ${crsfmd5s}
@@ -462,11 +455,8 @@ elif [ "${lbo}" = "CRSS" ]; then
   touch ${crssfile}.tmp
   find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./         -name '*.md5' > tmp.lst && tar -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./${dir2}/ -name '*'     > tmp.lst && tar -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   if [ -e ${dir3} ]; then
   find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-#  find ./${dir3}/ -name '*'     > tmp.lst && tar -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   fi
   gzip -9 ${crssfile}.tmp && mv ${crssfile}.tmp.gz ${crssfile}
   md5sum ${crssfile} > ${crsfmd5s}

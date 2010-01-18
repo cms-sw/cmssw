@@ -7,6 +7,7 @@
 
 #include "HepMC/GenEvent.h"
 
+// MM (18. Jan 2010) old style includes, fixed include path now
 //#include "SHERPA-MC/Sherpa.H"
 //#include "SHERPA-MC/Message.H"
 //#include "SHERPA-MC/prof.hh"
@@ -19,7 +20,7 @@
 
 #include "SHERPA/Main/Sherpa.H"
 #include "ATOOLS/Org/Message.H"
-//#include "SHERPA-MC/prof.hh"
+//#include "SHERPA-MC/prof.hh" //??? still needed ???
 #include "ATOOLS/Math/Random.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
@@ -106,7 +107,8 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   //Path where the Sherpa libraries are stored
   std::string shPath = "PATH=" + SherpaLibDir;
   //Path where results are stored 
-  std::string shRes  = "RESULT_DIRECTORY=" + SherpaLibDir + "/" + SherpaResultDir;
+  // std::string shRes  = "RESULT_DIRECTORY=" + SherpaLibDir + "/" + SherpaResultDir; // for Sherpa <=1.1.3
+  std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
   //Name of the external random number class
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
   
@@ -180,7 +182,10 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
   //get the next event and check if it produced
   if (Generator.GenerateOneEvent()) { 
     //convert it to HepMC2
-    HepMC::GenEvent* evt = Generator.GetIOHandler()->GetHepMC2Interface()->GenEvent();
+    //    HepMC::GenEvent* evt = Generator.GetIOHandler()->GetHepMC2Interface()->GenEvent(); // expanded now...
+    SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
+    SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
+    HepMC::GenEvent* evt = hm2i->GenEvent();
     //ugly!! a hard copy, since sherpa delete the GenEvent internal
     resetEvent(new HepMC::GenEvent (*evt));         
     return true;
