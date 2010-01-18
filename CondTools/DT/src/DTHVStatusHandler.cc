@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/25 14:52:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/12/08 16:12:01 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -16,6 +16,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "CondTools/DT/interface/DTDBSession.h"
+#include "CondTools/DT/interface/DTHVAbstractCheck.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -78,6 +79,7 @@ DTHVStatusHandler::DTHVStatusHandler( const edm::ParameterSet& ps ) :
   std::cout << " PopCon application for DT HV data export "
             << onlineAuthentication
             << std::endl;
+/*
   minHV = new float[4];
   maxHV = new float[4];
   minHV[0] = 3500.0;
@@ -89,6 +91,8 @@ DTHVStatusHandler::DTHVStatusHandler( const edm::ParameterSet& ps ) :
   maxHV[2] = 2200.0;
   maxHV[3] = 1600.0;
   maxCurrent = 3.0;
+*/
+  hvChecker = DTHVAbstractCheck::getInstance();
   maxPayload = 1000;
 }
 
@@ -1057,7 +1061,7 @@ void DTHVStatusHandler::setFlags( DTHVStatus* hv,
   int qua = chlId.superLayer();
   int lay = chlId.layer     ();
   int l_p = chlId.wire      () - 10;
-  int chanError = checkCurrentStatus( l_p, type, value );
+  int chanError = hvChecker->checkCurrentStatus( l_p, type, value );
   if ( !chanError ) return;
   switch ( l_p ) {
   case 0:
@@ -1120,7 +1124,7 @@ void DTHVStatusHandler::setChannelFlag( DTHVStatus* hv,
   return;
 }
 
-
+/*
 int DTHVStatusHandler::checkCurrentStatus( int part, int type, float value ) {
   if ( part < 0 ) return 0;
   if ( part > 3 ) return 0;
@@ -1135,7 +1139,7 @@ int DTHVStatusHandler::checkCurrentStatus( int part, int type, float value ) {
   }
   return status;
 }
-
+*/
 
 int DTHVStatusHandler::checkStatusChange( int chan,
                                           float oldValue, float newValue ) {
@@ -1146,8 +1150,8 @@ int DTHVStatusHandler::checkStatusChange( int chan,
   if ( aliasIter == aliasIend ) return false;
   DTWireId chlId( aliasIter->second );
   int l_p = chlId.wire() - 10;
-  int oldStatus = checkCurrentStatus( l_p, type, oldValue );
-  int newStatus = checkCurrentStatus( l_p, type, newValue );
+  int oldStatus = hvChecker->checkCurrentStatus( l_p, type, oldValue );
+  int newStatus = hvChecker->checkCurrentStatus( l_p, type, newValue );
   if ( newStatus == oldStatus ) return 0;
   if ( newStatus ) return +1;
   return -1;
