@@ -40,7 +40,7 @@ void TouchableToHistory::buildAll(){
     u_int32_t oldsize = myDirectMap.size();
 #endif
 
-    myMap[st] = nav_type((*it)->navType().begin(),(*it)->navType.end());
+    myMap[st] = nav_type((*it)->navType().begin(),(*it)->navType().end());
     myDirectMap[st] = (*it)->geographicalID();
 
     /*
