@@ -638,9 +638,9 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 	  OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
 	}
 	
-	if (OneMuoEvt.hitTarget() 
-	    && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS
-	    || AcptAllMu==true ) {
+	if ( (OneMuoEvt.hitTarget() 
+	      && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS)
+	     || AcptAllMu==true ) {
 	  
 	  Id_sf.push_back(Id_sf_this);
 	  Px_sf.push_back(Px_sf_this);
