@@ -51,7 +51,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TTree.h>
-#include <TCanvas.h>
 #include <TFile.h>
 #include <TGraphAsymmErrors.h>
 #include <TStyle.h>
@@ -1597,6 +1596,7 @@ void TagProbeEDMAnalysis::performFit(const std::string &bvar1, const std::vector
    delete frame1; // otherwise we get
    delete frame2; // both these three
    delete frame3; // and the big one.
+   delete fitCanvas; // avoid crash from duplicate canvas
 
 
    if(data) delete data;
