@@ -1,6 +1,7 @@
 <use name=CalibFormats/SiStripObjects>
 <use name=CondFormats/SiStripObjects>
 <use name=DataFormats/Common>
+<use name=CondFormats/Common>
 <use name=DataFormats/SiStripCommon>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
@@ -28,6 +29,7 @@
   <use name=CalibFormats/SiStripObjects>
   <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/Common>
+  <use name=CondFormats/Common>
   <use name=DataFormats/SiStripCommon>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>

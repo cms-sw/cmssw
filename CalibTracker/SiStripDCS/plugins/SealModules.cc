@@ -22,3 +22,5 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripPopConDetVOff);
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
 DEFINE_ANOTHER_FWK_SERVICE(SiStripDetVOffBuilder);
+
+
