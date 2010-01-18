@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/22 05:43:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/03 02:10:12 $
+ *  $Revision: 1.7 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -46,6 +46,9 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 class METAnalyzer : public METAnalyzerBase {
  public:
 
@@ -56,7 +59,7 @@ class METAnalyzer : public METAnalyzerBase {
   virtual ~METAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore * dbe);
 
   /// Finish up a job
   void endJob();

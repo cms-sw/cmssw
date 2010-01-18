@@ -33,6 +33,60 @@ JetPtAnalyzer::~JetPtAnalyzer() { }
 
 // ***********************************************************
 void JetPtAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+//void JetPtAnalyzer::beginJob(DQMStore * dbe) {
+
+  jetname = "jetPtAnalyzer";
+
+  LogTrace(jetname)<<"[JetPtAnalyzer] Parameters initialization";
+  dbe->setCurrentFolder("JetMET/Jet/"+_source);
+
+  jetME = dbe->book1D("jetReco", "jetReco", 3, 1, 4);
+  jetME->setBinLabel(1,"CaloJets",1);
+
+  // monitoring of eta parameter
+  etaBin = parameters.getParameter<int>("etaBin");
+  etaMin = parameters.getParameter<double>("etaMin");
+  etaMax = parameters.getParameter<double>("etaMax");
+
+  // monitoring of phi paramater
+  phiBin = parameters.getParameter<int>("phiBin");
+  phiMin = parameters.getParameter<double>("phiMin");
+  phiMax = parameters.getParameter<double>("phiMax");
+
+  // monitoring of the transverse momentum
+  ptBin = parameters.getParameter<int>("ptBin");
+  ptMin = parameters.getParameter<double>("ptMin");
+  ptMax = parameters.getParameter<double>("ptMax");
+
+
+
+  mEta                     = dbe->book2D("EtaVsPt", "EtaVsPt",ptBin, ptMin, ptMax, etaBin, etaMin, etaMax);
+  mPhi                     = dbe->book2D("PhiVsPt", "PhiVsPt",ptBin, ptMin, ptMax, phiBin, phiMin, phiMax);
+  mConstituents            = dbe->book2D("ConstituentsVsPt", "# of ConstituentsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
+  //  mNJets                   = dbe->book2D("NJetsVsPt", "Number of JetsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
+
+
+
+
+  // CaloJet specific
+  mHFrac                   = dbe->book2D("HFracVsPt", "HFracVsPt",ptBin, ptMin, ptMax, 120, -0.1, 1.1);
+  mEFrac                  = dbe->book2D("EFracVsPt", "EFracVsPt", ptBin, ptMin, ptMax,120, -0.1, 1.1);
+  mMaxEInEmTowers         = dbe->book2D("MaxEInEmTowersVsPt", "MaxEInEmTowersVsPt", ptBin, ptMin, ptMax,100, 0, 100);
+  mMaxEInHadTowers        = dbe->book2D("MaxEInHadTowersVsPt", "MaxEInHadTowersVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
+  mHadEnergyInHO          = dbe->book2D("HadEnergyInHOVsPt", "HadEnergyInHOVsPt",ptBin, ptMin, ptMax, 100, 0, 10);
+  mHadEnergyInHB          = dbe->book2D("HadEnergyInHBVsPt", "HadEnergyInHBVsPt",ptBin, ptMin, ptMax, 100, 0, 50);
+  mHadEnergyInHF          = dbe->book2D("HadEnergyInHFVsPt", "HadEnergyInHFVsPt",ptBin, ptMin, ptMax ,100, 0, 50);
+  mHadEnergyInHE          = dbe->book2D("HadEnergyInHEVsPt", "HadEnergyInHEVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
+  mEmEnergyInEB           = dbe->book2D("EmEnergyInEBVsPt", "EmEnergyInEBVsPt",ptBin, ptMin, ptMax, 100, 0, 50);
+  mEmEnergyInEE           = dbe->book2D("EmEnergyInEEVsPt", "EmEnergyInEEVsPt",ptBin, ptMin, ptMax, 100, 0, 50);
+  mEmEnergyInHF           = dbe->book2D("EmEnergyInHFVsPt", "EmEnergyInHFVsPt",ptBin, ptMin, ptMax, 120, -20, 100); 
+  mN90                    = dbe->book2D("N90VsPt", "N90VsPt",ptBin, ptMin, ptMax, 50, 0, 50);
+
+
+}
+
+////fixing for now
+void JetPtAnalyzer::beginJob(DQMStore * dbe) {
 
   jetname = "jetPtAnalyzer";
 

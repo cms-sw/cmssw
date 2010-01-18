@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/03 16:46:53 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/11/04 15:20:21 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -31,7 +31,7 @@ PFJetAnalyzer::PFJetAnalyzer(const edm::ParameterSet& pSet) {
 PFJetAnalyzer::~PFJetAnalyzer() { }
 
 
-void PFJetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+void PFJetAnalyzer::beginJob(DQMStore * dbe) {
 
   metname = "pFJetAnalyzer";
 

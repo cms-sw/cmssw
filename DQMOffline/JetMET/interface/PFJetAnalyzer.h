@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2009/10/21 12:50:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/03 16:46:52 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -37,7 +37,7 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   virtual ~PFJetAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore * dbe);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJetCollection& pfJets);

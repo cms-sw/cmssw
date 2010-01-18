@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/12/03 06:54:29 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/12/06 10:10:19 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -40,6 +40,9 @@
 #include "DQMOffline/JetMET/interface/PFMETAnalyzer.h"
 #include "DQMOffline/JetMET/interface/HTMHTAnalyzer.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 class JetMETAnalyzer : public edm::EDAnalyzer {
  public:
 
@@ -50,7 +53,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   virtual ~JetMETAnalyzer();
   
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup);
+  void beginJob(void);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/08 13:47:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/11/12 17:29:35 $
+ *  $Revision: 1.2 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -47,7 +47,7 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
   virtual ~MuCorrMETAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore * dbe);
 
   /// Finish up a job
   void endJob();

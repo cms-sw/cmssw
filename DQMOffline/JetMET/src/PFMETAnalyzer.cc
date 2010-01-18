@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/03 06:54:30 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/12/04 19:29:19 $
+ *  $Revision: 1.11 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -41,7 +41,7 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
 // ***********************************************************
 PFMETAnalyzer::~PFMETAnalyzer() { }
 
-void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+void PFMETAnalyzer::beginJob(DQMStore * dbe) {
 
   evtCounter = 0;
   metname = "pfMETAnalyzer";
@@ -94,6 +94,7 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   _FolderNames.push_back("All");
   _FolderNames.push_back("Cleanup");
+  _FolderNames.push_back("CleanupPV");
   _FolderNames.push_back("HcalNoiseFilter");
   _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetIDMinimal");
@@ -101,11 +102,13 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _FolderNames.push_back("JetIDTight");
   _FolderNames.push_back("BeamHaloIDTightPass");
   _FolderNames.push_back("BeamHaloIDLoosePass");
+  _FolderNames.push_back("PV");
 
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")             bookMESet(DirName+"/"+*ic);
     if (*ic=="Cleanup")         bookMESet(DirName+"/"+*ic);
+    if (*ic=="CleanupPV")       bookMESet(DirName+"/"+*ic);
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
     if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
@@ -114,6 +117,7 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
     if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
+    if (*ic=="PV")                   bookMESet(DirName+"/"+*ic);
     }
   }
 }
@@ -590,6 +594,37 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // ==========================================================
+  //Vertex information
+  
+  bool bPrimaryVertex = false;
+
+  Handle<VertexCollection> vertexHandle;
+  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+  if ( vertexHandle.isValid() ){
+    VertexCollection vertexCollection = *(vertexHandle.product());
+    int vertex_number     = vertexCollection.size();
+    VertexCollection::const_iterator v = vertexCollection.begin();
+    double vertex_chi2    = v->normalizedChi2(); //v->chi2();
+    //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
+    double vertex_numTrks = v->tracksSize();
+    double vertex_sumTrks = 0.0;
+    //double vertex_Z       = v->z();
+    for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
+      vertex_sumTrks += (*vertex_curTrack)->pt();
+    }
+//     std::cout << v->x() << " " << v->y()<< " " << v->z() << " "
+// 	      << v->chi2() << " " << v->tracksSize() << " "
+// 	      << vertex_number << " " << v->normalizedChi2()
+// 	      << std::endl;
+
+    if (vertex_number>=1
+        && vertex_numTrks>=2 
+	&& vertex_chi2   <2.4 ) bPrimaryVertex = true;
+    //&& fabs(vertex_Z)<20.0 ) bPrimaryVertex = true;
+
+  }
+
+  // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
   std::string DirName = "JetMET/MET/"+_source;
@@ -599,6 +634,8 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (*ic=="Cleanup" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass) 
                                                                 fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="CleanupPV" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass && bPrimaryVertex) 
+                                                                fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (_allSelection) {
     if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
@@ -607,6 +644,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (*ic=="JetIDTight"   && bJetIDTight)                     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (*ic=="BeamHaloIDTightPass" && bBeamHaloIDTightPass)     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (*ic=="BeamHaloIDLoosePass" && bBeamHaloIDLoosePass)     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="PV"           && bPrimaryVertex)                  fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     }
   }
 }

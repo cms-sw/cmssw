@@ -197,7 +197,8 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
  
  private:
 
-  virtual void beginJob(edm::EventSetup const& iSetup);
+  //virtual void beginJob(edm::EventSetup const& iSetup);
+  virtual void beginJob(void);
   virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
   virtual void endJob();

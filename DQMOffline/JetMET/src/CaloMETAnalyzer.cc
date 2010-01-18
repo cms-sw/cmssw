@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/04 07:57:44 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/12/04 19:29:19 $
+ *  $Revision: 1.25 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -39,7 +39,7 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
 CaloMETAnalyzer::~CaloMETAnalyzer() { }
 
 // ***********************************************************
-void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
 
   evtCounter = 0;
   metname = "caloMETAnalyzer";

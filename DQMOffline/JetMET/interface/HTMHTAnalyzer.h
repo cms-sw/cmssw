@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for HTMHT
  *
- *  $Date: 2009/06/30 13:48:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/08 10:08:28 $
+ *  $Revision: 1.2 $
  *  \author K. Hatakeyama, Rockefeller University
  */
 
@@ -42,6 +42,7 @@ class HTMHTAnalyzer : public JetAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore * dbe);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 

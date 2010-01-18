@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2009/10/21 12:50:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/03 16:46:52 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -48,7 +48,7 @@ class JetAnalyzer : public JetAnalyzerBase {
   virtual ~JetAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore * dbe);
 
   /// Finish up a job
   void endJob();

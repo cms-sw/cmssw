@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/03 16:46:53 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/12/15 01:42:22 $
+ *  $Revision: 1.14 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -36,7 +36,7 @@ JetAnalyzer::~JetAnalyzer() { }
 
 
 // ***********************************************************
-void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
+void JetAnalyzer::beginJob(DQMStore * dbe) {
 
   jetname = "jetAnalyzer";
 
@@ -179,6 +179,7 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mresEMF                 = dbe->book1D("resEMF", "resEMF", 50, 0, 1.);
 
 }
+
 
 //void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 //			  const edm::TriggerResults& triggerResults,

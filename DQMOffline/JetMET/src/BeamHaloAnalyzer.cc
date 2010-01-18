@@ -63,7 +63,8 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
 }
 
 
-void BeamHaloAnalyzer::beginJob(const edm::EventSetup& iSetup){}
+//void BeamHaloAnalyzer::beginJob(const edm::EventSetup& iSetup){}
+void BeamHaloAnalyzer::beginJob(void){}
 
 void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
   

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/21 08:10:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/04 19:29:19 $
+ *  $Revision: 1.7 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -41,6 +41,9 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 class PFMETAnalyzer : public PFMETAnalyzerBase {
  public:
 
@@ -51,7 +54,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   virtual ~PFMETAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+  void beginJob(DQMStore * dbe);
 
   /// Finish up a job
   void endJob();

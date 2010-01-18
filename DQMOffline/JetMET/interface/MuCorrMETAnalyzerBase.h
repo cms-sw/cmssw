@@ -5,8 +5,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2009/11/08 13:47:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/12/04 19:29:19 $
+ *  $Revision: 1.2 $
  *  \author A.Apresyan Caltech
  */
 
@@ -43,7 +43,8 @@ class MuCorrMETAnalyzerBase {
   virtual ~MuCorrMETAnalyzerBase() {}
   
   /// Inizialize parameters for histo binning
-  virtual void beginJob(edm::EventSetup const& iSetup,  DQMStore* dbe)= 0;
+  //virtual void beginJob(edm::EventSetup const& iSetup,  DQMStore* dbe)= 0;
+  virtual void beginJob(DQMStore * dbe)= 0;
 
   /// Get the analysis of the muon properties
     void analyze(const edm::Event&, const edm::EventSetup&, 

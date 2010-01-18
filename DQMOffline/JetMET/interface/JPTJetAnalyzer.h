@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2009/12/09 12:47:36 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/01/15 14:58:19 $
+ *  $Revision: 1.6 $
  *  \author N. Cripps - Imperial
  */
 
@@ -43,8 +43,7 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   virtual ~JPTJetAnalyzer();
   
   /// Inizialize parameters for histo binning
-  //void beginJob(DQMStore* dqmStore);
-  void beginJob(edm::EventSetup const& iSetup, DQMStore* dqmStore);
+  void beginJob(DQMStore * dbe);
   
   /// Do the analysis
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet, double& pt1, double& pt2, double& pt3);

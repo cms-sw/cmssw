@@ -36,7 +36,7 @@ JetMETDQMOfflineClient::~JetMETDQMOfflineClient()
   
 }
 
-void JetMETDQMOfflineClient::beginJob(const edm::EventSetup& iSetup)
+void JetMETDQMOfflineClient::beginJob(void)
 {
  
 
