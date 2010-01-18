@@ -54,7 +54,7 @@ class EcalLaserAnalyzer2: public edm::EDAnalyzer{
   
   
   virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
   
   void setGeomEB(int etaG, int phiG, int module, int tower, int strip, int xtal, 

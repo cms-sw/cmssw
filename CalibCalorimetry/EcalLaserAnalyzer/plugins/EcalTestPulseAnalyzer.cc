@@ -3,7 +3,7 @@
  *
  *  \class EcalTestPulseAnalyzer
  *
- *  $Date: 2008/05/15 12:55:55 $
+ *  $Date: 2009/06/02 12:55:19 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -128,7 +128,7 @@ EcalTestPulseAnalyzer::~EcalTestPulseAnalyzer(){
 
 
 //========================================================================
-void EcalTestPulseAnalyzer::beginJob(edm::EventSetup const&) {
+void EcalTestPulseAnalyzer::beginJob() {
   //========================================================================
 
   // Define temporary file

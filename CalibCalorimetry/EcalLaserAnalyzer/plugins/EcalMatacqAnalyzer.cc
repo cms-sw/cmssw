@@ -1,7 +1,7 @@
 /* 
  *  \class EcalMatacqAnalyzer
  *
- *  $Date: 2009/06/02 12:55:19 $
+ *  $Date: 2009/11/02 17:11:06 $
  *  primary author: Gautier Hamel De Monchenault - CEA/Saclay
  *  author: Julie Malcles - CEA/Saclay
  */
@@ -93,7 +93,7 @@ EcalMatacqAnalyzer::~EcalMatacqAnalyzer(){
 
 
 //========================================================================
-void EcalMatacqAnalyzer::beginJob(edm::EventSetup const&) {
+void EcalMatacqAnalyzer::beginJob() {
 //========================================================================
 
 // Define temporary file name

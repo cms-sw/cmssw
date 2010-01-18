@@ -1,7 +1,7 @@
 /* 
  *  \class EcalStatusAnalyzer
  *
- *  $Date: 2008/05/16 12:14:25 $
+ *  $Date: 2009/06/02 12:55:19 $
  *  author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -72,7 +72,7 @@ EcalStatusAnalyzer::~EcalStatusAnalyzer(){
 
 
 //========================================================================
-void EcalStatusAnalyzer::beginJob(edm::EventSetup const&) {
+void EcalStatusAnalyzer::beginJob() {
 //========================================================================
  
 

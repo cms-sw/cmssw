@@ -13,7 +13,7 @@
 //
 // Original Author:  Yousi Ma
 //         Created:  Tue Jun 19 23:06:36 CEST 2007
-// $Id: EcalLaserAnalyzerYousi.cc,v 1.1 2009/03/12 11:34:05 ferriff Exp $
+// $Id: EcalLaserAnalyzerYousi.cc,v 1.1 2009/06/02 12:55:19 malcles Exp $
 //
 //
 
@@ -61,7 +61,7 @@ class EcalLaserAnalyzerYousi : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&);
+      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
 
@@ -346,7 +346,7 @@ EcalLaserAnalyzerYousi::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalLaserAnalyzerYousi::beginJob(const edm::EventSetup&)
+EcalLaserAnalyzerYousi::beginJob()
 {
 
   edm::LogInfo("EcalLaserAnalyzerYousi") << "running laser analyzer \n\n";

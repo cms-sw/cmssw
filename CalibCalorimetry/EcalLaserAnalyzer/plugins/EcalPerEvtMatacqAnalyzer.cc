@@ -1,7 +1,7 @@
 /* 
  *  \class EcalPerEvtMatacqAnalyzer
  *
- *  $Date: 2008/04/09 14:12:05 $
+ *  $Date: 2009/06/02 12:55:19 $
  *  primary author: Gautier Hamel De Monchenault - CEA/Saclay
  *  author: Julie Malcles - CEA/Saclay
  */
@@ -76,7 +76,7 @@ EcalPerEvtMatacqAnalyzer::~EcalPerEvtMatacqAnalyzer(){
 
 
 //========================================================================
-void EcalPerEvtMatacqAnalyzer::beginJob(edm::EventSetup const&) {
+void EcalPerEvtMatacqAnalyzer::beginJob() {
 //========================================================================
 
     //Initializations

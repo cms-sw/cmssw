@@ -1,4 +1,4 @@
-// $Id: EcalTestPulseAnalyzer.h,v 1.11 2008/05/15 12:55:55 malcles Exp $
+// $Id: EcalTestPulseAnalyzer.h,v 1.1 2009/06/02 12:55:19 malcles Exp $
 
 #include <memory>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -43,7 +43,7 @@ class EcalTestPulseAnalyzer: public edm::EDAnalyzer{
   
   
   virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
   
   

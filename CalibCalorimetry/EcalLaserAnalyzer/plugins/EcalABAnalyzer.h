@@ -43,7 +43,7 @@ class EcalABAnalyzer: public edm::EDAnalyzer{
   
   
   virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
   
   

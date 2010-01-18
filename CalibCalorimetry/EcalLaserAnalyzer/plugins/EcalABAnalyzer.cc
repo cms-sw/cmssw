@@ -1,7 +1,7 @@
 /* 
  *  \class EcalABAnalyzer
  *
- *  $Date: 2008/05/16 09:17:38 $
+ *  $Date: 2009/06/02 12:55:18 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -156,7 +156,7 @@ EcalABAnalyzer::~EcalABAnalyzer(){
 
 
 //========================================================================
-void EcalABAnalyzer::beginJob(edm::EventSetup const&) {
+void EcalABAnalyzer::beginJob() {
   //========================================================================
 
   

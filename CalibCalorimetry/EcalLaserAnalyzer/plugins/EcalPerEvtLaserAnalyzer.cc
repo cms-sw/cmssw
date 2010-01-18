@@ -1,7 +1,7 @@
 /* 
  *  \class EcalPerEvtLaserAnalyzer
  *
- *  $Date: 2008/04/09 14:12:04 $
+ *  $Date: 2009/06/02 12:55:19 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -115,7 +115,7 @@ EcalPerEvtLaserAnalyzer::~EcalPerEvtLaserAnalyzer(){
 
 
 //========================================================================
-void EcalPerEvtLaserAnalyzer::beginJob(edm::EventSetup const&) {
+void EcalPerEvtLaserAnalyzer::beginJob() {
   //========================================================================
  
 
