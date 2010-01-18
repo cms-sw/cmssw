@@ -27,8 +27,12 @@ public:
   typedef std::vector<L1CaloRegion> RegionsVector;
 
   // Constructor and destructor
-  gctTestHfEtSums(const L1CaloEtScale* scale);
+  gctTestHfEtSums();
   ~gctTestHfEtSums();
+
+  /// Configuration method
+  void configure(const L1CaloEtScale* scale);
+  bool setupOk() const;
 
   /// Reset stored sums
   void reset();

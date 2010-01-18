@@ -24,11 +24,28 @@
 //
 /// Constructor and destructor
 
-gctTestFunctions::gctTestFunctions() {}
-
-gctTestFunctions::gctTestFunctions(const edm::EventSetup& c) :
+gctTestFunctions::gctTestFunctions() :
+  theElectronsTester   (new gctTestElectrons()),
+  theEnergyAlgosTester (new gctTestEnergyAlgos()),
+  theFirmwareTester    (new gctTestFirmware()),
+  theHtTester          (new gctTestHt()),
+  theHfEtSumsTester    (new gctTestHfEtSums()),
   m_inputEmCands(), m_inputRegions(),
   m_bxStart(0), m_numOfBx(1)
+{}
+
+gctTestFunctions::~gctTestFunctions() {
+  delete theElectronsTester;
+  delete theEnergyAlgosTester;
+  delete theFirmwareTester;
+  delete theHtTester;
+  delete theHfEtSumsTester;
+}
+
+//=================================================================================================================
+//
+/// Configuration method
+void gctTestFunctions::configure(const edm::EventSetup& c)
 {
   assert(&c!=0);
 
@@ -44,19 +61,8 @@ gctTestFunctions::gctTestFunctions(const edm::EventSetup& c) :
   edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
   c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
 
-  theElectronsTester      = new gctTestElectrons();
-  theEnergyAlgosTester    = new gctTestEnergyAlgos();
-  theFirmwareTester       = new gctTestFirmware();
-  theHtTester             = new gctTestHt(etScale.product(), htMissScale.product(), jfPars.product());
-  theHfEtSumsTester       = new gctTestHfEtSums(hfRingEtScale.product());
-}
-
-gctTestFunctions::~gctTestFunctions() {
-  delete theElectronsTester;
-  delete theEnergyAlgosTester;
-  delete theFirmwareTester;
-  delete theHtTester;
-  delete theHfEtSumsTester;
+  theHtTester->configure       (etScale.product(), htMissScale.product(), jfPars.product());
+  theHfEtSumsTester->configure (hfRingEtScale.product());
 }
 
 //=================================================================================================================

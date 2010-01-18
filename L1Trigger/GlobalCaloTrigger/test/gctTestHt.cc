@@ -18,19 +18,36 @@ using namespace std;
 //
 /// Constructor and destructor
 
-gctTestHt::gctTestHt() {}
-gctTestHt::gctTestHt(const L1CaloEtScale* jetScale,
-		     const L1CaloEtScale* mhtScale,
-		     const L1GctJetFinderParams* jfPars) :
+gctTestHt::gctTestHt()  :
   m_bxStart(), m_numOfBx(1),
   minusWheelJetDta(),
   plusWheelJetData(),
-  m_jetEtScale(jetScale),
-  m_htMissScale(mhtScale),
-  m_jfPars(jfPars)
+  m_jetEtScale(),
+  m_htMissScale(),
+  m_jfPars()
 {}
 
 gctTestHt::~gctTestHt() {}
+
+//=================================================================================================================
+//
+/// Configuration
+
+void gctTestHt::configure(const L1CaloEtScale* jetScale,
+			  const L1CaloEtScale* mhtScale,
+			  const L1GctJetFinderParams* jfPars)
+{
+  m_jetEtScale = jetScale;
+  m_htMissScale = mhtScale;
+  m_jfPars = jfPars;
+}
+
+bool gctTestHt::setupOk() const
+{
+  return (m_jetEtScale != 0 &&
+	  m_htMissScale != 0 &&
+	  m_jfPars != 0);
+}
 
 //=================================================================================================================
 //
@@ -92,6 +109,11 @@ void gctTestHt::setBxRange(const int bxStart, const int numOfBx){
 /// Check the Ht summing algorithms
 bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 {
+  if (!setupOk()) {
+    cout << "checkHtSums setup check failed" << endl;
+    return false;
+  }
+
   bool testPass = true;
   L1GctGlobalEnergyAlgos* myGlobalEnergy = gct->getEnergyFinalStage();
 

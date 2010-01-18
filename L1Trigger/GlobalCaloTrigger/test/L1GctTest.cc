@@ -78,11 +78,13 @@ L1GctTest::~L1GctTest()
 void
 L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
    using namespace edm;
 
    bool endOfFile=false;
 
    configureGct(iSetup);
+   m_tester->configure(iSetup);
 
    // Initialise the gct
    m_gct->reset();
@@ -144,12 +146,12 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1GctTest::beginJob(const edm::EventSetup& c)
+L1GctTest::beginJob()
 {
 
   // instantiate the GCT
   m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder);
-  m_tester = new gctTestFunctions(c);
+  m_tester = new gctTestFunctions();
 
   // Fill the jetEtCalibLuts vector
   lutPtr nextLut( new L1GctJetEtCalibrationLut() );
@@ -159,8 +161,6 @@ L1GctTest::beginJob(const edm::EventSetup& c)
     m_jetEtCalibLuts.push_back(nextLut);
     nextLut.reset ( new L1GctJetEtCalibrationLut() );
   }
-
-  configureGct(c);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

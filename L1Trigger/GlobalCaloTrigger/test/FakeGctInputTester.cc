@@ -189,7 +189,7 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-FakeGctInputTester::beginJob(const edm::EventSetup&)
+FakeGctInputTester::beginJob()
 {
    hFile_   = new TFile( hFileName_.c_str(), "RECREATE" ) ;
 

@@ -362,6 +362,7 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
     if (etResult.mag==0) { phMargin = 72; } else { phMargin = (30/etResult.mag) + 1; }
     if ((etDiff > etMargin) || (phDiff > phMargin)) {cout << "Algo etMiss diff "
 							  << etDiff << " phi diff " << phDiff << endl; testPass = false; 
+    cout << "IVE CHANGED SOMETHING" << endl;
     cout << " exTotal " << exTotal << " eyTotal " << eyTotal << endl;
     cout << "etMiss mag " << etResult.mag << " phi " << etResult.phi << "; from Gct mag " 
 	 << myGlobalEnergy->getEtMissColl().at(bx).value()

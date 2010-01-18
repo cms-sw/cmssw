@@ -48,10 +48,13 @@ public:
 
   // Constructor and destructor
   gctTestHt();
-  gctTestHt(const L1CaloEtScale* jetScale,
-	    const L1CaloEtScale* mhtScale,
-	    const L1GctJetFinderParams* jfPars);
   ~gctTestHt();
+
+  /// Configuration method
+  void configure(const L1CaloEtScale* jetScale,
+		 const L1CaloEtScale* mhtScale,
+		 const L1GctJetFinderParams* jfPars);
+  bool setupOk() const;
 
   /// Set array sizes for the number of bunch crossings
   void setBxRange(const int bxStart, const int numOfBx);

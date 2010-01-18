@@ -41,8 +41,10 @@ public:
 
   // Constructor and destructor
   gctTestFunctions();
-  gctTestFunctions(const edm::EventSetup& c);
   ~gctTestFunctions();
+
+  // Configuration method based on EventSetup - so not to be called from constructor
+  void configure(const edm::EventSetup& c);
 
   /// Clear vectors of input data
   void reset();

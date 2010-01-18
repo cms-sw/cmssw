@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu Nov 16 00:07:32 CET 2006
-// $Id: FakeGctInputProducer.h,v 1.1 2007/03/22 17:55:43 heath Exp $
+// $Id: FakeGctInputProducer.h,v 1.2 2007/03/28 07:54:50 heath Exp $
 //
 //
 
@@ -37,9 +37,7 @@ class FakeGctInputProducer : public edm::EDProducer {
       ~FakeGctInputProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
 
       int rgnMode_;
       int iemMode_;

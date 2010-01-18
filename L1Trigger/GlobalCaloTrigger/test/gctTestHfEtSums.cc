@@ -17,8 +17,8 @@ using namespace std;
 //
 /// Constructor and destructor
 
-gctTestHfEtSums::gctTestHfEtSums(const L1CaloEtScale* scale) :
-  m_etScale(scale),
+gctTestHfEtSums::gctTestHfEtSums() :
+  m_etScale(),
   m_expectedRing0EtSumPositiveEta(),
   m_expectedRing0EtSumNegativeEta(),
   m_expectedRing1EtSumPositiveEta(),
@@ -31,6 +31,20 @@ gctTestHfEtSums::gctTestHfEtSums(const L1CaloEtScale* scale) :
 
 gctTestHfEtSums::~gctTestHfEtSums() {}
 
+
+//=================================================================================================================
+//
+/// Configuration
+
+void gctTestHfEtSums::configure(const L1CaloEtScale* scale)
+{
+  m_etScale = scale;
+}
+
+bool gctTestHfEtSums::setupOk() const
+{
+  return (m_etScale != 0) ;
+}
 //=================================================================================================================
 //
   /// Reset stored sums
@@ -118,6 +132,11 @@ void gctTestHfEtSums::fillExpectedHfSums(const std::vector<RegionsVector>& input
 /// Check the Ht summing algorithms
 bool gctTestHfEtSums::checkHfEtSums(const L1GlobalCaloTrigger* gct, const int numOfBx) const
 {
+  if (!setupOk()) {
+    cout << "checkHfEtSums setup check failed" << endl;
+    return false;
+  }
+
   bool testPass = true;
 
   for (int bx=0; bx<numOfBx; bx++) {

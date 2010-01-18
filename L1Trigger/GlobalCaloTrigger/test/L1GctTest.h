@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.7 2008/10/23 20:04:32 heath Exp $
+// $Id: L1GctTest.h,v 1.9 2009/03/17 08:12:59 heath Exp $
 //
 //
 
@@ -48,7 +48,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup& c) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   virtual void endJob() ;
 
