@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/11/13 18:40:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/12/15 08:59:50 $
+ *  $Revision: 1.6 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
@@ -80,6 +80,8 @@ public:
   DQMStoreStats( const edm::ParameterSet& );
   ~DQMStoreStats();
 
+  enum statsMode { considerAllME = 0, considerOnlyLumiProductME = 1 };
+
 protected:
    
   // BeginJob
@@ -106,7 +108,8 @@ protected:
 
 private:
 
-  int calcstats();
+  int calcstats( int );
+  void dumpMemoryProfile( void );
   std::pair<unsigned int, unsigned int> readMemoryEntry( void ) const;
   void print();
   

@@ -2,9 +2,9 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/11/25 14:18:45 $
- * $Revision: 1.8 $
- * $Author: olzem $
+ * $Date: 2009/12/15 08:59:50 $
+ * $Revision: 1.9 $
+ * $Author: dellaric $
  *
  * Description: Print out statistics of histograms in DQMStore
 */
@@ -51,10 +51,13 @@ DQMStoreStats::~DQMStoreStats(){
 }
 
 
-//==================================================================//
-//======================= calcstats  ===============================//
-//==================================================================//
-int DQMStoreStats::calcstats() {
+///
+/// do the stats here and produce output;
+///
+/// mode is coded in DQMStoreStats::statMode enum
+/// (select subsets of ME, e.g. those with getLumiFlag() == true)
+///
+int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
   ////---- initialise Event and LS counters
   nbinsglobal_ = 0; 
@@ -75,6 +78,10 @@ int DQMStoreStats::calcstats() {
   // loop all ME
   typedef std::vector <MonitorElement*>::iterator meIt;
   for(meIt it = melist.begin(); it != melist.end(); ++it) {
+
+    // consider only ME with getLumiFlag() == true ?
+    if( mode == DQMStoreStats::considerOnlyLumiProductME && 
+	!( (*it)->getLumiFlag() ) ) continue;
     
     // figure out subsystem/subfolder names
     std::string path = (*it)->getPathname();
@@ -155,7 +162,9 @@ int DQMStoreStats::calcstats() {
 
   std::cout << endl;
   std::cout << "===========================================================================================" << std::endl;
-  std::cout << "[DQMStoreStats::calcstats] -- Dumping stats results" << std::endl;
+  std::cout << "[DQMStoreStats::calcstats] -- Dumping stats results ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
   std::cout << "===========================================================================================" << std::endl;
   std::cout << endl;
 
@@ -189,7 +198,9 @@ int DQMStoreStats::calcstats() {
 
   std::cout << std::endl;
   std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Detailed ressource usage information" << std::endl;
+  std::cout << "Detailed ressource usage information ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
   std::cout << "------------------------------------------------------------------------------------------" << std::endl;
   std::cout << "subsystem/folder                  histograms     bins      bins per      MB        kB per" << std::endl;
   std::cout << "                                   (total)     (total)    histogram    (total)   histogram  " << std::endl;
@@ -255,6 +266,44 @@ int DQMStoreStats::calcstats() {
 
   }
 
+
+  // dump total
+  std::cout << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Grand total ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME:" << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY:" << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
+  std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
+  std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
+
+
+
+  std::cout << endl;
+  std::cout << "===========================================================================================" << std::endl;
+  std::cout << "[DQMStoreStats::calcstats] -- End of output ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME." << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY." << std::endl;
+  std::cout << "===========================================================================================" << std::endl;
+  std::cout << endl;
+
+  return 0;
+
+}
+
+
+
+///
+///
+///
+void DQMStoreStats::dumpMemoryProfile( void ) {
+
+  std::cout << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Memory profile:" << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+
   // determine virtual memory maximum
   std::pair<time_t, unsigned int> maxItem( 0, 0 );
   for( std::vector<std::pair<time_t, unsigned int> >::const_iterator it = memoryHistoryVector_.begin();
@@ -263,7 +312,6 @@ int DQMStoreStats::calcstats() {
       maxItem = *it;
     }
   }
-
 
   std::stringstream rootOutputFileName;
   rootOutputFileName << "dqmStoreStats_memProfile_" << getpid() << ".root";
@@ -291,14 +339,6 @@ int DQMStoreStats::calcstats() {
 
   }
 
-  // dump total
-  std::cout << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Grand total:" << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
-  std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
-  std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
   std::cout << "Approx. maximum total virtual memory size of job: ";
   if( isOpenProcFileSuccessful_ && memoryHistoryVector_.size() ) {
     std::cout << maxItem.second / 1000.
@@ -308,22 +348,15 @@ int DQMStoreStats::calcstats() {
     std::cout << "(could not be determined)" << std::endl;
   }
 
-
-  std::cout << endl;
-  std::cout << "===========================================================================================" << std::endl;
-  std::cout << "[DQMStoreStats::calcstats] -- End of output" << std::endl;
-  std::cout << "===========================================================================================" << std::endl;
-  std::cout << endl;
-
-  return 0;
-
+  std::cout << std::endl << std::endl;
+  
 }
 
 
 
-
-// -----------------------------------------------------------------//
-
+///
+///
+///
 void DQMStoreStats::print(){
   // subsystem info printout
   std::cout << " ---------- " << subsystem_ << " ---------- " << std::endl;
@@ -420,8 +453,12 @@ void DQMStoreStats::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   //now read virtual memory size from proc folder
   memoryHistoryVector_.push_back( readMemoryEntry() );
-  
-  if (runineventloop_) calcstats();
+
+  if (runineventloop_) {
+    calcstats( DQMStoreStats::considerAllME );
+    calcstats( DQMStoreStats::considerOnlyLumiProductME );
+    dumpMemoryProfile();
+  }
 
 }
 
@@ -431,19 +468,36 @@ void DQMStoreStats::analyze(const Event& iEvent, const EventSetup& iSetup) {
 //==================================================================//
 void DQMStoreStats::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 					  const EventSetup& context) {
-   if (runonendlumi_) calcstats();
+  if (runonendlumi_) { 
+    calcstats( DQMStoreStats::considerAllME );
+    calcstats( DQMStoreStats::considerOnlyLumiProductME );
+    dumpMemoryProfile();
+  }
+
 }
 
 //==================================================================//
 //============================= endRun =============================//
 //==================================================================//
 void DQMStoreStats::endRun(const Run& r, const EventSetup& context) {
-   if (runonendrun_) calcstats();
+
+  if (runonendrun_) {
+    calcstats( DQMStoreStats::considerAllME );
+    calcstats( DQMStoreStats::considerOnlyLumiProductME );
+    dumpMemoryProfile();
+  }
+
 }
 
 //==================================================================//
 //============================= endJob =============================//
 //==================================================================//
 void DQMStoreStats::endJob() {
-   if (runonendjob_) calcstats();
+
+  if (runonendjob_) {
+    calcstats( DQMStoreStats::considerAllME );
+    calcstats( DQMStoreStats::considerOnlyLumiProductME );
+    dumpMemoryProfile();
+  }
+
 }
