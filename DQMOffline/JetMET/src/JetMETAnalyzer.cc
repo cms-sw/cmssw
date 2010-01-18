@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/04 19:29:19 $
- *  $Revision: 1.36 $
+ *  $Date: 2009/12/06 10:10:27 $
+ *  $Revision: 1.37 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -170,7 +170,7 @@ JetMETAnalyzer::~JetMETAnalyzer() {
 }
 
 // ***********************************************************
-void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
+void JetMETAnalyzer::beginJob(void) {
 
   metname = "JetMETAnalyzer";
 
@@ -180,36 +180,36 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   //
   //--- Jet
   if(theJetAnalyzerFlag) { 
-    theSCJetAnalyzer->beginJob(iSetup, dbe); 
-    theAKJetAnalyzer->beginJob(iSetup, dbe);
-    if(theIConeJetAnalyzerFlag) theICJetAnalyzer->beginJob(iSetup, dbe);
+    theSCJetAnalyzer->beginJob(dbe); 
+    theAKJetAnalyzer->beginJob(dbe);
+    if(theIConeJetAnalyzerFlag) theICJetAnalyzer->beginJob(dbe);
   }
   if(theJetCleaningFlag) {
-    theCleanedSCJetAnalyzer->beginJob(iSetup, dbe); 
-    theCleanedAKJetAnalyzer->beginJob(iSetup, dbe);
-     if(theIConeJetAnalyzerFlag)theCleanedICJetAnalyzer->beginJob(iSetup, dbe);
+    theCleanedSCJetAnalyzer->beginJob(dbe); 
+    theCleanedAKJetAnalyzer->beginJob(dbe);
+     if(theIConeJetAnalyzerFlag)theCleanedICJetAnalyzer->beginJob(dbe);
   }
   if(theJetPtAnalyzerFlag ) {
-    thePtAKJetAnalyzer->beginJob(iSetup, dbe);
-    thePtSCJetAnalyzer->beginJob(iSetup, dbe);
-    thePtICJetAnalyzer->beginJob(iSetup, dbe);
+    thePtAKJetAnalyzer->beginJob(dbe);
+    thePtSCJetAnalyzer->beginJob(dbe);
+    thePtICJetAnalyzer->beginJob(dbe);
   }
 
-  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->beginJob(iSetup, dbe);
-  if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(iSetup, dbe);
+  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->beginJob(dbe);
+  if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(dbe);
 
   //
   //--- MET
   if(theCaloMETAnalyzerFlag){
-    theCaloMETAnalyzer->beginJob(iSetup, dbe);
-    theCaloMETNoHFAnalyzer->beginJob(iSetup, dbe);
-    theCaloMETHOAnalyzer->beginJob(iSetup, dbe);
-    theCaloMETNoHFHOAnalyzer->beginJob(iSetup, dbe);
+    theCaloMETAnalyzer->beginJob(dbe);
+    theCaloMETNoHFAnalyzer->beginJob(dbe);
+    theCaloMETHOAnalyzer->beginJob(dbe);
+    theCaloMETNoHFHOAnalyzer->beginJob(dbe);
   }
-  if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginJob(iSetup, dbe);
-  if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginJob(iSetup, dbe);
-  if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginJob(iSetup, dbe);
-  if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->beginJob(iSetup, dbe);
+  if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginJob(dbe);
+  if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginJob(dbe);
+  if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginJob(dbe);
+  if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->beginJob(dbe);
   
   dbe->setCurrentFolder("JetMET");
   lumisecME = dbe->book1D("lumisec", "lumisec", 500, 0., 500.);
@@ -348,6 +348,38 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      << std::endl;
   }
 
+  // ==========================================================
+  //Vertex information
+  
+  bool bPrimaryVertex = false;
+
+  Handle<VertexCollection> vertexHandle;
+  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+  if ( vertexHandle.isValid() ){
+    VertexCollection vertexCollection = *(vertexHandle.product());
+    int vertex_number     = vertexCollection.size();
+    VertexCollection::const_iterator v = vertexCollection.begin();
+    double vertex_chi2    = v->normalizedChi2(); //v->chi2();
+    //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
+    double vertex_numTrks = v->tracksSize();
+    double vertex_sumTrks = 0.0;
+    //double vertex_Z       = v->z();
+    for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
+      vertex_sumTrks += (*vertex_curTrack)->pt();
+    }
+//     std::cout << v->x() << " " << v->y()<< " " << v->z() << " "
+// 	      << v->chi2() << " " << v->tracksSize() << " "
+// 	      << vertex_number << " " << v->normalizedChi2()
+// 	      << std::endl;
+
+    if (vertex_number>=1
+        && vertex_numTrks>=2 
+	&& vertex_chi2   <2.4 ) bPrimaryVertex = true;
+    //&& fabs(vertex_Z)<20.0 ) bPrimaryVertex = true;
+
+  }
+
+
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
   
@@ -359,7 +391,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     theAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
   }
 
-   if(caloJets.isValid()){
+   if(caloJets.isValid() && bPrimaryVertex){
      theCleanedAKJetAnalyzer->setJetHiPass(JetHiPass);
      theCleanedAKJetAnalyzer->setJetLoPass(JetLoPass);
      theCleanedAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
@@ -381,7 +413,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     theSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
   }
 
-   if(caloJets.isValid()){
+   if(caloJets.isValid() && bPrimaryVertex){
      theCleanedSCJetAnalyzer->setJetHiPass(JetHiPass);
      theCleanedSCJetAnalyzer->setJetLoPass(JetLoPass);
      theCleanedSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
@@ -403,7 +435,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     theICJetAnalyzer->analyze(iEvent, iSetup, *caloJets);	
    }
 
-   if(caloJets.isValid()){
+   if(caloJets.isValid() && bPrimaryVertex){
      theCleanedICJetAnalyzer->setJetHiPass(JetHiPass);
      theCleanedICJetAnalyzer->setJetLoPass(JetLoPass);
      theCleanedICJetAnalyzer->analyze(iEvent, iSetup, *caloJets);

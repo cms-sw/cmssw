@@ -157,14 +157,14 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
 JPTJetAnalyzer::~JPTJetAnalyzer()
 {}
 
-void JPTJetAnalyzer::beginJob(edm::EventSetup const& iSetup, DQMStore* dqmStore)
-//void JPTJetAnalyzer::beginJob(DQMStore* dqmStore)
+void JPTJetAnalyzer::beginJob(DQMStore* dqmStore)
 {
   dqm_ = dqmStore;
   //book histograms
   dqmStore->setCurrentFolder(histogramPath_);
   bookHistograms(dqmStore);
 }
+
 
 void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets)
 {
