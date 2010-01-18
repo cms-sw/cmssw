@@ -36,8 +36,10 @@ ThirdHitPrediction::ThirdHitPrediction
 
  Bz = fabs(magfield->inInverseGeV(GlobalPoint(0,0,0)).z());
 
+ // Take transverse coordinates of the beam sport
  c0 = Global2DVector(region.origin().x(),
                      region.origin().y());
+
  r0 = region.originRBound();
  rm = region.ptMin() / Bz;
 
