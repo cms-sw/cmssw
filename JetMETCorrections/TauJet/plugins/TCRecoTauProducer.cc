@@ -39,3 +39,6 @@ void TCRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
 
    	iEvent.put(resultCaloTau);
 }
+
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(TCRecoTauProducer);
