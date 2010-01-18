@@ -45,11 +45,15 @@ CmsAnnotation::~CmsAnnotation()
 void
 CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 {
-   static UInt_t ttid = 0;
+   static UInt_t ttid_black = 0;
+   static UInt_t ttid_white = 0;
 
-   if (ttid == 0)
+   bool whiteBg = rnrCtx.ColorSet().Background().GetColorIndex() == kWhite;
+   UInt_t& ttid = whiteBg ? ttid_white : ttid_black;
+   if ( ttid == 0 )
    {
-      TImage* img = TImage::Open("$(CMSSW_BASE)/src/Fireworks/Core/icons/CMSlogo.png");
+      const char* path = Form("$(CMSSW_BASE)/src/Fireworks/Core/icons/CMSLogo%sBg.png", whiteBg ? "White" : "Black");
+      TImage* img = TImage::Open(path);
       // !!!!! Check if 0 !!!!!
 
       glGenTextures(1, &ttid);
@@ -59,13 +63,13 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
 
       glPixelStorei(GL_UNPACK_ALIGNMENT,  1);
       glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
 
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->GetWidth(), img->GetHeight(), 0,
-                   GL_BGRA, GL_UNSIGNED_BYTE, img->GetArgbArray());
+      gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, img->GetWidth(), img->GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, img->GetArgbArray());
 
       glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
 
@@ -106,11 +110,8 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 
    glEnable(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D, ttid);
-   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-   // env color
-   UChar_t* fg =  rnrCtx.ColorSet().Foreground().Arr();
-   GLfloat col[4] = { fg[0]/256.0, fg[1]/256.0, fg[2]/256.0, fg[3]/256.0};
-   glTexEnvfv (GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, col);
+
+   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
    // logo
    glPushName(kMove);
