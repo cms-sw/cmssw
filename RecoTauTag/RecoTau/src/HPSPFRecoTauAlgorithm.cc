@@ -322,95 +322,95 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 		    (*hadron)->vertex());
 	  
 
-
 	  if(tau.pt()>tauThreshold_&&strip1.pt()>stripPtThreshold_&&strip2.pt()>stripPtThreshold_)
-	    if(tau.mass()>oneProngTwoStripsMassWindow_.at(0)&&tau.mass()<oneProngTwoStripsMassWindow_.at(1))//Apply mass window
-	      if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),tagInfo->pfjetRef()->p4())<matchingCone_) { //Apply matching cone
-		//create the PFTau
-		tau.setpfTauTagInfoRef(tagInfo);
-
-		
-		//Create the signal vectors
-		PFCandidateRefVector signal;
-		PFCandidateRefVector signalH;
-		PFCandidateRefVector signalG;
-		
-		//Store the hadron in the PFTau
-		signalH.push_back(*hadron);
-		signal.push_back(*hadron);
-
-		//calculate the cone size from the reconstructed Objects
-		double tauCone=0.0;
-		if(coneMetric_ =="angle") {
-		  tauCone=fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4()));
-		}
-		else if(coneMetric_ =="DR") {
-		  tauCone=fabs(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()));
-		}
-		
-		//if the strip is further away increase the cone
-		if(coneMetric_ =="DR") {
-		  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1)>tauCone)
-		    tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1);
-		}
-		else if(coneMetric_ =="angle") {
-		  if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1))>tauCone)
-		    tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1));
-		}
-
-		//Now the second strip
-		if(coneMetric_ =="DR"){
-		  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2)>tauCone)
-		    tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2);
-		}
-		else if(coneMetric_ =="angle"){
-		  if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2))>tauCone)
-		    tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2));
-		}
-		
-		for(PFCandidateRefVector::const_iterator j=emConstituents1.begin();j!=emConstituents1.end();++j)  {
-		  signal.push_back(*j);
-		  signalG.push_back(*j);
-		}
-
-		for(PFCandidateRefVector::const_iterator j=emConstituents2.begin();j!=emConstituents2.end();++j)  {
-		  signal.push_back(*j);
-		  signalG.push_back(*j);
-		}
-
-		//Set the PFTau
-		tau.setsignalPFChargedHadrCands(signalH);
-		tau.setsignalPFGammaCands(signalG);
-		tau.setsignalPFCands(signal);
-		tau.setleadPFChargedHadrCand(*hadron);
+	    if((strip1+strip2).M() >oneProngTwoStripsPi0MassWindow_.at(0) &&(strip1+strip2).M() <oneProngTwoStripsPi0MassWindow_.at(1) )//pi0 conmstraint for two strips
+	      if(tau.mass()>oneProngTwoStripsMassWindow_.at(0)&&tau.mass()<oneProngTwoStripsMassWindow_.at(1))//Apply mass window
+		if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),tagInfo->pfjetRef()->p4())<matchingCone_) { //Apply matching cone
+		  //create the PFTau
+		  tau.setpfTauTagInfoRef(tagInfo);
 		  
-		//Set the lead Candidate->Can be the hadron or the leading PFGamma(When we clear the Dataformat we will put the strip)
-		if((*hadron)->pt()>emConstituents1.at(0)->pt())
-		  tau.setleadPFCand(*hadron);
-		else
-		  tau.setleadPFCand(emConstituents1.at(0));
-
-		//Apply the cone size formula  
-		if(isNarrowTau(tau,tauCone)) {
-
-		  //calculate the isolation Deposits
-		  associateIsolationCandidates(tau,tauCone);
-
-		  applyMuonRejection(tau);
-
-		  //For two strips take the nearest strip to the track
-		  if(ROOT::Math::VectorUtil::DeltaR(strip1,(*hadron)->p4())<
-		     ROOT::Math::VectorUtil::DeltaR(strip2,(*hadron)->p4()))
-		    applyElectronRejection(tau,strip1.energy());
+		
+		  //Create the signal vectors
+		  PFCandidateRefVector signal;
+		  PFCandidateRefVector signalH;
+		  PFCandidateRefVector signalG;
+		  
+		  //Store the hadron in the PFTau
+		  signalH.push_back(*hadron);
+		  signal.push_back(*hadron);
+		  
+		  //calculate the cone size from the reconstructed Objects
+		  double tauCone=0.0;
+		  if(coneMetric_ =="angle") {
+		    tauCone=fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4()));
+		  }
+		  else if(coneMetric_ =="DR") {
+		    tauCone=fabs(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()));
+		  }
+		  
+		  //if the strip is further away increase the cone
+		  if(coneMetric_ =="DR") {
+		    if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1)>tauCone)
+		      tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1);
+		  }
+		  else if(coneMetric_ =="angle") {
+		    if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1))>tauCone)
+		      tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1));
+		  }
+		  
+		  //Now the second strip
+		  if(coneMetric_ =="DR"){
+		    if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2)>tauCone)
+		      tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2);
+		  }
+		  else if(coneMetric_ =="angle"){
+		    if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2))>tauCone)
+		      tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2));
+		  }
+		  
+		  for(PFCandidateRefVector::const_iterator j=emConstituents1.begin();j!=emConstituents1.end();++j)  {
+		    signal.push_back(*j);
+		    signalG.push_back(*j);
+		  }
+		  
+		  for(PFCandidateRefVector::const_iterator j=emConstituents2.begin();j!=emConstituents2.end();++j)  {
+		    signal.push_back(*j);
+		    signalG.push_back(*j);
+		  }
+		  
+		  //Set the PFTau
+		  tau.setsignalPFChargedHadrCands(signalH);
+		  tau.setsignalPFGammaCands(signalG);
+		  tau.setsignalPFCands(signal);
+		  tau.setleadPFChargedHadrCand(*hadron);
+		  
+		  //Set the lead Candidate->Can be the hadron or the leading PFGamma(When we clear the Dataformat we will put the strip)
+		  if((*hadron)->pt()>emConstituents1.at(0)->pt())
+		    tau.setleadPFCand(*hadron);
 		  else
-		    applyElectronRejection(tau,strip2.energy());
-		  
-		  taus.push_back(tau);
+		    tau.setleadPFCand(emConstituents1.at(0));
+
+		  //Apply the cone size formula  
+		  if(isNarrowTau(tau,tauCone)) {
+		    
+		    //calculate the isolation Deposits
+		    associateIsolationCandidates(tau,tauCone);
+		    
+		    applyMuonRejection(tau);
+		    
+		  //For two strips take the nearest strip to the track
+		    if(ROOT::Math::VectorUtil::DeltaR(strip1,(*hadron)->p4())<
+		       ROOT::Math::VectorUtil::DeltaR(strip2,(*hadron)->p4()))
+		      applyElectronRejection(tau,strip1.energy());
+		    else
+		      applyElectronRejection(tau,strip2.energy());
+		    
+		    taus.push_back(tau);
+		  }
 		}
-	      }
 	}
   }
-
+  
   return taus;
 }
 
@@ -732,6 +732,7 @@ HPSPFRecoTauAlgorithm::configure(const edm::ParameterSet& p)
   useIsolationAnnulus_           = p.getParameter<bool>("useIsolationAnnulus");
   oneProngStripMassWindow_       = p.getParameter<std::vector<double> >("oneProngStripMassWindow");
   oneProngTwoStripsMassWindow_   = p.getParameter<std::vector<double> >("oneProngTwoStripsMassWindow");
+  oneProngTwoStripsPi0MassWindow_= p.getParameter<std::vector<double> >("oneProngTwoStripsPi0MassWindow");
   threeProngMassWindow_          = p.getParameter<std::vector<double> >("threeProngMassWindow");
   matchingCone_                  = p.getParameter<double>("matchingCone");
   coneMetric_                    = p.getParameter<std::string>("coneMetric");

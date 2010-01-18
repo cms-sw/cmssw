@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
 
+      Algorithm            = cms.string("ConeBased"),                                   
       LeadPFCand_minPt     = cms.double(5.0),  #cut on lead object (can be track, or gamma)
 
       #SignalCone parameters

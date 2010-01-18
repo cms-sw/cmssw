@@ -106,6 +106,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   //Mass Windows 
   std::vector<double> oneProngStripMassWindow_;
   std::vector<double> oneProngTwoStripsMassWindow_;
+  std::vector<double> oneProngTwoStripsPi0MassWindow_;
   std::vector<double> threeProngMassWindow_;
 
   //Matching Cone between PFTau , PFJet 
