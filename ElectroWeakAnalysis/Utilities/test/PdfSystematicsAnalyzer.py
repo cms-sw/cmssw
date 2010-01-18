@@ -5,8 +5,8 @@ process = cms.Process("PDFANA")
 
 # Max events
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(-1)
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
+    #input = cms.untracked.int32(10)
 )
 
 # Printouts
