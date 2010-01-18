@@ -35,8 +35,8 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   ~SiStripCommissioningSource();
   
   void beginRun( edm::Run const &, const edm::EventSetup & );
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endRun();
+  void analyze( const edm::Event &, const edm::EventSetup & );
+  void endRun( const edm::Run &, const edm::EventSetup & );
   
  private: // ---------- Private methods ----------
 
