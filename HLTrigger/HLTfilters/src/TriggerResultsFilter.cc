@@ -2,12 +2,17 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/17 15:29:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/18 12:49:50 $
+ *  $Revision: 1.2 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
  */
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 104100
+#pragma GCC diagnostic ignored "-Wparentheses"
+#endif
 
 #include <vector>
 #include <string>
