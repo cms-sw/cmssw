@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.86 2009/12/28 05:22:43 dlange Exp $
+// $Id: GsfElectronAlgo.cc,v 1.87 2010/01/15 13:01:00 chamont Exp $
 //
 //
 
@@ -649,8 +649,10 @@ void GsfElectronAlgo::createElectron
   SuperClusterRef scRef = coreRef->superCluster() ;
   if (scRef.isNull()) return ;
 
-  // Seed info
+  // Seed cluster
   const reco::CaloCluster & seedCluster = *(scRef->seed()) ;
+  // seed Xtal
+  // temporary, till CaloCluster->seed() is made available
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
 
   // various useful positions and momemtums
@@ -732,27 +734,29 @@ void GsfElectronAlgo::createElectron
   if (detector==EcalBarrel)
    {
 	fiducialFlags.isEB = true ;
-	if (EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)))
+	EBDetId ebdetid(seedXtalId);
+	if (EBDetId::isNextToEtaBoundary(ebdetid))
 	 {
-	  if (fabs(feta-1.479)<.1)
+	  if (ebdetid.ietaAbs()==85)
 	   { fiducialFlags.isEBEEGap = true ; }
 	  else
 	   { fiducialFlags.isEBEtaGap = true ; }
 	 }
-	if (EBDetId::isNextToPhiBoundary(EBDetId(seedXtalId)))
+	if (EBDetId::isNextToPhiBoundary(ebdetid))
 	 { fiducialFlags.isEBPhiGap = true ; }
    }
   else if (detector==EcalEndcap)
    {
 	fiducialFlags.isEE = true ;
-	if (EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)))
+	EEDetId eedetid(seedXtalId);
+	if (EEDetId::isNextToRingBoundary(eedetid))
 	 {
-	  if (fabs(feta-1.479)<.1)
+	  if (fabs(feta)<2.)
 	   { fiducialFlags.isEBEEGap = true ; }
 	  else
 	   { fiducialFlags.isEERingGap = true ; }
 	 }
-	if (EEDetId::isNextToDBoundary(EEDetId(seedXtalId)))
+	if (EEDetId::isNextToDBoundary(eedetid))
 	 { fiducialFlags.isEEDeeGap = true ; }
    }
   else
