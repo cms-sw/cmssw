@@ -1,4 +1,4 @@
-# $Id: qcdLowPtDQM_cfi.py,v 1.9 2009/11/29 11:20:45 loizides Exp $
+# $Id: qcdLowPtDQM_cfi.py,v 1.10 2009/12/04 12:36:42 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,7 +21,7 @@ myRecoSeq2 = cms.Sequence(
 
 myRecoSeq = cms.Sequence(myRecoSeq1 * myRecoSeq2)
 
-QcdLowPtDQM = cms.EDAnalyzer("QcdLowPtDQM",
+qcdLowPtDQM = cms.EDAnalyzer("QcdLowPtDQM",
     hltTrgNames  = cms.untracked.vstring(
     'HLT_MinBiasBSC',
     'HLT_MinBiasBSC_OR',

@@ -854,7 +854,3 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       return;
 
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-      DEFINE_FWK_MODULE( EwkElecDQM );

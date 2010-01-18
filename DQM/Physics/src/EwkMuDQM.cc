@@ -543,6 +543,3 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
 
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-      DEFINE_FWK_MODULE( EwkMuDQM );
