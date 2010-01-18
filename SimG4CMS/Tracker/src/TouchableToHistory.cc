@@ -31,7 +31,7 @@ void TouchableToHistory::buildAll(){
 	it != allSensitiveDets.end(); 
 	++it)
     {
-      DDTranslation const & t = (*it).translation(); 
+      DDTranslation const & t = (*it)->translation(); 
       theNavigator.LocateGlobalPointAndSetup(G4ThreeVector(t.x(),t.y(),t.z()));
       G4TouchableHistory * hist = theNavigator.CreateTouchableHistory(); 
       TouchableToHistory::Nav_Story st =  touchableToNavStory(hist);
@@ -40,8 +40,8 @@ void TouchableToHistory::buildAll(){
     u_int32_t oldsize = myDirectMap.size();
 #endif
 
-    myMap[st] = nav_type((*it).navType().begin(),(*it).navType.end());
-    myDirectMap[st] = (*it).geographicalID();
+    myMap[st] = nav_type((*it)->navType().begin(),(*it)->navType.end());
+    myDirectMap[st] = (*it)->geographicalID();
 
     /*
 #ifdef DEBUG    
