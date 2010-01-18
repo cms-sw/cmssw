@@ -5,7 +5,7 @@ process = cms.Process("zpdfsys")
 
 process.maxEvents = cms.untracked.PSet(
     #input = cms.untracked.int32(-1)
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -25,14 +25,14 @@ process.maxEvents = cms.untracked.PSet(
  
 process.source = cms.Source("PoolSource",
  fileNames = cms.untracked.vstring(
- 'file:../../WReco/test/cteq65pdfAnalyzer_Events_100K.root',                                  
+ 'file:genParticlePlusCteq65AndMRST06NNLOAndMSTW2007LOmodWeigths.root',
 )
 )
 process.evtInfo = cms.OutputModule("AsciiOutputModule")
 
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('cteq_test.root')
+    fileName = cms.string('cteq65AndMST06NLOABDMSTW2007lomod.root')
 )
 
 
@@ -41,7 +41,8 @@ process.TFileService = cms.Service("TFileService",
  # print "proc", proc
 process.zpf = cms.EDAnalyzer("zPdfUnc",
     genParticles = cms.InputTag("genParticles"),
-    pdfweights = cms.InputTag("cteq65ewkPdfWeights"),                              pdfmember = cms.untracked.uint32(0),
+    pdfweights = cms.InputTag("pdfWeights:xxxxx"),
+    pdfmember = cms.untracked.uint32(0),
     nbinsMass=cms.untracked.uint32(200),
     nbinsPt=cms.untracked.uint32(200),
     nbinsAng=cms.untracked.uint32(200),
@@ -50,31 +51,71 @@ process.zpf = cms.EDAnalyzer("zPdfUnc",
     angMax = cms.untracked.double(6.),
     #parameter for the geometric acceptance
     accPtMin = cms.untracked.double(20.0),
-    accMassMin = cms.untracked.double(40.0),
-    accMassMax = cms.untracked.double(12000.0),                             
+    accMassMin = cms.untracked.double(60.0),
+    accMassMax = cms.untracked.double(120.0),                             
     accEtaMin = cms.untracked.double(0.0),
-    accEtaMax = cms.untracked.double(2.0),
+    accEtaMax = cms.untracked.double(2.1),
     isMCatNLO= cms.untracked.bool(False),
-    outfilename= cms.untracked.string("cteq65_10K.txt")
+    outfilename= cms.untracked.string("xxxxx.txt")
   )
 
-for i in range(41):
+pdf_1 = "cteq65"
+pdf_2 = "MRST2006nnlo"
+pdf_3= "MRST2007lomod"
+
+
+
+### cteq65 has 1 + 2*20 members ###
+for i in range(41):  
   module = copy.deepcopy(process.zpf)
+  setattr(module, "pdfweights", "pdfWeights:cteq65")
   setattr(module, "pdfmember", i)
-  moduleLabel = module.label() + str(i)
+  setattr(module, "outfilename", "cteq65.txt")
+  moduleLabel = module.label()  + pdf_1+ "_" + str(i)
   setattr(process, moduleLabel, module)
   if i == 0:
     seq = module
   else:
     seq = seq + module
 
-print "seq", seq
+###  MRST2006nnlo has 1 + 2*30 members ###
+for j in range(61):
+  module = copy.deepcopy(process.zpf)
+  setattr(module, "pdfweights", "pdfWeights:MRST2006nnlo")
+  setattr(module, "pdfmember", j)
+  setattr(module, "outfilename", "MRST2006nnlo.txt")
+  moduleLabel = module.label()  + pdf_2+ "_" + str(j)
+  setattr(process, moduleLabel, module)
+ #  needed only if the sequence is filled for the first time
+ # if j == 0:
+ #   seq_2 = module
+ # else:
+  seq = seq + module
+
+###  MRST2007lomod has 1 member ###
+for k in range(1):
+  module = copy.deepcopy(process.zpf)
+  setattr(module, "pdfweights", "pdfWeights:MRST2007lomod")
+  setattr(module, "pdfmember", k)
+  setattr(module, "outfilename", "MRST2007lomod.txt")
+  moduleLabel = module.label()  + pdf_3+ "_" + str(k)
+  setattr(process, moduleLabel, module)
+ # needed only if the sequence is filled for the first time
+ # if k == 0:
+ #   seq_3 = module
+ # else:
+  seq = seq + module
+
+
+
+print "sequence", seq
     
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
 )
 
-print seq
+
+
                   
 process.path=cms.Path(seq)
 process.end = cms.EndPath(process.evtInfo )
