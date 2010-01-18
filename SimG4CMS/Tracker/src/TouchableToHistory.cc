@@ -27,7 +27,7 @@ void TouchableToHistory::buildAll(){
   myGeomDet->deepComponents(allSensitiveDets);
   edm::LogInfo("TrackerSimInfoNumbering")<<" TouchableTo History: got "<<allSensitiveDets.size()<<" sensitive detectors from TrackerMapDDDtoID.";
 
-  for ( std::vector<const GeometricDet*>const_iterator it = allSensitiveDets.begin(); 
+  for ( std::vector<const GeometricDet*>::const_iterator it = allSensitiveDets.begin(); 
 	it != allSensitiveDets.end(); 
 	++it)
     {
