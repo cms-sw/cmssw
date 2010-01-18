@@ -6,9 +6,6 @@
 #include "FWCore/Utilities/interface/Exception.h" 
 
 
-#include "boost/thread/mutex.hpp"
-
-
 #include <string>
 #include <vector>
 #include <map>
@@ -63,7 +60,6 @@ namespace edm {
       typedef std::vector<std::string>                         VString_t;
       typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
 
-      boost::mutex    mutex_;
       bool	      configured_;
       VString_t       lvl1Labels_; 
       unsigned int    nLvl1Index_;
