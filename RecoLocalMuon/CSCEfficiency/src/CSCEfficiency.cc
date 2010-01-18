@@ -1906,7 +1906,7 @@ CSCEfficiency::~CSCEfficiency(){
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-CSCEfficiency::beginJob(const edm::EventSetup&)
+CSCEfficiency::beginJob()
 {
 }
 

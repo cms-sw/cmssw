@@ -122,7 +122,7 @@ public:
   virtual ~CSCEfficiency();
 
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   //---- analysis + filter
   virtual bool filter(edm::Event & event, const edm::EventSetup& eventSetup);
 
