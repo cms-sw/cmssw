@@ -11,8 +11,8 @@
 #define PFTauAlgo_Track_minPt_           (0.0)
 #define PFTauAlgo_ChargedHadrCand_minPt_ (0.0)
 
-PFRecoTauAlgorithm::PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
-PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
+PFRecoTauAlgorithm::PFRecoTauAlgorithm() : PFRecoTauAlgorithmBase(){}  
+PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) :PFRecoTauAlgorithmBase(iConfig){
   LeadPFCand_minPt_                   = iConfig.getParameter<double>("LeadPFCand_minPt"); 
 
   UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ 
@@ -88,10 +88,6 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
 
 }
 
-void PFRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x)
-{
-   TransientTrackBuilder_ = x;
-}
 
 PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,const Vertex& myPV){
   PFJetRef myPFJet=(*myPFTauTagInfoRef).pfjetRef();  // catch a ref to the initial PFJet  
