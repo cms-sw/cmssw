@@ -19,13 +19,13 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
 { 
   lastStoredCondObj.first = NULL;
   lastStoredCondObj.second = 0;
-  
+
   edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::SiStripDetVOffBuilder] constructor" << endl;
 
   // set up vectors based on pset parameters (tDefault purely for initialization)
 
   whichQuery=(whichTable == "STATUSCHANGE" || (whichTable == "LASTVALUE" && !fromFile));
-   
+
   //Define the query interval [Tmin, Tmax]
   //where Tmax comes from the cfg
   //      Tmin comes from the cfg for the first o2o, after that it is extracted from Offline DB 
@@ -82,22 +82,12 @@ void SiStripDetVOffBuilder::printPar(std::stringstream& ss, const std::vector<in
   }
 }
 
-void SiStripDetVOffBuilder::BuildDetVOffObj() {
+void SiStripDetVOffBuilder::BuildDetVOffObj()
+{
   // vectors for storing output from DB or text file
   TimesAndValues timesAndValues;
 
-//   std::vector<coral::TimeStamp> changeDate;    // used by both
-//   std::vector<std::string>      dpname;        // only used by DB access, not file access
-//   std::vector<float>            actualValue;   // only used by DB access, not file access
-//   std::vector<uint32_t>         dpid;          // only used by file access
-//   std::vector<int>              actualStatus;  // filled using actualValue info
-//   cond::Time_t                  latestTime = 0;// used for timestamp when using lastValue from file
-  
-
   // Open the PVSS DB connection
-
-  // SiStripCoralIface * cif = new SiStripCoralIface(onlineDbConnectionString,authenticationPath);
-
   coralInterface.reset( new SiStripCoralIface(onlineDbConnectionString,authenticationPath) );
   edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::BuildDetVOff]: Query type is " << whichTable << endl;
 
@@ -105,26 +95,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
 
   if (lastStoredCondObj.second > 0) {edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::BuildDetVOff]: retrieved last time stamp from DB: " 
 									    << lastStoredCondObj.second  << endl;}
-
   // access the information!
-
-  //Casi
-  // a) STATUCHANGE  
-  //a1) first time
-  //     query tmin/tmax
-  //a2) append
-  //     query from handlerTim
-
-  // b) lastValue
-  // b1) from file
-
-  // b2) not from file
-  // query tmin-tmax, find the most recent date
-
-
-
-
-
 
   if (whichQuery) {
     if( whichTable == "STATUSCHANGE" ) {
@@ -140,18 +111,10 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
     }
   }
 
-  
-
-
-  // delete cif;
-
   DetIdListTimeAndStatus dStruct;
 
   // build PSU - det ID map
   buildPSUdetIdMap(timesAndValues, dStruct);
-
-
-
 
 
   // initialize variables
@@ -177,11 +140,6 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
     saveIovTime = lastStoredCondObj.second;
     setPayloadStats(0, 0, 0);
   }
-
-
-
-
-
 
 
   for (unsigned int i = 0; i < dStruct.detidV.size(); i++) {
@@ -269,13 +227,6 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
   }
 
 
-
-
-
-
-
-
-
   // compare the first element and the last from previous transfer
   if (lastStoredCondObj.first != NULL && lastStoredCondObj.second > 0) {
     if ( lastStoredCondObj.second == modulesOff[0].second &&
@@ -301,20 +252,6 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
       }
     }
   }
-
-//   std::cout << std::endl;
-//   std::cout << "Size of modulesOff = " << modulesOff.size() << std::endl;
-//   for (unsigned int i = 0; i < modulesOff.size(); i++) {
-//     std::vector<uint32_t> finalids;
-//     (modulesOff[i].first)->getDetIds(finalids);
-//     std::cout << "Index = " << i << " Size of DetIds vector = " << finalids.size() << std::endl;
-//     std::cout << "Time = " << modulesOff[i].second << std::endl;
-//     for (unsigned int j = 0; j < finalids.size(); j++) {
-//       std::cout << "detid = " << finalids[j] << " LV off = " << (modulesOff[i].first)->IsModuleLVOff(finalids[j]) << " HV off = " 
-//       	  << (modulesOff[i].first)->IsModuleHVOff(finalids[j]) << std::endl;
-//     }
-//   }
-
 }
 
 int SiStripDetVOffBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate) {
@@ -576,7 +513,6 @@ void SiStripDetVOffBuilder::statusChange( cond::Time_t & lastTime, TimesAndValue
 {
   // Setting tmin to the last value IOV of the database tag
   if( lastTime > 0 ) {
-//    edm::LogDebug("SiStripDetVOffBuilder::BuildDetVOff") << timeToStream(lastTime, "Starting from the last IOV in the database = ");
     tmin = getCoralTime(lastTime);
   }
   
