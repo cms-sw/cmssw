@@ -11,7 +11,7 @@ namespace qi {
   // Boost 1.41 has Spirit 2.1, with all the parser components available in the spirit::qi namespace
   using namespace boost::spirit::qi;
 
-#if BOOST_VERSION <= 104000
+#if BOOST_VERSION < 104100
   // Boost 1.40 has Spirit 2.0, so we need to import the needed components explicitly
   using namespace boost::spirit::arg_names;
   using boost::spirit::char_;
@@ -144,7 +144,7 @@ TriggerExpressionEvaluator * parseTriggerCondition(const T & text) {
   Iterator end   = text.end();
 
   // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
-#if BOOST_VERSION <= 104000
+#if BOOST_VERSION < 104100
   bool result = qi::phrase_parse( begin, end, parser, evaluator, ascii::space );
 #else
   bool result = qi::phrase_parse( begin, end, parser, ascii::space, evaluator );
@@ -167,7 +167,7 @@ inline TriggerExpressionEvaluator * parseTriggerCondition(const char * text) {
   const char * end   = text + strlen(text);
 
   // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
-#if BOOST_VERSION <= 104000
+#if BOOST_VERSION < 104100
   bool result = qi::phrase_parse( begin, end, parser, evaluator, ascii::space );
 #else
   bool result = qi::phrase_parse( begin, end, parser, ascii::space, evaluator );
