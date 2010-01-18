@@ -35,7 +35,7 @@ public :
   // logic parser for m_l1SeedsLogicalExpression
   std::vector<L1GtLogicParser*> m_l1AlgoLogicParser;
   L1GtLogicParser* m_preFilterLogicParser;
-  void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression);
+  void SetLogicParser(std::string l1SeedsLogicalExpression);
 
   // Declaration of leaf types
   Int_t           NrecoJetCal;
@@ -1368,9 +1368,9 @@ public :
   int OpenHltQuadJetPassed(double pt);
   int OpenHltQuadCorJetPassed(double pt);
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
-  int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
-  int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold) ;
-  int OHltTree::OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
+  int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
+  int OpenHltMHT(double MHTthreshold, double jetthreshold) ;
+  int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
 
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds

@@ -22,12 +22,12 @@ class OHltConfig {
   OHltConfig() {};
   OHltConfig(TString cfgfile,OHltMenu *omenu);
   virtual ~OHltConfig(){};
-  void OHltConfig::print();
-  void OHltConfig::fillMenu(OHltMenu *omenu);
-  void OHltConfig::printMenu(OHltMenu *omenu);
-  void OHltConfig::convert();
-  void OHltConfig::fillRunBlockList();
-  void OHltConfig::getPreFilter();
+  void print();
+  void fillMenu(OHltMenu *omenu);
+  void printMenu(OHltMenu *omenu);
+  void convert();
+  void fillRunBlockList();
+  void getPreFilter();
 
   // Data
   Config cfg;
