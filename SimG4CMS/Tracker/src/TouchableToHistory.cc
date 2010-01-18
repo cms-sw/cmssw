@@ -2,9 +2,8 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
-#include <iomanip>
-#include <fstream>
 
 #include "G4TransportationManager.hh" 
 #include "G4Navigator.hh" 
@@ -12,9 +11,6 @@
 #include "G4TouchableHistory.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-using std::vector;
-using std::string;
-using std::map;
 
 //#define DEBUG
 
