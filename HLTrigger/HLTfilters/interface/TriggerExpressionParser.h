@@ -159,7 +159,7 @@ TriggerExpressionEvaluator * parseTriggerCondition(const T & text) {
 }
 
 // overloaded interface for null-terminated strings
-TriggerExpressionEvaluator * parseTriggerCondition(const char * text) {
+inline TriggerExpressionEvaluator * parseTriggerCondition(const char * text) {
   TriggerExpressionParser<const char *> parser;
   TriggerExpressionEvaluator * evaluator = 0;
 
