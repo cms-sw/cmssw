@@ -5,8 +5,8 @@
  *  Description: Class to copy HV status via PopCon
  *
  *
- *  $Date: 2009/09/25 12:03:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/12/08 16:11:34 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -27,6 +27,7 @@ namespace coral {
   class ISessionProxy;
   class TimeStamp;
 }
+class DTHVAbstractCheck;
 
 //---------------
 // C++ Headers --
@@ -86,7 +87,7 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
                        int whe, int sta, int sec, int qua, int lay, int l_p,
                        char cht, int err );
 
-  int checkCurrentStatus( int chan, int type, float value );
+//  int checkCurrentStatus( int chan, int type, float value );
   int checkStatusChange( int type, float oldValue, float newValue );
 
   static coral::TimeStamp coralTime( const  cond::Time_t&    time );
@@ -115,9 +116,10 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
   long long int fwdTime;
   long long int minTime;
 
-  float* minHV;
-  float* maxHV;
-  float maxCurrent;
+  DTHVAbstractCheck* hvChecker;
+//  float* minHV;
+//  float* maxHV;
+//  float maxCurrent;
 
   cond::Time_t procSince;
   cond::Time_t procUntil;

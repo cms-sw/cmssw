@@ -19,10 +19,19 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     )
 )
 
-process.source = cms.Source("EmptySource",
-    numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(54544)
+process.source = cms.Source("EmptyIOVSource",
+    timetype   = cms.string('timestamp'),
+    firstValue = cms.uint64(5412014424843000000),
+    lastValue  = cms.uint64(5412014424843000000),
+#    firstValue = cms.uint64(5374055233297548744),
+#    lastValue  = cms.uint64(5374055233297548744),
+    interval   = cms.uint64(1)
 )
+
+#process.source = cms.Source("EmptySource",
+#    numberEventsInRun = cms.untracked.uint32(1),
+#    firstRun = cms.untracked.uint32(54544)
+#)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

@@ -11,6 +11,7 @@ Toy EDAnalyzer for testing purposes only.
 #include <map>
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "CoralBase/TimeStamp.h"
 
 
 #include "CondTools/DT/test/stubs/DTHVDump.h"
@@ -46,11 +47,40 @@ namespace edmtest {
               << " data in the container" << std::endl;
     edm::ValidityInterval iov(
          context.get<DTHVStatusRcd>().validityInterval() );
+/*
     unsigned int currValidityStart = iov.first().eventID().run();
     unsigned int currValidityEnd   = iov.last( ).eventID().run();
     std::cout << "valid since run " << currValidityStart
               << " to run "         << currValidityEnd << std::endl;
+*/
+    std::cout << "end of time: " << edm::Timestamp::endOfTime().value()
+              << std::endl;
+    long long int currValidityStart = iov.first().time().value();
+    long long int currValidityEnd   = iov.last( ).time().value();
+    std::cout << "valid since " << currValidityStart
+              << " to "         << currValidityEnd << std::endl;
+    long long int iTimeStart = 
+            ( ( ( ( currValidityStart >> 32 ) & 0xFFFFFFFF ) * 1000000000 ) +
+              ( (   currValidityStart         & 0xFFFFFFFF ) * 1000       ) );
+    long long int iTimeEnd = 
+            ( ( ( ( currValidityEnd   >> 32 ) & 0xFFFFFFFF ) * 1000000000 ) +
+              ( (   currValidityEnd           & 0xFFFFFFFF ) * 1000       ) );
+    coral::TimeStamp cTimeStart( iTimeStart );
+    coral::TimeStamp cTimeEnd(   iTimeEnd   );
+    std::cout << " ( " << cTimeStart.year()   << " , "
+                       << cTimeStart.month()  << " , "
+                       << cTimeStart.day()    << " h "
+                       << cTimeStart.hour()   << ":"
+                       << cTimeStart.minute() << ":"
+                       << cTimeStart.second() << " to "
+                       << cTimeEnd.  year()   << " , "
+                       << cTimeEnd.  month()  << " , "
+                       << cTimeEnd.  day()    << " h "
+                       << cTimeEnd.  hour()   << ":"
+                       << cTimeEnd.  minute() << ":"
+                       << cTimeEnd.  second() << " ) " << std::endl;
 
+/*
     DTHVStatus::const_iterator iter = hv->begin();
     DTHVStatus::const_iterator iend = hv->end();
     while ( iter != iend ) {
@@ -69,6 +99,7 @@ namespace edmtest {
                 << hvData.flagS  << std::endl;
       iter++;
     }
+*/
     std::cout << "============" << std::endl;
     int whe;
     int sta;
