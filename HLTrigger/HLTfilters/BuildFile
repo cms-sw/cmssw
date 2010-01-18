@@ -18,4 +18,3 @@
 <use name=HLTrigger/HLTcore>
 <use name=CondFormats/HLTObjects>
 <flags EDM_PLUGIN=1>
-<flags CXXFLAGS="-Wno-parentheses">
