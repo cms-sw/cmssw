@@ -21,7 +21,7 @@ using namespace edm;
 class TrackInfoAnalyzer : public edm::EDAnalyzer {
  public:
   TrackInfoAnalyzer(const edm::ParameterSet& pset) {conf_=pset;}
-  void beginJob(const edm::EventSetup& c){
+  void beginJob(){
     //       cout << "beginJob" <<endl;
     //     edm::ESHandle<TrackerGeometry> tkgeom;
     //    c.get<TrackerDigiGeometryRecord>().get( tkgeom );
