@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.11 2009/11/09 15:40:55 mommsen Exp $
+// $Id: Configuration.h,v 1.12 2010/01/07 14:54:30 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -46,9 +46,6 @@ namespace stor
     utils::duration_t _fileClosingTestInterval;
     bool _exactFileSizeTest;
     bool _useIndexFiles;  // not yet used
-    std::string _sataUser; // user name to log into SATA controller
-    int _nInjectWorkers; // expected number of inject workers running on the node
-    int _nCopyWorkers; // expected number of copy workers running on the node
 
     typedef std::vector<std::string> OtherDiskPaths;
     OtherDiskPaths _otherDiskPaths;
@@ -116,6 +113,24 @@ namespace stor
   };
 
   /**
+   * Data structure to hold configuration parameters
+   * that are used by the resource monitor
+   */
+  struct ResourceMonitorParams
+  {
+    std::string _sataUser;  // user name to log into SATA controller
+
+    struct WorkerParams
+    {
+      std::string _user;    // user name under which the workers are started
+      std::string _command; // command name to grep for number of workers
+      int _expectedCount;   // expected number of workers running on the node
+    };
+    WorkerParams _injectWorkers;
+    WorkerParams _copyWorkers;
+  };
+
+  /**
    * Free function to parse a storage manager configuration string
    * into the appropriate "configuration info" objects.
    */
@@ -129,8 +144,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/11/09 15:40:55 $
+   * $Revision: 1.12 $
+   * $Date: 2010/01/07 14:54:30 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -187,6 +202,13 @@ namespace stor
      * cache from the infospace (see the updateAllParams() method).
      */
     struct WorkerThreadParams getWorkerThreadParams() const;
+
+    /**
+     * Returns a copy of the resouce monitor parameters.  These values
+     * will be current as of the most recent global update of the local
+     * cache from the infospace (see the updateAllParams() method).
+     */
+    struct ResourceMonitorParams getResourceMonitorParams() const;
 
     /**
      * Updates the local copy of all configuration parameters from
@@ -254,18 +276,21 @@ namespace stor
     void setEventServingDefaults();
     void setQueueConfigurationDefaults();
     void setWorkerThreadDefaults();
+    void setResourceMonitorDefaults();
 
     void setupDiskWritingInfoSpaceParams(xdata::InfoSpace* infoSpace);
     void setupDQMProcessingInfoSpaceParams(xdata::InfoSpace* infoSpace);
     void setupEventServingInfoSpaceParams(xdata::InfoSpace* infoSpace);
     void setupQueueConfigurationInfoSpaceParams(xdata::InfoSpace* infoSpace);
     void setupWorkerThreadInfoSpaceParams(xdata::InfoSpace* infoSpace);
+    void setupResourceMonitorInfoSpaceParams(xdata::InfoSpace* infoSpace);
 
     void updateLocalDiskWritingData();
     void updateLocalDQMProcessingData();
     void updateLocalEventServingData();
     void updateLocalQueueConfigurationData();
     void updateLocalWorkerThreadData();
+    void updateLocalResourceMonitorData();
     void updateLocalRunNumber();
 
     struct DiskWritingParams _diskWriteParamCopy;
@@ -273,6 +298,7 @@ namespace stor
     struct EventServingParams _eventServeParamCopy;
     struct QueueConfigurationParams _queueConfigParamCopy;
     struct WorkerThreadParams _workerThreadParamCopy;
+    struct ResourceMonitorParams _resourceMonitorParamCopy;
 
     mutable boost::mutex _generalMutex;
 
@@ -296,9 +322,6 @@ namespace stor
     xdata::Integer _fileClosingTestInterval;
     xdata::Boolean _exactFileSizeTest;
     xdata::Boolean _useIndexFiles;
-    xdata::String _sataUser;
-    xdata::Integer _nInjectWorkers;
-    xdata::Integer _nCopyWorkers;
 
     xdata::Integer _activeConsumerTimeout;  // seconds
     xdata::Integer _consumerQueueSize;
@@ -325,6 +348,14 @@ namespace stor
     xdata::Double _DQMEPdeqWaitTime;
     xdata::Double _staleFragmentTimeOut;
     xdata::Double _monitoringSleepSec;
+
+    xdata::String _sataUser;
+    xdata::String _injectWorkersUser;
+    xdata::String _injectWorkersCommand;
+    xdata::Integer _nInjectWorkers;
+    xdata::String _copyWorkersUser;
+    xdata::String _copyWorkersCommand;
+    xdata::Integer _nCopyWorkers;
 
     mutable boost::mutex _evtStrCfgMutex;
     mutable boost::mutex _errStrCfgMutex;

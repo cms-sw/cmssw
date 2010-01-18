@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.10 2009/09/23 13:53:30 mommsen Exp $
+// $Id: Ready.cc,v 1.11 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -100,6 +100,9 @@ void Ready::do_entryActionWork()
   ResourceMonitorCollection& rmc =
     sharedResources->_statisticsReporter->getResourceMonitorCollection();
   rmc.configureDisks(dwParams);
+  ResourceMonitorParams rmp =
+    sharedResources->_configuration->getResourceMonitorParams();
+  rmc.configureResources(rmp);
 
   // configure the discard manager
   sharedResources->_discardManager->configure();

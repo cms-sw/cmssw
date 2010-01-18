@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.19 2009/12/01 13:58:08 mommsen Exp $
+// $Id: Configuration.cc,v 1.20 2010/01/07 14:54:30 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -29,12 +29,14 @@ namespace stor
     setEventServingDefaults();
     setQueueConfigurationDefaults();
     setWorkerThreadDefaults();
+    setResourceMonitorDefaults();
 
     setupDiskWritingInfoSpaceParams(infoSpace);
     setupDQMProcessingInfoSpaceParams(infoSpace);
     setupEventServingInfoSpaceParams(infoSpace);
     setupQueueConfigurationInfoSpaceParams(infoSpace);
     setupWorkerThreadInfoSpaceParams(infoSpace);
+    setupResourceMonitorInfoSpaceParams(infoSpace);
   }
 
   struct DiskWritingParams Configuration::getDiskWritingParams() const
@@ -68,6 +70,12 @@ namespace stor
     return _workerThreadParamCopy;
   }
 
+  struct ResourceMonitorParams Configuration::getResourceMonitorParams() const
+  {
+    boost::mutex::scoped_lock sl(_generalMutex);
+    return _resourceMonitorParamCopy;
+  }
+
   void Configuration::updateAllParams()
   {
     boost::mutex::scoped_lock sl(_generalMutex);
@@ -76,6 +84,7 @@ namespace stor
     updateLocalEventServingData();
     updateLocalQueueConfigurationData();
     updateLocalWorkerThreadData();
+    updateLocalResourceMonitorData();
     updateLocalRunNumber();
   }
 
@@ -164,9 +173,6 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
     _diskWriteParamCopy._exactFileSizeTest = false;
     _diskWriteParamCopy._useIndexFiles = true;
-    _diskWriteParamCopy._sataUser = "";
-    _diskWriteParamCopy._nInjectWorkers = -1;
-    _diskWriteParamCopy._nCopyWorkers = -1;
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
 
@@ -236,7 +242,19 @@ namespace stor
   
     _workerThreadParamCopy._staleFragmentTimeOut = 60;
     _workerThreadParamCopy._monitoringSleepSec = 1;
-}
+  }
+
+  void Configuration::setResourceMonitorDefaults()
+  {
+    // set defaults
+    _resourceMonitorParamCopy._sataUser = "";
+    _resourceMonitorParamCopy._injectWorkers._user = "smpro";
+    _resourceMonitorParamCopy._injectWorkers._command = "/InjectWorker.pl /store/global";
+    _resourceMonitorParamCopy._injectWorkers._expectedCount = -1;
+    _resourceMonitorParamCopy._copyWorkers._user = "cmsprod";
+    _resourceMonitorParamCopy._copyWorkers._command = "CopyManager/CopyWorker.pl";
+    _resourceMonitorParamCopy._copyWorkers._expectedCount = -1;
+  }
 
   void Configuration::
   setupDiskWritingInfoSpaceParams(xdata::InfoSpace* infoSpace)
@@ -256,9 +274,6 @@ namespace stor
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
     _exactFileSizeTest = _diskWriteParamCopy._exactFileSizeTest;
     _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
-    _sataUser = _diskWriteParamCopy._sataUser;
-    _nInjectWorkers = _diskWriteParamCopy._nInjectWorkers;
-    _nCopyWorkers = _diskWriteParamCopy._nCopyWorkers;
 
     utils::getXdataVector(_diskWriteParamCopy._otherDiskPaths, _otherDiskPaths);
 
@@ -279,9 +294,6 @@ namespace stor
                                  &_fileClosingTestInterval);
     infoSpace->fireItemAvailable("exactFileSizeTest", &_exactFileSizeTest);
     infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
-    infoSpace->fireItemAvailable("sataUser", &_sataUser);
-    infoSpace->fireItemAvailable("nInjectWorkers", &_nInjectWorkers);
-    infoSpace->fireItemAvailable("nCopyWorkers", &_nCopyWorkers);
 
     // special handling for the stream configuration string (we
     // want to note when it changes to see if we need to reconfigure
@@ -372,6 +384,28 @@ namespace stor
     infoSpace->fireItemAvailable("monitoringSleepSec", &_monitoringSleepSec);
   }
 
+  void Configuration::
+  setupResourceMonitorInfoSpaceParams(xdata::InfoSpace* infoSpace)
+  {
+    // copy the initial defaults to the xdata variables
+    _sataUser = _resourceMonitorParamCopy._sataUser;
+    _injectWorkersUser = _resourceMonitorParamCopy._injectWorkers._user;
+    _injectWorkersCommand = _resourceMonitorParamCopy._injectWorkers._command;
+    _nInjectWorkers = _resourceMonitorParamCopy._injectWorkers._expectedCount;
+    _copyWorkersUser = _resourceMonitorParamCopy._copyWorkers._user;
+    _copyWorkersCommand = _resourceMonitorParamCopy._copyWorkers._command;
+    _nCopyWorkers = _resourceMonitorParamCopy._copyWorkers._expectedCount;
+ 
+    // bind the local xdata variables to the infospace
+    infoSpace->fireItemAvailable("sataUser", &_sataUser);
+    infoSpace->fireItemAvailable("injectWorkersUser", &_injectWorkersUser);
+    infoSpace->fireItemAvailable("injectWorkersCommand", &_injectWorkersCommand);
+    infoSpace->fireItemAvailable("nInjectWorkers", &_nInjectWorkers);
+    infoSpace->fireItemAvailable("copyWorkersUser", &_copyWorkersUser);
+    infoSpace->fireItemAvailable("copyWorkersCommand", &_copyWorkersCommand);
+    infoSpace->fireItemAvailable("nCopyWorkers", &_nCopyWorkers);
+  }
+
   void Configuration::updateLocalDiskWritingData()
   {
     evf::ParameterSetRetriever smpset(_streamConfiguration);
@@ -389,9 +423,6 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
     _diskWriteParamCopy._exactFileSizeTest = _exactFileSizeTest;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
-    _diskWriteParamCopy._sataUser = _sataUser;
-    _diskWriteParamCopy._nInjectWorkers = _nInjectWorkers;
-    _diskWriteParamCopy._nCopyWorkers = _nCopyWorkers;
 
     utils::getStdVector(_otherDiskPaths, _diskWriteParamCopy._otherDiskPaths);
 
@@ -458,6 +489,17 @@ namespace stor
 
     _workerThreadParamCopy._staleFragmentTimeOut = _staleFragmentTimeOut;
     _workerThreadParamCopy._monitoringSleepSec = _monitoringSleepSec;
+  }
+
+  void Configuration::updateLocalResourceMonitorData()
+  {
+    _resourceMonitorParamCopy._sataUser = _sataUser;
+    _resourceMonitorParamCopy._injectWorkers._user = _injectWorkersUser;
+    _resourceMonitorParamCopy._injectWorkers._command = _injectWorkersCommand;
+    _resourceMonitorParamCopy._injectWorkers._expectedCount = _nInjectWorkers;
+    _resourceMonitorParamCopy._copyWorkers._user = _copyWorkersUser;
+    _resourceMonitorParamCopy._copyWorkers._command = _copyWorkersCommand;
+    _resourceMonitorParamCopy._copyWorkers._expectedCount = _nCopyWorkers;
   }
 
   void Configuration::updateLocalRunNumber()

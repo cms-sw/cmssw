@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.20 2009/11/11 15:50:36 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.21 2010/01/13 14:12:58 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.20 $
-   * $Date: 2009/11/11 15:50:36 $
+   * $Revision: 1.21 $
+   * $Date: 2010/01/13 14:12:58 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -75,6 +75,11 @@ namespace stor {
      * Configures the disks used to write events
      */
     void configureDisks(DiskWritingParams const&);
+
+    /**
+     * Configures the resources to be monitored
+     */
+    void configureResources(ResourceMonitorParams const&);
 
     /**
      * Write all our collected statistics into the given Stats struct.
@@ -129,6 +134,7 @@ namespace stor {
     void updateSataBeastStatus(const std::string& sataBeast, const std::string& content);
 
     DiskWritingParams _dwParams;
+    ResourceMonitorParams _rmParams;
 
     int _numberOfCopyWorkers;
     int _numberOfInjectWorkers;
