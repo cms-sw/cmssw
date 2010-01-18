@@ -528,8 +528,9 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
   echo "      <Environment name=\"SHERPA_BASE\" value=\""${SHERPADIR}"\"/>" >> ${xmlfile}
   echo "      <Environment name=\"BINDIR\" default=\"\$SHERPA_BASE/bin\"/>" >> ${xmlfile}
   echo "      <Environment name=\"LIBDIR\" default=\"\$SHERPA_BASE/lib/SHERPA-MC\"/>" >> ${xmlfile}
-  echo "      <Environment name=\"INCLUDE\" default=\"\$SHERPA_BASE/include\"/>" >> ${xmlfile}
+  echo "      <Environment name=\"INCLUDE\" default=\"\$SHERPA_BASE/include/SHERPA-MC\"/>" >> ${xmlfile}
   echo "    </client>" >> ${xmlfile}
+  echo "    <runtime name=\"LD_LIBRARY_PATH\" value=\"\$SHERPA_BASE/lib/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
   echo "    <runtime name=\"CMSSW_FWLITE_INCLUDE_PATH\" value=\"\$SHERPA_BASE/include\" type=\"path\"/>" >> ${xmlfile}
   echo "    <runtime name=\"SHERPA_SHARE_PATH\" value=\"\$SHERPA_BASE/share/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
   echo "    <runtime name=\"SHERPA_INCLUDE_PATH\" value=\"\$SHERPA_BASE/include/SHERPA-MC\" type=\"path\"/>" >> ${xmlfile}
