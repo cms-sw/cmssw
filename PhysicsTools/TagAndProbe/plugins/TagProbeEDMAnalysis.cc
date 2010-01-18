@@ -617,13 +617,12 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
   effhist->SetNameTitle(hname.c_str(), htitle.c_str());
   
   for (unsigned int iBin=0; iBin<bnbins; ++iBin ) {
-    // Limit the scope of these variables and speed up by declaring them static.
-    static const std::string passCond = "("+passingProbeName_+"==1)";
-    static const std::string failCond = "("+passingProbeName_+"==0)";
-    static std::ostringstream bvar1Cond;
-    static double lowEdge;
-    static double highEdge;
-    static std::string bunits = "";
+    const std::string passCond = "("+passingProbeName_+"==1)";
+    const std::string failCond = "("+passingProbeName_+"==0)";
+    std::ostringstream bvar1Cond;
+    double lowEdge;
+    double highEdge;
+    std::string bunits = "";
 
     if( bvar == "Pt" ) bunits = "GeV";
     if ( doTextDefinedBins_ ) {
