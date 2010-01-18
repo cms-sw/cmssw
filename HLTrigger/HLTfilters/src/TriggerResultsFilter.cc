@@ -2,10 +2,10 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/11/13 19:32:23 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/01/17 15:29:46 $
+ *  $Revision: 1.1 $
  *
- *  \author Martin Grunewald
+ *  Authors: Martin Grunewald, Andrea Bocci
  *
  */
 
@@ -68,3 +68,7 @@ bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & se
   
   return result; 
 }
+
+// register as framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TriggerResultsFilter);
