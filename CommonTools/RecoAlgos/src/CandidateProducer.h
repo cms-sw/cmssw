@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: CandidateProducer.h,v 1.1 2009/03/04 13:11:31 llista Exp $
+ * $Id: CandidateProducer.h,v 1.2 2010/01/14 22:49:48 wmtan Exp $
  *
  */
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -80,7 +80,7 @@ public:
   
 private:
   /// begin job (first run)
-  void beginRun(const edm::Run&, const edm::EventSetup& es) {
+  void beginRun(edm::Run&, const edm::EventSetup& es) {
     if (!initialized_) {
       converter_.beginFirstRun(es);
       initialized_ = true;
