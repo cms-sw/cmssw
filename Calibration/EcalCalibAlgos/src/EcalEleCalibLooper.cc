@@ -155,24 +155,10 @@ EcalEleCalibLooper::~EcalEleCalibLooper ()
 
 //!BeginOfJob
 void 
-EcalEleCalibLooper::beginOfJob (const edm::EventSetup & iSetup) 
+EcalEleCalibLooper::beginOfJob () 
 {
- edm::LogInfo ("IML") << "[EcalEleCalibLooper][beginOfJob]" ;
- edm::ESHandle<CaloGeometry> geoHandle;
- iSetup.get<CaloGeometryRecord> ().get (geoHandle);
- const CaloGeometry& geometry = *geoHandle;
- m_barrelCells = geometry.getValidDetIds (DetId::Ecal, EcalBarrel);
- m_endcapCells = geometry.getValidDetIds (DetId::Ecal, EcalEndcap);
- for (std::vector<DetId>::const_iterator barrelIt=m_barrelCells.begin();
-       barrelIt!=m_barrelCells.end();++barrelIt){
-          m_barrelMap[*barrelIt]=1;
-          m_xtalNumOfHits[barrelIt->rawId()]=0;
-         }
- for (std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
-       endcapIt!=m_endcapCells.end();++endcapIt){
-          m_endcapMap[*endcapIt]=1;
-          m_xtalNumOfHits[endcapIt->rawId()]=0;
-         }
+  isfirstcall_=true;
+ 
 }
 
 
@@ -184,6 +170,9 @@ EcalEleCalibLooper::beginOfJob (const edm::EventSetup & iSetup)
 void EcalEleCalibLooper::startingNewLoop (unsigned int ciclo) 
 {
   edm::LogInfo ("IML") << "[InvMatrixCalibLooper][Start] entering loop " << ciclo;
+
+ 
+
   for (std::vector<VEcalCalibBlock *>::iterator calibBlock = m_EcalCalibBlocks.begin () ;
        calibBlock != m_EcalCalibBlocks.end () ;
        ++calibBlock) 
@@ -203,8 +192,34 @@ void EcalEleCalibLooper::startingNewLoop (unsigned int ciclo)
 //!return the status Kcontinue, fills the calibBlock with the recHits
 edm::EDLooper::Status
 EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
-                             const edm::EventSetup&) 
+                             const edm::EventSetup& iSetup) 
 {
+
+  // this chunk used to belong to beginJob(isetup). Moved here
+  // with the beginJob without arguments migration
+  
+  if (isfirstcall_){
+  edm::ESHandle<CaloGeometry> geoHandle;
+  iSetup.get<CaloGeometryRecord> ().get (geoHandle);
+  const CaloGeometry& geometry = *geoHandle;
+  m_barrelCells = geometry.getValidDetIds (DetId::Ecal, EcalBarrel);
+  m_endcapCells = geometry.getValidDetIds (DetId::Ecal, EcalEndcap);
+    for (std::vector<DetId>::const_iterator barrelIt=m_barrelCells.begin();
+	 barrelIt!=m_barrelCells.end();++barrelIt){
+      m_barrelMap[*barrelIt]=1;
+      m_xtalNumOfHits[barrelIt->rawId()]=0;
+    }
+    for (std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
+	 endcapIt!=m_endcapCells.end();++endcapIt){
+      m_endcapMap[*endcapIt]=1;
+      m_xtalNumOfHits[endcapIt->rawId()]=0;
+    }
+    
+    isfirstcall_=false; 
+  }
+  
+
+
  //take the collection of recHits in the barrel
  const EBRecHitCollection* barrelHitsCollection = 0;
  edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;

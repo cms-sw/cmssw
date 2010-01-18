@@ -109,65 +109,14 @@ Pi0FixedMassWindowCalibration::~Pi0FixedMassWindowCalibration()
 //_____________________________________________________________________________
 // Initialize algorithm
 
-void Pi0FixedMassWindowCalibration::beginOfJob( const edm::EventSetup& iSetup )
+void Pi0FixedMassWindowCalibration::beginOfJob( )
 {
 
-  std::cout << "[Pi0FixedMassWindowCalibration] beginOfJob "<<std::endl;
+  //std::cout << "[Pi0FixedMassWindowCalibration] beginOfJob "<<std::endl;
 
-  // initialize arrays
-
-  for (int sign=0; sign<2; sign++) {
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	oldCalibs_barl[ieta][iphi][sign]=0.;
-	newCalibs_barl[ieta][iphi][sign]=0.;
-	wxtals[ieta][iphi][sign]=0.;
-	mwxtals[ieta][iphi][sign]=0.;
-      }
-    }
-  }
-
-  // get initial constants out of DB
-
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  EcalIntercalibConstantMap imap;
-
-  try {
-    iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-    std::cout << "Taken EcalIntercalibConstants" << std::endl;
-    imap = pIcal.product()->getMap();
-    std::cout << "imap.size() = " << imap.size() << std::endl;
-  } catch ( std::exception& ex ) {     
-    std::cerr << "Error! can't get EcalIntercalibConstants " << std::endl;
-  } 
-
-  // get the ecal geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
-  //const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-
-  // loop over all barrel crystals
-  barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
-  std::vector<DetId>::const_iterator barrelIt;
-  for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
-    EBDetId eb(*barrelIt);
-
-    // get the initial calibration constants
-    EcalIntercalibConstantMap::const_iterator itcalib = imap.find(eb.rawId());
-    if ( itcalib == imap.end() ) {
-            // FIXME -- throw error
-    }
-    EcalIntercalibConstant calib = (*itcalib);
-    int sign = eb.zside()>0 ? 1 : 0;
-    oldCalibs_barl[abs(eb.ieta())-1][eb.iphi()-1][sign] = calib;
-    if (eb.iphi()==1) std::cout << "Read old constant for crystal "
-                           << " (" << eb.ieta() << "," << eb.iphi()
-                           << ") : " << calib << std::endl;
-
-
-
-  }
+  isfirstcall_=true;
+  
+ 
 
 }
 
@@ -276,6 +225,69 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
 {
   using namespace edm;
   using namespace std;
+
+  // this chunk used to belong to beginJob(isetup). Moved here
+  // with the beginJob without arguments migration
+  
+  if (isfirstcall_){
+   // initialize arrays
+
+    for (int sign=0; sign<2; sign++) {
+      for (int ieta=0; ieta<85; ieta++) {
+	for (int iphi=0; iphi<360; iphi++) {
+	  oldCalibs_barl[ieta][iphi][sign]=0.;
+	  newCalibs_barl[ieta][iphi][sign]=0.;
+	  wxtals[ieta][iphi][sign]=0.;
+	  mwxtals[ieta][iphi][sign]=0.;
+	}
+      }
+    }
+    
+    // get initial constants out of DB
+    
+    edm::ESHandle<EcalIntercalibConstants> pIcal;
+    EcalIntercalibConstantMap imap;
+    
+    try {
+      setup.get<EcalIntercalibConstantsRcd>().get(pIcal);
+      std::cout << "Taken EcalIntercalibConstants" << std::endl;
+      imap = pIcal.product()->getMap();
+      std::cout << "imap.size() = " << imap.size() << std::endl;
+    } catch ( std::exception& ex ) {     
+      std::cerr << "Error! can't get EcalIntercalibConstants " << std::endl;
+    } 
+    
+    // get the ecal geometry:
+    edm::ESHandle<CaloGeometry> geoHandle;
+    setup.get<CaloGeometryRecord>().get(geoHandle);
+    const CaloGeometry& geometry = *geoHandle;
+    //const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    
+    // loop over all barrel crystals
+    barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
+    std::vector<DetId>::const_iterator barrelIt;
+    for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
+      EBDetId eb(*barrelIt);
+      
+      // get the initial calibration constants
+      EcalIntercalibConstantMap::const_iterator itcalib = imap.find(eb.rawId());
+      if ( itcalib == imap.end() ) {
+	// FIXME -- throw error
+      }
+      EcalIntercalibConstant calib = (*itcalib);
+      int sign = eb.zside()>0 ? 1 : 0;
+      oldCalibs_barl[abs(eb.ieta())-1][eb.iphi()-1][sign] = calib;
+      if (eb.iphi()==1) std::cout << "Read old constant for crystal "
+				  << " (" << eb.ieta() << "," << eb.iphi()
+				  << ") : " << calib << std::endl;
+      
+      
+      
+    }
+    isfirstcall_=false;
+  }
+  
+
 
   nevent++;
 

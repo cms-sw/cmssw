@@ -192,147 +192,9 @@ ZeeCalibration::produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd
   return ical;
 }
 
-
-void ZeeCalibration::beginOfJob( const edm::EventSetup& iSetup )
-{
-#ifdef DEBUG
-  std::cout<<"[ZeeCalibration] Entering beginOfJob"<<std::endl;
-#endif
-
-//inizializzare la geometria di ecal
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);     
-  EcalRingCalibrationTools::setCaloGeometry(&(*pG));  
-     
-  myZeePlots_ = new ZeePlots( "zeePlots.root" );
-  //  myZeeRescaleFactorPlots_ = new ZeeRescaleFactorPlots("zeeRescaleFactorPlots.root");
-
-// go to *OUR* rootfile and book histograms                                                                                                                
-  outputFile_->cd();
-  bookHistograms();
-
-  std::cout<<"[ZeeCalibration::beginOfJob] Histograms booked "<<std::endl;
-
-  loopFlag_ = 0;
-
-  //Read miscalibration map if requested
-  CaloMiscalibMapEcal* miscalibMap=0;
-  if (!barrelfile_.empty() || !barrelfile_.empty())
-    {
-      miscalibMap=new CaloMiscalibMapEcal();
-      miscalibMap->prefillMap();
-    }
+void ZeeCalibration::beginOfJob(){isfirstcall_=true;}
 
 
-  if(!barrelfile_.empty())
-    {
-      MiscalibReaderFromXMLEcalBarrel barrelreader_(*miscalibMap);
-      barrelreader_.parseXMLMiscalibFile(barrelfile_);
-#ifdef DEBUG
-  std::cout<<"[ZeeCalibration::beginOfJob] Parsed EB miscal file"<<std::endl;
-#endif
-    }
-
-  if(!endcapfile_.empty())
-    {
-      MiscalibReaderFromXMLEcalEndcap endcapreader_(*miscalibMap);
-      endcapreader_.parseXMLMiscalibFile(endcapfile_);
-#ifdef DEBUG
-  std::cout<<"[ZeeCalibration::beginOfJob] Parsed EE miscal file"<<std::endl;
-#endif
-    }
-
-  std::cout << "  theAlgorithm_->getNumberOfChannels() "
-	    << theAlgorithm_->getNumberOfChannels() << std::endl;
-
-
-   ////////////////////set miscalibration  
-  for(int k = 0; k < theAlgorithm_->getNumberOfChannels(); k++)
-    {
-      calibCoeff[k]=1.;
-      calibCoeffError[k]=0.;
-     
-      std::vector<DetId> ringIds;
-
-      if(calibMode_ == "RING")
-	ringIds = EcalRingCalibrationTools::getDetIdsInRing(k);
-
-      if(calibMode_ == "MODULE")
-	ringIds = EcalRingCalibrationTools::getDetIdsInModule(k);
-
-      if(calibMode_ == "ABS_SCALE" || calibMode_ == "ETA_ET_MODE" )
-	ringIds = EcalRingCalibrationTools::getDetIdsInECAL();
-      
-      if (miscalibMap)
-	{
-	  initCalibCoeff[k]=0.;	      
-	  for (unsigned int iid=0; iid<ringIds.size();++iid)
-	    {
-	      float miscalib=* (miscalibMap->get().getMap().find(ringIds[iid])  );
-	      //	      float miscalib=miscalibMap->get().getMap().find(ringIds[iid])->second; ////////AP
-	      initCalibCoeff[k]+=miscalib;
-	    }
-	  initCalibCoeff[k]/=(float)ringIds.size();
-	  std::cout << k << " " << initCalibCoeff[k] << " " << ringIds.size() << std::endl;
-	}
-      else
-	{
-	  initCalibCoeff[k]=1.;
-	}
-    }
-
-  ical = boost::shared_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
-  
-  for(int k = 0; k < theAlgorithm_->getNumberOfChannels(); k++)
-    {
-      //      std::vector<DetId> ringIds = EcalRingCalibrationTools::getDetIdsInRing(k);
-
-      std::vector<DetId> ringIds;
-
-      if(calibMode_ == "RING")
-	ringIds = EcalRingCalibrationTools::getDetIdsInRing(k);
-
-      if(calibMode_ == "MODULE")
-	ringIds = EcalRingCalibrationTools::getDetIdsInModule(k);
-
-      if(calibMode_ == "ABS_SCALE" || calibMode_ == "ETA_ET_MODE")
-	ringIds = EcalRingCalibrationTools::getDetIdsInECAL();
-      
-      
-      for (unsigned int iid=0; iid<ringIds.size();++iid){
-	//	ical->setValue( ringIds[iid], 1. * initCalibCoeff[k] );
-	
-	if(ringIds[iid].subdetId() == EcalBarrel){
-	  EBDetId myEBDetId(ringIds[iid]);  
-	  h2_xtalMiscalibCoeffBarrel_->SetBinContent( myEBDetId.ieta() + 86, myEBDetId.iphi(), * (miscalibMap->get().getMap().find(ringIds[iid]) ) );//fill TH2 with miscalibCoeff
-	 
-	}
-
-	if(ringIds[iid].subdetId() == EcalEndcap){
-	  EEDetId myEEDetId(ringIds[iid]);
-	  if(myEEDetId.zside() < 0)
-	    h2_xtalMiscalibCoeffEndcapMinus_->SetBinContent( myEEDetId.ix(), myEEDetId.iy(), * ( miscalibMap->get().getMap().find(ringIds[iid]) ) );//fill TH2 with miscalibCoeff
-
-	  if(myEEDetId.zside() > 0)
-	    h2_xtalMiscalibCoeffEndcapPlus_->SetBinContent( myEEDetId.ix(), myEEDetId.iy(), * (miscalibMap->get().getMap().find(ringIds[iid]) ) );//fill TH2 with miscalibCoeff
-	  
-	}
-	
-	ical->setValue( ringIds[iid], *(miscalibMap->get().getMap().find(ringIds[iid])  ) );
-
-      }
-
-  
-  read_events = 0;
-  init_ = false;
-
-
-    }
-#ifdef DEBUG
-  std::cout<<"[ZeeCalibration] Done with beginOfJob"<<std::endl;
-#endif
-
-}
 
 
 //========================================================================
@@ -805,6 +667,149 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 #endif
  
   
+  // code that used to be in beginJob
+  if (isfirstcall_){
+
+    //inizializzare la geometria di ecal
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<CaloGeometryRecord>().get(pG);     
+    EcalRingCalibrationTools::setCaloGeometry(&(*pG));  
+     
+    myZeePlots_ = new ZeePlots( "zeePlots.root" );
+    //  myZeeRescaleFactorPlots_ = new ZeeRescaleFactorPlots("zeeRescaleFactorPlots.root");
+
+    // go to *OUR* rootfile and book histograms                                                                                                                
+    outputFile_->cd();
+    bookHistograms();
+
+    std::cout<<"[ZeeCalibration::beginOfJob] Histograms booked "<<std::endl;
+
+    loopFlag_ = 0;
+
+    //Read miscalibration map if requested
+    CaloMiscalibMapEcal* miscalibMap=0;
+    if (!barrelfile_.empty() || !barrelfile_.empty())
+      {
+	miscalibMap=new CaloMiscalibMapEcal();
+	miscalibMap->prefillMap();
+      }
+
+
+    if(!barrelfile_.empty())
+      {
+	MiscalibReaderFromXMLEcalBarrel barrelreader_(*miscalibMap);
+	barrelreader_.parseXMLMiscalibFile(barrelfile_);
+#ifdef DEBUG
+	std::cout<<"[ZeeCalibration::beginOfJob] Parsed EB miscal file"<<std::endl;
+#endif
+      }
+
+    if(!endcapfile_.empty())
+      {
+	MiscalibReaderFromXMLEcalEndcap endcapreader_(*miscalibMap);
+	endcapreader_.parseXMLMiscalibFile(endcapfile_);
+#ifdef DEBUG
+	std::cout<<"[ZeeCalibration::beginOfJob] Parsed EE miscal file"<<std::endl;
+#endif
+      }
+
+    std::cout << "  theAlgorithm_->getNumberOfChannels() "
+	      << theAlgorithm_->getNumberOfChannels() << std::endl;
+
+
+    ////////////////////set miscalibration  
+    for(int k = 0; k < theAlgorithm_->getNumberOfChannels(); k++)
+      {
+	calibCoeff[k]=1.;
+	calibCoeffError[k]=0.;
+     
+	std::vector<DetId> ringIds;
+
+	if(calibMode_ == "RING")
+	  ringIds = EcalRingCalibrationTools::getDetIdsInRing(k);
+
+	if(calibMode_ == "MODULE")
+	  ringIds = EcalRingCalibrationTools::getDetIdsInModule(k);
+
+	if(calibMode_ == "ABS_SCALE" || calibMode_ == "ETA_ET_MODE" )
+	  ringIds = EcalRingCalibrationTools::getDetIdsInECAL();
+      
+	if (miscalibMap)
+	  {
+	    initCalibCoeff[k]=0.;	      
+	    for (unsigned int iid=0; iid<ringIds.size();++iid)
+	      {
+		float miscalib=* (miscalibMap->get().getMap().find(ringIds[iid])  );
+		//	      float miscalib=miscalibMap->get().getMap().find(ringIds[iid])->second; ////////AP
+		initCalibCoeff[k]+=miscalib;
+	      }
+	    initCalibCoeff[k]/=(float)ringIds.size();
+	    std::cout << k << " " << initCalibCoeff[k] << " " << ringIds.size() << std::endl;
+	  }
+	else
+	  {
+	    initCalibCoeff[k]=1.;
+	  }
+      }
+
+    ical = boost::shared_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
+  
+    for(int k = 0; k < theAlgorithm_->getNumberOfChannels(); k++)
+      {
+	//      std::vector<DetId> ringIds = EcalRingCalibrationTools::getDetIdsInRing(k);
+
+	std::vector<DetId> ringIds;
+
+	if(calibMode_ == "RING")
+	  ringIds = EcalRingCalibrationTools::getDetIdsInRing(k);
+
+	if(calibMode_ == "MODULE")
+	  ringIds = EcalRingCalibrationTools::getDetIdsInModule(k);
+
+	if(calibMode_ == "ABS_SCALE" || calibMode_ == "ETA_ET_MODE")
+	  ringIds = EcalRingCalibrationTools::getDetIdsInECAL();
+      
+      
+	for (unsigned int iid=0; iid<ringIds.size();++iid){
+	  //	ical->setValue( ringIds[iid], 1. * initCalibCoeff[k] );
+	
+	  if(ringIds[iid].subdetId() == EcalBarrel){
+	    EBDetId myEBDetId(ringIds[iid]);  
+	    h2_xtalMiscalibCoeffBarrel_->SetBinContent( myEBDetId.ieta() + 86, myEBDetId.iphi(), * (miscalibMap->get().getMap().find(ringIds[iid]) ) );//fill TH2 with miscalibCoeff
+	 
+	  }
+
+	  if(ringIds[iid].subdetId() == EcalEndcap){
+	    EEDetId myEEDetId(ringIds[iid]);
+	    if(myEEDetId.zside() < 0)
+	      h2_xtalMiscalibCoeffEndcapMinus_->SetBinContent( myEEDetId.ix(), myEEDetId.iy(), * ( miscalibMap->get().getMap().find(ringIds[iid]) ) );//fill TH2 with miscalibCoeff
+
+	    if(myEEDetId.zside() > 0)
+	      h2_xtalMiscalibCoeffEndcapPlus_->SetBinContent( myEEDetId.ix(), myEEDetId.iy(), * (miscalibMap->get().getMap().find(ringIds[iid]) ) );//fill TH2 with miscalibCoeff
+	  
+	  }
+	
+	  ical->setValue( ringIds[iid], *(miscalibMap->get().getMap().find(ringIds[iid])  ) );
+
+	}
+
+  
+	read_events = 0;
+	init_ = false;
+
+
+      }
+    isfirstcall_=false;
+  }// if isfirstcall
+
+  
+
+
+
+
+
+
+
   ////////////////////////////////////////////////////////////////////////////HLT begin
   
   for(unsigned int iHLT=0; iHLT<200; ++iHLT) {

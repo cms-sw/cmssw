@@ -14,7 +14,7 @@
      <Notes on implementation>
 */
 //
-// $Id: ZeeCalibration.h,v 1.9 2009/02/06 09:02:33 argiro Exp $
+// $Id: ZeeCalibration.h,v 1.10 2009/03/31 13:45:39 argiro Exp $
 //
 //
 
@@ -85,7 +85,7 @@ class ZeeCalibration : public edm::ESProducerLooper {
   virtual void produce(edm::Event&, const edm::EventSetup&) {};
   
   /// Called at beginning of job
-  virtual void beginOfJob(const edm::EventSetup&);
+  virtual void beginOfJob();
   
   /// Called at end of job
   virtual void endOfJob();
@@ -371,5 +371,7 @@ class ZeeCalibration : public edm::ESProducerLooper {
   TString              aNames[200];
   bool              aHLTResults[200];
 
+  bool              isfirstcall_;
+  
 };
 #endif

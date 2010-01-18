@@ -2,8 +2,8 @@
   * \file EcalEleCalibLooper.h
   * \class EcalEleCalibLooper
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2008/11/14 11:38:45 $
-  * $Revision: 1.3 $
+  * $Date: 2009/02/11 15:46:48 $
+  * $Revision: 1.4 $
   * \author 
   *
 */
@@ -38,7 +38,7 @@ class EcalEleCalibLooper : public edm::EDLooper {
     explicit EcalEleCalibLooper(const edm::ParameterSet&);
     //! dtor
     ~EcalEleCalibLooper();
-    void beginOfJob(const edm::EventSetup&) ;
+    void beginOfJob() ;
     void endOfJob();
     void startingNewLoop(unsigned int) ;
     Status duringLoop(const edm::Event&, const edm::EventSetup&) ;
@@ -141,6 +141,8 @@ class EcalEleCalibLooper : public edm::EDLooper {
   std::map<int,int> m_xtalRegionId ;
   std::map<int,int> m_xtalPositionInRegion ;
   std::map <int,int> m_xtalNumOfHits;
+
+  bool isfirstcall_;
 };
 #endif
 #endif

@@ -2,8 +2,8 @@
   * \file InvRingCalib.h
   * \class InvRingCalib
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2008/11/14 11:38:45 $
-  * $Revision: 1.3 $
+  * $Date: 2009/02/11 15:46:48 $
+  * $Revision: 1.4 $
   * \author 
   *
 */
@@ -33,7 +33,7 @@ class InvRingCalib : public edm::EDLooper {
     explicit InvRingCalib(const edm::ParameterSet&);
     //! dtor
     ~InvRingCalib();
-    void beginOfJob(const edm::EventSetup&) ;
+    void beginOfJob() ;
     void endOfJob();
     void startingNewLoop(unsigned int) ;
     Status duringLoop(const edm::Event&, const edm::EventSetup&) ;
@@ -126,6 +126,7 @@ class InvRingCalib : public edm::EDLooper {
     //!EB regions vs. eta index
     std::map<int,int> m_Reg;
     std::string m_mapFillerType;
+    bool isfirstcall_;
 };
 #endif
 #endif

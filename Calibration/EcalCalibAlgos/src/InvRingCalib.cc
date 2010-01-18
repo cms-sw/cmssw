@@ -127,105 +127,11 @@ InvRingCalib::~InvRingCalib ()
 
 //!BeginOfJob
 void 
-InvRingCalib::beginOfJob (const edm::EventSetup& iSetup) 
+InvRingCalib::beginOfJob () 
 {
-  edm::LogInfo ("IML") << "[InvRingCalib][beginOfJob]" ;
-  //gets the geometry from the event setup
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
-  edm::LogInfo ("IML") <<"[InvRingCalib] Event Setup read";
-  //fills a vector with all the cells
-  m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
-  m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
-  //Defines the EB regions
-  edm::LogInfo ("IML") <<"[InvRingCalib] Defining Barrel Regions";
-  EBRegionDef();
-  //Defines what is a ring in the EE
-  edm::LogInfo ("IML") <<"[InvRingCalib] Defining endcap Rings";
-  EERingDef(iSetup);
-  //Defines the regions in the EE
-  edm::LogInfo ("IML") <<"[InvRingCalib] Defining endcap Regions";
-  EERegionDef();
-  if (m_mapFillerType == "Cluster") m_MapFiller= new ClusterFillMap (
-	m_recoWindowSidex ,m_recoWindowSidey ,
-        m_xtalRegionId ,m_minEnergyPerCrystal ,
-        m_maxEnergyPerCrystal , m_RinginRegion ,
-        & m_barrelMap ,
-        & m_endcapMap ); 
-  if (m_mapFillerType == "Matrix") m_MapFiller = new MatrixFillMap (
-	m_recoWindowSidex ,m_recoWindowSidey ,
-        m_xtalRegionId , m_minEnergyPerCrystal ,
-        m_maxEnergyPerCrystal , m_RinginRegion ,
-        & m_barrelMap ,
-        & m_endcapMap); 
-  edm::LogInfo ("IML") <<"[InvRingCalib] Initializing the coeffs";
-  //Sets the initial coefficients to 1.
-  //Graphs to check ring, regions and so on, not needed in the final version
-  TH2F EBRegion ("EBRegion","EBRegion",171,-85,86,360,1,361);
-  TH2F EBRing ("EBRing","EBRing",171,-85,86,360,1,361);
-  for (std::vector<DetId>::const_iterator it= m_barrelCells.begin();
-       it!= m_barrelCells.end(); 
-       ++it )
-    {
-	    EBDetId eb (*it);
-      EBRing.Fill(eb.ieta(),eb.iphi(),m_RinginRegion[it->rawId()]);
-	    EBRegion.Fill(eb.ieta(),eb.iphi(),m_xtalRegionId[it->rawId()]);
-    }
+  isfirstcall_=true;
 
-  TH2F EEPRegion ("EEPRegion", "EEPRegion",100,1,101,100,1,101);
-  TH2F EEPRing ("EEPRing", "EEPRing",100,1,101,100,1,101);
-  TH2F EEPRingReg ("EEPRingReg", "EEPRingReg",100,1,101,100,1,101);
-  TH2F EEMRegion ("EEMRegion", "EEMRegion",100,1,101,100,1,101);
-  TH2F EEMRing ("EEMRing", "EEMRing",100,1,101,100,1,101);
-  TH2F EEMRingReg ("EEMRingReg", "EEMRingReg",100,1,101,100,1,101);
-//  TH1F eta ("eta","eta",250,-85,165);
-  for (std::vector<DetId>::const_iterator it = m_endcapCells.begin();
-       it!= m_endcapCells.end();
-       ++it)
-     {
-       EEDetId ee (*it);
-       if (ee.zside()>0)
-         {
-           EEPRegion.Fill(ee.ix(),ee.iy(),m_xtalRegionId[ee.rawId()]);
-           EEPRing.Fill(ee.ix(),ee.iy(),m_xtalRing[ee.rawId()]);
-           EEPRingReg.Fill(ee.ix(),ee.iy(),m_RinginRegion[ee.rawId()]);
-         }
-       if (ee.zside()<0)
-         {
-           EEMRegion.Fill(ee.ix(),ee.iy(),m_xtalRegionId[ee.rawId()]);
-           EEMRing.Fill(ee.ix(),ee.iy(),m_xtalRing[ee.rawId()]);
-           EEMRingReg.Fill(ee.ix(),ee.iy(),m_RinginRegion[ee.rawId()]);
-         }    
-     } 
-
-//  for (std::map<int,float>::iterator it=m_eta.begin();
-//        it!=m_eta.end();++it)
-//   	   eta.Fill(it->first,it->second);
-  TFile out ("EBZone.root", "recreate");
-  EBRegion.Write();
-  EBRing.Write();
-  EEPRegion.Write();
-  EEPRing.Write();
-  EEPRingReg.Write();
-  EEMRegion.Write();
-  EEMRing.Write();
-//  eta.Write();
-  EEMRingReg.Write();
-  out.Close();
-  edm::LogInfo ("IML") <<"[InvRingCalib] Start to acquire the coeffs";
-  CaloMiscalibMapEcal EBmap;
-  EBmap.prefillMap ();
-  MiscalibReaderFromXMLEcalBarrel barrelreader (EBmap);
-  if (!m_EBcoeffFile.empty()) barrelreader.parseXMLMiscalibFile (m_EBcoeffFile);
-  EcalIntercalibConstants costants (EBmap.get());
-  m_barrelMap = costants.getMap();
-  CaloMiscalibMapEcal EEmap ;   
-  EEmap.prefillMap ();
-  MiscalibReaderFromXMLEcalEndcap endcapreader (EEmap);
-  if (!m_EEcoeffFile.empty()) endcapreader.parseXMLMiscalibFile (m_EEcoeffFile) ;
-  EcalIntercalibConstants EEcostants (EEmap.get());
-  m_endcapMap = EEcostants.getMap();
+ 
 }
 
 
@@ -257,8 +163,115 @@ void InvRingCalib::startingNewLoop (unsigned int ciclo)
 //!duringLoop
 edm::EDLooper::Status 
 InvRingCalib::duringLoop (const edm::Event& iEvent,
-                          const edm::EventSetup&) 
+                          const edm::EventSetup& iSetup) 
 {
+
+
+   if (isfirstcall_){
+    edm::LogInfo ("IML") << "[InvRingCalib][beginOfJob]" ;
+    //gets the geometry from the event setup
+    edm::ESHandle<CaloGeometry> geoHandle;
+    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    const CaloGeometry& geometry = *geoHandle;
+    edm::LogInfo ("IML") <<"[InvRingCalib] Event Setup read";
+    //fills a vector with all the cells
+    m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
+    m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
+    //Defines the EB regions
+    edm::LogInfo ("IML") <<"[InvRingCalib] Defining Barrel Regions";
+    EBRegionDef();
+    //Defines what is a ring in the EE
+    edm::LogInfo ("IML") <<"[InvRingCalib] Defining endcap Rings";
+    EERingDef(iSetup);
+    //Defines the regions in the EE
+    edm::LogInfo ("IML") <<"[InvRingCalib] Defining endcap Regions";
+    EERegionDef();
+    if (m_mapFillerType == "Cluster") m_MapFiller= new ClusterFillMap (
+								       m_recoWindowSidex ,m_recoWindowSidey ,
+								       m_xtalRegionId ,m_minEnergyPerCrystal ,
+								       m_maxEnergyPerCrystal , m_RinginRegion ,
+								       & m_barrelMap ,
+								       & m_endcapMap ); 
+    if (m_mapFillerType == "Matrix") m_MapFiller = new MatrixFillMap (
+								      m_recoWindowSidex ,m_recoWindowSidey ,
+								      m_xtalRegionId , m_minEnergyPerCrystal ,
+								      m_maxEnergyPerCrystal , m_RinginRegion ,
+								      & m_barrelMap ,
+								      & m_endcapMap); 
+    edm::LogInfo ("IML") <<"[InvRingCalib] Initializing the coeffs";
+    //Sets the initial coefficients to 1.
+    //Graphs to check ring, regions and so on, not needed in the final version
+    TH2F EBRegion ("EBRegion","EBRegion",171,-85,86,360,1,361);
+    TH2F EBRing ("EBRing","EBRing",171,-85,86,360,1,361);
+    for (std::vector<DetId>::const_iterator it= m_barrelCells.begin();
+	 it!= m_barrelCells.end(); 
+	 ++it )
+      {
+	EBDetId eb (*it);
+	EBRing.Fill(eb.ieta(),eb.iphi(),m_RinginRegion[it->rawId()]);
+	EBRegion.Fill(eb.ieta(),eb.iphi(),m_xtalRegionId[it->rawId()]);
+      }
+
+    TH2F EEPRegion ("EEPRegion", "EEPRegion",100,1,101,100,1,101);
+    TH2F EEPRing ("EEPRing", "EEPRing",100,1,101,100,1,101);
+    TH2F EEPRingReg ("EEPRingReg", "EEPRingReg",100,1,101,100,1,101);
+    TH2F EEMRegion ("EEMRegion", "EEMRegion",100,1,101,100,1,101);
+    TH2F EEMRing ("EEMRing", "EEMRing",100,1,101,100,1,101);
+    TH2F EEMRingReg ("EEMRingReg", "EEMRingReg",100,1,101,100,1,101);
+    //  TH1F eta ("eta","eta",250,-85,165);
+    for (std::vector<DetId>::const_iterator it = m_endcapCells.begin();
+	 it!= m_endcapCells.end();
+	 ++it)
+      {
+	EEDetId ee (*it);
+	if (ee.zside()>0)
+	  {
+	    EEPRegion.Fill(ee.ix(),ee.iy(),m_xtalRegionId[ee.rawId()]);
+	    EEPRing.Fill(ee.ix(),ee.iy(),m_xtalRing[ee.rawId()]);
+	    EEPRingReg.Fill(ee.ix(),ee.iy(),m_RinginRegion[ee.rawId()]);
+	  }
+	if (ee.zside()<0)
+	  {
+	    EEMRegion.Fill(ee.ix(),ee.iy(),m_xtalRegionId[ee.rawId()]);
+	    EEMRing.Fill(ee.ix(),ee.iy(),m_xtalRing[ee.rawId()]);
+	    EEMRingReg.Fill(ee.ix(),ee.iy(),m_RinginRegion[ee.rawId()]);
+	  }    
+      } 
+
+    //  for (std::map<int,float>::iterator it=m_eta.begin();
+    //        it!=m_eta.end();++it)
+    //   	   eta.Fill(it->first,it->second);
+    TFile out ("EBZone.root", "recreate");
+    EBRegion.Write();
+    EBRing.Write();
+    EEPRegion.Write();
+    EEPRing.Write();
+    EEPRingReg.Write();
+    EEMRegion.Write();
+    EEMRing.Write();
+    //  eta.Write();
+    EEMRingReg.Write();
+    out.Close();
+    edm::LogInfo ("IML") <<"[InvRingCalib] Start to acquire the coeffs";
+    CaloMiscalibMapEcal EBmap;
+    EBmap.prefillMap ();
+    MiscalibReaderFromXMLEcalBarrel barrelreader (EBmap);
+    if (!m_EBcoeffFile.empty()) barrelreader.parseXMLMiscalibFile (m_EBcoeffFile);
+    EcalIntercalibConstants costants (EBmap.get());
+    m_barrelMap = costants.getMap();
+    CaloMiscalibMapEcal EEmap ;   
+    EEmap.prefillMap ();
+    MiscalibReaderFromXMLEcalEndcap endcapreader (EEmap);
+    if (!m_EEcoeffFile.empty()) endcapreader.parseXMLMiscalibFile (m_EEcoeffFile) ;
+    EcalIntercalibConstants EEcostants (EEmap.get());
+    m_endcapMap = EEcostants.getMap();
+  } // if isfirstcall
+
+
+
+
+
+
   //gets the barrel recHits
   double pSubtract = 0.;
   double pTk = 0.;
