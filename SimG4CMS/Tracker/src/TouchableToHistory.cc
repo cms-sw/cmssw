@@ -1,5 +1,5 @@
 #include "SimG4CMS/Tracker/interface/TouchableToHistory.h"
- "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
