@@ -1,5 +1,9 @@
 2010-01-18  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-05-05
+	* remove boost as dependency from BuildFile, which I should have
+	done as part of the last change ...
+
 	* tag V00-05-04
 	* remove unnecessary lock per request by Martin (and after Emilio
 	confirming that it is indeed unnecessary)
