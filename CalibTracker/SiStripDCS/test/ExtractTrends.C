@@ -5,13 +5,38 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <algorithm>
+#include <iterator>
 
 #include "TString.h"
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TLegend.h"
+#include "TGraph.h"
+#include "TVectorD.h"
+#include "TDatime.h"
 
 using namespace std;
+
+void Tokenize(const string& str,
+	      vector<string>& tokens,
+	      const string& delimiters = " ")
+{
+  // Skip delimiters at beginning.
+  string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+  // Find first "non-delimiter".
+  string::size_type pos     = str.find_first_of(delimiters, lastPos);
+  
+  while (string::npos != pos || string::npos != lastPos) {
+    // Found a token, add it to the vector.
+    tokens.push_back(str.substr(lastPos, pos - lastPos));
+    // Skip delimiters.  Note the "not_of"
+    lastPos = str.find_first_not_of(delimiters, pos);
+    // Find next "non-delimiter"
+    pos = str.find_first_of(delimiters, lastPos);
+  }
+}
 
 // Function to tokenize a string
 vector<string> tokenize(const string & line)
@@ -26,15 +51,29 @@ vector<string> tokenize(const string & line)
   return tokenized;
 }
 
+double * duplicateForGraph(const unsigned int size, const Float_t * summedValues)
+{
+  double * summedValuesArray = new double[size*2-1];
+  for( unsigned int i=0; i<size; ++i ) {
+    summedValuesArray[2*i] = summedValues[i];
+    if( i != size-1 ) {
+      summedValuesArray[2*i+1] = summedValues[i];
+    }
+  }
+  return summedValuesArray;
+}
+
 struct Holder
 {
-  Holder()
-  {
-    layer = new vector<int>(20, 0);
-  }
-  void add(const int layerNum, const int side, const int modulesOff)
+  Holder() :
+    layer( new vector<int>(20, 0) ),
+    iov(0)
+  {}
+  // void add(const int layerNum, const int side, const int modulesOff, const double & inputIOV)
+  void add(const int layerNum, const int side, const int modulesOff, const double & timeInSeconds)
   {
     (*layer)[layerNum+side*10] = modulesOff;
+    iov = timeInSeconds;
   }
   int modules(const int layerNum, const int side)
   {
@@ -48,6 +87,7 @@ struct Holder
     return 0;
   }
   vector<int> * layer;
+  double iov;
 };
 
 
@@ -55,6 +95,7 @@ struct HistoHolder
 {
   HistoHolder(const TString & subDet, const int IOVs)
   {
+    // layer = new vector<TH1F*>;
     layer = new vector<TH1F*>;
     fillLayers(subDet, IOVs);
     fillLayers(subDet, IOVs, "stereo");
@@ -66,30 +107,158 @@ struct HistoHolder
       stringstream ss;
       ss << i;
       layer->push_back(new TH1F(subDet+ss.str()+addToName, subDet+ss.str()+addToName, IOVs, 0, IOVs));
+      timeVector.push_back(new vector<double>);
+      valueVector.push_back(new vector<double>);
     }
   }
 
-  void SetBinContent(const int IOV, const int layerNum, const int side, const int modulesOff)
+  void SetBinContent(const int IOV, const int layerNum, const int side, const int modulesOff, const double & time)
   {
     // cout << "Setting bin content for layer = "<< layerNum+side*10 << " for IOV = " << IOV << " to " << modulesOff << endl;
     // cout << "layer = " << layer << endl;
     // cout << "layer->size() = " << layer->size() << "(*layer)[layerNum+side*10] = " << (*layer)[layerNum+side*10] << endl;
     (*layer)[layerNum+side*10]->SetBinContent(IOV, modulesOff);
-    // cout << "set" << endl;
+    if( layerNum+side*10 == 1 ) {
+    // cout << "timeVector["<<layerNum+side*10<<"]->push_back( "<<time<<" )" << endl;
+    }
+    timeVector[layerNum+side*10]->push_back( time );
+    // if( layerNum+10*side == 1 ) {
+    //   cout << "modulesOff = " << modulesOff << endl;
+    // }
+    valueVector[layerNum+side*10]->push_back( modulesOff );
   }
 
-  TH1F* histo(const int layerNum, const int side) {
+  TH1F* histo(const int layerNum, const int side)
+  {
     // cout << "Retrieving histogram for layer = " << layerNum+side*10 << endl;
     return (*layer)[layerNum+side*10];
   }
 
+  void removeZeros(const int layerNum, const int side)
+  {
+    // Remove all the times == 0
+    vector<double>::iterator it = find(timeVector[layerNum+10*side]->begin(), timeVector[layerNum+10*side]->end(), 0);
+    while( it != timeVector[layerNum+10*side]->end() ) {
+      timeVector[layerNum+10*side]->erase(it);
+      valueVector[layerNum+10*side]->erase(valueVector[layerNum+10*side]->begin()+distance(timeVector[layerNum+10*side]->begin(), it));
+      it = find(timeVector[layerNum+10*side]->begin(), timeVector[layerNum+10*side]->end(), 0);
+    }
+  }
+
+  double * time(const int layerNum, const int side)
+  {
+    // Take twice the values. We propagate the previous point to the next time,
+    // so that the graph will display in a way similar to a TH1F (but with the correct spacing
+    // between times).
+    unsigned int size = timeVector[layerNum+side*10]->size();
+    double * timeV = new double[2*size-1];
+    for( unsigned int i=0; i<size; ++i ) {
+      timeV[2*i] = (*(timeVector[layerNum+side*10]))[i];
+      // Put the next time, which will correspond to the value of the current time
+      if( i != size-1 ) {
+	timeV[2*i+1] = (*(timeVector[layerNum+side*10]))[i+1];
+      }
+    }
+    return timeV;
+  }
+
+  double * value(const int layerNum, const int side)
+  {
+    unsigned int size = valueVector[layerNum+side*10]->size();
+    double * valueV = new double[2*size-1];
+    for( unsigned int i=0; i<size; ++i ) {
+      // cout << "(*(valueVector["<<layerNum+side*10<<"]))["<<i<<"]; = " << (*(valueVector[layerNum+side*10]))[i] << endl;
+      valueV[2*i] = (*(valueVector[layerNum+side*10]))[i];
+      // Put the same value, which will correspond to the next time
+      if( i != size-1 ) {
+	valueV[2*i+1] = (*(valueVector[layerNum+side*10]))[i];
+      }
+    }
+    return valueV;
+  }
+
+  unsigned int getSize(const int layerNum, const int side)
+  {
+    return 2*(timeVector[layerNum+side*10]->size())-1;
+  }
 
   vector<TH1F*> * layer;
+  vector<vector<double> *> timeVector;
+  vector<vector<double> *> valueVector;
 };
 
-vector<vector<Holder> > extractFromFile( const string & fileName )
+void drawHistoTracker(TH1F* histo, const TString option, const unsigned int color, vector<vector<HistoHolder> > & histos)
+{
+  Float_t * summedValues = histo->GetArray();
+  unsigned int size = histo->GetNbinsX();
+  double * summedValuesArray = duplicateForGraph(size, summedValues);
+  // cout << "summedValuesArray = " << summedValuesArray << endl;
+  // cout << "histos[0][0].getSize(0, 0) = " << histos[0][0].getSize(1, 0) << endl;
+  // cout << "histos[0][0].time(0, 0) = " << histos[0][0].time(1, 0) << endl;
+  TGraph * graph = new TGraph(histos[0][0].getSize(1, 0), histos[0][0].time(1, 0), summedValuesArray);
+  graph->Draw(option);
+  graph->SetLineColor(color);
+  graph->GetXaxis()->SetTimeDisplay(1);
+  // graph->GetXaxis()->SetNdivisions(-503);
+  graph->GetXaxis()->SetLabelOffset(0.02);
+  graph->GetXaxis()->SetTimeFormat("#splitline{  %d}{%H:%M}");
+  graph->GetXaxis()->SetTimeOffset(0,"gmt");
+}
+
+vector<vector<Holder> > extractFromFile( const string & fileName, const string & date )
 {
   ifstream inputFile(fileName.c_str());
+
+  vector<string> tokens;
+  Tokenize(date, tokens, "_");
+  // ostream_iterator<string> output( cout, " " );
+  // copy( tokens.begin(), tokens.end(), output );
+
+  unsigned int day = 0;
+  stringstream sDay(tokens[2]); // day
+  sDay >> day;
+  unsigned int hour = 0;
+  stringstream sHour(tokens[3]); // hour
+  sHour >> hour;
+  unsigned int minute = 0;
+  stringstream sMinute(tokens[4]); // minute
+  sMinute >> minute;
+  unsigned int second = 0;
+  stringstream sSecond(tokens[5]); // second
+  sSecond >> second;
+  unsigned int year = 0;
+  stringstream sYear(tokens[6]); // year
+  sYear >> year;
+
+  // Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+  std::map<string, unsigned int> monthsToNumbers;
+  monthsToNumbers.insert(make_pair("Jan", 1));
+  monthsToNumbers["Feb"] = 2;
+  monthsToNumbers["Mar"] = 3;
+  monthsToNumbers["Apr"] = 4;
+  monthsToNumbers["May"] = 5;
+  monthsToNumbers["Jun"] = 6;
+  monthsToNumbers["Jul"] = 7;
+  monthsToNumbers["Aug"] = 8;
+  monthsToNumbers["Sep"] = 9;
+  monthsToNumbers["Oct"] = 10;
+  monthsToNumbers["Nov"] = 11;
+  monthsToNumbers["Dec"] = 12;
+
+  std::map<string, unsigned int>::iterator month = monthsToNumbers.find(tokens[1]);
+  TDatime date1(year, month->second, day, hour, minute, second);
+
+
+  // double timeInSeconds = second+60*(minute+60*(hour+24*day));
+  double timeInSeconds = date1.Convert();
+
+  // cout << "day = " << day << " hour = " << hour << " minute = " << minute << " second = " << second << " timeInSeconds = " << timeInSeconds << endl;
+
+
+//   vector<string> tokenizedName;
+//   Tokenize(fileName, tokenizedName, "_");
+//   ostream_iterator<string> output( cout, " " );
+//   copy( tokenizedName.begin(), tokenizedName.end(), output );
 
   vector<vector<Holder> > holder;
   for( int i=0; i<2; ++i ) {
@@ -151,20 +320,20 @@ vector<vector<Holder> > extractFromFile( const string & fileName )
       // cout << tokenized[index] << ", " << tokenized[index+1] << endl;
 
       if( subDet == "TIB" ) {
-	cout << "Filling HVLV = " << HVLV << ", 0, layerNum = " << layerNum << ", side = " << side << ", modulesOff = " << modulesOff << endl;
-	holder[HVLV][0].add( layerNum, side, modulesOff );
+	// cout << "Filling HVLV = " << HVLV << ", 0, layerNum = " << layerNum << ", side = " << side << ", modulesOff = " << modulesOff << endl;
+	holder[HVLV][0].add( layerNum, side, modulesOff, timeInSeconds );
       }
-      else if( subDet == "TID" ) holder[HVLV][1].add( layerNum, side, modulesOff );
-      else if( subDet == "TOB" ) holder[HVLV][2].add( layerNum, side, modulesOff );
-      else if( subDet == "TEC" ) holder[HVLV][3].add( layerNum, side, modulesOff );
+      else if( subDet == "TID" ) holder[HVLV][1].add( layerNum, side, modulesOff, timeInSeconds );
+      else if( subDet == "TOB" ) holder[HVLV][2].add( layerNum, side, modulesOff, timeInSeconds );
+      else if( subDet == "TEC" ) holder[HVLV][3].add( layerNum, side, modulesOff, timeInSeconds );
 
     }
   }
 
 //   cout << "TIB layer 1 side 0 modules with HV off = " << holder[0][0].modules(1, 0) << endl;
 //   cout << "TIB layer 1 side 0 modules with LV off = " << holder[1][0].modules(1, 0) << endl;
-  cout << "TOB layer 1 side 0 modules with HV off = " << holder[0][2].modules(1, 0) << endl;
-  cout << "TOB layer 1 side 0 modules with LV off = " << holder[1][2].modules(1, 0) << endl;
+//   cout << "TOB layer 1 side 0 modules with HV off = " << holder[0][2].modules(1, 0) << endl;
+//   cout << "TOB layer 1 side 0 modules with LV off = " << holder[1][2].modules(1, 0) << endl;
   return holder;
 }
 
@@ -174,9 +343,9 @@ void fillHistos( vector<vector<Holder> > & it, vector<vector<HistoHolder> > & hi
 {
   for( int layerNum = firstLayer; layerNum <= totLayers; ++layerNum ) {
     // cout << "filling histos for subDetId = " << subDetId << ", layer = " << layerNum << endl;
-    histos[HVLVid][subDetId].SetBinContent( iov, layerNum, 0, it[HVLVid][subDetId].modules(layerNum, 0) );
+    histos[HVLVid][subDetId].SetBinContent( iov, layerNum, 0, it[HVLVid][subDetId].modules(layerNum, 0), it[HVLVid][subDetId].iov );
     if( layerNum <= doubleSidedLayers ) {
-      histos[HVLVid][subDetId].SetBinContent( iov, layerNum, 1, it[HVLVid][subDetId].modules(layerNum, 1) );
+      histos[HVLVid][subDetId].SetBinContent( iov, layerNum, 1, it[HVLVid][subDetId].modules(layerNum, 1), it[HVLVid][subDetId].iov );
     }
   }
 }
@@ -184,31 +353,60 @@ void fillHistos( vector<vector<Holder> > & it, vector<vector<HistoHolder> > & hi
 // Small function used to draw the histograms for the different layers of the different subDetectors
 void drawHistos( TCanvas ** canvas, vector<vector<HistoHolder> > & histos, TH1F ** histoTracker, const int firstLayer, const int totLayers,
 		 const int doubleSidedLayers, const int HVLVid, const int subDetId )
-// 		 const int doubleSidedLayers, const int HVLVid, const int subDetId, TLegend * legend )
 {
   int canvasCorrection = 0;
-  TString option("");
+  TString option("AL");
   int lineColor = 2;
-  // TString legendText("High voltage off");
   if( HVLVid == 1 ) {
-    option = "SAME";
+    // option = "SAME";
+    // No SAME option for the TGraph (it contains the A, and it would mean a different thing)
+    // They will always be drawn as if SAME is selected.
+    option = "L";
     lineColor = 1;
-    // legendText = "Low voltage off";
   }
   if( firstLayer == 0 ) canvasCorrection = 1;
   for( int layerNum = firstLayer; layerNum <= totLayers; ++layerNum ) {
+    // First of all remove all the times = 0
+    histos[HVLVid][subDetId].removeZeros(layerNum, 0);
     canvas[subDetId]->cd(canvasCorrection+layerNum);
     TH1F * histo = histos[HVLVid][subDetId].histo( layerNum, 0 );
-    histo->Draw(option);
-    histo->SetLineColor(lineColor);
+    // histo->Draw(option);
+    // histo->SetLineColor(lineColor);
+    // cout << "histos["<<HVLVid<<"]["<<subDetId<<"].time("<<layerNum<<", "<<0<<") = " << endl; // histos[HVLVid][subDetId].time(layerNum, 0) << endl;
+
+//     for( unsigned int i=0; i<histos[HVLVid][subDetId].getSize(layerNum, 0); ++i ) {
+//       cout << "histos["<<HVLVid<<"][subDetId].getSize(layerNum, 0) = " << histos[HVLVid][subDetId].getSize(layerNum, 0) << endl;
+//       cout << "histos["<<HVLVid<<"]["<<subDetId<<"].time("<<layerNum<<", "<<0<<")["<<i<<"] = " << histos[HVLVid][subDetId].time(layerNum, 0)[i] << endl;
+//       cout << "histos["<<HVLVid<<"]["<<subDetId<<"].value("<<layerNum<<", "<<0<<")["<<i<<"] = " << histos[HVLVid][subDetId].value(layerNum, 0)[i] << endl;
+//     }
+
+    TGraph * graph = new TGraph(histos[HVLVid][subDetId].getSize(layerNum, 0), histos[HVLVid][subDetId].time(layerNum, 0), histos[HVLVid][subDetId].value(layerNum, 0));
+    graph->SetTitle(histo->GetTitle());
+    graph->SetLineColor(lineColor);
+    // cout << "Draw option = " << option << " lineColor = " << lineColor << endl;
+    graph->Draw(option);
+    graph->SetMarkerColor(lineColor);
+    graph->GetXaxis()->SetTimeDisplay(1); 
+    // graph->GetXaxis()->SetNdivisions(-503);
+    // graph->GetXaxis()->SetTimeFormat("%d %H:%M");
+    graph->GetXaxis()->SetTimeFormat("#splitline{  %d}{%H:%M}");
+    graph->GetXaxis()->SetLabelOffset(0.02);
+    graph->GetXaxis()->SetTimeOffset(0,"gmt");
     // legend->AddEntry(histo, legendText);
 
     histoTracker[HVLVid]->Add( histo );
     if( layerNum <= doubleSidedLayers ) {
+      histos[HVLVid][subDetId].removeZeros(layerNum, 1);
       canvas[subDetId]->cd(canvasCorrection+totLayers+layerNum);
       histo = histos[HVLVid][subDetId].histo( layerNum, 1 );
-      histo->Draw(option);
-      histo->SetLineColor(lineColor);
+      // TGraph * graph = new TGraph(histos[HVLVid][subDetId].getSize(layerNum, 1), histos[HVLVid][subDetId].time(layerNum, 1), histos[HVLVid][subDetId].value(layerNum, 1));
+      graph->SetTitle(histo->GetTitle());
+      graph->SetLineColor(lineColor);
+      graph->SetMarkerColor(lineColor);
+      graph->Draw(option);
+
+      // histo->Draw(option);
+      // histo->SetLineColor(lineColor);
       // legend->AddEntry(histo, legendText);
       histoTracker[HVLVid]->Add( histo );
     }
@@ -216,7 +414,7 @@ void drawHistos( TCanvas ** canvas, vector<vector<HistoHolder> > & histos, TH1F 
   // if( HVLVid == 1 ) legend->Draw("SAME");
 }
 
-void ExtracTrends()
+void ExtractTrends()
 {
   ifstream listFile("list.txt");
   string fileName;
@@ -228,8 +426,8 @@ void ExtracTrends()
     size_t first = fileName.find("__FROM");
     size_t last = fileName.find("_TO");
     string subString(fileName.substr(first+7, last-(first+7)));
-    cout << "substr = " << subString << endl;
-    holderVsIOV.push_back(extractFromFile(fileName));
+    // cout << "substr = " << subString << endl;
+    holderVsIOV.push_back(extractFromFile(fileName, subString));
   }
 
   // Create histograms for each subDet and layer and fill them
@@ -271,35 +469,22 @@ void ExtracTrends()
   // Loop again on the HVLV and draw the histograms
 
   TCanvas *canvas[4];
-//   if( HVLVid == 0 ) {
   canvas[0] = new TCanvas("TIB HV status", "HVstatus", 1000, 800);
   canvas[1] = new TCanvas("TID HV status", "HVstatus", 1000, 800);
   canvas[2] = new TCanvas("TOB HV status", "HVstatus", 1000, 800);
   canvas[3] = new TCanvas("TEC HV status", "HVstatus", 1000, 800);
 
-//   TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
-//   legend->SetTextSize(0.02);
-  // legend->SetFillColor(0); // Have a white background
-
-//   }
-//     if( HVLVid == 1 ) {
-//       canvas[0] = new TCanvas("TIB LV status", "LVstatus", 1000, 800);
-//       canvas[1] = new TCanvas("TID LV status", "LVstatus", 1000, 800);
-//       canvas[2] = new TCanvas("TOB LV status", "LVstatus", 1000, 800);
-//       canvas[3] = new TCanvas("TEC LV status", "LVstatus", 1000, 800);
-//     }
   canvas[0]->Divide(4,2);
   canvas[1]->Divide(2,2);
   canvas[2]->Divide(6,2);
   canvas[3]->Divide(9,2);
 
   for( int HVLVid = 0; HVLVid < 2; ++HVLVid ) {
+    // cout << "Drawing HVLVid = " << HVLVid << endl;
+
+    // if( HVLVid == 1 ) continue;
 
     // par:     canvas, histos, histoTracker, firstLayer, totLayers, doubleSidedLayers, HVLVid, subDetId, iov
-//     drawHistos( canvas, histos, histoTracker,          1,         4,                 2, HVLVid,        0, legend ); // TIB
-//     drawHistos( canvas, histos, histoTracker,          0,         2,                 1, HVLVid,        1, legend ); // TID (doubleSided = 1 because it starts from 1 and <= is used)
-//     drawHistos( canvas, histos, histoTracker,          1,         6,                 2, HVLVid,        2, legend ); // TOB
-//     drawHistos( canvas, histos, histoTracker,          1,         9,                 9, HVLVid,        3, legend ); // TEC
     drawHistos( canvas, histos, histoTracker,          1,         4,                 2, HVLVid,        0 ); // TIB
     drawHistos( canvas, histos, histoTracker,          0,         2,                 1, HVLVid,        1 ); // TID (doubleSided = 1 because it starts from 1 and <= is used)
     drawHistos( canvas, histos, histoTracker,          1,         6,                 2, HVLVid,        2 ); // TOB
@@ -311,11 +496,16 @@ void ExtracTrends()
     canvas[3]->Draw();
   }
   allCanvas[0]->cd();
-  histoTracker[0]->Draw();
+
+
+//   // histoTracker[0]->Draw();
   histoTracker[0]->SetLineColor(2);
-  // allCanvas[1]->cd();
-  histoTracker[1]->Draw("SAME");
-  // histoTracker[1]->SetLineColor(1);
+
+  drawHistoTracker( histoTracker[1], "AL", 1, histos);
+  drawHistoTracker( histoTracker[0], "L", 2, histos);
+
+  // histoTracker[1]->Draw("SAME");
+
   TLegend * legend2 = new TLegend(0.7,0.71,0.98,1.);
   legend2->SetTextSize(0.02);
   // legend2->SetFillColor(0); // Have a white background
@@ -324,5 +514,4 @@ void ExtracTrends()
   legend2->Draw("SAME");
 
   allCanvas[0]->Draw();
-  // allCanvas[1]->Draw();
 }
