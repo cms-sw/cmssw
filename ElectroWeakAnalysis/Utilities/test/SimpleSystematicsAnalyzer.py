@@ -69,15 +69,20 @@ process.isrWeight = cms.EDProducer("ISRWeightProducer",
       )
 )
 
-# Produce event weights to estimate missing O(alpha) terms + NLO QED terms
+# Produce event weights to estimate missing QED FSR terms
 process.fsrWeight = cms.EDProducer("FSRWeightProducer",
+      GenTag = cms.untracked.InputTag("generator"),
+)
+
+# Produce event weights to estimate missing QED ISR terms
+process.isrGammaWeight = cms.EDProducer("ISRGammaWeightProducer",
       GenTag = cms.untracked.InputTag("generator"),
 )
 
 # Produce weights for systematics
 process.systematicsAnalyzer = cms.EDFilter("SimpleSystematicsAnalyzer",
       SelectorPath = cms.untracked.string('systAna'),
-      WeightTags = cms.untracked.VInputTag("isrWeight","fsrWeight")
+      WeightTags = cms.untracked.VInputTag("isrWeight","fsrWeight","isrGammaWeight")
 )
 
 # Main path
@@ -85,6 +90,7 @@ process.systAna = cms.Path(
        process.printGenParticles
       *process.isrWeight
       *process.fsrWeight
+      *process.isrGammaWeight
       *process.selectCaloMetWMuNus
 )
 
