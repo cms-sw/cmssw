@@ -42,27 +42,11 @@ public:
 
   const int nstrips() const { return theAlgo/10000; }
 
-  const int chamberStripNo(int istrip) const {
-    int nStrips = theAlgo/10000;
-    if (istrip<0 || istrip>nStrips-1) return 0;
-    int firstChamberStrip=(theAlgo-10000*nStrips)/100;
-    int pinAlgo=theAlgo-10000*nStrips-100*firstChamberStrip;
-    int theStrip=firstChamberStrip+istrip;
-    if (pinAlgo>3) theStrip=firstChamberStrip-istrip;
-    return theStrip; 
-  }
+  const int chamberStripNum(int istrip) const;
 
-  const int cmsStripNo(int istrip) const { return 0; }
+  const int cmsStripNum(int istrip) const { return 0; }
 
-  const int cablePinNo(int istrip) const {
-    int nStrips = theAlgo/10000;
-    if (istrip<0 || istrip>nStrips-1) return 0;
-    int pinAlgo=theAlgo%100;
-    if (pinAlgo>3) pinAlgo=pinAlgo-4;
-    bool holeatpin9=(pinAlgo==0 && istrip>7);
-    int thePin = istrip+pinAlgo+holeatpin9;
-    return thePin;
-  }
+  const int cablePinNum(int istrip) const;
 
   /// debug
   std::string print(int depth=0) const;

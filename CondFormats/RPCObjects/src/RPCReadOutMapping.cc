@@ -96,8 +96,8 @@ std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >
               edm::LogError("rawDataFrame") << " problem with febInLB: " <<febInLB<<" "<<febCheck;
 	      } */
             for (int istrip=0; istrip<febConnector.nstrips(); istrip++) {
-              int stripPinInFeb = febConnector.cablePinNo(istrip);
-              if (febConnector.cmsStripNo(istrip) == stripInDU) {
+              int stripPinInFeb = febConnector.cablePinNum(istrip);
+              if (febConnector.chamberStripNum(istrip) == stripInDU) {
                 result.push_back(
                     std::make_pair( eleIndex, LinkBoardPackedStrip( febInLB, stripPinInFeb) ) ); 
               }
@@ -142,7 +142,7 @@ RPCReadOutMapping::StripInDetUnit
   if (feb) {
     detUnit = feb->rawId();
     const ChamberStripSpec strip = feb->strip(stripPinInFeb);
-    if (strip.chamberStripNumber) {
+    if (strip.chamberStripNumber > -1) {
       stripInDU = strip.chamberStripNumber;
     } else {
       // LogWarning("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
