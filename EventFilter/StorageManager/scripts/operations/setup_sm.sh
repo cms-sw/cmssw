@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.42 2009/09/18 15:26:13 babar Exp $
+# $Id: setup_sm.sh,v 1.44 2009/11/16 14:15:41 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -255,7 +255,7 @@ start () {
             mkdir -p $lookarea
             chmod 000 $lookarea
             echo "Attempting to mount $lookarea"
-            mount -t nfs -o rsize=32768,wsize=32768,timeo=14,intr $SM_LA_NFS $lookarea
+            mount -t nfs -o rsize=32768,wsize=32768,timeo=14,intr,bg $SM_LA_NFS $lookarea
         fi
     fi
 
@@ -264,7 +264,7 @@ start () {
             mkdir -p $SM_CALIBAREA
             chmod 000 $SM_CALIBAREA
             echo "Attempting to mount $SM_CALIBAREA"
-            mount -t nfs -o rsize=32768,wsize=32768,timeo=14,intr $SM_CALIB_NFS $SM_CALIBAREA
+            mount -t nfs -o rsize=32768,wsize=32768,timeo=14,intr,bg $SM_CALIB_NFS $SM_CALIBAREA
         fi
     fi
 
