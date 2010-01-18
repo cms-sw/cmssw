@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.26 2009/11/11 15:50:35 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.27 2010/01/13 14:12:58 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -8,6 +8,7 @@
 #include <sys/statfs.h>
 #include <dirent.h>
 #include <fnmatch.h>
+#include <pwd.h>
 #include <fstream>
 #include <algorithm>
 
@@ -36,8 +37,8 @@ _latchedSataBeastStatus(-1)
 {
   // Initialize values to avoid sending alarms
   // before we've reach the ready state
-  _dwParams._nCopyWorkers = -1;
-  _dwParams._nInjectWorkers = -1;
+  _rmParams._injectWorkers._expectedCount = -1;
+  _rmParams._copyWorkers._expectedCount = -1;
 }
 
 
@@ -75,6 +76,12 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
     retrieveDiskSize(diskUsage);
     _diskUsageList.push_back(diskUsage);
   }
+}
+
+
+void ResourceMonitorCollection::configureResources(ResourceMonitorParams const& rmParams)
+{
+  _rmParams = rmParams;
 }
 
 
@@ -287,16 +294,24 @@ void ResourceMonitorCollection::revokeDiskAlarm(DiskUsagePtr diskUsage)
 
 void ResourceMonitorCollection::calcNumberOfCopyWorkers()
 {
-  _numberOfCopyWorkers = getProcessCount("CopyWorker.pl");
+  struct passwd* passwd = getpwnam(_rmParams._copyWorkers._user.c_str());
+  if (passwd)
+  {
+    _numberOfCopyWorkers = getProcessCount(_rmParams._copyWorkers._command, passwd->pw_uid);
+  }
+  else
+  {
+    _numberOfCopyWorkers = 0;
+  }
 
-  if ( _dwParams._nCopyWorkers < 0 ) return;
+  if ( _rmParams._copyWorkers._expectedCount < 0 ) return;
 
   const std::string alarmName = "CopyWorkers";
 
-  if ( _numberOfCopyWorkers != _dwParams._nCopyWorkers )
+  if ( _numberOfCopyWorkers != _rmParams._copyWorkers._expectedCount )
   {
     std::ostringstream msg;
-    msg << "Expected " << _dwParams._nCopyWorkers <<
+    msg << "Expected " << _rmParams._copyWorkers._expectedCount <<
       " running CopyWorkers, but found " <<
       _numberOfCopyWorkers << ".";
     XCEPT_DECLARE(stor::exception::CopyWorkers, ex, msg.str());
@@ -311,16 +326,24 @@ void ResourceMonitorCollection::calcNumberOfCopyWorkers()
 
 void ResourceMonitorCollection::calcNumberOfInjectWorkers()
 {
-  _numberOfInjectWorkers = getProcessCount("InjectWorker.pl");
+  struct passwd* passwd = getpwnam(_rmParams._injectWorkers._user.c_str());
+  if (passwd)
+  {
+    _numberOfInjectWorkers = getProcessCount(_rmParams._injectWorkers._command, passwd->pw_uid);
+  }
+  else
+  {
+    _numberOfInjectWorkers = 0;
+  }
 
-  if ( _dwParams._nInjectWorkers < 0 ) return;
+  if ( _rmParams._injectWorkers._expectedCount < 0 ) return;
 
   const std::string alarmName = "InjectWorkers";
 
-  if ( _numberOfInjectWorkers != _dwParams._nInjectWorkers )
+  if ( _numberOfInjectWorkers != _rmParams._injectWorkers._expectedCount )
   {
     std::ostringstream msg;
-    msg << "Expected " << _dwParams._nInjectWorkers <<
+    msg << "Expected " << _rmParams._injectWorkers._expectedCount <<
       " running InjectWorkers, but found " <<
       _numberOfInjectWorkers << ".";
     XCEPT_DECLARE(stor::exception::InjectWorkers, ex, msg.str());
@@ -405,11 +428,11 @@ bool ResourceMonitorCollection::checkSataDisks
   std::string content;
 
   // Do not try to connect if we have no user name
-  if ( _dwParams._sataUser.empty() ) return true;
+  if ( _rmParams._sataUser.empty() ) return true;
   
   const CURLcode returnCode =
     curlInterface.getContent(
-      "http://" + sataBeast + hostSuffix + "/status.asp",_dwParams._sataUser, content
+      "http://" + sataBeast + hostSuffix + "/status.asp",_rmParams._sataUser, content
     );
   
   if (returnCode == CURLE_OK)
@@ -422,7 +445,7 @@ bool ResourceMonitorCollection::checkSataDisks
     std::ostringstream msg;
     msg << "Failed to connect to SATA controller "
       << sataBeast << hostSuffix 
-      << " with user name '" << _dwParams._sataUser
+      << " with user name '" << _rmParams._sataUser
       << "': " << content;
     XCEPT_DECLARE(stor::exception::SataBeast, ex, msg.str());
     _alarmHandler->notifySentinel(AlarmHandler::WARNING, ex);
