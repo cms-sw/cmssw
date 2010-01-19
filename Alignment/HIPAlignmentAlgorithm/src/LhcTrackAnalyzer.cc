@@ -211,7 +211,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 // ------------ method called once each job before begining the event loop  ------------
-void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
+void LhcTrackAnalyzer::beginJob()
 {
   edm::LogInfo("beginJob") << "Begin Job" << std::endl;
   // Define TTree for output
