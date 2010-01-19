@@ -199,10 +199,21 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
     m_l1GtUtils.retrieveL1EventSetup(evSetup);
 
+    //
+    //
     // access L1 trigger results using public methods from L1GtUtils
+
+    //
+    // no input tag; for the appropriate EDM product, it will be found
+    // from provenance
 
     myCoutStream << "\nL1 trigger menu: \n" << m_l1GtUtils.l1TriggerMenu()
             << std::endl;
+
+    myCoutStream
+            << "\n******** Results found with input tags retrieved from provenance ******** \n"
+            << std::endl;
+
 
     // the following methods share the same error code, therefore one can check only once
     // the validity of the result
@@ -245,13 +256,13 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
     } else if (iErrorCode == 1) {
         myCoutStream << "\n" << m_nameAlgTechTrig
                 << " does not exist in the L1 menu "
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
     } else {
         myCoutStream << "\nError: "
                 << "\n  An error was encountered when retrieving decisionBeforeMask for "
                 << m_nameAlgTechTrig << "\n  Error code = " << iErrorCode
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
     }
 
@@ -269,19 +280,41 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
     } else if (iErrorCode == 1) {
         myCoutStream << "\n" << m_nameAlgTechTrig
                 << " does not exist in the L1 menu "
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
     } else {
         myCoutStream << "\nError: "
                 << "\n  An error was encountered when retrieving decisionBeforeMask for "
                 << m_nameAlgTechTrig << "\n  Error code = " << iErrorCode
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
     }
 
-    // sets of prescale factors and trigger masks for physics algorithms
+    // index of the actual prescale factor set, and the actual prescale
+    // factor set for physics algorithms
 
     std::string triggerAlgTechTrig = "PhysicsAlgorithms";
+
+    iErrorCode = -1;
+    const int pfSetIndexPhysicsAlgorithms = m_l1GtUtils.prescaleFactorSetIndex(
+            iEvent, triggerAlgTechTrig, iErrorCode);
+
+    if (iErrorCode == 0) {
+        myCoutStream << "\nPhysics algorithms: index for prescale factor set "
+                << pfSetIndexPhysicsAlgorithms << " for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu() << "\n"
+                << std::endl;
+
+    } else {
+        myCoutStream
+                << "\nError encountered when retrieving the prescale factor set index"
+                << "\n  for physics algorithms, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
+    }
+
 
     iErrorCode = -1;
     const std::vector<int>& pfSetPhysicsAlgorithms =
@@ -290,8 +323,9 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
     if (iErrorCode == 0) {
         myCoutStream << "\nPhysics algorithms: prescale factor set for run "
-                << iEvent.run() << ", with L1 menu \n  "
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
         int iBit = -1;
         for (std::vector<int>::const_iterator cItBit =
@@ -308,9 +342,12 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
         myCoutStream
                 << "\nError encountered when retrieving the prescale factor set "
                 << "\n  for physics algorithms, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
                 << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
-                << "\n  Error code: " << iErrorCode << std::endl;
+                << "\n  Error code: " << iErrorCode  << "\n" << std::endl;
     }
+
+    // the actual trigger mask set for physics algorithms
 
     iErrorCode = -1;
     const std::vector<unsigned int>& tmSetPhysicsAlgorithms =
@@ -318,13 +355,14 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
     if (iErrorCode == 0) {
         myCoutStream << "\nPhysics algorithms: trigger mask set for run "
-                << iEvent.run() << ", with L1 menu \n  "
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
         int iBit = -1;
-        for (std::vector<unsigned int>::const_iterator
-                cItBit = tmSetPhysicsAlgorithms.begin();
-                cItBit != tmSetPhysicsAlgorithms.end(); ++cItBit) {
+        for (std::vector<unsigned int>::const_iterator cItBit =
+                tmSetPhysicsAlgorithms.begin(); cItBit
+                != tmSetPhysicsAlgorithms.end(); ++cItBit) {
 
             iBit++;
             myCoutStream << "Bit number " << std::right << std::setw(4) << iBit
@@ -336,27 +374,53 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
         myCoutStream
                 << "\nError encountered when retrieving the trigger mask set "
                 << "\n  for physics algorithms, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
                 << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
-                << "\n  Error code: " << iErrorCode << std::endl;
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
 
-    // sets of prescale factors and trigger masks for technical triggers
+    // index of the actual prescale factor set, and the actual prescale
+    // factor set for technical triggers
 
     triggerAlgTechTrig = "TechnicalTriggers";
+
+    iErrorCode = -1;
+    const int pfSetIndexTechnicalTriggers = m_l1GtUtils.prescaleFactorSetIndex(
+            iEvent, triggerAlgTechTrig, iErrorCode);
+
+
+    if (iErrorCode == 0) {
+        myCoutStream << "\nTechnical triggers: index for prescale factor set "
+                << pfSetIndexTechnicalTriggers << " for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu() << "\n"
+                << std::endl;
+
+    } else {
+        myCoutStream
+                << "\nError encountered when retrieving the prescale factor set index"
+                << "\n  for technical triggers, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
+    }
+
+
     iErrorCode = -1;
     const std::vector<int>& pfSetTechnicalTriggers =
             m_l1GtUtils.prescaleFactorSet(iEvent, triggerAlgTechTrig, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream << "\nTechnical triggers: prescale factor set for run "
-                << iEvent.run() << ", with L1 menu \n  "
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
         int iBit = -1;
-        for (std::vector<int>::const_iterator cItBit =
-                pfSetTechnicalTriggers.begin(); cItBit
-                != pfSetTechnicalTriggers.end(); ++cItBit) {
+        for (std::vector<int>::const_iterator
+                cItBit = pfSetTechnicalTriggers.begin();
+                cItBit != pfSetTechnicalTriggers.end(); ++cItBit) {
 
             iBit++;
             myCoutStream << "Bit number " << std::right << std::setw(4) << iBit
@@ -368,9 +432,11 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
         myCoutStream
                 << "\nError encountered when retrieving the prescale factor set "
                 << "\n  for technical triggers, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
                 << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
-                << "\n  Error code: " << iErrorCode << std::endl;
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
+
 
     iErrorCode = -1;
     const std::vector<unsigned int>& tmSetTechnicalTriggers =
@@ -378,8 +444,9 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
     if (iErrorCode == 0) {
         myCoutStream << "\nTechnical triggers: trigger mask set for run "
-                << iEvent.run() << ", with L1 menu \n  "
-                << m_l1GtUtils.l1TriggerMenu() << std::endl;
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
 
         int iBit = -1;
         for (std::vector<unsigned int>::const_iterator
@@ -396,10 +463,199 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
         myCoutStream
                 << "\nError encountered when retrieving the trigger mask set "
                 << "\n  for technical triggers, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
                 << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
-                << "\n  Error code: " << iErrorCode << std::endl;
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
+
+    //
+    // same methods as above, but with input tag given explicitly, allowing to select
+    // the EDM products used to get the results
+
+    myCoutStream
+            << "\n******** Results found input tags provided in the configuration file ******** \n"
+            << "\n  L1GlobalTriggerRecord: " << m_l1GtRecordInputTag
+            << "\n  L1GlobalTriggerReadoutRecord: "
+            << m_l1GtDaqReadoutRecordInputTag << std::endl;
+
+    // the following methods share the same error code, therefore one can check only once
+    // the validity of the result
+
+    iErrorCode = -1;
+
+    bool decisionBeforeMaskAlgTechTrigITag = m_l1GtUtils.decisionBeforeMask(
+            iEvent, m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
+            m_nameAlgTechTrig, iErrorCode);
+
+    bool decisionAfterMaskAlgTechTrigITag = m_l1GtUtils.decisionAfterMask(
+            iEvent, m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
+            m_nameAlgTechTrig, iErrorCode);
+
+    bool decisionAlgTechTrigITag = m_l1GtUtils.decision(iEvent,
+            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
+            m_nameAlgTechTrig, iErrorCode);
+
+    int prescaleFactorAlgTechTrigITag = m_l1GtUtils.prescaleFactor(iEvent,
+            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
+            m_nameAlgTechTrig, iErrorCode);
+
+    int triggerMaskAlgTechTrigITag = m_l1GtUtils.triggerMask(iEvent,
+            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
+            m_nameAlgTechTrig, iErrorCode);
+
+    if (iErrorCode == 0) {
+        myCoutStream << "\nDecision before trigger mask for "
+                << m_nameAlgTechTrig << ":   "
+                << decisionBeforeMaskAlgTechTrigITag << std::endl;
+        myCoutStream << "Decision after trigger mask for " << m_nameAlgTechTrig
+                << ":    " << decisionAfterMaskAlgTechTrigITag << std::endl;
+        myCoutStream << "Decision (after trigger mask) for "
+                << m_nameAlgTechTrig << ":  " << decisionAlgTechTrigITag
+                << std::endl;
+
+        myCoutStream << "Prescale factor for " << m_nameAlgTechTrig
+                << ":                " << prescaleFactorAlgTechTrigITag
+                << std::endl;
+
+        myCoutStream << "Trigger mask for " << m_nameAlgTechTrig
+                << ":                   " << triggerMaskAlgTechTrigITag
+                << std::endl;
+
+    } else if (iErrorCode == 1) {
+        myCoutStream << "\n" << m_nameAlgTechTrig
+                << " does not exist in the L1 menu "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+
+    } else {
+        myCoutStream << "\nError: "
+                << "\n  An error was encountered when retrieving decisionBeforeMask for "
+                << m_nameAlgTechTrig << "\n  Error code = " << iErrorCode
+                << m_l1GtUtils.l1TriggerMenu()  << "\n" << std::endl;
+
+    }
+
+    // index of the actual prescale factor set, and the actual prescale
+    // factor set for physics algorithms
+
+    triggerAlgTechTrig = "PhysicsAlgorithms";
+
+    iErrorCode = -1;
+    const int pfSetIndexPhysicsAlgorithmsITag =
+            m_l1GtUtils.prescaleFactorSetIndex(iEvent, m_l1GtRecordInputTag,
+                    m_l1GtDaqReadoutRecordInputTag, triggerAlgTechTrig,
+                    iErrorCode);
+
+    if (iErrorCode == 0) {
+        myCoutStream << "\nPhysics algorithms: index for prescale factor set "
+                << pfSetIndexPhysicsAlgorithmsITag << " for run "
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+
+    } else {
+        myCoutStream
+                << "\nError encountered when retrieving the prescale factor set index"
+                << "\n  for physics algorithms, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
+    }
+
+    iErrorCode = -1;
+    const std::vector<int>& pfSetPhysicsAlgorithmsITag =
+            m_l1GtUtils.prescaleFactorSet(iEvent, m_l1GtRecordInputTag,
+                    m_l1GtDaqReadoutRecordInputTag, triggerAlgTechTrig,
+                    iErrorCode);
+
+    if (iErrorCode == 0) {
+        myCoutStream << "\nPhysics algorithms: prescale factor set for run "
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+
+        int iBit = -1;
+        for (std::vector<int>::const_iterator
+                cItBit = pfSetPhysicsAlgorithmsITag.begin();
+                cItBit != pfSetPhysicsAlgorithmsITag.end(); ++cItBit) {
+
+            iBit++;
+            myCoutStream << "Bit number " << std::right << std::setw(4) << iBit
+                    << ": prescale factor = " << (*cItBit) << std::endl;
+
+        }
+
+    } else {
+        myCoutStream
+                << "\nError encountered when retrieving the prescale factor set "
+                << "\n  for physics algorithms, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
+    }
+
+    // index of the actual prescale factor set, and the actual prescale
+    // factor set for technical triggers
+
+    triggerAlgTechTrig = "TechnicalTriggers";
+
+    iErrorCode = -1;
+    const int pfSetIndexTechnicalTriggersITag =
+            m_l1GtUtils.prescaleFactorSetIndex(iEvent, m_l1GtRecordInputTag,
+                    m_l1GtDaqReadoutRecordInputTag, triggerAlgTechTrig,
+                    iErrorCode);
+
+    if (iErrorCode == 0) {
+        myCoutStream << "\nTechnical triggers: index for prescale factor set "
+                << pfSetIndexTechnicalTriggersITag << " for run "
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+
+    } else {
+        myCoutStream
+                << "\nError encountered when retrieving the prescale factor set index"
+                << "\n  for technical triggers, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
+    }
+
+    iErrorCode = -1;
+    const std::vector<int>& pfSetTechnicalTriggersITag =
+            m_l1GtUtils.prescaleFactorSet(iEvent, m_l1GtRecordInputTag,
+                    m_l1GtDaqReadoutRecordInputTag, triggerAlgTechTrig,
+                    iErrorCode);
+
+    if (iErrorCode == 0) {
+        myCoutStream << "\nTechnical triggers: prescale factor set for run "
+                << iEvent.run() << ", luminosity block "
+                << iEvent.luminosityBlock() << ", with L1 menu \n  "
+                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+
+        int iBit = -1;
+        for (std::vector<int>::const_iterator
+                cItBit = pfSetTechnicalTriggersITag.begin();
+                cItBit != pfSetTechnicalTriggersITag.end(); ++cItBit) {
+
+            iBit++;
+            myCoutStream << "Bit number " << std::right << std::setw(4) << iBit
+                    << ": prescale factor = " << (*cItBit) << std::endl;
+
+        }
+
+    } else {
+        myCoutStream
+                << "\nError encountered when retrieving the prescale factor set "
+                << "\n  for technical triggers, for run " << iEvent.run()
+                << ", luminosity block " << iEvent.luminosityBlock()
+                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << "\n  Error code: " << iErrorCode << "\n" << std::endl;
+    }
+
+
+    //
+    // dump the stream in some Log tag (LogDebug here)
 
 
     LogDebug("L1GtAnalyzer") << myCoutStream.str() << std::endl;

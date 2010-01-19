@@ -892,10 +892,13 @@ const int L1GtUtils::triggerMask(const std::string& nameAlgTechTrig,
 
 }
 
-const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
+const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
         const std::string& triggerAlgTechTrig, int& errorCode) {
+
+    // initialize the index to a negative value
+    int pfIndexAlgTechTrig = -1;
 
     // test if the argument for the "trigger algorithm type" is correct
     if ((triggerAlgTechTrig == "TechnicalTriggers") || ((triggerAlgTechTrig
@@ -907,13 +910,13 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
     } else {
 
         LogDebug("L1GtUtils")
-                << "\nPrescale factor set cannot be retrieved for the argument "
+                << "\nPrescale factor set index cannot be retrieved for the argument "
                 << triggerAlgTechTrig
                 << "\n  Supported arguments: 'PhysicsAlgorithms' or 'TechnicalTriggers'"
                 << std::endl;
 
         errorCode = 6000;
-        return m_prescaleFactorSet;
+        return -1;
 
     }
 
@@ -934,16 +937,16 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
 
     bool validRecord = false;
 
-    // initialization, update is done later from the record
-    unsigned int pfIndexAlgTechTrig = 0;
 
     if (gtRecord.isValid()) {
 
 
         if (triggerAlgTechTrig == "TechnicalTriggers") {
-            pfIndexAlgTechTrig = gtRecord->gtPrescaleFactorIndexTech();
+            pfIndexAlgTechTrig =
+                    static_cast<int> (gtRecord->gtPrescaleFactorIndexTech());
         } else {
-            pfIndexAlgTechTrig = gtRecord->gtPrescaleFactorIndexAlgo();
+            pfIndexAlgTechTrig =
+                    static_cast<int> (gtRecord->gtPrescaleFactorIndexAlgo());
         }
 
         validRecord = true;
@@ -960,10 +963,10 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
 
         if (triggerAlgTechTrig == "TechnicalTriggers") {
             pfIndexAlgTechTrig =
-                    static_cast<unsigned int> ((gtReadoutRecord->gtFdlWord()).gtPrescaleFactorIndexTech());
+                    static_cast<int> ((gtReadoutRecord->gtFdlWord()).gtPrescaleFactorIndexTech());
         } else {
             pfIndexAlgTechTrig =
-                    static_cast<unsigned int> ((gtReadoutRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo());
+                    static_cast<int> ((gtReadoutRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo());
         }
 
         validRecord = true;
@@ -985,10 +988,9 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
                 << l1GtReadoutRecordInputTag << "\nfound." << std::endl;
 
         errorCode = iErrorRecord;
-        return m_prescaleFactorSet;
+        return -1;
     }
 
-    // get the prescale factor set used in the actual luminosity segment
     // first, check if a correct index is retrieved
 
     size_t pfSetsSize = 0;
@@ -1008,9 +1010,9 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
                 << pfIndexAlgTechTrig << std::endl;
 
         errorCode = iError;
-        return m_prescaleFactorSet;
+        return -1;
 
-    } else if (pfIndexAlgTechTrig >= pfSetsSize) {
+    } else if ((static_cast<size_t>(pfIndexAlgTechTrig) >= pfSetsSize)) {
         iError = iError + 2000;
         LogDebug("L1GtUtils")
                 << "\nIndex of prescale factor set retrieved from the data \n"
@@ -1019,14 +1021,59 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
                 << pfSetsSize << std::endl;
 
         errorCode = iError;
-        return m_prescaleFactorSet;
+        return -1;
 
     }
 
-    if (triggerAlgTechTrig == "TechnicalTriggers") {
-        m_prescaleFactorSet = (*m_prescaleFactorsTechTrig)[pfIndexAlgTechTrig];
-    } else {
-        m_prescaleFactorSet = (*m_prescaleFactorsAlgoTrig)[pfIndexAlgTechTrig];
+    errorCode = iError;
+    return pfIndexAlgTechTrig;
+
+}
+
+const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
+        const std::string& triggerAlgTechTrig, int& errorCode) {
+
+    // initialize the index to a negative value
+    int pfIndexAlgTechTrig = -1;
+
+    // initialize error code
+    int iError = 0;
+
+    edm::InputTag l1GtRecordInputTag;
+    edm::InputTag l1GtReadoutRecordInputTag;
+
+    getInputTag(iEvent, l1GtRecordInputTag, l1GtReadoutRecordInputTag);
+
+    pfIndexAlgTechTrig = prescaleFactorSetIndex(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, triggerAlgTechTrig, iError);
+
+    // return the error code and the index value
+    // if the  error code is 0, the index returned is -1
+    errorCode = iError;
+    return pfIndexAlgTechTrig;
+
+}
+
+const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
+        const edm::InputTag& l1GtRecordInputTag,
+        const edm::InputTag& l1GtReadoutRecordInputTag,
+        const std::string& triggerAlgTechTrig, int& errorCode) {
+
+    // initialize error code
+    int iError = 0;
+
+    const int pfIndexAlgTechTrig = prescaleFactorSetIndex(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, triggerAlgTechTrig, iError);
+
+    if (iError == 0) {
+        if (triggerAlgTechTrig == "TechnicalTriggers") {
+            m_prescaleFactorSet =
+                    (*m_prescaleFactorsTechTrig)[pfIndexAlgTechTrig];
+        } else {
+            m_prescaleFactorSet =
+                    (*m_prescaleFactorsAlgoTrig)[pfIndexAlgTechTrig];
+        }
+
     }
 
     errorCode = iError;
@@ -1052,8 +1099,6 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
     return m_prescaleFactorSet;
 
 }
-
-
 
 const std::vector<unsigned int>& L1GtUtils::triggerMaskSet(
         const std::string& triggerAlgTechTrig, int& errorCode) {

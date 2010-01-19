@@ -44,6 +44,11 @@ else :
     dataType = 'RAW'
     #dataType = 'StreamFile'
     #dataType = 'RECO'
+    
+    runNumber = 123596
+    #runNumber = 116035
+    #runNumber = 121560
+
 
 # change to True to use local files
 #     the type of file should match the choice of useRelValSample and useGlobalTag
@@ -252,15 +257,43 @@ if useRelValSample == True :
 else :
     if dataType == 'RAW' : 
 
-        # data POOL
-        dataset = cms.untracked.vstring('/Cosmics/Commissioning09-v3/RAW')
-        readFiles.extend( [
-                '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/560/DC089E4B-5ED4-DE11-A179-000423D98FBC.root'
-        
-            ] );
+        if runNumber == 123596 :
+            dataset = '/Cosmics/BeamCommissioning09-v1/RAW'
+    
+            readFiles.extend( [
+                '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/596/8E21B4C8-74E2-DE11-ABAA-000423D999CA.root' 
+                ] );
 
-        secFiles.extend([
-            ])
+            secFiles.extend([
+                ])
+
+    
+        elif runNumber == 116035 :
+            dataset = '/Cosmics/Commissioning09-v3/RAW'
+            print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning09/Cosmics/RAW/v3/000/116/035/34A8317D-76AF-DE11-91DB-000423D98DC4.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+        
+        elif runNumber == 121560 :
+            dataset = '/Cosmics/Commissioning09-v3/RAW'
+            print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/560/DC089E4B-5ED4-DE11-A179-000423D98FBC.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        else :
+            print 'Error: run ', runNumber, ' not defined.'    
+            sys.exit()
+
     
     elif dataType == 'FileStream' : 
         # data dat
@@ -269,6 +302,9 @@ else :
         
             ] );
 
+    else :
+        print 'Error: dataType ',dataType, ' not defined.'    
+        sys.exit()
 
 if useLocalFiles :
     readFiles = 'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/l1GtAnalyzer_source.root'

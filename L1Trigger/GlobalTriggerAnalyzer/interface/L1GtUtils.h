@@ -173,7 +173,20 @@ public:
     ///     masks the event setup only
     const int triggerMask(const std::string& nameAlgTechTrig, int& errorCode);
 
-    /// return the sets of prescale factors and of trigger masks
+    /// return the index of the actual set of prescale factors used for the
+    /// event (must be the same for all events in the luminosity block,
+    /// if no errors)
+    const int prescaleFactorSetIndex(const edm::Event& iEvent,
+            const edm::InputTag& l1GtRecordInputTag,
+            const edm::InputTag& l1GtReadoutRecordInputTag,
+            const std::string& triggerAlgTechTrig, int& errorCode);
+
+    const int prescaleFactorSetIndex(const edm::Event& iEvent,
+            const std::string& triggerAlgTechTrig, int& errorCode);
+
+    /// return the actual set of prescale factors used for the
+    /// event (must be the same for all events in the luminosity block,
+    /// if no errors)
     const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
             const edm::InputTag& l1GtRecordInputTag,
             const edm::InputTag& l1GtReadoutRecordInputTag,
@@ -182,6 +195,9 @@ public:
     const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
             const std::string& triggerAlgTechTrig, int& errorCode);
 
+
+    /// return the set of trigger masks for the physics partition (partition zero)
+    /// used for the event (remain the same in the whole run, if no errors)
     const std::vector<unsigned int>& triggerMaskSet(
             const std::string& triggerAlgTechTrig, int& errorCode);
 
