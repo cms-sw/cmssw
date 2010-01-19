@@ -23,8 +23,13 @@ public:
   virtual bool operator()(const TriggerExpressionCache &) = 0;
 
   // pure virtual, need a concrete implementation
-  virtual void dump(std::ostream &) = 0;
+  virtual void dump(std::ostream &) const = 0;
 };
+
+std::ostream & operator<<(ostream & out, const TriggerExpressionEvaluator & eval) {
+  eval.dump(out);
+  return out;
+}
 
 } // namespace hlt
 
