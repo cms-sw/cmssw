@@ -6,9 +6,10 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
 #      MuonTag = cms.untracked.InputTag("muons"),
       ElecTag = cms.untracked.InputTag("gsfElectrons"),
-#      METTag = cms.untracked.InputTag("met"),
-#      METIncludesMuons = cms.untracked.bool(False),
-#      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      METTag = cms.untracked.InputTag("met"),
+      METIncludesMuons = cms.untracked.bool(False),
+#      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
 
       # Main cuts ->
 #      MuonTrig = cms.untracked.string("HLT_Mu9"),
@@ -31,10 +32,10 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
       HcalIsoCutEndcap = cms.untracked.double(3.4),
       TrkIsoCutBarrel = cms.untracked.double(7.2),
       TrkIsoCutEndcap = cms.untracked.double(5.1),
-#      MtMin = cms.untracked.double(50.0),
-#      MtMax = cms.untracked.double(200.0),
-#      MetMin = cms.untracked.double(-999999.),
-#      MetMax = cms.untracked.double(999999.),
+      MtMin = cms.untracked.double(-999999),
+      MtMax = cms.untracked.double(999999.0),
+      MetMin = cms.untracked.double(-999999.),
+      MetMax = cms.untracked.double(999999.),
 #      AcopCut = cms.untracked.double(2.),
 
 #      # Muon quality cuts ->
@@ -48,6 +49,9 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
 #      PtThrForZ2 = cms.untracked.double(10.0),
 
       # To further suppress ttbar ->
-#      EJetMin = cms.untracked.double(40.),
-#      NJetMax = cms.untracked.int32(999999)
+      EJetMin = cms.untracked.double(30.),
+      NJetMax = cms.untracked.int32(999999)
+
+#      CaloJetCollection = cms.untracked.InputTag("sisCone5CaloJets")
+                            
 )

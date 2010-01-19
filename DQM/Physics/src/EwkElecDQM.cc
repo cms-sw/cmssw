@@ -18,6 +18,10 @@
 // also need Fwd.h file ???
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
@@ -35,9 +39,9 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       //      muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       elecTag_(cfg.getUntrackedParameter<edm::InputTag> ("ElecTag", edm::InputTag("gsfElectrons"))), 
-      //      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
       //      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
-      //      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
 
       // Main cuts 
       //      muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
@@ -58,11 +62,11 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
       hcalIsoCutBarrel_(cfg.getUntrackedParameter<double>("HcalIsoCutBarrel", 8.1)),
       hcalIsoCutEndcap_(cfg.getUntrackedParameter<double>("HcalIsoCutEndcap", 3.4)),
       trkIsoCutBarrel_(cfg.getUntrackedParameter<double>("TrkIsoCutBarrel", 7.2)),
-      trkIsoCutEndcap_(cfg.getUntrackedParameter<double>("TrkIsoCutEndcap", 5.1))//,
-      //      mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
-      //      mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
-      //      metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
-      //      metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
+      trkIsoCutEndcap_(cfg.getUntrackedParameter<double>("TrkIsoCutEndcap", 5.1)),
+      mtMin_(cfg.getUntrackedParameter<double>("MtMin", -999999)),
+      mtMax_(cfg.getUntrackedParameter<double>("MtMax", 999999.)),
+      metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
+      metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
       //      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),
 
       // Muon quality cuts
@@ -76,8 +80,13 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
       //      ptThrForZ2_(cfg.getUntrackedParameter<double>("PtThrForZ2", 10.)),
 
       // Top rejection
-      //      eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
-      //      nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999))
+      eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
+      nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999))
+      
+//       caloJetCollection_(cfg.getUntrackedParameter<edm:InputTag>("CaloJetCollection","sisCone5CaloJets"))
+
+
+
 {
 }
 
@@ -96,7 +105,6 @@ void EwkElecDQM::beginRun(const Run& r, const EventSetup&) {
 void EwkElecDQM::beginJob(const EventSetup &) {
       theDbe = Service<DQMStore>().operator->();
       theDbe->setCurrentFolder("Physics/EwkElecDQM");
-
       init_histograms();
 }
 
@@ -206,13 +214,17 @@ void EwkElecDQM::init_histograms() {
 	    nelectrons_before_ = theDbe->book1D("NELECTRONS_BEFORECUTS",chtitle,10,-0.5,9.5);
 	    nelectrons_after_ = theDbe->book1D("NELECTRONS_AFTERCUTS",chtitle,10,-0.5,9.5);
 
+            snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
+            mt_before_ = theDbe->book1D("MT_BEFORECUTS",chtitle,150,0.,300.);
+            mt_after_ = theDbe->book1D("MT_LASTCUT",chtitle,150,0.,300.);
+
 //             snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
 //             mt_before_ = theDbe->book1D("MT_BEFORECUTS",chtitle,150,0.,300.);
 //             mt_after_ = theDbe->book1D("MT_LASTCUT",chtitle,150,0.,300.);
 
-//             snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
-//             met_before_ = theDbe->book1D("MET_BEFORECUTS",chtitle,100,0.,200.);
-//             met_after_ = theDbe->book1D("MET_LASTCUT",chtitle,100,0.,200.);
+	    snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
+	    met_before_ = theDbe->book1D("MET_BEFORECUTS",chtitle,100,0.,200.);
+	    met_after_ = theDbe->book1D("MET_LASTCUT",chtitle,100,0.,200.);
 
 //             snprintf(chtitle, 255, "MU-MET (%s) acoplanarity", metTag_.label().data());
 //             acop_before_ = theDbe->book1D("ACOP_BEFORECUTS",chtitle,50,0.,M_PI);
@@ -226,9 +238,20 @@ void EwkElecDQM::init_histograms() {
 //             nz2_before_ = theDbe->book1D("NZ2_BEFORECUTS",chtitle,10,-0.5,9.5);
 //             nz2_after_ = theDbe->book1D("NZ2_LASTCUT",chtitle,10,-0.5,9.5);
 
-//             snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
-//             njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
-//             njets_after_ = theDbe->book1D("NJETS_LASTCUT",chtitle,10,-0.5,9.5);
+             snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
+             njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
+             njets_after_  = theDbe->book1D("NJETS_LASTCUT",chtitle,10,-0.5,9.5);
+	     snprintf(chtitle, 255, "Jet with highest E_{T} (%s)", jetTag_.label().data());
+	     jet_et_before_       = theDbe->book1D("JETET1_BEFORECUTS",chtitle, 20, 0., 200.0);
+	     jet_et_after_       = theDbe->book1D("JETET1_AFTERCUTS",chtitle, 20, 0., 200.0);
+	     snprintf(chtitle, 255, "Eta of Jet with highest E_{T} (%s)", jetTag_.label().data());
+	     jet_eta_before_       = theDbe->book1D("JETETA1_BEFORECUTS",chtitle, 20, -5, 5);
+	     jet_eta_after_       = theDbe->book1D("JETETA1_AFTERCUTS",chtitle, 20, -5, 5);
+// 	     snprintf(chtitle, 255, "Jet with 2nd highest E_{T} (%s)", jetTag_.label().data());
+// 	     jet2_et_before      = theDbe->book1D("JETET2_BEFORECUTS",chtitle, 20, 0., 200.0);
+// 	     jet2_et_after       = theDbe->book1D("JETET2_AFTERCUTS",chtitle, 20, 0., 200.0);
+	     
+
 
       }
 }
@@ -329,7 +352,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       bool eid_sel = false;
       bool iso_sel = false;
 //       bool hlt_sel = false;
-//       bool met_sel = false;
+      bool met_sel = false;
       bool all_sel = false;
 
 //       // Muon collection
@@ -354,18 +377,17 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
             LogWarning("") << ">>> No beam spot found !!!";
             return;
       }
-  
-//       // MET
-//       double met_px = 0.;
-//       double met_py = 0.;
-//       Handle<View<MET> > metCollection;
-//       if (!ev.getByLabel(metTag_, metCollection)) {
-//             LogWarning("") << ">>> MET collection does not exist !!!";
-//             return;
-//       }
-//       const MET& met = metCollection->at(0);
-//       met_px = met.px();
-//       met_py = met.py();
+        // MET
+      double met_px = 0.;
+      double met_py = 0.;
+      Handle<View<MET> > metCollection;
+      if (!ev.getByLabel(metTag_, metCollection)) {
+            LogWarning("") << ">>> MET collection does not exist !!!";
+            return;
+      }
+      const MET& met = metCollection->at(0);
+      met_px = met.px();
+      met_py = met.py();
 //       if (!metIncludesMuons_) {
 //             for (unsigned int i=0; i<muonCollectionSize; i++) {
 //                   const Muon& mu = muonCollection->at(i);
@@ -374,9 +396,9 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 //                   met_py -= mu.py();
 //             }
 //       }
-//       double met_et = sqrt(met_px*met_px+met_py*met_py);
-//       LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
-//       met_before_->Fill(met_et);
+      double met_et = sqrt(met_px*met_px+met_py*met_py);
+      LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
+      met_before_->Fill(met_et);
 
       // Trigger
       Handle<TriggerResults> triggerResults;
@@ -428,21 +450,96 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 //       nz1_before_->Fill(nmuonsForZ1);
 //       nz2_before_->Fill(nmuonsForZ2);
       
-//       // Jet collection
-//       Handle<View<Jet> > jetCollection;
-//       if (!ev.getByLabel(jetTag_, jetCollection)) {
-//             LogError("") << ">>> JET collection does not exist !!!";
-//             return;
-//       }
-//       unsigned int jetCollectionSize = jetCollection->size();
-//       int njets = 0;
-//       for (unsigned int i=0; i<jetCollectionSize; i++) {
-//             const Jet& jet = jetCollection->at(i);
-//             if (jet.et()>eJetMin_) njets++;
-//       }
-//       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
-//       LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
-//       njets_before_->Fill(njets);
+      // Jet collection
+      Handle<View<Jet> > jetCollection;
+      if (!ev.getByLabel(jetTag_, jetCollection)) {
+            LogError("") << ">>> JET collection does not exist !!!";
+            return;
+      }      
+      float electron_et   = -8.0;
+      float electron_eta  = -8.0;
+      float electron_phi  = -8.0;
+      float electron2_et  = -9.0;
+      float electron2_eta = -9.0;
+      float electron2_phi = -9.0;
+      //need to get some electron info so jets can be cleaned of them
+      for (unsigned int i=0; i<electronCollectionSize; i++) 
+	{
+	  const GsfElectron& elec = electronCollection->at(i);	 
+
+	  if (i < 1)
+	    {
+	       electron_et   = elec.pt();
+	       electron_eta  = elec.eta();
+	       electron_phi  = elec.phi();
+	    }
+	  if (i == 2)
+	    {
+	       electron2_et  = elec.pt();
+	       electron2_eta = elec.eta();
+	       electron2_phi = elec.phi();
+	    }       
+	}
+
+      float jet_et    = -8.0;
+      float jet_eta   = -8.0;
+      float jet_phi   = -8.0;
+      int   jet_count = 0;
+      float jet2_et   = -9.0;
+      float jet2_eta  = -9.0;
+      float jet2_phi  = -9.0;
+      unsigned int jetCollectionSize = jetCollection->size();
+      int njets = 0;
+      for (unsigned int i=0; i<jetCollectionSize; i++) {
+	const Jet& jet = jetCollection->at(i);
+	
+	float jet_current_et = jet.et();
+// 	cout << "jet_current_et " << jet_current_et << endl;
+	// if it overlaps with electron, it is not a jet
+	if ( electron_et>0.0 && fabs(jet.eta()-electron_eta ) < 0.2 
+	     && calcDeltaPhi(jet.phi(), electron_phi ) < 0.2)
+	  continue;
+	if ( electron2_et>0.0&& fabs(jet.eta()-electron2_eta) < 0.2 
+	     && calcDeltaPhi(jet.phi(), electron2_phi) < 0.2) 
+	  continue;
+
+	// if it has too low Et, throw away
+// 	if (jet_current_et < eJetMin_) continue; //Keep if only want to plot above jet cut
+
+	if (jet.et()>eJetMin_) 
+	  {
+	    njets++;
+	    jet_count++;
+	  }
+	if (jet_current_et > jet_et) 
+	  {
+	    jet2_et  = jet_et;  // 2nd highest jet get's et from current highest
+	    jet2_eta = jet_eta;
+	    jet2_phi = jet_phi;
+	    jet_et   = jet.et(); // current highest jet gets et from the new highest
+	    jet_eta  = jet.eta();
+	    jet_phi  = jet.phi();
+	  } 
+	else if (jet_current_et > jet2_et) 
+	  {
+	    jet2_et  = jet.et();
+	    jet2_eta = jet.eta();
+	    jet2_phi = jet.phi();
+	  }
+      }
+
+      //Fill After all electron cuts (or both before and after)
+      if (jet_et>10) //don't want low energy "jets"
+	{
+	  jet_et_before_   ->Fill(jet_et);
+// 	  jet2_et_before_  ->Fill(jet2_et);
+	  jet_eta_before_  ->Fill(jet_eta);
+	}
+
+
+      LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
+      LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
+      njets_before_->Fill(njets);
 
       // Start counting
       nall++;
@@ -450,14 +547,14 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       // Histograms per event should be done only once, so keep track of them
       bool hlt_hist_done = false;
       //bool minv_hist_done = false;
-//       bool met_hist_done = false;
+       bool met_hist_done = false;
 //       bool nz1_hist_done = false;
 //       bool nz2_hist_done = false;
-//       bool njets_hist_done = false;
+      bool njets_hist_done = false;
 
       // Central selection criteria
       //const int NFLAGS = 13; // number of individual selection criteria
-      const int NFLAGS = 8; // number of individual selection criteria
+      const int NFLAGS = 11; // number of individual selection criteria
       // 0: pt cut           | rec
       // 1: eta cut          | rec
       // 2: sieie            | eid
@@ -521,6 +618,8 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 
 	  // Pt,eta cuts
 	  double pt = elec.pt();
+	  double px = elec.px();
+	  double py = elec.py();
 	  double eta = elec.eta();
 	  LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
 	  if (pt>ptCut_) electron_sel[0] = true; 
@@ -635,17 +734,17 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  
 	  
 	  //             // MET/MT cuts
-	  //             double w_et = met_et+mu.pt();
-	  //             double w_px = met_px+mu.px();
-	  //             double w_py = met_py+mu.py();
+	  double w_et = met_et+pt;
+	  double w_px = met_px+px;
+	  double w_py = met_py+py;
 	  
-	  //             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
-	  //             massT = (massT>0) ? sqrt(massT) : 0;
+	  double massT = w_et*w_et - w_px*w_px - w_py*w_py;
+	  massT = (massT>0) ? sqrt(massT) : 0;
 	  
-	  //             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
-	  //             if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true; 
-	  //             mt_before_->Fill(massT);
-	  //             if (met_et>metMin_ && met_et<metMax_) muon_sel[9] = true; 
+	  LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
+	  if (massT>mtMin_ && massT<mtMax_) electron_sel[8] = true; 
+	  mt_before_->Fill(massT);
+	  if (met_et>metMin_ && met_et<metMax_) electron_sel[9] = true; 
 	  
 	  //             // Acoplanarity cuts
 	  //             Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
@@ -658,20 +757,22 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  
 	  //             // Remaining flags (from global event information)
 	  //             if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true; 
-	  //             if (njets<=nJetMax_) muon_sel[12] = true; 
+	  if (njets<=nJetMax_) electron_sel[10] = true; 
 	  
 	  // Collect necessary flags "per electron"
 	  int flags_passed = 0;
 	  bool rec_sel_this = true;
 	  bool eid_sel_this = true;
 	  bool iso_sel_this = true;
+	  bool met_sel_this = true;
 	  bool all_sel_this = true;
 	  for (int j=0; j<NFLAGS; ++j) 
 	    {
 	      if (electron_sel[j]) flags_passed += 1;
-	      if (j<2 && !electron_sel[j]) rec_sel_this = false;
-	      if (j<4 && !electron_sel[j]) eid_sel_this = false;
-	      if (j<7 && !electron_sel[j]) iso_sel_this = false;
+	      if (j<2  && !electron_sel[j]) rec_sel_this = false;
+	      if (j<4  && !electron_sel[j]) eid_sel_this = false;
+	      if (j<7  && !electron_sel[j]) iso_sel_this = false;
+	      if (j<9 && !electron_sel[j]) met_sel_this = false;
 	      if (!electron_sel[j]) all_sel_this = false;
 	    }
 	  
@@ -695,9 +796,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  //             if (iso_sel_this) iso_sel = true;
 	  //             // "hlt" => "iso" AND "event is triggered"
 	  //             if (hlt_sel_this) hlt_sel = true;
-	  //             // "met" => "hlt" AND "MET/MT and acoplanarity cuts"
-	  //             if (met_sel_this) met_sel = true;
-	  //             // "all" => "met" AND "Z/top rejection cuts"
+	  // 	         // "all" => "met" AND "Z/top rejection cuts"
 	  //             if (all_sel_this) all_sel = true;
 	  
 	  // "rec" => pt,eta cuts are satisfied
@@ -706,7 +805,9 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  if (eid_sel_this) iso_sel = true;
 	  // "iso" => "eid" AND "electron is isolated"
 	  if (iso_sel_this) iso_sel = true;
-	  // "all" => "iso" AND "event is triggered"
+	  // "met" => "iso" AND "MET/MT"
+	  if (met_sel_this) met_sel = true;
+	  // "all" => "met" AND "event is triggered"
 	  if (all_sel_this) all_sel = true;
 
 	  // Do N-1 histograms now (and only once for global event quantities)
@@ -799,11 +900,17 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 		    }
 		}
 	      hlt_hist_done = true;
-	      //                   if (!muon_sel[8] || flags_passed==NFLAGS) 
-	      //                         mt_after_->Fill(massT);
-	      //                   if (!muon_sel[9] || flags_passed==NFLAGS) 
-	      //                         if (!met_hist_done) met_after_->Fill(met_et);
-	      //                         met_hist_done = true;
+	      if (!electron_sel[8] || flags_passed==NFLAGS) 
+		{
+		  mt_after_->Fill(massT);
+		}
+	      if (!electron_sel[9] || flags_passed==NFLAGS) 
+		{
+		  if (!met_hist_done) {
+		    met_after_->Fill(met_et);
+		  }
+		}
+	      met_hist_done = true;
 	      //                   if (!muon_sel[10] || flags_passed==NFLAGS) 
 	      //                         acop_after_->Fill(acop);
 	      //                   if (!muon_sel[11] || flags_passed==NFLAGS) 
@@ -812,9 +919,18 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	      //                   if (!muon_sel[11] || flags_passed==NFLAGS) 
 	      //                         if (!nz2_hist_done) nz2_after_->Fill(nmuonsForZ2);
 	      //                         nz2_hist_done = true;
-	      //                   if (!muon_sel[12] || flags_passed==NFLAGS) 
-	      //                         if (!njets_hist_done) njets_after_->Fill(njets);
-	      //                         njets_hist_done = true;
+	      if (!electron_sel[10] || flags_passed==NFLAGS) {
+		if (!njets_hist_done) 
+		  {
+		    njets_after_->Fill(njets);
+		    if (jet_et>10) //don't want low energy "jets"
+		      {
+			jet_et_after_   ->Fill(jet_et);
+			jet_eta_after_  ->Fill(jet_eta);
+		      }
+		  }
+	      }
+	      njets_hist_done = true;
 
             } // end N-1 histos block
 	  
@@ -851,6 +967,23 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
             LogTrace("") << ">>>> Event REJECTED";
       }
 
+
+
       return;
 
 }
+
+// This always returns only a positive deltaPhi
+double EwkElecDQM::calcDeltaPhi(double phi1, double phi2) {
+
+  double deltaPhi = phi1 - phi2;
+
+  if (deltaPhi < 0) deltaPhi = -deltaPhi;
+
+  if (deltaPhi > 3.1415926) {
+    deltaPhi = 2 * 3.1415926 - deltaPhi;
+  }
+
+  return deltaPhi;
+}
+

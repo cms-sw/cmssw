@@ -24,15 +24,17 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
+  double calcDeltaPhi(double phi1, double phi2);
+
   void init_histograms();
 private:
 
   edm::InputTag trigTag_;
   //  edm::InputTag muonTag_;
   edm::InputTag elecTag_;
-  //  edm::InputTag metTag_;
-  //  bool metIncludesMuons_;
-  //  edm::InputTag jetTag_;
+  edm::InputTag metTag_;
+   bool metIncludesMuons_;
+  edm::InputTag jetTag_;
 
   //  const std::string muonTrig_;
   const std::string elecTrig_;
@@ -54,10 +56,10 @@ private:
   double hcalIsoCutEndcap_;
   double trkIsoCutBarrel_;
   double trkIsoCutEndcap_;
-  //  double mtMin_;
-  //  double mtMax_;
-  //  double metMin_;
-  //  double metMax_;
+   double mtMin_;
+   double mtMax_;
+   double metMin_;
+   double metMax_;
   //  double acopCut_;
 
   //  double dxyCut_;
@@ -68,8 +70,8 @@ private:
   //  double ptThrForZ1_;
   //  double ptThrForZ2_;
 
-  //  double eJetMin_;
-  //  int nJetMax_;
+  double eJetMin_;
+  int nJetMax_;
 
   unsigned int nall;
   unsigned int nrec;
@@ -141,11 +143,11 @@ private:
   MonitorElement* nelectrons_before_;
   MonitorElement* nelectrons_after_;
 
-/*   MonitorElement* mt_before_; */
-/*   MonitorElement* mt_after_; */
+  MonitorElement* mt_before_;
+  MonitorElement* mt_after_;
 
-/*   MonitorElement* met_before_; */
-/*   MonitorElement* met_after_; */
+  MonitorElement* met_before_;
+  MonitorElement* met_after_;
 
 /*   MonitorElement* acop_before_; */
 /*   MonitorElement* acop_after_; */
@@ -156,8 +158,15 @@ private:
 /*   MonitorElement* nz2_before_; */
 /*   MonitorElement* nz2_after_; */
 
-/*   MonitorElement* njets_before_; */
-/*   MonitorElement* njets_after_; */
+  MonitorElement* njets_before_;
+  MonitorElement* njets_after_; 
+  MonitorElement* jet_et_before_;
+  MonitorElement* jet_et_after_;
+  MonitorElement* jet_eta_before_;
+  MonitorElement* jet_eta_after_; 
+/*   MonitorElement* jet2_et_before_; */
+/*   MonitorElement* jet2_et_after_; */
 };
+
 
 #endif
