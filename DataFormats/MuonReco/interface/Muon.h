@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.53 2009/09/09 20:55:46 aeverett Exp $
+ * \version $Id: Muon.h,v 1.54 2009/09/11 19:12:38 aeverett Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -120,11 +120,11 @@ namespace reco {
     /// number of chambers
     int numberOfChambers() const { return muMatches_.size(); }
     /// get number of chambers with matched segments
-    int numberOfMatches( ArbitrationType type = SegmentArbitration ) const;
+    int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get bit map of stations with matched segments
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4
-    unsigned int stationMask( ArbitrationType type = SegmentArbitration ) const;
+    unsigned int stationMask( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get bit map of stations with tracks within
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
@@ -183,47 +183,47 @@ namespace reco {
     const std::vector<const MuonChamberMatch*> chambers( int station, int muonSubdetId ) const;
     /// get pointers to best segment and corresponding chamber in vector of chambers
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
-									ArbitrationType type = SegmentArbitration ) const;
+									ArbitrationType type = SegmentAndTrackArbitration ) const;
      
    public:
      /// get number of segments
-     int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
+     int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
      /// get deltas between (best) segment and track
      /// If no chamber or no segment returns 999999
-     float dX       ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float dY       ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float dDxDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float dDyDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float pullX    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration, bool includeSegmentError = false ) const;
-     float pullY    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration, bool includeSegmentError = false ) const;
-     float pullDxDz ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration, bool includeSegmentError = false ) const;
-     float pullDyDz ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration, bool includeSegmentError = false ) const;
+     float dX       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float dY       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float dDxDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float dDyDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float pullX    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration, bool includeSegmentError = true ) const;
+     float pullY    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration, bool includeSegmentError = true ) const;
+     float pullDxDz ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration, bool includeSegmentError = true ) const;
+     float pullDyDz ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration, bool includeSegmentError = true ) const;
      /// get (best) segment information
      /// If no segment returns 999999
-     float segmentX       ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float segmentY       ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float segmentDxDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float segmentDyDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float segmentXErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float segmentYErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float segmentDxDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float segmentDyDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
+     float segmentX       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float segmentY       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float segmentDxDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float segmentDyDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float segmentXErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float segmentYErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float segmentDxDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float segmentDyDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
      /// get track information in chamber that contains (best) segment
      /// If no segment, get track information in chamber that has the most negative distance between the track
      /// and the nearest chamber edge (the chamber with the deepest track)
      /// If no chamber returns 999999
-     float trackEdgeX   ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackEdgeY   ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackX       ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackY       ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackDxDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackDyDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackXErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackYErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackDxDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackDyDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackDist    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     float trackDistErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
+     float trackEdgeX   ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackEdgeY   ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackX       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackY       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackDxDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackDyDz    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackXErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackYErr    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackDxDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackDyDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackDist    ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     float trackDistErr ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
      
      float t0(int n=0) {
 	int i = 0;
