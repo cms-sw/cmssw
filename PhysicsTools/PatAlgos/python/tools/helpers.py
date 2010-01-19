@@ -43,7 +43,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                             print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace)
                             value[i] == self._paramReplace
                 elif type == 'cms.InputTag':
-                    if value == self._paramSearch:
+                    if value = self._paramSearch:
                         print "Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace)
                         setattr(pset, name, self._paramReplace)
 
