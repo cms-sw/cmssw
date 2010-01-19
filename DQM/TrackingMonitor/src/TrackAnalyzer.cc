@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/05 17:07:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/17 20:00:42 $
+ *  $Revision: 1.9 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -297,6 +297,7 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
     // book state related histograms
     // ---------------------------------------------------------------------------------//
     string StateName = conf_.getParameter<string>("MeasurementState");
+
     if (StateName == "All") 
     {
         bookHistosForState("OuterSurface", dqmStore_);
@@ -307,10 +308,11 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
     (   
         StateName != "OuterSurface" && 
         StateName != "InnerSurface" && 
-        StateName != "ImpactPoint"
+        StateName != "ImpactPoint" &&
+        StateName != "default" 
     ) 
     {
-        bookHistosForState("ImpactPoint", dqmStore_);
+        bookHistosForState("default", dqmStore_);
     }
     else
     {
@@ -382,10 +384,11 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     (   
         StateName != "OuterSurface" && 
         StateName != "InnerSurface" && 
-        StateName != "ImpactPoint"
+        StateName != "ImpactPoint" &&
+        StateName != "default" 
     ) 
     {
-        fillHistosForState(iSetup, track, std::string("ImpactPoint"));
+        fillHistosForState(iSetup, track, std::string("default"));
     }
     else
     {
