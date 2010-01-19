@@ -63,9 +63,9 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf) :
 {
 }
 
-  //BeginJob
+  //BeginRun
 
-void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
+void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
 
  
   //get magnetic field and geometry from ES
