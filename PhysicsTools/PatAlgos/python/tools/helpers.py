@@ -193,5 +193,14 @@ if __name__=="__main__":
            p.s = cms.Sequence(p.a*p.b*p.c *p.a)
            cloneProcessingSnippet(p, p.s, "New")
            self.assertEqual(p.dumpPython(),'import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")\n\nprocess.a = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.c = cms.EDProducer("c",\n    src = cms.InputTag("b")\n)\n\n\nprocess.cNew = cms.EDProducer("c",\n    src = cms.InputTag("bNew")\n)\n\n\nprocess.bNew = cms.EDProducer("b",\n    src = cms.InputTag("aNew")\n)\n\n\nprocess.aNew = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.b = cms.EDProducer("b",\n    src = cms.InputTag("a")\n)\n\n\nprocess.s = cms.Sequence(process.a*process.b*process.c*process.a)\n\n\nprocess.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew)\n\n\n')
-
+       def testContains(self):
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
+           p.s1 = cms.Sequence(p.a*p.b*p.c)
+           p.s2 = cms.Sequence(p.b*p.c)
+           self.assert_( contains(p.s1, "a") )
+           self.assert_( not contains(p.s2, "a") )
+           
    unittest.main()
