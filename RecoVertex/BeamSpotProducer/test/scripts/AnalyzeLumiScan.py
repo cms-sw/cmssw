@@ -20,7 +20,7 @@ import commands
 def get_list_files(run,ls1,ls2,mode):
     lfiles = []
 #    dbsquery = "dbs search --query=\"find file where dataset=/ExpressPhysics/*/FEVT and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+" order by lumi asc\" > tmplist.txt"
-    dbsquery = "dbs search --query=\"find file where dataset=/MinimumBias/BeamCommissioning09-Dec19thReReco_341_v1/RECO and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+" order by lumi asc\" > tmplist.txt"
+    dbsquery = "dbs search --query=\"find file where dataset=/MinimumBias/BeamCommissioning09-Dec19thReReco_341_v1/RECO and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+"\" > tmplist.txt"
 
     #print dbsquery
     os.system(dbsquery)
@@ -108,8 +108,28 @@ def main():
         lumilist=runsinfo.get(d)
         for j in range((len(lumilist)+1)/2):
             files = get_list_files(int(d[3:len(d)-1]),lumilist[j*2],lumilist[j*2+1],fmode)
-            tagName = d[:len(d)-1]+"LS"+str(lumilist[j*2])+"-"+str(lumilist[j*2+1])
-            print tagName
+            if lumilist[j*2] < 10:
+                minlumi = "00"+str(lumilist[j*2])
+            elif lumilist[j*2] < 100:
+                minlumi = "0"+str(lumilist[j*2])
+            elif lumilist[j*2] < 1000:
+                minlumi = str(lumilist[j*2])
+            else:
+                print "Lumi range greater than 1000!!!"
+                sys.exit()
+
+            if lumilist[j*2+1] < 10:
+                maxlumi = "00"+str(lumilist[j*2+1])
+            elif lumilist[j*2+1] < 100:
+                maxlumi = "0"+str(lumilist[j*2+1])
+            elif lumilist[j*2+1] < 1000:
+                maxlumi = str(lumilist[j*2+1])
+            else:
+                print "Lumi range greater than 1000!!!"
+                sys.exit()
+
+            tagName = d[:len(d)-1]+"LS"+minlumi+"-"+maxlumi
+##            print tagName
             
             fouttmp = open("Input_template_cfi.py")
             cfiname = cfidir+"LumiScan_"+tagName+"_cfi.py"
