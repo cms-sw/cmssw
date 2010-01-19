@@ -265,6 +265,8 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
     if (!m_EEcoeffFile.empty()) endcapreader.parseXMLMiscalibFile (m_EEcoeffFile) ;
     EcalIntercalibConstants EEcostants (EEmap.get());
     m_endcapMap = EEcostants.getMap();
+
+    isfirstcall_=false;
   } // if isfirstcall
 
 
