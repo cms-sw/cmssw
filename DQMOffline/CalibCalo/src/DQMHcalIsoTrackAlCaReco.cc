@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.5 2009/11/16 18:13:25 safronov Exp $
+// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.6 2009/12/14 22:22:19 wmtan Exp $
 //
 //
 
@@ -150,11 +150,12 @@ std::pair<int,int> DQMHcalIsoTrackAlCaReco::towerIndex(double eta, double phi)
   int iphi = 0;
   for (int i=1; i<21; i++)
     {
-      if (fabs(eta)<(i*0.087)&&fabs(eta)>(i-1)*0.087) ieta=int(fabs(eta)/eta)*i;
+      if (fabs(eta)<=(i*0.087)&&fabs(eta)>(i-1)*0.087) ieta=int(fabs(eta)/eta)*i;
     }
-  if (fabs(eta)>1.740&&fabs(eta)<1.830) ieta=int(fabs(eta)/eta)*21;
-  if (fabs(eta)>1.830&&fabs(eta)<1.930) ieta=int(fabs(eta)/eta)*22;
-  if (fabs(eta)>1.930&&fabs(eta)<2.043) ieta=int(fabs(eta)/eta)*23;
+  if (fabs(eta)>1.740&&fabs(eta)<=1.830) ieta=int(fabs(eta)/eta)*21;
+  if (fabs(eta)>1.830&&fabs(eta)<=1.930) ieta=int(fabs(eta)/eta)*22;
+  if (fabs(eta)>1.930&&fabs(eta)<=2.043) ieta=int(fabs(eta)/eta)*23;
+  if (fabs(eta)>2.043&&fabs(eta)<=2.172) ieta=int(fabs(eta)/eta)*24;
 
   double delta=phi+0.174532925;
   if (delta<0) delta=delta+2*acos(-1);
