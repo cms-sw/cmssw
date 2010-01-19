@@ -8,7 +8,8 @@
 	common/histcol/inx
       common/extraz/zfactor,zmin,zmax
       common/totcross/appcross
-
+      common/counter/ibcstate,nev
+      
 	logical generate
 
 c...if not to generate the normalized event number distribution, then 

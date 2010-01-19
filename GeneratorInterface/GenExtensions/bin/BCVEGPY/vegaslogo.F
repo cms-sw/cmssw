@@ -45,6 +45,7 @@ c*******************************************************************
       implicit double precision(a-h, o-z)
 	implicit integer(i-n)
 	logical vegasopen,usegrade
+        common/mixevnt/xbcsec(8),imix,imixtype
 
       if(vegasopen) then
 	   write(*,'(a)') '...... end of vegas, grade generated ......'

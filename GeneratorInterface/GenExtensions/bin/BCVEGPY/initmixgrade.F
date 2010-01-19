@@ -55,6 +55,7 @@ c...grade for every state.
 c------------------------------------------------------------
 	   if((.not. usevegas) .and. (.not. usegrade)) then
 c...initialize the grade.
+ 	     ndim=7	! fix for uninizialized variable
              rc=1.0d0/NVEGBIN
              do 77 j=1,ndim
                xi(NVEGBIN,j)=1.0d0

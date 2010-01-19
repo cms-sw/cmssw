@@ -34,6 +34,7 @@ c...initial value.
 	  cfvct(ii) =0.0d0
 	  cfscl(ii) =0.0d0
 	  amp2cf(ii)=0.0d0
+	  colfac(ii)=0.0d0
 	end do
 
 c...color factors for the hadronic production of bc meson.
