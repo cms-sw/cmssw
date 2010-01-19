@@ -12,6 +12,7 @@
 
 // system include files
 #include <set>
+#include <string>
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
@@ -20,6 +21,9 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 using namespace edm::serviceregistry;
 //
@@ -27,7 +31,7 @@ using namespace edm::serviceregistry;
 //
 
 ServicesManager::MakerHolder::MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
-                                          const edm::ParameterSet& iPSet,
+                                          edm::ParameterSet& iPSet,
                                           edm::ActivityRegistry& iRegistry) :
 maker_(iMaker),
 pset_(&iPSet),
@@ -51,7 +55,7 @@ ServicesManager::MakerHolder::add(ServicesManager& oManager) const
 //
 // constructors and destructor
 //
-ServicesManager::ServicesManager(const std::vector<edm::ParameterSet>& iConfiguration) :
+ServicesManager::ServicesManager(std::vector<edm::ParameterSet>& iConfiguration) :
 type2Maker_(new Type2Maker)
 {
    //First create the list of makers
@@ -61,7 +65,7 @@ type2Maker_(new Type2Maker)
 }
 ServicesManager::ServicesManager(ServiceToken iToken,
                                  ServiceLegacy iLegacy,
-                                 const std::vector<edm::ParameterSet>& iConfiguration):
+                                 std::vector<edm::ParameterSet>& iConfiguration):
   associatedManager_(iToken.manager_),
   type2Maker_(new Type2Maker)
 {
@@ -203,9 +207,9 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
 
 
 void
-ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfiguration)
+ServicesManager::fillListOfMakers(std::vector<edm::ParameterSet>& iConfiguration)
 {
-   for(std::vector<edm::ParameterSet>::const_iterator itParam = iConfiguration.begin(),
+   for(std::vector<edm::ParameterSet>::iterator itParam = iConfiguration.begin(),
 	itParamEnd = iConfiguration.end();
         itParam != itParamEnd;
         ++itParam) {
@@ -267,6 +271,33 @@ ServicesManager::createServices()
      // Check to make sure this maker is still there.  They are deleted
      // sometimes and that is OK.
      if (itMaker != type2Maker_->end()) {
+
+       std::string serviceType = itMaker->second.pset_->getParameter<std::string>("@service_type");
+       std::auto_ptr<edm::ParameterSetDescriptionFillerBase> filler(
+         edm::ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
+       ConfigurationDescriptions descriptions(filler->baseType());
+
+       try {
+         filler->fill(descriptions);
+       }
+       catch (cms::Exception& iException) {
+         edm::Exception toThrow(errors::Configuration, "Failed while filling ParameterSetDescriptions.");
+         toThrow << "\nService plugin name is \"" << serviceType << "\"\n";
+         toThrow.append(iException);
+         throw toThrow;
+       }
+
+       try {
+         descriptions.validate(*(itMaker->second.pset_), serviceType);
+         itMaker->second.pset_->registerIt();
+       }
+       catch (cms::Exception& iException) {
+         edm::Exception toThrow(errors::Configuration, "Failed validating service configuration.");
+         toThrow << "\nService plugin name is \"" << serviceType << "\"\n";
+         toThrow.append(iException);
+         throw toThrow;
+       }
+
        try {
          // This creates the service
          itMaker->second.add(*this);

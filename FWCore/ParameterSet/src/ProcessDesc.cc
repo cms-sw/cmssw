@@ -45,7 +45,6 @@ namespace edm
   
   void ProcessDesc::addService(ParameterSet& pset) {
     services_->push_back(pset);
-    pset.registerIt();
   }
 
 

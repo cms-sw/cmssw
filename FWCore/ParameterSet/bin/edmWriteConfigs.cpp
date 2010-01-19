@@ -16,6 +16,11 @@
 // labels.  It also prints to std::cout
 // the name of each of these module labels.
 //
+// It also does an analogous thing for sources
+// and services.  The only difference is that
+// each will have at most one description and
+// the output filename is <pluginName>_cfi.py.
+//
 // Original Author:  W. David Dagenhart
 //         Created:  10 December 2008
 
@@ -85,7 +90,7 @@ namespace {
     }
     catch(cms::Exception& e) {
       edm::Exception toThrow(edm::errors::LogicError,
-        "Error occurred while creating ParameterSetDescriptions\n");
+        "Error occurred while filling ParameterSetDescriptions\n");
         toThrow << "for module of base type \'" << baseType << "\' with plugin name \'" << pluginName << "\'\n";
         toThrow.append(e);
         throw toThrow;

@@ -34,4 +34,10 @@ namespace edm {
 static edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::ParameterSetDescriptionFiller<type > > EDM_PLUGIN_SYM(s_filler , __LINE__ ) (#type)
 //NOTE: Can't do the below since this appears on the same line as another factory and w'ed have two variables with the same name
 //DEFINE_EDM_PLUGIN (edm::ParameterSetDescriptionFillerPluginFactory,type,#type)
+
+// Define another analogous macro to handle the special case of services.
+
+#define DEFINE_DESC_FILLER_FOR_SERVICES(pluginName, serviceType)		\
+static edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForServices<serviceType > > EDM_PLUGIN_SYM(s_filler , __LINE__ ) (#pluginName)
+
 #endif

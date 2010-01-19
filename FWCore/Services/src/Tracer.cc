@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.15 2008/10/20 19:38:22 wmtan Exp $
+// $Id: Tracer.cc,v 1.16 2008/12/20 17:39:56 wmtan Exp $
 //
 
 // system include files
@@ -23,6 +23,9 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 using namespace edm::service;
 //
 // constants, enums and typedefs
@@ -36,7 +39,7 @@ using namespace edm::service;
 // constructors and destructor
 //
 Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
-  indention_(iPS.getUntrackedParameter<std::string>("indention","++")),
+  indention_(iPS.getUntrackedParameter<std::string>("indention")),
   depth_(0)
 {
    iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
@@ -124,6 +127,14 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
 //Tracer::~Tracer()
 //{
 //}
+
+void
+Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+    edm::ParameterSetDescription desc;
+    desc.addUntracked<std::string>("indention", "++");
+    descriptions.add("Tracer", desc);
+}
 
 //
 // assignment operators

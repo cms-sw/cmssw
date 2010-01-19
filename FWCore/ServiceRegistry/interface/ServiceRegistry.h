@@ -93,8 +93,8 @@ namespace edm {
       static ServiceToken createServicesFromConfig(const std::string& config);
 
    public: // Made public (temporarily) at the request of Emilio Meschi.
-      static ServiceToken createSet(const std::vector<ParameterSet>&);
-      static ServiceToken createSet(const std::vector<ParameterSet>&,
+      static ServiceToken createSet(std::vector<ParameterSet>&);
+      static ServiceToken createSet(std::vector<ParameterSet>&,
                                     ServiceToken,
                                     serviceregistry::ServiceLegacy);
       /// create a service token that holds the service defined by iService

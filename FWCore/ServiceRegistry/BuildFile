@@ -1,5 +1,6 @@
 <use name=boost>
 <use name=sigcpp>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/PythonParameterSet>
 <use name=FWCore/Utilities>

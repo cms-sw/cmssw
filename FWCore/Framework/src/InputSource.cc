@@ -128,7 +128,7 @@ namespace edm {
   InputSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setUnknown();
-    descriptions.addUnknownLabel(desc);
+    descriptions.addDefault(desc);
   }
 
   std::string

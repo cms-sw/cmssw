@@ -43,7 +43,7 @@ namespace edm {
     void add(std::string const& label, ParameterSetDescription const& psetDescription);
     void add(char const* label, ParameterSetDescription const& psetDescription);
 
-    void addUnknownLabel(ParameterSetDescription const& psetDescription);
+    void addDefault(ParameterSetDescription const& psetDescription);
 
     // ---------------------------------------------------------
     // These functions use the information in the descriptions
@@ -100,8 +100,8 @@ namespace edm {
 
     std::vector<std::pair<std::string, ParameterSetDescription> > descriptions_;
 
-    bool unknownDescDefined_;
-    ParameterSetDescription descForUnknownLabels_;
+    bool defaultDescDefined_;
+    ParameterSetDescription defaultDesc_;
 
     std::string comment_;
   };

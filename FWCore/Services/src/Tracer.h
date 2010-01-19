@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.10 2008/10/16 23:08:00 wmtan Exp $
+// $Id: Tracer.h,v 1.11 2008/10/20 19:38:22 wmtan Exp $
 //
 
 // system include files
@@ -30,11 +30,15 @@
 
 
 namespace edm {
+   class ConfigurationDescriptions;
+
    namespace service {
       class Tracer {
 public:
          Tracer(const ParameterSet&,ActivityRegistry&);
          
+         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
          void postBeginJob();
          void postEndJob();
          

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMaker.h,v 1.6 2006/12/26 03:13:42 wmtan Exp $
+// $Id: ServiceMaker.h,v 1.7 2007/04/09 22:47:15 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
 #include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 
 // forward declarations
 
@@ -109,17 +110,26 @@ private:
 
 
 #define DEFINE_FWK_SERVICE(type) \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type)
+DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type); \
+DEFINE_DESC_FILLER_FOR_SERVICES(type, type)
+
 
 #define DEFINE_ANOTHER_FWK_SERVICE(type) \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type)
+DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type); \
+DEFINE_DESC_FILLER_FOR_SERVICES(type, type)
+
 
 #define DEFINE_FWK_SERVICE_MAKER(concrete,maker) \
 typedef edm::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ## _t; \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ##  _t ,#concrete)
+DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ##  _t ,#concrete); \
+typedef maker::concrete_t concrete ## _ ## _ ## _t; \
+DEFINE_DESC_FILLER_FOR_SERVICES(concrete, concrete ## _ ## _ ## _t)
+
 
 #define DEFINE_ANOTHER_FWK_SERVICE_MAKER(concrete,maker) \
 typedef edm::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ##  _t; \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ## _t ,#concrete)
+DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ## _t ,#concrete); \
+typedef maker::concrete_t concrete ## _ ## _ ## _t; \
+DEFINE_DESC_FILLER_FOR_SERVICES(concrete, concrete ## _ ## _ ## _t)
 
 #endif

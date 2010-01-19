@@ -36,7 +36,7 @@ namespace edm {
 
   ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType) :
     baseType_(baseType),
-    unknownDescDefined_(false)
+    defaultDescDefined_(false)
   { }
 
   ConfigurationDescriptions::~ConfigurationDescriptions() {} 
@@ -66,9 +66,16 @@ namespace edm {
           "ConfigurationDescriptions::add, when adding a ParameterSetDescription for a source the label must be \"source\"\n");
       }
       if (descriptions_.size() != 0U ||
-          unknownDescDefined_ == true) {
+          defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, for a source only 1 ParameterSetDescription may be added\n");
+      }
+    }
+    else if (baseType_ == std::string("Service")) {
+      if (descriptions_.size() != 0U ||
+          defaultDescDefined_ == true) {
+        throw edm::Exception(edm::errors::LogicError,
+          "ConfigurationDescriptions::add, for a service only 1 ParameterSetDescription may be added\n");
       }
     }
 
@@ -83,18 +90,18 @@ namespace edm {
   }
 
   void
-  ConfigurationDescriptions::addUnknownLabel(ParameterSetDescription const& psetDescription) {
+  ConfigurationDescriptions::addDefault(ParameterSetDescription const& psetDescription) {
 
-    if (baseType_ == std::string("Source")) {
+    if (baseType_ == std::string("Source") || baseType_ == std::string("Service")) {
       if (descriptions_.size() != 0U ||
-          unknownDescDefined_ == true) {
+          defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
-          "ConfigurationDescriptions::addUnknownLabel, for a source only 1 ParameterSetDescription may be added\n");
+          "ConfigurationDescriptions::addDefault, for a source or service only 1 ParameterSetDescription may be added\n");
       }
     }
 
-    unknownDescDefined_ = true;
-    descForUnknownLabels_ = psetDescription;
+    defaultDescDefined_ = true;
+    defaultDesc_ = psetDescription;
   }
 
   void
@@ -112,8 +119,8 @@ namespace edm {
       psetDesc->validate(pset);
     }
     // Is there an explicit description to be used for a non standard label
-    else if (unknownDescDefined_) {
-      descForUnknownLabels_.validate(pset);
+    else if (defaultDescDefined_) {
+      defaultDesc_.validate(pset);
     }
     // Otherwise use the first one.
     else if (descriptions_.size() > 0U) {
@@ -139,6 +146,13 @@ namespace edm {
                                               std::string const& baseType,
                                               std::string const& pluginName)
   {
+    if (baseType == std::string("Service") && labelAndDesc.first != pluginName) {
+      throw edm::Exception(edm::errors::LogicError,
+        "ConfigurationDescriptions::writeCfiForLabel\nFor a service the label and the plugin name must be the same.\n")
+        << "This error probably is caused by an incorrect label being passed\nto the ConfigurationDescriptions::add function earlier.\n"
+        << "plugin name = \"" << pluginName << "\"  label name = \"" << labelAndDesc.first << "\"\n";
+    }
+
     std::string cfi_filename;
     if (baseType == std::string("Source")) {
       cfi_filename = pluginName + "_cfi.py";
@@ -182,7 +196,7 @@ namespace edm {
       os << "\n";
     }
 
-    if (descriptions_.empty() && !unknownDescDefined_) {
+    if (descriptions_.empty() && !defaultDescDefined_) {
       indentation += DocFormatHelper::offsetModuleLabel();
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "There are no PSet descriptions defined for this plugin.\n";
@@ -192,7 +206,7 @@ namespace edm {
       return;
     }
 
-    if (descriptions_.empty() && unknownDescDefined_ && descForUnknownLabels_.isUnknown()) {
+    if (descriptions_.empty() && defaultDescDefined_ && defaultDesc_.isUnknown()) {
       indentation += DocFormatHelper::offsetModuleLabel();
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "This plugin has not implemented the function which defines its\n";
@@ -206,7 +220,7 @@ namespace edm {
 
     if (!brief) {
       std::stringstream ss;
-      if (unknownDescDefined_) {
+      if (defaultDescDefined_) {
         if (descriptions_.empty()) {
           ss << "This plugin has only one PSet description. "
              << "This description is always used to validate configurations. "
@@ -255,10 +269,10 @@ namespace edm {
                                        indentation,
                                        boost::ref(counter)));
 
-    if (unknownDescDefined_) {
+    if (defaultDescDefined_) {
       printForLabel(os,
                     std::string("@default"),
-                    descForUnknownLabels_,
+                    defaultDesc_,
                     moduleLabel,
                     brief,
                     printOnlyLabels,
@@ -315,7 +329,7 @@ namespace edm {
     }
     else {
       if (!brief) {
-        if (baseType_ == std::string("Source")) {
+        if (baseType_ == std::string("Source") || baseType_ == std::string("Service")) {
           os << "label: ";
         }
         else {

@@ -22,45 +22,94 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 //         Created:  Wed Aug  1 16:46:56 EDT 2007
 //
 
-// system include files
-
-// user include files
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "boost/mpl/if.hpp"
 #include <string>
 
-// forward declarations
-
 namespace edm {
-template< typename T>
+  template< typename T>
   class ParameterSetDescriptionFiller : public ParameterSetDescriptionFillerBase
-{
+  {
+  public:
+    ParameterSetDescriptionFiller() {}
 
-   public:
-      ParameterSetDescriptionFiller() {}
-      //virtual ~ParameterSetDescriptionFiller();
+    virtual void fill(ConfigurationDescriptions & descriptions) const {
+      T::fillDescriptions(descriptions);
+    }
 
-      // ---------- const member functions ---------------------
-      virtual void fill(ConfigurationDescriptions & descriptions) const {
+    virtual std::string baseType() const {
+      return T::baseType();
+    }
+
+  private:
+    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&); // stop default
+    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&); // stop default
+  };
+
+  // We need a special version of this class for Services because there is
+  // no common base class for all Service classes.  This means we cannot define
+  // the baseType and fillDescriptions functions for all Service classes without
+  // great difficulty.
+
+  // First, some template metaprogramming to determining if the class T has
+  // a fillDescriptions function.
+
+  namespace fillDetails {
+
+    typedef char (& no_tag)[1]; // type indicating FALSE
+    typedef char (& yes_tag)[2]; // type indicating TRUE
+
+    template <typename T, void (*)(ConfigurationDescriptions &)>  struct fillDescriptions_function;
+    template <typename T> no_tag  has_fillDescriptions_helper(...);
+    template <typename T> yes_tag has_fillDescriptions_helper(fillDescriptions_function<T, &T::fillDescriptions> * dummy);
+
+    template<typename T>
+    struct has_fillDescriptions_function {
+      static bool const value =
+        sizeof(has_fillDescriptions_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T>
+    struct DoFillDescriptions {
+      void operator()(ConfigurationDescriptions & descriptions) {
         T::fillDescriptions(descriptions);
       }
+    };
 
-      virtual std::string baseType() const {
-        return T::baseType();
+    template <typename T>
+    struct DoFillAsUnknown {
+      void operator()(ConfigurationDescriptions & descriptions) {
+        ParameterSetDescription desc;
+        desc.setUnknown();
+        descriptions.addDefault(desc);
       }
+    };
+  }
 
-      // ---------- static member functions --------------------
+  template< typename T>
+  class DescriptionFillerForServices : public ParameterSetDescriptionFillerBase
+  {
+  public:
+    DescriptionFillerForServices() {}
 
-      // ---------- member functions ---------------------------
+    // If T has a fillDescriptions function then just call that, otherwise
+    // put in an "unknown description" as a default.
+    virtual void fill(ConfigurationDescriptions & descriptions) const {
+      typename boost::mpl::if_c<edm::fillDetails::has_fillDescriptions_function<T>::value,
+                                edm::fillDetails::DoFillDescriptions<T>,
+                                edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
+      fill_descriptions(descriptions);
+    }
 
-   private:
-      ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&); // stop default
+    virtual std::string baseType() const {
+      return std::string("Service");
+    }
 
-      const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&); // stop default
-
-      // ---------- member data --------------------------------
-
-};
-
+  private:
+    DescriptionFillerForServices(const DescriptionFillerForServices&); // stop default
+    const DescriptionFillerForServices& operator=(const DescriptionFillerForServices&); // stop default
+  };
 }
 #endif

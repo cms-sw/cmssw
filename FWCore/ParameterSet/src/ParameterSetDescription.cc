@@ -136,6 +136,11 @@ namespace edm {
         validatedLabels.insert(module_edm_type);
       }
 
+      std::string service_type("@service_type");
+      if (pset.exists(service_type)) {
+        validatedLabels.insert(service_type);
+      }
+
       // Try again
       if (validatedLabels.size() != parameterNames.size()) {
 

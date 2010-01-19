@@ -16,6 +16,11 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/testIllegalSourceParameter_cfg.py 2> testIllegalSourceParameter_cfg.txt
   grep "Illegal parameter" testIllegalSourceParameter_cfg.txt || die "cmsRun testIllegalSourceParameter_cfg.py" $?
 
+# Intentionally fails because of an illegal parameter in a service.
+  echo testIllegalServiceParameter_cfg.py ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/testIllegalServiceParameter_cfg.py 2> testIllegalServiceParameter_cfg.txt
+  grep "Illegal parameter" testIllegalServiceParameter_cfg.txt || die "cmsRun testIllegalServiceParameter_cfg.py" $?
+
 # Auto generate a cfi file
   echo edmWriteConfigs ------------------------------------------------------------
   edmWriteConfigs pluginTestProducerWithPSetDesc.so || die "edmWriteConfigs pluginTestProducerWithPSetDesc.so" $?
