@@ -1,6 +1,8 @@
 #ifndef HLTrigger_HLTfilters_ExpressionEvaluator_h
 #define HLTrigger_HLTfilters_ExpressionEvaluator_h
 
+#include <iostream>
+
 namespace edm {
   class Event;
   class EventSetup;
@@ -19,6 +21,9 @@ public:
 
   // pure virtual, need a concrete implementation
   virtual bool operator()(const TriggerExpressionCache &) = 0;
+
+  // pure virtual, need a concrete implementation
+  virtual void dump(std::ostream &) = 0;
 };
 
 } // namespace hlt
