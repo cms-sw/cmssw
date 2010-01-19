@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/15 17:58:59 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/01/19 17:42:21 $
+ *  $Revision: 1.28 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -687,7 +687,7 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
       LogTrace(metname)<<"pt kin test based on comp wrt reference on terms of chi2 for "<<muonType<<endl;
       const QReport * myQReport = ptHisto->getQReport("Mu_Comp2RefChi2"); //get QReport associated to your ME
       if(myQReport) {
-	LogTrace(metname) << "PhiReport exists!!";
+	LogTrace(metname) << "PtReport exists!!";
 	float qtresult = myQReport->getQTresult(); // get QT result value
 	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
 	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
@@ -699,12 +699,12 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
       LogTrace(metname)<<"pt kin test based on comp wrt reference using kolmogorov for "<<muonType<<endl;
       const QReport * myQReportKolmo = ptHisto->getQReport("Mu_Comp2RefKolmogorov");
       if(myQReportKolmo) {
-	LogTrace(metname) << "PhiReport Kolmogorov exists!!";
+	LogTrace(metname) << "PtReport Kolmogorov exists!!";
 	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
 	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
 	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
-	KolmogorovTestSummaryMap->setBinContent(bin,5,qtresult);
+	KolmogorovTestSummaryMap->setBinContent(bin,4,qtresult);
       }
     }
     else{
@@ -724,19 +724,19 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
       LogTrace(metname)<<"q kin test based on comp wrt reference on terms of chi2 for "<<muonType<<endl;
       const QReport * myQReport = qHisto->getQReport("Mu_Comp2RefChi2"); //get QReport associated to your ME
       if(myQReport) {
-	LogTrace(metname) << "PhiReport exists!!";
+	LogTrace(metname) << "qReport exists!!";
 	float qtresult = myQReport->getQTresult(); // get QT result value
 	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
 	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
-	chi2TestSummaryMap->setBinContent(bin,4,qtresult);
+	chi2TestSummaryMap->setBinContent(bin,5,qtresult);
      }
 
       //QT based on comp wrt reference based on kolmogorov test
       LogTrace(metname)<<"q kin test based on comp wrt reference using kolmogorov for "<<muonType<<endl;
       const QReport * myQReportKolmo = qHisto->getQReport("Mu_Comp2RefKolmogorov");
       if(myQReportKolmo) {
-	LogTrace(metname) << "PhiReport Kolmogorov exists!!";
+	LogTrace(metname) << "qReport Kolmogorov exists!!";
 	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
 	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
 	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
