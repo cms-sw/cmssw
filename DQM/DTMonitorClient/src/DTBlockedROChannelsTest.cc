@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/10/19 16:18:47 $
- * $Revision: 1.6 $
+ * $Date: 2010/01/05 10:15:45 $
+ * $Revision: 1.7 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -250,12 +250,13 @@ void DTBlockedROChannelsTest::endRun(edm::Run const& run, edm::EventSetup const&
 
   if(offlineMode) {
     // fill a trend plot based on the results stored in the map
+    float fBin = resultsPerLumi.begin()->first;
     float lBin = resultsPerLumi.rbegin()->first;
     dbe->setCurrentFolder("DT/00-ROChannels");
   
     //   MonitorElement* hSystFractionVsLS =  dbe->book1D("EnabledROChannelsVsLS", "% RO channels vs LS", nBins,fBin,lBin);
     hSystFractionVsLS = new DTTimeEvolutionHisto(dbe, "EnabledROChannelsVsLS", "% RO channels",
-						 (int)lBin, 1, false, 2);
+						 (int)lBin-(int)fBin, fBin, 1, false, 2);
 								 
     for(map<int, double>::const_iterator bin = resultsPerLumi.begin();
 	bin != resultsPerLumi.end(); ++bin) {
