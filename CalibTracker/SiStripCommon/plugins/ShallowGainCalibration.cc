@@ -70,7 +70,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           for(unsigned int h=0;h<2;h++){
             if(!sistripmatchedhit && h==1)continue;
             if(sistripmatchedhit  && h==0)sistripsimplehit = sistripmatchedhit->monoHit();
-            if(sistripmatchedhit  && h==1)sistripsimplehit = sistripmatchedhit->monoHit();
+            if(sistripmatchedhit  && h==1)sistripsimplehit = sistripmatchedhit->stereoHit();
             if(!sistripsimplehit)continue;
 
             LocalVector             trackDirection = trajState.localDirection();
