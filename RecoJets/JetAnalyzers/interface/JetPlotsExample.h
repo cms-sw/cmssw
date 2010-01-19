@@ -19,7 +19,7 @@ class JetPlotsExample : public edm::EDAnalyzer
      private:
        typedef std::vector<Jet> JetCollection;
        void FillHist1D(const TString& histName, const Double_t& x);
-       void beginJob(edm::EventSetup const& iSetup);
+       void beginJob();
        void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
        void endJob();
        std::map<TString, TH1*> m_HistNames1D;  

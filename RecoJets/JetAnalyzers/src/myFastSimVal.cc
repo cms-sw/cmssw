@@ -48,7 +48,7 @@ myFastSimVal::myFastSimVal( const ParameterSet & cfg ) :
 
 int nEvent = 0;
 
-void myFastSimVal::beginJob( const EventSetup & ) {
+void myFastSimVal::beginJob( ) {
 
   // Open the histogram file and book some associated histograms
   m_file=new TFile("histo.root","RECREATE"); 

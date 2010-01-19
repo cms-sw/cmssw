@@ -22,7 +22,7 @@ CaloTowersExample::CaloTowersExample( const ParameterSet & cfg ) :
   {
 }
 
-void CaloTowersExample::beginJob( const EventSetup & ) {
+void CaloTowersExample::beginJob( ) {
 
   // Open the histogram file and book some associated histograms
   m_file=new TFile("histo.root","RECREATE"); 

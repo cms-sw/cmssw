@@ -91,7 +91,7 @@ myFilter::myFilter(const edm::ParameterSet& cfg) :
 myFilter::~myFilter() {
 }
 
-void myFilter::beginJob(edm::EventSetup const&) {
+void myFilter::beginJob() {
 }
 
 void myFilter::endJob() {

@@ -10,7 +10,7 @@ class ptHatFilter : public edm::EDFilter
      public:
        ptHatFilter(const edm::ParameterSet&);
        virtual ~ptHatFilter();
-       virtual void beginJob(edm::EventSetup const&);
+       virtual void beginJob();
        virtual bool filter(edm::Event& e, edm::EventSetup const& iSetup);
        virtual void endJob();       
      private:

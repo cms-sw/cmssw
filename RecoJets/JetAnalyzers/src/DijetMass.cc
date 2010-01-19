@@ -43,10 +43,8 @@ DijetMass<Jet>::DijetMass( const edm::ParameterSet & cfg ) {
   KTCorJets =  cfg.getParameter<std::string> ("KTCorrectedJets"); 
 }
 
-
-
 template<class Jet>
-void DijetMass<Jet>::beginJob( const EventSetup & ) {
+void DijetMass<Jet>::beginJob(  ) {
   cout << "DijetMass: Maximum bin edge for Pt Hists = " << PtHistMax << endl;
   numJets=2;
 

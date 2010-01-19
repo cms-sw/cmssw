@@ -19,7 +19,7 @@ class JetValidation : public edm::EDAnalyzer
      public:
        JetValidation(edm::ParameterSet const& cfg);
      private:
-       void beginJob(edm::EventSetup const& iSetup);
+       void beginJob();
        void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
        void endJob();
        void FillHist1D(const TString& histName, const Double_t& x);

@@ -60,7 +60,7 @@ using namespace TMath;
 const int histoSize = 5;
 
 //Histo Initializations
-inline void hInit(TH1F* hJet[], char* name){
+inline void hInit(TH1F* hJet[], const char* name){
   int const binSize = 35;
   float massBin[binSize+1] = { 100, 113, 132, 153, 176, 201, 
 			       229, 259, 292, 327, 366, 400, 
@@ -140,11 +140,11 @@ public:
   ~DijetRatio();
 
 
-private:
   typedef std::vector<Jet> JetCollection;
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+
 
   // ----------member data ---------------------------
   string fOutputFileName ;

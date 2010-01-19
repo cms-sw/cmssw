@@ -27,7 +27,7 @@ JetCorExample<Jet>::JetCorExample(edm::ParameterSet const& cfg)
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
-void JetCorExample<Jet>::beginJob(edm::EventSetup const& iSetup) 
+void JetCorExample<Jet>::beginJob() 
 {
   TString hname;
   m_file = new TFile(HistoFileName.c_str(),"RECREATE"); 

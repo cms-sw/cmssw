@@ -123,7 +123,7 @@ myJetAna::myJetAna( const ParameterSet & cfg ) :
 // ************************
 // ************************
 
-void myJetAna::beginJob( const EventSetup & ) {
+void myJetAna::beginJob( ) {
 
 
 

@@ -26,7 +26,7 @@ JetPlotsExample<Jet>::JetPlotsExample(edm::ParameterSet const& cfg)
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
-void JetPlotsExample<Jet>::beginJob(edm::EventSetup const& iSetup) 
+void JetPlotsExample<Jet>::beginJob() 
 {
   TString hname;
   m_file = new TFile(HistoFileName.c_str(),"RECREATE"); 

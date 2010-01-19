@@ -17,7 +17,7 @@ public:
   CaloTowersExample( const edm::ParameterSet & );
 
 private:
-  void beginJob( const edm::EventSetup & );
+  void beginJob( );
   void analyze( const edm::Event& , const edm::EventSetup& );
   void endJob();
   std::string CaloTowersAlgorithm;

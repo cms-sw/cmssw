@@ -20,7 +20,7 @@ ptHatFilter::ptHatFilter(edm::ParameterSet const& cfg)
   ptHatUpperCut  = cfg.getParameter<double> ("ptHatUpperCut");
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-void ptHatFilter::beginJob(edm::EventSetup const&) 
+void ptHatFilter::beginJob() 
 {
  totalEvents=0;
  acceptedEvents=0;

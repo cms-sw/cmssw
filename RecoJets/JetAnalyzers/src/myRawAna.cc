@@ -35,7 +35,7 @@ myRawAna::myRawAna( const ParameterSet & cfg ) {
 // ************************
 // ************************
 
-void myRawAna::beginJob( const EventSetup & ) {
+void myRawAna::beginJob(  ) {
 
   edm::Service<TFileService> fs;
 

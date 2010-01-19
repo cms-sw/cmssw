@@ -48,7 +48,7 @@ JetToDigiDump::JetToDigiDump( const ParameterSet & cfg ) :
   {
 }
 
-void JetToDigiDump::beginJob( const EventSetup & ) {
+void JetToDigiDump::beginJob( ) {
   if(DumpLevel=="Jets")
   {
     cout << "Dump of Jets" << endl;

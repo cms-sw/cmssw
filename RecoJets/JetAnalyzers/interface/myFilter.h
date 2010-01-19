@@ -13,7 +13,7 @@ public:
   myFilter(const edm::ParameterSet& );
   virtual ~myFilter();
   virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
 private:

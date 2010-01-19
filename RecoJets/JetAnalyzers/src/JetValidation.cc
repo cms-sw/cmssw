@@ -33,7 +33,7 @@ JetValidation::JetValidation(edm::ParameterSet const& cfg)
   histoFileName       = cfg.getParameter<string> ("histoFileName");
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-void JetValidation::beginJob(edm::EventSetup const& iSetup) 
+void JetValidation::beginJob() 
 {
   m_file = new TFile(histoFileName.c_str(),"RECREATE"); 
   

@@ -75,9 +75,8 @@ void DijetRatio<Jet>::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 // ------------ method called once each job just before starting event loop  ------------
-
-template<class Jet>
-void  DijetRatio<Jet>::beginJob(const edm::EventSetup&)
+template <class Jet>
+void  DijetRatio<Jet>::beginJob()
 {
    hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
 

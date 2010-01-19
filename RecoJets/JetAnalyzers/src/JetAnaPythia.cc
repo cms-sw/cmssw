@@ -38,7 +38,7 @@ JetAnaPythia<Jet>::JetAnaPythia(edm::ParameterSet const& cfg)
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
-void JetAnaPythia<Jet>::beginJob(edm::EventSetup const& iSetup) 
+void JetAnaPythia<Jet>::beginJob() 
 {
   TString hname;
   m_file = new TFile(HistoFileName.c_str(),"RECREATE"); 

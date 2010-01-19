@@ -28,7 +28,7 @@ public:
 private:
   typedef std::vector<Jet> JetCollection;
   //Framwework stuff
-  void beginJob( const edm::EventSetup & );
+  void beginJob( );
   void analyze( const edm::Event& , const edm::EventSetup& );
   void endJob();
 
