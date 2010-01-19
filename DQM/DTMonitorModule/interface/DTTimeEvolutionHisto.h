@@ -4,8 +4,8 @@
 /** \class DTTimeEvolutionHisto
  *  No description available.
  *
- *  $Date: 2008/11/24 09:13:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/19 15:53:01 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -37,6 +37,17 @@ public:
 		       bool sliding,
 		       int mode = 0);
 
+
+  DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name,
+		       const std::string& title,
+		       int nbins,
+		       int firstLS,
+		       int lsPrescale,
+		       bool sliding,
+		       int mode = 0);
+
+
+
   /// retrieve the monitor element from DQMStore
   DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name);
 
@@ -58,6 +69,7 @@ protected:
 private:
   float valueLastTimeSlot;
   int nEventsInLastTimeSlot;
+  int theFirstLS;
   int theLSPrescale;
   bool doSlide;
   int nLSinTimeSlot;

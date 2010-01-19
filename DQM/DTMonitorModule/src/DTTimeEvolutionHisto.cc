@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 15:57:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/03 09:02:31 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -17,15 +17,74 @@ using namespace std;
 using namespace edm;
 
 
-
-
 DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 					   const string& title,
 					   int nbins,
 					   int lsPrescale,
 					   bool sliding,
+					   int mode) {
+  
+  DTTimeEvolutionHisto(dbe, name, title, nbins, 1, lsPrescale, sliding, mode);
+}
+
+
+// DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
+// 					   const string& title,
+// 					   int nbins,
+// 					   int lsPrescale,
+// 					   bool sliding,
+// 					   int mode) : valueLastTimeSlot(0),
+// 						       nEventsInLastTimeSlot(0),
+// 						       theLSPrescale(lsPrescale),
+// 						       doSlide(sliding),
+// 						       nLSinTimeSlot(0),
+// 						       firstLSinTimeSlot(0),
+// 						       theMode(mode) {
+//   // set the number of bins to be booked
+//   nBookedBins = nbins;
+//   if(sliding) nBookedBins++;
+//   if(!sliding && theMode == 0)
+//     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
+//       << "[DTTimeEvolutionHisto]***Error: wrong configuration" << endl;
+
+
+//   stringstream realTitle; realTitle << title << "/" <<  theLSPrescale << " LS";
+
+//   // book the ME
+//   histo = dbe->book1D(name, realTitle.str(), nBookedBins, 1., nBookedBins+1.);
+
+//   // set the axis label
+//   if(sliding) {
+//     histo->setBinLabel(1,"avg. previous",1);
+//   } else {
+//     // loop over bins and 
+//     for(int bin =1; bin != nBookedBins+1; ++bin) {    
+//       stringstream label;
+//       if(theLSPrescale > 1) {
+// 	label << "LS " << ((bin-1)*theLSPrescale)+1 << "-" << bin*theLSPrescale;
+//       } else {
+// 	label << "LS " << ((bin-1)*theLSPrescale)+1;
+//       }
+//       histo->setBinLabel(bin, label.str(),1);
+
+//     }
+
+//   }
+
+// }
+
+
+
+
+DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
+					   const string& title,
+					   int nbins,
+					   int firstLS,
+					   int lsPrescale,
+					   bool sliding,
 					   int mode) : valueLastTimeSlot(0),
 						       nEventsInLastTimeSlot(0),
+						       theFirstLS(firstLS),
 						       theLSPrescale(lsPrescale),
 						       doSlide(sliding),
 						       nLSinTimeSlot(0),
@@ -42,7 +101,7 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
   stringstream realTitle; realTitle << title << "/" <<  theLSPrescale << " LS";
 
   // book the ME
-  histo = dbe->book1D(name, realTitle.str(), nBookedBins, 1., nBookedBins+1.);
+  histo = dbe->book1D(name, realTitle.str(), nBookedBins, (float)theFirstLS, nBookedBins+1.);
 
   // set the axis label
   if(sliding) {
@@ -52,9 +111,9 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
     for(int bin =1; bin != nBookedBins+1; ++bin) {    
       stringstream label;
       if(theLSPrescale > 1) {
-	label << "LS " << ((bin-1)*theLSPrescale)+1 << "-" << bin*theLSPrescale;
+	label << "LS " << ((bin-1)*theLSPrescale)+theFirstLS << "-" << bin*theLSPrescale+theFirstLS;
       } else {
-	label << "LS " << ((bin-1)*theLSPrescale)+1;
+	label << "LS " << ((bin-1)*theLSPrescale)+theFirstLS;
       }
       histo->setBinLabel(bin, label.str(),1);
 
@@ -66,9 +125,9 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 
 
 
-
 DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name) : valueLastTimeSlot(0),
 										nEventsInLastTimeSlot(0),
+										theFirstLS(1),
 										theLSPrescale(-1),
 										doSlide(false),
 										nLSinTimeSlot(0),
@@ -156,7 +215,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
 
 
   } else {
-    int binN = (int)ls/(int)theLSPrescale;
+    int binN = (int)ls-(theFirstLS-1)/(int)theLSPrescale;
     // set the bin content
     float value = 0;
     if(theMode == 1) {
