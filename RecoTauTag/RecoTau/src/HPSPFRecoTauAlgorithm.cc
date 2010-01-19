@@ -701,7 +701,7 @@ HPSPFRecoTauAlgorithm::applyElectronRejection(reco::PFTau& tau,double stripEnerg
       tau.setelectronPreIDOutput(leadCharged->mva_e_pi());
       //Since PF uses brem recovery we will store the default ecal energy here
       tau.setbremsRecoveryEOverPLead(leadCharged->ecalEnergy()/track->p());
-      tau.setecalStripSumEOverPLead((leadCharged->ecalEnergy()+stripEnergy)/track->p());
+      tau.setecalStripSumEOverPLead((leadCharged->ecalEnergy()-stripEnergy)/track->p());
       bool electronDecision;
       if(abs(leadCharged->pdgId())==11) 
 	electronDecision=true;

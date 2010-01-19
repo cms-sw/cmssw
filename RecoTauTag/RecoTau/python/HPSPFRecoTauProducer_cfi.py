@@ -29,9 +29,9 @@ hpsPFRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       doThreeProng           = cms.bool(True),
 
       #Minimum Pt for the tau                                      
-      tauPtThreshold         = cms.double(10.),
+      tauPtThreshold         = cms.double(15.),
       #Leading Pion Threshold                                            
-      leadPionThreshold      = cms.double(1.0),
+      leadPionThreshold      = cms.double(0.0),
 
       
       #isolation cone definitions
