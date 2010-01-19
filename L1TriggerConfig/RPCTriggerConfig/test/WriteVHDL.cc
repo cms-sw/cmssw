@@ -617,7 +617,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
               for(int PAC = PACstart; PAC <= PACend; ++PAC){
                    if (itComp->m_PAC != PAC ) continue;
   
-                   LinkBoardElectronicIndex a;
+                   LinkBoardElectronicIndex a = {0,0,0,0};
                    std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> linkStrip =
                         std::make_pair(a, LinkBoardPackedStrip(0,0));
 
