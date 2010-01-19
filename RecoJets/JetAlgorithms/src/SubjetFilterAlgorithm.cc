@@ -84,7 +84,7 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
   vector<fastjet::PseudoJet> fjFatJets =
     fastjet::sorted_by_pt(cs.inclusive_jets(jetPtMin_));
   
-  unsigned nFat = (int)std::min(fjFatJets.size(),nFatMax_);
+  unsigned int nFat = std::min((unsigned int)fjFatJets.size(),nFatMax_);
   for (unsigned iFat=0;iFat<nFat;iFat++) {
     fastjet::PseudoJet fjFatJet = fjFatJets[iFat];
     fastjet::PseudoJet fjCurrentJet(fjFatJet);
