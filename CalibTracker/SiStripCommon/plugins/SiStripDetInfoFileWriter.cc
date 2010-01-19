@@ -3,7 +3,7 @@
 // Class:      SiStripDetInfoFileWriter
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileWriter.cc,v 1.1 2007/07/09 11:24:03 gbruno Exp $
+// $Id: SiStripDetInfoFileWriter.cc,v 1.2 2008/01/22 19:16:28 muzaffar Exp $
 
 #include "CalibTracker/SiStripCommon/plugins/SiStripDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,7 +38,7 @@ SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter(){
 
 
 
-void SiStripDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
+void SiStripDetInfoFileWriter::beginRun(const edm::EventSetup& iSetup){
 
 
   outputFile_.open(filePath_.c_str());
@@ -50,7 +50,7 @@ void SiStripDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
 
     iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
 
-    edm::LogInfo("SiStripDetInfoFileWriter::beginJob - got geometry  ")<<std::endl;
+    edm::LogInfo("SiStripDetInfoFileWriter::beginRun - got geometry  ")<<std::endl;
 
     
     edm::LogInfo("SiStripDetInfoFileWriter") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
@@ -84,7 +84,7 @@ void SiStripDetInfoFileWriter::beginJob(const edm::EventSetup& iSetup){
   
   else {
 
-    edm::LogError("SiStripDetInfoFileWriter::beginJob - Unable to open file")<<endl;
+    edm::LogError("SiStripDetInfoFileWriter::beginRun - Unable to open file")<<endl;
     return;
   
   }

@@ -15,8 +15,8 @@
  *  See the file doc/README for more detailed documentation, including
  *  advantages, disadvantages, and use philosophy.
  *  
- *  $Date: 2009/11/24 15:57:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/13 17:04:34 $
+ *  $Revision: 1.3 $
  *  \author Burt Betchart - University of Rochester <burton.andrew.betchart@cern.ch>
  */
 
@@ -33,7 +33,7 @@
 
 class ShallowTree : public edm::EDAnalyzer {
 private:    
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(){}
 
