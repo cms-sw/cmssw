@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.6 2009/06/19 15:46:15 jribnik Exp $
+// $Id: MuonSelectors.h,v 1.7 2009/09/09 20:55:46 aeverett Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -14,24 +14,28 @@
 namespace muon {
    /// Selector type
    enum SelectionType {
-        All,                      // dummy options - always true
-	AllGlobalMuons,           // checks isGlobalMuon flag
-	AllStandAloneMuons,       // checks isStandAloneMuon flag
-	AllTrackerMuons,          // checks isTrackerMuon flag
-	TrackerMuonArbitrated,    // resolve ambiguity of sharing segments
-	AllArbitrated,            // all muons with the tracker muon arbitrated
-	GlobalMuonPromptTight,    // global muons with tighter fit requirements
-	TMLastStationLoose,       // penetration depth loose selector
-	TMLastStationTight,       // penetration depth tight selector
-	TM2DCompatibilityLoose,   // likelihood based loose selector
-	TM2DCompatibilityTight,   // likelihood based tight selector
-	TMOneStationLoose,        // require one well matched segment
-	TMOneStationTight,        // require one well matched segment
-	TMLastStationOptimizedLowPtLoose, // combination of TMLastStation and TMOneStation
-	TMLastStationOptimizedLowPtTight,  // combination of TMLastStation and TMOneStation
-	GMTkChiCompatibility,  // require tk stub have good chi2 relative to glb track
-	GMStaChiCompatibility,    // require sta stub have good chi2 compatibility relative to glb track
-	GMTkKinkTight             // require a small kink value in the tracker stub
+      All = 0,                      // dummy options - always true
+      AllGlobalMuons = 1,           // checks isGlobalMuon flag
+      AllStandAloneMuons = 2,       // checks isStandAloneMuon flag
+      AllTrackerMuons = 3,          // checks isTrackerMuon flag
+      TrackerMuonArbitrated = 4,    // resolve ambiguity of sharing segments
+      AllArbitrated = 5,            // all muons with the tracker muon arbitrated
+      GlobalMuonPromptTight = 6,    // global muons with tighter fit requirements
+      TMLastStationLoose = 7,       // penetration depth loose selector
+      TMLastStationTight = 8,       // penetration depth tight selector
+      TM2DCompatibilityLoose = 9,   // likelihood based loose selector
+      TM2DCompatibilityTight = 10,  // likelihood based tight selector
+      TMOneStationLoose = 11,       // require one well matched segment
+      TMOneStationTight = 12,       // require one well matched segment
+      TMLastStationOptimizedLowPtLoose = 13, // combination of TMLastStation and TMOneStation
+      TMLastStationOptimizedLowPtTight = 14, // combination of TMLastStation and TMOneStation
+      GMTkChiCompatibility = 15,    // require tk stub have good chi2 relative to glb track
+      GMStaChiCompatibility = 16,   // require sta stub have good chi2 compatibility relative to glb track
+      GMTkKinkTight = 17,           // require a small kink value in the tracker stub
+      TMLastStationAngLoose = 18,   // TMLastStationLoose with additional angular cuts
+      TMLastStationAngTight = 19,   // TMLastStationTight with additional angular cuts
+      TMOneStationAngLoose = 20,    // TMOneStationLoose with additional angular cuts
+      TMOneStationAngTight = 21     // TMOneStationTight with additional angular cuts
    };
 
    /// a lightweight "map" for selection type string label and enum value
@@ -49,7 +53,8 @@ namespace muon {
    // specialized GoodMuon functions called from main wrapper
    bool isGoodMuon( const reco::Muon& muon, 
 		    AlgorithmType type,
-		    double minCompatibility);
+		    double minCompatibility,
+		    reco::Muon::ArbitrationType arbitrationType );
    
    bool isGoodMuon( const reco::Muon& muon, 
 		    AlgorithmType type,
@@ -60,7 +65,9 @@ namespace muon {
 		    double maxAbsPullY,
 		    double maxChamberDist,
 		    double maxChamberDistPull,
-		    reco::Muon::ArbitrationType arbitrationType );
+		    reco::Muon::ArbitrationType arbitrationType,
+            bool   syncMinNMatchesNRequiredStationsInBarrelOnly,
+            bool   applyAlsoAngularCuts);
    
    // determine if station was crossed well withing active volume
    unsigned int RequiredStationMask( const reco::Muon& muon,
@@ -72,7 +79,7 @@ namespace muon {
    float caloCompatibility(const reco::Muon& muon);
 
    // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------
-   float segmentCompatibility(const reco::Muon& muon);
+   float segmentCompatibility(const reco::Muon& muon,reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration);
 
 
 }
