@@ -4,17 +4,20 @@
 /*
  * \file DTNoiseComputation.h
  *
- * $Date: 2007/11/06 15:08:24 $
- * $Revision: 1.2 $
+ * $Date: 2008/02/06 10:31:21 $
+ * $Revision: 1.3 $
  * \author G. Mila - INFN Torino
  *
 */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/EventSetup.h>
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include <FWCore/Framework/interface/ESHandle.h>
+
+
 
 #include <string>
 #include <map>
@@ -42,7 +45,9 @@ class DTNoiseComputation: public edm::EDAnalyzer{
   virtual ~DTNoiseComputation();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob() {}
+
+  void beginRun(const edm::Run&, const edm::EventSetup& setup);
 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
 

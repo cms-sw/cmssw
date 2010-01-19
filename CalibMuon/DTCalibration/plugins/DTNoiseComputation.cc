@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/06 10:31:32 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/02/26 09:46:58 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
 // Geometry
@@ -66,154 +65,156 @@ DTNoiseComputation::DTNoiseComputation(const edm::ParameterSet& ps){
 
 }
 
-
-void DTNoiseComputation::beginJob(const edm::EventSetup& context){
-
-  cout <<"[DTNoiseComputation]: BeginJob"<<endl; 
-  counter = 0;
-  string CheckHistoName;
-
+void DTNoiseComputation::beginRun(const edm::Run&, const EventSetup& setup)
+{
   // Get the DT Geometry
-  context.get<MuonGeometryRecord>().get(dtGeom);
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
+  static int count = 0;
+
+  if(count == 0){
+    string CheckHistoName;
   
-  TH1F *hOccHisto;
-  TH1F *hAverageNoiseHisto;
-  TH1F *hAverageNoiseIntegratedHisto;
-  TH1F *hAverageNoiseHistoPerCh;
-  TH1F *hAverageNoiseIntegratedHistoPerCh;
-  TH2F *hEvtHisto;
-  string HistoName;
-  string Histo2Name;
-  string AverageNoiseName;
-  string AverageNoiseIntegratedName;
-  string AverageNoiseNamePerCh;
-  string AverageNoiseIntegratedNamePerCh;
-  TH1F *hnoisyC;
-  TH1F *hsomeHowNoisyC;
+    TH1F *hOccHisto;
+    TH1F *hAverageNoiseHisto;
+    TH1F *hAverageNoiseIntegratedHisto;
+    TH1F *hAverageNoiseHistoPerCh;
+    TH1F *hAverageNoiseIntegratedHistoPerCh;
+    TH2F *hEvtHisto;
+    string HistoName;
+    string Histo2Name;
+    string AverageNoiseName;
+    string AverageNoiseIntegratedName;
+    string AverageNoiseNamePerCh;
+    string AverageNoiseIntegratedNamePerCh;
+    TH1F *hnoisyC;
+    TH1F *hsomeHowNoisyC;
   
-  // Loop over all the chambers 	 
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
-  // Loop over the SLs 	 
-  for (; ch_it != ch_end; ++ch_it) { 	 
-    DTChamberId ch = (*ch_it)->id(); 	 
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
+    // Loop over all the chambers 	 
+    vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
+    vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
     // Loop over the SLs 	 
-    for(; sl_it != sl_end; ++sl_it) { 	 
-      //      DTSuperLayerId sl = (*sl_it)->id(); 	 
-      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 	 
-      vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end(); 	 
-      // Loop over the Ls 	 
-      for(; l_it != l_end; ++l_it) { 	 
-	DTLayerId dtLId = (*l_it)->id();
+    for (; ch_it != ch_end; ++ch_it) { 	 
+      DTChamberId ch = (*ch_it)->id(); 	 
+      vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
+      vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
+      // Loop over the SLs 	 
+      for(; sl_it != sl_end; ++sl_it) { 	 
+	//      DTSuperLayerId sl = (*sl_it)->id(); 	 
+	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 	 
+	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end(); 	 
+	// Loop over the Ls 	 
+	for(; l_it != l_end; ++l_it) { 	 
+	  DTLayerId dtLId = (*l_it)->id();
 	
-	//check if the layer has digi
-	theFile->cd();
-	CheckHistoName =  "DigiOccupancy_" + getLayerName(dtLId);
-	TH1F *hCheckHisto = (TH1F *) theFile->Get(CheckHistoName.c_str());
-	if(hCheckHisto){  
-	  delete hCheckHisto;
-	  stringstream wheel; wheel << ch.wheel();	
-	  stringstream station; station << ch.station();
-	  
-	  if(someHowNoisyC.find(make_pair(ch.wheel(),ch.station())) == someHowNoisyC.end()) {
-	    TString histoName_someHowNoisy = "somehowNoisyCell_W"+wheel.str()+"_St"+station.str();
-	    hsomeHowNoisyC = new TH1F(histoName_someHowNoisy,histoName_someHowNoisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
-	    someHowNoisyC[make_pair(ch.wheel(),ch.station())]=hsomeHowNoisyC;
-	  }
-	  
-	  if(noisyC.find(make_pair(ch.wheel(),ch.station())) == noisyC.end()) {
-	    TString histoName_noisy = "noisyCell_W"+wheel.str()+"_St"+station.str();
-	    hnoisyC = new TH1F(histoName_noisy,histoName_noisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
-	    noisyC[make_pair(ch.wheel(),ch.station())]=hnoisyC;
-	  }
-	  
-	  //to fill a map with the average noise per wire and fill new noise histo	  
-	  if(AvNoisePerSuperLayer.find(dtLId.superlayerId()) == AvNoisePerSuperLayer.end()) {
-	    AverageNoiseName = "AverageNoise_" + getSuperLayerName(dtLId.superlayerId());
-	    hAverageNoiseHisto = new TH1F(AverageNoiseName.c_str(), AverageNoiseName.c_str(), 200, 0, 10000);
-	    AverageNoiseIntegratedName = "AverageNoiseIntegrated_" + getSuperLayerName(dtLId.superlayerId());
-	    hAverageNoiseIntegratedHisto = new TH1F(AverageNoiseIntegratedName.c_str(), AverageNoiseIntegratedName.c_str(), 200, 0, 10000);
-	    AvNoisePerSuperLayer[dtLId.superlayerId()] = hAverageNoiseHisto;
-	    AvNoiseIntegratedPerSuperLayer[dtLId.superlayerId()] = hAverageNoiseIntegratedHisto;
-	    if(debug){
-	      cout << "  New Average Noise Histo per SuperLayer : " << hAverageNoiseHisto->GetName() << endl;
-	      cout << "  New Average Noise Integrated Histo per SuperLayer : " << hAverageNoiseHisto->GetName() << endl;
-	    }
-	  }
-	  if(AvNoisePerChamber.find(dtLId.superlayerId().chamberId()) == AvNoisePerChamber.end()) {
-	    AverageNoiseNamePerCh = "AverageNoise_" + getChamberName(dtLId);
-	    hAverageNoiseHistoPerCh = new TH1F(AverageNoiseNamePerCh.c_str(), AverageNoiseNamePerCh.c_str(), 200, 0, 10000);
-	    AverageNoiseIntegratedNamePerCh = "AverageNoiseIntegrated_" + getChamberName(dtLId);
-	    hAverageNoiseIntegratedHistoPerCh = new TH1F(AverageNoiseIntegratedNamePerCh.c_str(), AverageNoiseIntegratedNamePerCh.c_str(), 200, 0, 10000);
-	    AvNoisePerChamber[dtLId.superlayerId().chamberId()] = hAverageNoiseHistoPerCh;
-	    AvNoiseIntegratedPerChamber[dtLId.superlayerId().chamberId()] = hAverageNoiseIntegratedHistoPerCh;
-	    if(debug)
-	      cout << "  New Average Noise Histo per chamber : " << hAverageNoiseHistoPerCh->GetName() << endl;
-	  }
-	  
-	  HistoName = "DigiOccupancy_" + getLayerName(dtLId);
+	  //check if the layer has digi
 	  theFile->cd();
-	  hOccHisto = (TH1F *) theFile->Get(HistoName.c_str());
-	  int numBin = hOccHisto->GetXaxis()->GetNbins(); 
-	  for (int bin=1; bin<=numBin; bin++) {
-	    DTWireId wireID(dtLId, bin);
-	    theAverageNoise[wireID]= hOccHisto->GetBinContent(bin);
-	    if(theAverageNoise[wireID] != 0) {
-	      AvNoisePerSuperLayer[dtLId.superlayerId()]->Fill(theAverageNoise[wireID]);
-	      AvNoisePerChamber[dtLId.superlayerId().chamberId()]->Fill(theAverageNoise[wireID]);
-	    }
-	  }	      
+	  CheckHistoName =  "DigiOccupancy_" + getLayerName(dtLId);
+	  TH1F *hCheckHisto = (TH1F *) theFile->Get(CheckHistoName.c_str());
+	  if(hCheckHisto){  
+	    delete hCheckHisto;
+	    stringstream wheel; wheel << ch.wheel();	
+	    stringstream station; station << ch.station();
 	  
-	  //to compute the average noise per layer (excluding the noisy cells)
-	  double numCell=0;
-	  double AvNoise=0;	     
-	  HistoName = "DigiOccupancy_" + getLayerName(dtLId);
-	  theFile->cd();
-	  hOccHisto = (TH1F *) theFile->Get(HistoName.c_str());
-	  numBin = hOccHisto->GetXaxis()->GetNbins(); 
-	  for (int bin=1; bin<=numBin; bin++) {
-	    DTWireId wireID(dtLId, bin);
-	    theAverageNoise[wireID]= hOccHisto->GetBinContent(bin);
-	    if(hOccHisto->GetBinContent(bin)<100){
-	      numCell++;
-	      AvNoise += hOccHisto->GetBinContent(bin);
+	    if(someHowNoisyC.find(make_pair(ch.wheel(),ch.station())) == someHowNoisyC.end()) {
+	      TString histoName_someHowNoisy = "somehowNoisyCell_W"+wheel.str()+"_St"+station.str();
+	      hsomeHowNoisyC = new TH1F(histoName_someHowNoisy,histoName_someHowNoisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
+	      someHowNoisyC[make_pair(ch.wheel(),ch.station())]=hsomeHowNoisyC;
 	    }
-	    if(hOccHisto->GetBinContent(bin)>100 && hOccHisto->GetBinContent(bin)<500){
-	      someHowNoisyC[make_pair(ch.wheel(),ch.station())]->Fill(bin);
-	      cout<<"filling somehow noisy cell"<<endl;
-	    }
-	    if(hOccHisto->GetBinContent(bin)>500){
-	      noisyC[make_pair(ch.wheel(),ch.station())]->Fill(bin);
-	      cout<<"filling noisy cell"<<endl;
-	    }
-	  }
-	  AvNoise = AvNoise/numCell;
-	  cout<<"theAverageNoise for layer "<<getLayerName(dtLId)<<" is : "<<AvNoise << endl;
-
 	  
-	  // book the digi event plots every 1000 events
-	  int updates = MaxEvents/1000; 
-	  for(int evt=0; evt<updates; evt++){
-	    stringstream toAppend; toAppend << evt;
-	    Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
-	    theFile->cd();
-	    hEvtHisto = (TH2F *) theFile->Get(Histo2Name.c_str());
-	    if(hEvtHisto){
+	    if(noisyC.find(make_pair(ch.wheel(),ch.station())) == noisyC.end()) {
+	      TString histoName_noisy = "noisyCell_W"+wheel.str()+"_St"+station.str();
+	      hnoisyC = new TH1F(histoName_noisy,histoName_noisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
+	      noisyC[make_pair(ch.wheel(),ch.station())]=hnoisyC;
+	    }
+	  
+	    //to fill a map with the average noise per wire and fill new noise histo	  
+	    if(AvNoisePerSuperLayer.find(dtLId.superlayerId()) == AvNoisePerSuperLayer.end()) {
+	      AverageNoiseName = "AverageNoise_" + getSuperLayerName(dtLId.superlayerId());
+	      hAverageNoiseHisto = new TH1F(AverageNoiseName.c_str(), AverageNoiseName.c_str(), 200, 0, 10000);
+	      AverageNoiseIntegratedName = "AverageNoiseIntegrated_" + getSuperLayerName(dtLId.superlayerId());
+	      hAverageNoiseIntegratedHisto = new TH1F(AverageNoiseIntegratedName.c_str(), AverageNoiseIntegratedName.c_str(), 200, 0, 10000);
+	      AvNoisePerSuperLayer[dtLId.superlayerId()] = hAverageNoiseHisto;
+	      AvNoiseIntegratedPerSuperLayer[dtLId.superlayerId()] = hAverageNoiseIntegratedHisto;
+	      if(debug){
+		cout << "  New Average Noise Histo per SuperLayer : " << hAverageNoiseHisto->GetName() << endl;
+		cout << "  New Average Noise Integrated Histo per SuperLayer : " << hAverageNoiseHisto->GetName() << endl;
+	      }
+	    }
+	    if(AvNoisePerChamber.find(dtLId.superlayerId().chamberId()) == AvNoisePerChamber.end()) {
+	      AverageNoiseNamePerCh = "AverageNoise_" + getChamberName(dtLId);
+	      hAverageNoiseHistoPerCh = new TH1F(AverageNoiseNamePerCh.c_str(), AverageNoiseNamePerCh.c_str(), 200, 0, 10000);
+	      AverageNoiseIntegratedNamePerCh = "AverageNoiseIntegrated_" + getChamberName(dtLId);
+	      hAverageNoiseIntegratedHistoPerCh = new TH1F(AverageNoiseIntegratedNamePerCh.c_str(), AverageNoiseIntegratedNamePerCh.c_str(), 200, 0, 10000);
+	      AvNoisePerChamber[dtLId.superlayerId().chamberId()] = hAverageNoiseHistoPerCh;
+	      AvNoiseIntegratedPerChamber[dtLId.superlayerId().chamberId()] = hAverageNoiseIntegratedHistoPerCh;
 	      if(debug)
-		cout << "  New Histo with the number of events per evt per wire: " << hEvtHisto->GetName() << endl;
-	      theEvtMap[dtLId].push_back(hEvtHisto);
+		cout << "  New Average Noise Histo per chamber : " << hAverageNoiseHistoPerCh->GetName() << endl;
 	    }
-	  }
 	  
-	}// done if the layer has digi
-      }// loop over layers
-    }// loop over superlayers
-  }// loop over chambers
-  
-}
+	    HistoName = "DigiOccupancy_" + getLayerName(dtLId);
+	    theFile->cd();
+	    hOccHisto = (TH1F *) theFile->Get(HistoName.c_str());
+	    int numBin = hOccHisto->GetXaxis()->GetNbins(); 
+	    for (int bin=1; bin<=numBin; bin++) {
+	      DTWireId wireID(dtLId, bin);
+	      theAverageNoise[wireID]= hOccHisto->GetBinContent(bin);
+	      if(theAverageNoise[wireID] != 0) {
+		AvNoisePerSuperLayer[dtLId.superlayerId()]->Fill(theAverageNoise[wireID]);
+		AvNoisePerChamber[dtLId.superlayerId().chamberId()]->Fill(theAverageNoise[wireID]);
+	      }
+	    }	      
+	  
+	    //to compute the average noise per layer (excluding the noisy cells)
+	    double numCell=0;
+	    double AvNoise=0;	     
+	    HistoName = "DigiOccupancy_" + getLayerName(dtLId);
+	    theFile->cd();
+	    hOccHisto = (TH1F *) theFile->Get(HistoName.c_str());
+	    numBin = hOccHisto->GetXaxis()->GetNbins(); 
+	    for (int bin=1; bin<=numBin; bin++) {
+	      DTWireId wireID(dtLId, bin);
+	      theAverageNoise[wireID]= hOccHisto->GetBinContent(bin);
+	      if(hOccHisto->GetBinContent(bin)<100){
+		numCell++;
+		AvNoise += hOccHisto->GetBinContent(bin);
+	      }
+	      if(hOccHisto->GetBinContent(bin)>100 && hOccHisto->GetBinContent(bin)<500){
+		someHowNoisyC[make_pair(ch.wheel(),ch.station())]->Fill(bin);
+		cout<<"filling somehow noisy cell"<<endl;
+	      }
+	      if(hOccHisto->GetBinContent(bin)>500){
+		noisyC[make_pair(ch.wheel(),ch.station())]->Fill(bin);
+		cout<<"filling noisy cell"<<endl;
+	      }
+	    }
+	    AvNoise = AvNoise/numCell;
+	    cout<<"theAverageNoise for layer "<<getLayerName(dtLId)<<" is : "<<AvNoise << endl;
 
+	  
+	    // book the digi event plots every 1000 events
+	    int updates = MaxEvents/1000; 
+	    for(int evt=0; evt<updates; evt++){
+	      stringstream toAppend; toAppend << evt;
+	      Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
+	      theFile->cd();
+	      hEvtHisto = (TH2F *) theFile->Get(Histo2Name.c_str());
+	      if(hEvtHisto){
+		if(debug)
+		  cout << "  New Histo with the number of events per evt per wire: " << hEvtHisto->GetName() << endl;
+		theEvtMap[dtLId].push_back(hEvtHisto);
+	      }
+	    }
+	  
+	  }// done if the layer has digi
+	}// loop over layers
+      }// loop over superlayers
+    }// loop over chambers
+
+    count++;
+  }
+
+}
     
 void DTNoiseComputation::endJob(){
 

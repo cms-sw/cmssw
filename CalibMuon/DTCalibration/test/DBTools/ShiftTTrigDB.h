@@ -5,8 +5,8 @@
  *  Class which read a ttrig DB and modifies it introducing
  *  shifts with chamber granularity
  *
- *  $Date: 2007/11/09 16:02:14 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/11/09 17:55:38 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -29,7 +29,7 @@ public:
 
   // Operations
 
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
 

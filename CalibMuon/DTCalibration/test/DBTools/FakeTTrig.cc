@@ -1,8 +1,8 @@
  /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/08 15:11:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/17 14:41:18 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -67,17 +67,13 @@ FakeTTrig::~FakeTTrig(){
 }
 
 void FakeTTrig::beginRun(const edm::Run&, const EventSetup& setup) {
-  //void FakeTTrig::beginJob(const edm::EventSetup& context){
-
   cout << "[FakeTTrig] entered into beginRun! " << endl;
   setup.get<MuonGeometryRecord>().get(muonGeom);
 
   // Get the tTrig reference map
   if (ps.getUntrackedParameter<bool>("readDB", true)) 
-    setup.get<DTTtrigRcd>().get(tTrigMapRef);
-  
+    setup.get<DTTtrigRcd>().get(tTrigMapRef);  
 }
-
 
 void FakeTTrig::endJob() {
  

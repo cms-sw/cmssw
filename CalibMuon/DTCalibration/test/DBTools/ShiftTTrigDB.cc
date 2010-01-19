@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/18 17:46:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/09 22:44:11 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -53,8 +53,7 @@ ShiftTTrigDB::ShiftTTrigDB(const ParameterSet& pset) {
 
 ShiftTTrigDB::~ShiftTTrigDB(){}
 
-
-void ShiftTTrigDB::beginJob(const EventSetup& setup) {
+void ShiftTTrigDB::beginRun(const edm::Run&, const EventSetup& setup) {
   ESHandle<DTTtrig> tTrig;
   setup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap = &*tTrig;

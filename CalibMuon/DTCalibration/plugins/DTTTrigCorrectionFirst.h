@@ -5,8 +5,8 @@
  *  Class which read a ttrig DB and correct it with
  *  the near SL (or the global average)
  *
- *  $Date: 2008/11/20 14:05:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/27 10:54:32 $
+ *  $Revision: 1.1 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -29,7 +29,7 @@ public:
 
   // Operations
 
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob() {}
   virtual void beginRun( const edm::Run& run, const edm::EventSetup& setup );
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
 

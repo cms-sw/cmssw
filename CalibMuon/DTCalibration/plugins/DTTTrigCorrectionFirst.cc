@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 14:05:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/27 10:54:32 $
+ *  $Revision: 1.1 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -37,21 +37,13 @@ DTTTrigCorrectionFirst::DTTTrigCorrectionFirst(const ParameterSet& pset) {
 
 DTTTrigCorrectionFirst::~DTTTrigCorrectionFirst(){}
 
-
-void DTTTrigCorrectionFirst::beginJob(const EventSetup& setup) {
-  //  ESHandle<DTTtrig> tTrig;
-  //setup.get<DTTtrigRcd>().get(tTrig);
-  //tTrigMap = &*tTrig;
-  //cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-
-  setup.get<MuonGeometryRecord>().get(muonGeom);
-}
 void DTTTrigCorrectionFirst::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   ESHandle<DTTtrig> tTrig;
   setup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap = &*tTrig;
   cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-  //setup.get<MuonGeometryRecord>().get(muonGeom);
+
+  setup.get<MuonGeometryRecord>().get(muonGeom);
 }
 
 void DTTTrigCorrectionFirst::endJob() {

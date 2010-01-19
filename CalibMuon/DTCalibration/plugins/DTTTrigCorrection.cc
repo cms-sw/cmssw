@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 16:34:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/25 16:38:34 $
+ *  $Revision: 1.7 $
  *  \author S. Maselli - INFN Torino
  *          A. Vilela Pereira
  */
@@ -46,17 +46,15 @@ DTTTrigCorrection::~DTTTrigCorrection(){
   delete correctionAlgo_;
 }
 
-void DTTTrigCorrection::beginJob(const EventSetup& setup) {
-  // Get geometry from Event Setup
-  setup.get<MuonGeometryRecord>().get(muonGeom_);
-}
-
 void DTTTrigCorrection::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
   setup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap_ = &*tTrig;
   LogVerbatim("Calibration") << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
+
+  // Get geometry from Event Setup
+  setup.get<MuonGeometryRecord>().get(muonGeom_);
 
   // Pass EventSetup to correction Algo
   correctionAlgo_->setES(setup);

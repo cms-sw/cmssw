@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:53:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/12/09 22:44:11 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -39,8 +39,8 @@ ProduceFakeDB::ProduceFakeDB(const ParameterSet& pset) {
 
 ProduceFakeDB::~ProduceFakeDB(){}
 
-void ProduceFakeDB::beginJob(const edm::EventSetup& context){
-  context.get<MuonGeometryRecord>().get(muonGeom);
+void ProduceFakeDB::beginRun(const edm::Run&, const EventSetup& setup) {
+  setup.get<MuonGeometryRecord>().get(muonGeom);
 }
 
 void ProduceFakeDB::endJob() {
