@@ -30,7 +30,7 @@ void TriggerExpressionHLTReader::dump(std::ostream & out) const {
     out << "(" << m_triggers[0];
     for (unsigned int i = 1; i < m_triggers.size(); ++i)
       out << " OR " << m_triggers[i];
-    out << ")"
+    out << ")";
   }
 }
 

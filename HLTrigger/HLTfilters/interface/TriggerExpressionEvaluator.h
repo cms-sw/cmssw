@@ -26,7 +26,8 @@ public:
   virtual void dump(std::ostream &) const = 0;
 };
 
-std::ostream & operator<<(ostream & out, const TriggerExpressionEvaluator & eval) {
+inline 
+std::ostream & operator<<(std::ostream & out, const TriggerExpressionEvaluator & eval) {
   eval.dump(out);
   return out;
 }

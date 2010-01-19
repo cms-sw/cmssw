@@ -7,7 +7,7 @@ bool TriggerExpressionL1Reader::operator()(const TriggerExpressionCache & data) 
   return false;
 }
 
-void TriggerExpressionHLTReader::dump(std::ostream & out) const {
+void TriggerExpressionL1Reader::dump(std::ostream & out) const {
   out << "FALSE";
 }
 

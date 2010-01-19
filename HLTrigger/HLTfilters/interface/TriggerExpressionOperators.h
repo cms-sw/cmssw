@@ -96,7 +96,7 @@ public:
 
 class OperatorXor : public BinaryOperator {
 public:
-  OperatorOr(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+  OperatorXor(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
     BinaryOperator(arg1, arg2)
   { }
 
