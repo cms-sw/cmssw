@@ -77,6 +77,17 @@ public:
   }
 };
 
+class OperatorXor : public BinaryOperator {
+public:
+  OperatorOr(TriggerExpressionEvaluator * lhs, TriggerExpressionEvaluator * rhs) :
+    BinaryOperator(lhs, rhs)
+  { }
+
+  bool operator()(const TriggerExpressionCache & data) {
+    return (*m_lhs)(data) xor (*m_rhs)(data);
+  }
+};
+
 } // namespace hlt
 
 #endif // HLTrigger_HLTfilters_ExpressionOperators_h
