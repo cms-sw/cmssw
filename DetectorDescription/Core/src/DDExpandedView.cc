@@ -11,23 +11,23 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
  : walker_(0),w2_(cpv.graph(),cpv.root()), trans_(DDTranslation()), rot_(DDRotationMatrix()),
    depth_(0), worldpos_(0)
 {
-    DCOUT('C', "Building a DDExpandedView" );
+  std::cout << "Building a DDExpandedView" << std::endl;
     DDRotation::StoreT::instance().setReadOnly(false);
-    static DDPosData s_worldpos = DDPosData(DDTranslation(),DDRotation(),0);     
+    worldpos_ = new DDPosData(DDTranslation(),DDRotation(),0);     
     DDRotation::StoreT::instance().setReadOnly(true);
     
-    worldpos_ =  &s_worldpos;
+    //worldpos_ =  &s_worldpos;
     //new DDPosData(trans_,DDRotation(DDName("","")),0);    
     //const DDLogicalPart & rt = cpv.root(); 
     
-    // w2_ = DDCompactView::walker_type(cpv.graph(), rt);
+    //    w2_ = DDCompactView::walker_type(cpv.graph(), rt);
     walker_ = &w2_;
     /*					     
 					    walker_ = new DDCompactView::walker_type(cpv.graph(), 
 					    rt);
     */    
-    DCOUT('C', "Walker: current.first=" << (*walker_).current().first);
-    DCOUT('C', "Walker: current.second=" << (*walker_).current().second);
+    std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
+    std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
 					     
     DDPosData * pd((*walker_).current().second);
     //    assert(pd);
@@ -305,7 +305,8 @@ void dump(const DDGeoHistory & h)
 }
 
 /** 
-   User specific data can be attached to single nodes or a selection of
+   User specific data can be attac
+hed to single nodes or a selection of
    nodes in the expanded view through the DDSpecifics interface.
       
    The resulting std::vector is of size 0 if no specific data was attached.

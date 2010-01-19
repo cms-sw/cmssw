@@ -52,7 +52,7 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
   LogDebug("TECGeom") << " Done creating instance of DDTECCoolAlgo ";
 }
 
-void DDTECCoolAlgo::execute() {
+void DDTECCoolAlgo::execute(DDPositioner& pos) {
   LogDebug("TECGeom") << "==>> Constructing DDTECCoolAlgo...";
   int copyNo  = startCopyNo;
   // loop over the inserts to be placed
@@ -67,7 +67,7 @@ void DDTECCoolAlgo::execute() {
     // place inserts
     DDTranslation tran(xpos, ypos, 0.0);
     DDRotation rotation;
-    DDpos (child, mother, copyNo, tran, rotation);
+   pos(child, mother, copyNo, tran, rotation);
     LogDebug("TECGeom") << "DDTECCoolAlgo test " << child << "["  
 			<< copyNo << "] positioned in " << mother 
 			<< " at " << tran  << " with " << rotation 

@@ -100,11 +100,12 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 
       fileName = fileName.substr(0, fileName.find("."));
       std::cout << fileName << ":" << logicalPartName << " is the ROOT" << std::endl;
-      DDLogicalPart root;
-      DDRootDef::instance().set(DDName(logicalPartName, fileName));
+      DDLogicalPart root(DDName(logicalPartName,fileName));
+      DDRootDef::instance().set(root);//DDName(logicalPartName, fileName));
       /// bad, just testing...
       DDCompactView cpv;
-      cpv.setRoot(DDName(logicalPartName, fileName));
+      DDName rt(DDName(logicalPartName, fileName));
+      cpv.setRoot(rt);
      DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
 
     }
@@ -121,7 +122,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	  ++i;
 	}
     }
-  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement" << myelemname << " completed...");
+  std::cout <<  "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement " << myelemname << " completed..." << std::endl;
 }
 
 const std::vector<std::string>& DDLSAX2ConfigHandler::getFileNames() const

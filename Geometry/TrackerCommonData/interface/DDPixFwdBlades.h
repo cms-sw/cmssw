@@ -78,7 +78,7 @@ public:
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
 
-  void execute();
+  void execute(DDPositioner& pos);
   
   // -------------------------------------------------------------------------------------
 

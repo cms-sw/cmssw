@@ -51,7 +51,7 @@ void DDHCalAngular::initialize(const DDNumericArguments & nArgs,
 		       << idNameSpace << "\tRotation Namespace " << rotns;
 }
 
-void DDHCalAngular::execute() {
+void DDHCalAngular::execute(DDPositioner& pos) {
 
   double dphi   = rangeAngle/n;
   double phi    = startAngle;
@@ -88,7 +88,7 @@ void DDHCalAngular::execute() {
     DDTranslation tran(xpos, ypos, zoffset);
   
     DDName parentName = parent().name(); 
-    DDpos (DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
+   pos(DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
     LogDebug("HCalGeom") << "DDHCalAngular test: " 
 			 << DDName(childName, idNameSpace) << " number " 
 			 << copyNo << " positioned in " << parentName << " at "

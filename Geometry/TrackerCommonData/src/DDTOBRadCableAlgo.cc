@@ -98,7 +98,7 @@ void DDTOBRadCableAlgo::initialize(const DDNumericArguments & nArgs,
 			<< "] = " << names[i];
 }
 
-void DDTOBRadCableAlgo::execute() {
+void DDTOBRadCableAlgo::execute(DDPositioner& pos) {
   
   LogDebug("TOBGeom") << "==>> Constructing DDTOBRadCableAlgo...";
   DDName diskName = parent().name();
@@ -127,7 +127,7 @@ void DDTOBRadCableAlgo::execute() {
 				      coolManifoldMatter_a, solid);
     
     DDTranslation r1(0, 0, (dz-diskDz));
-    DDpos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
+    pos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " number " << i+1 
 			<< " positioned in " << diskName << " at " << r1
@@ -147,7 +147,7 @@ void DDTOBRadCableAlgo::execute() {
     DDMaterial coolManifoldFluidMatter_a(coolManifoldFluidName_a);
     DDLogicalPart coolManifoldFluidLogic_a(DDName(name, idNameSpace),
 					   coolManifoldFluidMatter_a, solid);
-    DDpos(DDName(name,idNameSpace), manifoldName_a, i+1, DDTranslation(),
+    pos(DDName(name,idNameSpace), manifoldName_a, i+1, DDTranslation(),
 	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " number " << i+1 
@@ -171,7 +171,7 @@ void DDTOBRadCableAlgo::execute() {
 				      coolManifoldMatter_r, solid);
     
     r1 = DDTranslation(0, 0, (dz-diskDz));
-    DDpos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
+    pos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " number " << i+1 
 			<< " positioned in " << diskName << " at " << r1
@@ -191,7 +191,7 @@ void DDTOBRadCableAlgo::execute() {
     DDMaterial coolManifoldFluidMatter_r(coolManifoldFluidName_r);
     DDLogicalPart coolManifoldFluidLogic_r(DDName(name, idNameSpace), 
 					   coolManifoldFluidMatter_r, solid);
-    DDpos(DDName(name,idNameSpace), manifoldName_r, i+1, DDTranslation(), 
+    pos(DDName(name,idNameSpace), manifoldName_r, i+1, DDTranslation(), 
 	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " number " << i+1 
@@ -215,7 +215,7 @@ void DDTOBRadCableAlgo::execute() {
     DDLogicalPart connLogic(DDName(name, idNameSpace), connMatter, solid);
 
     DDTranslation r2(0, 0, (dz-diskDz));
-    DDpos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
+    pos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " number " << i+1 
 			<< " positioned in " << diskName << " at " << r2 
@@ -253,7 +253,7 @@ void DDTOBRadCableAlgo::execute() {
     DDLogicalPart cableLogic(DDName(name, idNameSpace), cableMatter, solid);
 
     DDTranslation r3(0, 0, (diskDz-(i+0.5)*cableT));
-    DDpos(DDName(name,idNameSpace), diskName, i+1, r3, DDRotation());
+    pos(DDName(name,idNameSpace), diskName, i+1, r3, DDRotation());
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " number " <<i+1
 			<< " positioned in " << diskName << " at " << r3

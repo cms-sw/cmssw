@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
       "    ivalue = cms.int32(11)\n"
       ")\n"
       "process.out = cms.OutputModule('PoolOutputModule',\n"
-      "    fileName = cms.untracked.std::string('testStandalone.root')\n"
+      "    fileName = cms.untracked.string('testStandalone.root')\n"
       ")\n"
       "process.p = cms.Path(process.m1)\n"
       "process.e = cms.EndPath(process.out)\n";
@@ -507,36 +507,45 @@ int main(int argc, char *argv[])
 
       std::cout << "======== Navigate a little bit  ======" << std::endl;
       try {
-	DDCompactView cpv;
-	DDExpandedView ev(cpv);
-	ev.firstChild();
-	ev.nextSibling();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.nextSibling();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.firstChild();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.nextSibling();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.nextSibling();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.firstChild();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.nextSibling();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.firstChild();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.nextSibling();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.firstChild();
-	std::cout << ev.geoHistory() << std::endl;
-	ev.nextSibling();
-	std::cout << ev.geoHistory() << std::endl;
+	//	DDCompactView cpv;
+	// 2010::FIX Once I get rid of DDRootDef then this problem goes away!
+	if (!cpv.root().isDefined().second) {
+	  cpv.setRoot(DDRootDef::instance().root());
+	}
+	  DDExpandedView ev(cpv);
+	  if (ev.firstChild()) {
+	    ev.firstChild();
+	    ev.nextSibling();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.nextSibling();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.firstChild();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.nextSibling();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.nextSibling();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.firstChild();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.nextSibling();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.firstChild();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.nextSibling();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.firstChild();
+	    std::cout << ev.geoHistory() << std::endl;
+	    ev.nextSibling();
+	    std::cout << ev.geoHistory() << std::endl;
+	  }
+// // 	} else {
+// // 	  cpv.setRoot(DDRootDef::instance().root());
+// // 	  std::cout << cpv.root() << std::endl;
+// 	} 
       }
       catch (DDException& e) {
 	std::cout << e.what() << std::endl;
       }
-
       std::cout << "--------------- Parser testing started --------------" << std::endl;
       std::cout << std::endl << "Run the XML tests." << std::endl;
       testMaterials();
@@ -545,10 +554,10 @@ int main(int argc, char *argv[])
       testLogicalParts();
       testPosParts();
     } else if (argc < 3) {
-
+      
       //just to have something!
       DDRootDef::instance().set(DDName("LP1", "testNoSections"));
-
+      
       std::string fname = std::string(argv[1]);
       DDLTestDoc dp;
       while (fname != "q") {
@@ -581,11 +590,11 @@ int main(int argc, char *argv[])
 	      << e.what();
     rc = 1;
   }
-  catch (...) {
-    std::cout << "Unknown exception caught in "
-	      << kProgramName;
-    rc = 2;
-  }
+//   catch (...) {
+//     std::cout << "Unknown exception caught in "
+// 	      << kProgramName;
+//     rc = 2;
+//   }
 
   return rc;
 

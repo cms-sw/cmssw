@@ -38,18 +38,42 @@ class DDDivision;
 
     \todo Check: After calling DDPos the user must not free allocated memory of \a trans .
 */ 
-void DDpos(const DDLogicalPart & self,
-           const DDLogicalPart & parent,
-	   std::string copyno,
-	   const DDTranslation & trans,
-	   const DDRotation & rot,
-	   const DDDivision * div = NULL);
+/* void DDpos(const DDLogicalPart & self, */
+/*            const DDLogicalPart & parent, */
+/* 	   std::string copyno, */
+/* 	   const DDTranslation & trans, */
+/* 	   const DDRotation & rot, */
+/* 	   const DDDivision * div = NULL); */
 
-void DDpos(const DDLogicalPart & self,
-           const DDLogicalPart & parent,
-	   int copyno,
-	   const DDTranslation & trans,
-	   const DDRotation & rot,
-	   const DDDivision * div = NULL);
-	   
+/* void DDpos(const DDLogicalPart & self, */
+/*            const DDLogicalPart & parent, */
+/* 	   int copyno, */
+/* 	   const DDTranslation & trans, */
+/* 	   const DDRotation & rot, */
+/* 	   const DDDivision * div = NULL); */
+
+class DDCompactView;
+
+class DDPositioner {
+
+ public:
+  DDPositioner( DDCompactView * cpv);
+  ~DDPositioner();
+  void operator() (const DDLogicalPart & self, 
+		   const DDLogicalPart & parent,
+		   std::string copyno,
+		   const DDTranslation & trans,
+		   const DDRotation & rot,
+		   const DDDivision * div = NULL);
+  void operator() (const DDLogicalPart & self,
+		   const DDLogicalPart & parent,
+		   int copyno,
+		   const DDTranslation & trans,
+		   const DDRotation & rot,
+		   const DDDivision * div = NULL);
+
+ private:
+  DDCompactView* cpv_;
+};
+
 #endif

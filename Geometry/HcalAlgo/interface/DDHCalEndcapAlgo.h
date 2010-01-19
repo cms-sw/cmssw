@@ -83,12 +83,12 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
 
-  void execute();
+  void execute(DDPositioner& pos);
 
 protected:
 
-  void constructGeneralVolume();
-  void constructInsideSector(DDLogicalPart sector);
+  void constructGeneralVolume(DDPositioner& pos);
+  void constructInsideSector(DDLogicalPart sector, DDPositioner& pos);
   void parameterLayer (int iphi, double rinF, double routF, double rinB, 
 		       double routB, double zi, double zo, double& yh1, 
 		       double& bl1, double& tl1, double& yh2, double& bl2,
@@ -97,11 +97,11 @@ protected:
   void parameterLayer0(int mod, int layer, int iphi, double& yh, double& bl, 
 		       double& tl, double& alp, double& xpos, double& ypos, 
 		       double& zpos);
-  void constructInsideModule0(DDLogicalPart module, int mod);
-  void constructInsideModule (DDLogicalPart module, int mod);
+  void constructInsideModule0(DDLogicalPart module, int mod, DDPositioner& pos);
+  void constructInsideModule (DDLogicalPart module, int mod, DDPositioner& pos);
   void constructScintLayer   (DDLogicalPart glog, double pDz, double yh, 
 			      double bl, double tl, double alp, 
-			      std::string name, int id);
+			      std::string name, int id, DDPositioner& pos);
 
 private:
 

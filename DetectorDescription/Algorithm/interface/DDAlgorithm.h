@@ -2,9 +2,10 @@
 #define DD_ALGO_PLUGIN_DD_ALGORITHM_H
 
 #include <vector>
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Base/interface/DDException.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include <DetectorDescription/Core/interface/DDLogicalPart.h>
+#include <DetectorDescription/Core/interface/DDPosPart.h>
+#include <DetectorDescription/Base/interface/DDException.h>
+#include <DetectorDescription/Base/interface/DDTypes.h>
 
 class DDAlgorithmHandler;
 
@@ -29,7 +30,7 @@ class DDAlgorithm
     //! execute the algorithm
     /** an implementation of the execute() method creates detector description
 	objects such as DDLogicalPart, DDSolid, ... */
-    virtual void execute()=0;
+    virtual void execute(DDPositioner& )=0; //DDCompactView& ) = 0;
 
     //! returns the parent logical-part under which the algorithm creates sub-structures
     const DDLogicalPart & parent() const { return parent_; }

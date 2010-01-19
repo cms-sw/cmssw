@@ -22,13 +22,13 @@ public:
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
-  void execute();
+  void execute(DDPositioner& pos);
 
 private:
 
-  void doLayers();
-  void doLadders(); 
-  void doSens();
+  void doLayers(DDPositioner& pos);
+  void doLadders(DDPositioner& pos); 
+  void doSens(DDPositioner& pos);
   
   int nmat_;                       // number of preshower layers
   double thickness_;               // overall thickness of the preshower envelope

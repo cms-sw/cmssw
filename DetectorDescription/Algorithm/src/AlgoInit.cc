@@ -87,10 +87,10 @@ void AlgoInit()
   // preshower detector positioning
   algo = new AlgoPos(0);
   
-  new presh_detectors(algo, "placing preshower detectors");
+  //  new presh_detectors(algo, "placing preshower detectors");
   //presh_detectors pd(algo,"nix");
   
-  DDalgo(DDName("detectors","presh"), algo);
+  //  DDalgo(DDName("detectors","presh"), algo);
 
 }
 

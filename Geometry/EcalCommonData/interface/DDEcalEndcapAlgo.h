@@ -41,14 +41,15 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
 		      const DDMapArguments          & mArgs,
 		      const DDStringArguments       & sArgs,
 		      const DDStringVectorArguments & vsArgs);
-      void execute();
+      void execute(DDPositioner& pos);
 
       //  New methods for SC geometry
       void EEPositionCRs( const DDName        pName,
 			  const DDTranslation offset,
-			  const int iSCType             );
+			  const int iSCType,
+			  DDPositioner& pos );
 
-      void EECreateSC( const unsigned int iSCType  );
+      void EECreateSC( const unsigned int iSCType, DDPositioner& pos  );
 
       void EECreateCR();
 

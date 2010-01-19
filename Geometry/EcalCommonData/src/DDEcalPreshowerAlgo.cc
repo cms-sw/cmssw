@@ -80,20 +80,20 @@ void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
 
 }
 
-void DDEcalPreshowerAlgo::execute()
+void DDEcalPreshowerAlgo::execute(DDPositioner& pos)
 {
   LogDebug("EcalGeom") << "******** DDEcalPreshowerAlgo execute!";
 
   // creates all the tube-like layers of the preshower
-  doLayers();
+  doLayers(pos);
   // creates and places the ladders
-  doLadders();  
+  doLadders(pos);  
   // places the slicon strips in active silicon wafers
-  doSens();
+  doSens(pos);
   
 }
 
-void DDEcalPreshowerAlgo::doLayers()
+void DDEcalPreshowerAlgo::doLayers(DDPositioner& pos)
 {
 
   double zpos = -thickness_/2., sdx(0), sdy(0), bdx(0),bdy(0);;
@@ -198,13 +198,13 @@ void DDEcalPreshowerAlgo::doLayers()
 		
 	DDLogicalPart layer = DDLogicalPart(dd_tmp_name_b,getMaterial(i),solid_b);
 	
-	DDpos(layer, parent(), 1, DDTranslation(sdx,sdy, zpos), DDRotation());
-	DDpos(layer, parent(), 2, DDTranslation(-sdx,sdy, zpos), DDRotation());
+	pos(layer, parent(), 1, DDTranslation(sdx,sdy, zpos), DDRotation());
+	pos(layer, parent(), 2, DDTranslation(-sdx,sdy, zpos), DDRotation());
 	 DDSolid solid_c = DDSolid(dd_FAl_name_c);  
          DDSolid solid_d = DDSolidFactory::subtraction(dd_FAl_name_d,solid_c,solid_b2,DDTranslation(sdx,sdy,0),DDRotation());
 	if(((abs1stx[K] < rIn+30*cm) && I==10) || ((abs2ndx[K] < rIn+30*cm) && I==20) ) { 
-	  DDpos(layer, parent(), 3, DDTranslation(sdx,-sdy, zpos), DDRotation());
-	  DDpos(layer, parent(), 4, DDTranslation(-sdx,-sdy, zpos), DDRotation());
+	  pos(layer, parent(), 3, DDTranslation(sdx,-sdy, zpos), DDRotation());
+	  pos(layer, parent(), 4, DDTranslation(-sdx,-sdy, zpos), DDRotation());
 	 DDSolid solid_c = DDSolid(dd_FAl_name_c);  
          DDSolid solid_d = DDSolidFactory::subtraction(dd_FAl_name_d,solid_c,solid_b2,DDTranslation(sdx,sdy,0),DDRotation());
 	}		
@@ -234,11 +234,11 @@ void DDEcalPreshowerAlgo::doLayers()
 
       
       DDLogicalPart layer = DDLogicalPart(dd_tmp_name_d,getMaterial(i),final);
-      DDpos(layer, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
+      pos(layer, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
 
       DDSolid iner_Al = DDSolidFactory::tubs(dd_tmp_name_e,zHalf,In_rad_Abs_Al,In_rad_Abs_Pb-0.01*mm,0.,360.*deg); 
       DDLogicalPart layerAl = DDLogicalPart(dd_tmp_name_e,getMaterial(i-1),iner_Al);
-      DDpos(layerAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
+      pos(layerAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
   
 	std::ostringstream  tmp_Alname_fin;
 	tmp_Alname_fin << getLayName(i) << "LtmpAl" << absz-1; 
@@ -248,16 +248,16 @@ void DDEcalPreshowerAlgo::doLayers()
 
       DDLogicalPart layerFinOutAl = DDLogicalPart(dd_tmp_name_f,getMaterial(i-1),Outer_Al);
 
-     DDpos(layerFinOutAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
-     DDpos(layerFinOutAl, parent(), 2, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS90"));
-     DDpos(layerFinOutAl, parent(), 3, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS180B"));
-     DDpos(layerFinOutAl, parent(), 4, DDTranslation(0,0, zpos), DDRotation("esalgo:R180"));
+     pos(layerFinOutAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
+     pos(layerFinOutAl, parent(), 2, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS90"));
+     pos(layerFinOutAl, parent(), 3, DDTranslation(0,0, zpos), DDRotation("esalgo:RABS180B"));
+     pos(layerFinOutAl, parent(), 4, DDTranslation(0,0, zpos), DDRotation("esalgo:R180"));
   
 
     
     } else {
       
-      DDpos(layer, parent(), 1, DDTranslation(0.,0., zpos), DDRotation());
+      pos(layer, parent(), 1, DDTranslation(0.,0., zpos), DDRotation());
       
       LogDebug("SFGeom")<<" debug : tubs, Logical part: "<<DDLogicalPart(ddname,getMaterial(i),solid)<<"\n translation "<<DDTranslation(0.,0.,zpos)<<" rotation "<<DDRotation()<< "\n";
     } 
@@ -267,7 +267,7 @@ void DDEcalPreshowerAlgo::doLayers()
   
 }
 
-void DDEcalPreshowerAlgo::doLadders() {
+void DDEcalPreshowerAlgo::doLadders(DDPositioner& pos) {
   
   double xpos(0), ypos(0), zpos(0), sdx(0), sdy(0), sdz(0);
   double prev_length_(0), ladder_new_length_(0), ladd_shift_(0), ladder_length (0);
@@ -568,12 +568,12 @@ void DDEcalPreshowerAlgo::doLadders() {
 	  zpos = -ladder_thick/2. + 0.005*mm + wedge_offset;
 	  if(ladd_l5_map_[(i+j*2+M*10)]==1) {
 	    scopy ++;
-	    DDpos(DDLogicalPart("esalgo:SWED"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
-	    DDpos(DDLogicalPart("esalgo:SWED"), ddname2, scopy+1000*swed_scopy_glob+100, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
+	    pos(DDLogicalPart("esalgo:SWED"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
+	    pos(DDLogicalPart("esalgo:SWED"), ddname2, scopy+1000*swed_scopy_glob+100, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
 	    
 	    ypos = ypos + ywedge_ceramic_diff; zpos = -ladder_thick/2. + 0.005*mm + zwedge_ceramic_diff;
-	    DDpos(DDLogicalPart("esalgo:SFBX"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1298"));
-	    DDpos(DDLogicalPart("esalgo:SFBY"), ddname2, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1300A")); 
+	    pos(DDLogicalPart("esalgo:SFBX"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1298"));
+	    pos(DDLogicalPart("esalgo:SFBY"), ddname2, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1300A")); 
 	  }
 	}
       }
@@ -589,12 +589,12 @@ void DDEcalPreshowerAlgo::doLadders() {
 	    zpos = -ladder_thick/2. + 0.005*mm + wedge_offset;
 	    if(ladd_l4_map_[(i+j*2+(M-types_l5_.size())*8)]==1) {
 	      scopy ++;
-	      DDpos(DDLogicalPart("esalgo:SWED"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
-	      DDpos(DDLogicalPart("esalgo:SWED"), ddname2, scopy+1000*swed_scopy_glob+100, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
+	      pos(DDLogicalPart("esalgo:SWED"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
+	      pos(DDLogicalPart("esalgo:SWED"), ddname2, scopy+1000*swed_scopy_glob+100, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1299"));
 
 	      ypos = ypos + ywedge_ceramic_diff; zpos = -ladder_thick/2. + 0.005*mm + zwedge_ceramic_diff;
-	      DDpos(DDLogicalPart("esalgo:SFBX"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1298"));
-	      DDpos(DDLogicalPart("esalgo:SFBY"), ddname2, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1300A"));
+	      pos(DDLogicalPart("esalgo:SFBX"), ddname, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1298"));
+	      pos(DDLogicalPart("esalgo:SFBY"), ddname2, scopy+1000*swed_scopy_glob, DDTranslation(xpos,ypos,zpos), DDRotation("esalgo:RM1300A"));
 	    }
 	  }
 	}
@@ -641,13 +641,13 @@ void DDEcalPreshowerAlgo::doLadders() {
       icopy[j] +=1;
       DDName ddname(getLadPrefix(0)+type,"esalgo"); 
       
-      DDpos(DDLogicalPart(ddname), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,ypos,zpos), DDRotation());
+      pos(DDLogicalPart(ddname), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,ypos,zpos), DDRotation());
 
       DDName ddname2(getLadPrefix(1)+type,"esalgo"); 
       
       xpos = I*(2*waf_intra_col_sep + waf_inter_col_sep);
       
-      DDpos(DDLogicalPart(ddname2), DDName("SF","esalgo"), icopy[j], DDTranslation(ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R270"));
+      pos(DDLogicalPart(ddname2), DDName("SF","esalgo"), icopy[j], DDTranslation(ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R270"));
 
       int changed = 0;
       for(int t=0;t<int(types_l5_.size());t++) if(type == types_l5_[t]) {j = t; if(asym_ladd_[t] == 2 && !changed) { j = j - 1; changed = 1;} if(asym_ladd_[t] == 1 && !changed) { j = j + 1; changed = 1;}  type = types_l5_[j];} 
@@ -659,30 +659,30 @@ void DDEcalPreshowerAlgo::doLadders() {
       if(I<0) xpos = xpos - dee_separation;
 
       DDName ddname3(getLadPrefix(0)+type,"esalgo");       
-      DDpos(DDLogicalPart(ddname3), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,-ypos,zpos), DDRotation("esalgo:R180"));
+      pos(DDLogicalPart(ddname3), DDName("SF","esalgo"), icopy[j], DDTranslation(xpos,-ypos,zpos), DDRotation("esalgo:R180"));
 
       DDName ddname4(getLadPrefix(1)+type,"esalgo"); 
 
       xpos = I*(2*waf_intra_col_sep + waf_inter_col_sep);
 
-      DDpos(DDLogicalPart(ddname4), DDName("SF","esalgo"), icopy[j], DDTranslation(-ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R090"));
+      pos(DDLogicalPart(ddname4), DDName("SF","esalgo"), icopy[j], DDTranslation(-ypos,-xpos,zpos-zlead1_+zlead2_), DDRotation("esalgo:R090"));
 
     }
   } 
 }
 
-void DDEcalPreshowerAlgo::doSens() {
+void DDEcalPreshowerAlgo::doSens(DDPositioner& pos) {
   
   double xpos(0), ypos(0);
   for(size_t i = 0; i<32; ++i)
     {
       xpos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
-      DDpos(DDLogicalPart("esalgo:SFSX"), DDName("SFWX","esalgo"), i+1, DDTranslation(xpos,0., 0.),DDRotation());
+      pos(DDLogicalPart("esalgo:SFSX"), DDName("SFWX","esalgo"), i+1, DDTranslation(xpos,0., 0.),DDRotation());
       
       LogDebug("SFGeom")<<" debug : SFSX, Logical part: "<<DDLogicalPart("esalgo:SFSX")<<"\n translation "<<DDTranslation(xpos,0.,0.)<<" rotation "<<DDRotation()<<" copy number= " <<i<<"\n";
       
       ypos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
-      DDpos(DDLogicalPart("esalgo:SFSY"),DDName("SFWY","esalgo"), i+1, DDTranslation(0.,ypos, 0.), DDRotation());
+      pos(DDLogicalPart("esalgo:SFSY"),DDName("SFWY","esalgo"), i+1, DDTranslation(0.,ypos, 0.), DDRotation());
       
       LogDebug("SFGeom")<<" debug : SFSY, Logical part: "<<DDLogicalPart("esalgo:SFSY")<<"\n translation "<<DDTranslation(0.,ypos,0.)<<" rotation "<<DDRotation()<< " copy number= " <<i<< "\n";
       

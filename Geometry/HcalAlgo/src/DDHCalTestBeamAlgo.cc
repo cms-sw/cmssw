@@ -48,7 +48,7 @@ void DDHCalTestBeamAlgo::initialize(const DDNumericArguments & nArgs,
 		       << idNameSpace;
 }
 
-void DDHCalTestBeamAlgo::execute() {
+void DDHCalTestBeamAlgo::execute(DDPositioner& pos) {
 
   double thetax = 90.*CLHEP::deg + theta;
   double sthx   = sin(thetax);
@@ -77,7 +77,7 @@ void DDHCalTestBeamAlgo::execute() {
   DDTranslation tran(xpos, ypos, zpos);
   
   DDName parentName = parent().name(); 
-  DDpos (DDName(childName,idNameSpace), parentName,copyNumber, tran,rotation);
+ pos(DDName(childName,idNameSpace), parentName,copyNumber, tran,rotation);
   LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: " 
 		       << DDName(childName, idNameSpace) << " number " 
 		       << copyNumber << " positioned in " << parentName 

@@ -69,7 +69,7 @@ void DDHCalTBCableAlgo::initialize(const DDNumericArguments & nArgs,
 		       << " for solids etc. and " << rotns << " for rotations";
 }
 
-void DDHCalTBCableAlgo::execute() {
+void DDHCalTBCableAlgo::execute(DDPositioner& pos) {
   
   LogDebug("HCalGeom") << "==>> Constructing DDHCalTBCableAlgo...";
   unsigned int i=0;
@@ -124,14 +124,14 @@ void DDHCalTBCableAlgo::execute() {
   DDName parentName = parent().name(); 
   DDTranslation r0(0.0, 0.0, 0.0);
   DDRotation rot;
-  DDpos(DDName(idName, idNameSpace), parentName, 1, r0, rot);
+  pos(DDName(idName, idNameSpace), parentName, 1, r0, rot);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
 		       << DDName(idName,idNameSpace) << " number 1 positioned "
 		       << "in " << parentName << " at " << r0 << " with "<<rot;
   
   if (nhalf != 1) {
     rot = DDRotation(DDName("180D", rotns));
-    DDpos (DDName(idName, idNameSpace), parentName, 2, r0, rot);
+   pos(DDName(idName, idNameSpace), parentName, 2, r0, rot);
     LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
 			 << DDName(idName,idNameSpace) <<" number 2 positioned"
 			 << "in " << parentName  << " at " << r0 << " with "
@@ -174,7 +174,7 @@ void DDHCalTBCableAlgo::execute() {
       }
     } 
   
-    DDpos (seclogic, genlogic, ii+1, DDTranslation(0.0, 0.0, 0.0), rotation);
+   pos(seclogic, genlogic, ii+1, DDTranslation(0.0, 0.0, 0.0), rotation);
     LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << seclogic.name() 
 			 << " number " << ii+1 << " positioned in " 
 			 << genlogic.name() << " at (0,0,0) with " << rotation;
@@ -203,7 +203,7 @@ void DDHCalTBCableAlgo::execute() {
   rot = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, 270*CLHEP::deg, 
 	      180*CLHEP::deg-theta[2], 0, 90*CLHEP::deg-theta[2], 0);
   DDTranslation r1(0.5*(rinl+routl), 0, 0.5*(pgonZ[1]+pgonZ[2]));
-  DDpos(glog, seclogic, 1, r1, rot);
+  pos(glog, seclogic, 1, r1, rot);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << glog.name() 
 		       << " number 1 positioned in " << seclogic.name() 
 		       << " at " << r1 << " with " << rot;
@@ -230,7 +230,7 @@ void DDHCalTBCableAlgo::execute() {
   DDRotation rot2 = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg+phi, 0.0, 
 			  90*CLHEP::deg, 90*CLHEP::deg, phi, 0.0);
   DDTranslation r2((xmid-0.5*width1*cos(phi)), 0, 0);
-  DDpos(cablog1, glog, 1, r2, rot2);
+  pos(cablog1, glog, 1, r2, rot2);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog1.name() 
 		       << " number 1 positioned in " << glog.name() << " at "
 		       << r2	<< " with " << rot2;
@@ -243,7 +243,7 @@ void DDHCalTBCableAlgo::execute() {
 			  0*CLHEP::deg, 90*CLHEP::deg, 90*CLHEP::deg,
 			  -phi, 0*CLHEP::deg);
   DDTranslation r3(-(xmid-0.5*width1*cos(phi)), 0, 0);
-  DDpos(cablog1, glog, 2, r3, rot3);
+  pos(cablog1, glog, 2, r3, rot3);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog1.name() 
 		       << " number 2 positioned in "  << glog.name() << " at " 
 		       << r3 << " with " << rot3;
@@ -258,11 +258,11 @@ void DDHCalTBCableAlgo::execute() {
   DDLogicalPart cablog2(solid.ddname(), absmatter, solid);
 
   double xpos = 0.5*(width2+gap2);
-  DDpos (cablog2, glog, 1, DDTranslation(xpos, 0.0, 0.0), DDRotation());
+ pos(cablog2, glog, 1, DDTranslation(xpos, 0.0, 0.0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog2.name() 
 		       << " number 1 positioned in "  << glog.name() << " at ("
 		       << xpos << ",  0, 0) with no rotation";
-  DDpos (cablog2, glog, 2, DDTranslation(-xpos, 0.0, 0.0), DDRotation());
+ pos(cablog2, glog, 2, DDTranslation(-xpos, 0.0, 0.0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog2.name() 
 		       << " number 2 positioned in "  << glog.name() << " at ("
 		       <<-xpos << ", 0, 0) with no rotation";

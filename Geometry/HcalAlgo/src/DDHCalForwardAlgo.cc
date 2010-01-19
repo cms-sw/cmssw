@@ -58,7 +58,7 @@ void DDHCalForwardAlgo::initialize(const DDNumericArguments & nArgs,
 		       << " NameSpace " << idNameSpace;
 }
 
-void DDHCalForwardAlgo::execute() {
+void DDHCalForwardAlgo::execute(DDPositioner& pos) {
   
   LogDebug("HCalGeom") << "==>> Constructing DDHCalForwardAlgo...";
 
@@ -85,7 +85,7 @@ void DDHCalForwardAlgo::execute() {
 
       DDTranslation r0(0.0, ypos, 0.0);
       DDRotation rot;
-      DDpos(solid.ddname(), parentName, box, r0, rot);
+      pos(solid.ddname(), parentName, box, r0, rot);
       LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " << solid.ddname() 
 			   << " number " << box << " positioned in " 
 			   << parentName << " at " << r0 << " with " << rot;
@@ -98,7 +98,7 @@ void DDHCalForwardAlgo::execute() {
 
       for (int k=0; k<size[i]; k++) {
 	DDTranslation r1(xpos, 0.0, 0.0);
-	DDpos (child, solid.ddname(), k+1, r1, rot);
+	pos (child, solid.ddname(), k+1, r1, rot);
 	LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " << child 
 			     << " number " << k+1 << " positioned in " 
 			     << solid.ddname() << " at " << r1 << " with "

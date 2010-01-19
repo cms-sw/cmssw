@@ -107,7 +107,7 @@ void DDLDivision::processElement (const std::string& name, const std::string& nm
       em += "\n    parent= " + parent.ns() + ":" + parent.name();
       throwError (em);
     }
-  DDDividedGeometryObject* dg = makeDivider(div, cpv);
+  DDDividedGeometryObject* dg = makeDivider(div, &cpv);
   dg->execute();
   delete dg;
 
@@ -116,7 +116,7 @@ void DDLDivision::processElement (const std::string& name, const std::string& nm
   DCOUT_V('P', "DDLDivision::processElement completed");
 }
 
-DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompactView& cpv)
+DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompactView* cpv)
 {
   DDDividedGeometryObject* dg = NULL;
 

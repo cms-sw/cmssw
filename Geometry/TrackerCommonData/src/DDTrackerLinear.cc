@@ -58,7 +58,7 @@ void DDTrackerLinear::initialize(const DDNumericArguments & nArgs,
 			  << rotMat;
 }
 
-void DDTrackerLinear::execute() {
+void DDTrackerLinear::execute(DDPositioner& pos) {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -74,7 +74,7 @@ void DDTrackerLinear::execute() {
   for (int i=0; i<number; i++) {
 	
     DDTranslation tran = base + (offset + double(i)*delta)*direction;
-    DDpos (child, mother, ci, tran, rot);
+   pos(child, mother, ci, tran, rot);
     LogDebug("TrackerGeom") << "DDTrackerLinear test: " << child << " number "
 			    << ci << " positioned in " << mother << " at "
 			    << tran << " with " << rot;

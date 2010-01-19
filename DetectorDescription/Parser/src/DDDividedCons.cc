@@ -19,7 +19,7 @@
 
 //--------------------------------------------------------------------------
 DDDividedConsRho::
-DDDividedConsRho( const DDDivision& div, DDCompactView& cpv )
+DDDividedConsRho( const DDDivision& div, DDCompactView* cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -120,7 +120,7 @@ DDLogicalPart DDDividedConsRho::makeDDLogicalPart( const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView& cpv )
+DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -221,7 +221,7 @@ DDLogicalPart DDDividedConsPhi::makeDDLogicalPart( const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedConsZ::DDDividedConsZ( const DDDivision& div, DDCompactView& cpv )
+DDDividedConsZ::DDDividedConsZ( const DDDivision& div, DDCompactView* cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();

@@ -36,7 +36,8 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
   algo_->initialize(nArgs,vArgs,mArgs,sArgs, svArgs);
 }
 
-void DDAlgorithmHandler::execute() throw (DDException)
+void DDAlgorithmHandler::execute(DDPositioner& pos) throw (DDException) //DDCompactView& cpv
 {
-  algo_->execute();
+  //  algo_->execute(cpv);
+  algo_->execute(pos);
 }

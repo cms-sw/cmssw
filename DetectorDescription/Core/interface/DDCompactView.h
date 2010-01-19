@@ -7,6 +7,7 @@
 
 #include "DetectorDescription/Base/interface/Ptr.h"
 
+#include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 
@@ -79,8 +80,7 @@ public:
   
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef ::graph<DDLogicalPart,DDPosData*> graph_type;//:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
- // typedef GraphWalker<DDLogicalPart,DDPosData*> walker_t;
+  typedef ::graph<DDLogicalPart,DDPosData*> graph_type;
     
   //! Creates a compact-view 
   explicit DDCompactView();
@@ -96,71 +96,49 @@ public:
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
 
-  //! for faster read-operations when using a graph-walker.
-  void optimize();
-  
-  //! preliminary printing ...  
-  void print(std::ostream & os) const;   
-  
   //! Prototype version of calculating the weight of a detector component
   double weight(const DDLogicalPart & p) const;
 
+  //! positioning...
+  void algoPosPart(const DDLogicalPart & self,
+		   const DDLogicalPart & parent,
+		   DDAlgo & algo
+		   );
+  
+  void position (const DDLogicalPart & self,
+		 const DDLogicalPart & parent,
+		 std::string copyno,
+		 const DDTranslation & trans,
+		 const DDRotation & rot,
+		 const DDDivision * div = NULL);
+  
+  void position (const DDLogicalPart & self,
+		 const DDLogicalPart & parent,
+		 int copyno,
+		 const DDTranslation & trans,
+		 const DDRotation & rot,
+		 const DDDivision * div = NULL);
   
   // ************************************************************************
   // UNSTABLE STUFF below! DON'T USE!
   // ************************************************************************
   
-  //! Prototypish cleaning up, WILL CLEAN THE COMPLETE DDD TRANSIENT STORE
-/*   void clear(); */
-  
-  /*      
-  std::pair<bool,DDPhysicalPart> goTo(const DDPartSelector & path) const 
-   { return rep_->goTo(path); }
-  */
-
-  //! \b don't \b use : interface not stable ....
-  void global();
-  
   //! \b don't \b use : interface not stable ....
   void setRoot(const DDLogicalPart & root);
-
-  //! \b don't \b use ! 
-  poschildren_type::size_type children(poschildren_type & result) const;
-  
-  //! \b don't \b use ! 
-  logchild_type::size_type children(logchild_type & result) const;
 
   //! \b dont't \b use ! Proper implementation missing ...
   walker_type walker() const;
 
-  /* Not Yet      
-  bool firstChild(DDLogicalPart & result) // modifies current child
-   { exit(1); return 0; 
-     return rep_->firstChild(result); 
-   } 
-   
-  bool nextChild(DDLogicalPart & result) // modifies current child
-   { exit(1); return 0; 
-     // return rep_->nextChild(result); 
-   }
-*/
-
   // ---------------------------------------------------------------
   // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
-  
-  // ctor only needed by DDPos 
-  explicit DDCompactView(bool add);
-  
+    
   // to modify the structure! DDCore internal!
   graph_type & writeableGraph();
 
   void swap( DDCompactView& );
   
 protected:
-    DDCompactViewImpl* rep_;
-  //DDCompactViewImpl* global_;
- // static DDCompactViewImpl*  global_; 
-
+  DDCompactViewImpl* rep_;
 };
 
 //! global type for a compact-view walker

@@ -2,7 +2,7 @@
 #define DDL_AlgoPosPart_H
 /***************************************************************************
  ***************************************************************************/
-
+#include <DetectorDescription/Core/interface/DDalgoPosPart.h>
 #include "DDXMLElement.h"
 
 #include <string>
@@ -34,7 +34,6 @@ class DDLAlgoPosPart : public DDXMLElement
   ~DDLAlgoPosPart();
 
   void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
 };
 
 #endif

@@ -51,7 +51,7 @@ void DDHCalTBZposAlgo::initialize(const DDNumericArguments & nArgs,
 		       << idNameSpace;
 }
 
-void DDHCalTBZposAlgo::execute() {
+void DDHCalTBZposAlgo::execute(DDPositioner& pos) {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -77,7 +77,7 @@ void DDHCalTBZposAlgo::execute() {
 		  90*CLHEP::deg, (90*CLHEP::deg+tilt), 0.0,  0.0);
     }
   }
-  DDpos (child, mother, copyNumber, tran, rot);
+ pos(child, mother, copyNumber, tran, rot);
   LogDebug("HCalGeom") << "DDHCalTBZposAlgo test: " << child << " number " 
 		       << copyNumber << " positioned in " << mother
 		       << " at " << tran << " with " << rot;

@@ -19,7 +19,7 @@ class DDDividedPolyconeRho : public DDDividedGeometryObject
 { 
  public:  // with description
   
-  DDDividedPolyconeRho( const DDDivision& div, DDCompactView& cpv );
+  DDDividedPolyconeRho( const DDDivision& div, DDCompactView* cpv );
   
   virtual ~DDDividedPolyconeRho();
   
@@ -38,7 +38,7 @@ class DDDividedPolyconePhi : public DDDividedGeometryObject
 { 
  public:  // with description
   
-  DDDividedPolyconePhi( const DDDivision& div, DDCompactView& cpv );
+  DDDividedPolyconePhi( const DDDivision& div, DDCompactView* cpv );
   
   virtual ~DDDividedPolyconePhi();
   
@@ -57,7 +57,7 @@ class DDDividedPolyconeZ : public DDDividedGeometryObject
 { 
  public:  // with description
   
-  DDDividedPolyconeZ( const DDDivision& div, DDCompactView& cpv );
+  DDDividedPolyconeZ( const DDDivision& div, DDCompactView* cpv );
   
   virtual ~DDDividedPolyconeZ();
   

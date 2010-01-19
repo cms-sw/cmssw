@@ -672,7 +672,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
 // DDEcalBarrelAlgo methods...
 ////////////////////////////////////////////////////////////////////
 
-void DDEcalBarrelAlgo::execute() 
+void DDEcalBarrelAlgo::execute(DDPositioner& pos) 
 {
    LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo execute!" << std::endl ;
 
@@ -681,7 +681,7 @@ void DDEcalBarrelAlgo::execute()
       const unsigned int copyOne (1) ;
       const unsigned int copyTwo (2) ;
       // Barrel parent volume----------------------------------------------------------
-      DDpos( DDLogicalPart( barName(), barMat(), 
+      pos( DDLogicalPart( barName(), barMat(), 
 			    DDSolidFactory::polycone(
 			       barName(), barPhiLo(), ( barPhiHi() - barPhiLo() ), 
 			       vecBarZPts(), vecBarRMin(), vecBarRMax())),
@@ -745,7 +745,7 @@ void DDEcalBarrelAlgo::execute()
 /*      const DDName unionName ( ddname( m_SpmName + "UNI" ) ) ;
       if( 0 != spmCutShow() )
       {
-	 DDpos( expLog, spmName(), copyOne, expTra, DDRotation() ) ;
+	 pos( expLog, spmName(), copyOne, expTra, DDRotation() ) ;
       }
       else
       {
@@ -804,7 +804,7 @@ void DDEcalBarrelAlgo::execute()
 					       sideRot.getRotation() ) ) ;
 	 const DDTranslation sideddtra ( sideRot.getTranslation() ) ;
 
-	 DDpos( sideLog,
+	 pos( sideLog,
 		spmName(), 
 		icopy, 
 		sideddtra,
@@ -813,7 +813,7 @@ void DDEcalBarrelAlgo::execute()
 
 	 if( 0 != spmCutShow() ) // do this if we are "showing" the boxes
 	 {
-	    DDpos( spmCutLog,
+	    pos( spmCutLog,
 		   spmName(), 
 		   icopy, 
 		   ddtra,
@@ -882,7 +882,7 @@ void DDEcalBarrelAlgo::execute()
 	 {
 	   // convert from CLHEP to DDTranslation & etc. -- Michael Case
 	   DDTranslation myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
-	    DDpos( spmLog,
+	    pos( spmLog,
 		   barName(), 
 		   iphi+1, 
 		   myTran,
@@ -907,7 +907,7 @@ void DDEcalBarrelAlgo::execute()
 							     ilyPhiLow(),
 							     ilyDelPhi() ) ) ;
       const DDLogicalPart ilyLog     ( ilyDDName, spmMat(), ilySolid ) ;
-      DDpos( ilyLog,
+      pos( ilyLog,
 	     spmLog, 
 	     copyOne, 
 	     DDTranslation(0,0, ilyLength/2 ),
@@ -938,7 +938,7 @@ void DDEcalBarrelAlgo::execute()
 							   0*deg, 360*deg ) ) ;
 	    const DDLogicalPart ilyPipeWaLog ( pWaName, backPipeWaterMat(), ilyPipeWaSolid ) ;
 
-	    DDpos( ilyPipeWaLog,
+	    pos( ilyPipeWaLog,
 		   pName, 
 		   copyOne, 
 		   DDTranslation(0,0,0),
@@ -985,12 +985,12 @@ void DDEcalBarrelAlgo::execute()
       const DDLogicalPart ilyBndlLog ( ilyBndlName(),
 				       ilyBndlMat(),
 				       ilyBndlSolid ) ;
-      DDpos( ilyDiffLog,
+      pos( ilyDiffLog,
 	     ilyFanOutName(), 
 	     copyOne, 
 	     DDTranslation(0,0, -ilyFanOutLength()/2 + ilyDiffLength()/2 + ilyDiffOff() ),
 	     DDRotation() ) ;
-      DDpos( ilyBndlLog,
+      pos( ilyBndlLog,
 	     ilyFanOutName(), 
 	     copyOne, 
 	     DDTranslation(0,0, -ilyFanOutLength()/2 + ilyBndlLength()/2 + ilyBndlOff() ),
@@ -1011,7 +1011,7 @@ void DDEcalBarrelAlgo::execute()
 
 	 if( 0 != ilyHere() )
 	 {
-	    DDpos( xilyLog,
+	    pos( xilyLog,
 		   ilyLog, 
 		   copyOne, 
 		   DDTranslation(0,0,0),
@@ -1033,7 +1033,7 @@ void DDEcalBarrelAlgo::execute()
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
 		     ++ptmCopy ; 
-		     DDpos( ilyPTMLog,
+		     pos( ilyPTMLog,
 			    xilyLog, 
 			    ptmCopy, 
 			    DDTranslation(xx,yy, vecIlyPTMZ()[ilyPTM] -ilyLength/2 ),
@@ -1051,7 +1051,7 @@ void DDEcalBarrelAlgo::execute()
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
 		     ++fanOutCopy ; 
-		     DDpos( ilyFanOutLog,
+		     pos( ilyFanOutLog,
 			    xilyLog, 
 			    fanOutCopy, 
 			    DDTranslation(xx,yy, vecIlyFanOutZ()[ilyFO] -ilyLength/2 ),
@@ -1067,7 +1067,7 @@ void DDEcalBarrelAlgo::execute()
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
 		     ++femCopy ; 
-		     DDpos( ilyFEMLog,
+		     pos( ilyFEMLog,
 			    xilyLog, 
 			    femCopy, 
 			    DDTranslation(xx,yy, vecIlyFEMZ()[ilyFEM] -ilyLength/2 ),
@@ -1089,7 +1089,7 @@ void DDEcalBarrelAlgo::execute()
 		     const double phi    ( vecIlyPipePhi()[iPipe] ) ;
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
-		     DDpos( ilyPipeLog[type],
+		     pos( ilyPipeLog[type],
 			    xilyLog, 
 			    ++copyNum[type],
 			    DDTranslation(xx,yy,zz),
@@ -1116,7 +1116,7 @@ void DDEcalBarrelAlgo::execute()
       cro.push_back( vecSpmRMin()[2] + 10*mm ) ;
       const DDSolid clyrSolid ( DDSolidFactory::polycone( clyrName, -9.5*deg,  19*deg, czz,cri,cro) ) ;
       const DDLogicalPart clyrLog ( clyrName, ddmat(vecIlyMat()[4]), clyrSolid ) ;
-      DDpos( clyrLog, spmLog, copyOne, DDTranslation(0,0,0), DDRotation() ) ;
+      pos( clyrLog, spmLog, copyOne, DDTranslation(0,0,0), DDRotation() ) ;
 
       // Begin Alveolar Wedge parent ------------------------------------------------------
 //----------------
@@ -1256,14 +1256,14 @@ void DDEcalBarrelAlgo::execute()
 
       const Tf3D hawRform ( vHAW[3], vHAW[0], vHAW[1], // HAW inside FAW
 			    vFAW[3], 0.5*(vFAW[0]+vFAW[3]), 0.5*(vFAW[1]+vFAW[2] ) ) ;
-      DDpos( hawRLog,
+      pos( hawRLog,
 	     fawLog, 
 	     copyOne, 
 	     DDTranslation(hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z()),
 	     myrot( hawRName().name()+"R", 
 		    hawRform.getRotation() ) ) ;
 
-      DDpos( hawRLog,
+      pos( hawRLog,
 	     fawLog, 
 	     copyTwo, 
 	     DDTranslation( -hawRform.getTranslation().x(),
@@ -1274,7 +1274,7 @@ void DDEcalBarrelAlgo::execute()
 		    CLHEP::HepRep3x3(1,0,0, 0,1,0, 0,0,-1) ) ) ;
 
 /* this for display of haw cut box instead of subtraction
-      DDpos( hawCutLog,
+      pos( hawCutLog,
 	     hawRName, 
 	     copyOne, 
 	     hawCutForm.getTranslation(),
@@ -1292,7 +1292,7 @@ void DDEcalBarrelAlgo::execute()
 				    trapFAW.L()/2 )*
 			      RoZ3D( -90*deg + fawPhiRot() ) ) ;
 	 if( fawHere() )
-	    DDpos( fawLog,
+	    pos( fawLog,
 		   spmLog, 
 		   iPhi, 
 		   DDTranslation(fawform.getTranslation().x(), fawform.getTranslation().y(), fawform.getTranslation().z() ),
@@ -1327,7 +1327,7 @@ void DDEcalBarrelAlgo::execute()
 			    vHAW[5] - Pt3D(0,h_Grid,0),  vHAW[5],  vHAW[6]   ) ;
 
       if( 0 != gridHere() )
-	 DDpos( gridLog,
+	 pos( gridLog,
 		hawRLog, 
 		copyOne, 
 		DDTranslation(gridForm.getTranslation().x(), gridForm.getTranslation().y(), gridForm.getTranslation().z() ),
@@ -1546,7 +1546,7 @@ void DDEcalBarrelAlgo::execute()
 	 // Now for placement of cry within clr
 	 const Vec3 cryToClr ( 0, 0, ( rClr - fClr )/2 ) ;
 
-	 DDpos( cryLog,
+	 pos( cryLog,
 		clrLog, 
 		copyOne, 
 		DDTranslation ( 0, 0, ( rClr - fClr )/2 ), //SAME as cryToClr above.
@@ -1554,14 +1554,14 @@ void DDEcalBarrelAlgo::execute()
 
 	 if( 0 != apdHere() )
 	 { 
-	    DDpos( apdLog,
+	    pos( apdLog,
 		   clrLog, 
 		   ++copyAPD, 
 		   DDTranslation( +trapCry.bl1() - apdX1(),
 				  +trapCry.h1()  - apdZ(),
 				  -trapCry.dz()  - apdThick()/2. + (rClr - fClr)/2. ),
 		   DDRotation() ) ;
-	    DDpos( apdLog,
+	    pos( apdLog,
 		   clrLog, 
 		   ++copyAPD, 
 		   DDTranslation( +trapCry.bl1() - apdX2(),
@@ -1572,7 +1572,7 @@ void DDEcalBarrelAlgo::execute()
 
 	 const Vec3 clrToWrap ( 0, 0, ( rWrap - fWrap )/2 ) ;
 
-	 DDpos( clrLog,
+	 pos( clrLog,
 		wrapLog, 
 		copyOne, 
 		DDTranslation ( 0, 0, ( rWrap - fWrap )/2 ), //SAME as cryToWrap
@@ -1583,7 +1583,7 @@ void DDEcalBarrelAlgo::execute()
 	 const Vec3 wrapToWall1 ( 0, 0, ( rWall - fWall )/2 ) ;
 	 const Vec3 wrapToWall ( Vec3( (cryType>9?0:0.005*mm),0,0 )+wrapToWall1 ) ;
 
-	 DDpos( wrapLog,
+	 pos( wrapLog,
 		wallLog, 
 		copyOne, 
 		DDTranslation ( Vec3( (cryType>9?0:0.005*mm),0,0 )+wrapToWall1 ), //SAME as wrapToWall
@@ -1609,7 +1609,7 @@ void DDEcalBarrelAlgo::execute()
 		 zee,
 		 sidePrime,
 		 frontPrime,
-		 delta ) ;
+		 delta, pos ) ;
 	    zee += vecGapAlvEta()[0] ;
 	 }
 
@@ -1652,7 +1652,7 @@ void DDEcalBarrelAlgo::execute()
 
 	    const Tf3D tForm ( HepGeom::Translate3D(xx,0,0)*tForm1 ) ;
 
-	    DDpos( wallLog,
+	    pos( wallLog,
 		   hawRLog, 
 		   etaAlv, 
 		   DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z() ),
@@ -1680,7 +1680,7 @@ void DDEcalBarrelAlgo::execute()
 		 zee ,
 		 sidePrime,
 		 frontPrime,
-		 delta ) ;
+		 delta, pos ) ;
 	    zee += 0.5*vecGapAlvEta()[cryType]/sin(theta) ;
 	 }
 	 else
@@ -1743,13 +1743,13 @@ void DDEcalBarrelAlgo::execute()
 					  -backPlateParms[1] + backPlate2Thick()/2., 0 ) ;
       if( 0 != backPlateHere() )
       {
-	 DDpos( backPlate2Log,
+	 pos( backPlate2Log,
 		backPlateName(), 
 		copyOne, 
 		backPlate2Tra,
 		DDRotation() ) ;
 
-	 DDpos( backPlateLog,
+	 pos( backPlateLog,
 		spmName(), 
 		copyOne, 
 		outtra + backPlateTra,
@@ -1792,7 +1792,7 @@ void DDEcalBarrelAlgo::execute()
 					 1*mm ) ;
       if( 0 != backSideHere() )
       {
-	 DDpos( backSideLog,
+	 pos( backSideLog,
 		spmName(), 
 		copyOne, 
 		outtra + backSideTra1,
@@ -1802,7 +1802,7 @@ void DDEcalBarrelAlgo::execute()
 	 const DDTranslation backSideTra2( 0*mm,
 					   -backPlateWidth()/2 + backSideYOff2(),
 					   1*mm ) ;
-	 DDpos( backSideLog,
+	 pos( backSideLog,
 		spmName(), 
 		copyTwo, 
 		outtra + backSideTra2,
@@ -1841,7 +1841,7 @@ void DDEcalBarrelAlgo::execute()
 						     0*deg, 360*deg ) ) ;
       const DDLogicalPart mBManifWaLog ( mBManifWaName, backPipeWaterMat(), 
 					 mBManifWaSolid ) ;
-      DDpos( mBManifWaLog,
+      pos( mBManifWaLog,
 	     mBManifName(), 
 	     copyOne, 
 	     DDTranslation(0,0,0),
@@ -1905,13 +1905,13 @@ void DDEcalBarrelAlgo::execute()
 					   grilleThick()/2.   ) ) ;
 	       grMidSlotLog[(iGr-1)/2] = DDLogicalPart( mName, grMidSlotMat(), grMidSlotSolid ) ;
 	    }	       
-	    DDpos( grMidSlotLog[(iGr-1)/2],
+	    pos( grMidSlotLog[(iGr-1)/2],
 		   gName, 
 		   ++midSlotCopy, 
 		   DDTranslation( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
 				  +grMidSlotXOff(),    0 ),
 		   DDRotation() ) ;
-	    DDpos( grMidSlotLog[(iGr-1)/2],
+	    pos( grMidSlotLog[(iGr-1)/2],
 		   gName, 
 		   ++midSlotCopy, 
 		   DDTranslation( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
@@ -1922,13 +1922,13 @@ void DDEcalBarrelAlgo::execute()
 	 if( 0 != grEdgeSlotHere() &&
 	     0 != iGr                   )
 	 {
-	    DDpos( grEdgeSlotLog,
+	    pos( grEdgeSlotLog,
 		   gName, 
 		   ++edgeSlotCopy, 
 		   DDTranslation( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
 				  backCoolWidth/2           - grEdgeSlotWidth()/2.,    0 ),
 		   DDRotation() ) ;
-	    DDpos( grEdgeSlotLog,
+	    pos( grEdgeSlotLog,
 		   gName, 
 		   ++edgeSlotCopy, 
 		   DDTranslation( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
@@ -1936,7 +1936,7 @@ void DDEcalBarrelAlgo::execute()
 		   DDRotation() ) ;
 	 }
 	 if( 0 != grilleHere() )
-	    DDpos( grilleLog,
+	    pos( grilleLog,
 		   spmName(), 
 		   iGr, 
 		   gTra,
@@ -1945,7 +1945,7 @@ void DDEcalBarrelAlgo::execute()
 	 if( ( 0 != iGr%2 )         &&
 	     ( 0 != mBManifHere() )     )
 	 {
-	    DDpos( mBManifLog,
+	    pos( mBManifLog,
 		   spmName(),
 		   iGr,
 		   gTra - DDTranslation( -mBManifOutDiam()/2. +
@@ -1953,7 +1953,7 @@ void DDEcalBarrelAlgo::execute()
 					 grilleThick()/2.+3*mBManifOutDiam()/2.) ,
 		   myrot( mBManifName().name()+"R1",
 			  CLHEP::HepRotationX(90*deg)             ) ) ;
-	    DDpos( mBManifLog,
+	    pos( mBManifLog,
 		   spmName(),
 		   iGr-1,
 		   gTra - DDTranslation( -3*mBManifOutDiam()/2. +
@@ -1993,7 +1993,7 @@ void DDEcalBarrelAlgo::execute()
 					     backCoolBarSSMat(),
 					     backCoolBarSSSolid ) ;
       const DDTranslation backCoolBarSSTra (0,0,0) ;
-      DDpos( backCoolBarSSLog,
+      pos( backCoolBarSSLog,
 	     backCoolBarName(), 
 	     copyOne, 
 	     backCoolBarSSTra,
@@ -2007,7 +2007,7 @@ void DDEcalBarrelAlgo::execute()
 					     backCoolBarWaMat(),
 					     backCoolBarWaSolid ) ;
       const DDTranslation backCoolBarWaTra (0,0,0) ;
-      DDpos( backCoolBarWaLog,
+      pos( backCoolBarWaLog,
 	     backCoolBarSSName(), 
 	     copyOne, 
 	     backCoolBarWaTra,
@@ -2049,7 +2049,7 @@ void DDEcalBarrelAlgo::execute()
 					     ddmat(vecBackVFELyrMat()[iLyr]),
 					     backVFELyrSolid ) ;
 	 const DDTranslation backVFELyrTra (0,0, vecBackVFELyrThick()[iLyr]/2) ;
-	 DDpos( backVFELyrLog,
+	 pos( backVFELyrLog,
 		backVFEName(), 
 		copyOne, 
 		backVFELyrTra + offTra,
@@ -2079,18 +2079,18 @@ void DDEcalBarrelAlgo::execute()
 					   backCoolVFEMat(),
 					   backCoolVFESolid ) ;
       if( 0 != backCoolBarHere() )
-	 DDpos( backCoolBarLog    ,
+	 pos( backCoolBarLog    ,
 		backCoolVFEName() , 
 		copyOne           , 
 		DDTranslation()   ,
 		DDRotation()       ) ;
       if( 0 != backCoolVFEHere() )
-	 DDpos( backVFELog        ,
+	 pos( backVFELog        ,
 		backCoolVFEName() , 
 		copyOne           , 
 		DDTranslation( 0,0, backCoolBarThick()/2. + thickVFE/2. )   ,
 		DDRotation()       ) ;
-      DDpos( backVFELog        ,
+      pos( backVFELog        ,
 	     backCoolVFEName() , 
 	     copyTwo           , 
 	     DDTranslation( 0,0, -backCoolBarThick()/2. - thickVFE/2. )   ,
@@ -2156,7 +2156,7 @@ void DDEcalBarrelAlgo::execute()
 					halfZBCool - 
 					backSideLength()/2 ) ;
 	 if( 0 != backCoolHere() )
-	    DDpos( backCoolLog,
+	    pos( backCoolLog,
 		   spmName(), 
 		   iMod+1, 
 		   outtra + backPlateTra + bCoolTra,
@@ -2176,7 +2176,7 @@ void DDEcalBarrelAlgo::execute()
 					       backCoolTankMat(),
 					       backCoolTankSolid ) ;
 	 if( 0 != backCoolTankHere() )
-	    DDpos( backCoolTankLog,
+	    pos( backCoolTankLog,
 		   backCName, 
 		   copyOne, 
 		   DDTranslation( -backCoolHeight/2 + 
@@ -2195,7 +2195,7 @@ void DDEcalBarrelAlgo::execute()
 	 const DDLogicalPart backCoolTankWaLog ( bTankWaName,
 						 backCoolTankWaMat(),
 						 backCoolTankWaSolid ) ;
-	 DDpos( backCoolTankWaLog,
+	 pos( backCoolTankWaLog,
 		bTankName, 
 		copyOne, 
 		DDTranslation(0,0,0),
@@ -2210,7 +2210,7 @@ void DDEcalBarrelAlgo::execute()
 					      backBracketMat(),
 					      backBracketSolid ) ;
 	 if( 0 != backCoolTankHere() )
-	    DDpos( backBracketLog,
+	    pos( backBracketLog,
 		   backCName, 
 		   copyOne, 
 		   DDTranslation( backCoolBarHeight() - 
@@ -2220,7 +2220,7 @@ void DDEcalBarrelAlgo::execute()
 				  -backCoolBarWidth()/2. - backCoolTankWidth()/2., 0),
 		   DDRotation() ) ;
 
-/*	 DDpos( backBracketLog,
+/*	 pos( backBracketLog,
 		backCName, 
 		copyTwo, 
 		DDTranslation( backCoolBarHeight() - backCoolHeight/2. - backBracketHeight()/2.,
@@ -2247,7 +2247,7 @@ void DDEcalBarrelAlgo::execute()
 
 
 	    if( 0 != backMiscHere() )
-	       DDpos( bLog,
+	       pos( bLog,
 		      backCName, 
 		      copyOne, 
 		      bSumTra + bTra,
@@ -2274,7 +2274,7 @@ void DDEcalBarrelAlgo::execute()
 	       const DDLogicalPart mLog ( mName, ddmat(vecMBLyrMat()[j]), mSolid ) ;
  
 	       mTra += DDTranslation( vecMBLyrThick()[j]/2.0, 0*mm, 0*mm ) ;
-	       DDpos( mLog,
+	       pos( mLog,
 		      backCName, 
 		      copyOne, 
 		      mTra,
@@ -2304,7 +2304,7 @@ void DDEcalBarrelAlgo::execute()
 							      0*deg, 360*deg ) ) ;
 	    const DDLogicalPart mBWaLog ( mBWaName, backPipeWaterMat(), 
 					  mBCoolTubeWaSolid ) ;
-	    DDpos( mBWaLog,
+	    pos( mBWaLog,
 		   mBName, 
 		   copyOne, 
 		   DDTranslation(0,0,0),
@@ -2312,7 +2312,7 @@ void DDEcalBarrelAlgo::execute()
 
 	    for( unsigned int j ( 0 ) ; j != mBCoolTubeNum() ; ++j ) // loop over all MB cooling circuits
 	    {
-	       DDpos( mBLog,
+	       pos( mBLog,
 		      backCName, 
 		      2*j + 1, 
 		      DDTranslation(-backCoolHeight/2.0+mBCoolTubeOutDiam()/2.,
@@ -2365,7 +2365,7 @@ void DDEcalBarrelAlgo::execute()
 					    0.7*vecBackPipeDiam()[iMod],
 					    pipeZPos ) ;
 
-	    DDpos( backPipeLog,
+	    pos( backPipeLog,
 		   spmName(), 
 		   copyOne, 
 		   bPipeTra1,
@@ -2378,13 +2378,13 @@ void DDEcalBarrelAlgo::execute()
 					    vecBackPipeDiam()[iMod],
 					    bPipeTra1.z()  ) ;
 
-	    DDpos( backPipeLog,
+	    pos( backPipeLog,
 		   spmName(), 
 		   copyTwo, 
 		   bPipeTra2,
 		   DDRotation() ) ;
 
-	    DDpos( backInnerLog,
+	    pos( backInnerLog,
 		   bPipeName, 
 		   copyOne, 
 		   DDTranslation(),
@@ -2422,7 +2422,7 @@ void DDEcalBarrelAlgo::execute()
 						 1.2*dryAirTubeOutDiam(),
 						 pipeZPos ) ;
 
-	    DDpos( dryAirTubeLog,
+	    pos( dryAirTubeLog,
 		   spmName(), 
 		   copyOne, 
 		   dryAirTubeTra1,
@@ -2435,7 +2435,7 @@ void DDEcalBarrelAlgo::execute()
 						 0.7*dryAirTubeOutDiam() ,
 						 dryAirTubeTra1.z()  ) ;
 	 
-	    DDpos( dryAirTubeLog,
+	    pos( dryAirTubeLog,
 		   spmName(), 
 		   copyTwo, 
 		   dryAirTubeTra2,
@@ -2459,7 +2459,7 @@ void DDEcalBarrelAlgo::execute()
 	    const unsigned int nMax ( static_cast<unsigned int> (vecBackCoolNPerSec()[iNSec++]) ) ; 
 	    for( unsigned int iBar ( 0 ) ; iBar !=  nMax ; ++iBar )
 	    {
-	       DDpos( backCoolVFELog,
+	       pos( backCoolVFELog,
 		      backCName, 
 		      iCVFECopy++, 
 		      cTra,
@@ -2512,7 +2512,7 @@ void DDEcalBarrelAlgo::execute()
 				     grilleThick() +
 				     patchParms[2]  ) ;
       if( 0 != patchPanelHere() )
-	 DDpos( patchLog,
+	 pos( patchLog,
 		spmName(), 
 		copyOne, 
 		patchTra,
@@ -2533,7 +2533,7 @@ void DDEcalBarrelAlgo::execute()
 	 
 	 pTra += DDTranslation( vecPatchPanelThick()[j]/2, 0*mm, 0*mm ) ;
 	 
-	 DDpos( pLog,
+	 pos( pLog,
 		patchPanelName(), 
 		copyOne, 
 		pTra,
@@ -2576,7 +2576,7 @@ void DDEcalBarrelAlgo::execute()
 						 pincerBlkLength()/2   ) ) ;
 	 const DDLogicalPart blkLog ( pincerBlkName(), pincerBlkMat(), blkSolid ) ;
 	 const std::vector<double>& blkParms ( blkSolid.parameters() ) ;
-	 DDpos( blkLog,
+	 pos( blkLog,
 		pincerEnvName(), 
 		copyOne,
 		DDTranslation(0,0, pincerEnvLength()/2 - pincerBlkLength()/2 ),
@@ -2588,7 +2588,7 @@ void DDEcalBarrelAlgo::execute()
 						 pincerBlkLength()/2   ) ) ;
 	 const DDLogicalPart cutLog ( pincerCutName(), pincerCutMat(), cutSolid ) ;
 	 const std::vector<double>& cutParms ( cutSolid.parameters() ) ;
-	 DDpos( cutLog,
+	 pos( cutLog,
 		pincerBlkName(), 
 		copyOne,
 		DDTranslation( +blkParms[0] - cutParms[0] - pincerShim1Width() + pincerShim2Width(),
@@ -2601,7 +2601,7 @@ void DDEcalBarrelAlgo::execute()
 						   pincerBlkLength()/2   ) ) ;
 	 const DDLogicalPart shim2Log ( pincerShim2Name(), pincerShimMat(), shim2Solid ) ;
 	 const std::vector<double>& shim2Parms ( shim2Solid.parameters() ) ;
-	 DDpos( shim2Log,
+	 pos( shim2Log,
 		pincerCutName(), 
 		copyOne,
 		DDTranslation( +cutParms[0] - shim2Parms[0],
@@ -2616,7 +2616,7 @@ void DDEcalBarrelAlgo::execute()
 
 	 const DDLogicalPart shim1Log ( pincerShim1Name(), pincerShimMat(), shim1Solid ) ;
 	 const std::vector<double>& shim1Parms ( shim1Solid.parameters() ) ;
-	 DDpos( shim1Log,
+	 pos( shim1Log,
 		pincerEnvName(), 
 		copyOne,
 		DDTranslation( +envParms[0] - shim1Parms[0],
@@ -2626,7 +2626,7 @@ void DDEcalBarrelAlgo::execute()
 
 	 for( unsigned int iEnv ( 0 ) ; iEnv != vecPincerEnvZOff().size() ; ++iEnv )
 	 {
-	    DDpos( envLog,
+	    pos( envLog,
 		   pincerRodName(), 
 		   1+iEnv, 
 		   DDTranslation(0,0, -ilyLength/2. + vecPincerEnvZOff()[iEnv] - pincerEnvLength()/2. ),
@@ -2646,7 +2646,7 @@ void DDEcalBarrelAlgo::execute()
 					radius*sin(vecPincerRodAzimuth()[iRod]) ,
 					0 ) ;
 	   
-	   DDpos( rodLog,
+	   pos( rodLog,
 		  xilyName, 
 		  1+iRod, 
 		  rodTra,
@@ -2722,7 +2722,8 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
 		       double&             zee,
 		       double              side,
 		       double              front,
-		       double              delta  )
+		       double              delta,
+  		       DDPositioner&       pos  )
 {
    const unsigned int copyOne (1) ;
 
@@ -2761,7 +2762,7 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
    const DDSolid       webPlSolid   ( mytrap( webPlDDName.fullname(), trapWebPl ) ) ;
    const DDLogicalPart webPlLog     ( webPlDDName, webPlMat(), webPlSolid ) ;
 
-   DDpos( webPlLog,     // place plate inside clearance volume
+   pos( webPlLog,     // place plate inside clearance volume
 	  webClrDDName, 
 	  copyOne, 
 	  DDTranslation(0,0,0),
@@ -2790,7 +2791,7 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
 		      wedge1,   wedge2, wedge3    ) ;
    
    if( 0 != webHere() )
-      DDpos( webClrLog,
+      pos( webClrLog,
 	     logPar, 
 	     copyOne, 
 	     DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z()),

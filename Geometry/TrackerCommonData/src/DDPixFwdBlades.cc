@@ -104,7 +104,7 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   
 // Execution :  --------------------------------------------------------------------------
 
-void DDPixFwdBlades::execute() {
+void DDPixFwdBlades::execute(DDPositioner& pos) {
 
   // -- Compute Nipple parameters if not already computed :
   
@@ -207,7 +207,7 @@ void DDPixFwdBlades::execute() {
     // also, maybe I'm dumb, but the ownership of these pointers is very confusing,
     // so it seemed safer to make DD stuff "as needed" -- Michael Case
     DDTranslation ddtran(translation.x(), translation.y(), translation.z());
-    DDpos(child, mother, copy, ddtran, rotation);
+    pos(child, mother, copy, ddtran, rotation);
     // LogDebug("PixelGeom") << "DDPixFwdBlades: " << child << " Copy " << copy << " positioned in " << mother << " at " << translation << " with rotation " << rotation;
   }
 

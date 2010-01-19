@@ -1,5 +1,5 @@
-/***************************************************************************
-                          DDLAlgorithm.cc  -  description
+/**************************************************************************
+      DDLAlgorithm.cc  -  description
                              -------------------
     begin                : Saturday November 29, 2003
     email                : case@ucdhep.ucdavis.edu
@@ -80,7 +80,9 @@ void DDLAlgorithm::processElement (const std::string& name, const std::string& n
   DDLMap* tm= dynamic_cast<DDLMap*> (myMap);
   handler.initialize( algoName, lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors());
   //  handler.execute( cpv );
-  handler.execute();
+  DDPositioner pos ( &cpv );
+  handler.execute( pos );
+  //  handler.execute();
 
   // clear used/referred to elements.
   myString->clear();

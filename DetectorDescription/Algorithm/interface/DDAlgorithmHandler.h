@@ -29,7 +29,7 @@ class DDAlgorithmHandler
 		  const DDStringVectorArguments & svArgs) throw (DDException);
 
   //! executes the wrapped algorithm algo_; some pre- and post-processing (exception handling)
-  void execute() throw (DDException);
+  void execute( DDPositioner& ) throw (DDException); //DDCompactView& 
 
  
  private:

@@ -21,7 +21,7 @@
 #include <fstream>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
+#include <DetectorDescription/Parser/interface/FIPConfigation.h>
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include <boost/shared_ptr.hpp>
 #include "FWCore/Utilities/interface/Exception.h"

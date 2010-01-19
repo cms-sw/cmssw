@@ -54,7 +54,7 @@ void DDTECOptoHybAlgo::initialize(const DDNumericArguments & nArgs,
 
 }
 
-void DDTECOptoHybAlgo::execute() {
+void DDTECOptoHybAlgo::execute(DDPositioner& pos) {
   
   LogDebug("TECGeom") << "==>> Constructing DDTECOptoHybAlgo...";
 
@@ -89,7 +89,7 @@ void DDTECOptoHybAlgo::execute() {
       }
     }
 
-    DDpos (child, mother, copyNo, tran, rotation);
+   pos(child, mother, copyNo, tran, rotation);
     LogDebug("TECGeom") << "DDTECOptoHybAlgo test " << child << " number " 
 			<< copyNo << " positioned in " << mother << " at "
 			<< tran  << " with " << rotation;

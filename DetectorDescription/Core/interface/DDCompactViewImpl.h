@@ -11,33 +11,20 @@
 #include "DetectorDescription/Core/interface/graphwalker.h"
 
 class DDPartSelector;
-//typedef TreeNode<DDPhysicalPart,int> expnode_t;
 
 class DDCompactViewImpl 
 {
 public:
-  //typedef TreeNode<DDLogicalPart, DDPosPart > TreeNav;
   
-  //FIXME: DDCompactViewImpl.h: Graph<DDLogPart, DDPosPart> :
-  //FIXME:                      take more efficient EdgeData!
   typedef ::graph<DDLogicalPart, DDPosData* > GraphNav;
-  //typedef GraphPath<DDLogicalPart, DDPosData*> GraphNavPaths;
-  //typedef GraphWalker<DDLogicalPart,DDPosData*> walker_t;
-  
-  // internal use ! (see comments in DDCompactView(bool)!)
   explicit DDCompactViewImpl();
-  
   DDCompactViewImpl(const DDLogicalPart & rootnodedata);
-  
   ~DDCompactViewImpl();
   
-  //FIXME: DDCompactView::setRoot(..) check if new root exists ...
+  //reassigns root with no check!!!
   void setRoot(const DDLogicalPart & root) { root_=root; }
 
   const DDLogicalPart & root() const { return root_; }
-
-  //deprecated!
-  void print(std::ostream & os) { /*graph_.printHierarchy(os,root_);*/ }
   
   DDLogicalPart & current() const;
   
@@ -56,6 +43,13 @@ public:
   //double weight(DDLogicalPart &);
   double weight(const DDLogicalPart &) const;
 
+  void position (const DDLogicalPart & self,
+		 const DDLogicalPart & parent,
+		 int copyno,
+		 const DDTranslation & trans,
+		 const DDRotation & rot,
+		 const DDDivision * div);
+
   void swap( DDCompactViewImpl& );  
   /**
    will return a walker beginning at the node specified by the PartSelector   
@@ -64,20 +58,8 @@ public:
   
   */
 protected:    
-  
-  // recursive tree building ...
-  //void buildTree(const DDLogicalPart & nodata, TreeNav* parent);
-  
-  // recursive graph building (acyclic directed (parent->child))
-  void buildGraph();
-  void buildPaths();
-  
+  // internal use ! (see comments in DDCompactView(bool)!)
   DDLogicalPart root_;
-  //DDPhysicalPart current_;
   GraphNav graph_;
-  //GraphNavPaths * paths_;
-  //GraphWalker<DDLogicalPart,DDPosData*> * rootWalker_;
-  //TreeNav *  tn_;
-  //TreeNav * root_;
 };
 #endif

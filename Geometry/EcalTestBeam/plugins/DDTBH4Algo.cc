@@ -129,7 +129,7 @@ void DDTBH4Algo::initialize(const DDNumericArguments&      nArgs,
    m_vecFibZPiv  = vArgs["FibZPiv"]; 
 }
 
-void DDTBH4Algo::execute() 
+void DDTBH4Algo::execute(DDPositioner& pos) 
 {
   const unsigned int copyOne (1) ;
 
@@ -145,7 +145,7 @@ void DDTBH4Algo::execute()
 						0*deg, 360*deg ) ) ;
      const DDLogicalPart vacLog ( vacNameNm, vacMat(), vTubeSolid ) ;
      
-     DDpos( vacLog,
+     pos( vacLog,
 	    parent().name(), 
 	    1+i, 
 	    DDTranslation(0,0,
@@ -169,7 +169,7 @@ void DDTBH4Algo::execute()
      const double off ( 0<vecWinZBeg()[i] ? vecWinZBeg()[i] :
 			fabs(vecWinZBeg()[i]) - vecWinThick()[i] ) ;
      
-     DDpos( wLog,
+     pos( wLog,
 	    parent().name(), 
 	    1+i, 
 	    DDTranslation(0,0,
@@ -199,14 +199,14 @@ void DDTBH4Algo::execute()
 						   0*deg, 360*deg ) ) ;
 	const DDLogicalPart vLog ( vName, holeMat(), vTubeSolid ) ;
 	     
-	DDpos( vLog,
+	pos( vLog,
 	       tName, 
 	       copyOne, 
 	       DDTranslation(0,0,0),
 	       DDRotation() ) ;
      }
 
-     DDpos( tLog,
+     pos( tLog,
 	    parent().name(), 
 	    copyOne, 
 	    DDTranslation(   vecTrgXOff()[i],
@@ -240,13 +240,13 @@ void DDTBH4Algo::execute()
 			 (1+  j)*fibCladThick() -
 			 (1+  j)*fibSide()         ) ;
      const double zoff ( -planeThick/2 + fibCladThick() + fibSide()/2. ) ;
-     DDpos( fLog,
+     pos( fLog,
 	    pName, 
 	    1+j, 
 	    DDTranslation( xoff, 0, zoff ),
 	    DDRotation() ) ;
      
-     DDpos( fLog,
+     pos( fLog,
 	    pName, 
 	    33+j, 
 	    DDTranslation( xoff + (fibCladThick()+fibSide())/2.,0, -zoff),
@@ -254,7 +254,7 @@ void DDTBH4Algo::execute()
   }
   for( unsigned int i ( 0 ) ; i != vecFibZPiv().size() ; ++i )
   {
-     DDpos( pLog,
+     pos( pLog,
 	    parent().name(), 
 	    1+i, 
 	    DDTranslation(   vecFibXOff()[i] - 0.5*fibSide(),

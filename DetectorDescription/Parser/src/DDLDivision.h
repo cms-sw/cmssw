@@ -36,7 +36,7 @@ class DDLDivision : public DDXMLElement
 
  private:
 
-  DDDividedGeometryObject* makeDivider(const DDDivision& div, DDCompactView& cpv);
+  DDDividedGeometryObject* makeDivider(const DDDivision& div, DDCompactView* cpv);
 };
 
 #endif
