@@ -25,20 +25,20 @@ protected:
 // abstract binary operator
 class BinaryOperator : public TriggerExpressionEvaluator {
 public:
-  BinaryOperator(TriggerExpressionEvaluator * lhs, TriggerExpressionEvaluator * rhs) :
-    m_lhs(lhs),
-    m_rhs(rhs)
+  BinaryOperator(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+    m_arg1(arg1),
+    m_arg2(arg2)
   { }
 
   // configure the dependent modules
   void configure(const edm::EventSetup & setup) {
-    m_lhs->configure(setup);
-    m_rhs->configure(setup);
+    m_arg1->configure(setup);
+    m_arg2->configure(setup);
   }
 
 protected:
-  boost::scoped_ptr<TriggerExpressionEvaluator> m_lhs;
-  boost::scoped_ptr<TriggerExpressionEvaluator> m_rhs;
+  boost::scoped_ptr<TriggerExpressionEvaluator> m_arg1;
+  boost::scoped_ptr<TriggerExpressionEvaluator> m_arg2;
 };
 
 
@@ -53,38 +53,61 @@ public:
   bool operator()(const TriggerExpressionCache & data) {
     return not (*m_arg)(data);
   }
+  
+  virtual void dump(std::ostream & out) const {
+    out << "NOT ";
+    m_arg->dump(out);
+  }
 };
 
 class OperatorAnd : public BinaryOperator {
 public:
-  OperatorAnd(TriggerExpressionEvaluator * lhs, TriggerExpressionEvaluator * rhs) :
-    BinaryOperator(lhs, rhs)
+  OperatorAnd(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+    BinaryOperator(arg1, arg2)
   { }
 
   bool operator()(const TriggerExpressionCache & data) {
-    return (*m_lhs)(data) and (*m_rhs)(data);
+    return (*m_arg1)(data) and (*m_arg2)(data);
+  }
+  
+  virtual void dump(std::ostream & out) const {
+    m_arg1->dump(out);
+    out << " AND ";
+    m_arg2->dump(out);
   }
 };
 
 class OperatorOr : public BinaryOperator {
 public:
-  OperatorOr(TriggerExpressionEvaluator * lhs, TriggerExpressionEvaluator * rhs) :
-    BinaryOperator(lhs, rhs)
+  OperatorOr(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+    BinaryOperator(arg1, arg2)
   { }
 
   bool operator()(const TriggerExpressionCache & data) {
-    return (*m_lhs)(data) or (*m_rhs)(data);
+    return (*m_arg1)(data) or (*m_arg2)(data);
+  }
+  
+  virtual void dump(std::ostream & out) const {
+    m_arg1->dump(out);
+    out << " OR ";
+    m_arg2->dump(out);
   }
 };
 
 class OperatorXor : public BinaryOperator {
 public:
-  OperatorOr(TriggerExpressionEvaluator * lhs, TriggerExpressionEvaluator * rhs) :
-    BinaryOperator(lhs, rhs)
+  OperatorOr(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+    BinaryOperator(arg1, arg2)
   { }
 
   bool operator()(const TriggerExpressionCache & data) {
-    return (*m_lhs)(data) xor (*m_rhs)(data);
+    return (*m_arg1)(data) xor (*m_arg2)(data);
+  }
+  
+  virtual void dump(std::ostream & out) const {
+    m_arg1->dump(out);
+    out << " XOR ";
+    m_arg2->dump(out);
   }
 };
 
