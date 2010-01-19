@@ -7,5 +7,9 @@ bool TriggerExpressionL1TechReader::operator()(const TriggerExpressionCache & da
   return false;
 }
 
+void TriggerExpressionHLTReader::dump(std::ostream & out) const {
+  out << "FALSE";
+}
+
 } // namespace hlt
 

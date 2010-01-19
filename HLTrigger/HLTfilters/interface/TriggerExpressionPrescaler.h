@@ -29,6 +29,11 @@ public:
 
     return ((m_counter % m_prescale) == 0);
   }
+  
+  void dump(std::ostream & out) const {
+    m_arg->dump(out);
+    out << " / " << m_prescale;
+  }
 
 private:
   unsigned int m_prescale;

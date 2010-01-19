@@ -23,6 +23,8 @@ public:
   void init(const edm::TriggerNames & triggerNames);
 
   bool operator()(const TriggerExpressionCache & data);
+  
+  void dump(std::ostream & out) const;
 
 private:
   std::string               m_pattern;

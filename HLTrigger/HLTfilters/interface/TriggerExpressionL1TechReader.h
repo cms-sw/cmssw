@@ -14,6 +14,8 @@ public:
   { }
 
   bool operator()(const TriggerExpressionCache & data);
+  
+  void dump(std::ostream & out) const;
 
 private:
   std::string m_pattern;

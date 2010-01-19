@@ -21,6 +21,18 @@ bool TriggerExpressionHLTReader::operator()(const TriggerExpressionCache & data)
   return false;
 }
 
+void TriggerExpressionHLTReader::dump(std::ostream & out) const {
+  if (m_triggers.size() == 0) {
+    out << "FALSE";
+  } else if (m_triggers.size() == 1) {
+    out << m_triggers[0];
+  } else {
+    out << "(" << m_triggers[0];
+    for (unsigned int i = 1; i < m_triggers.size(); ++i)
+      out << " OR " << m_triggers[i];
+    out << ")"
+  }
+}
 
 // (re)initialize the module
 void TriggerExpressionHLTReader::init(const edm::TriggerNames & triggerNames) {
