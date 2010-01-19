@@ -67,35 +67,35 @@ public:
   void setPropagatePhi(const bool PropagatePhi) {m_PropagatePhi = PropagatePhi;}
   bool getPropagatePhi() const {return m_PropagatePhi;}
 
-  void setMergeMethodPhiBrl(const std::string MergeMethodPhiBrl) {m_MergeMethodPhiBrl = MergeMethodPhiBrl;}
-  std::string getMergeMethodPhiBrl() const {return m_MergeMethodPhiBrl;}
+  void setMergeMethodPhiBrl(const std::string& MergeMethodPhiBrl) {m_MergeMethodPhiBrl = MergeMethodPhiBrl;}
+  const std::string& getMergeMethodPhiBrl() const {return m_MergeMethodPhiBrl;}
 
-  void setMergeMethodPhiFwd(const std::string MergeMethodPhiFwd) {m_MergeMethodPhiFwd = MergeMethodPhiFwd;}
-  std::string getMergeMethodPhiFwd() const {return m_MergeMethodPhiFwd;}
+  void setMergeMethodPhiFwd(const std::string& MergeMethodPhiFwd) {m_MergeMethodPhiFwd = MergeMethodPhiFwd;}
+  const std::string& getMergeMethodPhiFwd() const {return m_MergeMethodPhiFwd;}
 
-  void setMergeMethodEtaBrl(const std::string MergeMethodEtaBrl) {m_MergeMethodEtaBrl = MergeMethodEtaBrl;}
-  std::string getMergeMethodEtaBrl() const {return m_MergeMethodEtaBrl;}
+  void setMergeMethodEtaBrl(const std::string& MergeMethodEtaBrl) {m_MergeMethodEtaBrl = MergeMethodEtaBrl;}
+  const std::string& getMergeMethodEtaBrl() const {return m_MergeMethodEtaBrl;}
 
-  void setMergeMethodEtaFwd(const std::string MergeMethodEtaFwd) {m_MergeMethodEtaFwd = MergeMethodEtaFwd;}
-  std::string getMergeMethodEtaFwd() const {return m_MergeMethodEtaFwd;}
+  void setMergeMethodEtaFwd(const std::string& MergeMethodEtaFwd) {m_MergeMethodEtaFwd = MergeMethodEtaFwd;}
+  const std::string& getMergeMethodEtaFwd() const {return m_MergeMethodEtaFwd;}
 
-  void setMergeMethodPtBrl(const std::string MergeMethodPtBrl) {m_MergeMethodPtBrl = MergeMethodPtBrl;}
-  std::string getMergeMethodPtBrl() const {return m_MergeMethodPtBrl;}
+  void setMergeMethodPtBrl(const std::string& MergeMethodPtBrl) {m_MergeMethodPtBrl = MergeMethodPtBrl;}
+  const std::string& getMergeMethodPtBrl() const {return m_MergeMethodPtBrl;}
 
-  void setMergeMethodPtFwd(const std::string MergeMethodPtFwd) {m_MergeMethodPtFwd = MergeMethodPtFwd;}
-  std::string getMergeMethodPtFwd() const {return m_MergeMethodPtFwd;}
+  void setMergeMethodPtFwd(const std::string& MergeMethodPtFwd) {m_MergeMethodPtFwd = MergeMethodPtFwd;}
+  const std::string& getMergeMethodPtFwd() const {return m_MergeMethodPtFwd;}
 
-  void setMergeMethodChargeBrl(const std::string MergeMethodChargeBrl) {m_MergeMethodChargeBrl = MergeMethodChargeBrl;}
-  std::string getMergeMethodChargeBrl() const {return m_MergeMethodChargeBrl;}
+  void setMergeMethodChargeBrl(const std::string& MergeMethodChargeBrl) {m_MergeMethodChargeBrl = MergeMethodChargeBrl;}
+  const std::string& getMergeMethodChargeBrl() const {return m_MergeMethodChargeBrl;}
 
-  void setMergeMethodChargeFwd(const std::string MergeMethodChargeFwd) {m_MergeMethodChargeFwd = MergeMethodChargeFwd;}
-  std::string getMergeMethodChargeFwd() const {return m_MergeMethodChargeFwd;}
+  void setMergeMethodChargeFwd(const std::string& MergeMethodChargeFwd) {m_MergeMethodChargeFwd = MergeMethodChargeFwd;}
+  const std::string& getMergeMethodChargeFwd() const {return m_MergeMethodChargeFwd;}
 
-  void setMergeMethodMIPBrl(const std::string MergeMethodMIPBrl) {m_MergeMethodMIPBrl = MergeMethodMIPBrl;}
-  std::string getMergeMethodMIPBrl() const {return m_MergeMethodMIPBrl;}
+  void setMergeMethodMIPBrl(const std::string& MergeMethodMIPBrl) {m_MergeMethodMIPBrl = MergeMethodMIPBrl;}
+  const std::string& getMergeMethodMIPBrl() const {return m_MergeMethodMIPBrl;}
 
-  void setMergeMethodMIPFwd(const std::string MergeMethodMIPFwd) {m_MergeMethodMIPFwd = MergeMethodMIPFwd;}
-  std::string getMergeMethodMIPFwd() const {return m_MergeMethodMIPFwd;}
+  void setMergeMethodMIPFwd(const std::string& MergeMethodMIPFwd) {m_MergeMethodMIPFwd = MergeMethodMIPFwd;}
+  const std::string& getMergeMethodMIPFwd() const {return m_MergeMethodMIPFwd;}
 
   void setMergeMethodMIPSpecialUseANDBrl(const bool MergeMethodMIPSpecialUseANDBrl) {m_MergeMethodMIPSpecialUseANDBrl = MergeMethodMIPSpecialUseANDBrl;}
   bool getMergeMethodMIPSpecialUseANDBrl() const {return m_MergeMethodMIPSpecialUseANDBrl;}
@@ -103,11 +103,11 @@ public:
   void setMergeMethodMIPSpecialUseANDFwd(const bool MergeMethodMIPSpecialUseANDFwd) {m_MergeMethodMIPSpecialUseANDFwd = MergeMethodMIPSpecialUseANDFwd;}
   bool getMergeMethodMIPSpecialUseANDFwd() const {return m_MergeMethodMIPSpecialUseANDFwd;}
 
-  void setMergeMethodISOBrl(const std::string MergeMethodISOBrl) {m_MergeMethodISOBrl = MergeMethodISOBrl;}
-  std::string getMergeMethodISOBrl() const {return m_MergeMethodISOBrl;}
+  void setMergeMethodISOBrl(const std::string& MergeMethodISOBrl) {m_MergeMethodISOBrl = MergeMethodISOBrl;}
+  const std::string& getMergeMethodISOBrl() const {return m_MergeMethodISOBrl;}
 
-  void setMergeMethodISOFwd(const std::string MergeMethodISOFwd) {m_MergeMethodISOFwd = MergeMethodISOFwd;}
-  std::string getMergeMethodISOFwd() const {return m_MergeMethodISOFwd;}
+  void setMergeMethodISOFwd(const std::string& MergeMethodISOFwd) {m_MergeMethodISOFwd = MergeMethodISOFwd;}
+  const std::string& getMergeMethodISOFwd() const {return m_MergeMethodISOFwd;}
 
   void setMergeMethodISOSpecialUseANDBrl(const bool MergeMethodISOSpecialUseANDBrl) {m_MergeMethodISOSpecialUseANDBrl = MergeMethodISOSpecialUseANDBrl;}
   bool getMergeMethodISOSpecialUseANDBrl() const {return m_MergeMethodISOSpecialUseANDBrl;}
@@ -115,11 +115,11 @@ public:
   void setMergeMethodISOSpecialUseANDFwd(const bool MergeMethodISOSpecialUseANDFwd) {m_MergeMethodISOSpecialUseANDFwd = MergeMethodISOSpecialUseANDFwd;}
   bool getMergeMethodISOSpecialUseANDFwd() const {return m_MergeMethodISOSpecialUseANDFwd;}
 
-  void setMergeMethodSRKBrl(const std::string MergeMethodSRKBrl) {m_MergeMethodSRKBrl = MergeMethodSRKBrl;}
-  std::string getMergeMethodSRKBrl() const {return m_MergeMethodSRKBrl;}
+  void setMergeMethodSRKBrl(const std::string& MergeMethodSRKBrl) {m_MergeMethodSRKBrl = MergeMethodSRKBrl;}
+  const std::string& getMergeMethodSRKBrl() const {return m_MergeMethodSRKBrl;}
 
-  void setMergeMethodSRKFwd(const std::string MergeMethodSRKFwd) {m_MergeMethodSRKFwd = MergeMethodSRKFwd;}
-  std::string getMergeMethodSRKFwd() const {return m_MergeMethodSRKFwd;}
+  void setMergeMethodSRKFwd(const std::string& MergeMethodSRKFwd) {m_MergeMethodSRKFwd = MergeMethodSRKFwd;}
+  const std::string& getMergeMethodSRKFwd() const {return m_MergeMethodSRKFwd;}
 
   void setHaloOverwritesMatchedBrl(const bool HaloOverwritesMatchedBrl) {m_HaloOverwritesMatchedBrl = HaloOverwritesMatchedBrl;}
   bool getHaloOverwritesMatchedBrl() const {return m_HaloOverwritesMatchedBrl;}

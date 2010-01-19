@@ -5,8 +5,8 @@
 //   Description: Pattern for Eta for Eta Track Finder
 //
 //
-//   $Date: 2008/01/22 18:50:24 $
-//   $Revision: 1.2 $
+//   $Date: 2009/02/03 23:33:45 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -70,7 +70,7 @@ L1MuDTEtaPattern::L1MuDTEtaPattern(int id, int w1, int w2, int w3,
 }			 			 
 
 
-L1MuDTEtaPattern::L1MuDTEtaPattern(int id, string pat, int eta, int qual) :
+L1MuDTEtaPattern::L1MuDTEtaPattern(int id, const string& pat, int eta, int qual) :
   m_id(id), m_eta(eta), m_qual(qual) {
   
   for ( int i = 0; i < 3; i++ ) {

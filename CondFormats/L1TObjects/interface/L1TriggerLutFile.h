@@ -5,8 +5,8 @@
  *   Auxiliary class to handle Look-up table files
  *
  *
- *   $Date: 2007/02/27 11:43:58 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/30 07:48:02 $
+ *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -51,7 +51,7 @@ class L1TriggerLutFile {
     L1TriggerLutFile& operator=(const L1TriggerLutFile&);
 
     /// return filename
-    inline std::string getName() const { return m_file; }
+    inline const std::string& getName() const { return m_file; }
     
     /// open file
     int open();

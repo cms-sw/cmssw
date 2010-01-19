@@ -60,7 +60,7 @@ class L1CaloEtScale {
   double et(const uint16_t rank) const;
 
   /// get thresholds
-  std::vector<double> getThresholds() const { return m_thresholds; }
+  const std::vector<double>& getThresholds() const { return m_thresholds; }
 
   void print(std::ostream& s) const;
 

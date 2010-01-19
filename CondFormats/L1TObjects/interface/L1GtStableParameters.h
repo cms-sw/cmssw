@@ -131,7 +131,7 @@ public:
 
     ///   get / set the correspondence "condition chip - GTL algorithm word"
     ///   in the hardware
-    inline std::vector<int> gtOrderConditionChip() const {
+    inline const std::vector<int>& gtOrderConditionChip() const {
         return m_orderConditionChip;
     }
 

@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -46,7 +46,7 @@ public:
 public:
 
     /// get the trigger mask
-    inline std::vector<unsigned int> gtTriggerMask() const
+    inline const std::vector<unsigned int>& gtTriggerMask() const
     {
         return m_triggerMask;
     }

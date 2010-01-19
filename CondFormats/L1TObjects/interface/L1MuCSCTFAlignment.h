@@ -13,10 +13,10 @@ public:
 		return *this;
 	}
 
-	std::vector<double> operator()() { return coefficients; }
+	const std::vector<double>& operator()() { return coefficients; }
 
 	L1MuCSCTFAlignment(void){}
-	L1MuCSCTFAlignment(std::vector<double> cff){ coefficients=cff; }
+	L1MuCSCTFAlignment(const std::vector<double>& cff){ coefficients=cff; }
 	L1MuCSCTFAlignment(const L1MuCSCTFAlignment& conf){
 		coefficients = conf.coefficients;
 	}

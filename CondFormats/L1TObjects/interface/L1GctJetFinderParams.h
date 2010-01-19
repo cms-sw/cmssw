@@ -88,8 +88,8 @@ class L1GctJetFinderParams
   
   /// Access to jet Et calibration parameters
   unsigned getCorrType() const { return corrType_; }
-  std::vector< std::vector<double> > getJetCorrCoeffs() const { return jetCorrCoeffs_; }
-  std::vector< std::vector<double> > getTauCorrCoeffs() const { return tauCorrCoeffs_; }
+  const std::vector< std::vector<double> >& getJetCorrCoeffs() const { return jetCorrCoeffs_; }
+  const std::vector< std::vector<double> >& getTauCorrCoeffs() const { return tauCorrCoeffs_; }
 
  private:
 

@@ -12,8 +12,8 @@
  *       (wheel: -2, -1, 0, +1, +2, position : [1,7])
  * 
  *
- *   $Date: 2007/03/30 07:48:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2008/04/09 15:22:31 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -53,7 +53,7 @@ class L1MuDTEtaPattern {
     L1MuDTEtaPattern(int id, int w1, int w2, int w3, int p1, int p2, int p3, 
                      int eta, int qual); 
 
-    L1MuDTEtaPattern(int id, std::string pat, int eta, int qual);
+    L1MuDTEtaPattern(int id, const std::string& pat, int eta, int qual);
                        
     /// copy constructor
     L1MuDTEtaPattern(const L1MuDTEtaPattern&);

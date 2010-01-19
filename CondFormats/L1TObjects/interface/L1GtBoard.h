@@ -139,7 +139,7 @@ public:
 
     /// get / set L1 quadruplet (4x16 bits)(cable) in the PSB input
     /// valid for PSB only
-    const std::vector<L1GtPsbQuad> gtQuadInPsb() const
+    const std::vector<L1GtPsbQuad>& gtQuadInPsb() const
     {
         return m_gtQuadInPsb;
     }
