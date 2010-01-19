@@ -23,6 +23,10 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "GMTkChiCompatibility", GMTkChiCompatibility },
       { "GMStaChiCompatibility", GMStaChiCompatibility},
       { "GMTkKinkTight", GMTkKinkTight},
+      { "TMLastStationAngLoose", TMLastStationAngLoose },
+      { "TMLastStationAngTight", TMLastStationAngTight },
+      { "TMOneStationAngLoose", TMOneStationAngLoose },
+      { "TMOneStationAngTight", TMOneStationAngTight },
       { 0, (SelectionType)-1 }
    };
 
@@ -62,7 +66,7 @@ float muon::caloCompatibility(const reco::Muon& muon) {
 }
 
 // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------
-float muon::segmentCompatibility(const reco::Muon& muon) {
+float muon::segmentCompatibility(const reco::Muon& muon,reco::Muon::ArbitrationType arbitrationType) {
   bool use_weight_regain_at_chamber_boundary = true;
   bool use_match_dist_penalty = true;
 
@@ -81,25 +85,25 @@ float muon::segmentCompatibility(const reco::Muon& muon) {
     // *** fill local info for this muon (do some counting) ***;
     // ************** begin ***********************************;
     if(i<=4) { // this is the section for the DTs
-      if( muon.trackDist(i,1) < 999999 ) { //current "raw" info that a track is close to a chamber
+      if( muon.trackDist(i,1,arbitrationType) < 999999 ) { //current "raw" info that a track is close to a chamber
 	++nr_of_stations_crossed;
 	station_was_crossed[i-1] = 1;
-	if(muon.trackDist(i,1) > -10. ) stations_w_track_at_boundary[i-1] = muon.trackDist(i,1); 
+	if(muon.trackDist(i,1,arbitrationType) > -10. ) stations_w_track_at_boundary[i-1] = muon.trackDist(i,1,arbitrationType); 
 	else stations_w_track_at_boundary[i-1] = 0.;
       }
-      if( muon.segmentX(i,1) < 999999 ) { //current "raw" info that a segment is matched to the current track
+      if( muon.segmentX(i,1,arbitrationType) < 999999 ) { //current "raw" info that a segment is matched to the current track
 	++nr_of_stations_with_segment;
 	station_has_segmentmatch[i-1] = 1;
       }
     }
     else     { // this is the section for the CSCs
-      if( muon.trackDist(i-4,2) < 999999 ) { //current "raw" info that a track is close to a chamber
+      if( muon.trackDist(i-4,2,arbitrationType) < 999999 ) { //current "raw" info that a track is close to a chamber
 	++nr_of_stations_crossed;
 	station_was_crossed[i-1] = 1;
-	if(muon.trackDist(i-4,2) > -10. ) stations_w_track_at_boundary[i-1] = muon.trackDist(i-4,2);
+	if(muon.trackDist(i-4,2,arbitrationType) > -10. ) stations_w_track_at_boundary[i-1] = muon.trackDist(i-4,2,arbitrationType);
 	else stations_w_track_at_boundary[i-1] = 0.;
       }
-      if( muon.segmentX(i-4,2) < 999999 ) { //current "raw" info that a segment is matched to the current track
+      if( muon.segmentX(i-4,2,arbitrationType) < 999999 ) { //current "raw" info that a segment is matched to the current track
 	++nr_of_stations_with_segment;
 	station_has_segmentmatch[i-1] = 1;
       }
@@ -181,47 +185,47 @@ float muon::segmentCompatibility(const reco::Muon& muon) {
 
       if( station_has_segmentmatch[i-1] > 0 && 42 == 42 ) { // if track has matching segment, but the matching is not high quality, penalize
 	if(i<=4) { // we are in the DTs
-	  if( muon.dY(i,1) < 999999 && muon.dX(i,1) < 999999) { // have both X and Y match
+	  if( muon.dY(i,1,arbitrationType) < 999999 && muon.dX(i,1,arbitrationType) < 999999) { // have both X and Y match
 	    if(
-	       TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.))> 1. ) {
+	       TMath::Sqrt(TMath::Power(muon.pullX(i,1,arbitrationType),2.)+TMath::Power(muon.pullY(i,1,arbitrationType),2.))> 1. ) {
 	      // reduce weight
 	      if(use_match_dist_penalty) {
 		// only use pull if 3 sigma is not smaller than 3 cm
-		if(TMath::Sqrt(TMath::Power(muon.dX(i,1),2.)+TMath::Power(muon.dY(i,1),2.)) < 3. && TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.)) > 3. ) { 
+		if(TMath::Sqrt(TMath::Power(muon.dX(i,1,arbitrationType),2.)+TMath::Power(muon.dY(i,1,arbitrationType),2.)) < 3. && TMath::Sqrt(TMath::Power(muon.pullX(i,1,arbitrationType),2.)+TMath::Power(muon.pullY(i,1,arbitrationType),2.)) > 3. ) { 
 		  station_weight[i-1] *= 1./TMath::Power(
-							 TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i,1),2.)+TMath::Power(muon.dY(i,1),2.)),(double)1.),.25); 
+							 TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i,1,arbitrationType),2.)+TMath::Power(muon.dY(i,1,arbitrationType),2.)),(double)1.),.25); 
 		}
 		else {
 		  station_weight[i-1] *= 1./TMath::Power(
-							 TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.)),.25); 
+							 TMath::Sqrt(TMath::Power(muon.pullX(i,1,arbitrationType),2.)+TMath::Power(muon.pullY(i,1,arbitrationType),2.)),.25); 
 		}
 	      }
 	    }
 	  }
-	  else if (muon.dY(i,1) >= 999999) { // has no match in Y
-	    if( muon.pullX(i,1) > 1. ) { // has a match in X. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
+	  else if (muon.dY(i,1,arbitrationType) >= 999999) { // has no match in Y
+	    if( muon.pullX(i,1,arbitrationType) > 1. ) { // has a match in X. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
 	      // reduce weight
 	      if(use_match_dist_penalty) {
 		// only use pull if 3 sigma is not smaller than 3 cm
-		if( muon.dX(i,1) < 3. && muon.pullX(i,1) > 3. ) { 
-		  station_weight[i-1] *= 1./TMath::Power(TMath::Max((double)muon.dX(i,1),(double)1.),.25);
+		if( muon.dX(i,1,arbitrationType) < 3. && muon.pullX(i,1,arbitrationType) > 3. ) { 
+		  station_weight[i-1] *= 1./TMath::Power(TMath::Max((double)muon.dX(i,1,arbitrationType),(double)1.),.25);
 		}
 		else {
-		  station_weight[i-1] *= 1./TMath::Power(muon.pullX(i,1),.25);
+		  station_weight[i-1] *= 1./TMath::Power(muon.pullX(i,1,arbitrationType),.25);
 		}
 	      }
 	    }
 	  }
 	  else { // has no match in X
-	    if( muon.pullY(i,1) > 1. ) { // has a match in Y. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
+	    if( muon.pullY(i,1,arbitrationType) > 1. ) { // has a match in Y. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
 	      // reduce weight
 	      if(use_match_dist_penalty) {
 		// only use pull if 3 sigma is not smaller than 3 cm
-		if( muon.dY(i,1) < 3. && muon.pullY(i,1) > 3. ) { 
-		  station_weight[i-1] *= 1./TMath::Power(TMath::Max((double)muon.dY(i,1),(double)1.),.25);
+		if( muon.dY(i,1,arbitrationType) < 3. && muon.pullY(i,1,arbitrationType) > 3. ) { 
+		  station_weight[i-1] *= 1./TMath::Power(TMath::Max((double)muon.dY(i,1,arbitrationType),(double)1.),.25);
 		}
 		else {
-		  station_weight[i-1] *= 1./TMath::Power(muon.pullY(i,1),.25);
+		  station_weight[i-1] *= 1./TMath::Power(muon.pullY(i,1,arbitrationType),.25);
 		}
 	      }
 	    }
@@ -229,17 +233,17 @@ float muon::segmentCompatibility(const reco::Muon& muon) {
 	}
 	else { // We are in the CSCs
 	  if(
-	     TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)) > 1. ) {
+	     TMath::Sqrt(TMath::Power(muon.pullX(i-4,2,arbitrationType),2.)+TMath::Power(muon.pullY(i-4,2,arbitrationType),2.)) > 1. ) {
 	    // reduce weight
 	    if(use_match_dist_penalty) {
 	      // only use pull if 3 sigma is not smaller than 3 cm
-	      if(TMath::Sqrt(TMath::Power(muon.dX(i-4,2),2.)+TMath::Power(muon.dY(i-4,2),2.)) < 3. && TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)) > 3. ) { 
+	      if(TMath::Sqrt(TMath::Power(muon.dX(i-4,2,arbitrationType),2.)+TMath::Power(muon.dY(i-4,2,arbitrationType),2.)) < 3. && TMath::Sqrt(TMath::Power(muon.pullX(i-4,2,arbitrationType),2.)+TMath::Power(muon.pullY(i-4,2,arbitrationType),2.)) > 3. ) { 
 		station_weight[i-1] *= 1./TMath::Power(
-						       TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i-4,2),2.)+TMath::Power(muon.dY(i-4,2),2.)),(double)1.),.25);
+						       TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i-4,2,arbitrationType),2.)+TMath::Power(muon.dY(i-4,2,arbitrationType),2.)),(double)1.),.25);
 	      }
 	      else {
 		station_weight[i-1] *= 1./TMath::Power(
-						       TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)),.25);
+						       TMath::Sqrt(TMath::Power(muon.pullX(i-4,2,arbitrationType),2.)+TMath::Power(muon.pullY(i-4,2,arbitrationType),2.)),.25);
 	      }
 	    }
 	  }
@@ -277,14 +281,15 @@ float muon::segmentCompatibility(const reco::Muon& muon) {
 
 bool muon::isGoodMuon( const reco::Muon& muon, 
 			 AlgorithmType type,
-			 double minCompatibility ) {
+			 double minCompatibility,
+			 reco::Muon::ArbitrationType arbitrationType ) {
   if (!muon.isMatchesValid()) return false;
   bool goodMuon = false;
   
   switch( type ) {
   case TM2DCompatibility:
     // Simplistic first cut in the 2D segment- vs calo-compatibility plane. Will have to be refined!
-    if( ( (0.8*caloCompatibility( muon ))+(1.2*segmentCompatibility( muon )) ) > minCompatibility ) goodMuon = true;
+    if( ( (0.8*caloCompatibility( muon ))+(1.2*segmentCompatibility( muon, arbitrationType )) ) > minCompatibility ) goodMuon = true;
     else goodMuon = false;
     return goodMuon;
     break;
@@ -305,7 +310,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
 			 double maxAbsPullY,
 			 double maxChamberDist,
 			 double maxChamberDistPull,
-			 reco::Muon::ArbitrationType arbitrationType )
+			 reco::Muon::ArbitrationType arbitrationType,
+             bool   syncMinNMatchesNRequiredStationsInBarrelOnly,
+             bool   applyAlsoAngularCuts)
 {
    if (!muon.isMatchesValid()) return false;
    bool goodMuon = false;
@@ -328,8 +335,15 @@ bool muon::isGoodMuon( const reco::Muon& muon,
 
       // Make sure the minimum number of matches is not greater than
       // the number of required stations but still greater than zero
-      // Note that we only do this in the barrel region!
-      if (fabs(muon.eta()) < 1.2) {
+      if (syncMinNMatchesNRequiredStationsInBarrelOnly) {
+         // Note that we only do this in the barrel region!
+         if (fabs(muon.eta()) < 1.2) {
+            if(minNumberOfMatches > numRequiredStations)
+               minNumberOfMatches = numRequiredStations;
+            if(minNumberOfMatches < 1)
+               minNumberOfMatches = 1;
+         }
+      } else {
          if(minNumberOfMatches > numRequiredStations)
             minNumberOfMatches = numRequiredStations;
          if(minNumberOfMatches < 1)
@@ -375,6 +389,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx)
          return false;
 
+      if(applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,1)) > maxAbsPullX)
+         return false;
+
       // Is this a tight algorithm, i.e. do we bother to check y information?
       if (maxAbsDy < 999999) { // really if maxAbsDy < 1E9 as currently defined
 
@@ -382,6 +399,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
          if (detector == 2) { // CSC
             if(fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
                   fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy)
+               return false;
+
+            if(applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,1)) > maxAbsPullY)
                return false;
          } else {
             //
@@ -410,6 +430,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                      fabs(muon.dY(stationIdx,1,arbitrationType)) > maxAbsDy) {
                   return false;
                }
+
+               if(applyAlsoAngularCuts && fabs(muon.pullDyDz(stationIdx,1,arbitrationType,1)) > maxAbsPullY)
+                  return false;
 
                // If we get this far then great this is a good muon
                return true;
@@ -451,8 +474,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             station  = stationIdx < 4 ? stationIdx+1 : stationIdx-3;
             detector = stationIdx < 4 ? 1 : 2;
 
-            if(fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
-                  fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx)
+            if((fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
+                  fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx) ||
+                  (applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,1)) > maxAbsPullX))
                continue;
             else if (detector == 1)
                existsGoodDTSegX = true;
@@ -460,8 +484,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             // Is this a tight algorithm?  If yes, use y information
             if (maxAbsDy < 999999) {
                if (detector == 2) { // CSC
-                  if(fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
-                        fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy)
+                  if((fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
+                        fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy) ||
+                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,1)) > maxAbsPullY))
                      continue;
                } else {
 
@@ -470,8 +495,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                   else
                      existsDTSegY = true;
 
-                  if(fabs(muon.pullY(station,1,arbitrationType,1)) > maxAbsPullY &&
-                        fabs(muon.dY(station,1,arbitrationType)) > maxAbsDy) {
+                  if((fabs(muon.pullY(station,1,arbitrationType,1)) > maxAbsPullY &&
+                        fabs(muon.dY(station,1,arbitrationType)) > maxAbsDy) ||
+                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,1,arbitrationType,1)) > maxAbsPullY)) {
                      continue;
                   }
                }
@@ -536,36 +562,36 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
       // TMLastStation and TMOneStation algorithms we actually use this huge number
       // to determine whether to consider y information at all.
     case muon::TMLastStationLoose:
-      return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
       break;
     case muon::TMLastStationTight:
-      return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
       break;
     case muon::TMOneStationLoose:
-      return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+      return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
       break;
     case muon::TMOneStationTight:
-      return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+      return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
       break;
     case muon::TMLastStationOptimizedLowPtLoose:
       if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+	return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
       else
-	return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+	return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,false);
       break;
     case muon::TMLastStationOptimizedLowPtTight:
       if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+	return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
       else
-	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,false);
       break;
       //compatibility loose
     case muon::TM2DCompatibilityLoose:
-      return isGoodMuon(muon,TM2DCompatibility,0.7);
+      return isGoodMuon(muon,TM2DCompatibility,0.7,reco::Muon::SegmentAndTrackArbitration);
       break;
       //compatibility tight
     case muon::TM2DCompatibilityTight:
-      return isGoodMuon(muon,TM2DCompatibility,1.0);
+      return isGoodMuon(muon,TM2DCompatibility,1.0,reco::Muon::SegmentAndTrackArbitration);
       break;
     case muon::GMTkChiCompatibility:
       return muon.isGlobalMuon() && muon.isQualityValid() && fabs(muon.combinedQuality().trkRelChi2 - muon.innerTrack()->normalizedChi2()) < 2.0;
@@ -575,6 +601,18 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
       break;
     case muon::GMTkKinkTight:
       return muon.isGlobalMuon() && muon.isQualityValid() && muon.combinedQuality().trkKink < 100.0;
+      break;
+    case muon::TMLastStationAngLoose:
+      return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,true);
+      break;
+    case muon::TMLastStationAngTight:
+      return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,true);
+      break;
+    case muon::TMOneStationAngLoose:
+      return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,true);
+      break;
+    case muon::TMOneStationAngTight:
+      return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,true);
       break;
     default:
       return false;
