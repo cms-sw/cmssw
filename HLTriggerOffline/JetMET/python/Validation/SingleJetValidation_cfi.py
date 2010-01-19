@@ -56,7 +56,7 @@ hltnameQJ60="HLT_QuadJet60"
 folderQJ60="HLT/HLTJETMET/QuadJet60"
 
 
-SingleJetPathVal50 = cms.EDFilter("HLTJetMETValidation",
+SingleJetPathVal50 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -85,7 +85,7 @@ SingleJetPathVal50 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleJetPathVal80 = cms.EDFilter("HLTJetMETValidation",
+SingleJetPathVal80 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -114,7 +114,7 @@ SingleJetPathVal80 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleJetPathVal110 = cms.EDFilter("HLTJetMETValidation",
+SingleJetPathVal110 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -143,7 +143,7 @@ SingleJetPathVal110 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleJetPathVal180 = cms.EDFilter("HLTJetMETValidation",
+SingleJetPathVal180 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -172,7 +172,7 @@ SingleJetPathVal180 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleMETPathVal35 = cms.EDFilter("HLTJetMETValidation",
+SingleMETPathVal35 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -201,7 +201,7 @@ SingleMETPathVal35 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleMETPathVal45 = cms.EDFilter("HLTJetMETValidation",
+SingleMETPathVal45 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -230,7 +230,7 @@ SingleMETPathVal45 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleMETPathVal60 = cms.EDFilter("HLTJetMETValidation",
+SingleMETPathVal60 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -259,7 +259,7 @@ SingleMETPathVal60 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-SingleMETPathVal100 = cms.EDFilter("HLTJetMETValidation",
+SingleMETPathVal100 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -288,7 +288,7 @@ SingleMETPathVal100 = cms.EDFilter("HLTJetMETValidation",
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )
 
-QuadJetPathVal30 = cms.EDFilter("HLTJetMETValidation",
+QuadJetPathVal30 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
@@ -318,7 +318,7 @@ QuadJetPathVal30 = cms.EDFilter("HLTJetMETValidation",
 )
 
 
-QuadJetPathVal60 = cms.EDFilter("HLTJetMETValidation",
+QuadJetPathVal60 = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
 #    refTauCollection      = cms.untracked.InputTag("JetMETMCProducer","Taus"),
 #    refLeptonCollection   = cms.untracked.InputTag("NOTHING"),
