@@ -81,7 +81,9 @@ void tcTauAnalysis(){
 	for(int i = 0; i < tauTree->GetEntries(); ++i){
 		tauTree->GetEntry(i);
 
-		if(MCTau_pt > 0) nMCTaus++;
+		if(MCTau_pt <= 0) continue; 
+		nMCTaus++;
+
 		if(CaloTau_pt > tau_pt_cut && fabs(CaloTau_eta) < tau_eta_cut && CaloTau_d_isol != 0) {
 			nCaloTaus++;
 			double caloTauReso = (CaloTau_pt - MCTau_pt)/MCTau_pt;
@@ -149,15 +151,15 @@ if(deltaPhi(CaloTau_phi,MCTau_phi) > 0.5) {
 	h_TCTau_dEt->SetLineStyle(2);
 	h_TCTau_dEt->SetStats(0);
 	h_TCTau_dEt->GetXaxis()->SetTitle("pt(RECO) - pt(MC) (GeV)");
-	h_TCTau_dEt->Draw();
+	h_TCTau_dEt->DrawClone();
 
 	h_CaloTau_dEt->SetLineWidth(3);
-	h_CaloTau_dEt->Draw("same");
+	h_CaloTau_dEt->DrawClone("same");
 
 	h_PFTau_dEt->SetLineWidth(3);
         h_PFTau_dEt->SetLineColor(3);
         h_PFTau_dEt->SetLineStyle(3);
-        h_PFTau_dEt->Draw("same");
+        h_PFTau_dEt->DrawClone("same");
 
 	tctau_dEt->Print("tctau_dEt.C"); 
 
@@ -174,42 +176,42 @@ if(deltaPhi(CaloTau_phi,MCTau_phi) > 0.5) {
         h_PFTau_dEtRatio->SetLineStyle(3);
 	h_PFTau_dEtRatio->SetStats(0);
 	h_PFTau_dEtRatio->GetXaxis()->SetTitle("pt(RECO)/pt(MC)");
-        h_PFTau_dEtRatio->Draw();
+        h_PFTau_dEtRatio->DrawClone();
 
         h_TCTau_dEtRatio->SetLineWidth(3);
         h_TCTau_dEtRatio->SetLineColor(2);
         h_TCTau_dEtRatio->SetLineStyle(2);
-        h_TCTau_dEtRatio->Draw("same");
+        h_TCTau_dEtRatio->DrawClone("same");
 
         h_CaloTau_dEtRatio->SetLineWidth(3);
-        h_CaloTau_dEtRatio->Draw("same");
+        h_CaloTau_dEtRatio->DrawClone("same");
 
 	float tctau_dEtRatioFigureMax = h_PFTau_dEtRatio->GetMaximum();
 	TLatex* tex = new TLatex(1.4,0.8*tctau_dEtRatioFigureMax,"CaloTau");
 	tex->SetLineWidth(2);
-	tex->Draw();	
+	tex->DrawClone();	
         TLatex* tex = new TLatex(1.4,0.7*tctau_dEtRatioFigureMax,"TCTau");
         tex->SetLineWidth(2);
-        tex->Draw();
+        tex->DrawClone();
         TLatex* tex = new TLatex(1.4,0.6*tctau_dEtRatioFigureMax,"PFTau");
         tex->SetLineWidth(2);
-        tex->Draw();
+        tex->DrawClone();
 
 	TLine *line = new TLine(1.1,0.82*tctau_dEtRatioFigureMax,1.3,0.82*tctau_dEtRatioFigureMax);
    	line->SetLineWidth(3);
-   	line->Draw();
+   	line->DrawClone();
 
         TLine *line = new TLine(1.1,0.72*tctau_dEtRatioFigureMax,1.3,0.72*tctau_dEtRatioFigureMax);
         line->SetLineWidth(3);
 	line->SetLineColor(2);
 	line->SetLineStyle(2);
-        line->Draw();
+        line->DrawClone();
 
         TLine *line = new TLine(1.1,0.62*tctau_dEtRatioFigureMax,1.3,0.62*tctau_dEtRatioFigureMax);
         line->SetLineWidth(3);
 	line->SetLineColor(3);
 	line->SetLineStyle(3);
-        line->Draw();
+        line->DrawClone();
 
         tctau_dEtRatio->Print("tctau_dEtRatio.C");
 
@@ -226,15 +228,15 @@ if(deltaPhi(CaloTau_phi,MCTau_phi) > 0.5) {
         h_TCTau_dEta->SetLineStyle(2);
 	h_TCTau_dEta->SetStats(0);
         h_TCTau_dEta->GetXaxis()->SetTitle("eta(RECO) - eta(MC)");
-        h_TCTau_dEta->Draw();
+        h_TCTau_dEta->DrawClone();
 
         h_CaloTau_dEta->SetLineWidth(3);
-        h_CaloTau_dEta->Draw("same");
+        h_CaloTau_dEta->DrawClone("same");
 
         h_PFTau_dEta->SetLineWidth(3);
         h_PFTau_dEta->SetLineColor(3);
         h_PFTau_dEta->SetLineStyle(3);
-        h_PFTau_dEta->Draw("same");
+        h_PFTau_dEta->DrawClone("same");
 
         tctau_dEta->Print("tctau_dEta.C");
 
@@ -251,15 +253,42 @@ if(deltaPhi(CaloTau_phi,MCTau_phi) > 0.5) {
         h_TCTau_dPhi->SetLineStyle(2);
         h_TCTau_dPhi->SetStats(0);
         h_TCTau_dPhi->GetXaxis()->SetTitle("phi(RECO) - phi(MC)");
-        h_TCTau_dPhi->Draw();
+        h_TCTau_dPhi->DrawClone();
 
         h_CaloTau_dPhi->SetLineWidth(3);
-        h_CaloTau_dPhi->Draw("same");
+        h_CaloTau_dPhi->DrawClone("same");
 
         h_PFTau_dPhi->SetLineWidth(3);
         h_PFTau_dPhi->SetLineColor(3);
         h_PFTau_dPhi->SetLineStyle(3);
-        h_PFTau_dPhi->Draw("same");
+        h_PFTau_dPhi->DrawClone("same");
 
         tctau_dPhi->Print("tctau_dPhi.C");
+
+//
+
+        TCanvas* tctau_dEtNormalized = new TCanvas("tctau_dEtNormalized","",500,500);
+        tctau_dEtNormalized->SetFillColor(0);
+        tctau_dEtNormalized->SetFrameFillColor(0);
+        tctau_dEtNormalized->cd();
+
+        h_TCTau_dEt->SetLineWidth(3);
+        h_TCTau_dEt->SetLineColor(2);
+        h_TCTau_dEt->SetLineStyle(2);
+        h_TCTau_dEt->SetStats(0);
+        h_TCTau_dEt->GetXaxis()->SetTitle("pt(RECO) - pt(MC) (GeV)");
+	h_TCTau_dEt->Scale(1/h_TCTau_dEt->Integral());
+        h_TCTau_dEt->DrawClone();
+
+        h_CaloTau_dEt->SetLineWidth(3);
+	h_CaloTau_dEt->Scale(1/h_CaloTau_dEt->Integral());
+        h_CaloTau_dEt->DrawClone("same");
+
+        h_PFTau_dEt->SetLineWidth(3);
+        h_PFTau_dEt->SetLineColor(3);
+        h_PFTau_dEt->SetLineStyle(3);
+	h_PFTau_dEt->Scale(1/h_PFTau_dEt->Integral());
+        h_PFTau_dEt->DrawClone("same");
+
+        tctau_dEtNormalized->Print("tctau_dEtNormalized.C");
 }
