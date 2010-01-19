@@ -4,6 +4,8 @@
 #include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalLaserAPDPNRatiosXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalTimeCalibConstantsXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalTimeCalibErrorsXMLTranslator.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
@@ -12,6 +14,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -144,6 +148,77 @@ int main(){
 					     intercalib_errors2);
 
   cout << "Done testing Intercalib " << endl;
+
+  // Test Timing Intercalibration
+  
+  
+  EcalTimeCalibConstants timeCalib_constants;
+  EcalTimeCalibErrors    timeCalib_errors;
+
+  std::string timeCalibFile("/tmp/EcalTimeCalibConstants.xml");
+  std::string timeCalibErrFile("/tmp/EcalTimeCalibErrors.xml");
+  std::string timeCalibFileDB("/tmp/EcalTimeCalibConstantsDB.xml");
+
+  for (int cellid = 0; 
+	     cellid < EBDetId::kSizeForDenseIndexing; 
+	     ++cellid){// loop on EB cells
+    
+    
+    uint32_t rawid = EBDetId::unhashIndex(cellid);
+
+    EcalTimeCalibConstant timeCalib_constant = 
+      EBDetId::unhashIndex(cellid).iphi();
+
+    EcalTimeCalibError timeCalib_error    = timeCalib_constant +1;
+    
+    timeCalib_constants[rawid]=timeCalib_constant;
+    timeCalib_errors[rawid]   =timeCalib_error;
+  } 
+  
+  for (int cellid = 0; 
+       cellid < EEDetId::kSizeForDenseIndexing; 
+       ++cellid){// loop on EB cells
+    
+    
+
+    if (EEDetId::validHashIndex(cellid)){  
+      uint32_t rawid = EEDetId::unhashIndex(cellid);
+      EcalTimeCalibConstant timeCalib_constant = EEDetId::unhashIndex(cellid).ix();;
+      EcalTimeCalibError    timeCalib_error    = timeCalib_constant +1;
+
+      timeCalib_constants[rawid]=timeCalib_constant;
+      timeCalib_errors[rawid]=timeCalib_error;
+    } // if
+  } 
+
+
+ 
+  EcalTimeCalibConstantsXMLTranslator::writeXML(timeCalibFile,header,
+          				 timeCalib_constants);
+  
+  EcalTimeCalibErrorsXMLTranslator::writeXML(timeCalibErrFile,header,
+                                        timeCalib_errors);
+
+  EcalTimeCalibConstants timeCalib_constants2;
+  EcalTimeCalibErrors    timeCalib_errors2;
+
+
+  EcalTimeCalibConstantsXMLTranslator::readXML(timeCalibFile,header2,
+          				timeCalib_constants2);
+
+  EcalTimeCalibErrorsXMLTranslator::readXML(timeCalibErrFile,header,
+					     timeCalib_errors2);
+
+  std::string timeCalibFile2("/tmp/timeCalibFile-2.xml");
+  std::string timeCalibErrFile2("/tmp/timeCalibErrFile-2.xml");
+
+  EcalTimeCalibConstantsXMLTranslator::writeXML(timeCalibFile2,
+			   header2,
+			   timeCalib_constants2);
+
+  EcalTimeCalibErrorsXMLTranslator::writeXML(timeCalibErrFile2,header2,
+					     timeCalib_errors2);
+  cout << "Done testing timing intercalib " << endl;
 
   // test xtalgroup
   

@@ -24,6 +24,9 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
+
 
 typedef EcalCondHandler<EcalGainRatios,
 			EcalGainRatiosXMLTranslator> EcalGainRatiosHandler;
@@ -73,6 +76,19 @@ typedef EcalCondHandler<EcalIntercalibConstantsMC,
 typedef popcon::PopConAnalyzer<EcalIntercalibConstantsMCHandler>  
                                          EcalIntercalibConstantsMCAnalyzer;
 
+
+typedef EcalCondHandler<EcalTimeCalibConstants,
+			EcalFloatCondObjectContainerXMLTranslator> EcalTimeCalibConstantsHandler;
+
+typedef popcon::PopConAnalyzer<EcalTimeCalibConstantsHandler>
+                                         EcalTimeCalibConstantsAnalyzer;
+
+typedef EcalCondHandler<EcalTimeCalibErrors,
+			EcalFloatCondObjectContainerXMLTranslator> EcalTimeCalibErrorsHandler;
+
+typedef popcon::PopConAnalyzer<EcalTimeCalibErrorsHandler>
+                                         EcalTimeCalibErrorsAnalyzer;
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(EcalGainRatiosAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(EcalADCToGeVConstantAnalyzer);
@@ -82,4 +98,6 @@ DEFINE_ANOTHER_FWK_MODULE(EcalWeightGroupAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(EcalIntercalibConstantsAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(EcalIntercalibErrorsAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(EcalIntercalibConstantsMCAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(EcalTimeCalibConstantsAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(EcalTimeCalibErrorsAnalyzer);
 
