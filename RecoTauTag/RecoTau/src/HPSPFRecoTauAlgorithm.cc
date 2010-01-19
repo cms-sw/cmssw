@@ -651,22 +651,23 @@ HPSPFRecoTauAlgorithm::applyMuonRejection(reco::PFTau& tau)
   bool decision=true;
   float caloComp=0.0;
   float segComp=0.0;
-  
-  PFCandidateRefVector tracks = tau.signalPFChargedHadrCands();
-  for(unsigned int i=0;i<tracks.size();++i) {
-    MuonRef mu = tracks[i]->muonRef();
+
+  if(tau.leadPFChargedHadrCand().isNonnull()) {
+    MuonRef mu =tau.leadPFChargedHadrCand()->muonRef();
     if(mu.isNonnull()){
-      segComp+=(float)(mu->matches().size());
+      segComp=(float)(mu->matches().size());
       if(mu->caloCompatibility()>caloComp)
 	caloComp = mu->caloCompatibility();
-      }
-  }    
-  if(segComp<1.0)
-    decision=false;
 
-  tau.setCaloComp(caloComp);
-  tau.setSegComp(segComp);
-  tau.setMuonDecision(decision);
+      if(segComp<1.0)
+	decision=false;
+
+      tau.setCaloComp(caloComp);
+      tau.setSegComp(segComp);
+      tau.setMuonDecision(decision);
+    }
+
+  }
 }
 
 
@@ -693,14 +694,14 @@ HPSPFRecoTauAlgorithm::applyElectronRejection(reco::PFTau& tau,double stripEnerg
       tau.setemFraction(leadCharged->ecalEnergy()/(leadCharged->ecalEnergy()+leadCharged->hcalEnergy()));
       //For H/P trust particle Flow ! :Just take HCAL energy of the candidate
       //end of story
-      tau.sethcalTotOverPLead(leadCharged->hcalEnergy()/leadCharged->p());
-      tau.sethcalMaxOverPLead(leadCharged->hcalEnergy()/leadCharged->p());
-      tau.sethcal3x3OverPLead(leadCharged->hcalEnergy()/leadCharged->p());
+      tau.sethcalTotOverPLead(leadCharged->hcalEnergy()/track->p());
+      tau.sethcalMaxOverPLead(leadCharged->hcalEnergy()/track->p());
+      tau.sethcal3x3OverPLead(leadCharged->hcalEnergy()/track->p());
       tau.setelectronPreIDTrack(track);
       tau.setelectronPreIDOutput(leadCharged->mva_e_pi());
       //Since PF uses brem recovery we will store the default ecal energy here
-      tau.setbremsRecoveryEOverPLead(leadCharged->ecalEnergy()/leadCharged->p());
-      tau.setecalStripSumEOverPLead((leadCharged->ecalEnergy()+stripEnergy)/leadCharged->p());
+      tau.setbremsRecoveryEOverPLead(leadCharged->ecalEnergy()/track->p());
+      tau.setecalStripSumEOverPLead((leadCharged->ecalEnergy()+stripEnergy)/track->p());
       bool electronDecision;
       if(abs(leadCharged->pdgId())==11) 
 	electronDecision=true;
