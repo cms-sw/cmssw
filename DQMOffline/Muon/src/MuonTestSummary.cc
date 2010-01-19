@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/14 20:22:14 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/01/15 17:58:59 $
+ *  $Revision: 1.27 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -95,7 +95,7 @@ void MuonTestSummary::beginJob(void){
   kinematicsSummaryMap->setBinLabel(3,"#phi",2);
    
   //chi2 kinematics quality test report
-  chi2TestSummaryMap = dbe->book2D("chi2TestSummaryMap","#chi2 quality test summary",5,1,6,3,1,4);
+  chi2TestSummaryMap = dbe->book2D("chi2TestSummaryMap","#chi2 quality test summary",5,1,6,5,1,6);
   chi2TestSummaryMap->setAxisTitle("track monitored",1);
   chi2TestSummaryMap->setBinLabel(1,"GLB",1);
   chi2TestSummaryMap->setBinLabel(2,"TKfromGLB",1);
@@ -106,9 +106,11 @@ void MuonTestSummary::beginJob(void){
   chi2TestSummaryMap->setBinLabel(1,"#chi^{2}",2);
   chi2TestSummaryMap->setBinLabel(2,"#eta",2);
   chi2TestSummaryMap->setBinLabel(3,"#phi",2);
+  chi2TestSummaryMap->setBinLabel(4,"#pt",2);
+  chi2TestSummaryMap->setBinLabel(5,"#q",2);
 
 //Kolmogorov  kinematics quality test report
-  KolmogorovTestSummaryMap = dbe->book2D("KolmogorovTestSummaryMap","Kolmogorov quality test summary",5,1,6,3,1,4);
+  KolmogorovTestSummaryMap = dbe->book2D("KolmogorovTestSummaryMap","Kolmogorov quality test summary",5,1,6,5,1,6);
   KolmogorovTestSummaryMap->setAxisTitle("track monitored",1);
   KolmogorovTestSummaryMap->setBinLabel(1,"GLB",1);
   KolmogorovTestSummaryMap->setBinLabel(2,"TKfromGLB",1);
@@ -119,6 +121,8 @@ void MuonTestSummary::beginJob(void){
   KolmogorovTestSummaryMap->setBinLabel(1,"#chi^{2}",2);
   KolmogorovTestSummaryMap->setBinLabel(2,"#eta",2);
   KolmogorovTestSummaryMap->setBinLabel(3,"#phi",2);
+  KolmogorovTestSummaryMap->setBinLabel(4,"#pt",2);
+  KolmogorovTestSummaryMap->setBinLabel(5,"#q",2);
 
 
   // residuals test report
@@ -251,6 +255,8 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   for(int xBin=1; xBin<=5; xBin++){
     for(int yBin=1; yBin<=3; yBin++){
       kinematicsSummaryMap->Fill(xBin,yBin,1);
+    }
+    for(int yBin=1; yBin<=5; yBin++){
       chi2TestSummaryMap->Fill(xBin,yBin,1); 
       KolmogorovTestSummaryMap->Fill(xBin,yBin,1);
     }
@@ -666,6 +672,80 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
     }
     else{
       LogTrace(metname) << "[MuonTestSummary]: Test of Phi Kin not performed for "<< muonType << " because # entries < 20 ";
+    }
+  }
+
+  // pt test
+  path = "Muons/MuonRecoAnalyzer/" + muonType + "pt";
+  MonitorElement * ptHisto = dbe->get(path);
+
+  if(ptHisto ){
+    TH1F * ptHisto_root = ptHisto->getTH1F();
+    if(ptHisto_root ->GetEntries()>20){    
+
+      //QT based on comp wrt reference based on chi2
+      LogTrace(metname)<<"pt kin test based on comp wrt reference on terms of chi2 for "<<muonType<<endl;
+      const QReport * myQReport = ptHisto->getQReport("Mu_Comp2RefChi2"); //get QReport associated to your ME
+      if(myQReport) {
+	LogTrace(metname) << "PhiReport exists!!";
+	float qtresult = myQReport->getQTresult(); // get QT result value
+	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	chi2TestSummaryMap->setBinContent(bin,4,qtresult);
+     }
+
+      //QT based on comp wrt reference based on kolmogorov test
+      LogTrace(metname)<<"pt kin test based on comp wrt reference using kolmogorov for "<<muonType<<endl;
+      const QReport * myQReportKolmo = ptHisto->getQReport("Mu_Comp2RefKolmogorov");
+      if(myQReportKolmo) {
+	LogTrace(metname) << "PhiReport Kolmogorov exists!!";
+	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
+	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	KolmogorovTestSummaryMap->setBinContent(bin,5,qtresult);
+      }
+    }
+    else{
+      LogTrace(metname) << "[MuonTestSummary]: Test of Pt Kin not performed for "<< muonType << " because # entries < 20 ";
+    }
+  }
+
+  // q test
+  path = "Muons/MuonRecoAnalyzer/" + muonType + "q";
+  MonitorElement * qHisto = dbe->get(path);
+
+  if(ptHisto ){
+    TH1F * qHisto_root = qHisto->getTH1F();
+    if(qHisto_root ->GetEntries()>20){    
+
+      //QT based on comp wrt reference based on chi2
+      LogTrace(metname)<<"q kin test based on comp wrt reference on terms of chi2 for "<<muonType<<endl;
+      const QReport * myQReport = qHisto->getQReport("Mu_Comp2RefChi2"); //get QReport associated to your ME
+      if(myQReport) {
+	LogTrace(metname) << "PhiReport exists!!";
+	float qtresult = myQReport->getQTresult(); // get QT result value
+	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	chi2TestSummaryMap->setBinContent(bin,4,qtresult);
+     }
+
+      //QT based on comp wrt reference based on kolmogorov test
+      LogTrace(metname)<<"q kin test based on comp wrt reference using kolmogorov for "<<muonType<<endl;
+      const QReport * myQReportKolmo = qHisto->getQReport("Mu_Comp2RefKolmogorov");
+      if(myQReportKolmo) {
+	LogTrace(metname) << "PhiReport Kolmogorov exists!!";
+	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
+	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
+	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
+	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
+	KolmogorovTestSummaryMap->setBinContent(bin,5,qtresult);
+      }
+    }
+    else{
+      LogTrace(metname) << "[MuonTestSummary]: Test of q Kin not performed for "<< muonType << " because # entries < 20 ";
     }
   }
 
@@ -1133,12 +1213,12 @@ void MuonTestSummary::doEnergyTests(string histname, string muonType, int binNum
   
   if(histname=="ecalS9PointingMuDepositedEnergy_" && hPeak>expPeakEcalS9_min && hPeak<expPeakEcalS9_max)
     energySummaryMap->setBinContent(binNumber,1, 1);
-  if(histname=="ecalS9PointingMuDepositedEnergy_" && !(hPeak>expPeakEcalS9_min && hPeak<expPeakEcalS9_max))
+  if(histname=="ecalS9PointingMuDepositedEnergy_" && (hPeak!=-1) &&!(hPeak>expPeakEcalS9_min && hPeak<expPeakEcalS9_max))
     energySummaryMap->setBinContent(binNumber,1, 0);
     
   if(histname=="hadS9PointingMuDepositedEnergy_" && hPeak>expPeakHadS9_min && hPeak<expPeakHadS9_max)
     energySummaryMap->setBinContent(binNumber,2, 1);
-  if(histname=="hadS9PointingMuDepositedEnergy_" && !(hPeak>expPeakHadS9_min && hPeak<expPeakHadS9_max))
+  if(histname=="hadS9PointingMuDepositedEnergy_" && (hPeak!=-1) && !(hPeak>expPeakHadS9_min && hPeak<expPeakHadS9_max))
     energySummaryMap->setBinContent(binNumber,2, 0);
 
   //missing test on ho distributions
@@ -1175,9 +1255,6 @@ void MuonTestSummary::doMultiplicityTests(){
     }
     else{
       LogTrace(metname) << "[MuonTestSummary]: Test of  Multiplicity not performed because # entries < 20 ";
-      multiplicitySummaryMap->setBinContent(1,0);
-      multiplicitySummaryMap->setBinContent(2,0);
-      multiplicitySummaryMap->setBinContent(3,0);
     }
   }
 
