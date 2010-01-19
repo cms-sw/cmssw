@@ -202,5 +202,26 @@ if __name__=="__main__":
            p.s2 = cms.Sequence(p.b*p.c)
            self.assert_( contains(p.s1, "a") )
            self.assert_( not contains(p.s2, "a") )
+       def testJetCollectionString(self):
+           self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patFooBarJets')
+           self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatFooBarJets')
+       def testListModules(self):
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
+           p.s = cms.Sequence(p.a*p.b*p.c)
+           self.assertEqual([p.a,p.b,p.c], listModules(p.s))
+       def testMassSearchReplaceParam(self):
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
+                                nested = cms.PSet(src = cms.InputTag("c"))
+                               )
+           p.s = cms.Sequence(p.a*p.b*p.c)
+           massSearchReplaceParam(p.s,"src",cms.InputTag("b"),"a")
+           self.assertEqual(cms.InputTag("a"),p.c.src)
+           self.assertNotEqual(cms.InputTag("a"),p.c.nested.src)
            
    unittest.main()
