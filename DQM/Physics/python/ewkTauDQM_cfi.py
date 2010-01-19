@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ewkTauDQM = cms.EDAnalyzer("EwkTauDQM",
 
     # name of DQM (root)directory in which all EWK tau histograms get stored                          
-    dqmDirectory = cms.string("/Physics/EWK/Tau"),
+    dqmDirectory = cms.string("Physics/EwkTau"),
 
     # list of individual channels                           
     channels = cms.PSet(
