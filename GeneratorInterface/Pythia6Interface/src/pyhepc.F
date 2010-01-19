@@ -25,6 +25,9 @@ C...HEPEVT commonblock.
       
 C...Store HEPEVT commonblock size (for interfacing issues).
       MSTU(8)=NMXHEP
+      
+c init variable(s)
+      inew = 1
  
 C...Conversion from PYTHIA to standard, the easy part.
       IF(MCONV.EQ.1) THEN
