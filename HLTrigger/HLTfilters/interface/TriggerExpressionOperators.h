@@ -54,7 +54,7 @@ public:
     return not (*m_arg)(data);
   }
   
-  virtual void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const {
     out << "NOT ";
     m_arg->dump(out);
   }
@@ -70,7 +70,7 @@ public:
     return (*m_arg1)(data) and (*m_arg2)(data);
   }
   
-  virtual void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const {
     m_arg1->dump(out);
     out << " AND ";
     m_arg2->dump(out);
@@ -87,7 +87,7 @@ public:
     return (*m_arg1)(data) or (*m_arg2)(data);
   }
   
-  virtual void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const {
     m_arg1->dump(out);
     out << " OR ";
     m_arg2->dump(out);
@@ -104,7 +104,7 @@ public:
     return (*m_arg1)(data) xor (*m_arg2)(data);
   }
   
-  virtual void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const {
     m_arg1->dump(out);
     out << " XOR ";
     m_arg2->dump(out);
