@@ -28,7 +28,7 @@ class FlatBaseThetaGunProducer : public EDProducer {
     
     FlatBaseThetaGunProducer(const ParameterSet &);
     virtual ~FlatBaseThetaGunProducer();
-    void beginJob( const edm::EventSetup& ) ;
+    void beginRun( edm::Run&, const edm::EventSetup& ) ;
     void endRun( edm::Run& r, const edm::EventSetup& ) ;
 
   private:

@@ -36,7 +36,7 @@ namespace edm
     BaseFlatGunSource(const ParameterSet &, const InputSourceDescription&  );
     // BaseFlatGunSource( const ParameterSet& ) ;
     virtual ~BaseFlatGunSource();
-    void beginJob( const edm::EventSetup& ) ;
+    void beginRun( edm::Run & r, const edm::EventSetup& ) ;
   private:
    
   protected :

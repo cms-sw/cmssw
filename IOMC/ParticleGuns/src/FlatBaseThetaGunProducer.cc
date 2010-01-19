@@ -60,7 +60,7 @@ FlatBaseThetaGunProducer::~FlatBaseThetaGunProducer() {
 }
 
 
-void FlatBaseThetaGunProducer::beginJob( const edm::EventSetup& es ) {
+void FlatBaseThetaGunProducer::beginRun( edm::Run &r, const edm::EventSetup& es ) {
    es.getData( fPDGTable ) ;
 }
 

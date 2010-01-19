@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/02/19 21:52:40 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/05/25 13:00:58 $
+ *  $Revision: 1.6 $
  *  \author Julia Yarba
  */
 
@@ -107,7 +107,7 @@ BaseFlatGunProducer::~BaseFlatGunProducer()
 }
 
 
-void BaseFlatGunProducer::beginJob( const EventSetup& es )
+void BaseFlatGunProducer::beginRun( edm::Run & r, const EventSetup& es )
 {
    es.getData( fPDGTable ) ;
    return ;

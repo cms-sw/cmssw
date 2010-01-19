@@ -27,7 +27,7 @@ class FlatBaseThetaGunSource : public GeneratedInputSource {
     
     FlatBaseThetaGunSource(const ParameterSet &, const InputSourceDescription& );
     virtual ~FlatBaseThetaGunSource();
-    void beginJob( const edm::EventSetup& ) ;
+    void beginRun( edm::Run& , const edm::EventSetup& ) ;
 
   private:
     

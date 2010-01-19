@@ -34,7 +34,7 @@ namespace edm
   public:
     BaseFlatGunProducer(const ParameterSet &);
     virtual ~BaseFlatGunProducer();
-    void beginJob( const edm::EventSetup& ) ;
+    void beginRun( edm::Run & r, const edm::EventSetup& ) ;
     void endRun( edm::Run& r, const edm::EventSetup& ) ;
 
   private:

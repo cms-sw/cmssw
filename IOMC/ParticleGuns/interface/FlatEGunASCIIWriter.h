@@ -45,7 +45,8 @@ namespace edm
      virtual ~FlatEGunASCIIWriter() ;
      
      virtual void analyze(  const edm::Event&, const edm::EventSetup& );
-	 virtual void beginJob( const EventSetup& ) ;
+	 virtual void beginJob() ;
+	 virtual void beginRun( edm::Run&, const EventSetup& ) ;
      
    private:
      
