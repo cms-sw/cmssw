@@ -62,16 +62,13 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-
-
 #include "TH1F.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include <string.h>
+#include <string>
 #include <sstream>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h> 
+#include <cstdlib>
+#include <cmath> 
 #include <TMath.h>
 #include "TFile.h"
 
@@ -99,11 +96,11 @@ private:
   
   // ----------member data ---------------------------
   
-  string fOutputFileName ;
+  std::string fOutputFileName ;
   
-std::string outFile_, outputFileName;
-
-bool outputMEsInRootFile;
+  std::string outFile_, outputFileName;
+  
+  bool outputMEsInRootFile;
 
 
 
@@ -215,10 +212,10 @@ bool outputMEsInRootFile;
  
   edm::InputTag inputTag_;
   edm::TriggerNames triggerNames_;
-  std::vector<string> hlt_bitnames;
-  std::vector<string> hlt_bitnamesMu;
-  std::vector<string> hlt_bitnamesEg;
-  std::vector<string> hlt_bitnamesJet;
+  std::vector<std::string> hlt_bitnames;
+  std::vector<std::string> hlt_bitnamesMu;
+  std::vector<std::string> hlt_bitnamesEg;
+  std::vector<std::string> hlt_bitnamesJet;
   
   
   //Just a tag for better file organization

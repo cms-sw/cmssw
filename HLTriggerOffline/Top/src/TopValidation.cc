@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.7 2009/12/14 22:23:03 wmtan Exp $
+// $Id: TopValidation.cc,v 1.8 2009/12/21 23:04:15 lobelle Exp $
 //
 //
 
@@ -29,10 +29,10 @@ TopValidation::TopValidation(const edm::ParameterSet& iConfig)
   
    
      inputTag_           = iConfig.getParameter<edm::InputTag>("TriggerResultsCollection");
-     hlt_bitnames        = iConfig.getParameter<std::vector<string> >("hltPaths");     
-     hlt_bitnamesMu      = iConfig.getParameter<std::vector<string> >("hltMuonPaths");
-     hlt_bitnamesEg      = iConfig.getParameter<std::vector<string> >("hltEgPaths");  
-     hlt_bitnamesJet      = iConfig.getParameter<std::vector<string> >("hltJetPaths");  
+     hlt_bitnames        = iConfig.getParameter<std::vector<std::string> >("hltPaths");     
+     hlt_bitnamesMu      = iConfig.getParameter<std::vector<std::string> >("hltMuonPaths");
+     hlt_bitnamesEg      = iConfig.getParameter<std::vector<std::string> >("hltEgPaths");  
+     hlt_bitnamesJet      = iConfig.getParameter<std::vector<std::string> >("hltJetPaths");  
   //   triggerTag_         = iConfig.getUntrackedParameter<string>("DQMFolder","HLT/Top");
      outputFileName      = iConfig.getParameter<std::string>("OutputFileName");
      outputMEsInRootFile = iConfig.getParameter<bool>("OutputMEsInRootFile");
@@ -67,21 +67,21 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
  
   // muon collection
-  Handle<MuonCollection> muonsH;
+  Handle<reco::MuonCollection> muonsH;
   iEvent.getByLabel("muons", muonsH);
   
   // tracks collection
-  Handle<TrackCollection> tracks;
+  Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel("ctfWithMaterialTracks", tracks);
     
      
   // get calo jet collection
-  Handle<CaloJetCollection> jetsHandle;
+  Handle<reco::CaloJetCollection> jetsHandle;
   iEvent.getByLabel("iterativeCone5CaloJets", jetsHandle);
 
   
   // electron collection
-  Handle<GsfElectronCollection> electronsH;
+  Handle<reco::GsfElectronCollection> electronsH;
   //  iEvent.getByLabel("pixelMatchGsfElectrons",electronsH);
   iEvent.getByLabel("gsfElectrons",electronsH);
 
@@ -107,11 +107,11 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   int nelaccept= 0;
  
   // Gen Particles Collection
-   Handle <GenParticleCollection> genParticles;
+  Handle <reco::GenParticleCollection> genParticles;
    iEvent.getByLabel("genParticles", genParticles);
   
    for (size_t i=0; i < genParticles->size(); ++i){
-    const Candidate & p = (*genParticles)[i];
+     const reco::Candidate & p = (*genParticles)[i];
     int id = p.pdgId();
     int st = p.status();
     
@@ -215,8 +215,8 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //Jet Collection to use
      
     // Raw jets
-    const CaloJetCollection *jets = jetsHandle.product();
-    CaloJetCollection::const_iterator jet;
+    const reco::CaloJetCollection *jets = jetsHandle.product();
+    reco::CaloJetCollection::const_iterator jet;
   
     int n_jets_20=0;
     
@@ -670,10 +670,10 @@ TopValidation::beginJob()
      
  
    for (size_t j=0;j<hlt_bitnames.size();j++) { 
-     string histname_ptmu_em  = "Muon1Pt_EM_"+hlt_bitnames[j];
-     string histname_etamu_em = "Muon1Eta_EM_"+hlt_bitnames[j];
-     string histname_ptel_em  = "Electron1Pt_EM_"+hlt_bitnames[j];
-     string histname_etael_em = "Electron1Eta_EM_"+hlt_bitnames[j];
+     std::string histname_ptmu_em  = "Muon1Pt_EM_"+hlt_bitnames[j];
+     std::string histname_etamu_em = "Muon1Eta_EM_"+hlt_bitnames[j];
+     std::string histname_ptel_em  = "Electron1Pt_EM_"+hlt_bitnames[j];
+     std::string histname_etael_em = "Electron1Eta_EM_"+hlt_bitnames[j];
      
      h_ptmu1_trig_em[j]  = dbe->book1D((histname_ptmu_em).c_str(),(hlt_bitnames[j]+"_muonPt_EM").c_str(),40,0.0,150.); 
      h_etamu1_trig_em[j] = dbe->book1D((histname_etamu_em).c_str(),(hlt_bitnames[j]+"_muonEta_EM").c_str(),51,-2.5,2.5);
@@ -687,10 +687,10 @@ TopValidation::beginJob()
   
  
    for (size_t jj=0;jj<hlt_bitnamesMu.size();jj++) { 
-     string histname_ptmu       = "Muon1Pt_M_"+hlt_bitnamesMu[jj];
-     string histname_etamu      = "Muon1Eta_M_"+hlt_bitnamesMu[jj];
-     string histname_ptmu_dimu  = "Muon1Pt_MM_"+hlt_bitnamesMu[jj];
-     string histname_etamu_dimu = "Muon1Eta_MM_"+hlt_bitnamesMu[jj];
+     std::string histname_ptmu       = "Muon1Pt_M_"+hlt_bitnamesMu[jj];
+     std::string histname_etamu      = "Muon1Eta_M_"+hlt_bitnamesMu[jj];
+     std::string histname_ptmu_dimu  = "Muon1Pt_MM_"+hlt_bitnamesMu[jj];
+     std::string histname_etamu_dimu = "Muon1Eta_MM_"+hlt_bitnamesMu[jj];
     
      dbe->setCurrentFolder(topFolder.str()+"Semileptonic_muon");
      h_ptmu1_trig[jj]       = dbe->book1D((histname_ptmu).c_str(),(hlt_bitnamesMu[jj]+"muonPt_M").c_str(),40,0.0,150.); 
@@ -719,10 +719,10 @@ TopValidation::beginJob()
    for (size_t k=0;k<hlt_bitnamesEg.size();k++) { 
    
  
-     string histname_ptel       = "Electron1Pt_E_"+hlt_bitnamesEg[k];
-     string histname_etael      = "Electron1Eta_E_"+hlt_bitnamesEg[k];
-     string histname_ptel_diel  = "Electron1Pt_EE_"+hlt_bitnamesEg[k];
-     string histname_etael_diel = "Electron1Eta_EE_"+hlt_bitnamesEg[k];
+     std::string histname_ptel       = "Electron1Pt_E_"+hlt_bitnamesEg[k];
+     std::string histname_etael      = "Electron1Eta_E_"+hlt_bitnamesEg[k];
+     std::string histname_ptel_diel  = "Electron1Pt_EE_"+hlt_bitnamesEg[k];
+     std::string histname_etael_diel = "Electron1Eta_EE_"+hlt_bitnamesEg[k];
      
     
      dbe->setCurrentFolder(topFolder.str()+"Semileptonic_electron");
