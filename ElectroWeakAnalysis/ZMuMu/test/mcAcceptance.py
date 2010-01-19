@@ -9,16 +9,25 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/0ABB0814-C082-DE11-9AB7-003048D4767C.root",
-"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/38980FEC-C182-DE11-A3B5-003048D4767C.root",
-"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/3AF703B9-AE82-DE11-9656-0015172C0925.root",
-"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/46854F8E-BC82-DE11-80AA-003048D47673.root",
-"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/8025F9B0-AC82-DE11-8C28-0015172560C6.root",
-"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/88DDF58E-BC82-DE11-ADD8-003048D47679.root",
-"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/9A115324-BB82-DE11-9C66-001517252130.root",
-"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/FC279CAC-AD82-DE11-BAAA-001517357D36.root")
+    fileNames = cms.untracked.vstring(
+                                      "file:~/Zmumu7TeVGenSimReco/0ABB0814-C082-DE11-9AB7-003048D4767C.root",
+    "file:~/Zmumu7TeVGenSimReco/0ABB0814-C082-DE11-9AB7-003048D4767C.root",
+"file:~/Zmumu7TeVGenSimReco/38980FEC-C182-DE11-A3B5-003048D4767C.root",
+ "file:~/Zmumu7TeVGenSimReco/3AF703B9-AE82-DE11-9656-0015172C0925.root",
+"file:~/Zmumu7TeVGenSimReco/46854F8E-BC82-DE11-80AA-003048D47673.root",
+ "file:~/Zmumu7TeVGenSimReco/8025F9B0-AC82-DE11-8C28-0015172560C6.root",
+ "file:~/Zmumu7TeVGenSimReco/88DDF58E-BC82-DE11-ADD8-003048D47679.root",
+ "file:~/Zmumu7TeVGenSimReco/9A115324-BB82-DE11-9C66-001517252130.root",
+"file:~/Zmumu7TeVGenSimReco/FC279CAC-AD82-DE11-BAAA-001517357D36.root"
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/38980FEC-C182-DE11-A3B5-003048D4767C.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/3AF703B9-AE82-DE11-9656-0015172C0925.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/46854F8E-BC82-DE11-80AA-003048D47673.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/8025F9B0-AC82-DE11-8C28-0015172560C6.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/88DDF58E-BC82-DE11-ADD8-003048D47679.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/9A115324-BB82-DE11-9C66-001517252130.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/Zmumu7TeV/GEN-SIM_RECO/0014/FC279CAC-AD82-DE11-BAAA-001517357D36.root")
 )
-
+)
 process.evtInfo = cms.OutputModule("AsciiOutputModule")
 
 
@@ -29,29 +38,35 @@ process.zToMuMuMC = cms.EDFilter("CandViewRefSelector",
     cut = cms.string('pdgId = 23 & status = 3 & abs(daughter(0).pdgId) = 13')
 )
 
-## process.dimuons = cms.EDFilter("CandViewShallowCloneCombiner",
-##     checkCharge = cms.bool(False),
-##     cut = cms.string('mass > 0'),
-##     #  string decay = "goodMuons@+ goodMuons@-"
-## #    decay = cms.string('selectedLayer1Muons@+ selectedLayer1Muons@-')
-##     decay = cms.string('muons@+ muons@-')
-## )
-
-
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('MC_31X_V3::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("ElectroWeakAnalysis.Skimming.dimuons_cfi")
 
-process.load("ElectroWeakAnalysis.Skimming.dimuonsOneTrack_cfi")
+process.dimuons = cms.EDFilter("CandViewShallowCloneCombiner",
+    checkCharge = cms.bool(False),
+    cut = cms.string('mass > 0'),
+    decay = cms.string('muons@+ muons@-')
+)
 
-process.load("ElectroWeakAnalysis.Skimming.mcTruthForDimuons_cff")
-#from ElectroWeakAnalysis.Skimming.dimuons_cfi import *
-process.load("ElectroWeakAnalysis.Skimming.patCandidatesForDimuonsSequences_cff")
 
-#from ElectroWeakAnalysis.Skimming.patCandidatesForDimuonsSequences_cff import *
+
+process.load("PhysicsTools.HepMCCandAlgos.goodMuonMCMatch_cfi")
+process.goodMuonMCMatch.src = 'muons'
+
+
+process.dimuonsMCMatch = cms.EDFilter("MCTruthCompositeMatcherNew",
+    src = cms.InputTag("dimuons"),
+    #
+    # comment PAT match because works only for layer-0 muons  
+    #
+    #  VInputTag matchMaps = { muonMatch }
+    matchPDGId = cms.vint32(),
+    matchMaps = cms.VInputTag(cms.InputTag("goodMuonMCMatch"))
+)
+
+
 
 
 process.mcAcceptance = cms.EDAnalyzer("MCAcceptanceAnalyzer",
@@ -67,14 +82,10 @@ process.mcAcceptance = cms.EDAnalyzer("MCAcceptanceAnalyzer",
 )
 
 process.mcPath = cms.Path(
-    process.zToMuMuMC+
-    process.goodMuonRecoForDimuon *
+    process.zToMuMuMC*
+    process.goodMuonMCMatch *
     process.dimuons *
-    process.dimuonsOneTrack *
-    process.mcTruthForDimuons *
-
- #   process.dimuons +
- #   process.dimuonMatches
+    process.dimuonsMCMatch* 
     process.mcAcceptance
     )
 
@@ -83,16 +94,11 @@ from Configuration.EventContent.EventContent_cff import *
 process.EventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep *_dimuonsGlobal_*_*', 
-        'keep *_dimuonsOneStandAloneMuon_*_*', 
-        'keep *_muonMatch_*_*', 
-        'keep *_trackMuMatch_*_*', 
-        'keep *_allDimuonsMCMatch_*_*',
-#        'keep patTriggerObjects_patTrigger_*_*',
-#        'keep patTriggerFilters_patTrigger_*_*',
-#        'keep patTriggerPaths_patTrigger_*_*',
-#        'keep patTriggerEvent_patTriggerEvent_*_*',
-#        'keep patTriggerObjectsedmAssociation_patTriggerEvent_*_*'
+        'keep *_dimuons_*_*',
+        'keep *_muons_*_*',
+        'keep *_genParticles_*_*',
+        'keep *_goodMuonMCMatch_*_*', 
+        'keep *_dimuonsMCMatch_*_*', 
         )
 )
 
@@ -108,7 +114,7 @@ process.dimuonsOutputModule = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('acceptance'),
         dataTier = cms.untracked.string('USER')
    ),
-   fileName = cms.untracked.string('dimuons.root')
+   fileName = cms.untracked.string('dimuons_forAcceptance_1000.root')
 )
 
 
