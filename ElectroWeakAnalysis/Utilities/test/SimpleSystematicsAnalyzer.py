@@ -22,6 +22,7 @@ process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
       debugFlag = cms.untracked.bool(False),
       fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
+      #fileNames = cms.untracked.vstring("file:/data4/ZMuMu_Summer09-MC_31X_V3_preproduction_312-v1_RECO/20A5B350-6979-DE11-A6EF-001560AD3140.root")
 )
 
 # Printout of generator information for the first event
@@ -41,6 +42,8 @@ process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
 # Selector and parameters
 # WMN fast selector (use W candidates in this example)
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
+# ZMM fast selector
+#process.load("ElectroWeakAnalysis.Utilities.zmmSelection_cfi")
 
 # Produce event weights according to generated boson Pt
 # Example corresponds to approximate weights to study
@@ -92,6 +95,7 @@ process.systAna = cms.Path(
       *process.fsrWeight
       *process.isrGammaWeight
       *process.selectCaloMetWMuNus
+      #*process.goldenZMMSelectionSequence
 )
 
 process.end = cms.EndPath(process.systematicsAnalyzer)

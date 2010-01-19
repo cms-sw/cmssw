@@ -18,14 +18,17 @@ goodAODGlobalMuons = cms.EDFilter("MuonViewRefSelector",
 # Cuts on dimuon system
 dimuonsGlobalAOD = cms.EDFilter("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    cut = cms.string('mass > 60 & charge=0'),
-    decay = cms.string("goodAODGlobalMuons@+ goodAODGlobalMuons@-"),
-    filter = cms.bool(True)
+    cut = cms.string('mass>60 & charge=0'),
+    decay = cms.string("goodAODGlobalMuons@+ goodAODGlobalMuons@-")
+)
+dimuonsFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("dimuonsGlobalAOD"),
+    minNumber = cms.uint32(1)
 )
 
 # Selection sequence
 goldenZMMSelectionSequence = cms.Sequence(
-   dimuonsHLTFilter *
-   goodAODGlobalMuons *
-   dimuonsGlobalAOD
+   dimuonsHLTFilter
+   * goodAODGlobalMuons
+   * dimuonsGlobalAOD*dimuonsFilter
 )

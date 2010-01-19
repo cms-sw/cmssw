@@ -72,11 +72,11 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             const reco::Candidate * boson = lepton.mother();
             int bosonId = abs(boson->pdgId());
             if (bosonId!=23  && bosonId!=24) continue;
+            double bosonMass = boson->mass();
+            double leptonMass = lepton.mass();
             unsigned int nDaughters = lepton.numberOfDaughters();
             if (nDaughters<=1) continue;
-            double leptonMass = lepton.mass();
             double leptonEnergy = lepton.energy();
-            double bosonMass = boson->mass();
             double cosLeptonTheta = cos(lepton.theta());
             double sinLeptonTheta = sin(lepton.theta());
             double leptonPhi = lepton.phi();
@@ -98,15 +98,6 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                           / (1-pow(leptonMass/bosonMass,2))
                           / (4-pow(leptonMass/bosonMass,2))
                           * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
-                        (*weight) *= (1 + delta);
-                  }
-                  // Missing log(s/MW**2) terms due to radiation off the W
-                  // Only for W, from hep-ph/9807417
-                  if (bosonId==24) {
-                        double delta = 1/137.036/2/M_PI * (
-                                log(bosonMass/80.4)*(7.+4.*log(leptonMass/80.4))
-                              + 3.*M_PI*M_PI/4. - 1.
-                        );
                         (*weight) *= (1 + delta);
                   }
                   // Missing NLO QED orders in QED parton shower approach
@@ -134,7 +125,7 @@ double FSRWeightProducer::alphaRatio(double pt) {
       if (pt>mass_tau) pigaga += alphapi * (2*log(pt/mass_tau)/3.-5./9.);
 
       // Hadronic vaccum contribution
-      // Using simple effective parametrization from Physics Letters B 513 (2001) 46â52
+      // Using simple effective parametrization from Physics Letters B 513 (2001) 46.
       // Top contribution neglected
       double A = 0.; 
       double B = 0.; 
