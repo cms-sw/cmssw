@@ -103,7 +103,7 @@ void UERegionSelector::produce(Event& e, const EventSetup& )
  
 }
 
-void UERegionSelector::beginJob(const edm::EventSetup&)
+void UERegionSelector::beginJob()
 {
 }
 

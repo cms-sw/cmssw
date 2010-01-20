@@ -79,7 +79,7 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
   pdgidList.reserve(200);
 }
 
-void AnalysisRootpleProducer::beginJob( const EventSetup& )
+void AnalysisRootpleProducer::beginJob()
 {
  
   // use TFileService for output to root file

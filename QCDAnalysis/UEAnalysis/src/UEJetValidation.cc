@@ -30,7 +30,7 @@ UEJetValidation::UEJetValidation( const ParameterSet& pset )
   selectedHLTBits = pset.getParameter<vstring>("selectedHLTBits");
 }
 
-void UEJetValidation::beginJob( const EventSetup& )
+void UEJetValidation::beginJob()
 {
   TFileDirectory gendir = fs->mkdir("Gen");
 

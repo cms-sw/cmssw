@@ -14,7 +14,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <PhysicsTools/UtilAlgos/interface/TFileService.h>
+#include <CommonTools/UtilAlgos/interface/TFileService.h>
 
 #include <TROOT.h>
 #include <TTree.h>
@@ -65,7 +65,7 @@ public:
   // as it'll be deleted upon closing TFile
 
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob( const edm::EventSetup& ) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
   
   void fillEventInfo(int);

@@ -14,7 +14,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <PhysicsTools/UtilAlgos/interface/TFileService.h>
+#include <CommonTools/UtilAlgos/interface/TFileService.h>
 
 #include <TROOT.h>
 #include <TTree.h>
@@ -41,7 +41,7 @@ public:
   virtual ~AnalysisRootpleProducerOnlyMC() {} 
 
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob( const edm::EventSetup& ) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
   
   void fillEventInfo(int);

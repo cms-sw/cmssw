@@ -27,7 +27,7 @@ UEJetMultiplicity::UEJetMultiplicity( const ParameterSet& pset )
   selectedHLTBits = pset.getParameter<vstring>("selectedHLTBits");
 }
 
-void UEJetMultiplicity::beginJob( const EventSetup& )
+void UEJetMultiplicity::beginJob()
 {
   h2d_nJets_vs_minPtJet_chggenjet = new TH2D*[ selectedHLTBits.size() ];
   h2d_nJets_vs_minPtJet_trackjet  = new TH2D*[ selectedHLTBits.size() ];

@@ -50,7 +50,7 @@ AnalysisRootpleProducerOnlyMC::AnalysisRootpleProducerOnlyMC( const ParameterSet
 }
 
 
-void AnalysisRootpleProducerOnlyMC::beginJob( const EventSetup& )
+void AnalysisRootpleProducerOnlyMC::beginJob()
 {
   // use TFileService for output to root file 
   AnalysisTree = fs->make<TTree>("AnalysisTree","MBUE Analysis Tree ");

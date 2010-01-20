@@ -13,7 +13,7 @@
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <PhysicsTools/UtilAlgos/interface/TFileService.h>
+#include <CommonTools/UtilAlgos/interface/TFileService.h>
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <vector>
@@ -36,7 +36,7 @@ public:
   ~UERegionSelector();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
