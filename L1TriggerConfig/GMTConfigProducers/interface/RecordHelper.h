@@ -13,6 +13,8 @@
 
 */
 
+#include <boost/type_traits.hpp>
+
 #include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
@@ -68,8 +70,8 @@ template <class TOutput, class TCField, class TDBField> class FieldHandler : pub
 #ifdef RECORDHELPER_DEBUG
     cout << "Parsing field " << this->getName() << " with type " << typeid(TCField).name() ;
 #endif
-    TDBField value ; 
-    value = src[this->getColumnName()].template data< TDBField >();
+    typedef typename boost::remove_cv<typename boost::remove_reference<TDBField>::type>::type TDBFieldT;
+    const TDBFieldT & value = src[this->getColumnName()].template data< TDBFieldT >();
     ((dest).*setter_)(TCField(value));
 
 #ifdef RECORDHELPER_DEBUG
