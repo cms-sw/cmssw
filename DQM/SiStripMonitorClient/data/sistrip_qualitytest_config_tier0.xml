@@ -846,7 +846,7 @@
 <LINK name="*TrackParameters/HitProperties/NumberOfRecHitsPerTrack_GenTk">
   <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrk</TestName>
 </LINK>
-<LINK name="*TrackParameters/GeneralProperties/Chi2overDoF_GenTk">
+<LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_GenTk">
   <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
 </LINK>
 <LINK name="*TrackParameters/GeneralProperties/TrackPt_ImpactPoint_GenTk">

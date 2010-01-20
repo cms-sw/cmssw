@@ -268,7 +268,7 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
   dir = "TrackParameters"; 
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
-
+  
   vector<MonitorElement*> meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
   vector<MonitorElement*> meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
   vector<MonitorElement*> meVec(meVec1.size() + meVec2.size()); 
@@ -282,16 +282,16 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     if (qt_reports.size() == 0) continue;
     string name = me->getName();
     float status = 1.0; 
-    if (name.find("NumberOfTracks_CKFTk") != string::npos) {
+    if (name.find("NumberOfTracks_") != string::npos) {
       status = qt_reports[0]->getQTresult();
       ReportTrackRate->Fill(status);
       fillStatusHistogram(TrackSummaryReportMap, 1, 1, status);
-    } else if (name.find("Chi2overDoF_CKFTk") != string::npos) {
+    } else if (name.find("Chi2oNDF_") != string::npos) {
       //      if (istat == dqm::qstatus::ERROR) status = 0.0;
       status = qt_reports[0]->getQTresult();
       ReportTrackChi2overDoF->Fill(status);
       fillStatusHistogram(TrackSummaryReportMap, 2, 1, status);
-    } else if (name.find("NumberOfRecHitsPerTrack_CKFTk") != string::npos) {
+    } else if (name.find("NumberOfRecHitsPerTrack_") != string::npos) {
       //      if (istat == dqm::qstatus::ERROR) status = 0.0;
       status = qt_reports[0]->getQTresult();
       ReportTrackRecHits->Fill(status);
