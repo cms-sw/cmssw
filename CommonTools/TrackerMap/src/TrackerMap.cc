@@ -3,7 +3,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
+#include "CommonTools/TrackerMap/interface/TmCcu.h"
+#include "CommonTools/TrackerMap/interface/TmPsu.h"
 #include <fstream>
 #include <vector>
 #include <iostream>
@@ -44,6 +47,14 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   cout << infilename << endl;
   ncrates=0;
   enableFedProcessing=tkmapPset.getUntrackedParameter<bool>("loadFedCabling",false);
+  nfeccrates=0;
+  enableFecProcessing=tkmapPset.getUntrackedParameter<bool>("loadFecCabling",false);
+ // cout << "loadFecCabling " << enableFecProcessing << endl;
+  npsuracks=0;
+  enableLVProcessing=tkmapPset.getUntrackedParameter<bool>("loadLVCabling",false);
+ // cout << "loadLVCabling " << enableLVProcessing << endl;
+  enableHVProcessing=tkmapPset.getUntrackedParameter<bool>("loadHVCabling",false);
+ // cout << "loadHVCabling " << enableHVProcessing << endl;
   } else cout << "no parameters found" << endl;
 
  init();
@@ -118,8 +129,235 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   }
   }
 }
-}
+// Now load fec cabling information
+ if(enableFecProcessing){
+   int nfec=0; int nccu; int nmod;
+   int crate,slot,ring,addr,pos;
+   SiStripFecCabling* fecCabling_;
+   fecCabling_ = new SiStripFecCabling( *tkFed );
+   std::string Ccufilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"cculist.txt";
+   ifstream Ccufile(edm::FileInPath(Ccufilename).fullPath().c_str(),ios::in);
+   string dummys;
+   while(!Ccufile.eof()) {
+     Ccufile >> crate >> slot >> ring >> addr >> pos;
+     getline(Ccufile,dummys);
+     int key =crate*10000000+slot*100000+ring*1000+addr;
+     TmCcu * ccu = ccuMap[key];
+     if(ccu==0){
+       ccu = new TmCcu(crate,slot,ring,addr);
+       ccu->mpos=pos,
+         ccuMap[key]=ccu;
+     }
+   }
 
+   for ( std::vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++ ) {
+     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
+       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
+         nccu=0;nfec++;
+         for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
+           nccu++; nmod=0;
+           int key = icrate->fecCrate()*10000000+ifec->fecSlot()*100000+iring->fecRing()*1000+iccu->ccuAddr();
+           int layer=0;
+           TmCcu * ccu = ccuMap[key];
+           for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+             nmod++;
+             TmModule *imod1 = imoduleMap[imod->detId()];
+             layer=imod1->layer;
+             fecModuleMap.insert(make_pair(ccu,imod1));
+             if(imod1!=0)imod1->CcuId=key;//imod1->ccuId=key+Crate*1000000
+           }
+           if(ccu==0)cout <<key<< " This ccu seems to have not been stored! " << endl; else{ ccu->nmod=nmod;ccu->layer=layer;}
+           //cout <<nfec<<" "<< nccu << " " << nmod << endl;
+
+         }
+       }
+     }
+   }
+
+   std::map<int , TmCcu *>::iterator i_ccu;
+   multimap<TmCcu*, TmModule*>::iterator it;
+   pair<multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+   nccu=0;
+   for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+     TmCcu *  ccu= i_ccu->second;
+     nccu++;
+     if(ccu!=0){
+        ostringstream outs;
+        ostringstream outs1;
+        outs << "CCU "<<ccu->idex <<" connected to fec,ring " << ccu->getCcuSlot() <<","<<ccu->getCcuRing()<< " in crate " <<ccu->getCcuCrate()<<" at position "<< ccu->mpos << " with  " << ccu->nmod << " modules: ";
+        outs1<<"(";
+        ret = fecModuleMap.equal_range(ccu);
+        for (it = ret.first; it != ret.second; ++it)
+          {
+            outs << (*it).second->idex << " ";
+            outs1 << (*it).second->getKey() <<",";
+          }
+        outs1 << ")";
+        ccu->text=outs.str();
+        ccu->cmodid=outs1.str();
+        //cout << ccu->text << endl;
+     }
+
+   }
+   nfeccrates=4;
+   cout << nccu << " ccu stored in " <<nfeccrates<< " crates"<< endl;
+
+ }
+//load Psu cabling info
+ //load Psu cabling info 
+ if(enableLVProcessing || enableHVProcessing){
+   int npsu=0; int nmod,nmodHV2,nmodHV3;
+   int modId1,modId2, dcuId;
+   int dcs,branch,crate,board;
+   int rack=0;
+   string channelstr1;
+   short int channel;
+   string psinfo;
+ //  ifstream *LVfile;
+ //  ifstream *HVfile;
+   
+  
+ 
+  std::string LVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"psdcumap.dat";
+  std::string HVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"hvmap.dat";
+  
+  ifstream LVfile(edm::FileInPath(LVfilename).fullPath().c_str(),ios::in);
+  
+  cout<<LVfilename<<" "<<HVfilename<<endl;
+  
+  
+   if(enableHVProcessing){
+	   
+	    ifstream HVfile(edm::FileInPath(HVfilename).fullPath().c_str(),ios::in);
+	    while(!HVfile.eof()) {
+	    HVfile >> modId2 >> channelstr1;
+	    string channelstr2 = channelstr1.substr(9,1);
+            channel= atoi(channelstr2.c_str());
+	    TmModule *imod = imoduleMap[modId2];
+	   // if(modId1==modId2){
+            imod->HVchannel=channel;      
+           
+	      } 
+           	
+	    }
+	
+  
+   while(!LVfile.eof()) {
+      LVfile >> modId1 >> dcuId >>  psinfo;
+      
+      int length=psinfo.length();
+      string dcsinfo = psinfo.substr(39,1);
+      string branchinfo = psinfo.substr(57,2);
+      string crateinfo= psinfo.substr(69,1);
+      string boardinfo = psinfo.substr(80,2);
+      string psIdinfo = psinfo.substr(83,length-83);
+    
+      dcs= atoi(dcsinfo.c_str());
+      branch= atoi(branchinfo.c_str());
+      crate= atoi(crateinfo.c_str())+1;
+      board= atoi(boardinfo.c_str())+1;
+   
+      if(dcs==1)rack=(branch+1)/2;
+      if(dcs==2)rack=(branch+1)/2 + 7;
+      if(dcs==3)rack=(branch+1)/2 + 15;
+      if(dcs==4)rack=(branch+1)/2 + 22;
+      
+      int key = rack*1000+crate*100+board;
+      
+      TmPsu *psu = psuMap[key];
+      TmModule *imod = imoduleMap[modId1];
+      if(psu==0){
+        psu = new TmPsu(dcs,branch,rack,crate,board);
+        psuMap[key]=psu;
+        psu->psId=psIdinfo;
+      }
+   
+      psuModuleMap.insert(make_pair(psu,imod));
+      if(imod!=0)imod->PsuId=psIdinfo;imod->psuIdex=psu->idex;
+       
+      }
+      
+   
+ //  int nmax=0; 
+   std::map<int , TmPsu *>::iterator ipsu;
+   multimap<TmPsu*, TmModule*>::iterator it;
+   pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+   npsu=0;
+  
+   for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+     TmPsu *  psu= ipsu->second;
+     npsu++;
+    
+    if(psu!=0){
+	
+	ostringstream outs;
+        ostringstream outs1;
+	
+	ostringstream outs3;
+        ostringstream outs4;
+	
+	ostringstream outs5;
+        ostringstream outs6;
+	
+	outs <<"PSU "<<psu->psId<<" connected to Mainframe "<<psu->getPsuDcs()<<" BranchController "<<psu->getPsuBranch()<<" (Rack "<<psu->getPsuRack()<<"), crate "<<psu->getPsuCrate()<<" in position "<< psu->getPsuBoard()<< " with modules: ";
+        outs1<<"(";
+	
+	if(enableHVProcessing){
+	  outs3 <<"PSU "<<psu->psId<<" connected to Mainframe "<<psu->getPsuDcs()<<" BranchController "<<psu->getPsuBranch()<<" (Rack "<<psu->getPsuRack()<<"),crate "<<psu->getPsuCrate()<<" in position "<< psu->getPsuBoard()<<" and HV channel 002 with modules: ";
+          outs4<<"(";
+	
+	  outs5 <<"PSU "<<psu->psId<<" connected to Mainframe "<<psu->getPsuDcs()<<" BranchController "<<psu->getPsuBranch()<<" (Rack "<<psu->getPsuRack()<<"), crate "<<psu->getPsuCrate()<<" in position "<< psu->getPsuBoard()<<" and HV channel 002 with modules: ";
+          outs6<<"(";}
+	
+	
+	ret = psuModuleMap.equal_range(psu);
+        nmod=0;
+	nmodHV2=0;
+	nmodHV3=0;
+	for (it = ret.first; it != ret.second; ++it)
+	  {
+	    nmod++; 
+	    outs << (*it).second->idex << ", ";
+	    outs1 << (*it).second->getKey() <<",";
+	
+	    if(enableHVProcessing){
+	      if((*it).second->HVchannel==2){
+	      nmodHV2++;
+	      outs3 << (*it).second->idex << ", ";
+	      outs4 << (*it).second->getKey() <<",";}
+	      else if((*it).second->HVchannel==3){
+	      nmodHV3++;
+	      outs5 << (*it).second->idex << ", ";
+	      outs6 << (*it).second->getKey() <<",";}
+	
+	      }
+	  }
+
+	outs1 << ")";
+	psu->nmod=nmod;
+	outs << "(" << psu->nmod << ")";
+	psu->text=outs.str();
+        psu->cmodid_LV=outs1.str();
+        if(enableHVProcessing){
+        outs4 << ")";
+	outs6 << ")";
+	psu->nmodHV2=nmodHV2;
+	psu->nmodHV3=nmodHV3;
+	outs3 << "(" << psu->nmodHV2 << ")";
+	outs5 << "(" << psu->nmodHV3 << ")";
+	psu->textHV2=outs3.str();
+	psu->textHV3=outs5.str();
+	psu->cmodid_HV2=outs4.str();
+        psu->cmodid_HV3=outs6.str();
+        }
+    }
+   }
+  
+  
+   npsuracks=29;
+   cout << npsu << " psu stored in " <<npsuracks<<" racks"<<endl;
+  }
+}
 
 TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
  psetAvailable=true;
@@ -210,7 +448,25 @@ std::map<int , TmApvPair *>::iterator i_apv;
       TmApvPair *  apvPair= i_apv->second;
       delete apvPair;
       }
+
+
+std::map<int , TmCcu *>::iterator i_ccu;
+   for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+     TmCcu *  ccu= i_ccu->second;
+     delete ccu;
+     }
+
+std::map<int , TmPsu *>::iterator ipsu;
+    for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+     TmPsu *  psu= ipsu->second;
+     delete psu;
+     }
 }
+
+
+
+
+
 void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, ofstream * svgfile){
   //int x,y;
   double phi,r,dx,dy, dy1;
@@ -319,10 +575,10 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
   if(mod->count > 0)
     if(temporary_file) *svgfile << red << " " << green << " " << blue << " "; else
- *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" lv=\""<<mod->psuIdex<<"\" hv=\""<<mod->psuIdex*10 + mod->HVchannel<<"\" fec=\""<<mod->CcuId<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
   else
     if(temporary_file) *svgfile << 255 << " " << 255 << " " << 255 << " "; else
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"white\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" lv=\""<<mod->psuIdex<<"\" hv=\""<<mod->psuIdex*10 + mod->HVchannel<<"\" fec=\""<<mod->CcuId<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"white\" points=\"";
   if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
     if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
@@ -334,7 +590,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   if(mod->green>255)mod->green=255;
   if(mod->blue>255)mod->blue=255;
     if(temporary_file) *svgfile << mod->red << " " << mod->green << " " << mod->blue << " "; else
-    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" capvids=\""<<mod->capvids<<"\" lv=\""<<mod->psuIdex<<"\" hv=\""<<mod->psuIdex*10 + mod->HVchannel<<"\" fec=\""<<mod->CcuId<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
   if(temporary_file) *svgfile << np << " ";
   for(int k=0;k<np;k++){
     if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; else
@@ -634,6 +890,942 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
   }
   if(temporary_file)*svgfile << endl;
      else *svgfile <<"\" />" <<endl;
+}
+void TrackerMap::drawCcu(int crate, int numfec_incrate, bool print_total, TmCcu* ccu,ofstream * svgfile,bool useCcuValue)
+{
+  double xp[4],yp[4];
+  int color;
+  int green = 0;
+  int red = 0;
+  int blue = 0;
+  double xd[4],yd[4];
+  int np = 4;
+  double boxinitx=0., boxinity=0.;
+  double dx=.9,dy=.9;
+  int numccu_incolumn = 8;
+  int numccu_inrow = 15;
+  int numfed_incolumn = 5;
+  int numfed_inrow = 4;
+  boxinitx=boxinitx+(numfed_incolumn-(numfec_incrate-1)/numfed_inrow)*14.;
+  boxinity=boxinity+(numfed_inrow-(numfec_incrate-1)%numfed_inrow)*16.;
+  boxinity=boxinity+numccu_inrow-ccu->mpos;
+  boxinitx = boxinitx+numccu_incolumn-(int)(ccu->getCcuRing()%numccu_incolumn);
+  //cout << crate << " " << numfec_incrate << " " << ccu->getCcuRing()<<" "<<ccu->mpos<<" "<<boxinitx<< " " << boxinity << endl; ;
+  xp[0]=boxinitx;yp[0]=boxinity;
+  xp[1]=boxinitx+dx;yp[1]=boxinity;
+  xp[2]=boxinitx+dx;yp[2]=boxinity + dy;
+  xp[3]=boxinitx;yp[3]=boxinity + dy;
+  for(int j=0;j<4;j++){
+    xd[j]=xdpixelfec(xp[j]);yd[j]=ydpixelfec(yp[j]);
+    //cout << boxinity << " "<< ymax << " "<< yp[j] << endl;
+  }
+
+  char buffer [20];
+  sprintf(buffer,"%X",ccu->idex);
+  //sprintf(buffer,"%X",ccu->mod->idex);
+  //string s = ccu->mod->name;
+  string s = ccu->text;
+  s.erase(s.begin()+s.find("connected"),s.end());
+
+  if(ccu->red < 0){ //use count to compute color
+    if(ccu->count > 0) {
+      color = getcolor(ccu->value,palette);
+      red=(color>>16)&0xFF;
+      green=(color>>8)&0xFF;
+      blue=(color)&0xFF;
+      if(!print_total)ccu->value=ccu->value*ccu->count;//restore mod->value
+      if(temporary_file)*svgfile << red << " " << green << " " << blue << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<ccu->idex<<"\" count=\""<<ccu->count <<"\" value=\""<<ccu->value<<"\" id=\""<<ccu->idex+crate*1000000<<"\" cmodid=\""<<ccu->cmodid<<"\" layer=\""<<ccu->layer<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Slot/Ring"<<ccu->getCcuSlot()<<"/"<<ccu->getCcuRing()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+    } else {
+      if(temporary_file)*svgfile << 255 << " " << 255 << " " << 255 << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<ccu->idex<<"\" count=\""<<ccu->count <<"\" value=\""<<ccu->value<<"\" id=\""<<ccu->idex+crate*1000000<<"\"  cmodid=\""<<ccu->cmodid<<"\" layer=\""<<ccu->layer<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Slot/Ring "<<ccu->getCcuSlot()<<"/"<<ccu->getCcuRing()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"white\" points=\"";
+    }
+  } else {//color defined with fillc
+    if(ccu->red>255)ccu->red=255;
+    if(ccu->green>255)ccu->green=255;
+    if(ccu->blue>255)ccu->blue=255;
+    if(temporary_file)*svgfile << ccu->red << " " << ccu->green << " " << ccu->blue << " ";
+    else *svgfile <<"<svg:polygon detid=\""<<ccu->idex<<"\" count=\""<<ccu->count <<"\" value=\""<<ccu->value<<"\" id=\""<<ccu->idex+crate*1000000<<"\" cmodid=\""<<ccu->cmodid<<"\" layer=\""<<ccu->layer<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"Slot/Ring "<<ccu->getCcuSlot()<<"/"<<ccu->getCcuRing()<<" connected to "<<s<<" Id "<<buffer<<" \" fill=\"rgb("<<ccu->red<<","<<ccu->green<<","<<ccu->blue<<")\" points=\"";
+  }
+if(temporary_file)*svgfile << np << " ";
+for(int k=0;k<np;k++){
+  if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ;
+  else *svgfile << xd[k] << "," << yd[k] << " " ;
+}
+if(temporary_file)*svgfile << endl;
+else *svgfile <<"\" />" <<endl;
+
+}
+void TrackerMap::drawPsu(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue)
+{
+  double xp[4],yp[4];
+  int color;
+  int green = 0;
+  int red = 0;
+  int blue = 0;
+  double xd[4],yd[4];
+  int np = 4;
+  double boxinitx=35, boxinity=12; 
+  double dx=3,dy=1.3;
+  
+  boxinitx= boxinitx+(5 - numcrate_inrack)*5;
+  boxinity= boxinity+(18 - psu->getPsuBoard())*1.75;
+
+  xp[0]=boxinitx;yp[0]=boxinity;
+  xp[1]=boxinitx+dx;yp[1]=boxinity;
+  xp[2]=boxinitx+dx;yp[2]=boxinity + dy;
+  xp[3]=boxinitx;yp[3]=boxinity + dy;
+ 
+ 
+  for(int j=0;j<4;j++){
+    xd[j]=xdpixelpsu(xp[j]);yd[j]=ydpixelpsu(yp[j]);
+    //cout << boxinity << " "<< ymax << " "<< yp[j] << endl;
+  }
+  
+  char buffer [20];
+  sprintf(buffer,"%X",psu->idex);
+  string s = psu->text;
+  s.erase(s.begin()+s.find("connected"),s.end());
+   
+  if(psu->red < 0){ //use count to compute color
+    if(psu->value > 0){
+      color = getcolor(psu->value,palette);
+      red=(color>>16)&0xFF;
+      green=(color>>8)&0xFF;
+      blue=(color)&0xFF;
+      if(!print_total)psu->value=psu->value*psu->count;//restore mod->value
+      if(temporary_file)*svgfile << red << " " << green << " " << blue << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->count <<"\" value=\""<<psu->value<<"\" id=\""<< psu->idex <<"\" cmodid=\""<<psu->cmodid_LV<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" points=\"";
+      } 
+      else{
+     
+      if(temporary_file)*svgfile << 255 << " " << 255 << " " << 255 << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->count <<"\" value=\""<<psu->value<<"\" id=\""<< psu->idex <<"\"  cmodid=\""<<psu->cmodid_LV<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"white\" points=\"";
+      }
+    } 
+   
+    else {//color defined with fillc
+    if(psu->red>255)psu->red=255;
+    if(psu->green>255)psu->green=255;
+    if(psu->blue>255)psu->blue=255;
+    if(temporary_file)*svgfile << psu->red << " " << psu->green << " " << psu->blue << " ";
+    else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->count <<"\" value=\""<<psu->value<<"\" id=\""<< psu->idex <<"\" cmodid=\""<<psu->cmodid_LV<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<psu->red<<","<<psu->green<<","<<psu->blue<<")\" points=\"";
+  }
+
+if(temporary_file)*svgfile << np << " ";
+for(int k=0;k<np;k++){
+  if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; 
+  else *svgfile << xd[k] << "," << yd[k] << " " ;
+}
+if(temporary_file)*svgfile << endl;
+else *svgfile <<"\" />" <<endl;
+
+}
+
+void TrackerMap::drawHV2(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue)
+{
+  double xp[4],yp[4];
+  int color;
+  int greenHV2 = 0;
+  int redHV2 = 0;
+  int blueHV2 = 0;
+  double xd[4],yd[4];
+  int np = 4;
+  double boxinitx=35, boxinity=12; 
+  double dx=1.1,dy=1.3;
+  
+  boxinitx= boxinitx+(5 - numcrate_inrack)*5;
+  boxinity= boxinity+(18 - psu->getPsuBoard())*1.75;
+
+  xp[0]=boxinitx;yp[0]=boxinity;
+  xp[1]=boxinitx+dx;yp[1]=boxinity;
+  xp[2]=boxinitx+dx;yp[2]=boxinity + dy;
+  xp[3]=boxinitx;yp[3]=boxinity + dy;
+ 
+ 
+  for(int j=0;j<4;j++){
+    xd[j]=xdpixelpsu(xp[j]);yd[j]=ydpixelpsu(yp[j]);
+    //cout << boxinity << " "<< ymax << " "<< yp[j] << endl;
+  }
+  
+  char buffer [20];
+  sprintf(buffer,"%X",psu->idex);
+  string s = psu->textHV2;
+  s.erase(s.begin()+s.find("connected"),s.end());
+   
+  if(psu->redHV2 < 0){ //use count to compute color
+    
+    if(psu->valueHV2 > 0){
+      color = getcolor(psu->valueHV2,palette);
+      redHV2=(color>>16)&0xFF;
+      greenHV2=(color>>8)&0xFF;
+      blueHV2=(color)&0xFF;
+      if(!print_total)psu->valueHV2=psu->valueHV2*psu->countHV2;//restore mod->value
+      if(temporary_file)*svgfile << redHV2 << " " << greenHV2 << " " << blueHV2 << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV2 <<"\" value=\""<<psu->valueHV2<<"\" id=\""<< psu->idex*10+2 <<"\" cmodid=\""<<psu->cmodid_HV2<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<redHV2<<","<<greenHV2<<","<<blueHV2<<")\" points=\"";
+      } 
+      else{
+      if(temporary_file)*svgfile << 255 << " " << 255 << " " << 255 << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV2 <<"\" value=\""<<psu->valueHV2<<"\" id=\""<< psu->idex*10+2 <<"\"  cmodid=\""<<psu->cmodid_HV2<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"white\" points=\"";
+      }
+    } 
+   
+    else {//color defined with fillc
+    if(psu->redHV2>255)psu->redHV2=255;
+    if(psu->greenHV2>255)psu->greenHV2=255;
+    if(psu->blueHV2>255)psu->blueHV2=255;
+    if(temporary_file)*svgfile << psu->redHV2 << " " << psu->greenHV2 << " " << psu->blueHV2 << " ";
+    else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV2 <<"\" value=\""<<psu->valueHV2<<"\" id=\""<< psu->idex*10+2 <<"\" cmodid=\""<<psu->cmodid_HV2<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<psu->redHV2<<","<<psu->greenHV2<<","<<psu->blueHV2<<")\" points=\"";
+  }
+
+if(temporary_file)*svgfile << np << " ";
+for(int k=0;k<np;k++){
+  if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; 
+  else *svgfile << xd[k] << "," << yd[k] << " " ;
+}
+if(temporary_file)*svgfile << endl;
+else *svgfile <<"\" />" <<endl;
+
+}
+
+
+void TrackerMap::drawHV3(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue)
+{
+  double xp[4],yp[4];
+  int color;
+  int greenHV3 = 0;
+  int redHV3 = 0;
+  int blueHV3 = 0;
+  double xd[4],yd[4];
+  int np = 4;
+  double boxinitx=36.5, boxinity=12; 
+  double dx=1.1,dy=1.3;
+  
+  boxinitx= boxinitx+(5 - numcrate_inrack)*5;
+  boxinity= boxinity+(18 - psu->getPsuBoard())*1.75;
+
+  xp[0]=boxinitx;yp[0]=boxinity;
+  xp[1]=boxinitx+dx;yp[1]=boxinity;
+  xp[2]=boxinitx+dx;yp[2]=boxinity + dy;
+  xp[3]=boxinitx;yp[3]=boxinity + dy;
+ 
+ 
+  for(int j=0;j<4;j++){
+    xd[j]=xdpixelpsu(xp[j]);yd[j]=ydpixelpsu(yp[j]);
+    //cout << boxinity << " "<< ymax << " "<< yp[j] << endl;
+  }
+  
+  char buffer [20];
+  sprintf(buffer,"%X",psu->idex);
+  string s = psu->textHV3;
+  s.erase(s.begin()+s.find("connected"),s.end());
+   
+  if(psu->redHV3 < 0){ //use count to compute color
+    if(psu->valueHV3 > 0){
+      color = getcolor(psu->valueHV3,palette);
+      redHV3=(color>>16)&0xFF;
+      greenHV3=(color>>8)&0xFF;
+      blueHV3=(color)&0xFF;
+      if(!print_total)psu->valueHV3=psu->valueHV3*psu->countHV3;//restore mod->value
+      if(temporary_file)*svgfile << redHV3 << " " << greenHV3 << " " << blueHV3 << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV3 <<"\" value=\""<<psu->valueHV3<<"\" id=\""<< psu->idex*10+3 <<"\" cmodid=\""<<psu->cmodid_HV3<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard"<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<redHV3<<","<<greenHV3<<","<<blueHV3<<")\" points=\"";
+      } 
+      else{
+      if(temporary_file)*svgfile << 255 << " " << 255 << " " << 255 << " ";
+      else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV3 <<"\" value=\""<<psu->valueHV3<<"\" id=\""<< psu->idex*10+3 <<"\"  cmodid=\""<<psu->cmodid_HV3<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"white\" points=\"";
+      }
+    } 
+   
+    else {//color defined with fillc
+    if(psu->redHV3>255)psu->redHV3=255;
+    if(psu->greenHV3>255)psu->greenHV3=255;
+    if(psu->blueHV3>255)psu->blueHV3=255;
+    if(temporary_file)*svgfile << psu->redHV3 << " " << psu->greenHV3 << " " << psu->blueHV3 << " ";
+    else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV3 <<"\" value=\""<<psu->valueHV3<<"\" id=\""<< psu->id*10+3 <<"\" cmodid=\""<<psu->cmodid_HV3<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<psu->redHV3<<","<<psu->greenHV3<<","<<psu->blueHV3<<")\" points=\"";
+  }
+
+if(temporary_file)*svgfile << np << " ";
+for(int k=0;k<np;k++){
+  if(temporary_file)*svgfile << xd[k] << " " << yd[k] << " " ; 
+  else *svgfile << xd[k] << "," << yd[k] << " " ;
+}
+if(temporary_file)*svgfile << endl;
+else *svgfile <<"\" />" <<endl;
+
+}
+
+void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+ if(enableFecProcessing){
+  std::string filetype=s,outputfilename=s;
+  vector<TPolyLine*> vp;
+  filetype.erase(0,filetype.find(".")+1);
+  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+  temporary_file=true;
+  if(filetype=="xml"||filetype=="svg")temporary_file=false;
+  ostringstream outs;
+  minvalue=minval; maxvalue=maxval;
+  outs << outputfilename << ".coor";
+  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+   std::map<int , TmCcu *>::iterator i_ccu;
+   multimap<TmCcu*, TmModule*>::iterator it;
+   pair<multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+  //Decide if we must use Module or Ccu value
+  bool useCcuValue=false;
+  for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+    TmCcu *  ccu= i_ccu->second;
+    if(ccu!=0) {
+        if(ccu->count > 0 || ccu->red!=-1) { useCcuValue=true; break;}
+      }
+    }
+  if(!useCcuValue)//store mean of connected modules value{
+    for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+    TmCcu *  ccu= i_ccu->second;
+      if(ccu!=0) {
+            ret = fecModuleMap.equal_range(ccu);
+        for (it = ret.first; it != ret.second; ++it)
+          {
+           if( (*it).second->count>0){ccu->value=ccu->value+(*it).second->value;ccu->count++;}
+          }
+          if(ccu->count>0)ccu->value=ccu->value/ccu->count;
+          if(ccu->nmod==0)  { ccu->red=0;ccu->green=0;ccu->blue=0;}
+          }
+          }
+
+  if(!print_total){
+    for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+    TmCcu *  ccu= i_ccu->second;
+      if(ccu!=0) {
+          if(useCcuValue) ccu->value = ccu->value / ccu->count;
+
+        }
+    }
+  }
+  if(minvalue>=maxvalue){
+
+    minvalue=9999999.;
+    maxvalue=-9999999.;
+    for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+       TmCcu *  ccu= i_ccu->second;
+       if(ccu!=0) {
+              if (minvalue > ccu->value)minvalue=ccu->value;
+              if (maxvalue < ccu->value)maxvalue=ccu->value;
+        }
+    }
+  }
+     if(filetype=="svg"){
+      saveAsSingleLayer=false;
+      ostringstream outs;
+    outs << outputfilename<<".svg";
+    savefile = new ofstream(outs.str().c_str(),ios::out);
+  *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<endl;
+  *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+  *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
+  *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">"<<endl;
+  *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
+  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl;
+  *savefile << "<svg:g id=\"fedtrackermap\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
+     }
+  for (int crate=1; crate < (nfeccrates+1); crate++){
+    if(filetype=="xml"){
+      saveAsSingleLayer=true;
+      ostringstream outs;
+    outs << outputfilename<<"feccrate" <<crate<< ".xml";
+    savefile = new ofstream(outs.str().c_str(),ios::out);
+    *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<endl;
+    *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+    *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<endl;
+    *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\" >"<<endl;
+    *savefile << "<script type=\"text/ecmascript\" xlink:href=\"feccrate.js\" />"<<endl;
+    *savefile << "<svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0  500 500\" width=\"700\" height=\"700\" onload=\"TrackerCrate.init()\">"<<endl;
+    *savefile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
+    *savefile << "<g id=\"crate\" transform=\" translate(280,580) rotate(270) scale(.7,.8)\"  > "<<endl;
+         }
+    ncrate=crate;
+    deffecwindow(ncrate);
+    for ( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+      TmCcu *  ccu= i_ccu->second;
+      if(ccu->getCcuCrate() == crate){
+              drawCcu(crate,ccu->getCcuSlot()-2,print_total,ccu,savefile,useCcuValue);
+      }
+    }
+   if(!temporary_file){
+    if(filetype=="xml"){
+    *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> " << endl;
+    *savefile << "<tspan id=\"line1\" x=\"40\" y=\"30\"> </tspan> " << endl;
+    *savefile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
+    *savefile << " </text> </svg>" << endl;
+    savefile->close();
+     saveAsSingleLayer=false;
+      }
+      }
+    }
+    if(filetype=="svg"){
+    *savefile << "</g> </svg> </svg> " << endl;
+    savefile->close();
+      }
+  if(!print_total && !useCcuValue){
+//Restore ccu value
+    for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+       TmCcu *  ccu= i_ccu->second;
+       if(ccu!=0) {
+          ccu->value = ccu->value * ccu->count;
+    }
+}
+}
+ if(temporary_file){
+    if(printflag)drawPalette(savefile);
+  savefile->close();
+
+  const char * command1;
+  string tempfilename = outputfilename + ".coor";
+    int red,green,blue,npoints,colindex,ncolor;
+    double x[4],y[4];
+    ifstream tempfile(tempfilename.c_str(),ios::in);
+    TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
+    gPad->SetFillColor(38);
+
+    gPad->Range(0,0,3700,1600);
+
+    //First  build palette
+    ncolor=0;
+    typedef std::map<int,int> ColorList;
+    ColorList colorList;
+    ColorList::iterator pos;
+    TColor *col,*c;
+    while(!tempfile.eof()) {
+      tempfile  >> red >> green  >> blue >> npoints;
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex);
+      if(pos == colorList.end()){
+        colorList[colindex]=ncolor+100;
+        col =gROOT->GetColor(ncolor+100);
+        if(col)
+          col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+        else
+          c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+        ncolor++;
+      }
+      for (int i=0;i<npoints;i++){
+        tempfile >> x[i] >> y[i];
+      }
+    }
+    if(ncolor>0 && ncolor<10000){
+      Int_t colors[10000];
+      for(int i=0;i<ncolor;i++){colors[i]=i+100;}
+      gStyle->SetPalette(ncolor,colors);
+    }
+    tempfile.clear();
+    tempfile.seekg(0,ios::beg);
+    cout << "created palette with " << ncolor << " colors" << endl;
+    while(!tempfile.eof()) {//create polylines
+      tempfile  >> red >> green  >> blue >> npoints;
+      for (int i=0;i<npoints;i++){
+        tempfile >> x[i] >> y[i];
+      }
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex);
+      if(pos != colorList.end()){
+        TPolyLine*  pline = new TPolyLine(npoints,y,x);
+        vp.push_back(pline);
+        pline->SetFillColor(colorList[colindex]);
+        pline->SetLineWidth(0);
+        pline->Draw("f");
+      }
+    }
+    MyC->Update();
+    std::cout << "Filetype " << filetype << std::endl;
+    if(filetype=="png"){
+      string filename = outputfilename + ".png";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="jpg"){
+      string filename = outputfilename + ".jpg";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="pdf"){
+      string filename = outputfilename + ".pdf";
+      MyC->Print(filename.c_str());
+    }
+    string command = "rm "+tempfilename ;
+    command1=command.c_str();
+    cout << "Executing " << command1 << endl;
+    system(command1);
+    MyC->Clear();
+    delete MyC;
+    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+         delete (*pos1);}
+
+
+}//if(temporary_file)
+}//if(enabledFecProcessing)
+}
+void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+  
+ if(enableHVProcessing){
+  std::string filetype=s,outputfilename=s;
+  vector<TPolyLine*> vp;
+  filetype.erase(0,filetype.find(".")+1);
+  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+
+  temporary_file=true;
+  
+
+  if(filetype=="xml"||filetype=="svg")temporary_file=false;
+  
+  ostringstream outs;
+  minvalue=minval; maxvalue=maxval;
+  outs << outputfilename << ".coor";
+  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+  
+  std::map<int , TmPsu *>::iterator ipsu;
+  multimap<TmPsu*, TmModule*>::iterator it;
+  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+ 
+  
+  bool usePsuValue=false;
+  
+  for( ipsu=psuMap.begin();ipsu!=psuMap.end(); ipsu++){
+    TmPsu*  psu= ipsu->second;
+    if(psu!=0) {
+      if(psu->countHV2 > 0 || psu->redHV2!=-1 || psu->countHV3 > 0 || psu->redHV3!=-1) { usePsuValue=true; break;}
+      }
+    }
+   
+  if(!usePsuValue){//store mean of connected modules value{
+    
+    for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+       TmPsu *  psu= ipsu->second;
+       if(psu!=0) {
+       ret = psuModuleMap.equal_range(psu);
+         for(it = ret.first; it != ret.second; ++it){
+           if((*it).second->HVchannel==2){ psu->valueHV2=psu->valueHV2+(*it).second->value;}
+           if((*it).second->HVchannel==3){ psu->valueHV3=psu->valueHV3+(*it).second->value;} 
+	    }
+         if(psu->nmodHV2!=0){psu->valueHV2=psu->valueHV2/psu->nmodHV2;}
+         if(psu->nmodHV3!=0){psu->valueHV3=psu->valueHV3/psu->nmodHV3;}
+	 psu->countHV2=1;
+         psu->countHV3=1; 
+	  
+	   }
+	 
+	 }
+       }
+    
+ 
+  if(!print_total){
+    for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+    TmPsu *  psu= ipsu->second;
+      if(psu!=0) {
+	  if(usePsuValue){ 
+	    psu->valueHV2 = psu->valueHV2 / psu->countHV2;
+            psu->valueHV3 = psu->valueHV3 / psu->countHV3;
+	}
+    }
+  }
+ } 
+  
+  if(minvalue>=maxvalue){
+    
+    minvalue=9999999.;
+    maxvalue=-9999999.;
+    
+    for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+       TmPsu *  psu= ipsu->second;
+       if(psu!=0) {
+	      if (minvalue > psu->valueHV2 || minvalue > psu->valueHV3)minvalue=min(psu->valueHV2,psu->valueHV3);
+	      if (maxvalue < psu->valueHV2 || maxvalue < psu->valueHV3)maxvalue=max(psu->valueHV2,psu->valueHV3);
+	      
+	
+	}
+    }
+  }
+  
+     if(filetype=="svg"){
+      saveAsSingleLayer=false;
+      ostringstream outs;
+    outs << outputfilename<<".svg";
+    savefile = new ofstream(outs.str().c_str(),ios::out);
+  *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<endl;
+  *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+  *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
+  *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">"<<endl;
+  *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
+  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl; 
+  *savefile << "<svg:g id=\"HVtrackermap\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
+     }
+   
+  for (int irack=1; irack < (npsuracks+1); irack++){
+    if(filetype=="xml"){
+      saveAsSingleLayer=true;
+      ostringstream outs;
+    outs << outputfilename<<"HVrack" <<irack<< ".xml";
+    savefile = new ofstream(outs.str().c_str(),ios::out);
+    *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<endl;
+    *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+    *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<endl;
+    *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\" >"<<endl;
+    *savefile << "<script type=\"text/ecmascript\" xlink:href=\"rackhv.js\" />"<<endl;
+    *savefile << "<svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0  500 500\" width=\"700\" height=\"700\" onload=\"TrackerRackhv.init()\">"<<endl;
+    *savefile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
+    *savefile << "<g id=\"rackhv\" transform=\" translate(150,500) rotate(270) scale(1.,1.)\"  > "<<endl;
+         }
+    
+    nrack=irack;
+    defpsuwindow(nrack);
+    for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+      TmPsu *  psu= ipsu->second;
+      if(psu->getPsuRack() == irack){
+	      drawHV2(irack,psu->getPsuCrate(),print_total,psu,savefile,usePsuValue);
+              drawHV3(irack,psu->getPsuCrate(),print_total,psu,savefile,usePsuValue);
+      }
+    }
+   
+  
+   if(!temporary_file){
+    if(filetype=="xml"){
+    *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> " << endl;
+    *savefile << "<tspan id=\"line1\" x=\"40\" y=\"30\"> </tspan> " << endl;
+    *savefile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
+    *savefile << " </text> </svg>" << endl;
+    savefile->close();
+     saveAsSingleLayer=false;
+      }
+      }
+    }
+    if(filetype=="svg"){
+    *savefile << "</g> </svg> </svg> " << endl;
+    savefile->close();
+      }
+ 
+    //Restore psu value
+    if(!print_total && !usePsuValue){
+     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+       TmPsu *psu = ipsu->second;
+       if(psu!=0) {
+	  psu->valueHV2 = psu->valueHV2 * psu->countHV2;
+          psu->valueHV3 = psu->valueHV3 * psu->countHV3;
+	  }
+       }
+     }
+  
+
+  if(temporary_file){
+    if(printflag)drawPalette(savefile);
+    savefile->close(); 
+
+  const char * command1;
+  string tempfilename = outputfilename + ".coor";
+    int red,green,blue,npoints,colindex,ncolor;
+    double x[4],y[4];
+    ifstream tempfile(tempfilename.c_str(),ios::in);
+    TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
+    gPad->SetFillColor(38);
+    
+    gPad->Range(0,0,3700,1600);
+    
+    //First  build palette
+    ncolor=0;
+    typedef std::map<int,int> ColorList;
+    ColorList colorList;
+    ColorList::iterator pos;
+    TColor *col,*c;
+    while(!tempfile.eof()) {
+      tempfile  >> red >> green  >> blue >> npoints; 
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos == colorList.end()){ 
+	colorList[colindex]=ncolor+100; 
+	col =gROOT->GetColor(ncolor+100);
+	if(col) 
+	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
+	else 
+	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+	ncolor++;
+      }
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+    }
+    if(ncolor>0 && ncolor<10000){
+      Int_t colors[10000];
+      for(int i=0;i<ncolor;i++){colors[i]=i+100;}
+      gStyle->SetPalette(ncolor,colors);
+    }
+    tempfile.clear();
+    tempfile.seekg(0,ios::beg);
+    cout << "created palette with " << ncolor << " colors" << endl;
+    while(!tempfile.eof()) {//create polylines
+      tempfile  >> red >> green  >> blue >> npoints; 
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos != colorList.end()){
+        TPolyLine*  pline = new TPolyLine(npoints,y,x);
+        vp.push_back(pline);
+        pline->SetFillColor(colorList[colindex]);
+        pline->SetLineWidth(0);
+        pline->Draw("f");
+      }
+    }
+    MyC->Update();
+    std::cout << "Filetype " << filetype << std::endl;
+    if(filetype=="png"){
+      string filename = outputfilename + ".png";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="jpg"){
+      string filename = outputfilename + ".jpg";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="pdf"){
+      string filename = outputfilename + ".pdf";
+      MyC->Print(filename.c_str());
+    }
+    string command = "rm "+tempfilename ;
+    command1=command.c_str();
+    cout << "Executing " << command1 << endl;
+    system(command1);
+    MyC->Clear();
+    delete MyC;
+    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+         delete (*pos1);}
+	 
+	 
+	 }//if(temporary_file)
+}//if(enabledHVProcessing)
+}
+
+
+void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+  
+ if(enableLVProcessing){
+  
+  std::string filetype=s,outputfilename=s;
+  vector<TPolyLine*> vp;
+  filetype.erase(0,filetype.find(".")+1);
+  outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
+
+  
+  temporary_file=true;
+  
+
+  
+  if(filetype=="xml"||filetype=="svg")temporary_file=false;
+  
+  ostringstream outs;
+  minvalue=minval; maxvalue=maxval;
+  outs << outputfilename << ".coor";
+  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+  
+  std::map<int , TmPsu *>::iterator ipsu;
+  multimap<TmPsu*, TmModule*>::iterator it;
+  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+ 
+  //Decide if we must use Module or Power Psupply value
+  bool usePsuValue=false;
+  
+  for( ipsu=psuMap.begin();ipsu!=psuMap.end(); ipsu++){
+    TmPsu*  psu= ipsu->second;
+    if(psu!=0) {
+      if(psu->count > 0 || psu->red!=-1) { usePsuValue=true; break;}
+      }
+    }
+  
+  if(!usePsuValue){//store mean of connected modules value{
+    for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+       TmPsu *  psu= ipsu->second;
+       if(psu!=0) {
+         ret = psuModuleMap.equal_range(psu);
+         for(it = ret.first; it != ret.second; ++it){
+            psu->value=psu->value+(*it).second->value;
+            
+	    }
+         psu->value=psu->value/psu->nmod;
+         psu->count=1;
+     
+	 }
+       }
+    }
+  if(!print_total){
+    for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+    TmPsu *  psu= ipsu->second;
+      if(psu!=0) {
+	  if(usePsuValue) psu->value = psu->value / psu->count;
+
+	}
+    }
+  }
+  
+  if(minvalue>=maxvalue){
+    
+    minvalue=9999999.;
+    maxvalue=-9999999.;
+    for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+       TmPsu *  psu= ipsu->second;
+       if(psu!=0) {
+	      if (minvalue > psu->value)minvalue=psu->value;
+	      if (maxvalue < psu->value)maxvalue=psu->value;
+	}
+    }
+  }
+  
+     if(filetype=="svg"){
+      saveAsSingleLayer=false;
+      ostringstream outs;
+    outs << outputfilename<<".svg";
+    savefile = new ofstream(outs.str().c_str(),ios::out);
+  *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<endl;
+  *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+  *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
+  *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">"<<endl;
+  *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
+  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl; 
+  *savefile << "<svg:g id=\"psutrackermap\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
+     }
+  
+  for (int irack=1; irack < (npsuracks+1); irack++){
+    if(filetype=="xml"){
+      saveAsSingleLayer=true;
+      ostringstream outs;
+    outs << outputfilename<<"psurack" <<irack<< ".xml";
+    savefile = new ofstream(outs.str().c_str(),ios::out);
+    *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<endl;
+    *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<endl;
+    *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<endl;
+    *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\" >"<<endl;
+    *savefile << "<script type=\"text/ecmascript\" xlink:href=\"rack.js\" />"<<endl;
+    *savefile << "<svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0  500 500\" width=\"700\" height=\"700\" onload=\"TrackerCrate.init()\">"<<endl;
+    *savefile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
+    *savefile << "<g id=\"rack\" transform=\" translate(150,500) rotate(270) scale(1.,1.)\"  > "<<endl;
+         }
+   
+    
+    nrack=irack;
+    defpsuwindow(nrack);
+    for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+      TmPsu *  psu= ipsu->second;
+      if(psu->getPsuRack() == irack){
+	      
+	      drawPsu(irack,psu->getPsuCrate(),print_total,psu,savefile,usePsuValue);
+      }
+    }
+   
+    
+   if(!temporary_file){
+    if(filetype=="xml"){
+    *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> " << endl;
+    *savefile << "<tspan id=\"line1\" x=\"40\" y=\"30\"> </tspan> " << endl;
+    *savefile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
+    *savefile << " </text> </svg>" << endl;
+    savefile->close();
+     saveAsSingleLayer=false;
+      }
+      }
+    }
+    if(filetype=="svg"){
+    *savefile << "</g> </svg> </svg> " << endl;
+    savefile->close();
+      }
+ 
+    //Restore psu value
+    if(!print_total && !usePsuValue){
+     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+       TmPsu *psu = ipsu->second;
+       if(psu!=0) {
+	  psu->value = psu->value * psu->count;
+          }
+       }
+     }
+  
+  
+  if(temporary_file){
+    if(printflag)drawPalette(savefile);
+    savefile->close(); 
+
+  const char * command1;
+  string tempfilename = outputfilename + ".coor";
+    int red,green,blue,npoints,colindex,ncolor;
+    double x[4],y[4];
+    ifstream tempfile(tempfilename.c_str(),ios::in);
+    TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
+    gPad->SetFillColor(38);
+    
+    gPad->Range(0,0,3700,1600);
+    
+    //First  build palette
+    ncolor=0;
+    typedef std::map<int,int> ColorList;
+    ColorList colorList;
+    ColorList::iterator pos;
+    TColor *col,*c;
+    while(!tempfile.eof()) {
+      tempfile  >> red >> green  >> blue >> npoints; 
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos == colorList.end()){ 
+	colorList[colindex]=ncolor+100; 
+	col =gROOT->GetColor(ncolor+100);
+	if(col) 
+	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
+	else 
+	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+	ncolor++;
+      }
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+    }
+    if(ncolor>0 && ncolor<10000){
+      Int_t colors[10000];
+      for(int i=0;i<ncolor;i++){colors[i]=i+100;}
+      gStyle->SetPalette(ncolor,colors);
+    }
+    tempfile.clear();
+    tempfile.seekg(0,ios::beg);
+    cout << "created palette with " << ncolor << " colors" << endl;
+    while(!tempfile.eof()) {//create polylines
+      tempfile  >> red >> green  >> blue >> npoints; 
+      for (int i=0;i<npoints;i++){
+	tempfile >> x[i] >> y[i];  
+      }
+      colindex=red+green*1000+blue*1000000;
+      pos=colorList.find(colindex); 
+      if(pos != colorList.end()){
+        TPolyLine*  pline = new TPolyLine(npoints,y,x);
+        vp.push_back(pline);
+        pline->SetFillColor(colorList[colindex]);
+        pline->SetLineWidth(0);
+        pline->Draw("f");
+      }
+    }
+    MyC->Update();
+    std::cout << "Filetype " << filetype << std::endl;
+    if(filetype=="png"){
+      string filename = outputfilename + ".png";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="jpg"){
+      string filename = outputfilename + ".jpg";
+      MyC->Print(filename.c_str());
+    }
+    if(filetype=="pdf"){
+      string filename = outputfilename + ".pdf";
+      MyC->Print(filename.c_str());
+    }
+    string command = "rm "+tempfilename ;
+    command1=command.c_str();
+    cout << "Executing " << command1 << endl;
+    system(command1);
+    MyC->Clear();
+    delete MyC;
+    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+         delete (*pos1);}
+  
+  
+}//if(temporary_file)
+}//if(enabledFedProcessing)
 }
 
 void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
@@ -1209,6 +2401,9 @@ void TrackerMap::printonline(){
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var tmaptitle=\"" <<title << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
+*ofilename <<"    var nfeccrates=" <<nfeccrates << ";"<<endl;
+ *ofilename <<"    var npsuracks=" <<npsuracks << ";"<<endl;
+ 
    ifilename->close();delete ifilename;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
@@ -1233,15 +2428,41 @@ void TrackerMap::printonline(){
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
+  ifilename=findfile("feccrate.js");
+  ofname <<  "feccrate.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+  ofname.str("");
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
+  
   ifilename=findfile("layer.js");
   ofname <<  "layer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofname.str("");
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
   
+  ifilename=findfile("rack.js");
+  ofname <<  "rack.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofname.str("");
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
+   ofname.str("");
+    ifilename=findfile("rackhv.js");
+  ofname <<  "rackhv.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofname.str("");
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
+    
+    
+    
+    
     ostringstream outs,outs1,outs2;
     outs << outputfilename<<".png";
 save(true,gminvalue,gmaxvalue,outs.str(),3000,1600);
@@ -1314,6 +2535,149 @@ save_as_fedtrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
     txtfile->close();delete txtfile;
                 }
   }
+if(enableFecProcessing){
+    ostringstream outs1,outs2;
+    outs1 << outputfilename<<"fec.png";
+save_as_fectrackermap(true,gminvalue,gmaxvalue,outs1.str(),6000,3200);
+    outs2 << outputfilename<<".xml";
+save_as_fectrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
+//And a text file for each crate
+  ofstream * txtfile;
+  std::map<int , TmCcu *>::iterator i_ccu;
+   multimap<TmCcu*, TmModule*>::iterator it;
+   pair<multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+  for (int crate=1; crate < (nfeccrates+1); crate++){
+    ostringstream outs;
+    outs << outputfilename <<"feccrate"<<crate<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+    for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+     TmCcu *  ccu= i_ccu->second;
+      if(ccu!=0&&ccu->getCcuCrate() == crate){
+            int idmod=ccu->idex;
+            *txtfile  << "<a name="<<idmod<<"><pre>"<<endl;
+            *txtfile  <<  ccu->text << endl;
+            ostringstream outs;
+            if(ccu->nmod==0)outs << "ccu  is in position" << ccu->mpos<<"in ring but doesn't seem to have any module connected"; else
+            {
+            outs << "ccu  is in position " << ccu->mpos<<" in ring and connects  " <<ccu->nmod<< " modules" << endl;
+            ret = fecModuleMap.equal_range(ccu);
+        for (it = ret.first; it != ret.second; ++it)
+          {
+           outs << (*it).second->idex<<" " << (*it).second->name <<" value= "<< (*it).second->value<<"\n\n";
+          }
+
+            *txtfile  << "</pre><h4>"<< outs.str()<<"</h4>"<<endl;
+          }//ifccu->nmod==0
+      }//if ccu!=0
+      }//for i_ccu
+    *txtfile << "</body></html>" << endl;
+    txtfile->close();delete txtfile;
+                }//for int crate
+  }
+if(enableLVProcessing){
+   ostringstream outs3,outs4;
+    outs3 << outputfilename<<"psu.png";
+save_as_psutrackermap(true,gminvalue,gmaxvalue,outs3.str(),6000,3200);
+
+    outs4 << outputfilename<<".xml";
+save_as_psutrackermap(true,gminvalue,gmaxvalue,outs4.str(),3000,1600);
+//And a text file for each rack 
+  
+  ofstream * txtfile;
+  std::map<int , TmPsu *>::iterator ipsu;
+  multimap<TmPsu*, TmModule*>::iterator it;
+  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  for (int rack=1; rack < (npsuracks+1); rack++){
+    ostringstream outs;
+    
+    outs << outputfilename <<"psurack"<<rack<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+     for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+      TmPsu *  psu= ipsu->second;
+      if(psu!=0 && psu->getPsuRack() == rack){
+	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<endl;      
+        *txtfile  <<  psu->text << endl;
+        ostringstream outs;
+        if(psu->nmod==0)outs << "Ps is in position" << psu->getPsuBoard()<<"in crate but doesn't seem to have any module connected"; else
+	{
+	outs<< "PS is in position "  <<psu->getPsuBoard()<< " in crate and connects to "<<psu->nmod<<" modules. "<<endl;
+        
+	ret = psuModuleMap.equal_range(psu);
+	for (it = ret.first; it != ret.second; ++it)
+	  {
+	   outs <<(*it).second->idex << " "<< (*it).second->name<<" value= "<<(*it).second->value<<" <br>"<<endl;
+	   
+	  }
+	*txtfile  << "</pre><h4>"<< outs.str()<<"</h4>"<<endl;
+     }
+    }
+  }
+  *txtfile << "</body></html>" << endl;
+   txtfile->close();delete txtfile;
+  }
+ } 
+
+
+if(enableHVProcessing){
+    ostringstream outs5,outs6;
+    outs5 << outputfilename<<"hv.png";
+save_as_HVtrackermap(true,gminvalue,gmaxvalue,outs5.str(),6000,3200);
+
+    outs6 << outputfilename<<".xml";
+save_as_HVtrackermap(true,gminvalue,gmaxvalue,outs6.str(),3000,1600);
+//And a text file for each rack 
+
+  ofstream * txtfile;
+  std::map<int , TmPsu *>::iterator ipsu;
+  multimap<TmPsu*, TmModule*>::iterator it;
+  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  for (int rack=1; rack < (npsuracks+1); rack++){
+    ostringstream outs;
+    
+    outs << outputfilename <<"HVrack"<<rack<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+     for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+      TmPsu *  psu= ipsu->second;
+      if(psu!=0 && psu->getPsuRack() == rack){
+	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<endl;      
+        *txtfile  <<  psu->textHV2 << endl;
+        ostringstream outsHV2;
+        if(psu->nmodHV2==0)outsHV2 << "HV Channel002 is in position" << psu->getPsuBoard()<<"in crate but doesn't seem to have any module connected"; else
+	{
+	outsHV2<< "HV Channel002 is in position "  <<psu->getPsuBoard()<< " in crate and connects to "<<psu->nmodHV2<<" modules. "<<" <br>"<<endl;
+        
+	ret = psuModuleMap.equal_range(psu);
+	for (it = ret.first; it != ret.second; ++it)
+	  {
+	   if((*it).second->HVchannel==2){outsHV2 <<(*it).second->idex << " "<< (*it).second->name<<" value= "<<(*it).second->value<<" <br>"<<endl;}
+	  }
+	*txtfile  << "</pre><h4>"<< outsHV2.str()<<"</h4>"<<endl;
+     }
+    
+        *txtfile  <<  psu->textHV3 << endl;
+        ostringstream outsHV3;
+        if(psu->nmodHV3==0)outsHV3 << "HV Channel003 is in position" << psu->getPsuBoard()<<"in crate but doesn't seem to have any module connected"; else
+	{
+	outsHV3<< "HV Channel003 is in position "  <<psu->getPsuBoard()<< " in crate and connects to "<<psu->nmodHV3<<" modules. "<<" <br>"<<endl;
+        
+	ret = psuModuleMap.equal_range(psu);
+	for (it = ret.first; it != ret.second; ++it)
+	  {
+	   if((*it).second->HVchannel==3){outsHV3 <<(*it).second->idex << " "<< (*it).second->name<<" value= "<<(*it).second->value<<" <br>"<<endl;}
+	  }
+	*txtfile  << "</pre><h4>"<< outsHV3.str()<<"</h4>"<<endl;
+     }
+   
+    }
+  }
+  *txtfile << "</body></html>" << endl;
+   txtfile->close();delete txtfile;
+  }
+ } 
+ 
 }
 void TrackerMap::printall(bool print_total, float minval, float maxval, string outputfilename){
 //Copy interface
@@ -1330,6 +2694,8 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<endl;
 *ofilename <<"    var tmaptitle=\"" <<title << "\""<<endl;
 *ofilename <<"    var ncrates=" <<ncrates << ";"<<endl;
+*ofilename <<"    var nfeccrates=" <<nfeccrates << ";"<<endl;
+*ofilename <<"    var npsuracks=" <<npsuracks << ";"<<endl;
    ifilename->close();delete ifilename;
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
@@ -1349,14 +2715,32 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
+ 
   ofname.str("");
   ifilename=findfile("crate.js");
   ofname <<  "crate.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
-  ofname.str("");
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
+ 
+  ofname.str("");
+  ifilename=findfile("feccrate.js");
+  ofname <<  "feccrate.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
+ 
+  ofname.str("");
+  ifilename=findfile("rack.js");
+  ofname <<  "rack.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
+ 
+   ofname.str("");
   ifilename=findfile("layer.js");
   ofname <<  "layer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
@@ -1372,7 +2756,7 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
     system(command.c_str());
  
   
-    ostringstream outs,outs1,outs2;
+    ostringstream outs;
     outs << outputfilename<<".png";
 save(true,minval,maxval,outs.str(),3000,1600);
 temporary_file=false;
@@ -1411,6 +2795,7 @@ for (int layer=1; layer < 44; layer++){
     txtfile->close();delete txtfile;
                 }
 if(enableFedProcessing){
+    ostringstream outs1,outs2;
     outs1 << outputfilename<<"fed.png";
 save_as_fedtrackermap(true,0.,0.,outs1.str(),6000,3200);
     outs2 << outputfilename<<".xml";
@@ -1444,7 +2829,153 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
     txtfile->close();delete txtfile;
                 }
   }
+if(enableFecProcessing){
+    ostringstream outs1,outs2;
+    outs1 << outputfilename<<"fec.png";
+save_as_fectrackermap(true,0.,0.,outs1.str(),6000,3200);
+    outs2 << outputfilename<<".xml";
+save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
+//And a text file for each crate
+  ofstream * txtfile;
+  std::map<int , TmCcu *>::iterator i_ccu;
+   multimap<TmCcu*, TmModule*>::iterator it;
+   pair<multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+  for (int crate=1; crate < (nfeccrates+1); crate++){
+    ostringstream outs;
+    outs << outputfilename <<"feccrate"<<crate<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+    for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+     TmCcu *  ccu= i_ccu->second;
+      if(ccu!=0&&ccu->getCcuCrate() == crate){
+            int idmod=ccu->idex;
+            *txtfile  << "<a name="<<idmod<<"><pre>"<<endl;
+            *txtfile  <<  ccu->text << endl;
+            ostringstream outs;
+            if(ccu->nmod==0)outs << "ccu  is in position" << ccu->mpos<<"in ring but doesn't seem to have any module connected"; else
+            {
+            outs << "ccu  is in position " << ccu->mpos<<" in ring and connects  " <<ccu->nmod<< " modules" << endl;
+            ret = fecModuleMap.equal_range(ccu);
+        for (it = ret.first; it != ret.second; ++it)
+          {
+           outs << (*it).second->idex<<" " << (*it).second->name <<" value= "<< (*it).second->value<<"\n\n";
+          }
+
+            *txtfile  << "</pre><h4>"<< outs.str()<<"</h4>"<<endl;
+          }//ifccu->nmod==0
+      }//if ccu!=0
+      }//for i_ccu
+    *txtfile << "</body></html>" << endl;
+    txtfile->close();
+                }//for int crate
+  }
+if(enableLVProcessing){
+   ostringstream outs3,outs4;
+    outs3 << outputfilename<<"psu.png";
+save_as_psutrackermap(true,0.,0.,outs3.str(),6000,3200);
+
+    outs4 << outputfilename<<".xml";
+save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
+//And a text file for each rack 
+  
+  ofstream * txtfile;
+  std::map<int , TmPsu *>::iterator ipsu;
+  multimap<TmPsu*, TmModule*>::iterator it;
+  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  for (int rack=1; rack < (npsuracks+1); rack++){
+    ostringstream outs;
+    
+    outs << outputfilename <<"psurack"<<rack<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+     for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+      TmPsu *  psu= ipsu->second;
+      if(psu!=0 && psu->getPsuRack() == rack){
+	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<endl;      
+        *txtfile  <<  psu->text << endl;
+        ostringstream outs;
+        if(psu->nmod==0)outs << "Ps is in position" << psu->getPsuBoard()<<"in crate but doesn't seem to have any module connected"; else
+	{
+	outs<< "PS is in position "  <<psu->getPsuBoard()<< " in crate and connects to "<<psu->nmod<<" modules. "<<endl;
+        
+	ret = psuModuleMap.equal_range(psu);
+	for (it = ret.first; it != ret.second; ++it)
+	  {
+	   outs <<(*it).second->idex << " "<< (*it).second->name<<" value= "<<(*it).second->value<<" <br>"<<endl;
+	   
+	  }
+	*txtfile  << "</pre><h4>"<< outs.str()<<"</h4>"<<endl;
+     }
+    }
+  }
+  *txtfile << "</body></html>" << endl;
+   txtfile->close();
+  }
+ } 
+
+
+if(enableHVProcessing){
+    ostringstream outs5,outs6;
+    outs5 << outputfilename<<"hv.png";
+save_as_HVtrackermap(true,0.,0.,outs5.str(),6000,3200);
+
+    outs6 << outputfilename<<".xml";
+save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
+//And a text file for each rack 
+
+  ofstream * txtfile;
+  std::map<int , TmPsu *>::iterator ipsu;
+  multimap<TmPsu*, TmModule*>::iterator it;
+  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  for (int rack=1; rack < (npsuracks+1); rack++){
+    ostringstream outs;
+    
+    outs << outputfilename <<"HVrack"<<rack<< ".html";
+    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    *txtfile << "<html><head></head> <body>" << endl;
+     for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+      TmPsu *  psu= ipsu->second;
+      if(psu!=0 && psu->getPsuRack() == rack){
+	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<endl;      
+        *txtfile  <<  psu->textHV2 << endl;
+        ostringstream outsHV2;
+        if(psu->nmodHV2==0)outsHV2 << "HV Channel002 is in position" << psu->getPsuBoard()<<"in crate but doesn't seem to have any module connected"; else
+	{
+	outsHV2<< "HV Channel002 is in position "  <<psu->getPsuBoard()<< " in crate and connects to "<<psu->nmodHV2<<" modules. "<<" <br>"<<endl;
+        
+	ret = psuModuleMap.equal_range(psu);
+	for (it = ret.first; it != ret.second; ++it)
+	  {
+	   if((*it).second->HVchannel==2){outsHV2 <<(*it).second->idex << " "<< (*it).second->name<<" value= "<<(*it).second->value<<" <br>"<<endl;}
+	  }
+	*txtfile  << "</pre><h4>"<< outsHV2.str()<<"</h4>"<<endl;
+     }
+    
+        *txtfile  <<  psu->textHV3 << endl;
+        ostringstream outsHV3;
+        if(psu->nmodHV3==0)outsHV3 << "HV Channel003 is in position" << psu->getPsuBoard()<<"in crate but doesn't seem to have any module connected"; else
+	{
+	outsHV3<< "HV Channel003 is in position "  <<psu->getPsuBoard()<< " in crate and connects to "<<psu->nmodHV3<<" modules. "<<" <br>"<<endl;
+        
+	ret = psuModuleMap.equal_range(psu);
+	for (it = ret.first; it != ret.second; ++it)
+	  {
+	   if((*it).second->HVchannel==3){outsHV3 <<(*it).second->idex << " "<< (*it).second->name<<" value= "<<(*it).second->value<<" <br>"<<endl;}
+	  }
+	*txtfile  << "</pre><h4>"<< outsHV3.str()<<"</h4>"<<endl;
+     }
+   
+    }
+  }
+  *txtfile << "</body></html>" << endl;
+   txtfile->close();
+  }
+ } 
+
+
 }
+
+
  std::ifstream * TrackerMap::findfile(string filename) {
   std::ifstream * ifilename;
   std::string ifname;
@@ -1507,6 +3038,12 @@ for (int layer=1; layer < 44; layer++){
     if(layer<31)*xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,1.)\"  > "<<endl;
     else *xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,0.8)\"  > "<<endl;
     *xmlfile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
+    *xmlfile << "<svg:polygon id=\"fed\" mapAttribute=\"fed\" points=\"340,290 340,260 320,260 320,290\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"fec\" mapAttribute=\"fec\" points=\"340,322 340,292 320,292 320,322\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"lv\" mapAttribute=\"lv\" points=\"340,354 340,324 320,324 320,354\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"hv\" mapAttribute=\"hv\" points=\"340,386 340,356 320,356 320,386\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    
+   
     nlay=layer;
     defwindow(nlay);
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
@@ -1523,6 +3060,18 @@ for (int layer=1; layer < 44; layer++){
     *xmlfile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
     *xmlfile << "<tspan id=\"line3\" x=\"40\" y=\"90\"> </tspan> " << endl;
     *xmlfile << "<tspan id=\"line4\" x=\"40\" y=\"120\"> </tspan> " << endl;
+    if(layer > 33){
+    *xmlfile << "<tspan  mapAttribute=\"fed\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"295\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FED</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"332\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"370\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"406\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
+    }
+    else{
+    *xmlfile << "<tspan   mapAttribute=\"fed\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"370\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FED</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"417\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"465\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"506\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
+    }
     *xmlfile << " </text> </svg>" << endl;
     xmlfile->close();delete xmlfile;
   }

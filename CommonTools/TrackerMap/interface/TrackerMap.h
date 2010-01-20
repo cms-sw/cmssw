@@ -14,6 +14,8 @@
 class TmModule;
 class TmApvPair;
 class EventSetup;
+class TmCcu;
+class TmPsu;
 
 using namespace std;
 
@@ -34,7 +36,14 @@ class TrackerMap {
   void printlayers(bool print_total=true,float minval=0., float maxval=0.,std::string s="layer");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
   void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fed_svgmap.svg",int width=1500, int height=800);
+  void save_as_fectrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fec_svgmap.svg",int width=1500, int height=800);
+  void save_as_psutrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",int width=1500, int height=800);
+  void save_as_HVtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",int width=1500, int height=800);
   void drawApvPair( int crate, int numfed_incrate, bool total, TmApvPair* apvPair,std::ofstream * file,bool useApvPairValue);
+  void drawCcu( int crate, int numfed_incrate, bool total, TmCcu* ccu,std::ofstream * file,bool useCcuValue);
+  void drawPsu(int rack,int numcrate_inrack, bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue);
+  void drawHV2(int rack,int numcrate_inrack, bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue);
+  void drawHV3(int rack,int numcrate_inrack, bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue);
   void fill_current_val(int idmod, float current_val );
   void fill(int layer , int ring, int nmod, float x );
   void fill(int idmod, float qty );
@@ -70,9 +79,20 @@ class TrackerMap {
    ModApvPair apvModuleMap;
   typedef std::map<const int  , int>  SvgFed;
   SvgFed fedMap;
+  typedef std::map<const int  , TmCcu*> MapCcu;
+  MapCcu  ccuMap;
+  typedef std::multimap<TmCcu*  , TmModule*> FecModule;
+  FecModule fecModuleMap;
+  typedef std::map<const int  , TmPsu*> MapPsu;
+  MapPsu  psuMap;
+  typedef std::multimap<TmPsu*  , TmModule*> PsuModule;
+  PsuModule psuModuleMap;
   int palette;
   bool printflag;
   bool enableFedProcessing;
+  bool enableFecProcessing;
+  bool enableLVProcessing;
+  bool enableHVProcessing;
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   string title;
@@ -175,6 +195,35 @@ class TrackerMap {
      else res= 2*ysize - (y1*2*ysize)+iy;
     return res;
   }
+  double  xdpixelfec(double x){
+    double res;
+    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*xsize);
+    else res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
+    return res;
+  }
+  double  ydpixelfec(double y){
+    double res;
+    double y1;
+    y1 = (y-ymin)/(ymax-ymin);
+     if(saveAsSingleLayer)res= 2*ysize - (y1*2*ysize);
+     else res= 2*ysize - (y1*2*ysize)+iy;
+    return res;
+  }
+  double  xdpixelpsu(double x){
+    double res;
+    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*xsize);
+    else res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
+    return res;
+  }
+   double  ydpixelpsu(double y){
+    double res;
+    double y1;
+    y1 = (y-ymin)/(ymax-ymin);
+     if(saveAsSingleLayer)res= 2*ysize - (y1*2*ysize);
+     else res= 2*ysize - (y1*2*ysize)+iy;
+    return res;
+  }
+
    void defcwindow(int num_crate){
     ncrate = num_crate;
     int xoffset=xsize/3;
@@ -185,6 +234,32 @@ class TrackerMap {
     if((ncrate%3)==0)ix = xoffset;
     iy = yoffset+((ncrate-1)/3)*ysize*2;
   } 
+   void deffecwindow(int num_crate){
+    ncrate = num_crate;
+    int xoffset=xsize/3;
+    int yoffset=2*ysize;
+    xmin=-1.;xmax=37.;  ymin = -10.; ymax=40.;
+    if(ncrate==1||ncrate==3)ix = xoffset+xsize*2;
+    if(ncrate==2||ncrate==4)ix = xoffset;
+    iy = yoffset+((ncrate-1)/2)*ysize*4;
+  }
+   void defpsuwindow(int num_rack){
+    nrack = num_rack;
+    int xoffset=xsize/5;
+    int yoffset=ysize;
+    xmin=-1.;xmax=63.;  ymin = -1.; ymax=37.;
+
+    if((nrack%5)==1)ix = xoffset+4*int(xsize/1.5);
+    if((nrack%5)==2)ix = xoffset+3*int(xsize/1.5);
+    if((nrack%5)==3)ix = xoffset+2*int(xsize/1.5);
+    if((nrack%5)==4)ix = xoffset+int(xsize/1.5);
+    if((nrack%5)==0)ix = xoffset;
+
+    iy = yoffset+((nrack-1)/5)*ysize*2;
+
+    }
+
+
 void defwindow(int num_lay){
   nlay = num_lay;
   if(posrel){ // separated modules
@@ -340,7 +415,10 @@ void defwindow(int num_lay){
  protected:
   int nlay;
   int ncrate;
+  int nrack;
   int ncrates;
+  int nfeccrates;
+  int npsuracks;
   double xmin,xmax,ymin,ymax;
   int xsize,ysize,ix,iy;
   bool posrel;
@@ -349,6 +427,7 @@ void defwindow(int num_lay){
   std::ofstream * savefile;
   std::ifstream * jsfile;
   std::ifstream * inputfile;
+  std::ifstream * ccufile;
   float gminvalue,gmaxvalue;
   float minvalue,maxvalue;
   int number_modules;

@@ -13,6 +13,8 @@ TmModule::TmModule(int idc, int ring, int layer){
  histNumber=0;
  red=-1;
  capvids="";
+ CcuId=0;
+ HVchannel=2;
 }
 TmModule::~TmModule(){
 }
