@@ -13,5 +13,5 @@ countPatCandidates = cms.Sequence(
     countPatTaus      +
     countPatLeptons   +
     countPatPhotons   +
-    countPatAK5CaloJets 
+    countPatJets 
 )

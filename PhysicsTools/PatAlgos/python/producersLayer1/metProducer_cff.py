@@ -11,5 +11,5 @@ makePatMETs = cms.Sequence(
     patMETCorrections *
     # pat specifics
     # object production
-    patAK5CaloMETs
+    patMETs
     )

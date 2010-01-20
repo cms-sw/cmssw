@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Example for a configuration of the MC match
 #
-patAK5CaloJetPartonMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+patJetPartonMatch = cms.EDFilter("MCMatcher",        # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = cms.InputTag("ak5CaloJets"),       # RECO objects to match
     matched     = cms.InputTag("genParticles"),      # mc-truth particle collection
     mcPdgId     = cms.vint32(1, 2, 3, 4, 5, 21),     # one or more PDG ID (quarks except top; gluons)
@@ -15,7 +15,7 @@ patAK5CaloJetPartonMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt
     resolveByMatchQuality = cms.bool(False),         # False = just match input in order; True = pick lowest deltaR pair first
 )
 
-patAK5CaloJetGenJetMatch = cms.EDFilter("GenJetMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+patJetGenJetMatch = cms.EDFilter("GenJetMatcher",    # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = cms.InputTag("ak5CaloJets"),       # RECO jets (any View<Jet> is ok)
     matched     = cms.InputTag("ak5GenJets"),        # GEN jets  (must be GenJetCollection)
     mcPdgId     = cms.vint32(),                      # n/a

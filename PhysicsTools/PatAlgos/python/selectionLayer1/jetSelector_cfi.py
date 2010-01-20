@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # See https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
 # on how to use the cut-string
 #
-selectedPatAK5CaloJets = cms.EDFilter("PATJetSelector",
-    src = cms.InputTag("patAK5CaloJets"),
+selectedPatJets = cms.EDFilter("PATJetSelector",
+    src = cms.InputTag("patJets"),
     cut = cms.string("")
 )
 

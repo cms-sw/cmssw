@@ -15,16 +15,16 @@ selectedPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("selectedPatMuons"),
         cms.InputTag("selectedPatTaus"),
         cms.InputTag("selectedPatPhotons"),
-        cms.InputTag("selectedPatAK5CaloJets"),
+        cms.InputTag("selectedPatJets"),
     )
 )
 
 
 selectedPatCandidates = cms.Sequence(
-    selectedPatElectrons   +
-    selectedPatMuons       +
-    selectedPatTaus        +
-    selectedPatPhotons     +
-    selectedPatAK5CaloJets +
+    selectedPatElectrons +
+    selectedPatMuons     +
+    selectedPatTaus      +
+    selectedPatPhotons   +
+    selectedPatJets      +
     selectedPatCandidateSummary
 )

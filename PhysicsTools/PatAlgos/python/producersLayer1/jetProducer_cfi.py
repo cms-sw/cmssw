@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patAK5CaloJets = cms.EDProducer("PATJetProducer",
+patJets = cms.EDProducer("PATJetProducer",
     # input
     jetSource = cms.InputTag("ak5CaloJets"),
                                
@@ -33,7 +33,7 @@ patAK5CaloJets = cms.EDProducer("PATJetProducer",
 
     # jet energy corrections
     addJetCorrFactors    = cms.bool(True),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patAK5CaloJetCorrFactors") ),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactors") ),
 
     # btag information
     addBTagInfo          = cms.bool(True),   ## master switch
@@ -71,7 +71,7 @@ patAK5CaloJets = cms.EDProducer("PATJetProducer",
 
     # jet charge
     addJetCharge    = cms.bool(True),
-    jetChargeSource = cms.InputTag("patAK5CaloJetCharge"),
+    jetChargeSource = cms.InputTag("patJetCharge"),
 
     # add jet ID
     addJetID = cms.bool(True),
@@ -80,16 +80,16 @@ patAK5CaloJets = cms.EDProducer("PATJetProducer",
     # mc matching
     addGenPartonMatch   = cms.bool(True),                           ## switch on/off matching to quarks from hard scatterin
     embedGenPartonMatch = cms.bool(True),                           ## switch on/off embedding of the GenParticle parton for this jet
-    genPartonMatch      = cms.InputTag("patAK5CaloJetPartonMatch"), ## particles source to be used for the matching
+    genPartonMatch      = cms.InputTag("patJetPartonMatch"),        ## particles source to be used for the matching
     addGenJetMatch      = cms.bool(True),                           ## switch on/off matching to GenJet's
     embedGenJetMatch    = cms.bool(True),                           ## switch on/off embedding of matched genJet's
-    genJetMatch         = cms.InputTag("patAK5CaloJetGenJetMatch"),  ## GenJet source to be used for the matching
+    genJetMatch         = cms.InputTag("patJetGenJetMatch"),        ## GenJet source to be used for the matching
     addPartonJetMatch   = cms.bool(False),                          ## switch on/off matching to PartonJet's (not implemented yet)
     partonJetSource     = cms.InputTag("NOT_IMPLEMENTED"),          ## ParticleJet source to be used for the matching
 
     # jet flavour idetification configurables
     getJetMCFlavour    = cms.bool(True),
-    JetPartonMapSource = cms.InputTag("patAK5CaloJetFlavourAssociation"),
+    JetPartonMapSource = cms.InputTag("patJetFlavourAssociation"),
 
     # efficiencies
     addEfficiencies = cms.bool(False),

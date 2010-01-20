@@ -5,17 +5,17 @@ patJetPartons = cms.EDFilter("PartonSelector",
     src = cms.InputTag("genParticles")                            
 )
 
-patAK5CaloJetPartonAssociation = cms.EDFilter("JetPartonMatcher",
+patJetPartonAssociation = cms.EDFilter("JetPartonMatcher",
     jets    = cms.InputTag("ak5CaloJets"),
     partons = cms.InputTag("patJetPartons"),
     coneSizeToAssociate = cms.double(0.3),
 )
 
-patAK5CaloJetFlavourAssociation = cms.EDFilter("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("patAK5CaloJetPartonAssociation"),
+patJetFlavourAssociation = cms.EDFilter("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("patJetPartonAssociation"),
     physicsDefinition = cms.bool(False)
 )
 
 # default PAT sequence for jet flavour identification
-patJetFlavourId = cms.Sequence(patJetPartons * patAK5CaloJetPartonAssociation * patAK5CaloJetFlavourAssociation)
+patJetFlavourId = cms.Sequence(patJetPartons * patJetPartonAssociation * patJetFlavourAssociation)
 

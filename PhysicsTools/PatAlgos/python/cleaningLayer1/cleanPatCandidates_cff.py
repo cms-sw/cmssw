@@ -16,16 +16,16 @@ cleanPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("cleanPatMuons"),
         cms.InputTag("cleanPatTaus"),
         cms.InputTag("cleanPatPhotons"),
-        cms.InputTag("cleanPatAK5CaloJets"),
+        cms.InputTag("cleanPatJets"),
     )
 )
 
 
 cleanPatCandidates = cms.Sequence(
-    cleanPatMuons       *        # NOW WE MUST USE '*' AS THE ORDER MATTERS
-    cleanPatElectrons   *
-    cleanPatPhotons     *
-    cleanPatTaus        *
-    cleanPatAK5CaloJets *
+    cleanPatMuons     *        # NOW WE MUST USE '*' AS THE ORDER MATTERS
+    cleanPatElectrons *
+    cleanPatPhotons   *
+    cleanPatTaus      *
+    cleanPatJets      *
     cleanPatCandidateSummary
 )

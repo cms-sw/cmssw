@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatAK5CaloJets = cms.EDProducer("PATJetCleaner",
-    src = cms.InputTag("selectedPatAK5CaloJets"), 
+cleanPatJets = cms.EDProducer("PATJetCleaner",
+    src = cms.InputTag("selectedPatJets"), 
 
     # preselection (any string-based cut on pat::Jet)
     preselection = cms.string(''),
@@ -54,8 +54,6 @@ cleanPatAK5CaloJets = cms.EDProducer("PATJetCleaner",
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the jet to be discared
         )
     ),
-
-
     # finalCut (any string-based cut on pat::Jet)
     finalCut = cms.string(''),
 )
