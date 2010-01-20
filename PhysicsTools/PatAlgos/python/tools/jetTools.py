@@ -260,17 +260,22 @@ def addJetCollection(process,
     """
     ## define common label for pre pat jet 
     ## creation steps in makePatJets    
-    label=standardAlgo+standardType
+ #label=standardAlgo+standardType
 
     ## create old module label from standardAlgo
     ## and standardType and return
     def oldLabel(prefix=''):        
-        return jetCollectionString(prefix, standardAlgo, standardType)
+        return jetCollectionString(prefix, '', '')
 
     ## create new module label from old module
     ## label and return
     def newLabel(oldLabel):
-        return oldLabel.replace(standardAlgo, algoLabel).replace(standardType, typeLabel)
+        newLabel=oldLabel
+        if(oldLabel.find(standardAlgo)>=0 and oldLabel.find(standardType)>=0):
+            oldLabel=oldLabel.replace(standardAlgo, algoLabel).replace(standardType, typeLabel)
+        else:
+            oldLabel=oldLabel+algoLabel+typeLabel
+        return oldLabel
 
     ## clone module and add it to the patDefaultSequence
     def addClone(hook, **replaceStatements):
@@ -295,22 +300,25 @@ def addJetCollection(process,
     ## add a clone of selectedPatJets    
     addClone(oldLabel('selected'), src=cms.InputTag(newLabel(oldLabel())))
     ## add a clone of cleanPatJets    
-    if( doL1Cleaning or doL1Counters ):
+    if( doL1Cleaning ):
         addClone(oldLabel('clean'), src=cms.InputTag(newLabel(oldLabel('selected'))))
     ## add a clone of countPatJets    
     if( doL1Counters ):
-        addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('clean'))))
+        if( doL1Cleaning ):
+            addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('clean'))))
+        else:
+            addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('selected'))))            
 
     ## get attributes of new module
     l1Jets = getattr(process, newLabel(oldLabel()))
 
     ## add a clone of gen jet matching
-    addClone('pat'+label+'JetPartonMatch', src = jetCollection)
-    addClone('pat'+label+'JetGenJetMatch', src = jetCollection, matched = genJetCollection)
+    addClone('patJetPartonMatch', src = jetCollection)
+    addClone('patJetGenJetMatch', src = jetCollection, matched = genJetCollection)
 
     ## add a clone of parton and flavour associations
-    addClone('pat'+label+'JetPartonAssociation', jets = jetCollection)
-    addClone('pat'+label+'JetFlavourAssociation', srcByReference = cms.InputTag(newLabel('pat'+label+'JetPartonAssociation')))
+    addClone('patJetPartonAssociation', jets = jetCollection)
+    addClone('patJetFlavourAssociation', srcByReference = cms.InputTag(newLabel('patJetPartonAssociation')))
 
     ## fix label for input tag
     def fixInputTag(x): x.setModuleLabel(newLabel(x.moduleLabel))
@@ -330,11 +338,11 @@ def addJetCollection(process,
         process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
         from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
         ## add jet track association module to processes
-        jtaLabel = 'jetTracksAssociatorAtVertex'+newLabel(label)
+        jtaLabel = 'jetTracksAssociatorAtVertex'+algoLabel+typeLabel
         setattr( process, jtaLabel, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection) )
-        process.makePatJets.replace(process.patAK5CaloJetCharge, getattr(process,jtaLabel)+process.patAK5CaloJetCharge)
+        process.makePatJets.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
         l1Jets.trackAssociationSource = cms.InputTag(jtaLabel)
-        addClone('pat'+label+'JetCharge', src=cms.InputTag(jtaLabel)),
+        addClone('patJetCharge', src=cms.InputTag(jtaLabel)),
         fixInputTag(l1Jets.jetChargeSource)
     else:
         ## switch embedding of track association and jet
@@ -344,7 +352,7 @@ def addJetCollection(process,
 
     if (doBTagging):
         ## define postfixLabel
-        postfixLabel=newLabel(standardAlgo+standardType)
+        postfixLabel=algoLabel+typeLabel
         ## add b tagging sequence
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
         ## add b tagging sequence before running the allLayer1Jets modules
@@ -376,9 +384,18 @@ def addJetCollection(process,
             raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
         ## add clone of jetCorrFactors
-        addClone('patAK5CaloJetCorrFactors', jetSource = jetCollection)
-        switchJECParameters( getattr(process,newLabel('patAK5CaloJetCorrFactors')), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo' )
+        addClone('patJetCorrFactors', jetSource = jetCollection)
+        switchJECParameters( getattr(process,newLabel('patJetCorrFactors')), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo' )
         fixVInputTag(l1Jets.jetCorrFactorsSource)
+
+        ## switch type1MET corrections off for PFJets
+        if( jetCollection.__str__().find('PFJets')>=0 ):
+            print '================================================='
+            print 'Type1MET corrections are switched off for PFJets.'
+            print 'Users are recommened to use pfMET together with'
+            print 'PFJets.'
+            print '================================================='            
+            doType1MET=False
 
         ## add a clone of the type1MET correction for the new jet collection
         if (doType1MET):
@@ -395,120 +412,167 @@ def addJetCollection(process,
                          )
             ## add a clone of the type1MET correction
             ## and the following muonMET correction  
-            addClone('metJESCor'+label+'Jet', inputUncorJetsLabel = jetCollection.value(),
+            addClone('metJESCorAK5CaloJet', inputUncorJetsLabel = jetCollection.value(),
                      corrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
                      )
-            addClone('metJESCor'+label+'JetMuons', uncorMETInputTag = cms.InputTag(newLabel('metJESCor'+label+'Jet')))
-            addClone('pat'+label+'METs', metSource = cms.InputTag(newLabel('metJESCor'+label+'JetMuons')))
-            l1MET = getattr(process, newLabel('pat'+label+'METs'))
+            addClone('metJESCorAK5CaloJetMuons', uncorMETInputTag = cms.InputTag(newLabel('metJESCorAK5CaloJet')))
+            addClone('patMETs', metSource = cms.InputTag(newLabel('metJESCorAK5CaloJetMuons')))
+            l1MET = getattr(process, newLabel('patMETs'))
             ## add new met collections output to the pat summary
-            process.patCandidateSummary.candidates += [ cms.InputTag(newLabel('pat'+label+'METs')) ]
+            process.patCandidateSummary.candidates += [ cms.InputTag(newLabel('patMETs')) ]
     else:
         ## switch jetCorrFactors off
         l1Jets.addJetCorrFactors = False
 
-def removeJetCollection(process,
-                        algoLabel='AK5',
-                        typeLabel='Calo'
+def switchJetCollection(process,
+                        jetCollection,
+                        doJTA            = True,
+                        doBTagging       = True,
+                        jetCorrLabel     = None,
+                        doType1MET       = True,
+                        genJetCollection = cms.InputTag("ak5GenJets"),
+                        doJetID          = True,
+                        jetIdLabel       = "ak5"
                         ):
     """
     ------------------------------------------------------------------        
-    remove jet collection from the sequence
+    switch the collection of jets in PAT from the default value to a
+    new jet collection
 
     process          : process
-    algoLabel        : label to indicate the jet algorithm of the
-                       collection that is to be removed (e.g.'AK5')
-    typeLabel        : label to indicate the type of constituents
-                       of the jet collection that is to be removed
-                       (e.g. 'Calo', 'Pflow', 'Jpt', ...)    
-    ------------------------------------------------------------------                     
+    jetCollection    : input jet collection
+    doBTagging       : run b tagging sequence for new jet collection
+                       and add it to the new pat jet collection
+    doJTA            : run JetTracksAssociation and JetCharge and add
+                       it to the new pat jet collection (will autom.
+                       be true if doBTagging is set to true)
+    jetCorrLabel     : algorithm and type of JEC; use 'None' for no
+                       JEC; examples are ('AK5','Calo'), ('SC7',
+                       'Calo'), ('KT4','PF')
+    doType1MET       : if jetCorrLabel is not 'None', set this to
+                       'True' to redo the Type1 MET correction for
+                       the new jet colllection; at the moment it must
+                       be 'False' for non CaloJets otherwise the
+                       JetMET POG module crashes.
+    doJetID          : run jet id for new jet collection and add it
+                       to the new pat jet collection
+    genJetCollection : GenJet collection to match to
+
+    doJetId          : add jetId variables to the added jet collection?
+
+    jetIsLabel       : specify the label prefix of the xxxJetID object;
+                       in general it is the jet collection tag like ak5,
+                       kt4 sc5, aso. For more informatrino have a look
+                       to SWGuidePATTools#switch_JetCollection
+                       
+    ------------------------------------------------------------------        
     """
-    ## define common label for pre pat jet 
-    ## creation steps in makePatJets
-    label=algoLabel+typeLabel
-    ## create module label from algoLabel
-    ## and typeLabel and return
-    def oldLabel(prefix=''):        
-        return jetCollectionString(prefix, algoLabel, typeLabel)
+    ## save label of old input jet collection
+    oldLabel = process.patJets.jetSource;
+    
+    ## replace input jet collection for generator matches
+    process.patJetPartonMatch.src        = jetCollection
+    process.patJetGenJetMatch.src        = jetCollection
+    process.patJetGenJetMatch.matched    = genJetCollection
+    process.patJetPartonAssociation.jets = jetCollection
+    ## replace input jet collection for pat jet production
+    process.patJets.jetSource         = jetCollection
+    
+    ## make VInputTag from strings
+    def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
-    ## remove a module from the patDefaultSequence, but
-    ## check in advance whether it is contained or not
-    def removeSafe(moduleName):
-        ## check if module with this name is contained in the
-        ## patDefaultSequence
-        if( contains(process.patDefaultSequence, moduleName)):
-            ## check whether this module is the last one
-            ## in process.makePatJets
-            if( contains(process.makePatJets, '+') or contains(process.makePatJets, '*')):
-                ## if yes remove it from the sequence
-                process.patDefaultSequence.remove(getattr(process, moduleName))
-            else:
-                ## and remove the whole sequence otherwise
-               process.patDefaultSequence.remove(process.makePatJets) 
+    if (doJTA or doBTagging):
+        ## replace jet track association
+        process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+        from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
+        process.jetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection)
+        process.makePatJets.replace(process.patJetCharge, process.jetTracksAssociatorAtVertex+process.patJetCharge)
+        process.patJetCharge.src = 'jetTracksAssociatorAtVertex'
+        process.patJets.trackAssociationSource = 'jetTracksAssociatorAtVertex'
+    else:
+        ## remove the jet track association from the std
+        ## sequence
+        process.makePatJets.remove(process.patJetCharge)
+        ## switch embedding of track association and jet
+        ## charge estimate to 'False'
+        process.patJets.addAssociatedTracks = False
+        process.patJets.addJetCharge = False
 
-    ## remove patJets
-    removeSafe(oldLabel())
-    ## remove selectedPatJets if contained
-    removeSafe(oldLabel('selected'))
-    ## remove cleanPatJets if contained
-    removeSafe(oldLabel('clean'))
-    ## remove countPatJets if cotnained
-    removeSafe(oldLabel('count'))
-    ## remove gen jet matching
-    removeSafe('pat'+label+'JetPartonMatch')
-    removeSafe('pat'+label+'JetGenJetMatch')
-    ## remove parton and flavour associations
-    removeSafe('pat'+label+'JetPartonAssociation')
-    removeSafe('pat'+label+'JetFlavourAssociation')
-    ## remove jet charge
-    removeSafe('pat'+label+'JetCharge')
+    if (doBTagging):
+        ## replace b tagging sequence; add postfix label 'AOD' as crab will
+        ## crash when confronted with empy labels
+        (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD')
+        ## add b tagging sequence before running the allLayer1Jets modules
+        process.makePatJets.replace(process.jetTracksAssociatorAtVertex, process.jetTracksAssociatorAtVertex+btagSeq)
 
-    ## remove btagging
-    if( not(algoLabel=='AK5' and typeLabel=='Calo') ):        
-        ## remove b tagging from the sequence        
-        removeSafe('jetTracksAssociatorAtVertex'+label)
-        process.patDefaultSequence.remove(getattr(process,'btagging'+label))
+        ## replace corresponding tags for pat jet production
+        process.patJets.trackAssociationSource = btagLabels['jta']
+        process.patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
+        process.patJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
+    else:
+        ## remove b tagging from the std sequence
+        process.makePatJets.remove(process.secondaryVertexNegativeTagInfos)
+        process.makePatJets.remove(process.simpleSecondaryVertexNegativeBJetTags)
+        ## switch embedding of b tagging for pat
+        ## jet production to 'False'
+        process.patJets.addBTagInfo = False
 
-    ## remove jetCorrFactors
-    removeSafe('pat'+label+'JetCorrFactors')
-    ## add a clone of the type1MET correction for the new jet collection
-    removeSafe('metJESCor'+label+'Jet')
-    removeSafe('metJESCor'+label+'JetMuons')
-    removeSafe('pat'+label+'METs')
+    if (doJetID):
+        jetIdLabelNew = jetIdLabel + 'JetID'
+        process.patJets.jetIDMap = cms.InputTag( jetIdLabelNew )
+    else:
+        process.patJets.addJetID = cms.bool(False)
 
-def switchJetCollection(process,
-                        jetCollection,
-                        algoLabel,
-                        typeLabel,
-                        doJTA        = True,
-                        doBTagging   = True,
-                        jetCorrLabel = None,
-                        doType1MET   = True,
-                        doL1Cleaning = True,                     
-                        doL1Counters = False,
-                        genJetCollection=cms.InputTag("ak5GenJets"),
-                        doJetID      = True,
-                        jetIdLabel   = "ak5",
-                        standardAlgo = "AK5",
-                        standardType = "Calo"
-                        ):
-    addJetCollection(process,
-                     jetCollection,
-                     algoLabel,
-                     typeLabel,
-                     doJTA,
-                     doBTagging,
-                     jetCorrLabel,
-                     doType1MET,
-                     doL1Cleaning,
-                     doL1Counters,
-                     genJetCollection,
-                     doJetID,
-                     jetIdLabel,
-                     standardAlgo,
-                     standardType)
-    removeJetCollection(process, standardAlgo, standardType)
 
+    if (jetCorrLabel!=None):
+        ## replace jet energy corrections; catch
+        ## a couple of exceptions first
+        if (jetCorrLabel == False ):
+            raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to 'None', not 'False'"
+        if (jetCorrLabel == "None"):
+            raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
+        ## check for the correct format
+        if (type(jetCorrLabel)!=type(('AK5','Calo'))): 
+            raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
+
+        ## switch JEC parameters to the new jet collection
+        process.patJetCorrFactors.jetSource = jetCollection            
+        switchJECParameters(process.patJetCorrFactors, jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo')
+
+        ## switch type1MET corrections off for PFJets
+        if( jetCollection.__str__().find('PFJets')>=0 ):
+            print '================================================='
+            print 'Type1MET corrections are switched off for PFJets.'
+            print 'Users are recommened to use pfMET together with'
+            print 'PFJets.'
+            print '================================================='            
+            doType1MET=False
+
+        ## redo the type1MET correction for the new jet collection
+        if (doType1MET):
+            ## in case there is no jet correction service in the paths add it
+            ## as L2L3 if possible, as combined from L2 and L3 otherwise
+            if (not hasattr( process, 'L2L3JetCorrector%s%s' % jetCorrLabel )):
+                setattr( process, 
+                         'L2L3JetCorrector%s%s' % jetCorrLabel, 
+                         cms.ESSource("JetCorrectionServiceChain",
+                                      correctors = cms.vstring('L2RelativeJetCorrector%s%s' % jetCorrLabel,
+                                                               'L3AbsoluteJetCorrector%s%s' % jetCorrLabel),
+                                      label = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
+                                      )
+                         )
+            ## configure the type1MET correction the following muonMET
+            ## corrections have the corMetType1Icone5 as input and are
+            ## automatically correct  
+            process.metJESCorAK5CaloJet.inputUncorJetsLabel = jetCollection.value()
+            process.metJESCorAK5CaloJet.corrector = 'L2L3JetCorrector%s%s' % jetCorrLabel
+    else:
+        ## remove the jetCorrFactors from the std sequence
+        process.patJetMETCorrections.remove(process.jetCorrFactors)
+        ## switch embedding of jetCorrFactors off
+        ## for pat jet production
+        process.patJets.addJetCorrFactors = False
+ 
 def addJetID(process,
              jetSrc,
              jetIdTag
@@ -527,7 +591,7 @@ def addJetID(process,
     ## replace jet id sequence
     process.load("RecoJets.JetProducers.ak5JetID_cfi")
     setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
-    process.makePatJets.replace( process.patAK5CaloJetPartonMatch, getattr(process,jetIdLabel) + process.patAK5CaloJetPartonMatch )
+    process.makePatJets.replace( process.patJetPartonMatch, getattr(process,jetIdLabel) + process.patJetPartonMatch )
 
 def setTagInfos(process,
                 coll = "allLayer1Jets",

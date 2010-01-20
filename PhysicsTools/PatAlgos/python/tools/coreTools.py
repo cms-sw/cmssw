@@ -185,11 +185,11 @@ def removeSpecificPATObjects(process,
     for obj in range(len(names)):
         if( names[obj] == 'Photons' ):
             process.patDefaultSequence.remove(getattr(process, 'patPhotonIsolation'))
-            process.patDefaultSequence.remove(getattr(process, 'photonMatch'))            
+            process.patDefaultSequence.remove(getattr(process, 'photonMatch'))
         if( names[obj] == 'Electrons' ):
             process.patDefaultSequence.remove(getattr(process, 'patElectronId'))
             process.patDefaultSequence.remove(getattr(process, 'patElectronIsolation'))
-            process.patDefaultSequence.remove(getattr(process, 'electronMatch'))        
+            process.patDefaultSequence.remove(getattr(process, 'electronMatch'))
         if( names[obj] == 'Muons' ):
             process.patDefaultSequence.remove(getattr(process, 'muonMatch'))
         if( names[obj] == 'Taus' ):
@@ -200,17 +200,17 @@ def removeSpecificPATObjects(process,
             process.patDefaultSequence.remove(getattr(process, 'tauGenJetMatch'))
         if( names[obj] == 'Jets' ):
             print process.patDefaultSequence
-            process.patDefaultSequence.remove(getattr(process, 'patAK5CaloJetCharge'))
+            process.patDefaultSequence.remove(getattr(process, 'patJetCharge'))
             process.patDefaultSequence.remove(getattr(process, 'patJetCorrections'))
-            process.patDefaultSequence.remove(getattr(process, 'patAK5CaloJetPartonMatch'))
-            process.patDefaultSequence.remove(getattr(process, 'patAK5CaloJetGenJetMatch'))
-            process.patDefaultSequence.remove(getattr(process, 'patJetFlavourId'))                
+            process.patDefaultSequence.remove(getattr(process, 'patJetPartonMatch'))
+            process.patDefaultSequence.remove(getattr(process, 'patJetGenJetMatch'))
+            process.patDefaultSequence.remove(getattr(process, 'patJetFlavourId'))
         if( names[obj] == 'METs' ):
             process.patDefaultSequence.remove(getattr(process, 'patMETCorrections'))
         
         ## remove object production steps from the default sequence    
         if( names[obj] == 'METs' ):
-            process.patCandidates.remove( getattr(process, 'patAK5Calo'+names[obj]) )
+            process.patCandidates.remove( getattr(process, 'pat'+names[obj]) )
         else:
             if( names[obj] == 'Jets' ):
                 process.patCandidates.remove( getattr(process, jetCollectionString()) )
@@ -232,7 +232,7 @@ def removeSpecificPATObjects(process,
             process.countPatLeptons.countTaus = False
         ## remove from summary
         if( names[obj] == 'METs' ):
-            process.patCandidateSummary.candidates.remove( cms.InputTag('patAK5Calo'+names[obj]) )
+            process.patCandidateSummary.candidates.remove( cms.InputTag('pat'+names[obj]) )
         else:
             if( names[obj] == 'Jets' ):
                 process.patCandidateSummary.candidates.remove( cms.InputTag(jetCollectionString()) )
