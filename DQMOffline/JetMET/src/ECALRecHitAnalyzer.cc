@@ -23,7 +23,7 @@ void ECALRecHitAnalyzer::endJob() {
 
 } 
 
-//void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
+//void ECALRecHitAnalyzer::beginJob(void){
 void ECALRecHitAnalyzer::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
   CurrentEvent = -1;
   // Book the Histograms

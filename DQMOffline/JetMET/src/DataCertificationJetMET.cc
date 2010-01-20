@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.35 2009/12/06 11:26:31 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.36 2010/01/18 21:03:51 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -56,7 +56,6 @@ DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-//DataCertificationJetMET::beginJob(const edm::EventSetup& c)
 DataCertificationJetMET::beginJob(void)
 {
 

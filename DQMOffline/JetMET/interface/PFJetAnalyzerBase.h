@@ -5,8 +5,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2009/06/30 13:48:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/18 21:04:05 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -33,7 +33,6 @@ class PFJetAnalyzerBase {
   virtual ~PFJetAnalyzerBase() {}
   
   /// Inizialize parameters for histo binning
-  //virtual void beginJob(edm::EventSetup const& iSetup,  DQMStore* dbe)= 0;
   virtual void beginJob(DQMStore * dbe)= 0;
 
   /// Get the analysis of the muon properties

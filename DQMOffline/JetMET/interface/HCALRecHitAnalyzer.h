@@ -23,7 +23,7 @@ public:
   explicit HCALRecHitAnalyzer(const edm::ParameterSet&);
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //  virtual void beginJob(const edm::EventSetup&);
+  //  virtual void beginJob(void);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endJob();
 

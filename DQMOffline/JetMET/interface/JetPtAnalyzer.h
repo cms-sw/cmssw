@@ -46,7 +46,6 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   virtual ~JetPtAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
   void beginJob(DQMStore * dbe);
 
   /// Get the analysis
