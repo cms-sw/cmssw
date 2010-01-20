@@ -265,7 +265,9 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   // Vector JK in the "cover" blade frame:
   
   CLHEP::Hep3Vector jkC = kC - jC;
+  std::cout << "about to new jkLength" << std::endl;
   double* jkLength = new double(jkC.mag());
+  //  DDName tJKName("JK", "pixfwdNipple");
   DDConstant JK(DDName("JK", "pixfwdNipple"), jkLength);
   LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  *jkLength * CLHEP::mm;
   
@@ -301,24 +303,33 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
 						  rpCN->zx(), rpCN->zy(), rpCN->zz() );
 
   DDrot(DDName(rotNameCoverToNipple, "pixfwdNipple"), ddrpCN);
-  CLHEP::HepRotation* rpNC = new CLHEP::HepRotation(axis, -angleCover);
-  DDRotationMatrix* ddrpNC = new DDRotationMatrix(rpNC->xx(), rpNC->xy(), rpNC->xz(),
-						  rpNC->yx(), rpNC->yy(), rpNC->yz(),
-						  rpNC->zx(), rpNC->zy(), rpNC->zz() );
-
+  CLHEP::HepRotation rpNC(axis, -angleCover);
+  DDRotationMatrix* ddrpNC = new DDRotationMatrix(rpNC.xx(), rpNC.xy(), rpNC.xz(),
+						  rpNC.yx(), rpNC.yy(), rpNC.yz(),
+						  rpNC.zx(), rpNC.zy(), rpNC.zz() );
+//   CLHEP::HepRotation* rpNC = new CLHEP::HepRotation(axis, -angleCover);
+//   DDRotationMatrix* ddrpNC = new DDRotationMatrix(rpNC->xx(), rpNC->xy(), rpNC->xz(),
+// 						  rpNC->yx(), rpNC->yy(), rpNC->yz(),
+// 						  rpNC->zx(), rpNC->zy(), rpNC->zz() );
   DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"), ddrpNC);
   
   // Rotation from nipple frame to "body" blade frame :
   
-  CLHEP::HepRotation* rpNB = new CLHEP::HepRotation( (*rpNC) * rCB );
-  DDRotationMatrix* ddrpNB = new DDRotationMatrix(rpNB->xx(), rpNB->xy(), rpNB->xz(),
-						  rpNB->yx(), rpNB->yy(), rpNB->yz(),
-						  rpNB->zx(), rpNB->zy(), rpNB->zz() );
+  CLHEP::HepRotation rpNB( rpNC * rCB );
+  DDRotationMatrix* ddrpNB = new DDRotationMatrix(rpNB.xx(), rpNB.xy(), rpNB.xz(),
+						  rpNB.yx(), rpNB.yy(), rpNB.yz(),
+						  rpNB.zx(), rpNB.zy(), rpNB.zz() );
+//   CLHEP::HepRotation* rpNB = new CLHEP::HepRotation( (*rpNC) * rCB );
+//   DDRotationMatrix* ddrpNB = new DDRotationMatrix(rpNB->xx(), rpNB->xy(), rpNB->xz(),
+// 						  rpNB->yx(), rpNB->yy(), rpNB->yz(),
+// 						  rpNB->zx(), rpNB->zy(), rpNB->zz() );
 
+  //  delete rpNC;
+  //  delete rpNB;
   DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"), ddrpNB);
-  double angleBody = vZ.angle(*rpNB * vZ);
-  LogDebug("PixelGeom") << " Angle to body : " << angleBody;
-  
+//   double angleBody = vZ.angle(*rpNB * vZ);
+  double angleBody = vZ.angle(rpNB * vZ);
+  LogDebug("PixelGeom") << " Angle to body : " << angleBody;  
 }
 
 // ---------------------------------------------------------------------------------------
