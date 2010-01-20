@@ -26,6 +26,10 @@
 
 #include <boost/tokenizer.hpp>
 
+// to handle pt file descriptors left open at fork
+#include "pt/PeerTransportReceiver.h"
+#include "pt/PeerTransportAgent.h"
+
 #include "xcept/tools.h"
 #include "xgi/Method.h"
 
@@ -242,7 +246,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\">2.0.6 (" << edm::getReleaseVersion() <<")</div>"
+  ost  << "<div id=\"ve\">2.0.7 (" << edm::getReleaseVersion() <<")</div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
@@ -393,6 +397,14 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       if(retval==0)
 	{
 	  isChildProcess_=true;
+	  try{
+	    pt::PeerTransport * ptr =
+	      pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
+	    delete ptr;
+	  }
+	  catch (pt::exception::PeerTransportNotFound & e ){
+	    LOG4CPLUS_WARN(getApplicationLogger()," ***Slave Failed to shutdown ptHTTP");
+	  }
 	  fsm_.disableRcmsStateNotification();
 	  ostringstream ost1;
 	  ost1 << "-I- Slave Process " << retval << " forked for slot " << i; 
@@ -864,6 +876,14 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  if(rr==0)
 		    {
 		      isChildProcess_=true;
+		      try{
+			pt::PeerTransport * ptr =
+			  pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
+			delete ptr;
+		      }
+		      catch (pt::exception::PeerTransportNotFound & e ){
+			LOG4CPLUS_WARN(getApplicationLogger()," ***Slave Failed to shutdown ptHTTP");
+		      }
 		      fsm_.disableRcmsStateNotification();
 		      fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
 		      fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition

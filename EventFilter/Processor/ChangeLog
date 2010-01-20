@@ -1,3 +1,8 @@
+2010-01-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-00-07
+	* delete ptHTTP in slave process to avoid open FD problems
+	
 2009-11-17 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-00-06
