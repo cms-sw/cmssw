@@ -19,7 +19,7 @@ class EcalCondTowerObjectContainer {
                 typedef typename std::vector<Item>::iterator iterator;
 
                 EcalCondTowerObjectContainer() {
-		  size_t ebsize=(size_t)EcalTrigTowerDetId::kEBTowersPerSM*18;
+		  size_t ebsize=(size_t)EcalTrigTowerDetId::kEBTowersPerSM*18*2;
 		  eb_.checkAndResize(ebsize);
 		  size_t eesize=(size_t)632;
 		  ee_.checkAndResize(eesize);
@@ -42,49 +42,31 @@ class EcalCondTowerObjectContainer {
                         return ee_.item(hashedIndex);
                 }
 
-                inline
-                void insert( std::pair<uint32_t, Item> const &a ) {
-                        DetId id(a.first);
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                eb_.insert(a);
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                ee_.insert(a);
-                                        }
-                                        break;
-                                default:
-				  std::cout <<"*** ERROR it is not barrel nor endcap tower"<< std::endl;
-                                        // FIXME (add throw)
-                                        return;
-                        }
+                inline void insert( std::pair<uint32_t, Item> const &a ) {
+		  DetId id(a.first);
+		  if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
+		    eb_.insert(a);
+		  } else if(  id.subdetId() == EcalEndcap  ) { 
+		    ee_.insert(a);
+		  } else {
+		    std::cout <<"*** ERROR it is not barrel nor endcap tower"<< std::endl;
+		  }
                 }
                 
                 inline
                 const_iterator find( uint32_t rawId ) const {
                         DetId id(rawId);
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                const_iterator it = eb_.find(rawId);
-                                                if ( it != eb_.end() ) {
-                                                        return it;
-                                                } else {
-                                                        return ee_.end();
-                                                }
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_.find(rawId);
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return ee_.end();
+                        if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
+			  const_iterator it = eb_.find(rawId);
+			  if ( it != eb_.end() ) {
+			    return it;
+			  } else {
+			    return ee_.end();
+			  }
+			} else if(  id.subdetId() == EcalEndcap  ) { 
+			  return ee_.find(rawId);
+			} else {
+			  return ee_.end();
                         }
                 }
 
@@ -118,20 +100,13 @@ class EcalCondTowerObjectContainer {
                 Item & operator[]( uint32_t rawId ) {
                         DetId id(rawId);
                         static Item dummy;
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                return eb_[rawId];
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return dummy;
+
+                        if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
+			  return eb_[rawId];
+			} else if(  id.subdetId() == EcalEndcap  ) { 
+			  return ee_[rawId];
+			} else {
+			  return dummy;
                         }
                 }
                 
@@ -139,20 +114,13 @@ class EcalCondTowerObjectContainer {
                 Item const & operator[]( uint32_t rawId ) const {
                         DetId id(rawId);
                         static Item dummy;
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                return eb_[rawId];
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return dummy;
+
+                        if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
+			  return eb_[rawId];
+			} else if(  id.subdetId() == EcalEndcap  ) { 
+			  return ee_[rawId];
+			} else {
+			  return dummy;
                         }
                 }
                 
