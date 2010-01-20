@@ -102,7 +102,7 @@ void EwkElecDQM::beginRun(const Run& r, const EventSetup&) {
 }
 
 
-void EwkElecDQM::beginJob(const EventSetup &) {
+void EwkElecDQM::beginJob() {
       theDbe = Service<DQMStore>().operator->();
       theDbe->setCurrentFolder("Physics/EwkElecDQM");
       init_histograms();
