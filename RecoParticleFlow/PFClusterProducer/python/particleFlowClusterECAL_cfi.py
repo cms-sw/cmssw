@@ -24,7 +24,8 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     thresh_Endcap = cms.double(0.3),
     thresh_Pt_Endcap = cms.double(0.00),
     # cleaning threshold and minimum S4/S1 fraction in ECAL endcap
-    thresh_Clean_Endcap = cms.double(15.0),
+    # thresh_Clean_Endcap = cms.double(15.0),
+    thresh_Clean_Endcap = cms.double(1E5),
     minS4S1_Clean_Endcap = cms.vdouble(0.04, -0.025),
     # n neighbours in ECAL 
     nNeighbours = cms.int32(8),
