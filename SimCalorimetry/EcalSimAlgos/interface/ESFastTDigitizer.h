@@ -37,7 +37,9 @@ class ESFastTDigitizer
     addNoise_(addNoise),
     numESdetId_(numESdetId),  
     zsThreshold_(zsThreshold),
-    refFile_(refFile) {        
+    refFile_(refFile),
+    histoDistribution_(0)
+  {        
     
     // reference distributions
     if (addNoise_) readHistosFromFile () ;  
@@ -45,7 +47,7 @@ class ESFastTDigitizer
   
   /// doesn't delete the pointers passed in 
   // ~ESFastTDigitizer() { delete refHistos_; }
-  ~ESFastTDigitizer() { if ( histoDistribution_ ) delete histoDistribution_; }
+  ~ESFastTDigitizer() { delete histoDistribution_; }
   
   /// taking reference histos
   void readHistosFromFile( ) {
