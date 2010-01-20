@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes performances ( SL by SL )
  *
- *  $Date: 2007/12/07 15:00:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/29 13:10:34 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,6 +20,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
 //---------------
@@ -202,6 +203,8 @@ class DTPerformance {
   float nsPerCount;
 
   std::vector< std::pair<DTPerformanceId,DTPerformanceData> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;
