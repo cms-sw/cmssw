@@ -70,7 +70,7 @@ void HitTripletProducer::init(const edm::EventSetup& es)
 void HitTripletProducer::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
-  static int lastRun=0;
+  static unsigned int lastRun=0;
   if (ev.id().run() != lastRun) { lastRun=ev.id().run(); init(es); }
 
 //   static edm::ESWatcher<TrackerDigiGeometryRecord> recordWatcher; 
