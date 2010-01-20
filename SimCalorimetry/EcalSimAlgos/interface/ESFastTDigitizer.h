@@ -45,7 +45,7 @@ class ESFastTDigitizer
   
   /// doesn't delete the pointers passed in 
   // ~ESFastTDigitizer() { delete refHistos_; }
-  ~ESFastTDigitizer() { delete histoDistribution_; }
+  ~ESFastTDigitizer() { if ( histoDistribution_ ) delete histoDistribution_; }
   
   /// taking reference histos
   void readHistosFromFile( ) {
