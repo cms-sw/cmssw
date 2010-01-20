@@ -255,8 +255,9 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       if(GsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) continue;
       IsThereAGoodGSFTrack = true;
       float eta_gsf = GsfEl->positionAtECALEntrance().eta();
-      
-
+      float etaOut_gsf = GsfEl->Pout().eta();
+      float diffOutEcalEta =  fabs(eta_gsf-etaOut_gsf);
+	    
 
 
       // Find Associated Kf Track elements and Ecal to KF elements
@@ -294,31 +295,41 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       unsigned int ClosestEcalGsf_index = CutIndex;
       if (ecalGsfElems.size() > 0) {	
 	if(localactive[(ecalGsfElems.begin()->second)] == true) {
-	  ClosestEcalGsf_index = ecalGsfElems.begin()->second;
-	  ecalGsf_dist = block.dist(gsfIs[iEle],ClosestEcalGsf_index,
-				    linkData,reco::PFBlock::LINKTEST_ALL);
-	
-	  // Check that this cluster is not closer to another primary Gsf track
-	  
-	   std::multimap<double, unsigned int> ecalOtherGsfElems;
-	   block.associatedElements( ClosestEcalGsf_index,linkData,
-				     ecalOtherGsfElems,
-				     reco::PFBlockElement::GSF,
-				     reco::PFBlock::LINKTEST_ALL);
-	
-	   if(ecalOtherGsfElems.size()>0) {
-	     // get if it is closed to a conv brem gsf tracks
-	     const reco::PFBlockElementGsfTrack * gsfCheck  =  
-	       dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
-
-	     if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]&&
-		gsfCheck->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false) {	     
-	       ecalGsf_dist = CutGSFECAL;
-	       ClosestEcalGsf_index = CutIndex;
-	     }
-	   }
-	   // do not lock at the moment we need this for the late brem
-	 }
+	  // check energy compatibility for outer eta != ecal entrance, looping tracks
+	  bool compatibleEPout = true;
+	  if(diffOutEcalEta > 0.3) {
+	    reco::PFClusterRef clusterRef = elements[(ecalGsfElems.begin()->second)].clusterRef();	
+	    float EoPout = (clusterRef->energy())/(GsfEl->Pout().t());
+	    if(EoPout > 5) 
+	      compatibleEPout = false;
+	  }
+	  if(compatibleEPout) {
+	    ClosestEcalGsf_index = ecalGsfElems.begin()->second;
+	    ecalGsf_dist = block.dist(gsfIs[iEle],ClosestEcalGsf_index,
+				      linkData,reco::PFBlock::LINKTEST_ALL);
+	    
+	    // Check that this cluster is not closer to another primary Gsf track
+	    
+	    std::multimap<double, unsigned int> ecalOtherGsfElems;
+	    block.associatedElements( ClosestEcalGsf_index,linkData,
+				      ecalOtherGsfElems,
+				      reco::PFBlockElement::GSF,
+				      reco::PFBlock::LINKTEST_ALL);
+	    
+	    if(ecalOtherGsfElems.size()>0) {
+	      // get if it is closed to a conv brem gsf tracks
+	      const reco::PFBlockElementGsfTrack * gsfCheck  =  
+		dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
+	      
+	      if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]&&
+		 gsfCheck->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) == false) {	     
+		ecalGsf_dist = CutGSFECAL;
+		ClosestEcalGsf_index = CutIndex;
+	      }
+	    }
+	  }
+	  // do not lock at the moment we need this for the late brem
+	}
       }
       // if any cluster is found with the gsf-ecal link, try with kf-ecal
       else if(ecalKfElems.size() > 0) {
@@ -496,28 +507,28 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       if (ClosestEcalGsf_index < CutIndex) {
 	GsfElemIndex.push_back(ClosestEcalGsf_index);
 	localactive[ClosestEcalGsf_index] = false;
-      }
-      for (std::multimap<double, unsigned int>::iterator ii = ecalGsfElems.begin();
-	   ii != ecalGsfElems.end();ii++) {	
-	if(localactive[ii->second]) {
-	  // Check that this cluster is not closer to another Gsf Track
-	  std::multimap<double, unsigned int> ecalOtherGsfElems;
-	  block.associatedElements( ii->second,linkData,
-				    ecalOtherGsfElems,
-				    reco::PFBlockElement::GSF,
-				    reco::PFBlock::LINKTEST_ALL);
-	  if(ecalOtherGsfElems.size()) {
-	    if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]) continue;
-	  } 
-	  
-	  // get the cluster only if the deta (ecal-gsf) < 0.05
-	  reco::PFClusterRef clusterRef = elements[(ii->second)].clusterRef();
-	  float etacl =  clusterRef->eta();
-	  if( fabs(eta_gsf-etacl) < 0.05) {	    
-	    GsfElemIndex.push_back(ii->second);
-	    localactive[ii->second] = false;
-	    if (DebugSetLinksDetailed)
-	      cout << " ExtraCluster From Gsf " << ii->second << endl;
+	for (std::multimap<double, unsigned int>::iterator ii = ecalGsfElems.begin();
+	     ii != ecalGsfElems.end();ii++) {	
+	  if(localactive[ii->second]) {
+	    // Check that this cluster is not closer to another Gsf Track
+	    std::multimap<double, unsigned int> ecalOtherGsfElems;
+	    block.associatedElements( ii->second,linkData,
+				      ecalOtherGsfElems,
+				      reco::PFBlockElement::GSF,
+				      reco::PFBlock::LINKTEST_ALL);
+	    if(ecalOtherGsfElems.size()) {
+	      if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]) continue;
+	    } 
+	    
+	    // get the cluster only if the deta (ecal-gsf) < 0.05
+	    reco::PFClusterRef clusterRef = elements[(ii->second)].clusterRef();
+	    float etacl =  clusterRef->eta();
+	    if( fabs(eta_gsf-etacl) < 0.05) {	    
+	      GsfElemIndex.push_back(ii->second);
+	      localactive[ii->second] = false;
+	      if (DebugSetLinksDetailed)
+		cout << " ExtraCluster From Gsf " << ii->second << endl;
+	    }
 	  }
 	}
       }
