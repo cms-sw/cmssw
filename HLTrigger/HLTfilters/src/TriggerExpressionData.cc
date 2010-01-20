@@ -1,11 +1,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionCache.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
 namespace hlt {
 
-bool TriggerExpressionCache::setEvent(const edm::Event & event) {
+bool TriggerExpressionData::setEvent(const edm::Event & event) {
   // cache the TriggerResults and TriggerNames objects
   edm::Handle<edm::TriggerResults> h_triggerResults;
   event.getByLabel(m_triggerResultsTag, h_triggerResults);

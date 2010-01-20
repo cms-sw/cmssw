@@ -50,7 +50,7 @@ public:
     UnaryOperator(arg)
   { }
 
-  bool operator()(const TriggerExpressionCache & data) {
+  bool operator()(const TriggerExpressionData & data) {
     return not (*m_arg)(data);
   }
   
@@ -66,7 +66,7 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const TriggerExpressionCache & data) {
+  bool operator()(const TriggerExpressionData & data) {
     return (*m_arg1)(data) and (*m_arg2)(data);
   }
   
@@ -83,7 +83,7 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const TriggerExpressionCache & data) {
+  bool operator()(const TriggerExpressionData & data) {
     return (*m_arg1)(data) or (*m_arg2)(data);
   }
   
@@ -100,7 +100,7 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const TriggerExpressionCache & data) {
+  bool operator()(const TriggerExpressionData & data) {
     return (*m_arg1)(data) xor (*m_arg2)(data);
   }
   

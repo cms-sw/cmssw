@@ -5,12 +5,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionHLTReader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionCache.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
 namespace hlt {
 
 // define the result of the module from the HLT reults
-bool TriggerExpressionHLTReader::operator()(const TriggerExpressionCache & data) {
+bool TriggerExpressionHLTReader::operator()(const TriggerExpressionData & data) {
   if (data.configurationUpdated())
     init(data.triggerNames());
 

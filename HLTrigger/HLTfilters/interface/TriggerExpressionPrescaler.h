@@ -2,7 +2,7 @@
 #define HLTrigger_HLTfilters_ExpressionPrescaler_h
 
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionCache.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
 namespace hlt {
 
@@ -14,7 +14,7 @@ public:
     m_counter()
   { }
 
-  bool operator()(const TriggerExpressionCache & data) {
+  bool operator()(const TriggerExpressionData & data) {
     // initialize the counter to the first event number seen, 
     // in order to avoid all prescalers on different FUs to be syncronous
     if (m_counter == 0)

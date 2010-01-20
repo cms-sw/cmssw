@@ -14,9 +14,9 @@ namespace edm {
 
 namespace hlt {
 
-class TriggerExpressionCache {
+class TriggerExpressionData {
 public:
-  explicit TriggerExpressionCache(const edm::ParameterSet & config) :
+  explicit TriggerExpressionData(const edm::ParameterSet & config) :
     // configuration
     m_triggerResultsTag(config.getParameter<edm::InputTag> ("triggerResults")),
     m_throw(config.getParameter<bool> ("throw")),
@@ -63,4 +63,4 @@ private:
 
 } // namespace hlt
 
-#endif // TriggerExpressionCache_h
+#endif // TriggerExpressionData_h

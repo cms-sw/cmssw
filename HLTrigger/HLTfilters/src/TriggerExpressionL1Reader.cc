@@ -3,7 +3,7 @@
 namespace hlt {
 
 // define the result of the module from the L1 reults
-bool TriggerExpressionL1Reader::operator()(const TriggerExpressionCache & data) {
+bool TriggerExpressionL1Reader::operator()(const TriggerExpressionData & data) {
   return false;
 }
 

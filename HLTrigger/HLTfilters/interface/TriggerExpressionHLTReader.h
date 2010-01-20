@@ -22,7 +22,7 @@ public:
 
   void init(const edm::TriggerNames & triggerNames);
 
-  bool operator()(const TriggerExpressionCache & data);
+  bool operator()(const TriggerExpressionData & data);
   
   void dump(std::ostream & out) const;
 

@@ -10,7 +10,7 @@ namespace edm {
 
 namespace hlt {
 
-class TriggerExpressionCache;
+class TriggerExpressionData;
 
 class TriggerExpressionEvaluator {
 public:
@@ -20,7 +20,7 @@ public:
   virtual void configure(const edm::EventSetup &) { }
 
   // pure virtual, need a concrete implementation
-  virtual bool operator()(const TriggerExpressionCache &) = 0;
+  virtual bool operator()(const TriggerExpressionData &) = 0;
 
   // pure virtual, need a concrete implementation
   virtual void dump(std::ostream &) const = 0;
