@@ -8,6 +8,7 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
      energyValid_  = false;
      matchesValid_ = false;
      isolationValid_ = false;
+     qualityValid_ = false;
      caloCompatibility_ = -9999.;
      type_ = 0;
 }
@@ -16,6 +17,7 @@ Muon::Muon() {
    energyValid_  = false;
    matchesValid_ = false;
    isolationValid_ = false;
+   qualityValid_ = false;
    caloCompatibility_ = -9999.;
    type_ = 0;
 }
