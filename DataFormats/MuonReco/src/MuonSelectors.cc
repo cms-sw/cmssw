@@ -614,6 +614,18 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
     case muon::TMOneStationAngTight:
       return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,true);
       break;
+    case muon::TMLastStationOptimizedBarrelLowPtLoose:
+      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+      else
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
+      break;
+    case muon::TMLastStationOptimizedBarrelLowPtTight:
+      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+      else
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
+      break;
     default:
       return false;
     }
