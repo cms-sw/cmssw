@@ -100,8 +100,12 @@ void EWKSystUnc::analyze(const edm::Event& event, const edm::EventSetup& setup) 
    // get weight and fill it to histogram
  double weight = (*weights);
 
+ // protection...
+if (weight> 2. || weight < 0.1) {
 
-
+ std::cout << "weight  = " << weight << ", something strange...." << std::endl;
+weight =1;
+}
   h_weight_histo->Fill(weight); 
   
   std::vector<GenParticle> muons;
