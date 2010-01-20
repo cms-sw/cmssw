@@ -23,7 +23,7 @@ L1MuScalesTester::~L1MuScalesTester() {
 void L1MuScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
   using namespace edm;
 
-  char* detnam[]={ "DT", "RPC barrel", "CSC", "RPC forward" };
+  const char* detnam[]={ "DT", "RPC barrel", "CSC", "RPC forward" };
 
   ESHandle< L1MuTriggerScales > l1muscales ;
   es.get< L1MuTriggerScalesRcd >().get( l1muscales ) ;
