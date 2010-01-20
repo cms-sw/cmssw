@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/29 13:12:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/12 13:00:00 $
+ *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -10,12 +10,12 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-#include "CondTools/DT/test/validate/DTMtimeValidateHandler.h"
+#include "CondTools/DT/test/validate/DTRangeT0ValidateHandler.h"
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DTObjects/interface/DTRangeT0.h"
 
 //---------------
 // C++ Headers --
@@ -32,7 +32,7 @@
 //----------------
 // Constructors --
 //----------------
-DTMtimeValidateHandler::DTMtimeValidateHandler( const edm::ParameterSet& ps ):
+DTRangeT0ValidateHandler::DTRangeT0ValidateHandler( const edm::ParameterSet& ps ):
  firstRun(     ps.getParameter<unsigned int> ( "firstRun" ) ),
   lastRun(     ps.getParameter<unsigned int> (  "lastRun" ) ),
  dataVersion(  ps.getParameter<std::string> ( "version" ) ),
@@ -44,21 +44,21 @@ DTMtimeValidateHandler::DTMtimeValidateHandler( const edm::ParameterSet& ps ):
 //--------------
 // Destructor --
 //--------------
-DTMtimeValidateHandler::~DTMtimeValidateHandler() {
+DTRangeT0ValidateHandler::~DTRangeT0ValidateHandler() {
 }
 
 //--------------
 // Operations --
 //--------------
-void DTMtimeValidateHandler::getNewObjects() {
+void DTRangeT0ValidateHandler::getNewObjects() {
   int runNumber = firstRun;
   while ( runNumber <= lastRun ) addNewObject( runNumber++ );
   return;
 }
 
-void DTMtimeValidateHandler::addNewObject( int runNumber ) {
+void DTRangeT0ValidateHandler::addNewObject( int runNumber ) {
 
-  DTMtime* mT = new DTMtime( dataVersion );
+  DTRangeT0* tR = new DTRangeT0( dataVersion );
 
   std::stringstream run_fn;
   run_fn << "run" << runNumber << dataFileName;
@@ -70,10 +70,10 @@ void DTMtimeValidateHandler::addNewObject( int runNumber ) {
   int sta;
   int sec;
   int qua;
-  float mTime;
-  float mTrms;
-  float ckmt;
-  float ckrms;
+  int t0min;
+  int t0max;
+  int ckt0min;
+  int ckt0max;
 
   whe = 3;
   while ( --whe >= -2 ) {
@@ -86,40 +86,43 @@ void DTMtimeValidateHandler::addNewObject( int runNumber ) {
         while ( --qua ) {
           if ( ( sta == 4 ) &&
                ( qua == 2 ) ) continue;
-              mTime = random() * 10.0 / 0x0fffffff;
-              mTrms = random() *  2.0 / 0x7fffffff;
-              mTime += 370.0;
-              status = mT->set( whe, sta, sec, qua,
-                                mTime, mTrms, DTTimeUnits::counts );
+              t0min =
+              t0max = random() / 0x0000ffff;
+              t0min -= 50.0;
+              t0max += 50.0;
+              status = tR->set( whe, sta, sec, qua,
+                                t0min, t0max );
               outFile << whe << " "
                       << sta << " "
                       << sec << " "
                       << qua << " "
-                      << mTime << " "
-                      << mTrms << std::endl;
-              if ( status ) logFile << "ERROR while setting sl Mtime "
+                      << t0min << " "
+                      << t0max << std::endl;
+              if ( status ) logFile << "ERROR while setting range T0"
                                     << whe << " "
                                     << sta << " "
                                     << sec << " "
                                     << qua << " , status = "
                                     << status << std::endl;
-              status = mT->get( whe, sta, sec, qua,
-                                ckmt, ckrms, DTTimeUnits::counts );
-              if ( status ) logFile << "ERROR while checking sl Mtime "
+              status = tR->get( whe, sta, sec, qua,
+                                ckt0min, ckt0max );
+              if ( status ) logFile << "ERROR while checking range T0 "
                                     << whe << " "
                                     << sta << " "
                                     << sec << " "
                                     << qua << " , status = "
                                     << status << std::endl;
-              if ( ( fabs( ckmt  - mTime ) > 0.01   ) ||
-                   ( fabs( ckrms - mTrms ) > 0.0001 ) )
-                   logFile << "MISMATCH WHEN WRITING sl Mtime "
+              if ( ( fabs( ckt0min - t0min ) > 0.0001 ) ||
+                   ( fabs( ckt0max - t0max ) > 0.0001 ) )
+                   logFile << "MISMATCH WHEN WRITING range T0 "
                            << whe << " "
                            << sta << " "
                            << sec << " "
                            << qua << " : "
-                           << mTime << " " << mTrms << " -> "
-                           << ckmt  << " " << ckrms << std::endl;
+                           << t0min   << " "
+                           << t0max   << " -> "
+                           << ckt0min << " "
+                           << ckt0max << std::endl;
 //            }
 //          }
         }
@@ -128,14 +131,14 @@ void DTMtimeValidateHandler::addNewObject( int runNumber ) {
   }
 
   cond::Time_t snc = runNumber;
-  m_to_transfer.push_back( std::make_pair( mT, snc ) );
+  m_to_transfer.push_back( std::make_pair( tR, snc ) );
 
   return;
 
 }
 
 
-std::string DTMtimeValidateHandler::id() const {
+std::string DTRangeT0ValidateHandler::id() const {
   return dataVersion;
 }
 

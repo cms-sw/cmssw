@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/25 16:19:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/09/29 13:12:53 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -124,8 +124,8 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
                                     << lay << " "
                                     << cel << " , status = "
                                     << status << std::endl;
-              if ( ( ckmean != t0mean ) ||
-                   ( ckrms  != t0rms  ) )
+              if ( ( fabs( ckmean - t0mean ) > 0.0001 ) ||
+                   ( fabs( ckrms  - t0rms  ) > 0.0001 ) )
                    logFile << "MISMATCH WHEN WRITING cell T0 "
                            << whe << " "
                            << sta << " "

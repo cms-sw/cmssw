@@ -82,8 +82,8 @@ void DTT0ValidateDBRead::analyze( const edm::Event& e,
                           << t0Id.layerId   << " "
                           << t0Id.cellId    << " , status = "
                           << status << std::endl;
-    if ( ( t0Data.t0mean != t0mean ) ||
-         ( t0Data.t0rms  != t0rms  ) )
+    if ( ( fabs( t0Data.t0mean - t0mean ) > 0.0001 ) ||
+         ( fabs( t0Data.t0rms  - t0rms  ) > 0.0001 ) )
          logFile << "MISMATCH WHEN READING cell T0 "
                  << t0Id.wheelId   << " "
                  << t0Id.stationId << " "

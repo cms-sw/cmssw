@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/19 14:25:08 $
- *  $Revision: 1.2.2.1 $
+ *  $Date: 2008/12/11 09:44:54 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -115,9 +115,8 @@ void DTTtrigValidateHandler::addNewObject( int runNumber ) {
                                     << sec << " "
                                     << qua << " , status = "
                                     << status << std::endl;
-              if ( ( cktrig != tTrig ) ||
-                   ( ckrms  != tTrms ) ||
-                   ( ckfact != kFact ) )
+              if ( ( fabs( cktrig - tTrig ) > 0.0001 ) ||
+                   ( fabs( ckrms  - tTrms ) > 0.0001 ) )
                    logFile << "MISMATCH WHEN WRITING sl Ttrig "
                            << whe << " "
                            << sta << " "

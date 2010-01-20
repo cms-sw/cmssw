@@ -77,9 +77,9 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
                           << tTId.sectorId  << " "
                           << tTId.slId      << " , status = "
                           << status << std::endl;
-    if ( ( tTData.tTrig != tTrig ) ||
-         ( tTData.tTrms != tTrms ) ||
-         ( tTData.kFact != kFact ) )
+    if ( ( fabs( tTData.tTrig - tTrig ) > 0.1    ) ||
+         ( fabs( tTData.tTrms - tTrms ) > 0.0001 ) ||
+         ( fabs( tTData.kFact - kFact ) > 0.0001 ) )
          logFile << "MISMATCH WHEN READING sl Ttrig "
                  << tTId.wheelId   << " "
                  << tTId.stationId << " "
@@ -99,7 +99,7 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
                   >> sec
                   >> qua
                   >> cktrig
-                  >> ckrms 
+                  >> ckrms
                   >> ckfact ) {
     status = tT->get( whe,
                       sta,
