@@ -62,6 +62,81 @@ void plot_METDQM(std::string filename, int run, std::string METName="CaloMET"){
   if (METName=="TcMET")       METClass="";
 
   //--------------------------------
+  //--- CaloTower
+  //--------------------------------
+
+  char title[100];
+  char name[100];
+
+  if (METName=="CaloMET") {
+
+    sprintf(ctitle,"%s/CaloTowers/SchemeB/METTask_CT_et_ieta_iphi",cprefix);
+  TH1F *CT_et_ieta_iphi = (TH1F*) _file->Get(ctitle);    //
+  CT_et_ieta_iphi->SetStats(kFALSE);
+  CT_et_ieta_iphi->SetTitle("CaloTower Et");
+
+  sprintf(ctitle,"%s/CaloTowers/SchemeB/METTask_CT_hadEt_ieta_iphi",cprefix);
+  TH1F *CT_hadEt_ieta_iphi = (TH1F*) _file->Get(ctitle);    //
+  CT_hadEt_ieta_iphi->SetStats(kFALSE);
+  CT_hadEt_ieta_iphi->SetTitle("CaloTower hadEt");
+
+  sprintf(ctitle,"%s/CaloTowers/SchemeB/METTask_CT_emEt_ieta_iphi",cprefix);
+  TH1F *CT_emEt_ieta_iphi = (TH1F*) _file->Get(ctitle);    //
+  CT_emEt_ieta_iphi->SetStats(kFALSE);
+  CT_emEt_ieta_iphi->SetTitle("CaloTower emEt");
+
+  sprintf(ctitle,"%s/CaloTowers/SchemeB/METTask_CT_Occ_ieta_iphi",cprefix);
+  TH1F *CT_Occ_ieta_iphi = (TH1F*) _file->Get(ctitle);    //
+  CT_Occ_ieta_iphi->SetStats(kFALSE);
+  CT_Occ_ieta_iphi->SetTitle("CaloTower Occupancy");
+
+  //-----
+  sprintf(title,"CaloTower_Et_run=%d",run);
+  sprintf(name,"CaloTower_Et_%d",run);
+  TCanvas *c_CT_Et = new TCanvas(title,name,600.,400.);
+  
+  CT_et_ieta_iphi->SetMinimum(0.0);
+  CT_et_ieta_iphi->Draw("colz");
+
+  sprintf(cjpgname,"CaloTower/CT_Et.gif");
+  c_CT_Et->SaveAs(cjpgname);
+
+  //-----
+  sprintf(title,"CaloTower_hadEt_run=%d",run);
+  sprintf(name,"CaloTower_hadEt_%d",run);
+  TCanvas *c_CT_hadEt = new TCanvas(title,name,600.,400.);
+  
+  CT_hadEt_ieta_iphi->SetMinimum(0.0);
+  CT_hadEt_ieta_iphi->Draw("colz");
+
+  sprintf(cjpgname,"CaloTower/CT_hadEt.gif");
+  c_CT_hadEt->SaveAs(cjpgname);
+
+  //-----
+  sprintf(title,"CaloTower_emEt_run=%d",run);
+  sprintf(name,"CaloTower_emEt_%d",run);
+  TCanvas *c_CT_emEt = new TCanvas(title,name,600.,400.);
+  
+  CT_emEt_ieta_iphi->SetMinimum(0.0);
+  CT_emEt_ieta_iphi->Draw("colz");
+
+  sprintf(cjpgname,"CaloTower/CT_emEt.gif");
+  c_CT_emEt->SaveAs(cjpgname);
+
+  //-----
+  sprintf(title,"CaloTower_Occupancy_run=%d",run);
+  sprintf(name,"CaloTower_Occupancy_%d",run);
+  TCanvas *c_CT_Occ = new TCanvas(title,name,600.,400.);
+  
+  CT_Occ_ieta_iphi->SetMinimum(0.0);
+  CT_Occ_ieta_iphi->Draw("colz");
+
+  sprintf(cjpgname,"CaloTower/CT_Occ.gif");
+  c_CT_Occ->SaveAs(cjpgname);
+
+  }
+
+  //--------------------------------
   //--- METRate
   //--------------------------------
 
@@ -113,8 +188,8 @@ void plot_METDQM(std::string filename, int run, std::string METName="CaloMET"){
 
   //-------------------------------
 
-  char title[100];
-  char name[100];
+  //char title[100];
+  //char name[100];
   sprintf(title,"%s_Rate_run=%d",METName.c_str(),run);
   sprintf(name,"%s_Rate_%d",METName.c_str(),run);
   TCanvas *c_METRate = new TCanvas(title,name,600.,400.);
