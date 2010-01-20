@@ -1,3 +1,8 @@
+2010-01-20  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-00-01
+	* do not set evtstate to processing for LUMISECTION events
+
 2010-01-12  Emilio Meschi <Emilio.Meschi@cern.ch>
 
 	* tag V01-05-00-00
