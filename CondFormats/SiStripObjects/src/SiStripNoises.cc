@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <math.h>
 #include <iomanip>
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
 SiStripNoises::SiStripNoises(const SiStripNoises& input){
   v_noises.clear();
@@ -240,6 +241,11 @@ void SiStripNoises::printDebug(std::stringstream& ss) const{
 }
 
 void SiStripNoises::printSummary(std::stringstream& ss) const{
+
+  SiStripDetSummary summary;
+
+  stringstream tempss;
+
   RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
   uint16_t Nstrips;
   std::vector<float> vstripnoise;
@@ -248,20 +254,29 @@ void SiStripNoises::printSummary(std::stringstream& ss) const{
     Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
     vstripnoise.resize(Nstrips);
     allNoises(vstripnoise,make_pair(getDataVectorBegin()+rit->ibegin,getDataVectorBegin()+rit->iend));
-    ss << "\ndetid: " << rit->detid << " \t ";
+    tempss << "\ndetid: " << rit->detid << " \t ";
     mean=0; rms=0; min=10000; max=0;  
+
+    DetId detId(rit->detid);
+
     for(size_t i=0;i<Nstrips;++i){
       mean+=vstripnoise[i];
       rms+=vstripnoise[i]*vstripnoise[i];
-      if(vstripnoise[i]<min)
-	min=vstripnoise[i];
-      if(vstripnoise[i]>max)
-	max=vstripnoise[i];
+      if(vstripnoise[i]<min) min=vstripnoise[i];
+      if(vstripnoise[i]>max) max=vstripnoise[i];
+
+      summary.add(detId, vstripnoise[i]);
     }
     mean/=Nstrips;
     rms= sqrt(rms/Nstrips-mean*mean);
-    ss << "Nstrips " << Nstrips << " \t; mean " << mean << " \t; rms " << rms << " \t; min " << min << " \t; max " << max << "\t " ; 
+
+
+    tempss << "Nstrips " << Nstrips << " \t; mean " << mean << " \t; rms " << rms << " \t; min " << min << " \t; max " << max << "\t " ; 
   }
+  ss << endl << "Summary:" << endl;
+  summary.print(ss);
+  ss << endl;
+  ss << tempss.str();
 }
 
 std::vector<SiStripNoises::ratioData> SiStripNoises::operator / ( SiStripNoises d) {
