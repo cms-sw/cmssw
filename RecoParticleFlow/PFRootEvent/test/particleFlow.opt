@@ -201,7 +201,8 @@ clustering thresh_Seed_Ecal_Endcap      0.60
 clustering thresh_Pt_Seed_Ecal_Endcap   0.15
 
 // cleaning thresholds for ECAL end-caps seeds
-clustering thresh_Clean_Ecal_Endcap     15.
+//clustering thresh_Clean_Ecal_Endcap     15.
+clustering thresh_Clean_Ecal_Endcap     1E5
 clustering minS4S1_Clean_Ecal_Endcap    0.04 -0.025
 
 // build topo-cluster from cells with 1 common side or corner
@@ -243,7 +244,8 @@ clustering thresh_Pt_Hcal_Barrel        0.0
 clustering thresh_Seed_Hcal_Barrel      0.8
 clustering thresh_Pt_Seed_Hcal_Barrel   0.0
 // cleaning thresholds for HCAL barrel seeds
-clustering thresh_Clean_Hcal_Barrel     35.
+//clustering thresh_Clean_Hcal_Barrel     35.
+clustering thresh_Clean_Hcal_Barrel     1E5
 clustering minS4S1_Clean_Hcal_Barrel    0.032 -0.045
 // threshold on HCAL endcap rechits
 clustering thresh_Hcal_Endcap           0.8
@@ -252,7 +254,8 @@ clustering thresh_Pt_Hcal_Endcap        0.0
 clustering thresh_Seed_Hcal_Endcap      1.1
 clustering thresh_Pt_Seed_Hcal_Endcap   0.0
 // cleaning thresholds for HCAL barrel seeds
-clustering thresh_Clean_Hcal_Endcap     45.
+//clustering thresh_Clean_Hcal_Endcap     45.
+clustering thresh_Clean_Hcal_Endcap     1E5
 clustering minS4S1_Clean_Hcal_Endcap    0.032 -0.045
 
 // build topo-cluster from cells with 1 common side or corner
