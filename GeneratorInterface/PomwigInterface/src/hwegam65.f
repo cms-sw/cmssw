@@ -202,6 +202,10 @@ C B. C. 11/02/07 FOr H1 2006 pdfs use alphap and B from the H1 flux as in h12006
 C. Also fix bug in original pomwig to use alphap and B for reggeon (previous versions 
 C  used pomeron alphap and B for reggeon flux)
         
+cc JVY: "local" fix - set defaults to avoid compiler's complains of uninit variables
+        b = -1.0d0
+	alphap = 1.0d0
+
 C---  PICK T (=Q2)        
         IF (NSTRU.EQ.9) THEN
            alphap=0.26D0
