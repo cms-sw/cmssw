@@ -36,7 +36,7 @@ class Scenario(object):
 
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO']):
+    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO,ALCA']):
         """
         _installPromptReco_
 
@@ -51,15 +51,11 @@ class Scenario(object):
         raise NotImplementedError, msg
 
 
-
-    def alcaReco(self, *skims):
+    def alcaSkim(self, skimList):
         """
-        _alcaReco_
+        _alcaSkim_
 
-        Given a skeleton process install the alcareco sequences and
-        skims.
-        For each skim name in the list of skims, install the appropriate
-        output module with the name of the skim
+        Given a skeleton process install the skim splitting for given skims
 
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
