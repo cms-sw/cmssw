@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.44 2009/12/04 20:03:23 wmtan Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.45 2009/12/18 13:43:22 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -1642,7 +1642,8 @@ EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStat
 
         std::auto_ptr<EcalDCSTowerStatus>  ical = std::auto_ptr<EcalDCSTowerStatus>( new EcalDCSTowerStatus() );
 
-
+	int status(0);
+	
         // barrel
 	int iz=0;
         for(int k=0 ; k<2; k++ ) {
@@ -1652,7 +1653,8 @@ EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStat
 	    for(int j=1 ; j<18; j++) {
 	      if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
 		EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
-		ical->setValue( ebid, 0 );
+
+		ical->setValue( ebid, status );
 	      }
 	    }
 	  }
@@ -1667,7 +1669,7 @@ EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStat
 	    for(int j=1 ; j<21; j++) {
 	      if (EcalScDetId::validDetId(i,j,iz )){
 		EcalScDetId eeid(i,j,iz);
-		ical->setValue( eeid, 0 );
+		ical->setValue( eeid, status );
 	      }
 	    }
 	  }
