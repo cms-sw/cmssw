@@ -321,8 +321,13 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 
   bool   reschedule  =true;
   bool   shutDown    =(state==evt::EMPTY);
+  bool   isLumi      =(state==evt::LUMISECTION);
   UInt_t fuResourceId=cell->fuResourceId();
   UInt_t buResourceId=cell->buResourceId();
+
+  //  std::cout << "discard loop, state, shutDown, isLumi " << state << " " 
+  //	    << shutDown << " " << isLumi << std::endl;
+  //  std::cout << "resource ids " << fuResourceId << " " << buResourceId << std::endl;
 
   if (shutDown) {
     LOG4CPLUS_INFO(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
@@ -336,7 +341,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   
   shmBuffer_->discardRawCell(cell);
   
-  if (!shutDown) {
+  if (!shutDown && !isLumi) {
     resources_[fuResourceId]->release();
     lock();
     freeResourceIds_.push(fuResourceId);

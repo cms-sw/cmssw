@@ -870,6 +870,8 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
 	bg_state="#006633";
       else if (state=="DISCARDING")
 	bg_state="#FFFF00";
+      else if (state=="LUMISECTION")
+	bg_state="#0000FF";
       
       *out<<tr()
 	  <<td(ssi.str()).set("align","left")
