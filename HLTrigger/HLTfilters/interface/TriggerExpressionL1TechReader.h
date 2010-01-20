@@ -1,19 +1,19 @@
-#ifndef HLTrigger_HLTfilters_ExpressionL1TechReader_h
-#define HLTrigger_HLTfilters_ExpressionL1TechReader_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionL1TechReader_h
+#define HLTrigger_HLTfilters_TriggerExpressionL1TechReader_h
 
 #include <string>
 
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
 
-namespace hlt {
+namespace triggerExpression {
 
-class TriggerExpressionL1TechReader : public TriggerExpressionEvaluator {
+class L1TechReader : public Evaluator {
 public:
-  TriggerExpressionL1TechReader(const std::string & pattern) :
+  L1TechReader(const std::string & pattern) :
     m_pattern(pattern)
   { }
 
-  bool operator()(const TriggerExpressionData & data);
+  bool operator()(const Data & data);
   
   void dump(std::ostream & out) const;
 
@@ -21,6 +21,6 @@ private:
   std::string m_pattern;
 };
 
-} // namespace hlt
+} // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_ExpressionL1TechReader_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionL1TechReader_h

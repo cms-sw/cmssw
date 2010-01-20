@@ -1,15 +1,15 @@
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionL1TechReader.h"
 
-namespace hlt {
+namespace triggerExpression {
 
 // define the result of the module from the L1 reults
-bool TriggerExpressionL1TechReader::operator()(const TriggerExpressionData & data) {
+bool L1TechReader::operator()(const Data & data) {
   return false;
 }
 
-void TriggerExpressionL1TechReader::dump(std::ostream & out) const {
+void L1TechReader::dump(std::ostream & out) const {
   out << "FALSE";
 }
 
-} // namespace hlt
+} // namespace triggerExpression
 

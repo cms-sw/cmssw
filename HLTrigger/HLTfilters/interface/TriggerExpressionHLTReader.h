@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_ExpressionHLTReader_h
-#define HLTrigger_HLTfilters_ExpressionHLTReader_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionHLTReader_h
+#define HLTrigger_HLTfilters_TriggerExpressionHLTReader_h
 
 #include <vector>
 #include <string>
@@ -10,11 +10,11 @@ namespace edm {
   class TriggerNames ;
 }
 
-namespace hlt {
+namespace triggerExpression {
 
-class TriggerExpressionHLTReader : public TriggerExpressionEvaluator {
+class HLTReader : public Evaluator {
 public:
-  TriggerExpressionHLTReader(const std::string & pattern) :
+  HLTReader(const std::string & pattern) :
     m_pattern(pattern),
     m_triggers(),
     m_throw(false)
@@ -22,7 +22,7 @@ public:
 
   void init(const edm::TriggerNames & triggerNames);
 
-  bool operator()(const TriggerExpressionData & data);
+  bool operator()(const Data & data);
   
   void dump(std::ostream & out) const;
 
@@ -32,6 +32,6 @@ private:
   bool                      m_throw;
 };
 
-} // namespace hlt
+} // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_ExpressionHLTReader_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionHLTReader_h

@@ -1,15 +1,15 @@
-#ifndef HLTrigger_HLTfilters_ExpressionOperators_h
-#define HLTrigger_HLTfilters_ExpressionOperators_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionOperators_h
+#define HLTrigger_HLTfilters_TriggerExpressionOperators_h
 
 #include <boost/scoped_ptr.hpp>
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
 
-namespace hlt {
+namespace triggerExpression {
 
 // abstract unary operator
-class UnaryOperator : public TriggerExpressionEvaluator {
+class UnaryOperator : public Evaluator {
 public:
-  UnaryOperator(TriggerExpressionEvaluator * arg) :
+  UnaryOperator(Evaluator * arg) :
     m_arg(arg)
   { }
 
@@ -19,13 +19,13 @@ public:
   }
 
 protected:
-  boost::scoped_ptr<TriggerExpressionEvaluator> m_arg;
+  boost::scoped_ptr<Evaluator> m_arg;
 };
 
 // abstract binary operator
-class BinaryOperator : public TriggerExpressionEvaluator {
+class BinaryOperator : public Evaluator {
 public:
-  BinaryOperator(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+  BinaryOperator(Evaluator * arg1, Evaluator * arg2) :
     m_arg1(arg1),
     m_arg2(arg2)
   { }
@@ -37,8 +37,8 @@ public:
   }
 
 protected:
-  boost::scoped_ptr<TriggerExpressionEvaluator> m_arg1;
-  boost::scoped_ptr<TriggerExpressionEvaluator> m_arg2;
+  boost::scoped_ptr<Evaluator> m_arg1;
+  boost::scoped_ptr<Evaluator> m_arg2;
 };
 
 
@@ -46,11 +46,11 @@ protected:
 
 class OperatorNot : public UnaryOperator {
 public:
-  OperatorNot(TriggerExpressionEvaluator * arg) :
+  OperatorNot(Evaluator * arg) :
     UnaryOperator(arg)
   { }
 
-  bool operator()(const TriggerExpressionData & data) {
+  bool operator()(const Data & data) {
     return not (*m_arg)(data);
   }
   
@@ -62,11 +62,11 @@ public:
 
 class OperatorAnd : public BinaryOperator {
 public:
-  OperatorAnd(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+  OperatorAnd(Evaluator * arg1, Evaluator * arg2) :
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const TriggerExpressionData & data) {
+  bool operator()(const Data & data) {
     return (*m_arg1)(data) and (*m_arg2)(data);
   }
   
@@ -79,11 +79,11 @@ public:
 
 class OperatorOr : public BinaryOperator {
 public:
-  OperatorOr(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+  OperatorOr(Evaluator * arg1, Evaluator * arg2) :
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const TriggerExpressionData & data) {
+  bool operator()(const Data & data) {
     return (*m_arg1)(data) or (*m_arg2)(data);
   }
   
@@ -96,11 +96,11 @@ public:
 
 class OperatorXor : public BinaryOperator {
 public:
-  OperatorXor(TriggerExpressionEvaluator * arg1, TriggerExpressionEvaluator * arg2) :
+  OperatorXor(Evaluator * arg1, Evaluator * arg2) :
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const TriggerExpressionData & data) {
+  bool operator()(const Data & data) {
     return (*m_arg1)(data) xor (*m_arg2)(data);
   }
   
@@ -111,6 +111,6 @@ public:
   }
 };
 
-} // namespace hlt
+} // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_ExpressionOperators_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionOperators_h

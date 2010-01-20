@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_ExpressionCache_h
-#define HLTrigger_HLTfilters_ExpressionCache_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionData_h
+#define HLTrigger_HLTfilters_TriggerExpressionData_h
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,11 +12,11 @@ namespace edm {
   class TriggerNames;
 }
 
-namespace hlt {
+namespace triggerExpression {
 
-class TriggerExpressionData {
+class Data {
 public:
-  explicit TriggerExpressionData(const edm::ParameterSet & config) :
+  explicit Data(const edm::ParameterSet & config) :
     // configuration
     m_triggerResultsTag(config.getParameter<edm::InputTag> ("triggerResults")),
     m_throw(config.getParameter<bool> ("throw")),
@@ -61,6 +61,6 @@ private:
   edm::EventNumber_t          m_eventNumber;
 };
 
-} // namespace hlt
+} // namespace triggerExpression
 
-#endif // TriggerExpressionData_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionData_h

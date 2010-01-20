@@ -1,20 +1,20 @@
-#ifndef HLTrigger_HLTfilters_ExpressionPrescaler_h
-#define HLTrigger_HLTfilters_ExpressionPrescaler_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionPrescaler_h
+#define HLTrigger_HLTfilters_TriggerExpressionPrescaler_h
 
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
-namespace hlt {
+namespace triggerExpression {
 
 class Prescaler : public UnaryOperator {
 public:
-  Prescaler(TriggerExpressionEvaluator * arg, unsigned int prescale) :
+  Prescaler(Evaluator * arg, unsigned int prescale) :
     UnaryOperator(arg),
     m_prescale(prescale),
     m_counter()
   { }
 
-  bool operator()(const TriggerExpressionData & data) {
+  bool operator()(const Data & data) {
     // initialize the counter to the first event number seen, 
     // in order to avoid all prescalers on different FUs to be syncronous
     if (m_counter == 0)
@@ -40,6 +40,6 @@ private:
   unsigned int m_counter;
 };
 
-} // namespace hlt
+} // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_ExpressionPrescaler_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionPrescaler_h

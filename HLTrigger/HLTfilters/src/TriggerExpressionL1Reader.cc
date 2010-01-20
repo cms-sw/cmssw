@@ -1,14 +1,14 @@
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionL1Reader.h"
 
-namespace hlt {
+namespace triggerExpression {
 
 // define the result of the module from the L1 reults
-bool TriggerExpressionL1Reader::operator()(const TriggerExpressionData & data) {
+bool L1Reader::operator()(const Data & data) {
   return false;
 }
 
-void TriggerExpressionL1Reader::dump(std::ostream & out) const {
+void L1Reader::dump(std::ostream & out) const {
   out << "FALSE";
 }
 
-} // namespace hlt
+} // namespace triggerExpression

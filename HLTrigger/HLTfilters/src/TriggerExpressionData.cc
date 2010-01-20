@@ -3,9 +3,9 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
-namespace hlt {
+namespace triggerExpression {
 
-bool TriggerExpressionData::setEvent(const edm::Event & event) {
+bool Data::setEvent(const edm::Event & event) {
   // cache the TriggerResults and TriggerNames objects
   edm::Handle<edm::TriggerResults> h_triggerResults;
   event.getByLabel(m_triggerResultsTag, h_triggerResults);
@@ -29,4 +29,4 @@ bool TriggerExpressionData::setEvent(const edm::Event & event) {
   return true;
 }
 
-} // namespace hlt
+} // namespace triggerExpression

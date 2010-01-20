@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/18 12:49:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/18 17:17:00 $
+ *  $Revision: 1.3 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -26,9 +26,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "HLTrigger/HLTfilters/interface/TriggerResultsFilter.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionParser.h"
+#include "HLTrigger/HLTfilters/interface/TriggerResultsFilter.h"
 
 //
 // constructors and destructor
@@ -44,7 +44,7 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
   unsigned int size = expressions.size();
   m_expressions.resize(size);
   for (unsigned int i = 0; i < size; ++i)
-    m_expressions[i] = hlt::parseTriggerCondition(expressions[i]);
+    m_expressions[i] = triggerExpression::parse(expressions[i]);
 }
 
 TriggerResultsFilter::~TriggerResultsFilter()
@@ -67,7 +67,7 @@ bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & se
 
   // run the trigger results filters
   bool result = false;
-  BOOST_FOREACH(hlt::TriggerExpressionEvaluator * expression, m_expressions)
+  BOOST_FOREACH(triggerExpression::Evaluator * expression, m_expressions)
     if ((*expression)(m_eventCache))
       result = true;
   

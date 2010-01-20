@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_ExpressionEvaluator_h
-#define HLTrigger_HLTfilters_ExpressionEvaluator_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionEvaluator_h
+#define HLTrigger_HLTfilters_TriggerExpressionEvaluator_h
 
 #include <iostream>
 
@@ -8,30 +8,30 @@ namespace edm {
   class EventSetup;
 } // namespace edm
 
-namespace hlt {
+namespace triggerExpression {
 
-class TriggerExpressionData;
+class Data;
 
-class TriggerExpressionEvaluator {
+class Evaluator {
 public:
-  TriggerExpressionEvaluator() { }
+  Evaluator() { }
 
   // the default implementation does nothing
   virtual void configure(const edm::EventSetup &) { }
 
   // pure virtual, need a concrete implementation
-  virtual bool operator()(const TriggerExpressionData &) = 0;
+  virtual bool operator()(const Data &) = 0;
 
   // pure virtual, need a concrete implementation
   virtual void dump(std::ostream &) const = 0;
 };
 
 inline 
-std::ostream & operator<<(std::ostream & out, const TriggerExpressionEvaluator & eval) {
+std::ostream & operator<<(std::ostream & out, const Evaluator & eval) {
   eval.dump(out);
   return out;
 }
 
-} // namespace hlt
+} // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_ExpressionEvaluator_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionEvaluator_h

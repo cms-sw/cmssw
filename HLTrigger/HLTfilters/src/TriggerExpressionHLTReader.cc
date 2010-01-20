@@ -7,10 +7,10 @@
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionHLTReader.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
-namespace hlt {
+namespace triggerExpression {
 
 // define the result of the module from the HLT reults
-bool TriggerExpressionHLTReader::operator()(const TriggerExpressionData & data) {
+bool HLTReader::operator()(const Data & data) {
   if (data.configurationUpdated())
     init(data.triggerNames());
 
@@ -21,7 +21,7 @@ bool TriggerExpressionHLTReader::operator()(const TriggerExpressionData & data) 
   return false;
 }
 
-void TriggerExpressionHLTReader::dump(std::ostream & out) const {
+void HLTReader::dump(std::ostream & out) const {
   if (m_triggers.size() == 0) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
@@ -35,7 +35,7 @@ void TriggerExpressionHLTReader::dump(std::ostream & out) const {
 }
 
 // (re)initialize the module
-void TriggerExpressionHLTReader::init(const edm::TriggerNames & triggerNames) {
+void HLTReader::init(const edm::TriggerNames & triggerNames) {
   m_triggers.clear();
 
   // check if the pattern has is a glob expression, or a single trigger name
@@ -66,4 +66,4 @@ void TriggerExpressionHLTReader::init(const edm::TriggerNames & triggerNames) {
   }
 }
 
-} // namespace hlt
+} // namespace triggerExpression

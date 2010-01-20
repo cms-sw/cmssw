@@ -1,5 +1,5 @@
-#ifndef TriggerExpressionParser_h
-#define TriggerExpressionParser_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionParser_h
+#define HLTrigger_HLTfilters_TriggerExpressionParser_h
 
 #include <boost/version.hpp>
 #if BOOST_VERSION < 104000
@@ -75,24 +75,24 @@ using namespace boost::phoenix;
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionPrescaler.h"
 
-namespace hlt {
+namespace triggerExpression {
 
 template <typename Iterator>
-class TriggerExpressionParser : public qi::grammar<Iterator, TriggerExpressionEvaluator*(), ascii::space_type>
+class Parser : public qi::grammar<Iterator, Evaluator*(), ascii::space_type>
 {
 public:
-  TriggerExpressionParser() : 
-    TriggerExpressionParser::base_type(expression)
+  Parser() : 
+    Parser::base_type(expression)
   {
     token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
     token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
     token_l1        %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
     token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
 
-    token            = ( token_hlt                      [qi::_val = new_<TriggerExpressionHLTReader>(qi::_1)]
-                       | token_alca                     [qi::_val = new_<TriggerExpressionHLTReader>(qi::_1)]
-                       | token_l1                       [qi::_val = new_<TriggerExpressionL1Reader>(qi::_1)]
-                       | token_l1tech                   [qi::_val = new_<TriggerExpressionL1TechReader>(qi::_1)]
+    token            = ( token_hlt                      [qi::_val = new_<HLTReader>(qi::_1)]
+                       | token_alca                     [qi::_val = new_<HLTReader>(qi::_1)]
+                       | token_l1                       [qi::_val = new_<L1Reader>(qi::_1)]
+                       | token_l1tech                   [qi::_val = new_<L1TechReader>(qi::_1)]
                        );
 
     parenthesis     %= ('(' >> expression >> ')');
@@ -115,8 +115,8 @@ public:
   }
 
 private:
-  typedef qi::rule<Iterator, std::string(),                 ascii::space_type> name_rule;
-  typedef qi::rule<Iterator, TriggerExpressionEvaluator*(), ascii::space_type> rule;
+  typedef qi::rule<Iterator, std::string(), ascii::space_type> name_rule;
+  typedef qi::rule<Iterator, Evaluator*(),  ascii::space_type> rule;
 
   name_rule token_hlt;
   name_rule token_alca;
@@ -135,10 +135,10 @@ private:
 
 // generic interface for string-like objects
 template <class T>
-TriggerExpressionEvaluator * parseTriggerCondition(const T & text) {
+Evaluator * parse(const T & text) {
   typedef typename T::const_iterator Iterator;
-  TriggerExpressionParser<Iterator> parser;
-  TriggerExpressionEvaluator * evaluator = 0;
+  Parser<Iterator> parser;
+  Evaluator * evaluator = 0;
 
   Iterator begin = text.begin();
   Iterator end   = text.end();
@@ -159,9 +159,9 @@ TriggerExpressionEvaluator * parseTriggerCondition(const T & text) {
 }
 
 // overloaded interface for null-terminated strings
-inline TriggerExpressionEvaluator * parseTriggerCondition(const char * text) {
-  TriggerExpressionParser<const char *> parser;
-  TriggerExpressionEvaluator * evaluator = 0;
+inline Evaluator * parse(const char * text) {
+  Parser<const char *> parser;
+  Evaluator * evaluator = 0;
 
   const char * begin = text;
   const char * end   = text + strlen(text);
@@ -181,6 +181,6 @@ inline TriggerExpressionEvaluator * parseTriggerCondition(const char * text) {
   return evaluator;
 }
 
-} // namespace hlt
+} // namespace triggerExpression
 
-#endif // TriggerExpressionParser_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionParser_h

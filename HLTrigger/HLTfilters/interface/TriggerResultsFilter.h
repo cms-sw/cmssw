@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/01/17 15:29:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/20 16:28:20 $
+ *  $Revision: 1.2 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -25,8 +25,8 @@
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
 // forward declaration
-namespace hlt {
-  class TriggerExpressionEvaluator;
+namespace triggerExpression {
+  class Evaluator;
 }
 
 //
@@ -47,10 +47,10 @@ private:
   bool m_throw;
 
   /// list of required HLT triggers by HLT index
-  std::vector<hlt::TriggerExpressionEvaluator *> m_expressions;
+  std::vector<triggerExpression::Evaluator *> m_expressions;
 
   /// cache some data from the Event for faster access by the m_expressions
-  hlt::TriggerExpressionData m_eventCache;
+  triggerExpression::Data m_eventCache;
 };
 
 #endif //TriggerResultsFilter_h
