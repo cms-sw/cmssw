@@ -328,13 +328,13 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 		    << std::endl << "E = " << totalEnergy << " +/- " << totalEnergy2
 		    << std::endl << "nSeeds = " << nSeeds << " " << nSeeds0
 		    << std::endl;
-	  */
 	  for ( std::map<int, std::vector<unsigned> >::iterator itHPD = theHPDs.begin();
 		itHPD != theHPDs.end(); ++itHPD ) { 
 	    unsigned hpdN = itHPD->first;
 	    const std::vector<unsigned>& hpdHits = itHPD->second;
-	    // std::cout << "HPD number " << hpdN << " contains " << hpdHits.size() << " hits" << std::endl;
+	    std::cout << "HPD number " << hpdN << " contains " << hpdHits.size() << " hits" << std::endl;
 	  }
+	  */
 	  std::multimap<double, unsigned >::iterator ntEn = theEnergies.end();
 	  --ntEn;
 	  unsigned nn = 0;
@@ -573,14 +573,14 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	layerEnergy += neighbour.energy();
       }
       // Fraction 0 is the balance between EM and HAD layer for this tower
-      double fraction0 = layer == PFLayer::HF_EM || layer == PFLayer::HF_HAD ? 
-	wannaBeSeed.energyUp()/wannaBeSeed.energy() : 1.;
+      // double fraction0 = layer == PFLayer::HF_EM || layer == PFLayer::HF_HAD ? 
+      //   wannaBeSeed.energyUp()/wannaBeSeed.energy() : 1.;
       // Fraction 1 is the balance between the hit and its neighbours from both layers
       double fraction1 = surroundingEnergy/wannaBeSeed.energy();
       // Fraction 2 is the balance between the tower and the tower neighbours
-      double fraction2 = neighbourEnergy/(wannaBeSeed.energy()+wannaBeSeed.energyUp());
+      // double fraction2 = neighbourEnergy/(wannaBeSeed.energy()+wannaBeSeed.energyUp());
       // Fraction 3 is the balance between the hits and the hits neighbours in the same layer.
-      double fraction3 = layerEnergy/(wannaBeSeed.energy());
+      // double fraction3 = layerEnergy/(wannaBeSeed.energy());
       // Mask the seed and the hit if energetic/isolated rechit
       // if ( fraction0 < minS4S1 || fraction1 < minS4S1 || fraction2 < minS4S1 || fraction3 < minS4S1 ) {
       // if ( fraction1 < minS4S1 || ( wannaBeSeed.energy() > 1.5*cleanThresh && fraction0 + fraction3 < minS4S1 ) ) {
