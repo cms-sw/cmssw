@@ -33,6 +33,9 @@
 #include <map>
 #include <set>
 #include <vector>
+#include "Rtypes.h"
+#include "TSchemaHelper.h"
+#include "TFormula.h"
 
 // These below are for backward compatibility only
 // Note: ModuleDescription is still used, but is no longer persistent
@@ -77,6 +80,8 @@ namespace {
   std::vector<std::vector<std::vector<edm::EventID> > > dummyVectorVectorVectorEventID;
   std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
   std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
+
+  std::vector<TFormula*> dummyvtfp;
 
   // The remaining ones are for backward compatibility only.
   std::vector<edm::EventProcessHistoryID> dummyEventProcessHistory;

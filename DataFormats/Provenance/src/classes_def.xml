@@ -82,4 +82,8 @@
  <class name="std::pair<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
 
  <class name="edm::ESRecordAuxiliary"/>
+
+ <class name="ROOT::TSchemaHelper"/>
+ <class name="std::vector<ROOT::TSchemaHelper>"/>
+ <class name="std::vector<TFormula*>"/>
 </lcgdict>
