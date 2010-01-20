@@ -6,8 +6,8 @@
  *       Class to hold drift tubes TTrigs
  *             ( SL by SL time offsets )
  *
- *  $Date: 2008/12/09 17:10:54 $
- *  $Revision: 1.7.2.2 $
+ *  $Date: 2008/12/11 09:44:53 $
+ *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
@@ -182,6 +183,8 @@ class DTTtrig {
   float nsPerCount;
 
   std::vector< std::pair<DTTtrigId,DTTtrigData> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;

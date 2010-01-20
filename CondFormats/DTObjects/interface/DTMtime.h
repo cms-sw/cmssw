@@ -6,8 +6,8 @@
  *       Class to hold drift tubes mean-times
  *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2007/12/07 15:00:45 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/09/29 13:10:34 $
+ *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -22,6 +22,7 @@
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "CondFormats/DTObjects/interface/DTVelocityUnits.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
@@ -262,6 +263,8 @@ class DTMtime {
   float nsPerCount;
 
   std::vector< std::pair<DTMtimeId,DTMtimeData> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;

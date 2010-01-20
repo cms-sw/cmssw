@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 15:57:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/10/30 10:39:05 $
+ *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --
@@ -35,12 +35,14 @@
 DTCCBConfig::DTCCBConfig():
   dataVersion( " " ) {
   dataList.reserve( 1000 );
+  dBuf = 0;
 }
 
 
 DTCCBConfig::DTCCBConfig( const std::string& version ):
   dataVersion( version ) {
   dataList.reserve( 1000 );
+  dBuf = 0;
 }
 
 
@@ -62,7 +64,8 @@ DTConfigKey::DTConfigKey() :
 //--------------
 DTCCBConfig::~DTCCBConfig() {
   resetMap();
-  DTDataBuffer< int,std::vector<int>* >::dropBuffer( mapName() );
+//  DTDataBuffer< int,std::vector<int>* >::dropBuffer( mapName() );
+  delete dBuf;
 }
 
 
@@ -92,14 +95,16 @@ int DTCCBConfig::configKey( int   wheelId,
                             int  sectorId,
                             std::vector<int>& confKey ) const {
 
-  std::string mName = mapName();
-  DTBufferTree< int,std::vector<int>* >* dBuf =
-  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-  if ( dBuf == 0 ) {
-    cacheMap();
-    dBuf =
-    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-  }
+  confKey.clear();
+//  std::string mName = mapName();
+//  DTBufferTree< int,std::vector<int>* >* dBuf =
+//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+//  if ( dBuf == 0 ) {
+//    cacheMap();
+//    dBuf =
+//    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+//  }
+  if ( dBuf == 0 ) cacheMap();
 
   std::vector<int> chanKey;
   chanKey.reserve(3);
@@ -128,7 +133,7 @@ DTCCBConfig::ccb_config_map
 DTCCBConfig::configKeyMap() const {
 
   ccb_config_map keyList;
-  std::vector< std::pair< DTCCBId,int>* > tempList;
+  std::vector< std::pair<DTCCBId,int>* > tempList;
   const_iterator d_iter = begin();
   const_iterator d_iend = end();
   while ( d_iter != d_iend ) tempList.push_back(
@@ -176,7 +181,9 @@ std::string& DTCCBConfig::version() {
 
 void DTCCBConfig::clear() {
   resetMap();
-  DTDataBuffer< int,std::vector<int>* >::dropBuffer( mapName() );
+//  DTDataBuffer< int,std::vector<int>* >::dropBuffer( mapName() );
+  delete dBuf;
+  dBuf = 0;
   dataList.clear();
   return;
 }
@@ -197,14 +204,16 @@ int DTCCBConfig::setConfigKey( int   wheelId,
                                int  sectorId,
                                const std::vector<int>& confKey ) {
 
-  std::string mName = mapName();
-  DTBufferTree< int,std::vector<int>* >* dBuf =
-  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-  if ( dBuf == 0 ) {
-    cacheMap();
-    dBuf =
-    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-  }
+//  std::string mName = mapName();
+//  DTBufferTree< int,std::vector<int>* >* dBuf =
+//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+//  if ( dBuf == 0 ) {
+//    cacheMap();
+//    dBuf =
+//    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+//  }
+  if ( dBuf == 0 ) cacheMap();
+
   std::vector<int> chanKey;
   chanKey.reserve(3);
   chanKey.push_back(   wheelId );
@@ -271,14 +280,16 @@ int DTCCBConfig::appendConfigKey( int   wheelId,
                                   int  sectorId,
                                   const std::vector<int>& confKey ) {
 
-  std::string mName = mapName();
-  DTBufferTree< int,std::vector<int>* >* dBuf =
-  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-  if ( dBuf == 0 ) {
-    cacheMap();
-    dBuf =
-    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
-  }
+//  std::string mName = mapName();
+//  DTBufferTree< int,std::vector<int>* >* dBuf =
+//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+//  if ( dBuf == 0 ) {
+//    cacheMap();
+//    dBuf =
+//    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+//  }
+  if ( dBuf == 0 ) cacheMap();
+
   std::vector<int> chanKey;
   chanKey.reserve(3);
   chanKey.push_back(   wheelId );
@@ -336,18 +347,23 @@ DTCCBConfig::const_iterator DTCCBConfig::end() const {
 }
 
 
+/*
 std::string DTCCBConfig::mapName() const {
   std::stringstream name;
   name << dataVersion << "_map_CCBConfig" << this;
   return name.str();
 }
+*/
 
 
 void DTCCBConfig::cacheMap() const {
 
-  std::string mName = mapName();
-  DTBufferTree< int,std::vector<int>* >* dBuf =
-  DTDataBuffer< int,std::vector<int>* >::openBuffer( mName );
+//  std::string mName = mapName();
+//  DTBufferTree< int,std::vector<int>* >* dBuf =
+//  DTDataBuffer< int,std::vector<int>* >::openBuffer( mName );
+  DTBufferTree< int,std::vector<int>* >** pBuf;
+  pBuf = const_cast<DTBufferTree< int,std::vector<int>* >**>( &dBuf );
+  *pBuf = new DTBufferTree< int,std::vector<int>* >;
   dBuf->setDefault( 0 );
 
   const_iterator iter = dataList.begin();
@@ -378,9 +394,9 @@ void DTCCBConfig::cacheMap() const {
 
 
 void DTCCBConfig::resetMap() const {
-  std::string mName = mapName();
-  DTBufferTree< int,std::vector<int>* >* dBuf =
-  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+//  std::string mName = mapName();
+//  DTBufferTree< int,std::vector<int>* >* dBuf =
+//  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
   if ( dBuf != 0 ) {
     std::vector< std::vector<int>* > list( dBuf->contList() );
     std::vector< std::vector<int>* >::const_iterator iter = list.begin();

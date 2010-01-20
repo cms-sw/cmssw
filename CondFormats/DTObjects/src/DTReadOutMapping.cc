@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/26 14:11:00 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/10/19 16:30:37 $
+ *  $Revision: 1.21 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --
@@ -35,6 +35,8 @@ DTReadOutMapping::DTReadOutMapping():
   cellMapVersion( " " ),
    robMapVersion( " " ) {
   readOutChannelDriftTubeMap.reserve( 2000 );
+  mType = rgBuf = rgROB = rgROS = rgDDU = grBuf = 0;
+  grROB = grROS = grDDU = 0;
 }
 
 
@@ -43,6 +45,8 @@ DTReadOutMapping::DTReadOutMapping( const std::string& cell_map_version,
   cellMapVersion( cell_map_version ),
    robMapVersion(  rob_map_version ) {
   readOutChannelDriftTubeMap.reserve( 2000 );
+  mType = rgBuf = rgROB = rgROS = rgDDU = grBuf = 0;
+  grROB = grROS = grDDU = 0;
 }
 
 
@@ -64,9 +68,12 @@ DTReadOutGeometryLink::DTReadOutGeometryLink():
 // Destructor --
 //--------------
 DTReadOutMapping::~DTReadOutMapping() {
-  DTDataBuffer<int,int>::dropBuffer( mapNameRG() +
-                                     mapNameGR() );
-  DTDataBuffer<int,int>::dropBuffer( mapNameRG() );
+
+//  DTDataBuffer<int,int>::dropBuffer( mapNameRG() +
+//                                     mapNameGR() );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameRG() );
+  delete mType;
+  delete rgBuf;
 
 /*
   std::string mNrobRG = mapNameRG() + "robMap";
@@ -91,20 +98,25 @@ DTReadOutMapping::~DTReadOutMapping() {
     std::cout << "drop RG_DDU list " << rg_list.size() << std::endl;
   }
 */
-  DTDataBuffer<int,int>::dropBuffer( mapNameRG() + "robMap" );
-  DTDataBuffer<int,int>::dropBuffer( mapNameRG() + "rosMap" );
-  DTDataBuffer<int,int>::dropBuffer( mapNameRG() + "dduMap" );
-  DTDataBuffer<int,int>::dropBuffer( mapNameGR() );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameRG() + "robMap" );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameRG() + "rosMap" );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameRG() + "dduMap" );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameGR() );
+  delete rgROB;
+  delete rgROS;
+  delete rgDDU;
+  delete grBuf;
 
-  std::string mNrobGR = mapNameGR() + "robMap";
-  std::string mNrosGR = mapNameGR() + "rosMap";
-  std::string mNdduGR = mapNameGR() + "dduMap";
-  DTBufferTree<int,std::vector<int>*>* grROB =
-  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrobGR );
-  DTBufferTree<int,std::vector<int>*>* grROS =
-  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrosGR );
-  DTBufferTree<int,std::vector<int>*>* grDDU =
-  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNdduGR );
+//  std::string mNrobGR = mapNameGR() + "robMap";
+//  std::string mNrosGR = mapNameGR() + "rosMap";
+//  std::string mNdduGR = mapNameGR() + "dduMap";
+//  DTBufferTree<int,std::vector<int>*>* grROB =
+//  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrobGR );
+//  DTBufferTree<int,std::vector<int>*>* grROS =
+//  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrosGR );
+//  DTBufferTree<int,std::vector<int>*>* grDDU =
+//  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNdduGR );
+
   if ( grROB != 0 ) {
     std::vector<std::vector<int>*> gr_list = grROB->contList();
     std::vector<std::vector<int>*>::const_iterator gr_iter = gr_list.begin();
@@ -127,9 +139,13 @@ DTReadOutMapping::~DTReadOutMapping() {
 //    std::cout << "drop GR_DDU list " << gr_list.size() << std::endl;
   }
 
-  DTDataBuffer<int,std::vector<int>*>::dropBuffer( mNrobGR );
-  DTDataBuffer<int,std::vector<int>*>::dropBuffer( mNrosGR );
-  DTDataBuffer<int,std::vector<int>*>::dropBuffer( mNdduGR );
+//  DTDataBuffer<int,std::vector<int>*>::dropBuffer( mNrobGR );
+//  DTDataBuffer<int,std::vector<int>*>::dropBuffer( mNrosGR );
+//  DTDataBuffer<int,std::vector<int>*>::dropBuffer( mNdduGR );
+  delete grROB;
+  delete grROS;
+  delete grDDU;
+
 }
 
 DTReadOutGeometryLink::~DTReadOutGeometryLink() {
@@ -188,41 +204,46 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
   layerId   =
   cellId    = 0;
 
-  std::string mNameMT = mapNameRG() +
-                        mapNameGR();
-  DTBufferTree<int,int>* mType =
-  DTDataBuffer<int,int>::findBuffer( mNameMT );
+//  std::string mNameMT = mapNameRG() +
+//                        mapNameGR();
+//  DTBufferTree<int,int>* mType =
+//  DTDataBuffer<int,int>::findBuffer( mNameMT );
 
-  std::string mNameRG = mapNameRG();
-  std::string mNrobRG = mapNameRG() + "robMap";
-  std::string mNrosRG = mapNameRG() + "rosMap";
-  std::string mNdduRG = mapNameRG() + "dduMap";
-  DTBufferTree<int,int>* rgBuf =
-  DTDataBuffer<int,int>::findBuffer( mNameRG );
-  DTBufferTree<int,int>* rgROB =
-  DTDataBuffer<int,int>::findBuffer( mNrobRG );
-  DTBufferTree<int,int>* rgROS =
-  DTDataBuffer<int,int>::findBuffer( mNrosRG );
-  DTBufferTree<int,int>* rgDDU =
-  DTDataBuffer<int,int>::findBuffer( mNdduRG );
+//  std::string mNameRG = mapNameRG();
+//  std::string mNrobRG = mapNameRG() + "robMap";
+//  std::string mNrosRG = mapNameRG() + "rosMap";
+//  std::string mNdduRG = mapNameRG() + "dduMap";
+//  DTBufferTree<int,int>* rgBuf =
+//  DTDataBuffer<int,int>::findBuffer( mNameRG );
+//  DTBufferTree<int,int>* rgROB =
+//  DTDataBuffer<int,int>::findBuffer( mNrobRG );
+//  DTBufferTree<int,int>* rgROS =
+//  DTDataBuffer<int,int>::findBuffer( mNrosRG );
+//  DTBufferTree<int,int>* rgDDU =
+//  DTDataBuffer<int,int>::findBuffer( mNdduRG );
 
+//  if ( ( mType == 0 ) ||
+//       ( rgBuf == 0 ) ||
+//       ( rgROB == 0 ) ||
+//       ( rgROS == 0 ) ||
+//       ( rgDDU == 0 ) ) {
+//    cacheMap();
+//    rgBuf =
+//    DTDataBuffer<int,int>::findBuffer( mNameRG );
+//    mType =
+//    DTDataBuffer<int,int>::findBuffer( mNameMT );
+//    rgROB =
+//    DTDataBuffer<int,int>::findBuffer( mNrobRG );
+//    rgROS =
+//    DTDataBuffer<int,int>::findBuffer( mNrosRG );
+//    rgDDU =
+//    DTDataBuffer<int,int>::findBuffer( mNdduRG );
+//  }
   if ( ( mType == 0 ) ||
        ( rgBuf == 0 ) ||
        ( rgROB == 0 ) ||
        ( rgROS == 0 ) ||
-       ( rgDDU == 0 ) ) {
-    cacheMap();
-    rgBuf =
-    DTDataBuffer<int,int>::findBuffer( mNameRG );
-    mType =
-    DTDataBuffer<int,int>::findBuffer( mNameMT );
-    rgROB =
-    DTDataBuffer<int,int>::findBuffer( mNrobRG );
-    rgROS =
-    DTDataBuffer<int,int>::findBuffer( mNrosRG );
-    rgDDU =
-    DTDataBuffer<int,int>::findBuffer( mNdduRG );
-  }
+       ( rgDDU == 0 ) ) cacheMap();
 
   int defaultValue;
   mType->find( 0, defaultValue );
@@ -333,40 +354,45 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
   tdcId =
   channelId = 0;
 
-  std::string mNameMT = mapNameRG() +
-                        mapNameGR();
-  DTBufferTree<int,int>* mType =
-  DTDataBuffer<int,int>::findBuffer( mNameMT );
+//  std::string mNameMT = mapNameRG() +
+//                        mapNameGR();
+//  DTBufferTree<int,int>* mType =
+//  DTDataBuffer<int,int>::findBuffer( mNameMT );
 
-  std::string mNameGR = mapNameGR();
-  std::string mNrobGR = mapNameGR() + "robMap";
-  std::string mNrosGR = mapNameGR() + "rosMap";
-  std::string mNdduGR = mapNameGR() + "dduMap";
-  DTBufferTree<int,int>* grBuf =
-  DTDataBuffer<int,int>::findBuffer( mNameGR );
-  DTBufferTree<int,std::vector<int>*>* grROB =
-  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrobGR );
-  DTBufferTree<int,std::vector<int>*>* grROS =
-  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrosGR );
-  DTBufferTree<int,std::vector<int>*>* grDDU =
-  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNdduGR );
+//  std::string mNameGR = mapNameGR();
+//  std::string mNrobGR = mapNameGR() + "robMap";
+//  std::string mNrosGR = mapNameGR() + "rosMap";
+//  std::string mNdduGR = mapNameGR() + "dduMap";
+//  DTBufferTree<int,int>* grBuf =
+//  DTDataBuffer<int,int>::findBuffer( mNameGR );
+//  DTBufferTree<int,std::vector<int>*>* grROB =
+//  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrobGR );
+//  DTBufferTree<int,std::vector<int>*>* grROS =
+//  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrosGR );
+//  DTBufferTree<int,std::vector<int>*>* grDDU =
+//  DTDataBuffer<int,std::vector<int>*>::findBuffer( mNdduGR );
+//  if ( ( mType == 0 ) ||
+//       ( grBuf == 0 ) ||
+//       ( grROB == 0 ) ||
+//       ( grROS == 0 ) ||
+//       ( grDDU == 0 ) ) {
+//    cacheMap();
+//    grBuf =
+//    DTDataBuffer<int,int>::findBuffer( mNameGR );
+//    mType =
+//    DTDataBuffer<int,int>::findBuffer( mNameMT );
+//    grROB =
+//    DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrobGR );
+//    grROS =
+//    DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrosGR );
+//    grDDU =
+//    DTDataBuffer<int,std::vector<int>*>::findBuffer( mNdduGR );
+//  }
   if ( ( mType == 0 ) ||
        ( grBuf == 0 ) ||
        ( grROB == 0 ) ||
        ( grROS == 0 ) ||
-       ( grDDU == 0 ) ) {
-    cacheMap();
-    grBuf =
-    DTDataBuffer<int,int>::findBuffer( mNameGR );
-    mType =
-    DTDataBuffer<int,int>::findBuffer( mNameMT );
-    grROB =
-    DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrobGR );
-    grROS =
-    DTDataBuffer<int,std::vector<int>*>::findBuffer( mNrosGR );
-    grDDU =
-    DTDataBuffer<int,std::vector<int>*>::findBuffer( mNdduGR );
-  }
+       ( grDDU == 0 ) ) cacheMap();
 
   int defaultValue;
   mType->find( 0, defaultValue );
@@ -545,10 +571,14 @@ std::string& DTReadOutMapping::mapRobRos() {
 
 
 void DTReadOutMapping::clear() {
-  DTDataBuffer<int,int>::dropBuffer( mapNameRG() );
-  DTDataBuffer<int,int>::dropBuffer( mapNameGR() );
-  DTDataBuffer<int,int>::dropBuffer( mapNameRG() +
-                                     mapNameGR() );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameRG() );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameGR() );
+//  DTDataBuffer<int,int>::dropBuffer( mapNameRG() +
+//                                     mapNameGR() );
+  delete rgBuf;
+  delete grBuf;
+  delete mType;
+  rgBuf = grBuf = mType = 0;
   readOutChannelDriftTubeMap.clear();
   return;
 }
@@ -565,6 +595,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
                                                  int      slId,
                                                  int   layerId,
                                                  int    cellId ) {
+//  std::cout << "DTReadOutMapping::insertReadOutGeometryLink" << std::endl;
   DTReadOutGeometryLink link;
   link.    dduId =     dduId;
   link.    rosId =     rosId;
@@ -581,14 +612,26 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   int ientry = readOutChannelDriftTubeMap.size();
   readOutChannelDriftTubeMap.push_back( link );
 
-  std::string mNameRG = mapNameRG();
-  std::string mNameGR = mapNameGR();
+//  std::cout << "get pointers" << std::endl;
+//  std::string mNameRG = mapNameRG();
+//  std::string mNameGR = mapNameGR();
 
-  DTBufferTree<int,int>* rgBuf =
-  DTDataBuffer<int,int>::openBuffer( mNameRG );
-  DTBufferTree<int,int>* grBuf =
-  DTDataBuffer<int,int>::openBuffer( mNameGR );
+//  DTBufferTree<int,int>* rgBuf =
+//  DTDataBuffer<int,int>::openBuffer( mNameRG );
+//  DTBufferTree<int,int>* grBuf =
+//  DTDataBuffer<int,int>::openBuffer( mNameGR );
+  if ( rgBuf == 0 ) {
+    DTBufferTree<int,int>** prgBuf;
+    prgBuf = const_cast<DTBufferTree<int,int>**>( &rgBuf );
+    *prgBuf = new DTBufferTree<int,int>;
+  }
+  if ( grBuf == 0 ) {
+    DTBufferTree<int,int>** pgrBuf;
+    pgrBuf = const_cast<DTBufferTree<int,int>**>( &grBuf );
+    *pgrBuf = new DTBufferTree<int,int>;
+  }
 
+//  std::cout << "insert data " << rgBuf << " " << grBuf << std::endl;
   std::vector<int> cellKey;
   cellKey.reserve(6);
   cellKey.push_back(   wheelId );
@@ -597,6 +640,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   cellKey.push_back(      slId );
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
+//  std::cout << "insert GR " << std::endl;
   int grStatus =
   grBuf->insert( cellKey.begin(), cellKey.end(), ientry );
   std::vector<int> chanKey;
@@ -606,9 +650,11 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   chanKey.push_back(     robId );
   chanKey.push_back(     tdcId );
   chanKey.push_back( channelId );
+//  std::cout << "insert RG " << std::endl;
   int rgStatus =
   rgBuf->insert( chanKey.begin(), chanKey.end(), ientry );
 
+//  std::cout << "DTReadOutMapping::insertReadOutGeometryLink end" << std::endl;
   if ( grStatus || rgStatus ) return 1;
   else                        return 0;
 
@@ -641,44 +687,72 @@ std::string DTReadOutMapping::mapNameRG() const {
 
 void DTReadOutMapping::cacheMap() const {
 
-  std::string mNameMT = mapNameRG() +
-                        mapNameGR();
+//  std::string mNameMT = mapNameRG() +
+//                        mapNameGR();
 
-  std::string mNameRG = mapNameRG();
-  std::string mNrobRG = mapNameRG() + "robMap";
-  std::string mNrosRG = mapNameRG() + "rosMap";
-  std::string mNdduRG = mapNameRG() + "dduMap";
+//  std::string mNameRG = mapNameRG();
+//  std::string mNrobRG = mapNameRG() + "robMap";
+//  std::string mNrosRG = mapNameRG() + "rosMap";
+//  std::string mNdduRG = mapNameRG() + "dduMap";
 
-  std::string mNameGR = mapNameGR();
-  std::string mNrobGR = mapNameGR() + "robMap";
-  std::string mNrosGR = mapNameGR() + "rosMap";
-  std::string mNdduGR = mapNameGR() + "dduMap";
+//  std::string mNameGR = mapNameGR();
+//  std::string mNrobGR = mapNameGR() + "robMap";
+//  std::string mNrosGR = mapNameGR() + "rosMap";
+//  std::string mNdduGR = mapNameGR() + "dduMap";
 
-  DTBufferTree<int,int>* mType =
-  DTDataBuffer<int,int>::openBuffer( mNameMT );
+//  DTBufferTree<int,int>* mType =
+//  DTDataBuffer<int,int>::openBuffer( mType );
+  DTBufferTree<int,int>** pmType;
+  pmType = const_cast<DTBufferTree<int,int>**>( &mType );
+  *pmType = new DTBufferTree<int,int>;
+
   mType->insert( 0, 0 );
 
-  DTBufferTree<int,int>* rgBuf =
-  DTDataBuffer<int,int>::openBuffer( mNameRG );
-  DTBufferTree<int,int>* grBuf =
-  DTDataBuffer<int,int>::openBuffer( mNameGR );
+//  DTBufferTree<int,int>* rgBuf =
+//  DTDataBuffer<int,int>::openBuffer( mNameRG );
+//  DTBufferTree<int,int>* grBuf =
+//  DTDataBuffer<int,int>::openBuffer( mNameGR );
+  DTBufferTree<int,int>** prgBuf;
+  prgBuf = const_cast<DTBufferTree<int,int>**>( &rgBuf );
+  *prgBuf = new DTBufferTree<int,int>;
+  DTBufferTree<int,int>** pgrBuf;
+  pgrBuf = const_cast<DTBufferTree<int,int>**>( &grBuf );
+  *pgrBuf = new DTBufferTree<int,int>;
 
-  DTBufferTree<int,int>* rgROB =
-  DTDataBuffer<int,int>::openBuffer( mNrobRG );
-  DTBufferTree<int,int>* rgROS =
-  DTDataBuffer<int,int>::openBuffer( mNrosRG );
-  DTBufferTree<int,int>* rgDDU =
-  DTDataBuffer<int,int>::openBuffer( mNdduRG );
+//  DTBufferTree<int,int>* rgROB =
+//  DTDataBuffer<int,int>::openBuffer( mNrobRG );
+//  DTBufferTree<int,int>* rgROS =
+//  DTDataBuffer<int,int>::openBuffer( mNrosRG );
+//  DTBufferTree<int,int>* rgDDU =
+//  DTDataBuffer<int,int>::openBuffer( mNdduRG );
+  DTBufferTree<int,int>** prgROB;
+  prgROB = const_cast<DTBufferTree<int,int>**>( &rgROB );
+  *prgROB = new DTBufferTree<int,int>;
+  DTBufferTree<int,int>** prgROS;
+  prgROS = const_cast<DTBufferTree<int,int>**>( &rgROS );
+  *prgROS = new DTBufferTree<int,int>;
+  DTBufferTree<int,int>** prgDDU;
+  prgDDU = const_cast<DTBufferTree<int,int>**>( &rgDDU );
+  *prgDDU = new DTBufferTree<int,int>;
   rgROB->setDefault( 0 );
   rgROS->setDefault( 0 );
   rgDDU->setDefault( 0 );
 
-  DTBufferTree<int,std::vector<int>*>* grROB =
-  DTDataBuffer<int,std::vector<int>*>::openBuffer( mNrobGR );
-  DTBufferTree<int,std::vector<int>*>* grROS =
-  DTDataBuffer<int,std::vector<int>*>::openBuffer( mNrosGR );
-  DTBufferTree<int,std::vector<int>*>* grDDU =
-  DTDataBuffer<int,std::vector<int>*>::openBuffer( mNdduGR );
+//  DTBufferTree<int,std::vector<int>*>* grROB =
+//  DTDataBuffer<int,std::vector<int>*>::openBuffer( mNrobGR );
+//  DTBufferTree<int,std::vector<int>*>* grROS =
+//  DTDataBuffer<int,std::vector<int>*>::openBuffer( mNrosGR );
+//  DTBufferTree<int,std::vector<int>*>* grDDU =
+//  DTDataBuffer<int,std::vector<int>*>::openBuffer( mNdduGR );
+  DTBufferTree<int,std::vector<int>*>** pgrROB;
+  pgrROB = const_cast<DTBufferTree<int,std::vector<int>*>**>( &grROB );
+  *pgrROB = new DTBufferTree<int,std::vector<int>*>;
+  DTBufferTree<int,std::vector<int>*>** pgrROS;
+  pgrROS = const_cast<DTBufferTree<int,std::vector<int>*>**>( &grROS );
+  *pgrROS = new DTBufferTree<int,std::vector<int>*>;
+  DTBufferTree<int,std::vector<int>*>** pgrDDU;
+  pgrDDU = const_cast<DTBufferTree<int,std::vector<int>*>**>( &grDDU );
+  *pgrDDU = new DTBufferTree<int,std::vector<int>*>;
   grROB->setDefault( 0 );
   grROS->setDefault( 0 );
   grDDU->setDefault( 0 );
@@ -863,10 +937,14 @@ void DTReadOutMapping::cacheMap() const {
       delete dduEntry.second;
     }
 
-    DTDataBuffer<int,int>::dropBuffer( mNameRG );
-    DTDataBuffer<int,int>::dropBuffer( mNameGR );
-    DTDataBuffer<int,int>::openBuffer( mNameRG );
-    DTDataBuffer<int,int>::openBuffer( mNameGR );
+//    DTDataBuffer<int,int>::dropBuffer( mNameRG );
+//    DTDataBuffer<int,int>::dropBuffer( mNameGR );
+    delete rgBuf;
+    delete grBuf;
+//    DTDataBuffer<int,int>::openBuffer( mNameRG );
+//    DTDataBuffer<int,int>::openBuffer( mNameGR );
+  *prgBuf = new DTBufferTree<int,int>;
+  *pgrBuf = new DTBufferTree<int,int>;
 
   }
 

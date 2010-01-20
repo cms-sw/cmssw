@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 12:00:00 $
+ *  $Date: 2009/03/26 14:11:00 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -15,7 +15,8 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 //---------------
 // C++ Headers --
@@ -34,12 +35,14 @@
 DTLVStatus::DTLVStatus():
   dataVersion( " " ) {
   dataList.reserve( 10 );
+  dBuf = 0;
 }
 
 
 DTLVStatus::DTLVStatus( const std::string& version ):
   dataVersion( version ) {
   dataList.reserve( 10 );
+  dBuf = 0;
 }
 
 
@@ -51,7 +54,10 @@ DTLVStatusId::DTLVStatusId() :
 
 
 DTLVStatusData::DTLVStatusData() :
-  flag( 0 ) {
+  flagCFE( 0 ),
+  flagDFE( 0 ),
+  flagCMC( 0 ),
+  flagDMC( 0 ) {
 }
 
 
@@ -59,7 +65,8 @@ DTLVStatusData::DTLVStatusData() :
 // Destructor --
 //--------------
 DTLVStatus::~DTLVStatus() {
-  DTDataBuffer<int,int>::dropBuffer( mapName() );
+//  DTDataBuffer<int,int>::dropBuffer( mapName() );
+  delete dBuf;
 }
 
 
@@ -75,19 +82,26 @@ DTLVStatusData::~DTLVStatusData() {
 // Operations --
 //--------------
 int DTLVStatus::get( int   wheelId,
-                      int stationId,
-                      int  sectorId,
-                      int&     flag ) const {
-  flag = 0;
+                     int stationId,
+                     int  sectorId,
+                     int&  flagCFE,
+                     int&  flagDFE,
+                     int&  flagCMC,
+                     int&  flagDMC ) const {
+  flagCFE = 0;
+  flagDFE = 0;
+  flagCMC = 0;
+  flagDMC = 0;
 
-  std::string mName = mapName();
-  DTBufferTree<int,int>* dBuf =
-  DTDataBuffer<int,int>::findBuffer( mName );
-  if ( dBuf == 0 ) {
-    cacheMap();
-    dBuf =
-    DTDataBuffer<int,int>::findBuffer( mName );
-  }
+//  std::string mName = mapName();
+//  DTBufferTree<int,int>* dBuf =
+//  DTDataBuffer<int,int>::findBuffer( mName );
+//  if ( dBuf == 0 ) {
+//    cacheMap();
+//    dBuf =
+//    DTDataBuffer<int,int>::findBuffer( mName );
+//  }
+  if ( dBuf == 0 ) cacheMap();
 
   std::vector<int> chanKey;
   chanKey.reserve(3);
@@ -98,7 +112,10 @@ int DTLVStatus::get( int   wheelId,
   int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
     const DTLVStatusData& data( dataList[ientry].second );
-    flag = data.flag;
+    flagCFE = data.flagCFE;
+    flagDFE = data.flagDFE;
+    flagCMC = data.flagCMC;
+    flagDMC = data.flagDMC;
   }
 
   return searchStatus;
@@ -107,11 +124,17 @@ int DTLVStatus::get( int   wheelId,
 
 
 int DTLVStatus::get( const DTChamberId& id,
-                      int&  flag ) const {
+                     int&  flagCFE,
+                     int&  flagDFE,
+                     int&  flagCMC,
+                     int&  flagDMC ) const {
   return get( id.wheel(),
               id.station(),
               id.sector(),
-              flag );
+              flagCFE,
+              flagDFE,
+              flagCMC,
+              flagDMC );
 }
 
 
@@ -127,25 +150,31 @@ std::string& DTLVStatus::version() {
 
 
 void DTLVStatus::clear() {
-  DTDataBuffer<int,int>::dropBuffer( mapName() );
+//  DTDataBuffer<int,int>::dropBuffer( mapName() );
+  delete dBuf;
+  dBuf = 0;
   dataList.clear();
   return;
 }
 
 
 int DTLVStatus::set( int   wheelId,
-                      int stationId,
-                      int  sectorId,
-                      int      flag ) {
+                     int stationId,
+                     int  sectorId,
+                     int   flagCFE,
+                     int   flagDFE,
+                     int   flagCMC,
+                     int   flagDMC ) {
 
-  std::string mName = mapName();
-  DTBufferTree<int,int>* dBuf =
-  DTDataBuffer<int,int>::findBuffer( mName );
-  if ( dBuf == 0 ) {
-    cacheMap();
-    dBuf =
-    DTDataBuffer<int,int>::findBuffer( mName );
-  }
+//  std::string mName = mapName();
+//  DTBufferTree<int,int>* dBuf =
+//  DTDataBuffer<int,int>::findBuffer( mName );
+//  if ( dBuf == 0 ) {
+//    cacheMap();
+//    dBuf =
+//    DTDataBuffer<int,int>::findBuffer( mName );
+//  }
+  if ( dBuf == 0 ) cacheMap();
   std::vector<int> chanKey;
   chanKey.reserve(3);
   chanKey.push_back(   wheelId );
@@ -156,7 +185,10 @@ int DTLVStatus::set( int   wheelId,
 
   if ( !searchStatus ) {
     DTLVStatusData& data( dataList[ientry].second );
-    data.flag = flag;
+    data.flagCFE = flagCFE;
+    data.flagDFE = flagDFE;
+    data.flagCMC = flagCMC;
+    data.flagDMC = flagDMC;
     return -1;
   }
   else {
@@ -165,7 +197,10 @@ int DTLVStatus::set( int   wheelId,
     key.stationId = stationId;
     key. sectorId =  sectorId;
     DTLVStatusData data;
-    data.flag = flag;
+    data.flagCFE = flagCFE;
+    data.flagDFE = flagDFE;
+    data.flagCMC = flagCMC;
+    data.flagDMC = flagDMC;
     ientry = dataList.size();
     dataList.push_back( std::pair<DTLVStatusId,
                                   DTLVStatusData>( key, data ) );
@@ -179,11 +214,153 @@ int DTLVStatus::set( int   wheelId,
 
 
 int DTLVStatus::set( const DTChamberId& id,
-                      int flag  ) {
+                     int   flagCFE,
+                     int   flagDFE,
+                     int   flagCMC,
+                     int   flagDMC  ) {
   return set( id.wheel(),
               id.station(),
               id.sector(),
-              flag );
+              flagCFE,
+              flagDFE,
+              flagCMC,
+              flagDMC );
+}
+
+
+int DTLVStatus::setFlagCFE( int   wheelId,
+                            int stationId,
+                            int  sectorId,
+                            int      flag ) {
+  int   flagCFE;
+  int   flagDFE;
+  int   flagCMC;
+  int   flagDMC;
+  get(   wheelId,
+       stationId,
+        sectorId,
+         flagCFE,
+         flagDFE,
+         flagCMC,
+         flagDMC );
+  return set(   wheelId,
+              stationId,
+               sectorId,
+                   flag,
+                flagDFE,
+                flagCMC,
+                flagDMC );
+}
+
+
+int DTLVStatus::setFlagCFE( const DTChamberId& id,
+                            int   flag ) {
+  return setFlagCFE( id.wheel(),
+                     id.station(),
+                     id.sector(),
+                     flag );
+}
+
+
+int DTLVStatus::setFlagDFE( int   wheelId,
+                            int stationId,
+                            int  sectorId,
+                            int      flag ) {
+  int   flagCFE;
+  int   flagDFE;
+  int   flagCMC;
+  int   flagDMC;
+  get(   wheelId,
+       stationId,
+        sectorId,
+         flagCFE,
+         flagDFE,
+         flagCMC,
+         flagDMC );
+  return set(   wheelId,
+              stationId,
+               sectorId,
+                flagCFE,
+                   flag,
+                flagCMC,
+                flagDMC );
+}
+
+
+int DTLVStatus::setFlagDFE( const DTChamberId& id,
+                            int   flag ) {
+  return setFlagDFE( id.wheel(),
+                     id.station(),
+                     id.sector(),
+                     flag );
+}
+
+
+int DTLVStatus::setFlagCMC( int   wheelId,
+                            int stationId,
+                            int  sectorId,
+                            int      flag ) {
+  int   flagCFE;
+  int   flagDFE;
+  int   flagCMC;
+  int   flagDMC;
+  get(   wheelId,
+       stationId,
+        sectorId,
+         flagCFE,
+         flagDFE,
+         flagCMC,
+         flagDMC );
+  return set(   wheelId,
+              stationId,
+               sectorId,
+                flagCFE,
+                flagDFE,
+                   flag,
+                flagDMC );
+}
+
+
+int DTLVStatus::setFlagCMC( const DTChamberId& id,
+                            int   flag ) {
+  return setFlagCMC( id.wheel(),
+                     id.station(),
+                     id.sector(),
+                     flag );
+}
+
+
+int DTLVStatus::setFlagDMC( int   wheelId,
+                            int stationId,
+                            int  sectorId,
+                            int      flag ) {
+  int   flagCFE;
+  int   flagDFE;
+  int   flagCMC;
+  int   flagDMC;
+  get(   wheelId,
+       stationId,
+        sectorId,
+         flagCFE,
+         flagDFE,
+         flagCMC,
+         flagDMC );
+  return set(   wheelId,
+              stationId,
+               sectorId,
+                flagCFE,
+                flagDFE,
+                flagCMC,
+                   flag );
+}
+
+
+int DTLVStatus::setFlagDMC( const DTChamberId& id,
+                            int   flag ) {
+  return setFlagDMC( id.wheel(),
+                     id.station(),
+                     id.sector(),
+                     flag );
 }
 
 
@@ -206,9 +383,12 @@ std::string DTLVStatus::mapName() const {
 
 void DTLVStatus::cacheMap() const {
 
-  std::string mName = mapName();
-  DTBufferTree<int,int>* dBuf =
-  DTDataBuffer<int,int>::openBuffer( mName );
+//  std::string mName = mapName();
+//  DTBufferTree<int,int>* dBuf =
+//  DTDataBuffer<int,int>::openBuffer( mName );
+  DTBufferTree<int,int>** pBuf;
+  pBuf = const_cast<DTBufferTree<int,int>**>( &dBuf );
+  *pBuf = new DTBufferTree<int,int>;
 
   int entryNum = 0;
   int entryMax = dataList.size();

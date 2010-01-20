@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold configuration identifier for chambers
  *
- *  $Date: 2007/11/24 12:29:10 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2007/12/07 15:00:45 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
@@ -84,6 +84,8 @@ class DTConfigList {
 
   std::string dataVersion;
   std::vector< std::pair<int,DTConfigToken> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;

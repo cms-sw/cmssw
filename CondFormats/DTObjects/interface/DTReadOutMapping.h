@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical drift tubes
  *
- *  $Date: 2007/10/30 17:30:20 $
- *  $Revision: 1.5.6.1 $
+ *  $Date: 2007/12/07 15:00:45 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,6 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 //---------------
@@ -143,6 +144,19 @@ class DTReadOutMapping {
   std::string  robMapVersion;
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
+
+  DTBufferTree<int,int>* mType;
+  DTBufferTree<int,int>* rgBuf;
+  DTBufferTree<int,int>* rgROB;
+  DTBufferTree<int,int>* rgROS;
+  DTBufferTree<int,int>* rgDDU;
+  DTBufferTree<int,int>* grBuf;
+  DTBufferTree<int,
+     std::vector<int>*>* grROB;
+  DTBufferTree<int,
+     std::vector<int>*>* grROS;
+  DTBufferTree<int,
+     std::vector<int>*>* grDDU;
 
   /// read and store full content
   void cacheMap() const;

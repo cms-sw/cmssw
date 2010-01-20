@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/27 12:05:17 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2009/03/06 14:08:58 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
 
 //---------------
 // C++ Headers --
@@ -36,6 +36,7 @@ DTTPGParameters::DTTPGParameters():
   nsPerCount( 25.0 / 32.0 ),
   clockLength( 32 ) {
   dataList.reserve( 250 );
+  dBuf = 0;
 }
 
 
@@ -44,6 +45,7 @@ DTTPGParameters::DTTPGParameters( const std::string& version ):
   nsPerCount( 25.0 / 32.0 ),
   clockLength( 32 ) {
   dataList.reserve( 250 );
+  dBuf = 0;
 }
 
 
@@ -64,7 +66,8 @@ DTTPGParametersData::DTTPGParametersData() :
 // Destructor --
 //--------------
 DTTPGParameters::~DTTPGParameters() {
-  DTDataBuffer<int,int>::dropBuffer( mapName() );
+//  DTDataBuffer<int,int>::dropBuffer( mapName() );
+  delete dBuf;
 }
 
 
@@ -89,14 +92,15 @@ int DTTPGParameters::get( int   wheelId,
   nc = 0;
   ph = 0.0;
 
-  std::string mName = mapName();
-  DTBufferTree<int,int>* dBuf =
-  DTDataBuffer<int,int>::findBuffer( mName );
-  if ( dBuf == 0 ) {
-    cacheMap();
-    dBuf =
-    DTDataBuffer<int,int>::findBuffer( mName );
-  }
+//  std::string mName = mapName();
+//  DTBufferTree<int,int>* dBuf =
+//  DTDataBuffer<int,int>::findBuffer( mName );
+//  if ( dBuf == 0 ) {
+//    cacheMap();
+//    dBuf =
+//    DTDataBuffer<int,int>::findBuffer( mName );
+//  }
+  if ( dBuf == 0 ) cacheMap();
 
   std::vector<int> chanKey;
   chanKey.reserve(3);
@@ -172,7 +176,9 @@ std::string& DTTPGParameters::version() {
 
 
 void DTTPGParameters::clear() {
-  DTDataBuffer<int,int>::dropBuffer( mapName() );
+//  DTDataBuffer<int,int>::dropBuffer( mapName() );
+  delete dBuf;
+  dBuf = 0;
   dataList.clear();
   return;
 }
@@ -189,14 +195,15 @@ int DTTPGParameters::set( int   wheelId,
     ph /= nsPerCount;
   }
 
-  std::string mName = mapName();
-  DTBufferTree<int,int>* dBuf =
-  DTDataBuffer<int,int>::findBuffer( mName );
-  if ( dBuf == 0 ) {
-    cacheMap();
-    dBuf =
-    DTDataBuffer<int,int>::findBuffer( mName );
-  }
+//  std::string mName = mapName();
+//  DTBufferTree<int,int>* dBuf =
+//  DTDataBuffer<int,int>::findBuffer( mName );
+//  if ( dBuf == 0 ) {
+//    cacheMap();
+//    dBuf =
+//    DTDataBuffer<int,int>::findBuffer( mName );
+//  }
+  if ( dBuf == 0 ) cacheMap();
   std::vector<int> chanKey;
   chanKey.reserve(3);
   chanKey.push_back(   wheelId );
@@ -271,9 +278,12 @@ std::string DTTPGParameters::mapName() const {
 
 void DTTPGParameters::cacheMap() const {
 
-  std::string mName = mapName();
-  DTBufferTree<int,int>* dBuf =
-  DTDataBuffer<int,int>::openBuffer( mName );
+//  std::string mName = mapName();
+//  DTBufferTree<int,int>* dBuf =
+//  DTDataBuffer<int,int>::openBuffer( mName );
+  DTBufferTree<int,int>** pBuf;
+  pBuf = const_cast<DTBufferTree<int,int>**>( &dBuf );
+  *pBuf = new DTBufferTree<int,int>;
 
   int entryNum = 0;
   int entryMax = dataList.size();

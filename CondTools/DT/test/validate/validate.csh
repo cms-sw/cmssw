@@ -15,6 +15,7 @@ source validate_object.csh DTDeadFlag
 source validate_object.csh DTPerformance
 source validate_object.csh DTCCBConfig
 source validate_object.csh DTTPGParameters
+source validate_object.csh DTLVStatus
 source validate_object.csh DTHVStatus
 
 cmsRun validate_r.py

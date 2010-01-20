@@ -6,8 +6,8 @@
  *       Class to hold drift tubes status
  *             ( cell by cell noise and masks )
  *
- *  $Date: 2009/09/16 11:00:17 $
- *  $Revision: 1.4.14.1 $
+ *  $Date: 2009/09/25 12:03:19 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,6 +20,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 //---------------
@@ -260,6 +261,8 @@ class DTStatusFlag {
   std::string dataVersion;
 
   std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;

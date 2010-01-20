@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes life and HV status
  *
- *  $Date: 2009/09/16 11:00:17 $
- *  $Revision: 1.3.14.1 $
+ *  $Date: 2009/09/25 12:03:19 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,6 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 //---------------
@@ -240,6 +241,8 @@ class DTDeadFlag {
   std::string dataVersion;
 
   std::vector< std::pair<DTDeadFlagId,DTDeadFlagData> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;

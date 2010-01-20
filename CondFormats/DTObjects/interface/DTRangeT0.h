@@ -6,8 +6,8 @@
  *       Class to hold drift tubes T0 range
  *             ( SL by SL min - max T0 )
  *
- *  $Date: 2007/11/24 12:29:10 $
- *  $Revision: 1.2.6.2 $
+ *  $Date: 2007/12/07 15:00:45 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,6 +20,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
 //---------------
@@ -139,6 +140,8 @@ class DTRangeT0 {
   std::string dataVersion;
 
   std::vector< std::pair<DTRangeT0Id,DTRangeT0Data> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;

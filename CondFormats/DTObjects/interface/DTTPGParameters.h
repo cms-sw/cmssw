@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes TPG parameters
  *
- *  $Date: 2009/01/27 12:11:08 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2009/03/06 14:09:14 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,6 +20,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 //---------------
@@ -129,6 +130,8 @@ class DTTPGParameters {
   int   clockLength;
 
   std::vector< std::pair<DTTPGParametersId,DTTPGParametersData> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;

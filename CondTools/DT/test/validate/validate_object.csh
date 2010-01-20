@@ -56,6 +56,12 @@ if ( ${CLASS} == "DTCCBConfig" ) then
   setenv VALID true
 endif
 
+if ( ${CLASS} == "DTLVStatus" ) then
+  setenv VNAME DTLVStatus
+  setenv FNAME lv
+  setenv VALID true
+endif
+
 if ( ${CLASS} == "DTHVStatus" ) then
   setenv VNAME DTHVStatus
   setenv FNAME hv

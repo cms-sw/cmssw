@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold configuration identifier for chambers
  *
- *  $Date: 2007/12/07 15:00:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/25 12:03:19 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,6 +20,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
@@ -125,10 +126,12 @@ class DTCCBConfig {
   std::vector<DTConfigKey> fullConfigKey;
   std::vector< std::pair<DTCCBId,int> > dataList;
 
+  DTBufferTree< int,std::vector<int>* >* dBuf;
+
   /// read and store full content
   void cacheMap() const;
   void resetMap() const;
-  std::string mapName() const;
+//  std::string mapName() const;
 
 };
 

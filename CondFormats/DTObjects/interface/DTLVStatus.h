@@ -5,7 +5,7 @@
  *  Description:
  *       Class to hold CCB status
  *
- *  $Date: 2008/11/20 12:00:00 $
+ *  $Date: 2009/03/26 14:10:59 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -19,7 +19,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+class DTChamberId;
 
 //---------------
 // C++ Headers --
@@ -52,7 +53,10 @@ class DTLVStatusData {
   DTLVStatusData();
   ~DTLVStatusData();
 
-  int flag;
+  int flagCFE;
+  int flagDFE;
+  int flagCMC;
+  int flagDMC;
 
 };
 
@@ -76,9 +80,15 @@ class DTLVStatus {
   int get( int   wheelId,
            int stationId,
            int  sectorId,
-           int&     flag ) const;
+           int&  flagCFE,
+           int&  flagDFE,
+           int&  flagCMC,
+           int&  flagDMC ) const;
   int get( const DTChamberId& id,
-           int&     flag ) const;
+           int&  flagCFE,
+           int&  flagDFE,
+           int&  flagCMC,
+           int&  flagDMC ) const;
   /// access version
   const
   std::string& version() const;
@@ -90,15 +100,44 @@ class DTLVStatus {
   int set( int   wheelId,
            int stationId,
            int  sectorId,
-           int      flag );
+           int   flagCFE,
+           int   flagDFE,
+           int   flagCMC,
+           int   flagDMC );
   int set( const DTChamberId& id,
-           int      flag );
-
+           int   flagCFE,
+           int   flagDFE,
+           int   flagCMC,
+           int   flagDMC );
+  int setFlagCFE( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      flag );
+  int setFlagCFE( const DTChamberId& id,
+                  int   flag );
+  int setFlagDFE( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      flag );
+  int setFlagDFE( const DTChamberId& id,
+                  int   flag );
+  int setFlagCMC( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      flag );
+  int setFlagCMC( const DTChamberId& id,
+                  int   flag );
+  int setFlagDMC( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      flag );
+  int setFlagDMC( const DTChamberId& id,
+                  int   flag );
 
   /// Access methods to data
   typedef std::vector< std::pair<DTLVStatusId,
                                  DTLVStatusData> >::const_iterator
-                                                     const_iterator;
+                                                    const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -107,6 +146,8 @@ class DTLVStatus {
   std::string dataVersion;
 
   std::vector< std::pair<DTLVStatusId,DTLVStatusData> > dataList;
+
+  DTBufferTree<int,int>* dBuf;
 
   /// read and store full content
   void cacheMap() const;
