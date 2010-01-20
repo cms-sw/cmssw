@@ -30,18 +30,15 @@ options.register('startup',
                  "Use L1StartupConfig_cff instead of L1DummyConfig_cff")
 options.parseArguments()
 
-# Generate dummy L1TriggerKey and L1TriggerKeyList
+# Generate dummy L1TriggerKey
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
-process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
 # Generate dummy configuration data
 if options.startup == 0:
     process.load("L1Trigger.Configuration.L1DummyConfig_cff")
-#    process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu_MC2009_v2_L1T_Scales_20090624_Imp0_Unprescaled_cff")
     process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu_MC2009_v4_L1T_Scales_20090624_Imp0_Unprescaled_cff")
 else:
     process.load("L1Trigger.Configuration.L1StartupConfig_cff")
-#    process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v3_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff")
     process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v5_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff")
 
 # writer modules
@@ -51,15 +48,13 @@ initPayloadWriter( process,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
 
+# Generate dummy L1TriggerKeyList
+process.L1CondDBPayloadWriter.newL1TriggerKeyList = True
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.source = cms.Source("EmptyIOVSource",
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(4294967295),
-    lastValue = cms.uint64(4294967295),
-    interval = cms.uint64(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
 process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'

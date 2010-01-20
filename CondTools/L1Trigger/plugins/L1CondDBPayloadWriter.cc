@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.14 2009/08/14 19:58:38 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.15 2009/12/17 23:43:58 wmtan Exp $
 //
 //
 
@@ -49,7 +49,8 @@ L1CondDBPayloadWriter::L1CondDBPayloadWriter(const edm::ParameterSet& iConfig)
    : m_writeL1TriggerKey( iConfig.getParameter< bool >( "writeL1TriggerKey" )),
      m_writeConfigData( iConfig.getParameter< bool >( "writeConfigData" ) ),
      m_overwriteKeys( iConfig.getParameter< bool >( "overwriteKeys" ) ),
-     m_logTransactions( iConfig.getParameter<bool>( "logTransactions" ) )
+     m_logTransactions( iConfig.getParameter<bool>( "logTransactions" ) ),
+     m_newL1TriggerKeyList( iConfig.getParameter< bool >( "newL1TriggerKeyList" ) )
 {
    //now do what ever initialization is needed
 
@@ -77,8 +78,21 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
    using namespace edm;
 
    // Get L1TriggerKeyList and make a copy
-   ESHandle< L1TriggerKeyList > oldKeyList ;
-   iSetup.get< L1TriggerKeyListRcd >().get( oldKeyList ) ;
+//    ESHandle< L1TriggerKeyList > oldKeyList ;
+//    iSetup.get< L1TriggerKeyListRcd >().get( oldKeyList ) ;
+
+   L1TriggerKeyList oldKeyList ;
+
+   if( !m_newL1TriggerKeyList )
+     {
+       std::string keyListToken =
+	 m_writer.lastPayloadToken( "L1TriggerKeyListRcd" ) ;
+       if( !keyListToken.empty() )
+	 {
+	   m_writer.readObject( keyListToken, oldKeyList ) ;
+	 }
+     }
+
    L1TriggerKeyList* keyList = 0 ;
 
    // Write L1TriggerKey to ORCON with no IOV
@@ -96,7 +110,8 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
        if( !m_overwriteKeys )
 	 {
-	   triggerKeyOK = oldKeyList->token( key->tscKey() ) == "" ;
+	   //	   triggerKeyOK = oldKeyList->token( key->tscKey() ) == "" ;
+	   triggerKeyOK = oldKeyList.token( key->tscKey() ) == "" ;
 	 }
      }
    catch( l1t::DataAlreadyPresentException& ex )
@@ -120,7 +135,8 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
       // Record token in L1TriggerKeyList
       if( m_writeL1TriggerKey )
 	{
-	  keyList = new L1TriggerKeyList( *oldKeyList ) ;
+	  //	  keyList = new L1TriggerKeyList( *oldKeyList ) ;
+	  keyList = new L1TriggerKeyList( oldKeyList ) ;
 	  if( !( keyList->addKey( key->tscKey(),
 				  token,
 				  m_overwriteKeys ) ) )
@@ -151,11 +167,13 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 	      else
 		{
 		  // Check key is new before writing
-		  if( oldKeyList->token( it->first, it->second ) == "" ||
+		  //		  if( oldKeyList->token( it->first, it->second ) == "" ||
+		  if( oldKeyList.token( it->first, it->second ) == "" ||
 		      m_overwriteKeys )
 		    {
 		      // Write data to ORCON with no IOV
-		      if( oldKeyList->token( it->first, it->second ) != "" )
+		      //		      if( oldKeyList->token( it->first, it->second ) != "" )
+		      if( oldKeyList.token( it->first, it->second ) != "" )
 			{
 			  edm::LogVerbatim( "L1-O2O" )
 			    << "*** Overwriting payload: object key for "
@@ -186,7 +204,8 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 			  // Record token in L1TriggerKeyList
 			  if( !keyList )
 			    {
-			      keyList = new L1TriggerKeyList( *oldKeyList ) ;
+			      //			      keyList = new L1TriggerKeyList( *oldKeyList ) ;
+			      keyList = new L1TriggerKeyList( oldKeyList ) ;
 			    }
 
 			  if( !( keyList->addKey( it->first,

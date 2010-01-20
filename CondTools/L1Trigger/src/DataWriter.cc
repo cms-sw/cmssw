@@ -185,4 +185,19 @@ DataWriter::payloadToken( const std::string& recordName,
   return payloadToken ;
 }
 
+std::string
+DataWriter::lastPayloadToken( const std::string& recordName )
+{
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if( !poolDb.isAvailable() )
+    {
+      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+			     ) ;
+    }
+
+  cond::TagInfo tagInfo ;
+  poolDb->tagInfo( recordName, tagInfo ) ;
+  return tagInfo.lastPayloadToken ;
+}
+
 } // ns
