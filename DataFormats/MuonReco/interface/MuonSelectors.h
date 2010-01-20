@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.7 2009/09/09 20:55:46 aeverett Exp $
+// $Id: MuonSelectors.h,v 1.8 2010/01/19 12:25:46 jribnik Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -35,7 +35,16 @@ namespace muon {
       TMLastStationAngLoose = 18,   // TMLastStationLoose with additional angular cuts
       TMLastStationAngTight = 19,   // TMLastStationTight with additional angular cuts
       TMOneStationAngLoose = 20,    // TMOneStationLoose with additional angular cuts
-      TMOneStationAngTight = 21     // TMOneStationTight with additional angular cuts
+      TMOneStationAngTight = 21,    // TMOneStationTight with additional angular cuts
+      // The two algorithms that follow are identical to what were known as
+      // TMLastStationOptimizedLowPt* (sans the Barrel) as late as revision
+      // 1.7 of this file. The names were changed because indeed the low pt
+      // optimization applies only to the barrel region, whereas the sel-
+      // ectors above are more efficient at low pt in the endcaps, which is
+      // what we feel is more suggestive of the algorithm name. This will be
+      // less confusing for future generations of CMS members, I hope...
+      TMLastStationOptimizedBarrelLowPtLoose = 22, // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
+      TMLastStationOptimizedBarrelLowPtTight = 23  // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
    };
 
    /// a lightweight "map" for selection type string label and enum value
