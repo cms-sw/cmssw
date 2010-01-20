@@ -319,7 +319,8 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	  if ( ( abs(hpdN) < 100 && hpdHits.size() > 14 ) || 
 	       ( abs(hpdN) > 100 && hpdHits.size() > 14 ) ) ++nHPD15;
 	}
-	if ( nHPD15 > 1 ) { 
+	if ( nHPD15 > 1 ) {
+	  /*
 	  std::cout << "Read out box numero " << itrbx->first 
 		    << " has " << itrbx->second.size() << " hits in it !"
 		    << std::endl << "sigma Eta/Phi = " << totalEta2 << " " << totalPhi2 << " " << totalPhi2/totalEta2
@@ -327,11 +328,12 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 		    << std::endl << "E = " << totalEnergy << " +/- " << totalEnergy2
 		    << std::endl << "nSeeds = " << nSeeds << " " << nSeeds0
 		    << std::endl;
+	  */
 	  for ( std::map<int, std::vector<unsigned> >::iterator itHPD = theHPDs.begin();
 		itHPD != theHPDs.end(); ++itHPD ) { 
 	    unsigned hpdN = itHPD->first;
 	    const std::vector<unsigned>& hpdHits = itHPD->second;
-	    std::cout << "HPD number " << hpdN << " contains " << hpdHits.size() << " hits" << std::endl;
+	    // std::cout << "HPD number " << hpdN << " contains " << hpdHits.size() << " hits" << std::endl;
 	  }
 	  std::multimap<double, unsigned >::iterator ntEn = theEnergies.end();
 	  --ntEn;
@@ -348,12 +350,14 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	    } else { 
 	      if ( itEn->first < threshold ) mask_[itEn->second] = false;
 	    }
+	    /*
 	    if ( !mask_[itEn->second] ) 
 	      std::cout << "Hit Energies = " << itEn->first 
 			<< " " << ntEn->first/itEn->first << " masked " << std::endl;
 	    else 
 	      std::cout << "Hit Energies = " << itEn->first 
 			<< " " << ntEn->first/itEn->first << " kept for clustering " << std::endl;
+	    */
 	  }
 	}
       }
@@ -403,10 +407,12 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
     if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 15 ) || 
          ( abs(ithpd->first) < 100 && ithpd->second.size() > 12 ) )
       if ( (float)(size1 + size2)/(float)ithpd->second.size() < 1.0 ) {
+	/*
 	std::cout << "HPD numero " << ithpd->first 
 		  << " has " << ithpd->second.size() << " hits in it !" << std::endl
 		  << "Neighbours : " << size1 << " " << size2
 		  << std::endl;
+	*/
 	std::multimap<double, unsigned >::iterator ntEn = theEnergies.end();
 	--ntEn;
 	unsigned nn = 0;
@@ -422,12 +428,14 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	  } else { 
 	    if ( itEn->first < threshold ) mask_[itEn->second] = false;
 	  }
+	  /*
 	  if ( !mask_[itEn->second] ) 
 	    std::cout << "Hit Energies = " << itEn->first 
 		      << " " << ntEn->first/itEn->first << " masked " << std::endl;
 	  else 
 	    std::cout << "Hit Energies = " << itEn->first 
-		      << " " << ntEn->first/itEn->first << " kept for clustering " << std::endl;
+	    << " " << ntEn->first/itEn->first << " kept for clustering " << std::endl;
+	  */
 	}
       }
   }
@@ -553,12 +561,8 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
     // Cleaning : check energetic, isolated seeds, likely to come from erratic noise.
     if ( file_ || wannaBeSeed.energy() > cleanThresh ) { 
       
-      //std::cout << layer << " " << hBNeighbour << " " << wannaBeSeed.energy() << " " << fraction1 << std::endl;
       const vector<unsigned>& neighbours4 = *(& wannaBeSeed.neighbours4());
       // Determine the fraction of surrounding energy
-      //std::cout << "Energy of the cell and energy Up : " << wannaBeSeed.energy() 
-      //          << " " << wannaBeSeed.energyUp() << std::endl;
-      //std::cout << "Energies of the neighbours : " << std::endl;
       double surroundingEnergy = wannaBeSeed.energyUp();
       double neighbourEnergy = 0.;
       double layerEnergy = 0.;
@@ -567,7 +571,6 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	surroundingEnergy += neighbour.energy() + neighbour.energyUp();
 	neighbourEnergy += neighbour.energy() + neighbour.energyUp();
 	layerEnergy += neighbour.energy();
-	//std::cout << in4 << ": " << neighbour.energy() << " " << neighbour.energyUp() << std::endl;
       }
       // Fraction 0 is the balance between EM and HAD layer for this tower
       double fraction0 = layer == PFLayer::HF_EM || layer == PFLayer::HF_HAD ? 
@@ -583,41 +586,54 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       // if ( fraction1 < minS4S1 || ( wannaBeSeed.energy() > 1.5*cleanThresh && fraction0 + fraction3 < minS4S1 ) ) {
       
       if ( file_ ) { 
-	if ( layer == PFLayer::ECAL_BARREL || layer == PFLayer::HCAL_BARREL1 ) 
-	  ;
-	  // hBNeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
-	else if ( fabs(wannaBeSeed.position().eta()) < 5.0  ) {
+	if ( layer == PFLayer::ECAL_BARREL || layer == PFLayer::HCAL_BARREL1 ) { 
+	  /*
+	  double eta = wannaBeSeed.position().eta();
+	  double phi = wannaBeSeed.position().phi();
+	  std::pair<double,double> dcr = dCrack(phi,eta);
+	  double dcrmin = std::min(dcr.first, dcr.second);
+	  if ( dcrmin > 1. ) 
+	  */
+	  hBNeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
+	} else if ( fabs(wannaBeSeed.position().eta()) < 5.0  ) {
 	  if ( layer == PFLayer::ECAL_ENDCAP || layer == PFLayer::HCAL_ENDCAP ) { 
-	    if ( fabs(wannaBeSeed.position().eta()) < 2.8  ) hENeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
+	    if ( wannaBeSeed.energy() > 1000 ) { 
+	      if ( fabs(wannaBeSeed.position().eta()) < 2.8  ) 
+		hENeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
+	    }
 	  } else { 
 	    hENeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
 	  }
 	}
       }
       
+
       if ( wannaBeSeed.energy() > cleanThresh ) { 
 	double f1Cut = minS4S1_a * log10(wannaBeSeed.energy()) + minS4S1_b;
 	if ( fraction1 < f1Cut ) {
 	  // Double the energy cleaning threshold when close to the ECAL/HCAL - HF transition
-	  double eta = fabs(wannaBeSeed.position().eta());
-	  if (   eta < 5.0 &&                                          // No cleaning for the HF border 
-	       ( eta < 2.85 || ( rhenergy > tighterE*cleanThresh && 
-		         	 fraction1 < f1Cut/tighterF) )   &&    // Tighter cleaning for the EB-HB/HF transition 
-	       ( abs(eta-1.48) > 0.02 || fraction1 < f1Cut/tighterF )  // Tighter cleaning for the EB/EE transition 
+	  double eta = wannaBeSeed.position().eta();
+	  double phi = wannaBeSeed.position().phi();
+	  std::pair<double,double> dcr = dCrack(phi,eta);
+	  double dcrmin = std::min(dcr.first, dcr.second);
+	  eta = fabs(eta);
+	  if (   eta < 5.0 &&                         // No cleaning for the HF border 
+		 ( ( eta < 2.85 && dcrmin > 1. ) || 
+		   ( rhenergy > tighterE*cleanThresh && 
+		     fraction1 < f1Cut/tighterF ) )  // Tighter cleaning for various cracks 
 	      ) { 
-	    if ( file_ ) { 
-	      if ( layer == PFLayer::ECAL_BARREL || layer == PFLayer::HCAL_BARREL1 ) 
-		hBNeighbour->Fill(1./wannaBeSeed.energy(), fraction1);
-	    }
 	    seedStates_[rhi] = CLEAN;
 	    mask_[rhi] = false;
-	    std::cout << "A seed with E/pT/eta = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
-		      << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() 
+	    /*
+	    std::cout << "A seed with E/pT/eta/phi = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
+		      << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() << " " << phi 
 		      << " and with surrounding fractions = " << fraction0 << " " << fraction1 
 		      << " " << fraction2 << " " << fraction3
 		      << " in layer " << layer 
 		      << " had been cleaned " << std::endl
+		      << " Distances to cracks : " << dcr.first << " " << dcr.second << std::endl
 		      << "(Cuts were : " << cleanThresh << " and " << f1Cut << ")" << std::endl; 
+	    */
 	  }
 	}
       }
@@ -1504,4 +1520,75 @@ ostream& operator<<(ostream& out,const PFClusterAlgo& algo) {
   }
   
   return out;
+}
+
+
+//compute the unsigned distance to the closest phi-crack in the barrel
+std::pair<double,double>
+PFClusterAlgo::dCrack(double phi, double eta){
+
+  static double pi= M_PI;// 3.14159265358979323846;
+  
+  //Location of the 18 phi-cracks
+  static std::vector<double> cPhi;
+  if(cPhi.size()==0)
+    {
+      cPhi.resize(18,0);
+      cPhi[0]=2.97025;
+      for(unsigned i=1;i<=17;++i) cPhi[i]=cPhi[0]-2*i*pi/18;
+    }
+
+  //Shift of this location if eta<0
+  static double delta_cPhi=0.00638;
+
+  double defi; //the result
+
+  //the location is shifted
+  if(eta<0) phi +=delta_cPhi;
+
+  if (phi>=-pi && phi<=pi){
+
+    //the problem of the extrema
+    if (phi<cPhi[17] || phi>=cPhi[0]){
+      if (phi<0) phi+= 2*pi;
+      defi = std::min(fabs(phi -cPhi[0]),fabs(phi-cPhi[17]-2*pi));        	
+    }
+
+    //between these extrema...
+    else{
+      bool OK = false;
+      unsigned i=16;
+      while(!OK){
+	if (phi<cPhi[i]){
+	  defi=std::min(fabs(phi-cPhi[i+1]),fabs(phi-cPhi[i]));
+	  OK=true;
+	}
+	else i-=1;
+      }
+    }
+  }
+  else{
+    defi=0.;        //if there is a problem, we assum that we are in a crack
+    std::cout<<"Problem in dminphi"<<std::endl;
+  }
+  //if(eta<0) defi=-defi;   //because of the disymetry
+
+  static std::vector<double> cEta;
+  if ( cEta.size() == 0 ) { 
+    cEta.push_back(0.0);
+    cEta.push_back(4.44747e-01)  ;   cEta.push_back(-4.44747e-01)  ;
+    cEta.push_back(7.92824e-01)  ;   cEta.push_back(-7.92824e-01) ;
+    cEta.push_back(1.14090e+00)  ;   cEta.push_back(-1.14090e+00)  ;
+    cEta.push_back(1.47464e+00)  ;   cEta.push_back(-1.47464e+00)  ;
+  }
+  double deta = 999.; // the other result
+
+  for ( unsigned ieta=0; ieta<cEta.size(); ++ieta ) { 
+    deta = std::min(deta,fabs(eta-cEta[ieta]));
+  }
+  
+  defi /= 0.0175;
+  deta /= 0.0175;
+  return std::pair<double,double>(defi,deta);
+
 }

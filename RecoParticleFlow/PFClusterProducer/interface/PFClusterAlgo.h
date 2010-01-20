@@ -220,6 +220,9 @@ class PFClusterAlgo {
 
   /// paint a rechit with a color. 
   void paint( unsigned rhi, unsigned color=1 );
+
+  /// distance to a crack in the ECAL barrel in eta and phi direction
+  std::pair<double,double> dCrack(double phi, double eta);
   
 
   PFRecHitHandle           rechitsHandle_;   
