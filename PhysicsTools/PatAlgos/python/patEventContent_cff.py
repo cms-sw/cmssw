@@ -7,7 +7,8 @@ patEventContentNoCleaning = [
     'keep *_selectedPatTaus_*_*',
     'keep *_selectedPatJets*_*_*',
     'keep *_patMETs*_*_*',
-    'keep *_selectedPatPFParticles_*_*'
+    'keep *_selectedPatPFParticles_*_*',
+    'keep *_selectedPatTrackCands_*_*'
 ]
 
 patEventContent = [
@@ -18,7 +19,8 @@ patEventContent = [
     'keep *_cleanPatJets*_*_*',
     'keep *_patMETs*_*_*',
     'keep *_cleanPatHemispheres_*_*',
-    'keep *_cleanPatPFParticles_*_*'
+    'keep *_cleanPatPFParticles_*_*',
+    'keep *_cleanPatTrackCands_*_*'    
 ]
 
 patExtraAodEventContent = [
