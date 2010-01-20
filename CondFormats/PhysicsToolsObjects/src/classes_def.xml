@@ -123,8 +123,5 @@
 	<class name="PhysicsTools::Calibration::MVAComputerContainer" class_version="0">
 		<field name="cacheId" transient="true"/>
 	</class>
-	<class name="ROOT::TSchemaHelper"/>
-	<class name="std::vector&lt;ROOT::TSchemaHelper&gt;"/>
-	<class name="std::vector&lt;TFormula*&gt;"/>
 
 </lcgdict>
