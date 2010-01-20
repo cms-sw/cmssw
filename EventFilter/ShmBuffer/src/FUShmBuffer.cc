@@ -349,8 +349,9 @@ FUShmRawCell* FUShmBuffer::rawCellToDiscard()
   waitRawDiscarded();
   FUShmRawCell* cell=rawCell(rawDiscardIndex_);
   evt::State_t  state=evtState(cell->index());
-  assert(state==evt::PROCESSED||state==evt::SENT||state==evt::EMPTY);
-  if (state!=evt::EMPTY) setEvtState(cell->index(),evt::DISCARDING);
+  assert(state==evt::PROCESSED||state==evt::SENT||state==evt::EMPTY||state==evt::LUMISECTION);
+  if (state!=evt::EMPTY && state!=evt::LUMISECTION) 
+    setEvtState(cell->index(),evt::DISCARDING);
   return cell;
 }
 
@@ -410,7 +411,7 @@ void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell)
   if (rawCellReadyForDiscard(iCell)) {
     rawDiscardIndex_=iCell;
     evt::State_t  state=evtState(iCell);
-    assert(state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY);
+    assert(state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||state==evt::LUMISECTION);
     if (state==evt::PROCESSING) setEvtState(iCell,evt::PROCESSED);
     postRawDiscarded();
   }
@@ -462,7 +463,7 @@ void FUShmBuffer::discardDqmCell(unsigned int iCell)
 void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
 {
   evt::State_t state=evtState(cell->index());
-  assert(state==evt::DISCARDING||state==evt::RAWWRITING||state==evt::EMPTY);
+  assert(state==evt::DISCARDING||state==evt::RAWWRITING||state==evt::EMPTY||state==evt::LUMISECTION);
   setEvtState(cell->index(),evt::EMPTY);
   setEvtDiscard(cell->index(),0);
   setEvtNumber(cell->index(),0xffffffff);

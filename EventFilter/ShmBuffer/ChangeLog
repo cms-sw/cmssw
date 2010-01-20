@@ -1,3 +1,7 @@
+2010-01-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-02 bug fix: more assert fixes for EOL handling
+
 2010-01-15  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-01 bug fix: assert in rawCellToRead did not contain EOLS
