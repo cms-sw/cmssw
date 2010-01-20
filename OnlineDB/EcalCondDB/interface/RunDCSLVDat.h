@@ -38,6 +38,8 @@ class RunDCSLVDat : public IDataItem {
   inline float getLV() const { return m_lv; }
   inline float getLVNominal() const { return m_lvnom; }
   inline int getStatus() const { return m_status; }
+  int getTimeStatus() {return m_tstatus;}
+  void setTimeStatus(int t ) {m_tstatus=t; } 
 
  private:
   void setStatusForBarrel(RunDCSLVDat&, Tm);
@@ -62,6 +64,7 @@ class RunDCSLVDat : public IDataItem {
   float m_lv;
   float m_lvnom;
   int m_status;
+  int m_tstatus;
 };
 
 #endif

@@ -18,6 +18,7 @@ RunDCSLVDat::RunDCSLVDat()
   m_lv = 0;
   m_lvnom = 0;
   m_status= 0;
+  m_tstatus= 0;
 }
 
 
@@ -130,30 +131,42 @@ int  RunDCSLVDat::nowMicroseconds() {
 
 void RunDCSLVDat::setStatusForBarrel(RunDCSLVDat &dat, Tm sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
-  if (int d = ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) > 
-      maxDifference) {
-    dat.setStatus( -d/1000000 ); 
-  }
+
   if (fabs(dat.getLV() - dat.getLVNominal())*1000 > maxLVDifferenceEB) {
     dat.setStatus(LVNOTNOMINAL);
   }
   if (dat.getLV()*1000 < minLV) {
     dat.setStatus(LVOFF);
   }
+
+  int result=0;
+  int d= ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) ;
+  if (d> maxDifference) {
+    result= -d/1000000 ;
+  }
+  dat.setTimeStatus(result);
+
+
 }
 
 void  RunDCSLVDat::setStatusForEndcaps(RunDCSLVDat &dat, Tm sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
-  if (int d = ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) > 
-      maxDifference) {
-    dat.setStatus( -d/1000000 ); 
-  }
+
   if (fabs(dat.getLV() - dat.getLVNominal())*1000 > maxLVDifferenceEE) {
     dat.setStatus(LVNOTNOMINAL);
   }
   if (dat.getLV()*1000 < minLV) {
     dat.setStatus(LVOFF);
   }
+
+  int result=0;
+  int d= ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) ;
+  if (d> maxDifference) {
+    result= -d/1000000 ;
+  }
+  dat.setTimeStatus(result);
+
+
 }
 
 void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )

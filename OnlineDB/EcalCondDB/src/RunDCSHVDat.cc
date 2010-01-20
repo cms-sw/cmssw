@@ -18,6 +18,7 @@ RunDCSHVDat::RunDCSHVDat()
   m_hv = 0;
   m_hvnom = 0;
   m_status= 0;
+  m_tstatus= 0;
 }
 
 
@@ -145,32 +146,43 @@ int  RunDCSHVDat::nowMicroseconds() {
 }
 
 
+
 void RunDCSHVDat::setStatusForBarrel(RunDCSHVDat &dat, Tm sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
-  if (int d = ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) > 
-      maxDifference) {
-    dat.setStatus( -d/1000000 ); 
-  }
+
   if (fabs(dat.getHV() - dat.getHVNominal())*1000 > maxHVDifferenceEB) {
     dat.setStatus(HVNOTNOMINAL);
   }
   if (dat.getHV()*1000 < minHV) {
     dat.setStatus(HVOFF);
   }
+
+  int result=0; 
+  int d= ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) ;
+  if (d> maxDifference) {
+    result= -d/1000000 ;
+  } 
+  dat.setTimeStatus(result);
+
+
 }
 
 void  RunDCSHVDat::setStatusForEndcaps(RunDCSHVDat &dat, Tm sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
-  if (int d = ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) > 
-      maxDifference) {
-    dat.setStatus( -d/1000000 ); 
-  }
+
   if (fabs(dat.getHV() - dat.getHVNominal())*1000 > maxHVDifferenceEE) {
     dat.setStatus(HVNOTNOMINAL);
   }
   if (dat.getHV()*1000 < minHV) {
     dat.setStatus(HVOFF);
   }
+
+  int result=0; 
+  int d= ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) ;
+  if (d> maxDifference) {
+    result= -d/1000000 ;
+  } 
+  dat.setTimeStatus(result);
 }
 
 void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )

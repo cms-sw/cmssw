@@ -38,7 +38,8 @@ class RunDCSHVDat : public IDataItem {
   inline float getHV() const { return m_hv; }
   inline float getHVNominal() const { return m_hvnom; }
   inline int getStatus() const { return m_status; }
-
+  int getTimeStatus() {return m_tstatus;}
+  void setTimeStatus(int t ) {m_tstatus=t; } 
  private:
   void setStatusForBarrel(RunDCSHVDat&, Tm);
   void setStatusForEndcaps(RunDCSHVDat&, Tm);
@@ -63,6 +64,7 @@ class RunDCSHVDat : public IDataItem {
   float m_hv;
   float m_hvnom;
   int m_status;
+  int m_tstatus; 
 };
 
 #endif
