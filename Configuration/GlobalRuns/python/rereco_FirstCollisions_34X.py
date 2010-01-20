@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -72,6 +72,9 @@ process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.dedxTruncated40.UsePixel = cms.bool(False)
+process.dedxMedian.UsePixel = cms.bool(False)
+process.dedxHarmonic2.UsePixel = cms.bool(False)
 
 ## Primary Vertex
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
@@ -88,19 +91,7 @@ process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
 ## ECAL 
-process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
-process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEB = 1.138
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEB = 1.655
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEE = 1.890
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEE = 1.400
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 
 ##Preshower
 process.ecalPreshowerRecHit.ESGain = 2

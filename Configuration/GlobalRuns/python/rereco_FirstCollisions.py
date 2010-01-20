@@ -5,7 +5,7 @@
 # with command line options: promptCollisionReco -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalZeroBias --datatier RECO --eventcontent RECO --conditions CRAFT09_R_V4::All --scenario pp --no_exec --data --magField AutoFromDBCurrent -n 100
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECO')
+process = cms.Process('RERECO')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -21,21 +21,23 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.9 $'),
+    version = cms.untracked.string('$Revision: 1.10 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True) 
 )
 # Input source
+import sys
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring( 
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/DC0FA50D-6BE8-DE11-8A92-000423D94E70.root'
+    fileNames = cms.untracked.vstring(
+#    sys.argv[2]
+    '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/DC0FA50D-6BE8-DE11-8A92-000423D94E70.root'
 #'file:/data/withvertex732.root'
 #'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/615/38379AF1-B4E2-DE11-BB10-001617C3B706.root'
 #'rfio:/castor.cern.ch/cms/store/data/BeamCommissioning09/castor/MinimumBias/RAW/v1/000/122/314/CC89C4BC-DE11-B365-0030487D0D3A.root'
@@ -73,6 +75,11 @@ process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
+process.dedxTruncated40.UsePixel = cms.bool(False)
+process.dedxMedian.UsePixel = cms.bool(False)
+process.dedxHarmonic2.UsePixel = cms.bool(False)
+
+
 ## Primary Vertex
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
@@ -88,19 +95,7 @@ process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
 ## ECAL 
-process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
-process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEB = 1.138
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEB = 1.655
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEE = 1.890
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEE = 1.400
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 
 ##Preshower
 process.ecalPreshowerRecHit.ESGain = 2
