@@ -47,10 +47,9 @@ void SiStripLorentzAngleGenerator::setUniform(const vector<double> & estimatedVa
   }
 }
 
-void SiStripLorentzAngleGenerator::createObject() {
-
+void SiStripLorentzAngleGenerator::createObject()
+{
   obj_ = new SiStripLorentzAngle();
-
 
   edm::FileInPath fp_                 = _pset.getParameter<edm::FileInPath>("file");
 

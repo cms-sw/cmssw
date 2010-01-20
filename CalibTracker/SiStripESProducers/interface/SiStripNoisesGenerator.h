@@ -5,7 +5,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondTools/SiStrip/interface/SiStripCondObjBuilderBase.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
+#include <map>
+
+using namespace std;
 
 class SiStripNoisesGenerator : public SiStripCondObjBuilderBase<SiStripNoises> {
  public:
@@ -16,10 +20,30 @@ class SiStripNoisesGenerator : public SiStripCondObjBuilderBase<SiStripNoises> {
   void getObj(SiStripNoises* & obj){createObject(); obj=obj_;}
 
  private:
-  
-  void createObject();
 
-  
+  void createObject();
+  /// Given the map and the detid it returns the corresponding layer/ring
+  pair<int, int> subDetAndLayer(const uint32_t detit) const;
+  /// Fills the parameters read from cfg and matching the name in the given map
+  void fillParameters(map<int, vector<double> > & mapToFill, const string & parameterName) const;
+  /**
+   * Fills the map with the paramters for the given subdetector. <br>
+   * Each vector "v" holds the parameters for the layers/rings, if the vector has only one parameter
+   * all the layers/rings get that parameter. <br>
+   * The only other possibility is that the number of parameters equals the number of layers, otherwise
+   * an exception of type "Configuration" will be thrown.
+   */
+  void fillSubDetParameter(map<int, vector<double> > & mapToFill, const vector<double> & v, const int subDet, const unsigned short layers) const;
+
+  inline void printLog(const uint32_t detId, const unsigned short strip, const double & noise) const
+  {
+    edm::LogInfo("SiStripNoisesDummyCalculator") << "detid: " << detId << " strip: " << strip <<  " noise: " << noise     << " \t"   << std::endl;
+  }
+
+  double electronsPerADC_;
+  double minimumPosValue_;
+  bool stripLengthMode_;
+  uint32_t printDebug_;
 };
 
 #endif 
