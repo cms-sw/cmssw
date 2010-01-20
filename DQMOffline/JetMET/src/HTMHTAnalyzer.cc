@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/08 10:14:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/18 21:03:51 $
+ *  $Revision: 1.4 $
  *  \author K. Hatakeyama - Rockefeller University
  */
 
@@ -38,40 +38,6 @@ HTMHTAnalyzer::HTMHTAnalyzer(const edm::ParameterSet& pSet) {
 // ***********************************************************
 HTMHTAnalyzer::~HTMHTAnalyzer() { }
 
-void HTMHTAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
-  //void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
-
-  evtCounter = 0;
-  metname = "HTMHTAnalyzer";
-
-  // PFMET information
-  theJetCollectionForHTMHTLabel = parameters.getParameter<edm::InputTag>("JetCollectionForHTMHTLabel");
-  _source                       = parameters.getParameter<std::string>("Source");
-
-  LogTrace(metname)<<"[HTMHTAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("JetMET/MET/"+_source);
-
-  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-
-  // misc
-  _verbose     = parameters.getParameter<int>("verbose");
-  _ptThreshold = parameters.getParameter<double>("ptThreshold");
-
-  jetME = dbe->book1D("metReco", "metReco", 4, 1, 5);
-  jetME->setBinLabel(4,"HTMHT",1);
-
-  hNevents = dbe->book1D("METTask_Nevents",   "METTask_Nevents",   1,0,1);
-  hNJets   = dbe->book1D("METTask_NJets",     "METTask_NJets",     100, 0, 100);
-  hMHx     = dbe->book1D("METTask_MHx",       "METTask_MHx",       500,-500,500);
-  hMHy     = dbe->book1D("METTask_MHy",       "METTask_MHy",       500,-500,500);
-  hMHT     = dbe->book1D("METTask_MHT",       "METTask_MHT",       500,0,1000);
-  hMHTPhi  = dbe->book1D("METTask_MhTPhi",    "METTask_MhTPhi",    80,-4,4);
-  hHT      = dbe->book1D("METTask_HT",        "METTask_HT",        500,0,2000);
-
-}
-
-
-///fixing for now
 void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
 
   evtCounter = 0;
@@ -103,6 +69,7 @@ void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
 
 }
 
+ 
 // ***********************************************************
 void HTMHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			      const edm::TriggerResults& triggerResults) {
