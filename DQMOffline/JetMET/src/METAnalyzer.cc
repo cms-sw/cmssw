@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/04 19:29:19 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/01/18 21:03:01 $
+ *  $Revision: 1.12 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -475,7 +475,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
 
     bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-
+    
   }
   else if (theMETCollectionLabel.label() == "corMetGlobalMuons" ) {
 
@@ -789,38 +789,44 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     ////////////////////////////////////
     if (theMETCollectionLabel.label() == "tcMet" ) {
     
-      for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
-	me[DirName+"/htrkPt"]->Fill( trkit->pt() );
-	me[DirName+"/htrkEta"]->Fill( trkit->eta() );
-	me[DirName+"/htrkNhits"]->Fill( trkit->numberOfValidHits() );
-	me[DirName+"/htrkChi2"]->Fill( trkit->chi2() / trkit->ndof() );
-	double d0 = -1 * trkit->dxy( bspot );
-	me[DirName+"/htrkD0"]->Fill( d0 );
+      if(track_h.isValid()) {
+	for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
+	  me[DirName+"/htrkPt"]->Fill( trkit->pt() );
+	  me[DirName+"/htrkEta"]->Fill( trkit->eta() );
+	  me[DirName+"/htrkNhits"]->Fill( trkit->numberOfValidHits() );
+	  me[DirName+"/htrkChi2"]->Fill( trkit->chi2() / trkit->ndof() );
+	  double d0 = -1 * trkit->dxy( bspot );
+	  me[DirName+"/htrkD0"]->Fill( d0 );
+	}
       }
-    
-      for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
- 	me[DirName+"/helePt"]->Fill( eleit->p4().pt() );  
- 	me[DirName+"/heleEta"]->Fill( eleit->p4().eta() );
- 	me[DirName+"/heleHoE"]->Fill( eleit->hadronicOverEm() );
+      
+      if(electron_h.isValid()) {
+	for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
+	  me[DirName+"/helePt"]->Fill( eleit->p4().pt() );  
+	  me[DirName+"/heleEta"]->Fill( eleit->p4().eta() );
+	  me[DirName+"/heleHoE"]->Fill( eleit->hadronicOverEm() );
+	}
       }
-    
-      for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {      
-	const reco::TrackRef siTrack = muonit->innerTrack();      
- 	me[DirName+"/hmuPt"]->Fill( muonit->p4().pt() );
- 	me[DirName+"/hmuEta"]->Fill( muonit->p4().eta() );
- 	me[DirName+"/hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
- 	me[DirName+"/hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;      
- 	me[DirName+"/hmuD0"]->Fill( d0 );
-      }
-
-      const unsigned int nMuons = muon_h->size();      
-      for( unsigned int mus = 0; mus < nMuons; mus++ ) {
-	reco::MuonRef muref( muon_h, mus);
-	reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
- 	me[DirName+"/hMExCorrection"] -> Fill(muCorrData.corrX());
- 	me[DirName+"/hMEyCorrection"] -> Fill(muCorrData.corrY());
- 	me[DirName+"/hMuonCorrectionFlag"]-> Fill(muCorrData.type());
+      
+      if(muon_h.isValid()) {
+	for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {      
+	  const reco::TrackRef siTrack = muonit->innerTrack();      
+	  me[DirName+"/hmuPt"]->Fill( muonit->p4().pt() );
+	  me[DirName+"/hmuEta"]->Fill( muonit->p4().eta() );
+	  me[DirName+"/hmuNhits"]->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+	  me[DirName+"/hmuChi2"]->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+	  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;      
+	  me[DirName+"/hmuD0"]->Fill( d0 );
+	}
+	
+	const unsigned int nMuons = muon_h->size();      
+	for( unsigned int mus = 0; mus < nMuons; mus++ ) {
+	  reco::MuonRef muref( muon_h, mus);
+	  reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
+	  me[DirName+"/hMExCorrection"] -> Fill(muCorrData.corrX());
+	  me[DirName+"/hMEyCorrection"] -> Fill(muCorrData.corrY());
+	  me[DirName+"/hMuonCorrectionFlag"]-> Fill(muCorrData.type());
+	}
       }
       
       ////////////////////////////////////
