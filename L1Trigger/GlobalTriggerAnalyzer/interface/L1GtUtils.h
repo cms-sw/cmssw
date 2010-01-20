@@ -202,7 +202,10 @@ public:
             const std::string& triggerAlgTechTrig, int& errorCode);
 
     /// return the L1 trigger menu name
-    const std::string l1TriggerMenu();
+    const std::string& l1TriggerMenu();
+
+    /// return the L1 trigger menu implementation
+    const std::string& l1TriggerMenuImplementation();
 
 private:
 

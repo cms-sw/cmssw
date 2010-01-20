@@ -479,11 +479,14 @@ int L1GtUtils::l1Results(const edm::Event& iEvent,
     }
 
     const std::vector<int>* prescaleFactorsAlgTechTrig = 0;
+    const std::vector<unsigned int>* triggerMaskAlgTechTrig = 0;
 
     if (triggerAlgTechTrig) {
         prescaleFactorsAlgTechTrig = &((*m_prescaleFactorsTechTrig).at(pfIndexAlgTechTrig));
+        triggerMaskAlgTechTrig = &m_triggerMaskTechTrig;
     } else {
         prescaleFactorsAlgTechTrig = &((*m_prescaleFactorsAlgoTrig).at(pfIndexAlgTechTrig));
+        triggerMaskAlgTechTrig = &m_triggerMaskAlgoTrig;
     }
 
 
@@ -596,15 +599,15 @@ int L1GtUtils::l1Results(const edm::Event& iEvent,
     }
 
     // algorithm result after applying the trigger masks
-    if (bitNumber < static_cast<int>(m_triggerMaskAlgoTrig.size())) {
-        triggerMask = (m_triggerMaskAlgoTrig[bitNumber]) & (1
+    if (bitNumber < static_cast<int>((*triggerMaskAlgTechTrig).size())) {
+        triggerMask = ((*triggerMaskAlgTechTrig)[bitNumber]) & (1
                 << m_physicsDaqPartition);
     } else {
         iError = iError + 5000;
         LogDebug("L1GtUtils") << "\nBit number " << bitNumber
                 << " for algorithm/technical trigger \n" << nameAlgTechTrig
                 << " negative or greater than size of L1 GT trigger mask set: "
-                << m_triggerMaskAlgoTrig.size()
+                << (*triggerMaskAlgTechTrig).size()
                 << "\nError: Inconsistent L1 trigger event setup!" << std::endl;
 
         return iError;
@@ -869,9 +872,16 @@ const int L1GtUtils::triggerMask(const std::string& nameAlgTechTrig,
         return iError;
     }
 
+    const std::vector<unsigned int>* triggerMaskAlgTechTrig = 0;
 
-    if (bitNumber < static_cast<int>(m_triggerMaskAlgoTrig.size())) {
-        triggerMaskValue =  (m_triggerMaskAlgoTrig[bitNumber]) & (1
+    if (triggerAlgTechTrig) {
+        triggerMaskAlgTechTrig = &m_triggerMaskTechTrig;
+    } else {
+        triggerMaskAlgTechTrig = &m_triggerMaskAlgoTrig;
+    }
+
+    if (bitNumber < static_cast<int>((*triggerMaskAlgTechTrig).size())) {
+        triggerMaskValue =  ((*triggerMaskAlgTechTrig)[bitNumber]) & (1
                 << m_physicsDaqPartition);
 
     } else {
@@ -1138,9 +1148,14 @@ const std::vector<unsigned int>& L1GtUtils::triggerMaskSet(
 
 }
 
-const std::string L1GtUtils::l1TriggerMenu() {
+const std::string& L1GtUtils::l1TriggerMenu() {
+
+    return m_l1GtMenu->gtTriggerMenuName();
+
+}
+
+const std::string& L1GtUtils::l1TriggerMenuImplementation() {
 
     return m_l1GtMenu->gtTriggerMenuImplementation();
 
 }
-
