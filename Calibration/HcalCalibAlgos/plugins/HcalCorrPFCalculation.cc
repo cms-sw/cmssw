@@ -1,3 +1,5 @@
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.13 2010/01/20 21:28:28 andrey Exp $
+
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -417,9 +419,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  double deta = fabs(etahcal - etahit); 
 	  double dr = sqrt(dphi*dphi + deta*deta);
 	  
-	  dr =  getDistInPlaneSimple(gPointHcal,pos);
+	  //dr =  getDistInPlaneSimple(gPointHcal,pos);
 
-	  if(dr<60.) 
+	  if(dr<0.5) 
 	    {
 	      
 	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
