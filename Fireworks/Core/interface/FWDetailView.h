@@ -5,6 +5,7 @@
 #include <Reflex/Type.h>
 #include <string>
 #include <typeinfo>
+#include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Core/interface/FWDetailViewFactory.h"
 
@@ -26,7 +27,9 @@ public:
 
 private:
    virtual void build(const FWModelId& iID, const void* iData) {
-      build(iID, reinterpret_cast<const T*> (iData));   }
+      setItem(iID.item());
+      build(iID, reinterpret_cast<const T*> (iData));  
+   }
 
    virtual void build(const FWModelId&, const T*) = 0;
    virtual void setTextInfo(const FWModelId&, const T*) = 0;

@@ -23,6 +23,11 @@
 
 class TEveWindow;
 class FWModelId;
+class FWEventItem;
+
+namespace fireworks {
+   class Context;
+}
 
 class FWDetailViewBase
 {
@@ -40,6 +45,10 @@ public:
    static void drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t);
    static void drawCanvasBox(Double_t* pos, Color_t fillCol, Int_t fillType = 0, bool bg=kTRUE);
 
+   const FWEventItem* item() { return m_item; }
+   void  setItem(const FWEventItem* x) { m_item =x; }
+   const fireworks::Context& context() const;
+
 protected:
    FWDetailViewBase(const std::type_info&);
  
@@ -48,7 +57,8 @@ private:
    const FWDetailViewBase& operator=(const FWDetailViewBase&); // stop default
 
    virtual void build(const FWModelId&, const void*) = 0;
-
+  
+   const FWEventItem        *m_item;   
    TEveWindow         *m_eveWindow;
    FWSimpleProxyHelper m_helper;
 };

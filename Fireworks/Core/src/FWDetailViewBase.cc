@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.19 2009/12/10 13:27:02 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.20 2010/01/14 15:55:13 amraktad Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
+   m_item(0),
    m_eveWindow(0),
    m_helper(iInfo)
 {
@@ -46,6 +47,11 @@ FWDetailViewBase::build (const FWModelId &iID)
 {
    m_helper.itemChanged(iID.item());
    build(iID, m_helper.offsetObject(iID.item()->modelData(iID.index())));
+}
+
+const fireworks::Context&
+FWDetailViewBase::context () const {
+   return m_item->context();
 }
 
 //______________________________________________________________________________
