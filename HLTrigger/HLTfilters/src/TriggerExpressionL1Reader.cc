@@ -68,7 +68,7 @@ void L1Reader::init(const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) 
     BOOST_FOREACH(const AlgorithmMap::value_type & entry, aliasMap)
       if (boost::regex_match(entry.first, re)) {
         match = true;
-        if (m_ignoreMask or (mask[i] & m_daqPartitions) == m_daqPartitions)
+        if (m_ignoreMask or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & m_daqPartitions) == m_daqPartitions)
           m_triggers.push_back( std::make_pair(entry.first, entry.second.algoBitNumber()) );
       }
 
