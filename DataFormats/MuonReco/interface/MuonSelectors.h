@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.8 2010/01/19 12:25:46 jribnik Exp $
+// $Id: MuonSelectors.h,v 1.9 2010/01/20 17:28:12 jribnik Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -75,8 +75,8 @@ namespace muon {
 		    double maxChamberDist,
 		    double maxChamberDistPull,
 		    reco::Muon::ArbitrationType arbitrationType,
-            bool   syncMinNMatchesNRequiredStationsInBarrelOnly,
-            bool   applyAlsoAngularCuts);
+		    bool   syncMinNMatchesNRequiredStationsInBarrelOnly = true,//this is what we had originally
+		    bool   applyAlsoAngularCuts = false);
    
    // determine if station was crossed well withing active volume
    unsigned int RequiredStationMask( const reco::Muon& muon,
