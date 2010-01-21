@@ -25,6 +25,7 @@ public:
     // configuration
     m_hltResultsTag(config.getParameter<edm::InputTag>("hltResults")),
     m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
+    m_daqPartitions(config.getParameter<unsigned int>("daqPartitions")),
     m_l1tIgnoreMask(config.getParameter<bool>("l1tIgnoreMask")),
     m_throw(config.getParameter<bool>("throw")),
     // l1 values and status
@@ -93,12 +94,25 @@ public:
     return m_eventNumber;
   }
 
+  bool shouldThrow() const {
+    return m_throw;
+  }
+
+  bool ignoreL1Mask() const {
+    return m_l1tIgnoreMask;
+  }
+
+  unsigned int daqPartitions() const {
+    return m_daqPartitions;
+  }
+
 private:
   // configuration
   edm::InputTag m_hltResultsTag;
   edm::InputTag m_l1tResultsTag;
-  bool m_l1tIgnoreMask;
-  bool m_throw;
+  unsigned int  m_daqPartitions;
+  bool          m_l1tIgnoreMask;
+  bool          m_throw;
 
   // l1 values and status
   const L1GlobalTriggerReadoutRecord  * m_l1tResults;
