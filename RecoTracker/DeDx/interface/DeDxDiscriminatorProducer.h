@@ -17,6 +17,7 @@
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
@@ -54,9 +55,10 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  double GetProbability       (const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState);
+  double GetProbability       (const SiStripCluster*   cluster,TrajectoryStateOnSurface trajState);
   double ComputeDiscriminator (std::vector<double>& vect_probs);
-  int    ClusterSaturatingStrip(const SiStripRecHit2D* sistripsimplehit);
+    int    ClusterSaturatingStrip(const SiStripCluster*   cluster);
+
 
 
   // ----------member data ---------------------------

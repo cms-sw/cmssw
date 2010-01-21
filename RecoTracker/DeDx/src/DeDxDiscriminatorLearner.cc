@@ -162,13 +162,16 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
          const TrackingRecHit*         hit               = (*measurement_it->recHit()).hit();
          const SiStripRecHit2D*        sistripsimplehit  = dynamic_cast<const SiStripRecHit2D*>(hit);
          const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+         const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
 
          if(sistripsimplehit)
          {
-             Learn(sistripsimplehit, trajState);
-         }else if(sistripmatchedhit){
-             Learn(sistripmatchedhit->monoHit()  ,trajState);
-             Learn(sistripmatchedhit->stereoHit(),trajState);
+             Learn((sistripsimplehit->cluster()).get(), trajState);
+         }else if(sistripsimplehit){
+             Learn((sistripmatchedhit->monoHit()  ->cluster()).get(),trajState);
+             Learn((sistripmatchedhit->stereoHit()->cluster()).get(),trajState);
+         }else if(sistripsimple1dhit){
+             Learn((sistripsimple1dhit->cluster()).get(), trajState);
          }else{
          }
 
@@ -178,12 +181,11 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
 }
 
 
-void DeDxDiscriminatorLearner::Learn(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState)
+void DeDxDiscriminatorLearner::Learn(const SiStripCluster*   cluster,TrajectoryStateOnSurface trajState)
 {
    // Get All needed variables
    LocalVector             trackDirection = trajState.localDirection();
    double                  cosine         = trackDirection.z()/trackDirection.mag();
-   const SiStripCluster*   cluster        = (sistripsimplehit->cluster()).get();
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
    uint32_t                detId          = cluster->geographicalId();
    int                     firstStrip     = cluster->firstStrip();
