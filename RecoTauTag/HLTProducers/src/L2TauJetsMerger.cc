@@ -56,7 +56,7 @@ void L2TauJetsMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  }
 
  auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection); 
-<<<<<<< L2TauJetsMerger.cc
+
  //Removing the collinear jets correctly!
 
  //First sort the jets you have merged
@@ -65,7 +65,6 @@ void L2TauJetsMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  
 //Remove Collinear Jets by prefering the highest ones!
 
-
    while(myTmpJets.size()>0) {
      tauL2jets->push_back(myTmpJets.at(0));
      CaloJetCollection tmp;
@@ -73,30 +72,11 @@ void L2TauJetsMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
        double DR = ROOT::Math::VectorUtil::DeltaR(myTmpJets.at(0).p4(),myTmpJets.at(i).p4());
        if(DR>0.1) 
 	 tmp.push_back(myTmpJets.at(i));
-=======
- //Removing the collinear jets
- for(unsigned int iTau1 = 0; iTau1 <  myTmpJets.size();iTau1++)
-     { 
-       bool doubleJet = false;
-	 
-       for(unsigned int iTau2 = iTau1+1; iTau2 <  myTmpJets.size();iTau2++)
-	 { 
-	   double deltaR = ROOT::Math::VectorUtil::DeltaR(myTmpJets[iTau1].p4().Vect(), myTmpJets[iTau2].p4().Vect());
-	   if(deltaR < 0.1) doubleJet = true;
-	 }
-
-       if(!doubleJet) tauL2jets->push_back(myTmpJets[iTau1]);
->>>>>>> 1.3
      }
-<<<<<<< L2TauJetsMerger.cc
-
      myTmpJets.swap(tmp);
      tmp.clear();
    }
-=======
- 
-//    cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
->>>>>>> 1.3
+
 
   iEvent.put(tauL2jets);
 
