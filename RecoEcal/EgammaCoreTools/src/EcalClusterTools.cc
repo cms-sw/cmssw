@@ -950,134 +950,175 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
   return v;
 }
 
-//compute shower shapes: roundness and angle
-//description:
-std::vector<float> EcalClusterTools::showerRoundness( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits){
-	
-	std::vector<float> shapes;
-	
-	//std::vector<DetId> usedCrystals = superCluster->getHitsByDetId();
-	/*>> Compiling /uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc 
-/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc: In static member function `static std::vector<float, std::allocator<float> > EcalClusterTools::ShowerShapes(const reco::SuperCluster&, const EcalRecHitCollection*)':
-/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc:886: error: base operand of `->' has non-pointer type `const reco::SuperCluster'
-gmake: *** [tmp/slc4_ia32_gcc345/src/RecoEcal/EgammaCoreTools/src/RecoEcalEgammaCoreTools/EcalClusterTools.o] Error 1*/
-	
-	//std::vector<DetId> usedCrystals = superCluster.getHitsByDetId();
-	/*This above line gives this error:
-	>> Compiling /uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc 
-/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc: In static member function `static std::vector<float, std::allocator<float> > EcalClusterTools::ShowerShapes(const reco::SuperCluster&, const EcalRecHitCollection*)':
-/uscms/home/miceli/work/photon/halo/showershape/CMSSW_3_1_0_pre6/src/RecoEcal/EgammaCoreTools/src/EcalClusterTools.cc:886: error: 'const class reco::SuperCluster' has no member named 'getHitsByDetId'
-gmake: *** [tmp/slc4_ia32_gcc345/src/RecoEcal/EgammaCoreTools/src/RecoEcalEgammaCoreTools/EcalClusterTools.o] Error 1
-	*/
+//compute shower shapes: roundness and angle in a vector. Roundness is 0th element, Angle is 1st element.
+//description: uses classical mechanics inertia tensor.
+//             roundness is smaller_eValue/larger_eValue
+//             angle is the angle from the iEta axis to the smallest eVector (a.k.a. the shower's elongated axis)
+// this function uses only recHits belonging to a SC
+// you can select linear weighting = energy_recHit/total_energy         (weightedPositionMethod=0) default
+// or log weighting = max( 0.0, 4.2 + log(energy_recHit/total_energy) ) (weightedPositionMethod=1)
+std::vector<float> EcalClusterTools::roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod){//int positionWeightingMethod=0){
+	std::vector<const EcalRecHit*>RH_ptrs;
 	
 	std::vector< std::pair<DetId, float> > myHitsPair = superCluster.hitsAndFractions();
-	std::vector<DetId> usedCrystals; 
-	for(int i=0; i< static_cast<int>(myHitsPair.size()); i++){
+	std::vector<DetId> usedCrystals;
+	for(unsigned int i=0; i< myHitsPair.size(); i++){
 		usedCrystals.push_back(myHitsPair[i].first);
 	}
+	
+	for(unsigned int i=0; i<usedCrystals.size(); i++){
+		//get pointer to recHit object
+		EcalRecHitCollection::const_iterator myRH = recHits.find(usedCrystals[i]);
+		if(myRH->energy() > 0) //require rec hit to have positive energy
+			RH_ptrs.push_back(  &(*myRH)  );
+	}
+	std::vector<float> temp = EcalClusterTools::roundnessSelectedBarrelRecHits(RH_ptrs,weightedPositionMethod); 
+	return temp;
+}
+
+// this function uses all recHits within specified window ( with default values ieta_delta=2, iphi_delta=5) around SC's highest recHit.
+// recHit's not belonging to the superCluster must pass an energy threshold "energyRHThresh"
+// you can select linear weighting = energy_recHit/total_energy         (weightedPositionMethod=0)
+// or log weighting = max( 0.0, 4.2 + log(energy_recHit/total_energy) ) (weightedPositionMethod=1)
+
+std::vector<float> EcalClusterTools::roundnessBarrelSuperClustersUserExtended( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int ieta_delta, int iphi_delta, float energyRHThresh, int weightedPositionMethod){
+
+	std::vector<const EcalRecHit*>RH_ptrs;
+	std::vector< std::pair<DetId, float> > myHitsPair = superCluster.hitsAndFractions();
+	std::vector<DetId> usedCrystals;
+	for(unsigned int i=0; i< myHitsPair.size(); i++){
+		usedCrystals.push_back(myHitsPair[i].first);
+	}
+	
+	for(unsigned int i=0; i<usedCrystals.size(); i++){
+		//get pointer to recHit object
+		EcalRecHitCollection::const_iterator myRH = recHits.find(usedCrystals[i]);
+		if(myRH->energy() > 0) //require rec hit to have positive energy
+			RH_ptrs.push_back(  &(*myRH)  );
+	}
+	
+	
+	std::vector<int> seedPosition = EcalClusterTools::getSeedPosition(  RH_ptrs  );
+	
+	for(EcalRecHitCollection::const_iterator rh = recHits.begin(); rh != recHits.end(); rh++){
+		EBDetId EBdetIdi( rh->detid() );
+		bool inEtaWindow = (   abs(  deltaIEta(seedPosition[0],EBdetIdi.ieta())  ) <= ieta_delta   );
+		bool inPhiWindow = (   abs(  deltaIPhi(seedPosition[1],EBdetIdi.iphi())  ) <= iphi_delta   );
+		bool passEThresh = (  rh->energy() > energyRHThresh  );
+		bool alreadyCounted = false;
+		
+		// figure out if the rechit considered now is already inside the SC
+		for(unsigned int i=0; i<usedCrystals.size(); i++){
+			EcalRecHitCollection::const_iterator SCrh = recHits.find(usedCrystals[i]);
+			if(   rh->detid() == SCrh->detid()  ) alreadyCounted = true;
+		}//for loop over SC's recHits
+		
+		if(  !alreadyCounted && passEThresh && inEtaWindow && inPhiWindow){
+			RH_ptrs.push_back( &(*rh) );
+		}
+		
+	}//for loop over rh
+	return EcalClusterTools::roundnessSelectedBarrelRecHits(RH_ptrs,weightedPositionMethod);
+}
+
+// this function computes the roundness and angle variables for vector of pointers to recHits you pass it
+// you can select linear weighting = energy_recHit/total_energy         (weightedPositionMethod=0)
+// or log weighting = max( 0.0, 4.2 + log(energy_recHit/total_energy) ) (weightedPositionMethod=1)
+std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( std::vector<const EcalRecHit*> RH_ptrs, int weightedPositionMethod){//int weightedPositionMethod = 0){
+	//positionWeightingMethod = 0 linear weighting, 1 log energy weighting
+	
+	std::vector<float> shapes; // this is the returning vector
+	
 	//make sure photon has more than one crystal; else roundness and angle suck
-	if(usedCrystals.size()<2){
-		shapes.push_back( -1 );
-		shapes.push_back( -1 );
+	if(RH_ptrs.size()<2){
+		std::cout<<"EcalClusterTools::showerRoundness- these crystals have only 1 or less recHits, can't compute roundness or angle, returning vector (-3, -3)"<<std::endl;
+		shapes.push_back( -3 );
+		shapes.push_back( -3 );
 		return shapes;
 	}
 	
-	int positionCorrection = 0;//0 linear weighting, 1 log energy weighting
-	int ietaEcalRH[3000];
-	int iphiEcalRH[3000];
-	float eEcalRH[3000];
-	float eEcalRHtotal = 0;
-	int highestRH = 0;
-	int nEcalRH=0;
+	//Find highest E RH (Seed) and save info, compute sum total energy used
+	std::vector<int> seedPosition = EcalClusterTools::getSeedPosition(  RH_ptrs  );// *recHits);
+	int tempInt = seedPosition[0];
+	if(tempInt <0) tempInt++;
+	float energyTotal = EcalClusterTools::getSumEnergy(  RH_ptrs  );
 	
-	//1nd loop over rechits==========================================
-	for(unsigned int i=0; i<usedCrystals.size() && (nEcalRH<3000); i++){
-		//detIdEcalRH[i]=static_cast<UInt_t>(usedCrystals[i]);
-		
+	//1st loop over rechits: compute new weighted center position in coordinates centered on seed
+	float centerIEta = 0.;
+	float centerIPhi = 0.;
+	float denominator = 0.;
+	
+	for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
 		//get iEta, iPhi
-		EBDetId EBdetIdi=static_cast<EBDetId>(usedCrystals[i]);
-		ietaEcalRH[i]=EBdetIdi.ieta();
-		//get rid of the no ieta=0 "feature" from standard geometry
-		if(ietaEcalRH[i]<0) ietaEcalRH[i]=ietaEcalRH[i]+1; 
-		iphiEcalRH[i]=EBdetIdi.iphi();
-		
-		//get pointer to recHit object
-		EcalRecHitCollection::const_iterator myRH = recHits->find(usedCrystals[i]);
-		eEcalRH[i] = myRH->energy();
-		eEcalRHtotal += eEcalRH[i];//compute energy in SC
-		if(eEcalRH[highestRH]<eEcalRH[i]) highestRH = i;
-		nEcalRH++;
-	}
-	if(nEcalRH>=3000) std::cout<<"ShowerShapes: nEcalRH 3000 or greater, past end of array!"<<std::endl;
-	
-	//stuff to compute for each photon
-	
-	//2nd loop over rechits==========================================
-	//int iRELATIVEeta[nEcalRH];
-	//int iRELATIVEphi[nEcalRH];
-	std::vector<int> iRELATIVEeta;
-	std::vector<int> iRELATIVEphi;
-	
-	Float_t ietaLINEARsc=0;
-	Float_t iphiLINEARsc=0;
-	Float_t denomLINEAR=0;
-	
-	Float_t ietaLOGsc=0;
-	Float_t iphiLOGsc=0;
-	Float_t denomLOG=0;
-	
-	//compute my own photon position
-	for(int j=0; j<nEcalRH; j++){
-		
-		//define local coordinates for photon object:
-		//iRELATIVEeta[j] = ietaEcalRH[j] - ietaEcalRH[highestRH];
-		iRELATIVEeta.push_back(ietaEcalRH[j] - ietaEcalRH[highestRH]);
-		int deltaphi = iphiEcalRH[j] - iphiEcalRH[highestRH];
-		if(-360 < deltaphi && deltaphi<-180) deltaphi = 360 + deltaphi;  // - sign means phiEcalRH is cw  from phiSC  AND |deltaphi| <= PI
-		if( 180 < deltaphi && deltaphi< 360) deltaphi = deltaphi - 360;  // + sign means phiEcalRH is ccw from phiSC  AND |deltaphi| <= PI
-		iRELATIVEphi.push_back(deltaphi);
-		
-		//compute sums for new SC postion
-		float LINw = eEcalRH[j]/eEcalRHtotal;
-		denomLINEAR += LINw; 
-		ietaLINEARsc   += LINw * iRELATIVEeta[j];
-		iphiLINEARsc   += LINw * iRELATIVEphi[j];
-		
-		float LOGw =std::max(0.0, 4.2 + log(eEcalRH[j]/eEcalRHtotal));
-		denomLOG += LOGw;
-		ietaLOGsc   += LOGw * iRELATIVEeta[j];
-		iphiLOGsc   += LOGw * iRELATIVEphi[j];
-		
-	}
-	
-	//finish computing new SC positions using different weighting schemes
-	iphiLINEARsc=iphiLINEARsc/denomLINEAR;
-	ietaLINEARsc=ietaLINEARsc/denomLINEAR;
-	
-	iphiLOGsc=iphiLOGsc/denomLOG;
-	ietaLOGsc=ietaLOGsc/denomLOG;
-	
-	//3rd loop over rechits==========================================
-	TMatrixD inertia(2,2); //initialize 2d inertia tensor
-	inertia[0][0]=0;
-	inertia[0][1]=0;
-	inertia[1][0]=0;
-	inertia[1][1]=0;
-	
-	for(int j=0; j<nEcalRH; j++){// 3rd loop over rechits
-		
-		if(positionCorrection==0){// use linear weighting for SC position
-			EcalClusterTools::ShowerShapesInertiaTensorAddHit(inertia, eEcalRH[j]/eEcalRHtotal, iRELATIVEeta[j]-ietaLINEARsc, iRELATIVEphi[j]-iphiLINEARsc);
+		EBDetId EBdetIdi( (*rh_ptr)->detid() );
+		if(fabs(energyTotal) < 0.0001){
+			std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (energyTotal == 0), returning vector of -2,-2"<<std::endl;
+			shapes.push_back( -2 );
+			shapes.push_back( -2 );
+			return shapes;
 		}
-		else if(positionCorrection==1){// use log weighting for SC position (not fully tested yet, should be ok)
-			EcalClusterTools::ShowerShapesInertiaTensorAddHit(inertia, eEcalRH[j]/eEcalRHtotal, iRELATIVEeta[j]-ietaLOGsc, iRELATIVEphi[j]-iphiLOGsc);
+		float weight = 0;
+		if(fabs(weightedPositionMethod)<0.0001){ //linear
+			weight = (*rh_ptr)->energy()/energyTotal;
+		}else{ //logrithmic
+			weight = std::max(0.0, 4.2 + log((*rh_ptr)->energy()/energyTotal));
+		}
+		denominator += weight;
+		centerIEta += weight*deltaIEta(seedPosition[0],EBdetIdi.ieta()); 
+		centerIPhi += weight*deltaIPhi(seedPosition[1],EBdetIdi.iphi());
+	}
+	if(fabs(denominator) < 0.0001){
+		std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (denominator == 0), returning vector of -2,-2"<<std::endl; 
+		shapes.push_back( -2 );
+		shapes.push_back( -2 );
+		return shapes;
+	}
+	centerIEta = centerIEta / denominator;
+	centerIPhi = centerIPhi / denominator;
+	
+	
+	//2nd loop over rechits: compute inertia tensor
+	TMatrixDSym inertia(2); //initialize 2d inertia tensor
+	double inertia00 = 0.;
+	double inertia01 = 0.;// = inertia10 b/c matrix should be symmetric
+	double inertia11 = 0.;
+	int i = 0;
+	for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
+		//get iEta, iPhi
+		EBDetId EBdetIdi( (*rh_ptr)->detid() );
+		
+		if(fabs(energyTotal) < 0.0001){
+			std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (energyTotal == 0), returning vector of -2,-2"<<std::endl;
+			shapes.push_back( -2 );
+			shapes.push_back( -2 );
+			return shapes;
+		}
+		float weight = 0;
+		if(fabs(weightedPositionMethod) < 0.0001){ //linear
+			weight = (*rh_ptr)->energy()/energyTotal;
+		}else{ //logrithmic
+			weight = std::max(0.0, 4.2 + log((*rh_ptr)->energy()/energyTotal));
 		}
 		
-	}//loop over rechits specified by the supercluster
+		float ieta_rh_to_center = deltaIEta(seedPosition[0],EBdetIdi.ieta()) - centerIEta;
+		float iphi_rh_to_center = deltaIPhi(seedPosition[1],EBdetIdi.iphi()) - centerIPhi;
+		
+		inertia00 += weight*iphi_rh_to_center*iphi_rh_to_center;
+		inertia01 -= weight*iphi_rh_to_center*ieta_rh_to_center;
+		inertia11 += weight*ieta_rh_to_center*ieta_rh_to_center;
+		i++;
+	}
+		
+	inertia[0][0] = inertia00;
+	inertia[0][1] = inertia01; // use same number here
+	inertia[1][0] = inertia01; // and here to insure symmetry
+	inertia[1][1] = inertia11;
+	
 	
 	//step 1 find principal axes of inertia
 	TMatrixD eVectors(2,2);
 	TVectorD eValues(2);
+	//std::cout<<"EcalClusterTools::showerRoundness- about to compute eVectors"<<std::endl;
 	eVectors=inertia.EigenVectors(eValues); //ordered highest eV to lowest eV (I checked!)
 	//and eVectors are in columns of matrix! I checked!
 	//and they are normalized to 1
@@ -1091,31 +1132,82 @@ gmake: *** [tmp/slc4_ia32_gcc345/src/RecoEcal/EgammaCoreTools/src/RecoEcalEgamma
 	
 	//step 3 compute interesting quatities
 	Double_t temp = fabs(smallerAxis[0]);// closer to 1 ->beamhalo, closer to 0 something else
+	if(fabs(eValues[0]) < 0.0001){
+		std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (eValues[0]==0), returning vector of -2,-2"<<std::endl;
+		shapes.push_back( -2 );
+		shapes.push_back( -2 );
+		return shapes;
+	}
+	
 	float Roundness = eValues[1]/eValues[0];
-	float Angle=acos(temp);// may need to be Double_t???
+	float Angle=acos(temp);
+	
+	if( -0.00001 < Roundness && Roundness < 0) Roundness = 0.;
+	if( -0.00001 < Angle && Angle < 0 ) Angle = 0.;
 	
 	shapes.push_back( Roundness );
 	shapes.push_back( Angle );
 	return shapes;
 
 }
-//private function
-//adds entry to 2d inertia tensor, see wikipedia, for shower shapes function
-void EcalClusterTools::ShowerShapesInertiaTensorAddHit(TMatrixD & myinertia,Float_t w,Float_t ieta,Float_t iphi){
-  Float_t weight = w;
-  Float_t I_ieta_ieta_i = 0; Float_t I_ieta_iphi_i = 0; Float_t I_iphi_ieta_i = 0; Float_t I_iphi_iphi_i = 0;
-  I_ieta_ieta_i = weight*(iphi*iphi);
-  I_iphi_iphi_i = weight*(ieta*ieta);
-  I_ieta_iphi_i = weight*(-1*ieta*iphi);
-  I_iphi_ieta_i = weight*(-1*iphi*ieta);
-  //tensor has [row][column]
-  // Iee  Iep
-  // Ipe  Ipp
-  myinertia[0][0]+=I_ieta_ieta_i;
-  myinertia[1][1]+=I_iphi_iphi_i;
-  myinertia[0][1]+=I_ieta_iphi_i;
-  myinertia[1][0]+=I_iphi_ieta_i;
-  
-  return;
-}//add to inertia tensor
+//private functions useful for roundnessBarrelSuperClusters etc.
+//compute delta iphi between a seed and a particular recHit
+//iphi [1,360]
+//safe gaurds are put in to ensure the difference is between [-180,180]
+int EcalClusterTools::deltaIPhi(int seed_iphi, int rh_iphi){
+	int rel_iphi = rh_iphi - seed_iphi;
+	// take care of cyclic variable iphi [1,360]
+	if(rel_iphi >  180) rel_iphi = rel_iphi - 360;
+	if(rel_iphi < -180) rel_iphi = rel_iphi + 360;
+	return rel_iphi;
+}
+
+//compute delta ieta between a seed and a particular recHit
+//ieta [-85,-1] and [1,85]
+//safe gaurds are put in to shift the negative ieta +1 to make an ieta=0 so differences are computed correctly
+int EcalClusterTools::deltaIEta(int seed_ieta, int rh_ieta){
+	// get rid of the fact that there is no ieta=0
+	if(seed_ieta < 0) seed_ieta++;
+	if(rh_ieta   < 0) rh_ieta++;
+	int rel_ieta = rh_ieta - seed_ieta;
+	return rel_ieta;
+}
+
+//return (ieta,iphi) of highest energy recHit of the recHits passed to this function
+std::vector<int> EcalClusterTools::getSeedPosition(std::vector<const EcalRecHit*> RH_ptrs){
+	std::vector<int> seedPosition;
+	float eSeedRH = 0;
+	float iEtaSeedRH = 0;
+	float iPhiSeedRH = 0;
+	
+	for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
+		
+		//get iEta, iPhi
+		EBDetId EBdetIdi( (*rh_ptr)->detid() );
+		
+		if(eSeedRH < (*rh_ptr)->energy()){
+			eSeedRH = (*rh_ptr)->energy();
+			iEtaSeedRH = EBdetIdi.ieta();
+			iPhiSeedRH = EBdetIdi.iphi();
+		}
+		
+	}// for loop
+	
+	seedPosition.push_back(iEtaSeedRH);
+	seedPosition.push_back(iPhiSeedRH);
+	return seedPosition;
+}
+
+// return the total energy of the recHits passed to this function
+float EcalClusterTools::getSumEnergy(std::vector<const EcalRecHit*> RH_ptrs){
+	
+	float sumE = 0.;
+	
+	for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
+		sumE += (*rh_ptr)->energy();
+	}// for loop
+	
+	return sumE;
+}
+
 

@@ -111,7 +111,9 @@ class EcalClusterTools {
                 static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
 
 		//Shower shape variables return vector <Roundness, Angle> of a photon
-		static std::vector<float> showerRoundness( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits);
+		static std::vector<float> roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod = 0);
+		static std::vector<float> roundnessBarrelSuperClustersUserExtended( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int ieta_delta=0, int iphi_delta=0, float energyRHThresh=0.00000, int weightedPositionMethod=0);
+		static std::vector<float> roundnessSelectedBarrelRecHits(std::vector<const EcalRecHit*>rhVector, int weightedPositionMethod = 0);
         private:
                 struct EcalClusterEnergyDeposition
                 { 
@@ -159,7 +161,13 @@ class EcalClusterTools {
                 static float getNrCrysDiffInEta(const DetId& crysId,const DetId& orginId);
                 static float getNrCrysDiffInPhi(const DetId& crysId,const DetId& orginId);
 
-		static void ShowerShapesInertiaTensorAddHit(TMatrixD & myinertia,Float_t w,Float_t ieta,Float_t iphi);
+				//useful functions for showerRoundnessBarrel function
+				static int deltaIEta(int seed_ieta, int rh_ieta);
+				static int deltaIPhi(int seed_iphi, int rh_iphi);
+				static std::vector<int> getSeedPosition(std::vector<const EcalRecHit*>RH_ptrs);
+				static float getSumEnergy(std::vector<const EcalRecHit*>RH_ptrs);
+				static float computeWeight(float eRH, float energyTotal, int weightedPositionMethod);
+
 };
 
 #endif
