@@ -51,9 +51,16 @@ else :
 
 
 # change to True to use local files
-#     the type of file should match the choice of useRelValSample and useGlobalTag
-useLocalFiles = False 
+#     the type of file should match the choice of useRelValSample
+#     useGlobalTag must be defined here
 
+useLocalFiles = False 
+#useLocalFiles = True 
+
+if (useLocalFiles == True) :
+    useGlobalTag = 'GR09_P_V8_34X'
+    dataType = 'RECO'
+    
 # number of events to be run (-1 for all)
 maxNumberEvents = 10
 #maxNumberEvents = -1
@@ -61,7 +68,7 @@ maxNumberEvents = 10
 ###################### end user choices ###################
 
 # global tags 
-if useRelValSample == True :
+if (useRelValSample == True) and (useLocalFiles == False) :
     
     if useRelease == 'CMSSW_3_5_X' :
         if globalTag == 'MC' :
@@ -82,7 +89,7 @@ if useRelValSample == True :
         print 'Error: no global tag defined for release ', useRelease, ' used with RelVal sample'
         sys.exit()
    
-else :
+elif (useRelValSample == False) and (useLocalFiles == False) :
     # global tag
     
     if useRelease == 'CMSSW_3_5_X' :
@@ -94,11 +101,13 @@ else :
     else :
         print 'Error: no global tag defined for release ', useRelease, ' used with data sample'
         sys.exit()
-
+else :
+       print 'Using local file(s) with global tag ',  useGlobalTag, ' and release ', useRelease
+     
 #
 #
 
-process = cms.Process("TestGtAnalyzer")
+process = cms.Process("TestL1GtAnalyzer")
 
 #
 # load and configure modules via Global Tag
@@ -126,7 +135,7 @@ else :
 
 # type of sample used (True for RelVal, False for data)
 
-if useRelValSample == True :
+if (useRelValSample == True) and (useLocalFiles == False) :
     if useGlobalTag.count('IDEAL') or useGlobalTag.count('MC') :
         
         if (useRelease == 'CMSSW_3_5_X') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
@@ -288,7 +297,7 @@ if useRelValSample == True :
         print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
         sys.exit()
 
-else :
+elif (useRelValSample == False) and (useLocalFiles == False) :
     if dataType == 'RAW' : 
 
         if runNumber == 123596 :
@@ -340,8 +349,20 @@ else :
         print 'Error: dataType ',dataType, ' not defined.'    
         sys.exit()
 
-if useLocalFiles :
-    readFiles = 'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/l1GtAnalyzer_source.root'
+else :
+    readFiles.extend( [                        
+        'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/L1GtAnalyzer_source.root'
+        ]);                                                                                               
+
+    secFiles.extend([
+        ])
+
+    print 'Local file(s) ', readFiles
+
+
+###################
+
+
 
 # processes to be run
 
