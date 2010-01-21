@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/10/30 10:49:46 $
-//  $Revision: 1.12 $
+//  $Date: 2009/11/03 07:34:37 $
+//  $Revision: 1.13 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -287,7 +287,8 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC, bool sherpaFlag_)
      mapHisto["hRecMu"]->Fill(mu1->p4());
      mapHisto["hRecMuVSEta"]->Fill(mu1->p4());
      for(vector<reco::LeafCandidate>::const_iterator mu2 = muons.begin(); mu2!=muons.end(); mu2++){  
-       if (mu1==mu2) continue;
+       if (mu1->charge()<0 || mu2->charge()>0)
+	 continue;
        reco::Particle::LorentzVector Res (mu1->p4()+mu2->p4());
         mapHisto["hRecMuPMuM"]->Fill(Res);	  
      } 
