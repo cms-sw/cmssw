@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.30 2009/12/10 16:02:39 nancy Exp $
+ * \version $Id: Photon.h,v 1.31 2010/01/14 17:32:03 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -85,14 +85,14 @@ namespace reco {
       bool isEBEEGap;//Photon is in border between EB and EE.
       
       FiducialFlags():
-	isEB(false),
-	isEE(false),
-	isEBEtaGap(false),
-	isEBPhiGap(false),
-	isEERingGap(false),
-	isEEDeeGap(false),
-	isEBEEGap(false)
-	   
+        isEB(false),
+           isEE(false),
+           isEBEtaGap(false),
+           isEBPhiGap(false),
+           isEERingGap(false),
+           isEEDeeGap(false),
+           isEBEEGap(false)
+           
       {}
       
       
@@ -106,9 +106,11 @@ namespace reco {
     // true if photon is in ECAL endcap
     bool isEE() const{return fiducialFlagBlock_.isEE;}
     /// true if photon is in EB, and inside the boundaries in super crystals/modules
+    bool isEBGap() const { return (isEBEtaGap() || isEBPhiGap()); }
     bool isEBEtaGap() const{return fiducialFlagBlock_.isEBEtaGap;}
     bool isEBPhiGap() const{return fiducialFlagBlock_.isEBPhiGap;}
     /// true if photon is in EE, and inside the boundaries in supercrystal/D
+    bool isEEGap() const { return (isEERingGap() || isEEDeeGap()); }
     bool isEERingGap() const{return fiducialFlagBlock_.isEERingGap;}
     bool isEEDeeGap() const{return fiducialFlagBlock_.isEEDeeGap;}
     /// true if photon is in boundary between EB and EE
