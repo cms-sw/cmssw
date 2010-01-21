@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: DQMEventRecord.h,v 1.5 2009/09/16 11:04:22 mommsen Exp $
 /// @file: DQMEventRecord.h 
 
 #ifndef StorageManager_DQMEventRecord_h
@@ -25,8 +25,8 @@ namespace stor {
    * Class holding information for one DQM event
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/16 11:04:22 $
    */
 
   class DQMEventRecord : public DQMInstance
@@ -67,7 +67,7 @@ namespace stor {
       /**
        * Returns the size of the stored event msg view in bytes
        */
-      size_t totalDataSize() const
+      unsigned long totalDataSize() const
       { return _entry->buffer.size(); }
 
       // We use here a shared_ptr to avoid copying the whole
