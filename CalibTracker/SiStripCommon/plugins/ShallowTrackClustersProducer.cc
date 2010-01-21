@@ -5,7 +5,9 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -120,49 +122,62 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     BOOST_FOREACH( const TrajectoryMeasurement measurement, traj->measurements() ) {
       const TrajectoryStateOnSurface tsos = measurement.updatedState();
       const TrajectoryStateOnSurface unbiased = combiner(measurement.forwardPredictedState(), measurement.backwardPredictedState());
-      const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*> ( measurement.recHit()->hit() );   
-      
-      if(!hit) continue;
-      shallow::CLUSTERMAP::const_iterator cluster = clustermap.find( std::make_pair(hit->geographicalId().rawId(), hit->cluster()->firstStrip() ));
-      if(cluster == clustermap.end() ) throw cms::Exception("Logic Error") << "Cluster not found: this could be a configuration error" << std::endl;
-      
-      unsigned i = cluster->second;
-      if( 0 == (trackmulti->at(i))++ ) {
-	const StripGeomDetUnit* theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTrackerGeometry->idToDet( hit->geographicalId() ) );
-	LocalVector drift = shallow::drift( theStripDet, *magfield, *SiStripLorentzAngle);
 
-	trackindex->at(i)   = shallow::findTrackIndex(tracks, track); 
-	localtheta->at(i)   = (theStripDet->toLocal(tsos.globalDirection())).theta(); 
-	localphi->at(i)     = (theStripDet->toLocal(tsos.globalDirection())).phi();   
-	localpitch->at(i)   = (theStripDet->specificTopology()).localPitch(theStripDet->toLocal(tsos.globalPosition())); 
-	localx->at(i)       = (theStripDet->toLocal(tsos.globalPosition())).x();    
-	localy->at(i)       = (theStripDet->toLocal(tsos.globalPosition())).y();    
-	localz->at(i)       = (theStripDet->toLocal(tsos.globalPosition())).z();    
-	strip->at(i)        = (theStripDet->specificTopology()).strip(theStripDet->toLocal(tsos.globalPosition()));
-	globaltheta->at(i)  = tsos.globalDirection().theta();                       
-	globalphi->at(i)    = tsos.globalDirection().phi();                         
-	globalx->at(i)      = tsos.globalPosition().x();                            
-	globaly->at(i)      = tsos.globalPosition().y();                            
-	globalz->at(i)      = tsos.globalPosition().z();                            
-	insidistance->at(i) = 1./fabs(cos(localtheta->at(i)));                      
-	projwidth->at(i)    = tan(localtheta->at(i))*cos(localphi->at(i));         
-	BdotY->at(i)        = (theStripDet->surface()).toLocal( magfield->inTesla(theStripDet->surface().position())).y();
-	covered->at(i)      = drift.z()/localpitch->at(i) * fabs(projwidth->at(i) - drift.x()/drift.z());
-	rhlocalx->at(i)     = hit->localPosition().x();
-	rhlocaly->at(i)     = hit->localPosition().y();
-	rhlocalxerr->at(i)  = sqrt(hit->localPositionError().xx());
-	rhlocalyerr->at(i)  = sqrt(hit->localPositionError().yy());
-	rhglobalx->at(i)    = theStripDet->toGlobal(hit->localPosition()).x();
-	rhglobaly->at(i)    = theStripDet->toGlobal(hit->localPosition()).y();
-	rhglobalz->at(i)    = theStripDet->toGlobal(hit->localPosition()).z();
-	rhstrip->at(i)      = theStripDet->specificTopology().strip(hit->localPosition());
-	rhmerr->at(i)       = sqrt(theStripDet->specificTopology().measurementError(hit->localPosition(), hit->localPositionError()).uu());
-	ubstrip->at(i)      = theStripDet->specificTopology().strip(unbiased.localPosition());
-	ubmerr->at(i)       = sqrt(theStripDet->specificTopology().measurementError(unbiased.localPosition(), unbiased.localError().positionError()).uu());
-	driftx->at(i)       = drift.x();
-	drifty->at(i)       = drift.y();
-	driftz->at(i)       = drift.z();
-	globalZofunitlocalY->at(i) = (theStripDet->toGlobal(LocalVector(0,1,0))).z();
+      const TrackingRecHit*         hit        = measurement.recHit()->hit();
+      const SiStripRecHit1D*        hit1D      = dynamic_cast<const SiStripRecHit1D*>(hit);
+      const SiStripRecHit2D*        hit2D      = dynamic_cast<const SiStripRecHit2D*>(hit);
+      const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+
+      for(unsigned h=0; h<2; h++) {
+	const SiStripCluster* cluster_ptr;
+	if(!matchedhit && h==1) continue; else 
+	if( matchedhit && h==0) cluster_ptr = (matchedhit->monoHit()  ->cluster()).get(); else 
+	if( matchedhit && h==1) cluster_ptr = (matchedhit->stereoHit()->cluster()).get(); else 
+	if(hit2D) cluster_ptr = (hit2D->cluster()).get(); else 
+	if(hit1D) cluster_ptr = (hit1D->cluster()).get(); 
+	else continue;
+
+	shallow::CLUSTERMAP::const_iterator cluster = clustermap.find( std::make_pair( hit->geographicalId().rawId(), cluster_ptr->firstStrip() ));
+	if(cluster == clustermap.end() ) throw cms::Exception("Logic Error") << "Cluster not found: this could be a configuration error" << std::endl;
+	
+	unsigned i = cluster->second;
+	if( 0 == (trackmulti->at(i))++ ) {
+	  const StripGeomDetUnit* theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTrackerGeometry->idToDet( hit->geographicalId() ) );
+	  LocalVector drift = shallow::drift( theStripDet, *magfield, *SiStripLorentzAngle);
+	  
+	  trackindex->at(i)   = shallow::findTrackIndex(tracks, track); 
+	  localtheta->at(i)   = (theStripDet->toLocal(tsos.globalDirection())).theta(); 
+	  localphi->at(i)     = (theStripDet->toLocal(tsos.globalDirection())).phi();   
+	  localpitch->at(i)   = (theStripDet->specificTopology()).localPitch(theStripDet->toLocal(tsos.globalPosition())); 
+	  localx->at(i)       = (theStripDet->toLocal(tsos.globalPosition())).x();    
+	  localy->at(i)       = (theStripDet->toLocal(tsos.globalPosition())).y();    
+	  localz->at(i)       = (theStripDet->toLocal(tsos.globalPosition())).z();    
+	  strip->at(i)        = (theStripDet->specificTopology()).strip(theStripDet->toLocal(tsos.globalPosition()));
+	  globaltheta->at(i)  = tsos.globalDirection().theta();                       
+	  globalphi->at(i)    = tsos.globalDirection().phi();                         
+	  globalx->at(i)      = tsos.globalPosition().x();                            
+	  globaly->at(i)      = tsos.globalPosition().y();                            
+	  globalz->at(i)      = tsos.globalPosition().z();                            
+	  insidistance->at(i) = 1./fabs(cos(localtheta->at(i)));                      
+	  projwidth->at(i)    = tan(localtheta->at(i))*cos(localphi->at(i));         
+	  BdotY->at(i)        = (theStripDet->surface()).toLocal( magfield->inTesla(theStripDet->surface().position())).y();
+	  covered->at(i)      = drift.z()/localpitch->at(i) * fabs(projwidth->at(i) - drift.x()/drift.z());
+	  rhlocalx->at(i)     = hit->localPosition().x();
+	  rhlocaly->at(i)     = hit->localPosition().y();
+	  rhlocalxerr->at(i)  = sqrt(hit->localPositionError().xx());
+	  rhlocalyerr->at(i)  = sqrt(hit->localPositionError().yy());
+	  rhglobalx->at(i)    = theStripDet->toGlobal(hit->localPosition()).x();
+	  rhglobaly->at(i)    = theStripDet->toGlobal(hit->localPosition()).y();
+	  rhglobalz->at(i)    = theStripDet->toGlobal(hit->localPosition()).z();
+	  rhstrip->at(i)      = theStripDet->specificTopology().strip(hit->localPosition());
+	  rhmerr->at(i)       = sqrt(theStripDet->specificTopology().measurementError(hit->localPosition(), hit->localPositionError()).uu());
+	  ubstrip->at(i)      = theStripDet->specificTopology().strip(unbiased.localPosition());
+	  ubmerr->at(i)       = sqrt(theStripDet->specificTopology().measurementError(unbiased.localPosition(), unbiased.localError().positionError()).uu());
+	  driftx->at(i)       = drift.x();
+	  drifty->at(i)       = drift.y();
+	  driftz->at(i)       = drift.z();
+	  globalZofunitlocalY->at(i) = (theStripDet->toGlobal(LocalVector(0,1,0))).z();
+	}
       }
     }
   }
