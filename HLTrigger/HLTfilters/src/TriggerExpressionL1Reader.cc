@@ -19,12 +19,11 @@ bool L1Reader::operator()(const Data & data) {
     return false;
 
   if (data.l1tConfigurationUpdated())
-    init(data.l1tMenu(), data.l1tAlgoMask());
+    init(data);
 
-  const std::vector<bool> & result = data.l1tResults().decisionWord();
   typedef std::pair<std::string, unsigned int> value_type;
   BOOST_FOREACH(const value_type & trigger, m_triggers)
-    if (result[trigger.second])
+    if (data.l1tResults().decisionWord()[trigger.second])
       return true;
 
   return false;
@@ -43,7 +42,11 @@ void L1Reader::dump(std::ostream & out) const {
   }
 }
 
-void L1Reader::init(const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) {
+void L1Reader::init(const Data & data, const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) {
+  const L1GtTriggerMenu & menu = data.l1tMenu();
+  const L1GtTriggerMask & mask = l1tAlgoMask();
+
+  // clear the previous configuration
   m_triggers.clear();
 
   // check if the pattern has is a glob expression, or a single trigger name 
@@ -56,7 +59,7 @@ void L1Reader::init(const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) 
       m_triggers.push_back( std::make_pair(m_pattern, entry->second.algoBitNumber()) );
     } else
       // trigger not found in the current menu
-      if (m_throw)
+      if (data.shouldThrow())
         throw cms::Exception("Configuration") << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
       else
         edm::LogInfo("Configuration") << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
@@ -68,13 +71,13 @@ void L1Reader::init(const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) 
     BOOST_FOREACH(const AlgorithmMap::value_type & entry, aliasMap)
       if (boost::regex_match(entry.first, re)) {
         match = true;
-        if (m_ignoreMask or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & m_daqPartitions) == m_daqPartitions)
+        if (data.ignoreL1Mask() or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & m_daqPartitions) == data.daqPartitions())
           m_triggers.push_back( std::make_pair(entry.first, entry.second.algoBitNumber()) );
       }
 
     if (not match) {
       // m_pattern does not match any L1 bits
-      if (m_throw)
+      if (data.shouldThrow())
         throw cms::Exception("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 trigger in the current menu";
       else
         edm::LogInfo("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 trigger in the current menu";
