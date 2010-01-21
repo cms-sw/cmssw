@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.13 2009/10/08 18:35:03 amraktad Exp $
+// $Id: FW3DViewManager.cc,v 1.14 2009/11/16 02:16:58 dmytro Exp $
 //
 
 // system include files
@@ -236,15 +236,18 @@ FW3DViewManager::supportedTypesAndRepresentations() const
 void
 FW3DViewManager::eventEnd()
 {
-  double scale = m_calo3d->GetValToHeight();
-  TEveElementIter child(m_elements.get());
-   while ( TEveElement* el = child.current() )
+   if (m_calo3d)
    {
-     if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(el) )
-       {
-	 line->SetScale( scale );
-	 line->ElementChanged();
-       }
-     child.next();
+      double scale = m_calo3d->GetValToHeight();
+      TEveElementIter child(m_elements.get());
+      while ( TEveElement* el = child.current() )
+      {
+         if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(el) )
+         {
+            line->SetScale( scale );
+            line->ElementChanged();
+         }
+         child.next();
+      }
    }
 }
