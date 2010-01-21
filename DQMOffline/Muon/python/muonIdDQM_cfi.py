@@ -5,6 +5,8 @@ muonIdDQM = cms.EDAnalyzer("MuonIdDQM",
     inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
     inputCSCSegmentCollection     = cms.InputTag("cscSegments"),
     useTrackerMuons               = cms.untracked.bool(True),
-    useGlobalMuons                = cms.untracked.bool(True),
+    useGlobalMuons                = cms.untracked.bool(False),
+    useTrackerMuonsNotGlobalMuons = cms.untracked.bool(True),
+    useGlobalMuonsNotTrackerMuons = cms.untracked.bool(False),
     baseFolder                    = cms.untracked.string("Muons/MuonIdDQM")
 )

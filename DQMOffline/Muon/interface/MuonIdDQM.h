@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdDQM.h,v 1.1 2008/11/04 09:23:23 jribnik Exp $
+// $Id: MuonIdDQM.h,v 1.2 2009/03/25 09:09:02 jribnik Exp $
 //
 //
 
@@ -67,6 +67,8 @@ class MuonIdDQM : public edm::EDAnalyzer {
       edm::InputTag inputCSCSegmentCollection_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
+      bool useTrackerMuonsNotGlobalMuons_;
+      bool useGlobalMuonsNotTrackerMuons_;
       std::string baseFolder_;
 
       edm::Handle<reco::MuonCollection> muonCollectionH_;
@@ -75,28 +77,28 @@ class MuonIdDQM : public edm::EDAnalyzer {
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
       // trackerMuon == 0; globalMuon == 1
-      MonitorElement* hNumChambers[2];
-      MonitorElement* hNumMatches[2];
+      MonitorElement* hNumChambers[4];
+      MonitorElement* hNumMatches[4];
 
       // by station
-      MonitorElement* hDTNumSegments[2][4];
-      MonitorElement* hDTDx[2][4];
-      MonitorElement* hDTPullx[2][4];
-      MonitorElement* hDTDdXdZ[2][4];
-      MonitorElement* hDTPulldXdZ[2][4];
-      MonitorElement* hDTDy[2][3];
-      MonitorElement* hDTPully[2][3];
-      MonitorElement* hDTDdYdZ[2][3];
-      MonitorElement* hDTPulldYdZ[2][3];
-      MonitorElement* hCSCNumSegments[2][4];
-      MonitorElement* hCSCDx[2][4];
-      MonitorElement* hCSCPullx[2][4];
-      MonitorElement* hCSCDdXdZ[2][4];
-      MonitorElement* hCSCPulldXdZ[2][4];
-      MonitorElement* hCSCDy[2][4];
-      MonitorElement* hCSCPully[2][4];
-      MonitorElement* hCSCDdYdZ[2][4];
-      MonitorElement* hCSCPulldYdZ[2][4];
+      MonitorElement* hDTNumSegments[4][4];
+      MonitorElement* hDTDx[4][4];
+      MonitorElement* hDTPullx[4][4];
+      MonitorElement* hDTDdXdZ[4][4];
+      MonitorElement* hDTPulldXdZ[4][4];
+      MonitorElement* hDTDy[4][3];
+      MonitorElement* hDTPully[4][3];
+      MonitorElement* hDTDdYdZ[4][3];
+      MonitorElement* hDTPulldYdZ[4][3];
+      MonitorElement* hCSCNumSegments[4][4];
+      MonitorElement* hCSCDx[4][4];
+      MonitorElement* hCSCPullx[4][4];
+      MonitorElement* hCSCDdXdZ[4][4];
+      MonitorElement* hCSCPulldXdZ[4][4];
+      MonitorElement* hCSCDy[4][4];
+      MonitorElement* hCSCPully[4][4];
+      MonitorElement* hCSCDdYdZ[4][4];
+      MonitorElement* hCSCPulldYdZ[4][4];
 
       // segment matching "efficiency"
       MonitorElement* hSegmentIsAssociatedBool;
