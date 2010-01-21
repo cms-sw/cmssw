@@ -446,10 +446,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       const  std::vector<reco::PFTrajectoryPoint> 
 	PfGsfPoint =  PFGsfProd[i].trajectoryPoints();
   
-      uint c_gsf=0;
+      unsigned int c_gsf=0;
       bool PassTracker = false;
       bool GetPout = false;
-      uint IndexPout = -1;
+      unsigned int IndexPout = 0;
       
       typedef std::vector<reco::PFTrajectoryPoint>::const_iterator IP;
       for(IP itPfGsfPoint =  PfGsfPoint.begin();  
