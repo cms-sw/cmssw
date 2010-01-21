@@ -51,7 +51,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.prod = cms.EDFilter("TestTrackerHierarchy",
+process.prod = cms.EDAnalyzer("TestTrackerHierarchy",
     dumpAlignments = cms.untracked.bool(False) # (True)
 
 )

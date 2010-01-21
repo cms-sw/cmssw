@@ -155,7 +155,7 @@ process.TrackRefitter2.src = 'ctfWithMaterialTracksP5'
 process.TrackRefitter2.TrajectoryInEvent = True
 process.TrackRefitter2.TTRHBuilder = "WithTrackAngle"
 
-process.cosmicValidation = cms.EDFilter("CosmicSplitterValidation",
+process.cosmicValidation = cms.EDAnalyzer("CosmicSplitterValidation",
                                         ifSplitMuons = cms.bool(False),
                                         checkIfGolden = cms.bool(False),
                                         splitTracks = cms.InputTag("TrackRefitter2","","splitter"),

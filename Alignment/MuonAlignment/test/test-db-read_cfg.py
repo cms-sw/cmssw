@@ -40,7 +40,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:Alignments.db')
 )
 
-process.prod = cms.EDFilter("TestMuonReader")
+process.prod = cms.EDAnalyzer("TestMuonReader")
 
 process.p1 = cms.Path(process.prod)
 

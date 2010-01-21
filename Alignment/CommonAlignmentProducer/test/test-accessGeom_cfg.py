@@ -32,7 +32,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.demo = cms.EDFilter("TestAccessGeom",
+process.demo = cms.EDAnalyzer("TestAccessGeom",
     # spaces are removed internally - but are needed since framework seems to ignore empty strings...
     TrackerGeomLabels = cms.vstring('idealForDigi', 
         ' '),

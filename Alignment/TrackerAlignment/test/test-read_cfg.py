@@ -30,7 +30,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:Alignments.db')
 )
 
-process.prod = cms.EDFilter("TestTrackerReader")
+process.prod = cms.EDAnalyzer("TestTrackerReader")
 
 process.p1 = cms.Path(process.prod)
 process.MessageLogger.cerr.default.limit = 100000

@@ -32,7 +32,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
      connect = cms.string('sqlite_file:TibTidTecAllSurvey.db')    
 )
 
-process.prod = cms.EDFilter("TestConverter2",
+process.prod = cms.EDAnalyzer("TestConverter2",
     fileName = cms.untracked.string('newtest.root')
 )
 

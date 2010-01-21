@@ -32,7 +32,7 @@ process.MisalignedTracker = cms.ESProducer("MisalignedTrackerESProducer",
     process.MuonNoMovementsScenario
 )
 
-process.prod = cms.EDFilter("TestTranslation",
+process.prod = cms.EDAnalyzer("TestTranslation",
     fileName = cms.untracked.string('misaligned-2.root')
 )
 

@@ -50,7 +50,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
    connect = cms.string('sqlite_file:TibTidTecAllSurvey.db')                                     
 )
 
-process.mydataconverter = cms.EDFilter("SurveyDataConverter",
+process.mydataconverter = cms.EDAnalyzer("SurveyDataConverter",
     applyFineInfo = cms.bool(True),
     MisalignmentScenario = cms.PSet(
         process.SurveyInfoScenario

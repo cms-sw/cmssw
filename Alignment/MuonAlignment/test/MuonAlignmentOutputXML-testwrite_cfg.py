@@ -12,7 +12,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.MuonGeometryDBConverter = cms.EDFilter("MuonGeometryDBConverter",
+process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
     outputXML = cms.PSet(
         relativeto = cms.string('ideal'),
         eulerAngles = cms.bool(False),

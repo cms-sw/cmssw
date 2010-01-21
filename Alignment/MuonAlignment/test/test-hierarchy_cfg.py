@@ -51,7 +51,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.prod = cms.EDFilter("TestMuonHierarchy")
+process.prod = cms.EDAnalyzer("TestMuonHierarchy")
 
 process.p1 = cms.Path(process.prod)
 process.MessageLogger.cout = cms.untracked.PSet(
