@@ -13,11 +13,6 @@ public:
     m_arg(arg)
   { }
 
-  // configure the dependent module
-  void configure(const edm::EventSetup & setup) {
-    m_arg->configure(setup);
-  }
-
 protected:
   boost::scoped_ptr<Evaluator> m_arg;
 };
@@ -29,12 +24,6 @@ public:
     m_arg1(arg1),
     m_arg2(arg2)
   { }
-
-  // configure the dependent modules
-  void configure(const edm::EventSetup & setup) {
-    m_arg1->configure(setup);
-    m_arg2->configure(setup);
-  }
 
 protected:
   boost::scoped_ptr<Evaluator> m_arg1;

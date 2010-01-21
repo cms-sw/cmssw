@@ -3,11 +3,6 @@
 
 #include <iostream>
 
-namespace edm {
-  class Event;
-  class EventSetup;
-} // namespace edm
-
 namespace triggerExpression {
 
 class Data;
@@ -15,9 +10,6 @@ class Data;
 class Evaluator {
 public:
   Evaluator() { }
-
-  // the default implementation does nothing
-  virtual void configure(const edm::EventSetup &) { }
 
   // pure virtual, need a concrete implementation
   virtual bool operator()(const Data &) = 0;
