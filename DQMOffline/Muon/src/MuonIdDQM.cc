@@ -7,6 +7,8 @@ MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig)
    inputCSCSegmentCollection_ = iConfig.getParameter<edm::InputTag>("inputCSCSegmentCollection");
    useTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuons");
    useGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuons");
+   useTrackerMuonsNotGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuonsNotGlobalMuons");
+   useGlobalMuonsNotTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuonsNotTrackerMuons");
    baseFolder_ = iConfig.getUntrackedParameter<std::string>("baseFolder");
 
    dbe_ = 0;
@@ -20,11 +22,14 @@ MuonIdDQM::beginJob()
 {
    char name[100], title[200];
 
-   // trackerMuon == 0; globalMuon == 1
-   for (unsigned int i = 0; i < 2; i++) {
+   // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
+   for (unsigned int i = 0; i < 4; i++) {
       if ((i == 0 && ! useTrackerMuons_) || (i == 1 && ! useGlobalMuons_)) continue;
+      if ((i == 2 && ! useTrackerMuonsNotGlobalMuons_) || (i == 3 && ! useGlobalMuonsNotTrackerMuons_)) continue;
       if (i == 0) dbe_->setCurrentFolder(baseFolder_+"/TrackerMuons");
       if (i == 1) dbe_->setCurrentFolder(baseFolder_+"/GlobalMuons");
+      if (i == 2) dbe_->setCurrentFolder(baseFolder_+"/TrackerMuonsNotGlobalMuons");
+      if (i == 3) dbe_->setCurrentFolder(baseFolder_+"/GlobalMuonsNotTrackerMuons");
 
       hNumChambers[i] = dbe_->book1D("hNumChambers", "Number of Chambers", 11, -0.5, 10.5);
       hNumMatches[i] = dbe_->book1D("hNumMatches", "Number of Matches", 11, -0.5, 10.5);
@@ -126,13 +131,15 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(MuonCollection::const_iterator muon = muonCollectionH_->begin();
          muon != muonCollectionH_->end(); ++muon)
    {
-      // trackerMuon == 0; globalMuon == 1
-      for (unsigned int i = 0; i < 2; i++) {
+      // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
+      for (unsigned int i = 0; i < 4; i++) {
          if (i == 0 && (! useTrackerMuons_ || ! muon->isTrackerMuon())) continue;
          if (i == 1 && (! useGlobalMuons_ || ! muon->isGlobalMuon())) continue;
+         if (i == 2 && (! useTrackerMuonsNotGlobalMuons_ || (! (muon->isTrackerMuon() && ! muon->isGlobalMuon())))) continue;
+         if (i == 3 && (! useGlobalMuonsNotTrackerMuons_ || (! (muon->isGlobalMuon() && ! muon->isTrackerMuon())))) continue;
 
          hNumChambers[i]->Fill(muon->numberOfChambers());
-         hNumMatches[i]->Fill(muon->numberOfMatches());
+         hNumMatches[i]->Fill(muon->numberOfMatches(Muon::SegmentAndTrackArbitration));
 
          // by station
          for(int station = 0; station < 4; ++station)
@@ -140,29 +147,29 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             // only fill num segments if we crossed (or nearly crossed) a chamber
             if (muon->trackX(station+1, MuonSubdetId::DT, Muon::NoArbitration) < 900000)
                hDTNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::DT, Muon::NoArbitration));
-            Fill(hDTDx[i][station], muon->dX(station+1, MuonSubdetId::DT));
-            Fill(hDTPullx[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
-            Fill(hDTDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::DT));
-            Fill(hDTPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
+            Fill(hDTDx[i][station], muon->dX(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+            Fill(hDTPullx[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
+            Fill(hDTDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+            Fill(hDTPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
 
             if (station < 3) {
-               Fill(hDTDy[i][station], muon->dY(station+1, MuonSubdetId::DT));
-               Fill(hDTPully[i][station], muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
-               Fill(hDTDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::DT));
-               Fill(hDTPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
+               Fill(hDTDy[i][station], muon->dY(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+               Fill(hDTPully[i][station], muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
+               Fill(hDTDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration));
+               Fill(hDTPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, true));
             }
 
             // only fill num segments if we crossed (or nearly crossed) a chamber
             if (muon->trackX(station+1, MuonSubdetId::CSC, Muon::NoArbitration) < 900000)
                hCSCNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration));
-            Fill(hCSCDx[i][station], muon->dX(station+1, MuonSubdetId::CSC));
-            Fill(hCSCPullx[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
-            Fill(hCSCDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::CSC));
-            Fill(hCSCPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
-            Fill(hCSCDy[i][station], muon->dY(station+1, MuonSubdetId::CSC));
-            Fill(hCSCPully[i][station], muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
-            Fill(hCSCDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::CSC));
-            Fill(hCSCPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
+            Fill(hCSCDx[i][station], muon->dX(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+            Fill(hCSCPullx[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
+            Fill(hCSCDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+            Fill(hCSCPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
+            Fill(hCSCDy[i][station], muon->dY(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+            Fill(hCSCPully[i][station], muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
+            Fill(hCSCDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration));
+            Fill(hCSCPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, true));
          }
       }
    }// muon
