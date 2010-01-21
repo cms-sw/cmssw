@@ -10,9 +10,9 @@ makeHeavyIonJets = cms.Sequence(
     # pat and HI specifics
     heavyIonCleanedGenJets *
 #    jetGenJetMatch * and another change...
-    patAK5CaloJetGenJetMatch *
+    patJetGenJetMatch *
     # object production
-    patAK5CaloJets
+    patJets
     )
 
 

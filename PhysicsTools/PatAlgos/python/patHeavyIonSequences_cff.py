@@ -8,7 +8,7 @@ from PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff import *
 
 patHeavyIonDefaultSequence = cms.Sequence(
     heavyIonPatCandidates  * 
-    selectedPatAK5CaloJets *
+    selectedPatJets        *
     selectedPatMuons       *
     selectedPatPhotons
 )
