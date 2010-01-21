@@ -6,6 +6,7 @@
 #include "TGLEmbeddedViewer.h"
 #include "TEveManager.h"
 #include "TEveTrack.h"
+#include "TEveTrackPropagator.h"
 #include "TEveText.h"
 #include "TEveGeoShape.h"
 #include "TGLFontManager.h"
@@ -30,11 +31,11 @@
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
+#include "Fireworks/Core/interface/FWMagField.h"
 
 #include "Fireworks/Tracks/plugins/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Tracks/interface/CmsMagField.h"
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
 m_modules(0),
@@ -116,14 +117,8 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    }
    m_moduleLabels->SetRnrChildren(labelsOn);
 
-   CmsMagField* cmsMagField = new CmsMagField;
-   cmsMagField->setReverseState( true );
-   double field = CmsShowMain::getMagneticField();
-   cmsMagField->setMagnetState( field > 0 );
-   cmsMagField->setNominalFieldValue( field );
-
    TEveTrackPropagator* prop = new TEveTrackPropagator();
-   prop->SetMagFieldObj( cmsMagField );
+   prop->SetMagFieldObj (item()->context().getField());
    prop->SetStepper(TEveTrackPropagator::kRungeKutta);
    prop->SetMaxR(123);
    prop->SetMaxZ(300);
