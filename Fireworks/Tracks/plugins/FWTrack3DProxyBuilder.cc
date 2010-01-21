@@ -8,26 +8,25 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrack3DProxyBuilder.cc,v 1.11 2009/10/04 12:13:08 dmytro Exp $
+// $Id: FWTrack3DProxyBuilder.cc,v 1.12 2009/12/11 21:18:45 dmytro Exp $
 //
 
 // system include files
 #include "TEveTrack.h"
+#define protected public
 #include "TEveTrackPropagator.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#undef protected
 
 // user include files
-#include "Fireworks/Tracks/interface/estimate_field.h"
+#include "Fireworks/Core/interface/register_dataproxybuilder_macro.h"
 #include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/register_dataproxybuilder_macro.h"
-#include "Fireworks/Core/interface/FW3DDataProxyBuilderFactory.h"
-
-#include "Fireworks/Core/src/CmsShowMain.h"
-
+#include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Tracks/interface/CmsMagField.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
 
 class FWTrack3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::Track> {
 
@@ -50,9 +49,7 @@ private:
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
    // ---------- member data --------------------------------
 
-   FWEvePtr<TEveTrackPropagator> m_defaultPropagator;
    FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
-   CmsMagField* m_cmsMagField;
 };
 
 //
@@ -66,52 +63,39 @@ private:
 //
 // constructors and destructor
 //
-FWTrack3DProxyBuilder::FWTrack3DProxyBuilder() :
-   m_defaultPropagator( new TEveTrackPropagator),
-   m_trackerPropagator( new TEveTrackPropagator),
-   m_cmsMagField( new CmsMagField)
+FWTrack3DProxyBuilder::FWTrack3DProxyBuilder():
+   m_trackerPropagator( new TEveTrackPropagator)
 {
-   m_cmsMagField->setReverseState( true );
-   
-   m_defaultPropagator->SetMagFieldObj( m_cmsMagField );
-   m_defaultPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-   m_defaultPropagator->IncRefCount();
-   m_defaultPropagator->IncDenyDestroy();
-   m_defaultPropagator->SetMaxR(850);
-   m_defaultPropagator->SetMaxZ(1100);
-   m_defaultPropagator->SetMaxStep(5);
-
-   m_trackerPropagator->SetMagFieldObj( m_cmsMagField );
    m_trackerPropagator->IncRefCount();
    m_trackerPropagator->IncDenyDestroy();
-   m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-   m_trackerPropagator->SetMaxR(123);
-   m_trackerPropagator->SetMaxZ(300);
+   m_trackerPropagator->SetMaxR( 850 );
+   m_trackerPropagator->SetMaxZ( 1100 );
    m_trackerPropagator->SetMaxStep(1);
 }
 
 FWTrack3DProxyBuilder::~FWTrack3DProxyBuilder()
 {
-   m_defaultPropagator->DecRefCount();
    m_trackerPropagator->DecRefCount();
 }
 
 void
 FWTrack3DProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
-   if(CmsShowMain::isAutoField()) {
-     if ( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 ) {
-       double estimate = fw::estimate_field(iData,true);
-       if ( estimate >= 0 ) CmsShowMain::guessField(estimate);
+   if(context().getField()->getAutodetect()) {
+      if ( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 ) {
+         double estimate = fw::estimate_field(iData,true);
+         if ( estimate >= 0 ) context().getField()->guessField(estimate);
       }
    }
 
-   double field = CmsShowMain::getMagneticField();
-   m_cmsMagField->setMagnetState( field > 0 );
-   m_cmsMagField->setNominalFieldValue( field );
+   // workaround for missing GetFieldObj() in TEveTrackPropagator, default stepper is kHelix
+   if (m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix) {
+      m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
+      m_trackerPropagator->SetMagFieldObj(context().getField());
+   }
 
-   TEveTrackPropagator* propagator = m_defaultPropagator.get();
-   if ( ! iData.extra().isAvailable() ) propagator = m_trackerPropagator.get();
+   TEveTrackPropagator* propagator =   (!iData.extra().isAvailable()) ? m_trackerPropagator.get() : context().getTrackPropagator();
+
    TEveTrack* trk = fireworks::prepareTrack( iData, propagator, item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
    oItemHolder.AddElement( trk );
