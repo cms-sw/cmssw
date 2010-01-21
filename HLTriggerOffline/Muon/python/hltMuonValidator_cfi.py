@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltMuonValidator = cms.EDAnalyzer("HLTMuonValidator",
 
     hltProcessName = cms.string("HLT"),
-    hltPathsToCheck = cms.vstring("HLT_[^_]*Mu[^_]*$"),
+    hltPathsToCheck = cms.vstring("HLT_[^H_]*Mu[^_]*$"),
 
     parametersTurnOn = cms.vdouble(0,
                                    1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
