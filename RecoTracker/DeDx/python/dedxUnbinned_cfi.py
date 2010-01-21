@@ -7,7 +7,7 @@ dedxUnbinned = cms.EDProducer("DeDxEstimatorProducer",
     estimator      = cms.string('unbinnedFit'),
 
     UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(False),
+    UsePixel       = cms.bool(True),
     MeVperADCStrip = cms.double(3.61e-06*250),
     MeVperADCPixel = cms.double(3.61e-06)
 )
