@@ -40,7 +40,7 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
-process.prod = cms.EDFilter("SiStripDQMProfileToTkMapConverter",
+process.prod = cms.EDAnalyzer("SiStripDQMProfileToTkMapConverter",
     TkMapFileName = cms.untracked.string('CabTkMaptest_insertRun.png'),
     verbosity = cms.untracked.uint32(0),
     rootFilename = cms.untracked.string('insertFile'),

@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.hlxdqmsource = cms.EDFilter("HLXMonitor",
+process.hlxdqmsource = cms.EDAnalyzer("HLXMonitor",
     NBINS = cms.untracked.uint32(297),
     Style = cms.untracked.string('BX'), ## BX for bunch crossing vs. Num events
 

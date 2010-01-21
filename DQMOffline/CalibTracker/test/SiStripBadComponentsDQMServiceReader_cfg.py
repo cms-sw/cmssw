@@ -31,7 +31,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_STRIP')
 )
 
-process.prod = cms.EDFilter("SiStripBadComponentsDQMServiceReader",
+process.prod = cms.EDAnalyzer("SiStripBadComponentsDQMServiceReader",
                             printDebug = cms.untracked.bool(True)
 )
 

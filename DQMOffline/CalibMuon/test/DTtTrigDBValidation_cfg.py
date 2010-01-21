@@ -62,7 +62,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.dtTTrigAnalyzer = cms.EDFilter("DTtTrigDBValidation",
+process.dtTTrigAnalyzer = cms.EDAnalyzer("DTtTrigDBValidation",
     labelDBRef = cms.string('ttrigRef'),
     labelDB = cms.string('ttrigToValidate'),
     tTrigTestName = cms.string('tTrigDifferenceInRange')

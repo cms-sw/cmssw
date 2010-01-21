@@ -15,9 +15,9 @@ process.GlobalTag.globaltag = "GR09_P_V2::All"
 
 
 process.load("DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff")
-process.siStripDaqInfo = cms.EDFilter("SiStripDaqInfo")
-process.siStripDcsInfo = cms.EDFilter("SiStripDcsInfo")
-process.siStripCertificationInfo = cms.EDFilter("SiStripCertificationInfo")
+process.siStripDaqInfo = cms.EDAnalyzer("SiStripDaqInfo")
+process.siStripDcsInfo = cms.EDAnalyzer("SiStripDcsInfo")
+process.siStripCertificationInfo = cms.EDAnalyzer("SiStripCertificationInfo")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

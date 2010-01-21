@@ -59,7 +59,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.dtT0Analyzer = cms.EDFilter("DTt0DBValidation",
+process.dtT0Analyzer = cms.EDAnalyzer("DTt0DBValidation",
     labelDBRef = cms.untracked.string('tzeroRef'),
     t0TestName = cms.untracked.string('t0DifferenceInRange'),
     OutputFileName = cms.untracked.string('t0TestMonitoring_111873.root'),
