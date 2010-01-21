@@ -28,18 +28,16 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 //
 // Author:      Chris Jones
 // Created:     Wed Apr  6 15:21:58 EDT 2005
-// $Id: eventsetupdata_registration_macro.h,v 1.8 2009/04/26 22:19:53 chrjones Exp $
+// $Id: eventsetupdata_registration_macro.h,v 1.9 2010/01/15 20:35:48 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 
-#include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
 
-#define EVENTSETUP_DATA_REG(_dataclass_) namespace edm { namespace eventsetup {namespace heterocontainer { template<> const char* \
-className<_dataclass_>() { return # _dataclass_; } } } }\
+#define EVENTSETUP_DATA_REG(_dataclass_) HCTYPETAG_HELPER_METHODS(_dataclass_) \
 DEFINE_HCTYPETAG_REGISTRATION(_dataclass_)
 
 #endif
