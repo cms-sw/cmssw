@@ -5,9 +5,13 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    inputMuonCollection_ = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
    inputDTRecSegment4DCollection_ = iConfig.getParameter<edm::InputTag>("inputDTRecSegment4DCollection");
    inputCSCSegmentCollection_ = iConfig.getParameter<edm::InputTag>("inputCSCSegmentCollection");
+   inputMuonTimeExtraValueMap_ = iConfig.getParameter<edm::InputTag>("inputMuonTimeExtraValueMap");
    useTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuons");
    useGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuons");
+   useTrackerMuonsNotGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuonsNotGlobalMuons");
+   useGlobalMuonsNotTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuonsNotTrackerMuons");
    makeEnergyPlots_ = iConfig.getUntrackedParameter<bool>("makeEnergyPlots");
+   makeTimePlots_ = iConfig.getUntrackedParameter<bool>("makeTimePlots");
    make2DPlots_ = iConfig.getUntrackedParameter<bool>("make2DPlots");
    makeAllChamberPlots_ = iConfig.getUntrackedParameter<bool>("makeAllChamberPlots");
    baseFolder_ = iConfig.getUntrackedParameter<std::string>("baseFolder");
@@ -23,11 +27,14 @@ MuonIdVal::beginJob()
 {
    char name[100], title[200];
 
-   // trackerMuon == 0; globalMuon == 1
-   for (unsigned int i = 0; i < 2; i++) {
+   // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
+   for (unsigned int i = 0; i < 4; i++) {
       if ((i == 0 && ! useTrackerMuons_) || (i == 1 && ! useGlobalMuons_)) continue;
+      if ((i == 2 && ! useTrackerMuonsNotGlobalMuons_) || (i == 3 && ! useGlobalMuonsNotTrackerMuons_)) continue;
       if (i == 0) dbe_->setCurrentFolder(baseFolder_+"/TrackerMuons");
       if (i == 1) dbe_->setCurrentFolder(baseFolder_+"/GlobalMuons");
+      if (i == 2) dbe_->setCurrentFolder(baseFolder_+"/TrackerMuonsNotGlobalMuons");
+      if (i == 3) dbe_->setCurrentFolder(baseFolder_+"/GlobalMuonsNotTrackerMuons");
 
       if (makeEnergyPlots_) {
          hEnergyEMBarrel[i] = dbe_->book1D("hEnergyEMBarrel", "Energy in ECAL Barrel", 100, -0.5, 2.);
@@ -37,10 +44,36 @@ MuonIdVal::beginJob()
          hEnergyHAEndcap[i] = dbe_->book1D("hEnergyHAEndcap", "Energy in HCAL Endcap", 100, -4., 12.);
       }
 
+      if (makeTimePlots_) {
+         hMuonTimeNDOF[i] = dbe_->book1D("hMuonTimeNDOF", "MuonTime NDOF", 52, -1.5, 50.5);
+         hMuonTimeTimeAtIpInOut[i] = dbe_->book1D("hMuonTimeTimeAtIpInOut", "MuonTime TimeAtIpInOut", 100, -20., 20.);
+         hMuonTimeTimeAtIpInOutErr[i] = dbe_->book1D("hMuonTimeTimeAtIpInOutErr", "MuonTime TimeAtIpInOutErr", 100, 0., 8.);
+         hMuonTimeTimeAtIpOutIn[i] = dbe_->book1D("hMuonTimeTimeAtIpOutIn", "MuonTime TimeAtIpOutIn", 100, -1., 75.);
+         hMuonTimeTimeAtIpOutInErr[i] = dbe_->book1D("hMuonTimeTimeAtIpOutInErr", "MuonTime TimeAtIpOutInErr", 100, 0., 8.);
+         hMuonTimeExtraCombinedNDOF[i] = dbe_->book1D("hMuonTimeExtraCombinedNDOF", "MuonTimeExtra Combined NDOF", 52, -1.5, 50.5);
+         hMuonTimeExtraCombinedTimeAtIpInOut[i] = dbe_->book1D("hMuonTimeExtraCombinedTimeAtIpInOut", "MuonTimeExtra Combined TimeAtIpInOut", 100, -20., 20.);
+         hMuonTimeExtraCombinedTimeAtIpInOutErr[i] = dbe_->book1D("hMuonTimeExtraCombinedTimeAtIpInOutErr", "MuonTimeExtra Combined TimeAtIpInOutErr", 100, 0., 8.);
+         hMuonTimeExtraCombinedTimeAtIpOutIn[i] = dbe_->book1D("hMuonTimeExtraCombinedTimeAtIpOutIn", "MuonTimeExtra Combined TimeAtIpOutIn", 100, -1., 75.);
+         hMuonTimeExtraCombinedTimeAtIpOutInErr[i] = dbe_->book1D("hMuonTimeExtraCombinedTimeAtIpOutInErr", "MuonTimeExtra Combined TimeAtIpOutInErr", 100, 0., 8.);
+         hMuonTimeExtraCSCNDOF[i] = dbe_->book1D("hMuonTimeExtraCSCNDOF", "MuonTimeExtra CSC NDOF", 52, -1.5, 50.5);
+         hMuonTimeExtraCSCTimeAtIpInOut[i] = dbe_->book1D("hMuonTimeExtraCSCTimeAtIpInOut", "MuonTimeExtra CSC TimeAtIpInOut", 100, -20., 20.);
+         hMuonTimeExtraCSCTimeAtIpInOutErr[i] = dbe_->book1D("hMuonTimeExtraCSCTimeAtIpInOutErr", "MuonTimeExtra CSC TimeAtIpInOutErr", 100, 0., 8.);
+         hMuonTimeExtraCSCTimeAtIpOutIn[i] = dbe_->book1D("hMuonTimeExtraCSCTimeAtIpOutIn", "MuonTimeExtra CSC TimeAtIpOutIn", 100, -1., 75.);
+         hMuonTimeExtraCSCTimeAtIpOutInErr[i] = dbe_->book1D("hMuonTimeExtraCSCTimeAtIpOutInErr", "MuonTimeExtra CSC TimeAtIpOutInErr", 100, 0., 8.);
+         hMuonTimeExtraDTNDOF[i] = dbe_->book1D("hMuonTimeExtraDTNDOF", "MuonTimeExtra DT NDOF", 52, -1.5, 50.5);
+         hMuonTimeExtraDTTimeAtIpInOut[i] = dbe_->book1D("hMuonTimeExtraDTTimeAtIpInOut", "MuonTimeExtra DT TimeAtIpInOut", 100, -20., 20.);
+         hMuonTimeExtraDTTimeAtIpInOutErr[i] = dbe_->book1D("hMuonTimeExtraDTTimeAtIpInOutErr", "MuonTimeExtra DT TimeAtIpInOutErr", 100, 0., 8.);
+         hMuonTimeExtraDTTimeAtIpOutIn[i] = dbe_->book1D("hMuonTimeExtraDTTimeAtIpOutIn", "MuonTimeExtra DT TimeAtIpOutIn", 100, -1., 75.);
+         hMuonTimeExtraDTTimeAtIpOutInErr[i] = dbe_->book1D("hMuonTimeExtraDTTimeAtIpOutInErr", "MuonTimeExtra DT TimeAtIpOutInErr", 100, 0., 8.);
+      }
+
       hCaloCompat[i] = dbe_->book1D("hCaloCompat", "Calo Compatibility", 101, -0.05, 1.05);
       hSegmentCompat[i] = dbe_->book1D("hSegmentCompat", "Segment Compatibility", 101, -0.05, 1.05);
       if (make2DPlots_)
          hCaloSegmentCompat[i] = dbe_->book2D("hCaloSegmentCompat", "Calo Compatibility vs. Segment Compatibility", 101, -0.05, 1.05, 101, -0.05, 1.05);
+      hMuonQualityTrkRelChi2[i] = dbe_->book1D("hMuonQualityTrkRelChi2", "MuonQuality TrkRelChi2", 100, 0., 1.5);
+      hMuonQualityStaRelChi2[i] = dbe_->book1D("hMuonQualityStaRelChi2", "MuonQuality StaRelChi2", 100, 0., 3.);
+      hMuonQualityTrkKink[i] = dbe_->book1D("hMuonQualityTrkKink", "MuonQuality TrkKink", 100, 0., 150.);
       hGlobalMuonPromptTightBool[i] = dbe_->book1D("hGlobalMuonPromptTightBool", "GlobalMuonPromptTight Boolean", 2, -0.5, 1.5);
       hTMLastStationLooseBool[i] = dbe_->book1D("hTMLastStationLooseBool", "TMLastStationLoose Boolean", 2, -0.5, 1.5);
       hTMLastStationTightBool[i] = dbe_->book1D("hTMLastStationTightBool", "TMLastStationTight Boolean", 2, -0.5, 1.5);
@@ -50,6 +83,15 @@ MuonIdVal::beginJob()
       hTMOneStationTightBool[i] = dbe_->book1D("hTMOneStationTightBool", "TMOneStationTight Boolean", 2, -0.5, 1.5);
       hTMLastStationOptimizedLowPtLooseBool[i] = dbe_->book1D("hTMLastStationOptimizedLowPtLooseBool", "TMLastStationOptimizedLowPtLoose Boolean", 2, -0.5, 1.5);
       hTMLastStationOptimizedLowPtTightBool[i] = dbe_->book1D("hTMLastStationOptimizedLowPtTightBool", "TMLastStationOptimizedLowPtTight Boolean", 2, -0.5, 1.5);
+      hGMTkChiCompatibilityBool[i] = dbe_->book1D("hGMTkChiCompatibilityBool", "GMTkChiCompatibility Boolean", 2, -0.5, 1.5);
+      hGMStaChiCompatibilityBool[i] = dbe_->book1D("hGMStaChiCompatibilityBool", "GMStaChiCompatibility Boolean", 2, -0.5, 1.5);
+      hGMTkKinkTightBool[i] = dbe_->book1D("hGMTkKinkTightBool", "GMTkKinkTight Boolean", 2, -0.5, 1.5);
+      hTMLastStationAngLooseBool[i] = dbe_->book1D("hTMLastStationAngLooseBool", "TMLastStationAngLoose Boolean", 2, -0.5, 1.5);
+      hTMLastStationAngTightBool[i] = dbe_->book1D("hTMLastStationAngTightBool", "TMLastStationAngTight Boolean", 2, -0.5, 1.5);
+      hTMOneStationAngLooseBool[i] = dbe_->book1D("hTMOneStationAngLooseBool", "TMOneStationAngLoose Boolean", 2, -0.5, 1.5);
+      hTMOneStationAngTightBool[i] = dbe_->book1D("hTMOneStationAngTightBool", "TMOneStationAngTight Boolean", 2, -0.5, 1.5);
+      hTMLastStationOptimizedBarrelLowPtLooseBool[i] = dbe_->book1D("hTMLastStationOptimizedBarrelLowPtLooseBool", "TMLastStationOptimizedBarrelLowPtLoose Boolean", 2, -0.5, 1.5);
+      hTMLastStationOptimizedBarrelLowPtTightBool[i] = dbe_->book1D("hTMLastStationOptimizedBarrelLowPtTightBool", "TMLastStationOptimizedBarrelLowPtTight Boolean", 2, -0.5, 1.5);
 
       // by station
       for(int station = 0; station < 4; ++station)
@@ -218,17 +260,23 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(inputMuonCollection_, muonCollectionH_);
    iEvent.getByLabel(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
    iEvent.getByLabel(inputCSCSegmentCollection_, cscSegmentCollectionH_);
+   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "combined", combinedMuonTimeExtraValueMapH_);
+   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "csc", cscMuonTimeExtraValueMapH_);
+   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "dt", dtMuonTimeExtraValueMapH_);
    iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
+   unsigned int muonIdx = 0;
    for(MuonCollection::const_iterator muon = muonCollectionH_->begin();
          muon != muonCollectionH_->end(); ++muon)
    {
-      // trackerMuon == 0; globalMuon == 1
-      for (unsigned int i = 0; i < 2; i++) {
+      // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
+      for (unsigned int i = 0; i < 4; i++) {
          if (i == 0 && (! useTrackerMuons_ || ! muon->isTrackerMuon())) continue;
          if (i == 1 && (! useGlobalMuons_ || ! muon->isGlobalMuon())) continue;
+         if (i == 2 && (! useTrackerMuonsNotGlobalMuons_ || (! (muon->isTrackerMuon() && ! muon->isGlobalMuon())))) continue;
+         if (i == 3 && (! useGlobalMuonsNotTrackerMuons_ || (! (muon->isGlobalMuon() && ! muon->isTrackerMuon())))) continue;
 
-         if (makeEnergyPlots_) {
+         if (makeEnergyPlots_ && muon->isEnergyValid()) {
             // EM
             if (fabs(muon->eta()) > 1.479)
                hEnergyEMEndcap[i]->Fill(muon->calEnergy().em); 
@@ -244,10 +292,47 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                hEnergyHO[i]->Fill(muon->calEnergy().ho);
          }
 
-         hCaloCompat[i]->Fill(muon->caloCompatibility());
+         if (makeTimePlots_) {
+            if (muon->isTimeValid()) {
+               hMuonTimeNDOF[i]->Fill(muon->time().nDof);
+               hMuonTimeTimeAtIpInOut[i]->Fill(muon->time().timeAtIpInOut);
+               hMuonTimeTimeAtIpInOutErr[i]->Fill(muon->time().timeAtIpInOutErr);
+               hMuonTimeTimeAtIpOutIn[i]->Fill(muon->time().timeAtIpOutIn);
+               hMuonTimeTimeAtIpOutInErr[i]->Fill(muon->time().timeAtIpOutInErr);
+            }
+
+            MuonRef muonRef(muonCollectionH_, muonIdx);
+            MuonTimeExtra combinedMuonTimeExtra = (*combinedMuonTimeExtraValueMapH_)[muonRef];
+            MuonTimeExtra cscMuonTimeExtra = (*cscMuonTimeExtraValueMapH_)[muonRef];
+            MuonTimeExtra dtMuonTimeExtra = (*dtMuonTimeExtraValueMapH_)[muonRef];
+
+            hMuonTimeExtraCombinedNDOF[i]->Fill(combinedMuonTimeExtra.nDof());
+            hMuonTimeExtraCombinedTimeAtIpInOut[i]->Fill(combinedMuonTimeExtra.timeAtIpInOut());
+            hMuonTimeExtraCombinedTimeAtIpInOutErr[i]->Fill(combinedMuonTimeExtra.timeAtIpInOutErr());
+            hMuonTimeExtraCombinedTimeAtIpOutIn[i]->Fill(combinedMuonTimeExtra.timeAtIpOutIn());
+            hMuonTimeExtraCombinedTimeAtIpOutInErr[i]->Fill(combinedMuonTimeExtra.timeAtIpOutInErr());
+            hMuonTimeExtraCSCNDOF[i]->Fill(cscMuonTimeExtra.nDof());
+            hMuonTimeExtraCSCTimeAtIpInOut[i]->Fill(cscMuonTimeExtra.timeAtIpInOut());
+            hMuonTimeExtraCSCTimeAtIpInOutErr[i]->Fill(cscMuonTimeExtra.timeAtIpInOutErr());
+            hMuonTimeExtraCSCTimeAtIpOutIn[i]->Fill(cscMuonTimeExtra.timeAtIpOutIn());
+            hMuonTimeExtraCSCTimeAtIpOutInErr[i]->Fill(cscMuonTimeExtra.timeAtIpOutInErr());
+            hMuonTimeExtraDTNDOF[i]->Fill(dtMuonTimeExtra.nDof());
+            hMuonTimeExtraDTTimeAtIpInOut[i]->Fill(dtMuonTimeExtra.timeAtIpInOut());
+            hMuonTimeExtraDTTimeAtIpInOutErr[i]->Fill(dtMuonTimeExtra.timeAtIpInOutErr());
+            hMuonTimeExtraDTTimeAtIpOutIn[i]->Fill(dtMuonTimeExtra.timeAtIpOutIn());
+            hMuonTimeExtraDTTimeAtIpOutInErr[i]->Fill(dtMuonTimeExtra.timeAtIpOutInErr());
+         }
+
+         if (muon->isCaloCompatibilityValid())
+            hCaloCompat[i]->Fill(muon->caloCompatibility());
          hSegmentCompat[i]->Fill(muon::segmentCompatibility(*muon));
-         if (make2DPlots_)
+         if (make2DPlots_ && muon->isCaloCompatibilityValid())
             hCaloSegmentCompat[i]->Fill(muon->caloCompatibility(), muon::segmentCompatibility(*muon));
+         if (muon->isQualityValid()) {
+            hMuonQualityTrkRelChi2[i]->Fill(muon->combinedQuality().trkRelChi2);
+            hMuonQualityStaRelChi2[i]->Fill(muon->combinedQuality().staRelChi2);
+            hMuonQualityTrkKink[i]->Fill(muon->combinedQuality().trkKink);
+         }
          hGlobalMuonPromptTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight));
          hTMLastStationLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationLoose));
          hTMLastStationTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationTight));
@@ -257,16 +342,25 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          hTMOneStationTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationTight));
          hTMLastStationOptimizedLowPtLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose));
          hTMLastStationOptimizedLowPtTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtTight));
+         hGMTkChiCompatibilityBool[i]->Fill(muon::isGoodMuon(*muon, muon::GMTkChiCompatibility));
+         hGMStaChiCompatibilityBool[i]->Fill(muon::isGoodMuon(*muon, muon::GMStaChiCompatibility));
+         hGMTkKinkTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::GMTkKinkTight));
+         hTMLastStationAngLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationAngLoose));
+         hTMLastStationAngTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationAngTight));
+         hTMOneStationAngLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationAngLoose));
+         hTMOneStationAngTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationAngTight));
+         hTMLastStationOptimizedBarrelLowPtLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedBarrelLowPtLoose));
+         hTMLastStationOptimizedBarrelLowPtTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedBarrelLowPtTight));
 
          // by station
          for(int station = 0; station < 4; ++station)
          {
-            Fill(hDTPullxPropErr[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, false));
-            Fill(hDTPulldXdZPropErr[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, false));
+            Fill(hDTPullxPropErr[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
+            Fill(hDTPulldXdZPropErr[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
 
             if (station < 3) {
-               Fill(hDTPullyPropErr[i][station], muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, false));
-               Fill(hDTPulldYdZPropErr[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, false));
+               Fill(hDTPullyPropErr[i][station], muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
+               Fill(hDTPulldYdZPropErr[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
             }
 
             float distance = muon->trackDist(station+1, MuonSubdetId::DT);
@@ -281,10 +375,10 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                Fill(hDTPullDistWithNoSegment[i][station], distance/error);
             }
 
-            Fill(hCSCPullxPropErr[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, false));
-            Fill(hCSCPulldXdZPropErr[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, false));
-            Fill(hCSCPullyPropErr[i][station], muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, false));
-            Fill(hCSCPulldYdZPropErr[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, false));
+            Fill(hCSCPullxPropErr[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
+            Fill(hCSCPulldXdZPropErr[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
+            Fill(hCSCPullyPropErr[i][station], muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
+            Fill(hCSCPulldYdZPropErr[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
 
             distance = muon->trackDist(station+1, MuonSubdetId::CSC);
             error    = muon->trackDistErr(station+1, MuonSubdetId::CSC);
@@ -360,6 +454,7 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
          }// chamberMatch
       }
+      ++muonIdx;
    }// muon
 
    if (! make2DPlots_) return;
