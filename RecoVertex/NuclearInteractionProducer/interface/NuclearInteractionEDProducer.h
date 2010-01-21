@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.8 2008/02/05 17:21:46 roberfro Exp $
+// $Id: NuclearInteractionEDProducer.h,v 1.9 2008/04/16 12:14:04 roberfro Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -39,6 +39,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TrajectoryToSeedMap.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "DataFormats/VertexReco/interface/NuclearInteraction.h"
 
@@ -54,7 +55,7 @@ public:
       ~NuclearInteractionEDProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob();
 
@@ -71,6 +72,9 @@ public:
 
       std::auto_ptr< NuclearVertexBuilder >  vertexBuilder;
       std::auto_ptr< NuclearLikelihood >     likelihoodCalculator;
+
+  edm::ESWatcher<IdealMagneticFieldRecord> magFieldWatcher_;
+  edm::ESWatcher<TransientTrackRecord> transientTrackWatcher_;
 
 };
 

@@ -8,7 +8,6 @@
 #include "RecoVertex/NuclearInteractionProducer/interface/NuclearVertexBuilder.h"
 #include "RecoVertex/NuclearInteractionProducer/interface/NuclearLikelihood.h"
 
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -35,6 +34,18 @@ NuclearInteractionEDProducer::~NuclearInteractionEDProducer()
 void
 NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if ( magFieldWatcher_.check(iSetup) || transientTrackWatcher_.check(iSetup) ) {
+    /// Get magnetic field
+    edm::ESHandle<MagneticField> magField;
+    iSetup.get<IdealMagneticFieldRecord>().get(magField);
+
+    edm::ESHandle<TransientTrackBuilder> builder;
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
+
+    vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product(), conf_) );
+    likelihoodCalculator = std::auto_ptr< NuclearLikelihood >(new NuclearLikelihood);
+  }
+
    /// Get the primary tracks
    edm::Handle<reco::TrackCollection>  primaryTrackCollection;
    iEvent.getByLabel( primaryProducer_, primaryTrackCollection );
@@ -115,18 +126,8 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-NuclearInteractionEDProducer::beginJob(const edm::EventSetup& es)
+NuclearInteractionEDProducer::beginJob()
 {
-   /// Get magnetic field
-   edm::ESHandle<MagneticField> magField;
-   es.get<IdealMagneticFieldRecord>().get(magField);
-
-   edm::ESHandle<TransientTrackBuilder> builder;
-   es.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
-
-   vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product(), conf_) );
-   likelihoodCalculator = std::auto_ptr< NuclearLikelihood >(new NuclearLikelihood);
-
 }
 
 void  NuclearInteractionEDProducer::endJob() {}

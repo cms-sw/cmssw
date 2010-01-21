@@ -25,7 +25,7 @@ using namespace edm;
 using namespace std;
 
 GsfTest::GsfTest(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig)
+  : theConfig(iConfig), associatorForParamAtPca(0), tree(0)
 {
   trackLabel_ = iConfig.getParameter<std::string>("TrackLabel");
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
@@ -40,12 +40,7 @@ GsfTest::~GsfTest() {
   delete rootFile_;
 }
 
-void GsfTest::beginJob(edm::EventSetup const& setup){
-  edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
-
-  tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+void GsfTest::beginJob(){
 }
 
 
@@ -61,6 +56,13 @@ void
 GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  if ( associatorForParamAtPca==0 ) {
+    edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
+    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
+    associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
+    
+    tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+  }
 
 
   try {

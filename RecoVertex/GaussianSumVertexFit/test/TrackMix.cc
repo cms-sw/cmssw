@@ -35,7 +35,7 @@ TrackMix::TrackMix(const edm::ParameterSet& iConfig)
 TrackMix::~TrackMix() {
 }
 
-void TrackMix::beginJob(edm::EventSetup const& setup){
+void TrackMix::beginJob(){
 }
 
 

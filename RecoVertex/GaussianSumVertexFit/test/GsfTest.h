@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: GsfTest.h,v 1.1 2007/02/05 17:02:48 speer Exp $
+// $Id: GsfTest.h,v 1.2 2007/12/20 09:52:08 speer Exp $
 //
 //
 
@@ -46,7 +46,7 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
 private:
