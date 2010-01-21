@@ -21,7 +21,7 @@ process.GlobalPositionSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:output.db')
 )
 
-process.GlobalPositionRcdRead = cms.EDFilter("GlobalPositionRcdRead")
+process.GlobalPositionRcdRead = cms.EDAnalyzer("GlobalPositionRcdRead")
 
 process.p = cms.Path(process.GlobalPositionRcdRead)
 

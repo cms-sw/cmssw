@@ -22,7 +22,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.GlobalPositionRcdWrite = cms.EDFilter("GlobalPositionRcdWrite",
+process.GlobalPositionRcdWrite = cms.EDAnalyzer("GlobalPositionRcdWrite",
     hcal = cms.PSet(
         beta = cms.double(0.0),
         alpha = cms.double(0.0),

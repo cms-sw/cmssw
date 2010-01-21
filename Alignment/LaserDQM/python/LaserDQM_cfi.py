@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-mon = cms.EDFilter("LaserDQM",
+mon = cms.EDAnalyzer("LaserDQM",
     SearchWindowPhiTEC = cms.untracked.double(0.05),
     DigiProducersList = cms.VPSet(cms.PSet(
         DigiLabel = cms.string('\0'),
