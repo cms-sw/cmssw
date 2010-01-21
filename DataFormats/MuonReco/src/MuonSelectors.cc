@@ -342,13 +342,13 @@ bool muon::isGoodMuon( const reco::Muon& muon,
          if (fabs(muon.eta()) < 1.2) {
             if(minNumberOfMatches > numRequiredStations)
                minNumberOfMatches = numRequiredStations;
-            if(minNumberOfMatches < 1)
+            if(minNumberOfMatches < 1) //SK: this only happens for negative values
                minNumberOfMatches = 1;
          }
       } else {
          if(minNumberOfMatches > numRequiredStations)
             minNumberOfMatches = numRequiredStations;
-         if(minNumberOfMatches < 1)
+         if(minNumberOfMatches < 1) //SK: this only happens for negative values
             minNumberOfMatches = 1;
       }
 
