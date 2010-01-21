@@ -24,7 +24,7 @@ using namespace edm;
 using namespace std;
 
 KVFTest::KVFTest(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig)
+  : theConfig(iConfig), associatorForParamAtPca(0), tree(0)
 {
   trackLabel_ = iConfig.getParameter<std::string>("TrackLabel");
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
@@ -39,12 +39,7 @@ KVFTest::~KVFTest() {
   delete rootFile_;
 }
 
-void KVFTest::beginJob(edm::EventSetup const& setup){
-  edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
-
-  tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+void KVFTest::beginJob(){
 }
 
 
@@ -59,6 +54,16 @@ void KVFTest::endJob() {
 void
 KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if ( associatorForParamAtPca==0 ) {
+    edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
+    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
+    associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
+
+    tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+  }
+
+
+
   edm::LogInfo("RecoVertex/KVFTest") 
     << "Reconstructing event number: " << iEvent.id() << "\n";
     

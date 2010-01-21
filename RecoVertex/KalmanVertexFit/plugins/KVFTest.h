@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KVFTest.h,v 1.1 2007/04/24 07:43:15 tboccali Exp $
+// $Id: KVFTest.h,v 1.2 2007/12/20 10:33:10 speer Exp $
 //
 //
 
@@ -46,7 +46,7 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob(edm::EventSetup const&);
+  virtual void beginJob();
   virtual void endJob();
 
 private:

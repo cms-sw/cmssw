@@ -34,7 +34,7 @@ KVFTrackUpdate::KVFTrackUpdate(const edm::ParameterSet& iConfig)
 KVFTrackUpdate::~KVFTrackUpdate() {
 }
 
-void KVFTrackUpdate::beginJob(edm::EventSetup const& setup){
+void KVFTrackUpdate::beginJob(){
 }
 
 
