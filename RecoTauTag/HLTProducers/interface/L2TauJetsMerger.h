@@ -28,5 +28,18 @@ class L2TauJetsMerger: public edm::EDProducer {
   vtag jetSrc;
   double mEt_Min;
   std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
+
+
+      class SorterByPt {
+      public:
+	SorterByPt() {}
+	~SorterByPt() {}
+	bool operator()(reco::CaloJet jet1 , reco::CaloJet jet2)
+	{
+	  return jet1.pt()>jet2.pt();
+	}
+      };
+
+
 };
 #endif
