@@ -25,8 +25,15 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         HFadcthreshold       = cms.int32(10), # minimum size of peak (in ADC counts, after ped subtraction) to be considered noisy
                       ),
                       rechitstat=cms.PSet(
-                        HFlongshortratio = cms.double(0.995), # max allowed ratio of (L-S)/(L+S)
-                        HFthresholdET = cms.double(5.0), # minimum energy (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)
+                        short_HFlongshortratio = cms.double(0.99), # max allowed ratio of (L-S)/(L+S)
+                        short_HFETthreshold    = cms.double(0.), # minimum ET (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)
+                        short_HFEnergythreshold      = cms.double(100), # minimum energy (in GeV) required for a cell to be considered hot
+
+                        long_HFlongshortratio = cms.double(0.99), # max allowed ratio of (L-S)/(L+S)
+                        long_HFETthreshold    = cms.double(0.), # minimum ET (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)
+                        long_HFEnergythreshold      = cms.double(100), # minimum energy (in GeV) required for a cell to be considered hot
+                        
+                        
                       ),
                       saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
                       hfTimingTrustParameters = cms.PSet(

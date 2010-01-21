@@ -111,8 +111,13 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 						psdigi.getParameter<double>("HFratio_beforepeak"),
 						psdigi.getParameter<double>("HFratio_afterpeak"),
 						psdigi.getParameter<int>("HFadcthreshold"));
-	hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("HFlongshortratio"),
-						    psrechit.getParameter<double>("HFthresholdET"));
+	hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("short_HFlongshortratio"),
+						    psrechit.getParameter<double>("short_HFETthreshold"),
+						    psrechit.getParameter<double>("short_HFEnergythreshold"),
+						    psrechit.getParameter<double>("long_HFlongshortratio"),
+						    psrechit.getParameter<double>("long_HFETthreshold"),
+						    psrechit.getParameter<double>("long_HFEnergythreshold")	
+						    );
       }
     produces<HFRecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"ZDC")) {
