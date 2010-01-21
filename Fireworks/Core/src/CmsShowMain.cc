@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.143 2010/01/12 15:22:24 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.144 2010/01/13 12:01:17 amraktad Exp $
 //
 
 // system include files
@@ -54,6 +54,7 @@
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
+#include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/Context.h"
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
@@ -75,78 +76,6 @@
 // constants, enums and typedefs
 //
 
-//
-// static data member definitions
-//
-bool CmsShowMain::m_autoField = true;
-double CmsShowMain::m_magneticField = 3.8;
-int CmsShowMain::m_numberOfFieldEstimates = 0;
-int CmsShowMain::m_numberOfFieldIsOnEstimates = 0;
-
-double CmsShowMain::m_magneticFieldEstimateSum = 0;
-double CmsShowMain::m_magneticFieldEstimateSum2 = 0;
-int CmsShowMain::m_numberOfFieldValueEstimates = 0;
-
-void CmsShowMain::setMagneticField(double var)
-{
-   m_magneticField = var;
-}
-
-double CmsShowMain::getMagneticField()
-{
-  if (! m_autoField) {
-    // printf("field values is fixed to %0.2f\n",m_magneticField);
-    return m_magneticField;
-  }
-  if ( m_numberOfFieldValueEstimates > 2 ){
-    double rms = sqrt(m_magneticFieldEstimateSum2*m_numberOfFieldValueEstimates -
-		      m_magneticFieldEstimateSum*m_magneticFieldEstimateSum)/m_numberOfFieldValueEstimates;
-    // printf("trying to get field with high quality tracks: N=%d, B=%0.2f, RMS=%0.2f\n",
-    //	   m_numberOfFieldValueEstimates, m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates,rms);
-    if ( rms < 0.5 ) {
-      //printf("field is guessed with high quality tracks: B=%0.2f, RMS=%0.2f\n",
-      //       m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates,rms);
-      return m_magneticFieldEstimateSum/m_numberOfFieldValueEstimates;
-    }
-  }
-  // printf("field On/Off state is guessed, value is fixed\n");
-  if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 ||
-       m_numberOfFieldEstimates == 0 )
-    return m_magneticField;
-  else
-    return 0;
-}
-
-void CmsShowMain::guessFieldIsOn(bool isOn)
-{
-   if ( isOn ) ++m_numberOfFieldIsOnEstimates;
-   ++m_numberOfFieldEstimates;
-}
-
-void CmsShowMain::guessField(double estimate)
-{
-  m_magneticFieldEstimateSum += estimate;
-  m_magneticFieldEstimateSum2 += estimate*estimate;
-  ++m_numberOfFieldValueEstimates;
-}
-
-void CmsShowMain::resetFieldEstimate()
-{
-   m_numberOfFieldIsOnEstimates = 0;
-   m_numberOfFieldEstimates = 0;
-   m_magneticFieldEstimateSum = 0;
-   m_magneticFieldEstimateSum2 = 0;
-   m_numberOfFieldValueEstimates = 0;
-}
-
-const fwlite::Event* CmsShowMain::getCurrentEvent() const
-{
-   return m_navigator->getCurrentEvent();
-}
-
-//
-// constructors and destructor
-//
 static const char* const kInputFilesOpt        = "input-files";
 static const char* const kInputFilesCommandOpt = "input-files,i";
 static const char* const kConfigFileOpt        = "config-file";
@@ -169,7 +98,6 @@ static const char* const kAdvancedRenderOpt        = "shine";
 static const char* const kAdvancedRenderCommandOpt = "shine,s";
 static const char* const kHelpOpt        = "help";
 static const char* const kHelpCommandOpt = "help,h";
-// static const char* const kSoftOpt = "soft";
 static const char* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
 static const char* const kPlainRootCommandOpt = "root";
@@ -178,6 +106,9 @@ static const char* const kChainCommandOpt = "chain";
 static const char* const kLiveCommandOpt  = "live";
 static const char* const kFieldCommandOpt = "field";
 
+//
+// constructors and destructor
+//
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
    m_changeManager(new FWModelChangeManager),
@@ -395,8 +326,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_startupTasks->addTask(f);
       }
       if(vm.count(kFieldCommandOpt)) {
-         m_magneticField = vm[kFieldCommandOpt].as<double>();
-         m_autoField = false;
+         m_context->getField()->setAutodetect(false);
+         m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
       }
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
@@ -470,6 +401,12 @@ void CmsShowMain::doExit()
 //
 // member functions
 //
+
+const fwlite::Event* CmsShowMain::getCurrentEvent() const
+{
+   return m_navigator->getCurrentEvent();
+}
+
 void CmsShowMain::resetInitialization() {
    //printf("Need to reset\n");
 }
