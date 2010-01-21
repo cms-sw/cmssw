@@ -308,7 +308,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
       }
       // This sets HF noise bit determined from L/S rechit energy comparison
-      if (setNoiseFlags_) hfrechitbit_->hfSetFlagFromRecHits(*rec);
+      if (setNoiseFlags_) hfrechitbit_->hfSetFlagFromRecHits(*rec,myqual,mySeverity);
       // return result
       e.put(rec);     
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {

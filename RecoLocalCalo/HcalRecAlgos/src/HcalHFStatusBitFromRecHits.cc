@@ -22,7 +22,9 @@ HcalHFStatusBitFromRecHits::HcalHFStatusBitFromRecHits(double HFlongshort,  doub
 
 HcalHFStatusBitFromRecHits::~HcalHFStatusBitFromRecHits(){}
 
-void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec)
+void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec, 
+						      HcalChannelQuality* myqual, 
+						      const HcalSeverityLevelComputer* mySeverity)
 {
   // Compares energies from long & short fibers
   int status;
@@ -46,6 +48,7 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec)
       status=0; // status bit for rechit
       enL=-999; // dummy starting values for long, short fiber energies
       enS=-999;
+
       depth=iHF->id().depth();
       
       if (depth==1) 
@@ -54,7 +57,13 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec)
 	enS =iHF->energy();
       
       iphi =iHF->id().iphi();
-      
+
+      // Check for cells whose partners have been excluded from the rechit collections
+      HcalDetId partner(HcalForward, ieta, iphi, 3-depth); // if depth=1, 3-depth =2, and vice versa
+      DetId detpartner=DetId(partner);
+      const HcalChannelStatus* partnerstatus=myqual->getValues(detpartner.rawId());
+      if (mySeverity->dropChannel(partnerstatus->getValue() ) ) continue;  // partner was dropped; don't set flag
+
       for (HFRecHitCollection::iterator iHF2=rec.begin(); iHF2!=rec.end();++iHF2)
 	{
 	  if ((iHF2->id().depth()+depth)!=3) continue; // require short/long combo
