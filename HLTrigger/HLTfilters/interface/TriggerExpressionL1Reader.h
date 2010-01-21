@@ -14,6 +14,7 @@ namespace triggerExpression {
 class L1Reader : public Evaluator {
 public:
   L1Reader(const std::string & pattern) :
+    m_ignoreMask(false),
     m_throw(false),
     m_pattern(pattern),
     m_triggers()
@@ -26,6 +27,7 @@ public:
   void dump(std::ostream & out) const;
 
 private:
+  bool        m_ignoreMask;
   bool        m_throw;
   std::string m_pattern;
   std::vector<std::pair<std::string, unsigned int> > m_triggers;
