@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.160 $"
+__version__ = "$Revision: 1.161 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -462,7 +462,7 @@ class ConfigBuilder(object):
 	output.outputCommands = stream.content
 	output.fileName = cms.untracked.string(stream.name+'.root')
 	output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier, 
-					      filterName = cms.untracked.string('Stream'+stream.name))
+					      filterName = cms.untracked.string(stream.name))
 	if workflow in ("producers,full"):
    	  if isinstance(stream.paths,tuple):
               for path in stream.paths:
@@ -512,9 +512,7 @@ class ConfigBuilder(object):
 		    self.schedule.append(path)
                     alcaList.remove('DQM')
         if len(alcaList) != 0:
-            print "The following alcas could not be found", alcaList
-            raise
-        # TODO: blacklisting of al alca paths
+            raise Exception("The following alcas could not be found"+str(alcaList))
 
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """    
@@ -826,7 +824,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.160 $"),
+              (version=cms.untracked.string("$Revision: 1.161 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
