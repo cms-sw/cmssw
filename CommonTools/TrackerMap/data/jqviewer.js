@@ -475,7 +475,7 @@ $('.place').click(function(e){
           cornerPoint.heigth=$cdetail.height+100; 
           cornerPoint.top=0;
           cornerPoint.left=688;
-          if(index<0||index>24)alert(index); else  
+          if(index>0&&index<25)
           $cdetail.attr('src',tmapname+'crate'+(index+1)+'.xml').show();
           $tipButton1
             .css('left',cornerPoint.left-30)

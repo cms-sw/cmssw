@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-
+#include "TColor.h"
 
 class TmModule;
 class TmApvPair;
@@ -69,11 +69,12 @@ class TrackerMap {
   int getcolor(float value, int palette);
   std::ifstream * findfile(std::string filename);
   int getNumMod(){return number_modules;};
+  vector<TColor*> vc; 
   typedef std::map<const int  , TmModule *> SmoduleMap;
   SmoduleMap smoduleMap;
   typedef std::map<const int  , TmModule *> ImoduleMap;
   ImoduleMap imoduleMap;
- typedef std::map<const int  , TmApvPair*> SvgApvPair;
+  typedef std::map<const int  , TmApvPair*> SvgApvPair;
   SvgApvPair apvMap;
   typedef std::multimap<const int  , TmApvPair*> ModApvPair;
    ModApvPair apvModuleMap;

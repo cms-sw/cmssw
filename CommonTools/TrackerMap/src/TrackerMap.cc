@@ -461,6 +461,12 @@ std::map<int , TmPsu *>::iterator ipsu;
      TmPsu *  psu= ipsu->second;
      delete psu;
      }
+
+gROOT->Reset();
+
+
+//for(vector<TColor*>::iterator col1=vc.begin();col1!=vc.end();col1++){
+//     cout<<(*col1)<<endl;}
 }
 
 
@@ -607,6 +613,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
+  
   TGaxis *axis = 0 ;
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
@@ -708,7 +715,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       colindex=red+green*1000+blue*1000000;
       pos=colorList.find(colindex); 
       if(pos == colorList.end()){ colorList[colindex]=ncolor+100; col =gROOT->GetColor(ncolor+100);
-      if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); else c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));ncolor++;}
+      if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); else c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));vc.push_back(c); ncolor++;}
       for (int i=0;i<npoints;i++){
 	tempfile >> x[i] >> y[i];  
       }
@@ -802,9 +809,9 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     if (printflag)delete axis;
     for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
-
+    
   }
-  
+
   
 }
 void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, TmApvPair* apvPair,ofstream * svgfile,bool useApvPairValue)
@@ -1158,6 +1165,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
  if(enableFecProcessing){
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
+   
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
@@ -1273,7 +1281,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
 }
 }
  if(temporary_file){
-    if(printflag)drawPalette(savefile);
+   // if(printflag)drawPalette(savefile);
   savefile->close();
 
   const char * command1;
@@ -1303,7 +1311,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
           col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
         else
           c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
-        ncolor++;
+          vc.push_back(c);
+	ncolor++;
       }
       for (int i=0;i<npoints;i++){
         tempfile >> x[i] >> y[i];
@@ -1354,6 +1363,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     delete MyC;
     for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
+   
+
 
 
 }//if(temporary_file)
@@ -1364,6 +1375,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
  if(enableHVProcessing){
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
+  
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
 
@@ -1510,7 +1522,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   
 
   if(temporary_file){
-    if(printflag)drawPalette(savefile);
+ //   if(printflag)drawPalette(savefile);
     savefile->close(); 
 
   const char * command1;
@@ -1540,6 +1552,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
 	else 
 	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+	  vc.push_back(c);
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -1591,7 +1604,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     delete MyC;
     for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
-	 
+    
 	 
 	 }//if(temporary_file)
 }//if(enabledHVProcessing)
@@ -1604,6 +1617,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
+  
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
 
@@ -1741,7 +1755,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   
   if(temporary_file){
-    if(printflag)drawPalette(savefile);
+  //  if(printflag)drawPalette(savefile);
     savefile->close(); 
 
   const char * command1;
@@ -1771,6 +1785,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
 	else 
 	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+	vc.push_back(c);
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -1822,8 +1837,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     delete MyC;
     for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
-  
-  
+   
 }//if(temporary_file)
 }//if(enabledFedProcessing)
 }
@@ -1832,6 +1846,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
  if(enableFedProcessing){
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
+  
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
@@ -1991,6 +2006,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
 	else 
 	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
+	vc.push_back(c);
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -2042,7 +2058,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     delete MyC;
     for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
-  
+   
   
 }//if(temporary_file)
 }//if(enabledFedProcessing)
