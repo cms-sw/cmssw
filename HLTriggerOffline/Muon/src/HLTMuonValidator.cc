@@ -1,6 +1,6 @@
  /** \file HLTMuonValidator.cc
- *  $Date: 2009/12/16 17:22:25 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/12/18 18:29:04 $
+ *  $Revision: 1.12 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -70,6 +70,8 @@ HLTMuonValidator::beginJob()
       if (TString(validTriggerNames[j]).Contains(pattern))
         hltPaths_.insert(validTriggerNames[j]);
   }
+  // Add fake HLT path where we bypass all filters
+  hltPaths_.insert("NoFilters");
 
   set<string>::iterator iPath;
   TPRegexp suffixPtCut("[0-9]+$");
@@ -77,7 +79,8 @@ HLTMuonValidator::beginJob()
   for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++) {
  
     string path = * iPath;
-    vector<string> moduleLabels = hltConfig.moduleLabels(path);
+    vector<string> moduleLabels;
+    if (path != "NoFilters") moduleLabels = hltConfig.moduleLabels(path);
 
     for (size_t i = 0; i < moduleLabels.size(); i++)
       if (moduleLabels[i].find("Filtered") != string::npos)
@@ -91,7 +94,7 @@ HLTMuonValidator::beginJob()
     // pt threshold, then subtract a bit to let through particle gun muons with
     // exact integer pT:
     double cutMinPt = ceil(threshold * 1.1) - 0.01;
-    if (cutMinPt < 0.) cutMinPt = 0.;
+    if (cutMinPt < 0. || path == "NoFilters") cutMinPt = 0.;
     cutsMinPt_[path] = cutMinPt;
 
     dbe_->setCurrentFolder("HLT/Muon/Distributions/" + path);
@@ -99,6 +102,13 @@ HLTMuonValidator::beginJob()
     elements_[path + "_" + "CutMaxEta"] = dbe_->bookFloat("CutMaxEta");
     elements_[path + "_" + "CutMinPt" ]->Fill(cutMinPt);
     elements_[path + "_" + "CutMaxEta"]->Fill(cutMaxEta);
+
+    if (path == "NoFilters") {
+      filterLabels_[path].push_back("hltL1sL1SingleMuOpenL1SingleMu0");
+      // The L2 and L3 collections will be built manually later on
+      filterLabels_[path].push_back("");
+      filterLabels_[path].push_back("");
+    }
 
     const int nFilters = filterLabels_[path].size();
     stepLabels_[path].push_back("All");
@@ -265,6 +275,8 @@ HLTMuonValidator::analyzePath(const string & path,
                               const TriggerEventWithRefs & rawTriggerEvent)
 {
 
+  const bool skipFilters = (path == "NoFilters");
+
   const float maxEta = elements_[path + "_" + "CutMaxEta" ]->getFloatValue();
   const bool isDoubleMuonPath = (path.find("Double") != string::npos);
   const size_t nFilters   = filterLabels_[path].size();
@@ -272,18 +284,32 @@ HLTMuonValidator::analyzePath(const string & path,
   const size_t nStepsHlt  = nSteps - 2;
   const size_t nObjectsToPassPath = (isDoubleMuonPath) ? 2 : 1;
   vector< L1MuonParticleRef                 > candsPassingL1;
-  vector< vector< RecoChargedCandidateRef > > candsPassingHlt(nStepsHlt);
+  vector< vector< RecoChargedCandidateRef > > refsPassingHlt(nStepsHlt);
+  vector< vector< const RecoChargedCandidate * > > candsPassingHlt(nStepsHlt);
 
   for (size_t i = 0; i < nFilters; i++) {
+    const int hltStep = i - 1;
     InputTag tag     = InputTag(filterLabels_[path][i], "", hltProcessName_);
     size_t   iFilter = rawTriggerEvent.filterIndex(tag);
-    if (iFilter < rawTriggerEvent.size())
-      if (i == 0)
+    if (iFilter < rawTriggerEvent.size()) {
+      if (i == 0) 
         rawTriggerEvent.getObjects(iFilter, TriggerL1Mu, candsPassingL1);
       else
-        rawTriggerEvent.getObjects(iFilter, TriggerMuon, candsPassingHlt[i-1]);
-    else LogTrace("HLTMuonVal") << "No collection with label " << tag;
+        rawTriggerEvent.getObjects(iFilter, TriggerMuon, 
+                                   refsPassingHlt[hltStep]);
+    }
+    else if (!skipFilters)
+      LogTrace("HLTMuonVal") << "No collection with label " << tag;
   }
+  if (skipFilters) {
+    for (size_t i = 0; i < matches.size(); i++)
+      for (size_t j = 0; j < nStepsHlt; j++)
+        if (matches[i].candHlt[j]) 
+          candsPassingHlt[j].push_back(matches[i].candHlt[j]);
+  }
+  else for (size_t i = 0; i < nStepsHlt; i++)
+    for (size_t j = 0; j < refsPassingHlt[i].size(); j++)
+      candsPassingHlt[i].push_back(& * refsPassingHlt[i][j]);
 
   vector<bool> missingMatch(nSteps, false);
   vector< vector<bool> > hasMatch(nSteps);
@@ -317,7 +343,7 @@ HLTMuonValidator::analyzePath(const string & path,
       else if (level >= 2) {
         for (size_t k = 0; k < candsPassingHlt[hltStep].size(); k++)
           if (identical(matches[j].candHlt[level - 2],
-                        & * candsPassingHlt[hltStep][k]))
+                        candsPassingHlt[hltStep][k]))
             hasMatch[step][j] = true;
       }
     
