@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWPFTauRPZProxyBuilder.cc,v 1.3 2009/08/24 04:54:33 dmytro Exp $
+// $Id: FWPFTauRPZProxyBuilder.cc,v 1.4 2009/10/04 12:13:19 dmytro Exp $
 //
 
 // include files
@@ -55,20 +55,13 @@ private:
   
   void buildRhoPhi(const reco::PFTau& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
   void buildRhoZ(const reco::PFTau& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
-  
-  FWEvePtr<TEveTrackPropagator> m_propagator;
 };
 
 //
 // constructors and destructor
 //
-FWPFTauRPZProxyBuilder::FWPFTauRPZProxyBuilder() :
-   m_propagator( new TEveTrackPropagator)
-
+FWPFTauRPZProxyBuilder::FWPFTauRPZProxyBuilder()
 {
-   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
-   m_propagator->SetMaxR(123.0);
-   m_propagator->SetMaxZ(300.0);
 }
 
 FWPFTauRPZProxyBuilder::~FWPFTauRPZProxyBuilder()
@@ -121,14 +114,13 @@ FWPFTauRPZProxyBuilder::buildTauRhoPhi(const FWEventItem* iItem,
    
    const reco::TrackRef lead_track = tau->leadTrack();
    reco::TrackRefVector::iterator tracks_end = tau->signalTracks().end(); 
-   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
    for (reco::TrackRefVector::iterator i = tau->signalTracks().begin(); i != tracks_end; ++i ){
      
      TEveTrack* track(0);
      if ( i->isAvailable() )
        {
 	 track = fireworks::prepareTrack(**i,
-					 m_propagator.get(),
+					 context().getTrackPropagator(),
 					 item()->defaultDisplayProperties().color() );
        }
      track->MakeTrack();
@@ -188,14 +180,13 @@ FWPFTauRPZProxyBuilder::buildTauRhoZ(const FWEventItem* iItem,
    
    const reco::TrackRef lead_track = tau->leadTrack();
    reco::TrackRefVector::iterator tracks_end = tau->signalTracks().end(); 
-   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
    for (reco::TrackRefVector::iterator i = tau->signalTracks().begin(); i != tracks_end; ++i ){
      
      TEveTrack* track(0);
      if ( i->isAvailable() )
        {
 	 track = fireworks::prepareTrack(**i,
-					 m_propagator.get(),
+                                         context().getTrackPropagator(),
 					 item()->defaultDisplayProperties().color() );
        }
      track->MakeTrack();
