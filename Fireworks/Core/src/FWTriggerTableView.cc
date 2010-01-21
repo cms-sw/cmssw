@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.2 2009/10/07 12:47:52 dmytro Exp $
+// $Id: FWTriggerTableView.cc,v 1.3 2009/11/14 17:45:33 chrjones Exp $
 //
 
 // system include files
@@ -81,6 +81,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //
 // constants, enums and typedefs
@@ -183,7 +184,7 @@ void FWTriggerTableView::dataChanged ()
          try{
             hTriggerResults.getByLabel(*event,"TriggerResults","","HLT");
             triggerNames = &event->triggerNames(*hTriggerResults);
-         } catch (...) {
+         } catch (cms::Exception&) {
             std::cout << "Warning: no trigger results with process name HLT is available" << std::endl;
             m_tableManager->dataChanged();
             return;
@@ -192,7 +193,14 @@ void FWTriggerTableView::dataChanged ()
 	   if ( !boost::regex_search(triggerNames->triggerName(i),filter) ) continue;
 	   m_columns.at(0).values.push_back(triggerNames->triggerName(i));
 	   m_columns.at(1).values.push_back(Form("%d",hTriggerResults->accept(i)));
-	   m_columns.at(2).values.push_back(Form("%6.1f%%",m_averageAccept.at(i)*100));
+           if(! m_averageAccept.empty()) {
+               m_columns.at(2).values.push_back(Form("%6.1f%%",m_averageAccept.at(i)*100));
+           } else {
+              //an exception occurred while trying to read the trigger info in all the events
+              // this would cause the acceptance to be unknown
+              m_columns.at(2).values.push_back("unknown");
+           }
+
          }
       }
    }
@@ -220,7 +228,8 @@ FWTriggerTableView::fillAverageAcceptFractions()
       try{
          hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
          triggerNames = &m_event->triggerNames(*hTriggerResults);
-      } catch (...) {
+      } catch (cms::Exception&) {
+         std::cout <<"error occurred while trying to get trigger info"<<std::endl;
          return;
       }
       if (counts.empty()) counts.resize(triggerNames->size(),0);
