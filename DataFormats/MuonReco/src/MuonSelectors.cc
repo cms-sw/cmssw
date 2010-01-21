@@ -27,6 +27,8 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "TMLastStationAngTight", TMLastStationAngTight },
       { "TMOneStationAngLoose", TMOneStationAngLoose },
       { "TMOneStationAngTight", TMOneStationAngTight },
+      { "TMLastStationOptimizedBarrelLowPtLoose", TMLastStationOptimizedBarrelLowPtLoose },
+      { "TMLastStationOptimizedBarrelLowPtTight", TMLastStationOptimizedBarrelLowPtTight },
       { 0, (SelectionType)-1 }
    };
 
