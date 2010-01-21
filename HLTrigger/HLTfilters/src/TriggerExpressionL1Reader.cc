@@ -62,18 +62,22 @@ void L1Reader::init(const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) 
         edm::LogInfo("Configuration") << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
   } else {
     // expand wildcards in the pattern 
+    bool match = false;
     boost::regex re(edm::glob2reg(m_pattern));
     const AlgorithmMap & aliasMap = menu.gtAlgorithmAliasMap();
     BOOST_FOREACH(const AlgorithmMap::value_type & entry, aliasMap)
-      if (boost::regex_match(entry.first, re))
-        m_triggers.push_back( std::make_pair(entry.first, entry.second.algoBitNumber()) );
+      if (boost::regex_match(entry.first, re)) {
+        match = true;
+        if (m_ignoreMask or (mask[i] & m_daqPartitions) == m_daqPartitions)
+          m_triggers.push_back( std::make_pair(entry.first, entry.second.algoBitNumber()) );
+      }
 
-    if (m_triggers.empty()) {
+    if (not match) {
       // m_pattern does not match any L1 bits
       if (m_throw)
-        throw cms::Exception("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 triggers in the current menu";
+        throw cms::Exception("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 trigger in the current menu";
       else
-        edm::LogInfo("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 triggers in the current menu";
+        edm::LogInfo("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any L1 trigger in the current menu";
     }
   }
 
