@@ -32,17 +32,7 @@ class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<Dummy
 };
 }
 //HCMethods<T, T, EventSetup, EventSetupRecordKey, EventSetupRecordKey::IdTag >
-namespace edm {
-  namespace eventsetup {
-    namespace heterocontainer {
-	template<>
-	const char*
-	  className<eventsetuprecord_t::DummyRecord>() {
-	   return "DummyRecord";
-	}
-    }
-  }
-}
+HCTYPETAG_HELPER_METHODS(eventsetuprecord_t::DummyRecord)
 
 //create an instance of the factory
 static eventsetup::EventSetupRecordProviderFactoryTemplate<eventsetuprecord_t::DummyRecord> s_factory;
@@ -102,17 +92,7 @@ void testEventsetupRecord::factoryTest()
 
 }   
 
-namespace edm {
-  namespace eventsetup {
-    namespace heterocontainer {
-	template<>
-	const char*
-	className<Dummy>() {
-	   return "Dummy";
-	}
-    }
-  }
-}
+HCTYPETAG_HELPER_METHODS(Dummy)
 
 class FailingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
 protected:

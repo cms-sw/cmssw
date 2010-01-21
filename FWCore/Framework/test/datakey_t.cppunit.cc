@@ -87,23 +87,8 @@ namespace datakey_t {
 using datakey_t::Dummy;
 using datakey_t::Dummy2;
 
-namespace edm {
-  namespace eventsetup {
-    namespace heterocontainer {
-	template<>
-	const char*
-	className<Dummy>() {
-	   return "Dummy";
-	}
-
-	template<>
-	const char*
-	className<Dummy2>() {
-	   return "Dummy2";
-	}
-    }
-  }
-}
+HCTYPETAG_HELPER_METHODS(Dummy)
+HCTYPETAG_HELPER_METHODS(Dummy2)
 
 void testDataKey::ConstructionTest()
 {
