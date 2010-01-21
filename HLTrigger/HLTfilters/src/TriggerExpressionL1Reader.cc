@@ -42,7 +42,7 @@ void L1Reader::dump(std::ostream & out) const {
   }
 }
 
-void L1Reader::init(const Data & data, const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) {
+void L1Reader::init(const Data & data) {
   const L1GtTriggerMenu & menu = data.l1tMenu();
   const L1GtTriggerMask & mask = l1tAlgoMask();
 

@@ -11,5 +11,8 @@ void L1TechReader::dump(std::ostream & out) const {
   out << "FALSE";
 }
 
+void L1Reader::init(const Data & data, const L1GtTriggerMenu & menu, const L1GtTriggerMask & mask) {
+}
+
 } // namespace triggerExpression
 
