@@ -68,7 +68,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 	hbheFlagSetter_=new HBHEStatusBitSetter(psdigi.getParameter<double>("nominalPedestal"),
 						psdigi.getParameter<double>("hitEnergyMinimum"),
 						psdigi.getParameter<int>("hitMultiplicityThreshold"),
-						psdigi.getParameter<std::vector<edm::ParameterSet> >("pulseShapeParameterSets"));
+						psdigi.getParameter<std::vector<edm::ParameterSet> >("pulseShapeParameterSets"),
+						conf.getParameter<int>("firstSample"),
+						conf.getParameter<int>("samplesToAdd"));
       } // if (setNoiseFlags_)
     if (setHSCPFlags_)
       {
