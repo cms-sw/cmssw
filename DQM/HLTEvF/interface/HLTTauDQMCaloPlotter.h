@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
@@ -114,6 +115,20 @@ class HLTTauDQMCaloPlotter {
 
       bool matchJet(const reco::Jet&,const reco::CaloJetCollection&);//See if this Jet Is Matched
       std::pair<bool,LV> match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched
+      std::pair<bool,reco::CaloJet> inverseMatch(const LV&,const reco::CaloJetCollection&);//See if this Jet Is Matched
+
+
+      class SorterByPt {
+      public:
+	SorterByPt() {}
+	~SorterByPt() {}
+	bool operator()(reco::CaloJet jet1 , reco::CaloJet jet2)
+	{
+	  return jet1.pt()>jet2.pt();
+	}
+      };
+
+
 
 };
 
