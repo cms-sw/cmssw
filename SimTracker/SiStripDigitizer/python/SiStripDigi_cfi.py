@@ -19,15 +19,15 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                                noDiffusion             = cms.bool(False),
                                #---SiTrivialInduceChargeOnStrips
                                #TIB
-                               CouplingConstantDecIB1  = cms.vdouble(0.76, 0.12),
-                               CouplingConstantDecIB2  = cms.vdouble(0.76, 0.12),
-                               CouplingConstantPeakIB1 = cms.vdouble(0.984, 0.008),
-                               CouplingConstantPeakIB2 = cms.vdouble(0.992, 0.004),
+                               CouplingConstantDecIB1  = cms.vdouble(0.7746, 0.0962, 0.0165),
+                               CouplingConstantDecIB2  = cms.vdouble(0.8300, 0.0756, 0.0094),
+                               CouplingConstantPeakIB1 = cms.vdouble(0.9006, 0.0497),
+                               CouplingConstantPeakIB2 = cms.vdouble(0.9344, 0.0328),
                                #TOB
-                               CouplingConstantDecOB1  = cms.vdouble(0.76, 0.12),
-                               CouplingConstantDecOB2  = cms.vdouble(0.76, 0.12),
-                               CouplingConstantPeakOB1 = cms.vdouble(0.916, 0.042),
-                               CouplingConstantPeakOB2 = cms.vdouble(0.928, 0.036),
+                               CouplingConstantDecOB1  = cms.vdouble(0.6872, 0.1222, 0.0342),
+                               CouplingConstantDecOB2  = cms.vdouble(0.7468, 0.1015, 0.0251),
+                               CouplingConstantPeakOB1 = cms.vdouble(0.8542, 0.0729),
+                               CouplingConstantPeakOB2 = cms.vdouble(0.8720, 0.0640),
                                #TID
                                CouplingConstantDecW1a  = cms.vdouble(0.76, 0.12),
                                CouplingConstantDecW2a  = cms.vdouble(0.76, 0.12),
