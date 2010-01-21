@@ -76,11 +76,17 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
 
    TDirectoryFile* tmd1 = (TDirectoryFile*)d1->Get("TrackerMuons");
    TDirectoryFile* gmd1 = (TDirectoryFile*)d1->Get("GlobalMuons");
+   TDirectoryFile* tmngmd1 = (TDirectoryFile*)d1->Get("TrackerMuonsNotGlobalMuons");
+   TDirectoryFile* gmntmd1 = (TDirectoryFile*)d1->Get("GlobalMuonsNotTrackerMuons");
    TDirectoryFile* tmd2 = 0;
    TDirectoryFile* gmd2 = 0;
+   TDirectoryFile* tmngmd2 = 0;
+   TDirectoryFile* gmntmd2 = 0;
    if (d2) {
       tmd2 = (TDirectoryFile*)d2->Get("TrackerMuons");
       gmd2 = (TDirectoryFile*)d2->Get("GlobalMuons");
+      tmngmd2 = (TDirectoryFile*)d2->Get("TrackerMuonsNotGlobalMuons");
+      gmntmd2 = (TDirectoryFile*)d2->Get("GlobalMuonsNotGlobalMuons");
    }
 
    TCanvas* c1 = new TCanvas("c1");
@@ -90,16 +96,20 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
    TLegend* leg = 0;
    TRegexp re("*Pull[dxy]*", kTRUE);
 
-   // Access histograms in three different locations:
-   //   d1 -> MuonIdVal
-   // tmd1 -> MuonIdVal/TrackerMuons
-   // gmd1 -> MuonIdVal/GlobalMuons
-   char pfx[3][4] = {"", "tm_", "gm_"};
+   // Access histograms in five different locations:
+   //   d1    -> MuonIdVal
+   // tmd1    -> MuonIdVal/TrackerMuons
+   // gmd1    -> MuonIdVal/GlobalMuons
+   // tmngmd1 -> MuonIdVal/TrackerMuonsNotGlobalMuons
+   // gmntmd1 -> MuonIdVal/GlobalMuonsNotTrackerMuons
+   char pfx[5][7] = {"", "tm_", "gm_", "tmngm_", "gmntm_"};
 
-   for(unsigned int i = 0; i < 3; i++) {
+   for(unsigned int i = 0; i < 5; i++) {
       if (i == 0) {}
       else if (i == 1 && tmd1) { d1 = tmd1; d2 = tmd2; }
       else if (i == 2 && gmd1) { d1 = gmd1; d2 = gmd2; }
+      else if (i == 3 && tmngmd1) { d1 = tmngmd1; d2 = tmngmd2; }
+      else if (i == 4 && gmntmd1) { d1 = gmntmd1; d2 = gmntmd2; }
       else continue;
 
       list = d1->GetListOfKeys();
