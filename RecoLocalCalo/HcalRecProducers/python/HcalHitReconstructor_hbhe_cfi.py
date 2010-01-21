@@ -30,16 +30,16 @@ hbhereco = cms.EDProducer(
     )
                              ),
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
-    hscpParameters=        cms.PSet(r1Min = cms.double(0.1),
-                                    r1Max = cms.double(0.7),
-                                    r2Min = cms.double(0.2),
+    hscpParameters=        cms.PSet(r1Min = cms.double(0.15),  # was 0.1
+                                    r1Max = cms.double(1.0),   # was 0.7
+                                    r2Min = cms.double(0.1),   # was 0.1
                                     r2Max = cms.double(0.5),
                                     fracLeaderMin = cms.double(0.4),
                                     fracLeaderMax = cms.double(0.7),
                                     slopeMin      = cms.double(-1.5),
                                     slopeMax      = cms.double(-0.6),
-                                    outerMin      = cms.double(0.9),
-                                    outerMax      = cms.double(1.0),
+                                    outerMin      = cms.double(0.), # was 0.
+                                    outerMax      = cms.double(0.1), # was 0.1
                                     TimingEnergyThreshold = cms.double(30.)),
     # shaped cut parameters are pairs of (energy, time threshold) values
     # These must be ordered by increaseing energy!
