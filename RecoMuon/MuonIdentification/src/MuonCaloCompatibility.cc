@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloCompatibility.cc,v 1.4 2008/01/22 09:51:29 bellan Exp $
+// $Id: MuonCaloCompatibility.cc,v 1.5 2009/10/19 14:42:07 dmytro Exp $
 //
 //
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
@@ -183,6 +183,10 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   //  if( p < 0. || p > 500.) return 0.5; // removed 500 GeV cutoff 070817 after updating the tempates (v2_0) to have valid entried beyond 500 GeV
   if( p < 0. ) return 0.5; // return "unknown" for unphysical momentum input.
   if( fabs(eta) >  2.5 ) return 0.5; 
+  // temporary fix for low association efficiency:
+  // set caloCompatibility to 0.12345 for tracks
+  // which have 0 energy in BOTH ecal and hcal
+  if( amuon.calEnergy().had == 0.0 && amuon.calEnergy().em == 0.0 ) return 0.12345; 
 
   //  std::cout<<std::endl<<"Input values are: "<<eta <<" "<< p <<" "<< em <<" "<< had <<" "<< ho;
 
