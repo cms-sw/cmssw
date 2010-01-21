@@ -62,20 +62,31 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           TrajectoryStateOnSurface trajState = measurement_it->updatedState();
           if( !trajState.isValid() ) continue;     
 
-          const TrackingRecHit*         hit               = (*measurement_it->recHit()).hit();
-          const SiStripRecHit2D*        sistripsimplehit  = dynamic_cast<const SiStripRecHit2D*>(hit);
-          const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+          const TrackingRecHit*         hit                 = (*measurement_it->recHit()).hit();
+          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
+          const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
+          const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+
+          const SiStripCluster*   Cluster = NULL;
 
 
           for(unsigned int h=0;h<2;h++){
-            if(!sistripmatchedhit && h==1)continue;
-            if(sistripmatchedhit  && h==0)sistripsimplehit = sistripmatchedhit->monoHit();
-            if(sistripmatchedhit  && h==1)sistripsimplehit = sistripmatchedhit->stereoHit();
-            if(!sistripsimplehit)continue;
+            if(!sistripmatchedhit && h==1){
+	       continue;
+            }else if(sistripmatchedhit  && h==0){
+               Cluster = (sistripmatchedhit->monoHit()  ->cluster()).get();
+            }else if(sistripmatchedhit  && h==1){
+               Cluster = (sistripmatchedhit->stereoHit()->cluster()).get();
+            }else if(sistripsimplehit){
+               Cluster = (sistripsimplehit->cluster()).get();
+            }else if(sistripsimple1dhit){
+               Cluster = (sistripsimple1dhit->cluster()).get();
+            }else{
+               continue;
+            }
 
             LocalVector             trackDirection = trajState.localDirection();
             double                  cosine         = trackDirection.z()/trackDirection.mag();
-            const SiStripCluster*   Cluster        = (sistripsimplehit->cluster()).get();
             const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
             uint32_t                DetId          = Cluster->geographicalId();
             int                     FirstStrip     = Cluster->firstStrip();
