@@ -224,9 +224,9 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	   preJetEt->Fill(m.second.pt());
 	   preJetEta->Fill(m.second.eta());
 	   preJetPhi->Fill(m.second.phi());
-	   recoEtEffDenom->Fill(m.second.pt());
-	   recoEtaEffDenom->Fill(m.second.eta());
-	   recoPhiEffDenom->Fill(m.second.phi());
+	   recoEtEffDenom->Fill(McInfo.at(i).pt());
+	   recoEtaEffDenom->Fill(McInfo.at(i).eta());
+	   recoPhiEffDenom->Fill(McInfo.at(i).phi());
 	   l2RegionalJets.push_back(m.second);
 	 }
        }
@@ -298,12 +298,12 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		   if(doRef_)
 		     jetEtRes->Fill((jet.pt()-refLV.pt())/refLV.pt());
 
-		   if(matchJet(jet,l2RegionalJets))
-		     {
-		       recoEtEffNum->Fill(refLV.pt());
-		       recoEtaEffNum->Fill(refLV.eta());
-		       recoPhiEffNum->Fill(refLV.phi());
-		     }
+ 		   if(matchJet(jet,l2RegionalJets))
+ 		     {
+ 		       recoEtEffNum->Fill(refLV.pt());
+ 		       recoEtaEffNum->Fill(refLV.eta());
+ 		       recoPhiEffNum->Fill(refLV.phi());
+ 		     }
 
 		   isoEtEffDenom->Fill(refLV.pt());
 		   isoEtaEffDenom->Fill(refLV.eta());
@@ -375,15 +375,17 @@ HLTTauDQMCaloPlotter::inverseMatch(const LV& jet,const reco::CaloJetCollection& 
 {
 
   //Loop On the Collection and see if your tau jet is matched to one there
- //Also find the nearest Matched MC Particle to your Jet (to be complete)
+  
+  //MATCH THE neartes energy jet in the delta R we want
  
  bool matched=false;
  reco::CaloJet mjet;
- double distance=100;
+ double distance=100000;
  if(jets.size()>0)
    for(reco::CaloJetCollection::const_iterator it = jets.begin();it!=jets.end();++it)
    {
-     double delta = ROOT::Math::VectorUtil::DeltaR(jet,it->p4());
+     //     double delta = ROOT::Math::VectorUtil::DeltaR(jet,it->p4());
+     double delta=fabs(jet.pt()-it->pt());
      if(delta<distance)
        {
 	 distance=delta;
@@ -391,7 +393,8 @@ HLTTauDQMCaloPlotter::inverseMatch(const LV& jet,const reco::CaloJetCollection& 
        }
    }
 
- if(distance<matchDeltaRMC_)
+ // if(distance<matchDeltaRMC_)
+ if(ROOT::Math::VectorUtil::DeltaR(mjet.p4(),jet)<matchDeltaRMC_);
    matched=true;
 
  std::pair<bool,reco::CaloJet> p = std::make_pair(matched,mjet);
@@ -410,12 +413,13 @@ HLTTauDQMCaloPlotter::matchJet(const reco::Jet& jet,const reco::CaloJetCollectio
  if(McInfo.size()>0)
   for(reco::CaloJetCollection::const_iterator it = McInfo.begin();it!=McInfo.end();++it)
    {
-     	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4(),it->p4());
-	  if(delta<matchDeltaRMC_)
-	    {
-	      matched=true;
-    
-	    }
+     //     	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4(),it->p4());
+     //	  if(delta<matchDeltaRMC_)
+     if(jet.p4()==it->p4())
+       {
+	 matched=true;
+	 
+       }
    }
  return matched;
 }
