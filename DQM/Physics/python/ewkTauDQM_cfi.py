@@ -6,6 +6,9 @@ ewkTauDQM = cms.EDAnalyzer("EwkTauDQM",
     # name of DQM (root)directory in which all EWK tau histograms get stored                          
     dqmDirectory = cms.string("Physics/EwkTau"),
 
+    # disable all warnings
+    maxNumWarnings = cms.int32(0),                       
+
     # list of individual channels                           
     channels = cms.PSet(
         muTauChannel = cms.PSet(
