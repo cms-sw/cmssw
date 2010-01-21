@@ -17,7 +17,7 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.7 2009/04/26 22:18:35 chrjones Exp $
+// $Id: HCTypeTag.h,v 1.8 2010/01/15 20:35:48 chrjones Exp $
 //
 //
 
@@ -38,6 +38,9 @@ namespace edm {
          
          template <typename T>
          const char* className();
+         
+         template <typename T>
+         const std::type_info& classTypeInfo();
          
          class HCTypeTag : public TypeIDBase
          {
@@ -62,7 +65,7 @@ namespace edm {
             
             template <typename T>
             static HCTypeTag make() {
-               return HCTypeTag(typeid(T),className<T>());
+               return HCTypeTag(classTypeInfo<T>(),className<T>());
             }
             
          protected:
@@ -99,17 +102,11 @@ namespace edm {
       }
    }
 }
-#define HCTYPETAG_CLASSNAME(Tname) \
-template \
-const char* \
-edm::eventsetup::heterocontainer::className< Tname >() \
-{ return #Tname ; }
-
-#define HCTYPETAG_CLASSNAME_1_COMMA(Tname1, Tname2) \
-template \
-const char* \
-edm::eventsetup::heterocontainer::className< Tname1,Tname2 >() \
-{ return #Tname1 "," #Tname2 ; }
+#define HCTYPETAG_HELPER_METHODS(_dataclass_) \
+namespace edm { namespace eventsetup {namespace heterocontainer { template<> const char* \
+className<_dataclass_>() { return # _dataclass_; } \
+template<> const std::type_info& \
+classTypeInfo< _dataclass_ >() { return typeid( _dataclass_ );} } } }
 
 #define EDM_HCTYPETAG_SYM(x,y) EDM_HCTYPETAG_SYM2(x,y)
 #define EDM_HCTYPETAG_SYM2(x,y) x ## y
