@@ -20,6 +20,7 @@
 // C++ Headers --
 //---------------
 #include <math.h> 
+#include <cstring>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -121,7 +122,7 @@ DTConfigLUTs::DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f)
 void
 DTConfigLUTs::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
 {
-  long int *pl, lm;
+  long int *pl=0, lm;
   bool sign=false;
 
   DSPmantissa = 0;
@@ -129,7 +130,8 @@ DTConfigLUTs::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
 
   if( f!=0.0 )
   {
-        pl = (long *)&f;
+        //pl = (long *)&f;
+	memcpy(pl,&f,sizeof(float));
         if((*pl & 0x80000000)!=0)
                 sign=true;
         lm = ( 0x800000 | (*pl & 0x7FFFFF)); // [1][23bit mantissa]

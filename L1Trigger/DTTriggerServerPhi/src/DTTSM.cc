@@ -237,8 +237,8 @@ DTTSM::sortTSM2(int bkmod) {
          (curr->tssNumber()==best->tssNumber() &&
           curr->TcPos()==best->TcPos()) ) { // same correlator of 1st track
         if(config()->TsmGhost2Flag()==2 ||    // do not look to corr bit of 1st
-           (!best->isCorr() ) &&  config()->TsmGhost2Flag()!=4 || // skip if best is not corr
-           (!best->isCorr() ) &&  best->isInner() && config()->TsmGhost2Flag()==4 )   // skip only if best is inner and not corr
+           ( (!best->isCorr() ) &&  config()->TsmGhost2Flag()!=4 ) || // skip if best is not corr
+           ( (!best->isCorr() ) &&  best->isInner() && config()->TsmGhost2Flag()==4) )   // skip only if best is inner and not corr
 	  {                 
 	    continue;                             // skip track
 	  }

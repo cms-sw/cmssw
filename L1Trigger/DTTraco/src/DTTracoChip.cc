@@ -861,8 +861,8 @@ DTTracoChip::storeUncorr(DTTracoTrig* tctrig, DTTracoCand* inner, DTTracoCand* o
       if( !config()->singleLenab(tkn) ) {
         // LTF: single LTRIG not always en. Check cond.:
         if( config()->singleLflag(tkn)==1 ||      //always discarded
-	  config()->singleLflag(tkn)==2 && !(_card->TSTh()->nHTrig(is)) ||
-	  config()->singleLflag(tkn)==0 && !(_card->TSTh()->nTrig(is)) ){ 
+	    ( config()->singleLflag(tkn)==2 && !(_card->TSTh()->nHTrig(is)) ) ||
+	    ( config()->singleLflag(tkn)==0 && !(_card->TSTh()->nTrig(is))  ) ){ 
 // SV --> for TESTS version
 //        config()->singleLflag(tkn)==0 && thTr==0 ||   //only with theta trig. 
 //        config()->singleLflag(tkn)==2 && thTr==0  ){  //only with theta H trig (not hw)

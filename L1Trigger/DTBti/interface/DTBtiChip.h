@@ -6,8 +6,8 @@
  *   Internally uses DTBtiHit to store muon digis
  *
  *
- *   $Date: 2008/06/30 13:41:36 $
- *   $Revision: 1.6 $
+ *   $Date: 2009/11/12 14:33:15 $
+ *   $Revision: 1.7 $
  *
  *   \author S. Vanini
  */
@@ -165,13 +165,13 @@ class DTBtiChip {
 
  private:
 
-  DTTrigGeom* _geom;
+  // parent card
+  DTBtiCard* _card;
+
+  DTTrigGeom*  _geom;
   DTConfigBti* _config;
 
   DTBtiId _id;
-
-  // parent card
-  DTBtiCard* _card;
 
   // input data from DTDigis
   std::vector<const DTDigi*> _digis[9];

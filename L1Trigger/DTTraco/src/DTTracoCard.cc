@@ -186,35 +186,42 @@ DTTracoCard::loadTRACO() {
       //  }
 
       // Left Traco
-       if( (ntc-1)>0 && (ntc-1)<=maxtc )
-	 if( !_flag_acc || (K>=LL && K<=LH) )
-	   activeGetTRACO(ntc-1)->add_btiT( step, pos+8-4*(-1), &(*p) );
-         else
-        if(debug())
-          std::cout 	<< "ATTENTION: in TRACO n. " << ntc-1
+      if( (ntc-1)>0 && (ntc-1)<=maxtc ) {
+	if( !_flag_acc || (K>=LL && K<=LH) ) {
+	  activeGetTRACO(ntc-1)->add_btiT( step, pos+8-4*(-1), &(*p) );
+	} else {
+	  if(debug()) {
+	    std::cout 	<< "ATTENTION: in TRACO n. " << ntc-1
 			<< " bti pos " << pos+8-4*(-1) << " trigger K= " << K 
 			<< " outside acceptance " << LL << "<K<" << LH << std::endl;
- 
+	  }
+	}
+      }
+
       // Central Traco
-       if( (ntc)>0 && (ntc)<=maxtc )
-	 if( !_flag_acc || (K>=CL && K<=CH) )
-	   activeGetTRACO(ntc)->add_btiT( step, pos+8-4*(0), &(*p) );
-         else
-        if(debug())
-          std::cout 	<< "ATTENTION: in TRACO n. " << ntc 
+      if( (ntc)>0 && (ntc)<=maxtc ) {
+	if( !_flag_acc || (K>=CL && K<=CH) ) {
+	  activeGetTRACO(ntc)->add_btiT( step, pos+8-4*(0), &(*p) );
+	} else {
+	  if(debug())
+	    std::cout 	<< "ATTENTION: in TRACO n. " << ntc 
 			<< " bti pos " << pos+8-4*(0) << " trigger K= " << K 
 			<< " outside acceptance " << CL << "<K<" << CH << std::endl;
- 
+	}
+      }
+      
       // Right Traco
-       if( (ntc+1)>0 && (ntc+1)<=maxtc )
-	 if( !_flag_acc || (K>=RL && K<=RH) )
-	   activeGetTRACO(ntc+1)->add_btiT( step, pos+8-4*(+1), &(*p) );
-         else
-       if(debug())
-          std::cout 	<< "ATTENTION: in TRACO n. " << ntc+1 
+      if( (ntc+1)>0 && (ntc+1)<=maxtc ) {
+	if( !_flag_acc || (K>=RL && K<=RH) ) {
+	  activeGetTRACO(ntc+1)->add_btiT( step, pos+8-4*(+1), &(*p) );
+	} else {
+	  if(debug())
+	    std::cout 	<< "ATTENTION: in TRACO n. " << ntc+1 
 			<< " bti pos " << pos+8-4*(+1) << " trigger K= " << K 
 			<< " outside acceptance " << RL << "<K<" << RH << std::endl;
-}
+	}
+      }
+    }
 
     // Filter Theta BTIs -> this is done in DTBtiChip 
 
