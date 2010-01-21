@@ -9,8 +9,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2008/11/26 11:09:24 $
-   $Revision: 1.1 $
+   $Date: 2009/03/27 14:46:59 $
+   $Revision: 1.2 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -18,7 +18,7 @@ class HcalHFStatusBitFromDigis {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalHFStatusBitFromDigis();
-  HcalHFStatusBitFromDigis(int HFpulsetimemin,int HFpulsetimemax, double HFratiobefore, double HFratioafter, int adcthreshold=10); 
+  HcalHFStatusBitFromDigis(int HFpulsetimemin,int HFpulsetimemax, double HFratiobefore, double HFratioafter, int adcthreshold=10, int firstSample=0, int samplesToAdd=10); 
   
   // Destructor
   ~HcalHFStatusBitFromDigis();
@@ -46,7 +46,8 @@ private:
   int HFpulsetimemin_, HFpulsetimemax_;
   double HFratio_beforepeak_, HFratio_afterpeak_;
   double adcthreshold_;
-
+  int firstSample_;
+  int samplesToAdd_;
 };
 
 #endif

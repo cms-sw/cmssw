@@ -35,7 +35,8 @@ namespace HcalCaloFlagLabels
   enum CommonFlag {TimingSubtractedBit=16, // latency shift correction, recovered
 		   TimingAddedBit=17,      // latency shift correction, recovered
 		   TimingErrorBit=18,      // latency shift error, unrecovered
-		   ADCSaturationBit=19}; 
+		   ADCSaturationBit=19,
+                   Fraction2TS=20}; 
   
 }
 

@@ -12,7 +12,9 @@
 class HBHEStatusBitSetter {
  public:
   HBHEStatusBitSetter();
-  HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,std::vector<edm::ParameterSet> pulseShapeParameterSets);
+  HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,std::vector<edm::ParameterSet> pulseShapeParameterSets, 
+		      int firstSample=0, 
+		      int samplesToAdd=10);
   ~HBHEStatusBitSetter();
   void Clear();
   void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi);
@@ -20,6 +22,8 @@ class HBHEStatusBitSetter {
  private:
   double hitEnergyMinimum_;
   int hitMultiplicityThreshold_;
+  unsigned int firstSample_;
+  unsigned int samplesToAdd_;
   double nominalPedestal_;
   HcalLogicalMap *logicalMap_;
   std::vector<int> hpdMultiplicity_;

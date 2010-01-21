@@ -16,13 +16,15 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
   adcthreshold_=10; // minimum (pedestal-subtracted) ADC value needed for a cell to be considered noisy
 }
 
-HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int HFpulsetimemin,int HFpulsetimemax, double HFratiobefore, double HFratioafter, int adcthreshold)
+HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int HFpulsetimemin,int HFpulsetimemax, double HFratiobefore, double HFratioafter, int adcthreshold, int firstSample, int samplesToAdd)
 {
   HFpulsetimemin_     = HFpulsetimemin;
   HFpulsetimemax_     = HFpulsetimemax;
   HFratio_beforepeak_ = HFratiobefore;
   HFratio_afterpeak_  = HFratioafter;
   adcthreshold_       = adcthreshold; 
+  firstSample_        = firstSample;
+  samplesToAdd_       = samplesToAdd;
 }
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
@@ -33,8 +35,17 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame
   int maxtime=0;
   int maxval=-3;  // maxval is 'pedestal subtracted', with default pedestal of 3 ADC counts
 
+  int maxInWindow=0; // maximum value found in reco window
   for (int i=0;i<digi.size();++i)
     {
+      // Check for largest pulse within reco window
+      if (i >=firstSample_ && i < samplesToAdd_ && i < digi.size())
+	{
+	  if (digi[i].nominal_fC()>digi[maxInWindow].nominal_fC())
+	    maxInWindow=i;
+	}
+      
+      // Find largest overall pulse
       if (digi.sample(i).adc()-3>maxval) // need to make pedestal subtraction at some point
 	{
 	  maxtime=i;
@@ -42,6 +53,13 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame
 	}
     }
   
+  // Compare size of peak in reco window to charge in TS immediately before peak
+  int TSfrac_counter=1; 
+  // assume that fC pedestal ~=3
+  if (maxInWindow>0 && digi[maxInWindow].nominal_fC()!=3)
+    TSfrac_counter=int(50*((digi[maxInWindow-1].nominal_fC()-3)/(digi[maxInWindow].nominal_fC()-3))+1); // 6-bit counter to hold peak ratio info
+  hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
+
   if (maxval<adcthreshold_) return; // don't set noise flags for cells below a given threshold
 
   // Check that peak occurs in correct time window
