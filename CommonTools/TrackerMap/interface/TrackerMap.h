@@ -54,6 +54,8 @@ class TrackerMap {
   void fill_fed_channel(int fedId,int fedCh, float qty );
   void fill_fed_channel(int modId, float qty );
   void fillc_fed_channel(int fedId,int fedCh, int red, int green, int blue);
+  void fill_lv_channel(int rack,int crate, int board, float qty  );
+  void fillc_lv_channel(int rack,int crate, int board, int red, int green, int blue);
   int module(int fedId,int fedCh);
   void setText(int idmod , std::string s );
   void setText(int layer, int ring, int nmod , string s );
@@ -63,6 +65,7 @@ class TrackerMap {
   void setTitle(std::string s){title=s;};
   void setRange(float min,float max){gminvalue=min;gmaxvalue=max;};
   void addPixel(bool addPixelfl){addPixelFlag=addPixelfl;};
+  void reset();
   void load(std::string s="tmap.svg"); 
   int getxsize(){return xsize;};
   int getysize(){return ysize;};

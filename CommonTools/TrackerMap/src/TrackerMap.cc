@@ -387,6 +387,14 @@ TrackerMap::TrackerMap(string s,int xsize1,int ysize1) {
  init();
 }
 
+void TrackerMap::reset() {
+std::map<int , TmModule *>::iterator i_mod;
+    for( i_mod=imoduleMap.begin();i_mod !=imoduleMap.end(); i_mod++){
+      TmModule *  mod= i_mod->second;
+      mod->count=0;mod->value=0;mod->red=-1;
+      }
+}
+
 void TrackerMap::init() {
   
   int ntotmod=0;
@@ -438,11 +446,22 @@ void TrackerMap::init() {
 }
 
 TrackerMap::~TrackerMap() {
-std::map<int , TmModule *>::iterator i_mod;
-    for( i_mod=imoduleMap.begin();i_mod !=imoduleMap.end(); i_mod++){
-      TmModule *  mod= i_mod->second;
-      delete mod;
+ 
+for (int layer=1; layer < 44; layer++){
+    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
+      for (int module=1;module<200;module++) {
+        int key=layer*100000+ring*1000+module;
+        TmModule * mod = smoduleMap[key];
+        if(mod !=0 ) delete mod;
       }
+    }
+  }
+
+//std::map<int , TmModule *>::iterator i_mod;
+//   for( i_mod=imoduleMap.begin();i_mod !=imoduleMap.end(); i_mod++){
+//      TmModule *  mod= i_mod->second;
+//      delete mod;
+//      }
 std::map<int , TmApvPair *>::iterator i_apv;
   for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
       TmApvPair *  apvPair= i_apv->second;
@@ -2235,7 +2254,32 @@ void TrackerMap::fill_current_val_fed_channel(int fedId, int fedCh, float curren
   else 
     cout << "*** error in FedTrackerMap fill_current_val method ***";
 }
+void TrackerMap::fillc_lv_channel(int rack,int crate, int board, int red, int green, int blue  )
+{
+ 
+ int key = rack*1000+crate*100+board;
+ 
+ TmPsu *psu = psuMap[key];
+  
+  if(psu!=0){
+    psu->red=red; psu->green=green; psu->blue=blue;
+    return;
+  }
+  cout << "*** error in LVTrackerMap fillc method ***";
+}
 
+void TrackerMap::fill_lv_channel(int rack,int crate, int board, float qty  )
+{
+ int key = rack*1000+crate*100+board;
+ TmPsu *psu = psuMap[key];
+  if(psu!=0){
+    psu->count++; psu->value=psu->value+qty;
+    return;
+ 
+  }
+  
+  cout << "*** error in LVTrackerMap fill by module method ***";
+  }
 int TrackerMap::module(int fedId, int fedCh)
 {
   int key = fedId*1000+fedCh;
@@ -2421,6 +2465,7 @@ void TrackerMap::printonline(){
  *ofilename <<"    var npsuracks=" <<npsuracks << ";"<<endl;
  
    ifilename->close();delete ifilename;
+
   ifilename=findfile("viewerTrailer.xhtml");
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
    ofilename->close();delete ofilename;
@@ -2432,6 +2477,7 @@ void TrackerMap::printonline(){
     system(command.c_str());
   ofname.str("");
    ifilename->close();delete ifilename;
+
   ifilename=findfile("jqviewer.js");
   ofname << "jqviewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
@@ -2439,11 +2485,15 @@ void TrackerMap::printonline(){
   ofname.str("");
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
+
   ifilename=findfile("crate.js");
   ofname <<  "crate.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
   ofname.str("");
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
+
   ifilename=findfile("feccrate.js");
   ofname <<  "feccrate.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
@@ -2468,7 +2518,8 @@ void TrackerMap::printonline(){
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
    ofname.str("");
-    ifilename=findfile("rackhv.js");
+  
+  ifilename=findfile("rackhv.js");
   ofname <<  "rackhv.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
@@ -2703,6 +2754,7 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
   std::string ifname;
   string line;
   std::string command;
+
   ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.html";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
@@ -2723,9 +2775,9 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
    command = "sed -i \"s/XtmaptitleX/"+title+"/g\" "+ ofname.str();
     cout << "Executing " << command << endl;
     system(command.c_str());
-  
   ofname.str("");
-  ifilename=findfile("jqviewer.js");
+  
+ifilename=findfile("jqviewer.js");
   ofname << "jqviewer.js";
   ofilename = new ofstream(ofname.str().c_str(),ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << endl; }
@@ -2756,6 +2808,14 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, string o
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
  
+   ofname.str("");
+  ifilename=findfile("rackhv.js");
+  ofname <<  "rackhv.js";
+  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  while (getline( *ifilename, line )) { *ofilename << line << endl; }
+   ofilename->close();delete ofilename;
+   ifilename->close();delete ifilename;
+   
    ofname.str("");
   ifilename=findfile("layer.js");
   ofname <<  "layer.js";
