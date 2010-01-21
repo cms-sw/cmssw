@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.22 2010/01/12 08:20:24 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.23 2010/01/21 08:28:23 querten Exp $
 //
 //
 
@@ -124,7 +124,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
      //WARNING: Since the dEdX Error is not properly computed for the moment
      //It was decided to store the number of saturating cluster in that dataformat
-     val_and_error.second = -1;//NClusterSaturating; 
+     val_and_error.second = NClusterSaturating; 
 
      dedxEstimate[j] = DeDxData(val_and_error.first, val_and_error.second, dedxHits.size() );
   }
