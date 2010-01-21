@@ -46,7 +46,7 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
   for (HFRecHitCollection::iterator iHF=rec.begin(); iHF!=rec.end();++iHF)
     {
       // skip cells that have already been tagged -- shouldn't happen in current algorithm
-      if (iHF->flagField(HcalCaloFlagLabels::HFLongShort, HcalCaloFlagLabels::HFLongShort+1)) continue;
+      //if (iHF->flagField(HcalCaloFlagLabels::HFLongShort, HcalCaloFlagLabels::HFLongShort+1)) continue;
 
       ieta =iHF->id().ieta();  // int between 29-41
       // eta = average value between cell eta bounds
