@@ -52,9 +52,9 @@ void L1Reader::init(const Data & data) {
   // check if the pattern has is a glob expression, or a single trigger name 
   if (not edm::is_glob(m_pattern)) {
     // no wildcard expression
-    const AlgorithmMap & aliasMap = menu.gtAlgorithmAliasMap();
-    AlgorithmMap::const_iterator entry = aliasMap.find(m_pattern);
-    if (entry != aliasMap.end()) {
+    const AlgorithmMap & triggerMap = menu.gtAlgorithmAliasMap();
+    AlgorithmMap::const_iterator entry = triggerMap.find(m_pattern);
+    if (entry != triggerMap.end()) {
       // single L1 bit
       m_triggers.push_back( std::make_pair(m_pattern, entry->second.algoBitNumber()) );
     } else
@@ -67,8 +67,8 @@ void L1Reader::init(const Data & data) {
     // expand wildcards in the pattern 
     bool match = false;
     boost::regex re(edm::glob2reg(m_pattern));
-    const AlgorithmMap & aliasMap = menu.gtAlgorithmAliasMap();
-    BOOST_FOREACH(const AlgorithmMap::value_type & entry, aliasMap)
+    const AlgorithmMap & triggerMap = menu.gtAlgorithmAliasMap();
+    BOOST_FOREACH(const AlgorithmMap::value_type & entry, triggerMap)
       if (boost::regex_match(entry.first, re)) {
         match = true;
         if (data.ignoreL1Mask() or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & data.daqPartitions()) == data.daqPartitions())
