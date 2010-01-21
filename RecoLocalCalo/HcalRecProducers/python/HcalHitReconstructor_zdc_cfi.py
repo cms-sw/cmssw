@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 zdcreco = cms.EDProducer(
-    "HcalHitReconstructor",
+    "ZdcHitReconstructor",
     correctionPhaseNS = cms.double(0.0),
     digiLabel = cms.InputTag("hcalDigis"),
     samplesToAdd = cms.int32(1),
@@ -10,7 +10,7 @@ zdcreco = cms.EDProducer(
     correctForPhaseContainment = cms.bool(False),
     correctForTimeslew = cms.bool(False),
     dropZSmarkedPassed = cms.bool(True),
-
+    recoMethod = cms.int32(2),
     #Tags for calculating status flags
     # None of the flag algorithms have been implemented for zdc, so these booleans do nothing
     correctTiming = cms.bool(True),
