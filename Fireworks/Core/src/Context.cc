@@ -8,13 +8,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: Context.cc,v 1.5 2009/04/07 13:58:31 chrjones Exp $
 //
 
 // system include files
 
 // user include files
+#include "TEveTrackPropagator.h"
+
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWMagField.h"
 
 using namespace fireworks;
 //
@@ -32,43 +35,37 @@ Context::Context(FWModelChangeManager* iCM,
                  FWSelectionManager* iSM,
                  FWEventItemsManager* iEM,
                  FWColorManager* iColorM
-) :
+                 ) :
    m_changeManager(iCM),
    m_selectionManager(iSM),
    m_eventItemsManager(iEM),
-   m_colorManager(iColorM)
+   m_colorManager(iColorM),
+   m_propagator(0),
+   m_magField(0)
 {
+   m_magField = new FWMagField();
+
+   m_propagator = new TEveTrackPropagator();
+   m_propagator->SetMaxR(123.0);
+   m_propagator->SetMaxZ(300.0);
+   m_propagator->SetMagFieldObj(m_magField);
 }
 
-// Context::Context(const Context& rhs)
-// {
-//    // do actual copying here;
-// }
 
-//Context::~Context()
-//{
-//}
-
-//
-// assignment operators
-//
-// const Context& Context::operator=(const Context& rhs)
-// {
-//   //An exception safe implementation is
-//   Context temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-//
-// const member functions
-//
+Context::~Context()
+{
+}
 
 //
 // static member functions
 //
+
+
+//
+// static data member definitions
+//
+//
+// const member functions
+//
+//
+// member functions
