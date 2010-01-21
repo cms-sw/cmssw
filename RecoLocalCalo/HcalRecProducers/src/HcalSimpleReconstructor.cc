@@ -32,14 +32,6 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
     produces<HFRecHitCollection>();
-  } else if (!strcasecmp(subd.c_str(),"ZDC")) {
-    det_=DetId::Calo;
-    subdet_=HcalZDCDetId::SubdetectorId;
-    produces<ZDCRecHitCollection>();
-  } else if (!strcasecmp(subd.c_str(),"CALIB")) {
-    subdet_=HcalOther;
-    subdetOther_=HcalCalibration;
-    produces<HcalCalibRecHitCollection>();
   } else {
     std::cout << "HcalSimpleReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
@@ -148,27 +140,5 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       // return result
       e.put(rec);     
     }
-  } else if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
-    edm::Handle<ZDCDigiCollection> digi;
-    e.getByLabel(inputLabel_,digi);
-    
-    // create empty output
-    std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
-    rec->reserve(digi->size());
-    // run the algorithm
-    ZDCDigiCollection::const_iterator i;
-    for (i=digi->begin(); i!=digi->end(); i++) {
-      HcalZDCDetId cell = i->id();	  
-	// rof 27.03.09: drop ZS marked and passed digis:
-	if (dropZSmarkedPassed_)
-	  if (i->zsMarkAndPass()) continue;
-
-      const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
-      const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      rec->push_back(reco_.reconstruct(*i,coder,calibrations));
-    }
-    // return result
-    e.put(rec);     
-  }
+  } 
 }
