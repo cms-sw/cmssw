@@ -45,6 +45,14 @@ public:
 
   bool setEvent(const edm::Event & event, const edm::EventSetup & setup);
 
+  bool hasL1T() const {
+    return not m_l1tResultsTag.label().empty();
+  }
+
+  bool hasHLT() const {
+    return not m_hltResultsTag.label().empty();
+  }
+
   const edm::TriggerResults & hltResults() const {
     return * m_hltResults;
   }
