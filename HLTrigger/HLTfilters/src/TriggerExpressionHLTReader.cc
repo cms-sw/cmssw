@@ -12,10 +12,10 @@ namespace triggerExpression {
 // define the result of the module from the HLT reults
 bool HLTReader::operator()(const Data & data) {
   if (data.configurationUpdated())
-    init(data.triggerNames());
+    init(data.hltMenu());
 
   BOOST_FOREACH(int trigger, m_triggers)
-    if (data.triggerResults().accept(trigger))
+    if (data.hltResults().accept(trigger))
       return true;
   
   return false;
