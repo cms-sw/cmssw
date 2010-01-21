@@ -25,8 +25,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2006/11/08 17:02:07 $
-   $Revision: 1.7 $
+   $Date: 2009/02/09 00:27:23 $
+   $Revision: 1.8 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
@@ -40,7 +40,6 @@ public:
   HBHERecHit reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HFRecHit reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HORecHit reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  ZDCRecHit reconstruct(const ZDCDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 private:
   int firstSample_, samplesToAdd_;

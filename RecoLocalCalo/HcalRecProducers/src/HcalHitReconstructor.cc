@@ -336,33 +336,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       // return result
       e.put(rec);     
     }
-  } else if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
-    edm::Handle<ZDCDigiCollection> digi;
-    e.getByLabel(inputLabel_,digi);
-    
-    // create empty output
-    std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
-    rec->reserve(digi->size());
-    // run the algorithm
-    ZDCDigiCollection::const_iterator i;
-    for (i=digi->begin(); i!=digi->end(); i++) {
-      HcalZDCDetId cell = i->id();
-      DetId detcell=(DetId)cell;
-      // check on cells to be ignored and dropped: (rof,20.Feb.09)
-      const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
-      if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
-	if (dropZSmarkedPassed_)
-	  if (i->zsMarkAndPass()) continue;
-	    
-      const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
-      const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      rec->push_back(reco_.reconstruct(*i,coder,calibrations));
-      (rec->back()).setFlags(0);
-    }
-    // return result
-    e.put(rec);     
-  } // else if (det_==DetId::Calo...)
+  } 
 
   delete myqual;
 } // void HcalHitReconstructor::produce(...)
