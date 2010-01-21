@@ -33,6 +33,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -95,7 +96,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       DQMStore* dqmStore_;
       DQMStore* dqmStore_infile;
 
-      double              ComputeChargeOverPath(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup, const Track* track, double trajChi2OverN);
+      double              ComputeChargeOverPath(const SiStripCluster*   Cluster,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup, const Track* track, double trajChi2OverN);
       bool                IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup);
 
       void                getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=0, double HighRange=5400);
@@ -1065,16 +1066,18 @@ SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup
          TrajectoryStateOnSurface trajState = measurement_it->updatedState();
          if( !trajState.isValid() ) continue;     
 
-         const TrackingRecHit*         hit               = (*measurement_it->recHit()).hit();
-         const SiStripRecHit2D*        sistripsimplehit  = dynamic_cast<const SiStripRecHit2D*>(hit);
-         const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+         const TrackingRecHit*         hit                 = (*measurement_it->recHit()).hit();
+         const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
+         const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
+         const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
 
-	 if(sistripsimplehit)
-	 {
-	     ComputeChargeOverPath(sistripsimplehit, trajState, &iSetup, &track, traj.chiSquared()/ndof);
+	 if(sistripsimplehit){
+	     ComputeChargeOverPath((sistripsimplehit->cluster()).get(), trajState, &iSetup, &track, traj.chiSquared()/ndof);
 	 }else if(sistripmatchedhit){
-             ComputeChargeOverPath(sistripmatchedhit->monoHit()  ,trajState, &iSetup, &track, traj.chiSquared()/ndof); 
-             ComputeChargeOverPath(sistripmatchedhit->stereoHit(),trajState, &iSetup, &track, traj.chiSquared()/ndof);
+             ComputeChargeOverPath((sistripmatchedhit->monoHit()  ->cluster()).get(),trajState, &iSetup, &track, traj.chiSquared()/ndof); 
+             ComputeChargeOverPath((sistripmatchedhit->stereoHit()->cluster()).get(),trajState, &iSetup, &track, traj.chiSquared()/ndof);
+         }else if(sistripsimple1dhit){
+             ComputeChargeOverPath((sistripsimple1dhit->cluster()).get(), trajState, &iSetup, &track, traj.chiSquared()/ndof);
 	 }else{		
          }
 
@@ -1084,11 +1087,11 @@ SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 double
-SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup,  const Track* track, double trajChi2OverN)
+SiStripGainFromData::ComputeChargeOverPath(const SiStripCluster*   Cluster ,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup,  const Track* track, double trajChi2OverN)
 {
    LocalVector          trackDirection = trajState.localDirection();
    double                  cosine      = trackDirection.z()/trackDirection.mag();
-   const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
+//   const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
 //   const vector<uint16_t>& Ampls       = Cluster->amplitudes();
    const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
    uint32_t                DetId       = Cluster->geographicalId();
