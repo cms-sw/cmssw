@@ -15,9 +15,9 @@ namespace triggerExpression {
 class HLTReader : public Evaluator {
 public:
   HLTReader(const std::string & pattern) :
+    m_throw(false),
     m_pattern(pattern),
-    m_triggers(),
-    m_throw(false)
+    m_triggers()
   { }
 
   void init(const edm::TriggerNames & triggerNames);
@@ -27,9 +27,9 @@ public:
   void dump(std::ostream & out) const;
 
 private:
-  std::string               m_pattern;
-  std::vector<unsigned int> m_triggers;
-  bool                      m_throw;
+  bool        m_throw;
+  std::string m_pattern;
+  std::vector<std::pair<std::string, unsigned int> > m_triggers;
 };
 
 } // namespace triggerExpression

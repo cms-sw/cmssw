@@ -17,8 +17,9 @@ bool HLTReader::operator()(const Data & data) {
   if (data.hltConfigurationUpdated())
     init(data.hltMenu());
 
-  BOOST_FOREACH(int trigger, m_triggers)
-    if (data.hltResults().accept(trigger))
+  typedef std::pair<std::string, unsigned int> value_type;
+  BOOST_FOREACH(const value_type & trigger, m_triggers)
+    if (data.hltResults().accept(trigger.second))
       return true;
   
   return false;
@@ -28,25 +29,25 @@ void HLTReader::dump(std::ostream & out) const {
   if (m_triggers.size() == 0) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
-    out << m_triggers[0];
+    out << m_triggers[0].first;
   } else {
-    out << "(" << m_triggers[0];
+    out << "(" << m_triggers[0].first;
     for (unsigned int i = 1; i < m_triggers.size(); ++i)
-      out << " OR " << m_triggers[i];
+      out << " OR " << m_triggers[i].first;
     out << ")";
   }
 }
 
 // (re)initialize the module
-void HLTReader::init(const edm::TriggerNames & triggerNames) {
+void HLTReader::init(const edm::TriggerNames & hltMenu) {
   m_triggers.clear();
 
   // check if the pattern has is a glob expression, or a single trigger name
   if (not edm::is_glob(m_pattern)) {
     // no wildcard expression
-    unsigned int index = triggerNames.triggerIndex(m_pattern);
-    if (index <= triggerNames.size())
-      m_triggers.push_back(index);
+    unsigned int index = hltMenu.triggerIndex(m_pattern);
+    if (index <= hltMenu.size())
+      m_triggers.push_back( std::make_pair(m_pattern, index) );
     else
       if (m_throw)
         throw cms::Exception("Configuration") << "requested HLT path \"" << m_pattern << "\" does not exist";
@@ -54,7 +55,7 @@ void HLTReader::init(const edm::TriggerNames & triggerNames) {
         edm::LogInfo("Configuration") << "requested HLT path \"" << m_pattern << "\" does not exist";
   } else {
     // expand wildcards in the pattern
-    const std::vector< std::vector<std::string>::const_iterator > & matches = edm::regexMatch(triggerNames.triggerNames(), m_pattern);
+    const std::vector< std::vector<std::string>::const_iterator > & matches = edm::regexMatch(hltMenu.triggerNames(), m_pattern);
     if (matches.empty()) {
       // m_pattern does not match any trigger paths
       if (m_throw)
@@ -64,7 +65,7 @@ void HLTReader::init(const edm::TriggerNames & triggerNames) {
     } else {
       // store indices corresponding to the matching triggers
       BOOST_FOREACH(const std::vector<std::string>::const_iterator & match, matches)
-        m_triggers.push_back( triggerNames.triggerIndex(*match) );
+        m_triggers.push_back( std::make_pair(*match, hltMenu.triggerIndex(*match)) );
     }
   }
 }
