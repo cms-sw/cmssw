@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.5 2008/10/30 19:17:43 jribnik Exp $
+// $Id: MuonIdVal.h,v 1.6 2009/03/25 15:15:29 jribnik Exp $
 //
 //
 
@@ -31,7 +31,11 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/MuonReco/interface/MuonTime.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -66,9 +70,13 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::InputTag inputMuonCollection_;
       edm::InputTag inputDTRecSegment4DCollection_;
       edm::InputTag inputCSCSegmentCollection_;
+      edm::InputTag inputMuonTimeExtraValueMap_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
+      bool useTrackerMuonsNotGlobalMuons_;
+      bool useGlobalMuonsNotTrackerMuons_;
       bool makeEnergyPlots_;
+      bool makeTimePlots_;
       bool make2DPlots_;
       bool makeAllChamberPlots_;
       std::string baseFolder_;
@@ -76,47 +84,84 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::Handle<reco::MuonCollection> muonCollectionH_;
       edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
       edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
+      edm::Handle<reco::MuonTimeExtraMap> combinedMuonTimeExtraValueMapH_;
+      edm::Handle<reco::MuonTimeExtraMap> cscMuonTimeExtraValueMapH_;
+      edm::Handle<reco::MuonTimeExtraMap> dtMuonTimeExtraValueMapH_;
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
       // trackerMuon == 0; globalMuon == 1
       // energy deposits
-      MonitorElement* hEnergyEMBarrel[2];
-      MonitorElement* hEnergyHABarrel[2];
-      MonitorElement* hEnergyHO[2];
-      MonitorElement* hEnergyEMEndcap[2];
-      MonitorElement* hEnergyHAEndcap[2];
+      MonitorElement* hEnergyEMBarrel[4];
+      MonitorElement* hEnergyHABarrel[4];
+      MonitorElement* hEnergyHO[4];
+      MonitorElement* hEnergyEMEndcap[4];
+      MonitorElement* hEnergyHAEndcap[4];
+
+      // time information
+      MonitorElement* hMuonTimeNDOF[4];
+      MonitorElement* hMuonTimeTimeAtIpInOut[4];
+      MonitorElement* hMuonTimeTimeAtIpInOutErr[4];
+      MonitorElement* hMuonTimeTimeAtIpOutIn[4];
+      MonitorElement* hMuonTimeTimeAtIpOutInErr[4];
+      MonitorElement* hMuonTimeExtraCombinedNDOF[4];
+      MonitorElement* hMuonTimeExtraCombinedTimeAtIpInOut[4];
+      MonitorElement* hMuonTimeExtraCombinedTimeAtIpInOutErr[4];
+      MonitorElement* hMuonTimeExtraCombinedTimeAtIpOutIn[4];
+      MonitorElement* hMuonTimeExtraCombinedTimeAtIpOutInErr[4];
+      MonitorElement* hMuonTimeExtraCSCNDOF[4];
+      MonitorElement* hMuonTimeExtraCSCTimeAtIpInOut[4];
+      MonitorElement* hMuonTimeExtraCSCTimeAtIpInOutErr[4];
+      MonitorElement* hMuonTimeExtraCSCTimeAtIpOutIn[4];
+      MonitorElement* hMuonTimeExtraCSCTimeAtIpOutInErr[4];
+      MonitorElement* hMuonTimeExtraDTNDOF[4];
+      MonitorElement* hMuonTimeExtraDTTimeAtIpInOut[4];
+      MonitorElement* hMuonTimeExtraDTTimeAtIpInOutErr[4];
+      MonitorElement* hMuonTimeExtraDTTimeAtIpOutIn[4];
+      MonitorElement* hMuonTimeExtraDTTimeAtIpOutInErr[4];
 
       // muonid
-      MonitorElement* hCaloCompat[2];
-      MonitorElement* hSegmentCompat[2];
-      MonitorElement* hCaloSegmentCompat[2];
-      MonitorElement* hGlobalMuonPromptTightBool[2];
-      MonitorElement* hTMLastStationLooseBool[2];
-      MonitorElement* hTMLastStationTightBool[2];
-      MonitorElement* hTM2DCompatibilityLooseBool[2];
-      MonitorElement* hTM2DCompatibilityTightBool[2];
-      MonitorElement* hTMOneStationLooseBool[2];
-      MonitorElement* hTMOneStationTightBool[2];
-      MonitorElement* hTMLastStationOptimizedLowPtLooseBool[2];
-      MonitorElement* hTMLastStationOptimizedLowPtTightBool[2];
+      MonitorElement* hCaloCompat[4];
+      MonitorElement* hSegmentCompat[4];
+      MonitorElement* hCaloSegmentCompat[4];
+      MonitorElement* hMuonQualityTrkRelChi2[4];
+      MonitorElement* hMuonQualityStaRelChi2[4];
+      MonitorElement* hMuonQualityTrkKink[4];
+      MonitorElement* hGlobalMuonPromptTightBool[4];
+      MonitorElement* hTMLastStationLooseBool[4];
+      MonitorElement* hTMLastStationTightBool[4];
+      MonitorElement* hTM2DCompatibilityLooseBool[4];
+      MonitorElement* hTM2DCompatibilityTightBool[4];
+      MonitorElement* hTMOneStationLooseBool[4];
+      MonitorElement* hTMOneStationTightBool[4];
+      MonitorElement* hTMLastStationOptimizedLowPtLooseBool[4];
+      MonitorElement* hTMLastStationOptimizedLowPtTightBool[4];
+      MonitorElement* hGMTkChiCompatibilityBool[4];
+      MonitorElement* hGMStaChiCompatibilityBool[4];
+      MonitorElement* hGMTkKinkTightBool[4];
+      MonitorElement* hTMLastStationAngLooseBool[4];
+      MonitorElement* hTMLastStationAngTightBool[4];
+      MonitorElement* hTMOneStationAngLooseBool[4];
+      MonitorElement* hTMOneStationAngTightBool[4];
+      MonitorElement* hTMLastStationOptimizedBarrelLowPtLooseBool[4];
+      MonitorElement* hTMLastStationOptimizedBarrelLowPtTightBool[4];
 
       // by station
-      MonitorElement* hDTPullxPropErr[2][4];
-      MonitorElement* hDTPulldXdZPropErr[2][4];
-      MonitorElement* hDTPullyPropErr[2][3];
-      MonitorElement* hDTPulldYdZPropErr[2][3];
-      MonitorElement* hDTDistWithSegment[2][4];
-      MonitorElement* hDTDistWithNoSegment[2][4];
-      MonitorElement* hDTPullDistWithSegment[2][4];
-      MonitorElement* hDTPullDistWithNoSegment[2][4];
-      MonitorElement* hCSCPullxPropErr[2][4];
-      MonitorElement* hCSCPulldXdZPropErr[2][4];
-      MonitorElement* hCSCPullyPropErr[2][4];
-      MonitorElement* hCSCPulldYdZPropErr[2][4];
-      MonitorElement* hCSCDistWithSegment[2][4];
-      MonitorElement* hCSCDistWithNoSegment[2][4];
-      MonitorElement* hCSCPullDistWithSegment[2][4];
-      MonitorElement* hCSCPullDistWithNoSegment[2][4];
+      MonitorElement* hDTPullxPropErr[4][4];
+      MonitorElement* hDTPulldXdZPropErr[4][4];
+      MonitorElement* hDTPullyPropErr[4][3];
+      MonitorElement* hDTPulldYdZPropErr[4][3];
+      MonitorElement* hDTDistWithSegment[4][4];
+      MonitorElement* hDTDistWithNoSegment[4][4];
+      MonitorElement* hDTPullDistWithSegment[4][4];
+      MonitorElement* hDTPullDistWithNoSegment[4][4];
+      MonitorElement* hCSCPullxPropErr[4][4];
+      MonitorElement* hCSCPulldXdZPropErr[4][4];
+      MonitorElement* hCSCPullyPropErr[4][4];
+      MonitorElement* hCSCPulldYdZPropErr[4][4];
+      MonitorElement* hCSCDistWithSegment[4][4];
+      MonitorElement* hCSCDistWithNoSegment[4][4];
+      MonitorElement* hCSCPullDistWithSegment[4][4];
+      MonitorElement* hCSCPullDistWithNoSegment[4][4];
 
       // by chamber, trackerMuons only
       // DT:  [station][wheel][sector]
