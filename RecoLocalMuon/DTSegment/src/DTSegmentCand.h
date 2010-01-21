@@ -7,8 +7,8 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2008/03/10 11:28:30 $
- * $Revision: 1.7 $
+ * $Date: 2008/12/03 12:52:22 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -56,6 +56,8 @@ class DTSegmentCand{
 
 /* Operations */ 
     virtual bool good() const ;
+
+    virtual bool hitsShareLayer() const;
 
     virtual unsigned int nHits() const { return theHits.size(); }
 
