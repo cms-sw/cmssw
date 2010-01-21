@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/20 16:48:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/21 15:26:02 $
+ *  $Revision: 1.5 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -68,7 +68,17 @@ bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & se
   BOOST_FOREACH(triggerExpression::Evaluator * expression, m_expressions)
     if ((*expression)(m_eventCache))
       result = true;
-  
+ 
+  // if the L1 or HLT configurations have changed, log the expanded configuration
+  // this must be done *after* running the Evaluator, as that triggers the update 
+  if (m_eventCache.configurationUpdated()) {
+    std::stringstream out;
+    out << "TriggerResultsFilter configuration updated:";
+    BOOST_FOREACH(triggerExpression::Evaluator * expression, m_expressions)
+      out << "\n\t" << (*expression);
+    edm::LogInfo("Configuration") << out.str();
+  }
+
   return result; 
 }
 
