@@ -383,19 +383,16 @@ HLTTauDQMCaloPlotter::inverseMatch(const LV& jet,const reco::CaloJetCollection& 
  double distance=100000;
  if(jets.size()>0)
    for(reco::CaloJetCollection::const_iterator it = jets.begin();it!=jets.end();++it)
-   {
-     //     double delta = ROOT::Math::VectorUtil::DeltaR(jet,it->p4());
-     double delta=fabs(jet.pt()-it->pt());
-     if(delta<distance)
+     if(ROOT::Math::VectorUtil::DeltaR(it->p4(),jet)<matchDeltaRMC_)
        {
-	 distance=delta;
-	 mjet = *it;
+	 matched=true;
+	 double delta=fabs(jet.pt()-it->pt());
+	 if(delta<distance)
+	   {
+	     distance=delta;
+	     mjet = *it;
+	   }
        }
-   }
-
- // if(distance<matchDeltaRMC_)
- if(ROOT::Math::VectorUtil::DeltaR(mjet.p4(),jet)<matchDeltaRMC_);
-   matched=true;
 
  std::pair<bool,reco::CaloJet> p = std::make_pair(matched,mjet);
  return p;
