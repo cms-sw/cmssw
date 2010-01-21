@@ -18,9 +18,9 @@
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
   conf_(conf),rndEngine(eng){
   theThreshold              = conf_.getParameter<double>("NoiseSigmaThreshold");
-  theElectronPerADC         = conf_.getParameter<double>("electronPerAdc");
   theFedAlgo                = conf_.getParameter<int>("FedAlgorithm");
   peakMode                  = conf_.getParameter<bool>("APVpeakmode");
+  theElectronPerADC         = conf_.getParameter<double>( peakMode ? "electronPerAdcPeak" : "electronPerAdcDec" );
   noise                     = conf_.getParameter<bool>("Noise");
   zeroSuppression           = conf_.getParameter<bool>("ZeroSuppression");
   theTOFCutForPeak          = conf_.getParameter<double>("TOFCutForPeak");
