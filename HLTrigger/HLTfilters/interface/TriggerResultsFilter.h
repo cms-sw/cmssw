@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/01/20 16:28:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/20 16:48:26 $
+ *  $Revision: 1.3 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -40,12 +40,6 @@ public:
   virtual bool filter(edm::Event &, const edm::EventSetup &);
 
 private:
-  /// HLT TriggerResults EDProduct
-  edm::InputTag m_triggerResults;
-
-  /// throw on any requested trigger being unknown
-  bool m_throw;
-
   /// list of required HLT triggers by HLT index
   std::vector<triggerExpression::Evaluator *> m_expressions;
 

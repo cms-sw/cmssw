@@ -8,9 +8,13 @@
 
 namespace edm {
   class Event;
+  class EventSetup;
   class TriggerResults;
   class TriggerNames;
 }
+
+class L1GlobalTriggerReadoutRecord;
+class L1GtTriggerMask;
 
 namespace triggerExpression {
 
@@ -18,28 +22,30 @@ class Data {
 public:
   explicit Data(const edm::ParameterSet & config) :
     // configuration
-    m_triggerResultsTag(config.getParameter<edm::InputTag> ("triggerResults")),
-    m_throw(config.getParameter<bool> ("throw")),
+    m_hltResultsTag(config.getParameter<edm::InputTag>("hltResults")),
+    m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
+    m_l1tIgnoreMask(config.getParameter<bool>("l1tIgnoreMask")),
+    m_throw(config.getParameter<bool>("throw")),
     // values
-    m_triggerResults(0),
-    m_triggerNames(0),
-    m_parameterSetID(),
-    m_updated(false),
+    m_hltResults(0),
+    m_hltNames(0),
+    m_hltPSetID(),
+    m_hltUpdated(false),
     m_eventNumber()
   { }
 
-  bool setEvent(const edm::Event & event);
+  bool setEvent(const edm::Event & event, const edm::EventSetup & setup);
 
   const edm::TriggerResults & triggerResults() const {
-    return * m_triggerResults;
+    return * m_hltResults;
   }
 
   const edm::TriggerNames & triggerNames() const {
-    return * m_triggerNames;
+    return * m_hltNames;
   }
 
   bool configurationUpdated() const {
-    return m_updated;
+    return m_hltUpdated;
   }
 
   edm::EventNumber_t eventNumber() const {
@@ -48,15 +54,20 @@ public:
 
 private:
   // configuration
-  edm::InputTag m_triggerResultsTag;
+  edm::InputTag m_hltResultsTag;
+  edm::InputTag m_l1tResultsTag;
+  bool m_l1tIgnoreMask;
   bool m_throw;
 
   // values
-  const edm::TriggerResults * m_triggerResults;
-  const edm::TriggerNames   * m_triggerNames;
+  const L1GlobalTriggerReadoutRecord * m_l1tResults;
+  const L1GtTriggerMask     * m_l1tAlgoMask;
+  const L1GtTriggerMask     * m_l1tTechMask;
+  const edm::TriggerResults * m_hltResults;
+  const edm::TriggerNames   * m_hltNames;
 
-  edm::ParameterSetID         m_parameterSetID;
-  bool                        m_updated;
+  edm::ParameterSetID         m_hltPSetID;
+  bool                        m_hltUpdated;
 
   edm::EventNumber_t          m_eventNumber;
 };

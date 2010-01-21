@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/18 17:17:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/20 16:48:26 $
+ *  $Revision: 1.4 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -34,8 +34,6 @@
 // constructors and destructor
 //
 TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
-  m_triggerResults( config.getParameter<edm::InputTag> ("triggerResults")),
-  m_throw         ( config.getParameter<bool> ("throw")),
   m_expressions(),
   m_eventCache(config)
 {
@@ -60,7 +58,7 @@ TriggerResultsFilter::~TriggerResultsFilter()
 // ------------ method called to produce the data  ------------
 bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & setup)
 {
-  if (not m_eventCache.setEvent(event)) {
+  if (not m_eventCache.setEvent(event, setup)) {
     // couldn't properly access all information from the Event
     return false;
   }
