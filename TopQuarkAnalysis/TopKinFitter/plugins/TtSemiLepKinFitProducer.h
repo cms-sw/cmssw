@@ -27,19 +27,35 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   TtSemiLepKinFitter::Constraint constraint(unsigned);
   // convert unsigned to Param
   std::vector<TtSemiLepKinFitter::Constraint> constraints(std::vector<unsigned>&);
-  
+  // helper function for b-tagging
+  bool doBTagging(bool& useBTag_, edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
+		  std::string& bTagAlgo_, double& minBTagValueBJets_, double& maxBTagValueNonBJets_);
+
   edm::InputTag jets_;
   edm::InputTag leps_;
   edm::InputTag mets_;
   
   edm::InputTag match_;
+  /// switch to use only a combination given by another hypothesis
   bool useOnlyMatch_;
-  
+  /// input tag for b-tagging algorithm
+  std::string bTagAlgo_;
+  /// min value of bTag for a b-jet
+  double minBTagValueBJet_;
+  /// max value of bTag for a non-b-jet
+  double maxBTagValueNonBJet_;
+  /// switch to tell whether to use b-tagging or not
+  bool useBTag_;
+  /// maximal number of jets (-1 possible to indicate 'all')
   int maxNJets_;
+  /// maximal number of combinations to be written to the event
   int maxNComb_;
 
+  /// maximal number of iterations to be performed for the fit
   unsigned int maxNrIter_;
+  /// maximal chi2 equivalent
   double maxDeltaS_;
+  /// maximal deviation for contstraints
   double maxF_;
   unsigned int jetParam_;
   unsigned int lepParam_;
@@ -68,22 +84,26 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
 
 template<typename LeptonCollection>
 TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::ParameterSet& cfg):
-  jets_        (cfg.getParameter<edm::InputTag>("jets")),
-  leps_        (cfg.getParameter<edm::InputTag>("leps")),
-  mets_        (cfg.getParameter<edm::InputTag>("mets")),
-  match_       (cfg.getParameter<edm::InputTag>("match")),
-  useOnlyMatch_(cfg.getParameter<bool>             ("useOnlyMatch"      )),
-  maxNJets_    (cfg.getParameter<int>              ("maxNJets"          )),
-  maxNComb_    (cfg.getParameter<int>              ("maxNComb"          )),
-  maxNrIter_   (cfg.getParameter<unsigned>         ("maxNrIter"         )),
-  maxDeltaS_   (cfg.getParameter<double>           ("maxDeltaS"         )),
-  maxF_        (cfg.getParameter<double>           ("maxF"              )),
-  jetParam_    (cfg.getParameter<unsigned>         ("jetParametrisation")),
-  lepParam_    (cfg.getParameter<unsigned>         ("lepParametrisation")),
-  metParam_    (cfg.getParameter<unsigned>         ("metParametrisation")),
-  constraints_ (cfg.getParameter<std::vector<unsigned> >("constraints"  )),
-  mW_          (cfg.getParameter<double>           ("mW"                )),
-  mTop_        (cfg.getParameter<double>           ("mTop"              ))
+  jets_               (cfg.getParameter<edm::InputTag>("jets")),
+  leps_               (cfg.getParameter<edm::InputTag>("leps")),
+  mets_               (cfg.getParameter<edm::InputTag>("mets")),
+  match_              (cfg.getParameter<edm::InputTag>("match")),
+  useOnlyMatch_       (cfg.getParameter<bool>           ("useOnlyMatch"      )),
+  bTagAlgo_           (cfg.getParameter<std::string>    ("bTagAlgo"          )),
+  minBTagValueBJet_   (cfg.getParameter<double>         ("minBDiscBJets"     )),
+  maxBTagValueNonBJet_(cfg.getParameter<double>         ("maxBDiscLightJets" )),
+  useBTag_            (cfg.getParameter<bool>           ("useBTagging"       )),
+  maxNJets_           (cfg.getParameter<int>            ("maxNJets"          )),
+  maxNComb_           (cfg.getParameter<int>            ("maxNComb"          )),
+  maxNrIter_          (cfg.getParameter<unsigned>       ("maxNrIter"         )),
+  maxDeltaS_          (cfg.getParameter<double>         ("maxDeltaS"         )),
+  maxF_               (cfg.getParameter<double>         ("maxF"              )),
+  jetParam_           (cfg.getParameter<unsigned>       ("jetParametrisation")),
+  lepParam_           (cfg.getParameter<unsigned>       ("lepParametrisation")),
+  metParam_           (cfg.getParameter<unsigned>       ("metParametrisation")),
+  constraints_        (cfg.getParameter<std::vector<unsigned> >("constraints")),
+  mW_                 (cfg.getParameter<double>         ("mW"                )),
+  mTop_               (cfg.getParameter<double>         ("mTop"              ))
 {
   fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_,
 				  constraints(constraints_), mW_, mTop_);
@@ -105,6 +125,25 @@ template<typename LeptonCollection>
 TtSemiLepKinFitProducer<LeptonCollection>::~TtSemiLepKinFitProducer()
 {
   delete fitter;
+}
+
+template<typename LeptonCollection>
+bool TtSemiLepKinFitProducer<LeptonCollection>::doBTagging(bool& useBTag_, edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
+							   std::string& bTagAlgo_, double& minBTagValueBJet_, double& maxBTagValueNonBJet_){
+  
+  if( !useBTag_ ) {
+    return true;
+  }
+  if( useBTag_ &&
+      (*jets)[combi[TtSemiLepEvtPartons::HadB     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+      (*jets)[combi[TtSemiLepEvtPartons::LepB     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+      (*jets)[combi[TtSemiLepEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+      (*jets)[combi[TtSemiLepEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+    return true;
+  }
+  else{
+    return false;
+  }
 }
 
 template<typename LeptonCollection>
@@ -214,8 +253,8 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     for(int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt){
       // take into account indistinguishability of the two jets from the hadr. W decay,
       // reduces combinatorics by a factor of 2
-      if( combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]
-	 || useOnlyMatch_ ) {
+      if( (combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]
+	 || useOnlyMatch_ ) && doBTagging(useBTag_, jets, combi, bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_) ){
 	
 	std::vector<pat::Jet> jetCombi;
 	jetCombi.resize(nPartons);
