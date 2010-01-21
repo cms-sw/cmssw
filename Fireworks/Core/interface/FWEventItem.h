@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.36 2009/08/12 18:15:12 chrjones Exp $
+// $Id: FWEventItem.h,v 1.37 2009/08/20 00:25:50 chrjones Exp $
 //
 
 // system include files
@@ -47,6 +47,9 @@ class FWItemAccessorBase;
 
 namespace fwlite {
    class Event;
+}
+namespace fireworks {
+   class Context;
 }
 
 class FWEventItem
@@ -119,6 +122,11 @@ public:
    bool isCollection() const;
 
    //convenience methods
+
+   const fireworks::Context& context () const {
+      return *m_context;
+   }
+
    FWModelChangeManager* changeManager() const {
       return m_context->modelChangeManager();
    }
@@ -210,7 +218,7 @@ private:
    void getPrimaryData() const;
    void runFilter();
    // ---------- member data --------------------------------
-   fireworks::Context* m_context;
+   const fireworks::Context* m_context;
    unsigned int m_id;
    std::string m_name;
    const TClass* m_type;

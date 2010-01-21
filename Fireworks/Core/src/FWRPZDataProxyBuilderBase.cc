@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.10 2009/10/28 14:46:16 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.11 2009/10/31 21:51:31 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
 
@@ -43,10 +44,6 @@ FWRPZDataProxyBuilderBase::FWRPZDataProxyBuilderBase() :
 {
 }
 
-// FWRPZDataProxyBuilderBase::FWRPZDataProxyBuilderBase(const FWRPZDataProxyBuilderBase& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWRPZDataProxyBuilderBase::~FWRPZDataProxyBuilderBase()
 {
@@ -307,3 +304,8 @@ FWRPZDataProxyBuilderBase::useCalo(TEveCaloDataHist*)
 {
 }
 
+const fireworks::Context&
+FWRPZDataProxyBuilderBase::context() const
+{
+   return m_item->context();
+}

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:27 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.h,v 1.5 2009/10/28 14:46:16 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.h,v 1.6 2009/10/31 21:51:30 chrjones Exp $
 //
 
 // system include files
@@ -35,6 +35,10 @@ class FWEventItem;
 class FWRhoPhiZView;
 class TEveCaloDataHist;
 
+namespace fireworks {
+   class Context;
+}
+
 class FWRPZDataProxyBuilderBase
 {
 
@@ -44,9 +48,11 @@ public:
 
    // ---------- const member functions ---------------------
 
+   const fireworks::Context& context() const;
+
    // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
    void setItem(const FWEventItem* iItem);
 
    void itemChanged(const FWEventItem*);
@@ -62,7 +68,7 @@ public:
    float layer() const {
       return m_layer;
    }
-
+   
    static
    void setUserData(const FWEventItem* iItem,
                     TEveElementList* iElements,

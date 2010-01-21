@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DDataProxyBuilder.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FW3DDataProxyBuilder.cc,v 1.5 2009/10/28 14:46:17 chrjones Exp $
 //
 
 // system include files
@@ -224,4 +224,10 @@ FW3DDataProxyBuilder::modelChanges(const FWModelIds& iIds,
 std::string FW3DDataProxyBuilder::typeOfBuilder()
 {
    return std::string();
+}
+
+const fireworks::Context&
+FW3DDataProxyBuilder::context() const
+{
+   return m_item->context();
 }

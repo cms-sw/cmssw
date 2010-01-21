@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DDataProxyBuilder.h,v 1.4 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FW3DDataProxyBuilder.h,v 1.5 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -35,6 +35,10 @@ class TEveElement;
 class FWModelId;
 class TEveCaloDataHist;
 
+namespace fireworks {
+   class Context;
+}
+
 class FW3DDataProxyBuilder
 {
 
@@ -43,6 +47,8 @@ public:
    virtual ~FW3DDataProxyBuilder();
 
    // ---------- const member functions ---------------------
+
+   const fireworks::Context& context() const;
 
    // ---------- static member functions --------------------
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
