@@ -44,7 +44,7 @@ void L1Reader::dump(std::ostream & out) const {
 
 void L1Reader::init(const Data & data) {
   const L1GtTriggerMenu & menu = data.l1tMenu();
-  const L1GtTriggerMask & mask = l1tAlgoMask();
+  const L1GtTriggerMask & mask = data.l1tAlgoMask();
 
   // clear the previous configuration
   m_triggers.clear();
@@ -71,7 +71,7 @@ void L1Reader::init(const Data & data) {
     BOOST_FOREACH(const AlgorithmMap::value_type & entry, aliasMap)
       if (boost::regex_match(entry.first, re)) {
         match = true;
-        if (data.ignoreL1Mask() or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & m_daqPartitions) == data.daqPartitions())
+        if (data.ignoreL1Mask() or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & data.daqPartitions()) == data.daqPartitions())
           m_triggers.push_back( std::make_pair(entry.first, entry.second.algoBitNumber()) );
       }
 
