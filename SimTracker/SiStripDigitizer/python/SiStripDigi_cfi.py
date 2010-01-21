@@ -66,7 +66,9 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                                Gain                       = cms.string(''),
                                #-----SiStripDigitizerAlgorithm
                                NoiseSigmaThreshold        = cms.double(2.0),
-                               electronPerAdc             = cms.double(217.0), # deco mode, see https://twiki.cern.ch/twiki/bin/view/CMS/TRKTuningDecoMC
+                               electronPerAdc             = cms.double(217.0), #obsolete, check that it can be safely removed
+                               electronPerAdcDec          = cms.double(217.0), #https://twiki.cern.ch/twiki/bin/view/CMS/TRKTuningDecoMC
+                               electronPerAdcPeak         = cms.double(262.0), #https://twiki.cern.ch/twiki/bin/view/CMS/TRKTuningPeakMC
                                FedAlgorithm               = cms.int32(4),
                                Noise                      = cms.bool(True), ## NOTE : turning Noise ON/OFF will make a big change
                                TOFCutForDeconvolution     = cms.double(50.0),
