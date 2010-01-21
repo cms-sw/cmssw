@@ -36,10 +36,6 @@ namespace edm {
       }
       branchListIndexMapper.insert(std::make_pair(oldBlix, blix));
     }
-    BranchListIndex producedBranchListIndex = breg.extra().producedBranchListIndex_;
-    if (producedBranchListIndex != std::numeric_limits<BranchListIndex>::max()) {
-      branchListIndexMapper.insert(std::make_pair(bidlists.size(), producedBranchListIndex));
-    }
   }
 
   void
@@ -56,7 +52,6 @@ namespace edm {
     }
     BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
     BranchIDToIndexMap& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
-    BranchListIndexMapper& branchListIndexMapper = breg.extra().branchListIndexMapper_;
     if (!bidlist.empty()) {
       BranchListIndex blix = breg.data().size();
       breg.extra().producedBranchListIndex_ = blix;
@@ -65,7 +60,6 @@ namespace edm {
         ProductIndex pix = i - bidlist.begin();
 	branchIDToIndexMap.insert(std::make_pair(*i, std::make_pair(blix, pix)));
       }
-      branchListIndexMapper.insert(std::make_pair(blix, blix));
     }
   }
 
@@ -74,7 +68,7 @@ namespace edm {
     BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
     BranchListIndexMapper& branchListIndexMapper = breg.extra().branchListIndexMapper_;
     for (BranchListIndexes::iterator i = indexes.begin(), e = indexes.end(); i != e; ++i) {
-      *i = branchListIndexMapper[i - indexes.begin()];
+      *i = branchListIndexMapper[*i];
     }
   }
 

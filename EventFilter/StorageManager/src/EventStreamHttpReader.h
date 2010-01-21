@@ -26,12 +26,12 @@ namespace edm
 		 edm::InputSourceDescription const& desc);
     virtual ~EventStreamHttpReader();
 
-    virtual std::auto_ptr<edm::EventPrincipal> read();
+    virtual edm::EventPrincipal* read();
     void readHeader();
     void registerWithEventServer();
 
   private:  
-    std::auto_ptr<edm::EventPrincipal> getOneEvent();
+    edm::EventPrincipal* getOneEvent();
 
     std::string sourceurl_;
     char eventurl_[256];

@@ -35,41 +35,6 @@ class L1BitComputer : public VariableComputer {
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-class HLTBitComputer : public VariableComputer {
- public:
-  HLTBitComputer(CachingVariable::CachingVariableFactoryArg arg):VariableComputer(arg){
-    src_=edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig);
-    HLTConfigProvider provider;
-    provider.init(src_.process());
-    validTriggerNames_ =  provider.triggerNames();
-    for (uint iT=0;iT!=validTriggerNames_.size();++iT){
-      TString tname(validTriggerNames_[iT]);
-      tname.ReplaceAll("HLT_","");//remove the "HLT_" prefix
-      declare(std::string(tname));
-    }
-  }
-    ~HLTBitComputer(){}
-    void compute(const edm::Event & iEvent) const{
-      edm::Handle<edm::TriggerResults> trh;
-      iEvent.getByLabel(src_,trh);
-      if (!trh.isValid()) doesNotCompute();
-      triggerNames_.init(*trh);
-      for (uint iT=0;iT!=validTriggerNames_.size();++iT){
-	
-	TString tname(validTriggerNames_[iT]);
-	tname.ReplaceAll("HLT_","");
-	double r=trh->accept(triggerNames_.triggerIndex(validTriggerNames_[iT]));
-	assign(std::string(tname),r);
-      }
-      
-    }
- private:
-    edm::InputTag src_;
-    std::vector<std::string> validTriggerNames_;
-    mutable edm::TriggerNames triggerNames_;
-};
 
 class HLTBitVariable : public CachingVariable {
  public:

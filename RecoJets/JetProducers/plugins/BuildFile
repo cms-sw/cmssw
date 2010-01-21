@@ -5,6 +5,6 @@
   <use name=DataFormats/JetReco>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/Records>
-  <use name=PhysicsTools/UtilAlgos>
+  <use name=CommonTools/UtilAlgos>
   <use name=fastjet>
 </library>

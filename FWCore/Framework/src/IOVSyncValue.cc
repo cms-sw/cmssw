@@ -8,14 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:35 EDT 2005
-// $Id: IOVSyncValue.cc,v 1.5 2007/04/09 23:08:20 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //
 // constants, enums and typedefs
@@ -79,6 +79,11 @@ haveID_(true), haveTime_(true)
 //
 // const member functions
 //
+void 
+IOVSyncValue::throwInvalidComparison() const {
+  throw cms::Exception("InvalidIOVSyncValueComparison")
+    <<"Attempted to compare a time-only and a run/lumi/event-only IOVSyncValue. Please report this error to the framework experts.";
+}
 
 //
 // static member functions

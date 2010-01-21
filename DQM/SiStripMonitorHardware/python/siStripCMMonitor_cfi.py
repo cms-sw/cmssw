@@ -54,30 +54,6 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
   MedianAPV1minusAPV0HistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),
-  PrevmedianAPV0vsAPV0HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV0minusAPV0HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV0vsAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV0minusAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV1vsAPV0HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV1minusAPV0HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV1vsAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV1minusAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
   MedianAPV1minusAPV0vsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),
@@ -85,18 +61,6 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
     Enabled = cms.untracked.bool(True)
     ),
   MedianAPV0minusAPV1minusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV0minusAPV1minusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  PrevmedianAPV1minusAPV1minusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  MedianAPV1minusprevAPV0minusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
-    Enabled = cms.untracked.bool(True)
-    ),
-  MedianAPV1minusprevAPV1minusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),
   MedianAPV1vsAPV0perFEDHistogramConfig = cms.untracked.PSet(

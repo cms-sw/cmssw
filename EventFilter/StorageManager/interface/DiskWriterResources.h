@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DiskWriterResources.h,v 1.3.4.1 2009/09/25 09:57:43 mommsen Exp $
 /// @file: DiskWriterResources.h 
 
 
@@ -12,6 +12,7 @@
 #include "boost/thread/mutex.hpp"
 
 #include <deque>
+#include <stdint.h>
 
 
 namespace stor
@@ -22,8 +23,8 @@ namespace stor
    * and need to be accessed from multiple threads.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.3.4.1 $
+   * $Date: 2009/09/25 09:57:43 $
    */
 
   class DiskWriterResources

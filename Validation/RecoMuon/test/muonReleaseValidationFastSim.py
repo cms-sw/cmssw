@@ -10,18 +10,22 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="False"
+FastSimUse="True"
 
-#Reference release
-NewRelease='CMSSW_3_3_0_pre1'
+#Release to be validated:
+NewRelease='CMSSW_3_4_0_pre5'
 
 # startup and ideal sample list
-#startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['RelValTTbar','RelValZMM']
-#startupsamples= ['RelValCosmics']
+if (FastSimUse=="True"):
+    startupsamples= ['']
+    idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100']
+else:
+    startupsamples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
+    idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
 
+#startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 #idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
+#startupsamples= ['RelValCosmics']
 #idealsamples= ['']
 
 
@@ -43,8 +47,8 @@ Tracksname=''
 #   -digi2track_and_TP
 #   -harvesting
 
-Sequence='only_validation_and_TP'
-#Sequence='harvesting'
+#Sequence='only_validation_and_TP'
+Sequence='harvesting'
 
 Submit=False
 #DBS=False  # Ineffective...
@@ -55,8 +59,8 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_31X_V5'
-StartupTagUse='STARTUP31X_V4'
+IdealTagUse='MC_3XY_V12'
+StartupTagUse='STARTUP3X_V11'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
 ReferenceSelection='IDEAL_31X__noPU'
@@ -68,9 +72,9 @@ if (FastSimUse=="True"):
 else:
     NewSelectionLabel=''
 
-#WorkDirBase = '/tmp/aperrott'
+WorkDirBase = '/tmp/aperrott/'+NewRelease+'/src/Validation/RecoMuon/test'
 #WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
-WorkDirBase = '/afs/cern.ch/user/a/aperrott/scratch0/'+NewRelease+'/src/Validation/RecoMuon/test'
+#WorkDirBase = '/afs/cern.ch/user/a/aperrott/scratch0/'+NewRelease+'/src/Validation/RecoMuon/test'
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'

@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.25 2009/08/28 19:06:42 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.26 2009/09/18 17:26:41 dutta Exp $
 //
 
 #include <iostream>
@@ -103,7 +103,8 @@ std::string SiStripFolderOrganizer::getSiStripControlFolder(
     }
   }
   //   }
-  return lokal_folder.str();
+  string folder_name = lokal_folder.str(); 
+  return folder_name;
 }
 
 
@@ -179,6 +180,7 @@ void SiStripFolderOrganizer::getSubDetLayerFolderName(std::stringstream& ss, SiS
 
 
 void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, string& lokal_folder){
+  lokal_folder = ""; 
   if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
     return;
   }

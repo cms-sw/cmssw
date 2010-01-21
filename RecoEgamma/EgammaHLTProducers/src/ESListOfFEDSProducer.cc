@@ -111,7 +111,7 @@ ESListOfFEDSProducer::~ESListOfFEDSProducer() {
 }
 
 
-void ESListOfFEDSProducer::beginJob(const edm::EventSetup& c){
+void ESListOfFEDSProducer::beginJob(){
 }
 
 void ESListOfFEDSProducer::endJob(){

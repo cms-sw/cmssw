@@ -29,21 +29,6 @@ chargeLR() const {
 			 accumulate(max+1, end, uint16_t(0) ) );
 }
 
-
-float SiStripClusterInfo::
-variance() const {
-  float q(0), x1(0), x2(0);
-  for(std::vector<uint8_t>::const_iterator 
-	begin(stripCharges().begin()), end(stripCharges().end()), it(begin); 
-      it!=end; ++it) {
-    unsigned i = it-begin;
-    q  += (*it);
-    x1 += (*it) * (i+0.5);
-    x2 += (*it) * (i*i+i+1./3);
-  }
-  return (x2 - x1*x1/q ) / q;
-}
-
 std::vector<float> SiStripClusterInfo::
 stripNoisesRescaledByGain() const { 
   std::vector<float> noises = stripNoises();  
@@ -160,4 +145,3 @@ reclusterize(const edm::ParameterSet& conf) const {
 
   return clusters;
 }
-

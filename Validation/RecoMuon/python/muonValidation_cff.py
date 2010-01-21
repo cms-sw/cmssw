@@ -33,6 +33,21 @@ glbMuonTrackVTrackAssoc.associatormap = 'tpToGlbTrackAssociation'
 glbMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
 glbMuonTrackVTrackAssoc.label = ('globalMuons',)
 
+staSETMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+staSETMuonTrackVTrackAssoc.associatormap = 'tpToStaSETTrackAssociation'
+staSETMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+staSETMuonTrackVTrackAssoc.label = ('standAloneSETMuons',)
+
+staSETUpdMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+staSETUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaSETUpdTrackAssociation'
+staSETUpdMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+staSETUpdMuonTrackVTrackAssoc.label = ('standAloneSETMuons:UpdatedAtVtx',)
+
+glbSETMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+glbSETMuonTrackVTrackAssoc.associatormap = 'tpToGlbSETTrackAssociation'
+glbSETMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+glbSETMuonTrackVTrackAssoc.label = ('globalSETMuons',)
+
 tevMuonFirstTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 tevMuonFirstTrackVTrackAssoc.associatormap = 'tpToTevFirstTrackAssociation'
 tevMuonFirstTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
@@ -69,6 +84,21 @@ glbMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrac
 glbMuonTrackVMuonAssoc.associatormap = 'tpToGlbMuonAssociation'
 glbMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 glbMuonTrackVMuonAssoc.label = ('globalMuons',)
+
+staSETMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+staSETMuonTrackVMuonAssoc.associatormap = 'tpToStaSETMuonAssociation'
+staSETMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+staSETMuonTrackVMuonAssoc.label = ('standAloneSETMuons',)
+
+staSETUpdMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+staSETUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaSETUpdMuonAssociation'
+staSETUpdMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+staSETUpdMuonTrackVMuonAssoc.label = ('standAloneSETMuons:UpdatedAtVtx',)
+
+glbSETMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+glbSETMuonTrackVMuonAssoc.associatormap = 'tpToGlbSETMuonAssociation'
+glbSETMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+glbSETMuonTrackVMuonAssoc.label = ('globalSETMuons',)
 
 tevMuonFirstTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 tevMuonFirstTrackVMuonAssoc.associatormap = 'tpToTevFirstMuonAssociation'
@@ -124,11 +154,16 @@ muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc+staMuonTrackVTrackAsso
 muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVTrackAssoc+tevMuonPickyTrackVTrackAssoc
                                     +tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc)
 
+muonValidationSET_seq = cms.Sequence(staSETMuonTrackVTrackAssoc+staSETUpdMuonTrackVTrackAssoc+glbSETMuonTrackVTrackAssoc)
+#                                     +staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
+
 muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc+staCosmicMuonTrackVTrackAssoc+glbCosmicMuonTrackVTrackAssoc
                                  +staCosmicMuonTrackVMuonAssoc+glbCosmicMuonTrackVMuonAssoc)
 
 # The muon association and validation sequence
-#recoMuonValidation = cms.Sequence(muonAssociation_seq*muonValidation_seq)
-recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidation_seq)+(muonAssociationTEV_seq*muonValidationTEV_seq))
+recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidation_seq)
+                                  +(muonAssociationTEV_seq*muonValidationTEV_seq)
+                                  +(muonAssociationSET_seq*muonValidationSET_seq)
+                                  )
 
 recoCosmicMuonValidation = cms.Sequence(muonAssociationCosmic_seq*muonValidationCosmic_seq)

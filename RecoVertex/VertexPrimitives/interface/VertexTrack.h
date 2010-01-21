@@ -5,8 +5,6 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-#include "Math/SMatrix.h"
-#include "DataFormats/CLHEP/interface/Migration.h"
 
 /** Track information relative to a track-to-vertex association. 
  *  The track weight corresponds to the distance 
@@ -21,7 +19,6 @@ public:
   typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
   typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepStd<double,N-2,N-2> > AlgebraicMatrixMM;
   typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
-  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
 
   //typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
   typedef ReferenceCountingPointer<LinearizedTrackState<N> > RefCountedLinearizedTrackState;
@@ -47,7 +44,7 @@ public:
   VertexTrack(const RefCountedLinearizedTrackState lt, 
 	      const VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
-	      float smoothedChi2, const AlgebraicSymMatrixOO & fullCov);
+	      float smoothedChi2, const AlgebraicMatrix3M & tVCov);
 
   /** Access methods
    */ 
@@ -56,7 +53,6 @@ public:
   float weight() const { return theWeight; }
   bool refittedStateAvailable() const { return stAvailable; }
   bool tkToVertexCovarianceAvailable() const { return covAvailable; }
-  bool fullCovarianceAvailable() const { return covAvailable; }
 
   /**
    * The smoother track-chi2 (can be used to test the track-vertex compatibility).
@@ -76,17 +72,13 @@ public:
     return theRefittedState;
   }
 
-//   /** Track to vertex covariance 
-//    */   
-//   AlgebraicMatrix3M tkToVtxCovariance() const;
-
   /** Track to vertex covariance 
    */   
-  AlgebraicSymMatrixOO fullCovariance() const {
+  AlgebraicMatrix3M tkToVtxCovariance() const {
     if (!tkToVertexCovarianceAvailable()) {
       throw VertexException("VertexTrack::track to vertex covariance not available"); 
     }
-    return fullCovariance_;
+    return tkTVCovariance;
   }
 
   /** Equality for finding a VertexTrack in a container
@@ -110,9 +102,7 @@ private:
   bool stAvailable;
   bool covAvailable;
   RefCountedRefittedTrackState theRefittedState;
-  AlgebraicSymMatrixOO  fullCovariance_;
-  ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > b6;
-  ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> > b7;
+  AlgebraicMatrix3M  tkTVCovariance;
   float smoothedChi2_;
 };
 

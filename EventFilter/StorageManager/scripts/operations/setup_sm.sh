@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.41 2009/08/17 13:30:08 gbauer Exp $
+# $Id: setup_sm.sh,v 1.42 2009/09/18 15:26:13 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;

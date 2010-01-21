@@ -1,9 +1,9 @@
 //
-// $Id: StGenEvent.cc,v 1.8 2009/03/06 22:37:09 rwolf Exp $
+// $Id: StGenEvent.cc,v 1.9 2009/05/08 17:10:23 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
+#include "CommonTools/CandUtils/interface/pdgIdUtils.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 

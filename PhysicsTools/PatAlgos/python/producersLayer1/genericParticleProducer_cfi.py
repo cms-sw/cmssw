@@ -29,7 +29,6 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
       userFunctionLabels = cms.vstring()
     ),
 
-
     # AOD embedding
     embedTrack          = cms.bool(False),
     embedGsfTrack       = cms.bool(False), ## whether to embed in AOD externally stored gsf track
@@ -39,13 +38,16 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
     embedSuperCluster   = cms.bool(False), ## whether to embed in AOD externally stored supercluster
     embedCaloTower      = cms.bool(False), ## whether to embed in AOD externally stored calo tower
 
-    # Isolation configurables
-    isolation = cms.PSet(
-    ),
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(
     ),
 
+    # user defined isolation variables the variables defined here will be accessible
+    # via pat::GenericParticle::userIsolation(IsolationKeys key) with the key as defined in
+    # DataFormats/PatCandidates/interface/Isolation.h
+    userIsolation = cms.PSet(
+    ),
+                                           
     # any sort of "quality" value
     addQuality = cms.bool(False),
     qualitySource = cms.InputTag("REPLACE_ME"), ## must be ValueMap<float> associated to the input collection
@@ -63,5 +65,3 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
     addResolutions  = cms.bool(False),
     resolutions     = cms.PSet(),
 )
-
-

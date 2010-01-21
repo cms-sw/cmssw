@@ -1679,6 +1679,7 @@ namespace edm {
       schedule_->writeLumi(principalCache_.lowestLumi());
       principalCache_.deleteLowestLumi();      
     }
+    input_->respondToClearingLumiCache();
     FDEBUG(1) << "\twriteLumiCache\n";
   }
 
@@ -1687,6 +1688,7 @@ namespace edm {
       schedule_->writeRun(principalCache_.lowestRun());
       principalCache_.deleteLowestRun();      
     }
+    input_->respondToClearingRunCache();
     FDEBUG(1) << "\twriteRunCache\n";
   }
 

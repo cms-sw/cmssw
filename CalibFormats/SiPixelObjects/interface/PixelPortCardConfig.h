@@ -1,5 +1,5 @@
-#ifndef PixelPortCardConfig_h
-#define PixelPortCardConfig_h
+#ifndef PixelTKPCIFECConfig_h
+#define PixelTKPCIFECConfig_h
 /**
 * \file CalibFormats/SiPixelObjects/interface/PixelPortCardConfig.h
 * \brief This class specifies the settings on the TKPCIFEC and the settings on the portcard

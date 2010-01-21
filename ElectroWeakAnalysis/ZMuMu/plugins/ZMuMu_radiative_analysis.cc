@@ -142,7 +142,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   // ZMuMu
   if (zMuMu->size() > 0 ) {
     event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
-     for(size_t i = 0; i < zMuMu->size(); ++i) { //loop on candidates
+     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
      
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
@@ -167,8 +167,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  FSR_mu1 = false;
 	  
 	  //Isodeposit
-	  const pat::IsoDeposit * mu0TrackIso =mu0.trackerIsoDeposit();
-	  const pat::IsoDeposit * mu1TrackIso =mu1.trackerIsoDeposit();
+	  const pat::IsoDeposit * mu0TrackIso =mu0.isoDeposit(pat::TrackIso);
+	  const pat::IsoDeposit * mu1TrackIso =mu1.isoDeposit(pat::TrackIso);
 	  Direction mu0Dir = Direction(mu0.eta(),mu0.phi());
 	  Direction mu1Dir = Direction(mu1.eta(),mu1.phi());
 	  
@@ -299,7 +299,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   // ZMuSa
   if (zMuSa->size() > 0 ) {
     event.getByLabel(zMuSaMatchMap_, zMuSaMatchMap); 
-     for(size_t i = 0; i < zMuSa->size(); ++i) { //loop on candidates
+     for(unsigned int i = 0; i < zMuSa->size(); ++i) { //loop on candidates
      
       const Candidate & zMuSaCand = (*zMuSa)[i]; //the candidate
       CandidateBaseRef zMuSaCandRef = zMuSa->refAt(i);
@@ -323,8 +323,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  FSR_mu1 = false;
 	  zmscounter++;	  
 	  //Isodeposit
-	  const pat::IsoDeposit * mu0TrackIso =mu0.trackerIsoDeposit();
-	  const pat::IsoDeposit * mu1TrackIso =mu1.trackerIsoDeposit();
+	  const pat::IsoDeposit * mu0TrackIso =mu0.isoDeposit(pat::TrackIso);
+	  const pat::IsoDeposit * mu1TrackIso =mu1.isoDeposit(pat::TrackIso);
 	  Direction mu0Dir = Direction(mu0.eta(),mu0.phi());
 	  Direction mu1Dir = Direction(mu1.eta(),mu1.phi());
 	  
@@ -429,7 +429,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   //ZMuTk  
   if (zMuTk->size() > 0 ) {
     event.getByLabel(zMuTkMatchMap_, zMuTkMatchMap); 
-    for(size_t i = 0; i < zMuTk->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuTk->size(); ++i) { //loop on candidates
       const Candidate & zMuTkCand = (*zMuTk)[i]; //the candidate
       CandidateBaseRef zMuTkCandRef = zMuTk->refAt(i);
       CandidateBaseRef dau0 = zMuTkCand.daughter(0)->masterClone();
@@ -451,8 +451,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  cout<<"          ZmuTk cuts && matched"<<endl;
 	  zmtcounter++;
 	  //Isodeposit
-	  const pat::IsoDeposit * muTrackIso =mu0.trackerIsoDeposit();
-	  const pat::IsoDeposit * tkTrackIso =mu1.trackerIsoDeposit();
+	  const pat::IsoDeposit * muTrackIso =mu0.isoDeposit(pat::TrackIso);
+	  const pat::IsoDeposit * tkTrackIso =mu1.isoDeposit(pat::TrackIso);
 	  Direction muDir = Direction(mu0.eta(),mu0.phi());
 	  Direction tkDir = Direction(mu1.eta(),mu1.phi());
 	  

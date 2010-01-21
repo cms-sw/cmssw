@@ -2,7 +2,6 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "CoralBase/TimeStamp.h"
 #include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
-#include "CondCore/DBCommon/interface/TagInfo.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -53,13 +52,6 @@ void popcon::SiStripModuleHVHandler::getNewObjects()
 void popcon::SiStripModuleHVHandler::setForTransfer() { 
   edm::LogInfo("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "]" << std::endl;
 
-  // retrieve the last object transferred
-  if (tagInfo().size ) {
-    Ref payload = lastPayload();
-    SiStripDetVOff * lastV = new SiStripDetVOff( *payload );
-    modHVBuilder->retrieveLastSiStripDetVOff( lastV, tagInfo().lastInterval.first );
-  }
-  
   // build the object!
   resultVec.clear();
   modHVBuilder->BuildModuleHVObj();
@@ -98,9 +90,9 @@ void popcon::SiStripModuleHVHandler::setForTransfer() {
 	this->m_to_transfer.push_back(resultVec[i]);
       }
     }
-    
+
     LogTrace("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] " << ss.str();
-    
+
   } else {
     edm::LogError("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] " 
 					    << m_name << "  : NULL pointer reported by SiStripModuleHVBuilder"

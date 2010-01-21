@@ -48,7 +48,6 @@ Profiler = {
     'SimpleMemReport'         : 'SimpleMem_Parser',
     'EdmSize'                 : 'Edm_Size',
     'IgProfperf'              : 'IgProf_perf.PERF_TICKS',
-    'IgProfperf @@@ reuse'    : 'IgProf_perf.PERF_TICKS',
     'IgProfMemTotal'          : 'IgProf_mem.MEM_TOTAL',
     'IgProfMemTotal @@@ reuse': 'IgProf_mem.MEM_TOTAL',
     'IgProfMemLive'           : 'IgProf_mem.MEM_LIVE',
@@ -394,15 +393,10 @@ def getProfileArray(ProfileCode):
     if _noprof:
         Profile.append(AllowedProfile[-1])
     else:
-        #FIXME:
-        #Horrible code!
         for i in range(10):
             if str(i) in ProfileCode:
-                firstCase = (i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode)) \
-                            or (i == 1 and str(2) in ProfileCode)
-                secCase   = (i==4 and str(7) in ProfileCode) \
-                            or (i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode)) \
-                            or (i == 6 and str(7) in ProfileCode)
+                firstCase = i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode) or i == 1 and str(2) in ProfileCode
+                secCase   = i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode) or i == 6 and str(7) in ProfileCode
                 
                 if firstCase or secCase:
                     Profile.append(AllowedProfile[i] + ' @@@ reuse')
@@ -430,7 +424,7 @@ def pythonFragment(step,cmsdriverOptions):
     # Convenient CustomiseFragment dictionary to map the correct customise Python fragment for cmsDriver.py:
     #It is now living in cmsPerfCommons.py!
     
-    if "--pileup" in cmsdriverOptions and not (step == "HLT" or step.startswith("RAW2DIGI")):
+    if "--pileup" in cmsdriverOptions:
         return CustomiseFragment['DIGI-PILEUP']
     elif CustomiseFragment.has_key(step):
         return CustomiseFragment[step] 
@@ -561,12 +555,7 @@ def writeCommands(simcandles,
     else:
         if not (steps[0] == AllSteps[0]) and (steps[0].split("-")[0] != "GEN,SIM"):
             #print "userInputFile: %s"%userInputFile
-            if ("--pileup" in cmsDriverOptions) and (steps[0]=="HLT" or steps[0].startswith("RAW2DIGI")) :
-                userInputFile = "../INPUT_PILEUP_EVENTS.root"
-                stepIndex=AllSteps.index(steps[0].split("-")[0].split(":")[0])
-                rootFileStr=""
-                
-            elif userInputFile == "":
+            if userInputFile == "":
                 #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
                 (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,pileup,bypasshlt)
             else: #To be implemented if we want to have input file capability beyond the HLT and RAW2DIGI-RECO workflows
@@ -576,7 +565,7 @@ def writeCommands(simcandles,
                 #else:
                     #print "There!"
                 #    stepIndex=AllSteps.index(steps[0])
-                rootFileStr=""
+                rootFileStr=""    
             #Now take care of setting the indeces and input root file name right for the profiling part...
             if fstROOTfile:
                 fstROOTfileStr = rootFileStr
@@ -741,7 +730,6 @@ def writeCommands(simcandles,
                                CustomiseFragment['DIGI'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
                                cmsDriverOptions #For FASTSIM PU need the whole cmsDriverOptions! [:cmsDriverOptions.index('--pileup')] 
                            ))
-                    
                     else:
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
@@ -768,8 +756,7 @@ def writeCommands(simcandles,
                     #[3-Catch the case of ANALYSE by itself and raise an exception]
                     #4-Catch the case of ANALYSE proper, and do nothing in that case (already taken care by the second lines done after PERF_TICKS, MEM_TOTAL and MEM_LIVE.
                     #print "EEEEEEE %s"%prof
-                    #We actually want the analyse to be used also for IgProf!
-                    if 'IgProf' in prof: # and 'perf' not in prof:
+                    if 'IgProf' in prof and 'perf' not in prof:
                         
                         if 'Analyse' not in prof and (lambda x: 'Analyse' in x,Profile):
                                 

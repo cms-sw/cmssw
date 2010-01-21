@@ -1,5 +1,5 @@
 /**
- * $Id: SharedResources.cc,v 1.4 2009/07/20 13:07:28 mommsen Exp $
+ * $Id: SharedResources.cc,v 1.4.4.1 2009/09/25 09:57:49 mommsen Exp $
 /// @file: SharedResources.cc
  */
 
@@ -13,19 +13,70 @@
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
+#include "xcept/tools.h"
 
 namespace stor
 {
 
-  void SharedResources::moveToFailedState( const std::string& reason )
+  void SharedResources::moveToFailedState( xcept::Exception& exception )
   {
-    _statisticsReporter->getStateMachineMonitorCollection().setStatusMessage( reason );
-    event_ptr stMachEvent( new Fail() );
-    // do we really want enq_wait here?
-    // it could cause deadlock if the command queue is full...
-    _commandQueue->enq_wait( stMachEvent );
-  }  
+    std::string errorMsg = "Failed to process FAIL exception: "
+      + xcept::stdformat_exception_history(exception) + " due to ";
 
+    try
+    {
+      _statisticsReporter->alarmHandler()->notifySentinel(AlarmHandler::FATAL, exception);
+      _statisticsReporter->getStateMachineMonitorCollection().setStatusMessage( 
+        xcept::stdformat_exception_history(exception)
+      );
+      event_ptr stMachEvent( new Fail() );
+      // wait maximum 5 seconds until enqueuing succeeds
+      if ( ! _commandQueue->enq_timed_wait( stMachEvent, 5 ) )
+      {
+        XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
+          sentinelException, "Failed to enqueue FAIL event", exception );
+        _statisticsReporter->alarmHandler()->
+          notifySentinel(AlarmHandler::FATAL, sentinelException);
+      }
+    }
+    catch(xcept::Exception &e)
+    {
+      errorMsg += xcept::stdformat_exception_history(e);
+      localDebug( errorMsg );
+    }
+    catch(std::exception &e)
+    {
+      errorMsg += e.what();
+      localDebug( errorMsg );
+    }
+    catch( ... )
+    {
+      errorMsg += "an unknown exception.";
+      localDebug( errorMsg );
+    }
+  }
+
+
+  void SharedResources::localDebug( const std::string& message ) const
+  {
+    std::ostringstream fname_oss;
+    fname_oss << "/tmp/storage_manager_debug_" << 
+      _configuration->getDiskWritingParams()._smInstanceString;
+    const std::string fname = fname_oss.str();
+    std::ofstream f( fname.c_str() );
+    if( f.is_open() )
+    {
+      try
+      {
+        f << message << std::endl;
+        f.close();
+      }
+      catch(...)
+      {}
+    }
+  }
+
+    
 } // namespace stor
 
 /// emacs configuration

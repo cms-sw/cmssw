@@ -146,13 +146,13 @@ ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
   ptBins = 4;
   double  etaRangeTmp[7] = {-2.,-1.2,-0.8,0.,0.8,1.2,2.};
   double  ptRangeTmp[5] = {20.,40.,60.,80.,100.};
-  for (size_t i=0;i<=etaBins;i++) etaRange[i] = etaRangeTmp[i];
-  for (size_t i=0;i<=ptBins;i++) ptRange[i] = ptRangeTmp[i];
+  for (unsigned int i=0;i<=etaBins;i++) etaRange[i] = etaRangeTmp[i];
+  for (unsigned int i=0;i<=ptBins;i++) ptRange[i] = ptRangeTmp[i];
 
   // eta histograms creation
   cout << "eta istograms creation " << endl;
 
-  for (size_t i=0;i<etaBins;i++) {
+  for (unsigned int i=0;i<etaBins;i++) {
     cout << " bin eta plus  " << i << endl;
     // muon plus
     double range0 = etaRange[i];
@@ -206,7 +206,7 @@ ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
   // pt histograms creation
   cout << "pt istograms creation " << endl;
 
-  for (size_t i=0;i<ptBins;i++) {
+  for (unsigned int i=0;i<ptBins;i++) {
     double range0 = ptRange[i];
     double range1= ptRange[i+1];
     // muon plus
@@ -299,7 +299,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
   bool zMuMu_found = false;
   // loop on ZMuMu
   if (zMuMu->size() > 0 ) {
-    for(size_t i = 0; i < zMuMu->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
 
@@ -349,7 +349,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 	      
 	      // check the cynematics to fill correct histograms
 	      
-	      for (size_t j=0;j<etaBins;j++) {  // eta Bins loop
+	      for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
 		double range0 = etaRange[j];
 		double range1= etaRange[j+1];
 
@@ -367,7 +367,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 		  }
 	      } // end loop etaBins
 	      
-	      for (size_t j=0;j<ptBins;j++) {  // pt Bins loop
+	      for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
 		double range0pt = ptRange[j];
 		double range1pt = ptRange[j+1];
 		// pt histograms
@@ -403,7 +403,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 	      if (charge<0) h_zmm1HLTminus_mass->Fill(mass);  
 	      if (charge>0) h_zmm1HLTplus_mass->Fill(mass);  
 
-	      for (size_t j=0;j<etaBins;j++) {  // eta Bins loop
+	      for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
 		double range0 = etaRange[j];
 		double range1= etaRange[j+1];
 		// eta histograms fill the bin of the muon not HLT matched
@@ -413,7 +413,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 		    if (charge>0) hmumu1HLTplus_eta[j]->Fill(mass);
 		  }
 	      } // end loop etaBins
-	      for (size_t j=0;j<ptBins;j++) {  // pt Bins loop
+	      for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
 		double range0 = ptRange[j];
 		double range1= ptRange[j+1];
 		// pt histograms
@@ -442,7 +442,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
   bool zMuSta_found = false;
   if (!zMuMu_found && zMuStandAlone->size() > 0 ) {
     event.getByLabel(zMuStandAloneMatchMap_, zMuStandAloneMatchMap); 
-    for(size_t i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
       CandidateBaseRef zMuStandAloneCandRef = zMuStandAlone->refAt(i);
       GenParticleRef zMuStandAloneMatch = (*zMuStandAloneMatchMap)[zMuStandAloneCandRef];
@@ -500,7 +500,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 	if (charge<0) h_zmsminus_mass->Fill(mass);
 	if (charge>0) h_zmsplus_mass->Fill(mass);
 
-	for (size_t j=0;j<etaBins;j++) {  // eta Bins loop
+	for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
 	  double range0 = etaRange[j];
 	  double range1= etaRange[j+1];
 	  // eta histograms
@@ -509,7 +509,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 	    if (charge>0)  hmustaplus_eta[j]->Fill(mass);
 	  }
 	} // end loop etaBins
-	for (size_t j=0;j<ptBins;j++) {  // pt Bins loop
+	for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
 	  double range0 = ptRange[j];
 	  double range1= ptRange[j+1];
 	  // pt histograms
@@ -528,7 +528,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
   //  bool zMuTrack_found = false;
   if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
     event.getByLabel(zMuTrackMatchMap_, zMuTrackMatchMap); 
-    for(size_t i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrackCandRef = zMuTrack->refAt(i);
       const Candidate * lep0 = zMuTrackCand.daughter( 0 );
@@ -561,7 +561,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 	if (charge1<0) h_zmtminus_mass->Fill(mass);
 	if (charge1>0) h_zmtplus_mass->Fill(mass);
 
-	for (size_t j=0;j<etaBins;j++) {  // eta Bins loop
+	for (unsigned int j=0;j<etaBins;j++) {  // eta Bins loop
 	  double range0 = etaRange[j];
 	  double range1= etaRange[j+1];
 	  // eta histograms
@@ -570,7 +570,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 	    if (charge1>0)  hmutrackplus_eta[j]->Fill(mass);  // just check muon1 (mu0 is global by definition)
 	  }
 	} // end loop etaBins
-	for (size_t j=0;j<ptBins;j++) {  // pt Bins loop
+	for (unsigned int j=0;j<ptBins;j++) {  // pt Bins loop
 	  double range0 = ptRange[j];
 	  double range1= ptRange[j+1];
 	  // pt histograms
@@ -609,7 +609,7 @@ float ZMuMu_efficiencyAnalyzer::getParticlePt(const int ipart, const Candidate *
   int partId2 = dauGen2->pdgId();
   float ptpart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -617,7 +617,7 @@ float ZMuMu_efficiencyAnalyzer::getParticlePt(const int ipart, const Candidate *
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -625,7 +625,7 @@ float ZMuMu_efficiencyAnalyzer::getParticlePt(const int ipart, const Candidate *
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -642,7 +642,7 @@ float ZMuMu_efficiencyAnalyzer::getParticleEta(const int ipart, const Candidate 
   int partId2 = dauGen2->pdgId();
   float etapart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -650,7 +650,7 @@ float ZMuMu_efficiencyAnalyzer::getParticleEta(const int ipart, const Candidate 
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -658,7 +658,7 @@ float ZMuMu_efficiencyAnalyzer::getParticleEta(const int ipart, const Candidate 
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -675,7 +675,7 @@ float ZMuMu_efficiencyAnalyzer::getParticlePhi(const int ipart, const Candidate 
   int partId2 = dauGen2->pdgId();
   float phipart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -683,7 +683,7 @@ float ZMuMu_efficiencyAnalyzer::getParticlePhi(const int ipart, const Candidate 
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -691,7 +691,7 @@ float ZMuMu_efficiencyAnalyzer::getParticlePhi(const int ipart, const Candidate 
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -708,7 +708,7 @@ Particle::LorentzVector ZMuMu_efficiencyAnalyzer::getParticleP4(const int ipart,
   int partId2 = dauGen2->pdgId();
   Particle::LorentzVector p4part(0.,0.,0.,0.);
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();
@@ -716,7 +716,7 @@ Particle::LorentzVector ZMuMu_efficiencyAnalyzer::getParticleP4(const int ipart,
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();
@@ -724,7 +724,7 @@ Particle::LorentzVector ZMuMu_efficiencyAnalyzer::getParticleP4(const int ipart,
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();

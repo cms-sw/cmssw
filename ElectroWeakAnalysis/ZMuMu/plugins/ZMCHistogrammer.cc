@@ -8,7 +8,7 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   edm::InputTag  z_, gen_, match_;
-  size_t nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
+  unsigned int nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
   double massMax_, ptMax_, angMax_, massResMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
   TH1F *h_invmMuMu_;
@@ -46,10 +46,10 @@ ZMCHistogrammer::ZMCHistogrammer(const ParameterSet& pset) :
   z_(pset.getParameter<InputTag>("z")),
   gen_(pset.getParameter<InputTag>("gen")), 
   match_(pset.getParameter<InputTag>("match")), 
-  nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")),
-  nbinsAng_(pset.getUntrackedParameter<size_t>("nbinsAng")),
-  nbinsMassRes_(pset.getUntrackedParameter<size_t>("nbinsMassRes")),
+  nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
+  nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
+  nbinsMassRes_(pset.getUntrackedParameter<unsigned int>("nbinsMassRes")),
   massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
   angMax_(pset.getUntrackedParameter<double>("angMax")), 
@@ -145,7 +145,7 @@ void ZMCHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& se
     weight > 0 ?  weight=1. : weight=-1.;
   }
 
-  for(size_t i = 0; i < z->size(); ++i) {
+  for(unsigned int i = 0; i < z->size(); ++i) {
     const Candidate &zCand = (*z)[i];
     h_mZ_->Fill(zCand.mass(),weight );
     h_ptZ_->Fill(zCand.pt(),weight);
@@ -165,13 +165,13 @@ void ZMCHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& se
       h_rapidityResZ_->Fill(zCandRef->rapidity() - zMCMatch->rapidity());
       const Candidate * dau0 = zMCMatch->daughter(0);
       const Candidate * dau1 = zMCMatch->daughter(1);
-      for(size_t i0 = 0; i0 < dau0->numberOfDaughters(); ++i0) {
+      for(unsigned int i0 = 0; i0 < dau0->numberOfDaughters(); ++i0) {
 	const Candidate * ddau0 = dau0->daughter(i0);
 	if(abs(ddau0->pdgId())==13 && ddau0->status()==1) {
 	  dau0 = ddau0; break;
 	}
       }
-      for(size_t i1 = 0; i1 < dau1->numberOfDaughters(); ++i1) {
+      for(unsigned int i1 = 0; i1 < dau1->numberOfDaughters(); ++i1) {
 	const Candidate * ddau1 = dau1->daughter(i1);
 	if(abs(ddau1->pdgId())==13 && ddau1->status()==1) {
 	  dau1 = ddau1; break;
@@ -186,7 +186,7 @@ void ZMCHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& se
     }
   }
   h_nZMC_->Fill(gen->size());
-  for(size_t i = 0; i < gen->size(); ++i) {
+  for(unsigned int i = 0; i < gen->size(); ++i) {
     const Candidate &genCand = (*gen)[i];
     if((genCand.pdgId() == 23) && (genCand.status() == 2)) //this is an intermediate Z0
       cout << ">>> intermediate Z0 found, with " << genCand.numberOfDaughters() 
@@ -202,7 +202,7 @@ void ZMCHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& se
       h_rapidityZMC_->Fill(genCand.rapidity(),weight);
       Particle::LorentzVector pZ(0, 0, 0, 0);
       int nMu = 0;
-      for(size_t j = 0; j < genCand.numberOfDaughters(); ++j) { 
+      for(unsigned int j = 0; j < genCand.numberOfDaughters(); ++j) { 
 	const Candidate *dauGen = genCand.daughter(j);
 	/*
 	if((dauGen->pdgId() == 23) && (dauGen->status() == 2)) { 
@@ -218,7 +218,7 @@ void ZMCHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& se
 	  //we are looking for photons of final state radiation
 	  cout << ">>> The muon " << j 
 	       << " has " << dauGen->numberOfDaughters() << " daughters" <<endl;
-	  for(size_t k = 0; k < dauGen->numberOfDaughters(); ++k) {
+	  for(unsigned int k = 0; k < dauGen->numberOfDaughters(); ++k) {
 	    const Candidate * dauMuGen = dauGen->daughter(k);
 	    cout << ">>> Mu " << j 
 		 << " daughter MC " << k 

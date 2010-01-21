@@ -37,11 +37,8 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 DTDataIntegrityTask.hltMode = True
 
-from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
-
 dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
                          dtSegmentAnalysisMonitor +
                          dtResolutionAnalysisMonitor +
                          dtEfficiencyMonitor +
-                         dtTriggerEfficiencyMonitor +
                          dqmInfoDT)

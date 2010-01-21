@@ -216,7 +216,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
   // loop on ZMuMu
   if (zMuMu->size() > 0 ) {
     event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
-    for(size_t i = 0; i < zMuMu->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
 
@@ -311,7 +311,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
   bool zMuSta_found = false;
   if (!zMuMu_found && zMuStandAlone->size() > 0 ) {
     event.getByLabel(zMuStandAloneMatchMap_, zMuStandAloneMatchMap); 
-    for(size_t i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
       CandidateBaseRef zMuStandAloneCandRef = zMuStandAlone->refAt(i);
       GenParticleRef zMuStandAloneMatch = (*zMuStandAloneMatchMap)[zMuStandAloneCandRef];
@@ -379,7 +379,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
   // loop on ZMuTrack
   if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
     event.getByLabel(zMuTrackMatchMap_, zMuTrackMatchMap); 
-    for(size_t i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
+    for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrackCandRef = zMuTrack->refAt(i);
       const Candidate * lep0 = zMuTrackCand.daughter( 0 );
@@ -455,7 +455,7 @@ float ZMuMu_vtxAnalyzer::getParticlePt(const int ipart, const Candidate * dauGen
   int partId2 = dauGen2->pdgId();
   float ptpart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -463,7 +463,7 @@ float ZMuMu_vtxAnalyzer::getParticlePt(const int ipart, const Candidate * dauGen
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -471,7 +471,7 @@ float ZMuMu_vtxAnalyzer::getParticlePt(const int ipart, const Candidate * dauGen
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	ptpart = dauMuGen->pt();
@@ -488,7 +488,7 @@ float ZMuMu_vtxAnalyzer::getParticleEta(const int ipart, const Candidate * dauGe
   int partId2 = dauGen2->pdgId();
   float etapart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -496,7 +496,7 @@ float ZMuMu_vtxAnalyzer::getParticleEta(const int ipart, const Candidate * dauGe
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -504,7 +504,7 @@ float ZMuMu_vtxAnalyzer::getParticleEta(const int ipart, const Candidate * dauGe
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	etapart = dauMuGen->eta();
@@ -521,7 +521,7 @@ float ZMuMu_vtxAnalyzer::getParticlePhi(const int ipart, const Candidate * dauGe
   int partId2 = dauGen2->pdgId();
   float phipart=0.;
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -529,7 +529,7 @@ float ZMuMu_vtxAnalyzer::getParticlePhi(const int ipart, const Candidate * dauGe
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -537,7 +537,7 @@ float ZMuMu_vtxAnalyzer::getParticlePhi(const int ipart, const Candidate * dauGe
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	phipart = dauMuGen->phi();
@@ -554,7 +554,7 @@ Particle::LorentzVector ZMuMu_vtxAnalyzer::getParticleP4(const int ipart, const 
   int partId2 = dauGen2->pdgId();
   Particle::LorentzVector p4part(0.,0.,0.,0.);
   if (partId0 == ipart) {
-    for(size_t k = 0; k < dauGen0->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen0->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen0->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();
@@ -562,7 +562,7 @@ Particle::LorentzVector ZMuMu_vtxAnalyzer::getParticleP4(const int ipart, const 
     }
   }
   if (partId1 == ipart) {
-    for(size_t k = 0; k < dauGen1->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen1->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen1->daughter(k);
       if(dauMuGen->pdgId() == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();
@@ -570,7 +570,7 @@ Particle::LorentzVector ZMuMu_vtxAnalyzer::getParticleP4(const int ipart, const 
     }
   }
   if (partId2 == ipart) {
-    for(size_t k = 0; k < dauGen2->numberOfDaughters(); ++k) {
+    for(unsigned int k = 0; k < dauGen2->numberOfDaughters(); ++k) {
       const Candidate * dauMuGen = dauGen2->daughter(k);
       if(abs(dauMuGen->pdgId()) == ipart && dauMuGen->status() ==1) {
 	p4part = dauMuGen->p4();

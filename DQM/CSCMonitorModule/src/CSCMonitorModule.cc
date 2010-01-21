@@ -106,7 +106,10 @@ cscdqm::MonitorObject* CSCMonitorModule::bookMonitorObject(const cscdqm::HistoBo
     me->Fill(req.default_int);
   } else 
   if (req.htype == cscdqm::FLOAT) {
-    if (req.hdef->getId() == cscdqm::h::PAR_REPORT_SUMMARY) {
+    if (req.hdef->getId() == cscdqm::h::PAR_REPORT_SUMMARY ||
+        req.hdef->getId() == cscdqm::h::PAR_CRT_SUMMARY ||
+        req.hdef->getId() == cscdqm::h::PAR_DAQ_SUMMARY ||
+        req.hdef->getId() == cscdqm::h::PAR_DCS_SUMMARY) {
       dbe->setCurrentFolder(DIR_EVENTINFO);
     } else if (cscdqm::Utility::regexMatch("^PAR_DCS_", cscdqm::h::keys[req.hdef->getId()])) {
       dbe->setCurrentFolder(DIR_DCSINFO);

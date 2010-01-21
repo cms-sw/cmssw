@@ -229,7 +229,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
     if ( PairProduction->nDaughters() ) {	
       //add a vertex to the mother particle
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+					    FSimVertexType::PAIR_VERTEX);
       
       // This was a photon that converted
       for ( DaughterIter = PairProduction->beginDaughters();
@@ -262,7 +263,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     if ( NuclearInteraction->nDaughters() ) { 
 
       //add a end vertex to the mother particle
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+					    FSimVertexType::NUCL_VERTEX);
       
       // This was a hadron that interacted inelastically
       int idaugh = 0;
@@ -302,7 +304,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       
       // Add a vertex, but do not attach it to the electron, because it 
       // continues its way...
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+					    FSimVertexType::BREM_VERTEX);
 
       for ( DaughterIter = Bremsstrahlung->beginDaughters();
 	    DaughterIter != Bremsstrahlung->endDaughters(); 

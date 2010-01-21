@@ -14,7 +14,7 @@
  *
  * \author Michele de Gruttola, INFN Naples
  *
- * \id $Id: ZMuMuAnalyzer.cc,v 1.3 2007/12/04 13:57:57 degrutto Exp $
+ * \id $Id: ZMuMuAnalyzer.cc,v 1.4 2008/01/22 18:44:11 muzaffar Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -98,9 +98,9 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   Handle<CandidateCollection> zMuStandAlone;
   event.getByLabel( zMuStandAlone_, zMuStandAlone );  
 
-  size_t nZMuMu = zMuMu->size();
-  size_t nZTrackMu = zMuTrack->size();
-  size_t nZStandAloneMu = zMuStandAlone->size();
+  unsigned int nZMuMu = zMuMu->size();
+  unsigned int nZTrackMu = zMuTrack->size();
+  unsigned int nZStandAloneMu = zMuStandAlone->size();
   static const double zMass = 91.1876; // PDG Z mass
 
   //  cout << "nZMuMu = " << nZMuMu << endl;
@@ -135,7 +135,7 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   
   if (nZMuMu > 0) {
     double mass = 1000000.;
-    for( size_t i = 0; i < nZMuMu; i++ ) {
+    for( unsigned int i = 0; i < nZMuMu; i++ ) {
       const Candidate & zmmCand = (*zMuMu)[ i ];
       CandidateRef CandRef(zMuMu,i);
       CandidateRef lep1 = zmmCand.daughter( 0 )->masterClone().castTo<CandidateRef>();
@@ -163,7 +163,7 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   
   //ZmuSingleTRack
   if (nZMuMu ==0 && nZTrackMu>0) {
-    for( size_t j = 0; j < nZTrackMu; j++ ) {
+    for( unsigned int j = 0; j < nZTrackMu; j++ ) {
       const Candidate & ztmCand = (*zMuTrack)[ j ];
       CandidateRef CandRef(zMuTrack,j);
       CandidateRef lep1 = ztmCand.daughter( 0 )->masterClone().castTo<CandidateRef>();
@@ -199,8 +199,8 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   
   //ZmuSingleStandAlone
   if (nZMuMu ==0 && nZStandAloneMu>0) {
-    //      size_t index = 1000;
-    for( size_t j = 0; j < nZStandAloneMu; j++ ) {
+    //      unsigned int index = 1000;
+    for( unsigned int j = 0; j < nZStandAloneMu; j++ ) {
       const Candidate & zsmCand = (*zMuStandAlone)[ j ];
       CandidateRef CandRef(zMuStandAlone,j);
       CandidateRef lep1 = zsmCand.daughter( 0 )->masterClone().castTo<CandidateRef>();
@@ -232,7 +232,7 @@ void ZMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
 	}
 	
 	bool noOverlap = true;
-	for( size_t j = 0; j < zMuTrack->size(); j++ ) {
+	for( unsigned int j = 0; j < zMuTrack->size(); j++ ) {
 	  const Candidate & ztmCand = (*zMuTrack)[ j ];
 	  CandidateRef CandReft(zMuTrack,j);
 	  

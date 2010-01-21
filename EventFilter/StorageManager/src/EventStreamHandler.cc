@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: EventStreamHandler.cc,v 1.4 2009/08/28 16:41:26 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"

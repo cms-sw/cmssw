@@ -40,7 +40,11 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+//Propagator withMaterial
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 //
 
@@ -101,10 +105,13 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
 // Virtual destructor needed.
 TrackCandidateProducer::~TrackCandidateProducer() {
 
+  if(thePropagator) delete thePropagator;
+
   // do nothing
 #ifdef FAMOS_DEBUG
   std::cout << "TrackCandidateProducer destructed" << std::endl;
 #endif
+
 
 } 
  
@@ -112,17 +119,17 @@ void
 TrackCandidateProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
 
   //services
-  //  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
 
+  edm::ESHandle<MagneticField>          magField;
   edm::ESHandle<TrackerGeometry>        geometry;
 
-
+  es.get<IdealMagneticFieldRecord>().get(magField);
   es.get<TrackerDigiGeometryRecord>().get(geometry);
 
+  theMagField = &(*magField);
   theGeometry = &(*geometry);
 
-
-
+  thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,&(*theMagField)); 
 }
   
   // Functions that gets called by framework every event
@@ -166,6 +173,21 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   e.getByLabel(hitProducer, theGSRecHits);
+
+  //get other general things
+  const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids(); 
+  // SimTracks and SimVertices
+
+  edm::Handle<edm::SimVertexContainer> theSimVtx;
+  e.getByLabel("famosSimHits",theSimVtx);
+  edm::Handle<edm::SimTrackContainer> theSTC;
+  e.getByLabel("famosSimHits",theSTC);
+
+  const edm::SimTrackContainer* theSimTracks = &(*theSTC);
+  LogDebug("FastTracking")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
+ 
+
+     
 
   // The input track collection + extra's
   /*
@@ -229,6 +251,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     recoHits->reserve(nRecoHits); 
   }
 
+
   // Loop over the seeds
   int currentTrackId = -1;
   /*
@@ -245,38 +268,43 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   unsigned seed_size = theSeeds->size(); 
   for (unsigned seednr = 0; seednr < seed_size; ++seednr){
     
-    LogDebug("TrackCandidateProducer")<<"looking at seed #:"<<seednr;
+    LogDebug("FastTracking")<<"looking at seed #:"<<seednr;
 
     // The seed
     const BasicTrajectorySeed* aSeed = &((*theSeeds)[seednr]);
 
     std::vector<int> simTrackIds;
     std::map<int,TrajectoryStateOnSurface> seedStates;
+    std::map<int,TrajectoryStateOnSurface> simtkStates;
+
     TrackerRecHit theFirstSeedingTrackerRecHit;
     if (theSeeds->at(seednr).nHits()==0){
       //new stuff for no hits on seed
 
-      LogDebug("TrackCandidateProducer")<<" seed with no hits to be considered.";
+      LogDebug("FastTracking")<<" seed with no hits to be considered.";
 
-      edm::ESHandle<MagneticField> field;
-      es.get<IdealMagneticFieldRecord>().get(field);
+      //moved out of the loop
+      //edm::ESHandle<MagneticField> field;
+      //es.get<IdealMagneticFieldRecord>().get(field);
 
       PTrajectoryStateOnDet ptod =theSeeds->at(seednr).startingState();
       DetId id(ptod.detId());
       const GeomDet * g = theGeometry->idToDet(id);
       const Surface * surface=&g->surface();
       TrajectoryStateTransform tsTransform;
-      TrajectoryStateOnSurface seedState(tsTransform.transientState(ptod,surface,field.product()));
+      TrajectoryStateOnSurface seedState(tsTransform.transientState(ptod,surface,theMagField));
       
       edm::ESHandle<Propagator> propagator;
       es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",propagator);
       
-      const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids(); 
-      edm::Handle<edm::SimTrackContainer> theSTC;
-      e.getByLabel(simTracks_,theSTC);
-      const edm::SimTrackContainer* theSimTracks = &(*theSTC);
+      //moved out of the loop 
+      //      const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids(); 
+      //      edm::Handle<edm::SimTrackContainer> theSTC;
+      //      e.getByLabel(simTracks_,theSTC);
+      //      const edm::SimTrackContainer* theSimTracks = &(*theSTC);
+
       double minimunEst=1000000;
-      LogDebug("TrackCandidateProducer")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
+      LogDebug("FastTracking")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
       for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
 	
 	const SimTrack & simtrack = (*theSimTracks)[theSimTrackIds[tkId]];
@@ -290,29 +318,27 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 			      simtrack.trackerSurfaceMomentum().z());
 
 	if (position.basicVector().dot( momentum.basicVector() ) * seedState.globalPosition().basicVector().dot(seedState.globalMomentum().basicVector()) <0. ){
-	  LogDebug("TrackCandidateProducer")<<"not on the same direction.";
+	  LogDebug("FastTracking")<<"not on the same direction.";
 	  continue;
 	}
-
-
 
 	//no charge mis-identification ... FIXME
 	int charge = (int) simtrack.charge();
 	GlobalTrajectoryParameters glb_parameters(position,
 						  momentum,
 						  charge,
-						  field.product());
+						  theMagField);
 	FreeTrajectoryState simtrack_trackerstate(glb_parameters);
 	
 	TrajectoryStateOnSurface simtrack_comparestate = propagator->propagate(simtrack_trackerstate,*surface);
 
 	  
 	if (!simtrack_comparestate.isValid()){
-	  LogDebug("TrackCandidateProducer")<<" ok this is a state-based seed. simtrack state does not propagate to the seed surface. skipping.";
+	  LogDebug("FastTracking")<<" ok this is a state-based seed. simtrack state does not propagate to the seed surface. skipping.";
 	  continue;}
 	
 	if (simtrack_comparestate.globalPosition().basicVector().dot(simtrack_comparestate.globalMomentum().basicVector()) * seedState.globalPosition().basicVector().dot(seedState.globalMomentum().basicVector()) <0. ){
-	  LogDebug("TrackCandidateProducer")<<"not on the same direction.";
+	  LogDebug("FastTracking")<<"not on the same direction.";
 	  continue;
 	}
 
@@ -321,11 +347,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	AlgebraicSymMatrix55 m(seedState.localError().matrix());
 	bool ierr = !m.Invert();
 	if ( ierr ){
-	  edm::LogError("TrackCandidateProducer")<<" cannot invert the error matrix. skipping.";
+	  edm::LogWarning("FastTracking") <<" Candidate Producer cannot invert the error matrix! - Skipping...";
 	  continue;
 	}
 	double est = ROOT::Math::Similarity(v,m);
-      	LogDebug("TrackCandidateProducer")<<"comparing two state on the seed surface:\n"
+      	LogDebug("FastTracking")<<"comparing two state on the seed surface:\n"
 					  <<"seed: "<<seedState
 					  <<"sim: "<<simtrack_comparestate
 					  <<"\n estimator is: "<<est;
@@ -343,10 +369,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  seedStates[theSimTrackIds[tkId]] = TrajectoryStateOnSurface(simtrack_comparestate.globalParameters(),
 								      CurvilinearTrajectoryError(C),
 								      seedState.surface());
-	  LogDebug("TrackCandidateProducer")<<"the compatibility estimator is: "<<est<<" for track id: "<<simTrackIds.back();
+	  LogDebug("FastTracking")<<"the compatibility estimator is: "<<est<<" for track id: "<<simTrackIds.back();
 	}
       }//SimTrack loop
-      if (simTrackIds.size()==0) LogDebug("TrackCandidateProducer")<<"could not find any simtrack within errors, closest was at: "<<minimunEst;
+      if (simTrackIds.size()==0) LogDebug("FastTracking")<<"could not find any simtrack within errors, closest was at: "<<minimunEst;
     }//seed has 0 hit.
     else{
       //same old stuff
@@ -378,7 +404,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       if ( nCollections && theTrackIt != theTrackMap.end() ) { 
 	
 	if ( keepFittedTracks ) { 
-	  LogDebug("TrackCandidateProducer") << "Track " << simTrackId << " already reconstructed -> copy it";
+	  LogDebug("FastTracking") << "Track " << simTrackId << " already reconstructed -> copy it";
 	  // The track and trajectroy references
 	  reco::TrackRef aTrackRef = theTrackIt->second.first;
 	  edm::Ref<std::vector<Trajectory> > aTrajectoryRef = theTrackIt->second.second;
@@ -399,7 +425,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  
 	}// keepFitterTracks
 	else {	  
-	  LogDebug("TrackCandidateProducer") << "Track " << simTrackId << " already reconstructed -> ignore it";
+	  LogDebug("FastTracking") << "Track " << simTrackId << " already reconstructed -> ignore it";
 	}
 
 	// The track was not saved -> create a track candidate.
@@ -407,7 +433,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       } //already existing collection of tracks
       else{//no collection of tracks already exists
 
-	LogDebug("TrackCandidateProducer")<<"Track " << simTrackId << " is considered to return a track candidate" ;
+	LogDebug("FastTracking")<<"Track " << simTrackId << " is considered to return a track candidate" ;
 
 	// Get all the rechits associated to this track
 	SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
@@ -415,7 +441,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
 
-	LogDebug("TrackCandidateProducer")<<"counting: "<<theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin<<" hits to be considered.";
+	LogDebug("FastTracking")<<"counting: "<<theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin<<" hits to be considered.";
 
 	bool firstRecHit = true;
 	TrackerRecHit theCurrentRecHit, thePreviousRecHit;
@@ -432,9 +458,15 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
 	  
-	  // Check that the first rechit is indeed the first seeding hit
-	  if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
-	  
+	  //>>>>>>>>>BACKBUILDING CHANGE: DO NOT STAT FROM THE FIRST HIT OF THE SEED
+
+	  // NOTE: checking the direction --> specific for OIHit only
+	  //	  if( aSeed->direction()!=oppositeToMomentum ) { 
+	  //  // Check that the first rechit is indeed the first seeding hit
+	  //  if ( firstRecHit && theCurrentRecHit != theFirstSeedingTrackerRecHit && theSeeds->at(seednr).nHits()!=0 ) continue;
+	  // }
+	  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 	  // Count the number of crossed layers
 	  if ( !theCurrentRecHit.isOnTheSameLayer(thePreviousRecHit) ) 
 	    ++theNumberOfCrossedLayers;
@@ -487,7 +519,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	// End of loop over the track rechits
       }//no collection of track already existed. adding the hits by hand.
     
-      LogDebug("TrackCandidateProducer")<<" number of hits: " << theTrackerRecHits.size()<<" after counting overlaps and splitting.";
+      LogDebug("FastTracking")<<" number of hits: " << theTrackerRecHits.size()<<" after counting overlaps and splitting.";
 
       // 1) Create the OwnWector of TrackingRecHits
       edm::OwnVector<TrackingRecHit> recHits;
@@ -495,7 +527,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       recHits.reserve(nTrackerHits); // To save some time at push_back
 
       if (aSeed->direction()==oppositeToMomentum){
-	LogDebug("TrackCandidateProducer")<<"reversing the order of the hits";
+	LogDebug("FastTracking")<<"reversing the order of the hits";
 	std::reverse(theTrackerRecHits.begin(),theTrackerRecHits.end());
       }
 
@@ -504,7 +536,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	recHits.push_back(aTrackingRecHit);
 	
 	const DetId& detId = theTrackerRecHits[ih].hit()->geographicalId();
-	LogDebug("TrackCandidateProducer")
+	LogDebug("FastTracking")
 	  << "Added RecHit from detid " << detId.rawId() 
 	  << " subdet = " << theTrackerRecHits[ih].subDetId() 
 	  << " layer = " << theTrackerRecHits[ih].layerNumber()
@@ -517,7 +549,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  << theTrackerRecHits[ih].globalPosition().z() << " " 
 	  << theTrackerRecHits[ih].globalPosition().perp() << std::endl;
 	if ( theTrackerRecHits[ih].matchedHit() && theTrackerRecHits[ih].matchedHit()->isMatched() ) 
-	  LogTrace("TrackCandidateProducer") << "Matched : " << theTrackerRecHits[ih].matchedHit()->isMatched() 
+	  LogTrace("FastTracking") << "Matched : " << theTrackerRecHits[ih].matchedHit()->isMatched() 
 					     << "Rphi Hit = " <<  theTrackerRecHits[ih].matchedHit()->monoHit()->simhitId()		 
 					     << "Stereo Hit = " <<  theTrackerRecHits[ih].matchedHit()->stereoHit()->simhitId()
 					     <<std::endl;
@@ -525,13 +557,17 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
     // Check the number of crossed layers
     if ( theNumberOfCrossedLayers < minNumberOfCrossedLayers ) {
-      LogDebug("TrackCandidateProducer")<<"not enough layer crossed ("<<theNumberOfCrossedLayers<<")";
+      LogDebug("FastTracking")<<"not enough layer crossed ("<<theNumberOfCrossedLayers<<")";
       continue;
     }
 
 
+    //>>>>>>>>>BACKBUILDING CHANGE: REPLACE THE STARTING STATE
+
     // Create a track Candidate (now with the reference to the seed!) .
-    PTrajectoryStateOnDet PTSOD = aSeed->startingState();
+    //PTrajectoryStateOnDet PTSOD = aSeed->startingState();
+    PTrajectoryStateOnDet PTSOD;
+
     if (aSeed->nHits()==0){
       //stabilize the fit with the true simtrack state
       //in case of zero hits
@@ -540,14 +576,50 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       PTrajectoryStateOnDet * aPointer = tsTransform.persistentState(seedStates[simTrackId],aSeed->startingState().detId()); 
       PTSOD = *aPointer;
       delete aPointer;
+ 
+    } else {
+      //create the initial state from the SimTrack
+      int vertexIndex = (*theSimTracks)[currentTrackId].vertIndex();
+      //   a) origin vertex
+      GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
+			    (*theSimVtx)[vertexIndex].position().y(),
+			    (*theSimVtx)[vertexIndex].position().z());
+      
+      //   b) initial momentum
+      GlobalVector momentum( (*theSimTracks)[currentTrackId].momentum().x() , 
+			     (*theSimTracks)[currentTrackId].momentum().y() , 
+			     (*theSimTracks)[currentTrackId].momentum().z() );
+      //   c) electric charge
+      float        charge   = (*theSimTracks)[simTrackId].charge();
+      //  -> inital parameters
+      GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
+ //  -> large initial errors
+      AlgebraicSymMatrix errorMatrix(5,1);    
+      CurvilinearTrajectoryError initialError(errorMatrix);
+      // -> initial state
+      FreeTrajectoryState initialFTS(initialParams, initialError);      
+#ifdef FAMOS_DEBUG
+      std::cout << "TrajectorySeedProducer: FTS momentum " << initialFTS.momentum() << std::endl;
+#endif
+      const GeomDet* initialLayer = theGeometry->idToDet(recHits.front().geographicalId());
+      //this is wrong because the FTS is defined at vertex, and it need to be properly propagated to the first rechit
+      //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
+       const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
+       if (!initialTSOS.isValid()) continue; 
+       TrajectoryStateTransform tsTransform;
+
+       PTrajectoryStateOnDet * aPointer = tsTransform.persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
+       PTSOD = *aPointer;
+       delete aPointer;
     }
+    
     TrackCandidate  
       newTrackCandidate(recHits, 
 			*aSeed, 
 			PTSOD, 
 			edm::RefToBase<TrajectorySeed>(theSeeds,seednr));
 
-    LogDebug("TrackCandidateProducer")<< "\tSeed Information " << std::endl
+    LogDebug("FastTracking")<< "\tSeed Information " << std::endl
 				      << "\tSeed Direction = " << aSeed->direction() << std::endl
 				      << "\tSeed StartingDet = " << aSeed->startingState().detId() << std::endl
 				      << "\tTrajectory Parameters "	      << std::endl
@@ -570,13 +642,13 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //    }
     
     output->push_back(newTrackCandidate);
-    LogDebug("TrackCandidateProducer")<<"filling a track candidate into the collection, now having: "<<output->size();
+    LogDebug("FastTracking")<<"filling a track candidate into the collection, now having: "<<output->size();
     
     }//loop over possible simtrack associated.
   }//loop over all possible seeds.
   
   // Save the track candidates in the event
-  LogDebug("TrackCandidateProducer") << "Saving " 
+  LogDebug("FastTracking") << "Saving " 
 				     << output->size() << " track candidates and " 
 				     << recoTracks->size() << " reco::Tracks ";
   // Save the track candidates

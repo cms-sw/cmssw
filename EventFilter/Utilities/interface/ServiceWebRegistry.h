@@ -47,7 +47,7 @@ namespace evf
       typedef dct::iterator idct;
       void clear();
       dct clm_;
-      friend class FUEventProcessor;
+      friend class FWEPWrapper;
     };
 }
 #endif

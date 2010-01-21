@@ -128,7 +128,7 @@ int main(int ac, char *av[]) {
       cout << yield << endl; 
       cout << mass  << endl; 
       cout << gamma << endl; 
-      for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	cout << ">>> load histogram\n";
 	TH1D * zMass = v_ZMCMassHistos[i];
 	cout << ">>> histogram loaded\n";
@@ -156,7 +156,7 @@ int main(int ac, char *av[]) {
       cout << yield << endl; 
       cout << mean  << endl; 
       cout << sigma << endl;
-      for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMCMassHistos[i]; 
 	funct::Gaussian gaus(mean, sigma);
 	funct::Constant c(yield);
@@ -194,7 +194,7 @@ int main(int ac, char *av[]) {
       cout << gamma << endl; 
       cout << f_gamma << endl; 
       cout << f_int  << endl; 
-      for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMCMassHistos[i]; 
 	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
 	funct::Constant c(yield);
@@ -243,7 +243,7 @@ int main(int ac, char *av[]) {
       cout << gamma << endl; 
       cout << f_gamma << endl; 
       cout << f_int << endl; 
-      for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
+      for(unsigned int i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMCMassHistos[i]; 
 	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
 	funct::Constant c(yield);
@@ -292,7 +292,7 @@ int main(int ac, char *av[]) {
 	cout << gamma  << endl; 
 	cout << f_gamma << endl; 
 	cout << f_int << endl; 
-	for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
+	for(unsigned int i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	  TH1D * zMass = v_ZMCMassHistos[i]; 
 	  funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
 	  funct::Exponential expo(lambda);
@@ -351,7 +351,7 @@ int main(int ac, char *av[]) {
 	cout << mean  << endl; 
 	cout << sigma << endl; 
 	cout << alpha << endl;
-	for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
+	for(unsigned int i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	  TH1D * zMass = v_ZMCMassHistos[i]; 
 	  funct::Constant a(alpha);
 	  funct::Identity id;

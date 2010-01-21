@@ -30,6 +30,9 @@ maxDeltaR(iConfig.getUntrackedParameter("MaxDeltaR",10000.))
    vector<double> defptmin;   
    defptmin.push_back(0.);
    ptMin = iConfig.getUntrackedParameter< vector<double> >("MinPt", defptmin);
+   vector<double> defpmin;
+   defpmin.push_back(0.);
+   pMin = iConfig.getUntrackedParameter< vector<double> >("MinP", defpmin);
 
    vector<double> defetamin;
    defetamin.push_back(-10.);
@@ -44,6 +47,7 @@ maxDeltaR(iConfig.getUntrackedParameter("MaxDeltaR",10000.))
    
     // check for correct size
     if (ptMin.size() != 2 
+	|| pMin.size() != 2
 	|| etaMin.size() != 2 
 	|| etaMax.size() != 2 
 	|| status.size() != 2 ) {
@@ -56,6 +60,12 @@ maxDeltaR(iConfig.getUntrackedParameter("MaxDeltaR",10000.))
        for (unsigned int i = 0; i < 2; i++){ defptmin2.push_back(0.);}
        ptMin = defptmin2;   
     } 
+    // if pMin size smaller than 2, fill up further with defaults
+    if (2 > pMin.size() ){
+       vector<double> defpmin2 ;
+       for (unsigned int i = 0; i < 2; i++){ defpmin2.push_back(0.);}
+       pMin = defpmin2;
+    }
     // if etaMin size smaller than 2, fill up further with defaults
     if (2 > etaMin.size() ){
        vector<double> defetamin2 ;
@@ -115,7 +125,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
       if(gottypeAID) {
-	if ( (*p)->momentum().perp() > ptMin[0] && (*p)->momentum().eta() > etaMin[0] 
+	if ( (*p)->momentum().perp() > ptMin[0] && (*p)->momentum().mag() > pMin[0] && (*p)->momentum().eta() > etaMin[0] 
 	     && (*p)->momentum().eta() < etaMax[0] && ((*p)->status() == status[0] || status[0] == 0)) { 
 	  // passed A type conditions ...
 	  // ... now check pair-conditions with B type passed particles
@@ -185,7 +195,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
       if(gottypeBID) {
-	if ( (*p)->momentum().perp() > ptMin[1] && (*p)->momentum().eta() > etaMin[1] 
+	if ( (*p)->momentum().perp() > ptMin[1] && (*p)->momentum().mag() > pMin[1] && (*p)->momentum().eta() > etaMin[1] 
 	     && (*p)->momentum().eta() < etaMax[1] && ((*p)->status() == status[1] || status[1] == 0)) { 
 	  // passed B type conditions ...
 	  // ... now check pair-conditions with A type passed particles vector

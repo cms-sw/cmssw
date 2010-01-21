@@ -12,6 +12,10 @@ fi
 if [ ! -n "$CMSSW_BASE" ] ; then
   CMSSW_BASE=$SHELLDIR
   export CMSSW_BASE
+  CMSSW_SEARCH_PATH="."
+  export CMSSW_SEARCH_PATH
+  CMSSW_DATA_PATH="."
+  export CMSSW_DATA_PATH
   ROOTSYS=$CMSSW_BASE/external/root 
   export ROOTSYS
   LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib
@@ -55,20 +59,6 @@ else
          echo "  #                                                                      #"
          echo "  ########################################################################"
          echo ""
-      else
-          echo  "###########################################################"
-          echo  "#                                                         #"
-          echo  "# You were running cmsShow with ROOT prompt enabled ...   #"
-          echo  "#   ... and it crashed. That was *FUN*.                   #"
-          echo  "#                                                         #"
-          echo  "# Please do not report this issue to fireworks-support    #"
-          echo  "#                    UNLESS                               #"
-          echo  "#         you suspect this is a cmsShow bug               #"
-          echo  "#                     AND                                 #"
-          echo  "# you are able to reproduce the crash without the         #"
-          echo  "# --root-interactive flag.                                #"
-          echo  "#                                                         #"
-          echo  "###########################################################"
       fi
    fi
 fi

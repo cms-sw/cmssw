@@ -196,7 +196,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
         unsigned int chargeCorr = corrPar.chargeCorrelation;
 
         // charge ignore bit (D0) not set?
-        if (chargeCorr & 1 == 0) {
+        if ((chargeCorr & 1) == 0) {
 
             for (int i = 0; i < nObjInCond; i++) {
                 // check valid charge - skip if invalid charge

@@ -9,9 +9,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
+    lastValue = cms.uint64(84000),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
+    firstValue = cms.uint64(84000),
     interval = cms.uint64(1)
 )
 
@@ -24,10 +24,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dead.db'),
+    connect = cms.string('sqlite_file:Quality_v03.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelQualityRcd'),
-        tag = cms.string('SiPixelQuality_v04')
+        tag = cms.string('SiPixelQuality_v03')
     ))
 )
 
@@ -61,7 +61,7 @@ process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
             detid = cms.uint32(302188552)
         ), 
         cms.PSet(
-            errortype = cms.string('whole'),
+            errortype = cms.string('tbmA'),
             detid = cms.uint32(302121992)
         ), 
         cms.PSet(
@@ -93,8 +93,19 @@ process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
             detid = cms.uint32(344019468)
         ), 
         cms.PSet(
-            errortype = cms.string('tbmB'),
-            detid = cms.uint32(302060044)
+            errortype = cms.string('none'),
+            detid = cms.uint32(302187268),
+            badroclist = cms.vuint32(6)
+        ),
+        cms.PSet(
+            errortype = cms.string('none'),
+            detid = cms.uint32(302195472),
+            badroclist = cms.vuint32(0)
+        ),
+        cms.PSet(
+            errortype = cms.string('none'),
+            detid = cms.uint32(302128136),
+            badroclist = cms.vuint32(3)
          )),
     Record = cms.string('SiPixelQualityRcd'),
     SinceAppendMode = cms.bool(True),

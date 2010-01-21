@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.32 2009/07/20 12:50:51 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.38 2009/10/26 21:20:41 dmytro Exp $
 //
 
 // system include files
@@ -31,7 +31,6 @@
 #include "TROOT.h"
 #include "TEveStraightLineSet.h"
 
-#include "TEveRGBAPalette.h"
 #include "TEveTrans.h"
 
 // user include files
@@ -107,7 +106,9 @@ FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr) :
 }
 
 FWEveLegoViewManager::~FWEveLegoViewManager()
-{}
+{
+   m_data->DecDenyDestroy();
+}
 
 //
 // member functions
@@ -117,6 +118,7 @@ FWEveLegoViewManager::initData()
 {
    if(0==m_data) {
       m_data = new TEveCaloDataHist();
+      m_data->IncDenyDestroy();
       Bool_t status = TH1::AddDirectoryStatus();
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       TH2F* background = new TH2F("background","",
@@ -193,34 +195,27 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             initData();
             if(!m_lego) {
                m_lego = new TEveCaloLego(m_data);
-               TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
-               pal->SetLimits(0, 100);
-               pal->SetDefaultColor((Color_t)1000);
-
                m_lego->InitMainTrans();
                m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
-
-               m_lego->SetPalette(pal);
                m_lego->Set2DMode(TEveCaloLego::kValSize);
-               m_lego->SetPixelsPerBin(15);
-               m_lego->SetTopViewUseMaxColor(kTRUE);
-	       m_lego->SetDrawNumberCellPixels(20);
+	            m_lego->SetDrawNumberCellPixels(20);
                m_data->GetEtaBins()->SetTitleFont(120);
                m_data->GetEtaBins()->SetTitle("h");
                m_data->GetPhiBins()->SetTitleFont(120);
                m_data->GetPhiBins()->SetTitle("f");
+               m_elements->AddElement(m_lego);
 
                // add calorimeter boundaries
                m_boundaries = new TEveStraightLineSet("boundaries");
                m_boundaries->SetPickable(kFALSE);
                m_boundaries->SetLineWidth(2);
-	       m_boundaries->SetLineStyle(7);
+	            m_boundaries->SetLineStyle(7);
                m_boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
                m_boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
                m_boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
                m_boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
                m_lego->AddElement(m_boundaries);
-               m_elements->AddElement(m_lego);
+
                setGridColors();
             }
             builder->attach(m_elements.get(),m_data);
@@ -244,6 +239,7 @@ FWEveLegoViewManager::modelChangesComing()
 {
    gEve->DisableRedraw();
 }
+
 void
 FWEveLegoViewManager::modelChangesDone()
 {

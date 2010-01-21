@@ -28,6 +28,8 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
 ClusterCheckPSet = cms.PSet(
                  doClusterCheck = cms.bool(True),
                  MaxNumberOfCosmicClusters = cms.uint32(50000),
-                 ClusterCollectionLabel = cms.InputTag("siStripClusters")
+                 ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+                 MaxNumberOfPixelClusters = cms.uint32(10000),
+                 PixelClusterCollectionLabel = cms.InputTag("siPixelClusters")
                  ),
 )

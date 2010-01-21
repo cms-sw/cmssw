@@ -43,12 +43,14 @@ public:
    TEveWindow*  getEveWindow() { return m_eveWindow; }
    void         setEveWindow(TEveWindow* w) { m_eveWindow = w;} 
 
+   virtual void setBackgroundColor(Color_t col) {}
 protected:
    FWDetailViewBase(const std::type_info&);
 
-   TEveWindow* makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas);
-   TEveWindow* makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TEveViewer *&eveViewer, TEveScene *&scene);
-
+   TEveWindow* makePackCanvas(TEveWindowSlot *&slot, TCanvas *&infoCavas, TCanvas *&viewCanvas);
+   TEveWindow* makePackViewer(TEveWindowSlot *&slot, TCanvas *&canvas, TEveViewer *&eveViewer, TEveScene *&scene);
+   TEveWindow* makePackViewerGui(TEveWindowSlot *&slot, TCanvas *&canvas, TGVerticalFrame *&guiFrame, TEveViewer *&eveViewer, TEveScene *&scene);
+  
 private:
    FWDetailViewBase(const FWDetailViewBase&); // stop default
    const FWDetailViewBase& operator=(const FWDetailViewBase&); // stop default

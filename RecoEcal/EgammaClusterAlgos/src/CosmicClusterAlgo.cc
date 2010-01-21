@@ -214,7 +214,7 @@ void CosmicClusterAlgo::mainSearch(	 const CaloSubdetectorGeometry *geometry_p,
       // make them into a cluster 
       if (current_v25.size() > 0) 
       {
-	makeCluster(geometry_p, geometryES_p);
+	makeCluster(geometry_p, geometryES_p, seedId);
       }
 
    }  // End loop on seed crystals
@@ -223,7 +223,8 @@ void CosmicClusterAlgo::mainSearch(	 const CaloSubdetectorGeometry *geometry_p,
 
 void CosmicClusterAlgo::makeCluster(
 				    const CaloSubdetectorGeometry *geometry,
-				    const CaloSubdetectorGeometry *geometryES)
+				    const CaloSubdetectorGeometry *geometryES,
+					DetId seedId)
 {
 
    double energy = 0;
@@ -300,7 +301,7 @@ void CosmicClusterAlgo::makeCluster(
 //       std::cout << "JH****Emax****  "<<energyMax << " ieta " <<detFir.ieta() <<" iphi "<<detFir.ieta()  << std::endl;
 //       std::cout << "JH****Esec****  "<<energySecond << " ieta " <<detSec.ieta() <<" iphi "<<detSec.ieta() << std::endl;
     }
-   clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(), current_v25Sup, reco::CaloCluster::island));
+   clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(), current_v25Sup, reco::CaloCluster::multi5x5, seedId));
 }
 
 bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator)

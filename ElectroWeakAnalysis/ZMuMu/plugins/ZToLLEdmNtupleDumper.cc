@@ -63,8 +63,8 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
 }
 
 void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
-  size_t size = z_.size();
-  for( size_t c = 0; c < size; ++ c ) {
+  unsigned int size = z_.size();
+  for( unsigned int c = 0; c < size; ++ c ) {
     Handle<CandidateCollection> zColl;
     evt.getByLabel( z_[c], zColl );
     Handle<CandMatchMap> zGenParticlesMatch;
@@ -73,7 +73,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     Handle<IsolationCollection> isolations1, isolations2;
     evt.getByLabel( isolations1_[c], isolations1 );
     evt.getByLabel( isolations2_[c], isolations2 );
-    size_t zSize = zColl->size();
+    unsigned int zSize = zColl->size();
     auto_ptr<vector<float> > zMass( new vector<float> );
     auto_ptr<vector<float> > zPt( new vector<float> );
     auto_ptr<vector<float> > zEta( new vector<float> );
@@ -92,7 +92,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<float> > trueZEta( new vector<float> );
     auto_ptr<vector<float> > trueZPhi( new vector<float> );
     auto_ptr<vector<float> > trueZY( new vector<float> );
-    for( size_t i = 0; i < zSize; ++ i ) {
+    for( unsigned int i = 0; i < zSize; ++ i ) {
       const Candidate & z = (*zColl)[ i ];
       CandidateRef zRef( zColl, i );
       zMass->push_back( z.mass() );

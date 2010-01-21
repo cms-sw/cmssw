@@ -13,8 +13,10 @@
 <use name=DataFormats/TauReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/JetReco>
+<use name=DataFormats/CaloTowers>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaHLTAlgos>
+<use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=HLTrigger/HLTcore>
 <use name=CondFormats/DataRecord>
 <use name=DQM/HLTEvF>
@@ -38,8 +40,11 @@
   <use name=DataFormats/TauReco>  
   <use name=DataFormats/METReco>
   <use name=DataFormats/JetReco>
+  <use name=DataFormats/CaloTowers>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=RecoEgamma/EgammaHLTAlgos>
+  <use name=RecoEgamma/EgammaIsolationAlgos>
+  <use name=RecoCaloTools/MetaCollections>
   <use name=HLTrigger/HLTcore>
   <use name=CondFormats/DataRecord>
   <use name=root>

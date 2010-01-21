@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.5 2009/09/23 13:08:23 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -19,7 +19,7 @@ namespace stor
     const unsigned int& connectRetryInterval, // seconds
     const string& consumerName,
     const FilterList& selEvents,
-    const string& selHLTOut,
+    const string& outputModuleLabel,
     const size_t& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
     const utils::duration_t& secondsToStale,
@@ -28,7 +28,7 @@ namespace stor
     _maxConnectRetries( maxConnectRetries ),
     _connectRetryInterval( connectRetryInterval ),
     _selEvents( selEvents ),
-    _selHLTOut( selHLTOut ),
+    _outputModuleLabel( outputModuleLabel ),
     _stale( false ),
     _remoteHost( remoteHost )
   {
@@ -112,7 +112,7 @@ namespace stor
        << _maxConnectRetries
        << "\n Connection retry interval, seconds: "
        << _connectRetryInterval
-       << "\n HLT output: " << _selHLTOut
+       << "\n HLT output: " << _outputModuleLabel
        << "\n Event filters:\n";
 
     copy(_selEvents.begin(), 

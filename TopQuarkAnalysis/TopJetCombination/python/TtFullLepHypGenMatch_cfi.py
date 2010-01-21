@@ -8,7 +8,8 @@ ttFullLepHypGenMatch = cms.EDProducer("TtFullLepHypGenMatch",
     muons     = cms.InputTag("selectedLayer1Muons"),
     jets      = cms.InputTag("selectedLayer1Jets"),    
     mets      = cms.InputTag("layer1METs"),
-    match     = cms.InputTag("ttFullLepJetPartonMatch")
+    match     = cms.InputTag("ttFullLepJetPartonMatch"), 
+    jetCorrectionLevel = cms.string("abs")   
 )
 
 

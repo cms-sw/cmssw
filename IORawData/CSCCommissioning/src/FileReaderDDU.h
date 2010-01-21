@@ -24,7 +24,7 @@ private:
 public:
 	int    open(const char *filename) throw (std::runtime_error);
 	size_t read(const unsigned short* &buf) throw (std::runtime_error); // Just plain read function
-	size_t next(const unsigned short* &buf, int prescaling=1) throw (std::runtime_error); // Same as ``read'', but returns only events pass certain criteria
+	size_t next(const unsigned short* &buf) throw (std::runtime_error); // Same as ``read'', but returns only events pass certain criteria
 	void select(unsigned int criteria) throw() { selectCriteria = criteria; } // return events satisfying all criteria
 	void accept(unsigned int criteria) throw() { acceptCriteria = criteria; } // return all events satisfying any of criteria
 	void reject(unsigned int criteria) throw() { rejectCriteria = criteria; } // return events not satisfying any of criteria

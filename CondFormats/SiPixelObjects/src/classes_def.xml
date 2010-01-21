@@ -48,7 +48,6 @@
   <class name="std::vector<SiPixelQuality::disabledModuleType>"/>  
 
   <class pattern="PixelDCSObject<*>"/> 
-  <class pattern="PixelDCSObject<*>::List"/> 
   <class pattern="PixelDCSObject<*>::Item"/> 
   <class pattern="PixelDCSObject<*>::Type"/> 
 

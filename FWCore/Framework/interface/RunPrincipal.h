@@ -38,8 +38,6 @@ namespace edm {
 	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
-    void fillFrom(RunPrincipal& rp);
-
     RunAuxiliary const& aux() const {
       return *aux_;
     }

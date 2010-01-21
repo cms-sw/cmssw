@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.11 2009/06/13 14:33:44 chrjones Exp $
+// $Id: FW3DViewManager.cc,v 1.12 2009/07/02 18:35:43 amraktad Exp $
 //
 
 // system include files
@@ -25,7 +25,6 @@
 #include "TEveElement.h"
 #include "TEveWindow.h"
 #include "TEveCalo.h"
-#include "TROOT.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DViewManager.h"
@@ -34,7 +33,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 
-#include "TEveSelection.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
@@ -61,21 +59,12 @@ FW3DViewManager::FW3DViewManager(FWGUIManager* iGUIMgr) :
    m_elements( new TEveElementList("3D")),
    m_caloData(0),
    m_calo3d(0),
-   m_eveSelection(0),
    m_selectionManager(0)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FW3DViewManager::buildView,
                  this, _1);
    iGUIMgr->registerViewBuilder(FW3DView::staticTypeName(), f);
-
-   /*
-      m_eveSelection=gEve->GetSelection();
-      m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
-      m_eveSelection->Connect("SelectionAdded(TEveElement*)","FW3DViewManager",this,"selectionAdded(TEveElement*)");
-      m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FW3DViewManager",this,"selectionRemoved(TEveElement*)");
-      m_eveSelection->Connect("SelectionCleared()","FW3DViewManager",this,"selectionCleared()");
-    */
 
    //create a list of the available ViewManager's
    std::set<std::string> builders;
@@ -213,53 +202,6 @@ FW3DViewManager::colorsChanged()
    }
 
     if (m_calo3d)  m_calo3d->SetMainColor(colorManager().geomColor(kFWCalo3DFrameColorIndex));
-}
-
-void
-FW3DViewManager::selectionAdded(TEveElement* iElement)
-{
-   //std::cout <<"selection added"<<std::endl;
-   if(0!=iElement) {
-      void* userData=iElement->GetUserData();
-      //std::cout <<"  user data "<<userData<<std::endl;
-      if(0 != userData) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( not id->item()->modelInfo(id->index()).isSelected() ) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   selecting"<<std::endl;
-
-            id->select();
-            m_eveSelection->BlockSignals(last);
-         }
-      }
-   }
-}
-
-void
-FW3DViewManager::selectionRemoved(TEveElement* iElement)
-{
-   //std::cout <<"selection removed"<<std::endl;
-   if(0!=iElement) {
-      void* userData=iElement->GetUserData();
-      if(0 != userData) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( id->item()->modelInfo(id->index()).isSelected() ) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   removing"<<std::endl;
-            id->unselect();
-            m_eveSelection->BlockSignals(last);
-         }
-      }
-   }
-
-}
-
-void
-FW3DViewManager::selectionCleared()
-{
-   if(0!= m_selectionManager) {
-      m_selectionManager->clearSelection();
-   }
 }
 
 FWTypeToRepresentations

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 12:10:23 EDT 2007
-// $Id: PluginFactory.h,v 1.5 2007/05/21 16:47:16 chrjones Exp $
+// $Id: PluginFactory.h,v 1.7 2009/10/22 07:05:35 eulisse Exp $
 //
 
 // system include files
@@ -51,39 +51,28 @@ class PluginFactory<R * (void)> : public PluginFactoryBase
           return new TPlug();
         }
       };
-      typedef std::vector<std::pair<PMakerBase*, std::string> > PMakers;
-      typedef std::map<std::string, PMakers > Plugins;
 
       // ---------- const member functions ---------------------
-      virtual std::vector<PluginInfo> available() const {
-        std::vector<PluginInfo> returnValue;
-        returnValue.reserve(m_plugins.size());
-        fillAvailable(m_plugins.begin(),
-                      m_plugins.end(),
-                      returnValue);
-        return returnValue;
-      }
       virtual const std::string& category() const ;
       
       R* create(const std::string& iName) const {
-        return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create();
+        return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName)->second.front().first)->create();
       }
 
       ///like above but returns 0 if iName is unknown
       R* tryToCreate(const std::string& iName) const {
-        typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName,m_plugins);
+        typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName);
         if(itFound ==m_plugins.end() ) {
           return 0;
         }
-        return itFound->second.front().first->create();
+        return reinterpret_cast<PMakerBase*>(itFound->second.front().first)->create();
       }
       // ---------- static member functions --------------------
 
       static PluginFactory<R*(void)>* get();
       // ---------- member functions ---------------------------
       void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-        m_plugins[iName].push_back(std::pair<PMakerBase*,std::string>(iPMaker,PluginManager::loadingFile()));
-        newPlugin(iName);
+        PluginFactoryBase::registerPMaker(iPMaker, iName);
       }
 
    private:
@@ -93,9 +82,6 @@ class PluginFactory<R * (void)> : public PluginFactoryBase
       PluginFactory(const PluginFactory&); // stop default
 
       const PluginFactory& operator=(const PluginFactory&); // stop default
-
-      // ---------- member data --------------------------------
-      Plugins m_plugins;
 
 };
 
@@ -117,38 +103,27 @@ public:
         return new TPlug(iArg);
       }
     };
-  typedef std::vector<std::pair<PMakerBase*, std::string> > PMakers;
-  typedef std::map<std::string, PMakers > Plugins;
   
   // ---------- const member functions ---------------------
-  virtual std::vector<PluginInfo> available() const {
-    std::vector<PluginInfo> returnValue;
-    returnValue.reserve(m_plugins.size());
-    fillAvailable(m_plugins.begin(),
-                  m_plugins.end(),
-                  returnValue);
-    return returnValue;
-  }
   virtual const std::string& category() const ;
   
   R* create(const std::string& iName, Arg iArg) const {
-    return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create(iArg);
+    return reinterpret_cast<PMakerBase *>(PluginFactoryBase::findPMaker(iName)->second.front().first)->create(iArg);
   }
   ///like above but returns 0 if iName is unknown
   R* tryToCreate(const std::string& iName, Arg iArg) const {
-    typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName,m_plugins);
+    typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName);
     if(itFound ==m_plugins.end() ) {
       return 0;
     }
-    return itFound->second.front().first->create(iArg);
+    return reinterpret_cast<PMakerBase *>(itFound->second.front().first)->create(iArg);
   }
   // ---------- static member functions --------------------
   
   static PluginFactory<R*(Arg)>* get();
   // ---------- member functions ---------------------------
   void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-    m_plugins[iName].push_back(std::pair<PMakerBase*,std::string>(iPMaker,PluginManager::loadingFile()));
-    newPlugin(iName);
+    PluginFactoryBase::registerPMaker(iPMaker, iName);
   }
   
 private:
@@ -158,9 +133,6 @@ private:
   PluginFactory(const PluginFactory&); // stop default
   
   const PluginFactory& operator=(const PluginFactory&); // stop default
-  
-  // ---------- member data --------------------------------
-  Plugins m_plugins;
   
 };
 
@@ -182,30 +154,20 @@ public:
         return new TPlug(iArg1, iArg2);
       }
     };
-  typedef std::vector<std::pair<PMakerBase*, std::string> > PMakers;
-  typedef std::map<std::string, PMakers > Plugins;
   
   // ---------- const member functions ---------------------
-  virtual std::vector<PluginInfo> available() const {
-    std::vector<PluginInfo> returnValue;
-    returnValue.reserve(m_plugins.size());
-    fillAvailable(m_plugins.begin(),
-                  m_plugins.end(),
-                  returnValue);
-    return returnValue;
-  }
   virtual const std::string& category() const ;
   
   R* create(const std::string& iName, Arg1 iArg1, Arg2 iArg2) const {
-    return PluginFactoryBase::findPMaker(iName,m_plugins)->second.front().first->create(iArg1, iArg2);
+    return reinterpret_cast<PMakerBase *>(PluginFactoryBase::findPMaker(iName)->second.front().first)->create(iArg1, iArg2);
   }
   ///like above but returns 0 if iName is unknown
   R* tryToCreate(const std::string& iName, Arg1 iArg1, Arg2 iArg2) const {
-    typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName,m_plugins);
+    typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName);
     if(itFound ==m_plugins.end() ) {
       return 0;
     }
-    return itFound->second.front().first->create(iArg1,iArg2);
+    return reinterpret_cast<PMakerBase *>(itFound->second.front().first)->create(iArg1,iArg2);
   }
 
   // ---------- static member functions --------------------
@@ -213,8 +175,7 @@ public:
   static PluginFactory<R*(Arg1,Arg2)>* get();
   // ---------- member functions ---------------------------
   void registerPMaker(PMakerBase* iPMaker, const std::string& iName) {
-    m_plugins[iName].push_back(std::pair<PMakerBase*,std::string>(iPMaker,PluginManager::loadingFile()));
-    newPlugin(iName);
+    PluginFactoryBase::registerPMaker(iPMaker, iName);
   }
   
 private:
@@ -225,8 +186,6 @@ private:
   
   const PluginFactory& operator=(const PluginFactory&); // stop default
   
-  // ---------- member data --------------------------------
-  Plugins m_plugins;
 };
 
 }

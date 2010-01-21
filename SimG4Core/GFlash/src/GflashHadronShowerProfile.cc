@@ -1,12 +1,10 @@
 #include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "CLHEP/GenericFunctions/LogGamma.hh"
 #include "Randomize.hh"
+#include "G4Poisson.hh"
 #include "G4TransportationManager.hh"
 #include "G4TouchableHandle.hh"
 #include "G4VSensitiveDetector.hh"
@@ -31,26 +29,12 @@ GflashHadronShowerProfile::GflashHadronShowerProfile(edm::ParameterSet parSet) :
 
   theHisto = GflashHistogram::instance();
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "GflashHadronShowerProfile requires RandomNumberGeneratorService\n"
-      << "which is not present in the configuration file. "
-      << "You must add the service\n in the configuration file or "
-      << "remove the modules that require it.";
-  }
-  theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
-  theRandGamma = new CLHEP::RandGamma(rng->getEngine());
-  theRandPoissonQ = new CLHEP::RandPoissonQ(rng->getEngine());
 }
 
 GflashHadronShowerProfile::~GflashHadronShowerProfile() 
 {
   if(theGflashStep) delete theGflashStep;
   if(theShowino) delete theShowino;
-  if(theRandGauss) delete theRandGauss;
-  if(theRandGamma) delete theRandGamma;
-  if(theRandPoissonQ) delete theRandPoissonQ;
 }
 
 
@@ -241,10 +225,10 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 	  deltaEnergy = heightProfile*Gflash::divisionStep*hoScale;
 	}
 	
-	G4int nSpotsInStep = std::max(50,static_cast<int>((160.+40*theRandGauss->fire())*std::log(theShowino->getEnergy())+50.));
+	G4int nSpotsInStep = std::max(50,static_cast<int>((160.+40*G4RandGauss::shoot())*std::log(theShowino->getEnergy())+50.));
 	
       	double hoFraction = 1.00;
-	G4double poissonProb = theRandPoissonQ->fire(1.0);
+	G4double poissonProb = G4Poisson(1.0);
 	
 	G4double fluctuatedEnergy = deltaEnergy*poissonProb;
 	G4double sampleSpotEnergy = hoFraction*fluctuatedEnergy/nSpotsInStep;
@@ -340,7 +324,7 @@ G4double GflashHadronShowerProfile::medianLateralArm(G4double showerDepthR50, Gf
       double sigmaR50 = std::sqrt(sigmaSq);
       double meanR50  = std::log(R50) - (sigmaSq/2.);
       
-      lateralArm = std::exp(meanR50 + sigmaR50*theRandGauss->fire());
+      lateralArm = std::exp(meanR50 + sigmaR50*G4RandGauss::shoot());
     }
   }
   return lateralArm;
@@ -601,7 +585,7 @@ G4int GflashHadronShowerProfile::getNumberOfSpots(Gflash::CalorimeterNumber kCal
   //@@@need correlation and individual fluctuation on alphaNspots and betaNspots here:
   //evaluating covariance should be straight forward since the distribution is 'one' Gamma
 
-  numberOfSpots = std::max(500,static_cast<int> (nmean+nsigma*theRandGauss->fire()));
+  numberOfSpots = std::max(500,static_cast<int> (nmean+nsigma*G4RandGauss::shoot()));
 
   //until we optimize the reduction scale in the number of Nspots
       

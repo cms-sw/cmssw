@@ -17,7 +17,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
   // Need at least 1 dw to findout if pseudo-strips readout is enabled
   if(*dwToEnd == 1){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTCC")
+      edm::LogWarning("IncorrectEvent")
         <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
         <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n Only 8 bytes are available until the end of event ..."
@@ -34,7 +34,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
   
   if( (*dwToEnd_)<blockLength_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiTCC")
+      edm::LogWarning("IncorrectEvent")
         <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
         <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
@@ -73,7 +73,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
       uint dccL1 = (event_->l1A()) & TCC_L1_MASK;    
       if( dccBx != bx_ || dccL1 != l1_ ){
         if( ! DCCDataUnpacker::silentMode_ ){
-          edm::LogWarning("EcalRawToDigiTCC")
+          edm::LogWarning("IncorrectBlock")
   	    <<"\n Synchronization error for TCC block in event "<<event_->l1A()
 	    <<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
 	    <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
@@ -92,7 +92,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
     uint expTriggerTSamples(mapper_->numbTriggerTSamples());
     
     if( nTSamples_ != expTriggerTSamples ){
-      edm::LogWarning("EcalRawToDigiTCC")
+      edm::LogWarning("IncorrectBlock")
         <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n Number of time samples is "<<nTSamples_<<" while "<<expTriggerTSamples<<" is expected"
         <<"\n TCC block skipped..."<<endl;

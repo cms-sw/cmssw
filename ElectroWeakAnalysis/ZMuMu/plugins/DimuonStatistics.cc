@@ -10,6 +10,7 @@ public:
 private:
   edm::InputTag src_;
   std::vector<unsigned int> matched_, unMatched_;
+  double  ptMin_, massMin_,massMax_,  etaMin_,  etaMax_,  trkIso_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -29,10 +30,17 @@ const unsigned int maxEntries = 10;
 DimuonStatistics::DimuonStatistics(const edm::ParameterSet & cfg) : 
   src_(cfg.getParameter<InputTag>("src")), 
   matched_(maxEntries + 1, 0), 
-  unMatched_(maxEntries + 1, 0) {
+  unMatched_(maxEntries + 1, 0), 
+  ptMin_(cfg.getUntrackedParameter<double>("ptMin")),
+  massMin_(cfg.getUntrackedParameter<double>("massMin")),
+  massMax_(cfg.getUntrackedParameter<double>("massMax")),
+  etaMin_(cfg.getUntrackedParameter<double>("etaMin")),
+  etaMax_(cfg.getUntrackedParameter<double>("etaMax")),
+  trkIso_(cfg.getUntrackedParameter<double>("trkIso")){
 }
 
 void DimuonStatistics::endJob() {
+  cout << src_.encode() << endl ;
   cout << " == Matched == " << endl;
   for(unsigned int i = 0; i <= maxEntries; ++i) {
     cout << i << ": " << matched_[i];
@@ -50,6 +58,8 @@ void DimuonStatistics::endJob() {
 void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
   Handle<CandidateView> src;
   evt.getByLabel(src_, src);
+  double trackIso1=-1;
+  double trackIso2=-1;
   int j=0;
   unsigned int matched = 0, unMatched = 0;
   cout << ">> entries in " << src_ << ": " << src->size() << endl;
@@ -66,6 +76,7 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
     if(mu1 != 0) {
       mc1 = mu1->genParticleRef();
       //     if (mc1.isNonnull()) cout << "DimuonStatistics> genParticleRef1 " << mc1->pdgId() << endl;
+      trackIso1=mu1->trackIso();
     } else {
       const pat::GenericParticle * gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
       if(gp1 == 0) 
@@ -79,6 +90,7 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
     if(mu2 != 0) {
       mc2 = mu2->genParticleRef();
       //      if (mc2.isNonnull()) cout << "DimuonStatistics> genParticleRef2 " << mc2->pdgId() << endl;
+     trackIso2=mu2->trackIso();
     } else {
       const pat::GenericParticle * gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
       if(gp2 == 0) 
@@ -101,13 +113,17 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
       }
     }
     //    cout << "DimuonMatcher> dimuonMatch " << dimuonMatch.isNonnull() << endl;
-    if(fabs(dau1->eta())<2 && dau1->pt()>20 &&
-       fabs(dau2->eta())<2 && dau2->pt()>20 &&
-       i->mass() > 60 && i->mass() < 120) {
+    if( (fabs(dau1->eta()) > etaMin_  && fabs(dau1->eta()) < etaMax_)   && dau1->pt()>ptMin_ &&
+     ( (fabs(dau2->eta()) > etaMin_ ) && (fabs(dau2->eta()) < etaMax_) ) && dau2->pt()>ptMin_ &&	
+  trackIso1 < trkIso_ &&  trackIso2 < trkIso_ &&  		      	   i->mass() > massMin_ && i->mass() < massMax_ 
+	)  {
+      cout << "dimuon mass " << i->mass() << endl;    
       if(dimuonMatch.isNonnull())
 	++matched;
       else
 	++unMatched;
+         
+         
     }
   }
   cout << "matched: " << matched << ", unmatched: " << unMatched << endl;

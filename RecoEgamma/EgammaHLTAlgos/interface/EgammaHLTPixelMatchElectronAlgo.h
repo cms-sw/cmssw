@@ -77,11 +77,11 @@ class EgammaHLTPixelMatchElectronAlgo {
 
 public:
 
-  EgammaHLTPixelMatchElectronAlgo( );
+  EgammaHLTPixelMatchElectronAlgo(const ParameterSet& conf);
 
   ~EgammaHLTPixelMatchElectronAlgo();
 
-  void setupES(const EventSetup& setup, const ParameterSet& conf);
+  void setupES(const EventSetup& setup);
   void run(Event&, ElectronCollection&);
 
  private:

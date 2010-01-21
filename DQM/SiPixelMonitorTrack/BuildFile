@@ -7,7 +7,7 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
-<lib name=GeometryTrackerGeometryBuilder>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/TrackFitters>
 <use name=boost>
 <flags EDM_PLUGIN=1>
@@ -22,7 +22,7 @@
    <use name=DataFormats/TrackerRecHit2D>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/Records>
-   <lib name=GeometryTrackerGeometryBuilder>
+   <use name=Geometry/TrackerGeometryBuilder>
    <use name=TrackingTools/TrackFitters>
    <use name=boost>
 </export>

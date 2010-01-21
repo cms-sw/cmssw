@@ -91,7 +91,8 @@ TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	uint32_t keyOld=99999;
 	
 	const SiStripCluster * firstOffsetStripOld = & stripClustersOld->data().front();
-	for (edmNew::DetSetVector<SiStripCluster>::const_iterator itdetOld = stripClustersOld->begin(); itdetOld != stripClustersOld->end(); ++itdetOld) {
+        edmNew::DetSetVector<SiStripCluster>::const_iterator itdetOld = stripClustersOld->find(oldDSstripNew.detId());
+        if (itdetOld != stripClustersOld->end()) {
 	  edmNew::DetSet<SiStripCluster> oldDSstripOld = *itdetOld;
 	  if (oldDSstripOld.empty()) continue; // skip empty detsets 
 	  for (edmNew::DetSet<SiStripCluster>::const_iterator clOld = oldDSstripOld.begin(); clOld != oldDSstripOld.end(); ++clOld) {
@@ -117,19 +118,18 @@ TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if (oldDSpixelNew.empty()) continue; // skip empty detsets 
       for (edmNew::DetSet<SiPixelCluster>::const_iterator clNew = oldDSpixelNew.begin(); clNew != oldDSpixelNew.end(); ++clNew) {
 	int minPixelRowNew = clNew->minPixelRow();
-	uint32_t idPixelNew = clNew->geographicalId();
 	uint32_t keyNew = ((&*clNew) - firstOffsetPixelNew);
 	//cout << "new pixel index=" << keyNew << endl;
 	uint32_t keyOld=99999;
 	
 	const SiPixelCluster * firstOffsetPixelOld = & pixelClustersOld->data().front();
-	for (edmNew::DetSetVector<SiPixelCluster>::const_iterator itdetOld = pixelClustersOld->begin(); itdetOld != pixelClustersOld->end(); ++itdetOld) {
+	edmNew::DetSetVector<SiPixelCluster>::const_iterator itdetOld = pixelClustersOld->find(oldDSpixelNew.detId()); 
+        if (itdetOld != pixelClustersOld->end()) {
 	  edmNew::DetSet<SiPixelCluster> oldDSpixelOld = *itdetOld;
 	  if (oldDSpixelOld.empty()) continue; // skip empty detsets 
 	  for (edmNew::DetSet<SiPixelCluster>::const_iterator clOld = oldDSpixelOld.begin(); clOld != oldDSpixelOld.end(); ++clOld) {
 	    int minPixelRowOld = clOld->minPixelRow();
-	    uint32_t idPixelOld = clOld->geographicalId();
-	    if (idPixelNew==idPixelOld && minPixelRowNew==minPixelRowOld) {
+	    if (minPixelRowNew==minPixelRowOld) {
 	      keyOld = ((&*clOld) - firstOffsetPixelOld);
 	      //cout << "old pixel index=" << keyOld << endl;
 	      break;

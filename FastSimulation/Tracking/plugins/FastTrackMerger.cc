@@ -293,16 +293,16 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	  std::cout << "\tmaxLostHits= " << aTrajectoryRef->lostHits() << "\tCUT =" << theMaxLostHits << std::endl;
 #endif
 
-	if(aTrajectoryRef->lostHits() > theMaxLostHits ) continue;
+	if((unsigned)aTrajectoryRef->lostHits() > theMaxLostHits ) continue;
 
 #ifdef FAMOS_DEBUG
 	if(aTrajectoryRef->foundHits() < theMinimumNumberOfHits )
 	  std::cout << "\tMinimumNumberOfHits = " <<  aTrajectoryRef->foundHits() << "\tCUT = " <<theMinimumNumberOfHits <<  std::endl;
 #endif
 	
-	if(aTrajectoryRef->foundHits() < theMinimumNumberOfHits ) continue;
+	if((unsigned)aTrajectoryRef->foundHits() < theMinimumNumberOfHits ) continue;
 	//calculate the consecutive Lost Hits
-	int consecLostHits = 0;
+	unsigned consecLostHits = 0;
 	const std::vector<TrajectoryMeasurement> tms = aTrajectoryRef->measurements();
 	for(int itm= tms.size();itm!=0; --itm){
 	  if(tms[itm-1].recHit()->isValid())break;

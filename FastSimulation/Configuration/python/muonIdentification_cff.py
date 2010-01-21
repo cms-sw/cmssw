@@ -5,5 +5,9 @@ from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from RecoMuon.MuonIdentification.isolation_cff import *
 from RecoMuon.MuonIdentification.muons_cfi import *
 from RecoMuon.MuonIdentification.calomuons_cfi import *
-muonIdProducerSequence = cms.Sequence(muons*calomuons)
+
+from RecoMuon.GlobalTrackingTools.GlobalTrackQuality_cfi import *
+muons.fillGlobalTrackQuality = True
+
+muonIdProducerSequence = cms.Sequence(glbTrackQual*muons*calomuons)
 

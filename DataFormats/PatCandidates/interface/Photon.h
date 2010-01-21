@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.19 2008/11/28 19:02:15 lowette Exp $
+// $Id: Photon.h,v 1.22 2009/10/15 17:20:10 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.19 2008/11/28 19:02:15 lowette Exp $
+  \version  $Id: Photon.h,v 1.22 2009/10/15 17:20:10 rwolf Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -86,32 +86,41 @@ namespace pat {
 
 
       // ---- methods for photon isolation ----
-      /// Returns the isolation variable for a specifc key (or pseudo-key like CaloIso), or -1.0 if not available
-      float isolation(IsolationKeys key) const { 
+      /// Returns the summed track pt in a cone of deltaR<0.4 
+      /// including the region of the reconstructed photon 
+      float trackIso() const { return trkSumPtSolidConeDR04(); }
+      /// Returns the summed Et in a cone of deltaR<0.4 
+      /// calculated from recHits
+      float ecalIso()  const { return ecalRecHitSumEtConeDR04(); }
+      /// Returns summed Et in a cone of deltaR<0.4 calculated 
+      /// from caloTowers
+      float hcalIso()  const { return hcalTowerSumEtConeDR04(); }
+      /// Returns the calorimeter isolation combined from ecal 
+      /// and hcal 
+      float caloIso()  const { return ecalIso()+hcalIso(); }
+      /// Returns a user defined isolation value
+      float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }
+      /// Returns the isolation variable for a specifc key (or 
+      /// pseudo-key like CaloIso), or -1.0 if not available
+      float userIsolation(IsolationKeys key) const { 
           if (key >= 0) {
-              //if (key >= isolations_.size()) throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
+	    //if (key >= isolations_.size()) throw cms::Excepton("Missing Data") 
+	    //<< "Isolation corresponding to key " << key 
+	    //<< " was not stored for this particle.";
               if (size_t(key) >= isolations_.size()) return -1.0;
               return isolations_[key];
           } else switch (key) {
-              case CaloIso:  
-                  //if (isolations_.size() <= HCalIso) throw cms::Excepton("Missing Data") << "CalIsoo Isolation was not stored for this particle.";
-                  if (isolations_.size() <= HCalIso) return -1.0; 
-                  return isolations_[ECalIso] + isolations_[HCalIso];
-              default:
-                  return -1.0;
-                  //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
+	  case pat::CaloIso:  
+		//if (isolations_.size() <= pat::HcalIso) throw cms::Excepton("Missing Data") 
+		//<< "CalIsoo Isolation was not stored for this particle.";
+		if (isolations_.size() <= pat::HcalIso) return -1.0; 
+		return isolations_[pat::EcalIso] + isolations_[pat::HcalIso];
+	  default:
+	    return -1.0;
+	    //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " 
+	    //<< key << " was not stored for this particle.";
           }
       }
-      /// Return the tracker isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float trackIso() const { return isolation(TrackerIso); }
-      /// Return the sum of ecal and hcal isolation variable that were stored in this object when produced, or -1.0 if at least one is missing
-      float caloIso()  const { return isolation(CaloIso); }
-      /// Return the ecal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float ecalIso()  const { return isolation(ECalIso); }
-      /// Return the hcal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float hcalIso()  const { return isolation(HCalIso); }
-      /// Return the user defined isolation variable #index that was stored in this object when produced, or -1.0 if there is none
-      float userIso(uint8_t index=0)  const { return isolation(IsolationKeys(UserBaseIso + index)); }
       /// Sets the isolation variable for a specifc key.
       /// Note that you can't set isolation for a pseudo-key like CaloIso
       void setIsolation(IsolationKeys key, float value) {
@@ -122,16 +131,16 @@ namespace pat {
               throw cms::Exception("Illegal Argument") << 
                   "The key for which you're setting isolation does not correspond " <<
                   "to an individual isolation but to the sum of more independent isolations " <<
-                  "(e.g. Calo = ECal + HCal), so you can't SET the value, just GET it.\n" <<
+                  "(e.g. Calo = Ecal + Hcal), so you can't SET the value, just GET it.\n" <<
                   "Please set up each component independly.\n";
           }
       }
       /// Sets tracker isolation variable
-      void setTrackIso(float trackIso) { setIsolation(TrackerIso, trackIso); }
+      void setTrackIso(float trackIso) { setIsolation(TrackIso, trackIso); }
       /// Sets ecal isolation variable
-      void setECalIso(float caloIso)   { setIsolation(ECalIso, caloIso);  } 
+      void setEcalIso(float caloIso)   { setIsolation(EcalIso,  caloIso);  } 
       /// Sets hcal isolation variable
-      void setHCalIso(float caloIso)   { setIsolation(HCalIso, caloIso);  }
+      void setHcalIso(float caloIso)   { setIsolation(HcalIso,  caloIso);  }
       /// Sets user isolation variable #index
       void setUserIso(float value, uint8_t index=0)  { setIsolation(IsolationKeys(UserBaseIso + index), value); }
 
@@ -146,11 +155,11 @@ namespace pat {
           return 0;
       } 
       /// Return the tracker IsoDeposit
-      const IsoDeposit * trackerIsoDeposit() const { return isoDeposit(TrackerIso); }
+      const IsoDeposit * trackIsoDeposit() const { return isoDeposit(pat::TrackIso); }
       /// Return the ecal IsoDeposit
-      const IsoDeposit * ecalIsoDeposit()    const { return isoDeposit(ECalIso); }
+      const IsoDeposit * ecalIsoDeposit()  const { return isoDeposit(pat::EcalIso ); }
       /// Return the hcal IsoDeposit
-      const IsoDeposit * hcalIsoDeposit()    const { return isoDeposit(HCalIso); }
+      const IsoDeposit * hcalIsoDeposit()  const { return isoDeposit(pat::HcalIso ); }
       /// Return a specified user-level IsoDeposit
       const IsoDeposit * userIsoDeposit(uint8_t index=0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
       /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
@@ -162,11 +171,11 @@ namespace pat {
           isoDeposits_.push_back(std::make_pair(key,dep));
       } 
       /// Sets tracker IsoDeposit
-      void trackerIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(TrackerIso, dep); }
+      void trackIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso, dep); }
       /// Sets ecal IsoDeposit
-      void ecalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(ECalIso, dep); }
+      void ecalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::EcalIso,  dep); }
       /// Sets hcal IsoDeposit
-      void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(HCalIso, dep); }
+      void hcalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::HcalIso,  dep); }
       /// Sets user-level IsoDeposit
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 

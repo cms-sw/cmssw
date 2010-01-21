@@ -195,10 +195,8 @@ class Table(object):
 #
 def main():
     global TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents
-    #Bad design... why is this function defined here?
-    #Either no function, or define somewhere else.
     def _copyReportsToStaging(repdir,LogFiles,cmsScimarkDir,stage):
-        """Use function syscp to copy LogFiles and cmsScimarkDir over to staging area"""
+
         if _verbose:
             print "Copying the logfiles to %s/." % stage
             print "Copying the cmsScimark2 results to the %s/." % stage  
@@ -206,9 +204,7 @@ def main():
         syscp(LogFiles     , stage + "/")
         syscp(cmsScimarkDir, stage + "/")
 
-    #Same comment as above about the opportunity of this function definition here.
     def _createLogFile(LogFile,date,LocalPath,ShowTagsResult):
-        """Creating a small logfile with basic publication script running information (never used really by other scripts in the suite)."""
         try:
             LOG = open(LogFile,"w")
             if _verbose:
@@ -239,15 +235,10 @@ def main():
     print "\n Getting the number of events for each test..."
     #Let's do a quick implementation of something that looks at the logfile:
     cmsPerfSuiteLogfile="%s/cmsPerfSuite.log"%repdir
-
+    #print "AAAA %s"%cmsPerfSuiteLogfile
     if os.path.exists(cmsPerfSuiteLogfile):
-        try:
-            (TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents)=getNumOfEventsFromLog(cmsPerfSuiteLogfile)
-            #For now keep the dangerous default? Better set it to a negative number...
-        except:
-            print "There was an issue in reading out the number of events for the various tests using the standard logfile %s"%cmsPerfSuiteLogFile
-            print "Check that the format was not changed: this scripts relies on the initial perfsuite arguments to be dumped in the logfile one per line!"
-            print "For now taking the default values for all tests (0)!"
+        (TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents)=getNumOfEventsFromLog(cmsPerfSuiteLogfile)
+    #For now keep the dangerous default? Better set it to a negative number...
 
     print "\n Scan report directory..."
     # Retrieve some directories and information about them
@@ -430,9 +421,6 @@ def getNumOfEventsFromLog(logfile):
     CallgrindEvents=0
     MemcheckEvents=0
     for line in log:
-        #FIXME:
-        #For robustness could read this from the Launching the X tests (.....) with N events each and keep that format decent for parsing.
-        #One more place where XML would seem a better choice to extract information (Timing of the performance suite in general is also, but publishing and harvesting some other info as well).
         if 'TimeSizeEvents' in line and not TimeSizeEvents:
             lineitems=line.split()
             TimeSizeEvents=lineitems[lineitems.index('TimeSizeEvents')+1]
@@ -600,8 +588,6 @@ def getStageRepDirs(options,args):
 # Scan report area for required things
 #
 def scanReportArea(repdir):
-    """Scans the working directory for cms*.logs (cmsPerfSuite.log and cmsScimark*.log, and cmsScimark results.
-    It returns Execution date (completion), current date, list of logfiles and cmsScimark results"""
     date=getDate()
     LogFiles  = glob.glob(repdir + "cms*.log")
     if _verbose:
@@ -615,10 +601,7 @@ def scanReportArea(repdir):
 
     cmsScimarkResults = []
     for adir in cmsScimarkDir:
-        htmlfiles = glob.glob(adir + "/*.html")
-        #FIXME:
-        #Really unnecessary use of map in my opinion
-        #Could do with cmsScimarkResults.extend(htmlfiles)
+        htmlfiles = glob.glob(adir + "/*.html") 
         map(cmsScimarkResults.append,htmlfiles)
 
     ExecutionDateLast = ""

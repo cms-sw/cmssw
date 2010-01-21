@@ -4,15 +4,16 @@ from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlo
 
 mixData = cms.EDFilter("DataMixingModule",
                    hcalSimBlock,
-    input = cms.SecSource("PoolRASource",
+    input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
-        #fileNames = cms.untracked.vstring('dcap://cmsdca.fnal.gov:24137/pnfs/fnal.gov/usr/cms/WAX/11/store/mc/CSA08/JetET30/GEN-SIM-RECO/CSA08_S156_v1/0002/000250F6-A72B-DD11-8904-00145E1D6204.root')
-        #fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/mikeh/cms/promptreco.root')
-        fileNames = cms.untracked.vstring('file:/uscms/home/mikeh/work/CMSSW_3_1_0_pre7/src/myreco_D_RAW2DIGI_RECO.root')
+        sequential = cms.untracked.bool(False), 
+        fileNames = cms.untracked.vstring(
+            'file:DMPreProcess_RAW2DIGI.root'
+        )
     ),
     # Mixing Module parameters
     Label = cms.string(''),
@@ -47,35 +48,34 @@ mixData = cms.EDFilter("DataMixingModule",
     ESrechitCollectionSig = cms.InputTag("EcalRecHitsES"),                   
                    #
     HBHEProducerSig = cms.InputTag("hbhereco"),
-    HBHErechitCollectionSig = cms.InputTag("HBHERecHitCollection"),
+    HBHErechitCollectionSig = cms.InputTag(""),
     HOProducerSig = cms.InputTag("horeco"),                   
-    HOrechitCollectionSig = cms.InputTag("HORecHitCollection"),
+    HOrechitCollectionSig = cms.InputTag(""),
     HFProducerSig = cms.InputTag("hfreco"),
-    HFrechitCollectionSig = cms.InputTag("HFRecHitCollection"),                   
-    ZDCrechitCollectionSig = cms.InputTag("ZDCRecHitCollection"),
+    HFrechitCollectionSig = cms.InputTag(""),                   
+    ZDCrechitCollectionSig = cms.InputTag("zdcreco"),
     #
     EBPileRecHitInputTag = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
     EEPileRecHitInputTag = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
     ESPileRecHitInputTag = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES"),                  
     #
-    HBHEPileRecHitInputTag = cms.InputTag("hbhereco", "HBHERecHitCollection"),
-    HOPileRecHitInputTag = cms.InputTag("horeco", "HORecHitCollection"),                   
-    HFPileRecHitInputTag = cms.InputTag("hfreco", "HFRecHitCollection"),
-    ZDCPileRecHitInputTag = cms.InputTag("","ZDCRecHitCollection"),
+    HBHEPileRecHitInputTag = cms.InputTag("hbhereco", ""),
+    HOPileRecHitInputTag = cms.InputTag("horeco", ""),                   
+    HFPileRecHitInputTag = cms.InputTag("hfreco", ""),
+    ZDCPileRecHitInputTag = cms.InputTag("zdcreco",""),
     #
     # Calorimeter digis
     #
     EBdigiProducerSig = cms.InputTag("ecalDigis"),
     EEdigiProducerSig = cms.InputTag("ecalDigis"),
     ESdigiProducerSig = cms.InputTag("ecalPreshowerDigis"),
-    #
     EBdigiCollectionSig = cms.InputTag("ebDigis"),
     EEdigiCollectionSig = cms.InputTag("eeDigis"),
     ESdigiCollectionSig = cms.InputTag(""),
     HBHEdigiCollectionSig  = cms.InputTag("hcalDigis"),
     HOdigiCollectionSig    = cms.InputTag("hcalDigis"),
     HFdigiCollectionSig    = cms.InputTag("hcalDigis"),
-    ZDCdigiCollectionSig   = cms.InputTag("ZDCdigiCollection"),          
+    ZDCdigiCollectionSig   = cms.InputTag("hcalDigis"),          
     #
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis"),
     EEPileInputTag = cms.InputTag("ecalDigis","eeDigis"),
@@ -83,7 +83,7 @@ mixData = cms.EDFilter("DataMixingModule",
     HBHEPileInputTag = cms.InputTag("hcalDigis"),                  
     HOPileInputTag   = cms.InputTag("hcalDigis"),                  
     HFPileInputTag   = cms.InputTag("hcalDigis"),                  
-    ZDCPileInputTag  = cms.InputTag("ZDCdigiCollection"),          
+    ZDCPileInputTag  = cms.InputTag("hcalDigis"),          
     #  Signal
     CSCDigiTagSig = cms.InputTag("muonCSCDigis"),
     CSCwiredigiCollectionSig = cms.InputTag("MuonCSCWireDigi"),
@@ -124,7 +124,7 @@ mixData = cms.EDFilter("DataMixingModule",
     #               
     EBDigiCollectionDM   = cms.string('EBDigiCollectionDM'),
     EEDigiCollectionDM   = cms.string('EEDigiCollectionDM'),
-    ESDigiCollectionDM   = cms.string('ESDigiCollectionDM'),
+    ESDigiCollectionDM   = cms.string(''),
     HBHEDigiCollectionDM = cms.string('HBHEDigiCollectionDM'),
     HODigiCollectionDM   = cms.string('HODigiCollectionDM'),
     HFDigiCollectionDM   = cms.string('HFDigiCollectionDM'),

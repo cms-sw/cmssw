@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommissioningAnalysis_SamplingAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_SamplingAlgorithm_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -19,7 +18,7 @@ class SamplingAlgorithm : public CommissioningAlgorithm {
   
  public:
   
-  SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAnalysis* const, uint32_t latencyCode = 0 );
+  SamplingAlgorithm( SamplingAnalysis* const, uint32_t latencyCode = 0 );
   
   virtual ~SamplingAlgorithm() {;}
   

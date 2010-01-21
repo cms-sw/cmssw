@@ -9,11 +9,14 @@ iterativeFourthSeeds.secondHitSubDetectors = [3, 4, 6]
 iterativeFourthSeeds.thirdHitSubDetectorNumber = [0]
 iterativeFourthSeeds.thirdHitSubDetectors = []
 iterativeFourthSeeds.seedingAlgo = ['FourthPixelLessPairs']
-iterativeFourthSeeds.minRecHits = [5]
-iterativeFourthSeeds.pTMin = [0.2]
+###iterativeFourthSeeds.minRecHits = [5]
+iterativeFourthSeeds.minRecHits = [3]
+iterativeFourthSeeds.pTMin = [0.01]
 #cut on fastsim simtracks. I think it should be removed for the 4th step
-iterativeFourthSeeds.maxD0 = [10.]
-iterativeFourthSeeds.maxZ0 = [30.]
+#iterativeFourthSeeds.maxD0 = [20.]
+#iterativeFourthSeeds.maxZ0 = [50.]
+iterativeFourthSeeds.maxD0 = [99.]
+iterativeFourthSeeds.maxZ0 = [99.]
 #-----
 iterativeFourthSeeds.numberOfHits = [2]
 #values for the seed compatibility constraint

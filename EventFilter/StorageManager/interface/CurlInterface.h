@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: CurlInterface.h,v 1.1 2009/08/20 13:43:18 mommsen Exp $
 /// @file: CurlInterface.h
 
 #ifndef StorageManager_CurlInterface_h
@@ -14,8 +14,8 @@ namespace stor {
    * Helper class to interact with curl
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.1 $
+   * $Date: 2009/08/20 13:43:18 $
    */
  
   class CurlInterface

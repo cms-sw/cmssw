@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.13 2009/09/04 21:34:20 wdd Exp $
+// $Id: ChainEvent.cc,v 1.14 2009/09/10 20:36:33 cplager Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@ namespace fwlite {
   accumulatedSize_()
 {
     Long64_t summedSize=0;
-    accumulatedSize_.reserve(iFileNames.size());
+    accumulatedSize_.reserve(iFileNames.size()+1);
     for(std::vector<std::string>::const_iterator it= iFileNames.begin(),
         itEnd = iFileNames.end();
         it!=itEnd;
@@ -52,10 +52,13 @@ namespace fwlite {
        if(0==tree) {
           throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
        }
-       
-       summedSize += tree->GetEntries();
+       // accumulatedSize_ is the entry # at the beginning of this file
        accumulatedSize_.push_back(summedSize);
+       summedSize += tree->GetEntries();
     }
+    // total accumulated size (last enry + 1) at the end of last file
+    accumulatedSize_.push_back(summedSize);
+ 
     if ( iFileNames.size() > 0 ) 
       switchToFile(0);
 }
@@ -105,28 +108,29 @@ ChainEvent::operator++()
 ///Go to the event at index iIndex
 const ChainEvent& 
 ChainEvent::to(Long64_t iIndex) {
-  if(iIndex > accumulatedSize_.back()) {
+  if(iIndex >= accumulatedSize_.back()) {
     //should throw exception
     return *this;
   }
+
   Long64_t offsetIndex = eventIndex_;
-  bool incremented = false;
-  while(iIndex > accumulatedSize_[offsetIndex] && offsetIndex != static_cast<Long64_t>(accumulatedSize_.size())) {
+
+  // we're going backwards, so start from the beginning
+  if (iIndex < accumulatedSize_[offsetIndex]) {
+    offsetIndex = 0;
+  }
+
+  // is it past the end of this file?
+  while (iIndex >= accumulatedSize_[offsetIndex+1]) {
     ++offsetIndex;
-    incremented = true;
   }
-  if (incremented) {
-    //we will have over shot
-    --offsetIndex;
-  } else {
-    while(iIndex < accumulatedSize_[offsetIndex] && offsetIndex !=-1) {
-      --offsetIndex;
-    }
+
+  if(offsetIndex != eventIndex_) {
+    switchToFile(eventIndex_ = offsetIndex);
   }
-  if(offsetIndex-1 != eventIndex_) {
-    switchToFile(eventIndex_ = offsetIndex+1);
-  }
-  event_->to( iIndex - accumulatedSize_[offsetIndex]);
+
+  // adjust to entry # in this file
+  event_->to( iIndex-accumulatedSize_[offsetIndex] );
   return *this;
 }
 

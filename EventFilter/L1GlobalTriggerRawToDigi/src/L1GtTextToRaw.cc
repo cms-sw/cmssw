@@ -97,7 +97,7 @@ L1GtTextToRaw::~L1GtTextToRaw()
 // member functions
 
 // beginning of job stuff
-void L1GtTextToRaw::beginJob(const edm::EventSetup& evSetup)
+void L1GtTextToRaw::beginJob()
 {
 
     cleanTextFile();

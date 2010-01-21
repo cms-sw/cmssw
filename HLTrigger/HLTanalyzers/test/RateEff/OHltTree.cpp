@@ -14,9 +14,7 @@
 
 using namespace std;
 
-void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID
-		    ,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4 
-		    ,SampleDiagnostics& primaryDatasetsDiagnostics)
+void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4) 
 {
   cout<<"Start looping on sample "<<procID<<endl;
   if (fChain == 0) {cerr<<"Error: no tree!"<<endl; return;}
@@ -68,18 +66,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
     if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
-
-    // When running on real data, keep track of how many LumiSections have been 
-    // used. Note: this assumes LumiSections are contiguous, and that the user 
-    // uses complete LumiSections
-    if(menu->IsRealData())
-      {
-	currentLumiSection = LumiBlock;
-	if(currentLumiSection != previousLumiSection)
-	  nLumiSections++;
-
-	previousLumiSection = currentLumiSection;	
-      }
  
     SetOpenL1Bits(); 
 
@@ -89,7 +75,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!
     if(menu->DoL1preLoop() && menu->IsHltMenu()) {
-      ApplyL1Prescales(menu,cfg,rc);
+      ApplyL1Prescales(menu);
     }
 
     //SetMapL1BitOfStandardHLTPath(menu);
@@ -101,20 +87,16 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //////////////////////////////////////////////////////////////////
 
 
-//     if (cfg->pnames[procID]=="zee"||cfg->pnames[procID]=="zmumu"){
-    if(cfg->pisPhysicsSample[procID]!=0) {
+    if (cfg->pnames[procID]=="zee"||cfg->pnames[procID]=="zmumu"){
       int accMCMu=0;
       int accMCEle=0;
       if(cfg->selectBranchMC){
 	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
-	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
-	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
+	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
 	}
-	if     ((cfg->pisPhysicsSample[procID]==1 && accMCEle>=1               )){ Den=Den+1;}
-	else if((cfg->pisPhysicsSample[procID]==2 &&                accMCMu >=1)){ Den=Den+1;}
-	else if((cfg->pisPhysicsSample[procID]==3 && accMCEle>=1 && accMCMu >=1)){ Den=Den+1;}
-
-	else {continue;}
+	if((cfg->pnames[procID]=="zee" && accMCEle>1)||(cfg->pnames[procID] == "zmumu" && accMCMu>1)){ Den=Den+1;}
+	else{continue;}
       }
     }
 
@@ -124,13 +106,12 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //////////////////////////////////////////////////////////////////
     TString hlteffmode;
     TString ohltobject;
-    //    hlteffmode="GEN";
+    hlteffmode="GEN";
     //    hlteffmode="L1";
-    hlteffmode="RECO";
+    //    hlteffmode="RECO";
     ohltobject="None";
-    if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
-    if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
-    if (cfg->pisPhysicsSample[procID]==3)ohltobject="ele_mu";
+    if (cfg->pnames[procID]=="zee")ohltobject="electron";
+    if (cfg->pnames[procID]=="zmumu")ohltobject="muon";
     PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 
@@ -149,14 +130,13 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	// Prefixes reserved for Standard HLT&L1	
 	if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) {	
 	  if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	    if (prescaleResponse(menu,cfg,rc,i)) { triggerBit[i] = true; }
+	    if (GetIntRandom() % menu->GetPrescale(i) == 0) { triggerBit[i] = true; }
 	  }
 	}
       } else {
-	CheckOpenHlt(cfg,menu,rc,i);
+	CheckOpenHlt(cfg,menu,i);
       }
     }
-    primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
 
     /* ******************************** */
     // 2. Loop to check overlaps
@@ -196,23 +176,3 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
   //}
 };
 
-
-
-
-bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
-  if (cfg->doDeterministicPrescale) {
-    (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetPrescale(i) == 0); //
-  } else {
-    return (GetIntRandom() % menu->GetPrescale(i) == 0);
-  }
-};
-
-bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
-  if (cfg->doDeterministicPrescale) {
-    (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) == 0); //
-  } else {
-    return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
-  }
-};
