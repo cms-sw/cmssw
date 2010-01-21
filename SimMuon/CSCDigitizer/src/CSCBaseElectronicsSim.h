@@ -56,7 +56,6 @@ protected:
   // constructor protected, so this class must be a base class
   CSCBaseElectronicsSim(const edm::ParameterSet & p);
 
-  void setLayer(const CSCLayer * layer);
   // initialize things that change from layer to layer
   virtual void initParameters() = 0;
 

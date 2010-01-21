@@ -5,5 +5,8 @@ MonitorTrackTKCosmicMuons = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clo
 MonitorTrackTKCosmicMuons.TrackProducer = 'ctfWithMaterialTracksP5'
 MonitorTrackTKCosmicMuons.AlgoName = 'ctf'
 MonitorTrackTKCosmicMuons.FolderName = 'Muons/TKTrack'
+MonitorTrackTKCosmicMuons.doBeamSpotPlots = False
+MonitorTrackTKCosmicMuons.BSFolderName = 'Muons/TKTrack/BeamSpotParameters'
+MonitorTrackTKCosmicMuons.doSeedParameterHistos = False
 
 

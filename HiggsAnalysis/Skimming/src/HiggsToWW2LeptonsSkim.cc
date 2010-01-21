@@ -3,16 +3,16 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2009/06/16 10:29:37 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/12/20 00:40:30 $
+ *  $Revision: 1.10 $
  *
  *  \author Ezio Torassa  -  INFN Padova
- *  \revised Javier Fernandez - Univ. Oviedo	
  *
  */
 
 #include "HiggsAnalysis/Skimming/interface/HiggsToWW2LeptonsSkim.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -39,23 +39,14 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
 {
 
   // Reconstructed objects
+  recTrackLabel     = iConfig.getParameter<edm::InputTag>("RecoTrackLabel");
   theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
   theGsfELabel      = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
-  nLeptons_	     = iConfig.getParameter<int>("nLeptons");
-  if(nLeptons_>2) {nLeptons_=2;
-    edm::LogVerbatim("HiggsToWW2LeptonsSkim")
-            << "\nnLeptons_ must be 1 or 2!!!"
-            << std::endl;
-	}
-  singleLeptonPtMin_ = iConfig.getParameter<double>("SingleLeptonPtMin");
-  diLeptonPtMin_     = iConfig.getParameter<double>("DiLeptonPtMin");
+  singleTrackPtMin_ = iConfig.getParameter<double>("SingleTrackPtMin");
+  diTrackPtMin_     = iConfig.getParameter<double>("DiTrackPtMin");
   etaMin_           = iConfig.getParameter<double>("etaMin");
   etaMax_           = iConfig.getParameter<double>("etaMax");
-
-  beTight_	    = iConfig.getParameter<bool>("beTight");
-  dilepM_	    = iConfig.getParameter<double>("dilepM");
-  eleHadronicOverEm_= iConfig.getParameter<double>("eleHadronicOverEm");
 }
 
 
@@ -79,10 +70,7 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
   nEvents_++;
   bool accepted = false;
   bool accepted1 = false;
-  int nLeptonOver2ndCut = 0;
-  std::vector<Particle::LorentzVector> leptons;
-  double MuMass = 0.106;
-  double EMass=0.000511;
+  int nTrackOver2ndCut = 0;
 
 
   // Handle<CandidateCollection> tracks;
@@ -101,12 +89,8 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
     // and how many are above threshold
     for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
       if ( muons->eta() > etaMin_ && muons->eta() < etaMax_ ) {
-        if ( muons->pt() > singleLeptonPtMin_ ) accepted1 = true;
-        if ( muons->pt() > diLeptonPtMin_ ) nLeptonOver2ndCut++;
-	if(beTight_){
-	double E = sqrt(muons->momentum().Mag2()+MuMass*MuMass);
-	leptons.push_back(Particle::LorentzVector(muons->px(),muons->py(),muons->pz(),E));
-	}
+        if ( muons->pt() > singleTrackPtMin_ ) accepted1 = true;
+        if ( muons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++; 
       }
     }
   } 
@@ -128,42 +112,14 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
     // and how many are above threshold
     for ( electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons ) {
       if ( electrons->eta() > etaMin_ && electrons->eta() < etaMax_ ) {
-
-	if(beTight_ && electrons->hadronicOverEm() < eleHadronicOverEm_){
-        if ( electrons->pt() > singleLeptonPtMin_ ) accepted1 = true;
-        if ( electrons->pt() > diLeptonPtMin_ ) nLeptonOver2ndCut++;
-        double e = sqrt(electrons->momentum().Mag2()+EMass*EMass);
-        leptons.push_back(Particle::LorentzVector(electrons->px(),electrons->py(),electrons->pz(),e));
-	}
-	else{
-        if ( electrons->pt() > singleLeptonPtMin_ ) accepted1 = true;
-        if ( electrons->pt() > diLeptonPtMin_ ) nLeptonOver2ndCut++;
-  	}
-		
-     }
+        if ( electrons->pt() > singleTrackPtMin_ ) accepted1 = true;
+        if ( electrons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++;
+      }
     }
   }
 
 
-  if ( accepted1 && nLeptonOver2ndCut >= nLeptons_ ) accepted = true;
-
-  if(accepted && beTight_){
-	accepted=false;
-	if(leptons.size()>0){
-		for(unsigned int i=0;i<leptons.size();i++){
-			for(unsigned int j=i+1;j<leptons.size();j++){
-			Particle::LorentzVector lep1 = leptons.at(i);
-			Particle::LorentzVector lep2 = leptons.at(j);
-			Particle::LorentzVector lep = lep1 + lep2;
-             		double invmass = abs(lep.mass());
-			if(invmass>dilepM_){
-			accepted=true;
-			break;
-			}
-			}
-		}
-	}
-  }
+  if ( accepted1 && nTrackOver2ndCut >= 2 ) accepted = true;
 
   if ( accepted ) nAccepted_++;
 

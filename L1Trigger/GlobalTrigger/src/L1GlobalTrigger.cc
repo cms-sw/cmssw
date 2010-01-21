@@ -536,6 +536,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     bool receiveCastor = false;
     bool receiveBptx = false;
+    bool receiveExternal = false;
 
     bool receiveTechTr = false;
 
@@ -630,6 +631,11 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                         break;
                                     case BptxQ: {
                                             receiveBptx = true;
+                                        }
+
+                                        break;
+                                    case GtExternalQ: {
+                                            receiveExternal = true;
                                         }
 
                                         break;

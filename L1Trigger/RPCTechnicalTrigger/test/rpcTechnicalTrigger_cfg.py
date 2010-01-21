@@ -21,6 +21,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string( globaltag )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+#.. if cosmics: reconstruction sequence for Cosmics
+#process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxevts) )
 
 process.source = cms.Source("PoolSource",
@@ -29,8 +32,8 @@ process.source = cms.Source("PoolSource",
 process.load("L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi")
 
 #.. use the provided hardware configuration parameters
-process.rpcTechnicalTrigger.UseDatabase   = cms.untracked.int32(0)
-process.rpcTechnicalTrigger.ConfigFile    = cms.untracked.string("hardware-pseudoconfig.txt")
+process.rpcTechnicalTrigger.UseDatabase  = cms.untracked.int32(0)
+process.rpcTechnicalTrigger.ConfigFile   = cms.untracked.string("hardware-pseudoconfig.txt")
 
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('rpcttbits.root'),

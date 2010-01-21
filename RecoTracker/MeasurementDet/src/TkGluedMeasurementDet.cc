@@ -108,11 +108,13 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 
       HitCollectorForFastMeasurements collector( &geomDet(), theMatcher, stateOnThisDet, est, result);
       collectRecHits(stateOnThisDet, collector);
-     
+       
       if ( result.empty()) {
           //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
           const BoundPlane &gluedPlane = geomDet().surface();
           if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
+               stateOnThisDet.hasError() && ( /* do this only if the state has uncertainties, otherwise it will throw 
+                                                 (states without uncertainties are passed to this code from seeding */
                 (theMonoDet->isActive() && 
                     (theMonoDet->hasAllGoodChannels() || 
                        testStrips(stateOnThisDet,gluedPlane,*theMonoDet)
@@ -123,6 +125,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
                        testStrips(stateOnThisDet,gluedPlane,*theStereoDet)
                     )
                 ) /*Stereo OK*/ 
+               ) /* State has errors */
               ) {
               result.push_back( TrajectoryMeasurement( stateOnThisDet, 
                           InvalidTransientRecHit::build(&geomDet()), 0.F)); 

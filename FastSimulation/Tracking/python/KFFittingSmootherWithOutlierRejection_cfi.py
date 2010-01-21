@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 KFFittingSmootherWithOutlierRejection = cms.ESProducer(
     "KFFittingSmootherESProducer",
-    EstimateCut = cms.double(20.0),
+    EstimateCut = cms.double(10.0),
     Fitter = cms.string('KFFitter'),
     MinNumberOfHits = cms.int32(3),
     Smoother = cms.string('KFSmoother'),

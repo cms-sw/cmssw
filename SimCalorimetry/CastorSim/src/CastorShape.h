@@ -23,6 +23,9 @@ public:
   virtual ~CastorShape(){}
   
   virtual double operator () (double time) const;
+  double derivative (double time) const;
+  double getTpeak () const;
+
 
  private:
   void computeShapeCastor();

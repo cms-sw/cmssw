@@ -72,7 +72,7 @@ bool DCCEBSRPBlock::checkSrpIdAndNumbSRFlags(){
   // Check number of SR flags
   if( nSRFlags_ != expNumbSrFlags_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigi@SUB=DCCSRPBlock::unpack")
+      edm::LogWarning("IncorrectBlock")
         <<"\nUnable to unpack SRP block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\nNumber of flags "<<nSRFlags_<<" is different from expected "<<expNumbSrFlags_;
      }

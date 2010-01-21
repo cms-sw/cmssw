@@ -47,7 +47,7 @@ ESRawDataTask::ESRawDataTask(const ParameterSet& ps) {
 ESRawDataTask::~ESRawDataTask() {
 }
 
-void ESRawDataTask::beginJob(const EventSetup& c) {
+void ESRawDataTask::beginJob(void) {
 
    ievt_ = 0;
 

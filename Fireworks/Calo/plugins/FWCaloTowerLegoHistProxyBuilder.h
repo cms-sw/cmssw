@@ -1,12 +1,12 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerLegoHistProxyBuilder.h,v 1.1 2009/01/19 17:59:12 amraktad Exp $
+// $Id: FWCaloTowerLegoHistProxyBuilder.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
 //
 
 #ifndef Fireworks_Calo_FWCaloTowerLegoHistProxyBuilder_h
 #define Fireworks_Calo_FWCaloTowerLegoHistProxyBuilder_h
 
 
-#include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
+#include "Fireworks/Calo/plugins/FW3DLegoEveHistProxyBuilder.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 

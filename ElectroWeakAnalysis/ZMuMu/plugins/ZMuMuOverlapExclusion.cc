@@ -13,8 +13,8 @@ struct ZMuMuOverlap {
     // (for example a Z can be done with two global muons, or with a global muon plus a standalone muon.
     // if the standalone muon is part of the second global muon in fact this is the same Z)
   
-    size_t nd1 = zMuMu.numberOfDaughters();
-    size_t nd2 = z.numberOfDaughters();
+    unsigned int nd1 = zMuMu.numberOfDaughters();
+    unsigned int nd2 = z.numberOfDaughters();
     
     assert(nd1==2 && nd2==2);
     const int maxd = 2;
@@ -27,9 +27,9 @@ struct ZMuMuOverlap {
     TrackRef stAloneTrack2[maxd];
     TrackRef globalTrack2[maxd];
     bool flag;
-    size_t matched=0;
+    unsigned int matched=0;
     
-    for( size_t i = 0; i < nd1; ++ i ) {
+    for( unsigned int i = 0; i < nd1; ++ i ) {
       daughters1[i] = zMuMu.daughter( i );
       trackerTrack1[i] = daughters1[i]->get<TrackRef>();
       stAloneTrack1[i] = daughters1[i]->get<TrackRef,reco::StandAloneMuonTag>();
@@ -57,7 +57,7 @@ struct ZMuMuOverlap {
 	   << endl;
       */
     }
-    for( size_t i = 0; i < nd2; ++ i ) {
+    for( unsigned int i = 0; i < nd2; ++ i ) {
       daughters2[i] = z.daughter( i );
       trackerTrack2[i] = daughters2[i]->get<TrackRef>();
       stAloneTrack2[i] = daughters2[i]->get<TrackRef,reco::StandAloneMuonTag>();
@@ -86,11 +86,11 @@ struct ZMuMuOverlap {
 	   
       */  
     }
-    for (size_t i = 0; i < nd1; i++) {
+    for (unsigned int i = 0; i < nd1; i++) {
       flag = false;
-      for (size_t j = 0; j < nd2; j++) {           // if the obj2 is a standalone the trackref is alwais in the trackerTRack position
-	if (trackerTrack2[i].id()==trackerTrack1[j].id() && trackerTrack2[i].key()==trackerTrack1[j].key() ||
-	    trackerTrack2[i].id()==stAloneTrack1[j].id() && trackerTrack2[i].key()==stAloneTrack1[j].key()) {
+      for (unsigned int j = 0; j < nd2; j++) {           // if the obj2 is a standalone the trackref is alwais in the trackerTRack position
+	if ( ((trackerTrack2[i].id()==trackerTrack1[j].id()) && (trackerTrack2[i].key()==trackerTrack1[j].key())) ||
+	     ((trackerTrack2[i].id()==stAloneTrack1[j].id()) && (trackerTrack2[i].key()==stAloneTrack1[j].key())) ) {
 	  flag = true;
 	}
       }

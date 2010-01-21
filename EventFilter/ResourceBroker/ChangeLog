@@ -1,3 +1,29 @@
+2009-11-17  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-14
+	* roll back of previous change found to crash RB in PB mode
+	
+2009-11-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-13
+	* minor modification to fix of 00-12-11 to address possible 
+	memleak
+
+2009-11-06  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-12
+	* change message for client process death and add warning when no event is saved to error stream
+
+2009-11-02  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-11
+	* possible fix for occasional RB crashes resulting from pathological events
+
+2009-07-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-10
+	* added parameter for resourcetable timeout and increased default to 12 s 
+
 2009-07-08  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-12-09

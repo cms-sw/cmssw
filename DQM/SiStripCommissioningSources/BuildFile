@@ -4,6 +4,7 @@
 <use name=CondFormats/SiStripObjects>
 <use name=DataFormats/Common>
 <use name=DataFormats/SiStripCommon>
+<use name=DataFormats/SiStripDigi>
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
 <use name=FWCore/Framework>
@@ -20,6 +21,7 @@
   <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/Common>
   <use name=DataFormats/SiStripCommon>
+  <use name=DataFormats/SiStripDigi>
   <use name=FWCore/Framework>
   <use name=boost>
 </export>

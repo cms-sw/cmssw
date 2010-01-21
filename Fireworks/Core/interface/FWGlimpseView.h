@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.11 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.12 2009/04/07 14:10:54 chrjones Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ class TGLMatrix;
 class FWGlimpseViewManager;
 class FWEveValueScaler;
 class TEveWindowSlot;
+class FWViewContextMenuHandlerGL;
 
 class FWGlimpseView : public FWViewBase
 {
@@ -51,15 +52,16 @@ public:
    // ---------- const member functions ---------------------
    TGFrame* frame() const;
    const std::string& typeName() const;
-   virtual void addTo(FWConfiguration&) const;
 
+   virtual void addTo(FWConfiguration&) const;
    virtual void saveImageTo(const std::string& iName) const;
+   virtual void setFrom(const FWConfiguration&);
+   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
 
    // ---------- static member functions --------------------
    static const std::string& staticTypeName();
 
    // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&);
    void setBackgroundColor(Color_t);
 
 private:
@@ -76,6 +78,8 @@ private:
    TEveViewer* m_viewer;
    TGLEmbeddedViewer* m_embeddedViewer;
    TEveScene* m_scene;
+   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
+
    TEveGeoShape*  m_cylinder;
 
    TGLMatrix* m_cameraMatrix;

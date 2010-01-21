@@ -8,6 +8,7 @@ calomuons = cms.EDProducer("CaloMuonProducer",
     # TrackDetectorAssociator
     TrackAssociatorParameterBlock,
     MuonCaloCompatibilityBlock,
+    inputCollection = cms.InputTag("muons"),
     inputMuons = cms.InputTag("muons"),
     inputTracks = cms.InputTag("generalTracks"),
     minCaloCompatibility = cms.double(0.6),

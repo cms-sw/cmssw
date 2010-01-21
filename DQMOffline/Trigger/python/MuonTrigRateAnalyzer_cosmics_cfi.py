@@ -57,28 +57,29 @@ offlineDQMMuonTrigCosmics = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 
     # Set the ranges and numbers of bins for histograms
 	# max pt is not very useful
-    MaxPtParameters    = cms.vdouble(25,0.,100.),
+    #MaxPtParameters    = cms.vdouble(25,0.,100.),
     # PtParmeters is not currently used
 
-    EtaParameters      = cms.vdouble(25, -3.5,3.5),
-    PhiParameters      = cms.vdouble(25, -3.15,3.15),
-    ResParameters      = cms.vdouble(25, -0.15, 0.15),
-	DrParameters       = cms.vdouble(25, 0.0, 0.05),			
+    EtaParameters      = cms.untracked.vdouble(40, -2.1,2.1),
+    PhiParameters      = cms.untracked.vdouble(40, -3.15,3.15),
+    ResParameters      = cms.untracked.vdouble(25, -0.15, 0.15),
+	DrParameters       = cms.untracked.vdouble(25, 0.0, 0.05),			
 
     # Use Pt Parameters to set bin edges
 
-    PtParameters       = cms.vdouble(0.0,  2.0,  4.0, 
+    PtParameters       = cms.untracked.vdouble(0.0,  2.0,  4.0, 
 									 6.0, 8.0, 10.0, 
 									 12.0,  14.0,  16.0, 
 									 18.0,  20.0,
-									 22.0, 24.0, 26.0, 28.0,
-									 30.0, 32.0, 34.0, 36.0,
-									 38.0, 40.0,
-									 45.0, 50.0, 55.0, 60.0,
-									 65.0, 70.0, 75.0, 80.0,
-									 85.0, 90.0, 95.0, 100.0,
+									 25.0, 30.0, 35.0, 40.0,
+									 50.0, 60.0, 70, 80, 90, 100.0,
 									 125.0, 150.0, 175.0, 200.0,
-									 300.0),
+									 400.0),
+
+    Z0Parameters       = cms.untracked.vdouble(25, -50, 50),
+    D0Parameters       = cms.untracked.vdouble(25, -25, 25),									
+
+										   
 
 	# valid match types are dr and cosmic
 	# future update: make sure default is
@@ -89,8 +90,8 @@ offlineDQMMuonTrigCosmics = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	# you will ignore the delta R cuts								
 								   									
 	L1DrCut   = cms.untracked.double(0.4),
-	L2DrCut   = cms.untracked.double(0.25),
-	L3DrCut   = cms.untracked.double(0.025),								
+	L2DrCut   = cms.untracked.double(0.4),
+	L3DrCut   = cms.untracked.double(0.4),								
 									
 
     DQMStore = cms.untracked.bool(True),

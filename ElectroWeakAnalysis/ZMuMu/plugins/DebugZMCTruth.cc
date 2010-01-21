@@ -34,7 +34,7 @@ void DebugZMCTruth::analyze(const Event& event, const EventSetup& setup) {
   Handle<GenParticleMatch> match;
   event.getByLabel(match_, match);
   cout << ">>> Z matches: ";
-  for(size_t i = 0; i < src->size(); ++i) {
+  for(unsigned int i = 0; i < src->size(); ++i) {
     CandidateBaseRef ref = src->refAt(i);
     GenParticleRef mc = (*match)[ref];
     cout << (mc.isNull() ? "(no)" : "(yes)");

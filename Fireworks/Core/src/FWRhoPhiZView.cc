@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.37 2009/05/08 18:53:12 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.51 2009/11/05 13:58:59 dmytro Exp $
 //
 
 #define private public
@@ -43,6 +43,7 @@
 #include "TEveProjectionAxes.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TH2F.h"
+#include "THStack.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
@@ -50,6 +51,9 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
 //
 // constants, enums and typedefs
@@ -83,16 +87,13 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
                                iFrom->GetElementTitle());
    new_re->SetRnrSelf     (iFrom->GetRnrSelf());
    new_re->SetRnrChildren(iFrom->GetRnrChildren());
+   new_re->SetPickable(iFrom->IsPickable());
    iParent->AddElement(new_re);
 
    for (TEveElement::List_i i=iFrom->BeginChildren(); i!=iFrom->EndChildren(); ++i)
       doReplication(iMgr,*i, new_re);
    return new_re;
 }
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -106,29 +107,29 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
    m_compressMuon(this,"Compress detectors",false),
-   m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
+   m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
    m_caloAutoScale(this,"Calo auto scale",false),
+   m_lineWidth(this,"Line width",1.0,1.0,10.0),
+   m_smoothLine(this,"Smooth line",false),
    m_showHF(0),
    m_showEndcaps(0),
-   //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
-   //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
    m_cameraZoom(0),
    m_cameraMatrix(0)
 {
-   m_projMgr.reset(new TEveProjectionManager);
-   m_projMgr->SetProjection(iProjType);
-   m_projMgr->SetImportEmpty(kTRUE);
-   //m_projMgr->GetProjection()->SetFixedRadius(700);
-   /*
-     m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
-     m_projMgr->GetProjection()->SetFixR(200);
-     m_projMgr->GetProjection()->SetFixZ(300);
-     m_projMgr->GetProjection()->SetPastFixRFac(0.0);
-     m_projMgr->GetProjection()->SetPastFixZFac(0.0);
-   */
+   TEveViewer* nv = new TEveViewer(iName.c_str());
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+   iParent->ReplaceWindow(nv);
+   gEve->GetViewers()->AddElement(nv);
 
-   //m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
-   //m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
+   TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
+   m_scene.reset(ns);
+   nv->AddScene(ns);
+   m_viewer.reset(nv);
+
+   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(nv));
+
+   m_projMgr.reset(new TEveProjectionManager(iProjType));
+   m_projMgr->SetImportEmpty(kTRUE);
    if ( iProjType == TEveProjection::kPT_RPhi ) {
       // compression
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
@@ -144,49 +145,34 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
+   gEve->AddToListTree(m_projMgr.get(),kTRUE); // debug
 
-   gEve->AddToListTree(m_projMgr.get(),kTRUE);
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   m_embeddedViewer->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
 
-   //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
-   //                                        boost::bind(toFloat,_1)));
-   m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
-   m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
-   m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
-   m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
-   m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
-
-   TEveViewer* nv = new TEveViewer(iName.c_str());
-   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
-   iParent->ReplaceWindow(nv);
-   TGLEmbeddedViewer* ev = m_embeddedViewer;
-
-   ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->CurrentCamera()) ) ) {
+   m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(m_embeddedViewer->CurrentCamera()) ) ) {
       m_cameraZoom = &(camera->fZoom);
       m_cameraMatrix = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
       camera->SetZoomMax(1e6);
    }
 
-   TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
-   m_scene.reset(ns);
-   nv->AddScene(ns);
-   m_viewer.reset(nv);
-   //this is needed so if a TEveElement changes this view will be informed
-   gEve->AddElement(nv, gEve->GetViewers());
-
    m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
-   ns->AddElement(m_axes.get());
-   gEve->AddToListTree(m_axes.get(), kTRUE);
-
-   gEve->AddElement(m_projMgr.get(),ns);
-   //ev->ResetCurrentCamera();
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRhoPhiZView::showProjectionAxes,this));
-}
+   ns->AddElement(m_axes.get());
 
-// FWRhoPhiZView::FWRhoPhiZView(const FWRhoPhiZView& rhs)
-// {
-//    // do actual copying here;
-// }
+   gEve->AddElement(m_projMgr.get(), ns);
+
+   m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
+   m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
+   m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
+   m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
+   m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
+   m_lineWidth.changed_.connect(boost::bind(&FWRhoPhiZView::lineWidthChanged,this));
+   m_smoothLine.changed_.connect(boost::bind(&FWRhoPhiZView::lineSmoothnessChanged,this));
+
+}
 
 FWRhoPhiZView::~FWRhoPhiZView()
 {
@@ -226,8 +212,7 @@ FWRhoPhiZView::doDistortion()
    }
    m_projMgr->UpdateName();
    m_projMgr->ProjectChildren();
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
+   gEve->Redraw3D();
 }
 
 void
@@ -236,30 +221,13 @@ FWRhoPhiZView::doCompression(bool flag)
    m_projMgr->GetProjection()->SetUsePreScale(flag);
    m_projMgr->UpdateName();
    m_projMgr->ProjectChildren();
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
-
+   gEve->Redraw3D();
 }
 
-/*
-   void
-   FWRhoPhiZView::doZoom(double iValue)
-   {
-   if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( & (m_viewer->GetGLViewer()->CurrentCamera()) ) ) {
-      // camera->SetZoom( iValue );
-      camera->fZoom = iValue;
-      m_viewer->GetGLViewer()->RequestDraw();
-   }
-   }
- */
 void
 FWRhoPhiZView::setBackgroundColor(Color_t iColor)
 {
-   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
-
-   if ( iColor == FWColorManager::kBlackIndex && !dark ||
-        iColor == FWColorManager::kWhiteIndex && dark)
-      m_viewer->GetGLViewer()->SwitchColorSet();
+   FWColorManager::setColorSetViewer(m_viewer->GetGLViewer(), iColor);
 }
 
 void
@@ -268,8 +236,6 @@ FWRhoPhiZView::resetCamera()
    //this is needed to get EVE to transfer the TEveElements to GL so the camera reset will work
    m_scene->Repaint();
    m_viewer->Redraw(kTRUE);
-   //gEve->Redraw3D(kTRUE);
-
    m_embeddedViewer->ResetCurrentCamera();
 }
 
@@ -306,22 +272,6 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    updateCaloLines( lastChild );
 
    return lastChild;
-}
-
-void
-FWRhoPhiZView::updateCaloThresholds(TEveElement* iParent)
-{
-   /*
-      TEveElementIter child(iParent);
-      while ( TEveElement* element = child.current() )
-      {
-        if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
-           setMinEnergy(calo2d, m_minEcalEnergy.value(), "ecal");
-           setMinEnergy(calo2d, m_minHcalEnergy.value(), "hcal");
-        }
-        child.next();
-      }
-    */
 }
 
 void
@@ -389,7 +339,7 @@ FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream os;
       os << i;
       const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
@@ -433,7 +383,7 @@ FWRhoPhiZView::addTo(FWConfiguration& iTo) const
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
-   for ( unsigned int i = 0; i < 16; ++i ){
+   for ( unsigned int i = 0; i < 16; ++i ) {
       std::ostringstream osIndex;
       osIndex << i;
       std::ostringstream osValue;
@@ -451,46 +401,45 @@ FWRhoPhiZView::saveImageTo(const std::string& iName) const
    }
 }
 
+FWViewContextMenuHandlerBase*
+FWRhoPhiZView::contextMenuHandler() const {
+   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
+}
+
+
 void
 FWRhoPhiZView::updateScaleParameters()
 {
    updateCalo(m_projMgr.get());
    updateCaloLines(m_projMgr.get());
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
+   gEve->Redraw3D();
 }
 
 void
 FWRhoPhiZView::updateCaloParameters()
 {
    updateCalo(m_projMgr.get());
-   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
-   m_embeddedViewer->UpdateScene();
+   gEve->Redraw3D();
 }
-
-void
-FWRhoPhiZView::updateCaloThresholdParameters()
-{
-   //updateCaloThresholds(m_projMgr);
-}
-
-
-void
-FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
-{
+/*
+   void
+   FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
+   {
    if ( !calo->GetData() ) return;
-   for ( int i = 0; i < calo->GetData()->GetNSlices(); ++i ) {
-      std::string histName(calo->GetData()->RefSliceInfo(i).fHist->GetName());
-      if ( histName.find(name,0) != std::string::npos  )
+
+   TEveCaloDataHist* data = (TEveCaloDataHist*)data;
+   TList* hists = data->GetStack()->GetHists();
+   for (Int_t i =0; i < hists->GetSize(); ++i)
+   {
+      std::string histName(hists->At(i)->GetName());
+      if ( histName.find(name,0) != std::string::npos)
       {
-         calo->GetData()->RefSliceInfo(i).fThreshold = value;
-         calo->ElementChanged();
-         calo->DataChanged();
+         data->SetSliceThreshold(i, value);
          break;
       }
    }
-}
-
+   }
+ */
 void FWRhoPhiZView::showProjectionAxes( )
 {
    if ( !m_axes ) return; // just in case
@@ -501,7 +450,24 @@ void FWRhoPhiZView::showProjectionAxes( )
    gEve->Redraw3D();
 }
 
-//
-// static member functions
-//
+void
+FWRhoPhiZView::lineWidthChanged()
+{
+   m_embeddedViewer->SetLineScale(m_lineWidth.value());
+   m_embeddedViewer->RequestDraw();
+}
+
+void
+FWRhoPhiZView::lineSmoothnessChanged()
+{
+   m_embeddedViewer->SetSmoothLines(m_smoothLine.value());
+   m_embeddedViewer->RequestDraw();
+}
+
+void
+FWRhoPhiZView::eventEnd()
+{
+   if (not m_caloAutoScale.value()) return;
+   updateScaleParameters();
+}
 

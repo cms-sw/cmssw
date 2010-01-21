@@ -11,7 +11,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
+#include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -31,18 +31,46 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
  
   eleHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames"); 
   phoHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNames");
+  eleHLTFilterNamesForSumBit_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNamesForSumBit"); 
+  phoHLTFilterNamesForSumBit_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNamesForSumBit");
+  
+
+  bool filterInactiveTriggers =iConfig.getParameter<bool>("filterInactiveTriggers"); 
+  std::string hltTag = iConfig.getParameter<std::string>("hltTag");
+  if(filterInactiveTriggers){
+    std::vector<std::string> activeFilters;
+   
+  
+    egHLT::trigTools::getActiveFilters(activeFilters,hltTag);
+  
+
+    egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+    egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
+    egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNamesForSumBit_,activeFilters);
+    egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNamesForSumBit_,activeFilters); 
+     
+  }
+
   getEgHLTFiltersToMon_(egHLTFiltersToMon_);
+  
+  usePathNames_ = iConfig.getParameter<bool>("usePathNames");
 
-
+   if(usePathNames_) egHLT::trigTools::translateFiltersToPathNames(egHLTFiltersToMon_,egHLTFiltersToMonPaths_,hltTag);
+ 
+  
   //std::vector<std::string> egHLTSumQTests = iConfig.getParameter<std::vector<std::string> >("egHLTSumQTests");
   // splitStringsToPairs_(egHLTSumQTests,egHLTSumHistXBins_);
 
-  std::vector<edm::ParameterSet> qTestData = iConfig.getParameter<std::vector<edm::ParameterSet> >("egHLTSumQTests");
-  egHLTSumHistXBins_.resize(qTestData.size());
-  for(size_t sumHistBinNr=0;sumHistBinNr<qTestData.size();sumHistBinNr++){
-    egHLTSumHistXBins_[sumHistBinNr].name = qTestData[sumHistBinNr].getParameter<std::string>("name");
-    egHLTSumHistXBins_[sumHistBinNr].qTestPatterns = qTestData[sumHistBinNr].getParameter<std::vector<std::string> >("qTestsToCheck"); 
-  }
+  fillQTestData_(iConfig,egHLTSumHistXBins_,"egHLTSumQTests");
+  fillQTestData_(iConfig,eleQTestsForSumBit_,"egHLTEleQTestsForSumBit");
+  fillQTestData_(iConfig,phoQTestsForSumBit_,"egHLTPhoQTestsForSumBit");
+
+ 
+
+  runClientEndLumiBlock_ = iConfig.getParameter<bool>("runClientEndLumiBlock");
+  runClientEndRun_ = iConfig.getParameter<bool>("runClientEndRun");
+  runClientEndJob_ = iConfig.getParameter<bool>("runClientEndJob");
+
 
   //egHLTSumHistXBins_.push_back(std::make_pair("Ele Rel Trig Eff",&EgHLTOfflineSummaryClient::eleTrigRelEffQTestResult_));
   //egHLTSumHistXBins_.push_back(std::make_pair("Pho Rel Trig Eff",&EgHLTOfflineSummaryClient::phoTrigRelEffQTestResult_));
@@ -54,7 +82,7 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
 
 EgHLTOfflineSummaryClient::~EgHLTOfflineSummaryClient()
 { 
-  
+ 
 }
 
 void EgHLTOfflineSummaryClient::beginJob(const edm::EventSetup& iSetup)
@@ -65,7 +93,7 @@ void EgHLTOfflineSummaryClient::beginJob(const edm::EventSetup& iSetup)
 
 void EgHLTOfflineSummaryClient::endJob() 
 {
-
+  if(runClientEndJob_) runClient_();
 }
 
 void EgHLTOfflineSummaryClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -76,7 +104,7 @@ void EgHLTOfflineSummaryClient::beginRun(const edm::Run& run, const edm::EventSe
 
 void EgHLTOfflineSummaryClient::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  runClient_();
+  if(runClientEndRun_) runClient_();
 }
 
 //dummy analysis function
@@ -87,11 +115,13 @@ void EgHLTOfflineSummaryClient::analyze(const edm::Event& iEvent,const edm::Even
 
 void EgHLTOfflineSummaryClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
 { 
-  runClient_();
+ 
+  if(runClientEndLumiBlock_)  runClient_();
 }
 
 void EgHLTOfflineSummaryClient::runClient_()
 {
+ 
   MonitorElement* egHLTSumME = getEgHLTSumHist_();
 
   for(size_t filterNr=0;filterNr<egHLTFiltersToMon_.size();filterNr++){
@@ -101,6 +131,32 @@ void EgHLTOfflineSummaryClient::runClient_()
 				getQTestResults_(egHLTFiltersToMon_[filterNr],egHLTSumHistXBins_[xBinNr].qTestPatterns)); 
     }
   }
+
+  MonitorElement* hltEleSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Electron");
+  MonitorElement* hltPhoSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Photon");
+  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents/");
+  if(hltEleSumBit==NULL) hltEleSumBit = dbe_->bookFloat("HLT_Electron");
+  if(hltPhoSumBit==NULL) hltPhoSumBit = dbe_->bookFloat("HLT_Photon");
+
+  
+  float eleSumBit=1.;
+  for(size_t filterNr=0;filterNr<eleHLTFilterNamesForSumBit_.size() && eleSumBit==1;filterNr++){ //breaks as soon as a test fails
+    for(size_t testNr=0;testNr<eleQTestsForSumBit_.size() && eleSumBit==1;testNr++){
+      if(getQTestResults_(eleHLTFilterNamesForSumBit_[filterNr],eleQTestsForSumBit_[testNr].qTestPatterns)==0) eleSumBit=0;
+      
+    }
+  }
+  hltEleSumBit->Fill(eleSumBit);
+  
+  float phoSumBit=1.;
+  for(size_t filterNr=0;filterNr<phoHLTFilterNamesForSumBit_.size() && phoSumBit==1;filterNr++){ //breaks as soon as a test fails
+    for(size_t testNr=0;testNr<phoQTestsForSumBit_.size() && phoSumBit==1;testNr++){
+      if(getQTestResults_(phoHLTFilterNamesForSumBit_[filterNr],phoQTestsForSumBit_[testNr].qTestPatterns)==0) phoSumBit=0;
+    }
+  }
+  hltPhoSumBit->Fill(phoSumBit);
+  
+  
    
 }
 void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::string>& stringsToSplit,std::vector<std::pair<std::string,std::string> >& splitStrings)
@@ -119,18 +175,30 @@ void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::stri
 }
 
 
+
 MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_()
 {
   MonitorElement* egHLTSumHist = dbe_->get(dirName_+"/"+egHLTSumHistName_);
   if(egHLTSumHist==NULL){
-    TH2F* hist = new TH2F(egHLTSumHistName_.c_str(),"E/g HLT Offline Summary",1,0.,1.,1,0.,1.);
-    hist->SetBit(TH1::kCanRebin);
+    TH2F* hist = new TH2F(egHLTSumHistName_.c_str(),"E/g HLT Offline Summary",egHLTSumHistXBins_.size(),0.,1.,egHLTFiltersToMon_.size(),0.,1.);
     for(size_t xBinNr=0;xBinNr<egHLTSumHistXBins_.size();xBinNr++){
-      for(size_t yBinNr=0;yBinNr<egHLTFiltersToMon_.size();yBinNr++){
-	hist->Fill(egHLTSumHistXBins_[xBinNr].name.c_str(),egHLTFiltersToMon_[yBinNr].c_str(),1.);
+      hist->GetXaxis()->SetBinLabel(xBinNr+1,egHLTSumHistXBins_[xBinNr].name.c_str());
+    }
+    
+    for(size_t yBinNr=0;yBinNr<egHLTFiltersToMon_.size();yBinNr++){
+      if(usePathNames_ && egHLTFiltersToMonPaths_.size()==egHLTFiltersToMon_.size()){
+      	hist->GetYaxis()->SetBinLabel(yBinNr+1,egHLTFiltersToMonPaths_[yBinNr].c_str());
+      }else{
+	hist->GetYaxis()->SetBinLabel(yBinNr+1,egHLTFiltersToMon_[yBinNr].c_str());
       }
     }
-    hist->SetBit(TH1::kCanRebin,false);
+    for(size_t xBinNr=0;xBinNr<egHLTSumHistXBins_.size();xBinNr++){
+      for(size_t yBinNr=0;yBinNr<egHLTFiltersToMon_.size();yBinNr++){
+	hist->SetBinContent(xBinNr+1,yBinNr+1,-2);
+      }
+    }
+ 
+    dbe_->setCurrentFolder(dirName_);
     egHLTSumHist = dbe_->book2D(egHLTSumHistName_,hist);
   }
   return egHLTSumHist;
@@ -162,16 +230,34 @@ void EgHLTOfflineSummaryClient::getEgHLTFiltersToMon_(std::vector<std::string>& 
 int EgHLTOfflineSummaryClient::getQTestResults_(const std::string& filterName,const std::vector<std::string>& patterns)const
 {
   int nrFail =0;
+  int nrQTests=0;
   for(size_t patternNr=0;patternNr<patterns.size();patternNr++){
     std::vector<MonitorElement*> monElems = dbe_->getMatchingContents(dirName_+"/"+filterName+patterns[patternNr]);
-    
+    // std::cout <<"mon elem "<<dirName_+"/"+filterName+patterns[patternNr]<<"nr monElems "<<monElems.size()<<std::endl;
     for(size_t monElemNr=0;monElemNr<monElems.size();monElemNr++){
+     
+      std::vector<QReport*> qTests = monElems[monElemNr]->getQReports();
+      nrQTests+=qTests.size();
+      //  std::cout <<monElems[monElemNr]->getName()<<" "<<monElems[monElemNr]->hasError()<<" nr test "<<qTests.size()<<std::endl;
       if(monElems[monElemNr]->hasError()) nrFail++;
     }
   }
-  if(nrFail==0) return 1;
+  if(nrQTests==0) return -1;
+  else if(nrFail==0) return 1;
   else return 0;
 }
+
+
+void EgHLTOfflineSummaryClient::fillQTestData_(const edm::ParameterSet& iConfig,std::vector<SumHistBinData>& qTests,const std::string& label)
+{
+  std::vector<edm::ParameterSet> qTestPara = iConfig.getParameter<std::vector<edm::ParameterSet> >(label);
+  qTests.resize(qTestPara.size());
+  for(size_t testNr=0;testNr<qTestPara.size();testNr++){
+    qTests[testNr].name = qTestPara[testNr].getParameter<std::string>("name");
+    qTests[testNr].qTestPatterns = qTestPara[testNr].getParameter<std::vector<std::string> >("qTestsToCheck"); 
+  }
+}
+
 
 // int EgHLTOfflineSummaryClient::eleTrigRelEffQTestResult_(const std::string& filterName)const
 // {

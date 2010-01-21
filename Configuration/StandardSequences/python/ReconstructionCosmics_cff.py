@@ -40,9 +40,11 @@ from RecoEgamma.Configuration.RecoEgammaCosmics_cff import *
 # local reco
 trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*tracksP5)
 caloCosmics = cms.Sequence(calolocalreco*ecalClusters)
+caloCosmics_HcalNZS = cms.Sequence(calolocalrecoNZS*ecalClusters)
 muonsLocalRecoCosmics = cms.Sequence(muonlocalreco+muonlocalrecoT0Seg)
 
-localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics+lumiProducer)
+localReconstructionCosmics         = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics+lumiProducer)
+localReconstructionCosmics_HcalNZS = cms.Sequence(trackerCosmics*caloCosmics_HcalNZS*muonsLocalRecoCosmics*vertexrecoCosmics +lumiProducer)
 
 
 # global reco
@@ -54,5 +56,6 @@ egammaCosmics = cms.Sequence(egammarecoCosmics_woElectrons)
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 
-reconstructionCosmics = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics*logErrorHarvester)
+reconstructionCosmics         = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics*logErrorHarvester)
+reconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZS*tracksBeamHaloMuon*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics*logErrorHarvester)
 reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics)

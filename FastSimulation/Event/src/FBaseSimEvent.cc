@@ -20,6 +20,8 @@
 #include "FastSimulation/Event/interface/GaussianPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/FlatPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
+
+#include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
 using namespace HepPDT;
@@ -48,6 +50,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   theSimTracks = new std::vector<FSimTrack>;
   theSimVertices = new std::vector<FSimVertex>;
   theChargedTracks = new std::vector<unsigned>();
+  theFSimVerticesType = new FSimVertexTypeCollection();
 
   // Reserve some size to avoid mutiple copies
   /* */
@@ -55,6 +58,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   theSimVertices->resize(initialSize);
   theGenParticles->resize(initialSize);
   theChargedTracks->resize(initialSize);
+  theFSimVerticesType->resize(initialSize);
   theTrackSize = initialSize;
   theVertexSize = initialSize;
   theGenSize = initialSize;
@@ -102,6 +106,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   theSimTracks = new std::vector<FSimTrack>;
   theSimVertices = new std::vector<FSimVertex>;
   theChargedTracks = new std::vector<unsigned>();
+  theFSimVerticesType = new FSimVertexTypeCollection();
 
   // Reserve some size to avoid mutiple copies
   /* */
@@ -109,6 +114,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   theSimVertices->resize(initialSize);
   theGenParticles->resize(initialSize);
   theChargedTracks->resize(initialSize);
+  theFSimVerticesType->resize(initialSize);
   theTrackSize = initialSize;
   theVertexSize = initialSize;
   theGenSize = initialSize;
@@ -136,12 +142,14 @@ FBaseSimEvent::~FBaseSimEvent(){
   theSimTracks->clear();
   theSimVertices->clear();
   theChargedTracks->clear();
+  theFSimVerticesType->clear();
 
   // Delete 
   delete theGenParticles;
   delete theSimTracks;
   delete theSimVertices;
   delete theChargedTracks;
+  delete theFSimVerticesType;
   delete myFilter;
 
   //Write the histograms
@@ -242,7 +250,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   //
   myFilter->setMainVertex(primaryVertex);
   // Add the main vertex to the list.
-  addSimVertex(myFilter->vertex());
+  addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
   myVertices[0] = 0;
 
   for( unsigned trackId=0; trackId<nTks; ++trackId ) {
@@ -458,7 +466,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   myFilter->setMainVertex(primaryVertexPosition+smearedVertex);
 
   // This is the smeared main vertex
-  int mainVertex = addSimVertex(myFilter->vertex());
+  int mainVertex = addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
 
   HepMC::GenEvent::particle_const_iterator piter;
   HepMC::GenEvent::particle_const_iterator pbegin = myGenEvent.particles_begin();
@@ -598,7 +606,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 			  p->end_vertex()->position().t()/10.) +
 	smearedVertex;
       //	vertex(mainVertex).position();
-      int theVertex = addSimVertex(decayVertex,theTrack);
+      int theVertex = addSimVertex(decayVertex,theTrack, FSimVertexType::DECAY_VERTEX);
 
       if ( theVertex != -1 ) myGenVertices[p->barcode()-initialBarcode] = theVertex;
 
@@ -654,7 +662,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   myFilter->setMainVertex(primaryVertex+smearedVertex);
 
   // This is the smeared main vertex
-  int mainVertex = addSimVertex(myFilter->vertex());
+  int mainVertex = addSimVertex(myFilter->vertex(), -1, FSimVertexType::PRIMARY_VERTEX);
 
   // Loop on the particles of the generated event
   for ( ; ip<nParticles; ++ip ) { 
@@ -740,7 +748,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
       XYZTLorentzVector decayVertex = 
 	XYZTLorentzVector(daughter->vx(), daughter->vy(),
 			  daughter->vz(), 0.) + smearedVertex;
-      int theVertex = addSimVertex(decayVertex,theTrack);
+      int theVertex = addSimVertex(decayVertex,theTrack, FSimVertexType::DECAY_VERTEX);
 
       if ( theVertex != -1 ) myGenVertices[&p] = theVertex;
 
@@ -794,7 +802,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig,
 }
 
 int
-FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v,int im) {
+FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::VertexType type) {
   
   // Check that the vertex is in the Famos "acceptance"
   if ( !myFilter->accept(v) ) return -1;
@@ -804,6 +812,7 @@ FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v,int im) {
   if ( nSimVertices/theVertexSize*theVertexSize == nSimVertices ) {
     theVertexSize *= 2;
     theSimVertices->resize(theVertexSize);
+    theFSimVerticesType->resize(theVertexSize);
   }
 
   // Attach the end vertex to the particle (if accepted)
@@ -811,6 +820,8 @@ FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v,int im) {
 
   // Some transient information for FAMOS internal use
   (*theSimVertices)[vertexId] = FSimVertex(v,im,vertexId,this);
+
+  (*theFSimVerticesType)[vertexId] = FSimVertexType(type);
 
   return vertexId;
 
@@ -915,11 +926,17 @@ void
 FBaseSimEvent::print() const {
 
   std::cout << "  Id  Gen Name       eta    phi     pT     E    Vtx1   " 
-	    << " x      y      z   " 
-	    << "Moth  Vtx2  eta   phi     R      Z   Daughters Ecal?" << std::endl;
+  	    << " x      y      z   " 
+  	    << "Moth  Vtx2  eta   phi     R      Z   Daughters Ecal?" << std::endl;
 
   for( int i=0; i<(int)nTracks(); i++ ) 
     std::cout << track(i) << std::endl;
+
+  for( int i=0; i<(int)nVertices(); i++ ) 
+    std::cout << "i = " << i << "  " << vertexType(i) << std::endl;
+
+  
+
 }
 
 void 

@@ -23,9 +23,12 @@ DEFINE_FWK_MODULE(TtDecaySelection);
 
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 
 typedef TtEvtBuilder< TtFullLeptonicEvent > TtFullLepEvtBuilder;
 typedef TtEvtBuilder< TtSemiLeptonicEvent > TtSemiLepEvtBuilder;
+typedef TtEvtBuilder< TtFullHadronicEvent > TtFullHadEvtBuilder;
 
 DEFINE_FWK_MODULE(TtFullLepEvtBuilder);
 DEFINE_FWK_MODULE(TtSemiLepEvtBuilder);
+DEFINE_FWK_MODULE(TtFullHadEvtBuilder);

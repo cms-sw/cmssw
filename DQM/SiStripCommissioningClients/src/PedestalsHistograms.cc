@@ -15,11 +15,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistograms::PedestalsHistograms( const edm::ParameterSet& pset,
-                                          DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
-                             mui,
-                             sistrip::PEDESTALS )
+PedestalsHistograms::PedestalsHistograms( DQMOldReceiver* mui ) 
+  : CommissioningHistograms( mui, sistrip::PEDESTALS )
 {
   factory_ = auto_ptr<PedestalsSummaryFactory>( new PedestalsSummaryFactory );
   LogTrace(mlDqmClient_) 
@@ -29,11 +26,8 @@ PedestalsHistograms::PedestalsHistograms( const edm::ParameterSet& pset,
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistograms::PedestalsHistograms( const edm::ParameterSet& pset,
-                                          DQMStore* bei ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("PedestalsParameters"),
-                             bei,
-                             sistrip::PEDESTALS )
+PedestalsHistograms::PedestalsHistograms( DQMStore* bei ) 
+  : CommissioningHistograms( bei, sistrip::PEDESTALS )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistograms::" << __func__ << "]"
@@ -91,7 +85,7 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     PedestalsAnalysis* anal = new PedestalsAnalysis( iter->first );
-    PedestalsAlgorithm algo( this->pset(), anal );
+    PedestalsAlgorithm algo( anal );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }

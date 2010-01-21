@@ -35,8 +35,6 @@ private:
 
   // Inputs from Configuration
   edm::InputTag caloTowersLabel_;
-  std::vector< edm::InputTag >  HLTBitLabel_ ;
-  edm::InputTag HLTResultsLabel_;
   bool debug_;
   double energyThreshold_;
   bool finebinning_;

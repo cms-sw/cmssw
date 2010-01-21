@@ -2,16 +2,19 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
+from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 def redoPFTauDiscriminators(process,
-                            oldPFTauLabel = cms.InputTag('pfRecoTauProducer'),
-                            newPFTauLabel = cms.InputTag('pfRecoTauProducer'),
-                            tauType='fixedConePFTau'):
+                            oldPFTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
+                            newPFTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
+                            tauType='shrinkingConePFTau'):
     print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
     print 'Tau type: ', tauType
     tauSrc = 'PFTauProducer'
-    tauDiscriminationSequence = process.patFixedConePFTauDiscrimination
+    tauDiscriminationSequence = process.patShrinkingConePFTauDiscrimination
     if tauType == 'fixedConeHighEffPFTau':
         tauDiscriminationSequence = process.patFixedConeHighEffPFTauDiscrimination
+    elif tauType == 'fixedConePFTau':
+        tauDiscriminationSequence = process.patFixedConePFTauDiscrimination
     elif tauType == 'shrinkingConePFTau':
         tauDiscriminationSequence = process.patShrinkingConePFTauDiscrimination
     elif tauType == 'caloTau':
@@ -25,7 +28,7 @@ def redoPFTauDiscriminators(process,
 
 # switch to CaloTau collection
 def switchToCaloTau(process,
-                    pfTauLabel = cms.InputTag('fixedConePFTauProducer'),
+                    pfTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
                     caloTauLabel = cms.InputTag('caloRecoTauProducer')):
     process.tauMatch.src       = caloTauLabel
     process.tauGenJetMatch.src = caloTauLabel
@@ -41,7 +44,9 @@ def switchToCaloTau(process,
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
     process.allLayer1Taus.isolation   = cms.PSet()
     process.allLayer1Taus.isoDeposits = cms.PSet()
-
+    process.allLayer1Taus.userIsolation = cms.PSet()
+    ## adapt cleanLayer1Taus
+    process.cleanLayer1Taus.preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5 & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5'
 
 # internal auxiliary function to switch to **any** PFTau collection
 def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
@@ -62,9 +67,13 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
     process.allLayer1Taus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag(pfTauType + "DiscriminationByLeadingTrackFinding"),
         leadingTrackPtCut = cms.InputTag(pfTauType + "DiscriminationByLeadingTrackPtCut"),
+        leadingPionPtCut = cms.InputTag(pfTauType + "DiscriminationByLeadingPionPtCut"),
         trackIsolation = cms.InputTag(pfTauType + "DiscriminationByTrackIsolation"),
+        trackIsolationUsingLeadingPion = cms.InputTag(pfTauType + "DiscriminationByTrackIsolationUsingLeadingPion"),
         ecalIsolation = cms.InputTag(pfTauType + "DiscriminationByECALIsolation"),
+        ecalIsolationUsingLeadingPion = cms.InputTag(pfTauType + "DiscriminationByECALIsolationUsingLeadingPion"),
         byIsolation = cms.InputTag(pfTauType + "DiscriminationByIsolation"),
+        byIsolationUsingLeadingPion = cms.InputTag(pfTauType + "DiscriminationByIsolationUsingLeadingPion"),
         againstElectron = cms.InputTag(pfTauType + "DiscriminationAgainstElectron"),
         againstMuon = cms.InputTag(pfTauType + "DiscriminationAgainstMuon")
         #
@@ -83,7 +92,7 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
-                           pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
+                           pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                            pfTauLabelNew = cms.InputTag('fixedConePFTauProducer')):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau')
     #
@@ -95,7 +104,7 @@ def switchToPFTauFixedCone(process,
 
 # switch to PFTau collection produced for fixed dR = 0.15 signal cone size
 def switchToPFTauFixedConeHighEff(process,
-                                  pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
+                                  pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                                   pfTauLabelNew = cms.InputTag('fixedConeHighEffPFTauProducer')):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConeHighEffPFTau')
     #
@@ -107,7 +116,7 @@ def switchToPFTauFixedConeHighEff(process,
 
 # switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
 def switchToPFTauShrinkingCone(process,
-                               pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
+                               pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                                pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer')):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'shrinkingConePFTau')
     #
@@ -118,9 +127,13 @@ def switchToPFTauShrinkingCone(process,
     process.allLayer1Taus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),
         leadingTrackPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),
+        leadingPionPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),
         trackIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolation"),
+        trackIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),
         ecalIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolation"),
+        ecalIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),
         byIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"),
+        byIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion"),
         againstElectron = cms.InputTag("shrinkingConePFTauDiscriminationAgainstElectron"),
         againstMuon = cms.InputTag("shrinkingConePFTauDiscriminationAgainstMuon"),
         byTaNC = cms.InputTag("shrinkingConePFTauDiscriminationByTaNC"),
@@ -129,11 +142,25 @@ def switchToPFTauShrinkingCone(process,
         byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
         byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     )
+
+# Select switcher by string
+def switchToPFTauByType(process, pfTauType=None, pfTauLabelNew=None,
+                        pfTauLabelOld=cms.InputTag('shrinkingConePFTauProducer') ):
+    mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
+                'fixedConePFTau' : switchToPFTauFixedCone,
+                'fixedConeHighEffPFTau' : switchToPFTauFixedConeHighEff,
+                'caloTau' : switchToCaloTau }
+    mapping[pfTauType](process, pfTauLabelOld=pfTauLabelOld, pfTauLabelNew=pfTauLabelNew)
+
+# switch to PFTau collection that was default in PAT production in CMSSW_3_1_x release series
+def switchTo31Xdefaults(process):
+    switchToPFTauFixedCone(process)
+    process.cleanLayer1Taus.preselection = cms.string('tauID("byIsolation") > 0')
     
 # function to switch to **any** PFTau collection
 # It is just to make internal function accessible externally
 def switchToAnyPFTau(process,
-                     pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
-                     pfTauLabelNew = cms.InputTag('fixedConePFTauProducer'),
-                     pfTauType='fixedConePFTau'):
+                     pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                     pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer'),
+                     pfTauType='shrinkingConePFTau'):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType)

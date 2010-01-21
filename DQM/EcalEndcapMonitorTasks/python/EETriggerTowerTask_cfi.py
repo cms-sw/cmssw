@@ -7,9 +7,6 @@ ecalEndcapTriggerTowerTask = cms.EDAnalyzer("EETriggerTowerTask",
     OutputRootFile = cms.untracked.string(''),
     EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
     EcalTrigPrimDigiCollectionEmul = cms.InputTag("simEcalTriggerPrimitiveDigis"),
-    EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
-    HLTResultsCollection = cms.InputTag("TriggerResults::HLT"),
-    HLTCaloHLTBit = cms.untracked.string('HLT_EgammaSuperClusterOnly_L1R'),
-    HLTMuonHLTBit = cms.untracked.string('HLT_L1MuOpen')
+    EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
 )
 

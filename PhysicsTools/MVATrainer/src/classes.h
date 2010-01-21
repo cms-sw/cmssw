@@ -2,7 +2,7 @@
 #include "PhysicsTools/MVATrainer/interface/TreeTrainer.h"
 
 namespace { // anonymous
-namespace {
+  struct dictionary {
 
-}
+  };
 } // anonymous namespace

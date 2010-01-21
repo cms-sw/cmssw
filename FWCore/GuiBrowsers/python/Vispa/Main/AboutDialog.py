@@ -1,8 +1,8 @@
 from PyQt4.QtCore import Qt, SIGNAL, SLOT
-from PyQt4.QtGui import QDialog, QPalette, QVBoxLayout, QLabel, QPushButton, QDialogButtonBox
+from PyQt4.QtGui import QDialog, QPalette, QVBoxLayout, QLabel, QPushButton, QDialogButtonBox, QSizePolicy
 from PyQt4.QtSvg import QSvgWidget 
 
-from Directories import *
+from Vispa.Main.Directories import *
 import logging
 
 class AboutDialog(QDialog):
@@ -16,7 +16,7 @@ class AboutDialog(QDialog):
         #self.setPalette(QPalette(Qt.white))
         self.fill()
         self.setWindowTitle("About "+self._application.windowTitle())
-        self.resize(300, 200)
+        self.resize(220, 200)
         
     def setApplication(self, app):
         self._application = app
@@ -31,9 +31,10 @@ class AboutDialog(QDialog):
         self.setLayout(QVBoxLayout())
         if "vispa" in self._application.windowTitle().lower():
             self._logo = QSvgWidget(":/resources/vispa_logo.svg")
-            logo_width_height_ratio = 2.586    # calculated by width and height data inkscape
+            sizeHint = self._logo.sizeHint()
+            logo_width_height_ratio =  1.0 * sizeHint.width() / sizeHint.height()
             logo_width = 200
-            self._logo.resize(logo_width, logo_width/logo_width_height_ratio)
+            self._logo.setFixedSize(logo_width, logo_width/logo_width_height_ratio)
             self.layout().addWidget(self._logo)
         else:
             label=QLabel(self._application.windowTitle())

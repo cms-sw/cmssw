@@ -1,9 +1,8 @@
-// $Id: Enabled.cc,v 1.7 2009/07/20 13:07:27 mommsen Exp $
+// $Id: Enabled.cc,v 1.7.4.1 2009/09/25 09:57:47 mommsen Exp $
 /// @file: Enabled.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
@@ -16,7 +15,7 @@ using namespace stor;
 
 Enabled::Enabled( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Enabled::do_entryActionWork()
@@ -40,7 +39,7 @@ void Enabled::do_entryActionWork()
 
 Enabled::~Enabled()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Enabled::do_exitActionWork()
@@ -59,9 +58,9 @@ string Enabled::do_stateName() const
   return string( "Enabled" );
 }
 
-void Enabled::do_moveToFailedState( const std::string& reason ) const
+void Enabled::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void Enabled::logHaltRequest( const Halt& request )

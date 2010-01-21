@@ -1,14 +1,14 @@
 #ifndef CondFormats_RunInfo_HLTScaler_h
 #define CondFormats_RunInfo_HLTScaler_h
 /** 
- * $Id: HLTScaler.h,v 1.4 2009/05/12 19:27:28 xiezhen Exp $
+ * $Id: HLTScaler.h,v 1.3 2009/05/11 17:33:55 xiezhen Exp $
  *
  ************************************************************/
 #include <vector>
 #include <utility>
 #include <string>
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include <iostream>
+
 //persistable class
 namespace lumi{
   struct HLTInfo {
@@ -42,7 +42,6 @@ namespace lumi{
     //first lumisecion id=-99 signals there are no data taken for the entire run
     void setHLTData(edm::LuminosityBlockID lumiid, 
 		    const std::vector<HLTInfo>& hltdetail);
-    void print( std::ostream& s ) const;
   private:
     //current run
     int m_run;

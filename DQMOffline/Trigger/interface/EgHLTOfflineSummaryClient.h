@@ -47,8 +47,22 @@ public:
   std::vector<std::string> phoHLTFilterNames_;//names of the filters monitored using photons to make plots for
   std::vector<std::string> egHLTFiltersToMon_;//names of the filters to include in summary histogram
 
+  std::vector<std::string> eleHLTFilterNamesForSumBit_; //names of the filters to include in the summary bit
+  std::vector<std::string> phoHLTFilterNamesForSumBit_; //names of the filters to include in the summary bit
+  
+
   //the name of the bin label and the regex pattern to search for the quality tests to pass
-  std::vector<SumHistBinData> egHLTSumHistXBins_;
+  std::vector<SumHistBinData> egHLTSumHistXBins_; 
+  std::vector<SumHistBinData> eleQTestsForSumBit_;
+  std::vector<SumHistBinData> phoQTestsForSumBit_;
+
+  bool runClientEndLumiBlock_;
+  bool runClientEndRun_;
+  bool runClientEndJob_;
+  
+  std::vector<std::string> egHLTFiltersToMonPaths_;
+  bool usePathNames_;
+  
 
   //disabling copying/assignment (in theory this is copyable but lets not just in case)
   EgHLTOfflineSummaryClient(const EgHLTOfflineSummaryClient& rhs){}
@@ -91,8 +105,8 @@ private:
   //gets the quality tests for the filter matching pattern, if any of them fail it returns a 0, otherwise a 1
   //it does not care if the tests exist and in this situation will return a 1 (default to good)
   int getQTestResults_(const std::string& filterName,const std::vector<std::string>& pattern)const;
-};
  
-
+  static void fillQTestData_(const edm::ParameterSet& iConfig,std::vector<SumHistBinData>& qTests,const std::string& label);
+};
 
 #endif

@@ -45,12 +45,12 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
-  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 
 
   if(type==0){
+    SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
 	if(!reducedSet)
 	{
     if(twoD){

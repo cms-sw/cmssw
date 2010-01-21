@@ -1,4 +1,4 @@
-// $Id: DiscardManager.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DiscardManager.cc,v 1.5 2009/08/28 16:41:26 mommsen Exp $
 /// @file: DiscardManager.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"

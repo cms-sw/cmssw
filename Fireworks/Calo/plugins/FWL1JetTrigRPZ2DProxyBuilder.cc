@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1JetTrigRPZ2DProxyBuilder.cc,v 1.1 2009/01/19 14:40:05 amraktad Exp $
+// $Id: FWL1JetTrigRPZ2DProxyBuilder.cc,v 1.2 2009/01/23 21:35:40 amraktad Exp $
 //
 //
 // system include files
@@ -27,7 +27,6 @@
 
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "Fireworks/Core/interface/FWDisplayEvent.h"
 
 class FWL1JetTrigRPZ2DProxyBuilder : public FWRPZ2DDataProxyBuilder
 {

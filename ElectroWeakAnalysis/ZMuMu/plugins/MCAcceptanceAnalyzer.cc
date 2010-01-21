@@ -12,8 +12,8 @@ using namespace reco;
 using namespace std;
 
 const Candidate * mcMuDaughter(const Candidate * c) {
-  size_t n = c->numberOfDaughters();
-  for(size_t i = 0; i < n; ++i) {
+  unsigned int n = c->numberOfDaughters();
+  for(unsigned int i = 0; i < n; ++i) {
     const Candidate * d = c->daughter(i);
     if(fabs(d->pdgId())==13) return d;
   }

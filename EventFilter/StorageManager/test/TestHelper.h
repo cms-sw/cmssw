@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.2 2009/06/10 08:15:30 dshpakov Exp $
+// $Id: TestHelper.h,v 1.3 2009/08/21 07:16:10 mommsen Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h

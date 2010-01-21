@@ -27,9 +27,7 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
   }
 }
 
-HcalSimHitStudy::~HcalSimHitStudy() {
-  if (dbe_ && outFile_.size() > 0) dbe_->save(outFile_);
-}
+HcalSimHitStudy::~HcalSimHitStudy() {}
 
 void HcalSimHitStudy::beginJob() {
 
@@ -90,7 +88,9 @@ void HcalSimHitStudy::beginJob() {
   }
 }
 
-void HcalSimHitStudy::endJob() {}
+void HcalSimHitStudy::endJob() {
+  if (dbe_ && outFile_.size() > 0) dbe_->save(outFile_);
+}
 
 void HcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 

@@ -3,7 +3,7 @@
 finddirectory() {
   dir=$1; shift
   subdir=$1; shift
-  while [ ! -d "$dir/$subdir" -a "X$dir" != "X" ]; do
+  while [ ! -d "$dir/$subdir" ] && [ "X$dir" != "X" ] && [ "X$dir" != "X/" ]; do
     dir=`dirname $dir`
   done
   if [ ! -d "$dir/$subdir" ]; then

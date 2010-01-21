@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.9 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.11 2009/10/13 14:23:56 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -10,7 +10,7 @@
 using namespace pat;
 
 PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false),
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false),
   userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
 {
   // initialize the configurables
@@ -45,9 +45,9 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
 
   if (iConfig.exists("isoDeposits")) {
      edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
-     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
-     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
-     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
      if (depconf.exists("user")) {
         std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
         std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTower3DProxyBuilder.h,v 1.1 2009/01/19 17:59:11 amraktad Exp $
+// $Id: FWCaloTower3DProxyBuilder.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -59,6 +59,7 @@ private:
 
    // ---------- member data --------------------------------
    TEveCaloDataHist* m_caloData;
+   Bool_t            m_ownData;
    TH2F* m_hist;
    Int_t m_sliceIndex;
    const CaloTowerCollection* m_towers;

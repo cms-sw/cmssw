@@ -7,13 +7,15 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/05/22 09:07:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/08/14 13:34:13 $
+ *  $Revision: 1.1 $
  */
 
 
 
 #include "DQMOffline/Trigger/interface/HLTTopPlotter.h"
+
+
 
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -64,7 +66,13 @@ HLTTopPlotter::HLTTopPlotter
     
 {
 
+  CaloJetInputTag       = pset.getParameter<edm::InputTag>("CaloJetInputTag");
+  EtaCut_               = pset.getUntrackedParameter<double>("EtaCut");
+  PtCut_                = pset.getUntrackedParameter<double>("PtCut");   
+  NJets_                = pset.getUntrackedParameter<int>("NJets");   
+  theJetMParameters    = pset.getUntrackedParameter< vector<double> >("JetMParameters");
 
+  
   LogTrace ("HLTMuonVal") << "\n\n Inside HLTTopPlotter Constructor";
   LogTrace ("HLTMuonVal") << "The trigger name is " << triggerName
                           << "and we've done all the other intitializations";
@@ -105,7 +113,7 @@ void HLTTopPlotter::analyze( const Event & iEvent )
 
   // get calo jet collection
   Handle<CaloJetCollection> jetsHandle;
-  iEvent.getByLabel("iterativeCone5CaloJets", jetsHandle);
+  iEvent.getByLabel(CaloJetInputTag, jetsHandle);
 
   int n_jets_20 = 0;
   CaloJetCollection selectedJets;
@@ -125,7 +133,7 @@ void HLTTopPlotter::analyze( const Event & iEvent )
     
     for (jet = jets->begin(); jet != jets->end(); jet++){        
       // if (fabs(jet->eta()) <2.4 && jet->et() > 20) n_jets_20++; 
-      if (fabs(jet->eta()) <2.4 && jet->et() > 13) {
+      if (fabs(jet->eta()) <EtaCut_ && jet->et() > PtCut_) {
         n_jets_20++;
         selectedJets.push_back((*jet));
       }
@@ -133,6 +141,8 @@ void HLTTopPlotter::analyze( const Event & iEvent )
     } 
     
   }
+  
+ 
 
   // sort the result
   sortJets(selectedJets);
@@ -143,12 +153,15 @@ void HLTTopPlotter::analyze( const Event & iEvent )
                           << n_jets_20
                           << endl;
 
-  if (n_jets_20 <= 1 ) {
+ // if (n_jets_20 <= 1 ) {
+  if (n_jets_20 < NJets_ ) {
     LogTrace ("HLTMuonVal") << "Not enought jets in this event, skipping it"
                             << endl;
 
     return;
   }
+  
+ 
 
   /////////////////////////////////////////////////
   //
@@ -196,6 +209,7 @@ void HLTTopPlotter::analyze( const Event & iEvent )
     ////////////////////////////////////////////
     
     hDeltaRMaxJetLep[0]->Fill(deltaRLeadJetLep);
+    hJetMultip[0]->Fill(n_jets_20);
 
 
     ////////////////////////////////////////////
@@ -207,6 +221,7 @@ void HLTTopPlotter::analyze( const Event & iEvent )
     
     if ( (recMatches[i].l1Cand.pt() > 0) && ((useFullDebugInformation) || (isL1Path)) ) {
       hDeltaRMaxJetLep[1]->Fill(deltaRLeadJetLep);
+      hJetMultip[1]->Fill(n_jets_20);
     }
 
     ////////////////////////////////////////////
@@ -219,6 +234,7 @@ void HLTTopPlotter::analyze( const Event & iEvent )
       if ( recMatches[i].hltCands[j].pt() > 0 ) {
         // you've found it!
         hDeltaRMaxJetLep[j+HLT_PLOT_OFFSET]->Fill(deltaRLeadJetLep);
+	hJetMultip[j+HLT_PLOT_OFFSET]->Fill(n_jets_20);
         
       }
     }
@@ -297,6 +313,9 @@ void HLTTopPlotter::begin()
     hDeltaRMaxJetLep.push_back (bookIt("topDeltaRMaxJetLep_All", "delta R between muon and highest pt jet", theDRParameters));
     if (useFullDebugInformation || isL1Path) hDeltaRMaxJetLep.push_back (bookIt("topDeltaRMaxJetLep_" + myLabel, "delta R between muon and highest pt jet", theDRParameters));
 
+   hJetMultip.push_back (bookIt("topJetMultip_All", "Jet multiplicity", theJetMParameters));
+    if (useFullDebugInformation || isL1Path) hJetMultip.push_back(bookIt("topJetMultip_" + myLabel, "Jet multiplicity", theJetMParameters));
+
 
     //////////////////////////////////////////////////////////////
     //
@@ -323,6 +342,9 @@ void HLTTopPlotter::begin()
 
       // Book for L2, L3
       hDeltaRMaxJetLep.push_back (bookIt("topDeltaRMaxJetLep_" + myLabel, "delta R between muon and highest pt jet", theDRParameters)) ;
+      hJetMultip.push_back (bookIt("topJetMultip_" + myLabel, "Jet Multiplicity",   theJetMParameters)) ;
+      
+      
       
     }// end for each collection label
 

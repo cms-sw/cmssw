@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: ConsumerUtils.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: ConsumerUtils.h 
 
 #ifndef StorageManager_ConsumerUtils_h
@@ -31,8 +31,8 @@ namespace stor
      requests and responses
 
      $Author: mommsen $
-     $Revision: 1.3 $
-     $Date: 2009/07/20 13:06:10 $
+     $Revision: 1.4 $
+     $Date: 2009/08/28 16:41:49 $
   */
 
   /**

@@ -167,7 +167,7 @@ namespace cscdqm {
   using namespace XERCES_CPP_NAMESPACE;
 
   /** @brief MO filter Item definition (loaded from XML/PSet) */
-  typedef struct MOFilterItem {
+  struct MOFilterItem {
     /** Regexp filter pattern */
     TPRegexp pattern;
     /** Include filtered item or not */
@@ -178,7 +178,7 @@ namespace cscdqm {
   };
 
   /** @brief Chamber level counter types */
-  typedef enum ChamberCounterType {
+  enum ChamberCounterType {
     DMB_EVENTS,
     BAD_EVENTS,
     DMB_TRIGGERS,
@@ -191,7 +191,7 @@ namespace cscdqm {
   typedef std::map<ChamberCounterType, uint32_t> ChamberCounterMapType;
 
   /** @brief Chamber Counters key type */
-  typedef struct ChamberCounterKeyType {
+  struct ChamberCounterKeyType {
     HwId crateId;
     HwId dmbId;
     ChamberCounterMapType counters;

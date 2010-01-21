@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.30 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.33 2009/10/31 21:51:30 chrjones Exp $
 //
 
 // system include files
@@ -49,6 +49,9 @@ class TEveElement;
 class TEveWindowSlot;
 class FWSelectionManager;
 
+class TEveCalo3D;
+class TEveCaloDataHist;
+
 class FWRhoPhiZViewManager : public FWViewManagerBase
 {
 
@@ -72,6 +75,7 @@ public:
    void selectionAdded(TEveElement*);
    void selectionRemoved(TEveElement*);
    void selectionCleared();
+   void eventEnd();
 
 protected:
    virtual void modelChangesComing() ;
@@ -98,7 +102,6 @@ private:
    void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
    TEveGeoShape* makeShape( const char*, double, double, double, double );
 
-
    // ---------- member data --------------------------------
    typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
    TypeToBuilder m_typeToBuilder;
@@ -118,6 +121,9 @@ private:
 
    FWSelectionManager* m_selectionManager;
    bool m_isBeingDestroyed;
+
+   TEveCalo3D* m_calo3d;
+   TEveCaloDataHist* m_caloData;
 };
 
 

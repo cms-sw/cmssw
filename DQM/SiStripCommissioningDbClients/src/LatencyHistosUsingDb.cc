@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.19 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.17 2008/11/10 14:34:07 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -13,18 +13,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistosUsingDb::LatencyHistosUsingDb( const edm::ParameterSet & pset,
-                                            DQMOldReceiver* mui,
+LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 					    SiStripConfigDb* const db )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("LatencyParameters"),
-                             mui,
-                             APV_LATENCY ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                APV_LATENCY ),
-    SamplingHistograms( pset.getParameter<edm::ParameterSet>("LatencyParameters"),
-                        mui,
-                        APV_LATENCY )
+  : CommissioningHistograms( mui, APV_LATENCY ),
+    CommissioningHistosUsingDb( db, mui, APV_LATENCY ),
+    SamplingHistograms( mui, APV_LATENCY )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -33,13 +26,10 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( const edm::ParameterSet & pset,
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistosUsingDb::LatencyHistosUsingDb( const edm::ParameterSet & pset,
-                                            DQMStore* bei,
-					    SiStripConfigDb* const db )
+LatencyHistosUsingDb::LatencyHistosUsingDb( DQMStore* bei,
+					    SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
-    SamplingHistograms( pset.getParameter<edm::ParameterSet>("LatencyParameters"),
-                        bei,
-                        APV_LATENCY )
+    SamplingHistograms( bei, APV_LATENCY )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -125,13 +115,8 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
       // Cast to retrieve appropriate description object
       pllDescription* desc = dynamic_cast<pllDescription*>( *idevice );
       if ( desc ) { 
-/*
         // add 1 to aim at 1 and not 0 (just to avoid a special 0 value for security)
         int delayCoarse = desc->getDelayCoarse() - 1;
-        delayCoarse = delayCoarse < 0 ? 0 : delayCoarse;
-        minCoarseDelay = minCoarseDelay < delayCoarse ? minCoarseDelay : delayCoarse;
-*/
-        int delayCoarse = desc->getDelayCoarse();
         minCoarseDelay = minCoarseDelay < delayCoarse ? minCoarseDelay : delayCoarse;
       }
     }

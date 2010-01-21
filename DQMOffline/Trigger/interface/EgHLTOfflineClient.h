@@ -58,7 +58,10 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   std::vector<std::string> phoTrigTPEffVsVars_;
   std::vector<std::string> eleLooseTightTrigEffVsVars_;
   std::vector<std::string> phoLooseTightTrigEffVsVars_;
-
+						
+  bool runClientEndLumiBlock_;
+  bool runClientEndRun_;
+  bool runClientEndJob_;
   
 
   //disabling copying/assignment (in theory this is copyable but lets not just in case)

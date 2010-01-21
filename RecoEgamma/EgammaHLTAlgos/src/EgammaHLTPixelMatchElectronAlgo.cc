@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.12 2008/03/17 13:47:36 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.13 2009/01/28 17:08:22 ghezzi Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
@@ -49,7 +49,11 @@ using namespace reco;
 //  theCkfTrajectoryBuilder(0), theTrajectoryCleaner(0),
 //  theInitialStateEstimator(0), theNavigationSchool(0) {}
 
-EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(){}
+EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet &conf) :
+  trackProducer_( conf.getParameter<edm::InputTag>("TrackProducer") ),
+  BSProducer_(    conf.getParameter<edm::InputTag>("BSProducer") )
+{}
+
 EgammaHLTPixelMatchElectronAlgo::~EgammaHLTPixelMatchElectronAlgo() {
 
   // delete theInitialStateEstimator;
@@ -58,36 +62,10 @@ EgammaHLTPixelMatchElectronAlgo::~EgammaHLTPixelMatchElectronAlgo() {
     
 }
 
-void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
-
+void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es) {
   //services
-  es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
   es.get<IdealMagneticFieldRecord>().get(theMagField);
-
-  /*
-  // get nested parameter set for the TransientInitialStateEstimator
-  ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  theInitialStateEstimator       = new TransientInitialStateEstimator( es,tise_params);
-
-  edm::ESHandle<NavigationSchool> nav;
-  es.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  theNavigationSchool = nav.product();
-  // set the correct navigation
-  NavigationSetter setter(*theNavigationSchool);
-
-  //  theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf,es,theMeasurementTracker);
-  theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
-  std::string trajectoryBuilderName = conf.getParameter<std::string>("TrajectoryBuilder");
-  edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
-  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-  theCkfTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
-  */
-
-  //trackLabel_ = conf.getParameter<string>("TrackLabel");
-  //  trackInstanceName_ = conf.getParameter<string>("TrackProducer");
-  trackProducer_= conf.getParameter<edm::InputTag>("TrackProducer");
-  //"offlineBeamSpot"
-  BSProducer_ = conf.getParameter<edm::InputTag>("BSProducer");
 }
 
 void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {

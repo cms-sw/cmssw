@@ -1,5 +1,5 @@
 /**
- * $Id: RollingIntervalCounter.cc,v 1.1 2008/04/14 15:42:28 biery Exp $
+ * $Id: RollingIntervalCounter.cc,v 1.2 2009/05/09 01:28:22 elmer Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
@@ -233,7 +233,7 @@ double RollingIntervalCounter::getDuration(double currentTime)
 void RollingIntervalCounter::dumpData(std::ostream& outStream)
 {
   outStream << "RollingIntervalCounter 0x" << std::hex
-            << ((int) this) << std::dec << std::endl;
+            << this << std::dec << std::endl;
   char nowString[32];
   sprintf(nowString, "%16.4f", getCurrentTime());
   outStream << "  Now = " << nowString << std::endl;
@@ -252,7 +252,7 @@ void RollingIntervalCounter::dumpData(std::ostream& outStream)
   for (int idx = 0; idx < binCount_; idx++) {
     sprintf(binString,
             "    bin %2d, value %10.2f, sampleCount %10d",
-            idx, (*binContents_)[idx], (*binSamples_)[idx]);
+        idx, (*binContents_)[idx], (*binSamples_)[idx]);
     outStream << binString << std::endl;
   }
 }

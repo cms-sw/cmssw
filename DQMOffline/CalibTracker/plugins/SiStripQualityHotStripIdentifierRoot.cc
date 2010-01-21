@@ -36,7 +36,7 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
 
   if(filename!=""){
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " before opening file " << filename.c_str();  
-    dqmStore_->open(filename.c_str(), false, dirpath); 
+    dqmStore_->open(filename.c_str(), false); 
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " after opening file ";  
   }
 }

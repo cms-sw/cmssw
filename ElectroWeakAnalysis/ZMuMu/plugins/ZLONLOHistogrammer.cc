@@ -9,7 +9,7 @@ private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endJob();
   edm::InputTag   gen_, weights_;
-  size_t nbinsMass_, nbinsPt_, nbinsAng_;
+  unsigned int nbinsMass_, nbinsPt_, nbinsAng_;
   double massMax_, ptMax_, angMax_;
   double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
@@ -17,7 +17,7 @@ private:
   TH1F *hardpt, *softpt, * hardeta, *softeta;
   TH1F * h_weight_histo; 
   bool isMCatNLO_; 
-  size_t nAcc_, nBothMuHasZHasGrandMa_;
+  unsigned int nAcc_, nBothMuHasZHasGrandMa_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -44,9 +44,9 @@ using namespace edm;
 ZLONLOHistogrammer::ZLONLOHistogrammer(const ParameterSet& pset) :
   gen_(pset.getParameter<InputTag>("genParticles")),
   weights_(pset.getParameter<InputTag>("weights")),
-  nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
-  nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")),
-  nbinsAng_(pset.getUntrackedParameter<size_t>("nbinsAng")),
+  nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
+  nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
   massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
   angMax_(pset.getUntrackedParameter<double>("angMax")), 
@@ -113,7 +113,7 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
   std::vector<GenParticle> muons;
   if (!isMCatNLO_){
     // LO....
-    for(size_t i = 0; i < gen->size(); ++i){ 
+    for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       // filling only muons coming form Z
       if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   
@@ -127,7 +127,7 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
     }
   } else {
     // NLO
-    for(size_t i = 0; i < gen->size(); ++i){ 
+    for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   							     if (muMC.mother()->numberOfMothers()> 0 ){
 	cout << "I'm getting a muon \n" 

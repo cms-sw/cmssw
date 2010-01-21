@@ -26,9 +26,17 @@ RMmultiTrackValidator.nintHit = cms.int32(75)
 RMmultiTrackValidator.minHit = cms.double(-0.5)
 RMmultiTrackValidator.maxHit = cms.double(74.5)
 
-RMmultiTrackValidator.phiRes_rangeMin = cms.double(-0.1)
-RMmultiTrackValidator.phiRes_rangeMax = cms.double(0.1)
- 
+RMmultiTrackValidator.phiRes_rangeMin = cms.double(-0.05)
+RMmultiTrackValidator.phiRes_rangeMax = cms.double(0.05)
+#RMmultiTrackValidator.etaRes_rangeMin = cms.double(-0.05)
+#RMmultiTrackValidator.etaRes_rangeMax = cms.double(0.05)
+RMmultiTrackValidator.ptRes_rangeMin = cms.double(-0.3)
+RMmultiTrackValidator.ptRes_rangeMax = cms.double(0.3)
+RMmultiTrackValidator.dxyRes_rangeMin = cms.double(-0.02)
+RMmultiTrackValidator.dxyRes_rangeMax = cms.double(0.02)
+RMmultiTrackValidator.dzRes_rangeMin = cms.double(-0.05)
+RMmultiTrackValidator.dzRes_rangeMax = cms.double(0.05)
+
 RMmultiTrackValidator.UseAssociators = False
 
 

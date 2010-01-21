@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.20 2009/06/18 10:27:42 zablocki Exp $
+// $Id: SiPixelClusterModule.cc,v 1.21 2009/08/12 13:18:15 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -76,10 +76,10 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
-  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   if(type==0){
+    SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
     // Number of clusters
     hid = theHistogramId->setHistoId("nclusters",id_);
     meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",8,0.,8.);

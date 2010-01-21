@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.10.2.1 2009/07/01 09:57:27 dmytro Exp $
+// $Id: CaloDetIdAssociator.h,v 1.11 2009/09/06 16:35:53 dmytro Exp $
 //
 //
 
@@ -71,30 +71,32 @@ class CaloDetIdAssociator: public DetIdAssociator{
    };
    
    virtual std::vector<GlobalPoint> getDetIdPoints(const DetId& id) const {
-      if(! geometry_->getSubdetectorGeometry(id)){
+      const CaloSubdetectorGeometry* subDetGeom = geometry_->getSubdetectorGeometry(id);
+      if(! subDetGeom){
          LogDebug("TrackAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
-      } else {
-         if(! geometry_->getSubdetectorGeometry(id)->getGeometry(id)) {
-            LogDebug("TrackAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
-         } else {
-	    const CaloCellGeometry::CornersVec& cor (geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() ) ; 
-            const std::vector<GlobalPoint> points( cor.begin(), cor.end() ) ;
-	    for(std::vector<GlobalPoint>::const_iterator itr=points.begin();itr!=points.end();itr++)
-	      {
-		 //FIX ME
-		 // the following is a protection from the NaN bug in CaloGeometry
-		 if(isnan(itr->mag())||itr->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
-		    edm::LogWarning("TrackAssociator") << "Critical error! Bad calo detector unit geometry:\n\tDetId:" 
-		      << id.rawId() << "\t mag(): " << itr->mag() << "\n" << DetIdInfo::info( id )
-			<< "\nSkipped the element";
-		    return std::vector<GlobalPoint>();
-		 }
-	      }
-	    return points;
-            // points.push_back(getPosition(id));
-         }
+	 return std::vector<GlobalPoint>();
       }
-      return std::vector<GlobalPoint>();
+      const CaloCellGeometry* cellGeom = subDetGeom->getGeometry(id);
+      if(! cellGeom) {
+	 LogDebug("TrackAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
+	 return std::vector<GlobalPoint>();
+      } 
+      const CaloCellGeometry::CornersVec& cor (cellGeom->getCorners() ) ; 
+      const std::vector<GlobalPoint> points( cor.begin(), cor.end() ) ;
+      /*
+      for(std::vector<GlobalPoint>::const_iterator itr=points.begin();itr!=points.end();itr++)
+	{
+	   //FIX ME
+	   // the following is a protection from the NaN bug in CaloGeometry
+	   if(isnan(itr->mag())||itr->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
+	      edm::LogWarning("TrackAssociator") << "Critical error! Bad calo detector unit geometry:\n\tDetId:" 
+		<< id.rawId() << "\t mag(): " << itr->mag() << "\n" << DetIdInfo::info( id )
+		  << "\nSkipped the element";
+	      return std::vector<GlobalPoint>();
+	   }
+	}
+       */
+      return points;
    };
 
    virtual bool insideElement(const GlobalPoint& point, const DetId& id) const {

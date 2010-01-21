@@ -50,6 +50,8 @@ namespace egHLT {
     Data1D isolNrTrks;
     Data1D mass;
     Data1D massHigh;  
+    Data1D eOverP;
+    Data1D invEInvP;
 
     Data2D etaVsPhi;
   };

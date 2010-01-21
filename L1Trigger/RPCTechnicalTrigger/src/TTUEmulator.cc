@@ -1,8 +1,9 @@
-// $Id: TTUEmulator.cc,v 1.13 2009/08/09 11:11:37 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.14 2009/08/19 15:04:01 aosorio Exp $
 // Include files 
 
 
 #include <cmath>
+#include <algorithm>
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUEmulator.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUBasicConfig.h"

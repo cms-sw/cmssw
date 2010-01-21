@@ -58,7 +58,7 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
 
   /// Begin Of Luminosity
                                                                                
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
   /// Analyze
 
@@ -71,6 +71,7 @@ private:
   void fillDummyStatus();
   void readStatus();
   void fillStatus();
+  void addBadModules(uint32_t det_id);
 
   DQMStore* dqmStore_;
   MonitorElement * DcsFraction_;

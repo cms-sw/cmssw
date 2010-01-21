@@ -552,10 +552,10 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   if (!done) success = 0;
 
   // We are not in the VFCAL acceptance
-  // eta = 3.0 -> cos^2(theta) = 0.99014
-  // eta = 5.0 -> cos^2(theta) = 0.9998184
+  // eta = 3.0  -> cos^2(theta) = 0.99014
+  // eta = 5.2  -> cos^2(theta) = 0.9998755
   double c2teta = cos2ThetaV();
-  if ( done && ( c2teta < 0.99014 || c2teta > 0.9998184 ) ) success = 0;
+  if ( done && ( c2teta < 0.99014 || c2teta > 0.9998755 ) ) success = 0;
 
   return done;
 }

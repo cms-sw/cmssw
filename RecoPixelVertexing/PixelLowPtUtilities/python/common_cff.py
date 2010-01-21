@@ -16,14 +16,14 @@ TransientTrackBuilderESProducer = cms.ESProducer("TransientTrackBuilderESProduce
 
 # Pixel barrel errors
 BPixError = cms.PSet(
-    useErrorsFromParam = cms.bool(True),
+    useErrorsFromParam = cms.untracked.bool(True),
     hitErrorRPhi = cms.double(0.0027),
     hitErrorRZ = cms.double(0.006)
 )
 
 # Pixel endcap errors
 FPixError = cms.PSet(
-    useErrorsFromParam = cms.bool(True),
+    useErrorsFromParam = cms.untracked.bool(True),
     hitErrorRPhi = cms.double(0.0051),
     hitErrorRZ = cms.double(0.0036)
 )

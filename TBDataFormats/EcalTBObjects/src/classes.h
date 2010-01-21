@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<EcalTBTDCSample> vTDC_;
     std::vector<EcalTBHodoscopePlaneRawHits> vHplaneRawHits_;
     
@@ -32,6 +32,6 @@ namespace {
     edm::Wrapper<EcalTBHodoscopeRawInfo> theHodow_;
     edm::Wrapper<EcalTBHodoscopeRecInfo> theRecHodow_;
 
- }
+ };
 }
 

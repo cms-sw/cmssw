@@ -24,6 +24,7 @@ triggerComparison.x: Makefile triggerComparison.o
 	-rdynamic -lg2c -ldl -lm;
 	touch triggerComparison.x
 
+
 # clean
 clean: 
 	rm *.o *.x

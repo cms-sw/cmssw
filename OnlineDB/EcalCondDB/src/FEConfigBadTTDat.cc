@@ -78,7 +78,7 @@ void FEConfigBadTTDat::fetchData(std::vector< FEConfigBadTTDat >* p, FEConfigBad
   }
 
   try {
-    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by tcc_id, fed_id, tt_id ");
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + " WHERE rec_id = :rec_id order by tcc_id, fed_id, tt_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     

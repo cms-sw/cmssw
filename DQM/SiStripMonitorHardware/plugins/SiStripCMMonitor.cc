@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.6 2009/08/12 16:13:58 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.5 2009/08/12 08:54:57 amagnan Exp $
 //
 
 #include <sstream>
@@ -75,7 +75,6 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
  private:
 
   struct Statistics {
-    double Previous;
     double Mean;
     double Rms;
     double Counter;
@@ -130,8 +129,6 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
   std::map<unsigned int,Statistics> CommonModesAPV1_;
   std::map<unsigned int,Statistics> CommonModesAPV0minusAPV1_;
 
-  std::pair<uint16_t,uint16_t> prevMedians_[FEDNumbering::MAXSiStripFEDID+1][sistrip::FEDCH_PER_FED];
-
 };
 
 
@@ -175,13 +172,6 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
  CommonModesAPV0_.clear();
  CommonModesAPV1_.clear();
  CommonModesAPV0minusAPV1_.clear();
-
- for (unsigned int fedId(FEDNumbering::MINSiStripFEDID); fedId <= FEDNumbering::MAXSiStripFEDID; fedId++){
-   for (unsigned int iCh(0); iCh<sistrip::FEDCH_PER_FED; iCh++){
-     prevMedians_[fedId][iCh] = std::pair<uint16_t,uint16_t>(0,0);
-   }
- }
-
 
  if (printDebug_) {
    LogTrace("SiStripMonitorHardware") << debugStream.str();
@@ -380,7 +370,6 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
       lVal.Length = lChannel.length();
       lVal.Medians = std::pair<uint16_t,uint16_t>(medians.first,medians.second);
       lVal.ShotMedians = std::pair<float,float>(lShotMedian.first,lShotMedian.second);
-      lVal.PreviousMedians = prevMedians_[fedId][iCh];
 
 //       if (medians.second-medians.first > 26){
 // 	std::ostringstream info;
@@ -396,10 +385,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
       }
 
       values.push_back(lVal);
-
-      if (iEvent.id().event() > 1000) fillMaps(lDetId,nChInModule,medians);
-
-      prevMedians_[fedId][iCh] = std::pair<uint16_t,uint16_t>(medians.first,medians.second);
+      fillMaps(lDetId,nChInModule,medians);
 
     }//loop on channels
     

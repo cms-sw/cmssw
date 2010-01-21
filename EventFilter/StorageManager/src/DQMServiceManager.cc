@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.8 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DQMServiceManager.cc,v 1.9 2009/09/16 11:07:41 mommsen Exp $
 //
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)

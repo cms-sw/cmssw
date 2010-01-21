@@ -15,6 +15,7 @@ from SimGeneral.DataMixingModule.mixOne_data_on_sim_cfi import *
 
 DMEcalTriggerPrimitiveDigis = simEcalTriggerPrimitiveDigis.clone()
 DMEcalDigis = simEcalDigis.clone()
+DMEcalPreshowerDigis = simEcalPreshowerDigis.clone()
 
 # Re-define inputs to point at DataMixer output
 DMEcalTriggerPrimitiveDigis.Label = cms.string('mixData')
@@ -25,8 +26,11 @@ DMEcalDigis.digiProducer = cms.string('mixData')
 DMEcalDigis.EBdigiCollection = cms.string('EBDigiCollectionDM')
 DMEcalDigis.EEdigiCollection = cms.string('EEDigiCollectionDM')
 DMEcalDigis.trigPrimProducer = cms.string('DMEcalTriggerPrimitiveDigis')
+#
+DMEcalPreshowerDigis.digiProducer = cms.string('mixData')
+#DMEcalPreshowerDigis.ESdigiCollection = cms.string('ESDigiCollectionDM')
 
-ecalDigiSequenceDM = cms.Sequence(DMEcalTriggerPrimitiveDigis*DMEcalDigis)
+ecalDigiSequenceDM = cms.Sequence(DMEcalTriggerPrimitiveDigis*DMEcalDigis*DMEcalPreshowerDigis)
 
 # same for Hcal:
 
@@ -42,6 +46,9 @@ DMHcalDigis.digiLabel = cms.InputTag("mixData")
 hcalDigiSequenceDM = cms.Sequence(DMHcalTriggerPrimitiveDigis+DMHcalDigis)
 
 postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
+
+# disable adding noise to HCAL cells with no MC signal
+# mixData.doEmpty = False
 
 pdatamix = cms.Sequence(mixData+postDMDigi)
 

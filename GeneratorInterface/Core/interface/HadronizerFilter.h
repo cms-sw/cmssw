@@ -9,6 +9,8 @@
 #ifndef gen_HadronizerFilter_h
 #define gen_HadronizerFilter_h
 
+#include <memory>
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -123,43 +125,43 @@ namespace edm
     //
     if ( !hadronizer_.decay() ) return false;
     
-    HepMC::GenEvent* event = hadronizer_.getGenEvent();
-    if( !event ) return false; 
+    std::auto_ptr<HepMC::GenEvent> event (hadronizer_.getGenEvent());
+    if( !event.get() ) return false; 
 
     // The external decay driver is being added to the system,
     // it should be called here
     //
     if ( decayer_ ) 
     {
-      event = decayer_->decay( event );
+      event.reset( decayer_->decay( event.release() ) );
     }
 
-    if ( !event ) return false;
+    if ( !event.get() ) return false;
 
     // check and perform if there're any unstable particles after 
     // running external decay packges
     //
-    hadronizer_.resetEvent( event );
+    hadronizer_.resetEvent( event.release() );
     if ( !hadronizer_.residualDecay() ) return false;
 
     hadronizer_.finalizeEvent();
 
-    event = hadronizer_.getGenEvent() ;
-    if ( !event ) return false;
+    event.reset( hadronizer_.getGenEvent() );
+    if ( !event.get() ) return false;
 
     event->set_event_number( ev.id().event() );
-
-    std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-    bare_product->addHepMCData( event );
-    ev.put(bare_product);
 
     std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
     if (!genEventInfo.get())
     { 
       // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
-      genEventInfo.reset(new GenEventInfoProduct(event));
+      genEventInfo.reset(new GenEventInfoProduct(event.get()));
     }
     ev.put(genEventInfo);
+
+    std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+    bare_product->addHepMCData( event.release() );
+    ev.put(bare_product);
 
     return true;
   }

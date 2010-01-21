@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorJetEgammaProducer.cc,v 1.1 2009/02/27 16:13:13 hvanhaev Exp $
+// $Id: Castor.cc,v 1.3 2008/12/09 08:44:01 hvanhaev Exp $
 //
 //
 
@@ -64,6 +64,8 @@ class CastorJetEgammaProducer : public edm::EDProducer {
       typedef edm::RefVector<reco::CastorClusterCollection> CastorClusterRefVector;
       std::string input_;
       bool fastsim_;
+      bool ktalgo_;
+      bool clusteralgo_;
 };
 
 //
@@ -81,15 +83,21 @@ const double MYR2D = 180/M_PI;
 //
 
 CastorJetEgammaProducer::CastorJetEgammaProducer(const edm::ParameterSet& iConfig) :
-	input_(iConfig.getUntrackedParameter<std::string>("input","")),
-	fastsim_(iConfig.getUntrackedParameter<bool>("fastsim",false))
+	input_(iConfig.getUntrackedParameter<std::string>("inputprocess","CastorClusterReco")),
+	fastsim_(iConfig.getUntrackedParameter<bool>("fastsim",false)),
+	ktalgo_(iConfig.getUntrackedParameter<bool>("KtAlgo",true)),
+	clusteralgo_(iConfig.getUntrackedParameter<bool>("ClusterAlgo",false))
 
 {
   //register your products
-    produces<CastorEgammaCollection>();
-    produces<CastorJetCollection>();
-
-
+  if (ktalgo_) {
+    produces<CastorEgammaCollection>("fromKtAlgo");
+    produces<CastorJetCollection>("fromKtAlgo");
+  }
+  if (clusteralgo_) {
+    produces<CastorEgammaCollection>("fromClusterAlgo");
+    produces<CastorJetCollection>("fromClusterAlgo");
+  }
    
    //now do what ever other initialization is needed
 }
@@ -116,8 +124,10 @@ void CastorJetEgammaProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   
   // Produce CastorJets and CastorEgammas from CastorClusters
     
+  if (ktalgo_) {
+    
     edm::Handle<CastorClusterCollection> InputClusters;
-    iEvent.getByLabel(input_,InputClusters);
+    iEvent.getByLabel(input_,"fromKtAlgo",InputClusters);
 
     auto_ptr<CastorJetCollection> OutputJets (new CastorJetCollection);
     auto_ptr<CastorEgammaCollection> OutputEgammas (new CastorEgammaCollection);
@@ -148,9 +158,47 @@ void CastorJetEgammaProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     for (size_t i=0; i<Jets.size(); i++) OutputJets->push_back(Jets[i]);
     for (size_t i=0; i<Egammas.size(); i++) OutputEgammas->push_back(Egammas[i]); 
 
-    iEvent.put(OutputJets);
-    iEvent.put(OutputEgammas);
+    iEvent.put(OutputJets,"fromKtAlgo");
+    iEvent.put(OutputEgammas,"fromKtAlgo");
+  }
   
+  if (clusteralgo_) {
+    
+    edm::Handle<CastorClusterCollection> InputClusters;
+    iEvent.getByLabel(input_,"fromClusterAlgo",InputClusters);
+
+    auto_ptr<CastorJetCollection> OutputJets (new CastorJetCollection);
+    auto_ptr<CastorEgammaCollection> OutputEgammas (new CastorEgammaCollection);
+
+    // get and check input size
+    int nClusters = InputClusters->size();
+
+    if(debug) cout<<""<<endl;
+    if(debug) cout<<"-----------------------------------"<<endl;
+    if(debug) cout<<"4. entering CastorJetEgammaProducer"<<endl;
+    if(debug) cout<<"-----------------------------------"<<endl;
+    if(debug) cout<<""<<endl;
+
+    if (nClusters==0) cout<<"Warning: You are trying to run the Jet Egamma algorithm with 0 input clusters. \n";
+
+    CastorClusterRefVector Clusters;
+
+    for (size_t i = 0; i < InputClusters->size(); ++i) {
+      reco::CastorClusterRef cluster_p = reco::CastorClusterRef(InputClusters, i);
+      Clusters.push_back(cluster_p);
+    }
+
+    CastorJetCollection Jets;
+    CastorEgammaCollection Egammas;
+
+    select(Clusters,Jets,Egammas);
+
+    for (size_t i=0; i<Jets.size(); i++) OutputJets->push_back(Jets[i]);
+    for (size_t i=0; i<Egammas.size(); i++) OutputEgammas->push_back(Egammas[i]); 
+
+    iEvent.put(OutputJets,"fromClusterAlgo");
+    iEvent.put(OutputEgammas,"fromClusterAlgo");
+  }
 }
 
 // ------------ method called once each job just before starting event loop  ------------

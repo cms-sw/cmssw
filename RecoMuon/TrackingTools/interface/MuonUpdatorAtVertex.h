@@ -21,8 +21,8 @@
  *  BeamSpotPositionErrors[2] = sigma(z)
  *
  *
- *  $Date: 2009/02/18 18:23:30 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/02/18 18:21:55 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -87,6 +87,7 @@ private:
   double theChi2Cut;
 
   GlobalError thePositionErrors;
+  GlobalPoint thePosition;
 };
 #endif
 

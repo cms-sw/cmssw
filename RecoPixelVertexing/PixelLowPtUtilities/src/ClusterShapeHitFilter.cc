@@ -104,7 +104,7 @@ void ClusterShapeHitFilter::loadPixelLimits()
   inFile.close();
   
   LogTrace("ClusterShapeHitFilter|MinBiasTracking")
-    << " pixel-cluster-shape filter loaded";
+    << "pixel-cluster-shape filter loaded";
  }
 
 /*****************************************************************************/
@@ -141,8 +141,9 @@ void ClusterShapeHitFilter::loadStripLimits()
 bool ClusterShapeHitFilter::isInside
   (const vector<vector<float> > & limit, const pair<float,float> & pred) const
 { // pixel
+
   return (pred.first  > limit[0][0] && pred.first  < limit[0][1] &&
-          pred.second > limit[1][0] && pred.second < limit[1][1]);
+	    pred.second > limit[1][0] && pred.second < limit[1][1]);
 }  
 
 /*****************************************************************************/
@@ -184,6 +185,11 @@ pair<float,float> ClusterShapeHitFilter::getDrift
       theMagneticField->inTesla(
       pixelDet->surface().position()));
 
+/*
+  double theTanLorentzAnglePerTesla = theAngle[pixelDet->type().subDetector()];
+
+  if(theTanLorentzAnglePerTesla == 0.)
+*/
   double theTanLorentzAnglePerTesla =
          theSiPixelLorentzAngle->getLorentzAngle(
            pixelDet->geographicalId().rawId());
@@ -204,6 +210,11 @@ const
       theMagneticField->inTesla(
       stripDet->surface().position()));
     
+/*
+  double theTanLorentzAnglePerTesla = theAngle[stripDet->type().subDetector()];
+
+  if(theTanLorentzAnglePerTesla == 0.)
+*/
   double theTanLorentzAnglePerTesla =
          theSiStripLorentzAngle->getLorentzAngle(
            stripDet->geographicalId().rawId());
@@ -234,17 +245,19 @@ bool ClusterShapeHitFilter::isNormalOriented
 /*****************************************************************************/
 bool ClusterShapeHitFilter::getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-   int & part, vector<pair<int,int> > & meas, pair<float,float> & pred) const
+   int & part, pair<int,int> & meas, pair<float,float> & pred) const
 {
   // Get detector
   DetId id = recHit.geographicalId();
   const PixelGeomDetUnit* pixelDet =
     dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
 
+  //if (!pixelDet)  edm::LogError("ClusterShapeHitFilter")<<"no geomdetunit for this pixel hit.";
+
   // Get shape information
   ClusterData data;
   ClusterShape theClusterShape;
-  theClusterShape.determineShape(*pixelDet, recHit, data);
+  theClusterShape.getExtra(*pixelDet, recHit, data);
   bool usable = (data.isStraight && data.isComplete);
  
   // Usable?
@@ -252,21 +265,14 @@ bool ClusterShapeHitFilter::getSizes
   {
     part = (pixelDet->type().isBarrel() ? 0 : 1);
 
+    meas = data.size;
+
     // Predicted size
     pred.first  = ldir.x() / ldir.z();
     pred.second = ldir.y() / ldir.z();
 
-    if(data.size.front().second < 0)
-      pred.second = - pred.second;
-
-    for(vector<pair<int,int> >::const_iterator s = data.size.begin();
-                                               s!= data.size.end(); s++)
-    {
-      meas.push_back(*s);
-
-      if(data.size.front().second < 0)
-        meas.back().second = - meas.back().second;
-    }
+    if(meas.second < 0)
+    { meas.second = - meas.second; pred.second = - pred.second; }
 
     // Take out drift 
     pair<float,float> drift = getDrift(pixelDet);
@@ -323,39 +329,21 @@ bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const LocalVector & ldir) const
 {
   int part;
-  vector<pair<int,int> > meas;
+  pair<int,int> meas;
   pair<float,float> pred;
 
   if(getSizes(recHit, ldir, part,meas, pred))
   {
-    for(vector<pair<int,int> >::const_iterator m = meas.begin();
-                                               m!= meas.end(); m++)
-    {
-      PixelKeys key(part, (*m).first, (*m).second);
+    PixelKeys key(part, meas.first, meas.second);
 
-      PixelLimitsMap::const_iterator i = pixelLimits.find(key);
-      if(i != pixelLimits.end())
-      { 
-        // inside on of the boxes
-        if (isInside((i->second)[0], pred) ||
-  	    isInside((i->second)[1], pred))
-          return true;
-      }
-      else
-      {
-        // out of the map
-        return true;
-      }
-    }
-
-    // none of the choices worked
-    return false;
+    PixelLimitsMap::const_iterator i=pixelLimits.find(key);
+    if (i!=pixelLimits.end())
+      return (isInside((i->second)[0], pred) ||
+	      isInside((i->second)[1], pred));        
   }
-  else
-  {
-    // not usable
-    return true;
-  }
+  
+  // Not usable or no limits
+  return true;
 }
 
 /*****************************************************************************/

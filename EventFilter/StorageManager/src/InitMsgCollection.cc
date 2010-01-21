@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.cc,v 1.9 2009/09/16 08:58:43 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.10 2009/09/16 10:44:49 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"

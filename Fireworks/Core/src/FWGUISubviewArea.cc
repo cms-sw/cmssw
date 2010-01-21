@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.31 2009/06/26 21:06:33 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.32 2009/06/28 19:54:45 amraktad Exp $
 //
 
 // system include files
@@ -320,4 +320,16 @@ void
 FWGUISubviewArea::setInfoButton(bool downp)
 {
    m_infoButton->SetState(downp ? kButtonEngaged : kButtonUp, false);
+}
+
+FWGUISubviewArea*
+FWGUISubviewArea::getToolBarFromWindow(TEveWindow* w)
+{
+   // horizontal frame
+   TGFrameElement *el = (TGFrameElement*) w->GetEveFrame()->GetList()->First();
+   TGCompositeFrame* hf = (TGCompositeFrame*)el->fFrame;
+   // subview last in the horizontal frame
+   el = (TGFrameElement*)hf->GetList()->Last();
+   FWGUISubviewArea* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
+   return ar;
 }

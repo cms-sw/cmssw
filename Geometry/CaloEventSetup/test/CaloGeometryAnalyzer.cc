@@ -561,10 +561,18 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
    std::cout<<"***************total number = "<<ids.size()<<std::endl ;
 
+   const std::vector< DetId >& ids2 ( cg.getValidDetIds( det, subdetn ) ) ;
+   
+   std::cout<<"***OTHER METHOD****total number = "<<ids2.size()<<std::endl ;
+
+   assert( ids == ids2 ) ;
+
    for( std::vector<DetId>::const_iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
    {
       ++n;
       const CaloCellGeometry* cell ( geom->getGeometry(*i) ) ;
+
+      assert( cg.present( *i ) ) ;
 
       ctrcor( det,
 	      subdetn,
@@ -868,20 +876,51 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);     
+
+   const std::vector<DetId> allDetId ( pG->getValidDetIds() ) ;
+   std::cout<<"Total number of DetIds in all subdets is = "<<allDetId.size()<<std::endl ;
+
+   const std::vector<DetId> deb ( pG->getValidDetIds(DetId::Ecal,EcalBarrel                     ));
+   const std::vector<DetId> dee ( pG->getValidDetIds(DetId::Ecal,EcalEndcap                     ));
+   const std::vector<DetId> des ( pG->getValidDetIds(DetId::Ecal,EcalPreshower                  ));
+   const std::vector<DetId> dhb ( pG->getValidDetIds(DetId::Hcal,HcalBarrel                     ));
+   const std::vector<DetId> dhe ( pG->getValidDetIds(DetId::Hcal,HcalEndcap                     ));
+   const std::vector<DetId> dho ( pG->getValidDetIds(DetId::Hcal,HcalOuter                      ));
+   const std::vector<DetId> dhf ( pG->getValidDetIds(DetId::Hcal,HcalForward                    ));
+   const std::vector<DetId> dct ( pG->getValidDetIds(DetId::Calo,CaloTowerDetId::SubdetId       ));
+   const std::vector<DetId> dca ( pG->getValidDetIds(DetId::Calo,HcalCastorDetId::SubdetectorId ));
+   const std::vector<DetId> dzd ( pG->getValidDetIds(DetId::Calo,HcalZDCDetId::SubdetectorId    ));
+
+   const unsigned int sum ( deb.size() +
+			    dee.size() +
+			    des.size() +
+			    dhb.size() +
+			    dhe.size() +
+			    dho.size() +
+			    dhf.size() +
+			    dct.size() +
+			    dca.size() +
+			    dzd.size()   ) ;
+
+
+   std::cout<<"Sum in all subdets is = "<<sum<<std::endl ;
+
+   assert( sum == allDetId.size() ) ;
+
    //
    // get the ecal & hcal geometry
    //
    if (pass_==0) {
-     build(*pG,DetId::Ecal,EcalBarrel,"eb",0);
-     build(*pG,DetId::Ecal,EcalEndcap,"ee",1);
-     build(*pG,DetId::Ecal,EcalPreshower,"es",2);
-     build(*pG,DetId::Hcal,HcalBarrel,"hb",3);
-     build(*pG,DetId::Hcal,HcalEndcap,"he",4);
-     build(*pG,DetId::Hcal,HcalOuter ,"ho",5);
-     build(*pG,DetId::Hcal,HcalForward,"hf",6);
-     build(*pG,DetId::Calo,CaloTowerDetId::SubdetId     ,"ct",7);
-     build(*pG,DetId::Calo,HcalCastorDetId::SubdetectorId  ,"ca",8);
-     build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId  ,"zd",9);
+     build(*pG,DetId::Ecal,EcalBarrel                     ,"eb",0);
+     build(*pG,DetId::Ecal,EcalEndcap                     ,"ee",1);
+     build(*pG,DetId::Ecal,EcalPreshower                  ,"es",2);
+     build(*pG,DetId::Hcal,HcalBarrel                     ,"hb",3);
+     build(*pG,DetId::Hcal,HcalEndcap                     ,"he",4);
+     build(*pG,DetId::Hcal,HcalOuter                      ,"ho",5);
+     build(*pG,DetId::Hcal,HcalForward                    ,"hf",6);
+     build(*pG,DetId::Calo,CaloTowerDetId::SubdetId       ,"ct",7);
+     build(*pG,DetId::Calo,HcalCastorDetId::SubdetectorId ,"ca",8);
+     build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId    ,"zd",9);
      //Test eeGetClosestCell in Florian Point
      std::cout << "Checking getClosestCell for position" << GlobalPoint(-38.9692,-27.5548,-317) << std::endl;
        std::cout << "Position of Closest Cell in EE " << dynamic_cast<const TruncatedPyramid*>(pG->getGeometry(EEDetId((*pG).getSubdetectorGeometry(DetId::Ecal,EcalEndcap)->getClosestCell(GlobalPoint(-38.9692,-27.5548,-317)))))->getPosition(0.) << std::endl;

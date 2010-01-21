@@ -263,7 +263,11 @@ void L1RCTJetSummaryCard::asicCompare(vector<unsigned short>& array)
   unsigned short temp;
   for (i = 0; i < 4; i++)
     {
-      if ((array.at(2 * i)>>4) < (array.at((2 * i) + 1)>>4)) // currently bottom 3 bits are rgn,crd
+
+      unsigned short rank1 = rctLookupTables_->emRank(array.at(2 * i)>>4);
+      unsigned short rank2 = rctLookupTables_->emRank(array.at(2 * i + 1)>>4);
+
+      if (rank1 < rank2) // currently bottom 3 bits are rgn,crd
 	{
 	  temp = array.at(2 * i);
 	  array.at(2 * i) = array.at((2 * i) + 1);

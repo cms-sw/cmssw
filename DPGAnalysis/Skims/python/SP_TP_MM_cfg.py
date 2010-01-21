@@ -47,7 +47,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/SP_TP_MM_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT SuperPointing TrackerPointing Multimuon skim')
 )
@@ -61,7 +61,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_31X_V5P::All' 
+process.GlobalTag.globaltag = 'CRAFT09_R_V4::All' 
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 process.load('Configuration/EventContent/EventContentCosmics_cff')
@@ -158,7 +158,7 @@ process.outSP = cms.OutputModule("PoolOutputModule",
                                dataset = cms.untracked.PSet(
 			                 dataTier = cms.untracked.string('RAW-RECO'),
                                          filterName = cms.untracked.string('SuperPointing')),
-                               fileName = cms.untracked.string('/tmp/malgeri/superPointing.root')
+                               fileName = cms.untracked.string('superPointing.root')
                                )
 
 #################################Tracker Pointing###############################################
@@ -199,7 +199,7 @@ process.outTP = cms.OutputModule("PoolOutputModule",
                                dataset = cms.untracked.PSet(
 			                 dataTier = cms.untracked.string('RAW-RECO'),
                                          filterName = cms.untracked.string('TrackingPointing')),
-                               fileName = cms.untracked.string('/tmp/malgeri/trackerPointing.root')
+                               fileName = cms.untracked.string('trackerPointing.root')
                                )
 
 
@@ -225,7 +225,7 @@ process.outMM = cms.OutputModule("PoolOutputModule",
                                dataset = cms.untracked.PSet(
 			                 dataTier = cms.untracked.string('RECO'),
                                          filterName = cms.untracked.string('multiCosmicMuon')),
-                               fileName = cms.untracked.string('/tmp/malgeri/multiMuon.root')
+                               fileName = cms.untracked.string('multiMuon.root')
                                )
 
 process.outMM.outputCommands.append('drop *_MEtoEDMConverter_*_*')

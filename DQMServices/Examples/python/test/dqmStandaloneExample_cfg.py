@@ -12,17 +12,16 @@ process.maxEvents = cms.untracked.PSet(
 ######################################################################################
 ### include to get DQM histogramming services
 process.load("DQMServices.Core.DQM_cfg")
-process.DQMStore.verbose = 0
+process.DQMStore.verbose = 2
 
 ### include to get DQM environment (file saver and eventinfo module)
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 ### replace YourSubsystemName by the name of your source ###
 ### use it for dqmEnv, dqmSaver ###
-process.dqmEnv.subSystemFolder = 'SubS'
+process.dqmEnv.subSystemFolder = 'YourSubsystemName'
 
 ### optional parameters (defaults are different) ###
-
 ### Online environment
 process.dqmSaver.convention = 'Online'
 process.DQM.collectorHost = ''
@@ -40,9 +39,10 @@ process.dqmSaver.saveAtJobEnd = True
 ######################################################################################
 ### include your reference file
 process.DQMStore.referenceFileName = 'ref.root'
-### set 
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
+######################################################################################
+### set this in order to add up histograms that already exist
+#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 ######################################################################################
 ### loading of root files into DQMStore (stripping out Run and RunSummary)
@@ -52,8 +52,6 @@ process.dqmFileReader.FileNames = cms.untracked.vstring (
        "file:ref.root",
        "file:ref.root"
        )
-### set collateHistograms to true if you want identical histograms added
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 ######################################################################################
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
@@ -102,7 +100,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 ######################################################################################
 ### LogError Histogramming
 process.load("FWCore.Modules.logErrorHarvester_cfi")
-process.load("DQMServices.Components.DQMLogError_cfi")
+process.load("DQMServices.Components.DQMMessageLogger_cfi")
 
 
 ######################################################################################
@@ -113,6 +111,6 @@ process.p = cms.Path(
                      process.qTester*
 		     process.dqmStoreStats*
 		     process.dqmClient*
-		     process.logErrorHarvester*process.logErrorDQM*
+#		     process.logErrorHarvester*process.logErrorDQM*
 		     process.dqmSaver
 		    )

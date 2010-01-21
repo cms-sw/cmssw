@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/14 14:17:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/14 16:18:39 $
+ *  $Revision: 1.4 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -87,18 +87,6 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   double VZMin = conf_.getParameter<double>("VZMin");
   double VZMax = conf_.getParameter<double>("VZMax");
 
-  int    X0Bin = conf_.getParameter<int>("X0Bin");
-  double X0Min = conf_.getParameter<double>("X0Min");
-  double X0Max = conf_.getParameter<double>("X0Max");
-
-  int    Y0Bin = conf_.getParameter<int>("Y0Bin");
-  double Y0Min = conf_.getParameter<double>("Y0Min");
-  double Y0Max = conf_.getParameter<double>("Y0Max");
-
-  int    Z0Bin = conf_.getParameter<int>("Z0Bin");
-  double Z0Min = conf_.getParameter<double>("Z0Min");
-  double Z0Max = conf_.getParameter<double>("Z0Max");
-
   histname = "NumberOfRecHitsPerTrack_";
   NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
   NumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each track");
@@ -126,32 +114,6 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
   histname = "Chi2overDoF_";
   Chi2overDoF = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max/10);
   Chi2overDoF->setAxisTitle("Chi2 over nr. of degrees of freedom of each track");
-
-  if(doBSPlots_)
-    {
-      dqmStore_->setCurrentFolder(MEBSFolderName);
-  
-      histname = "DistanceOfClosestApproachToBS_";
-      DistanceOfClosestApproachToBS = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
-      DistanceOfClosestApproachToBS->setAxisTitle("Track distance of closest approach to beam spot (cm)");
-  
-      histname = "DistanceOfClosestApproachToBSVsPhi_";
-      DistanceOfClosestApproachToBSVsPhi = dqmStore_->bookProfile(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, D0Bin,D0Min,D0Max,"");
-      DistanceOfClosestApproachToBSVsPhi->getTH1()->SetBit(TH1::kCanRebin);
-      DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track azimuthal angle",1);
-      DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track distance of closest approach to beam spot (cm)",2);
-
-      histname = "xPointOfClosestApproachVsZ0_";
-      xPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
-      xPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
-      xPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the x-axis (cm)",2);
-
-      histname = "yPointOfClosestApproachVsZ0_";
-      yPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
-      yPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
-      yPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the y-axis (cm)",2);
-
-    }
  
   histname = "DistanceOfClosestApproach_";
   DistanceOfClosestApproach = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
@@ -159,11 +121,9 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
 
   histname = "DistanceOfClosestApproachVsPhi_";
   DistanceOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, D0Bin,D0Min,D0Max,"");
-  DistanceOfClosestApproachVsPhi->getTH1()->SetBit(TH1::kCanRebin);
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track azimuthal angle",1);
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track distance of closest approach (cm)",2);
  
-  if(doBSPlots_) dqmStore_->setCurrentFolder(MEFolderName);
   
   if(doAllPlots_)
     {
@@ -199,6 +159,42 @@ void TrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_)
     bookHistosForState("ImpactPoint", dqmStore_);
   } else {
     bookHistosForState(StateName, dqmStore_);
+  }
+  if(doBSPlots_) {
+    
+    dqmStore_->setCurrentFolder(MEBSFolderName);
+    
+    int    X0Bin = conf_.getParameter<int>("X0Bin");
+    double X0Min = conf_.getParameter<double>("X0Min");
+    double X0Max = conf_.getParameter<double>("X0Max");
+    
+    int    Y0Bin = conf_.getParameter<int>("Y0Bin");
+    double Y0Min = conf_.getParameter<double>("Y0Min");
+    double Y0Max = conf_.getParameter<double>("Y0Max");
+    
+    int    Z0Bin = conf_.getParameter<int>("Z0Bin");
+    double Z0Min = conf_.getParameter<double>("Z0Min");
+    double Z0Max = conf_.getParameter<double>("Z0Max");
+
+    histname = "DistanceOfClosestApproachToBS_";
+    DistanceOfClosestApproachToBS = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
+    DistanceOfClosestApproachToBS->setAxisTitle("Track distance of closest approach to beam spot (cm)");
+    
+    histname = "DistanceOfClosestApproachToBSVsPhi_";
+    DistanceOfClosestApproachToBSVsPhi = dqmStore_->bookProfile(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, D0Bin,D0Min,D0Max,"");
+    DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track azimuthal angle",1);
+    DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track distance of closest approach to beam spot (cm)",2);
+    
+    histname = "xPointOfClosestApproachVsZ0_";
+    xPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
+    xPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
+    xPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the x-axis (cm)",2);
+    
+    histname = "yPointOfClosestApproachVsZ0_";
+    yPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+AlgoName, histname+AlgoName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
+    yPointOfClosestApproachVsZ0->setAxisTitle("dz (cm)",1);
+    yPointOfClosestApproachVsZ0->setAxisTitle("Track distance of closest approach on the y-axis (cm)",2);
+    
   }
 }
 //

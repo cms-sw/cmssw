@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/08/25 10:03:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/02 13:09:47 $
+ *  $Revision: 1.4 $
  */
 
 
@@ -74,6 +74,9 @@ HLTMuonBPAG::HLTMuonBPAG
   LogTrace ("HLTMuonVal") << "exiting constructor\n\n";
 
   ALLKEY = "ALL";
+
+  // pick up the mass parameters
+  theMassParameters = pset.getUntrackedParameter< vector<double> >("MassParameters");
 
 }
 
@@ -335,36 +338,59 @@ void HLTMuonBPAG::begin()
     //----- define temporary vectors that
     //----- give you dimensions
 
-    vector<double>  massVsPtBins;
-    massVsPtBins.push_back(5); // pt from 0 to 20 in 5 bins
-    massVsPtBins.push_back(0.0);
-    massVsPtBins.push_back(20.0);
-    massVsPtBins.push_back(50); // mass: 10 bins from 0 to 6
-    massVsPtBins.push_back(0.0);
-    massVsPtBins.push_back(6.0);
+    
+    // vector<double>  massVsPtBins; // not used 
+    //     massVsPtBins.push_back(5); // pt from 0 to 20 in 5 bins
+    //     massVsPtBins.push_back(0.0);
+    //     massVsPtBins.push_back(20.0);
+    //     massVsPtBins.push_back(50); // mass: 10 bins from 0 to 6
+    //     massVsPtBins.push_back(0.0);
+    //     massVsPtBins.push_back(6.0);
+
+    int nPtBins = ((int) thePtParameters.size()) - 1;
+    int nMassBins = (theMassParameters.size() > 0) ? ((int)theMassParameters[0]) : 50;
+    double minMass = (theMassParameters.size() > 1) ? theMassParameters[1] : 0;
+    double maxMass = (theMassParameters.size() > 2) ? theMassParameters[2] : 6;;
+
+    double ptBinLowEdges[100]; // set to a large maximum
+
+    unsigned maxPtBin = (thePtParameters.size() > 100) ? thePtParameters.size() : 100;
+    
+    for (unsigned i = 0; i < maxPtBin; i++)
+      ptBinLowEdges[i] = thePtParameters[i];
+    
+    vector<double> evenPtBins;
+    evenPtBins.push_back(10);
+    evenPtBins.push_back(0);
+    evenPtBins.push_back(20);
+
+    
+    
+
+
 
     vector<double> massVsEtaBins;
-    massVsEtaBins.push_back(5); // |eta| < 2.1 in 5 bins
-    massVsEtaBins.push_back(-2.1);
-    massVsEtaBins.push_back(2.1);
-    massVsEtaBins.push_back(50);
-    massVsEtaBins.push_back(0.0); // mass: 10 bins from 0 to 6
-    massVsEtaBins.push_back(6.0);
+    massVsEtaBins.push_back(theEtaParameters[0]); // |eta| < 2.1 in 5 bins
+    massVsEtaBins.push_back(theEtaParameters[1]);
+    massVsEtaBins.push_back(theEtaParameters[2]);
+    massVsEtaBins.push_back(nMassBins);
+    massVsEtaBins.push_back(minMass); // mass: 10 bins from 0 to 6
+    massVsEtaBins.push_back(maxMass);
 
     vector<double> massVsPhiBins;
-    massVsPhiBins.push_back(5); // -pi < phi < pi  in 5 bins
-    massVsPhiBins.push_back(-3.14);
-    massVsPhiBins.push_back(3.14);
-    massVsPhiBins.push_back(50);
-    massVsPhiBins.push_back(0.0); // mass: 10 bins from 0 to 6
-    massVsPhiBins.push_back(6.0);
+    massVsPhiBins.push_back(thePhiParameters[0]); // -pi < phi < pi  in 5 bins
+    massVsPhiBins.push_back(thePhiParameters[1]);
+    massVsPhiBins.push_back(thePhiParameters[2]);
+    massVsPhiBins.push_back(nMassBins);
+    massVsPhiBins.push_back(minMass); // mass: 10 bins from 0 to 6
+    massVsPhiBins.push_back(maxMass);
 
     
 
     vector<double> massBins;
-    massBins.push_back(50);
-    massBins.push_back(0);
-    massBins.push_back(6);
+    massBins.push_back(nMassBins);
+    massBins.push_back(minMass);
+    massBins.push_back(maxMass);
 
     //////////////////////////////////////////////////////////////
     //
@@ -373,20 +399,23 @@ void HLTMuonBPAG::begin()
     //////////////////////////////////////////////////////////////
 
     
-    diMuonMassVsPt[ALLKEY] = bookIt("diMuonMassVsPt_All", "Mass Vs Probe Pt", massVsPtBins);
-    diMuonMassVsEta[ALLKEY] = bookIt("diMuonMassVsEta_All", "Mass Vs Probe Eta", massVsEtaBins);    
+    //diMuonMassVsPt[ALLKEY] = bookIt("diMuonMassVsPt_All", "Mass Vs Probe Pt", massVsPtBins);
+    diMuonMassVsPt[ALLKEY] =  book2DVarBins("diMuonMassVsPt_All", "Mass Vs Probe Pt; Pt; Mass", nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
+    diMuonMassVsEta[ALLKEY] = bookIt("diMuonMassVsEta_All", "Mass Vs Probe Eta; #eta ; Mass", massVsEtaBins);    
     diMuonMassVsPhi[ALLKEY] = bookIt("diMuonMassVsPhi_All", "Mass Vs Probe Phi", massVsPhiBins);
     
-    diMuonMass[ALLKEY] = bookIt("diMuonMass_All", "Mass of Dimuons", massBins);
+    diMuonMass[ALLKEY] = bookIt("diMuonMass_All", "Mass of Dimuons; Mass", massBins);
 
+    probeMuonPt[ALLKEY] = bookIt("probeMuonPt_All", "Probe Muon PT; Probe Pt", evenPtBins);
     
     
     if (useFullDebugInformation || isL1Path) {
-      diMuonMassVsPt[myLabel] = bookIt("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt " + myLabel, massVsPtBins);
-      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta " + myLabel, massVsEtaBins);
-      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi " + myLabel, massVsPhiBins);
+      diMuonMassVsPt[myLabel] = book2DVarBins("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt; Pt; Mass", nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
+      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta; #eta; Mass " + myLabel, massVsEtaBins);
+      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi; #phi; Mass " + myLabel, massVsPhiBins);
  
-      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons  " + myLabel, massBins);
+      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons; mass  " + myLabel, massBins);
+      probeMuonPt[myLabel] = bookIt("probeMuonPt_" + myLabel, "Probe Muon PT; Pt" + myLabel, evenPtBins);
       
     }
 
@@ -415,11 +444,13 @@ void HLTMuonBPAG::begin()
     
 
       // Book for L2, L3
-      diMuonMassVsPt[myLabel] = bookIt("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt " + myLabel, massVsPtBins);
-      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta " + myLabel, massVsEtaBins);
-      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi " + myLabel, massVsPhiBins);
+      diMuonMassVsPt[myLabel] = book2DVarBins("diMuonMassVsPt_" + myLabel, "Mass Vs Probe Pt; Pt; Mass" + myLabel, nPtBins, ptBinLowEdges, nMassBins, minMass, maxMass);
+      diMuonMassVsEta[myLabel] = bookIt("diMuonMassVsEta_" + myLabel, "Mass Vs Probe Eta; #eta; Mass " + myLabel, massVsEtaBins);
+      diMuonMassVsPhi[myLabel] = bookIt("diMuonMassVsPhi_" + myLabel, "Mass Vs Probe Phi; #phi; Mass " + myLabel, massVsPhiBins);
 
-      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons  " + myLabel, massBins);
+      diMuonMass[myLabel] = bookIt("diMuonMass_" + myLabel, "Mass of Dimuons; Mass  " + myLabel, massBins);
+      probeMuonPt[myLabel] = bookIt("probeMuonPt_" + myLabel, "Probe Muon PT; Pt "+ myLabel, evenPtBins);
+      
     }// end for each collection label
 
     map<TString, MonitorElement*>::const_iterator iPlot;
@@ -533,4 +564,12 @@ bool HLTMuonBPAG::selectAndMatchMuons(const edm::Event & iEvent,
 
 
 
+MonitorElement* HLTMuonBPAG::book2DVarBins (TString name, TString title, int nBinsX, double * xBinLowEdges, int nBinsY, double yMin, double yMax) {
 
+  TH2F *tempHist = new TH2F(name, title, nBinsX, xBinLowEdges, nBinsY, yMin, yMax);
+  tempHist->Sumw2();
+  MonitorElement * returnedME = dbe_->book2D(name.Data(), tempHist);
+  delete tempHist;
+  return returnedME;
+
+}

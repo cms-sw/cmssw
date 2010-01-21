@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
-namespace {
+namespace egHLT {
   namespace debug {
     
     //function prints to LogInfo the names of all products of type PROD in event
@@ -32,7 +32,8 @@ namespace {
     iEvent.getManyByType(products);
     
     for(size_t i=0;i<products.size();i++){
-      edm::LogInfo(moduleName) <<"for product "<<i+1<<"/"<<products.size()<<" "<<products[i].provenance()->moduleLabel()<<" "<<products[i].provenance()->moduleName()<<std::endl; 
+      //  edm::LogInfo(moduleName) <<"for product "<<i+1<<"/"<<products.size()<<" "<<products[i].provenance()->moduleLabel()<<" "<<products[i].provenance()->moduleName()<<std::endl;
+      std::cout <<"for product "<<i+1<<"/"<<products.size()<<" "<<products[i].provenance()->moduleLabel()<<" "<<products[i].provenance()->moduleName()<<std::endl; 
      
     }
     return products.size();
