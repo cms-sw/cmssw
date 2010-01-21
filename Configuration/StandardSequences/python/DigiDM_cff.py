@@ -10,8 +10,7 @@ from Configuration.StandardSequences.Digi_cff import *
 ##### #turn off noise in all subdetectors
 simHcalUnsuppressedDigis.doNoise = False
 simEcalUnsuppressedDigis.doNoise = False
-ecal_electronics_sim.doNoise = False
-es_electronics_sim.doESNoise = False
+#simEcalUnsuppressedDigis.doESNoise = False
 simSiPixelDigis.AddNoise = False
 simSiStripDigis.Noise = False
 simMuonCSCDigis.strips.doNoise = False
@@ -20,3 +19,9 @@ simMuonCSCDigis.wires.doNoise = False
 #simMuonDTDigis.IdealModel = True
 simMuonDTDigis.onlyMuHits = True
 simMuonRPCDigis.Noise = False
+
+# remove unnecessary modules from 'pdigi' sequence
+pdigi.remove(simEcalTriggerPrimitiveDigis)
+pdigi.remove(simEcalDigis)
+pdigi.remove(simEcalPreshowerDigis)
+pdigi.remove(simHcalDigis)
