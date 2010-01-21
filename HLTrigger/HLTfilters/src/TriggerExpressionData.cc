@@ -9,8 +9,11 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
@@ -49,9 +52,19 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
     if (not m_l1tResults)
       return false;
 
-    // cache the L1 masks
+    // cache the L1 trigger  masks
     m_l1tAlgoMask = get<L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask>(setup);
     m_l1tTechMask = get<L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask>(setup);
+
+    // cache the L1 trigger menu
+    unsigned long long l1tCacheID = setup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
+    if (m_l1tCacheID == l1tCacheID) {
+      m_l1tUpdated = false;
+    } else {
+      m_l1tMenu = get<L1GtTriggerMenuRcd, L1GtTriggerMenu>(setup);
+      (const_cast<L1GtTriggerMenu *>(m_l1tMenu))->buildGtConditionMap();
+      m_l1tUpdated = true;
+    }
   }
 
   // access HLT objects only if HLT is used
@@ -62,11 +75,11 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
       return false;
 
     // access the TriggerNames, and check if it has changed
-    m_hltNames = & event.triggerNames(* m_hltResults);
-    if (m_hltNames->parameterSetID() == m_hltPSetID) {
+    m_hltMenu = & event.triggerNames(* m_hltResults);
+    if (m_hltMenu->parameterSetID() == m_hltCacheID) {
       m_hltUpdated = false;
     } else {
-      m_hltPSetID  = m_hltNames->parameterSetID();
+      m_hltCacheID  = m_hltMenu->parameterSetID();
       m_hltUpdated = true;
     }
   }

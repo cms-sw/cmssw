@@ -14,6 +14,7 @@ namespace edm {
 }
 
 class L1GlobalTriggerReadoutRecord;
+class L1GtTriggerMenu;
 class L1GtTriggerMask;
 
 namespace triggerExpression {
@@ -26,26 +27,58 @@ public:
     m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
     m_l1tIgnoreMask(config.getParameter<bool>("l1tIgnoreMask")),
     m_throw(config.getParameter<bool>("throw")),
-    // values
+    // l1 values and status
+    m_l1tResults(0),
+    m_l1tMenu(0),
+    m_l1tAlgoMask(0),
+    m_l1tTechMask(0),
+    m_l1tCacheID(0ULL),
+    m_l1tUpdated(false),
+    // hlt values and status
     m_hltResults(0),
-    m_hltNames(0),
-    m_hltPSetID(),
+    m_hltMenu(0),
+    m_hltCacheID(),
     m_hltUpdated(false),
+    // event values
     m_eventNumber()
   { }
 
   bool setEvent(const edm::Event & event, const edm::EventSetup & setup);
 
-  const edm::TriggerResults & triggerResults() const {
+  const edm::TriggerResults & hltResults() const {
     return * m_hltResults;
   }
 
-  const edm::TriggerNames & triggerNames() const {
-    return * m_hltNames;
+  const edm::TriggerNames & hltMenu() const {
+    return * m_hltMenu;
+  }
+
+  const L1GlobalTriggerReadoutRecord & l1tResults() const {
+    return * m_l1tResults;
+  }
+
+  const L1GtTriggerMenu & l1tMenu() const {
+    return * m_l1tMenu;
+  }
+
+  const L1GtTriggerMask & l1tAlgoMask() const {
+    return * m_l1tAlgoMask;
+  }
+
+  const L1GtTriggerMask & l1tTechMask() const {
+    return * m_l1tTechMask;
+  }
+
+  bool hltConfigurationUpdated() const {
+    return m_hltUpdated;
+  }
+
+  bool l1tConfigurationUpdated() const {
+    return m_l1tUpdated;
   }
 
   bool configurationUpdated() const {
-    return m_hltUpdated;
+    return m_hltUpdated or m_l1tUpdated;
   }
 
   edm::EventNumber_t eventNumber() const {
@@ -59,17 +92,22 @@ private:
   bool m_l1tIgnoreMask;
   bool m_throw;
 
-  // values
-  const L1GlobalTriggerReadoutRecord * m_l1tResults;
-  const L1GtTriggerMask     * m_l1tAlgoMask;
-  const L1GtTriggerMask     * m_l1tTechMask;
-  const edm::TriggerResults * m_hltResults;
-  const edm::TriggerNames   * m_hltNames;
+  // l1 values and status
+  const L1GlobalTriggerReadoutRecord  * m_l1tResults;
+  const L1GtTriggerMenu               * m_l1tMenu;
+  const L1GtTriggerMask               * m_l1tAlgoMask;
+  const L1GtTriggerMask               * m_l1tTechMask;
+  unsigned long long                    m_l1tCacheID;
+  bool                                  m_l1tUpdated;
 
-  edm::ParameterSetID         m_hltPSetID;
-  bool                        m_hltUpdated;
+  // hlt values and status
+  const edm::TriggerResults           * m_hltResults;
+  const edm::TriggerNames             * m_hltMenu;
+  edm::ParameterSetID                   m_hltCacheID;
+  bool                                  m_hltUpdated;
 
-  edm::EventNumber_t          m_eventNumber;
+  // event values
+  edm::EventNumber_t                    m_eventNumber;
 };
 
 } // namespace triggerExpression
