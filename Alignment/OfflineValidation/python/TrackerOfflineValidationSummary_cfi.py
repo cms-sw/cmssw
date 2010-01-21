@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackerOfflineValidationSummary = cms.EDFilter("TrackerOfflineValidationSummary",
+TrackerOfflineValidationSummary = cms.EDAnalyzer("TrackerOfflineValidationSummary",
    moduleDirectoryInOutput   = cms.string("Alignment/Tracker"),  # has to be the same as in TrackerOfflineValidation_Dqm_cff
    useFit                    = cms.bool(False),
    stripYDmrs                = cms.bool(False),  # should be the same as for stripYResiduals in TrackerOfflineValidation_Dqm_cff
