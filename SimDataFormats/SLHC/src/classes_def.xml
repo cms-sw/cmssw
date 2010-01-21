@@ -30,7 +30,7 @@
 <!-- ========================================================================================= -->
 <!-- ================================== TRACKING TRIGGER INCLUDES =================================== -->
 <!-- ========================================================================================= -->
-	<class pattern="*set*"/>
+	<class pattern="std::set<*>"/>
 
 <!-- Never used to be a problem... -->
 	 <class pattern="edm::Ref<*>"/>
@@ -74,8 +74,9 @@
 
 <!-- Cluster Types -->
      <class pattern="cmsUpgrades::Cluster*"/>
-     <class name="std::pair<cmsUpgrades::StackedTrackerDetId,int>"/>
-     
+     <!--class name="std::pair<cmsUpgrades::StackedTrackerDetId,int>"/-->
+     <class pattern="std::pair<*,*>"/>
+    
      <class pattern="edm::Wrapper<*>"/>
 
 <!-- ========================================================================================= -->
