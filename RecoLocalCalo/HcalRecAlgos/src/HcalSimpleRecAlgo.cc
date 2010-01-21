@@ -101,13 +101,6 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, const HcalCoder
 							   HcalTimeSlew::Slow);
 }
 
-ZDCRecHit HcalSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  return HcalSimpleRecAlgoImpl::reco<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
-							     firstSample_,samplesToAdd_,false,
-							     0,
-							     HcalTimeSlew::Fast);
-}
-
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
 									 firstSample_,samplesToAdd_,correctForTimeslew_,
