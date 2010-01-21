@@ -6,7 +6,7 @@
 // 
 /**\class HcalIsoTrkAnalyzer HcalIsoTrkAnalyzer.cc Calibration/HcalCalibAlgos/src/HcalIsoTrkAnalyzer.cc
 
-   Description: <one line class summary>
+   Description: see twiki for details: https://twiki.cern.ch/twiki/bin/view/CMS/IsoTrackAnalyzer
 
    Implementation:
    <Notes on implementation>
@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.16 2009/10/23 15:31:33 andrey Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.17 2010/01/11 16:40:14 kodolova Exp $
 //
 //
 
@@ -351,32 +351,8 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       trackEta = trit->eta();
       trackPhi = trit->phi();
       
-      double corrHCAL = 1.;
-      /*      
-      if (fabs(trackEta)<1.47) {
+      double corrHCAL = 1.; //another possibility for correction.  - why?
 
-	if (calEnergy < 5.) corrHCAL = 1.55;
-	if (calEnergy > 5. && calEnergy < 9.) corrHCAL = 1.55 - 0.18*(calEnergy-5.)/4.;
-	if (calEnergy > 9. && calEnergy < 20.) corrHCAL = 1.37 - 0.18*(calEnergy-9.)/11.;
-	if (calEnergy > 20. && calEnergy < 30.) corrHCAL = 1.19 - 0.06*(calEnergy-20.)/10.;
-	if (calEnergy > 30. && calEnergy < 50.) corrHCAL = 1.13 - 0.02*(calEnergy-30.)/20.;
-	if (calEnergy > 50. && calEnergy < 100.) corrHCAL = 1.11 - 0.02*(calEnergy-50.)/50.;
-	if (calEnergy > 100. && calEnergy < 1000.) corrHCAL = 1.09 - 0.09*(calEnergy-100.)/900.;
-      
-      }
-      
-      if (fabs(trackEta)>1.47) {
-
-	if (calEnergy < 5.) corrHCAL = 1.49;
-	if (calEnergy > 5. && calEnergy < 9.) corrHCAL = 1.49 - 0.08*(calEnergy-5.)/4.;
-	if (calEnergy > 9. && calEnergy < 20.) corrHCAL = 1.41- 0.15*(calEnergy-9.)/11.;
-	if (calEnergy > 20. && calEnergy < 30.) corrHCAL = 1.26 - 0.07*(calEnergy-20.)/10.;
-	if (calEnergy > 30. && calEnergy < 50.) corrHCAL = 1.19 - 0.04*(calEnergy-30.)/20.;
-	if (calEnergy > 50. && calEnergy < 100.) corrHCAL = 1.15 - 0.03*(calEnergy-50.)/50.;
-	if (calEnergy > 100. && calEnergy < 1000.) corrHCAL = 1.12 - 0.12*(calEnergy-100.)/900.;
-      
-      }      
-      */
 
       //      cout << endl << " ISO TRACK E = "<< calEnergy << " ETA = " << trackEta<< " PHI = " << trackPhi <<  " Correction " <<  corrHCAL<< endl;
       
@@ -387,6 +363,10 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      //*(it->track().get())
       double etaecal=info.trkGlobPosAtEcal.eta();
       double phiecal=info.trkGlobPosAtEcal.phi();
+
+      double etahcal=info.trkGlobPosAtHcal.eta();
+      double phihcal=info.trkGlobPosAtHcal.phi();
+
 
 
 	xTrkEcal=info.trkGlobPosAtEcal.x();
@@ -399,7 +379,28 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	
 	GlobalPoint gP(xTrkHcal,yTrkHcal,zTrkHcal);
 
-      //      eecal=info.coneEnergy(parameters_.dREcal, TrackDetMatchInfo::EcalRecHits);
+  	int iphitrue = -10;
+	int ietatrue = 100;
+
+	if (etahcal<1.392) 
+	  {
+	    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+	    //    const GlobalPoint tempPoint(newx, newy, newz);
+	    //const DetId tempId = gHB->getClosestCell(tempPoint);
+	    const HcalDetId tempId = gHB->getClosestCell(gP);
+	    ietatrue = tempId.ieta();
+	    iphitrue = tempId.iphi();
+	  }
+
+	if (etahcal>1.392 &&  etahcal<3.0) 
+	  {
+	    const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
+	    const HcalDetId tempId = gHE->getClosestCell(gP);
+	    ietatrue = tempId.ieta();
+	    iphitrue = tempId.iphi();
+	  }
+
+    //      eecal=info.coneEnergy(parameters_.dREcal, TrackDetMatchInfo::EcalRecHits);
 //      ehcal=info.coneEnergy(parameters_.dRHcal, TrackDetMatchInfo::HcalRecHits);
 
       double rmin = 0.07;
@@ -476,10 +477,10 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  usedHits.clear();
 	  //
 	  
-      float dddeta = 1000.;
-      float dddphi = 1000.;
-      int iphitrue = 1234;
-      int ietatrue = 1234;
+	  //float dddeta = 1000.;
+	  //float dddphi = 1000.;
+	  //int iphitrue = 1234;
+	  //int ietatrue = 1234;
 
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{
@@ -515,15 +516,16 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  double deta = fabs(info.trkGlobPosAtHcal.eta() - etahit); 
 	  double dr = sqrt(dphi*dphi + deta*deta);
 	  
+	  /* Commented. Another way of finding true projection is implemented
 	  if (deta<dddeta) {
 	   ietatrue = ietahitm;
 	   dddeta=deta;
 	  }
 	  
 	  if (dphi<dddphi) {
-	  iphitrue = iphihitm;
+  	  iphitrue = iphihitm;
 	  dddphi=dphi;
-	  }
+	  }*/
 	  
 	  if(dr<associationConeSize_) 
 	    {
@@ -626,11 +628,9 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  detiphi.push_back((hhit->id()).iphi());
 		  detieta.push_back((hhit->id()).ieta());
 		  i3i5.push_back(iii3i5);
-		  //		      numbers2[(hhit->id()).ieta()+29][(hhit->id()).iphi()] = numbers2[(hhit->id()).ieta()+29][(hhit->id()).iphi()] + 1;
-
+		  
 		  }
 		 
-//		  if (AxB_=="Cone" && getDistInPlaneSimple(MaxHit.posMax,pos2) < calibrationConeSize_) {
 		  if (AxB_=="Cone" && getDistInPlaneSimple(gP,pos2) < calibrationConeSize_) {
 	  
 		  rawEnergyVec.push_back(hhit->energy() * recal * corrHCAL);
@@ -648,26 +648,15 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
       if(AxB_!="3x3" && AxB_!="5x5" && AxB_!="7x7" && AxB_!="Cone") LogWarning(" AxB ")<<"   Not supported: "<< AxB_;
       
-      /*
-	if(calEnergy > energyMinIso && calEnergy < energyMaxIso &&
-	isoMatched->energyIn() < energyECALmip && isoMatched->maxPtPxl() < maxPNear &&
-	(MaxHit.ietahitm+29) > -1 && (MaxHit.ietahitm+29) < 60 && MaxHit.hitenergy > 0.)
-	{
-	EventMatrix.push_back(rawEnergyVec);
-	EventIds.push_back(detidvec);
-	EnergyVector.push_back(calEnergy);
-	numbers[MaxHit.ietahitm+29][MaxHit.iphihitm] = numbers[MaxHit.ietahitm+29][MaxHit.iphihitm] + 1;
-	}
-      */
-      
       if(passCuts){
 	
 	input_to_L3 << rawEnergyVec.size() << "   " << calEnergy;
-	//	  input_to_L3 << rawEnergyVec.size() << "   " << calEnergy <<  "   " << ietatrue << "   " << iphitrue;
+
 	
 	for (unsigned int i=0; i<rawEnergyVec.size(); i++)
 	  {
-	    input_to_L3 << "   " << rawEnergyVec.at(i) << "   " << detidvec.at(i).rawId() ;	    	    //	      input_to_L3 << "   " << rawEnergyVec.at(i) << "   " << detidvec.at(i).rawId() << "   " << detiphi.at(i) << "   " << detieta.at(i);
+	    input_to_L3 << "   " << rawEnergyVec.at(i) << "   " << detidvec.at(i).rawId() ;	   
+
 	  }
 	input_to_L3 <<endl;
 	
@@ -687,21 +676,11 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           
 	  new((*cells)[ia])  TCell(cell, cellEnergy);
 	  
-	  /*            
-			if (i3i5.at(ia)==1) {
-			cells3x3->Add((*cells)[ia]);
-			//	        input_to_L3 << "  3x3 " << detiphi.at(ia) << "   " <<detieta.at(ia) << endl;
-			}
-			if (i3i5.at(ia)==1) {
-			cellsPF->Add((*cells)[ia]);
-			}
-	  */
+
         } 
 	
         tree->Fill();
         
-	//        cells3x3->Clear();
-	//        cellsPF->Clear();
         cells->Clear();	  
 	
       }
@@ -807,36 +786,6 @@ HcalIsoTrkAnalyzer::beginJob()
 void 
 HcalIsoTrkAnalyzer::endJob() {
 
-  /*
-  // perform the calibration with given number of iterations  
-  cout<<" Begin of solution "<< EnergyVector.size() << "  "<< EventMatrix.size()<< "  "<< 
-EventIds.size()<<endl; 
-  solution = MyL3Algo->iterate(EventMatrix, EventIds, EnergyVector, nIterations);
-  cout<<" End of solution "<<endl; 
-
-  // print the solution and make a few plots
-  map<HcalDetId,float>::iterator ii;
-  for (ii = solution.begin(); ii != solution.end(); ii++)
-    {
-      int curr_eta = ii->first.ieta();
-      int curr_phi = ii->first.iphi();
-      int curr_depth = ii->first.depth();
-      cout << "solution[eta=" << curr_eta << ",phi=" << curr_phi << ",subdet=" << ii->first.subdet()
-	   << ",depth=" << curr_depth << "] = " << ii->second 
-	   << " Stat " << numbers[curr_eta+29][curr_phi] << "  " << numbers2[curr_eta+29][curr_phi]
-	   << endl; 
-    }
-
-  for (ii = solution.begin(); ii != solution.end(); ii++)
-    {
-      int curr_eta = ii->first.ieta();
-      int curr_phi = ii->first.iphi();
-      int curr_depth = ii->first.depth();
-      cout << "  "<< ii->first.subdet() << "  " << curr_depth  << "  "<< curr_eta << "  " << curr_phi <<  "  "<< ii->second
-	   << endl; 
-    }
-  */
-  
     input_to_L3.close();
 
     rootFile->Write();
