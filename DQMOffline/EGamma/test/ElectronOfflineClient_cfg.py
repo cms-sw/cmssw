@@ -23,8 +23,12 @@ process.dqmElectronClientSelectionEtIsoElID.FinalStep = cms.string("AtJobEnd")
 process.dqmElectronClientTagAndProbe.FinalStep = cms.string("AtJobEnd")
 
 process.dqmElectronClientAllElectrons.InputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
-process.dqmElectronClientTagAndProbe.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+#process.dqmElectronClientTagAndProbe.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
-process.p = cms.Path(process.electronOfflineClientSequence*process.dqmStoreStats)
+process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff")
+process.dqmSaver.workflow = '/'+os.environ['DBS_SAMPLE']+'/'+os.environ['DBS_RELEASE']+'-'+os.environ['DBS_COND']+'/DQMOFFLINE'
+process.dqmsave_step = cms.Path(process.DQMSaver)
+
+process.p = cms.Path(process.electronOfflineClientSequence*process.dqmStoreStats*process.DQMSaver)
 
 
