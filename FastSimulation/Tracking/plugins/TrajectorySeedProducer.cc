@@ -501,11 +501,13 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    } else {
 	      compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
 	      //check
-	      if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
+	      /*
+		if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
 		std::cout << "NOT Compatible " <<  seedingAlgo[0] 
-			  <<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
-			  <<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
-	    } 
+		<<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
+		<<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
+	      */
+	    }
 	  }	    
 	  
 	  // Reject non suited pairs
