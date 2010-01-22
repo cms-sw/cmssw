@@ -44,8 +44,9 @@ SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter(
   out << " HERE pixelToFedAssociator: " << pixelToFedAssociator_ << endl;
   LogInfo("initialisatino: ")<<out.str();
 
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=none"); 
+
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=none").c_str())); 
 }
 
 
