@@ -6,13 +6,23 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     #     input collections
     #
     # ... reco::Track collection
-    tracksTag = cms.InputTag("standAloneMuons"),
+    # tracksTag = cms.InputTag("standAloneMuons"),
     # tracksTag = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
-    # tracksTag = cms.InputTag("globalMuons"),
+    # tracksTag = cms.InputTag("standAloneSETMuons"),
+    # tracksTag = cms.InputTag("standAloneSETMuons","UpdatedAtVtx"),                                   
+    # tracksTag = cms.InputTag("cosmicMuons"),
+    tracksTag = cms.InputTag("globalMuons"),
+    # tracksTag = cms.InputTag("tevMuons","firstHit"),
+    # tracksTag = cms.InputTag("tevMuons","picky"),                                     
+    # tracksTag = cms.InputTag("globalSETMuons"),
+    # tracksTag = cms.InputTag("globalCosmicMuons"),
     # tracksTag = cms.InputTag("generalTracks"),
+    # tracksTag = cms.InputTag("ctfWithMaterialTracksP5LHCNavigation"),
     # tracksTag = cms.InputTag("hltL2Muons"),
     # tracksTag = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
     # tracksTag = cms.InputTag("hltL3Muons")
+    # tracksTag = cms.InputTag("hltL3Muons","L2Seeded")
+    # tracksTag = cms.InputTag("hltL3TkTracksFromL2")
     #
     # ... TrackingParticle collection
     tpTag = cms.InputTag("mergedtruth","MergedTrackTruth"),
@@ -22,25 +32,33 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     #
     #....... general input parameters
     #
-    AbsoluteNumberOfHits_track = cms.bool(False),
-    MinHitCut_track = cms.uint32(1),
-    AbsoluteNumberOfHits_muon = cms.bool(False),
-    MinHitCut_muon = cms.uint32(1),
+    # include invalid muon hits
+    includeZeroHitMuons = cms.bool(True),
     #
+    # accept to match only tracker/muon stub of globalMuons
+    acceptOneStubMatchings = cms.bool(True),
+    #
+    # switches to be set according to the input Track collection
     UseTracker = cms.bool(True),
     UseMuon = cms.bool(True),
     #
-    PurityCut_track = cms.double(0.5),
-    PurityCut_muon = cms.double(0.5),
+    # cuts for the muon stub
+    AbsoluteNumberOfHits_muon = cms.bool(False),
+    NHitCut_muon = cms.uint32(0),
+    EfficiencyCut_muon = cms.double(0.),
+    PurityCut_muon = cms.double(0.),
     #
-    EfficiencyCut_track = cms.double(0.5),
-    EfficiencyCut_muon = cms.double(0.5),
+    # cuts for the tracker stub
+    AbsoluteNumberOfHits_track = cms.bool(False),
+    NHitCut_track = cms.uint32(0),
+    EfficiencyCut_track = cms.double(0.),
+    PurityCut_track = cms.double(0.),
     #
-    #........(for inner tracker stub of Global Muons)...
+    # switches for the tracker stub
     UsePixels = cms.bool(True),
     UseGrouped = cms.bool(True),
     UseSplitting = cms.bool(True),
-    ThreeHitTracksAreSpecial = cms.bool(True),
+    ThreeHitTracksAreSpecial = cms.bool(False),
     #
     # for DT Hit associator
     crossingframe = cms.bool(False),
@@ -87,6 +105,3 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
         'TrackerHitsPixelEndcapLowTof', 
         'TrackerHitsPixelEndcapHighTof')
 )
-
-
-
