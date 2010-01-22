@@ -51,7 +51,7 @@ namespace cond {
     void extractSingleChannel(EcalPedestals const & peds, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
       for (unsigned int i=0; i<which.size();i++) {
 	// absolutely arbitraty
-	if (which[i]<  peds.barrelItems().size())
+	if ((unsigned int) (which[i])<  peds.barrelItems().size())
 	  result.push_back( peds.barrelItems()[which[i]].mean(q));
       }
     }
