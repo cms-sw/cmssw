@@ -9,5 +9,6 @@ KFFittingSmootherWithOutlierRejection = cms.ESProducer(
     BreakTrajWith2ConsecutiveMissing = cms.bool(True),
     ComponentName = cms.string('KFFittingSmootherWithOutlierRejection'),
     NoInvalidHitsBeginEnd = cms.bool(True),
-    RejectTracks = cms.bool(True)
+    RejectTracks = cms.bool(True),
+    LogPixelProbabilityCut = cms.double(-16)
 )
