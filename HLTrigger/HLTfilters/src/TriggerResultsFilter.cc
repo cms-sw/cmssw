@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/21 23:14:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/22 00:19:42 $
+ *  $Revision: 1.7 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -79,7 +79,10 @@ bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & se
     std::stringstream out;
     out << "TriggerResultsFilter configuration updated:";
     BOOST_FOREACH(triggerExpression::Evaluator * expression, m_expressions)
-      out << "\n\t" << (*expression);
+      if (expression) 
+        out << "\n\t" << (*expression);
+      else
+        out << "\n\tFALSE";
     edm::LogInfo("Configuration") << out.str();
   }
 
