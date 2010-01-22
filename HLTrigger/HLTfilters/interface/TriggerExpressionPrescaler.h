@@ -20,14 +20,20 @@ public:
     if (m_counter == 0)
       m_counter = data.eventNumber();
 
-    ++m_counter;
+    // if the prescale factor is 0, we never need to run any dependent module,
+    // so we can safely skip the rest of the processing
     if (m_prescale == 0)
       return false;
 
+    bool result = ((*m_arg)(data));
+    if (not result)
+      return false;
+
+    // if the prescale factor is 1, we do not need to keep track of the event counter
     if (m_prescale == 1)
       return true;
 
-    return ((m_counter % m_prescale) == 0);
+    return (++m_counter % m_prescale) == 0;
   }
   
   void dump(std::ostream & out) const {
