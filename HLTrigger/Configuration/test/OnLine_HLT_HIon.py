@@ -12,7 +12,8 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooManyProducts',
   'TooFewProducts' ) )
 
-process.source = cms.Source( "PoolSource"
+process.source = cms.Source( "PoolSource",
+    fileNames = cms.untracked.vstring( 'file:RelVal_DigiL1Raw_HIon.root' )
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
