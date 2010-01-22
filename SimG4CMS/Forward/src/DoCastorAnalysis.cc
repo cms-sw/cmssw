@@ -186,7 +186,7 @@ void DoCastorAnalysis::update(const EndOfEvent * evt) {
       theCastorNumScheme->unpackIndex(volumeID,zside,sector,zmodule);
 
       double energy   = aHit->getEnergyDeposit()/GeV;
-      double time     = aHit->getTimeSlice();
+      //double time     = aHit->getTimeSlice();
       
       math::XYZPoint pos  = aHit->getPosition();
       double theta    = pos.theta();
