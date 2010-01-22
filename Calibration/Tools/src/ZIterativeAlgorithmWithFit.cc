@@ -152,9 +152,9 @@ void ZIterativeAlgorithmWithFit::bookHistograms()
   }
 }
 
-void ZIterativeAlgorithmWithFit::getStatWeights(char* file) {
+void ZIterativeAlgorithmWithFit::getStatWeights(const std::string &file) {
   ifstream statfile;
-  statfile.open(file);
+  statfile.open(file.c_str());
   if (!statfile) {
     std::cout << "ZIterativeAlgorithmWithFit::FATAL: stat weight  file " << file << " not found" << std::endl;
     exit(-1);

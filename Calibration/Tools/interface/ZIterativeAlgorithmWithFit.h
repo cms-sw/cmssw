@@ -97,7 +97,7 @@ class ZIterativeAlgorithmWithFit
 
   void addWeightsCorrections(unsigned int event_id);
 
-  void getStatWeights(char* file);
+  void getStatWeights(const std::string& file);
 
   float getEventWeight(unsigned int event_id);
 
@@ -137,7 +137,7 @@ class ZIterativeAlgorithmWithFit
   std::string massMethod;
 
   bool UseStatWeights_;
-  char* WeightFileName_;
+  std::string WeightFileName_;
  
   std::vector<float> StatWeights_;
   std::vector<float> Event_Weight_;
