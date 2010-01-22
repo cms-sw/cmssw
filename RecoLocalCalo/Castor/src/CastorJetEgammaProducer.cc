@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorJetEgammaProducer.cc,v 1.1 2009/02/27 16:13:13 hvanhaev Exp $
+// $Id: CastorJetEgammaProducer.cc,v 1.2 2009/09/07 15:13:45 hvanhaev Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class CastorJetEgammaProducer : public edm::EDProducer {
       ~CastorJetEgammaProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void select(const reco::CastorClusterRefVector& InputClusters, reco::CastorJetCollection& jets, reco::CastorEgammaCollection& egammas);
@@ -154,7 +154,7 @@ void CastorJetEgammaProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void CastorJetEgammaProducer::beginJob(const edm::EventSetup&) {
+void CastorJetEgammaProducer::beginJob() {
   if(debug) std::cout<<"Starting CastorJetEgammaProducer"<<std::endl;
 }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorCellProducer.cc,v 1.1 2009/02/27 16:12:53 hvanhaev Exp $
+// $Id: CastorCellProducer.cc,v 1.2 2009/12/28 22:29:52 dlange Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class CastorCellProducer : public edm::EDProducer {
       ~CastorCellProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -183,7 +183,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void CastorCellProducer::beginJob(const edm::EventSetup&) {
+void CastorCellProducer::beginJob() {
   if(debug) std::cout<<"Starting CastorCellProducer"<<std::endl;
 }
 

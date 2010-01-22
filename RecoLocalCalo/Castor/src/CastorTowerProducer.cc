@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: Castor.cc,v 1.3 2008/12/09 08:44:01 hvanhaev Exp $
+// $Id: CastorTowerProducer.cc,v 1.1 2009/02/27 16:13:18 hvanhaev Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class CastorTowerProducer : public edm::EDProducer {
       ~CastorTowerProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void ComputeTowerVariable(const reco::CastorCellRefVector& usedCells, double&  Ehot, double& depth);
@@ -237,7 +237,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void CastorTowerProducer::beginJob(const edm::EventSetup&) {
+void CastorTowerProducer::beginJob() {
   if(debug) std::cout<<"Starting CastorTowerProducer"<<std::endl;
 }
 
