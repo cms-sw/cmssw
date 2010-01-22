@@ -53,7 +53,7 @@ DataManager::DataManager (const std::string & connect,
 
     connection = new cond::Connection( connect ) ;
     connection->connect( session ) ;
-    cond::CoralTransaction& coral = connection->coralTransaction() ;
+    //    cond::CoralTransaction& coral = connection->coralTransaction() ;
 //     coral = &( connection->coralTransaction() ) ;
 //     pool = &( connection->poolTransaction() ) ;
 
