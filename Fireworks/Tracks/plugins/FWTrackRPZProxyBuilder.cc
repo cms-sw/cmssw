@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackRPZProxyBuilder.cc,v 1.12 2009/12/11 21:18:45 dmytro Exp $
+// $Id: FWTrackRPZProxyBuilder.cc,v 1.13 2010/01/21 21:02:13 amraktad Exp $
 //
 
 // system include files
@@ -92,7 +92,6 @@ FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEve
    if (m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix) {
       m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
       m_trackerPropagator->SetMagFieldObj(context().getField());
-      printf("@@@@@@@ >SetMagFieldObj");
    }
 
    TEveTrackPropagator* propagator =   (!iData.extra().isAvailable()) ? m_trackerPropagator.get() : context().getTrackPropagator();
