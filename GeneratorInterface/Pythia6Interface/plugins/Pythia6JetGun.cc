@@ -74,6 +74,12 @@ void Pythia6JetGun::generateEvent()
 	 //
 	 ee   = (fMaxE-fMinE)*pyr_(&dum)+fMinE;
 	 
+	 // fill p(ip,5) (in PYJETS) with mass value right now,
+	 // because the (hardcoded) mstu(10)=1 will make py1ent
+	 // pick the mass from there
+	 double mass = pymass_(py6PID);
+	 pyjets.p[4][ip-1]=mass; 
+
 	 // add entry to py6
 	 //
 	 py1ent_(ip, py6PID, ee, the, phi);
@@ -124,9 +130,6 @@ void Pythia6JetGun::generateEvent()
    for ( int i=0; i<pyjets.n; i++ )
    {
       HepMC::FourVector p(pyjets.p[0][i],pyjets.p[1][i],pyjets.p[2][i],pyjets.p[3][i]) ;
-      //
-      // here we pass pythia6 particle ID, not PDG - FIXME !!!
-      //
       HepMC::GenParticle* Part = 
              new HepMC::GenParticle(p,
 	                            HepPID::translatePythiatoPDT( pyjets.k[1][i] ),

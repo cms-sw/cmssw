@@ -58,6 +58,12 @@ void Pythia6EGun::generateEvent()
          int dum = 0;
 	 double ee=0,the=0,eta=0;
 	 double mass = pymass_(particleID);
+	 
+	 // fill p(ip,5) (in PYJETS) with mass value right now,
+	 // because the (hardcoded) mstu(10)=1 will make py1ent
+	 // pick the mass from there
+	 pyjets.p[4][ip-1]=mass; 	 
+	 
 	 double phi = (fMaxPhi-fMinPhi)*pyr_(&dum)+fMinPhi;
 	 ee   = (fMaxE-fMinE)*pyr_(&dum)+fMinE;
 	 eta  = (fMaxEta-fMinEta)*pyr_(&dum)+fMinEta;                                                      
@@ -65,6 +71,7 @@ void Pythia6EGun::generateEvent()
 	 
 	 py1ent_(ip, py6PID, ee, the, phi);
 	 
+/*
          double mom2   = ee*ee - mass*mass ;
          double mom    = 0. ;
          if (mom2 > 0.) 
@@ -78,7 +85,11 @@ void Pythia6EGun::generateEvent()
          double px     = mom*sin(the)*cos(phi) ;
          double py     = mom*sin(the)*sin(phi) ;
          double pz     = mom*cos(the) ;
-         
+*/         
+         double px     = pyjets.p[0][ip-1]; // pt*cos(phi) ;
+         double py     = pyjets.p[1][ip-1]; // pt*sin(phi) ;
+         double pz     = pyjets.p[2][ip-1]; // mom*cos(the) ;
+ 
 	 HepMC::FourVector p(px,py,pz,ee) ;
          HepMC::GenParticle* Part = 
              new HepMC::GenParticle(p,particleID,1);
@@ -97,7 +108,12 @@ void Pythia6EGun::generateEvent()
 	    the = 2.*atan(exp(eta));
 	    phi  = phi + M_PI;
 	    if (phi > 2.* M_PI) {phi = phi - 2.* M_PI;}         
+
+	    // same trick as above
+	    pyjets.p[4][ip-1] = mass;
+
 	    py1ent_(ip, py6PID2, ee, the, phi);
+
             HepMC::FourVector ap(-px,-py,-pz,ee) ;
 	    HepMC::GenParticle* APart =
 	       new HepMC::GenParticle(ap,particleID2,1);

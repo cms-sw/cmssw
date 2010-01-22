@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/10/29 14:45:28 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/12/14 22:22:56 $
+ *  $Revision: 1.14 $
  *  \author Julia Yarba
  */
 
@@ -84,9 +84,13 @@ void Pythia6Gun::beginRun( Run & r, EventSetup const& es )
    fPy6Service->setGeneralParams();
    fPy6Service->setCSAParams();
    fPy6Service->setSLHAParams();
+   
+   call_pygive("MSTU(10)=1");
       
    call_pyinit("NONE", "", "", 0.0);
-
+   
+   std::cout << " FYI: MSTU(10)=1 is ENFORCED in Py6-PGuns, for technical reasons"
+             << std::endl;
    return;
 }
 

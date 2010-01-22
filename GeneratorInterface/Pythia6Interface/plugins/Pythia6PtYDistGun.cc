@@ -70,8 +70,13 @@ void Pythia6PtYDistGun::generateEvent()
 	 y  = fPtYGenerator->fireY();
 	 u  = exp(y); 
 	 
-	 double mass = pymass_(particleID);
+	 double mass = pymass_(py6PID);
 	 
+	 // fill p(ip,5) (in PYJETS) with mass value right now,
+	 // because the (hardcoded) mstu(10)=1 will make py1ent
+	 // pick the mass from there
+	 pyjets.p[4][ip-1]=mass; 
+
 	 ee = 0.5*std::sqrt(mass*mass+pt*pt)*(u*u+1)/u;
 	 
 	 double pz = std::sqrt(ee*ee-pt*pt-mass*mass);
@@ -84,9 +89,14 @@ void Pythia6PtYDistGun::generateEvent()
 	 
 	 py1ent_(ip, py6PID, ee, the, phi);
 	 
+/*
          double px     = pt*cos(phi) ;
          double py     = pt*sin(phi) ;
-         
+*/         
+         double px     = pyjets.p[0][ip-1]; // pt*cos(phi) ;
+         double py     = pyjets.p[1][ip-1]; // pt*sin(phi) ;
+         pz     = pyjets.p[2][ip-1]; // mom*cos(the) ;
+
 	 HepMC::FourVector p(px,py,pz,ee) ;
          HepMC::GenParticle* Part = 
              new HepMC::GenParticle(p,particleID,1);
