@@ -94,15 +94,17 @@
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcLinear"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLinear&gt;"/>
+
 	<!--commented out because they resolve to std::-->
-	<!--class name="PhysicsTools::Calibration::ProcCategory::BinLimits"/-->
-	<!--class name="PhysicsTools::Calibration::ProcMultiply::Config"/-->
-	<!--class name="std::vector&lt;PhysicsTools::Calibration::ProcMultiply::Config&gt;"/-->
-	<!--class name="PhysicsTools::Calibration::ProcMLP::Neuron"/-->
-	<!--class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;"/-->
-	<!--class name="PhysicsTools::Calibration::ProcMLP::Layer"/-->
-	<!--class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP::Layer&gt;"/-->
-	<!--class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/-->
+	<class name="PhysicsTools::Calibration::ProcCategory::BinLimits"/>
+	<class name="PhysicsTools::Calibration::ProcMultiply::Config"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMultiply::Config&gt;"/>
+	<class name="PhysicsTools::Calibration::ProcMLP::Neuron"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;"/>
+	<class name="PhysicsTools::Calibration::ProcMLP::Layer"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP::Layer&gt;"/>
+	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>
+
 	<class name="PhysicsTools::Calibration::ProcMultiply"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMultiply&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcMatrix"/>
