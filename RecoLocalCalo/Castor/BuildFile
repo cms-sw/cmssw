@@ -4,7 +4,6 @@
 <use name=DataFormats/CastorReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/HcalRecHit>
-<use name=DataFormats/RecoCandidate>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/JetReco>
 <flags EDM_PLUGIN=1>
@@ -16,7 +15,6 @@
    <use name=DataFormats/CastorReco>
    <use name=DataFormats/Math>
    <use name=DataFormats/HcalRecHit>
-   <use name=DataFormats/RecoCandidate>
    <use name=DataFormats/Candidate>
    <use name=DataFormats/JetReco>
 </export>
