@@ -36,7 +36,7 @@ void MaterialBudgetCategorizer::buildMaps()
   const G4MaterialTable* matTable = G4Material::GetMaterialTable();
   G4int matSize = matTable->size();
   for( ii = 0; ii < matSize; ii++ ) {
-    theMaterialMap[ (*matTable)[ii]->GetName()] = ii++;
+    theMaterialMap[ (*matTable)[ii]->GetName()] = ii+1;
   }
   
   // rr
