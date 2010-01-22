@@ -32,8 +32,12 @@ namespace cond {
   template<>
   std::string
   PayLoadInspector<EcalTBWeights>::dump() const {
-    std::stringstream ss;
+
+    std::stringstream ss; 
+    EcalCondHeader h;
+    ss<< EcalTBWeightsXMLTranslator::dumpXML(h,object());
     return ss.str();
+   
     
   }
   
