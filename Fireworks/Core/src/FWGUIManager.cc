@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.180 2009/12/06 22:22:36 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.181 2009/12/13 12:27:10 amraktad Exp $
 
 //
 
@@ -636,7 +636,7 @@ FWGUIManager::showEDIFrame(int iToShow)
    if(-1 != iToShow) {
       m_ediFrame->show(static_cast<FWDataCategories> (iToShow));
    }
-   m_ediFrame->MapWindow();
+   m_ediFrame->MapRaised();
 }
 
 void
@@ -646,7 +646,7 @@ FWGUIManager::showBrightnessPopup()
   {
       m_brightnessPopup = new CmsShowBrightnessPopup(m_cmsShowMainFrame, 200, 200);
   }
-  m_brightnessPopup->MapWindow();
+  m_brightnessPopup->MapRaised();
   m_brightnessPopup->setModel(m_colorManager);
 }
 
@@ -661,7 +661,7 @@ void
 FWGUIManager::showModelPopup()
 {
    if (!m_modelPopup) createModelPopup();
-   m_modelPopup->MapWindow();
+   m_modelPopup->MapRaised();
 }
 
 void
@@ -694,7 +694,7 @@ FWGUIManager::setViewPopup(TEveWindow* ew) {
       m_viewPopup->reset(ew);
    }
 
-   m_viewPopup->MapWindow();
+   m_viewPopup->MapRaised();
 }
 
 
