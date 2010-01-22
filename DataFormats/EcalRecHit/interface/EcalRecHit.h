@@ -32,6 +32,17 @@ public:
           kUnknown                   // to easy the interface with functions returning flags
   };
 
+  /** bit structure of CaloRecHit::flags_ used in EcalRecHit:
+   *
+   *  | 32 | 31...25 | 24...12 | 11...5 | 4...1 |
+   *     |      |         |         |       |
+   *     |      |         |         |       +--> reco flags       ( 4 bits)
+   *     |      |         |         +--> chi2 for in time events  ( 7 bits)
+   *     |      |         +--> energy for out-of-time events      (13 bits)
+   *     |      +--> chi2 for out-of-time events                  ( 7 bits)
+   *     +--> spare                                               ( 1 bit )
+   */
+
   EcalRecHit();
   EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0);
   /// get the id
@@ -40,12 +51,14 @@ public:
   bool isRecovered() const;
   uint32_t recoFlag() const { return 0xF & flags(); }
   float chi2Prob() const;
+  float outOfTimeChi2Prob() const;
   // set the energy for out of time events
   // (only energy >= 0 will be stored)
   float outOfTimeEnergy() const;
   void setRecoFlag( uint32_t flag );
   void setChi2Prob( float chi2Prob );
   void setOutOfTimeEnergy( float energy );
+  void setOutOfTimeChi2Prob( float chi2Prob );
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit);

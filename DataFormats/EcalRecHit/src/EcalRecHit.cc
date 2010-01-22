@@ -13,18 +13,27 @@ EcalRecHit::EcalRecHit(const DetId& id, float energy, float time, uint32_t flags
 }
 
 bool EcalRecHit::isRecovered() const {
-        return ( recoFlag() == kLeadingEdgeRecovered );
+        return (    recoFlag() == kLeadingEdgeRecovered 
+                 || recoFlag() == kNeighboursRecovered 
+                 || recoFlag() == kTowerRecovered 
+                 );
 }
 
 float EcalRecHit::chi2Prob() const
 {
-        uint32_t rawChi2Prob = 0xF & (flags()>>4);
-        return (float)rawChi2Prob / (float)((1<<4)-1);
+        uint32_t rawChi2Prob = 0x7F & (flags()>>4);
+        return (float)rawChi2Prob / (float)((1<<7)-1);
+}
+
+float EcalRecHit::outOfTimeChi2Prob() const
+{
+        uint32_t rawChi2Prob = 0x7F & (flags()>>24);
+        return (float)rawChi2Prob / (float)((1<<7)-1);
 }
 
 float EcalRecHit::outOfTimeEnergy() const
 {
-        uint32_t rawEnergy = (0x1FFF & flags()>>8);
+        uint32_t rawEnergy = (0x1FFF & flags()>>11);
         uint16_t exponent = rawEnergy>>10;
         uint16_t significand = ~(0xE<<9) & rawEnergy;
         return (float) significand*pow(10,exponent-5);
@@ -40,8 +49,10 @@ void EcalRecHit::setChi2Prob( float chi2Prob )
         if ( chi2Prob < 0 || chi2Prob > 1 ) {
                 edm::LogWarning("EcalRecHit::setChi2Prob") << "chi2Prob outside limits [0, 1] : " << chi2Prob;
         } else {
-                uint32_t rawChi2Prob = lround( chi2Prob * ((1<<4)-1) ) << 4;
-                setFlags( (~0xF0 & flags()) | (rawChi2Prob & 0xF0) );
+                // use 7 bits
+                uint32_t rawChi2Prob = lround( chi2Prob * ((1<<7)-1) );
+                // shift by 4 bits (recoFlag)
+                setFlags( (~(0x7F<<4) & flags()) | ((rawChi2Prob & 0x7F)<<4) );
         }
 }
 
@@ -50,8 +61,22 @@ void EcalRecHit::setOutOfTimeEnergy( float energy )
         if ( energy > 0 ) {
                 uint16_t exponent = lround(floor(log10(energy)))+3;
                 uint16_t significand = lround(energy/pow(10,exponent-5));
+                // use 13 bits (3 exponent, 10 significand)
                 uint32_t rawEnergy = exponent<<10 | significand;
-                setFlags( ( ~(0x1FFF<<8) & flags()) | ((rawEnergy & 0x1FFF)<<8) );
+                // shift by 11 bits (recoFlag + chi2)
+                setFlags( ( ~(0x1FFF<<11) & flags()) | ((rawEnergy & 0x1FFF)<<11) );
+        }
+}
+
+void EcalRecHit::setOutOfTimeChi2Prob( float chi2Prob )
+{
+        if ( chi2Prob < 0 || chi2Prob > 1 ) {
+                edm::LogWarning("EcalRecHit::setOutOfTimeChi2Prob") << "chi2Prob outside limits [0, 1] : " << chi2Prob;
+        } else {
+                // use 7 bits
+                uint32_t rawChi2Prob = lround( chi2Prob * ((1<<7)-1) );
+                // shift by 24 bits (recoFlag + chi2 + outOfTimeEnergy)
+                setFlags( (~(0x7F<<24) & flags()) | ((rawChi2Prob & 0x7F)<<24) );
         }
 }
 
