@@ -11,8 +11,8 @@ RecoLocalCaloFEVT = cms.PSet(
         'keep *_horeco_*_*',
         'keep HBHERecHitsSorted_hbherecoMB_*_*',
         'keep HORecHitsSorted_horecoMB_*_*',
-        'keep HFRecHitsSorted_hfrecoMB_*_*'
-         keep ZDCDataFramesSorted_*Digis_*_*',
+        'keep HFRecHitsSorted_hfrecoMB_*_*',
+        'keep ZDCDataFramesSorted_*Digis_*_*',
         'keep ZDCRecHitsSorted_*_*_*'
         )
 )
@@ -23,7 +23,7 @@ RecoLocalCaloRECO = cms.PSet(
         'keep *_horeco_*_*',
         'keep HBHERecHitsSorted_hbherecoMB_*_*',
         'keep HORecHitsSorted_horecoMB_*_*',
-        'keep HFRecHitsSorted_hfrecoMB_*_*'
+        'keep HFRecHitsSorted_hfrecoMB_*_*',
         'keep ZDCDataFramesSorted_*Digis_*_*',
         'keep ZDCRecHitsSorted_*_*_*' 
         )
