@@ -102,10 +102,10 @@ fi
 echo "`date` : o2o-setIOV.sh finished : ${run} ${key}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 echo "" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
-if [ ! -f /nfshome0/popcondev/L1Job/o2o.summary ]
-    then
-    touch /nfshome0/popcondev/L1Job/o2o.summary
-fi
+#if [ ! -f /nfshome0/popcondev/L1Job/o2o.summary ]
+#    then
+#    touch /nfshome0/popcondev/L1Job/o2o.summary
+#fi
 tail -5 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 
 # Delete semaphore file
