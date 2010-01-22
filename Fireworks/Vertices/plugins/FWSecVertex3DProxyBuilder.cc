@@ -1,28 +1,28 @@
 // -*- C++ -*-
-// $Id: FWSecVertex3DProxyBuilder.cc,v 1.2 2009/08/31 19:49:47 dmytro Exp $
+// $Id: FWSecVertex3DProxyBuilder.cc,v 1.3 2010/01/21 21:02:12 amraktad Exp $
 //
-
-// include files
-#include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
-#include "TEvePointSet.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-#include "TEveBoxSet.h"
-#include "TGeoSphere.h"
-#include "TEveGeoNode.h"
-#include "TEveTrackPropagator.h"
-#include "Fireworks/Core/interface/FWEvePtr.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include <vector>
 
 #include "TMatrixDEigen.h"
 #include "TMatrixDSym.h"  
 #include "TDecompSVD.h"
 #include "TVectorD.h"
 #include "TEveTrans.h"
-#include <vector>
+#include "TEveTrack.h"
+#include "TEveTrackPropagator.h"
+#include "TEveBoxSet.h"
+#include "TGeoSphere.h"
+#include "TEveGeoNode.h"
+#include "TEveVSDStructs.h"
+
+// include files
+#include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
+
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 
 class FWSecVertex3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>  {

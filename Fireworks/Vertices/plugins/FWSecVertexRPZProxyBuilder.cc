@@ -1,11 +1,11 @@
 // -*- C++ -*-
-// $Id: FWSecVertexRPZProxyBuilder.cc,v 1.1 2009/08/29 21:00:18 dmytro Exp $
+// $Id: FWSecVertexRPZProxyBuilder.cc,v 1.2 2010/01/21 21:02:12 amraktad Exp $
 //
 
 // include files
 
-#include "TEvePointSet.h"
 #include "TEveTrack.h"
+#include "TEveVSDStructs.h"
 
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
