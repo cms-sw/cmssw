@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/01/11 18:47:14 $
- **  $Revision: 1.7 $
+ **  $Date: 2010/01/22 16:59:35 $
+ **  $Revision: 1.9 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -139,7 +139,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       edm::InputTag bcEndcapCollection_;
       std::string ConvertedPhotonCollection_;
 
-      bool allowD0_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
+      bool allowD0_, allowDeltaPhi_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
 
       bool usePvtx_;//if use primary vertices
       std::string vertexProducer_;
