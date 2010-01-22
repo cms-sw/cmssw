@@ -47,10 +47,22 @@ void MuonAssociatorEDProducer::produce(edm::Event& event, const edm::EventSetup&
      LogTrace("MuonAssociatorEDProducer") << "\n ignoring missing track collection." << "\n";
    }   
    else {
-     LogTrace("MuonAssociatorEDProducer") << "\n >>> Calling associateRecoToSim method <<<" << "\n";
+     edm::LogVerbatim("MuonAssociatorEDProducer") 
+       <<"\n >>> RecoToSim association <<< \n"
+       <<"     Track collection : "
+       <<tracksTag.label()<<":"<<tracksTag.instance()<<" (size = "<<trackCollection->size()<<") \n"
+       <<"     TrackingParticle collection : "
+       <<tpTag.label()<<":"<<tpTag.instance()<<" (size = "<<TPCollection->size()<<")";
+     
      reco::RecoToSimCollection recSimColl = associatorByHits->associateRecoToSim(trackCollection,TPCollection,&event,&setup);
      
-     LogTrace("MuonAssociatorEDProducer") << "\n >>> Calling associateSimToReco method <<<" << "\n";
+     edm::LogVerbatim("MuonAssociatorEDProducer") 
+       <<"\n >>> SimToReco association <<< \n"
+       <<"     TrackingParticle collection : "
+       <<tpTag.label()<<":"<<tpTag.instance()<<" (size = "<<TPCollection->size()<<") \n"
+       <<"     Track collection : "
+       <<tracksTag.label()<<":"<<tracksTag.instance()<<" (size = "<<trackCollection->size()<<")";
+     
      reco::SimToRecoCollection simRecColl = associatorByHits->associateSimToReco(trackCollection,TPCollection,&event,&setup);
      
      rts.reset(new reco::RecoToSimCollection(recSimColl));
