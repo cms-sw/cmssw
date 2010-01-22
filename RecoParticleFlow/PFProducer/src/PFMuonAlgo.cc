@@ -34,7 +34,60 @@ PFMuonAlgo::isLooseMuon( const reco::PFBlockElement& elt ) {
 }
 
 bool
-PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
+PFMuonAlgo::isGlobalTightMuon( const reco::PFBlockElement& elt ) {
+
+  const reco::PFBlockElementTrack* eltTrack 
+    = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+
+  assert ( eltTrack );
+  reco::MuonRef muonRef = eltTrack->muonRef();
+  
+  return isGlobalTightMuon(muonRef);
+
+}
+
+bool
+PFMuonAlgo::isGlobalLooseMuon( const reco::PFBlockElement& elt ) {
+
+  const reco::PFBlockElementTrack* eltTrack 
+    = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+
+  assert ( eltTrack );
+  reco::MuonRef muonRef = eltTrack->muonRef();
+
+  return isGlobalLooseMuon(muonRef);
+
+}
+
+bool
+PFMuonAlgo::isTrackerTightMuon( const reco::PFBlockElement& elt ) {
+
+  const reco::PFBlockElementTrack* eltTrack 
+    = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+
+  assert ( eltTrack );
+  reco::MuonRef muonRef = eltTrack->muonRef();
+
+  return isTrackerTightMuon(muonRef);
+
+}
+
+bool
+PFMuonAlgo::isMuon(const reco::MuonRef& muonRef ){
+
+  return isGlobalTightMuon(muonRef) || isTrackerTightMuon(muonRef);
+
+}
+
+bool
+PFMuonAlgo::isLooseMuon(const reco::MuonRef& muonRef ){
+
+  return isGlobalLooseMuon(muonRef) || isTrackerLooseMuon(muonRef);
+
+}
+
+bool
+PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
 
   if ( !muonRef.isNonnull() ) return false;
   if ( !muonRef->isGlobalMuon() ) return false;
@@ -186,7 +239,23 @@ PFMuonAlgo::isMuon( const reco::MuonRef& muonRef ) {
 }
 
 bool
-PFMuonAlgo::isLooseMuon( const reco::MuonRef& muonRef ) {
+PFMuonAlgo::isTrackerTightMuon( const reco::MuonRef& muonRef ) {
+
+  if ( !muonRef.isNonnull() ) return false;
+  if(!muonRef->isTrackerMuon()) return false;
+
+  bool isAllArbitrated = muon::isGoodMuon(*muonRef,muon::AllArbitrated);
+  bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
+  bool isTM2DCompatibilityTight = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight);
+  
+  if(isAllArbitrated  &&  isTM2DCompatibilityTight && isTMLastStationOptimizedLowPtLoose) return true;    
+  
+  return false;
+  
+}
+
+bool
+PFMuonAlgo::isGlobalLooseMuon( const reco::MuonRef& muonRef ) {
 
   if ( !muonRef.isNonnull() ) return false;
   if ( !muonRef->isGlobalMuon() ) return false;
@@ -247,3 +316,18 @@ PFMuonAlgo::isLooseMuon( const reco::MuonRef& muonRef ) {
 
 }
 
+bool
+PFMuonAlgo::isTrackerLooseMuon( const reco::MuonRef& muonRef ) {
+
+  if ( !muonRef.isNonnull() ) return false;
+  if(!muonRef->isTrackerMuon()) return false;
+
+  bool isAllArbitrated = muon::isGoodMuon(*muonRef,muon::AllArbitrated);
+  bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
+  bool isTM2DCompatibilityLoose = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose);
+  
+  if(isAllArbitrated  &&  isTM2DCompatibilityLoose && isTMLastStationOptimizedLowPtLoose) return true;    
+  
+  return false;
+  
+}

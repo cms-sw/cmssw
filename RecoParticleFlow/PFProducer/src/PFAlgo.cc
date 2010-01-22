@@ -1527,15 +1527,22 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  // Only muons
 	  if ( !it->second.second ) continue;
 	  // Consider only muons with pt>20 (maybe put this selection in isLooseMuon?)
-	  double trackMomentum = elements[it->second.first].trackRef()->p();
-	  double muonMomentum = elements[it->second.first].muonRef()->combinedMuon()->p();
-	  double staMomentum = elements[it->second.first].muonRef()->standAloneMuon()->p();
-	  double trackPt = elements[it->second.first].trackRef()->pt();
-	  double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
-	  double staPt = elements[it->second.first].muonRef()->standAloneMuon()->pt();
+
 	  bool isTrack = elements[it->second.first].muonRef()->isTrackerMuon();
-	  if ( staPt < 20. && muonPt < 20. && trackPt < 20. ) continue;	  
-	  if ( !isTrack && muonPt < 20. ) continue;
+	  double trackMomentum = elements[it->second.first].trackRef()->p();
+	  /* // 20 GeV cut on loose muon selection
+	  double trackPt = elements[it->second.first].trackRef()->pt();
+	  if(PFMuonAlgo::isGlobalLooseMuon( elements[it->second.first].muonRef() )) {
+	    double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
+	    double staPt = elements[it->second.first].muonRef()->standAloneMuon()->pt();
+	    
+	    if ( staPt < 20. && muonPt < 20. && trackPt < 20. ) continue;	  
+	    if ( !isTrack && muonPt < 20. ) continue;
+	  }
+	  else{
+	    if(trackPt<20.) continue;
+	  }
+	  */
 	  // look for ECAL elements associated to iTrack (associated to iHcal)
 	  std::multimap<double, unsigned> sortedEcals;
 	  block.associatedElements( iTrack,  linkData,
@@ -1559,19 +1566,31 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  }
 	  reco::PFCandidate::ParticleType particleType = reco::PFCandidate::mu;
 	  (*pfCandidates_)[tmpi].setParticleType(particleType);
-	  // Take the best pt measurement
-	  double trackPtError = elements[it->second.first].trackRef()->ptError();
-	  double muonPtError = elements[it->second.first].muonRef()->combinedMuon()->ptError();
-	  double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
-	  double globalCorr = 1;
-	  if ( !isTrack || 
-	       ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) ) 
-	    globalCorr = muonMomentum/trackMomentum;
-	  else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
-	    globalCorr = staMomentum/trackMomentum;
-	  (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
-	  if (debug_) std::cout << "\tElement  " << elements[iTrack] << std::endl 
-				<< "PFAlgo: particle type set to muon" << std::endl; 
+
+	  if(PFMuonAlgo::isGlobalLooseMuon(elements[it->second.first].muonRef())){
+	    // Take the best pt measurement
+	    double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
+	    double staPt = elements[it->second.first].muonRef()->standAloneMuon()->pt();
+	    double muonMomentum = elements[it->second.first].muonRef()->combinedMuon()->p();
+	    double staMomentum = elements[it->second.first].muonRef()->standAloneMuon()->p();
+	    double trackPtError = elements[it->second.first].trackRef()->ptError();
+	    double muonPtError = elements[it->second.first].muonRef()->combinedMuon()->ptError();
+	    double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
+	    double globalCorr = 1;
+	    if ( !isTrack || 
+		 ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) ) 
+	      globalCorr = muonMomentum/trackMomentum;
+	    else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
+	      globalCorr = staMomentum/trackMomentum;
+	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
+	    if (debug_) std::cout << "\tElement  " << elements[iTrack] << std::endl 
+				<< "PFAlgo: particle type set to muon (global, loose)" << std::endl; 
+	  }
+	  else{
+	    if (debug_) std::cout << "\tElement  " << elements[iTrack] << std::endl 
+				<< "PFAlgo: particle type set to muon (tracker, loose)" << std::endl; 
+	  }
+
 	  // Remove it from the block
 	  const math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();
@@ -2351,16 +2370,28 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
   // Except if it is a muon, of course !
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
+  bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
+
   if ( thisIsAMuon ) { 
-    reco::TrackRef combinedMu = muonRef->isTrackerMuon() || 
-      muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
-      muonRef->combinedMuon() : 
-      muonRef->standAloneMuon() ;
-    px = combinedMu->px();
-    py = combinedMu->py();
-    pz = combinedMu->pz();
-    energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);
-  } 
+    if(thisIsAGlobalTightMuon){
+      if(sqrt(px*px+py*py) > 10){
+	reco::TrackRef combinedMu = muonRef->isTrackerMuon() || 
+	  muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
+	  muonRef->combinedMuon() : 
+	  muonRef->standAloneMuon() ;
+	px = combinedMu->px();
+	py = combinedMu->py();
+	pz = combinedMu->pz();
+	energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
+      }
+      else{
+	energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
+      }      
+    }
+    else{
+      energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
+    }
+  }
 
   // Create a PF Candidate
   math::XYZTLorentzVector momentum(px,py,pz,energy);
@@ -2385,7 +2416,10 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     if ( thisIsAMuon ) {
       particleType = reco::PFCandidate::mu;
       pfCandidates_->back().setParticleType( particleType );
-      if (debug_) cout << "PFAlgo: particle type set to muon" << endl; 
+      if (debug_) {
+	if(thisIsAGlobalTightMuon) cout << "PFAlgo: particle type set to muon (tight, global)" << endl; 
+	else cout << "PFAlgo: particle type set to muon (tight, tracker)" << endl; 
+      }
     }
   }
 
