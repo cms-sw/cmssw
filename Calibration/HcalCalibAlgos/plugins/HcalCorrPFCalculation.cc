@@ -1,4 +1,4 @@
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.13 2010/01/20 21:28:28 andrey Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.14 2010/01/21 21:50:27 andrey Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -36,6 +36,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "Calibration/HcalCalibAlgos/src/MaxHit_struct.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -379,14 +380,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       if(abs(etaecal)>1.5 && abs(etaecal)<3.1) enEcalE -> Fill(eEcalCone); 
 
 
-      struct
-      {
-	int iphihitm;
-	int ietahitm;
-	int depthhit;
-	float hitenergy;
-	float dr;
-      } MaxHit;
+      MaxHit_struct MaxHit;
 
       MaxHit.hitenergy=-100.;
 

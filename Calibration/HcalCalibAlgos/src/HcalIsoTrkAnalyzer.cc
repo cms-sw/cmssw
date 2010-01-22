@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.17 2010/01/11 16:40:14 kodolova Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.18 2010/01/21 21:50:03 andrey Exp $
 //
 //
 
@@ -64,6 +64,7 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 #include "Calibration/Tools/interface/MinL3AlgoUniv.h"
+#include "Calibration/HcalCalibAlgos/src/MaxHit_struct.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -407,14 +408,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if( fabs(etaecal) > 1.47 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.2;
       if( fabs(etaecal) > 2.2 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.4;
 
-      struct
-      {
-	int iphihitm;
-	int ietahitm;
-	int depthhit;
-	double hitenergy;
-	GlobalPoint posMax;
-      } MaxHit;
+      MaxHit_struct MaxHit;
 
       // Find Ecal RecHit with maximum energy and collect other information
       MaxHit.hitenergy=-100;

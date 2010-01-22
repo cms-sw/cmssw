@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV, Sergey PETRUSHANKO
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.1 2009/03/27 12:26:20 kodolova Exp $
+// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.2 2010/01/11 16:40:13 kodolova Exp $
 //
 //
 
@@ -97,7 +97,8 @@ double ValidationHcalIsoTrackAlCaReco::getDistInCM(double eta1, double phi1, dou
 
 std::pair<int,int> ValidationHcalIsoTrackAlCaReco::towerIndex(double eta, double phi) 
 {
-  int ieta, iphi;
+  int ieta=0;
+  int iphi=0;
   for (int i=1; i<21; i++)
     {
       if (fabs(eta)<(i*0.087)&&fabs(eta)>(i-1)*0.087) ieta=int(fabs(eta)/eta)*i;
