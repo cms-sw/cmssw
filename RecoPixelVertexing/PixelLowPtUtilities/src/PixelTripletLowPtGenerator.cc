@@ -7,12 +7,10 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #undef Debug
 
@@ -109,7 +107,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
 
     // Initialize helix prediction
     ThirdHitPrediction
-      thePrediction(region,
+      thePrediction(region.originRBound(), region.ptMin(),
                     points[0],points[1], es,
                     nSigMultipleScattering,maxAngleRatio,builderName);
 

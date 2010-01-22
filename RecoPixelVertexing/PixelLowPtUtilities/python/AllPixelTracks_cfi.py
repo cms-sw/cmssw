@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ##########################
 # The base for all steps
+#allPixelTracks = cms.EDFilter("PixelTrackProducerWithZPos",
 allPixelTracks = cms.EDFilter("PixelTrackProducer",
 
     passLabel  = cms.string(''),
@@ -12,7 +13,7 @@ allPixelTracks = cms.EDFilter("PixelTrackProducer",
         RegionPSet = cms.PSet(
             precise       = cms.bool(True),
             beamSpot      = cms.InputTag("offlineBeamSpot"),
-            originRadius  = cms.double(0.3),
+            originRadius  = cms.double(0.2),
             sigmaZVertex  = cms.double(3.0),
             useFixedError = cms.bool(True),
             fixedError    = cms.double(0.2),
@@ -42,9 +43,8 @@ allPixelTracks = cms.EDFilter("PixelTrackProducer",
     # Filter
     useFilterWithES = cms.bool(True),
     FilterPSet = cms.PSet(
-        ComponentName = cms.string('ClusterShapeTrackFilter')
-#       ptMin  = cms.double()
-#       ptMax  = cms.double()
+        ComponentName = cms.string('ClusterShapeTrackFilter'),
+        useFilter     = cms.bool(True)
     ),
 
     # Cleaner
