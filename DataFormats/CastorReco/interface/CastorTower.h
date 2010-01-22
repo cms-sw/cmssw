@@ -6,7 +6,7 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorTower.h,v 1.2 2008/11/24 22:19:10 hvanhaev Exp $
+ * \version $Id: CastorTower.h,v 1.3 2009/02/27 15:48:45 hvanhaev Exp $
  *
  */
 #include <vector>
@@ -18,10 +18,11 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 #include "DataFormats/CastorReco/interface/CastorCell.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 namespace reco {
 
-  class CastorTower {
+  class CastorTower : public LeafCandidate {
   public:
 
     // default constructor. Set energy and position to zero
