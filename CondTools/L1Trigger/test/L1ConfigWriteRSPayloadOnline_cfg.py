@@ -146,12 +146,6 @@ else:
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-#process.source = cms.Source("EmptySource")
-process.source = cms.Source("EmptyIOVSource",
-                            timetype = cms.string('runnumber'),
-                            firstValue = cms.uint64(4294967295),
-                            lastValue = cms.uint64(4294967295),
-                            interval = cms.uint64(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
