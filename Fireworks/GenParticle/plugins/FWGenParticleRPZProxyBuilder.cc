@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticleRPZProxyBuilder.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWGenParticleRPZProxyBuilder.cc,v 1.3 2010/01/22 19:52:57 amraktad Exp $
 //
 
 // system include files
@@ -72,11 +72,12 @@ void FWGenParticleRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
    iItem->get(genParticles);
    if(0 == genParticles ) return;
 
-   TEveElementList* tlist = *product;
-   if(tlist == 0) {
-      tlist = new TEveElementList();
-      *product = tlist;
+  if(0==*product) {
+      *product = new TEveElementList();
+   } else {
+      (*product)->DestroyElements();
    }
+   TEveElementList* tlist = *product;
 
    int index=0;
    TEveRecTrack t;
