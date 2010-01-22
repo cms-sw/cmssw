@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/12/11 16:07:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/21 20:40:54 $
+ *  $Revision: 1.4 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -41,7 +42,6 @@
 
 
 
-const std::string kSources[] = {"gen", "rec"};
 const unsigned int kNull = (unsigned int) -1;
 TPRegexp kLooseL1Requirement("HLT_Mu3|Double|NoFilters");
 
@@ -90,9 +90,10 @@ class HLTMuonValidator : public edm::EDAnalyzer {
     }
   };
 
+  void initializeHists(std::vector<std::string>);
   void analyzePath(const std::string &, const std::string &,
                    const std::vector<MatchStruct> &, 
-                   const trigger::TriggerEventWithRefs &);
+                   edm::Handle<trigger::TriggerEventWithRefs>);
   const reco::Candidate * findMother(const reco::Candidate *);
   bool identical(const reco::Candidate *, const reco::Candidate *);
   unsigned int findMatch(const reco::Candidate *, std::vector<MatchStruct> &, 
