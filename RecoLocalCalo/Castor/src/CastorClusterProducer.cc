@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.1 2009/02/27 16:12:58 hvanhaev Exp $
+// $Id: CastorClusterProducer.cc,v 1.2 2009/09/07 15:13:05 hvanhaev Exp $
 //
 //
 
@@ -37,7 +37,6 @@
 #include "DataFormats/CastorReco/interface/CastorCell.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
-#include "DataFormats/RecoCandidate/interface/RecoCastorTowerCandidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
@@ -57,7 +56,7 @@ class CastorClusterProducer : public edm::EDProducer {
       ~CastorClusterProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       double phiangle (double testphi);
       virtual void endJob() ;
@@ -188,6 +187,9 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   	Handle<BasicJetCollection> bjCollection;
    	iEvent.getByLabel(basicjets_,bjCollection);
 	
+	Handle<CastorTowerCollection> ctCollection;
+	iEvent.getByLabel("CastorTowerReco",ctCollection);
+	
 	auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
 	
 	if (bjCollection->size()==0) cout << "Warning: You are trying to run the Cluster algorithm with 0 input basicjets. \n";
@@ -211,21 +213,32 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		vector<CandidatePtr> ccp = bj->getJetConstituents();
 		vector<CandidatePtr>::const_iterator itParticle;
    		for (itParticle=ccp.begin();itParticle!=ccp.end();++itParticle){	    
-        		const RecoCastorTowerCandidate* castorcand = dynamic_cast<const RecoCastorTowerCandidate*>(itParticle->get());
+        		const CastorTower* castorcand = dynamic_cast<const CastorTower*>(itParticle->get());
 			//cout << " castortowercandidate reference energy = " << castorcand->castorTower()->energy() << endl;
 			//cout << " castortowercandidate reference eta = " << castorcand->castorTower()->eta() << endl;
 			//cout << " castortowercandidate reference phi = " << castorcand->castorTower()->phi() << endl;
 			//cout << " castortowercandidate reference depth = " << castorcand->castorTower()->depth() << endl;
 			
-			usedTowers.push_back(castorcand->castorTower());
-			emEnergy += castorcand->castorTower()->emEnergy();
-			hadEnergy += castorcand->castorTower()->hadEnergy();
-			depth += castorcand->castorTower()->depth()*castorcand->castorTower()->energy();
-			width += pow(phiangle(castorcand->castorTower()->phi() - bj->phi()),2)*castorcand->castorTower()->energy();
-      			fhot += castorcand->castorTower()->fhot()*castorcand->castorTower()->energy();
+			//CastorTowerCollection *ctc = new CastorTowerCollection();
+			//ctc->push_back(*castorcand);
+			//CastorTowerRef towerref = CastorTowerRef(ctc,0);
+			
+			size_t thisone = 0;
+			for (size_t l=0;l<ctCollection->size();l++) {
+				const CastorTower ct = (*ctCollection)[l];
+				if ( abs(ct.phi() - castorcand->phi()) < 0.0001 ) { thisone = l;}
+			}
+			
+			CastorTowerRef towerref(ctCollection,thisone); 
+			usedTowers.push_back(towerref);
+			emEnergy += castorcand->emEnergy();
+			hadEnergy += castorcand->hadEnergy();
+			depth += castorcand->depth()*castorcand->energy();
+			width += pow(phiangle(castorcand->phi() - bj->phi()),2)*castorcand->energy();
+      			fhot += castorcand->fhot()*castorcand->energy();
 			
 			// loop over cells
-      			for (CastorCell_iterator it = castorcand->castorTower()->cellsBegin(); it != castorcand->castorTower()->cellsEnd(); it++) {
+      			for (CastorCell_iterator it = castorcand->cellsBegin(); it != castorcand->cellsEnd(); it++) {
 				CastorCellRef cell_p = *it;
 				Point rcell = cell_p->position();
 				double Ecell = cell_p->energy();
@@ -263,7 +276,7 @@ double CastorClusterProducer::phiangle (double testphi) {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void CastorClusterProducer::beginJob(const edm::EventSetup&) {
+void CastorClusterProducer::beginJob() {
 if(debug) std::cout<<"Starting CastorClusterProducer"<<std::endl;
 }
 
