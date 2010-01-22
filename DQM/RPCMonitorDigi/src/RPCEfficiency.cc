@@ -290,7 +290,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if(accessTorpcRecHits){
-  
   if(incldt){
     if(debug) std::cout<<"\t Getting the DT Segments"<<std::endl;
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
@@ -537,30 +536,38 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }
-  
+    
   if(incldtMB4){
     if(debug) std::cout <<"MB4 \t Getting ALL the DT Segments"<<std::endl;
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByLabel(dt4DSegments, all4DSegments);
     
+    bool accessToDtSegments = true;
+    try {
+      iEvent.getByLabel(dt4DSegments, all4DSegments);
+    }catch( cms::Exception& exception ) {
+      std::cout<<"DT Segments were not found"<<std::endl;
+      accessToDtSegments = false;
+    }
+    
+    if(accessToDtSegments){
     if(all4DSegments->size()>0){
-  
       std::map<DTChamberId,int> DTSegmentCounter;
       DTRecSegment4DCollection::const_iterator segment;  
-  
+      
       for (segment = all4DSegments->begin();segment!=all4DSegments->end(); ++segment){
 	DTSegmentCounter[segment->chamberId()]++;
       }    
-
+      
       if(debug) std::cout<<"MB4 \t \t Loop Over all4DSegments"<<std::endl;
       for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
-    
+	
 	DTChamberId DTId = segment->chamberId();
-
+	
 	if(debug) std::cout<<"MB4 \t \t This Segment is in Chamber id: "<<DTId<<std::endl;
 	if(debug) std::cout<<"MB4 \t \t Number of segments in this DT = "<<DTSegmentCounter[DTId]<<std::endl;
 	if(debug) std::cout<<"MB4 \t \t \t Is the only one in this DT? and is in the Station 4?"<<std::endl;
-
+	
 	if(DTSegmentCounter[DTId] == 1 && DTId.station()==4){
 
 	  if(debug) std::cout<<"MB4 \t \t \t yes"<<std::endl;
@@ -845,6 +852,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if(debug) std::cout<<"MB4 \t This event doesn't have 4D Segment"<<std::endl;
     }
   }
+  }
+  
 
   if(inclcsc){
     if(debug) std::cout <<"\t Getting the CSC Segments"<<std::endl;
