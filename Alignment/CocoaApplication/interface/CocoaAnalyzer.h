@@ -46,7 +46,7 @@ class CocoaAnalyzer : public edm::EDAnalyzer
   explicit  CocoaAnalyzer(int i) { }
   virtual ~ CocoaAnalyzer() { }
   
-  virtual void beginJob(const edm::EventSetup& c);
+  virtual void beginJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   // see note on endJob() at the bottom of the file.
   // virtual void endJob() ;

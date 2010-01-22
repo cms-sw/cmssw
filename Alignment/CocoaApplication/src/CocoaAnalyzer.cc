@@ -36,30 +36,8 @@ CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset)
 }
 
 //----------------------------------------------------------------------
-void CocoaAnalyzer::beginJob( const edm::EventSetup& evts ) 
+void CocoaAnalyzer::beginJob()
 {
-  ALIUtils::setDebugVerbosity( 5 );
-
-  ReadXMLFile( evts );
-
-  std::vector<OpticalAlignInfo> oaListCalib = ReadCalibrationDB( evts );
-
-  CorrectOptAlignments( oaListCalib );
-
-  new CocoaDaqReaderRoot( theCocoaDaqRootFileName );
- 
-  /*-
-  int nEvents = daqReader->GetNEvents();
-  for( int ii = 0; ii < nEvents; ii++) {
-    if( ! daqReader->ReadEvent( ii ) ) break;
-  }
-  */ 
-
-  RunCocoa();
-
-  //  std::cout << "!!!! NOT  DumpCocoaResults() " << std::endl;  
-
-  //  CocoaDBMgr::getInstance()->DumpCocoaResults();  
 }
 
 
@@ -604,17 +582,40 @@ bool CocoaAnalyzer::CorrectOaParam( OpticalAlignParam* oaParamXML, OpticalAlignP
 //-#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
 //-----------------------------------------------------------------------
-void CocoaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
+void CocoaAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evts)
 {
+  ALIUtils::setDebugVerbosity( 5 );
+
+  ReadXMLFile( evts );
+
+  std::vector<OpticalAlignInfo> oaListCalib = ReadCalibrationDB( evts );
+
+  CorrectOptAlignments( oaListCalib );
+
+  new CocoaDaqReaderRoot( theCocoaDaqRootFileName );
+ 
+  /*-
+  int nEvents = daqReader->GetNEvents();
+  for( int ii = 0; ii < nEvents; ii++) {
+    if( ! daqReader->ReadEvent( ii ) ) break;
+  }
+  */ 
+
+  RunCocoa();
+
+  //  std::cout << "!!!! NOT  DumpCocoaResults() " << std::endl;  
+
+  //  CocoaDBMgr::getInstance()->DumpCocoaResults();  
+
   return;
 
 
-  using namespace edm::eventsetup;
-  std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-  std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
+  //  using namespace edm::eventsetup;
+  //  std::cout <<" I AM IN RUN NUMBER "<<evt.id().run() <<std::endl;
+  //  std::cout <<" ---EVENT NUMBER "<<evt.id().event() <<std::endl;
  
   // just a quick dump of the private OpticalAlignments object
-  std::cout << oaList_ << std::endl;
+  //  std::cout << oaList_ << std::endl;
  
   // STEP 2:
   // Get calibrated OpticalAlignments.  In this case I'm using
@@ -644,12 +645,12 @@ void CocoaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
 //   // STEP 3:
 //   // This retrieves the Measurements
 //   // for each event, a new set of measurements is available.
-  edm::Handle<OpticalAlignMeasurements> measHandle;
-  e.getByLabel("OptAlignGeneratedSource", measHandle); 
+//  edm::Handle<OpticalAlignMeasurements> measHandle;
+//  evt.getByLabel("OptAlignGeneratedSource", measHandle); 
     
 
-  std::cout << "========== event data product changes with every event =========" << std::endl;
-  std::cout << *measHandle << std::endl;
+//  std::cout << "========== event data product changes with every event =========" << std::endl;
+//  std::cout << *measHandle << std::endl;
 
   //============== COCOA WORK!
   //  Each set of optical alignment measurements can be used
