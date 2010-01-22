@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: QuadJetAnalyzer.cc,v 1.5 2010/01/07 13:18:16 slaunwhj Exp $
+// $Id: QuadJetAnalyzer.cc,v 1.6 2010/01/12 14:11:20 dellaric Exp $
 //
 //
 
@@ -70,6 +70,8 @@ private:
 
   int theNumberOfTriggers;
 
+  string theHltProcessName;
+  
   bool atLeastOneValidTrigger;
 
   DQMStore* dbe_;
@@ -89,7 +91,7 @@ QuadJetAnalyzer::QuadJetAnalyzer(const ParameterSet& pset)
   
   vector<string> triggerNames = pset.getParameter< vector<string> >
                                 ("TriggerNames");
-  string theHltProcessName = pset.getParameter<string>("HltProcessName");
+  theHltProcessName = pset.getParameter<string>("HltProcessName");
 
   //vector<edm::ParameterSet> customCollection = pset.getParameter<vector<edm::ParameterSet> > ("customCollection");
   //vector<edm::ParameterSet>::iterator iPSet;
@@ -111,30 +113,32 @@ QuadJetAnalyzer::QuadJetAnalyzer(const ParameterSet& pset)
   if (hltConfigInitSuccess)
     validTriggerNames = hltConfig.triggerNames();
 
-  if (validTriggerNames.size() < 1) {
+  if (!hltConfigInitSuccess ) {
     LogInfo ("HLTMuonVal") << endl << endl << endl
                            << "---> WARNING: The HLT Config Provider gave you an empty list of valid trigger names" << endl
                            << "Could be a problem with the HLT Process Name (you provided  " << theHltProcessName <<")" << endl
                            << "W/o valid triggers we can't produce plots, exiting..."
                            << endl << endl << endl;
     
-    // don't return... you'll automatically skip the rest
-    //return;
+  } else {
+
+    // you successfully initialized hlt config provider
+    // do hlt config dependent processing
+
+    
+    vector<string>::const_iterator iDumpName;
+    unsigned int numTriggers = 0;
+    for (iDumpName = validTriggerNames.begin();
+         iDumpName != validTriggerNames.end();
+         iDumpName++) {
+
+      LogTrace ("HLTMuonVal") << "Trigger " << numTriggers
+                              << " is called " << (*iDumpName)
+                              << endl;
+      numTriggers++;
+    }
+
   }
-
-  vector<string>::const_iterator iDumpName;
-  unsigned int numTriggers = 0;
-  for (iDumpName = validTriggerNames.begin();
-       iDumpName != validTriggerNames.end();
-       iDumpName++) {
-
-    LogTrace ("HLTMuonVal") << "Trigger " << numTriggers
-                            << " is called " << (*iDumpName)
-                            << endl;
-    numTriggers++;
-  }
-
-
 }
 
 
@@ -165,8 +169,14 @@ QuadJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(edm::InputTag("TriggerResults::HLT"), HLTR); 
 
   HLTConfigProvider hltConfig;
-  hltConfig.init("HLT");
+  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
 
+  if (!hltConfigInitSuccess) {
+    LogTrace("HLTMuonVal") << "no valid hltConfigProvider, stop analyzing thisevent" << endl;
+
+    return;
+  }
+  
   LogTrace ("HLTMuonVal")
     << " hltConfig.size() " << hltConfig.size() << std::endl;
   unsigned int triggerIndex( hltConfig.triggerIndex("HLT_QuadJet30") );
