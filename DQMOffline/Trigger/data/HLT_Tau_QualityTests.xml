@@ -90,43 +90,19 @@ https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
 </QTEST>
 
 
+<QTEST name="hasEntries">
+<TYPE>DeadChannel</TYPE>
+<PARAM name="threshold">1</PARAM>
+<PARAM name="error">0.3</PARAM>
+<PARAM name="warning">0.70</PARAM>
+</QTEST>
 
-<LINK name="HLT/TauOffline/Photons/L1/L1TauEtEff">
-      <TestName activate="true">efficiencyCheckL1</TestName>
+
+<LINK name="HLT/TauOffline/Inclusive/DoubleLooseIsoTau/TriggerBits">
+      <TestName activate="true">hasEntries</TestName>
 </LINK>
-
-<LINK name="HLT/TauOffline/Photons/L2/L2IsoTauEtEff">
-      <TestName activate="true">efficiencyCheckL2Iso</TestName>
+<LINK name="HLT/TauOffline/Inclusive/SingleLooseIsoTau/TriggerBits">
+      <TestName activate="true">hasEntries</TestName>
 </LINK>
-
-<LINK name="HLT/TauOffline/Photons/L1/L1TauEtResol">
-      <TestName activate="true">resolutionCheckL1</TestName>
-</LINK>
-
-<LINK name="HLT/TauOffline/Photons/L2/L2EcalIsolation">
-      <TestName activate="true">histoMatching</TestName>
-</LINK>
-
-<LINK name="HLT/TauOffline/Photons/L2/L2TauEtResol">
-      <TestName activate="true">resolutionCheckL2</TestName>
-</LINK>
-
-<LINK name="HLT/TauOffline/Photons/DoubleTau/EfficiencyRefPrevious">
-      <TestName activate="true">efficiencyCheckDoubleTauHigh</TestName>
-</LINK>
-
-<LINK name="HLT/TauOffline/Photons/DoubleTau/EfficiencyRefPrevious">
-      <TestName activate="true">efficiencyCheckDoubleTauLow</TestName>
-</LINK>
-
-
-<LINK name="HLT/TauOffline/Photons/SingleTau/EfficiencyRefPrevious">
-      <TestName activate="true">efficiencyCheckSingleTauHigh</TestName>
-</LINK>
-
-<LINK name="HLT/TauOffline/Photons/SingleTau/EfficiencyRefPrevious">
-      <TestName activate="true">efficiencyCheckSingleTauLow</TestName>
-</LINK>
-
 
 </TESTSCONFIGURATION>

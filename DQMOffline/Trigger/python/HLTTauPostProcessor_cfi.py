@@ -18,12 +18,12 @@ HLTTauPostAnalysis = cms.EDFilter("HLTTauPostProcessor",
 
     ),
     pathDirs                = cms.vstring(
-    "HLT/TauOffline/PFTaus/DoubleTau",
-    "HLT/TauOffline/Photons/DoubleTau",
-    "HLT/TauOffline/HPD/DoubleTau",
-    "HLT/TauOffline/PFTaus/SingleTau",
-    "HLT/TauOffline/Photons/SingleTau",
-    "HLT/TauOffline/HPD/SingleTau"
+    "HLT/TauOffline/PFTaus/DoubleLooseIsoTau",
+    "HLT/TauOffline/Photons/DoubleLooseIsoTau",
+    "HLT/TauOffline/HPD/DoubleLooseIsoTau",
+    "HLT/TauOffline/PFTaus/SingleLooseIsoTau",
+    "HLT/TauOffline/Photons/SingleLooseIsoTau",
+    "HLT/TauOffline/HPD/SingleLooseIsoTau"
     ),
     pathSummaryDirs         = cms.vstring(
     "HLT/TauOffline/PFTaus/Summary",
