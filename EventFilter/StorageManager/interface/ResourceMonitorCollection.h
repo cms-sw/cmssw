@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.21 2010/01/13 14:12:58 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.22 2010/01/18 11:11:43 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.21 $
-   * $Date: 2010/01/13 14:12:58 $
+   * $Revision: 1.22 $
+   * $Date: 2010/01/18 11:11:43 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -114,6 +114,7 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
+    void addOtherDisks();
     void emitDiskAlarm(DiskUsagePtr, error_t);
     void emitDiskSpaceAlarm(DiskUsagePtr);
     void revokeDiskAlarm(DiskUsagePtr);
@@ -124,6 +125,8 @@ namespace stor {
 
     void calcNumberOfCopyWorkers();
     void calcNumberOfInjectWorkers();
+    void checkNumberOfCopyWorkers();
+    void checkNumberOfInjectWorkers();
     int getProcessCount(const std::string& processName, const int& uid=-1);
 
     typedef std::set<std::string> SATABeasts;

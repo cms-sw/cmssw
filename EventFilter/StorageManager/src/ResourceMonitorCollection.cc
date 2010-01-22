@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.27 2010/01/13 14:12:58 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.28 2010/01/18 11:12:46 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -34,12 +34,7 @@ _numberOfCopyWorkers(-1),
 _numberOfInjectWorkers(-1),
 _nLogicalDisks(0),
 _latchedSataBeastStatus(-1)
-{
-  // Initialize values to avoid sending alarms
-  // before we've reach the ready state
-  _rmParams._injectWorkers._expectedCount = -1;
-  _rmParams._copyWorkers._expectedCount = -1;
-}
+{}
 
 
 void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams)
@@ -65,9 +60,18 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
     _diskUsageList.push_back(diskUsage);
   }
 
+  if ( _rmParams._isProductionSystem )
+  {
+    addOtherDisks();
+  }
+}
+
+
+void ResourceMonitorCollection::addOtherDisks()
+{
   for ( DiskWritingParams::OtherDiskPaths::const_iterator
-          it = dwParams._otherDiskPaths.begin(),
-          itEnd =  dwParams._otherDiskPaths.end();
+          it = _dwParams._otherDiskPaths.begin(),
+          itEnd =  _dwParams._otherDiskPaths.end();
         it != itEnd;
         ++it)
   {
@@ -304,8 +308,15 @@ void ResourceMonitorCollection::calcNumberOfCopyWorkers()
     _numberOfCopyWorkers = 0;
   }
 
-  if ( _rmParams._copyWorkers._expectedCount < 0 ) return;
+  if ( _rmParams._isProductionSystem && _rmParams._copyWorkers._expectedCount >= 0 )
+  {
+    checkNumberOfCopyWorkers();
+  }
+}
 
+
+void ResourceMonitorCollection::checkNumberOfCopyWorkers()
+{
   const std::string alarmName = "CopyWorkers";
 
   if ( _numberOfCopyWorkers != _rmParams._copyWorkers._expectedCount )
@@ -336,8 +347,15 @@ void ResourceMonitorCollection::calcNumberOfInjectWorkers()
     _numberOfInjectWorkers = 0;
   }
 
-  if ( _rmParams._injectWorkers._expectedCount < 0 ) return;
+  if ( _rmParams._isProductionSystem && _rmParams._injectWorkers._expectedCount >= 0 )
+  {
+    checkNumberOfInjectWorkers();
+  }
+}
 
+
+void ResourceMonitorCollection::checkNumberOfInjectWorkers()
+{
   const std::string alarmName = "InjectWorkers";
 
   if ( _numberOfInjectWorkers != _rmParams._injectWorkers._expectedCount )
@@ -380,6 +398,8 @@ void ResourceMonitorCollection::checkSataBeasts()
 
 bool ResourceMonitorCollection::getSataBeasts(SATABeasts& sataBeasts)
 {
+  if (! _rmParams._isProductionSystem) return false;
+
   std::ifstream in;
   in.open( "/proc/mounts" );
   
