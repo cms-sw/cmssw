@@ -11,6 +11,7 @@
 <use name=TrackingTools/Records>
 <use name=RecoLocalTracker/Records>
 <use name=MagneticField/Records>
+<use name=DataFormats/VertexReco>
 
 <export>
  <lib name=RecoPixelVertexingPixelLowPtUtilities>
@@ -27,4 +28,5 @@
  <use name=TrackingTools/Records>
  <use name=RecoLocalTracker/Records>
  <use name=MagneticField/Records>
+ <use name=DataFormats/VertexReco>
 </export>
