@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andres Carlos FLOREZ B
 //         Created:  Thu Jun 26 09:02:02 CEST 2008
-// $Id: SiPixelFedFillerWordEventNumber.cc,v 1.3 2009/02/17 16:13:50 muzaffar Exp $
+// $Id: SiPixelFedFillerWordEventNumber.cc,v 1.4 2010/01/13 09:35:59 ursl Exp $
 //
 //
 
@@ -377,7 +377,7 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
     if(fedRawData.size()!= 0){
       uint32_t totword;
       int value = PwordSlink64((uint64_t*)fedRawData.data(),(int)fedRawData.size(), totword);
-      if(value!=0)
+      if(value!=0){
 	//====== Verify that the vector is not empty
 	if(vecSaveFillerWords.size()!=0){
 	  for(vecSaveFillerWords_It = vecSaveFillerWords.begin(); vecSaveFillerWords_It != vecSaveFillerWords.end(); vecSaveFillerWords_It++){
@@ -386,6 +386,7 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
 	}else{
 	  edm::LogWarning("FedFillerWords") <<"========= Filler Words Vector is empty! ==========" <<std::endl;
 	}
+      }
       edm::LogInfo("FedFillerWords") << "Found " << value << " filler words in FED " << fedId << std::endl;
       for (vecFillerWordsEventNumber1_It = vecFillerWordsEventNumber1.begin(); vecFillerWordsEventNumber1_It != vecFillerWordsEventNumber1.end(); vecFillerWordsEventNumber1_It++){
 	FillerWordEventNumbers1->push_back(*vecFillerWordsEventNumber1_It);
