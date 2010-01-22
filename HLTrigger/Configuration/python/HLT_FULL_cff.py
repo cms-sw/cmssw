@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/pre1/HLT/V4 (CMSSW_3_5_X_2010-01-13-1200)
+# /dev/CMSSW_3_5_0/HLT/V4 (CMSSW_3_5_0_pre3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/HLT/V4')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V4')
 )
 
 
@@ -201,6 +201,7 @@ FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   Fitter = cms.string( "FitterRK" ),
   Smoother = cms.string( "SmootherRK" ),
   EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
@@ -232,6 +233,7 @@ KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   Fitter = cms.string( "KFTrajectoryFitterForL2Muon" ),
   Smoother = cms.string( "KFTrajectorySmootherForL2Muon" ),
   EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
@@ -653,6 +655,7 @@ hltKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
   Fitter = cms.string( "hltKFFitter" ),
   Smoother = cms.string( "hltKFSmoother" ),
   EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
@@ -2975,7 +2978,8 @@ hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
             Pruning = cms.bool( True ),
-            dYclusBoxMax = cms.double( 8.0 )
+            dYclusBoxMax = cms.double( 8.0 ),
+            preClusteringUseChaining = cms.bool( True )
           ),
           cms.PSet(  maxRatioResidualPrune = cms.double( 3.0 ),
             yweightPenalty = cms.double( 1.5 ),
@@ -3001,7 +3005,8 @@ hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
             Pruning = cms.bool( True ),
-            dYclusBoxMax = cms.double( 8.0 )
+            dYclusBoxMax = cms.double( 8.0 ),
+            preClusteringUseChaining = cms.bool( True )
           )
         ),
         parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )

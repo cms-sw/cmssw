@@ -1,19 +1,18 @@
-# /dev/CMSSW_3_5_0/pre1/HIon/V3 (CMSSW_3_5_X_2010-01-13-1200)
+# /dev/CMSSW_3_5_0/HIon/V3 (CMSSW_3_5_0_pre3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/pre1/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V3')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 
-process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( 'file:RelVal_DigiL1Raw_HIon.root' )
+process.source = cms.Source( "PoolSource"
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
@@ -581,6 +580,7 @@ process.FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   Fitter = cms.string( "FitterRK" ),
   Smoother = cms.string( "SmootherRK" ),
   EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
@@ -618,6 +618,7 @@ process.KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer
   Fitter = cms.string( "KFTrajectoryFitterForL2Muon" ),
   Smoother = cms.string( "KFTrajectorySmootherForL2Muon" ),
   EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
@@ -1229,6 +1230,7 @@ process.hltKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
   Fitter = cms.string( "hltKFFitter" ),
   Smoother = cms.string( "hltKFSmoother" ),
   EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
@@ -2109,7 +2111,8 @@ process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
             Pruning = cms.bool( True ),
-            dYclusBoxMax = cms.double( 8.0 )
+            dYclusBoxMax = cms.double( 8.0 ),
+            preClusteringUseChaining = cms.bool( True )
           ),
           cms.PSet(  maxRatioResidualPrune = cms.double( 3.0 ),
             yweightPenalty = cms.double( 1.5 ),
@@ -2135,7 +2138,8 @@ process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
             Pruning = cms.bool( True ),
-            dYclusBoxMax = cms.double( 8.0 )
+            dYclusBoxMax = cms.double( 8.0 ),
+            preClusteringUseChaining = cms.bool( True )
           )
         ),
         parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
@@ -2361,12 +2365,10 @@ process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
+
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDoubleMu',
-  'HLT_HIJet35U',
-  'HLT_HIMinBiasCalo',
-  'HLT_HIPhoton15' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -2394,8 +2396,7 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltEcalCalibrationRaw_*_*' ),
+      'keep triggerTriggerEvent_*_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2406,7 +2407,6 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltAlCaPhiSymStream_*_*',
       'keep *_hltGtDigis_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
@@ -2417,9 +2417,7 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltAlCaEtaRegRecHits_*_*',
-      'keep *_hltAlCaPi0RegRecHits_*_*' ),
+      'keep triggerTriggerEvent_*_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2446,8 +2444,7 @@ process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep *_hltLogMonitorFilter_*_*' )
+      'keep edmTriggerResults_*_*_*' )
 )
 
 process.HLTBeginSequenceBPTX = cms.Sequence( process.hltTriggerType + process.hltL1EventNumber + process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles + process.hltBPTXCoincidence + process.hltOfflineBeamSpot )
