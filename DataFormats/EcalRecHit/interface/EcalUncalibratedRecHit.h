@@ -11,11 +11,12 @@ class EcalUncalibratedRecHit {
   typedef DetId key_type;
 
   enum Flags {
-          kGood,                // channel is good
-          kPoorReco,            // channel has been badly reconstructed (e.g. bad shape, bad chi2 etc.)
-          kSaturated,           // saturated channel
-          kOutOfTime,           // channel out of time
-          kLeadingEdgeRecovered // saturated channel: energy estimated from the leading edge before saturation
+          kGood,                 // channel is good
+          kPoorReco,             // channel has been badly reconstructed (e.g. bad shape, bad chi2 etc.)
+          kSaturated,            // saturated channel
+          kOutOfTime,            // channel out of time
+          kLeadingEdgeRecovered, // saturated channel: energy estimated from the leading edge before saturation
+          kFake                  // the signal in the channel is a fake (e.g. a so-called spike)
   };
 
   EcalUncalibratedRecHit();
