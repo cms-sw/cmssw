@@ -103,9 +103,9 @@ public:
 
     element         %= (token | parenthesis);
 
-    prescale         = (element >> '/' >> qi::int_)     [qi::_val = new_<Prescaler> (qi::_1, qi::_2)];
+    prescale         = (element >> '/' >> qi::uint_)    [qi::_val = new_<Prescaler> (qi::_1, qi::_2)];
 
-    operand         %= (element | prescale);
+    operand         %= (prescale | element);
 
     unary            = ( operand                        [qi::_val = qi::_1]
                        | (qi::lit("NOT") >> operand)    [qi::_val = new_<OperatorNot> (qi::_1)]
