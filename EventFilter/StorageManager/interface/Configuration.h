@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.12 2010/01/07 14:54:30 mommsen Exp $
+// $Id: Configuration.h,v 1.13 2010/01/18 11:11:43 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -18,11 +18,6 @@
 #include "xdata/Vector.h"
 
 #include "boost/thread/mutex.hpp"
-
-namespace
-{
-  const std::string DEFAULT_DATA_SETUP_LABEL = "Data";
-} // anonymous namespace
 
 
 namespace stor
@@ -54,8 +49,6 @@ namespace stor
     std::string _smInstanceString;
     std::string _hostName;
     int _initialSafetyLevel;  // what is this used for?
-
-    bool isData() { return ( _setupLabel == DEFAULT_DATA_SETUP_LABEL ); }
   };
 
   /**
@@ -118,7 +111,9 @@ namespace stor
    */
   struct ResourceMonitorParams
   {
-    std::string _sataUser;  // user name to log into SATA controller
+    bool _isProductionSystem; // indicates if the SM is running in production system.
+                              // If set to false, certain checks/alarms are disabled. 
+    std::string _sataUser;    // user name to log into SATA controller
 
     struct WorkerParams
     {
@@ -128,6 +123,11 @@ namespace stor
     };
     WorkerParams _injectWorkers;
     WorkerParams _copyWorkers;
+
+    ResourceMonitorParams() :
+    _isProductionSystem(false) {}; // Initialize default to false here. This struct is
+                                   // used in the ResourceMonitorCollection before the
+                                   // actual values are set during the configure transition.
   };
 
   /**
@@ -144,8 +144,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/01/07 14:54:30 $
+   * $Revision: 1.13 $
+   * $Date: 2010/01/18 11:11:43 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -349,6 +349,7 @@ namespace stor
     xdata::Double _staleFragmentTimeOut;
     xdata::Double _monitoringSleepSec;
 
+    xdata::Boolean _isProductionSystem;
     xdata::String _sataUser;
     xdata::String _injectWorkersUser;
     xdata::String _injectWorkersCommand;

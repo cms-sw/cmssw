@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.20 2010/01/07 14:54:30 mommsen Exp $
+// $Id: Configuration.cc,v 1.21 2010/01/18 11:11:18 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -164,7 +164,7 @@ namespace stor
     _diskWriteParamCopy._filePath = "/tmp";
     _diskWriteParamCopy._otherDiskPaths.clear();
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
-    _diskWriteParamCopy._setupLabel = DEFAULT_DATA_SETUP_LABEL;
+    _diskWriteParamCopy._setupLabel = "Data";
     _diskWriteParamCopy._nLogicalDisk = 0;
     _diskWriteParamCopy._maxFileSizeMB = 0;
     _diskWriteParamCopy._highWaterMark = 0.9;
@@ -247,6 +247,7 @@ namespace stor
   void Configuration::setResourceMonitorDefaults()
   {
     // set defaults
+    _resourceMonitorParamCopy._isProductionSystem = false;
     _resourceMonitorParamCopy._sataUser = "";
     _resourceMonitorParamCopy._injectWorkers._user = "smpro";
     _resourceMonitorParamCopy._injectWorkers._command = "/InjectWorker.pl /store/global";
@@ -388,6 +389,7 @@ namespace stor
   setupResourceMonitorInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
     // copy the initial defaults to the xdata variables
+    _isProductionSystem = _resourceMonitorParamCopy._isProductionSystem;
     _sataUser = _resourceMonitorParamCopy._sataUser;
     _injectWorkersUser = _resourceMonitorParamCopy._injectWorkers._user;
     _injectWorkersCommand = _resourceMonitorParamCopy._injectWorkers._command;
@@ -397,6 +399,7 @@ namespace stor
     _nCopyWorkers = _resourceMonitorParamCopy._copyWorkers._expectedCount;
  
     // bind the local xdata variables to the infospace
+    infoSpace->fireItemAvailable("isProductionSystem", &_isProductionSystem);
     infoSpace->fireItemAvailable("sataUser", &_sataUser);
     infoSpace->fireItemAvailable("injectWorkersUser", &_injectWorkersUser);
     infoSpace->fireItemAvailable("injectWorkersCommand", &_injectWorkersCommand);
@@ -493,6 +496,7 @@ namespace stor
 
   void Configuration::updateLocalResourceMonitorData()
   {
+    _resourceMonitorParamCopy._isProductionSystem = _isProductionSystem;
     _resourceMonitorParamCopy._sataUser = _sataUser;
     _resourceMonitorParamCopy._injectWorkers._user = _injectWorkersUser;
     _resourceMonitorParamCopy._injectWorkers._command = _injectWorkersCommand;

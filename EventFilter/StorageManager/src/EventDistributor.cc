@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.10 2009/12/10 12:42:54 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.11 2010/01/07 14:56:20 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -71,7 +71,7 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
   }
 
   if( unexpected && ioc.messageCode() == Header::EVENT &&
-    _sharedResources->_configuration->getDiskWritingParams().isData()
+    _sharedResources->_configuration->getResourceMonitorParams()._isProductionSystem
   )
   {
     std::ostringstream msg;
