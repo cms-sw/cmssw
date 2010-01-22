@@ -85,7 +85,8 @@ jptDQMParameters = cms.PSet(
   #ZSP corrector
   ZSPCorrectorName = cms.string('ZSPJetCorrectorAntiKt5'),
   #Whether to write the DQM store to a file at the end of the run and the file name
-  WriteDQMStore = cms.untracked.bool(True),
+  #KH WriteDQMStore = cms.untracked.bool(True), This has to be false by default
+  WriteDQMStore = cms.untracked.bool(False),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
 
   #Historgram configuration
