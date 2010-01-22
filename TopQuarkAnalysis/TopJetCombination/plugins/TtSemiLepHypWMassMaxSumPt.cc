@@ -3,8 +3,12 @@
 
 TtSemiLepHypWMassMaxSumPt::TtSemiLepHypWMassMaxSumPt(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),  
-  maxNJets_(cfg.getParameter<int>   ("maxNJets")),
-  wMass_   (cfg.getParameter<double>("wMass"   ))
+  maxNJets_         (cfg.getParameter<int>        ("maxNJets"         )),
+  wMass_            (cfg.getParameter<double>     ("wMass"            )),
+  useBTagging_      (cfg.getParameter<bool>       ("useBTagging"      )),
+  bTagAlgorithm_    (cfg.getParameter<std::string>("bTagAlgorithm"    )),
+  minBDiscBJets_    (cfg.getParameter<double>     ("minBDiscBJets"    )),
+  maxBDiscLightJets_(cfg.getParameter<double>     ("maxBDiscLightJets"))
 {
   if(maxNJets_<4 && maxNJets_!=-1)
     throw cms::Exception("WrongConfig") 
@@ -26,8 +30,19 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
     return;
   }
 
-  unsigned maxNJets = maxNJets_;
+  int maxNJets = maxNJets_;
   if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
+
+  std::vector<bool> isBJet;
+  std::vector<bool> isLJet;
+  int cntBJets = 0;
+  if(useBTagging_) {
+    for(int idx=0; idx<maxNJets; ++idx) {
+      isBJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    ) );
+      isLJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) < maxBDiscLightJets_) );
+      if((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    )cntBJets++;
+    }
+  }
 
   match.clear();
   for(unsigned int i=0; i<5; ++i)
@@ -38,9 +53,13 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // with their invariant mass to the hadronic W boson
   // -----------------------------------------------------
   double wDist =-1.;
-  std::vector<unsigned> closestToWMassIndices;
-  for(unsigned idx=0; idx<maxNJets; ++idx){  
-    for(unsigned jdx=(idx+1); jdx<maxNJets; ++jdx){
+  std::vector<int> closestToWMassIndices;
+  closestToWMassIndices.push_back(-1);
+  closestToWMassIndices.push_back(-1);
+  for(int idx=0; idx<maxNJets; ++idx){
+    if(useBTagging_ && (!isLJet[idx] || (cntBJets<=2 && isBJet[idx]))) continue;
+    for(int jdx=(idx+1); jdx<maxNJets; ++jdx){
+      if(useBTagging_ && (!isLJet[jdx] || (cntBJets<=2 && isBJet[jdx]) || (cntBJets==3 && isBJet[idx] && isBJet[jdx]))) continue;
       reco::Particle::LorentzVector sum = 
 	(*jets)[idx].p4()+
 	(*jets)[jdx].p4();
@@ -58,17 +77,20 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // sum to the hadronic decay chain
   // -----------------------------------------------------
   double maxPt=-1.;
-  unsigned hadB=0;
-  for(unsigned idx=0; idx<maxNJets; ++idx){
-    // make sure it's not used up already from the hadronic W
-    if( idx!=closestToWMassIndices[0] && idx!=closestToWMassIndices[1] ){
-      reco::Particle::LorentzVector sum = 
-	(*jets)[closestToWMassIndices[0]].p4()+
-	(*jets)[closestToWMassIndices[1]].p4()+
-	(*jets)[idx].p4();
-      if( maxPt<0. || maxPt<sum.pt() ){
-	maxPt=sum.pt();
-	hadB=idx;
+  int hadB=-1;
+  if( isValid(closestToWMassIndices[0], jets) && isValid(closestToWMassIndices[1], jets)) {
+    for(int idx=0; idx<maxNJets; ++idx){
+      if(useBTagging_ && !isBJet[idx]) continue;
+      // make sure it's not used up already from the hadronic W
+      if( idx!=closestToWMassIndices[0] && idx!=closestToWMassIndices[1] ){
+	reco::Particle::LorentzVector sum = 
+	  (*jets)[closestToWMassIndices[0]].p4()+
+	  (*jets)[closestToWMassIndices[1]].p4()+
+	  (*jets)[idx].p4();
+	if( maxPt<0. || maxPt<sum.pt() ){
+	  maxPt=sum.pt();
+	  hadB=idx;
+	}
       }
     }
   }
@@ -79,8 +101,9 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // leptonic b quark
   // -----------------------------------------------------
   maxPt=-1.;
-  unsigned lepB=0;
-  for(unsigned idx=0; idx<maxNJets; ++idx){
+  int lepB=-1;
+  for(int idx=0; idx<maxNJets; ++idx){
+    if(useBTagging_ && !isBJet[idx]) continue;
     // make sure it's not used up already from the hadronic decay chain
     if( idx!=closestToWMassIndices[0] && idx!=closestToWMassIndices[1] && idx!=hadB) {
       reco::Particle::LorentzVector sum = 

@@ -26,6 +26,10 @@ class TtSemiLepHypWMassMaxSumPt : public TtSemiLepHypothesis  {
 
   int maxNJets_;
   double wMass_;
+  bool useBTagging_;
+  std::string bTagAlgorithm_;
+  double minBDiscBJets_;
+  double maxBDiscLightJets_;
 };
 
 #endif
