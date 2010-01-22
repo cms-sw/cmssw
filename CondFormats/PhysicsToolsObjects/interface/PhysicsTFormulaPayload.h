@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include "TFormula.h"
 
 class PhysicsTFormulaPayload
 {

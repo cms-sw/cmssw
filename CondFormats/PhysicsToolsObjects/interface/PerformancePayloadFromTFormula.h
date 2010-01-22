@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "TFormula.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 

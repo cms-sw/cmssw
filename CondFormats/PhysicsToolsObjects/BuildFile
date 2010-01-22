@@ -1,12 +1,13 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
-<use name=DataFormats/StdDictionaries>
+<use name=CondFormats/Common>
 <use name=boost>
 <use name=rootrflx>
 <use name=root>
 <export>
   <use name=CondFormats/Common>
   <use name=boost>
+  <use name=root>
   <lib name=CondFormatsPhysicsToolsObjects>
 </export>
