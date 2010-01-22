@@ -6,5 +6,5 @@ iterativeFifthTrackCandidates = cms.Sequence(iterativeFifthTrackCandidatesWithPa
 iterativeFifthTrackCandidatesWithPairs.SeedProducer = cms.InputTag("iterativeFifthSeeds","TobTecLayerPairs")
 iterativeFifthTrackCandidatesWithPairs.TrackProducers = ['firstfilter','secfilter','thfilter','foufilter']
 iterativeFifthTrackCandidatesWithPairs.KeepFittedTracks = False
-iterativeFifthTrackCandidatesWithPairs.MinNumberOfCrossedLayers = 6
+iterativeFifthTrackCandidatesWithPairs.MinNumberOfCrossedLayers = 3
 

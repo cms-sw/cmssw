@@ -3,7 +3,7 @@
 void PlotGraphs( TH1F* full, TH1F* fast) {
 
   full->SetMarkerColor(4);						
-  full->SetLineColor(4);						  
+  full->SetLineColor(4);//blue						  
   full->SetLineWidth(2);						  
   full->SetLineStyle(3);
   //  full->SetMaximum(0.11);
@@ -12,7 +12,7 @@ void PlotGraphs( TH1F* full, TH1F* fast) {
 
   fast->SetMarkerStyle(25);						
   fast->SetMarkerColor(2);						
-  fast->SetLineColor(2);						  
+  fast->SetLineColor(2);//red						  
   fast->SetLineWidth(2);						  
   fast->Draw("same");
   
@@ -341,6 +341,81 @@ void Layers(unsigned int iter) {
     layersFullEta->ProjectionY("cacaFull",3*imom,30-3*imom);
     layersFastEta->ProjectionY("cacaFast",3*imom,30-3*imom);
     TH1F* fastP = (TH1F*) gDirectory->Get(titleFast[imom-1]);
+    ,    TH1F* fullP = (TH1F*) gDirectory->Get(titleFull[imom-1]);
+    TH1F* fastEta = (TH1F*) gDirectory->Get(titleFast[10-imom]);
+    TH1F* fullEta = (TH1F*) gDirectory->Get(titleFull[10-imom]);
+    TH1F* fastEta2 = (TH1F*) gDirectory->Get("cacaFast");
+    TH1F* fullEta2 = (TH1F*) gDirectory->Get("cacaFull");
+    fastEta->Add(fastEta2,-1);
+    fullEta->Add(fullEta2,-1);
+    
+    c->cd(imom);
+    PlotGraphs(fullP,fastP);
+    c->cd(12-imom);
+    PlotGraphs(fullEta,fastEta);
+  }  
+  
+}
+
+
+void Seed(unsigned int iter) {
+  
+  gROOT->Reset();
+    TFile *f = new TFile("testTrackingIterations.root");
+    //TFile *f = new TFile("testTrackingIterations_fullstat.root");
+  if(f->IsZombie() ) return;
+  f->cd("DQMData"); 
+
+  std::vector<char *> titleFull;
+  std::vector<char *> titleFast;
+  titleFull.push_back("SeedFull_p_0_2");
+  titleFull.push_back("SeedFull_p_2_4");
+  titleFull.push_back("SeedFull_p_4_6");
+  titleFull.push_back("SeedFull_p_6_8");
+  titleFull.push_back("SeedFull_p_8_10");
+  titleFull.push_back("SeedFull_Eta_0.0_0.5");
+  titleFull.push_back("SeedFull_Eta_0.5_1.0");
+  titleFull.push_back("SeedFull_Eta_1.0_1.5");
+  titleFull.push_back("SeedFull_Eta_1.5_2.0");
+  titleFull.push_back("SeedFull_Eta_2.0_2.8");
+  titleFast.push_back("SeedFast_p_0_2");
+  titleFast.push_back("SeedFast_p_2_4");
+  titleFast.push_back("SeedFast_p_4_6");
+  titleFast.push_back("SeedFast_p_6_8");
+  titleFast.push_back("SeedFast_p_8_10");
+  titleFast.push_back("SeedFast_Eta_0.0_0.6");
+  titleFast.push_back("SeedFast_Eta_0.6_1.2");
+  titleFast.push_back("SeedFast_Eta_1.2_1.8");
+  titleFast.push_back("SeedFast_Eta_1.8_2.4");
+  titleFast.push_back("SeedFast_Eta_2.4_3.0");
+
+  TCanvas *c = new TCanvas("c","",1000, 600);
+  c->Divide(3,4);
+  TH2F* seedFullP;
+  TH2F* seedFastP;
+  TH2F* seedFullEta;
+  TH2F* seedFastEta;
+  if ( iter == 3 ) { 
+    seedFullP = (TH2F*) gDirectory->Get("Seed3PFull");
+    seedFastP = (TH2F*) gDirectory->Get("Seed3PFast");
+    seedFullEta = (TH2F*) gDirectory->Get("Seed3EtaFull");
+    seedFastEta = (TH2F*) gDirectory->Get("Seed3EtaFast");
+  }
+  else   if ( iter == 5 ) { 
+    seedFullP = (TH2F*) gDirectory->Get("Seed5PFull");
+    seedFastP = (TH2F*) gDirectory->Get("Seed5PFast");
+    seedFullEta = (TH2F*) gDirectory->Get("Seed5EtaFull");
+    seedFastEta = (TH2F*) gDirectory->Get("Seed5EtaFast");
+  }
+  for (unsigned imom=1;imom<6;++imom) {  
+    seedFullP->ProjectionY(titleFull[imom-1],20*(imom-1)+1,20*imom+1);
+    seedFastP->ProjectionY(titleFast[imom-1],20*(imom-1)+1,20*imom+1);
+    seedFullEta->ProjectionY(titleFull[10-imom],3*(imom-1),max((unsigned int)28,30-3*(imom-1)));
+    seedFastEta->ProjectionY(titleFast[10-imom],3*(imom-1),max((unsigned int)28,30-3*(imom-1)));
+    seedFullEta->ProjectionY("cacaFull",3*imom,30-3*imom);
+    seedFastEta->ProjectionY("cacaFast",3*imom,30-3*imom);
+
+    TH1F* fastP = (TH1F*) gDirectory->Get(titleFast[imom-1]);
     TH1F* fullP = (TH1F*) gDirectory->Get(titleFull[imom-1]);
     TH1F* fastEta = (TH1F*) gDirectory->Get(titleFast[10-imom]);
     TH1F* fullEta = (TH1F*) gDirectory->Get(titleFull[10-imom]);
@@ -356,6 +431,8 @@ void Layers(unsigned int iter) {
   }  
   
 }
+
+
 
 void totalEfficiency(unsigned int iter) {
   
@@ -514,3 +591,72 @@ void totalEfficiency(unsigned int iter) {
 
 }
 
+void SimTracks() {
+  
+  gROOT->Reset();
+  TFile *f = new TFile("testTrackingIterations.root");
+  //  TFile *f = new TFile("testTrackingIterations_fullstat.root");
+  if(f->IsZombie() ) return;
+  f->cd("DQMData"); 
+
+  std::vector<char *> titleFull;
+  std::vector<char *> titleFast;
+  titleFull.push_back("eff1Full_p_0_1");
+  titleFull.push_back("eff1Full_p_1_2");
+  titleFull.push_back("eff1Full_p_2_3");
+  titleFull.push_back("eff1Full_p_3_4");
+  titleFull.push_back("eff1Full_p_4_5");
+  titleFull.push_back("eff1Full_p_5_6");
+  titleFull.push_back("eff1Full_p_6_7");
+  titleFull.push_back("eff1Full_p_7_8");
+  titleFull.push_back("eff1Full_p_8_9");
+  titleFull.push_back("eff1Full_p_9_10");
+  titleFast.push_back("eff1Fast_p_0_1");
+  titleFast.push_back("eff1Fast_p_1_2");
+  titleFast.push_back("eff1Fast_p_2_3");
+  titleFast.push_back("eff1Fast_p_3_4");
+  titleFast.push_back("eff1Fast_p_4_5");
+  titleFast.push_back("eff1Fast_p_5_6");
+  titleFast.push_back("eff1Fast_p_6_7");
+  titleFast.push_back("eff1Fast_p_7_8");
+  titleFast.push_back("eff1Fast_p_8_9");
+  titleFast.push_back("eff1Fast_p_9_10");
+
+  TCanvas *c = new TCanvas("c","",1000, 600);
+  c->Divide(3,4);
+  TH2F* effFull;
+  TH2F* effFast;
+  effFull = (TH2F*) gDirectory->Get("SimFull");
+  effFast = (TH2F*) gDirectory->Get("SimFast");
+  
+  for (unsigned imom=1;imom<11;++imom) {  
+    effFull->ProjectionX(titleFull[imom-1],10*(imom-1)+1,10*imom+1);
+    effFast->ProjectionX(titleFast[imom-1],10*(imom-1)+1,10*imom+1);
+    TH1F* fast = (TH1F*) gDirectory->Get(titleFast[imom-1]);
+    TH1F* full = (TH1F*) gDirectory->Get(titleFull[imom-1]);
+    c->cd(imom);
+    PlotGraphs(full,fast);
+  }  
+
+  
+  TH1F* fast;
+  TH1F* full;
+  TH1F* fastp;
+  TH1F* fullp;
+  effFull->ProjectionX();
+  effFast->ProjectionX();
+  effFull->ProjectionY();
+  effFast->ProjectionY();
+  
+  fast = (TH1F*) gDirectory->Get("SimFast_px");
+  full = (TH1F*) gDirectory->Get("SimFull_px");
+  fastp = (TH1F*) gDirectory->Get("SimFast_py");
+  fullp = (TH1F*) gDirectory->Get("SimFull_py");
+  
+  c->cd(11);
+  PlotGraphs(full,fast);
+  
+  c->cd(12);
+  PlotGraphs(fullp,fastp);
+
+}

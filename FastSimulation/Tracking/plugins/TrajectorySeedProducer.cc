@@ -470,14 +470,21 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  bool forward = theSeedHits0.isForward();
 	  double error = std::sqrt(theSeedHits0.largerError()+theSeedHits1.largerError());
 	  //	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
-	  compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,ialgo);
+	  //added out of desperation	
+	  if(seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs"){
+	    compatible = true;
+	    //std::cout << "Algo " << seedingAlgo[0] << "Det/layer = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << std::endl;
+	  } else {
+	    compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,ialgo);
+	  }
+	  
 #ifdef FAMOS_DEBUG
-	  std::cout << "Are the two hits compatible with the PV? " << compatible << std::endl;
+	  std::cout << "Algo" << seedingAlgo[0] << "\t Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
-
+	  
 	  // Check if the pair is on the requested dets
 	  if ( numberOfHits[ialgo] == 2 ) {
-	  
+	    
 	    if ( seedingAlgo[0] ==  "ThirdMixedPairs" ){
 	      compatible = compatible && theSeedHits[0].makesAPairWith3rd(theSeedHits[1]);
 	      /*
@@ -493,9 +500,14 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	      */
 	    } else {
 	      compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
-	    }
+	      //check
+	      if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
+		std::cout << "NOT Compatible " <<  seedingAlgo[0] 
+			  <<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
+			  <<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
+	    } 
 	  }	    
-
+	  
 	  // Reject non suited pairs
 	  if ( !compatible ) continue;
 
@@ -585,7 +597,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
       //this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
       //for the future: probably the best thing is to use the mini-kalmanFilter
-      if(theSeedHits0.subDetId() !=1 || theSeedHits0.subDetId() !=2) errorMatrix = errorMatrix * 0.000001;
+      if(theSeedHits0.subDetId() !=1 || theSeedHits0.subDetId() !=2) errorMatrix = errorMatrix * 0.0000001;
+
+
 
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: SimTrack parameters " << std::endl;

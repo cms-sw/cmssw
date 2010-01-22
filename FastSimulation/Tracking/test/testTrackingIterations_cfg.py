@@ -91,6 +91,7 @@ process.testTK = cms.EDFilter(
 # Famos SimHits 
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.GlobalTag.globaltag = "MC_3XY_V15::All"
+##process.GlobalTag.globaltag = "STARTUP_31X::All"
 
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
