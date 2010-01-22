@@ -110,13 +110,14 @@ process.path_1 = cms.Path( process.filter_1 )
 process.path_2 = cms.Path( process.filter_2 )
 process.path_3 = cms.Path( process.filter_3 )
 
+process.path_all_explicit = cms.Path( process.filter_all_explicit )
+
 process.path_any_or   = cms.Path( process.filter_any_or )
 process.path_any_list = cms.Path( process.filter_any_list )
 process.path_any_star = cms.Path( process.filter_any_star )
 
 process.path_any_doublestar      = cms.Path( process.filter_any_doublestar )
 process.path_any_question        = cms.Path( process.filter_any_question )
-process.path_all_explicit        = cms.Path( process.filter_all_explicit )
 process.path_wrong_name          = cms.Path( process.filter_wrong_name )
 process.path_wrong_pattern       = cms.Path( process.filter_wrong_pattern )
 process.path_not_wrong_pattern   = cms.Path( ~ process.filter_wrong_pattern )

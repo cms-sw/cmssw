@@ -26,6 +26,7 @@ bool HLTReader::operator()(const Data & data) {
 }
 
 void HLTReader::dump(std::ostream & out) const {
+  //out << "[" << m_pattern << "=";
   if (m_triggers.size() == 0) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
@@ -36,6 +37,7 @@ void HLTReader::dump(std::ostream & out) const {
       out << " OR " << m_triggers[i].first;
     out << ")";
   }
+  //out << "]";
 }
 
 // (re)initialize the module
