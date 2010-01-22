@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTTauCertification = cms.EDFilter("HLTTauCertifier",
+hltTauOfflineCertification = cms.EDFilter("HLTTauCertifier",
                                    targetDir = cms.string("EventInfo"),
                                    targetME  = cms.string("HLT_Tau"),
                                    inputMEs = cms.vstring(
