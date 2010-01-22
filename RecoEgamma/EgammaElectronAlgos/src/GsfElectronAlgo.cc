@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.87 2010/01/15 13:01:00 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.88 2010/01/18 20:55:02 charlot Exp $
 //
 //
 
@@ -277,16 +277,19 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
     pfTranslatorParametersChecked_ = true ;
     checkPfTranslatorParameters(pfMVAH.provenance()->psetID()) ;
    }
-  if (!seedsCollection.isValid())
-   {
-    edm::LogWarning("GsfElectronAlgo")
-      <<"Cannot check consistency of parameters with ecal seeding ones,"
-      <<" because the original collection of seeds is not any more available." ;
-   }
-  else if (!ecalSeedingParametersChecked_)
+  if (!ecalSeedingParametersChecked_)
    {
     ecalSeedingParametersChecked_ = true ;
-    checkEcalSeedingParameters(seedsCollection.provenance()->psetID()) ;
+    if (!seedsCollection.isValid())
+     {
+      edm::LogWarning("GsfElectronAlgo")
+        <<"Cannot check consistency of parameters with ecal seeding ones,"
+        <<" because the original collection of seeds is not any more available." ;
+     }
+    else
+     {
+      checkEcalSeedingParameters(seedsCollection.provenance()->psetID()) ;
+     }
    }
 
   // get the beamspot from the Event:
@@ -508,7 +511,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if (eg&&pf) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be both egamma and purely pflow" ; }
     if ((!eg)&&(!pf)) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be neither egamma nor purely pflow" ; }
 
-    // MVA blessing
+    // Or MVA
     if ( (eg && ((*e1)->mva()>=minMVA_)) || (pf && ((*e1)->mva()>=minMVAPflow_)) )
      {
       outEle.push_back(*e1) ;
@@ -516,6 +519,10 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
       LogDebug("") << "=================================================";
       continue ;
      }
+//    // And MVA
+//    if (eg && ((*e1)->mva()<minMVA_)) continue ;
+//    if (pf && ((*e1)->mva()<minMVAPflow_)) continue ;
+
 
     // Et cut
     LogDebug("") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
@@ -601,10 +608,6 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
 	  else
 	   { if (elseed->subDet2()==6) continue ; }
      }
-
-    // BDT output
-    if (eg && ((*e1)->mva()<minMVA_)) continue ;
-    if (pf && ((*e1)->mva()<minMVAPflow_)) continue ;
 
     // transverse impact parameter
     if (eg && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIP_) continue;
@@ -733,31 +736,31 @@ void GsfElectronAlgo::createElectron
   double feta=fabs(scRef->position().eta()) ;
   if (detector==EcalBarrel)
    {
-	fiducialFlags.isEB = true ;
-	EBDetId ebdetid(seedXtalId);
-	if (EBDetId::isNextToEtaBoundary(ebdetid))
-	 {
-	  if (ebdetid.ietaAbs()==85)
-	   { fiducialFlags.isEBEEGap = true ; }
-	  else
-	   { fiducialFlags.isEBEtaGap = true ; }
-	 }
-	if (EBDetId::isNextToPhiBoundary(ebdetid))
-	 { fiducialFlags.isEBPhiGap = true ; }
+    fiducialFlags.isEB = true ;
+    EBDetId ebdetid(seedXtalId);
+    if (EBDetId::isNextToEtaBoundary(ebdetid))
+     {
+      if (ebdetid.ietaAbs()==85)
+       { fiducialFlags.isEBEEGap = true ; }
+      else
+       { fiducialFlags.isEBEtaGap = true ; }
+     }
+    if (EBDetId::isNextToPhiBoundary(ebdetid))
+     { fiducialFlags.isEBPhiGap = true ; }
    }
   else if (detector==EcalEndcap)
    {
-	fiducialFlags.isEE = true ;
-	EEDetId eedetid(seedXtalId);
-	if (EEDetId::isNextToRingBoundary(eedetid))
-	 {
-	  if (fabs(feta)<2.)
-	   { fiducialFlags.isEBEEGap = true ; }
-	  else
-	   { fiducialFlags.isEERingGap = true ; }
-	 }
-	if (EEDetId::isNextToDBoundary(eedetid))
-	 { fiducialFlags.isEEDeeGap = true ; }
+    fiducialFlags.isEE = true ;
+    EEDetId eedetid(seedXtalId);
+    if (EEDetId::isNextToRingBoundary(eedetid))
+     {
+      if (fabs(feta)<2.)
+       { fiducialFlags.isEBEEGap = true ; }
+      else
+       { fiducialFlags.isEERingGap = true ; }
+     }
+    if (EEDetId::isNextToDBoundary(eedetid))
+     { fiducialFlags.isEEDeeGap = true ; }
    }
   else
    { edm::LogWarning("GsfElectronAlgo")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
