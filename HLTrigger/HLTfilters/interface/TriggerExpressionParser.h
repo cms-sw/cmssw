@@ -66,6 +66,8 @@ namespace ascii {
   using namespace boost::spirit::ascii; 
 }
 
+using boost::spirit::unused_type;
+
 #include <boost/spirit/include/phoenix.hpp>
 using namespace boost::phoenix;
 
@@ -84,10 +86,12 @@ public:
   Parser() : 
     Parser::base_type(expression)
   {
-    token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
-    token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
-    token_l1        %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
-    token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_'))]];
+    alnum            = +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_') | qi::char_('*', '*') | qi::char_('?', '?'));
+
+    token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> alnum]];
+    token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> alnum]];
+    token_l1        %= qi::raw[qi::lexeme["L1_"     >> alnum]];
+    token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> alnum]];
 
     token            = ( token_hlt                      [qi::_val = new_<HLTReader>(qi::_1)]
                        | token_alca                     [qi::_val = new_<HLTReader>(qi::_1)]
@@ -115,8 +119,11 @@ public:
   }
 
 private:
+  typedef qi::rule<Iterator, unused_type(), ascii::space_type> void_rule;
   typedef qi::rule<Iterator, std::string(), ascii::space_type> name_rule;
   typedef qi::rule<Iterator, Evaluator*(),  ascii::space_type> rule;
+
+  void_rule alnum;
 
   name_rule token_hlt;
   name_rule token_alca;
