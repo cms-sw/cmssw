@@ -30,7 +30,7 @@ class EnergyLossEstimator : public edm::EDAnalyzer
  public:
    explicit EnergyLossEstimator(const edm::ParameterSet& pset);
    ~EnergyLossEstimator();
-   virtual void beginJob(const edm::EventSetup& es);
+   virtual void beginRun(     edm::Run & run, const edm::EventSetup& es);
    virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
    virtual void endJob();
 
@@ -64,7 +64,7 @@ EnergyLossEstimator::~EnergyLossEstimator()
 }
 
 /*****************************************************************************/
-void EnergyLossEstimator::beginJob(const edm::EventSetup& es)
+void EnergyLossEstimator::beginRun(const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;

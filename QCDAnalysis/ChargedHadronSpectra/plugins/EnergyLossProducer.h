@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace edm { class Event; class EventSetup; }
+namespace edm { class Run; class Event; class EventSetup; }
 class TrackerGeometry;
 
 class TFile;
@@ -20,7 +20,7 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 
 private:
-  void beginJob(const edm::EventSetup& es);
+  void beginRun(edm::Run & run, const edm::EventSetup& es);
   void endJob();
 
   string trackProducer;

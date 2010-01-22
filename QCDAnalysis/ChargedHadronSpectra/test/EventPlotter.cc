@@ -33,7 +33,7 @@ class EventPlotter : public edm::EDAnalyzer
   public:
     explicit EventPlotter(const edm::ParameterSet& ps);
     ~EventPlotter();
-    virtual void beginJob(const edm::EventSetup& es);
+    virtual void beginRun(edm::Run & run,       const edm::EventSetup& es);
     virtual void endJob();
     virtual void analyze (const edm::Event& ev, const edm::EventSetup& es);
 
@@ -57,7 +57,7 @@ EventPlotter::~EventPlotter()
 }
 
 /*****************************************************************************/
-void EventPlotter::beginJob(const edm::EventSetup& es)
+void EventPlotter::beginRun(edm::Run & run, const edm::EventSetup& es)
 {
   // Get magnetic field
   edm::ESHandle<MagneticField> magField;

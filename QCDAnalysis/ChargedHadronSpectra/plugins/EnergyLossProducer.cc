@@ -42,7 +42,7 @@ EnergyLossProducer::~EnergyLossProducer()
 }
 
 /*****************************************************************************/
-void EnergyLossProducer::beginJob(const edm::EventSetup& es)
+void EnergyLossProducer::beginRun(edm::Run & run, const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
