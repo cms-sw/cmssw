@@ -1,3 +1,4 @@
+#include <cassert>
 #include <boost/foreach.hpp>
 
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -52,7 +53,7 @@ void HLTReader::init(const Data & data) {
   if (not edm::is_glob(m_pattern)) {
     // no wildcard expression
     unsigned int index = hltMenu.triggerIndex(m_pattern);
-    if (index <= hltMenu.size())
+    if (index < hltMenu.size())
       m_triggers.push_back( std::make_pair(m_pattern, index) );
     else
       if (data.shouldThrow())
@@ -70,8 +71,11 @@ void HLTReader::init(const Data & data) {
         edm::LogInfo("Configuration") << "requested m_pattern \"" << m_pattern <<  "\" does not match any HLT paths";
     } else {
       // store indices corresponding to the matching triggers
-      BOOST_FOREACH(const std::vector<std::string>::const_iterator & match, matches)
-        m_triggers.push_back( std::make_pair(*match, hltMenu.triggerIndex(*match)) );
+      BOOST_FOREACH(const std::vector<std::string>::const_iterator & match, matches) {
+        unsigned int index = hltMenu.triggerIndex(*match);
+        assert(index < hltMenu.size());
+        m_triggers.push_back( std::make_pair(*match, index) );
+      }
     }
   }
 }
