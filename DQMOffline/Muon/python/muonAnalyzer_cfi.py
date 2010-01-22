@@ -111,7 +111,32 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
         hadSizeMax = cms.double(10.0),
         hoSizeBin = cms.int32(100),
         hadSizeBin = cms.int32(200)
-    )
+    ),
+    DoMuonKinVsEtaAnalysis = cms.untracked.bool(True),                           
+    muonKinVsEtaAnalysis = cms.PSet(
+        pBin = cms.int32(500),
+        pMin = cms.double(0.0),
+        pMax = cms.double(500.0),
+
+        ptBin = cms.int32(500),
+        ptMin = cms.double(0.0),
+        ptMax = cms.double(500.0),
+
+        etaBin = cms.int32(100),
+        etaMin = cms.double(-3.0),
+        etaMax = cms.double(3.0),
+
+        phiBin = cms.int32(100),
+        phiMin = cms.double(-3.2),
+        phiMax = cms.double(3.2),
+
+        etaBMin = cms.double(0.),
+        etaBMax = cms.double(1.1),
+        etaECMin = cms.double(0.9),
+        etaECMax = cms.double(2.4),
+        etaOvlpMin = cms.double(0.9),
+        etaOvlpMax = cms.double(1.1)
+  )
 )
 
 

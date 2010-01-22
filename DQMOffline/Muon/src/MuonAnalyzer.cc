@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/25 17:49:13 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/12/22 17:41:43 $
+ *  $Revision: 1.22 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -13,6 +13,7 @@
 #include "DQMOffline/Muon/src/MuonSeedsAnalyzer.h"
 #include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
 #include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
+#include "DQMOffline/Muon/src/MuonKinVsEtaAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -58,6 +59,7 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theSeedsAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonSeedAnalysis",true);
   theMuonRecoAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonRecoAnalysis",true);
   theMuonSegmentsAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoTrackSegmentsAnalysis",true);
+  theMuonKinVsEtaAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonKinVsEtaAnalysis",false);
 
   // do the analysis on muon energy
   if(theMuEnergyAnalyzerFlag)
@@ -68,6 +70,9 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   // do the analysis on muon energy
   if(theMuonRecoAnalyzerFlag)
     theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"), theService);
+  // do the analysis of kin quantities in eta regions
+  if(theMuonRecoAnalyzerFlag)
+    theMuonKinVsEtaAnalyzer = new MuonKinVsEtaAnalyzer(parameters.getParameter<ParameterSet>("muonKinVsEtaAnalysis"), theService);
   // do the analysis on muon track segments
   if(theMuonSegmentsAnalyzerFlag){
     // analysis on glb muon tracks
@@ -93,6 +98,9 @@ MuonAnalyzer::~MuonAnalyzer() {
     delete theGlbMuonSegmentsAnalyzer;
     delete theStaMuonSegmentsAnalyzer;
   }
+  if(theMuonKinVsEtaAnalyzerFlag) {
+    delete theMuonKinVsEtaAnalyzer;
+  }
 }
 
 
@@ -109,6 +117,9 @@ void MuonAnalyzer::beginJob(void) {
   if(theMuonSegmentsAnalyzerFlag) {
     theGlbMuonSegmentsAnalyzer->beginJob(theDbe);
     theStaMuonSegmentsAnalyzer->beginJob(theDbe);
+  }
+  if(theMuonKinVsEtaAnalyzerFlag) {
+    theMuonKinVsEtaAnalyzer->beginJob(theDbe);
   }
 
 }
@@ -133,6 +144,10 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        if(theMuonRecoAnalyzerFlag){
 	 LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco analyzer";
 	 theMuonRecoAnalyzer->analyze(iEvent, iSetup, *recoMu);
+       }
+       if(theMuonKinVsEtaAnalyzerFlag){
+	 LogTrace(metname)<<"[MuonAnalyzer] Call to the muon KinVsEta analyzer";
+	 theMuonKinVsEtaAnalyzer->analyze(iEvent, iSetup, *recoMu);
        }
      }
    }

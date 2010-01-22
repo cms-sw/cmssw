@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/07/16 09:56:36 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/12/22 17:41:46 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -18,7 +18,9 @@
 class MuonEnergyDepositAnalyzer;
 class MuonSeedsAnalyzer;
 class MuonRecoAnalyzer;
+class MuonKinVsEtaAnalyzer;
 class SegmentTrackAnalyzer;
+class MuonKinVsEtaAnalyzer;
 class DQMStore;
 class MuonServiceProxy;
 
@@ -61,6 +63,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   bool theMuEnergyAnalyzerFlag;
   bool theSeedsAnalyzerFlag;
   bool theMuonRecoAnalyzerFlag;
+  bool theMuonKinVsEtaAnalyzerFlag;
   bool theMuonSegmentsAnalyzerFlag;
 
   // the muon energy analyzer
@@ -69,6 +72,8 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   MuonSeedsAnalyzer * theSeedsAnalyzer;
   // the muon reco analyzer
   MuonRecoAnalyzer * theMuonRecoAnalyzer;
+  // the muon kin vs eta analyzer
+  MuonKinVsEtaAnalyzer * theMuonKinVsEtaAnalyzer;
   // the track segments analyzer for glb muons
   SegmentTrackAnalyzer * theGlbMuonSegmentsAnalyzer;
   // the track segments analyzer for sta muons
