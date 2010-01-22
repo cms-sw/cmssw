@@ -49,12 +49,14 @@ process.zpf = cms.EDAnalyzer("zPdfUnc",
     massMax =  cms.untracked.double(200.),
     ptMax=  cms.untracked.double(200.),
     angMax = cms.untracked.double(6.),
-    #parameter for the geometric acceptance
+    #parameter for the geometric acceptance (numerator)
     accPtMin = cms.untracked.double(20.0),
     accMassMin = cms.untracked.double(60.0),
     accMassMax = cms.untracked.double(120.0),                             
     accEtaMin = cms.untracked.double(0.0),
     accEtaMax = cms.untracked.double(2.1),
+    # for denominator 
+    accMassMinDenominator=cms.untracked.double(40.0),
     isMCatNLO= cms.untracked.bool(False),
     outfilename= cms.untracked.string("xxxxx.txt")
   )
