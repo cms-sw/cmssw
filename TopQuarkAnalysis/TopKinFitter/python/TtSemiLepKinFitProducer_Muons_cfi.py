@@ -33,7 +33,7 @@ kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerMuon",
     bTagAlgo          = cms.string("trackCountingHighEffBJetTags"),
     minBDiscBJets     = cms.double(1.0),
     maxBDiscLightJets = cms.double(3.0),
-    useBTagging       = cms.bool(True),
+    useBTagging       = cms.bool(False),
                                       
     # ------------------------------------------------
     # settings for the KinFitter
