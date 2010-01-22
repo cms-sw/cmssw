@@ -23,6 +23,7 @@ class MuonAssociatorByHits {
   
  public:
   typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
+  typedef std::map<unsigned int, std::vector<SimHitIdpr> > MapOfMatchedIds;
 
   MuonAssociatorByHits( const edm::ParameterSet& );  
   ~MuonAssociatorByHits();
@@ -69,29 +70,32 @@ class MuonAssociatorByHits {
     return associateSimToReco(tc,tpc,event,setup);
   }  
   
-  template<typename iter>
-    void getMatchedIds(std::vector<SimHitIdpr>& tracker_matchedIds, std::vector<SimHitIdpr>& muon_matchedIds, 
-		       int& n_valid_hits,int& n_tracker_valid_hits,int& n_dt_valid_hits,int& n_csc_valid_hits,int& n_rpc_valid_hits,
-		       int& n_selected_hits,int& n_tracker_selected_hits,int& n_dt_selected_hits,int& n_csc_selected_hits,int& n_rpc_selected_hits,
-		       int& n_matched_hits,int& n_tracker_matched_hits,int& n_dt_matched_hits,int& n_csc_matched_hits,int& n_rpc_matched_hits,
-		       iter begin, iter end,
-		       TrackerHitAssociator* trackertruth, 
-		       DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, bool printRts) const;
+  void getMatchedIds
+    (MapOfMatchedIds & tracker_matchedIds_valid, MapOfMatchedIds & muon_matchedIds_valid,
+     MapOfMatchedIds & tracker_matchedIds_INVALID, MapOfMatchedIds & muon_matchedIds_INVALID,
+     int& n_tracker_valid, int& n_dt_valid, int& n_csc_valid, int& n_rpc_valid,
+     int& n_tracker_matched_valid, int& n_dt_matched_valid, int& n_csc_matched_valid, int& n_rpc_matched_valid,
+     int& n_tracker_INVALID, int& n_dt_INVALID, int& n_csc_INVALID, int& n_rpc_INVALID,
+     int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID,
+     trackingRecHit_iterator begin, trackingRecHit_iterator end,
+     TrackerHitAssociator* trackertruth, DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, 
+     bool printRts) const;
   
-  int getShared(std::vector<SimHitIdpr>& matchedIds, std::vector<SimHitIdpr>& idcachev,
-		TrackingParticleCollection::const_iterator trpart) const;
-  
+  int getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const;
+
  private:
-  const bool AbsoluteNumberOfHits_track;
-  const unsigned int MinHitCut_track;    
-  const bool AbsoluteNumberOfHits_muon;
-  const unsigned int MinHitCut_muon;    
+  const bool includeZeroHitMuons;    
+  const bool acceptOneStubMatchings;
   bool UseTracker;
   bool UseMuon;
-  const double PurityCut_track;
-  const double PurityCut_muon;
-  const double EfficiencyCut_track;
-  const double EfficiencyCut_muon;
+  const bool AbsoluteNumberOfHits_track;
+  unsigned int NHitCut_track;    
+  double EfficiencyCut_track;
+  double PurityCut_track;
+  const bool AbsoluteNumberOfHits_muon;
+  unsigned int NHitCut_muon;    
+  double EfficiencyCut_muon;
+  double PurityCut_muon;
   const bool UsePixels;
   const bool UseGrouped;
   const bool UseSplitting;
