@@ -56,7 +56,10 @@ public:
   { }
 
   bool operator()(const Data & data) {
-    return (*m_arg1)(data) and (*m_arg2)(data);
+    // force the execution af both arguments, otherwise precalers won't work properly
+    bool r1 = (*m_arg1)(data);
+    bool r2 = (*m_arg2)(data);
+    return r1 and r2;
   }
   
   void dump(std::ostream & out) const {
@@ -73,7 +76,10 @@ public:
   { }
 
   bool operator()(const Data & data) {
-    return (*m_arg1)(data) or (*m_arg2)(data);
+    // force the execution af both arguments, otherwise precalers won't work properly
+    bool r1 = (*m_arg1)(data);
+    bool r2 = (*m_arg2)(data);
+    return r1 or r2;
   }
   
   void dump(std::ostream & out) const {
@@ -90,7 +96,10 @@ public:
   { }
 
   bool operator()(const Data & data) {
-    return (*m_arg1)(data) xor (*m_arg2)(data);
+    // force the execution af both arguments, otherwise precalers won't work properly
+    bool r1 = (*m_arg1)(data);
+    bool r2 = (*m_arg2)(data);
+    return r1 xor r2;
   }
   
   void dump(std::ostream & out) const {
