@@ -231,7 +231,7 @@ eidCutBasedExt = cms.EDProducer("EleIdCutBasedExtProducer",
               1.42e-02, 1.06e-02, 1.03e-02, 3.50e-02, 2.96e-02, 3.33e-02)
         ),
 
-    classbasedtightEleIDCutsV = cms.PSet(
+    classbasedtightEleIDCuts = cms.PSet(
         cutdeta = cms.vdouble(
               9.15e-03, 3.02e-03, 6.10e-03, 1.35e-02, 5.65e-03, 7.93e-03,
               1.02e-02, 2.66e-03, 1.06e-02, 9.03e-03, 7.66e-03, 7.23e-03,

@@ -84,7 +84,9 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
         eSeedOverPin = cms.vdouble (0.30, 0.92, 0.211, 0.0, 0.42, 0.88, 0.68, 0.0),
         hOverE       = cms.vdouble (0.076, 0.033, 0.070, 0.0, 0.083, 0.0148, 0.033, 0.0),
         sigmaEtaEta  = cms.vdouble (0.0101, 0.0095, 0.0097, 0.0, 0.0271, 0.0267, 0.0259, 0.0)
-        ),    classbasedlooseEleIDCutsV02 = cms.PSet(
+        ),
+
+    classbasedlooseEleIDCutsV02 = cms.PSet(
         cutdeta = cms.vdouble(
              9.58e-03, 4.06e-03, 1.22e-02, 1.37e-02, 8.37e-03, 1.27e-02,
              1.10e-02, 3.36e-03, 9.77e-03, 1.50e-02, 6.75e-03, 1.09e-02,
@@ -230,7 +232,7 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
               1.42e-02, 1.06e-02, 1.03e-02, 3.50e-02, 2.96e-02, 3.33e-02)
         ),
 
-    classbasedtightEleIDCutsV = cms.PSet(
+    classbasedtightEleIDCuts = cms.PSet(
         cutdeta = cms.vdouble(
               9.15e-03, 3.02e-03, 6.10e-03, 1.35e-02, 5.65e-03, 7.93e-03,
               1.02e-02, 2.66e-03, 1.06e-02, 9.03e-03, 7.66e-03, 7.23e-03,
