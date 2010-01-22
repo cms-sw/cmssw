@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.14 2009/04/27 23:27:44 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.15 2009/12/18 20:44:54 wmtan Exp $
 //
 //
 
@@ -103,6 +103,9 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   nEvTot = 0;
   nEvRecoSelected = 0;
   nEvMcSelected = 0;
+
+  nHltPaths = 0;
+  nL1Bits = 0;
 
   // --- set the names in the dbe folders ---
   triggerBitsDir = "/TriggerBits";
