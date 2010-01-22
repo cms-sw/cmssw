@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea
 //         Created:  Wed Mar  5 19:17:38 CEST 2008
-// $Id: SumHistoCalibration.cc,v 1.3 2008/04/06 14:33:01 jandrea Exp $
+// $Id: SumHistoCalibration.cc,v 1.4 2009/06/05 10:15:45 jandrea Exp $
 //
 //
 // system include files
@@ -85,7 +85,7 @@ class SumHistoCalibration : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       edm::ParameterSet config;
@@ -138,7 +138,7 @@ SumHistoCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SumHistoCalibration::beginJob(const edm::EventSetup & iSetup)
+SumHistoCalibration::beginJob()
 {
   if(m_sum2D && m_sum3D){minLoop = 0; maxLoop =1;}
   if(m_sum2D && !m_sum3D){minLoop = 0; maxLoop =0;}

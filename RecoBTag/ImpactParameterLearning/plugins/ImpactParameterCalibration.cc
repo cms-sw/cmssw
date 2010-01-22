@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.11 2009/06/03 11:22:46 jandrea Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.12 2009/07/02 08:08:27 elmer Exp $
 //
 //
 // system include files
@@ -70,11 +70,13 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      edm::ParameterSet config;
 
+      virtual void initFromFirstES(const edm::EventSetup&);
+      edm::ParameterSet config;
+      bool m_needInitFromES;
    TrackProbabilityCalibration * fromXml(edm::FileInPath xmlCalibration);
 
    static TrackProbabilityCategoryData createCategory(double  pmin,double  pmax,
@@ -107,6 +109,7 @@ class ImpactParameterCalibration : public edm::EDAnalyzer {
 
 ImpactParameterCalibration::ImpactParameterCalibration(const edm::ParameterSet& iConfig):config(iConfig)
 {
+  m_needInitFromES = false;
   m_iptaginfo = iConfig.getParameter<edm::InputTag>("tagInfoSrc");
   m_pv = iConfig.getParameter<edm::InputTag>("primaryVertexSrc");
   bool createOnlyOne = iConfig.getUntrackedParameter<bool>("createOnlyOneCalibration", false);
@@ -138,6 +141,7 @@ ImpactParameterCalibration::~ImpactParameterCalibration()
 void
 ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if(m_needInitFromES) initFromFirstES(iSetup);
   using namespace edm;
   using namespace reco;
 
@@ -207,12 +211,40 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
 
+void ImpactParameterCalibration::initFromFirstES(const edm::EventSetup& iSetup)
+{
+  using namespace edm;
 
+    CalibratedHistogram hist(config.getParameter<int>("nBins"),0,config.getParameter<double>("maxSignificance"));
+    bool resetHistogram = config.getParameter<bool>("resetHistograms");
+    ESHandle<TrackProbabilityCalibration> calib2DHandle;
+    iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
+    ESHandle<TrackProbabilityCalibration> calib3DHandle;
+    iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
+    const TrackProbabilityCalibration * ca[2];
+    ca[0]  = calib3DHandle.product();
+    ca[1]  = calib2DHandle.product();
+    for(unsigned int i=minLoop;i <=maxLoop ;i++)
+    for(unsigned int j=0;j<ca[i]->data.size() ; j++)
+    {
+     TrackProbabilityCalibration::Entry e;
+     e.category=ca[i]->data[j].category;
+
+     if(resetHistogram)
+      e.histogram=hist;
+     else
+      e.histogram=ca[i]->data[j].histogram;
+
+     m_calibration[i]->data.push_back(e);
+    }
+
+
+}
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
+ImpactParameterCalibration::beginJob()
 {
   using namespace edm;
   m_calibration[0] =   new TrackProbabilityCalibration();
@@ -275,29 +307,8 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
    }
   if(categories == "EventSetup")
    {
-    bool resetHistogram = config.getParameter<bool>("resetHistograms");
-    ESHandle<TrackProbabilityCalibration> calib2DHandle;
-    iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
-    ESHandle<TrackProbabilityCalibration> calib3DHandle;
-    iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
-    const TrackProbabilityCalibration * ca[2];
-    ca[0]  = calib3DHandle.product();
-    ca[1]  = calib2DHandle.product();
-    for(unsigned int i=minLoop;i <=maxLoop ;i++)
-    for(unsigned int j=0;j<ca[i]->data.size() ; j++)
-    {
-     TrackProbabilityCalibration::Entry e;
-     e.category=ca[i]->data[j].category;
-
-     if(resetHistogram)
-      e.histogram=hist;
-     else 
-      e.histogram=ca[i]->data[j].histogram;
-
-     m_calibration[i]->data.push_back(e);
-    }
-
-  }
+    m_needInitFromES=true;
+   }
 
 
 
