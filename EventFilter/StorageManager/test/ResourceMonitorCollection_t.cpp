@@ -16,7 +16,8 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
 
   CPPUNIT_TEST(diskSize);
   CPPUNIT_TEST(unknownDisk);
-  CPPUNIT_TEST(notMountedDisk);
+  CPPUNIT_TEST(notMountedDiskAlarm);
+  CPPUNIT_TEST(notMountedDiskSuppressAlarm);
   CPPUNIT_TEST(diskUsage);
   CPPUNIT_TEST(processCount);
   CPPUNIT_TEST(processCountWithArguments);
@@ -32,9 +33,12 @@ public:
   void setUp();
   void tearDown();
 
+  bool notMountedDisk(bool sendAlarm);
+
   void diskSize();
   void unknownDisk();
-  void notMountedDisk();
+  void notMountedDiskAlarm();
+  void notMountedDiskSuppressAlarm();
   void diskUsage();
   void processCount();
   void processCountWithArguments();
@@ -96,10 +100,14 @@ testResourceMonitorCollection::unknownDisk()
 }
 
 
-void
-testResourceMonitorCollection::notMountedDisk()
+bool
+testResourceMonitorCollection::notMountedDisk(bool sendAlarm)
 {
   const std::string dummyDisk = "/aNonExistingDisk";
+
+  ResourceMonitorParams rmParams;
+  rmParams._isProductionSystem = sendAlarm;
+  _rmc->configureResources(rmParams);
 
   DiskWritingParams dwParams;
   dwParams._nLogicalDisk = 0;
@@ -110,8 +118,21 @@ testResourceMonitorCollection::notMountedDisk()
   _ah->printActiveAlarms("SentinelException");
 
   std::vector<MockAlarmHandler::Alarms> alarms;
-  bool alarmsAreSet = _ah->getActiveAlarms("SentinelException", alarms);
+  return _ah->getActiveAlarms("SentinelException", alarms);
+}
+
+
+void testResourceMonitorCollection::notMountedDiskAlarm()
+{
+  bool alarmsAreSet = notMountedDisk(true);
   CPPUNIT_ASSERT( alarmsAreSet );
+}
+
+
+void testResourceMonitorCollection::notMountedDiskSuppressAlarm()
+{
+  bool alarmsAreSet = notMountedDisk(false);
+  CPPUNIT_ASSERT( !alarmsAreSet );
 }
 
 
@@ -176,6 +197,9 @@ testResourceMonitorCollection::processCount()
   
   processCount = _rmc->getProcessCount("processCountTest.sh", myUid);
   CPPUNIT_ASSERT( processCount == processes);
+
+  processCount = _rmc->getProcessCount("processCountTest.sh", myUid+1);
+  CPPUNIT_ASSERT( processCount == 0);
 }
 
 
@@ -197,6 +221,10 @@ testResourceMonitorCollection::processCountWithArguments()
 void
 testResourceMonitorCollection::noSataBeasts()
 {
+  ResourceMonitorParams rmParams;
+  rmParams._isProductionSystem = true;
+  _rmc->configureResources(rmParams);
+
   ResourceMonitorCollection::SATABeasts sataBeasts;
   bool foundSataBeasts =
     _rmc->getSataBeasts(sataBeasts);
