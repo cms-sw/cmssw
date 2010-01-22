@@ -35,6 +35,11 @@ options.register('overwriteKeys',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Overwrite existing keys")
+options.register('logTransactions',
+                 1, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Record transactions in log DB")
 options.parseArguments()
 
 # Generate L1TriggerKey from OMDS
@@ -100,9 +105,10 @@ initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
-#initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
-initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
-process.L1CondDBPayloadWriter.logTransactions = True
+
+if options.logTransactions == 1:
+    initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+    process.L1CondDBPayloadWriter.logTransactions = True
 
 if options.overwriteKeys == 0:
     process.L1CondDBPayloadWriter.overwriteKeys = False
@@ -112,7 +118,14 @@ else:
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.source = cms.Source("EmptySource")
+#process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptyIOVSource",
+                            timetype = cms.string('runnumber'),
+                            firstValue = cms.uint64(4294967295),
+                            lastValue = cms.uint64(4294967295),
+                            interval = cms.uint64(1)
+)
+
 
 process.outputDB = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,

@@ -36,6 +36,11 @@ options.register('outputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for output DB")
+options.register('logTransactions',
+                 1, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Record transactions in log DB")
 options.parseArguments()
 
 # writer modules
@@ -45,9 +50,10 @@ initIOVWriter( process,
                outputDBAuth = options.outputDBAuth,
                tagBase = options.tagBase,
                tscKey = options.tscKey )
-#initIOVWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_iov_log.db')
-initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
-process.L1CondDBIOVWriter.logTransactions = True
+
+if options.logTransactions == 1:
+    initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+    process.L1CondDBIOVWriter.logTransactions = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

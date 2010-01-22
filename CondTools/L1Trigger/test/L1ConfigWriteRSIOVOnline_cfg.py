@@ -33,6 +33,11 @@ options.register('keysFromDB',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "1 = read keys from OMDS, 0 = read keys from command line")
+options.register('logTransactions',
+                 1, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Record transactions in log DB")
 
 # arguments for setting object keys by hand
 options.register('L1MuDTTFMasksRcdKey',
@@ -120,9 +125,10 @@ initIOVWriter( process,
                tagBase = options.tagBase,
                tscKey = '' )
 process.L1CondDBIOVWriter.logKeys = True
-#initIOVWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_iov_log.db')
-initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
-process.L1CondDBIOVWriter.logTransactions = True
+
+if options.logTransactions == 1:
+    initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+    process.L1CondDBIOVWriter.logTransactions = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
