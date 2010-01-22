@@ -42,18 +42,31 @@ int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit,
 int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus )
 {
         // DB info currently not used at this level
-        if ( rhFlag > EcalRecHit::kGood && rhFlag <= EcalRecHit::kPoorCalib ) {
+        if       (  rhFlag == EcalRecHit::kPoorReco 
+                 || rhFlag == EcalRecHit::kOutOfTime
+                 || rhFlag == EcalRecHit::kNoisy
+                 || rhFlag == EcalRecHit::kPoorCalib 
+                 || rhFlag == EcalRecHit::kFaultyHardware
+                 ) {
                 // problematic
                 return kProblematic;
-        } else if ( rhFlag > EcalRecHit::kLeadingEdgeRecovered && rhFlag <= EcalRecHit::kTowerRecovered ) {
+        } else if ( rhFlag == EcalRecHit::kLeadingEdgeRecovered
+                 || rhFlag == EcalRecHit::kNeighboursRecovered
+                 || rhFlag == EcalRecHit::kTowerRecovered
+                 ) {
                 // recovered
                 return kRecovered;
-        } else if ( rhFlag == EcalRecHit::kDead || rhFlag == EcalRecHit::kSaturated ) {
-                // recovering failed (or not tried)
+        } else if ( rhFlag == EcalRecHit::kDead
+                 || rhFlag == EcalRecHit::kSaturated
+                 || rhFlag == EcalRecHit::kFake
+                 || rhFlag == EcalRecHit::kFakeNeighbours
+                 || rhFlag == EcalRecHit::kKilled ) {
+                // recovery failed (or not tried) or signal is fake or channel
+                // is dead
                 return kBad;
         }
         // good
-        return 0;
+        return kGood;
 }
 
 uint16_t EcalSeverityLevelAlgo::retrieveDBStatus( const DetId id, const EcalChannelStatus &chStatus )
