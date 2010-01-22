@@ -1,6 +1,6 @@
- /** \file HLTMuonValidator.cc
- *  $Date: 2009/12/18 18:29:04 $
- *  $Revision: 1.12 $
+/** \file HLTMuonValidator.cc
+ *  $Date: 2010/01/21 20:40:24 $
+ *  $Revision: 1.13 $
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonValidator.h"
@@ -73,6 +73,17 @@ HLTMuonValidator::beginJob()
   // Add fake HLT path where we bypass all filters
   hltPaths_.insert("NoFilters");
 
+}
+
+
+
+void
+HLTMuonValidator::initializeHists(vector<string> sources)
+{
+  HLTConfigProvider hltConfig;
+  hltConfig.init(hltProcessName_);
+  vector<string> validTriggerNames = hltConfig.triggerNames();
+
   set<string>::iterator iPath;
   TPRegexp suffixPtCut("[0-9]+$");
 
@@ -128,13 +139,12 @@ HLTMuonValidator::beginJob()
     }
 
     string l1Name = path + "_L1Quality";
-    elements_[l1Name.c_str()] = dbe_->book1D("L1Quality", 
-                                             "Quality of L1 Muons",
-                                             8, 0, 8);
+    elements_[l1Name.c_str()] = 
+      dbe_->book1D("L1Quality", "Quality of L1 Muons", 8, 0, 8);
     for (size_t i = 0; i < 8; i++)
       elements_[l1Name.c_str()]->setBinLabel(i + 1, Form("%i", i));
-    for (size_t i = 0; i < 2; i++) {
-      string source = kSources[i];
+    for (size_t i = 0; i < sources.size(); i++) {
+      string source = sources[i];
       for (size_t j = 0; j < stepLabels_[path].size(); j++) {
         bookHist(path, stepLabels_[path][j], source, "Eta");
         bookHist(path, stepLabels_[path][j], source, "Phi");
@@ -152,10 +162,11 @@ HLTMuonValidator::beginJob()
 void 
 HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
 {
-  
+
   static int eventNumber = 0;
+  eventNumber++;
   LogTrace("HLTMuonVal") << "In HLTMuonValidator::analyze,  " 
-                         << "Event: " << eventNumber++;
+                         << "Event: " << eventNumber;
 
   Handle<TriggerEventWithRefs> rawTriggerEvent;
   Handle<                MuonCollection> recMuons;
@@ -165,8 +176,8 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   Handle<RecoChargedCandidateCollection> handleCandsL3;
 
   iEvent.getByLabel("hltTriggerSummaryRAW", rawTriggerEvent);
-  if (rawTriggerEvent.failedToGet()) 
-    {LogError("HLTMuonVal") << "No RAW trigger summary found"; return;}
+  if (rawTriggerEvent.failedToGet())
+    {LogError("HLTMuonVal") << "No trigger summary found"; return;}
 
   iEvent.getByLabel("muons",               recMuons     );
   iEvent.getByLabel("genParticles",        genParticles );
@@ -174,6 +185,12 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   iEvent.getByLabel("hltL2MuonCandidates", handleCandsL2);
   iEvent.getByLabel("hltL3MuonCandidates", handleCandsL3);
   
+  vector<string> sources;
+  if (genParticles.isValid()) sources.push_back("gen");
+  if (    recMuons.isValid()) sources.push_back("rec");
+
+  if (eventNumber < 2) initializeHists(sources);
+
   L1MuonParticleCollection candsL1;
   if (!handleCandsL1.isValid()) // Check for FastSim L1 collection
     iEvent.getByLabel("l1ParamMuons", handleCandsL1);
@@ -195,9 +212,9 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   RecoChargedCandidateCollection & candsL2 = candsHlt[0];
   RecoChargedCandidateCollection & candsL3 = candsHlt[1];
 
-  for (size_t sourceNo = 0; sourceNo < 2; sourceNo++) {
+  for (size_t sourceNo = 0; sourceNo < sources.size(); sourceNo++) {
 
-    string source = kSources[sourceNo];
+    string source = sources[sourceNo];
 
     vector<MatchStruct> matches;
     if (source == "gen" && genParticles.isValid())
@@ -260,9 +277,9 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
 
     set<string>::iterator iPath;
     for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++)
-      analyzePath(* iPath, source, matches, * rawTriggerEvent);
+      analyzePath(* iPath, source, matches, rawTriggerEvent);
 
-  }
+  } // End loop over sources
 
 }
 
@@ -272,7 +289,7 @@ void
 HLTMuonValidator::analyzePath(const string & path, 
                               const string & source,
                               const vector<MatchStruct> & matches,
-                              const TriggerEventWithRefs & rawTriggerEvent)
+                              Handle<TriggerEventWithRefs> rawTriggerEvent)
 {
 
   const bool skipFilters = (path == "NoFilters");
@@ -290,13 +307,13 @@ HLTMuonValidator::analyzePath(const string & path,
   for (size_t i = 0; i < nFilters; i++) {
     const int hltStep = i - 1;
     InputTag tag     = InputTag(filterLabels_[path][i], "", hltProcessName_);
-    size_t   iFilter = rawTriggerEvent.filterIndex(tag);
-    if (iFilter < rawTriggerEvent.size()) {
+    size_t   iFilter = rawTriggerEvent->filterIndex(tag);
+    if (iFilter < rawTriggerEvent->size()) {
       if (i == 0) 
-        rawTriggerEvent.getObjects(iFilter, TriggerL1Mu, candsPassingL1);
+        rawTriggerEvent->getObjects(iFilter, TriggerL1Mu, candsPassingL1);
       else
-        rawTriggerEvent.getObjects(iFilter, TriggerMuon, 
-                                   refsPassingHlt[hltStep]);
+        rawTriggerEvent->getObjects(iFilter, TriggerMuon, 
+                                    refsPassingHlt[hltStep]);
     }
     else if (!skipFilters)
       LogTrace("HLTMuonVal") << "No collection with label " << tag;
@@ -360,6 +377,7 @@ HLTMuonValidator::analyzePath(const string & path,
       double pt  = matches[j].candBase->pt();
       double eta = matches[j].candBase->eta();
       double phi = matches[j].candBase->phi();
+      
       if (!missingMatch[j]) { 
         if (matchesInRange.size() >= 1 && j == matchesInRange[0])
           elements_[pre + "MaxPt1" + post]->Fill(pt);
