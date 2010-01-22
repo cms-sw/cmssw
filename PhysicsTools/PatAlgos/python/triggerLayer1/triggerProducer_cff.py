@@ -11,3 +11,10 @@ patTriggerSequence = cms.Sequence(
 #     patTriggerMatchEmbedder *
     patTriggerEvent
 )
+
+patTriggerTestSequence = cms.Sequence(
+    patTrigger        *
+    patTriggerTestMatcher *
+#     patTriggerTestMatchEmbedder *
+    patTriggerEventTest
+)

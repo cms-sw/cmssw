@@ -20,7 +20,7 @@ patEventContent = [
     'keep *_patMETs*_*_*',
     'keep *_cleanPatHemispheres_*_*',
     'keep *_cleanPatPFParticles_*_*',
-    'keep *_cleanPatTrackCands_*_*'    
+    'keep *_cleanPatTrackCands_*_*'
 ]
 
 patExtraAodEventContent = [
@@ -54,8 +54,8 @@ patEventContentTriggerMatch = [
     'keep *_cleanPatElectronsTriggerMatch_*_*',
     'keep *_cleanPatMuonsTriggerMatch_*_*',
     'keep *_cleanPatTausTriggerMatch_*_*',
-    'keep *_cleanPat*JetsTriggerMatch_*_*',
-    'keep *_pat*METsTriggerMatch_*_*'
+    'keep *_cleanPatJetsTriggerMatch_*_*',
+    'keep *_patMETsTriggerMatch_*_*'
 ]
 
 patHiEventContent = [
