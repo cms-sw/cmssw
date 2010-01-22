@@ -4,8 +4,8 @@
 /** \class DTCertificationSummary
  *  No description available.
  *
- *  $Date: 2009/10/19 14:05:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/05 10:15:45 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -31,9 +31,11 @@ protected:
   
 private:
   virtual void beginJob();
+  virtual void beginRun(const edm::Run& run, const  edm::EventSetup& setup);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
+  virtual void endRun(const edm::Run& run, const  edm::EventSetup& setup);
   virtual void endJob() ;
   
   DQMStore *theDbe;  

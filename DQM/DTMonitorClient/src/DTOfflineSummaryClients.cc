@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/27 14:45:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/19 14:08:05 $
+ *  $Revision: 1.7 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -78,13 +78,6 @@ void DTOfflineSummaryClients::endJob(void){
 }
 
 
-void DTOfflineSummaryClients::endRun(Run const& run, EventSetup const& eSetup) {
-  
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: endRun"; 
-
-}
-
-
 void DTOfflineSummaryClients::analyze(const Event& event, const EventSetup& context){
 
    nevents++;
@@ -98,10 +91,18 @@ void DTOfflineSummaryClients::analyze(const Event& event, const EventSetup& cont
 
 
 void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  
-  LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
-    << "[DTOfflineSummaryClients]: End of LS transition, performing the DQM client operation" << endl;
 
+  LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
+    << "[DTOfflineSummaryClients]: End of LS transition" << endl;
+
+}
+
+
+void DTOfflineSummaryClients::endRun(Run const& run, EventSetup const& context) {
+
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: endRun. Performin client operation"; 
+
+  
   // reset the monitor elements
   summaryReportMap->Reset();
   summaryReport->Fill(0.);

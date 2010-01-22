@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/10/19 13:14:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.9 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -58,6 +58,7 @@ public:
 
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void endRun(edm::Run const& run, edm::EventSetup const& c);
 
 
 

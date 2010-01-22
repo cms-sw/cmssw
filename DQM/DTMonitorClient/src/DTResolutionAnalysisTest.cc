@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 16:19:19 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.20 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -151,15 +151,19 @@ void DTResolutionAnalysisTest::analyze(const Event& e, const EventSetup& context
 
 
 void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+}
+
+
+void DTResolutionAnalysisTest::endRun(Run const& run, EventSetup const& context) {
   
 
-  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: End of LS transition, performing the DQM client operation";
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: End of Run transition, performing the DQM client operation";
 
-  // counts number of lumiSegs 
-  nLumiSegs = lumiSeg.id().luminosityBlock();
+//   // counts number of lumiSegs 
+//   nLumiSegs = lumiSeg.id().luminosityBlock();
   
-  // prescale factor
-  if ( nLumiSegs%prescaleFactor != 0 ) return;
+//   // prescale factor
+//   if ( nLumiSegs%prescaleFactor != 0 ) return;
 
   // reset the ME with fixed scale
   resetMEs();

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 17:07:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/05 10:15:45 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -69,7 +69,18 @@ void DTCertificationSummary::beginLuminosityBlock(const LuminosityBlock& lumi, c
 
 
 
+void DTCertificationSummary::beginRun(const Run& run, const  EventSetup& setup) {
+}
+
+
+
+
 void DTCertificationSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){
+}
+
+
+
+void DTCertificationSummary::endRun(const Run& run, const  EventSetup& setup){
   // get the relevant summary histos
   MonitorElement* effSummary = theDbe->get("DT/05-ChamberEff/EfficiencyGlbSummary");
   MonitorElement* resSummary = theDbe->get("DT/02-Segments/ResidualsGlbSummary");

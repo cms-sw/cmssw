@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/28 14:27:09 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/05 10:15:45 $
+ *  $Revision: 1.7 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -51,6 +51,7 @@ void DTChamberEfficiencyClient::beginJob()
   nevents = 0;
 
   bookHistos();
+
   return;
 }
 
@@ -85,8 +86,14 @@ void DTChamberEfficiencyClient::analyze(const Event& e, const EventSetup& contex
 void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
 {
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
+    << "DTChamberEfficiencyClient: endluminosityBlock";
+}  
+
+
+void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context)
+{
+  LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: endRun";
-  
   // reset the global summary
   globalEffSummary->Reset();
 

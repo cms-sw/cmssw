@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/02/04 10:02:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/02 16:55:19 $
+ *  $Revision: 1.3 $
  *  \author  M. Pelliccioni - INFN Torino
  *   
  */
@@ -33,8 +33,8 @@ public:
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  /// EndLumi
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
   /// EndJob
   void endJob(void);
@@ -43,7 +43,7 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
 protected:
 

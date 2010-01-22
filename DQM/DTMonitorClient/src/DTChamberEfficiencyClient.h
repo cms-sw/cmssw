@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/03/27 14:46:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/05 10:15:45 $
+ *  $Revision: 1.5 $
  *  \author  M. Pelliccioni - INFN Torino
  *   
  */
@@ -49,7 +49,6 @@ public:
 protected:
 
   void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void endJob();
 
@@ -59,6 +58,9 @@ protected:
   /// DQM Client Diagnostic
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void endRun(edm::Run const& run, edm::EventSetup const& c);
 
 private:
 
