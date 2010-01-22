@@ -150,6 +150,9 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
 
   skipNeutrals_=iConfig.getUntrackedParameter<bool>("SkipNeutralIsoCheck",false);
 
+  nHitsMinCore_=iConfig.getParameter<int>("MinNumberOfHitsCoreTrack");
+  nHitsMinIso_=iConfig.getParameter<int>("MinNumberOfHitsInConeTracks");
+
   isolE_ = iConfig.getParameter<double>("MaxNearbyTrackEnergy");
   etaMax_= iConfig.getParameter<double>("MaxTrackEta");
   cluRad_ = iConfig.getParameter<double>("ECALClusterRadius");
@@ -264,6 +267,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double ptrack = sqrt(px*px+py*py+pz*pz);
     
     if (ptrack < m_pCut || track->pt() < m_ptCut ) continue; 
+ 
+    if (track->hitPattern().numberOfValidHits() < nHitsMinCore_) continue;
 
     // check that track is not in the region of L1 jet
     double l1jDR=deltaR(track->eta(), track->phi(), getL1triggerDirection(iEvent,hltEventTag_,l1FilterTag_).first,getL1triggerDirection(iEvent,hltEventTag_,l1FilterTag_).second);
@@ -290,6 +295,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       {
 	itrk1++;
 	if (track == track1) continue;
+        if (track->hitPattern().numberOfValidHits() < nHitsMinIso_) continue;
 	double ptrack1 = sqrt(track1->px()*track1->px()+track1->py()*track1->py()+track1->pz()*track1->pz());
 	
 	TrackDetMatchInfo info1 = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track1), parameters_);

@@ -68,7 +68,9 @@ private:
   std::vector<edm::InputTag> ecalLabels_;
 
   edm::InputTag m_inputTrackLabel_;
-  
+
+  int nHitsMinCore_;
+  int nHitsMinIso_;  
   double m_dvCut;
   double m_ddirCut;
   bool useConeCorr_;
