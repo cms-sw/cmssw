@@ -8,12 +8,7 @@ CastorClusterRecoCustomKt = cms.EDProducer('CastorClusterProducer',
 	KtRecombination = cms.untracked.uint32(2),
 	KtrParameter = cms.untracked.double(1.) )
 
-CastorClusterRecoKt = cms.EDProducer('CastorClusterProducer',
+CastorClusterRecoAntiKt07 = cms.EDProducer('CastorClusterProducer',
 	inputtowers = cms.untracked.string(""),
-	basicjets = cms.untracked.string("CastorFastjetRecoKt"))
-
-CastorClusterRecoSISCone = cms.EDProducer('CastorClusterProducer',
-	inputtowers = cms.untracked.string(""),
-	basicjets = cms.untracked.string("CastorFastjetRecoSISCone")) 
-	
+	basicjets = cms.untracked.string("CastorFastjetRecoAntiKt07"))
 
