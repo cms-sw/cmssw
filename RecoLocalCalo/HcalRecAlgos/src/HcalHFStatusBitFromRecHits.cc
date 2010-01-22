@@ -89,9 +89,19 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
 	  if (iHF2->id().iphi()!=iphi) continue; // require iphi match
 	  if (iHF2->id().depth()==depth) continue;  // require short/long combo
 
-	  en2=iHF2->energy();
+	  en2=iHF2->energy(); 
 
-	  ratio = ((fabs)(en) - fabs(en2))/((fabs)(en)+(fabs)(en2));
+	  /* 
+	     We used to use absolute values of energies for ratios, but I don't think we want to do this any more.
+	     For example, for a threshold of 0.995, if en=50 and en2=0, the flag would be set.
+	     But if en=50 and en2<-0.125, the threshold would not be set if using the absolute values.
+	     I don't think we want to have a range of en2 below which the flag is not set.
+	     This does mean that we need to be careful not to set the en energy threshold too low,
+	     so as to not falsely flag fluctuations (en=2, en2=-0.01, for example), but we should never be setting our
+	     thresholds that low.
+	  */
+	  
+	  ratio = (en - en2)/(en + en2);
 	  
 	  if (depth==1 && ratio>long_HFlongshortratio_)
 	    status=1;
