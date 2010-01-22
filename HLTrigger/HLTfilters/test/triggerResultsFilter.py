@@ -50,7 +50,7 @@ process.filter_any_or = hlt.triggerResultsFilter.clone(
 
 # accept if 'HLT_Path_1' succeeds, prescaled by 2
 process.filter_1_pre = hlt.triggerResultsFilter.clone(
-    triggerConditions = [ '(HLT_Path_1) / 2'],
+    triggerConditions = [ '(HLT_Path_1) / 15'],
     l1tResults = '',
     throw = False
     )
@@ -64,7 +64,7 @@ process.filter_2_pre = hlt.triggerResultsFilter.clone(
 
 # accept if any path succeeds, with different prescales (explicit OR, prescaled)
 process.filter_any_pre = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_1 / 5 OR HLT_Path_2 / 3 OR HLT_Path_3 / 2'],
+    triggerConditions = ['HLT_Path_1 / 15 OR HLT_Path_2 / 10 OR HLT_Path_3 / 6'],
     l1tResults = '',
     throw = False
     )
