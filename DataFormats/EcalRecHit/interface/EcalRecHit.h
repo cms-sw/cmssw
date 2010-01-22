@@ -26,6 +26,7 @@ public:
           kNeighboursRecovered,      // saturated/isolated dead: energy estimated from neighbours
           kTowerRecovered,           // channel in TT with no data link, info retrieved from Trigger Primitive
           kFake,                     // the signal in the channel is a fake (e.g. a so-called spike)
+          kFakeNeighbours,           // the signal in the channel is a fake and it is detected by looking at the neighbours
           kDead,                     // channel is dead and any recovery fails
           kKilled,                   // MC only flag: the channel is killed in the real detector
           kUnknown                   // to easy the interface with functions returning flags
