@@ -48,6 +48,27 @@ process.filter_any_or = hlt.triggerResultsFilter.clone(
     throw = False
     )
 
+# accept if 'HLT_Path_1' succeeds, prescaled by 2
+process.filter_1_pre = hlt.triggerResultsFilter.clone(
+    triggerConditions = [ '(HLT_Path_1) / 2'],
+    l1tResults = '',
+    throw = False
+    )
+
+# accept if 'HLT_Path_2' succeeds, prescaled by 10
+process.filter_2_pre = hlt.triggerResultsFilter.clone(
+    triggerConditions = ['(HLT_Path_2 / 10)'],
+    l1tResults = '',
+    throw = False
+    )
+
+# accept if any path succeeds, with different prescales (explicit OR, prescaled)
+process.filter_any_pre = hlt.triggerResultsFilter.clone(
+    triggerConditions = ['HLT_Path_1 / 5 OR HLT_Path_2 / 3 OR HLT_Path_3 / 2'],
+    l1tResults = '',
+    throw = False
+    )
+
 # accept if any path succeeds (implicit via of paths)
 process.filter_any_list = hlt.triggerResultsFilter.clone(
     triggerConditions = ['HLT_Path_1', 'HLT_Path_2', 'HLT_Path_3'],
@@ -115,6 +136,10 @@ process.path_all_explicit = cms.Path( process.filter_all_explicit )
 process.path_any_or   = cms.Path( process.filter_any_or )
 process.path_any_list = cms.Path( process.filter_any_list )
 process.path_any_star = cms.Path( process.filter_any_star )
+
+process.path_1_pre    = cms.Path( process.filter_1_pre )
+process.path_2_pre    = cms.Path( process.filter_2_pre )
+process.path_any_pre  = cms.Path( process.filter_any_pre ) 
 
 process.path_any_doublestar      = cms.Path( process.filter_any_doublestar )
 process.path_any_question        = cms.Path( process.filter_any_question )
