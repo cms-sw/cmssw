@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace edm { class Run ; class Event; class EventSetup; }
+namespace edm { class Event; class EventSetup; }
 
 class TrackerGeometry;
 class VertexHit;
@@ -18,7 +18,7 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
  
 private:
-  void beginRun(edm::Run & run, const edm::EventSetup& es);
+  void beginJob(const edm::EventSetup& es);
 
   edm::ParameterSet theConfig;
 

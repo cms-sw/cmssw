@@ -21,7 +21,7 @@ using namespace std;
 
 /*****************************************************************************/
 ThirdHitPrediction::ThirdHitPrediction
-  (float originRBound, float ptMin, GlobalPoint inner, GlobalPoint outer,
+  (const TrackingRegion & region, GlobalPoint inner, GlobalPoint outer,
    const edm::EventSetup& es,
    double nSigMultipleScattering, double maxAngleRatio,
    string builderName)
@@ -36,8 +36,11 @@ ThirdHitPrediction::ThirdHitPrediction
 
  Bz = fabs(magfield->inInverseGeV(GlobalPoint(0,0,0)).z());
 
- r0 = originRBound;
- rm = ptMin / Bz;
+ c0 = Global2DVector(region.origin().x(),
+                     region.origin().y());
+
+ r0 = region.originRBound();
+ rm = region.ptMin() / Bz;
 
  g1 = inner;
  g2 = outer;
@@ -93,7 +96,7 @@ pair<float,float> ThirdHitPrediction::findMinimalCircles(float r)
 /*****************************************************************************/
 pair<float,float> ThirdHitPrediction::findTouchingCircles(float r)
 {
-  Global2DVector c(0.,0.);
+  Global2DVector c = c0;
   invertCircle(c,r);
 
   pair<float,float> a(0.,0.);

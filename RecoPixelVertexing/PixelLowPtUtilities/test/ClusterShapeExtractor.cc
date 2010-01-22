@@ -45,7 +45,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
  public:
    explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
    ~ClusterShapeExtractor();
-   virtual void beginRun(edm::Run & run,       const edm::EventSetup& es);
+   virtual void beginJob(const edm::EventSetup& es);
    virtual void analyze (const edm::Event& ev, const edm::EventSetup& es);
    virtual void endJob();
 
@@ -97,7 +97,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 };
 
 /*****************************************************************************/
-void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
+void ClusterShapeExtractor::beginJob(const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry>          tracker;

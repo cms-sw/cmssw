@@ -9,6 +9,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
@@ -35,7 +36,7 @@ public:
   typedef TkTrackingRegionsMargin<float> Margin;
 
   ThirdHitPrediction
-    (float originRBound, float ptMin, GlobalPoint inner, GlobalPoint outer,
+    (const TrackingRegion & region, GlobalPoint inner, GlobalPoint outer,
 const edm::EventSetup& es, double nSigMultipleScattering, double
 maxAngleRatio, std::string builderName);
   ~ThirdHitPrediction();
@@ -88,7 +89,7 @@ private:
   // Data
   float Bz, r0,rm;
   GlobalPoint    g1,g2;
-  Global2DVector p1,p2,dif;
+  Global2DVector c0, p1,p2,dif;
   std::pair<float,float> arc_0m;
 
   bool keep;

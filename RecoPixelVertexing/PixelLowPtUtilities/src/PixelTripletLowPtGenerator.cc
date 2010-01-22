@@ -107,7 +107,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
 
     // Initialize helix prediction
     ThirdHitPrediction
-      thePrediction(region.originRBound(), region.ptMin(),
+      thePrediction(region,
                     points[0],points[1], es,
                     nSigMultipleScattering,maxAngleRatio,builderName);
 

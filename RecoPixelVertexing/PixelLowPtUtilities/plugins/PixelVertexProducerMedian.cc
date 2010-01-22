@@ -44,6 +44,12 @@ PixelVertexProducerMedian::~PixelVertexProducerMedian()
 }
 
 /*****************************************************************************/
+void PixelVertexProducerMedian::beginJob
+  (const edm::EventSetup& es)
+{
+}
+
+/*****************************************************************************/
 void PixelVertexProducerMedian::produce
   (edm::Event& ev, const edm::EventSetup& es)
 {

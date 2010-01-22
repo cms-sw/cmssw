@@ -1,4 +1,3 @@
-<use name=DataFormats/VertexReco>
 <use name=RecoPixelVertexing/PixelLowPtUtilities>
 <library file="*.cc" name=RecoPixelVertexingPixelLowPtUtilitiesPlugins>
   <flags EDM_PLUGIN=1>
