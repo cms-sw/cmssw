@@ -108,7 +108,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
        sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }
 
-  if (version_ == "V02") {
+  if (version_ == "V02" || version_ == "") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByLabel(verticesCollection, vtxH);
     if (vtxH->size() != 0) {
@@ -122,11 +122,11 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       sigmaee = sqrt(vCov[0]); 
     } 
   }
-
+  
   std::vector<double> cut;
   // ROBUST Selection
   if (type_ == "robust") {
-
+    
     // hoe, sigmaEtaEta, dPhiIn, dEtaIn
     if (electron->isEB())
       cut = cuts_.getParameter<std::vector<double> >("barrel");
@@ -160,7 +160,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     eb = 1; 
 
   // LOOSE and TIGHT Selections
-  if (type_ == "classbased" && version_ != "V02") {
+  if (type_ == "classbased" && (version_ == "V01" || version_ == "V00")) {
     
     if ((eOverP < 0.8) && (fBrem < 0.2)) 
       return 0.;
@@ -189,17 +189,17 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     cut = cuts_.getParameter<std::vector<double> >("eSeedOverPin");
     if (eSeedOverPin < cut[cat+4*eb]) 
       return 0.;  
-
+    
     if (quality_ == "tight")
       if (eOverP < 0.9*(1-fBrem))
         return 0.;
-
+    
     return 1.;
   }
   
-  if (type_ == "classbased" && version_ == "V02") {
+  if (type_ == "classbased" && (version_ == "V02" || version_ == "")) {
     double result = 0.;
-
+    
     double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
     double scEt = electron->superCluster()->energy()*sin(scTheta);
   
@@ -269,7 +269,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
       return result;
 
     result = result + 1.;
-    
+
     return result;
   }
 
