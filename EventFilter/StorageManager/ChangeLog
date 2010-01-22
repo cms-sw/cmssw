@@ -1,3 +1,13 @@
+2010-01-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-06-00
+	* Add configuration parameter 'isProductionSystem' (default false).
+	  This disables checks for disks defined in 'otherDiskPaths', attempts
+	  to connect to the SATA controller, and disables any alarms for
+	  unconsumed events no unexpected number of running Copy/InjectWorkers
+	* Expanded checks for number of running Copy/InjectWorkers to take into
+	  account the arguments and user names of the processes
+
 2010-01-11 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-05-00
@@ -24,7 +34,7 @@
 2009-12-31 William Tanenbaum <wmtan@fnal.gov>
 
 	* tag V05-04-05
-	* Use new accessor to ModuleDescription instead of now private data memeber
+	* Use new accessor to ModuleDescription instead of now private data member
 
 2009-12-27 Peter Elmer <Peter.Elmer@cern.ch>
 
