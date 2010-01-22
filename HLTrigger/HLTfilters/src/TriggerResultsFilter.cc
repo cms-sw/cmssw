@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/21 15:26:02 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/01/21 23:14:51 $
+ *  $Revision: 1.6 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -41,8 +41,12 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
   const std::vector<std::string> & expressions = config.getParameter<std::vector<std::string> >("triggerConditions");
   unsigned int size = expressions.size();
   m_expressions.resize(size);
-  for (unsigned int i = 0; i < size; ++i)
+  for (unsigned int i = 0; i < size; ++i) {
     m_expressions[i] = triggerExpression::parse(expressions[i]);
+    // check if the expressions were parsed correctly
+    if (not m_expressions[i])
+      edm::LogWarning("Configuration") << "Couldn't parse trigger results expression \"" << expressions[i] << "\"" << std::endl;
+  }
 }
 
 TriggerResultsFilter::~TriggerResultsFilter()
@@ -66,7 +70,7 @@ bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & se
   // run the trigger results filters
   bool result = false;
   BOOST_FOREACH(triggerExpression::Evaluator * expression, m_expressions)
-    if ((*expression)(m_eventCache))
+    if (expression and (*expression)(m_eventCache))
       result = true;
  
   // if the L1 or HLT configurations have changed, log the expanded configuration
