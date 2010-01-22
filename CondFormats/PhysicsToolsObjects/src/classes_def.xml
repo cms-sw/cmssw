@@ -25,6 +25,7 @@
 		<field name="totalValid" transient="true"/>
 	</class>
 	<class name="std::vector&lt;PhysicsTools::Calibration::HistogramF&gt;"/>
+
 	<class name="PhysicsTools::Calibration::Range&lt;double&gt;"/>
 	<class name="PhysicsTools::Calibration::Histogram&lt;double,double&gt;">
 		<field name="total" transient="true"/>
@@ -90,6 +91,7 @@
 	<class name="PhysicsTools::Calibration::ProcNormalize"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcNormalize&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcLikelihood::SigBkg"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood::SigBkg&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcLikelihood"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcLinear"/>
@@ -97,13 +99,13 @@
 
 	<!--commented out because they resolve to std::-->
 	<class name="PhysicsTools::Calibration::ProcCategory::BinLimits"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcCategory::BinLimits&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcMultiply::Config"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMultiply::Config&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcMLP::Neuron"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcMLP::Layer"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP::Layer&gt;"/>
-	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>
 
 	<class name="PhysicsTools::Calibration::ProcMultiply"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMultiply&gt;"/>
@@ -114,14 +116,13 @@
 	<class name="PhysicsTools::Calibration::ProcTMVA"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcTMVA&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::Variable&gt;"/>
-	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood::SigBkg&gt;"/>
 
 	<class name="PhysicsTools::Calibration::MVAComputer" class_version="0">
 		<field name="cacheId" transient="true"/>
 	</class>
 
-	<class name="std::pair&lt;std::string, PhysicsTools::Calibration::MVAComputer&gt;"/>
-	<class name="std::vector&lt;std::pair&lt;std::string, PhysicsTools::Calibration::MVAComputer&gt; &gt;"/>
+	<class name="PhysicsTools::Calibration::MVAComputerContainer::Entry"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::MVAComputerContainer::Entry&gt;"/>
 	<class name="PhysicsTools::Calibration::MVAComputerContainer" class_version="0">
 		<field name="entries" mapping="blob"/>
 		<field name="cacheId" transient="true"/>
