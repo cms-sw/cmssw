@@ -19,9 +19,25 @@ class PFMuonAlgo {
 
   static bool isLooseMuon( const reco::PFBlockElement& elt );
 
+  static bool isGlobalTightMuon( const reco::PFBlockElement& elt );
+
+  static bool isGlobalLooseMuon( const reco::PFBlockElement& elt );
+
+  static bool isTrackerTightMuon( const reco::PFBlockElement& elt );
+
+  static bool isTrackerLooseMuon( const reco::PFBlockElement& elt );
+
   static bool isMuon( const reco::MuonRef& muonRef );
 
   static bool isLooseMuon( const reco::MuonRef& muonRef );
+
+  static bool isGlobalTightMuon( const reco::MuonRef& muonRef );
+
+  static bool isGlobalLooseMuon( const reco::MuonRef& muonRef );
+
+  static bool isTrackerTightMuon( const reco::MuonRef& muonRef );
+  
+  static bool isTrackerLooseMuon( const reco::MuonRef& muonRef );
 
  private:
 
