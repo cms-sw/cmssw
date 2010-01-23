@@ -24,7 +24,7 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
   TextFileName   = iConfig.getParameter<std::string>("TextFile");
 
   if(TextFileName.size())
-    ofstream out(TextFileName.c_str() );
+    out = new ofstream(TextFileName.c_str() );
 
   //Get Input Tags
 
@@ -183,8 +183,8 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["Extra_CSCTrackInnerOuterDPhi"] = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
     ME["Extra_CSCTrackInnerOuterDEta"] = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, TMath::Pi() );
     ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
-    ME["Extra_CSCTrackNHits"]     = dqm->book1D("Ectra_CSCTrackNHits","", 75,0, 75);
-    
+    ME["Extra_CSCTrackNHits"]     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
+    ME["Extra_BXN"] = dqm->book1D("Extra_BXN", "BXN Occupancy", 4000, 0.5, 4000.5);
   }
 }
 
@@ -205,30 +205,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::ESHandle<CaloGeometry> TheCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
 
-  // Get BeamHalo Muon Collection from Cosmic Muon Reconstruction 
-  /*
-  edm::Handle<reco::MuonCollection> TheBeamHaloMuons;
-  iEvent.getByLabel(IT_BeamHaloMuon,TheBeamHaloMuons);
-  if( TheBeamHaloMuons.isValid() )
-    {
-      for( reco::MuonCollection::const_iterator iMuon = TheBeamHaloMuons->begin() ; iMuon != TheBeamHaloMuons->end(); iMuon++)
-        {
-        }
-    }
-  */
-
-  //Get Collision Stand-Alone Muons
-  /*
-  edm::Handle<reco::TrackCollection> TheSAMuons;
-  iEvent.getByLabel( IT_CollisionStandAloneMuon, TheSAMuons);
-  if( TheSAMuons.isValid() )
-    {
-      for( reco::TrackCollection::const_iterator sa = TheSAMuons->begin() ; sa != TheSAMuons->end() ; sa++ )
-	{
-	}
-    }
-  */
-
   //Get Stand-alone Muons from Cosmic Muon Reconstruction
   edm::Handle< reco::TrackCollection > TheCosmics;
   iEvent.getByLabel(IT_CosmicStandAloneMuon, TheCosmics);
@@ -242,14 +218,14 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
               if( cosmic->eta() > 0 || cosmic->outerPosition().z() > 0  || cosmic->innerPosition().z() > 0 ) CSCTrackPlus = true ;
 	      else if( cosmic->eta() < 0 || cosmic->outerPosition().z() < 0 || cosmic->innerPosition().z() < 0) CSCTrackMinus = true;
 	    }
-	      
+	  
 	  float innermost_phi = 0.;
 	  float outermost_phi = 0.;
 	  float innermost_z = 99999.;
 	  float outermost_z = 0.;
 	  float innermost_eta = 0.;
 	  float outermost_eta = 0.;
-
+	  
 	  for(unsigned int j = 0 ; j < cosmic->extra()->recHits().size(); j++ )
 	    {
 	      edm::Ref<TrackingRecHitCollection> hit( cosmic->extra()->recHits(), j );
@@ -333,9 +309,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  else CSCRecHitMinus = true;
 	}
     }
-  //Get L1MuGMT 
-  //edm::Handle < L1MuGMTReadoutCollection > TheL1GMTReadout ;
-  //iEvent.getByLabel (IT_L1MuGMTReadout, TheL1GMTReadout);
   
   //Get  EB RecHits
   edm::Handle<EBRecHitCollection> TheEBRecHits;
@@ -354,31 +327,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
     }
   
-  //Get EE RecHits
-  /*
-  edm::Handle<EERecHitCollection> TheEERecHits;
-  iEvent.getByLabel(IT_EERecHit, TheEERecHits);
-  if( TheEERecHits.isValid() )
-    {
-      for( EERecHitCollection::const_iterator iEERecHit = TheEERecHits->begin() ; iEERecHit != TheEERecHits->end(); iEERecHit++)
-	{
-	  if( iEERecHit->energy() < 0.2 ) continue;
-	}
-    }
-  */
-
-  //Get ES RecHits
-  /*
-  edm::Handle<ESRecHitCollection> TheESRecHits;
-  iEvent.getByLabel(IT_ESRecHit, TheESRecHits);
-  if( TheESRecHits.isValid() )
-    {
-      for( ESRecHitCollection::const_iterator iESRecHit = TheESRecHits->begin() ; iESRecHit != TheESRecHits->end(); iESRecHit++)
-	{
-	  if( iESRecHit->energy() < 0.2 ) continue;
-	}
-    }
-  */
 
   //Get HB/HE RecHits
   edm::Handle<HBHERecHitCollection> TheHBHERecHits;
@@ -393,68 +341,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
     }
 
-  //Get HF RecHits
-  /*
-  edm::Handle<HFRecHitCollection> TheHFRecHits;
-  iEvent.getByLabel(IT_HFRecHit, TheHFRecHits);
-  if( TheHFRecHits.isValid() )
-    {
-      for( HFRecHitCollection::const_iterator iHFRecHit = TheHFRecHits->begin(); iHFRecHit != TheHFRecHits->end(); iHFRecHit++ )
-	{
-	}
-    }
-  */
-
-  //Get HO RecHits
-  /*
-  edm::Handle<HORecHitCollection> TheHORecHits;
-  iEvent.getByLabel(IT_HORecHit, TheHORecHits);
-  if( TheHORecHits.isValid() )
-    {
-      for(HORecHitCollection::const_iterator iHORecHit = TheHORecHits->begin(); iHORecHit != TheHORecHits->end(); iHORecHit++ )
-	{
-	}
-    }
-  */
-
-  //Get ECAL Barrel SuperClusters                                                                                                                         
-  /*
-  edm::Handle<reco::SuperClusterCollection> TheSuperClusters;
-  iEvent.getByLabel(IT_SuperCluster, TheSuperClusters);
-  if( TheSuperClusters.isValid() )
-    {
-      for( SuperClusterCollection::const_iterator iSCluster = TheSuperClusters->begin() ; iSCluster != TheSuperClusters->end() ; iSCluster++ )
-        {
-        }
-    }
-  */
-  
-  // Get Photons
-  /*
-  edm::Handle<reco::PhotonCollection> ThePhotons;
-  iEvent.getByLabel(IT_Photon, ThePhotons);
-  if(ThePhotons.isValid())
-    {      
-      for(reco::PhotonCollection::const_iterator iPhoton = ThePhotons->begin() ; iPhoton != ThePhotons->end() ; iPhoton++ )
-	{
-	}
-    }
-  */
- 
-  //Get CaloTowers
-  /*
-  edm::Handle<edm::View<Candidate> > TheCaloTowers;
-  iEvent.getByLabel(IT_CaloTower,TheCaloTowers);
-  for( edm::View<Candidate>::const_iterator iCandidate = TheCaloTowers->begin() ; iCandidate != TheCaloTowers->end() ; iCandidate++ )
-    {
-      const Candidate* c = &(*iCandidate);
-      if ( c )
-	{
-	//  const CaloTower* iTower = dynamic_cast<const CaloTower*> (c);
-	}
-    }
-  */
-  
   //Get MET
   edm::Handle< reco::CaloMETCollection > TheCaloMET;
   iEvent.getByLabel(IT_met, TheCaloMET);
@@ -470,7 +356,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       if( CSCData.NumberOfHaloTriggers(1) && !CSCData.NumberOfHaloTriggers(-1) ) TheHaloOrigin = 1;
       else if ( CSCData.NumberOfHaloTriggers(-1) && !CSCData.NumberOfHaloTriggers(1) ) TheHaloOrigin = -1 ;
-
+      
       for( std::vector<GlobalPoint>::const_iterator i=CSCData.GetCSCTrackImpactPositions().begin();  i != CSCData.GetCSCTrackImpactPositions().end() ; i++ )   
 	{                          
 	  float r = TMath::Sqrt( i->x()*i->x() + i->y()*i->y() );
@@ -638,7 +524,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(1);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 1, BXN );
-	  if(Dump) out << setw(15) << "CSCLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump)*out << setw(15) << "CSCLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.CSCTightHaloId() ) 
 	{
@@ -649,7 +535,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(3);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 3, BXN );
-	  if(Dump) out << setw(15) << "EcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump) *out << setw(15) << "EcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.EcalTightHaloId() ) 
 	{
@@ -660,7 +546,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(5);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 5, BXN );
-	  if(Dump) out << setw(15) << "HcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump) *out << setw(15) << "HcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.HcalTightHaloId() ) 
 	{
@@ -671,7 +557,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(7);
 	  ME["BeamHaloSummary_BXN"] -> Fill( 7, BXN );
-	  if(Dump) out << setw(15) << "GlobalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump) *out << setw(15) << "GlobalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 	}
       if( TheSummary.GlobalTightHaloId() )
 	{
@@ -701,7 +587,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const CaloMET *calomet = &(calometcol->front());
       
       if( calomet->pt() > DumpMET )
-	if(Dump) out << setw(15) << "HighMET" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	if(Dump) *out << setw(15) << "HighMET" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
 
       //Fill CSC Activity Plot 
       if( calomet->pt() > 15.0 ) 
