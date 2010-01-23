@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.icc,v 1.6 2005/11/11 20:55:54 chrjones Exp $
+// $Id: HCTypeTag.cc,v 1.1 2010/01/15 20:35:49 chrjones Exp $
 //
 // Revision history
 //
-// $Log: HCTypeTag.icc,v $
+// $Log: HCTypeTag.cc,v $
+// Revision 1.1  2010/01/15 20:35:49  chrjones
+// Changed type identifier for the EventSetup to no longer be a template
+//
 // Revision 1.6  2005/11/11 20:55:54  chrjones
 // use new TypeIDBase for basis of all type comparisons
 //
@@ -68,23 +71,7 @@ namespace edm {
          //
          // static data member definitions
          //
-         
-         //This class hides the use of map from all classes that use HCTypeTag
-         namespace {
-            struct StringCompare {
-               bool operator()(const char* iLHS, const char* iRHS) const {
-                  return (std::strcmp(iLHS, iRHS) < 0);
-               }
-            };
-            
-            //NOTE: the use of const char* does not lead to a memory leak because the data
-            // for the strings are assigned at compile time via a macro call
-            static std::map< const char*, edm::TypeIDBase, StringCompare>& typeNameToValueMap() {
-               static std::map<const char*, edm::TypeIDBase,StringCompare> s_map;
-               return s_map;
-            }
-         }
-         
+                  
          //
          // constructors and destructor
          //
@@ -135,21 +122,14 @@ namespace edm {
          HCTypeTag
          HCTypeTag::findType(const char* iTypeName)
          {
-            std::map<const char*, TypeIDBase,StringCompare>::iterator itFind = typeNameToValueMap().find(iTypeName);
+            const std::type_info* p = typelookup::findType(iTypeName);
             
-            if(itFind == typeNameToValueMap().end()) {
+            if(0 == p) {
                return HCTypeTag();
             }
             
-            return HCTypeTag((*itFind).second, (*itFind).first);
-         }
-         
-         void
-         HCTypeTag::registerName(const char* iTypeName, const std::type_info& iInfo)
-         {
-            typeNameToValueMap().insert(std::pair<const char*, TypeIDBase>(iTypeName,TypeIDBase(iInfo)));
-         }
-         
+            return HCTypeTag(*p, iTypeName);
+         }         
       }
    }
 }

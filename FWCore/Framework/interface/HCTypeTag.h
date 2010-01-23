@@ -17,7 +17,7 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.8 2010/01/15 20:35:48 chrjones Exp $
+// $Id: HCTypeTag.h,v 1.9 2010/01/21 15:44:11 chrjones Exp $
 //
 //
 
@@ -26,26 +26,18 @@
 
 // user include files
 #include "FWCore/Utilities/interface/TypeIDBase.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
-         class HCTypeTagRegistrar {
-         public:
-            HCTypeTagRegistrar(const char* iTypeName,const std::type_info& iInfo);
-         };
          
-         template <typename T>
-         const char* className();
-         
-         template <typename T>
-         const std::type_info& classTypeInfo();
+         using typelookup::className;
          
          class HCTypeTag : public TypeIDBase
          {
             // ---------- friend classes and functions ---------------
-            friend class HCTypeTagRegistrar;
          public:
             // ---------- constants, enums and typedefs --------------
             
@@ -65,7 +57,7 @@ namespace edm {
             
             template <typename T>
             static HCTypeTag make() {
-               return HCTypeTag(classTypeInfo<T>(),className<T>());
+               return HCTypeTag(typelookup::classTypeInfo<T>(),typelookup::className<T>());
             }
             
          protected:
@@ -79,7 +71,6 @@ namespace edm {
             // ---------- protected const member functions -----------
             
             // ---------- protected static member functions ----------
-            static void registerName(const char* iTypeName,const std::type_info& iInfo);
             
          private:
             // ---------- Constructors and destructor ----------------
@@ -93,25 +84,11 @@ namespace edm {
             const char*  m_name;
             
             
-         };
-         
-         inline HCTypeTagRegistrar::HCTypeTagRegistrar(const char* iTypeName,const std::type_info& iInfo) {
-            HCTypeTag::registerName(iTypeName,iInfo);
-         }
-         
+         };         
       }
    }
 }
-#define HCTYPETAG_HELPER_METHODS(_dataclass_) \
-namespace edm { namespace eventsetup {namespace heterocontainer { template<> const char* \
-className<_dataclass_>() { return # _dataclass_; } \
-template<> const std::type_info& \
-classTypeInfo< _dataclass_ >() { return typeid( _dataclass_ );} } } }
+#define HCTYPETAG_HELPER_METHODS(_dataclass_) TYPELOOKUP_METHODS(_dataclass_)
 
-#define EDM_HCTYPETAG_SYM(x,y) EDM_HCTYPETAG_SYM2(x,y)
-#define EDM_HCTYPETAG_SYM2(x,y) x ## y
-
-#define DEFINE_HCTYPETAG_REGISTRATION(type) \
-static edm::eventsetup::heterocontainer::HCTypeTagRegistrar EDM_HCTYPETAG_SYM(s_register , __LINE__ ) (edm::eventsetup::heterocontainer::className<type>(),typeid(type))
-
+#define DEFINE_HCTYPETAG_REGISTRATION(type) DEFINE_TYPELOOKUP_REGISTRATION(type)
 #endif
