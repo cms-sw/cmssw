@@ -343,10 +343,14 @@ void Hector::filterZDC(){
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;
       part = (*it).second;
-      if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " isStoppedFP420 =" << (*m_isStoppedfp420.find(line)).second;
-      if ( ((*m_isStoppedfp420.find(line)).second) && ((*m_isCharged.find(line)).second) ) {
+      if(m_verbosity) {
+	LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " charge  = " << (*m_isCharged.find(line)).second;
+	if (m_FP420Transport) LogDebug("HectorEventProcessing") << " isStoppedFP420 =" << (*m_isStoppedfp420.find(line)).second;
+      }
+      //      if ( ((*m_isStoppedfp420.find(line)).second) && ((*m_isCharged.find(line)).second) ) {
+      if ( ((*m_isCharged.find(line)).second) ) {
 	
-        if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " propagated ";
+	if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " propagated ";
 	
         direction = (*m_direct.find( line )).second;
         if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " direction = " << direction;
@@ -354,8 +358,7 @@ void Hector::filterZDC(){
           if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
             // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
             part->smearAng(m_sigmaSTX,m_sigmaSTY,rootEngine_);
-          }
-          else {
+          } else {
             // for smearAng() in urad, default are (STX=30.23, STY=30.23)
             part->smearAng(STX,STY,rootEngine_); 
           }
@@ -363,8 +366,7 @@ void Hector::filterZDC(){
         if (m_smearE) {
           if ( m_sig_e ) {
             part->smearE(m_sig_e,rootEngine_);
-          }
-          else {
+          } else {
             part->smearE(SBE,rootEngine_);  // in GeV, default is SBE=0.79
           }
         }
@@ -373,22 +375,22 @@ void Hector::filterZDC(){
           is_stop_zdc = part->stopped( m_beamlineZDC1 );
           m_isStoppedzdc[line] = is_stop_zdc;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode " << line << " positive is_stop_zdc=  "<< is_stop_zdc;
-        }
-        else if ( direction == -1 && m_beamlineZDC2 != 0 ){
+        } else if ( direction == -1 && m_beamlineZDC2 != 0 ){
           part->computePath( m_beamlineZDC2 );
           is_stop_zdc = part->stopped( m_beamlineZDC2 );
           m_isStoppedzdc[line] = is_stop_zdc;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode " << line << " negative is_stop_zdc=  "<< is_stop_zdc;
-        }
-        else {
+        } else {
           m_isStoppedzdc[line] = true;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode " << line << " 0         is_stop_zdc=  "<< is_stop_zdc;
         }
-      }// if stopfp420 charged particles
-      else if ( ((*m_isCharged.find(line)).second) ){
+      }
+      // if stopfp420 charged particles
+      /*
+	else if ( ((*m_isCharged.find(line)).second) ){
         m_isStoppedzdc[line] = false;// not stopped in propagating to FP420 and therefore in  propagation to ZDC too.
         if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " isStopped=" << (*m_isStoppedzdc.find(line)).second;
-      }
+	} */
       else {
         m_isStoppedzdc[line] = true;// neutrals particles considered as stopped in propagating to ZDC
         if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " isStopped=" << (*m_isStoppedzdc.find(line)).second;
@@ -426,8 +428,7 @@ void Hector::filterD1(){
           if ( m_sigmaSTX>0. && m_sigmaSTY>0.) {
             // the beam transverse direction is centered on (TXforPosition, TYforPosition) at IP
             part->smearAng(m_sigmaSTX,m_sigmaSTY,rootEngine_);
-          }
-          else {
+          } else {
             // for smearAng() in urad, default are (STX=30.23, STY=30.23)
             part->smearAng(STX,STY,rootEngine_); 
           }
@@ -435,8 +436,7 @@ void Hector::filterD1(){
         if (m_smearE) {
           if ( m_sig_e ) {
             part->smearE(m_sig_e,rootEngine_);
-          }
-          else {
+          } else {
             part->smearE(SBE,rootEngine_);  // in GeV, default is SBE=0.79
           }
         }
@@ -445,14 +445,12 @@ void Hector::filterD1(){
           is_stop_d1 = part->stopped( m_beamlineD11 );
           m_isStoppedd1[line] = is_stop_d1;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterD1 barcode " << line << " positive is_stop_d1 =  "<< is_stop_d1;
-        }
-        else  if ( direction == -1 && m_beamlineD12 != 0 ){
+        } else  if ( direction == -1 && m_beamlineD12 != 0 ){
           part->computePath( m_beamlineD12 );
           is_stop_d1 = part->stopped( m_beamlineD12 );
           m_isStoppedd1[line] = is_stop_d1;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterD1 barcode " << line << " negative is_stop_d1 =  "<< is_stop_d1;
-        }
-        else {
+        } else {
           is_stop_d1 = true;
           m_isStoppedd1[line] = is_stop_d1;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterD1 barcode " << line << " 0        is_stop_d1 =  "<< is_stop_d1;
