@@ -1198,6 +1198,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
    pair<multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
   //Decide if we must use Module or Ccu value
   bool useCcuValue=false;
+  
+  
   for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
     TmCcu *  ccu= i_ccu->second;
     if(ccu!=0) {
@@ -1217,7 +1219,25 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
           if(ccu->nmod==0)  { ccu->red=0;ccu->green=0;ccu->blue=0;}
           }
           }
-
+  
+ 
+  if(title=="QTestAlarm"){
+      for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
+          TmCcu *  ccu= i_ccu->second;
+          if(ccu!=0) {
+	    ret = fecModuleMap.equal_range(ccu);
+	    ccu->red=0;ccu->green=255;ccu->blue=0;
+	    for (it = ret.first; it != ret.second; ++it) {
+              if( !( (*it).second->red==0 && (*it).second->green==255 && (*it).second->blue==0 ) && !( (*it).second->red==255 && (*it).second->green==255 && (*it).second->blue==255 ) ){
+		ccu->red=255;ccu->green=0;ccu->blue=0;
+		}
+	      }
+	   }
+      }
+   }
+  
+ 
+  
   if(!print_total){
     for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
     TmCcu *  ccu= i_ccu->second;
@@ -1272,7 +1292,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     for ( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
       TmCcu *  ccu= i_ccu->second;
       if(ccu->getCcuCrate() == crate){
-              drawCcu(crate,ccu->getCcuSlot()-2,print_total,ccu,savefile,useCcuValue);
+              
+	      drawCcu(crate,ccu->getCcuSlot()-2,print_total,ccu,savefile,useCcuValue);
       }
     }
    if(!temporary_file){
@@ -1441,7 +1462,29 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	 
 	 }
        }
-    
+   
+   if(title=="QTestAlarm"){
+      for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+          TmPsu *  psu= ipsu->second;
+          if(psu!=0) {
+	    ret = psuModuleMap.equal_range(psu);
+	    psu->redHV2=0;psu->greenHV2=255;psu->blueHV2=0;
+	    psu->redHV3=0;psu->greenHV3=255;psu->blueHV3=0;
+	    for (it = ret.first; it != ret.second; ++it) {
+              if((*it).second->HVchannel==2){
+	        if( !( (*it).second->red==0 && (*it).second->green==255 && (*it).second->blue==0 ) && !( (*it).second->red==255 && (*it).second->green==255 && (*it).second->blue==255 ) ){
+		   psu->redHV2=255;psu->greenHV2=0;psu->blueHV2=0;
+		   }
+		}
+	      if((*it).second->HVchannel==3){
+	        if( !( (*it).second->red==0 && (*it).second->green==255 && (*it).second->blue==0 ) && !( (*it).second->red==255 && (*it).second->green==255 && (*it).second->blue==255 ) ){
+		   psu->redHV3=255;psu->greenHV3=0;psu->blueHV3=0;
+		   }
+		}
+	     }
+	   }
+      }
+   } 
  
   if(!print_total){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
@@ -1681,6 +1724,24 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 	 }
        }
     }
+  
+  if(title=="QTestAlarm"){
+      for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+          TmPsu *  psu= ipsu->second;
+          if(psu!=0) {
+	    ret = psuModuleMap.equal_range(psu);
+	    psu->red=0;psu->green=255;psu->blue=0;
+	    for (it = ret.first; it != ret.second; ++it) {
+              if( !( (*it).second->red==0 && (*it).second->green==255 && (*it).second->blue==0 ) && !( (*it).second->red==255 && (*it).second->green==255 && (*it).second->blue==255 ) ){
+		psu->red=255;psu->green=0;psu->blue=0;
+		}
+	      }
+	   }
+      }
+   }
+  
+  
+  
   if(!print_total){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
     TmPsu *  psu= ipsu->second;
@@ -2306,7 +2367,7 @@ void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
   TmModule * mod = imoduleMap[idmod];
   if(mod!=0){
      mod->red=red; mod->green=green; mod->blue=blue;
-    return;
+     return;
   }
   cout << "**************************error in fill method **************module "<<idmod<<endl;
 }
