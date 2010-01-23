@@ -1,3 +1,4 @@
+<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1CaloTrigger>
