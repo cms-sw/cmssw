@@ -179,14 +179,22 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 )
 
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import ALCARECOTkAlMinBiasNOTHLT
-ALCARECOTkAlMinBiasHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+ALCARECOTkAlMinBiasNOTHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummaryNOT",
     histLabel = __selectionName,
     HLTPaths = ["HLT_.*L1.*"],
     eventSetupPathsKey =  ALCARECOTkAlMinBiasNOTHLT.eventSetupPathsKey.value()
 )
 
-ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM+ALCARECOTkAlMinBiasHLTDQM)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import ALCARECOTkAlMinBiasHLT
+ALCARECOTkAlMinBiasHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = [],
+    eventSetupPathsKey =  ALCARECOTkAlMinBiasHLT.eventSetupPathsKey.value()
+)
+
+ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM+ALCARECOTkAlMinBiasHLTDQM+ALCARECOTkAlMinBiasNOTHLTDQM)
 
 #############################################################
 #############---  TkAlMuonIsolated ---#######################
