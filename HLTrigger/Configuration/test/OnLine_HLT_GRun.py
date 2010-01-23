@@ -1,18 +1,18 @@
-# /dev/CMSSW_3_5_0/GRun/V3 (CMSSW_3_5_0_pre3_HLT1)
+# /dev/CMSSW_3_5_0/GRun/V6 (CMSSW_3_5_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V3')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V6')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 
-process.source = cms.Source( "PoolSource",
+process.source = cms.Source( "PoolSource"
     fileNames = cms.untracked.vstring( 'file:RelVal_DigiL1Raw_GRun.root' )
 )
 
@@ -8061,7 +8061,18 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_L1_BPTX',
   'HLT_ZeroBias',
   'HLT_HcalNZS_8E29',
-  'HLT_HcalPhiSym' ) ),
+  'HLT_HcalPhiSym',
+  'HLT_TkMu3_NoVertex',
+  'HLT_L2Mu0_NoVertex',
+  'HLT_BTagMu_Jet10U',
+  'HLT_DoubleMu0',
+  'HLT_DoubleMu3',
+  'HLT_Mu3',
+  'HLT_Mu5',
+  'HLT_Mu9',
+  'HLT_IsoMu3',
+  'HLT_L2Mu9',
+  'HLT_L2Mu11' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -8160,7 +8171,16 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_Activity_Ecal',
   'HLT_Activity_DT',
   'HLT_Activity_PixelClusters',
-  'HLT_Activity_L1A' ) ),
+  'HLT_Activity_L1A',
+  'HLT_BTagMu_Jet10U',
+  'HLT_DoubleMu3',
+  'HLT_DoubleMu0',
+  'HLT_Mu9',
+  'HLT_Mu5',
+  'HLT_Mu3',
+  'HLT_IsoMu3',
+  'HLT_L2Mu11',
+  'HLT_L2Mu9' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -8217,7 +8237,8 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputRPCMON.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_RPCMuonNoHits',
+  'AlCa_RPCMuonNormalisation' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
       'keep *_hltRpcRecHits_*_*',
@@ -8316,7 +8337,14 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1IsoStartUpElectronPixelSeeds_*_*',
       'keep *_hltL2TauJets_*_*',
       'keep *_hltDt4DSegments_*_*',
-      'keep *_hltIconeTau3Regional_*_*' ),
+      'keep *_hltIconeTau3Regional_*_*',
+      'keep *_hltHITCtfWithMaterialTracksHB8E29_*_*',
+      'keep *_hltHITCtfWithMaterialTracksHE8E29_*_*',
+      'keep *_hltHITIPTCorrectorHB8E29_*_*',
+      'keep *_hltHITIPTCorrectorHE8E29_*_*',
+      'keep *_hltHcalDigis_*_*',
+      'keep *_hltIsolPixelTrackProdHB8E29_*_*',
+      'keep *_hltIsolPixelTrackProdHE8E29_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -8432,7 +8460,18 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Activity_Ecal',
   'HLT_Activity_DT',
   'HLT_Activity_PixelClusters',
-  'HLT_Activity_L1A' ) ),
+  'HLT_Activity_L1A',
+  'HLT_TkMu3_NoVertex',
+  'HLT_L2Mu0_NoVertex',
+  'HLT_BTagMu_Jet10U',
+  'HLT_DoubleMu3',
+  'HLT_DoubleMu0',
+  'HLT_Mu9',
+  'HLT_Mu5',
+  'HLT_Mu3',
+  'HLT_IsoMu3',
+  'HLT_L2Mu11',
+  'HLT_L2Mu9' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',

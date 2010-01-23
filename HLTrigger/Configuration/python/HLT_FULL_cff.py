@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/HLT/V4 (CMSSW_3_5_0_pre3_HLT1)
+# /dev/CMSSW_3_5_0/HLT/V13 (CMSSW_3_5_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V4')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V13')
 )
 
 
@@ -12104,7 +12104,7 @@ hltHIPixelVertices = cms.EDProducer( "PixelVertexProducerMedian",
     TrackCollection = cms.string( "hltHIPixelTracks" ),
     PtMin = cms.double( 0.5 )
 )
-hltHIMML3Filter = cms.EDFilter( "TestMuL1L2Filter",
+hltHIMML3Filter = cms.EDFilter( "HLTHIMuL1L2L3Filter",
     PrimaryVertexTag = cms.InputTag( "hltHIPixelVertices" ),
     NavigationPSet = cms.PSet(  ComponentName = cms.string( "SimpleNavigationSchool" ) ),
     L2CandTag = cms.InputTag( "hltL2MuonCandidates" ),
