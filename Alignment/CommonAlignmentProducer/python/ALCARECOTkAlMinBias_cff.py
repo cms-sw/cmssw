@@ -8,6 +8,12 @@ ALCARECOTkAlMinBiasNOTHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.c
     eventSetupPathsKey = 'TkAlMinBiasNOT',
     throw = False # tolerate triggers stated above, but not available
     )
+ALCARECOTkAlMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+    eventSetupPathsKey = 'TkAlMinBias',
+    throw = False # tolerate triggers stated above, but not available
+    )
+
 
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
@@ -27,4 +33,5 @@ ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyMassrangeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
-seqALCARECOTkAlMinBias = cms.Sequence(~ALCARECOTkAlMinBiasNOTHLT+ALCARECOTkAlMinBias)
+seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT*
+~ALCARECOTkAlMinBiasNOTHLT+ALCARECOTkAlMinBias)
