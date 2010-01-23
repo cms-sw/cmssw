@@ -6,23 +6,12 @@ cleanPatPhotonsTriggerMatch = cms.EDProducer( "PATTriggerMatchPhotonEmbedder",
     matches = cms.VInputTag(
                            )
 )
-cleanPatPhotonsTriggerTestMatch = cms.EDProducer( "PATTriggerMatchPhotonEmbedder",
-    src     = cms.InputTag( "cleanPatPhotons" ),
-    matches = cms.VInputTag(
-                           )
-)
 
 # Embedding in electrons
 cleanPatElectronsTriggerMatch = cms.EDProducer( "PATTriggerMatchElectronEmbedder",
     src     = cms.InputTag( "cleanPatElectrons" ),
     matches = cms.VInputTag( "electronTriggerMatchHLTEle15LWL1R"
                            , "electronTriggerMatchHLTDoubleEle5SWL1R"
-                           )
-)
-cleanPatElectronsTriggerTestMatch = cms.EDProducer( "PATTriggerMatchElectronEmbedder",
-    src     = cms.InputTag( "cleanPatElectrons" ),
-    matches = cms.VInputTag( "electronTriggerTestMatchHLTElectrons"
-                           , "electronTriggerTestMatchHLTFilterEGammas"
                            )
 )
 
@@ -34,23 +23,11 @@ cleanPatMuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
                            , "muonTriggerMatchHLTDoubleMu3"
                            )
 )
-cleanPatMuonsTriggerTestMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
-    src     = cms.InputTag( "cleanPatMuons" ),
-    matches = cms.VInputTag( "muonTriggerTestMatchL1Muons"
-                           , "muonTriggerTestMatchL1CollectionMuons"
-                           , "muonTriggerTestMatchNoMuons"
-                           )
-)
 
 # Embedding in taus
 cleanPatTausTriggerMatch = cms.EDProducer( "PATTriggerMatchTauEmbedder",
     src     = cms.InputTag( "cleanPatTaus" ),
     matches = cms.VInputTag( "tauTriggerMatchHLTDoubleLooseIsoTau15"
-                           )
-)
-cleanPatTausTriggerTestMatch = cms.EDProducer( "PATTriggerMatchTauEmbedder",
-    src     = cms.InputTag( "cleanPatTaus" ),
-    matches = cms.VInputTag(
                            )
 )
 
@@ -60,22 +37,11 @@ cleanPatJetsTriggerMatch = cms.EDProducer( "PATTriggerMatchJetEmbedder",
     matches = cms.VInputTag(
                            )
 )
-cleanPatJetsTriggerTestMatch = cms.EDProducer( "PATTriggerMatchJetEmbedder",
-    src     = cms.InputTag( "cleanPatJets" ),
-    matches = cms.VInputTag( "jetTriggerTestMatchHLTJet15U"
-                           )
-)
 
 # Embedding in MET
 patMETsTriggerMatch = cms.EDProducer( "PATTriggerMatchMETEmbedder",
     src     = cms.InputTag( "patMETs" ),
     matches = cms.VInputTag(
-                           )
-)
-patMETsTriggerTestMatch = cms.EDProducer( "PATTriggerMatchMETEmbedder",
-    src     = cms.InputTag( "patMETs" ),
-    matches = cms.VInputTag( "metTriggerTestMatchHLTMET45"
-                           , "metTriggerTestMatchHLTMu3"
                            )
 )
 
@@ -88,12 +54,4 @@ patTriggerMatchEmbedder = cms.Sequence(
     cleanPatTausTriggerMatch      +
     cleanPatJetsTriggerMatch      +
     patMETsTriggerMatch
-)
-patTriggerTestMatchEmbedder = cms.Sequence(
-    cleanPatPhotonsTriggerTestMatch   +
-    cleanPatElectronsTriggerTestMatch +
-    cleanPatMuonsTriggerTestMatch     +
-    cleanPatTausTriggerTestMatch      +
-    cleanPatJetsTriggerTestMatch      +
-    patMETsTriggerTestMatch
 )

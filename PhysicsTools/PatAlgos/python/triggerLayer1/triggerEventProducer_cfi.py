@@ -12,17 +12,3 @@ patTriggerEvent = cms.EDProducer( "PATTriggerEventProducer",
                                       , "tauTriggerMatchHLTDoubleLooseIsoTau15"
                                       )
 )
-patTriggerEventTest = cms.EDProducer( "PATTriggerEventProducer",
-    processName        = cms.string( 'HLT' ),
-    triggerResults     = cms.InputTag( "TriggerResults" ),
-    patTriggerProducer = cms.InputTag( "patTrigger" ),
-    patTriggerMatches  = cms.VInputTag( "electronTriggerTestMatchHLTElectrons"
-                                      , "electronTriggerTestMatchHLTFilterEGammas"
-                                      , "muonTriggerTestMatchL1Muons"
-                                      , "muonTriggerTestMatchL1CollectionMuons"
-                                      , "muonTriggerTestMatchNoMuons"
-                                      , "jetTriggerTestMatchHLTJet15U"
-                                      , "metTriggerTestMatchHLTMET45"
-                                      , "metTriggerTestMatchHLTMu3"
-                                      )
-)
