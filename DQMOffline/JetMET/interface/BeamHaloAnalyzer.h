@@ -5,15 +5,6 @@
 //date:  08/01/09
 
 //Included Classes (semi-alphabetical)
-#include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
-#include "CondFormats/CSCObjects/interface/CSCDBGains.h"
-#include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
-#include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
-#include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
-
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -21,13 +12,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
@@ -40,8 +24,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/EcalDigi/interface/ESDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
@@ -50,7 +32,6 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HepMCCandidate/interface/PdfInfo.h" 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h"
@@ -64,10 +45,6 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
@@ -82,11 +59,8 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
-//#include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -97,13 +71,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h" 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -142,23 +109,9 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 //Root Classes
 
@@ -238,7 +191,7 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   std::string TextFileName;
   std::string FolderName;
 
-  ofstream out;
+  ofstream* out;
   double DumpMET;
 
   // DAQ Tools
