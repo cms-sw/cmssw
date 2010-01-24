@@ -109,6 +109,9 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
 
     Mod_On = cms.bool(True),
 
+    HistoryProducer = cms.InputTag("ConsecutiveHEs"),
+    ApvPhaseProducer = cms.InputTag("apvPhases"),
+
     # rest of parameters
     SelectAllDetectors = cms.bool(False),
     ShowMechanicalStructureView = cms.bool(True),
@@ -119,5 +122,5 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
     # by default do not write out any file with histograms
     # can overwrite this in .cfg file with: replace SiStripMonitorDigi.OutputMEsInRootFile = true
     OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('test_digi.root'),
+    OutputFileName = cms.string('test_digi.root')
 )

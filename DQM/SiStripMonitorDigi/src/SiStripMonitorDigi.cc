@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.51 2009/09/14 14:14:54 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.52 2009/11/05 21:07:52 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
@@ -21,6 +22,8 @@
 #include "DQM/SiStripMonitorDigi/interface/SiStripMonitorDigi.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
+#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
 #include "TMath.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -37,6 +40,14 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
 {
   firstEvent = -1;
   eventNb = 0;
+
+  // Detector Partitions
+
+  SubDetPhasePartMap["TIB"]="TI";
+  SubDetPhasePartMap["TID"]="TI";
+  SubDetPhasePartMap["TOB"]="TO";
+  SubDetPhasePartMap["TEC"]="TP";
+
 
   //get on/off option for every cluster from cfi
   edm::ParameterSet ParametersNumberOfDigis =  conf_.getParameter<edm::ParameterSet>("TH1NumberOfDigis");
@@ -220,11 +231,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   using namespace edm;
 
   runNb   = iEvent.id().run();
-  //  eventNb = iEvent.id().event();
   eventNb++;
-  float iOrbitSec = iEvent.orbitNumber()/11223.0;
-  int bx = iEvent.bunchCrossing();
-  long long tbx = (long long)iEvent.orbitNumber() * 3564+bx; 
+  float iOrbitSec      = iEvent.orbitNumber()/11223.0;
 
   // get all digi collections
   //edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
@@ -363,27 +371,62 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     else if (layer_label.find("TEC") != std::string::npos) nTotDigiTEC += ndigi_layer;        
     else if (layer_label.find("TID") != std::string::npos) nTotDigiTID += ndigi_layer;        
   }
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
-    it != SubDetMEsMap.end(); it++) {
-    SubDetMEs subdetmes;
-    subdetmes = it->second;
-    if (subdetswitchtotdigiprofon) {
-      if (it->first == "TIB") subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTIB);
-      else if (it->first == "TOB") subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTOB);
-      else if (it->first == "TID") subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTID);
-      else if (it->first == "TEC") subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTEC);      
-    }
-    if (subdetswitchapvcycleprofon) {
-      if (it->first == "TIB") subdetmes.SubDetDigiApvProf->Fill(tbx%70,nTotDigiTIB);
-      else if (it->first == "TOB") subdetmes.SubDetDigiApvProf->Fill(tbx%70,nTotDigiTOB);
-      else if (it->first == "TID") subdetmes.SubDetDigiApvProf->Fill(tbx%70,nTotDigiTID);
-      else if (it->first == "TEC") subdetmes.SubDetDigiApvProf->Fill(tbx%70,nTotDigiTEC);      
-    }
-    if (subdetswitchapvcycleth2on) {
-      if (it->first == "TIB") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTIB);
-      else if (it->first == "TOB") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTOB);
-      else if (it->first == "TID") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTID);
-      else if (it->first == "TEC") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTEC);      
+
+  // get EventHistory 
+  InputTag historyProducer = conf_.getParameter<edm::InputTag>("HistoryProducer");
+  Handle<EventWithHistory> event_history;
+  
+
+  // get Phase of APV
+  InputTag apvPhaseProducer = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
+  Handle<APVCyclePhaseCollection> apv_phase_collection;
+
+  iEvent.getByLabel(historyProducer,event_history);
+  iEvent.getByLabel(apvPhaseProducer,apv_phase_collection);
+
+  if (event_history.isValid() 
+      && !event_history.failedToGet()
+      && apv_phase_collection.isValid() 
+      && !apv_phase_collection.failedToGet()) {
+
+    
+    long long tbx = event_history->absoluteBX();
+    float iOrbitSec = iEvent.orbitNumber()/11223.0;
+
+    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
+	 it != SubDetMEsMap.end(); it++) {
+
+      SubDetMEs subdetmes;
+      string subdet = it->first;
+      subdetmes = it->second;
+ 
+      int the_phase = APVCyclePhaseCollection::invalid;
+      long long tbx_corr = tbx;
+
+      if (SubDetPhasePartMap.find(subdet) != SubDetPhasePartMap.end()) the_phase = apv_phase_collection->getPhase(SubDetPhasePartMap[subdet]);
+      if(the_phase==APVCyclePhaseCollection::nopartition ||
+         the_phase==APVCyclePhaseCollection::multiphase ||
+         the_phase==APVCyclePhaseCollection::invalid) the_phase=30;
+      tbx_corr  -= the_phase;
+      
+      if (subdet == "TIB"){
+	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTIB);  
+	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTIB);
+	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTIB);
+      } else if (subdet == "TOB"){
+	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTOB);  
+	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTOB);
+	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTOB);
+      } else if (subdet == "TID"){
+	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTIB);  
+	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTIB);
+	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTIB);
+      } else if (subdet == "TEC"){
+	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTIB);  
+	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTIB);
+	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTIB);
+
+      }
     }
   }
 }//end of method analyze

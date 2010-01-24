@@ -4,6 +4,7 @@
 <use name=DQMServices/Core>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
+<use name=DPGAnalysis/SiStripTools>
 <use name=DQM/SiStripCommon>
 <flags EDM_PLUGIN=1>
 <export>

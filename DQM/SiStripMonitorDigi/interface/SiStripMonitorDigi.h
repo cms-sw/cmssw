@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.19 2009/06/29 17:49:40 borrell Exp $
+// $Id: SiStripMonitorDigi.h,v 1.20 2009/11/05 21:07:51 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -95,6 +95,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;
+  std::map<std::string, std::string> SubDetPhasePartMap;
        
   edm::ParameterSet Parameters;
   
