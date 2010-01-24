@@ -28,12 +28,21 @@ setTauSource(hpsPFTauDiscriminationByDecayModeFinding, 'hpsPFTauProducer')
 
 
 
+requireDecayMode = cms.PSet(
+          BooleanOperator = cms.string("and"),
+                decayMode = cms.PSet(
+                    Producer = cms.InputTag('hpsPFTauDiscriminationByDecayModeFinding'),
+                    cut = cms.double(0.5)
+                      )
+)
+
+
 #copying the Discriminator by Isolation
 
 
 hpsPFTauDiscriminationByLooseIsolation                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 setTauSource(hpsPFTauDiscriminationByLooseIsolation, 'hpsPFTauProducer')
-hpsPFTauDiscriminationByLooseIsolation.Prediscriminants = noPrediscriminants
+hpsPFTauDiscriminationByLooseIsolation.Prediscriminants = requireDecayMode
 
 
 
@@ -65,7 +74,7 @@ mediumPFTauQualityCuts = cms.PSet(
 
 hpsPFTauDiscriminationByMediumIsolation                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 setTauSource(hpsPFTauDiscriminationByMediumIsolation, 'hpsPFTauProducer')
-hpsPFTauDiscriminationByMediumIsolation.Prediscriminants = noPrediscriminants
+hpsPFTauDiscriminationByMediumIsolation.Prediscriminants = requireDecayMode
 hpsPFTauDiscriminationByMediumIsolation.qualityCuts      = mediumPFTauQualityCuts# set the standard quality cuts
 
 
@@ -99,7 +108,7 @@ loosePFTauQualityCuts = cms.PSet(
 
 hpsPFTauDiscriminationByTightIsolation                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 setTauSource(hpsPFTauDiscriminationByTightIsolation, 'hpsPFTauProducer')
-hpsPFTauDiscriminationByTightIsolation.Prediscriminants = noPrediscriminants
+hpsPFTauDiscriminationByTightIsolation.Prediscriminants = requireDecayMode
 hpsPFTauDiscriminationByTightIsolation.qualityCuts      = loosePFTauQualityCuts# set the standard quality cuts
 
 
