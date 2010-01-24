@@ -1221,7 +1221,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
           }
   
  
-  if(title=="QTestAlarm"){
+  if(title==" Tracker Map from  QTestAlarm"){
       for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
           TmCcu *  ccu= i_ccu->second;
           if(ccu!=0) {
@@ -1463,7 +1463,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	 }
        }
    
-   if(title=="QTestAlarm"){
+   if(title==" Tracker Map from  QTestAlarm"){
       for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
           TmPsu *  psu= ipsu->second;
           if(psu!=0) {
@@ -1725,7 +1725,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
        }
     }
   
-  if(title=="QTestAlarm"){
+  if(title==" Tracker Map from  QTestAlarm"){
       for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
           TmPsu *  psu= ipsu->second;
           if(psu!=0) {
