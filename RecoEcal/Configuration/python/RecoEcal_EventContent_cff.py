@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # Full Event content 
 RecoEcalFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
+        #selected digis
+        'keep *_selectDigi_*_*',
 	# Hits
 	'keep *_reducedEcalRecHits*_*_*', 
         'keep *_interestingEcalDetId*_*_*', 
@@ -24,6 +26,8 @@ RecoEcalFEVT = cms.PSet(
 # RECO content
 RecoEcalRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
+        #selected digis
+        'keep *_selectDigi_*_*',
 	# Hits
 	'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*',
 	# Barrel clusters
@@ -46,6 +50,8 @@ RecoEcalRECO = cms.PSet(
 # AOD content
 RecoEcalAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
+        #selected digis
+        'keep *_selectDigi_*_*',
 	# Hits
         'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*', 
 	# Barrel clusters
