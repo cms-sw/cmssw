@@ -21,6 +21,7 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
+SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
 
 # SiStripMonitorTrack ####
 from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
@@ -48,7 +49,15 @@ dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
 TkDetMap = cms.Service("TkDetMap")
 SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 
+# Event History Producer
+import DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi
+ConsecutiveHEs = DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi.consecutiveHEs.clone()
+
+# APV Phase Producer
+import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi
+apvPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi.APVPhases.clone()
+
 # Sequence
-SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackerCollisionTrackMon*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(apvPhases*ConsecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack*MonitorTrackResiduals*TrackerCollisionTrackMon*dqmInfoSiStrip)
 
 

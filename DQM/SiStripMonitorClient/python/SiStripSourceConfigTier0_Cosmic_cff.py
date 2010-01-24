@@ -138,12 +138,19 @@ dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
 TkDetMap = cms.Service("TkDetMap")
 SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 
+# Event History Producer
+import DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi
+ConsecutiveHEs = DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi.consecutiveHEs.clone()
+
+# APV Phase Producer
+import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi
+apvPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi.APVPhases.clone()
 
 # Sequences 
-SiStripDQMTier0_cosmicTk = cms.Sequence(SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk*TrackEffMon_cosmicTk)
+SiStripDQMTier0_cosmicTk = cms.Sequence(apvPhases*ConsecutiveHEs*SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk*TrackEffMon_cosmicTk)
 
-SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_ckf*TrackEffMon_ckf)
+SiStripDQMTier0_ckf = cms.Sequence(apvPhases*ConsecutiveHEs*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_ckf*TrackEffMon_ckf)
 
-SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs*TrackEffMon_rs)
+SiStripDQMTier0_rs = cms.Sequence(apvPhases*ConsecutiveHEs*SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs*TrackEffMon_rs)
 
-SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(apvPhases*ConsecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoSiStrip)
