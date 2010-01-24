@@ -56,8 +56,8 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    double mhtJetEtThresh=0.;
    short int etaBoundary=7;
    int corrType=0;
-   std::vector< std::vector<double> > jetCorrCoeffs(11);
-   std::vector< std::vector<double> > tauCorrCoeffs(7);
+   std::vector< std::vector<double> > jetCorrCoeffs;
+   std::vector< std::vector<double> > tauCorrCoeffs;
    bool convertToEnergy=false;            // Not in OMDS
    std::vector<double> energyConvCoeffs(11);  // Not in OMDS
    std::string jetCorrKey;
@@ -89,18 +89,18 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    jetCorrColumns.push_back( "GCT_JETCORR_NETA_2" );
    jetCorrColumns.push_back( "GCT_JETCORR_NETA_1" );
    jetCorrColumns.push_back( "GCT_JETCORR_NETA_0" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_0" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_1" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_2" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_3" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_4" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_5" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_6" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_7" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_8" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_9" );
-//    jetCorrColumns.push_back( "GCT_JETCORR_PETA_10" );
-
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_0" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_1" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_2" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_3" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_4" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_5" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_6" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_7" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_8" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_9" );
+   jetCorrColumns.push_back( "GCT_JETCORR_PETA_10" );
+   
    l1t::OMDSReader::QueryResults jetCorrResults =
     m_omdsReader.basicQuery(
 			    jetCorrColumns,
@@ -168,6 +168,18 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
      // fill coeffs - TODO
      std::vector<double> coeffs;
 
+     unsigned nCoeffs = 0;
+     if (corrType == 1) nCoeffs = 4;  // inverse quadratic
+     if (corrType == 2) nCoeffs = 11; // piecewise cubic madness ?!!!
+
+     for (unsigned j=0; j< nCoeffs; ++j) {
+       std::stringstream coeffCol;
+       coeffCol << "GCT_JETCORR_C" << std::dec << j;
+       int coeff;
+       jetCorrResults.fillVariable( coeffCol.str(), coeff );
+
+       coeffs.push_back(coeff);
+     }
 
      jetCorrCoeffs.push_back(coeffs);
     
