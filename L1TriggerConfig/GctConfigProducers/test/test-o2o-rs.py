@@ -1,5 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
+import sys
+import os
+
+# arguments
+if (len(sys.argv)>1) :
+    key=str(sys.argv[2])
+else :
+    key='Default'
+
 process = cms.Process("L1ConfigWritePayloadDummy")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
@@ -15,7 +24,7 @@ process.L1TriggerKeyDummy.objectKeys = cms.VPSet()
 process.L1TriggerKeyDummy.label = cms.string('SubsystemKeysOnly')
 
 # xxxKey = csctfKey, dttfKey, rpcKey, gmtKey, rctKey, gctKey, gtKey, or tsp0Key
-process.L1TriggerKeyDummy.gctKey = cms.string('Default')
+process.L1TriggerKeyDummy.gctKey = cms.string(key)
 
 # Subclass of L1ObjectKeysOnlineProdBase.
 process.load("L1TriggerConfig.GctConfigProducers.L1GctRSObjectKeysOnline_cfi")
