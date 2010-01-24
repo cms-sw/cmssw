@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/03 09:02:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/19 10:05:31 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -22,9 +22,18 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 					   int nbins,
 					   int lsPrescale,
 					   bool sliding,
-					   int mode) {
+					   int mode) : valueLastTimeSlot(0),
+						       nEventsInLastTimeSlot(0),
+						       theFirstLS(1),
+						       theLSPrescale(lsPrescale),
+						       doSlide(sliding),
+						       nLSinTimeSlot(0),
+						       firstLSinTimeSlot(0),
+						       theMode(mode) {
   
-  DTTimeEvolutionHisto(dbe, name, title, nbins, 1, lsPrescale, sliding, mode);
+  DTTimeEvolutionHisto(dbe, name, title, nbins, theFirstLS, lsPrescale, sliding, mode);
+  histo = dbe->get(dbe->pwd() + "/" + name);
+  nBookedBins = histo->getNbinsX();
 }
 
 
