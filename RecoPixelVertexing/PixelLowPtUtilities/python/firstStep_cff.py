@@ -11,19 +11,19 @@ pixel3ProtoTracks.RegionFactoryPSet.ptMin = cms.double(0.2)
 
 ############################
 # Pixel vertexing
-#from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi import *
-#pixel3Vertices = RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi.pixelVertices.clone()
-#pixel3Vertices.TrackCollection = 'pixel3ProtoTracks'
-#pixel3Vertices.UseError    = True
-#pixel3Vertices.WtAverage   = True
-#pixel3Vertices.ZOffset     = 5.
-#pixel3Vertices.ZSeparation = 0.3
-#pixel3Vertices.NTrkMin     = 3
-#pixel3Vertices.PtMin       = 0.150
- 
-import UserCode.FerencSiklerVertexing.NewVertexProducer_cfi
-pixel3Vertices = UserCode.FerencSiklerVertexing.NewVertexProducer_cfi.newVertices.clone()
+from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi import *
+pixel3Vertices = RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi.pixelVertices.clone()
 pixel3Vertices.TrackCollection = 'pixel3ProtoTracks'
+pixel3Vertices.UseError    = True
+pixel3Vertices.WtAverage   = True
+pixel3Vertices.ZOffset     = 5.
+pixel3Vertices.ZSeparation = 0.3
+pixel3Vertices.NTrkMin     = 3
+pixel3Vertices.PtMin       = 0.150
+ 
+#import UserCode.FerencSiklerVertexing.NewVertexProducer_cfi
+#pixel3Vertices = UserCode.FerencSiklerVertexing.NewVertexProducer_cfi.newVertices.clone()
+#pixel3Vertices.TrackCollection = 'pixel3ProtoTracks'
  
 ############################
 # Pixel-3 primary tracks
