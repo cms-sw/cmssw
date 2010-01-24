@@ -45,7 +45,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
  public:
    explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
    ~ClusterShapeExtractor();
-   virtual void beginJob(const edm::EventSetup& es);
+   virtual void beginRun(edm::Run & run,       const edm::EventSetup& es);
    virtual void analyze (const edm::Event& ev, const edm::EventSetup& es);
    virtual void endJob();
 
@@ -97,7 +97,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 };
 
 /*****************************************************************************/
-void ClusterShapeExtractor::beginJob(const edm::EventSetup& es)
+void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry>          tracker;
@@ -178,7 +178,7 @@ void ClusterShapeExtractor::endJob()
 /*****************************************************************************/
 ClusterShapeExtractor::~ClusterShapeExtractor()
 {
-  delete theClusterShape;
+//  delete theClusterShape;
 }
 
 /*****************************************************************************/
@@ -221,14 +221,17 @@ void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
      LocalVector ldir, vector<TH2F *> & histo)
 {
   int part;
-  pair<int,int> meas;
+  vector<pair<int,int> > meas;
   pair<float,float> pred;
  
   if(theClusterShape->getSizes(recHit,ldir, part,meas,pred))
-    if(meas.first  <= exMax && 
-       meas.second <= eyMax)
+   if(meas.size() == 1)
+    if(meas.front().first  <= exMax && 
+       meas.front().second <= eyMax)
     {
-      int i = (part * (exMax + 1) + meas.first) * (eyMax + 1) + meas.second;
+      int i = (part * (exMax + 1) +
+               meas.front().first) * (eyMax + 1) +
+               meas.front().second;
       histo[i]->Fill(pred.first, pred.second);
     }
 }

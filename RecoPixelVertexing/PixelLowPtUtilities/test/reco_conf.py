@@ -4,17 +4,17 @@ process = cms.Process("DigitizationReconstruction")
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
-process.load("Configuration.StandardSequences.Simulation_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+
+process.load("Configuration.StandardSequences.Simulation_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 
 process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
-process.load("RecoLocalCalo.Configuration.RecoLocalCalo_cff")
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 process.load("RecoPixelVertexing.PixelLowPtUtilities.MinBiasTracking_cff")
@@ -22,8 +22,8 @@ process.load("RecoPixelVertexing.PixelLowPtUtilities.MinBiasTracking_cff")
 ###############################################################################
 # Categories and modules
 process.CategoriesAndModules = cms.PSet(
-    categories = cms.untracked.vstring('MinBiasTracking'),
-    debugModules = cms.untracked.vstring('*')
+  categories = cms.untracked.vstring('MinBiasTracking', 'NewVertices'),
+  debugModules = cms.untracked.vstring('*')
 )
 
 ###############################################################################
@@ -43,17 +43,24 @@ process.MessageLogger = cms.Service("MessageLogger",
 ###############################################################################
 # Source
 process.source = cms.Source("PoolSource",
-    # FIXME
     skipEvents = cms.untracked.uint32(0),
     fileNames  = cms.untracked.vstring(
-       # RelValMinBias/CMSSW_3_1_0_pre5_IDEAL_31X_v1/GEN-SIM-RECO
-       '/store/relval/CMSSW_3_1_0_pre5/RelValProdMinBias/GEN-SIM-RAW/IDEAL_31X_v1/0000/3C9D7BDE-B62B-DE11-A7FA-000423D94524.root',
-       '/store/relval/CMSSW_3_1_0_pre5/RelValProdMinBias/GEN-SIM-RAW/IDEAL_31X_v1/0000/707E2511-B62B-DE11-B0B0-001D09F24498.root',
-       '/store/relval/CMSSW_3_1_0_pre5/RelValProdMinBias/GEN-SIM-RAW/IDEAL_31X_v1/0000/CE506207-0C2C-DE11-AC5E-000423D991F0.root')
+       # /RelValMinBias/CMSSW_3_1_2-MC_31X_V3-v1/GEN-SIM-DIGI-RAW-HLTDEBUG
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V3-v1/0007/A0755F1D-9278-DE11-A9F7-001D09F25208.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V3-v1/0006/D01E77F1-6378-DE11-8A4F-001D09F24F1F.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V3-v1/0006/B01EB0F1-6378-DE11-821E-001D09F28F11.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V3-v1/0006/AA7E66EB-6378-DE11-99B2-0019B9F70607.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V3-v1/0006/3CC6F3F2-6378-DE11-B308-001D09F28E80.root'
+       # /RelValMinBias/CMSSW_3_1_2-STARTUP31X_V2-v1/GEN-SIM-DIGI-RAW-HLTDEBUG
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0007/7C2724F8-9178-DE11-AFCE-001D09F244BB.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0006/C4012D09-7978-DE11-B872-001D09F28F1B.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0006/A2F7FF3A-7878-DE11-BD8B-001D09F26C5C.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0006/68F0C546-7E78-DE11-BEFF-0019B9F709A4.root',
+       '/store/relval/CMSSW_3_1_2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0006/687383FC-7D78-DE11-BD74-001D09F34488.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(2000)
 )
 
 ###############################################################################
@@ -65,13 +72,21 @@ process.energyLoss = cms.EDProducer("EnergyLossProducer",
 )
 
 ###############################################################################
-# Track analyzer
+# Track associator
 process.TrackAssociatorByHits.SimToRecoDenominator = 'reco'
+process.TrackAssociatorByHits.Quality_SimToReco = cms.double(0.5)
+process.TrackAssociatorByHits.Purity_SimToReco  = cms.double(0.5)
+process.TrackAssociatorByHits.Cut_RecoToSim     = cms.double(0.5)
 
-process.analyzeTracks = cms.EDAnalyzer("QCDTrackAnalyzer",
-    allRecTracksArePrimary = cms.bool(False),
+process.TrackAssociatorByHits.associatePixel    = cms.bool(True)
+process.TrackAssociatorByHits.associateStrip    = cms.bool(False)
+
+###############################################################################
+# Track analyzer
+process.analyzeTracks = cms.EDAnalyzer("HadronAnalyzer",
     hasSimInfo             = cms.bool(True),
     trackProducer          = cms.string('allTracks'),
+    allRecTracksArePrimary = cms.bool(False),
     fillHistograms         = cms.bool(True),
     histoFile              = cms.string('histograms.root'),
     fillNtuples            = cms.bool(False),
@@ -81,34 +96,32 @@ process.analyzeTracks = cms.EDAnalyzer("QCDTrackAnalyzer",
 ###############################################################################
 # Event plotter
 process.plotEvent = cms.EDAnalyzer("EventPlotter",
-    trackProducer = cms.string('allTracks')
+    hasSimInfo             = cms.bool(True),
+    trackProducer          = cms.string('allTracks')
 )
 
 ###############################################################################
 # Paths
-process.r2d   = cms.Path(process.RawToDigi)
-
 process.simu  = cms.Path(process.mix
                        * process.trackingParticles
                        * process.offlineBeamSpot)
 
-process.lreco = cms.Path(process.trackerlocalreco
-                       * process.ecalLocalRecoSequence)
+process.digi  = cms.Path(process.RawToDigi)
+
+process.lreco = cms.Path(process.trackerlocalreco)
 
 process.greco = cms.Path(process.minBiasTracking
                        * process.energyLoss
                        * process.pixelVZeros
                        * process.analyzeTracks)
-#                      * process.plotEvent)
 
 ###############################################################################
 # Global tag
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
+process.GlobalTag.globaltag = 'MC_31X_V3::All'
 
 ###############################################################################
 # Schedule
-process.schedule = cms.Schedule(process.r2d,
-                                process.simu,
+process.schedule = cms.Schedule(process.simu,
+                                process.digi,
                                 process.lreco,
                                 process.greco)
-

@@ -49,7 +49,7 @@ bool ClusterShape::processColumn(pair<int,int> pos, bool inTheLoop)
       if(x[1] > x[0]+1)
       { // Check if direction changes
         if(odir*dir == -1)
-        { odir = -2; return(false); }
+        { odir = -2; return false; }
       }
 
       if(x[1] <= x[0]+1 || odir == 0)
@@ -97,73 +97,93 @@ void ClusterShape::determineShape
   (const PixelGeomDetUnit& pixelDet,
    const SiPixelRecHit& recHit, ClusterData& data)
 {
+  // Topology
+  const RectangularPixelTopology * theTopology = 
+    dynamic_cast<const RectangularPixelTopology *>
+      (&(pixelDet.specificTopology())); 
+ 
+  // Initialize
+  data.isStraight = true;
+  data.isComplete = true;
+ 
+  x[0] = -1; x[1] = -1;
+  y[0] = -1; y[1] = -1;
+  olow = -2; ohig = -2; odir = 0;
+  low = 0; hig = 0;
 
- // Topology
- const RectangularPixelTopology * theTopology = 
-   dynamic_cast<const RectangularPixelTopology *>
-     (&(pixelDet.specificTopology())); 
+  pair<int,int> pos;
+ 
+  // Get sorted pixels
+  vector<SiPixelCluster::Pixel> pixels = recHit.cluster()->pixels();
+  sort(pixels.begin(),pixels.end(),lessPixel());
 
- // Initialize
- data.isStraight = true;
- data.isComplete = true;
+  // Look at all the pixels
+  for(vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
+                                                    pixel!= pixels.end();
+                                                    pixel++)
+  {
+    // Position
+    pos.first  = (int)pixel->x;
+    pos.second = (int)pixel->y;
 
- x[0]=-1; x[1]=-1;
- y[0]=-1; y[1]=-1;
- olow=-2; ohig=-2; odir=0; low=0; hig=0;
- pair<int,int> pos;
+    // Check if at the edge or big 
+    if(theTopology->isItEdgePixelInX(pos.first) ||
+       theTopology->isItEdgePixelInY(pos.second))
+    { data.isComplete = false; break; }
+ 
+    // Check if straight
+    if(pos.first > x[1])
+    { // column ready
+      if(processColumn(pos, true) == false)
+      { data.isStraight = false; break; }
+    }
+    else
+    { // increasing column
+      if(pos.second > hig+1) // at least a pixel is missing
+      { data.isStraight = false; break; }
+ 
+      hig = pos.second;
+    }
+  }
 
- // Get a sort pixels
- vector<SiPixelCluster::Pixel> pixels = recHit.cluster()->pixels();
- sort(pixels.begin(),pixels.end(),lessPixel());
+  // Check if straight, process last column
+  if(processColumn(pos, false) == false)
+    data.isStraight = false;
 
- // Look at all the pixels
- for(vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
-                                                   pixel!= pixels.end();
-                                                   pixel++)
- {
-   // Position
-   pos.first  = (int)pixel->x;
-   pos.second = (int)pixel->y;
+  // Treat clusters with big pixel(s) inside
+  for(int ix = recHit.cluster()->minPixelRow() + 1;
+          ix < recHit.cluster()->maxPixelRow(); ix++)
+    if(theTopology->isItBigPixelInX(ix)) x[1]++;
+ 
+  for(int iy = recHit.cluster()->minPixelCol() + 1;
+          iy < recHit.cluster()->maxPixelCol(); iy++)
+    if(theTopology->isItBigPixelInY(iy)) y[1]++;
 
-   // Check if at the edge or big 
-   if(theTopology->isItEdgePixelInX(pos.first) ||
-      theTopology->isItEdgePixelInY(pos.second) ||
-      theTopology->isItBigPixelInX(pos.first) ||
-      theTopology->isItBigPixelInY(pos.second))
-   { data.isComplete = false; break; }
+  // Treat clusters with bix pixel(s) outside
+  int px = 0;
+  if(theTopology->isItBigPixelInX(recHit.cluster()->minPixelRow())) px++;
+  if(theTopology->isItBigPixelInX(recHit.cluster()->maxPixelRow())) px++;
 
-   // Check if straight
-   if(pos.first > x[1])
-   { // column ready
-     if(processColumn(pos, true) == false)
-     { data.isStraight = false; break; }
-   }
-   else
-   { // increasing column
-     if(pos.second > hig+1) // at least a pixel is missing
-     { data.isStraight = false; break; }
+  int py = 0;
+  if(theTopology->isItBigPixelInY(recHit.cluster()->minPixelCol())) py++;
+  if(theTopology->isItBigPixelInY(recHit.cluster()->maxPixelCol())) py++;
 
-     hig = pos.second;
-   }
- }
-
- // Check if straight, process last column
- if(processColumn(pos, false) == false)
-   data.isStraight = false;
+  if( (px > 0 || py > 0) && odir == 0)
+  {
+    // if outside and don't know the direction
+    data.isComplete = false;
+  }
+  else 
+  { 
+    for(int ax = 0; ax <= px; ax++)
+    for(int ay = 0; ay <= py; ay++)
+    {
+      int dx = x[1] - x[0] + ax;
+      int dy = y[1] - y[0] + ay;
+      if(odir != 0) dy *= odir;
+  
+      pair<int,int> s(dx,dy);
+      data.size.push_back(s); 
+    }
+  }
 }
-
-/*****************************************************************************/
-void ClusterShape::getExtra
-  (const PixelGeomDetUnit& pixelDet,
-   const SiPixelRecHit& recHit, ClusterData& data)
-{
-  determineShape(pixelDet,recHit, data);
-
-  int dx = x[1] - x[0];
-  int dy = y[1] - y[0];
-  if(odir != 0) dy *= odir;
-
-  data.size.first  = dx;
-  data.size.second = dy;
-}
-

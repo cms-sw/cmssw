@@ -10,7 +10,7 @@ from RecoVZero.VZeroFinding.VZeros_cff import *
 ###################################
 # First step, triplets, r=0.2 cm
 firstStep  = cms.Sequence(pixel3ProtoTracks
-                        * pixelVertices
+                        * pixel3Vertices
                         * pixel3PrimTracks
                         * primSeeds
                         * primTrackCandidates
@@ -31,7 +31,7 @@ secondStep = cms.Sequence(secondClusters
 thirdStep  = cms.Sequence( thirdClusters
                          * thirdPixelRecHits
                          * thirdStripRecHits
-                         * pixel2PrimTracks
+                         * pixelTertTracks
                          * tertSeeds
                          * tertTrackCandidates
                          * globalTertTracks)
@@ -39,13 +39,17 @@ thirdStep  = cms.Sequence( thirdClusters
 ###################################
 # Tracklist combiner
 allTracks = cms.EDFilter("TrackListCombiner",
+#   trackProducers = cms.vstring('pixel3PrimTracks',
+#                                'pixel3SecoTracks')
     trackProducers = cms.vstring('globalPrimTracks',
-                                 'globalSecoTracks')
+                                 'globalSecoTracks',
+                                 'globalTertTracks')
 )
 
 ###################################
 # Minimum bias tracking
 minBiasTracking = cms.Sequence(firstStep
-                             * secondStep
+                            * secondStep
+                             * thirdStep 
                              * allTracks)
 
