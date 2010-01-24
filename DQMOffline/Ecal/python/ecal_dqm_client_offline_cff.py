@@ -8,7 +8,9 @@ dqmQTestEB = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(False),
     qtestOnEndRun = cms.untracked.bool(True),
+    qtestOnEndJob = cms.untracked.bool(False),
     verboseQT = cms.untracked.bool(False)
 )
 
@@ -17,7 +19,9 @@ dqmQTestEE = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(False),
     qtestOnEndRun = cms.untracked.bool(True),
+    qtestOnEndJob = cms.untracked.bool(False),
     verboseQT = cms.untracked.bool(False)
 )
 
