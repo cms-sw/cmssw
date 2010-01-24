@@ -31,11 +31,8 @@ class EcalDigiSelector : public edm::EDProducer
   std::string selectedEcalEBDigiCollection_;
   std::string selectedEcalEEDigiCollection_;
 
-  std::string barrelSuperClusterCollection_;
-  std::string barrelSuperClusterProducer_;
-  
-  std::string endcapSuperClusterCollection_;
-  std::string endcapSuperClusterProducer_;
+  edm::InputTag barrelSuperClusterProducer_;
+  edm::InputTag endcapSuperClusterProducer_;
 
   // input configuration
   edm::InputTag EcalEBDigiTag_;

@@ -18,6 +18,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <TMath.h>
 #include <iostream>
 #include <set>
@@ -29,11 +30,8 @@ EcalDigiSelector::EcalDigiSelector(const edm::ParameterSet& ps)
   selectedEcalEBDigiCollection_ = ps.getParameter<std::string>("selectedEcalEBDigiCollection");
   selectedEcalEEDigiCollection_ = ps.getParameter<std::string>("selectedEcalEEDigiCollection");
 
-  barrelSuperClusterCollection_ = ps.getParameter<std::string>("barrelSuperClusterCollection");
-  barrelSuperClusterProducer_ = ps.getParameter<std::string>("barrelSuperClusterProducer");
-
-  endcapSuperClusterCollection_ = ps.getParameter<std::string>("endcapSuperClusterCollection");
-  endcapSuperClusterProducer_ = ps.getParameter<std::string>("endcapSuperClusterProducer");
+  barrelSuperClusterProducer_ = ps.getParameter<edm::InputTag>("barrelSuperClusterProducer");
+  endcapSuperClusterProducer_ = ps.getParameter<edm::InputTag>("endcapSuperClusterProducer");
 
   EcalEBDigiTag_ = ps.getParameter<edm::InputTag>("EcalEBDigiTag");
   EcalEEDigiTag_ = ps.getParameter<edm::InputTag>("EcalEEDigiTag");
@@ -61,21 +59,23 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
   //Get BarrelSuperClusters to start.
   edm::Handle<reco::SuperClusterCollection> pBarrelSuperClusters;
   
-  evt.getByLabel(barrelSuperClusterProducer_, barrelSuperClusterCollection_, pBarrelSuperClusters);
+  evt.getByLabel(barrelSuperClusterProducer_, pBarrelSuperClusters);
   if (!pBarrelSuperClusters.isValid()){
-    std::cout << "Error! can't get collection with label " << barrelSuperClusterCollection_.c_str()<<std::endl; ;
+    edm::LogError("EcalDigiSelector")
+      << "can't get collection with label " << barrelSuperClusterProducer_ ;
   }
-  reco::SuperClusterCollection BarrelSuperClusters = *pBarrelSuperClusters;
+  const reco::SuperClusterCollection & BarrelSuperClusters = *pBarrelSuperClusters;
   //Got BarrelSuperClusters
 
   //Get BarrelSuperClusters to start.
   edm::Handle<reco::SuperClusterCollection> pEndcapSuperClusters;
   
-  evt.getByLabel(endcapSuperClusterProducer_, endcapSuperClusterCollection_, pEndcapSuperClusters);
+  evt.getByLabel(endcapSuperClusterProducer_, pEndcapSuperClusters);
   if (!pEndcapSuperClusters.isValid()){
-    std::cout << "Error! can't get collection with label " << endcapSuperClusterCollection_.c_str()<<std::endl; ;
+    edm::LogError("EcalDigiSelector")
+      << "Error! can't get collection with label " << endcapSuperClusterProducer_;
   }
-  reco::SuperClusterCollection EndcapSuperClusters = *pEndcapSuperClusters;
+  const reco::SuperClusterCollection & EndcapSuperClusters = *pEndcapSuperClusters;
   //Got EndcapSuperClusters
 
   reco::SuperClusterCollection saveBarrelSuperClusters;
