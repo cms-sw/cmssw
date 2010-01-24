@@ -5,16 +5,9 @@
 <use name=DataFormats/SiStripCluster>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
+<use name=DPGAnalysis/SiStripTools>
 <use name=DQM/SiStripCommon>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMSiStripMonitorCluster>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=DQMServices/Core>
-   <use name=DataFormats/SiStripCluster>
-   <use name=CalibFormats/SiStripObjects>
-   <use name=CalibTracker/Records>
-   <use name=DQM/SiStripCommon>
 </export>

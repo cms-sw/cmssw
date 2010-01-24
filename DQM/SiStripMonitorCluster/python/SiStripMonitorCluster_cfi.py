@@ -155,17 +155,51 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         ),
 
     TH2ClustersApvCycle = cms.PSet(
-        Nbins = cms.int32(70),
-        xmin = cms.double(-0.5),
-        xmax = cms.double(69.5),
+        Nbinsx = cms.int32(70),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(69.5),
         Nbinsy = cms.int32(200),
         ymin = cms.double(0.0),
         yfactor = cms.double(0.2),
         subdetswitchon = cms.bool(False)
     ),
                                      
+    TProfClustersVsDBxCycle = cms.PSet(
+        Nbins = cms.int32(800),
+        xmin = cms.double(0.5),
+        xmax = cms.double(800.5),
+        ymin = cms.double(0.0),
+        ymax = cms.double(0.0),
+        subdetswitchon = cms.bool(True)
+        ),
+                                     
+    TProf2ApvCycleVsDBx = cms.PSet(
+        Nbinsx = cms.int32(70),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(69.5),
+        Nbinsy = cms.int32(800),
+        ymin   = cms.double(0.5),
+        ymax   = cms.double(800.5),
+        zmin   = cms.double(0.0),
+        zmax   = cms.double(0.0),
+        subdetswitchon = cms.bool(False)
+        ),
+                                     
+    TH2ApvCycleVsDBxGlobal = cms.PSet(
+        Nbinsx = cms.int32(70),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(69.5),
+        Nbinsy = cms.int32(800),
+        ymin   = cms.double(0.5),
+        ymax   = cms.double(800.5),
+        globalswitchon = cms.bool(True)
+        ),
+                                                                              
     Mod_On = cms.bool(True),
 
+    HistoryProducer = cms.InputTag("ConsecutiveHEs"),
+    ApvPhaseProducer = cms.InputTag("apvPhases"),
+            
     ShowControlView = cms.bool(False),
-    ShowReadoutView = cms.bool(False)
+    ShowReadoutView = cms.bool(False)                               
 )

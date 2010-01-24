@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.30 2009/09/14 14:13:58 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.31 2009/12/14 22:22:14 wmtan Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -66,10 +66,12 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   };
 
   struct SubDetMEs{ // MEs for Subdetector Level
+    MonitorElement* SubDetTotClusterTH1;
     MonitorElement* SubDetTotClusterProf;
     MonitorElement* SubDetClusterApvProf;
-    MonitorElement* SubDetTotClusterTH1;
     MonitorElement* SubDetClusterApvTH2;
+    MonitorElement* SubDetClusterDBxCycleProf;
+    MonitorElement* SubDetApvDBxProf2;
   };
 
   struct ClusterProperties { // Cluster Properties
@@ -80,6 +82,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
     float noise;
   };
 
+  MonitorElement* GlobalApvCycleDBxTH2; 
  private:
 
   void createMEs(const edm::EventSetup& es);
@@ -106,7 +109,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   std::map<std::string, LayerMEs> LayerMEMap;
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;
-  float iOrbitSec;
+  std::map<std::string, std::string> SubDetPhasePartMap;
 
   // flags
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run;
@@ -148,10 +151,13 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool moduleswitchcluswidthon;
   bool moduleswitchlocaloccupancy;
   bool moduleswitchnrclusterizedstrip;
-  bool subdetswitchtotclusterprofon;
-  bool subdetswitchclusterapvprofon;
+  bool subdetswitchtotclusprofon;
+  bool subdetswitchapvcycleprofon;
   bool subdetswitchapvcycleth2on;
-  bool subdetswitchtotclusterth1on;
+  bool subdetswitchapvcycledbxprof2on;
+  bool subdetswitchdbxcycleprofon;
+  bool subdetswitchtotclusth1on;
+  bool globalswitchapvcycledbxth2on;
 
   bool clustertkhistomapon;
   bool createTrendMEs;
