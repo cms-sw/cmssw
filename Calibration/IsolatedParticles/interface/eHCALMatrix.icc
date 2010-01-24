@@ -37,14 +37,6 @@ namespace spr{
   }
 
   template <typename T>
-  std::vector< std::pair< DetId,double> > eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, bool debug) {
-
-    std::vector<DetId> dets(1,det);
-    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, debug);
-    return spr::energyDetIdHCALneighbours(vdets, topology, hits, includeHO, debug);
-  }
-
-  template <typename T>
   double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, bool debug) {
 
     HcalDetId hcid0(det0.rawId());
@@ -67,6 +59,14 @@ namespace spr{
 
     if (debug) std::cout << "eHCALmatrix::Total energy " << energySum << std::endl;
     return energySum;
+  }
+
+  template <typename T>
+  std::vector< std::pair< DetId,double> > eHCALmatrixCell(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, bool debug) {
+
+    std::vector<DetId> dets(1,det);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, debug);
+    return spr::energyDetIdHCALneighbours(vdets, topology, hits, includeHO, debug);
   }
 
   //*** Returns energy in NxN Hcal towers
@@ -474,15 +474,16 @@ namespace spr{
     for (unsigned int i=0; i<maxsize; i++) {
       hit = spr::findHit(hits, vdets[i]);
       double energy = 0;
+      bool   ok = false;
       for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
         if (hit[ihit] != hits->end()) {
           energy += hit[ihit]->energy();
- 	  khit++;
+ 	  khit++; ok = true;
 	  if (debug) std::cout << "energyDetIdHCALneighbours:: Hit " << khit << " " << (HcalDetId)vdets[i] << " energy " << hit[ihit]->energy() << std::endl;
         }
       }
       if (debug) std::cout << "energyDetIdHCALneighbours::Detector " << i << " " << (HcalDetId)vdets[i] << " energy " << energy << std::endl;
-      energyDetId.push_back(std::pair<DetId,double>(vdets[i], energy));
+      if (ok) energyDetId.push_back(std::pair<DetId,double>(vdets[i], energy));
 
       HcalDetId vdet = vdets[i];
       for (int idepth = 0; idepth < 3; idepth++) {
@@ -495,15 +496,17 @@ namespace spr{
               vdets.push_back(vUpDetId[0]);
               double energy = 0;
               hit = spr::findHit(hits, vUpDetId[0]);
+              ok  = false;
               for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
                 if (hit[ihit] != hits->end()) {
                   energy += hit[ihit]->energy();
   	          khit++;
+                  ok = true;
 	          if (debug) std::cout << "energyDetIdHCALneighbours:: Hit " << khit << " " << (HcalDetId)vUpDetId[0] << " energy " << hit[ihit]->energy() << std::endl;
                 }
               }
               if (debug) std::cout << "energyDetIdHCALneighbours::Detector " << i << " " << (HcalDetId)vUpDetId[0] << " energy " << energy << std::endl;
-              energyDetId.push_back(std::pair<DetId,double>(vUpDetId[0], energy));
+              if (ok) energyDetId.push_back(std::pair<DetId,double>(vUpDetId[0], energy));
             }
           }
           vdet = vUpDetId[0];

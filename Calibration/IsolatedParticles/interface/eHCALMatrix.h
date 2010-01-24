@@ -37,10 +37,10 @@ namespace spr{
   double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, bool algoNew=true, bool debug=false);
 
   template< typename T>
-  std::vector< std::pair< DetId,double> > eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, bool debug=false);
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO=false, bool debug=false);
 
   template< typename T>
-  double eHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO=false, bool debug=false);
+  std::vector< std::pair< DetId,double> > eHCALmatrixCell(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, bool debug=false);
 
   template< typename T>
   std::pair<double,int> eHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO=false, bool debug=false);
