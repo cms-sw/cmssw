@@ -38,7 +38,7 @@ L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
   
   // set EM masks
   for (int i=0; i<18; i++) {
-    if (emMask & (1<<i) != 0) masks->maskEmCrate(i);  // mask crate if emMask bit i is set
+    if ((emMask & (1<<i)) != 0) masks->maskEmCrate(i);  // mask crate if emMask bit i is set
   }
   
   // set region masks
