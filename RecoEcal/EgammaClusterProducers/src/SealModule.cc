@@ -14,7 +14,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/Multi5x5ClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/Multi5x5SuperClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/CosmicClusterProducer.h"
-
+#include "RecoEcal/EgammaClusterProducers/interface/EcalDigiSelector.h"
 DEFINE_SEAL_MODULE();
 
 DEFINE_ANOTHER_FWK_MODULE(IslandClusterProducer);
@@ -31,3 +31,4 @@ DEFINE_ANOTHER_FWK_MODULE(Multi5x5SuperClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(ReducedRecHitCollectionProducer);
 DEFINE_ANOTHER_FWK_MODULE(InterestingDetIdCollectionProducer);
 DEFINE_ANOTHER_FWK_MODULE(CosmicClusterProducer);
+DEFINE_ANOTHER_FWK_MODULE(EcalDigiSelector);
