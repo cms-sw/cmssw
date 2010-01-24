@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: ecalClusteringSequence_cff.py,v 1.3 2008/05/22 11:13:25 hegner Exp $
+# $Id: ecalClusteringSequence_cff.py,v 1.4 2009/02/28 22:06:25 dlange Exp $
 # complete sequence of clustering in ecal barrel & endcap + preshower
 # Shahram Rahatlou, University of Rome & INFN, 3 Aug 2006
 #
@@ -17,7 +17,9 @@ from RecoEcal.EgammaClusterProducers.dynamicHybridClusteringSequence_cff import 
 from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
 # preshower sequence for multi5x5 clusters
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
+#selected digis
+from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 # create path with all clustering algos
 # NB: preshower MUST be run after island clustering in the endcap
-ecalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*preshowerClusteringSequence*dynamicHybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence)
+ecalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*preshowerClusteringSequence*dynamicHybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence * seldigis)
 
