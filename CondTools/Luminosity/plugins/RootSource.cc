@@ -60,7 +60,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
     std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
     size_t lumisecid=0;
     unsigned int cmslumi=0;
-    unsigned int totaldeadtime=0;
+    //unsigned int totaldeadtime=0;
     for(size_t i=0;i<nentries;++i){
       hlxtree->GetEntry(i);
       l1tree->GetEntry(i);
