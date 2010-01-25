@@ -37,13 +37,19 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 # Also BeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
-localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+particleFlowCluster+lumiProducer)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+particleFlowCluster+lumiProducer)
+
+from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
+
+localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+particleFlowCluster+castorreco+lumiProducer)
+localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+particleFlowCluster+castorreco+lumiProducer)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets*recoJetIds+recoTrackJets+muonrecoComplete+electronGsfTracking)
+
+from RecoLocalCalo.Castor.Castor_cff import *
+
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets*recoJetIds+recoTrackJets+muonrecoComplete+electronGsfTracking+CastorFullReco)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*metrecoPlusHCALNoise*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)

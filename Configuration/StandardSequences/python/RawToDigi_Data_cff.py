@@ -47,16 +47,20 @@ from EventFilter.DTRawToDigi.dtunpacker_cfi import *
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 #--- RPC ---#
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
+#--- castor ---#
+import EventFilter.CastorRawToDigi.CastorRawToDigi_cff
+castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
 #--- Scalers ---#
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
 
-RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+scalersRawToDigi)
+RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi)
 
-RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+scalersRawToDigi)
+RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi)
 
 gtDigis.DaqGtInputTag = 'source'
 gtEvmDigis.EvmGtInputTag = 'source'
 siPixelDigis.InputLabel = 'source'
 siStripDigis.ProductLabel = 'source'
+castorDigis.InputLabel = 'source'
 ecalDigis.DoRegional = False
