@@ -16,11 +16,11 @@ process.source = cms.Source("EmptySource")
 
 process.load("DQMOffline.EGamma.electronOfflineClientSequence_cff")
 
-process.dqmElectronClientAllElectrons.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronClientSelectionEt.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronClientSelectionEtIso.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronClientSelectionEtIsoElID.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronClientTagAndProbe.FinalStep = cms.string("AtJobEnd")
+#process.dqmElectronClientAllElectrons.FinalStep = cms.string("AtJobEnd")
+#process.dqmElectronClientSelectionEt.FinalStep = cms.string("AtJobEnd")
+#process.dqmElectronClientSelectionEtIso.FinalStep = cms.string("AtJobEnd")
+#process.dqmElectronClientSelectionEtIsoElID.FinalStep = cms.string("AtJobEnd")
+#process.dqmElectronClientTagAndProbe.FinalStep = cms.string("AtJobEnd")
 
 process.dqmElectronClientAllElectrons.InputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 #process.dqmElectronClientTagAndProbe.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])

@@ -3,24 +3,24 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.EGamma.electronOfflineClient_cfi import *
 
 dqmElectronClientAllElectrons = dqmElectronOfflineClient.clone() ;
-dqmElectronClientAllElectrons.InputFolderName = cms.string("AllElectrons") ;
-dqmElectronClientAllElectrons.OutputFolderName = cms.string("AllElectrons") ;
+dqmElectronClientAllElectrons.InputFolderName = cms.string("Ele2_AllElectrons") ;
+dqmElectronClientAllElectrons.OutputFolderName = cms.string("Ele2_AllElectrons") ;
 
 dqmElectronClientSelectionEt = dqmElectronOfflineClient.clone() ;
-dqmElectronClientSelectionEt.InputFolderName = cms.string("Et10") ;
-dqmElectronClientSelectionEt.OutputFolderName = cms.string("Et10") ;
+dqmElectronClientSelectionEt.InputFolderName = cms.string("Ele3_Et10") ;
+dqmElectronClientSelectionEt.OutputFolderName = cms.string("Ele3_Et10") ;
 
 dqmElectronClientSelectionEtIso = dqmElectronOfflineClient.clone() ;
-dqmElectronClientSelectionEtIso.InputFolderName = cms.string("Et10Iso1") ;
-dqmElectronClientSelectionEtIso.OutputFolderName = cms.string("Et10Iso1") ;
+dqmElectronClientSelectionEtIso.InputFolderName = cms.string("Ele4_Et10TkIso1") ;
+dqmElectronClientSelectionEtIso.OutputFolderName = cms.string("Ele4_Et10TkIso1") ;
 
 dqmElectronClientSelectionEtIsoElID = dqmElectronOfflineClient.clone() ;
-dqmElectronClientSelectionEtIsoElID.InputFolderName = cms.string("Et10Iso1ElID") ;
-dqmElectronClientSelectionEtIsoElID.OutputFolderName = cms.string("Et10Iso1ElID") ;
+dqmElectronClientSelectionEtIsoElID.InputFolderName = cms.string("Ele5_Et10TkIso1ElID") ;
+dqmElectronClientSelectionEtIsoElID.OutputFolderName = cms.string("Ele5_Et10TkIso1ElID") ;
 
 dqmElectronClientTagAndProbe = dqmElectronOfflineClient.clone() ;
-dqmElectronClientTagAndProbe.InputFolderName = cms.string("TagAndProbe") ;
-dqmElectronClientTagAndProbe.OutputFolderName = cms.string("TagAndProbe") ;
+dqmElectronClientTagAndProbe.InputFolderName = cms.string("Ele6_TagAndProbe") ;
+dqmElectronClientTagAndProbe.OutputFolderName = cms.string("Ele6_TagAndProbe") ;
 dqmElectronClientTagAndProbe.EffHistoTitle = cms.string("")
 
 electronOfflineClientSequence = cms.Sequence(

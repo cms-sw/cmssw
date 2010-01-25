@@ -8,6 +8,8 @@ class MonitorElement ;
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <Rtypes.h>
+#include <string>
+#include <vector>
 
 class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
  {
@@ -34,38 +36,40 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     MonitorElement * get( const std::string & name ) ;
     void remove( const std::string & name ) ;
 
+    void setBookPrefix( const std::string & ) ;
+    void setBookIndex( short ) ;
     MonitorElement * bookH1
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        const std::string & titleX ="", const std::string & titleY ="Events",
-       Option_t * option = "" ) ;
+       Option_t * option = "E1 P" ) ;
 
     MonitorElement * bookH1withSumw2
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        const std::string & titleX ="", const std::string & titleY ="Events",
-       Option_t * option = ""  ) ;
+       Option_t * option = "E1 P"  ) ;
 
     MonitorElement * bookH2
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        int nchY, double lowY, double highY,
        const std::string & titleX ="", const std::string & titleY ="",
-       Option_t * option = ""  ) ;
+       Option_t * option = "COLZ"  ) ;
 
     MonitorElement * bookH2withSumw2
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
        int nchY, double lowY, double highY,
        const std::string & titleX ="", const std::string & titleY ="",
-       Option_t * option = ""  ) ;
+       Option_t * option = "COLZ"  ) ;
 
     MonitorElement * bookP1
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
                  double lowY, double highY,
        const std::string & titleX ="", const std::string & titleY ="",
-       Option_t * option = ""  ) ;
+       Option_t * option = "E1 P"  ) ;
 
     MonitorElement * bookH1andDivide
      ( const std::string & name, MonitorElement * num, MonitorElement * denom,
@@ -118,6 +122,9 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
   private:
 
     int verbosity_ ;
+    std::string bookPrefix_ ;
+    short bookIndex_ ;
+    std::vector<std::string> initialHistos_ ;
     std::string finalStep_ ;
     std::string inputFile_ ;
     std::string outputFile_ ;
@@ -126,6 +133,8 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     DQMStore * store_ ;
     bool finalDone_ ;
 
+    // utility methods
+    const std::string * find( const std::string & name ) ;
  } ;
 
 #endif

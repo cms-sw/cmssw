@@ -226,17 +226,17 @@ int elePublishHistos()
        {
         gStyle->SetPalette(1) ;
         gStyle->SetOptStat(111) ;
-        histo->Draw("COLZ") ;
+        histo->Draw(/*"COLZ"*/) ;
        }
       else if (histo->IsA()->InheritsFrom("TProfile")==kTRUE)
        {
         gStyle->SetOptStat(111) ;
-        histo->Draw("E1 P") ;
+        histo->Draw(/*"E1 P"*/) ;
        }
       else
        {
         gStyle->SetOptStat(111111) ;
-        histo->Draw("E1 P") ;
+        histo->Draw(/*"E1 P"*/) ;
        }
       canvas->SaveAs(gif_path.Data()) ;
 
