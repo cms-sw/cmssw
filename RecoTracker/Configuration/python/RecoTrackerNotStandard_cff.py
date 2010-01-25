@@ -22,3 +22,20 @@ ctfTracksNoOverlaps = cms.Sequence(ckfTrackCandidatesNoOverlaps*ctfNoOverlaps)
 ctfTracksPixelLess = cms.Sequence(globalPixelLessSeeds*ckfTrackCandidatesPixelLess*ctfPixelLess)
 ctfTracksCombinedSeeds = cms.Sequence(globalSeedsFromPairsWithVertices*globalSeedsFromTriplets*globalCombinedSeeds*ckfTrackCandidatesCombinedSeeds*ctfCombinedSeeds)
 
+#
+# Regional reconstruction for cosmics
+#
+# Seeds
+from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cff import *
+# Ckf
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+regionalCosmicCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(src = cms.InputTag( "regionalCosmicMuonSeeds" ),
+                                                                                                      NavigationSchool = cms.string('CosmicNavigationSchool'),
+                                                                                                      TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" )    )
+# Track producer
+import RecoTracker.TrackProducer.TrackProducer_cfi
+regionalCosmicCtfWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ))
+# Final Sequence
+from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
+regionalCosmic = cms.Sequence( trackerlocalreco * regionalCosmicMuonSeeds * regionalCosmicCkfTrackCandidates * offlineBeamSpot * regionalCosmicCtfWithMaterialTracks )
