@@ -74,9 +74,9 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
       SiStripDetVOff * modV = resultVec[0].first;
       if (*modV == *payload) {
 	LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setForTransfer] Transfer of first element not required!";
-      } else {
-	firstPayload = 1;
+	firstPayload = 1; //GBenelli Fixing this bug that could affect appending behavior
       }
+
     } else {     
       LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setForTransfer] No previous payload";
     }
