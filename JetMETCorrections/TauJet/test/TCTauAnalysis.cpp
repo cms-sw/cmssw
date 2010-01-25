@@ -105,9 +105,7 @@ TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
 	MCTaus    = iConfig.getParameter<edm::InputTag>("MCTauCollection");
 }
 
-TCTauAnalysis::~TCTauAnalysis(){
-	delete tauTree;
-}
+TCTauAnalysis::~TCTauAnalysis(){}
 
 void TCTauAnalysis::resetNtuple(){
         MCTau_pt  = 0;
