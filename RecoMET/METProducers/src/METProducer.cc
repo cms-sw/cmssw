@@ -55,7 +55,7 @@ namespace cms
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
-    calculateSignificance = false ; 
+    calculateSignificance = false ;
 
     if( METtype == "CaloMET" ) 
       {
@@ -77,7 +77,13 @@ namespace cms
       {
 	produces<METCollection>().setBranchAlias(alias.c_str());
 	TCMETAlgo ALGO;
-	responseFunction_ = (*ALGO.getResponseFunction());
+
+	int rfType_ = iConfig.getParameter<int>("rf_type");
+
+	if( rfType_ == 1 )
+	     responseFunction_ = (*ALGO.getResponseFunction_fit());
+	else if( rfType_ == 2 )
+	     responseFunction_ = (*ALGO.getResponseFunction_mode());
       }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
