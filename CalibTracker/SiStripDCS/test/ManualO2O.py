@@ -127,7 +127,7 @@ while newTmax <= tMaxPacked:
 
     newTmaxString = " = cms.vint32("+year +","+ str(month) +","+ day +","+ str(hour) +","+ str(minute) +","+ str(second) + ", 000),"
 
-    print "Creating cfg with tMax = ", newTmaxString
+    print "Creating cfg with tMax ", newTmaxString
 
     newTmaxDateString = year.strip()+"_"+str(month).strip()+"_"+str(day).strip()+"_"+str(hour).strip()+"_"+str(minute).strip()+"_"+str(second).strip()
 
