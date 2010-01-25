@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsClient.h
  *
- * $Date: 2009/09/23 07:25:51 $
- * $Revision: 1.17 $
+ * $Date: 2009/10/28 08:18:21 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -23,9 +23,11 @@
 
 class MonitorElement;
 class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+#endif
 
 class EBStatusFlagsClient : public EBClient {
 
@@ -60,8 +62,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

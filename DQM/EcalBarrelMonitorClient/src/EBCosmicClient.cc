@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.120 $
+ * $Date: 2009/10/28 08:18:21 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,9 +17,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -140,6 +141,7 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -147,6 +149,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   return true;
 
 }
+#endif
 
 void EBCosmicClient::analyze(void) {
 

@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/11/09 16:38:54 $
- * $Revision: 1.53 $
+ * $Date: 2009/12/11 16:08:51 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -23,9 +23,11 @@
 
 class MonitorElement;
 class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+#endif
 
 class EBSummaryClient : public EBClient {
 
@@ -58,8 +60,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

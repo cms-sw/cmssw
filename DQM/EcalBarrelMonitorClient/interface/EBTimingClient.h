@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.30 $
+ * $Date: 2009/10/28 08:18:21 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -23,9 +23,11 @@
 
 class MonitorElement;
 class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+#endif
 
 class EBTimingClient : public EBClient {
 
@@ -60,8 +62,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

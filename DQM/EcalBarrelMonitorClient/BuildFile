@@ -1,5 +1,8 @@
+
+### <use name=OnlineDB/EcalCondDB>
+### <flags CPPDEFINES="WITH_ECAL_COND_DB">
+
 <use name=DQM/EcalCommon>
-<use name=OnlineDB/EcalCondDB>
 <use name=DQMServices/Core>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Framework>

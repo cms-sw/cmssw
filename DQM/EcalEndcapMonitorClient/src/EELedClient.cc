@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.101 $
+ * $Date: 2009/10/28 08:18:23 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,6 +18,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
@@ -27,8 +28,8 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
@@ -576,6 +577,7 @@ void EELedClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -1010,6 +1012,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
   return true;
 
 }
+#endif
 
 void EELedClient::analyze(void) {
 
@@ -1043,6 +1046,7 @@ void EELedClient::analyze(void) {
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
 
+#ifdef WITH_ECAL_COND_DB
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
   map<EcalLogicID, RunTTErrorsDat> mask3;
@@ -1050,6 +1054,7 @@ void EELedClient::analyze(void) {
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
   EcalErrorMask::fetchDataSet(&mask3);
+#endif
 
   char histo[200];
 
@@ -1409,6 +1414,7 @@ void EELedClient::analyze(void) {
 
         // masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask1.begin(); m != mask1.end(); m++) {
@@ -1435,9 +1441,11 @@ void EELedClient::analyze(void) {
 
           }
         }
+#endif
 
         // TT masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask3.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask3.begin(); m != mask3.end(); m++) {
@@ -1453,6 +1461,7 @@ void EELedClient::analyze(void) {
 
           }
         }
+#endif
 
       }
     }
@@ -1581,6 +1590,7 @@ void EELedClient::analyze(void) {
 
       // masking
 
+#ifdef WITH_ECAL_COND_DB
       if ( mask2.size() != 0 ) {
         map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
         for (m = mask2.begin(); m != mask2.end(); m++) {
@@ -1600,6 +1610,7 @@ void EELedClient::analyze(void) {
 
         }
       }
+#endif
 
     }
 

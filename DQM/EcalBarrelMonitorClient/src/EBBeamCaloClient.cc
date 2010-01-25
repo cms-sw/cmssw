@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.91 $
+ * $Date: 2009/10/28 08:18:21 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -18,9 +18,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -234,6 +235,7 @@ void EBBeamCaloClient::cleanup(void) {
   meEBBCaloRedGreenSteps_ = 0;
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -329,6 +331,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   return true;
 
 }
+#endif
 
 void EBBeamCaloClient::analyze(void) {
 

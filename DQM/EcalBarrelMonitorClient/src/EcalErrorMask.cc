@@ -1,23 +1,23 @@
-// $Id: EcalErrorMask.cc,v 1.11 2009/09/23 07:28:59 emanuele Exp $
+// $Id: EcalErrorMask.cc,v 1.19 2009/10/01 10:17:57 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.11 $
-  \date $Date: 2009/09/23 07:28:59 $
+  \version $Revision: 1.19 $
+  \date $Date: 2009/10/01 10:17:57 $
 */
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
-
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#endif
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
@@ -35,11 +35,13 @@
 #include <regex.h>
 
 int  EcalErrorMask::runNb_ = -1;
+#ifdef WITH_ECAL_COND_DB
 std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_;
 std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_;
 std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_;
 std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_;
 std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
+#endif
 
 //----------------------------------------------------------------------------------
 
@@ -180,6 +182,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           return;
         }
       }
+#ifdef WITH_ECAL_COND_DB
       if( !verifySyntax ) {
         EcalLogicID id;
         if(subdet == EcalBarrel) id = LogicID::getEcalLogicID( "EB_crystal_number", sm, ic );
@@ -196,6 +199,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           EcalErrorMask::mapCrystalErrors_[ id ] = error;
         }
       }
+#endif
     }
     else if( strcmp(s.c_str(), "TT") == 0 ) {
       int it; is >> it;
@@ -234,6 +238,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           return;
         }
       }
+#ifdef WITH_ECAL_COND_DB
       if( !verifySyntax ) {
         EcalLogicID id;
         if(subdet == EcalBarrel) id = LogicID::getEcalLogicID( "EB_trigger_tower", sm, it );
@@ -250,6 +255,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           EcalErrorMask::mapTTErrors_[ id ] = error;
         }
       }
+#endif
     }
     else if( strcmp(s.c_str(), "PN") == 0 ) {
       int ic; is >> ic;
@@ -287,6 +293,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           return;
         }
       }
+#ifdef WITH_ECAL_COND_DB
       if( !verifySyntax ) {
         EcalLogicID id;
         if(subdet == EcalBarrel) id = LogicID::getEcalLogicID( "EB_LM_PN", sm, ic-1 );
@@ -303,6 +310,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           EcalErrorMask::mapPNErrors_[ id ] = error;
         }
       }
+#endif
     }
     else if( strcmp(s.c_str(), "MemCh") == 0 ) {
       int ic; is >> ic;
@@ -340,6 +348,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           return;
         }
       }
+#ifdef WITH_ECAL_COND_DB
       if( !verifySyntax ) {
         EcalLogicID id;
         if(subdet == EcalBarrel) id = LogicID::getEcalLogicID( "EB_mem_channel", sm, ic );
@@ -356,6 +365,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           EcalErrorMask::mapMemChErrors_[ id ] = error;
         }
       }
+#endif
     }
     else if( strcmp(s.c_str(), "MemTT") == 0 ) {
       int it; is >> it;
@@ -393,6 +403,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           return;
         }
       }
+#ifdef WITH_ECAL_COND_DB
       if( !verifySyntax ) {
         EcalLogicID id;
         if(subdet == EcalBarrel) id = LogicID::getEcalLogicID( "EB_mem_TT", sm, it );
@@ -409,6 +420,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
           EcalErrorMask::mapMemTTErrors_[ id ] = error;
         }
       }
+#endif
     }
     else {
       std::ostringstream os;
@@ -451,6 +463,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
 
 //----------------------------------------------------------------------------------
 
+#ifdef WITH_ECAL_COND_DB
 void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error ) {
 
   std::ifstream inf( outFile.c_str() );
@@ -485,7 +498,7 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
   f << "# Errors on Crystals masks" << std::endl;
   for( std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.begin();
        i != EcalErrorMask::mapCrystalErrors_.end(); i++ ) {
-    string type = "Crystal";
+    std::string type = "Crystal";
     std::string name = (i->first).getName();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
@@ -498,7 +511,7 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
   f << "# Errors on Trigger Towers masks" << std::endl;
   for( std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.begin();
        i != EcalErrorMask::mapTTErrors_.end(); i++ ) {
-    string type = "TT";
+    std::string type = "TT";
     std::string name = (i->first).getName();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
@@ -511,7 +524,7 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
   f << "# Errors on PN masks" << std::endl;
   for( std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.begin();
        i != EcalErrorMask::mapPNErrors_.end(); i++ ) {
-    string type = "PN";
+    std::string type = "PN";
     std::string name = (i->first).getName();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
@@ -524,7 +537,7 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
   f << "# Errors on MemCh masks" << std::endl;
   for( std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.begin();
        i != EcalErrorMask::mapMemChErrors_.end(); i++ ) {
-    string type = "MemCh";
+    std::string type = "MemCh";
     std::string name = (i->first).getName();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
@@ -537,7 +550,7 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
   f << "# Errors on MemTT masks" << std::endl;
   for( std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.begin();
        i != EcalErrorMask::mapMemTTErrors_.end(); i++ ) {
-    string type = "Crystal ";
+    std::string type = "Crystal ";
     std::string name = (i->first).getName();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
@@ -560,7 +573,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     RunIOV validIOV;
     RunTag runTag = runIOV->getRunTag();
 
-    string location = runTag.getLocationDef().getLocation();
+    std::string location = runTag.getLocationDef().getLocation();
 
     std::cout << std::endl;
     std::cout << " RunCrystalErrorsDat: ";
@@ -680,6 +693,7 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fil
   return;
 
 }
+#endif
 
 //----------------------------------------------------------------------------------
 

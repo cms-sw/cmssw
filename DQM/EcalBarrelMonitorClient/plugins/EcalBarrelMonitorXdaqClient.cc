@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorXdaqClient.cc
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.114 $
+ * $Date: 2009/04/17 09:56:26 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -12,8 +12,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#endif
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h"
 
@@ -28,6 +30,8 @@
 #include "cgicc/Cgicc.h"
 #include "cgicc/FormEntry.h"
 #include "cgicc/HTMLClasses.h"
+
+using namespace std;
 
 class EcalBarrelMonitorXdaqClient: public EcalBarrelMonitorClient, public evf::ModuleWeb{
 
@@ -143,7 +147,7 @@ void defaultWebPage(xgi::Input *in, xgi::Output *out) {
 
   *out << "</td><tr><td>" << endl;
 
-
+#ifdef WITH_ECAL_COND_DB
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>RunIOV</th>"
@@ -180,9 +184,9 @@ void defaultWebPage(xgi::Input *in, xgi::Output *out) {
        << "<tr><td>GeneralTag</td><td align=right> " << moniov_.getMonRunTag().getGeneralTag()
        << "</td><tr><td>Monitoring Version</td><td align=right> " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion()
        << "</td></table></p>" << endl;
+#endif
 
   *out << "</td><table>" << endl;
-
 
   *out << "</body>"                                                  << endl;
 

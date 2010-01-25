@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.35 $
+ * $Date: 2009/12/12 10:30:23 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,9 +18,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -179,6 +180,7 @@ void EEOccupancyClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -280,6 +282,7 @@ bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   return true;
 
 }
+#endif
 
 void EEOccupancyClient::analyze(void) {
 

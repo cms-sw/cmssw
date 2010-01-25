@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2009/08/27 15:41:01 $
- * $Revision: 1.24 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -25,8 +25,10 @@
 
 class MonitorElement;
 class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class EcalCondDBInterface;
 class MonRunIOV;
+#endif
 
 class EEBeamCaloClient : public EEClient {
 
@@ -59,8 +61,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -87,7 +91,7 @@ std::vector<int> superModules_;
 DQMStore* dqmStore_;
 
 //specific task me
-vector<int> checkedSteps_;
+std::vector<int> checkedSteps_;
 float prescaling_;
 //specific task me
 

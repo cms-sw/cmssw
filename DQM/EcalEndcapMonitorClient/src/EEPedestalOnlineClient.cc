@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2009/08/27 15:41:03 $
- * $Revision: 1.87 $
+ * $Date: 2009/10/28 08:18:23 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,11 +18,12 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
@@ -219,6 +220,7 @@ void EEPedestalOnlineClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -308,6 +310,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   return true;
 
 }
+#endif
 
 void EEPedestalOnlineClient::analyze(void) {
 
@@ -323,11 +326,13 @@ void EEPedestalOnlineClient::analyze(void) {
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
 
+#ifdef WITH_ECAL_COND_DB
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunTTErrorsDat> mask2;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+#endif
 
   char histo[200];
 
@@ -385,6 +390,7 @@ void EEPedestalOnlineClient::analyze(void) {
 
         // masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask1.begin(); m != mask1.end(); m++) {
@@ -410,9 +416,11 @@ void EEPedestalOnlineClient::analyze(void) {
 
           }
         }
+#endif
 
         // TT masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask2.begin(); m != mask2.end(); m++) {
@@ -429,6 +437,7 @@ void EEPedestalOnlineClient::analyze(void) {
 
           }
         }
+#endif
 
       }
     }

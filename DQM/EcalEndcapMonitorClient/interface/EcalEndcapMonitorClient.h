@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2009/10/26 17:33:10 $
- * $Revision: 1.55 $
+ * $Date: 2009/11/09 14:10:04 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,8 +28,10 @@
 #include "TH1.h"
 
 class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class RunIOV;
 class MonRunIOV;
+#endif
 
 class EcalEndcapMonitorClient: public edm::EDAnalyzer{
 
@@ -120,9 +122,11 @@ std::string dbTagName_;
 std::string maskFile_;
 
 bool mergeRuns_;
- 
+
+#ifdef WITH_ECAL_COND_DB 
 RunIOV runiov_;
 MonRunIOV moniov_;
+#endif
 
 int subrun_;
  

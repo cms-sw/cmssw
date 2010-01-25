@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/11/21 16:11:07 $
- * $Revision: 1.189 $
+ * $Date: 2009/12/11 16:08:56 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  *
 */
@@ -17,8 +17,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#endif
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -1411,6 +1413,7 @@ void EESummaryClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -1418,6 +1421,7 @@ bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
   return true;
 
 }
+#endif
 
 void EESummaryClient::analyze(void) {
 

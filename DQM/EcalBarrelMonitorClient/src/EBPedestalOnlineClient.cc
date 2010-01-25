@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2009/08/27 15:31:31 $
- * $Revision: 1.148 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,11 +18,12 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
@@ -210,6 +211,7 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -290,6 +292,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   return true;
 
 }
+#endif
 
 void EBPedestalOnlineClient::analyze(void) {
 
@@ -305,11 +308,13 @@ void EBPedestalOnlineClient::analyze(void) {
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
 
+#ifdef WITH_ECAL_COND_DB
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunTTErrorsDat> mask2;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+#endif
 
   char histo[200];
 
@@ -357,6 +362,7 @@ void EBPedestalOnlineClient::analyze(void) {
 
         // masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask1.begin(); m != mask1.end(); m++) {
@@ -373,9 +379,11 @@ void EBPedestalOnlineClient::analyze(void) {
 
           }
         }
+#endif
 
         // TT masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask2.begin(); m != mask2.end(); m++) {
@@ -392,6 +400,7 @@ void EBPedestalOnlineClient::analyze(void) {
 
           }
         }
+#endif
 
       }
     }

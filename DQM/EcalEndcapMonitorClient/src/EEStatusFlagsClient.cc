@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2009/09/23 07:26:02 $
- * $Revision: 1.28 $
+ * $Date: 2009/10/28 08:18:23 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -16,7 +16,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#endif
+
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
@@ -148,6 +151,7 @@ void EEStatusFlagsClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -171,6 +175,7 @@ bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
   return true;
 
 }
+#endif
 
 void EEStatusFlagsClient::analyze(void) {
 
@@ -183,8 +188,11 @@ void EEStatusFlagsClient::analyze(void) {
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
 
+#ifdef WITH_ECAL_COND_DB
   map<EcalLogicID, RunTTErrorsDat> mask1;
+
   EcalErrorMask::fetchDataSet(&mask1);
+#endif
 
   char histo[200];
 
@@ -210,7 +218,8 @@ void EEStatusFlagsClient::analyze(void) {
     meh03_[ism-1] = me;    
 
     // TT masking
-    
+
+#ifdef WITH_ECAL_COND_DB
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
         
@@ -249,9 +258,10 @@ void EEStatusFlagsClient::analyze(void) {
       
           }
         }
-        
+
       }
     }
+#endif
 
   }
 

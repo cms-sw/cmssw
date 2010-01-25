@@ -1,11 +1,11 @@
-// $Id: EEClient.h,v 1.17 2009/08/27 15:41:03 dellaric Exp $
+// $Id: EEClient.h,v 1.18 2009/10/28 08:18:22 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.17 $
-  \date $Date: 2009/08/27 15:41:03 $
+  \version $Revision: 1.18 $
+  \date $Date: 2009/10/28 08:18:22 $
 */
 
 
@@ -16,8 +16,10 @@
 
 class EcalCondDBInterface;
 class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class RunIOV;
 class MonRunIOV;
+#endif
 
 class EEClient {
 
@@ -58,6 +60,7 @@ class EEClient {
   */
   virtual void cleanup(void)      = 0;
 
+#ifdef WITH_ECAL_COND_DB
   /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
     \brief Write data to DataBase
     \param econn DB interface
@@ -65,6 +68,7 @@ class EEClient {
     \param status good or bad
   */
   virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) = 0;
+#endif
 
   /*! \fn virtual int getEvtPerJob( void );
     \brief Returns the total number of processed events

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/11/22 19:30:23 $
- * $Revision: 1.233 $
+ * $Date: 2009/11/22 23:27:33 $
+ * $Revision: 1.234 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,10 +28,12 @@
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#endif
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
@@ -105,6 +107,12 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
       cout << " Ecal Cond DB is OFF" << endl;
     }
   }
+
+#ifndef WITH_ECAL_COND_DB
+  cout << endl;
+  cout << "WARNING: DB access is DISABLED" << endl;
+  cout << endl;
+#endif
 
   // Mask file
 
@@ -905,6 +913,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   subrun_ = 0;
 
+#ifdef WITH_ECAL_COND_DB
   EcalCondDBInterface* econn;
 
   econn = 0;
@@ -1067,6 +1076,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
       cerr << e.what() << endl;
     }
   }
+#endif
 
   if ( verbose_ ) cout << endl;
 
@@ -1076,6 +1086,7 @@ void EcalEndcapMonitorClient::writeDb() {
 
   subrun_++;
 
+#ifdef WITH_ECAL_COND_DB
   EcalCondDBInterface* econn;
 
   econn = 0;
@@ -1277,6 +1288,7 @@ void EcalEndcapMonitorClient::writeDb() {
       cerr << e.what() << endl;
     }
   }
+#endif
 
   if ( verbose_ ) cout << endl;
 
@@ -1284,6 +1296,7 @@ void EcalEndcapMonitorClient::writeDb() {
 
 void EcalEndcapMonitorClient::endRunDb(void) {
 
+#ifdef WITH_ECAL_COND_DB
   EcalCondDBInterface* econn;
 
   econn = 0;
@@ -1370,6 +1383,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
       cerr << e.what() << endl;
     }
   }
+#endif
 
 }
 

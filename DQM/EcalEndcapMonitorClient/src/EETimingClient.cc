@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2009/11/05 14:05:18 $
- * $Revision: 1.89 $
+ * $Date: 2009/12/11 16:13:18 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  *
 */
@@ -17,11 +17,12 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
@@ -239,6 +240,7 @@ void EETimingClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -330,6 +332,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   return true;
 
 }
+#endif
 
 void EETimingClient::analyze(void) {
 
@@ -343,11 +346,13 @@ void EETimingClient::analyze(void) {
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_MEAN_TIMING_WARNING");
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_RMS_TIMING_WARNING");
 
+#ifdef WITH_ECAL_COND_DB
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunTTErrorsDat> mask2;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+#endif
 
   char histo[200];
 
@@ -423,6 +428,7 @@ void EETimingClient::analyze(void) {
 
         // masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask1.begin(); m != mask1.end(); m++) {
@@ -448,9 +454,11 @@ void EETimingClient::analyze(void) {
 
           }
         }
+#endif
 
         // TT masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask2.begin(); m != mask2.end(); m++) {
@@ -467,6 +475,7 @@ void EETimingClient::analyze(void) {
 
           }
         }
+#endif
 
       }
     }

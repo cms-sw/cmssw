@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.93 $
+ * $Date: 2009/10/29 14:29:27 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,6 +18,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonCrystalConsistencyDat.h"
@@ -29,8 +30,8 @@
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#endif
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
@@ -269,6 +270,7 @@ void EEIntegrityClient::cleanup(void) {
 
 }
 
+#ifdef WITH_ECAL_COND_DB
 bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
@@ -685,6 +687,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   return true;
 
 }
+#endif
 
 void EEIntegrityClient::analyze(void) {
 
@@ -712,6 +715,7 @@ void EEIntegrityClient::analyze(void) {
   bits02 |= EcalErrorDictionary::getMask("TT_LV1_ERROR");
   bits02 |= EcalErrorDictionary::getMask("TT_BUNCH_X_ERROR");
 
+#ifdef WITH_ECAL_COND_DB
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunTTErrorsDat> mask2;
   map<EcalLogicID, RunMemChErrorsDat> mask3;
@@ -721,6 +725,7 @@ void EEIntegrityClient::analyze(void) {
   EcalErrorMask::fetchDataSet(&mask2);
   EcalErrorMask::fetchDataSet(&mask3);
   EcalErrorMask::fetchDataSet(&mask4);
+#endif
 
   char histo[200];
 
@@ -875,6 +880,7 @@ void EEIntegrityClient::analyze(void) {
 
         // masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask1.begin(); m != mask1.end(); m++) {
@@ -900,7 +906,11 @@ void EEIntegrityClient::analyze(void) {
 
           }
         }
+#endif
 
+        // TT masking
+
+#ifdef WITH_ECAL_COND_DB
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask2.begin(); m != mask2.end(); m++) {
@@ -917,6 +927,7 @@ void EEIntegrityClient::analyze(void) {
 
           }
         }
+#endif
 
       }
     }// end of loop on crystals to fill summary plot
@@ -997,6 +1008,7 @@ void EEIntegrityClient::analyze(void) {
 
         // masking
 
+#ifdef WITH_ECAL_COND_DB
         if ( mask3.size() != 0 ) {
           map<EcalLogicID, RunMemChErrorsDat>::const_iterator m;
           for (m = mask3.begin(); m != mask3.end(); m++) {
@@ -1012,7 +1024,11 @@ void EEIntegrityClient::analyze(void) {
             }
           }
         }
+#endif
 
+        // TT masking
+
+#ifdef WITH_ECAL_COND_DB
         if ( mask4.size() != 0 ) {
           map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
           for (m = mask4.begin(); m != mask4.end(); m++) {
@@ -1029,6 +1045,7 @@ void EEIntegrityClient::analyze(void) {
             }
           }
         }
+#endif
 
       }
     }  // end loop on mem channels

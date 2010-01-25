@@ -1,4 +1,6 @@
-// $Id: LogicID.cc,v 1.1 2009/05/12 12:52:49 dellaric Exp $
+#ifdef WITH_ECAL_COND_DB
+
+// $Id: LogicID.cc,v 1.1 2009/10/01 10:17:57 dellaric Exp $
 
 /*!
   \file LogicID.cc
@@ -6,7 +8,7 @@
   \author G. Della Ricca
   \author B. Gobbo
   \version $Revision: 1.1 $
-  \date $Date: 2009/05/12 12:52:49 $
+  \date $Date: 2009/10/01 10:17:57 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -96,3 +98,4 @@ EcalLogicID LogicID::getEcalLogicID( const char* name,
 
 }
 
+#endif

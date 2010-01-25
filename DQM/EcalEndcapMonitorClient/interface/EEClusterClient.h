@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.29 $
+ * $Date: 2009/12/12 10:30:23 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -25,9 +25,11 @@
 
 class MonitorElement;
 class DQMStore;
+#ifdef WITH_ECAL_COND_DB
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+#endif
 
 class EEClusterClient : public EEClient {
 
@@ -62,8 +64,10 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+#ifdef WITH_ECAL_COND_DB
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
+#endif
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

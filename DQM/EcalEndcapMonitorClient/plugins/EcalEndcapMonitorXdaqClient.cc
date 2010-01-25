@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorXdaqClient.h
  cc
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.114 $
+ * $Date: 2009/04/17 09:56:27 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -12,8 +12,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#endif
 
 #include "DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h"
 
@@ -42,8 +44,8 @@ virtual ~EcalEndcapMonitorXdaqClient() {};
 /// XDAQ web page
 void defaultWebPage(xgi::Input *in, xgi::Output *out) {
 
-  string path;
-  string mname;
+  std::string path;
+  std::string mname;
 
   static bool autorefresh_ = false;
 
@@ -62,43 +64,43 @@ void defaultWebPage(xgi::Input *in, xgi::Output *out) {
     cgicc::CgiEnvironment cgie(in);
     path = cgie.getPathInfo() + "?" + cgie.getQueryString();
 
-  } catch (exception &e) {
+  } catch (std::exception &e) {
 
-    cerr << "Standard C++ exception : " << e.what() << endl;
+    std::cerr << "Standard C++ exception : " << e.what() << std::endl;
 
   }
 
-  *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
-  *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;
+  *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << std::endl;
+  *out << cgicc::html().set("lang", "en").set("dir","ltr")           << std::endl;
 
-  *out << "<html>"                                                   << endl;
+  *out << "<html>"                                                   << std::endl;
 
-  *out << "<head>"                                                   << endl;
+  *out << "<head>"                                                   << std::endl;
 
   *out << "<title>" << typeid(EcalEndcapMonitorXdaqClient).name()
-       << " MAIN</title>"                                            << endl;
+       << " MAIN</title>"                                            << std::endl;
 
   if ( autorefresh_ ) {
-    *out << "<meta http-equiv=\"refresh\" content=\"3\">"            << endl;
+    *out << "<meta http-equiv=\"refresh\" content=\"3\">"            << std::endl;
   }
 
-  *out << "</head>"                                                  << endl;
+  *out << "</head>"                                                  << std::endl;
 
-  *out << "<body>"                                                   << endl;
+  *out << "<body>"                                                   << std::endl;
 
   *out << cgicc::form().set("method","GET").set("action", path )
-       << endl;
+       << std::endl;
   *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
-       << endl;
+       << std::endl;
   *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
-       << endl;
+       << std::endl;
   *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
-       << endl;
-  *out << cgicc::form()                                              << endl;
+       << std::endl;
+  *out << cgicc::form()                                              << std::endl;
 
-  *out << cgicc::h3( "EcalEndcapMonitorXdaqClient Status" ).set( "style", "font-family:arial" ) << endl;
+  *out << cgicc::h3( "EcalEndcapMonitorXdaqClient Status" ).set( "style", "font-family:arial" ) << std::endl;
 
-  *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
+  *out << "<table style=\"font-family: arial\"><tr><td>" << std::endl;
 
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
@@ -108,51 +110,51 @@ void defaultWebPage(xgi::Input *in, xgi::Output *out) {
   *out << "<tr><th>Event</th><td align=right>" << nevt
        << "</td><tr><th>Run</th><td align=right>" << run_
        << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
-       << "</td></table></p>" << endl;
+       << "</td></table></p>" << std::endl;
 
-  *out << "</td><td>" << endl;
+  *out << "</td><td>" << std::endl;
 
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
-       << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
+       << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << std::endl;
   for( unsigned int i = 0, j = 0; i < runTypes_.size(); i++ ) {
     if ( strcmp(runTypes_[i].c_str(), "UNKNOWN") != 0 ) {
       if ( j++%2 == 0 ) *out << "<tr>";
       nevt = 0;
       if ( h_ != 0 ) nevt = int( h_->GetBinContent(i+1) );
       *out << "<td>" << runTypes_[i]
-           << "</td><td align=right>" << nevt << endl;
+           << "</td><td align=right>" << nevt << std::endl;
     }
   }
-  *out << "</td></table></p>" << endl;
+  *out << "</td></table></p>" << std::endl;
 
-  *out << "</td><tr><td colspan=2>" << endl;
+  *out << "</td><tr><td colspan=2>" << std::endl;
 
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
-       << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
+       << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << std::endl;
   for( unsigned int i = 0; i < clients_.size(); i++ ) {
     if ( clients_[i] != 0 ) {
       if ( i%2 == 0 ) *out << "<tr>";
       *out << "<td>" << clientsNames_[i]
            << "</td><td align=right>" << clients_[i]->getEvtPerJob()
-           << "</td><td align=right>" << clients_[i]->getEvtPerRun() << endl;
+           << "</td><td align=right>" << clients_[i]->getEvtPerRun() << std::endl;
     }
   }
-  *out << "</td></table></p>" << endl;
+  *out << "</td></table></p>" << std::endl;
 
-  *out << "</td><tr><td>" << endl;
+  *out << "</td><tr><td>" << std::endl;
 
-
+#ifdef WITH_ECAL_COND_DB
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>RunIOV</th>"
        << "<tr><td>Run Number</td><td align=right> " << runiov_.getRunNumber()
        << "</td><tr><td>Run Start</td><td align=right> " << runiov_.getRunStart().str()
        << "</td><tr><td>Run End</td><td align=right> " << runiov_.getRunEnd().str()
-       << "</td></table></p>" << endl;
+       << "</td></table></p>" << std::endl;
 
-  *out << "</td><td colsapn=2>" << endl;
+  *out << "</td><td colsapn=2>" << std::endl;
 
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
@@ -160,9 +162,9 @@ void defaultWebPage(xgi::Input *in, xgi::Output *out) {
        << "<tr><td>GeneralTag</td><td align=right> " << runiov_.getRunTag().getGeneralTag()
        << "</td><tr><td>Location</td><td align=right> " << runiov_.getRunTag().getLocationDef().getLocation()
        << "</td><tr><td>Run Type</td><td align=right> " << runiov_.getRunTag().getRunTypeDef().getRunType()
-       << "</td></table></p>" << endl;
+       << "</td></table></p>" << std::endl;
 
-  *out << "</td><tr><td>" << endl;
+  *out << "</td><tr><td>" << std::endl;
 
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
@@ -170,23 +172,23 @@ void defaultWebPage(xgi::Input *in, xgi::Output *out) {
        << "<tr><td>SubRun Number</td><td align=right> " << moniov_.getSubRunNumber()
        << "</td><tr><td>SubRun Start</td><td align=right> " << moniov_.getSubRunStart().str()
        << "</td><tr><td>SubRun End</td><td align=right> " << moniov_.getSubRunEnd().str()
-       << "</td></table></p>" << endl;
+       << "</td></table></p>" << std::endl;
 
-  *out << "</td><td colspan=2>" << endl;
+  *out << "</td><td colspan=2>" << std::endl;
 
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>MonRunTag</th>"
        << "<tr><td>GeneralTag</td><td align=right> " << moniov_.getMonRunTag().getGeneralTag()
        << "</td><tr><td>Monitoring Version</td><td align=right> " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion()
-       << "</td></table></p>" << endl;
+       << "</td></table></p>" << std::endl;
+#endif
 
-  *out << "</td><table>" << endl;
+  *out << "</td><table>" << std::endl;
 
+  *out << "</body>"                                                  << std::endl;
 
-  *out << "</body>"                                                  << endl;
-
-  *out << "</html>"                                                  << endl;
+  *out << "</html>"                                                  << std::endl;
 
   };
 
