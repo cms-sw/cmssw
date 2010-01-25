@@ -45,6 +45,8 @@ from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 
 # ECAL clusters
 from RecoEcal.Configuration.RecoEcal_cff import *
+ecalClusters.remove(seldigis)
+
 
 # Calo Towers
 from RecoJets.Configuration.CaloTowersRec_cff import *
