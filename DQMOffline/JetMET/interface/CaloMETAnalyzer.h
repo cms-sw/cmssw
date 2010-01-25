@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/12/04 19:29:19 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/01/18 21:04:05 $
+ *  $Revision: 1.11 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -81,6 +81,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   bool selectLowPtJetEvent(const edm::Event&);
   bool selectWElectronEvent(const edm::Event&);
   bool selectWMuonEvent(const edm::Event&);
+  bool selectPhysicsDeclaredEvent(const edm::Event&);
 
   int evtCounter;
 
@@ -112,7 +113,22 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
-  
+  std::string _hlt_PhysDec;
+
+  std::vector<unsigned > _techTrigs;
+
+  bool _doPVCheck;
+  bool _doHLTPhysicsOn;
+
+  bool     _tightBHFiltering;
+  unsigned _tightJetIDFiltering;
+  bool     _tightHcalFiltering;
+
+  int _nvtx_min;
+  int _nvtxtrks_min;
+  double _vtxchi2_max;
+  double _vtxz_max;
+
   int _trig_JetMB;
   int _trig_HighPtJet;
   int _trig_LowPtJet;
@@ -120,6 +136,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
+  int _trig_PhysDec;
 
   double _highPtJetThreshold;
   double _lowPtJetThreshold;
@@ -166,6 +183,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
   MonitorElement* meTriggerName_Muon;
+  MonitorElement* meTriggerName_PhysDec;
 
   MonitorElement* meNevents;
   MonitorElement* meCaloMEx;

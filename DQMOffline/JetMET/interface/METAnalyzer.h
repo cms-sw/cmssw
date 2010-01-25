@@ -4,10 +4,10 @@
 
 /** \class METAnalyzer
  *
- *  DQM monitoring source for CaloMET
+ *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2009/12/03 02:10:12 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/18 21:04:05 $
+ *  $Revision: 1.8 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -87,6 +87,7 @@ class METAnalyzer : public METAnalyzerBase {
   bool selectLowPtJetEvent(const edm::Event&);
   bool selectWElectronEvent(const edm::Event&);
   bool selectWMuonEvent(const edm::Event&);
+  bool selectPhysicsDeclaredEvent(const edm::Event&);
 
   void setSource(std::string source) {
     _source = source;
@@ -129,6 +130,21 @@ class METAnalyzer : public METAnalyzerBase {
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
+  std::string _hlt_PhysDec;
+
+  std::vector<unsigned > _techTrigs;
+
+  bool _doPVCheck;
+  bool _doHLTPhysicsOn;
+
+  bool     _tightBHFiltering;
+  unsigned _tightJetIDFiltering;
+  bool     _tightHcalFiltering;
+
+  int _nvtx_min;
+  int _nvtxtrks_min;
+  double _vtxchi2_max;
+  double _vtxz_max;
   
   int _trig_JetMB;
   int _trig_HighPtJet;
@@ -137,6 +153,7 @@ class METAnalyzer : public METAnalyzerBase {
   int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
+  int _trig_PhysDec;
 
 
   double _highPtJetThreshold;
@@ -182,6 +199,7 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
   MonitorElement* meTriggerName_Muon;
+  MonitorElement* meTriggerName_PhysDec;
 
   MonitorElement* meNevents;
   MonitorElement* meMEx;

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/04 19:29:19 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/01/18 21:03:51 $
+ *  $Revision: 1.12 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -24,6 +24,10 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include <string>
 using namespace std;
@@ -55,6 +59,25 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
   _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
+  _hlt_PhysDec   = parameters.getParameter<std::string>("HLT_PhysDec");
+
+  _techTrigs     = parameters.getParameter<std::vector<unsigned > >("techTrigs");
+
+  _doPVCheck          = parameters.getParameter<bool>("doPrimaryVertexCheck");
+  _doHLTPhysicsOn     = parameters.getParameter<bool>("doHLTPhysicsOn");
+
+  _tightBHFiltering     = parameters.getParameter<bool>("tightBHFiltering");
+  _tightJetIDFiltering  = parameters.getParameter<unsigned>("tightJetIDFiltering");
+  _tightHcalFiltering   = parameters.getParameter<bool>("tightHcalFiltering");
+
+  //Vertex requirements
+  if (_doPVCheck) {
+    _nvtx_min        = parameters.getParameter<int>("nvtx_min");
+    _nvtxtrks_min    = parameters.getParameter<int>("nvtxtrks_min");
+    _vtxchi2_max     = parameters.getParameter<double>("vtxchi2_max");
+    _vtxz_max        = parameters.getParameter<double>("vtxz_max");
+  }
+
 
   // PFMET information
   thePfMETCollectionLabel       = parameters.getParameter<edm::InputTag>("PfMETCollectionLabel");
@@ -93,8 +116,8 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _dbe = dbe;
 
   _FolderNames.push_back("All");
-  _FolderNames.push_back("Cleanup");
-  _FolderNames.push_back("CleanupPV");
+  _FolderNames.push_back("BasicCleanup");
+  _FolderNames.push_back("ExtraCleanup");
   _FolderNames.push_back("HcalNoiseFilter");
   _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetIDMinimal");
@@ -107,17 +130,18 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")             bookMESet(DirName+"/"+*ic);
-    if (*ic=="Cleanup")         bookMESet(DirName+"/"+*ic);
-    if (*ic=="CleanupPV")       bookMESet(DirName+"/"+*ic);
+    if (*ic=="BasicCleanup")    bookMESet(DirName+"/"+*ic);
+    if (*ic=="ExtraCleanup")    bookMESet(DirName+"/"+*ic);
     if (_allSelection){
-    if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-    if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="PV")                   bookMESet(DirName+"/"+*ic);
+      if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
+      if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
+      if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
+      if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
+      if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
+      if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
+      if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
+      if (*ic=="Triggers")             bookMESet(DirName+"/"+*ic);
+      if (*ic=="PV")                   bookMESet(DirName+"/"+*ic);
     }
   }
 }
@@ -166,6 +190,11 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
   if (_hlt_Muon.size()){
     bookMonitorElement(DirName+"/"+"Muon",false);
     meTriggerName_Muon = _dbe->bookString("triggerName_Muon", _hlt_Muon);
+  }
+
+  if (_hlt_PhysDec.size()){
+    bookMonitorElement(DirName+"/"+"PhysicsDeclared",false);
+    meTriggerName_PhysDec = _dbe->bookString("triggerName_PhysicsDeclared", _hlt_PhysDec);
   }
 
 }
@@ -249,6 +278,7 @@ void PFMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowMET)    << std::endl;
 //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Ele)       << std::endl;
 //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Muon)      << std::endl;
+//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_PhysDec)   << std::endl;
 
 }
 
@@ -295,7 +325,7 @@ void PFMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
       if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
       if (_hlt_Ele.size())       makeRatePlot(DirName+"/"+_hlt_Ele,totltime);
       if (_hlt_Muon.size())      makeRatePlot(DirName+"/"+_hlt_Muon,totltime);
-
+      if (_hlt_PhysDec.size())   makeRatePlot(DirName+"/"+_hlt_PhysDec,totltime);
     }
 }
 
@@ -385,6 +415,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
     if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
     if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
+    if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
     if (triggerNames.triggerIndex(_hlt_HighPtJet) != triggerNames.size() &&
 	triggerResults.accept(triggerNames.triggerIndex(_hlt_HighPtJet))) _trig_HighPtJet=1;
@@ -403,6 +434,9 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     if (triggerNames.triggerIndex(_hlt_Muon)      != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_Muon)))      _trig_Muon=1;
+
+    if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
+        triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
     
   } else {
 
@@ -596,55 +630,82 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
   //Vertex information
   
-  bool bPrimaryVertex = false;
-
-  Handle<VertexCollection> vertexHandle;
-  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
-  if ( vertexHandle.isValid() ){
-    VertexCollection vertexCollection = *(vertexHandle.product());
-    int vertex_number     = vertexCollection.size();
-    VertexCollection::const_iterator v = vertexCollection.begin();
-    double vertex_chi2    = v->normalizedChi2(); //v->chi2();
-    //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
-    double vertex_numTrks = v->tracksSize();
-    double vertex_sumTrks = 0.0;
-    //double vertex_Z       = v->z();
-    for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
-      vertex_sumTrks += (*vertex_curTrack)->pt();
+  bool bPrimaryVertex = true;
+  if(_doPVCheck){
+    bPrimaryVertex = false;
+    Handle<VertexCollection> vertexHandle;
+    iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+    if ( vertexHandle.isValid() ){
+      VertexCollection vertexCollection = *(vertexHandle.product());
+      int vertex_number     = vertexCollection.size();
+      VertexCollection::const_iterator v = vertexCollection.begin();
+      double vertex_chi2    = v->normalizedChi2(); //v->chi2();
+      //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
+      double vertex_numTrks = v->tracksSize();
+      double vertex_sumTrks = 0.0;
+      double vertex_Z       = v->z();
+      for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
+	vertex_sumTrks += (*vertex_curTrack)->pt();
+      }
+      
+      if (vertex_number>=_nvtx_min
+	  && vertex_numTrks>=_nvtxtrks_min
+	  && vertex_chi2   <_vtxchi2_max
+	  && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
     }
-//     std::cout << v->x() << " " << v->y()<< " " << v->z() << " "
-// 	      << v->chi2() << " " << v->tracksSize() << " "
-// 	      << vertex_number << " " << v->normalizedChi2()
-// 	      << std::endl;
+  }
 
-    if (vertex_number>=1
-        && vertex_numTrks>=2 
-	&& vertex_chi2   <2.4 ) bPrimaryVertex = true;
-    //&& fabs(vertex_Z)<20.0 ) bPrimaryVertex = true;
+  // ==========================================================
 
+  edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
+  iEvent.getByLabel( edm::InputTag("gtDigis"), gtReadoutRecord);
+
+  const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+  std::vector<bool> bTechTrigResults;
+  bTechTrigResults.resize(_techTrigs.size());
+
+  bool bTechTriggers = true;
+
+  for (int ttr = 0; ttr != _techTrigs.size(); ttr++) {
+    bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
+    bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
   }
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
+  
+  bool bHcalNoise   = bHcalNoiseFilter;
+  bool bBeamHaloID  = bBeamHaloIDLoosePass;
+  bool bJetID       = bJetIDMinimal;
+
+  bool bPhysicsDeclared = true;
+  if(_doHLTPhysicsOn) bPhysicsDeclared =_trig_PhysDec;
+
+  if      (_tightHcalFiltering)     bHcalNoise  = bHcalNoiseFilterTight;
+  if      (_tightBHFiltering)       bBeamHaloID = bBeamHaloIDTightPass;
+  if      (_tightJetIDFiltering==1) bJetID      = bJetIDLoose;
+  else if (_tightJetIDFiltering==2) bJetID      = bJetIDTight;
+
+  bool bBasicCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
+  bool bExtraCleanup = bBasicCleanup && bHcalNoise && bJetID && bBeamHaloID;
   
   std::string DirName = "JetMET/MET/"+_source;
   
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass) 
-                                                                fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="CleanupPV" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass && bPrimaryVertex) 
-                                                                fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="BasicCleanup" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="ExtraCleanup" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (_allSelection) {
-    if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="JetIDMinimal" && bJetIDMinimal)                   fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="JetIDLoose"   && bJetIDLoose)                     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="JetIDTight"   && bJetIDTight)                     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="BeamHaloIDTightPass" && bBeamHaloIDTightPass)     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="BeamHaloIDLoosePass" && bBeamHaloIDLoosePass)     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="PV"           && bPrimaryVertex)                  fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="JetIDMinimal"         && bJetIDMinimal)           fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="JetIDLoose"           && bJetIDLoose)             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="JetIDTight"           && bJetIDTight)             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="BeamHaloIDTightPass"  && bBeamHaloIDTightPass)    fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="BeamHaloIDLoosePass"  && bBeamHaloIDLoosePass)    fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="Triggers"             && bTechTriggers)           fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+      if (*ic=="PV"                   && bPrimaryVertex)          fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     }
   }
 }
@@ -714,6 +775,7 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
   if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
   if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",pfmet,false);
+  if (_hlt_PhysDec.size() && _trig_PhysDec) fillMonitorElement(iEvent,DirName,"PhysicsDeclared",pfmet,false);
 }
 
 // ***********************************************************
@@ -739,6 +801,9 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   }
   else if (TriggerTypeName=="Muon") {
     if (!selectWMuonEvent(iEvent)) return;
+  }
+  else if (TriggerTypeName=="PhysicsDeclared") {
+    if (!selectPhysicsDeclaredEvent(iEvent)) return;
   }
   
 // Reconstructed MET Information
@@ -873,3 +938,17 @@ bool PFMETAnalyzer::selectWMuonEvent(const edm::Event& iEvent){
   return return_value;
 
 }
+
+// ***********************************************************
+bool PFMETAnalyzer::selectPhysicsDeclaredEvent(const edm::Event& iEvent){
+
+  bool return_value=false;
+
+  /*
+    PhysicsDeclared event selection comes here
+   */
+
+  return return_value;
+
+}
+
