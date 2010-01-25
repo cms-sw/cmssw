@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.cc,v 1.1 2010/01/15 20:35:49 chrjones Exp $
+// $Id: HCTypeTag.cc,v 1.2 2010/01/23 02:03:42 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTag.cc,v $
+// Revision 1.2  2010/01/23 02:03:42  chrjones
+// moved type lookup used by EventSetup to FWCore/Utilities to avoid unneeded external dependencies from FWCore/Framework
+//
 // Revision 1.1  2010/01/15 20:35:49  chrjones
 // Changed type identifier for the EventSetup to no longer be a template
 //
@@ -122,13 +125,13 @@ namespace edm {
          HCTypeTag
          HCTypeTag::findType(const char* iTypeName)
          {
-            const std::type_info* p = typelookup::findType(iTypeName);
+            std::pair<const char*,const std::type_info*> p = typelookup::findType(iTypeName);
             
-            if(0 == p) {
+            if(0 == p.second) {
                return HCTypeTag();
             }
-            
-            return HCTypeTag(*p, iTypeName);
+            //need to take name from the 'findType' since that address is guaranteed to be long lived
+            return HCTypeTag(*p.second, p.first);
          }         
       }
    }
