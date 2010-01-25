@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.184 2010/01/25 14:50:11 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.185 2010/01/25 16:05:21 amraktad Exp $
 
 //
 
@@ -487,8 +487,8 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
 
    // disable swap on the first left TEveCompositeFrame
    // check info button
-   TEveWindow* current = getSwapCandidate();
-   bool checkInfoBtn =  m_viewPopup ? m_viewPopup->mapped() : 0;
+   TEveWindow* current  = getSwapCandidate();
+   bool checkInfoBtn    = m_viewPopup ? m_viewPopup->mapped() : 0;
    TEveWindow* selected = m_viewPopup ? m_viewPopup->getEveWindow() : 0;
 
    for (ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); it++)
@@ -526,20 +526,18 @@ void
 FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
 {
    // release button on previously selected
-   if (m_viewPopup && m_viewPopup->getEveWindow())
+   TEveWindow* ew = sva->getEveWindow();
+   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
    {
-      FWGUISubviewArea* ar = 
-         FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->getEveWindow());
-      ar->setInfoButton(kFALSE);
+      if (wIt->first != ew)
+         FWGUISubviewArea::getToolBarFromWindow(wIt->first)->setInfoButton(kFALSE);
    }
-
    setViewPopup(sva->getEveWindow());
 }
 
 void
 FWGUIManager::subviewInfoUnselected(FWGUISubviewArea* sva)
 {
-   setViewPopup(0);
    m_viewPopup->UnmapWindow();
 }
 
