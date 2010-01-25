@@ -2315,6 +2315,36 @@ void TrackerMap::fill_current_val_fed_channel(int fedId, int fedCh, float curren
   else 
     cout << "*** error in FedTrackerMap fill_current_val method ***";
 }
+
+
+void TrackerMap::fillc_fec_channel(int crate,int slot, int ring, int addr, int red, int green, int blue  )
+ {
+ int key =crate*10000000+slot*100000+ring*1000+addr;
+
+ TmCcu *ccu = ccuMap[key];
+ 
+ if(ccu!=0){
+    ccu->red=red; ccu->green=green; ccu->blue=blue;
+    return;
+  }
+  cout << "*** error in FecTrackerMap fillc method ***";
+}
+
+void TrackerMap::fill_fec_channel(int crate,int slot, int ring, int addr, float qty  )
+{
+ int key =crate*10000000+slot*100000+ring*1000+addr;
+ TmCcu *ccu = ccuMap[key];
+  if(ccu!=0){
+    ccu->count++; ccu->value=ccu->value+qty;
+    return;
+ 
+  }
+  
+  cout << "*** error in FecTrackerMap fill by module method ***";
+  }
+
+ 
+
 void TrackerMap::fillc_lv_channel(int rack,int crate, int board, int red, int green, int blue  )
 {
  
@@ -2341,6 +2371,64 @@ void TrackerMap::fill_lv_channel(int rack,int crate, int board, float qty  )
   
   cout << "*** error in LVTrackerMap fill by module method ***";
   }
+
+void TrackerMap::fillc_hv_channel2(int rack,int crate, int board, int red, int green, int blue  )
+{
+ 
+ int key = rack*1000+crate*100+board;
+ 
+ TmPsu *psu = psuMap[key];
+  
+  if(psu!=0){
+    psu->redHV2=red; psu->greenHV2=green; psu->blueHV2=blue;
+    return;
+  }
+  cout << "*** error in HVTrackerMap (channel 2) fillc method ***";
+}
+void TrackerMap::fillc_hv_channel3(int rack,int crate, int board, int red, int green, int blue  )
+{
+ 
+ int key = rack*1000+crate*100+board;
+ 
+ TmPsu *psu = psuMap[key];
+  
+  if(psu!=0){
+    psu->redHV3=red; psu->greenHV3=green; psu->blueHV3=blue;
+    return;
+  }
+  cout << "*** error in HVTrackerMap (channel 3) fillc method ***";
+}
+
+
+void TrackerMap::fill_hv_channel2(int rack,int crate, int board, float qty  )
+{
+ int key = rack*1000+crate*100+board;
+ TmPsu *psu = psuMap[key];
+  if(psu!=0){
+    psu->countHV2++; psu->valueHV2=psu->valueHV2+qty;
+    return;
+ 
+  }
+  
+  cout << "*** error in HVTrackerMap fill by module method ***";
+  }
+void TrackerMap::fill_hv_channel3(int rack,int crate, int board, float qty  )
+{
+ int key = rack*1000+crate*100+board;
+ TmPsu *psu = psuMap[key];
+  if(psu!=0){
+    psu->countHV3++; psu->valueHV3=psu->valueHV3+qty;
+    return;
+ 
+  }
+  
+  cout << "*** error in HVTrackerMap fill by module method ***";
+  }
+
+
+
+
+
 int TrackerMap::module(int fedId, int fedCh)
 {
   int key = fedId*1000+fedCh;
@@ -2362,6 +2450,8 @@ void TrackerMap::fill_fed_channel(int fedId, int fedCh, float qty )
   }
   cout << "*** error inFedTrackerMap fill method ***";
 }
+
+
 void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
 
   TmModule * mod = imoduleMap[idmod];
@@ -2382,6 +2472,24 @@ void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int bl
   }
   cout << "**************************error in fill method **************"<< endl;
 }
+
+void TrackerMap::fillc_all_blank(){
+
+  std::map<const int  , TmModule *>::iterator imod;
+   for( imod=imoduleMap.begin();imod !=imoduleMap.end(); imod++){
+   fillc(imod->first,255,255,255); 
+   }
+}
+
+void TrackerMap::fill_all_blank(){
+
+  std::map<const int  , TmModule *>::iterator imod;
+   for( imod=imoduleMap.begin();imod !=imoduleMap.end(); imod++){
+   fill(imod->first,0); 
+   }
+}
+
+
 
 void TrackerMap::fill_current_val(int idmod, float current_val ){
 
@@ -3179,7 +3287,7 @@ for (int layer=1; layer < 44; layer++){
     *xmlfile << "<svg:polygon id=\"fec\" mapAttribute=\"fec\" points=\"340,322 340,292 320,292 320,322\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
     *xmlfile << "<svg:polygon id=\"lv\" mapAttribute=\"lv\" points=\"340,354 340,324 320,324 320,354\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
     *xmlfile << "<svg:polygon id=\"hv\" mapAttribute=\"hv\" points=\"340,386 340,356 320,356 320,386\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
-    
+    *xmlfile << "<svg:polygon id=\"plot\" mapAttribute=\"plot\" points=\"380,428 380,388 360,388 360,428\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(200,0,0)\"/>"<<endl;
    
     nlay=layer;
     defwindow(nlay);
@@ -3202,12 +3310,14 @@ for (int layer=1; layer < 44; layer++){
     *xmlfile << "<tspan  mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"332\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
     *xmlfile << "<tspan  mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"370\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
     *xmlfile << "<tspan  mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"406\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"plot\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"442\" y=\"46\" font-size=\"12\" font-family=\"arial\" fill=\"white\">PLOT</tspan> " <<endl;
     }
     else{
     *xmlfile << "<tspan   mapAttribute=\"fed\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"370\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FED</tspan> " <<endl;
     *xmlfile << "<tspan   mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"417\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
     *xmlfile << "<tspan   mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"465\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
     *xmlfile << "<tspan   mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"506\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"plot\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"555\" y=\"46\" font-size=\"12\" font-family=\"arial\" fill=\"white\">PLOT</tspan> " <<endl;
     }
     *xmlfile << " </text> </svg>" << endl;
     xmlfile->close();delete xmlfile;

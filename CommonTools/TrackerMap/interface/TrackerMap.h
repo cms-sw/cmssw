@@ -50,12 +50,20 @@ class TrackerMap {
   void fillc(int idmod, int RGBcode) {fillc(idmod,(RGBcode>>16) & 0xFF , (RGBcode>>8) & 0xFF, RGBcode & 0xFF);}
   void fillc(int idmod, int red, int green, int blue);
   void fillc(int layer,int ring, int nmod, int red, int green, int blue);
+  void fillc_all_blank();
+  void fill_all_blank();
   void fill_current_val_fed_channel(int fedId,int fedCh, float current_val );
   void fill_fed_channel(int fedId,int fedCh, float qty );
   void fill_fed_channel(int modId, float qty );
   void fillc_fed_channel(int fedId,int fedCh, int red, int green, int blue);
+  void fillc_fec_channel(int crate,int slot, int ring, int addr, int red, int green, int blue  );
+  void fill_fec_channel(int crate,int slot, int ring, int addr, float qty  );
   void fill_lv_channel(int rack,int crate, int board, float qty  );
   void fillc_lv_channel(int rack,int crate, int board, int red, int green, int blue);
+  void fill_hv_channel2(int rack,int crate, int board, float qty  );
+  void fillc_hv_channel2(int rack,int crate, int board, int red, int green, int blue);
+  void fill_hv_channel3(int rack,int crate, int board, float qty  );
+  void fillc_hv_channel3(int rack,int crate, int board, int red, int green, int blue);
   int module(int fedId,int fedCh);
   void setText(int idmod , std::string s );
   void setText(int layer, int ring, int nmod , string s );

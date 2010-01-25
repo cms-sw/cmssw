@@ -2,7 +2,7 @@ var TrackerLayer = {} ;
 TrackerLayer.thisFile = "layer.js" ;
 var choice = "fed";	 
 var choices = new Array();
-choices[0]="fed";choices[1]="fec";choices[2]="lv"; choices[3]="hv";
+choices[0]="fed";choices[1]="fec";choices[2]="lv"; choices[3]="hv"; choices[4]="plot";
 var option;
 TrackerLayer.init = function()
  {
@@ -25,7 +25,7 @@ TrackerLayer.init = function()
 		}
 	if (evt.type == "click") {
 	    choice = myPoly3.getAttribute("mapAttribute");
-        for( var i=0; i < 4;i++){
+        for( var i=0; i < 5;i++){
 		    if(choices[i]!=choice){
 			  opacity=1;
 			  document.getElementById(choices[i]).setAttribute("style","fill-opacity: "+opacity) ;}
@@ -105,6 +105,15 @@ TrackerLayer.showData = function (evt) {
 		
 		var modules = new Array();
         
+		
+		if(choice=="plot"){  
+		
+		myPoly.setAttribute("style"," stroke: black; stroke-width: 1") ; 
+		alert("DQM PLOTS HERE, now detId = " + detid);
+		
+		}
+		
+		
 		if(choice=="lv"){  
 		  
 		  if(parent.loaded!=lvRack || option==3 || option==4 || option==5 || option==6 || option==7 || option==8){parent.loaded=lvRack;parent.remotewin.location.href=parent.servername+parent.tmapname+"psurack"+lvRack+".xml";option=1;myPoly.setAttribute("style"," stroke: black; stroke-width: 1") ; }
