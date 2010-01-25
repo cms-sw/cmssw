@@ -20,7 +20,7 @@ process.load("DQMOffline.EGamma.electronAnalyzerSequence_cff")
 process.dqmElectronAnalysisAllElectrons.FinalStep = cms.string("AtJobEnd")
 process.dqmElectronAnalysisSelectionEt.FinalStep = cms.string("AtJobEnd")
 process.dqmElectronAnalysisSelectionEtIso.FinalStep = cms.string("AtJobEnd")
-process.dqmElectronAnalysisSelectionEtIsoElID.FinalStep = cms.string("AtJobEnd")
+#process.dqmElectronAnalysisSelectionEtIsoElID.FinalStep = cms.string("AtJobEnd")
 process.dqmElectronTagProbeAnalysis.FinalStep = cms.string("AtJobEnd")
 
 process.dqmElectronTagProbeAnalysis.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
