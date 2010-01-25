@@ -144,8 +144,10 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
 
   for (unsigned int i = 0; i < dStruct.detidV.size(); i++) {
 
-    std::vector<uint32_t> detids = dStruct.detidV[i].first;
-    removeDuplicates(detids);
+    //     std::vector<uint32_t> detids = dStruct.detidV[i].first;
+    //     removeDuplicates(detids);
+    std::vector<uint32_t> * detids = &(dStruct.detidV[i].first);
+
     // set the condition time for the transfer
     cond::Time_t iovtime = 0;
 
@@ -185,11 +187,24 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
     
     // extract the detID vector before modifying for stats calculation
     std::vector<uint32_t> beforeV;
-    pair<int, int> hvlv = extractDetIdVector(i, beforeV, modV, dStruct);
+    modV->getDetIds(beforeV);
+
+    pair<int, int> hvlv = extractDetIdVector(i, modV, dStruct);
 
     // store the det IDs in the conditions object
-    for (unsigned int j = 0; j < detids.size(); j++) {modV->put(detids[j],hvlv.first,hvlv.second);}
-    
+    //     for (unsigned int j = 0; j < detids.size(); j++) {
+    //       if( detids[i] == 402664209) {
+    // 	cout << "detids["<<i<<"] = " << detids[i] << " has hv = " << hvlv.first << " and lv = " << hvlv.second << endl;
+    //       }
+    //       modV->put(detids[j],hvlv.first,hvlv.second);
+    //     }
+    for (unsigned int j = 0; j < detids->size(); j++) {
+      // if( (*detids)[j] == 402664209) {
+      cout << "at time = " << iovtime << " detid["<<j<<"] = " << (*detids)[j] << " has hv = " << hvlv.first << " and lv = " << hvlv.second << endl;
+      // }
+      modV->put((*detids)[j],hvlv.first,hvlv.second);
+    }
+
 
     // calculate the stats for storage
     unsigned int numAdded = 0, numRemoved = 0;
@@ -373,9 +388,9 @@ cond::Time_t SiStripDetVOffBuilder::getCondTime(coral::TimeStamp coralTime) {
   // const boost::posix_time::ptime& t = coralTime.time();
   cond::Time_t condTime = cond::time::from_boost(coralTime.time());
 
-  cout << "[SiStripDetVOffBuilder::getCondTime] Converting CoralTime into CondTime: "
-       << " coralTime = (coralTimeInNs) " <<  coralTime.total_nanoseconds() << " condTime " << (condTime>> 32) << " - " << (condTime & 0xFFFFFFFF) << endl;
-  
+  // cout << "[SiStripDetVOffBuilder::getCondTime] Converting CoralTime into CondTime: "
+  //      << " coralTime = (coralTimeInNs) " <<  coralTime.total_nanoseconds() << " condTime " << (condTime>> 32) << " - " << (condTime & 0xFFFFFFFF) << endl;
+
   return condTime;
 }
 
@@ -437,8 +452,13 @@ void SiStripDetVOffBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond:
   if( distance(resultVec.begin(), initialIt) == 0 ) {
     first = 1;
   }
+
+  if( ( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() == 0 ) && ( it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() == 0 ) ) {
+    cout << "Same number of LV and HV at start and end of sequence: LV off = " << it->first->getLVoffCounts() << " HV off = " << it->first->getHVoffCounts() << endl;
+  }
+
   // if it was going off
-  if( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() > 0 || it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() > 0 ) {
+  if( ( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() > 0 ) || ( it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() > 0 ) ) {
     cout << "going off" << endl;
     // Set the time of the current (last) iov as the time of the initial iov of the sequence
     // replace the first iov with the last one
@@ -447,7 +467,7 @@ void SiStripDetVOffBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond:
 
   }
   // if it was going on
-  else if( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() <= 0 || it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() <= 0 ) {
+  else if( ( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() <= 0 ) || ( it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() <= 0 ) ) {
     cout << "going on" << endl;
     // replace the last minus one iov with the first one
     // cout << "first = " << first << endl;
@@ -474,12 +494,13 @@ void SiStripDetVOffBuilder::reduction(const uint32_t deltaTmin)
   if( resultVecSize > 1 ) {
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator it = modulesOff.begin();
     for( ; it != modulesOff.end()-1; ++it, ++resultsIndex ) {
-      unsigned long long time1 = it->second >> 32;
-      unsigned long long time2 = (it+1)->second >> 32;
-      unsigned long long deltaT = time2 - time1;
+      //       unsigned long long time1 = it->second >> 32;
+      //       unsigned long long time2 = (it+1)->second >> 32;
+      //       unsigned long long deltaT = time2 - time1;
+      unsigned long long deltaT = ((it+1)->second - it->second) >> 32;
       // std::cout << "deltaT = " << deltaT << std::endl;
       // Save the initial pair
-      if( deltaT <= deltaTmin ) {
+      if( deltaT < deltaTmin ) {
 	// If we are not in a the sequence
 	if( count == 0 ) {
 	  initialIt = it;
@@ -517,7 +538,7 @@ void SiStripDetVOffBuilder::statusChange( cond::Time_t & lastTime, TimesAndValue
   }
   
   coralInterface->doQuery(whichTable, tmin ,tmax, tStruct.changeDate, tStruct.actualValue, tStruct.dpname);
-  
+
   // preset the size of the status vector
   tStruct.actualStatus.resize(tStruct.actualValue.size());
   tStruct.actualStatus.clear();
@@ -598,6 +619,8 @@ void SiStripDetVOffBuilder::lastValueFromFile(TimesAndValues & tStruct)
       ss << "DP ID = " << tStruct.dpid[j] << std::endl;
     }
   }
+  LogDebug("SiStripDetVOffBuilder") << "Number of missing psu channels = " << missing << std::endl;
+  LogDebug("SiStripDetVOffBuilder") << "IDs are: = " << ss.str();
 }
 
 string SiStripDetVOffBuilder::timeToStream(cond::Time_t & condTime, const string & comment)
@@ -620,11 +643,12 @@ string SiStripDetVOffBuilder::timeToStream(coral::TimeStamp & coralTime, const s
   return ss.str();
 }
 
-void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & tStruct, DetIdListTimeAndStatus & dStruct)
+void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdListTimeAndStatus & detIdStruct)
 {
   SiStripPsuDetIdMap map_;
   map_.BuildMap();
   LogTrace("SiStripDetVOffBuilder") <<"[SiStripDetVOffBuilder::BuildDetVOff] DCU-DET ID map built";
+  map_.printMap();
   
   // use map info to build input for list of objects
   // no need to check for duplicates, as put method for SiStripDetVOff checks for you!
@@ -632,46 +656,68 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & tStruct, DetIdList
   unsigned int ch0bad = 0, ch1bad = 0, ch2bad = 0, ch3bad = 0;
   std::vector<unsigned int> numLvBad, numHvBad;
 
-  for (unsigned int dp = 0; dp < tStruct.dpname.size(); dp++) {
-    if (tStruct.dpname[dp] != "UNKNOWN") {
+  for (unsigned int dp = 0; dp < psuStruct.dpname.size(); dp++) {
+    if (psuStruct.dpname[dp] != "UNKNOWN") {
+
       // figure out the channel
-      std::string board = tStruct.dpname[dp];
+      std::string board = psuStruct.dpname[dp];
       std::string::size_type loc = board.size()-10;
       board.erase(0,loc);
       // now store!
-      std::vector<uint32_t> ids = map_.getDetID(tStruct.dpname[dp]);
+      std::vector<uint32_t> ids = map_.getDetID(psuStruct.dpname[dp]);
+
+      cout << "dbname["<<dp<<"] = " << psuStruct.dpname[dp] << ", for time = " << timeToStream(psuStruct.changeDate[dp]) << endl;
+      if( psuStruct.dpname[dp] == "cms_trk_dcs_05:CAEN/CMS_TRACKER_SY1527_4/branchController07/easyCrate0/easyBoard06/channel002" ) {
+	cout << "cms_trk_dcs_05:CAEN/CMS_TRACKER_SY1527_4/branchController07/easyCrate0/easyBoard06/channel000 for detId = 402664209" << endl;
+	cout << "associated to detids = " << endl;
+	BOOST_FOREACH(uint32_t detidValue, ids) {
+	  cout << "detid = " << detidValue << endl;
+	}
+      }
+
       if (!ids.empty()) {
 	// DCU-PSU maps only channel000 and channel000 and channel001 switch on and off together
 	// so check only channel000
 	//	if (board == "channel000" || board == "channel001") {
 	if (board == "channel000") {
-	  dStruct.detidV.push_back( std::make_pair(ids,tStruct.changeDate[dp]) );
-	  if (tStruct.actualStatus[dp] != 1) {
-	    if (board == "channel000") {ch0bad++;}
-	    if (board == "channel001") {ch1bad++;}
-	    dStruct.StatusGood.push_back(false);
+	  detIdStruct.detidV.push_back( std::make_pair(ids,psuStruct.changeDate[dp]) );
+	  if (psuStruct.actualStatus[dp] != 1) {
+	    // 	    if (board == "channel000") {ch0bad++;}
+	    // 	    if (board == "channel001") {ch1bad++;}
+	    ++ch0bad;
+	    ++ch1bad;
+	    detIdStruct.StatusGood.push_back(false);
 	    numLvBad.insert(numLvBad.end(),ids.begin(),ids.end());
-	  } else {dStruct.StatusGood.push_back(true);}
-	  dStruct.isHV.push_back(0);
-	  dStruct.psuName.push_back( tStruct.dpname[dp] );
-	} else if (board == "channel002" || board == "channel003") {
-	  dStruct.detidV.push_back( std::make_pair(ids,tStruct.changeDate[dp]) );
-	  if (tStruct.actualStatus[dp] != 1) {
+	  }
+	  else {
+	    detIdStruct.StatusGood.push_back(true);
+	  }
+	  detIdStruct.isHV.push_back(0);
+	  detIdStruct.psuName.push_back( psuStruct.dpname[dp] );
+	}
+	else if( board == "channel002" || board == "channel003" ) {
+	  detIdStruct.detidV.push_back( std::make_pair(ids,psuStruct.changeDate[dp]) );
+	  cout << "actualStatus = " << psuStruct.actualStatus[dp] << " for psu: " << psuStruct.dpname[dp] << endl;
+	  if (psuStruct.actualStatus[dp] != 1) {
 	    if (board == "channel002") {ch2bad++;}
 	    if (board == "channel003") {ch3bad++;}
-	    dStruct.StatusGood.push_back(false);
+	    detIdStruct.StatusGood.push_back(false);
 	    numHvBad.insert(numHvBad.end(),ids.begin(),ids.end());
-	  } else {dStruct.StatusGood.push_back(true);}
-	  dStruct.isHV.push_back(1);
-	  dStruct.psuName.push_back( tStruct.dpname[dp] );
-	} else {
+	  }
+	  else {
+	    detIdStruct.StatusGood.push_back(true);
+	  }
+	  detIdStruct.isHV.push_back(1);
+	  detIdStruct.psuName.push_back( psuStruct.dpname[dp] );
+	}
+	else {
 	  if (board != "channel001") {
 	    LogTrace("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "] channel name not recognised! " << board;
 	  }
 	}
       }
     } else {
-      dStruct.notMatched++;
+      detIdStruct.notMatched++;
     }
   }
 
@@ -679,14 +725,13 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & tStruct, DetIdList
   removeDuplicates(numHvBad);
 
   // useful debugging stuff!
-  /*
   std::cout << "Bad 000 = " << ch0bad << " Bad 001 = " << ch1bad << std::endl;
   std::cout << "Bad 002 = " << ch0bad << " Bad 003 = " << ch1bad << std::endl;
   std::cout << "Number of bad LV detIDs = " << numLvBad.size() << std::endl;
   std::cout << "Number of bad HV detIDs = " << numHvBad.size() << std::endl;
   
-  LogTrace("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "]: Number of PSUs retrieved from DB with map information    " << detidV.size();
-  LogTrace("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "]: Number of PSUs retrieved from DB with no map information " << notMatched;
+  LogTrace("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "]: Number of PSUs retrieved from DB with map information    " << detIdStruct.detidV.size();
+  LogTrace("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "]: Number of PSUs retrieved from DB with no map information " << detIdStruct.notMatched;
   
   unsigned int dupCount = 0;
   for (unsigned int t = 0; t < numLvBad.size(); t++) {
@@ -694,7 +739,6 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & tStruct, DetIdList
     if (iter != numHvBad.end()) {dupCount++;}
   }
   std::cout << "Number of channels with LV & HV bad = " << dupCount << std::endl;
-  */
 }
 
 void SiStripDetVOffBuilder::setPayloadStats(const uint32_t afterV, const uint32_t numAdded, const uint32_t numRemoved)
@@ -706,31 +750,41 @@ void SiStripDetVOffBuilder::setPayloadStats(const uint32_t afterV, const uint32_
   payloadStats.push_back(pStats);
 }
 
-pair<int, int> SiStripDetVOffBuilder::extractDetIdVector(const unsigned int i, vector<uint32_t> & beforeV, SiStripDetVOff * modV, DetIdListTimeAndStatus & dStruct )
+pair<int, int> SiStripDetVOffBuilder::extractDetIdVector( const unsigned int i, SiStripDetVOff * modV, DetIdListTimeAndStatus & detIdStruct )
 {
-  modV->getDetIds(beforeV);
-  
   // set the LV and HV off flags ready for storing
   int lv_off = -1, hv_off = -1;
-  if (dStruct.isHV[i] == 0) {lv_off = !(dStruct.StatusGood[i]);}
-  if (dStruct.isHV[i] == 1) {
-    hv_off = !(dStruct.StatusGood[i]);
-    
-    
+  if (detIdStruct.isHV[i] == 0) {lv_off = !(detIdStruct.StatusGood[i]);}
+  if (detIdStruct.isHV[i] == 1) {
+    hv_off = !(detIdStruct.StatusGood[i]);
+
+    // TESTING WITHOUT THE FIX
+    // -----------------------
+
     // temporary fix to handle the fact that we don't know which HV channel the detIDs are associated to
     if (i > 0) {
-      std::string iChannel = dStruct.psuName[i].substr( (dStruct.psuName[i].size()-3) );
-      std::string iPsu = dStruct.psuName[i].substr(0, (dStruct.psuName[i].size()-3) );
+      std::string iChannel = detIdStruct.psuName[i].substr( (detIdStruct.psuName[i].size()-3) );
+      std::string iPsu = detIdStruct.psuName[i].substr(0, (detIdStruct.psuName[i].size()-3) );
       if (iChannel == "002" || iChannel == "003") {
+	bool lastStatusOfOtherChannel = true;
 	for (unsigned int j = 0; j < i; j++) {
-	  std::string jPsu = dStruct.psuName[j].substr(0, (dStruct.psuName[j].size()-3) );
-	  std::string jChannel = dStruct.psuName[j].substr( (dStruct.psuName[j].size()-3) );
+	  std::string jPsu = detIdStruct.psuName[j].substr(0, (detIdStruct.psuName[j].size()-3) );
+	  std::string jChannel = detIdStruct.psuName[j].substr( (detIdStruct.psuName[j].size()-3) );
 	  if (iPsu == jPsu && iChannel != jChannel && (jChannel == "002" || jChannel == "003")) {
-	    if (dStruct.StatusGood[i] != dStruct.StatusGood[j]) {hv_off = 1;}
+	    cout << "psu["<<i<<"] = " << detIdStruct.psuName[i] << " with status = " << detIdStruct.StatusGood[i] << " and psu["<<j<<"] = " << detIdStruct.psuName[j] << " with status " << detIdStruct.StatusGood[j] << endl;
+	    lastStatusOfOtherChannel = detIdStruct.StatusGood[j];
 	  }
+	}
+	if (detIdStruct.StatusGood[i] != lastStatusOfOtherChannel) {
+	  cout << "turning off hv" << endl;
+	  hv_off = 1;
 	}
       }
     }
+
+    // -----------------------
+
   }
+
   return make_pair(hv_off, lv_off);
 }

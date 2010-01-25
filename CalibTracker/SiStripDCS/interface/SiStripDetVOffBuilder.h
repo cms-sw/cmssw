@@ -133,7 +133,7 @@ class SiStripDetVOffBuilder
     std::vector<int>              actualStatus;  // filled using actualValue info
     cond::Time_t                  latestTime;    // used for timestamp when using lastValue from file
   };
-
+  
   struct DetIdListTimeAndStatus
   {
     DetIdListTimeAndStatus() :
@@ -153,7 +153,7 @@ class SiStripDetVOffBuilder
   void buildPSUdetIdMap(TimesAndValues & tStruct, DetIdListTimeAndStatus & dStruct);
 
   void setPayloadStats(const uint32_t afterV, const uint32_t numAdded, const uint32_t numRemoved);
-  std::pair<int, int> extractDetIdVector(const unsigned int i, std::vector<uint32_t> & beforeV, SiStripDetVOff * modV, DetIdListTimeAndStatus & dStruct);
+  std::pair<int, int> extractDetIdVector(const unsigned int i, SiStripDetVOff * modV, DetIdListTimeAndStatus & detIdStruct);
 
   std::auto_ptr<SiStripCoralIface> coralInterface;
 
