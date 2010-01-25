@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 21:03:51 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/01/25 08:21:10 $
+ *  $Revision: 1.27 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -753,7 +753,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   bool bTechTriggers = true;
 
-  for (int ttr = 0; ttr != _techTrigs.size(); ttr++) {
+  for (unsigned ttr = 0; ttr != _techTrigs.size(); ttr++) {
     bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
     bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
   }

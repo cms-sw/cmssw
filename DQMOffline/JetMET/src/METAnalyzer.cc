@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/20 19:24:34 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/01/25 08:21:34 $
+ *  $Revision: 1.14 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -720,7 +720,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   bool bTechTriggers = true;
 
-  for (int ttr = 0; ttr != _techTrigs.size(); ttr++) {
+  for (unsigned ttr = 0; ttr != _techTrigs.size(); ttr++) {
     bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
     bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
   }

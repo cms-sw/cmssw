@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 21:03:51 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/01/25 08:22:41 $
+ *  $Revision: 1.13 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -666,7 +666,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool bTechTriggers = true;
 
-  for (int ttr = 0; ttr != _techTrigs.size(); ttr++) {
+  for (unsigned ttr = 0; ttr != _techTrigs.size(); ttr++) {
     bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
     bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
   }

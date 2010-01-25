@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 21:02:50 $
- *  $Revision: 1.38 $
+ *  $Date: 2010/01/25 08:24:16 $
+ *  $Revision: 1.39 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -462,7 +462,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   bool bTechTriggers = true;
 
-  for (int ttr = 0; ttr != _techTrigs.size(); ttr++) {
+  for (unsigned ttr = 0; ttr != _techTrigs.size(); ttr++) {
     bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
     bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
   }
