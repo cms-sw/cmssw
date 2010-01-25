@@ -53,7 +53,9 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-  '/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
+  '/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0001/02EC80FB-FEEC-DE11-B28D-00261894389E.root').split(",")
+  #'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
+  #'/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
 
 print 'List of input files'
 print inputfiles
@@ -76,21 +78,13 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 #
-# HCALNoise module
-#
-process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
-process.hcalnoise.refillRefVectors = cms.bool(True)
-process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise"
-process.hcalnoise.requirePedestals = cms.bool(False)
-
-#
 # BeamHaloData producer
 #
 process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-process.GlobalTag.globaltag ='STARTUP31X_V7::All'
+process.GlobalTag.globaltag ='GR09_R_34X_V2::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -184,16 +178,14 @@ process.options = cms.untracked.PSet(
 )
 
 if iscosmics=="True":
-  process.p = cms.Path(process.hcalnoise
-                     * process.BeamHaloId
+  process.p = cms.Path(process.BeamHaloId
                      * process.jetMETHLTOfflineSource
 #                    * process.jetMETDQMOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
                      * process.MEtoEDMConverter
                      * process.dqmStoreStats)
 else:
-  process.p = cms.Path(process.hcalnoise
-                     * process.BeamHaloId
+  process.p = cms.Path(process.BeamHaloId
                      * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
 #                    * process.jetMETDQMOfflineSourceCosmic
