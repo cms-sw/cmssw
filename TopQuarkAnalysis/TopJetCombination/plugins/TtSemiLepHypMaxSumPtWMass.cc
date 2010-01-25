@@ -84,8 +84,8 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   double wDist =-1.;
   std::vector<int> closestToWMassIndices;
-  closestToWMassIndices.push_back(maxPtIndices[-1]);
-  closestToWMassIndices.push_back(maxPtIndices[-1]);
+  closestToWMassIndices.push_back(-1);
+  closestToWMassIndices.push_back(-1);
   if( isValid(maxPtIndices[0], jets) && isValid(maxPtIndices[1], jets) && isValid(maxPtIndices[2], jets)) {
     for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){  
       for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){  
