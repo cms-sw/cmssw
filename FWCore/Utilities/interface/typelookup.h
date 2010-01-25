@@ -18,16 +18,32 @@
    the Tname value as both the C++ class and transforming it into the string name.
  
  DEFINE_TYPELOOKUP_REGISTRATION: registers the string name with the C++ class type.
+ 
+ TYPELOOKUP_DATA_REG : sets both TYPELOOKUP_METHODS and DEFINE_TYPELOOKUP_REGISTRATION
 
+ 
+ Example: You have a new data class called 'DummyData'.  Then to register that class with the system you
+ place the lines
+ 
+ #include "<where ever my class decleration lives>/interface/DummyData.h"
+ 
+ TYPELOOKUP_DATA_REG(DummyData);
+ 
+ into the file <where ever my class decleration lives>/src/T_EventSetup_DummyData.cc
+ 
+ The actual name of the file that uses the 'TYPELOOKUP_DATA_REG' macro is not important.  The only important point
+ the file that uses the 'TYPELOOKUP_DATA_REG' macro must be in the same library as the data class it is registering.
+ 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 20 14:26:21 CST 2010
-// $Id$
+// $Id: typelookup.h,v 1.1 2010/01/23 02:00:13 chrjones Exp $
 //
 
 // system include files
 #include <typeinfo>
+#include <utility>
 
 // user include files
 
@@ -36,9 +52,10 @@ namespace edm {
    
    namespace typelookup
    {
-      /**Returns a std::type_info associated with the string iClassName.
-       If the string is not associated with a known type then returns null pointer */
-      const std::type_info* findType(const char* iClassName);
+      /**Returns a std::type_info and a long lived const char* containing the name 
+       associated with the string iClassName. If the string is not associated with a known 
+       type then returns two null pointers */
+       std::pair<const char*, const std::type_info*> findType(const char* iClassName);
       
       /**Returns the registered string (usually the class name) for the type T
        */
@@ -76,6 +93,9 @@ template<> const std::type_info& classTypeInfo< Tname > () \
 
 #define DEFINE_TYPELOOKUP_REGISTRATION(type) \
 static edm::typelookup::NameRegistrar EDM_TYPELOOKUP_SYM(s_register , __LINE__ ) (edm::typelookup::className<type>(),typeid(type))
+
+#define TYPELOOKUP_DATA_REG(_dataclass_) TYPELOOKUP_METHODS(_dataclass_) \
+DEFINE_TYPELOOKUP_REGISTRATION(_dataclass_)
 
 
 #endif
