@@ -1,3 +1,16 @@
+<library name="FastSimDataFilter" file="FastSimDataFilter.cc">
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=boost>
+<use name=root>
+<use name=DataFormats/Common>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/CaloRecHit>
+<use name=Geometry/CaloGeometry>
+<flags EDM_PLUGIN=1>
+</library>
+
 <library name="ProtonTaggerFilter" file="ProtonTaggerFilter.cc AcceptanceTableHelper.cc">
 <use name=root>
 <use name=FWCore/Framework>
