@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.182 2010/01/22 14:17:18 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.183 2010/01/25 13:33:37 amraktad Exp $
 
 //
 
@@ -538,6 +538,7 @@ void
 FWGUIManager::subviewInfoUnselected(FWGUISubviewArea* sva)
 {
    setViewPopup(0);
+   m_viewPopup->UnmapWindow();
 }
 
 void
@@ -660,7 +661,8 @@ FWGUIManager::setViewPopup(TEveWindow* ew) {
    }
    else
    {
-      m_viewPopup->reset(m_viewMap[ew], ew);
+      FWViewBase* vb = ew ? m_viewMap[ew] : 0;
+      m_viewPopup->reset(vb, ew);
    }
 
    m_viewPopup->MapRaised();
@@ -743,7 +745,9 @@ FWGUIManager::promptForConfigurationFile()
 void
 FWGUIManager::exportImageOfMainView()
 {
-      m_viewMap.begin()->second->promptForSaveImageTo(m_cmsShowMainFrame);
+   TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
+   TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
+   m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
 }
 
 
