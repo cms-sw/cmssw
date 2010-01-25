@@ -16,7 +16,7 @@ dqmElectronAnalysis.MaxTkIso03 = cms.double(1.) ;
 
 dqmElectronAnalysisAllElectrons = dqmElectronAnalysis.clone() ;
 dqmElectronAnalysisAllElectrons.Selection = 0 ;
-dqmElectronAnalysisAllElectrons.OutputFolderName = cms.string("Ele2_AllElectrons") ;
+dqmElectronAnalysisAllElectrons.OutputFolderName = cms.string("Ele2_All") ;
 
 dqmElectronAnalysisSelectionEt = dqmElectronAnalysis.clone() ;
 dqmElectronAnalysisSelectionEt.Selection = 1 ;
@@ -26,14 +26,14 @@ dqmElectronAnalysisSelectionEtIso = dqmElectronAnalysis.clone() ;
 dqmElectronAnalysisSelectionEtIso.Selection = 2 ;
 dqmElectronAnalysisSelectionEtIso.OutputFolderName = cms.string("Ele4_Et10TkIso1") ;
 
-dqmElectronAnalysisSelectionEtIsoElID = dqmElectronAnalysis.clone() ;
-dqmElectronAnalysisSelectionEtIsoElID.Selection = 3 ;
-dqmElectronAnalysisSelectionEtIsoElID.OutputFolderName = cms.string("Ele5_Et10TkIso1ElID") ;
+#dqmElectronAnalysisSelectionEtIsoElID = dqmElectronAnalysis.clone() ;
+#dqmElectronAnalysisSelectionEtIsoElID.Selection = 3 ;
+#dqmElectronAnalysisSelectionEtIsoElID.OutputFolderName = cms.string("Ele4_Et10TkIso1ElID") ;
 
 from DQMOffline.EGamma.electronTagProbeAnalyzer_cfi import *
 dqmElectronTagProbeAnalysis.MinEt = cms.double(10.) ;
 dqmElectronTagProbeAnalysis.MaxTkIso03 = cms.double(1.) ;
-dqmElectronTagProbeAnalysis.OutputFolderName = cms.string("Ele6_TagAndProbe") ;
+dqmElectronTagProbeAnalysis.OutputFolderName = cms.string("Ele5_TagAndProbe") ;
 
 electronAnalyzerSequence = cms.Sequence(
    mergedSuperClusters
