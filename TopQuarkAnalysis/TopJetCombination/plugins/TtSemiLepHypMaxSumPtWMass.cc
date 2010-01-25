@@ -3,8 +3,12 @@
 
 TtSemiLepHypMaxSumPtWMass::TtSemiLepHypMaxSumPtWMass(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),
-  maxNJets_(cfg.getParameter<int>   ("maxNJets")),
-  wMass_   (cfg.getParameter<double>("wMass"   ))
+  maxNJets_         (cfg.getParameter<int>        ("maxNJets"         )),
+  wMass_            (cfg.getParameter<double>     ("wMass"            )),
+  useBTagging_      (cfg.getParameter<bool>       ("useBTagging"      )),
+  bTagAlgorithm_    (cfg.getParameter<std::string>("bTagAlgorithm"    )),
+  minBDiscBJets_    (cfg.getParameter<double>     ("minBDiscBJets"    )),
+  maxBDiscLightJets_(cfg.getParameter<double>     ("maxBDiscLightJets"))
 {
   if(maxNJets_<4 && maxNJets_!=-1)
     throw cms::Exception("WrongConfig") 
@@ -26,11 +30,22 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
     return;
   }
 
-  unsigned maxNJets = maxNJets_;
+  int maxNJets = maxNJets_;
   if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
 
+  std::vector<bool> isBJet;
+  std::vector<bool> isLJet;
+  int cntBJets = 0;
+  if(useBTagging_) {
+    for(int idx=0; idx<maxNJets; ++idx) {
+      isBJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    ) );
+      isLJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) < maxBDiscLightJets_) );
+      if((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    )cntBJets++;
+    }
+  }
+
   match.clear();
-  for(unsigned int i=0; i<5; ++i)
+  for(int i=0; i<5; ++i)
     match.push_back(-1);
 
   // -----------------------------------------------------
@@ -38,10 +53,16 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   // sum to the hadronic decay chain
   // -----------------------------------------------------
   double maxPt=-1.;
-  std::vector<unsigned> maxPtIndices;
-  for(unsigned idx=0; idx<maxNJets; ++idx){
-    for(unsigned jdx=(idx+1); jdx<maxNJets; ++jdx){
-      for(unsigned kdx=(jdx+1); kdx<maxNJets; ++kdx){
+  std::vector<int> maxPtIndices;
+  maxPtIndices.push_back(-1);
+  maxPtIndices.push_back(-1);
+  maxPtIndices.push_back(-1);
+  for(int idx=0; idx<maxNJets; ++idx){
+    if(useBTagging_ && (!isLJet[idx] || (cntBJets<=2 && isBJet[idx]))) continue;
+    for(int jdx=(idx+1); jdx<maxNJets; ++jdx){
+      if(jdx==idx || (useBTagging_ && (!isLJet[jdx] || (cntBJets<=2 && isBJet[jdx]) || (cntBJets==3 && isBJet[idx] && isBJet[jdx])))) continue;
+      for(int kdx=0; kdx<maxNJets; ++kdx){
+	if(kdx==idx || kdx==jdx || (useBTagging_ && !isBJet[kdx])) continue;
 	reco::Particle::LorentzVector sum = 
 	  (*jets)[idx].p4()+
 	  (*jets)[jdx].p4()+
@@ -62,18 +83,22 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   // with their invariant mass to the W boson
   // -----------------------------------------------------
   double wDist =-1.;
-  std::vector<unsigned> closestToWMassIndices;
-  for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){  
-    for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){  
-      if( jdx==idx || maxPtIndices[idx]>maxPtIndices[jdx] ) continue;
-      reco::Particle::LorentzVector sum = 
-	(*jets)[maxPtIndices[idx]].p4()+
-	(*jets)[maxPtIndices[jdx]].p4();
-      if( wDist<0. || wDist>fabs(sum.mass()-wMass_) ){
-	wDist=fabs(sum.mass()-wMass_);
-	closestToWMassIndices.clear();
-	closestToWMassIndices.push_back(maxPtIndices[idx]);
-	closestToWMassIndices.push_back(maxPtIndices[jdx]);
+  std::vector<int> closestToWMassIndices;
+  closestToWMassIndices.push_back(maxPtIndices[-1]);
+  closestToWMassIndices.push_back(maxPtIndices[-1]);
+  if( isValid(maxPtIndices[0], jets) && isValid(maxPtIndices[1], jets) && isValid(maxPtIndices[2], jets)) {
+    for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){  
+      for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){  
+	if( jdx==idx || maxPtIndices[idx]>maxPtIndices[jdx] || (useBTagging_ && (!isLJet[maxPtIndices[idx]] || !isLJet[maxPtIndices[jdx]] || (cntBJets<=2 && isBJet[maxPtIndices[idx]]) || (cntBJets<=2 && isBJet[maxPtIndices[jdx]]) || (cntBJets==3 && isBJet[maxPtIndices[idx]] && isBJet[maxPtIndices[jdx]])))) continue;
+	reco::Particle::LorentzVector sum = 
+	  (*jets)[maxPtIndices[idx]].p4()+
+	  (*jets)[maxPtIndices[jdx]].p4();
+	if( wDist<0. || wDist>fabs(sum.mass()-wMass_) ){
+	  wDist=fabs(sum.mass()-wMass_);
+	  closestToWMassIndices.clear();
+	  closestToWMassIndices.push_back(maxPtIndices[idx]);
+	  closestToWMassIndices.push_back(maxPtIndices[jdx]);
+	}
       }
     }
   }
@@ -84,8 +109,9 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   // leptonic decay chain
   // -----------------------------------------------------
   maxPt=-1.;
-  unsigned lepB=0;
-  for(unsigned idx=0; idx<maxNJets; ++idx){
+  int lepB=-1;
+  for(int idx=0; idx<maxNJets; ++idx){
+    if(useBTagging_ && !isBJet[idx]) continue;
     // make sure it's not used up already from the hadronic decay chain
     if( std::find(maxPtIndices.begin(), maxPtIndices.end(), idx) == maxPtIndices.end() ){
       reco::Particle::LorentzVector sum = 
