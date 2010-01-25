@@ -3,8 +3,8 @@ use File::Basename;
 use lib dirname($0);
 use SCRAMGenUtils;
 
-my $dir=dirname($0);
 my $pwd=`/bin/pwd`; chomp $pwd; $pwd=&SCRAMGenUtils::fixPath($pwd);
+my $dir=shift || $pwd;
 if ($dir!~/^\//){$dir=&SCRAMGenUtils::fixPath("${pwd}/${dir}");}
 
 my $release=&SCRAMGenUtils::scramReleaseTop($dir);
