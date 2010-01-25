@@ -23,10 +23,10 @@ def productionDefaults(process):
    ------------------------------------------------------------------    
    """
    ## adapt jet defaults
-   jetCors  = getattr(process, 'jetCorrFactors')
+   jetCors  = getattr(process, 'patJetCorrFactors')
    jetCors.jetSource = cms.InputTag("iterativeConePu5CaloJets")
 
-   jetMatch = getattr(process, 'jetGenJetMatch')
+   jetMatch = getattr(process, 'patJetGenJetMatch')
    jetMatch.src     = cms.InputTag("iterativeConePu5CaloJets")
    jetMatch.matched = cms.InputTag("hiCleanedGenJets")
    
