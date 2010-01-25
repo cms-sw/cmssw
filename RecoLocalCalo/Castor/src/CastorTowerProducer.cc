@@ -13,12 +13,10 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.1 2009/02/27 16:13:18 hvanhaev Exp $
+// $Id: CastorTowerProducer.cc,v 1.2 2010/01/22 14:03:19 hvanhaev Exp $
 //
 //
 
-#define debug 0
-#define debugTowervariable 0
 
 // system include 
 #include <memory>
@@ -118,13 +116,11 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // get and check input size
   int nCells = InputCells->size();
 
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"-------------------------------"<<endl;
-  if(debug) cout<<"2. entering CastorTowerProducer"<<endl;
-  if(debug) cout<<"-------------------------------"<<endl;
-  if(debug) cout<<""<<endl;
+  LogDebug("CastorTowerProducer")
+    <<"2. entering CastorTowerProducer"<<endl;
 
-  if (nCells==0) cout <<"Warning: You are trying to run the Tower algorithm with 0 input cells. \n";
+  if (nCells==0)
+    edm::LogWarning("CastorTowerProducer") <<"Warning: You are trying to run the Tower algorithm with 0 input cells.";
   
   // declare castor array
   // (0,x): Energies - (1,x): emEnergies - (2,x): hadEnergies - (3,x): phi position
@@ -201,8 +197,9 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       CastorCellRefVector usedCells = poscastorusedcells[k];
       ComputeTowerVariable(usedCells,Ehot,depth);
 
-      if(debugTowervariable) cout<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl;
-      if(debugTowervariable) getchar();
+      LogDebug("CastorTowerProducer")
+	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl
+	<<getchar();
 
       TowerPoint temptowerposition(rhoTower,5.9,poscastortowerarray[3][k]);
       Point towerposition(temptowerposition);
@@ -219,8 +216,9 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       CastorCellRefVector usedCells = negcastorusedcells[k];
       ComputeTowerVariable(usedCells,Ehot,depth);
 
-      if(debugTowervariable) cout<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl;
-      if(debugTowervariable) getchar();
+      LogDebug("CastorTowerProducer")
+	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl
+	<<getchar();
 
       TowerPoint temptowerposition(rhoTower,-5.9,negcastortowerarray[3][k]);
       Point towerposition(temptowerposition);
@@ -238,12 +236,14 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void CastorTowerProducer::beginJob() {
-  if(debug) std::cout<<"Starting CastorTowerProducer"<<std::endl;
+  LogDebug("CastorTowerProducer")
+    <<"Starting CastorTowerProducer";
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CastorTowerProducer::endJob() {
-  if(debug) std::cout<<"Ending CastorTowerProducer"<<std::endl;
+  LogDebug("CastorTowerProducer")
+    <<"Ending CastorTowerProducer";
 }
 
 void CastorTowerProducer::ComputeTowerVariable(const reco::CastorCellRefVector& usedCells, double&  Ehot, double& depth) {
