@@ -104,15 +104,16 @@ for i in range(0, len(splittedList), 2):
             print "Skipping IOV =", end, " after requested =", endAt
             continue
         
+        ##TODO:Should we investigate this issue? Is it going to be an issue in the DB?
+        if end == "18446744073709551615":
+            end = str(int(start) + 1)
+
         startDate = timeStamptoDate(int(start))
         endDate = timeStamptoDate(int(end))
         #GBenelli Handle here the case of "end of time" IOV end time stamp 
         if endDate==-1:
             endDate=timeStamptoDate(int(start)+1) 
-        ##TODO:Should we investigate this issue? Is it going to be an issue in the DB?
             
-        #if end == "18446744073709551615":
-        #    end = str(int(start) + 1)
         print "start date = ", startDate,
         print ", end date = ", endDate
         fullDates="_FROM_"+startDate.replace(" ", "_").replace(":", "_")+"_TO_"+endDate.replace(" ", "_").replace(":", "_")
