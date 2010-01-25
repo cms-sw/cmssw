@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // constructor
-SiStripCoralIface::SiStripCoralIface (std::string connectionString , std::string authenticationPath) : m_connect(connectionString) {
+SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connect(connectionString), debug_(debug) {
   session=new cond::DBSession;
   session->configuration().setAuthenticationMethod(cond::XML);
   session->configuration().setMessageLevel(cond::Debug);
@@ -82,7 +82,7 @@ void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTim
   int numberRow=0;
   while( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    row.toOutputStream( std::cout ) << std::endl;
+    if( debug_ ) row.toOutputStream( std::cout ) << std::endl;
     numberRow++;
     if (queryType == "STATUSCHANGE") {
       coral::TimeStamp ts =  row["CHANGE_DATE"].data<coral::TimeStamp>();
@@ -131,7 +131,7 @@ void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeS
   int numberRow=0;
   while( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    row.toOutputStream( std::cout ) << std::endl;
+    if( debug_ ) row.toOutputStream( std::cout ) << std::endl;
     numberRow++;
     coral::TimeStamp ts =  row["CHANGE_DATE"].data<coral::TimeStamp>();
     vec_changedate.push_back(ts);
