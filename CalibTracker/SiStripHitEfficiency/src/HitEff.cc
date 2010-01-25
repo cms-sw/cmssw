@@ -672,14 +672,6 @@ double HitEff::checkConsistency(StripClusterParameterEstimator::LocalValues para
   return consistency;
 }
 
-double HitEff::checkConsistency(const SiStripRecHit2D* rechit, double xx, double xerr)
-{
-  double error = sqrt(rechit->localPositionError().xx() + xerr*xerr);
-  double separation = abs(rechit->localPosition().x() - xx);
-  double consistency = separation/error;
-  return consistency;
-}
-
 bool HitEff::isDoubleSided(uint iidd) const {
   StripSubdetector strip=StripSubdetector(iidd);
   unsigned int subid=strip.subdetId();

@@ -43,7 +43,6 @@ class HitEff : public edm::EDAnalyzer {
  public:  
   explicit HitEff(const edm::ParameterSet& conf);
   double checkConsistency(StripClusterParameterEstimator::LocalValues parameters, double xx, double xerr);
-  double checkConsistency(const SiStripRecHit2D* rechit, double xx, double xerr);
   bool isDoubleSided(uint iidd) const;
   bool check2DPartner(uint iidd, std::vector<TrajectoryMeasurement> traj);
   virtual ~HitEff();
