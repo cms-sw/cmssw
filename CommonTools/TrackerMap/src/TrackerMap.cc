@@ -202,6 +202,8 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
    nfeccrates=4;
    cout << nccu << " ccu stored in " <<nfeccrates<< " crates"<< endl;
 
+   delete fecCabling_ ;
+
  }
 //load Psu cabling info
  //load Psu cabling info 
@@ -2485,7 +2487,7 @@ void TrackerMap::fill_all_blank(){
 
   std::map<const int  , TmModule *>::iterator imod;
    for( imod=imoduleMap.begin();imod !=imoduleMap.end(); imod++){
-   fill(imod->first,0); 
+   fill_current_val(imod->first,0); 
    }
 }
 
