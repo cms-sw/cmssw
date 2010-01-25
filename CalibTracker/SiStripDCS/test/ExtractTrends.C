@@ -57,6 +57,7 @@ double * duplicateForGraph(const unsigned int size, const Float_t * summedValues
   double * summedValuesArray = new double[size*2-1];
   for( unsigned int i=0; i<size; ++i ) {
     summedValuesArray[2*i] = summedValues[i];
+    // cout << "summedValuesArray["<<2*i<<"] = " << summedValuesArray[2*i] << endl;
     if( i != size-1 ) {
       summedValuesArray[2*i+1] = summedValues[i];
     }
@@ -170,6 +171,7 @@ struct HistoHolder
     for( unsigned int i=0; i<size; ++i ) {
       // cout << "(*(valueVector["<<layerNum+side*10<<"]))["<<i<<"]; = " << (*(valueVector[layerNum+side*10]))[i] << endl;
       valueV[2*i] = (*(valueVector[layerNum+side*10]))[i];
+      // if( layerNum == 1 && side == 0 ) cout << "valueV["<<2*i<<"] = " << valueV[2*i] << endl;
       // Put the same value, which will correspond to the next time
       if( i != size-1 ) {
 	valueV[2*i+1] = (*(valueVector[layerNum+side*10]))[i];
@@ -190,7 +192,8 @@ struct HistoHolder
 
 void drawHistoTracker(TH1F* histo, const TString option, const unsigned int color, vector<vector<HistoHolder> > & histos)
 {
-  Float_t * summedValues = histo->GetArray();
+  // +1 because the array returned by the histogram starts from the underflow bin
+  Float_t * summedValues = histo->GetArray()+1;
   unsigned int size = histo->GetNbinsX();
   double * summedValuesArray = duplicateForGraph(size, summedValues);
   // cout << "summedValuesArray = " << summedValuesArray << endl;
@@ -204,6 +207,7 @@ void drawHistoTracker(TH1F* histo, const TString option, const unsigned int colo
   graph->GetXaxis()->SetLabelOffset(0.02);
   graph->GetXaxis()->SetTimeFormat("#splitline{  %d}{%H:%M}");
   graph->GetXaxis()->SetTimeOffset(0,"gmt");
+  graph->GetYaxis()->SetRangeUser(0,16000);
 }
 
 vector<vector<Holder> > extractFromFile( const string & fileName, const string & date )
@@ -355,7 +359,6 @@ void fillHistos( vector<vector<Holder> > & it, vector<vector<HistoHolder> > & hi
 void drawHistos( TCanvas ** canvas, vector<vector<HistoHolder> > & histos, TH1F ** histoTracker, const int firstLayer, const int totLayers,
 		 const int doubleSidedLayers, const int HVLVid, const int subDetId )
 {
-  int canvasCorrection = 0;
   TString option("AL");
   int lineColor = 2;
   if( HVLVid == 1 ) {
@@ -365,11 +368,10 @@ void drawHistos( TCanvas ** canvas, vector<vector<HistoHolder> > & histos, TH1F 
     option = "L";
     lineColor = 1;
   }
-  if( firstLayer == 0 ) canvasCorrection = 1;
   for( int layerNum = firstLayer; layerNum <= totLayers; ++layerNum ) {
     // First of all remove all the times = 0
     histos[HVLVid][subDetId].removeZeros(layerNum, 0);
-    canvas[subDetId]->cd(canvasCorrection+layerNum);
+    canvas[subDetId]->cd(layerNum);
     TH1F * histo = histos[HVLVid][subDetId].histo( layerNum, 0 );
     // histo->Draw(option);
     // histo->SetLineColor(lineColor);
@@ -395,20 +397,25 @@ void drawHistos( TCanvas ** canvas, vector<vector<HistoHolder> > & histos, TH1F 
     graph->GetXaxis()->SetTimeOffset(0,"gmt");
     // legend->AddEntry(histo, legendText);
 
+    // if( subDetId == 2 && layerNum == 1 ) {
+    //   cout << "Adding" << endl;
     histoTracker[HVLVid]->Add( histo );
+    // }
+
     if( layerNum <= doubleSidedLayers ) {
       histos[HVLVid][subDetId].removeZeros(layerNum, 1);
-      canvas[subDetId]->cd(canvasCorrection+totLayers+layerNum);
+      canvas[subDetId]->cd(totLayers+layerNum);
       histo = histos[HVLVid][subDetId].histo( layerNum, 1 );
-      // TGraph * graph = new TGraph(histos[HVLVid][subDetId].getSize(layerNum, 1), histos[HVLVid][subDetId].time(layerNum, 1), histos[HVLVid][subDetId].value(layerNum, 1));
-      graph->SetTitle(histo->GetTitle());
-      graph->SetLineColor(lineColor);
-      graph->SetMarkerColor(lineColor);
-      graph->Draw(option);
+      TGraph * graphStereo = new TGraph(histos[HVLVid][subDetId].getSize(layerNum, 1), histos[HVLVid][subDetId].time(layerNum, 1), histos[HVLVid][subDetId].value(layerNum, 1));
+      graphStereo->SetTitle(histo->GetTitle());
+      graphStereo->SetLineColor(lineColor);
+      graphStereo->SetMarkerColor(lineColor);
+      graphStereo->Draw(option);
 
       // histo->Draw(option);
       // histo->SetLineColor(lineColor);
       // legend->AddEntry(histo, legendText);
+
       histoTracker[HVLVid]->Add( histo );
     }
   }
@@ -456,7 +463,7 @@ void ExtractTrends()
 
       // par:     holder, histos, firstLayer, totLayers, doubleSidedLayers, HVLVid, subDetId, iov
       fillHistos( *it,    histos,          1,         4,                 2, HVLVid,        0, iov ); // TIB
-      fillHistos( *it,    histos,          0,         2,                 1, HVLVid,        1, iov ); // TID (doubleSided = 1 because it starts from 1 and <= is used)
+      fillHistos( *it,    histos,          1,         3,                 3, HVLVid,        1, iov ); // TID
       fillHistos( *it,    histos,          1,         6,                 2, HVLVid,        2, iov ); // TOB
       fillHistos( *it,    histos,          1,         9,                 9, HVLVid,        3, iov ); // TEC
     }
@@ -478,7 +485,7 @@ void ExtractTrends()
   canvas[3] = new TCanvas("TEC HV status", "HVstatus", 1000, 800);
 
   canvas[0]->Divide(4,2);
-  canvas[1]->Divide(2,2);
+  canvas[1]->Divide(3,2);
   canvas[2]->Divide(6,2);
   canvas[3]->Divide(9,2);
 
@@ -489,7 +496,7 @@ void ExtractTrends()
 
     // par:     canvas, histos, histoTracker, firstLayer, totLayers, doubleSidedLayers, HVLVid, subDetId, iov
     drawHistos( canvas, histos, histoTracker,          1,         4,                 2, HVLVid,        0 ); // TIB
-    drawHistos( canvas, histos, histoTracker,          0,         2,                 1, HVLVid,        1 ); // TID (doubleSided = 1 because it starts from 1 and <= is used)
+    drawHistos( canvas, histos, histoTracker,          1,         3,                 3, HVLVid,        1 ); // TID
     drawHistos( canvas, histos, histoTracker,          1,         6,                 2, HVLVid,        2 ); // TOB
     drawHistos( canvas, histos, histoTracker,          1,         9,                 9, HVLVid,        3 ); // TEC
 
@@ -514,8 +521,8 @@ void ExtractTrends()
 
   // histoTracker[1]->Draw("SAME");
 
-  TLegend * legend2 = new TLegend(0.7,0.71,0.98,1.);
-  legend2->SetTextSize(0.02);
+  TLegend * legend2 = new TLegend(0.71,0.87,0.98,1,NULL,"brNDC");
+  legend2->SetTextSize(0.035);
   // legend2->SetFillColor(0); // Have a white background
   legend2->AddEntry(histoTracker[0], "High Voltage off");
   legend2->AddEntry(histoTracker[1], "Low Voltage off");
