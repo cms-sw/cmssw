@@ -36,14 +36,13 @@ namespace sistrip {
     typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
     
     /// constructor
-    RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key,
-                       bool unpack_bad_channels );
+    RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key, bool unpack_bad_channels ); 
     
     /// default constructor
     ~RawToDigiUnpacker();
     
     /// creates digis
-    void createDigis( const SiStripFedCabling&, const FEDRawDataCollection&, SiStripEventSummary&, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& );
+    void createDigis( const SiStripFedCabling&, const FEDRawDataCollection&, SiStripEventSummary&, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection&, RawDigis& common_mode );
     
     /// trigger info
     void triggerFed( const FEDRawDataCollection&, SiStripEventSummary&, const uint32_t& event );
@@ -56,11 +55,13 @@ namespace sistrip {
     
     /// EventSummary update request -> not yet implemented for FEDBuffer class
     inline void useDaqRegister( bool );
+
+    inline void extractCm( bool );
     
   private:
     
     /// fill DetSetVectors using registries
-    void update( RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr );
+    void update( RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, RawDigis& common_mode );
     
     /// private default constructor
     RawToDigiUnpacker();
@@ -118,18 +119,21 @@ namespace sistrip {
     bool first_;
     bool useDaqRegister_;
     bool quiet_;
+    bool extractCm_;    
     
     /// registries
     std::vector<Registry> zs_work_registry_;
     std::vector<Registry> virgin_work_registry_;
     std::vector<Registry> scope_work_registry_;
     std::vector<Registry> proc_work_registry_;
+    std::vector<Registry> cm_work_registry_;
     
     /// digi collections
     std::vector<SiStripDigi> zs_work_digis_;
     std::vector<SiStripRawDigi> virgin_work_digis_; 
     std::vector<SiStripRawDigi> scope_work_digis_; 
     std::vector<SiStripRawDigi> proc_work_digis_;
+    std::vector<SiStripRawDigi> cm_work_digis_;
   };
   
 }
@@ -166,6 +170,7 @@ void sistrip::RawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
 
 void sistrip::RawToDigiUnpacker::useDaqRegister( bool use ) { useDaqRegister_ =  use; }
 
+void sistrip::RawToDigiUnpacker::extractCm( bool extract_cm ) { extractCm_ = extract_cm; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 
