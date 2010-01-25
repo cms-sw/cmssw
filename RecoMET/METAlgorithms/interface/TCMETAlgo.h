@@ -50,7 +50,8 @@ class TCMETAlgo
   TCMETAlgo();
   virtual ~TCMETAlgo();
   reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D *response_function);
-  TH2D* getResponseFunction ( );
+  TH2D* getResponseFunction_fit ( );
+  TH2D* getResponseFunction_mode ( );
 
  private:
   double met_x;
@@ -75,12 +76,17 @@ class TCMETAlgo
   edm::InputTag muonDepValueMap_;
   edm::InputTag tcmetDepValueMap_;
 
+  int     rfType_;
+
   double  minpt_;
   double  maxpt_;
   double  maxeta_;
   double  maxchi2_;
   double  minhits_;
   double  maxd0_;
+  double  maxPtErr_;
+  std::vector<int> trkQuality_;
+  std::vector<int> trkAlgos_;
 
   bool isCosmics_;
 
@@ -96,6 +102,8 @@ class TCMETAlgo
   bool isGoodTrack( const reco::TrackRef );
   void correctMETforMuon( const reco::TrackRef, const unsigned int );
   void correctSumEtForMuon( const reco::TrackRef, const unsigned int );
+  void correctMETforMuon( const unsigned int );
+  void correctSumEtForMuon( const unsigned int );
   void correctMETforTrack( const reco::TrackRef );
   void correctSumEtForTrack( const reco::TrackRef );
   class TVector3 propagateTrack( const reco::TrackRef );

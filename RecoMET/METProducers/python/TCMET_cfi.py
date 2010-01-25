@@ -20,13 +20,17 @@ tcMet = cms.EDProducer("METProducer",
     beamSpotInputTag  = cms.InputTag("offlineBeamSpot"),
     muonDepValueMap   = cms.InputTag("muonMETValueMapProducer"  , "muCorrData"),     
     tcmetDepValueMap  = cms.InputTag("muonTCMETValueMapProducer", "muCorrData"), 
-    pt_min  = cms.double(2.0),
+    pt_min  = cms.double(1.0),
     pt_max  = cms.double(100.),
-    eta_max = cms.double(2.4), 
-    chi2_max = cms.double(4),
-    nhits_min = cms.double(11),
+    eta_max = cms.double(2.65), 
+    chi2_max = cms.double(5),
+    nhits_min = cms.double(6),
     d0_max = cms.double(0.1),
-    isCosmics = cms.bool(False)
+    ptErr_max = cms.double(0.2),
+    track_quality = cms.vint32(2),
+    track_algos = cms.vint32(4,5), 
+    isCosmics = cms.bool(False),
+    rf_type = cms.int32(1)
 )
 
 
