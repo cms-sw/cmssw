@@ -40,6 +40,8 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
     ConfDb = cms.untracked.string('cms_trk_tkcc/fjrEipnl88@cms_omds_lb'),
     TNS_ADMIN = cms.untracked.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
+    # ConfDb = cms.untracked.string('cms_trk_tkcc/fjrEipnl88@cms_omds_nolb'),
+    # TNS_ADMIN = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/DeMattia/connection_files'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
         PartTIBD = cms.untracked.PSet(
@@ -91,7 +93,7 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND')
 
 # -----------------------------------------------------------------------------
-# Define our DetVOffBuilder process.  
+# Define our SiStripDetVOffBuilder process.  
 #
 # Parameters:
 #   onlineDB            : the connection string for the database.  In  
@@ -112,20 +114,20 @@ process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PV
 process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
     onlineDB = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND'),
-    # authPath = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/DeMattia/CMSSW_3_1_1/src/CalibTracker/SiStripDCS/python'),
+    # authPath = cms.string('/exports/slc4/CMSSW/Development/Users/DeMattia/connection_files'),
     authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
     
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
     #     Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
     #     Tmax = cms.untracked.vint32(2009, 11, 23,  8,  0, 0, 000),
     
-    Tmin = cms.vint32(2009, 12, 7,  12,  0, 0, 000),
-    Tmax = cms.vint32(2009, 12, 8,  9,  0, 0, 000),
+    Tmin = cms.vint32(2009, 12, 12,  00,  0, 0, 000),
+    Tmax = cms.vint32(2009, 12, 12,  15,  0, 0, 000),
 
     # Do NOT change this unless you know what you are doing!
     TSetMin = cms.vint32(2007, 11, 26, 0, 0, 0, 0),                                             
     
-    # queryType can be either STATUSCHANGE or LASTVALUE                              
+    # queryType can be either STATUSCHANGE or LASTVALUE                                
     queryType = cms.string('STATUSCHANGE'),
     
     # if reading lastValue from file put insert file name here                              
@@ -137,9 +139,11 @@ process.SiStripDetVOffBuilder = cms.Service(
     # flag to toggle debug output
     debugModeOn = cms.bool(False),
     
-    #DetIdFile
-    DetIdListFile = cms.string('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat')
-    
+    # DetIdFile
+    DetIdListFile = cms.string('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
+
+    # Threshold to consider an HV channel on
+    HighVoltageOnThreshold = cms.double(0.97)
     )
 
 # -----------------------------------------------------------------------------
@@ -164,6 +168,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb')
+        # authenticationPath = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/DeMattia/connection_files')
     ),
     timetype = cms.untracked.string('timestamp'),
     connect = cms.string('sqlite_file:dbfile.db'),
