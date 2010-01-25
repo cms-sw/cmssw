@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/12/06 10:10:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/18 21:04:05 $
+ *  $Revision: 1.10 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -83,6 +83,23 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::InputTag theTriggerResultsLabel;
   //
 
+  std::string _hlt_PhysDec;
+
+  std::vector<unsigned > _techTrigs;
+
+  bool _doPVCheck;
+  bool _doHLTPhysicsOn;
+
+  bool     _tightBHFiltering;
+  unsigned _tightJetIDFiltering;
+  bool     _tightHcalFiltering;
+
+  int _nvtx_min;
+  int _nvtxtrks_min;
+  double _vtxchi2_max;
+  double _vtxz_max;
+
+
   int _LSBegin;
   int _LSEnd;
 
@@ -90,6 +107,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   std::string processname_;
 
   MonitorElement* hltpathME;
+  MonitorElement* physdecME;
   MonitorElement* lumisecME;
 
   std::string LoJetTrigger;
@@ -97,14 +115,25 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   
   bool theJetAnalyzerFlag;  
   bool theIConeJetAnalyzerFlag;
-  bool theJetPtAnalyzerFlag;
   bool theJetCleaningFlag;
+
+  bool theJetPtAnalyzerFlag;
+  bool theJetPtCleaningFlag;
+
   bool thePFJetAnalyzerFlag;
+  bool thePFJetCleaningFlag;
+
   bool theJPTJetAnalyzerFlag;
+  bool theJPTJetCleaningFlag;
+
   bool theCaloMETAnalyzerFlag;
+
   bool theTcMETAnalyzerFlag;
+
   bool theMuCorrMETAnalyzerFlag;
+
   bool thePfMETAnalyzerFlag;
+
   bool theHTMHTAnalyzerFlag;
 
   // the jet analyzer
@@ -115,19 +144,30 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   JetAnalyzer       * theCleanedAKJetAnalyzer;
   JetAnalyzer       * theCleanedSCJetAnalyzer;
   JetAnalyzer       * theCleanedICJetAnalyzer;
-  //JetAnalyzer     * theJPTJetAnalyzer;
+
   JPTJetAnalyzer    * theJPTJetAnalyzer;
+  JPTJetAnalyzer    * theCleanedJPTJetAnalyzer;
+
   PFJetAnalyzer     * thePFJetAnalyzer; 
+  PFJetAnalyzer     * theCleanedPFJetAnalyzer; 
+
   JetPtAnalyzer     * thePtAKJetAnalyzer;
   JetPtAnalyzer     * thePtSCJetAnalyzer;
   JetPtAnalyzer     * thePtICJetAnalyzer;
+  JetPtAnalyzer     * theCleanedPtAKJetAnalyzer;
+  JetPtAnalyzer     * theCleanedPtSCJetAnalyzer;
+  JetPtAnalyzer     * theCleanedPtICJetAnalyzer;
+
   CaloMETAnalyzer   * theCaloMETAnalyzer;
   CaloMETAnalyzer   * theCaloMETNoHFAnalyzer;
   CaloMETAnalyzer   * theCaloMETHOAnalyzer;
   CaloMETAnalyzer   * theCaloMETNoHFHOAnalyzer;
+
   METAnalyzer       * theTcMETAnalyzer;
   METAnalyzer       * theMuCorrMETAnalyzer;
+
   PFMETAnalyzer     * thePfMETAnalyzer;
+
   HTMHTAnalyzer     * theHTMHTAnalyzer;
   
 };
