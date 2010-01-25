@@ -196,6 +196,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xgi::bind(this, &FUEventProcessor::css,              "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage,   "Default"   );
   xgi::bind(this, &FUEventProcessor::spotlightWebPage, "Spotlight" );
+  xgi::bind(this, &FUEventProcessor::scalersWeb,       "scalersWeb");
+  xgi::bind(this, &FUEventProcessor::pathNames,        "pathNames" );
   xgi::bind(this, &FUEventProcessor::subWeb,           "SubWeb"    );
   xgi::bind(this, &FUEventProcessor::moduleWeb,        "moduleWeb" );
   xgi::bind(this, &FUEventProcessor::serviceWeb,       "serviceWeb");
@@ -246,7 +248,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\">2.0.8 (" << edm::getReleaseVersion() <<")</div>"
+  ost  << "<div id=\"ve\">2.0.9 (" << edm::getReleaseVersion() <<")</div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
@@ -654,7 +656,31 @@ void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
 
 
 }
+void FUEventProcessor::scalersWeb(xgi::Input  *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
 
+  out->getHTTPResponseHeader().addHeader( "Content-Type",
+					  "application/octet-stream" );
+  out->getHTTPResponseHeader().addHeader( "Content-Transfer-Encoding",
+					  "binary" );
+  if(evtProcessor_ != 0){
+    out->write( (char*)(evtProcessor_.getPackedTriggerReport()->mtext), sizeof(TriggerReportStatic) );
+  }
+}
+
+void FUEventProcessor::pathNames(xgi::Input  *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+
+  if(evtProcessor_ != 0){
+    xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
+    if(legenda !=0){
+      std::string slegenda = ((xdata::String*)legenda)->value_;
+      *out << slegenda << std::endl;
+    }
+  }
+}
 
 void FUEventProcessor::attachDqmToShm() throw (evf::Exception)  
 {

@@ -64,7 +64,9 @@ namespace evf{
     class TriggerReportHelpers{
     public:
       TriggerReportHelpers() 
-	: tableFormatted_(false)
+	: eventsProcessed_(0)
+	, eventsAccepted_(0)
+	, tableFormatted_(false)
 	, lumiSectionIndex_(0)
 	, prescaleIndex_(0)
 	, cache_(sizeof(TriggerReportStatic),MSQS_MESSAGE_TYPE_TRR)
@@ -79,6 +81,8 @@ namespace evf{
 			     , bool noNukeLegenda);
       xdata::Table &getTable(){return triggerReportAsTable_;} 
       xdata::Table &getTableWithNames(){return triggerReportAsTableWithNames_;} 
+      xdata::UnsignedInteger32 &getProcThisLumi(){return eventsProcessed_;}
+      xdata::UnsignedInteger32 &getAccThisLumi(){return eventsAccepted_;}
       bool checkLumiSection(unsigned int ls) {return (ls == lumiSectionIndex_);}
       void packTriggerReport(edm::TriggerReport &);
       void sumAndPackTriggerReport(MsgBuf &);
@@ -89,6 +93,8 @@ namespace evf{
       xdata::String *getPathLegenda(){return &pathLegenda_;}
     private:
       // scalers table
+      xdata::UnsignedInteger32 eventsProcessed_;
+      xdata::UnsignedInteger32 eventsAccepted_;
       xdata::Table triggerReportAsTable_;
       xdata::Table triggerReportAsTableWithNames_;
       xdata::String pathLegenda_;

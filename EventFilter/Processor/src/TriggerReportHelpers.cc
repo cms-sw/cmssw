@@ -69,6 +69,8 @@ void TriggerReportHelpers::packedTriggerReportToTable()
 
 
   TriggerReportStatic *trs = getPackedTriggerReportAsStruct();
+  eventsProcessed_.value_ = trs->eventSummary.totalEvents;
+  eventsAccepted_.value_  = trs->eventSummary.totalEventsPassed;
   for(int i=0; i<trs->trigPathsInMenu; i++) {
     l1pre_[i] = trs->trigPathSummaries[i].timesPassedL1;
     triggerReportAsTable_.setValueAt(i,columns[0],l1pre_[i]);

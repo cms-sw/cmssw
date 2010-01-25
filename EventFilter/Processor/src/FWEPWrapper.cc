@@ -122,6 +122,8 @@ namespace evf{
     scalersComplete_.addColumn("instance", "unsigned int 32");
     scalersComplete_.addColumn("lsid", "unsigned int 32");
     scalersComplete_.addColumn("psid", "unsigned int 32");
+    scalersComplete_.addColumn("proc", "unsigned int 32");
+    scalersComplete_.addColumn("acc",  "unsigned int 32");
     scalersComplete_.addColumn("triggerReport", "table");  
 
     //fill initial macrostate legenda information
@@ -733,7 +735,7 @@ namespace evf{
 
   bool FWEPWrapper::fireScalersUpdate()
   {
-    trh_.printReportTable();
+    //    trh_.printReportTable();
     scalersUpdateAttempted_++;
     try{
       scalersInfoSpace_->lock();
@@ -1228,6 +1230,8 @@ namespace evf{
       it->setField("lsid", *lsp);
     if(psp)
       it->setField("psid", *psp);
+    it->setField("proc",trh_.getProcThisLumi());
+    it->setField("acc",trh_.getAccThisLumi());
     it->setField("triggerReport",trh_.getTableWithNames());
     lumiSectionsCtr_[rollingLsIndex_] = lst;
 

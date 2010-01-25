@@ -91,6 +91,10 @@ namespace evf
       throw(xgi::exception::Exception);
     void spotlightWebPage(xgi::Input *,xgi::Output *)
       throw(xgi::exception::Exception);
+    void scalersWeb(xgi::Input *,xgi::Output *)
+      throw(xgi::exception::Exception);
+    void pathNames(xgi::Input *,xgi::Output *)
+      throw(xgi::exception::Exception);
     void css(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception)
     {
       css_.css(in,out);

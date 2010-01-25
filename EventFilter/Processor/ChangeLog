@@ -1,5 +1,11 @@
 2010-01-20 Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V02-00-09
+	* add general counters for processed and accepted events to HLTS message
+	* add web interface for counters
+	
+2010-01-20 Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V02-00-08
 	* fix for dangling FDs from ptHTTP in slave processes
 	
