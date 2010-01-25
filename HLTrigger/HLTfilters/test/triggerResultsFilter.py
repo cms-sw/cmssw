@@ -22,70 +22,63 @@ import HLTrigger.HLTfilters.triggerResultsFilter_cfi as hlt
 
 # accept if 'HLT_Path_1' succeeds
 process.filter_1 = hlt.triggerResultsFilter.clone(
-    triggerConditions = [ 'HLT_Path_1'],
+    triggerConditions =  'HLT_Path_1',
     l1tResults = '',
     throw = False
     )
 
 # accept if 'HLT_Path_2' succeeds
 process.filter_2 = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_2'],
+    triggerConditions = 'HLT_Path_2',
     l1tResults = '',
     throw = False
     )
 
 # accept if 'HLT_Path_3' succeeds
 process.filter_3 = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_3'],
+    triggerConditions = 'HLT_Path_3',
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds (explicit OR)
 process.filter_any_or = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_1 OR HLT_Path_2 OR HLT_Path_3'],
+    triggerConditions = 'HLT_Path_1 OR HLT_Path_2 OR HLT_Path_3',
     l1tResults = '',
     throw = False
     )
 
 # accept if 'HLT_Path_1' succeeds, prescaled by 2
 process.filter_1_pre = hlt.triggerResultsFilter.clone(
-    triggerConditions = [ '(HLT_Path_1) / 15'],
+    triggerConditions =  '(HLT_Path_1) / 15',
     l1tResults = '',
     throw = False
     )
 
 # accept if 'HLT_Path_2' succeeds, prescaled by 10
 process.filter_2_pre = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['(HLT_Path_2 / 10)'],
+    triggerConditions = '(HLT_Path_2 / 10)',
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds, with different prescales (explicit OR, prescaled)
 process.filter_any_pre = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_1 / 15 OR HLT_Path_2 / 10 OR HLT_Path_3 / 6'],
-    l1tResults = '',
-    throw = False
-    )
-
-# accept if any path succeeds (implicit via of paths)
-process.filter_any_list = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_1', 'HLT_Path_2', 'HLT_Path_3'],
+    triggerConditions = 'HLT_Path_1 / 15 OR HLT_Path_2 / 10 OR HLT_Path_3 / 6',
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds (wildcard, '*')
 process.filter_any_star = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_*'],
+    triggerConditions = 'HLT_*',
     l1tResults = '',
     throw = False
     )
 
 # accept if any path succeeds (wildcard, twice '*')
 process.filter_any_doublestar = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_*_*'],
+    triggerConditions = 'HLT_*_*',
     l1tResults = '',
     throw = False
     )
@@ -93,35 +86,35 @@ process.filter_any_doublestar = hlt.triggerResultsFilter.clone(
 
 # accept if any path succeeds (wildcard, '?')
 process.filter_any_question = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_?'],
+    triggerConditions = 'HLT_Path_?',
     l1tResults = '',
     throw = False
     )
 
 # accept if all path succeed (explicit AND)
 process.filter_all_explicit = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Path_1 AND HLT_Path_2 AND HLT_Path_3'],
+    triggerConditions = 'HLT_Path_1 AND HLT_Path_2 AND HLT_Path_3',
     l1tResults = '',
     throw = False
 )
 
 # wrong path name (explicit)
 process.filter_wrong_name = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_Wrong'],
+    triggerConditions = 'HLT_Wrong',
     l1tResults = '',
     throw = False
 )
 
 # wrong path name (wildcard)
 process.filter_wrong_pattern = hlt.triggerResultsFilter.clone(
-    triggerConditions = ['HLT_*_Wrong'],
+    triggerConditions = 'HLT_*_Wrong',
     l1tResults = '',
     throw = False
 )
 
 # empty path list
 process.filter_empty_pattern = hlt.triggerResultsFilter.clone(
-    triggerConditions = [''],
+    triggerConditions = '',
     l1tResults = '',
     throw = False
 )
@@ -134,7 +127,6 @@ process.path_3 = cms.Path( process.filter_3 )
 process.path_all_explicit = cms.Path( process.filter_all_explicit )
 
 process.path_any_or   = cms.Path( process.filter_any_or )
-process.path_any_list = cms.Path( process.filter_any_list )
 process.path_any_star = cms.Path( process.filter_any_star )
 
 process.path_1_pre    = cms.Path( process.filter_1_pre )
