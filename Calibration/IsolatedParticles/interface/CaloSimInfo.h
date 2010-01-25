@@ -65,7 +65,7 @@ namespace spr{
   std::map<std::string,double> eECALSimInfoTotal(const edm::Event&, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, int itry=-1, double timeCut=150, bool debug=false);
 
   template< typename T>
-  spr::energyMap eECALSimInfoMatrix(const edm::Event&, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut=150, bool debug=false);
+  energyMap eECALSimInfoMatrix(const edm::Event&, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut=150, bool debug=false);
   
   // takes the HcalSimHits and returns a map energy matched to SimTrack, photons, neutral hadrons etc.
   template <typename T>
@@ -78,17 +78,17 @@ namespace spr{
   std::map<std::string,double> eHCALSimInfoTotal(const edm::Event&, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, int itry=-1, double timeCut=150, bool includeHO=false, bool debug=false);
 
   template <typename T>
-  spr::energyMap eHCALSimInfoMatrix(const edm::Event&, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut=150, bool includeHO=false, bool debug=false);
+  energyMap eHCALSimInfoMatrix(const edm::Event&, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut=150, bool includeHO=false, bool debug=false);
 
   // Actual function which does the matching of SimHits to SimTracks using geantTrackId
   template <typename T>
-  std::map<std::string,double> eCaloSimInfo(std::vector<DetId> vdets, const CaloGeometry* geo, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE,  edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, edm::SimTrackContainer::const_iterator trkInfo, double timeCut=150, bool includeHO=false, bool debug=false);
+  std::map<std::string,double> eCaloSimInfo(std::vector<DetId> vdets, const CaloGeometry* geo, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE,  edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, edm::SimTrackContainer::const_iterator trkInfo, double timeCut=150, bool debug=false);
 
   template <typename T>
   std::map<std::string,double> eCaloSimInfo(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit, edm::SimTrackContainer::const_iterator trkInfo, double timeCut=150, bool includeHO=false, bool debug=false);
 
   template <typename T>
-  spr::energyMap caloSimInfo(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit, edm::SimTrackContainer::const_iterator trkInfo, double timeCut=150, bool includeHO=false, bool debug=false);
+  energyMap caloSimInfoMatrix(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit, edm::SimTrackContainer::const_iterator trkInfo, double timeCut=150, bool includeHO=false, bool debug=false);
 
   // Returns total energy of CaloSimHits which originate from the matching SimTrack
   template <typename T>
