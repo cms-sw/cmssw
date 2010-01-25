@@ -13,8 +13,8 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Sat Jul  7 09:51:31 CEST 2007
-// $Id: HOCalibAnalyzer.cc,v 1.7 2009/02/11 19:29:56 elmer Exp $
-// $Id: HOCalibAnalyzer.cc,v 1.7 2009/02/11 19:29:56 elmer Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.8 2010/01/11 16:40:14 kodolova Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.8 2010/01/11 16:40:14 kodolova Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TMath.h"
 #include "TFile.h"
