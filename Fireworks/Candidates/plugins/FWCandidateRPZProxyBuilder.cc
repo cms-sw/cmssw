@@ -8,13 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 09:54:40 EST 2008
-// $Id: FWCandidateRPZProxyBuilder.cc,v 1.2 2009/01/06 20:07:48 chrjones Exp $
+// $Id: FWCandidateRPZProxyBuilder.cc,v 1.3 2010/01/21 21:02:11 amraktad Exp $
 //
+#include "TEveVSDStructs.h"
+#include "TEveTrack.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/Context.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -55,7 +57,13 @@ FWCandidateRPZProxyBuilder::~FWCandidateRPZProxyBuilder()
 void 
 FWCandidateRPZProxyBuilder::build(const reco::Candidate& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
-   TEveTrack* trk = fireworks::prepareTrack( iData, context().getTrackPropagator(), item()->defaultDisplayProperties().color() );
+   TEveRecTrack t;
+   t.fBeta = 1.;
+   t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
+   t.fV = TEveVector( iData.vertex().x(), iData.vertex().y(), iData.vertex().z() );
+   t.fSign = iData.charge();
+   TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
+   trk->SetMainColor( item()->defaultDisplayProperties().color());
    trk->MakeTrack();
    oItemHolder.AddElement( trk );
 }

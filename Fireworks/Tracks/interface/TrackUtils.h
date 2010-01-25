@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.6 2009/12/10 16:12:54 latb Exp $
+// $Id: TrackUtils.h,v 1.7 2009/12/15 23:02:57 dmytro Exp $
 //
 
 // system include files
@@ -19,7 +19,6 @@
 // forward declarations
 namespace reco {
    class Track;
-   class Candidate;
 }
 class TEveElement;
 class TEveTrackPropagator;
@@ -63,10 +62,7 @@ public:
                            TEveTrackPropagator* propagator,
                            Color_t color,
                            const std::vector<TEveVector>& extraRefPoints = std::vector<TEveVector>());
-   TEveTrack* prepareTrack(const reco::Candidate& candidate,
-                           TEveTrackPropagator* propagator,
-                           Color_t color);
-
+ 
    void pixelLocalXY(const double mpx, const double mpy, const DetId& id,
                      double& lpx, double& lpy);
 
