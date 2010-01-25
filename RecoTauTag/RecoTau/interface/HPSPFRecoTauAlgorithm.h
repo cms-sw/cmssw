@@ -43,8 +43,8 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
 
   //Creators of the Decay Modes
   reco::PFTauCollection buildOneProng(const reco::PFTauTagInfoRef&);
-  reco::PFTauCollection buildOneProngStrip(const reco::PFTauTagInfoRef&);
-  reco::PFTauCollection buildOneProngTwoStrips(const reco::PFTauTagInfoRef&);
+  reco::PFTauCollection buildOneProngStrip(const reco::PFTauTagInfoRef&,const std::vector<PFCandidateRefVector>&);
+  reco::PFTauCollection buildOneProngTwoStrips(const reco::PFTauTagInfoRef&,const std::vector<PFCandidateRefVector>&);
   reco::PFTauCollection buildThreeProngs(const reco::PFTauTagInfoRef&);
 
   //Narrowness selection

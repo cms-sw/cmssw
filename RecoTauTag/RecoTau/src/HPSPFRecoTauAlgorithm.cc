@@ -27,6 +27,8 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
 {
   PFTau pfTau;
 
+  //make the strips globally.
+  std::vector<PFCandidateRefVector> strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
   //OK For this Tau Tag Info we should create all the possible taus 
 
   //One Prongs
@@ -37,13 +39,13 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
   //One Prong Strips
   PFTauCollection oneProngStripTaus;
   if(doOneProngStrips_)     
-    oneProngStripTaus =buildOneProngStrip(tagInfo);
+    oneProngStripTaus =buildOneProngStrip(tagInfo,strips);
   
 
   //One Prong TwoStrips
   PFTauCollection oneProngTwoStripsTaus;
   if(doOneProngTwoStrips_) 
-    oneProngTwoStripsTaus =buildOneProngTwoStrips(tagInfo);
+    oneProngTwoStripsTaus =buildOneProngTwoStrips(tagInfo,strips);
   
 
   //Three Prong
@@ -164,7 +166,8 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo)
 //Build one Prong + Strip
 
 PFTauCollection
-HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo)
+HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<PFCandidateRefVector>& strips)
+
 {
   //Create output Collection
   PFTauCollection taus;
@@ -176,8 +179,6 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo)
   if(hadrons.size()>0)
     sortRefVector(hadrons);
 
-  //create strips with PFGammas and if asked with PFelectrons also
-  std::vector<PFCandidateRefVector> strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
 
   //make taus like this only if there is at least one hadron+ 1 strip
   if(hadrons.size()>0&&strips.size()>0){
@@ -271,7 +272,7 @@ return taus;
 }
 
 PFTauCollection
-HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagInfo)
+HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<PFCandidateRefVector>& strips)
 {
 
 
@@ -282,9 +283,6 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 
   if(hadrons.size()>0)
     sortRefVector(hadrons);
-
-  //create strips with PFGammas and if asked with PFelectrons also
-  std::vector<PFCandidateRefVector> strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
 
 
 
@@ -300,8 +298,6 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 	  //Create the strips and the vectors .Again cross clean the track if associated
 	  PFCandidateRefVector emConstituents1 = strips.at(Nstrip1);
 	  PFCandidateRefVector emConstituents2 = strips.at(Nstrip2);
-
-
 	  removeCandidateFromRefVector(*hadron,emConstituents1);
 	  removeCandidateFromRefVector(*hadron,emConstituents2);
 
@@ -439,7 +435,7 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
 
 	  //check charge Compatibility and lead track
 	  int charge=h1->charge()+h2->charge()+h3->charge(); 
-	  if(abs(charge)==1 && hadrons.at(0)->pt()>leadPionThreshold_) {
+	  if(abs(charge)==1 && hadrons.at(0)->pt()>leadPionThreshold_&&(h1->p4()+h2->p4()+h3->p4()).pt()>tauThreshold_) {
 
 	    //Fit the vertex!
 	    std::vector<TransientTrack> transientTracks;
