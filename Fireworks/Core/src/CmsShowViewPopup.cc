@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.18 2009/12/01 20:54:52 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.19 2010/01/25 13:33:37 amraktad Exp $
 //
 
 // system include files
@@ -184,10 +184,8 @@ CmsShowViewPopup::UnmapWindow()
 void
 CmsShowViewPopup::saveImage()
 {
-   if(m_eveWindow) {
-      FWViewBase* viewBase = (FWViewBase*)(m_eveWindow->GetUserData());
-      viewBase->promptForSaveImageTo(this);
-   }
+   if(m_viewBase)
+      m_eviewBase->promptForSaveImageTo(this);
 }
 
 void
