@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.22 2009/06/26 21:06:33 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.23 2009/10/07 19:02:31 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -28,7 +28,6 @@ class TGPictureButton;
 class TGLabel;
 class TEveCompositeFrame;
 class TEveWindow;
-class FWViewBase;
 
 class FWGUISubviewArea : public TGHorizontalFrame
 {
@@ -70,7 +69,6 @@ public:
    void setInfoButton(bool downp);
 
    TEveWindow* getEveWindow();
-   FWViewBase* getFWView();
 
    static FWGUISubviewArea* getToolBarFromWindow(TEveWindow*);
 

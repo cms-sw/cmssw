@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.181 2009/12/13 12:27:10 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.182 2010/01/22 14:17:18 amraktad Exp $
 
 //
 
@@ -38,11 +38,10 @@
 #include "TGMenu.h"
 #include "TEveManager.h"
 #include "TGPack.h"
-//#include "TEveGedEditor.h"
 #include "TEveWindow.h"
+#include "TEveViewer.h"
 #include "TEveWindowManager.h"
 #include "TEveSelection.h"
-#include "TEveViewer.h"
 #include "TGFileDialog.h"
 #include "TGSlider.h"
 #include "TColor.h"
@@ -117,21 +116,17 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
-			                  const CmsShowMain* iCmsShowMain,
+			                     const CmsShowMain* iCmsShowMain,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
    m_eiManager(iEIMgr),
    m_changeManager(iCMgr),
    m_colorManager(iColorMgr),
-   m_cmsShowMain(iCmsShowMain),
-   m_continueProcessingEvents(false),
-   m_waitForUserAction(true),
-   m_code(0),
-   m_editableSelected(0),
    m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
    m_contextMenuHandler(0),
+   m_cmsShowMain(iCmsShowMain),
    m_dataAdder(0),
    m_ediFrame(0),
    m_modelPopup(0),
@@ -156,7 +151,6 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
 
    TEveManager::Create(kFALSE, "FI");
-
    {
       //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
       // causing the program to go into full screen mode under default SL4 window manager
@@ -224,8 +218,8 @@ FWGUIManager::~FWGUIManager()
 {
    delete m_summaryManager;
    delete m_detailViewManager;
-   delete m_editableSelected;
    delete m_cmsShowMainFrame;
+   delete m_viewPopup;
    delete m_ediFrame;
    delete m_contextMenuHandler;
 
@@ -234,28 +228,21 @@ FWGUIManager::~FWGUIManager()
 void
 FWGUIManager::evePreTerminate()
 {
-   //gDebug = 1;// ROOT debug
-
    gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
    gEve->GetWindowManager()->Disconnect("WindowDocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
    gEve->GetWindowManager()->Disconnect("WindowUndocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
 
-   // unmap main frames not to watch dying
-   m_cmsShowMainFrame->UnmapWindow();
-   for(std::vector<TEveWindow*>::const_iterator wIt = m_viewWindows.begin(); wIt != m_viewWindows.end(); ++wIt)
-   {
-      TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>((*wIt)->GetEveFrame());
-      if (mainFrame) mainFrame->UnmapWindow();
-   }
-
    // avoid emit signals at end
    gEve->GetSelection()->RemoveElements();
-
-   // destroy views
-   for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
-       it != itEnd;
-       ++it) {
-      (*it)->destroy();
+    
+   m_cmsShowMainFrame->UnmapWindow();
+   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
+   {
+     TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>((*wIt).first->GetEveFrame());
+     //  main frames not to watch dying
+      if (mainFrame) mainFrame->UnmapWindow();
+     // destroy
+      (*wIt).second->destroy();
    }
 }
 
@@ -276,11 +263,18 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
 {
    m_nameToViewBuilder[iName]=iBuilder;
    CSGAction* action=m_cmsShowMainFrame->createNewViewerAction(iName);
-   TEveWindowSlot *slot = 0;
-   action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName, slot));
+   action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, iName));
 }
 
+
 void
+FWGUIManager::newViewSlot(const std::string& iName)
+{
+   // this function have to exist, becuse CSGAction binds to void functions 
+   createView(iName);
+}
+
+FWGUIManager::ViewMap_i
 FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
 {
    NameToViewBuilder::iterator itFind = m_nameToViewBuilder.find(iName);
@@ -288,18 +282,19 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
-   if (slot == 0) slot =  m_viewSecPack->NewSlotWithWeight(1);
+   
+   if (!slot) m_viewSecPack->NewSlot();
    TEveCompositeFrame *ef = slot->GetEveFrame();
-   FWViewBase* view = itFind->second(slot);
+   FWViewBase* viewBase = itFind->second(slot);
    //in future, get context from 'view'
-   FWViewContextMenuHandlerBase* base= view->contextMenuHandler();
-   view->openSelectedModelContextMenu_.connect(boost::bind(&FWGUIManager::showSelectedModelContextMenu ,m_guiManager,_1,_2,base));
-   TEveWindow *ew = ef->GetEveWindow();
-   ew->SetElementName(iName.c_str());
-   ew->SetUserData(view);
+   FWViewContextMenuHandlerBase* base= viewBase->contextMenuHandler();
+   viewBase->openSelectedModelContextMenu_.connect(boost::bind(&FWGUIManager::showSelectedModelContextMenu ,m_guiManager,_1,_2,base));
+   
+   TEveWindow *eveWindow = ef->GetEveWindow();
+   eveWindow->SetElementName(iName.c_str());
 
-   m_viewWindows.push_back(ew);
-   m_viewBases.push_back(view);
+   std::pair<ViewMap_i,bool> insertPair = m_viewMap.insert(std::make_pair(eveWindow, viewBase));
+   return insertPair.first;
 }
 
 
@@ -391,20 +386,6 @@ void
 FWGUIManager::clearStatus()
 {
    m_cmsShowMainFrame->clearStatusBar();
-}
-
-void
-FWGUIManager::selectByExpression()
-{
-   FWModelExpressionSelector selector;
-   selector.select(*(m_eiManager->begin()+m_selectionItemsComboBox->GetSelected()),
-                   m_selectionExpressionEntry->GetText());
-}
-
-void
-FWGUIManager::unselectAll()
-{
-   m_selectionManager->clearSelection();
 }
 
 void
@@ -506,14 +487,14 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
    // check info button
    TEveWindow* current = getSwapCandidate();
    bool checkInfoBtn =  m_viewPopup ? m_viewPopup->mapped() : 0;
-   TEveWindow* selected = m_viewPopup ?  m_viewPopup->GetEveWindow() : 0;
+   TEveWindow* selected = m_viewPopup ? m_viewPopup->getEveWindow() : 0;
 
-   for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
+   for (ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); it++)
    {
-      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(*it);
-      ar->setSwapIcon(current != (*it));
+      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(it->first);
+      ar->setSwapIcon(current != it->first);
       if (checkInfoBtn && selected)
-         ar->setInfoButton(selected == (*it));
+         ar->setInfoButton(selected == it->first);
    }
 }
 
@@ -532,29 +513,21 @@ FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 
 void
 FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
-{
-   std::vector<TEveWindow*>::iterator itw =
-      std::find(m_viewWindows.begin(), m_viewWindows.end(), sva->getEveWindow());
-   if (itw == m_viewWindows.end())
-   {
-      return;
-   }
-   m_viewWindows.erase(itw);
-
-   FWViewBase* v = sva->getFWView(); // get view base from user data
-   std::vector<FWViewBase*>::iterator itFind = std::find(m_viewBases.begin(), m_viewBases.end(), v);
-   m_viewBases.erase(itFind);
-   v->destroy();
+{  
+   TEveWindow* ew       = sva->getEveWindow(); 
+   FWViewBase* viewBase = m_viewMap[ew];
+   viewBase->destroy();
+   m_viewMap.erase(ew);
 }
 
 void
 FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
 {
    // release button on previously selected
-   if (m_viewPopup && m_viewPopup->GetEveWindow())
+   if (m_viewPopup && m_viewPopup->getEveWindow())
    {
       FWGUISubviewArea* ar = 
-         FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->GetEveWindow());
+         FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->getEveWindow());
       ar->setInfoButton(kFALSE);
    }
 
@@ -616,9 +589,6 @@ FWGUIManager::createViews(TGTab *tab)
    m_viewPrimPack->SetElementName("Views");
    m_viewPrimPack->SetShowTitleBar(kFALSE);
    m_viewSecPack = 0;
-
-   // debug
-   gEve->AddElement( m_viewPrimPack);
 }
 
 void
@@ -667,9 +637,9 @@ FWGUIManager::showModelPopup()
 void
 FWGUIManager::popupViewClosed()
 {
-   if (m_viewPopup->GetEveWindow())
+   if (m_viewPopup->getEveWindow())
    {
-      FWGUISubviewArea* sa = FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->GetEveWindow());
+      FWGUISubviewArea* sa = FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->getEveWindow());
       sa->setInfoButton(kFALSE);
    }
 }
@@ -682,16 +652,15 @@ FWGUIManager::showViewPopup() {
 
 void
 FWGUIManager::setViewPopup(TEveWindow* ew) {
-   //create if not exist
    if (m_viewPopup == 0)
    {
-      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, ew);
+      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, m_viewMap[ew]);
       m_viewPopup->closed_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::popupViewClosed));
       m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    else
    {
-      m_viewPopup->reset(ew);
+      m_viewPopup->reset(m_viewMap[ew], ew);
    }
 
    m_viewPopup->MapRaised();
@@ -774,9 +743,7 @@ FWGUIManager::promptForConfigurationFile()
 void
 FWGUIManager::exportImageOfMainView()
 {
-   if(m_viewBases.size()) {
-      m_viewBases[0]->promptForSaveImageTo(m_cmsShowMainFrame);
-   }
+      m_viewMap.begin()->second->promptForSaveImageTo(m_cmsShowMainFrame);
 }
 
 
@@ -835,7 +802,7 @@ class areaInfo
 public:
    areaInfo (TGFrameElementPack* frameElement)
    {
-      viewBase          = 0;
+      eveWindow          = 0;
       originalSlot      = 0;
       undockedMainFrame = 0;
       weight = frameElement->fWeight;
@@ -844,17 +811,17 @@ public:
       TEveCompositeFrame *eveFrame = dynamic_cast<TEveCompositeFrame*>(frameElement->fFrame);
       assert(eveFrame);
 
-      if (undocked)
-         originalSlot = eveFrame->GetEveWindow();
+      if (frameElement->fState)
+         eveWindow    =  eveFrame->GetEveWindow();
       else
-         viewBase = (FWViewBase*)((eveFrame->GetEveWindow())->GetUserData());
+         originalSlot = eveFrame->GetEveWindow();
    }
 
    areaInfo () {}
 
    Float_t     weight;
    Bool_t      undocked;
-   FWViewBase *viewBase;
+   TEveWindow *eveWindow;
    TGMainFrame *undockedMainFrame;// cached to help find original slot for undocked windows
    TEveWindow  *originalSlot;
 };
@@ -915,7 +882,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       mainWindow.addKeyValue("rightWeight",FWConfiguration(sR.str()));
    }
    oTo.addKeyValue(kMainWindow, mainWindow, true);
-   fflush(stdout);
+
    //------------------------------------------------------------
    // organize info about all docked frames includding hidden, which point to undocked
    std::vector<areaInfo> wpacked;
@@ -935,20 +902,19 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          wpacked.push_back(areaInfo(seFE));
    }
 
-   //  add info about undocked
-   TEveWindow* ew = 0;
-   for(std::vector<TEveWindow*>::const_iterator wIt = m_viewWindows.begin(); wIt != m_viewWindows.end(); ++wIt)
+   //  undocked info
+   
+   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
    {
-      ew = *wIt;
+      TEveWindow* ew = wIt->first;
       TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
       if (mainFrame)
       {
-         // search for undocked in packed view
          for(std::vector<areaInfo>::iterator pIt = wpacked.begin(); pIt != wpacked.end(); ++pIt)
          {
             if ((*pIt).originalSlot && mainFrame->GetOriginalSlot() == (*pIt).originalSlot)
             {
-               (*pIt).viewBase = (FWViewBase*)(ew->GetUserData());
+               (*pIt).eveWindow = wIt->first;
                (*pIt).undockedMainFrame = (TGMainFrame*)mainFrame;
                // printf("found original slot for docked view %s\n", pInfo->viewBase->typeName().c_str());
                break;
@@ -956,16 +922,16 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          }
       }// end main frames
    }
-
+   
    //------------------------------------------------------------
    // add sorted list in view area and FW-views configuration
    FWConfiguration views(1);
    FWConfiguration viewArea(cfgVersion);
-   FWViewBase* wb;
    for(std::vector<areaInfo>::iterator it = wpacked.begin(); it != wpacked.end(); ++it)
    {
-      wb = (*it).viewBase;
-      if (wb) {
+      TEveWindow* ew = (*it).eveWindow;
+      if (ew) {
+         FWViewBase* wb = m_viewMap[ew];
          FWConfiguration tempWiew(1);
          wb->addTo(tempWiew);
          views.addKeyValue(wb->typeName(), tempWiew, true);
@@ -1070,15 +1036,17 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
-         createView(it->first, (m_viewBases.size()|| (primSlot == 0)) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot);
-         m_viewBases.back()->setFrom(it->second);
+         TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
+
+          ViewMap_i lastViewIt = createView(it->first, slot);
+         lastViewIt->second->setFrom(it->second);
 
          bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
-         TEveWindow* myw = m_viewWindows.back();
          if (undocked)
          {
-            myw->UndockWindow();
-            TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
+            TEveWindow* lastWindow = lastViewIt->first;
+            lastWindow->UndockWindow();
+            TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(lastWindow->GetEveFrame());
             const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
             TGMainFrame* mfp = (TGMainFrame*)mf;
             const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
@@ -1090,8 +1058,9 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    else
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         createView(it->first, m_viewBases.size() ? m_viewSecPack->NewSlot() : primSlot);
-         m_viewBases.back()->setFrom(it->second);
+         createView(it->first, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
+         ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
+         lastViewIt->second->setFrom(it->second);
       }
       // handle undocked windows in old version
       const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
@@ -1099,10 +1068,11 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
          const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
          if(0!=keyVals) {
 
-            int idx = m_viewBases.size() -keyVals->size();
+            int idx = m_viewMap.size() -keyVals->size();
             for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
             {
-               TEveWindow* myw = m_viewWindows[idx];
+               ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
+               TEveWindow* myw = lastViewIt->first;
                idx++;
                myw->UndockWindow();
                TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());

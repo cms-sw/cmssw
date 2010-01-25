@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.13 2009/11/03 08:39:18 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.14 2009/12/01 20:54:51 amraktad Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditor
 {
 
 public:
-   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=0, TEveWindow* ew = 0);
+   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=0, FWViewBase* wb=0, TEveWindow* ew = 0);
    virtual ~CmsShowViewPopup();
 
    // ---------- const member functions ---------------------
@@ -58,13 +58,13 @@ public:
 
    bool mapped() { return m_mapped; }
 
-   void reset(TEveWindow* ew);
+   void reset(FWViewBase*, TEveWindow* ew);
 
    void saveImage();
    void changeBackground();
    void backgroundColorWasChanged();
    void addLogo();
-   TEveWindow* GetEveWindow() const { return m_eveWindow; }
+   TEveWindow* getEveWindow() const { return m_eveWindow; }
 
    sigc::signal<void> closed_;
 
@@ -85,6 +85,7 @@ private:
 
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
    FWColorManager* m_colorManager;
+   FWViewBase*     m_viewBase;
    TEveWindow*     m_eveWindow;
 };
 

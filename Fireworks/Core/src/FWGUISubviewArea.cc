@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.32 2009/06/28 19:54:45 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.33 2009/10/07 19:02:31 amraktad Exp $
 //
 
 // system include files
@@ -25,7 +25,6 @@
 #include "TEveWindow.h"
 
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
-#include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
@@ -172,18 +171,6 @@ TEveWindow*
 FWGUISubviewArea::getEveWindow()
 {
    return m_frame->GetEveWindow();
-}
-
-
-FWViewBase*
-FWGUISubviewArea::getFWView()
-{
-   FWViewBase* v = (FWViewBase*)(getEveWindow()->GetUserData());
-   if (v)
-   {
-      //  printf("get view %s \n", v->typeName().c_str());
-   }
-   return v;
 }
 
 //______________________________________________________________________________

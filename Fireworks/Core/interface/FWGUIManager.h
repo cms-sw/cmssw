@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.94 2009/12/04 22:49:17 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.95 2009/12/13 12:27:10 amraktad Exp $
 //
 
 // system include files
@@ -95,7 +95,15 @@ class CmsShowHelpPopup;
 
 class FWGUIManager : public FWConfigurable
 {
-
+   // typedefs
+public:
+   typedef boost::function1<FWViewBase*,TEveWindowSlot*> ViewBuildFunctor;
+   typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
+private:
+   typedef std::map<TEveWindow*, FWViewBase*> ViewMap_t;
+   typedef ViewMap_t::iterator                ViewMap_i;
+   
+   
 public:
    FWGUIManager(FWSelectionManager*,
                 FWEventItemsManager*,
@@ -106,49 +114,50 @@ public:
                 bool iDebugInterface = false);
    virtual ~FWGUIManager();
    void     evePreTerminate();
-
+   
    //configuration management interface
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
-
+   
    TGVerticalFrame* createList(TGSplitFrame *p);
    void createViews(TGTab *p);
-
+   
    void createEDIFrame();
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
-
+   
    void showBrightnessPopup();
-
+   
    void createModelPopup();
    void showModelPopup();
    void showViewPopup();
    void popupViewClosed();
    
    void showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler);
-
+   
    // help
    void createHelpPopup ();
    void createShortcutPopup ();
-
+   
    // ---------- const member functions ---------------------
    //      bool waitingForUserAction() const;
    CSGContinuousAction* playEventsAction();
    CSGContinuousAction* playEventsBackwardsAction();
    CSGContinuousAction* loopAction();
-
+   
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();
    static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
-
+   
    // ---------- member functions ---------------------------
    //have to use the portable syntax else the reflex code will not build
-   typedef boost::function1<FWViewBase*,TEveWindowSlot*> ViewBuildFunctor;
    void registerViewBuilder(const std::string& iName,
                             ViewBuildFunctor& iBuilder);
-
-   void createView(const std::string& iName, TEveWindowSlot* slot = 0);
-
+   
+   
+   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = 0);
+   void newViewSlot(const std::string& iName);
+   
    void connectSubviewAreaSignals(FWGUISubviewArea*);
    void enableActions(bool enable = true);
    void disablePrevious();
@@ -158,37 +167,21 @@ public:
    void clearStatus();
    void loadEvent();
    void fileChanged(const TFile*);
-
+   
    CSGAction* getAction(const std::string name);
-
+   
    void addData();
-   void unselectAll();
-   void selectByExpression();
-
+   
    void processGUIEvents();
-
-   sigc::signal<void> filterButtonClicked_;
-   sigc::signal<void, const TGWindow*> showEventFilterGUI_;
-
-   sigc::signal<void, const std::string&> writeToConfigurationFile_;
-   sigc::signal<void, int, int> changedEventId_;
-   sigc::signal<void> goingToQuit_;
-   sigc::signal<void> writeToPresentConfigurationFile_;
-
-   sigc::signal<void> changedRunEntry_;
-   sigc::signal<void> changedEventEntry_;
-
-   sigc::signal<void, Float_t> changedDelayBetweenEvents_;
-
    void openEveBrowserForDebugging() const;
    void setDelayBetweenEvents(Float_t);
-
+   
    void showEventFilterGUI();
    void filterButtonClicked();
    void setFilterButtonText(const char* txt);
    void setFilterButtonIcon(int);
    void updateEventFilterEnable(bool);
-
+   
    void runIdChanged();
    void eventIdChanged();
    void checkSubviewAreaIconState(TEveWindow*);
@@ -201,24 +194,35 @@ public:
    CmsShowMainFrame* getMainFrame() const { return m_cmsShowMainFrame; }
    const fwlite::Event* getCurrentEvent() const;
    
+   // signals
+   sigc::signal<void> filterButtonClicked_;
+   sigc::signal<void, const TGWindow*> showEventFilterGUI_;
+   sigc::signal<void, const std::string&> writeToConfigurationFile_;
+   sigc::signal<void, int, int> changedEventId_;
+   sigc::signal<void> goingToQuit_;
+   sigc::signal<void> writeToPresentConfigurationFile_;
+   
+   sigc::signal<void> changedRunEntry_;
+   sigc::signal<void> changedEventEntry_;
+   sigc::signal<void, Float_t> changedDelayBetweenEvents_;
+   
 private:
    FWGUIManager(const FWGUIManager&);    // stop default
-
    const FWGUIManager& operator=(const FWGUIManager&);    // stop default
-
+   
    void selectionChanged(const FWSelectionManager&);
-
+   
    TEveWindow* getSwapCandidate();
-
+   
    void newItem(const FWEventItem*);
-
+   
    void exportImageOfMainView();
    void promptForConfigurationFile();
-
+   
    void delaySliderChanged(Int_t);
-
+   
    void finishUpColorChange();
-
+   
    void setViewPopup(TEveWindow*);
    
    // ---------- static member data --------------------------------   
@@ -227,62 +231,36 @@ private:
    
    // ---------- member data --------------------------------   
    FWSelectionManager*   m_selectionManager;
+   FWSummaryManager*     m_summaryManager;
    FWEventItemsManager*  m_eiManager;
    FWModelChangeManager* m_changeManager;
    FWColorManager*       m_colorManager;
-   const CmsShowMain*    m_cmsShowMain;
    
-   mutable bool m_continueProcessingEvents;
-   mutable bool m_waitForUserAction;
-   mutable int  m_code;     // respond code for the control loop
-   //  1 - move forward
-   // -1 - move backward
-   //  0 - do nothing
-   // -2 - start over
-   // -3 - stop event loop
-
-
-   TGPictureButton* m_homeButton;
-   TGPictureButton* m_advanceButton;
-   TGPictureButton* m_backwardButton;
-   TGPictureButton* m_stopButton;
-
-   TGComboBox*   m_selectionItemsComboBox;
-   TGTextEntry*  m_selectionExpressionEntry;
-   TGTextButton* m_selectionRunExpressionButton;
-   TGTextButton* m_unselectAllButton;
-
-   TGPopupMenu* m_fileMenu;
-
-   CmsShowMainFrame* m_cmsShowMainFrame;
-   TGSplitFrame* m_splitFrame;
-   std::vector<TEveWindow*> m_viewWindows;
-
-   typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
-   NameToViewBuilder m_nameToViewBuilder;
-
-   TEveElement* m_editableSelected;
-
-   FWSummaryManager* m_summaryManager;
-
    //views are owned by their individual view managers
-   std::vector<FWViewBase*>    m_viewBases;
    FWDetailViewManager*        m_detailViewManager;
    const FWViewManagerManager* m_viewManagerManager;
    FWModelContextMenuHandler*  m_contextMenuHandler;
-
+   
+   const CmsShowMain*    m_cmsShowMain;
+   CmsShowMainFrame*     m_cmsShowMainFrame;
+   
    const TFile* m_openFile;
+   TGPopupMenu* m_fileMenu;
    FWGUIEventDataAdder* m_dataAdder;
-
+   
    // event data inspector
    CmsShowEDI*             m_ediFrame;
    CmsShowModelPopup*      m_modelPopup;
    CmsShowViewPopup*       m_viewPopup;
    CmsShowBrightnessPopup* m_brightnessPopup;
-
+   
    // help
    CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
-
+   
+   // subview memebers
+   mutable ViewMap_t m_viewMap;
+   NameToViewBuilder m_nameToViewBuilder;
+   
    TGTab             *m_textViewTab;
    TGCompositeFrame  *m_textViewFrame[3];
    TEveWindowPack    *m_viewPrimPack;

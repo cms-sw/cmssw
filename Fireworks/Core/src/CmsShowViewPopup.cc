@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.17 2009/11/03 08:39:18 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.18 2009/12/01 20:54:52 amraktad Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@
 //
 // constructors and destructor
 //
-CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, TEveWindow* ew) :
+CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, FWViewBase* vb, TEveWindow* ew) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
    m_mapped(kFALSE),
    m_viewLabel(0),
@@ -50,6 +50,7 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    m_saveImageButton(0),
    m_changeBackground(0),
    m_colorManager(iCMgr),
+   m_viewBase(0),
    m_eveWindow(0)
 {
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged,this));
@@ -84,7 +85,7 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    m_viewContentFrame = new TGCompositeFrame(this);
    AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   reset(ew);
+   reset(vb, ew);
 
    SetWindowName("View Controller");
    MapWindow();
@@ -100,10 +101,10 @@ CmsShowViewPopup::~CmsShowViewPopup()
 }
 
 void
-CmsShowViewPopup::reset(TEveWindow* ew)
+CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
 {
+   m_viewBase = vb;
    m_eveWindow = ew;
-   FWViewBase* viewBase = m_eveWindow ? (FWViewBase*)ew->GetUserData() : 0;
 
    // clear content (can be better: delete subframes)
    m_viewContentFrame->UnmapWindow();
@@ -115,11 +116,11 @@ CmsShowViewPopup::reset(TEveWindow* ew)
    m_viewContentFrame = new TGCompositeFrame(this);
    AddFrame(m_viewContentFrame);
    // fill content
-   if(viewBase) {
+   if(m_viewBase) {
       m_saveImageButton->SetEnabled(kTRUE);
-      m_viewLabel->SetText(viewBase->typeName().c_str());
+      m_viewLabel->SetText(m_viewBase->typeName().c_str());
 
-      for(FWParameterizable::const_iterator itP = viewBase->begin(), itPEnd = viewBase->end();
+      for(FWParameterizable::const_iterator itP = m_viewBase->begin(), itPEnd = m_viewBase->end();
           itP != itPEnd;
           ++itP) {
          boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
