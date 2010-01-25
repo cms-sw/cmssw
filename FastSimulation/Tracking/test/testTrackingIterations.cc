@@ -67,6 +67,7 @@ private:
   DQMStore * dbe;
   std::vector<MonitorElement*> h0;
   MonitorElement* genTracksvsEtaP;
+  std::vector<MonitorElement*> SimTracksvsEtaP;
   std::vector<MonitorElement*> zeroTracksvsEtaP;
   std::vector<MonitorElement*> firstTracksvsEtaP;
   std::vector<MonitorElement*> first1TracksvsEtaP;
@@ -99,12 +100,10 @@ private:
   std::vector<MonitorElement*> thirdLayersvsEta;
   std::vector<MonitorElement*> fourthLayersvsEta;
   std::vector<MonitorElement*> fifthLayersvsEta;
-
-  std::vector<MonitorElement*> thirdSeedvsEta;
   std::vector<MonitorElement*> thirdSeedvsP;
-  std::vector<MonitorElement*> fifthSeedvsEta;
+  std::vector<MonitorElement*> thirdSeedvsEta;
   std::vector<MonitorElement*> fifthSeedvsP;
-  std::vector<MonitorElement*> SimTracksvsEtaP;
+  std::vector<MonitorElement*> fifthSeedvsEta;
 
   std::vector<MonitorElement*> zeroNum;
   std::vector<MonitorElement*> firstNum;
@@ -129,9 +128,7 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
 
   mySimEvent(2, static_cast<FSimEvent*>(0)),
   h0(2,static_cast<MonitorElement*>(0)),
-
   SimTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
-
   zeroTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   firstTracksvsEtaP(2,static_cast<MonitorElement*>(0)),
   first1TracksvsEtaP(2,static_cast<MonitorElement*>(0)),
@@ -164,7 +161,6 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   thirdLayersvsEta(2,static_cast<MonitorElement*>(0)),
   fourthLayersvsEta(2,static_cast<MonitorElement*>(0)),
   fifthLayersvsEta(2,static_cast<MonitorElement*>(0)),
-
   thirdSeedvsP(2,static_cast<MonitorElement*>(0)),
   thirdSeedvsEta(2,static_cast<MonitorElement*>(0)),
   fifthSeedvsP(2,static_cast<MonitorElement*>(0)),
@@ -501,8 +497,11 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       thirdLayersvsEta[ievt]->Fill(etaGen,itk3->hitPattern().trackerLayersWithMeasurement(),1.);
       thirdLayersvsP[ievt]->Fill(pGen,itk3->hitPattern().trackerLayersWithMeasurement(),1.);
 
-      unsigned int firstSubDetId,secondSubDetId, firstID;
-      unsigned int firstLayerNumber,secondLayerNumber, secondID;
+      unsigned int firstSubDetId =-99;
+      unsigned int secondSubDetId = -99;
+      unsigned int firstID =-99;
+      unsigned int firstLayerNumber=-99; 
+      unsigned int secondLayerNumber =-99;
       
       //now find the seed type (i.e. where the seed hits are) 
       const TrajectorySeed* seed = itk3->seedRef().get();
@@ -510,9 +509,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 //       if(ievt==1) std::cout << "FASTSIM HITS IN THE SEED " << seed->nHits() << std::endl;
       
       const GeomDet* theGeomDet;
-      unsigned int theSubDetId; 
-      unsigned int theLayerNumber;
-      unsigned int theRingNumber;
+      unsigned int theSubDetId=-99; 
+      unsigned int theLayerNumber=-99;
+      unsigned int theRingNumber=-99;
       int hit=0;
       TrajectorySeed::range hitRange = seed->recHits();
       for( TrajectorySeed::const_iterator ihit = hitRange.first; ihit !=hitRange.second; ihit++){
@@ -551,7 +550,6 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		    << "Local error = " <<  ihit->localPositionError() << std::endl; 
 	}
 	if(hit ==1 ) { 
-	  // secondID = ihit->simtrackId();
 	  secondSubDetId =  theSubDetId;
 	  secondLayerNumber = theLayerNumber;
 	  std::cout << "Second Hit " << " Subdet " << secondSubDetId << ", Layer " << secondLayerNumber  << std::endl;
@@ -628,8 +626,11 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if(ievt ==0) { std::cout << "\tFULL\t" << tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
       } else if (ievt ==1) {std::cout << "\tFAST\t" << tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
       }  
-      unsigned int firstSubDetId,secondSubDetId, firstID;
-      unsigned int firstLayerNumber,secondLayerNumber, secondID;
+      unsigned int firstSubDetId=-99;
+      unsigned int secondSubDetId =-99;
+      unsigned int firstID=-99;
+      unsigned int firstLayerNumber=-99; 
+      unsigned int secondLayerNumber=-99;
       
       //now find the seed type (i.e. where the seed hits are) 
       const TrajectorySeed* seed = itk5->seedRef().get();
@@ -637,9 +638,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //if(ievt==1) std::cout << "FASTSIM HITS IN THE SEED " << seed->nHits() << std::endl;
       
       const GeomDet* theGeomDet;
-      unsigned int theSubDetId; 
-      unsigned int theLayerNumber;
-      unsigned int theRingNumber;
+      unsigned int theSubDetId=-99; 
+      unsigned int theLayerNumber=-99;
+      unsigned int theRingNumber=-99;
       int hit=0;
       TrajectorySeed::range hitRange = seed->recHits();
       for( TrajectorySeed::const_iterator ihit = hitRange.first; ihit !=hitRange.second; ihit++){
@@ -676,7 +677,6 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  std::cout << "First Hit " << " Subdet " << firstSubDetId << ", Layer " << firstLayerNumber << std::endl; 
 	}
 	if(hit ==1 ) { 
-	  // secondID = ihit->simtrackId();
 	  secondSubDetId =  theSubDetId;
 	  secondLayerNumber = theLayerNumber;
 	  std::cout << "Second Hit " << " Subdet " << secondSubDetId << ", Layer " << secondLayerNumber << std::endl; 
