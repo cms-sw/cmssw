@@ -13,6 +13,7 @@
 <use name=Geometry/EcalAlgo>
 <use name=DataFormats/Math>
 <use name=CommonTools/Statistics>
+<use name=CommonTools/UtilAlgos>
 <use name=RecoEgamma/EgammaMCTools>
 <use name=RecoEgamma/EgammaTools>
 <use name=SimTracker/TrackAssociation>

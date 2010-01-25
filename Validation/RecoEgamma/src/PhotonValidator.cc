@@ -1,7 +1,7 @@
 #include <iostream>
 //
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
 #include "Validation/RecoEgamma/interface/PhotonValidator.h"
 
@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/01/12 11:20:31 $ 
- **  $Revision: 1.53 $
+ **  $Date: 2010/01/12 18:13:46 $ 
+ **  $Revision: 1.54 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
