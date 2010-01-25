@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.86 2009/12/07 09:38:07 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.87 2009/12/08 01:46:19 chrjones Exp $
 //
 // hacks
 // #define private public
@@ -83,42 +83,45 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    const unsigned int textColor= 0xb3b3b3;
 
    m_manager = m;
-   CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
+   CSGAction *openData   = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *appendData = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    loadConfig->disable(); //NOTE: All disables happen again later in this routine
-   CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
+   CSGAction *saveConfig   = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
-   CSGAction *exportImage = new CSGAction(this, cmsshow::sExportImage.c_str());
+   CSGAction *exportImage   = new  CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
    CSGAction *undo = new CSGAction(this, cmsshow::sUndo.c_str());
    undo->disable(); //NOTE: All disables happen again later in this routine
-   CSGAction *redo = new CSGAction(this, cmsshow::sRedo.c_str());
+   CSGAction *redo  = new CSGAction(this, cmsshow::sRedo.c_str());
    redo->disable(); //NOTE: All disables happen again later in this routine
-   CSGAction *cut = new CSGAction(this, cmsshow::sCut.c_str());
-   cut->disable(); //NOTE: All disables happen again later in this routine
-   CSGAction *copy = new CSGAction(this, cmsshow::sCopy.c_str());
+   CSGAction *cut   = new CSGAction(this, cmsshow::sCut.c_str());
+   cut->disable();  //NOTE: All disables happen again later in this routine
+   CSGAction *copy  = new CSGAction(this, cmsshow::sCopy.c_str());
    copy->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *paste = new CSGAction(this, cmsshow::sPaste.c_str());
-   paste->disable(); //NOTE: All disables happen again later in this routine
+   paste->disable();//NOTE: All disables happen again later in this routine
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
    CSGAction *showBrightnessInsp = new CSGAction(this, cmsshow::sShowBrightnessInsp.c_str());
+   CSGAction *nextEvent          = new CSGAction(this, cmsshow::sNextEvent.c_str());
+   CSGAction *previousEvent      = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
 
-   CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
-   CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
-   CSGContinuousAction *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
+   CSGContinuousAction *playEvents     = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
    CSGContinuousAction *playEventsBack = new CSGContinuousAction(this, cmsshow::sPlayEventsBack.c_str());
-   CSGContinuousAction *loop = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
-   CSGAction *showObjInsp = new CSGAction(this, cmsshow::sShowObjInsp.c_str());
+   CSGContinuousAction *loop           = new CSGContinuousAction(this, cmsshow::sAutoRewind.c_str());
+   CSGAction *showObjInsp          = new CSGAction(this, cmsshow::sShowObjInsp.c_str());
    CSGAction *showEventDisplayInsp = new CSGAction(this, cmsshow::sShowEventDisplayInsp.c_str());
-   CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
-   CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
-   CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
-   CSGAction *searchFiles = new CSGAction(this, cmsshow::sSearchFiles.c_str());
-   CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
-   CSGAction *colorset = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+   CSGAction *showMainViewCtl      = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
+   CSGAction *showAddCollection    = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
+   CSGAction *help                 = new CSGAction(this, cmsshow::sHelp.c_str());
+   CSGAction *searchFiles          = new CSGAction(this, cmsshow::sSearchFiles.c_str());
+
+   CSGAction *keyboardShort      = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
+   CSGAction *helpGL             = new CSGAction(this, cmsshow::sHelpGL.c_str());
+   CSGAction *colorset           = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -209,13 +212,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    showObjInsp->createMenuEntry(windowMenu);
    showObjInsp->createShortcut(kKey_I, "CTRL", GetId());
    showEventDisplayInsp->createMenuEntry(windowMenu);
-   showMainViewCtl->createMenuEntry(windowMenu);
    showAddCollection->createMenuEntry(windowMenu);
+   showMainViewCtl->createMenuEntry(windowMenu);
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
+   helpGL->createMenuEntry(helpMenu);
 
    // colors
    menuBar->SetBackgroundColor(backgroundColor);

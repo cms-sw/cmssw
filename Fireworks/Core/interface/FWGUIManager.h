@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.95 2009/12/13 12:27:10 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.96 2010/01/25 13:33:37 amraktad Exp $
 //
 
 // system include files
@@ -138,6 +138,7 @@ public:
    // help
    void createHelpPopup ();
    void createShortcutPopup ();
+   void createHelpGLPopup ();
    
    // ---------- const member functions ---------------------
    //      bool waitingForUserAction() const;
@@ -255,7 +256,9 @@ private:
    CmsShowBrightnessPopup* m_brightnessPopup;
    
    // help
-   CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
+   CmsShowHelpPopup *m_helpPopup;
+   CmsShowHelpPopup  *m_shortcutPopup;
+   CmsShowHelpPopup  *m_helpGLPopup;
    
    // subview memebers
    mutable ViewMap_t m_viewMap;
@@ -265,7 +268,8 @@ private:
    TGCompositeFrame  *m_textViewFrame[3];
    TEveWindowPack    *m_viewPrimPack;
    TEveWindowPack    *m_viewSecPack;
-   sigc::connection  m_modelChangeConn;
+
+   sigc::connection   m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
 };

@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.183 2010/01/25 13:33:37 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.184 2010/01/25 14:50:11 amraktad Exp $
 
 //
 
@@ -134,6 +134,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_brightnessPopup(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
+   m_helpGLPopup(0),
    m_tasks(new CmsShowTaskExecutor)
 {
    m_guiManager = this;
@@ -187,6 +188,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
+      getAction(cmsshow::sHelpGL)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpGLPopup));
 
       // toolbar special widget with non-void actions
       m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
@@ -668,8 +670,8 @@ FWGUIManager::setViewPopup(TEveWindow* ew) {
    m_viewPopup->MapRaised();
 }
 
-
-void FWGUIManager::createHelpPopup ()
+void
+FWGUIManager::createHelpPopup ()
 {
    if (m_helpPopup == 0) {
       m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
@@ -681,16 +683,29 @@ void FWGUIManager::createHelpPopup ()
 }
 
 
-void FWGUIManager::createShortcutPopup ()
+void
+FWGUIManager::createShortcutPopup ()
 {
    if (m_shortcutPopup == 0) {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
                                              "Keyboard Shortcuts",
-                                             m_cmsShowMainFrame, 800, 600);
+                                              m_cmsShowMainFrame, 800, 600);
 
       m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    m_shortcutPopup->MapWindow();
+}
+
+void FWGUIManager::createHelpGLPopup ()
+{
+   if (m_helpGLPopup == 0) {
+      m_helpGLPopup = new CmsShowHelpPopup("helpGL.html",
+                                           "Help On GL Viewer",
+                                            m_cmsShowMainFrame, 800, 600);
+
+      m_helpGLPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+   }
+   m_helpGLPopup->MapWindow();
 }
 
 void 
