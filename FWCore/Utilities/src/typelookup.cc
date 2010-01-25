@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 20 14:26:49 CST 2010
-// $Id$
+// $Id: typelookup.cc,v 1.1 2010/01/23 02:00:15 chrjones Exp $
 //
 
 // system include files
@@ -49,14 +49,14 @@ edm::typelookup::NameRegistrar::NameRegistrar(const char* iTypeName,const std::t
 }
 
 
-const std::type_info* 
+std::pair<const char*, const std::type_info*> 
 edm::typelookup::findType(const char* iTypeName) {
 
    std::map<const char*, const std::type_info*,StringCompare>::iterator itFind = typeNameToValueMap().find(iTypeName);
    
    if(itFind == typeNameToValueMap().end()) {
-      return 0;
+      return std::make_pair(static_cast<const char*>(0), static_cast<std::type_info*> (0));
    }
    
-   return (*itFind).second;
+   return (*itFind);
 }
