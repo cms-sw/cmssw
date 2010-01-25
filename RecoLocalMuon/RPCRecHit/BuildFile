@@ -8,6 +8,8 @@
 <use name=CondFormats/RPCObjects>
 <use name=CondFormats/DataRecord>
 <use name=Geometry/RPCGeometry>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/CSCGeometry>
 
 <flags EDM_PLUGIN=1>
 
