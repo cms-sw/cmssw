@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.19 2010/01/25 13:33:37 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.20 2010/01/25 16:57:37 amraktad Exp $
 //
 
 // system include files
@@ -185,7 +185,7 @@ void
 CmsShowViewPopup::saveImage()
 {
    if(m_viewBase)
-      m_eviewBase->promptForSaveImageTo(this);
+      m_viewBase->promptForSaveImageTo(this);
 }
 
 void
