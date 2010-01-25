@@ -2,6 +2,7 @@
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include<algorithm>
 #include<iostream>
 
 namespace spr{

@@ -13,8 +13,12 @@
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/Provenance>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=DataFormats/JetReco>
 
 <use name=CondFormats/DataRecord>
+<use name=CondFormats/L1TObjects>
+
 <use name=rootgraphics>
 <use name=PhysicsTools/UtilAlgos>
 
@@ -32,25 +36,25 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 
-
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimDataFormats/GeneratorProducts>
 #<use name=SimDataFormats/HepMCProduct>
 <use name=SimDataFormats/Vertex>
 
 <use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/TrackAssociator>
 
 <use name=TrackPropagation/SteppingHelixPropagator>
+<use name=JetMETCorrections/Objects>
 
 <use name=Utilities/Timing>
-<use name=TrackingTools/TrackAssociator>
 
 #<!-- Flags GENREFLEX_ARGS="--iocomment" -->
 <use name=Calibration/IsolatedParticles>
 
-<library name=CalibrationIsolatedTracksTree file=IsolatedTracksTree.cc >
-  <flags EDM_PLUGIN=1>
-</library>
+<flags EDM_PLUGIN=1>
+<library name=CalibrationIsolatedTracksTreeRecoSimL1SeedsData file=IsolatedTracksTreeRecoSimL1SeedsData.cc > </library>
+<library name=CalibrationIsolatedTracksTree file=IsolatedTracksTree.cc > </library>
 
 # add debug symbols
 # <Flags CXXFLAGS=-g>

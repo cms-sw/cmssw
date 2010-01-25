@@ -2,6 +2,7 @@
 
 #include "Calibration/IsolatedParticles/interface/MatrixHCALDetIds.h"
 
+#include<algorithm>
 #include<iostream>
 
 namespace spr{

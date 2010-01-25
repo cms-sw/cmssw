@@ -9,8 +9,10 @@
 
 namespace spr{
   std::pair<math::XYZPoint,bool> propagateECAL( const reco::Track*, const MagneticField* ) ;
+  std::pair<math::XYZPoint,bool> propagateECAL( const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField* ) ;
   std::pair<math::XYZPoint,bool> propagateHCAL( const reco::Track*, const MagneticField* ) ;
-  std::pair<math::XYZPoint,bool> propagateCalo( const reco::Track*, const MagneticField*, float zdist, float radius, float corner ) ;
+  std::pair<math::XYZPoint,bool> propagateHCAL( const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField* ) ;
+  std::pair<math::XYZPoint,bool> propagateCalo( const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, float zdist, float radius, float corner ) ;
 
 }
 #endif
