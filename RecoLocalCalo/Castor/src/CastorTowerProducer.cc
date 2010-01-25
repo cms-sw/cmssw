@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.2 2010/01/22 14:03:19 hvanhaev Exp $
+// $Id: CastorTowerProducer.cc,v 1.3 2010/01/25 12:59:06 vlimant Exp $
 //
 //
 
@@ -198,8 +198,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       ComputeTowerVariable(usedCells,Ehot,depth);
 
       LogDebug("CastorTowerProducer")
-	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl
-	<<getchar();
+	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl;
 
       TowerPoint temptowerposition(rhoTower,5.9,poscastortowerarray[3][k]);
       Point towerposition(temptowerposition);
@@ -217,8 +216,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       ComputeTowerVariable(usedCells,Ehot,depth);
 
       LogDebug("CastorTowerProducer")
-	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl
-	<<getchar();
+	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl;
 
       TowerPoint temptowerposition(rhoTower,-5.9,negcastortowerarray[3][k]);
       Point towerposition(temptowerposition);

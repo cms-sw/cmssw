@@ -15,7 +15,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Sat May 24 12:00:56 CET 2008
-// $Id: KtAlgorithm.cc,v 1.3 2009/02/27 16:11:49 hvanhaev Exp $
+// $Id: KtAlgorithm.cc,v 1.4 2009/12/28 22:29:52 dlange Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-#define debug 0
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // namespaces
 using namespace std;
@@ -80,12 +80,11 @@ CastorCluster KtAlgorithm::calcRecom (CastorCluster a, CastorCluster b, int reco
     cout << "You are using a wrong recombination scheme. Check the input tag, this should be 2(pt) or 3(pt2). \n";
   } 
 
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"merging of tower"<<endl;
-  if(debug) cout<<"tower a: "<<" energy: "<<Ea<<" rho: "<<a.rho()<<endl;
-  if(debug) cout<<"tower b: "<<" energy: "<<Eb<<" rho: "<<b.rho()<<endl;
-  if(debug) cout<<"tower new: "<<" energy: "<<newE<<" rho: "<<newRho<<endl;
-  if(debug) getchar();
+  LogDebug("KtAlgorithm")
+    <<"merging of tower"<<endl
+    <<"tower a: "<<" energy: "<<Ea<<" rho: "<<a.rho()<<endl
+    <<"tower b: "<<" energy: "<<Eb<<" rho: "<<b.rho()<<endl
+    <<"tower new: "<<" energy: "<<newE<<" rho: "<<newRho;
 
   newPhi = phiangle(newPhi);
   TowerPoint temp(newRho,a.eta(),newPhi);
@@ -154,11 +153,8 @@ std::vector<double> KtAlgorithm::calcddi (CastorClusterCollection protoclusters,
 
 // main public function executes Kt algorithm, is called to give results      
 CastorClusterCollection KtAlgorithm::runKtAlgo (const CastorTowerRefVector& InputTowers, const int recom, const double rParameter) {
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"---------------------"<<endl;
-  if(debug) cout<<"entering Kt algo code"<<endl;
-  if(debug) cout<<"---------------------"<<endl;
-  if(debug) cout<<""<<endl;
+  LogDebug("KtAlgorithm")
+    <<"entering Kt algo code";
 
   // get and check input size
   int nTowers = InputTowers.size();
@@ -249,15 +245,15 @@ CastorClusterCollection KtAlgorithm::runKtAlgo (const CastorTowerRefVector& Inpu
   double z2mean;
   double clustersigmaz;
 
-  if(debug) cout<<endl;
-  if(debug) cout<<"number of clusters in the event: "<<clusters.size()<<endl;
+  LogDebug("KtAlgorithm")
+    <<"number of clusters in the event: "<<clusters.size();
 
   // loop over clusters
   for (size_t i=0;i<clusters.size();i++) {
     CastorTowerRefVector usedTowers = clusters[i].getUsedTowers();
 
-    if(debug) cout<<endl;
-    if(debug) cout<<"cluster: "<<i+1<<" is made of: "<<usedTowers.size()<<" towers"<<endl;
+    LogDebug("KtAlgorithm")
+      <<"cluster: "<<i+1<<" is made of: "<<usedTowers.size()<<" towers";
     
     sum_e = 0.;
     sum_distances = 0.;
@@ -303,11 +299,10 @@ CastorClusterCollection KtAlgorithm::runKtAlgo (const CastorTowerRefVector& Inpu
     Point clusterpos(clustertemppos);
     clusters[i] = CastorCluster(clusters[i].energy(),clusterpos,clusters[i].emEnergy(),clusters[i].hadEnergy(),clusters[i].fem(),clusterwidth,
 				clusters[i].depth(),clusterfhot,clustersigmaz,clusters[i].getUsedTowers()); 
-    if(debug) cout<<endl;
-    if(debug) cout<<"cluster: "<<i+1<<" sigma z: "<<clusters[i].sigmaz()<<" fhot: "<<clusters[i].fhot()<<" rho: "<<clusters[i].rho()<<endl;
-    if(debug) getchar();
-    if(debug) cout<<endl;
-    if(debug) getchar();
+
+    LogDebug("KtAlgorithm")
+      <<"cluster: "<<i+1<<" sigma z: "<<clusters[i].sigmaz()<<" fhot: "<<clusters[i].fhot()<<" rho: "<<clusters[i].rho()<<endl;
+      
   } // end loop over clusters
   
   return clusters;

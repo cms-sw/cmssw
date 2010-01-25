@@ -13,11 +13,10 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorJetEgammaProducer.cc,v 1.2 2009/09/07 15:13:45 hvanhaev Exp $
+// $Id: CastorJetEgammaProducer.cc,v 1.3 2010/01/22 14:04:27 hvanhaev Exp $
 //
 //
 
-#define debug 0
 
 // system include 
 #include <memory>
@@ -125,11 +124,8 @@ void CastorJetEgammaProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     // get and check input size
     int nClusters = InputClusters->size();
 
-    if(debug) cout<<""<<endl;
-    if(debug) cout<<"-----------------------------------"<<endl;
-    if(debug) cout<<"4. entering CastorJetEgammaProducer"<<endl;
-    if(debug) cout<<"-----------------------------------"<<endl;
-    if(debug) cout<<""<<endl;
+    LogDebug("CastorJetEgammaProducer")
+      <<"4. entering CastorJetEgammaProducer";
 
     if (nClusters==0) cout<<"Warning: You are trying to run the Jet Egamma algorithm with 0 input clusters. \n";
     
@@ -155,12 +151,14 @@ void CastorJetEgammaProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void CastorJetEgammaProducer::beginJob() {
-  if(debug) std::cout<<"Starting CastorJetEgammaProducer"<<std::endl;
+  LogDebug("CastorJetEgammaProducer")
+    <<"Starting CastorJetEgammaProducer";
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CastorJetEgammaProducer::endJob() {
-  if(debug) std::cout<<"Ending CastorJetEgammaProducer"<<std::endl;
+  LogDebug("CastorJetEgammaProducer")
+    <<"Ending CastorJetEgammaProducer";
 }
 
 void CastorJetEgammaProducer::select(const reco::CastorClusterRefVector& InputClusters, reco::CastorJetCollection& jets,
@@ -169,11 +167,8 @@ void CastorJetEgammaProducer::select(const reco::CastorClusterRefVector& InputCl
   using namespace reco;
   using namespace std;
 
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"-------------------------------"<<endl;
-  if(debug) cout<<"entering Select Jet Egamma code"<<endl;
-  if(debug) cout<<"-------------------------------"<<endl;
-  if(debug) cout<<""<<endl;
+  LogDebug("CastorJetEgammaProducer")
+    <<"entering Select Jet Egamma code";
 
   // loop over clusters
   for (CastorCluster_iterator it_cluster = (InputClusters).begin(); it_cluster != (InputClusters).end(); it_cluster++) {

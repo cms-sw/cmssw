@@ -13,11 +13,10 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorCellProducer.cc,v 1.2 2009/12/28 22:29:52 dlange Exp $
+// $Id: CastorCellProducer.cc,v 1.3 2010/01/22 14:02:36 hvanhaev Exp $
 //
 //
 
-#define debug 0
 
 // system include 
 #include <memory>
@@ -112,11 +111,8 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    
   // looping over all CastorRecHits
 
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"-------------------------------"<<endl;
-  if(debug) cout<<"1. entering CastorCellProducer "<<endl;
-  if(debug) cout<<"-------------------------------"<<endl;
-  if(debug) cout<<""<<endl;
+  LogDebug("CastorCellProducer")
+    <<"1. entering CastorCellProducer ";
 
   for (size_t i = 0; i < InputRecHits->size(); ++i) {
     const CastorRecHit & rh = (*InputRecHits)[i];
@@ -161,10 +157,10 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     CellPoint tempcellposition(rhoCell,zCell,phiCell);
     Point cellposition(tempcellposition);
     
-    if(debug) cout<<""<<endl;
-    if(debug) cout<<"cell number: "<<i+1<<endl;
-    if(debug) cout<<"rho: "<<cellposition.rho()<<" phi: "<<cellposition.phi()*MYR2D<<" eta: "<<cellposition.eta()<<endl;
-    if(debug) cout<<"x: "<<cellposition.x()<<" y: "<<cellposition.y()<<" z: "<<cellposition.z()<<endl;
+    LogDebug("CastorCellProducer")
+      <<"cell number: "<<i+1<<endl
+      <<"rho: "<<cellposition.rho()<<" phi: "<<cellposition.phi()*MYR2D<<" eta: "<<cellposition.eta()<<endl
+      <<"x: "<<cellposition.x()<<" y: "<<cellposition.y()<<" z: "<<cellposition.z();
     
     if (energy > 0.) {
       CastorCell newCell(energy,cellposition);
@@ -173,23 +169,24 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       
   } // end loop over CastorRecHits 
     
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"total number of cells in the event: "<<InputRecHits->size()<<endl;
-  if(debug) cout<<""<<endl;
-    
+  LogDebug("CastorCellProducer")
+    <<"total number of cells in the event: "<<InputRecHits->size();
+
   iEvent.put(OutputCells);
 
-  if(debug) getchar();
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void CastorCellProducer::beginJob() {
-  if(debug) std::cout<<"Starting CastorCellProducer"<<std::endl;
+  LogDebug("CastorCellProducer")
+    <<"Starting CastorCellProducer";
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CastorCellProducer::endJob() {
-  if(debug) std::cout<<"Ending CastorCellProducer"<<std::endl;
+  LogDebug("CastorCellProducer")
+    <<"Ending CastorCellProducer";
 }
 
 //define this as a plug-in

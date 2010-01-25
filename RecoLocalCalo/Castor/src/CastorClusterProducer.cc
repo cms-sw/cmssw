@@ -12,11 +12,9 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.2 2009/09/07 15:13:05 hvanhaev Exp $
+// $Id: CastorClusterProducer.cc,v 1.3 2010/01/22 14:03:50 hvanhaev Exp $
 //
 //
-
-#define debug 0
 
 // system include 
 #include <memory>
@@ -125,11 +123,8 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   using namespace std;
   using namespace TMath;
   
-  if(debug) cout<<""<<endl;
-  if(debug) cout<<"---------------------------------"<<endl;
-  if(debug) cout<<"3. entering CastorClusterProducer"<<endl;
-  if(debug) cout<<"---------------------------------"<<endl;
-  if(debug) cout<<""<<endl;
+  LogDebug("CastorClusterProducer")
+    <<"3. entering CastorClusterProducer";
   
   if ( input_ != "") {
   
@@ -277,12 +272,14 @@ double CastorClusterProducer::phiangle (double testphi) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void CastorClusterProducer::beginJob() {
-if(debug) std::cout<<"Starting CastorClusterProducer"<<std::endl;
+  LogDebug("CastorClusterProducer")
+    <<"Starting CastorClusterProducer";
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CastorClusterProducer::endJob() {
-if(debug) std::cout<<"Ending CastorClusterProducer"<<std::endl;
+  LogDebug("CastorClusterProducer")
+    <<"Ending CastorClusterProducer";
 }
 
 //define this as a plug-in
