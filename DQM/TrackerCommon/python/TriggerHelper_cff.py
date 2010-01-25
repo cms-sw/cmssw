@@ -35,7 +35,6 @@ SiStripHltFilter_SiStripMonitorCluster = cms.PSet(
 SiStripHltFilter_SiStripMonitorTrack = cms.PSet(
     hltInputTag = cms.InputTag( "TriggerResults::HLT" ),
     hltPaths    = cms.vstring( 'HLT_PhysicsDeclared'
-                             , 'HLT_ZeroBias1kHz' # DEBUG
                              ),
     andOr       = cms.bool( False ),
     errorReply  = cms.bool( True )
