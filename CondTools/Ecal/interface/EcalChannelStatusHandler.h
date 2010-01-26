@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "CondTools/Ecal/interface/EcalErrorMask.h"
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
