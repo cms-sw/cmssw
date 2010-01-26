@@ -3285,11 +3285,11 @@ for (int layer=1; layer < 44; layer++){
     if(layer<31)*xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,1.)\"  > "<<endl;
     else *xmlfile << "<g id=\"layer\" transform=\" translate(0,400) rotate(270) scale(1.,0.8)\"  > "<<endl;
     *xmlfile << "<rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"700\" height=\"700\" />"<<endl;
-    *xmlfile << "<svg:polygon id=\"fed\" mapAttribute=\"fed\" points=\"340,290 340,260 320,260 320,290\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
-    *xmlfile << "<svg:polygon id=\"fec\" mapAttribute=\"fec\" points=\"340,322 340,292 320,292 320,322\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
-    *xmlfile << "<svg:polygon id=\"lv\" mapAttribute=\"lv\" points=\"340,354 340,324 320,324 320,354\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
-    *xmlfile << "<svg:polygon id=\"hv\" mapAttribute=\"hv\" points=\"340,386 340,356 320,356 320,386\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
-    *xmlfile << "<svg:polygon id=\"plot\" mapAttribute=\"plot\" points=\"380,428 380,388 360,388 360,428\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(200,0,0)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"fed\" mapAttribute=\"fed\" points=\"330,260 330,230 310,230 310,260\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"fec\" mapAttribute=\"fec\" points=\"330,292 330,262 310,262 310,292\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"lv\" mapAttribute=\"lv\" points=\"330,324 330,294 310,294 310,324\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"hv\" mapAttribute=\"hv\" points=\"330,356 330,326 310,326 310,356\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(0,127,255)\"/>"<<endl;
+    *xmlfile << "<svg:polygon id=\"plot\" mapAttribute=\"plot\" points=\"330,418 330,378 310,378 310,418\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" fill=\"rgb(200,0,0)\"/>"<<endl;
    
     nlay=layer;
     defwindow(nlay);
@@ -3308,18 +3308,18 @@ for (int layer=1; layer < 44; layer++){
     *xmlfile << "<tspan id=\"line3\" x=\"40\" y=\"90\"> </tspan> " << endl;
     *xmlfile << "<tspan id=\"line4\" x=\"40\" y=\"120\"> </tspan> " << endl;
     if(layer > 33){
-    *xmlfile << "<tspan  mapAttribute=\"fed\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"295\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FED</tspan> " <<endl;
-    *xmlfile << "<tspan  mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"332\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
-    *xmlfile << "<tspan  mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"370\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
-    *xmlfile << "<tspan  mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"406\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
-    *xmlfile << "<tspan  mapAttribute=\"plot\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"442\" y=\"46\" font-size=\"12\" font-family=\"arial\" fill=\"white\">PLOT</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"fed\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"260\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FED</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"297\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"335\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"371\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
+    *xmlfile << "<tspan  mapAttribute=\"plot\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"428\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">PLOT</tspan> " <<endl;
     }
     else{
-    *xmlfile << "<tspan   mapAttribute=\"fed\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"370\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FED</tspan> " <<endl;
-    *xmlfile << "<tspan   mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"417\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
-    *xmlfile << "<tspan   mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"465\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
-    *xmlfile << "<tspan   mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"506\" y=\"103\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
-    *xmlfile << "<tspan   mapAttribute=\"plot\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"555\" y=\"46\" font-size=\"12\" font-family=\"arial\" fill=\"white\">PLOT</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"fed\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"331\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FED</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"fec\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"378\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">FEC</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"lv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"426\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">LV</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"hv\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"467\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">HV</tspan> " <<endl;
+    *xmlfile << "<tspan   mapAttribute=\"plot\" onclick=\"chooseMap(evt);\" onmouseover=\"chooseMap(evt);\" onmouseout=\"chooseMap(evt);\" x=\"535\" y=\"115\" font-size=\"12\" font-family=\"arial\" fill=\"white\">PLOT</tspan> " <<endl;
     }
     *xmlfile << " </text> </svg>" << endl;
     xmlfile->close();delete xmlfile;
