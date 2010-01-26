@@ -197,8 +197,8 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
                                                                               
     Mod_On = cms.bool(True),
 
-    HistoryProducer = cms.InputTag("ConsecutiveHEs"),
-    ApvPhaseProducer = cms.InputTag("apvPhases"),
+    HistoryProducer = cms.InputTag("consecutiveHEs"),
+    ApvPhaseProducer = cms.InputTag("APVPhases"),
             
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)                               

@@ -109,8 +109,8 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
 
     Mod_On = cms.bool(True),
 
-    HistoryProducer = cms.InputTag("ConsecutiveHEs"),
-    ApvPhaseProducer = cms.InputTag("apvPhases"),
+    HistoryProducer = cms.InputTag("consecutiveHEs"),
+    ApvPhaseProducer = cms.InputTag("APVPhases"),
 
     # rest of parameters
     SelectAllDetectors = cms.bool(False),
