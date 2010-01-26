@@ -33,6 +33,17 @@ namespace csc {
 						      rhs.quality_packed(),rhs.bx()),
 					      m_name(rhs.m_name)
   {
+	this->setBx(rhs.bx());
+	this->setDataWord(rhs.getDataWord());
+	m_name    = rhs.m_name;
+	this->setType(rhs.type_idx());
+	this->setPhiPacked(rhs.phi_packed());
+	this->setEtaPacked(rhs.eta_packed());
+	this->setPtPacked(rhs.pt_packed());
+	this->setChargePacked(rhs.charge_packed());
+	this->setChargeValidPacked(rhs.charge_valid_packed());
+	this->setFineHaloPacked(rhs.finehalo_packed());
+	this->setQualityPacked(rhs.quality_packed());
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
     m_endcap = rhs.m_endcap;
@@ -44,11 +55,11 @@ namespace csc {
     me3_id = rhs.me3_id;
     me4_id = rhs.me4_id;
     mb1_id = rhs.mb1_id;
-		m_me1Tbin = rhs.m_me1Tbin;
-		m_me2Tbin = rhs.m_me2Tbin;
-		m_me3Tbin = rhs.m_me3Tbin;
-		m_me4Tbin = rhs.m_me4Tbin;
-		m_mbTbin  = rhs.m_mbTbin;
+	m_me1Tbin = rhs.m_me1Tbin;
+	m_me2Tbin = rhs.m_me2Tbin;
+	m_me3Tbin = rhs.m_me3Tbin;
+	m_me4Tbin = rhs.m_me4Tbin;
+	m_mbTbin  = rhs.m_mbTbin;
     m_output_link = rhs.m_output_link;
     m_winner = rhs.m_winner;
   }
@@ -83,6 +94,11 @@ namespace csc {
 	me3_id = rhs.me3_id;
 	me4_id = rhs.me4_id;
 	mb1_id = rhs.mb1_id;
+	m_me1Tbin = rhs.m_me1Tbin;
+	m_me2Tbin = rhs.m_me2Tbin;
+	m_me3Tbin = rhs.m_me3Tbin;
+	m_me4Tbin = rhs.m_me4Tbin;
+	m_mbTbin  = rhs.m_mbTbin;
 	m_output_link = rhs.m_output_link;
     m_winner = rhs.m_winner;
 	  }
