@@ -289,7 +289,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     accessTorpcRecHits = false;
   }
 
-  if(accessTorpcRecHits){
+  if(accessTorpcRecHits && rpcHits.isValid()){
   if(incldt){
     if(debug) std::cout<<"\t Getting the DT Segments"<<std::endl;
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
@@ -302,7 +302,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       accessToDtSegments = false;
     }
 
-    if(accessToDtSegments){
+    if(accessToDtSegments && all4DSegments.isValid()){
       if(all4DSegments->size()>0){
 	if(all4DSegments->size()<=16) statistics->Fill(2);
 	
@@ -550,7 +550,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       accessToDtSegments = false;
     }
     
-    if(accessToDtSegments){
+    if(accessToDtSegments && all4DSegments.isValid()){
     if(all4DSegments->size()>0){
       std::map<DTChamberId,int> DTSegmentCounter;
       DTRecSegment4DCollection::const_iterator segment;  
@@ -867,7 +867,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       accessToCSCSegments = false;
     }   
     
-    if(accessToCSCSegments){ 
+    if(accessToCSCSegments && allCSCSegments.isValid()){ 
       if(allCSCSegments->size()>0){
 	statistics->Fill(18);
 	
