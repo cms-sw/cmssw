@@ -5,7 +5,6 @@ from RecoTauTag.RecoTau.HPSPFRecoTauProducer_cfi import *
 
 hpsPFTauProducer = copy.deepcopy(hpsPFRecoTauProducer)
 
-
 # Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
@@ -22,29 +21,21 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 #Therefore we call a discriminator byDecayModeFinding but in the reality
 #it is a leading track finding discriminator
 
-hpsPFTauDiscriminationByDecayModeFinding             = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
+hpsPFTauDiscriminationByDecayModeFinding = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
 setTauSource(hpsPFTauDiscriminationByDecayModeFinding, 'hpsPFTauProducer')
-
-
-
-
+# Define decay mode prediscriminant
 requireDecayMode = cms.PSet(
-          BooleanOperator = cms.string("and"),
-                decayMode = cms.PSet(
-                    Producer = cms.InputTag('hpsPFTauDiscriminationByDecayModeFinding'),
-                    cut = cms.double(0.5)
-                      )
+    BooleanOperator = cms.string("and"),
+    decayMode = cms.PSet(
+        Producer = cms.InputTag('hpsPFTauDiscriminationByDecayModeFinding'),
+        cut = cms.double(0.5)
+    )
 )
 
-
 #copying the Discriminator by Isolation
-
-
-hpsPFTauDiscriminationByLooseIsolation                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
+hpsPFTauDiscriminationByLooseIsolation = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 setTauSource(hpsPFTauDiscriminationByLooseIsolation, 'hpsPFTauProducer')
 hpsPFTauDiscriminationByLooseIsolation.Prediscriminants = requireDecayMode
-
-
 
 #Define a discriminator By Medium Isolation!
 #You need to loosen qualityCuts for this
@@ -72,12 +63,10 @@ mediumPFTauQualityCuts = cms.PSet(
       )
 )
 
-hpsPFTauDiscriminationByMediumIsolation                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
+hpsPFTauDiscriminationByMediumIsolation = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 setTauSource(hpsPFTauDiscriminationByMediumIsolation, 'hpsPFTauProducer')
 hpsPFTauDiscriminationByMediumIsolation.Prediscriminants = requireDecayMode
-hpsPFTauDiscriminationByMediumIsolation.qualityCuts      = mediumPFTauQualityCuts# set the standard quality cuts
-
-
+hpsPFTauDiscriminationByMediumIsolation.qualityCuts = mediumPFTauQualityCuts
 
 #Define a discriminator By Tight Isolation!
 #You need to loosen qualityCuts for this
@@ -105,33 +94,26 @@ loosePFTauQualityCuts = cms.PSet(
       )
 )
 
-
-hpsPFTauDiscriminationByTightIsolation                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
+hpsPFTauDiscriminationByTightIsolation = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 setTauSource(hpsPFTauDiscriminationByTightIsolation, 'hpsPFTauProducer')
 hpsPFTauDiscriminationByTightIsolation.Prediscriminants = requireDecayMode
-hpsPFTauDiscriminationByTightIsolation.qualityCuts      = loosePFTauQualityCuts# set the standard quality cuts
-
-
+hpsPFTauDiscriminationByTightIsolation.qualityCuts = loosePFTauQualityCuts# set the standard quality cuts
 
 #copying discriminator against electrons and muons
-hpsPFTauDiscriminationAgainstElectron                = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
+hpsPFTauDiscriminationAgainstElectron = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
 setTauSource(hpsPFTauDiscriminationAgainstElectron, 'hpsPFTauProducer')
 hpsPFTauDiscriminationAgainstElectron.Prediscriminants = noPrediscriminants
 
-hpsPFTauDiscriminationAgainstMuon                                    = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
+hpsPFTauDiscriminationAgainstMuon = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
 setTauSource(hpsPFTauDiscriminationAgainstMuon, 'hpsPFTauProducer')
 hpsPFTauDiscriminationAgainstMuon.Prediscriminants = noPrediscriminants
 
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
-                 hpsPFTauProducer*
-                 hpsPFTauDiscriminationByDecayModeFinding*
-                 hpsPFTauDiscriminationByLooseIsolation*
-                 hpsPFTauDiscriminationByMediumIsolation*
-                 hpsPFTauDiscriminationByTightIsolation*
-                 hpsPFTauDiscriminationAgainstElectron*
-                 hpsPFTauDiscriminationAgainstMuon
+    hpsPFTauProducer*
+    hpsPFTauDiscriminationByDecayModeFinding*
+    hpsPFTauDiscriminationByLooseIsolation*
+    hpsPFTauDiscriminationByMediumIsolation*
+    hpsPFTauDiscriminationByTightIsolation*
+    hpsPFTauDiscriminationAgainstElectron*
+    hpsPFTauDiscriminationAgainstMuon
 )
-
-
-
-
