@@ -320,12 +320,11 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 		calib->pdfs.push_back(pdf);
 	}
 
-	calib->categoryIdx = categoryIdx &
-			~(~((1U << (Calib::kCategoryMax + 2)) - 1) >> 1);
-	calib->categoryIdx |= (logOutput ? 1 : 0) << Calib::kLogOutput;
-	calib->categoryIdx |= (individual ? 1 : 0) << Calib::kIndividual;
-	calib->categoryIdx |= (neverUndefined ? 1 : 0) << Calib::kNeverUndefined;
-	calib->categoryIdx |= (keepEmpty ? 1 : 0) << Calib::kKeepEmpty;
+	calib->categoryIdx = categoryIdx;
+	calib->logOutput = logOutput;
+	calib->individual = individual;
+	calib->neverUndefined = neverUndefined;
+	calib->keepEmpty = keepEmpty;
 
 	if (doGlobalBias || doCategoryBias || doGivenBias) {
 		for(unsigned int i = 0; i < nCategories; i++) {

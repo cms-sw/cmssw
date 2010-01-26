@@ -226,7 +226,7 @@ static std::size_t getStreamSize(std::ifstream &in)
 
 Calibration::VarProcessor *ProcTMVA::getCalibration() const
 {
-	Calibration::ProcTMVA *calib = new Calibration::ProcTMVA;
+	Calibration::ProcExternal *calib = new Calibration::ProcExternal;
 
 	std::ifstream in(getWeightsFile(methods[0], "txt").c_str(),
 	                 std::ios::binary | std::ios::in);
@@ -235,8 +235,11 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 			<< "Weights file " << getWeightsFile(methods[0], "txt")
 			<< " cannot be opened for reading." << std::endl;
 
-	std::size_t size = getStreamSize(in);
-	size = size + (size / 32) + 128;
+	std::size_t size = getStreamSize(in) + methods[0].name.size();
+	for(std::vector<std::string>::const_iterator iter = names.begin();
+	    iter != names.end(); ++iter)
+		size += iter->size() + 1;
+	size += (size / 32) + 128;
 
 	char *buffer = 0;
 	try {
@@ -244,6 +247,12 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 		ext::omemstream os(buffer, size);
 		/* call dtor of ozs at end */ {
 			ext::ozstream ozs(&os);
+			ozs << methods[0].name << "\n";
+			ozs << names.size() << "\n";
+			for(std::vector<std::string>::const_iterator iter =
+								names.begin();
+			    iter != names.end(); ++iter)
+				ozs << *iter << "\n";
 			ozs << in.rdbuf();
 			ozs.flush();
 		}
@@ -257,8 +266,7 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 	delete[] buffer;
 	in.close();
 
-	calib->method = methods[0].name;
-	calib->variables = names;
+	calib->method = "ProcTMVA";
 
 	return calib;
 }

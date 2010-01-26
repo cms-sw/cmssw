@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.13 2009/05/25 21:43:13 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.14 2009/06/03 09:50:14 saout Exp $
 //
 
 #include <vector>
@@ -148,24 +148,10 @@ ProcLikelihood::ProcLikelihood(const char *name,
 	VarProcessor(name, calib, computer),
 	pdfs(calib->pdfs.begin(), calib->pdfs.end()),
 	bias(calib->bias),
-	categoryIdx(calib->categoryIdx),
-	nCategories(1)
+	categoryIdx(calib->categoryIdx), logOutput(calib->logOutput),
+	individual(calib->individual), neverUndefined(calib->neverUndefined),
+	keepEmpty(calib->keepEmpty), nCategories(1)
 {
-	typedef PhysicsTools::Calibration::ProcLikelihood Calib;
-
-	if (categoryIdx >> (Calib::kCategoryMax + 1) == -1)
-		categoryIdx &= ~(~((1U << (Calib::kCategoryMax + 2)) - 1) >> 1);
-
-	logOutput = (categoryIdx & (1 << Calib::kLogOutput)) != 0;
-	individual = (categoryIdx & (1 << Calib::kIndividual)) != 0;
-	neverUndefined =
-		(categoryIdx & (1 << Calib::kNeverUndefined)) != 0;
-	keepEmpty = (categoryIdx & (1 << Calib::kKeepEmpty)) != 0;
-
-	if (categoryIdx < 0)
-		categoryIdx |= ~(int)((1 << (Calib::kCategoryMax + 1)) - 1);
-	else
-		categoryIdx &= (1 << (Calib::kCategoryMax + 1)) - 1;
 }
 
 void ProcLikelihood::configure(ConfIterator iter, unsigned int n)

@@ -12,9 +12,10 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.7 2008/03/15 22:26:55 saout Exp $
+// $Id: ProcTMVA.cc,v 1.1 2009/05/11 16:54:21 saout Exp $
 //
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -40,10 +41,10 @@ namespace { // anonymous
 class ProcTMVA : public VarProcessor {
     public:
 	typedef VarProcessor::Registry::Registry<ProcTMVA,
-					Calibration::ProcTMVA> Registry;
+					Calibration::ProcExternal> Registry;
 
 	ProcTMVA(const char *name,
-	         const Calibration::ProcTMVA *calib,
+	         const Calibration::ProcExternal *calib,
 	         const MVAComputer *computer);
 	virtual ~ProcTMVA() {}
 
@@ -88,23 +89,28 @@ static TMVA::MethodBase *methodInst(TMVA::DataSet *data, TMVA::Types::EMVA type)
 #undef SWITCH_METHOD
 
 ProcTMVA::ProcTMVA(const char *name,
-                   const Calibration::ProcTMVA *calib,
+                   const Calibration::ProcExternal *calib,
                    const MVAComputer *computer) :
-	VarProcessor(name, calib, computer),
-	nVars(calib->variables.size())
+	VarProcessor(name, calib, computer)
 {
-	for(std::vector<std::string>::const_iterator iter =
-						calib->variables.begin();
-	    iter != calib->variables.end(); iter++)
-		data.AddVariable(iter->c_str());
-
 	ext::imemstream is(
 		reinterpret_cast<const char*>(&calib->store.front()),
 	        calib->store.size());
 	ext::izstream izs(&is);
 
+	std::string methodName;
+	std::getline(izs, methodName);
+	std::string tmp;
+	std::getline(izs, tmp);
+	std::istringstream iss(tmp);
+	iss >> nVars;
+	for(unsigned int i = 0; i < nVars; i++) {
+		std::getline(izs, tmp);
+		data.AddVariable(tmp.c_str());
+	}
+
 	TMVA::Types::EMVA methodType =
-			TMVA::Types::Instance().GetMethodType(calib->method);
+			TMVA::Types::Instance().GetMethodType(methodName);
 
 	method = std::auto_ptr<TMVA::MethodBase>(
 					methodInst(&data, methodType));

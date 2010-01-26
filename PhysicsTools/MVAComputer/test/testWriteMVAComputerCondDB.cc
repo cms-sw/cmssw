@@ -129,6 +129,10 @@ void testWriteMVAComputerCondDB::endJob()
 	sigBkg.background = pdf;
 	sigBkg.useSplines = true;
 	lkh.categoryIdx = -1;
+	lkh.neverUndefined = true;
+	lkh.individual = false;
+	lkh.logOutput = false;
+	lkh.keepEmpty = true;
 	lkh.pdfs.push_back(sigBkg);
 
 	computer->addProcessor(&lkh);

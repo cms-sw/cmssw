@@ -5,15 +5,10 @@
 
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
 
-
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"   
 
-
-//
-// tformula stuff
-//
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 
@@ -45,8 +40,6 @@ std::vector<HistogramF3D> v32;
 std::vector<HistogramD3D> v33;
 
 
-
-
 // MVAComputer
 std::vector<Variable> v19;
 std::vector<ProcCategory::BinLimits> v20;
@@ -54,21 +47,22 @@ std::vector<ProcLikelihood::SigBkg> v21;
 std::pair<std::vector<ProcMLP::Neuron>, bool> v23;
 MVAComputerContainer::Entry v24;
 std::vector<MVAComputerContainer::Entry> v25;
+std::vector<VarProcessor*> v26;
+
 
 // Performance DB stuff
-    PhysicsPerformancePayload p1;          
-    std::vector<PerformanceResult::ResultType> r;
-    std::vector<BinningVariables::BinningVariablesType> b; 
-    PerformancePayloadFromTable c1;
-    
-    // BtagPerformancePayloadFromTable c5;
-    //BtagPerformancePayload c6;
-    PerformanceWorkingPoint c7;           
-    //
-    // tformula stuff
-    //
-    PhysicsTFormulaPayload p10;          
-    PerformancePayloadFromTFormula p11;
+PhysicsPerformancePayload p1;          
+std::vector<PerformanceResult::ResultType> r;
+std::vector<BinningVariables::BinningVariablesType> b; 
+PerformancePayloadFromTable c1;
 
-};
+//BtagPerformancePayloadFromTable c5;
+//BtagPerformancePayload c6;
+PerformanceWorkingPoint c7;           
+
+// TFormula stuff
+PhysicsTFormulaPayload p10;          
+PerformancePayloadFromTFormula p11;
+
+}; // struct dictionary
 } // anonymous namespace

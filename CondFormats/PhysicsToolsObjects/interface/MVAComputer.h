@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.13 2007/12/08 15:57:07 saout Exp $
+// $Id: MVAComputer.h,v 1.14 2008/04/21 08:53:02 saout Exp $
 //
 
 #include <string>
@@ -99,7 +99,7 @@ class ProcCategory : public VarProcessor {
 
 class ProcNormalize : public VarProcessor {
     public:
-	std::vector<HistogramF>	distr;
+	std::vector<HistogramF>		distr;
 	int				categoryIdx;
 };
 
@@ -112,17 +112,13 @@ class ProcLikelihood : public VarProcessor {
 		bool			useSplines;
 	};
 
-	enum Flags {
-		kCategoryMax	= 19,
-		kLogOutput,
-		kIndividual,
-		kNeverUndefined,
-		kKeepEmpty
-	};
-
 	std::vector<SigBkg>		pdfs;
 	std::vector<double>		bias;
 	int				categoryIdx;
+	bool				logOutput;
+	bool				individual;
+	bool				neverUndefined;
+	bool				keepEmpty;
 };
 
 class ProcLinear : public VarProcessor {
@@ -144,10 +140,11 @@ class ProcMatrix : public VarProcessor {
 	Matrix				matrix;
 };
 
-class ProcTMVA : public VarProcessor {
+class ProcExternal : public VarProcessor {
     public:
+	virtual std::string getInstanceName() const;
+
 	std::string			method;
-	std::vector<std::string>	variables;
 	std::vector<unsigned char>	store;
 };
 
@@ -164,43 +161,30 @@ class ProcMLP : public VarProcessor {
 class MVAComputer {
     public:
 	MVAComputer();
+	MVAComputer(const MVAComputer &orig);
 	virtual ~MVAComputer();
 
-	std::vector<Variable>		inputSet;
-//	std::vector<VarProcessor*>	processors;	// stupid POOL
+	MVAComputer &operator = (const MVAComputer &orig);
+
 	virtual std::vector<VarProcessor*> getProcessors() const;
-	void				addProcessor(const VarProcessor *proc);
-	unsigned int			output;
+	void addProcessor(const VarProcessor *proc);
 
 	// cacheId stuff to detect changes
 	typedef unsigned int CacheId;
 	inline CacheId getCacheId() const { return cacheId; }
 	inline bool changed(CacheId old) const { return old != cacheId; }
 
-	// these variables are read/written only via get/setProcessor()
-	// ordering is relevant for the persistent storage
-    private:
-	std::vector<unsigned int>	processors_;
+	std::vector<Variable>		inputSet;
+	unsigned int			output;
 
-	std::vector<ProcOptional>	vProcOptional_;
-	std::vector<ProcCount>		vProcCount_;
-	std::vector<ProcClassed>	vProcClassed_;
-	std::vector<ProcSplitter>	vProcSplitter_;
-	std::vector<ProcForeach>	vProcForeach_;
-	std::vector<ProcSort>		vProcSort_;
-	std::vector<ProcCategory>	vProcCategory_;
-	std::vector<ProcNormalize>	vProcNormalize_;
-	std::vector<ProcLikelihood>	vProcLikelihood_;
-	std::vector<ProcLinear>		vProcLinear_;
-	std::vector<ProcMultiply>	vProcMultiply_;
-	std::vector<ProcMatrix>		vProcMatrix_;
-	std::vector<ProcTMVA>		vProcTMVA_;
-	std::vector<ProcMLP>		vProcMLP_;
+    private:
+	std::vector<VarProcessor*>	processors;
 
 	CacheId				cacheId;	// transient
 };
 
-// useful if different categories exist with different configurations
+// a collection of computers identified by name
+
 class MVAComputerContainer {
     public:
 	typedef std::pair<std::string, MVAComputer> Entry;

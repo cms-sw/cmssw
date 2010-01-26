@@ -36,7 +36,8 @@ static std::size_t getStreamSize(std::ifstream &in)
 static Calibration::VarProcessor*
 getCalibration(const std::string &file, const std::vector<std::string> &names)
 {
-	std::auto_ptr<Calibration::ProcTMVA> calib(new Calibration::ProcTMVA);
+	std::auto_ptr<Calibration::ProcExternal> calib(
+					new Calibration::ProcExternal);
 
 	std::ifstream in(file.c_str(), std::ios::binary | std::ios::in);
 	if (!in.good())
@@ -63,8 +64,11 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 	Int_t idxtit = (idx1 < 0 ? fullname.Length() : idx1);
 	TString methodName = fullname(0, idxtit);
 
-	std::size_t size = getStreamSize(in);
-	size = size + (size / 32) + 128;
+	std::size_t size = getStreamSize(in) + methodName.Length();
+	for(std::vector<std::string>::const_iterator iter = names.begin();
+	    iter != names.end(); ++iter)
+		size += iter->size() + 1;
+	size += (size / 32) + 128;
 
 	char *buffer = 0;
 	try {
@@ -72,6 +76,12 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 		ext::omemstream os(buffer, size);
 		/* call dtor of ozs at end */ {
 			ext::ozstream ozs(&os);
+			ozs << methodName << "\n";
+			ozs << names.size() << "\n";
+			for(std::vector<std::string>::const_iterator iter =
+								names.begin();
+			    iter != names.end(); ++iter)
+				ozs << *iter << "\n";
 			ozs << in.rdbuf();
 			ozs.flush();
 		}
@@ -85,8 +95,7 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 	delete[] buffer;
 	in.close();
 
-	calib->method = (const char*)methodName;
-	calib->variables = names;
+	calib->method = "ProcTMVA";
 
 	return calib.release();
 }
