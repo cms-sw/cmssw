@@ -24,3 +24,16 @@
    <use name=DQMServices/Core>
    <flags EDM_PLUGIN=1>
 </library>
+
+<library file=DQMXMLFilePopConAnalyzer.cc name=CondToolsDQMXMLFilePopConAnalyzer>
+   <use name=CondCore/PopCon>
+   <use name=CondTools/DQM>
+   <flags EDM_PLUGIN=1>
+</library>
+
+
+<library file=DQMXMLFileEventSetupAnalyzer.cc name=CondToolsDQMXMLFileEventSetupAnalyzer>
+   <use name=CondFormats/DataRecord>
+   <use name=DQMServices/Core>
+   <flags EDM_PLUGIN=1>
+</library>
