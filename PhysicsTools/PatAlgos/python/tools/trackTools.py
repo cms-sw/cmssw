@@ -40,7 +40,7 @@ def makePATTrackCandidates(process,
                            selection   = 'pt > 10',                       
                            isolation   = {'tracker':0.3, 'ecalTowers':0.3, 'hcalTowers':0.3},  
                            isoDeposits = ['tracker','ecalTowers','hcalTowers'],   
-                           mcAs        = 'muons'            
+                           mcAs        = 'muon'            
                            ):
     """
     ------------------------------------------------------------------
@@ -180,7 +180,7 @@ def makeTrackCandidates(process,
                                         'hcalTowers':0.3              
                                         },
                         isoDeposits  = ['tracker','ecalTowers','hcalTowers'],
-                        mcAs         = 'muons'
+                        mcAs         = 'muon'
                         ) :
     """
     ------------------------------------------------------------------
