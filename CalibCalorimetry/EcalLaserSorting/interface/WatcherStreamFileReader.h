@@ -3,13 +3,14 @@
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/StreamerInputFile.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
 #include <iostream>
 #include <deque>
+
+//using edm::StreamerInputFile;
 
 /** This module is an source module reading continously file 
  * as they are copied in the input directory.
@@ -20,6 +21,8 @@
  * This protection is obviously not full proof, especially to transfer lag.
  */
 
+class StreamerInputFile;
+
 class WatcherStreamFileReader{
 public:
   WatcherStreamFileReader(edm::ParameterSet const& pset);
@@ -29,7 +32,7 @@ public:
   const EventMsgView* getNextEvent();
   const bool newHeader(); 
 
-  edm::StreamerInputFile* getInputFile();
+  StreamerInputFile* getInputFile();
 
   void closeFile();
   
@@ -57,9 +60,9 @@ private:
   
   /** Cached input file stream
    */
-  std::auto_ptr<edm::StreamerInputFile> streamerInputFile_;
+  std::auto_ptr<StreamerInputFile> streamerInputFile_;
 
-  std::string fileName_;
+  static std::string fileName_;
 
   std::string tokenFile_;
 
