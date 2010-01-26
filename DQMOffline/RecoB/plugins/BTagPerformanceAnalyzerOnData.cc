@@ -375,7 +375,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
   }
 }
 
-void BTagPerformanceAnalyzerOnData::endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es){
+void BTagPerformanceAnalyzerOnData::endRun(const edm::Run & run, const edm::EventSetup & es){
 
   if (finalize == false) return;
   setTDRStyle();

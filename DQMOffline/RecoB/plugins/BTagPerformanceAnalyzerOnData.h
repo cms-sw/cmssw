@@ -40,7 +40,7 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      void endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es);
+      void endRun(const edm::Run & run, const edm::EventSetup & es);
 
    private:
 
