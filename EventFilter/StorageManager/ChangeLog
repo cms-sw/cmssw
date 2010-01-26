@@ -4,7 +4,7 @@
 	* Add configuration parameter 'isProductionSystem' (default false).
 	  This disables checks for disks defined in 'otherDiskPaths', attempts
 	  to connect to the SATA controller, and disables any alarms for
-	  unconsumed events no unexpected number of running Copy/InjectWorkers
+	  unconsumed events or unexpected number of running Copy/InjectWorkers
 	* Expanded checks for number of running Copy/InjectWorkers to take into
 	  account the arguments and user names of the processes
 
