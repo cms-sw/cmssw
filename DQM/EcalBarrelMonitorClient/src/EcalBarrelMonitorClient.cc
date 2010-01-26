@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/11/22 23:27:33 $
- * $Revision: 1.472 $
+ * $Date: 2010/01/25 21:12:25 $
+ * $Revision: 1.473 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -108,9 +108,11 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   }
 
 #ifndef WITH_ECAL_COND_DB
-  cout << endl;
-  cout << "WARNING: DB access is DISABLED" << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "WARNING: DB access is DISABLED" << endl;
+    cout << endl;
+  }
 #endif
 
   // Mask file
