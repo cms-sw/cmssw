@@ -1,7 +1,7 @@
 #
 #  SUSY-PAT configuration file
 #
-#  PAT configuration for the SUSY group - 33X series
+#  PAT configuration for the SUSY group - 33X/34X series
 #  More information here:
 #  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV7
 #
@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.22 $'),
+    version = cms.untracked.string('$Revision: 1.23 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -41,8 +41,8 @@ process.GlobalTag.globaltag = 'MC_3XY_V15::All' #Data: GR09_P_V8_34X , MC: MC_3X
 
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
-#Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332')
-addDefaultSUSYPAT(process,True,'HLT','Summer09_7TeV_ReReco332','31xReReco332') 
+#Apply SUSYPAT: Parameters are: mcInfo, HLT menu, Jet energy corrections, MC version ('31x' or '31xReReco332'), JetCollections (only supported for 33X/34X samples)
+addDefaultSUSYPAT(process,True,'HLT','Summer09_7TeV_ReReco332','31xReReco332',['IC5','SC5','AK5PF','AK5JPT','AK5Track']) 
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 
