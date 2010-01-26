@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 hpsPFRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
-
       #Standard Input                                      
       PFTauTagInfoProducer = cms.InputTag("pfRecoTauTagInfoProducer"),
       JetPtMin             = cms.double(0.0),

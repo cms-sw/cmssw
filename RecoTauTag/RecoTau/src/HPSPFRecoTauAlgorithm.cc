@@ -1,5 +1,4 @@
 #include "RecoTauTag/RecoTau/interface/HPSPFRecoTauAlgorithm.h"
-
 #include "Math/GenVector/VectorUtil.h"
 using namespace reco;
 
@@ -19,9 +18,6 @@ HPSPFRecoTauAlgorithm::~HPSPFRecoTauAlgorithm()
   if(candidateMerger_ !=0 ) delete candidateMerger_;
 }
 
-
-
-
 PFTau 
 HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& vertex)
 {
@@ -40,13 +36,11 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
   PFTauCollection oneProngStripTaus;
   if(doOneProngStrips_)     
     oneProngStripTaus =buildOneProngStrip(tagInfo,strips);
-  
 
   //One Prong TwoStrips
   PFTauCollection oneProngTwoStripsTaus;
   if(doOneProngTwoStrips_) 
     oneProngTwoStripsTaus =buildOneProngTwoStrips(tagInfo,strips);
-  
 
   //Three Prong
   PFTauCollection threeProngTaus;

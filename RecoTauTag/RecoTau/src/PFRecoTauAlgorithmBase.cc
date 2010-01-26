@@ -18,7 +18,6 @@ PFRecoTauAlgorithmBase::~PFRecoTauAlgorithmBase()
 
 }
 
-
 void 
 PFRecoTauAlgorithmBase::setTransientTrackBuilder(const TransientTrackBuilder* builder) 
 {
