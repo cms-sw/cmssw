@@ -20,7 +20,7 @@
 <use name=CondFormats/L1TObjects>
 
 <use name=rootgraphics>
-<use name=PhysicsTools/UtilAlgos>
+<use name=CommonTools/UtilAlgos>
 
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
