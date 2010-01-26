@@ -4,7 +4,7 @@ triggerEffTest = cms.EDAnalyzer("DTTriggerEfficiencyTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # run in online environment
-    runOnline = cms.untracked.bool(True),
+    runOnline = cms.untracked.bool(False),
     # kind of trigger data processed by DTLocalTriggerTask
     hwSources = cms.untracked.vstring('DCC','DDU'),
     # false if DTLocalTriggerTask used LTC digis

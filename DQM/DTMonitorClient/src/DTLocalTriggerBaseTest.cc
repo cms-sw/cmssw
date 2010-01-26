@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/30 14:27:55 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.15 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -90,19 +90,18 @@ void DTLocalTriggerBaseTest::endLuminosityBlock(edm::LuminosityBlock const& lumi
 
 void DTLocalTriggerBaseTest::endJob(){
   
-  LogTrace(category()) << "[" << testName << "Test] endjob called!";
+    LogTrace(category()) << "[" << testName << "Test] endJob called!";
+
+}
+
+
+void DTLocalTriggerBaseTest::endRun(Run const& run, EventSetup const& context) {
+  
+  LogTrace(category()) << "[" << testName << "Test] endRun called!";
 
   if (!runOnline) {
     LogVerbatim(category()) << "[" << testName << "Test] Client called in offline mode, performing client operations";
-
-    if (dbe->dirExists(topFolder(0)) || dbe->dirExists(topFolder(1))) {
-      //dbe->showDirStructure();
-      runClientDiagnostic();
-    }
-    else {
-      LogVerbatim(category()) << "[" << testName << "Test] trigger ME dir does not exist! Skipping";  
-    }
-
+    runClientDiagnostic();
   }
 
 }

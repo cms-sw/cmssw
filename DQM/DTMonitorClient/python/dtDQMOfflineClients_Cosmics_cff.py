@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.DTMonitorClient.dtChamberEfficiencyClient_cfi import *
 from DQM.DTMonitorClient.dtSegmentAnalysisTest_cfi import *
 segmentTest.normalizeHistoPlots = True
+segmentTest.runOnline = False
 #segmentTest.detailedAnalysis = True
 from DQM.DTMonitorClient.dtOfflineSummaryClients_cfi import *
 from DQM.DTMonitorClient.dtResolutionAnalysisTest_cfi import *

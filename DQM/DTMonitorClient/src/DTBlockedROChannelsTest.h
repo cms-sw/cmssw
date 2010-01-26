@@ -5,8 +5,8 @@
  * *
  *  DQM Client to Summarize LS by LS the status of the Read-Out channels.
  *
- *  $Date: 2009/10/19 14:04:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/05 10:15:45 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - University and INFN Torino
  *   
  */
@@ -44,16 +44,20 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
   /// Endjob
   void endJob();
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
-  /// DQM Client Diagnostic
+  /// DQM Client operations
+  void performClientDiagnostic();
+
+  /// DQM Client Diagnostic in online mode
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
+  /// DQM Client Diagnostic in offline mode
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+ 
 private:
   int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
 

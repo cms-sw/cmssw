@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/10/19 16:18:47 $
- * $Revision: 1.6 $
+ * $Date: 2010/01/19 10:03:51 $
+ * $Revision: 1.8 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -51,7 +51,7 @@ DTBlockedROChannelsTest::~DTBlockedROChannelsTest() {
 
 
 // book histos
-void DTBlockedROChannelsTest::beginJob(const EventSetup& context) {
+void DTBlockedROChannelsTest::beginJob() {
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
     << "[DTBlockedROChannelsTest]: BeginJob";
 
@@ -155,18 +155,22 @@ void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   nLumiSegs = lumiSeg.id().luminosityBlock();
   
   // prescale factor
-  if (nLumiSegs%prescaleFactor != 0) return;
+  if (nLumiSegs%prescaleFactor != 0 || offlineMode) return;
   
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
-    <<"[DTBlockedROChannelsTest]: End of LS " << nLumiSegs << ", performing client operations";
-
+    <<"[DTBlockedROChannelsTest]: End of LS " << nLumiSegs << ". Client called in online mode, performing client operations";
+  performClientDiagnostic();
 
   // counts number of updats 
   nupdates++;
 
+}
+
+
+void DTBlockedROChannelsTest::performClientDiagnostic() {
+
   // skip empty LSs
   
-
   if(nevents == 0) { // hack to work also in offline DQM
     MonitorElement *procEvt =  dbe->get("DT/EventInfo/processedEvents");
     if(procEvt != 0) {
@@ -216,24 +220,30 @@ void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     }
   }
 
-  
-  // this part is executed even if no events were processed in order to include the last LS 
-  if(offlineMode) { // save the results in a map and draw them in the end-run
-    if(resultsPerLumi.size() == 0) { // the first 2 LS are analyzed together
-//       cout << "LS: " << nLumiSegs << " total %: " << totalPerc << endl;
-      resultsPerLumi[nLumiSegs] = totalPerc;
-    } else {
-//       cout << "LS: " << nLumiSegs << " total %: " << prevTotalPerc << endl;
-      resultsPerLumi[nLumiSegs] = prevTotalPerc;
-    }
-    prevTotalPerc = totalPerc;
-    prevNLumiSegs = nLumiSegs;
+// commented out since trend plots need to be updated in by lumi certification  
+//   // this part is executed even if no events were processed in order to include the last LS 
+//   if(offlineMode) { // save the results in a map and draw them in the end-run
+//     if(resultsPerLumi.size() == 0) { // the first 2 LS are analyzed together
+// //       cout << "LS: " << nLumiSegs << " total %: " << totalPerc << endl;
+//       resultsPerLumi[nLumiSegs] = totalPerc;
+//     } else {
+// //       cout << "LS: " << nLumiSegs << " total %: " << prevTotalPerc << endl;
+//       resultsPerLumi[nLumiSegs] = prevTotalPerc;
+//     }
+//     prevTotalPerc = totalPerc;
+//     prevNLumiSegs = nLumiSegs;
 
-  } else { // directly fill the histo
+//   } else { // directly fill the histo
+//     hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);
+//     hSystFractionVsLS->updateTimeSlot(nLumiSegs, nevents);
+//     prevTotalPerc = totalPerc;
+//   }
+  if(!offlineMode) { // fill trend histo only in online
     hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);
     hSystFractionVsLS->updateTimeSlot(nLumiSegs, nevents);
     prevTotalPerc = totalPerc;
   }
+
 }
 
 
@@ -248,16 +258,21 @@ void DTBlockedROChannelsTest::endJob(){
 
 void DTBlockedROChannelsTest::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
 
-//     Commeneted to fix almost infinite loop on MC
+  if (offlineMode) {
+    LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
+      <<"[DTBlockedROChannelsTest] endRun called. Client called in offline mode, performing operations.";
+    performClientDiagnostic();
+  }
+// commented out since trend plots need to be updated in by lumi certification  
 //   if(offlineMode) {
 //     // fill a trend plot based on the results stored in the map
+//     float fBin = resultsPerLumi.begin()->first;
 //     float lBin = resultsPerLumi.rbegin()->first;
 //     dbe->setCurrentFolder("DT/00-ROChannels");
   
 //     //   MonitorElement* hSystFractionVsLS =  dbe->book1D("EnabledROChannelsVsLS", "% RO channels vs LS", nBins,fBin,lBin);
-
 //     hSystFractionVsLS = new DTTimeEvolutionHisto(dbe, "EnabledROChannelsVsLS", "% RO channels",
-// 						 (int)lBin, 1, false, 2);
+// 						 (int)lBin-(int)fBin, fBin, 1, false, 2);
 								 
 //     for(map<int, double>::const_iterator bin = resultsPerLumi.begin();
 // 	bin != resultsPerLumi.end(); ++bin) {

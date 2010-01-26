@@ -3,12 +3,14 @@ import FWCore.ParameterSet.Config as cms
 from DQM.DTMonitorClient.dtChamberEfficiencyClient_cfi import *
 from DQM.DTMonitorClient.dtSegmentAnalysisTest_cfi import *
 segmentTest.normalizeHistoPlots = True
+segmentTest.runOnline = False
 #segmentTest.detailedAnalysis = True
 from DQM.DTMonitorClient.dtOfflineSummaryClients_cfi import *
 from DQM.DTMonitorClient.dtResolutionAnalysisTest_cfi import *
 from DQM.DTMonitorClient.dtTriggerEfficiencyTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
 blockedROChannelTest.offlineMode = True;
+
 
 dtQualityTests = cms.EDFilter("QualityTester",
                          #reportThreshold = cms.untracked.string('red'),

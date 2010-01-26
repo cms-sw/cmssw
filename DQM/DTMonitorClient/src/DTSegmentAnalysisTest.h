@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/07/16 09:11:45 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.8 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -54,8 +54,6 @@ public:
   void endJob(void);
 
   void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
-  void endRun(const edm::Run& run, const edm::EventSetup& eSetup);
-
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -68,8 +66,14 @@ public:
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
-  /// DQM Client Diagnostic
+  /// Perform client diagnostic operations
+  void performClientDiagnostic();
+
+  /// DQM Client Diagnostic in online mode
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
+  /// DQM Client Diagnostic in offline mode
+  void endRun(edm::Run const& run, edm::EventSetup const& c);
 
 
 private:
@@ -78,6 +82,8 @@ private:
   unsigned int nLumiSegs;
   // switch on for detailed analysis
   bool detailedAnalysis;
+
+  bool runOnline;
 
   DQMStore* dbe;
 

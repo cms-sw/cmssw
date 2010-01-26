@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2009/10/08 14:47:07 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.8 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -64,6 +64,9 @@ protected:
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
 
   /// Perform client diagnostic in offline
+  void endRun(edm::Run const& run, edm::EventSetup const& context);
+
+  /// EndJob
   void endJob();
 
   /// Perform client analysis

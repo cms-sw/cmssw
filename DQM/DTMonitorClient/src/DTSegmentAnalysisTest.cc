@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/13 14:30:34 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.31 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -52,6 +52,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   // get the cfi parameters
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
   normalizeHistoPlots  = parameters.getUntrackedParameter<bool>("normalizeHistoPlots",false);
+  runOnline  = parameters.getUntrackedParameter<bool>("runOnline",true);
   // top folder for the histograms in DQMStore
   topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
@@ -107,8 +108,50 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
  
-  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
-    <<"[DTSegmentAnalysisTest]: End of LS " << nLumiSegs << ", perform DQM client operation";
+  if (runOnline) {
+    LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+      <<"[DTSegmentAnalysisTest]: End of LS " << nLumiSegs 
+      << ". Client called in online mode , perform DQM client operation";
+    performClientDiagnostic();
+  }
+
+}
+
+void DTSegmentAnalysisTest::endRun(Run const& run, EventSetup const& context) {
+
+  if (!runOnline) {
+    LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+      <<"[DTSegmentAnalysisTest]: endRun. Client called in offline mode , perform DQM client operation";
+    performClientDiagnostic();
+  }
+
+  if(normalizeHistoPlots) {
+    LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
+    MonitorElement* hNevtPerLS = 0;
+    if(hltDQMMode) hNevtPerLS = dbe->get(topHistoFolder + "/NevtPerLS");
+    else  hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
+
+    if(hNevtPerLS != 0) {
+      for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
+	for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
+	  stringstream wheelstr; wheelstr << wheel;	
+	  stringstream sectorstr; sectorstr << sector;
+	  string sectorHistoName = topHistoFolder + "/Wheel" + wheelstr.str() +
+	    "/Sector" + sectorstr.str() +
+	    "/NSegmPerEvent_W" + wheelstr.str() +
+	    "_Sec" + sectorstr.str();
+	  DTTimeEvolutionHisto hNSegmPerLS(&(*dbe), sectorHistoName);
+	  hNSegmPerLS.normalizeTo(hNevtPerLS);
+	}
+      }
+    } else {
+      LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Histo NevtPerLS not found!" << endl;
+    }
+  }
+
+}
+
+void DTSegmentAnalysisTest::performClientDiagnostic() {
 
   summaryHistos[3]->Reset();
   summaryHistos[4]->Reset();
@@ -323,33 +366,5 @@ void DTSegmentAnalysisTest::bookHistos() {
 void DTSegmentAnalysisTest::endJob() {
 }
 
-
-void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
-
-
-  if(normalizeHistoPlots) {
-    LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
-    MonitorElement* hNevtPerLS = 0;
-    if(hltDQMMode) hNevtPerLS = dbe->get(topHistoFolder + "/NevtPerLS");
-    else  hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
-
-    if(hNevtPerLS != 0) {
-      for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
-	for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
-	  stringstream wheelstr; wheelstr << wheel;	
-	  stringstream sectorstr; sectorstr << sector;
-	  string sectorHistoName = topHistoFolder + "/Wheel" + wheelstr.str() +
-	    "/Sector" + sectorstr.str() +
-	    "/NSegmPerEvent_W" + wheelstr.str() +
-	    "_Sec" + sectorstr.str();
-	  DTTimeEvolutionHisto hNSegmPerLS(&(*dbe), sectorHistoName);
-	  hNSegmPerLS.normalizeTo(hNevtPerLS);
-	}
-      }
-    } else {
-      LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Histo NevtPerLS not found!" << endl;
-    }
-  }
-}
 
 
