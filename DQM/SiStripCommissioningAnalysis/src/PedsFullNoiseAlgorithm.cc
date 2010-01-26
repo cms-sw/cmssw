@@ -32,49 +32,6 @@ PedsFullNoiseAlgorithm::PedsFullNoiseAlgorithm( const edm::ParameterSet & pset, 
 
 // ----------------------------------------------------------------------------
 //
-
-uint32_t fecToDet(const uint32_t& fec_key_mask, 
-                  const ViewTranslator::Mapping& input,
-                  ViewTranslator::Mapping& output ) {
-	if( input.empty() ) { 
-      edm::LogWarning(mlCabling_) 
-        << "[ViewTranslator::" << __func__ << "]"
-        << " Input std::map is empty!";
-      return 0 ;
-    }
-
-   // ViewTranslator::Mapping::iterator iter;
-   // SiStripFecKey::Path fec_key = SiStripFecKey::path( fec_key_mask );
-
-   /* if( det_key.detId_ == sistrip::invalid_ ||
-        det_key.apvPair_ == sistrip::invalid_ ) {
-      edm::LogWarning(mlCabling_) 
-        << "[ViewTranslator::" << __func__ << "]"
-        << " DetKey is not defined!";
-      output = input;
-      return output.size(); 
-    }
-
-    if( det_key.detId_ != sistrip::invalid_ && 
-        det_key.apvPair_ != sistrip::invalid_ ) {
-      iter=input->find( det_key_mask );
-      output[ (*iter).first ] = (*iter).second;
-      LogTrace(mlSummaryPlots_) << "both are not masked";
-    }
-
-    if( det_key.detId_!=0xFFFFFFFF && det_key.apvPair_==0xFFFF ) {
-      LogTrace(mlSummaryPlots_) << "apv is masked";
-      for(iter=input->begin() ; iter!=input->end() ; iter++) {
-        DetKey = SiStripDetKey::path( (*iter).first );
-        if(det_key.detId_==DetKey.detId_)
-       output[ (*iter).first ]=( (*iter).second );
-      } //for(iter=input->begin() ; iter!=input->end() ; iter++)
-    }//if( det_key.detId_!=0xFFFFFFFF && det_key.apvPair_==0xFFFF )
-    else LogTrace(mlSummaryPlots_) << "Cannot find the det to fec std::map in the root file. ";
-*/
-	return 0; //@@ temp!
-}
-
  
 void PedsFullNoiseAlgorithm::extract( const std::vector<TH1*>& histos ) { 
 
@@ -193,7 +150,7 @@ void PedsFullNoiseAlgorithm::analyse() {
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
 
         anal->ksProb_[iapv].push_back(0);
-        //anal->chi2Prob_[iapv].push_back(0);
+        anal->chi2Prob_[iapv].push_back(0);
         anal->noiseGaus_[iapv].push_back(0);
         anal->bin84Percent_[iapv].push_back(0);
         anal->noiseSignif_[iapv].push_back(0);
