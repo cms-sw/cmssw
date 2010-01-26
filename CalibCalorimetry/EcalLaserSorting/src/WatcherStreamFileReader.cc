@@ -1,4 +1,5 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "CalibCalorimetry/EcalLaserSorting/interface/WatcherStreamFileReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -10,11 +11,30 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <fstream>
 
 using namespace edm;
 using namespace std;
+
+std::string WatcherStreamFileReader::fileName_;
+
+
+static std::string now(){
+  struct timeval t;
+  gettimeofday(&t, 0);
+ 
+  char buf[256];
+  strftime(buf, sizeof(buf), "%F %R %S s", localtime(&t.tv_sec));
+  buf[sizeof(buf)-1] = 0;
+
+  stringstream buf2;
+  buf2 << buf << " " << ((t.tv_usec+500)/1000)  << " ms";
+
+  return buf2.str();
+}
 
 WatcherStreamFileReader::WatcherStreamFileReader(edm::ParameterSet const& pset):
   inputDir_(pset.getParameter<std::string>("inputDir")),
@@ -127,7 +147,8 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
     }
     cmd << ")'";
     
-    cout << "[WatcherSource] Command to retrieve input files: "
+    cout << "[WatcherSource " << now() << "]" 
+	 << " Command to retrieve input files: "
 	 << cmd.str() << "\n";
     cmdSet = true;
   }
@@ -171,7 +192,8 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	  fileName.append("/");
 	  fileName.append(lineptr);
 	  filesInQueue_.push_back(fileName);
-	  if(verbosity_) cout << "[WatcherSource] File to process: '"
+	  if(verbosity_) cout << "[WatcherSource " << now() << "]" 
+			      << " File to process: '"
 			      << fileName << "'\n";
 	}
       }
@@ -179,7 +201,8 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
       pclose(s);
       if(filesInQueue_.size()==0){
 	if(waitMess){
-	  cout << "[WatcherSource] No file found. Waiting for new file...\n";
+	  cout << "[WatcherSource " << now() << "]" 
+	       << " No file found. Waiting for new file...\n";
 	  cout << flush;
 	  waitMess = false;
 	}
@@ -211,12 +234,13 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	  stringstream c;
 	  c << "/bin/mv -f \"" << fileName_ << "\" \"" << corruptedDir_
 	    << "/.\"";
-	  if(verbosity_) cout << "[WatcherSource] Excuting "
+	  if(verbosity_) cout << "[WatcherSource " << now() << "]" 
+			      << " Excuting "
 			      << c.str() << "\n"; 
 	  int i = system(c.str().c_str());
 	  if(i!=0){
 	    //throw cms::Exception("WatcherSource")
-	    cout << "[WatcherSource]"
+	    cout << "[WatcherSource " << now() << "] "
 		 << "Failed to move empty file '" << fileName_ << "'"
 		 << " to corrupted directory '" << corruptedDir_ << "'\n";
 	  }
@@ -238,7 +262,8 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	
 	string dest  = inprocessDir_ + "/" + filenam;
 	
-	if(verbosity_) cout << "[WatcherSource] Moving file "
+	if(verbosity_) cout << "[WatcherSource " << now() << "]" 
+			    << " Moving file "
 			    << fileName_ << " to " << dest << "\n";
 	
 	if(0!=rename(fileName_.c_str(), dest.c_str())){
@@ -250,11 +275,16 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	
 	fileName_ = dest;
 
-	cout << "[WatcherSource] Opening file " << fileName_ << "\n" << flush;
+	cout << "[WatcherSource " << now() << "]" 
+	     << " Opening file " << fileName_ << "\n" << flush;
 	streamerInputFile_
 	  = auto_ptr<StreamerInputFile>(new StreamerInputFile(fileName_));
+
+	ofstream f(".watcherfile");
+	f << fileName_;	
       } else{
-	cout << "[WatcherSource] Failed to open file " << fileName_ << endl;
+	cout << "[WatcherSource " << now() << "]" 
+	     << " Failed to open file " << fileName_ << endl;
       }
     } //loop on file queue to find one file which opening succeeded
   }
@@ -268,7 +298,8 @@ void WatcherStreamFileReader::closeFile(){
   stringstream cmd;
   //TODO: validation of processDir
   cmd << "/bin/mv -f \"" << fileName_ << "\" \"" << processedDir_ << "/.\"";
-  if(verbosity_) cout << "[WatcherSource] Excuting " << cmd.str() << "\n"; 
+  if(verbosity_) cout << "[WatcherSource " << now() << "]" 
+		      << " Excuting " << cmd.str() << "\n"; 
   int i = system(cmd.str().c_str());
   if(i!=0){
     throw cms::Exception("WatcherSource")

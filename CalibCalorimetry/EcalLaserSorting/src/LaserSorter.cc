@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.4 2009/08/26 05:46:18 argiro Exp $
+ * $Id: LaserSorter.cc,v 1.5 2009/11/02 16:55:57 ferriff Exp $
  */
 
 /***************************************************
@@ -66,8 +66,21 @@ static const char* const colorNames[] = {
 };
 
 LaserSorter::stats_t LaserSorter::stats_init = {0, 0, 0, 0, 0};
-
 const int LaserSorter::indexOffset32_ = 1;
+
+static std::string now(){
+  struct timeval t;
+  gettimeofday(&t, 0);
+ 
+  char buf[256];
+  strftime(buf, sizeof(buf), "%F %R %S s", localtime(&t.tv_sec));
+  buf[sizeof(buf)-1] = 0;
+
+  stringstream buf2;
+  buf2 << buf << " " << ((t.tv_usec+500)/1000)  << " ms";
+
+  return buf2.str();
+}
 
 LaserSorter::LaserSorter(const edm::ParameterSet& pset)
   : lumiBlock_(0),
@@ -200,7 +213,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
   }
   
   if(triggeredFedId<ecalDccFedIdMin_ || triggeredFedId > ecalDccFedIdMax_){
-    if(verbosity_) cout <<  "[LaserSorter] " << "DCC ID (" << dccId
+    if(verbosity_) cout <<  "[LaserSorter " << now() << "] " << "DCC ID (" << dccId
                      << ") found in trigger type is out of range.";
     ++stats_.nInvalidDccWeak;
     vector<int> ids = getFullyReadoutDccs(*rawdata);
@@ -222,7 +235,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     }
   }
   
-  if(verbosity_) cout << "\n----------------------------------------------------------------------\n"
+  if(verbosity_>1) cout << "\n----------------------------------------------------------------------\n"
                       << "Event id: " 
                       << " " << event.id() << "\n"
                       << "Lumin block: " << event.luminosityBlock() << "\n"
@@ -256,14 +269,14 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
       //      }
     }
     
-    if(event.luminosityBlock() < lumiBlock_){
-      throw cms::Exception("LaserSorter") 
-        << "Process event has a lumi block (" << event.luminosityBlock() << ")"
-        << "older than previous one (" << lumiBlock_ << "). "
-        << "This can be due by wrong input file ordering or bad luminosity "
-        << "block indication is the event header. "
-        << "Event cannot be processed";
-    }
+//     if(event.luminosityBlock() < lumiBlock_){
+//       throw cms::Exception("LaserSorter") 
+//         << "Process event has a lumi block (" << event.luminosityBlock() << ")"
+//         << "older than previous one (" << lumiBlock_ << "). "
+//         << "This can be due by wrong input file ordering or bad luminosity "
+//         << "block indication is the event header. "
+//         << "Event cannot be processed";
+//     }
 
     if(disableOutput_){
       /* NO OP*/
@@ -274,7 +287,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
         assignedLB = out->startingLumiBlock();
         if(out->excludedOrbit().find(event.orbitNumber())
            ==out->excludedOrbit().end()){
-          if(verbosity_) cout << "[LaserSorter] "
+          if(verbosity_ > 1) cout << "[LaserSorter] "
                               << "Writing out event from FED " << triggeredFedId 
                               << " LB " << event.luminosityBlock()
                               << " orbit " << event.orbitNumber() << "\n";
@@ -282,7 +295,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
             || writeEvent(*out, event, detailedTrigType_, *rawdata);
           ++stats_.nWritten;
         } else{
-          if(verbosity_) cout << "[LaserSorter] "
+          if(verbosity_) cout << "[LaserSorter " << now() << "] "
                               << "File " << out->finalFileName() << " "
                               << "already contains calibration event from FED "
                               << triggeredFedId << ", LB = "
@@ -352,13 +365,13 @@ int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>&
     if(!FEDNumbering::inRange(id)) continue;
     const FEDRawData& data = rawdata->FEDData(id);
     const int detailedTrigger32 = 5;
-    if(verbosity_>5) cout << "[LaserSorter] " 
+    if(verbosity_>3) cout << "[LaserSorter] " 
                      << "FED " << id << " data size: "  
                           << data.size() << "\n"; 
     if(data.size()>=4*(detailedTrigger32+1)){
       const uint32_t* pData32 = (const uint32_t*) data.data();
       int tType = pData32[detailedTrigger32] & 0xFFF;
-      if(verbosity_>5) cout << "[LaserSorter] "
+      if(verbosity_>3) cout << "[LaserSorter] "
                             << "Trigger type " << tType << "\n";
       stat.add(tType);
     }
@@ -493,7 +506,7 @@ bool LaserSorter::writeFedBlock(std::ofstream& out,
         << "for FED ID " <<  ((pData[0] >>8) & 0xFFF) << "!\n";
     }
     
-    if(verbosity_) cout << "[LaserSorter] Event fragment size: "
+    if(verbosity_) cout << "[LaserSorter " << now() << "] " << "Event fragment size: "
                         << data.size() << " Byte"
                         << "\t From Dcc header: " << dccLen64*8 << " Byte\n";
     
@@ -501,7 +514,7 @@ bool LaserSorter::writeFedBlock(std::ofstream& out,
     //       cout << "[LaserSorter] " 
     //            << "Writing " << nBytes << " byte from adress " 
     //            << (void*) data.data() << " to file.\n";
-    if(out.fail()) cout << "[LaserSorter] Problem with stream!\n";
+    if(out.fail()) cout << "[LaserSorter " << now() << "] " << "Problem with stream!\n";
     out.write((char*)data.data(), nBytes);
     rc = true;
   } else{
@@ -534,7 +547,7 @@ bool LaserSorter::renameAsBackup(const std::string& fileName,
 LaserSorter::OutStreamList::iterator 
 LaserSorter::createOutStream(int fedId, 
                              edm::LuminosityBlockNumber_t lumiBlock){
-  if(verbosity_) cout << "[LaserSorter] Creating a stream for FED " << fedId
+  if(verbosity_) cout << "[LaserSorter " << now() << "] " << "Creating a stream for FED " << fedId
                       << " lumi block " << lumiBlock << ".\n";
   std::string tmpName;
   std::string finalName;
@@ -552,7 +565,7 @@ LaserSorter::createOutStream(int fedId,
         << "Failed to rename file " << tmpName
         << "  to " << newName << "\n";
     }
-    if(verbosity_) cout << "[LaserSorter] "
+    if(verbosity_) cout << "[LaserSorter " << now() << "] "
                         << "Already existing File " << tmpName
                         << " renamed to "
                         << newName << "\n";
@@ -618,12 +631,12 @@ LaserSorter::createOutStream(int fedId,
 
       //copy legacy file contents except the index table
       uint32_t toRead = indexTableOffsetValue;
-      cout << "[LaserSorter] Copying " << finalName << " to " << tmpName << endl;
+      cout << "[LaserSorter " << now() << "] " << "Copying " << finalName << " to " << tmpName << endl;
       while(!in.eof()
             && (toRead > 0)
             && (nread=in.readsome(buffer, min(toRead, (uint32_t)sizeof(buffer))))!=0){
-//         cout << "Writing " << nread << " bytes to file "
-//              << tmpName.c_str() << "\n";
+        //         cout << "Writing " << nread << " bytes to file "
+        //              << tmpName.c_str() << "\n";
         toRead -= nread;
         // out->seekp(0, ios::end);
         out->write(buffer, nread);
@@ -703,7 +716,7 @@ bool LaserSorter::writeEventHeader(std::ofstream& out,
   data[9] = 0; //reserved (to be aligned on 64-bits)
 
   if(verbosity_){
-    cout << "[LaserSorter] Write header of event: "
+    cout << "[LaserSorter " << now() << "] " << "Write header of event: "
          << "Time: " << toString(evt.time().value())
          << ", LB: " << evt.luminosityBlock()
          << ", Run: " << evt.run()
@@ -778,7 +791,7 @@ LaserSorter::closeOutStream(LaserSorter::OutStreamList::iterator
                             streamRecord){
   if(streamRecord==outStreamList_.end()) return outStreamList_.end();
   
-  if(verbosity_) cout << "[LaserSorter] Writing Index table of file "
+  if(verbosity_) cout << "[LaserSorter " << now() << "] " << "Writing Index table of file "
                       << streamRecord->finalFileName() << "\n";
   ofstream& out = *streamRecord->out();
   out.clear();
@@ -789,18 +802,18 @@ LaserSorter::closeOutStream(LaserSorter::OutStreamList::iterator
          << "The error can be due to a lack of disk space.";
   }
   
-  if(verbosity_) cout << "[LaserSorter] Closing file " 
-                   << streamRecord->finalFileName() << ".\n";
+  if(verbosity_) cout << "[LaserSorter " << now() << "] " << "Closing file " 
+                      << streamRecord->finalFileName() << ".\n";
   out.close();
   
   const std::string& tmpFileName = streamRecord->tmpFileName();
   const std::string& finalFileName = streamRecord->finalFileName();
 
-  if(verbosity_) cout << "[LaserSorter] Renaming " << tmpFileName
+  if(verbosity_) cout << "[LaserSorter " << now() << "] " << "Renaming " << tmpFileName
                       << " to "    << finalFileName << ".\n";
 
   if(0!=rename(tmpFileName.c_str(), finalFileName.c_str())){
-    cout << "[LaserSorter] "
+    cout << "[LaserSorter " << now() << "] "
          << " Failed to rename output file from "
          << tmpFileName << " to "    << finalFileName
          << ". " << strerror(errno) << "\n";
@@ -810,7 +823,13 @@ LaserSorter::closeOutStream(LaserSorter::OutStreamList::iterator
     char buf[256];
     time_t t = time(0);
     strftime(buf, sizeof(buf), "%F %R:%S", localtime(&t));
-    outputList_ << finalFileName << "\t" << buf << endl;
+
+    ifstream f(".watcherfile");
+    string inputFile;
+    f >> inputFile;
+    outputList_ << finalFileName << "\t" << buf
+                << "\t" << inputFile
+                << endl;
   }
   
   return outStreamList_.erase(streamRecord);
@@ -834,16 +853,16 @@ bool LaserSorter::isDccEventEmpty(const FEDRawData& data, size_t* dccLen,
   if(dccLen) *dccLen = 0;
   const unsigned nWord32 = data.size()/sizeof(uint32_t);
   if(nWord32==0){
-    //cout << "[LaserSorter] FED block completly empty\n";
+    //cout << "[LaserSorter " << now() << "] " << "FED block completly empty\n";
     return true;
   }
   for(unsigned iWord32 = 0; iWord32 < nWord32; iWord32 += 2){
     uint32_t* data32 = ((uint32_t*)(data.data())) + iWord32;
     int dataType = (data32[1] >>28) & 0xF;
-//     cout << hex << "0x" << setfill('0')
-//          << setw(8) << data32[1] << "'" << setw(8) << data32[0]
-//          << " dataType: 0x" << dataType 
-//          << dec << setfill(' ') << "\n";
+    //     cout << hex << "0x" << setfill('0')
+    //          << setw(8) << data32[1] << "'" << setw(8) << data32[0]
+    //          << " dataType: 0x" << dataType 
+    //          << dec << setfill(' ') << "\n";
     if(0==(dataType>>2)){//in DCC header
       const int dccHeaderId = (data32[1] >>24) & 0x3F;
       if(dccHeaderId==1){
@@ -858,12 +877,13 @@ bool LaserSorter::isDccEventEmpty(const FEDRawData& data, size_t* dccLen,
       }
     }
   }
-//   cout << "[LaserSorter] DCC Len: ";
-//   if(dccLen){
-//     cout << (*dccLen) << " event ";
-//   }
-//   cout << (rc?"":"non") << " empty"
-//        << endl;
+  //   cout << "[LaserSorter " << now() << "] " << "DCC Len: ";
+
+  //   if(dccLen){
+  //     cout << (*dccLen) << " event ";
+  //   }
+  //   cout << (rc?"":"non") << " empty"
+  //        << endl;
   return rc;
 }
 
@@ -885,9 +905,9 @@ void LaserSorter::getOutputFedList(const edm::Event& event,
         << ", Data of this FED dropped.";
     }
   }
-//   cout << __FILE__ << ":" << __LINE__ << ": "
-//        <<  "data.FEDData(" << matacqFedId_ << ").size() = "
-//        <<  data.FEDData(matacqFedId_).size() << "\n";
+  //   cout << __FILE__ << ":" << __LINE__ << ": "
+  //        <<  "data.FEDData(" << matacqFedId_ << ").size() = "
+  //        <<  data.FEDData(matacqFedId_).size() << "\n";
   if(data.FEDData(matacqFedId_).size()>4){//matacq block present
     //    cout << __FILE__ << ":" << __LINE__ << ": "
     //     <<  "Adding matacq to list of FEDs\n";
