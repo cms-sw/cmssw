@@ -97,6 +97,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 
 	  if( StoreTrack )
 	    {
+	      TheCSCHaloData.GetCSCTrackImpactPositions().push_back( InnerMostGlobalPosition );
+
 	      edm::Ref<TrackCollection> TheTrackRef( TheCSCTracks, iTrack - TheCSCTracks->begin() ) ;
 	      TheCSCHaloData.GetTracks().push_back( TheTrackRef );
 	    }
