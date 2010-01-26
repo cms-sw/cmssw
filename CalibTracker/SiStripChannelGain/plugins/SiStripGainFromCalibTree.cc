@@ -56,7 +56,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
@@ -83,6 +82,7 @@ using namespace __gnu_cxx;
 
 struct stAPVGain{
    unsigned int Index; 
+   unsigned int Bin;
    unsigned int DetId;
    unsigned int APVId;
    unsigned int SubDet;
@@ -99,6 +99,7 @@ struct stAPVGain{
    double 	FitWidthErr;
    double 	FitChi2;
    double 	Gain;
+   double       CalibGain;
    double 	PreviousGain;
    double 	NEntries;
    TH1F*	HCharge;
@@ -121,6 +122,9 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
               bool IsGoodLandauFit(double* FitResults); 
               void storeOnTree();
 
+              void MakeCalibrationMap();
+
+
       SiStripApvGain* getNewObject();
       edm::Service<TFileService> tfs;
 
@@ -139,6 +143,9 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       bool         Validation;
       bool         OldGainRemoving;
       int          CalibrationLevel;
+
+      bool         useCalibration;
+      string       m_calibrationPath;
 
       std::string  OutputGains;
       vector<string> VInputFiles;
@@ -193,6 +200,12 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
    CalibrationLevel    = iConfig.getUntrackedParameter<int>     ("CalibrationLevel"   ,  0);
    VInputFiles         = iConfig.getParameter<vector<string> >  ("InputFiles");
+
+
+   useCalibration      = iConfig.getUntrackedParameter<bool>("UseCalibration", false);
+   m_calibrationPath   = iConfig.getUntrackedParameter<string>("calibrationPath");
+
+
 }
 
 
@@ -236,6 +249,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
           for(unsigned int j=0;j<NAPV;j++){
                 stAPVGain* APV = new stAPVGain;
                 APV->Index         = Index;
+                APV->Bin           = Charge_Vs_Index->GetXaxis()->FindBin(APV->Index);
                 APV->DetId         = Detid.rawId();
                 APV->APVId         = j;
                 APV->SubDet        = SubDet;
@@ -261,6 +275,9 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
           }
       }
    }
+
+   MakeCalibrationMap();
+
 
    NEvent     = 0;
    NTrack     = 0;
@@ -332,17 +349,16 @@ SiStripGainFromCalibTree::algoAnalyzeTheTree()
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
          tree->GetEntry(ientry);
 
-         if(!(*TrigTech)[0])continue;
+         if(runnumber<SRun)SRun=runnumber;
+         if(runnumber>ERun)ERun=runnumber;
 
          NEvent++;
          NTrack+=(*trackp).size();
 
-	 if(runnumber<SRun)SRun=runnumber;
-         if(runnumber>ERun)ERun=runnumber;
-
 	 unsigned int FirstAmplitude=0;
          for(unsigned int i=0;i<(*chargeoverpath).size();i++){
-            int    TI = (*trackindex)[i];
+            FirstAmplitude+=(*nstrips)[i];
+                 int    TI = (*trackindex)[i];
             if((*tracketa      )[TI]  < MinTrackEta        )continue;
             if((*tracketa      )[TI]  > MaxTrackEta        )continue;
             if((*trackp        )[TI]  < MinTrackMomentum   )continue;
@@ -357,6 +373,10 @@ SiStripGainFromCalibTree::algoAnalyzeTheTree()
 
             stAPVGain* APV = APVsColl[((*rawid)[i]<<3) | ((*firststrip)[i]/128)];
 
+//            printf("detId=%7i run=%7i event=%9i charge=%5i cs=%3i\n",(*rawid)[i],runnumber,eventnumber,(*charge)[i],(*nstrips)[i]);
+
+
+
             //double trans = atan2((*localdiry)[i],(*localdirx)[i])*(180/3.14159265);
             //double alpha = acos ((*localdirx)[i] / sqrt( pow((*localdirx)[i],2) +  pow((*localdirz)[i],2) ) ) * (180/3.14159265);
             //double beta  = acos ((*localdiry)[i] / sqrt( pow((*localdirx)[i],2) +  pow((*localdirz)[i],2) ) ) * (180/3.14159265);
@@ -366,32 +386,54 @@ SiStripGainFromCalibTree::algoAnalyzeTheTree()
             //for(unsigned int a=0;a<(*nstrips)[i];a++){printf("%i ",(*amplitude)[FirstAmplitude+a]);}
             //printf("\n");
 
-            double ClusterChargeOverPath   =  ( (double) ((*charge)[i]) )/(*path)[i] ;
+            
+            int Charge = 0;
+            if(useCalibration){
+               bool Saturation = false;
+               for(unsigned int s=0;s<(*nstrips)[i];s++){
+                  int StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
+                  StripCharge=(int)(StripCharge/APV->CalibGain);
+                  if(StripCharge>1024){
+                     StripCharge = 255;
+                     Saturation = true;
+                  }else if(StripCharge>254){
+                     StripCharge = 254;
+                     Saturation = true;
+                  }
+                  Charge += StripCharge;
+               }
+               if(Saturation && !AllowSaturation)continue;
+            }else{
+               Charge = (*charge)[i];
+            }
+
+            //printf("ChargeDifference = %i Vs %i with Gain = %f\n",(*charge)[i],Charge,APV->CalibGain);
+
+            double ClusterChargeOverPath   =  ( (double) Charge )/(*path)[i] ;
             if(Validation)     {ClusterChargeOverPath/=(*gainused)[i];}
             if(OldGainRemoving){ClusterChargeOverPath*=(*gainused)[i];}
-            Charge_Vs_Index_Absolute->Fill(APV->Index,(*charge)[i]);   
+            Charge_Vs_Index_Absolute->Fill(APV->Index,Charge);   
             Charge_Vs_Index         ->Fill(APV->Index,ClusterChargeOverPath);
 
 
-	          if(APV->SubDet==StripSubdetector::TIB){ Charge_Vs_PathlengthTIB  ->Fill((*path)[i],(*charge)[i]); 
-            }else if(APV->SubDet==StripSubdetector::TOB){ Charge_Vs_PathlengthTOB  ->Fill((*path)[i],(*charge)[i]);
+	          if(APV->SubDet==StripSubdetector::TIB){ Charge_Vs_PathlengthTIB  ->Fill((*path)[i],Charge); 
+            }else if(APV->SubDet==StripSubdetector::TOB){ Charge_Vs_PathlengthTOB  ->Fill((*path)[i],Charge);
             }else if(APV->SubDet==StripSubdetector::TID){
-                     if(APV->Eta<0){			  Charge_Vs_PathlengthTIDM ->Fill((*path)[i],(*charge)[i]);
-               }else if(APV->Eta>0){                      Charge_Vs_PathlengthTIDP ->Fill((*path)[i],(*charge)[i]);
+                     if(APV->Eta<0){			  Charge_Vs_PathlengthTIDM ->Fill((*path)[i],Charge);
+               }else if(APV->Eta>0){                      Charge_Vs_PathlengthTIDP ->Fill((*path)[i],Charge);
                }
             }else if(APV->SubDet==StripSubdetector::TEC){
                      if(APV->Eta<0){
-                        if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECM1->Fill((*path)[i],(*charge)[i]);
-                  }else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECM2->Fill((*path)[i],(*charge)[i]);
+                        if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECM1->Fill((*path)[i],Charge);
+                  }else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECM2->Fill((*path)[i],Charge);
                   }
                }else if(APV->Eta>0){
-                        if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECP1->Fill((*path)[i],(*charge)[i]);
-                  }else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECP2->Fill((*path)[i],(*charge)[i]);
+                        if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECP1->Fill((*path)[i],Charge);
+                  }else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECP2->Fill((*path)[i],Charge);
                   }
                }
             }
 
-	    FirstAmplitude+=(*nstrips)[i];
          }// END OF ON-CLUSTER LOOP
       }// END OF EVENT LOOP
 }
@@ -450,14 +492,14 @@ SiStripGainFromCalibTree::algoEndJob() {
    //if(I>1000)break;
       stAPVGain* APV = it->second;
 
-      Proj = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV->Index,APV->Index,"e"));
+      Proj = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV->Bin,APV->Bin,"e"));
       if(!Proj)continue;
 
       if(CalibrationLevel==1){
          int SecondAPVId = APV->APVId;
          if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
 	 stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
-         TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Index,APV2->Index,"e"));
+         TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
          if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
       }else if(CalibrationLevel==2){
           for(unsigned int i=0;i<6;i++){
@@ -466,7 +508,8 @@ SiStripGainFromCalibTree::algoEndJob() {
             if(tmpit==APVsColl.end())continue;
             stAPVGain* APV2 = tmpit->second;
 	    if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
-            TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Index,APV2->Index,"e"));
+            TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
+            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
             if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
           }          
       }else{
@@ -503,6 +546,7 @@ SiStripGainFromCalibTree::algoEndJob() {
 void SiStripGainFromCalibTree::storeOnTree()
 {
    unsigned int  tree_Index;
+   unsigned int  tree_Bin;
    unsigned int  tree_DetId;
    unsigned char tree_APVId;
    unsigned char tree_SubDet;
@@ -525,6 +569,7 @@ void SiStripGainFromCalibTree::storeOnTree()
    TTree*         MyTree;
    MyTree = tfs->make<TTree> ("APVGain","APVGain");
    MyTree->Branch("Index"             ,&tree_Index      ,"Index/i");
+   MyTree->Branch("Bin"               ,&tree_Bin        ,"Bin/i");
    MyTree->Branch("DetId"             ,&tree_DetId      ,"DetId/i");
    MyTree->Branch("APVId"             ,&tree_APVId      ,"APVId/b");
    MyTree->Branch("SubDet"            ,&tree_SubDet     ,"SubDet/b");
@@ -560,6 +605,7 @@ void SiStripGainFromCalibTree::storeOnTree()
       fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
 
       tree_Index      = APV->Index;
+      tree_Bin        = APV->Bin;
       tree_DetId      = APV->DetId;
       tree_APVId      = APV->APVId;
       tree_SubDet     = APV->SubDet;
@@ -620,9 +666,28 @@ SiStripGainFromCalibTree::~SiStripGainFromCalibTree()
 { 
 }
 
+void SiStripGainFromCalibTree::MakeCalibrationMap(){
+   if(!useCalibration)return;
 
+  
+   TChain* t1 = new TChain("SiStripCalib/APVGain");
+   t1->Add(m_calibrationPath.c_str());
 
+   unsigned int  tree_DetId;
+   unsigned char tree_APVId;
+   double        tree_Gain;
 
+   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
+   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
+   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
+
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+      t1->GetEntry(ientry);
+       stAPVGain* APV = APVsColl[(tree_DetId<<3) | (unsigned int)tree_APVId];
+       APV->CalibGain = tree_Gain;
+   }
+
+}
 
 
 
