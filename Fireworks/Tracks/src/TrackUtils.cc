@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.12 2010/01/21 21:02:22 amraktad Exp $
+// $Id: TrackUtils.cc,v 1.13 2010/01/25 20:55:04 amraktad Exp $
 //
 
 // system include files
@@ -18,9 +18,12 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
@@ -144,6 +147,24 @@ prepareTrack(const reco::Track& track,
    }
    return trk;
 }
+
+//______________________________________________________________________________
+
+TEveTrack*
+prepareTrack(const reco::Candidate& track,
+             TEveTrackPropagator* propagator,
+             Color_t color)
+{
+   TEveRecTrack t;
+   t.fBeta = 1.;
+   t.fP = TEveVector( track.px(), track.py(), track.pz() );
+   t.fV = TEveVector( track.vertex().x(), track.vertex().y(), track.vertex().z() );
+   t.fSign = track.charge();
+   TEveTrack* trk = new TEveTrack(&t,propagator);
+   trk->SetMainColor(color);
+   return trk;
+}
+
 
 //______________________________________________________________________________
 
