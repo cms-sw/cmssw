@@ -31,7 +31,51 @@ PedsFullNoiseAlgorithm::PedsFullNoiseAlgorithm( const edm::ParameterSet & pset, 
 }
 
 // ----------------------------------------------------------------------------
-// 
+//
+
+uint32_t fecToDet(const uint32_t& fec_key_mask, 
+                  const ViewTranslator::Mapping& input,
+                  ViewTranslator::Mapping& output ) {
+	if( input.empty() ) { 
+      edm::LogWarning(mlCabling_) 
+        << "[ViewTranslator::" << __func__ << "]"
+        << " Input std::map is empty!";
+      return 0 ;
+    }
+
+   // ViewTranslator::Mapping::iterator iter;
+   // SiStripFecKey::Path fec_key = SiStripFecKey::path( fec_key_mask );
+
+   /* if( det_key.detId_ == sistrip::invalid_ ||
+        det_key.apvPair_ == sistrip::invalid_ ) {
+      edm::LogWarning(mlCabling_) 
+        << "[ViewTranslator::" << __func__ << "]"
+        << " DetKey is not defined!";
+      output = input;
+      return output.size(); 
+    }
+
+    if( det_key.detId_ != sistrip::invalid_ && 
+        det_key.apvPair_ != sistrip::invalid_ ) {
+      iter=input->find( det_key_mask );
+      output[ (*iter).first ] = (*iter).second;
+      LogTrace(mlSummaryPlots_) << "both are not masked";
+    }
+
+    if( det_key.detId_!=0xFFFFFFFF && det_key.apvPair_==0xFFFF ) {
+      LogTrace(mlSummaryPlots_) << "apv is masked";
+      for(iter=input->begin() ; iter!=input->end() ; iter++) {
+        DetKey = SiStripDetKey::path( (*iter).first );
+        if(det_key.detId_==DetKey.detId_)
+       output[ (*iter).first ]=( (*iter).second );
+      } //for(iter=input->begin() ; iter!=input->end() ; iter++)
+    }//if( det_key.detId_!=0xFFFFFFFF && det_key.apvPair_==0xFFFF )
+    else LogTrace(mlSummaryPlots_) << "Cannot find the det to fec std::map in the root file. ";
+*/
+	return 0; //@@ temp!
+}
+
+ 
 void PedsFullNoiseAlgorithm::extract( const std::vector<TH1*>& histos ) { 
 
   if ( !anal() ) {
@@ -149,7 +193,7 @@ void PedsFullNoiseAlgorithm::analyse() {
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
 
         anal->ksProb_[iapv].push_back(0);
-        anal->chi2Prob_[iapv].push_back(0);
+        //anal->chi2Prob_[iapv].push_back(0);
         anal->noiseGaus_[iapv].push_back(0);
         anal->bin84Percent_[iapv].push_back(0);
         anal->noiseSignif_[iapv].push_back(0);
@@ -173,48 +217,31 @@ void PedsFullNoiseAlgorithm::analyse() {
         // Noise
         if ( noise_histo ) {
             TH1D * noisehist = noise_histo->ProjectionX("projx", iapv*128 + istr + 1, iapv*128 + istr + 1);
-            char GausFit[128];
-            memset(GausFit,0,128);
-            sprintf(GausFit,"%.f/(2.5*%.3f)*exp(-0.5*((x-%.3f)/%.3f)**2)",
-            noisehist->Integral(),noisehist->GetRMS(),noisehist->GetMean(),noisehist->GetRMS());
-            TF1 * fit = new TF1("fit",GausFit,-noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
-            TH1F * FitHisto = new TH1F("FitHisto","FitHisto",
-                                       noisehist->GetNbinsX(),
-                                       -noisehist->GetNbinsX()/2,
-                                       noisehist->GetNbinsX()/2);
-            FitHisto->Add(fit);
+            // Gaussian Fit to set noise on each strip
+            noisehist->Fit("gaus","Q");
+            TF1 * gausFit = noisehist->GetFunction("gaus");
+            anal->noiseGaus_[iapv][istr] = gausFit->GetParameter(2);
+            TH1D * FitHisto = new TH1D("FitHisto","FitHisto",noisehist->GetNbinsX(),
+                                       -noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
+            FitHisto->Add(gausFit);
             FitHisto->Sumw2();
             noisehist->Sumw2();
+            float KS = 0;
             if(noisehist->Integral() > 0){
-                anal->ksProb_[iapv][istr] = noisehist->KolmogorovTest(FitHisto)*1000;
-//                anal->chi2Prob_[iapv][istr] = FitHisto->Chi2Test(noisehist, "OFUF")*1000;
+            	KS = noisehist->KolmogorovTest(FitHisto);
+                anal->ksProb_[iapv][istr] = KS*10000;
+                anal->chi2Prob_[iapv][istr] = FitHisto->Chi2Test(noisehist, "OFUF")*10000;
             }
-           /* 
-            if(anal->ksProb_[iapv][istr] < 10){
-            	std::cout<<anal->fedKey()<<" "<<anal->fecKey()<<" "<<iapv*128+istr<<" ";
-                for(int i = 0; i < noisehist->GetNbinsX();i++){
-                	std::cout << noisehist->GetBinContent(i+1) << " ";
-                }
-            	std::cout << std::endl;
-            }
-			*/
-            
+                      
             // Integral to 84% method to set noise of each strip.
             int current = 0;
             while(current < noisehist->GetNbinsX() && noisehist->Integral(0,current)/noisehist->Integral() < 0.842){
 				current++;
 			}
-            anal->bin84Percent_[iapv][istr] = (current - noisehist->GetNbinsX()/2);
-            
-            // Gaussian Fit to set noise on each strip
-            noisehist->Fit("gaus","Q");
-            TF1 * gausFit = noisehist->GetFunction("gaus");
-            anal->noiseGaus_[iapv][istr] = gausFit->GetParameter(2);            
+            anal->bin84Percent_[iapv][istr] = (current - noisehist->GetNbinsX()/2);            
             
             // Setting the noise of each strip
             anal->noise_[iapv][istr] = noisehist->GetRMS();
-            //anal->noise_[iapv][istr] = (current - 30);
-            //anal->noise_[iapv][istr] = gausFit->GetParameter(2); 
             n_sum += anal->noise_[iapv][istr];
             n_sum2 += (anal->noise_[iapv][istr] * anal->noise_[iapv][istr]);
             if ( anal->noise_[iapv][istr] > n_max ) { n_max = anal->noise_[iapv][istr]; }
@@ -222,7 +249,7 @@ void PedsFullNoiseAlgorithm::analyse() {
           
     		// Clean up time.
     		delete gausFit;
-            delete fit;
+            //delete fit;
             delete FitHisto;
             delete noisehist;
         }
@@ -265,9 +292,50 @@ void PedsFullNoiseAlgorithm::analyse() {
     	// Set the significance of the noise of each strip also compared to apv avg.
         anal->noiseSignif_[iapv][istr] = (anal->noise_[iapv][istr]-anal->noiseMean_[iapv])/anal->noiseSpread_[iapv];
     	
-    	if ( anal->noiseMin_[iapv] > sistrip::maximum_ || anal->noiseMax_[iapv] > sistrip::maximum_ ) { 
+        if ( anal->noiseMin_[iapv] > sistrip::maximum_ || anal->noiseMax_[iapv] > sistrip::maximum_ ) { 
         	continue; 
         }
+        // Strip Masking for Dead Strips
+        if((anal->noise_[iapv][istr]-anal->noiseMean_[iapv])/anal->noiseSpread_[iapv] < -10){
+        	anal->dead_[iapv].push_back(istr);
+            // Outputs "Dead NoiseSigif Crate Slot Ring Addr ccuCh lldCh iStrip NumBinsADC"
+            /*TH1D * noisehist = noise_histo->ProjectionX("projx", iapv*128 + istr + 1, iapv*128 + istr + 1);
+            SiStripFecKey fec_key(anal->fecKey());
+           	std::cout<<"Dead "<<(anal->noise_[iapv][istr]-anal->noiseMean_[iapv])/anal->noiseSpread_[iapv]
+            <<" "<<fec_key.fecCrate()
+            <<" "<<fec_key.fecSlot()
+            <<" "<<fec_key.fecRing()
+            <<" "<<fec_key.ccuAddr()
+            <<" "<<fec_key.ccuChan()
+            <<" "<<fec_key.lldChan()
+            <<" "<<iapv*128+istr<<" ";
+            for(int i = 0; i < noisehist->GetNbinsX();i++){
+            	std::cout << noisehist->GetBinContent(i+1) << " ";
+            }
+            std::cout << std::endl;       
+        	delete noisehist;*/
+        }
+        //Strip Masking for Non Gassian Strips which are also noisy.
+        else if(anal->ksProb_[iapv][istr] < 1 && (anal->noiseSignif_[iapv][istr] > 5 || anal->noise_[iapv][istr] > 8)){
+        	anal->noisy_[iapv].push_back(istr);
+            // Outputs "Dead KsProb Crate Slot Ring Addr ccuCh lldCh iStrip NumBinsADC"
+            /*TH1D * noisehist = noise_histo->ProjectionX("projx", iapv*128 + istr + 1, iapv*128 + istr + 1);
+        	SiStripFecKey fec_key(anal->fecKey());
+            std::cout<<"Noisy "<<anal->ksProb_[iapv][istr]/10000.
+            <<" "<<fec_key.fecCrate()
+            <<" "<<fec_key.fecSlot()
+            <<" "<<fec_key.fecRing()
+            <<" "<<fec_key.ccuAddr()
+            <<" "<<fec_key.ccuChan()
+            <<" "<<fec_key.lldChan()
+            <<" "<<iapv*128+istr<<" ";
+            for(int i = 0; i < noisehist->GetNbinsX();i++){
+            	std::cout << noisehist->GetBinContent(i+1) << " ";
+            }
+        	std::cout << std::endl;
+            delete noisehist;*/
+        }  
+    	
         //if ( anal->noise_[iapv][istr] < ( anal->noiseMean_[iapv] - deadStripMax_ * anal->noiseSpread_[iapv] ) ) {
 		//	anal->dead_[iapv].push_back(istr);
         //} 
