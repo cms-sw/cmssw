@@ -28,7 +28,7 @@ def productionDefaults(process):
 
    jetMatch = getattr(process, 'patJetGenJetMatch')
    jetMatch.src     = cms.InputTag("iterativeConePu5CaloJets")
-   jetMatch.matched = cms.InputTag("hiCleanedGenJets")
+   jetMatch.matched = cms.InputTag("heavyIonCleanedGenJets")
    
    patJets = getattr(process, jetCollectionString())
    patJets.addBTagInfo         = False
