@@ -19,12 +19,19 @@ process.GlobalTag.globaltag = "MC_3XY_V15::All"
 process.prefer("GlobalTag")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(1000),
 )
+
+process.options = cms.untracked.PSet(
+#   SkipEvent = cms.untracked.vstring(["ProductNotFound"])
+)
+
 process.source = cms.Source("PoolSource",
 #   fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/Cosmics/RECO/v1/000/119/580/76BDF4A8-1ACA-DE11-9177-000423D98E6C.root')
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0010/B2084415-22EE-DE11-9BA9-002618943842.root')
+#    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0010/B2084415-22EE-DE11-9BA9-002618943842.root')
 #   fileNames = cms.untracked.vstring('file:/tmp/carrillo/B2084415-22EE-DE11-9BA9-002618943842.root')
+    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/230/E68C41F8-0BE9-DE11-9C81-000423D94C68.root')
+
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -37,7 +44,7 @@ process.museg = cms.EDFilter("RPCEfficiency",
     incldtMB4 = cms.untracked.bool(True),
     inclcsc = cms.untracked.bool(True),
 
-    debug = cms.untracked.bool(False),
+    debug = cms.untracked.bool(True),
     inves = cms.untracked.bool(True),
     
     DuplicationCorrection = cms.untracked.int32(1),
