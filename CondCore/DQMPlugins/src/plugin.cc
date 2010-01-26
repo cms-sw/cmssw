@@ -9,3 +9,5 @@ REGISTER_PLUGIN(HDQMSummaryRcd, HDQMSummary);
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMReferenceHistogramRootFileRcd.h"
 REGISTER_PLUGIN(DQMReferenceHistogramRootFileRcd, FileBlob);
+#include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
+REGISTER_PLUGIN(DQMXMLFileRcd, FileBlob);
