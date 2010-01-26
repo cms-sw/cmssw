@@ -22,14 +22,19 @@ L1RCTPatternProducer::L1RCTPatternProducer(const edm::ParameterSet& conf) :
   testName(conf.getUntrackedParameter<std::string>("testName","none")),
   randomPercent(conf.getUntrackedParameter<int>("randomPercent",5)),
   randomSeed(conf.getUntrackedParameter<int>("randomSeed",12345)),
-  regionSums(conf.getUntrackedParameter<bool>("regionSums",true))
+  regionSums(conf.getUntrackedParameter<bool>("regionSums",true)),
+ nPatternEv(conf.getUntrackedParameter<int>("nPatternEv",64)),
+   nSamplesPerEv(conf.getUntrackedParameter<int>("nSamplesPerEv",1)),
+  nPreSamples(conf.getUntrackedParameter<int>("nPreSamples",1))
 {
   produces<EcalTrigPrimDigiCollection>();
   //produces<EcalTrigPrimDigiCollection>("formatTCP");
-  produces<HcalTrigPrimDigiCollection>();
+  //  produces<HcalTrigPrimDigiCollection>();
   produces<HBHEDigiCollection>();
   produces<HFDigiCollection>();
   
+  cout << " nsamples per ev " << nSamplesPerEv << " nPatternEv " << nPatternEv << endl;
+
   fileName = testName+"Input.txt";
 
 //   ofs.open(fileName.c_str());//, std::ios::app);
@@ -76,25 +81,26 @@ L1RCTPatternProducer::produce(edm::Event& event,
     ecalTPs(new EcalTrigPrimDigiCollection());
   //std::auto_ptr<EcalTrigPrimDigiCollection>
     // tcpEcalTPs(new EcalTrigPrimDigiCollection());
-  std::auto_ptr<HcalTrigPrimDigiCollection> 
-    hcalTPs(new HcalTrigPrimDigiCollection());
+  //  std::auto_ptr<HcalTrigPrimDigiCollection> 
+  //    hcalTPs(new HcalTrigPrimDigiCollection());
   ecalTPs->reserve(56*72); 
-  hcalTPs->reserve(56*72+18*8);  // includes HF
+  //  hcalTPs->reserve(56*72+18*8);  // includes HF
 
   std::auto_ptr<HBHEDigiCollection> 
     digiHBHE(new HBHEDigiCollection());
   std::auto_ptr<HFDigiCollection> 
     digiHF(new HFDigiCollection());
 
-  const int nEcalSamples = 1;   // we only use 1 sample for each
-  const int nHcalSamples = 1;
-  const int nHBHESamples = 1;
-  const int nHFSamples = 1;
+  const int nEcalSamples = nSamplesPerEv;   // we only use 1 sample for each
+  const int nHcalSamples = nSamplesPerEv;
+  const int nHBHESamples = nSamplesPerEv;
+  const int nHFSamples = nSamplesPerEv;
 
   long randomNum = 0;
   long NineBit = 0;
   long Overflow = 0;
   static int nEvents = 0;
+
 //   if(nEvents==0) {
 //     ofs
 //       << "Crate = 0-17" << std::endl
@@ -112,8 +118,9 @@ L1RCTPatternProducer::produce(edm::Event& event,
 //       << "LUTOut"
 //       << std::endl;
 //   }
-  if(nEvents < 64)
-    {
+
+  if(nEvents < nPatternEv)    {
+
       for(unsigned short iCrate = 0; iCrate < 18; iCrate++){
 	for(unsigned short iCard = 0; iCard < 7; iCard++){    
 	  //  unsigned short ecal, fgbit, hcal, mubit;  
@@ -1105,32 +1112,29 @@ L1RCTPatternProducer::produce(edm::Event& event,
 	      // args to detid are zside, type of tower, absieta, iphi
 	      // absieta and iphi must be between 1 and 127 inclusive
 
-	      if(iCard < 4){
-		EcalTriggerPrimitiveDigi 
-		  ecalDigi(EcalTrigTowerDetId(zSide, EcalBarrel, abs(iEta),
-					      iPhi));
-		ecalDigi.setSize(nEcalSamples);
-	  
-		// last arg is 3-bit trigger tower flag, which we don't use
-		// we only use 8-bit encoded et and 1-bit fg
-		ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal, 
-								 fgbit, 0));
-		ecalTPs->push_back(ecalDigi);  
-	      }
-	      else{
-		EcalTriggerPrimitiveDigi 
-		  ecalDigi(EcalTrigTowerDetId(zSide, EcalEndcap, abs(iEta),
-					      iPhi));	
-		ecalDigi.setSize(nEcalSamples);
-	  
-		// last arg is 3-bit trigger tower flag, which we don't use
-		// we only use 8-bit encoded et and 1-bit fg
-		ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal, 
-								 fgbit, 0));
-		ecalTPs->push_back(ecalDigi);
-	      }
-  
+	      EcalSubdetector subdet = (iEta <=17 ) ? EcalBarrel : EcalEndcap ;
 
+	      EcalTriggerPrimitiveDigi 
+		ecalDigi(EcalTrigTowerDetId(zSide, subdet, abs(iEta),
+					      iPhi));
+
+		ecalDigi.setSize(nEcalSamples);
+
+	  
+
+	      // last arg is 3-bit trigger tower flag, which we don't use
+	      // we only use 8-bit encoded et and 1-bit fg
+	      for(int nSample =0 ; nSample< nEcalSamples; ++nSample){
+		if(nSample == 0)
+		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal, 
+								   fgbit, 0));
+		else 
+		  ecalDigi.setSample(nSample, EcalTriggerPrimitiveSample(0, 
+									 0, 0));
+	      }
+
+	    
+	      ecalTPs->push_back(ecalDigi);
 	      HcalTriggerPrimitiveDigi
 		hcalDigi(HcalTrigTowerDetId(iEta, iPhi));
 	  
@@ -1140,7 +1144,7 @@ L1RCTPatternProducer::produce(edm::Event& event,
 	      hcalDigi.setSample(0, HcalTriggerPrimitiveSample(hcal,
 							       mubit,
 							       0, 0));
-	      hcalTPs->push_back(hcalDigi);
+
 
 	      //Used for making HCAL pattern files (input to HCAL instead of RCT)
 	      // HB valid DetIds: phi=1-72,eta=1-14,depth=1; phi=1-72,eta=15-16,depth=1-2
@@ -1259,7 +1263,7 @@ L1RCTPatternProducer::produce(edm::Event& event,
 		hfDigi(HcalTrigTowerDetId(hfIEta, hfIPhi));
 	      hfDigi.setSize(1);
 	      hfDigi.setSample(0, HcalTriggerPrimitiveSample(hf,fgbit,0,0));
-	      hcalTPs->push_back(hfDigi);
+	      //	      hcalTPs->push_back(hfDigi);
 	      int subdet = 4; 
 	      int ieta = hfIEta; int iphi = hfIPhi; int depth = 1;
 	      HFDataFrame hfDataFrame(HcalDetId((HcalSubdetector) subdet, ieta, iphi, depth));
@@ -1274,15 +1278,16 @@ L1RCTPatternProducer::produce(edm::Event& event,
 
 	    }
 	}
-      
+
     }
   event.put(ecalTPs);
-  event.put(hcalTPs);
+  //  event.put(hcalTPs);
+
   event.put(digiHBHE);
   event.put(digiHF);
 
   nEvents++;
-}
+  }
 
 
 /**********************************************
