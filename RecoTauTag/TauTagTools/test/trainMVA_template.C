@@ -12,6 +12,8 @@ void trainMVA()
 	gSystem->Load("libCintex");
 	gSystem->Load("libPhysicsToolsMVAComputer");
 	gSystem->Load("libPhysicsToolsMVATrainer");
+        gSystem->Load("pluginPhysicsToolsMVATrainerProcTMVA");
+        gSystem->Load("pluginPhysicsToolsMVAComputerProcTMVA");
 	Cintex::Enable();
 
         using namespace PhysicsTools;
