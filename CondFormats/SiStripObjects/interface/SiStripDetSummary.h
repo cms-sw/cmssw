@@ -47,7 +47,7 @@ public:
       // Layers start from 1
       for( unsigned int layer = 1; layer <= layers[subDet]; ++layer ) {
 	countMap_[1000*(subDet+1)+layer*10] = 0;
-	if( layer <= stereo[subDet] ) countMap_[1000*(subDet+1)+layer*10] = 0;
+	if( layer <= stereo[subDet] ) countMap_[1000*(subDet+1)+layer*10+1] = 0;
       }
     }
   }
