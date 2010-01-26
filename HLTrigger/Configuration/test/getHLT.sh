@@ -47,7 +47,8 @@ function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT --full --offline --mc $CONFIG $NAME
+  $GETHLT --full --offline --data $CONFIG $NAME
+  $GETHLT --full --offline --mc   $CONFIG $NAME
 }
 
 # make sure we're using *this* working area
@@ -68,9 +69,11 @@ echo
 
 # for things now also in CMSSW CVS:
 echo "Extracting full configurations"
+rm -f OnData_HLT_*.py
 rm -f OnLine_HLT_*.py
 for TABLE in $TABLES; do
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done
+ls -l OnData_HLT_*.py
 ls -l OnLine_HLT_*.py
 echo
