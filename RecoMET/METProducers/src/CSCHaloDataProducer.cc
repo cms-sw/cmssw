@@ -28,7 +28,17 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   IT_CosmicMuon = iConfig.getParameter<edm::InputTag>("CosmicMuonLabel"); 
   IT_Muon = iConfig.getParameter<edm::InputTag>("MuonLabel");
   IT_SA   = iConfig.getParameter<edm::InputTag>("SALabel"); 
+  
+  // Cosmic track selection parameters
+  CSCAlgo.SetDetaThreshold( (float) iConfig.getParameter<double>("DetaParam"));
+  CSCAlgo.SetDphiThreshold( (float) iConfig.getParameter<double>("DphiParam"));
+  CSCAlgo.SetMinMaxInnerRadius( (float) iConfig.getParameter<double>("InnerRMinParam") ,  (float) iConfig.getParameter<double>("InnerRMaxParam") );
+  CSCAlgo.SetMinMaxOuterRadius( (float) iConfig.getParameter<double>("OuterRMinParam"), (float) iConfig.getParameter<double>("OuterRMaxParam"));
+  CSCAlgo.SetNormChi2Threshold( (float) iConfig.getParameter<double>("NormChi2Param") );
+
   produces<CSCHaloData>();
+
+  
 }
 
 void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
@@ -57,22 +67,7 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle<edm::TriggerResults> TheHLTResults;
   iEvent.getByLabel( IT_HLTResult , TheHLTResults);
 
-  // Run The CSCHaloAlgo to reconstruct the CSCHaloData object
-  // 
-  /*
-  if(TheCosmics.isValid() && TheCSCSegments.isValid() && TheCSCRecHits.isValid() && TheL1GMTReadout.isValid() && TheCSCGeometry.isValid() )
-    {
-      std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout) ) );
-      // Put it in the event
-      iEvent.put(TheCSCData);
-    }
-  else 
-    {
-      std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData());
-      // Put it in the event
-      iEvent.put(TheCSCData);
-    }
-  */
+  
   std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults) ) );
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);
