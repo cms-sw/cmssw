@@ -55,7 +55,7 @@ void DDTrackerPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
 			  << idNameSpace;
 }
 
-void DDTrackerPhiAltAlgo::execute(DDPositioner& pos) {
+void DDTrackerPhiAltAlgo::execute(DDCompactView& cpv) {
 
   if (number > 0) {
     double theta  = 90.*CLHEP::deg;
@@ -98,7 +98,7 @@ void DDTrackerPhiAltAlgo::execute(DDPositioner& pos) {
       }
       DDTranslation tran(xpos, ypos, zpos);
   
-     pos(child, mother, copyNo, tran, rotation);
+     cpv.position(child, mother, copyNo, tran, rotation);
       LogDebug("TrackerGeom") << "DDTrackerPhiAltAlgo test: " << child 
 			      << " number " << copyNo << " positioned in " 
 			      << mother << " at " << tran << " with " 

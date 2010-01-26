@@ -19,7 +19,7 @@ class DDTIBRadCableAlgo_MTCC : public DDAlgorithm {
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
 
-  void execute(DDPositioner& pos);
+  void execute(DDCompactView& cpv);
 
 private:
 

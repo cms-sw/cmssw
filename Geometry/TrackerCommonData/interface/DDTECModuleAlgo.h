@@ -20,16 +20,16 @@ class DDTECModuleAlgo : public DDAlgorithm {
                   const DDStringArguments & sArgs,
                   const DDStringVectorArguments & vsArgs);
 
-  void execute(DDPositioner& pos);
+  void execute(DDCompactView& cpv);
 
 private:
   //this positions  toPos in mother
   void doPos( DDLogicalPart toPos,  DDLogicalPart mother, int copyNr,
 	      double x, double y, double z, 
-	      std::string rotName, DDPositioner& pos);                     
+	      std::string rotName, DDCompactView& cpv);                     
   void doPos( DDLogicalPart toPos,
 	      double x, double y, double z, 
-	      std::string rotName, DDPositioner& pos);                     
+	      std::string rotName, DDCompactView& cpv);                     
   //variables:
   double                   noOverlapShift;
   int                      ringNo;

@@ -104,7 +104,7 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   
 // Execution :  --------------------------------------------------------------------------
 
-void DDPixFwdBlades::execute(DDPositioner& pos) {
+void DDPixFwdBlades::execute(DDCompactView& cpv) {
 
   // -- Compute Nipple parameters if not already computed :
   
@@ -198,7 +198,7 @@ void DDPixFwdBlades::execute(DDPositioner& pos) {
     // position the child :
 
     DDTranslation ddtran(translation.x(), translation.y(), translation.z());
-    pos(child, mother, copy, ddtran, rotation);
+    cpv.position(child, mother, copy, ddtran, rotation);
     // LogDebug("PixelGeom") << "DDPixFwdBlades: " << child << " Copy " << copy << " positioned in " << mother << " at " << translation << " with rotation " << rotation;
   }
 

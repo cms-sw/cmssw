@@ -155,7 +155,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << " Thickness " << coolThick << " Width " << coolWidth;
 }
 
-void DDTIDModuleAlgo::execute(DDPositioner& pos) {
+void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
   
   LogDebug("TIDGeom") << "==>> Constructing DDTIDModuleAlgo...";
 
@@ -321,7 +321,7 @@ void DDTIDModuleAlgo::execute(DDPositioner& pos) {
       } else {
 	rot     = DDRotation();
       }
-     pos(holeFrame, sideFrame, 1, DDTranslation(0.0, 0.0, zpos), rot );   
+     cpv.position(holeFrame, sideFrame, 1, DDTranslation(0.0, 0.0, zpos), rot );   
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << holeFrame.name() 
 			  << " number 1 positioned in " << sideFrame.name()
 			  << " at (0,0," << zpos << ") with no rotation";
@@ -449,7 +449,7 @@ void DDTIDModuleAlgo::execute(DDPositioner& pos) {
       } else {
 	rot     = DDRotation();
       }
-     pos(holeKapton, kapton, 1, DDTranslation(xpos, 0.0, zpos), rot );   
+     cpv.position(holeKapton, kapton, 1, DDTranslation(xpos, 0.0, zpos), rot );   
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << holeKapton.name() 
 			  << " number 1 positioned in " << kapton.name()
 			  << " at (0,0," << zpos << ") with no rotation";
@@ -508,7 +508,7 @@ void DDTIDModuleAlgo::execute(DDPositioner& pos) {
 	rot     = DDRotation();
       }
       DDTranslation tran(0.0,-0.5 * backplaneThick[k],0.0); // from the definition of the wafer local axes
-     pos(active, wafer, 1, tran, rot);  // inactive backplane
+     cpv.position(active, wafer, 1, tran, rot);  // inactive backplane
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << active.name() 
 			  << " number 1 positioned in " << wafer.name() 
 			  << " at " << tran << " with " << rot;

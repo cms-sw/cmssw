@@ -19,7 +19,7 @@ class DDTECCoolAlgo : public DDAlgorithm {
                   const DDStringArguments & sArgs,
                   const DDStringVectorArguments & vsArgs);
 
-  void execute(DDPositioner& pos);
+  void execute(DDCompactView& cpv);
 
 private:
   std::string              idNameSpace;    //Namespace of this and ALL parts

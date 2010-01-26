@@ -52,7 +52,7 @@ void DDTECPhiAlgo::initialize(const DDNumericArguments & nArgs,
 		      << idNameSpace;
 }
 
-void DDTECPhiAlgo::execute(DDPositioner& pos) {
+void DDTECPhiAlgo::execute(DDCompactView& cpv) {
 
   if (number > 0) {
     double theta  = 90.*CLHEP::deg;
@@ -82,7 +82,7 @@ void DDTECPhiAlgo::execute(DDPositioner& pos) {
       if (i%2 == 0) zpos = zIn;
       DDTranslation tran(0., 0., zpos);
   
-     pos(child, mother, copyNo, tran, rotation);
+     cpv.position(child, mother, copyNo, tran, rotation);
       LogDebug("TECGeom") << "DDTECPhiAlgo test: " << child <<" number "
 			  << copyNo << " positioned in " << mother <<" at "
 			  << tran << " with " << rotation;

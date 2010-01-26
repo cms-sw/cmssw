@@ -127,7 +127,7 @@ void DDTIDModulePosAlgo::initialize(const DDNumericArguments & nArgs,
 
 }
 
-void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
+void DDTIDModulePosAlgo::execute(DDCompactView& cpv) {
   
   LogDebug("TIDGeom") << "==>> Constructing DDTIDModulePosAlgo...";
 
@@ -203,7 +203,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
     zpos = zCool-zCenter;
     for ( int j2=0; j2<2; j2++) {
       copy++;
-     pos(name, parentName, copy,  DDTranslation(xpos,ypos,zpos), rot);
+     cpv.position(name, parentName, copy,  DDTranslation(xpos,ypos,zpos), rot);
       LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			  << copy << " positioned in " << parentName << " at "
 			  << DDTranslation(xpos,ypos,zpos) << " with " << rot;
@@ -225,7 +225,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
     }
     zpos = zBotSpacers - zCenter; 
     rot = DDRotation();
-   pos(name, parentName, 1,  DDTranslation(0.0,ypos,zpos), rot );
+   cpv.position(name, parentName, 1,  DDTranslation(0.0,ypos,zpos), rot );
     LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			<< 1 << " positioned in " << parentName << " at "
 			<< DDTranslation(0.0,ypos,zpos) << " with no rotation";       	
@@ -266,7 +266,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
 		    phix, thetay, phiy, thetaz, phiz);
       }
 
-     pos(name, parentName, copy,  DDTranslation(xpos,ypos,zpos), rot);
+     cpv.position(name, parentName, copy,  DDTranslation(xpos,ypos,zpos), rot);
       LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			  << copy << " positioned in " << parentName << " at "
 			  << DDTranslation(xpos,ypos,zpos) << " with " << rot;
@@ -296,7 +296,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
       rotns = DDSplit(waferRot[k]).second;
       rot   = DDRotation(DDName(rotstr, rotns));
     }
-   pos(name, parentName, k+1, tran, rot);
+   cpv.position(name, parentName, k+1, tran, rot);
     LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			<< k+1 << " positioned in " << parentName << " at "
 			<< tran << " with " << rot;
@@ -324,7 +324,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
       rot     = DDRotation();
     }
     tran = DDTranslation(xpos,ypos,zpos);
-   pos(name, parentName, k+1, tran, rot);
+   cpv.position(name, parentName, k+1, tran, rot);
     LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			<< k+1 << " positioned in " << parentName << " at "
 			<< tran << " with " << rot;
@@ -341,7 +341,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
     zpos = zHybrid - zCenter;
     tran = DDTranslation(0,ypos,zpos);
     rot  = DDRotation();
-   pos(name, parentName, k+1, tran, rot);
+   cpv.position(name, parentName, k+1, tran, rot);
     LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			<< k+1 << " positioned in " << parentName << " at "
 			<< tran << " with " << rot;
@@ -359,7 +359,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
     zpos = zBoxFrame - zCenter;
     tran = DDTranslation(0,ypos,zpos);
     rot  = DDRotation();
-   pos(name, parentName, k+1, tran, rot);
+   cpv.position(name, parentName, k+1, tran, rot);
     LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			<< k+1 << " positioned in " << parentName << " at "
 			<< tran << " with " << rot;
@@ -383,7 +383,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
       rot     = DDRotation();
     }  
     tran = DDTranslation(0,ypos,zpos);
-   pos(name, parentName, k+1, tran, rot);
+   cpv.position(name, parentName, k+1, tran, rot);
     LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			<< k+1 << " positioned in " << parentName << " at "
 			<< tran << " with " << rot;
@@ -412,7 +412,7 @@ void DDTIDModulePosAlgo::execute(DDPositioner& pos) {
       rot     = DDRotation();
     }  
     tran = DDTranslation(0,ypos,zpos);
-   pos(name, parentName, k+1, tran, rot);
+   cpv.position(name, parentName, k+1, tran, rot);
     LogDebug("TIDGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
 			<< k+1 << " positioned in " << parentName << " at "
 			<< tran << " with " << rot;

@@ -50,7 +50,7 @@ void DDTrackerXYZPosAlgo::initialize(const DDNumericArguments & nArgs,
   }
 }
 
-void DDTrackerXYZPosAlgo::execute(DDPositioner& pos) {
+void DDTrackerXYZPosAlgo::execute(DDCompactView& cpv) {
 
   int    copy   = startCopyNo;
   DDName mother = parent().name();
@@ -65,7 +65,7 @@ void DDTrackerXYZPosAlgo::execute(DDPositioner& pos) {
       std::string rotns  = DDSplit(rotMat[i]).second;
       rot = DDRotation(DDName(rotstr, rotns));
     }
-   pos(child, mother, copy, tran, rot);
+   cpv.position(child, mother, copy, tran, rot);
     LogDebug("TrackerGeom") << "DDTrackerXYZPosAlgo test: " << child 
 			    <<" number " << copy << " positioned in " 
 			    << mother << " at " << tran << " with " << rot;

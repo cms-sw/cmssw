@@ -174,7 +174,7 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   }
 }
 
-void DDTIBLayerAlgo::execute(DDPositioner& pos) {
+void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("TIBGeom") << "==>> Constructing DDTIBLayerAlgo...";
 
@@ -210,7 +210,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerIn(solid.ddname(), matter, solid);
- pos(layerIn, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+ cpv.position(layerIn, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << layerIn.name()
 		      << " number 1 positioned in " << layer.name()
 		      << " at (0,0,0) with no rotation";
@@ -238,7 +238,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
       }
     }
     DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
-   pos(detIn, layerIn, n+1, trdet, rotation);
+   cpv.position(detIn, layerIn, n+1, trdet, rotation);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << detIn.name() 
 			<< " number " << n+1 << " positioned in " 
 			<< layerIn.name() << " at " << trdet << " with "
@@ -257,7 +257,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << " with Rin " << rin << " Rout " << rout
 		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerOut(solid.ddname(), matter, solid);
- pos(layerOut, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+ cpv.position(layerOut, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << layerOut.name() 
 		      << " number 1 positioned in " << layer.name() 
 		      << " at (0,0,0) with no rotation";
@@ -285,7 +285,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
       }
     }
     DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
-   pos(detOut, layerOut, n+1, trdet, rotation);
+   cpv.position(detOut, layerOut, n+1, trdet, rotation);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << detOut.name() 
 			<< " number " << n+1 << " positioned in " 
 			<< layerOut.name() << " at " << trdet << " with "
@@ -309,7 +309,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
   matname = DDName(DDSplit(cylinderMat).first, DDSplit(cylinderMat).second);
   DDMaterial matcyl(matname);
   DDLogicalPart cylinder(solid.ddname(), matcyl, solid);
- pos(cylinder, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+ cpv.position(cylinder, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinder.name() 
 		      << " number 1 positioned in " << layer.name()
 		      << " at (0,0,0) with no rotation";
@@ -327,7 +327,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << " with Rin " << rin << " Rout " << rout 
 		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart cylinderIn(solid.ddname(), matter, solid);
- pos(cylinderIn, cylinder, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+ cpv.position(cylinderIn, cylinder, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinderIn.name() 
 		      << " number 1 positioned in " << cylinder.name() 
 		      << " at (0,0,0) with no rotation";
@@ -345,8 +345,8 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
 		      << " Rout " << rout << " ZHalf "  << fillerDz;
   DDLogicalPart cylinderFiller(solid.ddname(), matfiller, solid);
- pos(cylinderFiller, cylinderIn, 1, DDTranslation(0.0, 0.0, 0.5*layerL-fillerDz), DDRotation());
- pos(cylinderFiller, cylinderIn, 2, DDTranslation(0.0, 0.0,-0.5*layerL+fillerDz), DDRotation());
+ cpv.position(cylinderFiller, cylinderIn, 1, DDTranslation(0.0, 0.0, 0.5*layerL-fillerDz), DDRotation());
+ cpv.position(cylinderFiller, cylinderIn, 2, DDTranslation(0.0, 0.0,-0.5*layerL+fillerDz), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cylinderFiller.name()
 		      << " number 1" << " positioned in " 
 		      << cylinderIn.name() << " at " << DDTranslation(0.0, 0.0, 0.5*layerL-fillerDz)
@@ -390,7 +390,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
       }
     }
     DDTranslation tran(0, 0, 0);
-   pos(cylinderRib, cylinderIn, 1, tran, rotation);
+   cpv.position(cylinderRib, cylinderIn, 1, tran, rotation);
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cylinderRib.name()
 			<< " number 1" << " positioned in " 
 			<< cylinderIn.name() << " at " << tran << " with " 
@@ -415,8 +415,8 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << " Rout " << rout << " ZHalf " << MFRingDz;
 
   DDLogicalPart inmfr(solid.ddname(), matintmfr, solid);
- pos(inmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
- pos(inmfr, layer, 2, DDTranslation(0.0, 0.0, +0.5*layerL-MFRingDz), DDRotation());
+ cpv.position(inmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
+ cpv.position(inmfr, layer, 2, DDTranslation(0.0, 0.0, +0.5*layerL-MFRingDz), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << inmfr.name() 
 		      << " number 1 and 2 positioned in " << layer.name()
 		      << " at (0,0,+-" << 0.5*layerL-MFRingDz << ") with no rotation";
@@ -436,8 +436,8 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << " Rout " << rout << " ZHalf " << MFRingDz;
 
   DDLogicalPart outmfr(solid.ddname(), matextmfr, solid);
- pos(outmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
- pos(outmfr, layer, 2, DDTranslation(0.0, 0.0, +0.5*layerL-MFRingDz), DDRotation());
+ cpv.position(outmfr, layer, 1, DDTranslation(0.0, 0.0, -0.5*layerL+MFRingDz), DDRotation());
+ cpv.position(outmfr, layer, 2, DDTranslation(0.0, 0.0, +0.5*layerL-MFRingDz), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << outmfr.name() 
 		      << " number 1 and 2 positioned in " << layer.name()
 		      << " at (0,0,+-" << 0.5*layerL-MFRingDz 
@@ -463,7 +463,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << " ZHalf " << centDz;
 
   DDLogicalPart cent1(solid.ddname(), matcent, solid);
- pos(cent1, layer, 1, DDTranslation(0.0, 0.0, centZ), DDRotation());
+ cpv.position(cent1, layer, 1, DDTranslation(0.0, 0.0, centZ), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cent1.name() 
 		      << " positioned in " << layer.name()
 		      << " at (0,0," << centZ << ") with no rotation";
@@ -483,7 +483,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 		      << " ZHalf " << centDz;
 
   DDLogicalPart cent2(solid.ddname(), matcent, solid);
- pos(cent2, layer, 1, DDTranslation(0.0, 0.0, centZ), DDRotation());
+ cpv.position(cent2, layer, 1, DDTranslation(0.0, 0.0, centZ), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cent2.name() 
 		      << " positioned in " << layer.name()
 		      << " at (0,0," << centZ << ") with no rotation";
@@ -620,7 +620,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
       
       DDName dohm(DDSplit(dohmName).first, DDSplit(dohmName).second);
       DDTranslation dohmTrasl(dohmR*cos(phi), dohmR*sin(phi), dohmZ);
-     pos(dohm, dohmCarrier, dohmReplica, dohmTrasl, dohmRotation);
+     cpv.position(dohm, dohmCarrier, dohmReplica, dohmTrasl, dohmRotation);
       LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohm.name() 
 			  << " replica " << dohmReplica << " positioned in " 
 			  << dohmCarrier.name() << " at " << dohmTrasl << " with "
@@ -629,7 +629,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
     }
     
     
-   pos(dohmCarrier, parent(), dohmCarrierReplica, tran, rotation );
+   cpv.position(dohmCarrier, parent(), dohmCarrierReplica, tran, rotation );
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
 			<< dohmCarrier.name() << " positioned in " << parent().name() << " at "
 			<< tran << " with " << rotation;
@@ -712,7 +712,7 @@ void DDTIBLayerAlgo::execute(DDPositioner& pos) {
 	pillarTran = DDTranslation(0., 0., pillarZ[i]);
 	pillarRota = DDanonymousRot(DDcreateRotationMatrix(90.*CLHEP::deg, pillarPhi[i], 90.*CLHEP::deg, 90.*CLHEP::deg+pillarPhi[i], 0., 0.));
 	
-	pos (Pillar, parent(), i, pillarTran, pillarRota);
+	cpv.position(Pillar, parent(), i, pillarTran, pillarRota);
 	LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
 			    << Pillar.name() << " positioned in " 
 			    << parent().name() << " at "

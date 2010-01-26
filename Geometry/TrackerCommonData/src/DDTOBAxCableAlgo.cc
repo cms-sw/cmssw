@@ -71,7 +71,7 @@ void DDTOBAxCableAlgo::initialize(const DDNumericArguments & nArgs,
   
 }
 
-void DDTOBAxCableAlgo::execute(DDPositioner& pos) {
+void DDTOBAxCableAlgo::execute(DDCompactView& cpv) {
   
   LogDebug("TOBGeom") << "==>> Constructing DDTOBAxCableAlgo...";
   DDName tubsName = parent().name();
@@ -113,7 +113,7 @@ void DDTOBAxCableAlgo::execute(DDPositioner& pos) {
     DDMaterial sectorMatter(sectorMatName);
     DDLogicalPart sectorLogic(DDName(name, idNameSpace), sectorMatter, solid);
     
-    pos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
+    cpv.position(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
 	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: "
 			<< DDName(name,idNameSpace) << " number " << i+1 
@@ -140,7 +140,7 @@ void DDTOBAxCableAlgo::execute(DDPositioner& pos) {
     sectorLogic   = DDLogicalPart(DDName(name, idNameSpace), sectorMatter,
 				  solid);
     
-    pos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
+    cpv.position(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
 	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: "
 			<< DDName(name,idNameSpace) << " number " << i+1 
@@ -168,7 +168,7 @@ void DDTOBAxCableAlgo::execute(DDPositioner& pos) {
     sectorLogic   = DDLogicalPart(DDName(name, idNameSpace), sectorMatter, 
 				  solid);
     
-    pos(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
+    cpv.position(DDName(name,idNameSpace), tubsName, i+1, DDTranslation(), 
 	  DDRotation());
     LogDebug("TOBGeom") << "DDTOBAxCableAlgo test: "
 			<< DDName(name,idNameSpace) << " number " << i+1 

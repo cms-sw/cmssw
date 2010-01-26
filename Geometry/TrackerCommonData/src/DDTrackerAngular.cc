@@ -62,7 +62,7 @@ void DDTrackerAngular::initialize(const DDNumericArguments & nArgs,
 			  << idNameSpace;
 }
 
-void DDTrackerAngular::execute(DDPositioner& pos) {
+void DDTrackerAngular::execute(DDCompactView& cpv) {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -93,7 +93,7 @@ void DDTrackerAngular::execute(DDPositioner& pos) {
     double zpos = center[2];
     DDTranslation tran(xpos, ypos, zpos);
   
-   pos(child, mother, copy, tran, rotation);
+   cpv.position(child, mother, copy, tran, rotation);
     LogDebug("TrackerGeom") << "DDTrackerAngular test " << child << " number " 
 			    << copy << " positioned in " << mother << " at "
 			    << tran  << " with " << rotation;
