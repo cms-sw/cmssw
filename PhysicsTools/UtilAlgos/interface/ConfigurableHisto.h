@@ -2,7 +2,6 @@
 #define ConfigurableAnalysis_ConfigurableHisto_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
 #include "TH1.h"
