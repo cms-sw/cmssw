@@ -1,8 +1,6 @@
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
-
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
-
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -136,7 +134,7 @@ namespace cond {
 
   template<>
   std::string
-  PayLoadInspector<RPCObTemp>::dump() const {}
+  PayLoadInspector<RPCObTemp>::dump() const {return std::string();}
 
   template<>
   std::string PayLoadInspector<RPCObTemp>::summary() const {
@@ -190,8 +188,4 @@ namespace condPython {
   }
 }
 
-
 PYTHON_WRAPPER(RPCObTemp,RPCObTemp);
-
-
-

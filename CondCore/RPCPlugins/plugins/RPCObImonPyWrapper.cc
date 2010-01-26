@@ -136,7 +136,7 @@ namespace cond {
 
   template<>
   std::string
-  PayLoadInspector<RPCObImon>::dump() const {}
+  PayLoadInspector<RPCObImon>::dump() const {return std::string();}
 
   template<>
   std::string PayLoadInspector<RPCObImon>::summary() const {
