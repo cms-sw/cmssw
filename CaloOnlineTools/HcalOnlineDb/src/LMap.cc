@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.10 2009/09/10 23:41:21 kukartse Exp $
+// $Id: LMap.cc,v 1.11 2009/09/23 22:06:28 kukartse Exp $
 //
 
 // system include files
@@ -89,7 +89,7 @@ int LMap::impl::read( string map_file, string type )
       char slnam[32];
       char rctnam[32];
 
-      char * let_code = "Z";
+      const char * let_code = "Z";
 
       int _read = 0;
       if ( type == "HBEF" )
