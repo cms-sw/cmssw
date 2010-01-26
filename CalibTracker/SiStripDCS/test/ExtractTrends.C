@@ -17,6 +17,8 @@
 #include "TVectorD.h"
 #include "TDatime.h"
 #include "TFile.h"
+#include "TStyle.h"
+#include "TROOT.h"
 
 using namespace std;
 
@@ -196,6 +198,15 @@ void drawHistoTracker(TH1F* histo, const TString option, const unsigned int colo
   graph->GetXaxis()->SetTimeFormat("#splitline{  %d}{%H:%M}");
   graph->GetXaxis()->SetTimeOffset(0,"gmt");
   graph->GetYaxis()->SetRangeUser(0,16000);
+  graph->GetXaxis()->SetTitle("day/hour");
+  graph->GetXaxis()->SetTitleSize(0.03);
+  graph->GetXaxis()->SetTitleColor(kBlack);
+  graph->GetXaxis()->SetTitleOffset(1.80);
+  graph->GetYaxis()->SetTitle("number of modules off");
+  graph->GetYaxis()->SetTitleSize(0.03);
+  graph->GetYaxis()->SetTitleColor(kBlack);
+  graph->GetYaxis()->SetTitleOffset(1.80);
+  graph->SetTitle();
 }
 
 vector<vector<Holder> > extractFromFile( const string & fileName, const string & date )
@@ -377,6 +388,13 @@ void clearEmptyFiles(vector<vector<vector<Holder> > > & holderVsIOV)
 
 void ExtractTrends()
 {
+  gROOT->SetStyle("Plain");
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetPadBorderMode(0);
+  gStyle->SetTitleFillColor(kWhite);
+  gStyle->SetTitleColor(kWhite);
+
   TFile * outputFile = new TFile("trends.root", "RECREATE");
 
   ifstream listFile("list.txt");
@@ -469,11 +487,9 @@ void ExtractTrends()
   drawHistoTracker( histoTracker[1], "AL", 1, histos);
   drawHistoTracker( histoTracker[0], "L", 2, histos);
 
-  // histoTracker[1]->Draw("SAME");
-
-  TLegend * legend2 = new TLegend(0.71,0.87,0.98,1,NULL,"brNDC");
+  TLegend * legend2 = new TLegend(0.715,0.87,0.98,1,NULL,"brNDC");
   legend2->SetTextSize(0.035);
-  // legend2->SetFillColor(0); // Have a white background
+  legend2->SetFillColor(0); // Have a white background
   legend2->AddEntry(histoTracker[0], "High Voltage off");
   legend2->AddEntry(histoTracker[1], "Low Voltage off");
   legend2->Draw("SAME");
