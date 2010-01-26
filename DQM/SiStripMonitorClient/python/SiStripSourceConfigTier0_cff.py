@@ -50,14 +50,12 @@ TkDetMap = cms.Service("TkDetMap")
 SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 
 # Event History Producer
-import DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi
-ConsecutiveHEs = DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi.consecutiveHEs.clone()
+from  DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 
 # APV Phase Producer
-import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi
-apvPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi.APVPhases.clone()
+from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi import *
 
 # Sequence
-SiStripDQMTier0 = cms.Sequence(apvPhases*ConsecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack*MonitorTrackResiduals*TrackerCollisionTrackMon*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack*MonitorTrackResiduals*TrackerCollisionTrackMon*dqmInfoSiStrip)
 
 

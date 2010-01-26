@@ -159,6 +159,12 @@ void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 
   fillDummyStatus();
 
+
+  if (!bookedStatus_) {
+    edm::LogError("SiStripDcsInfo") << " SiStripDcsInfo::endRun : MEs missing ";
+    return;
+  }
+
   if (nFEDConnected > 0) fillStatus();
 
 }

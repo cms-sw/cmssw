@@ -141,6 +141,12 @@ void SiStripDaqInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
    edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::No FEDs Connected!!!";
    return;
   }
+
+  if (!bookedStatus_) {
+    edm::LogError("SiStripDaqInfo") << " SiStripDaqInfo::endRun : MEs missing ";
+    return;
+  }
+
   float nFEDConnected = 0.0;
 
   const FEDNumbering numbering;

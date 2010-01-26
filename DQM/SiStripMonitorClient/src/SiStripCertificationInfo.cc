@@ -215,6 +215,10 @@ void SiStripCertificationInfo::endRun(edm::Run const& run, edm::EventSetup const
 // --Fill Tracking Certification 
 //
 void SiStripCertificationInfo::fillTrackingCertificationMEs() {
+  if (!trackingCertificationBooked_) {
+    edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillTrackingCertificationMEs : MEs missing ";
+    return;
+  }
   resetTrackingCertificationMEs();
   string tk_dir = "";
   SiStripUtility::getTopFolderPath(dqmStore_, "Tracking", tk_dir);
@@ -243,6 +247,10 @@ void SiStripCertificationInfo::fillTrackingCertificationMEs() {
 // --Fill SiStrip Certification 
 //
 void SiStripCertificationInfo::fillSiStripCertificationMEs() {
+  if (!sistripCertificationBooked_) {
+    edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillTrackingCertificationMEs : MEs missing ";
+    return;
+  }
   string mdir = "MechanicalView";
   dqmStore_->cd();
   if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
