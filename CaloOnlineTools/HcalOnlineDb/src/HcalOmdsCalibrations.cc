@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalAsciiCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.9 2009/10/26 02:55:16 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.10 2009/10/26 09:18:00 kukartse Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalValidationCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalDcsRcd.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 
@@ -103,11 +104,15 @@ HcalOmdsCalibrations::HcalOmdsCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalOmdsCalibrations::produceLutMetadata);
       findingRecord <HcalLutMetadataRcd> ();
     }
+    else if (objectName == "DcsValues") {
+      setWhatProduced (this, &HcalOmdsCalibrations::produceDcsValues);
+      findingRecord <HcalDcsRcd> ();
+    }
     else {
       std::cerr << "HcalOmdsCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
-		<< "ZSThresholds RespCorrs L1TriggerObjects ValidationCorrs LutMetadata"
+		<< "ZSThresholds RespCorrs L1TriggerObjects ValidationCorrs LutMetadata DcsValues "
 		<< std::endl;
     }
   }
@@ -271,5 +276,14 @@ std::auto_ptr<HcalLutMetadata> HcalOmdsCalibrations::produceLutMetadata (const H
 					mIOVBegin["LutMetadata"], 
 					mQuery["LutMetadata"], 
 					mAccessor["LutMetadata"]);
+}
+
+std::auto_ptr<HcalDcsValues> HcalOmdsCalibrations::produceDcsValues (const HcalDcsRcd& rcd) {
+  return produce_impl<HcalDcsValues> (mInputs ["DcsValues"], 
+					mVersion["DcsValues"], 
+					mSubversion["DcsValues"], 
+					mIOVBegin["DcsValues"], 
+					mQuery["DcsValues"], 
+					mAccessor["DcsValues"]);
 }
 

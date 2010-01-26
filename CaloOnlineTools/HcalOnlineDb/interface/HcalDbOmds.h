@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.7 2009/10/26 09:17:55 kukartse Exp $
+// $Id: HcalDbOmds.h,v 1.8 2009/11/18 23:02:25 lsexton Exp $
 //
 //
 #ifndef HcalDbOmds_h
@@ -25,7 +25,7 @@ using namespace oracle::occi;
    \class HcalDbOmds
    \brief IO for OMDS instances of Hcal Calibrations
    \author Gena Kukartsev March 11, 2009
-   $Id: HcalDbOmds.h,v 1.7 2009/10/26 09:17:55 kukartse Exp $
+   $Id: HcalDbOmds.h,v 1.8 2009/11/18 23:02:25 lsexton Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -151,6 +151,14 @@ namespace HcalDbOmds {
 		  const std::string & fQuery,
 		  HcalLutMetadata* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const int fIOVBegin,
+		  const std::string & fQuery,
+		  HcalDcsValues* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalDcsValues& fObject);
 
   HcalSubdetector get_subdetector( std::string _det );
   HcalZDCDetId::Section get_zdc_section( std::string _section );
@@ -161,6 +169,17 @@ namespace HcalDbOmds {
   // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
   // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
   DetId getId(oracle::occi::ResultSet * rs);
-  
+
+  // get DCS subdetector, sidering, slice, subchannel and type 
+  // from a PVSS data point name string
+  HcalOtherSubdetector  getSubDetFromDpName(std::string _dpname);
+  int                   getSideRingFromDpName(std::string _dpname);
+  unsigned int          getSliceFromDpName(std::string _dpname);
+  unsigned int          getSubChannelFromDpName(std::string _dpname);
+  HcalDcsDetId::DcsType getDcsTypeFromDpName(std::string _dpname);
+
+  template<class T>
+  bool from_string(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&));
+
 } 
 #endif

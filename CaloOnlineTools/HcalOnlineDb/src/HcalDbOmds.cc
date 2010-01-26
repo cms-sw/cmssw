@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.15 2009/10/26 02:55:16 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.16 2009/10/26 09:18:00 kukartse Exp $
 //
 //
 #include <vector>
@@ -18,6 +18,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalDbOmds.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
+
+template<class T>
+bool HcalDbOmds::from_string(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
+  std::istringstream iss(s);
+  return !(iss >> f >> t).fail();
+}
 
 // get the proper detId from the result of the oracle query
 // assumed that channel info comes in from of the ResultSet
@@ -836,6 +842,88 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   return result;
 }
 
+// version is needed for the DCS (unlike most other conditions)
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const int fIOVBegin,
+			    const std::string & fQuery,
+			    HcalDcsValues* fObject) {
+  bool result=true;
+  if (!fObject) fObject = new HcalDcsValues;
+  try {
+    oracle::occi::Statement* stmt = connection->createStatement(fQuery);
+    stmt->setString(1,fTag);
+    stmt->setString(2,fVersion);
+    stmt->setInt(3,fSubversion);
+    stmt->setInt(4,fIOVBegin);
+
+    cout << "DEBUG****** IOV=" << fIOVBegin << endl;
+
+    ResultSet *rs = stmt->executeQuery();
+
+    // protection agains NULL values
+    for (int _i=1; _i!=9; _i++) rs->setMaxColumnSize(_i,128);
+
+    RooGKCounter _row(1,100);
+    _row.setMessage("HCAL DCS records: ");
+    _row.setPrintCount(true);
+    _row.setNewLine(true);
+    //
+    // The query for the DCS summary condition
+    //
+    // The channel query result must be ordered in the following way
+    //
+    // 1. dpname (string)
+    // 2. lumi section,
+    // 3. value,
+    // 4. upper limit,
+    // 5. lower limit,
+    // 6. tag (string),
+    // 7. version (string),
+    // 8. subversion (int)
+    //
+    while (rs->next()) {
+      _row.count();
+
+      std::string _dpname = rs->getString(1);
+
+      HcalOtherSubdetector subd      = getSubDetFromDpName(_dpname);
+      int sidering                   = getSideRingFromDpName(_dpname);
+      unsigned int slice             = getSliceFromDpName(_dpname);
+      HcalDcsDetId::DcsType dcs_type = getDcsTypeFromDpName(_dpname);
+      unsigned int subchan           = getSubChannelFromDpName(_dpname);
+
+      HcalDcsDetId newId(subd, sidering, slice, 
+			 dcs_type, subchan);
+
+      int LS = rs->getInt(2);
+      float val = rs->getFloat(3);
+      float upper = rs->getFloat(4);
+      float lower = rs->getFloat(5);
+
+      HcalDcsValue * fCondObject = new HcalDcsValue(newId.rawId(),
+						    LS,
+						    val,
+						    upper,
+						    lower);
+
+      if (!(fObject->addValue(*fCondObject))) {
+	edm::LogWarning("Data Error") << "Data for data point " << _dpname
+				      << "\nwas not added to the HcalDcsValues object." << std::endl;
+      }
+      delete fCondObject;
+    }
+    fObject->sortAll();
+    //Always terminate statement
+    connection->terminateStatement(stmt);
+  } catch (SQLException& e) {
+    throw cms::Exception("ReadError") << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+  }
+  return result;
+}
+
 
 bool HcalDbOmds::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {
   return true;
@@ -865,3 +953,72 @@ HcalZDCDetId::Section HcalDbOmds::get_zdc_section( string _section )
   
   return result;
 }
+
+
+HcalOtherSubdetector HcalDbOmds::getSubDetFromDpName(std::string _dpname){
+  HcalOtherSubdetector subd;
+  switch (_dpname.at(_dpname.find("HVcrate_")+9)) {
+  case 'B':
+    subd = HcalDcsBarrel;
+    break;
+  case 'E':
+    subd = HcalDcsEndcap;
+    break;
+  case 'F':
+    subd = HcalDcsForward;
+    break;
+  case 'O':
+    subd = HcalDcsOuter;
+    break;
+  default:
+    subd = HcalOtherEmpty;
+    break;
+  }
+  return subd;
+}
+
+int HcalDbOmds::getSideRingFromDpName(std::string _dpname){
+  int _side_ring = 1000;
+  int _side = 10;
+  int _ring = 100;
+  switch (_dpname.at(_dpname.find("HVcrate_")+9)) {
+  case 'B':
+  case 'E':
+  case 'F':
+    if (_dpname.at(_dpname.find("HVcrate_")+10) == 'M') _side = -1;
+    else if (_dpname.at(_dpname.find("HVcrate_")+10) == 'P') _side = +1;
+    _ring = 1;
+      break;
+  case 'O':
+    if (_dpname.at(_dpname.find("HVcrate_")+11) == 'M') _side = -1;
+    else if (_dpname.at(_dpname.find("HVcrate_")+11) == 'P') _side = +1;
+    _ring = atoi(&(_dpname.at(_dpname.find("HVcrate_")+10)));
+    break;
+  default:
+    break;
+  }
+  _side_ring = _side * _ring;
+  return _side_ring;
+}
+
+unsigned int HcalDbOmds::getSliceFromDpName(std::string _dpname){
+  int result = 1000;
+  HcalDbOmds::from_string<int>(result, _dpname.substr(_dpname.find("/S")+2,2), std::dec);
+  return (unsigned int)result;
+}
+
+unsigned int HcalDbOmds::getSubChannelFromDpName(std::string _dpname){
+  unsigned int result = 1000;
+  HcalDbOmds::from_string<unsigned int>(result, _dpname.substr(_dpname.find("/RM")+3,1), std::dec);
+  return result;
+}
+
+// FIXME: adjust to new PVSS data point naming convention
+// together with DcsDetId
+HcalDcsDetId::DcsType HcalDbOmds::getDcsTypeFromDpName(std::string _dpname){
+  HcalDcsDetId::DcsType result = HcalDcsDetId::DcsType(15); // unknown
+  std::string _type = _dpname.substr(_dpname.find("/RM")+4);
+  if (_type.find("HV")!=std::string::npos) result = HcalDcsDetId::DcsType(1);
+  return result;
+}
+

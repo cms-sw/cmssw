@@ -1,7 +1,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalTextCalibrations
-// $Id: HcalOmdsCalibrations.h,v 1.3 2009/08/05 22:22:56 kukartse Exp $
+// $Id: HcalOmdsCalibrations.h,v 1.4 2009/10/26 09:17:55 kukartse Exp $
 //
 //
 #include <map>
@@ -26,6 +26,7 @@ class HcalZSThresholdsRcd;
 class HcalL1TriggerObjectsRcd;
 class HcalValidationCorrsRcd;
 class HcalLutMetadataRcd;
+class HcalDcsRcd;
 
 class HcalOmdsCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -54,6 +55,8 @@ protected:
   std::auto_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
   std::auto_ptr<HcalValidationCorrs> produceValidationCorrs (const HcalValidationCorrsRcd& rcd);
   std::auto_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
+  std::auto_ptr<HcalDcsValues> produceDcsValues (const HcalDcsRcd& rcd);
+
  private:
   std::map <std::string, std::string> mInputs;
   std::map <std::string, std::string> mVersion;
