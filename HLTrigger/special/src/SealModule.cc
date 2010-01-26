@@ -20,7 +20,6 @@
 #include "HLTrigger/special/interface/HLTTrackWithHits.h"
 #include "HLTrigger/special/interface/HLTTriggerTypeFilter.h"
 #include "HLTrigger/special/interface/HLTDTROMonitorFilter.h"
-#include "HLTrigger/special/interface/RPCPathChamberFilter.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
@@ -60,4 +59,3 @@ DEFINE_FWK_MODULE(HLTTrackWithHits);
 DEFINE_FWK_MODULE(HLTTriggerTypeFilter);
 
 DEFINE_FWK_MODULE(HLTDTROMonitorFilter);
-DEFINE_FWK_MODULE(RPCPathChambFilter);
