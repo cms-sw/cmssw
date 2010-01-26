@@ -262,15 +262,10 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
   // forced on, pretend it's on, even if the storage doesn't support
   // it, as this turns off the caching in ROOT's side.
   StorageFactory *f = StorageFactory::get();
-  switch (f->cacheHint())
-  {
-  case StorageFactory::CACHE_HINT_APPLICATION:
+
+  // Verify that we never using async reads in app-only mode
+  if (f->cacheHint() == StorageFactory::CACHE_HINT_APPLICATION)
     return kTRUE;
-  case StorageFactory::CACHE_HINT_STORAGE:
-    return kFALSE;
-  default:
-    break;
-  }
 
   // Let the I/O method indicate if it can do client-side prefetch.
   // If it does, then for example TTreeCache will drop its own cache
@@ -287,6 +282,11 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
     stats.tick(len);
     return kFALSE;
   }
+
+  // Always ask ROOT to use async reads in storage-only mode,
+  // regardless of whether the storage system supports it.
+  if (f->cacheHint() == StorageFactory::CACHE_HINT_STORAGE)
+    return kFALSE;
 
   // Prefetching not available right now.
   return kTRUE;
