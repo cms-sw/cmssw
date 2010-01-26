@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2008/11/19 20:39:55 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/24 20:07:27 $
+ *  $Revision: 1.12 $
  *  \author Ilaria Segoni
  */
 
@@ -13,6 +13,7 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "boost/scoped_ptr.hpp"
 
 bool firstTime=true;
 
@@ -33,13 +34,15 @@ QTestHandle::~QTestHandle()
   delete qtChecker;
 }
 
-bool QTestHandle::configureTests(const std::string &configFile, DQMStore *bei)
+bool QTestHandle::configureTests(const std::string &configFile, DQMStore *bei, bool UseDB)
 {
+  //In case of UseDB==true the configFile is the content of the xml file itself
+  //In case of UseDB==false (default) configFile is just the name of the file
   if (testsConfigured)
-    qtParser->getNewDocument(configFile);
+    qtParser->getNewDocument(configFile,UseDB);
   else
   {
-    qtParser->getDocument(configFile);
+    qtParser->getDocument(configFile,UseDB);
     testsConfigured=true;
   }
 
@@ -56,6 +59,7 @@ bool QTestHandle::configureTests(const std::string &configFile, DQMStore *bei)
 
   return false;
 }
+
 
 void QTestHandle::attachTests(DQMStore *bei, bool verboseQT)
 {

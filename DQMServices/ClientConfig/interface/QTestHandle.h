@@ -5,8 +5,8 @@
  * *
  *  Handles quality tests (configuring, attaching to ME's, 
  *
- *  $Date: 2008/11/24 20:07:27 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/11/26 09:13:18 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
   
@@ -26,7 +26,7 @@ public:
   ///Destructor
   ~QTestHandle();
   ///Parses Config File and configures the quality tests
-  bool configureTests(const std::string &configFile, DQMStore *bei);
+  bool configureTests(const std::string &configFile, DQMStore *bei, bool UseDB=false);
   ///Attaches the quality tests to the MonitorElement
   void attachTests(DQMStore * bei, bool verboseQT=true);
   ///Checks global status of Quality Tests

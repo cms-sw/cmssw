@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2008/09/17 06:03:35 $
- * $Revision: 1.14 $
+ * $Date: 2008/11/24 20:07:28 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -22,8 +22,9 @@ using namespace std;
 
 QualityTester::QualityTester(const ParameterSet& ps)
 {
-  prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
+  prescaleFactor          = ps.getUntrackedParameter<int>("prescaleFactor", 1);
   getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
+  Label                   = ps.getUntrackedParameter<string>("label","");
   reportThreshold = ps.getUntrackedParameter<string>("reportThreshold", "");
   testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop",false);
   qtestOnEndRun   = ps.getUntrackedParameter<bool>("qtestOnEndRun",false);
@@ -41,10 +42,33 @@ QualityTester::QualityTester(const ParameterSet& ps)
     qtHandler->configureTests(FileInPath(qtlist).fullPath(), bei);
   }
 
+
   nEvents = 0;
 
 }
 
+void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup){
+
+  // if getQualityTestsFromFile is False, it means that the end-user wants them from the Database
+  if (getQualityTestsFromFile) {
+    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DQMXMLFileRcd"));
+    if(recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+      throw cms::Exception ("Record not found") << "Record \"DQMXMLFileRcd" 
+						<< "\" does not exist!" << std::endl;
+    }
+    std::cout << "Reading XML from Database" << std::endl ;
+    edm::ESHandle<GeometryFile> rootgeo;
+    iSetup.get<DQMXMLFileRcd>().get(Label,rootgeo);
+    boost::scoped_ptr<std::vector<unsigned char> > vc( (*rootgeo).getUncompressedBlob() );
+    std::string xmlstr="";
+    for(std::vector<unsigned char>::iterator it=vc->begin();it!=vc->end();it++){
+      xmlstr += *it;
+    }
+
+    qtHandler->configureTests(xmlstr,bei,1);
+
+  }
+}
 
 QualityTester::~QualityTester()
 {
@@ -55,8 +79,8 @@ void QualityTester::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
   if (testInEventloop) {
     nEvents++;
-    if (getQualityTestsFromFile 
-        && prescaleFactor > 0 
+    if (getQualityTestsFromFile
+	&& prescaleFactor > 0 
 	&& nEvents % prescaleFactor == 0)  {
       performTests();
     }

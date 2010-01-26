@@ -1,13 +1,14 @@
 #include "DQMServices/ClientConfig/interface/DQMParserBase.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
+
 #include <stdexcept>         
 /** \file
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2007/01/31 18:57:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/22 18:44:38 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 
@@ -25,24 +26,40 @@ DQMParserBase::~DQMParserBase(){
 }
 
 
-void DQMParserBase::getDocument(std::string configFile){
+void DQMParserBase::getDocument(std::string configFile, bool UseDB){
 	
-	parser = new XercesDOMParser;     
-	parser->setValidationScheme(XercesDOMParser::Val_Auto);
-	parser->setDoNamespaces(false);
-	parser->parse(configFile.c_str()); 
-	doc = parser->getDocument();
-	assert(doc);
+    parser = new XercesDOMParser;     
+    parser->setValidationScheme(XercesDOMParser::Val_Auto);
+    parser->setDoNamespaces(false);
+    if(UseDB){
+      std::cout<<"=== This is config file from getDocument ====== "<<std::endl;
+      std::cout<<configFile<<std::endl;
+      MemBufInputSource mb((const XMLByte*)configFile.c_str(),strlen(configFile.c_str()),"",false);
+      parser->parse(mb);
+    }
+    else{
+      parser->parse(configFile.c_str()); 
+    }
+    doc = parser->getDocument();
+    assert(doc);
 
 }
 
-void DQMParserBase::getNewDocument(std::string configFile){
+void DQMParserBase::getNewDocument(std::string configFile, bool UseDB){
 	//delete doc;
 	//doc =0;
-	parser->resetDocumentPool();
-	parser->parse(configFile.c_str()); 
-	doc = parser->getDocument();
-	assert(doc);
+  parser->resetDocumentPool();
+  if(UseDB){
+    std::cout<<"=== This is config file from getNewDocument ==== "<<std::endl;
+    std::cout<<configFile<<std::endl;
+    MemBufInputSource mb((const XMLByte*)configFile.c_str(),strlen(configFile.c_str()),"",false);
+    parser->parse(mb);
+  }
+  else{
+    parser->parse(configFile.c_str()); 
+  }
+  doc = parser->getDocument();
+  assert(doc);
 
 }
 int DQMParserBase::countNodes(std::string tagName){

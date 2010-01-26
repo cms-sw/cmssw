@@ -8,12 +8,12 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2008/09/17 06:03:35 $
- * $Revision: 1.8 $
+ * $Date: 2008/11/24 20:07:27 $
+ * $Revision: 1.9 $
  * \author M. Zanetti - CERN PH
  *
  */
-
+#include "boost/scoped_ptr.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -21,6 +21,8 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
 
 #include <memory>
 #include <iostream>
@@ -47,7 +49,7 @@ protected:
 
   /// perform the actual quality tests
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
+  void beginRun(const edm::Run&, const edm::EventSetup&) ;
   void endRun(const edm::Run& r, const edm::EventSetup& c);
   void endJob();
 
@@ -59,6 +61,7 @@ private:
   int nEvents;
   int prescaleFactor;
   bool getQualityTestsFromFile;
+  std::string Label;
   bool testInEventloop;
   bool qtestOnEndRun;
   bool qtestOnEndJob;
@@ -69,7 +72,6 @@ private:
   DQMStore * bei;
 
   QTestHandle * qtHandler;
-
 };
 
 #endif
