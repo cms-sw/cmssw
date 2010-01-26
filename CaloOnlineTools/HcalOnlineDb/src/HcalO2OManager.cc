@@ -18,13 +18,8 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondCore/DBCommon/interface/DbConnection.h" 	 
-#include "CondCore/DBCommon/interface/DbSession.h" 	 
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
-
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
@@ -34,15 +29,14 @@
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
-
+#include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
-#include "OnlineDB/Oracle/interface/Oracle.h"
-
+#include "occi.h"
 
 using namespace oracle::occi;
 
@@ -64,25 +58,46 @@ HcalO2OManager::~HcalO2OManager()
 std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect, std::string auth_path){
   //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
   //
-  // FIXME: how to add auth_path authentication to this? See v1.25 for the functionality using old API
-  std::cout << "===> WARNING! auth_path is specified as " << auth_path;
-  std::cout << " but is not used explicitely. Is it being used at all?"  << std::endl;
-  cond::DbConnection conn;
-  conn.configure( cond::CmsDefaults );
-  cond::DbSession session = conn.createSession();
-  session.open(connect);
+  std::string user("");
+  std::string pass("");
+  std::string authPath = auth_path;
+  std::string tag;
+  cond::DBSession* session=new cond::DBSession;
+  //
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
+  ::putenv(const_cast<char*>(authenv.c_str()));
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );
+  }
+  //session->configuration().setAuthenticationMethod( cond::Env );    
+   session->configuration().setMessageLevel( cond::Error );
+  //
+  session->open();
+  cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
+  cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
+  
   std::vector<std::string> alltags;
   try{
-    cond::MetaData metadata_svc(session);
-    cond::DbScopedTransaction tr(session);
-    tr.start(true);
+    myconnection.connect(session);
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    cond::MetaData metadata_svc(coraldb);
+    coraldb.start(true);
     metadata_svc.listAllTags(alltags);
-    tr.commit();
+    coraldb.commit();
+    myconnection.disconnect();
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(std::exception& er){
     std::cout<<er.what()<<std::endl;
   }
+  delete session;
   return alltags;
 }
 
@@ -95,40 +110,69 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
 				      std::string connect,
 				      std::string auth_path){
   //edmplugin::PluginManager::configure(edmplugin::standard::config()); // in the constructor for now
-  // FIXME: how to add auth_path authentication to this? See v1.25 for the functionality using old API  
-  std::cout << "===> WARNING! auth_path is specified as " << auth_path;
-  std::cout << " but is not used explicitely. Is it being used at all?"  << std::endl;
+  std::string user("");
+  std::string pass("");
+  std::string authPath = auth_path;
   bool details=false;
-  cond::DbConnection conn;
-  conn.configure( cond::CmsDefaults );
-  cond::DbSession session = conn.createSession();
-  session.open(connect);
+  cond::DBSession* session=new cond::DBSession;
+  //
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
+  ::putenv(const_cast<char*>(authenv.c_str()));
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );
+  }
+  //session->configuration().setAuthenticationMethod( cond::Env );    
+  session->configuration().setMessageLevel( cond::Error );
+  //
+  session->open();
+  cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
+  cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
+  
   out.clear();
   try{
-    cond::MetaData metadata_svc(session);
-    cond::DbScopedTransaction tr(session);
-     tr.start(true);
-     std::string token;
-     if(!metadata_svc.hasTag(tag)){
-       //std::cout << "no such tag in the Pool database!" << std::endl;
-       return -1;
-     }
-     token=metadata_svc.getToken(tag);
-     cond::IOVProxy iov(session, token, !details, details);
-     unsigned int counter=0;
-     std::string payloadContainer=iov.payloadContainerName();
-     
-     for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
-       out.push_back(ioviterator->since());
-       ++counter;
-     }
-     tr.commit();
-  }
-  catch(cond::Exception& er){
-    std::cout<<er.what()<<std::endl;
+    myconnection.connect(session);
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    cond::MetaData metadata_svc(coraldb);
+    std::string token;
+    coraldb.start(true);
+    if(!metadata_svc.hasTag(tag)){
+      //std::cout << "no such tag in the Pool database!" << std::endl;
+      return -1;
+    }
+    token=metadata_svc.getToken(tag);
+    coraldb.commit();
+    cond::PoolTransaction& pooldb = myconnection.poolTransaction();
+    {
+      // FIXME: pre-CMSSW_33X
+      cond::IOVProxy iov( pooldb, token, !details);
+      cond::IOVService iovservice(pooldb);
+      unsigned int counter=0;
+      std::string payloadContainer=iovservice.payloadContainerName(token);
+      //
+      // FIXME: CMSSW_33X and later
+      //cond::IOVProxy iov( myconnection, token, !details, details);
+      //unsigned int counter=0;
+      //std::string payloadContainer=iov.payloadContainerName();
+
+      for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
+	out.push_back(ioviterator->since());
+	++counter;
+      }
+    }
+    myconnection.disconnect();
+  }catch(cond::Exception& er){
+    std::cout<<"FIRST EXCEPTION: "<<er.what()<<std::endl;
   }catch(std::exception& er){
-    std::cout<<er.what()<<std::endl;
+    std::cout<<"CONNECTION ERROR: "<<er.what()<<std::endl;
   }
+  delete session;
   return out.size();
 }
 
