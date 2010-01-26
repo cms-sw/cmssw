@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/01/25 21:12:26 $
- * $Revision: 1.235 $
+ * $Date: 2010/01/26 07:12:01 $
+ * $Revision: 1.236 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -103,18 +103,15 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
         cout << "   dbHostPort = '" << dbHostPort_ << "'" << endl;
       }
       cout << "   dbTagName = '" << dbTagName_ << "'" << endl;
+#ifndef WITH_ECAL_COND_DB
+      cout << endl;
+      cout << "WARNING: DB access is NOT available" << endl;
+      cout << endl;
+#endif
     } else {
       cout << " Ecal Cond DB is OFF" << endl;
     }
   }
-
-#ifndef WITH_ECAL_COND_DB
-  if ( verbose_ ) {
-    cout << endl;
-    cout << "WARNING: DB access is DISABLED" << endl;
-    cout << endl;
-  }
-#endif
 
   // Mask file
 
