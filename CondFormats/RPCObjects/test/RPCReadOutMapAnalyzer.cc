@@ -31,8 +31,8 @@ class RPCReadOutMapAnalyzer : public edm::EDAnalyzer {
 RPCReadOutMapAnalyzer::RPCReadOutMapAnalyzer( const edm::ParameterSet& iConfig )
 : m_flag(iConfig.getUntrackedParameter<bool>("useNewEMap",false))
 {
-  ::putenv("CORAL_AUTH_USER konec");
-  ::putenv("CORAL_AUTH_PASSWORD konecPass");
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER konec").c_str()));
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD konecPass").c_str()));
 }
 
 

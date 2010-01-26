@@ -41,8 +41,8 @@ RPCReadOutMapBuilder::RPCReadOutMapBuilder( const edm::ParameterSet& iConfig )
   : m_record(iConfig.getParameter<std::string>("record"))
 {
   cout <<" HERE record: "<<m_record<<endl;
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=test"); 
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
+  ::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=test").c_str())); 
 }
 
 
