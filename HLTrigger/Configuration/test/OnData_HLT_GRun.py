@@ -12,7 +12,8 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooManyProducts',
   'TooFewProducts' ) )
 
-process.source = cms.Source( "PoolSource"
+process.source = cms.Source( "PoolSource",
+    fileNames = cms.untracked.vstring("rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/ZeroBias/RAW/v1/000/123/734/D28203D4-AFE3-DE11-ADEE-001D09F2527B.root")                              
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
