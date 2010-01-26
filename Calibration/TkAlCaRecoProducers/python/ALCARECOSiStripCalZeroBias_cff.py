@@ -53,7 +53,7 @@ from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi import *
 
 essapvlatency = cms.ESSource("EmptyESSource",
-                              recordName = cms.string("APVLatencyRcd"),
+                              recordName = cms.string("apvLatencyRcd"),
                               firstValid = cms.vuint32(1),
                               iovIsRunNotTime = cms.bool(True)
                               )
