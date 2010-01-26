@@ -18,8 +18,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0010/B2084415-22EE-DE11-9BA9-002618943842.root'
-#       '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/230/E68C41F8-0BE9-DE11-9C81-000423D94C68.root'
+        '/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-RECO/STARTUP3X_V14-v1/0009/DE021237-8FED-DE11-A452-0030486792AC.root'
     )
 )
 
@@ -27,7 +26,7 @@ process.rpcPointProducer = cms.EDProducer('RPCPointProducer',
   incldt = cms.untracked.bool(True),
   inclcsc = cms.untracked.bool(True),
 
-  debug = cms.untracked.bool(False),
+  debug = cms.untracked.bool(True),
 
   rangestrips = cms.untracked.double(4.),
   rangestripsRB4 = cms.untracked.double(4.),
@@ -36,11 +35,11 @@ process.rpcPointProducer = cms.EDProducer('RPCPointProducer',
   MaxDrb4 = cms.untracked.double(150.0),
   ExtrapolatedRegion = cms.untracked.double(0.6), #in stripl/2 in Y and stripw*nstrips/2 in X
 
-#    cscSegments = cms.untracked.string('cscSegments'),
-#    dt4DSegments = cms.untracked.string('dt4DSegments'),
+  cscSegments = cms.untracked.string('cscSegments'),
+  dt4DSegments = cms.untracked.string('dt4DSegments'),
 
-  cscSegments = cms.untracked.string('hltCscSegments'),
-  dt4DSegments = cms.untracked.string('hltDt4DSegments'),
+# cscSegments = cms.untracked.string('hltCscSegments'),
+# dt4DSegments = cms.untracked.string('hltDt4DSegments'),
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
