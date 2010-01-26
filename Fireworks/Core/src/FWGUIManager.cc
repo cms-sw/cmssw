@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.185 2010/01/25 16:05:21 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.186 2010/01/25 17:36:55 amraktad Exp $
 
 //
 
@@ -655,7 +655,7 @@ void
 FWGUIManager::setViewPopup(TEveWindow* ew) {
    if (m_viewPopup == 0)
    {
-      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, m_viewMap[ew]);
+      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, m_viewMap[ew], ew);
       m_viewPopup->closed_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::popupViewClosed));
       m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
