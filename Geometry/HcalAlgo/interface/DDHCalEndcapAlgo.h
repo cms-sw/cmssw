@@ -83,25 +83,25 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
 
-  void execute(DDPositioner& pos);
+  void execute(DDCompactView& cpv);
 
 protected:
 
-  void constructGeneralVolume(DDPositioner& pos);
-  void constructInsideSector(DDLogicalPart sector, DDPositioner& pos);
+  void constructGeneralVolume(DDCompactView& cpv);
+  void constructInsideSector(DDLogicalPart sector, DDCompactView& cpv);
   void parameterLayer (int iphi, double rinF, double routF, double rinB, 
 		       double routB, double zi, double zo, double& yh1, 
 		       double& bl1, double& tl1, double& yh2, double& bl2,
 		       double& tl2, double& alp, double& theta, double& phi,
-		       double& xpos, double& ypos, double& zpos);
+		       double& xpos, double& ypos, double& zcpv);
   void parameterLayer0(int mod, int layer, int iphi, double& yh, double& bl, 
 		       double& tl, double& alp, double& xpos, double& ypos, 
-		       double& zpos);
-  void constructInsideModule0(DDLogicalPart module, int mod, DDPositioner& pos);
-  void constructInsideModule (DDLogicalPart module, int mod, DDPositioner& pos);
+		       double& zcpv);
+  void constructInsideModule0(DDLogicalPart module, int mod, DDCompactView& cpv);
+  void constructInsideModule (DDLogicalPart module, int mod, DDCompactView& cpv);
   void constructScintLayer   (DDLogicalPart glog, double pDz, double yh, 
 			      double bl, double tl, double alp, 
-			      std::string name, int id, DDPositioner& pos);
+			      std::string name, int id, DDCompactView& cpv);
 
 private:
 

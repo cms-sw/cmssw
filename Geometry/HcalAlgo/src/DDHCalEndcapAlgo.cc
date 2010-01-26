@@ -312,16 +312,16 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
 // DDHCalEndcapAlgo methods...
 ////////////////////////////////////////////////////////////////////
 
-void DDHCalEndcapAlgo::execute(DDPositioner& pos) {
+void DDHCalEndcapAlgo::execute(DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "==>> Constructing DDHCalEndcapAlgo...";
-  constructGeneralVolume(pos);
+  constructGeneralVolume(cpv);
   LogDebug("HCalGeom") << "<<== End of DDHCalEndcapAlgo construction ...";
 }
 
 //----------------------start here for DDD work!!! ---------------
 
-void DDHCalEndcapAlgo::constructGeneralVolume(DDPositioner& pos) {
+void DDHCalEndcapAlgo::constructGeneralVolume(DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: General volume...";
   bool proto = true;
@@ -396,14 +396,14 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDPositioner& pos) {
   DDLogicalPart genlogic(DDName(idName, idNameSpace), matter, solid);
 
   DDName parentName = parent().name(); 
-  pos(DDName(idName, idNameSpace), parentName, 1, r0, rot);
+  cpv.position(DDName(idName, idNameSpace), parentName, 1, r0, rot);
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " 
 		       << DDName(idName, idNameSpace) << " number 1 positioned"
 		       << " in " << parentName << " at " << r0 << " with " 
 		       << rot;
   if (getEndcaps() != 1) {
     rot = DDRotation(DDName(rotHalf,rotns));
-   pos(DDName(idName, idNameSpace), parentName, 2, r0, rot);
+   cpv.position(DDName(idName, idNameSpace), parentName, 2, r0, rot);
     LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " 
 			 << DDName(idName, idNameSpace) << " number 2 "
 			 << "positioned in " << parentName  << " at " << r0
@@ -432,7 +432,7 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDPositioner& pos) {
 			 << pgonRminMod[i] << "\tRmax = " << pgonRmaxMod[i];
   DDLogicalPart genlogich(DDName(name, idNameSpace), matter, solid);
 
-  pos(genlogich, genlogic, 1, DDTranslation(0.0, 0.0, -getDzShift()),
+  cpv.position(genlogich, genlogic, 1, DDTranslation(0.0, 0.0, -getDzShift()),
 	DDRotation());
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << genlogich.name() 
 		       << " number 1 positioned in " << genlogic.name() 
@@ -476,14 +476,14 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDPositioner& pos) {
       } //if !rotation
     } //if phideg!=0
   
-   pos(seclogic, genlogich, ii+1, DDTranslation(0.0, 0.0, 0.0), rotation);
+   cpv.position(seclogic, genlogich, ii+1, DDTranslation(0.0, 0.0, 0.0), rotation);
     LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << seclogic.name() 
 			 << " number " << ii+1 << " positioned in " 
 			 << genlogich.name() << " at (0,0,0) with " <<rotation;
   }
   
   //Construct the things inside the sector
-  constructInsideSector(seclogic, pos);
+  constructInsideSector(seclogic, cpv);
 
   //Backward half
   name  = idName + "Back";
@@ -510,14 +510,14 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDPositioner& pos) {
   DDMaterial absMatter(absMatname);
   DDLogicalPart glog(DDName(name, idNameSpace), absMatter, solid);
 
-  pos(glog, genlogic, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+  cpv.position(glog, genlogic, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << glog.name() 
 		       << " number 1 positioned in "  << genlogic.name() 
 		       << " at (0,0,0) with no rotation";
 }
 
 
-void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector, DDPositioner& pos) {
+void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector, DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: Modules (" << getModules()
 		       << ") ...";
@@ -577,15 +577,15 @@ void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector, DDPositioner&
     
       DDLogicalPart glog(DDName(name, idNameSpace), matter, solid);
 
-     pos(glog, sector, i+1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+     cpv.position(glog, sector, i+1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
       LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << glog.name() 
 			   << " number " << i+1 << " positioned in " 
 			   << sector.name() << " at (0,0,0) with no rotation";
       
       if (getModType(i) == 0) 
-	constructInsideModule0 (glog, i, pos);
+	constructInsideModule0 (glog, i, cpv);
       else
-	constructInsideModule  (glog, i, pos);
+	constructInsideModule  (glog, i, cpv);
     }
   }
   
@@ -684,7 +684,7 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
 }
 
 
-void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod, DDPositioner& pos) {
+void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod, DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: \t\tInside module0 ..."<<mod;
 
@@ -719,14 +719,14 @@ void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod, DDP
     glog = DDLogicalPart(solid.ddname(), matplastic, solid);
 
     DDTranslation r1(xpos, ypos, zpos);
-    pos(glog, module, idOffset+layer+1, r1, rot);
+    cpv.position(glog, module, idOffset+layer+1, r1, rot);
     LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << glog.name() 
 			 << " number " << idOffset+layer+1 << " positioned in "
 			 << module.name() << " at " << r1 << " with " << rot;
     //Now construct the layer of scintillator inside this
     int copyNo = layer0*10 + getLayerType(layer);
     name = getModName(mod)+getLayerName(layer)+getPhiName(iphi);
-    constructScintLayer (glog, getScintT(layer), yh, bl, tl, alp, name, copyNo, pos);
+    constructScintLayer (glog, getScintT(layer), yh, bl, tl, alp, name, copyNo, cpv);
   }
 
   //Now the absorber layer
@@ -772,14 +772,14 @@ void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod, DDP
   glog = DDLogicalPart(solid.ddname(), matabsorbr, solid);
 
   DDTranslation r2(xpos, ypos, zpos);
-  pos(glog, module, 1, r2, rot);
+  cpv.position(glog, module, 1, r2, rot);
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << glog.name() 
 		       << " number 1 positioned in " << module.name() << " at "
 		       << r2 << " with " << rot;
 }
 
 
-void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDPositioner& pos) {
+void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: \t\tInside module ..." <<mod;
 
@@ -839,7 +839,7 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDPo
       glog = DDLogicalPart(solid.ddname(), matter, solid);
 
       DDTranslation r1(xpos, ypos, zpos);
-      pos(glog, module, layer+1, r1, rot);
+      cpv.position(glog, module, layer+1, r1, rot);
       LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << glog.name() 
 			   << " number " << layer+1 << " positioned in " 
 			   << module.name() << " at " << r1 << " with " << rot;
@@ -862,7 +862,7 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDPo
 
       ypos = 0.5*(routF+rinB) - xpos;
       DDTranslation r2(0., ypos, 0.);
-      pos(plog, glog, idOffset+layer+1, r2, DDRotation());
+      cpv.position(plog, glog, idOffset+layer+1, r2, DDRotation());
       LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << plog.name() 
 			   << " number " << idOffset+layer+1 
 			   << " positioned in " << glog.name() << " at " << r2
@@ -871,7 +871,7 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDPo
       //Constructin the scintillators inside
       int copyNo = layer*10 + getLayerType(layer);
       name = getModName(mod)+getLayerName(layer)+getPhiName(iphi);
-      constructScintLayer (plog, getScintT(layer), yh,bl,tl, alp,name,copyNo, pos);
+      constructScintLayer (plog, getScintT(layer), yh,bl,tl, alp,name,copyNo, cpv);
       zo += 0.5*getDzStep();
     } // End of loop over phi indices
     zi = zo - 0.5*getDzStep();
@@ -881,7 +881,7 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDPo
  
 void DDHCalEndcapAlgo::constructScintLayer(DDLogicalPart detector, double dz,
                                            double yh, double bl, double tl, 
-					   double alp, string nm, int id, DDPositioner& pos) {
+					   double alp, string nm, int id, DDCompactView& cpv) {
 
   DDName matname(DDSplit(getScintMat()).first, DDSplit(getScintMat()).second);
   DDMaterial matter(matname);
@@ -897,7 +897,7 @@ void DDHCalEndcapAlgo::constructScintLayer(DDLogicalPart detector, double dz,
 
   DDLogicalPart glog(solid.ddname(), matter, solid); 
 
-  pos(glog, detector, id, DDTranslation(0,0,0), DDRotation());
+  cpv.position(glog, detector, id, DDTranslation(0,0,0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << glog.name() 
 		       << " number " << id << " positioned in " 
 		       << detector.name() << " at (0,0,0) with no rotation";

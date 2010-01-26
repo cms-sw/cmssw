@@ -15,13 +15,13 @@ public:
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
-  void execute(DDPositioner& pos);
+  void execute(DDCompactView& pos);
 
 private:
   std::string getMaterial(unsigned int i)   const {return materials_[i];}
-  void doLayers(DDPositioner& pos);
-  void doWedges(DDPositioner& pos);    
-  void doSens(DDPositioner& pos);
+  void doLayers(DDCompactView& pos);
+  void doWedges(DDCompactView& pos);    
+  void doSens(DDCompactView& pos);
 
   std::vector<double> quadMin_, quadMax_; 
   int nmat_; // number of preshower layers

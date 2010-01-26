@@ -187,16 +187,16 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
 // DDHCalBarrelAlgo methods...
 ////////////////////////////////////////////////////////////////////
 
-void DDHCalBarrelAlgo::execute(DDPositioner& pos) {
+void DDHCalBarrelAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("HCalGeom") << "==>> Constructing DDHCalBarrelAlgo...";
-  constructGeneralVolume(pos);
+  constructGeneralVolume(cpv);
   LogDebug("HCalGeom") << "<<== End of DDHCalBarrelAlgo construction ...";
 }
 
 //----------------------start here for DDD work!!! ---------------
 
-void DDHCalBarrelAlgo::constructGeneralVolume(DDPositioner& pos) {
+void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: General volume...";
   unsigned int i=0;
@@ -350,7 +350,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDPositioner& pos) {
 
   DDName parentName = parent().name(); 
   DDTranslation r0(0,0,0);
-  pos(DDName(idName, idNameSpace), parentName, 1, r0, rot);
+  cpv.position(DDName(idName, idNameSpace), parentName, 1, r0, rot);
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " 
 		       << DDName(idName, idNameSpace) << " number 1 positioned"
 		       << " in " << parentName << " at " << r0 <<" with "<<rot;
@@ -374,14 +374,14 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDPositioner& pos) {
 				      pgonRminHalf, pgonRmaxHalf);
   DDLogicalPart genlogich(DDName(name, idNameSpace), matter, solid);
 
-  pos(genlogich, genlogic, 1, r0, rot);
+  cpv.position(genlogich, genlogic, 1, r0, rot);
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: "  << genlogich.name() 
 		       << " number 1 positioned in " << genlogic.name() 
 		       << " at " << r0 << " with " << rot;
 
   if (getNhalf() != 1) {
     rot = DDRotation(DDName(rotHalf, rotns));
-   pos(genlogich, genlogic, 2, r0, rot);
+   cpv.position(genlogich, genlogic, 2, r0, rot);
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test:  " << genlogich.name()
 			 << " number 2 positioned in " << genlogic.name()
 			 << " at " << r0 << " with " << rot;
@@ -424,7 +424,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDPositioner& pos) {
       } //if !rotation
     } //if phideg!=0
   
-   pos(seclogic, genlogich, ii+1, r0, rotation);
+   cpv.position(seclogic, genlogich, ii+1, r0, rotation);
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << seclogic.name() 
 			 << " number " << ii+1 << " positioned in " 
 			 << genlogich.name() << " at " << r0 << " with "
@@ -432,11 +432,11 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDPositioner& pos) {
   }
   
   //Construct the things inside the sector
-  constructInsideSector(seclogic, pos);
+  constructInsideSector(seclogic, cpv);
 }
 
 
-void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector, DDPositioner& pos) {
+void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector, DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: Layers (" << getNLayers()
 		       << ") ...";
@@ -537,7 +537,7 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector, DDPositioner&
 				      pgonZ, pgonRmin, pgonRmax);
     DDLogicalPart glog(DDName(name, idNameSpace), matter, solid);
 
-   pos(glog, sector, getLayerId(i), DDTranslation(0.0, 0.0, 0.0), 
+   cpv.position(glog, sector, getLayerId(i), DDTranslation(0.0, 0.0, 0.0), 
 	   DDRotation());
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 			 << " number " << getLayerId(i) << " positioned in " 
@@ -546,7 +546,7 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector, DDPositioner&
     constructInsideLayers(glog, getLayerLabel(i), getLayerId(i), 
 			  getLayerAbsorb(i), rin,  getLayerD1(i), alpha1, 
 			  getLayerD2(i), getLayerAlpha(i), getLayerT1(i),
-			  getLayerT2(i), pos);
+			  getLayerT2(i), cpv);
     rin = rout;
   }
   
@@ -557,7 +557,7 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
 					     double rin, double d1, 
 					     double alpha1, double d2, 
 					     double alpha2, double t1,
-					     double t2, DDPositioner& pos) {
+					     double t2, DDCompactView& cpv) {
   
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: \t\tInside layer " << id 
 		       << "...";
@@ -597,12 +597,12 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
     glog = DDLogicalPart(solid.ddname(), matter, solid);
 
     if (nAbs != 0) {
-      mother = constructSideLayer(laylog, name, nAbs, rin, alpha1, pos);
+      mother = constructSideLayer(laylog, name, nAbs, rin, alpha1, cpv);
     } else {
       mother = laylog;
     }
-    pos(glog, mother, idOffset+1, r11, DDRotation());
-    pos(glog, mother, idOffset+2, r12, rot);
+    cpv.position(glog, mother, idOffset+1, r11, DDRotation());
+    cpv.position(glog, mother, idOffset+2, r12, rot);
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 			 << " Number " << idOffset+1 << " positioned in " 
 			 << mother.name() << " at " << r11 
@@ -612,7 +612,7 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
 			 << mother.name() << " at " << r12 << " with " << rot;
 
     //Constructin the plastics and scintillators inside
-    constructInsideDetectors(glog, nam0+"1", id, dx, dy, dz, 1, pos);
+    constructInsideDetectors(glog, nam0+"1", id, dx, dy, dz, 1, cpv);
   }
 
   //Upper volume
@@ -635,12 +635,12 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
   glog = DDLogicalPart(solid.ddname(), matter, solid);
 
   if (nAbs < 0) {
-    mother = constructMidLayer(laylog, name, rin, alpha1, pos);
+    mother = constructMidLayer(laylog, name, rin, alpha1, cpv);
   } else {
     mother = laylog;
   }
- pos(glog, mother, idOffset+3, r21, DDRotation());
- pos(glog, mother, idOffset+4, r22, rot);
+ cpv.position(glog, mother, idOffset+3, r21, DDRotation());
+ cpv.position(glog, mother, idOffset+4, r22, rot);
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() <<" Number "
 		       << idOffset+3 << " positioned in " << mother.name() 
 		       << " at " << r21 << " with no rotation\n"
@@ -649,13 +649,13 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
 		       << " at " << r22 << " with " << rot;
 
   //Constructin the plastics and scintillators inside
-  constructInsideDetectors(glog, nam0+"2", id, dx, dy, dz, 2, pos);
+  constructInsideDetectors(glog, nam0+"2", id, dx, dy, dz, 2, cpv);
 }
 
 DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
 						   string nm, int nAbs, 
 						   double rin, double alpha,
-						   DDPositioner& pos) {
+						   DDCompactView& cpv) {
 
   //Extra absorber layer
   int k = abs(nAbs) - 1;
@@ -695,7 +695,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
   DDMaterial matter(matName);
   DDLogicalPart glog = DDLogicalPart(solid.ddname(), matter, solid);
 
-  pos(glog, laylog, 1, DDTranslation(), DDRotation());
+  cpv.position(glog, laylog, 1, DDTranslation(), DDRotation());
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 		       << " Number 1 positioned in " << laylog.name()
 		       << " at (0,0,0) with no rotation";
@@ -725,7 +725,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
 	DDMaterial matter(matName);
 	DDLogicalPart log = DDLogicalPart(solid.ddname(), matter, solid);
 
-	pos(log, mother, 1, DDTranslation(), DDRotation());
+	cpv.position(log, mother, 1, DDTranslation(), DDRotation());
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << log.name() 
 			     << " Number 1 positioned in " << mother.name()
 			     << " at (0,0,0) with no rotation";
@@ -738,7 +738,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
 
 DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 						  string nm, double rin, 
-						  double alpha, DDPositioner& pos) {
+						  double alpha, DDCompactView& cpv) {
 
   DDSolid       solid;
   DDLogicalPart log, glog;
@@ -779,7 +779,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
     DDMaterial matter(matName);
     log = DDLogicalPart(solid.ddname(), matter, solid);
 
-    pos(log, laylog, 1, DDTranslation(), DDRotation());
+    cpv.position(log, laylog, 1, DDTranslation(), DDRotation());
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << log.name() 
 			 << " Number 1 positioned in " << laylog.name()
 			 << " at (0,0,0) with no rotation";
@@ -809,7 +809,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 	DDMaterial matter1(matNam1);
 	log = DDLogicalPart(solid.ddname(), matter1, solid);
 
-	pos(log, mother, 1, DDTranslation(), DDRotation());
+	cpv.position(log, mother, 1, DDTranslation(), DDRotation());
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << log.name() 
 			     << " Number 1 positioned in " << mother.name()
 			     << " at (0,0,0) with no rotation";
@@ -840,7 +840,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
       DDMaterial matter1(matNam1);
       glog = DDLogicalPart(solid.ddname(), matter1, solid);
 
-      pos(glog, mother, 1, DDTranslation(), DDRotation());
+      cpv.position(glog, mother, 1, DDTranslation(), DDRotation());
       LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 			   << " Number 1 positioned in " << mother.name()
 			   << " at (0,0,0) with no rotation";
@@ -871,7 +871,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 	DDMaterial matter2(matName2);
 	log = DDLogicalPart(solid.ddname(), matter2, solid);
 
-	pos(log, mother, i, DDTranslation(), DDRotation());
+	cpv.position(log, mother, i, DDTranslation(), DDRotation());
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << log.name() 
 			     << " Number " << i << " positioned in " 
 			     << mother.name() << " at (0,0,0) with no "
@@ -886,7 +886,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
 						string name, int id, double dx,
 						double dy, double dz,
-						int type, DDPositioner& pos) {
+						int type, DDCompactView& cpv) {
 
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: \t\tInside detector " << id 
 		       << "...";
@@ -925,7 +925,7 @@ void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
   glog = DDLogicalPart(solid.ddname(), plmatter, solid); 
 
   double x = shiftX + dx1 - dx;
-  pos(glog, detector, 1, DDTranslation(x,y,0), DDRotation());
+  cpv.position(glog, detector, 1, DDTranslation(x,y,0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 		       << " Number 1 positioned in " << detector.name() 
 		       << " at (" << x << "," << y << ",0) with no rotation";
@@ -939,7 +939,7 @@ void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
 
   x += dx1 + 0.5*getDetTsc(id);
   int copyNo = id*10 + getDetType(id);
-  pos(glog, detector, copyNo, DDTranslation(x, y, 0), DDRotation());
+  cpv.position(glog, detector, copyNo, DDTranslation(x, y, 0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() <<" Number "
 		       << copyNo << " positioned in " << detector.name() 
 		       << " at (" << x << "," << y  << ",0) with no rotation";
@@ -951,7 +951,7 @@ void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
   glog = DDLogicalPart(solid.ddname(), plmatter, solid);
 
   x+=0.5*getDetTsc(id) + dx2;
- pos(glog, detector, 1, DDTranslation(x, y, 0), DDRotation());
+ cpv.position(glog, detector, 1, DDTranslation(x, y, 0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 		       << " Number 1 positioned in " << detector.name() 
 		       << " at (" << x << "," << y << ",0) with no rotation";

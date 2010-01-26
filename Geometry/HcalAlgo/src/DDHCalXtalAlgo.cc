@@ -49,7 +49,7 @@ void DDHCalXtalAlgo::initialize(const DDNumericArguments & nArgs,
 		       << "\tChild " << idName << " NameSpace " << idNameSpace;
 }
 
-void DDHCalXtalAlgo::execute(DDPositioner& ddpos) {
+void DDHCalXtalAlgo::execute(DDCompactView& cpv) {
 
   double theta[3], phi[3], pos[3];
   phi[0] = 0;
@@ -84,7 +84,7 @@ void DDHCalXtalAlgo::execute(DDPositioner& ddpos) {
       rotation = DDrot(DDName(rotstr, idNameSpace), theta[0], phi[0], theta[1],
 		       phi[1], theta[2], phi[2]);
     }
-    ddpos(DDName(idName, idNameSpace), parentName, i+1, tran, rotation);
+    cpv.position(DDName(idName, idNameSpace), parentName, i+1, tran, rotation);
     LogDebug("HCalGeom") << "DDHCalXtalAlgo test: "
 			 << DDName(idName,idNameSpace) << " number " << i+1 
 			 << " positioned in " << parentName << " at " << tran
