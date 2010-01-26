@@ -254,12 +254,14 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId);
 		  unsigned theStatusValue = theStatus->getValue();
 		  if ( !theStatusValue ) { 
+		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
 			      << energyemHF << " " << energyhadHF << " "
 			      << longFibre << " " << shortFibre << " " 
 			      << ". The status value is " << theStatusValue
 			      << ". Short fibres were cleaned." << std::endl;
+		    */
 		    continue;
 		  }
 		}
