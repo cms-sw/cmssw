@@ -175,8 +175,7 @@ DDEcalEndcapAlgo::ddname( const std::string& s ) const
 //-------------------- Endcap SC geometry methods ---------------------
 
 void 
-DDEcalEndcapAlgo::execute(DDPositioner& pos) 
-{
+DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
 //  Position supercrystals in EE Quadrant
 //  Version:    1.00
 //  Created:    30 July 2007
@@ -233,7 +232,7 @@ DDEcalEndcapAlgo::execute(DDPositioner& pos)
 
    for( unsigned int isc ( 0 ); isc<eenSCTypes() ; ++isc ) 
    {
-     EECreateSC( isc+1, pos );
+     EECreateSC( isc+1, cpv );
    }
 
    const std::vector<double>& colLimits ( eevecEEShape() );
@@ -269,7 +268,7 @@ DDEcalEndcapAlgo::execute(DDPositioner& pos)
                                   << "   Rotation " << rname << " " << scrys.rotation() << std::endl
                                   << "   Position " << sccentre << std::endl;
 */
-	    pos( envName( isctype ), 
+	    cpv.position( envName( isctype ), 
 		   eeQuaName(),
 		   100*isctype + 10*(icol-1) + (irow-1),
 		   scrys.centrePos(),
@@ -281,7 +280,7 @@ DDEcalEndcapAlgo::execute(DDPositioner& pos)
 
 
 void
-DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType, DDPositioner& pos)
+DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType, DDCompactView& cpv)
 { //  EECreateSCType   Create SC logical volume of the given type
 
    DDRotation noRot ;
@@ -411,11 +410,11 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType, DDPositioner& pos)
    }
 
 
-   pos( eeSCALog, envName( iSCType ), iSCType*100 + 1, DDTranslation( dxy,    dxy,    dz   ), noRot );
-   pos( eeSCILog, alvName( iSCType ), iSCType*100 + 1, DDTranslation( xyIOff, xyIOff, zIOff), noRot );
+   cpv.position( eeSCALog, envName( iSCType ), iSCType*100 + 1, DDTranslation( dxy,    dxy,    dz   ), noRot );
+   cpv.position( eeSCILog, alvName( iSCType ), iSCType*100 + 1, DDTranslation( xyIOff, xyIOff, zIOff), noRot );
 
    DDTranslation croffset( 0., 0., 0.) ;
-   EEPositionCRs( alvName( iSCType ), croffset, iSCType, pos ) ;
+   EEPositionCRs( alvName( iSCType ), croffset, iSCType, cpv ) ;
 
 }
 
@@ -459,7 +458,7 @@ void
 DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName, 
 				 const DDTranslation offset, 
 				 const int           iSCType ,
-				 DDPositioner& pos ) 
+				 DDCompactView&      cpv ) 
 {
    //  Position crystals within parent supercrystal interior volume
 
@@ -493,7 +492,7 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
 
 	       DDName rname ( "EECrRoC" + int_to_string( icol ) + "R" + int_to_string( irow ) ) ;
 
-	       pos( cryName(),
+	       cpv.position( cryName(),
 		      pName,
 		      100*iSCType + 10*( icol - 1 ) + ( irow - 1 ),
 		      crystal.centrePos(),

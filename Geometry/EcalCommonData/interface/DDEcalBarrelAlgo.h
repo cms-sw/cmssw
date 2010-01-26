@@ -39,7 +39,7 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
 		      const DDMapArguments          & mArgs,
 		      const DDStringArguments       & sArgs,
 		      const DDStringVectorArguments & vsArgs);
-      void execute(DDPositioner& pos);
+      void execute(DDCompactView& cpv);
 
       DDMaterial ddmat(  const std::string& s ) const ;
       DDName     ddname( const std::string& s ) const ;
@@ -393,7 +393,7 @@ private:
 		double              side,
 		double              front,
 		double              delta,
-		DDPositioner&       pos  ) ;
+		DDCompactView&      cpv );
 
       std::string         m_idNameSpace;            //Namespace of this and ALL sub-parts
 
