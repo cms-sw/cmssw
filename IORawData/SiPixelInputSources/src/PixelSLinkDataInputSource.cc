@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.17 2008/04/03 15:56:08 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.18 2008/09/22 15:45:15 fblekman Exp $
 //
 //
 
@@ -39,8 +39,8 @@ int PixelSLinkDataInputSource::getEventNumberFromFillWords(std::vector<uint64_t>
   int fif2cnt=0;
   int dumcnt=0;
   int gapcnt=0;
-  uint32_t gap[8];
-  uint32_t  dum[8];
+  uint32_t gap[9];
+  uint32_t dum[9];
   uint32_t word[2]={0,0};
   uint32_t chan=0;
   uint32_t roc=0;
