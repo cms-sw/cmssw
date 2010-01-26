@@ -23,6 +23,7 @@ LXXXCorrector::LXXXCorrector(const edm::ParameterSet& fConfig)
   string era(fConfig.getParameter<string>("era"));
   string algorithm(fConfig.getParameter<string>("algorithm"));
   string section(fConfig.getUntrackedParameter<string>("section",""));  
+  bool   debug (fConfig.getUntrackedParameter<bool>("debug",false));
   
   string fileName("CondFormats/JetMETObjects/data/");
 
@@ -30,8 +31,9 @@ LXXXCorrector::LXXXCorrector(const edm::ParameterSet& fConfig)
   fileName += level;
   if (!algorithm.empty()) fileName += "_" + algorithm;
   fileName += ".txt";
-  //edm::LogInfo("FileName")<<"initialize from "<<fileName;
-  
+  if (debug)
+    edm::LogInfo("FileName")<<"initialize from "<<fileName;
+    
   edm::FileInPath fip(fileName); 
 
   if (level == "L1Offset")
