@@ -47,6 +47,8 @@ L1GctMet::metVector () const
       break;
 
     default:
+      algoResult.mag = 0;
+      algoResult.phi = 0;
       break;
     }
 
