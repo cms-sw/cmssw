@@ -42,7 +42,7 @@ fifthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConvert
 
 # SEEDING LAYERS
 fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('TobTecLayerPairs'),
+    ComponentName = cms.string('fifthlayerPairs'),
 
     layerList = cms.vstring('TOB1+TOB2', 
         'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
@@ -54,12 +54,12 @@ fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
         'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'),
 
     TOB = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("fifthStripRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
 
     TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("fifthStripRecHits","matchedRecHit"),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -67,17 +67,13 @@ fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
         maxRing = cms.int32(5)
     )
 )
-fifthlayerpairs.ComponentName = 'fifthlayerPairs'
-fifthlayerpairs.TOB.matchedRecHits = 'fifthStripRecHits:matchedRecHit'
-fifthlayerpairs.TEC.matchedRecHits = 'fifthStripRecHits:matchedRecHit'
-
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 fifthSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 fifthSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'fifthlayerPairs'
-fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.8
-fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
-fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
+fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
+fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
@@ -94,7 +90,7 @@ fifthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESP
     ComponentName = 'fifthCkfTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 0,
-    minimumNumberOfHits = 7,
+    minimumNumberOfHits = 6,
     minPt = 0.1,
     minHitsMinPt = 3
     )
@@ -119,7 +115,7 @@ fifthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderES
     inOutTrajectoryFilterName = 'fifthCkfInOutTrajectoryFilter',
     useSameTrajFilter = False,
     minNrOfHitsForRebuild = 4,
-    alwaysUseInvalidHits = False,
+    alwaysUseInvalidHits = False
     #startSeedHitsInRebuild = True
     )
 
@@ -137,8 +133,8 @@ fifthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCan
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
 fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
     ComponentName = 'fifthFittingSmootherWithOutlierRejection',
-    EstimateCut = 20,
-    MinNumberOfHits = 7,
+    EstimateCut = 30,
+    MinNumberOfHits = 8,
     Fitter = cms.string('fifthRKFitter'),
     Smoother = cms.string('fifthRKSmoother')
     )
@@ -146,12 +142,13 @@ fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.RungeKutta
 # Also necessary to specify minimum number of hits after final track fit
 fifthRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectoryFitter.clone(
     ComponentName = cms.string('fifthRKFitter'),
-    minHits = 7
+    minHits = 8
     )
 
 fifthRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
     ComponentName = cms.string('fifthRKSmoother'),
-    minHits = 7
+    errorRescaling = 10.0,
+    minHits = 8
     )
 
 # TRACK FITTING
@@ -167,22 +164,21 @@ fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
 
 tobtecStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
     src = 'fifthWithMaterialTracks',
     keepAllTracks = False,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.6,
+    chi2n_par = 0.5,
     res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 6,
+    minNumberLayers = 5,
     maxNumberLostLayers = 1,
     minNumber3DLayers = 2,
-    d0_par1 = ( 1.8, 4.0 ),
-    dz_par1 = ( 1.5, 4.0 ),
-    d0_par2 = ( 1.8, 4.0 ),
-    dz_par2 = ( 1.5, 4.0 )
+    d0_par1 = ( 2.0, 4.0 ),
+    dz_par1 = ( 1.8, 4.0 ),
+    d0_par2 = ( 2.0, 4.0 ),
+    dz_par2 = ( 1.8, 4.0 )
     )
 
 tobtecStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
@@ -190,15 +186,15 @@ tobtecStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.cl
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.35,
+    chi2n_par = 0.3,
     res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 6,
+    minNumberLayers = 5,
     maxNumberLostLayers = 0,
     minNumber3DLayers = 2,
-    d0_par1 = ( 1.3, 4.0 ),
-    dz_par1 = ( 1.2, 4.0 ),
-    d0_par2 = ( 1.3, 4.0 ),
-    dz_par2 = ( 1.2, 4.0 )
+    d0_par1 = ( 1.5, 4.0 ),
+    dz_par1 = ( 1.4, 4.0 ),
+    d0_par2 = ( 1.5, 4.0 ),
+    dz_par2 = ( 1.4, 4.0 )
     )
 
 tobtecStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
@@ -206,15 +202,15 @@ tobtecStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPuri
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.25,
+    chi2n_par = 0.2,
     res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 6,
+    minNumberLayers = 5,
     maxNumberLostLayers = 0,
     minNumber3DLayers = 2,
-    d0_par1 = ( 1.2, 4.0 ),
-    dz_par1 = ( 1.1, 4.0 ),
-    d0_par2 = ( 1.2, 4.0 ),
-    dz_par2 = ( 1.1, 4.0 )
+    d0_par1 = ( 1.4, 4.0 ),
+    dz_par1 = ( 1.3, 4.0 ),
+    d0_par2 = ( 1.4, 4.0 ),
+    dz_par2 = ( 1.3, 4.0 )
     )
 
 fifthStep = cms.Sequence(fourthfilter*fifthClusters*
