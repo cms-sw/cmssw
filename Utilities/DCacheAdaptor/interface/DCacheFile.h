@@ -32,6 +32,8 @@ public:
   using Storage::position;
 
   virtual IOSize	read (void *into, IOSize n);
+  virtual IOSize	readv (IOBuffer *into, IOSize buffers);
+  virtual IOSize	readv (IOPosBuffer *into, IOSize buffers);
   virtual IOSize	write (const void *from, IOSize n);
 
   virtual IOOffset	position (IOOffset offset, Relative whence = SET);
