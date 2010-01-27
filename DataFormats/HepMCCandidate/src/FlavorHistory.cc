@@ -66,8 +66,8 @@ ostream & operator<<( ostream & out, Candidate const & cand)
   char buff[1000];
   sprintf(buff, "%5d, status = %5d, nmo = %5d, nda = %5d, pt = %6.2f, eta = %6.2f, phi = %6.2f, m = %6.2f", 
 	  cand.pdgId(), cand.status(), 
-	  cand.numberOfMothers(),
-	  cand.numberOfDaughters(),
+	  static_cast<int>(cand.numberOfMothers()),
+	  static_cast<int>(cand.numberOfDaughters()),
 	  cand.pt(), cand.eta(), cand.phi(), cand.mass() );
   out << buff;
   return out;
