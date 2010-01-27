@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.87 2009/12/08 01:46:19 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.88 2010/01/25 16:05:21 amraktad Exp $
 //
 // hacks
 // #define private public
@@ -236,8 +236,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    AddFrame(new TGFrame(this, 1, 1, kChildFrame, 0x503020),
             new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
-   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0, backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
@@ -300,9 +298,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    /**************************************************************************/
 
    TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
-   TImage *imgSld  = TImage::Open(coreIcondir+"slider-bg-down.png");
+   TImage *imgSld  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"slider-bg-down.png");
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
-   TString sldBtn = coreIcondir +"slider-button.png";
+   TString sldBtn = FWCheckBoxIcon::coreIcondir() +"slider-button.png";
 
    m_delaySlider = new TGHSlider(sliderFrame, 109, kSlider1 | kScaleNo);
    sliderFrame->AddFrame(m_delaySlider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
