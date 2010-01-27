@@ -56,7 +56,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     LSBegin = cms.int32(0),
     LSEnd   = cms.int32(-1),                                
                                 
-    #
+    #Cleanup parameters
     HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
         
     techTrigsAND    = cms.vuint32(0),
@@ -69,9 +69,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     
     #Vertex cleanup parameters
     nvtx_min       = cms.int32(1),
-    nvtxtrks_min   = cms.int32(2),
+    nvtxtrks_min   = cms.int32(3),
     vtxchi2_max    = cms.double(2.4),
-    vtxz_max       = cms.double(20.0),
+    vtxz_max       = cms.double(15.0),
     
     #Switch on  tight filters for BeamHalo, JetID, HCALnoise
     tightBHFiltering      = cms.bool(True),
@@ -111,9 +111,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(2),
+        nvtxtrks_min   = cms.int32(3),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(20.0),
+        vtxz_max       = cms.double(15.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
@@ -172,9 +172,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(2),
+        nvtxtrks_min   = cms.int32(3),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(20.0),
+        vtxz_max       = cms.double(15.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
@@ -233,9 +233,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(2),
+        nvtxtrks_min   = cms.int32(3),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(20.0),
+        vtxz_max       = cms.double(15.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
@@ -294,9 +294,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(2),
+        nvtxtrks_min   = cms.int32(3),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(20.0),
+        vtxz_max       = cms.double(15.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
@@ -359,9 +359,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(2),
+        nvtxtrks_min   = cms.int32(3),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(20.0),
+        vtxz_max       = cms.double(15.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
@@ -433,9 +433,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(2),
+        nvtxtrks_min   = cms.int32(3),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(20.0),
+        vtxz_max       = cms.double(15.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
@@ -484,9 +484,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(2),
+        nvtxtrks_min   = cms.int32(3),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(20.0),
+        vtxz_max       = cms.double(15.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),

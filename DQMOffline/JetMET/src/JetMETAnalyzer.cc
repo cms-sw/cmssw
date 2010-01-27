@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/25 23:07:49 $
- *  $Revision: 1.40 $
+ *  $Date: 2010/01/27 01:43:08 $
+ *  $Revision: 1.41 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -437,17 +437,21 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
       VertexCollection::const_iterator v = vertexCollection.begin();
-      double vertex_chi2    = v->normalizedChi2(); //v->chi2();
+      double vertex_chi2    = v->normalizedChi2();
       //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
-      double vertex_numTrks = v->tracksSize();
+      //double vertex_numTrks = v->tracksSize();
+      double vertex_ndof    = v->ndof();
+      bool   fakeVtx        = v->isFake();
       double vertex_sumTrks = 0.0;
       double vertex_Z       = v->z();
       for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
 	vertex_sumTrks += (*vertex_curTrack)->pt();
       }
       
-      if (vertex_number>=_nvtx_min
-	  && vertex_numTrks>=_nvtxtrks_min
+      if (  !fakeVtx
+	  && vertex_number>=_nvtx_min
+	  //&& vertex_numTrks>_nvtxtrks_min
+	  && vertex_ndof   >_nvtxtrks_min+1
 	  && vertex_chi2   <_vtxchi2_max
 	  && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
     }
@@ -462,8 +466,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   bool bTechTriggers    = true;
   bool bTechTriggersAND = true;
-  bool bTechTriggersOR  = true;
-  bool bTechTriggersNOT = true;
+  bool bTechTriggersOR  = false;
+  bool bTechTriggersNOT = false;
 
   for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
     bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
