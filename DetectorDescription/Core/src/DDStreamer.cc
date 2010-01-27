@@ -688,7 +688,7 @@ void DDStreamer::pos_read()
   size_t i=0;
   DDCompactView cpv;
   DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
-  DDPositioner pos_(&cpv);
+  //  DDPositioner pos_(&cpv);
   //LogDebug << "===== GRAPH SIZE = " << g.size() << " ======" << std::endl << std::endl;
   if (g.size()) {
     edm::LogWarning("DDStreamer") << std::endl;
@@ -732,7 +732,7 @@ void DDStreamer::pos_read()
         throw(DDException(message));
       }	              	               
     //DDName rot(dd_get_name(is));
-    pos_(DDLogicalPart(to),DDLogicalPart(from),cp,t,rot); 
+    cpv.position(DDLogicalPart(to),DDLogicalPart(from),cp,t,rot); 
     DCOUT('y', " pos-read: f=" << from << " to=" << to << " t=" << t << " r=" << rot);
   }
 }
