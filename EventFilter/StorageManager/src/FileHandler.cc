@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.7 2009/09/17 11:02:17 mommsen Exp $
+// $Id: FileHandler.cc,v 1.8 2009/10/13 15:08:34 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -202,7 +202,8 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
   {
     std::ostringstream msg;
     msg << "Error checking the status of open file "
-      << fileName;
+      << fileName
+      << ". Error code: " << errno;
     XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
   }
   
