@@ -162,8 +162,42 @@ SiStripCalZeroBiasMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         yfactor = cms.double(0.0002),
         subdetswitchon = cms.bool(True)
     ),
+
+    TProfClustersVsDBxCycle = cms.PSet(
+        Nbins = cms.int32(800),
+        xmin = cms.double(0.5),
+        xmax = cms.double(800.5),
+        ymin = cms.double(0.0),
+        ymax = cms.double(0.0),
+        subdetswitchon = cms.bool(False)
+        ),
+                                                                          
+    TProf2ApvCycleVsDBx = cms.PSet(
+        Nbinsx = cms.int32(70),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(69.5),
+        Nbinsy = cms.int32(800),
+        ymin   = cms.double(0.5),
+        ymax   = cms.double(800.5),
+        zmin   = cms.double(0.0),
+        zmax   = cms.double(0.0),
+        subdetswitchon = cms.bool(False)
+        ),
                                      
+    TH2ApvCycleVsDBxGlobal = cms.PSet(
+        Nbinsx = cms.int32(70),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(69.5),
+        Nbinsy = cms.int32(800),
+        ymin   = cms.double(0.5),
+        ymax   = cms.double(800.5),
+        globalswitchon = cms.bool(False)
+        ),
+
     Mod_On = cms.bool(True),
+
+    HistoryProducer = cms.InputTag("consecutiveHEs"),
+    ApvPhaseProducer = cms.InputTag("APVPhases"),
 
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)
