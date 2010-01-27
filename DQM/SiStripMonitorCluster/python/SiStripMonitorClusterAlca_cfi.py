@@ -144,7 +144,7 @@ SiStripCalZeroBiasMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         subdetswitchon = cms.bool(True)
     ),
     TProfClustersApvCycle = cms.PSet(
-        Nbinsx = cms.int32(70),
+        Nbins = cms.int32(70),
         xmin = cms.double(-0.5),
         xmax = cms.double(69.5),
         Nbinsy = cms.int32(200),
@@ -154,7 +154,7 @@ SiStripCalZeroBiasMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         ),
 
     TH2ClustersApvCycle = cms.PSet(
-        Nbins = cms.int32(70),
+        Nbinsx = cms.int32(70),
         xmin = cms.double(-0.5),
         xmax = cms.double(69.5),
         Nbinsy = cms.int32(200),
