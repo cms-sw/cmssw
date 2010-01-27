@@ -51,9 +51,9 @@ void SiStripBadComponentsDQMServiceReader::analyze( const edm::Event& e, const e
 
       if (printdebug_) {
         ss << " firstBadStrip " <<  SiStripBadStrip_->decode(value).firstStrip << "\t "
-           << " NconsecutiveBadStrips " << SiStripBadStrip_->decode(value).range << "\t " << endl;
-           // << " flag " << SiStripBadStrip_->decode(value).flag << "\t "
-           // << " packed integer " <<  std::hex << value << std::dec << "\t " << endl << endl;
+           << " NconsecutiveBadStrips " << SiStripBadStrip_->decode(value).range << "\t " // << endl;
+           << " flag " << SiStripBadStrip_->decode(value).flag << "\t "
+           << " packed integer " <<  std::hex << value << std::dec << "\t " << endl;
       }
     }
     ss << endl;
