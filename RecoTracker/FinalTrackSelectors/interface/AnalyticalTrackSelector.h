@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.12 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.11 2009/05/13 07:20:43 gpetrucc Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.12 2009/08/21 16:25:52 wmtan Exp $
  *
  */
 
@@ -30,7 +30,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
 namespace reco { namespace modules {
 
