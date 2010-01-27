@@ -234,6 +234,9 @@ void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& contex
   MonitorElement * HLT_Photon = dbe_->get("HLT_Photon");
   if(HLT_Photon) reportSummaryContent_.push_back(HLT_Photon);
 
+  MonitorElement * HLT_Tau = dbe_->get("HLT_Tau");
+  if(HLT_Tau) reportSummaryContent_.push_back(HLT_Tau);
+
 
   int nSubsystems = reportSummaryContent_.size();
 
@@ -261,19 +264,22 @@ void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& contex
   float photonValue = 1;
   if(HLT_Photon) photonValue = HLT_Photon->getFloatValue();
 
+  float tauValue = 1;
+  if(HLT_Tau) tauValue = HLT_Tau->getFloatValue();
+
   reportSummaryMap_->setBinContent(1,1,muonValue);//Muon
   reportSummaryMap_->setBinContent(1,2,electronValue);//Electron
   reportSummaryMap_->setBinContent(1,3,photonValue);//Photon
   reportSummaryMap_->setBinContent(1,4,1);//JetMET
   reportSummaryMap_->setBinContent(1,5,1);//BJet
-  reportSummaryMap_->setBinContent(1,6,1);//Tau
+  reportSummaryMap_->setBinContent(1,6,tauValue);//Tau
 
   CertificationSummaryMap_->setBinContent(1,1,muonValue);//Muon
   CertificationSummaryMap_->setBinContent(1,2,electronValue);//Electron
   CertificationSummaryMap_->setBinContent(1,3,photonValue);//Photon
   CertificationSummaryMap_->setBinContent(1,4,1);//JetMET
   CertificationSummaryMap_->setBinContent(1,5,1);//BJet
-  CertificationSummaryMap_->setBinContent(1,6,1);//Tau
+  CertificationSummaryMap_->setBinContent(1,6,tauValue);//Tau
 }
 
 //--------------------------------------------------------
