@@ -16,7 +16,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     qualityBit = cms.string('tight'), ## set to '' or comment out if you don't want to set the bit
 
     # parameters for adapted optimal cuts on chi2 and primary vertex compatibility
-    chi2n_par = cms.double(0.9),
+    chi2n_par = cms.double(0.7),
     res_par = cms.vdouble(0.003, 0.01),
     d0_par1 = cms.vdouble(0.3, 4.0),
     dz_par1 = cms.vdouble(0.35, 4.0),
