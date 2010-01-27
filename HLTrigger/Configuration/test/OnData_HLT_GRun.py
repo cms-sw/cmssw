@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/GRun/V6 (CMSSW_3_5_0_pre3_HLT2)
+# /dev/CMSSW_3_5_0/GRun/V7 (CMSSW_3_5_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V6')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V7')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -13,7 +13,7 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooFewProducts' ) )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring("rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/ZeroBias/RAW/v1/000/123/734/D28203D4-AFE3-DE11-ADEE-001D09F2527B.root")                              
+    fileNames = cms.untracked.vstring("rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/ZeroBias/RAW/v1/000/123/734/D28203D4-AFE3-DE11-ADEE-001D09F2527B.root")
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
@@ -847,6 +847,9 @@ process.SiStripQualityESProducer = cms.ESProducer( "SiStripQualityESProducer",
       tag = cms.string( "" )
     ),
     cms.PSet(  record = cms.string( "SiStripBadModuleRcd" ),
+      tag = cms.string( "" )
+    ),
+    cms.PSet(  record = cms.string( "RunInfoRcd" ),
       tag = cms.string( "" )
     )
   )
