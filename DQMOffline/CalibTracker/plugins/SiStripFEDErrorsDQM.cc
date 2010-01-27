@@ -111,8 +111,16 @@ bool SiStripFEDErrorsDQM::readBadAPVs(){
 
   unsigned int nAPVsTotal = 0;
   //retrieve total number of APVs valid and connected from cabling:
+  if (!cabling_) {
+    edm::LogError("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] cabling not filled, return false " << std::endl;
+    return false;
+  }
   const std::vector<uint16_t>& lFedVec = cabling_->feds();
   for (unsigned int iFed(0);iFed<lFedVec.size();iFed++){
+    if (lFedVec.at(iFed) < sistrip::FED_ID_MIN || lFedVec.at(iFed) > sistrip::FED_ID_MAX) {
+      edm::LogError("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] Invalid fedid : " << lFedVec.at(iFed) << std::endl;
+      continue;
+    }
     const std::vector<FedChannelConnection>& lConnVec = cabling_->connections(lFedVec.at(iFed));
     for (unsigned int iConn(0); iConn<lConnVec.size();iConn++){
       const FedChannelConnection & lConnection = lConnVec.at(iConn);
@@ -289,8 +297,8 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
 	     iChId < sistrip::FEDCH_PER_FED; 
 	     iChId++) {//loop on channels
 	  const FedChannelConnection & lConnection = cabling_->connection(lFedId,iChId);
-	  addBadAPV(lConnection,0,lFlag,aCounter);
-
+	  if (!lConnection.isConnected()) continue;
+    	  addBadAPV(lConnection,0,lFlag,aCounter);
 	}
       }
       else {
@@ -302,6 +310,7 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
 	     iFeCh++) {//loop on channels
 	    unsigned int iChId = sistrip::FEDCH_PER_FEUNIT*iFeId+iFeCh;
 	    const FedChannelConnection & lConnection = cabling_->connection(aFedId,iChId);
+	    if (!lConnection.isConnected()) continue;
 	    addBadAPV(lConnection,0,lFlag,aCounter);
 	  }
 	}
@@ -330,12 +339,12 @@ void SiStripFEDErrorsDQM::addBadAPV(const FedChannelConnection & aConnection,
                                     unsigned int & aCounter)
 {
   if (!aConnection.isConnected()) {
-    edm::LogWarning("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::addBadAPV] Warning, incompatible cabling ! Channel is not connected ... " << std::endl;
+    edm::LogWarning("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::addBadAPV] Warning, incompatible cabling ! Channel is not connected, but entry found in histo ... " << std::endl;
     return;
   }
   unsigned int lDetid = aConnection.detId();
   if (!lDetid || lDetid == sistrip::invalid32_) {
-    edm::LogWarning("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::addBadAPV] Warning, incompatible cabling ! DetId is invalid: " << lDetid << std::endl;
+    edm::LogWarning("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::addBadAPV] Warning, DetId is invalid: " << lDetid << std::endl;
     return;
   }
   //unsigned short nChInModule = aConnection.nApvPairs();
@@ -373,9 +382,9 @@ void SiStripFEDErrorsDQM::addBadStrips(const FedChannelConnection & aConnection,
 
   lStripVector.push_back(lBadStripRange);
   SiStripBadStrip::Range lRange(lStripVector.begin(),lStripVector.end());
-  //if ( !obj_->put(aDetId,lRange) ) {
-  //  edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
-  //}
+  if ( !obj_->put(aDetId,lRange) ) {
+    edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
+  }
   
   aCounter++;
 }

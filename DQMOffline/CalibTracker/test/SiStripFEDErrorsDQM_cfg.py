@@ -84,7 +84,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
 #process.GlobalTag.globaltag = "GR09_31X_V1P::All"
-process.GlobalTag.globaltag = "GR09_P_V7::All"
+process.GlobalTag.globaltag = "GR09_E_V2::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 ########################
@@ -135,7 +135,7 @@ process.siStripFEDErrorsDQM = cms.EDAnalyzer("SiStripFEDErrorsDQM",
                                              FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Online/123/815/DQM_V0001_SiStrip_R000123815.root"),
                                              ME_DIR = cms.untracked.string("Run 123815"),
                                              histoList = cms.VPSet(),
-                                             Threshold = cms.untracked.double(0.01),
+                                             Threshold = cms.untracked.double(0.0),
                                              Debug = cms.untracked.uint32(1)
                                              )
 
