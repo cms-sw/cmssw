@@ -31,38 +31,32 @@ void SiStripBadComponentsDQMServiceReader::analyze( const edm::Event& e, const e
 
   stringstream ss;
 
-  if (printdebug_) {
+  // ss << " detid" << " \t\t\t" << "FED error" << " \t" << "Digi test failed" << " \t" << "Cluster test failed" << std::endl;
 
-    // ss << " detid" << " \t\t\t" << "FED error" << " \t" << "Digi test failed" << " \t" << "Cluster test failed" << std::endl;
+  ss << "subdet  layer   stereo  side \t detId \t\t Errors" << std::endl;
 
-    ss << "subdet  layer   stereo  side \t detId \t\t Errors" << std::endl;
+  for (size_t id=0;id<detid.size();id++) {
+    SiStripBadStrip::Range range=SiStripBadStrip_->getRange(detid[id]);
 
-    for (size_t id=0;id<detid.size();id++) {
-      SiStripBadStrip::Range range=SiStripBadStrip_->getRange(detid[id]);
+    for(int it=0;it<range.second-range.first;it++){
+      unsigned int value=(*(range.first+it));
+      ss << detIdToString(detid[id]) << "\t" << detid[id] << "\t";
 
-      for(int it=0;it<range.second-range.first;it++){
-	unsigned int value=(*(range.first+it));
-	// 	  edm::LogInfo("SiStripBadComponentsDQMServiceReader")  << "detid " << detid[id] << " \t"
-	// 						 << " firstBadStrip " <<  SiStripBadStrip_->decode(value).firstStrip << "\t "
-	// 						 << " NconsecutiveBadStrips " << SiStripBadStrip_->decode(value).range << "\t "
-	// 						 << " flag " << SiStripBadStrip_->decode(value).flag << "\t "
-	// 						 << " packed integer " <<  std::hex << value << std::dec << "\t "
+      uint32_t flag = boost::lexical_cast<uint32_t>(SiStripBadStrip_->decode(value).flag);
 
-        ss << detIdToString(detid[id]) << "\t" << detid[id] << "\t";
+      printError( ss, ((flag & FedErrorMask) == FedErrorMask), "Fed error, " );
+      printError( ss, ((flag & DigiErrorMask) == DigiErrorMask), "Digi error, " );
+      printError( ss, ((flag & ClusterErrorMask) == ClusterErrorMask), "Cluster error" );
+      ss << endl;
 
-	// ss << detid[id] << " \t";
-	uint32_t flag = boost::lexical_cast<uint32_t>(SiStripBadStrip_->decode(value).flag);
-
-// 	std::cout << "fed error = " << ((flag & FedErrorMask) == FedErrorMask) << ", for flag = " << flag << std::endl;
-// 	std::cout << "digi error = " << ((flag & DigiErrorMask) == DigiErrorMask) << ", for flag = " << flag << ", with (flag & DigiErrorMask) = " << (flag & DigiErrorMask) << std::endl;
-// 	std::cout << "cluster error = " << ((flag & ClusterErrorMask) == ClusterErrorMask) << ", for flag = " << flag << std::endl;
-
-	printError( ss, ((flag & FedErrorMask) == FedErrorMask), "Fed error, " );
-	printError( ss, ((flag & DigiErrorMask) == DigiErrorMask), "Digi error, " );
-	printError( ss, ((flag & ClusterErrorMask) == ClusterErrorMask), "Cluster error" );
-	ss << endl;
+      if (printdebug_) {
+        ss << " firstBadStrip " <<  SiStripBadStrip_->decode(value).firstStrip << "\t "
+           << " NconsecutiveBadStrips " << SiStripBadStrip_->decode(value).range << "\t " << endl;
+           // << " flag " << SiStripBadStrip_->decode(value).flag << "\t "
+           // << " packed integer " <<  std::hex << value << std::dec << "\t " << endl << endl;
       }
     }
+    ss << endl;
   }
   edm::LogInfo("SiStripBadComponentsDQMServiceReader") << ss.str();
 }
