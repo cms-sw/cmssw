@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -65,9 +65,9 @@ namespace edmtest {
 	  throw cms::Exception ("Record not found") << "Record \"DQMXMLFileRcd" 
 						    << "\" does not exist!" << std::endl;
 	}
-	edm::ESHandle<GeometryFile> rootgeo;
+	edm::ESHandle<FileBlob> rootgeo;
 	iSetup.get<DQMXMLFileRcd>().get(labelToGet_,rootgeo);
-	std::cout<<"XML FILE IN MEMORY 1 with label " << labelToGet_ <<std::endl;
+	//std::cout<<"XML FILE IN MEMORY 1 with label " << labelToGet_ <<std::endl;
 	boost::scoped_ptr<std::vector<unsigned char> > tb1( (*rootgeo).getUncompressedBlob() );
 	//here you can implement the stream for putting the TFile on disk...
 	std::string outfile1("XML1_retrieved.xml") ;
