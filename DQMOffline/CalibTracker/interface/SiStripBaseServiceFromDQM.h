@@ -119,6 +119,11 @@ bool SiStripBaseServiceFromDQM<T>::goToDir(const string & name)
 {
   string currDir = dqmStore_->pwd();
   string dirName = currDir.substr(currDir.find_last_of("/")+1);
+  // Protection vs directories written with a trailing "/"
+  if( dirName.length() == 0 ) {
+    string currDirCopy(currDir, 0, currDir.length()-1);
+    dirName = currDirCopy.substr(currDirCopy.find_last_of("/")+1);
+  }
   if (dirName.find(name) == 0) {
     return true;
   }
