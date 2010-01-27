@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea
 //         Created:  Wed Mar  5 19:17:38 CEST 2008
-// $Id: SumHistoCalibration.cc,v 1.4 2009/06/05 10:15:45 jandrea Exp $
+// $Id: SumHistoCalibration.cc,v 1.5 2010/01/22 08:56:41 arizzi Exp $
 //
 //
 // system include files
@@ -153,7 +153,7 @@ SumHistoCalibration::beginJob()
   ca[0]  = fromXml(fip);
   ca[1]  = fromXml(fip2);
   
-  for(int i=minLoop;i <=maxLoop ;i++)
+  for(unsigned int i=minLoop;i <=maxLoop ;i++)
    for(unsigned int j=0;j<ca[i]->data.size() ; j++)
    {
     TrackProbabilityCalibration::Entry e;
@@ -223,11 +223,11 @@ SumHistoCalibration::endJob() {
 
   
   
-  const TrackProbabilityCalibration * ca;
+  const TrackProbabilityCalibration * ca=0;
   
   if(m_sum3D){
    
-    for(int itFile =1; itFile< m_xmlilelist3d.size(); itFile++){
+    for(size_t itFile =1; itFile< m_xmlilelist3d.size(); itFile++){
       edm::FileInPath fip(m_xmlilelist3d[itFile]);
       ca  = fromXml(fip);
       for(unsigned int j=0;j<ca->data.size() ; j++)
@@ -241,7 +241,7 @@ SumHistoCalibration::endJob() {
     cout << "end sum 3D " << endl;
   }
   if(m_sum2D){
-    for(int itFile =1; itFile< m_xmlilelist2d.size(); itFile++){
+    for(size_t itFile =1; itFile< m_xmlilelist2d.size(); itFile++){
       edm::FileInPath fip(m_xmlilelist3d[itFile]);
       ca  = fromXml(fip);
       for(unsigned int j=0;j<ca->data.size() ; j++)
