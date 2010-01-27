@@ -1,5 +1,5 @@
 /*
- * $Id: LaserSorter.h,v 1.2 2009/02/25 17:38:11 pgras Exp $
+ * $Id: LaserSorter.h,v 1.3 2009/08/04 15:16:04 pgras Exp $
  */
 
 #ifndef EVENT_SELECT_H
@@ -138,7 +138,8 @@ private:
    * condition every DCC indicated the same DTT and this value is 1.
    * @return detailed trigger type. In case of descripancy between the DCCs, the
    * most frequent value is returned if it covers more than 80% of the present DCC
-   * blocks, -1 is returned otherwise.
+   * blocks, -1 is returned otherwise. If event does not contain any ECAL data
+   * -2 is returned.
    */
   int getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
                              double* proba = 0);

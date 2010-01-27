@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.5 2009/11/02 16:55:57 ferriff Exp $
+ * $Id: LaserSorter.cc,v 1.6 2010/01/26 14:14:19 pgras Exp $
  */
 
 /***************************************************
@@ -158,7 +158,8 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
     "FED\t"
     "side\t"
     "LB out\t"
-    "Written\n";
+    "Written\t"
+    "ECAL data\n";
 }
 
 LaserSorter::~LaserSorter(){
@@ -202,48 +203,58 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
   const int trigType =   (detailedTrigType_ >>8 ) & 0x7;
   const int color    =   (detailedTrigType_ >>6 ) & 0x3;
   const int dccId    =   (detailedTrigType_ >>0 ) & 0x3F;
-  int triggeredFedId    =   600 + dccId;
+  int triggeredFedId =   (detailedTrigType_ == -2) ? -1 : (600 + dccId);
   const int side     =   (detailedTrigType_ >>11) & 0x1;
   //monitoring region extended id:
   //  const int lme = dcc2Lme(dccId, side);
 
-  if(dttProba < 1. || triggeredFedId < ecalDccFedIdMin_
-     || triggeredFedId > ecalDccFedIdMax_){
-    ++stats_.nInvalidDccStrict;
-  }
-  
-  if(triggeredFedId<ecalDccFedIdMin_ || triggeredFedId > ecalDccFedIdMax_){
-    if(verbosity_) cout <<  "[LaserSorter " << now() << "] " << "DCC ID (" << dccId
-                     << ") found in trigger type is out of range.";
-    ++stats_.nInvalidDccWeak;
-    vector<int> ids = getFullyReadoutDccs(*rawdata);
-    if(ids.size()==0){
-      if(verbosity_ && iNoFullReadoutDccError_ < maxFullReadoutDccError_){
-        cout << " No fully read-out DCC found\n";
-        ++iNoFullReadoutDccError_;
-      }
-    } else if(ids.size()==1){
-      triggeredFedId = ids[0];
-      if(verbosity_) cout << " ID guessed from DCC payloads\n";
-      ++stats_.nRestoredDcc;
-    } else{ //ids.size()>1
-      if(verbosity_){
-        cout << " Several fully read-out Dccs:";
-        for(unsigned i=0; i < ids.size(); ++i) cout << " " << ids[i];
-        cout << "\n";
+  if(detailedTrigType_ > -2){
+    if(dttProba < 1. || triggeredFedId < ecalDccFedIdMin_
+       || triggeredFedId > ecalDccFedIdMax_){
+      ++stats_.nInvalidDccStrict;
+    }
+
+    if(triggeredFedId<ecalDccFedIdMin_ || triggeredFedId > ecalDccFedIdMax_){
+      if(verbosity_) cout <<  "[LaserSorter " << now() << "] " << "DCC ID (" << dccId
+                          << ") found in trigger type is out of range.";
+      ++stats_.nInvalidDccWeak;
+      vector<int> ids = getFullyReadoutDccs(*rawdata);
+      if(ids.size()==0){
+        if(verbosity_ && iNoFullReadoutDccError_ < maxFullReadoutDccError_){
+          cout << " No fully read-out DCC found\n";
+          ++iNoFullReadoutDccError_;
+        }
+      } else if(ids.size()==1){
+        triggeredFedId = ids[0];
+        if(verbosity_) cout << " ID guessed from DCC payloads\n";
+        ++stats_.nRestoredDcc;
+      } else{ //ids.size()>1
+        if(verbosity_){
+          cout << " Several fully read-out Dccs:";
+          for(unsigned i=0; i < ids.size(); ++i) cout << " " << ids[i];
+          cout << "\n";
+        }
       }
     }
-  }
   
-  if(verbosity_>1) cout << "\n----------------------------------------------------------------------\n"
-                      << "Event id: " 
-                      << " " << event.id() << "\n"
-                      << "Lumin block: " << event.luminosityBlock() << "\n"
-                      << "TrigType: " << detailedTrigNames[trigType&0x7]
-                      << " Color: " << colorNames[color&0x3]
-                      <<  " FED: " << triggeredFedId
-                      << " side:" << side << "\n"
-                      << "\n----------------------------------------------------------------------\n";
+    if(verbosity_>1) cout << "\n----------------------------------------------------------------------\n"
+                          << "Event id: " 
+                          << " " << event.id() << "\n"
+                          << "Lumin block: " << event.luminosityBlock() << "\n"
+                          << "TrigType: " << detailedTrigNames[trigType&0x7]
+                          << " Color: " << colorNames[color&0x3]
+                          <<  " FED: " << triggeredFedId
+                          << " side:" << side << "\n"
+                          << "\n----------------------------------------------------------------------\n";
+    
+  } else{ //NO ECAL DATA
+    if(verbosity_>1) cout << "\n----------------------------------------------------------------------\n"
+                          << "Event id: " 
+                          << " " << event.id() << "\n"
+                          << "Lumin block: " << event.luminosityBlock() << "\n"
+                          << "No ECAL data\n"
+                          << "\n----------------------------------------------------------------------\n";
+  }
   
   logFile_ << event.id().run() << "\t"
            << event.luminosityBlock() << "\t" 
@@ -251,10 +262,10 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
            << trigType << "\t"
            << triggeredFedId << "\t"
            << side;
-  
+    
   bool written = false;
   int assignedLB = -1;
-
+  
   if(event.luminosityBlock()!=lumiBlock_){
       //lumi block change => need for stream garbage collection
       closeOldStreams(event.luminosityBlock());
@@ -291,8 +302,9 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
                               << "Writing out event from FED " << triggeredFedId 
                               << " LB " << event.luminosityBlock()
                               << " orbit " << event.orbitNumber() << "\n";
+          int dtt = (detailedTrigType_ >=0) ? detailedTrigType_ : -1; //shall we use -1 or 0 for undefined value?
           written = written
-            || writeEvent(*out, event, detailedTrigType_, *rawdata);
+            || writeEvent(*out, event, dtt, *rawdata);
           ++stats_.nWritten;
         } else{
           if(verbosity_) cout << "[LaserSorter " << now() << "] "
@@ -306,18 +318,12 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
       }
     }
     lumiBlock_ = event.luminosityBlock();
-
-    if(triggeredFedId < ecalDccFedIdMin_
-       || triggeredFedId > ecalDccFedIdMax_){
-      if(verbosity_>1) cout << "[LaserSorter] "
-                            << "DCC ID (" << dccId
-                            << ") found in trigger type is out of range\n";
-    }
     
     logFile_ << "\t";
     if(assignedLB>=0) logFile_ << assignedLB; else logFile_ << "-";
     logFile_ << "\t" << (written?"Y":"N") << "\n"; 
-
+    logFile_  << "\t" << (detailedTrigType_==-2?"N":"Y") << "\n";
+    
     if(timing_){
       timeval t;
       gettimeofday(&t, 0);
@@ -361,6 +367,7 @@ int LaserSorter::dcc2Lme(int dcc, int side){
 int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
                                         double* proba){  
   Majority<int> stat;
+  bool ecalData = false;
   for(int id=ecalDccFedIdMin_; id<=ecalDccFedIdMax_; ++id){
     if(!FEDNumbering::inRange(id)) continue;
     const FEDRawData& data = rawdata->FEDData(id);
@@ -369,6 +376,7 @@ int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>&
                      << "FED " << id << " data size: "  
                           << data.size() << "\n"; 
     if(data.size()>=4*(detailedTrigger32+1)){
+      ecalData = true;
       const uint32_t* pData32 = (const uint32_t*) data.data();
       int tType = pData32[detailedTrigger32] & 0xFFF;
       if(verbosity_>3) cout << "[LaserSorter] "
@@ -376,6 +384,7 @@ int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>&
       stat.add(tType);
     }
   }
+  if(!ecalData) return -2;
   double p;
   int tType = stat.result(&p);
   if(p<0){
@@ -431,7 +440,8 @@ LaserSorter::OutStreamRecord*
 LaserSorter::getStream(int fedId, 
                        edm::LuminosityBlockNumber_t lumiBlock){
 
-  if(fedId < ecalDccFedIdMin_ || fedId > ecalDccFedIdMax_) fedId = -1;
+  if((fedId != -1) &&
+     (fedId < ecalDccFedIdMin_ || fedId > ecalDccFedIdMax_)) fedId = -1;
   
   if(verbosity_) cout << "[LaserSorter] "
        << "Looking for an opened output file for FED " 
@@ -741,10 +751,12 @@ void LaserSorter::streamFileName(int fedId,
   int iFed;
   if(fedId >= ecalDccFedIdMin_ && fedId <= ecalDccFedIdMax_){
     iFed = fedId - ecalDccFedIdMin_ + 1;
-  } else{
+  } else if(fedId < 0){
+    iFed = -1; //event w/o ECAL data
+  } else {
     iFed = 0;
   }
-  if(iFed < 0 || iFed >= (int)fedSubDirs_.size()){
+  if(iFed < -1 || iFed >= (int)fedSubDirs_.size()){
     throw cms::Exception("LaserSorter")
       << "Bug found at " << __FILE__ << ":" << __LINE__ 
       << ". FED ID is out of index!";
@@ -755,7 +767,7 @@ void LaserSorter::streamFileName(int fedId,
 
   stringstream buf;
   buf << outputDir_ << "/"
-      << fedSubDirs_[iFed];
+      << (iFed<0 ? "Empty" : fedSubDirs_[iFed]);
 
   string dir = buf.str();
   if(0==stat(dir.c_str(), &fileStat)){
@@ -782,7 +794,7 @@ void LaserSorter::streamFileName(int fedId,
   finalName = dir + "/" + fileName;
   tmpName = dir + "/" + tmpFileName;
 
-  if(verbosity_>5) cout << "[LaserSorter] " << "File path: "
+  if(verbosity_>3) cout << "[LaserSorter] " << "File path: "
                         << finalName << "\n";
 }
 
@@ -1092,7 +1104,8 @@ void LaserSorter::restoreStreamsOfLumiBlock(int lumiBlock){
   string dummy;
   string fileName;
   
-  for(int fedId = ecalDccFedIdMin_; fedId <= ecalDccFedIdMax_; ++fedId){
+  for(int fedId = ecalDccFedIdMin_-2; fedId <= ecalDccFedIdMax_; ++fedId){
+    if(fedId == ecalDccFedIdMin_-2) fedId == -1; //stream for event w/o ECAL data
     streamFileName(fedId, lumiBlock, dummy, fileName);
     struct stat s;
     //TODO: could be optimized by adding an option to get stream
