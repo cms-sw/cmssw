@@ -16,12 +16,13 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:45:38 CEST 2009
-// $Id: HcalO2OManager.h,v 1.4 2009/12/11 12:11:59 kukartse Exp $
+// $Id: HcalO2OManager.h,v 1.5 2009/12/12 03:30:27 kukartse Exp $
 //
 
 #include<vector>
 #include<string>
-
+#include<stdint.h>
+ 
 class HcalO2OManager
 {
 
