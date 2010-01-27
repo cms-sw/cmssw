@@ -131,7 +131,3 @@ for arg in args:
   data.open(cfgfile)
 
   dot.export(data,options.name,options.filetype)
-
-
-
-  
