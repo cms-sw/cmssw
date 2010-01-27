@@ -67,7 +67,7 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
   if (whichTable == "LASTVALUE"){ 
     ss << "     TSetMin: "; printPar(ss,tset_par);  ss << std::endl;
   }
-  LogTrace("SiStripDetVOffBuilder") << ss.str();
+   edm::LogError("SiStripDetVOffBuilder") << ss.str();
 
 }
 
