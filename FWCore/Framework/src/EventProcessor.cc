@@ -18,6 +18,12 @@
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -49,6 +55,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -707,6 +714,16 @@ namespace edm {
     looper_.reset();
     wreg_.clear();
     actReg_.reset();
+
+    pset::Registry* psetRegistry = pset::Registry::instance();
+    psetRegistry->data().clear();
+    psetRegistry->extra().setID(ParameterSetID());
+
+    EntryDescriptionRegistry::instance()->data().clear();
+    ParentageRegistry::instance()->data().clear();
+    ProcessConfigurationRegistry::instance()->data().clear();
+    ProcessHistoryRegistry::instance()->data().clear();
+    BranchIDListRegistry::instance()->data().clear();
   }
 
   void
