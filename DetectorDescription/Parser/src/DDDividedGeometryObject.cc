@@ -18,7 +18,7 @@
 //--------------------------------------------------------------------------
 DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv ) 
   : div_(div), ftype_(), compNDiv_(div.nReplicas()), compWidth_(div.width())
-    , divisionType_(DivNDIVandWIDTH), theVoluFirstCopyNo_(1), pos_(cpv)
+    , divisionType_(DivNDIVandWIDTH), theVoluFirstCopyNo_(1), cpv_(cpv)
 {
 
   if (div_.nReplicas() == 0 || div_.width() < tolerance())
@@ -135,13 +135,13 @@ void DDDividedGeometryObject::execute()
       DCOUT_V('D',  "   Translation: " << makeDDTranslation(i) << std::endl);
       DCOUT_V('D',  "   rotation=" << makeDDRotation(i) << std::endl);
 
-      pos_( makeDDLogicalPart(i)
-	    , div_.parent()
-	    , i
-	    , makeDDTranslation(i)
-	    , makeDDRotation(i)
-	    , &div_
-	    );
+      cpv_->position( makeDDLogicalPart(i)
+		      , div_.parent()
+		      , i
+		      , makeDDTranslation(i)
+		      , makeDDRotation(i)
+		      , &div_
+		      );
     }
 }
 

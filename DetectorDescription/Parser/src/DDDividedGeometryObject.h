@@ -64,7 +64,7 @@ class DDDividedGeometryObject //: public DDDivision
     double compWidth_;
     DivisionType divisionType_;
     int theVoluFirstCopyNo_;
-    DDPositioner pos_;
+    DDCompactView* cpv_;
 };
 
 #endif
