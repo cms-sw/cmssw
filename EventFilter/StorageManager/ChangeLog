@@ -1,5 +1,12 @@
 2010-01-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
+	* tag V05-06-02
+	* Disable file size check which does not work reliable for very
+	  small files
+	* Improve error reporting on file operations
+
+2010-01-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
 	* tag V05-06-01
 	* Add stat64 errno to error message if file size cannot be retrieved
 
