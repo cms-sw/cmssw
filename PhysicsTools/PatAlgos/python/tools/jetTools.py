@@ -122,7 +122,7 @@ class RunBTagging(ConfigToolBase):
      * labels['jta']      = the name of the JetTrackAssociator module
      * labels['tagInfos'] = a list of names of the TagInfo modules
      * labels['jetTags '] = a list of names of the JetTag modules
-     """
+    """
     _label='RunBTagging'
     _defaultParameters={}
     def __init__(self):
@@ -140,7 +140,7 @@ class RunBTagging(ConfigToolBase):
         dumpPython=''
         if self._comment!="":
             dumpPython = '#'+self._comment
-        dumpPython = "\nRunBTagging(process, "
+        dumpPython = "\nrunBTagging(process, "
         dumpPython += str(self.getvalue('jetCollection'))+", "
         dumpPython += '"'+str(self.getvalue('label'))+'"'+")"+'\n'
         return (dumpPythonImport,dumpPython) 
