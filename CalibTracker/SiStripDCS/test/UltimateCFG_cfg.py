@@ -4,16 +4,6 @@
 # Author  : Jo Cole
 # Changes : Marco DeMattia
 #           Dave Schudel
-#
-# Usage:  This file is a template for running the DCS o2o script run_o2o.sh.
-#           That script creates an intermediate configuration file
-#           (o2o_status_change_nopw_cfg.py) and writes the current time & date 
-#           in place of the 2009 and similar tags.
-#
-#         Then, the python script testpw.py is called, which writes the
-#           database login information in place of the cms_trk_tkcc/fjrEipnl88@cms_omds_nolb and oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND tags
-#           and saves the final script as o2o_status_change_cfg.by.  It then
-#           runs cmsRun o2o_status_change_cfg.py and performs the extraction. 
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -38,9 +28,8 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 # -----------------------------------------------------------------------------
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
-    ConfDb = cms.untracked.string('cms_trk_tkcc/fjrEipnl88@cms_omds_lb'),
+    ConfDb = cms.untracked.string('cms_trk_tkcc/PASSWORD@cms_omds_lb'),
     TNS_ADMIN = cms.untracked.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
-    # ConfDb = cms.untracked.string('cms_trk_tkcc/fjrEipnl88@cms_omds_nolb'),
     # TNS_ADMIN = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/DeMattia/connection_files'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(

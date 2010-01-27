@@ -4,16 +4,6 @@
 # Author  : Jo Cole
 # Changes : Marco DeMattia
 #           Dave Schudel
-#
-# Usage:  This file is a template for running the DCS o2o script run_o2o.sh.
-#           That script creates an intermediate configuration file
-#           (o2o_status_change_nopw_cfg.py) and writes the current time & date 
-#           in place of the 2009 and similar tags.
-#
-#         Then, the python script testpw.py is called, which writes the
-#           database login information in place of the cms_trk_tkcc/fjrEipnl88@cms_omds_nolb and oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND tags
-#           and saves the final script as o2o_status_change_cfg.by.  It then
-#           runs cmsRun o2o_status_change_cfg.py and performs the extraction. 
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -38,7 +28,7 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 # -----------------------------------------------------------------------------
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
-    ConfDb = cms.untracked.string('cms_trk_tkcc/fjrEipnl88@cms_omds_nolb'),
+    ConfDb = cms.untracked.string('cms_trk_tkcc/PASSWORD@cms_omds_nolb'),
     TNS_ADMIN = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
@@ -60,7 +50,7 @@ process.SiStripConfigDb = cms.Service("SiStripConfigDb",
                 ForceVersions = cms.untracked.bool(True), 
                 DcuPsuMapVersion = cms.untracked.vuint32(266,1)
                 ),
-         PartTECM = cms.untracked.PSet(
+        PartTECM = cms.untracked.PSet(
                 PartitionName = cms.untracked.string("TM_09-JUN-2009_1"),
                 ForceCurrentState = cms.untracked.bool(False),
                 ForceVersions = cms.untracked.bool(True), 
@@ -112,8 +102,8 @@ process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PV
 process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
     onlineDB = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND'),
-    # authPath = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/DeMattia/CMSSW_3_1_1/src/CalibTracker/SiStripDCS/python'),
-    authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
+    authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
+    # authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
     
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
     #     Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
