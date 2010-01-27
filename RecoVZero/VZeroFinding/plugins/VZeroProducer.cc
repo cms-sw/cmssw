@@ -13,6 +13,8 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 using namespace std;
 using namespace edm;
 
@@ -39,6 +41,11 @@ VZeroProducer::~VZeroProducer()
 /*****************************************************************************/
 void VZeroProducer::produce(Event& ev, const EventSetup& es)
 {
+  // Get beam spot
+  edm::Handle<reco::BeamSpot>          beamSpotHandle; 
+  ev.getByLabel("offlineBeamSpot",     beamSpotHandle);
+  const reco::BeamSpot * theBeamSpot = beamSpotHandle.product();
+
   // Get tracks
   Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel(pset_.getParameter<InputTag>("trackCollection"),
@@ -52,7 +59,7 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
   const reco::VertexCollection* vertices = vertexCollection.product();
 
   // Find vzeros
-  VZeroFinder theFinder(es,pset_);
+  VZeroFinder theFinder(es,pset_, *theBeamSpot);
 
   // Selection based on track impact parameter
   reco::TrackRefVector positives;
@@ -60,12 +67,12 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
 
   for(unsigned int i=0; i<tracks.size(); i++)
   {
-    if(tracks[i].charge() > 0 &&
-       fabs(tracks[i].d0()) > minImpactPositiveDaughter)
+    double dt = fabs(tracks[i].dxy(theBeamSpot->position()));
+
+    if(tracks[i].charge() > 0 && dt > minImpactPositiveDaughter)
       positives.push_back(reco::TrackRef(trackCollection, i));
 
-    if(tracks[i].charge() < 0 &&
-       fabs(tracks[i].d0()) > minImpactNegativeDaughter)
+    if(tracks[i].charge() < 0 && dt > minImpactNegativeDaughter)
       negatives.push_back(reco::TrackRef(trackCollection, i));
   }
 

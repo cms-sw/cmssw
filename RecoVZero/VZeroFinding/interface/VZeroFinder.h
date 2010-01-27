@@ -19,11 +19,14 @@
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 
+namespace reco { class BeamSpot; }
+
 class VZeroFinder
 {
  public:
    VZeroFinder(const edm::EventSetup& es,
-                    const edm::ParameterSet& pset);
+               const edm::ParameterSet& pset,
+               const reco::BeamSpot & theBeamSpot);
    ~VZeroFinder();
 
    GlobalVector rotate(const GlobalVector & p, double a);
@@ -40,7 +43,8 @@ class VZeroFinder
          maxCrossingRadius,
          maxImpactMother; 
 
-   const MagneticField * theMagField;
+   const MagneticField  * theMagField;
+   GlobalPoint beamSpot;
 };
 
 #endif
