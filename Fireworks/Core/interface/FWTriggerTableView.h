@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.1 2009/10/06 18:56:06 dmytro Exp $
+// $Id: FWTriggerTableView.h,v 1.2 2009/10/07 12:47:52 dmytro Exp $
 //
 
 // system include files
@@ -13,6 +13,13 @@
 // user include files
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWStringParameter.h"
+
+
+#define BOOST_NO_INITIALIZER_LISTS
+// without this #define, genreflex chokes on std::initializer_list
+// at least when buildig from tarball in SLC5 with the default gcc4.1.2
+#include <boost/unordered_map.hpp>
+#undef BOOST_NO_INITIALIZER_LISTS
 
 // forward declarations
 class TGFrame;
@@ -76,6 +83,7 @@ private:
 
    void fillAverageAcceptFractions();
 protected:
+   typedef boost::unordered_map<std::string,double> acceptmap_t;
    TEveWindowFrame*                m_eveWindow;
    TGCompositeFrame*               m_vert;
    FWTriggerTableViewManager*      m_manager;
@@ -84,8 +92,9 @@ protected:
    int m_currentColumn;
    std::vector<Column>             m_columns;
    fwlite::Event*                  m_event;
-   std::vector<double>             m_averageAccept;
+   acceptmap_t                     m_averageAccept;
    FWStringParameter               m_regex;
+   FWStringParameter               m_process;
 };
 
 

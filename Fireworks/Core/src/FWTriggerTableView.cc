@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.3 2009/11/14 17:45:33 chrjones Exp $
+// $Id: FWTriggerTableView.cc,v 1.4 2010/01/21 23:04:48 chrjones Exp $
 //
 
 // system include files
@@ -100,13 +100,15 @@ FWTriggerTableView::FWTriggerTableView (TEveWindowSlot* iParent, FWTriggerTableV
      m_tableWidget(0),
      m_currentColumn(-1),
      m_event(0),
-     m_regex(this,"Filter",std::string())
+     m_regex(this,"Filter",std::string()),
+     m_process(this,"Process",std::string("HLT"))
 {
    m_columns.push_back(Column("Filter Name"));
    m_columns.push_back(Column("Accept"));
    m_columns.push_back(Column("Average Accept"));
    m_eveWindow = iParent->MakeFrame(0);
    m_regex.changed_.connect(boost::bind(&FWTriggerTableView::updateFilter,this));
+   m_process.changed_.connect(boost::bind(&FWTriggerTableView::updateFilter,this));
    TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
 
    m_vert = new TGVerticalFrame(frame);
@@ -182,7 +184,7 @@ void FWTriggerTableView::dataChanged ()
          fwlite::Handle<edm::TriggerResults> hTriggerResults;
          edm::TriggerNames const* triggerNames(0);
          try{
-            hTriggerResults.getByLabel(*event,"TriggerResults","","HLT");
+            hTriggerResults.getByLabel(*event,"TriggerResults","",m_process.value().c_str());
             triggerNames = &event->triggerNames(*hTriggerResults);
          } catch (cms::Exception&) {
             std::cout << "Warning: no trigger results with process name HLT is available" << std::endl;
@@ -190,17 +192,10 @@ void FWTriggerTableView::dataChanged ()
             return;
          }
          for(unsigned int i=0; i<triggerNames->size(); ++i) {
-	   if ( !boost::regex_search(triggerNames->triggerName(i),filter) ) continue;
-	   m_columns.at(0).values.push_back(triggerNames->triggerName(i));
-	   m_columns.at(1).values.push_back(Form("%d",hTriggerResults->accept(i)));
-           if(! m_averageAccept.empty()) {
-               m_columns.at(2).values.push_back(Form("%6.1f%%",m_averageAccept.at(i)*100));
-           } else {
-              //an exception occurred while trying to read the trigger info in all the events
-              // this would cause the acceptance to be unknown
-              m_columns.at(2).values.push_back("unknown");
-           }
-
+            if ( !boost::regex_search(triggerNames->triggerName(i),filter) ) continue;
+            m_columns.at(0).values.push_back(triggerNames->triggerName(i));
+            m_columns.at(1).values.push_back(Form("%d",hTriggerResults->accept(i)));
+            m_columns.at(2).values.push_back(Form("%6.1f%%",m_averageAccept[triggerNames->triggerName(i)]*100));
          }
       }
    }
@@ -218,7 +213,10 @@ void
 FWTriggerTableView::fillAverageAcceptFractions()
 {
    edm::EventID currentEvent = m_event->id();
-   std::vector<unsigned int> counts;
+   // better to keep the keys and just set to zero the values
+   for (acceptmap_t::iterator it = m_averageAccept.begin(), ed = m_averageAccept.end(); it != ed; ++it) {
+      it->second = 0;
+   }
 
    // loop over events
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
@@ -232,18 +230,19 @@ FWTriggerTableView::fillAverageAcceptFractions()
          std::cout <<"error occurred while trying to get trigger info"<<std::endl;
          return;
       }
-      if (counts.empty()) counts.resize(triggerNames->size(),0);
+
       for(unsigned int i=0; i<triggerNames->size(); ++i) {
-         if ( hTriggerResults->accept(i) ) counts.at(i)++;
+         if ( hTriggerResults->accept(i) ) { 
+            m_averageAccept[triggerNames->triggerName(i)]++;
+         }
       }
    }
    m_event->to(currentEvent);
 
-   m_averageAccept.clear();
-   double nEvents = m_event->size();
-   for(std::vector<unsigned int>::const_iterator it = counts.begin();
-       it != counts.end(); ++it)
-      m_averageAccept.push_back(double(*it)/nEvents);
+   double denominator = 1.0/m_event->size();
+   for (acceptmap_t::iterator it = m_averageAccept.begin(), ed = m_averageAccept.end(); it != ed; ++it) {
+      it->second *= denominator;
+   }
 }
 
 void 
