@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/25 08:24:16 $
- *  $Revision: 1.39 $
+ *  $Date: 2010/01/25 23:07:49 $
+ *  $Revision: 1.40 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -160,13 +160,14 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   //jet cleanup parameters
   _hlt_PhysDec   = parameters.getParameter<std::string>("HLT_PhysDec");
 
-  _techTrigs     = parameters.getParameter<std::vector<unsigned > >("techTrigs");
+  _techTrigsAND  = parameters.getParameter<std::vector<unsigned > >("techTrigsAND");
+  _techTrigsOR   = parameters.getParameter<std::vector<unsigned > >("techTrigsOR");
+  _techTrigsNOT  = parameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
 
   _doPVCheck          = parameters.getParameter<bool>("doPrimaryVertexCheck");
   _doHLTPhysicsOn     = parameters.getParameter<bool>("doHLTPhysicsOn");
 
   _tightBHFiltering     = parameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering  = parameters.getParameter<unsigned>("tightJetIDFiltering");
   _tightHcalFiltering   = parameters.getParameter<bool>("tightHcalFiltering");
   //Vertex requirements
   if (_doPVCheck) {
@@ -300,12 +301,12 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
     physdecME = dbe->book1D("physdec", "physdec", 2,   0., 2.);
   }
 
+  physdecME->setBinLabel(1,"All Events");
   for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
     hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
+    if(hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") physdecME->setBinLabel(2,"PhysicsDeclared");
   }
 
-  physdecME->setBinLabel(1,"All Events");
-  //physdecME->setBinLabel(2,"PhysicsDeclared");
   //
   //--- Jet
 
@@ -367,7 +368,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //if (&triggerResults){
   physdecME->Fill(0.5);
 
-  bool bPhysicsDeclared = true;
+  bool bPhysicsDeclared = false;
+  if(!_doHLTPhysicsOn) bPhysicsDeclared = true;
 
   if (triggerResults.isValid()){
     edm::TriggerNames triggerNames;
@@ -457,17 +459,26 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel( edm::InputTag("gtDigis"), gtReadoutRecord);
 
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
-  std::vector<bool> bTechTrigResults;
-  bTechTrigResults.resize(_techTrigs.size());
 
-  bool bTechTriggers = true;
+  bool bTechTriggers    = true;
+  bool bTechTriggersAND = true;
+  bool bTechTriggersOR  = true;
+  bool bTechTriggersNOT = true;
 
-  for (unsigned ttr = 0; ttr != _techTrigs.size(); ttr++) {
-    bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
-    bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
+  for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
+    bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
   }
 
-  bool bJetCleanup = bTechTriggers && bPrimaryVertex;
+  for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
+    bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
+  }
+
+  for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
+    bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
+  }
+
+  bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
+  bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
 
 
   // **** Get the Calo Jet container

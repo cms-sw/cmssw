@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/25 08:21:10 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/01/25 23:08:24 $
+ *  $Revision: 1.28 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -59,13 +59,15 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
   _hlt_PhysDec   = parameters.getParameter<std::string>("HLT_PhysDec");
 
-  _techTrigs     = parameters.getParameter<std::vector<unsigned > >("techTrigs");
+  _techTrigsAND  = parameters.getParameter<std::vector<unsigned > >("techTrigsAND");
+  _techTrigsOR   = parameters.getParameter<std::vector<unsigned > >("techTrigsOR");
+  _techTrigsNOT  = parameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
 
   _doPVCheck          = parameters.getParameter<bool>("doPrimaryVertexCheck");
   _doHLTPhysicsOn     = parameters.getParameter<bool>("doHLTPhysicsOn");
 
   _tightBHFiltering     = parameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering  = parameters.getParameter<unsigned>("tightJetIDFiltering");
+  _tightJetIDFiltering  = parameters.getParameter<int>("tightJetIDFiltering");
   _tightHcalFiltering   = parameters.getParameter<bool>("tightHcalFiltering");
 
   //Vertex requirements
@@ -748,15 +750,25 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel( edm::InputTag("gtDigis"), gtReadoutRecord);
 
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
-  std::vector<bool> bTechTrigResults;
-  bTechTrigResults.resize(_techTrigs.size());
 
-  bool bTechTriggers = true;
+  bool bTechTriggers    = true;
+  bool bTechTriggersAND = true;
+  bool bTechTriggersOR  = true;
+  bool bTechTriggersNOT = true;
 
-  for (unsigned ttr = 0; ttr != _techTrigs.size(); ttr++) {
-    bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
-    bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
+  for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
+    bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
   }
+
+  for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
+    bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
+  }
+
+  for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
+    bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
+  }
+
+  bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
@@ -770,8 +782,11 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   if      (_tightHcalFiltering)     bHcalNoise  = bHcalNoiseFilterTight;
   if      (_tightBHFiltering)       bBeamHaloID = bBeamHaloIDTightPass;
-  if      (_tightJetIDFiltering==1) bJetID      = bJetIDLoose;
-  else if (_tightJetIDFiltering==2) bJetID      = bJetIDTight;
+
+  if      (_tightJetIDFiltering==1)  bJetID      = bJetIDMinimal;
+  else if (_tightJetIDFiltering==2)  bJetID      = bJetIDLoose;
+  else if (_tightJetIDFiltering==3)  bJetID      = bJetIDTight;
+  else if (_tightJetIDFiltering==-1) bJetID      = true;
 
   bool bBasicCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
   bool bExtraCleanup = bBasicCleanup && bHcalNoise && bJetID && bBeamHaloID;
