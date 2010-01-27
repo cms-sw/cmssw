@@ -114,7 +114,7 @@ stepOneTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESPr
     ComponentName = 'stepOneTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     minimumNumberOfHits = 3,
-    minPt = 0.6
+    minPt = 0.5
     )
     )
 

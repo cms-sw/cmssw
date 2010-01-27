@@ -42,21 +42,9 @@ thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
 
 import TrackingTools.MaterialEffects.MaterialPropagator_cfi
-MaterialPropagatorPtMin035 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
-    ComponentName = 'PropagatorWithMaterialPtMin035',
-    ptMin = 0.35
-    )
-
-import TrackingTools.MaterialEffects.MaterialPropagator_cfi
 MaterialPropagatorPtMin01 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
     ComponentName = 'PropagatorWithMaterialPtMin01',
     ptMin = 0.1
-    )
-
-import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
-OppositeMaterialPropagatorPtMin035 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
-    ComponentName = 'PropagatorWithMaterialOppositePtMin035',
-    ptMin = 0.35
     )
 
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
@@ -66,17 +54,29 @@ OppositeMaterialPropagatorPtMin01 = TrackingTools.MaterialEffects.OppositeMateri
     )
 
 # SEEDING LAYERS
-thlayerpairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('ThLayerPairs'),
-    layerList = cms.vstring('BPix1+BPix2', 
-        'BPix2+BPix3',
-        'BPix1+FPix1_pos',
-        'BPix1+FPix1_neg',
-        'FPix1_pos+FPix2_pos',
-        'FPix1_neg+FPix2_neg',
-        'FPix2_pos+TEC2_pos',
-        'FPix2_neg+TEC2_neg'),
+thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('ThLayerTripletsA'),
+    layerList = cms.vstring('BPix1+BPix2+BPix3', 
+        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
+        'BPix3+FPix1_pos+TID1_pos', 'BPix3+FPix1_neg+TID1_neg', 
+        'FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg',
+        'FPix2_pos+TID3_pos+TEC1_pos', 'FPix2_neg+TID3_neg+TEC1_neg',
+        'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
     TEC = cms.PSet(
+        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'),
+        minRing = cms.int32(1),
+        maxRing = cms.int32(2)
+    ),
+    FPix = cms.PSet(
+        useErrorsFromParam = cms.bool(True),
+        hitErrorRPhi = cms.double(0.0051),
+        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
+        HitProducer = cms.string('thPixelRecHits'),
+        hitErrorRZ = cms.double(0.0036)
+    ),
+    TID = cms.PSet(
         matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -86,31 +86,70 @@ thlayerpairs = cms.ESProducer("SeedingLayersESProducer",
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('thPixelRecHits'),
         hitErrorRZ = cms.double(0.006)
     ),
-    FPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
-        HitProducer = cms.string('thPixelRecHits'),
-        hitErrorRZ = cms.double(0.0036)
+    TIB = cms.PSet(
+        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        TTRHBuilder = cms.string('WithTrackAngle')
     )
 )
 
-# SEEDS
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
-thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
-thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.35
-thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 7.0
-thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.2
 
-import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi
-thPLSeeds.SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsStraightLineCreator_cfi.SeedFromConsecutiveHitsStraightLineCreator.clone(
-    propagator = cms.string('PropagatorWithMaterialPtMin035')
+# SEEDS
+from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
+PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
+PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
+thTripletsA = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
+thTripletsA.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerTripletsA'
+thTripletsA.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
+thTripletsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
+thTripletsA.RegionFactoryPSet.RegionPSet.ptMin = 0.25
+thTripletsA.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
+thTripletsA.RegionFactoryPSet.RegionPSet.originRadius = 2.0
+
+
+thlayertripletsb = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('ThLayerTripletsB'),
+    layerList = cms.vstring('BPix2+BPix3+TIB1', 
+        'BPix2+BPix3+TIB2','BPix3+TIB1+TIB2'),
+    BPix = cms.PSet(
+        useErrorsFromParam = cms.bool(True),
+        hitErrorRPhi = cms.double(0.0027),
+        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
+        HitProducer = cms.string('thPixelRecHits'),
+        hitErrorRZ = cms.double(0.006)
+    ),
+    TIB = cms.PSet(
+        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        TTRHBuilder = cms.string('WithTrackAngle')
+    )
 )
+
+
+# SEEDS
+from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
+PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
+PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
+thTripletsB = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
+thTripletsB.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerTripletsB'
+thTripletsB.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
+thTripletsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
+thTripletsB.RegionFactoryPSet.RegionPSet.ptMin = 0.35
+thTripletsB.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
+thTripletsB.RegionFactoryPSet.RegionPSet.originRadius = 2.0
+
+
+import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
+thTriplets = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
+thTriplets.seedCollections = cms.VInputTag(
+        cms.InputTag('thTripletsA'),
+        cms.InputTag('thTripletsB'),
+        )
+
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
@@ -126,7 +165,7 @@ thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProd
     ComponentName = 'thCkfTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 0,
-    minimumNumberOfHits = 4,
+    minimumNumberOfHits = 3,
     minPt = 0.1
     )
     )
@@ -144,7 +183,7 @@ thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESPro
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('thPLSeeds'),
+    src = cms.InputTag('thTriplets'),
     TrajectoryBuilder = 'thCkfTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
@@ -168,7 +207,7 @@ thStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clo
     keepAllTracks = False,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 2.0,
+    chi2n_par = 1.2,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 3,
     maxNumberLostLayers = 1,
@@ -184,7 +223,7 @@ thStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clo
     keepAllTracks = False,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.9,
+    chi2n_par = 0.8,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 4,
     maxNumberLostLayers = 1,
@@ -206,7 +245,7 @@ thStepVtxTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clo
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.9,
+    chi2n_par = 0.7,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 3,
     maxNumberLostLayers = 1,
@@ -222,7 +261,7 @@ thStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clo
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.7,
+    chi2n_par = 0.6,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 5,
     maxNumberLostLayers = 1,
@@ -244,7 +283,7 @@ thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurit
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.9,
+    chi2n_par = 0.6,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 3,
     maxNumberLostLayers = 1,
@@ -260,7 +299,7 @@ thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurit
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.5,
+    chi2n_par = 0.4,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 5,
     maxNumberLostLayers = 1,
@@ -279,7 +318,7 @@ thStep = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackLi
 thirdStep = cms.Sequence(secfilter*
                          thClusters*
                          thPixelRecHits*thStripRecHits*
-                         thPLSeeds*
+                         thTripletsA*thTripletsB*thTriplets*
                          thTrackCandidates*
                          thWithMaterialTracks*
                          thStepVtxLoose*thStepTrkLoose*thStepLoose*
