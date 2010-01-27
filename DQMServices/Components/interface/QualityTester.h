@@ -8,8 +8,8 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2008/11/24 20:07:27 $
- * $Revision: 1.9 $
+ * $Date: 2010/01/26 20:55:23 $
+ * $Revision: 1.10 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -21,7 +21,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
 
 #include <memory>

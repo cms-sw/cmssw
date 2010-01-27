@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2008/11/24 20:07:28 $
- * $Revision: 1.15 $
+ * $Date: 2010/01/26 20:55:24 $
+ * $Revision: 1.16 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -50,16 +50,16 @@ QualityTester::QualityTester(const ParameterSet& ps)
 void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup){
 
   // if getQualityTestsFromFile is False, it means that the end-user wants them from the Database
-  if (getQualityTestsFromFile) {
+  if (!getQualityTestsFromFile) {
     edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DQMXMLFileRcd"));
     if(recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
       throw cms::Exception ("Record not found") << "Record \"DQMXMLFileRcd" 
 						<< "\" does not exist!" << std::endl;
     }
-    std::cout << "Reading XML from Database" << std::endl ;
-    edm::ESHandle<GeometryFile> rootgeo;
-    iSetup.get<DQMXMLFileRcd>().get(Label,rootgeo);
-    boost::scoped_ptr<std::vector<unsigned char> > vc( (*rootgeo).getUncompressedBlob() );
+//     std::cout << "Reading XML from Database" << std::endl ;
+    edm::ESHandle<FileBlob> xmlfile;
+    iSetup.get<DQMXMLFileRcd>().get(Label,xmlfile);
+    boost::scoped_ptr<std::vector<unsigned char> > vc( (*xmlfile).getUncompressedBlob() );
     std::string xmlstr="";
     for(std::vector<unsigned char>::iterator it=vc->begin();it!=vc->end();it++){
       xmlstr += *it;
