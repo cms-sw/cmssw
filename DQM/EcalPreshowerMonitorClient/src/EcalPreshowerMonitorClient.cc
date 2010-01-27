@@ -102,7 +102,23 @@ void EcalPreshowerMonitorClient::beginJob() {
 
 void EcalPreshowerMonitorClient::beginRun(void) {
 
-   if(debug_){ 
+   if (debug_) { 
+      cout << "EcalPreshowerMonitorClient: beginRun" << endl;
+   }
+
+   jevt_ = 0;
+
+   begin_run_ = true;
+   end_run_   = false;
+
+   for ( unsigned int i=0; i<clients_.size(); i++ ) {
+      clients_[i]->beginRun();
+   }
+}
+
+void EcalPreshowerMonitorClient::beginRun(const edm::Run & r, const edm::EventSetup & c) {
+
+   if (debug_) { 
       cout << "EcalPreshowerMonitorClient: beginRun" << endl;
    }
 
@@ -123,22 +139,22 @@ void EcalPreshowerMonitorClient::endJob(void) {
    }
 
    if ( ! end_run_ ) {
-      this->analyze(); 
-      this->endRun();
+     this->analyze(); 
+     this->endRun();
    }
-
+   
    if ( outputFile_.size() != 0 ) {
-      cout<<"Store Result in "<<outputFile_<<endl;
-      dqmStore_->save(outputFile_);
+     cout<<"Store Result in "<<outputFile_<<endl;
+     dqmStore_->save(outputFile_);
    }
-
+   
    for ( unsigned int i=0; i<clients_.size(); i++ ) {
      clients_[i]->endJob();
    }
 
 }
 
-void EcalPreshowerMonitorClient::endRun() {
+void EcalPreshowerMonitorClient::endRun(void) {
 
    if(debug_){ 
       cout << "EcalPreshowerMonitorClient: endRun, jevt = " << jevt_ << endl;
@@ -148,7 +164,24 @@ void EcalPreshowerMonitorClient::endRun() {
    end_run_   = true;
 
    for ( unsigned int i=0; i<clients_.size(); i++ ) {
-      clients_[i]->endRun();
+     clients_[i]->analyze();
+     clients_[i]->endRun();
+   }
+   
+}
+
+void EcalPreshowerMonitorClient::endRun(const edm::Run & r, const edm::EventSetup & c) {
+
+   if(debug_){ 
+      cout << "EcalPreshowerMonitorClient: endRun, jevt = " << jevt_ << endl;
+   }
+
+   begin_run_ = false;
+   end_run_   = true;
+
+   for ( unsigned int i=0; i<clients_.size(); i++ ) {
+     clients_[i]->analyze();
+     clients_[i]->endRun();
    }
 
 }

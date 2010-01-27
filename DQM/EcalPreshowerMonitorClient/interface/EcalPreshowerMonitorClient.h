@@ -24,8 +24,10 @@ class EcalPreshowerMonitorClient : public edm::EDAnalyzer {
   
   virtual void beginJob();
   virtual void endJob();
-  virtual void beginRun();
-  virtual void endRun();
+  virtual void beginRun(void);
+  virtual void endRun(void);
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
+  virtual void endRun(const edm::Run &, const edm::EventSetup &);
 
   void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
   void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
