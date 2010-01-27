@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.38 2009/12/11 02:49:15 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.39 2009/12/18 20:44:50 wmtan Exp $
 //
 //
 
@@ -553,6 +553,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       };
 
       PathInfoCollection hltPaths_;
+
+      PathInfoCollection hltPathsDiagonal_;
 
 };
 
