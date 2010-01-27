@@ -160,7 +160,7 @@ if ( @done_runs == 0 ) {
           print "Transferring $config{'ec_mon_master_rundir'}/daq-data/$run.dat and $config{'ec_mon_master_rundir'}/daq-data/$run.ind to $config{'ec_mon_archive_dir'}/\n" if ( $opts{'debug'} );
 
           $status = 0;
-          $status = system("scp -p $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_master_rundir'}/daq-data/$run.ind $config{'ec_mon_archive_dir'}/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
+          $status = system("scp -p -o StrictHostKeyChecking=no $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_master_rundir'}/daq-data/$run.ind $config{'ec_mon_archive_dir'}/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
 
           if ( $status ) {
 
@@ -196,7 +196,7 @@ if ( @done_runs == 0 ) {
             print "Transferring laser run $config{'ec_mon_master_rundir'}/daq-data/$run.dat to LMF\n" if ( $opts{'debug'} );
 
             $status = 0;
-            system("scp -p $config{'ec_mon_master_rundir'}/daq-data/$run.dat ecallaser\@srv-C2D17-19:/localdata/disk0/ecallaser/data/streams/LocalRuns/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
+            system("scp -p -o StrictHostKeyChecking=no $config{'ec_mon_master_rundir'}/daq-data/$run.dat ecallaser\@srv-C2D17-19:/localdata/disk0/ecallaser/data/streams/LocalRuns/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
 
             if ( $status ) {
 

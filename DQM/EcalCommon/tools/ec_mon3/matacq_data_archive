@@ -163,7 +163,7 @@ if ( @matacq_files == 0 ) {
         print "Transferring $matacq_data_dir/$file.dat to $matacq_data_dropbox/\n" if ( $opts{'debug'} );
 
         $status = 0;
-        $status = system("scp -p $matacq_data_dir/$file.dat $matacq_data_dropbox/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
+        $status = system("scp -p -o StrictHostKeyChecking=no $matacq_data_dir/$file.dat $matacq_data_dropbox/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
 
         if ( $status ) {
 
