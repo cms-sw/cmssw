@@ -65,8 +65,9 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iSetup.get<HcalChannelQualityRcd>().get(hCQ);
   const HcalChannelQuality * _cq = &(*hCQ);
   //
+  /*
   // Here's how one gets channel status from the Channel Quality condition.
-  // One can use their own loop over channels or get a vactor of all
+  // One can use their own loop over channels or get a vector of all
   // channels from the conditions object
   //
   //_____ get list of all channels
@@ -103,6 +104,7 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       //   << ", hot flag: " << is_hot << endl;
     }
   }
+  */
   //_____end of Channel Quality example_____________________
 
   //
