@@ -28,7 +28,7 @@ class RestrictInputToAOD(ConfigToolBase):
         return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
-                 names1     = None) :
+                 names     = None) :
         if  names is None:
             names=self._defaultParameters['names'].value
         self.setParameter('names',names)
@@ -83,7 +83,7 @@ class RemoveMCMatching(ConfigToolBase):
         return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
-                 names1     = None) :
+                 names     = None) :
         if  names is None:
             names=self._defaultParameters['names'].value
         self.setParameter('names',names)
@@ -191,12 +191,11 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName):
     objectProducer.genParticleMatch = ''
     
     
-class removeAllPATObjectsBut(ConfigToolBase):
+class RemoveAllPATObjectsBut(ConfigToolBase):
 
-    """ Remove all PAT objects from the default sequence but a specific
-    one
+    """ Remove all PAT objects from the default sequence but a specific one
     """
-    _label='removeAllPATObjectsBut'
+    _label='RemoveAllPATObjectsBut'
     _defaultParameters={}
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -238,12 +237,12 @@ class removeAllPATObjectsBut(ConfigToolBase):
             removeTheseObjectCollections.remove(names[obj])
         removeSpecificPATObjects(process, removeTheseObjectCollections, outputInProcess)
        
-removeAllPATObjectsBut=removeAllPATObjectsBut()
+removeAllPATObjectsBut=RemoveAllPATObjectsBut()
 
 
 class RemoveSpecificPATObjects(ConfigToolBase):
 
-    """ Remove a specific PAT object from the default sequence:
+    """ Remove a specific PAT object from the default sequence
     """
     _label='RemoveSpecificPATObjects'
     _defaultParameters={}
@@ -432,7 +431,7 @@ class AddCleaning(ConfigToolBase):
         if self._comment!="":
             dumpPython = '#'+self._comment
         dumpPython = "\naddCleaning(process, "
-        dumpPython += '"'+str(self.getvalue('outputInProcess'))+")"+'\n'
+        dumpPython += str(self.getvalue('outputInProcess'))+")"+'\n'
         return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
