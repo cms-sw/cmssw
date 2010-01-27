@@ -211,6 +211,8 @@ bool SiStripFEDErrorsDQM::readBadAPVs(){
 
   dqmStore_->cd();
 
+  addErrors();
+
   return true;
 }//method
 
@@ -366,7 +368,7 @@ void SiStripFEDErrorsDQM::addBadStrips(const FedChannelConnection & aConnection,
                                        const unsigned short aFlag,
                                        unsigned int & aCounter)
 {
-  std::vector<unsigned int> lStripVector;
+  // std::vector<unsigned int> lStripVector;
   unsigned int lBadStripRange;
   unsigned short lFirstBadStrip=aApvNum*128;
   unsigned short lConsecutiveBadStrips=128;
@@ -380,13 +382,25 @@ void SiStripFEDErrorsDQM::addBadStrips(const FedChannelConnection & aConnection,
 				  << ", flag " << aFlag
 				  << std::endl;
 
-  lStripVector.push_back(lBadStripRange);
-  SiStripBadStrip::Range lRange(lStripVector.begin(),lStripVector.end());
-  if ( !obj_->put(aDetId,lRange) ) {
-    edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
-  }
+  detIdErrors_[aDetId].push_back(lBadStripRange);
+
+  // lStripVector.push_back(lBadStripRange);
+  // SiStripBadStrip::Range lRange(lStripVector.begin(),lStripVector.end());
+  // if ( !obj_->put(aDetId,lRange) ) {
+  //   edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
+  // }
   
   aCounter++;
+}
+
+void SiStripFEDErrorsDQM::addErrors()
+{
+  for( std::map<uint32_t, std::vector<uint32_t> >::const_iterator it = detIdErrors_.begin(); it != detIdErrors_.end(); ++it ) {
+    SiStripBadStrip::Range lRange(it->second.begin(),it->second.end());
+    if ( !obj_->put(it->first,lRange) ) {
+      edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
+    }
+  }
 }
 
 //define this as a plug-in

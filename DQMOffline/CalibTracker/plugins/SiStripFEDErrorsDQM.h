@@ -26,6 +26,7 @@
 
 #include <TFile.h>
 #include <string>
+#include <map>
 
 /**
   @class SiStripFEDErrorsDQM
@@ -62,6 +63,9 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
 		    const unsigned short aFlag,
 		    unsigned int & aCounter);
 
+  /// Writes the errors to the db
+  void addErrors();
+
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
@@ -73,6 +77,7 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
 
   double threshold_;
   unsigned int debug_;
+  std::map<uint32_t, std::vector<unsigned int> > detIdErrors_;
 };
 
 #endif
