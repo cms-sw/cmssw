@@ -729,7 +729,7 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
   //---- Loop over rechits 
   if (printalot){ 
     //printf("\tGet the recHits collection.\t ");
-    printf("  The size of the rechit collection is %i\n",rechits->size());
+    printf("  The size of the rechit collection is %i\n",int(rechits->size()));
     //printf("\t...start loop over rechits...\n");
   }
   recHitsPerEvent->Fill(rechits->size());
@@ -775,7 +775,7 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
 
   //
   if (printalot){
-    printf("  The size of the segment collection is %i\n", segments->size());
+    printf("  The size of the segment collection is %i\n", int(segments->size()));
     //printf("\t...start loop over segments...\n");
   }
   segmentsPerEvent->Fill(segments->size());
