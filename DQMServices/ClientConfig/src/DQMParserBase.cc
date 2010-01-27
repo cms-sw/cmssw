@@ -7,8 +7,8 @@
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2008/01/22 18:44:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/01/26 20:56:08 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 
@@ -32,8 +32,8 @@ void DQMParserBase::getDocument(std::string configFile, bool UseDB){
     parser->setValidationScheme(XercesDOMParser::Val_Auto);
     parser->setDoNamespaces(false);
     if(UseDB){
-      std::cout<<"=== This is config file from getDocument ====== "<<std::endl;
-      std::cout<<configFile<<std::endl;
+//       std::cout<<"=== This is config file from getDocument ====== "<<std::endl;
+//       std::cout<<configFile<<std::endl;
       MemBufInputSource mb((const XMLByte*)configFile.c_str(),strlen(configFile.c_str()),"",false);
       parser->parse(mb);
     }
