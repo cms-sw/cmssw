@@ -15,7 +15,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Sat May 24 12:00:56 CET 2008
-// $Id: KtAlgorithm.cc,v 1.4 2009/12/28 22:29:52 dlange Exp $
+// $Id: KtAlgorithm.cc,v 1.5 2010/01/25 13:35:12 vlimant Exp $
 //
 //
 
@@ -77,7 +77,8 @@ CastorCluster KtAlgorithm::calcRecom (CastorCluster a, CastorCluster b, int reco
     // error
     newPhi = 0.;
     newRho = 0.;
-    cout << "You are using a wrong recombination scheme. Check the input tag, this should be 2(pt) or 3(pt2). \n";
+    LogDebug("KtAlgorithm")
+      << "You are using a wrong recombination scheme. Check the input tag, this should be 2(pt) or 3(pt2).";
   } 
 
   LogDebug("KtAlgorithm")
@@ -159,7 +160,8 @@ CastorClusterCollection KtAlgorithm::runKtAlgo (const CastorTowerRefVector& Inpu
   // get and check input size
   int nTowers = InputTowers.size();
   if (nTowers==0) {
-  	cout << "Warning: You are trying to run the KtAlgorithm with 0 input towers. \n";
+    LogDebug("KtAlgorithm")
+      << "Warning: You are trying to run the KtAlgorithm with 0 input towers.";
   }
   
   // define output

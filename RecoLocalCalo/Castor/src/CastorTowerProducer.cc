@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.3 2010/01/25 12:59:06 vlimant Exp $
+// $Id: CastorTowerProducer.cc,v 1.4 2010/01/25 13:35:12 vlimant Exp $
 //
 //
 
@@ -120,7 +120,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     <<"2. entering CastorTowerProducer"<<endl;
 
   if (nCells==0)
-    edm::LogWarning("CastorTowerProducer") <<"Warning: You are trying to run the Tower algorithm with 0 input cells.";
+    LogDebug("CastorTowerProducer") <<"Warning: You are trying to run the Tower algorithm with 0 input cells.";
   
   // declare castor array
   // (0,x): Energies - (1,x): emEnergies - (2,x): hadEnergies - (3,x): phi position

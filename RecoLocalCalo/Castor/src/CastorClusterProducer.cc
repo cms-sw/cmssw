@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.3 2010/01/22 14:03:50 hvanhaev Exp $
+// $Id: CastorClusterProducer.cc,v 1.4 2010/01/25 13:35:12 vlimant Exp $
 //
 //
 
@@ -139,7 +139,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // get and check input size
   int nTowers = InputTowers->size();
 
-  if (nTowers==0) cout<<"Warning: You are trying to run the Cluster algorithm with 0 input towers. \n";
+  if (nTowers==0) LogDebug("CastorClusterProducer")<<"Warning: You are trying to run the Cluster algorithm with 0 input towers.";
 
   CastorTowerRefVector posInputTowers, negInputTowers;
 
@@ -187,7 +187,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	
 	auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
 	
-	if (bjCollection->size()==0) cout << "Warning: You are trying to run the Cluster algorithm with 0 input basicjets. \n";
+	if (bjCollection->size()==0) LogDebug("CastorClusterProducer")<< "Warning: You are trying to run the Cluster algorithm with 0 input basicjets.";
    
    	for (unsigned i=0; i< bjCollection->size();i++) {
    		const BasicJet* bj = &(*bjCollection)[i];

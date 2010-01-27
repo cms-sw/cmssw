@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorJetEgammaProducer.cc,v 1.3 2010/01/22 14:04:27 hvanhaev Exp $
+// $Id: CastorJetEgammaProducer.cc,v 1.4 2010/01/25 13:35:12 vlimant Exp $
 //
 //
 
@@ -127,7 +127,7 @@ void CastorJetEgammaProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     LogDebug("CastorJetEgammaProducer")
       <<"4. entering CastorJetEgammaProducer";
 
-    if (nClusters==0) cout<<"Warning: You are trying to run the Jet Egamma algorithm with 0 input clusters. \n";
+    if (nClusters==0) LogDebug("CastorJetEgammaProducer")<<"Warning: You are trying to run the Jet Egamma algorithm with 0 input clusters.";
     
     CastorClusterRefVector Clusters;
     
