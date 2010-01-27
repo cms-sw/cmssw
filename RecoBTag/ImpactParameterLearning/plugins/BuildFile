@@ -19,12 +19,6 @@
 
 
 <library file=ImpactParameterCalibration.cc name=ImpactParameterCalibration>
-  <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/ServiceRegistry>
-   <use name=FWCore/Utilities>
-   <use name=CondFormats/DataRecord>
-   <use name=CondFormats/BTauObjects>
    <use name=rootcore> 
   <use name=boost> 
   <flags LDFLAGS="-lXMLIO"> 
@@ -33,12 +27,6 @@
 
 
 <library file=SumHistoCalibration.cc name=SumHistoCalibration>
-  <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/ServiceRegistry>
-   <use name=FWCore/Utilities>
-   <use name=CondFormats/DataRecord>
-   <use name=CondFormats/BTauObjects>
    <use name=rootcore> 
   <use name=boost> 
   <flags LDFLAGS="-lXMLIO"> 
