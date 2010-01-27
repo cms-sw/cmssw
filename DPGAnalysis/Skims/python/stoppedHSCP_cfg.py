@@ -90,44 +90,6 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 
-#################################HCAL High Energy#########################################
-
-## process.extend(DPGAnalysis.Skims.HCALHighEnergyCombinedPath_cff)
-
-## process.outHCAL = cms.OutputModule("PoolOutputModule",
-##                                outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
-##                                SelectEvents = cms.untracked.PSet(
-##     SelectEvents = cms.vstring("HCALHighEnergyPath")
-##     ),
-##                                dataset = cms.untracked.PSet(
-##                                dataTier = cms.untracked.string('RAW-RECO'),
-##                                filterName = cms.untracked.string('HCALHighEnergy')),
-##                                fileName = cms.untracked.string('/tmp/jbrooke/HCALHighEnergy_filter.root')
-##                                )
-
-#################################ECAL High Energy#########################################
-## process.skimming = cms.EDFilter("EcalSkim",
-##     #cosmic cluster energy threshold in GeV
-##     energyCutEB = cms.untracked.double(2.0),
-##     energyCutEE = cms.untracked.double(2.0),
-##     endcapClusterCollection = cms.InputTag("cosmicSuperClusters","CosmicEndcapSuperClusters"),
-##     barrelClusterCollection = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters")
-## )
-## process.p = cms.Path(process.skimming)
-
-## process.outECAL = cms.OutputModule("PoolOutputModule",
-##     process.RECOEventContent,                               
-##     fileName = cms.untracked.string('/tmp/jbrooke/ecalSkim.root'),
-##     dataset = cms.untracked.PSet(
-##     	      dataTier = cms.untracked.string('RECO'),
-##     	      filterName = cms.untracked.string('ecalSkim_fromRECO')),
-##     SelectEvents = cms.untracked.PSet(
-##         SelectEvents = cms.vstring('p')
-##     )
-## )
-
-## process.outECAL.outputCommands.append('drop *_MEtoEDMConverter_*_*')
-
 ###############################StoppedHSCP################################
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
 process.hltHighLevel.HLTPaths = cms.vstring("HLT_StoppedHSCP*")
