@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.8 2009/10/13 15:08:34 mommsen Exp $
+// $Id: FileHandler.cc,v 1.9 2010/01/27 11:13:44 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -13,7 +13,9 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <cstdio>
 #include <sys/stat.h>
+#include <string.h>
 
 using namespace stor;
 using namespace std;
@@ -188,7 +190,8 @@ void FileHandler::moveFileToClosed
   {
     // Rename failed. Move index file back to open location
     if (useIndexFile) renameFile(closedIndexFileName, openIndexFileName);
-    XCEPT_RETHROW(stor::exception::DiskWriting, "Could not move streamer file to closed area.", e);
+    XCEPT_RETHROW(stor::exception::DiskWriting, 
+      "Could not move streamer file to closed area.", e);
   }
   checkFileSizeMatch(closedStreamerFileName, openStreamerFileSize);
 }
@@ -203,7 +206,7 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
     std::ostringstream msg;
     msg << "Error checking the status of open file "
       << fileName
-      << ". Error code: " << errno;
+      << ": " << strerror(errno);
     XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
   }
   
@@ -224,15 +227,17 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
 
 bool FileHandler::sizeMismatch(const double& initialSize, const double& finalSize) const
 {
-  if (_diskWritingParams._exactFileSizeTest) {
-    if (initialSize != finalSize) {
-      return true;
-    }
-  }
-  else {
-    double pctDiff = calcPctDiff(initialSize, finalSize);
-    if (pctDiff > 0.1) {return true;}
-  }
+  // Does not work reliable for small file sizes
+  //
+  // if (_diskWritingParams._exactFileSizeTest) {
+  //   if (initialSize != finalSize) {
+  //     return true;
+  //   }
+  // }
+  // else {
+  //   double pctDiff = calcPctDiff(initialSize, finalSize);
+  //   if (pctDiff > 0.1) {return true;}
+  // }
   return false;
 }
 
@@ -243,7 +248,7 @@ void FileHandler::makeFileReadOnly(const string& fileName) const
   if (ronly != 0) {
     std::ostringstream msg;
     msg << "Unable to change permissions of " << fileName
-      << " to read only." << std::endl;
+      << " to read only: " << strerror(errno);
     XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
   }
 }
@@ -256,8 +261,7 @@ void FileHandler::renameFile(const string& openFileName, const string& closedFil
     _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::notClosed;
     std::ostringstream msg;
     msg << "Unable to move " << openFileName << " to "
-      << closedFileName << ".  Possibly the storage manager "
-      << "disk areas are full.";
+      << closedFileName << ": " << strerror(errno);
     XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
   }
 }
