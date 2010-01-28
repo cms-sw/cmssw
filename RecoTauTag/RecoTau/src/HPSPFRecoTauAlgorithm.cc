@@ -48,7 +48,6 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
     threeProngTaus  = buildThreeProngs(tagInfo);
   
   //merge the above collections
-
   PFTauCollection allTaus;
 
   for(unsigned int tau=0;tau<oneProngTaus.size();++tau)
@@ -429,7 +428,8 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
 
 	  //check charge Compatibility and lead track
 	  int charge=h1->charge()+h2->charge()+h3->charge(); 
-	  if(abs(charge)==1 && hadrons.at(0)->pt()>leadPionThreshold_&&(h1->p4()+h2->p4()+h3->p4()).pt()>tauThreshold_) {
+	  if(abs(charge)==1 && hadrons.at(0)->pt()>leadPionThreshold_&&(h1->p4()+h2->p4()+h3->p4()).pt()>tauThreshold_
+	     &&h1->trackRef()!=h2->trackRef() &&h1->trackRef()!=h3->trackRef()&&h2->trackRef()!=h3->trackRef()) {
 
 	    //Fit the vertex!
 	    std::vector<TransientTrack> transientTracks;
@@ -737,6 +737,7 @@ HPSPFRecoTauAlgorithm::configure(const edm::ParameterSet& p)
   if(emMerger_ =="StripBased")
     candidateMerger_ =  new PFCandidateStripMerger(p);
   //Add the Pi0 Merger from Evan here
+
 
   if(oneProngStripMassWindow_.size()!=2) 
     throw cms::Exception("") << "OneProngStripMassWindow must be a vector of size 2 [min,max] " << std::endl;
