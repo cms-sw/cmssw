@@ -114,11 +114,11 @@ def main():
       errfile = errfile_basename+str(jobcount)+".err"
 
       
-      args=['bsub','-q'+queue,"-ojob.log","-ejob.log",workdir+'/cmssw-job.csh',conffile,logfile,errfile,workdir,destdir]   
+      args=['/afs/cern.ch/cms/caf/scripts/cmsbsub','-q'+queue,"-ojob.log","-ejob.log",workdir+'/cmssw-job.csh',conffile,logfile,errfile,workdir,destdir]   
  
       
       if (not dryrun):
-        cmsRun = subprocess.Popen(args,0,"bsub")
+        cmsRun =subprocess.Popen(args,0,"/afs/cern.ch/cms/caf/scripts/cmsbsub")
         time.sleep(1) 
       else :
          print args
