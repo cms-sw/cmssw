@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.17 2009/08/17 12:06:35 alinn Exp $
-// Latest tag:  $Name: HEAD $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.19 2009/12/10 10:18:55 alinn Exp $
+// Latest tag:  $Name:  $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -368,8 +368,7 @@ bool SiStripCondObjBuilderFromDb::setValuesCabling(SiStripConfigDb* const db, Fe
 /** */
 //store objects
 void SiStripCondObjBuilderFromDb::storePedestals(uint32_t det_id){
-  pedestals_=new SiStripPedestals();
-  if ( !pedestals_->put(det_id, inputPedestals ) ) {
+   if ( !pedestals_->put(det_id, inputPedestals ) ) {
     std::cout
       << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
       << " Unable to insert values into SiStripPedestals object!"
