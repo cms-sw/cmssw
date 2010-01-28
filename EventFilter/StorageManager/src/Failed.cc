@@ -1,10 +1,11 @@
-// $Id: Failed.cc,v 1.12 2009/09/16 15:48:27 mommsen Exp $
+// $Id: Failed.cc,v 1.13 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Failed.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include <iostream>
@@ -36,6 +37,9 @@ void Failed::do_exitActionWork()
 {
   TransitionRecord tr( stateName(), false );
   outermost_context().updateHistory( tr );
+
+  outermost_context().getSharedResources()->
+    _statisticsReporter->getStateMachineMonitorCollection().clearStatusMessage();
 }
 
 Failed::~Failed()
