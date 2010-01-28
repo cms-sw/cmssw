@@ -1,11 +1,11 @@
-#ifndef DataFormats_FWLite_Event_h
-#define DataFormats_FWLite_Event_h
+#ifndef DataFormats_FWLite_LuminosityBlock_h
+#define DataFormats_FWLite_LuminosityBlock_h
 // -*- C++ -*-
 //
-// Package:     FWLite
-// Class  :     Event
+// Package:     FWLite/DataFormats
+// Class  :     LuminosityBlock
 //
-/**\class Event Event.h DataFormats/FWLite/interface/Event.h
+/**\class LuminosityBlock LuminosityBlock.h DataFormats/FWLite/interface/LuminosityBlock.h
 
    Description: <one line class summary>
 
@@ -14,8 +14,8 @@
 
 */
 //
-// Original Author:  Chris Jones
-//         Created:  Tue May  8 15:01:20 EDT 2007
+// Original Author:  Eric Vaandering
+//         Created:  Wed Jan 13 15:01:20 EDT 2007
 // $Id: Event.h,v 1.25 2009/11/04 17:03:16 elmer Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -26,7 +26,6 @@
 #include <boost/shared_ptr.hpp>
 #include <memory>
 #include <cstring>
-#include <string>
 
 #include "TBranch.h"
 #include "Rtypes.h"
@@ -34,12 +33,11 @@
 
 // user include files
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "DataFormats/FWLite/interface/EventBase.h"
-#include "DataFormats/FWLite/interface/LuminosityBlock.h"
+#include "DataFormats/FWLite/interface/LuminosityBlockBase.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
@@ -50,16 +48,15 @@ namespace edm {
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
-   class EventAux;
+   class LuminosityBlockAux;
    class Timestamp;
    class TriggerResults;
    class TriggerNames;
-   class TriggerResultsByName;
 }
 
 namespace fwlite {
-
-   namespace internal {
+   class Event;
+   namespace internalLS {
       class DataKey {
          public:
             //NOTE: Do not take ownership of strings.  This is done to avoid
@@ -111,7 +108,7 @@ namespace fwlite {
 
       struct Data {
             TBranch* branch_;
-            Long64_t lastEvent_;
+            Long64_t lastLuminosityBlock_;
             Reflex::Object obj_;
             void * pObj_; //ROOT requires the address of the pointer be stable
             edm::EDProduct* pProd_;
@@ -124,27 +121,22 @@ namespace fwlite {
       class ProductGetter;
    }
 
-   class Event : public EventBase
+   class LuminosityBlock : public LuminosityBlockBase
    {
 
       public:
          // NOTE: Does NOT take ownership so iFile must remain around
-         // at least as long as Event
-         Event(TFile* iFile);
-         virtual ~Event();
+         // at least as long as LuminosityBlock
+         LuminosityBlock(TFile* iFile);
+         virtual ~LuminosityBlock();
 
-         const Event& operator++();
+         const LuminosityBlock& operator++();
 
-         ///Go to the event at index iIndex
-         bool to (Long64_t iIndex);
-
-         //Go to event by Run & Event number
-         bool to(const edm::EventID &id);
-         bool to(edm::RunNumber_t run, edm::EventNumber_t event);
-         bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
+         /// Go to event by Run & LuminosityBlock number
+         bool to (edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi);
 
          // Go to the very first Event.
-         const Event& toBegin();
+         const LuminosityBlock& toBegin();
 
          // ---------- const member functions ---------------------
          virtual const std::string getBranchNameFor(const std::type_info&,
@@ -162,73 +154,55 @@ namespace fwlite {
 
          Long64_t size() const;
 
-         virtual edm::EventAuxiliary const& eventAuxiliary() const;
+         virtual edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const;
 
          const std::vector<edm::BranchDescription>& getBranchDescriptions() const {
             return branchMap_.getBranchDescriptions();
-         }
-         const std::vector<std::string>& getProcessHistory() const;
-         TFile* getTFile() const {
-            return branchMap_.getFile();
          }
 
          void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { std::cout << "resetting getter" << std::endl; getter_ = getter; }
 
          edm::EDProduct const* getByProductID(edm::ProductID const&) const;
 
-         virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
-
-         void fillParameterSetRegistry() const;
-         virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
-
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
          // ---------- member functions ---------------------------
-         fwlite::LuminosityBlock const& getLuminosityBlock();
 
       private:
-         friend class internal::ProductGetter;
-         friend class ChainEvent;
+         friend class internalLS::ProductGetter;
+         friend class fwlite::Event;
 
-         Event(const Event&); // stop default
+         LuminosityBlock(const LuminosityBlock&); // stop default
 
-         const Event& operator=(const Event&); // stop default
+         const LuminosityBlock& operator=(const LuminosityBlock&); // stop default
 
          const edm::ProcessHistory& history() const;
-         void updateAux(Long_t eventIndex) const;
+         void updateAux(Long_t lumiIndex) const;
          void fillFileIndex() const;
 
-         internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
+         internalLS::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
 
          // ---------- member data --------------------------------
-         TFile* file_;
-         // TTree* eventTree_;
-         TTree* eventHistoryTree_;
-         // Long64_t eventIndex_;
-         boost::shared_ptr<fwlite::LuminosityBlock>  lumi_;
          mutable fwlite::BranchMapReader branchMap_;
 
-         typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
+
+         typedef std::map<internalLS::DataKey, boost::shared_ptr<internalLS::Data> > KeyToDataMap;
          mutable KeyToDataMap data_;
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<const char*> labels_;
          mutable edm::ProcessHistoryMap historyMap_;
-         mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
          mutable std::vector<std::string> procHistoryNames_;
-         mutable edm::EventAuxiliary aux_;
+         mutable edm::LuminosityBlockAuxiliary aux_;
          mutable edm::FileIndex fileIndex_;
-         edm::EventAuxiliary* pAux_;
-         edm::EventAux* pOldAux_;
+         edm::LuminosityBlockAuxiliary* pAux_;
+         edm::LuminosityBlockAux* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
          mutable bool parameterSetRegistryFilled_;
 
          //references data in data_;
-         mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;
-         // mutable edm::ProductRegistry* prodReg_;
-         //references branch descriptions in prodReg_;
-         // mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
+         mutable std::map<edm::ProductID,boost::shared_ptr<internalLS::Data> > idToData_;
 
          boost::shared_ptr<edm::EDProductGetter> getter_;
    };

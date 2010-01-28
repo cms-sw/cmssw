@@ -67,5 +67,21 @@ namespace edm {
   LuminosityBlock::processHistory() const {
     return provRecorder_.processHistory();
   }
-  
+
+  void
+  LuminosityBlock::addToGotBranchIDs(Provenance const& prov) const {
+    gotBranchIDs_.insert(prov.branchID());
+  }
+
+  BasicHandle
+  LuminosityBlock::getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const {
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
+    if (h.isValid()) {
+      addToGotBranchIDs(*(h.provenance()));
+    }
+    return h;
+  }
+
+
+
 }

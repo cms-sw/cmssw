@@ -1,44 +1,68 @@
-#ifndef Framework_LuminosityBlock_h
-#define Framework_LuminosityBlock_h
+#ifndef FWCore_Common_LuminosityBlockBase_h
+#define FWCore_Common_LuminosityBlockBase_h
 
 // -*- C++ -*-
 //
-// Package:     Framework
-// Class  :     LuminosityBlock
+// Package:     FWCore/Common
+// Class  :     LuminosityBlockBase
 //
-/**\class LuminosityBlock LuminosityBlock.h FWCore/Framework/interface/LuminosityBlock.h
+/**\class LuminosityBlockBase LuminosityBlockBase.h FWCore/Common/interface/LuminosityBlockBase.h
 
-Description: This is the primary interface for accessing per luminosity block EDProducts
-and inserting new derived per luminosity block EDProducts.
+ Description: Base class for LuminosityBlocks in both the full and light framework
 
-For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
+ Usage:
+    One can use this class for code which needs to work in both the full and the
+ light (i.e. FWLite) frameworks.  Data can be accessed using the same getByLabel
+ interface which is available in the full framework.
 
 */
-/*----------------------------------------------------------------------
+//
+// Original Author:  Eric Vaandering
+//         Created:  Tue Jan 12 15:31:00 CDT 2010
+//
 
-----------------------------------------------------------------------*/
-
-#include "boost/shared_ptr.hpp"
+#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Common/interface/LuminosityBlockBase.h"
+//#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+//#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
 
-  class LuminosityBlock : public LuminosityBlockBase {
+  class LuminosityBlockBase {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md);
-    ~LuminosityBlock();
+    LuminosityBlockBase();
+    virtual ~LuminosityBlockBase();
 
-    // AUX functions are defined in LuminosityBlockBase
-    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}
+    // AUX functions.
+    LuminosityBlockNumber_t luminosityBlock() const {
+      return luminosityBlockAuxiliary().luminosityBlock();
+    }
 
-    template <typename PROD>
+    RunNumber_t run() const {
+      return luminosityBlockAuxiliary().run();
+    }
+
+    LuminosityBlockID id() const {
+      return luminosityBlockAuxiliary().id();
+    }
+
+    Timestamp const& beginTime() const {
+      return luminosityBlockAuxiliary().beginTime();
+    }
+    Timestamp const& endTime() const {
+      return luminosityBlockAuxiliary().endTime();
+    }
+
+    virtual edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const = 0;
+
+/*    template <typename PROD>
     bool
     get(SelectorBase const&, Handle<PROD>& result) const;
 
@@ -51,12 +75,12 @@ namespace edm {
     getByLabel(std::string const& label,
                std::string const& productInstanceName,
                Handle<PROD>& result) const;
-
+*/
     /// same as above, but using the InputTag class
     template <typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-
+/*
     template <typename PROD>
     void
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
@@ -92,16 +116,13 @@ namespace edm {
 
     ProcessHistory const&
     processHistory() const;
-
+*/
   private:
-    LuminosityBlockPrincipal const&
+/*    LuminosityBlockPrincipal const&
     luminosityBlockPrincipal() const;
 
     LuminosityBlockPrincipal&
     luminosityBlockPrincipal();
-
-    // Override version from LuminosityBlockBase class
-    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const;
 
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
@@ -124,11 +145,11 @@ namespace edm {
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
     boost::shared_ptr<Run const> const run_;
-    typedef std::set<BranchID> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
-    void addToGotBranchIDs(Provenance const& prov) const;
-  };
+*/
+    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const = 0;
 
+  };
+/*
   template <typename PROD>
   void
   LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
@@ -199,6 +220,20 @@ namespace edm {
   LuminosityBlock::getManyByType(std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getManyByType(results);
   }
+*/
+   template <class T>
+   bool
+   LuminosityBlockBase::getByLabel(const InputTag& tag, Handle<T>& result) const {
+      result.clear();
+      BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
+      convert_handle(bh, result);  // throws on conversion error
+      if (bh.failedToGet()) {
+         return false;
+      }
+      return true;
+   }
+
 
 }
+#endif /*!defined(__CINT__) && !defined(__MAKECINT__)*/
 #endif
