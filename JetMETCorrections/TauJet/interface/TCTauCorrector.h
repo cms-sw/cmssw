@@ -36,6 +36,7 @@ class TCTauCorrector :  public JetCorrector {
         double correction(const reco::CaloJet&) const;
         double correction(const reco::CaloTau&) const;
 
+	void inputConfig(const edm::ParameterSet&) const;
 	void eventSetup(const edm::Event&, const edm::EventSetup&) const;
 
 	virtual bool eventRequired() const;

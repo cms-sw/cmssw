@@ -5,7 +5,7 @@ TCTauCorrector::TCTauCorrector(){
 }
 TCTauCorrector::TCTauCorrector(const edm::ParameterSet& iConfig){
 	init();
-	tcTauAlgorithm->inputConfig(iConfig);
+	inputConfig(iConfig);
 }
 TCTauCorrector::~TCTauCorrector(){
 	delete tcTauAlgorithm;
@@ -13,6 +13,10 @@ TCTauCorrector::~TCTauCorrector(){
 
 void TCTauCorrector::init(){
 	tcTauAlgorithm = new TCTauAlgorithm;
+}
+
+void TCTauCorrector::inputConfig(const edm::ParameterSet& iConfig) const {
+        tcTauAlgorithm->inputConfig(iConfig);
 }
 
 void TCTauCorrector::eventSetup(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
