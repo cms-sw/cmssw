@@ -7,8 +7,7 @@ closedir THISDIR;
 foreach $file (@allfiles) {
   $file =~ m/(.+)\.gif$/;
   my $newfilename = $1 . "_small.gif";
-  my $command = "cp $file $newfilename";
-  #my $command = "convert -geometry 320x $file $newfilename";
+  my $command = "convert -geometry 320x $file $newfilename";
   print "$command\n";
   `$command`;
 }
