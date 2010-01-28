@@ -202,17 +202,6 @@ LuminosityBlock::operator++()
    return *this;
 }
 
-// bool
-// Event::to (Long64_t iEntry)
-// {
-//    if (iEntry < size())
-//    {
-//       // this is a valid entry
-//       return branchMap_->updateEvent(iEntry);
-//    }
-//    // if we're here, then iEntry was not valid
-//    return false;
-// }
 
 bool
 LuminosityBlock::to (edm::RunNumber_t run, edm::LuminosityBlockNumber_t luminosityBlock)
@@ -226,12 +215,6 @@ LuminosityBlock::to (edm::RunNumber_t run, edm::LuminosityBlockNumber_t luminosi
    }
    return false;
 }
-
-// bool
-// Event::to (const edm::EventID &id)
-// {
-//    return to (id.run(), id.event());
-// }
 
 void
 LuminosityBlock::fillFileIndex() const
