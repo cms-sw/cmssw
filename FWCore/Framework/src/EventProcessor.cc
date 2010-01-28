@@ -463,6 +463,7 @@ namespace edm {
     shouldWeStop_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
+    looperBeginJobRun_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1) {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
@@ -502,6 +503,7 @@ namespace edm {
     shouldWeStop_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
+    looperBeginJobRun_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1) {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
@@ -540,7 +542,8 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false) {
+    forceLooperToEnd_(false),
+    looperBeginJobRun_(false) {
     init(processDesc, token, legacy);
   }
 
@@ -574,7 +577,8 @@ namespace edm {
     looper_(),
     shouldWeStop_(false),
     alreadyHandlingException_(false),
-    forceLooperToEnd_(false) {
+    forceLooperToEnd_(false),
+    looperBeginJobRun_(false) {
     if(isPython) {
       boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -839,12 +843,19 @@ namespace edm {
     // added and do 'run'
     // again.  In that case the newly added Module needs its 'beginJob'
     // to be called.
-    EventSetup const& es =
-      esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
-    if(looper_) {
-       looper_->beginOfJob(es);
-    }
+    
+    //NOTE: in future we should have a beginOfJob for looper which takes no arguments
+    //  For now we delay calling beginOfJob until first beginOfRun
+    //if(looper_) {
+    //   looper_->beginOfJob(es);
+    //}
     try {
+      //using presently empty ESSource
+      // this will go away when all 'doBeginJob' taking
+      // the EventSetup as argument are removed
+      EventSetup const& es =
+      esp_->eventSetup();
+      
       input_->doBeginJob(es);
     } catch(cms::Exception& e) {
       LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
@@ -857,6 +868,12 @@ namespace edm {
       LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
       throw;
     }
+    //using presently empty ESSource
+    // this will go away when all 'doBeginJob' taking
+    // the EventSetup as argument are removed
+    EventSetup const& es =
+    esp_->eventSetup();
+    
     schedule_->beginJob(es);
     if (!allModuleNames().empty()) {
       cms::Exception exception("Modules still calling beginJob(EventSetup):\n");
@@ -1692,7 +1709,9 @@ namespace edm {
 
   void EventProcessor::startingNewLoop() {
     shouldWeStop_ = false;
-    if (looper_) {
+    //NOTE: for first loop, need to delay calling 'doStartingNewLoop'
+    // until after we've called beginOfJob
+    if (looper_ && looperBeginJobRun_) {
       looper_->doStartingNewLoop();
     }
     FDEBUG(1) << "\tstartingNewLoop\n";
@@ -1759,6 +1778,11 @@ namespace edm {
     IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                     runPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
+    if(looper_ && looperBeginJobRun_==false) {
+      looper_->beginOfJob(es);
+      looperBeginJobRun_=true;
+      looper_->doStartingNewLoop();
+    }
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
     FDEBUG(1) << "\tbeginRun " << run << "\n";
     if (looper_) {

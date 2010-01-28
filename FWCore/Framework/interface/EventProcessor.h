@@ -416,6 +416,7 @@ namespace edm {
     std::string                                   exceptionMessageLumis_;
     bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
+    bool                                          looperBeginJobRun_;
 
     int                                           numberOfForkedChildren_;
     unsigned int                                  numberOfSequentialEventsPerChild_;
