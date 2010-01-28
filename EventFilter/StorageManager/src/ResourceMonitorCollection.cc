@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.28 2010/01/18 11:12:46 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.29 2010/01/22 14:20:17 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -264,7 +264,8 @@ void ResourceMonitorCollection::emitDiskAlarm(DiskUsagePtr diskUsage, error_t e)
 
     default :
       diskUsage->alarmState = AlarmHandler::WARNING;
-      msg = "Failed to retrieve disk space information for " + diskUsage->pathName + ".";
+      msg = "Failed to retrieve disk space information for " + diskUsage->pathName + ":"
+        + strerror(e);
   }
   
   XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg);
