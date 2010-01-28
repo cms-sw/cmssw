@@ -2,13 +2,14 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.13 2010/01/25 20:55:04 amraktad Exp $
+// $Id: TrackUtils.cc,v 1.14 2010/01/26 17:55:15 amraktad Exp $
 //
 
 // system include files
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveStraightLineSet.h"
+#include "TEveVSDStructs.h"
 
 // user include files
 
