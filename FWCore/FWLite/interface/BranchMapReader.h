@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     BranchMapReader
-// 
+//
 /**\class BranchMapReader BranchMapReader.h FWCore/FWLite/interface/BranchMapReader.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.h,v 1.7 2008/12/22 18:06:07 dsr Exp $
+// $Id: BranchMapReader.h,v 1.8 2008/12/23 20:37:27 dsr Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ namespace fwlite {
 
       virtual bool updateFile(TFile* file) = 0;
       virtual bool updateEvent(Long_t eventEntry) = 0;
+      virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry) = 0;
       virtual bool updateMap() = 0;
       virtual edm::BranchID productToBranchID(const edm::ProductID& pid) = 0;
       virtual const edm::BranchDescription productToBranch(const edm::ProductID& pid) = 0;
@@ -47,8 +48,10 @@ namespace fwlite {
 
       TFile* currentFile_;
       TTree* eventTree_;
+      TTree* luminosityBlockTree_;
       TUUID fileUUID_;
       Long_t eventEntry_;
+      Long_t luminosityBlockEntry_;
       int fileVersion_;
     };
   }
@@ -59,19 +62,22 @@ namespace fwlite {
     BranchMapReader() : strategy_(0) {}
 
       // ---------- const member functions ---------------------
-      
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
     bool updateFile(TFile* file);
     bool updateEvent(Long_t eventEntry);
+    bool updateLuminosityBlock(Long_t luminosityBlockEntry);
     const edm::BranchDescription productToBranch(const edm::ProductID& pid);
     int getFileVersion(TFile* file) const;
 
     TFile* getFile() const { return strategy_->currentFile_; }
     TTree* getEventTree() const { return strategy_->eventTree_; }
+    TTree* getLuminosityBlockTree() const { return strategy_->luminosityBlockTree_; }
     TUUID getFileUUID() const { return strategy_->fileUUID_; }
     Long_t getEventEntry() const { return strategy_->eventEntry_; }
+    Long_t getLuminosityBlockEntry() const { return strategy_->luminosityBlockEntry_; }
     const std::vector<edm::BranchDescription>& getBranchDescriptions();
 
       // ---------- member data --------------------------------
