@@ -154,7 +154,7 @@ static bool covarianceUpdate(Matrix3S &cov, const Vector3 &residual,
 	if (!measErr.Invert() || !combErr.Invert())
 		return false;
 
-	cov -= Similarity(cov, SimilarityT(jacobian, combErr));
+	cov -= SimilarityT(jacobian * cov, combErr);
 	chi2 += Similarity(jacobian * residual, measErr);
 
 	return true;
