@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.15 2009/12/18 20:44:54 wmtan Exp $
+// $Id: TriggerValidator.cc,v 1.16 2010/01/22 18:50:18 nuno Exp $
 //
 //
 
@@ -306,12 +306,12 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       hHltPathsAfterMcCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
     }
   }
-
+  
   //fill the eff vectors and histos for HLT
   for(unsigned int i=0; i< trhv->size(); i++) {
     hltbits.push_back(trhv->at(i).accept());
     if(trhv->at(i).accept()) {
-      numTotHltBitsBeforeCuts[i]++;
+     numTotHltBitsBeforeCuts[i]++;
       hHltBitsBeforeCuts->Fill(i);
       hHltPathsBeforeCuts->Fill(i);
       if(eventRecoSelected) {
@@ -323,7 +323,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	numTotHltBitsAfterMcCuts[i]++;
 	hHltBitsAfterMcCuts->Fill(i);
 	hHltPathsAfterMcCuts->Fill(i);
-      }
+     }
     }      
   }
 
@@ -354,8 +354,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     hHltBitsAfterMcCuts->Fill(trhv->size());
     hHltPathsAfterMcCuts->Fill(trhv->size());
   }
-
-
 
   if(firstEvent) {
     if(l1Flag) myPlotMakerL1->bookHistos(dbe_,&l1bits,&hltbits,&l1Names_,&hlNames_);
@@ -391,6 +389,9 @@ TriggerValidator::beginJob()
   
   if (hltConfig_.init("HLT")) {
     nHltPaths = hltConfig_.size(); 
+  } else {
+    edm::LogInfo("HLTriggerOfflineSusyBSM") << "HLTCONFIG NOT INT";
+    nHltPaths = 150;
   }
   nL1Bits = 128; 
 
