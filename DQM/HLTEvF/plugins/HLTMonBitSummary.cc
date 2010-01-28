@@ -148,45 +148,47 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
   
       //get all the filters -
       //only if filterTypes_ is nonempty and only on HLTPathNamesConfig_ paths
-      if( hltConfig.init(processName) && !filterTypes_.empty()){
-	triggerFilters_.clear();
-	triggerFilterIndices_.clear();
-	for( size_t i = 0; i < nValidConfigTriggers_; i++) {
-	  // create a row [triggername,filter1name, filter2name, etc.] 
-	  triggerFilters_.push_back(vector <string>());  
-	  // create a row [0, filter1index, filter2index, etc.]
-	  triggerFilterIndices_.push_back(vector <uint>()); 
+      if( hltConfig.init(processName)){ 
+	if(!filterTypes_.empty()){
+	  triggerFilters_.clear();
+	  triggerFilterIndices_.clear();
+	  for( size_t i = 0; i < nValidConfigTriggers_; i++) {
+	    // create a row [triggername,filter1name, filter2name, etc.] 
+	    triggerFilters_.push_back(vector <string>());  
+	    // create a row [0, filter1index, filter2index, etc.]
+	    triggerFilterIndices_.push_back(vector <uint>()); 
       
-	  vector<string> moduleNames = hltConfig.moduleLabels( HLTPathNamesConfig_[i] ); 
+	    vector<string> moduleNames = hltConfig.moduleLabels( HLTPathNamesConfig_[i] ); 
       
-	  triggerFilters_[i].push_back(HLTPathNamesConfig_[i]);//first entry is trigger name      
-	  triggerFilterIndices_[i].push_back(0);
+	    triggerFilters_[i].push_back(HLTPathNamesConfig_[i]);//first entry is trigger name      
+	    triggerFilterIndices_[i].push_back(0);
       
-	  int numModule = 0, numFilters = 0;
-	  string moduleName, moduleType;
-	  unsigned int moduleIndex;
+	    int numModule = 0, numFilters = 0;
+	    string moduleName, moduleType;
+	    unsigned int moduleIndex;
       
-	  //print module name
-	  vector<string>::const_iterator iDumpModName;
-	  for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
-	    moduleName = *iDumpModName;
-	    moduleType = hltConfig.moduleType(moduleName);
-	    moduleIndex = hltConfig.moduleIndex(HLTPathNamesConfig_[i], moduleName);
-	    LogDebug ("HLTMonBitSummary") << "Module"      << numModule
-					  << " is called " << moduleName
-					  << " , type = "  << moduleType
-					  << " , index = " << moduleIndex
-					  << endl;
-	    numModule++;
-	    for(size_t k = 0; k < filterTypes_.size(); k++) {
-	      if(moduleType == filterTypes_[k]) {
-		numFilters++;
-		triggerFilters_[i].push_back(moduleName);
-		triggerFilterIndices_[i].push_back(moduleIndex);
+	    //print module name
+	    vector<string>::const_iterator iDumpModName;
+	    for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
+	      moduleName = *iDumpModName;
+	      moduleType = hltConfig.moduleType(moduleName);
+	      moduleIndex = hltConfig.moduleIndex(HLTPathNamesConfig_[i], moduleName);
+	      LogDebug ("HLTMonBitSummary") << "Module"      << numModule
+					    << " is called " << moduleName
+					    << " , type = "  << moduleType
+					    << " , index = " << moduleIndex
+					    << endl;
+	      numModule++;
+	      for(size_t k = 0; k < filterTypes_.size(); k++) {
+		if(moduleType == filterTypes_[k]) {
+		  numFilters++;
+		  triggerFilters_[i].push_back(moduleName);
+		  triggerFilterIndices_[i].push_back(moduleIndex);
+		}
 	      }
-	    }
-	  }//end for modulesName
-	}//end for nValidConfigTriggers_
+	    }//end for modulesName
+	  }//end for nValidConfigTriggers_
+	}
       }
       else{
 	LogError("HLTMonBitSummary") << "HLTConfigProvider initialization with process name " 
