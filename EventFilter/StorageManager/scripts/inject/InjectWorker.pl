@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.38 2009/10/27 05:42:51 loizides Exp $
+# $Id: InjectWorker.pl,v 1.39 2009/11/15 16:38:57 loizides Exp $
 
 use warnings;
 use strict;
@@ -21,6 +21,7 @@ my $ignorednso  = 0;  # toggled by SM_IGNOREDONTNOTIFYT0 (ignore DONTNOTIFYT0 st
 # global vars
 my $endflag = 0; 
 my $host    = ""; 
+
 
 # printout syntax and die
 sub printsyntax()
@@ -306,6 +307,7 @@ sub inject($$)
     my $errflag=0;
     my $rows = $sth->execute() or $errflag=1;
 
+
     if ($errflag>0) {
         print "Error in DB access when executing, DB returned $sth->errstr\n";
         return -1;
@@ -329,6 +331,10 @@ sub inject($$)
 ############################################################################################################
 # Main starts here                                                                                         #
 ############################################################################################################
+
+
+
+ 
 
 # get options from environment
 if (defined $ENV{'SM_DEBUG'}) { 
@@ -366,10 +372,15 @@ $SIG{TERM} = \&TERMINATE;
 # figure out how I am called
 my $mycall = abs_path($0);
 
+
+
 # check arguments
 if (!defined $ARGV[3]) {
     printsyntax();
 }
+
+
+
 
 my $infile;
 my $inpath;
@@ -401,6 +412,8 @@ if (!-e $config) {
     mydie("Error: Specified config file \"$config\" does not exist","");
 }
 
+
+
 my $reader = "xxx";
 my $phrase = "xxx";
 if (-r $config) {
@@ -409,6 +422,8 @@ if (-r $config) {
     mydie("Error: Can not read config file \"$config\"","");
     usageShort();
 }
+
+
 
 my $errfile;
 my $outfile;
@@ -428,6 +443,8 @@ if ($fileflag==0) {
     $errfile = "$errpath/$inbase";
 }
 
+
+
 # lockfile
 my $lockfile = "/tmp/." . basename($outfile) . ".lock";
 if (-e $lockfile) {
@@ -436,11 +453,15 @@ if (-e $lockfile) {
     system("touch $lockfile");
 }
 
-# redirecting output
+
+
+## redirecting output
 open(STDOUT, ">>$errfile") or
     mydie("Error: Cannot open log file \"$errfile\"\n",$lockfile);
 open(STDERR, ">>&STDOUT");
 if ($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";}
+
+
 
 # if input file does not exist - we will wait for it
 while (!(-e "$infile") && !$endflag) {
@@ -454,6 +475,9 @@ while (!(-e "$infile") && !$endflag) {
     	$endflag=1;
     }
 }
+
+
+
 
 # if told to exit while waiting for input, we exit here
 if ($endflag) {
@@ -531,6 +555,9 @@ if ($nodbwrite==0) {
     
     my $timestr = gettimestr();
     print "$timestr: Setup main DB connection\n";
+
+    $dbh->func( 1000000, 'dbms_output_enable' );
+
 
     $SQLn = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
         "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
@@ -665,6 +692,14 @@ while(!$endflag) {
         # inject and possibly notify
         my $ret=inject($useHandle,$type);
 	    
+
+#       Print any messages from the DB's dbms output
+        my @dbtext = $dbh->func('dbms_output_get');
+        foreach (@dbtext) {
+           print "$_\n";
+        }
+
+
         if ($ret == 0) {
             print OUTDATA "$line\n";
             if ($type == 1) {
@@ -721,6 +756,8 @@ while(!$endflag) {
                 sleep(10);
             }
         }
+
+        $dbh->func( 1000000, 'dbms_output_enable' );
 	$newHandle = $dbh->prepare($SQLn) or mydie("Error: Prepare failed for $SQLn: $dbh->errstr \n",$lockfile);
 	$injectHandle = $dbh->prepare($SQLi) or mydie("Error: Prepare failed for $SQLi: $dbh->errstr \n",$lockfile);
     }
