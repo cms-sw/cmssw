@@ -44,7 +44,7 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(

@@ -235,14 +235,14 @@ void HltSusyExoPostProcessor::endRun(edm::Run const& run, edm::EventSetup const&
 
   //fill the eff histo
   for(int i=0; i<nL1bins; i++) {
-    value = (float)dqm->get(subDir_ + mcSelBitsDir + "/L1Paths")->getBinContent(i+1) / nTotalAfterMcCuts;
-    error = sqrt(value*(1-value)/nTotalAfterMcCuts);
+    value = nTotalAfterMcCuts ? (float)dqm->get(subDir_ + mcSelBitsDir + "/L1Paths")->getBinContent(i+1) / nTotalAfterMcCuts : 0;
+    error = nTotalAfterMcCuts ? sqrt(value*(1-value)/nTotalAfterMcCuts) : 0;
     hL1EffAfterMcCuts->setBinContent(i+1,value);
     hL1EffAfterMcCuts->setBinError(i+1,error);
   }
   for(int i=0; i<nHltbins; i++) {
-    value = (float)dqm->get(subDir_ + mcSelBitsDir + "/HltPaths")->getBinContent(i+1) / nTotalAfterMcCuts;
-    error = sqrt(value*(1-value)/nTotalAfterMcCuts);
+    value = nTotalAfterMcCuts ? (float)dqm->get(subDir_ + mcSelBitsDir + "/HltPaths")->getBinContent(i+1) / nTotalAfterMcCuts : 0;
+    error = nTotalAfterMcCuts ? sqrt(value*(1-value)/nTotalAfterMcCuts) : 0;
     hHltEffAfterMcCuts->setBinContent(i+1,value);
     hHltEffAfterMcCuts->setBinError(i+1,error);
   }
@@ -269,14 +269,14 @@ void HltSusyExoPostProcessor::endRun(edm::Run const& run, edm::EventSetup const&
 
   //fill the eff histo
   for(int i=0; i<nL1bins; i++) {
-    value = (float)dqm->get(subDir_ + recoSelBitsDir + "/L1Paths")->getBinContent(i+1) / nTotalAfterRecoCuts;
-    error = sqrt(value*(1-value)/nTotalAfterRecoCuts);
+    value = nTotalAfterRecoCuts ? (float)dqm->get(subDir_ + recoSelBitsDir + "/L1Paths")->getBinContent(i+1) / nTotalAfterRecoCuts : 0;
+    error = nTotalAfterRecoCuts ? sqrt(value*(1-value)/nTotalAfterRecoCuts) : 0;
     hL1EffAfterRecoCuts->setBinContent(i+1,value);
     hL1EffAfterRecoCuts->setBinError(i+1,error);
   }
   for(int i=0; i<nHltbins; i++) {
-    value = (float)dqm->get(subDir_ + recoSelBitsDir + "/HltPaths")->getBinContent(i+1) / nTotalAfterRecoCuts;
-    error = sqrt(value*(1-value)/nTotalAfterRecoCuts);
+    value = nTotalAfterRecoCuts ? (float)dqm->get(subDir_ + recoSelBitsDir + "/HltPaths")->getBinContent(i+1) / nTotalAfterRecoCuts : 0;
+    error = nTotalAfterRecoCuts ? sqrt(value*(1-value)/nTotalAfterRecoCuts) :0;
     hHltEffAfterRecoCuts->setBinContent(i+1,value);
     hHltEffAfterRecoCuts->setBinError(i+1,error);
   }
