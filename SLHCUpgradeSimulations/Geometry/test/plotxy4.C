@@ -5,16 +5,22 @@
   PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "abs(pixel_recHit.gz) < 30");
      htemp->SetYTitle("Y (cm)");htemp->SetXTitle("X (cm)");htemp->SetTitle("Tracker hits |z|<30 (cm)");
   MyCanvas_1->cd(2);
-  PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "pixel_recHit.gx < 30 && pixel_recHit.gx>20 && pixel_recHit.gy<30 && pixel_recHit.gy>20");
-     htemp->SetYTitle("Y (cm)");htemp->SetXTitle("X (cm)");htemp->SetTitle("");
-     MyCanvas_1->cd(2)->RedrawAxis();
+  // second use of htemp does not seem to work
+  PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx>>hnew", "pixel_recHit.gx < 30 && pixel_recHit.gx>20 && pixel_recHit.gy<30 && pixel_recHit.gy>20");
+     TH2D *hnew = (TH2D*)gPad->GetPrimitive("hnew");
+     //TH2D *hnew = (TH2D*)gDirectory->Get("hnew");
+     hnew->SetYTitle("Y (cm)");hnew->SetXTitle("X (cm)");hnew->SetTitle("");
 
      int n_bins;
      double x_min,x_max,r_min,r_max;
-     n_bins=htemp->GetNbinsX();
-     x_min=htemp->GetBinLowEdge(0);
-     x_max=(htemp->GetBinLowEdge(n_bins))+(htemp->GetBinWidth(n_bins));
+     n_bins=hnew->GetNbinsX();
+     x_min=hnew->GetBinLowEdge(0);
+     x_max=(hnew->GetBinLowEdge(n_bins))+(hnew->GetBinWidth(n_bins));
      r_min=x_min*sqrt(2.0);r_max=x_max*sqrt(2.0);
+     //cout << " n = " << n_bins << " x_min = " << x_min << " x_max = " << x_max << endl;
+     //cout << " r_min = " << r_min << " r_max = " << r_max << endl;
+
+     MyCanvas_1->cd(2)->RedrawAxis();
      MyCanvas_1->cd(1);
      TLine l1=TLine(x_min,x_min,x_min,x_max);l1.SetLineColor(2);
      TLine l2=TLine(x_min,x_min,x_max,x_min);l2.SetLineColor(2);
@@ -23,13 +29,14 @@
      l1->Draw("Same"); l2->Draw("Same"); l3->Draw("Same"); l4->Draw("Same");
 
   MyCanvas->cd(2);
-  PixelNtuple->Draw("sqrt((pixel_recHit.gy*pixel_recHit.gy)+(pixel_recHit.gx*pixel_recHit.gx)):pixel_recHit.gz");
-     htemp->SetYTitle("R (cm)");
-     htemp->SetXTitle("Z (cm)");
-     htemp->SetTitle("Tracker Hits");
-     TAxis *axis = htemp->GetYaxis();
+  PixelNtuple->Draw("sqrt((pixel_recHit.gy*pixel_recHit.gy)+(pixel_recHit.gx*pixel_recHit.gx)):pixel_recHit.gz>>hnew2");
+     TH2D *hnew2 = (TH2D*)gPad->GetPrimitive("hnew2");
+     hnew2->SetYTitle("R (cm)");
+     hnew2->SetXTitle("Z (cm)");
+     hnew2->SetTitle("Tracker Hits");
+     TAxis *axis = hnew2->GetYaxis();
      axis->SetLimits(0., 115.);
-     TAxis *xaxis = htemp->GetXaxis();
+     TAxis *xaxis = hnew2->GetXaxis();
      xaxis->SetLimits(-320., 320.);
      MyCanvas_2->RedrawAxis();
      TLine l5=TLine(-30.0,r_min, 30.0,r_min);l5.SetLineColor(2);
