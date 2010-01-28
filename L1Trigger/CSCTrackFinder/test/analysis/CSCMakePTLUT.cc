@@ -4,15 +4,6 @@
  *
  *\author L. Gray (4/13/06)
  *
- *****************************************************
- * 11/11/09
- * GP: added new switch to use the beam start Pt LUTs
- * if (eta > 2.1) 2 stations tracks have quality 2
- *                3 stations tracks have quality 3
- * NB: no matter if the have ME1
- * 
- * --> by default is set to false
- *****************************************************
  *
  */
 
@@ -47,7 +38,6 @@ CSCMakePTLUT::CSCMakePTLUT(edm::ParameterSet const& conf) : myTF( 0 )
   sector = conf.getUntrackedParameter<int>("Sector",-1);
   endcap = conf.getUntrackedParameter<int>("Endcap",-1);
   binary = conf.getUntrackedParameter<bool>("BinaryOutput",true);
-  isBeamStart = conf.getUntrackedParameter<bool>("BeamStartConfiguration",false);
   LUTparam = conf.getParameter<edm::ParameterSet>("lutParam");
 
   //init Track Finder LUTs
@@ -76,7 +66,7 @@ void CSCMakePTLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
   edm::ESHandle< L1MuTriggerPtScale > ptScale ;
   iSetup.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
 
-  myTF = new CSCTFPtLUT(LUTparam, scales.product(), ptScale.product(), isBeamStart );
+  myTF = new CSCTFPtLUT(LUTparam, scales.product(), ptScale.product());
 
   std::string filename = std::string("L1CSCPtLUT") + ((binary) ? std::string(".bin") : std::string(".dat"));
   std::ofstream L1CSCPtLUT(filename.c_str());
