@@ -1,9 +1,15 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.16 2009/07/21 15:10:40 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.17 2009/08/09 10:05:52 loizides Exp $
 ################################################################################
 
 use strict;
 use warnings;
+
+#define parameters for copy to LOOKAREA
+my $lookfreq   = 10;     #copy cycle: copy every n-th LumiSec
+my $lookhosts  = 16;     #max-number of hosts assumed
+my $lookmodulo   = $lookfreq*$lookfreq;
+
 
 my $filename   =  $ENV{'SM_FILENAME'};
 my @fields     =  split(m/\./,$filename);
@@ -29,6 +35,7 @@ my $producer    = 'StorageManager';
 my $retries     = 2;
 my $copydelay   = 3;
 
+
 # special treatment for EcalCalibration
 my $doca = $ENV{'SM_CALIB_NFS'};
 
@@ -51,7 +58,7 @@ if ($fields[3] eq "EcalCalibration" || $stream =~ '_EcalNFS$') {
 # copy one file per instance to look area 
 my $dola = $ENV{'SM_LA_NFS'};
 if (defined $dola) {
-    if ($lumisection == ((5 * $instance) + 1)  && $count < 1)
+    if ($lumisection%$lookmodulo == (($lookfreq * $instance) + 1)  && $count < 1 )
     {
         my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 10';
         system($COPYCOMMAND);
