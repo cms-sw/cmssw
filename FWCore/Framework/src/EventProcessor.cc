@@ -723,7 +723,7 @@ namespace edm {
     ParentageRegistry::instance()->data().clear();
     ProcessConfigurationRegistry::instance()->data().clear();
     ProcessHistoryRegistry::instance()->data().clear();
-    BranchIDListRegistry::instance()->data().clear();
+    BranchIDListHelper::clearRegistries();
   }
 
   void
