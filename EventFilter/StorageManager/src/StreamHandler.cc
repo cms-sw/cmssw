@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.10 2009/10/13 15:08:34 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.11 2009/11/24 16:39:15 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -23,9 +23,27 @@ _diskWritingParams(sharedResources->_configuration->getDiskWritingParams())
 
 void StreamHandler::closeAllFiles()
 {
-  std::for_each(_fileHandlers.begin(), _fileHandlers.end(),
-    boost::bind(&FileHandler::closeFile, _1, FilesMonitorCollection::FileRecord::stop));
+  stor::exception::DiskWriting* exception = 0;
+
+  for (FileHandlers::const_iterator it = _fileHandlers.begin(),
+         itEnd = _fileHandlers.end(); it != itEnd; ++it)
+  {
+    try
+    {
+      (*it)->closeFile(FilesMonitorCollection::FileRecord::stop);
+    }
+    catch(stor::exception::DiskWriting& e)
+    {
+      // Keep going and try to close as much files as possible
+      exception = new stor::exception::DiskWriting(
+        "stor::exception::DiskWriting", "Cannot close all files.",
+        __FILE__, __LINE__, __FUNCTION__, e);
+    }
+  }
   _fileHandlers.clear();
+
+  if (exception)
+    throw *exception;
 }
 
 

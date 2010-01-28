@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.13 2009/12/17 18:28:58 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.14 2010/01/07 18:05:54 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -129,8 +129,8 @@ void DiskWriter::writeNextEvent()
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
 
-    checkForFileTimeOuts(true);
     checkStreamChangeRequest();
+    checkForFileTimeOuts(true);
     _sharedResources->_diskWriterResources->setBusy(false);
   }
 }
@@ -271,9 +271,27 @@ void DiskWriter::makeErrorStream(ErrorStreamConfigurationInfo& streamCfg)
 
 void DiskWriter::destroyStreams()
 {
-  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
-    boost::bind(&StreamHandler::closeAllFiles, _1));
+  stor::exception::DiskWriting* exception = 0;
+
+  for (StreamHandlers::const_iterator it = _streamHandlers.begin(),
+         itEnd = _streamHandlers.end(); it != itEnd; ++it)
+  {
+    try
+    {
+      (*it)->closeAllFiles();
+    }
+    catch(stor::exception::DiskWriting& e)
+    {
+      // Keep going and try to close as much files as possible
+      exception = new stor::exception::DiskWriting(
+        "stor::exception::DiskWriting", "Cannot close all streams.",
+        __FILE__, __LINE__, __FUNCTION__, e);
+    }
+  }
   _streamHandlers.clear();
+
+  if (exception)
+    throw *exception;
 }
 
 
