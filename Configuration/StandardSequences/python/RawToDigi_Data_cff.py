@@ -48,7 +48,7 @@ import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 #--- RPC ---#
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 #--- castor ---#
-import EventFilter.CastorRawToDigi.CastorRawToDigi_cff
+from  EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
 castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
 #--- Scalers ---#
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
