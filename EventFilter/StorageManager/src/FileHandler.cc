@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.9 2010/01/27 11:13:44 mommsen Exp $
+// $Id: FileHandler.cc,v 1.10 2010/01/27 14:21:44 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -203,8 +203,9 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
   int statStatus = stat64(fileName.c_str(), &statBuff);
   if ( statStatus != 0 )
   {
+    _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::unaccessible;
     std::ostringstream msg;
-    msg << "Error checking the status of open file "
+    msg << "Error checking the status of file "
       << fileName
       << ": " << strerror(errno);
     XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
