@@ -1,3 +1,13 @@
+/*****************************************************
+ * 28/01/2010
+ * GP: added new switch to use the beam start Pt LUTs
+ * if (eta > 2.1) 2 stations tracks have quality 2
+ *                3 stations tracks have quality 3
+ * NB: no matter if the have ME1
+ * 
+ * --> by default is set to true
+ *****************************************************/
+
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -23,6 +33,7 @@ bool CSCTFPtLUT::lut_read_in = false;
 CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
 	pt_method = 1;
 	lowQualityFlag = 4;
+	isBeamStartConf = true;
 	pt_lut = new ptdat[1<<21];
 
 	edm::ESHandle<L1MuCSCPtLut> ptLUT;
@@ -47,8 +58,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
 
 CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
 		       const L1MuTriggerScales* scales,
-		       const L1MuTriggerPtScale* ptScale,
-		       bool isBeamStart)
+		       const L1MuTriggerPtScale* ptScale)
   : trigger_scale( scales ),
     trigger_ptscale( ptScale ),
     ptMethods( ptScale )
@@ -56,8 +66,13 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
   if(read_pt_lut)
     {
-      pt_lut_file = pset.getUntrackedParameter<edm::FileInPath>("PtLUTFile",edm::FileInPath("L1Trigger/CSCTrackFinder/LUTs/L1CSCPtLUT.dat"));
+      pt_lut_file = pset.getParameter<edm::FileInPath>("PtLUTFile");
       isBinary = pset.getUntrackedParameter<bool>("isBinary", false);
+
+      edm::LogInfo("CSCTFPtLUT::CSCTFPtLUT") << "Reading file: "
+					     << pt_lut_file.fullPath().c_str()
+					     << " isBinary?(1/0): "
+					     << isBinary;
     }
 
   // Determine the pt assignment method to use
@@ -75,7 +90,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
       lut_read_in = true;
     }
 
-  isBeamStartConf = isBeamStart;
+  isBeamStartConf = pset.getUntrackedParameter<bool>("isBeamStartConf", true);
 }
 
 ptdat CSCTFPtLUT::Pt(const ptadd& address) const

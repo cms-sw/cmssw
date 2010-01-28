@@ -18,10 +18,9 @@ public:
   CSCTFPtLUT(const edm::EventSetup& c);
 ///
 
-    CSCTFPtLUT(const edm::ParameterSet&,
-	       const L1MuTriggerScales* scales,
-	       const L1MuTriggerPtScale* ptScale,
-	       bool  isBeamStart = false);
+  CSCTFPtLUT(const edm::ParameterSet&,
+	     const L1MuTriggerScales* scales,
+	     const L1MuTriggerPtScale* ptScale);
 
   CSCTFPtLUT(const CSCTFPtLUT&);
   ~CSCTFPtLUT() { if(pt_lut) delete pt_lut; pt_lut = NULL; }
