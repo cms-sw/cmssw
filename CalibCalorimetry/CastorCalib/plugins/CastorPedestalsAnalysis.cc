@@ -194,7 +194,7 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis()
     theStyle->SetCanvasDefW(1600); //Width of canvas
 
     gStyle = theStyle;
-
+/*
     TCanvas * c1 = new TCanvas("c1","graph",1);
     c1->Divide(2,2);
     c1->cd(1);
@@ -219,7 +219,7 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis()
     //dephist[3]->Draw();
     //dephist[3]->SetDrawOption("colz");
     c2->SaveAs(name2.c_str());
-
+*/
     std::cout << "Writing ROOT file... ";
     theFile->Close();
     std::cout << "ROOT file closed.\n";
