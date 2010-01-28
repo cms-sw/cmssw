@@ -20,6 +20,10 @@ class TrackKinematics {
 
 	void add(const reco::Track &track, double weight = 1.0);
 
+	TrackKinematics &operator += (const TrackKinematics &other);
+	inline TrackKinematics operator + (const TrackKinematics &other)
+	{ TrackKinematics copy = *this; copy += other; return copy; }
+
 	inline unsigned int numberOfTracks() const { return n; }
 	inline double sumOfWeights() const { return sumWeights; }
 
