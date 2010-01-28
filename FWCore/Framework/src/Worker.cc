@@ -62,12 +62,18 @@ private:
     try {
         ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
 	implBeginJob(es);
+      //NOTE: when remove 'es' from signature make sure to also remove
+      // the 'NoRecord' check for the cms::Exception
     }
     catch(cms::Exception& e) {
 	LogError("BeginJob")
 	  << "A cms::Exception is going through " << workerType() << ":\n";
 	state_ = Exception;
 	e << "A cms::Exception is going through " << workerType() << ":\n";
+        if(e.category()=="NoRecord") {
+          e<<"The exception occurred because the module is still accessing the EventSetup\n"
+          " from the beginJob.  Please change to code so the beginJob method takes no arguments.";
+        }
 	exceptionContext(md_, e);
 	throw e;
     }
