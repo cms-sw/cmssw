@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaTools.PhotonConversionMVAComputer_cfi import *
+#from RecoEgamma.EgammaTools.PhotonConversionMVAComputer_cfi import *
 #
 #  configuration for producer of converted photons
 #  
