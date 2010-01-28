@@ -27,6 +27,7 @@ Test of the EventProcessor class.
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -385,7 +386,11 @@ void testeventprocessor::beginEndTest()
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
     CPPUNIT_ASSERT(0 == proc.totalEvents());
+     
+     CPPUNIT_ASSERT(not edm::pset::Registry::instance()->empty());
   }
+  CPPUNIT_ASSERT(edm::pset::Registry::instance()->empty());
+
   {
     TestBeginEndJobAnalyzer::beginJobCalled = false;
     TestBeginEndJobAnalyzer::endJobCalled = false;
@@ -404,7 +409,9 @@ void testeventprocessor::beginEndTest()
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginLumiCalled);
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endLumiCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
+    CPPUNIT_ASSERT(not edm::pset::Registry::instance()->empty());
   }
+  CPPUNIT_ASSERT(edm::pset::Registry::instance()->empty());
   {
     TestBeginEndJobAnalyzer::beginJobCalled = false;
     TestBeginEndJobAnalyzer::endJobCalled = false;
