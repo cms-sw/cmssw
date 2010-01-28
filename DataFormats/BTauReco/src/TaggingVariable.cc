@@ -45,6 +45,7 @@ const char* TaggingVariableDescription[] = {
   /* [vertexCategory]                           = */ "category of secondary vertex (Reco, Pseudo, No)",
 
   /* [jetNSecondaryVertices]                    = */ "number of reconstructed possible secondary vertices in jet",
+  /* [jetNSingleTrackVertices]                  = */ "number of single-track ghost-track vertices",
 
   /* [vertexMass]                               = */ "mass of track sum at secondary vertex",
   /* [vertexNTracks]                            = */ "number of tracks at secondary vertex",
@@ -120,6 +121,7 @@ const char* TaggingVariableTokens[] = {
   /* [vertexCategory]                           = */ "vertexCategory",
 
   /* [jetNSecondaryVertices]                    = */ "jetNSecondaryVertices",
+  /* [jetNSingleTrackVertices]                  = */ "jetNSingleTrackVertices",
 
   /* [vertexMass]                               = */ "vertexMass",
   /* [vertexNTracks]                            = */ "vertexNTracks",
