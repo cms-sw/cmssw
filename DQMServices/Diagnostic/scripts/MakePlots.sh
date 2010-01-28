@@ -12,10 +12,10 @@ PlotDir="CurrentPlots"
 rm -rf $PlotDir
 
 if [ $6 ]; then
-    echo "RUNNING: $ExeName $TagName $Password $RunStart $RunEnd"
+    echo "RUNNING: $ExeName $Database $TagName $Password $RunStart $RunEnd"
     $ExeName $Database $TagName $Password $RunStart $RunEnd
 else
-    echo "RUNNING: $ExeName $TagName $Password $RunStart"
+    echo "RUNNING: $ExeName $Database $TagName $Password $RunStart"
     $ExeName $Database $TagName $Password $RunStart
 fi
 mkdir -pv $PlotDir
