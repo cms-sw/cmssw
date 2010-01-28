@@ -25,13 +25,6 @@ int main() {
 
   assert(!test(0));
   assert(test(2));
-#define REVERSE_LIKELY
-  assert(!test(0));
-  assert(test(2));
-#undef REVERSE_LIKELY
-#define NO_LIKELY
-  assert(!test(0));
-  assert(test(2));
 
   return 0;
 }
