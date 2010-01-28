@@ -8,7 +8,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.9 2009/08/18 18:42:00 wmtan Exp $
+// $Id: BranchMapReader.cc,v 1.10 2010/01/28 15:45:19 ewv Exp $
 //
 
 // system include files
@@ -413,7 +413,8 @@ namespace fwlite {
 // constructors and destructor
 //
 
-BranchMapReader::BranchMapReader(TFile* file)
+BranchMapReader::BranchMapReader(TFile* file) :
+    fileVersion_(-1)
 {
   strategy_ = newStrategy(file, getFileVersion(file));
 }
@@ -422,7 +423,7 @@ BranchMapReader::BranchMapReader(TFile* file)
 // member functions
 //
 
-int BranchMapReader::getFileVersion(TFile* file) const
+int BranchMapReader::getFileVersion(TFile* file)
 {
   TTree* metaDataTree = dynamic_cast<TTree*>(file->Get(edm::poolNames::metaDataTreeName().c_str()) );
   if (0==metaDataTree) {
@@ -434,6 +435,7 @@ int BranchMapReader::getFileVersion(TFile* file) const
   TBranch* bVer = metaDataTree->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
   bVer->SetAddress(&pV);
   bVer->GetEntry(0);
+  fileVersion_ = v.value();
   return v.value();
 }
 

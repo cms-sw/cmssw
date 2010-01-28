@@ -81,7 +81,7 @@ private:
 // constructors and destructor
 //
   LuminosityBlock::LuminosityBlock(TFile* iFile):
-    branchMap_(iFile),
+    branchMap_(new BranchMapReader(iFile)),
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
@@ -91,15 +91,15 @@ private:
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
     }
 
-    if(0==branchMap_.getLuminosityBlockTree()) {
+    if(0==branchMap_->getLuminosityBlockTree()) {
       throw cms::Exception("NoLumiTree")<<"The TFile contains no TTree named " <<edm::poolNames::luminosityBlockTreeName();
     }
     //need to know file version in order to determine how to read the basic event info
-    fileVersion_ = branchMap_.getFileVersion(iFile);
+    fileVersion_ = branchMap_->getFileVersion(iFile);
 
     //got this logic from IOPool/Input/src/RootFile.cc
 
-    TTree* luminosityBlockTree = branchMap_.getLuminosityBlockTree();
+    TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
 //    if(fileVersion_ >= 3 ) {
       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
       if(0==auxBranch_) {
@@ -118,7 +118,7 @@ private:
       }
       auxBranch_->SetAddress(&pOldAux_);
     }*/
-    branchMap_.updateLuminosityBlock(0);
+    branchMap_->updateLuminosityBlock(0);
 
 //     if(fileVersion_ >= 7 ) {
 //       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
@@ -126,6 +126,51 @@ private:
 
     getter_ = boost::shared_ptr<edm::EDProductGetter>(new internalLS::ProductGetter(this));
 }
+
+  LuminosityBlock::LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap):
+    branchMap_(branchMap),
+    pAux_(&aux_),
+    pOldAux_(0),
+    fileVersion_(-1),
+    parameterSetRegistryFilled_(false)
+  {
+
+    if(0==branchMap_->getLuminosityBlockTree()) {
+      throw cms::Exception("NoLumiTree")<<"The TFile contains no TTree named " <<edm::poolNames::luminosityBlockTreeName();
+    }
+    //need to know file version in order to determine how to read the basic event info
+    fileVersion_ = branchMap_->getFileVersion();
+    //got this logic from IOPool/Input/src/RootFile.cc
+
+    TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
+//    if(fileVersion_ >= 3 ) {
+      auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
+      if(0==auxBranch_) {
+        throw cms::Exception("NoLuminosityBlockAuxilliary")<<"The TTree "
+        <<edm::poolNames::luminosityBlockTreeName()
+        <<" does not contain a branch named 'LuminosityBlockAuxiliary'";
+      }
+      auxBranch_->SetAddress(&pAux_);
+/*    } else {
+      pOldAux_ = new edm::EventAux();
+      auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
+      if(0==auxBranch_) {
+        throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
+          <<edm::poolNames::luminosityBlockTreeName()
+          <<" does not contain a branch named 'LuminosityBlockAux'";
+      }
+      auxBranch_->SetAddress(&pOldAux_);
+    }*/
+    branchMap_->updateLuminosityBlock(0);
+
+//     if(fileVersion_ >= 7 ) {
+//       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
+//     }
+
+    getter_ = boost::shared_ptr<edm::EDProductGetter>(new internalLS::ProductGetter(this));
+}
+
+
 
 // Event::Event(const Event& rhs)
 // {
@@ -149,10 +194,10 @@ LuminosityBlock::~LuminosityBlock()
 const LuminosityBlock&
 LuminosityBlock::operator++()
 {
-   Long_t luminosityBlockIndex = branchMap_.getLuminosityBlockEntry();
+   Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
    if(luminosityBlockIndex < size())
    {
-      branchMap_.updateLuminosityBlock(++luminosityBlockIndex);
+      branchMap_->updateLuminosityBlock(++luminosityBlockIndex);
    }
    return *this;
 }
@@ -163,7 +208,7 @@ LuminosityBlock::operator++()
 //    if (iEntry < size())
 //    {
 //       // this is a valid entry
-//       return branchMap_.updateEvent(iEntry);
+//       return branchMap_->updateEvent(iEntry);
 //    }
 //    // if we're here, then iEntry was not valid
 //    return false;
@@ -177,7 +222,7 @@ LuminosityBlock::to (edm::RunNumber_t run, edm::LuminosityBlockNumber_t luminosi
       fileIndex_.findLumiPosition(run, luminosityBlock, true);
    if (fileIndex_.end() != i)
    {
-      return branchMap_.updateLuminosityBlock(i->entry_);
+      return branchMap_->updateLuminosityBlock(i->entry_);
    }
    return false;
 }
@@ -192,7 +237,7 @@ void
 LuminosityBlock::fillFileIndex() const
 {
   if (fileIndex_.empty()) {
-    TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
+    TTree* meta = dynamic_cast<TTree*>(branchMap_->getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
     if (0==meta) {
       throw cms::Exception("NoMetaTree")<<"The TFile does not contain a TTree named "
         <<edm::poolNames::metaDataTreeName();
@@ -213,7 +258,7 @@ LuminosityBlock::fillFileIndex() const
 const LuminosityBlock&
 LuminosityBlock::toBegin()
 {
-   branchMap_.updateLuminosityBlock(0);
+   branchMap_->updateLuminosityBlock(0);
    return *this;
 }
 
@@ -223,13 +268,13 @@ LuminosityBlock::toBegin()
 Long64_t
 LuminosityBlock::size() const
 {
-  return branchMap_.getLuminosityBlockTree()->GetEntries();
+  return branchMap_->getLuminosityBlockTree()->GetEntries();
 }
 
 bool
 LuminosityBlock::isValid() const
 {
-  Long_t luminosityBlockIndex = branchMap_.getLuminosityBlockEntry();
+  Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
   return luminosityBlockIndex!=-1 and luminosityBlockIndex < size();
 }
 
@@ -242,7 +287,7 @@ LuminosityBlock::operator bool() const
 bool
 LuminosityBlock::atEnd() const
 {
-  Long_t luminosityBlockIndex = branchMap_.getLuminosityBlockEntry();
+  Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
   return luminosityBlockIndex==-1 or luminosityBlockIndex == size();
 }
 
@@ -319,7 +364,7 @@ LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
     //if we have to lookup the process label, remember it and register the product again
     std::string foundProcessLabel;
     TBranch* branch = 0;
-    TTree* luminosityBlockTree = branchMap_.getLuminosityBlockTree();
+    TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
 //    std::cout <<" iPl "<<iProcessLabel << " :: " << internalLS::DataKey::kEmpty <<std::endl; //EWV
 
     if (0==iProcessLabel || iProcessLabel==internalLS::DataKey::kEmpty ||
@@ -453,7 +498,7 @@ LuminosityBlock::getByLabel(const std::type_info& iInfo,
     LuminosityBlock::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
   if (0 != theData.branch_) {
-    Long_t lumiIndex = branchMap_.getLuminosityBlockEntry();
+    Long_t lumiIndex = branchMap_->getLuminosityBlockEntry();
     if(lumiIndex != theData.lastLuminosityBlock_) {
       //haven't gotten the data for this event
       //std::cout <<" getByLabel getting data"<<std::endl;
@@ -469,7 +514,7 @@ LuminosityBlock::getByLabel(const std::type_info& iInfo,
 edm::LuminosityBlockAuxiliary const&
 LuminosityBlock::luminosityBlockAuxiliary() const
 {
-   Long_t luminosityBlockIndex = branchMap_.getLuminosityBlockEntry();
+   Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
    updateAux(luminosityBlockIndex);
    return aux_;
 }
@@ -497,7 +542,7 @@ LuminosityBlock::history() const
 
   bool newFormat = false;//(fileVersion_ >= 5);
 
-  Long_t lumiIndex = branchMap_.getLuminosityBlockEntry();
+  Long_t lumiIndex = branchMap_->getLuminosityBlockEntry();
   updateAux(lumiIndex);
   if (!newFormat) {
     processHistoryID = aux_.processHistoryID();
@@ -505,7 +550,7 @@ LuminosityBlock::history() const
 
   if(historyMap_.empty() || newFormat) {
     procHistoryNames_.clear();
-    TTree *meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
+    TTree *meta = dynamic_cast<TTree*>(branchMap_->getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
     if(0==meta) {
       throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
       <<edm::poolNames::metaDataTreeName();
@@ -561,7 +606,7 @@ LuminosityBlock::getByProductID(edm::ProductID const& iID) const
   std::map<edm::ProductID,boost::shared_ptr<internalLS::Data> >::const_iterator itFound = idToData_.find(iID);
   if(itFound == idToData_.end() ) {
     //std::cout <<" not found"<<std::endl;
-    edm::BranchDescription bDesc = branchMap_.productToBranch(iID);
+    edm::BranchDescription bDesc = branchMap_->productToBranch(iID);
 
     if (!bDesc.branchID().isValid()) {
       return 0;
@@ -604,7 +649,7 @@ LuminosityBlock::getByProductID(edm::ProductID const& iID) const
     }
     itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
   }
-  Long_t luminosityBlockIndex = branchMap_.getLuminosityBlockEntry();
+  Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
   if(luminosityBlockIndex != itFound->second->lastLuminosityBlock_) {
     //haven't gotten the data for this event
     getBranchData(getter_.get(), luminosityBlockIndex, *(itFound->second));
@@ -628,72 +673,6 @@ LuminosityBlock::getByProductID(edm::ProductID const& iID) const
   return itFound->second->pProd_;
 }
 
-// edm::TriggerNames const&
-// Event::triggerNames(edm::TriggerResults const& triggerResults) const
-// {
-//   edm::TriggerNames const* names = triggerNames_(triggerResults);
-//   if (names != 0) return *names;
-//
-//   if (!parameterSetRegistryFilled_) {
-//     fillParameterSetRegistry();
-//     names = triggerNames_(triggerResults);
-//   }
-//   if (names != 0) return *names;
-//
-//   throw cms::Exception("TriggerNamesNotFound")
-//     << "TriggerNames not found in ParameterSet registry";
-//   return *names;
-// }
-
-// void
-// Event::fillParameterSetRegistry() const
-// {
-//   if (parameterSetRegistryFilled_) return;
-//   parameterSetRegistryFilled_ = true;
-//
-//   TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-//   if (0==meta) {
-//     throw cms::Exception("NoMetaTree") << "The TFile does not contain a TTree named "
-//       << edm::poolNames::metaDataTreeName();
-//   }
-//
-//   edm::FileFormatVersion fileFormatVersion;
-//   edm::FileFormatVersion *fftPtr = &fileFormatVersion;
-//   if(meta->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != 0) {
-//     TBranch *fft = meta->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
-//     fft->SetAddress(&fftPtr);
-//     fft->GetEntry(0);
-//   }
-//
-//   if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
-//     typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
-//     PsetMap psetMap;
-//     PsetMap *psetMapPtr = &psetMap;
-//     TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
-//     b->SetAddress(&psetMapPtr);
-//     b->GetEntry(0);
-//
-//     edm::ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
-//     if(!fileFormatVersion.triggerPathsTracked()) {
-//       edm::ParameterSetConverter converter(psetMap, psetIdConverter, fileFormatVersion.parameterSetsByReference());
-//     } else {
-//       // Merge into the parameter set registry.
-//       edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
-//       for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
-//           i != iEnd; ++i) {
-//         edm::ParameterSet pset(i->second.pset_);
-//         pset.setID(i->first);
-//         pset.setFullyTracked();
-//         psetRegistry.insertMapped(pset);
-//       }
-//     }
-//   }
-//   else {
-//     throw cms::Exception("NoParameterSetMapBranch")
-//       << "The TTree does not contain a TBranch named "
-//       << edm::poolNames::parameterSetMapBranchName();
-//   }
-// }
 
 //
 // static member functions

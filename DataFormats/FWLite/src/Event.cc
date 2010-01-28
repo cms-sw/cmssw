@@ -743,9 +743,17 @@ Event::throwProductNotFoundException(const std::type_info& iType, const char* iM
     "but no data is available for this Event";
 }
 
+namespace {
+  struct NoDelete {
+    void operator()(void*){}
+  };
+}
+
+// Not really being shared, owned by event, have to trick Lumi
+
 fwlite::LuminosityBlock const& Event::getLuminosityBlock() {
   if (not lumi_) {
-    lumi_ = (boost::shared_ptr<fwlite::LuminosityBlock>) new fwlite::LuminosityBlock(file_);
+    lumi_ = (boost::shared_ptr<fwlite::LuminosityBlock>) new fwlite::LuminosityBlock(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()));
   }
   edm::RunNumber_t             run  = eventAuxiliary().run();
   edm::LuminosityBlockNumber_t lumi = eventAuxiliary().luminosityBlock();

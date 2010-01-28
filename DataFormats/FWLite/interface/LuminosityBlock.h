@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: Event.h,v 1.25 2009/11/04 17:03:16 elmer Exp $
+// $Id: LuminosityBlock.h,v 1.1 2010/01/28 15:36:40 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -128,6 +128,7 @@ namespace fwlite {
          // NOTE: Does NOT take ownership so iFile must remain around
          // at least as long as LuminosityBlock
          LuminosityBlock(TFile* iFile);
+         LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap);
          virtual ~LuminosityBlock();
 
          const LuminosityBlock& operator++();
@@ -157,7 +158,7 @@ namespace fwlite {
          virtual edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const;
 
          const std::vector<edm::BranchDescription>& getBranchDescriptions() const {
-            return branchMap_.getBranchDescriptions();
+            return branchMap_->getBranchDescriptions();
          }
 
          void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { std::cout << "resetting getter" << std::endl; getter_ = getter; }
@@ -184,7 +185,7 @@ namespace fwlite {
          internalLS::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
 
          // ---------- member data --------------------------------
-         mutable fwlite::BranchMapReader branchMap_;
+         mutable boost::shared_ptr<BranchMapReader> branchMap_;
 
 
          typedef std::map<internalLS::DataKey, boost::shared_ptr<internalLS::Data> > KeyToDataMap;

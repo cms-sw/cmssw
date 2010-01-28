@@ -16,7 +16,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.h,v 1.8 2008/12/23 20:37:27 dsr Exp $
+// $Id: BranchMapReader.h,v 1.9 2010/01/28 15:45:19 ewv Exp $
 //
 
 // system include files
@@ -70,7 +70,8 @@ namespace fwlite {
     bool updateEvent(Long_t eventEntry);
     bool updateLuminosityBlock(Long_t luminosityBlockEntry);
     const edm::BranchDescription productToBranch(const edm::ProductID& pid);
-    int getFileVersion(TFile* file) const;
+    int getFileVersion(TFile* file);
+    int getFileVersion() const { return  fileVersion_;}
 
     TFile* getFile() const { return strategy_->currentFile_; }
     TTree* getEventTree() const { return strategy_->eventTree_; }
@@ -84,6 +85,7 @@ namespace fwlite {
   private:
     std::auto_ptr<internal::BMRStrategy> newStrategy(TFile* file, int fileVersion);
     std::auto_ptr<internal::BMRStrategy> strategy_;
+    int fileVersion_;
   };
 }
 
