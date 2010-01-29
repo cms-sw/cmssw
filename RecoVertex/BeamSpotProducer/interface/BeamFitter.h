@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.10 2009/10/28 16:20:04 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.11 2009/12/04 19:59:43 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -75,6 +75,7 @@ class BeamFitter {
   // ntuple
   TH1F* h1z;
   bool saveNtuple_;
+  bool saveBeamFit_;
   std::string outputfilename_;
   TFile* file_;
   TTree* ftree_;
@@ -108,6 +109,24 @@ class BeamFitter {
   bool falgo;
   bool fpvValid;
   double fpvx, fpvy, fpvz;
+  
+  //beam fit results
+  TTree* ftreeFit_;
+  int frunFit;
+  int flumiFit;
+  double fx;
+  double fy;
+  double fz;
+  double fsigmaZ;
+  double fdxdz;
+  double fdydz;
+  double fxErr;
+  double fyErr;
+  double fzErr;
+  double fsigmaZErr;
+  double fdxdzErr;
+  double fdydzErr;
+
   TH1F *h1ntrks;
   TH1F *h1vz_event;
   
