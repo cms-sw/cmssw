@@ -9,6 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
+#include "OnlineDB/EcalCondDB/interface/DataReducer.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 using namespace oracle::occi;
@@ -44,10 +45,14 @@ class RunDCSHVDat : public IDataItem {
   void setStatusForBarrel(RunDCSHVDat&, Tm);
   void setStatusForEndcaps(RunDCSHVDat&, Tm);
   ResultSet* getBarrelRset();
+  ResultSet* getBarrelRset(Tm timeStart) ;
+
   ResultSet* getEndcapAnodeRset();
   ResultSet* getEndcapDynodeRset();
   int nowMicroseconds();
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSHVDat >* );
+  void fillTheMapByTime(ResultSet *, std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* ) ;
+
   void prepareWrite() 
     throw(std::runtime_error);
 
@@ -59,6 +64,10 @@ class RunDCSHVDat : public IDataItem {
 
   void fetchLastData(std::map< EcalLogicID, RunDCSHVDat >* fillMap)
      throw(std::runtime_error);
+
+  void fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, Tm timeStart  )
+    throw(runtime_error);
+
 
   // User data
   float m_hv;
