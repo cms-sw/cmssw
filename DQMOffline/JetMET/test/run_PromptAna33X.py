@@ -109,18 +109,19 @@ process.jetMETAnalyzer.processname = cms.string(trigger_set)
 
 if allhist=="True":
   process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
+  process.jetMETAnalyzer.DoJetPtCleaning = cms.untracked.bool(True)
   process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(True)
 
 #process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(1)
 
 if allhist=="True":
-  process.jetMETAnalyzer.caloMETAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.caloMETHOAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
+  process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
+  process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.pfMETAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.tcMETAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.mucorrMETAnalysis.allSelection = cms.bool(True)
+  process.jetMETAnalyzer.pfMETAnalysis.allSelection         = cms.bool(True)
+  process.jetMETAnalyzer.tcMETAnalysis.allSelection         = cms.bool(True)
+  process.jetMETAnalyzer.mucorrMETAnalysis.allSelection     = cms.bool(True)
 
 # the task - JetMET trigger
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
