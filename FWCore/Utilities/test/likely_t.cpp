@@ -22,6 +22,12 @@ namespace {
 
 
 int main() {
+#ifdef NO_LIKELY
+  std::cout << "NO_LIKELY" << std::endl;
+#endif
+#ifdef REVERSE_LIKELY
+  std::cout << "REVERSE_LIKELY" << std::endl;
+#endif
 
   assert(!test(0));
   assert(test(2));
