@@ -52,8 +52,6 @@ namespace fwlite {
 // static data member definitions
 //
   namespace internal {
-    const char* const DataKey::kEmpty="";
-
     class ProductGetter : public edm::EDProductGetter {
 public:
       ProductGetter(Event* iEvent) : event_(iEvent) {}
@@ -305,7 +303,7 @@ void getBranchData(edm::EDProductGetter* iGetter,
   //END OF WORK AROUND
 
   iData.branch_->GetEntry(iEventIndex);
-  iData.lastEvent_=iEventIndex;
+  iData.lastProduct_=iEventIndex;
 }
 
 const std::vector<std::string>&
@@ -350,7 +348,7 @@ Event::getBranchDataFor(const std::type_info& iInfo,
     std::string foundProcessLabel;
     TBranch* branch = 0;
     TTree* eventTree = branchMap_.getEventTree();
-    if (0==iProcessLabel || iProcessLabel==internal::DataKey::kEmpty ||
+    if (0==iProcessLabel || iProcessLabel==key.kEmpty() ||
         strlen(iProcessLabel)==0)
     {
       const std::string* lastLabel=0;
@@ -424,7 +422,7 @@ Event::getBranchDataFor(const std::type_info& iInfo,
       boost::shared_ptr<internal::Data> newData(new internal::Data() );
       newData->branch_ = branch;
       newData->obj_ = obj;
-      newData->lastEvent_=-1;
+      newData->lastProduct_=-1;
       newData->pObj_ = obj.Address();
       newData->pProd_ = 0;
       branch->SetAddress(&(newData->pObj_));
@@ -479,7 +477,7 @@ Event::getByLabel(const std::type_info& iInfo,
 
   if (0 != theData.branch_) {
     Long_t eventIndex = branchMap_.getEventEntry();
-    if(eventIndex != theData.lastEvent_) {
+    if(eventIndex != theData.lastProduct_) {
       //haven't gotten the data for this event
       //std::cout <<" getByLabel getting data"<<std::endl;
       getBranchData(getter_.get(), eventIndex, theData);
@@ -625,7 +623,7 @@ Event::getByProductID(edm::ProductID const& iID) const
     itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
   }
   Long_t eventIndex = branchMap_.getEventEntry();
-  if(eventIndex != itFound->second->lastEvent_) {
+  if(eventIndex != itFound->second->lastProduct_) {
     //haven't gotten the data for this event
     getBranchData(getter_.get(), eventIndex, *(itFound->second));
   }

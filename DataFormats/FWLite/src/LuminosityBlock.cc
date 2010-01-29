@@ -57,8 +57,7 @@ namespace fwlite {
 //
 // static data member definitions
 //
-  namespace internalLS {
-    const char* const DataKey::kEmpty="";
+  namespace internal {
 
     class ProductGetter : public edm::EDProductGetter {
 public:
@@ -73,9 +72,9 @@ private:
 
     };
   }
-  typedef std::map<internalLS::DataKey, boost::shared_ptr<internalLS::Data> > DataMap;
+  typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > DataMap;
   // empty object used to signal that the branch requested was not found
-  static internalLS::Data branchNotFound;
+  static internal::Data branchNotFound;
 
 //
 // constructors and destructor
@@ -94,13 +93,13 @@ private:
     if(0==branchMap_->getLuminosityBlockTree()) {
       throw cms::Exception("NoLumiTree")<<"The TFile contains no TTree named " <<edm::poolNames::luminosityBlockTreeName();
     }
-    //need to know file version in order to determine how to read the basic event info
+    //need to know file version in order to determine how to read the basic product info
     fileVersion_ = branchMap_->getFileVersion(iFile);
 
     //got this logic from IOPool/Input/src/RootFile.cc
 
     TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
-//    if(fileVersion_ >= 3 ) {
+    if(fileVersion_ >= 3 ) {
       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoLuminosityBlockAuxilliary")<<"The TTree "
@@ -108,23 +107,20 @@ private:
         <<" does not contain a branch named 'LuminosityBlockAuxiliary'";
       }
       auxBranch_->SetAddress(&pAux_);
-/*    } else {
-      pOldAux_ = new edm::EventAux();
-      auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
-      if(0==auxBranch_) {
-        throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
-          <<edm::poolNames::luminosityBlockTreeName()
-          <<" does not contain a branch named 'LuminosityBlockAux'";
-      }
-      auxBranch_->SetAddress(&pOldAux_);
-    }*/
+    } else {
+      throw cms::Exception("OldFileVersion")<<"The FWLite Luminosity Block code des not support old file versions";
+//       This code commented from fwlite::Event. May be portable if needed.
+//       pOldAux_ = new edm::EventAux();
+//       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
+//       if(0==auxBranch_) {
+//         throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
+//           <<edm::poolNames::luminosityBlockTreeName()
+//           <<" does not contain a branch named 'LuminosityBlockAux'";
+//       }
+//       auxBranch_->SetAddress(&pOldAux_);
+    }
     branchMap_->updateLuminosityBlock(0);
-
-//     if(fileVersion_ >= 7 ) {
-//       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
-//     }
-
-    getter_ = boost::shared_ptr<edm::EDProductGetter>(new internalLS::ProductGetter(this));
+    getter_ = boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this));
 }
 
   LuminosityBlock::LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap):
@@ -143,7 +139,7 @@ private:
     //got this logic from IOPool/Input/src/RootFile.cc
 
     TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
-//    if(fileVersion_ >= 3 ) {
+    if(fileVersion_ >= 3 ) {
       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoLuminosityBlockAuxilliary")<<"The TTree "
@@ -151,31 +147,25 @@ private:
         <<" does not contain a branch named 'LuminosityBlockAuxiliary'";
       }
       auxBranch_->SetAddress(&pAux_);
-/*    } else {
-      pOldAux_ = new edm::EventAux();
+    } else {
+      throw cms::Exception("OldFileVersion")<<"The FWLite Luminosity Block code des not support old file versions";
+/*      pOldAux_ = new edm::EventAux();
       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
           <<edm::poolNames::luminosityBlockTreeName()
           <<" does not contain a branch named 'LuminosityBlockAux'";
       }
-      auxBranch_->SetAddress(&pOldAux_);
-    }*/
+      auxBranch_->SetAddress(&pOldAux_);*/
+    }
     branchMap_->updateLuminosityBlock(0);
 
 //     if(fileVersion_ >= 7 ) {
 //       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
 //     }
 
-    getter_ = boost::shared_ptr<edm::EDProductGetter>(new internalLS::ProductGetter(this));
+    getter_ = boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this));
 }
-
-
-
-// Event::Event(const Event& rhs)
-// {
-//    // do actual copying here;
-// }
 
 LuminosityBlock::~LuminosityBlock()
 {
@@ -274,15 +264,6 @@ LuminosityBlock::atEnd() const
   return luminosityBlockIndex==-1 or luminosityBlockIndex == size();
 }
 
-/*
-void
-Event::getByBranchName(const std::type_info& iInfo, const char* iName, void*& oData) const
-{
-  oData=0;
-  std::cout <<iInfo.name()<<std::endl;
-}
-*/
-
 static
 TBranch* findBranch(TTree* iTree, const std::string& iMainLabels, const std::string& iProcess) {
   std::string branchName(iMainLabels);
@@ -296,7 +277,7 @@ TBranch* findBranch(TTree* iTree, const std::string& iMainLabels, const std::str
 static
 void getBranchData(edm::EDProductGetter* iGetter,
                    Long64_t iLuminosityBlockIndex,
-                   internalLS::Data& iData)
+                   internal::Data& iData)
 {
   GetterOperate op(iGetter);
 
@@ -317,11 +298,11 @@ void getBranchData(edm::EDProductGetter* iGetter,
   //END OF WORK AROUND
 
   iData.branch_->GetEntry(iLuminosityBlockIndex);
-  iData.lastLuminosityBlock_=iLuminosityBlockIndex;
+  iData.lastProduct_=iLuminosityBlockIndex;
 }
 
 
-internalLS::Data&
+internal::Data&
 LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
                   const char* iModuleLabel,
                   const char* iProductInstanceLabel,
@@ -331,9 +312,9 @@ LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
   //<<((0!=iProcessLabel)?iProcessLabel:"")<<"'"<<std::endl;
   //std::cout <<iInfo.name()<<std::endl;
   edm::TypeID type(iInfo);
-  internalLS::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
+  internal::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
-  boost::shared_ptr<internalLS::Data> theData;
+  boost::shared_ptr<internal::Data> theData;
   DataMap::iterator itFind = data_.find(key);
   if(itFind == data_.end() ) {
     //std::cout <<"did not find the key"<<std::endl;
@@ -348,9 +329,8 @@ LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
     std::string foundProcessLabel;
     TBranch* branch = 0;
     TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
-//    std::cout <<" iPl "<<iProcessLabel << " :: " << internalLS::DataKey::kEmpty <<std::endl; //EWV
 
-    if (0==iProcessLabel || iProcessLabel==internalLS::DataKey::kEmpty ||
+    if (0==iProcessLabel || iProcessLabel==key.kEmpty() ||
         strlen(iProcessLabel)==0)
     {
       const std::string* lastLabel=0;
@@ -372,7 +352,7 @@ LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
       //do we already have this one?
       if(0!=lastLabel) {
         //std::cout <<" process name "<<*lastLabel<<std::endl;
-        internalLS::DataKey fullKey(type,iModuleLabel,iProductInstanceLabel,lastLabel->c_str());
+        internal::DataKey fullKey(type,iModuleLabel,iProductInstanceLabel,lastLabel->c_str());
         itFind = data_.find(fullKey);
         if(itFind != data_.end()) {
           //remember the data we've found
@@ -410,7 +390,7 @@ LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
       std::strcpy(newProcess,key.process());
       labels_.push_back(newProcess);
     }
-    internalLS::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
+    internal::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
 
     if(0 == theData.get() ) {
       //We do not already have this data as another key
@@ -425,10 +405,10 @@ LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
       if(obj.Address() == 0) {
         throw cms::Exception("ConstructionFailed")<<"failed to construct an instance of "<<rType.Name();
       }
-      boost::shared_ptr<internalLS::Data> newData(new internalLS::Data() );
+      boost::shared_ptr<internal::Data> newData(new internal::Data() );
       newData->branch_ = branch;
       newData->obj_ = obj;
-      newData->lastLuminosityBlock_=-1;
+      newData->lastProduct_=-1;
       newData->pObj_ = obj.Address();
       newData->pProd_ = 0;
       branch->SetAddress(&(newData->pObj_));
@@ -441,7 +421,7 @@ LuminosityBlock::getBranchDataFor(const std::type_info& iInfo,
       newProcess = new char[foundProcessLabel.size()+1];
       std::strcpy(newProcess,foundProcessLabel.c_str());
       labels_.push_back(newProcess);
-      internalLS::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
+      internal::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
 
       data_.insert(std::make_pair(newKey,theData));
     }
@@ -455,7 +435,7 @@ LuminosityBlock::getBranchNameFor(const std::type_info& iInfo,
                   const char* iProductInstanceLabel,
                   const char* iProcessLabel) const
 {
-  internalLS::Data& theData =
+  internal::Data& theData =
     LuminosityBlock::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
   if (0 != theData.branch_) {
@@ -477,12 +457,12 @@ LuminosityBlock::getByLabel(const std::type_info& iInfo,
   void** pOData = reinterpret_cast<void**>(oData);
   *pOData = 0;
 
-  internalLS::Data& theData =
+  internal::Data& theData =
     LuminosityBlock::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
   if (0 != theData.branch_) {
     Long_t lumiIndex = branchMap_->getLuminosityBlockEntry();
-    if(lumiIndex != theData.lastLuminosityBlock_) {
+    if(lumiIndex != theData.lastProduct_) {
       //haven't gotten the data for this event
       //std::cout <<" getByLabel getting data"<<std::endl;
       getBranchData(getter_.get(), lumiIndex, theData);
@@ -586,7 +566,7 @@ edm::EDProduct const*
 LuminosityBlock::getByProductID(edm::ProductID const& iID) const
 {
   //std::cout <<"getByProductID"<<std::endl;
-  std::map<edm::ProductID,boost::shared_ptr<internalLS::Data> >::const_iterator itFound = idToData_.find(iID);
+  std::map<edm::ProductID,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(iID);
   if(itFound == idToData_.end() ) {
     //std::cout <<" not found"<<std::endl;
     edm::BranchDescription bDesc = branchMap_->productToBranch(iID);
@@ -606,7 +586,7 @@ LuminosityBlock::getByProductID(edm::ProductID const& iID) const
     if(pIL[0] == 0) {
       pIL = 0;
     }
-    internalLS::DataKey k(edm::TypeID(type.TypeInfo()),
+    internal::DataKey k(edm::TypeID(type.TypeInfo()),
                         bDesc.moduleLabel().c_str(),
                         pIL,
                         bDesc.processName().c_str());
@@ -633,7 +613,7 @@ LuminosityBlock::getByProductID(edm::ProductID const& iID) const
     itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
   }
   Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
-  if(luminosityBlockIndex != itFound->second->lastLuminosityBlock_) {
+  if(luminosityBlockIndex != itFound->second->lastProduct_) {
     //haven't gotten the data for this event
     getBranchData(getter_.get(), luminosityBlockIndex, *(itFound->second));
   }
