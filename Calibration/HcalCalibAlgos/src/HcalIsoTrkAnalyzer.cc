@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.18 2010/01/21 21:50:03 andrey Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.19 2010/01/22 19:34:19 argiro Exp $
 //
 //
 
@@ -383,7 +383,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   	int iphitrue = -10;
 	int ietatrue = 100;
 
-	if (etahcal<1.392) 
+	if (abs(etahcal)<1.392) 
 	  {
 	    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 	    //    const GlobalPoint tempPoint(newx, newy, newz);
@@ -393,7 +393,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    iphitrue = tempId.iphi();
 	  }
 
-	if (etahcal>1.392 &&  etahcal<3.0) 
+	if (abs(etahcal)>1.392 &&  abs(etahcal)<3.0) 
 	  {
 	    const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
 	    const HcalDetId tempId = gHE->getClosestCell(gP);

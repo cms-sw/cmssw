@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.9 2010/01/22 19:34:19 argiro Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.10 2010/01/25 22:13:27 hegner Exp $
 //
 
 // system include files
@@ -475,17 +475,15 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	int iphitrue = -10;
 	int ietatrue = 100;
 
-	if (etahcal<1.392) 
+	if (abs(etahcal)<1.392) 
 	  {
 	    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-	    //    const GlobalPoint tempPoint(newx, newy, newz);
-	    //const DetId tempId = gHB->getClosestCell(tempPoint);
 	    const HcalDetId tempId = gHB->getClosestCell(gP);
 	    ietatrue = tempId.ieta();
 	    iphitrue = tempId.iphi();
 	  }
 
-	if (etahcal>1.392 &&  etahcal<3.0) 
+	if (abs(etahcal)>1.392 &&  abs(etahcal)<3.0) 
 	  {
 	    const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
 	    const HcalDetId tempId = gHE->getClosestCell(gP);
@@ -687,7 +685,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 		  if(AxB_!="3x3" && AxB_!="5x5" && AxB_!="Cone") LogWarning(" AxB ")<<"   Not supported: "<< AxB_;
 		  
 		  
-		  if (abs(DIETA)<=2 && (abs(DIPHI)<=2 || (abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=4) && !( (abs(MaxHit.ietahitm)==21 || abs(MaxHit.ietahitm)==22) && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>2) ) )
+		  if (abs(DIETA)<=2 && (abs(DIPHI)<=2 || ((abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=4) && !( (abs(MaxHit.ietahitm)==21 || abs(MaxHit.ietahitm)==22) && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>2) )) )
 		    {
 
 		      e5x5Before += hhit->energy();
@@ -695,7 +693,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 		    }
 		  
 		  
-		  if (abs(DIETA)<=1 && (abs(DIPHI)<=1 || (abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=2) && !(abs(MaxHit.ietahitm)==21 && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>1) ) )
+		  if (abs(DIETA)<=1 && (abs(DIPHI)<=1 || ((abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=2) && !(abs(MaxHit.ietahitm)==21 && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>1) )) )
 		    {
 
 		      e3x3Before += hhit->energy();
