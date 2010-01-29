@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.11 2009/11/24 16:39:15 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.12 2010/01/28 13:40:23 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -23,8 +23,8 @@ _diskWritingParams(sharedResources->_configuration->getDiskWritingParams())
 
 void StreamHandler::closeAllFiles()
 {
-  stor::exception::DiskWriting* exception = 0;
-
+  std::string errorMsg = "Failed to close all files for stream " + streamLabel() + ": ";
+  
   for (FileHandlers::const_iterator it = _fileHandlers.begin(),
          itEnd = _fileHandlers.end(); it != itEnd; ++it)
   {
@@ -32,18 +32,31 @@ void StreamHandler::closeAllFiles()
     {
       (*it)->closeFile(FilesMonitorCollection::FileRecord::stop);
     }
-    catch(stor::exception::DiskWriting& e)
+    catch(xcept::Exception& e)
     {
-      // Keep going and try to close as much files as possible
-      exception = new stor::exception::DiskWriting(
-        "stor::exception::DiskWriting", "Cannot close all files.",
-        __FILE__, __LINE__, __FUNCTION__, e);
+      XCEPT_DECLARE_NESTED( stor::exception::DiskWriting,
+        sentinelException, errorMsg, e );
+      _statReporter->alarmHandler()->
+        notifySentinel(AlarmHandler::ERROR, sentinelException);
+    }
+    catch(std::exception &e)
+    {
+      errorMsg += e.what();
+      XCEPT_DECLARE( stor::exception::DiskWriting,
+        sentinelException, errorMsg );
+      _statReporter->alarmHandler()->
+        notifySentinel(AlarmHandler::ERROR, sentinelException);
+    }
+    catch(...)
+    {
+      errorMsg += "Unknown exception";
+      XCEPT_DECLARE( stor::exception::DiskWriting,
+        sentinelException, errorMsg );
+      _statReporter->alarmHandler()->
+        notifySentinel(AlarmHandler::ERROR, sentinelException);
     }
   }
   _fileHandlers.clear();
-
-  if (exception)
-    throw *exception;
 }
 
 
