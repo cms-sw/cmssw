@@ -559,9 +559,9 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 		      controlreg,
 		      bufferData);
 
-    std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]<<std::flush; //for debugging
+    //    std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]<<std::flush; //for debugging
     if (!HVon || disableRoc)    dacs[11]=0; //set Vcthr DAC to 0 (Vcthr is DAC 12=11+1)
-    std::cout<<" ; setting VcThr to "<<dacs[11]<<std::endl; //for debugging
+    //    std::cout<<" ; setting VcThr to "<<dacs[11]<<std::endl; //for debugging
     pixelFEC->setAllDAC(theROC,dacs,bufferData);
 
     // start with no pixels on for calibration
