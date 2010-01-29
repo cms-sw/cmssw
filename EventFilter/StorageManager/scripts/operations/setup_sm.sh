@@ -233,9 +233,28 @@ start () {
                 /sbin/multipath
             fi
 
-            for i in $store/sata*a*v*; do 
-                mountByLabel $i
-            done
+            mounts=(/store/sata*a*v*)
+            case ${#mounts[@]} in
+            1)
+		if [ "$mounts" = "/store/sata*a*v*" ]; then
+		    echo "No mountpoint define, assuming install needed, calling make_all.sh"
+		    ( cd ~smpro/sm_scripts_cvs/operations/ && ./makeall.sh )
+		    for i in /store/sata*a*v*; do
+			mountByLabel $i
+		    done
+		else
+		    echo -e "\e[33mWARNING: Odd number of mount points: ${#mounts[@]}. Skipping mounts\e[0m"
+		fi
+            ;;
+            4)
+                for i in ${mount[@]}; do
+                    mountByLabel $i
+                done
+            ;;
+            *)
+                echo -e "\e[33mWARNING: Odd number of mount points: ${#mounts[@]}. Skipping mounts\e[0m"
+            ;;
+            esac
 
             if test -x "/sbin/multipath"; then
                 echo "Flushing unused multipath devices"
