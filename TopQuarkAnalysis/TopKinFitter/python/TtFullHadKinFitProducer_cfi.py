@@ -31,14 +31,21 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     bTagAlgo            = cms.string("trackCountingHighPurBJetTags"),
     minBTagValueBJet    = cms.double(3.0),
     maxBTagValueNonBJet = cms.double(3.0),
-    useBTag             = cms.bool(True),
+    bTags               = cms.uint32(2), # if set to 1 also tries to take 2 if possible
 
+    # ------------------------------------------------
+    # use corrected energies for jets (not perfectly implemented)
+    # ------------------------------------------------
+    corL = cms.string("abs"),
+    corB = cms.string("abs"),
+                                      
     # ------------------------------------------------
     # settings for the KinFitter
     # ------------------------------------------------    
     maxNrIter = cms.uint32(500),
     maxDeltaS = cms.double(5e-05),
     maxF      = cms.double(0.0001),
+                                      
     # ------------------------------------------------
     # select parametrisation
     # 0: EMom, 1: EtEtaPhi, 2: EtThetaPhi
