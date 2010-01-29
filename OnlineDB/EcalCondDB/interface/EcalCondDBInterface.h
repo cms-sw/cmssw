@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.22 2009/11/18 03:48:31 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.23 2009/11/19 08:46:39 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -590,6 +590,32 @@ class EcalCondDBInterface : public EcalDBConnection {
     datiface.terminateReadStatement();
 
   }
+
+
+
+
+  /*
+   *  Fetch a set of DCS data based on time stamp
+   */
+  template<class DATT>
+  void fetchDCSDataSet(std::list< std::pair< Tm, std::map<  EcalLogicID, DATT > > >* fillMap, Tm t)
+    throw(std::runtime_error)
+  {
+    fillMap->clear();
+
+    DATT datiface;
+    datiface.setConnection(env, conn);
+    datiface.createReadStatement();
+    datiface.setPrefetchRowCount(1000);
+    datiface.fetchHistoricalData( fillMap, t );
+    datiface.terminateReadStatement();
+
+  }
+
+
+
+
+
   /*
    *  Fetch a set of data based on an EXACT match of an iov
    * with a specific mapping name 
