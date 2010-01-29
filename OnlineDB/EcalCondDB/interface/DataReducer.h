@@ -70,7 +70,8 @@ class DataReducer
 	  
 
 	  int diff_time= ((int)t.microsTime() - (int)t_l.microsTime()) /1000000  ;
-	  if(abs ( diff_time ) < TIMELIMIT ) {
+	  if(diff_time < 0) diff_time= - diff_time; 
+	  if(  diff_time  < TIMELIMIT ) {
 	    // data change happened at the same moment
 	    // TO BE DONE : add a a check that the state is not equal to the previous one 
 	    
