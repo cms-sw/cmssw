@@ -21,12 +21,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('OtherCMS', 
@@ -58,7 +58,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('step2_DIGI2RAW.root')
+    fileNames = cms.untracked.vstring('file:PYTHIA6_MinBias_2360GeV_cff_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root')
 )
 
 # Output definition
@@ -88,6 +88,32 @@ process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.dedxTruncated40.UsePixel = cms.bool(False)
 process.dedxMedian.UsePixel = cms.bool(False)
 process.dedxHarmonic2.UsePixel = cms.bool(False)
+
+###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
+
+### pixelTracks
+#---- replaces ----
+process.pixelTracks.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06) # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
+process.pixelTracks.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+### 0th step of iterative tracking
+#---- replaces ----
+process.newSeedFromTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+### 2nd step of iterative tracking
+#---- replaces ----
+process.secTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
+process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
 
 
 ## Primary Vertex
