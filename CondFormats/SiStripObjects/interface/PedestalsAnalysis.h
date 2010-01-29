@@ -25,6 +25,7 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   virtual ~PedestalsAnalysis() {;}
 
   friend class PedestalsAlgorithm;
+  friend class PedsFullNoiseAlgorithm;
 
   // ---------- public interface ----------
 

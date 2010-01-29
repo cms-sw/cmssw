@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.10 2009/02/10 21:45:54 lowette Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.11 2009/11/03 17:23:56 wto Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -81,6 +81,17 @@ namespace sistrip {
   static const char pedestalsMin_[]       = "PedestalMin";
 
   // noise
+<<<<<<< ConstantsForMonitorable.h
+  static const char noiseAllStrips_[]     = "StripNoise";
+  static const char noiseMean_[]          = "NoiseMean";
+  static const char noiseSpread_[]        = "NoiseRmsSpread";
+  static const char noiseMax_[]           = "NoiseMax";
+  static const char noiseMin_[]           = "NoiseMin";
+  static const char numOfDead_[]          = "NumOfDeadStrips";
+  static const char numOfNoisy_[]         = "NumOfNoisyStrips";
+  static const char noiseKSAllStrips_[]   = "StripNoiseKS";
+
+=======
   static const char noiseAllStrips_[]       = "StripNoise";
   static const char noiseMean_[]            = "NoiseMean";
   static const char noiseSpread_[]          = "NoiseRmsSpread";
@@ -94,6 +105,7 @@ namespace sistrip {
   static const char noisebin84Percent_[]  	= "Bin84Percent";
   static const char noiseSignif_[]  		= "StripNoiseSignif";
   
+>>>>>>> 1.11
   // Fine Delay
   static const char fineDelayPos_[]       = "FineDelayPosition";
   static const char fineDelayErr_[]       = "FineDelayError";
@@ -192,6 +204,12 @@ namespace sistrip {
 		     NOISE_MIN        = 210, 
 		     NUM_OF_DEAD      = 211, 
 		     NUM_OF_NOISY     = 212,
+<<<<<<< ConstantsForMonitorable.h
+                     NOISE_KS_ALL_STRIPS = 215,
+
+                     FINE_DELAY_POS = 601,
+                     FINE_DELAY_ERROR = 602,
+=======
              NOISE_KS_ALL_STRIPS = 215,
 			 NOISE_GAUS_ALL_STRIPS  = 216,
              NOISE_BIN_84_PERCENT  = 217,
@@ -199,6 +217,7 @@ namespace sistrip {
              NOISE_SIGNIF_ALL_STRIPS = 219,
              FINE_DELAY_POS = 601,
              FINE_DELAY_ERROR = 602,
+>>>>>>> 1.11
 
 		     CALIBRATION_AMPLITUDE    = 701,
 		     CALIBRATION_TAIL         = 702,
