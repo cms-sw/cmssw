@@ -73,8 +73,7 @@ void HcalTopology::excludeSubdetector(HcalSubdetector subdet) {
   }
 }
 
-std::vector<DetId> HcalTopology::east(const DetId& id) const
-{
+std::vector<DetId> HcalTopology::east(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbors[2];
   for (int i=0;i<decIEta(HcalDetId(id),neighbors);i++)
@@ -82,8 +81,7 @@ std::vector<DetId> HcalTopology::east(const DetId& id) const
   return vNeighborsDetId;
 }
 
-std::vector<DetId> HcalTopology::west(const DetId& id) const
-{
+std::vector<DetId> HcalTopology::west(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbors[2];
   for (int i=0;i<incIEta(HcalDetId(id),neighbors);i++)
@@ -91,8 +89,7 @@ std::vector<DetId> HcalTopology::west(const DetId& id) const
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> HcalTopology::north(const DetId& id) const
-{
+std::vector<DetId> HcalTopology::north(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbor;
   if (incIPhi(HcalDetId(id),neighbor))
@@ -100,8 +97,7 @@ std::vector<DetId> HcalTopology::north(const DetId& id) const
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> HcalTopology::south(const DetId& id) const
-{
+std::vector<DetId> HcalTopology::south(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   HcalDetId neighbor;
   if (decIPhi(HcalDetId(id),neighbor))
@@ -109,8 +105,7 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> HcalTopology::up(const DetId& id) const
-{
+std::vector<DetId> HcalTopology::up(const DetId& id) const {
   HcalDetId neighbor = id;
   //A.N.
   //  incrementDepth(neighbor);
@@ -122,8 +117,7 @@ std::vector<DetId> HcalTopology::up(const DetId& id) const
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> HcalTopology::down(const DetId& id) const
-{
+std::vector<DetId> HcalTopology::down(const DetId& id) const {
   std::cout << "HcalTopology::down() not yet implemented" << std::endl; 
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
@@ -189,169 +183,171 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
   */
 
   /** Is this a valid cell id? */
-  bool HcalTopology::validRaw(const HcalDetId& id) const {
-    bool ok=true;
-    int ieta=id.ieta();
-    int aieta=id.ietaAbs();
-    int depth=id.depth();
-    int iphi=id.iphi();
+bool HcalTopology::validRaw(const HcalDetId& id) const {
+  bool ok=true;
+  int ieta=id.ieta();
+  int aieta=id.ietaAbs();
+  int depth=id.depth();
+  int iphi=id.iphi();
 
-    if ((ieta==0 || iphi<=0 || iphi>IPHI_MAX) || aieta>41) return false; // outer limits
+  if ((ieta==0 || iphi<=0 || iphi>IPHI_MAX) || aieta>41) return false; // outer limits
     
-    if (ok) {
-      HcalSubdetector subdet=id.subdet();
-      if (subdet==HcalBarrel) {
-	if (aieta>16 || depth>2 || (aieta<=14 && depth>1)) ok=false;	    
-      } else if (subdet==HcalEndcap) {
-	if (depth>3 || aieta<16 || aieta>29 ||
-	    (aieta==16 && depth!=3) ||
-	    (aieta==17 && depth!=1 && !h2mode_) || // special case at H2
-	    (((aieta>=17 && aieta<firstHETripleDepthRing_) || aieta==29) && depth>2) ||
-	    (aieta>=firstHEDoublePhiRing_ && (iphi%2)==0)) ok=false;
-      } else if (subdet==HcalOuter) {
-	if (aieta>15 || iphi>IPHI_MAX || depth!=4) ok=false;
-      } else if (subdet==HcalForward) {
-	if (aieta<29 || aieta>41 ||
-	    ((iphi%2)==0) ||
-	    (depth>2) ||
-	    (aieta>=40 && ((iphi+1)%4)!=0)) ok=false;
-      } else ok=false;
-    }
-    
-    return ok;
+  if (ok) {
+    HcalSubdetector subdet=id.subdet();
+    if (subdet==HcalBarrel) {
+      if (aieta>16 || depth>2 || (aieta<=14 && depth>1)) ok=false;	    
+    } else if (subdet==HcalEndcap) {
+      if (depth>3 || aieta<16 || aieta>lastHERing() ||
+	  (aieta==16 && depth!=3) ||
+	  (aieta==17 && depth!=1 && !h2mode_) || // special case at H2
+	  (((aieta>=17 && aieta<firstHETripleDepthRing()) || aieta==29) && depth>2) ||
+	  (aieta>=firstHEDoublePhiRing() && (iphi%2)==0)) ok=false;
+    } else if (subdet==HcalOuter) {
+      if (aieta>15 || iphi>IPHI_MAX || depth!=4) ok=false;
+    } else if (subdet==HcalForward) {
+      if (aieta<firstHFRing() || aieta>lastHFRing() ||
+	  ((iphi%2)==0) ||
+	  (depth>2) ||
+	  (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
+    } else ok=false;
   }
+    
+  return ok;
+}
 
   
-  bool HcalTopology::incIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
-    bool ok=valid(id);
-    if (ok) {
-      switch (id.subdet()) {
-      case (HcalBarrel):
-      case (HcalOuter):
+bool HcalTopology::incIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
+  bool ok=valid(id);
+  if (ok) {
+    switch (id.subdet()) {
+    case (HcalBarrel):
+    case (HcalOuter):
+      if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
+      else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+1,id.depth()); 
+      break;
+    case (HcalEndcap):
+      if (id.ietaAbs()>=firstHEDoublePhiRing()) {
+	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
+	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
+      } else {
 	if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
 	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+1,id.depth()); 
-	break;
-      case (HcalEndcap):
-	if (id.ietaAbs()>=21) {
-	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
-	} else {
-	  if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+1,id.depth()); 
-	}	
-	break;
-      case (HcalForward):
-	if (id.ietaAbs()>=40) {
-	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),3,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+4,id.depth()); 
-	} else {
-	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
-	}
-	break;
-      default: ok=false;
+      }	
+      break;
+    case (HcalForward):
+      if (id.ietaAbs()>=firstHFQuadPhiRing()) {
+	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),3,id.depth()); 
+	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+4,id.depth()); 
+      } else {
+	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
+	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
       }
-    } 
-    return ok;
-  }
-  /** Get the neighbor (if present) of the given cell with lower iphi */
-  bool HcalTopology::decIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
-    bool ok=valid(id);
-    if (ok) {
-      switch (id.subdet()) {
-      case (HcalBarrel):
-      case (HcalOuter):
+      break;
+    default: ok=false;
+    }
+  } 
+  return ok;
+}
+
+/** Get the neighbor (if present) of the given cell with lower iphi */
+bool HcalTopology::decIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
+  bool ok=valid(id);
+  if (ok) {
+    switch (id.subdet()) {
+    case (HcalBarrel):
+    case (HcalOuter):
+      if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX,id.depth()); 
+      else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-1,id.depth()); 
+      break;
+    case (HcalEndcap):
+      if (id.ietaAbs()>=firstHEDoublePhiRing()) {
+	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
+	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
+      } else {
 	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX,id.depth()); 
 	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-1,id.depth()); 
-	break;
-      case (HcalEndcap):
-	if (id.ietaAbs()>=21) {
-	  if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
-	} else {
-	  if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-1,id.depth()); 
-	}
-	break;
-      case (HcalForward):
-	if (id.ietaAbs()>=40) {
-	  if (id.iphi()==3) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-4,id.depth()); 
-	} else {
-	  if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
-	  else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
-	}
-	break;
-      default: ok=false;
       }
-    } 
-    return ok;
-  }
-
-  int HcalTopology::incIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
-    if (id.zside()==1) return incAIEta(id,neighbors);
-    else return decAIEta(id,neighbors);
-  }
-
-  int HcalTopology::decIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
-    if (id.zside()==1) return decAIEta(id,neighbors);
-    else return incAIEta(id,neighbors);
-  }
-
-  /** Increasing in |ieta|, there is always at most one neighbor */
-  int HcalTopology::incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
-    int n=1;
-    int aieta=id.ietaAbs();
-
-    if (aieta==20 && (id.iphi()%2)==0) 
-      neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi()-1,id.depth());
-    else if (aieta==39 && ((id.iphi()+1)%4)!=0) 
-      neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),((id.iphi()==1)?(71):(id.iphi()-2)),id.depth());
-    else if (aieta==lastHBRing()) 
-      neighbors[0]=HcalDetId(HcalEndcap,(aieta+1)*id.zside(),id.iphi(),1);
-    else if (aieta==lastHERing()) 
-      neighbors[0]=HcalDetId(HcalForward,(aieta+1)*id.zside(),id.iphi(),1);
-    else
-      neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi(),id.depth());
-    
-    if (!valid(neighbors[0])) n=0;
-    return n;
-  }
-
-  /** Decreasing in |ieta|, there are be two neighbors of 40 and 21*/
-  int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
-    int n=1;
-    int aieta=id.ietaAbs();
-
-    if (aieta==21) { 
-      n=2;
-      neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
-      neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi()+1,id.depth());
-    } else if (aieta==40) {
-      n=2;
-      neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
-      if (id.iphi()==IPHI_MAX-1) neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),1,id.depth());
-      else neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi()+2,id.depth());
-    } else if (aieta==1) {
-      neighbors[0]=HcalDetId(id.subdet(),-aieta*id.zside(),id.iphi(),id.depth());
-    } else if (aieta==lastHBRing()+1) {
-      neighbors[0]=HcalDetId(HcalBarrel,(aieta-1)*id.zside(),id.iphi(),id.depth());
-    } else if (aieta==lastHERing()+1) {
-      neighbors[0]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi(),id.depth());
-    } else
-      neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
-    
-    if (!valid(neighbors[0]) && n==2) {
-      if (!valid(neighbors[1])) n=0;
-      else {
-	n=1;
-	neighbors[0]=neighbors[1];
+      break;
+    case (HcalForward):
+      if (id.ietaAbs()>=firstHFQuadPhiRing()) {
+	if (id.iphi()==3) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
+	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-4,id.depth()); 
+      } else {
+	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
+	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
       }
+      break;
+    default: ok=false;
     }
-    if (n==2 && !valid(neighbors[1])) n=1;
+  } 
+  return ok;
+}
 
-    return n;
+int HcalTopology::incIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
+  if (id.zside()==1) return incAIEta(id,neighbors);
+  else return decAIEta(id,neighbors);
+}
+
+int HcalTopology::decIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
+  if (id.zside()==1) return decAIEta(id,neighbors);
+  else return incAIEta(id,neighbors);
+}
+
+/** Increasing in |ieta|, there is always at most one neighbor */
+int HcalTopology::incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
+  int n=1;
+  int aieta=id.ietaAbs();
+
+  if (aieta==firstHEDoublePhiRing()-1 && (id.iphi()%2)==0) 
+    neighbors[0]=HcalDetId(HcalEndcap,(aieta+1)*id.zside(),id.iphi()-1,id.depth());
+  else if (aieta==firstHFQuadPhiRing()-1 && ((id.iphi()+1)%4)!=0) 
+    neighbors[0]=(id.iphi()==1)? HcalDetId(HcalForward,(aieta+1)*id.zside(),71,id.depth()) : HcalDetId(HcalForward,(aieta+1)*id.zside(),(id.iphi()-2),id.depth());
+  else if (aieta==lastHBRing()) 
+    neighbors[0]=HcalDetId(HcalEndcap,(aieta+1)*id.zside(),id.iphi(),1);
+  else if (aieta==lastHERing()) 
+    neighbors[0]=HcalDetId(HcalForward,(aieta+1)*id.zside(),id.iphi(),1);
+  else
+    neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi(),id.depth());
+  
+  if (!valid(neighbors[0])) n=0;
+  return n;
+}
+
+/** Decreasing in |ieta|, there are be two neighbors of 40 and 21*/
+int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
+  int n=1;
+  int aieta=id.ietaAbs();
+
+  if (aieta==firstHEDoublePhiRing()) { 
+    n=2;
+    neighbors[0]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi(),id.depth());
+    neighbors[1]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi()+1,id.depth());
+  } else if (aieta==firstHFQuadPhiRing()) {
+    n=2;
+    neighbors[0]=HcalDetId(HcalForward,(aieta-1)*id.zside(),id.iphi(),id.depth());
+    if (id.iphi()==IPHI_MAX-1) neighbors[1]=HcalDetId(HcalForward,(aieta-1)*id.zside(),1,id.depth());
+    else neighbors[1]=HcalDetId(HcalForward,(aieta-1)*id.zside(),id.iphi()+2,id.depth());
+  } else if (aieta==1) {
+    neighbors[0]=HcalDetId(id.subdet(),-aieta*id.zside(),id.iphi(),id.depth());
+  } else if (aieta==lastHBRing()+1) {
+    neighbors[0]=HcalDetId(HcalBarrel,(aieta-1)*id.zside(),id.iphi(),id.depth());
+  } else if (aieta==lastHERing()+1) {
+    neighbors[0]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi(),id.depth());
+  } else
+    neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
+  
+  if (!valid(neighbors[0]) && n==2) {
+    if (!valid(neighbors[1])) n=0;
+    else {
+      n=1;
+      neighbors[0]=neighbors[1];
+    }
   }
+  if (n==2 && !valid(neighbors[1])) n=1;
+  if (n==1 && !valid(neighbors[0])) n=0;
+
+  return n;
+}
 
 
 void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
@@ -376,7 +372,7 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
       startingBin = 1;
     }
     else {
-      nDepthBins = (etaRing >= firstHETripleDepthRing_) ? 3 : 2;
+      nDepthBins = (etaRing >= firstHETripleDepthRing()) ? 3 : 2;
       startingBin = 1;
     }
   }
@@ -451,8 +447,8 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const
 
 int HcalTopology::nPhiBins(int etaRing) const {
   int lastPhiBin=singlePhiBins_;
-  if (etaRing>= firstHFQuadPhiRing_) lastPhiBin=doublePhiBins_/2;
-  else if (etaRing>= firstHEDoublePhiRing_) lastPhiBin=doublePhiBins_;
+  if (etaRing>= firstHFQuadPhiRing()) lastPhiBin=doublePhiBins_/2;
+  else if (etaRing>= firstHEDoublePhiRing()) lastPhiBin=doublePhiBins_;
   return lastPhiBin;
 }
 
