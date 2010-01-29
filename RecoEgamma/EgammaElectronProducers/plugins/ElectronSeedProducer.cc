@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.11 2009/11/14 15:16:21 charlot Exp $
+// $Id: ElectronSeedProducer.cc,v 1.12 2009/12/14 23:43:46 chamont Exp $
 //
 //
 
@@ -53,32 +53,30 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
    seedFilter_(0), applyHOverECut_(true), hcalHelper_(0)
    , caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
  {
-  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
+  conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
-  initialSeeds_ = pset.getParameter<edm::InputTag>("initialSeeds") ;
-  SCEtCut_ = pset.getParameter<double>("SCEtCut") ;
-  fromTrackerSeeds_ = pset.getParameter<bool>("fromTrackerSeeds") ;
-  prefilteredSeeds_ = pset.getParameter<bool>("preFilteredSeeds") ;
+  initialSeeds_ = conf_.getParameter<edm::InputTag>("initialSeeds") ;
+  SCEtCut_ = conf_.getParameter<double>("SCEtCut") ;
+  fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
+  prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
 
   // for H/E
-//  if (pset.exists("applyHOverECut"))
-//   { applyHOverECut_ = pset.getParameter<bool>("applyHOverECut") ; }
-  applyHOverECut_ = pset.getParameter<bool>("applyHOverECut") ;
+//  if (conf_.exists("applyHOverECut"))
+//   { applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ; }
+  applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
-    hcalHelper_ = new ElectronHcalHelper(pset) ;
-    maxHOverEBarrel_=pset.getParameter<double>("maxHOverEBarrel") ;
-    maxHOverEEndcaps_=pset.getParameter<double>("maxHOverEEndcaps") ;
-    maxHBarrel_=pset.getParameter<double>("maxHBarrel") ;
-    maxHEndcaps_=pset.getParameter<double>("maxHEndcaps") ;
-//    hOverEConeSize_=pset.getParameter<double>("hOverEConeSize") ;
-//    hOverEHBMinE_=pset.getParameter<double>("hOverEHBMinE") ;
-//    hOverEHFMinE_=pset.getParameter<double>("hOverEHFMinE") ;
+    hcalHelper_ = new ElectronHcalHelper(conf_) ;
+    maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
+    maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
+    maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
+    maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
+//    hOverEConeSize_=conf_.getParameter<double>("hOverEConeSize") ;
+//    hOverEHBMinE_=conf_.getParameter<double>("hOverEHBMinE") ;
+//    hOverEHFMinE_=conf_.getParameter<double>("hOverEHFMinE") ;
    }
 
-  matcher_ = new ElectronSeedGenerator(pset) ;
-
-  if (prefilteredSeeds_) seedFilter_ = new SeedFilter(pset) ;
+  matcher_ = new ElectronSeedGenerator(conf_) ;
 
   //  get collections from config'
   superClusters_[0]=iConfig.getParameter<edm::InputTag>("barrelSuperClusters") ;
@@ -89,11 +87,24 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 }
 
 
+void ElectronSeedProducer::beginRun(edm::Run&, edm::EventSetup const&)
+ {
+  // FIXME: because of a bug presumably in tracker seeding,
+  // perhaps in CombinedHitPairGenerator, badly caching some EventSetup product,
+  // we must redo the SeedFilter for each run.
+  if (prefilteredSeeds_) seedFilter_ = new SeedFilter(conf_) ;
+ }
+
+void ElectronSeedProducer::endRun(edm::Run&, edm::EventSetup const&)
+ {
+  delete seedFilter_ ;
+  seedFilter_ = 0 ;
+ }
+
 ElectronSeedProducer::~ElectronSeedProducer()
  {
   delete hcalHelper_ ;
   delete matcher_ ;
-  delete seedFilter_ ;
  }
 
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
