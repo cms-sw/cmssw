@@ -126,7 +126,6 @@ class SiPixelRecHitQuality {
 				edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
 				prob=0;
 			}
-			assert(prob>=0 && prob<=1);
 			double draw = 0;
 			if   (prob <= 9E-8) draw = 2047;
 			else                draw = - log( (double) prob ) * probX_1_over_log_units;
