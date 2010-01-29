@@ -968,7 +968,7 @@ bool GhostTrackVertexFinder::reassignTracks(
 				continue;
 			}
 
-			unsigned int idx = iter - vertices_.begin();;
+			unsigned int idx = iter - vertices_.begin();
 			double best = 1.0e9;
 			for(std::vector<CachingVertex<5> >::const_iterator
 						vtx = vertices_.begin();
@@ -1040,13 +1040,18 @@ bool GhostTrackVertexFinder::reassignTracks(
 					iter->vertexState(), vertexTrackFactory));
 
 			bool primary = iter == vertices_.begin();
-			if (primary && info.hasBeamSpot)
-				vtx = vertexFitter(true).vertex(
+			try {
+				if (primary && info.hasBeamSpot)
+					vtx = vertexFitter(true).vertex(
 						linTracks,
 						info.beamSpot.position(),
 						info.beamSpot.error());
-			else
-				vtx = vertexFitter(primary).vertex(linTracks);
+				else
+					vtx = vertexFitter(primary).vertex(
+								linTracks);
+			} catch(const VertexException &e) {
+				// fit failed;
+			}
 			if (!vtx.isValid())
 				return false;
 		}
@@ -1154,11 +1159,13 @@ void GhostTrackVertexFinder::refitGhostTrack(
 			}
 		}
 
-		if (idx >= 0)
-			newVertices.push_back(
+		if (idx >= 0) {
+			CachingVertex<5> vtx =
 				vertexAtState(ghostTrack, info.pred,
-			                      info.states[idx]));
-		else if (redo) {
+				              info.states[idx]);
+			if (vtx.isValid())
+				newVertices.push_back(vtx);
+		} else if (redo) {
 			bool primary = iter == vertices.begin();
 			CachingVertex<5> vtx;
 			if (primary && info.hasBeamSpot)
