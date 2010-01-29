@@ -70,6 +70,12 @@ namespace popcon
 			std::string id() const { return m_name;}
 			EcalCondDBInterface* econn;
 
+			int * HVLogicIDToDetID(int, int) const;
+			int * LVLogicIDToDetID(int, int) const;
+
+			int detIDToLogicID(int, int, int);
+			uint16_t OffDBStatus( uint16_t dbStatus , int pos ) ;
+
 		private:
 
 			unsigned long m_firstRun ;
