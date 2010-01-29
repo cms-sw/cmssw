@@ -256,6 +256,8 @@ int popcon::EcalDCSHandler::detIDToLogicID(int iz, int i, int j) {
   hv_chan=(j-1)*2+hv_chan;
   
   hv_chan=(sm-1)*34+hv_chan -1  ;
+  
+  return hv_chan; 
 
 }
 
