@@ -4,14 +4,14 @@
 //--- pow():
 #include <math.h>
 
-//--- assert();
-#include <cassert>
-
 //--- &&& I'm not sure why we need this. [Petar]
 #include <utility>
 
 //--- uint32_t definition:
 #include <boost/cstdint.hpp>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 class SiPixelRecHitQuality {
  public:
@@ -67,7 +67,10 @@ class SiPixelRecHitQuality {
     //
     inline float probabilityX( QualWordType qualWord ) const     {
       int raw = (qualWord >> probX_shift) & probX_mask;
-			assert(raw>=0 && raw <=2047);
+			if(raw<0 || raw >2047) {
+				edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
+				raw = 2047;
+			}
 			float prob = 0;
 			if   (raw==2047) prob = 0;
       else             prob = pow( probX_units, (float)( -raw)) ;
@@ -76,7 +79,10 @@ class SiPixelRecHitQuality {
     }
     inline float probabilityY( QualWordType qualWord ) const     {
       int raw = (qualWord >> probY_shift) & probY_mask;
-			assert(raw>=0 && raw <=2047);
+			if(raw<0 || raw >2047) {
+				edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
+				raw = 2047;
+			}
 			float prob = 0;
 			if   (raw==2047) prob = 0;
       else             prob = pow( probY_units, (float)( -raw)) ;
@@ -87,7 +93,10 @@ class SiPixelRecHitQuality {
     //--- Charge `bin' (0,1,2,3 ~ charge, qBin==4 is a new minimum charge state, qBin=5 is unphysical, qBin6,7 = unused)
     inline int qBin( QualWordType qualWord ) const     {
 			int qbin = (qualWord >> qBin_shift) & qBin_mask;
-			assert(qbin>=0 && qbin <=7);
+			if(qbin<0 || qbin >7) {
+				edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = " << qbin << " QualityWord = " << qualWord;
+				qbin=0;
+			}
 			return qbin;
     }
     //--- Quality flags (true or false):
@@ -113,6 +122,10 @@ class SiPixelRecHitQuality {
     //------------------------------------------------------
     //
 		inline void setProbabilityX( float prob, QualWordType & qualWord ) {
+			if(prob<0 || prob>1) {
+				edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+				prob=0;
+			}
 			assert(prob>=0 && prob<=1);
 			double draw = 0;
 			if   (prob <= 9E-8) draw = 2047;
@@ -122,7 +135,10 @@ class SiPixelRecHitQuality {
       qualWord |= ((raw & probX_mask) << probX_shift);
     }
     inline void setProbabilityY( float prob, QualWordType & qualWord ) {
-			assert(prob>=0 && prob<=1);
+			if(prob<0 || prob>1) {
+				edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+				prob=0;
+			}
 			double draw = 0;
 			if   (prob <= 9E-8) draw = 2047;
       else                draw = - log( (double) prob ) * probY_1_over_log_units;
@@ -133,7 +149,10 @@ class SiPixelRecHitQuality {
 
     
     inline void setQBin( int qbin, QualWordType & qualWord ) {
-			assert(qbin>=0 && qbin<=7);
+			if(qbin<0 || qbin >7) {
+				edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = " << qbin << " QualityWord = " << qualWord;
+				qbin=0;
+			}
       qualWord |= ((qbin & qBin_mask) << qBin_shift);
     }
     
