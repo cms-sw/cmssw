@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.45 2009/12/18 13:43:22 fra Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.46 2010/01/20 16:28:32 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -267,6 +267,12 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   if ( producedEcalDCSTowerStatus_ ) {
     setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDCSTowerStatus );
     findingRecord<EcalDCSTowerStatusRcd>();
+  }
+  // DAQ Tower status
+  producedEcalDAQTowerStatus_ = ps.getUntrackedParameter<bool>("producedEcalDAQTowerStatus",true);
+  if ( producedEcalDAQTowerStatus_ ) {
+    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDAQTowerStatus );
+    findingRecord<EcalDAQTowerStatusRcd>();
   }
 
   // trigger channel status
@@ -1641,6 +1647,49 @@ EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStat
 {
 
         std::auto_ptr<EcalDCSTowerStatus>  ical = std::auto_ptr<EcalDCSTowerStatus>( new EcalDCSTowerStatus() );
+
+	int status(0);
+	
+        // barrel
+	int iz=0;
+        for(int k=0 ; k<2; k++ ) {
+	  if(k==0) iz=-1;
+	  if(k==1) iz=+1;
+	  for(int i=1 ; i<73; i++) {
+	    for(int j=1 ; j<18; j++) {
+	      if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
+		EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
+
+		ical->setValue( ebid, status );
+	      }
+	    }
+	  }
+	}
+
+
+        // endcap
+        for(int k=0 ; k<2; k++ ) {
+	  if(k==0) iz=-1;
+	  if(k==1) iz=+1;
+	  for(int i=1 ; i<21; i++) {
+	    for(int j=1 ; j<21; j++) {
+	      if (EcalScDetId::validDetId(i,j,iz )){
+		EcalScDetId eeid(i,j,iz);
+		ical->setValue( eeid, status );
+	      }
+	    }
+	  }
+	}
+
+        return ical;
+}
+// --------------------------------------------------------------------------------
+
+std::auto_ptr<EcalDAQTowerStatus>
+EcalTrivialConditionRetriever::produceEcalDAQTowerStatus( const EcalDAQTowerStatusRcd& )
+{
+
+        std::auto_ptr<EcalDAQTowerStatus>  ical = std::auto_ptr<EcalDAQTowerStatus>( new EcalDAQTowerStatus() );
 
 	int status(0);
 	

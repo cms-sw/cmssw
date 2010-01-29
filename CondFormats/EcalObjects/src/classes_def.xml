@@ -33,8 +33,10 @@
 
 <class name="EcalChannelStatus"/>
 <class name="EcalChannelStatusCode"/>
+<class name="EcalDAQStatusCode"/>
 
 <class name="EcalDCSTowerStatus"/>
+<class name="EcalDAQTowerStatus"/>
 
 
 <class name="EcalTPGCrystalStatus"/>
@@ -106,6 +108,7 @@
 <class name="EcalMappingElement"/>
 <class name="std::vector<EcalTPGCrystalStatusCode>"/>
 <class name="std::vector<EcalChannelStatusCode>"/>
+<class name="std::vector<EcalDAQStatusCode>"/>
 <class name="std::vector<EcalMGPAGainRatio>"/>
 <class name="std::vector<EcalXtalGroupId>"/>
 <class name="std::vector<EcalMappingElement>"/>
@@ -124,6 +127,9 @@
 
 <class name="EcalContainer<EcalTrigTowerDetId,EcalChannelStatusCode>"/>
 <class name="EcalContainer<EcalScDetId,EcalChannelStatusCode>"/>
+<class name="EcalContainer<EcalTrigTowerDetId,EcalDAQStatusCode>"/>
+<class name="EcalContainer<EcalScDetId,EcalDAQStatusCode>"/>
+
 
 
 

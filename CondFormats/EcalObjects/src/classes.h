@@ -20,7 +20,9 @@
 #include "CondFormats/EcalObjects/interface/EcalPTMTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+#include "CondFormats/EcalObjects/interface/EcalDAQStatusCode.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
@@ -78,6 +80,7 @@ namespace{
     EcalChannelStatus channelStatus;
 
     EcalDCSTowerStatus dcsTowerStatus;
+    EcalDAQTowerStatus daqTowerStatus;
  
     EcalLaserAlphas laserAplhas;
  

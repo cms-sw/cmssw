@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.24 2009/11/13 11:25:06 fra Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.25 2009/12/18 13:43:22 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -18,6 +18,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -123,6 +125,7 @@ public:
   virtual std::auto_ptr<EcalTPGCrystalStatus> getTrgChannelStatusFromConfiguration( const EcalTPGCrystalStatusRcd& );
 
   virtual std::auto_ptr<EcalDCSTowerStatus> produceEcalDCSTowerStatus( const EcalDCSTowerStatusRcd& );
+  virtual std::auto_ptr<EcalDAQTowerStatus> produceEcalDAQTowerStatus( const EcalDAQTowerStatusRcd& );
 
 
   virtual std::auto_ptr<EcalMappingElectronics> produceEcalMappingElectronics( const EcalMappingElectronicsRcd& );
@@ -234,6 +237,7 @@ private:
   bool producedEcalLaserCorrection_;
   bool producedEcalChannelStatus_;
   bool producedEcalDCSTowerStatus_;
+  bool producedEcalDAQTowerStatus_;
   bool producedEcalTrgChannelStatus_;
   bool producedEcalClusterLocalContCorrParameters_;
   bool producedEcalClusterCrackCorrParameters_;
