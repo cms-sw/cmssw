@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.7 2009/09/17 11:03:19 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.8 2009/10/13 15:08:34 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -82,7 +82,7 @@ bool EventFileHandler::isFromLumiSection(const uint32_t lumiSection)
 {
   if (lumiSection == _fileRecord->lumiSection)
   {
-    closeFile(FilesMonitorCollection::FileRecord::endOfLS);
+    closeFile(FilesMonitorCollection::FileRecord::LSended);
     return true;
   }
   else

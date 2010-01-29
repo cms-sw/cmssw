@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.12 2010/01/28 13:40:23 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.13 2010/01/29 11:23:56 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -30,7 +30,7 @@ void StreamHandler::closeAllFiles()
   {
     try
     {
-      (*it)->closeFile(FilesMonitorCollection::FileRecord::stop);
+      (*it)->closeFile(FilesMonitorCollection::FileRecord::runEnded);
     }
     catch(xcept::Exception& e)
     {
@@ -127,6 +127,7 @@ StreamHandler::getNewFileRecord(const I2OChain& event)
   fileRecord->coreFileName = getCoreFileName(event.runNumber(), event.lumiSection());
   fileRecord->fileCounter = getFileCounter(fileRecord->coreFileName);
   fileRecord->whyClosed = FilesMonitorCollection::FileRecord::notClosed;
+  fileRecord->isOpen = true;
 
   _streamRecord->incrementFileCount();
 
