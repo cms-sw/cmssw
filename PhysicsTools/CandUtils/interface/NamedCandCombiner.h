@@ -8,7 +8,7 @@
 #include "PhysicsTools/CandUtils/interface/NamedCandCombinerBase.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/AnyPairSelector.h"
+#include "CommonTools/UtilAlgos/interface/AnyPairSelector.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 #include <string>
