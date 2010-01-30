@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.144 2010/01/13 12:01:17 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.145 2010/01/21 21:01:32 amraktad Exp $
 //
 
 // system include files
@@ -114,8 +114,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_changeManager(new FWModelChangeManager),
    m_colorManager( new FWColorManager(m_changeManager.get())),
    m_selectionManager(new FWSelectionManager(m_changeManager.get())),
-   m_eiManager(new FWEventItemsManager(m_changeManager.get(),
-                                       m_selectionManager.get())),
+   m_eiManager(new FWEventItemsManager(m_changeManager.get())),
    m_viewManager( new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
    m_context(new fireworks::Context(m_changeManager.get(),
                                     m_selectionManager.get(),

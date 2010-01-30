@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.20 2009/07/24 16:33:49 dmytro Exp $
+// $Id: FWEventItemsManager.cc,v 1.21 2009/07/26 17:19:01 chrjones Exp $
 //
 
 // system include files
@@ -38,10 +38,8 @@
 //
 // constructors and destructor
 //
-FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager,
-                                         FWSelectionManager* iSelMgr) :
+FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager) :
    m_changeManager(iManager),
-   m_selectionManager(iSelMgr),
    m_event(0),
    m_geom(0),
    m_accessorFactory(new FWItemAccessorFactory())
