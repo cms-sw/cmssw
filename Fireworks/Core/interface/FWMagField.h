@@ -16,7 +16,7 @@ public:
 
    // get field values
    virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const;
-   double GetMaxFieldMag() const;
+   virtual float GetMaxFieldMag() const;
 
    // auto/user behaviour
    void   setUserField(double b) { m_userField = b; }
