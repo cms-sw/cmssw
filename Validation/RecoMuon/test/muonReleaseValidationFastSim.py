@@ -10,15 +10,15 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="True"
+FastSimUse="False"
 
 #Release to be validated:
-NewRelease='CMSSW_3_4_0_pre5'
+NewRelease='CMSSW_3_5_0_pre5'
 
 # startup and ideal sample list
 if (FastSimUse=="True"):
-    startupsamples= ['']
-    idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100']
+    startupsamples= ['RelValTTbar']
+    idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValTTbar']
 else:
     startupsamples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
     idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
@@ -59,8 +59,8 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_3XY_V12'
-StartupTagUse='STARTUP3X_V11'
+IdealTagUse='MC_3XY_V15'
+StartupTagUse='START3X_V15'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
 ReferenceSelection='IDEAL_31X__noPU'
