@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 7.00)
+//  SiPixelTemplateReco.cc (Version 8.10)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -28,31 +28,35 @@
 //  Change calling sequence to handle cot(beta)<0 for FPix cosmics
 //
 //  V7.00 - Decouple BPix and FPix information into separate templates
+//  Pass all containers by alias to prevent excessive cpu-usage (v7.01)
+//  Slightly modify search bin range to avoid problem with single pixel clusters + large Lorentz drift (V7.02)
+//
+//  V8.00 - Add 2D probabilities, take pixel sizes from the template
+//  V8.05 - Shift 2-D cluster to center on the buffer
+//  V8.06 - Add locBz to the 2-D template (causes failover to the simple template when the cotbeta-locBz correlation is incorrect ... ie for non-IP tracks).
+//        - include minimum value for prob2D (1.e-30)
+//  V8.07 - Tune 2-d probability: consider only pixels above threshold and use threshold value for zero signal pixels (non-zero template)
+//  V8.10 - Remove 2-d probability for ineffectiveness and replace with simple cluster charge probability
+//
 //
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
 //
 //
- 
+
+#ifndef SiPixelTemplateReco_h
+#define SiPixelTemplateReco_h 1
+
+#include "SiPixelTemplateDefs.h"
+
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #else
 #include "SiPixelTemplate.h"
 #endif
 
-#define TYSIZE 21
-#define BYSIZE TYSIZE+4
-#define BHY 12 // = BYSIZE/2
-#define BYM1 TYSIZE+3
-#define BYM2 TYSIZE+2
-#define BYM3 TYSIZE+1
-#define TXSIZE 13
-#define BXSIZE TXSIZE+4
-#define BHX 8 // = BXSIZE/2
-#define BXM1 TXSIZE+3
-#define BXM2 TXSIZE+2
-#define BXM3 TXSIZE+1
+#define N2D 500
 
 #include <vector>
 #include "boost/multi_array.hpp"
@@ -63,20 +67,28 @@ namespace SiPixelTemplateReco
  
     typedef boost::multi_array<float, 2> array_2d;
 
-	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d cluster, 
-				std::vector<bool> ydouble, std::vector<bool> xdouble, 
+	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& cluster, 
+				std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
 				SiPixelTemplate& templ, 
-				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> > zeropix);
+				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> >& zeropix,
+				float& probQ);
 
-	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d cluster, 
-				std::vector<bool> ydouble, std::vector<bool> xdouble, 
+	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& cluster, 
+				std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
 				SiPixelTemplate& templ, 
-				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
+				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
+				float& probQ);
 	 
-	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d cluster, 
-						 std::vector<bool> ydouble, std::vector<bool> xdouble, 
+	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
+						 std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
 						 SiPixelTemplate& templ, 
-						 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
+						 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
+						 float& probQ);
+	 
+	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
+								std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+								SiPixelTemplate& templ, 
+								float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
  }
 				
-
+#endif
