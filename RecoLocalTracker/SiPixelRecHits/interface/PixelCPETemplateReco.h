@@ -73,6 +73,9 @@ class PixelCPETemplateReco : public PixelCPEBase
   // These can only be accessed if we change silicon pixel data formats and add them to the rechit
   mutable float templProbX_ ;
   mutable float templProbY_ ;
+
+  mutable float templProbQ_;
+
   mutable int templQbin_ ;
 
   mutable int speed_ ;
