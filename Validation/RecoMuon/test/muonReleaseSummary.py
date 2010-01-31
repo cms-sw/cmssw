@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_5_0_pre3'
-RefVersion='3_5_0_pre2'
+NewVersion='3_5_0_pre5'
+RefVersion='3_5_0_pre3'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -23,11 +23,11 @@ RefFastSim=False
 if (NewCondition=='MC'):
     samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
     if (NewFastSim|RefFastSim):
-        samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
+        samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 elif (NewCondition=='STARTUP'):
     samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
-        samples= ['']
+        samples= ['RelValTTbar']
 # These are some of the (pre)production samples, to be included by hand:
 #samples= ['ppMuXLoose', 'InclusiveMu5_Pt50', 'InclusiveMu5_Pt250', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
 #samples= ['InclusiveMu5_Pt50', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
@@ -52,13 +52,13 @@ else:
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
-    NewLabel=NewCondition+'_3XY_V14_FastSim'
+    NewLabel=NewCondition+'_3XY_V20_FastSim'
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    NewLabel=NewCondition+'_3XY_V14'
+    NewLabel=NewCondition+'_3XY_V20'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'3X_V14'
+        NewLabel=NewCondition+'3X_V20'
     NewFormat='GEN-SIM-RECO'
 
 if (RefFastSim):

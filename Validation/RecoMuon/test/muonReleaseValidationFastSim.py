@@ -17,7 +17,7 @@ NewRelease='CMSSW_3_5_0_pre5'
 
 # startup and ideal sample list
 if (FastSimUse=="True"):
-    startupsamples= ['RelValTTbar']
+    startupsamples= ['RelValTTbar_cfi']
     idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValTTbar']
 else:
     startupsamples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
@@ -59,8 +59,8 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_3XY_V15'
-StartupTagUse='START3X_V15'
+IdealTagUse='MC_3XY_V20'
+StartupTagUse='START3X_V20'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
 ReferenceSelection='IDEAL_31X__noPU'
@@ -160,11 +160,11 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             cmd='python $DBSCMD_HOME/dbsCommandLine.py "find dataset where dataset like *'
             #search for correct EventContent (and site)
             if (FastSimUse=="True"):
-                cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RECO* AND site like *cern* "'
+                cmd+=sample+'/'+NewRelease+'-'+GlobalTagUse+'*GEN-SIM-DIGI-RECO* AND site like *cern* "'
                 cmd+='|grep '+sample+'|grep FastSim |sort| tail -1 | cut -d "," -f2 '
             else:
-#                cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
-                cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* AND site like *cern* "'
+#                cmd+=sample+'/'+NewRelease+'_'+GlobalTagUse+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
+                cmd+=sample+'/'+NewRelease+'-'+GlobalTagUse+'*GEN-SIM-RECO* AND site like *cern* "'
                 cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
