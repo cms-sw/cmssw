@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v7.00)
+//  SiPixelTemplate.h (v8.11)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -41,6 +41,17 @@
 //  Add qbin population information, charge distribution information
 //
 //  V7.00 - Decouple BPix and FPix information into separate templates
+//  Add methods to facilitate improved cluster splitting
+//  Fix small charge scaling bug (affects FPix only)
+//  Change y-slice used for the x-template to be closer to the actual cotalpha-cotbeta point 
+//  (there is some weak breakdown of x-y factorization in the FPix after irradiation)
+//
+//  V8.00 - Add method to calculate a simple 2D template
+//  Reorganize the interpolate method to extract header info only once per ID
+//  V8.01 - Improve simple template normalization
+//  V8.05 - Change qbin normalization to work better after irradiation
+//  V8.10 - Add Vavilov distribution interpolation
+//  V8.11 - Renormalize the x-templates for Guofan's cluster size calculation
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -52,19 +63,7 @@
 #ifndef SiPixelTemplate_h
 #define SiPixelTemplate_h 1
 
-#define TYSIZE 21
-#define TYTEN 210 // = 10*TYSIZE
-#define BYSIZE TYSIZE+4
-#define BHY 12 // = BYSIZE/2
-#define BYM1 TYSIZE+3
-#define BYM2 TYSIZE+2
-#define BYM3 TYSIZE+1
-#define TXSIZE 13
-#define BXSIZE TXSIZE+4
-#define BHX 8 // = BXSIZE/2
-#define BXM1 TXSIZE+3
-#define BXM2 TXSIZE+2
-#define BXM3 TXSIZE+1
+#include "SiPixelTemplateDefs.h"
 
 #include<vector>
 #include<cassert>
@@ -84,7 +83,7 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float beta;              //!< beta track angle (defined in CMS CMS IN 2004/014) 
   float cotbeta;           //!< cot(beta) is proportional to cluster length in y and is basis of interpolation 
   float costrk[3];            //!< direction cosines of tracks used to generate this entry 
-  float qavg;              //!< average cluster charge for this set of track angles 
+  float qavg;              //!< average cluster charge for this set of track angles (now includes threshold effects)
   float pixmax;            //!< maximum charge for individual pixels in cluster
   float symax;             //!< average pixel signal for y-projection of cluster 
   float dyone;             //!< mean offset/correction for one pixel y-clusters 
@@ -146,7 +145,9 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float fracxone;          //!< fraction of sample with xsize = 1
   float fracytwo;          //!< fraction of double pixel sample with ysize = 1
   float fracxtwo;          //!< fraction of double pixel sample with xsize = 1
-  float spare[5];
+  float qavg_avg;          //!< average cluster charge of clusters that are less than qavg (normalize 2-D simple templates)
+  float qavg_gen;          //!< average cluster charge of all pixels with charge > 0 (no threshold effects)
+  float spare[4];
 } ;
 
 
@@ -180,9 +181,6 @@ struct SiPixelTemplateStore { //!< template storage structure
   SiPixelTemplateEntry enty[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
   SiPixelTemplateEntry entx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
 } ;
-
-
-
 
 
 // ******************************************************************************************
@@ -221,49 +219,57 @@ class SiPixelTemplate {
 // overload for compatibility. 
   bool interpolate(int id, float cotalpha, float cotbeta);
   
-  // retreive interpolated templates. 
+// retreive interpolated templates. 
   void ytemp(int fybin, int lybin, float ytemplate[41][BYSIZE]);
   
   void xtemp(int fxbin, int lxbin, float xtemplate[41][BXSIZE]);
   
-  // new methods to build templates from two interpolated clusters (for splitting) 
+// new methods to build templates from two interpolated clusters (for splitting) 
   void ytemp3d(int nypix, array_3d& ytemplate);
   
   void xtemp3d(int nxpix, array_3d& xtemplate);
   
-  // Convert vector of projected signals into uncertainties for fitting. 
+// Convert vector of projected signals into uncertainties for fitting. 
   void ysigma2(int fypix, int lypix, float sythr, float ysum[BYSIZE], float ysig2[BYSIZE]);
-  
+	
+  void ysigma2(float qpixel, int index, float& ysig2);
+
   void xsigma2(int fxpix, int lxpix, float sxthr, float xsum[BXSIZE], float xsig2[BXSIZE]);
   
-  // Interpolate qfl correction in y. 
+// Interpolate qfl correction in y. 
   float yflcorr(int binq, float qfly);
   
-  // Interpolate qfl correction in x. 
+// Interpolate qfl correction in x. 
   float xflcorr(int binq, float qflx);
   
-  // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm. 
+// Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm. 
   int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
            float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth);
 	
-  // Overload for backward compatibility. 
+// Overload for backward compatibility. 
 	int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
 			 float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
 	
-  // Overload to keep legacy interface 
+// Overload to keep legacy interface 
   int qbin(int id, float cotbeta, float qclus);
 	
-  // Method to return template errors for fastsim
+// Method to return template errors for fastsim
   void temperrors(int id, float cotalpha, float cotbeta, int qBin, float& sigmay, float& sigmax, float& sy1, float& sy2, float& sx1, float& sx2);
 	
-  //Method to return qbin and size probabilities for fastsim
+//Method to return qbin and size probabilities for fastsim
   void qbin_dist(int id, float cotalpha, float cotbeta, float qbin_frac[4], float& ny1_frac, float& ny2_frac, float& nx1_frac, float& nx2_frac);
-
+	
+//Method to calculate simple 2D templates 
+  bool simpletemplate2D(float xhitp, float yhitp, std::vector<bool>& ydouble, std::vector<bool>& xdouble, float template2d[BXM2][BYM2]);
+	
+//Method to interpolate Vavilov distribution parameters
+  void vavilov_pars(double& mpv, double& sigma, double& kappa);
+	
    
   float qavg() {return pqavg;}        //!< average cluster charge for this set of track angles 
   float pixmax() {return ppixmax;}         //!< maximum pixel charge 
   float qscale() {return pqscale;}         //!< charge scaling factor 
-  float s50() {return ps50;}               //!< 1/2 of the pixel threshold signal in adc units 
+  float s50() {return ps50;}               //!< 1/2 of the pixel threshold signal in electrons
   float symax() {return psymax;}             //!< average pixel signal for y-projection of cluster 
   float dyone() {return pdyone;}             //!< mean offset/correction for one pixel y-clusters 
   float syone() {return psyone;}             //!< rms for one pixel y-clusters 
@@ -431,6 +437,14 @@ class SiPixelTemplate {
   float chi2yminone() {return pchi2yminone;}                        //!< //!< minimum of y chi^2 for 1 pixel clusters 
   float chi2xavgone() {return pchi2xavgone;}                        //!< //!< average x chi^2 for 1 pixel clusters 
   float chi2xminone() {return pchi2xminone;}                        //!< //!< minimum of x chi^2 for 1 pixel clusters 
+  float lorywidth() {return plorywidth;}                            //!< signed lorentz y-width (microns)
+  float lorxwidth() {return plorxwidth;}                            //!< signed lorentz x-width (microns)
+  float mpvvav() {return pmpvvav;}                                  //!< most probable charge in Vavilov distribution (not actually for larger kappa)
+  float sigmavav() {return psigmavav;}                              //!< "sigma" scale fctor for Vavilov distribution
+  float kappavav() {return pkappavav;}                              //!< kappa parameter for Vavilov distribution
+  float xsize() {return pxsize;}                                    //!< pixel x-size (microns)
+  float ysize() {return pysize;}                                    //!< pixel y-size (microns)
+  float zsize() {return pzsize;}                                    //!< pixel z-size or thickness (microns)
 //  float yspare(int i) {assert(i>=0 && i<5); return pyspare[i];}    //!< vector of 5 spares interpolated in beta only
 //  float xspare(int i) {assert(i>=0 && i<10); return pxspare[i];}    //!< vector of 10 spares interpolated in alpha and beta
   
@@ -511,6 +525,16 @@ class SiPixelTemplate {
   float pchi2xavgone;       //!< average x chi^2 for 1 pixel clusters
   float pchi2xminone;       //!< minimum of x chi^2 for 1 pixel clusters
   float pqmin2;             //!< tighter minimum cluster charge for valid hit (keeps 99.8% of simulated hits)
+  float pmpvvav;            //!< most probable charge in Vavilov distribution (not actually for larger kappa)
+  float psigmavav;          //!< "sigma" scale fctor for Vavilov distribution
+  float pkappavav;          //!< kappa parameter for Vavilov distribution
+  float plorywidth;         //!< Lorentz y-width (sign corrected for fpix frame)
+  float plorxwidth;         //!< Lorentz x-width
+  float pxsize;             //!< Pixel x-size
+  float pysize;             //!< Pixel y-size
+  float pzsize;             //!< Pixel z-size (thickness)
+  float pqavg_avg;          //!< average of cluster charge less than qavg
+
   
   // The actual template store is a std::vector container
 
