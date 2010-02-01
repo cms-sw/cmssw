@@ -182,7 +182,7 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	  //remove end-of-line character:
 	  lineptr[len-1] = 0;
 	  string fileName;
-	  if(inputDir_.size()>0 && inputDir_ != "/"){//relative path
+	  if(inputDir_.size()>0 && inputDir_[0] != '/'){//relative path
 	    fileName.assign(curDir);
 	    fileName.append("/");
 	    fileName.append(inputDir_);
