@@ -4,6 +4,8 @@
 #include "DataSvc/Ref.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 
+#include<iostream>
+
 namespace pool{
   class IDataSvc;
 }
@@ -38,10 +40,12 @@ namespace cond {
       clear();
       bool ok = false;
       // try wrapper, if not try plain
-      pool::Ref<DataWrapper> ref(svc,itoken);
-      if (ref) {
-        m_data.copyShallow(ref);
-        ok = m_data->loadData();
+      if (Reflex::Type::ByTypeInfo(typeid(DataWrapper))) {
+        pool::Ref<DataWrapper> ref(svc,itoken);
+        if (ref) {
+          m_data.copyShallow(ref);
+          ok = m_data->loadData();
+        }
       } else {
         pool::Ref<DataT> refo(svc,itoken);
         if (refo) {
