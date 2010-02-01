@@ -157,7 +157,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 	genName   = dqm->pwd() + "/gen_" + *var ;
 
 	// Create the efficiency plot
-	if(!dividehistos(dqm,numName,genName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"eff. of"+filterName2+" vs"+*var + "("+*postfix+")"))
+	if(!dividehistos(dqm,numName,genName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"eff. of"+filterName2+" vs "+*var +*postfix))
 	  break;
       }
     
