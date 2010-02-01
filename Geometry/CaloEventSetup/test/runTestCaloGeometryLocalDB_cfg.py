@@ -9,7 +9,7 @@ process.load('Configuration/StandardSequences/GeometryDB_cff')
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_3XY_V10::All'
+process.GlobalTag.globaltag = 'MC_GEOM_ALLV4::All'
 
 process.source = cms.Source("EmptySource")
 
@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
                                               process.CondDBSetup,
                                               timetype = cms.string('runnumber'),
-                                              toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_TagXX')),
+                                              toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')),
                                                                 cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
                                                                 cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
                                                                 cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),

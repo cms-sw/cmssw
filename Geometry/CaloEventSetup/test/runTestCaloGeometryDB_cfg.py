@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration/StandardSequences/GeometryDB_cff')
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_31X_V9::All' 
+process.GlobalTag.globaltag = 'MC_GEOM_ALLV4::All'
 
 process.load("Geometry.CaloEventSetup.CaloGeometryDBReader_cfi")
 
