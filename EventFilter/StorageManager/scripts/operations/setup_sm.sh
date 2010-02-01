@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.44 2009/11/16 14:15:41 babar Exp $
+# $Id: setup_sm.sh,v 1.46 2010/01/29 16:15:35 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -64,11 +64,11 @@ checkSLCversion () {
     slc_release=$(cat /etc/redhat-release)
     case $slc_release in
         *5.3*)
-            echo "This host is running $slc_release, which is NOT compatible with the current SLC4 CopyManager" >&2
-            echo "Therefore nothing will be started, but the disks will be mounted" >&2
-            exit
             ;;
         *4.4*)
+            echo "This host is running $slc_release, which is NO LONGER compatible with the current SLC5 CopyManager" >&2
+            echo "Therefore nothing will be started, but the disks will be mounted" >&2
+            exit
             ;;
         *)
             echo "This host is running $slc_release, which is UNKOWN" >&2
