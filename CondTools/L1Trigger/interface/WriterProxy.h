@@ -1,7 +1,6 @@
 #ifndef CondTools_L1Trigger_WriterProxy_h
 #define CondTools_L1Trigger_WriterProxy_h
 
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -52,10 +51,6 @@ class WriterProxyT : public WriterProxy
         /* This method requires that Record and Type supports copy constructor */
         virtual std::string save (const edm::EventSetup & setup, cond::DbSession & session) const
         {
-/*             // get className for the record first */
-/*             std::string recordName = */
-/*                 edm::eventsetup::heterocontainer::HCTypeTagTemplate<Record, edm::eventsetup::EventSetupRecordKey>::className (); */
-
             // load record and type from EventSetup and save them in db
             edm::ESHandle<Type> handle;
 
@@ -79,8 +74,6 @@ class WriterProxyT : public WriterProxy
 };
 
 typedef edmplugin::PluginFactory<l1t::WriterProxy * ()> WriterFactory;
-
-//    static edm::eventsetup::heterocontainer::HCTypeTagTemplate<type, edm::eventsetup::DataKey> dummy ## _ ## record ## _ ## type ;
 
 // Defines new type, creates static instance of this class and register it for plugin
 #define REGISTER_L1_WRITER(record,type) \

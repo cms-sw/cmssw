@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Aug 21 20:00:59 CEST 2008
-// $Id: L1SubsystemKeysOnlineProd.cc,v 1.3 2008/10/13 01:46:36 wsun Exp $
+// $Id: L1SubsystemKeysOnlineProd.cc,v 1.4 2008/12/15 23:00:19 wsun Exp $
 //
 //
 
@@ -30,7 +30,6 @@
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //
