@@ -62,7 +62,7 @@ else
          echo "  #  in debugging and reporting this problem. Please try to reproduce    #"
          echo "  #  the problem by running the program with --debug flag to get         #"
          echo "  #  a crash report and send its content (saved in ./crash.report file)  #" 
-         echo "  #  to fireworks-support@cern.ch with brief instructions how to         #"
+         echo "  #  to hn-cms-visualization@cern.ch with brief instructions how to      #"
          echo "  #  reproduce the problem.                                              #"
          echo "  #                                                                      #"
          echo "  ########################################################################"
