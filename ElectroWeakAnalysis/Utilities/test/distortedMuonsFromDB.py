@@ -30,7 +30,7 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.poolDBESSource1 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(2),
+            messageLevel = cms.untracked.int32(2)
       ),
       timetype = cms.untracked.string('runnumber'),
       connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
@@ -45,7 +45,7 @@ process.poolDBESSource1 = cms.ESSource("PoolDBESSource",
 process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(2),
+            messageLevel = cms.untracked.int32(2)
       ),
       timetype = cms.untracked.string('runnumber'),
       connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
@@ -60,7 +60,7 @@ process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
 process.poolDBESSource3 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(2),
+            messageLevel = cms.untracked.int32(2)
       ),
       timetype = cms.untracked.string('runnumber'),
       connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
