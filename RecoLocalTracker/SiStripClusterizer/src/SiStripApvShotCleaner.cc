@@ -3,7 +3,7 @@
 #include <boost/foreach.hpp>
 
 //Uncomment the following #define to have print debug
-#define DEBUGME
+//#define DEBUGME
 
 SiStripApvShotCleaner::
 SiStripApvShotCleaner():
