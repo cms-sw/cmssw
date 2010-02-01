@@ -28,7 +28,8 @@ process.source = cms.Source("PoolSource",
 # Printout of generator information for the first event
 process.include("SimGeneral/HepPDTESSource/data/pythiapdt.cfi")
 process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
-  maxEventsToPrint = cms.untracked.int32(10),
+  maxEventsToPrint = cms.untracked.int32(-1),
+  #maxEventsToPrint = cms.untracked.int32(10),
   printVertex = cms.untracked.bool(False),
   src = cms.InputTag("genParticles")
 )
