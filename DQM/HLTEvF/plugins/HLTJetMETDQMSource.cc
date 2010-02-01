@@ -1124,7 +1124,7 @@ HLTJetMETDQMSource::beginJob(){
       std::string denompathname = custompathnamemu_ ;  
       int objectType = 0;
       int usedPresscale = 1;
-      int denomobjectType = 0;
+      //int denomobjectType = 0;
       //parse pathname to guess object type
        	    
       if ( pathname.find("Mu") && (pathname=="HLT_L1MuOpen")) 
