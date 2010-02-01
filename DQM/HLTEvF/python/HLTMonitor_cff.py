@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # electron
 from DQM.HLTEvF.HLTMonElectron_cff import *
+# photon
+from DQM.HLTEvF.HLTMonPhoton_cff import *
 # tau
 from DQM.HLTEvF.HLTMonTau_cff import *
 # four vector
