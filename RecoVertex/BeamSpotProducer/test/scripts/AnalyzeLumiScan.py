@@ -198,11 +198,15 @@ def main():
                     newbjobfile.write(line)
                 newbjobfile.write(line)
                 os.system("chmod +x "+bjobName)
-                os.system("mv "+bjobName+" "+d)
-                submitjobcmd = "bsub -q 8nh "+d+bjobName
-                print submitjobcmd
-                os.system(submitjobcmd)
+                if os.environ['SCRAM_ARCH'] == "slc5_ia32_gcc434":
+                    submitjobcmd = "bsub -q 8nh -R \"type=SLC5_64\" "+bjobName
+                    print submitjobcmd
+                else:
+                    submitjobcmd = "bsub -q 8nh "+bjobName
+                    print submitjobcmd
 
+                os.system(submitjobcmd)
+                
     print "End of submitting jobs"
 
 #_________________________________    
