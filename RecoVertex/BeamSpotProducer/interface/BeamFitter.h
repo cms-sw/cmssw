@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.11 2009/12/04 19:59:43 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.12 2010/01/29 05:31:04 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -86,6 +86,7 @@ class BeamFitter {
   double fnormchi2;
   double fphi0;
   double fd0;
+  double fd0bs;
   double fsigmad0;
   double fz0;
   double fsigmaz0;

@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.19 2009/12/12 21:52:38 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.20 2010/01/29 05:31:04 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -69,6 +69,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
     
     ftree_->Branch("pt",&fpt,"fpt/D");
     ftree_->Branch("d0",&fd0,"fd0/D");
+    ftree_->Branch("d0bs",&fd0bs,"fd0bs/D");
     ftree_->Branch("sigmad0",&fsigmad0,"fsigmad0/D");
     ftree_->Branch("phi0",&fphi0,"fphi0/D");
     ftree_->Branch("z0",&fz0,"fz0/D");
@@ -164,9 +165,14 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   edm::Handle< edm::View<reco::Vertex> > PVCollection;
   iEvent.getByLabel("offlinePrimaryVertices", PVCollection );
 
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+
   const reco::TrackCollection *tracks = TrackCollection.product();
 
   const edm::View<reco::Vertex> &pv = *PVCollection;
+
+  const reco::BeamSpot *refBS = recoBeamSpotHandle.product();
 
   double eventZ = 0;
   double averageZ = 0;
@@ -200,6 +206,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     fcharge = track->charge();
     fnormchi2 = track->normalizedChi2();
     fd0 = track->d0();
+    fd0bs = -1*track->dxy(refBS->position());
     fsigmad0 = track->d0Error();
     fz0 = track->dz();
     fsigmaz0 = track->dzError();
