@@ -42,8 +42,8 @@ process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
-process.multiTrackValidator.minpT = cms.double(0)
-process.multiTrackValidator.maxpT = cms.double(3)
+process.multiTrackValidator.minpT = cms.double(0.1)
+process.multiTrackValidator.maxpT = cms.double(1000)
 process.multiTrackValidator.nintpT = cms.int32(40)
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 

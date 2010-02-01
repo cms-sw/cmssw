@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/09/04 22:22:52 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/10/01 15:02:55 $
+ *  $Revision: 1.25 $
  *  \author cerati
  */
 
@@ -93,12 +93,21 @@ class MultiTrackValidatorBase {
     useLogPt(pset.getUntrackedParameter<bool>("useLogPt",false))
     //
     {
-      dbe_ = edm::Service<DQMStore>().operator->();
-      if(useLogPt){
-	maxpT=log10(maxpT);
-	minpT=log10(minpT);
-      }
+        dbe_ = edm::Service<DQMStore>().operator->();
+        if(useLogPt){
+            maxpT=log10(maxpT);
+            if(minpT > 0){
+                minpT=log10(minpT);
+            }
+            else{
+                edm::LogWarning("MultiTrackValidator") << "minpT = "
+                    << minpT << " <= 0 out of range while requesting log scale.  Using minpT = 0.1.";
+                minpT=log10(0.1);
+            }
+        }
     }
+
+    
   
   /// Destructor
   virtual ~MultiTrackValidatorBase(){ }
