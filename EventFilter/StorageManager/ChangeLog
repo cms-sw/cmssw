@@ -1,3 +1,17 @@
+2010-02-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-07-00
+	* Rework logic of moving files to closed position in case that a
+	  file cannot be moved and further improve error messages
+	* Replace 'exactFileSizeTest' configuration parameter with
+	  'fileSizeTolerance' (double) specifying the tolerance of file
+	  sizes. It defaults to 0.1 which was previously hard coded.
+	  Setting it to 0 corresponds to setting 'exactFileSizeTest' to
+	  true (default was false)
+	* Latch error message if we move to the Failed state. I.e.
+	  always show on the hyperdaq page the actual error message which
+	  caused the SM to fail
+
 2010-01-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-06-02
