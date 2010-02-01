@@ -47,6 +47,7 @@ process.d0_phi_analyzer.BeamFitter.Debug = True
 process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'ASCIIFILE'
 process.d0_phi_analyzer.BeamFitter.OutputFileName = 'OUTPUTFILE'
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
+process.d0_phi_analyzer.BeamFitter.SaveFitResults = True
 
 process.p = cms.Path(process.hltLevel1GTSeed*process.d0_phi_analyzer)
 #process.p = cms.Path(process.d0_phi_analyzer)
