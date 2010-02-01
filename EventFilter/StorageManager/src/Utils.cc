@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.9 2009/10/14 13:40:08 mommsen Exp $
+//$Id: Utils.cc,v 1.10 2010/01/28 13:38:47 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -6,6 +6,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <string.h>
 
 #include <sys/time.h>
 #include <sys/stat.h>
