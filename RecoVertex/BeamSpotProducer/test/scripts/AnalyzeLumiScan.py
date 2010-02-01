@@ -128,7 +128,7 @@ def main():
                 print "Lumi range greater than 1000!!!"
                 sys.exit()
 
-            tagName = d[:len(d)-1]+"LS"+minlumi+"-"+maxlumi
+            tagName = d[:len(d)-1]+"LS"+minlumi+"to"+maxlumi
 ##            print tagName
             
             fouttmp = open("Input_template_cfi.py")
@@ -144,7 +144,9 @@ def main():
                     fout.write(line)
 
             fout.close()
-
+            
+            ## Copy cfi file to run directories
+            os.system("cp "+cfiname+" "+d)            
             ## Create cfg files for cmsRun
             cfinametag = cfifilepath+"LumiScan_"+tagName+"_cfi"
             #print cfinametag
@@ -170,8 +172,10 @@ def main():
                 newcfgfile.write(line)
 
             newcfgfile.close()
+            
+            os.system("mv "+cfgtagname+" "+d)
             if jobmode == "local":
-                runjobcmd = "cmsRun "+cfgtagname+" >& "+d+"LumiScan_"+tagName+".log &"
+                runjobcmd = "cmsRun "+d+cfgtagname+" >& "+d+"LumiScan_"+tagName+".log &"
                 print runjobcmd
                 os.system(runjobcmd)
 
@@ -181,7 +185,7 @@ def main():
 ##                print workdir
                 runlogtag = d+"LumiScan_"+tagName+".log"
                 replacetag1 = [('PWD',workdir),
-                               ('CFGFILE',cfgtagname),
+                               ('CFGFILE',d+cfgtagname),
                                ('CFGRUNLOG',runlogtag)
                                ]
                 tmpbjobfile = open("AnalyzeLumiScanJob_template.sh","r")
@@ -194,8 +198,8 @@ def main():
                     newbjobfile.write(line)
                 newbjobfile.write(line)
                 os.system("chmod +x "+bjobName)
-
-                submitjobcmd = "bsub -q 8nh "+bjobName
+                os.system("mv "+bjobName+" "+d)
+                submitjobcmd = "bsub -q 8nh "+d+bjobName
                 print submitjobcmd
                 os.system(submitjobcmd)
 
