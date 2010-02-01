@@ -42,8 +42,8 @@ class SiStripDetVOffBuilder
   /** Build the SiStripDetVOff object for transfer. */
   void BuildDetVOffObj();
   /** Return modules Off vector of objects. */
-  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff(const int deltaTmin = 1) {
-    reduction(deltaTmin);
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff(const int deltaTmin = 1, const int maxIOVlength = 120) {
+    reduction(deltaTmin, maxIOVlength);
     return modulesOff;
   }
   /** Return statistics about payloads transferred for storage in logDB. */
@@ -58,7 +58,7 @@ class SiStripDetVOffBuilder
 	       std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
 	       const bool last = false);
 
-  void reduction(const uint32_t deltaTmin);
+  void reduction(const uint32_t deltaTmin, const uint32_t maxIOVlength);
 
  private:
   // typedefs

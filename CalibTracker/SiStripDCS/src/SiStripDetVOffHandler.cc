@@ -1,8 +1,9 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffHandler.h"
 
 popcon::SiStripDetVOffHandler::SiStripDetVOffHandler (const edm::ParameterSet& pset) :
-  m_name(pset.getUntrackedParameter<std::string>("name","SiStripDetVOffHandler")),
-  m_deltaTmin(pset.getParameter<uint32_t>("DeltaTmin"))
+  name_(pset.getUntrackedParameter<std::string>("name","SiStripDetVOffHandler")),
+  deltaTmin_(pset.getParameter<uint32_t>("DeltaTmin")),
+  maxIOVlength_(pset.getParameter<uint32_t>("MaxIOVlength"))
 { }
 
 popcon::SiStripDetVOffHandler::~SiStripDetVOffHandler() { 
@@ -14,7 +15,7 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
   std::cout << "[SiStripDetVOffHandler::getNewObjects]" << std::endl;
   
   std::stringstream dbstr;
-  dbstr << "\n\n---------------------\n " << m_name 
+  dbstr << "\n\n---------------------\n " << name_ 
 	<< " - > getNewObjects\n"; 
   if (tagInfo().size){
     //check whats already inside of database
@@ -61,8 +62,8 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
   // build the object!
   resultVec.clear();
   modHVBuilder->BuildDetVOffObj();
-  resultVec = modHVBuilder->getModulesVOff(m_deltaTmin);
- 
+  resultVec = modHVBuilder->getModulesVOff(deltaTmin_, maxIOVlength_);
+
   if (!resultVec.empty()){
     // assume by default that transfer is needed
     unsigned int firstPayload = 0;
@@ -73,12 +74,16 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
       // resultVec does not contain duplicates, so only need to compare payload with resultVec[0]
       SiStripDetVOff * modV = resultVec[0].first;
       if (*modV == *payload) {
-	LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setForTransfer] Transfer of first element not required!";
-	firstPayload = 1; //GBenelli Fixing this bug that could affect appending behavior
+	edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setForTransfer] Transfer of first element not required!";
+	cout << "[SiStripDetVOffHandler::setForTransfer] Transfer of first element not required!" << endl;
+	firstPayload = 1;
       }
-
+      else {
+	cout << "[SiStripDetVOffHandler::setForTransfer] Transfer of first element required" << endl;
+      }
     } else {     
-      LogTrace("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setForTransfer] No previous payload";
+      edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::setForTransfer] No previous payload";
+      cout << "[SiStripDetVOffHandler::setForTransfer] No previous payload" << endl;
     }
  
     setUserTextLog();
@@ -89,7 +94,7 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
     
   } else {
     edm::LogError("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] " 
-					   << m_name << "  : NULL pointer reported by SiStripDetVOffBuilder"
+					   << name_ << "  : NULL pointer reported by SiStripDetVOffBuilder"
 					   << "\n Transfer aborted"<< std::endl;
   }
 }

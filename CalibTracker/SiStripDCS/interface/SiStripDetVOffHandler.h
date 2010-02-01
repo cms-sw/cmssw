@@ -16,21 +16,22 @@
 
 namespace popcon{
   class SiStripDetVOffHandler : public popcon::PopConSourceHandler<SiStripDetVOff>
-    {
-    public:
-      void getNewObjects();
-      ~SiStripDetVOffHandler();
-      SiStripDetVOffHandler(const edm::ParameterSet& pset);
-      std::string id() const { return m_name;}
+  {
+  public:
+    void getNewObjects();
+    ~SiStripDetVOffHandler();
+    SiStripDetVOffHandler(const edm::ParameterSet& pset);
+    std::string id() const { return name_;}
       
-    private:
-      void setUserTextLog();
-      void setForTransfer();
-      std::string m_name;
-      std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > resultVec;
-      edm::Service<SiStripDetVOffBuilder> modHVBuilder;
-      uint32_t m_deltaTmin;
-    };
+  private:
+    void setUserTextLog();
+    void setForTransfer();
+    std::string name_;
+    std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > resultVec;
+    edm::Service<SiStripDetVOffBuilder> modHVBuilder;
+    uint32_t deltaTmin_;
+    uint32_t maxIOVlength_;
+  };
 }
 #endif
 

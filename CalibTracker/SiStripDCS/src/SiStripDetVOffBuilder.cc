@@ -437,9 +437,9 @@ cond::Time_t SiStripDetVOffBuilder::findMostRecentTimeStamp( std::vector<coral::
 }
 
 void SiStripDetVOffBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
-				     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
-				     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
-				     const bool last )
+				    std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
+				    std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
+				    const bool last )
 {
   int first = 0;
   // Check if it is the first
@@ -477,7 +477,7 @@ void SiStripDetVOffBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond:
   }
 }
 
-void SiStripDetVOffBuilder::reduction(const uint32_t deltaTmin)
+void SiStripDetVOffBuilder::reduction(const uint32_t deltaTmin, const uint32_t maxIOVlength)
 {
   int count = 0;
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator initialIt;
@@ -488,35 +488,31 @@ void SiStripDetVOffBuilder::reduction(const uint32_t deltaTmin)
   if( resultVecSize > 1 ) {
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator it = modulesOff.begin();
     for( ; it != modulesOff.end()-1; ++it, ++resultsIndex ) {
-      //       unsigned long long time1 = it->second >> 32;
-      //       unsigned long long time2 = (it+1)->second >> 32;
-      //       unsigned long long deltaT = time2 - time1;
       unsigned long long deltaT = ((it+1)->second - it->second) >> 32;
-      // std::cout << "deltaT = " << deltaT << std::endl;
+      unsigned long long deltaTsequence = 0;
+      if( count > 1 ) {
+	deltaTsequence = ((it+1)->second - initialIt->second) >> 32;
+      }
       // Save the initial pair
-      if( deltaT < deltaTmin ) {
+      if( (deltaT < deltaTmin) && ( (count == 0) || ( deltaTsequence < maxIOVlength ) ) ) {
 	// If we are not in a the sequence
 	if( count == 0 ) {
 	  initialIt = it;
 	}
 	// Increase the counter in any case.
-	// cout << "count = " << count << endl;
 	++count;
       }
       // We do it only if the sequence is bigger than two cases
       else if( count > 1 ) {
 	reduce(it, initialIt, modulesOff);
 	// reset all
-	// cout << "resetting" << endl;
 	count = 0;
       }
       else {
-	// cout << "resetting" << endl;
 	// reset all
 	count = 0;
       }
       // Border case
-      // cout << "resultsIndex = " << resultsIndex << ", resultVecSize-2 = " << resultVecSize-2 << endl;
       if( resultsIndex == resultVecSize-2 && count != 0 ) {
 	reduce(it, initialIt, modulesOff, true);
       }

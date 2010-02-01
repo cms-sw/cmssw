@@ -185,7 +185,8 @@ process.siStripPopConDetVOff = cms.EDAnalyzer("SiStripPopConDetVOff",
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source = cms.PSet(
-        DeltaTmin = cms.uint32(1)
+        DeltaTmin = cms.uint32(1),
+        MaxIOVlength = cms.uint32(120)
     )                                        
 )
 
