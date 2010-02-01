@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.h,v 1.8 2009/10/13 15:08:33 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.9 2010/02/01 11:39:46 mommsen Exp $
 /// @file: EventFileHandler.h 
 
 #ifndef StorageManager_EventFileHandler_h
@@ -22,8 +22,8 @@ namespace stor {
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.9 $
+   * $Date: 2010/02/01 11:39:46 $
    */
   
   class EventFileHandler : public FileHandler
@@ -36,11 +36,6 @@ namespace stor {
       const DiskWritingParams&,
       const unsigned long long& maxFileSize
     );
-
-    /**
-     * Write the event contained in the I2OChain
-     */
-    virtual void writeEvent(const I2OChain&);
  
     /**
      *  Returns true if the file has not seen any recent events
@@ -64,7 +59,11 @@ namespace stor {
      * Write the init message to the head of the file
      */
     void writeHeader(InitMsgSharedPtr);
-    
+
+    /**
+     * Write the I2OChain to the file
+     */
+    virtual void do_writeEvent(const I2OChain&);
 
     boost::scoped_ptr<edm::StreamerFileWriter> _writer; // writes streamer and index file
   };

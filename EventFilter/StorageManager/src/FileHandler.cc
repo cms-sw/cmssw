@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.12 2010/01/29 15:45:47 mommsen Exp $
+// $Id: FileHandler.cc,v 1.13 2010/02/01 11:42:21 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -42,6 +42,24 @@ _cmsver(edm::getReleaseVersion())
   checkDirectories();
 
   insertFileInDatabase();
+}
+
+void FileHandler::writeEvent(const I2OChain& event)
+{
+  if ( ! _fileRecord->isOpen )
+  {
+    std::ostringstream msg;
+    msg << "Tried to write an event to "
+      << _fileRecord->completeFileName()
+      << "which has already been closed.";
+    XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+  }
+
+  do_writeEvent(event);
+
+  _fileRecord->fileSize += event.totalDataSize();
+  ++_fileRecord->eventCount;
+  _lastEntry = utils::getCurrentTime();
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.9 2010/01/29 15:45:47 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.10 2010/02/01 11:42:18 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -37,7 +37,7 @@ void EventFileHandler::writeHeader(InitMsgSharedPtr view)
 }
 
 
-void EventFileHandler::writeEvent(const I2OChain& event)
+void EventFileHandler::do_writeEvent(const I2OChain& event)
 {
   edm::StreamerFileWriterEventParams evtParams;
 
@@ -56,10 +56,6 @@ void EventFileHandler::writeEvent(const I2OChain& event)
 
       _writer->doOutputEventFragment(evtParams);
     }
-
-  _fileRecord->fileSize += event.totalDataSize();
-  ++_fileRecord->eventCount;
-  _lastEntry = utils::getCurrentTime();
 }
 
 

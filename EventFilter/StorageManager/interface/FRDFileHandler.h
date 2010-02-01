@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.7 2009/10/13 15:08:33 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.8 2010/02/01 11:39:46 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef StorageManager_FRDFileHandler_h
@@ -18,8 +18,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.8 $
+   * $Date: 2010/02/01 11:39:46 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -31,11 +31,6 @@ namespace stor {
       const DiskWritingParams&,
       const unsigned long long& maxFileSize
     );
-    
-    /**
-     * Write the event contained in the I2OChain
-     */
-    virtual void writeEvent(const I2OChain&);
 
     /**
      * Returns true if the file has not seen any recent events
@@ -54,6 +49,11 @@ namespace stor {
     virtual void closeFile(const FilesMonitorCollection::FileRecord::ClosingReason&);
     
   private:
+    
+    /**
+     * Write the I2OChain to the file
+     */
+    virtual void do_writeEvent(const I2OChain&);
     
     boost::scoped_ptr<FRDEventFileWriter> _writer; // writes FED Raw Data file
   };

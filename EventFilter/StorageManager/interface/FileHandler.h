@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.7 2009/09/17 11:04:29 mommsen Exp $
+// $Id: FileHandler.h,v 1.8 2009/10/13 15:08:33 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -23,8 +23,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/09/17 11:04:29 $
+   * $Revision: 1.8 $
+   * $Date: 2009/10/13 15:08:33 $
    */
 
   class FileHandler
@@ -43,7 +43,7 @@ namespace stor {
     /**
      * Write the event contained in the I2OChain
      */
-    virtual void writeEvent(const I2OChain&) = 0;
+    void writeEvent(const I2OChain&);
 
     /**
      * Returns true if the file has not seen any recent events
@@ -100,6 +100,12 @@ namespace stor {
 
 
   protected:
+
+    /**
+     * Write the I2OChain to the file
+     */
+    virtual void do_writeEvent(const I2OChain& event) = 0;
+
     
     ////////////////////////////
     // File parameter setters //
