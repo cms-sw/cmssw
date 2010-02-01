@@ -34,11 +34,13 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Su
 def loadMCVersion(process, mcVersion):
     #-- Missing ak5GenJets in 3.3.2 samples ---------------------------------------
     from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC, run33xOn31xMC
-    if mcVersion == '31x':
-    	run33xOn31xMC( process )
-    if mcVersion == '31xReReco332':
+    if not mcVersion:
+	return
+    elif mcVersion == '31x': 
+	run33xOn31xMC( process )
+    elif mcVersion == '31xReReco332':
 	run33xOnReRecoMC( process, "ak5GenJets" )
-
+    else: raise ValueError, "Unknown MC version: %s" % (mcVersion)
 
 def loadPAT(process,JetMetCorrections):
     #-- PAT standard config -------------------------------------------------------
@@ -86,8 +88,8 @@ def loadPATTriggers(process,HLTMenu):
     process.patTrigger.processName = HLTMenu
     process.patTriggerEvent.processName = HLTMenu
 
-def addSUSYJetCollection(process,jets = 'IC5',doType1MET=False,doJetID = False,jetIdLabel = None):
-    from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+def addSUSYJetCollection(process,jets = 'IC5',doJTA=False,doType1MET=False,doJetID = True,jetIdLabel = None):
+    from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection, addJetID
     algorithm = jets[0:3]
     type = jets[3:len(jets)]
     if len(type) == 0:
@@ -97,24 +99,34 @@ def addSUSYJetCollection(process,jets = 'IC5',doType1MET=False,doJetID = False,j
     elif 'SC' in algorithm: collection = algorithm.replace('SC','sisCone')
     elif 'AK' in algorithm: collection = algorithm.replace('AK','ak')
     elif 'KT' in algorithm: collection = algorithm.replace('KT','kt')
+    else: raise ValueError, "Unknown jet algorithm: %s" % (jets)
+    jetIdLabel = algorithm.lower()
     if type == 'Calo':
-	jetCollection = collection+'CaloJets'
-        jetIdLabel = algorithm.lower()
-	doJetID = True
+	jetCollection = '%(collection)sCaloJets' % locals()
+        doJTA = True
 	if not 'AK7' in algorithm:
 		doType1MET = True
     elif type == 'PF':
-	jetCollection = collection+'PFJets'
+	jetCollection = '%(collection)sPFJets' % locals()
+        doJTA = True
     elif type == 'JPT':
 	jetCollection = 'JetPlusTrackZSPCorJetAntiKt5'
     	jetCorrLabel = None
+        jetIdLabel =  '%(collection)sJPT' % locals()
+        #addJetID(process,jetCollection,jetIdLabel)
+        # Fiddle because addJetID replaces genPartonMatch, which we switch off
+        process.load("RecoJets.JetProducers.ak5JetID_cfi")
+        setattr( process, '%(jetIdLabel)sJetID' % locals(), process.ak5JetID.clone(src = jetCollection))
+        process.jpt.replace(process.jptCaloJets, process.jptCaloJets + getattr(process,'%(jetIdLabel)sJetID' % locals()))
     elif type == 'Track':
-	jetCollection = collection+'TrackJets'
+	jetCollection = '%(collection)sTrackJets' % locals()
     	jetCorrLabel = None
+	doJetID = False
+    else: raise ValueError, "Unknown jet type: %s" % (jets)
      
     addJetCollection(process, cms.InputTag(jetCollection),
                      jets,
-                     doJTA            = True,
+                     doJTA            = doJTA,
                      doBTagging       = True,
                      jetCorrLabel     = jetCorrLabel,
                      doType1MET       = doType1MET,
@@ -122,7 +134,7 @@ def addSUSYJetCollection(process,jets = 'IC5',doType1MET=False,doJetID = False,j
                      doL1Counters     = True,
                      doJetID          = doJetID,
 		     jetIdLabel       = jetIdLabel,
-                     genJetCollection = cms.InputTag(collection+'GenJets')
+                     genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
 def addJetMET(process,theJetNames):
@@ -214,17 +226,11 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_towerMaker_*_*',                 # Keep CaloTowers for cross-cleaning
         'keep edmMergeableCounter_eventCountProducer_*_*',
         'keep recoTracks_generalTracks_*_*',
-	#'keep recoTrackExtras_*_*_*',
+	'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',
+	'keep recoTrackJets_ak5TrackJets_*_*',
 	'keep *_pfLayer*_*_*', # Keep PF2PAT output
 	'keep *_electronMergedSeeds_*_*',
 	'keep *_Conversions_*_*',
-	#'keep recoGsfTracks_electronGsfTracks_*_*',
-	#'keep recoTracks_standAloneMuons_*_*',
-	#'keep recoTracks_globalMuons_*_*',
-	#'keep *_muons_*_*',
-	#'keep *_gsfElectrons_*_*',
-	#'keep *_softPFElectrons_*_*',
-	#'keep *_eid*_*_*',
         'drop patPFParticles_pfLayer*_*_*', # drop PAT particles
 	'keep recoPFCandidates_particleFlow_*_*',
         'keep recoSuperClusters_corrected*_*_*',
