@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.cc,v 1.7 2009/09/17 11:03:19 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.8 2009/10/13 15:08:34 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
@@ -18,7 +18,7 @@ FRDFileHandler::FRDFileHandler
   const unsigned long long& maxFileSize
 ) :
 FileHandler(fileRecord, dwParams, maxFileSize),
-_writer(fileRecord->completeFileName()+".dat")
+_writer(new FRDEventFileWriter(fileRecord->completeFileName()+".dat"))
 {}
 
 
@@ -27,8 +27,8 @@ void FRDFileHandler::writeEvent(const I2OChain& chain)
   unsigned int fragCount = chain.fragmentCount();
   for (unsigned int idx = 0; idx < fragCount; ++idx)
     {
-      _writer.doOutputEventFragment(chain.dataLocation(idx),
-                                    chain.dataSize(idx));
+      _writer->doOutputEventFragment(chain.dataLocation(idx),
+                                     chain.dataSize(idx));
     }
 
   _fileRecord->fileSize += chain.totalDataSize();
@@ -54,7 +54,14 @@ bool FRDFileHandler::tooOld(const utils::time_point_t currentTime)
 
 void FRDFileHandler::closeFile(const FilesMonitorCollection::FileRecord::ClosingReason& reason)
 {
-  _writer.stop();
+  if ( ! _fileRecord->isOpen ) return;
+
+  if (_writer)
+  {
+    // if writer was reset, we already closed the stream but failed to move the file to the closed position
+    _writer->stop();
+    _writer.reset(); // Destruct the writer to flush the file stream
+  }
   moveFileToClosed(false, reason);
   writeToSummaryCatalog();
   updateDatabase();

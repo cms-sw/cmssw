@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.8 2009/10/13 15:08:34 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.9 2010/01/29 15:45:47 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -19,10 +19,10 @@ EventFileHandler::EventFileHandler
   const unsigned long long& maxFileSize
 ) :
 FileHandler(fileRecord, dwParams, maxFileSize),
-_writer(
+_writer(new edm::StreamerFileWriter(
   fileRecord->completeFileName()+".dat",
   fileRecord->completeFileName()+".ind"
-)
+  ))
 {
   writeHeader(view);
 }
@@ -31,7 +31,7 @@ _writer(
 void EventFileHandler::writeHeader(InitMsgSharedPtr view)
 {
   InitMsgView initView(&(*view)[0]);
-  _writer.doOutputHeader(initView);
+  _writer->doOutputHeader(initView);
   _fileRecord->fileSize += view->size();
   _lastEntry = utils::getCurrentTime();
 }
@@ -54,7 +54,7 @@ void EventFileHandler::writeEvent(const I2OChain& event)
       evtParams.dataPtr = (char*) event.dataLocation(idx);
       evtParams.dataSize = event.dataSize(idx);
 
-      _writer.doOutputEventFragment(evtParams);
+      _writer->doOutputEventFragment(evtParams);
     }
 
   _fileRecord->fileSize += event.totalDataSize();
@@ -94,20 +94,17 @@ bool EventFileHandler::isFromLumiSection(const uint32_t lumiSection)
 
 void EventFileHandler::closeFile(const FilesMonitorCollection::FileRecord::ClosingReason& reason)
 {
-  _writer.stop();
-  _fileRecord->fileSize += _writer.getStreamEOFSize();
-  setAdler(_writer.get_adler32_stream(), _writer.get_adler32_index());
-  try
-  {
-    moveFileToClosed(true, reason);
-  }
-  catch (stor::exception::DiskWriting& e)
-  {
-    _fileRecord->fileSize -= _writer.getStreamEOFSize();
+  if ( ! _fileRecord->isOpen ) return;
 
-    XCEPT_RETHROW(stor::exception::DiskWriting, 
-      "Failed to close " + _fileRecord->completeFileName(), e);
+  if (_writer)
+  {
+    // if writer was reset, we already closed the stream but failed to move the file to the closed position
+    _writer->stop();
+    _fileRecord->fileSize += _writer->getStreamEOFSize();
+    setAdler(_writer->get_adler32_stream(), _writer->get_adler32_index());
+    _writer.reset(); // Destruct the writer to flush the file stream
   }
+  moveFileToClosed(true, reason);
   writeToSummaryCatalog();
   updateDatabase();
 }

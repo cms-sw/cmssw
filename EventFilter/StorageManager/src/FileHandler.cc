@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.11 2010/01/28 13:41:43 mommsen Exp $
+// $Id: FileHandler.cc,v 1.12 2010/01/29 15:45:47 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -169,8 +169,6 @@ void FileHandler::moveFileToClosed
   const FilesMonitorCollection::FileRecord::ClosingReason& reason
 )
 {
-  if ( ! _fileRecord->isOpen ) return;
-
   const string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
   const string openIndexFileName(openFileName + ".ind");
   const string openStreamerFileName(openFileName + ".dat");
@@ -220,10 +218,12 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
   {
     _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::truncated;
     std::ostringstream msg;
-    msg << "Found an unexpected file size when trying to move "
-      << "the file to the closed state. File " << fileName
+    msg << "Found an unexpected file size when trying to move"
+      << " the file to the closed state. File " << fileName
       << " has an actual size of " << statBuff.st_size
-      << " instead of the expected size of " << size;
+      << " (" << statBuff.st_blocks << " blocks)"
+      << " instead of the expected size of " << size
+      << " (" << (size/512)+1 << " blocks).";
     XCEPT_RAISE(stor::exception::FileTruncation, msg.str());
   }
 
