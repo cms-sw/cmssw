@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/02 18:15:53 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/02/02 18:38:11 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -307,6 +307,17 @@ void HLTConfigProvider::dump (const std::string& what) const {
      cout << "HLTConfigProvider::dump: Triggers: " << n << endl;
      for (unsigned int i=0; i!=n; ++i) {
        cout << "  " << i << " " << triggerNames_[i] << endl;
+     }
+   } else if (what=="TriggerSeeds") {
+     const unsigned int n(size());
+     cout << "HLTConfigProvider::dump: TriggerSeeds: " << n << endl;
+     for (unsigned int i=0; i!=n; ++i) {
+       cout << "  " << i << " " << triggerNames_[i] << endl;
+       for (unsigned int j=0; j!=hltL1GTSeeds_[i].size(); ++j) {
+	 cout << "  " << j << " " << moduleLabels_[i][j]
+	      << " " << hltL1GTSeeds_[i][j].first
+	      << "/" << hltL1GTSeeds_[i][j].second << endl;
+       }
      }
    } else if (what=="Modules") {
      const unsigned int n(size());
