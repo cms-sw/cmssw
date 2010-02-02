@@ -82,7 +82,7 @@ process.GlobalTag.DBParameters.messageLevel = 0
 process.GlobalTag.DBParameters.transactionId = cms.untracked.string("")
 
 
-if(option.source=="oracle") :
+if(options.source=="oracle") :
   process.GlobalTag.pfnPrefix = cms.untracked.string('oracle://cms_orcoff_prod/')
 
 #process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
