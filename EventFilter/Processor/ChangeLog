@@ -1,5 +1,10 @@
 2010-02-02 Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V02-00-10
+	* fix monitorreceiver appdesc broken by xdaq10
+
+2010-02-02 Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V02-00-09-00
 	* put back fix for compilation warning from branch
 

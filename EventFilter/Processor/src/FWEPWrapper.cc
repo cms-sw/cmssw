@@ -754,11 +754,11 @@ namespace evf{
     if(rcms_==0) return false;
     toolbox::net::URL url(rcms_->getContextDescriptor()->getURL());
     toolbox::net::URL at(xappDesc_->getContextDescriptor()->getURL() + "/" + xappDesc_->getURN());
-    toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"/rcms/servlet/monitorreceiver");
+    toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"");
     xdaq::ContextDescriptor *ctxdsc = new xdaq::ContextDescriptor(properurl.toString());
     xdaq::ApplicationDescriptor *appdesc = new xdaq::ApplicationDescriptorImpl(ctxdsc,rcms_->getClassName(),rcms_->getLocalId(), "pippo");
-
-
+    
+    appdesc->setAttribute("path","/rcms/servlet/monitorreceiver");
     xdata::exdr::Serializer serializer;
     xoap::MessageReference msg = xoap::createMessage();
     xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
