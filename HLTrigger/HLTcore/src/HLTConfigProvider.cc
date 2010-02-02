@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/17 21:18:26 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/02/02 16:44:12 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -214,7 +214,7 @@ void HLTConfigProvider::extract()
      const unsigned int m(size(i));
      for (unsigned int j=0; j!=m; ++j) {
        const string& label(moduleLabels_[i][j]);
-       if (label == "HLTLevel1GTSeed") {
+       if (moduleType(label) == "HLTLevel1GTSeed") {
 	 const ParameterSet pset(modulePSet(label));
 	 if (pset!=ParameterSet()) {
 	   const bool   l1Tech(pset.getParameter<bool>("L1TechTriggerSeeding"));
