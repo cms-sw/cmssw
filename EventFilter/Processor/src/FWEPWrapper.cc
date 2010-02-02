@@ -1,12 +1,4 @@
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/PrescaleService/interface/PrescaleService.h"
-#include "FWCore/Framework/interface/TriggerReport.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWEPWrapper.h"
 
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
@@ -14,7 +6,6 @@
 #include "EventFilter/Utilities/interface/ServiceWeb.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
-#include "FWEPWrapper.h"
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xdaq/ApplicationDescriptorImpl.h"
@@ -24,6 +15,17 @@
 #include "xdata/TableIterator.h"
 #include "xdata/exdr/Serializer.h"
 #include "xdata/exdr/AutoSizeOutputStreamBuffer.h"
+
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#undef HAVE_STAT
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/PrescaleService/interface/PrescaleService.h"
+#include "FWCore/Framework/interface/TriggerReport.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "xoap/MessageReference.h"
 #include "xoap/MessageFactory.h"
