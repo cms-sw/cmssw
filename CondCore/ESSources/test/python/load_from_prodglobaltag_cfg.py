@@ -27,6 +27,11 @@ options.register('record',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "record: either ALL or just one ")
+options.register('overwrite',
+                 '', #default one
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "record,tag,connectionstring")
 
 options.parseArguments()
 
@@ -89,12 +94,14 @@ if(options.source=="oracle") :
 #process.GlobalTag.pfnPrefix = "oracle://cmsarc_lb/"
 #process.GlobalTag.pfnPostfix = "_0912"
 #process.GlobalTag.toGet = cms.VPSet()
-#process.GlobalTag.toGet.append(
-#   cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
-#            tag = cms.string("firstcollisions"),
-#             connect = cms.untracked.string("frontier://PromptProd/CMS_COND_31X_BEAMSPOT")
-#           )
-#)
+if (len(options.overwrite)>4):
+  (orecord,otag,ocs) = options.overwrite.split(',')
+  process.GlobalTag.toGet.append(
+    cms.PSet(record = cms.string(orecord.strip()),
+             tag = cms.string(otag.strip()),
+             connect = cms.untracked.string(ocs.strip())
+             )
+    )
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(options.runNumber+options.runInterval),
