@@ -146,6 +146,85 @@ namespace {
 
 
 
+/*****************************************************************************/
+/*                                                                           */
+/*                 Barrel DT                                                 */
+/*                                                                           */
+/*****************************************************************************/
+/***************  Barrel DT includes  ****************************************/
+ 
+#include "DataFormats/Common/interface/Wrapper.h"
+
+#include <vector>
+#include <set>
+
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"      
+#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"     
+#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"        
+#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"      
+
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTBtiTrigger.h"
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTSPhiTrigger.h"
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatch.h"
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchPt.h"
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTrackerStub.h"
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchesCollection.h"
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTSeededTracklet.h"
+
+
+#include "SimDataFormats/SLHC/interface/DTBtiTrigger.h"
+#include "SimDataFormats/SLHC/interface/DTTSPhiTrigger.h"
+#include "SimDataFormats/SLHC/interface/DTStubMatch.h"
+#include "SimDataFormats/SLHC/interface/DTStubMatchPt.h"
+#include "SimDataFormats/SLHC/interface/DTTrackerStub.h"
+#include "SimDataFormats/SLHC/interface/DTStubMatchesCollection.h"
+#include "SimDataFormats/SLHC/interface/DTSeededTracklet.h"
+
+
+/***************  End Barrel DT includes  *************************************/ 
+
+namespace {
+  namespace {
+    
+    edm::Wrapper<DTBtiTrigger>                   Bti1;
+    std::vector<DTBtiTrigger>                    Btv1;
+    edm::Wrapper<std::vector<DTBtiTrigger> >     Btc1;
+
+    edm::Wrapper<DTTSPhiTrigger>                 phi1;
+    std::vector<DTTSPhiTrigger>                  phiv1;
+    edm::Wrapper<std::vector<DTTSPhiTrigger> >   phic1;
+
+    edm::Wrapper<DTStubMatchPt>                  DTPt1;
+    std::vector<DTStubMatchPt>                   DTPtV1;
+    edm::Wrapper<std::vector<DTStubMatchPt> >    DTPtW1;
+    DTStubMatchPtVariety                         DTPtc1;
+    edm::Wrapper<DTStubMatchPtVariety>           DTPtcw1;
+
+    edm::Wrapper<DTStubMatch>                    DTM1;
+    std::vector<DTStubMatch*>                    DTMv1;
+    edm::Wrapper<std::vector<DTStubMatch*> >     DTSMwv1;
+
+    std::vector<TrackerStub*>                    DTTSv1;
+    edm::Wrapper<std::vector<TrackerStub*> >     DTTSwv1;
+    edm::Wrapper<DTStubMatchesCollection>        DTSMc1;
+
+    edm::Wrapper<TrackerStub>                      TS1;
+    edm::Wrapper<lt_stub>                          LT1;
+    std::set<TrackerStub*, lt_stub>                TSv1;
+    edm::Wrapper<std::set<TrackerStub*, lt_stub> > TSwv1;
+
+    DTSeededTracklet                               DTTST1;
+    edm::Wrapper<DTSeededTracklet>                 DTTSTw1;
+    std::vector<DTSeededTracklet*>                 DTTSTv1;
+    edm::Wrapper<std::vector<DTSeededTracklet*> >  DTTSTa1;
+    DTSeededTrackletsCollection                    DTTSTc1;
+    edm::Wrapper<DTSeededTrackletsCollection>      DTTSTcw1;
+  }
+}
+
+
+/***************  End Barrel DT  **********************************************/ 
+
 /* ========================================================================================= */
 /* ========================================================================================= */
 /* ========================================================================================= */
