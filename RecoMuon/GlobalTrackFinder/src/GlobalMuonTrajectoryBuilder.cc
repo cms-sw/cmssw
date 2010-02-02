@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/02/24 07:06:28 $
- *  $Revision: 1.115 $
+ *  $Date: 2009/07/29 12:16:18 $
+ *  $Revision: 1.116 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -49,6 +49,9 @@
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include <TH1.h>
+#include <TFile.h>
 
 using namespace std;
 using namespace edm;
@@ -63,6 +66,28 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 {
 
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
+
+  useTFileService_ = par.getUntrackedParameter<bool>("UseTFileService",false);
+
+  if(useTFileService_) {
+    edm::Service<TFileService> fs;
+    TFileDirectory subDir = fs->mkdir( "builder" );
+    h_nRegionalTk = subDir.make<TH1F>("h_nRegionalTk","Regional Tracker Tracks per STA",21,-0.5,20.5);
+    h_nMatchedTk = subDir.make<TH1F>("h_nMatchedTk","Matched Tracker Tracks per STA",21,-0.5,20.5);
+    h_nSta = subDir.make<TH1F>("h_nSta","Cut STA Muons",21,-0.5,20.5);
+    h_nGlb = subDir.make<TH1F>("h_nGlb","Number of GLB per STA",21,-0.5,20.5);
+    h_staPt = subDir.make<TH1F>("h_staPt","STA p_{T}",200,0,100);
+    h_staRho = subDir.make<TH1F>("h_staRho","STA #rho",200,0,100);
+    h_staR = subDir.make<TH1F>("h_staR","STA R",200,0,100);
+  } else {
+    h_nRegionalTk = 0;
+    h_nMatchedTk = 0;
+    h_nSta = 0;
+    h_staPt = 0;
+    h_staRho = 0;
+    h_staR = 0;
+    h_nGlb = 0;
+  }
 }
 
 
@@ -84,8 +109,8 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 
   // get tracker TrackCollection from Event
   event.getByLabel(theTkTrackLabel,allTrackerTracks);
-  LogInfo(category) 
-      << "Found " << allTrackerTracks->size() 
+  LogDebug(category) 
+      << " Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkTrackLabel;  
 
 }
@@ -96,19 +121,31 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|trajectories";
-  
+
   // cut on muons with low momenta
+  LogTrace(category) << " STA pt " << staCandIn.second->pt() << " rho " << staCandIn.second->innerMomentum().Rho() << " R " << staCandIn.second->innerMomentum().R() << " theCut " << thePtCut;
+
+  if(h_nSta) h_nSta->Fill(1); 
+  if(h_staPt) h_staPt->Fill((staCandIn).second->pt());
+  if(h_staRho) h_staRho->Fill((staCandIn).second->innerMomentum().Rho());
+  if(h_staR) h_staR->Fill((staCandIn).second->innerMomentum().R());
+
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
-  
+
+  if(h_nSta) h_nSta->Fill(2); 
+
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
 
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
-  LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
+  LogTrace(category) << " Found " << regionalTkTracks.size() << " tracks within region of interest";
+  if(h_nRegionalTk) h_nRegionalTk->Fill(regionalTkTracks.size());
 
   // match tracker tracks to muon track
   vector<TrackCand> trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
-  LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
+  LogTrace(category) << " Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
+  if(h_nMatchedTk) h_nMatchedTk->Fill(trackerTracks.size());
+
   if ( trackerTracks.empty() ) {
     if ( staCandIn.first == 0) delete staCand.first;
 
@@ -119,7 +156,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   //
   // turn tkMatchedTracks into MuonCandidates
   //
-  LogInfo(category) << "turn tkMatchedTracks into MuonCandidates";
+  LogTrace(category) << " Turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
 
@@ -128,14 +165,16 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   }
 
   if ( tkTrajs.empty() )  {
-    LogTrace(category) << "tkTrajs empty";
+    LogTrace(category) << " tkTrajs empty";
     if ( staCandIn.first == 0) delete staCand.first;
 
     return CandidateContainer();
   }
 
   CandidateContainer result = build(staCand, tkTrajs);
-  LogInfo(category) << "Found "<< result.size() << " GLBMuons from one STACand";
+  LogTrace(category) << " Found "<< result.size() << " GLBMuons from one STACand";
+
+  if(h_nGlb) h_nGlb->Fill(result.size());
 
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
