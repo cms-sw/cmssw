@@ -117,6 +117,7 @@ PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
     
     // Quality check on the hits in the muon chambers 
     // (at least two stations hit, or last station hit)
+
     bool quality =
       standAloneMu->hitPattern().numberOfValidMuonDTHits() > 12 ||
       standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 6 ||
@@ -245,10 +246,11 @@ PFMuonAlgo::isTrackerTightMuon( const reco::MuonRef& muonRef ) {
   if(!muonRef->isTrackerMuon()) return false;
 
   bool isAllArbitrated = muon::isGoodMuon(*muonRef,muon::AllArbitrated);
-  bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
+  //bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
   bool isTM2DCompatibilityTight = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight);
   
-  if(isAllArbitrated  &&  isTM2DCompatibilityTight && isTMLastStationOptimizedLowPtLoose) return true;    
+  //if(isAllArbitrated  &&  isTM2DCompatibilityTight && isTMLastStationOptimizedLowPtLoose) return true;    
+  if(isAllArbitrated  &&  isTM2DCompatibilityTight) return true;    
   
   return false;
   
@@ -323,10 +325,11 @@ PFMuonAlgo::isTrackerLooseMuon( const reco::MuonRef& muonRef ) {
   if(!muonRef->isTrackerMuon()) return false;
 
   bool isAllArbitrated = muon::isGoodMuon(*muonRef,muon::AllArbitrated);
-  bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
+  //bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
   bool isTM2DCompatibilityLoose = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose);
   
-  if(isAllArbitrated  &&  isTM2DCompatibilityLoose && isTMLastStationOptimizedLowPtLoose) return true;    
+  //if(isAllArbitrated  &&  isTM2DCompatibilityLoose && isTMLastStationOptimizedLowPtLoose) return true;    
+if(isAllArbitrated  &&  isTM2DCompatibilityLoose) return true;    
   
   return false;
   
