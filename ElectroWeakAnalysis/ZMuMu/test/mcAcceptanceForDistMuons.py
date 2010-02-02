@@ -8,19 +8,39 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+
+
+
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-"file:~/Zmumu7TeVGenSimReco/0ABB0814-C082-DE11-9AB7-003048D4767C.root",
-    "file:~/Zmumu7TeVGenSimReco/0ABB0814-C082-DE11-9AB7-003048D4767C.root",
-"file:~/Zmumu7TeVGenSimReco/38980FEC-C182-DE11-A3B5-003048D4767C.root",
- "file:~/Zmumu7TeVGenSimReco/3AF703B9-AE82-DE11-9656-0015172C0925.root",
-"file:~/Zmumu7TeVGenSimReco/46854F8E-BC82-DE11-80AA-003048D47673.root",
- "file:~/Zmumu7TeVGenSimReco/8025F9B0-AC82-DE11-8C28-0015172560C6.root",
- "file:~/Zmumu7TeVGenSimReco/88DDF58E-BC82-DE11-ADD8-003048D47679.root",
- "file:~/Zmumu7TeVGenSimReco/9A115324-BB82-DE11-9C66-001517252130.root",
-"file:~/Zmumu7TeVGenSimReco/FC279CAC-AD82-DE11-BAAA-001517357D36.root"
+    debugVerbosity = cms.untracked.uint32(0),
+    debugFlag = cms.untracked.bool(False),
+    fileNames = cms.untracked.vstring()
 )
-)
+import os
+dirname = "/data1/home/degruttola/CMSSW_3_3_5/src/ElectroWeakAnalysis/Utilities/test/DistMuonsv2/res/"
+dirlist = os.listdir(dirname)
+basenamelist = os.listdir(dirname + "/")
+for basename in basenamelist:
+            process.source.fileNames.append("file:" + dirname + "/" + basename)
+print "Number of files to process is %s" % (len(process.source.fileNames))
+
+
+
+
+## process.source = cms.Source("PoolSource",
+##     fileNames = cms.untracked.vstring(
+## "file:/data1/home/degruttola/CMSSW_3_3_5/src/ElectroWeakAnalysis/Utilities/test/DistMuonsv2/res/selectedEvents_1818.root",
+## "file:~/Zmumu7TeVGenSimReco/0ABB0814-C082-DE11-9AB7-003048D4767C.root",
+##     "file:~/Zmumu7TeVGenSimReco/0ABB0814-C082-DE11-9AB7-003048D4767C.root",
+## "file:~/Zmumu7TeVGenSimReco/38980FEC-C182-DE11-A3B5-003048D4767C.root",
+##  "file:~/Zmumu7TeVGenSimReco/3AF703B9-AE82-DE11-9656-0015172C0925.root",
+## "file:~/Zmumu7TeVGenSimReco/46854F8E-BC82-DE11-80AA-003048D47673.root",
+##  "file:~/Zmumu7TeVGenSimReco/8025F9B0-AC82-DE11-8C28-0015172560C6.root",
+##  "file:~/Zmumu7TeVGenSimReco/88DDF58E-BC82-DE11-ADD8-003048D47679.root",
+##  "file:~/Zmumu7TeVGenSimReco/9A115324-BB82-DE11-9C66-001517252130.root",
+## "file:~/Zmumu7TeVGenSimReco/FC279CAC-AD82-DE11-BAAA-001517357D36.root"
+## )
+## )
 
 process.evtInfo = cms.OutputModule("AsciiOutputModule")
 
@@ -73,10 +93,10 @@ process.poolDBESSource1 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
             messageLevel = cms.untracked.int32(2),
-            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+            authenticationPath = cms.untracked.string('.')
       ),
       timetype = cms.untracked.string('runnumber'),
-      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
+      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
       toGet = cms.VPSet(
             cms.PSet(
                   record = cms.string('MuScleFitDBobjectRcd'),
@@ -89,10 +109,10 @@ process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
             messageLevel = cms.untracked.int32(2),
-            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+            authenticationPath = cms.untracked.string('.')
       ),
       timetype = cms.untracked.string('runnumber'),
-      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
+      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
       toGet = cms.VPSet(
             cms.PSet(
                   record = cms.string('MuScleFitDBobjectRcd'),
@@ -105,10 +125,10 @@ process.poolDBESSource3 = cms.ESSource("PoolDBESSource",
       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
       DBParameters = cms.PSet(
             messageLevel = cms.untracked.int32(2),
-            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+            authenticationPath = cms.untracked.string('.')
       ),
       timetype = cms.untracked.string('runnumber'),
-      connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS'),
+      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'),
       toGet = cms.VPSet(
             cms.PSet(
                   record = cms.string('MuScleFitDBobjectRcd'),
@@ -141,13 +161,14 @@ process.mcAcceptance = cms.EDAnalyzer("MCAcceptanceAnalyzer",
     massMax = cms.double(120.0),
     etaMin = cms.double(0.0),
     etaMax = cms.double(2.1),
-    ptMin = cms.double(20.0)
-    
+    ptMin = cms.double(20.0),
+# parameter for denominator
+   massMinZMC = cms.double(60.0)        
 )
 
 process.mcPath = cms.Path(
     process.zToMuMuMC*
-    process.distortedMuons *
+#    process.distortedMuons *
     process.goodMuonMCMatch *
     process.dimuons *
     process.dimuonsMCMatch* 
