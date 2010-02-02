@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.17 2009/11/20 00:39:12 lorenzo Exp $
+// $Id: HLTScalers.cc,v 1.18 2010/02/02 11:42:53 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.18  2010/02/02 11:42:53  wittich
+// new diagnostic histograms
+//
 // Revision 1.17  2009/11/20 00:39:12  lorenzo
 // fixes
 //
@@ -154,7 +157,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 		         	npath, -0.5, npath-0.5,
 				npath, -0.5, npath-0.5);
 
-    hltBxVsPath_ = dbe_->book2D("hltBx", "HLT Accept vs Bunch Number", 
+    hltBxVsPath_ = dbe_->book2D("hltBxVsPath", "HLT Accept vs Bunch Number", 
 				3600, -0.5, 3599.5,
 				npath, -0.5, npath-0.5);
     hltBx_ = dbe_->book1D("hltBx", "Bx of HLT Accepted Events ", 
@@ -202,7 +205,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   }
   if ( accept ) {
     hltOverallScaler_->Fill(1.0);
-    hltBx_->Fill(bx);
+    hltBx_->Fill(int(bx));
   }
   
 }
