@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.46 2010/01/29 16:15:35 babar Exp $
+# $Id: setup_sm.sh,v 1.47 2010/02/01 11:09:51 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -247,7 +247,7 @@ start () {
 		fi
             ;;
             4)
-                for i in ${mount[@]}; do
+                for i in ${mounts[@]}; do
                     mountByLabel $i
                 done
             ;;
