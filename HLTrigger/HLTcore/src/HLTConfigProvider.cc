@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/17 21:01:52 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/12/17 21:18:26 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -35,6 +35,8 @@ void HLTConfigProvider::clear()
 
    pathNames_.clear();
    endpathNames_.clear();
+
+   hltL1GTSeeds_.clear();
 
    prescaleLabels_.clear();
    prescaleIndex_.clear();
@@ -205,6 +207,24 @@ void HLTConfigProvider::extract()
      }
    }
 
+   // Extract and fill HLTLevel1GTSeed information for each trigger path
+   hltL1GTSeeds_.resize(n);
+   for (unsigned int i=0; i!=n; ++i) {
+     hltL1GTSeeds_[i].clear();
+     const unsigned int m(size(i));
+     for (unsigned int j=0; j!=m; ++j) {
+       const string& label(moduleLabels_[i][j]);
+       if (label == "HLTLevel1GTSeed") {
+	 const ParameterSet pset(modulePSet(label));
+	 if (pset!=ParameterSet()) {
+	   const bool   l1Tech(pset.getParameter<bool>("L1TechTriggerSeeding"));
+	   const string l1Seed(pset.getParameter<string>("L1SeedsLogicalExpression"));
+	   hltL1GTSeeds_[i].push_back(pair<bool,string>(l1Tech,l1Seed));
+	 }
+       }
+     }
+   }
+
    // Extract and fill PrescaleService information
    prescaleValues_.resize(n);
    for (unsigned int i=0; i!=n; ++i) {
@@ -355,6 +375,19 @@ const edm::ParameterSet HLTConfigProvider::modulePSet(const std::string& module)
     return edm::ParameterSet();
   }
 }
+
+const std::vector<std::vector<std::pair<bool,std::string> > >& HLTConfigProvider::hltL1GTSeeds() const {
+  return hltL1GTSeeds_;
+}
+
+const std::vector<std::pair<bool,std::string> >& HLTConfigProvider::hltL1GTSeeds(const std::string& trigger) const {
+  return hltL1GTSeeds(triggerIndex(trigger));
+}
+
+const std::vector<std::pair<bool,std::string> >& HLTConfigProvider::hltL1GTSeeds(unsigned int trigger) const {
+  return hltL1GTSeeds_.at(trigger);
+}
+
 
 /*
 const std::vector<std::string>& HLTConfigProvider::prescaleLabels() const {

@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2009/12/16 11:03:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/12/16 12:15:46 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -81,6 +81,10 @@ class HLTConfigProvider {
   /// ParameterSet of module
   const edm::ParameterSet modulePSet(const std::string& module) const;
 
+  /// HLTLevel1GTSeed module
+  const std::vector<std::vector<std::pair<bool,std::string> > >& hltL1GTSeeds() const;
+  const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(const std::string& trigger) const;
+  const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(unsigned int trigger) const;
 
   /*  Not useable: PrescaleService configuration is not saved in Provenance
   /// PrescaleService accessors
@@ -112,7 +116,7 @@ class HLTConfigProvider {
     processName_(""), registry_(), processPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
-    pathNames_(), endpathNames_(),
+    pathNames_(), endpathNames_(), hltL1GTSeeds_(),
     prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
 
  private:
@@ -132,6 +136,8 @@ class HLTConfigProvider {
 
   std::vector<std::string> pathNames_;
   std::vector<std::string> endpathNames_;
+
+  std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
 
   std::vector<std::string> prescaleLabels_;
   std::map<std::string,unsigned int> prescaleIndex_;
