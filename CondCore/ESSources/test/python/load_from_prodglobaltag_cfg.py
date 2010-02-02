@@ -114,7 +114,7 @@ if (len(options.add)>5):
   (aclass, arecord,atag,acs) = options.add.split(',')
   process.GlobalTag.toGet.append(
     cms.PSet(record = cms.string(arecord.strip()),
-             atag = cms.string(otag.strip()),
+             tag = cms.string(atag.strip()),
              connect = cms.untracked.string(acs.strip())
              )
     )
