@@ -93,8 +93,8 @@ if(options.source=="oracle") :
 #process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
 #process.GlobalTag.pfnPrefix = "oracle://cmsarc_lb/"
 #process.GlobalTag.pfnPostfix = "_0912"
-#process.GlobalTag.toGet = cms.VPSet()
 if (len(options.overwrite)>4):
+  process.GlobalTag.toGet = cms.VPSet()
   (orecord,otag,ocs) = options.overwrite.split(',')
   process.GlobalTag.toGet.append(
     cms.PSet(record = cms.string(orecord.strip()),
