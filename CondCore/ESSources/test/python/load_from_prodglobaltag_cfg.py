@@ -7,11 +7,27 @@ options.register('runNumber',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number; default gives latest IOV")
+options.register('runInterval',
+                 0, #default just one run
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run used is runNunber+/-Interval; default 0")
 options.register('globalTag',
                  'IDEAL', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")
+options.register('source',
+                 'frontier', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "source: frontier, oracle, snapshot ")
+options.register('record',
+                 'ALL', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "record: either ALL or just one ")
+
 options.parseArguments()
 
 
@@ -30,14 +46,24 @@ globalTag = rdbms.globalTag(gdbName,gName,"","")
 import FWCore.ParameterSet.Config as cms
 
 records = cms.VPSet()
-for tag in globalTag.elements:
-    records.append(
-      cms.PSet(
-        record = cms.string(tag.record),
-        data = cms.vstring(tag.object)
-        )
-      )
-
+if ( options.record=="ALL") :
+    for tag in globalTag.elements:
+        records.append(
+            cms.PSet(
+            record = cms.string(tag.record),
+            data = cms.vstring(tag.object)
+            )
+            )
+else :
+     for tag in globalTag.elements:
+        if (tag.record==options.record) :
+            records.append(
+                cms.PSet(
+                record = cms.string(tag.record),
+                data = cms.vstring(tag.object)
+                )
+                )
+            break
 
 process = cms.Process("TEST")
 
@@ -56,9 +82,11 @@ process.GlobalTag.DBParameters.messageLevel = 0
 process.GlobalTag.DBParameters.transactionId = cms.untracked.string("")
 
 
+if(option.source=="oracle") :
+  process.GlobalTag.pfnPrefix = cms.untracked.string('oracle://cms_orcoff_prod/')
 
-#process.GlobalTag.pfnPrefix = cms.untracked.string('oracle://cms_orcoff_prod/')
 #process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
+#process.GlobalTag.pfnPrefix = "oracle://cmsarc_lb/"
 #process.GlobalTag.pfnPostfix = "_0912"
 #process.GlobalTag.toGet = cms.VPSet()
 #process.GlobalTag.toGet.append(
@@ -69,9 +97,9 @@ process.GlobalTag.DBParameters.transactionId = cms.untracked.string("")
 #)
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(options.runNumber+1),
+    lastValue = cms.uint64(options.runNumber+options.runInterval),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(options.runNumber-1),
+    firstValue = cms.uint64(options.runNumber-options.runInterval),
     interval = cms.uint64(1)
 )
 
