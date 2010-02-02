@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/02 16:49:54 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/02/02 18:15:53 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -327,6 +327,36 @@ void HLTConfigProvider::dump (const std::string& what) const {
        cout << endl;
        cout << " - Number of HLTPrescaler/HLTLevel1GTSeed modules: " 
 	    << nHLTPrescalers << "/" << nHLTLevel1GTSeed << endl;
+     }
+   } else if (what=="StreamNames") {
+     const unsigned int n(streamNames_.size());
+     cout << "HLTConfigProvider::dump: StreamNames: " << n << endl;
+     for (unsigned int i=0; i!=n; ++i) {
+       cout << "  " << i << " " << streamNames_[i] << endl;
+     }
+   } else if (what=="Streams") {
+     const unsigned int n(streamNames_.size());
+     cout << "HLTConfigProvider::dump: StreamNames: " << n << endl;
+     for (unsigned int i=0; i!=n; ++i) {
+       cout << "  " << i << " " << streamNames_[i] << endl;
+       for (unsigned int j=0; j!=streamContents_[i].size(); ++j) {
+	 cout << " " << j << " " << streamContents_[i][j] << endl;
+       }
+     }
+   } else if (what=="DatasetNames") {
+     const unsigned int n(datasetNames_.size());
+     cout << "HLTConfigProvider::dump: DatasetNames: " << n << endl;
+     for (unsigned int i=0; i!=n; ++i) {
+       cout << "  " << i << " " << datasetNames_[i] << endl;
+     }
+   } else if (what=="Datasets") {
+     const unsigned int n(datasetNames_.size());
+     cout << "HLTConfigProvider::dump: DatasetNames: " << n << endl;
+     for (unsigned int i=0; i!=n; ++i) {
+       cout << "  " << i << " " << datasetNames_[i] << endl;
+       for (unsigned int j=0; j!=datasetContents_[i].size(); ++j) {
+	 cout << "  " << j << " " << datasetContents_[i][j] << endl;
+       }
      }
    } else {
      cout << "HLTConfigProvider::dump: Unkown dump request: " << what << endl;
