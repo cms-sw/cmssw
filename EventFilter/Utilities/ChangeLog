@@ -1,6 +1,14 @@
+2010-02-02  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-17-09
+	* update edmConfigFromDB: options --v1 (default) and --v0 added,
+	allowing to switch between the old and new webserver. Kindly
+	provided by Andrea Bocci.
+
 2009-11-06  Emilio Meschi <emilio.meschi@cern.ch>
 
-	* tag V00-17-04 (01-02-03 used by some wiseguy to change includes [probably Peter Elment])
+	* tag V00-17-04 (01-02-03 used by some wiseguy to change includes
+	[probably Peter Elment])
 	* Changed microstate name from IN to INPUT and from IND to INPUTDONE
 
 2009-10-19  Emilio Meschi <emilio.meschi@cern.ch>
