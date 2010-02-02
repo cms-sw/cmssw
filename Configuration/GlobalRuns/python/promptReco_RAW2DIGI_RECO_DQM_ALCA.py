@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.12 $'),
+    version = cms.untracked.string('$Revision: 1.13 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -67,7 +67,7 @@ process.ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverla
 process.ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_P_V6::All'
+process.GlobalTag.globaltag = 'GR09_P_V8_34X::All'
 
 # Path and EndPath definitions
 

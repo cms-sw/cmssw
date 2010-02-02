@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.9 $'),
+    version = cms.untracked.string('$Revision: 1.10 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -67,8 +67,7 @@ process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
 process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_P_V7::All'
-
+process.GlobalTag.globaltag = 'GR09_P_V8_34X::All'
 
 
 #####################################################################################################
@@ -78,11 +77,43 @@ process.GlobalTag.globaltag = 'GR09_P_V7::All'
 
 ## TRACKING:
 ## Skip events with HV off
+process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
-process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.dedxTruncated40.UsePixel = cms.bool(False)
+process.dedxMedian.UsePixel = cms.bool(False)
+process.dedxHarmonic2.UsePixel = cms.bool(False)
 
-## PV Overrides 
+###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
+
+### pixelTracks
+#---- replaces ----
+process.pixelTracks.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06) # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
+process.pixelTracks.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+### 0th step of iterative tracking
+#---- replaces ----
+process.newSeedFromTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+### 2nd step of iterative tracking
+#---- replaces ----
+process.secTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
+process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+
+## Primary Vertex
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 6
@@ -96,28 +127,23 @@ process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
 process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
-## ECAL temporary fixes
-process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
-process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEB = 1.138
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEB = 1.655
-process.ecalFixedAlphaBetaFitUncalibRecHit.alphaEE = 1.890
-process.ecalFixedAlphaBetaFitUncalibRecHit.betaEE = 1.400
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+## ECAL 
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 
+##Preshower
 process.ecalPreshowerRecHit.ESGain = 2
 process.ecalPreshowerRecHit.ESBaseline = 0
 process.ecalPreshowerRecHit.ESMIPADC = 55
 
+##only for 34X
+process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
+
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
+
+process.zdcreco.firstSample = 4
+process.zdcreco.samplesToAdd = 3
 
 ## EGAMMA
 process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
@@ -132,21 +158,18 @@ process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
 process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
 process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
 process.gsfElectrons.applyPreselection = cms.bool(False)
-
-#Lower Photon reconstruction threshold
 process.photons.minSCEtBarrel = 1.
 process.photons.minSCEtEndcap =1.
 process.photonCore.minSCEt = 1.
 process.conversionTrackCandidates.minSCEt =1.
 process.conversions.minSCEt =1.
-
 process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
 process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
 process.trackerOnlyConversions.MinApproach = cms.double(-.25)
 process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
 process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
 
-
+###
 ###  end of top level replacements
 ###
 ###############################################################################################
