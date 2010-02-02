@@ -60,6 +60,10 @@ def loadPAT(process,JetMetCorrections):
     process.muonMatch.checkCharge     = False
     process.tauMatch.checkCharge      = False
     process.tauMatch.maxDeltaR        = cms.double(0.3)
+    process.jetPartonMatch.maxDeltaR  = cms.double(0.25)
+    process.jetPartonMatch.maxDPtRel  = cms.double(999999.)
+    process.jetGenJetMatch.maxDeltaR  = cms.double(0.25)
+    process.jetGenJetMatch.maxDPtRel  = cms.double(999999.)
 
     #-- Jet corrections -----------------------------------------------------------
     process.jetCorrFactors.corrSample = JetMetCorrections ## 'Summer09' for 10TeV, 'Summer09_7TeV' for 7TeV no ReReco
