@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.16 2008/09/03 13:59:06 wittich Exp $
+// $Id: HLTScalers.cc,v 1.17 2009/11/20 00:39:12 lorenzo Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.17  2009/11/20 00:39:12  lorenzo
+// fixes
+//
 // Revision 1.16  2008/09/03 13:59:06  wittich
 // make HLT DQM path configurable via python parameter,
 // which defaults to HLT/HLTScalers_EvF
@@ -67,7 +70,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
 
 
 
-  LogDebug("Status") << "HLTScalers: constructor...." ;
+  LogDebug("HLTScalers") << "HLTScalers: constructor...." ;
 
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
@@ -82,14 +85,23 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
 
 void HLTScalers::beginJob(void)
 {
-  LogDebug("Status") << "HLTScalers::beginJob()..." << std::endl;
+  LogDebug("HLTScalers") << "HLTScalers::beginJob()..." << std::endl;
 
   if (dbe_) {
-    dbe_->setCurrentFolder(folderName_);
+    std::string rawdir(folderName_ + "/raw");
+    dbe_->setCurrentFolder(rawdir);
 
 
     nProc_ = dbe_->bookInt("nProcessed");
     nLumiBlock_ = dbe_->bookInt("nLumiBlock");
+    diagnostic_ = dbe_->book1D("hltMerge", "HLT merging diagnostic", 
+			       1, 0.5, 1.5);
+    diagnostic_->Fill(1); // this ME is never touched - 
+    // it just tells you how the merging is doing.
+
+    // fill for ever accepted event 
+    hltOverallScaler_ = dbe_->book1D("hltOverallScaler", "HLT Overall Scaler", 
+				     1, 0.5, 1.5);
 
     // other ME's are now found on the first event of the new run, 
     // when we know more about the HLT configuration.
@@ -116,14 +128,15 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 
   // on the first event of a new run we book new ME's
   if (resetMe_ ) {
-    LogInfo("Parameter") << "analyze(): new run. dump path for this evt " 
+    LogInfo("HLTScalers") << "analyze(): new run. dump path for this evt " 
 			 << e.id() << ", \n"
 			 << *hltResults ;
     // need to get maxModules dynamically
     int maxModules = 200;
     //int npaths=hltResults->size();
 
-    dbe_->setCurrentFolder(folderName_);
+    std::string rawdir(folderName_ + "/raw");
+    dbe_->setCurrentFolder(rawdir);
 
 
     detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
@@ -141,6 +154,12 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 		         	npath, -0.5, npath-0.5,
 				npath, -0.5, npath-0.5);
 
+    hltBxVsPath_ = dbe_->book2D("hltBx", "HLT Accept vs Bunch Number", 
+				3600, -0.5, 3599.5,
+				npath, -0.5, npath-0.5);
+    hltBx_ = dbe_->book1D("hltBx", "Bx of HLT Accepted Events ", 
+			  3600, -0.5, 3599.5);
+
     resetMe_ = false;
     // save path names in DQM-accessible format
     int q =0;
@@ -148,7 +167,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 	    j = names.triggerNames().begin();
 	  j !=names.triggerNames().end(); ++j ) {
       
-      LogDebug("Parameter") << q << ": " << *j ;
+      LogDebug("HLTScalers") << q << ": " << *j ;
       char pname[256];
       snprintf(pname, 256, "path%03d", q);
       ++q;
@@ -158,7 +177,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   } // end resetme_ - pseudo-end-run record
   
 
-
+  bool accept = false;
+  int bx = e.bunchCrossing();
   for ( int i = 0; i < npath; ++i ) {
     // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
     // these are defined in HLTEnums.h
@@ -167,6 +187,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     }
     if ( hltResults->state(i) == hlt::Pass) {
       scalers_->Fill(i);
+      hltBxVsPath_->Fill(bx, i);
+      accept = true;
       for ( int j = i + 1; j < npath; ++j ) {
 	if ( hltResults->state(j) == hlt::Pass) {
 	  hltCorrelations_->Fill(i,j); // fill 
@@ -177,6 +199,10 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     else if ( hltResults->state(i) == hlt::Exception) {
       scalersException_->Fill(i);
     }
+  }
+  if ( accept ) {
+    hltOverallScaler_->Fill(1.0);
+    hltBx_->Fill(bx);
   }
   
 }
@@ -189,7 +215,7 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // each lumi block is 93 seconds in length
   nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
  
-  LogDebug("Status") << "End of luminosity block." ;
+  LogDebug("HLTScalers") << "End of luminosity block." ;
 
 }
 
@@ -197,7 +223,7 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 /// BeginRun
 void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("Status") << "HLTScalers::beginRun, run "
+  LogDebug("HLTScalers") << "HLTScalers::beginRun, run "
 		     << run.id();
   if ( currentRun_ != int(run.id().run()) ) {
     resetMe_ = true;
@@ -208,7 +234,7 @@ void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
 /// EndRun
 void HLTScalers::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("Status") << "HLTScalers::endRun , run "
+  LogDebug("HLTScalers") << "HLTScalers::endRun , run "
 		     << run.id();
   if ( currentRun_ != int(run.id().run()) ) {
     resetMe_ = true;
