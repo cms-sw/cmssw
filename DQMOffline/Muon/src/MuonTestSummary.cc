@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/19 17:56:49 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/02/02 18:25:58 $
+ *  $Revision: 1.30 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -782,6 +782,11 @@ void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  
   }
   else{
     LogTrace(metname) << "[MuonTestSummary]: Test of  Res_"<<type<<"_"<<parameter<< " not performed because # entries < 20 ";
+    //auto-pass if not enough events.
+    mean=1;
+    mean_err=1;
+    sigma=1;
+    sigma_err=1;
   }
 }  
 
@@ -1139,7 +1144,15 @@ void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string>
       
     }//histogram exists...
   } // loop over residuals histos
-  
+
+
+  if(numPlot==0){ //eg no stats
+    Mean_err = 1;
+    Mean=1;
+    Sigma_err =1;
+    Sigma = 1; 
+  }
+  else{
   Mean_err = sqrt(Mean_err);
   Mean_err/=numPlot;
   Mean/=numPlot;
@@ -1147,7 +1160,7 @@ void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string>
   Sigma_err = sqrt(Sigma_err);
   Sigma_err/=numPlot;
   Sigma/=numPlot;
-
+  }
   return;
 
 }
