@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.21 2009/11/15 16:42:16 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.22 2010/02/02 18:36:28 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -329,7 +329,12 @@ void CommissioningHistosUsingDb::buildDetInfo() {
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
       if ( !dcu ) { continue; }
       if ( dcu->getDcuType() != "FEH" ) { continue; }
-      
+
+      // S.L. 29/1/2010
+      // HARDCODED!!! We have a broken module, known from Pisa integration tests
+      // We could really use a better solutin for this than hardcode it!!!
+      if ( dcu->getDcuHardId() == 16448250 ) continue; // fake dcu (0xfafafa)
+
       // Find TkDcuInfo object corresponding to given DCU description
       SiStripConfigDb::DcuDetIdsV::const_iterator idet = dets.end();
       idet = SiStripConfigDb::findDcuDetId( dets.begin(), dets.end(), dcu->getDcuHardId() );
