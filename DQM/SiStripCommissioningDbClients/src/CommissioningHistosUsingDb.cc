@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.20 2009/11/10 14:49:02 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.21 2009/11/15 16:42:16 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -116,6 +116,7 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " Starting from partition " << ip->first
       << " with versions:\n" << std::dec
+      << "   Conn: " << ip->second.cabVersion().first << "." << ip->second.cabVersion().second << "\n"
       << "   FED:  " << ip->second.fedVersion().first  << "." << ip->second.fedVersion().second << "\n"
       << "   FEC:  " << ip->second.fecVersion().first  << "." << ip->second.fecVersion().second << "\n"
       << "   Mask: " << ip->second.maskVersion().first << "." << ip->second.maskVersion().second;
@@ -172,7 +173,10 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
             << "[CommissioningHistosUsingDb::" << __func__ << "]"
             << " Created new version for partition " << ip->first
             << ". Current state:\n" << std::dec
-            << "   FED:  " << (*istate)->getFedVersionMajorId() << "." << (*istate)->getFedVersionMinorId();
+            << "   Conn: " << (*istate)->getConnectionVersionMajorId() << "." << (*istate)->getConnectionVersionMinorId() << "\n"
+            << "   FED:  " << (*istate)->getFedVersionMajorId()  << "." << (*istate)->getFedVersionMinorId() << "\n"
+            << "   FEC:  " << (*istate)->getFecVersionMajorId()  << "." << (*istate)->getFecVersionMinorId() << "\n"
+            << "   Mask: " << (*istate)->getMaskVersionMajorId() << "." << (*istate)->getMaskVersionMinorId();
         }
       }
     }
