@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/02 16:44:12 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/02/02 16:49:54 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -37,6 +37,13 @@ void HLTConfigProvider::clear()
    endpathNames_.clear();
 
    hltL1GTSeeds_.clear();
+
+   streamNames_.clear();
+   streamContents_.clear();
+   streamIndex_.clear();
+   datasetNames_.clear();
+   datasetContents_.clear();
+   datasetIndex_.clear();
 
    prescaleLabels_.clear();
    prescaleIndex_.clear();
@@ -225,6 +232,31 @@ void HLTConfigProvider::extract()
      }
    }
 
+   // Extract and fill streams information
+   if (processPSet_.existsAs<ParameterSet>("streams",true)) {
+     const ParameterSet streams(processPSet_.getParameterSet("streams"));
+     streamNames_=streams.getParameterNamesForType<vector<string> >();
+     const unsigned int n(streamNames_.size());
+     streamContents_.resize(n);
+     for (unsigned int i=0; i!=n; ++i) {
+       streamContents_[i]=streams.getParameter<vector<string> >(streamNames_[i]);
+       streamIndex_[streamNames_[i]]=i;
+     }
+     
+   }
+
+   // Extract and fill datasets information
+   if (processPSet_.existsAs<ParameterSet>("datasets",true)) {
+     const ParameterSet datasets(processPSet_.getParameterSet("datasets"));
+     datasetNames_=datasets.getParameterNamesForType<vector<string> >();
+     const unsigned int n(datasetNames_.size());
+     datasetContents_.resize(n);
+     for (unsigned int i=0; i!=n; ++i) {
+       datasetContents_[i]=datasets.getParameter< vector<string> >(datasetNames_[i]);
+       datasetIndex_[datasetNames_[i]]=i;
+     }
+   }
+
    // Extract and fill PrescaleService information
    prescaleValues_.resize(n);
    for (unsigned int i=0; i!=n; ++i) {
@@ -386,6 +418,67 @@ const std::vector<std::pair<bool,std::string> >& HLTConfigProvider::hltL1GTSeeds
 
 const std::vector<std::pair<bool,std::string> >& HLTConfigProvider::hltL1GTSeeds(unsigned int trigger) const {
   return hltL1GTSeeds_.at(trigger);
+}
+
+/// Streams                                                                   
+const std::vector<std::string>& HLTConfigProvider::streamNames() const {
+  return streamNames_;
+}
+
+const std::string& HLTConfigProvider::streamName(unsigned int stream) const {
+  return streamNames_.at(stream);
+}
+
+
+unsigned int HLTConfigProvider::streamIndex(const std::string& stream) const {
+  const std::map<std::string,unsigned int>::const_iterator index(streamIndex_.find(stream));
+  if (index==streamIndex_.end()) {
+    return streamNames_.size();
+  } else {
+    return index->second;
+  }
+}
+
+const std::vector<std::vector<std::string> >& HLTConfigProvider::streamContents() const {
+  return streamContents_;
+}
+
+const std::vector<std::string>& HLTConfigProvider::streamContent(unsigned int stream) const {
+  return streamContents_.at(stream);
+}
+
+const std::vector<std::string>& HLTConfigProvider::streamContent(const std::string& stream) const {
+  return streamContent(streamIndex(stream));
+}
+
+/// Datasets                                                                  
+const std::vector<std::string>& HLTConfigProvider::datasetNames() const {
+  return datasetNames_;
+}
+
+const std::string& HLTConfigProvider::datasetName(unsigned int dataset) const {
+  return datasetNames_.at(dataset);
+}
+
+unsigned int HLTConfigProvider::datasetIndex(const std::string& dataset) const {
+  const std::map<std::string,unsigned int>::const_iterator index(datasetIndex_.find(dataset));
+  if (index==datasetIndex_.end()) {
+    return datasetNames_.size();
+  } else {
+    return index->second;
+  }
+}
+
+const std::vector<std::vector<std::string> >& HLTConfigProvider::datasetContents() const {
+  return datasetContents_;
+}
+
+const std::vector<std::string>& HLTConfigProvider::datasetContent(unsigned int dataset) const {
+  return datasetContents_.at(dataset);
+}
+
+const std::vector<std::string>& HLTConfigProvider::datasetContent(const std::string& dataset) const {
+  return datasetContent(datasetIndex(dataset));
 }
 
 

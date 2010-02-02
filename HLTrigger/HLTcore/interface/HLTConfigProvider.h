@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2009/12/16 12:15:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/02/02 16:44:12 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -86,6 +86,22 @@ class HLTConfigProvider {
   const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(const std::string& trigger) const;
   const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(unsigned int trigger) const;
 
+  /// Streams
+  const std::vector<std::string>& streamNames() const;
+  const std::string& streamName(unsigned int stream) const;
+  unsigned int streamIndex(const std::string& stream) const;
+  const std::vector<std::vector<std::string> >& streamContents() const;
+  const std::vector<std::string>& streamContent(unsigned int stream) const;
+  const std::vector<std::string>& streamContent(const std::string& stream) const;
+
+  /// Datasets
+  const std::vector<std::string>& datasetNames() const;
+  const std::string& datasetName(unsigned int dataset) const;
+  unsigned int datasetIndex(const std::string& dataset) const;
+  const std::vector<std::vector<std::string> >& datasetContents() const;
+  const std::vector<std::string>& datasetContent(unsigned int dataset) const;
+  const std::vector<std::string>& datasetContent(const std::string& dataset) const;
+
   /*  Not useable: PrescaleService configuration is not saved in Provenance
   /// PrescaleService accessors
 
@@ -117,6 +133,8 @@ class HLTConfigProvider {
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
     pathNames_(), endpathNames_(), hltL1GTSeeds_(),
+    streamNames_(), streamContents_(), streamIndex_(),
+    datasetNames_(), datasetContents_(), datasetIndex_(),
     prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
 
  private:
@@ -138,6 +156,14 @@ class HLTConfigProvider {
   std::vector<std::string> endpathNames_;
 
   std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
+
+  std::vector<std::string> streamNames_;
+  std::vector<std::vector<std::string> > streamContents_;
+  std::map<std::string,unsigned int> streamIndex_;
+
+  std::vector<std::string> datasetNames_;
+  std::vector<std::vector<std::string> > datasetContents_;
+  std::map<std::string,unsigned int> datasetIndex_;
 
   std::vector<std::string> prescaleLabels_;
   std::map<std::string,unsigned int> prescaleIndex_;
