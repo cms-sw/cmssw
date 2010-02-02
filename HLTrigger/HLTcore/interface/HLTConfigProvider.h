@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/02 16:44:12 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/02/02 18:15:52 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -133,8 +133,8 @@ class HLTConfigProvider {
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
     pathNames_(), endpathNames_(), hltL1GTSeeds_(),
-    streamNames_(), streamContents_(), streamIndex_(),
-    datasetNames_(), datasetContents_(), datasetIndex_(),
+    streamNames_(), streamIndex_(), streamContents_(),
+    datasetNames_(), datasetIndex_(), datasetContents_(),
     prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
 
  private:
@@ -158,12 +158,12 @@ class HLTConfigProvider {
   std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
 
   std::vector<std::string> streamNames_;
-  std::vector<std::vector<std::string> > streamContents_;
   std::map<std::string,unsigned int> streamIndex_;
+  std::vector<std::vector<std::string> > streamContents_;
 
   std::vector<std::string> datasetNames_;
-  std::vector<std::vector<std::string> > datasetContents_;
   std::map<std::string,unsigned int> datasetIndex_;
+  std::vector<std::vector<std::string> > datasetContents_;
 
   std::vector<std::string> prescaleLabels_;
   std::map<std::string,unsigned int> prescaleIndex_;
