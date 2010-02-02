@@ -28,10 +28,15 @@ options.register('record',
                  VarParsing.VarParsing.varType.string,
                  "record: either ALL or just one ")
 options.register('overwrite',
-                 '', #default one
+                 '', #default none
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "record,tag,connectionstring")
+options.register('add',
+                 '', #default none
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "class,record,tag,connectionstring")
 
 options.parseArguments()
 
@@ -46,6 +51,7 @@ logName = "oracle://cms_orcoff_prod/CMS_COND_31X_POPCONLOG"
 gdbName = "oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG"
 gName = options.globalTag+'::All'
 globalTag = rdbms.globalTag(gdbName,gName,"","")
+
 
 
 import FWCore.ParameterSet.Config as cms
@@ -93,8 +99,9 @@ if(options.source=="oracle") :
 #process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
 #process.GlobalTag.pfnPrefix = "oracle://cmsarc_lb/"
 #process.GlobalTag.pfnPostfix = "_0912"
+process.GlobalTag.toGet = cms.VPSet()
+
 if (len(options.overwrite)>4):
-  process.GlobalTag.toGet = cms.VPSet()
   (orecord,otag,ocs) = options.overwrite.split(',')
   process.GlobalTag.toGet.append(
     cms.PSet(record = cms.string(orecord.strip()),
@@ -102,6 +109,23 @@ if (len(options.overwrite)>4):
              connect = cms.untracked.string(ocs.strip())
              )
     )
+
+if (len(options.add)>5):
+  (aclass, arecord,atag,acs) = options.add.split(',')
+  process.GlobalTag.toGet.append(
+    cms.PSet(record = cms.string(arecord.strip()),
+             atag = cms.string(otag.strip()),
+             connect = cms.untracked.string(acs.strip())
+             )
+    )
+  records.append(
+    cms.PSet(
+    record = cms.string(arecord.strip()),
+    data = cms.vstring(aclass.strip())
+    )
+    )
+
+
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(options.runNumber+options.runInterval),
