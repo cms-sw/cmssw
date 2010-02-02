@@ -23,16 +23,28 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+#process.load("ElectroWeakAnalysis/ZMuMu/OCTSUBSKIM_cff")
+
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX/zmm_v2/testZMuMuSubSkim_1.root",
+
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/zmm/testZMuMuSubSkim_1.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/zmm/testZMuMuSubSkim_2.root",
+#    "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_1.root",
+#    "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_2.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_3.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_4.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_5.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_6.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/TTbar/testZMuMuSubSkim_1.root",
+
     )
 )
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("Analysis_AllOPlots.root")
+    fileName = cms.string("Analysis_zmm_10TeV_SameCharge.root")
 )
 
 zSelection = cms.PSet(
@@ -61,9 +73,8 @@ zSelection = cms.PSet(
 #   alpha = cms.untracked.double("0."),
 #   beta = cms.untracked.double("-0.75"),
 #   relativeIsolation = cms.bool(False)
-
-
  )
+
 
 process.goodZToMuMu = cms.EDFilter(
     "ZToMuMuIsolatedIDSelector",
@@ -71,6 +82,24 @@ process.goodZToMuMu = cms.EDFilter(
     src = cms.InputTag("dimuonsGlobal"),
     filter = cms.bool(True) 
 )
+
+
+
+# same charge dimuons....
+process.dimuonsGlobalSameCharge = cms.EDFilter("CandViewRefSelector",
+    src = cms.InputTag("dimuons"),
+    cut = cms.string('mass > 20 & daughter(0).isGlobalMuon = 1 & daughter(1).isGlobalMuon = 1')
+)
+
+process.goodZToMuMuSameCharge = cms.EDFilter(
+    "ZToMuMuIsolatedIDSelector",
+    zSelection,
+    src = cms.InputTag("dimuonsGlobalSameCharge"),
+    filter = cms.bool(True) 
+)
+process.goodZToMuMuSameCharge.cut=cms.string("charge!=0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 20")
+
+
 #ZMuMu: requiring at least  1 HLT trigger match (for the shape)
 process.goodZToMuMuAtLeast1HLT = cms.EDFilter(
     "ZHLTMatchFilter",
@@ -79,6 +108,9 @@ process.goodZToMuMuAtLeast1HLT = cms.EDFilter(
     hltPath = cms.string("HLT_Mu9"),
     filter = cms.bool(True) 
 )
+
+
+
 
 #ZMuMu: requiring  2 HLT trigger match
 process.goodZToMuMu2HLT = cms.EDFilter(
@@ -390,8 +422,6 @@ cms.PSet(
 ## dz1 = " daughter(1).vz -  ( daughter(1).vx * daughter(1).px  + daughter(1).vy * daughter(1).py) / daughter(1).pt *  daughter(1).pz / daughter(1).pt "
 
 
-
-
 #ZMuMu at least 1 HLT + 2 track-iso (Shape)
 goodZToMuMuPlotsTemplate = cms.EDAnalyzer(
     "CandViewHistoAnalyzer",
@@ -476,6 +506,40 @@ process.goodZToMuMuOneStandAloneMuonPlots.src = cms.InputTag("goodZToMuMuOneStan
 process.goodZToMuMuOneTrackPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMuOneTrackPlots.src = cms.InputTag("goodZToMuMuOneTrackFirstHLT")
 
+
+#ZMuMu same charge
+process.goodZToMuMuSameChargeAtLeast1HLT = copy.deepcopy(process.goodZToMuMuAtLeast1HLT)
+process.goodZToMuMuSameChargeAtLeast1HLT.src= cms.InputTag("goodZToMuMuSameCharge")
+
+process.goodZToMuMuSameChargeAtLeast1HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+process.goodZToMuMuSameChargeAtLeast1HLTPlots.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLT")
+process.goodZToMuMuSameCharge2HLT = copy.deepcopy(process.goodZToMuMu2HLT)
+process.goodZToMuMuSameCharge2HLT.src= cms.InputTag("goodZToMuMuSameCharge")
+
+process.goodZToMuMuSameCharge2HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+process.goodZToMuMuSameCharge2HLTPlots.src = cms.InputTag("goodZToMuMuSameCharge2HLT")
+
+process.goodZToMuMuSameCharge1HLT = copy.deepcopy(process.goodZToMuMu1HLT)
+process.goodZToMuMuSameCharge1HLT.src= cms.InputTag("goodZToMuMuSameCharge")
+
+process.goodZToMuMuSameCharge1HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+process.goodZToMuMuSameCharge1HLTPlots.src = cms.InputTag("goodZToMuMuSameCharge1HLT")
+
+
+process.globalMuQualityCutsAnalysis= cms.EDAnalyzer(
+    "GlbMuQualityCutsAnalysis",
+    src = cms.InputTag("goodZToMuMuAtLeast1HLT"), 
+    ptMin = cms.untracked.double("0.0"),
+    massMin = cms.untracked.double("0.0"),
+    massMax = cms.untracked.double("120.0"),
+    etaMin = cms.untracked.double("-1.0"),
+    etaMax = cms.untracked.double("10.0"),
+    trkIso = cms.untracked.double("10000"),
+    chi2Cut = cms.untracked.double("10"),
+    nHitCut = cms.untracked.int32(10)
+ )
+
+
 # N-tuples
 
 process.goodZToMuMuOneStandAloneMuonNtuple = cms.EDProducer(
@@ -497,9 +561,11 @@ process.initialGoodZToMuMuPath = cms.Path(
 addModulesFromTemplate(
     process.goodZToMuMu +
     process.goodZToMuMuAtLeast1HLT+
-    process.goodZToMuMuPlots,
+    process.goodZToMuMuPlots +
+    process.globalMuQualityCutsAnalysis,
     "goodZToMuMu", "goodZToMuMu",
     "double")
+
 
 addModulesFromTemplate(
     process.goodZToMuMu +
@@ -514,6 +580,38 @@ addModulesFromTemplate(
     process.goodZToMuMu1HLTPlots,
     "goodZToMuMu1HLT", "goodZToMuMu1HLT",
     "double")
+
+process.globalMuQualityCutsAnalysisSameCharge = copy.deepcopy(process.globalMuQualityCutsAnalysis)
+process.globalMuQualityCutsAnalysisSameCharge.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLT")
+
+addModulesFromTemplate(
+    process.dimuonsGlobalSameCharge+
+    process.goodZToMuMuSameCharge +
+    process.goodZToMuMuSameChargeAtLeast1HLT+
+    process.goodZToMuMuSameChargeAtLeast1HLTPlots +
+    process.globalMuQualityCutsAnalysisSameCharge,
+    "goodZToMuMuSameCharge", "goodZToMuMuSameCharge",
+    "double")
+
+
+addModulesFromTemplate(
+    process.dimuonsGlobalSameCharge+
+    process.goodZToMuMuSameCharge +
+    process.goodZToMuMuSameCharge2HLT +
+    process.goodZToMuMuSameCharge2HLTPlots,
+    "goodZToMuMuSameCharge2HLT", "goodZToMuMuSameCharge2HLT",
+    "double")
+
+addModulesFromTemplate(
+    process.dimuonsGlobalSameCharge+
+    process.goodZToMuMuSameCharge +
+    process.goodZToMuMuSameCharge1HLT +
+    process.goodZToMuMuSameCharge1HLTPlots,
+    "goodZToMuMuSameCharge1HLT", "goodZToMuMuSameCharge1HLT",
+    "double")
+
+
+
     
 process.nonIsolatedZToMuMuPath = cms.Path (
     process.nonIsolatedZToMuMu +
@@ -570,7 +668,7 @@ process.out = cms.OutputModule(
 )
   
 process.endPath = cms.EndPath( 
-    process.eventInfo +
-    process.out
+    process.eventInfo
+   + process.out
 )
 
