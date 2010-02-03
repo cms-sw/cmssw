@@ -169,8 +169,11 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
      std::vector<double> coeffs;
 
      unsigned nCoeffs = 0;
-     if (corrType == 1) nCoeffs = 4;  // inverse quadratic
-     if (corrType == 2) nCoeffs = 11; // piecewise cubic madness ?!!!
+     if (corrType == 0) nCoeffs = 0;
+     else {
+       edm::LogError( "L1-O2O" ) << "Unsupported jet correction type : " << corrType ;
+       return boost::shared_ptr< L1GctJetFinderParams >() ;
+     }
 
      for (unsigned j=0; j< nCoeffs; ++j) {
        std::stringstream coeffCol;
