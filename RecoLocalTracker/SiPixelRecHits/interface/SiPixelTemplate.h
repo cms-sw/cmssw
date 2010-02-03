@@ -52,6 +52,7 @@
 //  V8.05 - Change qbin normalization to work better after irradiation
 //  V8.10 - Add Vavilov distribution interpolation
 //  V8.11 - Renormalize the x-templates for Guofan's cluster size calculation
+//  V8.12 - Technical fix to qavg issue.
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -146,7 +147,7 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float fracytwo;          //!< fraction of double pixel sample with ysize = 1
   float fracxtwo;          //!< fraction of double pixel sample with xsize = 1
   float qavg_avg;          //!< average cluster charge of clusters that are less than qavg (normalize 2-D simple templates)
-  float qavg_gen;          //!< average cluster charge of all pixels with charge > 0 (no threshold effects)
+  float qavg_spare;        //!< spare cluster charge
   float spare[4];
 } ;
 

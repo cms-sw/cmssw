@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 8.11 
+//  SiPixelTemplate.cc  Version 8.12 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -54,7 +54,8 @@
 //  V8.05 - Change qbin normalization to work better after irradiation
 //  V8.10 - Add Vavilov distribution interpolation
 //  V8.11 - Renormalize the x-templates for Guofan's cluster size calculation
-//
+//  V8.12 - Technical fix to qavg issue.
+
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
 //
@@ -185,7 +186,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 			
 			theCurrentTemp.enty[i].cotbeta = theCurrentTemp.enty[i].costrk[1]/theCurrentTemp.enty[i].costrk[2];
 			
-			in_file >> theCurrentTemp.enty[i].qavg_gen >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].symax >> theCurrentTemp.enty[i].dyone
+			in_file >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].symax >> theCurrentTemp.enty[i].dyone
 			>> theCurrentTemp.enty[i].syone >> theCurrentTemp.enty[i].sxmax >> theCurrentTemp.enty[i].dxone >> theCurrentTemp.enty[i].sxone;
 			
 			if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 2, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
@@ -295,7 +296,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 			} 
 			
 			in_file >> theCurrentTemp.enty[i].chi2yavgone >> theCurrentTemp.enty[i].chi2yminone >> theCurrentTemp.enty[i].chi2xavgone >> theCurrentTemp.enty[i].chi2xminone >> theCurrentTemp.enty[i].qmin2
-			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].spare[0];
+			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg_spare >> theCurrentTemp.enty[i].spare[0];
 			
 			if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			
@@ -328,7 +329,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 				
 				theCurrentTemp.entx[k][i].cotbeta = theCurrentTemp.entx[k][i].costrk[1]/theCurrentTemp.entx[k][i].costrk[2];
 				
-				in_file >> theCurrentTemp.entx[k][i].qavg_gen >> theCurrentTemp.entx[k][i].pixmax >> theCurrentTemp.entx[k][i].symax >> theCurrentTemp.entx[k][i].dyone
+				in_file >> theCurrentTemp.entx[k][i].qavg >> theCurrentTemp.entx[k][i].pixmax >> theCurrentTemp.entx[k][i].symax >> theCurrentTemp.entx[k][i].dyone
 				>> theCurrentTemp.entx[k][i].syone >> theCurrentTemp.entx[k][i].sxmax >> theCurrentTemp.entx[k][i].dxone >> theCurrentTemp.entx[k][i].sxone;
 				
 				if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 18, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
@@ -438,7 +439,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 				}
 				
 				in_file >> theCurrentTemp.entx[k][i].chi2yavgone >> theCurrentTemp.entx[k][i].chi2yminone >> theCurrentTemp.entx[k][i].chi2xavgone >> theCurrentTemp.entx[k][i].chi2xminone >> theCurrentTemp.entx[k][i].qmin2
-				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg >> theCurrentTemp.entx[k][i].spare[0];
+				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg_spare >> theCurrentTemp.entx[k][i].spare[0];
 				
 				if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				
@@ -549,7 +550,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 			
 			theCurrentTemp.enty[i].cotbeta = theCurrentTemp.enty[i].costrk[1]/theCurrentTemp.enty[i].costrk[2];
 			
-			db >> theCurrentTemp.enty[i].qavg_gen >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].symax >> theCurrentTemp.enty[i].dyone
+			db >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].symax >> theCurrentTemp.enty[i].dyone
 			>> theCurrentTemp.enty[i].syone >> theCurrentTemp.enty[i].sxmax >> theCurrentTemp.enty[i].dxone >> theCurrentTemp.enty[i].sxone;
 			
 			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 2, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
@@ -661,7 +662,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 			
 			
 			db >> theCurrentTemp.enty[i].chi2yavgone >> theCurrentTemp.enty[i].chi2yminone >> theCurrentTemp.enty[i].chi2xavgone >> theCurrentTemp.enty[i].chi2xminone >> theCurrentTemp.enty[i].qmin2
-			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].spare[0];
+			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg_spare >> theCurrentTemp.enty[i].spare[0];
 			
 			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			
@@ -694,7 +695,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 				
 				theCurrentTemp.entx[k][i].cotbeta = theCurrentTemp.entx[k][i].costrk[1]/theCurrentTemp.entx[k][i].costrk[2];
 				
-				db >> theCurrentTemp.entx[k][i].qavg_gen >> theCurrentTemp.entx[k][i].pixmax >> theCurrentTemp.entx[k][i].symax >> theCurrentTemp.entx[k][i].dyone
+				db >> theCurrentTemp.entx[k][i].qavg >> theCurrentTemp.entx[k][i].pixmax >> theCurrentTemp.entx[k][i].symax >> theCurrentTemp.entx[k][i].dyone
 				>> theCurrentTemp.entx[k][i].syone >> theCurrentTemp.entx[k][i].sxmax >> theCurrentTemp.entx[k][i].dxone >> theCurrentTemp.entx[k][i].sxone;
 				
 				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 18, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
@@ -805,7 +806,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 				
 				
 				db >> theCurrentTemp.entx[k][i].chi2yavgone >> theCurrentTemp.entx[k][i].chi2yminone >> theCurrentTemp.entx[k][i].chi2xavgone >> theCurrentTemp.entx[k][i].chi2xminone >> theCurrentTemp.entx[k][i].qmin2
-				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg >> theCurrentTemp.entx[k][i].spare[0];
+				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg_spare >> theCurrentTemp.entx[k][i].spare[0];
 				
 				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				
