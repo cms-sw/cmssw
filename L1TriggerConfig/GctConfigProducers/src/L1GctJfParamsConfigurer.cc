@@ -64,7 +64,6 @@ L1GctJfParamsConfigurer::L1GctJfParamsConfigurer(const edm::ParameterSet& iConfi
       ss << "nonTauJetCalib" << i;
       ss >> str;
       m_jetCalibFunc.push_back(calibCoeffs.getParameter< std::vector<double> >(str));
-      edm::LogInfo("L1GctConfig") << "Size " << m_jetCalibFunc.at(i).size() << std::endl;
     }
     // coefficients for tau jet corrections
     for (unsigned i=0; i<L1GctJetFinderParams::N_CENTRAL_ETA_VALUES; ++i) {
