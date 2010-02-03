@@ -28,7 +28,7 @@ tcMet = cms.EDProducer("METProducer",
     d0_max = cms.double(0.1),
     ptErr_max = cms.double(0.2),
     track_quality = cms.vint32(2),
-    track_algos = cms.vint32(4,5), 
+    track_algos = cms.vint32(), 
     isCosmics = cms.bool(False),
     rf_type = cms.int32(1)
 )
