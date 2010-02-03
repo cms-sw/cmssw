@@ -44,7 +44,7 @@ system("touch $matacq_data_dir/.matacq_data_archive_lock");
 
 my @matacq_files;
 
-@matacq_files = split('\n', `find $matacq_data_dir -name 'matacq.*.dat' -printf '%f\n' -maxdepth 1 | sort`);
+@matacq_files = split('\n', `find $matacq_data_dir -maxdepth 1 -name 'matacq.*.dat' -printf '%f\n' | sort`);
 
 my $file;
 
