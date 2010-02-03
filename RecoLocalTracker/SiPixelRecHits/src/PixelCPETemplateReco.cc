@@ -53,7 +53,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
-  cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
+  //cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
   //cout << "field_magnitude = " << field_magnitude << endl;
   
   // ggiurgiu@fnal.gov, 12/17/2008: use configuration parameter to decide between DB or text file template access
