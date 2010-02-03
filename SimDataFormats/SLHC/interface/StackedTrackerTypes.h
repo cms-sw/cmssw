@@ -141,3 +141,4 @@ typedef edm::Ref< edm::DetSetVector< TrackTriggerHit > , TrackTriggerHit >				Re
     typedef std::map<std::pair<StackedTrackerDetId,int>,Cluster_TTHit_Collection> Cluster_TTHit_Map;
 }
 #endif
+

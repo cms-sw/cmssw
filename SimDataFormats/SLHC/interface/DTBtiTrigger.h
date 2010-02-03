@@ -37,3 +37,4 @@ class DTBtiTrigger: public DTBtiTrigData
 typedef vector<DTBtiTrigger> BtiTrigsCollection;
 
 #endif
+

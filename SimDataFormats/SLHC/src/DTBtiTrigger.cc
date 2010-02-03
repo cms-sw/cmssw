@@ -56,3 +56,4 @@ std::string DTBtiTrigger::sprint() const
   outString << "  direction" << this->cmsDirection() << endl;
   return outString.str();
 }
+

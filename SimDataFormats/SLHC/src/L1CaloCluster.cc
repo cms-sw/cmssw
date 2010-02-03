@@ -270,3 +270,4 @@ L1CaloCluster::p4() const
 {
   return p4_;
 }
+

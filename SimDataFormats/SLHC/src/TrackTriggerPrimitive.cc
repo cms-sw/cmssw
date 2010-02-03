@@ -44,3 +44,4 @@ std::ostream& operator << (std::ostream& os, const TrackTriggerPrimitive& tp) {
   }
   return os;
 }
+

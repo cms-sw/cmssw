@@ -6,8 +6,8 @@
  *
  *  Store in a DetSetVector to provide a DetId
  *
- *  $Date: 2009/02/17 12:25:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/05/18 16:23:33 $
+ *  $Revision: 1.1 $
  *  \author Jim Brooke 
 */
 
@@ -54,3 +54,4 @@ std::ostream& operator << (std::ostream& os, const TrackTriggerHit& hit);
 
 
 #endif
+

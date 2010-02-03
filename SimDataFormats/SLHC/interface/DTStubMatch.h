@@ -365,3 +365,4 @@ typedef std::vector<DTStubMatch*> DTTracklet;
 bool DTStubMatchSortPredicate(const DTStubMatch* d1, const DTStubMatch* d2);
 
 #endif
+

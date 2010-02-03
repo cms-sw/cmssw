@@ -20,3 +20,4 @@ typedef std::vector<TrackTriggerPrimitive> TrackTriggerPrimitiveCollection;
 //  typedef std::vector<cmsUpgrades::TrackTriggerGlobalStub> TrackTriggerGlobalStubCollection;
 //}
 
+

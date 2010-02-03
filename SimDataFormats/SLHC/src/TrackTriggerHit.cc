@@ -37,3 +37,4 @@ std::ostream& operator << (std::ostream& os, const TrackTriggerHit& hit) {
   os << " col=" << hit.column();
   return os;
 }
+

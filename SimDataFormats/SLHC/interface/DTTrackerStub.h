@@ -120,3 +120,4 @@ struct lt_stub
 typedef std::set<TrackerStub*, lt_stub> StubTracklet;
 
 #endif
+

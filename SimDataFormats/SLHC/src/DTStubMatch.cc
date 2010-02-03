@@ -825,3 +825,4 @@ bool DTStubMatchSortPredicate(const DTStubMatch* d1, const DTStubMatch* d2)
 {
   return (d1->trig_order() < d2->trig_order());
 }
+

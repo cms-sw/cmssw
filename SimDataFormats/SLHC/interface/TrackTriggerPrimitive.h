@@ -6,7 +6,7 @@
  *  Store an SLHC track trigger primitive/stub
  *  Implemented as a vector of hits
  *
- *  $Date: 2008/11/05 18:28:17 $
+ *  $Date: 2009/05/18 16:23:33 $
  *  $Revision: 1.1 $
  *  \author Jim Brooke 
 */
@@ -52,3 +52,4 @@ class TrackTriggerPrimitive {
 std::ostream& operator << (std::ostream& os, const TrackTriggerPrimitive& tp);
 
 #endif
+

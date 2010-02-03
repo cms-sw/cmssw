@@ -47,3 +47,4 @@ private:
  typedef std::vector<L1CaloTower> L1CaloTowerCollection;
 }
 #endif
+
