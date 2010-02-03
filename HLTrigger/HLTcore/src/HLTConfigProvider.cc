@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/02 18:38:11 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/02/02 18:44:45 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -41,6 +41,7 @@ void HLTConfigProvider::clear()
    streamNames_.clear();
    streamContents_.clear();
    streamIndex_.clear();
+
    datasetNames_.clear();
    datasetContents_.clear();
    datasetIndex_.clear();
