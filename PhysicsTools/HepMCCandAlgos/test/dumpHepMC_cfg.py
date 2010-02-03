@@ -14,7 +14,8 @@ process.source = cms.Source("PoolSource",
 
 process.dummy = cms.EDAnalyzer("DummyHepMCAnalyzer",
     src = cms.InputTag("generator"),
-    dumpHepMC = cms.untracked.bool(True)
+    dumpHepMC = cms.untracked.bool(True),
+    checkPDG = cms.untracked.bool(False)
 )
 
 process.p = cms.Path(process.dummy)
