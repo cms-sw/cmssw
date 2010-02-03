@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.24 2009/06/15 08:28:48 veelken Exp $
+// $Id: Tau.h,v 1.25 2009/08/10 08:24:36 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.24 2009/06/15 08:28:48 veelken Exp $
+  \version  $Id: Tau.h,v 1.25 2009/08/10 08:24:36 veelken Exp $
 */
 
 
@@ -196,7 +196,7 @@ namespace pat {
       float electronPreIDOutput() const { return pfSpecific().electronPreIDOutput_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      bool  electronPreIDDecision() const { return pfSpecific().electronPreIDDecision_; }
+      bool electronPreIDDecision() const { return pfSpecific().electronPreIDDecision_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       float caloComp() const { return pfSpecific().caloComp_; }
@@ -205,7 +205,13 @@ namespace pat {
       float segComp() const { return pfSpecific().segComp_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      bool  muonDecision() const { return pfSpecific().muonDecision_; }
+      bool muonDecision() const { return pfSpecific().muonDecision_; }
+
+      /// Methods copied from reco::Jet.
+      /// (accessible from reco::CaloTau/reco::PFTau via reco::CaloTauTagInfo/reco::PFTauTagInfo)
+      float etaetaMoment() const;
+      float phiphiMoment() const;
+      float etaphiMoment() const;
 
       /// reconstructed tau decay mode (specific to PFTau)
       int decayMode() const { return pfSpecific().decayMode_; }

@@ -1,5 +1,5 @@
 //
-// $Id: TauPFSpecific.h,v 1.2 2009/04/09 12:03:03 veelken Exp $
+// $Id: TauPFSpecific.h,v 1.3 2009/08/10 08:24:36 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_PFSpecific_h
@@ -10,7 +10,7 @@
   \brief    Structure to hold information specific to a PFTau inside a pat::Tau
 
   \author   Giovanni Petrucciani
-  \version  $Id: TauPFSpecific.h,v 1.2 2009/04/09 12:03:03 veelken Exp $
+  \version  $Id: TauPFSpecific.h,v 1.3 2009/08/10 08:24:36 veelken Exp $
 */
 
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -47,6 +47,10 @@ struct TauPFSpecific {
     float caloComp_;
     float segComp_;
     bool muonDecision_;
+
+    float etaetaMoment_;
+    float phiphiMoment_;
+    float etaphiMoment_;
 
     int decayMode_;
 };
