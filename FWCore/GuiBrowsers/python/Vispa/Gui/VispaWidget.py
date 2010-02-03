@@ -625,11 +625,17 @@ class VispaWidget(ZoomableWidget):
     def isUseBackgroundGradientEnabled(self):
         return self._backgroundGradientEnabledFlag
     
-    def select(self, sel=True):
+    def select(self, sel=True, multiSelect=False):
         """ Marks this widget as selected and informs parent if parent is VispaWidetOwner.
+        
+        If multiSelect is True e.g. due to a pressed Ctrl button while clicking (see mousePressEvent()),
+        the VispaWidgetOwner will also be informed and might not deselect all widgets.
         """
         if not self.isSelectable():
             return
+        
+        if sel != self._selectedFlag:
+            self.update()
         
         self._selectedFlag = sel
         
@@ -638,7 +644,7 @@ class VispaWidget(ZoomableWidget):
 #            self.raise_()
 
         if self.isSelected() and isinstance(self.parent(), VispaWidgetOwner):
-            self.parent().widgetSelected(self)
+            self.parent().widgetSelected(self, multiSelect)
     
     def mouseDoubleClickEvent(self, event):
         if isinstance(self.parent(), VispaWidgetOwner):
@@ -1284,19 +1290,44 @@ class VispaWidget(ZoomableWidget):
             painter.setBrush(Qt.NoBrush)
             painter.drawPath(self._backgroundShapePath)
         
+    def setDragReferencePoint(self, pos):
+        self._dragMouseXrel = pos.x()
+        self._dragMouseYrel = pos.y()
+        
+    def dragReferencePoint(self):
+        return QPoint(self._dragMouseXrel, self._dragMouseYrel)
+        
     def mousePressEvent(self, event):
         """ Register mouse offset for dragging and calls select().
         """
-        self.select(True)
+        parentIsVispaWidgetOwner = isinstance(self.parent(), VispaWidgetOwner)
+        if event.modifiers() == Qt.ControlModifier:
+            # allow deselect of individual widgets in selection
+            self.select(not self.isSelected(), True)
+        elif parentIsVispaWidgetOwner and not self.parent().multiSelectEnabled():
+            # is multiSelctEnabled mouseReleaseEvent takes care of selection
+            # enables dragging of group of modules
+            self.select(True)
+            
         if not self._dragableFlag:
             return
         self._dragMouseXrel = event.x()
         self._dragMouseYrel = event.y()
+        
+        if parentIsVispaWidgetOwner:
+            self.parent().initWidgetMovement(self)
+            
+    def mouseReleaseEvent(self, event):
+        if event.modifiers() != Qt.ControlModifier \
+         and isinstance(self.parent(), VispaWidgetOwner) \
+         and self.parent().multiSelectEnabled() \
+         and self.parent().lastMovedWidget() != self:
+            self.select(True)
 
     def mouseMoveEvent(self, event):
         """ Call dragWidget().
         """
-        logging.debug("%s: mouseMoveEvent()" % self.__class__.__name__)
+        #logging.debug("%s: mouseMoveEvent()" % self.__class__.__name__)
         if bool(event.buttons() & Qt.LeftButton):
             self.dragWidget(self.mapToParent(event.pos()))
         return
@@ -1313,6 +1344,10 @@ class VispaWidget(ZoomableWidget):
         if not self.isDeletable():
             logging.warning(self.__class__.__name__ +": delete() - Tried to remove undeletable widget. Aborting...")
             return False
+        
+        if isinstance(self.parent(), VispaWidgetOwner):
+            self.parent().widgetAboutToDelete(self)
+            
         self.setParent(None)
         self.deleteLater()
         return True
@@ -1328,7 +1363,7 @@ class VispaWidget(ZoomableWidget):
         # Tell parent a widget moved to trigger file modification.
         if isinstance(self.parent(), VispaWidgetOwner):
             self.parent().widgetMoved(self)
-        
+
     def move(self, *target):
         """ Move widgt to new position.
         

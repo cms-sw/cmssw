@@ -13,7 +13,7 @@ import subprocess
 from PyQt4.QtCore import SIGNAL,qVersion,QString,QVariant, Qt
 from PyQt4.QtGui import QApplication,QMenu,QPixmap,QAction,QFileDialog,QIcon,QMessageBox
 
-from Vispa.Main.Directories import logDirectory,pluginDirectory,baseDirectory,homeDirectory,iniFileName,applicationName
+from Vispa.Main.Directories import logDirectory,pluginDirectory,baseDirectory,homeDirectory,iniFileName,applicationName,docDirectory
 from Vispa.Main.MainWindow import MainWindow
 from Vispa.Main.AbstractTab import AbstractTab
 from Vispa.Main.Filetype import Filetype
@@ -409,6 +409,11 @@ class Application(QApplication):
         self._editMenuItems['pasteAction'] = self.createAction('&Paste', self.pasteEvent, 'Ctrl+V', 'editpaste')      
         self._window.editMenu().addAction(self._editMenuItems['pasteAction'])
         self._editMenuItems['pasteAction'].setEnabled(False)
+        
+        # Select all
+        self._editMenuItems['selectAllAction'] = self.createAction("Select &all", self.selectAllEvent, "Ctrl+A", "selectall")
+        self._window.editMenu().addAction(self._editMenuItems['selectAllAction'])
+        self._editMenuItems['selectAllAction'].setVisible(False)
 
         self._window.editMenu().addSeparator()
         
@@ -425,8 +430,17 @@ class Application(QApplication):
         self._helpMenuItems['aboutAction'] = self.createAction('&About', self.aboutBoxSlot, 'F1')      
         self._window.helpMenu().addAction(self._helpMenuItems['aboutAction'])
         
+        # Offline Documentation
+        if os.path.exists(os.path.join(docDirectory,"index.html")):
+            self._window.helpMenu().addAction(self.createAction('Offline Documentation', self._openDocumentation, "CTRL+F1"))
+        
         # Vispa Website
         self._window.helpMenu().addAction(self.createAction('Website', self._openWebsite, "Shift+F1"))
+        
+    def _openDocumentation(self):
+        """ Opens Vispa Offline Documentation
+        """
+        webbrowser.open(os.path.join(docDirectory,"index.html"), 2, True)
         
     def _openWebsite(self):
         """ Open new browser tab and opens Vispa Project Website.
@@ -605,7 +619,7 @@ class Application(QApplication):
     def updateMenu(self):
         """ Update recent files and enable disable menu entries in file and edit menu.
         """
-        logging.debug('Application: updateMenu()')
+        #logging.debug('Application: updateMenu()')
         if self.mainWindow().startupScreen():
             self.updateStartupScreen()
         # Recent files
@@ -657,6 +671,8 @@ class Application(QApplication):
             self._editMenuItems['cutAction'].setEnabled(copyPasteEnabled)
             self._editMenuItems['copyAction'].setEnabled(copyPasteEnabled)
             self._editMenuItems['pasteAction'].setEnabled(copyPasteEnabled)
+            
+            self._editMenuItems['selectAllAction'].setVisible(self.currentTabController().allowSelectAll())
             
             self._editMenuItems['findAction'].setEnabled(atLeastOneFlag and self.currentTabController().isFindEnabled())
         except NoCurrentTabControllerException:
@@ -892,6 +908,14 @@ class Application(QApplication):
         except NoCurrentTabControllerException:
             logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
             
+    def selectAllEvent(self):
+        """ Called when selectAll action is triggered (e.g. from menu entry) and forwards it to current tab controller.
+        """
+        try:
+            self.currentTabController().selectAll()
+        except NoCurrentTabControllerException:
+            logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+            
     def findEvent(self):
         """ Called when find action is triggered (e.g. from menu entry) and forwards it to current tab controller.
         """
@@ -970,7 +994,7 @@ class Application(QApplication):
     def updateWindowTitle(self):
         """ update window caption
         """
-        logging.debug('Application: updateWindowTitle()')
+        #logging.debug('Application: updateWindowTitle()')
         name = self.windowTitle()
         
         try:

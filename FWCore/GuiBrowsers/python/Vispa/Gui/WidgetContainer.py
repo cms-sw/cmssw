@@ -4,10 +4,11 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from Vispa.Gui.VispaWidget import VispaWidget
+from Vispa.Gui.ConnectableWidget import ConnectableWidget
 from Vispa.Gui.ConnectableWidgetOwner import ConnectableWidgetOwner
 from Vispa.Gui.PortConnection import PortConnection
 
-class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
+class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
     
     # inherited properties
     BACKGROUND_SHAPE = 'ROUNDRECT'
@@ -31,9 +32,15 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
         self._childrenVisible = True
         self._autolayoutChildrenEnabled = False
         self._autosizeAdjustContainerPositionFlag = True
-        VispaWidget.__init__(self, parent)
+        self._collapseMenuButton = None
+        self._hiddenChildren = []
+        
+        ConnectableWidget.__init__(self, parent)
+        
         self.enableAutolayoutChildren(self.AUTOLAYOUT_CHILDREN_ENABLED)
         self.enableAdjustContainerPositionWhenAutosizing(self.AUTOSIZE_ADJUST_CONTAINER_POSITION)
+        
+        self.setShowCollapseMenu(True)
         
     def enableAutolayoutChildren(self, autolayout):
         """ If autolayout is True children of this container are arranged when this container auto-sizes.
@@ -55,7 +62,7 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
         """ If container is collapsed use single background color.
         """
         if self._childrenVisible:
-            VispaWidget.defineBackgroundBrush(self)
+            ConnectableWidget.defineBackgroundBrush(self)
         else:
             self._backgroundBrush = self.penColor()
         
@@ -139,7 +146,7 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
         yPos = round(self.contentStartY())
         
         for child in self.children():
-            if isinstance(child, VispaWidget):
+            if isinstance(child, VispaWidget) and child.isVisible():
                 child.move(xPos, yPos)
                 yPos += child.height() + self.getDistance("topMargin")
                 
@@ -158,7 +165,8 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
     def mouseDoubleClickEvent(self, event):
         """ Call toggleCollapse().
         """
-        self.toggleCollapse()
+        if event.pos().y() <= self.getDistance("titleFieldBottom"):
+            self.toggleCollapse()
         if isinstance(self.parent(), ConnectableWidgetOwner):
             self.parent().widgetDoubleClicked(self)
         
@@ -167,6 +175,17 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
         """
         ConnectableWidgetOwner.mousePressEvent(self, event)
         VispaWidget.mousePressEvent(self, event)
+        
+    def mouseMoveEvent(self, event):
+        if bool(event.buttons() & Qt.LeftButton):
+            VispaWidget.mouseMoveEvent(self, event)
+        elif self._menuWidget:
+            self.positionizeMenuWidget()
+        
+        if event.pos().y() <= self.getDistance("titleFieldBottom"):
+            self.showMenu()
+        elif self.menu():
+            self.menu().hide()
         
     def collapsed(self):
         """ Returns True if widget is collapsed. In this case the children are not visible.
@@ -178,14 +197,24 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
     def toggleCollapse(self):
         """ Toggles visibility of children between True and False.
         """
+        if self.menu():
+            self.menu().hide()
+            
+        
         if self._childrenVisible:
+            self._hiddenChildren = []
             self._childrenVisible = False
         else:
             self._childrenVisible = True
             
         for child in self.children():
             if isinstance(child,QWidget): # needed for PyQt4.5
-                child.setVisible(self._childrenVisible)
+                if not self._childrenVisible and not child.isVisible():
+                    # remember already hidden children while hiding
+                    self._hiddenChildren.append(child)
+                elif not child in self._hiddenChildren:
+                    # prevent to make previously hidden children visible
+                    child.setVisible(self._childrenVisible)
         
         if self._childrenVisible:
             self.enableBackgroundGradient(self.setColors(self.PEN_COLOR, self.FILL_COLOR1, self.FILL_COLOR2))
@@ -198,3 +227,20 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
             
         self.autosize()
         self.widgetMoved(self)
+        
+    def showMenu(self):
+        if self._collapseMenuButton:
+            if self._childrenVisible:
+                self.menu().setEntryText(self._collapseMenuButton, "Collapse")
+                #self._collapseMenuButton.setText("Collapse")
+            else:
+                self.menu().setEntryText(self._collapseMenuButton, "Expand")
+                #self._collapseMenuButton.setText("Expand")
+        ConnectableWidget.showMenu(self)
+        
+    def setShowCollapseMenu(self, show=True):
+        if show and not self._collapseMenuButton:
+            self._collapseMenuButton = self.addMenuEntry("", self.toggleCollapse)
+        elif not show and self._collapseMenuButton:
+            self.removeMenuEntry(self._collapseMenuButton)
+            self._collapseMenuButton = None

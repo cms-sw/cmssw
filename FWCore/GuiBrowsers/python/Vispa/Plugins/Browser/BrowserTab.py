@@ -4,6 +4,7 @@ from PyQt4.QtCore import SIGNAL,Qt
 from PyQt4.QtGui import QFrame,QHeaderView,QToolButton,QStandardItemModel,QVBoxLayout,QSizePolicy
 
 from Vispa.Main.SplitterTab import SplitterTab
+from Vispa.Gui.Header import FrameWithHeader
 from Vispa.Gui.ZoomableScrollArea import ZoomableScrollArea
 from Vispa.Gui.ZoomableScrollableWidgetOwner import ZoomableScrollableWidgetOwner
 from Vispa.Gui.Zoomable import Zoomable
@@ -40,52 +41,27 @@ class BrowserTab(SplitterTab):
         """
         if not parent:
             parent=self.horizontalSplitter()
-        self._treeviewArea = QFrame(parent)
-        self._treeviewArea.setFrameShadow(QFrame.Raised)
-        self._treeviewArea.setFrameStyle(QFrame.StyledPanel)
-        self._treeviewArea.setLayout(QVBoxLayout())
-        self._treeviewArea.layout().setContentsMargins(0, 0, 0, 0)
-        self._treeviewArea.layout().setSpacing(0)
-        self._treeViewHeaderModel = QStandardItemModel(self._treeviewArea)
-        self.setTreeViewHeader("Tree View")
-        self._treeViewHeader = HeaderView(Qt.Horizontal, self._treeviewArea)
-        self._treeViewHeader.setModel(self._treeViewHeaderModel)
-        self._treeViewHeader.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self._treeViewHeader.setStretchLastSection(True)
-        self._treeViewHeader.setFixedHeight(25)
-        self._treeViewMenuButton=QToolButton(self._treeViewHeader)
-        self._treeViewMenuButton.setText(">")
-        self._treeviewArea.layout().addWidget(self._treeViewHeader)
+        
+        self._treeviewArea = FrameWithHeader(parent)
+        self._treeviewArea.header().setText("Tree View")
+        self._treeViewMenuButton = self._treeviewArea.header().createMenuButton()
         self._treeView = TreeView(self._treeviewArea)
-        self._treeView.setFrameStyle(QFrame.NoFrame)
-        self._treeviewArea.layout().addWidget(self._treeView)
-
+        self._treeviewArea.addWidget(self._treeView)
+        
     def createCenterView(self,parent=None):
         """ Create the center view.
         """
         if not parent:
             parent=self.horizontalSplitter()
-        self._centerArea = QFrame(parent)
-        self._centerArea.setFrameShadow(QFrame.Raised)
-        self._centerArea.setFrameStyle(QFrame.StyledPanel)
-        self._centerArea.setLayout(QVBoxLayout())
-        self._centerArea.layout().setContentsMargins(0, 0, 0, 0)
-        self._centerArea.layout().setSpacing(0)
-        self._centerViewHeaderModel = QStandardItemModel(self._centerArea)
-        self.setCenterViewHeader("Center View")
-        self._centerHeader = HeaderView(Qt.Horizontal, self._centerArea)
-        self._centerHeader.setModel(self._centerViewHeaderModel)
-        self._centerHeader.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self._centerHeader.setStretchLastSection(True)
-        self._centerHeader.setFixedHeight(25)
-        self._centerViewMenuButton=QToolButton(self._centerHeader)
-        self._centerViewMenuButton.setText(">")
-        self._centerArea.layout().addWidget(self._centerHeader)
+            
+        self._centerArea = FrameWithHeader(parent)
+        self._centerArea.header().setText("Center View")
+        self._centerArea.header().createMenuButton()
+        
         self._scrollArea=ZoomableScrollArea(self._centerArea)
-        self._scrollArea.setFrameStyle(QFrame.NoFrame)
-        self._centerArea.layout().addWidget(self._scrollArea)
+        self._centerArea.addWidget(self._scrollArea)
         self.setCenterView(NoneView())
-
+            
     def setCenterView(self,view):
         """ Set the center view.
         """
@@ -118,26 +94,26 @@ class BrowserTab(SplitterTab):
         if self._scrollArea:
             self.connect(self._scrollArea, SIGNAL('wheelZoom()'), controller.resetZoomButtonPressedBefore)
             self.connect(self._scrollArea, SIGNAL("zoomChanged(float)"), controller.zoomChanged)
-            self.connect(self._centerViewMenuButton, SIGNAL("clicked(bool)"), controller.centerViewMenuButtonClicked)
-            self.connect(self._treeViewMenuButton, SIGNAL("clicked(bool)"), controller.treeViewMenuButtonClicked)
+            self.connect(self.centerViewMenuButton(), SIGNAL("clicked(bool)"), controller.centerViewMenuButtonClicked)
+            self.connect(self.treeViewMenuButton(), SIGNAL("clicked(bool)"), controller.treeViewMenuButtonClicked)
 
     def scrollArea(self):
         return self._scrollArea
     
     def treeViewMenuButton(self):
-        return self._treeViewMenuButton
+        return self._treeviewArea.header().menuButton()
     
     def centerViewMenuButton(self):
-        return self._centerViewMenuButton
+        return self._centerArea.header().menuButton()
     
     def treeViewHeader(self):
-        return self._treeViewHeader
+        return self._treeviewArea.header()
     
     def centerViewHeader(self):
-        return self._centerHeader
+        return self._centerArea.header()
     
     def setCenterViewHeader(self,text):
-        self._centerViewHeaderModel.setHorizontalHeaderLabels([text])
+        self._centerArea.header().setText(text)
 
     def setTreeViewHeader(self,text):
-        self._treeViewHeaderModel.setHorizontalHeaderLabels([text])
+        self._treeviewArea.header().setText(text)

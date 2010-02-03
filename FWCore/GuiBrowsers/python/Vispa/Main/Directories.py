@@ -5,13 +5,15 @@ import logging
 import Vispa.__init__
 
 def setBaseDirectory(dir):
-    global baseDirectory, mainDirectory, pluginDirectory
+    global baseDirectory, mainDirectory, pluginDirectory, docDirectory
     baseDirectory = dir
     logging.debug(__name__ +': baseDirectory - '+baseDirectory)
     mainDirectory = os.path.join(baseDirectory, "Vispa/Main")
     logging.debug(__name__ +': mainDirectory - '+mainDirectory)
     pluginDirectory = os.path.join(baseDirectory, "Vispa/Plugins")
     logging.debug(__name__ +': pluginDirectory - '+pluginDirectory)
+    docDirectory = os.path.join(baseDirectory, "doc/pxldoc")
+    logging.debug(__name__ +': docDirectory - '+docDirectory)
 
 def setHomeDirectory(dir):
     global homeDirectory, preferencesDirectory, iniFileName, logDirectory

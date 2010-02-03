@@ -309,4 +309,4 @@ class FindDialog(QDialog):
         self.update()
 
     def help(self):
-        QMessageBox.about(self, 'Info', "You can find objects 1. using their label shown in the center view, 2. their properties shown in the property view, or 3. using a Python script returning a boolean. Empty fields are ignored. Examples are shown as tool tips.")
+        QMessageBox.about(self, 'Info', "You can find objects \n1. using their label shown in the center view, \n2. their properties shown in the property view, or \n3. using a Python script returning a boolean. Empty fields are ignored. Examples are shown as tool tips.")

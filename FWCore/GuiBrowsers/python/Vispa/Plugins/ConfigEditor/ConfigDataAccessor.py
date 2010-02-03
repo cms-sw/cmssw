@@ -225,7 +225,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         foundHeaderPart1 = False
         foundHeaderPart2 = False
         lines = 10
-        dirname=os.path.dirname(self._filename)
+        search_paths=[os.path.abspath(os.path.dirname(self._filename))]
         while theFile and not (foundHeaderPart1 and foundHeaderPart2) and lines > 0:
             line = theFile.readline()
             lines -= 1
@@ -233,10 +233,13 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 foundHeaderPart1 = True
             splitline = line.split("'")
             if foundHeaderPart1 and len(splitline) == 5 and splitline[0] == "sys.path.append(os.path.abspath(os.path.expandvars(os.path.join(" and splitline[4] == "))))\n":
-                dirname=splitline[1]
+                search_paths+=[os.path.abspath(os.path.expandvars(os.path.join(splitline[1],splitline[3])))]
             splitline = line.split()
             if foundHeaderPart1 and len(splitline) == 4 and splitline[0] == "from" and splitline[2] == "import":
-                self._filename = os.path.join(os.path.abspath(os.path.expandvars(dirname)),splitline[1])
+                for search_path in search_paths:
+                    if os.path.exists(os.path.join(search_path,splitline[1]+".py")):
+                        self._filename = os.path.join(search_path,splitline[1]+".py")
+                        break
                 self._isReplaceConfig = True
                 foundHeaderPart2 = True
         theFile.close()

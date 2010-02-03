@@ -30,21 +30,25 @@ class MenuWidget(VispaWidget):
         """ Constructor
         """
         logging.debug("%s: Constructor" % self.__class__.__name__)
-        VispaWidget.__init__(self, parent)
-        self._associatedWidget = associatedWidget
-        self.setMouseTracking(True)
-        self.setDragable(False)
+        self._cursorEntered = False
         
         self._menuEntryTextFields = []
         self._menuEntrySlots = []
         self._hoverEntry = None
+        
+        self._spacer = TextField()
+        
+        VispaWidget.__init__(self, parent)
+        self.hide()
+        self._associatedWidget = associatedWidget
+        self.setMouseTracking(True)
+        self.setDragable(False)
         #self._hoverBrush = QBrush(self.HOVER_COLOR1)
         self._hoverGradient = QRadialGradient()
         self._hoverGradient.setColorAt(0, self.HOVER_COLOR1)
         self._hoverGradient.setColorAt(1, self.HOVER_COLOR2)
         #self._hoverBrush = QBrush(self.HOVER_COLOR1)
         
-        self._spacer = TextField()
         self._spacer.setFontSizeRange(self.TEXTFIELD_FONTSIZE_MIN, self.TEXTFIELD_FONTSIZE_MAX)
             #self._textField.setDefaultWidth(self.getDistance('textFieldWidth', 1, True))
         #entry.setDefaultHeight(self.getDistance('textFieldHeight', 1, True))
@@ -74,6 +78,27 @@ class MenuWidget(VispaWidget):
         self._menuEntrySlots.append(slot)
         
         self.scheduleRearangeContent()
+        return entry
+    
+    def removeEntry(self, entry):
+        if entry in self._menuEntryTextFields:
+            index = self._menuEntryTextFields.index(entry)
+            self._menuEntryTextFields.remove(entry)
+            self._menuEntrySlots.pop(index)
+            
+    def setEntryText(self, entry, text):
+        if entry in self._menuEntryTextFields:
+            entry.setText(text)
+            entry.calculateDimensions()
+            self.scheduleRearangeContent()
+    
+    def len(self):
+        return len(self._menuEntryTextFields)
+    
+    def entry(self, index):
+        if len(self._menuEntryTextFields) >= index + 1:
+            return self._menuEntryTextFields[index]
+        return None
             
     def sizeHint(self):
         """ Calculates needed space for widget content.
@@ -143,7 +168,7 @@ class MenuWidget(VispaWidget):
                 painter.setBrush(self._hoverGradient)
                 painter.setPen(Qt.NoPen)
                 #painter.drawRoundedRect(entry.getDrawRect(self.zoomFactor()), 10, 10)
-                painter.drawRoundedRect(x - hoverRectXOffset, y - hoverRectYOffset, hoverWidth, hoverHeight, 10, 10)
+                painter.drawRoundedRect(x - hoverRectXOffset, y - hoverRectYOffset, hoverWidth, hoverHeight, 5, 5)
                 painter.setPen(originalPen)
             entry.paint(painter, x, y, self.zoomFactor())
             x += entry.getWidth() * self.zoomFactor()
@@ -163,6 +188,7 @@ class MenuWidget(VispaWidget):
         VispaWidget.mousePressEvent(self, event)
         for i, entry in enumerate(self._menuEntryTextFields):
             if self._menuEntrySlots[i] and entry.getDrawRect(self.zoomFactor()).contains(event.pos()):
+                self.hide()
                 self._menuEntrySlots[i]()
                 break
             
@@ -176,3 +202,13 @@ class MenuWidget(VispaWidget):
     def hide(self):
         VispaWidget.hide(self)
         self._hoverEntry = None
+    
+    def showEvent(self, event):
+        VispaWidget.showEvent(self, event)
+        self._cursorEntered = False
+
+    def enterEvent(self, event):
+        self._cursorEntered = True
+        
+    def cursorHasEntered(self):
+        return self._cursorEntered

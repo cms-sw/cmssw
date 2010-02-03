@@ -781,9 +781,9 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         WidgetContainer.mousePressEvent(self, event)
         
     def mouseMoveEvent(self, event):
-        if self._titleClicked and bool(event.buttons() & Qt.LeftButton) and self._editable:
-            WidgetContainer.mouseMoveEvent(self, event)
-            return
+        #if self._titleClicked and bool(event.buttons() & Qt.LeftButton) and self._editable:
+        WidgetContainer.mouseMoveEvent(self, event)
+        #    return
         if not bool(event.buttons()):
             # no button pressed -> hovering
             to_hover_object = None

@@ -28,11 +28,11 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
     def widgets(self):
         return self._widgetDict.values()
 
-    def widgetSelected(self, widget):
+    def widgetSelected(self, widget, multiSelect=False):
         """ Emits signal widgetSelected that the TabController can connect to.
         """
         logging.debug(__name__ + ": widgetSelected")
-        ZoomableScrollableWidgetOwner.widgetSelected(self, widget)
+        ZoomableScrollableWidgetOwner.widgetSelected(self, widget, multiSelect)
         if not self._updatingFlag and hasattr(widget, "object"):
             if hasattr(widget, "positionName"):
                 self._selection = widget.positionName

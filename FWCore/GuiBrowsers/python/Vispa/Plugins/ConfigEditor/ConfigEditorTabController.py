@@ -50,7 +50,7 @@ class ConfigEditorTabController(BrowserTabController):
         self._dotExportAction = self.plugin().application().createAction('&Export dot graphic...', self.exportDot, "Ctrl+G")
         self._configMenu.addAction(self._dotExportAction)
         self._configMenu.addSeparator()
-        self._editorAction = self.plugin().application().createAction('&Start ConfigEditor', self.startEditMode, "F8")
+        self._editorAction = self.plugin().application().createAction('&Edit using ConfigEditor', self.startEditMode, "F8")
         self._configMenu.addAction(self._editorAction)
         self._configToolBar.addAction(self._editorAction)
         

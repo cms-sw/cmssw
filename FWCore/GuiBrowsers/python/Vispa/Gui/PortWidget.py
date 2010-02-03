@@ -14,6 +14,7 @@ class PortWidget(VispaWidget):
     HEIGHT = WIDTH
     BACKGROUND_SHAPE = 'CIRCLE'
     TITLEFIELD_FONTSIZE = 10
+    SELECTABLE_FLAG = False
     
     # New attributes
     PORT_TYPE = ''
@@ -138,7 +139,7 @@ class PortWidget(VispaWidget):
     def mouseMoveEvent(self, event):
         """ If minimum distance from mousePressEvent is reached initiates dragging.
         """
-        logging.debug(self.__class__.__name__ +": mouseMoveEvent()")
+        #logging.debug(self.__class__.__name__ +": mouseMoveEvent()")
         if self._dragablePort and self._startDragPosition and bool(event.buttons() & Qt.LeftButton):
             if not self._aimConnection and (event.pos() - self._startDragPosition).manhattanLength() >= QApplication.startDragDistance():
                 self._aimConnection = PointToPointConnection(self.moduleParent(), self.connectionPoint(), self.mapTo(self.moduleParent(), event.pos()))

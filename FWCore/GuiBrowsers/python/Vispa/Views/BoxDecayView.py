@@ -258,7 +258,7 @@ class BoxDecayView(WidgetView):
             if isinstance(widget, WidgetContainer):
                 if not self.createBoxesRecursive(operationId, self.applyFilter(self.dataAccessor().children(widget.object)), widget, positionName):
                     return None
-            if isinstance(widget, VispaWidget):
+            if isinstance(widget, (WidgetContainer,ConnectableWidget)):
                 widget.noRearangeContent(False)
 
         for widget in widgetParent.children():
@@ -266,7 +266,7 @@ class BoxDecayView(WidgetView):
             if operationId != self._operationId:
                 return None
             # draw box
-            if isinstance(widget, VispaWidget):
+            if isinstance(widget, (WidgetContainer,ConnectableWidget)):
                 widget.show()
         self.autosizeScrollArea()
         
@@ -379,7 +379,7 @@ class BoxDecayContainer(WidgetContainer):
         leftMargin = VispaWidget.LEFT_MARGIN
         topMargin = VispaWidget.TOP_MARGIN
         for widget in self.children():
-            if isinstance(widget, VispaWidget):
+            if isinstance(widget, VispaWidget) and hasattr(widget,"object"):
                 x = min_x
                 y = min_y
                 if self.arrangeUsingRelations():

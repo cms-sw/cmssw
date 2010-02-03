@@ -54,5 +54,8 @@ if __name__ == "__main__":
             print "Directory could not be created. No logging."
     app = Application(sys.argv)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app.mainWindow().setWindowTitle("ConfigBrowser")
+    app.mainWindow().setWindowTitle("ConfigEditor")
+    for plugin in app.plugins():
+        if plugin.__class__.__name__=="ConfigEditorPlugin":
+            tab=plugin.newFile()
     app.run()

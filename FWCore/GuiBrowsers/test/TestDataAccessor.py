@@ -127,7 +127,7 @@ class TestDataAccessor(BasicDataAccessor,RelativeDataAccessor,ParticleDataAccess
     def particleId(self,object):
         return 13
 
-    def addProperty(self, object, name, value):
+    def addProperty(self, object, name, value, type):
         return True
     
     def removeProperty(self, object, name):

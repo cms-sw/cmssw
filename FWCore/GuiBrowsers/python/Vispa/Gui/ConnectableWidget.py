@@ -1,11 +1,12 @@
 import logging
 
-from PyQt4.QtCore import QCoreApplication, QRect, QSize, QPoint
+from PyQt4.QtCore import QCoreApplication, QRect, QSize, QPoint, Qt
 from PyQt4.QtGui import QMouseEvent, QPen, QColor
 
 from Vispa.Gui.VispaWidget import VispaWidget
 from Vispa.Gui.PortWidget import PortWidget,SinkPort,SourcePort
 from Vispa.Gui.VispaWidgetOwner import VispaWidgetOwner
+from Vispa.Gui.MenuWidget import MenuWidget
 
 class ConnectableWidget(VispaWidget, VispaWidgetOwner):
     """ Widget which can be connection by PortConnections to other selectable widgets.
@@ -37,6 +38,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         self._showPortNames = False
         self._portNamesPosition = None
         self._showPortLines = False
+        self._menuWidget = None
         VispaWidget.__init__(self, parent)
         self.setShowPortNames(self.SHOW_PORT_NAMES)
         self.setPortNamesPosition(self.PORT_NAMES_POSITION)
@@ -213,16 +215,16 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         self.releaseMouse()
         VispaWidget.mouseReleaseEvent(self, event)
          
-    def delete(self):
-        """ Deletes this widget.
-        
-        Asks parent (ConnectableWidgetOwner) to remove all connections attached to any of this widgets ports and deletes the widget.
-        """
-        if not self.isDeletable():
-            return None
-        if isinstance(self.parent(), VispaWidgetOwner):
-            self.parent().widgetAboutToDelete(self)
-        VispaWidget.delete(self)
+#    def delete(self):
+#        """ Deletes this widget.
+#        
+#        Asks parent (ConnectableWidgetOwner) to remove all connections attached to any of this widgets ports and deletes the widget.
+#        """
+#        if not self.isDeletable():
+#            return None
+#        if isinstance(self.parent(), VispaWidgetOwner):
+#            self.parent().widgetAboutToDelete(self)
+#        VispaWidget.delete(self)
             
     def ports(self):
         """ Returns list containing all source and sink port widgets.
@@ -430,7 +432,6 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         else:
             logging.waring(self.__class__.__name__ +": drawPortNames() - "+ self.NO_VALID_PORT_NAMES_POSITION_MESSAGE)
 
-
     def drawPortLines(self, painter):
         """ Draws lines from every port to a common point.
         
@@ -475,4 +476,63 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
             if self.dropArea(port).contains(position):
                 return port
         return None
+
+    def mouseMoveEvent(self, event):
+        if bool(event.buttons() & Qt.LeftButton):
+            VispaWidget.mouseMoveEvent(self, event)
+        elif self._menuWidget:
+            self.positionizeMenuWidget()
         
+        self.showMenu()
+            
+    def showMenu(self):            
+        if self._menuWidget:
+            self._menuWidget.show()
+            self._menuWidget.raise_()
+            
+    def leaveEvent(self, event):
+        #logging.debug("%s: leaveEvent()" % self.__class__.__name__)
+        parentCursorPos = self.parent().mapFromGlobal(self.cursor().pos())
+        bottomRight = self.geometry().bottomRight()
+        if ( (not self.isSelected() or (self._menuWidget and self._menuWidget.cursorHasEntered())) \
+         and (self._menuWidget and self.parent().childAt(parentCursorPos) != self._menuWidget) ) \
+         or (self._menuWidget and ( parentCursorPos.x() > bottomRight.x() or parentCursorPos.y() > bottomRight.y())):
+            self._menuWidget.hide()
+    
+    def menu(self):
+        return self._menuWidget    
+    
+    def addMenuEntry(self, name, slot=None):
+        if not self._menuWidget:
+            self._menuWidget = MenuWidget(self.parent(), self)
+            self.setMouseTracking(True)
+        return self._menuWidget.addEntry(name, slot)
+
+    def removeMenuEntry(self, entry):
+        if not self._menuWidget:
+            return
+        self._menuWidget.removeEntry(entry)
+        if self._menuWidget.len() == 0:
+            self.removeMenu()
+    
+    def removeMenu(self):
+        self._menuWidget.setParent(None)
+        self._menuWidget.deleteLater()
+        self._menuWidget = None
+        
+    def positionizeMenuWidget(self):
+        if self._menuWidget:
+            headerOffset = 0
+            if isinstance(self.parent(), VispaWidget):
+                headerOffset = self.parent().getDistance("titleFieldBottom")
+            self._menuWidget.move(max(0, self.x() - 0.5* (self._menuWidget.width() - self.width())), max(0, headerOffset, self.y() - self._menuWidget.height() +1))
+        
+    def dragWidget(self, pPos):
+        VispaWidget.dragWidget(self, pPos)
+        self.positionizeMenuWidget()
+        
+    def select(self, sel=True, multiSelect=False):
+        VispaWidget.select(self, sel, multiSelect)
+        if not sel and self._menuWidget:
+            self._menuWidget.hide()
+            

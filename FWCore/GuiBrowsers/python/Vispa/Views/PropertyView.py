@@ -340,7 +340,7 @@ class PropertyView(QTableWidget, AbstractView):
             QCoreApplication.instance().infoMessage("Please specify name of property.")
             return
         if self.dataAccessor():
-            if self.dataAccessor().addProperty(self.dataObject(), name, value):
+            if self.dataAccessor().addProperty(self.dataObject(), name, value, type):
                 property=PropertyView.propertyWidgetFromProperty((type,name,value,None,False,True))
                 if property:
                     self.append(property)
@@ -829,7 +829,9 @@ class IntegerProperty(Property,QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         
         self._spinbox=QSpinBox()
-        self._spinbox.setRange(-sys.maxint-1,sys.maxint)
+        #maxint = sys.maxint     # does not work on Mac OS X (Snow Leopard 10.6.2), confusion between 32 and 64 bit limits
+        maxint = 2**31
+        self._spinbox.setRange(-maxint+1, maxint-1)
         self._spinbox.setFrame(False)
         self.layout().addWidget(self._spinbox)
         self.setFocusProxy(self._spinbox)

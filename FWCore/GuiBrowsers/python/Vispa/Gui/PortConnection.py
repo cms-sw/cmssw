@@ -56,6 +56,7 @@ class PointToPointConnection(ZoomableWidget):
         self._deletableFlag = True
         self._sourcePoint = sourcePoint
         self._targetPoint = targetPoint
+        self._dragReferencePoint = None
         
         ZoomableWidget.__init__(self, workspace)
         self.setFocusPolicy(self.FOCUSPOLICY)
@@ -118,7 +119,7 @@ class PointToPointConnection(ZoomableWidget):
     def isSelected(self):
         return self._selectedFlag
     
-    def select(self, sel=True):
+    def select(self, sel=True, multiSelect=False):
         if not self.isSelectable():
             return
         changed = False
@@ -133,9 +134,15 @@ class PointToPointConnection(ZoomableWidget):
         if changed:
             self.update()
         
-        if self.isSelected() and isinstance(self.parent(), VispaWidgetOwner):
+        if not multiSelect and self.isSelected() and isinstance(self.parent(), VispaWidgetOwner):
             self.parent().deselectAllWidgets(self)
     
+    def setDragReferencePoint(self, pos):
+        self._dragReferencePoint = pos
+        
+    def dragReferencePoint(self):
+        return self._dragReferencePoint
+        
     def cornerTypeString(self, type):
         if type == self.CornerType.TOP_RIGHT:
             return "TOP_RIGHT"

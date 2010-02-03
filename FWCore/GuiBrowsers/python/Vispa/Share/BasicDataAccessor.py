@@ -31,7 +31,7 @@ class BasicDataAccessor(object):
         """
         raise NotImplementedError
 
-    def addProperty(self, object, name, value):
+    def addProperty(self, object, name, value, type):
         """ Add the property 'name' to an object.
         """
         raise NotImplementedError

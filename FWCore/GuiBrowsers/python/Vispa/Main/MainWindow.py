@@ -30,7 +30,6 @@ class MainWindow(QMainWindow):
         
         if "vispa" in title.lower():
             self.createStartupScreen()
-            self.updateStartupScreenGeometry()
 
         self._fileMenu = self.menuBar().addMenu("&File")
         self._editMenu = self.menuBar().addMenu("&Edit")
@@ -46,6 +45,7 @@ class MainWindow(QMainWindow):
         self._loadIni()
         if self._startupScreen:
             self._startupScreen.raise_()
+            self.updateStartupScreenGeometry()
         
     def startupScreen(self):
         return self._startupScreen

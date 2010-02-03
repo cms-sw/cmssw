@@ -22,6 +22,7 @@ class TabController(QObject):
         self._tab = None
         self._filename = None
         self._copyPasteEnabledFlag = False
+        self._allowSelectAllFlag = False
         self._findEnabledFlag = False
         self._userZoomLevel = 100
         self._zoomButtonPressedBeforeFlag = False
@@ -162,6 +163,17 @@ class TabController(QObject):
         """ Evaluates the file Editable flag.
         """
         return self._isEditableFlag
+    
+    def setAllowSelectAll(self, allowSelectAll):
+        """ Sets the allowSelectAll flag.
+        """
+        self._allowSelectAllFlag = allowSelectAll
+        self.plugin().application().updateMenu()
+        
+    def allowSelectAll(self):
+        """ Evaluates the sllowSelectAll flag.
+        """
+        return self._allowSelectAllFlag
         
     def open(self, filename=None, update=True):
         """ Open given file.
@@ -364,6 +376,14 @@ class TabController(QObject):
         
         This function is called if the user selects 'Find' from menu. PluginTabs should override it if needed."
         See also setFindEnabled(), isFindEnabled().
+        """
+        raise NotImplementedError
+    
+    def selectAll(self):
+        """ Handle to perform select all action.
+        
+        This function is called if the user selects 'Select all' from menu. PluginTabs should override it if needed."
+        See also setAllowSelectAll(), allowSelectAll().
         """
         raise NotImplementedError
     

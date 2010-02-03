@@ -177,10 +177,10 @@ class ToolDataAccessor(BasicDataAccessor):
 
     def setConfigDataAccessor(self,accessor):
         self._configDataAccessor=accessor
-        self._processCopy=copy.deepcopy(accessor.process())
-        self._processCopy.resetHistory()
         self._importTool.setParameter("filename",accessor.configFile())
         if accessor.process():
+            self._processCopy=copy.deepcopy(accessor.process())
+            self._processCopy.resetHistory()
             return self.updateProcess(False)
 
     def configDataAccessor(self):

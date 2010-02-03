@@ -20,6 +20,13 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
         if not isinstance(widget, ConnectableWidget):
             return
         
+        self.updateAttachedConnection(widget)
+        if self.multiSelectEnabled():
+            for child in self.children():
+                if child != widget and not isinstance(child, PortConnection) and hasattr(child, "isSelected") and child.isSelected():
+                    self.updateAttachedConnection(child)
+    
+    def updateAttachedConnection(self, widget):
         # update attached connections
         for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
             if connection.sourcePort() in widget.ports() or connection.sinkPort() in widget.ports():
