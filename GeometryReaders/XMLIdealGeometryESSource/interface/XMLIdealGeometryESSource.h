@@ -13,13 +13,6 @@
 #include <memory>
 #include <string>
 
-namespace DDI {
-  class Material;
-  class Solid;
-  class LogicalPart;
-  class Specific;
-}
-
 class XMLIdealGeometryESSource : public edm::ESProducer, 
                                  public edm::EventSetupRecordIntervalFinder
 {
@@ -39,13 +32,6 @@ private:
     bool userNS_;
     GeometryConfiguration geoConfig_;
 
-    // 2009-07-09 memory patch
-    // for copying and protecting DD Store's after parsing is complete.
-    DDI::Store<DDName, DDI::Material*> matStore_;
-    DDI::Store<DDName, DDI::Solid*> solidStore_;
-    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
-    DDI::Store<DDName, DDI::Specific*> specStore_;
-    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
 };
 
 

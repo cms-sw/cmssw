@@ -58,15 +58,6 @@ XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &)
 std::auto_ptr<DDCompactView>
 XMLIdealGeometryESSource::produce() {
   
-  // 2009-07-09 memory patch
-
-  // unlock before use because it can be used more than once!
-  DDMaterial::StoreT::instance().setReadOnly(false);
-  DDSolid::StoreT::instance().setReadOnly(false);
-  DDLogicalPart::StoreT::instance().setReadOnly(false);
-  DDSpecifics::StoreT::instance().setReadOnly(false);
-  DDRotation::StoreT::instance().setReadOnly(false);
-
   DDName ddName(rootNodeName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
@@ -82,23 +73,7 @@ XMLIdealGeometryESSource::produce() {
     throw cms::Exception("Geometry")<<"There is no valid node named \""
                                     <<rootNodeName_<<"\"";
   }
-
-  // at this point we should have a valid store of DDObjects and we will move these
-  // to the local storage area using swaps with the existing Singleton<Store...>'s
-  // 2009-07-09 memory patch
-  DDMaterial::StoreT::instance().swap(matStore_);
-  DDSolid::StoreT::instance().swap(solidStore_);
-  DDLogicalPart::StoreT::instance().swap(lpStore_);
-  DDSpecifics::StoreT::instance().swap(specStore_);
-  DDRotation::StoreT::instance().swap(rotStore_);
-
-  // lock the global stores.
-  DDMaterial::StoreT::instance().setReadOnly(false);
-  DDSolid::StoreT::instance().setReadOnly(false);
-  DDLogicalPart::StoreT::instance().setReadOnly(false);
-  DDSpecifics::StoreT::instance().setReadOnly(false);
-  DDRotation::StoreT::instance().setReadOnly(false);
-  
+  returnValue->lockdown();  
   return returnValue;
 }
 
