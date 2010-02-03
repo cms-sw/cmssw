@@ -1,21 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-# AlCaReco for track based calibration using min. bias events
-ALCARECOSiStripCalMinBiasHLT = copy.deepcopy(hltHighLevel)
-import copy
-from Calibration.TkAlCaRecoProducers.CalibrationTrackSelector_cfi import *
-ALCARECOSiStripCalMinBias = copy.deepcopy(CalibrationTrackSelector)
-seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT+ALCARECOSiStripCalMinBias)
-ALCARECOSiStripCalMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
-ALCARECOSiStripCalMinBiasHLT.throw = False ## dont throw on unknown paths
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 
-ALCARECOSiStripCalMinBiasHLT.HLTPaths = ['HLT_MinBiasEcal', 'HLT_MinBiasHcal', 'HLT_MinBiasPixel']
+ALCARECOSiStripCalMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+##     HLTPaths = [
+##     #Minimum Bias
+##     "HLT_MinBias*"
+##     ],
+    eventSetupPathsKey = 'SiStripCalMinBias',
+    throw = False # tolerate triggers stated above, but not available
+    )
+
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+ALCARECOSiStripCalMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
+
+ALCARECOSiStripCalMinBias.filter         = True ##do not store empty events	
+ALCARECOSiStripCalMinBias.src            = 'generalTracks'
 ALCARECOSiStripCalMinBias.applyBasicCuts = True
-ALCARECOSiStripCalMinBias.ptMin = 0.8 ##GeV
+ALCARECOSiStripCalMinBias.ptMin          = 0.8 ##GeV
+ALCARECOSiStripCalMinBias.nHitMin        = 6 ## at least 6 hits required
+ALCARECOSiStripCalMinBias.chi2nMax       = 10.
 
-ALCARECOSiStripCalMinBias.etaMin = -3.5
-ALCARECOSiStripCalMinBias.etaMax = 3.5
-ALCARECOSiStripCalMinBias.nHitMin = 0
+ALCARECOSiStripCalMinBias.GlobalSelector.applyIsolationtest    = False
+ALCARECOSiStripCalMinBias.GlobalSelector.applyGlobalMuonFilter = False
+ALCARECOSiStripCalMinBias.GlobalSelector.applyJetCountFilter   = False
 
+ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyMassrangeFilter    = False
+ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyChargeFilter       = False
+ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyAcoplanarityFilter = False
+ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyMissingETFilter    = False
+
+seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*ALCARECOSiStripCalMinBias)

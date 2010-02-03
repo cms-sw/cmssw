@@ -8,8 +8,11 @@ OutALCARECOSiStripCalMinBias_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring( 
         'keep *_ALCARECOSiStripCalMinBias_*_*', 
         'keep *_siStripClusters_*_*', 
-        'keep *_siPixelClusters_*_*', 
-        'keep *_offlineBeamSpot_*_*')
+        'keep *_siPixelClusters_*_*',
+        'keep DetIdedmEDCollection_siStripDigis_*_*',
+        'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        'keep *_TriggerResults_*_*')
 )
 
 
