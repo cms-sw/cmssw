@@ -18,7 +18,7 @@ bool EcalUncalibratedRecHit::isSaturated() const {
 
 float EcalUncalibratedRecHit::outOfTimeEnergy() const
 {
-        uint32_t rawEnergy = (flags_>>4);
+        uint32_t rawEnergy = (0x1FFF & flags_>>4);
         uint16_t exponent = rawEnergy>>10;
         uint16_t significand = ~(0xE<<9) & rawEnergy;
         return (float) significand*pow(10,exponent-5);
@@ -35,7 +35,25 @@ void EcalUncalibratedRecHit::setOutOfTimeEnergy( float energy )
                 uint16_t exponent = lround(floor(log10(energy)))+3;
                 uint16_t significand = lround(energy/pow(10,exponent-5));
                 uint32_t rawEnergy = exponent<<10 | significand;
-                setFlags( ( ~(0xFFFFFFF<<4) & flags_) | ((rawEnergy & 0xFFFFFFF)<<4) );
+                setFlags( ( ~(0x1FFF<<4) & flags_) | ((rawEnergy & 0x1FFF)<<4) );
         }
+}
+
+void EcalUncalibratedRecHit::setOutOfTimeChi2Prob( float chi2Prob )
+{
+        if ( chi2Prob < 0 || chi2Prob > 1 ) {
+                edm::LogWarning("EcalUncalibratedRecHit::setOutOfTimeChi2Prob") << "chi2Prob outside limits [0, 1] : " << chi2Prob;
+        } else {
+                // use 7 bits
+                uint32_t rawChi2Prob = lround( chi2Prob * ((1<<7)-1) );
+                // shift by 17 bits (recoFlag + outOfTimeEnergy)
+                setFlags( (~(0x7F<<17) & flags_) | ((rawChi2Prob & 0x7F)<<17) );
+        }
+}
+
+float EcalUncalibratedRecHit::outOfTimeChi2Prob() const
+{
+        uint32_t rawChi2Prob = 0x7F & (flags_>>17);
+        return (float)rawChi2Prob / (float)((1<<7)-1);
 }
 

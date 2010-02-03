@@ -30,6 +30,7 @@ class EcalUncalibratedRecHit {
   double chi2() const { return chi2_; }
   uint32_t recoFlag() const { return 0xF & flags_; }
   float  outOfTimeEnergy() const;
+  float  outOfTimeChi2Prob() const;
   DetId  id() const { return id_; }
 
   void setAmplitude( double amplitude ) { amplitude_ = amplitude; }
@@ -41,6 +42,7 @@ class EcalUncalibratedRecHit {
   // set the energy for out of time events
   // (only energy >= 0 will be stored)
   void setOutOfTimeEnergy( float energy );
+  void setOutOfTimeChi2Prob( float chi2Prob );
   void setId( DetId id ) { id_ = id; }
   
   bool isSaturated() const;
