@@ -73,7 +73,7 @@ process.source = cms.Source("EmptySource",
                             numberEventsInRun=cms.untracked.uint32(100),
                             numberEventsInLuminosityBlock=cms.untracked.uint32(10),
                             firstRun=cms.untracked.uint32(122314),
-                            firstLuminosityBlock=cms.untracked.uint32(1)
+                            firstLuminosityBlock=cms.untracked.uint32(21)
                             )
 
 process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
@@ -94,9 +94,14 @@ process.schedule.extend(process.HLTSchedule)
 # To write out events 
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
-    process.AODSIMEventContent,
-    fileName = cms.untracked.string('genSample122314.root')
+    #process.AODSIMEventContent,
+    fileName = cms.untracked.string('simSample122314-3.root'),
+    #logicalFileName = cms.untracked.string(''),
+    dataset = cms.untracked.PSet(
+       dataTier = cms.untracked.string ('GEN-SIM-DIGI-RECO')
+    )
 )
+
 process.outpath = cms.EndPath(process.o1)
 
 # Add endpaths to the schedule

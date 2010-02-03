@@ -21,10 +21,14 @@ process.maxLuminosityBlocks=cms.untracked.PSet(
 
 process.source= cms.Source("PoolSource",
               processingMode=cms.untracked.string('RunsAndLumis'),
-              fileNames=cms.untracked.vstring('file:genSample122314.root'),             
+              fileNames=cms.untracked.vstring(
+                    'file:simSample122314-2.root',
+                    'file:simSample122314-1.root',
+                    'file:simSample122314-3.root',
+                    ),             
               firstRun=cms.untracked.uint32(122314),
-              firstLuminosityBlock = cms.untracked.uint32(1),        
-              firstEvent=cms.untracked.uint32(1)
+              #firstLuminosityBlock = cms.untracked.uint32(1),        
+              #firstEvent=cms.untracked.uint32(1)
              )
 process.test = cms.EDAnalyzer("testEvtLoop")
 
