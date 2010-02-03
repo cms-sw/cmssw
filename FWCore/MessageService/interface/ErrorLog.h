@@ -74,7 +74,7 @@ public:
   //
   ErrorLog & operator()( edm::ErrorObj & msg );	  // an entire message
 
-  ErrorLog & emit( const ELstring & msg );        // just one part of a message
+  ErrorLog & emitToken( const ELstring & msg );        // just one part of a message
   ErrorLog & endmsg();				  // no more parts forthcoming
   ErrorLog & operator<<( void (* f)(ErrorLog &) );// allow log << zmel::endmsg
 

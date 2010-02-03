@@ -123,7 +123,7 @@ void ELcollected::emitXid( const ELextendedID & xid )  {
 // emit
 // =====
 
-void ELcollected::emit( const ELstring & s, bool nl )  {
+void ELcollected::emitToken( const ELstring & s, bool nl )  {
 
   #ifdef ELcollected_EMIT_TRACE
     std::cout << "[][][] in emit:  s.length() " << s.length() << "\n";
@@ -164,7 +164,7 @@ void ELcollected::emit( const ELstring & s, bool nl )  {
     std::cout << "[][][] in emit: completed \n";
   #endif
 
-}  // emit()
+}  // emitToken()
 
 
 
@@ -205,11 +205,11 @@ bool ELcollected::log( const edm::ErrorObj & msg )  {
   // its special context supplier.  We will send over all three types of
   // context, even though probably only 1 or 2 will be needed.
 
-  emit( ELadministrator::instance()->
+  emitToken( ELadministrator::instance()->
                         getContextSupplier().summaryContext());
-  emit( ELadministrator::instance()->
+  emitToken( ELadministrator::instance()->
                         getContextSupplier().context());
-  emit( ELadministrator::instance()->
+  emitToken( ELadministrator::instance()->
                         getContextSupplier().fullContext());
 
   #ifdef ELcollectedTRACE_LOG
@@ -228,7 +228,7 @@ bool ELcollected::log( const edm::ErrorObj & msg )  {
   #ifdef ELcollectedTRACE_LOG
     std::cout << "      =:=:=: Item:  " << *it <<"\n";
   #endif
-      emit( *it );
+      emitToken( *it );
     }
   }
 
@@ -241,12 +241,12 @@ bool ELcollected::log( const edm::ErrorObj & msg )  {
   // Provide traceback information:
   //
   if ( msg.xid().severity >= traceThreshold )  {
-    emit( ELstring("\n")
+    emitToken( ELstring("\n")
           + ELadministrator::instance()->getContextSupplier().traceRoutine()
         , true );
   }
   else  {                                        //else statement added JV:1
-    emit( "", true );
+    emitToken( "", true );
   }
   #ifdef ELcollectedTRACE_LOG
     std::cout << "    =:=:=: Trace routine done: \n";

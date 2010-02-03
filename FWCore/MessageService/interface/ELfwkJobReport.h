@@ -75,7 +75,7 @@ protected:
   // ---  Internal Methods -- Users should not invoke these:
   //
 protected:
-  virtual void emit( const ELstring & s, bool nl=false );
+  virtual void emitToken( const ELstring & s, bool nl=false );
 
   virtual void suppressTime();        virtual void includeTime();
   virtual void suppressModule();      virtual void includeModule();
