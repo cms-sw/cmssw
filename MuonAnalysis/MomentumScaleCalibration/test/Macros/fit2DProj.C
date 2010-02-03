@@ -13,18 +13,36 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <iomanip>
+
 using namespace std;
 
-/// Small function to simplify the creation of text in the TPaveText
-TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0) {
+/**
+ * Small function to simplify the creation of text in the TPaveText. <br>
+ * It automatically writes the corret number of figures.
+ */
+TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0)
+{
+  // cout << "text = " << text << ", num1 = " << num1 << ", divider = " << divider << ", num2 = " << num2 << endl;
+
+  // Counter gives the precision
+  int precision = 1;
+  int k=1;
+  while( int(num2*k) == 0 ) {
+    // cout << "int(num2*"<<k<<")/int("<<k<<") = " << int(num2*k)/int(k) << endl;
+    k*=10;
+    ++precision;
+  }
+
   stringstream numString;
   TString textString(text);
-  numString << num1;
+  numString << setprecision(precision) << fixed << num1;
   textString += numString.str();
   if( num2 != 0 ) {
     textString += divider;
     numString.str("");
-    numString << num2;
+    if( string(text).find("ndf") != string::npos ) precision = 0;
+    numString << setprecision(precision) << fixed << num2;
     textString += numString.str();
   }
   return textString;
@@ -414,8 +432,8 @@ void macroPlot( TString name, TString nameGen, const TString & nameFile1, const 
     if( grM_1->GetN() > 0 ) grM_1->Fit("fit1","", "", -3, 3);
     setTPaveText(fit1, paveText1);
 
-    // TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
-    TF1 *fit2 = new TF1("fit2",onlyParabolic,-3.2,3.2,2);
+    TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
+    // TF1 *fit2 = new TF1("fit2",onlyParabolic,-3.2,3.2,2);
     fit2->SetLineWidth(2);
     fit2->SetLineColor(2);
     if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","", "", -3, 3);
