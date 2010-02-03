@@ -76,17 +76,17 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
   if (corrType_ != 1) {
     std::vector< std::vector<double> >::const_iterator itr;
     unsigned nCoeffs=0;
-    if (corrType_ == 2) nCoeffs=4;  // ORCA style corrections need 4 coefficients
+    if (corrType_ == 2) nCoeffs=8;  // ORCA style corrections need 4 coefficients
     if (corrType_ == 3) nCoeffs=11;  // piecewise-cubic corrections need 11 coefficients?!?
       
     for (itr=jetCorrCoeffs_.begin(); itr!=jetCorrCoeffs_.end(); ++itr) {
       if (itr->size() != nCoeffs) {
-	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with inconsistent data. Wrong number of correction coefficients!" << std::endl;
+	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " jet correction coefficients, when " << nCoeffs << " expected" << std::endl;
       }
     }
     for (itr=tauCorrCoeffs_.begin(); itr!=tauCorrCoeffs_.end(); ++itr) {
       if (itr->size() != nCoeffs) {
-	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with inconsistent data. Wrong number of correction coefficients!" << std::endl;
+	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " tau correction coefficients, when " << nCoeffs << " expected"<< std::endl;
       }
     }
   }
@@ -253,16 +253,19 @@ double L1GctJetFinderParams::powerSeriesCorrect(const double Et, const std::vect
 double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector<double>& coeffs) const
 {
   // The coefficients are arranged in groups of four. The first in each group is a threshold value of Et.
-  double threshold = coeffs.at(0);
-  double A = coeffs.at(1);
-  double B = coeffs.at(2);
-  double C = coeffs.at(3);
-  if (Et>threshold) {
-    // This function is an inverse quadratic:
-    //   (input Et) = A + B*(output Et) + C*(output Et)^2
-    return 2*(Et-A)/(B+sqrt(B*B-4*A*C+4*Et*C));
+  std::vector<double>::const_iterator next_coeff=coeffs.begin();
+  while (next_coeff != coeffs.end()) {
+    double threshold = *next_coeff++;
+    double A = *next_coeff++;
+    double B = *next_coeff++;
+    double C = *next_coeff++;
+    if (Et>threshold) {
+      // This function is an inverse quadratic:
+      //   (input Et) = A + B*(output Et) + C*(output Et)^2
+      return 2*(Et-A)/(B+sqrt(B*B-4*A*C+4*Et*C));
+    }
+    // If we are below all specified thresholds (or the vector is empty), return output=input.
   }
-  // If we are below all specified thresholds (or the vector is empty), return output=input.
   return Et;
 }
 
