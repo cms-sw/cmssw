@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/12/11 21:28:58 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/01/15 19:25:27 $
+ *  $Revision: 1.20 $
  *  \author M. Zanetti
  */
 
@@ -65,9 +65,9 @@ DTDDUFileReader::~DTDDUFileReader(){
       inputFile.close();
 }
 
-bool DTDDUFileReader::fillRawData(EventID& eID,
-				  Timestamp& tstamp, 
-				  FEDRawDataCollection*& data){
+int DTDDUFileReader::fillRawData(EventID& eID,
+				 Timestamp& tstamp, 
+				 FEDRawDataCollection*& data){
   data = new FEDRawDataCollection();
 
   vector<uint64_t> eventData;

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/10/31 14:28:13 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/12/11 20:33:04 $
+ *  $Revision: 1.12 $
  *  \author M. Zanetti
  */
 
@@ -47,9 +47,9 @@ DTROS25FileReader::~DTROS25FileReader(){
 }
 
 
-bool DTROS25FileReader::fillRawData(EventID& eID,
-				    Timestamp& tstamp, 
-				    FEDRawDataCollection*& data){
+int DTROS25FileReader::fillRawData(EventID& eID,
+				   Timestamp& tstamp, 
+				   FEDRawDataCollection*& data){
   data = new FEDRawDataCollection();
 
   vector<uint32_t> eventData;

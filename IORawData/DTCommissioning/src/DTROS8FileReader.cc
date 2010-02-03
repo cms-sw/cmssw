@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/10/31 14:28:13 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/12/11 20:33:04 $
+ *  $Revision: 1.14 $
  *  \author M. Zanetti
  */
 
@@ -47,9 +47,9 @@ DTROS8FileReader::~DTROS8FileReader(){
 }
 
 
-bool DTROS8FileReader::fillRawData(EventID& eID,
-				   Timestamp& tstamp, 
-				   FEDRawDataCollection*& data){
+int DTROS8FileReader::fillRawData(EventID& eID,
+				  Timestamp& tstamp, 
+				  FEDRawDataCollection*& data){
   data = new FEDRawDataCollection();
 
   try {
