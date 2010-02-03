@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/02 18:44:45 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/02/03 06:21:57 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -11,6 +11,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <algorithm>
 #include <iostream>
 
 void HLTConfigProvider::clear()
@@ -237,11 +238,13 @@ void HLTConfigProvider::extract()
    if (processPSet_.existsAs<ParameterSet>("streams",true)) {
      const ParameterSet streams(processPSet_.getParameterSet("streams"));
      streamNames_=streams.getParameterNamesForType<vector<string> >();
+     sort(streamNames_.begin(),streamNames_.end());
      const unsigned int n(streamNames_.size());
      streamContents_.resize(n);
      for (unsigned int i=0; i!=n; ++i) {
-       streamContents_[i]=streams.getParameter<vector<string> >(streamNames_[i]);
        streamIndex_[streamNames_[i]]=i;
+       streamContents_[i]=streams.getParameter<vector<string> >(streamNames_[i]);
+       sort(streamContents_[i].begin(),streamContents_[i].end());
      }
      
    }
@@ -250,11 +253,13 @@ void HLTConfigProvider::extract()
    if (processPSet_.existsAs<ParameterSet>("datasets",true)) {
      const ParameterSet datasets(processPSet_.getParameterSet("datasets"));
      datasetNames_=datasets.getParameterNamesForType<vector<string> >();
+     sort(datasetNames_.begin(),datasetNames_.end());
      const unsigned int n(datasetNames_.size());
      datasetContents_.resize(n);
      for (unsigned int i=0; i!=n; ++i) {
-       datasetContents_[i]=datasets.getParameter< vector<string> >(datasetNames_[i]);
        datasetIndex_[datasetNames_[i]]=i;
+       datasetContents_[i]=datasets.getParameter< vector<string> >(datasetNames_[i]);
+       sort(datasetContents_[i].begin(),datasetContents_[i].end());
      }
    }
 
@@ -293,7 +298,7 @@ void HLTConfigProvider::extract()
    return;
 }
 
-void HLTConfigProvider::dump (const std::string& what) const {
+void HLTConfigProvider::dump(const std::string& what) const {
    using namespace std;
    using namespace edm;
 
@@ -313,9 +318,10 @@ void HLTConfigProvider::dump (const std::string& what) const {
      const unsigned int n(size());
      cout << "HLTConfigProvider::dump: TriggerSeeds: " << n << endl;
      for (unsigned int i=0; i!=n; ++i) {
-       cout << "  " << i << " " << triggerNames_[i] << endl;
-       for (unsigned int j=0; j!=hltL1GTSeeds_[i].size(); ++j) {
-	 cout << "  " << j << " " << moduleLabels_[i][j]
+       const unsigned int m(hltL1GTSeeds_[i].size());
+       cout << "  " << i << " " << triggerNames_[i] << " " << m << endl;
+       for (unsigned int j=0; j!=m; ++j) {
+	 cout << "    " << j
 	      << " " << hltL1GTSeeds_[i][j].first
 	      << "/" << hltL1GTSeeds_[i][j].second << endl;
        }
@@ -348,11 +354,12 @@ void HLTConfigProvider::dump (const std::string& what) const {
      }
    } else if (what=="Streams") {
      const unsigned int n(streamNames_.size());
-     cout << "HLTConfigProvider::dump: StreamNames: " << n << endl;
+     cout << "HLTConfigProvider::dump: Streams: " << n << endl;
      for (unsigned int i=0; i!=n; ++i) {
-       cout << "  " << i << " " << streamNames_[i] << endl;
-       for (unsigned int j=0; j!=streamContents_[i].size(); ++j) {
-	 cout << " " << j << " " << streamContents_[i][j] << endl;
+       const unsigned int m(streamContents_[i].size());
+       cout << "  " << i << " " << streamNames_[i] << " " << m << endl;
+       for (unsigned int j=0; j!=m; ++j) {
+	 cout << "    " << j << " " << streamContents_[i][j] << endl;
        }
      }
    } else if (what=="DatasetNames") {
@@ -363,12 +370,28 @@ void HLTConfigProvider::dump (const std::string& what) const {
      }
    } else if (what=="Datasets") {
      const unsigned int n(datasetNames_.size());
-     cout << "HLTConfigProvider::dump: DatasetNames: " << n << endl;
+     cout << "HLTConfigProvider::dump: Datasets: " << n << endl;
      for (unsigned int i=0; i!=n; ++i) {
-       cout << "  " << i << " " << datasetNames_[i] << endl;
-       for (unsigned int j=0; j!=datasetContents_[i].size(); ++j) {
-	 cout << "  " << j << " " << datasetContents_[i][j] << endl;
+       const unsigned int m(datasetContents_[i].size());
+       cout << "  " << i << " " << datasetNames_[i] << " " << m << endl;
+       for (unsigned int j=0; j!=m; ++j) {
+	 cout << "    " << j << " " << datasetContents_[i][j] << endl;
        }
+     }
+   } else if (what=="Prescales") {
+     const unsigned int m (prescaleLabels_.size());
+     cout << "HLTConfigProvider::dump: Prescales: " << m << endl;
+     for (unsigned int j=0; j!=m; ++j) {
+       cout << " " << j << "/" << prescaleLabels_[j];
+     }
+     cout << endl;
+     const unsigned int n(size());
+     for (unsigned int i=0; i!=n; ++i) {
+       cout << "  " << i << triggerNames_[i] << " ";
+       for (unsigned int j=0; j!=m; ++j) {
+	 cout << " " << j << "/" << prescaleValues_[i][j];
+       }
+       cout << endl;
      }
    } else {
      cout << "HLTConfigProvider::dump: Unkown dump request: " << what << endl;
