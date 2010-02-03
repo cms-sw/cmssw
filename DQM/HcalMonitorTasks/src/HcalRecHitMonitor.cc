@@ -1,14 +1,4 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
-#include <iostream>
-#include <fstream>
-
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -36,6 +26,10 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
   if (fVerbosity>0)
     std::cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
 
+  // Can we include this just in the setup, or do we need to get a new logical map with every run?
+  HcalLogicalMapGenerator gen;
+  logicalMap=new HcalLogicalMap(gen.createMap());
+
   baseFolder_ = rootFolder_+"RecHitMonitor_Hcal";
 
   // Assume subdetectors not present until shown otherwise
@@ -61,8 +55,6 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
   HEenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HE_energyThreshold",energyThreshold_);
   HOenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HO_energyThreshold",energyThreshold_);
   HFenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HF_energyThreshold",energyThreshold_);
-  HFenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HF_energyThreshold",            -999);
-  ZDCenergyThreshold_    = ps.getUntrackedParameter<double>("RecHitMonitor_ZDC_energyThreshold",           -999);
 
   collisionHFthresh_ = ps.getUntrackedParameter<double>("RecHitMonitor_collisionHFthresh",3);
   collisionHEthresh_ = ps.getUntrackedParameter<double>("RecHitMonitor_collisionHEthresh",3);
@@ -141,12 +133,38 @@ void HcalRecHitMonitor::beginRun()
 
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold");
   SetupEtaPhiHists(OccupancyThreshByDepth,"Above Threshold RecHit Occupancy","");
-  
+  MonitorElement* THR=m_dbe->bookInt("HB_Rechit_Energy_Threshold");
+  THR->Fill(HBenergyThreshold_);
+  THR=m_dbe->bookInt("HE_Rechit_Energy_Threshold");
+  THR->Fill(HEenergyThreshold_);
+  THR=m_dbe->bookInt("HO_Rechit_Energy_Threshold");
+  THR->Fill(HOenergyThreshold_);
+  THR=m_dbe->bookInt("HF_Rechit_Energy_Threshold");
+  THR->Fill(HFenergyThreshold_);
+
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold/sumplots");
   SetupEtaPhiHists(SumEnergyThreshByDepth,"Above Threshold RecHit Summed Energy","GeV");
   SetupEtaPhiHists(SumTimeThreshByDepth,"Above Threshold RecHit Summed Time","nS");
   
   m_dbe->setCurrentFolder(baseFolder_+"/AnomalousCellFlags");// HB Flag Histograms
+
+
+  h_FlagMap_HPDMULT=m_dbe->book2D("FlagMap_HPDMULT","RBX Map of HBHEHpdHitMultiplicity Flags;RBX;RM",
+				  72,-0.5,71.5,4,0.5,4.5);
+  h_FlagMap_PULSESHAPE=m_dbe->book2D("FlagMap_PULSESHAPE","RBX Map of HBHEPulseShape Flags;RBX;RM",
+				  72,-0.5,71.5,4,0.5,4.5);
+  h_FlagMap_DIGITIME=m_dbe->book2D("FlagMap_DIGITIME","RBX Map of HFDigiTime Flags;RBX;RM",
+				  24,131.5,155.5,4,0.5,4.5);
+  h_FlagMap_LONGSHORT=m_dbe->book2D("FlagMap_LONGSHORT","RBX Map of HFLongShort Flags;RBX;RM",
+				   24,131.5,155.5,4,0.5,4.5);
+
+  h_FlagMap_TIMEADD=m_dbe->book2D("FlagMap_TIMEADD","RBX Map of Timing Added Flags;RBX;RM",
+				   156,-0.5,155.5,4,0.5,4.5);
+  h_FlagMap_TIMESUBTRACT=m_dbe->book2D("FlagMap_TIMESUBTRACT","RBX Map of Timing Subtracted Flags;RBX;RM",
+				   156,-0.5,155.5,4,0.5,4.5);
+  h_FlagMap_TIMEERROR=m_dbe->book2D("FlagMap_TIMEERROR","RBX Map of Timing Error Flags;RBX;RM",
+				   156,-0.5,155.5,4,0.5,4.5);
+
   h_HBflagcounter=m_dbe->book1D("HBflags","HB flags",32,-0.5,31.5);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEHpdHitMultiplicity, "HpdHitMult",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEPulseShape, "PulseShape",1);
@@ -154,7 +172,6 @@ void HcalRecHitMonitor::beginRun()
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
-  /*
   // 2-bit timing counter
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust1",1);
   h_HBflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust2",1);
@@ -162,13 +179,14 @@ void HcalRecHitMonitor::beginRun()
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape1",1);
   h_HBflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape2",1);
   h_HBflagcounter->setBinLabel(3+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape3",1);
-  */
+
   // common flags
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
-  
+  h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::Fraction2TS,"Frac2TS",1);
+
   // HE Flag Histograms
   h_HEflagcounter=m_dbe->book1D("HEflags","HE flags",32,-0.5,31.5);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEHpdHitMultiplicity, "HpdHitMult",1);
@@ -177,7 +195,6 @@ void HcalRecHitMonitor::beginRun()
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
-  /*
   // 2-bit timing counter
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust1",1);
   h_HEflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingTrustBits,"TimingTrust2",1);
@@ -185,29 +202,31 @@ void HcalRecHitMonitor::beginRun()
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape1",1);
   h_HEflagcounter->setBinLabel(2+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape2",1);
   h_HEflagcounter->setBinLabel(3+HcalCaloFlagLabels::HBHETimingShapedCutsBits,"TimingShape3",1);
-  */
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
-  
+  h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::Fraction2TS,"Frac2TS",1);
+
   // HO Flag Histograms
   h_HOflagcounter=m_dbe->book1D("HOflags","HO flags",32,-0.5,31.5);
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
-  
+  h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::Fraction2TS,"Frac2TS",1);
+
   // HF Flag Histograms
   h_HFflagcounter=m_dbe->book1D("HFflags","HF flags",32,-0.5,31.5);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFLongShort, "LongShort",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFDigiTime, "DigiTime",1);
-  //h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFTimingTrustBits,"TimingTrust1",1);
+  h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFTimingTrustBits,"TimingTrust1",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
-  
+  h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::Fraction2TS,"Frac2TS",1);
+
   h_HBflagcounter->getTH1F()->LabelsOption("v");
   h_HEflagcounter->getTH1F()->LabelsOption("v");
   h_HOflagcounter->getTH1F()->LabelsOption("v");
@@ -473,7 +492,9 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int depth = id.depth();
       HcalSubdetector subdet = id.subdet();
       int calcEta = CalcEtaBin(subdet,ieta,depth);
-     
+      int rbxindex=logicalMap->getHcalFrontEndId(HBHEiter->detid()).rbxIndex();
+      int rm= logicalMap->getHcalFrontEndId(HBHEiter->detid()).rm();
+
       if (subdet==HcalBarrel)
 	{
 	  HBpresent_=true;
@@ -497,6 +518,25 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		HBflagcounter_[f]++;
 	    }
 
+	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity))
+	    h_FlagMap_HPDMULT->Fill(rbxindex,rm);
+	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape))
+	    h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
+	  if (HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
+	    {
+	    h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
+	    cout <<"SUB "<<HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit,2)<<endl; 
+	    }
+	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
+	    {
+	    h_FlagMap_TIMEADD->Fill(rbxindex,rm);
+	    cout <<"ADD "<<HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit,2)<<endl; 
+	    }
+	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
+	    {
+	      h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
+	      cout <<"ERR "<<HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit,2)<<endl; 
+	    }
 	  ++occupancy_[calcEta][iphi-1][depth-1];
 	  energy_[calcEta][iphi-1][depth-1]+=en;
           energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
@@ -561,6 +601,17 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
               if (HBHEiter->flagField(f))
                 HEflagcounter_[f]++;
             }
+
+	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity))
+	    h_FlagMap_HPDMULT->Fill(rbxindex,rm);
+	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape))
+	    h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
+	  if (HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
+	    h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
+	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
+	    h_FlagMap_TIMEADD->Fill(rbxindex,rm);
+	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
+	    h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
 
 	  ++occupancy_[calcEta][iphi-1][depth-1];
@@ -679,6 +730,15 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 int iphi = id.iphi();
 	 int depth = id.depth();
          int calcEta = CalcEtaBin(HcalOuter,ieta,depth);
+	 int rbxindex=logicalMap->getHcalFrontEndId(HOiter->detid()).rbxIndex();
+	 int rm= logicalMap->getHcalFrontEndId(HOiter->detid()).rm();
+	 
+	 if (HOiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
+	   h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
+	 else if (HOiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
+	   h_FlagMap_TIMEADD->Fill(rbxindex,rm);
+	 else if (HOiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
+	   h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
 
 	 //Looping over HO searching for flags --- cris
@@ -687,6 +747,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	     if (HOiter->flagField(f))
 	       HOflagcounter_[f]++;
 	   }
+
 
 	 ++occupancy_[calcEta][iphi-1][depth-1];
 	 energy_[calcEta][iphi-1][depth-1]+=en;
@@ -799,7 +860,20 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	     rawtime_HFM+=ti;
 	     hfmocc++;
 	    }
+	 
+	 int rbxindex=logicalMap->getHcalFrontEndId(HFiter->detid()).rbxIndex();
+	 int rm= logicalMap->getHcalFrontEndId(HFiter->detid()).rm(); 
+	 if (HFiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
+	   h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
+	 else if (HFiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
+	   h_FlagMap_TIMEADD->Fill(rbxindex,rm);
+	 else if (HFiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
+	   h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
+	 if (HFiter->flagField(HcalCaloFlagLabels::HFDigiTime))
+	   h_FlagMap_DIGITIME->Fill(rbxindex,rm);
+	 if (HFiter->flagField(HcalCaloFlagLabels::HFLongShort))
+	   h_FlagMap_LONGSHORT->Fill(rbxindex,rm);
 
 	 //Looping over HF searching for flags --- cris
 	 for (int f=0;f<32;f++)

@@ -7,17 +7,24 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "FWCore/Common/interface/TriggerNames.h" 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <cmath>
-#include <iostream>
-#include <fstream>
 
 #define RECHITMON_TIME_MIN -250
 #define RECHITMON_TIME_MAX 250
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/12/04 19:52:43 $
-  * $Revision: 1.42 $
+  * $Date: 2009/12/06 21:42:18 $
+  * $Revision: 1.43 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -65,9 +72,10 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double HEenergyThreshold_;
   double HOenergyThreshold_;
   double HFenergyThreshold_;
-  double ZDCenergyThreshold_;
 
   double rechit_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
+
+  HcalLogicalMap* logicalMap;
 
   // Basic Histograms
   EtaPhiHists OccupancyByDepth;
@@ -172,7 +180,14 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HOflagcounter;
   MonitorElement* h_HFflagcounter;
   
-  
+  MonitorElement* h_FlagMap_HPDMULT;
+  MonitorElement* h_FlagMap_PULSESHAPE;
+  MonitorElement* h_FlagMap_DIGITIME;
+  MonitorElement* h_FlagMap_LONGSHORT;
+  MonitorElement* h_FlagMap_TIMEADD;
+  MonitorElement* h_FlagMap_TIMESUBTRACT;
+  MonitorElement* h_FlagMap_TIMEERROR;
+
   double collisionHFthresh_;
   double collisionHEthresh_;
 
