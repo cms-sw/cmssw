@@ -82,7 +82,7 @@ void FEDRawDataAnalyzer::analyze( const edm::Event& event,
 
 // -----------------------------------------------------------------------------
 // 
-void FEDRawDataAnalyzer::beginJob( edm::EventSetup const& ) {;}
+void FEDRawDataAnalyzer::beginJob() {;}
 
 // -----------------------------------------------------------------------------
 // 

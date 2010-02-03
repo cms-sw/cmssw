@@ -20,7 +20,7 @@ class FEDRawDataAnalyzer : public edm::EDAnalyzer {
   FEDRawDataAnalyzer( const edm::ParameterSet& );
   virtual ~FEDRawDataAnalyzer() {;}
 
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob();
   
