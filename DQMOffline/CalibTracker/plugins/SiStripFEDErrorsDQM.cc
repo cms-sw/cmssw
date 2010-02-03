@@ -395,13 +395,59 @@ void SiStripFEDErrorsDQM::addBadStrips(const FedChannelConnection & aConnection,
 
 void SiStripFEDErrorsDQM::addErrors()
 {
-  for( std::map<uint32_t, std::vector<uint32_t> >::const_iterator it = detIdErrors_.begin(); it != detIdErrors_.end(); ++it ) {
-    SiStripBadStrip::Range lRange(it->second.begin(),it->second.end());
-    if ( !obj_->put(it->first,lRange) ) {
-      edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
+  for( std::map<uint32_t, std::vector<uint32_t> >::const_iterator it = detIdErrors_.begin(); it != detIdErrors_.end(); ++it )
+    {
+
+      std::vector<uint32_t> lList = it->second;
+
+      //map of first strip number and flag
+      //purpose is to encode all existing flags into a unique one...
+      std::map<unsigned short,unsigned short> lAPVMap;
+      lAPVMap.clear();
+
+      for (uint32_t iCh(0); iCh<lList.size(); iCh++) {
+	SiStripBadStrip::data lData = obj_->decode(lList.at(iCh));
+	unsigned short lFlag = 0;
+	setFlagBit(lFlag,lData.flag);
+      
+	//std::cout << " -- Detid " << it->first << ", strip " << lData.firstStrip << ", flag " << lData.flag << std::endl;
+
+	std::pair<std::map<unsigned short,unsigned short>::iterator,bool> lInsert = lAPVMap.insert(std::pair<unsigned short,unsigned short>(lData.firstStrip,lFlag));
+	if (!lInsert.second) {
+	  //std::cout << " ---- Adding bit : " << lData.flag << " to " << lInsert.first->second << ": ";
+	  setFlagBit(lInsert.first->second,lData.flag);
+	  //std::cout << lInsert.first->second << std::endl;
+	}
+      }
+
+      //encode the new flag
+      std::vector<unsigned int> lStripVector;
+      unsigned short lConsecutiveBadStrips=128;
+
+      for (std::map<unsigned short,unsigned short>::iterator lIter = lAPVMap.begin();
+	   lIter != lAPVMap.end(); 
+	   lIter++)
+	{
+	  lStripVector.push_back(obj_->encode(lIter->first,lConsecutiveBadStrips,lIter->second));
+	}
+
+      SiStripBadStrip::Range lRange(lStripVector.begin(),lStripVector.end());
+      if ( !obj_->put(it->first,lRange) ) {
+	edm::LogError("SiStripFEDErrorsDQM")<<"[SiStripFEDErrorsDQM::addBadStrips] detid already exists." << std::endl;
+      }
     }
-  }
 }
+
+void SiStripFEDErrorsDQM::setFlagBit(unsigned short & aFlag, const unsigned short aBit)
+{
+
+  aFlag = aFlag | (0x1 << aBit) ;
+
+
+}
+
+
+
 
 //define this as a plug-in
 // DEFINE_FWK_MODULE(SiStripFEDErrorsDQM);

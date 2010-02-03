@@ -66,6 +66,9 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
   /// Writes the errors to the db
   void addErrors();
 
+  //set corresponding bit to 1 in flag
+  void setFlagBit(unsigned short & aFlag, const unsigned short aBit);
+
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
