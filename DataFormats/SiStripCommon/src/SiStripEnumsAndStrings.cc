@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.19 2009/11/03 17:23:57 wto Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.20 2010/01/29 17:47:28 dstrom Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -358,15 +358,11 @@ std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon
   else if ( mon == sistrip::NOISE_MIN ) { return sistrip::noiseMin_; }
   else if ( mon == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDead_; }
   else if ( mon == sistrip::NUM_OF_NOISY ) { return sistrip::numOfNoisy_; }
-<<<<<<< SiStripEnumsAndStrings.cc
-  else if ( mon == sistrip::NOISE_KS_ALL_STRIPS ) { return sistrip::noiseKSAllStrips_; }
-=======
   else if ( mon == sistrip::NOISE_GAUS_ALL_STRIPS ) { return sistrip::noiseGausAllStrips_; }
   else if ( mon == sistrip::NOISE_KS_ALL_STRIPS ) { return sistrip::noiseKSAllStrips_; }
   else if ( mon == sistrip::NOISE_CHI2_ALL_STRIPS ) { return sistrip::noiseChi2AllStrips_; }
   else if ( mon == sistrip::NOISE_BIN_84_PERCENT ) { return sistrip::noisebin84Percent_; }
   else if ( mon == sistrip::NOISE_SIGNIF_ALL_STRIPS ) { return sistrip::noiseSignif_; }
->>>>>>> 1.19
 
   // fine delay
   else if ( mon == sistrip::FINE_DELAY_POS) { return sistrip::fineDelayPos_; }
@@ -469,17 +465,13 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::pedestalsSpread_ ) != std::string::npos ) { return sistrip::PEDESTALS_SPREAD; }
   else if ( mon.find( sistrip::pedestalsMax_ ) != std::string::npos ) { return sistrip::PEDESTALS_MAX; }
   else if ( mon.find( sistrip::pedestalsMin_ ) != std::string::npos ) { return sistrip::PEDESTALS_MIN; }
-<<<<<<< SiStripEnumsAndStrings.cc
-  // noiseKS must come before the more general noiseAllStrips, since it contains that string
-  else if ( mon.find( sistrip::noiseKSAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_KS_ALL_STRIPS; }
-=======
+
   // noiseKS must come before the more general noiseAllStrips, since it contains that string
   else if ( mon.find( sistrip::noiseGausAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_GAUS_ALL_STRIPS; }
   else if ( mon.find( sistrip::noiseKSAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_KS_ALL_STRIPS; }
   else if ( mon.find( sistrip::noiseChi2AllStrips_ ) != std::string::npos ) { return sistrip::NOISE_CHI2_ALL_STRIPS; }
   else if ( mon.find( sistrip::noisebin84Percent_ ) != std::string::npos ) { return sistrip::NOISE_BIN_84_PERCENT; }
   else if ( mon.find( sistrip::noiseSignif_ ) != std::string::npos ) { return sistrip::NOISE_SIGNIF_ALL_STRIPS; }
->>>>>>> 1.19
   else if ( mon.find( sistrip::noiseAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_ALL_STRIPS; }
   else if ( mon.find( sistrip::noiseMean_ ) != std::string::npos ) { return sistrip::NOISE_MEAN; }
   else if ( mon.find( sistrip::noiseSpread_ ) != std::string::npos ) { return sistrip::NOISE_SPREAD; }
