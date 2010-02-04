@@ -7,7 +7,7 @@
 // Package:    DQM/TrackerCommon
 // Class:      TriggerHelper
 //
-// $Id: TriggerHelper.h,v 1.1 2010/01/24 13:47:00 vadler Exp $
+// $Id: TriggerHelper.h,v 1.2 2010/02/02 22:31:11 vadler Exp $
 //
 /**
   \class    TriggerHelper TriggerHelper.h "DQM/TrackerCommon/interface/TriggerHelper.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: TriggerHelper.h,v 1.1 2010/01/24 13:47:00 vadler Exp $
+  \version  $Id: TriggerHelper.h,v 1.2 2010/02/02 22:31:11 vadler Exp $
 */
 
 
@@ -54,8 +54,8 @@ class TriggerHelper {
     ~TriggerHelper() {};
 
     // Public methods
-    bool accept( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config ); // L1, HLT and DCS combined
-    bool accept( const edm::Event & event, const edm::ParameterSet & config );                                // filters for HLT and DCS only
+    bool accept( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config ); // L1, HLT and DCS filters combined
+    bool accept( const edm::Event & event, const edm::ParameterSet & config );                                // HLT and DCS filters only
 
   private:
 
@@ -63,11 +63,11 @@ class TriggerHelper {
 
     // L1
     bool acceptL1( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config );
-    bool acceptL1Algorithm( const edm::Event & event, std::string l1AlgorithmName );
+    bool acceptL1LogicalExpression( const edm::Event & event, std::string l1LogicalExpression );
 
     // HLT
     bool acceptHlt( const edm::Event & event, const edm::ParameterSet & config );
-    bool acceptHltPath( std::string hltPathName ) const;
+    bool acceptHltLogicalExpression( std::string hltLogicalExpression ) const;
 
     // DCS
     bool acceptDcs( const edm::Event & event, const edm::ParameterSet & config );
