@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.20 2008/09/30 17:39:09 heltsley Exp $
+ *  $Id: EEDetId.h,v 1.21 2009/10/12 18:29:27 meridian Exp $
  */
 
 
@@ -40,7 +40,7 @@ class EEDetId : public DetId {
       /// get the crystal iy
       int iy() const { return id_&0x7F; }  
       /// get the SuperCrystal number
-      int isc() const;
+      int isc() const ;
       /// get crystal number inside SuperCrystal
       int ic() const;
       /// get the quadrant of the DetId
@@ -85,6 +85,11 @@ class EEDetId : public DetId {
       static int distanceX(const EEDetId& a,const EEDetId& b); 
       //return the distance in y units between two EEDetId
       static int distanceY(const EEDetId& a,const EEDetId& b); 
+
+
+      static int isc( int iscCol,   // output is 1-316
+		      int iscRow ) ; // give supercrystal index from endcap *supercrystal* x and y indexes
+
       
       static const int IX_MIN =1;
       static const int IY_MIN =1;
