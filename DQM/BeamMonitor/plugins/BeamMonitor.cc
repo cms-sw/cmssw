@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/12/08 04:59:28 $
- * $Revision: 1.16 $
+ * $Date: 2010/01/17 13:57:33 $
+ * $Revision: 1.17 $
  *
  */
 
@@ -358,6 +358,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     resetHistos_ = true;
     nthBSTrk_ = 0;
     theBeamFitter->resetTrkVector();
+    theBeamFitter->resetLSRange();
   }
 }
 //--------------------------------------------------------
