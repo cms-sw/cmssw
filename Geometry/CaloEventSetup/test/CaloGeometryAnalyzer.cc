@@ -34,6 +34,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -47,7 +49,7 @@
 #include "TProfile.h"
 //
 // class decleration
-//
+
 using namespace CLHEP;
 
 class CaloGeometryAnalyzer : public edm::EDAnalyzer 
@@ -115,6 +117,8 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer
 
       TH1D* h_diffs[10][12] ;
 
+      TH1D* h_scindex ;
+
       bool m_allOK ;
 };
 //
@@ -154,6 +158,9 @@ CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& iConfig )
 					  200, -200., 200. ) ;
      }
   }
+  h_scindex = h_fs->make<TH1D>( std::string( "Supercrystal Hashed Index").c_str(), 
+				std::string( "SC Hashed Index").c_str(), 
+				632, -0.5, 631.5 ) ;
 }
 
 
@@ -662,6 +669,49 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    const int ix ( did.ix() ) ;
 	    const int iy ( did.iy() ) ;
 	    const int iz ( did.zside() ) ;
+	    const int isc ( did.isc() ) ;
+	    //std::cout<<"ix, iy="<<ix<<", "<<iy<<std::endl;
+	    const EcalScDetId scId ( 1+(ix-1)/5,1+(iy-1)/5,iz ) ;
+	    const int isc2 ( scId.isc() ) ;
+	    const int isc2c ( scId.hashedIndex()+1 ) ;
+
+	    h_scindex->Fill( isc2c ) ;
+
+	    int isc3 ( -1 ) ;
+	    int icr ( 0 ) ;
+	    do
+	    {
+	       const int jx ( icr%5 + 1 ) ;
+	       const int jy ( icr/5 + 1 ) ;
+	       if( EEDetId::validDetId( ( scId.ix() - 1 )*5 + jx, 
+					( scId.iy() - 1 )*5 + jy, 
+					scId.zside() ) )
+	       {
+		  isc3 = EEDetId( ( scId.ix() - 1 )*5 + jx, 
+				  ( scId.iy() - 1 )*5 + jy, 
+				  scId.zside() ).isc() ;
+//		     + (scId.zside()+1)*316/2 ;
+	       }
+	       ++icr ;
+	    }
+	    while( icr<25 && isc3<0 ) ;
+	    //if( icr>1 ) std::cout<<"**************** Took extra tries: "<<icr-1<<std::endl;
+
+
+	    if( isc3 != isc2 )
+	    {
+	       std::cout<<"**** Supercrystal numbering conflict: isc3, isc2, ix, iy, zside = "
+			<<isc3 <<", "<<isc2 <<", "<<ix <<", "<<iy <<", "<<iz <<std::endl ;
+	    }
+//	    assert( isc3 == isc2 ) ;
+
+	    if( isc + (iz+1)*316/2 != isc2c )
+	    {
+	       std::cout<<"**** Supercrystal numbering conflict: isc, isc2, ix, iy, zside = "
+			<<isc <<", "<<isc2 <<", "<<ix <<", "<<iy <<", "<<iz <<std::endl ;
+	    }
+	    if( isc == 70 ) std::cout<<"********** Seeing SC=70"<<std::endl ;
+
 	    const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
 	    f << "  // Checking getClosestCell for position " << tp->getPosition(0.) << std::endl;
 
