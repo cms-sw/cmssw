@@ -140,7 +140,7 @@ for opt,arg in opts:
    
 #done parsing options, now steer
 
-import EcalCondTools
+
 import DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 from pluginCondDBPyInterface import *
@@ -149,6 +149,8 @@ a = FWIncantation()
 
 rdbms = RDBMS(authpath)
 db = rdbms.getDB(dbName)
+
+import EcalCondTools
 
 if do_list :
    EcalCondTools.listTags(db)
@@ -180,7 +182,7 @@ if do_comp:
 if do_hist:
    if not len(tags):
        print "Must specify tag, since,  with -t [tag] \
-              -s [runsince]   (since a not needed for xml)"
+              -s [runsince]   (since  not needed for xml)"
        sys.exit(0)
        
    if  tags[0].find('.xml')<0 and  not len(sinces) :
