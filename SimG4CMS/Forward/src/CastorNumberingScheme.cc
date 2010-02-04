@@ -71,32 +71,34 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
     int module = 0;
 
     //    HcalCastorDetId::Section section;
-
-    for (int ich=0; ich  <  level; ich++) {
-      if(lvs[ich] == lvCAST) {
-	// Z index +Z = 1 ; -Z = 2
-	zside   = copyno[ich];
-      } else if(lvs[ich] == lvCAES || lvs[ich] == lvCEDS) {
-	// sector number for dead material 1 - 8
-	//section = HcalCastorDetId::EM;
-	sector = copyno[ich];
-      } else if(lvs[ich] == lvCAHS || lvs[ich] == lvCHDS) {
-	// sector number for dead material 1 - 8
-	//section = HcalCastorDetId::HAD;
-	sector = copyno[ich];
-      } else if(lvs[ich] == lvCAER || lvs[ich] == lvCEDR) {
-	// zmodule number 1-2 for EM section (2 copies)
-	module = copyno[ich];
-      } else if(lvs[ich] == lvCAHR || lvs[ich] == lvCHDR) {
-	//zmodule number 3-14 for HAD section (12 copies)
-	module = copyno[ich] + 2;  
-      } else if(lvs[ich] == lvC3EF || lvs[ich] == lvC3HF) {
-	// sector number for sensitive material 1 - 16
-	sector = sector*2 - 1 ;
-      } else if(lvs[ich] == lvC4EF || lvs[ich] == lvC4HF) {
-	// sector number for sensitive material 1 - 16
-	sector = sector*2 ;
-      }
+     for (int ich=0; ich  <  level; ich++) {
+       if(lvs[ich] == lvCAST) {
+     // Z index +Z = 1 ; -Z = 2
+     zside   = copyno[ich];
+       } else if(lvs[ich] == lvCAES || lvs[ich] == lvCEDS) {
+     // sector number for dead material 1 - 8
+     //section = HcalCastorDetId::EM;
+     if (copyno[ich]<5) {sector = 5-copyno[ich] ;
+          }else{sector = 13-copyno[ich] ;}  
+       } else if(lvs[ich] == lvCAHS || lvs[ich] == lvCHDS) {
+     // sector number for dead material 1 - 8
+     if (copyno[ich]<5) {sector = 5-copyno[ich] ;
+          }else{sector = 13-copyno[ich] ;}
+      //section = HcalCastorDetId::HAD;
+       } else if(lvs[ich] == lvCAER || lvs[ich] == lvCEDR) {
+     // zmodule number 1-2 for EM section (2 copies)
+     module = copyno[ich];
+       } else if(lvs[ich] == lvCAHR || lvs[ich] == lvCHDR) {
+     //zmodule number 3-14 for HAD section (12 copies)
+     module = copyno[ich] + 2;
+       } else if(lvs[ich] == lvC3EF || lvs[ich] == lvC3HF) {
+     // sector number for sensitive material 1 - 16
+     sector = sector*2  ;
+       } else if(lvs[ich] == lvC4EF || lvs[ich] == lvC4HF) {
+     // sector number for sensitive material 1 - 16
+     sector = sector*2 -1;
+       }
+   
     
     
 #ifdef debug
