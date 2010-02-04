@@ -5,16 +5,14 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.10 2009/10/19 19:00:57 theofil Exp $
-  *  $Date: 2009/10/19 19:00:57 $
-  *  $Revision: 1.10 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.11 2009/11/08 15:44:29 theofil Exp $
+  *  $Date: 2009/11/08 15:44:29 $
+  *  $Revision: 1.11 $
   *  \author R. Bruneliere - A. Zabi
   *  
-  *  
-  *  The chi2 computation with matrix is replaced by the chi2express which is faster and provides correctly normalized chi2
-  *  when gain switch and skips saturated samples. 
-  *  : Kostas Theofilatos
-  *  
+  *  The chi2 computation with matrix is replaced by the chi2express which is  moved outside the weight algo
+  *  (need to clean up the interface in next iteration so that we do not pass-by useless arrays)
+  *
   */
 
 #include "Math/SVector.h"
@@ -70,63 +68,6 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo
     amplitude_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iAmplitude);
     pedestal_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iPedestal);
     if (amplitude_) jitter_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iTime);
-
-
-	///////////////////////////////////////
-       ///////// compute chi2express /////////   
-      ///////////////////////////////////////
-
-    // compute testbeamPulseShape shape parameters
-    double ADC_clock = 25; // 25 ns
-    double risingTime = testbeamPulseShape.timeToRise();
-    double tzero = risingTime  - 5*ADC_clock;  // 5 samples before the peak
-    double shiftTime=0;
-    double pulseShape[10];
-
-    double chi2express=0;  // initialized always to 0
-    for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++)
-    {
-        int gainId = dataFrame.sample(iSample).gainId();
-        if(gainId==0)continue; // skip saturated samples
-
-        pulseShape[iSample] = (testbeamPulseShape)(tzero + shiftTime + iSample*ADC_clock);
-
-        if(iSample==3 || iSample==9) continue; // don't include samples which were not used in the amplitude calculation
-
-        double Si = double(dataFrame.sample(iSample).adc());
-        double eventPedestal = !iGainSwitch ? pedestal_:pedestals[gainId-1];  // use event pedestal for G12 and average pedestal for G6,G1
-        double Diff = pulseShape[iSample]*amplitude_  - (Si- eventPedestal)*gainRatios[gainId-1]; //
-        chi2express+= (Diff*Diff)/(pedestalsRMS[gainId-1]*pedestalsRMS[gainId-1]);
-    }
-    chi2_ = chi2express;
-
-      ////////////////////////////////////////////////////////////////
-     ////////////////// compute max sample index ////////////////////
-    ////////////////////////////////////////////////////////////////
-
-
-    int maxSampleIndex=-1; 
-    double maxSampleValue=0;  
-    double maxSampleGainRatio=0;
-
-    for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++)
-    {
- 	int gainId = dataFrame.sample(iSample).gainId();
-
-      if(gainId!=0)
-      {
-	double Si = dataFrame.sample(iSample).adc();
-	double gratio = gainRatios[gainId-1];
-	if(Si*gratio>maxSampleValue*maxSampleGainRatio)
-	{
-	    maxSampleValue=Si;
-	    maxSampleGainRatio=gratio;
-	    maxSampleIndex=iSample;
-	}
-      }else{maxSampleIndex=iSample;maxSampleGainRatio=-1;break;} // returns first saturated sample
-    }
-    jitter_ = double(maxSampleIndex);
-
 
 
     //When saturated gain flag i
