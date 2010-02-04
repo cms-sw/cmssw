@@ -37,7 +37,7 @@ public:
   virtual ~JetPlusTrackCollisionAnalysis();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
    
 private:

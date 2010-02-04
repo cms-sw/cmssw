@@ -28,7 +28,7 @@ public:
   virtual ~JetCollisionFilter();
 
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(const edm::EventSetup& ) ;
+  virtual void beginJob() ;
   virtual void endJob() ;
    
 private:

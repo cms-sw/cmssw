@@ -60,7 +60,7 @@ JetPlusTrackAnalysis::~JetPlusTrackAnalysis()
     cout<<" JetPlusTrack destructor "<<endl;
 }
 
-void JetPlusTrackAnalysis::beginJob( const edm::EventSetup& iSetup)
+void JetPlusTrackAnalysis::beginJob()
 {
 
    cout<<" Begin job "<<endl;
@@ -118,12 +118,6 @@ void JetPlusTrackAnalysis::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[5000]/F");
    myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[5000]/F");
 
-// Calo Geometry
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);
-   geo = pG.product();
-   
-
 }
 void JetPlusTrackAnalysis::endJob()
 {
@@ -142,6 +136,12 @@ void JetPlusTrackAnalysis::analyze(
                                          const edm::EventSetup& theEventSetup)  
 {
     cout<<" JetPlusTrack analyze "<<endl;
+
+   edm::ESHandle<CaloGeometry> pG;
+   theEventSetup.get<CaloGeometryRecord>().get(pG);
+   geo = pG.product();
+
+
 //  std::vector<edm::Provenance const*> theProvenance;
 //  iEvent.getAllProvenance(theProvenance);
 //  for( std::vector<edm::Provenance const*>::const_iterator ip = theProvenance.begin();

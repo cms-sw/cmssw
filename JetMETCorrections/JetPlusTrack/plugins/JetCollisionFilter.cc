@@ -43,7 +43,7 @@ JetCollisionFilter::~JetCollisionFilter()
     cout<<" JetCollisionFilter destructor "<<endl;
 }
 
-void JetCollisionFilter::beginJob( const edm::EventSetup& iSetup)
+void JetCollisionFilter::beginJob()
 {
  
 }

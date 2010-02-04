@@ -63,7 +63,7 @@ JetPlusTrackCollisionAnalysis::~JetPlusTrackCollisionAnalysis()
     cout<<" JetPlusTrack destructor "<<endl;
 }
 
-void JetPlusTrackCollisionAnalysis::beginJob( const edm::EventSetup& iSetup)
+void JetPlusTrackCollisionAnalysis::beginJob()
 {
 
    cout<<" Begin job "<<endl;
@@ -114,18 +114,6 @@ void JetPlusTrackCollisionAnalysis::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("TrackRecoEt",  TrackRecoEt, "TrackRecoEt[5000]/F");
    myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[5000]/F");
    myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[5000]/F");
-
-
-   const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,iSetup);
-
-  if (!corrector) edm::LogError("JetPlusTrackCollisionAnalysis") << "Failed to get corrector with name " <<   
-                                    jptCorrectorName_ << "from the EventSetup";
-  jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
-  if (!jptCorrector_) edm::LogError("JetPlusTrackCollisionAnalysis") << "Corrector with name " << 
-                         jptCorrectorName_ << " is not a JetPlusTrackCorrector";
-
-
-
 
 }
 void JetPlusTrackCollisionAnalysis::endJob()
@@ -178,6 +166,17 @@ void JetPlusTrackCollisionAnalysis::analyze(
    edm::ESHandle<CaloGeometry> pG;
    theEventSetup.get<CaloGeometryRecord>().get(pG);
    const CaloGeometry* geo = pG.product();
+
+   const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,theEventSetup);
+
+  if (!corrector) edm::LogError("JetPlusTrackCollisionAnalysis") << "Failed to get corrector with name " <<
+                                    jptCorrectorName_ << "from the EventSetup";
+  jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
+  if (!jptCorrector_) edm::LogError("JetPlusTrackCollisionAnalysis") << "Corrector with name " <<
+                         jptCorrectorName_ << " is not a JetPlusTrackCorrector";
+
+
+
 /*   
   std::vector<edm::Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);
