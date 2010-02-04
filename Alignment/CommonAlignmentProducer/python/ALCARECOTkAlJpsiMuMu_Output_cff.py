@@ -6,7 +6,9 @@ OutALCARECOTkAlJpsiMuMu_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlJpsiMuMu')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_ALCARECOTkAlJpsiMuMu_*_*', 
+        'keep *_ALCARECOTkAlJpsiMuMu_*_*',
+        'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_MEtoEDMConverter_*_*')
 )
 

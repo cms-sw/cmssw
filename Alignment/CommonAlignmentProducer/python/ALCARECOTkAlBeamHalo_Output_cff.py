@@ -6,7 +6,9 @@ OutALCARECOTkAlBeamHalo_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlBeamHalo')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_ALCARECOTkAlBeamHalo_*_*', 
+        'keep *_ALCARECOTkAlBeamHalo_*_*',
+        'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_MEtoEDMConverter_*_*')
 )
 
