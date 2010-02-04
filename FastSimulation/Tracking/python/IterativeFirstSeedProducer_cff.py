@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeFirstSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeFirstSeeds.firstHitSubDetectorNumber = [1, 2]
-iterativeFirstSeeds.firstHitSubDetectors = [1, 1, 2]
+iterativeFirstSeeds.firstHitSubDetectorNumber = [1, 3]
+iterativeFirstSeeds.firstHitSubDetectors = [1, 1, 2,6]
 iterativeFirstSeeds.secondHitSubDetectorNumber = [2, 3]
 iterativeFirstSeeds.secondHitSubDetectors = [1, 2, 1, 2, 6]
 iterativeFirstSeeds.thirdHitSubDetectorNumber = [2, 0]
