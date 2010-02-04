@@ -1,12 +1,14 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
+path = "PhysicsTools.PatAlgos.tools.trackTools"
 
 class MakeAODTrackCandidates(ConfigToolBase):
 
     """ Create selected tracks and a candidate hypothesis on AOD:
     """
-    _label='MakeAODTrackCandidates'
+    _label='makeAODTrackCandidates'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'label','TrackCands', "output collection will be <'patAOD'+label>")
@@ -18,19 +20,7 @@ class MakeAODTrackCandidates(ConfigToolBase):
         self._comment = ""
 
     def getDefaultParameters(self):
-         return self._defaultParameters
-
-    def dumpPython(self):        
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.trackTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nmakeAODTrackCandidates(process, "
-        dumpPython += '"'+str(self.getvalue('label'))+'"'+", "
-        dumpPython += str(self.getvalue('tracks'))+", "
-        dumpPython += '"'+str(self.getvalue('particleType'))+'"'+", "
-        dumpPython += '"'+str(self.getvalue('candSelection'))+'"'+')'+'\n'
-        return (dumpPythonImport,dumpPython) 
+        return self._defaultParameters
 
     def __call__(self,process,
                  label         = None,
@@ -80,8 +70,9 @@ class MakePATTrackCandidates(ConfigToolBase):
 
     """ Create pat track candidates from AOD track collections:
     """
-    _label='MakePATTrackCandidates'
+    _label='makePATTrackCandidates'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'label','TrackCands', "output will be 'all/selectedLayer1'+label")
@@ -97,20 +88,6 @@ class MakePATTrackCandidates(ConfigToolBase):
     def getDefaultParameters(self):
         return self._defaultParameters
 
-    def dumpPython(self): 
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.trackTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nmakePATTrackCandidates(process, "
-        dumpPython += '"'+str(self.getvalue('label'))+'"'+", "
-        dumpPython += str(self.getvalue('input'))+", "
-        dumpPython += '"'+str(self.getvalue('selection'))+'"'+", "
-        dumpPython += str(self.getvalue('isolation'))+", "
-        dumpPython += str(self.getvalue('isoDeposits'))+", "
-        dumpPython += '"'+str(self.getvalue('mcAs'))+'"'+')'+'\n'
-        return (dumpPythonImport,dumpPython)
-    
     def __call__(self,process,
                  label       = None,
                  input       = None,
@@ -260,8 +237,9 @@ makePATTrackCandidates=MakePATTrackCandidates()
 class MakeTrackCandidates(ConfigToolBase):
     """ Create selected tracks and a candidate hypothesis on AOD:
     """
-    _label='MakeTrackCandidates'
+    _label='makeTrackCandidates'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'label','TrackCands', "output collection will be <'patAOD'+label>")
@@ -278,22 +256,6 @@ class MakeTrackCandidates(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):        
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.trackTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nmakeTrackCandidates(process, "
-        dumpPython += '"'+str(self.getvalue('label'))+'"'+", "
-        dumpPython += str(self.getvalue('tracks'))+", "
-        dumpPython += '"'+str(self.getvalue('particleType'))+'"'+", "
-        dumpPython += '"'+str(self.getvalue('preselection'))+'"'+", "
-        dumpPython += '"'+str(self.getvalue('selection'))+'"'+", "
-        dumpPython += str(self.getvalue('isolation'))+", "
-        dumpPython += str(self.getvalue('isoDeposits'))+", "
-        dumpPython += '"'+str(self.getvalue('mcAs'))+'"'+')'+'\n'
-        return (dumpPythonImport,dumpPython)
 
     def __call__(self,process,
                  label        = None,

@@ -1,14 +1,14 @@
-#from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 from FWCore.GuiBrowsers.ConfigToolBase import *
+
+path = "PhysicsTools.PatAlgos.tools.metTools"
 
 class AddTcMET(ConfigToolBase):
 
     """ Add track corrected MET collection to patEventContent
     """
-    _label='AddTcMET'
-    
+    _label='addTcMET'    
     _defaultParameters={}
-
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'postfixLabel','TC', '')
@@ -17,15 +17,6 @@ class AddTcMET(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.metTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython += "\naddTcMET(process, "
-        dumpPython += '"'+str(self.getvalue('postfixLabel'))+'"'+')'+'\n'
-        return (dumpPythonImport,dumpPython)
 
     def __call__(self,process,postfixLabel=None) :
         if  postfixLabel is None:
@@ -62,9 +53,9 @@ class AddPfMET(ConfigToolBase):
     
     """ Add pflow MET collection to patEventContent
     """
-    _label='AddPfMET'
-    
+    _label='addPfMET'    
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'postfixLabel','PF', '')
@@ -73,16 +64,7 @@ class AddPfMET(ConfigToolBase):
         
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.metTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython += "\naddPfMET(process, "
-        dumpPython +='"'+ str(self.getvalue('postfixLabel'))+'"'+')'+'\n'
-        return (dumpPythonImport,dumpPython)
-    
+        
     def __call__(self,process,postfixLabel=None):
         if  postfixLabel is None:
             postfixLabel=self._defaultParameters['postfixLabel'].value 

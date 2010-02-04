@@ -2,6 +2,11 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+
+
+path = "PhysicsTools.PatAlgos.tools.jetTools"
+
+
 def patchJetCorrFactors_(jetCorrFactors, newAlgo):
     """
     ------------------------------------------------------------------
@@ -74,8 +79,9 @@ class SwitchJECSet(ConfigToolBase):
 
     """ Replace tags in the JetCorrFactorsProducer for end-users:
     """
-    _label='SwitchJECSet'
+    _label='switchJECSet'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'newName',self._defaultValue,"new correction sample", Type=str)
@@ -84,16 +90,7 @@ class SwitchJECSet(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.jetTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nswitchJECSet(process, "
-        dumpPython += '"'+str(self.getvalue('newName'))+'"'+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
-
+   
     def __call__(self,process,
                  newName     = None):
         if  newName is None:
@@ -123,8 +120,9 @@ class RunBTagging(ConfigToolBase):
      * labels['tagInfos'] = a list of names of the TagInfo modules
      * labels['jetTags '] = a list of names of the JetTag modules
     """
-    _label='RunBTagging'
+    _label='runBTagging'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue, 'input jet collection',Type=cms.InputTag)
@@ -134,17 +132,7 @@ class RunBTagging(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.jetTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nrunBTagging(process, "
-        dumpPython += str(self.getvalue('jetCollection'))+", "
-        dumpPython += '"'+str(self.getvalue('label'))+'"'+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
-
+ 
     def __call__(self,process,
                  jetCollection     = None,
                  label             = None) :
@@ -274,8 +262,9 @@ class AddJetCollection(ConfigToolBase):
     replaces before calling addJetCollection will also affect the
     new jet collections
     """
-    _label='AddJetCollection'
+    _label='addJetCollection'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
@@ -295,31 +284,9 @@ class AddJetCollection(ConfigToolBase):
         
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
-
+        
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.jetTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\naddJetCollection(process, "
-        dumpPython += str(self.getvalue('jetCollection'))+ ", "
-        dumpPython += '"'+str(self.getvalue('algoLabel'))+'"'+', '
-        dumpPython += '"'+str(self.getvalue('typeLabel'))+'"'+', '
-        dumpPython += str(self.getvalue('doJTA'))+', '
-        dumpPython += str(self.getvalue('doBTagging'))+', '
-        dumpPython += str(self.getvalue('jetCorrLabel'))+', '
-        dumpPython += str(self.getvalue('doType1MET'))+', '
-        dumpPython += str(self.getvalue('doL1Cleaning'))+', '
-        dumpPython += str(self.getvalue('doL1Counters'))+', '
-        dumpPython += str(self.getvalue('genJetCollection'))+', '
-        dumpPython += str(self.getvalue('doJetID'))+', '
-        dumpPython += '"'+str(self.getvalue('jetIdLabel'))+'"'+', '
-        dumpPython += '"'+str(self.getvalue('standardAlgo'))+'"'+', '
-        dumpPython += '"'+str(self.getvalue('standardType'))+'"'+')'+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  jetCollection      = None,
@@ -575,8 +542,9 @@ class SwitchJetCollection(ConfigToolBase):
     """ Switch the collection of jets in PAT from the default value to a
     new jet collection
     """
-    _label='SwitchJetCollection'
+    _label='switchJetCollection'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
@@ -593,22 +561,6 @@ class SwitchJetCollection(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.jetTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nswitchJetCollection(process, "
-        dumpPython += str(self.getvalue('jetCollection'))+ ", "
-        dumpPython += str(self.getvalue('doJTA'))+', '
-        dumpPython += str(self.getvalue('doBTagging'))+', '
-        dumpPython += str(self.getvalue('jetCorrLabel'))+', '
-        dumpPython += str(self.getvalue('doType1MET'))+', '
-        dumpPython += str(self.getvalue('genJetCollection'))+', '
-        dumpPython += str(self.getvalue('doJetID'))+', '
-        dumpPython += '"'+str(self.getvalue('jetIdLabel'))+'"'+')'+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  jetCollection      = None,
@@ -773,8 +725,9 @@ class AddJetID(ConfigToolBase):
 
     """ Compute jet id for process
     """
-    _label='AddJetID'
+    _label='addJetID'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetSrc',self._defaultValue, "", Type=str)
@@ -784,16 +737,6 @@ class AddJetID(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.jetTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\naddJetID(process, "
-        dumpPython += '"'+str(self.getvalue('jetSrc'))+'"'+", "
-        dumpPython += '"'+str(self.getvalue('jetIdTag'))+'"'+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  jetSrc     = None,
@@ -826,8 +769,9 @@ class SetTagInfos(ConfigToolBase):
 
     """ Replace tag infos for collection jetSrc
     """
-    _label='SetTagInfos'
+    _label='setTagInfos'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'coll',"allLayer1Jets","jet collection to set tag infos for")
@@ -837,16 +781,6 @@ class SetTagInfos(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.jetTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nsetTagInfos(process, "
-        dumpPython += '"'+str(self.getvalue('coll'))+'"'+", "
-        dumpPython += str(self.getvalue('tagInfos'))+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  coll         = None,

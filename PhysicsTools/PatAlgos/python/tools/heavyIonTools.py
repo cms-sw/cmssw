@@ -1,13 +1,15 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+path = "PhysicsTools.PatAlgos.tools.heavyIonTools"
 
 class ConfigureHeavyIons(ConfigToolBase):
 
     """ Configure all defaults for heavy ions
     """
-    _label='ConfigureHeavyIons'
+    _label='configureHeavyIons'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)        
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -15,15 +17,6 @@ class ConfigureHeavyIons(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.heavyIonTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nconfigureHeavyIons(process)\n "
-                                               
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process):
                 
@@ -41,8 +34,9 @@ class ProductionDefaults(ConfigToolBase):
 
     """ Configure all relevant layer1 candidates for heavy ions
     """
-    _label='ProductionDefaults'
+    _label='productionDefaults'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)        
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -50,16 +44,7 @@ class ProductionDefaults(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.heavyIonTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nproductionDefaults(process)\n "
-                                               
-        return (dumpPythonImport,dumpPython) 
-
+    
     def __call__(self,process):
                 
         self.apply(process) 
@@ -119,8 +104,9 @@ class SelectionDefaults(ConfigToolBase):
 
     """ Configure all relevant selected layer1 candidates for heavy ions
     """
-    _label='SelectionDefaults'
+    _label='selectionDefaults'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)        
         self._parameters=copy.deepcopy(self._defaultParameters)
@@ -128,15 +114,6 @@ class SelectionDefaults(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.heavyIonTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nselectionDefaults(process)\n "
-                                               
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process):
                 

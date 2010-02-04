@@ -2,13 +2,16 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+path = "PhysicsTools.PatAlgos.tools.coreTools"
+
 class RestrictInputToAOD(ConfigToolBase):
 
     """ Remove pat object production steps which rely on RECO event
     content
     """
-    _label='RestrictInputToAOD'
+    _label='restrictInputToAOD'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "list of collection names; supported are 'Photons', 'Electrons',, 'Muons', 'Taus', 'Jets', 'METs', 'All'", allowedValues=['Photons','Electrons', 'Muons', 'Taus', 'Jets', 'METs', 'All'])
@@ -17,16 +20,7 @@ class RestrictInputToAOD(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.coreTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nrestrictInputToAOD(process, "
-        dumpPython += str(self.getvalue('names'))+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
-
+  
     def __call__(self,process,
                  names     = None) :
         if  names is None:
@@ -62,8 +56,9 @@ class RemoveMCMatching(ConfigToolBase):
     """ Remove monte carlo matching from a given collection or all PAT
     candidate collections:
     """
-    _label='RemoveMCMatching'
+    _label='removeMCMatching'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
@@ -72,15 +67,6 @@ class RemoveMCMatching(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.coreTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nremoveMCMatching(process, "
-        dumpPython += str(self.getvalue('names'))+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  names     = None) :
@@ -195,8 +181,9 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
 
     """ Remove all PAT objects from the default sequence but a specific one
     """
-    _label='RemoveAllPATObjectsBut'
+    _label='removeAllPATObjectsBut'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
@@ -206,16 +193,6 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.coreTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nremoveAllPATObjectsBut(process, "
-        dumpPython += str(self.getvalue('names'))+", "
-        dumpPython += str(self.getvalue('outputInProcess'))+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  names               = None,
@@ -244,8 +221,9 @@ class RemoveSpecificPATObjects(ConfigToolBase):
 
     """ Remove a specific PAT object from the default sequence
     """
-    _label='RemoveSpecificPATObjects'
+    _label='removeSpecificPATObjects'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
@@ -255,16 +233,6 @@ class RemoveSpecificPATObjects(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.coreTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nremoveSpecificPATObjects(process, "
-        dumpPython += str(self.getvalue('names'))+", "
-        dumpPython += str(self.getvalue('outputInProcess'))+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  names               = None,
@@ -357,10 +325,11 @@ removeSpecificPATObjects=RemoveSpecificPATObjects()
 
 class RemoveCleaning(ConfigToolBase):
 
-    """ Remove PAT cleaning from the default sequence:
+    """ remove PAT cleaning from the default sequence:
     """
-    _label='RemoveCleaning'
+    _label='removeCleaning'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'outputInProcess',True,"indicate whether there is an output module specified for the process (default is True)" )
@@ -369,15 +338,6 @@ class RemoveCleaning(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.coreTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\nremoveCleaning(process, "
-        dumpPython += str(self.getvalue('outputInProcess'))+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  outputInProcess = None) :
@@ -414,8 +374,9 @@ class AddCleaning(ConfigToolBase):
 
     """ Add PAT cleaning from the default sequence
     """
-    _label='AddCleaning'
+    _label='addCleaning'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'outputInProcess',True, "")
@@ -424,15 +385,6 @@ class AddCleaning(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-
-    def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.coreTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\naddCleaning(process, "
-        dumpPython += str(self.getvalue('outputInProcess'))+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  outputInProcess     = None):
