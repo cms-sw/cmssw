@@ -5,8 +5,9 @@ class ToolName(ConfigToolBase):
     """
     Tool description
     """
-    _label='ToolName'
+    _label='toolName'
     _defaultParameters={}
+    _path = path
     def __init__(self):
         ### import base class constructor
         ConfigToolBase.__init__(self)
@@ -20,17 +21,6 @@ class ToolName(ConfigToolBase):
         self._comment = ""
     def getDefaultParameters(self):
         return self._defaultParameters
-    def dumpPython(self):
-        ### returns the code to include in a config file to use the tool
-        ### the dumpPythonImport variable is the import line to add only if it has not already included
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.trackTools import *\n"
-        dumpPython=''
-        if self._comment!="":
-            dumpPython = '#'+self._comment
-        dumpPython = "\ntoolName(process, "
-        dumpPython += '"'+str(self.getvalue('parName'))+'"'+", "
-        dumpPython += '"'+str(self.getvalue('parName2'))+'"'+")"+'\n'
-        return (dumpPythonImport,dumpPython) 
 
     def __call__(self,process,
                  parName1     = None,
