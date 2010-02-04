@@ -29,7 +29,7 @@ private:
   float cotTheta(const GlobalPoint& pinner, const GlobalPoint& pouter) const;
   float phi(float xC, float yC, int charge) const;
   float pt(float curvature) const;
-  float zip(float d0, float curv, 
+  float zip(float d0, float phi_p, float curv, 
     const GlobalPoint& pinner, const GlobalPoint& pouter) const;
   double errZip2(float apt, float eta) const;
   double errTip2(float apt, float eta) const;

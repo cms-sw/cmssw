@@ -99,12 +99,13 @@ reco::Track* PixelFitterByHelixProjections::run(
 
   CircleFromThreePoints::Vector2D center = circle.center();
   float valTip = charge * (center.mag()-1/curvature);
+
   float errTip = sqrt(errTip2(valPt, points.back().eta()));
 
   float valPhi = PixelFitterByHelixProjections::phi(center.x(), center.y(), charge);
   float errPhi = 0.002;
 
-  float valZip = zip(valTip, curvature, points[0],points[1]);
+  float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
   float errZip = sqrt(errZip2(valPt, points.back().eta()));
 
   float valCotTheta = PixelFitterByHelixProjections::cotTheta(points[0],points[1]);
@@ -155,15 +156,21 @@ float PixelFitterByHelixProjections::phi(float xC, float yC, int charge) const{
   return phiC;
 }
 
-float PixelFitterByHelixProjections::zip(float d0, float curv, 
+float PixelFitterByHelixProjections::zip(float d0, float phi_p, float curv, 
     const GlobalPoint& pinner, const GlobalPoint& pouter) const
 {
+//
 //phi = asin(r*rho/2) with asin(x) ~= x+x**3/(2*3)
+//
+
+  float phi0 = phi_p - M_PI_2;
+  GlobalPoint pca(d0*cos(phi0), d0*sin(phi0),0.);
+
   float rho3 = curv*curv*curv;
-  float r1 = pinner.perp();
-  double phi1 = r1*curv/2 + pinner.perp2()*r1*rho3/48.;
-  float r2 = pouter.perp();
-  double phi2 = r2*curv/2 + pouter.perp2()*r2*rho3/48.;
+  float r1 = (pinner-pca).perp();
+  double phi1 = r1*curv/2 + r1*r1*r1*rho3/48.;
+  float r2 = (pouter-pca).perp();
+  double phi2 = r2*curv/2 + r2*r2*r2*rho3/48.;
   double z1 = pinner.z();
   double z2 = pouter.z();
 
