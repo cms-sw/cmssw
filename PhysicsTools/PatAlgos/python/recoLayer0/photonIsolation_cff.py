@@ -9,8 +9,20 @@ gamIsoDepositEcalFromHits.ExtractorPSet.barrelEcalHits = cms.InputTag("reducedEc
 gamIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE")
 
 # sequence to run on AOD 
-patPhotonIsolation = cms.Sequence(
-    gamIsoDepositTk * gamIsoFromDepsTk +
-    gamIsoDepositEcalFromHits * gamIsoFromDepsEcalFromHits +
+patPhotonTrackIsolation = cms.Sequence(
+    gamIsoDepositTk * gamIsoFromDepsTk
+)
+
+patPhotonEcalIsolation = cms.Sequence(
+    gamIsoDepositEcalFromHits * gamIsoFromDepsEcalFromHits
+)
+
+patPhotonHcalIsolation = cms.Sequence(
     gamIsoDepositHcalFromTowers * gamIsoFromDepsHcalFromTowers
+)
+
+patPhotonIsolation = cms.Sequence(
+    patPhotonTrackIsolation +
+    patPhotonEcalIsolation  +
+    patPhotonHcalIsolation
 )

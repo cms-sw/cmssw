@@ -9,9 +9,20 @@ eleIsoDepositEcalFromHits.ExtractorPSet.barrelEcalHits = cms.InputTag("reducedEc
 eleIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE")
 
 ## sequence to run on AOD 
-patElectronIsolation = cms.Sequence(
-    eleIsoDepositTk * eleIsoFromDepsTk +
-    eleIsoDepositEcalFromHits * eleIsoFromDepsEcalFromHitsByCrystal +
+patElectronTrackIsolation = cms.Sequence(
+    eleIsoDepositTk * eleIsoFromDepsTk
+)
+
+patElectronEcalIsolation = cms.Sequence(
+    eleIsoDepositEcalFromHits * eleIsoFromDepsEcalFromHitsByCrystal
+)
+
+patElectronHcalIsolation = cms.Sequence(
     eleIsoDepositHcalFromTowers * eleIsoFromDepsHcalFromTowers
 )
 
+patElectronIsolation = cms.Sequence(
+    patElectronTrackIsolation +
+    patElectronEcalIsolation  +
+    patElectronHcalIsolation
+)
