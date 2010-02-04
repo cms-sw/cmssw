@@ -266,11 +266,11 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	/*     delE = Emax - Emin = 1.24 eV  --> */
 	/*   */
 	/* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
-	float effPMTandTransport = 0.15;
+	float effPMTandTransport = 0.19;
 	/* for test HF geometry volumes:   
 	   if(nameVolume == "GF2Q" || nameVolume == "GFNQ" || 
 	   nameVolume == "GR2Q" || nameVolume == "GRNQ")
-	   effPMTandTransport = 0.15;
+	   effPMTandTransport = 0.19;
 	*/
 
 	float thFullRefl = 23.;  /* 23.dergee */
