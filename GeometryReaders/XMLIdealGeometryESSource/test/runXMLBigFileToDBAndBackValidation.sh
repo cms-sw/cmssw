@@ -24,7 +24,7 @@ set geomtemp = `(grep "Geometry.CMSCommonData" ${CMSSW_RELEASE_BASE}/src/Configu
 #awk -F\. '{print $3}')`
 set geomxml = "${CMSSW_RELEASE_BASE}/src/Geometry/CMSCommonData/python/${geomtemp}.py"
 
-echo "START - All messages in this script pertain to geometry data described in Configuration/StandardSequence ${geometry}"
+echo "START - All messages in this script pertain to geometry data described in Configuration/StandardSequence/python/${geometry}_cff.py"
 echo "        and xml files in: ${geomxml}" 
 
 # STEP 1:
@@ -128,6 +128,7 @@ echo "Start to write the single BIG XML file."
 touch twLoadDBWithXML.out
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >>& twLoadDBWithXML.out
+sed -i "{s/geTagXX/fred/g}" geometryxmlwriter.py
 #sed -i '{s/GeometryExtended/GeometryIdeal/}' geometryxmlwriter.py >> twLoadDBWithXML.out
 cmsRun geometryxmlwriter.py >>& twLoadDBWithXML.out
 echo "Finish the write to the single BIG XML file."
@@ -166,10 +167,12 @@ endif
 # STEP 5
 echo "Start to write all geometry objects to the local DB including BIG XML file."
 # At this point, I'm preparing the database.
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/dbconfig.xml .
 source $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/blob_preparation.txt >>& twLoadDBWithXML.out
 # At this point I'm writing ALL geometries, not only the "big file" into the database.
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometrywriter.py >>& twLoadDBWithXML.out
+sed -i "{s/geTagXX/fred/g}" geometrywriter.py >>& twLoadDBWithXML.out
 #sed -i '{s/GeometryExtended/GeometryIdeal/}' geometrywriter.py >> twLoadDBWithXML.out
 cmsRun geometrywriter.py >>& twLoadDBWithXML.out
 echo "Finish writing all geometry objects to the local DB including BIG XML file."
@@ -185,7 +188,7 @@ cd ../xml
 echo "Start reading the XML from the original config file."
 cp ../../readIdealAndDump.py .
 sed -i "{s/GeometryExtended/${geometry}/}" readIdealAndDump.py >& trIdeal.out
-cmsRun readIdealAndDump.py
+cmsRun readIdealAndDump.py >>& trIdeal.out
 echo "End reading the XML from the original config file."
 cd ../..
 cmsRun testCompareDumpFiles.py >& tcdf.out

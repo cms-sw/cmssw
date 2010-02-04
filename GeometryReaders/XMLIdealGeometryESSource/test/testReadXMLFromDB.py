@@ -1,36 +1,32 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DBGeometryTest")
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load('Configuration/StandardSequences/GeometryDB_cff')
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(1)
-        )
+process.GlobalTag.globaltag = 'MC_3XY_MEC::All'
 process.source = cms.Source("EmptySource")
 
-process.myprint = cms.OutputModule("AsciiOutputModule")
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
                                       process.CondDBSetup,
-                                      loadAll = cms.bool(True),
-                                      loadBlobStreamer = cms.bool(True),
-                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                                      toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                                                 tag = cms.string('XMLFILE_Geometry_TagXX')
-                                                                 )
-                                                        ),
-                                      catalog = cms.untracked.string('file:PoolFileCatalog.xml'),
                                       timetype = cms.string('runnumber'),
+                                      toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX'))
+                                                        ),
                                       connect = cms.string('sqlite_file:myfile.db')
                                       )
 
-process.PoolDBESSource.DBParameters = cms.PSet(
-    messageLevel = cms.untracked.int32(9),
-    authenticationPath = cms.untracked.string('.')
-    )
+process.es_prefer_geometry = cms.ESPrefer( "PoolDBESSource", "PoolDBESSourceGeometry" )
+
+process.myprint = cms.OutputModule("AsciiOutputModule")
 
 XMLFromDBSource = cms.ESProducer("XMLIdealGeometryESProducer",
-                                 rootDDName = cms.string('cms:OCMS')
+                                 rootDDName = cms.string('cms:OCMS'),
                                  )
 
 process.pDB = cms.EDAnalyzer("PerfectGeometryAnalyzer"
