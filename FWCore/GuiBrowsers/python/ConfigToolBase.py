@@ -6,7 +6,7 @@ class parameter:
     pass
 
 
-### Base class for tools object oriented designed 
+### Base class for object oriented designed tools
         
 class ConfigToolBase(object) :
 
@@ -14,6 +14,7 @@ class ConfigToolBase(object) :
     """
     _label="ConfigToolBase"
     _defaultValue="No default value. Set parameter value."
+    _path = ""
     def __init__(self):
         self._parameters={}
         self._description=self.__doc__
@@ -93,10 +94,29 @@ class ConfigToolBase(object) :
         if self._defaultParameters[name].allowedValues is not None: self.isAllowed(name,value )
     def setParameters(self, parameters):
         self._parameters=copy.deepcopy(parameters)
+    #def dumpPython(self):
+     #   """ Return the python code to perform the action
+     #   """
+     #   raise NotImplementedError
+
     def dumpPython(self):
         """ Return the python code to perform the action
-        """
-        raise NotImplementedError
+        """ 
+        dumpPythonImport = "\n"+self._path+" import *\n"
+        dumpPython=''
+        if self._comment!="":
+            dumpPython = '#'+self._comment
+        dumpPython = "\n"+self._label+"(process "
+        for key in self._parameters.keys():
+            dumpPython+= ", "
+            if self._parameters[key].type is type(str):
+                string = "'"+str(self.getvalue(key))+"'"
+            else:
+                string = "'"+str(self.getvalue(key))+"'"
+            dumpPython+= string
+        dumpPython+=")"+'\n'
+        return (dumpPythonImport,dumpPython)
+    
     def setComment(self, comment):
         """ Write a comment in the configuration file
         """
