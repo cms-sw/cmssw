@@ -5,7 +5,7 @@
  *  Created by Chris Jones on 5/18/05.
  *  Changed by Viji Sundararajan on 11-Jul-05.
  *
- * $Id: makepset_t.cppunit.cc,v 1.2 2009/09/21 21:12:45 wmtan Exp $
+ * $Id: makepset_t.cppunit.cc,v 1.3 2009/11/06 02:44:31 wmtan Exp $
  */
 
 #include <algorithm>
@@ -326,6 +326,7 @@ void testmakepset::typesTest()
   "    vui = cms.vuint32(1, 2, 1, 255),\n"
   "    s = cms.string('this string'),\n"
   "    sb1 = cms.string(''),\n"
+  "    emptyString = cms.untracked.string(''),\n"
   "    vEventID = cms.VEventID('1:1', '2:2','3:3'),\n"
   "    lumi = cms.LuminosityBlockID(55, 65),\n"
   "    vlumis = cms.VLuminosityBlockID('75:85', '95:105'),\n"
@@ -346,8 +347,6 @@ void testmakepset::typesTest()
    boost::shared_ptr<edm::ParameterSet> ps2 = builder2.processDesc()->getProcessPSet();
    edm::ParameterSet const& test = ps2->getParameterSet("p");
 
-
-   
    CPPUNIT_ASSERT(1 == test.getParameter<int>("i"));
    CPPUNIT_ASSERT(test.retrieve("i").isTracked());
    CPPUNIT_ASSERT(1 == test.getParameter<unsigned int>("ui"));
@@ -366,6 +365,7 @@ void testmakepset::typesTest()
    //std::cout <<"blank string using single quotes returns \""<<test.getParameter<std::string>("sb1")<<"\""<<std::endl;
    //std::cout <<"blank string using double quotes returns \""<<test.getParameter<std::string>("sb2")<<"\""<<std::endl;
    CPPUNIT_ASSERT("" == test.getParameter<std::string>("sb1"));
+   CPPUNIT_ASSERT("" == test.getUntrackedParameter<std::string>("emptyString", "default"));
    CPPUNIT_ASSERT("" == test.getParameter<std::string>("sb2"));
    CPPUNIT_ASSERT(4  == test.getParameter<std::string>("sb3").size());
    std::vector<std::string> vs = test.getParameter<std::vector<std::string> >("vs");
