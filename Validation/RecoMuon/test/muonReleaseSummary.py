@@ -47,8 +47,10 @@ CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 ValidateHLT=True
 if (NewFastSim|RefFastSim):
     ValidateDQM=False
+    ValidateISO=True
 else:
     ValidateDQM=True
+    ValidateISO=True
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
@@ -82,6 +84,7 @@ CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 macro='macro/TrackValHistoPublisher.C'
 macroSeed='macro/SeedValHistoPublisher.C'
 macroReco='macro/RecoValHistoPublisher.C'
+macroIsol='macro/IsoValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
@@ -154,6 +157,7 @@ for sample in samples :
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
         seedcfgFileName='SEED'+sample+'_'+NewRelease+'_'+RefRelease
         recocfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
+        isolcfgFileName='ISOL'+sample+'_'+NewRelease+'_'+RefRelease
 
         if os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'):
             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
@@ -162,6 +166,8 @@ for sample in samples :
             if (ValidateDQM):
                 replace_map_DIST = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'RecoValHistoPublisher': recocfgFileName}
                 replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
+            if (ValidateISO):
+                replace_map_ISOL = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'IsoValHistoPublisher': isolcfgFileName}
         else:
             print "No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample
             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
@@ -170,6 +176,8 @@ for sample in samples :
             if (ValidateDQM):
                 replace_map_DIST = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'RecoValHistoPublisher': recocfgFileName}
                 replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
+            if (ValidateISO):
+                replace_map_ISOL = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'IsoValHistoPublisher': isolcfgFileName}
 
         templatemacroFile = open(macro, 'r')
         macroFile = open(cfgFileName+'.C' , 'w' )
@@ -188,6 +196,11 @@ for sample in samples :
             seedmacroFile = open(seedcfgFileName+'.C' , 'w' )
             replace(replace_map_SEED, templatemacroFile, seedmacroFile)
 
+        if (ValidateISO):
+            templatemacroFile = open(macroIsol, 'r')
+            isolmacroFile = open(isolcfgFileName+'.C' , 'w' )
+            replace(replace_map_ISOL, templatemacroFile, isolmacroFile)
+
         if(Submit):
             os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
             if (ValidateHLT):
@@ -195,6 +208,8 @@ for sample in samples :
             if (ValidateDQM):
                 os.system('root -b -q -l '+ recocfgFileName+'.C'+ '>  macro.'+recocfgFileName+'.log')
                 os.system('root -b -q -l '+ seedcfgFileName+'.C'+ '>  macro.'+seedcfgFileName+'.log')
+        if (ValidateISO):
+                os.system('root -b -q -l '+ isolcfgFileName+'.C'+ '>  macro.'+isolcfgFileName+'.log')
 
         if(Publish):
             if(os.path.exists(newdir)==False):
