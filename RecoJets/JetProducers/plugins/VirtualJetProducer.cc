@@ -436,7 +436,7 @@ void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSet
     writeJets<reco::BasicJet>( iEvent, iSetup);
     break;
   default:
-    edm::LogError("InvalidInput") << " invalid jet type in VirtualJetProducer\n";
+    throw cms::Exception("InvalidInput") << "invalid jet type in VirtualJetProducer\n";
     break;
   };
   
