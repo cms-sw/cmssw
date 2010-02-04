@@ -39,21 +39,17 @@ void EcalUncalibratedRecHit::setOutOfTimeEnergy( float energy )
         }
 }
 
-void EcalUncalibratedRecHit::setOutOfTimeChi2Prob( float chi2Prob )
+void EcalUncalibratedRecHit::setOutOfTimeChi2( float chi2 )
 {
-        if ( chi2Prob < 0 || chi2Prob > 1 ) {
-                edm::LogWarning("EcalUncalibratedRecHit::setOutOfTimeChi2Prob") << "chi2Prob outside limits [0, 1] : " << chi2Prob;
-        } else {
-                // use 7 bits
-                uint32_t rawChi2Prob = lround( chi2Prob * ((1<<7)-1) );
-                // shift by 17 bits (recoFlag + outOfTimeEnergy)
-                setFlags( (~(0x7F<<17) & flags_) | ((rawChi2Prob & 0x7F)<<17) );
-        }
+        // use 7 bits
+        if ( chi2 > 64. ) chi2 = 64.;
+        uint32_t rawChi2 = lround( chi2 / 64. * ((1<<7)-1) );
+        // shift by 17 bits (recoFlag + outOfTimeEnergy)
+        setFlags( (~(0x7F<<17) & flags_) | ((rawChi2 & 0x7F)<<17) );
 }
 
-float EcalUncalibratedRecHit::outOfTimeChi2Prob() const
+float EcalUncalibratedRecHit::outOfTimeChi2() const
 {
-        uint32_t rawChi2Prob = 0x7F & (flags_>>17);
-        return (float)rawChi2Prob / (float)((1<<7)-1);
+        uint32_t rawChi2 = 0x7F & (flags_>>17);
+        return (float)rawChi2 / (float)((1<<7)-1) * 64.;
 }
-
