@@ -63,7 +63,7 @@ class SiStripDigiAnalyzer : public edm::EDAnalyzer {
   SiStripDigiAnalyzer( const edm::ParameterSet& );
   ~SiStripDigiAnalyzer();
   
-  void beginJob( edm::EventSetup const& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob();
   

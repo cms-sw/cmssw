@@ -13,7 +13,7 @@ SiStripRawToClustersDummyUnpacker::SiStripRawToClustersDummyUnpacker( const edm:
 
 SiStripRawToClustersDummyUnpacker::~SiStripRawToClustersDummyUnpacker() {}
 
-void SiStripRawToClustersDummyUnpacker::beginJob( const edm::EventSetup& setup) {}
+void SiStripRawToClustersDummyUnpacker::beginJob() {}
 
 void SiStripRawToClustersDummyUnpacker::endJob() {}
 

@@ -73,7 +73,7 @@ SiStripDigiAnalyzer::~SiStripDigiAnalyzer() {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripDigiAnalyzer::beginJob( const edm::EventSetup& setup ) {
+void SiStripDigiAnalyzer::beginJob() {
   LogDebug("SiStripDigiAnalyzer")
     << "[SiStripDigiAnalyzer::beginJob]";
 }
