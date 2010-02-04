@@ -25,7 +25,7 @@ class JPTTrackProducer : public edm::EDProducer
   explicit JPTTrackProducer(const edm::ParameterSet& config);
   ~JPTTrackProducer();
  private:
-  virtual void beginJob(const edm::EventSetup& eventSetup);
+  virtual void beginJob();
   virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
   virtual void endJob();
   
@@ -89,6 +89,13 @@ JPTTrackProducer::~JPTTrackProducer()
 void
 JPTTrackProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+
+  const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,eventSetup);
+  if (!corrector) edm::LogError("JPTTrackProducer") << "Failed to get corrector with name " << jptCorrectorName_ << "from the EventSetup";
+  jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
+  if (!jptCorrector_) edm::LogError("JPTTrackProducer") << "Corrector with name " << jptCorrectorName_ << " is not a JetPlusTrackCorrector";
+
+
   std::auto_ptr<reco::TrackCollection> inVertexInCaloTracks(new reco::TrackCollection);
   std::auto_ptr<reco::TrackCollection> outVertexInCaloTracks(new reco::TrackCollection);
   std::auto_ptr<reco::TrackCollection> inVertexOutCaloTracks(new reco::TrackCollection);
@@ -128,12 +135,8 @@ void JPTTrackProducer::copyTracks(const reco::TrackRefVector& from, reco::TrackC
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-JPTTrackProducer::beginJob(const edm::EventSetup& eventSetup)
+JPTTrackProducer::beginJob()
 {
-  const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,eventSetup);
-  if (!corrector) edm::LogError("JPTTrackProducer") << "Failed to get corrector with name " << jptCorrectorName_ << "from the EventSetup";
-  jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
-  if (!jptCorrector_) edm::LogError("JPTTrackProducer") << "Corrector with name " << jptCorrectorName_ << " is not a JetPlusTrackCorrector";
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

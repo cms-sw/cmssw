@@ -92,7 +92,7 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -152,7 +152,7 @@ private:
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-JPTBjetAnalyzer::beginJob(const edm::EventSetup&)
+JPTBjetAnalyzer::beginJob()
 {
   using namespace edm;
   // creating a simple tree

@@ -33,7 +33,7 @@ public:
   
 private:
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -58,7 +58,7 @@ private:
 
 // -----------------------------------------------------------------------------
 //
-void JPTAnalyzer::beginJob( const edm::EventSetup& ) {
+void JPTAnalyzer::beginJob( ) {
 
   using namespace edm;
   // creating a simple tree

@@ -174,7 +174,7 @@ public:
   double eHCALneighbours(std::vector<DetId>& vNeighboursDetId, std::vector<DetId>& dets, const HcalTopology* topology, const HBHERecHitCollection& hits);
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -1008,7 +1008,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SinglePionEfficiencyNew::beginJob(const edm::EventSetup& iSetup)
+SinglePionEfficiencyNew::beginJob()
 {
 
   using namespace edm;
