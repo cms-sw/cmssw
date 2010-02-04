@@ -9,6 +9,7 @@ OutALCARECOTkAlWMuNu_noDrop = cms.PSet(
         'keep *_ALCARECOTkAlWMuNu_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        'keep *_TriggerResults_*_*',
         'keep *_MEtoEDMConverter_*_*')
 )
 
