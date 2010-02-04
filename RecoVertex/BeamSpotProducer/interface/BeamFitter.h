@@ -10,11 +10,12 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.12 2010/01/29 05:31:04 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.13 2010/02/01 19:34:09 jengbou Exp $
 
  ________________________________________________________________**/
 
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -25,7 +26,7 @@
 #include "TTree.h"
 #include "TH1F.h"
 
-#include<fstream>
+#include <fstream>
 
 class BeamFitter {
  public:
@@ -39,6 +40,7 @@ class BeamFitter {
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
+  void resetLSRange() { flumiStart=flumiEnd=-1; }
   void dumpTxtFile();
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
@@ -106,6 +108,8 @@ class BeamFitter {
   double fvy;
   int frun;
   int flumi;
+  int flumiStart;
+  int flumiEnd;
   bool fquality;
   bool falgo;
   bool fpvValid;
@@ -115,6 +119,8 @@ class BeamFitter {
   TTree* ftreeFit_;
   int frunFit;
   int flumiFit;
+  TString fbeginTimeOfFit;
+  char* fendTimeOfFit;
   double fx;
   double fy;
   double fz;

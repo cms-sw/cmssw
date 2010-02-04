@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.12 2009/10/27 20:59:29 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.13 2009/12/18 20:45:08 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -34,6 +34,7 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
 
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
+  theBeamFitter->resetLSRange();
 
   ftotalevents = 0;
   ftmprun0 = ftmprun = -1;
@@ -54,7 +55,11 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	ftotalevents++;
 	theBeamFitter->readEvent(iEvent);
 	ftmprun = iEvent.id().run();
-	ftmplumi = iEvent.luminosityBlock();
+	int tmplumi = iEvent.luminosityBlock();
+	if (tmplumi > ftmplumi) 
+	  ftmplumi = tmplumi;
+	if (tmplumi < ftmplumi0)
+	  ftmplumi0 = tmplumi;
 }
 
 
@@ -113,6 +118,8 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 		std::cout << "Total number of tracks accumulated = " << theBSvector.size() << std::endl;
 		std::cout << "Reset track collection for beam fit" <<std::endl;
 		theBeamFitter->resetTrkVector();
+		theBeamFitter->resetLSRange();
+		countLumi_=0;
 	}
 
 }

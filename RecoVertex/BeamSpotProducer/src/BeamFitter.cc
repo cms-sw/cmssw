@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.20 2010/01/29 05:31:04 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.21 2010/02/01 19:34:09 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -25,6 +25,36 @@ ________________________________________________________________**/
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
+// ----------------------------------------------------------------------
+// Useful function:
+// ----------------------------------------------------------------------
+
+static char * formatTime( const time_t t )  {
+
+  static  char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+
+#ifdef AN_ALTERNATIVE_FOR_TIMEZONE
+  char * c  = ctime( &t );
+  strncpy( ts+ 0, c+ 8, 2 );  // dd
+  strncpy( ts+ 3, c+ 4, 3 );  // Mon
+  strncpy( ts+ 7, c+20, 4 );  // yyyy
+  strncpy( ts+12, c+11, 8 );  // hh:mm:ss
+  strncpy( ts+21, tzname[localtime(&t)->tm_isdst], 8 );
+#endif
+
+  strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+
+#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
+  // strip trailing blanks that would come when the time zone is not as
+  // long as the maximum allowed - probably not worth the time 
+  unsigned int b = strlen(ts);
+  while (ts[--b] == ' ') {ts[b] = 0;}
+#endif 
+
+  return ts;
+
+}
 
 BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 {
@@ -122,7 +152,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   ftotal_tracks = 0;
   fnTotLayerMeas = fnPixelLayerMeas = fnStripLayerMeas = fnTIBLayerMeas = 0;
   fnTIDLayerMeas = fnTOBLayerMeas = fnTECLayerMeas = fnPXBLayerMeas = fnPXFLayerMeas = 0;
-  frun = flumi = -1;
+  frun = flumi = flumiStart = flumiEnd = -1;
   frunFit = flumiFit = -1;
   fquality = falgo = true;
   fpvValid = true;
@@ -155,9 +185,24 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 {
 
   frun = iEvent.id().run();
+  edm::TimeValue_t ftimestamp = iEvent.time().value();
+  edm::TimeValue_t fdenom = pow(2,32);
+  time_t ftmptime = ftimestamp / fdenom;
+  fendTimeOfFit = formatTime(ftmptime);
+  if (flumiStart == -1) fbeginTimeOfFit = fendTimeOfFit;
+
+//   std::cout << ftmptime << " seconds and " << time_t(ftimestamp);
+//   std::cout << " micro-seconds elapsed since Jan 1, 1970 00:00:00" << std::endl;
+//   std::cout << fbeginTimeOfFit << std::endl;
+//   std::cout << fendTimeOfFit << std::endl;
+
   flumi = iEvent.luminosityBlock();
   frunFit = frun;
   flumiFit = flumi;
+
+  if (flumiStart == -1 || flumiStart > flumi) flumiStart = flumi;
+  if (flumiEnd == -1 || flumiEnd < flumi) flumiEnd = flumi;
+//   std::cout << "flumi = " <<flumi<<"; flumiStart = " << flumiStart <<"; flumiEnd = "<<flumiEnd<<std::endl;
 
   edm::Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
@@ -176,7 +221,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   double eventZ = 0;
   double averageZ = 0;
-  
+
   for ( reco::TrackCollection::const_iterator track = tracks->begin();
 	track != tracks->end();
 	++track ) {
@@ -347,7 +392,11 @@ bool BeamFitter::runFitter() {
 
 void BeamFitter::dumpTxtFile(){
 
-  fasciiFile << "type " << fbeamspot.type() << std::endl;
+  fasciiFile << "Runnumber " << frun << std::endl;
+  fasciiFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
+  fasciiFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
+  fasciiFile << "LumiRange " << flumiStart << " - " << flumiEnd << std::endl;
+  fasciiFile << "Type " << fbeamspot.type() << std::endl;
   fasciiFile << "X " << fbeamspot.x0() << std::endl;
   fasciiFile << "Y " << fbeamspot.y0() << std::endl;
   fasciiFile << "Z " << fbeamspot.z0() << std::endl;
