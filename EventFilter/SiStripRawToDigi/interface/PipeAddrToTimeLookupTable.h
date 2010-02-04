@@ -98,12 +98,12 @@ namespace sistrip {
 
   //FEDAddressConversion
     
-  const uint8_t FEDAddressConversion::pipelineAddress(const uint8_t aTimeLocation){
+  inline const uint8_t FEDAddressConversion::pipelineAddress(const uint8_t aTimeLocation){
     if (aTimeLocation<APV_MAX_ADDRESS) return PIPEADDR[aTimeLocation];
     else return 0;
   }
 
-  const uint8_t FEDAddressConversion::timeLocation(const uint8_t aPipelineAddress){
+  inline const uint8_t FEDAddressConversion::timeLocation(const uint8_t aPipelineAddress){
     return TIMELOC[aPipelineAddress];
   }
 
