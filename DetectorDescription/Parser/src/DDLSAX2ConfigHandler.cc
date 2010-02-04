@@ -33,7 +33,7 @@
 // ---------------------------------------------------------------------------
 //  DDLSAX2ConfigHandler: Constructors and Destructor
 // ---------------------------------------------------------------------------
-DDLSAX2ConfigHandler::DDLSAX2ConfigHandler() : doValidation_(false), files_(), urls_(), schemaLocation_()
+DDLSAX2ConfigHandler::DDLSAX2ConfigHandler( DDCompactView& cpv) : doValidation_(false), files_(), urls_(), schemaLocation_(), cpv_(cpv)
 {
 }
 
@@ -103,10 +103,10 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       DDLogicalPart root(DDName(logicalPartName,fileName));
       DDRootDef::instance().set(root);//DDName(logicalPartName, fileName));
       /// bad, just testing...
-      DDCompactView cpv;
-      DDName rt(DDName(logicalPartName, fileName));
-      cpv.setRoot(rt);
-     DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
+      //      DDCompactView cpv;
+      //DDName rt(DDName(logicalPartName, fileName));
+      cpv_.setRoot(root);
+      DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
 
     }
   else if (myelemname == "Schema")
