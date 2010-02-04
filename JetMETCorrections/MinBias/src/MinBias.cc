@@ -27,7 +27,7 @@ MinBias::~MinBias()
 
 }
 
-void MinBias::beginJob( const edm::EventSetup& iSetup)
+void MinBias::beginJob()
 {
    hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ; 
    myTree = new TTree("RecJet","RecJet Tree");
@@ -43,21 +43,8 @@ void MinBias::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("mom3",  &mom3, "mom3/F");
    myTree->Branch("mom4",  &mom4, "mom4/F");
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);
-   geo = pG.product();
-   const std::vector<DetId>& did =  geo->getSubdetectorGeometry( DetId::Hcal, 1 )->getValidDetIds() ;
-   
-   for(std::vector<DetId>::const_iterator id=did.begin(); id != did.end(); id++)
-   {
-//      if( (*id).det() == DetId::Hcal ) {
-      theFillDetMap0[*id] = 0.;
-      theFillDetMap1[*id] = 0.;
-      theFillDetMap2[*id] = 0.;
-      theFillDetMap3[*id] = 0.;
-      theFillDetMap4[*id] = 0.;
-//   }
-   }
+   ievent = 0;
+
 }
 
 void MinBias::endJob()
@@ -118,7 +105,26 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
    using namespace edm;
-  
+   if(ievent == 0 ){ 
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<CaloGeometryRecord>().get(pG);
+   geo = pG.product();
+   std::vector<DetId> did =  geo->getValidDetIds();
+
+   for(std::vector<DetId>::const_iterator id=did.begin(); id != did.end(); id++)
+   {
+      if( (*id).det() == DetId::Hcal ) {
+      theFillDetMap0[*id] = 0.;
+      theFillDetMap1[*id] = 0.;
+      theFillDetMap2[*id] = 0.;
+      theFillDetMap3[*id] = 0.;
+      theFillDetMap4[*id] = 0.;
+   }
+   }
+   }
+
+
+ 
   if (!hbheLabel_.empty()) {
     edm::Handle<HBHERecHitCollection> hbhe;
     iEvent.getByLabel(hbheLabel_,hbhe);

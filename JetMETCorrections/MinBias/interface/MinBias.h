@@ -45,7 +45,7 @@ class MinBias : public edm::EDAnalyzer {
       ~MinBias();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& ) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
 
    private:
@@ -62,7 +62,7 @@ class MinBias : public edm::EDAnalyzer {
   //   TH1D*       hCalo1[8000], *hCalo2;
      TTree * myTree;
   //  
-     int mydet, mysubd, depth, iphi, ieta;
+     int mydet, mysubd, depth, iphi, ieta, ievent;
      float phi,eta;
      float mom1,mom2,mom3,mom4,occup;
      const CaloGeometry* geo;
