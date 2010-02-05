@@ -1375,7 +1375,7 @@ public :
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
-  int OHltTree::GetNLumiSections() {
+  int GetNLumiSections() {
     return nLumiSections;
   }
 
