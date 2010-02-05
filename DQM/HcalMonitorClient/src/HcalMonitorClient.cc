@@ -1,10 +1,4 @@
 #include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 //--------------------------------------------------------
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){

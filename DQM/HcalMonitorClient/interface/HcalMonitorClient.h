@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/CPUTimer.h" 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,14 +44,14 @@
 #include "DQM/HcalMonitorClient/interface/HcalDetDiagLaserClient.h"
 /////////////////////////////////////////////////////////////////
 
-//#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
-
 #include <DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h>
+
 // Use to hold/get channel status
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 
 
 #include "TROOT.h"
