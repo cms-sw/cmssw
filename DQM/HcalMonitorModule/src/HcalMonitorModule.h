@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/11/19 16:59:36 $
- * $Revision: 1.57 $
+ * $Date: 2009/12/14 17:45:16 $
+ * $Revision: 1.59 $
  * \author W. Fisher
  *
 */
@@ -35,9 +35,12 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
@@ -53,7 +56,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalCaloTowerMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalNZSMonitor.h"
 
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
@@ -194,7 +196,6 @@ public:
   edm::InputTag inputLabelRecHitHBHE_;
   edm::InputTag inputLabelRecHitHF_;
   edm::InputTag inputLabelRecHitHO_;
-  edm::InputTag inputLabelRecHitZDC_;
   edm::InputTag inputLabelEmulDigi_;
 
   edm::InputTag inputLabelCaloTower_;
@@ -234,7 +235,6 @@ public:
   HcalDeadCellMonitor*    deadMon_;
   HcalCaloTowerMonitor*   ctMon_;
   HcalTrigPrimMonitor*    tpMon_;
-  HcalZDCMonitor*         zdcMon_;
   HcalNZSMonitor*         nzsMon_;
 
   HcalTemplateAnalysis*   tempAnalysis_;

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/12/14 17:45:16 $
- * $Revision: 1.158 $
+ * $Date: 2010/01/08 20:07:30 $
+ * $Revision: 1.159 $
  * \author W Fisher
  * \author J Temple
  *
@@ -32,7 +32,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   ctMon_ = 0;     beamMon_ = 0;
   laserMon_ = 0;
   expertMon_ = 0;  eeusMon_ = 0;
-  zdcMon_ = 0;
 
   nzsMon_=0; // need to initialize to 0!
 
@@ -53,7 +52,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
   inputLabelRecHitHF_    = ps.getParameter<edm::InputTag>("hfRecHitLabel");
   inputLabelRecHitHO_    = ps.getParameter<edm::InputTag>("hoRecHitLabel");
-  inputLabelRecHitZDC_   = ps.getParameter<edm::InputTag>("zdcRecHitLabel");
   inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
   inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
 
@@ -162,13 +160,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     beamMon_->setup(ps, dbe_);
   }
 
-  if (ps.getUntrackedParameter<bool>("ZDCMonitor",false))
-    {
-      if (debug_>0) std::cout <<"HcalMonitorModule: ZDC monitor flag is on..."<<endl;
-      zdcMon_ = new HcalZDCMonitor();
-      zdcMon_->setup(ps, dbe_);
-    }
-
   if (ps.getUntrackedParameter<bool>("ExpertMonitor",false)){
     if(debug_>0) std::cout << "HcalMonitorModule: Expert monitor flag is on...."<<endl;
     expertMon_ = new HcalExpertMonitor();
@@ -259,8 +250,7 @@ HcalMonitorModule::~HcalMonitorModule()
       if(deadMon_!=0)   {  deadMon_->clearME();}
       if(mtccMon_!=0)   {  mtccMon_->clearME();}
       if(rhMon_!=0)     {  rhMon_->clearME();}
-      if (zdcMon_!=0)   {  zdcMon_->clearME();}
-      if (beamMon_!=0) { beamMon_->clearME();}
+       if (beamMon_!=0) { beamMon_->clearME();}
       if (nzsMon_!=0) { nzsMon_->clearME();}
       
       //////////////////////////////////////////////
@@ -279,51 +269,68 @@ HcalMonitorModule::~HcalMonitorModule()
   // since we're in the destructor (and thus won't be using the pointers again.)
   if(digiMon_!=0) 
     { 
-      delete digiMon_;  digiMon_=0; 
+      delete digiMon_;  
+      digiMon_=0; 
     }
   if(dfMon_!=0) 
-    { delete dfMon_;     dfMon_=0; 
+    { 
+      delete dfMon_;     
+      dfMon_=0; 
     }
   if(diTask_!=0) 
-    { delete diTask_;   diTask_=0; 
+    { 
+      delete diTask_;   
+      diTask_=0; 
     }
   if(pedMon_!=0) 
     {
-      delete pedMon_;   pedMon_=0; 
+      delete pedMon_;   
+      pedMon_=0; 
     }
   if(ledMon_!=0) 
-    { delete ledMon_;   ledMon_=0; 
+    { 
+      delete ledMon_;   
+      ledMon_=0; 
     }
   if(laserMon_!=0) 
-    { delete laserMon_;   laserMon_=0; 
+    { 
+      delete laserMon_;   
+      laserMon_=0; 
     }
   if(hotMon_!=0) 
-    { delete hotMon_;   hotMon_=0; 
+    { 
+      delete hotMon_;   
+      hotMon_=0; 
     }
   if(deadMon_!=0) 
-    { delete deadMon_; deadMon_=0; 
+    { 
+      delete deadMon_; 
+      deadMon_=0; 
     }
   if (beamMon_!=0)
-    { delete beamMon_;  beamMon_=0;
+    { 
+      delete beamMon_;  
+      beamMon_=0;
     }
   if(mtccMon_!=0) 
-    { delete mtccMon_; mtccMon_=0; 
+    { 
+      delete mtccMon_; 
+      mtccMon_=0; 
     }
   if(rhMon_!=0) 
-    { delete rhMon_;     rhMon_=0; 
-    }
-  if (zdcMon_!=0)
-    {
-      delete zdcMon_; zdcMon_=0;
+    { 
+      delete rhMon_;     
+      rhMon_=0; 
     }
   if (nzsMon_!=0)
     {
-      delete nzsMon_; nzsMon_=0;
+      delete nzsMon_; 
+      nzsMon_=0;
     }
-  
   if(tempAnalysis_!=0) 
-    { delete tempAnalysis_; 
-    tempAnalysis_=0; 
+    { 
+      delete tempAnalysis_; 
+      tempAnalysis_=0; 
     }
   /////////////////////////////////////////////
   if(detDiagPed_!=0) 
@@ -391,9 +398,10 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
     meIEVTRECHIT_->Fill(ievt_rechit_);
     meStatus_  = dbe_->bookInt("STATUS");
    
-    meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
+    meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",1+(FEDNumbering::MAXHCALFEDID-FEDNumbering::MINHCALFEDID),FEDNumbering::MINHCALFEDID-0.5,FEDNumbering::MAXHCALFEDID+0.5);
+
     // process latency was (200,0,1), but that gave overflows
-    meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
+    meLatency_ = dbe_->book1D("Process Latency","Process Latency",1000,0,10);
     meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
     // Store whether or not subdetectors are present
     meHB_ = dbe_->bookInt("HBpresent");
@@ -426,7 +434,6 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
   if (ctMon_)     ctMon_->beginRun();
 
   if (tpMon_)     tpMon_->beginRun();
-  if (zdcMon_)    zdcMon_->beginRun();
   if (eeusMon_)   eeusMon_->beginRun();
 
   if (nzsMon_!=NULL)     nzsMon_->beginRun();
@@ -514,7 +521,6 @@ void HcalMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   if(deadMon_!=0)   {  deadMon_->beginLuminosityBlock(ilumisec);}
   if(mtccMon_!=0)   {  mtccMon_->beginLuminosityBlock(ilumisec);}
   if(rhMon_!=0)     {  rhMon_->beginLuminosityBlock(ilumisec);}
-  if (zdcMon_!=0)   {  zdcMon_->beginLuminosityBlock(ilumisec);}
   if (beamMon_!=0)  {  beamMon_->beginLuminosityBlock(ilumisec);}
   if (tpMon_!=0)    {  tpMon_->beginLuminosityBlock(ilumisec);}
   if (nzsMon_!=0)    {  nzsMon_->beginLuminosityBlock(ilumisec);}
@@ -548,7 +554,6 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if(deadMon_!=0)   {  deadMon_->endLuminosityBlock();}
   if(mtccMon_!=0)   {  mtccMon_->endLuminosityBlock();}
   if(rhMon_!=0)     {  rhMon_->endLuminosityBlock();}
-  if (zdcMon_!=0)   {  zdcMon_->endLuminosityBlock();}
   if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
   if (tpMon_!=0)    {  tpMon_->endLuminosityBlock();}
   if (nzsMon_!=0)    {  nzsMon_->endLuminosityBlock();}
@@ -586,7 +591,6 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if(deadMon_!=0)   {  deadMon_->endLuminosityBlock();}
   if(mtccMon_!=0)   {  mtccMon_->endLuminosityBlock();}
   if(rhMon_!=0)     {  rhMon_->endLuminosityBlock();}
-  if (zdcMon_!=0)   {  zdcMon_->endLuminosityBlock();}
   if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
   if (tpMon_!=0)    {  tpMon_->endLuminosityBlock();}
   if (nzsMon_!=0)    {  nzsMon_->endLuminosityBlock();} 
@@ -626,7 +630,6 @@ void HcalMonitorModule::endJob(void) {
   if (tpMon_!=NULL)        tpMon_->done();
   if (ctMon_!=NULL)        ctMon_->done();
   if (beamMon_!=NULL)      beamMon_->done();
-  if (zdcMon_!=NULL)       zdcMon_->done();
   if (expertMon_!=NULL)    expertMon_->done();
   if (eeusMon_!=NULL)      eeusMon_->done();
   if (nzsMon_!=NULL)       nzsMon_->done();
@@ -658,7 +661,6 @@ void HcalMonitorModule::reset(){
   if(tempAnalysis_!=NULL) tempAnalysis_->reset();
   if(tpMon_!=NULL) tpMon_->reset();
   if(ctMon_!=NULL) ctMon_->reset();
-  if (zdcMon_!=NULL) zdcMon_->reset();
   if(beamMon_!=NULL) beamMon_->reset();
   if(expertMon_!=NULL) expertMon_->reset();
   if(eeusMon_!=NULL) eeusMon_->reset();
@@ -706,7 +708,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   bool rawOK_    = true;
   bool digiOK_   = true;
   bool rechitOK_ = true;
-  bool zdchitOK_ = true;
   bool trigOK_   = false;
   bool tpdOK_    = true;
   bool calotowerOK_ = true;
@@ -729,28 +730,27 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     rawOK_=false;
   }
 
-
   edm::Handle<HcalUnpackerReport> report;  
   if (!(e.getByLabel(inputLabelDigi_,report)))
     {
       rawOK_=false;
-      LogWarning("HcalMonitorModule")<<" Digi Collection "<<inputLabelDigi_<<" not available";
+      LogWarning("HcalMonitorModule")<<" Unpacker Report "<<inputLabelDigi_<<" not available";
     }
   if (rawOK_ && !report.isValid()) {
     rawOK_=false;
   }
-  if (rawOK_)
+
+  if (rawOK_==true) // raw data good; get information from unpacker report
     {
+      ++ievt_rawdata_;
       if(!fedsListed_){
 	const std::vector<int> feds =  (*report).getFedsUnpacked();    
-	for(unsigned int f=0; f<feds.size(); f++){
+	for(unsigned int f=0; f<feds.size(); ++f)
 	  meFEDS_->Fill(feds[f]);    
-	}
 	fedsListed_ = true;
 	fedss = feds; //Assign to a non-const holder
       }
-    }
-  if (rawOK_==true) ++ievt_rawdata_;
+    } // if (rawOK_==true)
 
   // copy of Bryan Dahmes' calibration filter
   int calibType=-1;
@@ -760,28 +760,19 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     // checking FEDs for calibration information
     int numEmptyFEDs = 0 ;
     std::vector<int> calibTypeCounter(8,0) ;
-    for( int i = FEDNumbering::MINHCALFEDID; i <= FEDNumbering::MAXHCALFEDID; i++) {
-      const FEDRawData& fedData = rawraw->FEDData(i) ;
-
-      if ( fedData.size() < 24 ) numEmptyFEDs++ ;
-      if ( fedData.size() < 24 ) continue;
-      int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
-      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
-      
-      // Temporary for Pawel -- get BCN #101
-      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
-      dccBCN = dccHeader->getBunchId();
-      if (dccBCN!=101)
-	{
-	  //if (i-FEDNumbering::MINHCALFEDID==0 && debug_>-1) std::cout <<"\t\tHUZZAH! ievent = "<< ievent_<<" BCN = "<<dccBCN<<endl;
-	}
-      else
-	{
-	  // std::cout <<"BCN = "<<dccBCN<<endl;
-	  //return;
-	}
-
-    }
+    for( int i = FEDNumbering::MINHCALFEDID; i <= FEDNumbering::MAXHCALFEDID; i++) 
+      {
+	const FEDRawData& fedData = rawraw->FEDData(i) ;
+	
+	if ( fedData.size() < 24 ) numEmptyFEDs++ ;
+	if ( fedData.size() < 24 ) continue;
+	int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
+	calibTypeCounter.at(value)++ ; // increment the counter for this calib type
+	
+	// Temporary for Pawel -- get BCN #101
+	const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
+	dccBCN = dccHeader->getBunchId();
+      } // for (int i = FEDNumbering::MINHCALFEDID; ...)
     
     int maxCount = 0;
     int numberOfFEDIds = FEDNumbering::MAXHCALFEDID  - FEDNumbering::MINHCALFEDID + 1 ;
@@ -800,25 +791,23 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // skip this event if we're prescaling...
   ++ievt_;
   if(prescaleEvt_>0 && prescale()) return;
-  if (rawOK_==true) ++ievt_rawdata_;
-
 
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
-  edm::Handle<ZDCDigiCollection> zdc_digi;
   edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
   edm::Handle<HcalTrigPrimDigiCollection> emultp_digi;
   edm::Handle<HcalLaserDigi> laser_digi;
 
   if (!(e.getByLabel(inputLabelDigi_,hbhe_digi)))
-    digiOK_=false;
+    {
+      digiOK_=false;
+      LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" hbhe_digi not available";
+    }
 
-  if (digiOK_&&!hbhe_digi.isValid()) {
-    digiOK_=false;
-    LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" hbhe_digi not available";
-  }
+  if (!hbhe_digi.isValid())    digiOK_=false;
+
 
   if (!(e.getByLabel(inputLabelDigi_,hf_digi)))
     {
@@ -826,29 +815,14 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" hf_digi not available";
     }
 
-  if (digiOK_&&!hf_digi.isValid()) {
-    digiOK_=false;
-  }
+  if (!hf_digi.isValid())  digiOK_=false;
 
   if (!(e.getByLabel(inputLabelDigi_,ho_digi)))
     {
       digiOK_=false;
       LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" ho_digi not available";
     }
-  if (digiOK_&&!ho_digi.isValid()) {
-    digiOK_=false;
-  }
-  
-  if (!(e.getByLabel(inputLabelDigi_,zdc_digi)))
-    {
-      digiOK_=false;
-      if (debug_>1) std::cout <<"<HcalMonitorModule> COULDN'T GET ZDC DIGI"<<endl;
-      //LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
-    }
-  if (digiOK_&&!zdc_digi.isValid()) {
-    digiOK_=false;
-    if (debug_>1) std::cout <<"<HcalMonitorModule> DIGI OK FAILED FOR ZDC"<<endl;
-  }
+  if (!ho_digi.isValid())  digiOK_=false;
   
   if (digiOK_) ++ievt_digi_;
 
@@ -921,7 +895,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HBHERecHitCollection> hb_hits;
   edm::Handle<HORecHitCollection> ho_hits;
   edm::Handle<HFRecHitCollection> hf_hits;
-  edm::Handle<ZDCRecHitCollection> zdc_hits;
   edm::Handle<CaloTowerCollection> calotowers;
 
   if (!(e.getByLabel(inputLabelRecHitHBHE_,hb_hits)))
@@ -954,18 +927,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   }
   
   if (rechitOK_) ++ievt_rechit_;
-
-  if (!(e.getByLabel(inputLabelRecHitZDC_,zdc_hits)))
-    {
-      zdchitOK_=false;
-      // ZDC Warnings should be suppressed unless debugging is on (since we don't yet normally run zdcreco)
-      if (debug_>0) 
-	LogWarning("HcalMonitorModule")<< inputLabelRecHitZDC_<<" not available"; 
-    }
-  if (zdchitOK_&&!zdc_hits.isValid()) 
-    {
-      zdchitOK_ = false;
-    }
   
   // try to get calotowers 
   if (ctMon_!=NULL)
@@ -1010,17 +971,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   if (showTiming_)
     {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  if (zdchitOK_ && digiOK_) // make a separate boolean just for ZDC digis?
-    {
-      if (zdcMon_ !=NULL) zdcMon_->processEvent(*zdc_digi,*zdc_hits);
-    }
-  if (showTiming_)
-    {
-      cpu_timer.stop();
-      if (zdcMon_ !=NULL) std::cout <<"TIMER:: ZDC MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -1245,7 +1195,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if(deadMon_!=0)   {  deadMon_->periodicReset();}
       if(mtccMon_!=0)   {  mtccMon_->periodicReset();}
       if(rhMon_!=0)     {  rhMon_->periodicReset();}
-      if (zdcMon_!=0)   {  zdcMon_->periodicReset();}
       if (beamMon_!=0) { beamMon_->periodicReset();}
       if (nzsMon_!=0) { nzsMon_->periodicReset();}
       

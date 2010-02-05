@@ -41,8 +41,11 @@ if source=="PoolSource":
                                 
                                 fileNames = cms.untracked.vstring
                                 (
+        # Run with ZDC
+        '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/993/D04EA868-5FD6-DE11-B372-003048D2BE08.root',
+
         # Collisions at 2.36 TeV
-        '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/F6ADE109-6BE8-DE11-9680-000423D991D4.root',
+        #'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/F6ADE109-6BE8-DE11-9680-000423D991D4.root',
 
         # A (relatively) recent run
         #'/store/data/Commissioning09/Calo/RAW/v3/000/118/962/127CDC23-8FC5-DE11-B66D-000423D991D4.root',
@@ -180,6 +183,7 @@ if (memcheck):
 
 # AT LAST!  Load the DQM HcalMonitorModule!
 process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
+process.load("DQM.HcalMonitorModule.ZDCMonitorModule_cfi")
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 
 # This is a separate process to create a special collection of digis in which
@@ -320,6 +324,7 @@ process.hcalMonitor.BeamMonitor_lumiqualitydir=""
 # Hcal DQM Client
 #---------------------------------------------------------------------
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
+process.load("DQM.HcalMonitorClient.ZDCMonitorClient_cfi")
 
 # hcalClient configurable values ------------------------
 # suppresses html output from HCalClient  
@@ -380,7 +385,9 @@ process.p = cms.Path(process.hcalDigis
                      *process.hbhereco
                      *process.zdcreco
                      *process.hcalMonitor
+                     *process.zdcMonitor
                      *process.hcalClient
+                     *process.zdcClient
                      *process.dqmEnv
                      *process.dqmSaver
                      )
