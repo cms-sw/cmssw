@@ -10,7 +10,8 @@ class EdmBrowserBoxView(BoxDecayView):
     
     def createBox(self, widgetParent, container, title, text):
         widget=BoxDecayView.createBox(self, widgetParent, container, title, text)
-        widget.setToolTip("Double click to expand object")
+        if isinstance(widget,WidgetContainer):
+            widget.setNotCollapsable()
         return widget
 
     def selection(self):

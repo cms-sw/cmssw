@@ -69,6 +69,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
 
         self._filename=""
         self._branches=[]
+        self._filteredBranches=[]
         self._events=None
         self._readOnDemand=True
         self._underscore=False
@@ -470,7 +471,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         self._events.to(self._eventIndex)
         self._dataObjects=[]
         i=0
-        for branchtuple in self._branches:
+        for branchtuple in self._filteredBranches:
             branch=BranchDummy(branchtuple)
             self._dataObjects+=[branch]
             self._edmLabel[id(branch)]=branchtuple[0]
@@ -505,6 +506,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
             except Exception, e:
                 logging.warning("Cannot read branch "+branchname+":"+str(e))
         self._branches.sort(lambda x, y: cmp(x[0], y[0]))
+        self._filteredBranches=self._branches[:]
         return self.goto(1)
 
     def particleId(self, object):
@@ -587,6 +589,12 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
     def linkDaughter(self, object, daughter):
         pass
 
+    def underscoreProperties(self):
+        return self._underscore
+    
+    def setUnderscoreProperties(self,check):
+        self._underscore=check
+    
     def filterBranches(self):
         return self._filterBranches
     
@@ -598,7 +606,9 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                 if isinstance(result,BranchDummy):
                     self._dataObjects.remove(result)
                 if hasattr(result,"unreadable") or hasattr(result,"invalid"):
-                    self._branches.remove(result.branchtuple)
+                    self._filteredBranches.remove(result.branchtuple)
             return True
         else:
+            self._filteredBranches=self._branches[:]
+            self.goto(self.eventNumber())
             return False

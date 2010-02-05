@@ -22,11 +22,11 @@ class EdmBrowserTabController(EventBrowserTabController):
         EventBrowserTabController.updateViewMenu(self)
         self.plugin().expandToDepthAction().setVisible(True)
         self.plugin().boxContentAction().setVisible(False)
-        self.disconnect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onDoubleClicked)
-        self.connect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onDoubleClicked)
+        self.disconnect(self.tab().centerView(), SIGNAL("toggleCollapsed"), self.toggleCollapsed)
+        self.connect(self.tab().centerView(), SIGNAL("toggleCollapsed"), self.toggleCollapsed)
 
-    def onDoubleClicked(self,object):
-        logging.debug(__name__ + ": onDoubleClicked()")
+    def toggleCollapsed(self,object):
+        logging.debug(__name__ + ": toggleCollapsed()")
         if not self.tab().centerView().isUpdated(object):
             self.dataAccessor().read(object)
             self.updateCenterView()
@@ -71,5 +71,32 @@ class EdmBrowserTabController(EventBrowserTabController):
         popup.exec_(point)
 
     def toggleFilterBranches(self):
-        if self.dataAccessor().setFilterBranches(not self.dataAccessor().filterBranches()):
-            self.updateContent()
+        self.dataAccessor().setFilterBranches(not self.dataAccessor().filterBranches())
+        self.updateContent()
+        self.saveIni()
+
+    def toggleUnderscoreProperties(self):
+        self.dataAccessor().setUnderscoreProperties(not self.dataAccessor().underscoreProperties())
+        self.tab().propertyView().setDataObject(None)
+        self.updateCenterView()
+        self.saveIni()
+
+    def loadIni(self):
+        """ read options from ini """
+        EventBrowserTabController.loadIni(self)
+        ini = self.plugin().application().ini()
+        if ini.has_option("edm", "filter branches"):
+            self.dataAccessor().setFilterBranches(ini.get("edm", "filter branches")=="True")
+        if ini.has_option("edm", "underscore properties"):
+            self.dataAccessor().setUnderscoreProperties(ini.get("edm", "underscore properties")=="True")
+        self.plugin().hideUnderscorePropertiesAction().setChecked(not self.dataAccessor().underscoreProperties())
+
+    def saveIni(self):
+        """ write options to ini """
+        EventBrowserTabController.saveIni(self)
+        ini = self.plugin().application().ini()
+        if not ini.has_section("edm"):
+            ini.add_section("edm")
+        ini.set("edm", "filter branches", self.dataAccessor().filterBranches())
+        ini.set("edm", "underscore properties", self.dataAccessor().underscoreProperties())
+        self.plugin().application().writeIni()

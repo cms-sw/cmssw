@@ -26,13 +26,14 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
     # new properties
     AUTOLAYOUT_CHILDREN_ENABLED = False
     AUTOSIZE_ADJUST_CONTAINER_POSITION = True
-    
+
     def __init__(self, parent=None):
         #logging.debug(__name__ + ": __init__()")
         self._childrenVisible = True
         self._autolayoutChildrenEnabled = False
         self._autosizeAdjustContainerPositionFlag = True
         self._collapseMenuButton = None
+        self._collapsable=True
         self._hiddenChildren = []
         
         ConnectableWidget.__init__(self, parent)
@@ -230,7 +231,7 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
         
     def showMenu(self):
         if self._collapseMenuButton:
-            if self._childrenVisible:
+            if self._childrenVisible and self._collapsable:
                 self.menu().setEntryText(self._collapseMenuButton, "Collapse")
                 #self._collapseMenuButton.setText("Collapse")
             else:
@@ -244,3 +245,7 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
         elif not show and self._collapseMenuButton:
             self.removeMenuEntry(self._collapseMenuButton)
             self._collapseMenuButton = None
+
+    def setNotCollapsable(self):
+        self._collapsable=False
+        

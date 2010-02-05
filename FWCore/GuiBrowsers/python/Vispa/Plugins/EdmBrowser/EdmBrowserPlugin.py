@@ -63,10 +63,26 @@ class EdmBrowserPlugin(EventBrowserPlugin):
         self._filterBranchesAction.setCheckable(True)
         self._filterBranchesAction.setChecked(True)
         self._viewMenu.addAction(self._filterBranchesAction)
+        self._hideUnderscorePropertiesAction = self.application().createAction('&Hide _underscore properties', self._hideUnderscoreProperties, "Ctrl+Shift+U")
+        self._hideUnderscorePropertiesAction.setCheckable(True)
+        self._hideUnderscorePropertiesAction.setChecked(True)
+        self._viewMenu.addAction(self._hideUnderscorePropertiesAction)
         self._viewMenu.addSeparator()
+
+    def filterBranchesAction(self):
+        return self._filterBranchesAction
 
     def _filterBranches(self):
         try:
             self.application().currentTabController().toggleFilterBranches()
         except NoCurrentTabControllerException:
             logging.warning(self.__class__.__name__ + ": _filterBranches() - No tab controller found.")
+
+    def hideUnderscorePropertiesAction(self):
+        return self._hideUnderscorePropertiesAction
+
+    def _hideUnderscoreProperties(self):
+        try:
+            self.application().currentTabController().toggleUnderscoreProperties()
+        except NoCurrentTabControllerException:
+            logging.warning(self.__class__.__name__ + ": _hideUnderscoreProperties() - No tab controller found.")

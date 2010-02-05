@@ -344,6 +344,9 @@ class BoxDecayView(WidgetView):
         widget=self.widgetByObject(object)
         if isinstance(widget,WidgetContainer) and not widget.collapsed():
             widget.toggleCollapse()
+
+    def toggleCollapsed(self,object):
+        self.emit(SIGNAL("toggleCollapsed"), object)
         
 class BoxDecayContainer(WidgetContainer):
     AUTOSIZE = True
@@ -400,3 +403,11 @@ class BoxDecayContainer(WidgetContainer):
         self.updateConnections()
         return True
     autolayoutAlgorithm = staticmethod(autolayoutAlgorithm)
+
+    def toggleCollapse(self):
+        WidgetContainer.toggleCollapse(self)
+        self.toggleCollapsed(self.object)
+        
+    def toggleCollapsed(self,object):
+        self.parent().toggleCollapsed(object)
+        
