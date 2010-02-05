@@ -65,7 +65,7 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
@@ -124,6 +124,8 @@ TauJetCorrectorExample::~TauJetCorrectorExample()
 void
 TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  taucorrector = const_cast<JetCorrector*>(JetCorrector::getJetCorrector(tauCorrectorname, iSetup));
+
   using namespace edm;
   
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
@@ -177,10 +179,11 @@ TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TauJetCorrectorExample::beginJob(const edm::EventSetup& iSetup)
+//TauJetCorrectorExample::beginJob(const edm::EventSetup& iSetup)
+TauJetCorrectorExample::beginJob()
 {
 	
-	taucorrector = const_cast<JetCorrector*>(JetCorrector::getJetCorrector(tauCorrectorname, iSetup));
+//	taucorrector = const_cast<JetCorrector*>(JetCorrector::getJetCorrector(tauCorrectorname, iSetup));
 	
 }
 
