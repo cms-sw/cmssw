@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.21 2010/02/01 19:34:09 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.22 2010/02/04 00:45:23 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -133,7 +133,10 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
     ftreeFit_ = new TTree("fitResults","fitResults");
     ftreeFit_->AutoSave();
     ftreeFit_->Branch("run",&frunFit,"frunFit/i");
-    ftreeFit_->Branch("lumi",&flumiFit,"flumiFit/i");
+    ftreeFit_->Branch("beginLumi",&fbeginLumiOfFit,"fbeginLumiOfFit/i");
+    ftreeFit_->Branch("endLumi",&fendLumiOfFit,"fendLumiOfFit/i");
+    ftreeFit_->Branch("beginTime",fbeginTimeOfFit,"fbeginTimeOfFit/C");
+    ftreeFit_->Branch("endTime",fendTimeOfFit,"fendTimeOfFit/C");
     ftreeFit_->Branch("x",&fx,"fx/D");
     ftreeFit_->Branch("y",&fy,"fy/D");
     ftreeFit_->Branch("z",&fz,"fz/D");
@@ -152,8 +155,8 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   ftotal_tracks = 0;
   fnTotLayerMeas = fnPixelLayerMeas = fnStripLayerMeas = fnTIBLayerMeas = 0;
   fnTIDLayerMeas = fnTOBLayerMeas = fnTECLayerMeas = fnPXBLayerMeas = fnPXFLayerMeas = 0;
-  frun = flumi = flumiStart = flumiEnd = -1;
-  frunFit = flumiFit = -1;
+  frun = flumi = -1;
+  frunFit = fbeginLumiOfFit = fendLumiOfFit = -1;
   fquality = falgo = true;
   fpvValid = true;
   fpvx = fpvy = fpvz = 0;
@@ -188,8 +191,10 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   edm::TimeValue_t ftimestamp = iEvent.time().value();
   edm::TimeValue_t fdenom = pow(2,32);
   time_t ftmptime = ftimestamp / fdenom;
-  fendTimeOfFit = formatTime(ftmptime);
-  if (flumiStart == -1) fbeginTimeOfFit = fendTimeOfFit;
+  char* fendTime = formatTime(ftmptime);
+  sprintf(fendTimeOfFit,"%s",fendTime);
+
+  if (fbeginLumiOfFit == -1) sprintf(fbeginTimeOfFit,"%s",fendTimeOfFit);
 
 //   std::cout << ftmptime << " seconds and " << time_t(ftimestamp);
 //   std::cout << " micro-seconds elapsed since Jan 1, 1970 00:00:00" << std::endl;
@@ -198,11 +203,10 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   flumi = iEvent.luminosityBlock();
   frunFit = frun;
-  flumiFit = flumi;
 
-  if (flumiStart == -1 || flumiStart > flumi) flumiStart = flumi;
-  if (flumiEnd == -1 || flumiEnd < flumi) flumiEnd = flumi;
-//   std::cout << "flumi = " <<flumi<<"; flumiStart = " << flumiStart <<"; flumiEnd = "<<flumiEnd<<std::endl;
+  if (fbeginLumiOfFit == -1 || fbeginLumiOfFit > flumi) fbeginLumiOfFit = flumi;
+  if (fendLumiOfFit == -1 || fendLumiOfFit < flumi) fendLumiOfFit = flumi;
+//   std::cout << "flumi = " <<flumi<<"; fbeginLumiOfFit = " << fbeginLumiOfFit <<"; fendLumiOfFit = "<<fendLumiOfFit<<std::endl;
 
   edm::Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
@@ -395,7 +399,7 @@ void BeamFitter::dumpTxtFile(){
   fasciiFile << "Runnumber " << frun << std::endl;
   fasciiFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
   fasciiFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
-  fasciiFile << "LumiRange " << flumiStart << " - " << flumiEnd << std::endl;
+  fasciiFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
   fasciiFile << "Type " << fbeamspot.type() << std::endl;
   fasciiFile << "X " << fbeamspot.x0() << std::endl;
   fasciiFile << "Y " << fbeamspot.y0() << std::endl;

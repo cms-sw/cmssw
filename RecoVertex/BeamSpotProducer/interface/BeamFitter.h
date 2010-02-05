@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.13 2010/02/01 19:34:09 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.14 2010/02/04 00:45:21 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -40,7 +40,7 @@ class BeamFitter {
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
-  void resetLSRange() { flumiStart=flumiEnd=-1; }
+  void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void dumpTxtFile();
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
@@ -108,8 +108,6 @@ class BeamFitter {
   double fvy;
   int frun;
   int flumi;
-  int flumiStart;
-  int flumiEnd;
   bool fquality;
   bool falgo;
   bool fpvValid;
@@ -118,9 +116,10 @@ class BeamFitter {
   //beam fit results
   TTree* ftreeFit_;
   int frunFit;
-  int flumiFit;
-  TString fbeginTimeOfFit;
-  char* fendTimeOfFit;
+  int fbeginLumiOfFit;
+  int fendLumiOfFit;
+  char fbeginTimeOfFit[30];
+  char fendTimeOfFit[30];
   double fx;
   double fy;
   double fz;
