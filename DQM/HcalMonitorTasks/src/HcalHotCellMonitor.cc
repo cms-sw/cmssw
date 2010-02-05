@@ -59,7 +59,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   HEenergyThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HE_energyThreshold",energyThreshold_);
   HOenergyThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HO_energyThreshold",energyThreshold_);
   HFenergyThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HF_energyThreshold",energyThreshold_);
-  ZDCenergyThreshold_    = ps.getUntrackedParameter<double>("HotCellMonitor_HF_energyThreshold",-999);
 
   // rechit event-by-event energy test -- cell must be above threshold to be considered hot
   persistentThreshold_       = ps.getUntrackedParameter<double>("HotCellMonitor_persistentThreshold",   1);
@@ -67,7 +66,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   HEpersistentThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HE_persistentThreshold",persistentThreshold_);
   HOpersistentThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HO_persistentThreshold",persistentThreshold_);
   HFpersistentThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",persistentThreshold_);
-  ZDCpersistentThreshold_    = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",-999);
 
   HFfwdScale_                = ps.getUntrackedParameter<double>("HotCellMonitor_HFfwdScale",2.);
 
@@ -85,7 +83,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   setupNeighborParams(ps,HENeighborParams_ ,"HE");
   setupNeighborParams(ps,HONeighborParams_ ,"HO");
   setupNeighborParams(ps,HFNeighborParams_ ,"HF");
-  setupNeighborParams(ps,ZDCNeighborParams_,"ZDC");
   HFNeighborParams_.DeltaIphi*=2; // HF cell segmentation is 10 degrees, not 5 (mostly).  Need to multiply by 2 to convert from cell range to degree format
 
  if (showTiming)
@@ -1307,7 +1304,6 @@ void HcalHotCellMonitor::zeroCounters(void)
       diagADC_HE[i]=0;
       diagADC_HO[i]=0;
       diagADC_HF[i]=0;
-      diagADC_ZDC[i]=0;
     }
   // Add other diagnostic counters here later
 

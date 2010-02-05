@@ -22,8 +22,10 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   m_dbe = NULL;
   if(dbe != NULL) m_dbe = dbe;
 
+  std::vector<std::string> dummy;
+  dummy.clear();
   Online_   =  ps.getUntrackedParameter<bool>("Online",false);
-  badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" );
+  badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" , dummy);
   AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> > ("AllowedCalibTypes");
   
 
@@ -42,7 +44,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   checkHE_ = ps.getUntrackedParameter<bool>("checkHE",true);
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
   checkHF_ = ps.getUntrackedParameter<bool>("checkHF",true);
-  checkZDC_ = ps.getUntrackedParameter<bool>("checkZDC",true);
+ 
   checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",1000); // specify how often to run checks
   Nlumiblocks_ = ps.getUntrackedParameter<int>("Nlumiblocks",1000); //  number of luminosity blocks to include in time plots 
   if (Nlumiblocks_<=0) Nlumiblocks_=1000;
@@ -83,7 +85,6 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   ProblemsVsLB_HE=0;
   ProblemsVsLB_HO=0;
   ProblemsVsLB_HF=0;
-  ProblemsVsLB_ZDC=0;
   
   meEVT_=0;
   meTOTALEVT_=0;
@@ -96,7 +97,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   NumBadHE=0;
   NumBadHO=0;
   NumBadHF=0;
-  NumBadZDC=0;
+
   return;
 } //void HcalBaseMonitor::setup()
 
@@ -355,7 +356,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
       unittitle<<Units;
     }
 
-  // Push back depth plots
+  // Push back depth plots -- remove ZDC names at some point?
   hh.push_back(m_dbe->book2D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" Depth 1 -- HB & HF only ("+unittitle.str().c_str()+")"),
 			     etaBins_,etaMin_,etaMax_,

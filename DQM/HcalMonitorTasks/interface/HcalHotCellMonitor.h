@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/11/10 14:10:56 $
-  * $Revision: 1.35 $
+  * $Date: 2009/11/11 20:54:29 $
+  * $Revision: 1.36 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -78,15 +78,15 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   bool hotmon_test_energy_;
   bool hotmon_test_persistent_;
 
-  double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_, ZDCenergyThreshold_;
-  double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_, ZDCpersistentThreshold_;
+  double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_;
+  double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_;
 
   double HFfwdScale_;
 
   double hotmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
   
   double nsigma_;
-  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
+  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_;
   EtaPhiHists   AboveNeighborsHotCellsByDepth;
   EtaPhiHists   AboveEnergyThresholdCellsByDepth;
   EtaPhiHists   AbovePersistentThresholdCellsByDepth; 
@@ -111,26 +111,22 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   int diagADC_HE[300];
   int diagADC_HO[300];
   int diagADC_HF[300];
-  int diagADC_ZDC[300];
-
 
   // Diagnostic plots
   MonitorElement* d_HBrechitenergy;
   MonitorElement* d_HErechitenergy;
   MonitorElement* d_HOrechitenergy;
   MonitorElement* d_HFrechitenergy;
-  MonitorElement* d_ZDCrechitenergy;
  
   MonitorElement* d_HBenergyVsNeighbor;
   MonitorElement* d_HEenergyVsNeighbor;
   MonitorElement* d_HOenergyVsNeighbor;
   MonitorElement* d_HFenergyVsNeighbor;
-  MonitorElement* d_ZDCenergyVsNeighbor;
 
   EtaPhiHists  d_avgrechitenergymap;
   EtaPhiHists  d_avgrechitoccupancymap;
 
-  hotNeighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
+  hotNeighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_;
 };
 
 #endif

@@ -370,7 +370,6 @@ void HcalDeadCellMonitor::clearME()
 void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HORecHitCollection& hoHits,
 				       const HFRecHitCollection& hfHits,
-				       //const ZDCRecHitCollection& zdcHits,
 				       const HBHEDigiCollection& hbhedigi,
 				       const HODigiCollection& hodigi,
 				       const HFDigiCollection& hfdigi,
@@ -408,13 +407,10 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
   // HBpresent_, HEpresent need to be determined within loop, since HBHE is a single collection
   HOpresent_ = (hodigi.size()>0||hoHits.size()>0);
   HFpresent_ = (hfdigi.size()>0||hfHits.size()>0);
-  //ZDCpresent_ = (zdcdigi.size()>0 || zdcHits.size()>0);
 
   if (fVerbosity>1) std::cout <<"<HcalDeadCellMonitor::processEvent> Processing event..."<<std::endl;
 
-
   // Do Digi-Based dead cell searches 
-
 
   // Dummy fills needed for client normalization of problems
   // (though not necessarily here; we could do this in endluminosityblock)

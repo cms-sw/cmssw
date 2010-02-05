@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/11/11 20:54:29 $
-  * $Revision: 1.39 $
+  * $Date: 2009/11/24 16:12:29 $
+  * $Revision: 1.40 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -34,7 +34,6 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits,
-		    //const ZDCRecHitCollection& zdcHits,
 		    const HBHEDigiCollection& hbhedigi,
                     const HODigiCollection& hodigi,
                     const HFDigiCollection& hfdigi,

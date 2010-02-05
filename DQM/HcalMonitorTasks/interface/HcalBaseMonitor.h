@@ -39,8 +39,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/11/10 21:03:13 $
-  * $Revision: 1.36 $
+  * $Date: 2009/11/11 20:54:29 $
+  * $Revision: 1.37 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -104,7 +104,7 @@ protected:
   int etaBins_, phiBins_;
   double minErrorFlag_;
 
-  bool checkHB_, checkHE_, checkHO_, checkHF_, checkZDC_;
+  bool checkHB_, checkHE_, checkHO_, checkHF_;
   int resetNevents_;
   int Nlumiblocks_;
 
@@ -131,10 +131,9 @@ protected:
   MonitorElement* meTOTALEVT_;
   int lumiblock;
   int oldlumiblock;
-  int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadZDC;
-  
+  int NumBadHB, NumBadHE, NumBadHO, NumBadHF;
   MonitorElement* ProblemsVsLB;
-  MonitorElement *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF, *ProblemsVsLB_ZDC;
+  MonitorElement *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF;
 
 };
 
