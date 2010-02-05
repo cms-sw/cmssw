@@ -17,7 +17,7 @@ extern "C" {
 ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool verbose):
   ParticleReplacerBase(pset),
   generatorMode_(pset.getParameter<std::string>("generatorMode")),
-  tauola_(pset),
+  tauola_(pset.getParameter< edm::ParameterSet>("TauolaOptions") ),
   printEvent_(verbose)
 {
 // 	using namespace reco;
@@ -162,7 +162,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 	
 	if (particles.size()==0)
 	{
-		LogError("Replacer") << "the creation of the new particles failed somehow";
+		LogError("Replacer") << "the creation of the new particles failed somehow";	
 		return std::auto_ptr<HepMC::GenEvent>(0);
 	}
 	else
@@ -240,7 +240,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 		evt->add_vertex(decayvtx);
 	}
 	repairBarcodes(evt);
-		
+	
 	HepMC::GenEvent * retevt = 0;
 
 	/// 3) process the event
@@ -257,7 +257,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 
 		if (generatorMode_ == "Tauola")	// TAUOLA
 			retevt=tauola_.decay(evt);
-
+		
 		if (retevt==0)
 		{
 			LogError("Replacer") << "The new event could not be created due to some problems!";

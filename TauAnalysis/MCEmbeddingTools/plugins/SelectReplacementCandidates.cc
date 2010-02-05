@@ -76,6 +76,15 @@ int SelectReplacementCandidates::determineMuonsToUse(const edm::Event& iEvent, c
 	Handle< edm::RefToBaseVector<reco::Candidate> > zCandidate_handle;
 	if (!iEvent.getByLabel("dimuonsGlobal", zCandidate_handle))
 	{
+		std::cout << "Could not find product: " << "dimuonsGlobal" << "\n";    
+    std::vector< edm::Handle< edm::RefToBaseVector<reco::Candidate> >  > allHandles;
+    iEvent.getManyByType(allHandles);
+    std::vector< edm::Handle< edm::RefToBaseVector<reco::Candidate> > >::iterator it;
+    for (it = allHandles.begin(); it != allHandles.end(); it++)
+    {
+      std::cout << "available product: " << (*it).provenance()->moduleLabel() << ", " << (*it).provenance()->productInstanceName() << ", " << (*it).provenance()->processName();
+    }
+
 	  std::cout << "Objekt nicht gefunden: dimuonsGloal\n";
 	  return -1;
 	}
