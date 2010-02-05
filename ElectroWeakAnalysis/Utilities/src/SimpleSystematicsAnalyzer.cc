@@ -80,11 +80,11 @@ void SimpleSystematicsAnalyzer::endJob(){
             double waverage = weightedEvents_[i]/originalEvents_;
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tTotal Events after reweighting: " << weightedEvents_[i] << " [events]";
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tEvents selected after reweighting: " << weightedSelectedEvents_[i] << " [events]";
-            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tAcceptance after reweighting: [" << acc_central*100 << " +- " << 100*sqrt(
-            (  acc2_central-pow(acc_central,2))/originalEvents_/pow(waverage,2)
-            ) << "] %";
+            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tAcceptance after reweighting: [" << acc_central*100 << " +- " << 
+            100*sqrt((acc2_central/waverage-acc_central*acc_central)/originalEvents_)
+            << "] %";
             double xi = acc_central-originalAcceptance;
-            double deltaxi = (acc2_central-pow(waverage,2)*(originalAcceptance+2*xi+xi*xi))/originalEvents_/pow(waverage,2);
+            double deltaxi = (acc2_central-(originalAcceptance+2*xi+xi*xi))/originalEvents_;
             if (deltaxi>0) deltaxi = sqrt(deltaxi); else deltaxi = 0.;
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\ti.e. [" << std::setprecision(4) << 100*xi/originalAcceptance << " +- " << std::setprecision(4) << 100*deltaxi/originalAcceptance << "] % relative variation with respect to the original acceptance";
 
