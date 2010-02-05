@@ -5,13 +5,15 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 #include <cmath>
 
 /** \class HcalZDCMonitor
  *
- * $DATE: 2009/05/01 16:37:00 %
- * $Revision: 1.1.2.4 $
- * \author J. Temple -- Univ. of Maryland
+ * $DATE: 2010/02/04
+ * $Revision:
+ * \author F. Ozok, S.Sen
  */
 
 class HcalZDCMonitor: public HcalBaseMonitor
@@ -22,27 +24,54 @@ class HcalZDCMonitor: public HcalBaseMonitor
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const ZDCDigiCollection& digi,
                     const ZDCRecHitCollection& rechit);
+  //void done();
   void reset();
-  void done();
+  void endLuminosityBlock(void);
  private:
-  void zeroCounters();
-  void fillHistos();
-  void setZDClabels(MonitorElement* h);
+  //virtual void endJob();
+  //void endLuminosityBlock(void);
+  //void zeroCounters();
+  //void fillHistos();
+  //void setZDClabels(MonitorElement* h);
+  double getTime(std::vector<double> fData, double& fSum);
+  int getTSMax(std::vector<double> fData);
+  bool isGood(std::vector<double> fData, double fCut, double fPercentage);
 
-  // Should ievt_, meEVT_ be part of base class?
+  bool checkZDC_;
+  int NumBadZDC;
+  MonitorElement* ProblemsVsLB_ZDC;
+
+  const HcalQIEShape* shape_;
+  const HcalQIECoder* channelCoder_;
+  HcalCalibrations calibs_;
   int ievt_;
-  int zdc_checkNevents_;
+  //int zdc_checkNevents_;
   MonitorElement* meEVT_;
 
-  double deadthresh_;
-  MonitorElement* ProblemZDC_;
-  MonitorElement* avgoccZDC_;
-  std::vector<MonitorElement*> timeZDC_;
-  MonitorElement* avgtimeZDC_;
-  std::vector<MonitorElement*> energyZDC_;
-  MonitorElement* avgenergyZDC_;
-  MonitorElement* avgXplus_;
-  MonitorElement* avgXminus_;
+  MonitorElement* h_channel_side_charge_Ave;
+  MonitorElement* h_channel_side_TSMean_Ave;
+  MonitorElement* h_channel_side_energy_Ave;
+  MonitorElement* h_channel_side_RecHitTime_Ave;
+  MonitorElement* h_ZDCP_EM_Pulse[5];
+  MonitorElement* h_ZDCM_EM_Pulse[5];
+  MonitorElement* h_ZDCP_EM_Charge[5];
+  MonitorElement* h_ZDCM_EM_Charge[5];
+  MonitorElement* h_ZDCP_EM_TSMean[5];
+  MonitorElement* h_ZDCM_EM_TSMean[5];
+  MonitorElement* h_ZDCP_HAD_Pulse[4];
+  MonitorElement* h_ZDCM_HAD_Pulse[4];
+  MonitorElement* h_ZDCP_HAD_Charge[4];
+  MonitorElement* h_ZDCM_HAD_Charge[4];
+  MonitorElement* h_ZDCP_HAD_TSMean[4];
+  MonitorElement* h_ZDCM_HAD_TSMean[4];
+  MonitorElement* h_ZDCP_EM_RecHitEnergy[5];
+  MonitorElement* h_ZDCM_EM_RecHitEnergy[5];
+  MonitorElement* h_ZDCP_EM_RecHitTiming[5];
+  MonitorElement* h_ZDCM_EM_RecHitTiming[5];
+  MonitorElement* h_ZDCP_HAD_RecHitEnergy[4];
+  MonitorElement* h_ZDCM_HAD_RecHitEnergy[4];
+  MonitorElement* h_ZDCP_HAD_RecHitTiming[4];
+  MonitorElement* h_ZDCM_HAD_RecHitTiming[4];
 };
 
 #endif
