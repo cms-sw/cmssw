@@ -16,6 +16,7 @@ private:
       std::vector<double> weightedEvents_;
       unsigned int selectedEvents_;
       std::vector<double> weightedSelectedEvents_;
+      std::vector<double> weighted2SelectedEvents_;
 };
 
 ////////// Source code ////////////////////////////////////////////////
@@ -47,6 +48,7 @@ void SimpleSystematicsAnalyzer::beginJob(){
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\t" << weightTags_[i].encode();
             weightedEvents_.push_back(0.);
             weightedSelectedEvents_.push_back(0.);
+            weighted2SelectedEvents_.push_back(0.);
       }
 }
 
@@ -64,17 +66,27 @@ void SimpleSystematicsAnalyzer::endJob(){
       edm::LogVerbatim("SimpleSystematicsAnalysis") << "\n>>>> Begin of Weight systematics summary >>>>";
       edm::LogVerbatim("SimpleSystematicsAnalysis") << "Total number of analyzed data: " << originalEvents_ << " [events]";
       double originalAcceptance = double(selectedEvents_)/originalEvents_;
-      edm::LogVerbatim("SimpleSystematicsAnalysis") << "Total number of selected data: " << selectedEvents_ << " [events], corresponding to acceptance: " << originalAcceptance*100 << " [%]";
+      edm::LogVerbatim("SimpleSystematicsAnalysis") << "Total number of selected data: " << selectedEvents_ << " [events], corresponding to acceptance: [" << originalAcceptance*100 << " +- " << 100*sqrt( originalAcceptance*(1.-originalAcceptance)/originalEvents_) << "] %";
       
       for (unsigned int i=0; i<weightTags_.size(); ++i) {
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "Results for Weight Tag: " << weightTags_[i].encode() << " ---->";
 
             double acc_central = 0.;
-            if (weightedEvents_[i]>0) acc_central = weightedSelectedEvents_[i]/weightedEvents_[i]; 
+            double acc2_central = 0.;
+            if (weightedEvents_[i]>0) {
+                  acc_central = weightedSelectedEvents_[i]/weightedEvents_[i]; 
+                  acc2_central = weighted2SelectedEvents_[i]/weightedEvents_[i]; 
+            }
+            double waverage = weightedEvents_[i]/originalEvents_;
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tTotal Events after reweighting: " << weightedEvents_[i] << " [events]";
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tEvents selected after reweighting: " << weightedSelectedEvents_[i] << " [events]";
-            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tAcceptance after reweighting: " << acc_central*100 << " [%]";
-            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\ti.e. " << std::setprecision(4) << 100*(acc_central/originalAcceptance-1.) << "% variation with respect to the original acceptance";
+            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tAcceptance after reweighting: [" << acc_central*100 << " +- " << 100*sqrt(
+            (  acc2_central-pow(acc_central,2))/originalEvents_/pow(waverage,2)
+            ) << "] %";
+            double xi = acc_central-originalAcceptance;
+            double deltaxi = (acc2_central-pow(waverage,2)*(originalAcceptance+2*xi+xi*xi))/originalEvents_/pow(waverage,2);
+            if (deltaxi>0) deltaxi = sqrt(deltaxi); else deltaxi = 0.;
+            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\ti.e. [" << std::setprecision(4) << 100*xi/originalAcceptance << " +- " << std::setprecision(4) << 100*deltaxi/originalAcceptance << "] % variation with respect to the original acceptance";
 
       }
       edm::LogVerbatim("SimpleSystematicsAnalysis") << ">>>> End of Weight systematics summary >>>>";
@@ -107,7 +119,10 @@ bool SimpleSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
             edm::Handle<double> weightHandle;
             ev.getByLabel(weightTags_[i], weightHandle);
             weightedEvents_[i] += (*weightHandle);
-            if (selectedEvent) weightedSelectedEvents_[i] += (*weightHandle);
+            if (selectedEvent) {
+                  weightedSelectedEvents_[i] += (*weightHandle);
+                  weighted2SelectedEvents_[i] += pow((*weightHandle),2);
+            }
       }
 
       return true;
