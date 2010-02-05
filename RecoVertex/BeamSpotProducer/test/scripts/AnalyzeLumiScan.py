@@ -17,11 +17,15 @@
 import sys,os,re,string
 import commands
 
+##dataset = "ExpressPhysics/BeamCommissioning09-Express-v2/FEVT"
+dataset = "/MinimumBias/BeamCommissioning09-Dec19thReReco_341_v1/RECO"
 def get_list_files(run,ls1,ls2,mode):
     lfiles = []
-#    dbsquery = "dbs search --query=\"find file where dataset=/ExpressPhysics/*/FEVT and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+" order by lumi asc\" > tmplist.txt"
-    dbsquery = "dbs search --query=\"find file where dataset=/MinimumBias/BeamCommissioning09-Dec19thReReco_341_v1/RECO and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+"\" > tmplist.txt"
-
+    ## DBS query
+    dbsquery = "dbs search --noheader --query=\"find file where dataset="+dataset
+    dbsquery += " and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+"\" > tmplist.txt"
+## For running on ExpressPhysics datasets ordered by lumi, uncomment the following line and comment out the previous one
+##    dbsquery += " and run="+str(run)+" and lumi>="+str(ls1)+" and lumi<="+str(ls2)+" order by lumi asc\" > tmplist.txt"
     #print dbsquery
     os.system(dbsquery)
     n=0
@@ -89,6 +93,11 @@ def main():
             if npos == 1:
                 run="Run"+str(i)+"/"
             else:
+                if i.lower() == "max":
+                    dbsquery ="dbs search --noheader --query=\"find max(lumi) where dataset="+dataset
+                    dbsquery += " and run ="+run[3:len(run)-1]+"\""
+##                    print dbsquery
+                    i = os.popen(dbsquery).read()
                 runsinfo.setdefault(run,[]).append(int(i))
 ##    print runsinfo
 
