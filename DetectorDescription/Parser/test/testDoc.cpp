@@ -178,7 +178,7 @@ int DDLTestDoc::readConfig(const std::string& filename)
   DDLSAX2Handler* errHandler;
   DDLSAX2ConfigHandler * sch;
 
-  sch = new DDLSAX2ConfigHandler;
+  sch = new DDLSAX2ConfigHandler(cpv);
   errHandler = new DDLSAX2Handler;
 
   parser.getXMLParser()->setContentHandler(sch);

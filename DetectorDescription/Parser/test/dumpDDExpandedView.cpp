@@ -21,7 +21,6 @@
 #include <fstream>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include <boost/shared_ptr.hpp>
 #include "FWCore/Utilities/interface/Exception.h"
@@ -127,7 +126,7 @@ int main(int argc, char *argv[])
     //   myP->parse(dp2);
 
     std::cout << "main::about to start parsing main configuration... " << std::endl;
-    FIPConfiguration dp;
+    FIPConfiguration dp(cpv);
     dp.readConfig("DetectorDescription/Parser/test/cmsIdealGeometryXML.xml");
     myP.parse(dp);
   

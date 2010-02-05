@@ -193,7 +193,7 @@ void output(string filename)
 
   cout << "main::about to set configuration" << endl;
   //    myP->SetConfig("configuration.xml");
-  FIPConfiguration cf;
+  FIPConfiguration cf(cpv);
   cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 
   cout << "main::about to start parsing" << endl;
@@ -205,6 +205,7 @@ void output(string filename)
   DDExpandedView exv(cpv);
   vector<DDTranslation> tvec;
   bool loop=true;
+  std::cout << "Before the loop..." << std::endl;
   while(loop) {
     ROOT::Math::AxisAngle ra(exv.rotation());
     os << exv.logicalPart() << endl
@@ -234,7 +235,7 @@ void testParser()
 
     cout << "main::about to set configuration" << endl;
     //    myP->SetConfig("configuration.xml");
-    FIPConfiguration cf;
+    FIPConfiguration cf(cpv);
     cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 
     cout << "main::about to start parsing" << endl;

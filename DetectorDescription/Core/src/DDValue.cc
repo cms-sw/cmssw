@@ -178,9 +178,10 @@ std::ostream & operator<<(std::ostream & o, const DDValue & v)
   return o;
 }
 
-//FIXME move it elsewhere
+//FIXME move it elsewhere; DO NOT put out the name for now... need to fix DDCoreToDDXMLOutput
 std::ostream & operator<<(std::ostream & o, const DDValuePair & v) {
-  return o << v.first << ':' << v.second;
+  return o<< v.second;
+  //  return o << v.first << ':' << v.second;
 }
 
 

@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     std::cout << "Defining my Document Provider, using the default one provided" << std::endl;
 
-    FIPConfiguration cf;
+    FIPConfiguration cf(cpv);
 
     std::cout << "Make sure the provider is ready... you don't need this, it's just necessary for the default one." << std::endl;
     int errNumcf;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     std::cout << "===================" << std::endl << std::endl;
     std::cout << " make a new provider and read some other configuration" << std::endl;
 
-    FIPConfiguration cf2;
+    FIPConfiguration cf2(cpv);
     cf2.readConfig("DetectorDescription/Parser/test/config2.xml");
     myP.parse(cf2);
 

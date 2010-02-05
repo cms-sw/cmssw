@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
     DDLParser myP(cpv); // = DDLParser::instance();
 
-    FIPConfiguration dp;
+    FIPConfiguration dp(cpv);
 
     dp.readConfig("DetectorDescription/Parser/test/cmsIdealGeometryXML.xml");
 

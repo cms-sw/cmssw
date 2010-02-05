@@ -12,35 +12,35 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
    depth_(0), worldpos_(0)
 {
   std::cout << "Building a DDExpandedView" << std::endl;
-    DDRotation::StoreT::instance().setReadOnly(false);
-    worldpos_ = new DDPosData(DDTranslation(),DDRotation(),0);     
-    DDRotation::StoreT::instance().setReadOnly(true);
-    
-    //worldpos_ =  &s_worldpos;
-    //new DDPosData(trans_,DDRotation(DDName("","")),0);    
-    //const DDLogicalPart & rt = cpv.root(); 
-    
-    //    w2_ = DDCompactView::walker_type(cpv.graph(), rt);
-    walker_ = &w2_;
-    /*					     
-					    walker_ = new DDCompactView::walker_type(cpv.graph(), 
-					    rt);
-    */    
-    std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
-    std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
-					     
-    DDPosData * pd((*walker_).current().second);
-    //    assert(pd);
-    if (!pd)
-      pd = worldpos_;  
-    DDExpandedNode expn((*walker_).current().first,
+  DDRotation::StoreT::instance().setReadOnly(false);
+  worldpos_ = new DDPosData(DDTranslation(),DDRotation(),0);     
+  DDRotation::StoreT::instance().setReadOnly(true);
+  
+  //worldpos_ =  &s_worldpos;
+  //new DDPosData(trans_,DDRotation(DDName("","")),0);    
+  //const DDLogicalPart & rt = cpv.root(); 
+  
+  //    w2_ = DDCompactView::walker_type(cpv.graph(), rt);
+  walker_ = &w2_;
+  /*					     
+    walker_ = new DDCompactView::walker_type(cpv.graph(), 
+    rt);
+  */    
+  std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
+  std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
+  
+  DDPosData * pd((*walker_).current().second);
+  //    assert(pd);
+  if (!pd)
+    pd = worldpos_;  
+  DDExpandedNode expn((*walker_).current().first,
                       pd,
 		      trans_,
 		      rot_,
 		      0);
-   
-   // starting point for position calculations, == root of expanded view
-   history_.push_back(expn);		      		      
+  
+  // starting point for position calculations, == root of expanded view
+  history_.push_back(expn);		      		      
 }
 
 
