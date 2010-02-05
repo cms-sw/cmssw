@@ -28,27 +28,31 @@ namespace cms
 
 JetPlusTrackAnalysis::JetPlusTrackAnalysis(const edm::ParameterSet& iConfig)
 {
+
    cout<<" Start JetPlusTrackAnalysis now"<<endl;
+
    mCone = iConfig.getParameter<double>("Cone");
-   cout<<" Start JetPlusTrackAnalysis Point 0"<<endl;
+   
    mInputJetsCaloTower = iConfig.getParameter<edm::InputTag>("src1");
-   cout<<" Start JetPlusTrackAnalysis Point 1"<<endl;
+   
    mInputJetsGen = iConfig.getParameter<edm::InputTag>("src2");	
-   cout<<" Start JetPlusTrackAnalysis Point 2"<<endl;  
+   
    mInputJetsCorrected = iConfig.getParameter<edm::InputTag>("src3");
+
+   mInputJetsZSPCorrected = iConfig.getParameter<edm::InputTag>("src4");
 
    m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel");
 
    hbhelabel_ = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-   cout<<" Start JetPlusTrackAnalysis Point 5"<<endl;
+   
    holabel_ = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-   cout<<" Start JetPlusTrackAnalysis Point 6"<<endl;
+   
    ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
-   cout<<" Start JetPlusTrackAnalysis Point 7"<<endl;
+   
    fOutputFileName = iConfig.getUntrackedParameter<string>("HistOutFile");
-   cout<<" Start JetPlusTrackAnalysis Point 8"<<endl;
+   
    allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",false);
-   cout<<" JetPlusTrackAnalysis constructor "<<endl;			  
+   	  
 }
 
 JetPlusTrackAnalysis::~JetPlusTrackAnalysis()
@@ -75,20 +79,24 @@ void JetPlusTrackAnalysis::beginJob()
 
 // Jet Reco CaloTower
    myTree->Branch("NumRecoJetsCaloTower", &NumRecoJetsCaloTower, "NumRecoJetsCaloTower/I");
-   myTree->Branch("JetRecoEtCaloTower",  JetRecoEtCaloTower, "JetRecoEtCaloTower[100]/F");
-   myTree->Branch("JetRecoEtaCaloTower",  JetRecoEtaCaloTower, "JetRecoEtaCaloTower[100]/F");
-   myTree->Branch("JetRecoPhiCaloTower",  JetRecoPhiCaloTower, "JetRecoPhiCaloTower[100]/F");
-   myTree->Branch("JetRecoEtRecHit",  JetRecoEtRecHit, "JetRecoEtRecHit[100]/F");
-   myTree->Branch("JetRecoGenRecType", JetRecoGenRecType, "JetRecoGenRecType[100]/F");
-   myTree->Branch("JetRecoGenPartonType", JetRecoGenPartonType , "JetRecoGenPartonType[100]/F");
-   myTree->Branch("EcalEmpty", EcalEmpty , "EcalEmpty[100]/F");
-   myTree->Branch("HcalEmpty", HcalEmpty , "HcalEmpty[100]/F");
+   myTree->Branch("JetRecoEtCaloTower",  JetRecoEtCaloTower, "JetRecoEtCaloTower[10]/F");
+   myTree->Branch("JetRecoEtaCaloTower",  JetRecoEtaCaloTower, "JetRecoEtaCaloTower[10]/F");
+   myTree->Branch("JetRecoPhiCaloTower",  JetRecoPhiCaloTower, "JetRecoPhiCaloTower[10]/F");
+   myTree->Branch("JetRecoEtRecHit",  JetRecoEtRecHit, "JetRecoEtRecHit[10]/F");
+   myTree->Branch("JetRecoGenRecType", JetRecoGenRecType, "JetRecoGenRecType[10]/F");
+   myTree->Branch("JetRecoGenPartonType", JetRecoGenPartonType , "JetRecoGenPartonType[10]/F");
+   myTree->Branch("EcalEmpty", EcalEmpty , "EcalEmpty[10]/F");
+   myTree->Branch("HcalEmpty", HcalEmpty , "HcalEmpty[10]/F");
 //
    myTree->Branch("NumRecoJetsCorrected", &NumRecoJetsCorrected, "NumRecoJetsCorrected/I");
-   myTree->Branch("JetRecoEtCorrected",  JetRecoEtCorrected, "JetRecoEtCorrected[100]/F");
-   myTree->Branch("JetRecoEtCorrectedZS",  JetRecoEtCorrectedZS, "JetRecoEtCorrectedZS[100]/F");
-   myTree->Branch("JetRecoEtaCorrected",  JetRecoEtaCorrected, "JetRecoEtaCorrected[100]/F");
-   myTree->Branch("JetRecoPhiCorrected",  JetRecoPhiCorrected, "JetRecoPhiCorrected[100]/F");
+   myTree->Branch("JetRecoEtCorrected",  JetRecoEtCorrected, "JetRecoEtCorrected[10]/F");
+   myTree->Branch("JetRecoEtaCorrected",  JetRecoEtaCorrected, "JetRecoEtaCorrected[10]/F");
+   myTree->Branch("JetRecoPhiCorrected",  JetRecoPhiCorrected, "JetRecoPhiCorrected[10]/F");
+
+   myTree->Branch("NumRecoJetsZSPCorrected", &NumRecoJetsZSPCorrected, "NumRecoJetsZSPCorrected/I");
+   myTree->Branch("JetRecoEtZSPCorrected",  JetRecoEtZSPCorrected, "JetRecoEtZSPCorrected[10]/F");
+   myTree->Branch("JetRecoEtaZSPCorrected",  JetRecoEtaZSPCorrected, "JetRecoEtaZSPCorrected[10]/F");
+   myTree->Branch("JetRecoPhiZSPCorrected",  JetRecoPhiZSPCorrected, "JetRecoPhiZSPCorrected[10]/F");
 // GenJet block
    myTree->Branch("NumGenJets", &NumGenJets, "NumGenJets/I");
    myTree->Branch("JetGenEt",  JetGenEt, "JetGenEt[10]/F");
@@ -106,10 +114,9 @@ void JetPlusTrackAnalysis::beginJob()
    myTree->Branch("partm",  partm, "partm[4000]/F");  
 // Tracks block
    myTree->Branch("NumRecoTrack", &NumRecoTrack, "NumRecoTrack/I");
-   myTree->Branch("TrackRecoEt",  TrackRecoEt, "TrackRecoEt[NumRecoTrack]/F");
-   myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[NumRecoTrack]/F");
-   myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[NumRecoTrack]/F");
-
+   myTree->Branch("TrackRecoEt",  TrackRecoEt, "TrackRecoEt[5000]/F");
+   myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[5000]/F");
+   myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[5000]/F");
 
 }
 void JetPlusTrackAnalysis::endJob()
@@ -133,7 +140,8 @@ void JetPlusTrackAnalysis::analyze(
    edm::ESHandle<CaloGeometry> pG;
    theEventSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
-   
+
+
 //  std::vector<edm::Provenance const*> theProvenance;
 //  iEvent.getAllProvenance(theProvenance);
 //  for( std::vector<edm::Provenance const*>::const_iterator ip = theProvenance.begin();
@@ -180,16 +188,10 @@ void JetPlusTrackAnalysis::analyze(
                 phi[ihep-6] = ((*Part)->momentum()).phi();
                 parton[ihep-6] = (*Part)->pdg_id();
              } 
-//             Code[ihep] = (*Part)->pdg_id();
-//             partpx[ihep] = (*Part)->momentum().px();
-//             partpy[ihep] = (*Part)->momentum().py();
-//             partpz[ihep] = (*Part)->momentum().pz();
-//             parte[ihep] = (*Part)->momentum().e();
-//             partm[ihep] = (*Part)->momentum().m();
              ihep++;
-//             NumPart = ihep;
          }
   }
+   NumPart = 2;
 //  Generated jet
    NumGenJets = 0;
    int icode = -1;
@@ -250,22 +252,23 @@ void JetPlusTrackAnalysis::analyze(
     } else {
       reco::CaloJetCollection::const_iterator jet = jets->begin ();
       
-      cout<<" Size of jets "<<jets->size()<<endl;
+      cout<<" Size of Calo jets "<<jets->size()<<endl;
       
       if(jets->size() > 0 )
 	{
 	  for (; jet != jets->end (); jet++)
 	    {
 	      
-	      if( NumRecoJetsCaloTower < 100 )
+	      if( NumRecoJetsCaloTower < 10 )
 		{
 		  
 		  // Association with gen jet
 		  
+                  std::cout<<" Calo jets::et "<<(*jet).et()<<" eta "<<(*jet).eta()<<" phi "<<(*jet).phi()<<std::endl;
+
 		  JetRecoEtCaloTower[NumRecoJetsCaloTower] = (*jet).et();
 		  JetRecoEtaCaloTower[NumRecoJetsCaloTower] = (*jet).eta();
 		  JetRecoPhiCaloTower[NumRecoJetsCaloTower] = (*jet).phi();
-//		  cout<<" Phi, eta gen "<< JetRecoPhiCaloTower[NumRecoJetsCaloTower]<<" "<< JetRecoEtaCaloTower[NumRecoJetsCaloTower]<<endl;
 		  JetRecoGenRecType[NumRecoJetsCaloTower] = -1;
 		  JetRecoGenPartonType[NumRecoJetsCaloTower] = -1;
 		  NumRecoJetsCaloTower++;
@@ -276,8 +279,9 @@ void JetPlusTrackAnalysis::analyze(
     }
     }
 
-     if( NumRecoJetsCaloTower > 0 && NumGenJets > 0 )
-     {
+    if( NumGenJets == 0 ) return;
+    if( NumRecoJetsCaloTower == 0 ) return; 
+
        for(int iii=0; iii<NumRecoJetsCaloTower; iii++)
        {  
          for(int jjj=0; jjj<NumGenJets; jjj++)
@@ -286,13 +290,15 @@ void JetPlusTrackAnalysis::analyze(
               if(dphi1 > 4.*atan(1.)) dphi1 = 8.*atan(1.) - dphi1;
               double deta1 = JetRecoEtaCaloTower[iii]-JetGenEta[jjj];
               double dr1 = sqrt(dphi1*dphi1+deta1*deta1);
-              if(dr1 < 0.3) {JetRecoGenRecType[iii] = jjj;JetRecoGenPartonType[iii] = JetGenCode[jjj]; 
-              cout<<" Associated jet "<< iii<<" "<<JetRecoGenRecType[iii]<<" "<<JetRecoGenPartonType[iii]<<endl;
-              cout<<" Etcalo "<<JetRecoEtCaloTower[iii]<<" ETgen "<<JetGenEt[jjj]<<endl;
-              } 
-         } 
-     }
-    } 
+              if(dr1 < 0.3) {
+               JetRecoGenRecType[iii] = jjj;
+               JetRecoGenPartonType[iii] = JetGenCode[jjj]; 
+               cout<<" Associated jet "<< iii<<" "<<JetRecoGenRecType[iii]<<" "<<JetRecoGenPartonType[iii]<<endl;
+               cout<<" Etcalo "<<JetRecoEtCaloTower[iii]<<" ETgen "<<JetGenEt[jjj]<<endl;
+              } // dr1 <0.3 
+         } // GenJets 
+     } // Calojets
+ 
 
 // JetPlusTrack correction
      NumRecoJetsCorrected = 0;
@@ -307,20 +313,52 @@ void JetPlusTrackAnalysis::analyze(
      } else {
        reco::CaloJetCollection::const_iterator jet = jets->begin ();
 
-       cout<<" Size of jets "<<jets->size()<<endl;
+       cout<<" Size of JPT+ZSP jets "<<jets->size()<<endl;
        if(jets->size() > 0 )
 	 {
 	   for (; jet != jets->end (); jet++)
 	     {
-	       if( NumRecoJetsCorrected < 100 )
+	       if( NumRecoJetsCorrected < 10 )
 		 {
+   std::cout<<" JPT+ZSP corr jets::et "<<(*jet).et()<<" eta "<<(*jet).eta()<<" phi "<<(*jet).phi()<<std::endl;
 		   JetRecoEtCorrected[NumRecoJetsCorrected] = (*jet).et();
 		   JetRecoEtaCorrected[NumRecoJetsCorrected] = (*jet).eta();
-		   JetRecoPhiCorrected[NumRecoJetsCorrected] = (*jet).phi();
-		   
-		   if( JetRecoGenRecType[NumRecoJetsCorrected] > -1 )cout<<" Calo jet "<<JetRecoEtCaloTower[NumRecoJetsCorrected]<<" Cor "<<JetRecoEtCorrected[NumRecoJetsCorrected]<<" Gen "<<JetGenEt[(int)(JetRecoGenRecType[NumRecoJetsCorrected])]<<endl;
-		   
+		   JetRecoPhiCorrected[NumRecoJetsCorrected] = (*jet).phi();		   
 		   NumRecoJetsCorrected++;
+		 }
+	     }
+	 }
+     }
+     }
+
+//
+// ZSP Corrections
+//
+
+     NumRecoJetsZSPCorrected = 0;
+     {
+     edm::Handle<reco::CaloJetCollection> jets;
+     iEvent.getByLabel(mInputJetsZSPCorrected, jets);
+     if (!jets.isValid()) {
+       // can't find it!
+       if (!allowMissingInputs_) {cout<<"ZSP CaloTowers are missed "<<endl; 
+	 *jets;  // will throw the proper exception
+       }
+     } else {
+       reco::CaloJetCollection::const_iterator jet = jets->begin ();
+
+       cout<<" Size of ZSP jets "<<jets->size()<<endl;
+       if(jets->size() > 0 )
+	 {
+	   for (; jet != jets->end (); jet++)
+	     {
+	       if( NumRecoJetsZSPCorrected < 10 )
+		 {                  
+                   std::cout<<" ZSP corr jets::et "<<(*jet).et()<<" eta "<<(*jet).eta()<<" phi "<<(*jet).phi()<<std::endl;
+		   JetRecoEtZSPCorrected[NumRecoJetsZSPCorrected] = (*jet).et();
+		   JetRecoEtaZSPCorrected[NumRecoJetsZSPCorrected] = (*jet).eta();
+		   JetRecoPhiZSPCorrected[NumRecoJetsZSPCorrected] = (*jet).phi();
+		   NumRecoJetsZSPCorrected++;
 		 }
 	     }
 	 }
@@ -447,14 +485,12 @@ void JetPlusTrackAnalysis::analyze(
 
   for(int jjj = 0; jjj<NumRecoJetsCaloTower; jjj++)
   {
-   if(JetRecoGenPartonType[jjj] > -1){
-   cout<<" Calo energy "<<JetRecoEtCaloTower[jjj]<<" RecHit energy "<<JetRecoEtRecHit[jjj]<<" Empty cone ECAL "<<empty_jet_energy_ecal<<
-   " Empty cone HCAL "<<empty_jet_energy_hcal <<" association with gen jet "<<JetRecoGenRecType[jjj]
-   <<" Association with parton  "<<JetRecoGenPartonType[jjj]<<endl;        
-   int i1 = (int) JetRecoGenPartonType[jjj];
-   int i2 = (int) JetRecoGenPartonType[jjj];
-    cout<<" Parton energy "<<pt[i1]<<" type "<<parton[i2]<<endl; 
-   }
+    if(JetRecoGenPartonType[jjj] > -1)
+    {
+      cout<<" Calo energy "<<JetRecoEtCaloTower[jjj]<<" RecHit energy "<<JetRecoEtRecHit[jjj]
+       <<" association with gen jet "<<JetRecoGenRecType[jjj]
+       <<" Association with parton  "<<JetRecoGenPartonType[jjj]<<endl;        
+    }
   } 
    myTree->Fill();
    
