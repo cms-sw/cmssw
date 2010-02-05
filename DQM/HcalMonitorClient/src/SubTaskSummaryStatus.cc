@@ -39,3 +39,23 @@ void SubTaskSummaryStatus::Setup(std::string Dir,
   id=ID;
   thresh=t;
 }
+
+
+void SubTaskSummaryStatus::WriteThreshold(DQMStore* dbe, std::string basedir)
+{
+  using namespace std;
+  if (onoff==false)
+    return;
+  MonitorElement* me;
+  const std::string prev= dbe->pwd();
+  dbe->setCurrentFolder(basedir+"/"+problemDir);
+  std::string name="ProblemThreshold_";
+  name+=problemName;
+  me = dbe->get(problemDir+"/"+name.c_str());
+  if (me)
+    dbe->removeElement(me->getName());
+  me = dbe->bookFloat(name.c_str());
+  me->Fill(thresh);
+  dbe->setCurrentFolder(prev);
+  return;
+}

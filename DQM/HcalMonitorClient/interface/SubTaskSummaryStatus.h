@@ -2,6 +2,8 @@
 #define GUARD_SUBTASKSUMMARYSTATUS_H
 
 #include <string>
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SubTaskSummaryStatus
 {
@@ -13,6 +15,7 @@ class SubTaskSummaryStatus
   void Setup(std::string problemDir, std::string problemName,
 	     std::string OverName,
 	     std::string id, double thresh);
+  void WriteThreshold(DQMStore* dbe, std::string basedir);
   bool IsOn();
 
   double thresh; // value above which cell is considered bad
