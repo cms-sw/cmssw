@@ -102,7 +102,7 @@ class ConfigToolBase(object) :
     def dumpPython(self):
         """ Return the python code to perform the action
         """ 
-        dumpPythonImport = "\n"+self._path+" import *\n"
+        dumpPythonImport = "\nfrom "+self._path+"import *\n"
         dumpPython=''
         if self._comment!="":
             dumpPython = '#'+self._comment
@@ -112,7 +112,7 @@ class ConfigToolBase(object) :
             if self._parameters[key].type is type(str):
                 string = "'"+str(self.getvalue(key))+"'"
             else:
-                string = "'"+str(self.getvalue(key))+"'"
+                string = str(self.getvalue(key))
             dumpPython+= string
         dumpPython+=")"+'\n'
         return (dumpPythonImport,dumpPython)
