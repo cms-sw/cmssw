@@ -100,7 +100,7 @@ inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Ma
 				  ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & mOut) {
  
   //  MathSSE::M2 mm = { mIn.Array()[0], mIn.Array()[1], mIn.Array()[2], mIn.Array()[1]  };
-  MathSSE::M2 mm(mIn.Array()[0], mIn.Array()[1], mIN.Array()[1], mIn.Array()[2]);
+  MathSSE::M2 mm(mIn.Array()[0], mIn.Array()[1], mIn.Array()[1], mIn.Array()[2]);
 
   bool ok = mm.invert();
   mOut.Array()[0] = mm[0];
