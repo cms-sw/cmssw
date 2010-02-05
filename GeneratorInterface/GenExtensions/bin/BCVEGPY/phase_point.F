@@ -37,7 +37,8 @@ c****constraints from the kinematical region.
 	taumax =1.0d0
       
 c------------------------------------------
-
+      yymin = 0
+      yymax = 0
       if(isubonly.eq.1) then
          x1=subfactor
 	   x2=subfactor
