@@ -13,7 +13,7 @@
 	 Author: Francisco Yumiceva
 */
 //
-// $Id: BooLowMAnalyzer.cc,v 1.1.2.18.2.1 2009/07/29 22:05:36 jengbou Exp $
+// $Id: BooLowMAnalyzer.cc,v 1.3 2009/07/30 06:02:20 jengbou Exp $
 //
 //
 
@@ -1401,7 +1401,7 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	   //ymyCombi0_.SetMaxNJets(4); // only 4 jets
 	   myCombi0_.SetLeptonicW( lepWP4 );
 	   //myCombi0_.Verbose();
-	   myCombi0_.FourJetsCombinations(vectorjets);
+	   myCombi0_.FourJetsCombinations(vectorjets,vect_bdiscriminators);
 	   		   
 	   Combo bestCombo = myCombi0_.GetCombinationSumEt(0);
 	   //std::cout << "got BEST combination w/SumEt: " << std::endl;
@@ -1514,7 +1514,7 @@ BooLowMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		   //myCombi2_.SetbTagPdf("/uscms/home/yumiceva/work/CMSSW_2_2_3/src/TopQuarkAnalysis/TopPairBSM/data/bdiscriminator.root");
 		   
 		   
-		   myCombi2_.FourJetsCombinations(vectorjets );// vect_bdiscriminators );
+		   myCombi2_.FourJetsCombinations(vectorjets, vect_bdiscriminators );// vect_bdiscriminators );
 		   
                    
 		   //myCombi3_.SetLeptonicW( lepWP4 );

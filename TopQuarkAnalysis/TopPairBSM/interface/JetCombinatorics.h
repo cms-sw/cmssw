@@ -8,7 +8,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: JetCombinatorics.h,v 1.1.4.10 2009/07/13 15:13:36 yumiceva Exp $
+ version $Id: JetCombinatorics.h,v 1.3 2009/07/30 06:02:19 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -283,7 +283,7 @@ class JetCombinatorics {
 	std::map< int, std::string > Combinatorics(int k, int max = 6);
 	std::map< int, std::string > NestedCombinatorics();
 
-	void FourJetsCombinations(std::vector<TLorentzVector> jets, std::vector<double> bdiscriminators = 0);
+	void FourJetsCombinations(std::vector<TLorentzVector> jets, std::vector<double> bdiscriminators );
 	void SetFlavorCorrections(std::vector<double > vector ) { flavorCorrections_ = vector; }
 	void SetMaxNJets(int n) { maxNJets_ = n; }
 	Combo GetCombination(int n=0);
