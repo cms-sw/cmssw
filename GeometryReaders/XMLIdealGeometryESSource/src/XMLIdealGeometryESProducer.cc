@@ -13,9 +13,7 @@
 //
 // Original Author:  Mike Case
 //         Created:  Fri Jan 16 01:45:49 CET 2009
-// $Id: XMLIdealGeometryESProducer.cc,v 1.9 2010/01/26 21:49:28 case Exp $
-//
-//
+
 
 
 // system include files
@@ -63,6 +61,13 @@ private:
   // ----------member data ---------------------------
   std::string rootDDName_; // this must be the form namespace:name
   std::string label_;
+    // 2009-07-09 memory patch
+    // for copying and protecting DD Store's after parsing is complete.
+    DDI::Store<DDName, DDI::Material*> matStore_;
+    DDI::Store<DDName, DDI::Solid*> solidStore_;
+    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
+    DDI::Store<DDName, DDI::Specific*> specStore_;
+    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
 };
 
 //
@@ -78,7 +83,7 @@ private:
 //
 XMLIdealGeometryESProducer::XMLIdealGeometryESProducer(const edm::ParameterSet& iConfig)
   :   rootDDName_(iConfig.getParameter<std::string>("rootDDName")),
-      label_(iConfig.getUntrackedParameter<std::string>("label","GeometryExtended"))
+      label_(iConfig.getParameter<std::string>("label"))
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -108,7 +113,16 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
 
    edm::ESTransientHandle<GeometryFile> gdd;
    iRecord.getRecord<GeometryFileRcd>().get( label_, gdd );
-
+//    if ( gdd.isValid() ) {
+//      std::cout << "gdd.isValid()" << std::endl; 
+//      if (gdd.product() != 0) {
+//        std::cout << "object address is not zero" << std::endl;
+//      } else {
+//        std::cout << "object address is zero" << std::endl;
+//      }
+//    } else {
+//      std::cout << "gdd is NOT valid" << std::endl;
+//    }
    DDName ddName(rootDDName_);
    DDLogicalPart rootNode(ddName);
    DDRootDef::instance().set(rootNode);
