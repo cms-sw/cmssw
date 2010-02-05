@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
   try {
     std::string config =
       "import FWCore.ParameterSet.Config as cms\n"
-      "process = cms.Process('EdmFileUtil')\n"
+      "process = cms.Process('edmFileUtil')\n"
       "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
       "process.SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n";
 
