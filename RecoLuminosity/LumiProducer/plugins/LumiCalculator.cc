@@ -309,8 +309,8 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c){
   for(lumiIt=lumiItBeg;lumiIt!=lumiItEnd;++lumiIt){//loop over LS
     recorded += lumiIt->intglumi*lumiIt->livefraction;  
   }
-  *log_<<"  CMS Recorded Lumi (e+28cm^-2) : "<<recorded<<"\n";
-  *log_<<"  Effective Lumi (e+28cm^-2) per trigger path: "<<"\n\n";
+  *log_<<"  CMS Recorded Lumi (e+27cm^-2) : "<<recorded<<"\n";
+  *log_<<"  Effective Lumi (e+27cm^-2) per trigger path: "<<"\n\n";
   std::multimap<std::string,std::string>::iterator it;
   std::multimap<std::string,std::string>::iterator itBeg=trgpathMmap_.begin();
   std::multimap<std::string,std::string>::iterator itEnd=trgpathMmap_.end();
