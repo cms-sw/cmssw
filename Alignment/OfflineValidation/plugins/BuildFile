@@ -1,8 +1,6 @@
 <use name=FWCore/MessageLogger>
 <use name=TrackPropagation/SteppingHelixPropagator>
 <use name=Alignment/CommonAlignment>
-<use name=Alignment/CommonAlignmentAlgorithm>
-<use name=Alignment/MuonAlignment>
 <use name=Alignment/TrackerAlignment>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>  
@@ -15,6 +13,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=CommonTools/UtilAlgos>
+<use name=CommonTools/Utils>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 <use name=SimDataFormats/Track>
