@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.161 $"
+__version__ = "$Revision: 1.162 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -287,7 +287,7 @@ class ConfigBuilder(object):
         if "FASTSIM" in self._options.step:
             self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
 
-            if "STARTUP" in conditions:
+            if "START" in conditions:
                 self.executeAndRemember("# Apply ECAL/HCAL miscalibration")
 	        self.executeAndRemember("process.ecalRecHit.doMiscalib = True")
 	        self.executeAndRemember("process.hbhereco.doMiscalib = True")
@@ -824,7 +824,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.161 $"),
+              (version=cms.untracked.string("$Revision: 1.162 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
