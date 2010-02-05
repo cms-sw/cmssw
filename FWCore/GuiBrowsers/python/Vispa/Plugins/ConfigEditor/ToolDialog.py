@@ -103,14 +103,14 @@ class ToolDialog(QDialog):
         ok=True
         try:
             self._selectedTool.apply(self._toolDataAccessor.configDataAccessor().process())
+            if not self._toolDataAccessor.configDataAccessor().process().checkRecording():
+                ok=False
+                logging.error(__name__ + ": Could not apply tool (problem with enable recording flag)")
+                QCoreApplication.instance().errorMessage("Could not apply tool (problem with enable recording flag)")
         except Exception,e:
             ok=False
             logging.error(__name__ + ": Cannot apply tool: "+exception_traceback())
             QCoreApplication.instance().errorMessage("Cannot apply tool (see log file for details):\n"+str(e))
-        if not self._toolDataAccessor.configDataAccessor().process().checkRecording():
-            ok=False
-            logging.error(__name__ + ": Could not apply tools (problem with enable recording flag)")
-            QCoreApplication.instance().errorMessage("Could not apply tools (problem with enable recording flag)")
         # recover process copy to undo changes during the tool dialog
         self._toolDataAccessor.configDataAccessor().setProcess(self._processCopy)
         if ok:

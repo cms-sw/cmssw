@@ -204,13 +204,13 @@ class ToolDataAccessor(BasicDataAccessor):
         try:
             for tool in self._toolList:
                 tool.apply(process)
+                if not process.checkRecording():
+                    logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
+                    QCoreApplication.instance().errorMessage("Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
+                    return False
         except Exception,e:
             logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
-            return False
-        if not process.checkRecording():
-            logging.error(__name__ + ": Could not apply tools (problem with enable recording flag)")
-            QCoreApplication.instance().errorMessage("Could not apply tools (problem with enable recording flag)")
             return False
         self.configDataAccessor().setProcess(process)
         self._parameterErrors={}
