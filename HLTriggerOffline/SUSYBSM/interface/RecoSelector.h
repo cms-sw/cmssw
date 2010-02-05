@@ -42,10 +42,12 @@ class RecoSelector {
   //Methods
   void handleObjects(const edm::Event&);
   bool isSelected(const edm::Event&);
+  std::string GetName();
 
  private:
   
   // Define the parameters
+  std::string name;
   std::string m_electronSrc;
   std::string m_muonSrc;
   std::string m_jetsSrc;

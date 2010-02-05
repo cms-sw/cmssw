@@ -5,11 +5,11 @@
  *  Author: Massimiliano Chiorboli      Date: August 2007
  //         Maurizio Pierini
  //         Maria Spiropulu
+ //    Philip Hebda, July 2009
 *
  */
 
 #include "HLTriggerOffline/SUSYBSM/interface/McSelector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -19,39 +19,52 @@ using namespace std;
 
 McSelector::McSelector(edm::ParameterSet userCut_params)
 {
-
+  //******************** PLEASE PAY ATTENTION: number of electron and muons is strictly equal, for jets, taus and photons the requirement is >= ********************
+  name     = userCut_params.getParameter<string>("name");
   m_genSrc       = userCut_params.getParameter<string>("mcparticles");
   m_genJetSrc    = userCut_params.getParameter<string>("genJets");
   m_genMetSrc    = userCut_params.getParameter<string>("genMet");
-
-  mc_ptElecMin = userCut_params.getParameter<double>("mc_ptElecMin");
-  mc_ptMuonMin = userCut_params.getParameter<double>("mc_ptMuonMin");
-  mc_ptPhotMin = userCut_params.getParameter<double>("mc_ptPhotMin");
-  mc_ptJetMin  = userCut_params.getParameter<double>("mc_ptJetMin" );
-  mc_metMin    = userCut_params.getParameter<double>("mc_metMin"   );
-
+  mc_ptElecMin 	   = userCut_params.getParameter<double>("mc_ptElecMin"	    );
+  mc_ptMuonMin 	   = userCut_params.getParameter<double>("mc_ptMuonMin"	    );
+  mc_ptTauMin  	   = userCut_params.getParameter<double>("mc_ptTauMin" 	    );
+  mc_ptPhotMin 	   = userCut_params.getParameter<double>("mc_ptPhotMin"	    );
+  mc_ptJetMin  	   = userCut_params.getParameter<double>("mc_ptJetMin" 	    );   
+  mc_ptJetForHtMin = userCut_params.getParameter<double>("mc_ptJetForHtMin" );
+  mc_metMin        = userCut_params.getParameter<double>("mc_metMin"        );
+  mc_htMin         = userCut_params.getParameter<double>("mc_htMin"         );
   mc_nElec     = userCut_params.getParameter<int>("mc_nElec");
+  mc_nElecRule = userCut_params.getParameter<string>("mc_nElecRule");
   mc_nMuon     = userCut_params.getParameter<int>("mc_nMuon");
+  mc_nMuonRule = userCut_params.getParameter<string>("mc_nMuonRule");
+  mc_nTau      = userCut_params.getParameter<int>("mc_nTau");
   mc_nPhot     = userCut_params.getParameter<int>("mc_nPhot");
   mc_nJet      = userCut_params.getParameter<int>("mc_nJet" );
 
 
+  cout << endl;
+  cout << "UserAnalysis parameters, MC for " << name << " selection:" << endl;
+  cout << " mc_ptElecMin      = " << mc_ptElecMin  	<< endl;
+  cout << " mc_ptMuonMin      = " << mc_ptMuonMin  	<< endl;
+  cout << " mc_ptTauMin       = " << mc_ptTauMin   	<< endl;
+  cout << " mc_ptPhotMin      = " << mc_ptPhotMin  	<< endl;
+  cout << " mc_ptJetMin       = " << mc_ptJetMin   	<< endl;
+  cout << " mc_ptJetForHtMin  = " << mc_ptJetForHtMin   << endl;
+  cout << " mc_metMin         = " << mc_metMin     	<< endl;
+  cout << " mc_htMin          = " << mc_htMin      	<< endl;
 
-  edm::LogInfo("MCSelectorParameters") << endl;
-  edm::LogInfo("MCSelectorParameters") << "UserAnalysis parameters, MC:";
-  edm::LogInfo("MCSelectorParameters") << " mc_ptElecMin = " << mc_ptElecMin;
-  edm::LogInfo("MCSelectorParameters") << " mc_ptMuonMin = " << mc_ptMuonMin;
-  edm::LogInfo("MCSelectorParameters") << " mc_ptPhotMin = " << mc_ptPhotMin;
-  edm::LogInfo("MCSelectorParameters") << " mc_ptJetMin  = " << mc_ptJetMin ;
-  edm::LogInfo("MCSelectorParameters") << " mc_metMin    = " << mc_metMin   ;
+  cout << " mc_nElec  	 = " << mc_nElec   << endl;
+  cout << " mc_nElecRule = " << mc_nElecRule << endl;
+  cout << " mc_nMuon  	 = " << mc_nMuon   << endl;
+  cout << " mc_nMuonRule = " << mc_nMuonRule << endl;
+  cout << " mc_nTau  	 = " << mc_nTau    << endl;
+  cout << " mc_nPhot  	 = " << mc_nPhot   << endl;
+  cout << " mc_nJet   	 = " << mc_nJet    << endl;
 
-  edm::LogInfo("MCSelectorParameters") << " mc_nElec  	 = " << mc_nElec;
-  edm::LogInfo("MCSelectorParameters") << " mc_nMuon  	 = " << mc_nMuon;
-  edm::LogInfo("MCSelectorParameters") << " mc_nPhot  	 = " << mc_nPhot;
-  edm::LogInfo("MCSelectorParameters") << " mc_nJet   	 = " << mc_nJet ;
-  edm::LogInfo("MCSelectorParameters") << endl;
+  cout << endl;
 
 }
+
+string McSelector::GetName(){return name;}
 
 bool McSelector::isSelected(const edm::Event& iEvent)
 {
@@ -65,77 +78,172 @@ bool McSelector::isSelected(const edm::Event& iEvent)
 
   bool ElectronCutPassed = false;
   bool MuonCutPassed = false;
+  bool TauCutPassed = false;
   bool PhotonCutPassed = false;
   bool JetCutPassed = false;  
   bool MetCutPassed = false;  
+  bool HtCutPassed = false;  
 
   int nMcElectrons = 0;
   int nMcMuons     = 0;
+  int nMcTaus     = 0;
   int nMcPhotons   = 0;
   int nMcJets      = 0;
+  
+  //  cout <<"----------------------------------------------------------------------------" << endl;
+  
   for(unsigned int i=0; i<theGenParticleCollection->size(); i++) {
-    //    const GenParticleCandidate* genParticle = dynamic_cast<const GenParticleCandidate*> (&(*theGenParticleCollection)[i]);    
     const GenParticle* genParticle = (&(*theGenParticleCollection)[i]);    
+    if(genParticle->status() == 2) {
+      //taus
+      if(fabs(genParticle->pdgId()) == 15) {
+	//	cout << "Tau Mother = " << genParticle->mother()->pdgId() << endl;
+	//	if(fabs(genParticle->mother()->pdgId()) == 15) 	cout << "Tau GrandMother = " << genParticle->mother()->mother()->pdgId() << endl;
+	if(genParticle->pt() > mc_ptTauMin && fabs(genParticle->eta())<2.5) {
+	  nMcTaus++;
+	}
+      }
+    }
     if(genParticle->status() == 1) {
+      //      cout << "genParticle->status() = " << genParticle->status() << "    genParticle->pdgId() = " << genParticle->pdgId() << "     genParticle->pt() = " << genParticle->pt() << endl;
       //electrons
       if(fabs(genParticle->pdgId()) == 11) {
-	if(genParticle->pt() > mc_ptElecMin) {
-	  nMcElectrons++;
-	  LogDebug("MCSelectorCuts") << "Mc Electron, pt = " << genParticle->pt();
+	//		cout << "Mc Electron, pt = " << genParticle->pt() << endl;
+	//		cout << "Electron Mother = " << genParticle->mother()->pdgId() << endl;
+// 		if(fabs(genParticle->mother()->pdgId()) == 11 || fabs(genParticle->mother()->pdgId()) == 15) 
+// 		  cout << "Electron GrandMother = " << genParticle->mother()->mother()->pdgId() << endl;
+// 		if(fabs(genParticle->mother()->mother()->pdgId()) == 11 || fabs(genParticle->mother()->mother()->pdgId()) == 15)
+// 		  cout << "Electron GrandGrandMother = " << genParticle->mother()->mother()->mother()->pdgId() << endl;
+	int motherCode = genParticle->mother()->pdgId();
+	if(fabs(motherCode) == fabs(genParticle->pdgId()) || fabs(motherCode) == 15) {
+	  motherCode = genParticle->mother()->mother()->pdgId();
+	  if(fabs(motherCode) == fabs(genParticle->pdgId()) || fabs(motherCode) == 15) motherCode = genParticle->mother()->mother()->mother()->pdgId();
+	}
+	if(fabs(motherCode) == 23 || fabs(motherCode) == 24 || fabs(motherCode) > 999999) {
+	  if(genParticle->pt() > mc_ptElecMin && fabs(genParticle->eta())<2.5) {
+	    nMcElectrons++;
+	    //	  	  cout << "Mc Electron, pt = " << genParticle->pt() << endl;
+	  }
 	}
       }
       //muons
       if(fabs(genParticle->pdgId()) == 13) {
-	if(genParticle->pt() > mc_ptMuonMin) {
-	  nMcMuons++;
-	  LogDebug("MCSelectorCuts") << "Mc Muon, pt = " << genParticle->pt();
+	//	cout << "Mc Muon, pt = " << genParticle->pt() << endl;
+	//		cout << "Muon Mother = " << genParticle->mother()->pdgId() << endl;
+// 		if(fabs(genParticle->mother()->pdgId()) == 13 || fabs(genParticle->mother()->pdgId()) == 15)
+// 		  cout << "Muon GrandMother = " << genParticle->mother()->mother()->pdgId() << endl;
+// 		if(fabs(genParticle->mother()->mother()->pdgId()) == 13 || fabs(genParticle->mother()->mother()->pdgId()) == 15)
+// 		  cout << "Muon GrandGrandMother = " << genParticle->mother()->mother()->mother()->pdgId() << endl;
+	int motherCode = genParticle->mother()->pdgId();
+	if(fabs(motherCode) == fabs(genParticle->pdgId()) || fabs(motherCode) == 15) {
+	  motherCode = genParticle->mother()->mother()->pdgId();
+	  if(fabs(motherCode) == fabs(genParticle->pdgId()) || fabs(motherCode) == 15) motherCode = genParticle->mother()->mother()->mother()->pdgId();
+	}
+	if(fabs(motherCode) == 23 || fabs(motherCode) == 24 || fabs(motherCode) > 999999) {
+	  if(genParticle->pt() > mc_ptMuonMin && fabs(genParticle->eta())<2.5) {
+	    nMcMuons++;
+	  //	  	  cout << "Mc Muon, pt = " << genParticle->pt() << endl;
+	  }
 	}
       }
       //photons
-      if(fabs(genParticle->pdgId()) == 22) {
+      if(fabs(genParticle->pdgId()) == 22 && fabs(genParticle->eta())<2.5) {
+	//	cout << "Mc Photon, pt = " << genParticle->pt() << endl;
 	if(genParticle->pt() > mc_ptPhotMin) {
+	  //	  cout << "Photon Mother = " << genParticle->mother()->pdgId() << endl;
 	  nMcPhotons++;
-	  LogDebug("MCSelectorCuts") << "Mc Photon, pt = " << genParticle->pt();
+	  //	  cout << "Mc Photon, pt = " << genParticle->pt() << endl;
 	}
       }
     }
   }
 
+  ht = 0;
   for(unsigned int i=0; i<theGenJetCollection->size();i++) {
     GenJet genjet = (*theGenJetCollection)[i];
-    if(genjet.pt() > mc_ptJetMin) {
+    //    cout << "Mc Jet, pt = " << genjet.pt() << endl;
+    if(genjet.pt() > mc_ptJetMin && fabs(genjet.eta())<3) {
       nMcJets++;
-      LogDebug("MCSelectorCuts") << "Mc Jet, pt = " << genjet.pt();
+      //           cout << "Mc Jet, pt = " << genjet.pt() << endl;
     }
+    if(genjet.pt() > mc_ptJetForHtMin) ht =+ genjet.pt();
   }
-
-
-  const GenMET theGenMET = theGenMETCollection->front();
-  LogDebug("MCSelectorCuts") << "GenMET = " << theGenMET.pt();
-  if(theGenMET.pt() > mc_metMin) MetCutPassed = true;
-
-
+  if(ht>mc_htMin) HtCutPassed = true;
   
-  if(nMcElectrons >= mc_nElec) ElectronCutPassed = true;
-  if(nMcMuons     >= mc_nMuon) MuonCutPassed     = true;
+  
+  const GenMET theGenMET = theGenMETCollection->front();
+  //  cout << "GenMET = " << theGenMET.pt() << endl;
+  if(theGenMET.pt() > mc_metMin) MetCutPassed = true;
+  
+  //  cout <<"----------------------------------------------------------------------------" << endl;
+  
+
+//   cout << "nMcElectrons = " << nMcElectrons << endl;
+//   cout << "nMcMuons     = " << nMcMuons     << endl;
+//   cout << "nMcTaus      = " << nMcTaus      << endl;
+//   cout << "nMcPhotons   = " << nMcPhotons   << endl;
+//   cout << "nMcJets      = " << nMcJets      << endl;
+  
+  if(mc_nElecRule == "strictEqual") {
+    if(nMcElectrons == mc_nElec) ElectronCutPassed = true;
+  } 
+  else if (mc_nElecRule == "greaterEqual") {
+    if(nMcElectrons >= mc_nElec) ElectronCutPassed = true;
+  } 
+  else cout << "WARNING: not a correct definition of cuts at gen level for electrons! " << endl;
+  
+  
+  if(mc_nMuonRule == "strictEqual") {
+    if(nMcMuons     == mc_nMuon) MuonCutPassed     = true;
+  }
+  else if (mc_nMuonRule == "greaterEqual") {
+    if(nMcMuons >= mc_nMuon) MuonCutPassed = true;
+  } 
+  else cout << "WARNING: not a correct definition of cuts at gen level for muons! " << endl;
+  if(nMcTaus      >= mc_nTau)  TauCutPassed      = true;
   if(nMcPhotons   >= mc_nPhot) PhotonCutPassed   = true;
   if(nMcJets      >= mc_nJet ) JetCutPassed      = true;
-
-
-  edm::LogInfo("MCSelectorPassed") << "ElectronCutPassed = " << (int)ElectronCutPassed;
-  edm::LogInfo("MCSelectorPassed") << "MuonCutPassed     = " << (int)MuonCutPassed;
-  edm::LogInfo("MCSelectorPassed") << "PhotonCutPassed   = " << (int)PhotonCutPassed;
-  edm::LogInfo("MCSelectorPassed") << "JetCutPassed      = " << (int)JetCutPassed;
-  edm::LogInfo("MCSelectorPassed") << "MetCutPassed      = " << (int)MetCutPassed;
-
-
+  
+  
+//   cout << "ElectronCutPassed = " << (int)ElectronCutPassed << endl;
+//   cout << "MuonCutPassed     = " << (int)MuonCutPassed << endl;
+//   cout << "PhotonCutPassed   = " << (int)PhotonCutPassed << endl;
+//   cout << "JetCutPassed      = " << (int)JetCutPassed << endl;
+//   cout << "MetCutPassed      = " << (int)MetCutPassed << endl;
+  
+  
+//   if(
+//      (ElectronCutPassed || MuonCutPassed) &&
+//      PhotonCutPassed                      &&
+//      JetCutPassed                         &&
+//      MetCutPassed      )   TotalCutPassed = true;
+  
+  
   if(
-     (ElectronCutPassed || MuonCutPassed) &&
-     PhotonCutPassed                      &&
-     JetCutPassed                         &&
-     MetCutPassed      )   TotalCutPassed = true;
+     ElectronCutPassed   && 
+     MuonCutPassed       &&
+     TauCutPassed        &&
+     PhotonCutPassed     &&
+     JetCutPassed        &&
+     MetCutPassed        &&
+     HtCutPassed          )   TotalCutPassed = true;
 
 
+  // Apply a veto: removed because we require the exact number of leptons
+  // and not >=
+  // the veto is hence equivalent to request 0 leptons
+
+//   if(TotalCutPassed) {
+//     if(mc_ElecVeto) {
+//       if(nMcElectrons>0) TotalCutPassed = false;
+//     }
+//     if(mc_MuonVeto) {
+//       if(nMcMuons>0) TotalCutPassed = false;
+//     }
+//   }
+
+  
+//  cout << "TotalCutPassed = " << TotalCutPassed << endl;
 
   return TotalCutPassed;
 }

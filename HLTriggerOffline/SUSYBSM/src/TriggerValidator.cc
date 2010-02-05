@@ -15,7 +15,8 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.16 2010/01/22 18:50:18 nuno Exp $
+//  Philip Hebda, July 2009
+// $Id: TriggerValidator.cc,v 1.14 2009/04/27 23:27:44 chiorbo Exp $
 //
 //
 
@@ -32,7 +33,6 @@ Implementation:
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -93,19 +93,23 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
   mcFlag(iConfig.getUntrackedParameter<bool>("mc_flag",false)),
   l1Flag(iConfig.getUntrackedParameter<bool>("l1_flag",false)),
-  userCut_params(iConfig.getParameter<ParameterSet>("UserCutParams")),
+  reco_parametersets(iConfig.getParameter<VParameterSet>("reco_parametersets")),
+  mc_parametersets(iConfig.getParameter<VParameterSet>("mc_parametersets")),
   turnOn_params(iConfig.getParameter<ParameterSet>("TurnOnParams")),
   plotMakerL1Input(iConfig.getParameter<ParameterSet>("PlotMakerL1Input")),
-  plotMakerRecoInput(iConfig.getParameter<ParameterSet>("PlotMakerRecoInput"))
+  plotMakerRecoInput(iConfig.getParameter<ParameterSet>("PlotMakerRecoInput")),
+  muonTag_(iConfig.getParameter<edm::InputTag>("muonTag")),
+  triggerTag_(iConfig.getParameter<edm::InputTag>("triggerTag"))
 {
   //now do what ever initialization is needed
   theHistoFile = 0;
   nEvTot = 0;
-  nEvRecoSelected = 0;
-  nEvMcSelected = 0;
+  for(unsigned int i=0; i<reco_parametersets.size(); ++i) nEvRecoSelected.push_back(0);
+  for(unsigned int i=0; i<mc_parametersets.size(); ++i) nEvMcSelected.push_back(0);
 
   nHltPaths = 0;
   nL1Bits = 0;
+
 
   // --- set the names in the dbe folders ---
   triggerBitsDir = "/TriggerBits";
@@ -122,7 +126,7 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
     dbe_->setVerbose(0);
   }
-  
+
   
 
   
@@ -159,11 +163,14 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   nEvTot++;
   
-  bool eventRecoSelected = myRecoSelector->isSelected(iEvent);
-  bool eventMcSelected   = mcFlag ? myMcSelector->isSelected(iEvent) : false;
-  
-  if(eventRecoSelected) nEvRecoSelected++;
-  if(eventMcSelected) nEvMcSelected++;
+  vector<bool> eventRecoSelected, eventMcSelected;
+  eventRecoSelected.resize(reco_parametersets.size());
+  eventMcSelected.resize(mc_parametersets.size());
+  for(unsigned int i=0; i<eventRecoSelected.size(); ++i) eventRecoSelected[i] =  myRecoSelector[i]->isSelected(iEvent);
+  for(unsigned int i=0; i<eventMcSelected.size(); ++i) eventMcSelected[i] = mcFlag ? myMcSelector[i]->isSelected(iEvent) : false;
+
+  for(unsigned int i=0; i<nEvRecoSelected.size(); ++i) if(eventRecoSelected[i]) nEvRecoSelected[i]++;
+  for(unsigned int i=0; i<nEvMcSelected.size(); ++i) if(eventMcSelected[i]) nEvMcSelected[i]++;
   
   
   // ******************************************************** 
@@ -215,8 +222,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //set the names of the bins for the "path" histos
     for(unsigned int i=0; i<l1Names_.size(); ++i) {
       hL1PathsBeforeCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
-      hL1PathsAfterRecoCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
-      hL1PathsAfterMcCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
+      for(unsigned int j=0; j<hL1PathsAfterRecoCuts.size(); ++j) hL1PathsAfterRecoCuts[j]->setBinLabel(i+1,l1Names_[i].c_str(),1);
+      for(unsigned int j=0; j<hL1PathsAfterMcCuts.size(); ++j) hL1PathsAfterMcCuts[j]->setBinLabel(i+1,l1Names_[i].c_str(),1);
     }
   }
   
@@ -227,16 +234,18 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       numTotL1BitsBeforeCuts[i]++;
       hL1BitsBeforeCuts->Fill(i);
       hL1PathsBeforeCuts->Fill(i);
-      if(eventRecoSelected) {
-	numTotL1BitsAfterRecoCuts[i]++;
-	hL1BitsAfterRecoCuts->Fill(i);
-	hL1PathsAfterRecoCuts->Fill(i);
-      }
-      if(eventMcSelected) {
-	numTotL1BitsAfterMcCuts[i]++;
-	hL1BitsAfterMcCuts->Fill(i);
-	hL1PathsAfterMcCuts->Fill(i);
-      }
+      for(unsigned int j=0; j<eventRecoSelected.size(); ++j)
+	if(eventRecoSelected[j]) {
+	  numTotL1BitsAfterRecoCuts[j][i]++;
+	  hL1BitsAfterRecoCuts[j]->Fill(i);
+	  hL1PathsAfterRecoCuts[j]->Fill(i);
+	}
+      for(unsigned int j=0; j<eventMcSelected.size(); ++j)
+	if(eventMcSelected[j]) {
+	  numTotL1BitsAfterMcCuts[j][i]++;
+	  hL1BitsAfterMcCuts[j]->Fill(i);
+	  hL1PathsAfterMcCuts[j]->Fill(i);
+	}
     }      
   }
 
@@ -251,16 +260,18 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   numTotL1BitsBeforeCuts[nL1size]++;
   hL1BitsBeforeCuts->Fill(nL1size);
   hL1PathsBeforeCuts->Fill(nL1size);
-  if(eventRecoSelected) {
-    numTotL1BitsAfterRecoCuts[nL1size]++;
-    hL1BitsAfterRecoCuts->Fill(nL1size);
-    hL1PathsAfterRecoCuts->Fill(nL1size);
-  }
-  if(eventMcSelected) {
-    numTotL1BitsAfterMcCuts[nL1size]++;
-    hL1BitsAfterMcCuts->Fill(nL1size);
-    hL1PathsAfterMcCuts->Fill(nL1size);
-  }
+  for(unsigned int i=0; i<eventRecoSelected.size(); ++i)
+    if(eventRecoSelected[i]) {
+      numTotL1BitsAfterRecoCuts[i][nL1size]++;
+      hL1BitsAfterRecoCuts[i]->Fill(nL1size);
+      hL1PathsAfterRecoCuts[i]->Fill(nL1size);
+    }
+  for(unsigned int i=0; i<eventMcSelected.size(); ++i)
+    if(eventMcSelected[i]) {
+      numTotL1BitsAfterMcCuts[i][nL1size]++;
+      hL1BitsAfterMcCuts[i]->Fill(nL1size);
+      hL1PathsAfterMcCuts[i]->Fill(nL1size);
+    }
 
 
   // ******************************************************** 
@@ -302,28 +313,30 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //set the bin names for the "path" histos
     for (unsigned int i=0; i<hlNames_.size(); ++i) {
       hHltPathsBeforeCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
-      hHltPathsAfterRecoCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
-      hHltPathsAfterMcCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
+      for(unsigned int j=0; j<hHltPathsAfterRecoCuts.size(); ++j) hHltPathsAfterRecoCuts[j]->setBinLabel(i+1,hlNames_[i].c_str(),1);
+      for(unsigned int j=0; j<hHltPathsAfterMcCuts.size(); ++j) hHltPathsAfterMcCuts[j]->setBinLabel(i+1,hlNames_[i].c_str(),1);
     }
   }
-  
+
   //fill the eff vectors and histos for HLT
   for(unsigned int i=0; i< trhv->size(); i++) {
     hltbits.push_back(trhv->at(i).accept());
     if(trhv->at(i).accept()) {
-     numTotHltBitsBeforeCuts[i]++;
+      numTotHltBitsBeforeCuts[i]++;
       hHltBitsBeforeCuts->Fill(i);
       hHltPathsBeforeCuts->Fill(i);
-      if(eventRecoSelected) {
-	numTotHltBitsAfterRecoCuts[i]++;
-	hHltBitsAfterRecoCuts->Fill(i);
-	hHltPathsAfterRecoCuts->Fill(i);
-      }
-      if(eventMcSelected) {
-	numTotHltBitsAfterMcCuts[i]++;
-	hHltBitsAfterMcCuts->Fill(i);
-	hHltPathsAfterMcCuts->Fill(i);
-     }
+      for(unsigned int j=0; j<eventRecoSelected.size(); ++j)
+	if(eventRecoSelected[j]) {
+	  numTotHltBitsAfterRecoCuts[j][i]++;
+	  hHltBitsAfterRecoCuts[j]->Fill(i);
+	  hHltPathsAfterRecoCuts[j]->Fill(i);
+	}
+      for(unsigned int j=0; j<eventMcSelected.size(); ++j)
+	if(eventMcSelected[j]) {
+	  numTotHltBitsAfterMcCuts[j][i]++;
+	  hHltBitsAfterMcCuts[j]->Fill(i);
+	  hHltPathsAfterMcCuts[j]->Fill(i);
+	}
     }      
   }
 
@@ -344,16 +357,20 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   numTotHltBitsBeforeCuts[trhv->size()]++;
   hHltBitsBeforeCuts->Fill(trhv->size());
   hHltPathsBeforeCuts->Fill(trhv->size());
-  if(eventRecoSelected) {
-    numTotHltBitsAfterRecoCuts[trhv->size()]++;
-    hHltBitsAfterRecoCuts->Fill(trhv->size());
-    hHltPathsAfterRecoCuts->Fill(trhv->size());
-  }
-  if(eventMcSelected) {
-    numTotHltBitsAfterMcCuts[trhv->size()]++;
-    hHltBitsAfterMcCuts->Fill(trhv->size());
-    hHltPathsAfterMcCuts->Fill(trhv->size());
-  }
+  for(unsigned int i=0; i<eventRecoSelected.size(); ++i)
+    if(eventRecoSelected[i]) {
+      numTotHltBitsAfterRecoCuts[i][trhv->size()]++;
+      hHltBitsAfterRecoCuts[i]->Fill(trhv->size());
+      hHltPathsAfterRecoCuts[i]->Fill(trhv->size());
+    }
+  for(unsigned int i=0; i<eventMcSelected.size(); ++i)
+    if(eventMcSelected[i]) {
+      numTotHltBitsAfterMcCuts[i][trhv->size()]++;
+      hHltBitsAfterMcCuts[i]->Fill(trhv->size());
+      hHltPathsAfterMcCuts[i]->Fill(trhv->size());
+    }
+
+
 
   if(firstEvent) {
     if(l1Flag) myPlotMakerL1->bookHistos(dbe_,&l1bits,&hltbits,&l1Names_,&hlNames_);
@@ -365,6 +382,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //  myTurnOnMaker->fillPlots(iEvent);
 
   firstEvent = false;
+
+  myMuonAnalyzer->FillPlots(iEvent, iSetup);
 }
 
 
@@ -397,8 +416,8 @@ TriggerValidator::beginJob()
 
   
 
-  myRecoSelector = new RecoSelector(userCut_params);
-  if(mcFlag) myMcSelector   = new McSelector(userCut_params);
+  for(unsigned int i=0; i<reco_parametersets.size(); ++i) myRecoSelector.push_back(new RecoSelector(reco_parametersets[i]));
+  if(mcFlag) for(unsigned int i=0; i<mc_parametersets.size(); ++i) myMcSelector.push_back(new McSelector(mc_parametersets[i]));
   if(l1Flag) myPlotMakerL1     = new PlotMakerL1(plotMakerL1Input);
   myPlotMakerReco   = new PlotMakerReco(plotMakerRecoInput);
 //   myTurnOnMaker = new TurnOnMaker(turnOn_params);
@@ -406,13 +425,17 @@ TriggerValidator::beginJob()
 
   //resize the vectors ccording to the number of L1 paths
   numTotL1BitsBeforeCuts.resize(nL1Bits+1);
-  numTotL1BitsAfterRecoCuts.resize(nL1Bits+1);
-  numTotL1BitsAfterMcCuts.resize(nL1Bits+1);
+  numTotL1BitsAfterRecoCuts.resize(reco_parametersets.size());
+  for(unsigned int i=0; i<numTotL1BitsAfterRecoCuts.size(); ++i) numTotL1BitsAfterRecoCuts[i].resize(nL1Bits+1);
+  numTotL1BitsAfterMcCuts.resize(mc_parametersets.size());
+  for(unsigned int i=0; i<numTotL1BitsAfterMcCuts.size(); ++i) numTotL1BitsAfterMcCuts[i].resize(nL1Bits+1);
 
   //resize the vectors ccording to the number of HLT paths
   numTotHltBitsBeforeCuts.resize(nHltPaths+1);
-  numTotHltBitsAfterRecoCuts.resize(nHltPaths+1);
-  numTotHltBitsAfterMcCuts.resize(nHltPaths+1);
+  numTotHltBitsAfterRecoCuts.resize(reco_parametersets.size());
+  for(unsigned int i=0; i<numTotHltBitsAfterRecoCuts.size(); ++i) numTotHltBitsAfterRecoCuts[i].resize(nHltPaths+1);
+  numTotHltBitsAfterMcCuts.resize(mc_parametersets.size());
+  for(unsigned int i=0; i<numTotHltBitsAfterMcCuts.size(); ++i) numTotHltBitsAfterMcCuts[i].resize(nHltPaths+1);
   
   if (dbe_) {
     dbe_->setCurrentFolder(dirname_);
@@ -433,14 +456,34 @@ TriggerValidator::beginJob()
 //   hL1OverlapNormToLargestPath  = dbe_->book2D("L1OverlapNormToLargestPath" ,"Overlap among L1 paths, norm to the Largest of the couple ", 1, 0, 1, 1, 0, 1);
 //   hHltOverlapNormToLargestPath = dbe_->book2D("HltOverlapNormToLargestPath","Overlap among Hlt paths, norm to the Largest of the couple ", 1, 0, 1, 1, 0, 1);
 
-  dbe_->setCurrentFolder(dirname_+recoSelBitsDir);   
-  hL1BitsAfterRecoCuts  = dbe_->book1D("L1Bits", "L1 Trigger Bits",nL1Bits+1, 0, nL1Bits+1);    
-  hHltBitsAfterRecoCuts = dbe_->book1D("HltBits","HL Trigger Bits",nHltPaths+1, 0, nHltPaths+1);
-
-  dbe_->setCurrentFolder(dirname_+mcSelBitsDir);   
-  hL1BitsAfterMcCuts  = dbe_->book1D("L1Bits", "L1 Trigger Bits",nL1Bits+1, 0, nL1Bits+1);    
-  hHltBitsAfterMcCuts = dbe_->book1D("HltBits","HL Trigger Bits",nHltPaths+1, 0, nHltPaths+1);
-
+  for(unsigned int i=0; i<myRecoSelector.size(); ++i)
+    {
+      string path_name = myRecoSelector[i]->GetName();
+      char histo_name[256], histo_title[256];
+      //sprintf(histo_name, "L1Bits");
+      sprintf(histo_name, "L1Bits_%s", path_name.c_str());
+      sprintf(histo_title, "L1 Trigger Bits for %s Selection", path_name.c_str());
+      dbe_->setCurrentFolder(dirname_+recoSelBitsDir+"/"+path_name);   
+      hL1BitsAfterRecoCuts.push_back(dbe_->book1D(histo_name, histo_title, nL1Bits+1, 0, nL1Bits+1));   
+      //sprintf(histo_name, "HltBits");
+      sprintf(histo_name, "HltBits_%s", path_name.c_str());
+      sprintf(histo_title, "HL Trigger Bits for %s Selection", path_name.c_str()); 
+      hHltBitsAfterRecoCuts.push_back(dbe_->book1D(histo_name, histo_title, nHltPaths+1, 0, nHltPaths+1));
+    }
+  for(unsigned int i=0; i<myMcSelector.size(); ++i)
+    {
+      string path_name = myMcSelector[i]->GetName();
+      char histo_name[256], histo_title[256];
+      //sprintf(histo_name, "L1Bits");
+      sprintf(histo_name, "L1Bits_%s", path_name.c_str());
+      sprintf(histo_title, "L1 Trigger Bits for %s Selection", path_name.c_str());
+      dbe_->setCurrentFolder(dirname_+mcSelBitsDir+"/"+path_name);   
+      hL1BitsAfterMcCuts.push_back(dbe_->book1D(histo_name, histo_title, nL1Bits+1, 0, nL1Bits+1));
+      //sprintf(histo_name, "HltBits");
+      sprintf(histo_name, "HltBits_%s", path_name.c_str());
+      sprintf(histo_title, "HL Trigger Bits for %s Selection", path_name.c_str()); 
+      hHltBitsAfterMcCuts.push_back(dbe_->book1D(histo_name, histo_title, nHltPaths+1, 0, nHltPaths+1));
+    }
 
   //create the histos with paths
   //identical to the ones with "bits"
@@ -454,18 +497,38 @@ TriggerValidator::beginJob()
   hTemp = (TH1F*) (hHltBitsBeforeCuts->getTH1F())->Clone("HltPaths");
   hHltPathsBeforeCuts = dbe_->book1D("HltPaths", hTemp);
 
-  dbe_->setCurrentFolder(dirname_+recoSelBitsDir);
-  hTemp = (TH1F*) (hL1BitsAfterRecoCuts->getTH1F())->Clone("L1Paths");
-  hL1PathsAfterRecoCuts   = dbe_->book1D("L1Paths", hTemp);
-  hTemp = (TH1F*) (hHltBitsAfterRecoCuts->getTH1F())->Clone("HltPaths");
-  hHltPathsAfterRecoCuts  = dbe_->book1D("HltPaths", hTemp);
+  for(unsigned int i=0; i<myRecoSelector.size(); ++i)
+    {
+      string path_name = myRecoSelector[i]->GetName();
+      char histo_name[256];
+      //sprintf(histo_name, "L1Paths");
+      sprintf(histo_name, "L1Paths_%s", path_name.c_str());
+      dbe_->setCurrentFolder(dirname_+recoSelBitsDir+"/"+path_name);
+      hTemp = (TH1F*) (hL1BitsAfterRecoCuts[i]->getTH1F())->Clone(histo_name);
+      hL1PathsAfterRecoCuts.push_back(dbe_->book1D(histo_name, hTemp));
+      //sprintf(histo_name, "HltPaths");
+      sprintf(histo_name, "HltPaths_%s", path_name.c_str());
+      hTemp = (TH1F*) (hHltBitsAfterRecoCuts[i]->getTH1F())->Clone(histo_name);
+      hHltPathsAfterRecoCuts.push_back(dbe_->book1D(histo_name, hTemp));
+    }
 
-  dbe_->setCurrentFolder(dirname_+mcSelBitsDir);
-  hTemp = (TH1F*) (hL1BitsAfterMcCuts->getTH1F())->Clone("L1Paths");
-  hL1PathsAfterMcCuts   = dbe_->book1D("L1Paths", hTemp);
-  hTemp = (TH1F*) (hHltBitsAfterMcCuts->getTH1F())->Clone("HltPaths");
-  hHltPathsAfterMcCuts  = dbe_->book1D("HltPaths", hTemp);
-  
+  for(unsigned int i=0; i<myMcSelector.size(); ++i)
+    {
+      string path_name = myMcSelector[i]->GetName();
+      char histo_name[256];
+      //sprintf(histo_name, "L1Paths");
+      sprintf(histo_name, "L1Paths_%s", path_name.c_str());
+      dbe_->setCurrentFolder(dirname_+mcSelBitsDir+"/"+path_name);
+      hTemp = (TH1F*) (hL1BitsAfterMcCuts[i]->getTH1F())->Clone(histo_name);
+      hL1PathsAfterMcCuts.push_back(dbe_->book1D(histo_name, hTemp));
+      //sprintf(histo_name, "HltPaths");
+      sprintf(histo_name, "HltPaths_%s", path_name.c_str());
+      hTemp = (TH1F*) (hHltBitsAfterMcCuts[i]->getTH1F())->Clone(histo_name);
+      hHltPathsAfterMcCuts.push_back(dbe_->book1D(histo_name, hTemp));
+    }
+
+  myMuonAnalyzer = new MuonAnalyzer(triggerTag_, muonTag_);
+  myMuonAnalyzer->InitializePlots(dbe_, dirname_);
 }
 
 
@@ -727,9 +790,14 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
 //   statFile.close();
 
 
-
-  delete myRecoSelector;
-  if(mcFlag) delete myMcSelector;
+  for(unsigned int i=0; i<myRecoSelector.size(); ++i) delete myRecoSelector[i];
+  myRecoSelector.clear();
+  if(mcFlag) 
+    {
+      for(unsigned int i=0; i<myMcSelector.size(); ++i) delete myMcSelector[i];
+      myMcSelector.clear();
+    }
+     
   if(l1Flag) delete myPlotMakerL1;
   delete myPlotMakerReco;
 //   delete myTurnOnMaker;

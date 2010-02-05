@@ -44,23 +44,33 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:step2.root'
-    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0002/2A2BB3C2-DE66-DE11-8A25-001D09F27067.root',
-    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/D62DED56-8F66-DE11-96AF-001D09F241B4.root',
-    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/9E488F5D-9066-DE11-85E9-001D09F2543D.root',
-    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/58B73B6D-9266-DE11-AFC2-001617DBCF90.root',
-    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/28ACB7E0-9266-DE11-AFCF-001D09F25325.root',
-    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/02841A84-9966-DE11-A26B-001D09F23A61.root',
-#    '/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/024EE1A1-8166-DE11-965F-001D09F2543D.root'
-#"file:/build/nuno/test31/CMSSW_3_1_0_pre5/src/TTbar_Tauola_cfi_py_GEN_FASTSIM_VALIDATION.root"
-#"file:myreco2_RAW2DIGI_RECO_ALCA_VALIDATION.root"
-#'/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_31X_v1/0000/E63C1A00-0C2C-DE11-BFC1-000423D98800.root'
+#        'file:/tmp/chiorbo/EC43AC0A-3305-DF11-99FE-0030487CD13A.root'
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/EEDE7700-C50F-DF11-A8EC-00304867342C.root',
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/8E8BEF2D-4C0F-DF11-AD90-0030487D0D3A.root',
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/7A70652A-4F0F-DF11-A4F2-0030487CD704.root',
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/764459F0-4C0F-DF11-9A0E-00304879BAB2.root',
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/4CDBE375-430F-DF11-88BE-0030487C635A.root',
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/3C57A952-4E0F-DF11-B002-0030487CD704.root',
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/36E9495E-4D0F-DF11-8238-00304879EDEA.root',
+        '/store/relval/CMSSW_3_5_0_pre5/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V20-v2/0009/0ED771FF-4A0F-DF11-AE23-0030487A195C.root'
+
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/EC43AC0A-3305-DF11-99FE-0030487CD13A.root',
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/D8630372-3105-DF11-87A3-0030487CD13A.root',
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/BECC9492-3005-DF11-9CBD-0030487A1884.root',
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/76616E1A-B405-DF11-A263-0030487A1990.root',
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/682B987D-3905-DF11-B952-0030487A17B8.root',
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/3C144158-3005-DF11-9933-0030487CD906.root',
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/3A72A401-3105-DF11-A1D6-0030487CD906.root',
+#        '/store/relval/CMSSW_3_5_0_pre3/RelValLM1_sfts/GEN-SIM-RECO/MC_3XY_V15-v2/0006/26DBA1F2-2E05-DF11-B620-0030487A322E.root'
         )
 )
+#process.DQMStore.referenceFileName = 'file:./330pre3/DQM_V0001_LM1_330pre3_R000000001.root'
+#process.dqmSaver.referenceHandling = 'all'
+
 
 process.MessageLogger = cms.Service("MessageLogger",
     detailedInfo = cms.untracked.PSet(

@@ -40,6 +40,7 @@
 //To be included in a second stage
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMakerL1.h"
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMakerReco.h"
+#include "HLTriggerOffline/SUSYBSM/interface/MuonAnalyzer.h"
 //#include "HLTriggerOffline/SUSYBSM/interface/TurnOnMaker.h"
 
 //included for DQM
@@ -85,9 +86,9 @@ class TriggerValidator : public edm::EDAnalyzer {
 
 
       //RecoSelector
-      RecoSelector* myRecoSelector;
-      McSelector* myMcSelector;
-
+      std::vector<RecoSelector*> myRecoSelector;
+      std::vector<McSelector*> myMcSelector;
+      
       //For the moment I switch off the more complex plots
        PlotMakerL1* myPlotMakerL1; 
        PlotMakerReco* myPlotMakerReco; 
@@ -104,10 +105,14 @@ class TriggerValidator : public edm::EDAnalyzer {
       bool l1Flag;
 
       //Cut parameters decided by the user
-      edm::ParameterSet userCut_params;
+      std::vector<edm::ParameterSet> reco_parametersets;
+      std::vector<edm::ParameterSet> mc_parametersets;
       edm::ParameterSet turnOn_params;
       edm::ParameterSet plotMakerL1Input;
       edm::ParameterSet plotMakerRecoInput;
+
+      edm::InputTag muonTag_;
+      edm::InputTag triggerTag_;
 
       // name of each L1 algorithm
       std::vector<std::string> l1Names_;    
@@ -119,10 +124,10 @@ class TriggerValidator : public edm::EDAnalyzer {
       //Counters for L1 and HLT
       std::vector<int> numTotL1BitsBeforeCuts;
       std::vector<int> numTotHltBitsBeforeCuts;
-      std::vector<int> numTotL1BitsAfterRecoCuts;
-      std::vector<int> numTotHltBitsAfterRecoCuts;
-      std::vector<int> numTotL1BitsAfterMcCuts;
-      std::vector<int> numTotHltBitsAfterMcCuts;
+      std::vector< std::vector<int> > numTotL1BitsAfterRecoCuts;
+      std::vector< std::vector<int> > numTotHltBitsAfterRecoCuts;
+      std::vector< std::vector<int> > numTotL1BitsAfterMcCuts;
+      std::vector< std::vector<int> > numTotHltBitsAfterMcCuts;
 
       std::vector<double> effL1BeforeCuts;
       std::vector<double> effHltBeforeCuts;
@@ -139,8 +144,8 @@ class TriggerValidator : public edm::EDAnalyzer {
       std::vector< std::vector<double> > vCorrNormHlt;
 
       int nEvTot;
-      int nEvRecoSelected;
-      int nEvMcSelected;
+      std::vector<int> nEvRecoSelected;
+      std::vector<int> nEvMcSelected;
 
 
 
@@ -148,17 +153,17 @@ class TriggerValidator : public edm::EDAnalyzer {
       //Histos for L1 and HLT bits
       MonitorElement* hL1BitsBeforeCuts;	
       MonitorElement* hHltBitsBeforeCuts;	
-      MonitorElement* hL1BitsAfterRecoCuts;	
-      MonitorElement* hHltBitsAfterRecoCuts;  
-      MonitorElement* hL1BitsAfterMcCuts;	
-      MonitorElement* hHltBitsAfterMcCuts;  
+      std::vector<MonitorElement*> hL1BitsAfterRecoCuts;	
+      std::vector<MonitorElement*> hHltBitsAfterRecoCuts;  
+      std::vector<MonitorElement*> hL1BitsAfterMcCuts;	
+      std::vector<MonitorElement*> hHltBitsAfterMcCuts;  
 
       MonitorElement* hL1PathsBeforeCuts;
       MonitorElement* hHltPathsBeforeCuts;
-      MonitorElement* hL1PathsAfterRecoCuts;
-      MonitorElement* hHltPathsAfterRecoCuts;
-      MonitorElement* hL1PathsAfterMcCuts;
-      MonitorElement* hHltPathsAfterMcCuts;
+      std::vector<MonitorElement*> hL1PathsAfterRecoCuts;
+      std::vector<MonitorElement*> hHltPathsAfterRecoCuts;
+      std::vector<MonitorElement*> hL1PathsAfterMcCuts;
+      std::vector<MonitorElement*> hHltPathsAfterMcCuts;
         
 
       //if we want to keep these, probably thay have to move to the client      
@@ -169,11 +174,9 @@ class TriggerValidator : public edm::EDAnalyzer {
 
 
 
-
-
       bool firstEvent;
 
-
+      MuonAnalyzer* myMuonAnalyzer;
 };
 
 

@@ -40,22 +40,34 @@ class McSelector {
   //Methods
   void handleObjects(const edm::Event&);
   bool isSelected(const edm::Event&);
+  std::string GetName();
 
  private:
   
   // Define the parameters
+  std::string name;
   std::string m_genSrc;
   std::string m_genJetSrc;
   std::string m_genMetSrc;
   double mc_ptElecMin;
   double mc_ptMuonMin;
+  double mc_ptTauMin;
   double mc_ptPhotMin;
   double mc_ptJetMin;
+  double mc_ptJetForHtMin;
   double mc_metMin;
+  double mc_htMin;
   int    mc_nElec;
+  std::string mc_nElecRule;
   int    mc_nMuon;
+  std::string mc_nMuonRule;
+  int    mc_nTau;
   int    mc_nPhot;
   int    mc_nJet;
+
+
+  double ht;
+  
 
 
 

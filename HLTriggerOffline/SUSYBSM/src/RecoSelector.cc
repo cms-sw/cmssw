@@ -20,6 +20,7 @@ using namespace std;
 RecoSelector::RecoSelector(edm::ParameterSet userCut_params)
 {
 
+  name                   = userCut_params.getParameter<string>("name");
   m_electronSrc  	 = userCut_params.getParameter<string>("electrons");
   m_muonSrc    	 	 = userCut_params.getParameter<string>("muons");
   m_jetsSrc    	 	 = userCut_params.getParameter<string>("jets");
@@ -35,7 +36,7 @@ RecoSelector::RecoSelector(edm::ParameterSet userCut_params)
   reco_ptPhotMin = userCut_params.getParameter<double>("reco_ptPhotMin");
 
   edm::LogInfo("RecoSelectorParameters") << endl;
-  edm::LogInfo("RecoSelectorParameters") << "UserAnalysis parameters:" << endl;
+  edm::LogInfo("RecoSelectorParameters") << "UserAnalysis parameters for " << name << " selection:" << endl;
   edm::LogInfo("RecoSelectorParameters") << " reco_metMin    = " << reco_metMin << endl;
   edm::LogInfo("RecoSelectorParameters") << " reco_ptJet1Min = " << reco_ptJet1Min  << endl;
   edm::LogInfo("RecoSelectorParameters") << " reco_ptJet2Min = " << reco_ptJet2Min  << endl;
@@ -44,6 +45,8 @@ RecoSelector::RecoSelector(edm::ParameterSet userCut_params)
   edm::LogInfo("RecoSelectorParameters") << " reco_ptPhotMin = " << reco_ptPhotMin  << endl;
 
 }
+
+string RecoSelector::GetName(){return name;}
 
 bool RecoSelector::isSelected(const edm::Event& iEvent)
 {
@@ -64,6 +67,8 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
       LogDebug("RecoSelectorCuts") << "elpt = " << elpt << endl;
     }
     else {
+      float elenergy = 0;
+      float elpt = 0;
       ElectronCutPassed = false;
     }
   }
