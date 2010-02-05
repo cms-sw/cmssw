@@ -35,8 +35,8 @@ inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T
 #include <pmmintrin.h>
 
 namespace MathSSE {
-   struct M2 {
-  struct M {double m00,m01,m11,m10;};
+  struct M2 {
+    struct M {double m00,m01,m11,m10;};
     union {
       double m[4];
       __m128d r[2];
@@ -45,8 +45,8 @@ namespace MathSSE {
     
 
     // load shuffled
-    inline M2(double i00, double i01, double i10, double i11) : 
-      mm.m00(i00), mm.m01(i01), mm.m11(i11), mm.m10(i10){}
+    inline M2(double i00, double i01, double i10, double i11) {
+      mm.m00=i00; mm.m01=i01; mm.m11=i11; mm.m10=i10; }
 
     double & operator[](int i) { return m[i];}
     __m128d & r0() { return r[0]; }
