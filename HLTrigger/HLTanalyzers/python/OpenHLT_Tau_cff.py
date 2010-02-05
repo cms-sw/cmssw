@@ -246,7 +246,8 @@ openhltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 openhltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),

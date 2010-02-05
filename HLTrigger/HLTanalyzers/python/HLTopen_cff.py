@@ -100,7 +100,9 @@ hltCkfL1IsoLWTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
+                                  
 )
 
 hltCtfL1IsoLW = cms.EDProducer( "TrackProducer",
@@ -135,7 +137,9 @@ hltCkfL1IsoSSTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
+                                  
 )
 
 hltCtfL1IsoSS = cms.EDProducer( "TrackProducer",
@@ -170,7 +174,8 @@ hltCkfL1NonIsoLWTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 
 hltCtfL1NonIsoLW = cms.EDProducer( "TrackProducer",
@@ -205,7 +210,8 @@ hltCkfL1NonIsoSSTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 
 hltCtfL1NonIsoSS = cms.EDProducer( "TrackProducer",
@@ -257,7 +263,8 @@ hltL1IsoLWEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 
 hltL1IsoLWEleRegioCTF = cms.EDProducer( "TrackProducer",
@@ -305,7 +312,8 @@ hltL1IsoSSEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 
 hltL1IsoSSEleRegioCTF = cms.EDProducer( "TrackProducer",
@@ -352,7 +360,8 @@ hltL1NonIsoLWEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 hltL1NonIsoLWEleRegioCTF = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -398,7 +407,8 @@ hltL1NonIsoSSEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 hltL1NonIsoSSEleRegioCTF = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -716,7 +726,8 @@ hltOniaCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
       numberMeasurementsForFit = cms.int32(4)
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False )
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 )
 )
 hltOniaCtfTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),

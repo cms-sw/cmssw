@@ -8,13 +8,14 @@ isData=1 # =1 running on real data, =0 running on MC
 OUTPUT_HIST='openhlt.root'
 NEVTS=100
 MENU="LUMI8e29" # LUMI8e29 or LUMI1e31
+isRelval=1 # =1 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
 ####   MC cross section weights in pb, use 1 for real data  ##########
 
 XS_7TeV_MinBias=7.126E10  # from Summer09 production
 XS_10TeV_MinBias=7.528E10
 XS_900GeV_MinBias=5.241E10
-XSECTION=XS_7TeV_MinBias
+XSECTION=1.
 FILTEREFF=1.              # gen filter efficiency
 
 if (isData):
@@ -39,7 +40,8 @@ if (isData):
     GLOBAL_TAG='GR09_H_V6OFF::All' # run122314
 else:
     GLOBAL_TAG='MC_31X_V2::All'
-    if (MENU == "LUMI8e29"): GLOBAL_TAG= 'STARTUP31X_V2::All'
+    if (MENU == "LUMI8e29"): GLOBAL_TAG= 'STARTUP3X_V15::All'
+    
     
 ##################################################################
 
@@ -104,9 +106,14 @@ if (MENU == "LUMI8e29"):
     process.hltanalysis.IsoPixelTracksL3 = "hltHITIPTCorrector8E29"
     process.hltanalysis.IsoPixelTracksL2 = "hltIsolPixelTrackProd8E29"
     if (isData == 0):
-        process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT8e29"
-        process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT8E29"
-        process.hltanalysis.hltresults = "TriggerResults::HLT8E29"
+        if(isRelval == 0):
+            process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT8E29"
+            process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT8E29"
+            process.hltanalysis.hltresults = "TriggerResults::HLT8E29"
+        else:
+            process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT"
+            process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT"
+            process.hltanalysis.hltresults = "TriggerResults::HLT"
 
 # pdt
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -164,4 +171,5 @@ else:
                 for parameter in module.__dict__.itervalues():
                     if isinstance(parameter, cms.InputTag):
                         if parameter.moduleLabel == 'rawDataCollector':
-                            parameter.moduleLabel = 'rawDataCollector::HLT8E29'
+                            if(isRelval == 0):
+                                parameter.moduleLabel = 'rawDataCollector::HLT8E29'
