@@ -133,13 +133,13 @@ void HcalRecHitMonitor::beginRun()
 
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold");
   SetupEtaPhiHists(OccupancyThreshByDepth,"Above Threshold RecHit Occupancy","");
-  MonitorElement* THR=m_dbe->bookInt("HB_Rechit_Energy_Threshold");
+  MonitorElement* THR=m_dbe->bookFloat("HB_Rechit_Energy_Threshold");
   THR->Fill(HBenergyThreshold_);
-  THR=m_dbe->bookInt("HE_Rechit_Energy_Threshold");
+  THR=m_dbe->bookFloat("HE_Rechit_Energy_Threshold");
   THR->Fill(HEenergyThreshold_);
-  THR=m_dbe->bookInt("HO_Rechit_Energy_Threshold");
+  THR=m_dbe->bookFloat("HO_Rechit_Energy_Threshold");
   THR->Fill(HOenergyThreshold_);
-  THR=m_dbe->bookInt("HF_Rechit_Energy_Threshold");
+  THR=m_dbe->bookFloat("HF_Rechit_Energy_Threshold");
   THR->Fill(HFenergyThreshold_);
 
   m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold/sumplots");
@@ -523,20 +523,11 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape))
 	    h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
 	  if (HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
-	    {
 	    h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
-	    cout <<"SUB "<<HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit,2)<<endl; 
-	    }
 	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
-	    {
 	    h_FlagMap_TIMEADD->Fill(rbxindex,rm);
-	    cout <<"ADD "<<HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit,2)<<endl; 
-	    }
 	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
-	    {
-	      h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
-	      cout <<"ERR "<<HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit,2)<<endl; 
-	    }
+	    h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 	  ++occupancy_[calcEta][iphi-1][depth-1];
 	  energy_[calcEta][iphi-1][depth-1]+=en;
           energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
