@@ -3,6 +3,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -19,7 +21,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   // extract relevant parts of config for components
   : theConfig(conf), 
     theTrackFilter(conf.getParameter<edm::ParameterSet>("TkFilterParameters")), 
-    theTrackClusterizer(conf.getParameter<edm::ParameterSet>("TkClusParameters")), 
+    //    theTrackClusterizer(conf.getParameter<edm::ParameterSet>("TkClusParameters")), 
     theVertexSelector(VertexDistanceXY(), 
 		      conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam"))
 {
@@ -31,8 +33,21 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 
   fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
-  std::string algorithm = conf.getParameter<std::string>("algorithm");
+  fMinNdof           = conf.getParameter<double>("minNdof");
 
+  
+  // select and configure the track clusterizer
+  std::string clusteringAlgorithm=conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<std::string>("algorithm");
+  if (clusteringAlgorithm=="gap"){
+    theTrackClusterizer = new GapClusterizerInZ(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkGapClusParameters"));
+  }else if(clusteringAlgorithm=="DA"){
+    theTrackClusterizer = new DAClusterizerInZ(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
+  }else{
+    throw VertexException("PrimaryVertexProducerAlgorithm: unknown clustering algorithm: " + clusteringAlgorithm);  
+  }
+
+  // select and configure the vertex fitter
+  std::string algorithm = conf.getParameter<std::string>("algorithm");
   fapply_finder = false;
   if (algorithm == "TrimmedKalmanFinder") {
     fapply_finder = true;
@@ -59,12 +74,15 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm() 
 {
   if (theFitter) delete theFitter;
+  if (theTrackClusterizer) delete theTrackClusterizer;
 }
 
 
 //
 // member functions
 //
+
+// obsolete method, unfortunately required throgh inheritance from  VertexReconstructor
 vector<TransientVertex> 
 PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks) const
 {
@@ -86,8 +104,8 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   bool validBS = true;
   VertexState beamVertexState(beamSpot);
   if ( (beamVertexState.error().cxx() <= 0.) || 
-  	(beamVertexState.error().cyy() <= 0.) ||
-  	(beamVertexState.error().czz() <= 0.) ) {
+       (beamVertexState.error().cyy() <= 0.) ||
+       (beamVertexState.error().czz() <= 0.) ) {
     validBS = false;
     edm::LogError("UnusableBeamSpot") << "Beamspot with invalid errors "<<beamVertexState.error().matrix();
   }
@@ -120,7 +138,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 
   // clusterize tracks in Z
   vector< vector<reco::TransientTrack> > clusters = 
-    theTrackClusterizer.clusterize(seltks);
+    theTrackClusterizer->clusterize(seltks);
 
 
   // look for primary vertices in each cluster
@@ -130,16 +148,11 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	 = clusters.begin(); iclus != clusters.end(); iclus++) {
 
 
-    if(fVerbose){
-      cout << "PrimaryVertexProducerAlgorithm::vertices  cluster=" 
-	   << nclu << "  tracks=" << (*iclus).size() << endl;
-    }
-
     TransientVertex v;
     if( fUseBeamConstraint && validBS &&((*iclus).size()>1) ){
-      if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
+      if (fVerbose){cout <<  " constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
       v = theFitter->vertex(*iclus, beamSpot);
-      if (v.isValid()) pvCand.push_back(v);
+      if (v.isValid() && (v.degreesOfFreedom()>=fMinNdof)) pvCand.push_back(v);
 
       if (fVerbose){
 	cout << "beamspot   x="<< beamVertexState.position().x() 
@@ -154,10 +167,10 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       }
 
     }else if((*iclus).size()>1){
-      if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
+      if (fVerbose){cout <<  " unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
 
       v = theFitter->vertex(*iclus); 
-      if (v.isValid()) pvCand.push_back(v);
+      if (v.isValid() && (v.degreesOfFreedom()>=fMinNdof)) pvCand.push_back(v);
 
       if (fVerbose){
 	if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
@@ -192,6 +205,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
   }
 
+
   // select vertices compatible with beam
   int npv=0;
   for (vector<TransientVertex>::const_iterator ipv = pvCand.begin();
@@ -203,9 +217,13 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     if (!validBS || theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
   }
 
+
+
   // sort vertices by pt**2  vertex (aka signal vertex tagging)
   sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
   
+
+
 
 #ifdef PV_EXTRA
   // attach clusters as if they were vertices for test purposes

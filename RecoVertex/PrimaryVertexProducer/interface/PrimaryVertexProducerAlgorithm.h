@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.8.2.1 2007/11/29 11:16:38 speer Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.9 2007/12/11 08:24:21 speer Exp $
 //
 //
 
@@ -39,6 +39,7 @@ public:
 
   /** Find primary vertices
    */
+// obsolete method
   virtual vector<TransientVertex> 
   vertices(const vector<reco::TransientTrack> & tracks) const;
 
@@ -57,12 +58,13 @@ private:
   // vtx finding algorithm components
   edm::ParameterSet theConfig;
   TrackFilterForPVFinding theTrackFilter;
-  TrackClusterizerInZ theTrackClusterizer;
+  TrackClusterizerInZ* theTrackClusterizer;
   KalmanTrimmedVertexFinder theFinder;
   VertexCompatibleWithBeam theVertexSelector;
 
   bool fVerbose;
   bool fUseBeamConstraint;
+  bool fMinNdof;
   VertexFitter<5> *theFitter;
   bool fapply_finder;
 
