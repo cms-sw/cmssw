@@ -6,7 +6,6 @@ using namespace reco;
 TCRecoTauProducer::TCRecoTauProducer(const ParameterSet& iConfig){
   	caloRecoTauProducer = iConfig.getParameter<InputTag>("CaloRecoTauProducer");
 	tcTauCorrector = new TCTauCorrector(iConfig);
-	tauJetCorrector = new TauJetCorrector(iConfig);
 
   	produces<CaloTauCollection>();
 }
@@ -16,7 +15,7 @@ TCRecoTauProducer::~TCRecoTauProducer(){
   
 void TCRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
 
-  	auto_ptr<CaloTauCollection> resultCaloTau(new CaloTauCollection);
+  	auto_ptr<CaloTauCollection> tcTauCollection(new CaloTauCollection);
 
 	Handle<CaloTauCollection> theCaloTauHandle;
 	iEvent.getByLabel(caloRecoTauProducer,theCaloTauHandle);
@@ -27,17 +26,13 @@ void TCRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
           const CaloTauCollection & caloTaus = *(theCaloTauHandle.product());
           CaloTauCollection::const_iterator iTau;
           for(iTau = caloTaus.begin(); iTau != caloTaus.end(); iTau++){
-		CaloTau theCaloTau = *iTau;
-		double tauJetCorrection = tauJetCorrector->correction(iTau->p4());
-                theCaloTau.setP4(iTau->p4()*tauJetCorrection);
-
-		double tcTauCorrection = tcTauCorrector->correction(theCaloTau);
-		theCaloTau.setP4(theCaloTau.p4()*tcTauCorrection);
-		resultCaloTau->push_back(theCaloTau);
+		CaloTau theTCTau = *iTau;
+		theTCTau.setP4(tcTauCorrector->correctedP4(theTCTau));
+		if(theTCTau.pt() > 0) tcTauCollection->push_back(theTCTau);
 	  }
 	}
 
-   	iEvent.put(resultCaloTau);
+   	iEvent.put(tcTauCollection);
 }
 
 DEFINE_SEAL_MODULE();
