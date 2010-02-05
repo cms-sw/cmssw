@@ -85,8 +85,8 @@ int main(int argc, char * argv[]) {
 
  std::cout << "GS " << ((isAligned(gs0,16)) ? "a " : "n ") << std::endl;	
  std::cout << "cov " << ((isAligned(&gs0->covariance(),16)) ? "a " : "n ") << std::endl;	
- std::cout << "mean " << (((&gs0->mean(),16)) ? "a " : "n ") << std::endl;	
- std::cout << "weightM " << (((&gs0->weightMatrix(),16)) ? "a " : "n ") << std::endl;	
+ std::cout << "mean " << ((isAligned(&gs0->mean(),16)) ? "a " : "n ") << std::endl;	
+ std::cout << "weightM " << ((isAligned(&gs0->weightMatrix(),16)) ? "a " : "n ") << std::endl;	
 
 
 
