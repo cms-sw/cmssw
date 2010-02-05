@@ -37,9 +37,7 @@ class ESFastTDigitizer
     addNoise_(addNoise),
     numESdetId_(numESdetId),  
     zsThreshold_(zsThreshold),
-    refFile_(refFile),
-    histoDistribution_(0)
-  {        
+    refFile_(refFile) {        
     
     // reference distributions
     if (addNoise_) readHistosFromFile () ;  

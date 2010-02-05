@@ -14,6 +14,5 @@
   <use name=DataFormats/TauReco>
   <use name=CommonTools/CandUtils>
   <use name=RecoTauTag/TauTagTools>
-  <use name=RecoTauTag/RecoTau>
 </library>
 

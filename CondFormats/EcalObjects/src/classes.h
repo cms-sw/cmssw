@@ -2,7 +2,6 @@
 #include <boost/cstdint.hpp>
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
-#include "CondFormats/EcalObjects/interface/EcalCondTowerObjectContainer.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
@@ -19,7 +18,6 @@
 #include "CondFormats/EcalObjects/interface/EcalDCUTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalPTMTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
@@ -76,8 +74,6 @@ namespace{
     EcalPTMTemperatures ptmTemperatures;
  
     EcalChannelStatus channelStatus;
-
-    EcalDCSTowerStatus dcsTowerStatus;
  
     EcalLaserAlphas laserAplhas;
  

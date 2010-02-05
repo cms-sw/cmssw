@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.12 2008/09/03 13:59:05 wittich Exp $
+// $Id: HLTScalers.h,v 1.13 2009/11/20 00:39:21 lorenzo Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.13  2009/11/20 00:39:21  lorenzo
+// fixes
+//
 // Revision 1.12  2008/09/03 13:59:05  wittich
 // make HLT DQM path configurable via python parameter,
 // which defaults to HLT/HLTScalers_EvF
@@ -31,32 +34,6 @@
 //
 // Revision 1.7  2008/08/01 14:37:33  bjbloom
 // Added ability to specify which paths are cross-correlated
-//
-// Revision 1.6  2008/07/04 15:57:18  wittich
-// - move histograms to HLT directory (was in L1T)
-// - add counter for number of lumi sections
-// - attempt to hlt label histo axes locally; disabled (it's illegible)
-//
-// Revision 1.5  2008/03/01 00:40:16  lat
-// DQM core migration.
-//
-// Revision 1.4  2007/12/11 17:24:54  wittich
-// - add extra monitoring histos (eg hlt exceptions and correlations)
-//
-// Revision 1.3  2007/12/04 20:24:32  wittich
-// - make hlt histograms variable width depending on path
-// - add strings for path names
-// - add int for nprocessed
-// - add L1 scaler locally derived on Kaori's suggestion
-//   + updates to cfi file for this, need to include unpacking of GT
-//
-// Revision 1.2  2007/12/01 19:28:56  wittich
-// - fix cfi file (debug -> verbose, HLT -> FU for TriggerResults  label)
-// - handle multiple beginRun for same run (don't call reset on DQM )
-// - remove PathTimerService from cfg file in test subdir
-//
-// Revision 1.1  2007/11/26 16:37:50  wittich
-// Prototype HLT scaler information.
 //
 
 #ifndef HLTSCALERS_H
@@ -113,6 +90,11 @@ private:
   std::string folderName_; // dqm folder name
   MonitorElement *nProc_;
   MonitorElement *nLumiBlock_;
+  
+  MonitorElement *hltBx_, *hltBxVsPath_;
+  MonitorElement *hltOverallScaler_;
+  MonitorElement *diagnostic_;
+
   std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
   bool resetMe_, monitorDaemon_; 

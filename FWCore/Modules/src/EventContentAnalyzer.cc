@@ -177,14 +177,10 @@ namespace edm {
                           std::string const& iIndentDelta) {
        Reflex::Object sizeObj;
        try {
-    #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-          sizeObj = iObject.Invoke("size");
-    #else
           size_t temp; //used to hold the memory for the return value
           sizeObj = Reflex::Object(Reflex::Type::ByTypeInfo(typeid(size_t)), &temp);
           iObject.Invoke("size", &sizeObj);
           assert(iObject.TypeOf().FunctionMemberByName("size").TypeOf().ReturnType().TypeInfo()==typeid(size_t));
-    #endif
           //std::cout <<"size of type '"<<sizeObj.TypeOf().Name()<<"' "<<sizeObj.TypeOf().TypeInfo().name()<<std::endl;
           assert(sizeObj.TypeOf().FinalType().TypeInfo() == typeid(size_t));
           size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
@@ -198,7 +194,6 @@ namespace edm {
           LogAbsolute("EventContent") <<iIndent<<iName<<kNameValueSep<<"[size="<<size<<"]";//"\n";
           Reflex::Object contained;
           std::string indexIndent=iIndent+iIndentDelta;
-    #if ROOT_VERSION_CODE > ROOT_VERSION(5,19,0)
           Reflex::Type atReturnType = atMember.TypeOf().ReturnType();
           //std::cout <<"return type "<<atReturnType.Name()<<" size of "<<atReturnType.SizeOf()
           //<<" pointer? "<<atReturnType.IsPointer()<<" ref? "<<atReturnType.IsReference()<<std::endl;
@@ -208,7 +203,6 @@ namespace edm {
           //So we will create memory on the stack which can be used to hold a reference
           bool const isRef = atReturnType.IsReference();
           void* refMemoryBuffer = 0;
-    #endif
           size_t index = 0;
           //The argument to the 'at' function is the index. Since the argument list holds pointers to the arguments
           // we only need to create it once and then when the value of index changes the pointer already
@@ -218,9 +212,6 @@ namespace edm {
           for( ; index != size; ++index) {
              std::ostringstream sizeS;
              sizeS << "["<<index<<"]";
-    #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-             contained = atMember.Invoke(iObject, args);
-    #else
              if(isRef) {
                 Reflex::Object refObject(atReturnType, &refMemoryBuffer);
                 atMember.Invoke(iObject, &refObject, args);
@@ -231,19 +222,16 @@ namespace edm {
                 contained = atReturnType.Construct();
                 atMember.Invoke(iObject, &contained, args);
              }
-    #endif
              //LogAbsolute("EventContent") <<"invoked 'at'"<<std::endl;
              try {
                 printObject(sizeS.str(), contained, indexIndent, iIndentDelta);
-             }catch(std::exception& iEx) {
-    	   LogAbsolute("EventContent") <<indexIndent<<iName<<" <exception caught("
+             } catch(std::exception& iEx) {
+    	        LogAbsolute("EventContent") <<indexIndent<<iName<<" <exception caught("
     		  <<iEx.what()<<")>\n";
              }
-    #if ROOT_VERSION_CODE > ROOT_VERSION(5,19,0)
              if(!isRef) {
                 contained.Destruct();
              }
-    #endif
           }
           return true;
        } catch(std::exception const& x) {

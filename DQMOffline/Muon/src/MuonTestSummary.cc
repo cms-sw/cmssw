@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/19 17:42:21 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/02/02 18:25:58 $
+ *  $Revision: 1.30 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -461,25 +461,25 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   float muonIDsummary=0;
   for(int i=2; i<=5; i++)
     muonIDsummary += muonIdSummaryMap->getBinContent(1, i);
-  summaryCertificationMap->Fill(4, 5, muonIDsummary/4.);
-    
+  summaryCertificationMap->setBinContent(4, 5, muonIDsummary/4.);
+  
   //global EC:
-   muonIDsummary=0;
+  muonIDsummary=0;
   for(int i=2; i<=5; i++)
     muonIDsummary += muonIdSummaryMap->getBinContent(2, i);
-  summaryCertificationMap->Fill(7, 5, muonIDsummary/4.);
-    
+  summaryCertificationMap->setBinContent(7, 5, muonIDsummary/4.);
+  
   //tracker barrel:
   muonIDsummary=0;
   for(int i=2; i<=5; i++)
     muonIDsummary += muonIdSummaryMap->getBinContent(3, i);
-  summaryCertificationMap->Fill(5, 5, muonIDsummary/4.);
+  summaryCertificationMap->setBinContent(5, 5, muonIDsummary/4.);
     
   //tracker EC:
    muonIDsummary=0;
   for(int i=2; i<=5; i++)
     muonIDsummary += muonIdSummaryMap->getBinContent(4, i);
-  summaryCertificationMap->Fill(8, 5, muonIDsummary/4.);
+  summaryCertificationMap->setBinContent(8, 5, muonIDsummary/4.);
     
 
   double muonId_GLB_B = double(summaryCertificationMap->getBinContent(4,5));
@@ -782,6 +782,11 @@ void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  
   }
   else{
     LogTrace(metname) << "[MuonTestSummary]: Test of  Res_"<<type<<"_"<<parameter<< " not performed because # entries < 20 ";
+    //auto-pass if not enough events.
+    mean=1;
+    mean_err=1;
+    sigma=1;
+    sigma_err=1;
   }
 }  
 
@@ -1139,7 +1144,15 @@ void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string>
       
     }//histogram exists...
   } // loop over residuals histos
-  
+
+
+  if(numPlot==0){ //eg no stats
+    Mean_err = 1;
+    Mean=1;
+    Sigma_err =1;
+    Sigma = 1; 
+  }
+  else{
   Mean_err = sqrt(Mean_err);
   Mean_err/=numPlot;
   Mean/=numPlot;
@@ -1147,7 +1160,7 @@ void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string>
   Sigma_err = sqrt(Sigma_err);
   Sigma_err/=numPlot;
   Sigma/=numPlot;
-
+  }
   return;
 
 }

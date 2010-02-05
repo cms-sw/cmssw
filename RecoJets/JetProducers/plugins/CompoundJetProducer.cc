@@ -47,7 +47,7 @@ void CompoundJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSe
     writeCompoundJets<reco::BasicJet>( iEvent, iSetup );
     break;
   default:
-    edm::LogError("InvalidInput") << " invalid jet type in VirtualJetProducer\n";
+    throw cms::Exception("InvalidInput") << "invalid jet type in CompoundJetProducer\n";
     break;
   };
 

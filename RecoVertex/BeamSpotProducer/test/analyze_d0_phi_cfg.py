@@ -8,107 +8,74 @@ process.load("RecoVertex.BeamSpotProducer.d0_phi_analyzer_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+#	'/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/FCDC1618-86B4-DE11-9E2A-000423D991F0.root',
+#        '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/B86D4330-81B4-DE11-80F9-001D09F2512C.root',
+#        '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/8881D8D8-82B4-DE11-B6EE-000423D94990.root',
+#        '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/803AD5A0-7BB4-DE11-843E-001D09F2AD4D.root',
+#        '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/56316077-7FB4-DE11-ABA0-001D09F2437B.root'
 
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/F253BBE8-4FE5-DE11-866A-0030487A1990.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/F0FACD7D-4EE5-DE11-AE94-000423D99394.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/F05A2E81-4EE5-DE11-8BF1-000423D94A04.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/F054FB7D-4EE5-DE11-A81D-000423D99A8E.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/D8CDB1E7-4FE5-DE11-A911-001617C3B6CE.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/9088EACA-4DE5-DE11-86AA-000423D9989E.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/8A93D9F2-4FE5-DE11-A65C-0030487A18A4.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/84FD58F1-4FE5-DE11-A844-003048D2C108.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/822EF6CC-4DE5-DE11-9FAD-001D09F23944.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/5EDBBE33-4FE5-DE11-8B3A-0030487A1990.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/5ECD7759-51E5-DE11-AC54-001D09F2532F.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/5A3F66C9-4DE5-DE11-81EC-001617DC1F70.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/58DD96E7-4EE5-DE11-9B5C-000423D9863C.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/22C04FE6-4EE5-DE11-A174-000423D992A4.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/124788C9-4DE5-DE11-9F87-000423D98BE8.root',
-#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/044A4BCB-4DE5-DE11-88CD-000423D951D4.root'
+#'/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y250-v1/0007/E06C2C15-69B4-DE11-97CA-001D09F28E80.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y250-v1/0007/A8C866B1-6EB4-DE11-97DE-000423D9997E.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y250-v1/0007/36335C47-BDB4-DE11-BD46-001D09F2AF96.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y250-v1/0007/2E14D0E7-6BB4-DE11-A959-000423D98B6C.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y250-v1/0007/04ABCE4B-65B4-DE11-8F2C-001D09F24024.root'
 
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/F0ADCD5C-67E5-DE11-BE4E-001D09F2441B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/E2AB99C9-66E5-DE11-883B-001D09F244BB.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/DA9F87C7-66E5-DE11-8B1C-001D09F244DE.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/CA6260BC-68E5-DE11-B43E-001D09F25438.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/C8F657C6-66E5-DE11-AA76-001D09F24D67.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/B852CC68-68E5-DE11-B2D2-001D09F2527B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/AA6CAA2E-63E5-DE11-BDD2-000423D6B444.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/A0618E2D-63E5-DE11-BF43-000423D99AAE.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/7637827D-64E5-DE11-BBFE-001D09F2B30B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/74AD86C6-66E5-DE11-B692-001D09F2424A.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/720D5D3A-64E5-DE11-8AA1-0019B9F707D8.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/5CDDD336-64E5-DE11-A595-001D09F28F25.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/5AE8CD5D-67E5-DE11-9260-001D09F23D1D.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/528BFF34-64E5-DE11-A463-001D09F2A690.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/4C08F3C7-66E5-DE11-9FBC-0019B9F72CE5.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/3C3C9846-65E5-DE11-9623-001D09F251CC.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/348F5FC9-66E5-DE11-8B6E-001D09F24DDF.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/308B3667-68E5-DE11-AE18-001D09F2441B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/2C287C61-67E5-DE11-85B8-001D09F28E80.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/0A7B2C46-65E5-DE11-B99E-001D09F2A49C.root'
+#'/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y500-v1/0007/CEC22971-7BB4-DE11-BF07-001D09F2305C.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y500-v1/0007/785B0D8A-7DB4-DE11-AD48-001D09F290BF.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y500-v1/0007/6AE208D0-77B4-DE11-944B-001D09F24FBA.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y500-v1/0007/226399E3-BDB4-DE11-A2F1-000423D8F63C.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y500-v1/0007/08BFA188-79B4-DE11-831D-001D09F2424A.root'
 
-# dbs --search --query "find file where dataset = */FEVT and run=123818 and lumi>2 and lumi< 48 " --url=http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet
+#'/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y1000-v1/0007/AC6D67FF-76B4-DE11-B83E-001D09F2906A.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y1000-v1/0007/7CE021E7-73B4-DE11-ACF8-000423D99A8E.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y1000-v1/0007/5EC6B9F8-75B4-DE11-AE6F-001D09F2983F.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y1000-v1/0007/2A5B6842-BDB4-DE11-9DCB-001D09F2915A.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y1000-v1/0007/185CEE58-78B4-DE11-9A00-001D09F2A690.root'
 
+#'/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0007/961D5F56-89B4-DE11-8C30-000423D98EC4.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0007/8A2431FE-87B4-DE11-BEE6-000423D98800.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0007/8A23E975-BDB4-DE11-A0ED-0019B9F6C674.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0007/4479D311-87B4-DE11-A495-000423D9890C.root',
+#       '/store/relval/CMSSW_3_1_3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0007/1A471008-83B4-DE11-8CB8-000423D9890C.root'
 
-	#'file:FirstEvent.root'
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_DESIGN_3X_V8A_v1/0082/22F2A8A8-8BD8-DE11-A2FE-00248C0BE01E.root',
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_DESIGN_3X_V8A_v1/0082/3CF7DD76-8CD8-DE11-9C9A-0026189438D5.root',
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_DESIGN_3X_V8A_v1/0082/66273AA8-8BD8-DE11-A9FA-0026189438BC.root',
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_DESIGN_3X_V8A_v1/0082/988EDEDB-8DD8-DE11-8E82-00261894386D.root'
+#startup
+#'/store/relval/CMSSW_3_1_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/START_31X_V4A-v1/0000/F89B1E02-B1B9-DE11-A7AA-001D09F2447F.root',
+#'/store/relval/CMSSW_3_1_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/START_31X_V4A-v1/0000/6C7257CF-ABB9-DE11-9EC5-001D09F2960F.root',
+#'/store/relval/CMSSW_3_1_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/START_31X_V4A-v1/0000/30CE260E-C4B9-DE11-9AC8-001D09F28F0C.root',
+#'/store/relval/CMSSW_3_1_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/START_31X_V4A-v1/0000/127D5ED5-A7B9-DE11-890E-001D09F2437B.root'
 
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_STARTUP3X_V8D_v1/0082/16260D10-89D8-DE11-9578-0026189437E8.root',
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_STARTUP3X_V8D_v1/0082/18DD5AEF-89D8-DE11-88AF-002618943956.root',
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_STARTUP3X_V8D_v1/0082/488187EE-89D8-DE11-957D-00248C0BE01E.root',
-#'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_STARTUP3X_V8D_v1/0082/5E1915A7-8BD8-DE11-8C3D-002618943956.root'
-#	'file:BSCskim_123151_Express.root'
-#    'file:Run122314_BSCSkim_MinBiasPD_ReTracking.root'
-#    'rfio:/castor/cern.ch/user/c/chiochia/09_beam_commissioning/BSCskim_123592_Express_bit40-41.root'
-#    'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/DATA/bit40-run123596-lumi_68_129.root',
-#    'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/DATA/bit40-run123596-lumi130_143.root'
-#    'rfio:/castor/cern.ch/user/c/chiochia/09_beam_commissioning/BSCskim_123615_Express_bit40-41_LS72-88.root'
+# ZMuMu
+#'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/AECE5D8B-50B4-DE11-8329-001D09F23C73.root',
+#'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/602EC0DD-4DB4-DE11-97C9-0019B9F70468.root',
+#'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/4A80D48E-D3B4-DE11-AAF5-001D09F28F25.root',
+#'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y100-v1/0007/0EC15F0B-4FB4-DE11-AE78-001D09F23C73.root'
+
+# ZMuMu y=10000
+'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0007/6E179A2D-BEB4-DE11-A378-001D09F2A465.root',
+'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0006/8E075F54-1DB4-DE11-9147-001D09F251FE.root',
+'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0006/44255641-1FB4-DE11-ABFC-001D09F2B2CF.root',
+'/store/relval/CMSSW_3_1_3/RelValZMM/GEN-SIM-RECO/MC_31X_V5_Early10TeVX322Y10000-v1/0006/24FACFDE-20B4-DE11-8331-001D09F2AF1E.root'
     )
 )
-
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('123909:16-123909:29')
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1) #1500
+    input = cms.untracked.int32(500) #1500
 )
-
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
-)
-
-# this is for filtering on L1 technical trigger bit
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 )')
-
-process.p = cms.Path(process.hltLevel1GTSeed + process.d0_phi_analyzer)
+process.p = cms.Path(process.d0_phi_analyzer)
 process.MessageLogger.debugModules = ['BeamSpotAnalyzer']
 
 #######################
-
 # run over STA muons
-#process.d0_phi_analyzer.BeamFitter.TrackCollection = cms.untracked.InputTag('ALCARECOTkAlMinBias') #,'UpdatedAtVtx')
+#process.d0_phi_analyzer.BeamFitter.TrackCollection = cms.untracked.InputTag('standAloneMuons') #,'UpdatedAtVtx')
 #process.d0_phi_analyzer.BeamFitter.IsMuonCollection = True
-
-process.d0_phi_analyzer.BeamFitter.MinimumTotalLayers = 6
-process.d0_phi_analyzer.BeamFitter.MinimumPixelLayers = -1
-process.d0_phi_analyzer.BeamFitter.MaximumNormChi2 = 10
-process.d0_phi_analyzer.BeamFitter.MinimumInputTracks = 2
-process.d0_phi_analyzer.BeamFitter.MinimumPt = 1.0
-process.d0_phi_analyzer.BeamFitter.MaximumImpactParameter = 1.0 #5.0
-process.d0_phi_analyzer.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
-#process.d0_phi_analyzer.BeamFitter.TrackQuality = cms.untracked.vstring("highPurity")
-process.d0_phi_analyzer.BeamFitter.InputBeamWidth = 0.0400
-process.d0_phi_analyzer.BeamFitter.Debug = True
+#process.d0_phi_analyzer.BeamFitter.MinimumTotalLayers = 15
+#process.d0_phi_analyzer.BeamFitter.MinimumPixelLayers = -1
+#process.d0_phi_analyzer.BeamFitter.MaximumNormChi2 = 20
+#process.d0_phi_analyzer.BeamFitter.MinimumInputTracks = 1
 #########################
-process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_123909.txt'
-process.d0_phi_analyzer.BeamFitter.OutputFileName = 'run123909_all.root' #AtVtx10000.root'
+
+process.d0_phi_analyzer.BeamFitter.OutputFileName = 'bsZMMwithMuons10000debug.root' #AtVtx10000.root'
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
 
 # fit as function of lumi sections
-process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = 2
-process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = 2
+#process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = 2
+#process.d0_phi_analyzer.BSAnalyzerParameters.resetEveryNLumi = 10

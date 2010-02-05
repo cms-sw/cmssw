@@ -223,13 +223,11 @@ SumHistoCalibration::endJob() {
 
   
   
-  const TrackProbabilityCalibration * ca=0;
   
   if(m_sum3D){
-   
-    for(size_t itFile =1; itFile< m_xmlilelist3d.size(); itFile++){
+    for(unsigned int itFile =1; itFile< m_xmlilelist3d.size(); itFile++){
       edm::FileInPath fip(m_xmlilelist3d[itFile]);
-      ca  = fromXml(fip);
+      const TrackProbabilityCalibration *ca  = fromXml(fip);
       for(unsigned int j=0;j<ca->data.size() ; j++)
 	{
 	  for(int k = 0; k< m_calibration[0]->data[j].histogram.numberOfBins(); k++){
@@ -237,24 +235,23 @@ SumHistoCalibration::endJob() {
 							      + m_calibration[0]->data[j].histogram.binContent(k));
 	  }
 	}
+      delete ca;
     } 
-    cout << "end sum 3D " << endl;
   }
   if(m_sum2D){
-    for(size_t itFile =1; itFile< m_xmlilelist2d.size(); itFile++){
-      edm::FileInPath fip(m_xmlilelist3d[itFile]);
-      ca  = fromXml(fip);
+    for(unsigned int itFile =1; itFile< m_xmlilelist2d.size(); itFile++){
+      edm::FileInPath fip(m_xmlilelist2d[itFile]);
+      TrackProbabilityCalibration * ca  = fromXml(fip);
       for(unsigned int j=0;j<ca->data.size() ; j++)
 	{
 	  for(int k = 0; k< m_calibration[1]->data[j].histogram.numberOfBins(); k++){
 	    m_calibration[1]->data[j].histogram.setBinContent(k,ca->data[j].histogram.binContent(k)
 							      + m_calibration[1]->data[j].histogram.binContent(k)); 
 	  }
-      } 
+	}
+      delete ca; 
     }
-    cout << "end sum 2D " << endl;
   }
-  delete ca;
   
   
   
@@ -283,20 +280,17 @@ SumHistoCalibration::endJob() {
   
   if(config.getParameter<bool>("writeToRootXML"))
     {
-    std::cout << "line " << 274 << std::endl;
       std::ofstream of2("2d.xml");
       TBufferXML b2(TBuffer::kWrite);
       of2 << b2.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
-    std::cout << "line " << 292 << std::endl;
       of2.close();
       std::ofstream of3("3d.xml");
       TBufferXML b3(TBuffer::kWrite);
       of3 << b3.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
-    std::cout << "line " << 299 << std::endl;
       of3.close();
     }
   

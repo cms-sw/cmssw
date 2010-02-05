@@ -41,7 +41,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                          n = self.standardizeInputTagFmt(n)
                          if (n == self._paramSearch):
                             print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace)
-                            value[i] = self._paramReplace
+                            value[i] == self._paramReplace
                 elif type == 'cms.InputTag':
                     if value == self._paramSearch:
                         print "Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace)
@@ -67,8 +67,7 @@ class GatherAllModulesVisitor(object):
     def __init__(self):
         self._modules = []
     def enter(self,visitee):
-        if isinstance(visitee,cms._Module):
-            self._modules.append(visitee)
+        self._modules.append(visitee)
     def leave(self,visitee):
         pass
     def modules(self):
@@ -102,126 +101,3 @@ def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag) :
     """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
     sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag))
     
-def jetCollectionString(prefix='', algo='', type=''):
-    """
-    ------------------------------------------------------------------
-    return the string of the jet collection module depending on the
-    input vaules. The default return value will be 'patAK5CaloJets'.
-
-    algo   : indicating the algorithm type of the jet [expected are
-             'AK5', 'IC5', 'SC7', ...]
-    type   : indicating the type of constituents of the jet [expec-
-             ted are 'Calo', 'PFlow', 'JPT', ...]
-    prefix : prefix indicating the type of pat collection module (ex-
-             pected are '', 'selected', 'clean').
-    ------------------------------------------------------------------    
-    """
-    if(prefix==''):
-        jetCollectionString ='pat'
-    else:
-        jetCollectionString =prefix
-        jetCollectionString+='Pat'
-    jetCollectionString+='Jets'        
-    jetCollectionString+=algo
-    jetCollectionString+=type
-    return jetCollectionString
-
-def contains(sequence, moduleName):
-    """
-    ------------------------------------------------------------------
-    return True if a module with name 'module' is contained in the 
-    sequence with name 'sequence' and False otherwise. This version
-    is not so nice as it also returns True for any substr of the name
-    of a contained module.
-
-    sequence : sequence [e.g. process.patDefaultSequence]
-    module   : module name as a string
-    ------------------------------------------------------------------    
-    """
-    return not sequence.__str__().find(moduleName)==-1    
-
-
-
-def cloneProcessingSnippet(process, sequence, postfix):
-   """
-   ------------------------------------------------------------------
-   copy a sequence plus the modules therein 
-   the modules are renamed by getting a postfix
-   input tags are automatically adjusted
-   ------------------------------------------------------------------
-   """
-   # retrieve modules from old sequence 
-   modules = listModules(sequence)
-   # clone modules and put them into a new sequence
-   labels = []
-   tmpSequence = None
-   for module in modules:
-       label = module.label() 
-       if label not in labels:
-          labels.append(label) 
-          newModule = module.clone()  
-          setattr(process, label+postfix,newModule)
-          if tmpSequence:    
-             tmpSequence += newModule      
-          else:
-             tmpSequence = newModule  
-   # create a new sequence
-   newSequence = cms.Sequence(tmpSequence)
-   newSequenceLabel = sequence.label()+postfix
-   if hasattr(process, newSequenceLabel):
-       raise AtributeError("Cloning the sequence "+sequence.label()+" would overwrite existing object." )
-   else:
-       setattr(process, newSequenceLabel, newSequence)
-   # adjust all input tags
-   for label in labels:
-       massSearchReplaceAnyInputTag(newSequence, label, label+postfix)
-   # return the new Sequence
-   return newSequence
-
-
-if __name__=="__main__":
-   import unittest
-   class TestModuleCommand(unittest.TestCase):
-       def setUp(self):
-           """Nothing to do """
-           pass
-       def testCloning(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("b", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("c", src=cms.InputTag("b"))
-           p.s = cms.Sequence(p.a*p.b*p.c *p.a)
-           cloneProcessingSnippet(p, p.s, "New")
-           self.assertEqual(p.dumpPython(),'import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")\n\nprocess.a = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.c = cms.EDProducer("c",\n    src = cms.InputTag("b")\n)\n\n\nprocess.cNew = cms.EDProducer("c",\n    src = cms.InputTag("bNew")\n)\n\n\nprocess.bNew = cms.EDProducer("b",\n    src = cms.InputTag("aNew")\n)\n\n\nprocess.aNew = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.b = cms.EDProducer("b",\n    src = cms.InputTag("a")\n)\n\n\nprocess.s = cms.Sequence(process.a*process.b*process.c*process.a)\n\n\nprocess.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew)\n\n\n')
-       def testContains(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
-           p.s1 = cms.Sequence(p.a*p.b*p.c)
-           p.s2 = cms.Sequence(p.b*p.c)
-           self.assert_( contains(p.s1, "a") )
-           self.assert_( not contains(p.s2, "a") )
-       def testJetCollectionString(self):
-           self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patFooBarJets')
-           self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatFooBarJets')
-       def testListModules(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
-           p.s = cms.Sequence(p.a*p.b*p.c)
-           self.assertEqual([p.a,p.b,p.c], listModules(p.s))
-       def testMassSearchReplaceParam(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
-                                nested = cms.PSet(src = cms.InputTag("c"))
-                               )
-           p.s = cms.Sequence(p.a*p.b*p.c)
-           massSearchReplaceParam(p.s,"src",cms.InputTag("b"),"a")
-           self.assertEqual(cms.InputTag("a"),p.c.src)
-           self.assertNotEqual(cms.InputTag("a"),p.c.nested.src)
-           
-   unittest.main()

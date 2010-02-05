@@ -26,14 +26,6 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     useOnlyMatch = cms.bool(False),
 
     # ------------------------------------------------
-    # option to use b-tagging
-    # ------------------------------------------------
-    bTagAlgo            = cms.string("trackCountingHighPurBJetTags"),
-    minBTagValueBJet    = cms.double(3.0),
-    maxBTagValueNonBJet = cms.double(3.0),
-    useBTag             = cms.bool(True),
-
-    # ------------------------------------------------
     # settings for the KinFitter
     # ------------------------------------------------    
     maxNrIter = cms.uint32(500),
@@ -49,9 +41,8 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # set constraints
     # 1: W1-mass, 2: W2-mass
     # 3: t1-mass, 4: t2-mass
-    # 5: equal top-masses
     # ------------------------------------------------                                   
-    constraints = cms.vuint32(1, 2, 5),
+    constraints = cms.vuint32(1, 2, 3, 4),
 
     # ------------------------------------------------
     # set mass values used in the constraints

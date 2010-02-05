@@ -29,7 +29,7 @@ class TtSemiLepKinFitter {
  public:
   
   /// supported constraints
-  enum Constraint { kWHadMass = 1, kWLepMass, kTopHadMass, kTopLepMass, kNeutrinoMass, kEqualTopMasses };
+  enum Constraint { kWHadMass = 1, kWLepMass, kTopHadMass, kTopLepMass, kNeutrinoMass };
   /// supported parameterizations
   enum Param{ kEMom, kEtEtaPhi, kEtThetaPhi };
 

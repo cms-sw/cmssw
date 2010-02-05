@@ -271,27 +271,9 @@ void DiskWriter::makeErrorStream(ErrorStreamConfigurationInfo& streamCfg)
 
 void DiskWriter::destroyStreams()
 {
-  stor::exception::DiskWriting* exception = 0;
-
-  for (StreamHandlers::const_iterator it = _streamHandlers.begin(),
-         itEnd = _streamHandlers.end(); it != itEnd; ++it)
-  {
-    try
-    {
-      (*it)->closeAllFiles();
-    }
-    catch(stor::exception::DiskWriting& e)
-    {
-      // Keep going and try to close as much files as possible
-      exception = new stor::exception::DiskWriting(
-        "stor::exception::DiskWriting", "Cannot close all streams.",
-        __FILE__, __LINE__, __FUNCTION__, e);
-    }
-  }
+  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
+    boost::bind(&StreamHandler::closeAllFiles, _1));
   _streamHandlers.clear();
-
-  if (exception)
-    throw *exception;
 }
 
 

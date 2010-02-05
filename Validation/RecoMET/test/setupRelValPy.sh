@@ -16,10 +16,10 @@ RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyz
 
 
 echo "Run path = {" $RunPath "}"
+cmssw_version="3_3_0"
+condition="MC_31X_V9-v1"
+globalTag="MC_31X_V9::All"
 
-cmssw_version="3_4_0_pre6"
-condition="MC_3XY_V14-v1"
-globalTag="MC_3XY_V14::All"
 
 #==========================================#
 cd $current_area
@@ -105,7 +105,7 @@ echo "
 )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(9000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(8000) )
 
 
 process.fileSaver = cms.EDFilter(\"METFileSaver\",

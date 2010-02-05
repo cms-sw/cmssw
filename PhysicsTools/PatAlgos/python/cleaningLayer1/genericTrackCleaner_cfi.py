@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatTracks = cms.EDProducer("PATGenericParticleCleaner",
+cleanLayer1Tracks = cms.EDFilter("PATGenericParticleCleaner",
     src = cms.InputTag("REPLACE_ME"), 
 
     # preselection (any string-based cut on pat::GenericParticle)
@@ -9,7 +9,7 @@ cleanPatTracks = cms.EDProducer("PATGenericParticleCleaner",
     # overlap checking configurables
     checkOverlaps = cms.PSet(
         muons = cms.PSet(
-           src       = cms.InputTag("cleanPatMuons"),
+           src       = cms.InputTag("cleanLayer1Muons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.3),
@@ -18,7 +18,7 @@ cleanPatTracks = cms.EDProducer("PATGenericParticleCleaner",
            requireNoOverlaps   = cms.bool(True), # overlaps don't cause the electron to be discared
         ),
         electrons = cms.PSet(
-           src       = cms.InputTag("cleanPatElectrons"),
+           src       = cms.InputTag("cleanLayer1Electrons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.3),

@@ -17,6 +17,7 @@ namespace cond{
     // FIXME ad-hoc
     if (pfn.find("FrontierInt")!=std::string::npos)  return pfn;
     if (pfn.find("FrontierPrep")!=std::string::npos)  return pfn;
+    if (pfn.find("sqlite")!=std::string::npos)  return pfn;
     
     size_t pos=std::string::npos;
     if (!prefix.empty()) pos = pfn.rfind('/');

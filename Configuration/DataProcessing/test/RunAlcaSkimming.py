@@ -47,7 +47,7 @@ class RunAlcaSkimming:
             print " => %s" % skim
             
         try:
-            process = scenario.alcaReco(*self.skims)
+            process = scenario.alcaSkim(self.skims)
         except Exception, ex:
             msg = "Error creating Prompt Reco config:\n"
             msg += str(ex)

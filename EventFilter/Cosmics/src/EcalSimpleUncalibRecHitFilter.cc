@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalSimpleUncalibRecHitFilter.cc,v 1.1 2007/11/12 16:21:14 mzanetti Exp $
+// $Id: EcalSimpleUncalibRecHitFilter.cc,v 1.2 2008/03/10 19:04:14 mzanetti Exp $
 //
 //
 
@@ -44,7 +44,7 @@ class EcalSimpleUncalibRecHitFilter : public HLTFilter {
       ~EcalSimpleUncalibRecHitFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -129,7 +129,7 @@ EcalSimpleUncalibRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalSimpleUncalibRecHitFilter::beginJob(const edm::EventSetup&)
+EcalSimpleUncalibRecHitFilter::beginJob()
 {
 }
 

@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.19 2009/09/28 17:06:46 hatake Exp $
+// $Id: CaloJetTester.cc,v 1.20 2009/12/18 20:45:13 wmtan Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -199,7 +199,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mCaloMETSig_3000  = dbe->book1D("CaloMETSig_3000","CaloMETSig_3000",100,0,50);
     mCaloMET          = dbe->book1D("CaloMET","CaloMET",100,0,150);
     mCaloMET_3000     = dbe->book1D("CaloMET_3000","CaloMET_3000",100,0,1000);
-    mCaloMETPhi       = dbe->book1D("CaloMETPhi","CaloMETPhi",70, 3.5, 3.5);
+    mCaloMETPhi       = dbe->book1D("CaloMETPhi","CaloMETPhi",70, -3.5, 3.5);
     mCaloSumET        = dbe->book1D("CaloSumET","CaloSumET",100,0,500);
     mCaloSumET_3000   = dbe->book1D("CaloSumET_3000","CaloSumET_3000",100,3000,8000);
     //

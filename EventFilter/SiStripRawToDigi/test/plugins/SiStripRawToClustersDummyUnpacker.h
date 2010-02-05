@@ -28,7 +28,7 @@ class SiStripRawToClustersDummyUnpacker : public edm::EDAnalyzer {
   SiStripRawToClustersDummyUnpacker( const edm::ParameterSet& );
   ~SiStripRawToClustersDummyUnpacker();
   
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   

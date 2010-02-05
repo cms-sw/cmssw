@@ -10,7 +10,7 @@
 #include <sstream>
 using namespace std;
 
-namespace JetPartonNamespace{
+namespace {
 class UserPartonMixture{
  public:
   UserPartonMixture(){}
@@ -161,7 +161,7 @@ void JetPartonCorrector::setParameters(std::string aCalibrationType, double aJet
      theJetFinderRadius = aJetFinderRadius;
      thePartonMixture = aPartonMixture;
     
-     JetPartonNamespace::JetPartonCalibrationParameterSet pset(aCalibrationType);
+     JetPartonCalibrationParameterSet pset(aCalibrationType);
       
      if((!pset.valid()) && (aCalibrationType != "no"))
        {
@@ -186,7 +186,7 @@ void JetPartonCorrector::setParameters(std::string aCalibrationType, double aJet
     }
     
     for(int ieta=0; ieta<iq;ieta++){
-      parametrization[pset.eta(ieta)]=new JetPartonNamespace::ParametrizationJetParton(thePartonMixture,(*pq.find(ieta)).second,(*pg.find(ieta)).second,(*pqcd.find(ieta)).second);    
+      parametrization[pset.eta(ieta)]=new ParametrizationJetParton(thePartonMixture,(*pq.find(ieta)).second,(*pg.find(ieta)).second,(*pqcd.find(ieta)).second);    
     }
 }
 double JetPartonCorrector::correction( const LorentzVector& fJet) const
@@ -199,7 +199,7 @@ double JetPartonCorrector::correction( const LorentzVector& fJet) const
   //if(eta<10) { eta=abs(fJet.getY()); }
 
   double etnew;
-  std::map<double,JetPartonNamespace::ParametrizationJetParton*>::const_iterator ip=parametrization.upper_bound(eta);
+  std::map<double,ParametrizationJetParton*>::const_iterator ip=parametrization.upper_bound(eta);
   if(ip==parametrization.begin()) 
     { 
       etnew=ip->second->value(et,eta); 

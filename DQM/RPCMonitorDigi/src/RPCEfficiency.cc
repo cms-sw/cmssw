@@ -285,7 +285,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   try {
     iEvent.getByType(rpcHits);
   }catch( cms::Exception& exception ) {
-    std::cout<<"RPC RecHits were not found"<<std::endl;
+    if(debug) std::cout<<"RPC RecHits were not found"<<std::endl;
     accessTorpcRecHits = false;
   }
 
@@ -298,7 +298,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     try {
       iEvent.getByLabel(dt4DSegments, all4DSegments);
     }catch( cms::Exception& exception ) {
-      std::cout<<"DT Segments were not found"<<std::endl;
+      if(debug) std::cout<<"DT Segments were not found"<<std::endl;
       accessToDtSegments = false;
     }
 
@@ -546,7 +546,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     try {
       iEvent.getByLabel(dt4DSegments, all4DSegments);
     }catch( cms::Exception& exception ) {
-      std::cout<<"DT Segments were not found"<<std::endl;
+      if(debug) std::cout<<"DT Segments were not found"<<std::endl;
       accessToDtSegments = false;
     }
     
@@ -632,9 +632,9 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		if(debug) std::cout<<"MB4 \t \t \t \t cosAng"<<cosAng<<"Beetween "<<dtid3<<" and "<<DTId<<std::endl;
 		
 		if(fabs(cosAng)>1.){
-		  std::cout<<"dx="<<dx<<" dz="<<dz<<std::endl;
-		  std::cout<<"dx3="<<dx3<<" dz3="<<dz<<std::endl;
-		  std::cout<<cosAng<<std::endl;
+		  if(debug) std::cout<<"dx="<<dx<<" dz="<<dz<<std::endl;
+		  if(debug) std::cout<<"dx3="<<dx3<<" dz3="<<dz<<std::endl;
+		  if(debug) std::cout<<cosAng<<std::endl;
 		}
 		
 		if(cosAng>MinCosAng){
@@ -863,7 +863,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     try{    
       iEvent.getByLabel(cscSegments, allCSCSegments);
     }catch(cms::Exception& exception){
-      std::cout<<"CSC Segments were not found"<<std::endl;
+      if(debug) std::cout<<"CSC Segments were not found"<<std::endl;
       accessToCSCSegments = false;
     }   
     

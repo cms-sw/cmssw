@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.10 2009/10/13 15:08:33 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.11 2010/01/28 13:37:19 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.11 $
+   * $Date: 2010/01/28 13:37:19 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -37,12 +37,19 @@ namespace stor {
       enum ClosingReason
       {
         notClosed = 0,
-        stop,
-        endOfLS,
+        runEnded,
+        LSended,
         timeout,
         size,
         truncated,
-        unaccessible
+        inaccessible
+      };
+
+      enum FileStatus
+      {
+        open,
+        closed,
+        current
       };
 
       uint32_t           entryCounter;      // file counter
@@ -53,13 +60,14 @@ namespace stor {
       std::string        coreFileName;      // file name w/o instance & file ending
       unsigned int       fileCounter;       // counter of number of coreFileNames used
       ClosingReason      whyClosed;         // reason why the given file was closed
+      bool               isOpen;            // true if file is in open directory
       unsigned long long fileSize;          // file size in bytes
       uint32_t           eventCount;        // number of events
       std::string closingReason();          // reason why file was closed
-      std::string filePath();               // complete file path
       std::string fileName();               // full file name w/o file ending
-      std::string completeFileName()
-      { return ( filePath() + "/" + fileName() ); }
+      std::string filePath(FileStatus status=current); // complete file path for the given file status
+      std::string completeFileName(FileStatus status=current)
+      { return ( filePath(status) + "/" + fileName() ); }
 
     };
 

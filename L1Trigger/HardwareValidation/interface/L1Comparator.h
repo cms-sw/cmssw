@@ -32,12 +32,6 @@
 // extra
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-// db trigger/subsystem key access
-#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"	   
-//#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"   
-#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"	   
-//#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
-
 template <class T> class DEcompare;
 
 class L1Comparator : public edm::EDProducer {

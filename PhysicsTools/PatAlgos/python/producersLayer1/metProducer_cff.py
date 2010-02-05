@@ -6,10 +6,10 @@ from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import *
 # produce object
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import *
 
-makePatMETs = cms.Sequence(
+makeLayer1METs = cms.Sequence(
     # reco pre-production
     patMETCorrections *
     # pat specifics
     # object production
-    patMETs
+    layer1METs
     )

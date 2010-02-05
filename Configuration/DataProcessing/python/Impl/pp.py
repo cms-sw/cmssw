@@ -28,25 +28,31 @@ class pp(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO']):
+    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO','ALCA']):
         """
         _promptReco_
 
         Proton collision data taking prompt reco
 
         """
-        
+        if len(skims) >0:
+          step = ',ALCAPRODUCER:'
+          for skim in skims:
+            step += (skim+"+")
+          step = step.rstrip('+')
+        else:
+          step = ''
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-
+        options.relval = False
         
         
         process = cms.Process('RECO')
@@ -107,23 +113,26 @@ class pp(Scenario):
         return process
     
 
-    def alcaReco(self, *skims):
+    def alcaSkim(self, skims):
         """
-        _alcaReco_
+        _alcaSkim_
 
         AlcaReco processing & skims for proton collisions
 
         """
+        step = "ALCAOUTPUT:"
+        for skim in skims:
+          step += (skim+"+")
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'ALCA:MuAlStandAloneCosmics+DQM,ENDJOB'
+        options.step = step+'DQM,ENDJOB'
         options.isMC = False
         options.isData = True
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.beamspot = None
         options.eventcontent = None
         options.relval = None
+        options.triggerResultsProcess = 'RECO'
         
         process = cms.Process('ALCA')
         cb = ConfigBuilder(options, process = process)
@@ -135,28 +144,6 @@ class pp(Scenario):
         )
 
         cb.prepare() 
-
-        #  //
-        # // Verify and Edit the list of skims to be written out
-        #//  by this job
-        availableStreams = process.outputModules_().keys()
-
-        #  //
-        # // First up: Verify skims are available by output module name
-        #//
-        for skim in skims:
-            if skim not in availableStreams:
-                msg = "Skim named: %s not available " % skim
-                msg += "in Alca Reco Config:\n"
-                msg += "Known Skims: %s\n" % availableStreams
-                raise RuntimeError, msg
-
-        #  //
-        # // Prune any undesired skims
-        #//
-        for availSkim in availableStreams:
-            if availSkim not in skims:
-                self.dropOutputModule(process, availSkim)
 
         return process
                 

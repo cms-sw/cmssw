@@ -20,7 +20,7 @@ SiStripClustersDSVBuilder::~SiStripClustersDSVBuilder()
 {
 }
 
-void SiStripClustersDSVBuilder::beginJob( const edm::EventSetup& setup) 
+void SiStripClustersDSVBuilder::beginJob() 
 {
 }
 

@@ -25,7 +25,7 @@ class SiStripFEDRawDataAnalyzer : public edm::EDAnalyzer {
   SiStripFEDRawDataAnalyzer( const edm::ParameterSet& );
   ~SiStripFEDRawDataAnalyzer();
 
-  void beginJob( const edm::EventSetup& );
+  void beginJob();
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob();
 

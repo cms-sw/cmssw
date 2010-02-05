@@ -14,8 +14,7 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
 						   const MagneticField *magField, 
 						   MaterialEffects materialEffects,
 						   PropagationDirection propDir,
-						   double mass, double momentumEstimate,
-						   const reco::BeamSpot &beamSpot) :
+						   double mass, double momentumEstimate) :
   ReferenceTrajectory( refTsos.localParameters().mixedFormatVector().kSize, recHits.size(), materialEffects),
   theMomentumEstimate( momentumEstimate )
 {
@@ -41,11 +40,9 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
     for (TransientTrackingRecHit::ConstRecHitContainer::const_reverse_iterator it=recHits.rbegin(); it != recHits.rend(); ++it)
       fwdRecHits.push_back(*it);
 
-    theValidityFlag = this->construct(refTsosWithFixedMomentum, fwdRecHits, mass,
-				      materialEffects, propDir, magField, beamSpot);
+    theValidityFlag = this->construct(refTsosWithFixedMomentum, fwdRecHits, mass, materialEffects, propDir, magField);
   } else {
-    theValidityFlag = this->construct(refTsosWithFixedMomentum, recHits, mass,
-				      materialEffects, propDir, magField, beamSpot);
+    theValidityFlag = this->construct(refTsosWithFixedMomentum, recHits, mass, materialEffects, propDir, magField);
   }
 
   // Exclude momentum from the parameters and also the derivatives of the measurements w.r.t. the momentum.

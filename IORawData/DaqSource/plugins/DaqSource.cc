@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2010/01/11 16:31:01 $
- *  $Revision: 1.38 $
+ *  $Date: 2010/01/20 09:12:32 $
+ *  $Revision: 1.39.2.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -116,6 +116,7 @@ namespace edm {
   //______________________________________________________________________________
   InputSource::ItemType 
   DaqSource::getNextItemType() {
+    //    std::cout << getpid() << " enter getNextItemType " << std::endl;
     if (noMoreEvents_) {
       pthread_mutex_lock(&mutex_);
       pthread_cond_signal(&cond_);
@@ -126,6 +127,7 @@ namespace edm {
       return IsRun;
     }
     if (newLumi_ && luminosityBlockAuxiliary()) {
+      //      std::cout << "newLumi & lumiblock valid " << std::endl;
       return IsLumi;
     }
     if (eventCached_) {
@@ -148,6 +150,8 @@ namespace edm {
     
     // pass a 0 pointer to fillRawData()!
     FEDRawDataCollection* fedCollection(0);
+
+    edm::EventAuxiliary::ExperimentType evttype = EventAuxiliary::Undefined;
   
     // let reader_ fill the fedCollection 
     int retval = reader_->fillRawData(eventId, tstamp, fedCollection);
@@ -162,7 +166,9 @@ namespace edm {
     }
     else if(retval<0)
       {
-	if(luminosityBlockNumber_ != (-1)*retval+1)
+	//	std::cout << "got new lumi block " << retval
+	//		  << " was " << luminosityBlockNumber_ << std::endl;
+	if(luminosityBlockNumber_ < (-1)*retval+1)
 	  {
 	    luminosityBlockNumber_ = (-1)*retval+1;
 	    pthread_mutex_lock(&mutex_);
@@ -175,45 +181,31 @@ namespace edm {
 	    newLumi_ = true;
 	    lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	    resetLuminosityBlockAuxiliary();
+	    //	    std::cout << "done dealing with ls signal " << std::endl;
 	  }
-	else
-	  return IsInvalid;
+	//	else
+	// {
+	    //	    std::cout << "ls end signal was received after an event from new ls" << std::endl;
+	    
+	//  }
       }
-    if (eventId.event() == 0) {
-      throw edm::Exception(errors::LogicError)
-        << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
-        << "Event numbers must begin at 1, not 0.";
-    }
-    EventSourceSentry(*this);
-    setTimestamp(tstamp);
+    else
+      {
+	if (eventId.event() == 0) {
+	  throw edm::Exception(errors::LogicError)
+	    << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
+	    << "Event numbers must begin at 1, not 0.";
+	}
+	EventSourceSentry(*this);
+	setTimestamp(tstamp);
     
-    unsigned char *gtpFedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpEvmId_).data() : 0;
-    uint32_t gtpsize = 0;
-    edm::EventAuxiliary::ExperimentType evttype = EventAuxiliary::Undefined;
-    if(gtpFedAddr !=0) gtpsize = fedCollection->FEDData(daqsource::gtpEvmId_).size();
-    unsigned char *gtpeFedAddr = fedCollection->FEDData(daqsource::gtpeId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpeId_).data() : 0; 
+	unsigned char *gtpFedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpEvmId_).data() : 0;
+	uint32_t gtpsize = 0;
+	if(gtpFedAddr !=0) gtpsize = fedCollection->FEDData(daqsource::gtpEvmId_).size();
+	unsigned char *gtpeFedAddr = fedCollection->FEDData(daqsource::gtpeId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpeId_).data() : 0; 
 
-    if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
-	luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
-	pthread_mutex_lock(&mutex_);
-	pthread_cond_signal(&cond_);
-	pthread_mutex_unlock(&mutex_);
-	::usleep(1000);
-
-	pthread_mutex_lock(&mutex_);
-	pthread_mutex_unlock(&mutex_);
-        newLumi_ = true;
-	lumiSectionIndex_.value_ = luminosityBlockNumber_;
-	resetLuminosityBlockAuxiliary();
-    }
-    else if(!fakeLSid_){ 
-
-      if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr,gtpsize)){
-	unsigned int thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
-	prescaleSetIndex_.value_ = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
-	evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
-	if(luminosityBlockNumber_ != (thisEventLSid + 1)){
-	  luminosityBlockNumber_ = thisEventLSid + 1;
+	if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
+	  luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
 	  pthread_mutex_lock(&mutex_);
 	  pthread_cond_signal(&cond_);
 	  pthread_mutex_unlock(&mutex_);
@@ -225,37 +217,58 @@ namespace edm {
 	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	  resetLuminosityBlockAuxiliary();
 	}
-      }
-      else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
-	unsigned int thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
-	evttype =  edm::EventAuxiliary::PhysicsTrigger; 
-	if(luminosityBlockNumber_ != (thisEventLSid + 1)){
-	  luminosityBlockNumber_ = thisEventLSid + 1;
-	  pthread_mutex_lock(&mutex_);
-	  pthread_cond_signal(&cond_);
-	  pthread_mutex_unlock(&mutex_);
-	  ::usleep(1000);
+	else if(!fakeLSid_){ 
 
-	  pthread_mutex_lock(&mutex_);
-	  pthread_mutex_unlock(&mutex_);
-	  newLumi_ = true;
-	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	  if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr,gtpsize)){
+	    unsigned int thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
+	    prescaleSetIndex_.value_ = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
+	    evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
+	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
+	      luminosityBlockNumber_ = thisEventLSid + 1;
+	      pthread_mutex_lock(&mutex_);
+	      pthread_cond_signal(&cond_);
+	      pthread_mutex_unlock(&mutex_);
+	      ::usleep(1000);
+
+	      pthread_mutex_lock(&mutex_);
+	      pthread_mutex_unlock(&mutex_);
+	      newLumi_ = true;
+	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	      resetLuminosityBlockAuxiliary();
+	    }
+	  }
+	  else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
+	    unsigned int thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
+	    evttype =  edm::EventAuxiliary::PhysicsTrigger; 
+	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
+	      luminosityBlockNumber_ = thisEventLSid + 1;
+	      pthread_mutex_lock(&mutex_);
+	      pthread_cond_signal(&cond_);
+	      pthread_mutex_unlock(&mutex_);
+	      ::usleep(1000);
+
+	      pthread_mutex_lock(&mutex_);
+	      pthread_mutex_unlock(&mutex_);
+	      newLumi_ = true;
+	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	    }
+	  }
 	}
-      }
-    }
-    if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr,gtpsize)){
-      bunchCrossing =  int(evf::evtn::getfdlbx(gtpFedAddr));
-      orbitNumber =  int(evf::evtn::getorbit(gtpFedAddr));
-      TimeValue_t time = evf::evtn::getgpshigh(gtpFedAddr);
-      time = (time << 32) + evf::evtn::getgpslow(gtpFedAddr);
-      Timestamp tstamp(time);
-      setTimestamp(tstamp);      
-    }
-    else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
-      bunchCrossing =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
-      orbitNumber =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
-    }
-    
+	if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr,gtpsize)){
+	  bunchCrossing =  int(evf::evtn::getfdlbx(gtpFedAddr));
+	  orbitNumber =  int(evf::evtn::getorbit(gtpFedAddr));
+	  TimeValue_t time = evf::evtn::getgpshigh(gtpFedAddr);
+	  time = (time << 32) + evf::evtn::getgpslow(gtpFedAddr);
+	  Timestamp tstamp(time);
+	  setTimestamp(tstamp);      
+	}
+	else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
+	  bunchCrossing =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
+	  orbitNumber =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
+	}
+      }    
+          
+    //    std::cout << "lumiblockaux = " << luminosityBlockAuxiliary() << std::endl;
     // If there is no luminosity block principal, make one.
     if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
       newLumi_ = true;
@@ -264,15 +277,20 @@ namespace edm {
 
       readAndCacheLumi();
       setLumiPrematurelyRead();
-      if(retval<0) return IsLumi;
+      //      std::cout << "nextItemType: dealt with new lumi block principal, retval is " << retval << std::endl;
+    }
+    //    std::cout << "here retval = " << retval << std::endl;
+    if(retval<0){
+      //      std::cout << getpid() << " returning from getnextitem because retval < 0 - IsLumi "
+      //		<< IsLumi << std::endl;
+      if(newLumi_) return IsLumi; else return getNextItemType();
     }
 
     // make a brand new event
-    eventId = EventID(runNumber_, eventId.event());
+    eventId = EventID(runNumber_,luminosityBlockNumber_, eventId.event());
     std::auto_ptr<EventAuxiliary> eventAux(
       new EventAuxiliary(eventId, processGUID(),
 			 timestamp(),
-			 luminosityBlockNumber_,
 			 true,
 			 evttype,
 			 bunchCrossing,
@@ -320,17 +338,23 @@ namespace edm {
     assert(newLumi_);
     assert(!noMoreEvents_);
     assert(luminosityBlockAuxiliary());
-    assert(eventCached_);
+    //assert(eventCached_); //the event may or may not be cached - rely on 
+    // the call to getNextItemType to detect that.
     newLumi_ = false;
     return luminosityBlockAuxiliary();
   }
 
   EventPrincipal*
   DaqSource::readEvent_() {
+    //    std::cout << "assert not newRun " << std::endl;
     assert(!newRun_);
+    //    std::cout << "assert not newLumi " << std::endl;
     assert(!newLumi_);
+    //    std::cout << "assert not noMoreEvents " << std::endl;
     assert(!noMoreEvents_);
+    //    std::cout << "assert eventCached " << std::endl;
     assert(eventCached_);
+    //    std::cout << "asserts done " << std::endl;
     eventCached_ = false;
     return eventPrincipalCache();
   }

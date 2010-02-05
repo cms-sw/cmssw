@@ -8,7 +8,6 @@ d0_phi_analyzer_pixelless = cms.EDAnalyzer("BeamSpotAnalyzer",
     BeamFitter = cms.PSet(
 	Debug = cms.untracked.bool(False),
 	TrackCollection = cms.untracked.InputTag('ctfPixelLess'),
-	IsMuonCollection = cms.untracked.bool(False),
         WriteAscii = cms.untracked.bool(True),
 	AsciiFileName = cms.untracked.string('BeamFit.txt'),
         SaveNtuple = cms.untracked.bool(False),

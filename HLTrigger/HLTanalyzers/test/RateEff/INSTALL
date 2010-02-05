@@ -15,7 +15,7 @@ make
 cd ../
 make
 
-source setup.(c)sh 
+source setup.sh
 ./OHltRateEff hltmenu_8E29_2009May11.cfg
 
 

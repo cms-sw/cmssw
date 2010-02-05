@@ -6,9 +6,6 @@
 #include <utility>
 #include <algorithm>
 
-#include <iostream>
-
-
 
 /* a generic container for ecal items
  * provides access by hashedIndex and by DetId...
@@ -39,35 +36,16 @@ class EcalContainer {
                 }
 
                 inline Item & operator[](uint32_t rawId) {
-		  checkAndResize();
-		  static Item dummy;
-		  DetId id(rawId);
-		  if ( !isValidId(id) ) return dummy;
-		  return m_items[id.hashedIndex()];
+                        if (m_items.empty()) {
+                                m_items.resize(DetId::kSizeForDenseIndexing);
+                        }
+                        static Item dummy;
+                        DetId id(rawId);
+                        if ( !isValidId(id) ) return dummy;
+                        return m_items[id.hashedIndex()];
                 }
 
-
-		void checkAndResize() {
-		  if (m_items.size()==0) {
-		    std::cout << "resizing to " << DetId::kSizeForDenseIndexing << std::endl;
-		    m_items.resize(DetId::kSizeForDenseIndexing);
-		  }
-		}
-
-
-		void checkAndResize( size_t priv_size ) {
-		  // this method allows to resize the vector to a specific size forcing a specific value
-		  if (m_items.size()==0) {
-		    std::cout << "resizing to " << priv_size << std::endl;
-		    m_items.resize(priv_size);
-		  }
-		}
-
                 inline Item const & operator[](uint32_t rawId) const {
-		  //                        if (m_items.size()==0) {
-		  //	  std::cout << "resizing to " << DetId::kSizeForDenseIndexing << std::endl;
-                  //              m_items.resize((size_t) DetId::kSizeForDenseIndexing);
-                  //      }
                         static Item dummy;
                         DetId id(rawId);
                         if ( !isValidId(id) ) return dummy;

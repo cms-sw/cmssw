@@ -20,10 +20,6 @@ DEFINE_ANOTHER_FWK_SERVICE(SiStripNoisesDQMService);
 typedef popcon::PopConAnalyzer< popcon::SiStripPopConDbObjHandler< SiStripBadStrip, SiStripBadComponentsDQMService > > SiStripPopConBadComponentsDQM;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPopConBadComponentsDQM);
 
-#include "DQMOffline/CalibTracker/plugins/SiStripFEDErrorsDQM.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripFEDErrorsDQM);
-
-
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 typedef popcon::PopConAnalyzer< popcon::SiStripPopConDbObjHandler< SiStripPedestals, SiStripPedestalsDQMService > > SiStripPopConPedestalsDQM;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPopConPedestalsDQM);

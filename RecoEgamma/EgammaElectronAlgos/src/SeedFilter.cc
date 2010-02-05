@@ -24,6 +24,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
 
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
@@ -69,7 +70,7 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf) {
   OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet);
 
   // start seed generator
-  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, conf);
+  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,new SeedFromConsecutiveHitsCreator());
 }
 
 SeedFilter::~SeedFilter() {
@@ -126,7 +127,10 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 
   const GlobalPoint clusterPos(scRef->position().x(), scRef->position().y(), scRef->position().z());
 
+  //===============================================
   // EtaPhiRegion and seeds for electron hypothesis
+  //===============================================
+
   TrackCharge aCharge = -1 ;
   FreeTrajectoryState fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aCharge);
 
@@ -147,7 +151,10 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 
   seedColl->clear();
 
+  //===============================================
   // EtaPhiRegion and seeds for positron hypothesis
+  //===============================================
+
   TrackCharge aChargep = 1 ;
   fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aChargep);
 

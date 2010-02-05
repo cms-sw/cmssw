@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.10 2009/10/28 16:20:04 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.9 2009/10/27 20:59:28 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -106,11 +106,6 @@ class BeamFitter {
   int flumi;
   bool fquality;
   bool falgo;
-  bool fpvValid;
-  double fpvx, fpvy, fpvz;
-  TH1F *h1ntrks;
-  TH1F *h1vz_event;
-  
 };
 
 #endif

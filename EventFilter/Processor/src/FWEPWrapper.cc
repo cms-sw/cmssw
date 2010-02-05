@@ -1,12 +1,4 @@
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/PrescaleService/interface/PrescaleService.h"
-#include "FWCore/Framework/interface/TriggerReport.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWEPWrapper.h"
 
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
@@ -14,7 +6,6 @@
 #include "EventFilter/Utilities/interface/ServiceWeb.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
-#include "FWEPWrapper.h"
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xdaq/ApplicationDescriptorImpl.h"
@@ -24,6 +15,17 @@
 #include "xdata/TableIterator.h"
 #include "xdata/exdr/Serializer.h"
 #include "xdata/exdr/AutoSizeOutputStreamBuffer.h"
+
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#undef HAVE_STAT
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/PrescaleService/interface/PrescaleService.h"
+#include "FWCore/Framework/interface/TriggerReport.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "xoap/MessageReference.h"
 #include "xoap/MessageFactory.h"
@@ -752,11 +754,11 @@ namespace evf{
     if(rcms_==0) return false;
     toolbox::net::URL url(rcms_->getContextDescriptor()->getURL());
     toolbox::net::URL at(xappDesc_->getContextDescriptor()->getURL() + "/" + xappDesc_->getURN());
-    toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"/rcms/servlet/monitorreceiver");
+    toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"");
     xdaq::ContextDescriptor *ctxdsc = new xdaq::ContextDescriptor(properurl.toString());
     xdaq::ApplicationDescriptor *appdesc = new xdaq::ApplicationDescriptorImpl(ctxdsc,rcms_->getClassName(),rcms_->getLocalId(), "pippo");
-
-
+    
+    appdesc->setAttribute("path","/rcms/servlet/monitorreceiver");
     xdata::exdr::Serializer serializer;
     xoap::MessageReference msg = xoap::createMessage();
     xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();

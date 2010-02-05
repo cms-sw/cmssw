@@ -24,7 +24,6 @@ class GsfElectronProducer : public edm::EDProducer
  public:
 
   explicit GsfElectronProducer(const edm::ParameterSet& conf);
-
   virtual ~GsfElectronProducer();
 
   virtual void produce(edm::Event& e, const edm::EventSetup& c);

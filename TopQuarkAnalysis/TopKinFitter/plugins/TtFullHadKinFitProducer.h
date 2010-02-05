@@ -35,9 +35,6 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   TtFullHadKinFitter::Constraint constraint(unsigned int configParameter);
   // convert vector of unsigned int's to vector of Contraint's
   std::vector<TtFullHadKinFitter::Constraint> constraints(std::vector<unsigned int>& configParameters);
-  // helper function for b-tagging
-  bool doBTagging(bool& useBTag_, edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
-		  std::string& bTagAlgo_, double& minBTagValueBJets_, double& maxBTagValueNonBJets_);
   
  private:
   /// input tag for jets
@@ -47,14 +44,6 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   /// switch to tell whether all possible combinations should be used for the fit 
   /// or only a certain combination
   bool useOnlyMatch_;
-  /// input tag for b-tagging algorithm
-  std::string bTagAlgo_;
-  /// min value of bTag for a b-jet
-  double minBTagValueBJet_;
-  /// max value of bTag for a non-b-jet
-  double maxBTagValueNonBJet_;
-  /// switch to tell whether to use b-tagging or not
-  bool useBTag_;
   /// maximal number of jets (-1 possible to indicate 'all')  
   int maxNJets_;
   /// maximal number of combinations to be written to rthe event

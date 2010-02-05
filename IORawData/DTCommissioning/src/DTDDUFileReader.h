@@ -4,8 +4,8 @@
 /** \class DTDDUFileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2007/09/04 08:03:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/27 12:45:38 $
+ *  $Revision: 1.10 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -26,9 +26,9 @@ class DTDDUFileReader : public DaqBaseReader {
   virtual ~DTDDUFileReader();
 
   /// Generate and fill FED raw data for a full event
-  virtual bool fillRawData(edm::EventID& eID,
-			   edm::Timestamp& tstamp, 
-			   FEDRawDataCollection*& data);
+  virtual int fillRawData(edm::EventID& eID,
+			  edm::Timestamp& tstamp, 
+			  FEDRawDataCollection*& data);
 
 
   /// check for a 64 bits word to be a DDU header

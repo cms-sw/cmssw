@@ -74,6 +74,7 @@ namespace edm {
 
     //------------------------------------------------------------------
     // Other tree names
+    std::string const& luminosityBlockTreeName();
     std::string const& eventTreeName();
     std::string const& eventMetaDataTreeName();
   }

@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Validator")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'GR09_R_V5::All'
 process.GlobalTag.globaltag = 'GR09_P_V6::All'
 #process.GlobalTag.globaltag = 'MC_31X_V5::All'
 process.prefer("GlobalTag")
@@ -11,13 +10,6 @@ process.prefer("GlobalTag")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(200)
-
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed 
-process.bit40 = hltLevel1GTSeed.clone(
-  L1TechTriggerSeeding = cms.bool(True), 
-  L1SeedsLogicalExpression= cms.string('40 AND NOT (36 OR 37 OR 38 OR 39)' )
-)
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 process.load("Configuration.StandardSequences.Generator_cff")
@@ -52,15 +44,11 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
 #@FNAL:
-#'/store/user/andrey/SinglePion_50GeV_314/SinglePion_50GeV_314/0d8aafd1bbf7b6158b7a4e52f0fb00b6/SinglePion_50GeV_314_9.root',
+'/store/user/andrey/SinglePion_50GeV_314/SinglePion_50GeV_314/0d8aafd1bbf7b6158b7a4e52f0fb00b6/SinglePion_50GeV_314_9.root',
 
 #'/store/data/BeamCommissioning09/MinimumBias/RECO/rereco_FIRSTCOLL_v1/0083/FE5EDBBC-7DD9-DE11-9589-001A92971B64.root',     
 #'/store/data/BeamCommissioning09/MinimumBias/RECO/rereco_FIRSTCOLL_v1/0083/FAE7D85F-8AD9-DE11-A342-0026189438C4.root',
 #'/store/data/BeamCommissioning09/MinimumBias/RECO/rereco_FIRSTCOLL_v1/0083/F8EE1B4D-28D9-DE11-BF9C-00261894393B.root',
-
-# DecCollision ReReco
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_336p3_v2/0112/BC80CD7C-94EF-DE11-9134-0024E8767D79.root',        
-#'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_336p3_v2/0104/5E9C7099-C2EE-DE11-B85C-001D09675427.root',
 
 #'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_312/pi50_3.root',
 

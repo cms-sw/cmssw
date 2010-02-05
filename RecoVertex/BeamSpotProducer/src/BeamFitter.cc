@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.18 2009/12/04 19:59:43 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.15 2009/10/28 16:20:04 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -17,14 +17,12 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 {
@@ -90,11 +88,6 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 	ftree_->Branch("algo",&falgo,"falgo/O");
 	ftree_->Branch("run",&frun,"frun/i");
 	ftree_->Branch("lumi",&flumi,"flumi/i");
-	ftree_->Branch("pvValid",&fpvValid,"fpvValid/O");
-	ftree_->Branch("pvx", &fpvx, "fpvx/D");
-	ftree_->Branch("pvy", &fpvy, "fpvy/D");
-	ftree_->Branch("pvz", &fpvz, "fpvz/D");
-	
   }
   
   fBSvector.clear();
@@ -103,21 +96,12 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   fnTIDLayerMeas = fnTOBLayerMeas = fnTECLayerMeas = fnPXBLayerMeas = fnPXFLayerMeas = 0;
   frun = flumi = -1;
   fquality = falgo = true;
-  fpvValid = true;
-  fpvx = fpvy = fpvz = 0;
-  
-  //debug histograms
-  h1ntrks = new TH1F("h1ntrks","number of tracks per event",50,0,50);
-  h1vz_event = new TH1F("h1vz_event","track Vz", 50, -30, 30 );
-  
 }
 
 BeamFitter::~BeamFitter() {
   if (saveNtuple_) {
     file_->cd();
 	if (h1z) h1z->Write();
-	h1ntrks->Write();
-	h1vz_event->Write();
     ftree_->Write();
     file_->Close();
   }
@@ -129,20 +113,12 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
 	frun = iEvent.id().run();
 	flumi = iEvent.luminosityBlock();
-
-
+	
 	edm::Handle<reco::TrackCollection> TrackCollection;
 	iEvent.getByLabel(tracksLabel_, TrackCollection);
-
-	edm::Handle< edm::View<reco::Vertex> > PVCollection;
-    iEvent.getByLabel("offlinePrimaryVertices", PVCollection );
-
+	
 	const reco::TrackCollection *tracks = TrackCollection.product();
 
-	const edm::View<reco::Vertex> &pv = *PVCollection;
-
-	double eventZ = 0;
-	double averageZ = 0;
 	
 	for ( reco::TrackCollection::const_iterator track = tracks->begin();
 		  track != tracks->end();
@@ -201,7 +177,6 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 		fquality = true;
 		falgo = true;
 
-				
 	if (! isMuon_ ) {
 		if (quality_.size()!=0) {
 			fquality = false;
@@ -223,21 +198,10 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 		}
 
 	}
-
-	// check if we have a valid PV
-	fpvValid = false;
-	
-	for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
-
-		if (! pv[ipv].isFake()) fpvValid = true;
-
-		if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); }
-	}
-		
+	    
     if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
-
-		
+    
     // Final track selection
     if (fnTotLayerMeas >= trk_MinNTotLayers_
         && fnPixelLayerMeas >= trk_MinNPixLayers_
@@ -248,7 +212,6 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 		&& std::abs( fd0 ) < trk_MaxIP_
 		&& std::abs( fz0 ) < trk_MaxZ_
 		&& std::abs( feta ) < trk_MaxEta_
-		//&& fpvValid
         ) {
 		if (debug_){
 			std::cout << "Selected track quality = " << track->qualityMask();
@@ -258,21 +221,9 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 		BSTrk.setVx(fvx);
 		BSTrk.setVy(fvy);
 		fBSvector.push_back(BSTrk);
-		averageZ += fz0;
     }
 
-	}// tracks
-
-	averageZ = averageZ/(float)(fBSvector.size());
-
-	for( std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam) {
-
-		eventZ += fabs( iparam->z0() - averageZ );
-		
-	}
-	
-	h1ntrks->Fill( fBSvector.size() );
-	h1vz_event->Fill( eventZ/(float)(fBSvector.size() ) ) ;
+  }
 
 }
 
@@ -288,8 +239,7 @@ bool BeamFitter::runFitter() {
 	myalgo->SetMaximumZ( trk_MaxZ_ );
 	myalgo->SetConvergence( convergence_ );
 	myalgo->SetMinimumNTrks(min_Ntrks_);
-	if (inputBeamWidth_ > 0 ) myalgo->SetInputBeamWidth( inputBeamWidth_ );
-	
+
     fbeamspot = myalgo->Fit();
 
     if(writeTxt_) dumpTxtFile();
@@ -309,8 +259,6 @@ bool BeamFitter::runFitter() {
 }
 
 void BeamFitter::dumpTxtFile(){
-
-  fasciiFile << "type " << fbeamspot.type() << std::endl;
   fasciiFile << "X " << fbeamspot.x0() << std::endl;
   fasciiFile << "Y " << fbeamspot.y0() << std::endl;
   fasciiFile << "Z " << fbeamspot.z0() << std::endl;
@@ -334,7 +282,7 @@ void BeamFitter::dumpTxtFile(){
   }
   // beam width error
   if (inputBeamWidth_ > 0 ) {
-    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
+    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << pow(2.e-4,2) << std::endl;
   } else {
     fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
   }

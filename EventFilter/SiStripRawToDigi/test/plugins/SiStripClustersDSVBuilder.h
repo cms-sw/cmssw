@@ -27,7 +27,7 @@ class SiStripClustersDSVBuilder : public edm::EDProducer {
   SiStripClustersDSVBuilder( const edm::ParameterSet& );
   ~SiStripClustersDSVBuilder();
   
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob();
   virtual void endJob();
   virtual void produce( edm::Event&, const edm::EventSetup& );
   

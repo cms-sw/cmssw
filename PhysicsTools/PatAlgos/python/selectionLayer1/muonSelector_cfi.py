@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # See https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
 # on how to use the cut-string
 #
-selectedPatMuons = cms.EDFilter("PATMuonSelector",
-    src = cms.InputTag("patMuons"),
+selectedLayer1Muons = cms.EDFilter("PATMuonSelector",
+    src = cms.InputTag("allLayer1Muons"),
     cut = cms.string("")
 )
 

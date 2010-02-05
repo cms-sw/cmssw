@@ -1,18 +1,19 @@
-# /dev/CMSSW_3_5_0/HIon/V7 (CMSSW_3_5_0_pre3_HLT2)
+# /dev/CMSSW_3_5_0/HIon/V10 (CMSSW_3_5_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V10')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 
-process.source = cms.Source( "PoolSource"
+process.source = cms.Source( "PoolSource",
+    fileNames = cms.untracked.vstring( 'file:RelVal_DigiL1Raw_HIon.root' )
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
@@ -27,7 +28,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR09_H_V7::All" ),
+    globaltag = cms.string( "GR10_H_V1::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialPeriod = cms.untracked.int32( 10 ),
@@ -2473,8 +2474,6 @@ process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hl
 process.HLTOutput = cms.EndPath( process.hltOutputA )
 process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAPHISYM + process.hltOutputALCAP0 + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
 
-process.source.fileNames = cms.untracked.vstring('file:RelVal_DigiL1Raw_HIon.root')
-
 process.setName_('HLT')
 
 process.maxEvents = cms.untracked.PSet(
@@ -2485,7 +2484,7 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'MC_3XY_V20::All'
+    process.GlobalTag.globaltag         = 'MC_3XY_V21::All'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 
 if 'Level1MenuOverride' in process.__dict__:

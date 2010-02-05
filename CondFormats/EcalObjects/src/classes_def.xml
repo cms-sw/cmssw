@@ -34,9 +34,6 @@
 <class name="EcalChannelStatus"/>
 <class name="EcalChannelStatusCode"/>
 
-<class name="EcalDCSTowerStatus"/>
-
-
 <class name="EcalTPGCrystalStatus"/>
 <class name="EcalTPGCrystalStatusCode"/>
 
@@ -76,9 +73,6 @@
 <class name="EcalTPGWeights"/>
 <class name="std::map<uint32_t, EcalTPGWeights>"/>
 <class name="std::pair<const uint32_t, EcalTPGWeights>"/>
-
-
-
 
 <class name="EcalContainer<EEDetId,EcalTPGCrystalStatusCode>"/>
 <class name="EcalContainer<EBDetId,EcalTPGCrystalStatusCode>"/>
@@ -121,10 +115,5 @@
 <class name="EcalTPGPhysicsConst::Item"/>
 <class name="std::map<uint32_t, EcalTPGPhysicsConst::Item>"/>
 <class name="std::pair<const uint32_t, EcalTPGPhysicsConst::Item>"/>
-
-<class name="EcalContainer<EcalTrigTowerDetId,EcalChannelStatusCode>"/>
-<class name="EcalContainer<EcalScDetId,EcalChannelStatusCode>"/>
-
-
 
 </lcgdict>

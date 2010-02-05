@@ -2,7 +2,7 @@
 //
 // Package:     Modules
 // Class  :     XMLOutputModule
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -58,7 +58,7 @@ namespace edm {
 
       XMLOutputModule(XMLOutputModule const&); // stop default
 
-      const XMLOutputModule& operator=(XMLOutputModule const&); // stop default
+      XMLOutputModule const& operator=(XMLOutputModule const&); // stop default
 
       // ---------- member data --------------------------------
       std::ofstream stream_;
@@ -73,7 +73,7 @@ namespace edm {
     //Handle memory for calls to Reflex Invoke
     // We handle Ref's by using an external void* buffer (which we do not delete) while everything else
     // we ask Reflex to create the proper object (and therefore must ask Reflex to delete it)
-    boost::shared_ptr<Reflex::Object> initReturnValue(const Reflex::Member& iMember,
+    boost::shared_ptr<Reflex::Object> initReturnValue(Reflex::Member const& iMember,
                                                       Reflex::Object* iObj,
                                                       void** iRefBuffer) {
       Reflex::Type returnType = iMember.TypeOf().ReturnType();
@@ -84,7 +84,7 @@ namespace edm {
       *iObj = returnType.Construct();
       return boost::shared_ptr<Reflex::Object>(iObj, callDestruct);
     }
-  
+
     //remove characters from a string which are not allowed to be used in XML
     std::string formatXML(std::string const& iO) {
       std::string result(iO);
@@ -92,7 +92,7 @@ namespace edm {
       static std::string const kLeft("&lt;");
       static std::string const kRight("&gt;");
       static std::string const kAmp("&");
-      
+
       std::string::size_type i = 0;
       while(std::string::npos != (i = result.find_first_of(kSubs, i))) {
         switch(result.at(i)) {
@@ -109,7 +109,7 @@ namespace edm {
       }
       return result;
     }
-    
+
     char const* kNameValueSep = "\">";
     char const* kContainerOpen = "<container size=\"";
     char const* kContainerClose = "</container>";
@@ -124,51 +124,51 @@ namespace edm {
         FILLNAME(int);
         FILLNAME(long);
         FILLNAME(long long);
-    
+
         FILLNAME(unsigned short);
         FILLNAME(unsigned int);
         FILLNAME(unsigned long);
         FILLNAME(unsigned long long);
-        
+
         FILLNAME(double);
         FILLNAME(float);
       }
       return s_toName[iID.name()];
     }
-    
+
     template<typename T>
     void doPrint(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
       oStream << iIndent << iPrefix << typeidToName(typeid(T)) << kNameValueSep
         << *reinterpret_cast<T*>(iObject.Address()) << iPostfix << "\n";
     }
-    
+
     template<>
     void doPrint<char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
       oStream << iIndent << iPrefix << "char" << kNameValueSep
         << static_cast<int>(*reinterpret_cast<char*>(iObject.Address())) << iPostfix << "\n";
     }
-    
+
     template<>
     void doPrint<unsigned char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
       oStream << iIndent << iPrefix << "unsigned char" << kNameValueSep << static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address())) << iPostfix << "\n";
     }
-    
+
     template<>
     void doPrint<bool>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
       oStream << iIndent << iPrefix << "bool" << kNameValueSep
         << ((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false") << iPostfix << "\n";
     }
-    
-    
-    typedef void(*FunctionType)(std::ostream&, std::string const&, 
+
+
+    typedef void(*FunctionType)(std::ostream&, std::string const&,
                                 std::string const&, Reflex::Object const&, std::string const&);
     typedef std::map<std::string, FunctionType> TypeToPrintMap;
-    
+
     template<typename T>
     void addToMap(TypeToPrintMap& iMap){
       iMap[typeid(T).name()]=doPrint<T>;
     }
-    
+
     bool printAsBuiltin(std::ostream& oStream,
                                std::string const& iPrefix,
                                std::string const& iPostfix,
@@ -194,26 +194,26 @@ namespace edm {
       }
       TypeToPrintMap::iterator itFound =s_map.find(iObject.TypeOf().TypeInfo().name());
       if(itFound == s_map.end()){
-        
+
         return false;
       }
       itFound->second(oStream, iPrefix, iPostfix, iObject, iIndent);
       return true;
     }
-    
+
     bool printAsContainer(std::ostream& oStream,
                           std::string const& iPrefix,
                           std::string const& iPostfix,
                           Reflex::Object const& iObject,
                           std::string const& iIndent,
                           std::string const& iIndentDelta);
-    
+
     void printDataMembers(std::ostream& oStream,
                           Reflex::Object const& iObject,
                           Reflex::Type const& iType,
                           std::string const& iIndent,
                           std::string const& iIndentDelta);
-    
+
     void printObject(std::ostream& oStream,
                      std::string const& iPrefix,
                      std::string const& iPostfix,
@@ -240,7 +240,7 @@ namespace edm {
           return;
         }
         return;
-        
+
         //have the code that follows print the contents of the data to which the pointer points
         objectToPrint = Reflex::Object(pointedType, iObject.Address());
         //try to convert it to its actual type (assuming the original type was a base class)
@@ -251,7 +251,7 @@ namespace edm {
       if(typeName.empty()){
         typeName="{unknown}";
       }
-      
+
       //see if we are dealing with a typedef
       Reflex::Type objectType = objectToPrint.TypeOf();
       bool wasTypedef = false;
@@ -262,20 +262,20 @@ namespace edm {
       if(wasTypedef){
          Reflex::Object tmp(objectType, objectToPrint.Address());
          objectToPrint = tmp;
-      } 
+      }
       if(printAsBuiltin(oStream, iPrefix, iPostfix, objectToPrint, indent)) {
         return;
       }
       if(printAsContainer(oStream, iPrefix, iPostfix, objectToPrint, indent, iIndentDelta)){
         return;
       }
-      
+
       oStream << indent << iPrefix << formatXML(typeName) << "\">\n";
       printDataMembers(oStream, objectToPrint, objectType, indent+iIndentDelta, iIndentDelta);
       oStream << indent << iPostfix << "\n";
-    
+
     }
-    
+
     void printDataMembers(std::ostream& oStream,
                           Reflex::Object const& iObject,
                           Reflex::Type const& iType,
@@ -285,12 +285,12 @@ namespace edm {
       for(Reflex::Base_Iterator itBase = iType.Base_Begin();
           itBase != iType.Base_End();
           ++itBase) {
-        printDataMembers(oStream, iObject.CastObject(itBase->ToType()), itBase->ToType(), iIndent, iIndentDelta); 
+        printDataMembers(oStream, iObject.CastObject(itBase->ToType()), itBase->ToType(), iIndent, iIndentDelta);
       }
       static std::string const kPrefix("<datamember name=\"");
       static std::string const ktype("\" type=\"");
       static std::string const kPostfix("</datamember>");
-      
+
       for(Reflex::Member_Iterator itMember = iType.DataMember_Begin();
           itMember != iType.DataMember_End();
           ++itMember){
@@ -312,7 +312,7 @@ namespace edm {
         }
       }
     }
-    
+
     bool printContentsOfStdContainer(std::ostream& oStream,
                                      std::string const& iPrefix,
                                      std::string const& iPostfix,
@@ -343,20 +343,13 @@ namespace edm {
           //std::cerr << "no 'operator*' for " << iBegin.TypeOf().Name() << std::endl;
           return false;
         }
-        
+
         std::string indexIndent = iIndent+iIndentDelta;
         int dummy=0;
         //std::cerr << "going to loop using iterator " << iBegin.TypeOf().Name(Reflex::SCOPED) << std::endl;
-        
+
         std::vector<void*> compareArgs = Reflex::Tools::MakeVector((iEnd.Address()));
         std::vector<void*> incrArgs = Reflex::Tools::MakeVector(static_cast<void*>(&dummy));
-    #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-        for(;  *reinterpret_cast<bool*>(compare.Invoke(iBegin, compareArgs).Address()); incr.Invoke(iBegin, incrArgs),++size) {
-          //std::cerr << "going to print" << std::endl;
-          printObject(sStream, kObjectOpen, kObjectClose, deref.Invoke(iBegin), indexIndent, iIndentDelta);                  
-          //std::cerr << "printed" << std::endl;
-        }
-    #else
         bool compareResult;
         Reflex::Object objCompareResult(Reflex::Type::ByTypeInfo(typeid(bool)), &compareResult);
         Reflex::Object objIncr;
@@ -373,10 +366,9 @@ namespace edm {
           if(iTemp.TypeOf().IsReference()) {
             iTemp = Reflex::Object(iTemp.TypeOf(), derefRefBuffer);
           }
-          printObject(sStream, kObjectOpen, kObjectClose, iTemp, indexIndent, iIndentDelta);                  
+          printObject(sStream, kObjectOpen, kObjectClose, iTemp, indexIndent, iIndentDelta);
           //std::cerr << "printed" << std::endl;
         }
-    #endif
       } catch(std::exception const& iE) {
         std::cerr << "while printing std container caught exception " << iE.what() << std::endl;
         return false;
@@ -388,7 +380,7 @@ namespace edm {
       //std::cerr << "finished loop" << std::endl;
       return true;
     }
-    
+
     bool printAsContainer(std::ostream& oStream,
                           std::string const& iPrefix, std::string const& iPostfix,
                           Reflex::Object const& iObject,
@@ -396,14 +388,10 @@ namespace edm {
                           std::string const& iIndentDelta) {
       Reflex::Object sizeObj;
       try {
-    #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-        sizeObj = iObject.Invoke("size");
-    #else
         size_t temp; //used to hold the memory for the return value
         sizeObj = Reflex::Object(Reflex::Type::ByTypeInfo(typeid(size_t)), &temp);
         iObject.Invoke("size", &sizeObj);
-    #endif
-        
+
         if(sizeObj.TypeOf().TypeInfo() != typeid(size_t)) {
           throw std::exception();
         }
@@ -417,23 +405,19 @@ namespace edm {
         if(typeName.empty()){
           typeName="{unknown}";
         }
-        
+
         oStream << iIndent << iPrefix << formatXML(typeName) << "\">\n"
           << iIndent << kContainerOpen << size << "\">\n";
         Reflex::Object contained;
         std::string indexIndent=iIndent+iIndentDelta;
         for(size_t index = 0; index != size; ++index) {
-    #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-          contained = atMember.Invoke(iObject, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
-    #else
           void* atRefBuffer;
           boost::shared_ptr<Reflex::Object> atMemHolder = initReturnValue(atMember, &contained, &atRefBuffer);
-    
+
           atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
           if(contained.TypeOf().IsReference()) {
             contained = Reflex::Object(contained.TypeOf(), atRefBuffer);
           }
-    #endif
           //std::cout << "invoked 'at'" << std::endl;
           try {
             printObject(oStream, kObjectOpen, kObjectClose, contained, indexIndent, iIndentDelta);
@@ -453,7 +437,6 @@ namespace edm {
           if(typeName.empty()){
             typeName="{unknown}";
           }
-    #if ROOT_VERSION_CODE > ROOT_VERSION(5,19,0)
           Reflex::Object iObjBegin;
           void* beginRefBuffer;
           Reflex::Member beginMember = iObject.TypeOf().MemberByName("begin");
@@ -462,20 +445,14 @@ namespace edm {
           void* endRefBuffer;
           Reflex::Member endMember = iObject.TypeOf().MemberByName("end");
           boost::shared_ptr<Reflex::Object> endMemHolder = initReturnValue(endMember, &iObjEnd, &endRefBuffer);
-    
+
           beginMember.Invoke(iObject, &iObjBegin);
           endMember.Invoke(iObject, &iObjEnd);
-    #endif
           if(printContentsOfStdContainer(oStream,
                                          iIndent+iPrefix+formatXML(typeName)+"\">\n",
                                          iIndent+iPostfix,
-    #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-                                         iObject.Invoke("begin"),
-                                         iObject.Invoke("end"),
-    #else
                                          iObjBegin,
                                          iObjEnd,
-    #endif
                                          iIndent,
                                          iIndentDelta)) {
             if(typeName.empty()){
@@ -489,7 +466,7 @@ namespace edm {
       }
       return false;
     }
-    
+
     void printObject(std::ostream& oStream,
                      Event const& iEvent,
                      std::string const& iClassName,
@@ -506,14 +483,14 @@ namespace edm {
       GenericHandle handle(iClassName);
       iEvent.getByLabel(iModuleLabel, iInstanceLabel, handle);
       std::string className = formatXML(iClassName);
-      printObject(oStream, kObjectOpen, kObjectClose, *handle, iIndent, iIndentDelta);   
+      printObject(oStream, kObjectOpen, kObjectClose, *handle, iIndent, iIndentDelta);
     }
   }
-  
+
   //
   // static data member definitions
   //
-  
+
   //
   // constructors and destructor
   //
@@ -526,16 +503,16 @@ namespace edm {
     }
     stream_ << "<cmsdata>" << std::endl;
   }
-  
+
   // XMLOutputModule::XMLOutputModule(XMLOutputModule const& rhs)
   // {
   //    // do actual copying here;
   // }
-  
+
   XMLOutputModule::~XMLOutputModule() {
     stream_ << "</cmsdata>" << std::endl;
   }
-  
+
   //
   // assignment operators
   //
@@ -547,7 +524,7 @@ namespace edm {
   //
   //   return *this;
   // }
-  
+
   //
   // member functions
   //

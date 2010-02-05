@@ -438,7 +438,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	// Check if on requested detectors
 	//	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo]);
 	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
-	if ( !isOndet ) break;
+	//	if ( !isOndet ) break;
+	if ( !isOndet ) continue;
 
 #ifdef FAMOS_DEBUG
 	std::cout << "Apparently the first hit is on the requested detector! " << std::endl;
@@ -501,12 +502,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    } else {
 	      compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
 	      //check
-	      /*
+	      
 		if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
-		std::cout << "NOT Compatible " <<  seedingAlgo[0] 
-		<<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
-		<<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
-	      */
+		  std::cout << "NOT Compatible " <<  seedingAlgo[0] 
+			    <<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
+			    <<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
+		
 	    }
 	  }	    
 	  
@@ -536,7 +537,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    
 	    // Check if on requested detectors
 	    isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
-	    if ( !isOndet ) break;
+	    //	    if ( !isOndet ) break;
+	    if ( !isOndet ) continue;
 
 	    // Check if on the same layer as previous hit
 	    compatible = !(theSeedHits2.isOnTheSameLayer(theSeedHits1));

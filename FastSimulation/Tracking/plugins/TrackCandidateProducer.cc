@@ -51,7 +51,7 @@
 //for debug only 
 //#define FAMOS_DEBUG
 
-TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf) 
+TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):thePropagator(0) 
 {  
 #ifdef FAMOS_DEBUG
   std::cout << "TrackCandidateProducer created" << std::endl;

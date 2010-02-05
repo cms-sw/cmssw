@@ -81,7 +81,7 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
 
       //functions
       bool isGoodMuon( const reco::Muon* );
-      bool isGoodCaloMuon( const reco::Muon*, const int );
+      bool isGoodCaloMuon( const reco::Muon*, const unsigned int );
       bool isGoodTrack( const reco::Muon* );
       class TVector3 propagateTrack( const reco::Muon* );
   };

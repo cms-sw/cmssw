@@ -27,9 +27,9 @@ ErrorObj::opltlt ( const T & t )  {
   myOs.str(emptyString);
   myOs << t;
 #ifdef OLD_STYLE_AUTOMATIC_SPACES
-  if ( ! myOs.str().empty() ) emit( myOs.str() + ' ' );
+  if ( ! myOs.str().empty() ) emitToken( myOs.str() + ' ' );
 #else
-  if ( ! myOs.str().empty() ) emit( myOs.str() );
+  if ( ! myOs.str().empty() ) emitToken( myOs.str() );
 #endif
   return *this;
 }  // operator<< <T>()

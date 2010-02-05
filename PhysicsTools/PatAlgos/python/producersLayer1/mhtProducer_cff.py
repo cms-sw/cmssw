@@ -6,6 +6,6 @@ import FWCore.ParameterSet.Config as cms
 # produce object
 from PhysicsTools.PatAlgos.producersLayer1.mhtProducer_cfi import *
 
-makePatMHTs = cms.Sequence(
-    patMHTs
+makeLayer1MHTs = cms.Sequence(
+    layer1MHTs
     )

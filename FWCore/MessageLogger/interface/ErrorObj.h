@@ -90,7 +90,7 @@ public:
   inline ErrorObj &  operator<< ( std::ostream&(*f)(std::ostream&) ); 
   inline ErrorObj &  operator<< ( std::ios_base&(*f)(std::ios_base&) ); 
 
-  virtual ErrorObj &  emit( const ELstring & txt );
+  virtual ErrorObj &  emitToken( const ELstring & txt );
 
   // ---  mutators for use by ELadministrator and ELtsErrorLog
   //

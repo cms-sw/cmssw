@@ -1,21 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-patJetPartons = cms.EDFilter("PartonSelector",
+jetPartons = cms.EDFilter("PartonSelector",
     withLeptons = cms.bool(False),
     src = cms.InputTag("genParticles")                            
 )
 
-patJetPartonAssociation = cms.EDFilter("JetPartonMatcher",
+jetPartonAssociation = cms.EDFilter("JetPartonMatcher",
     jets    = cms.InputTag("ak5CaloJets"),
-    partons = cms.InputTag("patJetPartons"),
+    partons = cms.InputTag("jetPartons"),
     coneSizeToAssociate = cms.double(0.3),
 )
 
-patJetFlavourAssociation = cms.EDFilter("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("patJetPartonAssociation"),
+jetFlavourAssociation = cms.EDFilter("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("jetPartonAssociation"),
     physicsDefinition = cms.bool(False)
 )
 
 # default PAT sequence for jet flavour identification
-patJetFlavourId = cms.Sequence(patJetPartons * patJetPartonAssociation * patJetFlavourAssociation)
+jetFlavourId = cms.Sequence(jetPartons * jetPartonAssociation * jetFlavourAssociation)
 

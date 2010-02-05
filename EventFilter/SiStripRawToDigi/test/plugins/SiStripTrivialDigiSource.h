@@ -20,7 +20,7 @@ class SiStripTrivialDigiSource : public edm::EDProducer {
   SiStripTrivialDigiSource( const edm::ParameterSet& );
   ~SiStripTrivialDigiSource();
   
-  virtual void beginJob( const edm::EventSetup& ) {;}
+  virtual void beginJob() {;}
   virtual void endJob() {;}
   
   virtual void produce( edm::Event&, const edm::EventSetup& );

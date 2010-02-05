@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.10 2010/01/27 14:21:44 mommsen Exp $
+// $Id: FileHandler.cc,v 1.12 2010/01/29 15:45:47 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -55,11 +55,11 @@ void FileHandler::writeToSummaryCatalog() const
   string ind(":");
   currentStat << _fileRecord->filePath()               << ind
               << _fileRecord->fileName()               << ind
-	      << fileSize()                            << ind 
-	      << events()                              << ind
+              << fileSize()                            << ind 
+              << events()                              << ind
               << utils::timeStamp(_lastEntry)          << ind
-	      << (int) (_lastEntry - _firstEntry)      << ind
-	      << _fileRecord->whyClosed << endl;
+              << (int) (_lastEntry - _firstEntry)      << ind
+              << _fileRecord->whyClosed << endl;
   string currentStatString (currentStat.str());
   ofstream of(_diskWritingParams._fileCatalog.c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << currentStatString;
@@ -169,17 +169,18 @@ void FileHandler::moveFileToClosed
   const FilesMonitorCollection::FileRecord::ClosingReason& reason
 )
 {
-  string openIndexFileName      = _fileRecord->completeFileName() + ".ind";
-  string openStreamerFileName   = _fileRecord->completeFileName() + ".dat";
+  const string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
+  const string openIndexFileName(openFileName + ".ind");
+  const string openStreamerFileName(openFileName + ".dat");
+
+  const string closedFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::closed));
+  const string closedIndexFileName(closedFileName + ".ind");
+  const string closedStreamerFileName(closedFileName + ".dat");
 
   size_t openStreamerFileSize = checkFileSizeMatch(openStreamerFileName, fileSize());
 
   makeFileReadOnly(openStreamerFileName);
   if (useIndexFile) makeFileReadOnly(openIndexFileName);
-
-  _fileRecord->whyClosed = reason;
-  string closedIndexFileName    = _fileRecord->completeFileName() + ".ind";
-  string closedStreamerFileName = _fileRecord->completeFileName() + ".dat";
 
   if (useIndexFile) renameFile(openIndexFileName, closedIndexFileName);
   try
@@ -193,6 +194,8 @@ void FileHandler::moveFileToClosed
     XCEPT_RETHROW(stor::exception::DiskWriting, 
       "Could not move streamer file to closed area.", e);
   }
+  _fileRecord->isOpen = false;
+  _fileRecord->whyClosed = reason;
   checkFileSizeMatch(closedStreamerFileName, openStreamerFileSize);
 }
 
@@ -203,7 +206,7 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
   int statStatus = stat64(fileName.c_str(), &statBuff);
   if ( statStatus != 0 )
   {
-    _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::unaccessible;
+    _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::inaccessible;
     std::ostringstream msg;
     msg << "Error checking the status of file "
       << fileName
@@ -215,10 +218,12 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
   {
     _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::truncated;
     std::ostringstream msg;
-    msg << "Found an unexpected file size when trying to move "
-      << "the file to the closed state.  File " << fileName
+    msg << "Found an unexpected file size when trying to move"
+      << " the file to the closed state. File " << fileName
       << " has an actual size of " << statBuff.st_size
-      << " instead of the expected size of " << size;
+      << " (" << statBuff.st_blocks << " blocks)"
+      << " instead of the expected size of " << size
+      << " (" << (size/512)+1 << " blocks).";
     XCEPT_RAISE(stor::exception::FileTruncation, msg.str());
   }
 
@@ -228,18 +233,8 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
 
 bool FileHandler::sizeMismatch(const double& initialSize, const double& finalSize) const
 {
-  // Does not work reliable for small file sizes
-  //
-  // if (_diskWritingParams._exactFileSizeTest) {
-  //   if (initialSize != finalSize) {
-  //     return true;
-  //   }
-  // }
-  // else {
-  //   double pctDiff = calcPctDiff(initialSize, finalSize);
-  //   if (pctDiff > 0.1) {return true;}
-  // }
-  return false;
+  double pctDiff = calcPctDiff(initialSize, finalSize);
+  return (pctDiff > _diskWritingParams._fileSizeTolerance);
 }
 
 
@@ -299,12 +294,8 @@ void FileHandler::checkDirectories() const
 double FileHandler::calcPctDiff(const double& value1, const double& value2) const
 {
   if (value1 == value2) return 0;
-  double largerValue = value1;
-  double smallerValue = value2;
-  if (value1 < value2) {
-    largerValue = value2;
-    smallerValue = value1;
-  }
+  double largerValue = std::max(value1,value2);
+  double smallerValue = std::min(value1,value2);
   return ( largerValue > 0 ? (largerValue - smallerValue) / largerValue : 0 );
 }
 

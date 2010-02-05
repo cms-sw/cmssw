@@ -25,7 +25,7 @@ SiStripModuleTimer::~SiStripModuleTimer() {
   file_->Close();
 }
 
-void SiStripModuleTimer::beginJob( const EventSetup& iSetup ) {}
+void SiStripModuleTimer::beginJob() {}
 
 void SiStripModuleTimer::endJob() {
   file_->cd();

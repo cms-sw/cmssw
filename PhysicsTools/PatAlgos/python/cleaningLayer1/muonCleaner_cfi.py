@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatMuons = cms.EDProducer("PATMuonCleaner",
-    src = cms.InputTag("selectedPatMuons"), 
+cleanLayer1Muons = cms.EDFilter("PATMuonCleaner",
+    src = cms.InputTag("selectedLayer1Muons"), 
 
     # preselection (any string-based cut for pat::Muon)
     preselection = cms.string(''),

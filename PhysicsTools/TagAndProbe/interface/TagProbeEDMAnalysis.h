@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.23 2009/11/23 00:58:41 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.22 2009/10/01 09:43:27 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -16,13 +16,9 @@
 // Removed duplication of code in the fitting machinery. 
 // Also, fixed the problem with RooDataSet declaration.
 
-#include <memory>
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
-class FeldmanCousinsBinomialInterval;
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 class EffTableLoader;
 class SideBandSubtraction;
@@ -91,6 +87,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
       void InitializeMCHistograms();
       void ReadMCHistograms();
+      void CleanUpMCHistograms();
       void WriteMCHistograms();
 
       void cleanFitVariables();
@@ -123,7 +120,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       bool do2DFit_;            // Do the 2D fit as well
       bool useRecoVarsForTruthMatchedCands_; // use reco vars for calcEffsTruth
 
-      std::string  massName_;
       unsigned int massNbins_;           // Number of bins in the fit
       double massLow_;          // Lower bound for fit range
       double massHigh_;         // Upper bound for fit range
@@ -142,11 +138,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       double var2Low_;               // Lower bound for var2 eff range
       double var2High_;              // Upper bound for var2 eff range
       std::vector<double> var2Bins_; // Bin boundaries for var2 if non-uniform desired
-
-      std::string passingProbeName_; // Name of the column telling if the probe passes or not
-
-      bool hasWeights_;              // If the tree has weights
-      std::string weightName_;       // Name of the branch holding the weights
 
       bool doTextDefinedBins_;         // Allow the 2-D bins to be read in from a text file into 1-D regions
       std::string textBinsFile_;       // This is the name of the file that holds the 2D bin information
@@ -173,7 +164,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       std::string mode_;                     // Mode of operation (Normal,Read,Write)  
       std::string fitFileName_;              // Name of the root file to write to
       std::vector<std::string> readFiles_;   // Files to read from ... if mode == READ
-      std::string readDirectory_;            // TTrees have to be taken from subdirectory 'readDirectory'
 
       //      TFile *outRootFile_;
       TTree *fitTree_;
@@ -200,10 +190,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
       bool doAnalyze_;
 
-      std::auto_ptr<FeldmanCousinsBinomialInterval> FCIntervals;
-
       edm::Service<TFileService> fs;
-      TFileDirectory mcDetails_, fitDetails_, sbsDetails_;
 };
 
 #endif

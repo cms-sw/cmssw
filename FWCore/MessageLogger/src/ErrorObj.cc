@@ -36,7 +36,7 @@
 // setProcess   ( const ELstring & proc )
 // setModule    ( const ELstring & module )
 // setSubroutine( const ELstring & subroutine )
-// emit( const ELstring & txt )
+// emitToken( const ELstring & txt )
 // operator<<( void (* f)(ErrorLog &) )
 //
 // ----------------------------------------------------------------------
@@ -197,15 +197,15 @@ void ErrorObj::setReactedTo( bool r )  {
 #endif
 
 
-ErrorObj & ErrorObj::emit( const ELstring & s )  {
+ErrorObj & ErrorObj::emitToken( const ELstring & s )  {
 
   #ifdef ErrorObj_EMIT_TRACE
-    std::cerr << "=:=:=: ErrorObj::emit ( " << s << " )\n";
+    std::cerr << "=:=:=: ErrorObj::emitToken( " << s << " )\n";
   #endif
 
   #ifdef ErrorObj_SUB_TRACE
     if ( subN > 0 )  {
-      std::cerr << "=:=:=: subN ErrorObj::emit ( " << s << " )\n";
+      std::cerr << "=:=:=: subN ErrorObj::emitToken( " << s << " )\n";
       subN--;
     }
   #endif
@@ -223,7 +223,7 @@ ErrorObj & ErrorObj::emit( const ELstring & s )  {
 
   return * this;
 
-}  // emit()
+}  // emitToken()
 
 
 void ErrorObj::set( const ELseverityLevel & sev, const ELstring & id )  {
@@ -260,13 +260,13 @@ ErrorObj::opltlt ( const char s[] ) {
 #ifdef OLD_STYLE_AUTOMATIC_SPACES
   if ( ! myOs.str().empty() ) {
     if ( !verbatim ) {
-      emit( myOs.str() + ' ' );
+      emitToken( myOs.str() + ' ' );
     } else {
-       emit( myOs.str() );
+       emitToken( myOs.str() );
     }
   }
 #else
-  if ( ! myOs.str().empty() ) emit( myOs.str() );
+  if ( ! myOs.str().empty() ) emitToken( myOs.str() );
 #endif
   return *this;
 }

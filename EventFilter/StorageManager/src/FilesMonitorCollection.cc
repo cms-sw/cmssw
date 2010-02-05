@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.9 2009/09/18 15:37:44 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.10 2010/01/28 13:41:43 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -68,7 +68,7 @@ void FilesMonitorCollection::do_updateInfoSpaceItems()
     ++it
   )
   {
-    if ( (*it)->whyClosed == FileRecord::notClosed )
+    if ( (*it)->isOpen )
       ++_openFiles;
   }
 
@@ -81,20 +81,26 @@ std::string FilesMonitorCollection::FileRecord::closingReason()
   switch (whyClosed)
   {
     case notClosed:   return "open";
-    case stop:        return "run stopped";
-    case endOfLS:     return "LS ended";
+    case runEnded:    return "run ended";
+    case LSended:     return "LS ended";
     case timeout:     return "timeout";
     case size:        return "file size";
     case truncated:   return "TRUNCATED";
-    case unaccessible:return "UNACCESSIBLE";
+    case inaccessible:return "INACCESSIBLE";
     default:          return "unknown";
   }
 }
 
 
-std::string FilesMonitorCollection::FileRecord::filePath()
+std::string FilesMonitorCollection::FileRecord::filePath(FileStatus status)
 {
-  return ( baseFilePath + (whyClosed == notClosed ? "/open/" : "/closed/") );
+  switch (status)
+  {
+    case open:    return ( baseFilePath + "/open/" );
+    case closed:  return ( baseFilePath + "/closed/" );
+    case current: return ( baseFilePath + (isOpen ? "/open/" : "/closed/") );
+  }
+  return "";
 }
 
 

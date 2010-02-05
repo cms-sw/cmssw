@@ -132,7 +132,7 @@ protected:
   // -----  Internal Methods -- Users should not invoke these:
   //
 protected:
-  void emit( const ELstring & s, bool nl=false );
+  void emitToken( const ELstring & s, bool nl=false );
 
   boost::shared_ptr<ELsender> sender;
 

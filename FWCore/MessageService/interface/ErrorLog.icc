@@ -43,7 +43,7 @@ ErrorLog & operator<<( ErrorLog & e, const T & t )  {
 						<<  sizeof(t) << std::endl; 
   #endif
 
-  return  e.emit( ost.str() );
+  return  e.emitToken( ost.str() );
 
 }  // operator<< <T>()
 

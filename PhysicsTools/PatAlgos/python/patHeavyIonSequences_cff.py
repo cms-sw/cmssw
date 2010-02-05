@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-# make heavyIonPatCandidates
-from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonPatCandidates_cff import *
+# make heavyIonObjects
+from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonObjects_cff import *
 
 # make selectedLayer1Objects
-from PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff import *
+from PhysicsTools.PatAlgos.selectionLayer1.selectedLayer1Objects_cff import *
 
 patHeavyIonDefaultSequence = cms.Sequence(
-    heavyIonPatCandidates  * 
-    selectedPatJets        *
-    selectedPatMuons       *
-    selectedPatPhotons
+    heavyIonObjects * 
+    selectedLayer1Jets *
+    selectedLayer1Muons *
+    selectedLayer1Photons
 )

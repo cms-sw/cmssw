@@ -14,6 +14,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -526,7 +529,37 @@ int main(int argc, char* argv[]) {
     return 2;
   }
 
-  ROOT::Cintex::Cintex::Enable();
+  try {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  } catch(cms::Exception& e) {
+    std::cout << "cms::Exception caught in "
+    <<"EdmProvDump"
+    << '\n'
+    << e.what();
+    return 1;
+  }
+
+  try {
+    // The InitRootHandler service will enable Cintex and load DataFormats/StdDictionaries.
+    // We do not enable the autoloader because we do not need any other dictionaries dynamically loaded.
+    std::string config =
+    "import FWCore.ParameterSet.Config as cms\n"
+    "process = cms.Process('edmProvDump')\n"
+     "process.InitRootHandlers = cms.Service('InitRootHandlers', AutoLibraryLoader = cms.untracked.bool(False))\n";
+
+    //create the services
+    edm::ServiceToken tempToken = edm::ServiceRegistry::createServicesFromConfig(config);
+
+    //make the services available
+    edm::ServiceRegistry::Operate operate(tempToken);
+  } catch(cms::Exception& e) {
+    std::cout << "cms::Exception caught in "
+    <<"EdmProvDump"
+    << '\n'
+    << e.what();
+    return 1;
+  }
+  
   ProvenanceDumper dumper(fileName.c_str());
   int exitCode(0);
   try {

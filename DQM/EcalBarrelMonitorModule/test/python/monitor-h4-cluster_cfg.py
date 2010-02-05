@@ -63,7 +63,9 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
-    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000017188-SM5-COSMIC-STD.root')
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/H4-000017188-SM5-COSMIC-STD.root'),
+    runNumber = cms.untracked.uint32(17188),
+    isBinary = cms.untracked.bool(True)
 #---
 )
 

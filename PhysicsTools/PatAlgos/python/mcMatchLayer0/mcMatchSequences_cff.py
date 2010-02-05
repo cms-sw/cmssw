@@ -13,9 +13,9 @@ patMCTruth_LeptonPhoton = cms.Sequence (electronMatch+
                                         muonMatch+
                                         photonMatch)
 
-patMCTruth_Jet = cms.Sequence ( patJetPartonMatch +
-                                patJetGenJetMatch +
-                                patJetFlavourId )
+patMCTruth_Jet = cms.Sequence (jetPartonMatch+
+                               jetGenJetMatch+
+                               jetFlavourId )
 
 patMCTruth_Tau =  cms.Sequence ( tauMatch+
                                  tauGenJets*

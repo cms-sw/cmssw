@@ -48,9 +48,12 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
 
       // BeginRun
       void beginRun(const edm::Run& run, const edm::EventSetup& c);
+     
+      void histobooking( const edm::EventSetup& c);
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
+      
 
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				const edm::EventSetup& c) ;
@@ -71,7 +74,8 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
       bool plotwrtMu_;
       bool resetMe_;
       int currentRun_;
- 
+      int nhltcfg;
+      bool hltconfigchanged;
       unsigned int nBins_; 
       double ptMin_ ;
       double ptMax_ ;
@@ -99,6 +103,7 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
       bool verbose_;
       bool monitorDaemon_;
       int theHLTOutputType;
+      
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
       HLTConfigProvider hltConfig_;
