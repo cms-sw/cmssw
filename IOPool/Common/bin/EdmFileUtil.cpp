@@ -16,7 +16,6 @@
 #include <boost/program_options.hpp>
 #include "IOPool/Common/bin/CollUtil.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -103,14 +102,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   
-  
-  edm::RootAutoLibraryLoader::enable();
-
   int rc = 0;
   try {
     std::string config =
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('EdmFileUtil')\n"
+      "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
       "process.SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n";
 
     //create the services
