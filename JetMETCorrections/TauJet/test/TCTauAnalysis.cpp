@@ -42,11 +42,11 @@ class TCTauAnalysis : public edm::EDAnalyzer {
   	~TCTauAnalysis();
 
   	virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  	virtual void beginJob(const edm::EventSetup& );
+  	virtual void beginJob();
   	virtual void endJob();
+
   private:
 	void resetNtuple();
-//	bool prongSelection(short int);
 
 	TCTauCorrector* tcTauCorrector;
 	TauJetCorrector* tauJetCorrector;
@@ -139,7 +139,7 @@ void TCTauAnalysis::resetNtuple(){
         TCTau_d_2 = 0;
 }
 
-void TCTauAnalysis::beginJob(const edm::EventSetup& iSetup){}
+void TCTauAnalysis::beginJob(){}
 
 void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
