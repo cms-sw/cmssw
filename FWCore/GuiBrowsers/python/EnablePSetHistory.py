@@ -147,8 +147,9 @@ def new_enableRecording(self):
     self.__dict__['_Process__enableRecording'] -= 1
 cms.Process.enableRecording=new_enableRecording
 
-def checkRecording(self):
+def new_checkRecording(self):
     return self.__dict__['_Process__enableRecording']==0
+cms.Process.checkRecording=new_checkRecording
 
 def new_recurseResetModified_(self, o):
     properties = []
