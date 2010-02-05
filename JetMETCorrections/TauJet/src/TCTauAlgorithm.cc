@@ -28,7 +28,7 @@ void TCTauAlgorithm::init(){
 
 	trackAssociator = new TrackDetectorAssociator();
   	trackAssociator->useDefaultPropagator();
-
+	/*
 	etCaloOverTrackMin = -0.9;
 	etCaloOverTrackMax = 0.0;
 	etHcalOverTrackMin = -0.3;
@@ -52,7 +52,7 @@ void TCTauAlgorithm::init(){
 	HBHERecHits_input   = InputTag("hbhereco");
 	HORecHits_input     = InputTag("horeco");
 	HFRecHits_input     = InputTag("hfreco");
-
+	*/
         all    = 0;
         passed = 0;
 	prongs = -1;
@@ -60,29 +60,29 @@ void TCTauAlgorithm::init(){
 
 void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
 
-	etCaloOverTrackMin = iConfig.getUntrackedParameter<double>("EtCaloOverTrackMin",etCaloOverTrackMin);
-	etCaloOverTrackMax = iConfig.getUntrackedParameter<double>("EtCaloOverTrackMax",etCaloOverTrackMax);
-	etHcalOverTrackMin = iConfig.getUntrackedParameter<double>("EtHcalOverTrackMin",etHcalOverTrackMin);
-        etHcalOverTrackMax = iConfig.getUntrackedParameter<double>("EtHcalOverTrackMax",etHcalOverTrackMax);
+	etCaloOverTrackMin = iConfig.getParameter<double>("EtCaloOverTrackMin");
+	etCaloOverTrackMax = iConfig.getParameter<double>("EtCaloOverTrackMax");
+	etHcalOverTrackMin = iConfig.getParameter<double>("EtHcalOverTrackMin");
+        etHcalOverTrackMax = iConfig.getParameter<double>("EtHcalOverTrackMax");
 
-	signalCone         = iConfig.getUntrackedParameter<double>("SignalConeSize",signalCone);
-	ecalCone	   = iConfig.getUntrackedParameter<double>("EcalConeSize",ecalCone);
-	matchingCone       = iConfig.getUntrackedParameter<double>("MatchingConeSize",matchingCone);
-	tkptmin            = iConfig.getUntrackedParameter<double>("Track_minPt",tkptmin);
+	signalCone         = iConfig.getParameter<double>("SignalConeSize");
+	ecalCone	   = iConfig.getParameter<double>("EcalConeSize");
+	matchingCone       = iConfig.getParameter<double>("MatchingConeSize");
+	tkptmin            = iConfig.getParameter<double>("Track_minPt");
 
-	tkmaxipt           = iConfig.getUntrackedParameter<double>("tkmaxipt",tkmaxipt);
-	tkmaxChi2          = iConfig.getUntrackedParameter<double>("tkmaxChi2",tkmaxChi2);
-	tkminPixelHitsn    = iConfig.getUntrackedParameter<int>("tkminPixelHitsn",tkminPixelHitsn);
-	tkminTrackerHitsn  = iConfig.getUntrackedParameter<int>("tkminTrackerHitsn",tkminTrackerHitsn);
+	tkmaxipt           = iConfig.getParameter<double>("tkmaxipt");
+	tkmaxChi2          = iConfig.getParameter<double>("tkmaxChi2");
+	tkminPixelHitsn    = iConfig.getParameter<int>("tkminPixelHitsn");
+	tkminTrackerHitsn  = iConfig.getParameter<int>("tkminTrackerHitsn");
 
-	trackInput         = iConfig.getUntrackedParameter<InputTag>("TrackCollection",trackInput);
-	vertexInput        = iConfig.getUntrackedParameter<InputTag>("PVProducer",vertexInput);
+	trackInput         = iConfig.getParameter<InputTag>("TrackCollection");
+	vertexInput        = iConfig.getParameter<InputTag>("PVProducer");
 
-	EcalRecHitsEB_input= iConfig.getUntrackedParameter<InputTag>("EBRecHitCollection",EcalRecHitsEB_input);
-	EcalRecHitsEE_input= iConfig.getUntrackedParameter<InputTag>("EERecHitCollection",EcalRecHitsEE_input);
-	HBHERecHits_input  = iConfig.getUntrackedParameter<InputTag>("HBHERecHitCollection",HBHERecHits_input);
-	HORecHits_input    = iConfig.getUntrackedParameter<InputTag>("HORecHitCollection",HORecHits_input);
-	HFRecHits_input    = iConfig.getUntrackedParameter<InputTag>("HFRecHitCollection",HFRecHits_input);
+	EcalRecHitsEB_input= iConfig.getParameter<InputTag>("EBRecHitCollection");
+	EcalRecHitsEE_input= iConfig.getParameter<InputTag>("EERecHitCollection");
+	HBHERecHits_input  = iConfig.getParameter<InputTag>("HBHERecHitCollection");
+	HORecHits_input    = iConfig.getParameter<InputTag>("HORecHitCollection");
+	HFRecHits_input    = iConfig.getParameter<InputTag>("HFRecHitCollection");
 
 	edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   	trackAssociatorParameters.loadParameters( pset );
