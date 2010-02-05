@@ -1,18 +1,19 @@
-# /dev/CMSSW_3_5_0/GRun/V7 (CMSSW_3_5_0_pre3_HLT2)
+# /dev/CMSSW_3_5_0/GRun/V10 (CMSSW_3_5_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V10')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 
-process.source = cms.Source( "PoolSource"
+process.source = cms.Source( "PoolSource",
+    fileNames = cms.untracked.vstring( 'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/ZeroBias/RAW/v1/000/123/734/D28203D4-AFE3-DE11-ADEE-001D09F2527B.root' )
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
@@ -27,7 +28,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR09_H_V7::All" ),
+    globaltag = cms.string( "GR10_H_V1::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialPeriod = cms.untracked.int32( 10 ),
@@ -8094,19 +8095,16 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputB = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputB.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_L1_BPTX',
+  'HLT_L1_BPTX_PlusOnly',
   'HLT_L1_BPTX_MinusOnly',
-  'HLT_L1_BPTX',
   'HLT_ZeroBias1kHz' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltL1GtObjectMap_*_*' ),
-    use_compression = cms.untracked.bool( True ),
-    compression_level = cms.untracked.int32( 1 ),
-    max_event_size = cms.untracked.int32( 7000000 )
+      'keep *_hltL1GtObjectMap_*_*' )
 )
 process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpress.root" ),
@@ -8759,8 +8757,6 @@ process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutp
 process.DQMOutput = cms.EndPath( process.hltPreDQM + process.hltDQML1Scalers + process.hltDQMHLTScalers + process.hltOutputHLTDQM + process.hltPreDQMSmart + process.hltOutputDQM )
 process.MONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONSmart + process.hltOutputHLTMON )
 
-process.source.fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/ZeroBias/RAW/v1/000/123/734/D28203D4-AFE3-DE11-ADEE-001D09F2527B.root')
-
 process.setName_('HLTGRun')
 
 process.maxEvents = cms.untracked.PSet(
@@ -8771,7 +8767,7 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'GR10_H_V0B_OF::All'
+    process.GlobalTag.globaltag         = 'GR10_H_V1OFF::All'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 
 if 'Level1MenuOverride' in process.__dict__:

@@ -1,12 +1,11 @@
-# /dev/CMSSW_3_5_0/HLT/V14 (CMSSW_3_5_0_pre3_HLT2)
+# /dev/CMSSW_3_5_0/HLT/V18 (CMSSW_3_5_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V14')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V18')
 )
-
 
 BTagRecord = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "JetTagComputerRecord" ),
