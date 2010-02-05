@@ -86,7 +86,7 @@ void SimpleSystematicsAnalyzer::endJob(){
             double xi = acc_central-originalAcceptance;
             double deltaxi = (acc2_central-pow(waverage,2)*(originalAcceptance+2*xi+xi*xi))/originalEvents_/pow(waverage,2);
             if (deltaxi>0) deltaxi = sqrt(deltaxi); else deltaxi = 0.;
-            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\ti.e. [" << std::setprecision(4) << 100*xi/originalAcceptance << " +- " << std::setprecision(4) << 100*deltaxi/originalAcceptance << "] % variation with respect to the original acceptance";
+            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\ti.e. [" << std::setprecision(4) << 100*xi/originalAcceptance << " +- " << std::setprecision(4) << 100*deltaxi/originalAcceptance << "] % relative variation with respect to the original acceptance";
 
       }
       edm::LogVerbatim("SimpleSystematicsAnalysis") << ">>>> End of Weight systematics summary >>>>";
