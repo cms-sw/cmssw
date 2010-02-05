@@ -76,7 +76,6 @@ bool
 PFMuonAlgo::isMuon(const reco::MuonRef& muonRef ){
 
   return isGlobalTightMuon(muonRef) || isTrackerTightMuon(muonRef);
-
 }
 
 bool
@@ -118,24 +117,29 @@ PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
     // Quality check on the hits in the muon chambers 
     // (at least two stations hit, or last station hit)
 
+    bool quality = 
+      muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) ||
+      muon::isGoodMuon(*muonRef,muon::TMLastStationAngLoose);
+    /*
+    
     bool quality =
       standAloneMu->hitPattern().numberOfValidMuonDTHits() > 12 ||
       standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 6 ||
       muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) ||
       muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
-
+    */
     bool result = muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
     /*
-    // if ( result && !quality ) 
-    if ( result ) 
-      std::cout << " pt (STA/TRA) : " << standAloneMu->pt() 
+    //if ( result ) 
+     if ( result && !quality ) 
+      std::cout << " QUALITY : "
+		<< " pt (STA/TRA) : " << standAloneMu->pt() 
 		<< " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
 		<< " and " << trackerMu->pt() 
 		<< " +/- " << trackerMu->ptError()/trackerMu->pt() 
 		<< " and " << combinedMu->pt() 
 		<< " +/- " << combinedMu->ptError()/combinedMu->pt() 
 		<< " eta : " << standAloneMu->eta() << std::endl
-		<< " delta/ratio = " << delta << "/" << ratio << std::endl
 		<< " DT Hits : " << standAloneMu->hitPattern().numberOfValidMuonDTHits()
 		<< "/" << standAloneMu->hitPattern().numberOfLostMuonDTHits()
 		<< " CSC Hits : " << standAloneMu->hitPattern().numberOfValidMuonCSCHits()
@@ -145,24 +149,23 @@ PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
 		<< " chi**2 STA : " << standAloneMu->normalizedChi2()
 		<< " chi**2 GBL : " << combinedMu->normalizedChi2()
 		<< std::endl 
-		<< "TMLastStationLoose               "
-		<< muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) << std::endl       
-		<< "TMLastStationTight               "
-		<< muon::isGoodMuon(*muonRef,muon::TMLastStationTight) << std::endl    
+		<< "TMLastStationAngLoose               "
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationAngLoose) << std::endl       
+		<< "TMLastStationAngTight               "
+		<< muon::isGoodMuon(*muonRef,muon::TMLastStationAngTight) << std::endl    
 		<< "TM2DCompatibilityLoose           "
 		<< muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) << std::endl 
 		<< "TM2DCompatibilityTight           "
 		<< muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight) << std::endl
-		<< "TMOneStationLoose                "
-		<< muon::isGoodMuon(*muonRef,muon::TMOneStationLoose) << std::endl       
-		<< "TMOneStationTight                "
-		<< muon::isGoodMuon(*muonRef,muon::TMOneStationTight) << std::endl       
-		<< "TMLastStationOptimizedLowPtLoose " 
-		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose) << std::endl
-		<< "TMLastStationOptimizedLowPtTight " 
-		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight) << std::endl 
+// 		<< "TMOneStationLoose                "
+// 		<< muon::isGoodMuon(*muonRef,muon::TMOneStationLoose) << std::endl       
+// 		<< "TMOneStationTight                "
+// 		<< muon::isGoodMuon(*muonRef,muon::TMOneStationTight) << std::endl       
+// 		<< "TMLastStationOptimizedLowPtLoose " 
+// 		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose) << std::endl
+// 		<< "TMLastStationOptimizedLowPtTight " 
+// 		<< muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight) << std::endl 
 		<< std::endl;
-
     */
     return result && quality;
 
@@ -245,13 +248,22 @@ PFMuonAlgo::isTrackerTightMuon( const reco::MuonRef& muonRef ) {
   if ( !muonRef.isNonnull() ) return false;
   if(!muonRef->isTrackerMuon()) return false;
 
+
+  reco::TrackRef trackRef = muonRef->track();
+  const reco::Track& track = *trackRef;
+
+  unsigned nTrackerHits =  track.hitPattern().numberOfValidTrackerHits();
+  
+  if(nTrackerHits<=12) return false;
+
   bool isAllArbitrated = muon::isGoodMuon(*muonRef,muon::AllArbitrated);
   //bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
   bool isTM2DCompatibilityTight = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight);
   
-  //if(isAllArbitrated  &&  isTM2DCompatibilityTight && isTMLastStationOptimizedLowPtLoose) return true;    
-  if(isAllArbitrated  &&  isTM2DCompatibilityTight) return true;    
-  
+  //if(isAllArbitrated  &&  isTM2DCompatibilityTight && isTMLastStationOptimizedLowPtLoose) return true;  
+  //bool isTMLastStationAngTight = muon::isGoodMuon(*muonRef,muon::TMLastStationAngTight);
+  //if(isAllArbitrated && isTMLastStationAngTight) return true;  
+  if(isAllArbitrated && isTM2DCompatibilityTight) return true;  
   return false;
   
 }
@@ -261,20 +273,26 @@ PFMuonAlgo::isGlobalLooseMuon( const reco::MuonRef& muonRef ) {
 
   if ( !muonRef.isNonnull() ) return false;
   if ( !muonRef->isGlobalMuon() ) return false;
-  // if ( !muonRef->isTrackerMuon() ) return false;
+  if ( !muonRef->isTrackerMuon() ) return false;
+  if ( !muonRef->isStandAloneMuon() ) return false;
   
   reco::TrackRef standAloneMu = muonRef->standAloneMuon();
   reco::TrackRef combinedMu = muonRef->combinedMuon();
   reco::TrackRef trackerMu = muonRef->track();
 
-  bool quality =
+  bool station =
+    muon::isGoodMuon(*muonRef,muon::TMOneStationTight);
+
+  bool nmuonhits =
     standAloneMu->hitPattern().numberOfValidMuonDTHits() > 12 ||
-    standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 6 ||
-    muon::isGoodMuon(*muonRef,muon::TMLastStationTight) ||
-    muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight);
+    standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 6;
 
-  quality = quality && combinedMu->normalizedChi2() < 100.;
+  if(trackerMu->pt() < 20. || combinedMu->pt() < 20. || standAloneMu->pt() < 20.) return false;
 
+  bool quality = station && nmuonhits && combinedMu->normalizedChi2() < 100.;
+
+
+  //std::cout<<" station "<<station<<" nmuonhits "<<nmuonhits<<" chi2 "<<combinedMu->normalizedChi2()<<" quality "<<quality<<std::endl;
   if ( !quality ) return false;
   
   /* 
@@ -324,12 +342,21 @@ PFMuonAlgo::isTrackerLooseMuon( const reco::MuonRef& muonRef ) {
   if ( !muonRef.isNonnull() ) return false;
   if(!muonRef->isTrackerMuon()) return false;
 
+  reco::TrackRef trackerMu = muonRef->track();
+
+  // this doesn't seem to be necessary on the small samples looked at, but keep it around as insurance
+  if(trackerMu->pt() > 20.) return false;
+
   bool isAllArbitrated = muon::isGoodMuon(*muonRef,muon::AllArbitrated);
   //bool isTMLastStationOptimizedLowPtLoose = muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose);
-  bool isTM2DCompatibilityLoose = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose);
+
   
-  //if(isAllArbitrated  &&  isTM2DCompatibilityLoose && isTMLastStationOptimizedLowPtLoose) return true;    
-if(isAllArbitrated  &&  isTM2DCompatibilityLoose) return true;    
+  // if(isAllArbitrated  &&  isTM2DCompatibilityLoose && isTMLastStationOptimizedLowPtLoose) return true;    
+  //bool isTM2DCompatibilityLoose = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose);
+  bool isTMLastStationAngTight = muon::isGoodMuon(*muonRef,muon::TMLastStationAngTight);
+
+
+  if(isAllArbitrated && isTMLastStationAngTight) return true;  
   
   return false;
   
