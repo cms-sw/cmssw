@@ -1,4 +1,5 @@
 import copy
+import inspect
 import FWCore.ParameterSet.Config as cms
 
 class parameter:
@@ -18,10 +19,34 @@ class ConfigToolBase(object) :
         self._description=self.__doc__
         self._comment = ''
         self.parAccepted=True
-    def __call__(self):
+    def __call__(self,process):
         """ Call the instance 
         """
         raise NotImplementedError
+    
+    def apply(self,process):
+        
+        if hasattr(process, "addAction"):
+            process.disableRecording()
+            
+        try:
+            comment=inspect.stack(2)[2][4][0].rstrip("\n")
+            if comment.startswith("#"):
+                self.setComment(comment.lstrip("#"))
+        except:
+            pass
+            
+        self.toolCode(process)
+        
+        if hasattr(process, "addAction"):
+            process.enableRecording()
+            action=self.__copy__()
+            process.addAction(action)
+            
+    def toolCode(self, process):
+        raise NotImplementedError
+
+            
     ### __copy__(self) returns a copy of the tool
     def __copy__(self):
         c=type(self)()
@@ -55,12 +80,7 @@ class ConfigToolBase(object) :
         par.allowedValues=allowedValues
         dict[par.name]=par        
     def getParameters(self):
-        """ Return the list of the parameters of an action.
-
-        Each parameters is represented by a tuple containing its
-        type, name, value and description.
-        The type determines how the parameter is represented in the GUI.
-        Possible types are: 'Category','String','Text','File','FileVector','Boolean','Integer','Float'.
+        """ Return a copy of the dict of the parameters.
         """
         return copy.deepcopy(self._parameters)
     def setParameter(self, name, value, typeNone=False):
@@ -80,7 +100,11 @@ class ConfigToolBase(object) :
     def setComment(self, comment):
         """ Write a comment in the configuration file
         """
-        self._comment = comment
+        self._comment = str(comment)
+    def comment(self):
+        """ Return the comment set for this tool
+        """
+        return self._comment
     def errorMessage(self,value,type):
         return "The type for parameter "+'"'+str(value)+'"'+" is not "+'"'+str(type)+'"'
     ### method isAllowed is called by setParameter to check input values for a specific parameter

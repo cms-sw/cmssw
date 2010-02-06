@@ -26,7 +26,7 @@ public:
   ~GaussianTailNoiseGeneratorTest();
 
 private:
-  virtual void beginJob() ;
+  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   // ----------member data ---------------------------
@@ -92,7 +92,7 @@ GaussianTailNoiseGeneratorTest::analyze(const edm::Event& iEvent, const edm::Eve
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GaussianTailNoiseGeneratorTest::beginJob()
+GaussianTailNoiseGeneratorTest::beginJob(const edm::EventSetup&)
 {
   hFile = new TFile (filename_.c_str(), "RECREATE" );
   randNumber = new TH1F("randNumber","Random Number Distribution",200,2000,6000); 

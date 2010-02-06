@@ -86,10 +86,10 @@ DDRotation::DDRotation(DDRotationMatrix * rot)
   ostr2.str("");
 }
 
-// void DDRotation::clear()
-// {
-//   StoreT::instance().clear();
-// }
+void DDRotation::clear()
+{
+  StoreT::instance().clear();
+}
 
 DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
 {

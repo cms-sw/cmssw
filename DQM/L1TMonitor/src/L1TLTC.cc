@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  */
@@ -51,7 +51,7 @@ L1TLTC::~L1TLTC()
 {
 }
 
-void L1TLTC::beginJob(void)
+void L1TLTC::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;

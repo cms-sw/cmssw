@@ -14,6 +14,7 @@ namespace DeDxTools  {
     double angleCosine;
     DetId detId;
     const TrajectoryMeasurement* trajectoryMeasurement;
+    int   NSaturating;
   };
 
    void   trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, std::vector<RawHits>& hits, bool usePixel, bool useStrip);

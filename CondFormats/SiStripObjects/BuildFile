@@ -1,4 +1,3 @@
-<use name=CondFormats/Common>
 <use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/FEDRawData>

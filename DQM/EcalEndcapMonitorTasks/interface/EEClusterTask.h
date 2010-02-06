@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2009/11/25 10:27:55 $
- * $Revision: 1.20 $
+ * $Date: 2009/02/26 14:54:45 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
  */
@@ -73,11 +73,11 @@ edm::InputTag EcalRecHitCollection_;
 MonitorElement* meBCEne_, *meBCNum_, *meBCSiz_;
 
 MonitorElement* meBCEneFwdMap_, *meBCNumFwdMap_, *meBCETFwdMap_, *meBCSizFwdMap_;
-MonitorElement* meBCEneFwdMapProjEta_, *meBCNumFwdMapProjEta_, *meBCETFwdMapProjEta_, *meBCSizFwdMapProjEta_;
+MonitorElement* meBCEneFwdMapProjR_, *meBCNumFwdMapProjR_, *meBCETFwdMapProjR_, *meBCSizFwdMapProjR_;
 MonitorElement* meBCEneFwdMapProjPhi_, *meBCNumFwdMapProjPhi_, *meBCETFwdMapProjPhi_, *meBCSizFwdMapProjPhi_;
 
 MonitorElement* meBCEneBwdMap_, *meBCNumBwdMap_, *meBCETBwdMap_, *meBCSizBwdMap_;
-MonitorElement* meBCEneBwdMapProjEta_, *meBCNumBwdMapProjEta_, *meBCETBwdMapProjEta_, *meBCSizBwdMapProjEta_;
+MonitorElement* meBCEneBwdMapProjR_, *meBCNumBwdMapProjR_, *meBCETBwdMapProjR_, *meBCSizBwdMapProjR_;
 MonitorElement* meBCEneBwdMapProjPhi_, *meBCNumBwdMapProjPhi_, *meBCETBwdMapProjPhi_, *meBCSizBwdMapProjPhi_;
 
 MonitorElement* meSCEne_, *meSCNum_, *meSCSiz_;  
@@ -89,20 +89,17 @@ MonitorElement* meSCEneVsEMax_;
 MonitorElement* meSCEneLowScale_;
 MonitorElement* meSCSeedMapOcc_[2];
 MonitorElement* meSCMapSingleCrystal_[2];
+MonitorElement* meSCSeedTimingSummary_;
+MonitorElement* meSCSeedTimingMap_[2];
+MonitorElement* meSCSeedTiming_[18];
 
 MonitorElement* mes1s9_, *mes9s25_;
 MonitorElement* meInvMassPi0_;
 MonitorElement* meInvMassJPsi_;
 MonitorElement* meInvMassZ0_;
 MonitorElement* meInvMassHigh_;
-MonitorElement* meInvMassPi0Sel_;
-MonitorElement* meInvMassJPsiSel_;
-MonitorElement* meInvMassZ0Sel_;
-MonitorElement* meInvMassHighSel_;
 
 bool init_;
-
-float thrSigmaIeIe_, thrClusEt_, thrCandEt_;
 
 };
 

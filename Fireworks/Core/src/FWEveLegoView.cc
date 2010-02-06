@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.67 2009/11/21 22:25:04 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.68 2009/11/30 14:29:12 dmytro Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TAttAxis.h"
+#include "RVersion.h"
 //EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
 #define private public
 #include "TGLEmbeddedViewer.h"
@@ -90,7 +91,12 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_cameraSet(false)
 {
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer(0);
+#else
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
+#endif
+
    iParent->ReplaceWindow(nv);
 
    TGLEmbeddedViewer* ev = m_embeddedViewer;

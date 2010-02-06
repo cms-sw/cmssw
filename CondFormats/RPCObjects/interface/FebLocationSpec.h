@@ -15,7 +15,6 @@ struct FebLocationSpec {
   char positionInLocalEtaPartition;
 
   /// debug printout
-  std::string localEtaPartitionName() const;
   std::string print(int depth = 0) const;
 };
 #endif

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-triggerSummaryProducerRAW = cms.EDFilter("TriggerSummaryProducerRAW",
+triggerSummaryProducerRAW = cms.EDProducer("TriggerSummaryProducerRAW",
     processName = cms.string('@')
 )
 

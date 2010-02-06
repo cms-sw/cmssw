@@ -34,7 +34,7 @@ local.extend( [
     'file:/data/bainbrid/jpt/3EA8A506-10BE-DE11-BB21-0018F3D09704.root',
     'file:/data/bainbrid/jpt/04383FF7-9EBD-DE11-8511-0018F3D09616.root',
     ] )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 # Identify GenParticles to be used to build GenJets (ie, no neutrinos or BSM)
 process.load("RecoJets.Configuration.GenJetParticles_cff")
@@ -51,10 +51,8 @@ from RecoJets.JetProducers.ic5GenJets_cfi import iterativeCone5GenJets
 process.iterativeCone5GenJetsNoNuBSM = iterativeCone5GenJets.clone()
 
 # ZSP and JPT corrections
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
-#process.JetPlusTrackZSPCorrectorIcone5.VectorialCorrection  = cms.bool(True)
-#process.JetPlusTrackZSPCorrectorIcone5.UseResponseInVecCorr = cms.bool(False)
 
 # Analyzer module
 process.myanalysis = cms.EDAnalyzer(

@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2008/07/29 14:19:51 $
- * $Revision: 1.10 $
+ * $Date: 2008/04/30 08:44:32 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -44,7 +44,7 @@ class L1TDTTF : public edm::EDAnalyzer {
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   // BeginJob
-  void beginJob(void);
+  void beginJob(const edm::EventSetup& c);
 
   // EndJob
   void endJob(void);

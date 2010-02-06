@@ -10,7 +10,6 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
@@ -19,7 +18,6 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackFitter.h"
-#include "RecoVertex/GhostTrackFitter/interface/GhostTrack.h"
 
 namespace reco {
 
@@ -28,16 +26,7 @@ class GhostTrackFitter;
 
 class GhostTrackVertexFinder { // : public VertexReconstructor
     public:
-	enum FitType {
-		kAlwaysWithGhostTrack,
-		kSingleTracksWithGhostTrack,
-		kRefitGhostTrackWithVertices
-	};
-
 	GhostTrackVertexFinder();
-	GhostTrackVertexFinder(double maxFitChi2, double mergeThreshold,
-	                       double primcut, double seccut,
-	                       FitType fitType);
 	~GhostTrackVertexFinder();
 
 	std::vector<TransientVertex>
@@ -85,60 +74,6 @@ class GhostTrackVertexFinder { // : public VertexReconstructor
 		         const std::vector<TransientTrack> &primaries,
 		         const std::vector<TransientTrack> &tracks) const;
 
-	std::vector<TransientVertex>
-		vertices(const reco::Vertex &primaryVertex,
-		         const reco::Track &ghostTrack,
-		         const std::vector<TransientTrack> &tracks,
-	                 const std::vector<float> &weights = std::vector<float>()) const;
-
-	std::vector<TransientVertex>
-		vertices(const reco::Vertex &primaryVertex,
-		         const reco::Track &ghostTrack,
-		         const reco::BeamSpot &beamSpot,
-		         const std::vector<TransientTrack> &tracks,
-	                 const std::vector<float> &weights = std::vector<float>()) const;
-
-	std::vector<TransientVertex>
-		vertices(const reco::Vertex &primaryVertex,
-		         const reco::Track &ghostTrack,
-		         const reco::BeamSpot &beamSpot,
-		         const std::vector<TransientTrack> &primaries,
-		         const std::vector<TransientTrack> &tracks,
-	                 const std::vector<float> &weights = std::vector<float>()) const;
-
-	std::vector<TransientVertex>
-		vertices(const GlobalPoint &primaryPosition,
-		         const GlobalError &primaryError,
-		         const GhostTrack &ghostTrack) const;
-
-	std::vector<TransientVertex>
-		vertices(const GlobalPoint &primaryPosition,
-		         const GlobalError &primaryError,
-		         const reco::BeamSpot &beamSpot,
-		         const GhostTrack &ghostTrack) const;
-
-	std::vector<TransientVertex>
-		vertices(const GlobalPoint &primaryPosition,
-		         const GlobalError &primaryError,
-		         const reco::BeamSpot &beamSpot,
-		         const std::vector<TransientTrack> &primaries,
-		         const GhostTrack &ghostTrack) const;
-
-	std::vector<TransientVertex>
-		vertices(const reco::Vertex &primaryVertex,
-		         const GhostTrack &ghostTrack) const;
-
-	std::vector<TransientVertex>
-		vertices(const reco::Vertex &primaryVertex,
-		         const reco::BeamSpot &beamSpot,
-		         const GhostTrack &ghostTrack) const;
-
-	std::vector<TransientVertex>
-		vertices(const reco::Vertex &primaryVertex,
-		         const reco::BeamSpot &beamSpot,
-		         const std::vector<TransientTrack> &primaries,
-		         const GhostTrack &ghostTrack) const;
-
 	std::vector<TransientVertex> vertices(
 		const GhostTrack &ghostTrack,
 		const CachingVertex<5> &primary = CachingVertex<5>(),
@@ -169,7 +104,6 @@ class GhostTrackVertexFinder { // : public VertexReconstructor
 	double	mergeThreshold_;
 	double	primcut_;
 	double	seccut_;
-	FitType	fitType_;
 
 	mutable std::auto_ptr<GhostTrackFitter>	ghostTrackFitter_;
 	mutable std::auto_ptr<VertexFitter<5> > primVertexFitter_;

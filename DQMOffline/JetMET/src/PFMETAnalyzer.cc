@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/22 05:41:39 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/10/28 13:23:06 $
+ *  $Revision: 1.4 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -62,11 +62,10 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _source                       = parameters.getParameter<std::string>("Source");
 
   // Other data collections
-  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
-  PFCandidatesTag             = parameters.getParameter<edm::InputTag>("PFCandidates");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
   HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
-  BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
+  PFCandidatesTag             = parameters.getParameter<edm::InputTag>("PFCandidates");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -96,11 +95,8 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _FolderNames.push_back("Cleanup");
   _FolderNames.push_back("HcalNoiseFilter");
   _FolderNames.push_back("HcalNoiseFilterTight");
-  _FolderNames.push_back("JetIDMinimal");
-  _FolderNames.push_back("JetIDLoose");
+  _FolderNames.push_back("JetID");
   _FolderNames.push_back("JetIDTight");
-  _FolderNames.push_back("BeamHaloIDTightPass");
-  _FolderNames.push_back("BeamHaloIDLoosePass");
 
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
@@ -109,11 +105,8 @@ void PFMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
     if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
+    if (*ic=="JetID")                bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
     }
   }
 }
@@ -175,51 +168,27 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
  
   meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
   mePfMEx                = _dbe->book1D("METTask_PfMEx",   "METTask_PfMEx"   ,500,-500,500);
-  mePfMEx->setAxisTitle("MEx [GeV]",1);
   mePfMEy                = _dbe->book1D("METTask_PfMEy",   "METTask_PfMEy"   ,500,-500,500);
-  mePfMEy->setAxisTitle("MEy [GeV]",1);
   mePfEz                 = _dbe->book1D("METTask_PfEz",    "METTask_PfEz"    ,500,-500,500);
-  mePfEz->setAxisTitle("MEz [GeV]",1);
   mePfMETSig             = _dbe->book1D("METTask_PfMETSig","METTask_PfMETSig",51,0,51);
-  mePfMETSig->setAxisTitle("METSig",1);
   mePfMET                = _dbe->book1D("METTask_PfMET",   "METTask_PfMET"   ,500,0,1000);
-  mePfMET->setAxisTitle("MET [GeV]",1);
   mePfMETPhi             = _dbe->book1D("METTask_PfMETPhi","METTask_PfMETPhi",80,-TMath::Pi(),TMath::Pi());
-  mePfMETPhi->setAxisTitle("METPhi [rad]",1);
   mePfSumET              = _dbe->book1D("METTask_PfSumET", "METTask_PfSumET" ,500,0,2000);
-  mePfSumET->setAxisTitle("SumET [GeV]",1);
-
-  mePfMET_logx           = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx"   ,40,-1.,7.);
-  mePfMET_logx->setAxisTitle("log(MET) [GeV]",1);
-  mePfSumET_logx         = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx" ,40,-1.,7.);
-  mePfSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
   mePfNeutralEMFraction  = _dbe->book1D("METTask_PfNeutralEMFraction", "METTask_PfNeutralEMFraction" ,50,0.,1.);
-  mePfNeutralEMFraction->setAxisTitle("Pf Neutral EM Fraction",1);
   mePfNeutralHadFraction = _dbe->book1D("METTask_PfNeutralHadFraction","METTask_PfNeutralHadFraction",50,0.,1.);
-  mePfNeutralHadFraction->setAxisTitle("Pf Neutral Had Fraction",1);
   mePfChargedEMFraction  = _dbe->book1D("METTask_PfChargedEMFraction", "METTask_PfChargedEMFraction" ,50,0.,1.);
-  mePfChargedEMFraction->setAxisTitle("Pf Charged EM Fraction",1);
   mePfChargedHadFraction = _dbe->book1D("METTask_PfChargedHadFraction","METTask_PfChargedHadFraction",50,0.,1.);
-  mePfChargedHadFraction->setAxisTitle("Pf Charged Had Fraction",1);
   mePfMuonFraction       = _dbe->book1D("METTask_PfMuonFraction",      "METTask_PfMuonFraction"      ,50,0.,1.);
-  mePfMuonFraction->setAxisTitle("Pf Muon Fraction",1);
 
   mePfMETIonFeedbck      = _dbe->book1D("METTask_PfMETIonFeedbck", "METTask_PfMETIonFeedbck" ,500,0,1000);
-  mePfMETIonFeedbck->setAxisTitle("MET [GeV]",1);
   mePfMETHPDNoise        = _dbe->book1D("METTask_PfMETHPDNoise",   "METTask_PfMETHPDNoise"   ,500,0,1000);
-  mePfMETHPDNoise->setAxisTitle("MET [GeV]",1);
   mePfMETRBXNoise        = _dbe->book1D("METTask_PfMETRBXNoise",   "METTask_PfMETRBXNoise"   ,500,0,1000);
-  mePfMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   if (_allhist){
     if (bLumiSecPlot){
       mePfMExLS              = _dbe->book2D("METTask_PfMEx_LS","METTask_PfMEx_LS",200,-200,200,50,0.,500.);
-      mePfMExLS->setAxisTitle("MEx [GeV]",1);
-      mePfMExLS->setAxisTitle("Lumi Section",2);
       mePfMEyLS              = _dbe->book2D("METTask_PfMEy_LS","METTask_PfMEy_LS",200,-200,200,50,0.,500.);
-      mePfMEyLS->setAxisTitle("MEy [GeV]",1);
-      mePfMEyLS->setAxisTitle("Lumi Section",2);
     }
   }
 }
@@ -318,8 +287,6 @@ void PFMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
 	tPfMETRate->SetBinContent(i+1,tPfMETRate->GetBinContent(i+1)/double(totltime));
       }
 
-      tPfMETRate->SetName("METTask_PfMETRate");
-      tPfMETRate->SetTitle("METTask_PfMETRate");
       mePfMETRate      = _dbe->book1D("METTask_PfMETRate",tPfMETRate);
       
     }
@@ -471,22 +438,9 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (_verbose) std::cout << "JetID starts" << std::endl;
   
   //
-  // --- Minimal cuts
-  //
-  bool bJetIDMinimal=true;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
-       cal!=caloJets->end(); ++cal){
-    jetID->calculate(iEvent, *cal);
-    if (cal->pt()>10.){
-      if (fabs(cal->eta())<=2.6 && 
-	  cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
-    }
-  }
-
-  //
   // --- Loose cuts, not PF specific for now!
   //
-  bool bJetIDLoose=true;
+  bool bJetID=true;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){ 
     jetID->calculate(iEvent, *cal);
@@ -496,19 +450,19 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID->n90Hits()<2)  bJetIDLoose=false; 
-      if (jetID->fHPD()>=0.98) bJetIDLoose=false; 
-      //if (jetID->restrictedEMF()<0.01) bJetIDLoose=false; 
+      if (jetID->n90Hits()<2)  bJetID=false; 
+      if (jetID->fHPD()>=0.98) bJetID=false; 
+      //if (jetID->restrictedEMF()<0.01) bJetID=false; 
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
-	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=0.01) bJetID=false; 
       }
       // for forward
       else {
-	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=-0.9) bJetID=false; 
 	if (cal->pt()>80.){
-	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()>= 1.0) bJetID=false; 
 	}
       } // forward vs non-forward
     }   // pt>10 GeV/c
@@ -518,7 +472,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // --- Tight cuts
   //
   bool bJetIDTight=true;
-  bJetIDTight=bJetIDLoose;
+  bJetIDTight=bJetID;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
@@ -568,45 +522,19 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
 
   // ==========================================================
-  // Get BeamHaloSummary
-  edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
-  iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
-
-  bool bBeamHaloIDTightPass = true;
-  bool bBeamHaloIDLoosePass = true;
-
-  if(!TheBeamHaloSummary.isValid()) {
-
-  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
-
-  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
-      !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
-    bBeamHaloIDLoosePass = false;
-
-  if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
-      !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
-    bBeamHaloIDTightPass = false;
-
-  }
-
-  // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
   std::string DirName = "JetMET/MET/"+_source;
   
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
-    if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass) 
-                                                                fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="All")                                   fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetID) fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (_allSelection) {
     if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="JetIDMinimal" && bJetIDMinimal)                   fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="JetIDLoose"   && bJetIDLoose)                     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="JetIDTight"   && bJetIDTight)                     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="BeamHaloIDTightPass" && bBeamHaloIDTightPass)     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-    if (*ic=="BeamHaloIDLoosePass" && bBeamHaloIDLoosePass)     fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="JetID"      && bJetID)                            fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
+    if (*ic=="JetIDTight" && bJetIDTight)                       fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
     }
   }
 }
@@ -728,7 +656,7 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
-  if (pfSumET>_etThreshold){
+  if (pfMET>_etThreshold){
     
     mePfMEx    = _dbe->get(DirName+"/"+"METTask_PfMEx");    if (mePfMEx    && mePfMEx->getRootObject())    mePfMEx->Fill(pfMEx);
     mePfMEy    = _dbe->get(DirName+"/"+"METTask_PfMEy");    if (mePfMEy    && mePfMEy->getRootObject())    mePfMEy->Fill(pfMEy);
@@ -737,9 +665,6 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     mePfSumET  = _dbe->get(DirName+"/"+"METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
     mePfMETSig = _dbe->get(DirName+"/"+"METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
     mePfEz     = _dbe->get(DirName+"/"+"METTask_PfEz");     if (mePfEz     && mePfEz->getRootObject())     mePfEz->Fill(pfEz);
-
-    mePfMET_logx    = _dbe->get(DirName+"/"+"METTask_PfMET_logx");    if (mePfMET_logx    && mePfMET_logx->getRootObject())    mePfMET_logx->Fill(log10(pfMET));
-    mePfSumET_logx  = _dbe->get(DirName+"/"+"METTask_PfSumET_logx");  if (mePfSumET_logx  && mePfSumET_logx->getRootObject())  mePfSumET_logx->Fill(log10(pfSumET));
 
     mePfMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_PfMETIonFeedbck");  if (mePfMETIonFeedbck && mePfMETIonFeedbck->getRootObject()) mePfMETIonFeedbck->Fill(pfMET);
     mePfMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_PfMETHPDNoise");    if (mePfMETHPDNoise   && mePfMETHPDNoise->getRootObject())   mePfMETHPDNoise->Fill(pfMET);

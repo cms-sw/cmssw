@@ -55,7 +55,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
 L1TDEMON::~L1TDEMON() {}
 
 void 
-L1TDEMON::beginJob(void) {
+L1TDEMON::beginJob(const edm::EventSetup&) {
 
   if(verbose())
     std::cout << "L1TDEMON::beginJob()  start\n" << std::flush;

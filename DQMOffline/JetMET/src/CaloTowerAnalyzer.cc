@@ -99,34 +99,16 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by CaloTower(ieta,iphi) 
     me["hCT_et_ieta_iphi"]          = dbe_->book2D("METTask_CT_et_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_et_ieta_iphi"]->getTH2F()->SetOption("colz");
-    me["hCT_et_ieta_iphi"]->setAxisTitle("ieta",1);
-    me["hCT_et_ieta_iphi"]->setAxisTitle("ephi",2);
 
     me["hCT_emEt_ieta_iphi"]        = dbe_->book2D("METTask_CT_emEt_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_emEt_ieta_iphi"]->getTH2F()->SetOption("colz");
-    me["hCT_emEt_ieta_iphi"]->setAxisTitle("ieta",1);
-    me["hCT_emEt_ieta_iphi"]->setAxisTitle("ephi",2);
     me["hCT_hadEt_ieta_iphi"]       = dbe_->book2D("METTask_CT_hadEt_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_hadEt_ieta_iphi"]->getTH2F()->SetOption("colz");
-    me["hCT_hadEt_ieta_iphi"]->setAxisTitle("ieta",1);
-    me["hCT_hadEt_ieta_iphi"]->setAxisTitle("ephi",2);
-    //me["hCT_Et_ieta_iphi"]      = dbe_->book2D("METTask_CT_Et_ieta_iphi","",83,-41,42, 72,1,73);  
-    //me["hCT_Et_ieta_iphi"]->getTH2F()->SetOption("colz");
-    //me["hCT_Et_ieta_iphi"]->setAxisTitle("ieta",1);
-    //me["hCT_Et_ieta_iphi"]->setAxisTitle("ephi",2);
+    me["hCT_Et_ieta_iphi"]      = dbe_->book2D("METTask_CT_Et_ieta_iphi","",83,-41,42, 72,1,73);  
     me["hCT_outerEt_ieta_iphi"] = dbe_->book2D("METTask_CT_outerEt_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_outerEt_ieta_iphi"]->getTH2F()->SetOption("colz");
-    me["hCT_outerEt_ieta_iphi"]->setAxisTitle("ieta",1);
-    me["hCT_outerEt_ieta_iphi"]->setAxisTitle("ephi",2);
     //me["hCT_energy_ieta_iphi"]      = dbe_->book2D("METTask_CT_energy_ieta_iphi","",83,-41,42, 72,1,73);  
     //me["hCT_outerEnergy_ieta_iphi"] = dbe_->book2D("METTask_CT_outerEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
     //me["hCT_hadEnergy_ieta_iphi"]   = dbe_->book2D("METTask_CT_hadEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
     //me["hCT_emEnergy_ieta_iphi"]    = dbe_->book2D("METTask_CT_emEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
     me["hCT_Occ_ieta_iphi"]         = dbe_->book2D("METTask_CT_Occ_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_Occ_ieta_iphi"]->getTH2F()->SetOption("colz");
-    me["hCT_Occ_ieta_iphi"]->setAxisTitle("ieta",1);
-    me["hCT_Occ_ieta_iphi"]->setAxisTitle("ephi",2);
     //--Data over eta-rings
 
     // CaloTower values

@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineBuilder.h,v 1.6 2009/05/28 22:12:55 dlange Exp $
+// $Id: SiPixelCondObjOfflineBuilder.h,v 1.5 2009/02/19 22:20:56 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -65,8 +65,7 @@ private:
   int numberOfModules_;
   bool fromFile_;
   std::string fileName_; 
-  bool generateColumns_;
-  
+
   // Internal class
   class CalParameters {
   public:

@@ -23,7 +23,7 @@
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "HepMC/GenEvent.h"
-#include "HepMC/IO_GenEvent.h"
+#include "HepMC/IO_Ascii.h"
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -67,7 +67,7 @@ namespace edm
      ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
 	 
      std::string    fOutFileName;
-     HepMC::IO_GenEvent * fOutStream ;
+     HepMC::IO_Ascii * fOutStream ;
      
      int            fCurrentEvent ; // event counter - untill I learn how to get it
 	                                // from edm::Event ) EventID ??? or what ?)

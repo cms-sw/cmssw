@@ -19,8 +19,6 @@
       <properties xmlns="urn:xdaq-application:FUEventProcessor" xsi:type="soapenc:Struct">
         <parameterSet xsi:type="xsd:string">file:../../cfg/FUPB_PROVIDER_CFG_FILE</parameterSet>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
-        <ignoreDQMAttachErrors xsi:type="xsd:boolean">true</ignoreDQMAttachErrors>
-        <declareRunNumberIfInvalid xsi:type="xsd:boolean">true</declareRunNumberIfInvalid>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -29,9 +27,8 @@
     <xc:Application class="evf::BU" id="24" instance="0" network="tcp1">
       <properties xmlns="urn:xdaq-application:evf::BU" xsi:type="soapenc:Struct">
         <replay xsi:type="xsd:boolean">true</replay>
-        <queueSize xsi:type="xsd:unsignedInt">200</queueSize>
+        <queueSize xsi:type="xsd:unsignedInt">2000</queueSize>
         <eventBufferSize xsi:type="xsd:unsignedInt">0x100000</eventBufferSize>
-        <throttlingSleepUs xsi:type="xsd:unsignedInt">50000</throttlingSleepUs>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterAutoBU.so</xc:Module>
@@ -70,7 +67,6 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FUPB_PASSTHRU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
-        <ignoreDQMAttachErrors xsi:type="xsd:boolean">true</ignoreDQMAttachErrors>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -87,6 +83,8 @@
     <xc:Application class="StorageManager" id="29" instance="0" network="tcp1">
       <properties xmlns="urn:xdaq-application:StorageManager" xsi:type="soapenc:Struct">
         <STparameterSet     xsi:type="xsd:string">file:../../cfg/SMPB_CFG_FILE</STparameterSet>
+        <maxESEventRate     xsi:type="xsd:double">20.0</maxESEventRate>
+        <DQMmaxESEventRate  xsi:type="xsd:double">1.0</DQMmaxESEventRate>
         <runNumber          xsi:type="xsd:unsignedInt">0</runNumber>
         <nLogicalDisk       xsi:type="xsd:integer">0</nLogicalDisk> 
         <filePath           xsi:type="xsd:string">../../db</filePath> 

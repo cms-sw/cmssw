@@ -13,7 +13,7 @@ ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     MeasurementState = "default",
-    BSFolderName = "AlCaReco/BeamSpotParameters",
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
     doSeedParameterHistos = False,
 # Margins and settings
     TkSizeBin = 6,
@@ -55,6 +55,7 @@ ALCARECOTkAlJpsiMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 # margins and settings
     TrackPtMax = 50
 )
@@ -78,7 +79,8 @@ ALCARECOTkAlUpsilonMuMuTrackingDQM = ALCARECOTkAlJpsiMuMuTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
-    FolderName = "AlCaReco/"+__selectionName
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
 
 ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
@@ -102,7 +104,8 @@ ALCARECOTkAlBeamHaloTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
-    FolderName = "AlCaReco/"+__selectionName
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
 ALCARECOTkAlBeamHaloDQM = cms.Sequence( ALCARECOTkAlBeamHaloTrackingDQM )
 
@@ -115,6 +118,7 @@ ALCARECOTkAlMinBiasTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 # margins and settings
     TkSizeBin = 71,
     TkSizeMin = -0.5,
@@ -147,6 +151,7 @@ ALCARECOTkAlMuonIsolatedTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 # margins and settings
     TkSizeBin = 16,
     TkSizeMin = -0.5,
@@ -191,6 +196,7 @@ ALCARECOTkAlCosmicsCTF0TTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = 'AlCaReco/TkAlCosmics0T',
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 # margins and settings
     TrackPtBin = 500,
     TrackPtMin = 0,
@@ -214,7 +220,8 @@ __selectionName = 'TkAlCosmicsCosmicTF0T'
 ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
-    AlgoName = 'ALCARECO'+__selectionName
+    AlgoName = 'ALCARECO'+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 )
 ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
@@ -231,7 +238,8 @@ __selectionName = 'TkAlCosmicsRS0T'
 ALCARECOTkAlCosmicsRS0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
-    AlgoName = 'ALCARECO'+__selectionName
+    AlgoName = 'ALCARECO'+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 )
 ALCARECOTkAlCosmicsRS0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
@@ -251,6 +259,7 @@ __selectionName = 'TkAlCosmicsCTF'
 ALCARECOTkAlCosmicsCTFTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
     FolderName = 'AlCaReco/TkAlCosmics',
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName
 )
@@ -270,7 +279,8 @@ __selectionName = 'TkAlCosmicsCosmicTF'
 ALCARECOTkAlCosmicsCosmicTFTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
-    AlgoName = 'ALCARECO'+__selectionName
+    AlgoName = 'ALCARECO'+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
 ALCARECOTkAlCosmicsCosmicTFTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
@@ -287,7 +297,8 @@ __selectionName = 'TkAlCosmicsRS'
 ALCARECOTkAlCosmicsRSTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
-    AlgoName = 'ALCARECO'+__selectionName
+    AlgoName = 'ALCARECO'+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
 )
 ALCARECOTkAlCosmicsRSTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions

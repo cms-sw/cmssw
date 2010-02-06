@@ -16,11 +16,6 @@ class CSCAnodeDataFrame2007 {
     return ( (data_>>wireGroup) & 0x1 );
   }
 
-  void addHit(unsigned wireGroup)
-  {
-    data_ |= (1 << wireGroup);
-  }
-
   unsigned short data() const {return data_;}
   
  private:
@@ -53,6 +48,7 @@ private:
   void init(const CSCALCTHeader &);
   int index(int tbin, int layer, int layerPart) const;
   CSCAnodeDataFrame2007 findFrame(int tbin, int layer, int layerPart) const;
+  CSCAnodeDataFrame2007 & findFrame(int tbin, int layer, int layerPart);
 
   /// we don't know the size at first.  Max should be 7 boards * 32 bins * 6 layers * 2
   unsigned short theDataFrames[2700];

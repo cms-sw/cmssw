@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: CastorDbASCIIIO.cc,v 1.3 2009/05/08 23:22:37 elmer Exp $
+// $Id: CastorDbASCIIIO.cc,v 1.2 2009/03/26 17:49:44 mundim Exp $
 //
 #include <vector>
 #include <string>
@@ -115,7 +115,7 @@ bool dumpCastorObject (std::ostream& fOutput, const T& fObject) {
   sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "DetId");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
-  //std::sort (channels.begin(), channels.end(), DetIdLess ());
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
@@ -337,25 +337,13 @@ bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorChannelQuality* fOb
     }
     DetId id = getId (items);
     
-    if (fObject->exists(id) ) {
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-      continue;
-    }
+//    if (fObject->exists(id) )
+//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
     uint32_t mystatus;
-    CastorChannelStatus* fCondObject = NULL;
-    if (items[4].substr(0,2)=="0x") {
-       sscanf(items[4].c_str(),"%X", &mystatus);
-       fCondObject = new CastorChannelStatus(id,mystatus);
-    }
-    else if (isalpha(items[4].c_str()[0])) {
-       fCondObject = new CastorChannelStatus(id, items[4]);
-    }
-    else {
-       sscanf(items[4].c_str(),"%u", &mystatus);
-       fCondObject = new CastorChannelStatus(id,mystatus);
-    }
+    sscanf(items[4].c_str(),"%X", &mystatus);
+    CastorChannelStatus* fCondObject = new CastorChannelStatus(id, mystatus); //atoi (items [4].c_str()) );
     fObject->addValues(*fCondObject);
     delete fCondObject;
 	//      }

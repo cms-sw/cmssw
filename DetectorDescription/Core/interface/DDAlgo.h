@@ -69,7 +69,7 @@ public:
   /*! double valued user parameter, values already evaluated from expressions*/
   const parE_type & parE() const;
   
-/*   static void clear(); */
+  static void clear();
 private:  
   DDAlgo(const DDName &, AlgoPos*);
   

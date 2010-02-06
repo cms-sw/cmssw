@@ -11,13 +11,10 @@
 #include <iostream>
 #include <fstream>
 
-#define RECHITMON_TIME_MIN -250
-#define RECHITMON_TIME_MAX 250
-
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/12/01 09:00:45 $
-  * $Revision: 1.37 $
+  * $Date: 2009/08/09 12:46:35 $
+  * $Revision: 1.30 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -30,7 +27,6 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   ~HcalRecHitMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun();
   void done();
   void clearME(); // overrides base class function
   void reset();
@@ -38,18 +34,20 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
  
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
-                    const HFRecHitCollection& hfHits,
-		    int CalibType
+                    const HFRecHitCollection& hfHits
+		    //const ZDCRecHitCollection& zdcHits,
 		    );
 
   void processEvent_rechit( const HBHERecHitCollection& hbheHits,
 			    const HORecHitCollection& hoHits,
 			    const HFRecHitCollection& hfHits);
 
-  void endLuminosityBlock();
+  void fillRecHitHistosAtEndRun();
  private:
-  
-  void fill_Nevents();
+
+
+  void fillNevents();
+
   bool rechit_makeDiagnostics_;
 
   int rechit_checkNevents_;  // specify how often to fill histograms
@@ -68,7 +66,7 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   EtaPhiHists OccupancyThreshByDepth;
 
   EtaPhiHists SumEnergyByDepth;
-  EtaPhiHists SqrtSumEnergy2ByDepth;
+  EtaPhiHists SumEnergy2ByDepth;
   EtaPhiHists SumEnergyThreshByDepth;
   EtaPhiHists SumTimeByDepth;
   EtaPhiHists SumTimeThreshByDepth;
@@ -84,34 +82,34 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
 
   double HBenergy_[200];
   double HBenergy_thresh_[200];
-  double HBtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HBtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HBtime_[300];
+  double HBtime_thresh_[300];
   double HB_occupancy_[2593];
   double HB_occupancy_thresh_[2593];
   double HEenergy_[200];
   double HEenergy_thresh_[200];
-  double HEtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HEtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HEtime_[300];
+  double HEtime_thresh_[300];
   double HE_occupancy_[2593];
   double HE_occupancy_thresh_[2593];
   double HOenergy_[200];
   double HOenergy_thresh_[200];
-  double HOtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HOtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HOtime_[300];
+  double HOtime_thresh_[300];
   double HO_occupancy_[2161];
   double HO_occupancy_thresh_[2161];
   double HFenergy_[200];
   double HFenergy_thresh_[200];
-  double HFtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HFtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HFtime_[300];
+  double HFtime_thresh_[300];
   double HFenergyLong_[200];
   double HFenergyLong_thresh_[200];
-  double HFtimeLong_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HFtimeLong_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HFtimeLong_[300];
+  double HFtimeLong_thresh_[300];
   double HFenergyShort_[200];
   double HFenergyShort_thresh_[200];
-  double HFtimeShort_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HFtimeShort_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
+  double HFtimeShort_[300];
+  double HFtimeShort_thresh_[300];
   double HF_occupancy_[1729];
   double HF_occupancy_thresh_[1729];
   double HFlong_occupancy_[865];
@@ -166,20 +164,6 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HOflagcounter;
   MonitorElement* h_HFflagcounter;
   
-  
-  double collisionHFthresh_;
-  double collisionHEthresh_;
-  MonitorElement* h_HFtimedifference;
-  MonitorElement* h_HFenergydifference;
-  MonitorElement* h_HEtimedifference;
-  MonitorElement* h_HEenergydifference;
-
-  MonitorElement* h_HFrawenergydifference;
-  MonitorElement* h_HErawenergydifference;
-  MonitorElement* h_HFrawtimedifference;
-  MonitorElement* h_HErawtimedifference;
-
-
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };
 

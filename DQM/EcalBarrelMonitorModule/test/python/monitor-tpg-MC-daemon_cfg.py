@@ -5,8 +5,8 @@ process = cms.Process("ECALDQM")
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
 
-#import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-#process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+#import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
+#process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
@@ -22,22 +22,22 @@ process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
-
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
-
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
-
-import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
-process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
-
 process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
 process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("DQM.EcalBarrelMonitorTasks.mergeRuns_cff")
 
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+
+import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
+process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
+
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
+
+process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 
@@ -124,6 +124,7 @@ process.ecalUncalibHit.MinAmplEndcap = 16.
 process.ecalUncalibHit.EBdigiCollection = 'simEcalDigis:ebDigis'
 process.ecalUncalibHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 
+process.ecalRecHit.killDeadChannels = False
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 

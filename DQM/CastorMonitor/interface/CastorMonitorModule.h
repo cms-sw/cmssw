@@ -28,7 +28,6 @@
 #include "DQM/CastorMonitor/interface/CastorMonitorSelector.h"
 #include "DQM/CastorMonitor/interface/CastorPedestalMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorRecHitsValidation.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
@@ -121,9 +120,6 @@ public:
   int nlumisecs_;
   bool saved_;
 
-     
-
-
   ////---- control whether or not to display time used by each module
   bool showTiming_; 
   edm::CPUTimer cpu_timer; 
@@ -169,13 +165,10 @@ public:
   MonitorElement* meTrigger_;
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
-  ////--- define ReportSummaryMap
-  MonitorElement* reportSummaryMap_;
   
   ////---- define monitors
   CastorMonitorSelector*    evtSel_;
   CastorRecHitMonitor*      RecHitMon_;
-  CastorRecHitsValidation*  RecHitMonValid_;
   CastorPedestalMonitor*    PedMon_;
   CastorLEDMonitor*         LedMon_;
   

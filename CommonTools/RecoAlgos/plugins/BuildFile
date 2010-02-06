@@ -1,5 +1,6 @@
 <export></export>
 <library name=CommonToolsRecoAlgos_plugins file=*.cc>
+  <use name=MagneticField/Engine>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/RecoCandidate>

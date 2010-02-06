@@ -15,19 +15,12 @@ class V0Filter {
 	~V0Filter() {}
 
 	bool operator () (const reco::TrackRef *tracks, unsigned int n) const;
-	bool operator () (const reco::Track *tracks, unsigned int n) const;
 
 	inline bool
 	operator () (const std::vector<reco::TrackRef> &tracks) const
 	{ return (*this)(&tracks[0], tracks.size()); }
 
-	inline bool
-	operator () (const std::vector<reco::Track> &tracks) const
-	{ return (*this)(&tracks[0], tracks.size()); }
-
     private:
-	bool operator () (const reco::Track **tracks, unsigned int n) const;
-
 	double	k0sMassWindow;
 };
 

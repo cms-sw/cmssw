@@ -4,8 +4,8 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2009/11/19 14:30:24 $
- * $Revision: 1.14 $
+ * $Date: 2008/04/23 16:30:13 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
 */
@@ -47,33 +47,33 @@
 
 class L1TCSCTF : public edm::EDAnalyzer {
 
- public:
+public:
 
-  // Constructor
-  L1TCSCTF(const edm::ParameterSet& ps);
+// Constructor
+L1TCSCTF(const edm::ParameterSet& ps);
 
-  // Destructor
-  virtual ~L1TCSCTF();
+// Destructor
+virtual ~L1TCSCTF();
 
- protected:
-  // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+protected:
+// Analyze
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  // BeginJob
-  void beginJob(void);
+// BeginJob
+void beginJob(const edm::EventSetup& c);
 
-  // EndJob
-  void endJob(void);
+// EndJob
+void endJob(void);
 
- private:
+private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
-  // MonitorElement* csctfetavalue[3];
-  // MonitorElement* csctfphivalue[3];
-  // MonitorElement* csctfptvalue[3];
-  // MonitorElement* csctfchargevalue[3];
-  // MonitorElement* csctfquality[3];
+ // MonitorElement* csctfetavalue[3];
+ // MonitorElement* csctfphivalue[3];
+ // MonitorElement* csctfptvalue[3];
+ // MonitorElement* csctfchargevalue[3];
+ // MonitorElement* csctfquality[3];
   MonitorElement* csctfntrack;
   MonitorElement* csctfbx;
 
@@ -90,27 +90,15 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* csctfTrackEta;
   MonitorElement* cscTrackStubNumbers;
   MonitorElement* csctfTrackQ;
-  MonitorElement* csctfAFerror;
+	MonitorElement* csctfAFerror;
   // JAG
-
-  // GP
-  // 1-> 6 plus endcap
-  // 7->12 minus endcap
-  MonitorElement* DTstubsTimeTrackMenTimeArrival[12];
-  int BxInEvent_; //bx of the CSC muon candidate
-  bool isCSCcand_;//does GMT readout window have a CSC cand?
-
-  MonitorElement* csctfHaloL1ABXN;
-  MonitorElement* csctfCoincL1ABXN;
-  int L1ABXN;
-  // GP_end
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
-  edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
+  edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer;
 };
 
 #endif

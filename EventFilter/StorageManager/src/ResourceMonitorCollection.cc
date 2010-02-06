@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.25 2009/10/13 16:52:59 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.24 2009/10/13 10:31:07 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -31,7 +31,8 @@ _alarmHandler(ah),
 _numberOfCopyWorkers(-1),
 _numberOfInjectWorkers(-1),
 _nLogicalDisks(0),
-_latchedSataBeastStatus(-1)
+_latchedSataBeastStatus(-1),
+_progressMarker( "unused" )
 {
   // Initialize values to avoid sending alarms
   // before we've reach the ready state
@@ -140,6 +141,7 @@ void ResourceMonitorCollection::do_reset()
 
 void ResourceMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
+  infoSpaceItems.push_back(std::make_pair("progressMarker", &_progressMarker));
   infoSpaceItems.push_back(std::make_pair("copyWorkers", &_copyWorkers));
   infoSpaceItems.push_back(std::make_pair("injectWorkers", &_injectWorkers));
   infoSpaceItems.push_back(std::make_pair("sataBeastStatus", &_sataBeastStatus));

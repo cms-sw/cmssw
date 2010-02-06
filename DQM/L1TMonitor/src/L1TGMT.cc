@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2009/01/30 14:08:11 $
- * $Revision: 1.25 $
+ * $Date: 2008/10/24 12:31:19 $
+ * $Revision: 1.24 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -448,10 +448,10 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
       for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
         if(INPItr->empty()) continue;
         subs_eta[i]->Fill(INPItr->etaValue());
-        subs_phi[i]->Fill(phiconv(INPItr->phiValue()));
+        subs_phi[i]->Fill(piconv_*INPItr->phiValue());
         subs_pt[i]->Fill(INPItr->ptValue());
         subs_qty[i]->Fill(INPItr->quality());
-        subs_etaphi[i]->Fill(INPItr->etaValue(),phiconv(INPItr->phiValue()));
+        subs_etaphi[i]->Fill(INPItr->etaValue(),piconv_*INPItr->phiValue());
         subs_etaqty[i]->Fill(INPItr->etaValue(),INPItr->quality());
         int word = INPItr->getDataWord();
         for( int j=0; j<32; j++ ) {
@@ -463,10 +463,10 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
       if(GMTItr->empty()) continue;
       subs_eta[GMT]->Fill(GMTItr->etaValue());
-      subs_phi[GMT]->Fill(phiconv(GMTItr->phiValue()));
+      subs_phi[GMT]->Fill(piconv_*GMTItr->phiValue());
       subs_pt[GMT]->Fill(GMTItr->ptValue());
       subs_qty[GMT]->Fill(GMTItr->quality());
-      subs_etaphi[GMT]->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));
+      subs_etaphi[GMT]->Fill(GMTItr->etaValue(),piconv_*GMTItr->phiValue());
       subs_etaqty[GMT]->Fill(GMTItr->etaValue(),GMTItr->quality());
       int word = GMTItr->getDataWord();
       for( int j=0; j<32; j++ ) {
@@ -476,20 +476,20 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
       if(GMTItr->isMatchedCand()) {
         if(GMTItr->quality()>3) {
           eta_dtcsc_and_rpc->Fill(GMTItr->etaValue());
-          phi_dtcsc_and_rpc->Fill(phiconv(GMTItr->phiValue()));
-          etaphi_dtcsc_and_rpc->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));
+          phi_dtcsc_and_rpc->Fill(piconv_*GMTItr->phiValue());
+          etaphi_dtcsc_and_rpc->Fill(GMTItr->etaValue(),piconv_*GMTItr->phiValue());
         }
       } else if(GMTItr->isRPC()) {
         if(GMTItr->quality()>3) {
           eta_rpc_only->Fill(GMTItr->etaValue());
-          phi_rpc_only->Fill(phiconv(GMTItr->phiValue()));
-          etaphi_rpc_only->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));        
+          phi_rpc_only->Fill(piconv_*GMTItr->phiValue());
+          etaphi_rpc_only->Fill(GMTItr->etaValue(),piconv_*GMTItr->phiValue());        
         }
       } else {
         if(GMTItr->quality()>3) {
           eta_dtcsc_only->Fill(GMTItr->etaValue());
-          phi_dtcsc_only->Fill(phiconv(GMTItr->phiValue()));
-          etaphi_dtcsc_only->Fill(GMTItr->etaValue(),phiconv(GMTItr->phiValue()));
+          phi_dtcsc_only->Fill(piconv_*GMTItr->phiValue());
+          etaphi_dtcsc_only->Fill(GMTItr->etaValue(),piconv_*GMTItr->phiValue());
         }
         
         if(GMTItr != GMTCands.end()){
@@ -499,18 +499,18 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
             if(GMTItr2->isRPC()) {
               if(GMTItr->isFwd()) {
                 dist_eta_csc_rpc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
-                dist_phi_csc_rpc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );
+                dist_phi_csc_rpc->Fill( piconv_*(GMTItr->phiValue() - GMTItr2->phiValue()) );
               } else {
                 dist_eta_dt_rpc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
-                dist_phi_dt_rpc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );                
+                dist_phi_dt_rpc->Fill( piconv_*(GMTItr->phiValue() - GMTItr2->phiValue()) );                
               }
             } else {
               if(!(GMTItr->isFwd()) && GMTItr2->isFwd()) {
                 dist_eta_dt_csc->Fill( GMTItr->etaValue() - GMTItr2->etaValue() );
-                dist_phi_dt_csc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );
+                dist_phi_dt_csc->Fill( piconv_*(GMTItr->phiValue() - GMTItr2->phiValue()) );
               } else if(GMTItr->isFwd() && !(GMTItr2->isFwd())){
                 dist_eta_dt_csc->Fill( GMTItr2->etaValue() - GMTItr->etaValue() );
-                dist_phi_dt_csc->Fill( phiconv(GMTItr->phiValue()) - phiconv(GMTItr2->phiValue()) );                
+                dist_phi_dt_csc->Fill( piconv_*(GMTItr2->phiValue() - GMTItr->phiValue()) );                
               }
             }
           }     
@@ -566,9 +566,4 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
 }
 
-double L1TGMT::phiconv(float phi) {
-  double phiout = double(phi);
-  phiout *= piconv_;
-  phiout += 0.001; // add a small value to get off the bin edge
-  return phiout;
-}
+

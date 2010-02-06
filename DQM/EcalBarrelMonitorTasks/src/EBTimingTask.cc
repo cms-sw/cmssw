@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2009/11/29 23:10:28 $
- * $Revision: 1.49 $
+ * $Date: 2009/05/22 08:39:20 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -47,15 +47,9 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 36; i++) {
-    meTime_[i] = 0;
     meTimeMap_[i] = 0;
     meTimeAmpli_[i] = 0;
   }
-
-  meTimeSummary1D_ = 0;
-  meTimeSummaryMap_ = 0;
-  meTimeSummaryMapProjEta_ = 0;
-  meTimeSummaryMapProjPhi_ = 0;
 
 }
 
@@ -89,7 +83,6 @@ void EBTimingTask::endRun(const Run& r, const EventSetup& c) {
 void EBTimingTask::reset(void) {
 
   for (int i = 0; i < 36; i++) {
-    if ( meTime_[i] ) meTime_[i]->Reset();
     if ( meTimeMap_[i] ) meTimeMap_[i]->Reset();
     if ( meTimeAmpli_[i] ) meTimeAmpli_[i]->Reset();
   }
@@ -106,44 +99,18 @@ void EBTimingTask::setup(void){
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBTMT timing 1D %s", Numbers::sEB(i+1).c_str());
-      meTime_[i] = dqmStore_->book1D(histo, histo, 20, 0., 10.);
-      meTime_[i]->setAxisTitle("jitter (clocks)", 1);
-      dqmStore_->tag(meTime_[i], i+1);
-
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 20, 0., 10., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
-      meTimeMap_[i]->setAxisTitle("jitter (clocks)", 3);
       dqmStore_->tag(meTimeMap_[i], i+1);
 
       sprintf(histo, "EBTMT timing vs amplitude %s", Numbers::sEB(i+1).c_str());
       meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
       meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
-      meTimeAmpli_[i]->setAxisTitle("jitter (clocks)", 2);
+      meTimeAmpli_[i]->setAxisTitle("jitter", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
-
-    sprintf(histo, "EBTMT timing 1D summary");
-    meTimeSummary1D_ = dqmStore_->book1D(histo, histo, 20, 0., 10.);
-    meTimeSummary1D_->setAxisTitle("jitter (clocks)", 1);
-
-    sprintf(histo, "EBTMT timing map");
-    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 20, 0., 10., "s");
-    meTimeSummaryMap_->setAxisTitle("jphi", 1);
-    meTimeSummaryMap_->setAxisTitle("jeta", 2);
-    meTimeSummaryMap_->setAxisTitle("jitter (clocks)", 3);
-    
-    sprintf(histo, "EBTMT timing projection eta");
-    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 20, 0., 10., "s");
-    meTimeSummaryMapProjEta_->setAxisTitle("jeta", 1);
-    meTimeSummaryMapProjEta_->setAxisTitle("jitter (clocks)", 2);
-
-    sprintf(histo, "EBTMT timing projection phi");
-    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 20, 0., 10., "s");
-    meTimeSummaryMapProjPhi_->setAxisTitle("jphi", 1);
-    meTimeSummaryMapProjPhi_->setAxisTitle("jitter (clocks)", 2);
 
   }
 
@@ -157,27 +124,9 @@ void EBTimingTask::cleanup(void){
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
-      if ( meTime_[i] ) dqmStore_->removeElement( meTime_[i]->getName() );
-      meTime_[i] = 0;
-
       if ( meTimeMap_[i] ) dqmStore_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
-
-      if ( meTimeAmpli_[i] ) dqmStore_->removeElement( meTimeAmpli_[i]->getName() );
-      meTimeAmpli_[i] = 0;
     }
-
-    if ( meTimeSummary1D_ ) dqmStore_->removeElement( meTimeSummary1D_->getName() );
-    meTimeSummary1D_ = 0;
-
-    if ( meTimeSummaryMap_ ) dqmStore_->removeElement( meTimeSummaryMap_->getName() );
-    meTimeSummaryMap_ = 0;
-
-    if ( meTimeSummaryMapProjEta_ ) dqmStore_->removeElement( meTimeSummaryMapProjEta_->getName() );
-    meTimeSummaryMapProjEta_ = 0;
-
-    if ( meTimeSummaryMapProjPhi_ ) dqmStore_->removeElement( meTimeSummaryMapProjPhi_->getName() );
-    meTimeSummaryMapProjPhi_ = 0;
 
   }
 
@@ -268,11 +217,9 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EBTimingTask") << " det id = " << id;
       LogDebug("EBTimingTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
-      MonitorElement* meTime = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meTimeAmpli = 0;
 
-      meTime = meTime_[ism-1];
       meTimeMap = meTimeMap_[ism-1];
       meTimeAmpli = meTimeAmpli_[ism-1];
 
@@ -289,16 +236,8 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
 
-      if ( xval > 12. && hitItr->recoFlag() == EcalUncalibratedRecHit::kGood ) {
-        if ( meTime ) meTime->Fill(yval);
+      if ( xval > 12. ) {
         if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
-        if ( meTimeSummary1D_ ) meTimeSummary1D_->Fill(yval);
-
-        float xebeta = id.ieta() - 0.5 * id.zside();
-        float xebphi = id.iphi() - 0.5;
-        if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval);
-        if ( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Fill(xebeta, yval);
-        if ( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Fill(xebphi, yval);
       }
 
     }

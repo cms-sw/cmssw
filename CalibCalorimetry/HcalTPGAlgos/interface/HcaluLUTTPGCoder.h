@@ -23,8 +23,8 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2009/10/25 21:19:45 $
-  * $Revision: 1.19 $
+  * $Date: 2009/08/19 19:47:46 $
+  * $Revision: 1.18 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -49,6 +49,11 @@ public:
   void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
   bool getMSB(const HcalDetId& id, int adc) const;
 
+  // Temporary methods for metadata
+  void getRecHitCalib(const char* filename);
+  float getRcalib(const HcalDetId& id) const;
+  int getLutGranularity(const HcalDetId& id) const;
+
 private:
   // typedef
   typedef unsigned short LutElement;
@@ -69,6 +74,7 @@ private:
   std::vector< Lut > inputLUT_;
   std::vector<float> gain_;
   std::vector<float> ped_;
+  float Rcalib[87];
 };
 
 #endif

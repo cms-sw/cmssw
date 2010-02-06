@@ -54,11 +54,7 @@ class JetAnaPythia : public edm::EDAnalyzer
        ///    all:   do analysis of everything and make histos and root tree
        ///    generating: analysis of everything, make histos and root tree
        std::string anaLevel; 
-       /// Generator cross section 
-       ///            Only 1 entry in case analysis level is "generating" ////
-       ///            Multiple entries when analyzing ///
-        std::vector<double> xsecGen;
-        std::vector<double> ptHatEdges;
-
+       /// Generator cross section in case analysis level is "generating" ////
+       double xsecGen;
    };
 #endif

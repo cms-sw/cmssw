@@ -24,6 +24,8 @@ protected:
 private:
   void saveForOffline(const std::string &workflow, int run, int lumi=0);
   void saveForOnline(const std::string &suffix, const std::string &rewrite);
+  std::string getShowTags(void);
+  void makeProvInfo();  
 
   enum Convention
   {
@@ -37,6 +39,7 @@ private:
   std::string	dirName_;
   int        	version_;
   bool		runIsComplete_;
+  bool	        makeProvInfo_;
 
   int		saveByLumiSection_;
   int		saveByEvent_;
@@ -59,9 +62,6 @@ private:
   int		nevent_;
   timeval	start_;
   timeval	saved_;
-
-  int			 numKeepSavedFiles_;
-  std::list<std::string> pastSavedFiles_;
   
   MonitorElement * versCMSSW_ ;
   MonitorElement * versDataset_ ;

@@ -29,7 +29,7 @@ TtSemiLepJetCombMVATrainer::~TtSemiLepJetCombMVATrainer()
 }
 
 void 
-TtSemiLepJetCombMVATrainer::beginJob(const edm::EventSetup&)
+TtSemiLepJetCombMVATrainer::beginJob()
 {
   for(unsigned int i = 0; i < 5; i++)
     nEvents[i] = 0;

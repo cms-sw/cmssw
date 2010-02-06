@@ -18,7 +18,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed Jan 16 15:55:28 CET 2008
-// $Id: HLTMon.h,v 1.2 2008/06/30 15:27:12 bjbloom Exp $
+// $Id: HLTMonElectron.h,v 1.3 2008/03/01 00:39:59 lat Exp $
 //
 //
 
@@ -56,7 +56,7 @@ class HLTMon : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& , const edm::Event&  ,unsigned int);

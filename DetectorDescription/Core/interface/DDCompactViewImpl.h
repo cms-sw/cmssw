@@ -35,7 +35,7 @@ public:
   void setRoot(const DDLogicalPart & root) { root_=root; }
 
   const DDLogicalPart & root() const { return root_; }
-
+  
   //deprecated!
   void print(std::ostream & os) { /*graph_.printHierarchy(os,root_);*/ }
   

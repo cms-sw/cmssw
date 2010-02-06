@@ -2,20 +2,12 @@
 #define TtSemiLepSignalSelMVAComputer_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 #ifndef TtSemiLepSignalSelMVARcd_defined  // to avoid conflicts with the TopSemiLepLepSignalSelMVATrainer
 #define TtSemiLepSignalSelMVARcd_defined
@@ -31,7 +23,7 @@ class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
   
  private:
 
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 

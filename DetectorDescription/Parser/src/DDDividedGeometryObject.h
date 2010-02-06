@@ -8,7 +8,6 @@
 
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
@@ -25,7 +24,7 @@ class DDDividedGeometryObject //: public DDDivision
 { 
  public:
   
-  DDDividedGeometryObject( const DDDivision& div, DDCompactView& cpv );
+  DDDividedGeometryObject( const DDDivision & div );
   
   virtual ~DDDividedGeometryObject();
   
@@ -65,8 +64,6 @@ class DDDividedGeometryObject //: public DDDivision
     double compWidth_;
     DivisionType divisionType_;
     int theVoluFirstCopyNo_;
-    DDCompactView& cpv_;
-
 };
 
 #endif

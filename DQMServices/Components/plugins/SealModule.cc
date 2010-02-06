@@ -20,8 +20,6 @@ DEFINE_ANOTHER_FWK_MODULE(DQMMessageLogger);
 DEFINE_ANOTHER_FWK_MODULE(DQMMessageLoggerClient);
 #include "DQMServices/Components/src/DQMFileReader.h"
 DEFINE_ANOTHER_FWK_MODULE(DQMFileReader);
-#include "DQMServices/Components/src/DQMProvInfo.h"
-DEFINE_ANOTHER_FWK_MODULE(DQMProvInfo);
 
 // Data Certification module for DAQ info
 #include "DQMServices/Components/src/DQMDaqInfo.h"

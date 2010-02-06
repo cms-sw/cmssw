@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.38 2009/10/27 05:42:51 loizides Exp $
+# $Id: InjectWorker.pl,v 1.37 2009/07/21 15:10:40 loizides Exp $
 
 use warnings;
 use strict;
@@ -9,14 +9,13 @@ use File::Basename;
 use Cwd;
 use Cwd 'abs_path';
 
-##############################################################################################################
-my $debug       = 0;  # toggled by SM_DEBUG              (enable debug printouts)
-my $nodbint     = 0;  # toggled by SM_DONTACCESSDB       (dont access any DB at all)
-my $nodbwrite   = 0;  # toggled by SM_DONTWRITEDB        (dont write to DB but retrieve HLT key from RunInfo)
-my $justnoti    = 0;  # toggled by SM_JUSTNOTI           (only notify Tier0)
-my $nofilecheck = 0;  # toggled by SM_NOFILECHECK        (dont do checks if files are locally accessible)
-my $ignorednso  = 0;  # toggled by SM_IGNOREDONTNOTIFYT0 (ignore DONTNOTIFYT0 stream option)
-##############################################################################################################
+############################################################################################################
+my $debug       = 0;  # toggled by SM_DEBUG        (enable debug printouts)
+my $nodbint     = 0;  # toggled by SM_DONTACCESSDB (dont access any DB at all)
+my $nodbwrite   = 0;  # toggled by SM_DONTWRITEDB  (dont write to DB but retrieve HLT key from run info db)
+my $justnoti    = 0;  # toggled by SM_JUSTNOTI     (only notify Tier0)
+my $nofilecheck = 0;  # toggled by SM_NOFILECHECK  (dont do checks if files are locally accessible)
+############################################################################################################
 
 # global vars
 my $endflag = 0; 
@@ -156,7 +155,6 @@ sub inject($$)
 {
     my $sth = $_[0];      #shift;
     my $doNotify = $_[1]; #shift;
-    my $runNotiS = $doNotify;
 
     my $filename    = $ENV{'SM_FILENAME'};
     my $count       = $ENV{'SM_FILECOUNTER'};
@@ -227,12 +225,6 @@ sub inject($$)
         $indfilesize = -1;
     }
 
-    if ($doNotify==1 && $ignorednso==0) {
-        if ($stream =~ '_DontNotifyT0$') {
-            $runNotiS = 0;
-        }
-    }
-
     if ($doNotify==0) {
 	my $stime = gettimestamp($starttime);
 
@@ -287,17 +279,15 @@ sub inject($$)
     if (!defined $sth) { 
         if ($debug) { 
             print "DB not defined, just returning 0\n";
-            if ($runNotiS) {
+            if ($doNotify) {
                 print "$TIERZERO\n";
                 if ($justnoti) {
                     system($TIERZERO);
                 }
             }
         } else {
-            if ($runNotiS) {
-                if ($justnoti) {
-                    system($TIERZERO);
-                }
+            if ($justnoti) {
+                system($TIERZERO);
             }
         }
         return 0;
@@ -319,7 +309,7 @@ sub inject($$)
         return -1; 
     }
 
-    if ($runNotiS) {
+    if ($doNotify) {
 	if ($debug) {print "Executing notification: $TIERZERO\n";}
         system($TIERZERO);
     }
@@ -350,10 +340,6 @@ if (defined $ENV{'SM_DONTWRITEDB'}) {
 
 if (defined $ENV{'SM_JUSTNOTI'}) { 
     $justnoti=1;
-}
-
-if (defined $ENV{'SM_IGNOREDONTNOTIFYT0'}) { 
-    $ignorednso=1;
 }
 
 # redirect signals

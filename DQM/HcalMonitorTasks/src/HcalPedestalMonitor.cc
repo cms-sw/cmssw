@@ -2,16 +2,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-/*
-  This is the old version of the Pedestal Monitor, that
-  checked presamples of all digis to estimate pedestals.
-  The newer version (HcalDetDiagPedestalMonitor) runs on
-  only orbit gap events (the HcalCalib stream).
-  
-  This code is now used only for dumping out the reference pedestals 
-  at the start of a run.
-*/
-
 HcalPedestalMonitor::HcalPedestalMonitor() 
 { 
   shape_=NULL; 
@@ -20,6 +10,8 @@ HcalPedestalMonitor::HcalPedestalMonitor()
 
 HcalPedestalMonitor::~HcalPedestalMonitor() 
 {
+  // Do we need to delete all pointers here?  If not, will he have a memory leak?  Does this even get explicitly called?  std::cout statements placed here didn't seem to work
+  
 } // destructor
 
 
@@ -51,121 +43,161 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
     std::cout <<"<HcalPedestalMonitor::setup>  Setting up histograms"<<endl;
 
   stringstream name;
-  baseFolder_ = rootFolder_+"ReferencePedestalMonitor_Hcal";
+  baseFolder_ = rootFolder_+"BaselineMonitor_Hcal";
 
   // Pedestal Monitor - specific cfg variables
-  makeDiagnostics = ps.getUntrackedParameter<bool>("ReferencePedestalMonitor_makeDiagnosticPlots",makeDiagnostics);
 
-  // if makeDiagnostics not set, only the reference histograms will be plotted
+  // set number of ped events needed for pedestal computation to be performed
 
-  // doFCpeds_ not needed; pedestals assumed to be read out in fC?
-  doFCpeds_ = ps.getUntrackedParameter<bool>("ReferencePedestalMonitor_pedestalsInFC", true);
-  
-  minEntriesPerPed_ = ps.getUntrackedParameter<unsigned int>("ReferencePedestalMonitor_minEntriesPerPed",1);
+  doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalMonitor_pedestalsInFC", true);
+
+  minEntriesPerPed_ = ps.getUntrackedParameter<unsigned int>("PedestalMonitor_minEntriesPerPed",1);
 
   // set expected pedestal mean, width (in ADC)
-  nominalPedMeanInADC_ = ps.getUntrackedParameter<double>("ReferencePedestalMonitor_nominalPedMeanInADC",3);
-  nominalPedWidthInADC_ = ps.getUntrackedParameter<double>("ReferencePedestalMonitor_nominalPedWidthInADC",1);
+  nominalPedMeanInADC_ = ps.getUntrackedParameter<double>("PedestalMonitor_nominalPedMeanInADC",3);
+  nominalPedWidthInADC_ = ps.getUntrackedParameter<double>("PedestalMonitor_nominalPedWidthInADC",1);
 
   // Set error limits that will cause problem histograms to be filled
-  maxPedMeanDiffADC_ = ps.getUntrackedParameter<double>("ReferencePedestalMonitor_maxPedMeanDiffADC",1.);
-  maxPedWidthDiffADC_ = ps.getUntrackedParameter<double>("ReferencePedestalMonitor_maxPedWidthDiffADC",1.);
+  maxPedMeanDiffADC_ = ps.getUntrackedParameter<double>("PedesstalMonitor_maxPedMeanDiffADC",1.);
+  maxPedWidthDiffADC_ = ps.getUntrackedParameter<double>("PedestalMonitor_maxPedWidthDiffADC",1.);
 
-  pedmon_minErrorFlag_ = ps.getUntrackedParameter<double>("ReferencePedestalMonitor_minErrorFlag", minErrorFlag_);
-  pedmon_checkNevents_ = ps.getUntrackedParameter<int>("ReferencePedestalMonitor_checkNevents", checkNevents_);
+  pedmon_minErrorFlag_ = ps.getUntrackedParameter<double>("PedestalMonitor_minErrorFlag", minErrorFlag_);
+  pedmon_checkNevents_ = ps.getUntrackedParameter<int>("PedestalMonitor_checkNevents", checkNevents_);
   
-  // set bins over which pedestals will be computed
-  startingTimeSlice_ = ps.getUntrackedParameter<int>("ReferencePedestalMonitor_startingTimeSlice",0);
-  endingTimeSlice_   = ps.getUntrackedParameter<int>("ReferencePedestalMonitor_endingTimeSlice"  ,1); 
+  makeDiagnostics = ps.getUntrackedParameter<bool>("PedestalMonitor_makeDiagnosticPlots",makeDiagnostics);
 
-  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> >("PedestalMonitor_AllowedCalibTypes",AllowedCalibTypes_);
+  // set bins over which pedestals will be computed
+  startingTimeSlice_ = ps.getUntrackedParameter<int>("PedestalMonitor_startingTimeSlice",0);
+  endingTimeSlice_   = ps.getUntrackedParameter<int>("PedestalMonitor_endingTimeSlice"  ,1); 
 
   ievt_=0;
 
+  if ( m_dbe ) 
+    {
+      m_dbe->setCurrentFolder(baseFolder_);
+      meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
+      meEVT_->Fill(ievt_);
+
+      // MeanMap, RMSMap values are in ADC, because they show the cells that can create problem cell errors 
+      SetupEtaPhiHists(MeanMapByDepth,"Pedestal Mean Map", "ADC");
+      SetupEtaPhiHists(RMSMapByDepth, "Pedestal RMS Map", "ADC");
+      
+      ProblemCells=m_dbe->book2D(" ProblemPedestals",
+				     " Problem Pedestal Rate for all HCAL",
+				     85,-42.5,42.5,
+				     72,0.5,72.5);
+      
+      ProblemCells->setAxisTitle("i#eta",1);
+      ProblemCells->setAxisTitle("i#phi",2);
+      SetEtaPhiLabels(ProblemCells);
+
+      // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
+      m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
+
+      SetupEtaPhiHists(ProblemCellsByDepth, " Problem Pedestal Rate","");
+
+      m_dbe->setCurrentFolder(baseFolder_+"/adc/unsubtracted");
+      SetupEtaPhiHists(ADCPedestalMean, "Pedestal Values Map","ADC");
+      SetupEtaPhiHists( ADCPedestalRMS, "Pedestal Widths Map","ADC");
+      setupDepthHists1D(ADCPedestalMean_1D, "1D Pedestal Values",
+			"ADC",0,10,200);
+      setupDepthHists1D(ADCPedestalRMS_1D, "1D Pedestal Widths",
+			"ADC",0,10,200);
+
+      // Subtracted pedetals (disable for now)
+      /*
+      m_dbe->setCurrentFolder(baseFolder_+"/adc/subtracted(BETA)");
+      SetupEtaPhiHists(subADCPedestalMean, "Subtracted Pedestal Values Map",
+			"ADC");
+      SetupEtaPhiHists(subADCPedestalRMS, "Subtracted Pedestal Widths Map",
+			"ADC");
+      setupDepthHists1D(subADCPedestalMean_1D, "1D Subtracted Pedestal Values",
+			"ADC",-10,10,200);
+      setupDepthHists1D(subADCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
+			"ADC",-10,10,200);
+      */
+
+      m_dbe->setCurrentFolder(baseFolder_+"/fc/unsubtracted");
+      SetupEtaPhiHists(fCPedestalMean, "Pedestal Values Map",
+			"fC");
+      SetupEtaPhiHists(fCPedestalRMS, "Pedestal Widths Map",
+			"fC");
+      setupDepthHists1D(fCPedestalMean_1D, "1D Pedestal Values",
+			"fC",-5,15,200);
+      setupDepthHists1D(fCPedestalRMS_1D, "1D Pedestal Widths",
+			"fC",0,10,200);
+
+      /*
+      m_dbe->setCurrentFolder(baseFolder_+"/fc/subtracted(BETA)");
+      SetupEtaPhiHists(subfCPedestalMean, "Subtracted Pedestal Values Map",
+			"fC");
+      SetupEtaPhiHists(subfCPedestalRMS, "Subtracted Pedestal Widths Map",
+			"fC");
+      setupDepthHists1D(subfCPedestalMean_1D, "1D Subtracted Pedestal Values",
+			"fC",-10,10,200);
+      setupDepthHists1D(subfCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
+			"fC",-10,10,200);
+      */
+
+      m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
+      SetupEtaPhiHists(ADC_PedestalFromDBByDepth, 
+			"Pedestal Values from DataBase","ADC");
+      SetupEtaPhiHists(ADC_WidthFromDBByDepth, 
+			"Pedestal Widths from DataBase","ADC");
+      setupDepthHists1D(ADC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
+			"ADC",0,10,200);
+      setupDepthHists1D(ADC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
+			"ADC",0,10,200);
+
+
+      m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/fc");
+      SetupEtaPhiHists(fC_PedestalFromDBByDepth, 
+			"Pedestal Values from DataBase","fC");
+		      
+      SetupEtaPhiHists(fC_WidthFromDBByDepth, 
+			"Pedestal Widths from DataBase","fC");
+      setupDepthHists1D(fC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
+			"fC",-5,15,200);
+      setupDepthHists1D(fC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
+			"fC",0,10,200);
+
+
+      // setup zdc histograms
+      if (checkZDC_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/zdc/");
+	  name.str("");
+	  for (int side=0;side<2;++side)
+	    {
+	      for (int section=0;section<2;++section)
+		{
+		  for (int depth=0; depth<5;++depth)
+		    {
+		      if (section==1 && depth==4) continue;
+		      name<<"ZDC Pedestal Side = "<<(side+1)<<" section = "<<(section+1)<<" channel = "<<(depth + 1);
+		      zdc_pedestals.push_back(m_dbe->book1D(name.str().c_str(),
+							    name.str().c_str(),
+							    25,0,25));
+		      name.str("");
+		    }
+		}
+	    }
+	}// if (checkZDC_)
+      for (unsigned int zz=0;zz<zdc_pedestals.size();++zz)
+	zdc_pedestals[zz]->setAxisTitle("ADC counts");
+      zeroCounters();
+
+    } // if (m_dbe)
+
+  
   if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalPedestalMonitor SETUP -> "<<cpu_timer.cpuTime()<<endl;
     }
-
-  return;
-} // void HcalPedestalMonitor::setup()
-
-void HcalPedestalMonitor::beginRun()
-{
-  HcalBaseMonitor::beginRun();
-  zeroCounters();
-  if (!m_dbe) return; //Set up histograms at beginning of run
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
- 
-  m_dbe->setCurrentFolder(baseFolder_);
-  meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
-  meEVT_->Fill(ievt_);
-  ProblemCells=m_dbe->book2D(" ProblemReferencePedestals",
-			     " Problem Reference Pedestal Rate for all HCAL;i#eta;i#phi",
-			     85,-42.5,42.5,
-			     72,0.5,72.5);
-  SetEtaPhiLabels(ProblemCells);
-  
-  m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
-  SetupEtaPhiHists(ADC_PedestalFromDBByDepth, 
-		   "Pedestal Values from DataBase","ADC");
-  SetupEtaPhiHists(ADC_WidthFromDBByDepth, 
-		   "Pedestal Widths from DataBase","ADC");
-  setupDepthHists1D(ADC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
-		    "ADC",0,15,120);
-  setupDepthHists1D(ADC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
-		    "ADC",0,5,40);
-  
-  m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/fc");
-  SetupEtaPhiHists(fC_PedestalFromDBByDepth, 
-		   "Pedestal Values from DataBase","fC");
-  
-  SetupEtaPhiHists(fC_WidthFromDBByDepth, 
-		   "Pedestal Widths from DataBase","fC");
-  setupDepthHists1D(fC_1D_PedestalFromDBByDepth, "1D Reference Pedestal Values",
-		    "fC",-5,20,250);
-  setupDepthHists1D(fC_1D_WidthFromDBByDepth, "1D Reference Pedestal Widths",
-		    "fC",0,5,100);
-  
-  // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
-  m_dbe->setCurrentFolder(baseFolder_+"/problem_referencepedestals");
-  SetupEtaPhiHists(ProblemCellsByDepth, " Problem Reference Pedestal Rate","");
-  
-  if (!makeDiagnostics)
-    return;
-  m_dbe->setCurrentFolder(baseFolder_);
-  SetupEtaPhiHists(MeanMapByDepth,"Pedestal Mean Map", "ADC");
-  SetupEtaPhiHists(RMSMapByDepth, "Pedestal RMS Map", "ADC");
-  
-  m_dbe->setCurrentFolder(baseFolder_+"/adc/unsubtracted");
-  SetupEtaPhiHists(ADCPedestalMean, "Pedestal Values Map","ADC");
-  SetupEtaPhiHists( ADCPedestalRMS, "Pedestal Widths Map","ADC");
-  setupDepthHists1D(ADCPedestalMean_1D, "1D Pedestal Values",
-		    "ADC",0,15,200);
-  setupDepthHists1D(ADCPedestalRMS_1D, "1D Pedestal Widths",
-		    "ADC",0,5,40);
-  
-  m_dbe->setCurrentFolder(baseFolder_+"/fc/unsubtracted");
-  SetupEtaPhiHists(fCPedestalMean, "Pedestal Values Map",
-		   "fC");
-  SetupEtaPhiHists(fCPedestalRMS, "Pedestal Widths Map",
-		   "fC");
-  setupDepthHists1D(fCPedestalMean_1D, "1D Pedestal Values",
-		    "fC",-5,20,200);
-  setupDepthHists1D(fCPedestalRMS_1D, "1D Pedestal Widths",
-			"fC",0,5,100);
-  
-  if (showTiming)
-    {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalPedestalMonitor BEGINRUN -> "<<cpu_timer.cpuTime()<<endl;
-    }
   
   return;
 
-} // void HcalPedestalMonitor::beginRun(...)
+} // void HcalPedestalMonitor::setup(...)
 
 
 // *************************************************** //
@@ -174,31 +206,9 @@ void HcalPedestalMonitor::beginRun()
 void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				       const HODigiCollection& ho,
 				       const HFDigiCollection& hf,
-				       int CalibType,
+				       const ZDCDigiCollection& zdc, // ZDCs not yet added
 				       const HcalDbService& cond)
 {
-  if (!makeDiagnostics) // in normal running, this pedetal monitor shouldn't run
-    return;
-
-  // Check that event is of proper calibration type
-  bool processevent=false;
-  if (AllowedCalibTypes_.size()==0)
-    processevent=true;
-  else
-    {
-      for (unsigned int i=0;i<AllowedCalibTypes_.size();++i)
-	{
-	  if (AllowedCalibTypes_[i]==CalibType)
-	    {
-	      processevent=true;
-	      break;
-	    }
-	}
-    }
-  if (fVerbosity>1) std::cout <<"<HcalPedestalMonitor::processEvent>  calibType = "<<CalibType<<"  processing event? "<<processevent<<endl;
-  if (!processevent)
-    return;
-
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -217,37 +227,63 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   CaloSamples tool;  // digi values in ADC will be converted to fC values stored in tool
   float ADC_myval=0;
 
+  // dummy fills for histograms
+  for (unsigned int i=0;i<MeanMapByDepth.depth.size();++i)
+    {
+      MeanMapByDepth.depth[i]->setBinContent(0,ievt_);
+      RMSMapByDepth.depth[i]->setBinContent(0,ievt_);
+      ADC_PedestalFromDBByDepth.depth[i]->setBinContent(0,ievt_);
+      ADC_WidthFromDBByDepth.depth[i]->setBinContent(0,ievt_);
+      fC_PedestalFromDBByDepth.depth[i]->setBinContent(0,ievt_);
+      fC_WidthFromDBByDepth.depth[i]->setBinContent(0,ievt_);
+      ADCPedestalMean.depth[i]->setBinContent(0,ievt_);
+      ADCPedestalRMS.depth[i]->setBinContent(0,ievt_);
+      fCPedestalMean.depth[i]->setBinContent(0,ievt_);
+      fCPedestalRMS.depth[i]->setBinContent(0,ievt_);
+      // Disable subtracted pedestals for now
+      //subADCPedestalMean.depth[i]->setBinContent(0,ievt_);
+      //subADCPedestalRMS.depth[i]->setBinContent(0,ievt_);
+      //subfCPedestalMean.depth[i]->setBinContent(0,ievt_);
+      //subfCPedestalRMS.depth[i]->setBinContent(0,ievt_);
+      ProblemCellsByDepth.depth[i]->setBinContent(0,ievt_);
+    }
+
   for (unsigned int i=0;i<ADC_1D_PedestalFromDBByDepth.size();++i)
     {
-      ADC_1D_PedestalFromDBByDepth[i]->update();
-      ADC_1D_WidthFromDBByDepth[i]->update();
-      fC_1D_PedestalFromDBByDepth[i]->update();
-      fC_1D_WidthFromDBByDepth[i]->update();
-      ADCPedestalMean_1D[i]->update();
-      ADCPedestalRMS_1D[i]->update();
-      fCPedestalMean_1D[i]->update();
-      fCPedestalRMS_1D[i]->update();
+      ADC_1D_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
+      ADC_1D_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
+      fC_1D_PedestalFromDBByDepth[i]->setBinContent(0,ievt_);
+      fC_1D_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
+      ADCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      ADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      fCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      fCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      // Disable subtracted pedestals for now
+      //subfCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      //subfCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      //subADCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      //subADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
     }
-  ProblemCells->update();
-  for (unsigned int i=0;i<ProblemCellsByDepth.depth.size();++i)
-    ProblemCellsByDepth.depth[i]->update();
-  
-  if (makeDiagnostics)
+  ProblemCells->setBinContent(0,ievt_);
+
+
+  //ZDC loop
+  for (ZDCDigiCollection::const_iterator j=zdc.begin();
+       j!=zdc.end();++j)
+
     {
-      // dummy fills for histograms
-      for (unsigned int i=0;i<MeanMapByDepth.depth.size();++i)
+      const ZDCDataFrame digi = (const ZDCDataFrame)(*j);
+      int zside = digi.id().zside()==1 ? 0 : 1;
+      int section = digi.id().section()-1;
+      int channel = digi.id().channel()-1;
+      for (int k=0;k<digi.size();++k)
 	{
-	  MeanMapByDepth.depth[i]->update();
-	  RMSMapByDepth.depth[i]->update();
-	  ADC_PedestalFromDBByDepth.depth[i]->update();
-	  ADC_WidthFromDBByDepth.depth[i]->update();
-	  fC_PedestalFromDBByDepth.depth[i]->update();
-	  fC_WidthFromDBByDepth.depth[i]->update();
-	  ADCPedestalMean.depth[i]->update();
-	  ADCPedestalRMS.depth[i]->update();
-	  fCPedestalMean.depth[i]->update();
-	  fCPedestalRMS.depth[i]->update();
-	  ProblemCellsByDepth.depth[i]->update();
+	  int zdc_myval=digi.sample(k).adc();
+	  if (zdc_myval>=0 && zdc_myval<=24)
+	    ++zdc_ADC_peds[zside][section][channel][zdc_myval];
+	  else // over/underflow bin
+	    ++zdc_ADC_peds[zside][section][channel][25];
+	  ++zdc_ADC_count[zside][section][channel];
 	}
     }
 
@@ -395,11 +431,27 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if (!makeDiagnostics) return; // don't bother filling histograms unless makeDiagnostics is true
-
   // Fills pedestal histograms
   if (fVerbosity>0) 
     std::cout <<"<HcalPedestalMonitor::fillPedestalHistos> Entered fillPedestalHistos routine"<<endl;
+  
+
+  // fill zdc histograms
+  for (unsigned int zs=0;zs<2;++zs)
+    {
+      for (unsigned int sec=0;sec<2;++sec)
+	{
+	  for (unsigned int ch=0;ch<5;++ch)
+	    {
+	      unsigned int counter=9*zs+5*sec+ch;
+	      if (counter>=zdc_pedestals.size())
+		continue;
+	      for (int a=0;a<25;++a)
+		zdc_pedestals[counter]->setBinContent(a+1,zdc_ADC_peds[zs][sec][ch][a]);
+	    }
+	}
+    }
+
 
   // Set value to be filled in problem histograms to be checkNevents (or remainder of ievt_/pedmon_checkNevents_)
   
@@ -412,33 +464,31 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
   int subdet=0;
   int ieta=-9999;
 
-
   for (int i=0;i<4;++i)
     {
-      ADCPedestalMean_1D[i]->Reset();
-      ADCPedestalRMS_1D[i]->Reset();
-      fCPedestalMean_1D[i]->Reset();
-      fCPedestalRMS_1D[i]->Reset();
+      ADCPedestalMean_1D[subdet]->Reset();
+      ADCPedestalRMS_1D[subdet]->Reset();
+      fCPedestalMean_1D[subdet]->Reset();
+      fCPedestalRMS_1D[subdet]->Reset();
   
       //subtracted pedestals -- disable for now
       /*
-      subADCPedestalMean_1D[i]->Reset();
-      subADCPedestalRMS_1D[i]->Reset();
-      subfCPedestalMean_1D[i]->Reset();
-      subfCPedestalRMS_1D[i]->Reset();
+      subADCPedestalMean_1D[subdet]->Reset();
+      subADCPedestalRMS_1D[subdet]->Reset();
+      subfCPedestalMean_1D[subdet]->Reset();
+      subfCPedestalRMS_1D[subdet]->Reset();
       */
     }
 
   ProblemCells->Reset();
-  //ProblemCells->setBinContent(0,0,ievt_);
+  ProblemCells->setBinContent(0,0,ievt_);
   int etabins=0;
   int phibins=0;
   int zside=0;
-
   for (int depth=0;depth<4;++depth)
     {
       ProblemCellsByDepth.depth[depth]->Reset();
-      //ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+      ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
       subdet=depth+1;
       etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
       phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
@@ -454,25 +504,22 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 
 	      if (depth<2)
 		{
-		  if (depth==0)
+		  if (depth==1)
 		    {
-		      if (abs(ieta)<17) subdet=1; // HB
-		      else if (eta<13 || eta > 71) subdet=4; // HF
-		      else {subdet=2;} // HE
+		      if (abs(ieta)<17) subdet=1;
+		      else if (eta<13 || eta>71) subdet=4;
+		      else subdet=2;
 		    }
-		  else if (depth==1)
+		  else if (depth==2)
 		    {
-		      if (abs(ieta)<17) subdet=1; // HB
-		      else if (eta<13 || eta>43) subdet=4; // HF
-		      else {subdet=2;}// HE
+		      if (abs(ieta)<13) subdet=1;
+		      else if (eta<13 || eta>43) subdet=4;
+		      else subdet=2;
 		    }
 		}
 	      else if (depth==3) // "true" depth=4; HO
 		subdet=3;
-	      else if (depth==2)
-		{
-		  subdet=2; //"true" depth=3; HE 
-		}
+	      else subdet=2; //"true" depth=3; HE 
 	      // fillvalue = fraction of events used for pedestal determination
 	      // a small fillvalue causes the problem plots to get filled with a smaller value than a large fillvalue
 	      if ((endingTimeSlice_-startingTimeSlice_+1)*ievt_==0) continue;
@@ -480,7 +527,6 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 
 	      // Compute mean and RMS for raw and subtracted pedestals in units of fC and ADC (phew!)
 
-	      
 	      ADC_mean= 1.*ADC_pedsum[eta][phi][depth]/pedcounts[eta][phi][depth]; 
 	      ADC_RMS = 1.0*ADC_pedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-1.*ADC_mean*ADC_mean;
 	      ADC_RMS=pow(fabs(ADC_RMS),0.5);
@@ -504,7 +550,6 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      //subtracted pedestals
 	      ADC_temp_mean = ADC_mean-ADC_PedestalFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      ADC_temp_RMS = ADC_RMS-ADC_WidthFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
-	   
 	      // disable subtracted histograms for now
 	      /* 
 	      subADCPedestalMean.depth[depth]->setBinContent(eta+1,phi+1,ADC_temp_mean);
@@ -512,7 +557,6 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      subADCPedestalMean_1D[subdet-1]->Fill(ADC_temp_mean);
 	      subADCPedestalRMS_1D[subdet-1]->Fill(ADC_temp_RMS);
 	      */
-	      
 	      fC_temp_mean = fC_mean-fC_PedestalFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      fC_temp_RMS = fC_RMS-fC_WidthFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      /*
@@ -548,6 +592,7 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	    } // for (int phi)
 	} // for (int eta)
     } // for (int depth...)
+  
   etabins=ProblemCells->getNbinsX();
   phibins=ProblemCells->getNbinsY();
 
@@ -615,6 +660,7 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
       cpu_timer.reset(); cpu_timer.start();
     }
 
+
   if(!shape_) shape_ = cond.getHcalShape(); // this one is generic
 
   double ADC_ped=0;
@@ -630,11 +676,11 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
     {
       for (int depth=0;depth<4;++depth)
 	{
-	  for (int eta=0;eta<ADC_PedestalFromDBByDepth.depth[depth]->getNbinsX();++eta)
+	  for (int eta=0;eta<ADCPedestalMean.depth[depth]->getNbinsX();++eta)
 	    {
 	      ieta=CalcIeta(subdet,eta,depth+1);
 	      if (ieta==-9999) continue;
-	      for (int phi=0;phi<ADC_PedestalFromDBByDepth.depth[depth]->getNbinsY();++phi)
+	      for (int phi=0;phi<ADCPedestalMean.depth[depth]->getNbinsY();++phi)
 		{
 		  iphi=phi+1;
 		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, depth+1)) continue;
@@ -720,21 +766,6 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
   FillUnphysicalHEHFBins(fC_PedestalFromDBByDepth);
   FillUnphysicalHEHFBins(fC_WidthFromDBByDepth);
 
-  // Center ADC pedestal values near 3 +/- 1
-  for (unsigned int i=0;i<ADC_PedestalFromDBByDepth.depth.size();++i)
-  {
-    ADC_PedestalFromDBByDepth.depth[i]->getTH2F()->SetMinimum(0);
-    if (ADC_PedestalFromDBByDepth.depth[i]->getTH2F()->GetMaximum()<6)
-      ADC_PedestalFromDBByDepth.depth[i]->getTH2F()->SetMaximum(6);
-  }
-
-  for (unsigned int i=0;i<ADC_WidthFromDBByDepth.depth.size();++i)
-  {
-    ADC_WidthFromDBByDepth.depth[i]->getTH2F()->SetMinimum(0);
-    if (ADC_WidthFromDBByDepth.depth[i]->getTH2F()->GetMaximum()<2)
-      ADC_WidthFromDBByDepth.depth[i]->getTH2F()->SetMaximum(2);
-  }
-
   if (showTiming)
     {
       cpu_timer.stop();  
@@ -747,6 +778,21 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 
 void HcalPedestalMonitor::zeroCounters(void)
 {
+  for (unsigned int zs=0;zs<2;++zs)
+    {
+      for (unsigned int sec=0;sec<2;++sec)
+	{
+	  for (unsigned int ch=0;ch<5;++ch)
+	    {
+	      zdc_ADC_count[zs][sec][ch]=0;
+	      for (unsigned int tt=0;tt<25;++tt)
+		{
+		  zdc_ADC_peds[zs][sec][ch][tt]=0;
+		} 
+	    }
+	}
+    }
+
   // initialize all counters to 0
   for (unsigned int eta=0;eta<85;++eta)
     {
@@ -762,7 +808,7 @@ void HcalPedestalMonitor::zeroCounters(void)
 	    } // loop over depths
 	} // loop over phi
     } // loop over eta
-  return;
+  
 }
 
 // ******************************************************** //

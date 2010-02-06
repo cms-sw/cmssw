@@ -127,7 +127,7 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
 }
 
 void 
-TtSemiLepSignalSelMVAComputer::beginJob(const edm::EventSetup&)
+TtSemiLepSignalSelMVAComputer::beginJob()
 {
 }
 

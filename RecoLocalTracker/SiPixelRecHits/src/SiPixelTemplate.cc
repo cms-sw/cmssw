@@ -851,7 +851,7 @@ if(id != id_current || cotalpha != cota_current || cotbeta != cotb_current) {
 	 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
     if(index_id < 0 || index_id >= (int)thePixelTemp.size()) {
-      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::interpolate can't find needed template ID = " << id << ".\n !!! Are you using the correct global tag?" << std::endl;
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::interpolate can't find needed template ID = " << id << std::endl;
 	}
 #else
 	assert(index_id >= 0 && index_id < (int)thePixelTemp.size());
@@ -1906,7 +1906,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 	 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 	   if(index_id < 0 || index_id >= (int)thePixelTemp.size()) {
-	     throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin can't find needed template ID = " << id << ".\n !!! Are you using the correct global tag?" << std::endl;
+	      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin can't find needed template ID = " << id << std::endl;
 	   }
 #else
 	   assert(index_id >= 0 && index_id < (int)thePixelTemp.size());
@@ -2226,7 +2226,7 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
 	
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 	if(index_id < 0 || index_id >= (int)thePixelTemp.size()) {
-	  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::temperrors can't find needed template ID = " << id << ".\n !!! Are you using the correct global tag?" <<  std::endl;
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::temperrors can't find needed template ID = " << id << std::endl;
 	}
 #else
 	assert(index_id >= 0 && index_id < (int)thePixelTemp.size());
@@ -2430,7 +2430,7 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
 	
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 	if(index_id < 0 || index_id >= (int)thePixelTemp.size()) {
-	  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::temperrors can't find needed template ID = " << id << ".\n !!! Are you using the correct global tag?" << std::endl;
+		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::temperrors can't find needed template ID = " << id << std::endl;
 	}
 #else
 	assert(index_id >= 0 && index_id < (int)thePixelTemp.size());

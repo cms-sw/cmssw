@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalMIPRecHitFilter.cc,v 1.4 2008/05/06 20:13:54 haupt Exp $
+// $Id: EcalMIPRecHitFilter.cc,v 1.2 2008/03/28 02:09:05 haupt Exp $
 //
 //
 
@@ -39,14 +39,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
 //
 // class declaration
@@ -122,21 +114,6 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ESHandle<CaloTopology> caloTopo;
    iSetup.get<CaloTopologyRecord>().get(caloTopo);
 
-   // Intercalib constants
-   edm::ESHandle<EcalIntercalibConstants> pIcal;
-   iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-   const EcalIntercalibConstants* ical = pIcal.product();
-   const EcalIntercalibConstantMap& icalMap=ical->getMap();
-   
-   edm::ESHandle<EcalLaserDbService> pLaser;
-   iSetup.get<EcalLaserDbRecord>().get( pLaser );
-   
-   edm::ESHandle<EcalADCToGeVConstant> pAgc;
-   iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-   const EcalADCToGeVConstant* agc = pAgc.product();
-   //std::cout << "Global EB ADC->GeV scale: " << agc->getEBValue() << " GeV/ADC count" ;
-   float adcconst = agc->getEBValue();
-   
    bool thereIsSignal = false;  
    // loop on  rechits
    for ( EcalRecHitCollection::const_iterator hitItr = recHits->begin(); hitItr != recHits->end(); ++hitItr ) {
@@ -152,19 +129,7 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      float ampli_ = hit.energy();
      EBDetId ebDet = hit.id();
-	 
-	 // find intercalib constant for this xtal
-	 EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(ebDet);
-         EcalIntercalibConstant icalconst = 1.;
-	 if( icalit!=icalMap.end() ){
-	   icalconst = (*icalit);
-	   //	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
-	 } else {
-	   //edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(ebDet) << "! something wrong with EcalIntercalibConstants in your DB? " ;
-	 }
-	 float lasercalib = pLaser->getLaserCorrection( EBDetId(ebDet), iEvent.time() );
-
-	 ampli_ /= (icalconst * lasercalib * adcconst);///LASER and CALIB constants from the DB //PUT THRESHOLDS IN ADC... AGAIN.
+     
      // seeking channels with signal and displaced jitter
      if (ampli_ >= minSingleAmp_  ) 
        {
@@ -188,27 +153,15 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      EcalRecHitCollection::const_iterator thishit = recHits->find((*detitr));
               if (thishit == recHits->end()) 
 		{
-		  //LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
+		  LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
 		  continue;
 		}
-	     if ((*thishit).id() != ebDet)
-                {
-                  float thisamp = (*thishit).energy();
-				  // find intercalib constant for this xtal
-				  EcalIntercalibConstantMap::const_iterator icalit2=icalMap.find((*thishit).id());
-				  EcalIntercalibConstant icalconst2 = 1.;
-	              if( icalit2!=icalMap.end() ){
-	                 icalconst2 = (*icalit2);
-	              //	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
-	              } else {
-	              //edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(ebDet) << "! something wrong with EcalIntercalibConstants in your DB? " ;
-	              }
-	              float lasercalib2 = pLaser->getLaserCorrection( EBDetId((*thishit).id()), iEvent.time() );
-				  thisamp /= (icalconst2 * lasercalib2 * adcconst);///LASER and CALIB constants from the DB
-                  if (thisamp > secondMin) secondMin = thisamp;
-                } 
+	      float thisamp = (*thishit).energy();
+              //E9+=thisamp;
+	      if (thisamp > secondMin) secondMin = thisamp;
 	    }
-	    
+	  if (secondMin > ampli_) std::swap(ampli_,secondMin);
+          //double E2 = ampli_ + secondMin;
           if (secondMin > minAmp2_ ) 
 	    {
 	       thereIsSignal = true;

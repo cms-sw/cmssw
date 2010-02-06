@@ -14,7 +14,7 @@ void HcalBeamClient::init(const ParameterSet& ps, DQMStore* dbe,string clientNam
 
   beamclient_checkNevents_ = ps.getUntrackedParameter<int>("BeamClient_checkNevents",100);
 
-  minErrorFlag_ = ps.getUntrackedParameter<double>("BeamClient_minErrorFlag",0.05);
+  minErrorFlag_ = ps.getUntrackedParameter<double>("BeamClient_minErrorFlag",0.0);
 
   beamclient_makeDiagnostics_ = ps.getUntrackedParameter<bool>("BeamClient_makeDiagnosticPlots",false);
 
@@ -122,7 +122,7 @@ void HcalBeamClient::beginJob(){
 	}
     }    
   return;
-} // void HcalBeamClient::beginJob()
+} // void HcalBeamClient::beginJob(const EventSetup& eventSetup);
 
 
 void HcalBeamClient::beginRun(void)
@@ -485,96 +485,7 @@ void HcalBeamClient::analyze(void)
     {
       if ( debug_>1 ) cout << "<HcalBeamClient::analyze>  Running analyze "<<endl;
     }
-  
-  // Reset problem cell histograms
-  if (ProblemCells!=0)
-    {
-      ProblemCells->Reset();
-      (ProblemCells->getTH2F())->SetMaximum(1.);
-      (ProblemCells->getTH2F())->SetMinimum(0.);
-    }
-  for  (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
-    {
-      if (ProblemCellsByDepth.depth[d]!=0)
-	{
-	  ProblemCellsByDepth.depth[d]->Reset();
-	  (ProblemCellsByDepth.depth[d]->getTH2F())->SetMaximum(1.);
-	  (ProblemCellsByDepth.depth[d]->getTH2F())->SetMinimum(0.);
-	}
-    }
-  // For now, problem cells can are those that are found to be hot or dead.
-  // At some point, add the "ABNORMAL" cell histogram into the calculation
-
-  TH2F* dead = getTH2F("BeamMonitor_Hcal/Lumi/HFlumi_total_deadcells",process_,rootFolder_,dbe_,debug_,cloneME_);
-  TH2F* hot  = getTH2F("BeamMonitor_Hcal/Lumi/HFlumi_total_hotcells",process_,rootFolder_,dbe_,debug_,cloneME_);
-
-  int myieta=0;
-  int mydepth=0;
-  int myphi=0;
-  double totalLumiBlocks=0;
-  if (dead!=0)
-    {
-      totalLumiBlocks=dead->GetBinContent(-1,-1);
-      if (totalLumiBlocks>0)
-	{
-	  for (int i=0;i<dead->GetNbinsX();++i)
-	    {
-	      if (i<3)
-		myieta=i-36;
-	      else
-		myieta=i+29;
-	      if (abs(myieta)==33 || abs(myieta)==34)
-		mydepth=1;
-	      else if (abs(myieta)==35 || abs(myieta)==36)
-		mydepth=2;
-	      myieta<0?  --myieta : ++myieta; // need to shift the ieta values by +/-1 for filling
-	      for (int j=0;j<dead->GetNbinsY();++j)
-		{
-		  myphi=2*j+1;
-		  // Fill each cell with fraction failure content
-		  if (dead->GetBinContent(i+1,j+1)/totalLumiBlocks>minErrorFlag_)
-		    {
-		      ProblemCellsByDepth.depth[mydepth-1]->Fill(myieta,myphi,dead->GetBinContent(i+1,j+1)/totalLumiBlocks);
-		      ProblemCells->Fill(myieta,myphi,dead->GetBinContent(i+1,j+1)/totalLumiBlocks);
-		    } // dead/totalLumiBlocks > minError
-		} // loop over phi
-	    } // loop over eta
-	} // totallumiblocks>0
-    } //dead cell histogram found
-	
-  if (hot!=0)
-    {
-      totalLumiBlocks=hot->GetBinContent(-1,-1);
-      if (totalLumiBlocks>0)
-	{
-	  for (int i=0;i<hot->GetNbinsX();++i)
-	    {
-	      if (i<3)
-		myieta=i-36;
-	      else
-		myieta=i+29;
-	      if (abs(myieta)==33 || abs(myieta)==34)
-		mydepth=1;
-	      else if (abs(myieta)==35 || abs(myieta)==36)
-		mydepth=2;
-	      myieta<0?  --myieta : ++myieta; // need to shift the ieta values by +/-1 for filling
-	      for (int j=0;j<hot->GetNbinsY();++j)
-		{
-		  myphi=2*j+1;
-		  // Fill each cell with fraction failure content
-		  if (hot->GetBinContent(i+1,j+1)/totalLumiBlocks>minErrorFlag_)
-		    {
-		      ProblemCellsByDepth.depth[mydepth-1]->Fill(myieta,myphi,hot->GetBinContent(i+1,j+1)/totalLumiBlocks);
-		      ProblemCells->Fill(myieta,myphi,hot->GetBinContent(i+1,j+1)/totalLumiBlocks);
-		    } // hot/totalLumiBlocks > minError
-		} // loop over phi
-	    } // loop over eta
-	} // totallumiblocks>0
-    } //hot cell histogram found
-
-  FillUnphysicalHEHFBins(ProblemCellsByDepth);
-  FillUnphysicalHEHFBins(ProblemCells);
-
+  //getHistograms();
   return;
 } // void HcalBeamClient::analyze(void)
 

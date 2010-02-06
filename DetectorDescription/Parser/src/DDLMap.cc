@@ -17,9 +17,8 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-
 //  The "real" DDLMap members.
-DDLMap::DDLMap(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
+DDLMap::DDLMap()
 {
 }
 
@@ -60,23 +59,23 @@ template <typename ScannerT> struct Mapper::definition
 
 void MapPair::operator() (char const* str, char const* end) const
 { 
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLElementRegistry::instance()->getElement("Map"));
   myDDLMap->do_pair(str, end);
 }
 
 void MapMakeName::operator() (char const* str, char const* end) const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLElementRegistry::instance()->getElement("Map"));
   myDDLMap->do_makeName(str, end);
 }
 
 void MapMakeDouble::operator() (char const* str, char const* end)const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLElementRegistry::instance()->getElement("Map"));
   myDDLMap->do_makeDouble(str, end);
 }
 
-void DDLMap::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLMap::preProcessElement (const std::string& name, const std::string& nmspace)
 {
   pName = "";
   pMap.clear() ;
@@ -85,7 +84,7 @@ void DDLMap::preProcessElement (const std::string& name, const std::string& nmsp
   pNameSpace = nmspace;
 }
 
-void DDLMap::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLMap::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLMap::processElement started");
 
@@ -108,6 +107,7 @@ void DDLMap::processElement (const std::string& name, const std::string& nmspace
   
   pMap.clear();
 
+  //left this in to mimimize confusion with parse method of DD
   parse_info<> info = boost::spirit::classic::parse(tTextToParse.c_str(), mapGrammar >> end_p, space_p);
   if (!info.full)
     {

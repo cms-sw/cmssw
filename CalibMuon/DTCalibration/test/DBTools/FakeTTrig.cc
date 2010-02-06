@@ -1,8 +1,8 @@
  /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/08 15:11:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/12/09 22:44:11 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -66,15 +66,15 @@ FakeTTrig::~FakeTTrig(){
   cout << "[FakeTTrig] Destructor called! " << endl;
 }
 
-void FakeTTrig::beginRun(const edm::Run&, const EventSetup& setup) {
-  //void FakeTTrig::beginJob(const edm::EventSetup& context){
 
-  cout << "[FakeTTrig] entered into beginRun! " << endl;
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+void FakeTTrig::beginJob(const edm::EventSetup& context){
+
+  cout << "[FakeTTrig] entered into beginJob! " << endl;
+  context.get<MuonGeometryRecord>().get(muonGeom);
 
   // Get the tTrig reference map
   if (ps.getUntrackedParameter<bool>("readDB", true)) 
-    setup.get<DTTtrigRcd>().get(tTrigMapRef);
+    context.get<DTTtrigRcd>().get(tTrigMapRef);
   
 }
 
@@ -102,16 +102,12 @@ void FakeTTrig::endJob() {
 
     if ( ps.getUntrackedParameter<bool>("readDB", true) ){
       tTrigMapRef->get((*sl)->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns );
-      // pedestral = tTrigRef;
-      pedestral = tTrigRef +  kFactorRef*tTrigRMSRef ;
+      pedestral = tTrigRef;
     }
 
     DTSuperLayerId slId = (*sl)->id();
-    // if the FakeTtrig has to be smeared with a Gaussian
     double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
-    // if the FakeTtrig is scaled of a number of bunch crossing
-    //  double fakeTTrig = pedestral - 75.;
-    tTrigMap->set(slId, fakeTTrig, 0,0, DTTimeUnits::ns);
+    tTrigMap->set(slId, fakeTTrig, 0,0.0, DTTimeUnits::ns);
 
   }
 

@@ -138,18 +138,12 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  isGoodReferenceEvent.push_back(false);
     }
 
-  Handle<TriggerEvent> trigEv;
+
   //get The triggerEvent
-     bool gotTEV =true;
-     try {
-       gotTEV*=iEvent.getByLabel(triggerEvent_,trigEv);
-     }
-     catch (cms::Exception& exception) {
-       gotTEV =false;
-     }
 
 
-  if(gotTEV)
+  Handle<TriggerEvent> trigEv;
+  if(iEvent.getByLabel(triggerEvent_,trigEv))
     {
 
       if (trigEv.isValid()) 
@@ -221,7 +215,6 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  LVColl taus = getObjectCollection(15,*trigEv);
 	  if(!doRefAnalysis_)
 	  for(unsigned int tau=0;tau<taus.size();++tau)
-	    if(taus[tau].pt()>5.0)
 	    {
 		  tauEt->Fill(taus[tau].pt());
 		  tauEta->Fill(taus[tau].eta());

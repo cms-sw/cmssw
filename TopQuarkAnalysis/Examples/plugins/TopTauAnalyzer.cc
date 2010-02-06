@@ -37,7 +37,7 @@ TopTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   }
 }
 
-void TopTauAnalyzer::beginJob(const edm::EventSetup&)
+void TopTauAnalyzer::beginJob()
 {
 }
 

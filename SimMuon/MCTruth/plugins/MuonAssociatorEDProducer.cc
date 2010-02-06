@@ -17,7 +17,7 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
 
 MuonAssociatorEDProducer::~MuonAssociatorEDProducer() {}
 
-void MuonAssociatorEDProducer::beginJob() {
+void MuonAssociatorEDProducer::beginJob(const edm::EventSetup& setup) {
   LogTrace("MuonAssociatorEDProducer") << "MuonAssociatorEDProducer::beginJob : constructing MuonAssociatorByHits";
   associatorByHits = new MuonAssociatorByHits::MuonAssociatorByHits(parset_);
 }

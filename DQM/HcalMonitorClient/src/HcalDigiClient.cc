@@ -128,6 +128,7 @@ void HcalDigiClient::beginJob()
   stringstream mydir;
   mydir<<rootFolder_<<"/DigiMonitor_Hcal";
 
+  //cout <<"DIGI ROOT FOLDER = "<<rootFolder_<<endl;
   dbe_->setCurrentFolder(mydir.str().c_str());
   ProblemCells=dbe_->book2D(" ProblemDigis",
 			   " Problem Digi Rate for all HCAL;i#eta;i#phi",

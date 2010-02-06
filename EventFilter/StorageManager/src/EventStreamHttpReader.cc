@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.38 2009/11/05 12:47:40 mommsen Exp $
+  $Id: EventStreamHttpReader.cc,v 1.37 2009/09/03 21:10:36 biery Exp $
 /// @file: EventStreamHttpReader.cc
 */
 
@@ -45,7 +45,7 @@ using namespace edm;
 namespace edm
 {  
   EventStreamHttpReader::EventStreamHttpReader(edm::ParameterSet const& ps,
-                                               edm::InputSourceDescription const& desc):
+					       edm::InputSourceDescription const& desc):
     edm::StreamerInputSource(ps, desc),
     sourceurl_(ps.getParameter<string>("sourceURL")),
     buf_(1000*1000*7), 
@@ -57,9 +57,9 @@ namespace edm
   {
     // Retry connection params (wb)
     maxConnectTries_ = ps.getUntrackedParameter<int>("maxConnectTries",
-                                               DEFAULT_MAX_CONNECT_TRIES);
+					       DEFAULT_MAX_CONNECT_TRIES);
     connectTrySleepTime_ = ps.getUntrackedParameter<int>("connectTrySleepTime",
-                                               DEFAULT_CONNECT_TRY_SLEEP_TIME);
+					       DEFAULT_CONNECT_TRY_SLEEP_TIME);
     inputFileTransitionsEachEvent_ =
       ps.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", true);
 
@@ -109,8 +109,6 @@ namespace edm
         psCopy.addParameter<Strings>("TrackedEventSelection", path_specs);
       }
     }
-    std::string trigSelector_ = ps.getUntrackedParameter("TriggerSelector",std::string());
-    psCopy.addParameter<std::string>("TriggerSelector",trigSelector_);
 
     // 28-Aug-2006, KAB: save our parameter set in string format to
     // be sent to the event server to specify our "request" (that is, which
@@ -242,7 +240,7 @@ namespace edm
       }
     } while (data.d_.length() == 0 && !edm::shutdown_flag);
     if (edm::shutdown_flag) {
-        return 0;
+	return 0;
     }
 
     int len = data.d_.length();
@@ -453,32 +451,32 @@ namespace edm
       int tries = 0;
       while (messageStatus!=0 && !edm::shutdown_flag)
       {
-        tries++;
-        messageStatus = curl_easy_perform(han);
-        if ( messageStatus != 0 )
-        {
-          if ( tries >= maxConnectTries_ )
-          {
-            std::cerr << "Giving up waiting for connection after " << tries 
-                      << " tries"  << std::endl;
-            curl_slist_free_all(headers);
-            curl_easy_cleanup(han);
-            cerr << "curl perform failed for registration" << endl;
-            throw cms::Exception("registerWithEventServer","EventStreamHttpReader")
-              << "Could not register: probably XDAQ not running on Storage Manager "
-              << "\n";
-          }
-          else
-          {
-            std::cout << "Waiting for connection to StorageManager... " 
-                      << tries << "/" << maxConnectTries_
-                      << std::endl;
-            sleep(connectTrySleepTime_);
-          }
-        }
+	tries++;
+	messageStatus = curl_easy_perform(han);
+	if ( messageStatus != 0 )
+	{
+	  if ( tries >= maxConnectTries_ )
+	  {
+	    std::cerr << "Giving up waiting for connection after " << tries 
+		      << " tries"  << std::endl;
+	    curl_slist_free_all(headers);
+	    curl_easy_cleanup(han);
+	    cerr << "curl perform failed for registration" << endl;
+	    throw cms::Exception("registerWithEventServer","EventStreamHttpReader")
+	      << "Could not register: probably XDAQ not running on Storage Manager "
+	      << "\n";
+	  }
+	  else
+	  {
+	    std::cout << "Waiting for connection to StorageManager... " 
+		      << tries << "/" << maxConnectTries_
+		      << std::endl;
+	    sleep(connectTrySleepTime_);
+	  }
+	}
       }
       if (edm::shutdown_flag) {
-          continue;
+	  continue;
       }
 
       curl_slist_free_all(headers);

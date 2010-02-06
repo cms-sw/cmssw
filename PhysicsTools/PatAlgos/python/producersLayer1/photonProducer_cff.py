@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cfi import *
 
 makeAllLayer1Photons = cms.Sequence(
     # reco pre-production
-    patPhotonIsolation *
+    # patPhotonIsolation *
     # pat specifics
     photonMatch *
     # object production

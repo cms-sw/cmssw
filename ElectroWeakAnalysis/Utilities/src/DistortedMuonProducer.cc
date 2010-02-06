@@ -3,9 +3,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
-
 //
 // class declaration
 //
@@ -22,11 +19,9 @@ class DistortedMuonProducer : public edm::EDProducer {
       edm::InputTag muonTag_;
       edm::InputTag genMatchMapTag_;
       std::vector<double> etaBinEdges_;
-
       std::vector<double> momentumScaleShift_;
       std::vector<double> uncertaintyOnOneOverPt_; // in [1/GeV]
       std::vector<double> relativeUncertaintyOnPt_;
-
       std::vector<double> efficiencyRatioOverMC_;
 };
 
@@ -45,6 +40,7 @@ class DistortedMuonProducer : public edm::EDProducer {
 DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
 
   // What is being produced
+      produces<std::vector<reco::Track> >();
       produces<std::vector<reco::Muon> >();
 
   // Input products
@@ -67,7 +63,7 @@ DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
             for (unsigned int i=1; i<ninputs_expected; i++){ momentumScaleShift_.push_back(momentumScaleShift_[0]);}
       }
 
-      uncertaintyOnOneOverPt_ = pset.getUntrackedParameter<std::vector<double> > ("UncertaintyOnOneOverPt",defDistortion); // in [1/GeV]
+      uncertaintyOnOneOverPt_ = pset.getUntrackedParameter<std::vector<double> > ("UnertaintyOnOneOverPt",defDistortion); // in [1/GeV]
       if (uncertaintyOnOneOverPt_.size()==1 && ninputs_expected>1) {
             for (unsigned int i=1; i<ninputs_expected; i++){ uncertaintyOnOneOverPt_.push_back(uncertaintyOnOneOverPt_[0]);}
       }
@@ -86,11 +82,11 @@ DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
       }
 
   // Send a warning if there are inconsistencies in vector sizes !!
-      bool effWrong = efficiencyRatioOverMC_.size()!=ninputs_expected;
-      bool momWrong =    momentumScaleShift_.size()!=ninputs_expected 
-                      || uncertaintyOnOneOverPt_.size()!=ninputs_expected 
-                      || relativeUncertaintyOnPt_.size()!=ninputs_expected;
-      if ( effWrong and momWrong) {
+      if (    momentumScaleShift_.size() != ninputs_expected
+           || uncertaintyOnOneOverPt_.size() != ninputs_expected
+           || relativeUncertaintyOnPt_.size() != ninputs_expected
+           || efficiencyRatioOverMC_.size() != ninputs_expected
+         ) {
            edm::LogError("") << "WARNING: DistortedMuonProducer : Size of some parameters do not match the EtaBinEdges vector!!";
       }
 
@@ -101,15 +97,14 @@ DistortedMuonProducer::~DistortedMuonProducer(){
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void DistortedMuonProducer::beginJob(const edm::EventSetup& iSetup) {
+void DistortedMuonProducer::beginJob(const edm::EventSetup&) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void DistortedMuonProducer::endJob(){
-}
+void DistortedMuonProducer::endJob(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetup) {
+void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup&) {
 
       if (ev.isRealData()) return;
 
@@ -129,71 +124,64 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
       unsigned int muonCollectionSize = muonCollection->size();
 
       std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
+      std::auto_ptr<reco::TrackCollection> newtracks (new reco::TrackCollection);
+      reco::TrackRefProd trackRefProd = ev.getRefBeforePut<reco::TrackCollection>();
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
+            // With "View<Muon>": one can use a "RefToBase<Muon>" instead of a "MuonRef"
             edm::RefToBase<reco::Muon> mu = muonCollection->refAt(i);
+            // To get a a true "MuonRef" out of it:
+            //    reco::MuonRef mu_trueref = mu.castTo<reco::MuonRef>(); 
+            if (mu->innerTrack().isNull()) continue;
+            reco::TrackRef tk = mu->innerTrack();
 
             double ptgen = mu->pt();
-            double etagen = mu->eta();
-            double phigen = mu->phi();
-            int chrgen = mu->charge();
             reco::GenParticleRef gen = (*genMatchMap)[mu];
             if( !gen.isNull()) {
                   ptgen = gen->pt();
-                  etagen = gen->eta();
-                  phigen = gen->phi();
-                  chrgen = gen->charge();
                   LogTrace("") << ">>> Muon-GenParticle match found; ptmu= " << mu->pt() << ", ptgen= " << ptgen;
             } else {
                   LogTrace("") << ">>> MUON-GENPARTICLE MATCH NOT FOUND!!!";
             }
 
-            // Initialize parameters
-            double effRatio = 0.;
+            // Find out which eta bin should be used
+            double eta = mu->eta();
+            double eff = 0.; // Reject any muon outside [mineta,maxeta]
             double shift = 0.;
             double sigma1 = 0.;
             double sigma2 = 0.;
-
-            // Find out which eta bin should be used
             unsigned int nbins = etaBinEdges_.size()-1;
-            unsigned int etaBin = nbins;
-            if (etagen>etaBinEdges_[0] && etagen<etaBinEdges_[nbins]) {
+            if (eta>etaBinEdges_[0] && eta<etaBinEdges_[nbins]) {
                   for (unsigned int j=1; j<=nbins; ++j) {
-                        if (etagen>etaBinEdges_[j]) continue;
-                        etaBin = j-1;
+                        if (eta>etaBinEdges_[j]) continue;
+                        eff = efficiencyRatioOverMC_[j-1];
+                        shift = momentumScaleShift_[j-1];
+                        sigma1 = uncertaintyOnOneOverPt_[j-1];
+                        sigma2 = relativeUncertaintyOnPt_[j-1];
                         break;
                   }
             }
-            if (etaBin<nbins) {
-                  LogTrace("") << ">>> etaBin: " << etaBin << ", for etagen =" << etagen;
-            } else {
-                  // Muon is rejected if outside the considered eta range
-                  LogTrace("") << ">>> Muon outside eta range: reject it; etagen = " << etagen;
-                  continue;
-            }
-
-            // Set shift
-            shift = momentumScaleShift_[etaBin];
-            LogTrace("") << "\tmomentumScaleShift= " << shift*100 << " [%]"; 
-
-            // Set resolutions
-            sigma1 = uncertaintyOnOneOverPt_[etaBin];
-            sigma2 = relativeUncertaintyOnPt_[etaBin];
-            LogTrace("") << "\tuncertaintyOnOneOverPt= " << sigma1 << " [1/GeV]"; 
-            LogTrace("") << "\trelativeUncertaintyOnPt= " << sigma2*100 << " [%]"; 
-
-            // Set efficiency ratio
-            effRatio = efficiencyRatioOverMC_[etaBin];
-            LogTrace("") << "\tefficiencyRatioOverMC= " << effRatio;
 
             // Reject muons according to efficiency ratio
             double rndf = CLHEP::RandFlat::shoot();
-            if (rndf>effRatio) continue;
+            if (rndf>eff) continue;
 
             // Gaussian Random numbers for smearing
             double rndg1 = CLHEP::RandGauss::shoot();
             double rndg2 = CLHEP::RandGauss::shoot();
             
+            // New track
+            double pttk = tk->pt();
+            pttk += ptgen * ( shift + sigma1*rndg1*ptgen + sigma2*rndg2);
+            double pxtk = pttk*tk->px()/tk->pt();
+            double pytk = pttk*tk->py()/tk->pt();
+            double pztk = tk->pz();
+            reco::TrackBase::Vector tkmom(pxtk,pytk,pztk);
+            reco::Track* newtk = new reco::Track(tk->chi2(), tk->ndof(), tk->referencePoint(), tkmom, tk->charge(), tk->covariance());
+            newtk->setExtra(tk->extra());
+            newtk->setHitPattern(tk->extra()->recHits());
+            newtracks->push_back(*newtk);
+
             // New muon
             double ptmu = mu->pt();
             ptmu += ptgen * ( shift + sigma1*rndg1*ptgen + sigma2*rndg2);
@@ -203,10 +191,12 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
                         ptmu, mu->eta(), mu->phi(), mu->mass()
                   )
             );
+            newmu->setInnerTrack(reco::TrackRef(trackRefProd,newtracks->size()-1));
             newmuons->push_back(*newmu);
 
       }
 
+      ev.put(newtracks);
       ev.put(newmuons);
 }
 

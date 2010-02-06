@@ -99,7 +99,7 @@ HypothesisAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
 }
 
 void 
-HypothesisAnalyzer::beginJob(const edm::EventSetup&)
+HypothesisAnalyzer::beginJob()
 {
   edm::Service<TFileService> fs;
   if( !fs ) throw edm::Exception( edm::errors::Configuration, "TFile Service is not registered in cfg file" );

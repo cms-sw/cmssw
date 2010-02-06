@@ -70,9 +70,15 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('32 OR 33 OR 40 OR 41')
 
+#this is for filtering/tagging PhysDecl bit
+process.physdecl = cms.EDFilter("PhysDecl",
+     applyfilter = cms.untracked.bool(False),
+     debugOn = cms.untracked.bool(True)
+    )
+
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -115,7 +121,8 @@ process.source = cms.Source("EventStreamHttpReader",
                             
    consumerPriority = cms.untracked.string('normal'),
    max_event_size = cms.int32(7000000),
-   SelectHLTOutput = cms.untracked.string('hltOutputDQM'),
+   SelectHLTOutput = SELECTHLT,
+#   SelectHLTOutput = cms.untracked.string('hltOutputDQM'),
 #   SelectHLTOutput = cms.untracked.string('hltOutputExpress'),
    max_queue_depth = cms.int32(5),
    maxEventRequestRate = cms.untracked.double(2.0),
@@ -188,7 +195,10 @@ process.Chi2MeasurementEstimator.MaxChi2 = 100
 #process.fullpath = cms.Path(process.hltTriggerTypeFilter+process.hltHighLevel+process.RawToDigi+process.reconstruction)
 
 #process.fullpath = cms.Path(process.RawToDigi+process.reconstruction+process.skimming+process.iSpy_sequence)
-process.fullpath = cms.Path(process.hltTriggerTypeFilter+process.RawToDigi+process.reconstruction+process.skimming+process.iSpy_sequence)
+#process.fullpath = cms.Path(process.hltTriggerTypeFilter+process.RawToDigi+process.reconstruction+process.skimming+process.iSpy_sequence)
+# added physdecl in tagging mode to catch physdeclared bit in log files
+# process.fullpath = cms.Path(process.hltTriggerTypeFilter+process.RawToDigi+process.physdecl+process.reconstruction+process.skimming+process.iSpy_sequence)
+process.fullpath = cms.Path(process.RawToDigi+process.physdecl+process.reconstruction+process.skimming+process.iSpy_sequence)
 
 process.out_step = cms.EndPath(process.FEVT)
 

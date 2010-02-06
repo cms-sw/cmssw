@@ -14,6 +14,8 @@ herwig6Parameters = cms.PSet(
 	filterEfficiency = cms.untracked.double(1.0),
 )
 
+source = cms.Source("EmptySource")
+ 
 generator = cms.EDFilter("PomwigGeneratorFilter",
     herwig6Parameters,
     HerwigParameters = cms.PSet(
@@ -33,4 +35,4 @@ generator = cms.EDFilter("PomwigGeneratorFilter",
     doPDGConvert = cms.bool(False)
 )
 
-#ProductionFilterSequence = cms.Sequence(generator)
+ProductionFilterSequence = cms.Sequence(generator)

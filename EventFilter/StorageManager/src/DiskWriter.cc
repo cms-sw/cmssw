@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.10 2009/09/29 07:59:43 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.9 2009/09/17 11:03:19 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -141,6 +141,8 @@ void DiskWriter::writeEventToStreams(const I2OChain& event)
     try
     {
       _streamHandlers.at(*it)->writeEvent(event);
+
+      _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriteSample(event.totalDataSize());
     }
     catch (std::out_of_range& e)
     {

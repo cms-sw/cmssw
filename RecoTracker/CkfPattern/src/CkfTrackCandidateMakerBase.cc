@@ -151,7 +151,7 @@ namespace cms{
     std::auto_ptr<std::vector<Trajectory> > outputT (new std::vector<Trajectory>());
 
     if ( (*collseed).size()>theMaxNSeeds ) {
-      LogWarning("CkfTrackCandidateMakerBase")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
+      LogError("TooManySeeds")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
       if (theTrackCandidateOutput){ e.put(output);}
       if (theTrajectoryOutput){e.put(outputT);}
       return;

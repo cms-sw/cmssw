@@ -11,9 +11,10 @@
 static const unsigned int kMAX=5; 
 
 /// default constructor
-TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg):
-  addRadiatedGluons_( cfg.getParameter<bool>( "addRadiatedGluons" ) ),
-  src_( cfg.getParameter<edm::InputTag>( "src" ) )
+TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg): 
+  addRadiation_( cfg.getParameter<bool>( "addRadiation" ) ),
+  src_( cfg.getParameter<edm::InputTag>( "src" ) ), 
+  showerModel_(kStart)
 {
   // mapping of the corresponding fillMode; see FillMode 
   // enumerator of TopDecaySubset for available modes
@@ -42,7 +43,7 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   // debuging with 'TopDecaySubset_printSource'
   printSource(*src);
   // determine shower model
-  showerModel_=checkShowerModel(*src);
+  if(showerModel_==kStart) showerModel_=checkShowerModel(*src);
 
   // create target vector
   std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
@@ -169,20 +170,20 @@ TopDecaySubset::fillListing(const reco::GenParticleCollection& src, reco::GenPar
 	  target.push_back( *bPtr );	  
 	  // increment & push index of the top daughter
 	  topDaughters.push_back( ++motherPartIdx_ ); 
-	  if(addRadiatedGluons_){
+	  if(addRadiation_){
 	    addRadiation(motherPartIdx_,td,target); 
 	  }
 	}
 	reco::GenParticle::const_iterator buffer = (showerModel_==kPythia)?td:td->begin();
 	if( buffer->status()==TopDecayID::unfrag && abs( buffer->pdgId() )==TopDecayID::WID ){ 
-	  // if particle is is W boson
+	  // if particle is a W boson
 	  std::auto_ptr<reco::GenParticle> wPtr(  new reco::GenParticle( buffer->threeCharge(), p4( buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true ) );
 	  target.push_back( *wPtr );
 	  // increment & push index of the top daughter
 	  topDaughters.push_back( ++motherPartIdx_ );
 	  // keep the W idx for the map
 	  iW=motherPartIdx_; 
-	  if(addRadiatedGluons_){
+	  if(addRadiation_){
 	    addRadiation(motherPartIdx_,buffer,target); 
 	  }
 	  // iterate over W daughters
@@ -193,18 +194,19 @@ TopDecaySubset::fillListing(const reco::GenParticleCollection& src, reco::GenPar
 	      target.push_back( *qPtr );
 	      // increment & push index of the top daughter
 	      wDaughters.push_back( ++motherPartIdx_ );
-	      if(addRadiatedGluons_){
-		addRadiation(motherPartIdx_,wd,target); 
-              }
 	      if( wd->status()==TopDecayID::unfrag && abs( wd->pdgId() )==TopDecayID::tauID ){ 
 		// add tau daughters if the particle is a tau pass
 		// the daughter of the tau which is of status 2
-		addDaughters(motherPartIdx_,wd->begin(),target); 
+		//addDaughters(motherPartIdx_, wd->begin(), target); 
+		// add tau daughters if the particle is a tau pass
+		// the tau itself, which may add a tau daughter of
+		// of status 2 to the listing
+		addDaughters(motherPartIdx_,wd,target); 
 	      }
 	    } 
 	  }
 	}
-	if(addRadiatedGluons_ && buffer->status()==TopDecayID::stable && ( buffer->pdgId()==TopDecayID::glueID || abs(buffer->pdgId())<TopDecayID::bID)){
+	if(addRadiation_ && buffer->status()==TopDecayID::stable && ( buffer->pdgId()==TopDecayID::glueID || abs(buffer->pdgId())<TopDecayID::bID)){
 	  // collect additional radiation from the top 
 	  std::auto_ptr<reco::GenParticle> radPtr( new reco::GenParticle( buffer->threeCharge(), buffer->p4(), buffer->vertex(), buffer->pdgId(), statusFlag, false ) );
 	  target.push_back( *radPtr );	
@@ -342,14 +344,14 @@ TopDecaySubset::addDaughters(int& idx, const reco::GenParticle::const_iterator p
   std::vector<int> daughters;
   int idxBuffer = idx;
   for(reco::GenParticle::const_iterator daughter=part->begin(); daughter!=part->end(); ++daughter){
-    std::auto_ptr<reco::GenParticle> ptr( new reco::GenParticle( daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false) );
-    target.push_back( *ptr );
-    // increment & push index of daughter
-    daughters.push_back( ++idx );
-    // continue recursively if desired
-    if(recursive){
-      addDaughters(idx,daughter,target);  
-    }
+      std::auto_ptr<reco::GenParticle> ptr( new reco::GenParticle( daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false) );
+      target.push_back( *ptr );
+      // increment & push index of daughter
+      daughters.push_back( ++idx );
+      // continue recursively if desired
+      if(recursive){
+	addDaughters(idx,daughter,target);  
+      }
   }  
   if(daughters.size()) {
     refs_[ idxBuffer ] = daughters;

@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.10 2009/05/21 04:23:00 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.13 2010/01/12 08:20:24 querten Exp $
 //
 //
 
@@ -78,8 +78,6 @@ DeDxDiscriminatorProducer::~DeDxDiscriminatorProducer(){}
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
-   printf("BEGIN RUN");
-
    edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> DeDxMapHandle_;    
    if(      strcmp(Reccord.c_str(),"SiStripDeDxMip_3D_Rcd")==0){
       iSetup.get<SiStripDeDxMip_3D_Rcd>() .get(DeDxMapHandle_);
@@ -232,6 +230,10 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
+
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+   m_tracker = tkGeom.product();
  
    std::vector<DeDxData> dEdxDiscrims( TrajToTrackMap.size() );
 
@@ -248,29 +250,43 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
       std::vector<double> vect_probs;
       vector<TrajectoryMeasurement> measurements = traj.measurements();
+
+      unsigned int NClusterSaturating = 0;
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
 
          TrajectoryStateOnSurface trajState = measurement_it->updatedState();
          if( !trajState.isValid() ) continue;
 
-         const TrackingRecHit*         hit               = (*measurement_it->recHit()).hit();
-         const SiStripRecHit2D*        sistripsimplehit  = dynamic_cast<const SiStripRecHit2D*>(hit);
-         const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+         const TrackingRecHit*         hit                 = (*measurement_it->recHit()).hit();
+         const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
+         const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+         const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
 
 	 double Prob;
          if(sistripsimplehit)
          {           
-	     Prob = GetProbability(sistripsimplehit, trajState);	                 if(Prob>=0) vect_probs.push_back(Prob);
+	     Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState);	                 if(Prob>=0) vect_probs.push_back(Prob);             
+             if(ClusterSaturatingStrip((sistripsimplehit->cluster()).get())>0)NClusterSaturating++;
          }else if(sistripmatchedhit){
-             Prob = GetProbability(sistripmatchedhit->monoHit(), trajState);             if(Prob>=0) vect_probs.push_back(Prob);
-             Prob = GetProbability(sistripmatchedhit->stereoHit(), trajState);           if(Prob>=0) vect_probs.push_back(Prob);
+             Prob = GetProbability((sistripmatchedhit->monoHit()->cluster()).get(), trajState);             if(Prob>=0) vect_probs.push_back(Prob);
+             Prob = GetProbability((sistripmatchedhit->stereoHit()->cluster()).get(), trajState);           if(Prob>=0) vect_probs.push_back(Prob);
+             if(ClusterSaturatingStrip((sistripmatchedhit->monoHit()->cluster()).get())  >0)NClusterSaturating++;
+             if(ClusterSaturatingStrip((sistripmatchedhit->stereoHit()->cluster()).get())>0)NClusterSaturating++;
+         }else if(sistripsimple1dhit){           
+             Prob = GetProbability((sistripsimple1dhit->cluster()).get(), trajState);                       if(Prob>=0) vect_probs.push_back(Prob);
+             if(ClusterSaturatingStrip((sistripsimple1dhit->cluster()).get())>0)NClusterSaturating++;
          }else{
          }
       }
 
       double estimator          = ComputeDiscriminator(vect_probs);
       int    size               = vect_probs.size();
-      dEdxDiscrims[track_index] = DeDxData(estimator, -1, size );
+      float  Error              = -1;
+
+      //WARNING: Since the dEdX Error is not properly computed for the moment
+      //It was decided to store the number of saturating cluster in that dataformat
+      Error = NClusterSaturating;
+      dEdxDiscrims[track_index] = DeDxData(estimator, Error, size );
 
 //      printf("%i --> %g\n",size,estimator);
    }
@@ -281,12 +297,20 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 }
 
 
-double DeDxDiscriminatorProducer::GetProbability(const SiStripRecHit2D* sistripsimplehit,TrajectoryStateOnSurface trajState)
+int DeDxDiscriminatorProducer::ClusterSaturatingStrip(const SiStripCluster*   cluster){
+//   const SiStripCluster*   cluster        = (sistripsimplehit->cluster()).get();
+   const vector<uint8_t>&  ampls          = cluster->amplitudes();
+
+   int SaturatingStrip = 0;
+   for(unsigned int i=0;i<ampls.size();i++){if(ampls[i]>=254)SaturatingStrip++;}
+   return SaturatingStrip;
+}
+
+double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState)
 {
    // Get All needed variables
    LocalVector             trackDirection = trajState.localDirection();
    double                  cosine         = trackDirection.z()/trackDirection.mag();
-   const SiStripCluster*   cluster        = (sistripsimplehit->cluster()).get();
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
    uint32_t                detId          = cluster->geographicalId();
 //   int                     firstStrip     = cluster->firstStrip();

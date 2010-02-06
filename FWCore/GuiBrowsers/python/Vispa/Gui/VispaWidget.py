@@ -145,8 +145,8 @@ class TextField(object):
         
         See setAutosizeFont(), setAutotruncate(), setAutoscale(), setDefaultWidth(), setDefaultHeight().
         """
-        self._width = self._defaultWidth
-        self._height = self._defaultHeight
+        #self._width = self._defaultWidth
+        #self._height = self._defaultHeight
         
         if self._fontSizeHasChanged and (not self._autosizeFontFlag or self._autoscaleFlag):
             self._font.setPointSize(self.getFontSize())
@@ -171,8 +171,8 @@ class TextField(object):
     def getHeight(self):
         """ Returns height calculated by calculateDimensions().
         """ 
-        #logging.debug(self.__class__.__name__ + ": getHeight() "+ str(self._height))
-        return self._height        
+        #logging.debug(self.__class__.__name__ + ": getHeight() "+ str(self._height) + " " + self.text())
+        return self._height
         
     def setOutputFlags(self, flags):
         """ Set Qt output flags for drawing text.
@@ -227,6 +227,7 @@ class TextField(object):
     def autoscale(self):
         """ Adjusts values for getWidth() and getHeight() so whole text fits in.
         """
+        #logging.debug("%s: autoscale() - %s" % (self.__class__.__name__, self._text))
         fm = QFontMetrics(self._font)
         self.ranbefore=True
         self._width = 1
@@ -293,12 +294,12 @@ class TextField(object):
         #logging.debug(self.__class__.__name__ + ": truncate()")
         text = QString(self._text)
         short = QString()
-        drawRect = self.getDrawRect()
+        drawRect = QRectF(self.getDrawRect())
         font = self._font
         fm = QFontMetricsF(font)
         counter = 0
         patterns = text.split(QRegExp('\\b'))
-            
+        
         for pattern in patterns:
             short.append(pattern)
             neededRect = fm.boundingRect(drawRect, self._outputFlags, short)
@@ -1295,7 +1296,9 @@ class VispaWidget(ZoomableWidget):
     def mouseMoveEvent(self, event):
         """ Call dragWidget().
         """
-        self.dragWidget(self.mapToParent(event.pos()))
+        logging.debug("%s: mouseMoveEvent()" % self.__class__.__name__)
+        if bool(event.buttons() & Qt.LeftButton):
+            self.dragWidget(self.mapToParent(event.pos()))
         return
         
     def keyPressEvent(self, event):

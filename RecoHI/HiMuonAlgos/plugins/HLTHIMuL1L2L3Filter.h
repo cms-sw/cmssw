@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.h,v 1.1 2009/08/17 11:54:22 kodolova Exp $
+// $Id: HLTHIMuL1L2L3Filter.h,v 1.2 2010/01/22 13:17:40 kodolova Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 // HI reco
 
@@ -43,13 +43,13 @@
 // class declaration
 //
 namespace cms{
-class HLTHIMuL1L2L3Filter : public edm::EDFilter {
+class HLTHIMuL1L2L3Filter : public HLTFilter {
 
    private:
      edm::ParameterSet pset_;
     // HICConst * theHICConst;
     // FmpConst * theFmpConst;
-     HITrackVertexMaker * theTrackVertexMaker;
+    // HITrackVertexMaker * theTrackVertexMaker;
 
    public:
 
@@ -61,7 +61,7 @@ class HLTHIMuL1L2L3Filter : public edm::EDFilter {
   // General Block
   
       virtual bool filter(edm ::Event&, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& es1);
+      virtual void beginJob();
       virtual void endJob();
   
 };

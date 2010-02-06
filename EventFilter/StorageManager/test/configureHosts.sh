@@ -106,10 +106,3 @@ do
         chmod +x $finalFile
     fi
 done
-
-isPlayback=`echo $STMGR_CONFIG | grep -c 'sm_playback.xml'`
-if [[ $isPlayback -gt 0 ]] ; then
-    echo ""
-    echo "If using the PLAYBACK system, REMEMBER to re-run the changeInputFile.pl script NOW!"
-    echo ""
-fi

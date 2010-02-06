@@ -12,7 +12,11 @@ class UserCodeTool(ConfigToolBase):
         self.addParameter(self._defaultParameters,'code','', 'User code modifying the process: e.g. process.maxevents=1')
         self._parameters=copy.deepcopy(self._defaultParameters)  
     def dumpPython(self):
-        return ("",self._parameters['code'].value)
+        dumpPython=""
+        if self._comment!="":
+            dumpPython = "#"+self._comment+"\n"
+        dumpPython+=self._parameters['code'].value
+        return ("",dumpPython)
     def __call__(self,process,code):
         self.setParameter(self._parameters,'code',code, 'User code modifying the process: e.g. process.maxevents=1')
         self.apply(process)
@@ -43,8 +47,11 @@ class ChangeSource(ConfigToolBase):
         return self._defaultParameters
    
     def dumpPython(self):
-        dumpPythonImport = "\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n"
-        dumpPython = "\nchangeSource(process, "
+        dumpPythonImport = "\nfrom FWCore.GuiBrowsers.editorTools import *\n"
+        dumpPython=""
+        if self._comment!="":
+            dumpPython = "#"+self._comment
+        dumpPython += "\nchangeSource(process, "
         dumpPython +='"'+ str(self.getvalue('source'))+'"'+')'+'\n'
         return (dumpPythonImport,dumpPython)
 
@@ -54,12 +61,8 @@ class ChangeSource(ConfigToolBase):
         self.setParameter('source',source)
         self.apply(process) 
         
-    def apply(self, process):
+    def toolCode(self, process):
         source=self._parameters['source'].value
-        process.disableRecording()
         process.source.fileNames=cms.untracked.vstring(source)
-        process.enableRecording()
-        action=self.__copy__()
-        process.addAction(action)
     
 changeSource=ChangeSource()

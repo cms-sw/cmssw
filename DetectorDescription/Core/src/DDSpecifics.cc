@@ -80,10 +80,10 @@ std::pair<bool,DDExpandedView> DDSpecifics::node() const
   return rep().node();
 }
   	
-// void DDSpecifics::clear()
-// {
-//  StoreT::instance().clear();
-// }
+void DDSpecifics::clear()
+{
+ StoreT::instance().clear();
+}
 
 			 			
 std::ostream & operator<<( std::ostream  & os, const DDSpecifics & sp)

@@ -12,51 +12,51 @@ void HcalPedestalClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   HcalBaseClient::init(ps,dbe,clientName);
 
   // Get variable values from cfg file
-  nominalPedMeanInADC_      = ps.getUntrackedParameter<double>("ReferencePedestalClient_nominalPedMeanInADC",3);
-  nominalPedWidthInADC_     = ps.getUntrackedParameter<double>("ReferencePedestalClient_nominalPedWidthInADC",1);
-  maxPedMeanDiffADC_        = ps.getUntrackedParameter<double>("ReferencePedestalClient_maxPedMeanDiffADC",1);
-  maxPedWidthDiffADC_       = ps.getUntrackedParameter<double>("ReferencePedestalClient_maxPedWidthDiffADC",1);
-  minErrorFlag_             = ps.getUntrackedParameter<double>("ReferencePedestalClient_minErrorFlag",0.05);
-  makeDiagnostics_          = ps.getUntrackedParameter<bool>("ReferencePedestalClient_makeDiagnosticPlots",false);
-
-
+  nominalPedMeanInADC_      = ps.getUntrackedParameter<double>("PedestalClient_nominalPedMeanInADC",3);
+  nominalPedWidthInADC_     = ps.getUntrackedParameter<double>("PedestalClient_nominalPedWidthInADC",1);
+  maxPedMeanDiffADC_        = ps.getUntrackedParameter<double>("PedestalClient_maxPedMeanDiffADC",1);
+  maxPedWidthDiffADC_       = ps.getUntrackedParameter<double>("PedestalClient_maxPedWidthDiffADC",1);
+  doFCpeds_                 = ps.getUntrackedParameter<bool>("PedestalClient_pedestalsInFC",1);
+  startingTimeSlice_        = ps.getUntrackedParameter<int>("PedestalClient_startingTimeSlice",0);
+  endingTimeSlice_          = ps.getUntrackedParameter<int>("PedestalClient_endingTimgSlice",1);
+  minErrorFlag_             = ps.getUntrackedParameter<double>("PedestalClient_minErrorFlag",0.05);
+  makeDiagnostics_          = ps.getUntrackedParameter<bool>("PedestalMonitor_makeDiagnosticPlots",false);
   // Set individual pointers to NULL
   ProblemPedestals=0;
+
 
  // Map the histograms to their names //
         
   // Database Pedestal values
-  mapHist2D("ReferencePedestalMonitor_Hcal/reference_pedestals/adc/","Pedestal Values from DataBase ADC",ADC_PedestalFromDBByDepth);
-  mapHist2D("ReferencePedestalMonitor_Hcal/reference_pedestals/adc/","Pedestal Widths from DataBase ADC",ADC_WidthFromDBByDepth);
-  mapHist2D("ReferencePedestalMonitor_Hcal/reference_pedestals/fc/","Pedestal Values from DataBase fC",fC_PedestalFromDBByDepth);
-  mapHist2D("ReferencePedestalMonitor_Hcal/reference_pedestals/fc/","Pedestal Widths from DataBase fC",fC_WidthFromDBByDepth);
-  mapHist1D("ReferencePedestalMonitor_Hcal/reference_pedestals/adc/","1D Reference Pedestal Values ADC",ADC_PedestalFromDBByDepth_1D);
-  mapHist1D("ReferencePedestalMonitor_Hcal/reference_pedestals/adc/","1D Reference Pedestal Widths ADC",ADC_WidthFromDBByDepth_1D);
-  mapHist1D("ReferencePedestalMonitor_Hcal/reference_pedestals/fc/","1D Reference Pedestal Values fC",fC_PedestalFromDBByDepth_1D);
-  mapHist1D("ReferencePedestalMonitor_Hcal/reference_pedestals/fc/","1D Reference Pedestal Widths fC",fC_WidthFromDBByDepth_1D);
+  mapHist2D("BaselineMonitor_Hcal/reference_pedestals/adc/","Pedestal Values from DataBase ADC",ADC_PedestalFromDBByDepth);
+  mapHist2D("BaselineMonitor_Hcal/reference_pedestals/adc/","Pedestal Widths from DataBase ADC",ADC_WidthFromDBByDepth);
+  mapHist2D("BaselineMonitor_Hcal/reference_pedestals/fc/","Pedestal Values from DataBase fC",fC_PedestalFromDBByDepth);
+  mapHist2D("BaselineMonitor_Hcal/reference_pedestals/fc/","Pedestal Widths from DataBase fC",fC_WidthFromDBByDepth);
+  mapHist1D("BaselineMonitor_Hcal/reference_pedestals/adc/","1D Reference Pedestal Values ADC",ADC_PedestalFromDBByDepth_1D);
+  mapHist1D("BaselineMonitor_Hcal/reference_pedestals/adc/","1D Reference Pedestal Widths ADC",ADC_WidthFromDBByDepth_1D);
+  mapHist1D("BaselineMonitor_Hcal/reference_pedestals/fc/","1D Reference Pedestal Values fC",fC_PedestalFromDBByDepth_1D);
+  mapHist1D("BaselineMonitor_Hcal/reference_pedestals/fc/","1D Reference Pedestal Widths fC",fC_WidthFromDBByDepth_1D);
 
-  if (makeDiagnostics_)
-    {
-      // Raw, sub Pedestals in ADC
-      mapHist2D("ReferencePedestalMonitor_Hcal/adc/unsubtracted/","Pedestal Values Map ADC", rawADCPedestalMean);
-      mapHist2D("ReferencePedestalMonitor_Hcal/adc/unsubtracted/","Pedestal Widths Map ADC", rawADCPedestalRMS);
-      //mapHist2D("ReferencePedestalMonitor_Hcal/adc/subtracted(BETA)/","Subtracted Pedestal Values Map ADC", subADCPedestalMean);
-      //mapHist2D("ReferencePedestalMonitor_Hcal/adc/subtracted(BETA)/","Subtracted Pedestal Widths Map ADC", subADCPedestalRMS);
-      mapHist1D("ReferencePedestalMonitor_Hcal/adc/unsubtracted/","1D Pedestal Values ADC",rawADCPedestalMean_1D);
-      mapHist1D("ReferencePedestalMonitor_Hcal/adc/unsubtracted/","1D Pedestal Widths ADC",rawADCPedestalRMS_1D);
-      mapHist1D("ReferencePedestalMonitor_Hcal/adc/subtracted(BETA)/","1D Subtracted Pedestal Values ADC", subADCPedestalMean_1D);
-      mapHist1D("ReferencePedestalMonitor_Hcal/adc/subtracted(BETA)/","1D Subtracted Pedestal Widths ADC", subADCPedestalRMS_1D);
-      
-      // Raw, sub Pedestals in fC
-      mapHist2D("ReferencePedestalMonitor_Hcal/fc/unsubtracted/","Pedestal Values Map fC", rawfCPedestalMean);
-      mapHist2D("ReferencePedestalMonitor_Hcal/fc/unsubtracted/","Pedestal Widths Map fC", rawfCPedestalRMS);
-      //mapHist2D("ReferencePedestalMonitor_Hcal/fc/subtracted(BETA)/","Subtracted Pedestal Values Map fC", subfCPedestalMean);
-      //mapHist2D("ReferencePedestalMonitor_Hcal/fc/subtracted(BETA)/","Subtracted Pedestal Widths Map fC", subfCPedestalRMS);
-      mapHist1D("ReferencePedestalMonitor_Hcal/fc/unsubtracted/","1D Pedestal Values fC",rawfCPedestalMean_1D);
-      mapHist1D("ReferencePedestalMonitor_Hcal/fc/unsubtracted/","1D Pedestal Widths fC",rawfCPedestalRMS_1D);
-      mapHist1D("ReferencePedestalMonitor_Hcal/fc/subtracted(BETA)/","1D Subtracted Pedestal Values fC", subfCPedestalMean_1D);
-      mapHist1D("ReferencePedestalMonitor_Hcal/fc/subtracted(BETA)/","1D Subtracted Pedestal Widths fC", subfCPedestalRMS_1D);
-    } // if (makeDiagnostics_)
+
+  // Raw, sub Pedestals in ADC
+  mapHist2D("BaselineMonitor_Hcal/adc/unsubtracted/","Pedestal Values Map ADC", rawADCPedestalMean);
+  mapHist2D("BaselineMonitor_Hcal/adc/unsubtracted/","Pedestal Widths Map ADC", rawADCPedestalRMS);
+  mapHist2D("BaselineMonitor_Hcal/adc/subtracted(BETA)/","Subtracted Pedestal Values Map ADC", subADCPedestalMean);
+  mapHist2D("BaselineMonitor_Hcal/adc/subtracted(BETA)/","Subtracted Pedestal Widths Map ADC", subADCPedestalRMS);
+  mapHist1D("BaselineMonitor_Hcal/adc/unsubtracted/","1D Pedestal Values ADC",rawADCPedestalMean_1D);
+  mapHist1D("BaselineMonitor_Hcal/adc/unsubtracted/","1D Pedestal Widths ADC",rawADCPedestalRMS_1D);
+  mapHist1D("BaselineMonitor_Hcal/adc/subtracted(BETA)/","1D Subtracted Pedestal Values ADC", subADCPedestalMean_1D);
+  mapHist1D("BaselineMonitor_Hcal/adc/subtracted(BETA)/","1D Subtracted Pedestal Widths ADC", subADCPedestalRMS_1D);
+
+  // Raw, sub Pedestals in fC
+  mapHist2D("BaselineMonitor_Hcal/fc/unsubtracted/","Pedestal Values Map fC", rawfCPedestalMean);
+  mapHist2D("BaselineMonitor_Hcal/fc/unsubtracted/","Pedestal Widths Map fC", rawfCPedestalRMS);
+  mapHist2D("BaselineMonitor_Hcal/fc/subtracted(BETA)/","Subtracted Pedestal Values Map fC", subfCPedestalMean);
+  mapHist2D("BaselineMonitor_Hcal/fc/subtracted(BETA)/","Subtracted Pedestal Widths Map fC", subfCPedestalRMS);
+  mapHist1D("BaselineMonitor_Hcal/fc/unsubtracted/","1D Pedestal Values fC",rawfCPedestalMean_1D);
+  mapHist1D("BaselineMonitor_Hcal/fc/unsubtracted/","1D Pedestal Widths fC",rawfCPedestalRMS_1D);
+  mapHist1D("BaselineMonitor_Hcal/fc/subtracted(BETA)/","1D Subtracted Pedestal Values fC", subfCPedestalMean_1D);
+  mapHist1D("BaselineMonitor_Hcal/fc/subtracted(BETA)/","1D Subtracted Pedestal Widths fC", subfCPedestalRMS_1D);
 
   for (int i=0;i<4;++i)
     {
@@ -94,7 +94,7 @@ HcalPedestalClient::~HcalPedestalClient()
 } // destructor
 
 
-void HcalPedestalClient::beginJob(){
+void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
 
   if ( debug_ ) std::cout << "HcalPedestalClient: beginJob" << std::endl;
 
@@ -102,10 +102,10 @@ void HcalPedestalClient::beginJob(){
   jevt_ = 0;
   this->setup();
   return;
-} // void HcalPedestalClient::beginJob()
+} // void HcalPedestalClient::beginJob(const EventSetup& eventSetup);
 
 
-void HcalPedestalClient::beginRun(const EventSetup& eventSetup)
+void HcalPedestalClient::beginRun(void)
 {
   if ( debug_ ) std::cout << "HcalPedestalClient: beginRun" << std::endl;
 
@@ -154,15 +154,13 @@ void HcalPedestalClient::cleanup(void)
 	{
 	  // delete pointers within arrays of histograms
 	  if (ProblemPedestalsByDepth[i]) delete ProblemPedestalsByDepth[i];
+	  if (MeanMapByDepth[i]) delete MeanMapByDepth[i];
+	  if (RMSMapByDepth[i]) delete RMSMapByDepth[i];
 
 	  for( HistMap1D_t::iterator it = histMap1D.begin(); it != histMap1D.end(); ++it )
 	    it->second.hist[i] = NULL;
 	  for( HistMap2D_t::iterator it = histMap2D.begin(); it != histMap2D.end(); ++it )
 	    it->second.hist[i] = NULL;
-	  if (!makeDiagnostics_) continue;
-	  if (MeanMapByDepth[i]) delete MeanMapByDepth[i];
-          if (RMSMapByDepth[i]) delete RMSMapByDepth[i];
-
 	}
 
     } // if (cloneME)
@@ -175,6 +173,8 @@ void HcalPedestalClient::cleanup(void)
     {
       // Set each array's pointers to NULL
       ProblemPedestalsByDepth[i]=0;
+      MeanMapByDepth[i]=0;
+      RMSMapByDepth[i]=0;
       ADC_PedestalFromDBByDepth[i]=0;
       ADC_WidthFromDBByDepth[i]=0;
       fC_PedestalFromDBByDepth[i]=0;
@@ -183,36 +183,29 @@ void HcalPedestalClient::cleanup(void)
       ADC_WidthFromDBByDepth_1D[i]=0;
       fC_PedestalFromDBByDepth_1D[i]=0;
       fC_WidthFromDBByDepth_1D[i]=0;
-
-      if (makeDiagnostics_)
-	{
-	  MeanMapByDepth[i]=0;
-	  RMSMapByDepth[i]=0;
-
-	  // Raw pedestals in ADC
-	  rawADCPedestalMean[i]=0;
-	  rawADCPedestalRMS[i]=0;
-	  rawADCPedestalMean_1D[i]=0;
-	  rawADCPedestalRMS_1D[i]=0;
-	  
-	  // Raw pedestals in ADC
-	  subADCPedestalMean[i]=0;
-	  subADCPedestalRMS[i]=0;
-	  subADCPedestalMean_1D[i]=0;
-	  subADCPedestalRMS_1D[i]=0;
-	  
-	  // Raw pedestals in FC
-	  rawfCPedestalMean[i]=0;
-	  rawfCPedestalRMS[i]=0;
-	  rawfCPedestalMean_1D[i]=0;
-	  rawfCPedestalRMS_1D[i]=0;
-	  
-	  // Raw pedestals in FC
-	  subfCPedestalMean[i]=0;
-	  subfCPedestalRMS[i]=0;
-	  subfCPedestalMean_1D[i]=0;
-	  subfCPedestalRMS_1D[i]=0;
-	}
+      // Raw pedestals in ADC
+      rawADCPedestalMean[i]=0;
+      rawADCPedestalRMS[i]=0;
+      rawADCPedestalMean_1D[i]=0;
+      rawADCPedestalRMS_1D[i]=0;
+      
+      // Raw pedestals in ADC
+      subADCPedestalMean[i]=0;
+      subADCPedestalRMS[i]=0;
+      subADCPedestalMean_1D[i]=0;
+      subADCPedestalRMS_1D[i]=0;
+      
+      // Raw pedestals in FC
+      rawfCPedestalMean[i]=0;
+      rawfCPedestalRMS[i]=0;
+      rawfCPedestalMean_1D[i]=0;
+      rawfCPedestalRMS_1D[i]=0;
+      
+      // Raw pedestals in FC
+      subfCPedestalMean[i]=0;
+      subfCPedestalRMS[i]=0;
+      subfCPedestalMean_1D[i]=0;
+      subfCPedestalRMS_1D[i]=0;
     }
 
   /*
@@ -241,7 +234,7 @@ void HcalPedestalClient::getHistograms()
 
   // Grab individual histograms
   ostringstream name;
-  name<<process_.c_str()<<"Hcal/ReferencePedestalMonitor_Hcal/Pedestal Task Event Number";
+  name<<process_.c_str()<<"Hcal/BaselineMonitor_Hcal/Pedestal Task Event Number";
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) {
     string s = me->valueString();
@@ -251,14 +244,14 @@ void HcalPedestalClient::getHistograms()
   }
   name.str("");
 
-  name<<process_.c_str()<<"ReferencePedestalMonitor_Hcal/ ProblemReferencePedestals";
+  name<<process_.c_str()<<"BaselineMonitor_Hcal/ ProblemPedestals";
   ProblemPedestals = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
 
   for (int i=0;i<4;++i)
     {
       // Grab arrays of histograms
-      getEtaPhiHists("ReferencePedestalMonitor_Hcal/problem_referencepedestals/"," Problem Reference Pedestal Rate", ProblemPedestalsByDepth);
+      getEtaPhiHists("BaselineMonitor_Hcal/problem_pedestals/"," Problem Pedestal Rate", ProblemPedestalsByDepth);
 
       if (ProblemPedestalsByDepth[i])
 	{
@@ -266,11 +259,9 @@ void HcalPedestalClient::getHistograms()
 	  ProblemPedestalsByDepth[i]->SetMinimum(0);
 	}
 
-      if (!makeDiagnostics_) 
-	continue;
 
       // Get Overall Pedestal Maps
-      getEtaPhiHists("ReferencePedestalMonitor_Hcal/","Pedestal Mean Map ADC",MeanMapByDepth);
+      getEtaPhiHists("BaselineMonitor_Hcal/","Pedestal Mean Map ADC",MeanMapByDepth);
       if (MeanMapByDepth[i])
 	{
 	  // This forces green color to get centered at nominal value in colz plots.
@@ -279,7 +270,7 @@ void HcalPedestalClient::getHistograms()
 	  MeanMapByDepth[i]->SetMaximum(2*nominalPedMeanInADC_);
 	  MeanMapByDepth[i]->SetMinimum(0);
 	}
-      getEtaPhiHists("ReferencePedestalMonitor_Hcal/","Pedestal RMS Map ADC",RMSMapByDepth);
+      getEtaPhiHists("BaselineMonitor_Hcal/","Pedestal RMS Map ADC",RMSMapByDepth);
       if (RMSMapByDepth[i])
 	{
 	  RMSMapByDepth[i]->SetMaximum(2*nominalPedWidthInADC_ );
@@ -324,7 +315,7 @@ void HcalPedestalClient::resetAllME()
   ostringstream name;
 
   // Reset individual histograms
-  name<<process_.c_str()<<"ReferencePedestalMonitor_Hcal/ ProblemReferencePedestals";
+  name<<process_.c_str()<<"BaselineMonitor_Hcal/ ProblemPedestals";
   resetME(name.str().c_str(),dbe_);
   name.str("");
 
@@ -333,7 +324,17 @@ void HcalPedestalClient::resetAllME()
       // Reset arrays of histograms
 
       // Problem Pedestal Plots
-      name<<process_.c_str()<<"ReferencePedestalMonitor_Hcal/problem_referencepedestals/"<<subdets_[i]<<" Problem Reference Pedestal Rate";
+      name<<process_.c_str()<<"BaselineMonitor_Hcal/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
+      resetME(name.str().c_str(),dbe_);
+      name.str("");
+
+      // Overall Mean Map
+      name<<process_.c_str()<<"BaselineMonitor_Hcal/"<<subdets_[i]<<"Pedestal Mean Map ADC";
+      resetME(name.str().c_str(),dbe_);
+      name.str("");
+      
+      // Overall Pedestal Map
+      name<<process_.c_str()<<"BaselineMonitor_Hcal/"<<subdets_[i]<<"Pedestal RMS Map ADC";
       resetME(name.str().c_str(),dbe_);
       name.str("");
 
@@ -347,19 +348,6 @@ void HcalPedestalClient::resetAllME()
 	resetME(name.str().c_str(), dbe_);
 	name.str("");
       }
-      
-      if (!makeDiagnostics_) continue;
-      // Overall Mean Map
-      name<<process_.c_str()<<"ReferencePedestalMonitor_Hcal/"<<subdets_[i]<<"Pedestal Mean Map ADC";
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-
-      // Overall Pedestal Map
-      name<<process_.c_str()<<"ReferencePedestalMonitor_Hcal/"<<subdets_[i]<<"Pedestal RMS Map ADC";
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-
-
     }
 } // void HcalPedestalClient::resetAllME()
 
@@ -410,7 +398,7 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   htmlAnyHisto(runNo,ProblemPedestals,"i#eta","i#phi", 92, htmlFile, htmlDir);
   htmlFile<<"</tr>"<<std::endl;
-  htmlFile<<"<tr align=\"center\"><td> (UNLESS makeDiagnostics FLAG WAS ENABLED, ONLY DATABASE REFERENCE PEDESTAL PLOTS WILL APPEAR HERE!) <br>A pedestal is considered problematic if its mean differs from the nominal mean value of "<<nominalPedMeanInADC_<<" by more than "<<maxPedMeanDiffADC_<<" ADC counts.<br>";
+  htmlFile<<"<tr align=\"center\"><td> A pedestal is considered problematic if its mean differs from the nominal mean value of "<<nominalPedMeanInADC_<<" by more than "<<maxPedMeanDiffADC_<<" ADC counts.<br>";
   htmlFile<<"It is also considered problematic if its RMS differs from the nominal RMS of "<<nominalPedWidthInADC_<<" by more than "<<maxPedWidthDiffADC_<<" ADC counts.<br>"<<std::endl;
   htmlFile<<"</tr></table>"<<std::endl;
   htmlFile<<"<hr><table align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
@@ -501,10 +489,10 @@ void HcalPedestalClient::htmlExpertOutput(int runNo, string htmlDir, string html
   if (debug_) 
     std::cout <<" <HcalPedestalClient::htmlExpertOutput>  Preparing Expert html output ..." <<std::endl;
   
-  string client = "ReferencePedestalMonitor";
+  string client = "PedestalMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_); // does this do anything?
 
-  ofstream htmlFile;
+ofstream htmlFile;
   htmlFile.open((htmlDir +"Expert_"+ htmlName).c_str());
 
   // html page header
@@ -548,24 +536,18 @@ void HcalPedestalClient::htmlExpertOutput(int runNo, string htmlDir, string html
   // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
   // remap so that HE depths are plotted consecutively
 
-  htmlFile << "<table align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "<table \align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   htmlFile <<"<tr><td> Pedestal Mean </td><td> Pedestal RMS </td></tr>"<<std::endl;
   gStyle->SetPalette(1);
   for (int i=0;i<4;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      if (MeanMapByDepth[i]!=0)
-	{
-	  MeanMapByDepth[i]->SetMinimum(0);
-	  MeanMapByDepth[i]->SetMaximum(2*nominalPedMeanInADC_);
-	}
+      MeanMapByDepth[i]->SetMinimum(0);
+      MeanMapByDepth[i]->SetMaximum(2*nominalPedMeanInADC_);
       htmlAnyHisto(runNo,MeanMapByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      if (RMSMapByDepth[i]!=0)
-	{
-	  RMSMapByDepth[i]->SetMinimum(0);
-	  RMSMapByDepth[i]->SetMaximum(2*nominalPedMeanInADC_);
-	}
+      RMSMapByDepth[i]->SetMinimum(0);
+      RMSMapByDepth[i]->SetMaximum(2*nominalPedMeanInADC_);
       htmlAnyHisto(runNo,RMSMapByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
@@ -591,27 +573,6 @@ void HcalPedestalClient::htmlExpertOutput(int runNo, string htmlDir, string html
   htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<std::endl;
   for (int i=0;i<4;++i)
     {
-      double adcmax=0;
-      if (rawADCPedestalMean[i]!=0)
-	adcmax=rawADCPedestalMean[i]->GetMaximum();
-      if (ADC_PedestalFromDBByDepth[i]!=0)
-	adcmax=max(adcmax,ADC_PedestalFromDBByDepth[i]->GetMaximum());
-      if (rawADCPedestalMean[i]!=0)
-	{
-	  rawADCPedestalMean[i]->SetMinimum(0);
-	  if (adcmax<2*nominalPedMeanInADC_ )
-	    rawADCPedestalMean[i]->SetMaximum(2*nominalPedMeanInADC_ );
-	  else
-	    rawADCPedestalMean[i]->SetMaximum(adcmax);
-	}
-      if (ADC_PedestalFromDBByDepth[i]!=0)
-	{
-	  ADC_PedestalFromDBByDepth[i]->SetMinimum(0);
-	  if (adcmax<2*nominalPedMeanInADC_ )
-	    ADC_PedestalFromDBByDepth[i]->SetMaximum(2*nominalPedMeanInADC_ );
-	  else
-	    ADC_PedestalFromDBByDepth[i]->SetMaximum(adcmax);
-	} 
       htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawADCPedestalMean[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
@@ -622,28 +583,6 @@ void HcalPedestalClient::htmlExpertOutput(int runNo, string htmlDir, string html
   htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<std::endl;
   for (int i=0;i<4;++i)
     {
-      double adcmax=0;
-      if (rawADCPedestalRMS[i]!=0)
-	adcmax=rawADCPedestalRMS[i]->GetMaximum();
-      if (ADC_WidthFromDBByDepth[i]!=0)
-	adcmax=max(adcmax,ADC_WidthFromDBByDepth[i]->GetMaximum());
-      if (rawADCPedestalRMS[i]!=0)
-	{
-	  rawADCPedestalRMS[i]->SetMinimum(0);
-	  if (adcmax<2*nominalPedWidthInADC_ )
-	    rawADCPedestalRMS[i]->SetMaximum(2*nominalPedWidthInADC_ );
-	  else
-	    rawADCPedestalRMS[i]->SetMaximum(adcmax);
-	}
-      if (ADC_WidthFromDBByDepth[i]!=0)
-	{
-	  ADC_WidthFromDBByDepth[i]->SetMinimum(0);
-	  if (adcmax<2*nominalPedWidthInADC_ )
-	    ADC_WidthFromDBByDepth[i]->SetMaximum(2*nominalPedWidthInADC_ );
-	  else
-	    ADC_WidthFromDBByDepth[i]->SetMaximum(adcmax);
-	} 
-
       htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawADCPedestalRMS[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ADC_WidthFromDBByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);

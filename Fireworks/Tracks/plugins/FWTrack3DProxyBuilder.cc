@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrack3DProxyBuilder.cc,v 1.10 2009/08/26 22:23:08 dmytro Exp $
+// $Id: FWTrack3DProxyBuilder.cc,v 1.11 2009/10/04 12:13:08 dmytro Exp $
 //
 
 // system include files
@@ -79,6 +79,7 @@ FWTrack3DProxyBuilder::FWTrack3DProxyBuilder() :
    m_defaultPropagator->IncDenyDestroy();
    m_defaultPropagator->SetMaxR(850);
    m_defaultPropagator->SetMaxZ(1100);
+   m_defaultPropagator->SetMaxStep(5);
 
    m_trackerPropagator->SetMagFieldObj( m_cmsMagField );
    m_trackerPropagator->IncRefCount();
@@ -86,6 +87,7 @@ FWTrack3DProxyBuilder::FWTrack3DProxyBuilder() :
    m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
    m_trackerPropagator->SetMaxR(123);
    m_trackerPropagator->SetMaxZ(300);
+   m_trackerPropagator->SetMaxStep(1);
 }
 
 FWTrack3DProxyBuilder::~FWTrack3DProxyBuilder()
@@ -98,14 +100,16 @@ void
 FWTrack3DProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
    if(CmsShowMain::isAutoField()) {
-      if ( fabs( iData.eta() ) < 2.0 && iData.pt() > 1 ) {
-         double estimate = fw::estimate_field(iData);
-         if ( estimate >= 0 ) {
-	    CmsShowMain::guessFieldIsOn(estimate > 2.0);
-	    m_cmsMagField->setMagnetState( CmsShowMain::getMagneticField() > 0 );
-         }
+     if ( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 ) {
+       double estimate = fw::estimate_field(iData,true);
+       if ( estimate >= 0 ) CmsShowMain::guessField(estimate);
       }
    }
+
+   double field = CmsShowMain::getMagneticField();
+   m_cmsMagField->setMagnetState( field > 0 );
+   m_cmsMagField->setNominalFieldValue( field );
+
    TEveTrackPropagator* propagator = m_defaultPropagator.get();
    if ( ! iData.extra().isAvailable() ) propagator = m_trackerPropagator.get();
    TEveTrack* trk = fireworks::prepareTrack( iData, propagator, item()->defaultDisplayProperties().color() );

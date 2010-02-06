@@ -54,7 +54,7 @@ void L1TdeECALClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TdeECALClient::beginJob(void){
+void L1TdeECALClient::beginJob(const EventSetup& context){
 
   if(verbose_) cout <<"[TriggerDQM]: Begin Job" << endl;
   // get backendinterface  

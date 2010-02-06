@@ -124,7 +124,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1HfTowerCountNegativeEtaRing1",&l1hfTowerCountNegativeEtaRing1,"L1HfTowerCountNegativeEtaRing1/I");
   HltTree->Branch("L1HfTowerCountPositiveEtaRing2",&l1hfTowerCountPositiveEtaRing2,"L1HfTowerCountPositiveEtaRing2/I");
   HltTree->Branch("L1HfTowerCountNegativeEtaRing2",&l1hfTowerCountNegativeEtaRing2,"L1HfTowerCountNegativeEtaRing2/I");
-
+  
 }
 
 /* **Analyze the event** */
@@ -147,6 +147,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
 
 
   /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
+
   if (hltresults.isValid()) {
     int ntrigs = hltresults->size();
     if (ntrigs==0){std::cout << "%HLTInfo -- No trigger name given in TriggerResults of the input " << std::endl;}
@@ -371,8 +372,6 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
   if (L1GTRR.isValid() and L1GTOMRec.isValid()) {  
     DecisionWord gtDecisionWord = L1GTRR->decisionWord();
     const unsigned int numberTriggerBits(gtDecisionWord.size());
-    const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GTRR->technicalTriggerWord();
-    const unsigned int numberTechnicalTriggerBits(technicalTriggerWordBeforeMask.size());
     if (L1EvtCnt==0){
       // get ObjectMaps from ObjectMapRecord
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec =  L1GTOMRec->gtObjectMap();
@@ -383,25 +382,15 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
         int itrig = (*itMap).algoBitNumber();
         // Get trigger names
         algoBitToName[itrig] = TString( (*itMap).algoName() );
+        
         HltTree->Branch(algoBitToName[itrig],l1flag+itrig,algoBitToName[itrig]+"/I");
       }
       L1EvtCnt++;
-
-      // Book a branch for the technical trigger bits
-      techtriggerbits_ = new std::vector<int>();
-      HltTree->Branch("L1TechnicalTriggerBits", "vector<int>", &(techtriggerbits_), 32000, 1);
-
     }
     for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {     
       // ...Fill the corresponding accepts in branch-variables
       l1flag[iBit] = gtDecisionWord[iBit];
       //std::cout << "L1 TD: "<<iBit<<" "<<algoBitToName[iBit]<<" "<<gtDecisionWord[iBit]<< std::endl;
-    }
-
-    techtriggerbits_->clear();
-    for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) {
-      int techTrigger = (int) technicalTriggerWordBeforeMask.at(iBit);
-      techtriggerbits_->push_back(techTrigger);
     }
   }
   else {

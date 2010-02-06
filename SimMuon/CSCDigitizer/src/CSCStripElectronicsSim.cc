@@ -37,8 +37,7 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   sca_time_bin_size(50.),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
   theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset")),
-  theComparatorTimeOffset(p.getParameter<double>("comparatorTimeOffset")),
-  theSCATimingOffsets(p.getParameter<std::vector<double> >("scaTimingOffsets"))
+  theComparatorTimeOffset(p.getParameter<double>("comparatorTimeOffset"))
 {
 
   if(doCrosstalk_) {
@@ -422,11 +421,10 @@ void CSCStripElectronicsSim::createDigi(int channel, const CSCAnalogSignal & sig
 
   float pedestal = theStripConditions->pedestal(layerId(), channel);
   float gain = theStripConditions->smearedGain(layerId(), channel);
-  int chamberType = theSpecs->chamberType();
 
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
     scaCounts[scaBin] = static_cast< int >
-      ( pedestal + signal.getValue(theSignalStartTime+theSCATimingOffsets[chamberType]+scaBin*sca_time_bin_size) * gain );
+      ( pedestal + signal.getValue(theSignalStartTime+scaBin*sca_time_bin_size) * gain );
   }
   CSCStripDigi newDigi(channel, scaCounts);
 

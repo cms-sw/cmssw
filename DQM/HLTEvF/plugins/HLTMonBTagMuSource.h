@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/10/13 13:32:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/09/03 17:37:24 $
+ *  $Revision: 1.4 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -28,6 +28,10 @@ public:
   ~HLTMonBTagMuSource();
 
 protected:
+  void beginJob(const edm::EventSetup & setup) {
+    beginJob();
+  }
+
   void beginJob(void);
   void endJob(void);
 
@@ -61,7 +65,6 @@ private:
   bool m_storeROOT;
   unsigned int m_size;
   edm::Service<DQMStore> m_dbe;
-  bool m_init;
 
   // tool to access the HLT confioguration
   unsigned int m_pathIndex;

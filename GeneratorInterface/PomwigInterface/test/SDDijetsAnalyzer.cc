@@ -16,8 +16,7 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  //virtual void beginJob(const edm::EventSetup& eventSetup) ;
-  virtual void beginJob();
+  virtual void beginJob(const edm::EventSetup& eventSetup) ;
   virtual void endJob() ;
 
 private:
@@ -35,7 +34,7 @@ private:
   TH1F* hJetDeltaEta;
   TH1F* hJetDeltaPhi;
   TH1F* hJetDeltaPt;
-  //TH1F* hThrust;
+  TH1F* hThrust;
   TH1F* hEnergyvsEta;
   TH1F* hXiGen;
   TH1F* hProtonPt2;	
@@ -56,11 +55,11 @@ private:
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-//#include "PhysicsTools/CandUtils/interface/Thrust.h"
+#include "PhysicsTools/CandUtils/interface/Thrust.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 struct jetptcomp {
   bool operator() (std::pair<reco::GenJetCollection::const_iterator,double> jet1, std::pair<reco::GenJetCollection::const_iterator,double> jet2){
@@ -73,7 +72,7 @@ SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset)
 {
   genParticlesTag_ = pset.getParameter<edm::InputTag>("GenParticleTag");
   genJetsTag_ = pset.getParameter<edm::InputTag>("GenJetTag");
-  Ebeam = pset.getParameter<double>("EBeam");
+
   debug = pset.getUntrackedParameter<bool>("debug",false);
 }
 
@@ -81,7 +80,7 @@ SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset)
 SDDijetsAnalyzer::~SDDijetsAnalyzer(){
 }
 
-void SDDijetsAnalyzer::beginJob(){
+void SDDijetsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
   edm::Service<TFileService> fs;
   //TH1::SetDefaultSumw2(true);
 
@@ -95,13 +94,14 @@ void SDDijetsAnalyzer::beginJob(){
   hJetDeltaEta = fs->make<TH1F>("hJetDeltaEta","hJetDeltaEta",100,-5.,5.);
   hJetDeltaPhi = fs->make<TH1F>("hJetDeltaPhi","hJetDeltaPhi",100,-3.141592,3.141592);
   hJetDeltaPt = fs->make<TH1F>("hJetDeltaPt","hJetDeltaPt",100,0.,100.);
-  //hThrust = fs->make<TH1F>("hThrust","hThrust",100,0.,1.);
+  hThrust = fs->make<TH1F>("hThrust","hThrust",100,0.,1.);
 
   hEnergyvsEta = fs->make<TH1F>("hEnergyvsEta","hEnergyvsEta",100,-15.0,15.0); 		
   hXiGen = fs->make<TH1F>("hXiGen","hXiGen",100,0.,0.21);
   hProtonPt2 = fs->make<TH1F>("hProtonPt2","hProtonPt2",100,0.,3.0);
 
   nevents = 0;
+  Ebeam = 5000.;//Fix get the Ebeam from the event
 }
 
 void SDDijetsAnalyzer::endJob(){
@@ -151,8 +151,6 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 
   edm::Handle<reco::GenJetCollection> genJets;
   ev.getByLabel(genJetsTag_,genJets);
-  if(genJets->size() < 2) return;
-
   /*reco::GenJetCollection::const_iterator jet1 = genJets->end();
   reco::GenJetCollection::const_iterator jet2 = genJets->end();
   double firstpt = -1.;
@@ -167,7 +165,7 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 		jet2 = genjet;
 	}
   }*/
-  /*std::vector<std::pair<reco::GenJetCollection::const_iterator,double> > genjetvec;	
+  std::vector<std::pair<reco::GenJetCollection::const_iterator,double> > genjetvec;	
   int jetcount = 0;
   for(reco::GenJetCollection::const_iterator genjet = genJets->begin(); genjet != genJets->end(); ++genjet){
 	if(debug) std::cout << " Jet " << jetcount++ << " pt: " << genjet->pt() << std::endl;
@@ -179,12 +177,9 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
   if(debug){
   	std::cout << ">>> After sorting: " << std::endl;
   	for(size_t k = 0; k < genjetvec.size(); ++k) std::cout << " Jet " << k << " pt: " << genjetvec[k].second << std::endl;
-  }*/
+  }
 	
-  const reco::GenJet* jet1 = &(*genJets)[0];
-  const reco::GenJet* jet2 = &(*genJets)[1];
-
-  if(jet1&&jet2){
+  if((jet1 != genJets->end())&&(jet2 != genJets->end())){
 	if(debug) std::cout << ">>> Leading Jet pt,eta: " << jet1->pt() << " , " << jet1->eta() << std::endl;
 	hJet1Pt->Fill(jet1->pt());
 	hJet1Eta->Fill(jet1->eta());
@@ -200,13 +195,13 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 	hJetDeltaPt->Fill(jet1->pt() - jet2->pt());	
   }
 
-  /*//Calculate Thrust
+  //Calculate Thrust
   edm::Handle<edm::View<reco::Candidate> > genParticlesVisible;
   ev.getByLabel("genParticlesVisible", genParticlesVisible);
   Thrust mythrust(genParticlesVisible->begin(),genParticlesVisible->end());
   double thrustValue = mythrust.thrust();
   if(debug) std::cout << ">>> Event Thrust: " << thrustValue << std::endl;
-  hThrust->Fill(thrustValue);*/
+  hThrust->Fill(thrustValue);
 				
 }
 

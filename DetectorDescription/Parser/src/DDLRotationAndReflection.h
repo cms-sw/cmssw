@@ -28,7 +28,7 @@ class DDLRotationAndReflection : public DDXMLElement
  public:
 
   /// Constructor 
-  DDLRotationAndReflection( DDLElementRegistry* myreg );
+  DDLRotationAndReflection();
 
   /// Destructor
   ~DDLRotationAndReflection();
@@ -36,7 +36,7 @@ class DDLRotationAndReflection : public DDXMLElement
   /// returns 1 = left handed rotation matrix, 0 = right-handed, -1 = not orthonormal.
   int isLeftHanded(DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace);
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  void processElement (const std::string& name, const std::string& nmspace);
 
  private:
 

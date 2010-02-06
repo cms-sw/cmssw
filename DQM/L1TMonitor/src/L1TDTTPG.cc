@@ -1,16 +1,11 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.20 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
- * Revision 1.20  2008/03/20 19:38:25  berryhil
- *
- *
- * organized message logger
- *
  * Revision 1.19  2008/03/14 20:35:46  berryhil
  *
  *
@@ -30,11 +25,6 @@
  * DQM core migration.
  *
  * $Log: L1TDTTPG.cc,v $
- * Revision 1.20  2008/03/20 19:38:25  berryhil
- *
- *
- * organized message logger
- *
  * Revision 1.19  2008/03/14 20:35:46  berryhil
  *
  *
@@ -141,7 +131,7 @@ L1TDTTPG::~L1TDTTPG()
 {
 }
 
-void L1TDTTPG::beginJob(void)
+void L1TDTTPG::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;

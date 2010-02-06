@@ -67,7 +67,7 @@ public:
       cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
-    return resolutionFunction_[i]->sigmaPt(track.pt(), track.eta(), parArray_[i]);
+    return resolutionFunction_[i]->sigmaPt(track.pt(), track.eta(), parArray_);
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
@@ -76,7 +76,7 @@ public:
       cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
-    return resolutionFunction_[i]->sigmaCotgTh(track.pt(), track.eta(), parArray_[i]);
+    return resolutionFunction_[i]->sigmaCotgTh(track.pt(), track.eta(), parArray_);
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
@@ -85,14 +85,9 @@ public:
       cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
-    return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_[i]);
+    return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_);
   }
-  /// Get the ith resolution function
-  resolutionFunctionBase<double * > * function( const unsigned int i )
-  {
-    if( resolutionFunctionVec_.size() > i ) return resolutionFunction_[i];
-    else return 0;
-  }
+
 protected:
   /// Parser of the parameters file
   void readParameters( TString fileName );

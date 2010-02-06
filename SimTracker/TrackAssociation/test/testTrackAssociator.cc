@@ -31,9 +31,8 @@ testTrackAssociator::testTrackAssociator(edm::ParameterSet const& conf) {
 testTrackAssociator::~testTrackAssociator() {
 }
 
-void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup& setup)
-{
-  
+void testTrackAssociator::beginJob(const EventSetup & setup) {
+
   edm::ESHandle<MagneticField> theMF;
   setup.get<IdealMagneticFieldRecord>().get(theMF);
   edm::ESHandle<TrackAssociatorBase> theChiAssociator;
@@ -43,6 +42,11 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
   associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
 
+}
+
+void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup& setup)
+{
+  
   Handle<View<Track> > trackCollectionH;
   event.getByLabel(tracksTag,trackCollectionH);
   const View<Track>  tC = *(trackCollectionH.product()); 

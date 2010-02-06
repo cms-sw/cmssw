@@ -45,18 +45,17 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 			 " Hardware Watch Cells", // base name of depth histograms
 			 "DataFormatMonitor/ HardwareWatchCells", // name of problem summary plot
 			 "DataFormat", // shorthand name for the object
-			 ps.getUntrackedParameter<double>("DataFormatClient_minErrorFlag",0.01)); // minimum threshold required to mark a cell as bad
+			 0.0); // minimum threshold required to mark a cell as bad
   
   // Some fraction of events show up with all digis reporting bad
   // (All digis invalid/error?)
-  // Require digi fraction > 0.05 before this is considered an error by the summary client
-  // DigiMonitor task requires at least 10 good digis be present before report unpacker is checked -- that eliminates most of these problems
+  // Require digi fraction > 0.20 before this is considered an error by the summary client
   if (digiMon_.onoff)
     digiMon_.Setup("DigiMonitor_Hcal/problem_digis",
 		   " Problem Digi Rate",
 		   "DigiMonitor_Hcal/ ProblemDigis",
 		   "Digi",
-		   0.05);
+		   0.20);
   if (recHitMon_.onoff)
     recHitMon_.Setup("RecHitMonitor_Hcal/problem_rechits",
 		     " Problem RecHit Rate",
@@ -82,7 +81,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 		       "DeadCellMonitor_Hcal/ ProblemDeadCells",
 		       "DeadCell",
 		       ps.getUntrackedParameter<double>("DeadCellClient_minErrorFlag",0.05));
-  
+
   if (beamMon_.onoff)
     beamMon_.Setup("BeamMonitor_Hcal/problem_beammonitor",
 		       " Problem BeamMonitor Rate",
@@ -239,8 +238,8 @@ void HcalSummaryClient::setup(void)
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(2,"HE");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(3,"HO");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(4,"HF");
-  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(5,"HO0");
-  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(6,"HO12");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(5,"H00");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(6,"H012");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(7,"HFlumi");
   (StatusVsLS->getTH2F())->GetXaxis()->SetTitle("Lumi Section");
   (StatusVsLS->getTH2F())->SetMinimum(-1);
@@ -259,8 +258,8 @@ void HcalSummaryClient::setup(void)
   myhist->GetXaxis()->SetBinLabel(2,"HE");
   myhist->GetXaxis()->SetBinLabel(3,"HO");
   myhist->GetXaxis()->SetBinLabel(4,"HF");
-  myhist->GetXaxis()->SetBinLabel(5,"HO0");
-  myhist->GetXaxis()->SetBinLabel(6,"HO12");
+  myhist->GetXaxis()->SetBinLabel(5,"H00");
+  myhist->GetXaxis()->SetBinLabel(6,"H012");
   myhist->GetXaxis()->SetBinLabel(7,"HFlumi");
   myhist->GetYaxis()->SetBinLabel(1,"Status");
   myhist->SetMarkerSize(3);
@@ -288,8 +287,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"));
-      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -301,8 +300,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"));
-      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -314,8 +313,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HE Depth 3 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HE Depth 3 Summary Map"));
-      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -326,8 +325,8 @@ void HcalSummaryClient::setup(void)
   if(dqmStore_->get(rootFolder_+"/EventInfo/HO Depth 4 Summary Map"))
     {
       depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HO Depth 4 Summary Map"));
-      //(depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
-      //(depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
       for (int ieta=0;ieta<etabins;++ieta)
 	{
@@ -342,9 +341,9 @@ void HcalSummaryClient::setup(void)
       std::cout <<"<HcalSummaryClient::setup> Could not get reportSummaryMap!"<<std::endl;
       return;
     }
+  reportMap->getTH2F()->SetMaximum(1);
   reportMap->getTH2F()->SetMinimum(-1);
-  reportMap->getTH2F()->SetMaximum(+1);
-  for (int i=1;i<=reportMap->getTH2F()->GetNbinsX();++i)
+  for (int i=1;i<=5;++i)
     reportMap->setBinContent(i,1,-1);
 
   return;
@@ -715,7 +714,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
     }
 
   if (debug_>0) 
-    std::cout <<"ANALYZING SUBTASK: "<<s.summaryName<<std::endl;
+    cout <<"ANALYZING SUBTASK: "<<s.summaryName<<endl;
   int etabins=0;
   int ieta=-9999;
   int iphi=-9999;
@@ -735,7 +734,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
     {
       hist=me->getTH2F();
       counter=hist->GetBinContent(0,0);
-      if (counter>1) // a counter value of 1 means that the histogram was already rescaled 
+      if (counter>0) 
 	{
 	  hist->Scale(1./counter);
 	  // scale to 0-1 to always maintain consistent coloration
@@ -763,12 +762,12 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 	  me=dqmStore_->get(name.str().c_str());
 
 	  if (!me && debug_>0)  
-	    std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  '"<<name.str().c_str()<<"'"<<std::endl;
+	    std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<std::endl;
 	  else if (me)
 	    {
 	      hist=me->getTH2F();
 	      counter=hist->GetBinContent(0,0); // event counter
-	      if (counter>1) // scale by number of events to make rate histogram
+	      if (counter>0) // scale by number of events to make rate histogram
 		{
 		  hist->Scale(1./counter);
 		  // scale to 0-1 to always maintain consistent coloration
@@ -786,6 +785,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 		      if (bincontent>s.thresh) // cell is bad if above threshold
 			{
 			  iphi=phi+1;
+			  //cout <<"Found bad cell!\t" <<ieta<<"\t"<<iphi<<"\t"<<d+1<<"\tbincontent = "<<bincontent<<endl;
 			  if (isHF(eta,d+1))
 			    {
 			      if (!HFpresent_) continue;
@@ -1123,7 +1123,7 @@ void HcalSummaryClient::htmlStatusDump(std::string name, SubTaskSummaryStatus& t
 {
   htmlFile <<"<tr><td>"<<name<<"</td>"<<endl;
   int totalcells=0;
-  for (unsigned int i=0;i<4;++i)
+  for (unsigned int i=0;i<=4;++i)
     {
       if (i>Ncells.size()) 
 	htmlFile <<"<td> ?? </td>"<<endl;

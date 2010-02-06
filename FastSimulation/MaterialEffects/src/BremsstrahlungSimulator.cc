@@ -29,6 +29,7 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
   if ( radLengths > 4. ) Particle.SetXYZT(0.,0.,0.,0.);
 
   // Hard brem probability with a photon Energy above photonEnergy.
+  if (Particle.e()<photonEnergy) return;
   xmin = std::max(photonEnergy/Particle.e(),photonFractE);
   if ( xmin >=1. || xmin <=0. ) return;
 

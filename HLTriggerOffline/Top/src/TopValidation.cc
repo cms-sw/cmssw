@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.5 2009/07/03 13:12:31 lobelle Exp $
+// $Id: TopValidation.cc,v 1.4 2009/06/22 13:23:37 lobelle Exp $
 //
 //
 
@@ -32,14 +32,10 @@ TopValidation::TopValidation(const edm::ParameterSet& iConfig)
      hlt_bitnames        = iConfig.getParameter<std::vector<string> >("hltPaths");     
      hlt_bitnamesMu      = iConfig.getParameter<std::vector<string> >("hltMuonPaths");
      hlt_bitnamesEg      = iConfig.getParameter<std::vector<string> >("hltEgPaths");  
-     hlt_bitnamesJet      = iConfig.getParameter<std::vector<string> >("hltJetPaths");  
-  //   triggerTag_         = iConfig.getUntrackedParameter<string>("DQMFolder","HLT/Top");
+     triggerTag_         = iConfig.getUntrackedParameter<string>("DQMFolder","HLT/Top");
      outputFileName      = iConfig.getParameter<std::string>("OutputFileName");
      outputMEsInRootFile = iConfig.getParameter<bool>("OutputMEsInRootFile");
-      FolderName_ = iConfig.getParameter<std::string>("FolderName");
-   
-      topFolder << FolderName_ ;  
-
+  
  
       
 }
@@ -78,7 +74,6 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get calo jet collection
   Handle<CaloJetCollection> jetsHandle;
   iEvent.getByLabel("iterativeCone5CaloJets", jetsHandle);
-
   
   // electron collection
   Handle<GsfElectronCollection> electronsH;
@@ -180,9 +175,7 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::map<double,reco::GsfElectron> electronMap;
    
     for (size_t i = 0; i<electronsH->size();++i){
-     if( (*electronsH)[i].pt()>15 && fabs( (*electronsH)[i].eta() )<2.4 &&
-     (*electronsH)[i].hadronicOverEm()<0.05 && (*electronsH)[i].eSuperClusterOverP()>0.6 &&
-     (*electronsH)[i].eSuperClusterOverP()<2.5){
+     if( (*electronsH)[i].pt()>15 && fabs( (*electronsH)[i].eta() )<2.4){
       electronMap[(*electronsH)[i].pt()] = (*electronsH)[i];
        }
     }     
@@ -219,40 +212,14 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Raw jets
     const CaloJetCollection *jets = jetsHandle.product();
     CaloJetCollection::const_iterator jet;
-  
+    
     int n_jets_20=0;
     
       for (jet = jets->begin(); jet != jets->end(); jet++){        
        // if (fabs(jet->eta()) <2.4 && jet->et() > 20) n_jets_20++; 
-     //  if (fabs(jet->eta()) <2.4 && jet->et() > 13) n_jets_20++; 
-      if (fabs(jet->eta()) <2.4 && jet->et() > 13) n_jets_20++;       
+       if (fabs(jet->eta()) <2.4 && jet->et() > 13) n_jets_20++;    
       } 
     
-
-//// sort jets by et
- /*  std::map<double,reco::CaloJet> jetMap;
-    
- for (size_t i = 0; i<jetsHandle->size();++i){
-     if ((*jetsHandle)[i].et()>13 && fabs( (*jetsHandle)[i].eta())<2.4){
-     
-      
-      jetMap[(*jetsHandle)[i].et()] = (*jetsHandle)[i];
-      }
-    }    
-    
-    std::vector<reco::CaloJet> selected_jets;
-    reco::CaloJet jet1, jet2;
-  
-    for( std::map<double,reco::CaloJet>::reverse_iterator rit=jetMap.rbegin(); rit!=jetMap.rend(); ++rit){
-      selected_jets.push_back( (*rit).second );
-    }
-    
-    if (selected_jets.size()>1){
-      jet1 = selected_jets[0];
-      jet2 = selected_jets[1];
-      }
-    
-*/
 
 //////////////////////////////////////////////////////////
 /////
@@ -285,13 +252,11 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   int wtrig_[100]  ={0}; 
   int wtrig_m[100] ={0};
   int wtrig_eg[100]={0};
-  int wtrig_jet[100]={0};
   
   
   int n_hlt_bits    = hlt_bitnames.size(); 
   int n_hlt_bits_mu = hlt_bitnamesMu.size();
   int n_hlt_bits_eg = hlt_bitnamesEg.size();
-  int n_hlt_bits_jet= hlt_bitnamesJet.size();
   
   const unsigned int n_TriggerResults( trh.product()->size());
 
@@ -313,12 +278,6 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	        wtrig_eg[k]=1;
              }
           }
-	
-	 for (int l=0;l<n_hlt_bits_jet;l++) {
-             if ( triggerNames_.triggerName(itrig)== hlt_bitnamesJet[l]) {     
-	        wtrig_jet[l]=1;
-             }
-          }
          
        }
      } 
@@ -329,63 +288,22 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  ////////////////////////////////////////////////////////////////////////
  ///////////////////////////////////////////////////////////////////////
     
-     events_acc_off_muon->Fill(1,1); 
-     if (ngenlep==1 && ngenmu==1)  events_acc_off_muon->Fill(2,1); 
-     events_acc_off_electron->Fill(1,1); 
-      if (ngenlep==1 && ngenel==1)  events_acc_off_electron->Fill(2,1); 
         																						    																						  
     /// **** tt->munubjjb *****    
-    
-  
-      
     if ( ngenlep==1 && ngenmu==1 && nmuaccept==1){  //Select events within acceptance
       
-            events_acc_off_muon->Fill(3,1); 
-	    
-          for (int j=0;j<n_hlt_bits_mu;j++) {
-                h_mu_gen->Fill(j+1);
-              if (wtrig_m[j]==1) {   
-	       hlt_bitmu_hist_gen->Fill(j+1);
-              }
-           }
-	   
-	     for (int it=0; it<n_hlt_bits_jet;it++){
-	   h_jet_gen->Fill(it+1);
-	   if (wtrig_jet[it]==1) {
-	   hlt_bitjet_hist_gen->Fill(it+1);
-	     }   
-	   }
-     
       
       // Efficiencies wrt MC + offline
       if (offline_mu){
-      
-             events_acc_off_muon->Fill(4,1); 
-      
-         //  et_off_jet_mu -> Fill(jet1.et());
-	  // eta_off_jet_mu-> Fill(jet1.eta());
-	   
-           for (int it=0; it<n_hlt_bits_jet;it++){
-	   h_jet_reco->Fill(it+1);
-	   if (wtrig_jet[it]==1) {
-	   hlt_bitjet_hist_reco->Fill(it+1);
-	 //  h_etjet1_trig_mu[it]->Fill(jet1.et());
-	 //  h_etajet1_trig_mu[it]->Fill(jet1.eta());
-	   
-	   
-	   }
-	   
-	   }
       
           eta_off_mu->Fill(muon1.eta()); 
           pt_off_mu-> Fill(muon1.pt());
       
             for (int j=0;j<n_hlt_bits_mu;j++) {
-                h_mu_reco->Fill(j+1);
+            
               if (wtrig_m[j]==1) {   
                h_ptmu1_trig[j]->Fill(muon1.pt());
 	       h_etamu1_trig[j]->Fill(muon1.eta());
-	       hlt_bitmu_hist_reco->Fill(j+1);
               }
            }
     	
@@ -395,54 +313,20 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     // *****  tt->enubjjb *****
     if ( ngenlep==1 && ngenel==1 && nelaccept==1){   
-    
-         events_acc_off_electron->Fill(3,1); 
-    
-           for (int j=0;j<n_hlt_bits_eg;j++) {
-                h_el_gen->Fill(j+1);
-              if (wtrig_eg[j]==1) {   
-	       hlt_bitel_hist_gen->Fill(j+1);
-              }
-           }
-	   
-	     for (int it=0; it<n_hlt_bits_jet;it++){
-	   h_jet_gen_el->Fill(it+1);
-	   if (wtrig_jet[it]==1) {
-	   hlt_bitjet_hist_gen_el->Fill(it+1);
-	     }   
-	   }
+      
+      
       
       // Efficiencies wrt mc + offline
           if (offline_el){
 	  
-	   events_acc_off_electron->Fill(4,1); 
-	  
-	    /*/// jets
-	       et_off_jet_el -> Fill(jet1.et());
-	       eta_off_jet_el-> Fill(jet1.eta());*/
-	       
-	           for (int it=0; it<n_hlt_bits_jet;it++){
-	             h_jet_reco_el->Fill(it+1);
-	               if (wtrig_jet[it]==1) {
-	                 hlt_bitjet_hist_reco_el->Fill(it+1);
-	              //    h_etjet1_trig_el[it]->Fill(jet1.et());
-	              //    h_etajet1_trig_el[it]->Fill(jet1.eta());   
-	                      }
-	   
-	                       }
-	       
-	       
-	    ///   
 	      eta_off_el->Fill(electron1.eta()); 
               pt_off_el->Fill(electron1.pt());
 	
 	       for (int k=0;k<n_hlt_bits_eg;k++) {
-	              h_el_reco->Fill(k+1);
        
                if (wtrig_eg[k]==1) {   
                 h_ptel1_trig[k]->Fill(electron1.pt());
-	        h_etael1_trig[k]->Fill(electron1.eta()); 
-		hlt_bitel_hist_reco->Fill(k+1);       
+	        h_etael1_trig[k]->Fill(electron1.eta());        
                }
              }
 	       
@@ -543,98 +427,15 @@ TopValidation::beginJob(const edm::EventSetup&)
        dbe = edm::Service<DQMStore>().operator->();
 
 	//dbe->setCurrentFolder("HLT/Top");
-	//dbe->setCurrentFolder(triggerTag_);
+	dbe->setCurrentFolder(triggerTag_);
    
   
-
   
   ////////////////////////////////////////////
-  //////   histos lepton pt, eta for events passing hlt, efficiencies
+  //////   histos lepton pt, eta for events passing hlt
   /////////////////////////////////////////////
-  
    
-    dbe->setCurrentFolder(topFolder.str()+"Semileptonic_muon");
-    
-    hlt_bitmu_hist_reco = dbe->book1D("muHLT","muHLT",hlt_bitnamesMu.size(),0.5,hlt_bitnamesMu.size()+0.5);
-    h_mu_reco = dbe->book1D("MuonEvents","MuonEvents",hlt_bitnamesMu.size(),0.5,hlt_bitnamesMu.size()+0.5);
-    
-    hlt_bitmu_hist_gen = dbe->book1D("genmuHLT","genmuHLT",hlt_bitnamesMu.size(),0.5,hlt_bitnamesMu.size()+0.5);
-    h_mu_gen = dbe->book1D("genMuonEvents","genMuonEvents",hlt_bitnamesMu.size(),0.5,hlt_bitnamesMu.size()+0.5);
-   
-    events_acc_off_muon = dbe->book1D("NEvents_acc_off","NEvents_acc_off",4,0.5,4.5);
-    events_acc_off_muon -> setBinLabel(1,"Total Events");
-    events_acc_off_muon -> setBinLabel(2,"Gen semimuon");
-    events_acc_off_muon -> setBinLabel(3,"Acceptance");
-    events_acc_off_muon -> setBinLabel(4,"Acceptance+offline");
- 
      
-    dbe->setCurrentFolder(topFolder.str()+"Semileptonic_electron"); 
-    
-    hlt_bitel_hist_reco = dbe->book1D("elHLT","elHLT",hlt_bitnamesEg.size(),0.5,hlt_bitnamesEg.size()+0.5);
-    h_el_reco = dbe->book1D("ElectronEvents","ElectronEvents",hlt_bitnamesEg.size(),0.5,hlt_bitnamesEg.size()+0.5);
-    
-  
-    hlt_bitel_hist_gen = dbe->book1D("genelHLT","genelHLT",hlt_bitnamesEg.size(),0.5,hlt_bitnamesEg.size()+0.5);
-    h_el_gen = dbe->book1D("genElectronEvents","genElectronEvents",hlt_bitnamesEg.size(),0.5,hlt_bitnamesEg.size()+0.5);
-    
-    
-    events_acc_off_electron = dbe->book1D("NEvents_acc_off","NEvents_acc_off",4,0.5,4.5);
-    events_acc_off_electron -> setBinLabel(1,"Total Events");
-    events_acc_off_electron -> setBinLabel(2,"Gen semielectron");
-    events_acc_off_electron -> setBinLabel(3,"Acceptance");
-    events_acc_off_electron -> setBinLabel(4,"Acceptance+offline");
-   
-      
-    dbe->setCurrentFolder(topFolder.str()+"Jets");
-       
-     h_jet_reco =  dbe->book1D("denom","denom",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-     hlt_bitjet_hist_reco =  dbe->book1D("numer","numer",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-   
-     h_jet_reco_el =  dbe->book1D("denom_el","denom_el",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-     hlt_bitjet_hist_reco_el = dbe->book1D("numer_el","numer_el",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-   
-   ///
-     h_jet_gen =  dbe->book1D("denom_gen","denom_gen",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-     hlt_bitjet_hist_gen =  dbe->book1D("numer_gen","numer_gen",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-   
-     h_jet_gen_el =  dbe->book1D("denom_el_gen","denom_el_gen",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-     hlt_bitjet_hist_gen_el = dbe->book1D("numer_el_gen","numer_el_gen",hlt_bitnamesJet.size(),0.5,hlt_bitnamesJet.size()+0.5);
-   
-   
-   /////////
-    /* et_off_jet_mu                = dbe->book1D ("Jet1Et_M","Jet1Et_M",51,0.0,150.0);
-     et_off_jet_el                = dbe->book1D ("Jet1Et_E","Jet1Et_E",51,0.0,150.0);
-     eta_off_jet_mu               = dbe->book1D ("Jet1Eta_M","Jet1Eta_M",51,-2.5,2.5);
-     eta_off_jet_el               = dbe->book1D ("Jet1Eta_E","Jet1Eta_E",51,-2.5,2.5);
-     njets_off_mu                 = dbe->book1D ("NJets_M","NJets_M",11,-0.5,10.5);
-     njets_off_el                 = dbe->book1D ("NJets_E","NJets_E",11,-0.5,10.5);
-    
-  
-  
-    
-     for (size_t j=0;j<hlt_bitnamesJet.size();j++) { 
-    
-     string histname_etjet       = "Jet1Et_M_"+hlt_bitnamesJet[j];
-     string histname_etajet       = "Jet1Eta_M_"+hlt_bitnamesJet[j];
-     string histname_etjet_el       = "Jet1Et_E_"+hlt_bitnamesJet[j];
-     string histname_etajet_el       = "Jet1Eta_E_"+hlt_bitnamesJet[j];
-     hlt_bitjet_hist_reco -> setBinLabel(j+1,hlt_bitnamesJet[j].c_str());
-     h_jet_reco -> setBinLabel(j+1,hlt_bitnamesJet[j].c_str());
-     h_jet_reco_el -> setBinLabel(j+1,hlt_bitnamesJet[j].c_str());
-     h_etjet1_trig_mu[j]   =   dbe->book1D((histname_etjet).c_str(),(hlt_bitnamesJet[j]+"jetEt_M").c_str(),51,0.0,150.); 
-     h_etjet1_trig_el[j]   =   dbe->book1D((histname_etjet_el).c_str(),(hlt_bitnamesJet[j]+"jetEt_E").c_str(),51,0.0,150.); 
-     h_etajet1_trig_mu[j]  =   dbe->book1D((histname_etajet).c_str(),(hlt_bitnamesJet[j]+"jetEta_M").c_str(),51,-2.5,2.5); 
-     h_etajet1_trig_el[j]  =   dbe->book1D((histname_etajet_el).c_str(),(hlt_bitnamesJet[j]+"jetEta_E").c_str(),51,-2.5,2.5); 
-    
-     
-  }
-    */
-    
-    
-   	
-    dbe->setCurrentFolder(topFolder.str()+"Dileptonic_emu");  
-     
- 
    for (size_t j=0;j<hlt_bitnames.size();j++) { 
      string histname_ptmu_em  = "Muon1Pt_EM_"+hlt_bitnames[j];
      string histname_etamu_em = "Muon1Eta_EM_"+hlt_bitnames[j];
@@ -649,99 +450,53 @@ TopValidation::beginJob(const edm::EventSetup&)
     
   }
   
- 
-  
- 
    for (size_t jj=0;jj<hlt_bitnamesMu.size();jj++) { 
      string histname_ptmu       = "Muon1Pt_M_"+hlt_bitnamesMu[jj];
      string histname_etamu      = "Muon1Eta_M_"+hlt_bitnamesMu[jj];
      string histname_ptmu_dimu  = "Muon1Pt_MM_"+hlt_bitnamesMu[jj];
      string histname_etamu_dimu = "Muon1Eta_MM_"+hlt_bitnamesMu[jj];
     
-     dbe->setCurrentFolder(topFolder.str()+"Semileptonic_muon");
      h_ptmu1_trig[jj]       = dbe->book1D((histname_ptmu).c_str(),(hlt_bitnamesMu[jj]+"muonPt_M").c_str(),51,0.0,150.); 
      h_etamu1_trig[jj]      = dbe->book1D((histname_etamu).c_str(),(hlt_bitnamesMu[jj]+"muonEta_M").c_str(),51,-2.5,2.5);
      
-      hlt_bitmu_hist_reco -> setBinLabel(jj+1,hlt_bitnamesMu[jj].c_str());
-     h_mu_reco -> setBinLabel(jj+1,hlt_bitnamesMu[jj].c_str());
-     
-     hlt_bitmu_hist_gen -> setBinLabel(jj+1,hlt_bitnamesMu[jj].c_str());
-     h_mu_gen -> setBinLabel(jj+1,hlt_bitnamesMu[jj].c_str());
-     
-      dbe->setCurrentFolder(topFolder.str()+"Dileptonic_muon");
      h_ptmu1_trig_dimu[jj]  = dbe->book1D((histname_ptmu_dimu).c_str(),(hlt_bitnamesMu[jj]+"muon1Pt_MM").c_str(),51,0.0,150.); 
      h_etamu1_trig_dimu[jj] = dbe->book1D((histname_etamu_dimu).c_str(),(hlt_bitnamesMu[jj]+"muon1Pt_MM").c_str(),51,-2.5,2.5); 
     
-     
-   
-    
   }
   
-  
-  
-   
-  
-   
    for (size_t k=0;k<hlt_bitnamesEg.size();k++) { 
-   
- 
      string histname_ptel       = "Electron1Pt_E_"+hlt_bitnamesEg[k];
      string histname_etael      = "Electron1Eta_E_"+hlt_bitnamesEg[k];
      string histname_ptel_diel  = "Electron1Pt_EE_"+hlt_bitnamesEg[k];
      string histname_etael_diel = "Electron1Eta_EE_"+hlt_bitnamesEg[k];
-     
-    
-     dbe->setCurrentFolder(topFolder.str()+"Semileptonic_electron");
     
      h_ptel1_trig[k]       = dbe->book1D((histname_ptel).c_str(),(hlt_bitnamesEg[k]+"electronPt_E").c_str(),51,0.0,150.); 
      h_etael1_trig[k]      = dbe->book1D((histname_etael).c_str(),(hlt_bitnamesEg[k]+"electronEta_E").c_str(),51,-2.5,2.5);
      
-     hlt_bitel_hist_reco -> setBinLabel(k+1,hlt_bitnamesEg[k].c_str());
-     h_el_reco -> setBinLabel(k+1,hlt_bitnamesEg[k].c_str());
-      
-     hlt_bitel_hist_gen -> setBinLabel(k+1,hlt_bitnamesEg[k].c_str());
-     h_el_gen -> setBinLabel(k+1,hlt_bitnamesEg[k].c_str());
-     
-     
-      dbe->setCurrentFolder(topFolder.str()+"Dileptonic_electron");
      h_ptel1_trig_diel[k]  = dbe->book1D((histname_ptel_diel).c_str(),(hlt_bitnamesEg[k]+"electron1Pt_EE").c_str(),51,0.0,150.); 
      h_etael1_trig_diel[k] = dbe->book1D((histname_etael_diel).c_str(),(hlt_bitnamesEg[k]+"electron1Eta_EE").c_str(),51,-2.5,2.5); 
     
-   
-  
-    
-    
   }
- 
   
   
 /////////////////////////////////////////
 ///    histos lepton pt, eta
 //////////////////////////////////////////7
-
-
   
    //semimu events 
-    dbe->setCurrentFolder(topFolder.str()+"Semileptonic_muon");
-    
-  
   
     eta_off_mu               = dbe->book1D ("Muon1Eta_M","Muon1Eta_M",51,-2.5,2.5);
     pt_off_mu                = dbe->book1D ("Muon1Pt_M","Muon1Pt_M",51,0.0,150.0);
     
-  
+ 
      //semiel events  
-      dbe->setCurrentFolder(topFolder.str()+"Semileptonic_electron");
    
     eta_off_el               = dbe->book1D ("Electron1Eta_E","Electron1Eta_E",51,-2.5,2.5);
     pt_off_el                = dbe->book1D ("Electron1Pt_E","Electron1Pt_E",51,0.0,150.0);
     
-    
         
     //dimu events
-     dbe->setCurrentFolder(topFolder.str()+"Dileptonic_muon");
    
- 
     eta_off_dimu1            = dbe->book1D ("Muon1Eta_MM","Muon1Eta_MM",51,-2.5,2.5);
     pt_off_dimu1             = dbe->book1D ("Muon1Pt_MM","Muon1Pt_MM",51,0.0,150.0);
     eta_off_dimu2            = dbe->book1D ("Muon2Eta_MM","Muon2Eta_MM",51,-2.5,2.5);
@@ -750,9 +505,7 @@ TopValidation::beginJob(const edm::EventSetup&)
   
     
     //diel events
-     dbe->setCurrentFolder(topFolder.str()+"Dileptonic_electron");
-     
-   
+    
     eta_off_diel1            = dbe->book1D ("Electron1Eta_EE","Electron1Eta_EE",51,-2.5,2.5);
     pt_off_diel1             = dbe->book1D ("Electron1Pt_EE","Electron1Pt_EE",51,0.0,150.0);
     eta_off_diel2            = dbe->book1D ("Electron2Eta_EE","Electron2Eta_EE",51,-2.5,2.5);
@@ -760,9 +513,6 @@ TopValidation::beginJob(const edm::EventSetup&)
   
     
     //emu events
-     dbe->setCurrentFolder(topFolder.str()+"Dileptonic_emu");
-     
-   
     
     eta_off_emu_muon         = dbe->book1D ("Muon1Eta_EM","Muon1Eta_EM",51,-2.5,2.5);
     pt_off_emu_muon          = dbe->book1D ("Muon1Pt_EM","Muon1Pt_EM",51,0.0,150.0);

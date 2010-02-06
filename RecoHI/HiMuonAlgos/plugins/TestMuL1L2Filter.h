@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.h,v 1.4 2009/08/15 16:59:53 kodolova Exp $
+// $Id: TestMuL1L2Filter.h,v 1.1 2009/08/17 11:54:22 kodolova Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class TestMuL1L2Filter : public edm::EDFilter {
      edm::ParameterSet pset_;
     // HICConst * theHICConst;
     // FmpConst * theFmpConst;
-     HITrackVertexMaker * theTrackVertexMaker;
+    // HITrackVertexMaker * theTrackVertexMaker;
 
    public:
 
@@ -61,7 +61,7 @@ class TestMuL1L2Filter : public edm::EDFilter {
   // General Block
   
       virtual bool filter(edm ::Event&, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& es1);
+      virtual void beginJob();
       virtual void endJob();
   
 };

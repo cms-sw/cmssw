@@ -104,11 +104,13 @@ class WenuPlots : public edm::EDAnalyzer {
   Double_t deta_EB_;
   Double_t dphi_EB_;
   Double_t hoe_EB_;
+  Double_t userIso_EB_;
   //
   Double_t sihih_EE_;
   Double_t deta_EE_;
   Double_t dphi_EE_;
   Double_t hoe_EE_;
+  Double_t userIso_EE_;
   //
   bool trackIso_EB_inv;
   bool ecalIso_EB_inv;
@@ -122,11 +124,14 @@ class WenuPlots : public edm::EDAnalyzer {
   bool deta_EB_inv;
   bool dphi_EB_inv;
   bool hoe_EB_inv;
+  bool userIso_EB_inv;
   //
   bool sihih_EE_inv;
   bool deta_EE_inv;
   bool dphi_EE_inv;
   bool hoe_EE_inv;
+  bool userIso_EE_inv;
+  //
   //
   int nBarrelVars_;
   //

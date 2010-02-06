@@ -4,8 +4,8 @@
 /*
  * \file L1TLTC.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.3 $
+ * $Date: 2007/06/27 13:54:21 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -53,7 +53,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(void);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

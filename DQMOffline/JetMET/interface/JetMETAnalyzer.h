@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/11/19 19:57:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/11/08 14:33:01 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -76,11 +76,15 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::InputTag theICJetCollectionLabel;
   edm::InputTag thePFJetCollectionLabel;
   edm::InputTag theJPTJetCollectionLabel;
+/*   edm::InputTag theCaloMETCollectionLabel; */
+/*   edm::InputTag theCaloMETNoHFCollectionLabel; */
+/*   edm::InputTag theCaloMETHOCollectionLabel; */
+/*   edm::InputTag theCaloMETNoHFHOCollectionLabel; */
+/*   edm::InputTag theTcMETCollectionLabel; */
+/*   edm::InputTag thePfMETCollectionLabel; */
+/*   edm::InputTag theJetCollectionForHTMHTLabel; */
   edm::InputTag theTriggerResultsLabel;
   //
-
-  int _LSBegin;
-  int _LSEnd;
 
   HLTConfigProvider hltConfig_;
   std::string processname_;
@@ -99,7 +103,6 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   bool theJPTJetAnalyzerFlag;
   bool theCaloMETAnalyzerFlag;
   bool theTcMETAnalyzerFlag;
-  bool theMuCorrMETAnalyzerFlag;
   bool thePfMETAnalyzerFlag;
   bool theHTMHTAnalyzerFlag;
 
@@ -121,7 +124,6 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   CaloMETAnalyzer   * theCaloMETHOAnalyzer;
   CaloMETAnalyzer   * theCaloMETNoHFHOAnalyzer;
   METAnalyzer       * theTcMETAnalyzer;
-  METAnalyzer       * theMuCorrMETAnalyzer;
   PFMETAnalyzer     * thePfMETAnalyzer;
   HTMHTAnalyzer     * theHTMHTAnalyzer;
   

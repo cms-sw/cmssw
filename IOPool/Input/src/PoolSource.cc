@@ -57,12 +57,12 @@ namespace edm {
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), principalCache(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 :
 			   new RootInputFileSequence(pset, *this, catalog(1), principalCache(), false)),
-    secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), processConfiguration()) : 0),
     branchIDsToReplace_(),
     numberOfEventsBeforeBigSkip_(0),
     numberOfEventsInBigSkip_(0),
     numberOfSequentialEvents_(0),
-    forkedChildIndex_(0) {
+    forkedChildIndex_(0)  
+  {
     if (secondaryFileSequence_) {
       boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
@@ -137,10 +137,10 @@ namespace edm {
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), 0U, 0U, true, false);
       if (found) {
         boost::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
-        checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
+        checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);      
 	boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration()));
         boost::shared_ptr<RunPrincipal> secondaryPrincipal = secondaryFileSequence_->readRun_(rp);
-        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
+        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
@@ -159,11 +159,11 @@ namespace edm {
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), primaryPrincipal->luminosityBlock(), 0U, true, false);
       if (found) {
         boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
-        checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
+        checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);      
 	// Temporary Lumi principal does not need a run principal
 	boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), boost::shared_ptr<RunPrincipal>()));
         boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readLuminosityBlock_(lbp);
-        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
+        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InLumi]);
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
@@ -186,10 +186,10 @@ namespace edm {
 						      primaryPrincipal->id().event(),
 						      true, false);
       if (found) {
-        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_);
-        checkConsistency(*primaryPrincipal, *secondaryPrincipal);
+	EventPrincipal ep(secondaryFileSequence_->fileProductRegistry(), processConfiguration());
+        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(ep);
+        checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
-        secondaryEventPrincipal_->clearPrincipal();
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";
@@ -211,33 +211,33 @@ namespace edm {
       primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_, principalCache());
       numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
       returnValue = primaryFileSequence_->getNextItemType();
-    }
+    }    
     return returnValue;
   }
 
-  void
+  void 
   PoolSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
-    numberOfEventsInBigSkip_ = iNumberOfSequentialEvents * (iNumberOfChildren - 1);
-    numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents;
+    numberOfEventsInBigSkip_ = iNumberOfSequentialEvents*(iNumberOfChildren-1);
+    numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents ;
     forkedChildIndex_ = iChildIndex;
     numberOfSequentialEvents_ = iNumberOfSequentialEvents;
     primaryFileSequence_->reset(principalCache());
     rewind();
   }
-
+   
   // Rewind to before the first event that was read.
   void
   PoolSource::rewind_() {
     primaryFileSequence_->rewind_();
-    unsigned int numberToSkip = numberOfSequentialEvents_ * forkedChildIndex_;
-    if(0 != numberToSkip) {
-      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
+    unsigned int numberToSkip = numberOfSequentialEvents_*forkedChildIndex_;
+    if(0!=numberToSkip) {
+      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ ;
       if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
-        numberOfEventsBeforeBigSkip_ = numberToSkip + 1;
+        numberOfEventsBeforeBigSkip_ = numberToSkip+1;
       }
       primaryFileSequence_->skipEvents(numberToSkip, principalCache());
     }
-    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
+    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_+1 ;
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
@@ -288,7 +288,7 @@ namespace edm {
     edm::ParameterSetDescription desc;
 
     desc.addOptionalUntracked<unsigned int>("firstRun", 1U);
-    desc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 0U);
+    desc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 1U);
     desc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
     desc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
 

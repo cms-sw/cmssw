@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.57 $
- *  $Date: 2009/10/23 07:55:11 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.58 $
+ *  $Date: 2009/11/30 10:12:34 $
+ *  (last update by $Author: ckleinw $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -334,7 +334,7 @@ int MillePedeAlignmentAlgorithm::addMeasurementData
   } else if (theFloatBufferX.empty()) {
     return 0; // empty for X: no alignable for hit
   } else { 
-    return this->callMille2D(refTrajPtr, iHit, theIntBuffer, theFloatBufferX, theFloatBufferY);
+    return this->callMille(refTrajPtr, iHit, theIntBuffer, theFloatBufferX, theFloatBufferY);
   }
 }
 
@@ -767,6 +767,62 @@ void MillePedeAlignmentAlgorithm
 
 //__________________________________________________________________________________________________
 int MillePedeAlignmentAlgorithm
+::callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+	    unsigned int iTrajHit, const std::vector<int> &globalLabels,
+	    const std::vector<float> &globalDerivativesX,
+	    const std::vector<float> &globalDerivativesY)
+{
+  const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
+  if((aRecHit)->dimension() == 1) {
+    return this->callMille1D(refTrajPtr, iTrajHit, globalLabels, globalDerivativesX);
+  } else {
+    return this->callMille2D(refTrajPtr, iTrajHit, globalLabels,
+			     globalDerivativesX, globalDerivativesY);
+  }
+}
+
+
+//__________________________________________________________________________________________________
+int MillePedeAlignmentAlgorithm
+::callMille1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+              unsigned int iTrajHit, const std::vector<int> &globalLabels,
+              const std::vector<float> &globalDerivativesX)
+{
+  const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
+  const unsigned int xIndex = iTrajHit*2; // the even ones are local x
+
+  // local derivatives
+  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
+  const int nLocal  = locDerivMatrix.num_col();
+  std::vector<float> localDerivatives(nLocal);
+  for (unsigned int i = 0; i < localDerivatives.size(); ++i) {
+    localDerivatives[i] = locDerivMatrix[xIndex][i];
+  }
+
+  // residuum and error
+  float residX = refTrajPtr->measurements()[xIndex] - refTrajPtr->trajectoryPositions()[xIndex];
+  float hitErrX = TMath::Sqrt(refTrajPtr->measurementErrors()[xIndex][xIndex]);
+
+  // number of global derivatives
+  const int nGlobal = globalDerivativesX.size();
+
+  // &(localDerivatives[0]) etc. are valid - as long as vector is not empty
+  // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
+  theMille->mille(nLocal, &(localDerivatives[0]), nGlobal, &(globalDerivativesX[0]),
+		  &(globalLabels[0]), residX, hitErrX);
+
+  if (theMonitor) {
+    theMonitor->fillDerivatives(aRecHit, &(localDerivatives[0]), nLocal,
+				&(globalDerivativesX[0]), nGlobal);
+    theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
+			      iTrajHit, residX, hitErrX, false);
+  }
+
+  return 1;
+}
+
+//__________________________________________________________________________________________________
+int MillePedeAlignmentAlgorithm
 ::callMille2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
               unsigned int iTrajHit, const std::vector<int> &globalLabels,
               const std::vector<float> &globalDerivativesx,
@@ -849,6 +905,7 @@ int MillePedeAlignmentAlgorithm
 
   return (isReal2DHit ? 2 : 1);
 }
+
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm
 ::addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iMsMeas)

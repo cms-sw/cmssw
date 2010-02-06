@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.176 2009/11/29 15:52:53 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.180 2009/12/06 22:22:36 amraktad Exp $
 
 //
 
@@ -117,14 +117,14 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
-			   CmsShowMain* /*iCmsShowMain*/,
+			                  const CmsShowMain* iCmsShowMain,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
    m_eiManager(iEIMgr),
    m_changeManager(iCMgr),
    m_colorManager(iColorMgr),
-   m_presentEvent(0),
+   m_cmsShowMain(iCmsShowMain),
    m_continueProcessingEvents(false),
    m_waitForUserAction(true),
    m_code(0),
@@ -323,7 +323,7 @@ FWGUIManager::fileChanged(const TFile* iFile)
 }
 
 void
-FWGUIManager::loadEvent(const fwlite::Event& event) {
+FWGUIManager::loadEvent() {
    // To be replaced when we can get index from fwlite::Event
    
    TEveViewerList* viewers = gEve->GetViewers();
@@ -333,10 +333,9 @@ FWGUIManager::loadEvent(const fwlite::Event& event) {
       ev->GetGLViewer()->DeleteOverlayAnnotations();
    }
    
-   m_cmsShowMainFrame->loadEvent(event);
-   m_presentEvent=&event;
+   m_cmsShowMainFrame->loadEvent(*m_cmsShowMain->getCurrentEvent());
    if(m_dataAdder) {
-      m_dataAdder->update(m_openFile, &event);
+      m_dataAdder->update(m_openFile, m_cmsShowMain->getCurrentEvent());
    }
 }
 
@@ -439,7 +438,7 @@ FWGUIManager::addData()
       m_dataAdder = new FWGUIEventDataAdder(100,100,
                                             m_eiManager,
                                             m_cmsShowMainFrame,
-                                            m_presentEvent,
+                                            m_cmsShowMain->getCurrentEvent(),
                                             m_openFile,
                                             m_viewManagerManager->supportedTypesAndRepresentations());
    }
@@ -740,7 +739,13 @@ FWGUIManager::getGUIManager()
 {
    return m_guiManager;
 }
- 
+
+const fwlite::Event*
+FWGUIManager::getCurrentEvent() const
+{
+   return m_cmsShowMain->getCurrentEvent();  
+}
+
 void
 FWGUIManager::promptForConfigurationFile()
 {

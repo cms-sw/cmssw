@@ -10,15 +10,15 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2009/09/14 15:14:52 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/09/11 19:56:30 $
+ *  $Revision: 1.14 $
  *  \author J. Mans - UMD
  */
 
 class HcalHTRData {
  public:
-  static const int CHANNELS_PER_SPIGOT         = 24;
-  static const int MAXIMUM_SAMPLES_PER_CHANNEL = 20;
+  static const int CHANNELS_PER_SPIGOT        ;// = 24;
+  static const int MAXIMUM_SAMPLES_PER_CHANNEL;// = 20;
   
   HcalHTRData();
   ~HcalHTRData() { if (m_ownData!=0) delete [] m_ownData; }
@@ -89,10 +89,6 @@ class HcalHTRData {
   /** \brief pack header and trailer (call _after_ pack)*/
   void packHeaderTrailer(int L1Anumber, int bcn, int submodule, int
 			 orbitn, int pipeline, int ndd, int nps, int firmwareRev=0);
-
-  /** \brief pack trailer with Mark and Pass bits */
-  void packUnsuppressed(const bool* mp);
-  
   
   /** \brief Get the HTR event number */
   inline unsigned int getL1ANumber() const { 

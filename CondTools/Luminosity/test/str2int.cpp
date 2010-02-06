@@ -2,9 +2,9 @@
 #include <string>
 #include <sstream>
 int main(){
-  std::string s="000121998";
+  std::string s="021";
   std::istringstream myStream(s);
-  unsigned int i;
+  int i;
   if(myStream>>i){
     std::cout<<"i "<<i<<std::endl;
   }else{

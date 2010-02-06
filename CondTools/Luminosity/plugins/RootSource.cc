@@ -16,6 +16,8 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
   std::string::size_type idx,pos;
   idx=m_filename.rfind("_");
   pos=m_filename.rfind(".");
+  if( idx == std::string::npos ){
+  }
   m_lumiversion=m_filename.substr(idx+1,pos-idx-1);
 }
 
@@ -59,8 +61,6 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
     size_t nentries=hlxtree->GetEntries();
     std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
     size_t lumisecid=0;
-    unsigned int cmslumi=0;
-    unsigned int totaldeadtime=0;
     for(size_t i=0;i<nentries;++i){
       hlxtree->GetEntry(i);
       l1tree->GetEntry(i);
@@ -83,8 +83,6 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       if(!lumiheader->bCMSLive){
 	std::cout<<"skipping non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
 	continue;
-      }else{
-	++cmslumi;
       }
       if(allowForceFirstSince && i==0){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
 	runnumber=1;
@@ -109,7 +107,8 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       l->setLumiError(lumisummary->InstantLumiErr);      
       std::cout<<"lumi qlt "<<lumisummary->InstantLumiQlty<<std::endl;
       l->setLumiQuality(lumisummary->InstantLumiQlty);
-      //std::cout<<"lumi deadtimenorm "<<lumisummary->DeadTimeNormalization<<std::endl;
+      std::cout<<"lumi deadtimenorm "<<lumisummary->DeadTimeNormalization<<std::endl;
+      l->setDeadFraction(lumisummary->DeadTimeNormalization);
       
       std::vector<lumi::BunchCrossingInfo> bxinfoET;
       bxinfoET.reserve(3564);
@@ -170,9 +169,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       }
       l->setHLTData(hltinfo);
       l->setTriggerData(triginfo);
-      float deadfractionPerLS=(l1data->deadtimecount)*25*0.000001/93.244;
-      l->setDeadFraction(deadfractionPerLS*0.01);
-      std::cout<<"l1 deadfraction "<<deadfractionPerLS<<std::endl;
+
       result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
     }
   }

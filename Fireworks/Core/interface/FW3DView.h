@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.11 2009/07/02 18:35:42 amraktad Exp $
+// $Id: FW3DView.h,v 1.12 2009/11/03 16:56:38 amraktad Exp $
 //
 
 // system include files
@@ -77,6 +77,8 @@ private:
    void showTrackerEndcap( );
    void showWireFrame( );
    void setTransparency( );
+   void lineWidthChanged();
+
 
    // ---------- member data --------------------------------
    TEveViewer* m_viewer;
@@ -105,8 +107,9 @@ private:
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
    FWBoolParameter m_showWireFrame;
-
    FWLongParameter m_geomTransparency;
+
+   FWDoubleParameter m_lineWidth;
 };
 
 

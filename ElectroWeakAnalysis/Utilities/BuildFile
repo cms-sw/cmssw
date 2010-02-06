@@ -1,44 +1,35 @@
-<use name=CommonTools/Utils>
+<use name=PhysicsTools/Utilities>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/PatCandidates>
-<use name=CommonTools/UtilAlgos>
-<use name=CommonTools/CandUtils>
+<use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/PatUtils>
+<use name=PhysicsTools/CandUtils>
 <use name=rootrflx>
 
-<use name=CondFormats/RecoMuonObjects>
-<use name=MuonAnalysis/MomentumScaleCalibration>
-
-##### CASE A: just as release default, for technical reasons ------->
-##### (WARNING: PDF weight producer will be very, very slow)
+##### Use the following line for normal release processing 
+##### (PDF weight producer will be very slow)
 <use name=lhapdf>
-#####################################################################
+###################################################################
 
-##### CASE B: for normal analysis usage ---------------------------->
-##### (RECOMMENDED: PDF weight producer will be fast)
+##### For analysis usage (PDF weight producer will be fast)
 ##    a) scram setup lhapdffull
 ##    b) scram b ToolUpdated 
 ##    c) Comment the <use name=lhapdf> directive in this file
 ##    d) Uncomment the <use name=lhapdffull> directive in this file
 ##    e) scram b
-#<use name=lhapdffull>
-#####################################################################
+# <use name=lhapdffull>
+###################################################################
 
-##### CASE C: using your private or updated version outside CMSSW -->
-##### Non-standard alternative that seems to work locally on Linux
-##### with your favourite LHAPDF package installed under /usr/local
-##### (/usr/local the present default prefix in LHAPDF installation)
-##    a) Comment the <use name=lhapdf> directive in this file
-##    b) Comment the <use name=lhapdffull> directive in this file
-##    c) Use the right $LHAPATH variable,  i.e. (in tcsh):
-##          setenv LHAPATH /usr/local/share/lhapdf/PDFsets
-##    d) Uncomment the following two lines, of the type "<flags ...>"
-#<flags CXXFLAGS="-I/usr/local/include">
-#<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
-##    e) scram b
-#####################################################################
+##### Highly non-standard alternative that seems to work in all cases
+#<flags CXXFLAGS="-I$(LHAPATH)/../../../full/include">
+#<flags LDFLAGS="-Wl,-rpath $(LHAPATH)/../../../full/lib -L$(LHAPATH)/../../../full/lib -lLHAPDF">
+###################################################################
 
-<flags EDM_PLUGIN=1>
+<export>
+      <lib name=ElectroWeakAnalysisUtilities>
+</export>
+

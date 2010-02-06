@@ -23,14 +23,14 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.14 2008/05/04 12:34:05 biery Exp $
+ * $Id: ConsumerPipe.h,v 1.13 2008/04/16 16:10:20 biery Exp $
  */
 
 #include <string>
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
-#include "EventFilter/StorageManager/interface/TriggerSelector.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "EventFilter/StorageManager/interface/ForeverCounter.h"
@@ -57,7 +57,6 @@ namespace stor
 
     ConsumerPipe(std::string name, std::string priority,
                  int activeTimeout, int idleTimeout,
-                 std::string triggerSelectionNew,
                  Strings triggerSelection, double rateRequest,
                  std::string hltOutputSelection,
                  std::string hostName, int queueSize);
@@ -83,8 +82,7 @@ namespace stor
     unsigned int getEvents() { return(events_);}
     time_t getLastEventRequestTime() { return(lastEventRequestTime_);}
     std::string getHostName() { return(hostName_);}
-    Strings getTriggerRequest() const;
-    std::string getTriggerRequestNew() const;
+    std::vector<std::string> getTriggerRequest() const;
     void setRegistryWarning(std::string const& message);
     void setRegistryWarning(std::vector<char> const& message);
     std::vector<char> getRegistryWarning() { return registryWarningMessage_; }
@@ -106,11 +104,9 @@ namespace stor
                                STATS_SAMPLE_TYPE sampleType = QUEUED_EVENTS,
                                double currentTime = BaseCounter::getCurrentTime());
     Strings getTriggerSelection() const { return triggerSelection_; }
-    std::string getTriggerSelectionNew() const { return triggerSelectionNew_; }
     double getRateRequest() const { return rateRequest_; }
     std::string getHLTOutputSelection() const { return hltOutputSelection_; }
 
-    bool useNewFiltering_;
   private:
 
     CURL* han_;
@@ -120,7 +116,6 @@ namespace stor
     std::string consumerName_;
     std::string consumerPriority_;
     int events_;
-    std::string triggerSelectionNew_;
     Strings triggerSelection_;
     double rateRequest_;
     std::string hltOutputSelection_;
@@ -132,7 +127,7 @@ namespace stor
     bool consumerIsProxyServer_;
 
     // event selector that does the work of accepting/rejecting events
-    boost::shared_ptr<TriggerSelector> eventSelector_;
+    boost::shared_ptr<edm::EventSelector> eventSelector_;
 
     // data members for tracking active and idle states
     int timeToIdleState_;          // seconds

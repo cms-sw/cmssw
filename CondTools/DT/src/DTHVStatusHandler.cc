@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/25 14:52:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/25 12:03:21 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -268,7 +268,6 @@ void DTHVStatusHandler::checkNewData() {
 
   getLayerSplit();
   getChannelMap();
-  getChannelSplit();
 
   std::cout << "open buffer db..." << std::endl;
 

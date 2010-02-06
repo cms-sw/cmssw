@@ -122,11 +122,8 @@ void TreeSaver::configure(DOMElement *elem)
 				                 std::bind2nd(
 							std::mem_fun_ref(
 								&Var::hasName),
-							ss.str())) ==
-				    vars.end()) {
-					name = ss.str();
+							name)) == vars.end())
 					break;
-				}
 			}
 		}
 

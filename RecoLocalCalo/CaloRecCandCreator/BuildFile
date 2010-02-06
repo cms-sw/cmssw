@@ -8,5 +8,10 @@
 <use name=Geometry/Records>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
+<use name=Geometry/CaloEventSetup>
 <use name=boost>
+
+<export>
+  <lib name="RecoLocalCaloCaloRecCandCreator">
+</export>
 

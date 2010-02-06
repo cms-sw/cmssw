@@ -6,11 +6,9 @@
 // ---------------------------------------------------------------------------
 // Parser parts.
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // DDCore parts
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // Xerces dependencies
 #include <xercesc/sax2/Attributes.hpp>
@@ -39,51 +37,47 @@
  */
 class DDLSAX2FileHandler : public DDLSAX2Handler 
 {
-  
+
  public:
-  
-  // -----------------------------------------------------------------------
-  //  Constructor and Destructor
-  // -----------------------------------------------------------------------
-  
-  //  DDLSAX2FileHandler();
-  DDLSAX2FileHandler( DDCompactView& cpv );
-  ~DDLSAX2FileHandler();
 
-  void init() ;
-  //  void setStorage( DDCompactView & cpv );
+    // -----------------------------------------------------------------------
+    //  Constructor and Destructor
+    // -----------------------------------------------------------------------
 
-  // -----------------------------------------------------------------------
-  //  Handlers for the SAX ContentHandler interface
-  // -----------------------------------------------------------------------
-  
-  void startElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname, const Attributes& attrs);
-  void endElement(const XMLCh* const uri, const XMLCh* const localname
-		  , const XMLCh* const qname);
-  void characters (const XMLCh *const chars, const unsigned int length);
-  void comment (const XMLCh *const chars, const unsigned int length );
-  
-  //  virtual std::string extractFileName(std::string fullname);
-  
-  virtual const std::string& parent() const;
-  virtual const std::string& self() const;
-  
-  // -----------------------------------------------------------------------
-  //  Dump information on number and name of elements processed.
-  // -----------------------------------------------------------------------
-  /// This dumps some statistics on elements encountered in the file.
-  void dumpElementTypeCounter();
+    DDLSAX2FileHandler();
+    ~DDLSAX2FileHandler();
+
+    // -----------------------------------------------------------------------
+    //  Handlers for the SAX ContentHandler interface
+    // -----------------------------------------------------------------------
+
+    void startElement(const XMLCh* const uri, const XMLCh* const localname
+		      , const XMLCh* const qname, const Attributes& attrs);
+    void endElement(const XMLCh* const uri, const XMLCh* const localname
+		    , const XMLCh* const qname);
+    void characters (const XMLCh *const chars, const unsigned int length);
+    void comment (const XMLCh *const chars, const unsigned int length );
+
+    virtual std::string extractFileName(std::string fullname);
+
+    virtual const std::string & parent() const;
+    virtual const std::string& self() const;
+
+    // -----------------------------------------------------------------------
+    //  Dump information on number and name of elements processed.
+    // -----------------------------------------------------------------------
+    /// This dumps some statistics on elements encountered in the file.
+    void dumpElementTypeCounter();
 
  protected:
-  //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
-  void createDDConstants() const; 
-  //  Map that holds name and number of elements processed.
-  std::map < std::string, int> elementTypeCounter_;
-  std::vector<std::string> namesMap_;
-  std::vector < size_t > names_;
-  DDCompactView& cpv_;
-  DDLElementRegistry xmlelems_;
+    //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
+    void createDDConstants() const; 
+    //  Map that holds name and number of elements processed.
+    std::map < std::string, int> elementTypeCounter_;
+    //  std::vector < std::string > names_;
+    //    std::map < std::string, std::string* > namesMap_;
+    std::vector<std::string> namesMap_;
+    std::vector<size_t> names_;
 };
 
 #endif

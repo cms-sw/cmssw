@@ -304,7 +304,7 @@ void ElectronMcSignalValidator::beginJob()
   h1_scl_E5x5_eg_  = bookH1withSumw2("h_scl_E5x5_eg","ele supercluster energy in 5x5, ecal driven",p_nbin,0.,p_max);
   h1_scl_E5x5_eg_barrel_  = bookH1withSumw2("h_scl_E5x5_eg_barrel","ele supercluster energy in 5x5, ecal driven barrel",p_nbin,0.,p_max);
   h1_scl_E5x5_eg_endcaps_  = bookH1withSumw2("h_scl_E5x5_eg_endcaps","ele supercluster energy in 5x5, ecal driven endcaps",p_nbin,0.,p_max);
-  h2_scl_EoEtruePfVsEg = bookH2("h_scl_EoEtruePfVsEg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4,"E/E_{gen} (e/g)","E/E_{gen} (pflow)") ;
+  h2_scl_EoEtruePfVsEg = bookH2("h_scl_EoEtruePfVseg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4,"E/E_{gen} (e/g)","E/E_{gen} (pflow)") ;
 
   // matched electron, gsf tracks
   h1_ele_ambiguousTracks = bookH1withSumw2("h_ele_ambiguousTracks","ele # ambiguous tracks",  5,0.,5.,"N_{ambiguous tracks}");
@@ -633,8 +633,8 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
             h1_ele_ChargeMnChargeTrue->Fill( fabs(gsfIter->charge()-mc_charge));
             // require here a charge mismatch
             if
-             ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) ) ||
-               ( (mcIter->pdgId() == -11) && (gsfIter->charge() < 0.) ) )
+             ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) ||
+               (mcIter->pdgId() == -11) && (gsfIter->charge() < 0.) )
              {
               double tmpGsfRatio = gsfIter->p()/mcIter->p();
               if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) )
@@ -725,8 +725,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
           double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
           if ( deltaR < deltaR_ )
            {
-            if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
-                 ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )
+            if ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) || (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) )
              {
               double tmpGsfRatio = gsfIter->p()/mcIter->p() ;
               if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) )
@@ -1107,7 +1106,7 @@ void ElectronMcSignalValidator::endJob()
  {
   if (outputFile_!="")
    {
-    setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
+    setStoreFolder("EgammaV/ElectronMcSignalValidator/ByJob") ;
 
     std::cout << "[ElectronMcSignalValidator] efficiency calculation " << std::endl ;
     bookH1andDivide("h_ele_etaEff",h1_ele_simEta_matched,h1_simEta,"#eta","Efficiency","",true);
@@ -1143,37 +1142,37 @@ void ElectronMcSignalValidator::endJob()
     }
 
     // profiles from 2D histos
-    profileX("h_ele_PoPtrueVsEta_pfx",h2_ele_PoPtrueVsEta,"mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
-    profileX("h_ele_PoPtrueVsPhi_pfx",h2_ele_PoPtrueVsPhi,"mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
-    profileX("h_scl_EoEtruePfVsEg_pfx",h2_scl_EoEtruePfVsEg,"mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
-    profileY("h_scl_EoEtruePfVsEg_pfy",h2_scl_EoEtruePfVsEg,"mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
-    profileX("h_ele_EtaMnEtaTrueVsEta_pfx",h2_ele_EtaMnEtaTrueVsEta,"mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
-    profileX("h_ele_EtaMnEtaTrueVsPhi_pfx",h2_ele_EtaMnEtaTrueVsPhi,"mean ele eta - gen eta vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
-    profileX("h_ele_PhiMnPhiTrueVsEta_pfx",h2_ele_PhiMnPhiTrueVsEta,"mean ele phi - gen phi vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");
-    profileX("h_ele_PhiMnPhiTrueVsPhi_pfx",h2_ele_PhiMnPhiTrueVsPhi,"mean ele phi - gen phi vs phi","#phi (rad)","");
-    profileX("h_ele_vertexPtVsEta_pfx",h2_ele_vertexPtVsEta,"mean ele transverse momentum vs eta","#eta","<p_{T}> (GeV/c)");
-    profileX("h_ele_vertexPtVsPhi_pfx",h2_ele_vertexPtVsPhi,"mean ele transverse momentum vs phi","#phi (rad)","<p_{T}> (GeV/c)");
-    profileX("h_ele_EoPVsEta_pfx",h2_ele_EoPVsEta,"mean ele E/p vs eta","#eta","<E/P_{vertex}>");
-    profileX("h_ele_EoPVsPhi_pfx",h2_ele_EoPVsPhi,"mean ele E/p vs phi","#phi (rad)","<E/P_{vertex}>");
-    profileX("h_ele_EoPoutVsEta_pfx",h2_ele_EoPoutVsEta,"mean ele E/pout vs eta","#eta","<E_{seed}/P_{out}>");
-    profileX("h_ele_EoPoutVsPhi_pfx",h2_ele_EoPoutVsPhi,"mean ele E/pout vs phi","#phi (rad)","<E_{seed}/P_{out}>");
-    profileX("h_ele_EeleOPoutVsEta_pfx",h2_ele_EeleOPoutVsEta,"mean ele Eele/pout vs eta","#eta","<E_{ele}/P_{out}>");
-    profileX("h_ele_EeleOPoutVsPhi_pfx",h2_ele_EeleOPoutVsPhi,"mean ele Eele/pout vs phi","#phi (rad)","<E_{ele}/P_{out}>");
-    profileX("h_ele_HoEVsEta_pfx",h2_ele_HoEVsEta,"mean ele H/E vs eta","#eta","<H/E>");
-    profileX("h_ele_HoEVsPhi_pfx",h2_ele_HoEVsPhi,"mean ele H/E vs phi","#phi (rad)","<H/E>");
-    profileX("h_ele_chi2VsEta_pfx",h2_ele_chi2VsEta,"mean ele track chi2 vs eta","#eta","<#Chi^{2}>");
-    profileX("h_ele_chi2VsPhi_pfx",h2_ele_chi2VsPhi,"mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
-    profileX("h_ele_foundHitsVsEta_pfx",h2_ele_foundHitsVsEta,"mean ele track # found hits vs eta","#eta","<N_{hits}>");
-    profileX("h_ele_foundHitsVsPhi_pfx",h2_ele_foundHitsVsPhi,"mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
-    profileX("h_ele_lostHitsVsEta_pfx",h2_ele_lostHitsVsEta,"mean ele track # lost hits vs eta","#eta","<N_{hits}>");
-    profileX("h_ele_lostHitsVsPhi_pfx",h2_ele_lostHitsVsPhi,"mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");
-    profileX("h_ele_vertexTIPVsEta_pfx",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
-    profileX("h_ele_vertexTIPVsPhi_pfx",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
-    profileX("h_ele_vertexTIPVsPt_pfx",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
-    profileX("h_ele_seedDphi2VsEta_pfx",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDphi2VsPt_pfx",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDrz2VsEta_pfx",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-    profileX("h_ele_seedDrz2VsPt_pfx",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+    profileX("p_ele_PoPtrueVsEta",h2_ele_PoPtrueVsEta,"mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
+    profileX("p_ele_PoPtrueVsPhi",h2_ele_PoPtrueVsPhi,"mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
+    profileX("p_ele_EoEtruePfVsEg_x",h2_scl_EoEtruePfVsEg,"mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
+    profileY("p_ele_EoEtruePfVsEg_y",h2_scl_EoEtruePfVsEg,"mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
+    profileX("p_ele_EtaMnEtaTrueVsEta",h2_ele_EtaMnEtaTrueVsEta,"mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
+    profileX("p_ele_EtaMnEtaTrueVsPhi",h2_ele_EtaMnEtaTrueVsPhi,"mean ele eta - gen eta vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
+    profileX("p_ele_PhiMnPhiTrueVsEta",h2_ele_PhiMnPhiTrueVsEta,"mean ele phi - gen phi vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");
+    profileX("p_ele_PhiMnPhiTrueVsPhi",h2_ele_PhiMnPhiTrueVsPhi,"mean ele phi - gen phi vs phi","#phi (rad)","");
+    profileX("p_ele_vertexPtVsEta",h2_ele_vertexPtVsEta,"mean ele transverse momentum vs eta","#eta","<p_{T}> (GeV/c)");
+    profileX("p_ele_vertexPtVsPhi",h2_ele_vertexPtVsPhi,"mean ele transverse momentum vs phi","#phi (rad)","<p_{T}> (GeV/c)");
+    profileX("p_ele_EoPVsEta",h2_ele_EoPVsEta,"mean ele E/p vs eta","#eta","<E/P_{vertex}>");
+    profileX("p_ele_EoPVsPhi",h2_ele_EoPVsPhi,"mean ele E/p vs phi","#phi (rad)","<E/P_{vertex}>");
+    profileX("p_ele_EoPoutVsEta",h2_ele_EoPoutVsEta,"mean ele E/pout vs eta","#eta","<E_{seed}/P_{out}>");
+    profileX("p_ele_EoPoutVsPhi",h2_ele_EoPoutVsPhi,"mean ele E/pout vs phi","#phi (rad)","<E_{seed}/P_{out}>");
+    profileX("p_ele_EeleOPoutVsEta",h2_ele_EeleOPoutVsEta,"mean ele Eele/pout vs eta","#eta","<E_{ele}/P_{out}>");
+    profileX("p_ele_EeleOPoutVsPhi",h2_ele_EeleOPoutVsPhi,"mean ele Eele/pout vs phi","#phi (rad)","<E_{ele}/P_{out}>");
+    profileX("p_ele_HoEVsEta",h2_ele_HoEVsEta,"mean ele H/E vs eta","#eta","<H/E>");
+    profileX("p_ele_HoEVsPhi",h2_ele_HoEVsPhi,"mean ele H/E vs phi","#phi (rad)","<H/E>");
+    profileX("p_ele_chi2VsEta",h2_ele_chi2VsEta,"mean ele track chi2 vs eta","#eta","<#Chi^{2}>");
+    profileX("p_ele_chi2VsPhi",h2_ele_chi2VsPhi,"mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
+    profileX("p_ele_foundHitsVsEta",h2_ele_foundHitsVsEta,"mean ele track # found hits vs eta","#eta","<N_{hits}>");
+    profileX("p_ele_foundHitsVsPhi",h2_ele_foundHitsVsPhi,"mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
+    profileX("p_ele_lostHitsVsEta",h2_ele_lostHitsVsEta,"mean ele track # lost hits vs eta","#eta","<N_{hits}>");
+    profileX("p_ele_lostHitsVsPhi",h2_ele_lostHitsVsPhi,"mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");
+    profileX("p_ele_vertexTIPVsEta",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
+    profileX("p_ele_vertexTIPVsPhi",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
+    profileX("p_ele_vertexTIPVsPt",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
+    profileX("p_ele_seed_dphi2VsEta",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("p_ele_seed_dphi2VsPt",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("p_ele_seed_drz2VsEta",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+    profileX("p_ele_seed_drz2VsPt",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
 
     saveStore(outputFile_) ;
    }

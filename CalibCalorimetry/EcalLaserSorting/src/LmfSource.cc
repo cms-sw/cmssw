@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/10/21 16:08:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/02/26 21:24:46 $
+ *  $Revision: 1.1 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -10,7 +10,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -37,24 +36,12 @@ LmfSource::LmfSource(const ParameterSet& pset,
   iEventInFile_(0),
   indexTablePos_(0),
   orderedRead_(pset.getParameter<bool>("orderedRead")),
-  watchFileList_(pset.getParameter<bool>("watchFileList")),
-  fileListName_(pset.getParameter<std::string>("fileListName")),
-  nSecondsToSleep_(pset.getParameter<int>("nSecondsToSleep")),
   verbosity_(pset.getUntrackedParameter<int>("verbosity"))
 {
   if(preScale_==0) preScale_ = 1;
   produces<FEDRawDataCollection>();
-  // open fileListName
-  if (watchFileList_) {
-    fileList_.open(fileListName_.c_str());
-    if (fileList_.fail()) {
-      throw cms::Exception("FileListOpenError")
-        << "Failed to open input file " << fileListName_ << "\n";
-    }
-  } else {
   //throws a cms exception if error in fileNames parameter
   checkFileNames();
-  }
 }
 
 bool LmfSource::readFileHeader(){
@@ -135,44 +122,13 @@ bool LmfSource::produce(edm::Event& evt){
 
 bool LmfSource::openFile(int iFile){
   iEventInFile_ = 0;
-  if(watchFileList_) {
-    for ( ;; ) {
-      // read the first field of the line, which must be the filename
-      std::string fileName;
-      fileList_ >> fileName;
-      if (!fileList_.fail()) {
-        // skip the rest of the line
-        std::string tmp_buffer;
-        std::getline(fileList_, tmp_buffer);
-        if(verbosity_) cout << "[LmfSource]"
-          << "Opening file " << fileName << "\n";
-        in_.open(fileName.c_str());
-        if (!in_.fail()) {
-          // file was successfully open
-          return true;
-        } else {
-          // skip file
-          edm::LogError("FileOpenError")
-            << "Failed to open input file " << fileName << ". Skipping file\n";
-          in_.close();
-          in_.clear();
-        }
-      }
-      // if here, no new file is available: sleep and retry later
-      if (verbosity_) std::cout << "[LmfSource]"
-        << " going to sleep 5 seconds\n";
-      sleep(nSecondsToSleep_);
-      fileList_.clear();
-    }
-  } else {
-    if(iFile > (int)fileNames_.size()-1) return false;
-    if(verbosity_) cout << "[LmfSource]"
-      << "Opening file " << fileNames_[iFile] << "\n";
-    in_.open(fileNames_[iFile].c_str());
-    if(in_.fail()){
-      throw cms::Exception("FileOpenError")
-        << "Failed to open input file " << fileNames_[iFile] << "\n";
-    }
+  if(iFile > (int)fileNames_.size()-1) return false;
+  if(verbosity_) cout << "[LmfSource]"
+		   << "Opening file " << fileNames_[iFile] << "\n";
+  in_.open(fileNames_[iFile].c_str());
+  if(in_.fail()){
+    throw cms::Exception("FileOpenError")
+      << "Failed to open input file " << fileNames_[iFile] << "\n";
   }
   return true;
 }
@@ -207,8 +163,6 @@ bool LmfSource::nextEventWithinFile(){
 bool LmfSource::readEvent(bool doSkip){
   while(!(nextEventWithinFile() && readEventWithinFile(doSkip))){
     //failed to read event. Let's look for next file:
-    in_.close();
-    in_.clear();
     bool rcOpen = openFile(++iFile_);
     if(rcOpen==false){//no more files
       if(verbosity_) cout << "[LmfSource]"
@@ -237,7 +191,7 @@ void LmfSource::setRunAndEventInfo(){
     if(filter()){//event to read
       rc = readEvent();
       break;    //either event is read or no more event
-    } else { //event to skip
+    } else{ //event to skip
       rc = readEvent(true);
       if(rc==false){//no more events
 	break;
@@ -256,7 +210,8 @@ void LmfSource::setRunAndEventInfo(){
   setTime(timeStamp_);
   setRunNumber(runNum_);
   setEventNumber(eventNum_);
-  setLuminosityBlockNumber_t(lumiBlock_);
+  //TODO: set lumi block number
+  //  setLumi(lumiBlock_);
 }
 
 bool LmfSource::readEventWithinFile(bool doSkip){
@@ -399,7 +354,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
           << "Error while reading from file " << fileNames_[iFile_];
       }
     
-      if(verbosity_ && data_.size()>16){
+      if(verbosity_ & data_.size()>16){
         cout << "[LmfSource]"
              << "Head of DCC data (in hex):" << hex;
         for(int i=0; i < 16; ++i){ 

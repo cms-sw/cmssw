@@ -9,14 +9,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
       debugFlag = cms.untracked.bool(False),
-      fileNames = cms.untracked.vstring(
-      #           "file:/data4/InclusiveMu15_Summer09-MC_31X_V3_AODSIM-v1/0024/C2F408ED-E181-DE11-8949-0030483344E2.root")
-      #       "file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
-              '/store/user/cepeda/mytestSkim_Wmunu_10pb/EWK_WMuNu_SubSkim_31Xv3_1.root' 
-
+      fileNames = cms.untracked.vstring("file:/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
 )
-
-process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
 # Debug/info printouts
 process.MessageLogger = cms.Service("MessageLogger",
@@ -27,6 +21,60 @@ process.MessageLogger = cms.Service("MessageLogger",
             #threshold = cms.untracked.string('DEBUG')
       ),
       destinations = cms.untracked.vstring('cout')
+)
+
+# Selector and parameters
+process.corMetWMuNus = cms.EDProducer("WMuNuProducer",
+      # Input collections ->
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      MuonTag = cms.untracked.InputTag("muons"),
+      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
+      METIncludesMuons = cms.untracked.bool(True),
+      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+
+      # Preselection!
+      ApplyPreselection = cms.untracked.bool(True),
+      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      PtThrForZ1 = cms.untracked.double(20.0),
+      PtThrForZ2 = cms.untracked.double(10.0),
+      EJetMin = cms.untracked.double(40.),
+      NJetMax = cms.untracked.int32(999999),
+)
+
+
+process.selcorMet = cms.EDFilter("WMuNuSelector",
+      # Fill Basc Histograms? ->
+      plotHistograms = cms.untracked.bool(False),
+
+      # Input collections ->
+      MuonTag = cms.untracked.InputTag("muons"),
+      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
+      METIncludesMuons = cms.untracked.bool(True),
+      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus:WMuNuCandidates"),
+
+      # Main cuts ->
+      UseTrackerPt = cms.untracked.bool(True),
+      PtCut = cms.untracked.double(25.0),
+      EtaCut = cms.untracked.double(2.1),
+      IsRelativeIso = cms.untracked.bool(True),
+      IsCombinedIso = cms.untracked.bool(False),
+      IsoCut03 = cms.untracked.double(0.1),
+      MtMin = cms.untracked.double(50.0),
+      MtMax = cms.untracked.double(200.0),
+      MetMin = cms.untracked.double(-999999.),
+      MetMax = cms.untracked.double(999999.),
+      AcopCut = cms.untracked.double(2.),
+
+      # Muon quality cuts ->
+      DxyCut = cms.untracked.double(0.2),
+      NormalizedChi2Cut = cms.untracked.double(10.),
+      TrackerHitsCut = cms.untracked.int32(11),
+      IsAlsoTrackerMuon = cms.untracked.bool(True),
+
+      # Select only W-, W+ ( default is all Ws)  
+      SelectByCharge=cms.untracked.int32(0)
+
 )
 
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu.root') )
@@ -46,8 +94,8 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
       fileName = cms.untracked.string('AOD_with_WCandidates.root')
 )
 
-# This Example uses only "corMetGlobalMuons". Modify to run over pf & tc Met
-process.path = cms.Path(process.selectCaloMetWMuNus)
+# Steering the process
+process.path = cms.Path(process.corMetWMuNus + process.selcorMet)
 
 process.end = cms.EndPath(process.wmnOutput)
 

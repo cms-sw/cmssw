@@ -3,8 +3,8 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2008/09/05 16:03:44 $
- *   $Revision: 1.8 $
+ *   $Date: 2008/06/30 13:44:28 $
+ *   $Revision: 1.7 $
  *
  *   \author C.Grandi, S. Marcellini
  */
@@ -129,9 +129,6 @@ class DTSCTrigUnit {
 
     /// Dump the geometry
     inline void dumpGeom() const { _geom->dumpGeom(); }
-
-    /// Dump the Lut file
-    inline void dumpLUT(short int btic) const { _geom->dumpLUT(btic); }
 
     /// Number of active DTBtiChips
     int nDTBtiChip() { return _theBTIs->size(); }

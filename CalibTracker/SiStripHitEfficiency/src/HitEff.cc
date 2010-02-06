@@ -101,7 +101,6 @@ void HitEff::beginJob(const edm::EventSetup& c){
   traj->Branch("ModIsBad",&ModIsBad,"ModIsBad/i");
   traj->Branch("SiStripQualBad",&SiStripQualBad,"SiStripQualBad/i");
   traj->Branch("withinAcceptance",&withinAcceptance, "withinAcceptance/O");
-  traj->Branch("trajHitValid", &trajHitValid, "trajHitValid/i");
   traj->Branch("Id",&Id,"Id/i");
   traj->Branch("run",&run,"run/i");
   traj->Branch("event",&event,"event/i");
@@ -338,8 +337,6 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	yglob = TM->globalY();
 	zglob = TM->globalZ();
 	withinAcceptance = TM->withinAcceptance();
-
-	trajHitValid = TM->validHit();
 
 	if ( (layers == TKlayers) || (layers == 0) ) {   // Look at the layer not used to reconstruct the track
 	  whatlayer = TKlayers;
@@ -598,6 +595,8 @@ bool HitEff::check2DPartner(uint iidd, std::vector<TrajectoryMeasurement> traj) 
   }
   return found2DPartner;
 }
+
+//  const edmNew::DetSetVector<SiStripCluster>& input = *theClusters;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HitEff);

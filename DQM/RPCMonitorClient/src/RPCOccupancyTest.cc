@@ -41,32 +41,6 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
 
  int limit = numberOfDisks_;
  if(numberOfDisks_ < 2) limit = 2;
-
- histoName.str("");
- histoName<<"Barrel_OccupancyByStations_Normalized";
- me = dbe_->get( globalFolder_+"/"+ histoName.str());
- if ( 0!=me  ) {
-   dbe_->removeElement(me->getName());
- }
- Barrel_OccBySt = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
- Barrel_OccBySt -> setBinLabel(1, "St1", 1);
- Barrel_OccBySt -> setBinLabel(2, "St2", 1);
- Barrel_OccBySt -> setBinLabel(3, "St3", 1);
- Barrel_OccBySt -> setBinLabel(4, "St4", 1);
- 
- 
- histoName.str("");
- histoName<<"EndCap_OccupancyByRings_Normalized";
- me = dbe_->get( globalFolder_+"/"+ histoName.str());
- if ( 0!=me  ) {
-   dbe_->removeElement(me->getName());
- }
- EndCap_OccByRng = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  4, 0.5, 4.5);
- EndCap_OccByRng -> setBinLabel(1, "E+/R3", 1);
- EndCap_OccByRng -> setBinLabel(2, "E+/R2", 1);
- EndCap_OccByRng -> setBinLabel(3, "E-/R2", 1);
- EndCap_OccByRng -> setBinLabel(4, "E-/R3", 1);
-
   
   for (int w = -1 *limit; w<=limit; w++ ){//loop on wheels and disks
     if (w>-3 && w<3){//Barrel
@@ -94,7 +68,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       
        
       histoName.str("");
-      histoName<<"OccupancyNormByGeoAndEvents_Wheel"<<w;
+      histoName<<"OccupancyNormByGeoAndRPCEvents_Wheel"<<w;
       me = 0;
       me = dbe_->get( globalFolder_+"/"+ histoName.str());
       if ( 0!=me  ) {
@@ -107,7 +81,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w);
    
       histoName.str("");
-      histoName<<"OccupancyNormByGeoAndEvents_Distribution_Wheel"<<w;   
+      histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Wheel"<<w;   
       me = 0;
       me = dbe_->get( globalFolder_+"/"+ histoName.str());
       if ( 0!=me  ) {
@@ -145,7 +119,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     
     
     histoName.str("");
-    histoName<<"OccupancyNormByGeoAndEvents_Disk"<<w;
+    histoName<<"OccupancyNormByGeoAndRPCEvents_Disk"<<w;
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {
@@ -158,7 +132,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     rpcUtils.labelYAxisRing( NormOccupDisk[w+offset],numberOfRings_);
     
     histoName.str("");
-    histoName<<"OccupancyNormByGeoAndEvents_Distribution_Disk"<<w;  
+    histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Disk"<<w;  
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {
@@ -204,12 +178,9 @@ void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
    if(nLumiSegs%prescaleFactor_ != 0) return;
  
 
-   MonitorElement * Events = dbe_->get(globalFolder_ +"/RPCEvents");  
-   rpcevents_ = Events -> getEntries(); 
+   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+   rpcevents_ = RPCEvents -> getEntries(); 
 
-   Barrel_OccBySt = dbe_ -> get("RPC/RecHits/SummaryHistograms/Barrel_OccupancyByStations_Normalized");
-   EndCap_OccByRng = dbe_ -> get("RPC/RecHits/SummaryHistograms/EndCap_OccupancyByRings_Normalized");
-  
    //Clear distributions
 
    //Clear Distributions
@@ -307,22 +278,6 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
     if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
     if(NormOccupD) NormOccupD->Fill(normoccup);
 
-    cout<<detId.region()<<endl;
-    if(detId.region()==0) {
-      if(detId.station()==1 )Barrel_OccBySt -> Fill(1, normoccup);
-      if(detId.station()==2 )Barrel_OccBySt -> Fill(2, normoccup);
-      if(detId.station()==3 )Barrel_OccBySt -> Fill(3, normoccup);
-      if(detId.station()==4 )Barrel_OccBySt -> Fill(4, normoccup);
-      
-      }
-    else if(detId.region()==1) {
-      if(detId.ring()==3) EndCap_OccByRng -> Fill(1, normoccup);
-      else EndCap_OccByRng -> Fill(2, normoccup);
-    }
-    else {
-      if(detId.ring()==3) EndCap_OccByRng -> Fill(4, normoccup);
-      else EndCap_OccByRng -> Fill(3, normoccup);
-    }
 
 
 }

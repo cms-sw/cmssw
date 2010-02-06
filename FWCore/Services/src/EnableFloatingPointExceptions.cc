@@ -60,28 +60,27 @@ EnableFloatingPointExceptions(ParameterSet const& pset,
   fpuState_ = defaultState_;
   fesetenv(&fpuState_);
 
+  // Note that we must watch all of the transitions even if there are no module specific settings.
+  // This is because the floating point environment may be modified by code outside of this service.
   registry.watchPostEndJob(this,&EnableFloatingPointExceptions::postEndJob);
 
-  if (!stateMap_.empty()) {
+  registry.watchPreModuleBeginJob(this, &EnableFloatingPointExceptions::preModuleBeginJob);
+  registry.watchPostModuleBeginJob(this, &EnableFloatingPointExceptions::postModuleBeginJob);
+  registry.watchPreModuleEndJob(this, &EnableFloatingPointExceptions::preModuleEndJob);
+  registry.watchPostModuleEndJob(this, &EnableFloatingPointExceptions::postModuleEndJob);
 
-    registry.watchPreModuleBeginJob(this, &EnableFloatingPointExceptions::preModuleBeginJob);
-    registry.watchPostModuleBeginJob(this, &EnableFloatingPointExceptions::postModuleBeginJob);
-    registry.watchPreModuleEndJob(this, &EnableFloatingPointExceptions::preModuleEndJob);
-    registry.watchPostModuleEndJob(this, &EnableFloatingPointExceptions::postModuleEndJob);
+  registry.watchPreModuleBeginRun(this, &EnableFloatingPointExceptions::preModuleBeginRun);
+  registry.watchPostModuleBeginRun(this, &EnableFloatingPointExceptions::postModuleBeginRun);
+  registry.watchPreModuleEndRun(this, &EnableFloatingPointExceptions::preModuleEndRun);
+  registry.watchPostModuleEndRun(this, &EnableFloatingPointExceptions::postModuleEndRun);
 
-    registry.watchPreModuleBeginRun(this, &EnableFloatingPointExceptions::preModuleBeginRun);
-    registry.watchPostModuleBeginRun(this, &EnableFloatingPointExceptions::postModuleBeginRun);
-    registry.watchPreModuleEndRun(this, &EnableFloatingPointExceptions::preModuleEndRun);
-    registry.watchPostModuleEndRun(this, &EnableFloatingPointExceptions::postModuleEndRun);
+  registry.watchPreModuleBeginLumi(this, &EnableFloatingPointExceptions::preModuleBeginLumi);
+  registry.watchPostModuleBeginLumi(this, &EnableFloatingPointExceptions::postModuleBeginLumi);
+  registry.watchPreModuleEndLumi(this, &EnableFloatingPointExceptions::preModuleEndLumi);
+  registry.watchPostModuleEndLumi(this, &EnableFloatingPointExceptions::postModuleEndLumi);
 
-    registry.watchPreModuleBeginLumi(this, &EnableFloatingPointExceptions::preModuleBeginLumi);
-    registry.watchPostModuleBeginLumi(this, &EnableFloatingPointExceptions::postModuleBeginLumi);
-    registry.watchPreModuleEndLumi(this, &EnableFloatingPointExceptions::preModuleEndLumi);
-    registry.watchPostModuleEndLumi(this, &EnableFloatingPointExceptions::postModuleEndLumi);
-
-    registry.watchPreModule(this, &EnableFloatingPointExceptions::preModule);
-    registry.watchPostModule(this, &EnableFloatingPointExceptions::postModule);
-  }
+  registry.watchPreModule(this, &EnableFloatingPointExceptions::preModule);
+  registry.watchPostModule(this, &EnableFloatingPointExceptions::postModule);
 }
 
 void
@@ -182,8 +181,16 @@ postModule(ModuleDescription const& description) {
 }
 
 namespace {
-  inline bool stateNeedsChanging(fenv_t const& current, fenv_t const& target) {
-    return current.__control_word != target.__control_word;
+  bool stateNeedsChanging(fenv_t const& current, fenv_t const& target) {
+    if (current.__control_word == target.__control_word) {
+      // It looks like we don't need to change the state, but we read the actual value
+      // to be sure it matches what we believe the current value is.
+      // This protects against the state being set or reset external to this service.
+      fenv_t actual;
+      fegetenv(&actual);
+      return actual.__control_word != target.__control_word;
+    }
+    return true;
   }
 }
 

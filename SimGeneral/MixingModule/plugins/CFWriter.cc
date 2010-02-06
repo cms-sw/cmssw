@@ -141,6 +141,9 @@ void CFWriter::beginRun(const edm::Run & run,edm::EventSetup const& setup){
 }
 
 
+void CFWriter::beginJob(edm::EventSetup const& setup){
+}
+
 
 CFWriter::~CFWriter(){}
 

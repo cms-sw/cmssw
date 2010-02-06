@@ -109,22 +109,14 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 //  cout<<"Entering SiPixelEDAClient::~SiPixelEDAClient: "<<endl;
   
   edm::LogInfo("SiPixelEDAClient") <<  " Deleting SiPixelEDAClient " << "\n" ;
-  if (sipixelWebInterface_) {
-     delete sipixelWebInterface_;
-     sipixelWebInterface_ = 0;
-  }
-  if (sipixelInformationExtractor_) {
-     delete sipixelInformationExtractor_;
-     sipixelInformationExtractor_ = 0;
-  }
-  if (sipixelActionExecutor_) {
-     delete sipixelActionExecutor_;
-     sipixelActionExecutor_ = 0;
-  }
-  if (sipixelDataQuality_) {
-     delete sipixelDataQuality_;
-     sipixelDataQuality_ = 0;
-  }
+//  if (sipixelWebInterface_) {
+//     delete sipixelWebInterface_;
+//     sipixelWebInterface_ = 0;
+//  }
+//  if (trackerMapCreator_) {
+//    delete trackerMapCreator_;
+//    trackerMapCreator_ = 0;
+//  }
 
 //  cout<<"...leaving SiPixelEDAClient::~SiPixelEDAClient. "<<endl;
 }
@@ -145,8 +137,8 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   }
   nLumiSecs_ = 0;
   nEvents_   = 0;
-  if(Tier0Flag_) nFEDs_ = 40;
-  else nFEDs_ = 0;
+//  if(Tier0Flag_) nFEDs_ = 40;
+  nFEDs_ = 40;
   
   bei_->setCurrentFolder("Pixel/");
   // Setting up QTests:
@@ -156,14 +148,14 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   // Creating occupancy plots:
   sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
   // Booking noisy pixel ME's:
-  if(noiseRate_>0.) sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
+  sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
   // Booking summary report ME's:
   sipixelDataQuality_->bookGlobalQualityFlag(bei_, Tier0Flag_, nFEDs_);
   // Booking Static Tracker Maps:
-//  sipixelActionExecutor_->bookTrackerMaps(bei_, "adc");
-//  sipixelActionExecutor_->bookTrackerMaps(bei_, "charge");
-//  sipixelActionExecutor_->bookTrackerMaps(bei_, "ndigis");
-//  sipixelActionExecutor_->bookTrackerMaps(bei_, "NErrors");
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "adc");
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "charge");
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "ndigis");
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "NErrors");
 
 //  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
@@ -204,9 +196,8 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
       }
     }
     
-    // This is needed for plotting with the Pixel Expert GUI (interactive client):
-    //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
-    //sipixelWebInterface_->performAction();
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
+    sipixelWebInterface_->performAction();
   }
   
 }
@@ -231,6 +222,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
      //cout << " Updating occupancy plots" << endl;
+    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
@@ -242,10 +234,10 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
     // cout << "*** Creating Tracker Map Histos for End Run ***" << endl;
-//    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", "adc", Mean);
-//    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", "charge", Mean);
-//    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", "ndigis", WeightedSum);
-//    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", "NErrors", WeightedSum);
+    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", "adc", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", "charge", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", "ndigis", WeightedSum);
+    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", "NErrors", WeightedSum);
     // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
   }   
          
@@ -283,6 +275,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
     //cout << " Updating occupancy plots" << endl;
+    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
@@ -294,10 +287,10 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
     // cout << "*** Creating Tracker Map Histos for End Run ***" << endl;
-//    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", "adc", Mean);
-//    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", "charge", Mean);
-//    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", "ndigis", WeightedSum);
-//    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", "NErrors", WeightedSum);
+    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", "adc", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", "charge", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", "ndigis", WeightedSum);
+    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", "NErrors", WeightedSum);
     // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
 
     // On demand, dump module ID's and stuff on the screen:
@@ -322,7 +315,7 @@ void SiPixelEDAClient::endJob(){
 void SiPixelEDAClient::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {
 //  cout<<"Entering SiPixelEDAClient::defaultWebPage: "<<endl;
-/*      
+      
   bool isRequest = false;
   cgicc::Cgicc cgi(in);
   cgicc::CgiEnvironment cgie(in);
@@ -338,7 +331,7 @@ void SiPixelEDAClient::defaultWebPage(xgi::Input *in, xgi::Output *out)
     int iter = nEvents_/100;
     sipixelWebInterface_->handleEDARequest(in, out, iter);
   }
-*/
+
 //  cout<<"...leaving SiPixelEDAClient::defaultWebPage. "<<endl;
 }
 

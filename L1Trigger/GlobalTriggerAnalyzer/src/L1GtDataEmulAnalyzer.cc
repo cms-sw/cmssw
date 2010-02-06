@@ -31,7 +31,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -92,7 +92,7 @@ L1GtDataEmulAnalyzer::~L1GtDataEmulAnalyzer() {
 // member functions
 
 // method called once each job just before starting event loop
-void L1GtDataEmulAnalyzer::beginJob(const edm::EventSetup&) {
+void L1GtDataEmulAnalyzer::beginJob() {
     // empty
 }
 

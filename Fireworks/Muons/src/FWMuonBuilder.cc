@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.12 2009/08/27 14:45:39 chrjones Exp $
+// $Id: FWMuonBuilder.cc,v 1.13 2009/10/04 12:13:19 dmytro Exp $
 //
 
 // system include files
@@ -163,7 +163,7 @@ FWMuonBuilder::FWMuonBuilder():
    m_propagator->SetMaxZ( 1100 );
    m_cmsMagField->setReverseState( true );
    m_propagator->SetMagFieldObj( m_cmsMagField );
-   // m_propagator->SetMagField( -3.8 );
+   m_propagator->SetMaxStep(5);
 }
 
 FWMuonBuilder::~FWMuonBuilder()
@@ -182,15 +182,18 @@ FWMuonBuilder::calculateField(const reco::Muon& iData)
    if ( CmsShowMain::isAutoField() ) {
      if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
      if ( iData.innerTrack().isAvailable() ){
-       double estimate = fw::estimate_field(*(iData.innerTrack()));
-       if ( estimate >= 0 ) CmsShowMain::guessFieldIsOn( estimate > 2.0 );
+       double estimate = fw::estimate_field(*(iData.innerTrack()),true);
+       if ( estimate >= 0 ) CmsShowMain::guessField( estimate );
+	 
      }
      if ( iData.outerTrack().isAvailable() ){
        double estimate = fw::estimate_field(*(iData.outerTrack()));
        if ( estimate >= 0 ) CmsShowMain::guessFieldIsOn( estimate > 0.5 );
      }
-     m_cmsMagField->setMagnetState( CmsShowMain::getMagneticField() > 0 );
    }
+   double field = CmsShowMain::getMagneticField();
+   m_cmsMagField->setMagnetState( field > 0 );
+   m_cmsMagField->setNominalFieldValue( field );
 }
 
 

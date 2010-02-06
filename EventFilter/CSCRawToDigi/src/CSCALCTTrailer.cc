@@ -7,45 +7,12 @@
 bool CSCALCTTrailer::debug=false;
 short unsigned int CSCALCTTrailer::firmwareVersion=2006; 
 
-CSCALCTTrailer2006::CSCALCTTrailer2006() {
-  bzero(this,  sizeInWords()*2); ///size of the trailer
-  e0dLine = 0xDE0D;
-  d_0=0xD;
-  d_1=0xD;
-  zero_0 = 0;
-  zero_1 = 0;
-  d_3 = 0xD;
-  reserved_3 = 1;
-}
-
-
-CSCALCTTrailer2007::CSCALCTTrailer2007() {
-  bzero(this,  sizeInWords()*2); ///size of the trailer
-  e0dLine = 0xDE0D;
-  reserved_0 = 0xD;
-  reserved_1 = 0xD;
-  reserved_3 = 1;
-  reserved_4 = 0xD;
-}
-
 
 
 CSCALCTTrailer::CSCALCTTrailer(int size, int firmVersion) 
 { ///needed for packing
-  if(firmVersion == 2006)
-  {
-     trailer2006.setSize(size);
-     firmwareVersion = 2006;
-  }
-  else if (firmVersion == 2007)
-  {
-     trailer2007.setSize(size);
-     firmwareVersion = 2007;
-  }
-  else {
-    edm::LogError("CSCALCTTrailer|CSCRawToDigi") <<"failed to construct: undetermined ALCT firmware version!!" << firmVersion;
-  }
-
+  trailer2006.setSize(size);
+  firmwareVersion = 2006;
 }
 
 CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
@@ -57,7 +24,7 @@ CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
     firmwareVersion=2006;
   }
   else {
-    edm::LogError("CSCALCTTrailer|CSCRawToDigi") <<"failed to construct: undetermined ALCT firmware version!!" << firmwareVersion;
+    edm::LogError("CSCALCTTrailer|CSCRawToDigi") <<"failed to construct: undetermined ALCT firmware version!!";
   }
 
   ///Now fill data 

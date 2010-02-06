@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2009/10/14 14:31:27 $
- * by         : $Author: flucke $
+ * last update: $Date: 2009/09/15 16:21:55 $
+ * by         : $Author: ckleinw $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -118,22 +118,20 @@ protected:
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv);
 				     
-  /** internal methods to add material effects using broken lines (fine version)
+  /** internal methods to add material effects using broken lines (exact version)
    */
   virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allJacobians, 
 				     const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv,
-				     const std::vector<double> &allSteps,
-				     const GlobalTrajectoryParameters gtp);
-  /** internal methods to add material effects using broken lines (coarse version)
+				     const std::vector<double> &allSteps);
+  /** internal methods to add material effects using broken lines (fast version)
    */
   virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv,
 				     const std::vector<double> &allSteps,
-				     const GlobalTrajectoryParameters gtp,   
 				     const double minStep = 1.0);
           
   // Don't care for propagation direction 'anyDirection' - in that case the material effects

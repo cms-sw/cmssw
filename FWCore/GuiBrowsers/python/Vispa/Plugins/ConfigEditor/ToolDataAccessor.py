@@ -2,8 +2,6 @@ import sys
 import os.path
 import logging
 import re
-import imp
-import inspect
 import copy
 
 from PyQt4.QtCore import QCoreApplication
@@ -16,22 +14,9 @@ import FWCore.GuiBrowsers.EnablePSetHistory
 FWCore.GuiBrowsers.EnablePSetHistory.ACTIVATE_INSPECTION=False
 from FWCore.GuiBrowsers.ConfigToolBase import ConfigToolBase
 from FWCore.GuiBrowsers.editorTools import UserCodeTool
-import PhysicsTools.PatAlgos.tools as tools
 
-# import all tools and register them in toolsDict
-toolsDir=os.path.abspath(os.path.join(os.path.dirname(tools.__file__)))
-toolsFiles = [os.path.join(toolsDir,f) for f in os.listdir(toolsDir) if f.endswith(".py") and not f.startswith("_")]
-toolsDict={}
-for toolsFile in toolsFiles:
-    pythonModule = os.path.splitext(os.path.basename(toolsFile))[0]
-    module=imp.load_source(pythonModule, toolsFile)
-    for name in dir(module):
-        tool=getattr(module,name)
-        if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not tool._label in toolsDict.keys() and not tool==ConfigToolBase:
-            toolsDict[tool._label]=tool
-# Show test tool
-#rom FWCore.GuiBrowsers.editorTools import ChangeSource
-#oolsDict["ChangeSource"]=ChangeSource
+import PhysicsTools.PatAlgos.tools as tools
+standardToolsDir=os.path.abspath(os.path.join(os.path.dirname(tools.__file__)))
 
 cmsswDir="$CMSSW_BASE"
 cmsswReleaseDir="$CMSSW_RELEASE_BASE"
@@ -74,7 +59,7 @@ class ImportTool(ConfigToolBase):
         self._importCommands=commands
    
 class ApplyTool(ConfigToolBase):
-    """Apply a PAT tool"""
+    """Apply a tool"""
     _label="Apply tool"
     def dumpPython(self):
         return ("","")
@@ -193,6 +178,7 @@ class ToolDataAccessor(BasicDataAccessor):
     def setConfigDataAccessor(self,accessor):
         self._configDataAccessor=accessor
         self._processCopy=copy.deepcopy(accessor.process())
+        self._processCopy.resetHistory()
         self._importTool.setParameter("filename",accessor.configFile())
         if accessor.process():
             return self.updateProcess(False)

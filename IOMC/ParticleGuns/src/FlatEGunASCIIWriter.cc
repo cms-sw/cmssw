@@ -55,7 +55,7 @@ FlatEGunASCIIWriter::~FlatEGunASCIIWriter()
 {
    
   if ( fEvt != NULL ) delete fEvt ;
-  if( fOutStream) delete fOutStream;
+  delete fOutStream;
 
 }
 
@@ -64,7 +64,7 @@ void FlatEGunASCIIWriter::beginJob( const EventSetup& es)
 
   es.getData( fPDGTable );
 
-  fOutStream = new HepMC::IO_GenEvent( fOutFileName.c_str() ); 
+  fOutStream = new HepMC::IO_Ascii( fOutFileName.c_str() ); 
   if ( fOutStream->rdstate() == std::ios::failbit ) {
     throw cms::Exception("FileNotOpen", "FlatEGunASCIIWriter::beginJob()")
       << "File " << fOutFileName << " was not open.\n";

@@ -321,7 +321,7 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
     if ( entries >= nbins ) 
     {
       index = nbins;
-      xlow = entries - nbins + 3 ; xup = entries+1 ;
+      xlow = entries - nbins + 2 ; xup = entries ; 
       // average first bin
       double y1 = getBinContent(1);
       double y2 = getBinContent(2);

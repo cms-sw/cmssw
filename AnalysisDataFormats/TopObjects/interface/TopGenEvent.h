@@ -44,7 +44,7 @@ class TopGenEvent {
 
   /// empty constructor
   TopGenEvent(){};
-  /// default constructor from decaySubset and initSubset
+  /// default constructor
   TopGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& iniSubset);
   /// default destructor
   virtual ~TopGenEvent(){};
@@ -93,9 +93,9 @@ class TopGenEvent {
   /// return anti-tau if available; 0 else
   const reco::GenParticle* tauPlus() const  { return candidate(-TopDecayID::tauID, TopDecayID::WID  );}
   /// return W minus if available; 0 else
-  const reco::GenParticle* wMinus() const   { return candidate( TopDecayID::WID, TopDecayID::tID    );}
+  const reco::GenParticle* wMinus() const   { return candidate(-TopDecayID::WID, TopDecayID::tID    );}
   /// return W plus if available; 0 else
-  const reco::GenParticle* wPlus() const    { return candidate(-TopDecayID::WID, TopDecayID::tID    );}
+  const reco::GenParticle* wPlus() const    { return candidate( TopDecayID::WID, TopDecayID::tID    );}
   /// return b quark if available; 0 else
   const reco::GenParticle* b() const        { return candidate( TopDecayID::bID, TopDecayID::tID    );}
   /// return anti-b quark if available; 0 else

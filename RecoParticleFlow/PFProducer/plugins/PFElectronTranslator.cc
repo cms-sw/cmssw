@@ -87,6 +87,8 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
     if(cand.particleId()!=reco::PFCandidate::e) continue; 
     if(cand.gsfTrackRef().isNull()) continue;
     // Note that -1 will still cut some total garbage candidates 
+    // Fill the MVA map
+    gsfMvaMap_[cand.gsfTrackRef()]=cand.mva_e_pi();	  
     if(cand.mva_e_pi()<MVACut_) continue;
 
     GsfTrackRef_.push_back(cand.gsfTrackRef());
@@ -124,10 +126,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
       if(pfbe.type()==reco::PFBlockElement::PS2)
 	{
 	  createPreshowerCluster(pfbe,preshowerClusters_[iGSF],2);
-	}
-      
-      // Fill the MVA map
-      gsfMvaMap_[cand.gsfTrackRef()]=cand.mva_e_pi();	  
+	}      
 	  
     }   // loop on the elements
 

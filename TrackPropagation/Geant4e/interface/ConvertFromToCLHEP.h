@@ -22,17 +22,13 @@
  */
 
 namespace TrackPropagation {
-  /**
-    Convert a CMS GlobalPoint to a CLHEP HepGeom::Point3D<double> 
-    CMS uses cm while Geant4 uses mm. This is taken into account in the
-    conversion.
-  */
-
-  HepGeom::Point3D<double>  globalPointToHepPoint3D(const GlobalPoint& r) {
+  /** Convert a CMS GlobalPoint to a CLHEP HepGeom::Point3D<double> 
+      CMS uses cm while Geant4 uses mm. This is taken into account in the
+      conversion.
+   */
+  static HepGeom::Point3D<double>  globalPointToHepPoint3D(const GlobalPoint& r) {
     return HepGeom::Point3D<double> (r.x()*cm, r.y()*cm, r.z()*cm);
   }
-  
-   
 
   /** Convert a CLHEP HepGeom::Point3D<double>  to a CMS GlobalPoint 
       CMS uses cms while Geant4 uses mm. This is taken into account in the

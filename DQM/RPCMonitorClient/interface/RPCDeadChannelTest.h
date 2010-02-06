@@ -11,7 +11,6 @@ class RPCDeadChannelTest:public RPCClient{
 
 public:
 
-
   /// Constructor
   RPCDeadChannelTest(const edm::ParameterSet& ps);
   
@@ -22,7 +21,7 @@ public:
   void beginJob(DQMStore *);
 
   //Begin Run
-   void endRun(const edm::Run& , const edm::EventSetup& ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
+   void beginRun(const edm::Run& , const edm::EventSetup& ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
   
   
   /// Begin Lumi block 
@@ -35,12 +34,10 @@ public:
   void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
  
   //End Run
-  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
+  void endRun(const edm::Run& , const edm::EventSetup& ); 		
   
   /// Endjob
   void endJob();
-
-  virtual void clientOperation(edm::EventSetup const& c);
 
  protected:
   void CalculateDeadChannelPercentage(RPCDetId & , MonitorElement *  , edm::EventSetup const& );
@@ -53,8 +50,7 @@ public:
  
   DQMStore* dbe_;
  
- 
-  int numberOfDisks_;
+  int numberOfDisks_,numberOfRings_ ;
 
   MonitorElement * DEADWheel[5];
   MonitorElement * DEADDisk[10]; 

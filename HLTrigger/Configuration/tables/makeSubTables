@@ -5,9 +5,9 @@
 # usage: ./runMe.sh
 #
 
-MASTER="/dev/CMSSW_3_4_0/pre8/HLT"     # no version, take the latest one
-TARGET="/dev/CMSSW_3_4_0/pre8"         # directory where to store the sub-tables
-TABLES="1E31 8E29 GRun HIon"           # which sub-ytables to create
+MASTER="/dev/CMSSW_3_4_0/HLT"      # no version, take the latest one
+TARGET="/dev/CMSSW_3_4_0"          # directory where to store the sub-tables
+TABLES="1E31 8E29 GRun HIon"       # which sub-ytables to create
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
@@ -23,7 +23,7 @@ PWHASH="7a901914acb45efc107723c6d15c1bbf"
 }
 
 function makeCreateConfig() {
-  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB B00-30-X
+  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB HEAD
   [ -f $CMSSW_BASE/src/EventFilter/ConfigDB/classes/confdb/db/ConfDBCreateConfig.class ] || ant -f $CMSSW_BASE/src/EventFilter/ConfigDB/build.xml
 }
 

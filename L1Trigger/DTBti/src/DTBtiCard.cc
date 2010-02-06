@@ -99,13 +99,10 @@ DTBtiCard::clearCache(){
 void
 DTBtiCard::setConfig(const DTConfigManager *conf){
   
-  DTChamberId sid = ChamberId();
-  _conf_bti_map = conf->getDTConfigBtiMap(sid);	
-  _debug = conf->getDTTPGDebug();
-  _finedelay   = conf->getDTConfigTrigUnit(sid)->MCSetupTime();
-
-  // get bti acceptance flag
-  _flag_acc = conf->useAcceptParam();
+	DTChamberId sid = ChamberId();
+	_conf_bti_map = conf->getDTConfigBtiMap(sid);	
+	_debug = conf->getDTTPGDebug();
+	_finedelay   = conf->getDTConfigTrigUnit(sid)->MCSetupTime();
 
 }
 
@@ -444,7 +441,7 @@ DTBtiCard::activeGetBTI(int sl, int n){
   if( pbti!=_btimap[sl-1].end() ) {
     bti = (*pbti).second;
   } else {
-    bti = new DTBtiChip(this, geom(),sl,n, config_bti(_id));
+    bti = new DTBtiChip(geom(),sl,n, config_bti(_id));
     _btimap[sl-1][n]=bti;
   }
   return bti;

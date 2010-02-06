@@ -12,17 +12,23 @@ class RelativeDataAccessor(object):
         """
         raise NotImplementedError
 
-    def allDaughterRelations(self,object):
+    def allDaughterRelations(self,object, list=None):
         daughterRelations=[]
         for child in self.daughterRelations(object):
-            daughterRelations+=[child]+list(self.allDaughterRelations(child)) 
-        return tuple(daughterRelations)
+            if list==None or not child in list:
+                daughterRelations+=[child]
+            for grandchild in self.allDaughterRelations(child,daughterRelations):
+                daughterRelations+=[grandchild]
+        return daughterRelations
 
-    def allMotherRelations(self,object):
+    def allMotherRelations(self,object, list=None):
         motherRelations=[]
-        for child in self.motherRelations(object):
-            motherRelations+=[child]+list(self.allMotherRelations(child)) 
-        return tuple(motherRelations)
+        for mother in self.motherRelations(object):
+            if list==None or not mother in list:
+                motherRelations+=[mother]
+            for grandmother in self.allMotherRelations(motherRelations):
+                motherRelations+=[grandmother]
+        return motherRelations
 
     def hasRelations(self,object):
         """ Return if object has relations.

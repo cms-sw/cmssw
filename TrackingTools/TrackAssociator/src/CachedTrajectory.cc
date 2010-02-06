@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.21 2009/09/23 15:02:07 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.22 2009/10/09 12:48:18 dmytro Exp $
 //
 //
 
@@ -407,9 +407,9 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
 	   break;
 	}
 	// LogTrace("TrackAssociator") << "New state (perp, z): " << currentState.position().perp() << ", " << currentState.position().z();
-	if ( ( currentState.position().perp() < volume.maxR() && fabs(currentState.position().z()) < volume.maxZ() ) &&
-	     ( currentState.position().perp()-volume.minR() > 0  || fabs(currentState.position().z()) - volume.minZ() >0 ) )
-	  trajectory.push_back(currentState);
+	//if ( ( currentState.position().perp() < volume.maxR() && fabs(currentState.position().z()) < volume.maxZ() ) &&
+	//     ( currentState.position().perp()-volume.minR() > 0  || fabs(currentState.position().z()) - volume.minZ() >0 ) )
+	trajectory.push_back(currentState);
      }
 }
 

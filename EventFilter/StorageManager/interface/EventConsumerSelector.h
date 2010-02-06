@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.h,v 1.4 2009/09/23 13:03:59 mommsen Exp $
+// $Id: EventConsumerSelector.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: EventConsumerSelector.h 
 
 #ifndef StorageManager_EventConsumerSelector_h
@@ -8,7 +8,7 @@
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/StorageManager/interface/TriggerSelector.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 
 namespace stor {
@@ -18,8 +18,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/23 13:03:59 $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class EventConsumerSelector
@@ -88,7 +88,7 @@ namespace stor {
     unsigned int _outputModuleId;
     const EventConsumerRegistrationInfo _configInfo;
 
-    boost::shared_ptr<TriggerSelector> _eventSelector;
+    boost::shared_ptr<edm::EventSelector> _eventSelector;
 
   };
 

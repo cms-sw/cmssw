@@ -6,7 +6,7 @@
 #
 
 MASTER="/dev/CMSSW_3_3_3/HLT"                       # no version, take the latest one
-TARGET="/online/beamhalo/week47/HLT"                # where to store the online-compliant menu
+TARGET="/online/collisions/week49/HLT"              # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
@@ -22,7 +22,7 @@ PWHASH="7a901914acb45efc107723c6d15c1bbf"
 }
 
 function makeCreateConfig() {
-  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB B00-30-X
+  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB HEAD
   [ -f $CMSSW_BASE/src/EventFilter/ConfigDB/classes/confdb/db/ConfDBCreateConfig.class ] || ant -f $CMSSW_BASE/src/EventFilter/ConfigDB/build.xml
 }
 

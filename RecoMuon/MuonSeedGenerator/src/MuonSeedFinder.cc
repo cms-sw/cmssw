@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/02 01:21:50 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/09/12 23:09:07 $
+ *  $Revision: 1.26 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -63,6 +63,19 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
     }
   }
 
+  if ( num_bar ) {
+    LogDebug(metname)
+      << "Barrel Seeds " << num_bar << endl;
+    result.push_back(theBarrel.seed());
+ 
+    //if ( debug ) //2
+      // cout << result.back().startingState() << endl;
+      // was
+      // cout << result.back().freeTrajectoryState() << endl;
+  }
+  
+  
+
   int num_endcap = 0;
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
     if ( (*iter)->isCSC() )
@@ -73,15 +86,6 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
       ++num_endcap;
     }
   }
-
-  // don't do dim-2 seeds in the overlap
-  if ( num_bar >1 || (num_bar==1 && (num_endcap==0 || theBarrel.firstRecHit()->dimension() == 4))) {
-    LogDebug(metname)
-      << "Barrel Seeds " << num_bar << endl;
-    result.push_back(theBarrel.seed());
-
-  }
-
   if(num_endcap > 1 || (num_endcap==1 && num_bar==0))
   {
     LogDebug(metname)

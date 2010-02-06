@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.1.2.4 2009/04/01 15:45:33 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.5 2010/01/12 19:28:36 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.1.2.4 2009/04/01 15:45:33 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.5 2010/01/12 19:28:36 vadler Exp $
 */
 
 
@@ -27,7 +27,6 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -53,15 +52,14 @@ namespace pat {
 
     private:
 
-      virtual void beginRun( edm::Run & iRun, const edm::EventSetup & iSetup );
       virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
-      
+
       HLTConfigProvider hltConfig_;
       std::string       nameProcess_;
       edm::InputTag     tagTriggerResults_;
       edm::InputTag     tagTriggerEvent_;
       bool              onlyStandAlone_;
-      
+
       // trigger path
       bool addPathModuleLabels_;
 

@@ -22,7 +22,6 @@
 #include <string>
 #include <exception>
 struct hltinfo{
-  long long lumisec;
   std::string pathname;
   long long hltinput;
   long long hltaccept;
@@ -32,29 +31,14 @@ struct hltinfo{
 //lumisection aggreate over hltpath
 typedef std::vector< std::vector<hltinfo> > HLTResult;
 
-void printHLTResult(const HLTResult& hltresult,const std::string& pathname){
-  //size_t lumisec=0;
-  unsigned int totalin=0;
-  unsigned int totalout=0;
+void printHLTResult(const HLTResult& hltresult){
+  size_t lumisec=0;
   for(HLTResult::const_iterator it=hltresult.begin();it!=hltresult.end();++it){
-    //++lumisec;
+    std::cout<<"lumisec "<<lumisec<<std::endl;
+    ++lumisec;
     for(std::vector<hltinfo>::const_iterator itt=it->begin();itt!=it->end();++itt){
-      if( itt==it->begin() ){
-	std::cout<<"lumisec: "<<itt->lumisec<<std::endl;
-      }
-      if(pathname.empty()){
-	std::cout<<"\t path: "<<itt->pathname<<" : configid :"<<itt->hltconfigid<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
-      }else{
-	if(pathname==itt->pathname){
-	  std::cout<<"\t path: "<<itt->pathname<<" : configid :"<<itt->hltconfigid<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
-	  totalin+=itt->hltinput;
-	  totalout+=itt->hltaccept;
-	}
-      }
+      std::cout<<"\t path: "<<itt->pathname<<" : configid :"<<itt->hltconfigid<<" : input : "<<itt->hltinput<<" : accept : "<<itt->hltaccept<<" : prescale :"<<itt->prescale<<std::endl;
     }
-  }
-  if(!pathname.empty()){
-    std::cout<<"total HLT-in "<<totalin<<" : total HLT-out "<<totalout<<std::endl;
   }
 }
 
@@ -67,8 +51,7 @@ int main(){
   std::string authName("/nfshome0/xiezhen/authentication.xml");
   //int startRun=83037;
   //int startRun=110823;
-  int startRun=121998;
-  //int startRun=121677;
+  int startRun=108239;
   int numberOfRuns=1;
   std::string tabname("HLT_SUPERVISOR_LUMISECTIONS_V2");
   std::string maptabname("HLT_SUPERVISOR_SCALAR_MAP");
@@ -146,48 +129,31 @@ int main(){
       coral::ICursor& cursor1 = query1->execute();
       
       //int currentLumiSection=0;actually hlt db stores 1. but doesn't matter
-      int currentPath=0;
-      unsigned int lastLumiSection=0;
-      unsigned int currentLumiSection=0;
-      unsigned int counter=0;
+      int currentPath=1;
       std::vector<hltinfo> allpaths;
       while( cursor1.next() ){
 	hltinfo thispath;
 	const coral::AttributeList& row=cursor1.currentRow();
-	currentLumiSection=(int)row["lsnumber"].data<long long>();
-	
-	//std::cout<<"currentLumiSection "<<currentLumiSection<<" lastLumiSection "<<lastLumiSection<<std::endl;
-	if(currentLumiSection!=lastLumiSection){
-	  ++counter;
-	  result.push_back(allpaths);
-	  allpaths.clear();
-	  currentPath=0;
-	}
-	
+	//currentLumiSection=(int)row["lsnumber"].data<long long>();
 	//std::cout<<"current run "<<currentRun<<std::endl;
 	//std::cout<<"currentLumiSection "<<currentLumiSection<<std::endl;
-	thispath.lumisec=currentLumiSection;
+	//std::cout<<"current path number "<<currentPath<<std::endl;
 	thispath.hltinput=row["hltinput"].data<long long>();
 	thispath.hltaccept=row["hltratecounter"].data<long long>();
 	thispath.pathname=row["pathname"].data<std::string>();
 	thispath.prescale=row["prescale"].data<long long>();
 	thispath.hltconfigid=row["hltconfigid"].data<long long>();
-	//std::cout<<"current path "<<currentPath<<" "<<thispath.pathname<<std::endl;
 	allpaths.push_back(thispath);
-	//if(currentPath==npath){
+	if(currentPath==npath){
 	  // std::cout<<"=====This is the end of lumisection===="<<currentRun<<":"<<currentLumiSection<<std::endl;
-	  //currentPath=0;
-	  //result.push_back(allpaths);
-	  //allpaths.clear();
-	//}//end if it's last path in the current lumisection	 
-	
-	lastLumiSection=currentLumiSection;
+	  currentPath=0;
+	  result.push_back(allpaths);
+	}//end if it's last path in the current lumisection	 
 	++currentPath;
       }
       cursor1.close();
       delete query1;
-      //std::cout<<"result size "<<result.size()<<" counter "<<counter<<std::endl;
-      printHLTResult(result,"");
+      printHLTResult(result);
     }
     //std::cout<<"commit transaction"<<std::endl;
     transaction.commit();

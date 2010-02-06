@@ -23,11 +23,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
-
-// ############################################################
-#include <DQM/HcalMonitorClient/interface/HcalDetDiagNoiseMonitorClient.h>
-// ############################################################
-
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLaserClient.h>
@@ -86,7 +81,7 @@ public:
   void analyze(const Event& evt, const EventSetup& es);
   
   /// BeginJob
-  void beginJob();
+  void beginJob(const EventSetup& c);
   /// BeginRun
   void beginRun(const Run& r, const edm::EventSetup & c);
   /// BeginLumiBlock
@@ -120,10 +115,9 @@ public:
 
   /// Boolean prescale test for this event
   bool prescale();
-
+  
  private:
   void removeAllME(void);
-  void writeDBfile();
   /********************************************************/
   //  The following member variables can be specified in  //
   //  the configuration input file for the process.       //
@@ -152,8 +146,7 @@ public:
     //int nevt_; // counts number of events actually analyzed by HcalMonitorClient
   int nlumisecs_;
   bool saved_;
-  bool Online_;
-  
+
   struct{
     timeval startTV,updateTV;
     double startTime;
@@ -163,21 +156,26 @@ public:
   
   ///Connection to the DQM backend
   DQMStore* dbe_;  
+  //DQMOldReceiver* mui_;
   
   // environment variables
-  int irun_,ievent_,itime_;
-  int ilumisec_;
+  int irun_,ilumisec_,ievent_,itime_;
   int maxlumisec_, minlumisec_;
 
   time_t mytime_;
 
+  bool actonLS_ ;
   std::string rootFolder_;
 
   int ievt_; // counts number of events read by client (and analyzed by tasks)
+  int resetUpdate_;
   int resetEvents_;
+  int resetTime_;
+  int lastResetTime_;
   int resetLS_;
   
   bool runningStandalone_;
+  bool enableExit_;
   bool enableMonitorDaemon_;
 
   string inputFile_;
@@ -187,11 +185,6 @@ public:
   HcalDataFormatClient*      dataformat_client_;
   HcalDigiClient*            digi_client_;
   HcalRecHitClient*          rechit_client_;
-
-// ############################################################
-  HcalDetDiagNoiseMonitorClient*          noise_client_;
-// ############################################################
-
   HcalPedestalClient*        pedestal_client_;
   HcalLEDClient*             led_client_;
   HcalLaserClient*           laser_client_;
@@ -200,7 +193,7 @@ public:
   HcalTrigPrimClient*        tp_client_;
   HcalCaloTowerClient*       ct_client_;
   HcalBeamClient*            beam_client_;
-
+  HcalHotCellDbInterface*    dqm_db_;
   ///////////////////////////////////////////////////////////
   HcalDetDiagPedestalClient* detdiagped_client_; 
   HcalDetDiagLEDClient*      detdiagled_client_; 
@@ -208,7 +201,7 @@ public:
   //////////////////////////////////////////////////
 
   // myquality_ will store status values for each det ID I find
-  std::string databasedir_; // empty string means don't dump out db info
+  bool dump2database_;
   std::map<HcalDetId, unsigned int> myquality_;
   HcalChannelQuality* chanquality_;
 

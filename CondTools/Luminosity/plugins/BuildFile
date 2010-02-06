@@ -12,10 +12,4 @@
    <use name=rootcore>
    <flags EDM_PLUGIN=1>
 </library>
-<library file=MixedSource.cc name=CondToolsLuminosityMixedSource>
-   <use name=rootcore>
-   <use name=CoralBase>
-   <use name=RelationalAccess>
-   <flags EDM_PLUGIN=1>
-</library>
  

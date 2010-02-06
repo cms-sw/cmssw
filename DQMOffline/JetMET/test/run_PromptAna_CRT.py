@@ -43,6 +43,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1)
 #--- When read in RECO file including EDM from ME
 process.source = cms.Source("PoolSource",
     processingMode = cms.untracked.string('RunsAndLumis'),
+#   fileNames = cms.untracked.vstring('file:reco_DQM_cruzet100945.root')
     fileNames = cms.untracked.vstring(input_files)
 )
 
@@ -50,10 +51,6 @@ process.source = cms.Source("PoolSource",
 
 process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
 process.dqmSaver.referenceHandling = cms.untracked.string('all')
-#
-cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
-Workflow = '/JetMET/'+str(cmssw_version)+'/Harvesting'
-process.dqmSaver.workflow = Workflow
 
 #-----------------------------
 # Specify root file including reference histograms
@@ -95,12 +92,6 @@ if harvesting:
   print
 else:
   process.dataCertificationJetMET.fileName = cms.untracked.string(test_histogram_file)
-
-#-----------------------------
-# JetMET DQM Client Module 
-#-----------------------------
-
-process.jetMETDQMOfflineClient.Verbose = cms.untracked.int32(0)
 
 #-----------------------------
 # 

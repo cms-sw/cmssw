@@ -13,7 +13,7 @@
 ///
 /// Original Author:  Gero FLUCKE
 ///     Created:  Mon Mar  5 16:32:01 CET 2007
-/// $Id: CosmicGenFilterHelix.h,v 1.4 2007/04/10 17:13:23 flucke Exp $
+/// $Id: CosmicGenFilterHelix.h,v 1.5 2008/08/15 20:25:07 flucke Exp $
 ///
 
 
@@ -41,7 +41,7 @@ class CosmicGenFilterHelix : public edm::EDFilter {
   explicit CosmicGenFilterHelix(const edm::ParameterSet& config);
   virtual ~CosmicGenFilterHelix();
 
-  virtual void beginJob(const edm::EventSetup &eventSetup);
+  virtual void beginJob();
   virtual bool filter(edm::Event &event, const edm::EventSetup &eventSetup);
   virtual void endJob();
 

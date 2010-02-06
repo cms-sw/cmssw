@@ -8,5 +8,5 @@ vertexClassifier = cms.PSet(
     vertexHistory,
     hepMC = cms.untracked.InputTag("generator"),
     longLivedDecayLength = cms.untracked.double(1e-14),
-    vertexClusteringDistance = cms.untracked.double(0.003)
+    vertexClusteringDistance = cms.untracked.double(0.0001)
 )

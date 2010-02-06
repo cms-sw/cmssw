@@ -110,8 +110,8 @@ bool VertexFilter::operator () (const Vertex &pv,
 
 	// check for V0 vertex
 
-	if (sv.hasRefittedTracks())
-		return v0Filter(sv.refittedTracks());
-	else
-		return v0Filter(svTracks);
+	if (!v0Filter(svTracks))
+		return false;
+
+	return true;
 }

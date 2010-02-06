@@ -18,8 +18,8 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //--------------------------------------------------------------------------
-DDDividedTubsRho::DDDividedTubsRho( const DDDivision& div, DDCompactView& cpv)
-  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedTubsRho::DDDividedTubsRho( const DDDivision & div)
+  :  DDDividedGeometryObject::DDDividedGeometryObject( div )
 {
   checkParametersValidity();
   setType( "DivisionTubsRho" );
@@ -97,8 +97,8 @@ DDLogicalPart DDDividedTubsRho::makeDDLogicalPart (const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView& cpv)
-  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision & div)
+  :  DDDividedGeometryObject::DDDividedGeometryObject( div )
 {
   checkParametersValidity();
   setType( "DivisionTubsPhi" );
@@ -123,7 +123,7 @@ DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView& cpv)
       }
     }
 
-  std::cout << " DDDividedTubsPhi - no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width() << "\n DivType " << divisionType_ << std::endl;
+  DCOUT_V ('P', " DDDividedTubsPhi - no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width() << "\n DivType " << divisionType_);
  
 }
 
@@ -192,8 +192,8 @@ DDLogicalPart DDDividedTubsPhi::makeDDLogicalPart (const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedTubsZ::DDDividedTubsZ( const DDDivision& div, DDCompactView& cpv)
-  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedTubsZ::DDDividedTubsZ( const DDDivision & div)
+  :  DDDividedGeometryObject::DDDividedGeometryObject( div )
 {
   checkParametersValidity();
 

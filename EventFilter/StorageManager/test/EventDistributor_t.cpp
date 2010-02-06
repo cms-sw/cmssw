@@ -382,10 +382,9 @@ void testEventDistributor::testConsumerSelection()
     selections.clear();
     selections.push_back("a");
     selections.push_back("b");
-    std::string sel = "a || b"; 
     QueueID queueId(enquing_policy::DiscardOld, 1);
     consInfo.reset(new EventConsumerRegistrationInfo(
-        5, 5, "Test Consumer", sel, selections, "hltOutputDQM",
+        5, 5, "Test Consumer", selections, "hltOutputDQM",
         queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
 
@@ -413,10 +412,9 @@ void testEventDistributor::testConsumerSelection()
     selections.clear();
     selections.push_back("c");
     selections.push_back("d");
-    std::string sel = "c || d"; 
     QueueID queueId(enquing_policy::DiscardNew, 2);
     consInfo.reset(new EventConsumerRegistrationInfo(
-        5, 5, "Test Consumer", sel, selections, "hltOutputDQM", 
+        5, 5, "Test Consumer", selections, "hltOutputDQM", 
         queueId.index(), queueId.policy(), 120, "localhost" ));
     consInfo->setQueueID( queueId );
 
@@ -465,10 +463,9 @@ void testEventDistributor::testConsumerSelection()
     selections.clear();
     selections.push_back("c");
     selections.push_back("a");
-    std::string sel = "c || a"; 
     QueueID queueId(enquing_policy::DiscardOld, 3);
     consInfo.reset(new EventConsumerRegistrationInfo(
-        5, 5, "Test Consumer", sel, selections, "hltOutputDQM",
+        5, 5, "Test Consumer", selections, "hltOutputDQM",
         queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
     consInfo->registerMe(&(*_eventDistributor));
@@ -482,10 +479,9 @@ void testEventDistributor::testConsumerSelection()
     selections.clear();
     selections.push_back("b");
     selections.push_back("d");
-    std::string sel = "b || d"; 
     QueueID queueId(enquing_policy::DiscardNew, 4);
     consInfo.reset(new EventConsumerRegistrationInfo(
-        5, 5, "Test Consumer", sel, selections, "hltOutputDQM",
+        5, 5, "Test Consumer", selections, "hltOutputDQM",
         queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
 

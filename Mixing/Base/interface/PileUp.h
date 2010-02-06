@@ -19,7 +19,6 @@ namespace edm {
     ~PileUp();
 
     void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<edm::EventID> &ids, std::vector<int> &fileNrs,std::vector<unsigned int> & nrEvents);
-    void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids);
 
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}

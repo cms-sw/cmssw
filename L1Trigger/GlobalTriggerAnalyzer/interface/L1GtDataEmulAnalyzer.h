@@ -56,7 +56,7 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     /// compare the GTFE board
     virtual void compareGTFE(const edm::Event&, const edm::EventSetup&,

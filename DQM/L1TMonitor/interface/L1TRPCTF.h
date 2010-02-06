@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2009/10/19 12:30:19 $
- * $Revision: 1.20 $
+ * $Date: 2009/03/26 14:07:54 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
  *
 */
@@ -57,7 +57,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(void);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

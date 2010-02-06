@@ -18,9 +18,6 @@
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core> 
 <use name=CommonTools/TrackerMap> 
-<use name=CalibFormats/SiStripObjects>
-<use name=CalibTracker/Records>
- 
 <library file="*.cc" name = DPGAnalysisSiStripToolsPlugins>
 	<flags EDM_PLUGIN=1>
 </library>

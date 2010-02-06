@@ -2,7 +2,7 @@
 #define TtFullLepKinSolutionProducer_h
 
 //
-// $Id: TtFullLepKinSolutionProducer.h,v 1.3 2009/06/24 09:23:10 snaumann Exp $
+// $Id: TtFullLepKinSolutionProducer.h,v 1.4.2.1 2009/11/05 20:03:24 eschliec Exp $
 //
 #include <memory>
 #include <string>
@@ -392,7 +392,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
 	  nuBarsV.push_back(nuSol.neutrinoBar);
 	
 	  // add the solution weight
-	  weightsV.push_back(make_pair(nuSol.weight, nSol));
+	  weightsV.push_back(std::make_pair(nuSol.weight, nSol));
 	  
 	  nSol++;
 	}
@@ -407,7 +407,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
       idcs.push_back(-1);
 
     idcsV.push_back(idcs);
-    weightsV.push_back(make_pair(-1,0));
+    weightsV.push_back(std::make_pair(-1,0));
     reco::LeafCandidate nu;
     nusV.push_back(nu);
     reco::LeafCandidate nuBar;

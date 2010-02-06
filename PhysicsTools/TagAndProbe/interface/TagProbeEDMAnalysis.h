@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.22 2009/10/01 09:43:27 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.21 2009/09/13 06:15:40 valerieh Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -16,13 +16,9 @@
 // Removed duplication of code in the fitting machinery. 
 // Also, fixed the problem with RooDataSet declaration.
 
-#include <memory>
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
-class FeldmanCousinsBinomialInterval;
 
 class EffTableLoader;
 class SideBandSubtraction;
@@ -193,8 +189,6 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       int* NumEvents_;
 
       bool doAnalyze_;
-
-      std::auto_ptr<FeldmanCousinsBinomialInterval> FCIntervals;
 
       edm::Service<TFileService> fs;
 };

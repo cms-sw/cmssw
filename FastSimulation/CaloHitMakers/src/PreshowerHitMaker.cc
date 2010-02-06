@@ -41,8 +41,15 @@ PreshowerHitMaker::PreshowerHitMaker(
   XYZVector diry(0,psLayer1Entrance_.y(),psLayer1Entrance_.z());
   dirx=dirx.Unit();
   diry=diry.Unit();
-  invcostheta1x = 1./fabs(dirx.Dot(XYZVector(0,0,1.)));
-  invcostheta1y = 1./fabs(diry.Dot(XYZVector(0,0,1.)));      
+
+  double denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
+  invcostheta1x = 1.e9;
+  if(fabs(denom) > 0.) invcostheta1x = 1./denom;
+
+  denom = fabs(diry.Dot(XYZVector(0,0,1.)));
+  invcostheta1y = 1.e9;
+  if(fabs(denom) > 0.) invcostheta1y = 1./denom;
+
 
   // Layer 2
   z=(psLayer2Entrance_.z()>0) ? 1:-1;
@@ -56,8 +63,16 @@ PreshowerHitMaker::PreshowerHitMaker(
   diry = XYZVector(0,psLayer2Entrance_.y(),psLayer2Entrance_.z());
   dirx=dirx.Unit();
   diry=diry.Unit();
-  invcostheta2x = 1./fabs(dirx.Dot(XYZVector(0,0,1.)));
-  invcostheta2y = 1./fabs(diry.Dot(XYZVector(0,0,1.)));
+
+
+  denom = fabs(dirx.Dot(XYZVector(0,0,1.)));
+  invcostheta2x = 1.e9;
+  if(fabs(denom) > 0.) invcostheta2x = 1./denom;
+
+  denom = fabs(diry.Dot(XYZVector(0,0,1.)));
+  invcostheta2y = 1.e9;
+  if(fabs(denom) > 0.) invcostheta2y = 1./denom;
+
 
   //  theGenerator=LandauFluctuationGenerator();
 }

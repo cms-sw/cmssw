@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.51 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -112,7 +112,6 @@ void EECosmicTask::setup(void){
       meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       meSelMap_[i]->setAxisTitle("jx", 1);
       meSelMap_[i]->setAxisTitle("jy", 2);
-      meSelMap_[i]->setAxisTitle("energy (GeV)", 3);
     }
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask/Spectrum");

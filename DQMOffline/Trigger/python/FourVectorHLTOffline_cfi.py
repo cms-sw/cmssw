@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.23 2009/08/30 23:31:55 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.25 2009/12/11 02:49:15 rekovic Exp $
 hltResults = cms.EDFilter("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -20,13 +20,24 @@ hltResults = cms.EDFilter("FourVectorHLTOffline",
     #photonDRMatch = cms.untracked.double(0.1),
     #trackDRMatch = cms.untracked.double(0.1),
      SpecialPaths = cms.vstring(
-            'HLT_L1MuOpen',
-            'HLT_MinBias', 
+            'HLT_MET45',
+            'HLT_L1Tech_HCAL_HF_coincidence_PM',
+            'HLT_L1_BscMinBiasOR_BptxPlusORMinus',
+            'HLT_MinBiasBSC',
+            'HLT_MinBiasBSC_OR',
+            'HLT_MinBiasEcal', 
+            'HLT_MinBiasHcal', 
+            'HLT_MinBiasPixel_SingleTrack', 
+            'HLT_ZeroiasPixel_SingleTrack', 
             'HLT_L1_BPTX', 
-            'HLT_MET100'
+            'HLT_ZeroBias'
       ),
 
     paths = cms.VPSet(
+             cms.PSet(
+              pathname = cms.string("HLT"),
+              denompathname = cms.string("HLT_MinBiasBSC")  
+             )
             # cms.PSet(
             #  pathname = cms.string("HLT_Mu11"),
             #  denompathname = cms.string(""),  

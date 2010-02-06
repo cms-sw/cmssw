@@ -140,7 +140,7 @@ public:
   //const std::vector<DDSpecifics> & specifics() const;
   
   //std::vector<DDPosPart>& posParts() const { return rep_->posParts(); }
-/*   static void clear(); */
+  static void clear();
   
 private:  
   //void addSpecifics(const DDSpecifics & sp);

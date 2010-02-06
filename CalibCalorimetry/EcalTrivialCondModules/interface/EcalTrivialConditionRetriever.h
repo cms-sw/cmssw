@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.23 2009/06/24 09:46:07 fra Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.22 2009/05/14 09:07:11 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -67,8 +67,7 @@
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
@@ -115,9 +114,6 @@ public:
 
   virtual std::auto_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
   virtual std::auto_ptr<EcalChannelStatus> getChannelStatusFromConfiguration( const EcalChannelStatusRcd& );
-
-  virtual std::auto_ptr<EcalTPGCrystalStatus> produceEcalTrgChannelStatus( const EcalTPGCrystalStatusRcd& );
-  virtual std::auto_ptr<EcalTPGCrystalStatus> getTrgChannelStatusFromConfiguration( const EcalTPGCrystalStatusRcd& );
 
   virtual std::auto_ptr<EcalMappingElectronics> produceEcalMappingElectronics( const EcalMappingElectronicsRcd& );
   virtual std::auto_ptr<EcalMappingElectronics> getMappingFromConfiguration( const EcalMappingElectronicsRcd& );
@@ -209,7 +205,6 @@ private:
   std::string timeCalibConstantsFile_ ;
   std::string timeCalibErrorsFile_ ;
   std::string channelStatusFile_ ;
-  std::string trgChannelStatusFile_ ;
   std::string mappingFile_ ;
 
   int nTDCbins_;
@@ -227,7 +222,6 @@ private:
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;
   bool producedEcalChannelStatus_;
-  bool producedEcalTrgChannelStatus_;
   bool producedEcalClusterLocalContCorrParameters_;
   bool producedEcalClusterCrackCorrParameters_;
   bool producedEcalClusterEnergyCorrectionParameters_;

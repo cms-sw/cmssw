@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.15 2009/09/17 14:31:09 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.14 2009/09/16 11:06:46 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <iostream>
@@ -16,7 +16,7 @@
 #include <cstdio>
 
 // 15-Jul-2008, KAB: copied from DQMStore
-static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|t|qr)=(.*)</\\1>$");
+static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
 
 using edm::debugit;
 using namespace std;

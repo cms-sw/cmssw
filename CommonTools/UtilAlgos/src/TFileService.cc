@@ -38,8 +38,8 @@ TFileService::~TFileService() {
 }
 
 void TFileService::setDirectoryName(const ModuleDescription & desc) {
-  dir_ = desc.moduleLabel_;
-  descr_ = (dir_ + " (" + desc.moduleName_ + ") folder").c_str();
+  dir_ = desc.moduleLabel();
+  descr_ = (dir_ + " (" + desc.moduleName() + ") folder").c_str();
 }
 
 void TFileService::afterBeginJob() {

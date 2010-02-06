@@ -2,8 +2,6 @@
 
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 EVENTSETUP_RECORD_REG(SiStripApvGainRcd);
-EVENTSETUP_RECORD_REG(SiStripApvGain2Rcd);
-EVENTSETUP_RECORD_REG(SiStripApvGain3Rcd);
 EVENTSETUP_RECORD_REG(SiStripApvGainSimRcd);
 
 EVENTSETUP_RECORD_REG(SiStripBadChannelRcd);
@@ -35,5 +33,3 @@ EVENTSETUP_RECORD_REG(SiStripSummaryRcd);
 
 EVENTSETUP_RECORD_REG(SiStripThresholdRcd);
 EVENTSETUP_RECORD_REG(SiStripClusterThresholdRcd);
-
-EVENTSETUP_RECORD_REG(SiStripConfObjectRcd);

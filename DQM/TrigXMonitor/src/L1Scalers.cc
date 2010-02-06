@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.17 2009/11/06 18:27:19 lorenzo Exp $
+// $Id: L1Scalers.cc,v 1.15 2009/07/20 18:11:01 dellaric Exp $
 #include <iostream>
 
 
@@ -44,8 +44,6 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   bxNum_(0),
   l1scalersBx_(0),
   l1techScalersBx_(0),
-  pixFedSizeBx_(0),
-  hfEnergyMaxTowerBx_(0),
   nLumiBlock_(0),
   l1AlgoCounter_(0),
   l1TtCounter_(0),
@@ -65,7 +63,7 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
 
 
 
-void L1Scalers::beginJob(void)
+void L1Scalers::beginJob(const edm::EventSetup& iSetup)
 {
   LogDebug("Status") << "L1Scalers::beginJob()...";
 
@@ -91,14 +89,6 @@ void L1Scalers::beginJob(void)
 				    "Trigger "
 				    "Bits vs Bunch Number",
 				    3600, -0.5, 3599.5, 64, -0.5, 63.5);
-    pixFedSizeBx_ = dbe_->book2D("pixFedSize_Vs_Bx", "Size of Pixel FED data vs "
-				"Bunch Number",
-				3600, -0.5, 3599.5,
-				200, 0., 20000.);
-    hfEnergyMaxTowerBx_ = dbe_->book2D("hfEnergyMaxTower_Vs_Bx", "HF Energy Max Tower vs "
-				"Bunch Number",
-				3600, -0.5, 3599.5,
-				100, 0., 500.);
     bxNum_ = dbe_->book1D("bxNum", "Bunch number from GTFE",
 			  3600, -0.5, 3599.5);
 
@@ -131,7 +121,6 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
   nev_++;
   LogDebug("Status") << "L1Scalers::analyze  event " << nev_ ;
 
-  int myGTFEbx = -1;
   // get Global Trigger decision and the decision word
   // these are locally derived
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
@@ -149,13 +138,10 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     L1GtfeWord gtfeWord = gtRecord->gtfeWord();
     int gtfeBx = gtfeWord.bxNr();
     bxNum_->Fill(gtfeBx);
-    myGTFEbx = gtfeBx;
 
     // First, the default
     // vector of bool
-    for(int iebx=0; iebx<=4; iebx++) {
-      DecisionWord gtDecisionWord = gtRecord->decisionWord(iebx-2);
-//    DecisionWord gtDecisionWord = gtRecord->decisionWord();
+    DecisionWord gtDecisionWord = gtRecord->decisionWord();
     if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
        // loop over dec. bit to get total rate (no overlap)
        for ( int i = 0; i < 128; ++i ) {
@@ -169,7 +155,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       for ( int i = 0; i < 128; ++i ) {
 	if ( gtDecisionWord[i] ) {
 	  l1scalers_->Fill(i);
-	  l1scalersBx_->Fill(gtfeBx-2+iebx,i);
+	  l1scalersBx_->Fill(gtfeBx,i);
 	  for ( int j = i + 1; j < 128; ++j ) {
 	    if ( gtDecisionWord[j] ) {
 	      l1Correlations_->Fill(i,j);
@@ -179,15 +165,12 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 	}
       }
     }   
-    }
     // loop over technical triggers
     // vector of bool again. 
-    for(int iebx=0; iebx<=4; iebx++) {
-      TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(iebx-2);
-//    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
+    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
     if ( ! tw.empty() ) {
        // loop over dec. bit to get total rate (no overlap)
-      for ( int i = 0; i < 64; ++i ) {
+       for ( int i = 0; i < 64; ++i ) {
          if ( tw[i] ) {
 	   rateTtCounter_++;
            l1TtCounter_->Fill(rateTtCounter_);
@@ -197,11 +180,10 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       for ( int i = 0; i < 64; ++i ) {
 	if ( tw[i] ) {
 	  l1techScalers_->Fill(i);
-	  l1techScalersBx_->Fill(gtfeBx-2+iebx, i);
+	  l1techScalersBx_->Fill(gtfeBx, i);
 	}
       } 
     } // ! tw.empty
-    }
   } // getbylabel succeeded
 
 
@@ -220,14 +202,12 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       totalFEDsize += theRaw->FEDData(i).size() ; 
     }
     pixFedSize_->Fill(totalFEDsize);
-    if( (myGTFEbx!=-1) ) pixFedSizeBx_->Fill(myGTFEbx,totalFEDsize);
-
+    
     LogDebug("Parameter") << "Total FED size: " << totalFEDsize;
   }      
 
   // HF - stolen from HLTrigger/special
   // getting very basic uncalRH
-  double maxHFenergy = -1;
   edm::Handle<HFRecHitCollection> crudeHits;
   bool getHF = e.getByLabel(HcalRecHitCollection_, crudeHits);
   if ( ! getHF ) {
@@ -248,11 +228,10 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
       if  (result != maskedList_.end()) 
 	continue; 
       hfEnergy_->Fill(hit.energy());
-      if( (hit.energy()>maxHFenergy) ) maxHFenergy = hit.energy();
+       
     }
   }
 
-  if( (maxHFenergy!=-1 && myGTFEbx!=-1) ) hfEnergyMaxTowerBx_->Fill(myGTFEbx,maxHFenergy);
   // END HACK
 
   return;

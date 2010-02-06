@@ -12,14 +12,10 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         signalStartTime = cms.double(-250.0),
         shapingTime = cms.int32(100),
         comparatorTimeOffset = cms.double(15.0),
-        # Vadim's CLCT tuning for 2 pretriiggers
-        bunchTimingOffsets = cms.vdouble(0.0, 20.0+7.53, 20.0+3.83, 
-            45.0+12.13, 45.0+4.2, 45.0+10.18, 45.0+7.78, 45.0+9.38, 45.0+7.95, 45.0+8.48, 45.0+8.03),
-        # Vadim's tuning for 3 pretriiggers
-        #bunchTimingOffsets = cms.vdouble(0.0, 20.0+13.05, 20.0+8.13, 
-        #      45.0+18.23, 45.0+9.5, 45.0+16.0, 45.0+13.23, 45.0+15.13, 45.0+13.08, 45.0+14.65, 45.0+13.25),
+        bunchTimingOffsets = cms.vdouble(0.0, 20.0, 20.0, 45.0, 45.0, 
+            45.0, 45.0, 45.0, 45.0, 45.0, 
+            45.0),
         # parameters for tuning timing
-        scaTimingOffsets =  cms.vdouble(0.0, 10., 10., 0.,0.,0.,0.,0.,0.,0.,0.),
         comparatorTimeBinOffset = cms.double(3.0),
         scaPeakBin = cms.int32(5),
         pedestalSigma = cms.double(1.5),

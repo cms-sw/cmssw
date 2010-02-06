@@ -53,11 +53,11 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     string type = "Castor All Pedestal Values";
     castHists.ALLPEDS =  m_dbe->book1D(type,type,50,0,50);
     
-    type = "Castor Pedestal Mean Reference Values - from CondDB";
-    castHists.PEDESTAL_REFS = m_dbe->book1D(type,type,50,0,50); 
+    type = "Castor Pedestal Mean Reference Values";
+    castHists.PEDESTAL_REFS = m_dbe->book1D(type,type,50,0,3); 
     
-    type = "Castor Pedestal RMS Reference Values - from CondDB";
-    castHists.WIDTH_REFS = m_dbe->book1D(type,type,20,0,10); 
+    type = "Castor Pedestal RMS Reference Values";
+    castHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,3); 
 
     ///// castHists.PEDRMS  =  m_dbe->book1D("Castor Pedestal RMS Values","Castor Pedestal RMS Values",100,0,3);
     ///// castHists.SUBMEAN =  m_dbe->book1D("Castor Subtracted Mean Values","Castor Subtracted Mean Values",100,-2.5,2.5);
@@ -90,48 +90,36 @@ void CastorPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const CastorDbService& cond)
 {
   
- 
+  ievt_++;
   meEVT_->Fill(ievt_);
   
-  //if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
-
+  if(!shape_) shape_ = cond.getCastorShape(); // this one is generic
 
   if(!m_dbe) { 
     if(fVerbosity>0) cout<<"CastorPedestalMonitor::processEvent DQMStore not instantiated!!!"<<endl;  
     return; 
   }
 
-
   CaloSamples tool;  
-  
  
    try{
     for (CastorDigiCollection::const_iterator j=cast.begin(); j!=cast.end(); j++){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);	
 
- 
        ////---- get access to Castor Pedestal in the CONDITION DATABASE
        /////// calibs_= cond.getCastorCalibrations(digi.id());  //-- in HCAL code 
-       // const CastorPedestal* ped = cond.getPedestal(digi.id()); 
-       // const CastorPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
-
-
+       const CastorPedestal* ped = cond.getPedestal(digi.id()); 
+       const CastorPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
 
        detID_.clear(); capID_.clear(); pedVals_.clear();
- 
-
       
-      /*
        ////---- if to convert ADC to fC 
       if(doFCpeds_){
 	channelCoder_ = cond.getCastorCoder(digi.id());
 	CastorCoderDb coderDB(*channelCoder_, *shape_);
 	coderDB.adc2fC(digi,tool);
       }
-      */
-      
 
-/*
       ////---- fill Pedestal Mean and RMS values from the CONDITION DATABASE
       for(int capID=0; capID<4; capID++){
            ////---- pedestal Mean from the Condition Database
@@ -147,12 +135,8 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
            castHists.WIDTH_REFS->Fill(width);
            WIDTH_REFS->Fill(width);
      }
-  */
       
-      
-      ////---- fill ALL Pedestal Values each 100 events
-      if(ievt_ %100 == 0 )
-      { 
+      ////---- fill ALL Pedestal Values 
       for (int i=0; i<digi.size(); i++) {
 	if(doFCpeds_) pedVals_.push_back(tool[i]);
 	else pedVals_.push_back(digi.sample(i).adc());
@@ -160,19 +144,15 @@ void CastorPedestalMonitor::processEvent(const CastorDigiCollection& cast, const
 	capID_.push_back(digi.sample(i).capid());
 	castHists.ALLPEDS->Fill(pedVals_[i]);
       }
-      
-     }
 
-      ////---- do histograms for every channel once per 1000 events until 1M events
-      if( ievt_%1000 == 0 && ievt_<1000000 && doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
+      ////---- do histograms for every channel
+      if(doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
 
     }
   } 
    catch (...) {
     if(fVerbosity>0) cout << "CastorPedestalMonitor::processEvent  No Castor Digis." << endl;
   }
-
-  ievt_++;
 
   return;
 }

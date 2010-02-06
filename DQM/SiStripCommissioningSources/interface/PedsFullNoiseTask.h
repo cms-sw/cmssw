@@ -31,9 +31,11 @@ class PedsFullNoiseTask : public CommissioningTask {
     virtual void update();
 
     // analysis histograms
-    HistoSet pedhist_, pedroughhist_, noiseprof_;
+    HistoSet pedhist_, pedroughhist_;
     std::vector<HistoSet> cmhist_;
     CompactHistoSet noisehist_;
+    // keeps track of the mean of the noise histograms from value instead of histogram bins
+    std::vector<float> noiseSum_, noiseNum_;
     // keeps track of whether desired number of events were skipped
     bool skipped_;
     // number of events to skip

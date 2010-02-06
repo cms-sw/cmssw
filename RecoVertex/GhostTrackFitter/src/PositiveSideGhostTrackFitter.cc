@@ -26,27 +26,29 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(
 	GhostTrackPrediction pred =
 			actualFitter_->fit(updater, prior, states, ndof, chi2);
 
-	double origin = pred.lambda(origin_);
+	double origin = (origin_ - pred.origin()) * pred.direction()
+								/ pred.rho2();
+
 	bool done = true;
 	for(unsigned int i = 0; i < states.size(); i++) {
 		GhostTrackState &state = states[i];
 		double lambda = state.lambda();
-		if (lambda < origin && (origin - lambda) < 3.5) {
+		if (lambda < origin && (origin - lambda) < 0.5) {
 			GhostTrackState testState = state;
 			testState.linearize(pred, 2. * origin - lambda);
 			double ndof, chi2;
-
-			updater.contribution(prior, testState, ndof, chi2, true);
-			if (ndof > 0. && chi2 < 10.) {
+			updater.contribution(prior, testState, ndof, chi2);
+			if (ndof > 0. && chi2 < 100.) {
 				state = testState;
-				if (state.weight() != 1.)
-					state.setWeight(3.);
+				state.setWeight(1.);
 				done = false;
 			}
 		}
 	}
 
+
 	if (!done) {
+// std::cout << "re-fitting" << std::endl;
 		for(unsigned int i = 0; i < states.size(); i++) {
 			GhostTrackState &state = states[i];
 			double lambda = state.lambda();

@@ -7,7 +7,6 @@
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
-#include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
 
 #include "CondFormats/RPCObjects/interface/RPCObGas.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"

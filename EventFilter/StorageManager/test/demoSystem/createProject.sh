@@ -63,7 +63,6 @@ cvs co -r $tagName EventFilter/SMProxyServer
 # possibly needed modules (may need specific version)
 cvs co -r $tagName IOPool/Streamer
 cvs co -r $tagName EventFilter/Modules
-cvs co -r $tagName IORawData/DaqSource
 
 # modules needed only for tweaks or development on them
 #cvs co -r $tagName EventFilter/Playback
@@ -72,14 +71,7 @@ cvs co -r $tagName IORawData/DaqSource
 #cvs co -r $tagName EventFilter/Utilities
 #cvs co -r $tagName FWCore/Framework
 #cvs co -r $tagName FWCore/Modules
-
-# special versions
-if [ "$tagName" == "CMSSW_3_3_0" || "$tagName" == "CMSSW_3_3_5" ]
-then
-  cvs update -dAR EventFilter/StorageManager
-  cvs update -dAR EventFilter/SMProxyServer
-  cvs co -r V03-13-02 DQMServices/Core
-fi
+#cvs co -r $tagName IORawData/DaqSource
 
 # 27-Mar-2009 - using the SM refdev01 "work" branch with 3_0_0_pre9
 if [ "$tagName" == "CMSSW_3_0_0_pre9" ]
@@ -91,8 +83,49 @@ then
   cvs update -dR -r V05-06-08-03 IOPool/Streamer
 fi
 
+# 27-Mar-2009 - using the SM refdev01 "work" branch with 3_0_0_pre5
+if [ "$tagName" == "CMSSW_3_0_0_pre5" ]
+then
+  cvs update -dR -r refdev01_scratch_branch EventFilter/StorageManager
+  cvs update -dR -r V01-08-12 EventFilter/SMProxyServer
+  cvs update -dR -r V00-12-02 EventFilter/ResourceBroker
+  cvs update -dR -r V00-06-02 EventFilter/Modules
+  cvs update -dR -r V05-06-02-03 IOPool/Streamer
+fi
+
+# 12-May-2009 - using the SM refdev01 "work" branch with 2_2_6
+if [ "$tagName" == "CMSSW_2_2_6" ]
+then
+  cvs update -dR -r refdev01_scratch_branch EventFilter/StorageManager
+  cvs update -dR -r V01-08-12 EventFilter/SMProxyServer
+  cvs update -dR -r V00-06-02 EventFilter/Modules
+  cvs update -dR -r V05-05-01-03 IOPool/Streamer
+fi
+
+# 02-Jan-2009 - using the SM refdev01 "work" branch with 2_1_11
+if [ "$tagName" == "CMSSW_2_1_11" ]
+then
+  cvs update -dR -r CMSSW_3_0_0_pre2 EventFilter/AutoBU
+  cvs co -r CMSSW_3_0_0_pre2 EventFilter/Modules
+  cvs update -dR -r CMSSW_3_0_0_pre2 EventFilter/Processor
+  cvs update -dR -r CMSSW_3_0_0_pre2 EventFilter/ResourceBroker
+  cvs co -r CMSSW_3_0_0_pre2 EventFilter/ShmBuffer
+  cvs co -r CMSSW_3_0_0_pre2 EventFilter/ShmReader
+  cvs update -dR -r CMSSW_3_0_0_pre2 EventFilter/SMProxyServer
+  cvs co -r CMSSW_3_0_0_pre2 EventFilter/Utilities
+  cvs co -r CMSSW_3_0_0_pre2 FWCore/Framework
+  cvs co -r CMSSW_3_0_0_pre2 FWCore/MessageLogger
+  cvs co -r CMSSW_3_0_0_pre2 FWCore/MessageService
+  cvs co -r CMSSW_3_0_0_pre2 FWCore/Modules
+  cvs co -r CMSSW_3_0_0_pre2 FWCore/ServiceRegistry
+  cvs co -r CMSSW_3_0_0_pre2 FWCore/Version
+  cvs update -dR -r CMSSW_3_0_0_pre2 IOPool/Streamer
+  cvs update -dR -r refdev01_scratch_branch EventFilter/StorageManager
+  cvs update -r 1.13 IOPool/Streamer/interface/HLTInfo.h
+fi
+
 echo "Applying development-specific patches..."
-$BASE_DIR/bin/applyDevelopmentPatches.pl -bdf
+$BASE_DIR/bin/applyDevelopmentPatches.pl
 
 echo "Building..."
 scramv1 build -j 8

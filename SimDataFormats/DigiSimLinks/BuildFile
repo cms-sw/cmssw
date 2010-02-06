@@ -5,5 +5,8 @@
 <use name=rootrflx>
 
 <export>
+  <use name=SimDataFormats/EncodedEventId>
+  <use name=DataFormats/MuonDetId>
+  <use name=boost>
   <lib name=SimDataFormatsDigiSimLinks>
 </export>

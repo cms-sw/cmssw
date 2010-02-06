@@ -7,9 +7,6 @@
 #include "RecoParticleFlow/PFTracking/interface/PFConversionsProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFV0Producer.h"
 #include "RecoParticleFlow/PFTracking/interface/ElectronSeedMerger.h"
-#include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexCandidateProducer.h"
-#include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexProducer.h"
-
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(GoodSeedProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFElecTkProducer);
@@ -18,5 +15,3 @@ DEFINE_ANOTHER_FWK_MODULE(PFNuclearProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFConversionsProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFV0Producer);
 DEFINE_ANOTHER_FWK_MODULE(ElectronSeedMerger);
-DEFINE_ANOTHER_FWK_MODULE(PFDisplacedVertexCandidateProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFDisplacedVertexProducer);

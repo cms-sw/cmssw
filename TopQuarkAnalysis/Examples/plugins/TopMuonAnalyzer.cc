@@ -43,7 +43,7 @@ TopMuonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   }   
 }
 
-void TopMuonAnalyzer::beginJob(const edm::EventSetup&)
+void TopMuonAnalyzer::beginJob()
 {
 }
 

@@ -15,7 +15,7 @@ void DDpos(const DDLogicalPart & self,
 //   std::cout << self << " in mother " << std::endl << mother << std::endl;
 //   std::cout << "Rotation matrix " << std::endl << *(rot.rotation()) << std::endl;
   int cpno = atoi(copyno.c_str());
-  DDpos(self,mother,cpno,trans,rot, div);
+  DDpos(self,mother,cpno,trans,rot,div);
 }
 
 void DDpos(const DDLogicalPart & self,

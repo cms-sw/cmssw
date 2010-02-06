@@ -32,7 +32,7 @@ HLTMonMuonClient::HLTMonMuonClient(const edm::ParameterSet& ps){
 HLTMonMuonClient::~HLTMonMuonClient(){}
 
 //--------------------------------------------------------
-void HLTMonMuonClient::beginJob(){
+void HLTMonMuonClient::beginJob(const EventSetup& context){
   
 }
 

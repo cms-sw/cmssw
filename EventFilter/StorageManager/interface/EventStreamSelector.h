@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.h,v 1.5 2009/11/24 16:38:24 mommsen Exp $
+// $Id: EventStreamSelector.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: EventStreamSelector.h 
 
 #ifndef StorageManager_EventStreamSelector_h
@@ -8,7 +8,7 @@
 
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/StorageManager/interface/TriggerSelector.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 
 namespace stor {
@@ -18,8 +18,8 @@ namespace stor {
      EventStreamConfigurationInfo
 
      $Author: mommsen $
-     $Revision: 1.5 $
-     $Date: 2009/11/24 16:38:24 $
+     $Revision: 1.3 $
+     $Date: 2009/07/20 13:06:10 $
   */
 
   class EventStreamSelector
@@ -28,7 +28,11 @@ namespace stor {
   public:
 
     // Constructor:
-    EventStreamSelector( const EventStreamConfigurationInfo& );
+    EventStreamSelector( const EventStreamConfigurationInfo& configInfo ):
+      _initialized( false ),
+      _outputModuleId(0),
+      _configInfo( configInfo )
+    {}
 
     // Destructor:
     ~EventStreamSelector() {}
@@ -50,7 +54,7 @@ namespace stor {
     unsigned int _outputModuleId;
     const EventStreamConfigurationInfo _configInfo;
 
-    boost::shared_ptr<TriggerSelector> _eventSelector;
+    boost::shared_ptr<edm::EventSelector> _eventSelector;
 
   };
 

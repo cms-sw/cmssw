@@ -17,7 +17,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     comEnergy = cms.double(10000.),
     #LHEInputFileName = cms.untracked.string('ttbar.lhe'),
     PythiaParameters = cms.PSet(
-        pythia8_example03 = cms.vstring(''),
+        pythia8_example03 = cms.vstring(),
         parameterSets = cms.vstring('pythia8_example03')
     )
 )

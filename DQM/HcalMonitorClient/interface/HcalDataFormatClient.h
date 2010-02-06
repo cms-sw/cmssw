@@ -1,7 +1,6 @@
 #ifndef HcalDataFormatClient_H
 #define HcalDataFormatClient_H
 #define NUMDCCS 32
-#define NUMSPGS 15
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -52,7 +51,6 @@ class HcalDataFormatClient : public HcalBaseClient {
   
   void labelxBits(TH1F* hist);
   void labelyBits(TH2F* hist);
-  float numTS_[NUMDCCS*NUMSPGS]; //For how many timesamples per channel were the half-HTRs configured?
  
   //In the rough order that the DFMonitor fills these:
   TH2F*  CDF_Violation_;      //Summary histo of Common Data Format violations by FED ID

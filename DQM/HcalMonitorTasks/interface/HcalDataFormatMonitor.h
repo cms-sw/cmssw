@@ -33,8 +33,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/11/11 20:54:29 $
- * $Revision: 1.55 $
+ * $Date: 2009/10/08 12:21:10 $
+ * $Revision: 1.51 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -45,12 +45,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const FEDRawDataCollection& rawraw, const
-		    HcalUnpackerReport& report, const HcalElectronicsMap& emap,
-		    int CalibType);
+		    HcalUnpackerReport& report, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
   void clearME();
   void reset();
-  //void beginRun();
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
   void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
@@ -65,9 +63,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 	     ?(HcalDetId::Undefined)
 	     :(hashedHcalDetId_[thehash]));
   };
-  void endLuminosityBlock();
-  void UpdateMEs ();  //Prescalable copy into MonitorElements
-
  private: 
   HcalDetId hashedHcalDetId_[NUMDCCS * NUMSPIGS * HTRCHANMAX];
   //backstage accounting mechanisms for the ProblemMap
@@ -125,6 +120,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   float ChannSumm_DataIntegrityCheck_     [TWO___FED][TWO__SPGT];
   float Chann_DataIntegrityCheck_[NUMDCCS][TWO_CHANN][TWO__SPGT];
   float DataFlowInd_                      [TWO___FED][THREE_SPG];
+  void UpdateMEs ();  //Prescalable copy into MonitorElements
 
   //Histogram labelling functions
   void label_ySpigots(MonitorElement* me_ptr,int ybins);
@@ -145,6 +141,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
   MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
   MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
+  MonitorElement* meDCCStatusBits_;  
 
   // The following MEs map specific conditons from the HTR/DCC headers as specified in
   //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/HTR/design/Rev4MainFPGA.pdf

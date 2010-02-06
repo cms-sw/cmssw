@@ -75,7 +75,7 @@ L2TauModularIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L2TauModularIsolationSelector::beginJob(const edm::EventSetup&)
+L2TauModularIsolationSelector::beginJob()
 {
 }
 

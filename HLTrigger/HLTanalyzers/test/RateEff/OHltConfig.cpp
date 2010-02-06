@@ -1,42 +1,8 @@
 #include "OHltConfig.h"
-#include "HLTDatasets.h"
 
 OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
 {
 
-
-  // init
-    /**** General Menu & Run conditions ****/
-  nEntries = -1;
-  nPrintStatusEvery = 10000;
-  isRealData= false;
-  menuTag = "";
-  alcaCondition = "";
-  preFilterLogicString = "";
-  versionTag = "";
-  doPrintAll = true;
-  doDeterministicPrescale = false;
-  dsList = "";
-  iLumi = 1.E31;
-  bunchCrossingTime = 25.0E-09;
-  maxFilledBunches = 3564;
-  nFilledBunches = 156;
-  cmsEnergy = 10.;
-  liveTimeRun = 100.;
-  nL1AcceptsRun = 100;
-  lumiSectionLength = 93.;
-  prescaleNormalization = 1;
-  isL1Menu = false;
-  doL1preloop = true;  
-  doSelectBranches = false;
-  selectBranchL1 = true;
-  selectBranchHLT = true;
-  selectBranchOpenHLT = true;
-  selectBranchReco = true;
-  selectBranchL1extra = true;
-  selectBranchMC = true;
-
-  
   try {
     /* Load the configuration.. */
     cout << "Loading "<<cfgfile;
@@ -44,20 +10,16 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cout << " ... ok" << endl;
 
     // temporary vars
-    const char* stmp; float ftmp; bool btmp; int itmp;
-
-    /**** General Menu & Run conditions ****/
-    cfg.lookupValue("run.nEntries",nEntries);
-    cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);
+    const char* stmp; float ftmp; bool btmp;
+    
+    /**** General Menu & Run conditions ****/ 
+    cfg.lookupValue("run.nEntries",nEntries);    
+    cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);    
     cfg.lookupValue("run.isRealData",isRealData);
-    omenu->SetIsRealData(isRealData);     
-    cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
-    cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
-    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
-    cfg.lookupValue("run.doPrintAll",doPrintAll);
-    cfg.lookupValue("run.dsList",stmp); dsList= TString(stmp);
-    cfg.lookupValue("run.doDeterministicPrescale",doDeterministicPrescale);
-    cout << "General Menu & Run conditions...ok"<< endl;
+    cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);    
+    cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);    
+    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);    
+    cfg.lookupValue("run.doPrintAll",doPrintAll);    
     /**********************************/
   
     /**** Beam conditions ****/ 
@@ -66,37 +28,27 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("beam.maxFilledBunches",maxFilledBunches);    
     cfg.lookupValue("beam.nFilledBunches",nFilledBunches);    
     cfg.lookupValue("beam.cmsEnergy",cmsEnergy);    
-    cout << "Beam conditions...ok"<< endl;
     /**********************************/
 
     /**** Real data conditions ****/   
     cfg.lookupValue("data.liveTimeRun",liveTimeRun);
     cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
-    cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
-    cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
-    
-    getPreFilter();
-    fillRunBlockList();
-    
-    cout << "Real data conditions...ok"<< endl;
     /******************************/  
   
     /**** Samples & Processes ****/ 
     Setting &p = cfg.lookup("process.names");
     const int nproc = (const int)p.getLength();
     //cout << nproc << endl;
-    Setting &isPS = cfg.lookup("process.isPhysicsSample");
     Setting &xs = cfg.lookup("process.sigmas");
     Setting &pa = cfg.lookup("process.paths");
     Setting &fn = cfg.lookup("process.fnames");
     Setting &muc = cfg.lookup("process.doMuonCuts");
     Setting &ec = cfg.lookup("process.doElecCuts");
 
+
     for (int i=0;i<nproc;i++) {
       stmp = p[i];
       pnames.push_back(TString(stmp));
-      itmp = isPS[i];
-      pisPhysicsSample.push_back(itmp);
       stmp = pa[i];
       ppaths.push_back(TString(stmp));
       stmp = fn[i];
@@ -108,14 +60,6 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
       btmp = ec[i];
       pdoecuts.push_back(btmp);
     }
-    cout << "Samples & Processes...ok"<< endl;
-
-    for (int i=0;i<nproc;i++) { //RR
-
-			printf("Name [%d]: %s\n",i,pnames.at(i).Data());
-			printf("Path [%d]: %s\n",i,ppaths.at(i).Data());
-			printf("File [%d]: %s\n",i,pfnames.at(i).Data());
-		}
     /**********************************/
 
     /**** Branch Selections ****/ 
@@ -129,11 +73,10 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("branch.selectBranchL1extra",selectBranchL1extra);    
     cfg.lookupValue("branch.selectBranchReco",selectBranchReco);    
     cfg.lookupValue("branch.selectBranchMC",selectBranchMC);    
-    cout << "Branch Selections...ok"<< endl;
     /**********************************/
 
     
-    print();
+print();
     fillMenu(omenu);   
     printMenu(omenu);   
 
@@ -146,57 +89,6 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   convert();  // Convert cross-sections to cm^2
   
 }
-
-void OHltConfig::getPreFilter()
-{
-  // Lookup in prefilter in LogicParser String format
-  
-  // temporary vars
-  const char* stmp;
-  try {
-    if (cfg.lookupValue("menu.preFilterByBits",stmp))
-      preFilterLogicString = TString(stmp);
-
-  } catch (...) {
-    cout << endl << "No PreFilter String found! " << endl;
-  }
-}
-
-
-void OHltConfig::fillRunBlockList()
-{
-  // Lookup runLumiblockList, format: (runnr, minLumiBlock, maxLumiBlock)
-  
-  // temporary vars
-  int itmp1;int itmp2;int itmp3;
-
-  try {
-    Setting &m = cfg.lookup("data.runLumiblockList");
-    const int nm = (const int)m.getLength();
-    for (int i=0;i<nm;i++) {
-      TString ss0 = "data.runLumiblockList.["; ss0 +=i; ss0=ss0+"].[0]";
-      Setting &tt0 = cfg.lookup(ss0.Data());
-      itmp1 = tt0;
-      
-      TString ss3 = "data.runLumiblockList.["; ss3 +=i; ss3=ss3+"].[1]";
-      Setting &tt3 = cfg.lookup(ss3.Data());
-      itmp2 = tt3;
-      
-      TString ss1 = "data.runLumiblockList.["; ss1 +=i; ss1=ss1+"].[2]";
-      Setting &tt1 = cfg.lookup(ss1.Data());
-      itmp3 = tt1;
-      
-      vector<int> tmpItem;
-      tmpItem.push_back(itmp1);
-      tmpItem.push_back(itmp2);
-      tmpItem.push_back(itmp3);
-      runLumiblockList.push_back(tmpItem);
-    }
-  } catch (...) {
-    cout << endl << "No runLumiblock list! " << endl;
-  }
-}
-
 
 void OHltConfig::fillMenu(OHltMenu *omenu)
 {
@@ -237,23 +129,22 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
     omenu->AddTrigger(stmp,seedstmp,itmp,ftmp);
   }
 
-  Setting &lm = cfg.lookup("menu.L1triggers");
-  const int lnm = (const int)lm.getLength();
-  //cout << lnm << endl;
-  for (int i=0;i<lnm;i++) {
-    TString ss0 = "menu.L1triggers.["; ss0 +=i; ss0=ss0+"].[0]";
-    Setting &tt0 = cfg.lookup(ss0.Data());
-    stmp = tt0;
-    //cout << stmp << endl;
-    if (doL1preloop) {
+  if (doL1preloop) {
+    Setting &lm = cfg.lookup("menu.L1triggers");
+    const int lnm = (const int)lm.getLength();
+    //cout << lnm << endl;
+    for (int i=0;i<lnm;i++) {
+      TString ss0 = "menu.L1triggers.["; ss0 +=i; ss0=ss0+"].[0]";
+      Setting &tt0 = cfg.lookup(ss0.Data());
+      stmp = tt0;
+      //cout << stmp << endl;
       TString ss1 = "menu.L1triggers.["; ss1 +=i; ss1=ss1+"].[1]";
       Setting &tt1 = cfg.lookup(ss1.Data());
       itmp = tt1;
       //cout << itmp << endl;
-    } else {
-      itmp = 1;
+      
+      omenu->AddL1forPreLoop(stmp,itmp);
     }
-    omenu->AddL1forPreLoop(stmp,itmp);
   }
   
 
@@ -269,18 +160,8 @@ void OHltConfig::print()
   cout << "nPrintStatusEvery: " << nPrintStatusEvery << endl;
   cout << "menuTag: " << menuTag << endl;
   cout << "versionTag: " << versionTag << endl;
-  cout << "isRealData: " << isRealData << endl;
-  if(isRealData == true)
-    {
-      cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
-      cout << "liveTimeRun: " << liveTimeRun << endl;
-      cout << "Time of one LumiSection: " << lumiSectionLength << endl;
-      cout << "PD prescale factor: " << prescaleNormalization << endl;
-    }
   cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
-  cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
-  cout << "preFilterLogicString: " << preFilterLogicString << endl;
   cout << "---------------------------------------------" <<  endl;
   cout << "iLumi: " << iLumi << endl;
   cout << "bunchCrossingTime: " << bunchCrossingTime << endl;
@@ -311,18 +192,6 @@ void OHltConfig::print()
   }
   cout << "**********************************" <<  endl;
 
-
-  unsigned int nrunLumiList = runLumiblockList.size();
-  if (nrunLumiList>0) {
-    cout << endl;
-    cout << "List of (runNo, minLumiblockID, maxLumiblockID) "<<  endl;
-    cout << "**********************************" <<  endl;
-    for (unsigned int i=0;i<nrunLumiList;i++) {
-      cout<<runLumiblockList[i][0]<< ", " << runLumiblockList[i][1]<< ", "<< runLumiblockList[i][2]<<endl;
-    }
-  cout << "**********************************" <<  endl;
-  }
-  
   cout << "---------------------------------------------" <<  endl;
 }
 

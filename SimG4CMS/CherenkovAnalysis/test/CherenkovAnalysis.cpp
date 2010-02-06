@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frederic Ronga
 //         Created:  Wed Mar 12 17:39:55 CET 2008
-// $Id: CherenkovAnalysis.cpp,v 1.3 2008/04/24 09:43:23 fronga Exp $
+// $Id: CherenkovAnalysis.cpp,v 1.2 2008/04/24 07:37:37 fronga Exp $
 //
 //
 
@@ -53,7 +53,7 @@ private:
 
   TH1F* hTimeStructure_;
 
-  virtual void beginJob() {}
+  virtual void beginJob(const edm::EventSetup&) {}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {}
 

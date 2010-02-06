@@ -38,9 +38,6 @@ using namespace std;
  * <br>
  * The method allLatencyAndModes() returns the internal vector<Latency> (by value).
  * <br>
- * The method allUniqueLatencyAndModes() returns all the combinations of latency and mode present. <br>
- * ATTENTION: This method assumes that latency and mode are stored in a unsinged short.
- * <br>
  * The method allModes (allLatencies) fill the passed vector with all different modes
  * (latencies) in the Tracker. <br>
  * ATTENTION: the biggest possible detId value that can be stored is 536870911 because
@@ -101,14 +98,6 @@ class SiStripLatency
   /// Fills the passed vector with all the possible modes in the Tracker
   void allModes(vector<uint16_t> & allModesVector) const;
 
-  vector<Latency> allUniqueLatencyAndModes();
-  //   {
-  //     vector<Latency> latencyCopy(latencies_);
-  //     sort( latencyCopy.begin(), latencyCopy.end(), OrderByLatencyAndMode() );
-  //     latencyCopy.erase( unique( latencyCopy.begin(), latencyCopy.end() ), latencyCopy.end() );
-  //     return latencyCopy;
-  //   }
-
   /** Reduce ranges of consecutive detIdsAndApvs with the same latency and mode to
    * one value (the latest) so that lower_bound will return the correct value for
    * latency and mode.
@@ -139,23 +128,6 @@ class SiStripLatency
   //     return( lat1.latency == lat2.latency );
   //   }
   // };
-
-  struct OrderByLatencyAndMode
-  {
-    bool operator()(const Latency & lat1, const Latency & lat2) {
-      // latency and mode are unsigned short that cannot exceed 255.
-      // Sum them multiplying the mode by 1000 to get a single ordering number.
-      int latencyAndModeSortValue1 = int(lat1.latency) + 1000*int(lat1.mode);
-      int latencyAndModeSortValue2 = int(lat2.latency) + 1000*int(lat2.mode);
-      return( latencyAndModeSortValue1 < latencyAndModeSortValue2 );
-    }
-  };
-  struct EqualByLatencyAndMode
-  {
-    bool operator()(const Latency & lat1, const Latency & lat2) {
-      return( (lat1.latency == lat2.latency) && (lat1.mode == lat2.mode) );
-    }
-  };
 
   /// Used to compute the position with the lower_bound binary search
   // If put in the cc file it will not know about the typedefs and the Latency class

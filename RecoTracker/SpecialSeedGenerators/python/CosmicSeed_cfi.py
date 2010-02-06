@@ -16,6 +16,8 @@ cosmicseedfinder = cms.EDFilter("CosmicSeedGenerator",
     doClusterCheck = cms.bool(True),
     originRadius = cms.double(150.0),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+    MaxNumberOfPixelClusters = cms.uint32(300),
+    PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
     originHalfLength = cms.double(90.0),
     #***top-bottom
     PositiveYOnly = cms.bool(False),

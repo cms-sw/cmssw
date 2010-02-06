@@ -8,8 +8,8 @@
 * \brief Unpacks/packs the V38 raw format
 *
 * \author Robert Frazier
-* $Revision: 1.3 $
-* $Date: 2009/04/21 15:33:17 $
+* $Revision: 1.2 $
+* $Date: 2009/04/08 15:41:20 $
 */ 
 
 // ************************************************************************
@@ -25,10 +25,7 @@ public:
   /// Constructor.
   /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quick as possible).
    *  \param unpackSharedRegions - this is a commissioning option to unpack the shared RCT calo regions. */
-  explicit GctFormatTranslateV38(bool hltMode = false, 
-                                 bool unpackSharedRegions = false, 
-                                 unsigned numberOfGctSamplesToUnpack=1,
-                                 unsigned numberOfRctSamplesToUnpack=1);
+  explicit GctFormatTranslateV38(bool hltMode = false, bool unpackSharedRegions = false);
   
   virtual ~GctFormatTranslateV38(); ///< Destructor.
 
@@ -106,11 +103,6 @@ private:
   /// Block ID to unpack function map.
   static BlockIdToUnpackFnMap m_blockUnpackFn;
   
-  /// Number of BXs of GCT data to unpack (assuming they are in the raw data)
-  const unsigned m_numberOfGctSamplesToUnpack; 
-
-  ///< Number of BXs of RCT data to unpack (assuming they are in the raw data)
-  const unsigned m_numberOfRctSamplesToUnpack; 
 
   /* PRIVATE METHODS */
 

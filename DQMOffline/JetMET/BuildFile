@@ -9,14 +9,13 @@
 <use name=DataFormats/HcalDetId>
 <use name=HLTrigger/HLTcore>
 <use name=RecoJets/JetAlgorithms>
-<use name=DataFormats/CSCRecHit>
+
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/DetId>
 <use name=DataFormats/RecoCandidate>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CSCGeometry>
-<use name=Geometry/CSCGeometryBuilder>
+
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/Common>
 <use name=JetMETCorrections/Algorithms>

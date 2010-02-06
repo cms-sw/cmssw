@@ -26,7 +26,6 @@ namespace popcon{
       std::string m_name;
       std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > resultVec;
       edm::Service<SiStripModuleHVBuilder> modHVBuilder;
-      uint32_t m_deltaTmin;
     };
 }
 #endif

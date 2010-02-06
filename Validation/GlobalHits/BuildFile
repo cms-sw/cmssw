@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=Geometry/CaloEventSetup>
 <use name=SimDataFormats/ValidationFormats>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/DetId>
@@ -19,3 +20,30 @@
 <use name=DataFormats/Math>
 
 <flags EDM_PLUGIN=1>
+
+<export>
+ <lib name=ValidationGlobalHits>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=Geometry/CaloEventSetup>
+ <use name=SimDataFormats/ValidationFormats>
+ <use name=SimDataFormats/GeneratorProducts>
+ <use name=DataFormats/DetId>
+ <use name=DataFormats/Common>
+ <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=DataFormats/MuonDetId>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/RPCGeometry>
+ <use name=DQMServices/Core>
+ <use name=root>
+ <use name=clhep>
+ <use name=rootmath>
+ <use name=DataFormats/Math>
+ <use name=Geometry/CaloTopology>
+</export>
+
+
+

@@ -10,8 +10,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
-#include "CommonTools/CandUtils/interface/Booster.h"
+#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "PhysicsTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
 
 //
@@ -32,13 +32,10 @@ class PdfWeightProducer : public edm::EDProducer {
       std::vector<std::string> pdfShortNames_;
 };
 
+
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-namespace LHAPDF {
-      void initPDFSet(int nset, const std::string& filename, int member=0);
-      int numberPDF(int nset);
-      void usePDFMember(int nset, int member);
-      double xfx(int nset, double x, double Q, int fl);
-}
+#include "TSystem.h"
+#include "LHAPDF/LHAPDF.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
 PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :

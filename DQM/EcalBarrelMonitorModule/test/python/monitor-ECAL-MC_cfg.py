@@ -19,10 +19,6 @@ process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
-
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
-
 process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
 process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
@@ -38,6 +34,10 @@ process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.mergeRuns_cff")
 
 process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
+
+process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 
@@ -117,6 +117,7 @@ process.ecalUncalibHit.MinAmplEndcap = 16.
 process.ecalUncalibHit.EBdigiCollection = 'simEcalDigis:ebDigis'
 process.ecalUncalibHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 
+process.ecalRecHit.killDeadChannels = False
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 

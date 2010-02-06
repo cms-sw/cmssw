@@ -40,7 +40,7 @@ DTRecoIdealDBLoader::~DTRecoIdealDBLoader()
 }
 
 void
-DTRecoIdealDBLoader::analyze( const edm::Event & evt ,const edm::EventSetup & es) 
+DTRecoIdealDBLoader::beginJob( edm::EventSetup const& es) 
 {
   std::cout<<"DTRecoIdealDBLoader::beginJob"<<std::endl;
   RecoIdealGeometry* rig = new RecoIdealGeometry;

@@ -16,7 +16,7 @@
 */
 // Original Author:  Julia Weinelt
 //         Created:  Wed Jan 23 15:12:46 CET 2008
-// $Id: STFilter.cc,v 1.1 2009/03/26 23:03:44 yarba Exp $
+// $Id: STFilter.cc,v 1.2 2009/08/26 17:57:35 wmtan Exp $
 
 #include <memory>
 
@@ -111,7 +111,7 @@ bool STFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 
-void STFilter::beginJob(const edm::EventSetup&) {
+void STFilter::beginJob() {
   if(m_produceHistos){ // initialize histogram output file
     edm::ParameterSet Parameters;
     edm::LogInfo("SingleTopMatchingFilter)")<<"beginJob : creating histogram file: "<<fOutputFileName.c_str()<<std::endl;

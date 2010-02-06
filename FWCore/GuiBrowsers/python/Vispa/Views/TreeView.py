@@ -46,11 +46,6 @@ class TreeView(AbstractView, QTreeWidget):
             raise TypeError(__name__ + " requires data accessor of type BasicDataAccessor.")
         AbstractView.setDataAccessor(self, accessor)
 
-    def setDataObjects(self, objects):
-        if len(self._dataObjects)!=len(objects):
-            self._selection=None
-        AbstractView.setDataObjects(self, objects)
-    
     def cancel(self):
         """ Stop all running operations.
         """

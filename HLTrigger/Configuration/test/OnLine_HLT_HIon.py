@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_4_0/pre8/HIon/V8 (CMSSW_3_4_0_pre6_HLT9)
+# /dev/CMSSW_3_4_0/HIon/V3 (CMSSW_3_4_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_3_4_0/HIon/V3')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -26,7 +26,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     RefreshEachRun = cms.untracked.bool( True ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR09_H_V6::All" ),
+    globaltag = cms.string( "GR09_H_V7::All" ),
     appendToDataLabel = cms.string( "" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
@@ -367,31 +367,6 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
       'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml' )
 )
 
-process.SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
-  appendToDataLabel = cms.string( "" )
-)
-process.StripCPEfromTrackAngleESProducer = cms.ESProducer( "StripCPEESProducer",
-  ComponentName = cms.string( "StripCPEfromTrackAngle" ),
-  TanDiffusionAngle = cms.double( 0.01 ),
-  ThicknessRelativeUncertainty = cms.double( 0.02 ),
-  NoiseThreshold = cms.double( 2.3 ),
-  MaybeNoiseThreshold = cms.double( 3.5 ),
-  UncertaintyScaling = cms.double( 1.42 ),
-  MinimumUncertainty = cms.double( 0.01 ),
-  APVpeakmode = cms.bool( False ),
-  CouplingConstant = cms.double( 0.1 ),
-  appendToDataLabel = cms.string( "" ),
-  OutOfTime = cms.PSet( 
-    TIBlateFP = cms.double( 0.0 ),
-    TIDlateFP = cms.double( 0.0 ),
-    TOBlateFP = cms.double( 0.0 ),
-    TEClateFP = cms.double( 0.0 ),
-    TOBlateBP = cms.double( 0.0 ),
-    TEClateBP = cms.double( 0.0 ),
-    TIBlateBP = cms.double( 0.0 ),
-    TIDlateBP = cms.double( 0.0 )
-  )
-)
 process.AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -828,6 +803,9 @@ process.RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESP
   ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
+process.SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
   AutomaticNormalization = cms.bool( False ),
   NormalizationFactor = cms.double( 1.0 ),
@@ -1012,6 +990,28 @@ process.StraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProduc
   ComponentName = cms.string( "StraightLinePropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   appendToDataLabel = cms.string( "" )
+)
+process.StripCPEfromTrackAngleESProducer = cms.ESProducer( "StripCPEESProducer",
+  ComponentName = cms.string( "StripCPEfromTrackAngle" ),
+  TanDiffusionAngle = cms.double( 0.01 ),
+  ThicknessRelativeUncertainty = cms.double( 0.02 ),
+  NoiseThreshold = cms.double( 2.3 ),
+  MaybeNoiseThreshold = cms.double( 3.5 ),
+  UncertaintyScaling = cms.double( 1.42 ),
+  MinimumUncertainty = cms.double( 0.01 ),
+  APVpeakmode = cms.bool( False ),
+  CouplingConstant = cms.double( 0.1 ),
+  appendToDataLabel = cms.string( "" ),
+  OutOfTime = cms.PSet( 
+    TIBlateFP = cms.double( 0.0 ),
+    TIDlateFP = cms.double( 0.0 ),
+    TOBlateFP = cms.double( 0.0 ),
+    TEClateFP = cms.double( 0.0 ),
+    TOBlateBP = cms.double( 0.0 ),
+    TEClateBP = cms.double( 0.0 ),
+    TIBlateBP = cms.double( 0.0 ),
+    TIDlateBP = cms.double( 0.0 )
+  )
 )
 process.TTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "TTRHBuilderPixelOnly" ),
@@ -1529,11 +1529,7 @@ process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "0" ),
-    lvl1Labels = cms.vstring( '0',
-      '1',
-      '2',
-      '3',
-      '4' ),
+    lvl1Labels = cms.vstring( '0' ),
     prescaleTable = cms.VPSet( 
     )
 )
@@ -1604,10 +1600,10 @@ process.hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( False ),
-    bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 )
+    technicalBits = cms.uint64( 0x0 ),
+    bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 )
 )
 process.hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 process.hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
@@ -1766,6 +1762,9 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
 )
 process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltTowerMakerForAll" ),
@@ -1778,7 +1777,6 @@ process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJet
     doPUOffsetCorr = cms.bool( True ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -1787,7 +1785,9 @@ process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJet
     maxProblematicEcalCells = cms.uint32( 9999999 ),
     maxBadHcalCells = cms.uint32( 9999999 ),
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
-    maxProblematicHcalCells = cms.uint32( 9999999 )
+    maxProblematicHcalCells = cms.uint32( 9999999 ),
+    doAreaFastjet = cms.bool( False ),
+    doRhoFastjet = cms.bool( False )
 )
 process.hltHI1jet35U = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltIterativeCone5PileupSubtractionCaloJets" ),
@@ -2239,7 +2239,6 @@ process.hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
 )
 process.hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     IncludeErrors = cms.bool( False ),
-    CheckPixelOrder = cms.bool( False ),
     InputLabel = cms.InputTag( "rawDataCollector" )
 )
 process.hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
@@ -2329,7 +2328,7 @@ process.hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetter
     InputModuleLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     measurementTrackerName = cms.string( "" )
 )
-process.hltHIMML3Filter = cms.EDFilter( "TestMuL1L2Filter",
+process.hltHIMML3Filter = cms.EDFilter( "HLTHIMuL1L2L3Filter",
     PrimaryVertexTag = cms.InputTag( "hltHIPixelVertices" ),
     NavigationPSet = cms.PSet(  ComponentName = cms.string( "SimpleNavigationSchool" ) ),
     L2CandTag = cms.InputTag( "hltL2MuonCandidates" ),
@@ -2353,12 +2352,10 @@ process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
+
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDoubleMu',
-  'HLT_HIJet35U',
-  'HLT_HIMinBiasCalo',
-  'HLT_HIPhoton15' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -2386,8 +2383,7 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltEcalCalibrationRaw_*_*' ),
+      'keep triggerTriggerEvent_*_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2398,7 +2394,6 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltAlCaPhiSymStream_*_*',
       'keep *_hltGtDigis_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
@@ -2409,9 +2404,7 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltAlCaEtaRegRecHits_*_*',
-      'keep *_hltAlCaPi0RegRecHits_*_*' ),
+      'keep triggerTriggerEvent_*_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2438,8 +2431,7 @@ process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep *_hltLogMonitorFilter_*_*' )
+      'keep edmTriggerResults_*_*_*' )
 )
 
 process.HLTBeginSequenceBPTX = cms.Sequence( process.hltTriggerType + process.hltL1EventNumber + process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles + process.hltBPTXCoincidence + process.hltOfflineBeamSpot )
@@ -2465,7 +2457,7 @@ process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hl
 process.HLTOutput = cms.EndPath( process.hltOutputA )
 process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAPHISYM + process.hltOutputALCAP0 + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
 
-process.setName_('HLTHIon')
+process.setName_('HLT')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
@@ -2475,7 +2467,7 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'MC_3XY_V14::All'
+    process.GlobalTag.globaltag         = 'MC_3XY_V15::All'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 
 if 'Level1MenuOverride' in process.__dict__:
@@ -2492,6 +2484,9 @@ if 'hltPreExpressSmart' in process.__dict__:
 
 if 'hltPreHLTMONSmart' in process.__dict__:
     process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
 
 process.options.wantSummary = cms.untracked.bool(True)
 process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

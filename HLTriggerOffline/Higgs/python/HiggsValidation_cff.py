@@ -16,15 +16,13 @@ files=dummy()
 samples.names = ['HWW',
                  'Hgg',
 		 'H2tau',
-		 'HZZ',
-		 'Htaunu'
+		 'HZZ'
 		 ]
 
 files.HWW = ['HLTHiggsBits_WW']
 files.Hgg = ['HLTHiggsBits_gg']
 files.H2tau = ['HLTHiggsBits_2tau']
 files.HZZ = ['HLTHiggsBits_ZZ']
-files.Htaunu = ['HLTHiggsBits_taunu']
 
               	      
 

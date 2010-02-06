@@ -59,6 +59,3 @@ DEFINE_ANOTHER_FWK_MODULE(EBDcsInfoTask);
  
 #include <DQM/EcalBarrelMonitorTasks/interface/EBDataCertificationTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBDataCertificationTask);
-
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTrendTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EBTrendTask);

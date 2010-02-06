@@ -8,7 +8,7 @@ contains one channel status and corresponding DetId
 */
 
 #include <boost/cstdint.hpp>
-#include <string>
+
 
 class CastorChannelStatus
 {
@@ -34,15 +34,6 @@ class CastorChannelStatus
 
   CastorChannelStatus(): mId(0), mStatus(0) {}
   CastorChannelStatus(unsigned long fid, uint32_t status): mId(fid), mStatus(status) {}
-  CastorChannelStatus(unsigned long fid, std::string status): mId(fid)
-                     {
-                        if      (status=="BAD")    mStatus = BAD;
-                        else if (status=="GOOD")   mStatus = GOOD;
-                        else if (status=="HOT")    mStatus = HOT;
-                        else if (status=="DEAD")   mStatus = DEAD;
-                        else if (status=="END")    mStatus = END;
-                        else                       mStatus = UNKNOWN;
-                     }
 
   //  void setDetId(unsigned long fid) {mId = fid;}
   void setValue(uint32_t value) {mStatus = value;}

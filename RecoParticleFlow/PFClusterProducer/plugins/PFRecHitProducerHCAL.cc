@@ -63,6 +63,9 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
   HF_Calib_ =
     iConfig.getParameter<bool>("HF_Calib");
 
+  shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
+  longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
+
 
   //--ab
   produces<reco::PFRecHitCollection>("HFHAD").setBranchAlias("HFHADRecHits");
@@ -238,33 +241,61 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		double energyhadHF = weight_HFhad_ * energy;
 		// Some energy in the tower !
 		if((energyemHF+energyhadHF) < thresh_HF_ ) continue;
+
+		// Some energy must be in the long fibres is there is some energy in the short fibres ! 
+		double longFibre = energyemHF + energyhadHF/2.;
+		double shortFibre = energyhadHF/2.;
+		int ieta = detid.ieta();
+		int iphi = detid.iphi();
+		if ( longFibre/shortFibre < longFibre_Fraction && shortFibre > shortFibre_Cut ) {
+		  // Check if the long-fibre hit was not cleaned already (because hot)
+		  // In this case don't apply the cleaning
+		  HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);
+		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId);
+		  unsigned theStatusValue = theStatus->getValue();
+		  if ( !theStatusValue ) { 
+		    /*
+		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
+			      << ", Energy em/had/long/short = " 
+			      << energyemHF << " " << energyhadHF << " "
+			      << longFibre << " " << shortFibre << " " 
+			      << ". The status value is " << theStatusValue
+			      << ". Short fibres were cleaned." << std::endl;
+		    */
+		    continue;
+		  }
+		}
+
 		// The EM energy might be negative, as it amounts to Long - Short
 		// In that case, put the EM "energy" in the HAD energy
 		// Just to avoid systematic positive bias due to "Short" high fluctuations
 		if ( energyemHF < thresh_HF_ ) { 
 		  energyhadHF += energyemHF;
 		  energyemHF = 0.;
-		// Otherwise, create an EM rechit.
-		} else {
-		  if ( HF_Calib_ ) { 
-		    energy   *= myPFCorr->getValues(detid)->getValue();
-		    energyEM *= myPFCorr->getValues(detid)->getValue();
-		  }
-		  pfrhHFEM = createHcalRecHit( detid, 
-					   energyemHF, 
-					   PFLayer::HF_EM, 
-					   hcalEndcapGeometry,
-					   ct.id().rawId() );
-		}
-		// And create a HAD rechit with either the HAD or the HAD+EM energy. 
-		if(energyhadHF > thresh_HF_ ){
-		  pfrhHFHAD = createHcalRecHit( detid, 
-					    energyhadHF, 
-					    PFLayer::HF_HAD, 
-					    hcalEndcapGeometry,
-					    ct.id().rawId() );
 		}
 
+		// Apply HCAL DPG calibration factors, if requested
+		if ( HF_Calib_ ) { 
+		  energyhadHF   *= myPFCorr->getValues(detid)->getValue();
+		  energyemHF *= myPFCorr->getValues(detid)->getValue();
+		}
+		
+		// Create an EM and a HAD rechit if above threshold.
+		if ( energyemHF > thresh_HF_ || energyhadHF > thresh_HF_ ) { 
+		  pfrhHFEM = createHcalRecHit( detid, 
+					       energyemHF, 
+					       PFLayer::HF_EM, 
+					       hcalEndcapGeometry,
+					       ct.id().rawId() );
+		  pfrhHFHAD = createHcalRecHit( detid, 
+						energyhadHF, 
+						PFLayer::HF_HAD, 
+						hcalEndcapGeometry,
+						ct.id().rawId() );
+		  pfrhHFEM->setEnergyUp(energyhadHF);		  
+		  pfrhHFHAD->setEnergyUp(energyemHF);
+		}
+		
 	      }
 	      break;
 	    default:

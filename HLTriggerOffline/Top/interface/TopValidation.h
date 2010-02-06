@@ -164,45 +164,7 @@ bool outputMEsInRootFile;
   MonitorElement*  h_ptel1_trig_em[100];
   MonitorElement*  h_etael1_trig_em[100];
   
- /***********/
  
-  MonitorElement* hlt_bitmu_hist_reco ;
-  MonitorElement* h_mu_reco;
-  MonitorElement* hlt_bitmu_hist_gen ;
-  MonitorElement* h_mu_gen;
-  
-  MonitorElement* h_jet_reco;
-  MonitorElement* hlt_bitjet_hist_reco;
-  
-  MonitorElement* h_jet_reco_el;
-  MonitorElement* hlt_bitjet_hist_reco_el;
-  
-  MonitorElement* h_jet_gen;
-  MonitorElement* hlt_bitjet_hist_gen;
-  
-  MonitorElement* h_jet_gen_el;
-  MonitorElement* hlt_bitjet_hist_gen_el;
-  
-  MonitorElement* hlt_bitel_hist_reco;
-  MonitorElement* h_el_reco;
-  MonitorElement* hlt_bitel_hist_gen;
-  MonitorElement* h_el_gen;
-  
-  MonitorElement* et_off_jet_mu;
-  MonitorElement* eta_off_jet_mu;
-  MonitorElement* njets_off_mu;
-  MonitorElement* et_off_jet_el;
-  MonitorElement* eta_off_jet_el;
-  MonitorElement* njets_off_el;
-  MonitorElement*  h_etjet1_trig_mu[100];
-  MonitorElement*  h_etajet1_trig_mu[100];
-  MonitorElement*  h_etjet1_trig_el[100];
-  MonitorElement*  h_etajet1_trig_el[100];
-  
-  MonitorElement* events_acc_off_electron;
-  MonitorElement* events_acc_off_muon;
-  
-  
  
  
   edm::InputTag inputTag_;
@@ -210,17 +172,12 @@ bool outputMEsInRootFile;
   std::vector<string> hlt_bitnames;
   std::vector<string> hlt_bitnamesMu;
   std::vector<string> hlt_bitnamesEg;
-  std::vector<string> hlt_bitnamesJet;
   
   
   //Just a tag for better file organization
   std::string triggerTag_;
 
-
-         // Top folder in root file
-    std::string FolderName_;
-    std::stringstream topFolder;
-            
+                  
  
   
 };

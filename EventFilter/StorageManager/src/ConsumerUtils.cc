@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.6 2009/10/30 19:36:18 wmtan Exp $
+// $Id: ConsumerUtils.cc,v 1.5 2009/09/16 09:53:24 dshpakov Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -86,13 +86,6 @@ ConsRegPtr stor::parseEventConsumerRegistration( xgi::Input* in,
     }
 
   // Event filters:
-  std::string sel_events_new = std::string();
-  try
-    {
-      sel_events_new = pset.getParameter<std::string>("TriggerSelector");
-    }
-  catch (edm::Exception& e) {}
-
   EventConsumerRegistrationInfo::FilterList sel_events;
   try
     {
@@ -136,7 +129,6 @@ ConsRegPtr stor::parseEventConsumerRegistration( xgi::Input* in,
   ConsRegPtr cr( new EventConsumerRegistrationInfo( max_conn_retr,
                                                     conn_retr_interval,
                                                     name,
-                                                    sel_events_new,
                                                     sel_events,
                                                     sel_hlt_out,
                                                     queueSize,

@@ -1,5 +1,6 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
@@ -119,12 +120,49 @@ namespace edm {
       branchID_.setID(branchName());
     }
 
+    wrappedName() = wrappedClassName(fullClassName());
+
+    Reflex::Type null;
     Reflex::Type t = Reflex::Type::ByName(fullClassName());
+    if (t == null) {
+      std::string const prefix("LCGReflex/");
+      try {
+        edmplugin::PluginCapabilities::get()->load(prefix + fullClassName());
+      }
+      catch(...) {
+        // We don't want to fail now if we can't load a dictionary, since we want the user
+        // to be informed of every missing dictionary.
+        splitLevel() = invalidSplitLevel; 
+        basketSize() = invalidBasketSize; 
+	return;
+      }
+      t = Reflex::Type::ByName(fullClassName());
+      assert(t != null);
+    }
     Reflex::PropertyList p = t.Properties();
     transient() = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
+    if (transient()) {
+      splitLevel() = invalidSplitLevel; 
+      basketSize() = invalidBasketSize; 
+      return;
+    }
 
-    wrappedName() = wrappedClassName(fullClassName());
     type() = Reflex::Type::ByName(wrappedName());
+    if (type() == null) {
+      std::string const prefix("LCGReflex/");
+      try {
+        edmplugin::PluginCapabilities::get()->load(prefix + wrappedName());
+      }
+      catch(...) {
+        // We don't want to fail now if we can't load a dictionary, since we want the user
+        // to be informed of every missing dictionary.
+        splitLevel() = invalidSplitLevel; 
+        basketSize() = invalidBasketSize; 
+	return;
+      }
+      type() = Reflex::Type::ByName(wrappedName());
+      assert(type() != null);
+    }
     Reflex::PropertyList wp = type().Properties();
     if (wp.HasProperty("splitLevel")) {
 	splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);

@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_4_0/pre8/HIon/V8 (CMSSW_3_4_0_pre6_HLT9)
+# /dev/CMSSW_3_4_0/HIon/V3 (CMSSW_3_4_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_4_0/pre8/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_3_4_0/HIon/V3')
 )
 
 
@@ -47,9 +47,6 @@ essourceSev = cms.ESSource( "EmptyESSource",
   firstValid = cms.vuint32( 1 )
 )
 
-SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
-  appendToDataLabel = cms.string( "" )
-)
 AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -413,6 +410,9 @@ RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer"
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True ),
   ptMin = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
   appendToDataLabel = cms.string( "" )
 )
 SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
@@ -954,10 +954,10 @@ hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( False ),
-    bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 )
+    technicalBits = cms.uint64( 0x0 ),
+    bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
@@ -1116,6 +1116,9 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
 )
 hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer",
+    UseOnlyVertexTracks = cms.bool( False ),
+    UseOnlyOnePV = cms.bool( False ),
+    DzTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltTowerMakerForAll" ),
@@ -1128,7 +1131,6 @@ hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     doPUOffsetCorr = cms.bool( True ),
     nSigmaPU = cms.double( 1.0 ),
     radiusPU = cms.double( 0.5 ),
-    doPUFastjet = cms.bool( False ),
     Active_Area_Repeats = cms.int32( 5 ),
     GhostArea = cms.double( 0.01 ),
     Ghost_EtaMax = cms.double( 6.0 ),
@@ -1137,7 +1139,9 @@ hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     maxProblematicEcalCells = cms.uint32( 9999999 ),
     maxBadHcalCells = cms.uint32( 9999999 ),
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
-    maxProblematicHcalCells = cms.uint32( 9999999 )
+    maxProblematicHcalCells = cms.uint32( 9999999 ),
+    doAreaFastjet = cms.bool( False ),
+    doRhoFastjet = cms.bool( False )
 )
 hltHI1jet35U = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltIterativeCone5PileupSubtractionCaloJets" ),
@@ -1589,7 +1593,6 @@ hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
 )
 hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     IncludeErrors = cms.bool( False ),
-    CheckPixelOrder = cms.bool( False ),
     InputLabel = cms.InputTag( "rawDataCollector" )
 )
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
@@ -1679,7 +1682,7 @@ hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer
     InputModuleLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     measurementTrackerName = cms.string( "" )
 )
-hltHIMML3Filter = cms.EDFilter( "TestMuL1L2Filter",
+hltHIMML3Filter = cms.EDFilter( "HLTHIMuL1L2L3Filter",
     PrimaryVertexTag = cms.InputTag( "hltHIPixelVertices" ),
     NavigationPSet = cms.PSet(  ComponentName = cms.string( "SimpleNavigationSchool" ) ),
     L2CandTag = cms.InputTag( "hltL2MuonCandidates" ),

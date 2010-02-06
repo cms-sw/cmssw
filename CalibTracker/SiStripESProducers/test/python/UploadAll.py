@@ -111,9 +111,7 @@ tagList = [
     # Pedestals
     Tag("SiStripPedestals", "Ideal"),
     # Latency
-    Tag("SiStripLatency", "Ideal"),
-    # Configuration object
-    Tag("SiStripConfObject", "Ideal")
+    Tag("SiStripLatency", "Ideal")
     ]
 
 # Create the tables in the destination db (for now hardcoded sqlite_file for safety)

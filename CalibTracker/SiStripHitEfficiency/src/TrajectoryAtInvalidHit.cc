@@ -69,34 +69,13 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm,
       cout << "found invalid combinedpredictedstate after propagation"<< endl;
       return;
     }
-
-    //check if hit on trajectory is valid for this sensor
-    if ((iidd & 0x3)==0) {
-      // passed id is on matched surface (ie neither rphi, nor stereo surface)
-      // so the rechits on both sensors should be invalid
-      hasValidHit = theHit->isValid();
-      cout << "should always be invalid = " << theHit->isValid() << endl;
-    } else {
-      if (iidd==mono_id) {
-	//mono sensor for this TrajAtInvalidHit is same as originally passed in from trajectory
-	//normally should only happen for valid hits, but sometimes is invalid
-	hasValidHit = theHit->isValid();
-	cout << "check always true = " << theHit->isValid() << endl;
-      } else {
-	// mono sensor for this TrajAtInvalidHit is not as originally passed in from trajectory
-	// so this is a partner missing from the trajectory and is thus invalid
-	hasValidHit = false;
-	cout << "setting invalid by fiat" << endl;
-      }
-    }
     
     //set module id to be mono det
     iidd = monodet->geographicalId().rawId();
   } else {
     monodet = (GeomDetUnit*)theHit->det();
-    hasValidHit = theHit->isValid();
   }
-  
+
   locX = theCombinedPredictedState.localPosition().x();
   locY = theCombinedPredictedState.localPosition().y();
   locZ = theCombinedPredictedState.localPosition().z();
@@ -183,11 +162,6 @@ uint TrajectoryAtInvalidHit::monodet_id() const
 bool TrajectoryAtInvalidHit::withinAcceptance() const
 {
   return acceptance;
-}
-
-bool TrajectoryAtInvalidHit::validHit() const
-{
-  return hasValidHit;
 }
 
 bool TrajectoryAtInvalidHit::isDoubleSided(uint iidd) const {

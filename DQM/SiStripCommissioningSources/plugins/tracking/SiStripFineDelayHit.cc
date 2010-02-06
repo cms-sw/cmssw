@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.11 2009/10/31 22:42:11 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.9 2008/07/18 12:10:34 delaer Exp $
 //
 //
 
@@ -446,22 +446,11 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	     leadingPosition = leadingStrip;
   	   }
   	 }
-
-         // look for an existing detset
-	 std::vector< edm::DetSet<SiStripRawDigi> >::iterator newdsit = output.begin();
-	 for(;newdsit!=output.end()&&newdsit->detId()!=connectionMap_[it->first];++newdsit) {}
-	 // if there is no detset yet, create it.
-         if(newdsit==output.end()) {
-	   edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
-	   output.push_back(newds);
-	   newdsit = output.end()-1;
-	 }
-
+  	 edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
          LogDebug("produce") << " New Hit...   TOF:" << it->second.first << ", charge: " << int(leadingCharge) 
                              << " at " << int(leadingPosition) << "." << std::endl
                              << "Angular correction: " << it->second.second 
-                             << " giving a final value of " << int(leadingCharge*fabs(it->second.second)) 
-			     << " for fed key = " << connectionMap_[it->first] << " (detid=" << it->first << ")" ;
+                             << " giving a final value of " << int(leadingCharge*fabs(it->second.second));
   	 // apply corrections to the leading charge, but only if it has not saturated.
   	 if(leadingCharge<255) {
   	   // correct the leading charge for the crossing angle
@@ -475,7 +464,9 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	 unsigned int tof = abs(int(round(it->second.first*10)));
   	 tof = tof>255 ? 255 : tof;
   	 SiStripRawDigi newSiStrip(leadingCharge + (tof<<8));
-  	 newdsit->push_back(newSiStrip);
+  	 newds.push_back(newSiStrip);
+  	 //store into the detsetvector
+  	 output.push_back(newds);
   	 LogDebug("produce") << "New edm::DetSet<SiStripRawDigi> added.";
          }
          if(homeMadeClusters_) delete candidateCluster.first; // we are owner of home-made clusters
@@ -564,7 +555,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiStripFineDelayHit::beginRun (edm::Run &, edm::EventSetup const &iSetup)
+SiStripFineDelayHit::beginJob(const edm::EventSetup& iSetup)
 {
    // Retrieve FED cabling object
    edm::ESHandle<SiStripFedCabling> cabling;

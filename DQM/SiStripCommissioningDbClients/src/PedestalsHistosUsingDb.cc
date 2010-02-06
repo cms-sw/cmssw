@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.25 2009/11/10 14:49:02 lowette Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.24 2009/10/09 09:27:07 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -32,12 +32,6 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Set FED zero suppression high/low threshold to "
     << highThreshold_ << "/" << lowThreshold_;
-  disableBadStrips_ = this->pset().getParameter<bool>("DisableBadStrips");
-  keepStripsDisabled_ = this->pset().getParameter<bool>("KeepStripsDisabled");
-  LogTrace(mlDqmClient_)
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
-    << " Disabling strips: " << disableBadStrips_
-    << " ; keeping previously disabled strips: " << keepStripsDisabled_;
 }
 
 // -----------------------------------------------------------------------------
@@ -96,39 +90,39 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
       // Build FED and FEC keys
       const FedChannelConnection& conn = cabling()->connection( (*ifed)->getFedId(), ichan );
       if ( conn.fecCrate() == sistrip::invalid_ ||
-           conn.fecSlot() == sistrip::invalid_ ||
-           conn.fecRing() == sistrip::invalid_ ||
-           conn.ccuAddr() == sistrip::invalid_ ||
-           conn.ccuChan() == sistrip::invalid_ ||
-           conn.lldChannel() == sistrip::invalid_ ) { continue; }
+	   conn.fecSlot() == sistrip::invalid_ ||
+	   conn.fecRing() == sistrip::invalid_ ||
+	   conn.ccuAddr() == sistrip::invalid_ ||
+	   conn.ccuChan() == sistrip::invalid_ ||
+	   conn.lldChannel() == sistrip::invalid_ ) { continue; }
       SiStripFedKey fed_key( conn.fedId(), 
-                             SiStripFedKey::feUnit( conn.fedCh() ),
-                             SiStripFedKey::feChan( conn.fedCh() ) );
+			     SiStripFedKey::feUnit( conn.fedCh() ),
+			     SiStripFedKey::feChan( conn.fedCh() ) );
       SiStripFecKey fec_key( conn.fecCrate(), 
-                             conn.fecSlot(), 
-                             conn.fecRing(), 
-                             conn.ccuAddr(), 
-                             conn.ccuChan(), 
-                             conn.lldChannel() );
+			     conn.fecSlot(), 
+			     conn.fecRing(), 
+			     conn.ccuAddr(), 
+			     conn.ccuChan(), 
+			     conn.lldChannel() );
 
       // Locate appropriate analysis object 
       Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) {
 
-         // Check if analysis is valid
-         if ( !iter->second->isValid() ) { 
-           addProblemDevice( fec_key ); //@@ Remove problem device
-           continue; 
-         }
-
-         PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
-         if ( !anal ) { 
-           edm::LogError(mlDqmClient_)
-             << "[PedestalsHistosUsingDb::" << __func__ << "]"
-             << " NULL pointer to analysis object!";
-           continue; 
-         }
-
+	// Check if analysis is valid
+	if ( !iter->second->isValid() ) { 
+	  addProblemDevice( fec_key ); //@@ Remove problem device
+	  continue; 
+	}
+	
+	PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
+	if ( !anal ) { 
+	  edm::LogError(mlDqmClient_)
+	    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	    << " NULL pointer to analysis object!";
+	  continue; 
+	}
+	
         // Determine the pedestal shift to apply
         uint32_t pedshift = 127;
         for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
@@ -136,84 +130,77 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
           pedshift = pedmin < pedshift ? pedmin : pedshift;
         }
 
-        // Iterate through APVs and strips
-        for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
-          for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
+	// Iterate through APVs and strips
+	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
+	  for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
 
-            // get the information on the strip as it was on the db
-            Fed9U::Fed9UAddress addr( ichan, iapv, istr );
-            Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
+	    bool disable_strip = false;
+	    PedestalsAnalysis::VInt dead = anal->dead()[iapv];
+	    if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) { disable_strip = true; }
+	    PedestalsAnalysis::VInt noisy = anal->noisy()[iapv];
+	    if ( find( noisy.begin(), noisy.end(), istr ) != noisy.end() ) { disable_strip = true; }
 
-            // determine whether we need to disable the strip
-            bool disableStrip = false;
-            if ( keepStripsDisabled_ ) {
-              disableStrip = temp.getDisable();
-            } else if (disableBadStrips_) {
-              PedestalsAnalysis::VInt dead = anal->dead()[iapv];
-              if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) disableStrip = true;
-              PedestalsAnalysis::VInt noisy = anal->noisy()[iapv];
-              if ( find( noisy.begin(), noisy.end(), istr ) != noisy.end() ) disableStrip = true;
-            }
+	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ),
+					       highThreshold_,
+					       lowThreshold_,
+					       anal->noise()[iapv][istr],
+					       disableBadStrips() && disable_strip );
+	    Fed9U::Fed9UAddress addr( ichan, iapv, istr );
 
-            Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ),
-                                               highThreshold_,
-                                               lowThreshold_,
-                                               anal->noise()[iapv][istr],
-                                               disableStrip );
-
-            std::stringstream ss;
-            if ( data.getDisable() && edm::isDebugEnabled() ) {
-              ss << "[PedestalsHistosUsingDb::" << __func__ << "]"
-                 << " Disabling strip in Fed9UStripDescription object..." << std::endl
-                 << " for FED id/channel and APV/strip : "
-                 << fed_key.fedId() << "/"
-                 << fed_key.fedChannel() << " "
-                 << iapv << "/"
-                 << istr << std::endl 
-                 << " and crate/FEC/ring/CCU/module    : "
-                 << fec_key.fecCrate() << "/"
-                 << fec_key.fecSlot() << "/"
-                 << fec_key.fecRing() << "/"
-                 << fec_key.ccuAddr() << "/"
-                 << fec_key.ccuChan() << std::endl 
-                 << " from ped/noise/high/low/disable  : "
-                 << static_cast<uint16_t>( temp.getPedestal() ) << "/" 
-                 << static_cast<uint16_t>( temp.getHighThreshold() ) << "/" 
-                 << static_cast<uint16_t>( temp.getLowThreshold() ) << "/" 
-                 << static_cast<uint16_t>( temp.getNoise() ) << "/" 
-                 << static_cast<uint16_t>( temp.getDisable() ) << std::endl;
-            }
-            (*ifed)->getFedStrips().setStrip( addr, data );
-            if ( data.getDisable() && edm::isDebugEnabled() ) {
-              ss << " to ped/noise/high/low/disable    : "
-                 << static_cast<uint16_t>( data.getPedestal() ) << "/" 
-                 << static_cast<uint16_t>( data.getHighThreshold() ) << "/" 
-                 << static_cast<uint16_t>( data.getLowThreshold() ) << "/" 
-                 << static_cast<uint16_t>( data.getNoise() ) << "/" 
-                 << static_cast<uint16_t>( data.getDisable() ) << std::endl;
-              LogTrace(mlDqmClient_) << ss.str();
-            }
-    
-          } // end loop on strips
-        } // end loop on apvs
-        updated++;
+	    std::stringstream ss;
+	    if ( data.getDisable() && edm::isDebugEnabled() ) {
+	      Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
+	      ss << "[PedestalsHistosUsingDb::" << __func__ << "]"
+		 << " Disabling strip in Fed9UStripDescription object..." << std::endl
+		 << " for FED id/channel and APV/strip : "
+		 << fed_key.fedId() << "/"
+		 << fed_key.fedChannel() << " "
+		 << iapv << "/"
+		 << istr << std::endl 
+		 << " and crate/FEC/ring/CCU/module    : "
+		 << fec_key.fecCrate() << "/"
+		 << fec_key.fecSlot() << "/"
+		 << fec_key.fecRing() << "/"
+		 << fec_key.ccuAddr() << "/"
+		 << fec_key.ccuChan() << std::endl 
+		 << " from ped/noise/high/low/disable  : "
+		 << static_cast<uint16_t>( temp.getPedestal() ) << "/" 
+		 << static_cast<uint16_t>( temp.getHighThreshold() ) << "/" 
+		 << static_cast<uint16_t>( temp.getLowThreshold() ) << "/" 
+		 << static_cast<uint16_t>( temp.getNoise() ) << "/" 
+		 << static_cast<uint16_t>( temp.getDisable() ) << std::endl;
+	    }
+	    (*ifed)->getFedStrips().setStrip( addr, data );
+	    if ( data.getDisable() && edm::isDebugEnabled() ) {
+	      ss << " to ped/noise/high/low/disable    : "
+		 << static_cast<uint16_t>( data.getPedestal() ) << "/" 
+		 << static_cast<uint16_t>( data.getHighThreshold() ) << "/" 
+		 << static_cast<uint16_t>( data.getLowThreshold() ) << "/" 
+		 << static_cast<uint16_t>( data.getNoise() ) << "/" 
+		 << static_cast<uint16_t>( data.getDisable() ) << std::endl;
+	      LogTrace(mlDqmClient_) << ss.str();
+	    }
+	    
+	  }
+	}
+	updated++;
       
       } else {
-        if ( deviceIsPresent(fec_key) ) {
-          edm::LogWarning(mlDqmClient_) 
-            << "[PedestalsHistosUsingDb::" << __func__ << "]"
-            << " Unable to find pedestals/noise for FedKey/Id/Ch: " 
-            << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
-            << (*ifed)->getFedId() << "/"
-            << ichan
-            << " and device with FEC/slot/ring/CCU/LLD " 
-            << fec_key.fecCrate() << "/"
-            << fec_key.fecSlot() << "/"
-            << fec_key.fecRing() << "/"
-            << fec_key.ccuAddr() << "/"
-            << fec_key.ccuChan() << "/"
-            << fec_key.channel();
-        }
+	if ( deviceIsPresent(fec_key) ) {
+	  edm::LogWarning(mlDqmClient_) 
+	    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	    << " Unable to find pedestals/noise for FedKey/Id/Ch: " 
+	    << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
+	    << (*ifed)->getFedId() << "/"
+	    << ichan
+	    << " and device with FEC/slot/ring/CCU/LLD " 
+	    << fec_key.fecCrate() << "/"
+	    << fec_key.fecSlot() << "/"
+	    << fec_key.fecRing() << "/"
+	    << fec_key.ccuAddr() << "/"
+	    << fec_key.ccuChan() << "/"
+	    << fec_key.channel();
+	}
       }
     }
   }
@@ -228,7 +215,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 // -----------------------------------------------------------------------------
 /** */
 void PedestalsHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
-                                     Analysis analysis ) {
+				     Analysis analysis ) {
 
   PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( analysis->second );
   if ( !anal ) { return; }
@@ -240,36 +227,34 @@ void PedestalsHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& des
     
     // Create description
     PedestalsAnalysisDescription* tmp;
-    tmp = new PedestalsAnalysisDescription( 
-      anal->dead()[iapv],
-      anal->noisy()[iapv],
-      anal->pedsMean()[iapv],
-      anal->pedsSpread()[iapv],
-      anal->noiseMean()[iapv],
-      anal->noiseSpread()[iapv],
-      anal->rawMean()[iapv],
-      anal->rawSpread()[iapv],
-      anal->pedsMax()[iapv], 
-      anal->pedsMin()[iapv], 
-      anal->noiseMax()[iapv],
-      anal->noiseMin()[iapv],
-      anal->rawMax()[iapv],
-      anal->rawMin()[iapv],
-      fec_key.fecCrate(),
-      fec_key.fecSlot(),
-      fec_key.fecRing(),
-      fec_key.ccuAddr(),
-      fec_key.ccuChan(),
-      SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
-      db()->dbParams().partitions().begin()->second.partitionName(),
-      db()->dbParams().partitions().begin()->second.runNumber(),
-      anal->isValid(),
-      "",
-      fed_key.fedId(),
-      fed_key.feUnit(),
-      fed_key.feChan(),
-      fed_key.fedApv()
-    );
+    tmp = new PedestalsAnalysisDescription( anal->dead()[iapv],
+					    anal->noisy()[iapv],
+					    anal->pedsMean()[iapv],
+					    anal->pedsSpread()[iapv],
+					    anal->noiseMean()[iapv],
+					    anal->noiseSpread()[iapv],
+					    anal->rawMean()[iapv],
+					    anal->rawSpread()[iapv],
+					    anal->pedsMax()[iapv], 
+					    anal->pedsMin()[iapv], 
+					    anal->noiseMax()[iapv],
+					    anal->noiseMin()[iapv],
+					    anal->rawMax()[iapv],
+					    anal->rawMin()[iapv],
+					    fec_key.fecCrate(),
+					    fec_key.fecSlot(),
+					    fec_key.fecRing(),
+					    fec_key.ccuAddr(),
+					    fec_key.ccuChan(),
+					    SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
+					    db()->dbParams().partitions().begin()->second.partitionName(),
+					    db()->dbParams().partitions().begin()->second.runNumber(),
+					    anal->isValid(),
+					    "",
+					    fed_key.fedId(),
+					    fed_key.feUnit(),
+					    fed_key.feChan(),
+					    fed_key.fedApv() );
     
     // Add comments
     typedef std::vector<std::string> Strings;

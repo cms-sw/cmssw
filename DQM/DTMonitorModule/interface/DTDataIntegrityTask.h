@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2009/10/19 15:51:49 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/05/20 16:08:50 $
+ *  $Revision: 1.25 $
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
@@ -106,8 +106,6 @@ private:
   MonitorElement* hFEDEntry;
   MonitorElement* hFEDFatal;
   MonitorElement* hFEDNonFatal;
-  MonitorElement* hCorruptionSummary;
-
   // one for all FEDS
   MonitorElement* hTTSSummary;
 

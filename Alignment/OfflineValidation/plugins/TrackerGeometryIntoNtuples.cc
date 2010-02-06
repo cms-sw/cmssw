@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.3 2009/05/27 09:07:02 fabiocos Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.2 2008/11/04 10:57:03 ntran Exp $
 //
 //
 
@@ -116,6 +116,11 @@ TrackerGeometryIntoNtuples::~TrackerGeometryIntoNtuples()
 
 // ------------ method called to for each event  ------------
 void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{}
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 {
 	edm::LogInfo("beginJob") << "Begin Job" << std::endl;
 	
@@ -164,15 +169,6 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 		m_gamma = rotation.getPsi();
 		m_tree->Fill();
 		
-		//DetId detid(m_rawid);
-		//if (detid.subdetId() > 2){
-		//PXFDetId pxfid( m_rawid );
-		//std::cout << " panel: " << pxfid.panel() << ", module: " << pxfid.module() << std::endl;
-		//if ((pxfid.panel() == 1) && (pxfid.module() == 4)) std::cout << m_rawid << ", ";
-		//std::cout << m_rawid << std::setprecision(9) <<  " " << m_x << " " << m_y << " " << m_z;
-		//std::cout << std::setprecision(9) << " " << m_alpha << " " << m_beta << " " << m_gamma << std::endl;  
-		//}
-		
 	}
 	
 	std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
@@ -197,11 +193,6 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	m_treeErrors->Write();
 	m_file->Close();
 }
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
-{}
 
 
 

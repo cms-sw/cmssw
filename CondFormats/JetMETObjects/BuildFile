@@ -1,11 +1,9 @@
-<use name=Geometry/CaloGeometry>
-<use name=DataFormats/JetReco>
+<use name=DataFormats/CaloTowers>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=rootmath>
 <use name=rootrflx>
-
+<use name=clhep>
 <export>
-  <use name=CondFormats/Common>
   <lib name=CondFormatsJetMETObjects>
-  <use name=FWCore/Utilities>
 </export>

@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2009/10/19 14:04:13 $
- * $Revision: 1.5 $
+ * $Date: 2009/10/19 16:18:47 $
+ * $Revision: 1.6 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -248,20 +248,22 @@ void DTBlockedROChannelsTest::endJob(){
 
 void DTBlockedROChannelsTest::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
 
-  if(offlineMode) {
-    // fill a trend plot based on the results stored in the map
-    float lBin = resultsPerLumi.rbegin()->first;
-    dbe->setCurrentFolder("DT/00-ROChannels");
+//     Commeneted to fix almost infinite loop on MC
+//   if(offlineMode) {
+//     // fill a trend plot based on the results stored in the map
+//     float lBin = resultsPerLumi.rbegin()->first;
+//     dbe->setCurrentFolder("DT/00-ROChannels");
   
-    //   MonitorElement* hSystFractionVsLS =  dbe->book1D("EnabledROChannelsVsLS", "% RO channels vs LS", nBins,fBin,lBin);
-    hSystFractionVsLS = new DTTimeEvolutionHisto(dbe, "EnabledROChannelsVsLS", "% RO channels",
-						 (int)lBin, 1, false, 2);
+//     //   MonitorElement* hSystFractionVsLS =  dbe->book1D("EnabledROChannelsVsLS", "% RO channels vs LS", nBins,fBin,lBin);
+
+//     hSystFractionVsLS = new DTTimeEvolutionHisto(dbe, "EnabledROChannelsVsLS", "% RO channels",
+// 						 (int)lBin, 1, false, 2);
 								 
-    for(map<int, double>::const_iterator bin = resultsPerLumi.begin();
-	bin != resultsPerLumi.end(); ++bin) {
-      hSystFractionVsLS->setTimeSlotValue((*bin).second, (*bin).first);
-    }
-  }
+//     for(map<int, double>::const_iterator bin = resultsPerLumi.begin();
+// 	bin != resultsPerLumi.end(); ++bin) {
+//       hSystFractionVsLS->setTimeSlotValue((*bin).second, (*bin).first);
+//     }
+//   }
 }
 
 

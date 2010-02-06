@@ -56,78 +56,52 @@ using namespace XERCES_CPP_NAMESPACE;
 //--------------------------------------------------------------------------
 //  DDLParser:  Default constructor and destructor.
 //--------------------------------------------------------------------------
-
-/// Constructor MUST associate a DDCompactView storage.
-DDLParser::DDLParser ( DDCompactView& cpv ) :  cpv_(cpv), nFiles_(0){
-  //  cpv_ = cpv;
-  XMLPlatformUtils::Initialize();
-  AlgoInit();
-  SAX2Parser_  = XMLReaderFactory::createXMLReader();
-  
-  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
-  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);   // optional
-  // Specify other parser features, e.g.
-  //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
-  
-  expHandler_  = new DDLSAX2ExpressionHandler(cpv);
-  fileHandler_ = new DDLSAX2FileHandler(cpv);
-  errHandler_  = new DDLSAX2Handler();
-  SAX2Parser_->setErrorHandler(errHandler_); 
-  SAX2Parser_->setContentHandler(fileHandler_); 
-  
-  DCOUT_V('P', "DDLParser::DDLParser(): new (and only) DDLParser"); 
-}
-
 /// Destructor terminates the XMLPlatformUtils (as required by Xerces)
 DDLParser::~DDLParser()
 { 
   // clean up and leave
-  delete expHandler_;
-  delete fileHandler_;
-  delete errHandler_;
   XMLPlatformUtils::Terminate();
   DCOUT_V('P', "DDLParser::~DDLParser(): destruct DDLParser"); 
 }
 
 /// Constructor initializes XMLPlatformUtils (as required by Xerces.
-// THIS should go away soon... cpv_() is WRONG/BAD, I believe.
-// DDLParser::DDLParser( )  :  cpv_(), nFiles_(0)
-// { 
-//   // Initialize the XML4C2 system
+DDLParser::DDLParser( )  : nFiles_(0)
+{ 
+  // Initialize the XML4C2 system
 
-//   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
-//   // this because of CMSSW rules. but keep the commented way I used to
-//   // do it...
-// //   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
-// //     {
-//       XMLPlatformUtils::Initialize();
-//       AlgoInit();
-// //     }
+  // in cleaning up try-catch blocks 2007-06-26 I decided to remove
+  // this because of CMSSW rules. but keep the commented way I used to
+  // do it...
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
+//     {
+      XMLPlatformUtils::Initialize();
+      AlgoInit();
+//     }
 
-// //   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch)
-// //     {
-// //       std::string e("\nDDLParser(): Error during initialization! Message:");
-// //       e += std::string(StrX(toCatch.getMessage()).localForm()) + std::string ("\n");
-// //       throw (DDException(e));
-// //     }
+//   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch)
+//     {
+//       std::string e("\nDDLParser(): Error during initialization! Message:");
+//       e += std::string(StrX(toCatch.getMessage()).localForm()) + std::string ("\n");
+//       throw (DDException(e));
+//     }
 
-//   SAX2Parser_  = XMLReaderFactory::createXMLReader();
+  SAX2Parser_  = XMLReaderFactory::createXMLReader();
 
-//   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
-//   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);   // optional
-//   // Specify other parser features, e.g.
-//   //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);   // optional
+  // Specify other parser features, e.g.
+  //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
 
-//   expHandler_  = new DDLSAX2ExpressionHandler(cpv_);
-//   fileHandler_ = new DDLSAX2FileHandler(cpv_);
-//   errHandler_  = new DDLSAX2Handler();
-//   SAX2Parser_->setErrorHandler(errHandler_); 
-//   SAX2Parser_->setContentHandler(fileHandler_); 
+  expHandler_  = new DDLSAX2ExpressionHandler;
+  fileHandler_ = new DDLSAX2FileHandler;
+  errHandler_  = new DDLSAX2Handler;
+  SAX2Parser_->setErrorHandler(errHandler_); 
+  SAX2Parser_->setContentHandler(fileHandler_); 
 
-//   //  edm::LogInfo ("DDLParser") << "created SAX2XMLReader at memory " << SAX2Parser_ << std::endl;
+  //  edm::LogInfo ("DDLParser") << "created SAX2XMLReader at memory " << SAX2Parser_ << std::endl;
   
-//   DCOUT_V('P', "DDLParser::DDLParser(): new (and only) DDLParser"); 
-// }
+  DCOUT_V('P', "DDLParser::DDLParser(): new (and only) DDLParser"); 
+}
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Parser: Implementation of the DDLParser sitting on top of the Xerces
@@ -135,17 +109,17 @@ DDLParser::~DDLParser()
 //  
 //--------------------------------------------------------------------------
 // Initialize singleton pointer.
-// DDLParser* DDLParser::instance_ = 0;
+DDLParser* DDLParser::instance_ = 0;
 
-// DDLParser* DDLParser::instance()
-// {
+DDLParser* DDLParser::instance()
+{
 
-//   if ( instance_ == 0 ) {
-//     instance_ = new DDLParser();
-//   }
+  if ( instance_ == 0 ) {
+    instance_ = new DDLParser();
+  }
 
-//   return instance_;
-// }
+  return instance_;
+}
 
 /**  This method allows external "users" to use the current DDLParser on their own.
  *   by giving them access to the SAX2XMLReader.  This may not be a good idea!  The
@@ -164,7 +138,6 @@ size_t DDLParser::isFound(const std::string& filename)
   bool foundFile = false;
   while (it != fileNames_.end() && !foundFile) //  for (; it != fileNames_.end(); ++it) 
     {
-      //      std::cout << "it->second.first = " << it->second.first << " and filename is " << filename << std::endl;
       if (it->second.first == filename)
 	{
 	  foundFile = true;
@@ -185,15 +158,10 @@ bool DDLParser::isParsed(const std::string& filename)
   return false;
 }
 
-// Must receive a filename and path relative to the src directory of a CMSSW release
-// e.g. DetectorDescription/test/myfile.xml
 bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string& url)
 {
 
-  //  std::string filename = expHandler_->extractFileName(fullname);
-  std::string filename = extractFileName(fullname);
-  //  std::cout << "parseOneFile - fullname = " << fullname << std::endl;
-  //  std::cout << "parseOneFile - filename = " << filename << std::endl;
+  std::string filename = expHandler_->extractFileName(fullname);
   edm::FileInPath fp(fullname);
   std::string absoluteFileName = fp.fullPath();
   size_t foundFile = isFound(filename);
@@ -216,8 +184,6 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
 //       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
 //         {
           SAX2Parser_->setContentHandler(expHandler_);
-	  expHandler_->setNameSpace( getNameSpace(filename) );
-	  //	  std::cout << "0) namespace = " << getNameSpace(filename) << std::endl;
           LogDebug ("DDLParser") << "ParseOneFile() Parsing: " << fileNames_[fIndex].second << std::endl;
           parseFile ( fIndex );
 
@@ -238,9 +204,7 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
 //         {
 
       SAX2Parser_->setContentHandler(fileHandler_);
-      //      std::cout << "currFileName = " << currFileName_ << std::endl;
-      fileHandler_->setNameSpace( getNameSpace(extractFileName(currFileName_)) );
-      //      std::cout << "1)  namespace = " << getNameSpace(currFileName_) << std::endl;
+      
       parseFile ( fIndex );
       parsed_[fIndex] = true;
 
@@ -299,14 +263,14 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 //   // Since this block does nothing for CMSSW right now, I have taken it all out
 //   This clean-up involves interface changes such as the removal of doValidation() everywhere (OR NOT 
 //   if I decide to keep it for other testing reasons.)
-//    if (dp.doValidation())
-//      { 
-// //       DCOUT_V('P', "WARNING:  PARSER VALIDATION IS TURNED OFF REGARDLESS OF <Schema... ELEMENT");
-//   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, true);
-//   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
-// //       //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
-//      }
-//    else
+   if (dp.doValidation())
+     { 
+//       DCOUT_V('P', "WARNING:  PARSER VALIDATION IS TURNED OFF REGARDLESS OF <Schema... ELEMENT");
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, true);
+  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
+//       //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
+     }
+   else
 //     {
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
@@ -337,12 +301,12 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	 fnit != fullFileName.end();
 	 ++fnit)
       {
-	size_t foundFile = isFound(extractFileName( *fnit )); 
+	size_t foundFile = isFound(expHandler_->extractFileName( *fnit )); 
 	
 	if (!foundFile)
 	  {
 	    pair <std::string, std::string> pss;
-	    pss.first = extractFileName( *fnit );
+	    pss.first = expHandler_->extractFileName( *fnit );
 	    pss.second = *fnit;
 	    fileNames_[nFiles_++] = pss;
 	    parsed_[nFiles_ - 1]=false;
@@ -367,10 +331,6 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 // 	  seal::SealTimer t("DDLParser: parsing expressions of file " +fileNames_[i].first);
 	  if (!parsed_[i])
 	    {
-	      currFileName_ = fileNames_[i].second;
-	      //	      std::cout << "currFileName = " << currFileName_ << std::endl;
-	      expHandler_->setNameSpace( getNameSpace(extractFileName(currFileName_)) );
-	      //	      std::cout << "2)  namespace = " << getNameSpace(extractFileName(currFileName_)) << std::endl;
 	      parseFile(i);
 	    }
 	}
@@ -407,16 +367,10 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
       for (size_t i = 0; i < fileNames_.size(); ++i)
 	{
 // 	  seal::SealTimer t("DDLParser: parsing all elements of file " +fileNames_[i].first);
-	  if (!parsed_[i]) {
-	    currFileName_ = fileNames_[i].second;
-	    //	    std::cout << "currFileName = " << currFileName_ << std::endl;
-	    fileHandler_->setNameSpace( getNameSpace(extractFileName(currFileName_)) );
-	    //	    std::cout << "3)  namespace = " << getNameSpace(extractFileName(currFileName_)) << std::endl;
-	    parseFile(i);
-	    parsed_[i] = true;
-	    pair<std::string, std::string> namePair = fileNames_[i];
-	    LogDebug ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
-	  }
+	  parseFile(i);
+	  parsed_[i] = true;
+	  pair<std::string, std::string> namePair = fileNames_[i];
+	  LogDebug ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
 	}
 //     }
 //   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
@@ -470,25 +424,5 @@ void DDLParser::clearFiles ()
 {
   fileNames_.clear();
   parsed_.clear();
-}
-
-std::string DDLParser::extractFileName(std::string fullname)
-{
-  std::string ret = "";
-  size_t bit = fullname.rfind('/');
-  if ( bit < fullname.size() - 2 ) {
-    ret=fullname.substr(bit+1);
-  }
-  return ret;
-}
-
-std::string DDLParser::getNameSpace(const std::string& fname)
-{
-  size_t j = 0;
-  std::string ret="";
-  while (j < fname.size() && fname[j] != '.')
-    ++j;
-  if (j < fname.size() && fname[j] == '.')
-    ret = fname.substr(0, j);
-  return ret;
+  nFiles_ = 0;
 }

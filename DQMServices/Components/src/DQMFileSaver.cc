@@ -27,9 +27,81 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
       << "'.  Must be -1 or >= 1.";
 }
 
+
+// run showtag command line
+std::string 
+DQMFileSaver::getShowTags(void)
+{
+   TString out;
+   FILE *pipe = gSystem->OpenPipe("showtags -u -t", "r");
+
+   TString line;
+   while (line.Gets(pipe,true)) {
+     if (line.Contains("Test Release")) continue;
+     if (line.Contains("Base Release")) continue;
+     if (line.Contains("Test release")) continue;
+     if (line.Contains("--- Tag ---")) continue;
+     if (line.Contains(" ")) line.Replace(line.First(" "),1,":");
+     line.ReplaceAll(" ","");
+     out = out + line + ";";
+     if (line.Contains("-------------------")) break;
+     if (out.Length()>2000) break;
+   }
+   out.ReplaceAll("--","");
+   out.ReplaceAll(";-",";");
+   out.ReplaceAll(";;",";");
+   out.ReplaceAll("\n","");
+
+   Int_t r = gSystem->ClosePipe(pipe);
+   if (r) {
+     gSystem->Error("ShowTags","problem running command showtags -u -t");
+   }
+
+   std::string str(out);
+   if (str.length()>2000) str.resize(2000);
+
+   std::string safestr =
+     "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-;:";
+   size_t found=str.find_first_not_of(safestr);
+   if (found!=std::string::npos)
+   {
+     std::cout << "DQMFileSaver::ShowTags: Illegal character found: " 
+               << str[found] 
+	       << " at position " 
+	       << int(found) << std::endl;
+     return "notags";
+   }   
+   return str;
+}
+
+void 
+DQMFileSaver::makeProvInfo()
+{
+    dbe_->cd() ;
+    dbe_->setCurrentFolder("ProvInfo");
+    if (dbe_->get("ProvInfo/CMSSW")) return ;
+    
+    versCMSSW_     = dbe_->bookString("CMSSW",edm::getReleaseVersion().c_str() );
+    hostName_      = dbe_->bookString("hostName",gSystem->HostName());
+    workingDir_    = dbe_->bookString("workingDir",gSystem->pwd());
+    processId_     = dbe_->bookInt("processID"); processId_->Fill(gSystem->GetPid());
+
+    versDataset_   = dbe_->bookString("Dataset",workflow_);
+    versGlobaltag_ = dbe_->bookString("Globaltag","global tag"); // FIXME
+    versTaglist_   = dbe_->bookString("Taglist",getShowTags()); 
+
+    isComplete_ = dbe_->bookInt("runIsComplete"); 
+    isComplete_->Fill((runIsComplete_?1:0));
+    fileVersion_ = dbe_->bookInt("fileVersion");
+    fileVersion_->Fill(version_);
+    
+    return ;
+}
+
 void
 DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 {
+  if (makeProvInfo_) makeProvInfo();
 
   char suffix[64];
   sprintf(suffix, "R%09d", run);
@@ -75,56 +147,33 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   }  
 }
 
-static void
-doSaveForOnline(std::list<std::string> &pastSavedFiles,
-		size_t numKeepSavedFiles,
-		DQMStore *store,
-		const std::string &filename,
-		const std::string &directory,
-		const std::string &rxpat,
-		const std::string &rewrite,
-		DQMStore::SaveReferenceTag saveref,
-		int saveRefQMin)
-{
-  store->save(filename, "" , "^(Reference/)?([^/]+)", rewrite, saveref, saveRefQMin);
-  pastSavedFiles.push_back(filename);
-  if (pastSavedFiles.size() > numKeepSavedFiles)
-  {
-    remove(pastSavedFiles.front().c_str());
-    pastSavedFiles.pop_front();
-  }
-}
-
 void
 DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrite)
 {
-  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
+   std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
 
-  for (size_t i = 0, e = systems.size(); i != e; ++i)
-  {
-    if (systems[i] != "Reference")
-    {
-      dbe_->cd();
-      if (MonitorElement* me = dbe_->get(systems[i] + "/EventInfo/processName"))
-      {
-	doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
-			fileBaseName_ + me->getStringValue() + suffix + ".root",
-			"", "^(Reference/)?([^/]+)", rewrite,
-	                (DQMStore::SaveReferenceTag) saveReference_,
-	                saveReferenceQMin_);
-        return;
-      }
-    }
-  }
+   if (makeProvInfo_) makeProvInfo();
+   for (size_t i = 0, e = systems.size(); i != e; ++i) {
+     if (systems[i] != "Reference") {
+       dbe_->cd();
+       if (MonitorElement* me = dbe_->get(systems[i] + "/EventInfo/processName")){
+         dbe_->save(fileBaseName_ + me->getStringValue() + suffix + ".root",
+	         "" , "^(Reference/)?([^/]+)", rewrite,
+	         (DQMStore::SaveReferenceTag) saveReference_,
+	         saveReferenceQMin_);
+         return;
+       }
+     }
+   }
 
-  // if no EventInfo Folder is found, then store subsystem wise
-  for (size_t i = 0, e = systems.size(); i != e; ++i)
-    if (systems[i] != "Reference")
-      doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
-                      fileBaseName_ + systems[i] + suffix + ".root",
-	              systems[i], "^(Reference/)?([^/]+)", rewrite,
-	              (DQMStore::SaveReferenceTag) saveReference_,
-	              saveReferenceQMin_);
+   // if no EventInfo Folder is found, then store subsystem wise
+   for (size_t i = 0, e = systems.size(); i != e; ++i)
+     if (systems[i] != "Reference")
+         dbe_->save(fileBaseName_ + systems[i] + suffix + ".root",
+	         systems[i] , "^(Reference/)?([^/]+)", rewrite,
+	         (DQMStore::SaveReferenceTag) saveReference_,
+	         saveReferenceQMin_);
+
 }
 
 //--------------------------------------------------------
@@ -135,6 +184,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     dirName_ ("."),
     version_ (1),
     runIsComplete_ (false),
+    makeProvInfo_ (false),
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),
@@ -152,8 +202,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     ievent_ (-1),
     nrun_ (0),
     nlumi_ (0),
-    nevent_ (0),
-    numKeepSavedFiles_ (5)
+    nevent_ (0)
 {
   // Determine the file saving convention, and adjust defaults accordingly.
   std::string convention = ps.getUntrackedParameter<std::string>("convention", "Offline");
@@ -188,6 +237,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   else // for online set parameters
   {
     workflow_="/Global/Online/P5";
+    makeProvInfo_=true;
   }
     
   // Allow file producer to be set to specific values in certain conditions.
@@ -212,6 +262,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   version_ = ps.getUntrackedParameter<int>("version", version_);
   // flag to signal that file contains data from complete run
   runIsComplete_ = ps.getUntrackedParameter<bool>("runIsComplete", runIsComplete_);
+  // flag to switch storage of provenance info effective for offline
+  makeProvInfo_ = ps.getUntrackedParameter<bool>("makeProvInfo", makeProvInfo_);
 
   // Check how we should save the references.
   std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "default");
@@ -256,7 +308,6 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     getAnInt(ps, saveByEvent_, "saveByEvent");
     getAnInt(ps, saveByMinute_, "saveByMinute");
     getAnInt(ps, saveByTime_, "saveByTime");
-    getAnInt(ps, numKeepSavedFiles_, "maxSavedFilesCount");
   }
 
   if (convention_ == Online || convention_ == Offline)
@@ -295,8 +346,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     << " saving every " << saveByMinute_ << " minute(s)\n"
     << " saving every 2^n*" << saveByTime_ << " minutes \n"
     << " saving every " << saveByRun_ << " run(s)\n"
-    << " saving at job end: " << (saveAtJobEnd_ ? "yes" : "no") << "\n"
-    << " keeping at most " << numKeepSavedFiles_ << " files\n";
+    << " saving at job end: " << (saveAtJobEnd_ ? "yes" : "no") << "\n";
 }
 
 //--------------------------------------------------------

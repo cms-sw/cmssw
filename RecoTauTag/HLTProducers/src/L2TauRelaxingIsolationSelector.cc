@@ -66,7 +66,7 @@ L2TauRelaxingIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L2TauRelaxingIsolationSelector::beginJob(const edm::EventSetup&)
+L2TauRelaxingIsolationSelector::beginJob()
 {
 }
 

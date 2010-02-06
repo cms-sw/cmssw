@@ -37,14 +37,17 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   
   int maxNJets_;
   int maxNComb_;
-  
+
   unsigned int maxNrIter_;
   double maxDeltaS_;
   double maxF_;
   unsigned int jetParam_;
   unsigned int lepParam_;
   unsigned int metParam_;
+
   std::vector<unsigned> constraints_;
+  double mW_;
+  double mTop_;
 
   TtSemiLepKinFitter* fitter;
 
@@ -78,9 +81,12 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   jetParam_    (cfg.getParameter<unsigned>         ("jetParametrisation")),
   lepParam_    (cfg.getParameter<unsigned>         ("lepParametrisation")),
   metParam_    (cfg.getParameter<unsigned>         ("metParametrisation")),
-  constraints_ (cfg.getParameter<std::vector<unsigned> >("constraints"  ))
+  constraints_ (cfg.getParameter<std::vector<unsigned> >("constraints"  )),
+  mW_          (cfg.getParameter<double>           ("mW"                )),
+  mTop_        (cfg.getParameter<double>           ("mTop"              ))
 {
-  fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_, constraints(constraints_));
+  fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_,
+				  constraints(constraints_), mW_, mTop_);
 
   produces< std::vector<pat::Particle> >("PartonsHadP");
   produces< std::vector<pat::Particle> >("PartonsHadQ");

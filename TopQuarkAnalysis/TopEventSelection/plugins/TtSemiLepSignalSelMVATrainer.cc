@@ -161,7 +161,7 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
   }
 }
 
-void TtSemiLepSignalSelMVATrainer::beginJob(const edm::EventSetup&){
+void TtSemiLepSignalSelMVATrainer::beginJob(){
   selEv = 0;
   if(whatData_!=-1 && whatData_!=0 && whatData_!=1){
     std::cout<<"Config File Error!! Please check <whatData> in TtSemiLepSignalSelMVATrainer.cfi"<<std::endl;;

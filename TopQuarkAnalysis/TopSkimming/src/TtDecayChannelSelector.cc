@@ -16,14 +16,24 @@ static const unsigned int kDecayChannels = 3;
 
 
 TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
-  invert_ ( cfg.getParameter<bool>("invert" ) )
+  invert_ ( cfg.getParameter<bool>("invert" ) ),
+  allowLepton_(false), allow1Prong_(false), 
+  allow3Prong_(false)
 {
-  // determine allowed tauy decays
-  edm::ParameterSet allowedTauDecays = cfg.getParameter<edm::ParameterSet>("allowedTauDecays");
-  allowLepton_ = allowedTauDecays.getParameter<bool>("leptonic"); 
-  allow1Prong_ = allowedTauDecays.getParameter<bool>("oneProng"); 
-  allow3Prong_ = allowedTauDecays.getParameter<bool>("threeProng");
-
+  // tau decays are not restricted if this PSet does not exist at all
+  restrictTauDecays_=cfg.existsAs<edm::ParameterSet>("restrictTauDecays");
+  // determine allowed tau decays
+  if(restrictTauDecays_){
+    edm::ParameterSet allowedTauDecays = cfg.getParameter<edm::ParameterSet>("restrictTauDecays");
+    // tau decays are not restricted if none of the following parameters exists
+    restrictTauDecays_=(allowedTauDecays.existsAs<bool>("leptonic"  )|| 
+			allowedTauDecays.existsAs<bool>("oneProng"  )|| 
+			allowedTauDecays.existsAs<bool>("threeProng") );
+    // specify the different possible restrictions of the tau decay channels
+    allowLepton_ = (allowedTauDecays.existsAs<bool>("leptonic"  ) ? allowedTauDecays.getParameter<bool>("leptonic"  ) : false); 
+    allow1Prong_ = (allowedTauDecays.existsAs<bool>("oneProng"  ) ? allowedTauDecays.getParameter<bool>("oneProng"  ) : false); 
+    allow3Prong_ = (allowedTauDecays.existsAs<bool>("threeProng") ? allowedTauDecays.getParameter<bool>("threeProng") : false);
+  }
   // allowed top decays PSet
   edm::ParameterSet allowedTopDecays = cfg.getParameter<edm::ParameterSet>("allowedTopDecays");
 
@@ -70,13 +80,18 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
 	      ++iMuon;
 	    }
 	    if( abs(wd->pdgId())==TopDecayID::tauID  ){ 
-	      // count as iTau if it is leptonic, one-prong
-	      // or three-prong and ignore increasing iLep
-	      // though else
-	      if(tauDecay(*wd)){
-		++iTau; 
-	      } else{
-		++iLep; 
+	      if(restrictTauDecays_){
+		// count as iTau if it is leptonic, one-prong
+		// or three-prong and ignore increasing iLep
+		// though else
+		if(tauDecay(*wd)){
+		  ++iTau; 
+		} else{
+		  ++iLep; 
+		}
+	      }
+	      else{
+		++iTau;
 	      }
 	    }
 	  }
@@ -85,13 +100,19 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
     }
   }
   edm::LogVerbatim log("TtDecayChannelSelector_selection");
-  log << "----------------------" << "\n"
-      << " iTop    : " << iTop    << "\n"
-      << " iBeauty : " << iBeauty << "\n"
-      << " iElec   : " << iElec   << "\n"
-      << " iMuon   : " << iMuon   << "\n"
-      << " iTau    : " << iTau    << "\n"
-      << "- - - - - - - - - - - " << "\n";
+  log << "----------------------"   << "\n"
+      << " iTop    : " << iTop      << "\n"
+      << " iBeauty : " << iBeauty   << "\n"
+      << " iElec   : " << iElec     << "\n"
+      << " iMuon   : " << iMuon     << "\n"
+      << " iTau    : " << iTau+iLep;
+  if(restrictTauDecays_ && (iTau+iLep)>0){
+    log << " (" << iTau << ")\n";
+  }
+  else{
+    log << "\n";
+  }
+  log << "- - - - - - - - - - - "   << "\n";
   iLep+=iElec+iMuon+iTau;
 
   bool accept=false;
@@ -167,7 +188,7 @@ unsigned int
 TtDecayChannelSelector::countProngs(const reco::Candidate& part) const
 {
   // if stable, return 1 or 0
-  if(part.status()==TopDecayID::stable){
+  if(part.status()==1){
     return (part.charge()!=0);
   }
   // if unstable, call recursively on daughters
@@ -188,7 +209,7 @@ TtDecayChannelSelector::tauDecay(const reco::Candidate& tau) const
   for(reco::Candidate::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
     // if the tau daughter is again a tau, this means that the particle has 
     // still to be propagated; in that case, return the result of the same 
-    // method applied on the on that daughter
+    // method applied on the daughter of the current particle
     if(daughter->pdgId()==tau.pdgId()){
       return tauDecay(*daughter);
     }
@@ -199,5 +220,5 @@ TtDecayChannelSelector::tauDecay(const reco::Candidate& tau) const
   }
   return ((allowLepton_ &&  leptonic)          ||
 	  (allow1Prong_ && !leptonic && nch==1)||
-	  (allow3Prong_ && !leptonic && nch >1));
+	  (allow3Prong_ && !leptonic && nch==3));
 }

@@ -12,8 +12,6 @@ HcalTrigPrimClient::HcalTrigPrimClient(){
   histo2d["TrigPrimMonitor/Error Flag for ZS run"] = 0;
   histo2d["TrigPrimMonitor/EtCorr HBHE"] = 0;
   histo2d["TrigPrimMonitor/EtCorr HF"] = 0;
-  histo2d["TrigPrimMonitor/FGCorr HBHE"] = 0;
-  histo2d["TrigPrimMonitor/FGCorr HF"] = 0;
 
   // TP Occupancy
   histo2d["TrigPrimMonitor/TP Map/TP Occupancy"] = 0;
@@ -28,10 +26,6 @@ HcalTrigPrimClient::HcalTrigPrimClient(){
   histo2d["TrigPrimMonitor/TP Map/Missing Data"] = 0;
   histo2d["TrigPrimMonitor/TP Map/Missing Emul"] = 0;
 
-  // TP Occupancy for ZS
-  histo2d["TrigPrimMonitor/TP Map for ZS/Mismatched Et ZS"] = 0;
-  histo2d["TrigPrimMonitor/TP Map for ZS/Missing Data ZS"] = 0;
-  histo2d["TrigPrimMonitor/TP Map for ZS/Missing Emul ZS"] = 0;
   // Energy Plots
   histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - All Data"] = 0;
   histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - All Emul"] = 0;
@@ -48,11 +42,6 @@ HcalTrigPrimClient::HcalTrigPrimClient(){
   histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Emul Only"] = 0;
   histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Missing Emul"] = 0;
   histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Missing Data"] = 0;
-
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Emul - ZS"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Data - ZS"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Emul - ZS"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Data - ZS"] = 0;
 }
 
 void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
@@ -300,12 +289,6 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/EtCorr HBHE"],"data","emul", 10, htmlFile,htmlDir);  
   htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/EtCorr HF"],"data","emul", 10, htmlFile,htmlDir);  
   htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/FGCorr HBHE"],"data","emul", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/FGCorr HF"],"data","emul", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
   //----------------------------------------
 
   //------------- TP Occupancy --------------
@@ -340,17 +323,6 @@ htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Missing Emul"],"ieta","iphi", 10, htmlFile,htmlDir);  
   htmlFile << "</tr>" << std::endl;
 
-  ///------------- TP Occupancy ZS--------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>TP Map for ZS</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map for ZS/Mismatched Et ZS"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map for ZS/Missing Data ZS"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map for ZS/Missing Emul ZS"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
   //----------------------------------------
 
   //------------- Energy (HBHE) --------------
@@ -396,21 +368,6 @@ htmlFile << "<tr align=\"left\">" << std::endl;
 
   htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Mismatched FG"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  //----------------------------------------
-  //
-  //------------- Energy for ZS--------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>Energy Plots for ZS</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Data - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Emul - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Data - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Emul - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
   htmlFile << "</tr>" << std::endl;
 
   //----------------------------------------

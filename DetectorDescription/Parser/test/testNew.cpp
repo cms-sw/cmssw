@@ -26,9 +26,8 @@ int main(int argc, char *argv[])
   try {
     AlgoInit();
 
-    std::cout << "Get a hold of aDDLParser." << std::endl;
-    DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    std::cout << "Get a hold of the DDLParser singleton." << std::endl;
+    DDLParser* myP = DDLParser::instance();
 
     std::cout << "main:: initialize" << std::endl;
     //  DDInit();
@@ -64,16 +63,16 @@ int main(int argc, char *argv[])
 
     // Parse the files provided by the DDLDocumentProvider above.
     std::cout << " parse all the files provided by the DDLDocumentProvider" << std::endl;
-    myP.parse(cf);
+    myP->parse(cf);
 
     std::cout << "===================" << std::endl << std::endl;
     std::cout << " parse just one file THAT WAS ALREADY PARSED (materials.xml).  We should get a WARNING message." << std::endl;
-    myP.parseOneFile("DetectorDescription/Parser/test/materials.xml");
+    myP->parseOneFile("DetectorDescription/Parser/test/materials.xml");
 
 
     std::cout << "===================" << std::endl << std::endl;
     std::cout << " parse just one file that has not been parsed (specpars.xml).  This should just go through." << std::endl;
-    myP.parseOneFile("DetectorDescription/Parser/test/specpars.xml");
+    myP->parseOneFile("DetectorDescription/Parser/test/specpars.xml");
 
 
     std::cout << "===================" << std::endl << std::endl;
@@ -81,7 +80,7 @@ int main(int argc, char *argv[])
 
     FIPConfiguration cf2;
     cf2.readConfig("DetectorDescription/Parser/test/config2.xml");
-    myP.parse(cf2);
+    myP->parse(cf2);
 
     std::cout << "Done Parsing" << std::endl;
     std::cout << "===================" << std::endl << std::endl;
@@ -89,9 +88,9 @@ int main(int argc, char *argv[])
     std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
     DDCheckMaterials(std::cout);
 
-//     DDCompactView cpv;
+    DDCompactView cpv;
 
-//     cpv.clear();
+    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
   
     return EXIT_SUCCESS;

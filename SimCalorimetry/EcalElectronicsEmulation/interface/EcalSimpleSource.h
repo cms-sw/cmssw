@@ -1,5 +1,5 @@
 /*
- * $Id: EcalSimpleSource.h,v 1.2 2007/03/07 19:42:02 pgras Exp $
+ * $Id: EcalSimpleSource.h,v 1.1 2007/01/31 10:00:53 pgras Exp $
  */
 
 #ifndef ECALSIMPLESOURCE_H
@@ -57,7 +57,7 @@ public:
   /** Called at start of job.
    * @param es the event setup
    */
-  void beginJob(){};
+  void beginJob(const edm::EventSetup& es){};
 
   /** The main method. It produces the event.
    * @param evt [out] produced event.

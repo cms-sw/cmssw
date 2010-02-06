@@ -1,6 +1,15 @@
+<export>
+<lib name=EventFilterRawDataCollector>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/Common>
+<use name=FWCore/ServiceRegistry>
+</export>
 <flags EDM_PLUGIN=1>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/Common>
+<use name=FWCore/ServiceRegistry>

@@ -82,12 +82,49 @@ def removeMCMatching(process,
         metProducer = getattr(process, 'layer1METs')        
         metProducer.addGenMET           = False
         metProducer.genMETSource        = ''       
+    if( name == 'PFElectrons' or name == 'PFAll' ):
+        _removeMCMatchingForPATObject(process, 'electronMatch', 'pfLayer1Electrons') 
+    if( name == 'PFMuons'     or name == 'PFAll' ):
+        _removeMCMatchingForPATObject(process, 'pfMuonMatch', 'pfLayer1Muons') 
+    if( name == 'PFTaus'      or name == 'PFAll' ):
+        _removeMCMatchingForPATObject(process, 'pfTauMatch', 'pfLayer1Taus')
+        process.PFPATafterPAT.remove(process.pfTauGenJetMatch)
+        ## remove mc extra configs for taus
+        tauProducer = getattr(process, 'pfLayer1Taus')
+        tauProducer.addGenJetMatch      = False
+        tauProducer.embedGenJetMatch    = False
+        tauProducer.genJetMatch         = ''         
+    if( name == 'PFJets'      or name == 'PFAll' ):
+        ## remove mc extra modules for jets
+        process.PFPATafterPAT.remove(process.pfJetPartonMatch)
+        process.PFPATafterPAT.remove(process.pfJetGenJetMatch)
+        process.PFPATafterPAT.remove(process.pfJetPartonAssociation)
+        process.PFPATafterPAT.remove(process.pfJetFlavourAssociation)     
+        ## remove mc extra configs for jets
+        jetProducer = getattr(process, 'pfLayer1Jets')
+        jetProducer.addGenPartonMatch   = False
+        jetProducer.embedGenPartonMatch = False
+        jetProducer.genPartonMatch      = ''
+        jetProducer.addGenJetMatch      = False
+        jetProducer.genJetMatch         = ''
+        jetProducer.getJetMCFlavour     = False
+        jetProducer.JetPartonMapSource  = ''       
+    if( name == 'PFMETs'      or name == 'PFAll' ):
+        ## remove mc extra configs for jets
+        metProducer = getattr(process, 'pfLayer1METs')        
+        metProducer.addGenMET           = False
+        metProducer.genMETSource        = ''      
+
 
 
 def _removeMCMatchingForPATObject(process, matcherName, producerName):
     ## remove mcMatcher from the default sequence
     objectMatcher = getattr(process, matcherName)
-    process.patDefaultSequence.remove(objectMatcher)
+    if (producerName=='pfLayer1Muons'or producerName=='pfLayer1Taus'):
+        process.PFPATafterPAT.remove(objectMatcher)
+    if (producerName=='allLayer1Muons'or producerName=='allLayer1Taus'or
+        producerName=='allLayer1Photons' or producerName=='allLayer1Electrons'):
+        process.patDefaultSequence.remove(objectMatcher)
     ## straighten photonProducer
     objectProducer = getattr(process, producerName)
     objectProducer.addGenMatch      = False

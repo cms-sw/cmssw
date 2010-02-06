@@ -15,11 +15,12 @@
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #undef private
 
 FWFileEntry::FWFileEntry(const std::string& name) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
-   m_filtersNeedUpdate(true), m_globalEventList(0)
+   m_needUpdate(true), m_globalEventList(0)
 {
    openFile();
 }
@@ -145,7 +146,7 @@ bool FWFileEntry::hasActiveFilters()
 //______________________________________________________________________________
 void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
 {
-   if (!m_filtersNeedUpdate)
+   if (!m_needUpdate)
       return;
    
    if (m_globalEventList)
@@ -163,7 +164,7 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
       // in runFilter().
       if ((*it)->m_selector->m_enabled)
       {
-         if ((*it)->m_eventList->GetN())
+         if ((*it)->hasSelectedEvents())
          {
             if (globalOR || m_globalEventList->GetN() == 0)
             {
@@ -182,7 +183,9 @@ void FWFileEntry::updateFilters(FWEventItemsManager* eiMng, bool globalOR)
       }
    }
    
-   m_filtersNeedUpdate = false;
+   fwLog(fwlog::kDebug) << "FWFileEntry::updateFilters in [" << m_file->GetName() << "]  global selection [" << m_globalEventList->GetN() << "/" <<  m_eventTree->GetEntries() << "]" << std::endl;
+
+   m_needUpdate = false;
 }
 
 //_____________________________________________________________________________
@@ -260,12 +263,11 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
 
       filter->m_eventList->Add(flist);
       
-      //  std::cout << Form("File: %s, selection: %s, number of events passed the selection: %d",
-      //                 m_file->GetName(), filter->m_selector->m_expression.c_str(), el->GetN()) << std::endl;      
+      fwLog(fwlog::kDebug) << "FWFile::runFilter file [" << m_file->GetName() << "], filter [" << filter->m_selector->m_expression << "], selected [" << flist->GetN() << "]" << std::endl;
    }
    else
    {
-      std::cout << "Selection: \"" << filter->m_selector->m_expression << "\" is invalid. Disabled." <<std::endl;
+      fwLog(fwlog::kWarning) << "FWFile::runFilter [" << m_file->GetName() << "] filter [" << filter->m_selector->m_expression << "]  invalid. Disabled." << std::endl;
       filter->m_selector->m_enabled = false;
    }
       
@@ -281,8 +283,8 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
          ++itAddress;
       }
    }
-   
-   m_filtersNeedUpdate = false;
+
+   filter->m_needsUpdate = false;
 }
 
 //______________________________________________________________________________
@@ -379,5 +381,9 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
    }
    m_event->to(currentEvent);
 
+   filterEntry->m_needsUpdate = false;
+   
+   fwLog(fwlog::kDebug) << "FWFile::filterEventsWithCustomParser file [" << m_file->GetName() << "], filter [" << filterEntry->m_selector->m_expression << "], selected [" << list->GetN() << "]"  << std::endl;
+   
    return true;
 }

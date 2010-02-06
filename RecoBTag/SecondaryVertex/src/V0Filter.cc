@@ -19,7 +19,7 @@ V0Filter::V0Filter(const edm::ParameterSet &params) :
 }
 
 bool
-V0Filter::operator () (const reco::Track **tracks, unsigned int n) const
+V0Filter::operator () (const reco::TrackRef *tracks, unsigned int n) const
 {
 	// only check for K0s for now
 
@@ -47,24 +47,4 @@ V0Filter::operator () (const reco::Track **tracks, unsigned int n) const
 		return false;
 
 	return true;
-}
-
-bool
-V0Filter::operator () (const reco::TrackRef *tracks, unsigned int n) const
-{
-	std::vector<const reco::Track*> trackPtrs(n);
-	for(unsigned int i = 0; i < n; i++)
-		trackPtrs[i] = &*tracks[i];
-
-	return (*this)(&trackPtrs[0], n);
-}
-
-bool
-V0Filter::operator () (const reco::Track *tracks, unsigned int n) const
-{
-	std::vector<const reco::Track*> trackPtrs(n);
-	for(unsigned int i = 0; i < n; i++)
-		trackPtrs[i] = &tracks[i];
-
-	return (*this)(&trackPtrs[0], n);
 }

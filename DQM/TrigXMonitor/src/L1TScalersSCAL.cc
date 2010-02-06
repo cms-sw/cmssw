@@ -33,9 +33,9 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
   LogDebug("Status") << "constructor" ;
 
   for ( int i=0; i<Level1TriggerScalers::nLevel1Triggers; i++) 
-    { bufferAlgoRates_.push_back(0); algorithmRates_.push_back(0); integral_algo_.push_back(0.);}
+    { bufferAlgoRates_.push_back(0); algorithmRates_.push_back(0);}
   for ( int i=0; i<Level1TriggerScalers::nLevel1TestTriggers; i++) 
-    { bufferTechRates_.push_back(0); technicalRates_.push_back(0); integral_tech_.push_back(0.);}
+    { bufferTechRates_.push_back(0); technicalRates_.push_back(0);}
 
   buffertime_ = 0;
   reftime_ = 0;
@@ -105,14 +105,6 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
       algoRate[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
       algoRate[i]->setAxisTitle("Lumi Section" ,1);
-    }    
-    				     
-    for(int i=0; i<Level1TriggerScalers::nLevel1Triggers; i++) {
-      sprintf(hname, "Integral_AlgoBit_%03d", i);
-      sprintf(mename, "Integral_AlgoBit _%03d", i);
-
-      integralAlgo[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
-      integralAlgo[i]->setAxisTitle("Lumi Section" ,1);
     }    				     
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/TechnicalRates");
 
@@ -122,14 +114,6 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
       techRate[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
       techRate[i]->setAxisTitle("Lumi Section" ,1);
-    }    		
-    		     
-    for(int i=0; i<Level1TriggerScalers::nLevel1TestTriggers; i++) {
-      sprintf(hname, "Integral_TechBit_%03d", i);
-      sprintf(mename, "Integral_TechBit _%03d", i);
-
-      integralTech[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
-      integralTech[i]->setAxisTitle("Lumi Section" ,1);
     }    				     
 
     				
@@ -316,17 +300,13 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(bufferAlgoRates_ != algorithmRates_){ 
 	    bufferAlgoRates_ = algorithmRates_;
 	    for (unsigned int i=0; i< algorithmRates_.size(); i++){ 
-	      integral_algo_[i]+=(algorithmRates_[i]*93.);
 	      algoRate[i]->setBinContent(lumisection+1, algorithmRates_[i]); 
-	      integralAlgo[i]->setBinContent(lumisection+1,integral_algo_[i]); 
 	    } 	   
 	  }
 	  if(bufferTechRates_ != technicalRates_){ 
 	    bufferTechRates_ = technicalRates_;
 	    for (unsigned int i=0; i< technicalRates_.size(); i++){ 
-	      integral_tech_[i]+=(technicalRates_[i]*93.);
 	      techRate[i]->setBinContent(lumisection+1, technicalRates_[i]); 
-	      integralTech[i]->setBinContent(lumisection+1, integral_tech_[i]); 
 	    } 	   
 	  }
 
@@ -423,9 +403,8 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TScalersSCAL::beginJob(void)
+L1TScalersSCAL::beginJob(const edm::EventSetup&)
 {
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

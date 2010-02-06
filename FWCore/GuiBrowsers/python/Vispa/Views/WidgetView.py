@@ -132,3 +132,15 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
 
     def isBusy(self):
         return self._updatingFlag>0
+
+    def widgetDoubleClicked(self, widget):
+        """ Emits signal doubleClicked that the TabController can connect to.
+        """
+        logging.debug(__name__ + ": widgetDoubleClicked")
+        ZoomableScrollableWidgetOwner.widgetDoubleClicked(self, widget)
+        if hasattr(widget, "object"):
+            if hasattr(widget, "positionName"):
+                self._selection = widget.positionName
+                self.emit(SIGNAL("doubleClicked"), widget.object)
+            else:
+                self.emit(SIGNAL("doubleClicked"), widget.object())

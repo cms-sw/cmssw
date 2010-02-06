@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2008/04/25 14:57:19 $
- * $Revision: 1.18 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.17 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -56,12 +56,10 @@ L1TGT::~L1TGT()
 {
 }
 
-void L1TGT::beginJob()
+void L1TGT::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;
-  preGps_ = 0;
-  preOrb_ = 0;
 
   // get hold of back-end interface
   DQMStore* dbe = 0;
@@ -164,221 +162,83 @@ void L1TGT::beginJob()
     dbx_module->setBinLabel(17,"PSB21",1);
     dbx_module->setBinLabel(18,"PSB21loc",1);
     dbx_module->setBinLabel(19,"GMT",1);
-
-    BST_MasterStatus    = dbe->book2D("BST_MasterStatus", "BST master status over lumi segment", 
-        				250, 0., 250., 6, -1., 5.);
-	BST_MasterStatus->setAxisTitle("luminosity segment",1);
-	BST_MasterStatus->setAxisTitle("BST master status",2);
-	BST_MasterStatus->setBinLabel(2,"Master Beam 1",2);
-	BST_MasterStatus->setBinLabel(3,"Master Beam 2",2);
-
-	BST_turnCountNumber = dbe->book2D("BST_turnCountNumber", "BST turn count over lumi segment",
-        				250, 0., 250., 250, 0., 4.3e9);
-	BST_turnCountNumber->setAxisTitle("luminosity segment",1);
-	BST_turnCountNumber->setAxisTitle("BST turn count number",2);
-
-	BST_lhcFillNumber   = dbe->book1D("BST_lhcFillNumber", "BST LHC fill number % 1000", 1000, 0., 1000.);
- 	BST_lhcFillNumber->setAxisTitle("BST LHC fill number modulo 1000");
-
- 	BST_beamMode        = dbe->book2D("BST_beamMode", "BST beam mode over lumi segment",
-        				250, 0., 250., 25, 1., 26.);
- 	BST_beamMode->setAxisTitle("luminosity segment",1);
-	BST_beamMode->setAxisTitle("mode",2);
-	BST_beamMode->setBinLabel(1,"no mode",2);
-	BST_beamMode->setBinLabel(2,"setup",2);
-	BST_beamMode->setBinLabel(3,"inj pilot",2);
-	BST_beamMode->setBinLabel(4,"inj intr",2);
-	BST_beamMode->setBinLabel(5,"inj nomn",2);
-	BST_beamMode->setBinLabel(6,"pre ramp",2);
-	BST_beamMode->setBinLabel(7,"ramp",2);
-	BST_beamMode->setBinLabel(8,"flat top",2);
-	BST_beamMode->setBinLabel(9,"squeeze",2);
-	BST_beamMode->setBinLabel(10,"adjust",2);
-	BST_beamMode->setBinLabel(11,"stable",2);
-	BST_beamMode->setBinLabel(12,"unstable",2);
-	BST_beamMode->setBinLabel(13,"beam dump",2);
-	BST_beamMode->setBinLabel(14,"ramp down",2);
-	BST_beamMode->setBinLabel(15,"recovery",2);
-	BST_beamMode->setBinLabel(16,"inj dump",2);
-	BST_beamMode->setBinLabel(17,"circ dump",2);
-	BST_beamMode->setBinLabel(18,"abort",2);
-	BST_beamMode->setBinLabel(19,"cycling",2);
-	BST_beamMode->setBinLabel(20,"warn beam dump",2);
-	BST_beamMode->setBinLabel(21,"no beam",2);
-    BST_beamMomentum	= dbe->book2D("BST_beamMomentum", "BST beam momentum", 
-    		250, 0., 250., 100, 0., 7200.);
-   	BST_beamMomentum->setAxisTitle("luminosity segment",1);
-   	BST_beamMomentum->setAxisTitle("beam momentum",2);
-   
-    gpsfreq = dbe->book1D("gpsfreq", "clock frequency measured by GPS",
-                1000, 39.95, 40.2);
-    gpsfreq->setAxisTitle("CMS clock frequency (MHz)");
-
-    gpsfreqwide = dbe->book1D("gpsfreqwide",
-            "clock frequency measured by GPS", 1000, -2., 200.);
-    gpsfreqwide->setAxisTitle("CMS clock frequency (MHz)");
-
-    gpsfreqlum = dbe->book2D("gpsfreqlum",
-            "clock frequency measured by GPS", 250, 0., 250., 100, 39.95,
-            40.2);
-    gpsfreqlum->setAxisTitle("luminosity segment", 1);
-    gpsfreqlum->setAxisTitle("CMS clock frequency (MHz)", 2);
-
-    BST_intensityBeam1 = dbe->book2D("BST_intensityBeam1",
-            "intensity beam 1", 250, 0., 250., 100, 0., 100.);
-    BST_intensityBeam1->setAxisTitle("luminosity segment", 1);
-    BST_intensityBeam1->setAxisTitle("beam intensity", 2);
-
-    BST_intensityBeam2 = dbe->book2D("BST_intensityBeam2",
-            "intensity beam 2", 250, 0., 250., 100, 0., 100.);
-    BST_intensityBeam2->setAxisTitle("luminosity segment", 1);
-    BST_intensityBeam2->setAxisTitle("beam intensity", 2);
-
   }  
 }
 
 
-void L1TGT::endJob(void) {
+void L1TGT::endJob(void)
+{
+  if(verbose_) cout << "L1TGT: end job...." << endl;
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
-    if (verbose_) {
-        cout << "L1TGT: end job...." << endl;
-    }
+  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
-    LogInfo("EndJob") << "analyzed " << nev_ << " events";
-
-    if (outputFile_.size() != 0 && dbe)
-        dbe->save(outputFile_);
-
-    return;
+  return;
 }
 
-void L1TGT::analyze(const Event& e, const EventSetup& c) {
+void L1TGT::analyze(const Event& e, const EventSetup& c)
+{
+  nev_++; 
+  if(verbose_) cout << "L1TGT: analyze...." << endl;
 
-    nev_++;
+  // open main GT (DAQ) readout record - exit if failed
+  Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
+  e.getByLabel(gtSource_,gtReadoutRecord);
+     
+  if (!gtReadoutRecord.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1GlobalTriggerReadoutRecord with label "
+			       << gtSource_.label() ;
+    return;
+  }
+  
+  // initialize bx's to invalid value
+  int gtfeBx = -1;
+  int tcsBx = -1;
+  int gtfeEvmBx = -1;
+  int fdlBx[2] = { -1, -1};
+  int psbBx[2][7] = { 
+      {-1, -1, -1, -1, -1, -1, -1},
+      {-1, -1, -1, -1, -1, -1, -1}};
+  int gmtBx = -1;
+  
+  // get info from GTFE DAQ record
+  L1GtfeWord gtfeWord = gtReadoutRecord->gtfeWord();
+  gtfeBx = gtfeWord.bxNr();
+  gtfe_bx->Fill(gtfeBx);
+  setupversion_lumi->Fill(e.luminosityBlock(),gtfeWord.setupVersion());
+  int gtfeActiveBoards = gtfeWord.activeBoards();
+  
+  
+  // open EVM readout record if available
+  Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
+  e.getByLabel(gtEvmSource_,gtEvmReadoutRecord);
+     
+  if (!gtEvmReadoutRecord.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1GlobalTriggerEvmReadoutRecord with label "
+                   << gtSource_.label() ;
+  } else {
+    // get all info from the EVM record if available
+    
+    L1GtfeWord gtfeEvmWord = gtEvmReadoutRecord->gtfeWord();
+    gtfeEvmBx = gtfeEvmWord.bxNr();
+    int gtfeEvmActiveBoards = gtfeEvmWord.activeBoards();
+    
+    if( isActive(gtfeEvmActiveBoards,TCS) ) { // if TCS present in the record
+      
+      L1TcsWord tcsWord = gtEvmReadoutRecord->tcsWord();
+      tcsBx = tcsWord.bxNr();
 
-    if (verbose_) {
-        cout << "L1TGT: analyze...." << endl;
+      event_type->Fill(tcsWord.triggerType());
+      orbit_lumi->Fill(e.luminosityBlock(),tcsWord.orbitNr());
+
+      trigger_number->Fill(tcsWord.partTrigNr());
+      event_number->Fill(tcsWord.eventNr());
+      
+      trigger_lumi->Fill(e.luminosityBlock(),tcsWord.partTrigNr());
+      event_lumi->Fill(e.luminosityBlock(),tcsWord.eventNr());
+      evnum_trignum_lumi->Fill(e.luminosityBlock(),double(tcsWord.eventNr())/double(tcsWord.partTrigNr()));
     }
-
-    // open main GT (DAQ) readout record - exit if failed
-    Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    e.getByLabel(gtSource_, gtReadoutRecord);
-
-    if (!gtReadoutRecord.isValid()) {
-        edm::LogInfo("DataNotFound")
-                << "can't find L1GlobalTriggerReadoutRecord with label "
-                << gtSource_.label();
-        return;
-    }
-
-    // initialize bx's to invalid value
-    int gtfeBx = -1;
-    int tcsBx = -1;
-    int gtfeEvmBx = -1;
-    int fdlBx[2] = { -1, -1 };
-    int psbBx[2][7] = { { -1, -1, -1, -1, -1, -1, -1 },
-                        { -1, -1, -1, -1, -1, -1, -1 } };
-    int gmtBx = -1;
-
-    // get info from GTFE DAQ record
-    const L1GtfeWord& gtfeWord = gtReadoutRecord->gtfeWord();
-    gtfeBx = gtfeWord.bxNr();
-    gtfe_bx->Fill(gtfeBx);
-    setupversion_lumi->Fill(e.luminosityBlock(), gtfeWord.setupVersion());
-    int gtfeActiveBoards = gtfeWord.activeBoards();
-
-    // open EVM readout record if available
-    Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
-    e.getByLabel(gtEvmSource_, gtEvmReadoutRecord);
-
-    if (!gtEvmReadoutRecord.isValid()) {
-        edm::LogInfo("DataNotFound")
-                << "can't find L1GlobalTriggerEvmReadoutRecord with label "
-                << gtSource_.label();
-    } else {
-
-        // get all info from the EVM record if available
-
-        const L1GtfeWord& gtfeEvmWord = gtEvmReadoutRecord->gtfeWord();
-        const L1GtfeExtWord& gtfeEvmExtWord = gtEvmReadoutRecord->gtfeWord();
-
-        gtfeEvmBx = gtfeEvmWord.bxNr();
-        int gtfeEvmActiveBoards = gtfeEvmWord.activeBoards();
-
-        if (isActive(gtfeEvmActiveBoards, TCS)) { // if TCS present in the record
-
-            const L1TcsWord& tcsWord = gtEvmReadoutRecord->tcsWord();
-            tcsBx = tcsWord.bxNr();
-
-            event_type->Fill(tcsWord.triggerType());
-            orbit_lumi->Fill(e.luminosityBlock(), tcsWord.orbitNr());
-
-            trigger_number->Fill(tcsWord.partTrigNr());
-            event_number->Fill(tcsWord.eventNr());
-
-            trigger_lumi->Fill(e.luminosityBlock(), tcsWord.partTrigNr());
-            event_lumi->Fill(e.luminosityBlock(), tcsWord.eventNr());
-            evnum_trignum_lumi->Fill(e.luminosityBlock(),
-                    double(tcsWord.eventNr()) / double(tcsWord.partTrigNr()));
-
-            boost::uint16_t master = gtfeEvmExtWord.bstMasterStatus();
-            boost::uint32_t turnCount = gtfeEvmExtWord.turnCountNumber();
-            boost::uint32_t lhcFill = gtfeEvmExtWord.lhcFillNumber();
-            boost::uint16_t beam = gtfeEvmExtWord.beamMode();
-            boost::uint16_t momentum = gtfeEvmExtWord.beamMomentum();
-            boost::uint32_t intensity1 = gtfeEvmExtWord.totalIntensityBeam1();
-            boost::uint32_t intensity2 = gtfeEvmExtWord.totalIntensityBeam2();
-
-            BST_MasterStatus->Fill(e.luminosityBlock(), (float) (master));
-            BST_turnCountNumber->Fill(e.luminosityBlock(), (float) (turnCount));
-            BST_lhcFillNumber->Fill((float) (lhcFill % 1000));
-            BST_beamMode->Fill(e.luminosityBlock(), (float) (beam));
-
-            BST_beamMomentum->Fill(e.luminosityBlock(), (float) (momentum));
-            BST_intensityBeam1->Fill(e.luminosityBlock(), (float) (intensity1));
-            BST_intensityBeam2->Fill(e.luminosityBlock(), (float) (intensity2));
-
-            if (verbose_) {
-                cout << " check mode = " << beam << "    momentum " << momentum
-                        << " int2 " << intensity2 << endl;
-            }
-
-            boost::uint64_t orb = tcsWord.orbitNr();
-            boost::uint64_t gpsr = gtfeEvmExtWord.gpsTime();
-            boost::uint64_t gpshi = (gpsr >> 32) & 0xffffffff;
-            boost::uint64_t gpslo = gpsr & 0xffffffff;
-            boost::uint64_t gps = gpshi * 1000000 + gpslo;
-            // 	cout << "  gpsr = " << hex << gpsr << " hi=" << gpshi << " lo=" << gpslo << " gps=" << gps << endl;
-
-            Long64_t delorb = orb - preOrb_;
-            Long64_t delgps = gps - preGps_;
-            Double_t freq = -1.;
-
-            if (delgps > 0) {
-                freq = ((Double_t)(delorb)) * 3564. / ((Double_t)(delgps));
-            }
-
-            if (delorb > 0) {
-                gpsfreq->Fill(freq);
-                gpsfreqwide->Fill(freq);
-                gpsfreqlum->Fill(e.luminosityBlock(), freq);
-                if (verbose_) {
-                    if (freq > 200.) {
-                        cout << " preOrb_ = " << preOrb_ << " orb=" << orb
-                                << " delorb=" << delorb << hex << " preGps_="
-                                << preGps_ << " gps=" << gps << dec
-                                << " delgps=" << delgps << " freq=" << freq
-                                << endl;
-
-                    }
-                }
-            }
-
-            preGps_ = gps;
-            preOrb_ = orb;
-
-        }
-    }
+  }
   
   // look for GMT readout collection from the same source if GMT active
   if( isActive(gtfeActiveBoards,GMT) ) {
@@ -397,8 +257,8 @@ void L1TGT::analyze(const Event& e, const EventSetup& c) {
     fdlBx[1] = fdlWord.localBxNr();
     
     /// get Global Trigger algo and technical triger bit statistics
-    const DecisionWord& gtDecisionWord = gtReadoutRecord->decisionWord();
-    const TechnicalTriggerWord& gtTTWord = gtReadoutRecord->technicalTriggerWord();
+    DecisionWord gtDecisionWord = gtReadoutRecord->decisionWord();
+    TechnicalTriggerWord gtTTWord = gtReadoutRecord->technicalTriggerWord();
 
     int dbitNumber = 0;
     DecisionWord::const_iterator GTdbitItr;

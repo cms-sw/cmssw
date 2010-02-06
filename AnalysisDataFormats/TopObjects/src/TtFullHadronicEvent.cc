@@ -11,16 +11,18 @@ TtFullHadronicEvent::print()
   log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n";
 
   // get some information from the genEvent
-  log << " TtGenEvent says: ";
-  if( !this->genEvent()->isTtBar() )            log << "Not TtBar";
-  else if( this->genEvent()->isFullHadronic() ) log << "Fully Hadronic TtBar";
-  else if( this->genEvent()->isSemiLeptonic() ) log << "Semi-leptonic TtBar";
-  else if( this->genEvent()->isFullLeptonic() ) log << "Fully Leptonic TtBar";
-  log << "\n";
-  
+  if( !genEvt_ ) log << " TtGenEvent not available! \n";
+  else {
+    log << " TtGenEvent says: ";
+    if( !this->genEvent()->isTtBar() )            log << "Not TtBar";
+    else if( this->genEvent()->isFullHadronic() ) log << "Fully Hadronic TtBar";
+    else if( this->genEvent()->isSemiLeptonic() ) log << "Semi-leptonic TtBar";
+    else if( this->genEvent()->isFullLeptonic() ) log << "Fully Leptonic TtBar";
+    log << "\n";
+  }
   // get number of available hypothesis classes
   log << " Number of available event hypothesis classes: " << this->numberOfAvailableHypoClasses() << " \n";
-
+  
   // create a legend for the jetLepComb
   log << " - JetLepComb: ";
   for(unsigned idx = 0; idx < 6; idx++) {
@@ -34,6 +36,7 @@ TtFullHadronicEvent::print()
     }
   }
   log << "\n";
+  
 
   // get details from the hypotheses
   typedef std::map<HypoClassKey, std::vector<HypoCombPair> >::const_iterator EventHypo;

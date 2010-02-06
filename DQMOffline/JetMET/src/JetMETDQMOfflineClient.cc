@@ -106,81 +106,61 @@ void JetMETDQMOfflineClient::runClient_()
   dbe_->setCurrentFolder(dirName_+"/"+dirNameMET_);
 
   MonitorElement *me;
-  TH1F *tMET;
-  TH1F *tMETRate;
-  MonitorElement *hMETRate;
+  TH1F *tCaloMET;
+  TH1F *tCaloMETRate;
+  MonitorElement *hCaloMETRate;
 
-  //
-  // --- Producing MET rate plots
-  //
-
-  // Look at all folders (JetMET/MET/CaloMET, JetMET/MET/CaloMETNoHF, etc)
+  // Look at all folders
   std::vector<std::string> fullPathDQMFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathDQMFolders.size();i++) {
 
     if (verbose_) std::cout << fullPathDQMFolders[i] << std::endl;      
     dbe_->setCurrentFolder(fullPathDQMFolders[i]);
 
-    // Look at all subfolders (JetMET/MET/CaloMET/{All,Cleaup,BeamHaloIDLoosePass, etc})
-    std::vector<std::string> fullPathDQMSubFolders = dbe_->getSubdirs();
-    for(unsigned int j=0;j<fullPathDQMSubFolders.size();j++) {
+  // Look at all folders
+  std::vector<std::string> fullPathDQMSubFolders = dbe_->getSubdirs();
+  for(unsigned int i=0;i<fullPathDQMSubFolders.size();i++) {
 
-      if (verbose_) std::cout << fullPathDQMSubFolders[j] << std::endl;      
-      dbe_->setCurrentFolder(fullPathDQMSubFolders[j]);
-      if (verbose_) std::cout << "setCurrentFolder done" << std::endl;      
+    if (verbose_) std::cout << fullPathDQMSubFolders[i] << std::endl;      
+    dbe_->setCurrentFolder(fullPathDQMSubFolders[i]);
 
-      // Look at all MonitorElements in this folder
-      std::string METMEName="METTask_CaloMET";
-      if ( dbe_->get(fullPathDQMSubFolders[j]+"/"+"METTask_MET") )  METMEName="METTask_MET";
-      if ( dbe_->get(fullPathDQMSubFolders[j]+"/"+"METTask_PfMET")) METMEName="METTask_PfMET";
+    // Look at all MonitorElements in this folder
+    me = dbe_->get(fullPathDQMFolders[i]+"/"+"METTask_CaloMET");
 
-      me = dbe_->get(fullPathDQMSubFolders[j]+"/"+METMEName);
-      if (verbose_) std::cout << "get done" << std::endl;      
+    if ( me ) {
+    if ( me->getRootObject() ) {
+
+      MonitorElement *metest = dbe_->get(fullPathDQMSubFolders[i]+"/"+"METTask_CaloMETRate");
+      if (metest)
+	dbe_->removeElement(fullPathDQMSubFolders[i]+"/"+"METTask_CaloMETRate");
+
+      tCaloMET     = me->getTH1F();
+
+      // Integral plot 
+      tCaloMETRate = (TH1F*) tCaloMET->Clone("METTask_CaloMETRate");
+      for (int i = tCaloMETRate->GetNbinsX()-1; i>=0; i--){
+	tCaloMETRate->SetBinContent(i+1,tCaloMETRate->GetBinContent(i+2)+tCaloMET->GetBinContent(i+1));
+      }
       
-      if ( me ) {
-	if (verbose_) std::cout << "me true" << std::endl;      
-	if ( me->getRootObject() ) {
-	  if (verbose_) std::cout << "me getRootObject true" << std::endl;      
+      // Convert number of events to Rate (Hz)
+      if (totltime){
+	for (int i=tCaloMETRate->GetNbinsX()-1;i>=0;i--){
+	  tCaloMETRate->SetBinContent(i+1,tCaloMETRate->GetBinContent(i+1)/double(totltime));
+	}
+      }
 
-	  MonitorElement *metest = dbe_->get(fullPathDQMSubFolders[j]+"/"+METMEName+"Rate");
-	  if (metest) dbe_->removeElement(METMEName+"Rate");
+      hCaloMETRate      = dbe_->book1D("METTask_CaloMETRate",tCaloMETRate);
 
-	  if (verbose_) std::cout << "metest done" << std::endl;      
-	  
-	  tMET     = me->getTH1F();
-	  if (verbose_) std::cout << "getTH1F done" << std::endl;      
-
-	  // Integral plot 
-	  tMETRate = (TH1F*) tMET->Clone((METMEName+"Rate").c_str());
-	  for (int i = tMETRate->GetNbinsX()-1; i>=0; i--){
-	    tMETRate->SetBinContent(i+1,tMETRate->GetBinContent(i+2)+tMET->GetBinContent(i+1));
-	  }
-	  if (verbose_) std::cout << "making integral plot done" << std::endl;      
-      
-	  // Convert number of events to Rate (Hz)
-	  if (totltime){
-	    for (int i=tMETRate->GetNbinsX()-1;i>=0;i--){
-	      tMETRate->SetBinContent(i+1,tMETRate->GetBinContent(i+1)/double(totltime));
-	    }
-	  }
-	  if (verbose_) std::cout << "making rate plot done" << std::endl;      
-
-	  hMETRate      = dbe_->book1D(METMEName+"Rate",tMETRate);
-	  hMETRate->setAxisTitle("MET Threshold [GeV]",1);
-	  if (verbose_) std::cout << "booking rate plot ME done" << std::endl;      
-
-	} // me->getRootObject()
-      } // me
-      if (verbose_) std::cout << "end of subfolder loop" << std::endl;
-    }   // fullPathDQMSubFolders-loop - All, Cleanup, ...
-    if (verbose_) std::cout << "end of folder loop" << std::endl;
+    } // me->getRootObject()
+    } // me
+  }   // fullPathDQMSubFolders-loop - All, Cleanup, ...
   }   // fullPathDQMFolders-loop - CaloMET, CaloMETNoHF, ...
 
   /////////////////////////
   // Jet
   /////////////////////////
    
-  // -- place holder
+
 
 }
 

@@ -2,17 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
-#
-# MODULES
-#
-
-tracksForJets = cms.EDProducer("ConcreteChargedCandidateProducer",
-    src          = cms.InputTag("generalTracks"),
-    particleType = cms.string('pi+')
-)
-
-
-trackRefsForJets = cms.EDProducer("ConcreteChargedRefCandidateProducer",
-    src          = cms.InputTag("generalTracks"),
+trackRefsForJets = cms.EDProducer("ChargedRefCandidateProducer",
+    src          = cms.InputTag('trackWithVertexRefSelector'),
     particleType = cms.string('pi+')
 )

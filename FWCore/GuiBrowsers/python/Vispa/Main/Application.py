@@ -186,24 +186,27 @@ class Application(QApplication):
             if not self._checkFile(nextlogfile):
                 file = open(nextlogfile, "a")
                 file.write("Cleaning up logfile after abnormal termination: INFO Stop logging\n")
-        
-        handler1 = logging.handlers.RotatingFileHandler(logfile, maxBytes=100000, backupCount=1)
-        formatter1 = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-        handler1.setFormatter(formatter1)
+
+        if os.path.exists(logDirectory):
+            handler1 = logging.handlers.RotatingFileHandler(logfile, maxBytes=100000, backupCount=1)
+            formatter1 = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+            handler1.setFormatter(formatter1)
 
         handler2 = logging.StreamHandler(sys.stderr)
         formatter2 = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         handler2.setFormatter(formatter2)
         
         logging.root.handlers = []
-        logging.root.addHandler(handler1)
+        if os.path.exists(logDirectory):
+            logging.root.addHandler(handler1)
         logging.root.addHandler(handler2)
         #logging.root.setLevel(logging.INFO)
 
         self._infologger = logging.getLogger("info")
         self._infologger.setLevel(logging.INFO)
         self._infologger.handlers = []
-        self._infologger.info("Start logging to " + logfile)
+        if os.path.exists(logDirectory):
+            self._infologger.info("Start logging to " + logfile)
         
     def run(self):
         """ Show the MainWindow and run the application.
@@ -991,10 +994,10 @@ class Application(QApplication):
     def writeIni(self):
         try:
             configfile = open(self._iniFileName, "w")
+            self._ini.write(configfile)
+            configfile.close()
         except IOError:
-            configfile = open(os.path.abspath("Vispa.ini"), "w")
-        self._ini.write(configfile)
-        configfile.close()
+            pass
         self._ini = None
         
     def _loadIni(self):

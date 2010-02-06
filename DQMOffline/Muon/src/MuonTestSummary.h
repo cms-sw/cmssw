@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/11/12 17:27:45 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/04/07 10:58:21 $
+ *  $Revision: 1.9 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -25,7 +25,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Run.h"
 
 #include <memory>
 #include <string>
@@ -49,21 +48,18 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c){}
 
   /// Histograms initialisation
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
   /// Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// test operations
   void doKinematicsTests(std::string muonType, int bin);
   void doResidualsTests(std::string type, std::string parameter, int bin);
   void doMuonIDTests();
-  void ResidualCheck(std::string muType, std::vector<std::string> resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
   void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
   void doMultiplicityTests();
-		       
+  
 private:
 
   DQMStore* dbe;
@@ -90,10 +86,8 @@ private:
   double matchesFractionDt_max;
   double matchesFractionCsc_min;
   double matchesFractionCsc_max;
-  double resSegmTrack_rms_min;
-  double resSegmTrack_rms_max;
-  double resSegmTrack_mean_min;
-  double resSegmTrack_mean_max;
+  double resSegmTrack_min;
+  double resSegmTrack_max;
   double sigmaResSegmTrackExp;
   double expPeakEcalS9_min;
   double expPeakEcalS9_max;

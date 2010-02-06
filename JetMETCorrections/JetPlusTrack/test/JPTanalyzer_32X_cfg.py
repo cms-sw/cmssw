@@ -55,7 +55,7 @@ ZSPrecoJetAssociations = cms.Sequence(
     )
 
 # ZSP and JPT corrections
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections31X_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
 # Analyzer module

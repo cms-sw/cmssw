@@ -1,10 +1,11 @@
 #!/bin/bash
+# $Id: $
 
 ###########################################################################
 #### Checkout StorageManager and associated packages and apply patches ####
 ###########################################################################
 
-cmssw_release=CMSSW_3_3_4
+cmssw_release=CMSSW_3_2_5
 
 # Report success:
 say_ok ()
@@ -62,13 +63,12 @@ cerncvs ()
 
 packages=( \
     "HEAD EventFilter/StorageManager" \
-    "HEAD EventFilter/SMProxyServer" \
+    "$cmssw_release EventFilter/SMProxyServer" \
     "$cmssw_release EventFilter/ResourceBroker" \
     "$cmssw_release EventFilter/AutoBU" \
     "$cmssw_release EventFilter/Processor" \
     "$cmssw_release EventFilter/Modules" \
     "$cmssw_release IOPool/Streamer" \
-    "V03-13-02 DQMServices/Core" \
     )
 
 for (( i = 0 ; i < "${#packages[@]}" ; i++ )); do
@@ -94,6 +94,6 @@ else
     say_ok
 fi
 
-#echo -n "Applying demo system patches... "
-#EventFilter/StorageManager/test/demoSystem/bin/applyDevelopmentPatches.pl 2>&1 > devpatches.log
-#echo "done, see output in devpatches.log"
+echo -n "Applying demo system patches... "
+EventFilter/StorageManager/test/demoSystem/bin/applyDevelopmentPatches.pl 2>&1 > devpatches.log
+echo "done, see output in devpatches.log"

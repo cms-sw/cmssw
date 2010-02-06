@@ -8,18 +8,22 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.15 2009/11/01 20:47:29 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.18 2009/12/04 17:59:05 amraktad Exp $
 //
 
 // system include files
 #include "TGPack.h"
 #include "TCanvas.h"
+#include "TBox.h"
+#include "TEllipse.h"
+
 #include "TRootEmbeddedCanvas.h"
 #include "TGLEmbeddedViewer.h"
 #include "TGLViewer.h"
 #include "TEveViewer.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
+#include "RVersion.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
@@ -87,7 +91,11 @@ FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TCanvas *&canvas, TEveVi
    // viewer GL
    slot = wp->NewSlotWithWeight(3);
    eveViewer = new TEveViewer("Detail view");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   eveViewer->SpawnGLEmbeddedViewer(0);
+#else
    eveViewer->SpawnGLEmbeddedViewer();
+#endif
    gEve->GetViewers()->AddElement(eveViewer);
    slot->ReplaceWindow(eveViewer);
    slot->SetShowTitleBar(kFALSE);
@@ -118,6 +126,7 @@ FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TG
    TGCompositeFrame* cf = new TGCompositeFrame(eveFrame);
    eveFrame->AddFrame(cf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    cf->SetCleanup(kLocalCleanup);
+
    TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", cf, 100, 100, 0);
    cf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    canvas = ec->GetCanvas();
@@ -130,7 +139,11 @@ FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TG
    // viewer GL 
    slot = wp->NewSlotWithWeight(3);
    eveViewer = new TEveViewer("Detail view");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
+   eveViewer->SpawnGLEmbeddedViewer(0);
+#else
    eveViewer->SpawnGLEmbeddedViewer();
+#endif
    gEve->GetViewers()->AddElement(eveViewer);
    slot->ReplaceWindow(eveViewer);
    slot->SetShowTitleBar(kFALSE);
@@ -139,3 +152,50 @@ FWDetailViewBase::makePackViewerGui(TEveWindowSlot *&slot,  TCanvas *&canvas, TG
       
    return wp;
 }
+
+void
+FWDetailViewBase::drawCanvasDot(Float_t x, Float_t y, Float_t r, Color_t fillColor)
+{ 
+   // utility function to draw outline cricle
+
+   Float_t ratio = 0.5;
+   // fill
+   TEllipse *b2 = new TEllipse(x, y, r, r*ratio);
+   b2->SetFillStyle(1001);
+   b2->SetFillColor(fillColor);
+   b2->Draw();
+
+   // outline
+   TEllipse *b1 = new TEllipse(x, y, r, r*ratio);
+   b1->SetFillStyle(0);
+   b1->SetLineWidth(2);
+   b1->Draw();
+}
+
+void
+FWDetailViewBase::drawCanvasBox( Double_t *pos, Color_t fillCol, Int_t fillType, bool bg)
+{ 
+   // utility function to draw outline box
+
+   // background
+   if (bg)
+   {
+      TBox *b1 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+      b1->SetFillColor(fillCol);
+      b1->Draw();
+   }
+
+   // fill  (top layer)
+   TBox *b2 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+   b2->SetFillStyle(fillType);
+   b2->SetFillColor(kBlack);
+   b2->Draw();
+
+   //outline
+   TBox *b3 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+   b3->SetFillStyle(0);
+   b3->SetLineWidth(2);
+   b3->Draw();
+}
+
+

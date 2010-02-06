@@ -35,7 +35,7 @@ class PythiaFilterEMJetHeep : public edm::EDFilter {
 
       double deltaR(double eta0, double phi0, double eta, double phi);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
 
 

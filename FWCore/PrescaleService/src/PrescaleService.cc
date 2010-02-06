@@ -23,9 +23,8 @@ namespace edm {
     ////////////////////////////////////////////////////////////////////////////////
 
     //______________________________________________________________________________
-    PrescaleService::PrescaleService(ParameterSet const& iPS, ActivityRegistry& iReg)
-      : mutex_()
-      , configured_(false)
+    PrescaleService::PrescaleService(ParameterSet const& iPS,ActivityRegistry& iReg)
+      : configured_(false)
       , lvl1Labels_(iPS.getParameter<std::vector<std::string> >("lvl1Labels"))
       , nLvl1Index_(lvl1Labels_.size())
       , iLvl1IndexDefault_(0)
@@ -154,7 +153,6 @@ namespace edm {
         configure();
       }
       
-      boost::mutex::scoped_lock scoped_lock(mutex_);
       PrescaleTable_t::const_iterator it = prescaleTable_.find(prescaledPath);
       return (it == prescaleTable_.end()) ? 1 : it->second[lvl1Index];
     }

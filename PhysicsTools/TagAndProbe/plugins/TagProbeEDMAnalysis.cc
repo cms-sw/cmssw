@@ -17,7 +17,7 @@
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
 
 // TP Utilities
-#include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
+#include "PhysicsTools/TagAndProbe/interface/FCIntervals.hh"
 #include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
 #include "PhysicsTools/TagAndProbe/interface/SideBandSubtraction.hh"
 #include "PhysicsTools/TagAndProbe/interface/TPRooSimultaneousFitter.hh"
@@ -62,13 +62,12 @@
 #include <string>
 
 TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig): 
-
   effBinsFromTxt_(0),SBS_(0),
   zLineShape_(0), cbLineShape_(0), gaussLineShape_(0),
   polyBkgLineShape_(0),cmsBkgLineShape_(0), signalShapePdf_(0),
   var1Pass_(0), var1All_(0),
   var2Pass_(0), var2All_(0),
-  var1var2Pass_(0), var1var2All_(0),FCIntervals(0) {
+  var1var2Pass_(0), var1var2All_(0) {
 
   // Efficiency input variables
   tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
@@ -206,10 +205,6 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig):
 
   CreateFitTree();
   InitializeMCHistograms();
-  
-  FCIntervals.reset(new FeldmanCousinsBinomialInterval);
-  FCIntervals->init( 1 - 0.682);
-  
 }
 
 void TagProbeEDMAnalysis::CheckEfficiencyVariables () {
@@ -687,12 +682,7 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
     
     if((npassR + nfailR) != 0){
       double eff, effErrHi, effErrLo;      
-
-      FCIntervals->calculate (npassR, npassR + nfailR);
-
-      eff = npassR / (npassR + nfailR);
-      effErrHi = FCIntervals->upper() - eff;
-      effErrLo = eff - FCIntervals->lower();
+      FCIntervals::Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
       
       edm::LogInfo("TagProbeEDMAnalysis") << "Num pass " << npassR << ",  Num fail " << 
 	nfailR << ". Eff " << eff << " + " << effErrHi << " - " << effErrLo;
@@ -866,13 +856,8 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 
 	 if((npassR + nfailR) != 0){
 	   double eff, effErrHi, effErrLo;      
-
-	   FCIntervals->calculate (npassR, npassR + nfailR);
+	   FCIntervals::Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
 	   
-	   eff = npassR / (npassR + nfailR);
-	   effErrHi = FCIntervals->upper() - eff;
-	   effErrLo = eff - FCIntervals->lower();
-
 	   edm::LogInfo("TagProbeEDMAnalysis") << "Num pass " << npassR << ",  Num fail " << 
 	     nfailR << ". Eff " << eff << " + " << effErrHi << " - " << effErrLo;
 	   

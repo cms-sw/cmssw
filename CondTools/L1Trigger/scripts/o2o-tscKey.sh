@@ -75,12 +75,6 @@ fi
 echo "`date` : o2o-tscKey.sh finished : ${key}" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
 echo "" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
 
-if [ ! -f /nfshome0/popcondev/L1Job/o2o.summary ]
-    then
-    touch /nfshome0/popcondev/L1Job/o2o.summary
-fi
-tail -4 /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
-
 # Delete semaphore file
 rm -f o2o-tscKey.lock
 

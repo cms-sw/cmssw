@@ -116,13 +116,9 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
   if ( strME == "None" ) return ReferenceTrajectoryBase::none;
   if ( strME == "BreakPoints" ) return ReferenceTrajectoryBase::breakPoints;
   if ( strME == "BrokenLines" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
-  if ( strME == "BrokenLinesPca" ) return ReferenceTrajectoryBase::brokenLinesCoarsePca;
   if ( strME == "BrokenLinesCoarse" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
-  if ( strME == "BrokenLinesCoarsePca" ) return ReferenceTrajectoryBase::brokenLinesCoarsePca;
   if ( strME == "BrokenLinesFine" ) return ReferenceTrajectoryBase::brokenLinesFine;
-  if ( strME == "BrokenLinesFinePca" ) return ReferenceTrajectoryBase::brokenLinesFinePca;
-
-          
+        
   throw cms::Exception("BadConfig")
     << "[TrajectoryFactoryBase::materialEffects] Unknown parameter: " << strME;
 }

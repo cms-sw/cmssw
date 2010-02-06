@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/03 02:10:12 $
- *  $Revision: 1.34 $
+ *  $Date: 2009/11/12 17:30:00 $
+ *  $Revision: 1.31 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -54,7 +54,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   thePFJetAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
   theCaloMETAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoCaloMETAnalysis",true);
   theTcMETAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoTcMETAnalysis",  true);
-  theMuCorrMETAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoMuCorrMETAnalysis",  true);
   thePfMETAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPfMETAnalysis",  true);
   theHTMHTAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoHTMHTAnalysis",  true);
 
@@ -113,18 +112,12 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   if(theTcMETAnalyzerFlag){
      theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
   }
-  if(theMuCorrMETAnalyzerFlag){
-     theMuCorrMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("mucorrMETAnalysis"));
-  }
   if(thePfMETAnalyzerFlag){
      thePfMETAnalyzer = new PFMETAnalyzer(parameters.getParameter<ParameterSet>("pfMETAnalysis"));
   }
   if(theHTMHTAnalyzerFlag){
      theHTMHTAnalyzer         = new HTMHTAnalyzer(parameters.getParameter<ParameterSet>("HTMHTAnalysis"));
   }
-
-  _LSBegin     = parameters.getParameter<int>("LSBegin");
-  _LSEnd       = parameters.getParameter<int>("LSEnd");
 
   processname_ = parameters.getParameter<std::string>("processname");
 
@@ -159,7 +152,6 @@ JetMETAnalyzer::~JetMETAnalyzer() {
     delete theCaloMETNoHFHOAnalyzer;
   }
   if(theTcMETAnalyzerFlag)         delete theTcMETAnalyzer;
-  if(theMuCorrMETAnalyzerFlag)     delete theMuCorrMETAnalyzer;
   if(thePfMETAnalyzerFlag)         delete thePfMETAnalyzer;
   if(theHTMHTAnalyzerFlag)         delete theHTMHTAnalyzer;
 
@@ -203,7 +195,6 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
     theCaloMETNoHFHOAnalyzer->beginJob(iSetup, dbe);
   }
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginJob(iSetup, dbe);
-  if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginJob(iSetup, dbe);
   if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginJob(iSetup, dbe);
   if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->beginJob(iSetup, dbe);
   
@@ -248,8 +239,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
     theCaloMETHOAnalyzer->beginRun(iRun, iSetup);
     theCaloMETNoHFHOAnalyzer->beginRun(iRun, iSetup);
   }
-  if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginRun(iRun, iSetup);
-  if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginRun(iRun, iSetup);
+  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginRun(iRun, iSetup);
   if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginRun(iRun, iSetup);
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->beginRun(iRun, iSetup);
 
@@ -270,8 +260,7 @@ void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
     theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
   }
-  if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endRun(iRun, iSetup, dbe);
-  if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endRun(iRun, iSetup, dbe);
+  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endRun(iRun, iSetup, dbe);
   if(thePfMETAnalyzerFlag) thePfMETAnalyzer->endRun(iRun, iSetup, dbe);
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endRun(iRun, iSetup, dbe);
 
@@ -286,9 +275,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   int myLuminosityBlock;
   myLuminosityBlock = iEvent.luminosityBlock();
   lumisecME->Fill(myLuminosityBlock);
-
-  if (myLuminosityBlock<_LSBegin) return;
-  if (myLuminosityBlock>_LSEnd && _LSEnd>0) return;
 
   // **** Get the TriggerResults container
   edm::Handle<TriggerResults> triggerResults;
@@ -458,15 +444,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   //
-  // **** MuCorrMETAnalyzer **** //
-  //
-  if(theMuCorrMETAnalyzerFlag){
-
-    theMuCorrMETAnalyzer->analyze(iEvent, iSetup, *triggerResults);
-
-  }
-
-  //
   // **** PfMETAnalyzer **** //
   //
   if(thePfMETAnalyzerFlag){
@@ -493,7 +470,7 @@ void JetMETAnalyzer::endJob(void) {
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
 
   if(outputMEsInRootFile){
-    //dbe->showDirStructure();
+    dbe->showDirStructure();
     dbe->save(outputFileName);
   }
 
@@ -503,8 +480,8 @@ void JetMETAnalyzer::endJob(void) {
     theCaloMETHOAnalyzer->endJob();
     theCaloMETNoHFHOAnalyzer->endJob();
   }
-  if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob();
-  if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endJob();
+  if(theCaloMETAnalyzerFlag) 
+  //if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob();
   if(thePfMETAnalyzerFlag)   thePfMETAnalyzer->endJob();
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endJob();
 

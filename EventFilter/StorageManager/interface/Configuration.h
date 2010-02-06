@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.10 2009/09/18 11:08:59 mommsen Exp $
+// $Id: Configuration.h,v 1.9 2009/08/26 15:18:25 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -75,10 +75,19 @@ namespace stor
    */
   struct EventServingParams
   {
+    // some of these may go away once we get rid of the event server
+    bool _pushmode2proxy;
+    double _maxESEventRate;  // hertz
+    double _maxESDataRate;  // MB/sec
     utils::duration_t _activeConsumerTimeout;  // seconds
+    utils::duration_t _idleConsumerTimeout;  // seconds
     int _consumerQueueSize;
+    bool _fairShareES;
+    double _DQMmaxESEventRate;  // hertz
     utils::duration_t _DQMactiveConsumerTimeout;  // seconds
+    utils::duration_t _DQMidleConsumerTimeout;  // seconds
     int _DQMconsumerQueueSize;
+    std::string _esSelectedHLTOutputModule;
   };
 
   /**
@@ -121,8 +130,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/09/18 11:08:59 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/26 15:18:25 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -292,10 +301,18 @@ namespace stor
     xdata::Integer _nInjectWorkers;
     xdata::Integer _nCopyWorkers;
 
+    xdata::Boolean _pushmode2proxy;
+    xdata::Double _maxESEventRate;  // hertz
+    xdata::Double _maxESDataRate;  // MB/sec
     xdata::Integer _activeConsumerTimeout;  // seconds
+    xdata::Integer _idleConsumerTimeout;  // seconds
     xdata::Integer _consumerQueueSize;
+    xdata::Boolean _fairShareES;
+    xdata::Double _DQMmaxESEventRate;  // hertz
     xdata::Integer _DQMactiveConsumerTimeout;  // seconds
+    xdata::Integer _DQMidleConsumerTimeout;  // seconds
     xdata::Integer _DQMconsumerQueueSize;
+    xdata::String _esSelectedHLTOutputModule;
 
     xdata::Boolean _collateDQM;
     xdata::Boolean _archiveDQM;

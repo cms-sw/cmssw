@@ -26,11 +26,7 @@ process.offlinePrimaryVertices.TrackLabel = cms.InputTag("TrackRefitter1")
 
 # parameters for HIP
 process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
-<<<<<<< align_tpl.py
-########process.AlignmentProducer.HitPrescaleMap = '' #if this is not empty, turn on the usage of prescaled hits
-=======
 process.AlignmentProducer.HitPrescaleMap = '' #if this is not empty, turn on the usage of prescaled hits
->>>>>>> 1.9
 process.AlignmentProducer.algoConfig.outpath = ''
 process.AlignmentProducer.algoConfig.uvarFile = '<PATH>/IOUserVariables.root'
 ###process.AlignmentProducer.algoConfig.uvarFile = './IOUserVariables.root'

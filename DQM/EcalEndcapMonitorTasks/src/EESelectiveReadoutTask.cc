@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 12:52:10 $
- * $Revision: 1.44 $
+ * $Date: 2009/10/13 11:41:18 $
+ * $Revision: 1.37 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -123,12 +123,6 @@ void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
         nEvtFullReadout[ix][iy][iz] = 0;
         nEvtRUForced[ix][iy][iz] = 0;
         nEvtAnyReadout[ix][iy][iz] = 0;
-      }
-    }
-  }
-  for(int ix = 0; ix < 100; ix++ ) {
-    for(int iy = 0; iy < 100; iy++ ) {
-      for(int iz = 0; iz < 2; iz++) {
         nEvtHighInterest[ix][iy][iz] = 0;
         nEvtLowInterest[ix][iy][iz] = 0;
         nEvtAnyInterest[ix][iy][iz] = 0;
@@ -476,9 +470,9 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
   }
 
-  for(int ix = 0; ix < 20; ix++ ) {
-    for(int iy = 0; iy < 20; iy++ ) {
-      for(int iz = 0; iz < 2; iz++) {
+  for(int iz = 0; iz < 2; iz++) {
+    for(int ix = 0; ix < 20; ix++ ) {
+      for(int iy = 0; iy < 20; iy++ ) {
 
         if( nEvtAnyReadout[ix][iy][iz] ) {
 
@@ -572,9 +566,10 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
           double towerSize =  nCrySC[ix][iy][iz] * bytesPerCrystal;
 
           float xix = ix;
-          if ( iz == 0 ) xix = 19 - xix;
-          xix += 0.5;
 
+          if ( iz == 0 ) xix = 19 - xix;
+
+          xix += 0.5;
           float xiy = iy+0.5;
 
           EETowerSize_[iz]->Fill(xix, xiy, towerSize);
@@ -635,17 +630,15 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
-  for(int ix = 0; ix < 100; ix++ ) {
-    for(int iy = 0; iy < 100; iy++ ) {
-      for(int iz = 0; iz < 2; iz++) {
+  for(int iz = 0; iz < 2; iz++) {
+    for(int ix = 0; ix < 100; ix++ ) {
+      for(int iy = 0; iy < 100; iy++ ) {
 
         if( nEvtAnyInterest[ix][iy][iz] ) {
 
-          float xix = ix;
-          if ( iz == 0 ) xix = 99 - xix;
-          xix += 0.5;
-
-          float xiy = iy+0.5;
+          float xix = ix-0.5;
+          if ( iz == 0 ) xix = 100 - xix;
+          float xiy = iy-0.5;
 
           float fraction = float(nEvtHighInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
           float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
@@ -661,6 +654,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
           EEHighInterestTriggerTowerFlagMap_[iz]->setBinContent(binx, biny, fraction);
           EEHighInterestTriggerTowerFlagMap_[iz]->setBinError(binx, biny, error);
+
 
           fraction = float(nEvtLowInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
           error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));

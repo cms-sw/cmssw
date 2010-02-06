@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-#HLTTopPostVal = cms.EDFilter("DQMGenericClient",
-HLTTopPostProcessor = cms.EDFilter("DQMGenericClient",
+HLTTopPostVal = cms.EDFilter("DQMGenericClient",
     subDirs        = cms.untracked.vstring('HLT/Top/'),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName = cms.untracked.string(''),
@@ -43,19 +42,8 @@ HLTTopPostProcessor = cms.EDFilter("DQMGenericClient",
     "EffVsEta_HLT_Ele15_SW_L1R_EM                   'HLT_Ele15_SW_L1R                  ; #eta_{e };        Trigger_Efficiency'  Electron1Eta_EM_HLT_Ele15_SW_L1R                 Electron1Eta_EM",
     "EffVsPt_HLT_Ele15_SW_LooseTrackIso_L1R_EM      'HLT_Ele15_SW_LooseTrackIso_L1R    ; p_{T e };         Trigger_Efficiency'  Electron1Pt_EM_HLT_Ele15_SW_LooseTrackIso_L1R    Electron1Pt_EM",
     "EffVsEta_HLT_Ele15_SW_LooseTrackIso_L1R_EM     'HLT_Ele15_SW_LooseTrackIso_L1R    ; #eta_{e };        Trigger_Efficiency'  Electron1Eta_EM_HLT_Ele15_SW_LooseTrackIso_L1R   Electron1Eta_EM",   
-    #####
-    "Efficiencies_muontriggers                      'HLT efficiency wrt offline        ; eff ;              Trigger Efficiency'               muHLT   MuonEvents",
-    
-    "Efficiencies_muontriggers_gen                  'HLT efficiency wrt mc             ; eff ;              Trigger Efficiency'               genmuHLT   genMuonEvents",
-    ####
     
     
-    "Efficiencies_jettriggers_semimu                  'HLT efficiency wrt offline             ; eff ;              Trigger Efficiency'               numer   denom",
-    
-    "Efficiencies_electrontriggers                      'HLT efficiency wrt offline        ; eff ;              Trigger Efficiency'               elHLT   ElectronEvents",
-    
-    "Efficiencies_electrontriggers_gen                  'HLT efficiency wrt mc             ; eff ;              Trigger Efficiency'               genelHLT   genElectronEvents"
-    ####
     
     )
 )

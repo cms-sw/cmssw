@@ -70,6 +70,7 @@ namespace reco {
     /*     void setNeighbours( const std::vector< unsigned >& neighbours ); */
     void add4Neighbour( unsigned index );
     void add8Neighbour( unsigned index );
+    void setEnergyUp( double eUp) { energyUp_ = eUp; }
     
     void clearNeighbours() {
       neighbours4_.clear();
@@ -101,6 +102,9 @@ namespace reco {
 
     /// rechit energy
     double energy() const { return energy_; }
+
+    /// For HF hits: rechit energy (and neighbour's) in the other HF layer
+    double energyUp() const { return energyUp_; }
 
     /// rechit momentum transverse to the beam, squared.
     double pt2() const { return energy_ * energy_ *
@@ -191,6 +195,9 @@ namespace reco {
 
     /// rechit energy
     double              energy_;
+
+    /// For HF hits : hit energy in the other layer (EM for HAD, and HAD for EM)
+    double              energyUp_;
 
     /// is this a seed ? (-1:unknown, 0:no, 1 yes) (transient)
     // int                 seedState_;

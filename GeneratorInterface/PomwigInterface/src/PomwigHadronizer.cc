@@ -139,8 +139,8 @@ bool PomwigHadronizer::initializeForInternalPartons()
                         << "----------------------------------------------\n";
 
    // Call hwudat to set up HERWIG block data
-   //hwudat();
- 
+   hwudat();
+  
    // Setting basic parameters ...
    hwproc.PBEAM1 = comEnergy/2.;
    hwproc.PBEAM2 = comEnergy/2.;

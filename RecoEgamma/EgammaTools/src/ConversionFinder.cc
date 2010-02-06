@@ -3,64 +3,51 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
+
 typedef math::XYZTLorentzVector LorentzVector;
 
 ConversionFinder::ConversionFinder(){ }
 
 ConversionFinder::~ConversionFinder(){ }
 
-
-reco::TrackRef ConversionFinder::getConversionPartnerTrack(const reco::GsfElectron& gsfElectron, 
-							   const edm::Handle<reco::TrackCollection>& track_h, 
-							   const float bFieldAtOrigin,
-							   const float maxAbsDist,
-							   const float maxAbsDCot,
-							   const float minFracSharedHits) {
-
+bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron, 
+					  const edm::View<reco::Track>& v_tracks,
+					  const float bFieldAtOrigin, 
+					  const float maxAbsDist,
+					  const float maxAbsDCot,
+					  const float minFracSharedHits) {
   using namespace edm;
   using namespace reco;
+  const reco::GsfTrackRef el_gsftrack = gsfElectron.gsfTrack();
   const reco::TrackRef el_ctftrack = gsfElectron.closestCtfTrackRef();
-  const TrackCollection *ctftracks = track_h.product();
   
   
-  const reco::Track* el_track = getElectronTrack(gsfElectron, minFracSharedHits);
-  int ctfidx = -999;
-  int el_q   = el_track->charge();
-  LorentzVector el_tk_p4(el_track->px(), el_track->py(), el_track->pz(), el_track->p());
-  double el_d0 = el_track->d0();
+  int ctfidx = el_ctftrack.isNonnull() ? static_cast<int>(el_ctftrack.key()) : -999;
+  int el_q = el_gsftrack->charge();
+  LorentzVector el_tk_p4 = LorentzVector(el_gsftrack->px(), el_gsftrack->py(),
+					 el_gsftrack->pz(), el_gsftrack->p());
+  double el_d0 = el_gsftrack->d0();
 
-
-  if(el_ctftrack.isNonnull() && gsfElectron.shFracInnerHits() > minFracSharedHits)
-    ctfidx = static_cast<int>(el_ctftrack.key());
-  
   int tk_i = 0;
-  double mindR = 999;
-
-  //make a null Track Ref
-  TrackRef ctfTrackRef = TrackRef() ;
-  
-  for(TrackCollection::const_iterator tk = ctftracks->begin();
-      tk != ctftracks->end(); tk++, tk_i++) {
+  for(View<Track>::const_iterator tk = v_tracks.begin();
+      tk != v_tracks.end(); tk++, tk_i++) {
     //if the general Track is the same one as made by the electron, skip it
-    if((tk_i == ctfidx)  &&  (gsfElectron.shFracInnerHits() > minFracSharedHits))
+    if(tk_i == ctfidx && gsfElectron.shFracInnerHits() > minFracSharedHits)
       continue;
     
-    
-    LorentzVector tk_p4 = LorentzVector(tk->px(), tk->py(),
-					tk->pz(), tk->p());
- 
     //look only in a cone of 0.3
-    double dR = deltaR(el_tk_p4, tk_p4);
+    double dR = deltaR(el_tk_p4, LorentzVector(tk->px(), tk->py(), tk->pz(), tk->p()));
     if(dR > 0.3)
       continue;
 
     int tk_q = tk->charge();
-    double tk_d0 = tk->d0();
 
     //the electron and track must be opposite charge
-    if(tk_q + el_q != 0)
+    if(tk_q + gsfElectron.charge() != 0)
       continue;
-    
+    LorentzVector tk_p4 = LorentzVector(tk->px(), tk->py(),
+					tk->pz(), tk->p());
+    double tk_d0 = tk->d0();
     std::pair<double, double> convInfo =  getConversionInfo(el_tk_p4, el_q, el_d0,
 							    tk_p4, tk_q, tk_d0,
 							    bFieldAtOrigin);
@@ -68,32 +55,11 @@ reco::TrackRef ConversionFinder::getConversionPartnerTrack(const reco::GsfElectr
     double dist = convInfo.first;
     double dcot = convInfo.second;
     
-    if(fabs(dist) < maxAbsDist && fabs(dcot) < maxAbsDCot && dR < mindR) {
-      ctfTrackRef = reco::TrackRef(track_h, tk_i);
-      mindR = dR;
-    }
-      
+    if(fabs(dist) < maxAbsDist && fabs(dcot) < maxAbsDCot)
+      return true;
   }//track loop
   
-  return ctfTrackRef;
-}
-
-
-bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron, 
-					  const edm::Handle<reco::TrackCollection>& track_h, 
-					  const float bFieldAtOrigin,
-					  const float maxAbsDist,
-					  const float maxAbsDCot,
-					  const float minFracSharedHits) {
-
-
-
-  reco::TrackRef partner  = getConversionPartnerTrack(gsfElectron, track_h, bFieldAtOrigin, 
-			    maxAbsDist, maxAbsDCot, minFracSharedHits);
-  
-  
-  
-  return partner.isNonnull();
+  return false;
     
 }
 
@@ -123,14 +89,4 @@ std::pair<double, double> ConversionFinder::getConversionInfo(LorentzVector trk1
 
   return std::make_pair(dist, dcot);
   
-}
-
-
-const reco::Track* ConversionFinder::getElectronTrack(const reco::GsfElectron& electron, const float minFracSharedHits) {
-
-  if(electron.closestCtfTrackRef().isNonnull() &&
-     electron.shFracInnerHits() > minFracSharedHits)
-    return (const reco::Track*)electron.closestCtfTrackRef().get();
-  
-  return (const reco::Track*)(electron.gsfTrack().get());
 }

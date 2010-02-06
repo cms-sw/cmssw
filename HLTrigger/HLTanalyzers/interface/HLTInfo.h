@@ -101,8 +101,6 @@ private:
   int l1hfTowerCountPositiveEtaRing1,l1hfTowerCountNegativeEtaRing1;
   int l1hfTowerCountPositiveEtaRing2,l1hfTowerCountNegativeEtaRing2;
 
-  std::vector<int> *techtriggerbits_;
-
   // input variables
   bool _Debug;
 

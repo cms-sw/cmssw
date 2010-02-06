@@ -8,10 +8,9 @@ iterativeFifthTrackMerging = cms.EDFilter("FastTrackMerger",
                                                                                           cms.InputTag("secfilter"),      #prova          
                                                                                           cms.InputTag("thfilter"),      #prova          
                                                                                           cms.InputTag("foufilter")),      #prova          
-                                          trackAlgo = cms.untracked.uint32(9)
-                                          ##,
-                                          ##MinNumberOfTrajHits = cms.untracked.uint32(4),
-                                          ##MaxLostTrajHits = cms.untracked.uint32(0)
+                                          trackAlgo = cms.untracked.uint32(9),
+                                          MinNumberOfTrajHits = cms.untracked.uint32(4),
+                                          MaxLostTrajHits = cms.untracked.uint32(0)
                                           )
 
 

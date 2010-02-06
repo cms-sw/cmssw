@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.cc,v 1.7 2009/08/15 16:59:53 kodolova Exp $
+// $Id: TestMuL1L2Filter.cc,v 1.1 2009/08/17 11:54:22 kodolova Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex
@@ -40,11 +40,11 @@ TestMuL1L2Filter::TestMuL1L2Filter(const edm::ParameterSet& ps1)
    pset_ = ps1;
 }
 
-void TestMuL1L2Filter::beginJob(const edm::EventSetup& es1)
+void TestMuL1L2Filter::beginJob()
 {
 //   theHICConst = new HICConst();
 //   theFmpConst = new FmpConst();
-   theTrackVertexMaker = new HITrackVertexMaker(pset_,es1);
+//   theTrackVertexMaker = new HITrackVertexMaker(pset_,es1);
 }
 
 void TestMuL1L2Filter::endJob()
@@ -63,11 +63,11 @@ TestMuL1L2Filter::~TestMuL1L2Filter()
 
 bool TestMuL1L2Filter::filter(edm::Event& e1, const edm::EventSetup& es1)
 {
-
+   HITrackVertexMaker theTrackVertexMaker(pset_,es1);
 // Start track finder
    HICConst theHICConst;
    FmpConst theFmpConst;
-   bool dimuon = theTrackVertexMaker->produceTracks(e1,es1,&theHICConst,&theFmpConst);
+   bool dimuon = theTrackVertexMaker.produceTracks(e1,es1,&theHICConst,&theFmpConst);
 //   if(dimuon) cout<<" The vertex is found : "<<endl; 
    return dimuon;
    

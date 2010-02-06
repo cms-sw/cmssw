@@ -25,7 +25,6 @@ DEFINE_ANOTHER_FWK_SERVICE(TkDetMap);
 #include "CalibTracker/SiStripCommon/interface/ShallowSimhitClustersProducer.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowTracksProducer.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowSimTracksProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowGainCalibration.h"
 
 DEFINE_ANOTHER_FWK_MODULE(ShallowTree);
 DEFINE_ANOTHER_FWK_MODULE(ShallowEventDataProducer);
@@ -36,4 +35,3 @@ DEFINE_ANOTHER_FWK_MODULE(ShallowRechitClustersProducer);
 DEFINE_ANOTHER_FWK_MODULE(ShallowSimhitClustersProducer);
 DEFINE_ANOTHER_FWK_MODULE(ShallowTracksProducer);
 DEFINE_ANOTHER_FWK_MODULE(ShallowSimTracksProducer);
-DEFINE_ANOTHER_FWK_MODULE(ShallowGainCalibration);

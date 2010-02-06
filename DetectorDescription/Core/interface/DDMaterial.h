@@ -83,7 +83,7 @@ public:
   double density() const;
   
   //! clears the transient store
-/*   static void clear(); */
+  static void clear();
   
 private:
   //explicit DDMaterial(DDRedirect<DDMaterialImpl>* p, bool dummy);

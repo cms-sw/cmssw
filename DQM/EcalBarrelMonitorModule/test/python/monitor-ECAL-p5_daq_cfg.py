@@ -8,8 +8,8 @@ process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
 
-import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
+process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
@@ -25,12 +25,6 @@ process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
-
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
-
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
-
 process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
 process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
@@ -42,6 +36,12 @@ process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 
 process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
+
+process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 
@@ -234,6 +234,7 @@ process.ecalUncalibHit2.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalUncalibHit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
 process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
+process.ecalRecHit.killDeadChannels = False
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
 
@@ -244,6 +245,8 @@ process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
+
+process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'P5'

@@ -4,17 +4,12 @@ process = cms.Process('GctVmeDoAll')
 
 process.source = cms.Source ( "EmptySource" )
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
-process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(100)
-
-
 # N events
-process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 3563 ) )
+process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 1 ) )
 
 # raw data
 process.gctRaw = cms.OutputModule( "TextToRaw",
-  filename = cms.untracked.string("patternCapture_ts__2009_11_03__17h21m43s.txt"),
+  filename = cms.untracked.string("patternCaptureOrbit_ts__2008_08_15__18h57m24s.txt"),
   GctFedId = cms.untracked.int32 ( 745 )
 )
 
@@ -28,8 +23,6 @@ process.dumpRaw = cms.OutputModule ( "DumpFEDRawDataProduct",
 process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
 process.l1GctHwDigis.inputLabel = cms.InputTag( "gctRaw" )
 process.l1GctHwDigis.verbose = cms.untracked.bool ( True )
-process.l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(1)
-process.l1GctHwDigis.numberOfRctSamplesToUnpack = cms.uint32(1)
 
 # dump digis
 process.load('L1Trigger.L1GctAnalyzer.dumpGctDigis_cfi')
@@ -73,7 +66,7 @@ process.l1tgct.gctTauJetsSource = cms.InputTag("l1GctHwDigis","tauJets")
 # RCT DQM
 process.load('DQM.L1TMonitor.L1TRCT_cfi')
 process.l1trct.disableROOToutput = cms.untracked.bool(False)
-#process.l1trct.outputFile = cms.untracked.string('gctDqm.root')
+process.l1trct.outputFile = cms.untracked.string('gctDqm.root')
 process.l1trct.rctSource = cms.InputTag("l1GctHwDigis","")
 
 # EMU DQM
@@ -83,7 +76,7 @@ process.l1demon.HistFile = cms.untracked.string('gctDqm.root')
 
 process.defaultPath = cms.Sequence ( process.gctRaw * process.l1GctHwDigis
 # print Raw
-#                       * process.dumpRaw
+                       * process.dumpRaw
 # print GCT digis
 #                       * process.dumpGctDigis
 # RCT DQM
@@ -94,12 +87,3 @@ process.defaultPath = cms.Sequence ( process.gctRaw * process.l1GctHwDigis
                        * process.valGctDigis * process.l1compare * process.l1demon )
 
 process.p = cms.Path(process.defaultPath)
-
-# Write out digis in file
-process.out = cms.OutputModule(
-    "PoolOutputModule",
-    fileName = cms.untracked.string("gctVmeDoAll.root")
-    )
-
-process.outpath=cms.EndPath(process.out)
-

@@ -6,42 +6,49 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           # Variables for the Overall Client
                           runningStandalone         = cms.untracked.bool(False),
                           Online                    = cms.untracked.bool(False), 
-                          databasedir               = cms.untracked.string(''),
-
-                          # maximum number of lumi blocks to appear in some histograms
+                          # number of luminosity blocks to check
                           Nlumiblocks = cms.untracked.int32(1000),
                           subSystemFolder           = cms.untracked.string('Hcal'),
                           processName               = cms.untracked.string(''),
                           inputfile                 = cms.untracked.string(''),
                           baseHtmlDir               = cms.untracked.string('.'),
                           MonitorDaemon             = cms.untracked.bool(True),
-
-                          # run actual client either every N events or M lumi blocks (or both)
-                          diagnosticPrescaleEvt     = cms.untracked.int32(-1),
-                          diagnosticPrescaleLS      = cms.untracked.int32(1),
+                          diagnosticPrescaleTime    = cms.untracked.int32(-1),
+                          diagnosticPrescaleEvt     = cms.untracked.int32(200),
+                          diagnosticPrescaleLS      = cms.untracked.int32(-1),
+                          diagnosticPrescaleUpdate  = cms.untracked.int32(-1),
+                          resetFreqTime             = cms.untracked.int32(-1),
                           resetFreqEvents           = cms.untracked.int32(-1),
                           resetFreqLS               = cms.untracked.int32(-1),
-                          
+                          resetFreqUpdates          = cms.untracked.int32(-1),
+                          enableExit                = cms.untracked.bool(False),
+                          #DoPerChanTests            = cms.untracked.bool(False), # is this used anywhere?
                           # Variables from which subtasks may inherit
-                          subDetsOn                 = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'), # we should get rid of this at some point
+                          subDetsOn                 = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'),
                           debug                     = cms.untracked.int32(0),
                           showTiming                = cms.untracked.bool(False),
+                          fillUnphysicalIphi        = cms.untracked.bool(True),
+
 
                           BadCells = cms.untracked.vstring(),
 
-                          # Reference Pedestal Client,
-                          ReferencePedestalClient                       = cms.untracked.bool(True),
-                          ReferencePedestalClient_nominalPedMeanInADC   = cms.untracked.double(3.),
-                          ReferencePedestalClient_nominalPedWidthInADC  = cms.untracked.double(1.),
-                          ReferencePedestalClient_maxPedMeanDiffADC     = cms.untracked.double(1.),
-                          ReferencePedestalClient_maxPedWidthDiffADC    = cms.untracked.double(1.),
-                          ReferencePedestalClient_minErrorFlag          = cms.untracked.double(0.05),
-                          ReferencePedestalClient_makeDiagnosticPlots   = cms.untracked.bool(False),
+                          # Pedestal Client,
+                          PedestalClient                       = cms.untracked.bool(True),
+                          PedestalClient_nominalPedMeanInADC   = cms.untracked.double(3.),
+                          PedestalClient_nominalPedWidthInADC  = cms.untracked.double(1.),
+                          PedestalClient_maxPedMeanDiffADC     = cms.untracked.double(1.),
+                          PedestalClient_maxPedWidthDiffADC    = cms.untracked.double(1.),
+                          PedestalClient_pedestalsInFC         = cms.untracked.bool(True),
+                          PedestalClient_startingTimeSlice     = cms.untracked.int32(0),
+                          PedestalClient_endingTimeSlice       = cms.untracked.int32(1),
+                          PedestalClient_minErrorFlag          = cms.untracked.double(0.05),
                           
                           # DigiClient
-                          DigiClient                 = cms.untracked.bool(True),
-                          DigiClient_minErrorFlag    = cms.untracked.double(0.05),
- 
+                          DigiClient                = cms.untracked.bool(True),
+                          #digiErrorFrac             = cms.untracked.double(0.05),
+                          #CapIdMEAN_ErrThresh       = cms.untracked.double(1.5),
+                          #CapIdRMS_ErrThresh        = cms.untracked.double(0.25),
+
                           # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
                           # Detector diagnostic Monitors  
                           DetDiagPedestalClient     = cms.untracked.bool(False),
@@ -51,9 +58,10 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
 
                           # Dead Cell Client
                           DeadCellClient                                = cms.untracked.bool(True),
-                          DeadCellClient_test_digis                     = cms.untracked.bool(True),
-                          DeadCellClient_test_rechits                   = cms.untracked.bool(True),
-                          DeadCellClient_checkNevents                   = cms.untracked.int32(1000),
+                          DeadCellClient_test_neverpresent              = cms.untracked.bool(True),
+                          DeadCellClient_test_occupancy                 = cms.untracked.bool(True),
+                          DeadCellClient_test_energy                    = cms.untracked.bool(True),
+                          DeadCellClient_checkNevents                   = cms.untracked.int32(100),
                           DeadCellClient_minErrorFlag                   = cms.untracked.double(0.05),
                           DeadCellClient_makeDiagnosticPlots            = cms.untracked.bool(False),
 
@@ -63,14 +71,13 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           #HotCellClient_test_pedestal                   = cms.untracked.bool(True),
                           HotCellClient_test_energy                     = cms.untracked.bool(True),
                           HotCellClient_test_neighbor                   = cms.untracked.bool(False),
-                          HotCellClient_checkNevents                    = cms.untracked.int32(1000),
+                          HotCellClient_checkNevents                    = cms.untracked.int32(100),
                           HotCellClient_minErrorFlag                    = cms.untracked.double(0.05),
                           HotCellClient_makeDiagnosticPlots             = cms.untracked.bool(False),
                           
                           # DataFormatClient
                           DataFormatClient          = cms.untracked.bool(True),
-                          DataFormatClient_minErrorFlag = cms.untracked.double(0.01),
-                          
+
                           # Summary Client
                           SummaryClient             = cms.untracked.bool(True),
 
@@ -84,11 +91,6 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           RecHitClient_checkNevents                     = cms.untracked.int32(500),
                           RecHitClient_minErrorFlag                     = cms.untracked.double(0.00),
                           RecHitClient_makeDiagnosticPlots              = cms.untracked.bool(False),
-
-                          ########################################################################
-                          # Noise Client
-                          NoiseClient                                  = cms.untracked.bool(True),
-                          ########################################################################
                           
                           # CaloTowerClient
                           CaloTowerClient           = cms.untracked.bool(False),
@@ -100,13 +102,12 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           BeamClient                     = cms.untracked.bool(True),
                           BeamClient_checkNevents        = cms.untracked.int32(100),
                           BeamClient_minErrorFlag        = cms.untracked.double(0.05),
-                          BeamClient_makeDiagnosticPlots = cms.untracked.bool(False)
+                          BeamClient_makeDiagosticPlots  = cms.untracked.bool(False)
                           )
 
 
 
 def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
-
     # need to make separate copy, or changing client after this call will also change monitor!
     monitor=deepcopy(origmonitor)
     
@@ -115,73 +116,82 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
     client.subSystemFolder = monitor.subSystemFolder
 
-    # Set update period of client to checkNevents value of monitor ?
-    checkN = deepcopy(client.diagnosticPrescaleEvt.value())
+    # Set update period of client to checkNevents value of monitor 
+
+    # This doesn't work, because monitor.checkNevents returns 'cms.untracked.bool(...)'
+    #client.diagnosticPrescaleEvt                  = max(100,monitor.checkNevents) # combine checkNevents and diagnosticPrescaleEvt into one?
+
+    checkN = deepcopy(client.diagnosticPrescaleEvt)
     
-    client.Online                                 = monitor.Online.value()
-    client.Nlumiblocks                            = monitor.Nlumiblocks.value()
+    client.Online                                 = monitor.Online
+    client.Nlumiblocks                            = monitor.Nlumiblocks
+    client.fillUnphysicalIphi                     = monitor.fillUnphysicalIphi 
+
+    
 
     # Beam Client
-    client.BeamClient                             = monitor.BeamMonitor.value()
-    client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag.value()
-    client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots.value()
+    client.BeamClient                             = monitor.BeamMonitor
+    client.BeamClient_minErrorFlag                = monitor.BeamMonitor_minErrorFlag
+    client.BeamClient_makeDiagnosticPlots         = monitor.BeamMonitor_makeDiagnosticPlots
     
     # Dead Cell
-    client.DeadCellClient                         = monitor.DeadCellMonitor.value()
-    client.DeadCellClient_test_digis              = monitor.DeadCellMonitor_test_digis.value()
-    client.DeadCellClient_test_rechits            = monitor.DeadCellMonitor_test_rechits.value()
-    client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag.value() # want to keep these separate?
-    client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots.value()         
+    client.DeadCellClient                         = monitor.DeadCellMonitor
+    client.DeadCellClient_test_neverpresent       = monitor.DeadCellMonitor_test_neverpresent
+    client.DeadCellClient_test_occupancy          = monitor.DeadCellMonitor_test_occupancy
+    client.DeadCellClient_test_energy             = monitor.DeadCellMonitor_test_energy
+    #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
+    client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
 
     # Digi 
-    client.DigiClient                             = monitor.DigiMonitor.value()
+    client.DigiClient                             = monitor.DigiMonitor
 
     # Hot Cell
-    client.HotCellClient                          = monitor.HotCellMonitor.value()
-    client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent.value()
-    client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy.value()
-    client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor.value()
-    client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag.value() # want to keep these separate?
-    client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots.value()
+    client.HotCellClient                          = monitor.HotCellMonitor
+    client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent
+    client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy
+    client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor
+    #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag # want to keep these separate?
+    client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots
 
     # Pedestal Client
-    client.ReferencePedestalClient                         = monitor.ReferencePedestalMonitor.value()
-    client.ReferencePedestalClient_nominalPedMeanInADC     = monitor.ReferencePedestalMonitor_nominalPedMeanInADC.value()
-    client.ReferencePedestalClient_nominalPedWidthInADC    = monitor.ReferencePedestalMonitor_nominalPedWidthInADC.value()
-    client.ReferencePedestalClient_maxPedMeanDiffADC       = monitor.ReferencePedestalMonitor_maxPedMeanDiffADC.value()
-    client.ReferencePedestalClient_maxPedWidthDiffADC      = monitor.ReferencePedestalMonitor_maxPedWidthDiffADC.value()
-    client.ReferencePedestalClient_makeDiagnosticPlots     = monitor.ReferencePedestalMonitor_makeDiagnosticPlots.value()
-    #client.ReferencePedestalClient_minErrorFlag           = monitor.ReferencePedestalMonitor_minErrorFlag.value() # want to keep these separate?
+    client.PedestalClient                         = monitor.PedestalMonitor
+    client.PedestalClient_nominalPedMeanInADC     = monitor.PedestalMonitor_nominalPedMeanInADC
+    client.PedestalClient_nominalPedWidthInADC    = monitor.PedestalMonitor_nominalPedWidthInADC
+    client.PedestalClient_maxPedMeanDiffADC       = monitor.PedestalMonitor_maxPedMeanDiffADC
+    client.PedestalClient_maxPedWidthDiffADC      = monitor.PedestalMonitor_maxPedWidthDiffADC
+    client.PedestalClient_pedestalsInFC           = monitor.PedestalMonitor_pedestalsInFC
+    client.PedestalClient_startingTimeSlice       = monitor.PedestalMonitor_startingTimeSlice
+    client.PedestalClient_endingTimeSlice         = monitor.PedestalMonitor_endingTimeSlice
+    #client.PedestalClient_minErrorFlag           = monitor.PedestalMonitor_minErrorFlag # want to keep these separate?
 
     # Rec Hit Client
-    client.RecHitClient                           = monitor.RecHitMonitor.value()
-    client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag.value()
-    client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots.value()
+    client.RecHitClient                           = monitor.RecHitMonitor
+    client.RecHitClient_minErrorFlag              = monitor.RecHitMonitor_minErrorFlag
+    client.RecHitClient_makeDiagnosticPlots       = monitor.RecHitMonitor_makeDiagnosticPlots
 
-    #########################################################################
-    # Noise Client
-    client.NoiseClient                           = monitor.DetDiagNoiseMonitor
-    #########################################################################
 
-    client.DataFormatClient  = monitor.DataFormatMonitor.value()
-    client.LEDClient         = monitor.LEDMonitor.value()
-    client.CaloTowerClient   = monitor.CaloTowerMonitor.value()
-    client.TrigPrimClient    = monitor.TrigPrimMonitor.value()
+    client.DataFormatClient  = monitor.DataFormatMonitor
+    client.LEDClient         = monitor.LEDMonitor
+    client.CaloTowerClient   = monitor.CaloTowerMonitor
+    client.TrigPrimClient    = monitor.TrigPrimMonitor
 
-    client.showTiming        = monitor.showTiming.value()
-    client.debug             = monitor.debug.value()
+    client.showTiming        = monitor.showTiming
+    client.debug             = monitor.debug
 
     if (debug):
         print "HcalMonitorClient values from HcalMonitorModule: "
         print "Debug              = ", client.debug
         print "Online             = ", client.Online
-        print "Channel status output dir = ", client.databasedir
         print "Nlumiblocks        = ", client.Nlumiblocks
         print "showTiming         = ", client.showTiming
         print "PrescaleEvt        = ", client.diagnosticPrescaleEvt
-        print "ReferencePedestal Client    = ", client.ReferencePedestalClient
+        print "Pedestal Client    = ", client.PedestalClient
         print "Digi Client        = ", client.DigiClient
         print "DeadCell Client    = ", client.DeadCellClient
+        print "\t\t Test DeadCell occupancy? ", client.DeadCellClient_test_occupancy
+        #print "\t\t Test DeadCell pedestal? ", client.DeadCellClient_test_pedestal
+        print "\t\t Test DeadCell energy? ", client.DeadCellClient_test_energy
+        #print "\t\t Test DeadCell neighbor? ", client.DeadCellClient_test_neighbor
         print "\t\t Min Error Flag  = ",client.DeadCellClient_minErrorFlag
         print "\t\t make diagnostics? ",client.DeadCellClient_makeDiagnosticPlots
 
@@ -200,11 +210,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "\t\t CheckNevents  = ",   client.RecHitClient_checkNevents
         print "\t\t MinErrorFlag  = ",   client.RecHitClient_minErrorFlag
         print "\t\t make diagnostics? ", client.RecHitClient_makeDiagnosticPlots
-
-    #########################################################################
-        print "Noise Client      = ",   client.NoiseClient
-    #########################################################################
-
         print "Beam Client      = ",     client.BeamClient
         print "\t\t CheckNevents  = ",   client.BeamClient_checkNevents
         print "\t\t MinErrorFlag  = ",   client.BeamClient_minErrorFlag

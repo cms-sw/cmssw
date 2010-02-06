@@ -15,8 +15,10 @@ HcalNoiseSummary::HcalNoiseSummary()
     min10_(999999.), max10_(-999999.), rms10_(0.0),
     min25_(999999.), max25_(-999999.), rms25_(0.0),
     cnthit10_(0), cnthit25_(0),
-    mine2ts_(0.), mine10ts_(0.), maxzeros_(0),
-    maxhpdhits_(0), maxrbxhits_(0),
+    mine2ts_(0.), mine10ts_(0.),
+    maxe2ts_(0.), maxe10ts_(0.),
+    maxzeros_(0),
+    maxhpdhits_(0), maxhpdhitsnoother_(0), maxrbxhits_(0),
     minhpdemf_(999999.), minrbxemf_(999999.),
     nproblemRBXs_(0)
 {
@@ -45,7 +47,9 @@ bool HcalNoiseSummary::passHighLevelNoiseFilter(void) const
 
 int HcalNoiseSummary::noiseType(void) const
 {
-  return noisetype_;
+  if(maxRBXHits()>18) return 3;
+  else if(maxRBXHits()>8) return 2;
+  return 1;
 }
 
 int HcalNoiseSummary::noiseFilterStatus(void) const
@@ -135,6 +139,21 @@ float HcalNoiseSummary::minE2Over10TS(void) const
   return mine10ts_==0 ? 999999. : mine2ts_/mine10ts_;
 }
 
+float HcalNoiseSummary::maxE2TS(void) const
+{
+  return maxe2ts_;
+}
+
+float HcalNoiseSummary::maxE10TS(void) const
+{
+  return maxe10ts_;
+}
+
+float HcalNoiseSummary::maxE2Over10TS(void) const
+{
+  return maxe10ts_==0 ? -999999. : maxe2ts_/maxe10ts_;
+}
+
 int HcalNoiseSummary::maxZeros(void) const
 {
   return maxzeros_;
@@ -143,6 +162,11 @@ int HcalNoiseSummary::maxZeros(void) const
 int HcalNoiseSummary::maxHPDHits(void) const
 {
   return maxhpdhits_;
+}
+
+int HcalNoiseSummary::maxHPDNoOtherHits(void) const
+{
+  return maxhpdhitsnoother_;
 }
 
 int HcalNoiseSummary::maxRBXHits(void) const
@@ -168,4 +192,19 @@ int HcalNoiseSummary::numProblematicRBXs(void) const
 edm::RefVector<reco::CaloJetCollection> HcalNoiseSummary::problematicJets(void) const
 {
   return problemjets_;
+}
+
+edm::RefVector<CaloTowerCollection> HcalNoiseSummary::looseNoiseTowers(void) const
+{
+  return loosenoisetwrs_;
+}
+
+edm::RefVector<CaloTowerCollection> HcalNoiseSummary::tightNoiseTowers(void) const
+{
+  return tightnoisetwrs_;
+}
+
+edm::RefVector<CaloTowerCollection> HcalNoiseSummary::highLevelNoiseTowers(void) const
+{
+  return hlnoisetwrs_;
 }

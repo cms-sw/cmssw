@@ -44,7 +44,7 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob();
 
     /// GT comparison
     virtual void analyzeGT(const edm::Event&, const edm::EventSetup&);

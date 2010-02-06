@@ -20,6 +20,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
@@ -131,6 +132,8 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    if (fabs(m_eta) > 1.5) {
       data->GetEtaBins()->SetTitle("X[cm]");
       data->GetPhiBins()->SetTitle("Y[cm]");
+      data->GetPhiBins()->SetTitleSize(0.03);
+      data->GetEtaBins()->SetTitleSize(0.03);
    } else {
       data->SetEtaBins(new TAxis(etaBinsWithinLimits.size()-1,eta_bins));
       data->SetPhiBins(new TAxis(phiBinsWithinLimits.size()-1,phi_bins));
@@ -138,11 +141,11 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       data->GetEtaBins()->SetTitle("h");
       data->GetPhiBins()->SetTitleFont(122);
       data->GetPhiBins()->SetTitle("f");
+      data->GetPhiBins()->SetTitleSize(0.05);
+      data->GetEtaBins()->SetTitleSize(0.05);
    }
    delete [] eta_bins;
    delete [] phi_bins;
-   data->GetPhiBins()->SetTitleSize(0.03);
-   data->GetEtaBins()->SetTitleSize(0.03);
 
    // lego
    TEveCaloLego *lego = new TEveCaloLego(data);
@@ -348,34 +351,33 @@ FWECALDetailViewBuilder::makeLegend( double x0, double y0,
    Double_t yStep = 0.04;
 
    y -= yStep;
-
    latex->DrawLatex(x, y, "Energy types:");
    y -= yStep;
 
-   TBox *b1 = new TBox(x+0.05, y, x+0.20, y+boxH);
-   b1->SetFillColor(m_defaultColor);
-   b1->Draw();
+   Double_t pos[4];
+   pos[0] = x+0.05;
+   pos[2] = x+0.20;
+
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox(pos, m_defaultColor);
    latex->DrawLatex(x+0.25, y, "unclustered");
    y -= yStep;
    if (clustered1<0) return y;
 
-   TBox *b2 = new TBox(x+0.05, y, x+0.20, y+boxH);
-   b2->SetFillColor(clustered1);
-   b2->Draw();
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox(pos, clustered1);
    latex->DrawLatex(x+0.25, y, "clustered");
    y -= yStep;
    if (clustered2<0) return y;
 
-   TBox *b3 = new TBox(x+0.05, y, x+0.20, y+boxH);
-   b3->SetFillColor(clustered2);
-   b3->Draw();
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox(pos, clustered2);
    latex->DrawLatex(x+0.25, y, "clustered");
    y -= yStep;
    if (supercluster<0) return y;
 
-   TBox *b4 = new TBox(x+0.05, y, x+0.20, y+boxH);
-   b4->SetFillColor(supercluster);
-   b4->Draw();
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox(pos, supercluster);
    latex->DrawLatex(x+0.25, y, "super-cluster");
    y -= yStep;
 

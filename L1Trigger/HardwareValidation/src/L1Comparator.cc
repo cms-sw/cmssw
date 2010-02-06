@@ -1,10 +1,4 @@
 #include "L1Trigger/HardwareValidation/interface/L1Comparator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
-#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
-#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
-
 
 using namespace dedefs;
 
@@ -147,7 +141,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
 L1Comparator::~L1Comparator(){}
 
-void L1Comparator::beginJob(const edm::EventSetup& ) {}
+void L1Comparator::beginJob(const edm::EventSetup&) {}
 
 void L1Comparator::endJob() {
   if(m_dumpMode)
@@ -157,9 +151,10 @@ void L1Comparator::endJob() {
   m_dumpFile.close();
 }
 
+
 void
 L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+ 
   nevt_++;
   evtNum_ = iEvent.id().event();
   runNum_ = iEvent.id().run();
@@ -167,33 +162,6 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(verbose())
     std::cout << "\nL1COMPARATOR entry:" << nevt_ << " | evt:" << evtNum_ 
 	      << " | run:" << runNum_ << "\n" << std::flush;
-
-  // disable subsystem if not included in current run configuration
-  try 
-    {
-      edm::ESHandle< L1TriggerKey > pKey ;
-      iSetup.get< L1TriggerKeyRcd >().get( pKey ) ;
-      std::string tscKey = pKey->tscKey(); 
-      m_doSys[ETP] &= (tscKey.find("ECAL" )!=std::string::npos);  
-      m_doSys[HTP] &= (tscKey.find("HCAL" )!=std::string::npos);  
-      m_doSys[RCT] &= (tscKey.find("RCT"  )!=std::string::npos);  
-      m_doSys[GCT] &= (tscKey.find("GCT"  )!=std::string::npos);  
-      m_doSys[DTP] &= (tscKey.find("DT"   )!=std::string::npos);  
-      m_doSys[DTF] &= (tscKey.find("DTTF" )!=std::string::npos);  
-      m_doSys[CTP] &= (tscKey.find("CSC"  )!=std::string::npos);  
-      m_doSys[CTF] &= (tscKey.find("CSCTF")!=std::string::npos);  
-      m_doSys[RPC] &= (tscKey.find("RPC"  )!=std::string::npos);  
-      if(verbose() && nevt_==1)
-	std::cout << "Current TSC key = " << tscKey << std::endl; 
-      //access subsystem key if needed, eg:
-      //std::cout << "RCT key:" << pKey->subsystemKey( L1TriggerKey::kRCT ) << std::endl;
-    } 
-  catch( cms::Exception& ex ) 
-    {
-      edm::LogWarning("L1Comparator") 
-	<< "No L1TriggerKey found." 
-	<< std::endl ;
-    }
 
   //flag whether event id has already been written to dumpFile
   dumpEvent_ = true;

@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/10/19 12:30:19 $
- * $Revision: 1.30 $
+ * $Date: 2009/06/02 08:37:10 $
+ * $Revision: 1.29 $
  * \author J. Berryhill
  *
  */
@@ -69,7 +69,7 @@ L1TRPCTF::~L1TRPCTF()
 {
 }
 
-void L1TRPCTF::beginJob(void)
+void L1TRPCTF::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;

@@ -56,7 +56,7 @@ class L2TauIsolationProducer : public edm::EDProducer {
       ~L2TauIsolationProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

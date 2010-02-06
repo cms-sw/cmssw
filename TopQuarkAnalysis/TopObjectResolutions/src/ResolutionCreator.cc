@@ -41,7 +41,7 @@ class ResolutionCreator : public edm::EDAnalyzer {
       ~ResolutionCreator();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -264,7 +264,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ResolutionCreator::beginJob(const edm::EventSetup&)
+ResolutionCreator::beginJob()
 {
   edm::Service<TFileService> fs;
   if (!fs) throw edm::Exception(edm::errors::Configuration, "TFileService missing from configuration!");

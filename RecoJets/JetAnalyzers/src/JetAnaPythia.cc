@@ -13,7 +13,6 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,8 +31,7 @@ JetAnaPythia<Jet>::JetAnaPythia(edm::ParameterSet const& cfg)
   debug         = cfg.getParameter<bool> ("debug");
   eventsGen     = cfg.getParameter<int> ("eventsGen");
   anaLevel      = cfg.getParameter<std::string> ("anaLevel");
-  xsecGen       = cfg.getParameter< vector<double> > ("xsecGen");
-  ptHatEdges    = cfg.getParameter< vector<double> > ("ptHatEdges");
+  xsecGen       = cfg.getParameter<double> ("xsecGen");
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +45,7 @@ void JetAnaPythia<Jet>::beginJob(edm::EventSetup const& iSetup)
   double massBoundaries[nMassBins+1] = {1, 3, 6, 10, 16, 23, 31, 40, 50, 61, 74, 88, 103, 119, 137, 156, 176, 197, 220, 244, 270, 296, 325, 354, 386, 419, 453, 489, 526, 565, 606, 649, 693, 740, 788, 838, 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383, 1455, 1530, 1607, 1687, 1770, 1856, 1945, 2037, 2132, 2231, 2332, 2438, 2546, 2659, 2775, 2895, 3019, 3147, 3279, 3416, 3558, 3704, 3854, 4010, 4171, 4337, 4509, 4686, 4869, 5058, 5253, 5455, 5663, 5877, 6099, 6328, 6564, 6808, 7060, 7320, 7589, 7866, 8152, 8447, 8752, 9067, 9391, 9726, 10072, 10430, 10798, 11179, 11571, 11977, 12395, 12827, 13272, 13732, 14000};  
 
   hname = "JetPt";
-  m_HistNames1D[hname] = new TH1F(hname,hname,500,0,5000);
+  m_HistNames1D[hname] = new TH1F(hname,hname,100,0,5000);
 
   hname = "JetEta";
   m_HistNames1D[hname] = new TH1F(hname,hname,120,-6,6);
@@ -145,42 +143,21 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
     TString hname; 
       
     // Process Info
-  
-    //edm::Handle< double > genEventScale;
-    //evt.getByLabel("genEventScale", genEventScale );
-    //pt_hat = *genEventScale;
-
-    edm::Handle<edm::HepMCProduct> MCevt;
-    evt.getByLabel("generator", MCevt);
-    HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(MCevt->GetEvent()));
-   
-    double pthat = myGenEvent->event_scale();
-    pt_hat = float(pthat);
-
-    delete myGenEvent;
-
     if(anaLevel != "generating"){  //We are not generating events, so xsec is there
-      //edm::Handle< GenRunInfoProduct > genInfoProduct;
-      ///evt.getRun().getByLabel("generator", genInfoProduct );
-      //xsec = (double)genInfoProduct->externalXSecLO();
-       xsec=0.0;
-       if( ptHatEdges.size()>xsecGen.size() ){
-         for(unsigned int i_pthat = 0; i_pthat < xsecGen.size(); ++i_pthat){
-            if( pthat >= ptHatEdges[i_pthat] &&  pthat < ptHatEdges[i_pthat+1])xsec=float(xsecGen[i_pthat]);
-         }
-       }
-       else 
-       {
-        std::cout << "Number of PtHat bin edges too small. Xsec set to zero" << std::endl;  
-       }
+      edm::Handle< GenRunInfoProduct > genInfoProduct;
+      evt.getRun().getByLabel("source", genInfoProduct );
+      xsec = (double)genInfoProduct->internalXSec();
+      if(debug)std::cout << "cross section=" <<xsec << " mb" << std::endl;
     }
     else
     {                        
-      xsec = xsecGen[0];   //Generating events, no xsec in event, get xsec from user input
+      xsec = xsecGen;   //Generating events, no xsec in event, get xsec from user input
     } 
-    if(debug)std::cout << "cross section=" <<xsec << " pb" << std::endl;           
-    weight =  xsec/eventsGen;
-
+    weight =  xsec*(1.0e+09)/eventsGen;
+  
+    edm::Handle< double > genEventScale;
+    evt.getByLabel("genEventScale", genEventScale );
+    pt_hat = *genEventScale;
     if(debug)std::cout << "pt_hat=" <<pt_hat  <<  std::endl;
     hname = "PtHat";
     FillHist1D(hname, pt_hat, 1.0); 

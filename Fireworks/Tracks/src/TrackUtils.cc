@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.2 2009/10/04 14:44:07 dmytro Exp $
+// $Id: TrackUtils.cc,v 1.10 2009/12/11 13:31:52 dmytro Exp $
 //
 
 // system include files
@@ -18,7 +18,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 #include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
@@ -72,9 +71,8 @@ namespace fireworks {
       for ( std::vector<TEveVector>::const_iterator point = extraRefPoints.begin();
             point != extraRefPoints.end(); ++point )
          refStates.push_back(State(*point));
-      std::sort( refStates.begin(), refStates.end(), StateOrdering(trackMomentum) );
+      if (track.pt()>1) std::sort( refStates.begin(), refStates.end(), StateOrdering(trackMomentum) );
 
-      //
       // * if the first state has non-zero momentum use it as a starting point
       //   and all other points as PathMarks to follow
       // * if the first state has only position, try the last state. If it has
@@ -355,9 +353,47 @@ namespace fireworks {
       return lpY;
    }
 
-	void localSiStrip(TVector3& point, TVector3& pointA, TVector3& pointB, double bc, DetId id, const FWEventItem* iItem) {
-		static int PRINT=0;
+// -- Si module names for printout
+	static const std::string subdets[7] = {"UNKNOWN", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
 
+// -- SiStrip module mini geometry:
+// -- end cap nModules: 24, 24, 40, 56, 40, 56, 80
+// -- end cap nStrips: 768, 768, 512, 512, 768, 512, 512
+// -- barrel dStrip: 80, 80, 120, 120, 183, 183, 183, 183, 122, 122
+	
+// -- end cap SiStrip module geometry
+	static const double twopi = 6.28318531;
+	static const double dpEStrips[7] = { twopi/24/768, twopi/24/768, twopi/40/512, twopi/56/512, twopi/40/768, twopi/56/512, twopi/80/512 };
+	static const int nEStrips[7] = { 768, 768, 512, 512, 768, 512, 512 };
+	static const double hEStrips[7] = {8.52, /* 11.09,*/ 8.82, 11.07, 11.52, 8.12+6.32, 9.61+8.49, 10.69+9.08};
+// -- barrel SiStrip module geometry
+	static const double MICRON = 1./1000./10.;
+	static const double dpBStrips[10] = { 80.*MICRON, 80.*MICRON, 120.*MICRON, 120.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 122.*MICRON, 122.*MICRON };
+	static const int nBStrips[10] = { 768, 768, 512, 512, 768, 768, 512, 512, 512, 512 };
+	static const double hBStrips[10] = { 11.69, 11.69, 11.69, 11.69, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16 };
+	static int PRINT=0;
+
+	void localSiPixel(TVector3& point, double row, double col, 
+							DetId id, const FWEventItem* iItem) {
+		
+		const DetIdToMatrix *detIdToGeo = iItem->getGeom();
+		const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+		double lx = 0.;
+		double ly = 0.;
+		pixelLocalXY(row, col, id, lx, ly);
+		if (PRINT) std::cout<<"SiPixelCluster, row=" << row << ", col=" << col ;
+		if (PRINT) std::cout << ", lx=" << lx << ", ly=" << ly ;
+		if (PRINT) std::cout << std::endl;
+		double local[3] = { lx,ly,0. };
+		double global[3] = { 0.,0.,0. };
+		m->LocalToMaster(local, global);
+		point.SetXYZ(global[0], global[1], global[2]);
+		
+	}
+	void localSiStrip(TVector3& point, TVector3& pointA, TVector3& pointB, 
+							double bc, DetId id, const FWEventItem* iItem) {
+
+		
 		const DetIdToMatrix *detIdToGeo = iItem->getGeom();
 		const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
 
@@ -373,7 +409,6 @@ namespace fireworks {
 		double phiDet = point.Phi();
 		
 		unsigned int subdet = (unsigned int)id.subdetId();
-		static const std::string subdets[7] = {"UNKNOWN", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
 		
 		if (PRINT) std::cout << subdets[subdet];
 		
@@ -407,15 +442,12 @@ namespace fireworks {
 		
 		if (PRINT) std::cout << " rhoDet: " << rhoDet << " zDet: " << zDet << " phiDet: " << phiDet;
 
+// -- here we have rNumber, 
+// -- and use the mini geometry to calculate strip position as function of cluster barycenter bc
+
 		if ((subdet == SiStripDetId::TID) || (subdet == SiStripDetId::TEC)) {
 		
-// -- end cap
-			const double twopi = 6.28318531;
-			const double dpEStrips[7] = { twopi/24/768, twopi/24/768, twopi/40/512, twopi/56/512, twopi/40/768, twopi/56/512, twopi/80/512 };
-			const int nEStrips[7] = { 768, 768, 512, 512, 768, 512, 512 };
-			const double hEStrips[7] = {8.52, /* 11.09,*/ 8.82, 11.07, 11.52, 8.12+6.32, 9.61+8.49, 10.69+9.08};
-
-			// -- get orientation of detector
+		// -- get orientation of detector
 			local[0] = 1.;
 			local[1] = 0.;
 			local[2] = 0.;
@@ -432,6 +464,7 @@ namespace fireworks {
             double rho = rhoDet; // +- stripLength/2
 			double tanLambda = z/rho;
 			double eta = log(tanLambda + sqrt(1+tanLambda*tanLambda));
+
 			point.SetPtEtaPhi(rho, eta, phi);
 			rho = rhoDet-hEStrips[rNumber]/2.;
 			tanLambda = z/rho;
@@ -444,10 +477,6 @@ namespace fireworks {
 		} else {
 
 // -- barrel
-			const double MICRON = 1./1000./10.;
-			const double dpBStrips[10] = { 80.*MICRON, 80.*MICRON, 120.*MICRON, 120.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 122.*MICRON, 122.*MICRON };
-			const int nBStrips[10] = { 768, 768, 512, 512, 768, 768, 512, 512, 512, 512 };
-			const double hBStrips[10] = { 11.69, 11.69, 11.69, 11.69, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16, 2*9.16 };
 			bc = bc - nBStrips[rNumber]/2.;
 			double dx = bc*dpBStrips[rNumber];
 			
@@ -484,8 +513,117 @@ namespace fireworks {
 		return;
 	}
 	
+   void addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color, bool addNearbyClusters) {
+      const char* title = "TrackHits";
+      const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
+      if (addNearbyClusters) {
+      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+            if (typeid(**it) == typeid(SiStripRecHit2D)) {
+               const SiStripRecHit2D &hit = static_cast<const SiStripRecHit2D &>(**it);
+               if (hit.cluster().isNonnull() && hit.cluster().isAvailable()) { allClusters = hit.cluster().product(); break; }
+            }
+         }
+      }
+
+      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+
+         // -- get ring number (position of module in rho)
+			DetId id = (*it)->geographicalId();
+			int rNumber = 0;
+         unsigned int subdet = (unsigned int)id.subdetId();
+			if (subdet == SiStripDetId::TID) {
+				TIDDetId tidDet = id;
+				rNumber = tidDet.ringNumber()-1;
+				if (PRINT) std::cout << "-" << tidDet.isStereo() << "-" << tidDet.isRPhi() << "-" << tidDet.isBackRing() << "-" << rNumber << "-" << tidDet.moduleNumber() << "-" << tidDet.diskNumber();
+			}
+			else if (subdet == SiStripDetId::TEC) {
+				TECDetId tecDet = id;
+				rNumber = tecDet.ringNumber()-1;
+				if (PRINT) std::cout << "-" << tecDet.isStereo() << "-" << tecDet.isRPhi() << "-" << tecDet.isBackPetal() << "-" << rNumber << "-" << tecDet.moduleNumber() << "-" << tecDet.wheelNumber();
+			}
+			else if (subdet == SiStripDetId::TIB) {
+				TIBDetId tibDet = id;
+				rNumber = tibDet.layerNumber()-1;
+				if (PRINT) std::cout << "-" << tibDet.isStereo() << "-" << tibDet.isRPhi() << "-" << tibDet.isDoubleSide() << "-" << rNumber << "-" << tibDet.moduleNumber() << "-" << tibDet.stringNumber();
+			}
+			else if (subdet == SiStripDetId::TOB) {
+				TOBDetId tobDet = id;
+				rNumber = tobDet.layerNumber()+3;
+				if (PRINT) std::cout << "-" << tobDet.isStereo() << "-" << tobDet.isRPhi() << "-" << tobDet.isDoubleSide() << "-" << rNumber << "-" << tobDet.moduleNumber() << "-" << tobDet.rodNumber();
+			}
+
+// -- get phi from SiStripHit
+			
+         TrackingRecHitRef rechitref = *it;
+         const TrackingRecHit* rh = &(*rechitref);
+			const SiStripRecHit2D* single = dynamic_cast<const SiStripRecHit2D*>(rh);
+         if (single)     {
+            if (PRINT) std::cout << " single hit ";
+				
+            const SiStripCluster* Cluster = 0;
+            if (single->cluster().isNonnull())
+               Cluster = single->cluster().get();
+            else if (single->cluster_regional().isNonnull())
+               Cluster = single->cluster_regional().get();
+            else 
+					if (PRINT) std::cout << " no cluster found!";
+            
+            if (Cluster) {
+               if (allClusters != 0) {
+                  const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = (*allClusters)[rh->geographicalId().rawId()];
+                  //if (clustersOnThisDet.size() > 1) std::cout << "DRAWING EXTRA CLUSTERS: N = " << clustersOnThisDet.size() << std::endl;
+                  for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
+                     double bc = itc->barycenter();
+                     TVector3 point, pointA, pointB;
+                     localSiStrip(point, pointA, pointB, bc, id, iItem);
+                     if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+                     TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+                     scposition->SetDepthTest(false);
+                     scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+                     scposition->SetLineColor(&*itc == Cluster ? kGreen : kRed);
+                     tList->AddElement(scposition);
+                  }
+               } else {
+               double bc = Cluster->barycenter();
+					TVector3 point, pointA, pointB; 
+					localSiStrip(point, pointA, pointB, bc, id, iItem);
+					if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+               TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+               scposition->SetDepthTest(false);
+					scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+					scposition->SetLineColor(color);
+					tList->AddElement(scposition);
+               }
+
+				
+				}					
+         } else if (!rh->isValid() && (id.rawId() != 0)) {    // lost hit
+            if (allClusters != 0) {
+               edmNew::DetSetVector<SiStripCluster>::const_iterator itds = allClusters->find(id.rawId());
+               if (itds != allClusters->end()) {
+                  const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = *itds;
+                  //if (clustersOnThisDet.size() > 0) std::cout << "DRAWING LOST HITS CLUSTERS: N = " << clustersOnThisDet.size() << std::endl;
+                  for (edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
+                     double bc = itc->barycenter();
+                     TVector3 point, pointA, pointB;
+                     localSiStrip(point, pointA, pointB, bc, id, iItem);
+                     if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+                     TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+                     scposition->SetDepthTest(false);
+                     scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+                     scposition->SetLineColor(kRed);
+                     tList->AddElement(scposition);
+                  }
+               }
+            }
+			}				
+		}
+			
+	}
+	
 	void
-   pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWModelId &id, const reco::Track &t) {
+   pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, 
+						 const FWEventItem &iItem, const reco::Track &t) {
 
       /*
        * -- to do:
@@ -507,8 +645,7 @@ namespace fireworks {
        * --    check
        * --    add other ECAL hits, like Dave did
        */
-		static int PRINT=0;
-      const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+      const DetIdToMatrix *detIdToGeo = iItem.getGeom();
 
       double tanTheta = tan(t.theta());
       double dz = t.dz();
@@ -562,7 +699,6 @@ namespace fireworks {
 // -- in which detector are we?
 
          unsigned int subdet = (unsigned int)id.subdetId();
-         static const std::string subdets[7] = {"UNKNOWN", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
 
          if (PRINT) std::cout << cnt++ << " -- ";
          if (PRINT) std::cout << subdets[subdet];
@@ -665,19 +801,11 @@ namespace fireworks {
                // -- in goes rhoDet, Cluster->barycenter(), subdet (to figure out E vs B)
                // -- out comes dPhi
 
-               // E nModules: 24, 24, 40, 56, 40, 56, 80
-               // E nStrips: 768, 768, 512, 512, 768, 512, 512
-               // B dStrip: 80, 80, 120, 120, 183, 183, 183, 183, 122, 122
-
 
 
                double bc = Cluster->barycenter();
 
                if ((subdet == SiStripDetId::TID) || (subdet == SiStripDetId::TEC)) {
-// -- end cap
-                  const double twopi = 6.28318531;
-                  const double dpEStrips[7] = { twopi/24/768, twopi/24/768, twopi/40/512, twopi/56/512, twopi/40/768, twopi/56/512, twopi/80/512 };
-                  const int nEStrips[7] = { 768, 768, 512, 512, 768, 512, 512 };
                   bc = bc - nEStrips[rNumber]/2.;
                   double dPhi = bc*dpEStrips[rNumber] * dPhiDet;
                   phi = phiDet + dPhi;
@@ -685,10 +813,6 @@ namespace fireworks {
                   if (PRINT) std::cout << " bc: "<< bc << ", dPhi: " << dPhi;
 
                } else {
-// -- barrel
-                  const double MICRON = 1./1000./10.;
-                  const double dpBStrips[10] = { 80.*MICRON, 80.*MICRON, 120.*MICRON, 120.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 183.*MICRON, 122.*MICRON, 122.*MICRON };
-                  const int nBStrips[10] = { 768, 768, 512, 512, 768, 768, 512, 512, 512, 512 };
                   bc = bc - nBStrips[rNumber]/2.;
                   double dx = bc*dpBStrips[rNumber];
 
@@ -760,13 +884,54 @@ namespace fireworks {
    }
 
 	void
-	pushPixelHits(std::vector<TVector3> &pixelPoints, const FWModelId &id, const reco::Track &t) {
+   pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t) {
+      const edmNew::DetSetVector<SiPixelCluster> * allClusters = 0;
+      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+         if (typeid(**it) == typeid(SiPixelRecHit)) {
+            const SiPixelRecHit &hit = static_cast<const SiPixelRecHit &>(**it);
+            if (hit.cluster().isNonnull() && hit.cluster().isAvailable()) { allClusters = hit.cluster().product(); break; }
+         }
+      }
+      if (allClusters == 0) return;
+
+      const DetIdToMatrix *detIdToGeo = iItem.getGeom();
+
+      for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
+         const TrackingRecHit* rh = &**it;
+
+         DetId id = (*it)->geographicalId();
+         const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+         // -- assert(m != 0);
+         if (m == 0) {
+            if (PRINT) std::cout << "can't find Matrix" << std::endl;
+            continue;
+         }
+
+         // -- in which detector are we?
+         unsigned int subdet = (unsigned int)id.subdetId();
+         if ((subdet != PixelSubdetector::PixelBarrel) && (subdet != PixelSubdetector::PixelEndcap)) continue;
+
+         const SiPixelCluster *hitCluster = 0;
+         const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>(rh);
+         if (pixel != 0) hitCluster = pixel->cluster().get();
+         edmNew::DetSetVector<SiPixelCluster>::const_iterator itds = allClusters->find(id.rawId());
+         if (itds != allClusters->end()) {
+            const edmNew::DetSet<SiPixelCluster> & clustersOnThisDet = *itds;
+            //if (clustersOnThisDet.size() > (hitCluster != 0)) std::cout << "DRAWING EXTRA CLUSTERS: N = " << (clustersOnThisDet.size() - (hitCluster != 0))<< std::endl;
+            for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
+               if (&*itc != hitCluster) pushPixelCluster(pixelPoints, m, id, *itc);
+            }
+         }
+      }
+   }
+
+   void
+	pushPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t) {
 		
 		/*
 		 * -- return for each Pixel Hit a 3D point
 		 */
-		static int PRINT=0;
-		const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+		const DetIdToMatrix *detIdToGeo = iItem.getGeom();
 		
 		double dz = t.dz();
 		double vz = t.vz();
@@ -811,6 +976,13 @@ namespace fireworks {
 					continue;
 				}
 				const SiPixelCluster& c = *(pixel->cluster());
+            pushPixelCluster(pixelPoints, m, id, c);
+         } else
+            return;         // return if any non-Pixel DetID shows up
+      }
+   }
+   void
+   pushPixelCluster(std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c) {
 				double row = c.minPixelRow();
 				double col = c.minPixelCol();
 				double lx = 0.;
@@ -831,13 +1003,11 @@ namespace fireworks {
 				
 				if (PRINT) std::cout << std::endl;
 				
-			} else
-				return; // return if any non-Pixel DetID shows up
-		}
 	}
 	
 	void
-	pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWModelId &id, const reco::Track &t) {
+	pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, 
+						 const FWEventItem &iItem, const reco::Track &t) {
 		
 		/*
 		 * -- to do:
@@ -860,8 +1030,7 @@ namespace fireworks {
 		 * --    add other ECAL hits, like Dave did
 		 */
 
-		static int PRINT=0;
-		const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+		const DetIdToMatrix *detIdToGeo = iItem.getGeom();
 		
 		double tanTheta = tan(t.theta());
 		double dz = t.dz();
@@ -1152,6 +1321,7 @@ namespace fireworks {
          cnt++;
       }
    }
+	
 	void
 	addTrackerHits3D(std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size) {
 		TEvePointSet* pointSet = new TEvePointSet();
@@ -1164,6 +1334,7 @@ namespace fireworks {
 		}
 		tList->AddElement(pointSet);
 	}
+	
 	void addTrackerHits2Dbarrel(std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size) {
 		
 		

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/08 08:29:08 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/05/07 09:28:33 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -22,7 +22,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -47,7 +46,7 @@ MuonRecoTest::MuonRecoTest(const edm::ParameterSet& ps){
 
 MuonRecoTest::~MuonRecoTest(){
 
-  LogTrace(metname) << "MuonRecoTest: analyzed " << nevents << " events";
+  LogTrace(metname) << "DTResolutionTest: analyzed " << nevents << " events";
 
 }
 
@@ -57,7 +56,7 @@ void MuonRecoTest::beginJob(const edm::EventSetup& context){
   metname = "muonRecoTest";
   theDbe->setCurrentFolder("Muons/Tests/muonRecoTest");
 
-  LogTrace(metname)<<"[MuonRecoTest] beginJob: Parameters initialization";
+  LogTrace(metname)<<"[MuonRecoTest] Parameters initialization";
  
   // efficiency plot
 
@@ -78,15 +77,10 @@ void MuonRecoTest::beginJob(const edm::EventSetup& context){
 
 }
 
-void MuonRecoTest::beginRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonRecoTest]: beginRun";
-
-}
 
 void MuonRecoTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  //  LogTrace(metname)<<"[MuonRecoTest]: beginLuminosityBlock";
+  LogTrace(metname)<<"[MuonRecoTest]: Begin of LS transition";
 
   // Get the run number
   run = lumiSeg.run();
@@ -105,19 +99,13 @@ void MuonRecoTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
 void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  //  LogTrace(metname)<<"[MuonRecoTest]: endLuminosityBlock, performing the DQM LS client operation";
+  LogTrace(metname)<<"[MuonRecoTest]: End of LS transition, performing the DQM client operation";
   
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
   
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
-
-}
-
-void MuonRecoTest::endRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonRecoTest]: endRun, performing the DQM end of run client operation";
 
   string path = "Muons/MuonRecoAnalyzer/StaEta_ifCombinedAlso";
   MonitorElement * staEtaIfComb_histo = theDbe->get(path);
@@ -218,9 +206,10 @@ void MuonRecoTest::endRun(Run const& run, EventSetup const& eSetup) {
 
 }
 
+
 void MuonRecoTest::endJob(){
   
-  LogTrace(metname)<< "[MuonRecoTest] endJob called!";
+  LogTrace(metname)<< "[MuonRecoTest] endjob called!";
   theDbe->rmdir("Muons/Tests/muonRecoTest");
   
 }

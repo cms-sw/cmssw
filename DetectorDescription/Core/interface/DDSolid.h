@@ -91,7 +91,7 @@ public:
   */   
   //DDSolidShape boolean( DDSolid & A, DDSolid & B, DDRotation &, DDTranslation &);
 
-/*   static void clear(); */
+  static void clear();
   
 private:
   DDSolid(const DDName &, DDI::Solid *);    

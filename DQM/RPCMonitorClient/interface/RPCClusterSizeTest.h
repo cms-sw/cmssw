@@ -13,8 +13,6 @@
 class RPCClusterSizeTest:public RPCClient{
 public:
 
-
-
   /// Constructor
   RPCClusterSizeTest(const edm::ParameterSet& ps);
   
@@ -25,7 +23,7 @@ public:
   void beginJob(DQMStore *);
 
   //Begin Run
-   void endRun(const edm::Run& r, const edm::EventSetup& c ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
+   void beginRun(const edm::Run& r, const edm::EventSetup& c ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
   
   
   /// Begin Lumi block 
@@ -39,18 +37,17 @@ public:
   
   virtual void  endJob(void);
 
-  virtual void  beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  virtual void clientOperation(edm::EventSetup const& c);
+  virtual void  endRun(const edm::Run& r, const edm::EventSetup& c);
 
  private:
   
   std::string globalFolder_;
-  int numberOfDisks_;
+  int numberOfDisks_,numberOfRings_;
   int prescaleFactor_;
  
   DQMStore* dbe_;
-   
+  int nLumiSegs_;
+  
   std::vector<MonitorElement *>  myClusterMe_;
   std::vector<RPCDetId>   myDetIds_;
 

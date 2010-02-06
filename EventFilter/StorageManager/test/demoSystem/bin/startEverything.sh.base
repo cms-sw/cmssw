@@ -1,21 +1,10 @@
 #!/bin/sh
 
-# 24-Sep-2009, KAB - added support for the playback system (which doesn't
-# need all of the functionality of the regular demo system)
-playbackRequested="no"
-if [ $# -gt 0 ] && [ "$1" = "playback" ]
-then
-    playbackRequested="yes"
-fi
-
-
 TIMESTAMP=`date '+%Y%m%d%H%M%S'`
 RUNNUMBER_TIMESTAMP=`date '+%y%m%d%H%M' | sed 's/^0//'`
 
 
-if [ "$playbackRequested" = "no" ] ; then
-    sed --in-place "s/\(<runNumber.*>\).*\(<\/runNumber>\)/\1${RUNNUMBER_TIMESTAMP}\2/" $STMGR_CONFIG
-fi
+sed --in-place "s/\(<runNumber.*>\).*\(<\/runNumber>\)/\1${RUNNUMBER_TIMESTAMP}\2/" $STMGR_CONFIG
 
 
 cd $STMGR_DIR/log/builderUnit
@@ -46,15 +35,13 @@ cd $STMGR_DIR/log/storageManager
 xdaq.exe -h STMGR_DEV_SM_HOST -p STMGR_DEV_SM_PORT -c $STMGR_CONFIG > SM${TIMESTAMP}.log 2>&1 &
 echo "Started SM xdaq.exe..."
 
-if [ "$playbackRequested" = "no" ] ; then
-    cd $STMGR_DIR/log/smProxy
-    xdaq.exe -h STMGR_DEV_SMPROXY_HOST -p STMGR_DEV_SMPROXY_PORT -c $STMGR_CONFIG > PROXY${TIMESTAMP}.log 2>&1 &
-    echo "Started SMPS xdaq.exe..."
+cd $STMGR_DIR/log/smProxy
+xdaq.exe -h STMGR_DEV_SMPROXY_HOST -p STMGR_DEV_SMPROXY_PORT -c $STMGR_CONFIG > PROXY${TIMESTAMP}.log 2>&1 &
+echo "Started SMPS xdaq.exe..."
 
-    cd $STMGR_DIR/log/consFU
-    xdaq.exe -h STMGR_DEV_CONSFU_HOST -p STMGR_DEV_CONSFU_PORT -c $STMGR_CONFIG > CONS${TIMESTAMP}.log 2>&1 &
-    echo "Started consumer xdaq.exe..."
-fi
+cd $STMGR_DIR/log/consFU
+xdaq.exe -h STMGR_DEV_CONSFU_HOST -p STMGR_DEV_CONSFU_PORT -c $STMGR_CONFIG > CONS${TIMESTAMP}.log 2>&1 &
+echo "Started consumer xdaq.exe..."
 
 sleep 5
 

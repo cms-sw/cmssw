@@ -18,8 +18,7 @@ class SiStripDetCablingRcd : public edm::eventsetup::DependentRecordImplementati
 class SiStripRegionCablingRcd : public edm::eventsetup::DependentRecordImplementation<SiStripRegionCablingRcd,
   boost::mpl::vector<SiStripDetCablingRcd,TrackerDigiGeometryRecord> > {};
 
-// class SiStripGainRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainRcd, boost::mpl::vector<SiStripApvGainRcd> > {};
-class SiStripGainRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainRcd, boost::mpl::vector<SiStripApvGainRcd, SiStripApvGain2Rcd, SiStripApvGain3Rcd> > {};
+class SiStripGainRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainRcd, boost::mpl::vector<SiStripApvGainRcd> > {};
 class SiStripGainSimRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainSimRcd, boost::mpl::vector<SiStripApvGainSimRcd> > {};
 
 class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd, boost::mpl::vector<SiStripBadModuleRcd, SiStripBadFiberRcd, SiStripBadChannelRcd, SiStripBadStripRcd, SiStripDetCablingRcd, SiStripDCSStatusRcd, SiStripDetVOffRcd, RunInfoRcd> > {};

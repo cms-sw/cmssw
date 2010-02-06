@@ -4,7 +4,6 @@
 // system include files
 #include <memory>
 #include "boost/shared_ptr.hpp"
-#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -22,6 +21,9 @@
 //
 // class declaration
 //
+
+
+
 template<typename TDependentRecord, typename TInputRecord>
 class SiStripGainESProducerTemplate : public edm::ESProducer {
  public:
@@ -33,18 +35,16 @@ class SiStripGainESProducerTemplate : public edm::ESProducer {
  private:
 
   SiStripGain* SiStripGainNormalizationFunction(const TDependentRecord& iRecord);
-  double getNFactor(const int apvGainIndex);
+  double getNFactor();
 
-  std::vector<edm::ParameterSet> apvGainLabels_;
-  std::vector<std::pair<std::string, std::string> > apvgain_;
+
+  std::string apvgain_;
   double norm_;
   bool automaticMode_;
   bool  printdebug_;
   SiStripGain * gain_;
-  std::vector<edm::ESHandle<SiStripApvGain> > pDD;
-  // edm::ESHandle<SiStripApvGain> pDD;
+  edm::ESHandle<SiStripApvGain> pDD;
 
-  void fillApvGain( const SiStripGainRcd & a, const std::pair<std::string, std::string> & recordLabelPair, std::vector<edm::ESHandle<SiStripApvGain> >& pDD );
 };
 
 template<typename TDependentRecord, typename TInputRecord>
@@ -55,80 +55,33 @@ SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStripGainESProdu
   automaticMode_ = iConfig.getParameter<bool>("AutomaticNormalization");
   norm_=iConfig.getParameter<double>("NormalizationFactor");
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
-  apvGainLabels_ = iConfig.getParameter<std::vector<edm::ParameterSet> >("APVGain");
-
-  // Fill the vector of apv labels
-  std::vector<edm::ParameterSet>::const_iterator gainPSetIt = apvGainLabels_.begin();
-  for( ; gainPSetIt != apvGainLabels_.end(); ++gainPSetIt ) {
-    apvgain_.push_back( std::make_pair(gainPSetIt->getParameter<std::string>("Record"), gainPSetIt->getUntrackedParameter<std::string>("Label", "")) );
-  }
+  apvgain_ = iConfig.getParameter<std::string>("APVGain");
 
   if(!automaticMode_ && norm_<=0){
     edm::LogError("SiStripGainESProducer") << "[SiStripGainESProducer] - ERROR: negative or zero Normalization factor provided. Assuming 1 for such factor" << std::endl;
     norm_=1.;
-  }
+  }  
 }
 
 template<typename TDependentRecord, typename TInputRecord>
 std::auto_ptr<SiStripGain> SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::produce(const TDependentRecord& iRecord)
-{
+{  
   std::auto_ptr<SiStripGain> ptr(SiStripGainNormalizationFunction(iRecord));
   return ptr;
 }
 
 template<typename TDependentRecord, typename TInputRecord>
-void SiStripGainESProducerTemplate<TDependentRecord, TInputRecord>::fillApvGain( const SiStripGainRcd & a, const std::pair<std::string, std::string> & recordLabelPair, std::vector<edm::ESHandle<SiStripApvGain> >& pDD )
-{
-  // Put in an empty ApvGain and fill it
-  pDD.push_back(edm::ESHandle<SiStripApvGain>());
-  string recordName( recordLabelPair.first );
-  string labelName( recordLabelPair.second );
-  if( recordName == "SiStripApvGainRcd" ) a.getRecord<SiStripApvGainRcd>().get( labelName, pDD.back() );
-  else if( recordName == "SiStripApvGain2Rcd" ) a.getRecord<SiStripApvGain2Rcd>().get( labelName, pDD.back() );
-  else if( recordName == "SiStripApvGain3Rcd" ) a.getRecord<SiStripApvGain3Rcd>().get( labelName, pDD.back() );
-  else edm::LogError("SiStripGainESProducer::SiStripGainNormalizationFunction") << "ERROR: unrecognized record name " << recordName << endl
-                     << "please specify one of: SiStripApvGainRcd, SiStripApvGain2Rcd, SiStripApvGain3Rcd" << endl;
-}
+SiStripGain* SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStripGainNormalizationFunction(const TDependentRecord& iRecord){ 
 
-template<typename TDependentRecord, typename TInputRecord>
-SiStripGain* SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStripGainNormalizationFunction(const TDependentRecord& iRecord)
-{
-  // First clean up the pDD vector otherwise it will contain old handles referring to products no more in the es
-  pDD.clear();
 
   if(typeid(TDependentRecord)==typeid(SiStripGainRcd) && typeid(TInputRecord)==typeid(SiStripApvGainRcd)){
-
     const SiStripGainRcd& a = dynamic_cast<const SiStripGainRcd&>(iRecord);
-
-    fillApvGain( a, apvgain_[0], pDD );
-    // Create a new gain object and insert the ApvGain
-    SiStripGain * gain = new SiStripGain( *(pDD[0].product()), getNFactor(0));
-
-    if( apvgain_.size() > 1 ) {
-      for( unsigned int i=1; i<apvgain_.size(); ++i ) {
-        fillApvGain( a, apvgain_[i], pDD );
-        // Add the new ApvGain to the gain object
-        gain->multiply(*(pDD[i].product()), getNFactor(i));
-      }
-    }
-    return gain;
-
+    a.getRecord<SiStripApvGainRcd>().get(apvgain_,pDD );
+    return new SiStripGain( *(pDD.product()), getNFactor());
   }else if(typeid(TDependentRecord)==typeid(SiStripGainSimRcd) && typeid(TInputRecord)==typeid(SiStripApvGainSimRcd)){
-
     const SiStripGainSimRcd& a = dynamic_cast<const SiStripGainSimRcd&>(iRecord);
-
-    pDD.push_back(edm::ESHandle<SiStripApvGain>());
-    a.getRecord<SiStripApvGainSimRcd>().get(apvgain_[0].second, pDD[0]);
-    SiStripGain * gain = new SiStripGain( *(pDD[0].product()), getNFactor(0));
-
-    if( apvgain_.size() > 1 ) {
-      for( unsigned int i=1; i<apvgain_.size(); ++i ) {
-        pDD.push_back(edm::ESHandle<SiStripApvGain>());
-        a.getRecord<SiStripApvGainSimRcd>().get(apvgain_[i].second, pDD[i]);
-        gain->multiply(*(pDD[i].product()), getNFactor(i));
-      }
-    }
-    return gain;
+    a.getRecord<SiStripApvGainSimRcd>().get(apvgain_,pDD );
+    return new SiStripGain( *(pDD.product()), getNFactor());
   }
     
   edm::LogError("SiStripGainESProducer") << "[SiStripGainNormalizationFunction] - ERROR: asking for a pair of records different from <SiStripGainRcd,SiStripApvGainRcd> and <SiStripGainSimRcd,SiStripApvGainSimRcd>" << std::endl;
@@ -136,20 +89,20 @@ SiStripGain* SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStr
 }
 
 template<typename TDependentRecord, typename TInputRecord>
-double  SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::getNFactor(const int apvGainIndex){
+double  SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::getNFactor(){
   double NFactor;
 
   if(automaticMode_ || printdebug_ ){
 
     std::vector<uint32_t> DetIds;
-    pDD[apvGainIndex]->getDetIds(DetIds);
-
+    pDD->getDetIds(DetIds);
+    
     double SumOfGains=0;
     int NGains=0;
     
     for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
       
-      SiStripApvGain::Range detRange = pDD[apvGainIndex]->getRange(*detit);
+      SiStripApvGain::Range detRange = pDD->getRange(*detit);
       
       int iComp=0;
        

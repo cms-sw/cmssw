@@ -5,8 +5,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
-
-/// default contructor from decaySubset and initSubset
+/// default contructor
 TopGenEvent::TopGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset)
 {
   parts_ = decaySubset; 
@@ -173,8 +172,8 @@ TopGenEvent::daughterQuarkOfWPlus(bool invertQuarkCharge, bool invertBosonCharge
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==(invertBosonCharge?TopDecayID::WID:-TopDecayID::WID) &&
-       abs(partsColl[i].pdgId())<=TopDecayID::bID && (invertQuarkCharge?reco::flavour(partsColl[i])>0:reco::flavour(partsColl[i])<0)){
+    if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==(invertBosonCharge?-TopDecayID::WID:TopDecayID::WID) &&
+       abs(partsColl[i].pdgId())<=TopDecayID::bID && (invertQuarkCharge?reco::flavour(partsColl[i])<0:reco::flavour(partsColl[i])>0)){
       cand = &partsColl[i];
     }
   }

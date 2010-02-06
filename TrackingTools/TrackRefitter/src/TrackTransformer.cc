@@ -52,16 +52,16 @@ TrackTransformer::~TrackTransformer(){}
 void TrackTransformer::setServices(const EventSetup& setup){
   
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
-
-  setup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
-  setup.get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
-
   
   unsigned long long newCacheId_TC = setup.get<TrackingComponentsRecord>().cacheIdentifier();
 
   if ( newCacheId_TC != theCacheId_TC ){
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
+    
+    setup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
+    setup.get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
+
     setup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
   }
 

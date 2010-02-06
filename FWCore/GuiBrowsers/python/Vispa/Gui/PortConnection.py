@@ -1,6 +1,6 @@
 import logging
 
-from PyQt4.QtCore import Qt, QPoint, QPointF, QRectF, QSizeF
+from PyQt4.QtCore import Qt, QPoint, QPointF, QRectF, QSizeF, SIGNAL
 from PyQt4.QtGui import QColor, QPainter, QPen, QLinearGradient, QRadialGradient, QPainterPath
 
 from Vispa.Gui.ZoomableWidget import ZoomableWidget
@@ -805,6 +805,7 @@ class PointToPointConnection(ZoomableWidget):
             return None
         if hasattr(self.parent(), "connectionAboutToDelete"):
             self.parent().connectionAboutToDelete(self)
+        self.emit(SIGNAL("connectionDeleted"))
         self.deleteLater()
 
 class PortConnection(PointToPointConnection):
@@ -856,7 +857,6 @@ class PortConnection(PointToPointConnection):
             return True
         if port == self._sinkPort:
             return True
-        
         return False
 
 class LinearPortConnection(PortConnection):

@@ -6,6 +6,7 @@
 <use name=AnalysisDataFormats/Egamma>
 <use name=PhysicsTools/UtilAlgos>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=Geometry/EcalAlgo>
 <use name=root>
 <use name=rootmath>
 <use name=rootcore>

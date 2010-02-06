@@ -46,10 +46,6 @@
   <class name="RPCStripNoises::NoiseItem"/>
   <class name="std::vector<RPCStripNoises::NoiseItem>"/>
 
-  <class name="RPCClusterSize"/>
-  <class name="RPCClusterSize::ClusterSizeItem"/>
-  <class name="std::vector<RPCClusterSize::ClusterSizeItem>"/>
-
   <class name="RPCObGas"/>
   <class name="RPCObGas::Item"/>
   <class name="std::vector<RPCObGas::Item>"/>

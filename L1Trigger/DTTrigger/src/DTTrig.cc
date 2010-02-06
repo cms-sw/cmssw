@@ -547,25 +547,6 @@ DTTrig::dumpGeom() {
   }
 }
 
-void 
-DTTrig::dumpLuts(short int lut_btic, const DTConfigManager *conf) {
-  for (TU_const_iterator it=_cache.begin();it!=_cache.end();it++){
-
-    DTSCTrigUnit* thisTU = (*it).second;
-
-    // dump lut command file from geometry
-    thisTU->dumpLUT(lut_btic);
-
-    // dump lut command file from parameters (DB or CMSSW)
-    DTChamberId chid = thisTU->statId();
-    conf->dumpLUTParam(chid);
-
-  }
- 
-  return;
-
-}
-
 std::vector<DTBtiTrigData> 
 DTTrig::BtiTrigs() {
   /*check();*/

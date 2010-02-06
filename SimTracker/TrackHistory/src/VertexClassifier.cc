@@ -151,23 +151,28 @@ void VertexClassifier::processesAtGenerator()
                 // Check if the particle exist in the table
                 if (particleData)
                 {
+                    bool longlived = false;
                     // Check if their life time is bigger than longLivedDecayLength_
                     if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
                         // Check for B, C weak decays and long lived decays
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
-                        update(flags_[LongLivedDecay], true);
+                        longlived = true;
                     }
                     // Check Tau, Ks and Lambda decay
                     update(flags_[TauDecay], pdgid == 15);
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
-                    update(flags_[JpsiDecay], pdgid == 443);
-                    update(flags_[XiDecay], pdgid == 3312);
-                    update(flags_[OmegaDecay], pdgid == 3334);
-                    update(flags_[SigmaPlusDecay], pdgid == 3222);
-                    update(flags_[SigmaMinusDecay], pdgid == 3112);
+                    update(
+                        flags_[LongLivedDecay],
+                        !flags_[BWeakDecay] &&
+                        !flags_[CWeakDecay] &&
+                        !flags_[TauDecay] &&
+                        !flags_[KsDecay] &&
+                        !flags_[LambdaDecay] &&
+                        longlived
+                    );
                 }
             }
         }
@@ -222,32 +227,8 @@ void VertexClassifier::processesAtSimulation()
                 // Collect the G4 process of the first psimhit (it should be the same for all of them)
                 unsigned short process = (*iparticle)->pSimHit_begin()->processType();
 
-                // Flagging all the different processes
-
-                update(
-                    flags_[KnownProcess],
-                    process != G4::Undefined &&
-                    process != G4::Unknown &&
-                    process != G4::Primary
-                );
-
-                update(flags_[UndefinedProcess], process == G4::Undefined);
-                update(flags_[UnknownProcess], process == G4::Unknown);
-                update(flags_[PrimaryProcess], process == G4::Primary);
-                update(flags_[HadronicProcess], process == G4::Hadronic);
-                update(flags_[DecayProcess], process == G4::Decay);
-                update(flags_[ComptonProcess], process == G4::Compton);
-                update(flags_[AnnihilationProcess], process == G4::Annihilation);
-                update(flags_[EIoniProcess], process == G4::EIoni);
-                update(flags_[HIoniProcess], process == G4::HIoni);
-                update(flags_[MuIoniProcess], process == G4::MuIoni);
-                update(flags_[PhotonProcess], process == G4::Photon);
-                update(flags_[MuPairProdProcess], process == G4::MuPairProd);
-                update(flags_[ConversionsProcess], process == G4::Conversions);
-                update(flags_[EBremProcess], process == G4::EBrem);
-                update(flags_[SynchrotronRadiationProcess], process == G4::SynchrotronRadiation);
-                update(flags_[MuBremProcess], process == G4::MuBrem);
-                update(flags_[MuNuclProcess], process == G4::MuNucl);
+                // Look for conversion process
+                flags_[Conversion] = (process == G4::Conversions);
 
                 // Special treatment for decays
                 if (process == G4::Decay)
@@ -262,25 +243,50 @@ void VertexClassifier::processesAtSimulation()
                         // Check if the particle exist in the table
                         if (particleData)
                         {
+                            bool longlived = false;
                             // Check if their life time is bigger than 1e-14
                             if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
                             {
                                 // Check for B, C weak decays and long lived decays
                                 update(flags_[BWeakDecay], particleID.hasBottom());
                                 update(flags_[CWeakDecay], particleID.hasCharm());
-                                update(flags_[LongLivedDecay], true);
+                                longlived = true;
                             }
                             // Check Tau, Ks and Lambda decay
                             update(flags_[TauDecay], pdgid == 15);
                             update(flags_[KsDecay], pdgid == 310);
                             update(flags_[LambdaDecay], pdgid == 3122);
-                            update(flags_[JpsiDecay], pdgid == 443);
-                            update(flags_[XiDecay], pdgid == 3312);
-                            update(flags_[OmegaDecay], pdgid == 3334);
-                            update(flags_[SigmaPlusDecay], pdgid == 3222);
-                            update(flags_[SigmaMinusDecay], pdgid == 3112);
+                            update(
+                                flags_[LongLivedDecay],
+                                !flags_[BWeakDecay] &&
+                                !flags_[CWeakDecay] &&
+                                !flags_[TauDecay] &&
+                                !flags_[KsDecay] &&
+                                !flags_[LambdaDecay] &&
+                                longlived
+                            );
                         }
                     }
+                    update(
+                        flags_[Interaction],
+                        !flags_[BWeakDecay] &&
+                        !flags_[CWeakDecay] &&
+                        !flags_[LongLivedDecay] &&
+                        !flags_[TauDecay] &&
+                        !flags_[KsDecay] &&
+                        !flags_[LambdaDecay]
+                    );
+                }
+                else
+                {
+                    update(
+                        flags_[Interaction],
+                        process != G4::Undefined &&
+                        process != G4::Unknown &&
+                        process != G4::Primary &&
+                        process != G4::Hadronic &&
+                        process != G4::Conversions
+                    );
                 }
             }
         }
@@ -332,10 +338,8 @@ void VertexClassifier::vertexInformation()
             if ( icluster == clusters.upper_bound(distance + vertexClusteringDistance_) )
             {
                 clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)) );
-                continue;
+                break;
             }
-
-            bool cluster = false;
 
             // Looping over the vertex clusters of a given distance from primary vertex
             for (;
@@ -349,14 +353,13 @@ void VertexClassifier::vertexInformation()
                                         pow(p.z() * mm - icluster->second.z(), 2)
                                     );
 
-                if ( difference < vertexClusteringDistance_ )
+
+                if ( difference > vertexClusteringDistance_ )
                 {
-                    cluster = true;
+                    clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)) );
                     break;
                 }
             }
-
-            if (!cluster) clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)) );
         }
     }
 
@@ -387,10 +390,8 @@ void VertexClassifier::vertexInformation()
         if ( icluster == clusters.upper_bound(distance + vertexClusteringDistance_) )
         {
             clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())) );
-            continue;
+            break;
         }
-
-        bool cluster = false;
 
         // Looping over the vertex clusters of a given distance from primary vertex
         for (;
@@ -404,14 +405,12 @@ void VertexClassifier::vertexInformation()
                                     pow(p.z() - icluster->second.z(), 2)
                                 );
 
-            if ( difference < vertexClusteringDistance_ )
+            if ( difference > vertexClusteringDistance_ )
             {
-                cluster = true;
+                clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())) );
                 break;
             }
         }
-
-        if (!cluster) clusters.insert ( ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())) );
     }
 
     if ( clusters.size() == 1 )
@@ -455,7 +454,7 @@ void VertexClassifier::genPrimaryVertices()
         // Loop over the different GenVertex
         for ( HepMC::GenEvent::vertex_const_iterator ivertex = event->vertices_begin(); ivertex != event->vertices_end(); ++ivertex )
         {
-            bool hasParentVertex = false;
+            bool hasParentVertex = false;            
 
             // Loop over the parents looking to see if they are coming from a production vertex
             for (

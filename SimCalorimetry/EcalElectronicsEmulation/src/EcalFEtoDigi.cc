@@ -292,7 +292,7 @@ EcalFEtoDigi::create_TPSampleTcp(TCCinput data, const edm::EventSetup& evtSetup)
 
 /// method called once each job just before starting event loop
 void 
-EcalFEtoDigi::beginJob(){
+EcalFEtoDigi::beginJob(const edm::EventSetup& setup){
 
   ///check SM numbering convetion: 1-38 
   /// [or -1 flag to indicate all sm's are to be read in]

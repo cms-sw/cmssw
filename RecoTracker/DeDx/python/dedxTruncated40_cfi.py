@@ -8,7 +8,7 @@ dedxTruncated40 = cms.EDProducer("DeDxEstimatorProducer",
     fraction       = cms.double(0.4),
  
     UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(True),
+    UsePixel       = cms.bool(False),
     MeVperADCStrip = cms.double(3.61e-06*250),
     MeVperADCPixel = cms.double(3.61e-06)
 )

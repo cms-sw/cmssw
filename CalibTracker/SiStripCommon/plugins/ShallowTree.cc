@@ -52,9 +52,6 @@ beginJob(const edm::EventSetup&) {
   leafmap["double"]    = DOUBLE;     leafmap["doubles"]   = DOUBLE_V;
   leafmap["lint"]      = LONG;       leafmap["longs"]     = LONG_V;
   leafmap["ulint"]     = U_LONG;     leafmap["ulongs"]    = U_LONG_V;
-  leafmap["char"]      = CHAR;       leafmap["chars"]     = CHAR_V;
-  leafmap["uchar"]     = U_CHAR;     leafmap["uchars"]    = U_CHAR_V;
-
 
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
@@ -98,10 +95,6 @@ beginJob(const edm::EventSetup&) {
       case LONG_V   :  connectors.push_back( new TypedBranchConnector<std::vector          <long> >(selection,   "", tree) ); break;
       case U_LONG   :  connectors.push_back( new TypedBranchConnector             <unsigned long>  (selection, "/l", tree) ); break;
       case U_LONG_V :  connectors.push_back( new TypedBranchConnector<std::vector <unsigned long> >(selection,   "", tree) ); break;
-      case CHAR     :  connectors.push_back( new TypedBranchConnector                      <char>  (selection, "/B", tree) ); break;
-      case CHAR_V   :  connectors.push_back( new TypedBranchConnector<std::vector          <char> >(selection,   "", tree) ); break;
-      case U_CHAR   :  connectors.push_back( new TypedBranchConnector             <unsigned char>  (selection, "/b", tree) ); break;
-      case U_CHAR_V :  connectors.push_back( new TypedBranchConnector<std::vector <unsigned char> >(selection,   "", tree) ); break;
       default: 
 	{
 	  std::string leafstring = "";

@@ -11,6 +11,14 @@
  <flags EDM_PLUGIN=1>
 </library>
 
+<library name="AlignmentMonitorMuonHIP" file="AlignmentMonitorMuonHIP.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=TrackingTools/TrackFitters>
+ <use name=Alignment/MuonAlignment>
+ <use name=DataFormats/MuonDetId>
+ <flags EDM_PLUGIN=1>
+</library>
+
 <library name="AlignmentMonitorMuonResiduals" file="AlignmentMonitorMuonResiduals.cc">
  <use name=Alignment/CommonAlignmentMonitor>
  <use name=FWCore/ParameterSet>
@@ -20,7 +28,7 @@
  <flags EDM_PLUGIN=1>
 </library>
 
-<library name="AlignmentMonitorSegmentDifferences" file="AlignmentMonitorSegmentDifferences.cc">
+<library name="AlignmentMonitorMuonSystemMap" file="AlignmentMonitorMuonSystemMap.cc">
  <use name=Alignment/CommonAlignmentMonitor>
  <use name=FWCore/ParameterSet>
  <use name=TrackingTools/TrackFitters>
@@ -36,6 +44,22 @@
  <use name=TrackingTools/TrackFitters>
  <use name=Alignment/MuonAlignment>
  <use name=Alignment/MuonAlignmentAlgorithms>
+ <use name=DataFormats/MuonDetId>
+ <flags EDM_PLUGIN=1>
+</library>
+
+<library name="AlignmentMonitorHIPNtuple" file="AlignmentMonitorHIPNtuple.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=FWCore/ParameterSet>
+ <use name=TrackingTools/TrackFitters>
+ <use name=Alignment/CommonAlignment>
+ <use name=DataFormats/MuonDetId>
+ <flags EDM_PLUGIN=1>
+</library>
+
+<library name="AlignmentMonitorMuonPositions" file="AlignmentMonitorMuonPositions.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=Alignment/MuonAlignment>
  <use name=DataFormats/MuonDetId>
  <flags EDM_PLUGIN=1>
 </library>
@@ -98,7 +122,6 @@
 </library>
 
 <library name="AlignmentStats" file="AlignmentStats.cc">
- <use name=DataFormats/Alignment>	
  <use name=Alignment/CommonAlignmentMonitor>
  <flags EDM_PLUGIN=1>
 </library>

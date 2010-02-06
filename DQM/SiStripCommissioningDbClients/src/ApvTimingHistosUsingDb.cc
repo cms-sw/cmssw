@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.28 2009/11/10 14:49:02 lowette Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.27 2009/07/13 22:38:55 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -21,21 +21,13 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
     CommissioningHistosUsingDb( db,
                                 sistrip::APV_TIMING ),
     ApvTimingHistograms( pset.getParameter<edm::ParameterSet>("ApvTimingParameters"),
-                         bei )
+                         bei ),
+    uploadFecSettings_(true),
+    uploadFedSettings_(true)
 {
   LogTrace(mlDqmClient_) 
     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
-  skipFecUpdate_ = this->pset().getParameter<bool>("SkipFecUpdate");
-  skipFedUpdate_ = this->pset().getParameter<bool>("SkipFedUpdate");
-  if (skipFecUpdate_)
-    LogTrace(mlDqmClient_)
-      << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-      << " Skipping update of FEC parameters.";
-  if (skipFedUpdate_)
-    LogTrace(mlDqmClient_)
-      << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-      << " Skipping update of FED parameters.";
 }
 
 // -----------------------------------------------------------------------------
@@ -60,7 +52,7 @@ void ApvTimingHistosUsingDb::uploadConfigurations() {
     return;
   }
   
-  if ( !skipFecUpdate_ ) {
+  if ( uploadFecSettings_ ) {
 
     // Retrieve and update PLL device descriptions
     SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions( PLL ); 
@@ -96,7 +88,7 @@ void ApvTimingHistosUsingDb::uploadConfigurations() {
       << " No upload of PLL settings to DB, as defined by .cfg file!";
   }
   
-  if ( !skipFedUpdate_ ) {
+  if ( uploadFedSettings_ ) {
     
     // Update FED descriptions with new ticker thresholds
     SiStripConfigDb::FedDescriptionsRange feds = db()->getFedDescriptions(); 

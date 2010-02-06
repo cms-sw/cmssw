@@ -209,7 +209,8 @@ void EMShower::prepareSteps()
        MeanDepth += deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i];
        realTotalEnergy+=depositedEnergy[iStep][i]*E[i];
      }
-     MeanDepth/=ESliceTot;
+     if( ESliceTot > 0. )  {MeanDepth/=ESliceTot;}
+
      meanDepth[iStep]=MeanDepth;
      if(realTotalEnergy<0.001)
        {
@@ -574,7 +575,12 @@ EMShower::deposit(double t, double a, double b, double dt) {
   myIncompleteGamma.a().setValue(a);
   double b1=b*(t-dt);
   double b2=b*t;
-  return (myIncompleteGamma(b2)-myIncompleteGamma(b1));
+  double result = 0.;
+  if(fabs(b1) < 1.e-9) b1 = 1.e-9;
+  if(fabs(b2) < 1.e-9) b2 = 1.e-9;
+  result = (myIncompleteGamma(b2)-myIncompleteGamma(b1));
+  return result;
+
 }
 
 
@@ -611,7 +617,10 @@ EMShower::deposit( double a, double b, double t) {
   //  std::cout << " Deposit " << std::endl;
   myIncompleteGamma.a().setValue(a);
   double b2=b*t;
-  double result=myIncompleteGamma(b2);
+  double result = 0.;
+  if(fabs(b2) < 1.e-9 ) b2 = 1.e-9;
+  result=myIncompleteGamma(b2);
   //  std::cout << " deposit t = " << t  << " "  << result <<std::endl;
   return result;
+
 }

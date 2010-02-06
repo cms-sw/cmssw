@@ -7,10 +7,11 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a smart HLT
  *  trigger cut, specified as a string such as "pt>15 && -3<eta<3",
  *  for single objects of the same physics type, allowing to cut on
- *  variables relating to their 4-momentum representation
+ *  variables relating to both the base class T and the derived actual
+ *  class
  *
- *  $Date: 2008/05/05 15:48:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/07/08 01:13:08 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -41,7 +42,7 @@ class HLTSmartSinglet : public HLTFilter {
       std::string   cut_;      // smart cut
       int           min_N_;    // number of objects passing cuts required
 
-      StringCutObjectSelector<T> select_; // smart selector
+      StringCutObjectSelector<T,true> select_; // smart selector
 };
 
 #endif //HLTSmartSinglet_h

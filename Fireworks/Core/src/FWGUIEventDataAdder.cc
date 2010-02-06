@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.25 2009/10/08 21:19:56 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.27 2009/12/07 01:15:09 dmytro Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
       case 0:
          return iData.purpose_;
          break;
-      case 3:
+      case 4:
          return iData.type_;
          break;
       case 1:
@@ -57,7 +57,7 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
       case 2:
          return iData.productInstanceLabel_;
          break;
-      case 4:
+      case 3:
          return iData.processName_;
          break;
       default:
@@ -93,8 +93,8 @@ public:
       returnValue.push_back("Purpose");
       returnValue.push_back("Module Label");
       returnValue.push_back("Product Instance Label");
-      returnValue.push_back("C++ Class");
       returnValue.push_back("Process Name");
+      returnValue.push_back("C++ Class");
       return returnValue;
    }
    
@@ -420,7 +420,12 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
    m_useableData.clear();
    if(0!=m_presentEvent) {
       const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
-      assert(0!=history.size());
+      //Turns out, in the online system we do sometimes gets files without any history, 
+      // this really should be investigated
+      //assert(0!=history.size());
+      if(0==history.size()) {
+         std::cerr <<"WARNING: the file '"<<iFile->GetName()<<"' contains no processing history and therefore should have no accessible data";
+      }
       std::copy(history.rbegin(),history.rend(),
                 std::back_inserter(m_processNamesInFile));
       
@@ -501,8 +506,8 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
       
       //Check to see if this is the last process, if it is then we can let the user decide
       // to not use the process name when doing the lookup.  This makes a saved configuration
-      // more robust.  However, if the chose a collection not from the last process we need the
-      // process name in order to correct get the data they want
+      // more robust.  However, if they choose a collection not from the last process then we need the
+      // process name in order to correctly get the data they want
       bool isMostRecentProcess =true;
       int index = 0;
       for(std::vector<Data>::iterator it = m_useableData.begin(), itEnd = m_useableData.end();

@@ -18,7 +18,6 @@
 <use name=CoralCommon>
 <use name=CondCore/PopCon>
 <use name=OnlineDB/SiStripConfigDb>
-<use name=CalibTracker/Records>
 <use name=tkonlineswdb>
 <use name=boost>
 <use name=root>
@@ -45,7 +44,6 @@
   <use name=CoralCommon>
   <use name=CondCore/PopCon>
   <use name=OnlineDB/SiStripConfigDb>
-  <use name=CalibTracker/Records>
   <use name=tkonlineswdb>
   <use name=boost>
   <use name=root>
