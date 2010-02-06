@@ -40,6 +40,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
    runZS = ps.getUntrackedParameter<bool>("RunZS", false);
    runFrontEndFormatError = ps.getUntrackedParameter<bool>("FrontEndFormatError", false);
    produces<HcalTrigPrimDigiCollection>();
+   theAlgo.setPeakFinderAlgorithm(ps.getUntrackedParameter<int>("PeakFinderAlgorithm", 2));
 }
 
 
