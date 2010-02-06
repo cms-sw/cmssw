@@ -36,6 +36,7 @@ public:
   void runFEFormatError(const FEDRawDataCollection* rawraw,
                         const HcalElectronicsMap* emap,
                         HcalTrigPrimDigiCollection & result);
+  void setPeakFinderAlgorithm(int algo);
  private:
 
   /// adds the signal to the map
@@ -63,6 +64,11 @@ public:
   uint32_t minSignalThreshold_;
   uint32_t PMT_NoiseThreshold_; 
 
+  // Algo1: isPeak = TS[i-1] < TS[i] && TS[i] >= TS[i+1]
+  // Algo2: isPeak = TSS[i-1] < TSS[i] && TSS[i] >= TSS[i+1],
+  // TSS[i] = TS[i] + TS[i+1]
+  // Default: Algo2
+  int peak_finder_algorithm_;
 
   // Member not initialzed
   //std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & id) const;

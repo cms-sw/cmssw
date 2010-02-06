@@ -22,7 +22,9 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                    numberOfSamples_(numberOfSamples),
                                                    numberOfPresamples_(numberOfPresamples),
                                                    minSignalThreshold_(minSignalThreshold),
-                                                   PMT_NoiseThreshold_(PMT_NoiseThreshold) {
+                                                   PMT_NoiseThreshold_(PMT_NoiseThreshold),
+                                                   peak_finder_algorithm_(2)
+{
    //No peak finding setting (for Fastsim)
    if (!peakfind_){
       numberOfSamples_ = 1; 
@@ -197,7 +199,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
    // Align digis and TP
    int shift = samples.presamples() - numberOfPresamples_;
    assert (shift >= (peakfind_ ? shrink : 0));
-   assert((shift + numberOfSamples_ + shrink) <= samples.size());
+   assert(shift + numberOfSamples_ + shrink <= samples.size() - (peak_finder_algorithm_ - 1));
 
    for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
       // ibin - index for output TP
@@ -206,7 +208,19 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 
       //Peak finding
       if (peakfind_) {
-         if ( samples[idx] > samples[idx-1] && samples[idx] >= samples[idx+1] && samples[idx] > theThreshold) {
+         bool isPeak = false;
+         switch (peak_finder_algorithm_) {
+            case 1 :
+               isPeak = (samples[idx] > samples[idx-1] && samples[idx] >= samples[idx+1] && samples[idx] > theThreshold);
+               break;
+            case 2:
+               isPeak = (sum[idx] > sum[idx-1] && sum[idx] >= sum[idx+1] && sum[idx] > theThreshold);
+               break;
+            default:
+               break;
+         }
+
+         if (isPeak){
             output[ibin] = sum[idx];
             finegrain[ibin] = msb[idx];
          }
@@ -339,4 +353,10 @@ void HcalTriggerPrimitiveAlgo::addFG(const HcalTrigTowerDetId& id, std::vector<b
          _msb[i] = _msb[i] || msb[i];
    }
    else fgMap_[id] = msb;
+}
+
+void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo){
+   if (algo <=0 && algo>2)
+      throw cms::Exception("ERROR: Only algo 1 & 2 are supported.") << std::endl;
+   peak_finder_algorithm_ = algo;
 }
