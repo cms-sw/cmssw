@@ -2,9 +2,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
-#include <iomanip>
-#include <math.h>
+// #include <iostream>
+// #include <iomanip>
+#include <cmath>
 
 using namespace std;
 using namespace magfieldparam;
@@ -35,13 +35,28 @@ TkBfield::TkBfield(string fld) {
 //  coeff=1/(prm[8]*prm[8]);
 }
 
-void TkBfield::Bcyl (const double* x) {
+namespace {
+  inline void ffunkti(double u, double __restrict__ ff[4]) {
+    // Function and its 3 derivatives
+    double a,b,a2,u2;
+    u2=u*u; 
+    a=1./(1.+u2);
+    a2=-3*a*a;
+    b=sqrt(a);
+    ff[0]=u*b;
+    ff[1]=a*b;
+    ff[2]=a2*ff[0];
+    ff[3]=a2*ff[1]*(1.-4*u2);
+  }
+}
+
+void TkBfield::Bcyl (double const  __restrict__ x[3], double __restrict__ Bw[3]); {
   double r=sqrt(x[0]*x[0]+x[1]*x[1]);
   double z=x[2];
   //  if (r<1.15&&fabs(z)<2.8) // NOTE: check omitted, is done already by the wrapper! (NA)
-    {
+  {
     z-=prm[3];                    // max Bz point is shifted in z
-    double az=fabs(z);
+    double az=std::abs(z);
     double zainv=z*ainv;
     double u=hlova-zainv;
     double v=hlova+zainv;
@@ -54,37 +69,25 @@ void TkBfield::Bcyl (const double* x) {
     Bw[1]=0;
     Bw[2]=hb0*(fu[0]+gv[0]-(fu[2]+gv[2])*rat2/4);
     double corBr= prm[4]*r*z*(az-prm[5])*(az-prm[5]);
-//    double corBz=-prm[6]*exp(coeff*(az-prm[7])*(az-prm[7]));
-//    double corBz=-prm[6]/(1+coeff*(az-prm[7])*(az-prm[7]));
+    //    double corBz=-prm[6]*exp(coeff*(az-prm[7])*(az-prm[7]));
+    //    double corBz=-prm[6]/(1+coeff*(az-prm[7])*(az-prm[7]));
     double corBz=-prm[6]*(exp(-(z-prm[7])*(z-prm[7])/(prm[8]*prm[8]))
-                        + exp(-(z+prm[7])*(z+prm[7])/(prm[8]*prm[8]))); // double Gaussian
+			  + exp(-(z+prm[7])*(z+prm[7])/(prm[8]*prm[8]))); // double Gaussian
     Bw[0]+=corBr;
     Bw[2]+=corBz;
-//   } else {
-//     cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
-    }
+    //   } else {
+    //     cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
+  }
 }
 
-void TkBfield::ffunkti(const double u, double* ff) {
-// Function and its 3 derivatives
-  double a,b,a2,u2;
-  u2=u*u; 
-  a=1/(1+u2);
-  a2=-3*a*a;
-  b=sqrt(a);
-  ff[0]=u*b;
-  ff[1]=a*b;
-  ff[2]=a2*ff[0];
-  ff[3]=a2*ff[1]*(1-4*u2);
+
+void TkBfield::getBrfz(double const  __restrict__ x[3], double __restrict__ Brfz[3]); {
+  Bcyl(x, Brfz);
 }
 
-void TkBfield::getBrfz(const double *x, double *Brfz) {
-  Bcyl(x);
-  for (int i=0; i<3; i++) Brfz[i]=Bw[i];
-}
-
-void TkBfield::getBxyz(const double *x, double *Bxyz) {
-  Bcyl(x);
+void TkBfield::getBxyz(double const  __restrict__ x[3], double __restrict__ Bxyz[3]) {
+  double Bw[3];
+  Bcyl(x, Bw);
   double r=sqrt(x[0]*x[0]+x[1]*x[1]);
   double rinv=(r>0) ? 1/r:0;
   Bxyz[0]=Bw[0]*x[0]*rinv;
