@@ -32,7 +32,7 @@ TkBfield::TkBfield(string fld) {
   hb0=0.5*prm[2]*sqrt(1.0+ap2);
   hlova=1/sqrt(ap2);
   ainv=2*hlova/prm[1];
-//  coeff=1/(prm[8]*prm[8]);
+  coeff=1/(prm[8]*prm[8]);
 }
 
 namespace {
@@ -60,16 +60,19 @@ void  TkBfield::Bcyl(double r, double z, double * __restrict__ Bw)  const{
   double fu[4],gv[4];
   ffunkti(u,fu);
   ffunkti(v,gv);
-  double rat=r*ainv;
+  double rat=0.5*r*ainv;
   double rat2=rat*rat;
-  Bw[0]=hb0*rat*(fu[1]-gv[1]-(fu[3]-gv[3])*rat2/8)/2;
+  Bw[0]=hb0*rat*(fu[1]-gv[1]-(fu[3]-gv[3])*rat2*0.5);
   Bw[1]=0;
-  Bw[2]=hb0*(fu[0]+gv[0]-(fu[2]+gv[2])*rat2/4);
+  Bw[2]=hb0*(fu[0]+gv[0]-(fu[2]+gv[2])*rat2);
   double corBr= prm[4]*r*z*(az-prm[5])*(az-prm[5]);
   //    double corBz=-prm[6]*exp(coeff*(az-prm[7])*(az-prm[7]));
   //    double corBz=-prm[6]/(1+coeff*(az-prm[7])*(az-prm[7]));
-  double corBz=-prm[6]*(exp(-(z-prm[7])*(z-prm[7])/(prm[8]*prm[8]))
-			+ exp(-(z+prm[7])*(z+prm[7])/(prm[8]*prm[8]))); // double Gaussian
+  //  double corBz=-prm[6]*(exp(-(z-prm[7])*(z-prm[7])/(prm[8]*prm[8]))
+  //			+ exp(-(z+prm[7])*(z+prm[7])/(prm[8]*prm[8]))); // double Gaussian
+  double corBz=-prm[6]*(exp(-(z-prm[7])*(z-prm[7])*coeff) +
+			exp(-(z+prm[7])*(z+prm[7])*coeff)
+			); // double Gaussian
   Bw[0]+=corBr;
   Bw[2]+=corBz;
   //   } else {

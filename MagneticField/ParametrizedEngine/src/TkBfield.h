@@ -36,7 +36,7 @@ namespace magfieldparam {
 
   private:
     double prm[9];
-    double ap2, hb0, hlova, ainv;
+    double ap2, hb0, hlova, ainv,coeff;
     void Bcyl(double r, double z, double * __restrict__ Bw) const;
   };
 }
