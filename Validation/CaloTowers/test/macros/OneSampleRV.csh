@@ -54,12 +54,11 @@ cp ../html_indices/RBX.html            RBX/index.html
 cd ../
 
 #Process MC MinBias
-root -l -q 'RelValMacro.C("'${REF_VERS}'","'${VAL_VERS}'","'${REF_FILE}'","'${VAL_FILE}'")'
+root -b -q 'RelValMacro.C("'${REF_VERS}'","'${VAL_VERS}'","'${REF_FILE}'","'${VAL_FILE}'")'
 
 mv HB_CaloTowers*HB.gif ${VAL_VERS}_vs_${REF_VERS}_RelVal/CalTowHB/
 mv HE_CaloTowers*HE.gif ${VAL_VERS}_vs_${REF_VERS}_RelVal/CalTowHE/
 mv HF_CaloTowers*HF.gif ${VAL_VERS}_vs_${REF_VERS}_RelVal/CalTowHF/
-rm emean_seq_*.gif
 
 mv RBX*gif              ${VAL_VERS}_vs_${REF_VERS}_RelVal/RBX/
 mv *gif                 ${VAL_VERS}_vs_${REF_VERS}_RelVal/RecHits/
