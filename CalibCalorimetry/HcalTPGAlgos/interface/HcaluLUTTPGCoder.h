@@ -23,8 +23,8 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2009/10/25 21:19:45 $
-  * $Revision: 1.19 $
+  * $Date: 2009/10/26 18:55:38 $
+  * $Revision: 1.20 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -48,6 +48,9 @@ public:
   std::vector<unsigned short> getLinearizationLUTWithMSB(const HcalDetId& id) const;
   void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
   bool getMSB(const HcalDetId& id, int adc) const;
+  int getLUTId(HcalSubdetector id, int ieta, int iphi, int depth) const;
+  int getLUTId(uint32_t rawid) const;
+  int getLUTId(const HcalDetId& detid) const;
 
 private:
   // typedef
@@ -57,12 +60,7 @@ private:
   // constants
   static const size_t nluts = 46007, INPUT_LUT_SIZE = 128;
   static const float lsb_;
-
-  // member functions
-  int getLUTId(HcalSubdetector id, int ieta, int iphi, int depth) const;
-  int getLUTId(uint32_t rawid) const;
-  int getLUTId(const HcalDetId& detid) const;
-
+  
   // member variables
   bool LUTGenerationMode_;
   int bitToMask_;

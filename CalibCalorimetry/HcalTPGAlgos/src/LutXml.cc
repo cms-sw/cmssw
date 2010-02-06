@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.2 2009/06/24 09:49:11 kukartse Exp $
+// $Id: LutXml.cc,v 1.4 2009/07/16 16:36:11 kukartse Exp $
 //
 
 #include <iostream>
@@ -563,7 +563,7 @@ int LutXml::create_lut_map( void ){
       ////
       //cout << _lut[127] << endl;
       // filling the map
-      uint32_t _key;
+      uint32_t _key = 0;
       if (lut_type==1){
 	HcalDetId _id(subdet,ieta,iphi,depth);
 	_key = _id.rawId();
