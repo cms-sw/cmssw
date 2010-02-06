@@ -11,8 +11,7 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
   minBTagValueBJet_   (cfg.getParameter<double>("minBTagValueBJet")),
   maxBTagValueNonBJet_(cfg.getParameter<double>("maxBTagValueNonBJet")),
   bTags_              (cfg.getParameter<unsigned int>("bTags")),
-  corL_               (cfg.getParameter<std::string>("corL")),
-  corB_               (cfg.getParameter<std::string>("corB")),
+  jetCorrectionLevel_ (cfg.getParameter<std::string>("jetCorrectionLevel")),
   maxNJets_           (cfg.getParameter<int>("maxNJets")),
   maxNComb_           (cfg.getParameter<int>("maxNComb")),
   maxNrIter_          (cfg.getParameter<unsigned int>("maxNrIter")),
@@ -47,7 +46,7 @@ TtFullHadKinFitProducer::~TtFullHadKinFitProducer()
 }
 
 bool
-TtFullHadKinFitProducer::doBTagging(unsigned int& bTags_, unsigned int& bJetCounter, std::string& corL_, std::string& corB_,
+TtFullHadKinFitProducer::doBTagging(unsigned int& bTags_, unsigned int& bJetCounter,
 				    edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
 				    std::string& bTagAlgo_, double& minBTagValueBJet_, double& maxBTagValueNonBJet_){
   
@@ -55,38 +54,38 @@ TtFullHadKinFitProducer::doBTagging(unsigned int& bTags_, unsigned int& bJetCoun
     return true;
   }
   if( bTags_ == 2 &&
-      (*jets)[combi[TtFullHadEvtPartons::B        ]].correctedJet(corB_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
-      (*jets)[combi[TtFullHadEvtPartons::BBar     ]].correctedJet(corB_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
-      (*jets)[combi[TtFullHadEvtPartons::LightQ   ]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-      (*jets)[combi[TtFullHadEvtPartons::LightQBar]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-      (*jets)[combi[TtFullHadEvtPartons::LightP   ]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-      (*jets)[combi[TtFullHadEvtPartons::LightPBar]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+      (*jets)[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+      (*jets)[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+      (*jets)[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+      (*jets)[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+      (*jets)[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+      (*jets)[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
     return true;
   }
 
   if( bTags_ == 1 ){  
     if( bJetCounter == 1 &&
-        ((*jets)[combi[TtFullHadEvtPartons::B        ]].correctedJet(corB_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ ||
-         (*jets)[combi[TtFullHadEvtPartons::BBar     ]].correctedJet(corB_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) &&
-	(*jets)[combi[TtFullHadEvtPartons::LightQ   ]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-	(*jets)[combi[TtFullHadEvtPartons::LightQBar]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-	(*jets)[combi[TtFullHadEvtPartons::LightP   ]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-	(*jets)[combi[TtFullHadEvtPartons::LightPBar]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+        ((*jets)[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ ||
+         (*jets)[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) &&
+	(*jets)[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	(*jets)[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	(*jets)[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	(*jets)[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
       return true;
     }
     if( bJetCounter > 1 &&
-        (*jets)[combi[TtFullHadEvtPartons::B        ]].correctedJet(corB_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
-        (*jets)[combi[TtFullHadEvtPartons::BBar     ]].correctedJet(corB_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
-        (*jets)[combi[TtFullHadEvtPartons::LightQ   ]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-        (*jets)[combi[TtFullHadEvtPartons::LightQBar]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-        (*jets)[combi[TtFullHadEvtPartons::LightP   ]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
-        (*jets)[combi[TtFullHadEvtPartons::LightPBar]].correctedJet(corL_).bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+        (*jets)[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+        (*jets)[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+        (*jets)[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+        (*jets)[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+        (*jets)[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+        (*jets)[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
       return true;
     }
   }
   if( bTags_ > 2 ){
-    // here will be an exception for be thrown when bTags_ is not a valid number of supported b-jets
-    std::cout << "Wrong number of bTags (" << bTags_ << " bTags not supported) using no b-tagging instead!" << std::endl;
+    throw cms::Exception("Configuration")
+      << "Wrong number of bTags (" << bTags_ << " bTags not supported)!\n";
     return true;
   }
 
@@ -94,6 +93,33 @@ TtFullHadKinFitProducer::doBTagging(unsigned int& bTags_, unsigned int& bJetCoun
     return false;
   }
 }
+
+/// helper function to construct the proper corrected jet for its corresponding quarkType
+pat::Jet
+TtFullHadKinFitProducer::corJet(const pat::Jet& jet,  const std::string& jetCorrectionLevel, const std::string& quarkType)
+{
+  // jetCorrectionLevel was not configured
+  if(jetCorrectionLevel_.empty())
+    throw cms::Exception("Configuration")
+      << "Unconfigured jetCorrectionLevel. Please use an appropriate, non-empty string.\n";
+
+  // quarkType is unknown
+  if( !(quarkType=="wMix" ||
+	quarkType=="uds" ||
+	quarkType=="c" ||
+	quarkType=="b") )
+    throw cms::Exception("Configuration")
+      << quarkType << " is unknown as a quarkType for the jetCorrectionLevel.\n";
+
+  float corrFactor = 1.;
+  if(quarkType=="wMix") corrFactor = 0.75 * jet.corrFactor(jetCorrectionLevel, "uds") + 0.25 * jet.corrFactor(jetCorrectionLevel, "c");
+  else corrFactor = jet.corrFactor(jetCorrectionLevel, quarkType);
+
+  pat::Jet ret = jet;
+  ret.setP4(ret.p4() * corrFactor);
+  return ret;
+}
+
 
 /// produce fitted object collections and meta data describing fit quality
 void 
@@ -199,7 +225,7 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
   unsigned int bJetCounter = 0;
   if( bTags_ == 1 ){
     for(unsigned int idx = 0; idx < jets->size(); idx++){
-      if((*jets)[idx].correctedJet(corB_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) ++bJetCounter;
+      if((*jets)[idx].correctedJet(jetCorrectionLevel_).bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) ++bJetCounter;
     }
   }
   
@@ -208,20 +234,21 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
   do{
     for(int cnt=0; cnt<TMath::Factorial(combi.size()); ++cnt){
       // take into account indistinguishability of the two jets from the two W decays,
-      // this reduces the combinatorics by a factor of 2*2
+      // and the two decay branches, this reduces the combinatorics by a factor of 2*2*2
       if( (combi[TtFullHadEvtPartons::LightQ] < combi[TtFullHadEvtPartons::LightQBar] ||
 	   combi[TtFullHadEvtPartons::LightP] < combi[TtFullHadEvtPartons::LightPBar] ||
-	   useOnlyMatch_) && doBTagging(bTags_, bJetCounter, corL_, corB_, jets, combi, 
-					bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_) ) {
+	   combi[TtFullHadEvtPartons::B]      < combi[TtFullHadEvtPartons::BBar]      ||
+	   useOnlyMatch_) && doBTagging(bTags_, bJetCounter, jets, combi,bTagAlgo_,
+					minBTagValueBJet_, maxBTagValueNonBJet_) ) {
 
 	std::vector<pat::Jet> jetCombi;
 	jetCombi.resize(nPartons);
-	jetCombi[TtFullHadEvtPartons::LightQ   ] = (*jets)[combi[TtFullHadEvtPartons::LightQ   ]].correctedJet(corL_);
-	jetCombi[TtFullHadEvtPartons::LightQBar] = (*jets)[combi[TtFullHadEvtPartons::LightQBar]].correctedJet(corL_);
-	jetCombi[TtFullHadEvtPartons::B        ] = (*jets)[combi[TtFullHadEvtPartons::B        ]].correctedJet(corB_);
-	jetCombi[TtFullHadEvtPartons::BBar     ] = (*jets)[combi[TtFullHadEvtPartons::BBar     ]].correctedJet(corB_);
-	jetCombi[TtFullHadEvtPartons::LightP   ] = (*jets)[combi[TtFullHadEvtPartons::LightP   ]].correctedJet(corL_);
-	jetCombi[TtFullHadEvtPartons::LightPBar] = (*jets)[combi[TtFullHadEvtPartons::LightPBar]].correctedJet(corL_);
+	jetCombi[TtFullHadEvtPartons::LightQ   ] = corJet((*jets)[combi[TtFullHadEvtPartons::LightQ   ]], jetCorrectionLevel_, "wMix");
+	jetCombi[TtFullHadEvtPartons::LightQBar] = corJet((*jets)[combi[TtFullHadEvtPartons::LightQBar]], jetCorrectionLevel_, "wMix");
+	jetCombi[TtFullHadEvtPartons::B        ] = corJet((*jets)[combi[TtFullHadEvtPartons::B        ]], jetCorrectionLevel_, "b");
+	jetCombi[TtFullHadEvtPartons::BBar     ] = corJet((*jets)[combi[TtFullHadEvtPartons::BBar     ]], jetCorrectionLevel_, "b");
+	jetCombi[TtFullHadEvtPartons::LightP   ] = corJet((*jets)[combi[TtFullHadEvtPartons::LightP   ]], jetCorrectionLevel_, "wMix");
+	jetCombi[TtFullHadEvtPartons::LightPBar] = corJet((*jets)[combi[TtFullHadEvtPartons::LightPBar]], jetCorrectionLevel_, "wMix");
 	  
 	// do the kinematic fit
 	int status = fitter->fit(jetCombi);
