@@ -36,7 +36,7 @@ TkBfield::TkBfield(string fld) {
 }
 
 namespace {
-  inline void ffunkti(double u, double __restrict__ ff[4]) {
+  inline void ffunkti(double u, double * __restrict__ ff) {
     // Function and its 3 derivatives
     double a,b,a2,u2;
     u2=u*u; 
@@ -50,45 +50,42 @@ namespace {
   }
 }
 
-void TkBfield::Bcyl (double const  __restrict__ x[3], double __restrict__ Bw[3]); {
-  double r=sqrt(x[0]*x[0]+x[1]*x[1]);
-  double z=x[2];
+void  TkBfield::Bcyl(double r, double z, double * __restrict__ Bw)  const{
   //  if (r<1.15&&fabs(z)<2.8) // NOTE: check omitted, is done already by the wrapper! (NA)
-  {
-    z-=prm[3];                    // max Bz point is shifted in z
-    double az=std::abs(z);
-    double zainv=z*ainv;
-    double u=hlova-zainv;
-    double v=hlova+zainv;
-    double fu[4],gv[4];
-    ffunkti(u,fu);
-    ffunkti(v,gv);
-    double rat=r*ainv;
-    double rat2=rat*rat;
-    Bw[0]=hb0*rat*(fu[1]-gv[1]-(fu[3]-gv[3])*rat2/8)/2;
-    Bw[1]=0;
-    Bw[2]=hb0*(fu[0]+gv[0]-(fu[2]+gv[2])*rat2/4);
-    double corBr= prm[4]*r*z*(az-prm[5])*(az-prm[5]);
-    //    double corBz=-prm[6]*exp(coeff*(az-prm[7])*(az-prm[7]));
-    //    double corBz=-prm[6]/(1+coeff*(az-prm[7])*(az-prm[7]));
-    double corBz=-prm[6]*(exp(-(z-prm[7])*(z-prm[7])/(prm[8]*prm[8]))
-			  + exp(-(z+prm[7])*(z+prm[7])/(prm[8]*prm[8]))); // double Gaussian
-    Bw[0]+=corBr;
-    Bw[2]+=corBz;
-    //   } else {
-    //     cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
-  }
+  z-=prm[3];                    // max Bz point is shifted in z
+  double az=std::abs(z);
+  double zainv=z*ainv;
+  double u=hlova-zainv;
+  double v=hlova+zainv;
+  double fu[4],gv[4];
+  ffunkti(u,fu);
+  ffunkti(v,gv);
+  double rat=r*ainv;
+  double rat2=rat*rat;
+  Bw[0]=hb0*rat*(fu[1]-gv[1]-(fu[3]-gv[3])*rat2/8)/2;
+  Bw[1]=0;
+  Bw[2]=hb0*(fu[0]+gv[0]-(fu[2]+gv[2])*rat2/4);
+  double corBr= prm[4]*r*z*(az-prm[5])*(az-prm[5]);
+  //    double corBz=-prm[6]*exp(coeff*(az-prm[7])*(az-prm[7]));
+  //    double corBz=-prm[6]/(1+coeff*(az-prm[7])*(az-prm[7]));
+  double corBz=-prm[6]*(exp(-(z-prm[7])*(z-prm[7])/(prm[8]*prm[8]))
+			+ exp(-(z+prm[7])*(z+prm[7])/(prm[8]*prm[8]))); // double Gaussian
+  Bw[0]+=corBr;
+  Bw[2]+=corBz;
+  //   } else {
+  //     cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
 }
 
 
-void TkBfield::getBrfz(double const  __restrict__ x[3], double __restrict__ Brfz[3]); {
-  Bcyl(x, Brfz);
+
+void TkBfield::getBrfz(double const  * __restrict__ x, double * __restrict__ Brfz)  const {
+  Bcyl(sqrt(x[0]*x[0]+x[1]*x[1]),x[2], Brfz);
 }
 
-void TkBfield::getBxyz(double const  __restrict__ x[3], double __restrict__ Bxyz[3]) {
+void TkBfield::getBxyz(double const  * __restrict__ x, double * __restrict__ Bxyz)  const {
   double Bw[3];
-  Bcyl(x, Bw);
   double r=sqrt(x[0]*x[0]+x[1]*x[1]);
+  Bcyl(r, x[2], Bw);
   double rinv=(r>0) ? 1/r:0;
   Bxyz[0]=Bw[0]*x[0]*rinv;
   Bxyz[1]=Bw[0]*x[1]*rinv;

@@ -13,9 +13,7 @@
  *
  *    Valid for r<1.15m and |z|<2.80m
  *
- *  $Date: 2008/05/28 13:17:48 $
- *  $Revision: 1.6 $
- *  \author V.Karimaki 080228, 080407
+*  \author V.Karimaki 080228, 080407
  */
 
 
@@ -32,14 +30,14 @@ namespace magfieldparam {
     ~TkBfield() {}
 
     /// B out in cartesian
-    void getBxyz(double const  __restrict__ x[3], double __restrict__ Bxyz[3]); 
+    void getBxyz(double const  * __restrict__ x, double * __restrict__ Bxyz) const; 
     /// B out in cylindrical
-    void getBrfz(double const  __restrict__ x[3], double __restrict__ Brfz[3]);
+    void getBrfz(double const  * __restrict__ x, double * __restrict__ Brfz) const;
 
   private:
     double prm[9];
     double ap2, hb0, hlova, ainv;
-    void Bcyl(double const  __restrict__ x[3], double __restrict__ Bw[3]);
+    void Bcyl(double r, double z, double * __restrict__ Bw) const;
   };
 }
 
