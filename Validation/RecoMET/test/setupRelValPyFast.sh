@@ -5,11 +5,12 @@ echo $current_area
 # Define the directory that will hold the histogram root files for Full Simulation
 # Note: Both Full Sim and Fast Sim will produce histogram root files with the same name, e.g METTester_data_QCD_30-50.root, so they need to be output to different directories!!!
 
-Directory=${current_area}/FullSim/
+Directory=${current_area}/FastSim/
 mkdir $Directory -p
 
 #======= Define list of samples that you will be validating ========#
-dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
+#dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
+dirlist="QCD_FlatPt_15_3000"
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET, analyzeTCMET,OB analyzePFMET"
@@ -18,7 +19,8 @@ RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyz
 echo "Run path = {" $RunPath "}"
 
 cmssw_version="3_5_0_pre5"
-condition="MC_3XY_V20-v1"
+#condition="MC_3XY_V20_FastSim_Early10TeVCollision-v1"
+condition="MC_3XY_V20_FastSim-v1"
 globalTag="MC_3XY_V20::All"
 
 #==========================================#
@@ -94,7 +96,7 @@ process.source = cms.Source(\"PoolSource\",
 "> ${Directory}/RunAnalyzers-${i}_cfg.py
 
 
-ds=/RelVal$i/CMSSW_$cmssw_version-$condition/GEN-SIM-RECO
+ds=/RelVal$i/CMSSW_$cmssw_version-$condition/GEN-SIM-DIGI-RECO
 ./DDSearchCLI.py --verbose=0 --limit=-1 --input="find file where  dataset=$ds" | grep "root" | sed "s/^/'/g" | sed "s/$/',/g">dd
 cat dd >> ${Directory}/RunAnalyzers-${i}_cfg.py
 rm -f dd
