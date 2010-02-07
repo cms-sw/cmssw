@@ -40,7 +40,6 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     dbe_->setCurrentFolder("CaloTowersV/CaloTowersTask");
   }
 
-
   sprintf  (histo, "Ntowers_per_event_vs_ieta" );
   Ntowers_vs_ieta = dbe_->book1D(histo, histo, 82, -41., 41.);
 
@@ -83,13 +82,13 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     meEnergyHcalvsEcal_HB    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
     
     sprintf (histo, "CaloTowersTask_energy_OUTER_HB" ) ;
-    meEnergyHO_HB    = dbe_->book1D(histo, histo, 440, -200, 2000);   
+    meEnergyHO_HB    = dbe_->book1D(histo, histo, 1640, -200, 8000);   
     
     sprintf (histo, "CaloTowersTask_energy_HCAL_HB" ) ;
-    meEnergyHcal_HB    = dbe_->book1D(histo, histo, 440, -200, 2000);  
+    meEnergyHcal_HB    = dbe_->book1D(histo, histo, 1640, -200, 8000);  
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HB" ) ;
-    meEnergyEcal_HB    = dbe_->book1D(histo, histo, 440, -200, 2000); 
+    meEnergyEcal_HB    = dbe_->book1D(histo, histo, 1240, -200, 6000); 
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HB" ) ;
     meNumFiredTowers_HB = dbe_->book1D(histo, histo, 400, 0, 2000); 
@@ -111,13 +110,31 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     mapEnergyEcal_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
     
     sprintf  (histo, "CaloTowersTask_MET_HB" ) ;
-    MET_HB = dbe_->book1D(histo, histo, 500, 0. , 1000. ) ;
+    MET_HB = dbe_->book1D(histo, histo, 1500, 0. , 3000. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HB" ) ;
-    SET_HB = dbe_->book1D(histo, histo, 500, 0. , 5000. ) ;
+    SET_HB = dbe_->book1D(histo, histo, 800, 0. , 8000. ) ;
     
     sprintf  (histo, "CaloTowersTask_phi_MET_HB" ) ;
     phiMET_HB = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Timing_HB" ) ;
+    emTiming_HB = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Timing_HB" ) ;
+    hadTiming_HB = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HB" ) ;
+    emEnergyTiming_HB = dbe_->book2D(histo, histo, 400, 0. , 4000., 200, -100., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HB" ) ;
+    hadEnergyTiming_HB = dbe_->book2D(histo, histo, 400, 0. , 4000., 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HB" ) ;
+    emEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 400, 0. , 4000., 200, -100., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HB" ) ;
+    hadEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 400, 0. , 4000., 200, -100., 100. ) ;
   }
 
   if( isub == 2 || isub == 0) {
@@ -156,10 +173,28 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     MET_HE = dbe_->book1D(histo, histo, 500, 0. , 1000. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HE" ) ;
-    SET_HE = dbe_->book1D(histo, histo, 500, 0. , 5000. ) ;
+    SET_HE = dbe_->book1D(histo, histo, 200, 0. , 2000. ) ;
     
     sprintf  (histo, "CaloTowersTask_phi_MET_HE" ) ;
     phiMET_HE = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Timing_HE" ) ;
+    emTiming_HE = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Timing_HE" ) ;
+    hadTiming_HE = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HE" ) ;
+    emEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 2000., 200, -100., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HE" ) ;
+    hadEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 2000., 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HE" ) ;
+    emEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 2000., 200, -100., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HE" ) ;
+    hadEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 2000., 200, -100., 100. ) ;
   }
 
 
@@ -186,7 +221,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     meEnergyHcalTower_HF = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
     
     sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HF" ) ;
-    meTotEnergy_HF = dbe_->book1D(histo, histo,400, 0., 2000.) ;
+    meTotEnergy_HF = dbe_->book1D(histo, histo, 400, 0., 2000.) ;
     
     sprintf  (histo, "CaloTowersTask_map_energy_HF" );
     mapEnergy_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
@@ -199,11 +234,28 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     MET_HF = dbe_->book1D(histo, histo, 500, 0. , 500. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HF" ) ;
-    SET_HF = dbe_->book1D(histo, histo, 500, 0. , 5000. ) ;
+    SET_HF = dbe_->book1D(histo, histo, 100, 0. , 200. ) ;
     
     sprintf  (histo, "CaloTowersTask_phi_MET_HF" ) ;
     phiMET_HF = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
 
+    sprintf  (histo, "CaloTowersTask_EM_Timing_HF" ) ;
+    emTiming_HF = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Timing_HF" ) ;
+    hadTiming_HF = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HF" ) ;
+    emEnergyTiming_HF = dbe_->book2D(histo, histo, 100, 0. , 500., 200, -100., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HF" ) ;
+    hadEnergyTiming_HF = dbe_->book2D(histo, histo, 100, 0. , 500., 200, -100., 100. ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HF" ) ;
+    emEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 100, 0. , 500., 200, -100., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HF" ) ;
+    hadEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 100, 0. , 500., 200, -100., 100. ) ;
   }
 
 }
@@ -371,12 +423,15 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
   for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
     
-    double eE   = cal->emEnergy();
-    double eH   = cal->hadEnergy();
-    double eHO  = cal->outerEnergy();
-    double etaT = cal->eta();
-    double phiT = cal->phi();
-    double en   = cal->energy();
+    double eE     = cal->emEnergy();
+    double eH     = cal->hadEnergy();
+    double eHO    = cal->outerEnergy();
+    double etaT   = cal->eta();
+    double phiT   = cal->phi();
+    double en     = cal->energy();
+    double etT    = cal->et();
+    double had_tm = cal->hcalTime();
+    double em_tm  = cal->ecalTime();
 
     math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
 			      //  Vector mom  = cal->momentum(); 
@@ -434,7 +489,15 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       //  double  etT = cal->et();
       metx_HB += mom.x();   
       mety_HB += mom.y();  //etT * sin(phiT);          
-      sEt_HB  += en;    
+      sEt_HB  += etT;
+
+      //Timing
+      emTiming_HB->Fill(em_tm);
+      hadTiming_HB->Fill(had_tm);
+      emEnergyTiming_HB->Fill(eE, em_tm);
+      hadEnergyTiming_HB->Fill(eH, had_tm); 
+      emEnergyTiming_profile_HB->Fill(eE, em_tm);
+      hadEnergyTiming_profile_HB->Fill(eH, had_tm);     
     }
    
     if((isub == 0 || isub == 2) 
@@ -459,7 +522,15 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       //  double  etT = cal->et();
       metx_HE += mom.x();   
       mety_HE += mom.y();  //etT * sin(phiT);          
-      sEt_HE  += en;    
+      sEt_HE  += etT;    
+
+      //Timing
+      emTiming_HE->Fill(em_tm);
+      hadTiming_HE->Fill(had_tm);
+      emEnergyTiming_HE->Fill(eE, em_tm);
+      hadEnergyTiming_HE->Fill(eH, had_tm);     
+      emEnergyTiming_profile_HE->Fill(eE, em_tm);
+      hadEnergyTiming_profile_HE->Fill(eH, had_tm);     
     }
 
     if((isub == 0 || isub == 3) 
@@ -484,7 +555,15 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       //  double  etT = cal->et();
       metx_HF += mom.x();   
       mety_HF += mom.y();  //etT * sin(phiT);          
-      sEt_HF  += en;    
+      sEt_HF  += etT;    
+
+      //Timing
+      emTiming_HF->Fill(em_tm);
+      hadTiming_HF->Fill(had_tm);
+      emEnergyTiming_HF->Fill(eE, em_tm);
+      hadEnergyTiming_HF->Fill(eH, had_tm);     
+      emEnergyTiming_profile_HF->Fill(eE, em_tm);
+      hadEnergyTiming_profile_HF->Fill(eH, had_tm);     
     }
 
 
