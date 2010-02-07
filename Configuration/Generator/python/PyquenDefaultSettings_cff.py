@@ -2,6 +2,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.Generator.PythiaUESettings_cfi import *
+
 collisionParameters = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
                                comEnergy = cms.double(4000.0)
                                )
@@ -10,7 +12,7 @@ qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial tem
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
                          hadronFreezoutTemperature = cms.double(0.14),
                          doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
-                         doCollisionalEnLoss = cms.bool(True),
+                         doCollisionalEnLoss = cms.bool(False),
                          qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3 
                          numQuarkFlavor = cms.int32(0) ## to be removed
                          )
@@ -32,8 +34,12 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(
-
-    pythiaDefault = cms.vstring('MSEL=0', # ! Only user defined processes,  
+    pythiaUESettingsBlock,
+    ppDefault = cms.vstring('MSEL=1   ! QCD hight pT processes',
+                            'CKIN(3)=7.',# ! ptMin
+                            'MSTP(81)=0'
+                            ),
+    pythiaHirootDefault = cms.vstring('MSEL=0', # ! Only user defined processes,  
                                 'MSTU(21)=1', # ! to avoid stopping run',
                                 'PARU(14)=1.', # ! tolerance parameter to adjust fragmentation',
                                 'MSTP(81)=0', # ! pp multiple scattering off',
@@ -51,6 +57,7 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                 'MSTJ(11)=3',
                                 'MSTJ(22)=2'                                
                                 ),
+    ppJets = cms.vstring('MSEL=1   ! QCD hight pT processes'),
     pythiaJets = cms.vstring('MSUB(11)=1', # q+q->q+q
                              'MSUB(12)=1', # q+qbar->q+qbar
                              'MSUB(13)=1', # q+qbar->g+g
