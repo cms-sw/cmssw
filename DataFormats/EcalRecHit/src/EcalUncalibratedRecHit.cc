@@ -18,7 +18,7 @@ bool EcalUncalibratedRecHit::isSaturated() const {
 
 float EcalUncalibratedRecHit::outOfTimeEnergy() const
 {
-        uint32_t rawEnergy = (flags_>>4);
+        uint32_t rawEnergy = (0x1FFF & flags_>>4);
         uint16_t exponent = rawEnergy>>10;
         uint16_t significand = ~(0xE<<9) & rawEnergy;
         return (float) significand*pow(10,exponent-5);
@@ -35,7 +35,21 @@ void EcalUncalibratedRecHit::setOutOfTimeEnergy( float energy )
                 uint16_t exponent = lround(floor(log10(energy)))+3;
                 uint16_t significand = lround(energy/pow(10,exponent-5));
                 uint32_t rawEnergy = exponent<<10 | significand;
-                setFlags( ( ~(0xFFFFFFF<<4) & flags_) | ((rawEnergy & 0xFFFFFFF)<<4) );
+                setFlags( ( ~(0x1FFF<<4) & flags_) | ((rawEnergy & 0x1FFF)<<4) );
         }
 }
 
+void EcalUncalibratedRecHit::setOutOfTimeChi2( float chi2 )
+{
+        // use 7 bits
+        if ( chi2 > 64. ) chi2 = 64.;
+        uint32_t rawChi2 = lround( chi2 / 64. * ((1<<7)-1) );
+        // shift by 17 bits (recoFlag + outOfTimeEnergy)
+        setFlags( (~(0x7F<<17) & flags_) | ((rawChi2 & 0x7F)<<17) );
+}
+
+float EcalUncalibratedRecHit::outOfTimeChi2() const
+{
+        uint32_t rawChi2 = 0x7F & (flags_>>17);
+        return (float)rawChi2 / (float)((1<<7)-1) * 64.;
+}

@@ -5,6 +5,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <math.h>
 
+#include <iostream>
+
 EcalRecHit::EcalRecHit() : CaloRecHit() {
 }
 
@@ -19,16 +21,41 @@ bool EcalRecHit::isRecovered() const {
                  );
 }
 
+float EcalRecHit::chi2() const
+{
+        uint32_t rawChi2 = 0x7F & (flags()>>4);
+        return (float)rawChi2 / (float)((1<<7)-1) * 64.;
+}
+
 float EcalRecHit::chi2Prob() const
 {
+        std::cerr << "Please retrieve the chi2 value instead of its probability.\n";
+        std::cerr << "Use the method EcalRecHit::chi2() for that purpose.\n";
+        std::cerr << "The chi2 is still in a commissioning phase and further\n";
+        std::cerr << "actions will be taken in the future. Thanks.\n";
+        assert(false);
         uint32_t rawChi2Prob = 0x7F & (flags()>>4);
         return (float)rawChi2Prob / (float)((1<<7)-1);
 }
 
 float EcalRecHit::outOfTimeChi2Prob() const
 {
+        std::cerr << "Please retrieve the chi2 value instead of its probability.\n";
+        std::cerr << "Use the method EcalRecHit::outOfTimeChi2() for that purpose.\n";
+        std::cerr << "The chi2 is still in a commissioning phase and further\n";
+        std::cerr << "actions will be taken in the future. Thanks.\n";
+        assert(false);
+        /*
         uint32_t rawChi2Prob = 0x7F & (flags()>>24);
         return (float)rawChi2Prob / (float)((1<<7)-1);
+        */
+        return -1; // will never get here
+}
+
+float EcalRecHit::outOfTimeChi2() const
+{
+        uint32_t rawChi2Prob = 0x7F & (flags()>>24);
+        return (float)rawChi2Prob / (float)((1<<7)-1) * 64.;
 }
 
 float EcalRecHit::outOfTimeEnergy() const
@@ -46,6 +73,13 @@ void EcalRecHit::setRecoFlag( uint32_t flag )
 
 void EcalRecHit::setChi2Prob( float chi2Prob )
 {
+        /* not used - store the raw chi2 instead */
+        std::cerr << "Please store the chi2 value instead of its probability.\n";
+        std::cerr << "Use the method EcalRecHit::setChi2() for that purpose.\n";
+        std::cerr << "The chi2 is still in a commissioning phase and further\n";
+        std::cerr << "actions will be taken in the future. Thanks.\n";
+        assert(false);
+        /*
         if ( chi2Prob < 0 || chi2Prob > 1 ) {
                 edm::LogWarning("EcalRecHit::setChi2Prob") << "chi2Prob outside limits [0, 1] : " << chi2Prob;
         } else {
@@ -54,6 +88,17 @@ void EcalRecHit::setChi2Prob( float chi2Prob )
                 // shift by 4 bits (recoFlag)
                 setFlags( (~(0x7F<<4) & flags()) | ((rawChi2Prob & 0x7F)<<4) );
         }
+        */
+}
+
+void EcalRecHit::setChi2( float chi2 )
+{
+        // bound the max value of the chi2
+        if ( chi2 > 64 ) chi2 = 64;
+        // use 7 bits
+        uint32_t rawChi2 = lround( chi2 / 64. * ((1<<7)-1) );
+        // shift by 4 bits (recoFlag)
+        setFlags( (~(0x7F<<4) & flags()) | ((rawChi2 & 0x7F)<<4) );
 }
 
 void EcalRecHit::setOutOfTimeEnergy( float energy )
@@ -70,6 +115,13 @@ void EcalRecHit::setOutOfTimeEnergy( float energy )
 
 void EcalRecHit::setOutOfTimeChi2Prob( float chi2Prob )
 {
+        /* not used - store the raw chi2 instead */
+        std::cerr << "Please store the chi2 value instead of its probability.\n";
+        std::cerr << "Use the method EcalRecHit::setOutOfTimeChi2() for that purpose.\n";
+        std::cerr << "The chi2 is still in a commissioning phase and further\n";
+        std::cerr << "actions will be taken in the future. Thanks.\n";
+        assert(false);
+        /*
         if ( chi2Prob < 0 || chi2Prob > 1 ) {
                 edm::LogWarning("EcalRecHit::setOutOfTimeChi2Prob") << "chi2Prob outside limits [0, 1] : " << chi2Prob;
         } else {
@@ -78,6 +130,18 @@ void EcalRecHit::setOutOfTimeChi2Prob( float chi2Prob )
                 // shift by 24 bits (recoFlag + chi2 + outOfTimeEnergy)
                 setFlags( (~(0x7F<<24) & flags()) | ((rawChi2Prob & 0x7F)<<24) );
         }
+        */
+}
+
+
+void EcalRecHit::setOutOfTimeChi2( float chi2 )
+{
+        // bound the max value of chi2
+        if ( chi2 > 64 ) chi2 = 64;
+        // use 7 bits
+        uint32_t rawChi2 = lround( chi2 / 64. * ((1<<7)-1) );
+        // shift by 24 bits (recoFlag + chi2 + outOfTimeEnergy)
+        setFlags( (~(0x7F<<24) & flags()) | ((rawChi2 & 0x7F)<<24) );
 }
 
 
