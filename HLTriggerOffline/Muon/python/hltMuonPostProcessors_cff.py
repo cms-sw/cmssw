@@ -71,15 +71,15 @@ add_reco_strings(iso_strings)
 
 hltMuonPostMain = hltMuonPostProcessor.clone()
 hltMuonPostMain.subDirs = ['HLT/Muon/Distributions/*']
-hltMuonPostMain.efficiency = efficiency_strings
+hltMuonPostMain.efficiencyProfile = efficiency_strings
 
 hltMuonPostNonIso = hltMuonPostMain.clone()
 hltMuonPostNonIso.subDirs = ['HLT/Muon/Distributions/^(?:[^I]+|I(?!so))*$']
-hltMuonPostNonIso.efficiency = noniso_strings
+hltMuonPostNonIso.efficiencyProfile = noniso_strings
 
 hltMuonPostIso = hltMuonPostMain.clone()
 hltMuonPostIso.subDirs = ['HLT/Muon/Distributions/.*Iso.*']
-hltMuonPostIso.efficiency = iso_strings
+hltMuonPostIso.efficiencyProfile = iso_strings
 
 hltMuonPostProcessors = cms.Sequence(
     hltMuonPostNonIso *
