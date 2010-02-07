@@ -31,6 +31,7 @@ HLT_DoubleMu0
 HLT_DoubleMu3
 HLT_L1DoubleMuOpen
 HLT_IsoMu3
+HLT_L1SingleEG1
 HLT_L1SingleEG2
 HLT_L1SingleEG5
 HLT_L1SingleEG5_NoBPTX
@@ -65,6 +66,7 @@ HLT_ZeroBias
 HLT_ZeroBias1kHz
 HLT_MinBias
 HLT_MinBiasBSC
+HLT_MinBiasBSC_NoBPTX
 HLT_MinBiasBSC_OR
 HLT_MinBiasEcal
 HLT_MinBiasHcal
@@ -106,6 +108,7 @@ HLT_L1_BPTX
 HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
 HLT_L1_BscMinBiasOR_BptxPlusORMinus
+HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX
 HLT_L1_BSC
 HLT_L1_HFtech
 HLT_L1Tech_HCAL_HF_coincidence_PM
