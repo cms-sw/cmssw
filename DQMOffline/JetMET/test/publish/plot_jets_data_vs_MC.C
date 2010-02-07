@@ -1,9 +1,15 @@
 //-------------------------------
 // Usage: .L plot_jets_data_vs_MC.C
-//        plot_jets_data_vs_MC("DQM_V0001_R000123575__JetMET__CMSSW_3_3_4__Harvesting.root",123575);
+//        plot_METDQM("DQM_V0001_R000123575__JetMET__CMSSW_3_3_4__Harvesting.root",
+//                    "DQM_reference.root",
+//                    123575,
+//                    "path-to-web-space",
+//                    "png");
 //-------------------------------
+#include <stdio.h>
+#include <stdlib.h>
 
-int plot_jets_data_vs_MC(std::string filename, int run) {
+int plot_jets_data_vs_MC(std::string filename, std::string reffile, int run, std::string outdir, std::string imgformat="gif") {
 
   //-------------------------------
 
@@ -50,6 +56,7 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   printf("%s\n",cprefixRef);
   char ctitle[3000];
   char ctitleRef[3000];
+  char cjpgname[3000];
   //-----
 
   Pt->Divide(1,1);
@@ -63,48 +70,48 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
 
   std::cout << filename << std::endl;
   f1 = new TFile(filename.c_str());
-  f2 = new TFile("DQM_V0001_R000000001__JetMET__CMSSW_3_3_4__Harvesting.root");
-
+  f2 = new TFile(reffile.c_str());
+  
   h = new TFile( "result.root", "RECREATE");
 
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/Pt",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/Pt",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/Pt",cprefixRef);
   TH1D *hDpT = f1->Get(ctitle);
   TH1D *hMpT = f2->Get(ctitleRef);
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/Eta",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/Eta",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/Eta",cprefixRef);
   TH1D *hDEta = f1->Get(ctitle);
   TH1D *hMEta = f2->Get(ctitleRef);
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/Phi",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/Phi",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/Phi",cprefixRef);
   TH1D *hDPhi = f1->Get(ctitle);
   TH1D *hMPhi = f2->Get(ctitleRef);
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/Mass",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/Mass",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/Mass",cprefixRef);
   TH1D *hDMass = f1->Get(ctitle);
   TH1D *hMMass = f2->Get(ctitleRef);
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/resEMF",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/resEMF",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/resEMF",cprefixRef);
   TH1D *hDresEMF = f1->Get(ctitle);
   TH1D *hMresEMF = f2->Get(ctitleRef);
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/fHPD",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/fHPD",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/fHPD",cprefixRef);
   TH1D *hDfHPD = f1->Get(ctitle);
   TH1D *hMfHPD = f2->Get(ctitleRef);
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/N90Hits",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/N90Hits",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/N90Hits",cprefixRef);
   TH1D *hDN90Hits = f1->Get(ctitle);
   TH1D *hMN90Hits = f2->Get(ctitleRef);
   //
   sprintf(ctitle,"%s/Jet/CleanedAntiKtJets/Constituents",cprefix);
-  sprintf(ctitleRef,"%s/Jet/CleanedAntiKtJets/Constituents",cprefixRef);
+  sprintf(ctitleRef,"%s/Jet/AntiKtJets/Constituents",cprefixRef);
   TH1D *hDConstituents = f1->Get(ctitle);
   TH1D *hMConstituents = f2->Get(ctitleRef);
   //
@@ -118,7 +125,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMpT->SetLineWidth(3);
   hDpT->SetLineWidth(3);
   hDpT->SetMarkerStyle(20);
-  hMpT->Scale((hDpT->GetEntries())/(hMpT->GetEntries()));
+  if (hMpT->GetEntries()>0) 
+    hMpT->Scale((hDpT->GetEntries())/(hMpT->GetEntries()));
+  else 
+    hMpT->Scale(1);
   hMpT->SetStats(kFALSE);
 
   THStack * hpT = new THStack( "hs", "jet pT");
@@ -137,7 +147,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMEta->SetLineWidth(3);
   hDEta->SetLineWidth(3);
   hDEta->SetMarkerStyle(20);
-  hMEta->Scale((hDEta->GetEntries())/(hMEta->GetEntries()));
+  if (hMEta->GetEntries()>0) 
+    hMEta->Scale((hDEta->GetEntries())/(hMEta->GetEntries()));
+  else 
+    hMEta->Scale(1)
   hMEta->SetStats(kFALSE);
 
   THStack * hEta = new THStack( "hs", "jet eta");
@@ -153,7 +166,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMPhi->SetLineWidth(3);
   hDPhi->SetLineWidth(3);
   hDPhi->SetMarkerStyle(20);
-  hMPhi->Scale((hDPhi->GetEntries())/(hMPhi->GetEntries()));
+  if (hMPhi->GetEntries()>0) 
+    hMPhi->Scale((hDPhi->GetEntries())/(hMPhi->GetEntries()));
+  else 
+    hMPhi->Scale(1)
   hMPhi->SetStats(kFALSE);
 
   THStack * hPhi = new THStack( "hs", "jet phi");
@@ -170,7 +186,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMMass->SetLineWidth(3);
   hDMass->SetLineWidth(3);
   hDMass->SetMarkerStyle(20);
-  hMMass->Scale((hDMass->GetEntries())/(hMMass->GetEntries()));
+  if (hMMass->GetEntries()>0) 
+    hMMass->Scale((hDMass->GetEntries())/(hMMass->GetEntries()));
+  else 
+    hMMass->Scale(1)
   hMMass->SetStats(kFALSE);
 
   THStack * hMass = new THStack( "hs", "jet mass");
@@ -187,7 +206,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMresEMF->SetLineWidth(3);
   hDresEMF->SetLineWidth(3);
   hDresEMF->SetMarkerStyle(20);
-  hMresEMF->Scale((hDresEMF->GetEntries())/(hMresEMF->GetEntries()));
+  if (hMresEMF->GetEntries()>0) 
+    hMresEMF->Scale((hDresEMF->GetEntries())/(hMresEMF->GetEntries()));
+  else 
+    hMresEMF->Scale(1)
   hMresEMF->SetStats(kFALSE);
 
   THStack * hresEMF = new THStack( "hs", "restricted EMF");
@@ -204,7 +226,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMfHPD->SetLineWidth(3);
   hDfHPD->SetLineWidth(3);
   hDfHPD->SetMarkerStyle(20);
-  hMfHPD->Scale((hDfHPD->GetEntries())/(hMfHPD->GetEntries()));
+  if (hMfHPD->GetEntries()>0) 
+    hMfHPD->Scale((hDfHPD->GetEntries())/(hMfHPD->GetEntries()));
+  else 
+    hMfHPD->Scale(1)
   hMfHPD->SetStats(kFALSE);
 
   THStack * hfHPD = new THStack( "hs", "fHPD");
@@ -221,7 +246,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMN90Hits->SetLineWidth(3);
   hDN90Hits->SetLineWidth(3);
   hDN90Hits->SetMarkerStyle(20);
-  hMN90Hits->Scale((hDN90Hits->GetEntries())/(hMN90Hits->GetEntries()));
+  if (hMN90Hits->GetEntries()>0) 
+    hMN90Hits->Scale((hDN90Hits->GetEntries())/(hMN90Hits->GetEntries()));
+  else 
+    hMN90Hits->Scale(1)
   hMN90Hits->SetStats(kFALSE);
 
   THStack * hN90Hits = new THStack( "hs", "N90Hits");
@@ -238,7 +266,10 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   hMConstituents->SetLineWidth(3);
   hDConstituents->SetLineWidth(3);
   hDConstituents->SetMarkerStyle(20);
-  hMConstituents->Scale((hDConstituents->GetEntries())/(hMConstituents->GetEntries()));
+  if (hMConstituents->GetEntries()>0) 
+    hMConstituents->Scale((hDConstituents->GetEntries())/(hMConstituents->GetEntries()));
+  else 
+    hMConstituents->Scale(1)
   hMConstituents->SetStats(kFALSE);
 
   THStack * hConstituents = new THStack( "hs", "# of Constituents");
@@ -259,14 +290,22 @@ int plot_jets_data_vs_MC(std::string filename, int run) {
   Constituents->Update();
 
   //---------------
-  Pt->SaveAs("CaloJetAntiKt/pt.gif");
-  Eta->SaveAs("CaloJetAntiKt/Eta.gif");
-  Phi->SaveAs("CaloJetAntiKt/Phi.gif");
-  Mass->SaveAs("CaloJetAntiKt/Mass.gif");
-  resEMF->SaveAs("CaloJetAntiKt/resEMF.gif");
-  fHPD->SaveAs("CaloJetAntiKt/fHPD.gif");
-  N90Hits->SaveAs("CaloJetAntiKt/N90Hits.gif");
-  Constituents->SaveAs("CaloJetAntiKt/Constituents.gif");
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/pt.%s",outdir.c_str(),run,imgformat.c_str());
+  Pt->SaveAs(cjpgname);
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/Eta.%s",outdir.c_str(),run,imgformat.c_str());
+  Eta->SaveAs(cjpgname);
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/Phi.%s",outdir.c_str(),run,imgformat.c_str());
+  Phi->SaveAs(cjpgname);
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/Mass.%s",outdir.c_str(),run,imgformat.c_str());
+  Mass->SaveAs(cjpgname);
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/resEMF.%s",outdir.c_str(),run,imgformat.c_str());
+  resEMF->SaveAs(cjpgname);
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/fHPD.%s",outdir.c_str(),run,imgformat.c_str());
+  fHPD->SaveAs(cjpgname);
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/N90Hits.%s",outdir.c_str(),run,imgformat.c_str());
+  N90Hits->SaveAs(cjpgname);
+  sprintf(cjpgname,"%s%d/JetDQM/CaloJetAntiKt/Constituents.%s",outdir.c_str(),run,imgformat.c_str());
+  Constituents->SaveAs(cjpgname);
 
   h->Close();
 
