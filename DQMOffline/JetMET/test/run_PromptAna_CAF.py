@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # --- [cosmic sequence (default=True)?]
-iscosmics = 'True'
+iscosmics = 'False'
 print 'iscosmics (default=True) = '+str(iscosmics)
 # --- [name of job & output file (default=test)?]
 jobname = 'test'
@@ -36,6 +36,12 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
+# HCALNoise module
+process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
+process.hcalnoise.refillRefVectors = cms.bool(True)
+process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise"
+process.hcalnoise.requirePedestals = cms.bool(False)
+
 #
 # BeamHaloData producer
 #
@@ -43,7 +49,10 @@ process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-process.GlobalTag.globaltag ='GR09_R_34X_V2::All'
+#process.GlobalTag.globaltag ='STARTUP31X_V7::All'
+#process.GlobalTag.globaltag ='GR09_R_V5::All'#rereco dec19
+#process.GlobalTag.globaltag ='GR09_R_V4::All'#rereco dec14
+process.GlobalTag.globaltag ='GR09_R_V6A::All'#rereco jan23
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -52,9 +61,59 @@ else:
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.jetMETAnalyzer.OutputFileName = cms.string("jetMETMonitoring_test.root")
+process.jetMETAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+
 process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
 process.jetMETAnalyzer.processname = cms.string(trigger_set)
+
+#event cleanup stuff
+process.jetMETAnalyzer.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.tightHcalFiltering     = cms.bool(False)
+
+process.jetMETAnalyzer.caloMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.caloMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.caloMETAnalysis.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.caloMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
+process.jetMETAnalyzer.caloMETAnalysis.tightHcalFiltering     = cms.bool(False)
+
+process.jetMETAnalyzer.caloMETNoHFAnalysis.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.caloMETNoHFAnalysis.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.caloMETNoHFAnalysis.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.caloMETNoHFAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
+process.jetMETAnalyzer.caloMETNoHFAnalysis.tightHcalFiltering     = cms.bool(False)
+
+process.jetMETAnalyzer.caloMETHOAnalysis.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.caloMETHOAnalysis.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.caloMETHOAnalysis.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.caloMETHOAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
+process.jetMETAnalyzer.caloMETHOAnalysis.tightHcalFiltering     = cms.bool(False)
+
+process.jetMETAnalyzer.caloMETNoHFHOAnalysis.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.caloMETNoHFHOAnalysis.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.caloMETNoHFHOAnalysis.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.caloMETNoHFHOAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
+process.jetMETAnalyzer.caloMETNoHFHOAnalysis.tightHcalFiltering     = cms.bool(False)
+
+process.jetMETAnalyzer.pfMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.pfMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.pfMETAnalysis.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.pfMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
+process.jetMETAnalyzer.pfMETAnalysis.tightHcalFiltering     = cms.bool(False)
+
+process.jetMETAnalyzer.tcMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.tcMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.tcMETAnalysis.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.tcMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
+process.jetMETAnalyzer.tcMETAnalysis.tightHcalFiltering     = cms.bool(False)
+
+process.jetMETAnalyzer.mucorrMETAnalysis.doPrimaryVertexCheck   = cms.bool(False)
+process.jetMETAnalyzer.mucorrMETAnalysis.doHLTPhysicsOn         = cms.bool(False)
+process.jetMETAnalyzer.mucorrMETAnalysis.tightBHFiltering       = cms.bool(False)
+process.jetMETAnalyzer.mucorrMETAnalysis.tightJetIDFiltering    = cms.int32(-1) #-1 off, 0 minimal, 1 loose, 2 tight
+process.jetMETAnalyzer.mucorrMETAnalysis.tightHcalFiltering     = cms.bool(False)
+
 
 if allhist=="True":
   process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
@@ -93,7 +152,7 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 #Load files from text
 #import FWCore.Python.FileUtils as FileUtils
 import FWCore.Utilities.FileUtils as FileUtils
-readFiles = cms.untracked.vstring( FileUtils.loadListFromFile ('filelist_ExpressPhysics_121964.txt') )
+readFiles = cms.untracked.vstring( FileUtils.loadListFromFile ('inputfile_MinimumBias_ReReco_122294.txt') )
 
 #Extend the list if needed...
 #readFiles.extend( FileUtils.loadListFromFile ('moreInfoIwant.txt') )
@@ -137,7 +196,7 @@ process.options = cms.untracked.PSet(
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
     #outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string("reco_DQM_test.root")
+    fileName = cms.untracked.string("reco_DQM_%s.root" % jobname)
 )
 
 process.options = cms.untracked.PSet(
@@ -146,14 +205,16 @@ process.options = cms.untracked.PSet(
 )
 
 if iscosmics=="True":
-  process.p = cms.Path(process.BeamHaloId
+  process.p = cms.Path(  process.hcalnoise
+                       * process.BeamHaloId
                        * process.jetMETHLTOfflineSource
                        #                    * process.jetMETDQMOfflineSource
                        * process.jetMETDQMOfflineSourceCosmic
                        * process.MEtoEDMConverter
                        * process.dqmStoreStats)
 else:
-  process.p = cms.Path(process.BeamHaloId
+  process.p = cms.Path(  process.hcalnoise
+                       * process.BeamHaloId
                        * process.jetMETHLTOfflineSource
                        * process.jetMETDQMOfflineSource
                        #                    * process.jetMETDQMOfflineSourceCosmic
