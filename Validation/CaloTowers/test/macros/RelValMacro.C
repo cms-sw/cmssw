@@ -2,28 +2,38 @@
 
 void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir);
 
-void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname){
+void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname, TString InputStream="InputRelVal.txt"){
 
-  ifstream RelValStream("InputRelVal.txt");
+  ifstream RelValStream;
+
+  RelValStream.open(InputStream);
   
   TFile Ref_File(rfname); 
   TFile Val_File(vfname); 
 
   //Service variables
   //CaloTowers
-  const int TTbar_CT_HB_nHist1 = 5;
-  const int TTbar_CT_HE_nHist1 = 5;
-  const int TTbar_CT_HF_nHist1 = 5;
+  const int CT_HB_nHist1 = 7;
+  const int CT_HE_nHist1 = 7;
+  const int CT_HF_nHist1 = 7;
 
-  const int TTbar_CT_HB_nHistTot = 14;
-  const int TTbar_CT_HE_nHistTot = 14;
-  const int TTbar_CT_HF_nHistTot = 14;
+  const int CT_HB_nHist2 = 2;
+  const int CT_HE_nHist2 = 2;
+  const int CT_HF_nHist2 = 2;
+
+  const int CT_HB_nProf = 2;
+  const int CT_HE_nProf = 2;
+  const int CT_HF_nProf = 2;
+
+  const int CT_HB_nHistTot = 20;
+  const int CT_HE_nHistTot = 20;
+  const int CT_HF_nHistTot = 20;
   
   //RecHits
-  const int TTbar_RH_nHistTot = 95; 
-  const int TTbar_RH_nHist1   = 20;
-  const int TTbar_RH_nHist2   = 4;
-  const int TTbar_RH_nProfInd = 12;
+  const int RH_nHistTot = 95; 
+  const int RH_nHist1   = 24;
+  const int RH_nHist2   = 4;
+  const int RH_nProfInd = 12;
 
   TString RH_HistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
 
@@ -33,14 +43,13 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
 
   TString RBX_HistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
 
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HB_nHist1, TTbar_CT_HB_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HE_nHist1, TTbar_CT_HE_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HF_nHist1, TTbar_CT_HF_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_HB_nHist1, CT_HB_nHist2, CT_HB_nProf, CT_HB_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_HE_nHist1, CT_HE_nHist2, CT_HE_nProf, CT_HE_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_HF_nHist1, CT_HF_nHist2, CT_HF_nProf, CT_HF_nHistTot, ref_vers, val_vers);
 
-  ProcessRelVal(Ref_File, Val_File, RelValStream, TTbar_RH_nHist1, TTbar_RH_nHist2, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers, RH_HistDir);
+  ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, RH_HistDir);
 
   ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, RBX_nHistTot, ref_vers, val_vers, RBX_HistDir);
-
 
   Ref_File.Close();
   Val_File.Close();
@@ -332,6 +341,17 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
+
+      //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+      //xAxis
+      if (xAxisMin == 0) xAxisMin = ref_hist2[nh2]->GetXaxis()->GetXmin();
+      if (xAxisMax <  0) xAxisMax = ref_hist2[nh2]->GetXaxis()->GetXmax();
+
+      if (xAxisMax > 0 || xAxisMin != 0) ref_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+
+      //yAxis
+      if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
+      if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
 
       //Legend
       leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");

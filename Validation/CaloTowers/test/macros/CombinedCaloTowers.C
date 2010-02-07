@@ -1,5 +1,5 @@
 //Auxiliary function
-void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHistTot, TString ref_vers, TString val_vers);
+void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHist2, const int nProf, const int nHistTot, TString ref_vers, TString val_vers);
 
 //Macro takes 2 parameters as arguments: the version to be validated and the reference version
 void CombinedCaloTowers(TString ref_vers="210",
@@ -22,18 +22,26 @@ void CombinedCaloTowers(TString ref_vers="210",
   TFile HF_val_file("HcalRecHitValidationHF_"+val_vers+".root"); 
   
   //Service variables
-  const int HB_nHist1 = 5;
-  const int HE_nHist1 = 5;
-  const int HF_nHist1 = 5;
+  const int HB_nHist1 = 7;
+  const int HE_nHist1 = 7;
+  const int HF_nHist1 = 7;
 
-  const int HB_nHistTot = 14;
-  const int HE_nHistTot = 14;
-  const int HF_nHistTot = 14;
+  const int HB_nHist2 = 2;
+  const int HE_nHist2 = 2;
+  const int HF_nHist2 = 2;
+
+  const int HB_nProf = 2;
+  const int HE_nProf = 2;
+  const int HF_nProf = 2;
+
+  const int HB_nHistTot = 20;
+  const int HE_nHistTot = 20;
+  const int HF_nHistTot = 20;
 
   //Order matters! InputCaloTowers.txt has histograms in the order HB-HE-HF
-  ProcessSubDetCT(HB_ref_file, HB_val_file, CalTowStream, HB_nHist1, HB_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(HE_ref_file, HE_val_file, CalTowStream, HE_nHist1, HE_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(HF_ref_file, HF_val_file, CalTowStream, HF_nHist1, HF_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(HB_ref_file, HB_val_file, CalTowStream, HB_nHist1, HB_nHist2, HB_nProf, HB_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(HE_ref_file, HE_val_file, CalTowStream, HE_nHist1, HE_nHist2, HE_nProf, HE_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(HF_ref_file, HF_val_file, CalTowStream, HF_nHist1, HF_nHist2, HE_nProf, HF_nHistTot, ref_vers, val_vers);
 
   //Close ROOT files
   HB_ref_file.Close();
@@ -47,29 +55,39 @@ void CombinedCaloTowers(TString ref_vers="210",
   return;  
 }
 
-void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHistTot, TString ref_vers, TString val_vers){
+void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHist2, const int nProf, const int nHistTot, TString ref_vers, TString val_vers){
 
   TCanvas *myc = new TCanvas("myc","",800,600);
-  TLegend* leg = 0;
-  TPaveText* ptchi2 = 0;
-  TPaveStats *ptstats_r = 0;
-  TPaveStats *ptstats_v = 0;
   
   TH1F* ref_hist1[nHist1];
   TH1F* val_hist1[nHist1];
+
+  TH2F* ref_hist2[nHist2];
+  TH2F* val_hist2[nHist2];
   
+  TProfile* ref_prof[nProf];
+  TProfile* val_prof[nProf];
+
   int i;
   int DrawSwitch;
   TString StatSwitch, Chi2Switch, LogSwitch, DimSwitch;
   int RefCol, ValCol;
-  TString HistName;
+  TString HistName, HistName2;
   char xAxisTitle[200];
   int nRebin;
   float xAxisMin, xAxisMax, yAxisMin, yAxisMax;
   TString OutLabel;
   
   int nh1 = 0;
+  int nh2 = 0;
+  int npi = 0;
+
   for (i = 0; i < nHistTot; i++){
+    TLegend* leg = 0;
+    TPaveText* ptchi2 = 0;
+    TPaveStats *ptstats_r = 0;
+    TPaveStats *ptstats_v = 0;
+
     //Read in 1/0 switch saying whether this histogram is used 
     //Skip it if not used, otherwise get output file label, histogram
     //axis ranges and title
@@ -86,106 +104,211 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     if (LogSwitch == "Log") myc->SetLogy();
     else                    myc->SetLogy(0);
     
-    //Get histograms from files
-    ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
-    ref_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
-
-    val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
-    val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
-
-    //Rebin histograms -- has to be done first
-    if (nRebin != 1){
-      ref_hist1[nh1]->Rebin(nRebin);
-      val_hist1[nh1]->Rebin(nRebin);
+    if (DimSwitch == "1D"){
+      //Get histograms from files
+      ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
+      ref_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
+      
+      val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
+      val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
+      
+      //Rebin histograms -- has to be done first
+      if (nRebin != 1){
+	ref_hist1[nh1]->Rebin(nRebin);
+	val_hist1[nh1]->Rebin(nRebin);
+      }
+      
+      //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
+      if (StatSwitch == "Stat") ref_hist1[nh1]->SetStats(kTRUE);
+      
+      //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+      //xAxis
+      if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
+      if (xAxisMax <  0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
+      
+      if (xAxisMax > 0 || xAxisMin != 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+      
+      //yAxis
+      if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
+      if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
+      
+      //Title
+      ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
+      
+      //Different histo colors and styles
+      ref_hist1[nh1]->SetTitle("");
+      ref_hist1[nh1]->SetLineWidth(1); 
+      ref_hist1[nh1]->SetLineColor(RefCol);
+      //    ref_hist1[nh1]->SetLineStyle(1); 
+      
+      val_hist1[nh1]->SetTitle("");
+      val_hist1[nh1]->SetLineWidth(1); 
+      val_hist1[nh1]->SetLineColor(ValCol);
+      //    val_hist1[nh1]->SetLineStyle(2);
+      
+      //Chi2
+      if (Chi2Switch == "Chi2"){
+	//Draw histograms
+	ref_hist1[nh1]->SetFillColor(48);
+	ref_hist1[nh1]->Draw("hist"); // "stat"
+	val_hist1[nh1]->Draw("sames e0");
+	//Get p-value from chi2 test
+	const float NCHI2MIN = 0.01;
+	
+	float pval;
+	stringstream mystream;
+	char tempbuff[30];
+      
+	pval = ref_hist1[nh1]->Chi2Test(val_hist1[nh1]);
+	
+	sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
+	mystream<<tempbuff;
+	
+	ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
+	
+	if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
+	else                 ptchi2->SetFillColor(kRed);
+	
+	ptchi2->SetTextSize(0.03);
+	ptchi2->AddText(mystream.str().c_str());
+	ptchi2->Draw();
+      }
+      else {
+	//Draw histograms
+	ref_hist1[nh1]->Draw("hist"); // "stat"
+	val_hist1[nh1]->Draw("hist sames");
+      }
+      
+      //StatBox
+      if (StatSwitch == "Stat"){
+	ptstats_r = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
+	ptstats_r->SetTextColor(RefCol);
+	ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats_r);
+	ptstats_r->SetParent(ref_hist1[nh1]->GetListOfFunctions());
+	
+	ptstats_v = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
+	ptstats_v->SetTextColor(ValCol);
+	val_hist1[nh1]->GetListOfFunctions()->Add(ptstats_v);
+	ptstats_v->SetParent(val_hist1[nh1]->GetListOfFunctions());
+      }
+      
+      //Create legend
+      leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+      leg->SetBorderSize(2);
+      leg->SetFillStyle(1001); //
+      leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
+      leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
+      
+      leg->Draw();   
+      
+      myc->SaveAs(OutLabel);
+      
+      nh1++;
     }
 
-    //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
-    if (StatSwitch == "Stat") ref_hist1[nh1]->SetStats(kTRUE);
+    else if (DimSwitch == "2D"){
+      //Get histograms from files
+      ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
+      ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
+      
+      val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
+      val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
 
-    //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
-    //xAxis
-    if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
-    if (xAxisMax <  0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
-    
-    if (xAxisMax > 0 || xAxisMin != 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
-    
-    //yAxis
-    if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
-    if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
-    
-    //Title
-    ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
-    
-    //Different histo colors and styles
-    ref_hist1[nh1]->SetTitle("");
-    ref_hist1[nh1]->SetLineWidth(1); 
-    ref_hist1[nh1]->SetLineColor(RefCol);
-    //    ref_hist1[nh1]->SetLineStyle(1); 
+      //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
+      if (StatSwitch == "Stat") ref_hist2[nh2]->SetStats(kTRUE);
+      
+      //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+      //xAxis
+      if (xAxisMin == 0) xAxisMin = ref_hist2[nh2]->GetXaxis()->GetXmin();
+      if (xAxisMax <  0) xAxisMax = ref_hist2[nh2]->GetXaxis()->GetXmax();
+      
+      if (xAxisMax > 0 || xAxisMin != 0) ref_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+      
+      //yAxis
+      if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
+      if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
+      
+      //Legend
+      leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");
+      leg->SetBorderSize(2);
+      leg->SetFillStyle(1001); 
 
-    val_hist1[nh1]->SetTitle("");
-    val_hist1[nh1]->SetLineWidth(1); 
-    val_hist1[nh1]->SetLineColor(ValCol);
-    //    val_hist1[nh1]->SetLineStyle(2);
-    
-    //Chi2
-    if (Chi2Switch == "Chi2"){
-      //Draw histograms
-      ref_hist1[nh1]->SetFillColor(48);
-      ref_hist1[nh1]->Draw("hist"); // "stat"
-      val_hist1[nh1]->Draw("sames e0");
-      //Get p-value from chi2 test
-      const float NCHI2MIN = 0.01;
+      //Title
+      ref_hist2[nh2]->GetXaxis()->SetTitle(xAxisTitle);
+      ref_hist2[nh2]->SetStats(kFALSE);
       
-      float pval;
-      stringstream mystream;
-      char tempbuff[30];
+      ref_hist2[nh2]->SetMarkerColor(RefCol); // rose
+      ref_hist2[nh2]->Draw();
       
-      pval = ref_hist1[nh1]->Chi2Test(val_hist1[nh1]);
-
-      sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
-      mystream<<tempbuff;
+      val_hist2[nh2]->SetMarkerColor(ValCol); 
+      val_hist2[nh2]->Draw("same");
       
-      ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
+      leg->AddEntry(ref_hist2[nh2],"CMSSW_"+ref_vers,"pl");
+      leg->AddEntry(val_hist2[nh2],"CMSSW_"+val_vers,"pl");   	     
       
-      if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
-      else                 ptchi2->SetFillColor(kRed);
+      leg->Draw("");
       
-      ptchi2->SetTextSize(0.03);
-      ptchi2->AddText(mystream.str().c_str());
-      ptchi2->Draw();
+      myc->SaveAs(OutLabel);
+      
+      nh2++;
     }
-    else {
-      //Draw histograms
-      ref_hist1[nh1]->Draw("hist"); // "stat"
-      val_hist1[nh1]->Draw("hist sames");
-    }
-
-    //StatBox
-    if (StatSwitch == "Stat"){
-      ptstats_r = new TPaveStats(0.85,0.86,0.98,0.98,"brNDC");
-      ptstats_r->SetTextColor(RefCol);
-      ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats_r);
-      ptstats_r->SetParent(ref_hist1[nh1]->GetListOfFunctions());
+    //Timing Histograms (special: read two lines at once)
+    else if (DimSwitch == "TM"){
       
-      ptstats_v = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
-      ptstats_v->SetTextColor(ValCol);
-      val_hist1[nh1]->GetListOfFunctions()->Add(ptstats_v);
-      ptstats_v->SetParent(val_hist1[nh1]->GetListOfFunctions());
+      ctstr>>HistName2;
+
+      ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
+      
+      ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
+      ref_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
+      
+      val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
+      
+      val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
+      val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
+
+      //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+      //xAxis
+      if (xAxisMin == 0) xAxisMin = ref_hist2[nh2]->GetXaxis()->GetXmin();
+      if (xAxisMax <  0) xAxisMax = ref_hist2[nh2]->GetXaxis()->GetXmax();
+
+      if (xAxisMax > 0 || xAxisMin != 0) ref_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+
+      //yAxis
+      if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
+      if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
+
+      //Legend
+      leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");
+      leg->SetBorderSize(2);
+      leg->SetFillStyle(1001); 
+      
+      ref_hist2[nh2]->GetXaxis()->SetTitle(xAxisTitle);
+      ref_hist2[nh2]->SetStats(kFALSE);
+      
+      ref_hist2[nh2]->SetMarkerColor(RefCol); // rose
+      ref_hist2[nh2]->Draw();
+      ref_prof[npi]->SetLineColor(41); 
+      ref_prof[npi]->Draw("same");
+      
+      val_hist2[nh2]->SetMarkerColor(ValCol); 
+      val_hist2[nh2]->Draw("same");
+      val_prof[npi]->SetLineColor(45); 
+      val_prof[npi]->Draw("same");
+      
+      leg->AddEntry(ref_prof[npi],"CMSSW_"+ref_vers,"pl");
+      leg->AddEntry(val_prof[npi],"CMSSW_"+val_vers,"pl");   	     
+      
+      leg->Draw("");
+      
+      myc->SaveAs(OutLabel);    
+
+      npi++;
+      nh2++;
+      i++;
     }
-    
-    //Create legend
-    leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
-    leg->SetBorderSize(2);
-    leg->SetFillStyle(1001); //
-    leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
-    leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
 
-    leg->Draw();   
 
-    myc->SaveAs(OutLabel);
-    
-    nh1++;
-    
     if(leg) delete leg;
     if(ptchi2) delete ptchi2;
     if(ptstats_r) delete ptstats_r;
