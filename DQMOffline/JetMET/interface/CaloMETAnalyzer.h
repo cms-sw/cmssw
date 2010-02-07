@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/01/25 08:21:25 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/01/27 01:43:27 $
+ *  $Revision: 1.13 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -128,6 +128,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   int _nvtx_min;
   int _nvtxtrks_min;
+  int _vtxndof_min;
   double _vtxchi2_max;
   double _vtxz_max;
 

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/01/25 08:22:32 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/27 01:43:32 $
+ *  $Revision: 1.10 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -134,6 +134,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   int _nvtx_min;
   int _nvtxtrks_min;
+  int _vtxndof_min;
   double _vtxchi2_max;
   double _vtxz_max;
   

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/01/25 08:21:56 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/27 01:43:38 $
+ *  $Revision: 1.10 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -145,6 +145,7 @@ class METAnalyzer : public METAnalyzerBase {
 
   int _nvtx_min;
   int _nvtxtrks_min;
+  int _vtxndof_min;
   double _vtxchi2_max;
   double _vtxz_max;
   

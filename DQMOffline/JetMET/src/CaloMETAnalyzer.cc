@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/27 01:42:49 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/01/27 22:20:35 $
+ *  $Revision: 1.30 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -74,6 +74,7 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   if (_doPVCheck) {
     _nvtx_min        = parameters.getParameter<int>("nvtx_min");
     _nvtxtrks_min    = parameters.getParameter<int>("nvtxtrks_min");
+    _vtxndof_min     = parameters.getParameter<int>("vtxndof_min");
     _vtxchi2_max     = parameters.getParameter<double>("vtxchi2_max");
     _vtxz_max        = parameters.getParameter<double>("vtxz_max");
   }
@@ -740,11 +741,11 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
       
       if (  !fakeVtx
-	  && vertex_number>=_nvtx_min
-	  //&& vertex_numTrks>_nvtxtrks_min
-	  && vertex_ndof   >_nvtxtrks_min+1
-	  && vertex_chi2   <_vtxchi2_max
-	  && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
+	    && vertex_number>=_nvtx_min
+	    //&& vertex_numTrks>_nvtxtrks_min
+	    && vertex_ndof   >_vtxndof_min
+	    && vertex_chi2   <_vtxchi2_max
+	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
     }
   }
   // ==========================================================
