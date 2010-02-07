@@ -4,9 +4,15 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 
-collisionParameters = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+collisionParameters4TeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
                                comEnergy = cms.double(4000.0)
                                )
+
+collisionParameters2800GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                   comEnergy = cms.double(2800.0)
+                                   )
+
+collisionParameters = collisionParameters4TeV.clone()
 
 qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
