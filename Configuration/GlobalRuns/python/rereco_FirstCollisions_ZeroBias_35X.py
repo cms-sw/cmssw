@@ -16,21 +16,20 @@ process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
 process.load('Configuration/StandardSequences/L1Reco_cff')
 process.load('Configuration/StandardSequences/Reconstruction_cff')
 process.load('DQMOffline/Configuration/DQMOffline_cff')
-process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
+process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
+process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
-    annotation = cms.untracked.string('promptCollisionReco nevts:100'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
+    annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
-
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     wantSummary = cms.untracked.bool(True) 
@@ -38,11 +37,14 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 
-#'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/123/615/1A913333-B7E2-DE11-AEEA-001D09F2960F.root'
-'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/009/4E4C78E1-8AE6-DE11-B2EA-0030487D0D3A.root'   )
+'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/DC0FA50D-6BE8-DE11-8A92-000423D94E70.root'
+#'file:/data/withvertex732.root'
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/615/38379AF1-B4E2-DE11-BB10-001617C3B706.root'
+#'rfio:/castor.cern.ch/cms/store/data/BeamCommissioning09/castor/MinimumBias/RAW/v1/000/122/314/CC89C4BC-DE11-B365-0030487D0D3A.root'
+    )
 )
 
-#process.source.skipEvents = cms.untracked.uint32(16800)
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # Output definition
 process.FEVT = cms.OutputModule("PoolOutputModule",
@@ -55,20 +57,21 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     )
 )
 
-# Combined AlCaReco output
-process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
-    outputCommands = process.ALCARECOEventContent.outputCommands,
-    fileName = cms.untracked.string('ALCACombined.root'),
+# Additional output definition
+process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOSiStripCalZeroBias:RECO')
+    ),
+    outputCommands = process.OutALCARECOSiStripCalZeroBias_noDrop.outputCommands,
+    fileName = cms.untracked.string('SiStripCalZeroBias.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('StreamALCACombined'),
+        filterName = cms.untracked.string('StreamSiStripCalZeroBias'),
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
-process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_P_V8_34X::All'
-
+process.GlobalTag.globaltag = 'GR09_R_35X_V1::All'
 
 #####################################################################################################
 ####
@@ -108,7 +111,6 @@ process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = 
 #---- new parameters ----
 process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
 process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
-
 
 ## Primary Vertex
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
@@ -171,56 +173,35 @@ process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
 ###
 ###############################################################################################
 
+# produce L1 trigger object maps (temporary fix for HLT mistake 
+# in event content definition of RAW datatier for stream A)
+import L1Trigger.GlobalTrigger.gtDigis_cfi
+process.hltL1GtObjectMap = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
+process.hltL1GtObjectMap.GmtInputTag = cms.InputTag( "gtDigis" )
+process.hltL1GtObjectMap.GctInputTag = cms.InputTag( "gctDigis" )
+process.hltL1GtObjectMap.CastorInputTag = cms.InputTag( "castorL1Digis" )
+process.hltL1GtObjectMap.ProduceL1GtDaqRecord = cms.bool( False )
+process.hltL1GtObjectMap.ProduceL1GtEvmRecord = cms.bool( False )
+process.hltL1GtObjectMap.ProduceL1GtObjectMapRecord = cms.bool( True )
+process.hltL1GtObjectMap.WritePsbL1GtDaqRecord = cms.bool( False )
+process.hltL1GtObjectMap.ReadTechnicalTriggerRecords = cms.bool( True )
+process.hltL1GtObjectMap.EmulateBxInEvent = cms.int32( 1 )
+process.hltL1GtObjectMap.AlternativeNrBxBoardDaq = cms.uint32( 0 )
+process.hltL1GtObjectMap.AlternativeNrBxBoardEvm = cms.uint32( 0 )
+process.hltL1GtObjectMap.BstLengthBytes = cms.int32( -1 )
+process.hltL1GtObjectMap.TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' )
+process.hltL1GtObjectMap.RecordLength = cms.vint32( 3, 0 )
+
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1GtObjectMap_step = cms.Path(process.hltL1GtObjectMap)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction_withPixellessTk)
 process.dqmoffline_step = cms.Path(process.DQMOffline)
-process.pathALCARECOHcalCalHOCosmics = cms.Path(process.seqALCARECOHcalCalHOCosmics)
-process.pathALCARECOMuAlStandAloneCosmics = cms.Path(process.seqALCARECOMuAlStandAloneCosmics*process.ALCARECOMuAlStandAloneCosmicsDQM)
-process.pathALCARECOTkAlZMuMu = cms.Path(process.seqALCARECOTkAlZMuMu*process.ALCARECOTkAlZMuMuDQM)
-process.pathALCARECOTkAlCosmicsCTF0T = cms.Path(process.seqALCARECOTkAlCosmicsCTF0T*process.ALCARECOTkAlCosmicsCTF0TDQM)
-process.pathALCARECOMuAlBeamHalo = cms.Path(process.seqALCARECOMuAlBeamHalo*process.ALCARECOMuAlBeamHaloDQM)
-process.pathALCARECOTkAlCosmicsRS0THLT = cms.Path(process.seqALCARECOTkAlCosmicsRS0THLT*process.ALCARECOTkAlCosmicsRS0TDQM)
-process.pathALCARECOTkAlCosmicsCTF = cms.Path(process.seqALCARECOTkAlCosmicsCTF*process.ALCARECOTkAlCosmicsCTFDQM)
-process.pathALCARECOHcalCalIsoTrk = cms.Path(process.seqALCARECOHcalCalIsoTrk*process.ALCARECOHcalCalIsoTrackDQM)
-process.pathALCARECOHcalCalHO = cms.Path(process.seqALCARECOHcalCalHO*process.ALCARECOHcalCalHODQM)
-process.pathALCARECOTkAlCosmicsCTFHLT = cms.Path(process.seqALCARECOTkAlCosmicsCTFHLT*process.ALCARECOTkAlCosmicsCTFDQM)
-process.pathALCARECOTkAlCosmicsRS0T = cms.Path(process.seqALCARECOTkAlCosmicsRS0T*process.ALCARECOTkAlCosmicsRS0TDQM)
-process.pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(process.seqALCARECOTkAlCosmicsCosmicTFHLT*process.ALCARECOTkAlCosmicsCosmicTFDQM)
-process.pathALCARECOHcalCalMinBias = cms.Path(process.seqALCARECOHcalCalMinBias*process.ALCARECOHcalCalPhisymDQM)
-process.pathALCARECOTkAlMuonIsolated = cms.Path(process.seqALCARECOTkAlMuonIsolated*process.ALCARECOTkAlMuonIsolatedDQM)
-process.pathALCARECOTkAlUpsilonMuMu = cms.Path(process.seqALCARECOTkAlUpsilonMuMu*process.ALCARECOTkAlUpsilonMuMuDQM)
-process.pathALCARECOHcalCalDijets = cms.Path(process.seqALCARECOHcalCalDijets*process.ALCARECOHcalCalDiJetsDQM)
-process.pathALCARECOMuAlZMuMu = cms.Path(process.seqALCARECOMuAlZMuMu*process.ALCARECOMuAlZMuMuDQM)
-process.pathALCARECOEcalCalPi0Calib = cms.Path(process.seqALCARECOEcalCalPi0Calib*process.ALCARECOEcalCalPi0CalibDQM)
-process.pathALCARECOTkAlBeamHalo = cms.Path(process.seqALCARECOTkAlBeamHalo*process.ALCARECOTkAlBeamHaloDQM)
-process.pathALCARECOSiPixelLorentzAngle = cms.Path(process.seqALCARECOSiPixelLorentzAngle)
-process.pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(process.seqALCARECOTkAlCosmicsCosmicTF0T*process.ALCARECOTkAlCosmicsCosmicTF0TDQM)
-process.pathALCARECOEcalCalElectron = cms.Path(process.seqALCARECOEcalCalElectron*process.ALCARECOEcalCalElectronCalibDQM)
-process.pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(process.seqALCARECOTkAlCosmicsCTF0THLT*process.ALCARECOTkAlCosmicsCTF0TDQM)
-process.pathALCARECOMuAlCalIsolatedMu = cms.Path(process.seqALCARECOMuAlCalIsolatedMu*process.ALCARECOMuAlCalIsolatedMuDQM*process.ALCARECODTCalibrationDQM)
-process.pathALCARECOSiStripCalZeroBias = cms.Path(process.seqALCARECOSiStripCalZeroBias*process.ALCARECOSiStripCalZeroBiasDQM)
-process.pathALCARECOTkAlCosmicsRSHLT = cms.Path(process.seqALCARECOTkAlCosmicsRSHLT*process.ALCARECOTkAlCosmicsRSDQM)
-process.pathALCARECOEcalCalEtaCalib = cms.Path(process.seqALCARECOEcalCalEtaCalib*process.ALCARECOEcalCalEtaCalibDQM)
-process.pathALCARECOSiStripCalMinBias = cms.Path(process.seqALCARECOSiStripCalMinBias)
-process.pathALCARECODQM = cms.Path(process.MEtoEDMConverter)
-process.pathALCARECOTkAlLAS = cms.Path(process.seqALCARECOTkAlLAS*process.ALCARECOTkAlLASDQM)
-process.pathALCARECOTkAlMinBias = cms.Path(process.seqALCARECOTkAlMinBias*process.ALCARECOTkAlMinBiasDQM)
-process.pathALCARECOTkAlCosmicsRS = cms.Path(process.seqALCARECOTkAlCosmicsRS*process.ALCARECOTkAlCosmicsRSDQM)
-process.pathALCARECORpcCalHLT = cms.Path(process.seqALCARECORpcCalHLT)
-process.pathALCARECOHcalCalGammaJet = cms.Path(process.seqALCARECOHcalCalGammaJet)
-process.pathALCARECOMuAlBeamHaloOverlaps = cms.Path(process.seqALCARECOMuAlBeamHaloOverlaps*process.ALCARECOMuAlBeamHaloOverlapsDQM)
-process.pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(process.seqALCARECOTkAlCosmicsCosmicTF0THLT*process.ALCARECOTkAlCosmicsCosmicTF0TDQM)
-process.pathALCARECOHcalCalNoise = cms.Path(process.seqALCARECOHcalCalNoise)
-process.pathALCARECOMuAlOverlaps = cms.Path(process.seqALCARECOMuAlOverlaps*process.ALCARECOMuAlOverlapsDQM)
-process.pathALCARECOTkAlCosmicsCosmicTF = cms.Path(process.seqALCARECOTkAlCosmicsCosmicTF*process.ALCARECOTkAlCosmicsCosmicTFDQM)
-process.pathALCARECOEcalCalPhiSym = cms.Path(process.seqALCARECOEcalCalPhiSym*process.ALCARECOEcalCalPhisymDQM)
-process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCosmics*process.ALCARECOMuAlGlobalCosmicsDQM)
-process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.FEVT)
-process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
+process.pathALCARECOSiStripCalZeroBias = cms.Path(process.seqALCARECOSiStripCalZeroBias*process.ALCARECOSiStripCalZeroBiasDQM)
+process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalZeroBias)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOTkAlMinBias,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOMuAlOverlaps,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOHcalCalDijets,process.endjob_step,process.out_step,process.ALCARECOStreamCombinedOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1GtObjectMap_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.ALCARECOStreamSiStripCalZeroBiasOutPath)
