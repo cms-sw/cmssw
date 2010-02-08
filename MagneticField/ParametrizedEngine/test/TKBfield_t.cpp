@@ -11,7 +11,7 @@ int main() {
 	double loc[] = {x,y,z};
 	double b[3];
 	field.getBxyz(loc,b);
-	std<< cout << b[0] << ", "  << b[1] << ", "  << b[2] << std::endl;	 
+	std::cout << b[0] << ", "  << b[1] << ", "  << b[2] << std::endl;	 
       }	       
   return 0;
 }	    
