@@ -114,14 +114,13 @@ def addSUSYJetCollection(process,jets = 'IC5',doJTA=False,doType1MET=False,doJet
 	jetCollection = '%(collection)sPFJets' % locals()
         doJTA = True
     elif type == 'JPT':
-	jetCollection = 'JetPlusTrackZSPCorJetAntiKt5'
+        if 'IC' in algorithm: collectionJPT = algorithm.replace('IC','Icone')
+        elif 'SC' in algorithm: collectionJPT = algorithm.replace('SC','Siscone')
+        elif 'AK' in algorithm: collectionJPT = algorithm.replace('AK','AntiKt')
+        else: raise ValueError, "Unknown jet algorithm: %s" % (jets)
+        jetCollection = 'JetPlusTrackZSPCorJet%(collectionJPT)s' % locals()
     	jetCorrLabel = None
-        jetIdLabel =  '%(collection)sJPT' % locals()
-        #addJetID(process,jetCollection,jetIdLabel)
-        # Fiddle because addJetID replaces genPartonMatch, which we switch off
-        process.load("RecoJets.JetProducers.ak5JetID_cfi")
-        setattr( process, '%(jetIdLabel)sJetID' % locals(), process.ak5JetID.clone(src = jetCollection))
-        process.jpt.replace(process.jptCaloJets, process.jptCaloJets + getattr(process,'%(jetIdLabel)sJetID' % locals()))
+        jetIdLabel =  '%(jetIdLabel)sJPT' % locals()
     elif type == 'Track':
 	jetCollection = '%(collection)sTrackJets' % locals()
     	jetCorrLabel = None
@@ -145,7 +144,9 @@ def addJetMET(process,theJetNames):
     
     #-- Jet plus tracks -----------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
-    process.jpt = cms.Sequence( process.jptCaloJets )
+    process.load("JetMETCorrections.JetPlusTrack.matchJptAndCaloJets_cff")
+    process.load("JetMETCorrections.JetPlusTrack.jptJetId_cff")
+    process.jpt = cms.Sequence( process.jptCaloJets * process.matchJptAndCaloJets * process.jptJetId)
     
     #-- Track Jets ----------------------------------------------------------------
     process.load('RecoJets.Configuration.RecoTrackJets_cff')
@@ -164,10 +165,14 @@ def addJetMET(process,theJetNames):
         module.embedGenJetMatch = False # Only keep reference, since we anyway keep the genJet collections
     theJetNames.pop()
     
-    # Add tcMET 
-    from PhysicsTools.PatAlgos.tools.metTools import addTcMET #, addPfMET
+    # Add tcMET, pfMET
+    from PhysicsTools.PatAlgos.tools.metTools import addTcMET, addPfMET
     addTcMET(process,'TC')
-    #addPfMET(process,'PF')
+    addPfMET(process,'PF')
+
+    # Add MHT
+    from PhysicsTools.PatAlgos.producersLayer1.mhtProducer_cff import makeLayer1MHTs, layer1MHTs
+    process.allLayer1Objects.replace(process.makeLayer1METs, process.makeLayer1METs + process.makeLayer1MHTs)
 
     # Rename default jet collection for uniformity
     process.cleanLayer1JetsAK5 = process.cleanLayer1Jets
@@ -181,7 +186,6 @@ def addJetMET(process,theJetNames):
     # Modify counters' input
     process.allLayer1Summary.candidates.remove(cms.InputTag('layer1METs'))
     process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsAK5'))
-    process.allLayer1Summary.candidates.remove(cms.InputTag('layer1MHTs'))
     process.allLayer1Summary.candidates.append(cms.InputTag('layer1MHTsAK5'))
     process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsAK5'))
@@ -213,10 +217,7 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep GenRunInfoProduct_generator_*_*',
         # Generator particles/jets/MET
         'keep recoGenParticles_genParticles_*_*',
-        'keep recoGenJets_iterativeCone5GenJets_*_*',
-        'keep recoGenJets_sisCone5GenJets_*_*',
-        'keep recoGenJets_ak5GenJets*_*_*',
-	'keep recoGenJets_anti*5GenJets_*_*',
+        'keep recoGenJets_*_*_*',
         'keep recoGenMETs_*_*_*',
         # Trigger information
         'keep edmTriggerResults_TriggerResults_*_HLT*',
