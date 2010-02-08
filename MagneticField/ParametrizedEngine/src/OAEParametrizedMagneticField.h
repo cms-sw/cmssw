@@ -9,8 +9,8 @@
  *  For details, cf TkBfield.h
  *   
  *
- *  $Date: 2008/05/28 13:17:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/08 18:35:23 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -34,7 +34,7 @@ class OAEParametrizedMagneticField : public MagneticField {
 
   GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
 
-  static bool isDefined(const GlobalPoint& gp) const;
+  static bool isDefined(const GlobalPoint& gp);
 
  private:
   magfieldparam::TkBfield  theParam;
