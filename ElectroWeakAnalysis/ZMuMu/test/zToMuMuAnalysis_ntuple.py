@@ -618,18 +618,18 @@ process.goodZToMuMuSameCharge1HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMuSameCharge1HLTPlots.src = cms.InputTag("goodZToMuMuSameCharge1HLT")
 
 
-process.globalMuQualityCutsAnalysis= cms.EDAnalyzer(
-    "GlbMuQualityCutsAnalysis",
-    src = cms.InputTag("goodZToMuMuAtLeast1HLT"), 
-    ptMin = cms.untracked.double("0.0"),
-    massMin = cms.untracked.double("0.0"),
-    massMax = cms.untracked.double("120.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("10.0"),
-    trkIso = cms.untracked.double("10000"),
-    chi2Cut = cms.untracked.double("10"),
-    nHitCut = cms.untracked.int32(10)
- )
+## process.globalMuQualityCutsAnalysis= cms.EDAnalyzer(
+##     "GlbMuQualityCutsAnalysis",
+##     src = cms.InputTag("goodZToMuMuAtLeast1HLT"), 
+##     ptMin = cms.untracked.double("0.0"),
+##     massMin = cms.untracked.double("0.0"),
+##     massMax = cms.untracked.double("120.0"),
+##     etaMin = cms.untracked.double("-1.0"),
+##     etaMax = cms.untracked.double("10.0"),
+##     trkIso = cms.untracked.double("10000"),
+##     chi2Cut = cms.untracked.double("10"),
+##     nHitCut = cms.untracked.int32(10)
+##  )
 
 
 # N-tuples
@@ -767,16 +767,16 @@ addModulesFromTemplate(
     "goodZToMuMu1HLT", "goodZToMuMu1HLT",
     "double")
 
-process.globalMuQualityCutsAnalysisSameCharge = copy.deepcopy(process.globalMuQualityCutsAnalysis)
-process.globalMuQualityCutsAnalysisSameCharge.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLT")
+#process.globalMuQualityCutsAnalysisSameCharge = copy.deepcopy(process.globalMuQualityCutsAnalysis)
+#process.globalMuQualityCutsAnalysisSameCharge.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLT")
 
 addModulesFromTemplate(
     process.dimuonsGlobalSameCharge+
     process.goodZToMuMuSameCharge +
     process.goodZToMuMuSameChargeAtLeast1HLT+
     process.goodZToMuMuSameChargeAtLeast1HLTPlots +
-    process.goodZToMuMuSameChargeEdmNtuple +
-    process.globalMuQualityCutsAnalysisSameCharge,
+    process.goodZToMuMuSameChargeEdmNtuple, 
+#    process.globalMuQualityCutsAnalysisSameCharge,
     "goodZToMuMuSameCharge", "goodZToMuMuSameCharge",
     "double")
 
