@@ -80,7 +80,7 @@ private:
 
     // Fill all histogram per category
     void fillRecoToSim(std::string const &, reco::Vertex const &, TrackingVertexRef const &);
-    void fillSimToReco(std::string const &, reco::VertexRef const &, TrackingVertexRef const &);
+    void fillSimToReco(std::string const &, reco::VertexBaseRef const &, TrackingVertexRef const &);
 
     // Histogram handlers
     std::map<std::string, MonitorElement *> HistIndex_;
@@ -614,7 +614,7 @@ void recoBSVTagInfoValidationAnalyzer::fillRecoToSim(std::string const & prefix,
 }
 
 
-void recoBSVTagInfoValidationAnalyzer::fillSimToReco(std::string const & prefix, reco::VertexRef const & vertex, TrackingVertexRef const & simVertex)
+void recoBSVTagInfoValidationAnalyzer::fillSimToReco(std::string const & prefix, reco::VertexBaseRef const & vertex, TrackingVertexRef const & simVertex)
 {
 
   double pullx = (vertex->x() - simVertex->position().x())/vertex->xError();
