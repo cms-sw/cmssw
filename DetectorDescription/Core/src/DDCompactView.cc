@@ -53,14 +53,10 @@ DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
 
 DDCompactView::~DDCompactView() 
 {  
-  if (rep_ == 0) {
-    std::cout << "deleting DDCompactView and found it to be 0 already (i.e. swapped earlier, I believe" << std::endl;
-  } else {
+  if (rep_ != 0) {
     delete rep_;
   }
-  DCOUT_V('C',"DC: Deleting compact VIEW!!!!!!!!! <<<<<<<<<<<<<<<=================="); 
 }
-
 
 /** 
    The compact-view is kept in an acyclic directed multigraph represented

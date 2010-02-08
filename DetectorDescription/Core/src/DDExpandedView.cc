@@ -1,7 +1,5 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDComparator.h"
-//#include "DetectorDescription/Core/interface/DDMaterial.h"
-//#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 /** 
@@ -11,26 +9,20 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
  : walker_(0),w2_(cpv.graph(),cpv.root()), trans_(DDTranslation()), rot_(DDRotationMatrix()),
    depth_(0), worldpos_(0)
 {
-  std::cout << "Building a DDExpandedView" << std::endl;
+  //  std::cout << "Building a DDExpandedView" << std::endl;
+  // MEC:2010-02-08 - consider the ROOT as where you want to start LOOKING at
+  // the DDD, and worldpos_ as the "real" root node of the graph.  MOVE all this 
+  // logic to DDCompactView.  This should really be just the traverser...
   DDRotation::StoreT::instance().setReadOnly(false);
   worldpos_ = new DDPosData(DDTranslation(),DDRotation(),0);     
   DDRotation::StoreT::instance().setReadOnly(true);
   
-  //worldpos_ =  &s_worldpos;
-  //new DDPosData(trans_,DDRotation(DDName("","")),0);    
-  //const DDLogicalPart & rt = cpv.root(); 
-  
-  //    w2_ = DDCompactView::walker_type(cpv.graph(), rt);
   walker_ = &w2_;
-  /*					     
-    walker_ = new DDCompactView::walker_type(cpv.graph(), 
-    rt);
-  */    
-  std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
-  std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
+
+  //  std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
+  //  std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
   
   DDPosData * pd((*walker_).current().second);
-  //    assert(pd);
   if (!pd)
     pd = worldpos_;  
   DDExpandedNode expn((*walker_).current().first,
@@ -44,12 +36,7 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
 }
 
 
-DDExpandedView::~DDExpandedView() 
-{
-  // no deletion, because pointer points to static data in c-tor
-  //delete worldpos_->rot_.rotation();
-  //delete worldpos_;
-}  
+DDExpandedView::~DDExpandedView() { }  
 
 
 const DDLogicalPart & DDExpandedView::logicalPart() const 

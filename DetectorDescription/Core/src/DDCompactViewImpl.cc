@@ -14,21 +14,15 @@ DDCompactViewImpl::DDCompactViewImpl(const DDLogicalPart & rootnodedata)
 
 DDCompactViewImpl::~DDCompactViewImpl() 
 {  
-  std::cout << " got to DDCompactViewImpl destructor" << std::endl;
    GraphNav::adj_list::size_type it = 0;
    if ( graph_.size() == 0 ) {
-     std::cout << "there is no graph_" << std::endl;
+     LogDebug("DDCompactViewImpl") << "In destructor, graph is empty.  Root:" << root_ << std::endl;
    } else {
-     std::cout << "graph_.size() = " << graph_.size() << std::endl;
+     LogDebug("DDCompactViewImpl") << "In destructor, graph is NOT empty.  Root:" << root_ << " graph_.size() = " << graph_.size() << std::endl;
      for (; it < graph_.size() ; ++it) {
-       //      std::cout << "graph it = " << it << std::endl;
        GraphNav::edge_range erange = graph_.edges(it); //it->second.begin();
-       //      std::cout << "\t" << erange.first << " - " << erange.second << std::endl;
        for(; erange.first != erange.second; ++(erange.first)) {
-	 //        std::cout << "\t\t" << erange.first->first << " " << erange.first->second << std::endl;
 	 DDPosData * pd = graph_.edgeData(erange.first->second);
-	 //        std::cout << "\t\tpd  = " << pd << std::endl;
-	 //        std::cout << "\t\t*pd = " << *pd << std::endl;
 	 delete pd;
 	 pd=0;
        }  
