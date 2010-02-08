@@ -27,6 +27,8 @@ JacobianCartesianToLocal::JacobianCartesianToLocal(const Surface& surface,
   }
   theJacobian(3,0) = 1.;
   theJacobian(4,1) = 1.;
+
+  /*
   LocalVector l1 = surface.toLocal(GlobalVector(1., 0., 0.));
   LocalVector l2 = surface.toLocal(GlobalVector(0., 1., 0.));
   LocalVector l3 = surface.toLocal(GlobalVector(0., 0., 1.));
@@ -34,6 +36,16 @@ JacobianCartesianToLocal::JacobianCartesianToLocal(const Surface& surface,
   Rsub(0,0) = l1.x(); Rsub(0,1) = l2.x(); Rsub(0,2) = l3.x();
   Rsub(1,0) = l1.y(); Rsub(1,1) = l2.y(); Rsub(1,2) = l3.y();
   Rsub(2,0) = l1.z(); Rsub(2,1) = l2.z(); Rsub(2,2) = l3.z();
+  */
+  
+  AlgebraicMatrix33 Rsub;
+  // need to be copied anhhow to go from float to double...
+  Surface::RotationType const & rot = surface.rotation();
+  Rsub(0,0) = rot.xx(); Rsub(0,1) = rot.xy(); Rsub(0,2) = rot.xz();
+  Rsub(1,0) = rot.yx(); Rsub(1,1) = rot.yy(); Rsub(1,2) = rot.yz();
+  Rsub(2,0) = rot.zx(); Rsub(2,1) = rot.zy(); Rsub(2,2) = rot.zz();
+
+
 
   AlgebraicMatrix66 R;
   R.Place_at(Rsub,0,0);
