@@ -9,11 +9,22 @@ JacobianCurvilinearToLocal(const Surface& surface,
 			   const MagneticField& magField) : theJacobian() {
  
   // Origin: TRSCSD
+  GlobalPoint  x = surface.toGlobal(localParameters.position());
+  //  GlobalVector h = MagneticField::inInverseGeV(x);
+  GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
+
+
   GlobalVector tn = surface.toGlobal(localParameters.momentum()).unit();
-  GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
-  GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
-  GlobalVector di = surface.toGlobal(LocalVector(0., 0., 1.));
   LocalVector tnl = surface.toLocal(tn);
+
+  // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
+  // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
+  //  GlobalVector di = surface.toGlobal(LocalVector(0., 0., 1.));
+  Surface::RotationType const & rot = surface.rotation();
+  GlobalVector dj(rot.xx(),rot.xy(),rot.xz());
+  GlobalVector dk(rot.yx(),rot.yy(),rot.yz());
+  GlobalVector di(rot.zx(),rot.zy(),rot.zz());
+
   // rotate coordinates because of wrong coordinate system in orca
   LocalVector tvw(tnl.z(), tnl.x(), tnl.y());
   double cosl = tn.perp(); if (cosl < 1.e-30) cosl = 1.e-30;
@@ -36,18 +47,17 @@ JacobianCurvilinearToLocal(const Surface& surface,
   theJacobian(3,4) = -uk*t1r;
   theJacobian(4,3) = -vj*t1r;
   theJacobian(4,4) = uj*t1r;
-  GlobalPoint  x = surface.toGlobal(localParameters.position());
-  //  GlobalVector h = MagneticField::inInverseGeV(x);
-  GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
+
   double q = -h.mag() * localParameters.signedInverseMomentum();
+
   double sinz =-un.dot(h.unit());
   double cosz = vn.dot(h.unit());
-  double ui = un.dot(di);
-  double vi = vn.dot(di);
-  theJacobian(1,3) =-q*ui*(vk*cosz-uk*sinz)*t3r;
-  theJacobian(1,4) =-q*vi*(vk*cosz-uk*sinz)*t3r;
-  theJacobian(2,3) = q*ui*(vj*cosz-uj*sinz)*t3r;
-  theJacobian(2,4) = q*vi*(vj*cosz-uj*sinz)*t3r;
+  double ui = un.dot(di)*q*tr3;
+  double vi = vn.dot(di)*q*tr3;
+  theJacobian(1,3) =-ui*(vk*cosz-uk*sinz);
+  theJacobian(1,4) =-vi*(vk*cosz-uk*sinz);
+  theJacobian(2,3) = ui*(vj*cosz-uj*sinz);
+  theJacobian(2,4) = vi*(vj*cosz-uj*sinz);
   // end of TRSCSD
   //dbg::dbg_trace(1,"Cu2L", localParameters.vector(),di,dj,dk,theJacobian);
 }

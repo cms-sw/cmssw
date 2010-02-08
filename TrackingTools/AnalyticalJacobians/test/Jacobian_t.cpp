@@ -1,6 +1,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
@@ -68,8 +69,17 @@ int main() {
 
 
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
+  GlobalVector tn = plane.toGlobal(tp.momentum()).unit();
+  LocalVector tnl = plane.toLocal(tn);
+  std::cout << tp.momentum().unit() << std::endl;
+  std::cout << tnl << std::endl;
+  std::cout << tn << std::endl;
+  std::cout <<  plane.toGlobal(tnl) << std::endl;
 
+
+  // L ->Cart
   {
+    std::cout << "L ->Cart" << std::endl;
     edm::HRTimeType s= edm::hrRealTime();
     st();	
     JacobianLocalToCartesian  __attribute__ ((aligned (16))) jl2c(plane,tp);
@@ -79,11 +89,39 @@ int main() {
     std::cout << jl2c.jacobian() << std::endl;
   }
 
+  // L -> Curv
   {
+    std::cout << "L ->Curv" << std::endl;
     M5T const m;
     edm::HRTimeType s= edm::hrRealTime();
     st();	
     JacobianLocalToCurvilinear  __attribute__ ((aligned (16))) jl2c(plane,tp,m);
+    en();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << jl2c.jacobian() << std::endl;
+  }
+
+
+  // Cart -> Loc
+  {
+    std::cout << "Cart -> Loc" << std::endl;
+    edm::HRTimeType s= edm::hrRealTime();
+    st();	
+    JacobianCartesianToLocal  __attribute__ ((aligned (16))) jl2c(plane,tp);
+    en();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << jl2c.jacobian() << std::endl;
+  }
+
+  // Curv -> Loc
+  {
+    std::cout << "Curv -> Loc" << std::endl;
+    M5T const m;
+    edm::HRTimeType s= edm::hrRealTime();
+    st();	
+    JacobianCurvilinearToLocal  __attribute__ ((aligned (16))) jl2c(plane,tp,m);
     en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
