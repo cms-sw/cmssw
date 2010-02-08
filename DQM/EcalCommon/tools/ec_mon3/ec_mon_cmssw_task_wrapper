@@ -47,6 +47,7 @@ if ( $filnam ) {
   }
 }
 
+my $cmssw_arch = "slc4_ia32_gcc345";
 my $cmssw_setup = "/cmssrv0/nfshome0/cmssw/scripts/setup.sh";
 
 my $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_current";
@@ -790,7 +791,7 @@ if ( $filnam ) {
 
 close CONFIGFILE;
 
-$task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $config{'ec_mon_master_rundir'}/dqm-data/tmp/ ; time cmsRun monitor-$runnum.py";
+$task = "export SCRAM_ARCH=$cmssw_arch ; source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $config{'ec_mon_master_rundir'}/dqm-data/tmp/ ; time cmsRun monitor-$runnum.py";
 
 if ( -e "$config{'ec_mon_master_rundir'}/dqm-data/logs/$runnum.cmssw.log" ) {
   system("rm -f $config{'ec_mon_master_rundir'}/dqm-data/logs/$runnum.cmssw.log >> /dev/null 2>&1");
