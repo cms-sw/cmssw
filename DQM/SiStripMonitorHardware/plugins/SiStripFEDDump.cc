@@ -66,7 +66,7 @@ SiStripFEDDumpPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   const FEDRawData& rawData = rawDataCollection.FEDData(fedIdToDump_);
-  const sistrip::FEDBuffer buffer(rawData.data(),rawData.size(),true);
+  const sistrip::FEDBufferBase buffer(rawData.data(),rawData.size(),true);
   std::ostringstream os;
   os << buffer << std::endl;
   buffer.dump(os);
