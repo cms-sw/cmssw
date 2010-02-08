@@ -39,7 +39,7 @@ namespace edm {
       T::fillDescriptions(descriptions);
     }
 
-    virtual std::string baseType() const {
+    virtual const std::string& baseType() const {
       return T::baseType();
     }
 
@@ -103,8 +103,8 @@ namespace edm {
       fill_descriptions(descriptions);
     }
 
-    virtual std::string baseType() const {
-      return std::string("Service");
+    virtual const std::string& baseType() const {
+      return kBaseForService;
     }
 
   private:

@@ -89,7 +89,7 @@ namespace edm {
     virtual ~InputSource();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    static std::string baseType();
+    static const std::string& baseType();
     static void fillDescription(ParameterSetDescription & desc);
 
     ItemType nextItemType();

@@ -131,9 +131,11 @@ namespace edm {
     descriptions.addDefault(desc);
   }
 
-  std::string
+  static const std::string kBaseType("Source");
+
+  const std::string&
   InputSource::baseType() {
-    return std::string("Source");
+    return kBaseType;
   }
 
   void

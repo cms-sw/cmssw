@@ -423,9 +423,10 @@ namespace edm {
     descriptions.addDefault(desc);
   }
 
-  std::string
+  static const std::string kBaseType("OutputModule");
+  const std::string&
   OutputModule::baseType() {
-    return std::string("OutputModule");
+    return kBaseType;
   }
 
   void

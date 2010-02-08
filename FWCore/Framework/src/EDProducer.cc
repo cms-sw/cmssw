@@ -132,9 +132,11 @@ namespace edm {
     desc.setUnknown();
     descriptions.addDefault(desc);
   }
-
-  std::string
+  
+  static const std::string kBaseType("EDProducer");
+  
+  const std::string&
   EDProducer::baseType() {
-    return std::string("EDProducer");
+    return kBaseType;
   }
 }

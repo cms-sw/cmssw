@@ -23,7 +23,7 @@ namespace edm {
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    static std::string baseType();
+    static const std::string& baseType();
 
   protected:
     // The returned pointer will be null unless the this is currently

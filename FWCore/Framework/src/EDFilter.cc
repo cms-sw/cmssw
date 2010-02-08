@@ -131,8 +131,9 @@ namespace edm {
     descriptions.addDefault(desc);
   }
 
-  std::string
+  static const std::string kBaseType("EDFilter");
+  const std::string&
   EDFilter::baseType() {
-    return std::string("EDFilter");
+    return kBaseType;
   }
 }

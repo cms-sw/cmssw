@@ -122,8 +122,9 @@ namespace edm {
     descriptions.addDefault(desc);
   }
 
-  std::string
+  static const std::string kBaseType("EDAnalyzer");
+  const std::string&
   EDAnalyzer::baseType() {
-    return std::string("EDAnalyzer");
+    return kBaseType;
   }
 }

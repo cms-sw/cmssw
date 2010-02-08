@@ -39,12 +39,14 @@ class ParameterSetDescriptionFillerBase
 
       // ---------- const member functions ---------------------
       virtual void fill(ConfigurationDescriptions & descriptions) const = 0;
-      virtual std::string baseType() const = 0;
+      virtual const std::string& baseType() const = 0;
   
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
 
+protected:
+     static const std::string kBaseForService;
    private:
       ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&); // stop default
 

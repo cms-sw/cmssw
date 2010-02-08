@@ -61,7 +61,7 @@ namespace edm {
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    static std::string baseType();
+    static const std::string& baseType();
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
 
