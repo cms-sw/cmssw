@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.39 2009/12/01 13:58:08 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.40 2009/12/01 17:50:40 smorovic Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1551,7 +1551,7 @@ void WebPageHelper::addDOMforStoredData
   rowspanAttr[ "valign" ] = "top";
   
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "8";
+  colspanAttr[ "colspan" ] = "9";
 
   XHTMLMaker::AttrMap bandwidthColspanAttr;
   bandwidthColspanAttr[ "colspan" ] = "4";
@@ -1566,6 +1566,8 @@ void WebPageHelper::addDOMforStoredData
   tableRow = maker.addNode("tr", table, _specialRowAttr);
   tableDiv = maker.addNode("th", tableRow, rowspanAttr);
   maker.addText(tableDiv, "Stream");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Fraction to disk");
   tableDiv = maker.addNode("th", tableRow, rowspanAttr);
   maker.addText(tableDiv, "Files");
   tableDiv = maker.addNode("th", tableRow, rowspanAttr);
@@ -1682,6 +1684,8 @@ void WebPageHelper::listStreamRecordsStats
     tableRow = maker.addNode("tr", table, _rowAttr);
     tableDiv = maker.addNode("td", tableRow);
     maker.addText(tableDiv, (*it)->streamName);
+    tableDiv = maker.addNode("td", tableRow);
+    maker.addDouble(tableDiv, (*it)->fractionToDisk, 2);
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
     maker.addInt( tableDiv, streamFileCountStats.getSampleCount(dataSet) );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
@@ -1701,6 +1705,7 @@ void WebPageHelper::listStreamRecordsStats
   tableRow = maker.addNode("tr", table, _specialRowAttr);
   tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Total");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addInt( tableDiv, allStreamsFileCountStats.getSampleCount(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);

@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.14 2010/01/07 18:05:54 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.16 2010/01/29 11:23:56 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -230,7 +230,8 @@ void DiskWriter::configureEventStreams(EvtStrConfigListPtr cfgList)
     ++it
   ) 
   {
-    makeEventStream(*it);
+    if ( it->fractionToDisk() > 0 )
+      makeEventStream(*it);
   }
 }
 
