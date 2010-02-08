@@ -30,10 +30,16 @@ public:
     virtual void newEvent(edm::Event const &, edm::EventSetup const &);
 
     //! Classify the RecoVertex in categories.
-    VertexClassifier const & evaluate (reco::VertexRef const &);
+    VertexClassifier const & evaluate (reco::VertexBaseRef const &);
 
     //! Classify the TrackingVertex in categories.
     VertexClassifier const & evaluate (TrackingVertexRef const &);
+
+    //! Classify the RecoVertex in categories.
+    VertexClassifier const & evaluate (reco::VertexRef const & vertex)
+    {
+        return evaluate( reco::VertexBaseRef(vertex) );
+    }
 
     //! Returns a reference to the vertex history used in the classification.
     VertexHistory const & history() const

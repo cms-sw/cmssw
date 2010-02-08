@@ -55,7 +55,7 @@ void VertexHistory::newEvent (
         setup.get<TrackAssociatorRecord>().get(trackAssociator_, trackAssociator);
 
         // Vertex collection
-        edm::Handle<reco::VertexCollection> vertexCollection;
+        edm::Handle<edm::View<reco::Vertex> > vertexCollection;
         event.getByLabel(vertexProducer_, vertexCollection);
 
         // Tracking particle information
@@ -70,7 +70,7 @@ void VertexHistory::newEvent (
         {
             // Get the map between recovertex -> simvertex
             reco::RecoToSimCollection
-            trackRecoToSim = trackAssociator->associateRecoToSim (trackCollection, TPCollection, &event);
+            trackRecoToSim = trackAssociator->associateRecoToSim(trackCollection, TPCollection, &event);
 
             // Calculate the map between recovertex -> simvertex
             recoToSim_ = vertexAssociator->associateRecoToSim(vertexCollection, TVCollection, event, trackRecoToSim);
@@ -90,7 +90,7 @@ void VertexHistory::newEvent (
 }
 
 
-bool VertexHistory::evaluate ( reco::VertexRef tv )
+bool VertexHistory::evaluate (reco::VertexBaseRef tv)
 {
 
     if ( !enableRecoToSim_ ) return false;

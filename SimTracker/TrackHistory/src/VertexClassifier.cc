@@ -44,7 +44,7 @@ void VertexClassifier::newEvent(edm::Event const & event, edm::EventSetup const 
 }
 
 
-VertexClassifier const & VertexClassifier::evaluate (reco::VertexRef const & vertex)
+VertexClassifier const & VertexClassifier::evaluate (reco::VertexBaseRef const & vertex)
 {
     // Initializing the category vector
     reset();
