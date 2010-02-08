@@ -260,7 +260,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    uncalibRecHit.setOutOfTimeChi2(chi2OutOfTime);
 		}
         }
-        if ( detid.subdetId()==EcalEndcap ) {
+        if ( detid.subdetId()==EcalBarrel ) {
                 if ( uncalibRecHit.jitter()*25. > -5 ) {
                         EBDataFrame dt(*itdg);
                         if ( dt.spikeEstimator() > ebSpikeThresh_ ) uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kFake );
