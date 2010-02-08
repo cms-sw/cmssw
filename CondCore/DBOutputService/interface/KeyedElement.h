@@ -17,7 +17,7 @@ namespace cond{
      m_sum(0), 
      m_key(key) {
      std::ostringstream ss; ss << key;
-     m_sum (new cond::GenericSummary(ss.str())); 
+     m_sum  = new cond::GenericSummary(ss.str()); 
    }
 
     // constructor from ascii key
