@@ -9,7 +9,7 @@
 
 /** \class EBDataFrame
       
-$Id: EBDataFrame.h,v 1.5 2007/07/24 10:21:04 innocent Exp $
+$Id: EBDataFrame.h,v 1.6 2007/07/24 10:57:51 innocent Exp $
 */
 class EBDataFrame : public EcalDataFrame 
 {
@@ -21,6 +21,11 @@ class EBDataFrame : public EcalDataFrame
   // EBDataFrame(DetId i) :  Base(i) {}
   EBDataFrame(edm::DataFrame const & base) : Base(base) {}
   EBDataFrame(EcalDataFrame const & base) : Base(base) {}
+
+  /** estimator for a signal being a spike
+   *  based on ratios between 4th, 5th and 6th sample
+   */
+  float spikeEstimator() const;
     
   virtual ~EBDataFrame() {}
 
