@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 #from HLTrigger.Configuration.HLT_8E29_cff import *
@@ -191,17 +192,7 @@ crystalThresholdEE = cms.double( 0.45 ),
       outerCone = cms.double( 0.5 )
     )
 )
-openhltL2TauRelaxingIsolationSelector = cms.EDProducer( "L2TauRelaxingIsolationSelector",
-    L2InfoAssociation = cms.InputTag( 'openhltL2TauIsolationProducer'),
-    MinJetEt = cms.double( 15.0 ),
-    SeedTowerEt = cms.double( -10.0 ),
-    EcalIsolationEt = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    TowerIsolationEt = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    NumberOfClusters = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    ClusterPhiRMS = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    ClusterEtaRMS = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    ClusterDRRMS = cms.vdouble( 1000.0, 0.0, 0.0 )
-)
+
 openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
                                           ClusterCheckPSet = cms.PSet(
     MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
@@ -218,7 +209,7 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         originRadius = cms.double( 0.2 ),
         originHalfLength = cms.double( 0.2 ),
         precise = cms.bool( True ),
-        JetSrc = cms.InputTag( 'openhltL2TauRelaxingIsolationSelector','Isolated' ),
+        JetSrc = cms.InputTag( 'openhltL2TauJets' ),
         vertexSrc = cms.InputTag( "hltPixelVertices" )
       )
     ),
@@ -263,7 +254,7 @@ openhltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" )
 )
 openhltL25TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
-    jets = cms.InputTag( 'openhltL2TauRelaxingIsolationSelector','Isolated' ),
+    jets = cms.InputTag( 'openhltL2TauJets' ),
     tracks = cms.InputTag( "openhltL25TauCtfWithMaterialTracks" ),
     coneSize = cms.double( 0.5 )
 )
