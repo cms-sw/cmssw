@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -55,7 +56,7 @@ VertexAssociatorByTracks::~VertexAssociatorByTracks()
 
 
 reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
-    edm::Handle<reco::VertexCollection> & recoVertexes,
+    edm::Handle<edm::View<reco::Vertex> > & recoVertexes,
     edm::Handle<TrackingVertexCollection> & trackingVertexes,
     const edm::Event& event,
     reco::RecoToSimCollection & associator
@@ -71,7 +72,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
     // Loop over RecoVertex
     for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex)
     {
-        reco::VertexRef recoVertex(recoVertexes, recoIndex);
+        reco::VertexBaseRef recoVertex(recoVertexes, recoIndex); 
 
         matches.clear();
 
@@ -168,7 +169,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
 
 reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
-    edm::Handle<reco::VertexCollection> & recoVertexes,
+    edm::Handle<edm::View<reco::Vertex> > & recoVertexes,
     edm::Handle<TrackingVertexCollection> & trackingVertexes,
     const edm::Event& event,
     reco::SimToRecoCollection & associator
@@ -177,7 +178,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
     reco::VertexSimToRecoCollection  outputCollection;
 
     // Loop over TrackingVertexes
-    std::map<reco::VertexRef,std::pair<double, std::size_t> > matches;
+    std::map<std::size_t,std::pair<double, std::size_t> > matches;
 
     // Loop over TrackingVertexes
     for (std::size_t simIndex = 0; simIndex < trackingVertexes->size(); ++simIndex)
@@ -214,7 +215,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
 
                     for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex)
                     {
-                        reco::VertexRef recoVertex(recoVertexes, recoIndex);
+                        reco::VertexBaseRef recoVertex(recoVertexes, recoIndex);
 
                         for (
                             reco::Vertex::trackRef_iterator recoDaughter = recoVertex->tracks_begin();
@@ -228,8 +229,8 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
                                 recoDaughter->key() == recoTrack.key()
                             )
                             {
-                                matches[recoVertex].first += recoVertex->trackWeight(*recoDaughter);
-                                matches[recoVertex].second++; 
+                                matches[recoIndex].first += recoVertex->trackWeight(*recoDaughter);
+                                matches[recoIndex].second++; 
                             }
                         }
                     }
@@ -243,13 +244,13 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
 
         // Loop over map, set score, add to outputCollection
         for (
-            std::map<reco::VertexRef,std::pair<double,std::size_t> >::const_iterator match = matches.begin();
+            std::map<std::size_t,std::pair<double,std::size_t> >::const_iterator match = matches.begin();
             match != matches.end();
             ++match
         )
         {
             // Getting the TrackingVertex information
-            reco::VertexRef recoVertex = match->first;
+            reco::VertexBaseRef recoVertex(recoVertexes, match->first);
             double matchedDaughterWeight = match->second.first;
             std::size_t matchedDaughterCounter = match->second.second;
 

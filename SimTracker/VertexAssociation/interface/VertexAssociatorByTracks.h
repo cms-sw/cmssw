@@ -20,7 +20,7 @@ public:
 
     reco::VertexRecoToSimCollection
     associateRecoToSim (
-        edm::Handle<reco::VertexCollection> &,
+        edm::Handle<edm::View<reco::Vertex> >&,
         edm::Handle<TrackingVertexCollection> &,
         const edm::Event &,
         reco::RecoToSimCollection &
@@ -28,7 +28,7 @@ public:
 
     reco::VertexSimToRecoCollection
     associateSimToReco (
-        edm::Handle<reco::VertexCollection> &,
+        edm::Handle<edm::View<reco::Vertex> >&,
         edm::Handle<TrackingVertexCollection> &,
         const edm::Event &,
         reco::SimToRecoCollection &

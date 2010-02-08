@@ -137,9 +137,9 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   const TrackingVertexCollection tVC   = *(TVCollection.product());
 
   //Vertex Collection
-  edm::Handle<reco::VertexCollection>  vertexCollection;
+  edm::Handle<edm::View<reco::Vertex> > vertexCollection;
   event.getByLabel(vertexCollection_, vertexCollection);
-  const reco::VertexCollection vC   = *(vertexCollection.product());
+  const edm::View<reco::Vertex> vC = *(vertexCollection.product());
 
   cout << endl;
   cout << "                      ****************** Before Assocs ****************** " << endl << endl;  
@@ -175,7 +175,7 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
 
     ++n_rs_vertices_;
 
-    reco::VertexRef recVertex = iR2S->key;
+    reco::VertexBaseRef recVertex = iR2S->key;
     math::XYZPoint recPos = recVertex->position();
 
     double nrectrk = recVertex->tracksSize();
@@ -183,7 +183,11 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
     std::vector<std::pair<TrackingVertexRef, double> > simVertices = iR2S->val;
 
     int cont_simvR2S = 0;
-    for (std::vector<std::pair<TrackingVertexRef, double> >::const_iterator iMatch = simVertices.begin(); iMatch != simVertices.end(); ++iMatch, ++cont_simvR2S) {
+    for (
+        std::vector<std::pair<TrackingVertexRef, double> >::const_iterator iMatch = simVertices.begin();
+        iMatch != simVertices.end(); 
+        ++iMatch, ++cont_simvR2S
+    ) {
 
       TrackingVertexRef simVertex =  iMatch->first;
       math::XYZTLorentzVectorD simVec = (iMatch->first)->position();
@@ -244,13 +248,17 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
 
     double nsimtrk = simVertex->daughterTracks().size();
 
-    std::vector<std::pair<VertexRef, double> > recoVertices = iS2R->val;
+    std::vector<std::pair<VertexBaseRef, double> > recoVertices = iS2R->val;
 
     int cont_recvS2R = 0;
 
-    for (std::vector<std::pair<VertexRef, double> >::const_iterator iMatch = recoVertices.begin(); iMatch != recoVertices.end(); ++iMatch, ++cont_recvS2R) {
+    for (
+      std::vector<std::pair<VertexBaseRef, double> >::const_iterator iMatch = recoVertices.begin();
+      iMatch != recoVertices.end();
+      ++iMatch, ++cont_recvS2R
+     ) {
 
-      VertexRef recVertex = iMatch->first;
+      VertexBaseRef recVertex = iMatch->first;
       math::XYZPoint recPos = recVertex->position();
 
       ++n_sr_vtxassocs_;
