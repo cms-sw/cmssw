@@ -45,7 +45,7 @@ class pp(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO:reconstruction_withPixellessTk'+step+',DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
