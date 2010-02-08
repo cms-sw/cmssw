@@ -18,6 +18,7 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     outOfTimeThreshold = cms.double(0.25),
     amplitudeThresholdEB = cms.double(20 * 1),
     amplitudeThresholdEE = cms.double(20 * 1),
+    ebSpikeThreshold = cms.double(1.042),
 
     ebPulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
     eePulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),

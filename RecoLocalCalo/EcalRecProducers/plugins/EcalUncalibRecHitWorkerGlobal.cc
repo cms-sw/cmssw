@@ -25,6 +25,7 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         outOfTimeThresh_ = ps.getParameter<double>("outOfTimeThreshold");
         amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
         amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
+        ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
         // leading edge parameters
         ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
         eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
@@ -258,6 +259,12 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    double chi2OutOfTime = chi2expressEB_.chi2OutOfTime();
 		    uncalibRecHit.setOutOfTimeChi2(chi2OutOfTime);
 		}
+        }
+        if ( detid.subdetId()==EcalEndcap ) {
+                if ( uncalibRecHit.time() > -5 ) {
+                        EBDataFrame dt(*itdg);
+                        if ( dt.spikeEstimator() > ebSpikeThresh_ ) uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kFake );
+                }
         }
 
 
