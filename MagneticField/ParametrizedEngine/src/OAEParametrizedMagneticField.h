@@ -33,7 +33,7 @@ class OAEParametrizedMagneticField : public MagneticField {
 
   GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
 
-  static bool isDefined(const GlobalPoint& gp);
+  bool isDefined(const GlobalPoint& gp) const;
 
  private:
   magfieldparam::TkBfield  theParam;
