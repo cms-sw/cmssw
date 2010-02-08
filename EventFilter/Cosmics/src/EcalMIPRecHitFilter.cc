@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalMIPRecHitFilter.cc,v 1.4 2008/05/06 20:13:54 haupt Exp $
+// $Id: EcalMIPRecHitFilter.cc,v 1.5 2008/06/09 05:36:23 haupt Exp $
 //
 //
 
@@ -58,7 +58,7 @@ class EcalMIPRecHitFilter : public HLTFilter {
       ~EcalMIPRecHitFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -222,7 +222,7 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalMIPRecHitFilter::beginJob(const edm::EventSetup&)
+EcalMIPRecHitFilter::beginJob()
 {
 }
 

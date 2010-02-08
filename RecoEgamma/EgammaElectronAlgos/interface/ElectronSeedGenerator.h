@@ -2,20 +2,20 @@
 #define ElectronSeedGenerator_H
 
 /** \class ElectronSeedGenerator
- 
- * Class to generate the trajectory seed from two hits in 
+
+ * Class to generate the trajectory seed from two hits in
  *  the pixel detector which have been found compatible with
- *  an ECAL cluster. 
+ *  an ECAL cluster.
  *
  * \author U.Berthon, C.Charlot, LLR Palaiseau
  *
- * \version   1st Version May 30, 2006  
+ * \version   1st Version May 30, 2006
  *
  ************************************************************/
 
-#include "DataFormats/EgammaReco/interface//ElectronSeed.h"  
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"  
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"  
+#include "DataFormats/EgammaReco/interface//ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 //#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -27,6 +27,7 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,7 +49,7 @@ class ElectronSeedGenerator
   typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
-  
+
   ElectronSeedGenerator(const edm::ParameterSet&);
   ~ElectronSeedGenerator();
 
@@ -63,15 +64,15 @@ class ElectronSeedGenerator
   bool dynamicphiroad_;
   bool fromTrackerSeeds_;
   //  edm::InputTag initialSeeds_;
-  
+
   float lowPtThreshold_;
   float highPtThreshold_;
-  float nSigmasDeltaZ1_;   
-  float sizeWindowENeg_;   
+  float nSigmasDeltaZ1_;
+  float sizeWindowENeg_;
   float phimin2_,phimax2_;
   float deltaPhi1Low_, deltaPhi1High_;
   float deltaPhi2_;
-  
+
   double zmin1_, zmax1_;
   edm::Handle<reco::BeamSpot> theBeamSpot;
 
@@ -82,22 +83,23 @@ class ElectronSeedGenerator
   TrajectorySeedCollection* theInitialSeedColl;
 
   edm::ESHandle<MagneticField>                theMagField;
-  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+  edm::ESHandle<TrackerGeometry>              theTrackerGeometry;
+  //edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   KFUpdator * theUpdator;
   PropagatorWithMaterial * thePropagator;
 
   const MeasurementTracker*     theMeasurementTracker;
   const NavigationSchool*       theNavigationSchool;
 
-  const edm::EventSetup *theSetup; 
-  TrajectoryStateTransform transformer_; 
+  const edm::EventSetup *theSetup;
+  TrajectoryStateTransform transformer_;
 
-  PRecHitContainer recHits_; 
-  PTrajectoryStateOnDet* pts_; 
+  PRecHitContainer recHits_;
+  PTrajectoryStateOnDet* pts_;
 
   // keep cacheIds to get records only when necessary
   unsigned long long cacheIDMagField_;
-  unsigned long long cacheIDGeom_;
+//  unsigned long long cacheIDGeom_;
   unsigned long long cacheIDNavSchool_;
   unsigned long long cacheIDCkfComp_;
   unsigned long long cacheIDTrkGeom_;

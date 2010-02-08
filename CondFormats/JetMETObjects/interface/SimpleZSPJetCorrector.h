@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJetCorrector.h,v 1.2 2008/05/20 23:38:36 fedor Exp $
+// $Id: SimpleZSPJetCorrector.h,v 1.1 2007/10/01 10:37:08 kodolova Exp $
 //
 // MC Jet Corrector
 //
@@ -13,7 +13,7 @@
 #include <string>
 
 /// classes declaration
-namespace zsp {
+namespace {
   class ParametrizationZSPJet;
   typedef std::map <double, ParametrizationZSPJet*> ZSPParametersMap;
 }
@@ -33,7 +33,7 @@ class SimpleZSPJetCorrector : public StandaloneJetCorrector {
  private:
   SimpleZSPJetCorrector (const SimpleZSPJetCorrector&);
   SimpleZSPJetCorrector& operator= (const SimpleZSPJetCorrector&);
-  zsp::ZSPParametersMap* mParametrization;
+  ZSPParametersMap* mParametrization;
 };
 
 #endif

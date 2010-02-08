@@ -15,7 +15,7 @@ class DDDividedConsRho : public DDDividedGeometryObject
 { 
  public:  
   
-  DDDividedConsRho( const DDDivision& div, DDCompactView* cpv );
+  DDDividedConsRho( const DDDivision& div, DDCompactView& cpv );
 
   virtual ~DDDividedConsRho();
   
@@ -33,7 +33,7 @@ class DDDividedConsPhi : public DDDividedGeometryObject
 { 
  public:  
   
-  DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv );
+  DDDividedConsPhi( const DDDivision& div, DDCompactView& cpv );
 
   virtual ~DDDividedConsPhi();
   
@@ -51,7 +51,7 @@ class DDDividedConsZ : public DDDividedGeometryObject
 { 
  public:  
   
-  DDDividedConsZ( const DDDivision& div, DDCompactView* cpv) ;
+  DDDividedConsZ( const DDDivision& div, DDCompactView& cpv) ;
 
   virtual ~DDDividedConsZ();
   

@@ -5,8 +5,12 @@ OutALCARECOTkAlWMuNu_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlWMuNu')
     ),
-    outputCommands = cms.untracked.vstring('keep *_ALCARECOTkAlWMuNu_*_*',
-                                           'keep *_MEtoEDMConverter_*_*')
+    outputCommands = cms.untracked.vstring(
+        'keep *_ALCARECOTkAlWMuNu_*_*',
+        'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        'keep *_TriggerResults_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
 import copy

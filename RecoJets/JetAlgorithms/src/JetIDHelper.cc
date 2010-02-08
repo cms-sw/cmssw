@@ -302,8 +302,8 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 	    
 	  if(( reg == HEneg || reg == HEpos ) && std::abs( iEta ) >= 21 ) { // at low-granularity edge of HE
 	    if( (0x1 & iPhi) == 0 ) {
-	      edm::LogError("CodeAssumptionsViolated")<<
-		"Bug?! Jet ID code assumes no even iPhi recHits at HE edges";
+	      throw cms::Exception("CodeAssumptionsViolated")<<
+		"Jet ID code assumes no even iPhi recHits at HE edges";
 	      return;
 	    }
 	    bool boolOddnessIEta = oddnessIEta;

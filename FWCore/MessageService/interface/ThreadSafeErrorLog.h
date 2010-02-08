@@ -64,7 +64,7 @@ public:
   // -----  logging operations:
   //
 
-  inline ThreadSafeErrorLog & emit (const ELstring & s); 
+  inline ThreadSafeErrorLog & emitToken(const ELstring & s); 
   			 		// accumulate one part of a message
 
   inline ThreadSafeErrorLog & operator()( ErrorObj & msg ); 

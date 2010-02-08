@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.40 2009/10/09 13:02:54 llista Exp $
+// $Id: V0Fitter.cc,v 1.41 2009/12/01 22:12:55 drell Exp $
 //
 //
 
@@ -253,7 +253,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       GlobalPoint cxPt = cApp.crossingPoint();
 
       if (sqrt( cxPt.x()*cxPt.x() + cxPt.y()*cxPt.y() ) > 120. 
-          || cxPt.z() > 300.) continue;
+          || abs(cxPt.z()) > 300.) continue;
       if (dca < 0. || dca > tkDCACut) continue;
 
       // Get trajectory states for the tracks at POCA for later cuts
@@ -379,12 +379,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       double rVtxMag = ROOT::Math::Mag(distanceVector);
       double sigmaRvtxMag = sqrt(ROOT::Math::Similarity(totalCov, distanceVector)) / rVtxMag;
-
+      
       // The methods innerOk() and innerPosition() require TrackExtra, which
       // is only available in the RECO data tier, not AOD. This may be a problem.
       if( positiveTrackRef->innerOk() ) {
 	reco::Vertex::Point posTkHitPos = positiveTrackRef->innerPosition();
-	if( sqrt( posTkHitPos.Perp2() ) < ( rVtxMag - sigmaRvtxMag*4. ) 
+	double posTkHitPosD2 = 
+	  (posTkHitPos.x()-beamSpotPos.x())*(posTkHitPos.x()-beamSpotPos.x()) +
+	  (posTkHitPos.y()-beamSpotPos.y())*(posTkHitPos.y()-beamSpotPos.y());
+	if( sqrt( posTkHitPosD2 ) < ( rVtxMag - sigmaRvtxMag*4. )
 	    && doPostFitCuts ) {
 	  if(thePositiveRefTrack) delete thePositiveRefTrack;
 	  if(theNegativeRefTrack) delete theNegativeRefTrack;
@@ -394,7 +397,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
       if( negativeTrackRef->innerOk() ) {
 	reco::Vertex::Point negTkHitPos = negativeTrackRef->innerPosition();
-	if( sqrt( negTkHitPos.Perp2() ) < ( rVtxMag - sigmaRvtxMag*4. ) 
+	double negTkHitPosD2 = 
+	  (negTkHitPos.x()-beamSpotPos.x())*(negTkHitPos.x()-beamSpotPos.x()) +
+	  (negTkHitPos.y()-beamSpotPos.y())*(negTkHitPos.y()-beamSpotPos.y());
+	if( sqrt( negTkHitPosD2 ) < ( rVtxMag - sigmaRvtxMag*4. )
 	    && doPostFitCuts ) {
 	  if(thePositiveRefTrack) delete thePositiveRefTrack;
 	  if(theNegativeRefTrack) delete theNegativeRefTrack;
@@ -402,7 +408,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  continue;
 	}
       }
-
+      
       if( doPostFitCuts ) {
 	if( theVtx.normalizedChi2() > chi2Cut ||
 	    rVtxMag < rVtxCut ||

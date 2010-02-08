@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patElectrons = cms.EDProducer("PATElectronProducer",
+allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # input collection
     electronSource = cms.InputTag("gsfElectrons"),
 
@@ -35,15 +35,30 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     embedTrack        = cms.bool(False), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
     embedGsfTrack     = cms.bool(True),  ## embed in AOD externally stored gsf track
     embedSuperCluster = cms.bool(True),  ## embed in AOD externally stored supercluster
-    embedPFCandidate  = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
+    embedPFCandidate  = cms.bool(True), ## embed in AOD externally stored particle flow candidate
                                     
     # embed IsoDeposits to recompute isolation
-    isoDeposits = cms.PSet(),
+    isoDeposits = cms.PSet(
+        tracker = cms.InputTag("eleIsoDepositTk"),
+        ecal    = cms.InputTag("eleIsoDepositEcalFromHits"),
+        hcal    = cms.InputTag("eleIsoDepositHcalFromTowers"),
+    ),
 
     # user defined isolation variables the variables defined here will be accessible
     # via pat::Electron::userIsolation(IsolationKeys key) with the key as defined in
     # DataFormats/PatCandidates/interface/Isolation.h
-    userIsolation = cms.PSet(),
+    userIsolation = cms.PSet(
+        tracker = cms.PSet(
+            src = cms.InputTag("eleIsoFromDepsTk"),
+        ),
+        ecal = cms.PSet(
+            src = cms.InputTag("eleIsoFromDepsEcalFromHitsByCrystal"),
+        ),
+        hcal = cms.PSet(
+            src = cms.InputTag("eleIsoFromDepsHcalFromTowers"),
+        ),
+        user = cms.VPSet(),
+    ),
 
     # electron ID
     addElectronID = cms.bool(True),
@@ -74,3 +89,5 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     embedHighLevelSelection = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot")
 )
+
+

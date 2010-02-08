@@ -4,8 +4,7 @@ def initCondDBSource( process,
                       tagBase = 'CRAFT_hlt',
                       includeAllTags = False,
                       includeRSTags = False,
-                      use30XTagList = False,
-                      applyESPrefer = True ):
+                      use30XTagList = False ):
     import FWCore.ParameterSet.Config as cms
     from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
 
@@ -39,5 +38,4 @@ def initCondDBSource( process,
         initL1RSSubsystems( tagBase = tagBase )
         process.l1conddb.toGet.extend(initL1RSSubsystems.params.recordInfo)
 
-    if applyESPrefer == True:
-        process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource","l1conddb")
+    process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource","l1conddb")

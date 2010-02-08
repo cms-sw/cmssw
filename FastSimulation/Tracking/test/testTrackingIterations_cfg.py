@@ -21,8 +21,8 @@ process.load("DQMServices.Core.DQM_cfg")
 # Input
 process.source = cms.Source(
     "PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(10),
+##    debugFlag = cms.untracked.bool(True),
+##    debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
 ##    'file:fevt.root'
 ##    'file:test.root'
@@ -54,7 +54,26 @@ process.source = cms.Source(
     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E7_2.root',
     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E7_3.root',
     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SinglePion_E7_4.root'
-    ),
+##      'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E0_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E1_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E2_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E3_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E3_2.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E4_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E4_2.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E5_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E5_2.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E5_3.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E5_4.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E6_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E6_2.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E6_3.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E6_4.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E7_1.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E7_2.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E7_3.root',
+##     'rfio:/castor/cern.ch/user/a/azzi/CMSSW350pre2/fevt_SingleK0s_E7_4.root'
+   ),
     noEventSort=cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
@@ -125,7 +144,7 @@ process.o1 = cms.OutputModule(
        "drop *_mix_*_*"
     )
 )
-process.outpath = cms.EndPath(process.o1)
+#process.outpath = cms.EndPath(process.o1)
 
 ##process.load('logger_cfi')
 ###process.MessageLogger._moduleCanTalk('iterativeFirstSeeds')

@@ -87,8 +87,7 @@ namespace reco {
                     Reflex::Member value = rflxType_.MemberByName(t);
                     //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << rflxType_.Name() << "'" << std::endl;
                     if (!value) // check for existing value
-                        return std::pair<AnyMethodArgument,int>(t,-1);
-                        // throw parser::Exception(t.c_str()) << "Can't convert '" << t << "' to a value for enumerator '" << rflxType_.Name() << "'\n";
+                        throw parser::Exception(t.c_str()) << "Can't convert '" << t << "' to a value for enumerator '" << rflxType_.Name() << "'\n";
                     //std::cerr << "  found member of type '" << value.TypeOf().Name() << "'" << std::endl;
                     if (value.TypeOf().TypeInfo() != typeid(int)) // check is backed by an Int
                         throw parser::Exception(t.c_str()) << "Enumerator '" << rflxType_.Name() << "' is not implemented by type 'int' !!??\n";

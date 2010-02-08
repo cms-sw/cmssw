@@ -7,6 +7,7 @@
 #include "TTreeCloner.h"
 #include "TCollection.h"
 #include "Rtypes.h"
+#include "RVersion.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -126,10 +127,29 @@ namespace edm {
         branches->RemoveAt(auxIndex);
         branches->Compress();
       }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
+      TTreeCloner cloner(in, tree_, option.c_str(), TTreeCloner::kNoWarnings);
+#else
       TTreeCloner cloner(in, tree_, option.c_str());
+#endif
+
       if(!cloner.IsValid()) {
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
+        // Let's check why
+        static const char* okerror  = "One of the export branch";
+        if (  strncmp(cloner.GetWarning(),okerror,strlen(okerror)) == 0 ) {
+          // That's fine we will handle it;
+        }
+        else {
+          throw edm::Exception(errors::FatalRootError)
+            << "invalid TTreeCloner\n";
+        }
+#else
         throw edm::Exception(errors::FatalRootError)
           << "invalid TTreeCloner\n";
+#endif
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       cloner.Exec();

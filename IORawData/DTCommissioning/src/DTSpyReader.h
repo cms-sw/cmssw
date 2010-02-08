@@ -4,8 +4,8 @@
 /** \class DTSpyReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2007/08/06 10:30:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/21 13:22:11 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -29,9 +29,9 @@ class DTSpyReader : public DaqBaseReader {
   virtual ~DTSpyReader();
 
   /// Generate and fill FED raw data for a full event
-  virtual bool fillRawData(edm::EventID& eID,
-			   edm::Timestamp& tstamp, 
-			   FEDRawDataCollection*& data);
+  virtual int fillRawData(edm::EventID& eID,
+			  edm::Timestamp& tstamp, 
+			  FEDRawDataCollection*& data);
 
 
   /// check for a 64 bits word to be a DDU header

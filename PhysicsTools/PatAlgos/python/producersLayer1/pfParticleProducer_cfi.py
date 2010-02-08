@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patPFParticles = cms.EDProducer("PATPFParticleProducer",
+allLayer1PFParticles = cms.EDProducer("PATPFParticleProducer",
     # General configurables
     pfCandidateSource = cms.InputTag("noJet"),
 

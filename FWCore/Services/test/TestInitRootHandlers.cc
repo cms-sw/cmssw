@@ -2,7 +2,7 @@
 //
 // Package:    Modules
 // Class:      TestInitRootHandlers
-// 
+//
 /**
  Description: <one line class summary>
 
@@ -50,206 +50,197 @@
 // static data member definitions
 //
 
-///consistently format class names
-static
-std::string formatClassName(const std::string& iName) {
-   return std::string("(")+iName+")";
-}
+static char const* kNameValueSep = "=";
 
-static const char* kNameValueSep = "=";
-///convert the object information to the correct type and print it
-template<typename T>
-static void doPrint(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<"\n";
-}
-
-template<>
-void doPrint<char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<"\n";
-}
-template<>
-void doPrint<unsigned char>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<"\n";
-}
-
-template<>
-void doPrint<bool>(const std::string&iName,const Reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<"\n";
-}
-
-
-typedef void(*FunctionType)(const std::string&,const Reflex::Object&, const std::string&);
-typedef std::map<std::string, FunctionType> TypeToPrintMap;
-
-template<typename T>
-static void addToMap(TypeToPrintMap& iMap){
-   iMap[typeid(T).name()]=doPrint<T>;
-}
-
-static bool printAsBuiltin(const std::string& iName,
-                           const Reflex::Object iObject,
-                           const std::string& iIndent){
-   typedef void(*FunctionType)(const std::string&,const Reflex::Object&, const std::string&);
-   typedef std::map<std::string, FunctionType> TypeToPrintMap;
-   static TypeToPrintMap s_map;
-   static bool isFirst = true;
-   if(isFirst){
-      addToMap<bool>(s_map);
-      addToMap<char>(s_map);
-      addToMap<short>(s_map);
-      addToMap<int>(s_map);
-      addToMap<long>(s_map);
-      addToMap<unsigned char>(s_map);
-      addToMap<unsigned short>(s_map);
-      addToMap<unsigned int>(s_map);
-      addToMap<unsigned long>(s_map);
-      addToMap<float>(s_map);
-      addToMap<double>(s_map);
-      isFirst=false;
-   }
-   TypeToPrintMap::iterator itFound =s_map.find(iObject.TypeOf().TypeInfo().name());
-   if(itFound == s_map.end()){
-      
-      return false;
-   }
-   itFound->second(iName,iObject,iIndent);
-   return true;
-}
-static bool printAsContainer(const std::string& iName,
-                             const Reflex::Object& iObject,
-                             const std::string& iIndent,
-                             const std::string& iIndentDelta);
-
-static void printObject(const std::string& iName,
-                        const Reflex::Object& iObject,
-                        const std::string& iIndent,
-                        const std::string& iIndentDelta) {
-   std::string printName = iName;
-   Reflex::Object objectToPrint = iObject;
-   std::string indent(iIndent);
-   if(iObject.TypeOf().IsPointer()) {
-     std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.TypeOf().Name())<<std::hex<<iObject.Address()<<std::dec<<"\n";
-      Reflex::Type pointedType = iObject.TypeOf().ToType();
-      if(Reflex::Type::ByName("void") == pointedType ||
-         pointedType.IsPointer() ||
-         iObject.Address()==0) {
-         return;
-      }
-      return;
-       
-      //have the code that follows print the contents of the data to which the pointer points
-      objectToPrint = Reflex::Object(pointedType, iObject.Address());
-      //try to convert it to its actual type (assuming the original type was a base class)
-      objectToPrint = Reflex::Object(objectToPrint.CastObject(objectToPrint.DynamicType()));
-      printName = std::string("*")+iName;
-      indent +=iIndentDelta;
-   }
-   std::string typeName(objectToPrint.TypeOf().Name());
-   if(typeName.empty()){
-      typeName="<unknown>";
-   }
-
-   //see if we are dealing with a typedef
-   if(objectToPrint.TypeOf().IsTypedef()){
-     objectToPrint = Reflex::Object(objectToPrint.TypeOf().ToType(),objectToPrint.Address());
-   } 
-   if(printAsBuiltin(printName,objectToPrint,indent)) {
-      return;
-   }
-   if(printAsContainer(printName,objectToPrint,indent,iIndentDelta)){
-      return;
+namespace {
+   ///consistently format class names
+   std::string formatClassName(std::string const& iName) {
+      return std::string("(")+iName+")";
    }
    
-   std::cout<<indent<<printName<<" "<<formatClassName(typeName)<<"\n";
-   indent+=iIndentDelta;
-   //print all the data members
-   for(Reflex::Member_Iterator itMember = objectToPrint.TypeOf().DataMember_Begin();
-       itMember != objectToPrint.TypeOf().DataMember_End();
-       ++itMember){
-      //std::cout <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
-      try {
-         printObject( itMember->Name(),
-                      itMember->Get( objectToPrint),
-                      indent,
-                      iIndentDelta);
-      }catch(std::exception& iEx) {
-	std::cout <<indent<<itMember->Name()<<" <exception caught("
-		  <<iEx.what()<<")>\n";
-      }
-      catch(...) {
-	std::cout <<indent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
-      }
+   ///convert the object information to the correct type and print it
+   template<typename T>
+   void doPrint(std::string const&iName,Reflex::Object const& iObject, std::string const& iIndent) {
+      std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<"\n";
    }
-}
-
-static bool printAsContainer(const std::string& iName,
-                             const Reflex::Object& iObject,
-                             const std::string& iIndent,
-                             const std::string& iIndentDelta){
-   Reflex::Object sizeObj;
-   try {
-#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-      sizeObj = iObject.Invoke("size");
-#else
-      iObject.Invoke("size", &sizeObj);
-#endif
-      assert(sizeObj.TypeOf().TypeInfo() == typeid(size_t));
-      size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
-      Reflex::Member atMember;
-      try {
-         atMember = iObject.TypeOf().MemberByName("at");
-      } catch(const std::exception& x) {
-         //std::cerr <<"could not get 'at' member because "<< x.what()<<std::endl;
+   
+   template<>
+   void doPrint<char>(std::string const&iName,Reflex::Object const& iObject, std::string const& iIndent) {
+      std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<"\n";
+   }
+   template<>
+   void doPrint<unsigned char>(std::string const&iName,Reflex::Object const& iObject, std::string const& iIndent) {
+      std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<"\n";
+   }
+   
+   template<>
+   void doPrint<bool>(std::string const&iName,Reflex::Object const& iObject, std::string const& iIndent) {
+      std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<"\n";
+   }
+   
+   
+   typedef void(*FunctionType)(std::string const&,Reflex::Object const&, std::string const&);
+   typedef std::map<std::string, FunctionType> TypeToPrintMap;
+   
+   template<typename T>
+   void addToMap(TypeToPrintMap& iMap) {
+      iMap[typeid(T).name()]=doPrint<T>;
+   }
+   
+   bool printAsBuiltin(std::string const& iName,
+                       Reflex::Object const iObject,
+                       std::string const& iIndent) {
+      typedef void(*FunctionType)(std::string const&,Reflex::Object const&, std::string const&);
+      typedef std::map<std::string, FunctionType> TypeToPrintMap;
+      static TypeToPrintMap s_map;
+      static bool isFirst = true;
+      if(isFirst) {
+         addToMap<bool>(s_map);
+         addToMap<char>(s_map);
+         addToMap<short>(s_map);
+         addToMap<int>(s_map);
+         addToMap<long>(s_map);
+         addToMap<unsigned char>(s_map);
+         addToMap<unsigned short>(s_map);
+         addToMap<unsigned int>(s_map);
+         addToMap<unsigned long>(s_map);
+         addToMap<float>(s_map);
+         addToMap<double>(s_map);
+         isFirst=false;
+      }
+      TypeToPrintMap::iterator itFound =s_map.find(iObject.TypeOf().TypeInfo().name());
+      if(itFound == s_map.end()) {
          return false;
       }
-      std::cout <<iIndent<<iName<<kNameValueSep<<"[size="<<size<<"]\n";
-      Reflex::Object contained;
-      std::string indexIndent=iIndent+iIndentDelta;
-      for(size_t index = 0; index != size; ++index) {
-         std::ostringstream sizeS;
-         sizeS << "["<<index<<"]";
-#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-         contained = atMember.Invoke(iObject, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
-#else
-         atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
-#endif
-         //std::cout <<"invoked 'at'"<<std::endl;
+      itFound->second(iName,iObject,iIndent);
+      return true;
+   }
+   
+   bool printAsContainer(std::string const& iName,
+                         Reflex::Object const& iObject,
+                         std::string const& iIndent,
+                         std::string const& iIndentDelta);
+   
+   void printObject(std::string const& iName,
+                    Reflex::Object const& iObject,
+                    std::string const& iIndent,
+                    std::string const& iIndentDelta) {
+      std::string printName = iName;
+      Reflex::Object objectToPrint = iObject;
+      std::string indent(iIndent);
+      if(iObject.TypeOf().IsPointer()) {
+        std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.TypeOf().Name())<<std::hex<<iObject.Address()<<std::dec<<"\n";
+         Reflex::Type pointedType = iObject.TypeOf().ToType();
+         if(Reflex::Type::ByName("void") == pointedType ||
+            pointedType.IsPointer() ||
+            iObject.Address()==0) {
+            return;
+         }
+         return;
+         //have the code that follows print the contents of the data to which the pointer points
+         objectToPrint = Reflex::Object(pointedType, iObject.Address());
+         //try to convert it to its actual type (assuming the original type was a base class)
+         objectToPrint = Reflex::Object(objectToPrint.CastObject(objectToPrint.DynamicType()));
+         printName = std::string("*")+iName;
+         indent +=iIndentDelta;
+      }
+      std::string typeName(objectToPrint.TypeOf().Name());
+      if(typeName.empty()) {
+         typeName="<unknown>";
+      }
+   
+      //see if we are dealing with a typedef
+      if(objectToPrint.TypeOf().IsTypedef()) {
+        objectToPrint = Reflex::Object(objectToPrint.TypeOf().ToType(),objectToPrint.Address());
+      }
+      if(printAsBuiltin(printName,objectToPrint,indent)) {
+         return;
+      }
+      if(printAsContainer(printName,objectToPrint,indent,iIndentDelta)) {
+         return;
+      }
+      std::cout<<indent<<printName<<" "<<formatClassName(typeName)<<"\n";
+      indent+=iIndentDelta;
+      //print all the data members
+      for(Reflex::Member_Iterator itMember = objectToPrint.TypeOf().DataMember_Begin();
+          itMember != objectToPrint.TypeOf().DataMember_End();
+          ++itMember) {
+         //std::cout <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
          try {
-            printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
-         }catch(...) {
-            std::cout <<iIndent<<"<exception caught>"<<"\n";
+            printObject( itMember->Name(),
+                         itMember->Get( objectToPrint),
+                         indent,
+                         iIndentDelta);
+         }catch(std::exception& iEx) {
+   	std::cout <<indent<<itMember->Name()<<" <exception caught("
+   		  <<iEx.what()<<")>\n";
+         }
+         catch(...) {
+   	std::cout <<indent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
          }
       }
-      return true;
-   } catch(const std::exception& x){
-      //std::cerr <<"failed to invoke 'at' because "<<x.what()<<std::endl;
+   }
+   
+   bool printAsContainer(std::string const& iName,
+                         Reflex::Object const& iObject,
+                         std::string const& iIndent,
+                         std::string const& iIndentDelta) {
+      Reflex::Object sizeObj;
+      try {
+         iObject.Invoke("size", &sizeObj);
+         assert(sizeObj.TypeOf().TypeInfo() == typeid(size_t));
+         size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
+         Reflex::Member atMember;
+         try {
+            atMember = iObject.TypeOf().MemberByName("at");
+         } catch(std::exception const& x) {
+            //std::cerr <<"could not get 'at' member because "<< x.what()<<std::endl;
+            return false;
+         }
+         std::cout << iIndent << iName << kNameValueSep << "[size=" << size << "]\n";
+         Reflex::Object contained;
+         std::string indexIndent=iIndent+iIndentDelta;
+         for(size_t index = 0; index != size; ++index) {
+            std::ostringstream sizeS;
+            sizeS << "["<<index<<"]";
+            atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
+            //std::cout <<"invoked 'at'"<<std::endl;
+            try {
+               printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
+            }catch(...) {
+               std::cout <<iIndent<<"<exception caught>"<<"\n";
+            }
+         }
+         return true;
+      } catch(std::exception const& x) {
+         //std::cerr <<"failed to invoke 'at' because "<<x.what()<<std::endl;
+         return false;
+      }
       return false;
    }
-   return false;
-}
-
-
-static void printObject(const edm::Event& iEvent,
-                        const std::string& iClassName,
-                        const std::string& iModuleLabel,
-                        const std::string& iInstanceLabel,
-                        const std::string& iIndent,
-                        const std::string& iIndentDelta) {
-   using namespace edm;
-   try {
+   
+   
+   void printObject(edm::Event const& iEvent,
+                    std::string const& iClassName,
+                    std::string const& iModuleLabel,
+                    std::string const& iInstanceLabel,
+                    std::string const& iIndent,
+                    std::string const& iIndentDelta) {
+      using namespace edm;
+      try {
+         GenericHandle handle(iClassName);
+      } catch(edm::Exception const&) {
+         std::cout << iIndent << " \"" << iClassName << "\"" << " is an unknown type" << std::endl;
+         return;
+      }
       GenericHandle handle(iClassName);
-   }catch(const edm::Exception&) {
-      std::cout <<iIndent<<" \""<<iClassName<<"\""<<" is an unknown type"<<std::endl;
-      return;
+      iEvent.getByLabel(iModuleLabel,iInstanceLabel,handle);
+      std::string className = formatClassName(iClassName);
+      printObject(className,*handle,iIndent,iIndentDelta);
    }
-   GenericHandle handle(iClassName);
-   iEvent.getByLabel(iModuleLabel,iInstanceLabel,handle);
-   std::string className = formatClassName(iClassName);
-   printObject(className,*handle,iIndent,iIndentDelta);   
 }
 
-void RootErrorHandler(int level, bool die, const char* location, const char* message)
-{
+void RootErrorHandler(int level, bool die, char const* location, char const* message) {
 // Translate ROOT severity level to MessageLogger severity level
 
   edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info;
@@ -370,21 +361,19 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 //
 // constructors and destructor
 //
-TestInitRootHandlers::TestInitRootHandlers(const edm::ParameterSet& iConfig) :
+TestInitRootHandlers::TestInitRootHandlers(edm::ParameterSet const& iConfig) :
   indentation_(iConfig.getUntrackedParameter("indentation",std::string("++"))),
   verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
   moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels",std::vector<std::string>())),
   verbose_(iConfig.getUntrackedParameter("verbose",false) || moduleLabels_.size()>0),
-  evno_(0)
-{
+  evno_(0) {
    //now do what ever initialization is needed
   //edm::sort_all(moduleLabels_);
   std::sort(moduleLabels_.begin(), moduleLabels_.end());
 }
 
-TestInitRootHandlers::~TestInitRootHandlers()
-{
- 
+TestInitRootHandlers::~TestInitRootHandlers() {
+
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -396,11 +385,11 @@ TestInitRootHandlers::~TestInitRootHandlers()
 
 // ------------ method called to produce the data  ------------
 void
-TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+TestInitRootHandlers::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 {
    using namespace edm;
 
-   typedef std::vector< Provenance const*> Provenances;
+   typedef std::vector<Provenance const*> Provenances;
    Provenances provenances;
    std::string friendlyName;
    std::string modLabel;
@@ -408,7 +397,7 @@ TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    std::string key;
 
    iEvent.getAllProvenance(provenances);
-   
+
    std::cout << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
              << provenances.size() << " product" << (provenances.size()==1 ?"":"s")
              << " with friendlyClassName, moduleLabel and productInstanceName:"
@@ -425,11 +414,11 @@ TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       instanceName = (*itProv)->productInstanceName();
       //if(instanceName.empty())  instanceName = std::string("||");
-      
+
       std::cout << indentation_ << friendlyName
                 << " \"" << modLabel
                 << "\" \"" << instanceName <<"\"" << std::endl;
-      if(verbose_){
+      if(verbose_) {
          if( moduleLabels_.empty() ||
 	     //edm::binary_search_all(moduleLabels_, modLabel)) {
 	     std::binary_search(moduleLabels_.begin(),moduleLabels_.end(), modLabel)) {
@@ -443,7 +432,6 @@ TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                         verboseIndentation_);
          }
       }
-      
       key = friendlyName
           + std::string(" + \"") + modLabel
           + std::string("\" + \"") + instanceName+"\"";
@@ -459,8 +447,7 @@ TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called at end of job -------------------
 void
-TestInitRootHandlers::endJob() 
-{
+TestInitRootHandlers::endJob() {
    typedef std::map<std::string,int> nameMap;
 
    std::cout <<"\nSummary for key being the concatenation of friendlyClassName, moduleLabel and productInstanceName" << std::endl;

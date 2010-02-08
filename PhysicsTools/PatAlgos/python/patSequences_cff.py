@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-# make patCandidates
-from PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff import *
+# make allLayer1Objects
+from PhysicsTools.PatAlgos.producersLayer1.allLayer1Objects_cff import *
 
-# make selectedPatCandidates
-from PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff import *
+# make selectedLayer1Objects
+from PhysicsTools.PatAlgos.selectionLayer1.selectedLayer1Objects_cff import *
 
-# make cleanPatCandidates
-from PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff import *
+# make cleanLayer1Objects
+from PhysicsTools.PatAlgos.cleaningLayer1.cleanLayer1Objects_cff import *
 
-# count cleanPatCandidates (including total number of leptons)
-from PhysicsTools.PatAlgos.selectionLayer1.countPatCandidates_cff import *
+# count selected layer 1 objects (including total number of leptons)
+from PhysicsTools.PatAlgos.selectionLayer1.countLayer1Objects_cff import *
 
 patDefaultSequence = cms.Sequence(
-    patCandidates * 
-    selectedPatCandidates *
-    cleanPatCandidates *
-    countPatCandidates
+    allLayer1Objects * 
+    selectedLayer1Objects *
+    cleanLayer1Objects *
+    countLayer1Objects
 )

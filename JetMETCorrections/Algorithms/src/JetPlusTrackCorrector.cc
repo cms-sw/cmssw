@@ -10,7 +10,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <vector>
-#include <iomanip>
 
 using namespace std;
 using namespace jpt;
@@ -41,8 +40,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
     leakage_( Map( pset.getParameter<std::string>("LeakageMap"), verbose_ ) ),
     pionMass_(0.140),
     muonMass_(0.105),
-    elecMass_(0.000511),
-    maxEta_( pset.getParameter<double>("MaxJetEta") )
+    elecMass_(0.000511)
 {
   
   if ( verbose_ ) {
@@ -97,10 +95,10 @@ JetPlusTrackCorrector::~JetPlusTrackCorrector() {;}
 // -----------------------------------------------------------------------------
 //
 double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
-					  const edm::RefToBase<reco::Jet>& fJetRef,
 					  const edm::Event& event,
 					  const edm::EventSetup& setup,
-					  P4& corrected ) const {
+					  P4& corrected ) const 
+{
   
   // Corrected 4-momentum for jet
   corrected = fJet.p4();
@@ -141,33 +139,9 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
   if ( verbose_ ) {
     std::stringstream ss;
     ss << "Total correction:" << std::endl
-       << std::fixed << std::setprecision(6)
-       << " Uncorrected (Px,Py,Pz,E)   : " 
-       << "(" << fJet.px() 
-       << "," << fJet.py() 
-       << "," << fJet.pz() 
-       << "," << fJet.energy() 
-       << ")" << std::endl
-       << " Corrected (Px,Py,Pz,E)     : " 
-       << "(" << corrected.px()
-       << "," << corrected.py()
-       << "," << corrected.pz()
-       << "," << corrected.energy() 
-       << ")" << std::endl
-       << " Uncorrected (Pt,Eta,Phi,M) : " 
-       << "(" << fJet.pt() 
-       << "," << fJet.eta() 
-       << "," << fJet.phi() 
-       << "," << fJet.mass() 
-       << ")" << std::endl
-       << " Corrected (Pt,Eta,Phi,M)   : " 
-       << "(" << corrected.pt() 
-       << "," << corrected.eta() 
-       << "," << corrected.phi() 
-       << "," << corrected.mass() 
-       << ")" << std::endl
-       << " Scalar correction to E     : " << scale << std::endl
-       << " Scalar correction to Et    : " << ( fJet.et() > 0. ? corrected.Et() / fJet.et() : 1. );// << std::endl
+       << " Uncorrected energy : " << fJet.energy() << std::endl
+       << " Corrected energy   : " << corrected.energy() << std::endl
+       << " Scalar correction  : " << scale;
     edm::LogVerbatim("JetPlusTrackCorrector") << ss.str();
   }
   
@@ -175,7 +149,7 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
 //  	    << " NewResponse " << corrected.energy() 
 //  	    << " Jet energy " << fJet.energy()
 //  	    << " event " << event.id().event() << std::endl;
-
+  
   // Return energy correction
   return scale;
   
@@ -713,13 +687,9 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     }
   }
   
-  // Adjust direction if tracks are present
-  
+  //@@ Scale to corrected jet energy
   if ( !tracks_present ) { corr = corrected; }
-  else { 
-    corr *= ( corr.P() > 0. ? corrected.P() / corr.P() : 1. ); 
-    corr = P4( corr.px(), corr.py(), corr.pz(), corrected.energy() );
-  }
+  else { corr *= ( corr.energy() > 0. ? corrected.energy() / corr.energy() : 1. ); }
   
   return corr;
   

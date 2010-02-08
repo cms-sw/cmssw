@@ -10,7 +10,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include <DetectorDescription/Core/interface/DDCompactView.h>
 //#include <DetectorDescription/Core/src/DDPartSelection.cc>
 //#include <DetectorDescription/Core/src/StoresInstantiation.cc>
 
@@ -120,16 +119,15 @@ template <class C> const std::map<std::string, std::set<C> > & dd_error_scan(con
 class DDErrorDetection
 {
 public:
-  //  DDErrorDetection(const DDCompactView& cpv);    
   DDErrorDetection();    
-
+  //void scan();
   void scan();
   
   void errors();
   
   void warnings();
   
-  const std::map<std::string, std::set<DDLogicalPart> > & lp_cpv(const DDCompactView& cpv);
+  const std::map<std::string, std::set<DDLogicalPart> > & lp_cpv();
   const std::map<DDMaterial, std::set<DDLogicalPart> > & ma_lp();
   const std::map<DDSolid, std::set<DDLogicalPart> > & so_lp();
   const std::map<DDSolid, std::set<DDSolid> > & so();
@@ -138,7 +136,7 @@ public:
   
   const std::vector<std::pair<std::string,DDName> > &  ma();
 
-  void report(const DDCompactView& cpv, std::ostream & o); 
+  void report(std::ostream &); 
 
 };
 

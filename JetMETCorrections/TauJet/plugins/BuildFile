@@ -6,14 +6,6 @@
 <use name=DataFormats/JetReco>
 <use name=JetMETCorrections/Objects>
 <use name=rootrflx>
-
-<use name=JetMETCorrections/TauJet>
-
-<library file="TauJetCorrectorExample.cc" name=TauJetCorrectorExample>
+<library file="*.cc" name=TauJetCorrectorExample>
       <flags EDM_PLUGIN=1>
 </library>
-
-<library file="TCRecoTauProducer.cc" name=TCRecoTauProducer>
-      <flags EDM_PLUGIN=1>
-</library>
-

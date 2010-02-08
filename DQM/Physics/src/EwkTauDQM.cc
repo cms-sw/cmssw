@@ -29,20 +29,16 @@ EwkTauDQM::EwkTauDQM(const edm::ParameterSet& cfg)
 
   DQMStore* dqmStore = &(*edm::Service<DQMStore>());
 
-  maxNumWarnings_ = cfg.exists("maxNumWarnings") ? cfg.getParameter<int>("maxNumWarnings") : 1;
-
   edm::ParameterSet cfgChannels = cfg.getParameter<edm::ParameterSet>("channels");
 
   edm::ParameterSet cfgElecTauChannel = cfgChannels.getParameter<edm::ParameterSet>("elecTauChannel");
-  std::string dqmSubDirectoryElecTauChannel = cfgElecTauChannel.getParameter<std::string>("dqmSubDirectory");  
+  std::string dqmSubDirectoryElecTauChannel = cfgElecTauChannel.getParameter<std::string>("dqmSubDirectory");
   cfgElecTauChannel.addParameter<std::string>("dqmDirectory", dqmDirectoryName(dqmDirectory_, dqmSubDirectoryElecTauChannel));
-  cfgElecTauChannel.addParameter<int>("maxNumWarnings", maxNumWarnings_);
   elecTauHistManager_ = new EwkElecTauHistManager(cfgElecTauChannel, dqmStore);
 
   edm::ParameterSet cfgMuTauChannel = cfgChannels.getParameter<edm::ParameterSet>("muTauChannel");
   std::string dqmSubDirectoryMuTauChannel = cfgMuTauChannel.getParameter<std::string>("dqmSubDirectory");
   cfgMuTauChannel.addParameter<std::string>("dqmDirectory", dqmDirectoryName(dqmDirectory_, dqmSubDirectoryMuTauChannel));
-  cfgMuTauChannel.addParameter<int>("maxNumWarnings", maxNumWarnings_);
   muTauHistManager_ = new EwkMuTauHistManager(cfgMuTauChannel, dqmStore);
 }
 
@@ -113,21 +109,7 @@ EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg, DQMSt
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
     numEventsAnalyzed_(0),
     numEventsSelected_(0),
-    cfgError_(0),
-    numWarningsTriggerResults_(0),
-    numWarningsHLTpath_(0),
-    numWarningsVertex_(0),
-    numWarningsBeamSpot_(0),
-    numWarningsElectron_(0),
-    numWarningsTauJet_(0),
-    numWarningsTauDiscrByLeadTrackFinding_(0),
-    numWarningsTauDiscrByLeadTrackPtCut_(0),
-    numWarningsTauDiscrByTrackIso_(0),
-    numWarningsTauDiscrByEcalIso_(0),
-    numWarningsTauDiscrAgainstElectrons_(0),
-    numWarningsTauDiscrAgainstMuons_(0),
-    numWarningsCaloMEt_(0),
-    numWarningsPFMEt_(0)
+    cfgError_(0)
 {
   triggerResultsSource_ = cfg.getParameter<edm::InputTag>("triggerResultsSource");
   vertexSource_ = cfg.getParameter<edm::InputTag>("vertexSource");
@@ -157,8 +139,6 @@ EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg, DQMSt
   tauJetPtCut_ = cfg.getParameter<double>("tauJetPtCut");
 
   visMassCut_ = cfg.getParameter<double>("visMassCut");
-
-  maxNumWarnings_ = cfg.exists("maxNumWarnings") ? cfg.getParameter<int>("maxNumWarnings") : 1;
 }
 
 void EwkElecTauHistManager::bookHistograms()
@@ -224,13 +204,12 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   // access event-level information
   //-----------------------------------------------------------------------------
 
-  bool readError = false;
-
 //--- get decision of high-level trigger for the event
   edm::Handle<edm::TriggerResults> hltDecision;
-  readEventData(evt, triggerResultsSource_, hltDecision, numWarningsTriggerResults_, maxNumWarnings_, 
-		readError, "Failed to access Trigger results");
-  if ( readError ) return;
+  if ( !evt.getByLabel(triggerResultsSource_, hltDecision) ) {
+    edm::LogWarning ("EwkElecTauHistManager") << "Failed to access Trigger results !!";
+    return;
+  }
   
   edm::TriggerNames triggerNames;
   triggerNames.init(*hltDecision);
@@ -242,9 +221,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     if ( index < triggerNames.size() ) {
       if ( hltDecision->accept(index) ) isTriggered = true;
     } else {
-      if ( numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1 ) 
-	edm::LogWarning ("EwkElecTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
-      ++numWarningsHLTpath_;
+      edm::LogWarning ("EwkElecTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
       continue;
     }
   }
@@ -253,23 +230,25 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 //   (take as "the" primary event vertex the first entry in the collection
 //    of vertex objects, corresponding to the vertex associated to the highest Pt sum of tracks)
   edm::Handle<reco::VertexCollection> vertexCollection;
-  readEventData(evt, vertexSource_, vertexCollection, numWarningsVertex_, maxNumWarnings_,
-		readError, "Failed to access Vertex collection");
-  if ( readError ) return;
-
+  if ( !evt.getByLabel(vertexSource_, vertexCollection) ) {
+    edm::LogWarning ("EwkElecTauHistManager") << "Failed to access Vertex collection !!";
+    return;
+  }
   const reco::Vertex* theEventVertex = ( vertexCollection->size() > 0 ) ? &(vertexCollection->at(0)) : 0;
 
 //--- get beam-spot (expected vertex position) for the event
   edm::Handle<reco::BeamSpot> beamSpot;
-  readEventData(evt, beamSpotSource_, beamSpot, numWarningsBeamSpot_, maxNumWarnings_,
-		readError, "Failed to access Beam-spot");
-  if ( readError ) return;
+  if ( !evt.getByLabel(beamSpotSource_, beamSpot) ) {
+    edm::LogWarning ("EwkElecTauHistManager") << "Failed to access Beam-spot !!";
+    return;
+  }
   
 //--- get collections of reconstructed electrons from the event
   edm::Handle<reco::GsfElectronCollection> electrons;
-  readEventData(evt, electronSource_, electrons, numWarningsElectron_, maxNumWarnings_,
-		readError, "Failed to access Electron collection");
-  if ( readError ) return;
+  if ( !evt.getByLabel(electronSource_, electrons) ) {
+    edm::LogWarning ("EwkElecTauHistManager") << "Failed to access Electron collection !!";
+    return;
+  }
 
   const reco::GsfElectron* theElectron = getTheElectron(*electrons, electronEtaCut_, electronPtCut_);
 
@@ -287,30 +266,29 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
 //--- get collections of reconstructed tau-jets from the event
   edm::Handle<reco::PFTauCollection> tauJets;
-  readEventData(evt, tauJetSource_, tauJets, numWarningsTauJet_, maxNumWarnings_,
-		readError, "Failed to access Tau-jet collection");
-  if ( readError ) return;
+  if ( !evt.getByLabel(tauJetSource_, tauJets) ) {
+    edm::LogWarning ("EwkElecTauHistManager") << "Failed to access Tau-jet collection !!";
+    return;
+  }
 
 //--- get collections of tau-jet discriminators for those tau-jets
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByLeadTrackFinding;
-  readEventData(evt, tauDiscrByLeadTrackFinding_, tauDiscrByLeadTrackFinding, numWarningsTauDiscrByLeadTrackFinding_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by leading Track finding");
+  evt.getByLabel(tauDiscrByLeadTrackFinding_, tauDiscrByLeadTrackFinding);
+  
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByLeadTrackPtCut;
-  readEventData(evt, tauDiscrByLeadTrackPtCut_, tauDiscrByLeadTrackPtCut, numWarningsTauDiscrByLeadTrackPtCut_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by leading Track Pt cut");
+  evt.getByLabel(tauDiscrByLeadTrackPtCut_, tauDiscrByLeadTrackPtCut);
+
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByTrackIso;
-  readEventData(evt, tauDiscrByTrackIso_, tauDiscrByTrackIso, numWarningsTauDiscrByTrackIso_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by Track isolation");
+  evt.getByLabel(tauDiscrByTrackIso_, tauDiscrByTrackIso);
+
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByEcalIso;
-  readEventData(evt, tauDiscrByTrackIso_, tauDiscrByEcalIso, numWarningsTauDiscrByEcalIso_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by ECAL isolation");
+  evt.getByLabel(tauDiscrByEcalIso_, tauDiscrByEcalIso);
+
   edm::Handle<reco::PFTauDiscriminator> tauDiscrAgainstElectrons;
-  readEventData(evt, tauDiscrAgainstElectrons_, tauDiscrAgainstElectrons, numWarningsTauDiscrAgainstElectrons_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators against Electrons");
+  evt.getByLabel(tauDiscrAgainstElectrons_, tauDiscrAgainstElectrons);
+
   edm::Handle<reco::PFTauDiscriminator> tauDiscrAgainstMuons;
-  readEventData(evt, tauDiscrAgainstMuons_, tauDiscrAgainstMuons, numWarningsTauDiscrAgainstMuons_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators against Muons");
-  if ( readError ) return;
+  evt.getByLabel(tauDiscrAgainstMuons_, tauDiscrAgainstMuons);
 
   int theTauJetIndex = -1;
   const reco::PFTau* theTauJet = getTheTauJet(*tauJets, tauJetEtaCut_, tauJetPtCut_, theTauJetIndex);
@@ -334,17 +312,17 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 //--- get missing transverse momentum
 //    measured by calorimeters/reconstructed by particle-flow algorithm
   edm::Handle<reco::CaloMETCollection> caloMEtCollection;
-  readEventData(evt, caloMEtSource_, caloMEtCollection, numWarningsCaloMEt_, maxNumWarnings_,
-		readError, "Failed to access calo. MET collection");
-  if ( readError ) return;
-
+  if ( !evt.getByLabel(caloMEtSource_, caloMEtCollection) ) {
+    edm::LogWarning ("EwkElecTauHistManager") << "Failed to access calo. MET collection !!";
+    return;
+  }
   const reco::CaloMET& caloMEt = caloMEtCollection->at(0);
   
   edm::Handle<reco::PFMETCollection> pfMEtCollection;
-  readEventData(evt, pfMEtSource_, pfMEtCollection, numWarningsPFMEt_, maxNumWarnings_,
-		readError, "Failed to access pf. MET collection");
-  if ( readError ) return;
-
+  if ( !evt.getByLabel(pfMEtSource_, pfMEtCollection) ) {
+    edm::LogWarning ("EwkElecTauHistManager") << "Failed to access pf. MET collection !!";
+    return;
+  }
   const reco::PFMET& pfMEt = pfMEtCollection->at(0);
 
   if ( !(theElectron && theTauJet && theTauJetIndex != -1) ) return;
@@ -402,7 +380,11 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   }
   if ( cutFlowStatus == kPassedElectronEcalIso && theTauDiscrByLeadTrackFinding > 0.5 ) {
     cutFlowStatus = kPassedTauLeadTrack;
-    //if ( theTauJet->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(theTauJet->leadTrack()->pt());
+    if ( theTauJet->leadTrack().isAvailable() ) {
+      //hTauLeadTrackPt_->Fill(theTauJet->leadTrack()->pt());
+    } else {
+      edm::LogWarning ("EwkElecTauHistManager") << "Failed to access lead. Track of tau-jet !!";
+    }
   }
   if ( cutFlowStatus == kPassedTauLeadTrack && theTauDiscrByLeadTrackPtCut > 0.5 ) {
     cutFlowStatus = kPassedTauLeadTrackPt;
@@ -439,8 +421,16 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     //hTauJetPhi_->Fill(theTauJet->phi());
 
     //hTauJetCharge_->Fill(theTauJet->charge());
-    //if ( theTauJet->signalTracks().isAvailable()    ) hTauJetNumSignalTracks_->Fill(theTauJet->signalTracks().size());
-    //if ( theTauJet->isolationTracks().isAvailable() ) hTauJetNumIsoTracks_->Fill(theTauJet->isolationTracks().size());
+    if ( theTauJet->signalTracks().isAvailable() ) {
+      //hTauJetNumSignalTracks_->Fill(theTauJet->signalTracks().size());
+    } else {
+      edm::LogWarning ("EwkElecTauHistManager") << "Failed to access signal Tracks associated to tau-jet !!";
+    }
+    if ( theTauJet->isolationTracks().isAvailable() ) {
+      //hTauJetNumIsoTracks_->Fill(theTauJet->isolationTracks().size());
+    } else {
+      edm::LogWarning ("EwkElecTauHistManager") << "Failed to access isolation Tracks associated to tau-jet !!";
+    }
   
     hVisMass_->Fill(mElecTau);
     //hMtElecCaloMEt_->Fill(mtElecCaloMEt);
@@ -463,7 +453,12 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     //hPFMEtPhi_->Fill(pfMEt.phi());
   }
 
-  if ( isSelected ) ++numEventsSelected_;
+  if ( isSelected ) {
+    ++numEventsSelected_;
+    LogTrace ("EwkElecTauHistManager") << "Event accepted.";
+  } else {
+    LogTrace ("EwkElecTauHistManager") << "Event rejected.";
+  }
 }
 
 void EwkElecTauHistManager::finalizeHistograms()
@@ -517,20 +512,7 @@ EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg, DQMStore*
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
     numEventsAnalyzed_(0),
     numEventsSelected_(0),
-    cfgError_(0),
-    numWarningsTriggerResults_(0),
-    numWarningsHLTpath_(0),
-    numWarningsVertex_(0),
-    numWarningsBeamSpot_(0),
-    numWarningsMuon_(0),
-    numWarningsTauJet_(0),
-    numWarningsTauDiscrByLeadTrackFinding_(0),
-    numWarningsTauDiscrByLeadTrackPtCut_(0),
-    numWarningsTauDiscrByTrackIso_(0),
-    numWarningsTauDiscrByEcalIso_(0),
-    numWarningsTauDiscrAgainstMuons_(0),
-    numWarningsCaloMEt_(0),
-    numWarningsPFMEt_(0)
+    cfgError_(0)
 {
   triggerResultsSource_ = cfg.getParameter<edm::InputTag>("triggerResultsSource");
   vertexSource_ = cfg.getParameter<edm::InputTag>("vertexSource");
@@ -559,8 +541,6 @@ EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg, DQMStore*
   tauJetPtCut_ = cfg.getParameter<double>("tauJetPtCut");
 
   visMassCut_ = cfg.getParameter<double>("visMassCut");
-
-  maxNumWarnings_ = cfg.exists("maxNumWarnings") ? cfg.getParameter<int>("maxNumWarnings") : 1;
 }
 
 void EwkMuTauHistManager::bookHistograms()
@@ -624,13 +604,12 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   // access event-level information
   //-----------------------------------------------------------------------------
 
-  bool readError = false;
-
 //--- get decision of high-level trigger for the event
   edm::Handle<edm::TriggerResults> hltDecision;
-  readEventData(evt, triggerResultsSource_, hltDecision, numWarningsTriggerResults_, maxNumWarnings_, 
-		readError, "Failed to access Trigger results");
-  if ( readError ) return;
+  if ( !evt.getByLabel(triggerResultsSource_, hltDecision) ) {
+    edm::LogWarning ("EwkMuTauHistManager") << "Failed to access Trigger results !!";
+    return;
+  }
   
   edm::TriggerNames triggerNames;
   triggerNames.init(*hltDecision);
@@ -642,9 +621,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
     if ( index < triggerNames.size() ) {
       if ( hltDecision->accept(index) ) isTriggered = true;
     } else {
-      if ( numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1 ) 
-	edm::LogWarning ("EwkMuTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
-      ++numWarningsHLTpath_;
+      edm::LogWarning ("EwkMuTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
       continue;
     }
   }
@@ -653,23 +630,25 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 //   (take as "the" primary event vertex the first entry in the collection
 //    of vertex objects, corresponding to the vertex associated to the highest Pt sum of tracks)
   edm::Handle<reco::VertexCollection> vertexCollection;
-  readEventData(evt, vertexSource_, vertexCollection, numWarningsVertex_, maxNumWarnings_,
-		readError, "Failed to access Vertex collection");
-  if ( readError ) return;
-
+  if ( !evt.getByLabel(vertexSource_, vertexCollection) ) {
+    edm::LogWarning ("EwkMuTauHistManager") << "Failed to access Vertex collection !!";
+    return;
+  }
   const reco::Vertex* theEventVertex = ( vertexCollection->size() > 0 ) ? &(vertexCollection->at(0)) : 0;
 
 //--- get beam-spot (expected vertex position) for the event
   edm::Handle<reco::BeamSpot> beamSpot;
-  readEventData(evt, beamSpotSource_, beamSpot, numWarningsBeamSpot_, maxNumWarnings_,
-		readError, "Failed to access Beam-spot");
-  if ( readError ) return;
+  if ( !evt.getByLabel(beamSpotSource_, beamSpot) ) {
+    edm::LogWarning ("EwkMuTauHistManager") << "Failed to access Beam-spot !!";
+    return;
+  }
   
 //--- get collections of reconstructed muons from the event
   edm::Handle<reco::MuonCollection> muons;
-  readEventData(evt, muonSource_, muons, numWarningsMuon_, maxNumWarnings_,
-		readError, "Failed to access Muon collection");
-  if ( readError ) return;
+  if ( !evt.getByLabel(muonSource_, muons) ) {
+    edm::LogWarning ("EwkMuTauHistManager") << "Failed to access Muon collection !!";
+    return;
+  }
 
   const reco::Muon* theMuon = getTheMuon(*muons, muonEtaCut_, muonPtCut_);
 
@@ -687,27 +666,26 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 
 //--- get collections of reconstructed tau-jets from the event
   edm::Handle<reco::PFTauCollection> tauJets;
-  readEventData(evt, tauJetSource_, tauJets, numWarningsTauJet_, maxNumWarnings_,
-		readError, "Failed to access Tau-jet collection");
-  if ( readError ) return;
+  if ( !evt.getByLabel(tauJetSource_, tauJets) ) {
+    edm::LogWarning ("EwkMuTauHistManager") << "Failed to access Tau-jet collection !!";
+    return;
+  }
 
 //--- get collections of tau-jet discriminators for those tau-jets
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByLeadTrackFinding;
-  readEventData(evt, tauDiscrByLeadTrackFinding_, tauDiscrByLeadTrackFinding, numWarningsTauDiscrByLeadTrackFinding_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by leading Track finding");
+  evt.getByLabel(tauDiscrByLeadTrackFinding_, tauDiscrByLeadTrackFinding);
+  
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByLeadTrackPtCut;
-  readEventData(evt, tauDiscrByLeadTrackPtCut_, tauDiscrByLeadTrackPtCut, numWarningsTauDiscrByLeadTrackPtCut_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by leading Track Pt cut");
+  evt.getByLabel(tauDiscrByLeadTrackPtCut_, tauDiscrByLeadTrackPtCut);
+
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByTrackIso;
-  readEventData(evt, tauDiscrByTrackIso_, tauDiscrByTrackIso, numWarningsTauDiscrByTrackIso_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by Track isolation");
+  evt.getByLabel(tauDiscrByTrackIso_, tauDiscrByTrackIso);
+
   edm::Handle<reco::PFTauDiscriminator> tauDiscrByEcalIso;
-  readEventData(evt, tauDiscrByTrackIso_, tauDiscrByEcalIso, numWarningsTauDiscrByEcalIso_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators by ECAL isolation");
+  evt.getByLabel(tauDiscrByEcalIso_, tauDiscrByEcalIso);
+
   edm::Handle<reco::PFTauDiscriminator> tauDiscrAgainstMuons;
-  readEventData(evt, tauDiscrAgainstMuons_, tauDiscrAgainstMuons, numWarningsTauDiscrAgainstMuons_, maxNumWarnings_,
-		readError, "Failed to access collection of pf. Tau discriminators against Muons");
-  if ( readError ) return;
+  evt.getByLabel(tauDiscrAgainstMuons_, tauDiscrAgainstMuons);
 
   int theTauJetIndex = -1;
   const reco::PFTau* theTauJet = getTheTauJet(*tauJets, tauJetEtaCut_, tauJetPtCut_, theTauJetIndex);
@@ -729,17 +707,17 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 //--- get missing transverse momentum
 //    measured by calorimeters/reconstructed by particle-flow algorithm
   edm::Handle<reco::CaloMETCollection> caloMEtCollection;
-  readEventData(evt, caloMEtSource_, caloMEtCollection, numWarningsCaloMEt_, maxNumWarnings_,
-		readError, "Failed to access calo. MET collection");
-  if ( readError ) return;
-
+  if ( !evt.getByLabel(caloMEtSource_, caloMEtCollection) ) {
+    edm::LogWarning ("EwkMuTauHistManager") << "Failed to access calo. MET collection !!";
+    return;
+  }
   const reco::CaloMET& caloMEt = caloMEtCollection->at(0);
   
   edm::Handle<reco::PFMETCollection> pfMEtCollection;
-  readEventData(evt, pfMEtSource_, pfMEtCollection, numWarningsPFMEt_, maxNumWarnings_,
-		readError, "Failed to access pf. MET collection");
-  if ( readError ) return;
-
+  if ( !evt.getByLabel(pfMEtSource_, pfMEtCollection) ) {
+    edm::LogWarning ("EwkMuTauHistManager") << "Failed to access pf. MET collection !!";
+    return;
+  }
   const reco::PFMET& pfMEt = pfMEtCollection->at(0);
 
   if ( !(theMuon && theTauJet && theTauJetIndex != -1) ) return;
@@ -797,7 +775,11 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   }
   if ( cutFlowStatus == kPassedMuonEcalIso && theTauDiscrByLeadTrackFinding > 0.5 ) {
     cutFlowStatus = kPassedTauLeadTrack;
-    if ( theTauJet->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(theTauJet->leadTrack()->pt());
+    if ( theTauJet->leadTrack().isAvailable() ) {
+      hTauLeadTrackPt_->Fill(theTauJet->leadTrack()->pt());
+    } else {
+      edm::LogWarning ("EwkMuTauHistManager") << "Failed to access lead. Track of tau-jet !!";
+    }
   }
   if ( cutFlowStatus == kPassedTauLeadTrack && theTauDiscrByLeadTrackPtCut > 0.5 ) {
     cutFlowStatus = kPassedTauLeadTrackPt;
@@ -830,8 +812,16 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
     hTauJetPhi_->Fill(theTauJet->phi());
 
     //hTauJetCharge_->Fill(theTauJet->charge());
-    if ( theTauJet->signalTracks().isAvailable()    ) hTauJetNumSignalTracks_->Fill(theTauJet->signalTracks().size());
-    if ( theTauJet->isolationTracks().isAvailable() ) hTauJetNumIsoTracks_->Fill(theTauJet->isolationTracks().size());
+    if ( theTauJet->signalTracks().isAvailable() ) {
+      hTauJetNumSignalTracks_->Fill(theTauJet->signalTracks().size());
+    } else {
+      edm::LogWarning ("EwkMuTauHistManager") << "Failed to access signal Tracks associated to tau-jet !!";
+    }
+    if ( theTauJet->isolationTracks().isAvailable() ) {
+      hTauJetNumIsoTracks_->Fill(theTauJet->isolationTracks().size());
+    } else {
+      edm::LogWarning ("EwkMuTauHistManager") << "Failed to access isolation Tracks associated to tau-jet !!";
+    }
   
     hVisMass_->Fill(mMuTau);
     //hMtMuCaloMEt_->Fill(mtMuCaloMEt);
@@ -854,7 +844,12 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
     //hPFMEtPhi_->Fill(pfMEt.phi());
   }
 
-  if ( isSelected ) ++numEventsSelected_;
+  if ( isSelected ) {
+    ++numEventsSelected_;
+    LogTrace ("EwkMuTauHistManager") << "Event accepted.";
+  } else {
+    LogTrace ("EwkMuTauHistManager") << "Event rejected.";
+  }
 }
 
 void EwkMuTauHistManager::finalizeHistograms()

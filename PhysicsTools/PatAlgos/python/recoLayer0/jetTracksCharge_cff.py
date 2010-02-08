@@ -8,5 +8,4 @@ patJetCharge = cms.EDFilter("JetChargeProducer",
     exp = cms.double(1.0)
 )
 
-# removed for testing and final cleanup
-# patJetTracksCharge = cms.Sequence(patAK5CaloJetCharge)
+patJetTracksCharge = cms.Sequence(patJetCharge)

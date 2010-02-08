@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 # module to filter on the number of Leptons
-countPatLeptons = cms.EDFilter("PATLeptonCountFilter",
-    electronSource = cms.InputTag("cleanPatElectrons"),
-    muonSource     = cms.InputTag("cleanPatMuons"),
-    tauSource      = cms.InputTag("cleanPatTaus"),
+countLayer1Leptons = cms.EDFilter("PATLeptonCountFilter",
+    electronSource = cms.InputTag("cleanLayer1Electrons"),
+    muonSource     = cms.InputTag("cleanLayer1Muons"),
+    tauSource      = cms.InputTag("cleanLayer1Taus"),
     countElectrons = cms.bool(True),
     countMuons     = cms.bool(True),
     countTaus      = cms.bool(False),

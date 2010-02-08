@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EcalScDetId.h,v 1.3 2007/05/29 17:32:05 meridian Exp $
+//$Id: EcalScDetId.h,v 1.2 2007/02/12 17:07:29 meridian Exp $
 
 #ifndef EcalDetId_EcalScDetId_h
 #define EcalDetId_EcalScDetId_h
@@ -59,12 +59,6 @@ class EcalScDetId : public DetId {
   /// check if a valid index combination
   static bool validDetId(int i, int j, int iz) ;
 
-
-
-  enum { kSizeForDenseIndexing = 632 } ;
-
-
-
  private:
 
   //Functions adapted from similar B. Kennedy's code of EEDetId class to
@@ -78,11 +72,6 @@ class EcalScDetId : public DetId {
   int iy(int iSC,int iCrys) const;
   int ixQuadrantOne() const;
   int iyQuadrantOne() const;
-
-  static const int MIN_HASH =  0; // always 0 ...
-  static const int MAX_HASH =  631 ;
-
-
 
 };
 

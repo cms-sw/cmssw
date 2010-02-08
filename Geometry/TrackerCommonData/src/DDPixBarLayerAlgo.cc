@@ -67,7 +67,7 @@ void DDPixBarLayerAlgo::initialize(const DDNumericArguments & nArgs,
 			<< ", " << ladderThick[1];
 }
 
-void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
+void DDPixBarLayerAlgo::execute() {
 
   DDName      mother = parent().name();
   const std::string &idName = mother.name();
@@ -124,7 +124,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
 			<< d1 << ", 0";
   matter = DDMaterial(DDName(DDSplit(coolMat).first, DDSplit(coolMat).second));
   DDLogicalPart cool(solid.ddname(), matter, solid);
- cpv.position(cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+  DDpos (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << cool.name() 
 			<< " number 1 positioned in " << coolTube.name() 
 			<< " at (0,0,0) with no rotation";
@@ -154,7 +154,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
 			    << ", 0, 0";
       rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
 		  phiy, 0.,0.);
-     cpv.position(ladderHalf, layer, copy, tran, rot);
+      DDpos (ladderHalf, layer, copy, tran, rot);
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
 			    << " number " << copy << " positioned in " 
 			    << layer.name() << " at " << tran << " with " 
@@ -172,7 +172,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
 			    << ", 0, 0";
       rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
 		  phiy, 0.,0.);
-     cpv.position(ladderHalf, layer, copy, tran, rot);
+      DDpos (ladderHalf, layer, copy, tran, rot);
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
 			    << " number " << copy << " positioned in " 
 			    << layer.name() << " at " << tran << " with " 
@@ -192,7 +192,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
 			    << ", 0, 0";
       rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
 		  phiy, 0.,0.);
-     cpv.position(ladderFull, layer, copy, tran, rot);
+      DDpos (ladderFull, layer, copy, tran, rot);
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderFull 
 			    << " number " << copy << " positioned in " 
 			    << layer.name() << " at " << tran << " with " 
@@ -212,7 +212,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
 			  << ", 0, 0";
     rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg,
 		phiy, 0.,0.);
-   cpv.position(coolTube, layer, i+1, tran, rot);
+    DDpos (coolTube, layer, i+1, tran, rot);
     LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << coolTube.name() 
 			  << " number " << i+1 << " positioned in " 
 			  << layer.name() << " at " << tran << " with "<< rot;

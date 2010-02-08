@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Aug 10 15:30:40 CST 2009
-// $Id$
+// $Id: IsolatedTracksTreeRecoSimL1SeedsData.cc,v 1.1 2010/01/25 15:37:31 sunanda Exp $
 //
 //
 
@@ -902,7 +902,7 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 }
 
 // ----- method called once each job just before starting event loop ----
-void IsolatedTracksTreeRecoSimL1SeedsData::beginJob(const edm::EventSetup&) {
+void IsolatedTracksTreeRecoSimL1SeedsData::beginJob() {
 
   nEventProc=0;
 

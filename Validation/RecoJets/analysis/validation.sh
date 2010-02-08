@@ -22,8 +22,8 @@ if [ -n $title ]; then
     if [ -e $reference ]; then
 	if [ -e $new ]; then
 
-	    TAG=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetIcone5 CaloJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets CaloJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    TAGREF=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetIcone5 CaloJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets CaloJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    TAG=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetIcone5 CaloJetTask_JetPlusTrackZSPCorJetAntiKt5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets CaloJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    TAGREF=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetIcone5 CaloJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets CaloJetTask_iterativeCone5CaloJets CaloJetTask_sisCone7CaloJets PFJetTask_iterativeCone5PFJets CaloJetTask_JetPlusTrackZSPCorJetIcone5)
 	    FOLDER=(Icone5 CorrIcone5 JPT PFlow kt4 kt6 Siscone5 Siscone7 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
 	    ntag=${#TAG[@]}
 	    echo "Number of module tags: " $ntag

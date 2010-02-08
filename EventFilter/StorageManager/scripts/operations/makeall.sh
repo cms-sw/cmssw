@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: makeall.sh,v 1.4 2008/09/05 09:40:32 gbauer Exp $ 
+# $Id: makeall.sh,v 1.5 2009/08/17 13:24:41 gbauer Exp $ 
 
 ## *** added security feature: MUST give argument "makefilesys"
 ## or else file system will NOT be re-made ***
@@ -48,6 +48,7 @@ done
 
 echo "RUNNING mkstore...."
 ./mkstore.sh
-echo "RUNNING setup_sm...."
-./setup_sm.sh
+# Commenting this out as it might loop otherwise - Babar - 01/29/2010
+#echo "RUNNING setup_sm...."
+#./setup_sm.sh
 exec 10>&-

@@ -93,7 +93,7 @@ class IsolatedTracksTree : public edm::EDAnalyzer {
   ~IsolatedTracksTree();
   
  private:
-  void   beginJob(const edm::EventSetup&) ;
+  void   beginJob() ;
   void   analyze(const edm::Event&, const edm::EventSetup&);
   void   endJob() ;
 

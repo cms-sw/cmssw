@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.6 2009/09/17 11:04:43 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.7 2009/10/13 15:08:33 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef StorageManager_FRDFileHandler_h
@@ -8,6 +8,8 @@
 #include "IOPool/Streamer/interface/FRDEventFileWriter.h"
 
 #include <stdint.h>
+#include <boost/scoped_ptr.hpp>
+
 
 namespace stor {
   
@@ -16,8 +18,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/17 11:04:43 $
+   * $Revision: 1.7 $
+   * $Date: 2009/10/13 15:08:33 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -53,7 +55,7 @@ namespace stor {
     
   private:
     
-    FRDEventFileWriter _writer;
+    boost::scoped_ptr<FRDEventFileWriter> _writer; // writes FED Raw Data file
   };
   
 } // stor namespace

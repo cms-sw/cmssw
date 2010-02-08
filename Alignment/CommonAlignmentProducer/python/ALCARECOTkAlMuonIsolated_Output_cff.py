@@ -7,6 +7,9 @@ OutALCARECOTkAlMuonIsolated_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring( 
         'keep *_ALCARECOTkAlMuonIsolated_*_*', 
+        'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        'keep *_TriggerResults_*_*',
         'keep *_MEtoEDMConverter_*_*')
 )
 

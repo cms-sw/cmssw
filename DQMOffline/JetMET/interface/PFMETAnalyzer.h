@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/01/25 08:22:32 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/18 21:04:05 $
+ *  $Revision: 1.8 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -121,15 +121,13 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   std::string _hlt_Muon;
   std::string _hlt_PhysDec;
 
-  std::vector<unsigned > _techTrigsAND;
-  std::vector<unsigned > _techTrigsOR;
-  std::vector<unsigned > _techTrigsNOT;
+  std::vector<unsigned > _techTrigs;
 
   bool _doPVCheck;
   bool _doHLTPhysicsOn;
 
   bool     _tightBHFiltering;
-  int      _tightJetIDFiltering;
+  unsigned _tightJetIDFiltering;
   bool     _tightHcalFiltering;
 
   int _nvtx_min;

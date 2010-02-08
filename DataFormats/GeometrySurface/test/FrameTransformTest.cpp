@@ -7,21 +7,16 @@
 #include <cmath>
 
 using namespace std;
-template<typename T>
-int  go() {
 
-    typedef TkRotation<T>                   Rotation;
-    typedef GloballyPositioned<T>           Frame;
-    typedef typename Frame::PositionType             Position;
-    typedef typename Frame::GlobalVector             GlobalVector;
-    typedef typename Frame::GlobalPoint              GlobalPoint;
-    typedef typename Frame::LocalVector              LocalVector;
-    typedef typename Frame::LocalPoint               LocalPoint;
+int main() {
 
-    std::cout << "size of Rot     " << sizeof(Rotation) << std::endl;
-    std::cout << "size of Pos     " << sizeof(Position) << std::endl;
-    std::cout << "size of Point   " << sizeof(GlobalPoint) << std::endl;
-    std::cout << "size of Frame   " << sizeof(Frame) << std::endl;
+    typedef TkRotation<double>              Rotation;
+    typedef GloballyPositioned<double>      Frame;
+    typedef Frame::PositionType             Position;
+    typedef Frame::GlobalVector             GlobalVector;
+    typedef Frame::GlobalPoint              GlobalPoint;
+    typedef Frame::LocalVector              LocalVector;
+    typedef Frame::LocalPoint               LocalPoint;
 
     double a = 0.01;
     double ca = cos(a);
@@ -35,7 +30,7 @@ int  go() {
     cout << "f1.rotation() " << endl << f1.rotation() << endl;
 
     Rotation r2( GlobalVector( 0, 1 ,0), GlobalVector( 0, 0, 1));
-    Frame f2(Position(5,6,7), r2);
+    Frame f2(Frame::PositionType(5,6,7), r2);
     cout << "f2.position() " << f2.position() << endl;
     cout << "f2.rotation() " << endl << f2.rotation() << endl;
 
@@ -70,26 +65,14 @@ int  go() {
     cout << "p_in1_from3 + " << p_in1_from3 << endl;
 
     BoundPlane plane(f2.position(), f2.rotation());
-
 //     FrameChanger<double> changer;
 //     FrameChanger<double>::PlanePtr pp = changer.toFrame( plane, f1);
-
-/*
     FrameChanger changer;
     FrameChanger::PlanePtr pp = changer.transformPlane( plane, f1);
-    
+
     LocalPoint p_in2p = plane.toLocal( gp);
     LocalPoint p_in3p = pp->toLocal( GlobalPoint(p_in1.basicVector()));
     cout << "p_in2p " << p_in2p << endl;
     cout << "p_in3p " << p_in3p << endl;
-*/
-    return 0;
-}
-
-int main() {
-
-  go<float>();
-  std::cout << std::endl;
-  go<double>();
 
 }

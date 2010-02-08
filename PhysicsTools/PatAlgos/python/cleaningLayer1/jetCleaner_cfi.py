@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-cleanPatJets = cms.EDProducer("PATJetCleaner",
-    src = cms.InputTag("selectedPatJets"), 
+cleanLayer1Jets = cms.EDFilter("PATJetCleaner",
+    src = cms.InputTag("selectedLayer1Jets"), 
 
     # preselection (any string-based cut on pat::Jet)
     preselection = cms.string(''),
@@ -9,7 +9,7 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
     # overlap checking configurables
     checkOverlaps = cms.PSet(
         muons = cms.PSet(
-           src       = cms.InputTag("cleanPatMuons"),
+           src       = cms.InputTag("cleanLayer1Muons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.5),
@@ -18,7 +18,7 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the jet to be discared
         ),
         electrons = cms.PSet(
-           src       = cms.InputTag("cleanPatElectrons"),
+           src       = cms.InputTag("cleanLayer1Electrons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.5),
@@ -27,7 +27,7 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the jet to be discared
         ),
         photons = cms.PSet(
-           src       = cms.InputTag("cleanPatPhotons"),
+           src       = cms.InputTag("cleanLayer1Photons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.5),
@@ -36,7 +36,7 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the jet to be discared
         ),
         taus = cms.PSet(
-           src       = cms.InputTag("cleanPatTaus"),
+           src       = cms.InputTag("cleanLayer1Taus"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),
            deltaR              = cms.double(0.5),
@@ -45,7 +45,7 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the jet to be discared
         ),
         tkIsoElectrons = cms.PSet(
-           src       = cms.InputTag("cleanPatElectrons"),
+           src       = cms.InputTag("cleanLayer1Electrons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string("pt > 10 && trackIso < 3"),
            deltaR              = cms.double(0.3),
@@ -54,6 +54,8 @@ cleanPatJets = cms.EDProducer("PATJetCleaner",
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the jet to be discared
         )
     ),
+
+
     # finalCut (any string-based cut on pat::Jet)
     finalCut = cms.string(''),
 )

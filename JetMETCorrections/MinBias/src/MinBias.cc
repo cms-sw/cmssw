@@ -1,7 +1,6 @@
 // user include files
 #include "JetMETCorrections/MinBias/interface/MinBias.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 using namespace std;
 namespace cms
@@ -46,28 +45,28 @@ void MinBias::beginJob( const edm::EventSetup& iSetup)
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
-   const std::vector<DetId>& did =  geo->getSubdetectorGeometry( DetId::Hcal, 1 )->getValidDetIds() ;
+   std::vector<DetId> did =  geo->getValidDetIds();
    
    for(std::vector<DetId>::const_iterator id=did.begin(); id != did.end(); id++)
    {
-//      if( (*id).det() == DetId::Hcal ) {
+      if( (*id).det() == DetId::Hcal ) {
       theFillDetMap0[*id] = 0.;
       theFillDetMap1[*id] = 0.;
       theFillDetMap2[*id] = 0.;
       theFillDetMap3[*id] = 0.;
       theFillDetMap4[*id] = 0.;
-//   }
+   }
    }
 }
 
 void MinBias::endJob()
 {
-
-   const std::vector<DetId>& did =  geo->getSubdetectorGeometry( DetId::Hcal, 1 )->getValidDetIds() ;
+   const 
+   std::vector<DetId> did =  geo->getValidDetIds();
    int i=0;
    for(std::vector<DetId>::const_iterator id=did.begin(); id != did.end(); id++)
    {
-//      if( (*id).det() == DetId::Hcal ) {
+      if( (*id).det() == DetId::Hcal ) {
       GlobalPoint pos = geo->getPosition(*id);
       mydet = ((*id).rawId()>>28)&0xF;
       mysubd = ((*id).rawId()>>25)&0x7;
@@ -93,7 +92,7 @@ void MinBias::endJob()
       cout<<" Energy "<<mom1<<" "<<mom2<<endl;
       myTree->Fill();
       i++;
-//      }
+      }
    }
    cout<<" The number of CaloDet records "<<did.size()<<endl;
    cout<<" The number of Hcal records "<<i<<endl;

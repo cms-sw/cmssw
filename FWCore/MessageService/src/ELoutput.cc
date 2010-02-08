@@ -56,13 +56,13 @@
 //			impose limits.  This is to implement the LogSystem
 //			feature:  Those messages are never to be ignored.
 //
-//  3 6/11/07  mf	In emit():  In preamble mode, do not break and indent 
+//  3 6/11/07  mf	In emitToken():  In preamble mode, do not break and indent 
 //			even if exceeding nominal line length.
 //
 //  4 6/11/07  mf	In log():  After the message, add a %MSG on its own line 
 //
 //  5 3/27/09  mf	Properly treat charsOnLine, which had been fouled due to
-//			change 3.  In log() and emit().
+//			change 3.  In log() and emitToken().
 //
 // ----------------------------------------------------------------------
 
@@ -145,9 +145,9 @@ ELoutput::ELoutput()
     std::cerr << "Constructor for ELoutput()\n";
   #endif
 
-  emit( "\n=================================================", true );
-  emit( "\nMessage Log File written by MessageLogger service \n" );
-  emit( "\n=================================================\n", true );
+  emitToken( "\n=================================================", true );
+  emitToken( "\nMessage Log File written by MessageLogger service \n" );
+  emitToken( "\n=================================================\n", true );
 
 }  // ELoutput()
 
@@ -176,9 +176,9 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
   if (emitAtStart) {
     bool tprm = preambleMode;
     preambleMode = true;
-    emit( "\n=================================================", true );
-    emit( "\nMessage Log File written by MessageLogger service \n" );
-    emit( "\n=================================================\n", true );
+    emitToken( "\n=================================================", true );
+    emitToken( "\nMessage Log File written by MessageLogger service \n" );
+    emitToken( "\n=================================================\n", true );
     preambleMode = tprm;
   }
 
@@ -216,11 +216,11 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     #endif
                                         // Enh 001 2/13/01 mf
     if (emitAtStart) {
-      emit( "\n=======================================================",
+      emitToken( "\n=======================================================",
                                                                 true );
-      emit( "\nError Log File " );
-      emit( fileName );
-      emit( " \n" );
+      emitToken( "\nError Log File " );
+      emitToken( fileName );
+      emitToken( " \n" );
     }
   }
   else  {
@@ -232,17 +232,17 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
       std::cerr << "          about to emit to cerr\n";
     #endif
     if (emitAtStart) {
-      emit( "\n=======================================================",
+      emitToken( "\n=======================================================",
                                                                 true );
-      emit( "\n%MSG** Logging to cerr is being substituted" );
-      emit( " for specified log file \"" );
-      emit( fileName  );
-      emit( "\" which could not be opened for write or append.\n" );
+      emitToken( "\n%MSG** Logging to cerr is being substituted" );
+      emitToken( " for specified log file \"" );
+      emitToken( fileName  );
+      emitToken( "\" which could not be opened for write or append.\n" );
     }
   }
   if (emitAtStart) {
-    emit( formatTime(time(0)), true );
-    emit( "\n=======================================================\n",
+    emitToken( formatTime(time(0)), true );
+    emitToken( "\n=======================================================\n",
                                                                 true );
   }
   preambleMode = tprm;
@@ -341,12 +341,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   if  ( !msg.is_verbatim()  ) {
     charsOnLine = 0; 						// Change log 5
-    emit( preamble );
-    emit( xid.severity.getSymbol() );
-    emit( " " );
-    emit( xid.id );
-    emit( msg.idOverflow() );
-    emit( ": " );
+    emitToken( preamble );
+    emitToken( xid.severity.getSymbol() );
+    emitToken( " " );
+    emitToken( xid.id );
+    emitToken( msg.idOverflow() );
+    emitToken( ": " );
   }
   
   #ifdef ELoutputTRACE_LOG
@@ -359,7 +359,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
     if ( wantSerial )  {
       std::ostringstream s;
       s << msg.serial();
-      emit( "[serial #" + s.str() + ELstring("] ") );
+      emitToken( "[serial #" + s.str() + ELstring("] ") );
     }
   }
   
@@ -372,7 +372,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
     #ifdef ELoutputTRACE_LOG
       std::cerr << "      =:=:=: Item:  " << *it << '\n';
     #endif
-      emit( *it );
+      emitToken( *it );
     }
   }
 #endif
@@ -384,21 +384,21 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
  {
     if ( wantEpilogueSeparate )  {
       if ( xid.module.length() + xid.subroutine.length() > 0 )  {
-	emit("\n");
+	emitToken("\n");
 	needAspace = false;
       }
       else if ( wantTimestamp && !wantTimeSeparate )  {
-	emit("\n");
+	emitToken("\n");
 	needAspace = false;
       }
     }
     if ( wantModule && (xid.module.length() > 0) )  {
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
-      emit( xid.module + ELstring(" ") );
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      emitToken( xid.module + ELstring(" ") );
     }
     if ( wantSubroutine && (xid.subroutine.length() > 0) )  {
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
-      emit( xid.subroutine + "()" + ELstring(" ") );
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      emitToken( xid.subroutine + "()" + ELstring(" ") );
     }
   }
   
@@ -412,11 +412,11 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
  {
     if ( wantTimestamp )  {
       if ( wantTimeSeparate )  {
-	emit( ELstring("\n") );
+	emitToken( ELstring("\n") );
 	needAspace = false;
       }
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
-      emit( formatTime(msg.timestamp()) + ELstring(" ") );
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      emitToken( formatTime(msg.timestamp()) + ELstring(" ") );
     }
   }
   
@@ -429,7 +429,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   if  ( !msg.is_verbatim() ) 
  {
     if ( wantSomeContext ) {
-      if (needAspace) { emit(ELstring(" ")); needAspace = false; }
+      if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
       #ifdef ELoutputTRACE_LOG
 	std::cerr << "    =:=:=:>> context supplier is at 0x"
                   << std::hex
@@ -439,12 +439,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
                   << '\n';
       #endif
       if ( wantFullContext )  {
-	emit( ELadministrator::instance()->getContextSupplier().fullContext());
+	emitToken( ELadministrator::instance()->getContextSupplier().fullContext());
       #ifdef ELoutputTRACE_LOG
 	std::cerr << "    =:=:=: fullContext done: \n";
       #endif
       } else  {
-	emit( ELadministrator::instance()->getContextSupplier().context());
+	emitToken( ELadministrator::instance()->getContextSupplier().context());
     #ifdef ELoutputTRACE_LOG
       std::cerr << "    =:=:=: Context done: \n";
     #endif
@@ -461,12 +461,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   if  ( !msg.is_verbatim() ) 
  {
     if ( msg.xid().severity >= traceThreshold )  {
-      emit( ELstring("\n")
+      emitToken( ELstring("\n")
             + ELadministrator::instance()->getContextSupplier().traceRoutine()
           , insertNewlineAfterHeader );
     }
     else  {                                        //else statement added JV:1
-      emit ("", insertNewlineAfterHeader);
+      emitToken("", insertNewlineAfterHeader);
     }
   }
   #ifdef ELoutputTRACE_LOG
@@ -488,12 +488,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
       if  ( !msg.is_verbatim() ) {
 	if ( !insertNewlineAfterHeader && (item_count == 3) ) {
           // in a LogDebug message, the first 3 items are FILE, :, and LINE
-          emit( *it, true );
+          emitToken( *it, true );
 	} else {
-          emit( *it );
+          emitToken( *it );
 	}
       } else {
-        emit( *it );
+        emitToken( *it );
       }
     }
   }
@@ -504,7 +504,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   if  ( !msg.is_verbatim() ) 
   {
-    emit ("\n%MSG");
+    emitToken("\n%MSG");
   }
   
 
@@ -530,7 +530,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 // Output methods:
 // ----------------------------------------------------------------------
 
-void ELoutput::emit( const ELstring & s, bool nl )  {
+void ELoutput::emitToken( const ELstring & s, bool nl )  {
 
   #ifdef ELoutput_EMIT_TRACE
     std::cerr << "[][][] in emit:  charsOnLine is " << charsOnLine << '\n';
@@ -607,7 +607,7 @@ void ELoutput::emit( const ELstring & s, bool nl )  {
     std::cerr << "[][][] in emit: completed \n";
   #endif
 
-}  // emit()
+}  // emitToken()
 
 
 // ----------------------------------------------------------------------
@@ -657,12 +657,12 @@ void ELoutput::summarization(
   ELstring title( fullTitle, 0, titleMaxLength );
   int q = (lineLength - title.length() - 2) / 2;
   ELstring line(q, '=');
-  emit( "", true );
-  emit( line );
-  emit( " " );
-  emit( title );
-  emit( " " );
-  emit( line, true );
+  emitToken( "", true );
+  emitToken( line );
+  emitToken( " " );
+  emitToken( title );
+  emitToken( " " );
+  emitToken( line, true );
 
   // body:
   //
@@ -670,8 +670,8 @@ void ELoutput::summarization(
 
   // finish:
   //
-  emit( "", true );
-  emit( ELstring(lineLength, '='), true );
+  emitToken( "", true );
+  emitToken( ELstring(lineLength, '='), true );
 
 }  // summarization()
 
@@ -682,18 +682,18 @@ void ELoutput::summarization(
 
 void ELoutput::changeFile (std::ostream & os_) {
   os.reset(&os_, do_nothing_deleter());
-  emit( "\n=======================================================", true );
-  emit( "\nError Log changed to this stream\n" );
-  emit( formatTime(time(0)), true );
-  emit( "\n=======================================================\n", true );
+  emitToken( "\n=======================================================", true );
+  emitToken( "\nError Log changed to this stream\n" );
+  emitToken( formatTime(time(0)), true );
+  emitToken( "\n=======================================================\n", true );
 }
 
 void ELoutput::changeFile (const ELstring & filename) {
   os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app), close_and_delete());
-  emit( "\n=======================================================", true );
-  emit( "\nError Log changed to this file\n" );
-  emit( formatTime(time(0)), true );
-  emit( "\n=======================================================\n", true );
+  emitToken( "\n=======================================================", true );
+  emitToken( "\nError Log changed to this file\n" );
+  emitToken( formatTime(time(0)), true );
+  emitToken( "\n=======================================================\n", true );
 }
 
 void ELoutput::flush()  {

@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.h,v 1.7 2009/09/17 11:04:43 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.8 2009/10/13 15:08:33 mommsen Exp $
 /// @file: EventFileHandler.h 
 
 #ifndef StorageManager_EventFileHandler_h
@@ -10,6 +10,7 @@
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 
 #include <stdint.h>
+#include <boost/scoped_ptr.hpp>
 
 
 namespace stor {
@@ -21,8 +22,8 @@ namespace stor {
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/09/17 11:04:43 $
+   * $Revision: 1.8 $
+   * $Date: 2009/10/13 15:08:33 $
    */
   
   class EventFileHandler : public FileHandler
@@ -65,7 +66,7 @@ namespace stor {
     void writeHeader(InitMsgSharedPtr);
     
 
-    edm::StreamerFileWriter _writer; // writes streamer and index file
+    boost::scoped_ptr<edm::StreamerFileWriter> _writer; // writes streamer and index file
   };
   
 } // stor namespace

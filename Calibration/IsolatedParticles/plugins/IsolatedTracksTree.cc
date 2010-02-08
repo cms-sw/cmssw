@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Aug 10 15:30:40 CST 2009
-// $Id$
+// $Id: IsolatedTracksTree.cc,v 1.1 2009/11/05 21:02:30 sunanda Exp $
 //
 //
 
@@ -739,7 +739,7 @@ void IsolatedTracksTree::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 // ----- method called once each job just before starting event loop ----
-void IsolatedTracksTree::beginJob(const edm::EventSetup&) {
+void IsolatedTracksTree::beginJob() {
 
   t_nEvtProc=0;
   nEventProc=0;

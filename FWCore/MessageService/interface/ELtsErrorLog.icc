@@ -25,7 +25,7 @@ void ELtsItem ( ELtsErrorLog & e, const T & t ) {
   if (e.e.discarding) return e;
   std::ostringstream  ost;
   ost << t << ' ';
-  e.msg.emit ( ost.str() ); 
+  e.msg.emitToken( ost.str() ); 
 }  
 
 // ----------------------------------------------------------------------

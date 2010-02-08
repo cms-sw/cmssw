@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.8 2009/10/27 14:38:20 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.7 2009/09/17 21:49:42 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -66,7 +66,6 @@ class BSFitter {
 	void SetMinimumNTrks(int n) { fminNtrks = n; }
 	void Setd0Cut_d0phi(double d0cut);
 	void SetChi2Cut_d0phi(double chi2cut);
-	void SetInputBeamWidth(double val) { finputBeamWidth = val; }
 	int GetAcceptedTrks() { return ftmprow; }
 	void d0phi_Init() {
 		ftmprow = 0;
@@ -142,7 +141,6 @@ class BSFitter {
 	double fMaxZ;
 	double fconvergence;
 	int fminNtrks;
-	double finputBeamWidth;
 	TH1F *h1z;
 };
 

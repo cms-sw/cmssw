@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # See https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
 # on how to use the cut-string
 #
-selectedPatTracks = cms.EDFilter("PATGenericParticleSelector",
-    src = cms.InputTag("allPatTracks"),
+selectedLayer1TrackCands = cms.EDFilter("PATGenericParticleSelector",
+    src = cms.InputTag("allLayer1TrackCands"),
     cut = cms.string("")
 )
 

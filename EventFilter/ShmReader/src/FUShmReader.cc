@@ -93,7 +93,7 @@ int FUShmReader::fillRawData(EventID& eID,
   }
   else if(state==evt::LUMISECTION){
     unsigned int ls = newCell->getLumiSection();
-    shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
+    //shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
     return (-1)*ls;
   }

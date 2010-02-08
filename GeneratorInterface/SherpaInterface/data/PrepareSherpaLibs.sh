@@ -6,8 +6,8 @@
 #  uses:        SHERPA datacards, libs and cross sections
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/12/09
-#  version:     2.8
+#  date:        2009/01/14
+#  version:     2.7
 #  changed: 	Martin Niegel, KIT, 2009/02/24
 #		Fix for CMSSW_3X
 
@@ -18,7 +18,7 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 2.8" && echo && \
+    echo "PrepareSherpaLibs version 2.7" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
@@ -42,7 +42,7 @@ function print_help() {
 
 
 # function to build a python script for cmsDriver
-function build_python_cfi() {
+function build_python_cfi_NEW() {
 
   shpacfifile=$1  # config file name
 
@@ -50,8 +50,6 @@ function build_python_cfi() {
   touch ${shpacfifile}
 
   echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
-  echo ""                                                     >> ${shpacfifile}
-  echo "source = cms.Source(\"EmptySource\")"                 >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
   echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","  >> ${shpacfifile}
   echo "  maxEventsToPrint = cms.untracked.int32(0),"           >> ${shpacfifile}
@@ -95,10 +93,37 @@ function build_python_cfi() {
   done
   echo "                             )"                       >> ${shpacfifile}
   echo ")"                                                    >> ${shpacfifile}
+
+  cat > sherpa_custom.py << EOF
+import FWCore.ParameterSet.Config as cms
+
+def customise(process):
+
+	process.genParticles.abortOnUnknownPDGCode = False
+
+	return(process)
+EOF
+
+}
+
+
+# function to build a python script for cmsDriver
+function build_python_cfi() {
+
+  shpacfifile=$1  # config file name
+
+  if [ -e ${shpacfifile} ]; then rm ${shpacfifile}; fi
+  touch ${shpacfifile}
+
+  echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
-#  echo "ProducerSourceSequence = cms.Sequence(generator)"     >> ${shpacfifile}
-  echo "ProductionFilterSequence = cms.Sequence(generator)"   >> ${shpacfifile}
-  echo ""                                                     >> ${shpacfifile}
+  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","  >> ${shpacfifile}
+  echo "  maxEventsToPrint = cms.untracked.int32(0),"           >> ${shpacfifile}
+  echo "  filterEfficiency = cms.untracked.double(1.0),"        >> ${shpacfifile}
+  echo "  crossSection = cms.untracked.double(-1),"             >> ${shpacfifile}
+  echo "  libDir    = cms.untracked.string('"${MYLIBDIR}"')," >> ${shpacfifile}
+  echo "  resultDir = cms.untracked.string('Result'),"        >> ${shpacfifile}
+  echo ")"                                                    >> ${shpacfifile}
 
   cat > sherpa_custom.py << EOF
 import FWCore.ParameterSet.Config as cms
@@ -130,19 +155,19 @@ function build_python_cfg() {
   echo "process = cms.Process(\"runSherpa\")"                                                      >> ${shpacfgfile}
   echo "process.load('${shpacfipath}/${shpacfifile}')"                                             >> ${shpacfgfile}
   echo "process.load(\"Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff\")">> ${shpacfgfile}
+  echo "process.source = cms.Source(\"EmptySource\")"    				           >> ${shpacfgfile}
   echo "process.maxEvents = cms.untracked.PSet("                                                   >> ${shpacfgfile}
   echo "    input = cms.untracked.int32(100)"                                                      >> ${shpacfgfile}
   echo ")"                                                                                         >> ${shpacfgfile}
   echo "process.randomEngineStateProducer = cms.EDProducer(\"RandomEngineStateProducer\")"	   >> ${shpacfgfile}
   echo "process.p1 = cms.Path(process.randomEngineStateProducer)"				   >> ${shpacfgfile}
   echo "process.path = cms.Path(process.generator)"					           >> ${shpacfgfile}
-  echo "process.GEN = cms.OutputModule(\"PoolOutputModule\","                                      >> ${shpacfgfile}
+  echo "process.sherpa_out = cms.OutputModule(\"PoolOutputModule\","                               >> ${shpacfgfile}
   echo "    fileName = cms.untracked.string('"${shpaoutfile}"')"                                   >> ${shpacfgfile}
   echo ")"                                                                                         >> ${shpacfgfile}
-  echo "process.outpath = cms.EndPath(process.GEN)"                                                >> ${shpacfgfile}
+  echo "process.outpath = cms.EndPath(process.sherpa_out)"                                         >> ${shpacfgfile}
 #  echo ""                                                                                         >> ${shpacfgfile}
 #  echo "process.genParticles.abortOnUnknownPDGCode = False"                                       >> ${shpacfgfile}
-  echo "process.schedule = cms.Schedule(process.p1,process.path,process.outpath)"                  >> ${shpacfgfile}
 }
 
 
@@ -374,10 +399,7 @@ cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
 MYSRMPATH="./"                                       # SRM path for storage of results
 MYLIBDIR="SherpaRun"                                 # name of directory for process-dep. Sherpa files
-#MYCONDITIONS="IDEAL_V11"                             # CMSSW_2_2_X conditions
-MYCONDITIONS="MC_31X_V5"                             # CMSSW_3_1/2_X conditions
-#MYCONDITIONS="STARTUP31X_V4"                         # CMSSW_3_1/2_X conditions
-#MYCONDITIONS="DESIGN_31X_V4"                         # CMSSW_3_1/2_X conditions
+MYCONDITIONS="IDEAL_V11"
 
 # get & evaluate options
 while getopts :i:p:d:m:c:a:D:L:C:P:h OPT
@@ -509,7 +531,8 @@ if [ "${imode}" = "LOCAL" ] || [ "${imode}" = "CRAB" ]; then
 #  cd ${MYCMSSWTEST}
   cd ${MYCMSSWSHPA}
   shpacfifile="sherpa_cfi.py"
-  build_python_cfi ${shpacfifile}
+#  build_python_cfi ${shpacfifile}
+  build_python_cfi_NEW ${shpacfifile}
  rm *.dat
   mv ${shpacfifile}   ${MYCMSSWPYTH}
   mv sherpa_custom.py ${MYCMSSWPYTH}
@@ -526,7 +549,8 @@ fi
 if [ "${imode}" = "PROD" ]; then
   cd ${MYCMSSWSHPA}
   shpacfffile="sherpa_"${dataset}"_cff.py"
-  build_python_cfi ${shpacfffile}
+#  build_python_cfi ${shpacfffile}
+  build_python_cfi_NEW ${shpacfffile}
  rm *.dat
   mv ${shpacfffile}   ${HDIR}
   mv sherpa_custom.py ${HDIR}
@@ -539,7 +563,8 @@ fi
 if [ "${imode}" = "VAL" ]; then
   cd ${MYCMSSWSHPA}
   shpacfffile="sherpa_"${dataset}"_cff.py"
-  build_python_cfi ${shpacfffile}
+#  build_python_cfi ${shpacfffile}
+  build_python_cfi_NEW ${shpacfffile}
   mv ${shpacfffile}   ${CMSSWDIR}/src/${MYANADIR2}/python/
   mv sherpa_custom.py ${CMSSWDIR}/src/${MYANADIR2}/python/
   cd ${HDIR}
@@ -553,15 +578,6 @@ if [ "${imode}" = "VAL" ]; then
   echo " VAL command 1: "${cmd1}
   ${cmd1}
 
-## cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
-#               -s GEN:ProductionFilterSequence \
-#               --eventcontent RAWSIM \
-#               --datatier GEN \
-#               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-#               -n 1000 \
-#               --no_exec \
-#               --customise ${MYANADIR2}/sherpa_custom.py
-
   cmd2="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
                      -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT --eventcontent RAWSIM --datatier GEN-SIM-RAW \
                      --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
@@ -570,32 +586,6 @@ if [ "${imode}" = "VAL" ]; then
   echo " VAL command 2: "${cmd2}
   ${cmd2}
 
-## cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
-#               -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT \
-#               --eventcontent RAWSIM \
-#               --datatier GEN-SIM-RAW \
-#               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-#               -n 10 \
-#               --no_exec \
-#               --customise ${MYANADIR2}/sherpa_custom.py
-
-## --filein file:sherpa_out.root
-## --fileout HLT.root
-## --magField 3.8T
-## --beamspot=Early10TeVCollision
-## --pileup=NoPileUp
-## -s GEN:ProductionFilterSequence,FASTSIM
-
-## cmsDriver.py Reconstruction.py \
-#               -s RAW2DIGI,RECO \
-#               --filein file:gensimraw.root \
-#               --eventcontent RECOSIM \
-#               --datatier GEN-SIM-RECO \
-#               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-#               -n -1 \
-#               --no_exec
-
-
   cmd3="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
                      -s GEN,FASTSIM --eventcontent AODSIM --datatier GEN-SIM-DIGI-RECO \
                      --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
@@ -603,19 +593,6 @@ if [ "${imode}" = "VAL" ]; then
                      --customise ${MYANADIR2}/sherpa_custom.py"
   echo " VAL command 3: "${cmd3}
   ${cmd3}
-
-
-# cmsDriver.py fastsim \
-# -s GEN,FASTSIM --eventcontent AODSIM datatier GEN-SIM-DIGI-RECO \
-# --filein sherpa_out.root \ 
-# --fileout fastsim.root \
-# --conditions FrontierConditions_GlobalTag,MC_31X_V3::All \
-# -n 1000 --pileup=NoPileUp --beamspot=Early10TeVCollision --magField 3.8T \
-# --no_exec \
-# --customise A/B/sherpa_custom.py
-
-##cmsDriver.py reco --filein file:HLT.root --fileout RECO.root -s RAW2DIGI,RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,MC_31X_V3::All -n -1 --magField 3.8T --no_exec
-
 
 fi
 

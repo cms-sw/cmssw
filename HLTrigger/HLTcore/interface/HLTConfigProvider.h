@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2009/12/16 11:03:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/02 18:17:48 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -82,6 +82,45 @@ class HLTConfigProvider {
   const edm::ParameterSet modulePSet(const std::string& module) const;
 
 
+  /// HLTLevel1GTSeed module
+  /// HLTLevel1GTSeed modules for all trigger paths
+  const std::vector<std::vector<std::pair<bool,std::string> > >& hltL1GTSeeds() const;
+  /// HLTLevel1GTSeed modules for trigger path with name
+  const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(const std::string& trigger) const;
+  /// HLTLevel1GTSeed modules for trigger path with index i
+  const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(unsigned int trigger) const;
+
+
+  /// Streams
+  /// list of names of all streams
+  const std::vector<std::string>& streamNames() const;
+  /// name of stream with index i
+  const std::string& streamName(unsigned int stream) const;
+  /// index of stream with name
+  unsigned int streamIndex(const std::string& stream) const;
+  /// names of datasets for all streams
+  const std::vector<std::vector<std::string> >& streamContents() const;
+  /// names of datasets in stream with index i
+  const std::vector<std::string>& streamContent(unsigned int stream) const;
+  /// names of datasets in stream with name
+  const std::vector<std::string>& streamContent(const std::string& stream) const;
+
+
+  /// Datasets
+  /// list of names of all datasets
+  const std::vector<std::string>& datasetNames() const;
+  /// name of dataset with index i
+  const std::string& datasetName(unsigned int dataset) const;
+  /// index of dataset with name
+  unsigned int datasetIndex(const std::string& dataset) const;
+  /// names of trigger paths for all datasets
+  const std::vector<std::vector<std::string> >& datasetContents() const;
+  /// names of trigger paths in dataset with index i
+  const std::vector<std::string>& datasetContent(unsigned int dataset) const;
+  /// names of trigger paths in dataset with name
+  const std::vector<std::string>& datasetContent(const std::string& dataset) const;
+
+
   /*  Not useable: PrescaleService configuration is not saved in Provenance
   /// PrescaleService accessors
 
@@ -112,7 +151,9 @@ class HLTConfigProvider {
     processName_(""), registry_(), processPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
-    pathNames_(), endpathNames_(),
+    pathNames_(), endpathNames_(), hltL1GTSeeds_(),
+    streamNames_(), streamIndex_(), streamContents_(),
+    datasetNames_(), datasetIndex_(), datasetContents_(),
     prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
 
  private:
@@ -132,6 +173,16 @@ class HLTConfigProvider {
 
   std::vector<std::string> pathNames_;
   std::vector<std::string> endpathNames_;
+
+  std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
+
+  std::vector<std::string> streamNames_;
+  std::map<std::string,unsigned int> streamIndex_;
+  std::vector<std::vector<std::string> > streamContents_;
+
+  std::vector<std::string> datasetNames_;
+  std::map<std::string,unsigned int> datasetIndex_;
+  std::vector<std::vector<std::string> > datasetContents_;
 
   std::vector<std::string> prescaleLabels_;
   std::map<std::string,unsigned int> prescaleIndex_;

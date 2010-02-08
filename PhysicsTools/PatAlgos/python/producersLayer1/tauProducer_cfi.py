@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patTaus = cms.EDProducer("PATTauProducer",
+allLayer1Taus = cms.EDProducer("PATTauProducer",
     # input
     tauSource = cms.InputTag("shrinkingConePFTauProducer"),
 

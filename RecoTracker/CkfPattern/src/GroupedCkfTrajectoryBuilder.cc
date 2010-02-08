@@ -624,18 +624,12 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
     int nRebuilt =
       rebuildSeedingRegion (seedHits,reFitted.front(),rebuiltTrajectories);
 
-    if ( nRebuilt==0 ) it->invalidate();  // won't use original in-out track
-
-    if ( nRebuilt<=0 ) rebuiltTrajectories.push_back(*it);
-
+    if ( nRebuilt==0 )  rebuiltTrajectories.push_back(*it);
   }
   //
   // Replace input trajectories with new ones
   //
   result.swap(rebuiltTrajectories);
-  result.erase(std::remove_if( result.begin(),result.end(),
-			       std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
-	       result.end());
 }
 
 int
@@ -691,7 +685,6 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
   // Check & count resulting candidates
   //
   int nrOfTrajectories(0);
-  bool orig_ok = false;
   //const RecHitEqualByChannels recHitEqual(false,false);
   //vector<TM> oldMeasurements(candidate.measurements());
   for ( TempTrajectoryContainer::iterator it=rebuiltTrajectories.begin();
@@ -702,7 +695,6 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
     // Verify presence of seeding hits?
     //
     if ( theRequireSeedHitsInRebuild ) {
-      orig_ok = true;
       // no hits found (and possibly some invalid hits discarded): drop track
       if ( newMeasurements.size()<=candidate.measurements().size() ){  
 	LogDebug("CkfPattern") << "newMeasurements.size()<=candidate.measurements().size()";
@@ -732,18 +724,6 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
 
     LogDebug("CkgPattern")<<"New traj direction = " << reversedTrajectory.direction()<<"\n"
 			  <<PrintoutHelper::dumpMeasurements(reversedTrajectory.measurements());
-  }
-  // If nrOfTrajectories = 0 and orig_ok = true, this means that a track was actually found on the
-  // out-in step (meeting those requirements) but did not have the seed hits in it.
-  // In this case when we return we will go ahead and use the original in-out track.
-
-  // If nrOfTrajectories = 0 and orig_ok = false, this means that the out-in step failed to
-  // find any track.  Two cases are a technical failure in fitting the original seed hits or
-  // because the track did not meet the out-in criteria (which may be stronger than the out-in
-  // criteria).  In this case we will NOT allow the original in-out track to be used.
-
-  if ( (nrOfTrajectories == 0) && orig_ok ) {
-    nrOfTrajectories = -1;
   }
   return nrOfTrajectories;
 }

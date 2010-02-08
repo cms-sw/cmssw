@@ -59,7 +59,7 @@ ELfwkJobReport::ELfwkJobReport()
   #endif
 
   // Opening xml tag
-  emit( "<FrameworkJobReport>\n", true );
+  emitToken( "<FrameworkJobReport>\n", true );
 
 }  // ELfwkJobReport()
 
@@ -85,7 +85,7 @@ ELfwkJobReport::ELfwkJobReport( std::ostream & os_ , bool emitAtStart )
   #endif
 
   // Opening xml tag
-  emit( "<FrameworkJobReport>\n\n", true );
+  emitToken( "<FrameworkJobReport>\n\n", true );
 
 }  // ELfwkJobReport()
 
@@ -118,7 +118,7 @@ ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool emitAtStart )
       std::cerr << "          About to do first emit\n";
     #endif
     // Opening xml tag
-    emit( "<FrameworkJobReport>\n");
+    emitToken( "<FrameworkJobReport>\n");
   } else  {
     #ifdef ELfwkJobReportCONSTRUCTOR_TRACE
       std::cerr << "          Deleting os\n";
@@ -128,7 +128,7 @@ ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool emitAtStart )
       std::cerr << "          about to emit to cerr\n";
     #endif
     // Opening xml tag
-    emit( "<FrameworkJobReport>\n\n" );
+    emitToken( "<FrameworkJobReport>\n\n" );
   }
 
   #ifdef ELfwkJobReportCONSTRUCTOR_TRACE
@@ -228,16 +228,16 @@ bool ELfwkJobReport::log( const edm::ErrorObj & msg )  {
 
   // Output the prologue:
   //
-  //emit ( "  <Report>\n" );
-  //emit ( "    <Severity> " );
-  //emit (xid.severity.getSymbol());
-  //emit (" </Severity>\n");
-  //emit ( "    <Category> ");
-  //emit (xid.id);
-  //emit ( " </Category>\n");
-  //emit ( "    <Message> \n");
+  //emitToken( "  <Report>\n" );
+  //emitToken( "    <Severity> " );
+  //emitToken(xid.severity.getSymbol());
+  //emitToken(" </Severity>\n");
+  //emitToken( "    <Category> ");
+  //emitToken(xid.id);
+  //emitToken( " </Category>\n");
+  //emitToken( "    <Message> \n");
   
- //  emit( msg.idOverflow() ); this is how to get the rest of the category
+ //  emitToken( msg.idOverflow() ); this is how to get the rest of the category
 
   #ifdef ELfwkJobReportTRACE_LOG
     std::cerr << "    =:=:=: Prologue done \n";
@@ -251,21 +251,21 @@ bool ELfwkJobReport::log( const edm::ErrorObj & msg )  {
     #ifdef ELfwkJobReportTRACE_LOG
       std::cerr << "      =:=:=: Item:  " << *it << '\n';
     #endif
-      //  emit( "      <Item> " );
-      emit( *it);
-      emit( "\n" );
-      //emit( " </Item>\n" );
+      //  emitToken( "      <Item> " );
+      emitToken( *it);
+      emitToken( "\n" );
+      //emitToken( " </Item>\n" );
     }
   }
 
   // Close the body of the message
-  //emit ("    </Message>\n");
+  //emitToken("    </Message>\n");
   
   // Provide further identification: Module
   //
-  //emit ("    <Module> ");
-  //emit ( xid.module );
-  //emit (" </Module>\n");    
+  //emitToken("    <Module> ");
+  //emitToken( xid.module );
+  //emitToken(" </Module>\n");    
 
   #ifdef ELfwkJobReportTRACE_LOG
     std::cerr << "    =:=:=: Module done \n";
@@ -273,7 +273,7 @@ bool ELfwkJobReport::log( const edm::ErrorObj & msg )  {
 
   // close report
   //
-  //emit ("  </Report>\n\n");
+  //emitToken("  </Report>\n\n");
 
   #ifdef ELfwkJobReportTRACE_LOG
     std::cerr << "  =:=:=: log(msg) done: \n";
@@ -295,7 +295,7 @@ void ELfwkJobReport::finish()   {
 // Output methods:
 // ----------------------------------------------------------------------
 
-void ELfwkJobReport::emit( const ELstring & s, bool nl )  {
+void ELfwkJobReport::emitToken( const ELstring & s, bool nl )  {
 
   #ifdef ELfwkJobReport_EMIT_TRACE
     std::cerr << "[][][] in emit:  charsOnLine is " << charsOnLine << '\n';
@@ -317,7 +317,7 @@ void ELfwkJobReport::emit( const ELstring & s, bool nl )  {
     std::cerr << "[][][] in emit: completed \n";
   #endif
 
-}  // emit()
+}  // emitToken()
 
 
 // ----------------------------------------------------------------------
@@ -367,12 +367,12 @@ void ELfwkJobReport::summarization(
   ELstring title( fullTitle, 0, titleMaxLength );
   int q = (lineLength - title.length() - 2) / 2;
   ELstring line(q, '=');
-  emit( "", true );
-  emit( line );
-  emit( " " );
-  emit( title );
-  emit( " " );
-  emit( line, true );
+  emitToken( "", true );
+  emitToken( line );
+  emitToken( " " );
+  emitToken( title );
+  emitToken( " " );
+  emitToken( line, true );
 
   // body:
   //
@@ -380,8 +380,8 @@ void ELfwkJobReport::summarization(
 
   // finish:
   //
-  emit( "", true );
-  emit( ELstring(lineLength, '='), true );
+  emitToken( "", true );
+  emitToken( ELstring(lineLength, '='), true );
 
 }  // summarization()
 
@@ -392,16 +392,16 @@ void ELfwkJobReport::summarization(
 
 void ELfwkJobReport::changeFile (std::ostream & os_) {
   os.reset(&os_, do_nothing_deleter());
-  emit( "\n=======================================================", true );
-  emit( "\nError Log changed to this stream\n" );
-  emit( "\n=======================================================\n", true );
+  emitToken( "\n=======================================================", true );
+  emitToken( "\nError Log changed to this stream\n" );
+  emitToken( "\n=======================================================\n", true );
 }
 
 void ELfwkJobReport::changeFile (const ELstring & filename) {
   os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app ), close_and_delete());
-  emit( "\n=======================================================", true );
-  emit( "\nError Log changed to this file\n" );
-  emit( "\n=======================================================\n", true );
+  emitToken( "\n=======================================================", true );
+  emitToken( "\nError Log changed to this file\n" );
+  emitToken( "\n=======================================================\n", true );
 }
 
 void ELfwkJobReport::flush()  {

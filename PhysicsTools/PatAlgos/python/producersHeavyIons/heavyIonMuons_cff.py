@@ -6,7 +6,7 @@ makeHeavyIonMuons = cms.Sequence(
     # pat and HI specifics
     muonMatch *
     # object production
-    patMuons
+    allLayer1Muons
     )
 
 

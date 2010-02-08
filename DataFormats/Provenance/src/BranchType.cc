@@ -8,7 +8,7 @@ namespace edm {
     return os;
   }
   namespace {
-     
+
     // Suffixes
     std::string const metaData = "MetaData";
     std::string const auxiliary = "Auxiliary";
@@ -221,6 +221,9 @@ namespace edm {
 
     std::string const& eventHistoryTreeName() {
       return eventHistory;
+    }
+    std::string const& luminosityBlockTreeName() {
+      return lumis;
     }
   }
 }

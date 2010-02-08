@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.44 2009/11/16 14:15:41 babar Exp $
+# $Id: setup_sm.sh,v 1.46 2010/01/29 16:15:35 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -64,11 +64,11 @@ checkSLCversion () {
     slc_release=$(cat /etc/redhat-release)
     case $slc_release in
         *5.3*)
-            echo "This host is running $slc_release, which is NOT compatible with the current SLC4 CopyManager" >&2
-            echo "Therefore nothing will be started, but the disks will be mounted" >&2
-            exit
             ;;
         *4.4*)
+            echo "This host is running $slc_release, which is NO LONGER compatible with the current SLC5 CopyManager" >&2
+            echo "Therefore nothing will be started, but the disks will be mounted" >&2
+            exit
             ;;
         *)
             echo "This host is running $slc_release, which is UNKOWN" >&2
@@ -233,9 +233,28 @@ start () {
                 /sbin/multipath
             fi
 
-            for i in $store/sata*a*v*; do 
-                mountByLabel $i
-            done
+            mounts=(/store/sata*a*v*)
+            case ${#mounts[@]} in
+            1)
+		if [ "$mounts" = "/store/sata*a*v*" ]; then
+		    echo "No mountpoint define, assuming install needed, calling make_all.sh"
+		    ( cd ~smpro/sm_scripts_cvs/operations/ && ./makeall.sh )
+		    for i in /store/sata*a*v*; do
+			mountByLabel $i
+		    done
+		else
+		    echo -e "\e[33mWARNING: Odd number of mount points: ${#mounts[@]}. Skipping mounts\e[0m"
+		fi
+            ;;
+            4)
+                for i in ${mount[@]}; do
+                    mountByLabel $i
+                done
+            ;;
+            *)
+                echo -e "\e[33mWARNING: Odd number of mount points: ${#mounts[@]}. Skipping mounts\e[0m"
+            ;;
+            esac
 
             if test -x "/sbin/multipath"; then
                 echo "Flushing unused multipath devices"

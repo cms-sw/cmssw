@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.21 2010/01/18 11:11:18 mommsen Exp $
+// $Id: Configuration.cc,v 1.22 2010/01/22 14:20:45 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -171,7 +171,7 @@ namespace stor
     _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
     _diskWriteParamCopy._errorEventsTimeOut = 300.0;
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
-    _diskWriteParamCopy._exactFileSizeTest = false;
+    _diskWriteParamCopy._fileSizeTolerance = 0.1;
     _diskWriteParamCopy._useIndexFiles = true;
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
@@ -273,7 +273,7 @@ namespace stor
     _errorEventsTimeOut = _diskWriteParamCopy._errorEventsTimeOut;
     _fileClosingTestInterval =
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
-    _exactFileSizeTest = _diskWriteParamCopy._exactFileSizeTest;
+    _fileSizeTolerance = _diskWriteParamCopy._fileSizeTolerance;
     _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
 
     utils::getXdataVector(_diskWriteParamCopy._otherDiskPaths, _otherDiskPaths);
@@ -293,7 +293,7 @@ namespace stor
     infoSpace->fireItemAvailable("errorEventsTimeOut", &_errorEventsTimeOut);
     infoSpace->fireItemAvailable("fileClosingTestInterval",
                                  &_fileClosingTestInterval);
-    infoSpace->fireItemAvailable("exactFileSizeTest", &_exactFileSizeTest);
+    infoSpace->fireItemAvailable("fileSizeTolerance", &_fileSizeTolerance);
     infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
 
     // special handling for the stream configuration string (we
@@ -424,7 +424,7 @@ namespace stor
     _diskWriteParamCopy._lumiSectionTimeOut = _lumiSectionTimeOut;
     _diskWriteParamCopy._errorEventsTimeOut = _errorEventsTimeOut;
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
-    _diskWriteParamCopy._exactFileSizeTest = _exactFileSizeTest;
+    _diskWriteParamCopy._fileSizeTolerance = _fileSizeTolerance;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
 
     utils::getStdVector(_otherDiskPaths, _diskWriteParamCopy._otherDiskPaths);

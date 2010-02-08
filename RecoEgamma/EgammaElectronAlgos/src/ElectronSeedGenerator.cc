@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.3 2009/06/17 17:19:42 charlot Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.4 2009/06/30 14:24:40 chamont Exp $
 //
 //
 
@@ -70,7 +70,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
       myMatchEle(0), myMatchPos(0),
       thePropagator(0), theMeasurementTracker(0),
       theSetup(0), pts_(0),
-      cacheIDMagField_(0),cacheIDGeom_(0),cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
+      cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
 {
      // Instantiate the pixel hit matchers
 
@@ -121,18 +121,6 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
     thePropagator = new PropagatorWithMaterial(alongMomentum,.000511,&(*theMagField));
     tochange=true;
   }
-  if (cacheIDGeom_!=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier()) {
-    setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-    cacheIDGeom_=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier();
-  }
-
-  if (cacheIDNavSchool_!=setup.get<NavigationSchoolRecord>().cacheIdentifier()) {
-    edm::ESHandle<NavigationSchool> nav;
-    setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-    cacheIDNavSchool_=setup.get<NavigationSchoolRecord>().cacheIdentifier();
-
-    theNavigationSchool = nav.product();
-  }
 
   if (!fromTrackerSeeds_ && cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
     edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
@@ -142,17 +130,29 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
     tochange=true;
   }
 
-  edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+  //edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   if (cacheIDTrkGeom_!=setup.get<TrackerDigiGeometryRecord>().cacheIdentifier()) {
     cacheIDTrkGeom_=setup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-    setup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    setup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
     tochange=true; //FIXME
   }
 
   if (tochange) {
-    myMatchEle->setES(&(*theMagField),theMeasurementTracker,trackerGeometryHandle.product());
-    myMatchPos->setES(&(*theMagField),theMeasurementTracker,trackerGeometryHandle.product());
+    myMatchEle->setES(&(*theMagField),theMeasurementTracker,theTrackerGeometry.product());
+    myMatchPos->setES(&(*theMagField),theMeasurementTracker,theTrackerGeometry.product());
   }
+
+  if (cacheIDNavSchool_!=setup.get<NavigationSchoolRecord>().cacheIdentifier()) {
+    edm::ESHandle<NavigationSchool> nav;
+    setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+    cacheIDNavSchool_=setup.get<NavigationSchoolRecord>().cacheIdentifier();
+    theNavigationSchool = nav.product();
+  }
+
+//  if (cacheIDGeom_!=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier()) {
+//    setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+//    cacheIDGeom_=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier();
+//  }
 
 }
 

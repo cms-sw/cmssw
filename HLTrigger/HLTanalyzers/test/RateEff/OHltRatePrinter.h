@@ -22,10 +22,7 @@ class OHltRatePrinter {
 
   void SetupAll(vector<float> Rate,vector<float> RateErr,vector<float> spureRate,
 		vector<float> spureRateErr,vector<float> pureRate,
-		vector<float> pureRateErr,vector< vector<float> >coMa,
-		vector< vector<float> > RatePerLS,vector<int> tRunID,vector<int> tLumiSection,
-		vector<float> tTotalRatePerLS);
-  void ReorderRunLS();
+		vector<float> pureRateErr,vector< vector<float> >coMa);
 
   void printRatesASCII(OHltConfig *cfg,OHltMenu *menu);
   void printCorrelationASCII();
@@ -40,12 +37,6 @@ class OHltRatePrinter {
   void writeHistos(OHltConfig *cfg, OHltMenu *menu);
   TString GetFileName(OHltConfig *cfg, OHltMenu *menu);
   void printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu);
-  void printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
-  		, HLTDatasets &hltDatasets
-  		, TString   &fullPathTableName
-  		, const Int_t     significantDigits);
-  int ivecMax(vector<int> ivec);
-  int ivecMin(vector<int> ivec);
 
   vector<float> Rate;
   vector<float> RateErr;
@@ -54,12 +45,7 @@ class OHltRatePrinter {
   vector<float> pureRate;
   vector<float> pureRateErr;
   vector< vector<float> >coMa;
-
-  vector< vector<float> > RatePerLS;
-  vector<float> totalRatePerLS;
-  vector<int> runID;
-  vector<int> lumiSection;
-
+  
 };
 
 #endif

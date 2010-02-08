@@ -10,12 +10,12 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.sumCalib = cms.EDFilter("SumHistoCalibration",
 	
-	 xmlfiles2d = cms.vstring("RecoBTag/ImpactParameterLearning/test/50_80/2d.xml", "RecoBTag/ImpactParameterLearning/test/80_120/2d.xml", "RecoBTag/ImpactParameterLearning/test/120_170/2d.xml", "RecoBTag/ImpactParameterLearning/test/170_230/2d.xml"),
-	 xmlfiles3d = cms.vstring("RecoBTag/ImpactParameterLearning/test/50_80/3d.xml", "RecoBTag/ImpactParameterLearning/test/80_120/3d.xml", "RecoBTag/ImpactParameterLearning/test/120_170/3d.xml", "RecoBTag/ImpactParameterLearning/test/170_230/3d.xml"),
+	 xmlfiles2d = cms.vstring("RecoBTag/ImpactParameterLearning/test/2d.xml.new","RecoBTag/ImpactParameterLearning/test/2d.xml.new"),
+	 xmlfiles3d = cms.vstring("RecoBTag/ImpactParameterLearning/test/3d.xml.new","RecoBTag/ImpactParameterLearning/test/3d.xml.new"),
 	 sum2D = cms.bool(True),
 	 sum3D = cms.bool(True),
-         writeToDB       = cms.bool(True),
-         writeToRootXML  = cms.bool(False),
+         writeToDB       = cms.bool(False),
+         writeToRootXML  = cms.bool(True),
          writeToBinary   = cms.bool(False)
 )
 

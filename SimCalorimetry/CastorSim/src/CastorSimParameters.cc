@@ -83,7 +83,7 @@ double CastorSimParameters::fCtoGeV(const DetId & detId) const
   double result = gains->getValue(0);
 //  if(doNoise_)
 ///  {
-//    result += CLHEP::RandGaussQ::shoot(0.,  gwidths->getValue(0));
+//    result += RandGaussQ::shoot(0.,  gwidths->getValue(0));
 //  }
   return result;
 }

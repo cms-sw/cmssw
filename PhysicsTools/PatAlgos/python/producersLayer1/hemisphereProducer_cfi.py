@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patHemispheres = cms.EDProducer("PATHemisphereProducer",
+cleanLayer1Hemispheres = cms.EDProducer("PATHemisphereProducer",
     patElectrons = cms.InputTag("cleanLayer1Electrons"),
     patJets      = cms.InputTag("cleanLayer1Jets"),
     patMuons     = cms.InputTag("cleanLayer1Muons"),

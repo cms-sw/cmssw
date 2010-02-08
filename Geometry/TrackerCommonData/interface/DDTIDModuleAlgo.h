@@ -19,7 +19,7 @@ class DDTIDModuleAlgo : public DDAlgorithm {
                   const DDStringArguments & sArgs,
                   const DDStringVectorArguments & vsArgs);
 
-  void execute(DDCompactView& cpv);
+  void execute();
 
 private:
 

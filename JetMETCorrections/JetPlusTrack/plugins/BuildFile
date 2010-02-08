@@ -1,4 +1,4 @@
-<library name=JetMETCorrectionsJetPlusTrackPlugins file=JetPlusTrackAnalysis.cc,JetPlusTrackCollisionAnalysis.cc,JetCollisionFilter.cc,JPTAnalyzer.cc,JPTBjetAnalyzer.cc,SinglePionEfficiencyNew.cc,JPTTrackProducer.cc,JPTAnalyzer_Data.cc>
+<library name=JetMETCorrectionsJetPlusTrackPlugins file=JetPlusTrackAnalysis.cc,JPTAnalyzer.cc,JPTBjetAnalyzer.cc,SinglePionEfficiencyNew.cc>
   <use name=DataFormats/CaloTowers>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
@@ -26,7 +26,6 @@
   <use name=Geometry/CommonDetUnit>
   <use name=Geometry/Records>
   <use name=Geometry/TrackerGeometryBuilder>
-  <use name=JetMETCorrections/Algorithms>
   <use name=JetMETCorrections/Objects>
   <use name=MagneticField/Records>
   <use name=RecoLocalTracker/SiPixelRecHits>
@@ -43,6 +42,7 @@
   <use name=root>
   <flags EDM_PLUGIN=1>
 </library>
+
 <library name=jpt_JetMETCorrectionsJetPlusTrackPlugins file=modules.cc>
   <use name=DataFormats/PatCandidates>
   <use name=FWCore/Framework>

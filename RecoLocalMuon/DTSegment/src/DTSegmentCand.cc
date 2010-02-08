@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/11/27 11:59:48 $
- * $Revision: 1.15 $
+ * $Date: 2008/12/03 12:52:22 $
+ * $Revision: 1.14 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -107,33 +107,8 @@ DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
   return result;
 }
 
-bool DTSegmentCand::good() const
-{
-  if(chi2()/NDOF() > chi2max || nHits() < nHitsMin) return false;
-
-  if(nHits() == nHitsMin && hitsShareLayer()) return false ;
-
-  return true;
-}
-
-bool DTSegmentCand::hitsShareLayer() const
-{
-  std::vector<int> layerN;
-
-  for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
-      assHit!=theHits.end(); ++assHit) {
-    layerN.push_back((*assHit).first->id().layerId().layer());
-
-    //std::cout << (*assHit).first->id().layerId().layer() << std::endl;
-  }
-
-  for(int i=0;i<(int)layerN.size();i++){
-    for(int j=i+1;j<(int)layerN.size();j++){
-      if(layerN[i] == layerN[j]) return true;
-    }
-  }
-
-  return false;
+bool DTSegmentCand::good() const {
+  return nHits()>=nHitsMin && chi2()/NDOF() < chi2max ;
 }
 
 int DTSegmentCand::nLayers() const {

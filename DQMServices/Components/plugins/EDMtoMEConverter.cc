@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2009/10/29 11:42:24 $
- *  $Revision: 1.26.4.2 $
+ *  $Date: 2010/01/29 12:01:17 $
+ *  $Revision: 1.28 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -125,10 +125,11 @@ void EDMtoMEConverter::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, c
 void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
   if (convertOnEndLumi) {
-    const edm::Run& iRun = iLumi.getRun();
-    getData(iRun, false);
-    //to be migrated once sub-systems are ready
-    //getData(iLumi, false);
+    // old version, run products extraction
+    //const edm::Run& iRun = iLumi.getRun();
+    //getData(iRun, false);
+    // new version, luminosity products extraction
+    getData(iLumi, false);
   }
 }
 

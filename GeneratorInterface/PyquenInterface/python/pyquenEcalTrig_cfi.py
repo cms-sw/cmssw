@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from GeneratorInterface.PyquenInterface.pyquenPythiaDefault_cff import *
-from GeneratorInterface.HiGenCommon.ecalTrigSettings_cff import *
+from GeneratorInterface.PyquenInterface.ecalTrigSettings_cff import *
 
 generator = cms.EDFilter("PyquenGeneratorFilter",
                          ecalTrigPt100,                         

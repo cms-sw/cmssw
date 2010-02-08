@@ -38,7 +38,7 @@ RPCChamberQuality::~RPCChamberQuality(){
   dbe_=0;
 }
 
-void RPCChamberQuality::beginJob(const EventSetup& iSetup){
+void RPCChamberQuality::beginJob(){
   LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin job ";
   dbe_ = Service<DQMStore>().operator->();
 }
@@ -51,7 +51,7 @@ void RPCChamberQuality::beginJob(const EventSetup& iSetup){
 
 
 
-void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
+void RPCChamberQuality::beginRun(const Run& r, const EventSetup& iSetup){
   LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin run";
   
   init_ = false;  
@@ -209,7 +209,8 @@ void RPCChamberQuality::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
 void RPCChamberQuality::analyze(const Event& iEvent, const EventSetup& c) {}
 
-void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
+ void RPCChamberQuality::endRun(const edm::Run& r, const edm::EventSetup& iSetup)  {   
+
   LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End of LS transition, performing DQM client operation";
 
    MonitorElement * RpcEvents = NULL;
@@ -223,15 +224,8 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
    if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
 
 
-   if(!init_ && rpcEvents < minEvents) return;
-   else if(!init_) {
-     init_=true;
-     numLumBlock_ = prescaleFactor_;
-   }else numLumBlock_++;
-   
-  
-  //check some statements and prescale Factor
-  if(numLumBlock_%prescaleFactor_ == 0) {
+   if(rpcEvents < minEvents) return;
+
     
     ESHandle<RPCGeometry> rpcGeo;
     iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -502,7 +496,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     mme<<"RPC/RecHits/SummaryHistograms/RPC_System_Quality_Overview"; 
     rpcperc = dbe_->get(mme.str());
     
-    float totperc=0;
+    //    float totperc=0;
     int b_ch = 0;
     int ep_ch = 0;
     int en_ch =0;
@@ -527,8 +521,11 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     }
     
     
-  } //loop by LimiBloks
+
 }
+
+void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {    }
+
 
 
 

@@ -39,7 +39,7 @@ SiStripFEDRawDataAnalyzer::~SiStripFEDRawDataAnalyzer()
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripFEDRawDataAnalyzer::beginJob( const edm::EventSetup& ) 
+void SiStripFEDRawDataAnalyzer::beginJob() 
 {
   LogDebug("SiStripFEDRawDataAnalyzer")
     << "[SiStripFEDRawDataAnalyzer::"

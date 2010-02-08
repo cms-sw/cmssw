@@ -266,7 +266,7 @@ ErrorLog & ErrorLog::operator<<( void (* f)(ErrorLog &) )  {
 }  // operator<<()
 
 
-ErrorLog & ErrorLog::emit( const ELstring & s )  {
+ErrorLog & ErrorLog::emitToken( const ELstring & s )  {
 
   #ifdef ErrorLogEMIT_TRACE
     std::cout << " =:=:=: ErrorLog emit trace:  string is: " << s << "\n";
@@ -275,15 +275,15 @@ ErrorLog & ErrorLog::emit( const ELstring & s )  {
   if ( ! a->msgIsActive )
     (*this) ( ELunspecified, "..." );
 
-  a->msg.emit( s );
+  a->msg.emitToken( s );
 
   #ifdef ErrorLogEMIT_TRACE
-    std::cout << " =:=:=: ErrorLog emit trace:  return from a->msg.emit()\n";
+    std::cout << " =:=:=: ErrorLog emit trace:  return from a->msg.emitToken()\n";
   #endif
 
   return  *this;
 
-}  // emit()
+}  // emitToken()
 
 
 ErrorLog & ErrorLog::endmsg()  {
@@ -372,7 +372,7 @@ ErrorLog & operator<<( ErrorLog & e, int n)  {
   } else {
     if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return e.emit( ost.str() );
+  return e.emitToken( ost.str() );
 }
 
 ErrorLog & operator<<( ErrorLog & e, unsigned int n)  {
@@ -387,7 +387,7 @@ ErrorLog & operator<<( ErrorLog & e, unsigned int n)  {
   } else {
     if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return e.emit( ost.str() );
+  return e.emitToken( ost.str() );
 }
 
 ErrorLog & operator<<( ErrorLog & e, long n)  {
@@ -404,7 +404,7 @@ ErrorLog & operator<<( ErrorLog & e, long n)  {
   } else {
     if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return  e.emit( ost.str() );
+  return  e.emitToken( ost.str() );
 }
 
 ErrorLog & operator<<( ErrorLog & e, unsigned long n)  {
@@ -421,7 +421,7 @@ ErrorLog & operator<<( ErrorLog & e, unsigned long n)  {
   } else {
     if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return  e.emit( ost.str() );
+  return  e.emitToken( ost.str() );
 }
 
 ErrorLog & operator<<( ErrorLog & e, short n)  {
@@ -436,7 +436,7 @@ ErrorLog & operator<<( ErrorLog & e, short n)  {
   } else {
     if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return  e.emit( ost.str() );
+  return  e.emitToken( ost.str() );
 }
 
 ErrorLog & operator<<( ErrorLog & e, unsigned short n)  {
@@ -450,7 +450,7 @@ ErrorLog & operator<<( ErrorLog & e, unsigned short n)  {
   } else {
     if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return  e.emit( ost.str() );
+  return  e.emitToken( ost.str() );
 }
 
 
@@ -465,7 +465,7 @@ ErrorLog & operator<<( ErrorLog & e, const char s[] ) {
   if (e.discarding) return e;
   std::ostringstream  ost;
   ost << s << ' ';
-  return  e.emit( ost.str() );
+  return  e.emitToken( ost.str() );
 }
 
 

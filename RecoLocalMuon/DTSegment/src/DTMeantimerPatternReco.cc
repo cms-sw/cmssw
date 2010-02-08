@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/04/04 15:23:01 $
- * $Revision: 1.5 $
+ * $Date: 2008/03/10 11:18:20 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author Piotr Traczyk - SINS Warsaw <ptraczyk@fuw.edu.pl>
@@ -107,11 +107,11 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
   typedef vector<DTHitPairForFit*> hitCont;
   typedef hitCont::const_iterator  hitIter;
   vector<DTSegmentCand*> result;
-  DTEnums::DTCellSide codes[2]={DTEnums::Left, DTEnums::Right};
+  DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
 
   if(debug) {
     cout << "buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
-    for (hitIter hit=hits.begin(); hit!=hits.end(); ++hit) cout << **hit<< " wire: " << (*hit)->id() << " DigiTime: " << (*hit)->digiTime() << endl;
+    for (hitIter hit=hits.begin(); hit!=hits.end(); ++hit) cout << **hit<< " wire: " << (*hit)->id() << endl;
   }
 
   // 10-Mar-2004 SL
@@ -167,8 +167,8 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
 	  
 	  if(debug) {
               cout << "Selected hit pair:" << endl;
-              cout << "  First " << *(*firstHit) << " Layer Id: " << (*firstHit)->id().layerId() << " Side: " << firstLR << " DigiTime: " << (*firstHit)->digiTime() << endl;
-              cout << "  Last "  << *(*lastHit)  << " Layer Id: " << (*lastHit)->id().layerId()  << " Side: " << lastLR << " DigiTime: " << (*lastHit)->digiTime() <<  endl;
+              cout << "  First " << *(*firstHit) << " Layer Id: " << (*firstHit)->id().layerId() << " Side: " << firstLR << endl;
+              cout << "  Last "  << *(*lastHit)  << " Layer Id: " << (*lastHit)->id().layerId()  << " Side: " << lastLR << endl;
           }
         
           vector<AssPoint> assHits;
@@ -211,15 +211,16 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
   double chi2l,chi2r,t0_corrl,t0_corrr;
   bool foundSomething = false;
 
-  if (debug) 
-    cout << "DTMeantimerPatternReco::addHit " << endl << "   Picked " << assHits.size() << " hits, " << hits.size() << " left." << endl;
+//  if (debug) { 
+//    cout << "DTMeantimerPatternReco::addHit " << endl << "   Picked " << assHits.size() << " hits, " << hits.size() << " left." << endl;
+//  }
   
   if (assHits.size()+hits.size()<maxfound) return;
           
   // loop over the remaining hits
   for (hitCont::const_iterator hit=hits.begin(); hit!=hits.end(); ++hit) {
     if (debug)
-      cout << "     Trying B: " << **hit<< " wire: " << (*hit)->id() << endl;
+      cout << "          Trying B: " << **hit<< " wire: " << (*hit)->id() << endl;
             
     assHits.push_back(AssPoint(*hit, DTEnums::Left));
     bool left_ok=fitWithT0(assHits, chi2l, t0_corrl,0);
@@ -231,8 +232,8 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
 
     if (debug) {
       int nHits=assHits.size()+1;
-      cout << "         Left:  t0_corr = " << t0_corrl << "ns  chi2/nHits = " << chi2l << "/" << nHits << "  ok: " << left_ok << endl;
-      cout << "        Right:  t0_corr = " << t0_corrr << "ns  chi2/nHits = " << chi2r << "/" << nHits << "  ok: " << right_ok << endl;
+      cout << "      Left:  t0_corr = " << t0_corrl << "ns  chi2/nHits = " << chi2l << "/" << nHits << " " << left_ok << endl;
+      cout << "     Right:  t0_corr = " << t0_corrr << "ns  chi2/nHits = " << chi2r << "/" << nHits << " " << right_ok << endl;
     }
 
     if (!left_ok && !right_ok) continue;
@@ -247,7 +248,7 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
     reverse(hitsForFit.begin(),hitsForFit.end());
 
     // choose only one - left or right
-    if (assHits.size()>3 && left_ok && right_ok) {
+    if (left_ok && right_ok) {
       if (chi2l<chi2r-0.1) right_ok=false; else
         if (chi2r<chi2l-0.1) left_ok=false;
     }
@@ -413,8 +414,7 @@ DTMeantimerPatternReco::fitWithT0(const vector<AssPoint> &assHits, double &chi2,
   // For 3-hit segments ignore timing information
   if (assHits.size()<4) {
     chi2=chi2_not0;
-//    if (chi2<theMaxChi2) return true;
-    if (chi2<200.) return true;
+    if (chi2/(assHits.size()-2)<theMaxChi2) return true;
       else return false;
   }
 
