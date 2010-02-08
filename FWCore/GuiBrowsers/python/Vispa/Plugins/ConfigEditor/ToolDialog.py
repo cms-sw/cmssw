@@ -5,7 +5,7 @@ import imp
 import inspect
 
 from PyQt4.QtCore import QCoreApplication,Qt,SIGNAL
-from PyQt4.QtGui import QDialog,QListWidget,QVBoxLayout,QHBoxLayout,QToolButton,QPushButton,QSplitter,QFileDialog
+from PyQt4.QtGui import QDialog,QListWidget,QVBoxLayout,QHBoxLayout,QToolButton,QPushButton,QSplitter,QFileDialog,QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Views.PropertyView import PropertyView
@@ -41,6 +41,9 @@ class ToolDialog(QDialog):
         changedir=QPushButton("&Change tools directory...")
         bottom.addWidget(changedir)
         self.connect(changedir, SIGNAL('clicked()'), self.changedir)
+        help=QPushButton("&Help")
+        bottom.addWidget(help)
+        self.connect(help, SIGNAL('clicked()'), self.help)
         bottom.addStretch()
         cancel = QPushButton('&Cancel')
         bottom.addWidget(cancel)
@@ -122,3 +125,6 @@ class ToolDialog(QDialog):
         if not filename.isEmpty():
             self._toolsDir=str(filename)
             self.updateToolList()
+
+    def help(self):
+        QMessageBox.about(self, 'Info', "This dialog let's you choose and configure a tool.\n 1. Select a tool on the left\n 2. Set the parameters on the right. If you hold the mouse over a parameter name a tooltip with a description of the parameter will show up.\n 3. Apply the tool. In case the tool has wrong parameters set an error message will be displayed.")
