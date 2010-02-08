@@ -153,6 +153,12 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<float> >( alias = zName + "Dau2Phi" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Iso" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Iso" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau1TrkIso" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau2TrkIso" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau1EcalIso" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau2EcalIso" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau1HcalIso" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau2HcalIso" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "VtxNormChi2" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1NofHit" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2NofHit" ).setBranchAlias( alias );
@@ -216,6 +222,12 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<float> > zDau2Phi( new vector<float> );
     auto_ptr<vector<float> > zDau1Iso( new vector<float> );
     auto_ptr<vector<float> > zDau2Iso( new vector<float> );
+    auto_ptr<vector<float> > zDau1TrkIso( new vector<float> );
+    auto_ptr<vector<float> > zDau2TrkIso( new vector<float> );
+    auto_ptr<vector<float> > zDau1EcalIso( new vector<float> );
+    auto_ptr<vector<float> > zDau2EcalIso( new vector<float> );
+    auto_ptr<vector<float> > zDau1HcalIso( new vector<float> );
+    auto_ptr<vector<float> > zDau2HcalIso( new vector<float> );
     auto_ptr<vector<float> > vtxNormChi2( new vector<float> );
     auto_ptr<vector<float> > zDau1NofHit( new vector<float> );
     auto_ptr<vector<float> > zDau2NofHit( new vector<float> );
@@ -259,14 +271,30 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       throw edm::Exception(edm::errors::InvalidReference) 
 	<< "Candidate daughters have no master clone\n"; 
        const Candidate * m1 = &*dau1->masterClone(), * m2 = &*dau2->masterClone();
-
+       // isolation as defined by us into the analyzer
        double iso1 = candIsolation(m1,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  alpha_[c], beta_[c], relativeIsolation_[c]);
     double iso2 = candIsolation(m2,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  alpha_[c], beta_[c], relativeIsolation_[c] );
+    // tracker isolation : alpha =0
+       double trkIso1 = candIsolation(m1,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c], 0.0, beta_[c], relativeIsolation_[c]);
+    double trkIso2 = candIsolation(m2,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  0.0, beta_[c], relativeIsolation_[c] );
+    // ecal isolation : alpha =1, beta =1
+       double ecalIso1 = candIsolation(m1,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c], 1.0, 1.0, relativeIsolation_[c]);
+    double ecalIso2 = candIsolation(m2,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  1.0, 1.0, relativeIsolation_[c] );
+    // hcal isolation : alpha =1, beta =-1
+       double hcalIso1 = candIsolation(m1,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c], 1.0, -1.0, relativeIsolation_[c]);
+    double hcalIso2 = candIsolation(m2,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  1.0, -1.0, relativeIsolation_[c] );
 
-      // double iso1 = (*isolations1)[ dau1->masterClone().castTo<CandidateRef>() ];
-      //double iso2 = (*isolations2)[ dau2->masterClone().castTo<CandidateRef>() ];
       zDau1Iso->push_back( iso1 );
       zDau2Iso->push_back( iso2 );
+      zDau1TrkIso->push_back( trkIso1 );
+      zDau2TrkIso->push_back( trkIso2 );
+      zDau1EcalIso->push_back( ecalIso1 );
+      zDau2EcalIso->push_back( ecalIso2 );
+      zDau1HcalIso->push_back( hcalIso1 );
+      zDau2HcalIso->push_back( hcalIso2 );
+
+
+
       if (isMCMatchTrue){
 	 GenParticleRef trueZRef  = (*zGenParticlesMatch)[zRef];	
 	 //CandidateRef trueZRef = trueZIter->val;
@@ -340,6 +368,12 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     evt.put( zDau2Phi, zName + "Dau2Phi" );
     evt.put( zDau1Iso, zName + "Dau1Iso" );
     evt.put( zDau2Iso, zName + "Dau2Iso" );
+    evt.put( zDau1TrkIso, zName + "Dau1TrkIso" );
+    evt.put( zDau2TrkIso, zName + "Dau2TrkIso" );
+    evt.put( zDau1EcalIso, zName + "Dau1EcalIso" );
+    evt.put( zDau2EcalIso, zName + "Dau2EcalIso" );
+    evt.put( zDau1HcalIso, zName + "Dau1HcalIso" );
+    evt.put( zDau2HcalIso, zName + "Dau2HcalIso" );
     evt.put( vtxNormChi2, zName + "VtxNormChi2" );
     evt.put( zDau1NofHit, zName + "Dau1NofHit" );
     evt.put( zDau2NofHit, zName + "Dau2NofHit" );
