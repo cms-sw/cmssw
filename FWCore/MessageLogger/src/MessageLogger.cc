@@ -44,15 +44,15 @@ void LogStatistics() {
 }
 
 bool isDebugEnabled() {
-  return ( edm::MessageDrop::instance()->debugEnabled );
+  return ( edm::MessageDrop::debugEnabled );
 }
 
 bool isInfoEnabled() {
-  return( edm::MessageDrop::instance()->infoEnabled );
+  return( edm::MessageDrop::infoEnabled );
 }
 
 bool isWarningEnabled() {
-  return( edm::MessageDrop::instance()->warningEnabled );
+  return( edm::MessageDrop::warningEnabled );
 }
 
 void HaltMessageLogging() {

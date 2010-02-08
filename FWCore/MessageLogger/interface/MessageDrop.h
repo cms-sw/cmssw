@@ -18,7 +18,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.10 2007/06/20 16:04:33 fischler Exp $
+// $Id: MessageDrop.h,v 1.11 2008/06/20 20:55:46 fischler Exp $
 //
 
 // Framework include files
@@ -48,6 +48,10 @@
 //
 //  7  mf 6/20/08	MessageLoggerScribeIsRunning to let the scribe convey
 //			that it is active.
+//
+//  8  cdj 2/08/10      Make debugEnabled, infoEnabled, warningEnabled statics
+//                      to avoid overhead of thread specific singleton access
+//                      when deciding to keep or throw away messages
 
 // user include files
 
@@ -60,9 +64,6 @@ private:
   , runEvent("pre-events")
   , jobreport_name()					// change log 5
   , jobMode("")						// change log 6
-  , debugEnabled(true) 					// change log 1
-  , infoEnabled(true) 					// change log 3
-  , warningEnabled(true)				// change log 3
   {  } 
 public:
   static MessageDrop * instance ();
@@ -70,9 +71,9 @@ public:
   std::string runEvent;
   std::string jobreport_name;				// change log 5
   std::string jobMode;					// change log 6
-  bool debugEnabled;
-  bool infoEnabled;
-  bool warningEnabled;
+  static bool debugEnabled;                             // change log 8
+  static bool infoEnabled;                              // change log 8
+  static bool warningEnabled;                           // change log 8
   static unsigned char messageLoggerScribeIsRunning;	// change log 7
   static edm::Exception * ex_p;				// change log 4
 };

@@ -450,11 +450,11 @@ public:
 #define LogTrace(id) edm::Suppress_LogDebug_()
 #else
 #define LogDebug(id)                                 \
-  ( !edm::MessageDrop::instance()->debugEnabled )    \
+  ( !edm::MessageDrop::debugEnabled )                \
     ?  edm::LogDebug_()                              \
     :  edm::LogDebug_(id, __FILE__, __LINE__)
 #define LogTrace(id)                                 \
-  ( !edm::MessageDrop::instance()->debugEnabled )    \
+  ( !edm::MessageDrop::debugEnabled )                \
     ?  edm::LogTrace_()                              \
     :  edm::LogTrace_(id)
 #endif

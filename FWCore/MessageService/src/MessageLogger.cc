@@ -155,10 +155,10 @@ MessageLogger( ParameterSet const & iPS
   // (and info-enabled and warning-enabled)
   if ( debugModules.empty()) {
     anyDebugEnabled_ = false;					// change log 11
-    MessageDrop::instance()->debugEnabled = false;		// change log 1
+    MessageDrop::debugEnabled = false;		// change log 1
   } else {
     anyDebugEnabled_ = true;					// change log 11
-    MessageDrop::instance()->debugEnabled = false;
+    MessageDrop::debugEnabled = false;
     // this will be over-ridden when specific modules are entered
   }
 
