@@ -52,8 +52,8 @@ JacobianCurvilinearToLocal(const Surface& surface,
 
   double sinz =-un.dot(h.unit());
   double cosz = vn.dot(h.unit());
-  double ui = un.dot(di)*q*tr3;
-  double vi = vn.dot(di)*q*tr3;
+  double ui = un.dot(di)*q*t3r;
+  double vi = vn.dot(di)*q*t3r;
   theJacobian(1,3) =-ui*(vk*cosz-uk*sinz);
   theJacobian(1,4) =-vi*(vk*cosz-uk*sinz);
   theJacobian(2,3) = ui*(vj*cosz-uj*sinz);
