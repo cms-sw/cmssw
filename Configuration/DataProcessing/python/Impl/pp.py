@@ -16,7 +16,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-
+from Configuration.GlobalRuns.reco_TLR import reco_TLR
 
 class pp(Scenario):
     """
@@ -68,6 +68,9 @@ class pp(Scenario):
         for tier in writeTiers: 
           addOutputModule(process, tier, "RECO")        
 
+        #add the former top level patches here
+        reco_TLR(process)
+        
         return process
 
     def expressProcessing(self, globalTag,  writeTiers = [],
@@ -110,6 +113,9 @@ class pp(Scenario):
         # // TODO: Install Alca output
         #//
         
+        #add the former top level patches here
+        reco_TLR(process)
+
         return process
     
 
