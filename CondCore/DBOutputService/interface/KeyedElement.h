@@ -2,7 +2,7 @@
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include "CondFormats/Common/interface/GenericSummary.h"
 #include "CondFormats/Common/interface/hash64.h"
-#inlcude <sstream>
+#include <sstream>
 
 namespace cond{
 
