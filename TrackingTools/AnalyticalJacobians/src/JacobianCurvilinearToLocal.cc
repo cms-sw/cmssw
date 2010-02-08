@@ -14,8 +14,8 @@ JacobianCurvilinearToLocal(const Surface& surface,
   GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
 
 
-  GlobalVector tn = surface.toGlobal(localParameters.momentum()).unit();
-  LocalVector tnl = surface.toLocal(tn);
+  LocalVector tnl = localParameters.momentum().unit();
+  GlobalVector tn = surface.toGlobal(tnl);
 
   // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
   // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
