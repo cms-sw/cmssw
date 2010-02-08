@@ -14,9 +14,12 @@ import FWCore.ParameterSet.Config as cms
 # Common to all TrajectoryFactories
 #
 ###############################################################
+__muonMass = cms.double(0.10565836)
+
 TrajectoryFactoryBase = cms.PSet(
     PropagationDirection = cms.string('alongMomentum'), ## or "oppositeToMomentum" or "anyDirection"
     MaterialEffects = cms.string('Combined'), ## or "MultipleScattering" or "EnergyLoss" or "None"
+                                              ## (see others at 'BrokenLinesTrajectoryFactory')
     UseProjectedHits = cms.bool(True), ## if false, projected hits are skipped
     UseInvalidHits = cms.bool(False), ## if false, invalid hits are skipped
     UseHitWithoutDet = cms.bool(True) ## if false, RecHits that are not attached to GeomDets are skipped
@@ -29,7 +32,7 @@ TrajectoryFactoryBase = cms.PSet(
 ###############################################################
 ReferenceTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase,
-    ParticleMass = cms.double(0.10565836),
+    ParticleMass = __muonMass,
     TrajectoryFactoryName = cms.string('ReferenceTrajectoryFactory')
 )
 
@@ -40,9 +43,9 @@ ReferenceTrajectoryFactory = cms.PSet(
 ###############################################################
 BzeroReferenceTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase,
-    ParticleMass = cms.double(0.10565836),
+    ParticleMass = __muonMass,
     TrajectoryFactoryName = cms.string('BzeroReferenceTrajectoryFactory'),
-    MomentumEstimate = cms.double(2.0)
+    MomentumEstimate = cms.double(5.0)
 )
 
 ###############################################################
@@ -52,7 +55,7 @@ BzeroReferenceTrajectoryFactory = cms.PSet(
 ###############################################################
 DualTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase,
-    ParticleMass = cms.double(0.10565836),
+    ParticleMass = __muonMass,
     TrajectoryFactoryName = cms.string('DualTrajectoryFactory')
 )
 
@@ -63,7 +66,7 @@ DualTrajectoryFactory = cms.PSet(
 ###############################################################
 DualBzeroTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase,
-    ParticleMass = cms.double(0.10565836),
+    ParticleMass = __muonMass,
     TrajectoryFactoryName = cms.string('DualBzeroTrajectoryFactory'),
     MomentumEstimate = cms.double(2.0)
 )
@@ -233,8 +236,31 @@ CombinedFwdBwdDualTrajectoryFactory = cms.PSet(
 ###############################################################
 DualKalmanFactory = cms.PSet(
     TrajectoryFactoryBase,
-    ParticleMass = cms.double(0.10565836),
+    ParticleMass = __muonMass,
     TrajectoryFactoryName = cms.string('DualKalmanFactory'),
     ResidualMethod = cms.int32(0) # 0: hitErrors only, 1: unbiased residuals, 2: pulls
 )
 
+###############################################################
+#
+# ReferenceTrajectoryFactory with BrokenLines
+#
+###############################################################
+BrokenLinesTrajectoryFactory = ReferenceTrajectoryFactory.clone(
+    MaterialEffects = 'BrokenLinesCoarse', # same as "BrokenLines"
+              # others are "BrokenLinesCoarsePca" == "BrokenLinesPca",
+              #            "BrokenLinesFine", "BrokenLinesFinePca"
+              #             or even "BreakPoints"
+    UseInvalidHits = True # to account for multiple scattering in these layers
+    )
+
+
+###############################################################
+#
+# BzeroReferenceTrajectoryFactory with BrokenLines
+#
+###############################################################
+BrokenLinesBzeroTrajectoryFactory = BzeroReferenceTrajectoryFactory.clone(
+    MaterialEffects = 'BrokenLinesCoarse', # see BrokenLinesTrajectoryFactory
+    UseInvalidHits = True # to account for multiple scattering in these layers
+    )
