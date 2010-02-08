@@ -106,7 +106,7 @@ class ConfigToolBase(object) :
         dumpPython=''
         if self._comment!="":
             dumpPython = '#'+self._comment
-        dumpPython = "\n"+self._label+"(process "
+        dumpPython += "\n"+self._label+"(process "
         for key in self._parameters.keys():
             dumpPython+= ", "
             if self._parameters[key].type is type(str):
