@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.58 $
- *  $Date: 2009/11/30 10:12:34 $
- *  (last update by $Author: ckleinw $)
+ *  $Revision: 1.59 $
+ *  $Date: 2009/12/15 17:59:40 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -219,7 +219,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
     }
   }
 
-  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks));
+  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks, eventInfo.beamSpot_));
 
   // Now loop over ReferenceTrajectoryCollection
   unsigned int refTrajCount = 0; // counter for track monitoring if 1 track per trajectory
@@ -424,7 +424,7 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
   // FIXME: Check whether this is a reliable and recommended way to find out...
 
   if (recHit->dimension() < 2) {
-    return false; // some muon stuff really has RecHit1D
+    return false; // some muon and TIB/TOB stuff really has RecHit1D
   } else if (recHit->detUnit()) { // detunit in strip is 1D, in pixel 2D 
     return recHit->detUnit()->type().isTrackerPixel();
   } else { // stereo strips  (FIXME: endcap trouble due to non-parallel strips (wedge sensors)?)
